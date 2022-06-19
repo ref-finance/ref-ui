@@ -30,7 +30,11 @@ import {
   multiply,
 } from '../../utils/numbers';
 import { BorderGradientButton } from '../button/Button';
-import { ModalWrapper, CalenderIcon } from '../../pages/ReferendumPage';
+import {
+  ModalWrapper,
+  CalenderIcon,
+  RewardCard,
+} from '../../pages/ReferendumPage';
 import Modal from 'react-modal';
 import { Images, Symbols } from '../stableswap/CommonComp';
 import {
@@ -71,7 +75,11 @@ import {
   VoteDetail,
   addBonus,
 } from '../../services/referendum';
-import { useAccountInfo, useVEconfig } from '../../state/referendum';
+import {
+  useAccountInfo,
+  useVEconfig,
+  useUnClaimedRewardsVE,
+} from '../../state/referendum';
 import SelectToken from '../forms/SelectToken';
 import { IconLeft } from '../tokens/Icon';
 import { REF_META_DATA, ftGetBalance } from '../../services/ft-contract';
@@ -97,6 +105,7 @@ import DatePicker from 'react-datepicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import { getCurrentUnixTime } from '../../services/api';
+import { useParams } from 'react-router-dom';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -195,8 +204,6 @@ export const CustomDatePicker = ({
         const h1 = minDate.getHours();
 
         const m1 = minDate.getMinutes();
-
-        console.log(h1, 'h1');
 
         return new Date(
           getCurUTCDate().setHours(
@@ -405,7 +412,7 @@ const AddBonusPopUp = (
   const balance = useDepositableBalance(selectToken.id || REF_TOKEN_ID);
 
   const [value, setValue] = useState<string>('');
-  const list = ['by voter number equally', 'by vote power equally'];
+  const list = ['by voter number equally', 'by voting power equally'];
 
   const [curOption, setCurOption] = useState<string>(
     curIncentive?.incentive_type === 'Evenly' || !curIncentive?.incentive_type
@@ -443,7 +450,7 @@ const AddBonusPopUp = (
               ) : null}
             </div>
           }
-          onSelect={curIncentiveToken ? null : setSelectToken}
+          onSelect={curIncentive ? null : setSelectToken}
           balances={balances}
         />
 
@@ -498,12 +505,15 @@ const AddBonusPopUp = (
           !value ||
           !selectToken ||
           new Big(value).gt(
-            toReadableNumber(
-              selectToken.decimals,
-
-              selectToken.id === WRAP_NEAR_CONTRACT_ID ? nearBalance : balance
+            getMax(
+              selectToken.id,
+              toReadableNumber(
+                selectToken.decimals,
+                selectToken.id === WRAP_NEAR_CONTRACT_ID ? nearBalance : balance
+              )
             )
-          )
+          ) ||
+          ONLY_ZEROS.test(value)
         }
         onClick={() => {
           addBonus({
@@ -547,7 +557,7 @@ const VoteChart = ({
   const data = ratios.map((r, i) => {
     return {
       name: options[i],
-      value: Math.round(Number(r) * 10) / 10,
+      value: Math.round(Number(r) * 100) / 100,
     };
   });
 
@@ -586,13 +596,13 @@ const VoteChart = ({
           >
             <div className="flex items-center justify-between pb-1.5">
               <div
-                className="w-2.5 h-2.5 rounded-sm mr-1 flex-shrink-0"
+                className="w-2.5 h-2.5 rounded-sm mr-1 flex-shrink-0 "
                 style={{
                   backgroundColor: OPTIONS_COLORS[activeIndex] || 'black',
                 }}
               ></div>
 
-              <div>{name}</div>
+              <div className="text-right">{name}</div>
             </div>
             <div className="self-end">{value}%</div>
           </div>
@@ -897,7 +907,7 @@ export const PreviewPopUp = (
             <NoResultChart expand="1.25" />
           </div>
 
-          <div className="w-4/5 text-primaryText flex flex-col ml-20 pb-6 ">
+          <div className="w-4/5 text-primaryText flex flex-col ml-16 pb-6 ">
             <div className="grid grid-cols-10 pb-5 px-6">
               <span className="col-span-6 ">
                 <FormattedMessage id="options" defaultMessage={'Options'} />
@@ -911,7 +921,7 @@ export const PreviewPopUp = (
             <div className="flex flex-col w-full text-white">
               {data?.map((d, i) => {
                 return (
-                  <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-9 py-4">
+                  <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 py-4">
                     <span className="col-span-6 flex items-center">
                       <div
                         className="w-2.5 h-2.5 rounded-sm"
@@ -946,7 +956,7 @@ export const PreviewPopUp = (
           onClick={() => {
             createProposal({
               description: {
-                title: `#${index} ${contentTitle}`,
+                title: `${contentTitle}`,
                 link,
               },
               duration_sec:
@@ -965,6 +975,7 @@ export const PreviewPopUp = (
 const FarmChart = ({
   ratio,
   size,
+  voted,
 }: {
   ratio: {
     name: string;
@@ -975,6 +986,7 @@ const FarmChart = ({
     r: string;
   }[];
   size: number;
+  voted: number;
 }) => {
   if (!ratio) return null;
   const [activeIndex, setActiveIndex] = useState<number>();
@@ -994,13 +1006,22 @@ const FarmChart = ({
 
     return (
       <div
-        className="rounded-lg border w-full border-gradientFrom px-3 pt-4 pb-3 flex flex-col text-base"
+        className="rounded-lg relative top-12 border w-full border-gradientFrom px-3 pt-6 pb-3 flex flex-col text-base"
         style={{
           backgroundColor: 'rgba(26, 35, 41, 0.6)',
           backdropFilter: 'blur(50px)',
           WebkitBackdropFilter: 'blur(50px)',
         }}
       >
+        {voted === activeIndex ? (
+          <NewGradientButton
+            text={
+              <FormattedMessage id="you_voted" defaultMessage={'You Voted'} />
+            }
+            className=" absolute text-white text-sm top-0 right-1/2 transform translate-x-1/2 -translate-y-1/2 opacity-100"
+            padding="px-2 py-2.5"
+          />
+        ) : null}
         <div className="flex items-center justify-between w-full pb-2">
           <Images tokens={activeFarm.tokens} size="6" />
           <Symbols
@@ -1096,7 +1117,7 @@ const FarmChart = ({
           {`${emptyVote ? '-' : (percent * 100).toFixed(0)}%`}
         </text>
         {index === activeIndex ? (
-          <foreignObject x={cx - 120} y={cy - 100} height="160" width="250">
+          <foreignObject x={cx - 120} y={cy - 150} height="220" width="250">
             <ActiveLabel />
           </foreignObject>
         ) : null}
@@ -1271,6 +1292,8 @@ const GovItemDetail = ({
     );
   };
 
+  const [showAddBonus, setShowAddBonus] = useState<boolean>(false);
+
   const [showVotePop, setShowVotePop] = useState<boolean>(false);
 
   return !show ? null : (
@@ -1287,7 +1310,14 @@ const GovItemDetail = ({
 
         <button
           className="absolute left-0 top-2 text-sm text-primaryText flex items-center"
-          onClick={() => setShow(undefined)}
+          onClick={() => {
+            window.history.replaceState(
+              {},
+              '',
+              window.location.origin + window.location.pathname
+            );
+            setShow(undefined);
+          }}
         >
           <span className="transform scale-50">
             {<LeftArrowVE stroke="#7E8A93" strokeWidth={2} />}
@@ -1395,7 +1425,7 @@ const GovItemDetail = ({
             )}
           </div>
 
-          <div className="w-4/5 text-primaryText flex flex-col ml-20 pb-6 ">
+          <div className="w-4/5 text-primaryText flex flex-col ml-16 pb-6 ">
             <div className="grid grid-cols-10 pb-5 px-6">
               <span className="col-span-6 ">
                 <FormattedMessage id="options" defaultMessage={'Options'} />
@@ -1420,14 +1450,13 @@ const GovItemDetail = ({
                         (1 === optionId && voted === 'VoteReject')
                       : (voted as VoteAction)?.VotePoll?.poll_id === optionId);
                   return (
-                    <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-9 py-4">
+                    <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 py-4">
                       <span className="col-span-6 flex items-center">
                         <div
                           className="w-2.5 h-2.5 rounded-sm"
                           style={{
                             backgroundColor:
-                              OPTIONS_COLORS[options.indexOf(d.option)] ||
-                              'black',
+                              OPTIONS_COLORS[i % OPTIONS_COLORS.length],
                           }}
                         ></div>
                         <span className="mx-2">{d.option}</span>
@@ -1530,17 +1559,43 @@ const GovItemDetail = ({
                 incentiveToken.symbol
               )} divided equally among all voters`}
             </span>
+
+            {proposal?.proposer === getCurrentWallet().wallet.getAccountId() &&
+            proposal?.status !== 'Expired' ? (
+              <button
+                className="flex items-center justify-center rounded-2xl px-4 py-px border border-white bg-black bg-opacity-20 absolute right-7"
+                onClick={() => {
+                  setShowAddBonus(true);
+                }}
+              >
+                <span className="mr-1">+</span>
+                <span>
+                  <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
+                </span>
+              </button>
+            ) : null}
           </div>
         ) : null}
       </Card>
+
+      <AddBonusPopUp
+        isOpen={showAddBonus}
+        onRequestClose={() => {
+          setShowAddBonus(false);
+        }}
+        title={<FormattedMessage id="add_bonus" defaultMessage={'Add Bonus'} />}
+        curIncentiveToken={incentiveToken}
+        proposal_id={proposal?.id}
+        curIncentive={proposal?.incentive}
+      />
 
       <VoteGovPopUp
         isOpen={showVotePop}
         title={<FormattedMessage id="you_vote" defaultMessage={'You vote'} />}
         proposalTitle={description?.title}
         onRequestClose={() => setShowVotePop(false)}
-        options={options}
-        ratios={options.map((o) => data.find((di) => di.option === o).ratio)}
+        options={data.map((d) => d.option)}
+        ratios={data.map((d) => d.ratio)}
         proposal={proposal}
         totalVE={toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, totalVE)}
       />
@@ -1606,9 +1661,17 @@ const GovProposalItem = ({
   const [counterDownStirng, setCounterDownStirng] =
     useState<string>(baseCounterDown);
 
+  useEffect(() => {
+    const baseCounterDown = durationFomatter(
+      moment.duration(base - moment().unix(), 'seconds')
+    );
+    setCounterDownStirng(baseCounterDown);
+  }, [base]);
+
   useCounterDownVE({
     base,
     setCounterDownStirng,
+    id: proposal?.id,
   });
 
   const voted = (voteDetail?.[proposal?.id]?.action ||
@@ -1724,7 +1787,10 @@ const GovProposalItem = ({
           </div>
           <div className="flex flex-col w-4/5 ml-8">
             <div className="w-full flex items-center  justify-between">
-              <span className="text-lg break-words"> {description.title} </span>
+              <span className="text-lg break-words">
+                {' '}
+                {`#${proposal?.id} ${description.title}`}{' '}
+              </span>
 
               <StatusIcon />
             </div>
@@ -1732,10 +1798,7 @@ const GovProposalItem = ({
             <div className="w-full flex items-center justify-between pb-8 pt-3">
               <div className="flex items-center">
                 <span className="text-primaryText mr-3">
-                  <FormattedMessage
-                    id="proposer"
-                    defaultMessage={'Proposter'}
-                  />
+                  <FormattedMessage id="proposer" defaultMessage={'Proposer'} />
                 </span>
 
                 <span className="font-bold">{proposal.proposer}</span>
@@ -1768,7 +1831,9 @@ const GovProposalItem = ({
                   </span>
 
                   <span>
-                    {proposal.status === 'WarmUp' ? '-' : `${turnOut}%`}
+                    {proposal.status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
+                      ? '-'
+                      : `${turnOut}%`}
                   </span>
                 </span>
 
@@ -1781,7 +1846,8 @@ const GovProposalItem = ({
                   </span>
 
                   <span className="flex items-center">
-                    {proposal.status === 'WarmUp' ? null : (
+                    {proposal.status === 'WarmUp' ||
+                    ONLY_ZEROS.test(totalVE) ? null : (
                       <div
                         className="w-2.5 h-2.5 rounded-sm mr-3 flex-shrink-0"
                         style={{
@@ -1792,7 +1858,9 @@ const GovProposalItem = ({
                     )}
 
                     <span>
-                      {proposal.status === 'WarmUp' ? '-' : topOption}
+                      {proposal.status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
+                        ? '-'
+                        : topOption}
                     </span>
                   </span>
                 </span>
@@ -1806,7 +1874,16 @@ const GovProposalItem = ({
                   className="h-full"
                   padding="px-0"
                   color="#182632"
-                  onClick={() => setShowDetail(proposal.id)}
+                  onClick={() => {
+                    setShowDetail(proposal.id);
+                    window.history.replaceState(
+                      {},
+                      '',
+                      window.location.origin +
+                        window.location.pathname +
+                        `?proposal_id=${proposal.id}`
+                    );
+                  }}
                 />
 
                 {proposal?.status === 'Expired' && !unClaimed ? (
@@ -1898,7 +1975,7 @@ const GovProposalItem = ({
                   )} ${toRealSymbol(incentiveToken?.symbol)} ${
                     incentive?.incentive_type === 'Proportion'
                       ? ' divided by voting power'
-                      : 'divided equally among all voters'
+                      : 'divided by voter number'
                   }  `}
                 </span>
               ) : null}
@@ -2019,7 +2096,15 @@ export const VoteGovPopUp = (
   const newPercent = new Big(toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, veShare))
     .plus(
       options.indexOf(value) !== -1
-        ? new Big(proposal?.votes[options?.indexOf(value)] || 0)
+        ? new Big(
+            proposal?.votes[
+              proposal?.kind?.Common
+                ? value === 'Yes'
+                  ? 0
+                  : 1
+                : proposal?.kind?.Poll?.options.indexOf(value)
+            ] || 0
+          )
         : 0
     )
     .div(
@@ -2036,7 +2121,7 @@ export const VoteGovPopUp = (
       <div className="pt-6 pb-8">
         <div className="pb-4">{proposalTitle}</div>
 
-        <div className="pt-6 px-7 rounded-lg bg-black bg-opacity-20">
+        <div className="pt-6 px-5 pr-6 rounded-lg bg-black bg-opacity-20">
           {options?.map((o, i) => {
             return (
               <button
@@ -2089,7 +2174,7 @@ export const VoteGovPopUp = (
                 })
               : VotePoll({
                   proposal_id: proposal?.id,
-                  index: options.indexOf(value),
+                  index: proposal?.kind?.Poll?.options.indexOf(value),
                 });
           }}
           beatStyling
@@ -2117,6 +2202,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
   useCounterDownVE({
     base,
     setCounterDownStirng,
+    id: farmProposal?.id,
   });
 
   const curMonth = moment().format('MMMM');
@@ -2459,7 +2545,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
                     .times(100)
                     .toString()
                 ),
-                1,
+                2,
                 false
               ) + '%',
           allocation: votedVE.isEqualTo(0)
@@ -2476,6 +2562,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
               ),
         }))}
         size={farmProposal?.kind?.FarmingReward?.farm_list?.length}
+        voted={voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id}
       />
 
       <Card
@@ -2946,7 +3033,7 @@ export const CreateGovProposal = ({
               if (validate()) {
                 createProposal({
                   description: {
-                    title: `#${index} ${title}`,
+                    title: `${title}`,
                     link,
                   },
                   kind: type === 'Poll' ? 'Poll' : 'Common',
@@ -3025,6 +3112,8 @@ export const GovProposal = ({
 
   const VEmeta = useVEmeta();
 
+  const unClaimedRewards = useUnClaimedRewardsVE();
+
   const voteHistory = useVoteDetailHisroty();
 
   const voteDetail = useVoteDetail();
@@ -3042,7 +3131,13 @@ export const GovProposal = ({
   };
 
   return (
-    <div className="flex flex-col text-white text-sm">
+    <div className="flex flex-col text-white text-sm relative">
+      {!unClaimedRewards ||
+      showDetail ||
+      Object.keys(unClaimedRewards).length === 0 ? null : (
+        <RewardCard rewardList={unClaimedRewards || {}} />
+      )}
+
       {showDetail ? null : (
         <div className="flex items-center justify-end pb-6 relative">
           {!VEmeta?.whitelisted_accounts?.includes(
@@ -3105,8 +3200,8 @@ export const GovProposal = ({
                   ? p.kind.Poll.description
                   : p.kind.Common.description
               )}
-              showDetail={showDetail}
               setShowDetail={setShowDetail}
+              showDetail={showDetail}
               voteHistory={voteHistory}
               voteDetail={voteDetail}
               unClaimed={
@@ -3119,6 +3214,10 @@ export const GovProposal = ({
     </div>
   );
 };
+
+interface ParamTypes {
+  proposal_id: string;
+}
 
 export const ProposalCard = () => {
   const [curTab, setTab] = useState<PROPOSAL_TAB>(
@@ -3133,7 +3232,13 @@ export const ProposalCard = () => {
 
   const config = useVEconfig();
 
-  const [showDetail, setShowDetail] = useState<number>();
+  const proposal_id = new URLSearchParams(window.location.search).get(
+    'proposal_id'
+  );
+
+  const [showDetail, setShowDetail] = useState<number>(
+    proposal_id ? Number(proposal_id) : undefined
+  );
 
   useEffect(() => {
     getProposalList().then((list: Proposal[]) => {
@@ -3160,8 +3265,6 @@ export const ProposalCard = () => {
   useEffect(() => {
     localStorage.setItem(REF_FI_PROPOSALTAB, curTab);
   }, [curTab]);
-
-  console.log(proposals);
 
   return (
     <div className="w-full flex flex-col items-center ">

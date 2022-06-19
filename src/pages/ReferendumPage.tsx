@@ -110,7 +110,11 @@ const UnLockTip = () => {
   );
 };
 
-const RewardCard = ({ rewardList }: { rewardList: Record<string, string> }) => {
+export const RewardCard = ({
+  rewardList,
+}: {
+  rewardList: Record<string, string>;
+}) => {
   const tokens = useTokens(Object.keys(rewardList));
   const tokenPriceList = useTokenPriceList();
   const [checkList, setCheckList] = useState<string[]>();
@@ -158,7 +162,7 @@ const RewardCard = ({ rewardList }: { rewardList: Record<string, string> }) => {
   };
 
   return (
-    <div className="px-3 pt-3 rounded-lg bg-veGradient flex flex-col w-80 fixed top-20 right-0 text-sm">
+    <div className="px-3 pt-3 rounded-lg bg-veGradient flex flex-col w-80 relative left-1/2 transform -translate-x-1/2 text-sm">
       <div
         className="flex items-center pb-4 relative cursor-pointer"
         onClick={() => setShowDetail(!showDetail)}
@@ -725,7 +729,19 @@ const UnLockPopUp = ({
     : new Big(1);
 
   const currentMaxUnlock = preLocked
-    ? new Big(balance).div(multiplier)
+    ? new Big(
+        new Big(
+          toReadableNumber(
+            LOVE_TOKEN_DECIMAL,
+            accountInfo?.ve_lpt_amount || '0'
+          )
+        ).lt(balance)
+          ? toReadableNumber(
+              LOVE_TOKEN_DECIMAL,
+              accountInfo?.ve_lpt_amount || '0'
+            )
+          : balance
+      ).div(multiplier)
     : new Big('0');
 
   const reduced = new Big(toUnlockAmount || '0').times(multiplier);
@@ -938,7 +954,7 @@ const UnLockPopUp = ({
           beatStyling
           disabled={
             ONLY_ZEROS.test(toUnlockAmount) ||
-            new Big(toUnlockAmount).gt(lockedLPAmount) ||
+            new Big(toUnlockAmount).gt(currentMaxUnlock) ||
             !!error
           }
         />
@@ -1283,7 +1299,6 @@ const UserReferendumCard = ({
 
 export const ReferendumPage = () => {
   const id = getPoolId();
-  const unClaimedRewards = useUnClaimedRewardsVE();
   const lpShare = usePoolShare(id);
 
   const { veShare, accountInfo } = useAccountInfo();
@@ -1313,11 +1328,6 @@ export const ReferendumPage = () => {
       >
         <PowerZone />
       </div>
-
-      {!unClaimedRewards ||
-      Object.keys(unClaimedRewards).length === 0 ? null : (
-        <RewardCard rewardList={unClaimedRewards} />
-      )}
     </div>
   );
 };

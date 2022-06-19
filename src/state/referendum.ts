@@ -272,11 +272,12 @@ export const useUnClaimedRewardsVE = () => {
 export const useCounterDownVE = ({
   setCounterDownStirng,
   base,
+  id,
 }: {
   setCounterDownStirng: (s: string) => void;
   base: number;
+  id: number | undefined;
 }) => {
-  console.log(base, 'useCounterDownVE');
   const interval = 60 * 1000;
 
   useEffect(() => {
@@ -288,5 +289,5 @@ export const useCounterDownVE = ({
     }, interval);
 
     return () => clearInterval(timer);
-  }, [base]);
+  }, [base, id]);
 };
