@@ -20,11 +20,13 @@ import {
   BoostRightArrowIcon,
   DirectionButton,
   BoostLoveIcon,
+  MigrateIcon,
 } from '~components/icon/FarmBoost';
 import {
   GradientButton,
   ButtonTextWrapper,
   GreenConnectToNearBtn,
+  BlacklightConnectToNearBtn,
 } from '~components/button/Button';
 import {
   Checkbox,
@@ -839,6 +841,9 @@ export default function FarmsHome(props: any) {
   function switchStatus() {
     setBoostInstructions(!boostInstructions);
   }
+  function goMigrate() {
+    history.push('/farmsMigrate?from=v2');
+  }
   const endFarmLength = useMemo(() => {
     return getFarmVisibleLength();
   }, [farm_display_ended_List]);
@@ -846,7 +851,7 @@ export default function FarmsHome(props: any) {
   return (
     <div className={`${getUrlParams() ? 'hidden' : ''}`}>
       <div
-        className="relative flex items-center justify-center mb-5 xs:mb-3 md:mb-3 xs:flex-col md:flex-col xs:bg-cardBg md:bg-cardBg"
+        className="relative flex items-center justify-center mb-5 xs:mb-3 md:mb-3 xs:flex-col md:flex-col xs:bg-cardBg md:bg-cardBg xs:overflow-hidden md:overflow-hidden"
         style={{
           height: isMobileSite ? '' : '250px',
           backgroundImage: isMobileSite
@@ -854,6 +859,34 @@ export default function FarmsHome(props: any) {
             : 'linear-gradient(270deg, #001320 0%, #1D2932 95.06%)',
         }}
       >
+        <div className="relative bg-veGradient rounded-2xl p-4 mb-4 mt-3 mx-3 lg:hidden">
+          <span className="flex items-center justify-center text-white text-lg font-bold my-2">
+            V2 NEW Farm Migration
+          </span>
+          <p className="flex items-center justify-center text-white text-sm">
+            V2 Farm will support boost farm for the LOVE token stakers.
+          </p>
+          <p className="text-white text-sm">
+            Meanwhile, the V1 farm rewards will stop at{' '}
+            <span className="font-bold">1. July,2022.</span>
+          </p>
+          <MigrateIcon
+            className="absolute -bottom-6 -left-5"
+            style={{ zoom: 0.6 }}
+          ></MigrateIcon>
+          <div className="flex justify-end">
+            {isSignedIn ? (
+              <div
+                onClick={goMigrate}
+                className="flex items-center h-8 w-2/3 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer mt-6 mb-3"
+              >
+                Migrate Now!
+              </div>
+            ) : (
+              <BlacklightConnectToNearBtn className="h-8 w-3/4 mt-6 mb-5" />
+            )}
+          </div>
+        </div>
         <span className="absolute left-0 top-0 h-full overflow-hidden xs:hidden md:hidden">
           <BannerBgLeft />
         </span>
@@ -940,6 +973,34 @@ export default function FarmsHome(props: any) {
               })}
             </div>
           </div>
+        </div>
+      </div>
+      <div className="relative migrateArea m-auto lg:w-2/3 xs:w-full md:w-full bg-veGradient rounded-2xl p-4 mb-4 pr-6 xs:hidden md:hidden">
+        <MigrateIcon
+          className="absolute left-0 -top-8"
+          style={{ zoom: 0.75 }}
+        ></MigrateIcon>
+        <div className="flex justify-between items-end ml-32">
+          <div className="w-3/4 mr-5">
+            <p className="text-white text-lg font-bold mb-3">
+              V2 NEW Farm Migration
+            </p>
+            <p className="text-sm text-white">
+              V2 Farm will support boost farm for the LOVE token stakers.
+              Meanwhile, the V1 farm rewards will stop at{' '}
+              <label className="font-bold">1. July,2022.</label>
+            </p>
+          </div>
+          {isSignedIn ? (
+            <div
+              onClick={goMigrate}
+              className="flex items-center h-8 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer px-5 whitespace-nowrap mb-2"
+            >
+              Migrate Now!
+            </div>
+          ) : (
+            <BlacklightConnectToNearBtn className="h-8 w-52 mb-2" />
+          )}
         </div>
       </div>
       <div className="searchArea m-auto lg:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
@@ -2562,7 +2623,10 @@ function WithDrawBox(props: {
         className="relative bg-veGradient px-5 overflow-hidden"
         style={{ height: '68px' }}
       >
-        <span className="absolute top-0 left-5 text-white text-xs bg-senderHot rounded-b-lg px-3 py-0.5 whitespace-nowrap">
+        <span
+          className="absolute top-0 left-5 text-white text-xs bg-senderHot rounded-b-lg px-3 py-0.5 whitespace-nowrap"
+          style={{ boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)' }}
+        >
           <label className="text-black text-xs font-bold">
             <FormattedMessage id="claimed_Rewards"></FormattedMessage>
           </label>
@@ -2930,11 +2994,11 @@ function WithDrawModal(props: {
             </div>
           </div>
         </div>
-        <div className="flex items-center bg-cardBg justify-between rounded-lg mt-3 px-3.5 py-3 xs:flex-col md:flex-col xs:items-start md:items-start">
+        <div className="flex flex-col items-start bg-cardBg justify-between rounded-lg mt-3 px-3.5 py-3">
           <span className="text-white text-sm">
             <FormattedMessage id="how_to_earn_more"></FormattedMessage>
           </span>
-          <div className="flex items-center xs:mt-2 md:mt-2">
+          <div className="flex items-center mt-2">
             <span className="flex items-center text-xs text-primaryText mr-2">
               <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
                 1

@@ -45,7 +45,7 @@ export default function PopUpSwiper() {
     <>
       {closeStatus ? null : (
         <div
-          className={`fixed xs:left-1/2 xs:transform xs:-translate-x-1/2 md:left-1/2 md:transform md:-translate-x-1/2 z-50 lg:right-0 ${
+          className={`fixed xs:left-1/2 xs:transform xs:-translate-x-1/2 md:left-1/2 md:transform md:-translate-x-1/2 z-50 lg:right-2  ${
             mobile ? 'farmPopupBoxMobile' : 'farmPopupBox'
           }`}
         >
@@ -62,12 +62,15 @@ export default function PopUpSwiper() {
               <div
                 className="relative cursor-pointer"
                 onClick={() => {
-                  window.open('/farms');
+                  window.open('/farmsBoost');
                 }}
               >
                 <div
                   onClick={closePop}
-                  className="flex justify-end items-center absolute top-0 right-0 cursor-pointer w-8 h-8"
+                  style={{
+                    right: '26px',
+                  }}
+                  className="flex justify-end items-center absolute top-0  cursor-pointer w-8 h-8"
                 >
                   <CircleCloseBtn></CircleCloseBtn>
                 </div>

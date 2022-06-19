@@ -1011,7 +1011,7 @@ export const migrate_user_seed = async ({
   if (neededStorage_boost) {
     transactions.push({
       receiverId: REF_FARM_BOOST_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
+      functionCalls: [storageDepositAction({ amount: neededStorage_boost })],
     });
   }
   transactions.push({

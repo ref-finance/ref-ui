@@ -1470,6 +1470,8 @@ function UserTotalUnClaimBlock(props: {
   const [claimLoading, setClaimLoading] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const { seed_id } = detailData;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
   function claimReward() {
     if (claimLoading) return;
@@ -1547,7 +1549,7 @@ function UserTotalUnClaimBlock(props: {
     });
     if (totalPrice == 0) {
       return {
-        worth: <label className="opacity-30">$0</label>,
+        worth: <label className="opacity-30">{isSignedIn ? '$0' : '-'}</label>,
         showClaimButton: false,
         tip: resultTip,
         list: tokenList,
@@ -1762,7 +1764,7 @@ function UserStakeBlock(props: {
     );
     const userLpAmount = Number(userTotalStake);
     if (poolLpAmount == 0 || userLpAmount == 0) {
-      return <label className="opacity-30">$0</label>;
+      return <label className="opacity-30">{isSignedIn ? '$0' : '-'}</label>;
     } else {
       const userLpWorth = ((userLpAmount * tvl) / poolLpAmount).toString();
       const userLpWorthBigNumber = new BigNumber(userLpWorth);
