@@ -441,9 +441,13 @@ export const claimRewardVE = async ({
   return executeMultipleTransactions(transactions);
 };
 
-export const withdrawRewardVE = async ({ token_id }: { token_id: number }) => {
-  const transactions: Transaction[] = [
-    {
+export const withdrawRewardVE = async ({
+  token_ids,
+}: {
+  token_ids: string[];
+}) => {
+  const transactions: Transaction[] = token_ids.map((token_id) => {
+    return {
       receiverId: REF_VE_CONTRACT_ID,
       functionCalls: [
         {
@@ -455,8 +459,9 @@ export const withdrawRewardVE = async ({ token_id }: { token_id: number }) => {
           amount: ONE_YOCTO_NEAR,
         },
       ],
-    },
-  ];
+    };
+  });
+
   return executeMultipleTransactions(transactions);
 };
 

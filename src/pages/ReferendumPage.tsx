@@ -22,6 +22,7 @@ import {
   getVEConfig,
   lockLP,
   unlockLP,
+  withdrawRewardVE,
 } from '../services/referendum';
 import { ONLY_ZEROS, percent, divide, multiply } from '../utils/numbers';
 import { VotingPowerIcon } from '~components/icon/Referendum';
@@ -86,7 +87,7 @@ import { useVEmeta, useVEconfig } from '../state/referendum';
 export interface AccountInfo {
   duration_sec: number;
   lpt_amount: string;
-  rewards: string[];
+  rewards: string[][];
   sponsor_id: string;
   unlock_timestamp: string;
   ve_lpt_amount: string;
@@ -113,28 +114,55 @@ const UnLockTip = () => {
 export const RewardCard = ({
   rewardList,
 }: {
-  rewardList: Record<string, string>;
+  rewardList: { tokenId: string; amount: string }[];
 }) => {
-  const tokens = useTokens(Object.keys(rewardList));
+  const tokenIds = rewardList.map(({ tokenId }) => tokenId);
+
+  const tokens = useTokens(tokenIds);
   const tokenPriceList = useTokenPriceList();
-  const [checkList, setCheckList] = useState<string[]>();
+  const [checkList, setCheckList] = useState<string[]>([]);
 
   const [showDetail, setShowDetail] = useState<boolean>(false);
 
-  const RewardRow = ({ id, token }: { id: string; token: TokenMetadata }) => {
-    const price = tokenPriceList[id];
-    const total = new Big(price).times(rewardList[id]).toNumber().toFixed(3);
-    const amount = rewardList[id];
+  const RewardRow = ({
+    id,
+    token,
+    index,
+  }: {
+    id: string;
+    token: TokenMetadata;
+    index: number;
+  }) => {
+    const amount = toReadableNumber(
+      token.decimals,
+      rewardList[index].amount || '0'
+    );
+
+    const price = tokenPriceList?.[id]?.price;
+
+    const total = new Big(price || 0).times(amount).toNumber().toFixed(2);
+
     return (
       <div className="flex items-center justify-between text-white text-sm pb-2.5">
         <div className="flex items-center px-2">
-          <div
-            className={`mr-2 w-4 h-4 rounde bg-opacity-30 ${
-              checkList.indexOf(id) !== -1 ? 'bg-black' : 'bg-white'
+          <button
+            className={`mr-2 w-4 h-4 rounded bg-opacity-30 ${
+              checkList?.indexOf(id) !== -1 ? 'bg-black' : 'bg-white'
             } flex items-center justify-center`}
+            onClick={() => {
+              if (checkList?.indexOf(id) == -1) {
+                setCheckList([...checkList, id]);
+              } else {
+                const idx = checkList.indexOf(id);
+                setCheckList([
+                  ...checkList.slice(0, idx),
+                  ...checkList.slice(idx + 1),
+                ]);
+              }
+            }}
           >
-            {checkList.indexOf(id) !== -1 ? null : <RewardCheck />}
-          </div>
+            {checkList?.indexOf(id) === -1 ? null : <RewardCheck />}
+          </button>
 
           {token.icon ? (
             <img
@@ -146,25 +174,27 @@ export const RewardCard = ({
           )}
 
           <div className="flex flex-col">
-            <span>{toRealSymbol(token.symbol)}</span>
+            <span className="relative top-0.5">
+              {toRealSymbol(token.symbol)}
+            </span>
 
-            <span className="bg-opacity-50">${amount}</span>
+            <span className="opacity-50">${!price ? '-' : amount}</span>
           </div>
         </div>
 
-        <div className="flex  flex-col">
+        <div className="flex  flex-col items-end">
           <span>{toPrecision(amount, 2)}</span>
 
-          <span className="bg-opacity-50">${total}</span>
+          <span className="opacity-50">${!price ? '-' : total}</span>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="px-3 pt-3 rounded-lg bg-veGradient flex flex-col w-80 relative left-1/2 transform -translate-x-1/2 text-sm">
+    <div className="px-3 pt-3 rounded-lg bg-veGradient flex flex-col w-80 absolute left-1/2 transform -translate-x-1/2 text-sm z-50">
       <div
-        className="flex items-center pb-4 relative cursor-pointer"
+        className="flex items-center pb-4 relative  cursor-pointer "
         onClick={() => setShowDetail(!showDetail)}
       >
         <span className="mr-2">
@@ -172,7 +202,7 @@ export const RewardCard = ({
         </span>
 
         <span>
-          {Object.keys(rewardList).length}{' '}
+          {Object.keys(rewardList)?.length}{' '}
           <FormattedMessage
             id="rewards to be withdraw"
             defaultMessage="rewards to be withdraw"
@@ -186,37 +216,47 @@ export const RewardCard = ({
       </div>
       {!showDetail ? null : (
         <>
-          <div className="bg-balck bg-opacity-30 rounded-lg pb-4">
-            {tokens?.map((token) => {
-              return <RewardRow id={token.id} token={token} />;
+          <div className="bg-black bg-opacity-30 rounded-lg p-4 mb-2">
+            {tokens?.map((token, i) => {
+              return <RewardRow id={token.id} token={token} index={i} />;
             })}
           </div>
 
           <div className="flex items-center justify-between pb-4">
             <button
               className={`mr-2  flex items-center justify-center`}
-              onClick={() => setCheckList(tokens.map((token) => token.id))}
+              onClick={() => {
+                checkList?.length === tokenIds?.length
+                  ? setCheckList([])
+                  : setCheckList(tokenIds);
+              }}
             >
-              <div
+              <button
                 className={`mr-2 h-4 w-4 rounded bg-opacity-30 flex items-center justify-center ${
                   tokens?.length > 0 &&
-                  tokens.every((token) => checkList.includes(token.id))
+                  tokens?.every((token) => checkList.includes(token.id))
                     ? 'bg-black'
                     : 'bg-white'
                 }`}
               >
                 {tokens?.length > 0 &&
-                tokens.every((token) => checkList.includes(token.id)) ? (
+                tokens?.every((token) => checkList.includes(token.id)) ? (
                   <RewardCheck />
                 ) : null}
-              </div>
+              </button>
 
               <span className="">
                 <FormattedMessage id="all" defaultMessage={'all'} />
               </span>
             </button>
 
-            <button className="px-5 py-1.5 bg-black bg-opacity-30 rounded-lg">
+            <button
+              className="px-5 py-1.5 bg-black bg-opacity-30 rounded-lg"
+              onClick={() => {
+                withdrawRewardVE({ token_ids: checkList });
+              }}
+              disabled={!checkList?.length}
+            >
               <FormattedMessage id="withdraw" defaultMessage={'withdraw'} />
             </button>
           </div>
@@ -981,7 +1021,13 @@ const VotingPowerCard = ({
 
         <span className="pt-10">
           <span title={veShare}>
-            {allZeros ? <LeftArrowVE /> : toPrecision(veShare, 2) || '0'}
+            {allZeros ? (
+              <LeftArrowVE />
+            ) : Number(veShare) > 0 && Number(veShare) < 0.01 ? (
+              '< 0.01'
+            ) : (
+              toPrecision(veShare, 2) || '0'
+            )}
           </span>
           <div className="text-sm font-normal">
             {allZeros ? (
@@ -1020,6 +1066,8 @@ const FarmBoosterCard = ({ lpShare }: { lpShare: string }) => {
           <span title={balance}>
             {allZeros ? (
               <LeftArrowVE stroke="#00ffd1" />
+            ) : Number(balance) > 0 && Number(balance) < 0.01 ? (
+              '< 0.01'
             ) : (
               toPrecision(balance, 2) || '0'
             )}
@@ -1193,7 +1241,11 @@ const UserReferendumCard = ({
             }`}
           >
             <span title={lpShare}>
-              {isSignedIn ? toPrecision(lpShare, 2) : '-'}
+              {isSignedIn
+                ? Number(lpShare) > 0 && Number(lpShare) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(lpShare, 2)
+                : '-'}
             </span>
           </div>
 
@@ -1211,7 +1263,11 @@ const UserReferendumCard = ({
             }`}
           >
             <span title={lockedLpShare}>
-              {isSignedIn ? toPrecision(lockedLpShare, 2) : '-'}
+              {isSignedIn
+                ? Number(lockedLpShare) > 0 && Number(lockedLpShare) < 0.01
+                  ? '< 0.01'
+                  : toPrecision(lockedLpShare, 2)
+                : '-'}
             </span>
           </div>
 

@@ -10,13 +10,16 @@ import { REF_VE_CONTRACT_ID } from '../services/near';
 import { toNonDivisibleNumber } from '../utils/numbers';
 import {
   VoteDetail,
-  getAccountInfo,
   getVoteDetailHistory,
   getUnclaimedRewards,
 } from '../services/referendum';
 import { AccountInfo } from '../pages/ReferendumPage';
 import { WalletContext } from '../utils/sender-wallet';
-import { getUnclaimedProposal, VEConfig } from '../services/referendum';
+import {
+  getUnclaimedProposal,
+  VEConfig,
+  getAccountInfo,
+} from '../services/referendum';
 import { useDepositableBalance } from './token';
 import {
   getVEConfig,
@@ -257,13 +260,22 @@ export const useUnclaimedProposal = () => {
 };
 
 export const useUnClaimedRewardsVE = () => {
-  const [rewards, setReward] = useState<Record<string, string>>();
+  const [rewards, setReward] =
+    useState<{ tokenId: string; amount: string }[]>();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     if (!isSignedIn) return;
-
-    getUnclaimedRewards().then(setReward);
+    getAccountInfo()
+      .then((info: AccountInfo) => {
+        return info.rewards.map((r) => {
+          return {
+            tokenId: r[0],
+            amount: r[1],
+          };
+        });
+      })
+      .then(setReward);
   }, [isSignedIn]);
 
   return rewards;

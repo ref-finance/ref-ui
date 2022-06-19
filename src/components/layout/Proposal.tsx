@@ -66,7 +66,11 @@ import {
   VEMETA,
   useVoteDetailHisroty,
 } from '../../state/referendum';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getAccountName,
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/sender-wallet';
 import { Item } from '../airdrop/Item';
 import { ShareInFarmV2 } from './ShareInFarm';
 import {
@@ -90,7 +94,7 @@ import {
 } from '../../state/token';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useDepositableBalance } from '../../state/token';
-import { REF_TOKEN_ID } from '../../services/near';
+import { REF_TOKEN_ID, near } from '../../services/near';
 import { NewFarmInputAmount } from '../forms/InputAmount';
 import {
   VoteAction,
@@ -105,7 +109,7 @@ import DatePicker from 'react-datepicker';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import { getCurrentUnixTime } from '../../services/api';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -551,13 +555,13 @@ const VoteChart = ({
   forDetail,
 }: {
   options: string[];
-  ratios: string[];
+  ratios: number[];
   forDetail?: boolean;
 }) => {
   const data = ratios.map((r, i) => {
     return {
       name: options[i],
-      value: Math.round(Number(r) * 100) / 100,
+      value: Math.round(r * 100) / 100,
     };
   });
 
@@ -854,7 +858,7 @@ export const PreviewPopUp = (
             id: 'proposer',
             defaultMessage: 'Proposer',
           })}
-          value={getCurrentWallet().wallet.getAccountId()}
+          value={`${getAccountName(getCurrentWallet().wallet.getAccountId())}`}
           valueClass={'font-bold'}
         />
 
@@ -931,7 +935,7 @@ export const PreviewPopUp = (
                             'black',
                         }}
                       ></div>
-                      <span className="mx-2">{d.option}</span>
+                      <span className="mx-2 truncate">{d.option}</span>
                     </span>
 
                     <span className="col-span-2 ">
@@ -1114,7 +1118,7 @@ const FarmChart = ({
           textAnchor={x > cx ? 'start' : 'end'}
           dominantBaseline="central"
         >
-          {`${emptyVote ? '-' : (percent * 100).toFixed(0)}%`}
+          {`${emptyVote ? '-' : (percent * 100).toFixed(2)}%`}
         </text>
         {index === activeIndex ? (
           <foreignObject x={cx - 120} y={cy - 150} height="220" width="250">
@@ -1229,6 +1233,7 @@ const GovItemDetail = ({
   incentiveToken,
   forPreview,
   veShare,
+  unClaimed,
 }: {
   show?: number;
   proposal: Proposal;
@@ -1242,6 +1247,7 @@ const GovItemDetail = ({
   incentiveToken: TokenMetadata;
   forPreview?: boolean;
   veShare: string;
+  unClaimed?: boolean;
 }) => {
   const intl = useIntl();
 
@@ -1266,10 +1272,10 @@ const GovItemDetail = ({
           : 'No'
         : proposal?.kind?.Poll?.options?.[i],
       v: toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'),
-      ratio: `${new Big(toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'))
+      ratio: new Big(toReadableNumber(LOVE_TOKEN_DECIMAL, v || '0'))
         .div(new Big(Number(totalVE) > 0 ? totalVE : 1))
         .times(100)
-        .toNumber()}`,
+        .toNumber(),
     };
   });
 
@@ -1296,6 +1302,8 @@ const GovItemDetail = ({
 
   const [showVotePop, setShowVotePop] = useState<boolean>(false);
 
+  const history = useHistory();
+
   return !show ? null : (
     <div className="text-white text-sm relative">
       <div
@@ -1311,11 +1319,7 @@ const GovItemDetail = ({
         <button
           className="absolute left-0 top-2 text-sm text-primaryText flex items-center"
           onClick={() => {
-            window.history.replaceState(
-              {},
-              '',
-              window.location.origin + window.location.pathname
-            );
+            history.push('/referendum');
             setShow(undefined);
           }}
         >
@@ -1366,7 +1370,7 @@ const GovItemDetail = ({
             id: 'proposer',
             defaultMessage: 'Proposer',
           })}
-          value={proposal.proposer}
+          value={getAccountName(proposal.proposer)}
           valueClass={'font-bold'}
         />
 
@@ -1453,13 +1457,14 @@ const GovItemDetail = ({
                     <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 py-4">
                       <span className="col-span-6 flex items-center">
                         <div
-                          className="w-2.5 h-2.5 rounded-sm"
+                          className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
                           style={{
                             backgroundColor:
-                              OPTIONS_COLORS[i % OPTIONS_COLORS.length],
+                              OPTIONS_COLORS[options.indexOf(d.option)] ||
+                              '#3D455B',
                           }}
                         ></div>
-                        <span className="mx-2">{d.option}</span>
+                        <span className="mx-2 truncate">{d.option}</span>
                         {i === 0 && !ONLY_ZEROS.test(totalVE) ? (
                           <span
                             className=""
@@ -1472,7 +1477,8 @@ const GovItemDetail = ({
                         ) : null}
                         {!votedThisOption ? null : (
                           <NewGradientButton
-                            className="ml-2 text-xs h-4 flex items-center px-3 py-3 cursor-default"
+                            className="ml-2 text-xs h-4 flex items-center py-3 cursor-default"
+                            padding="px-2 py-2.5"
                             text={
                               <FormattedMessage
                                 id="you_voted"
@@ -1484,7 +1490,7 @@ const GovItemDetail = ({
                       </span>
 
                       <span className="col-span-2 ">
-                        {toPrecision(scientificNotationToString(d.ratio), 2)}%
+                        {Math.round(d.ratio * 100) / 100}%
                       </span>
 
                       <span className="col-span-2 text-right">
@@ -1498,7 +1504,7 @@ const GovItemDetail = ({
         </div>
 
         <div className="flex items-center justify-end pt-6 border-t border-white border-opacity-10">
-          {voted || proposal?.status === 'Expired' ? (
+          {(voted || proposal?.status === 'Expired') && !unClaimed ? (
             <BorderGradientButton
               text={
                 voted && proposal?.status === 'InProgress' ? (
@@ -1522,22 +1528,33 @@ const GovItemDetail = ({
           ) : (
             <NewGradientButton
               text={
-                proposal?.status === 'InProgress' &&
-                ONLY_ZEROS.test(veShare) ? (
+                unClaimed ? (
+                  <FormattedMessage
+                    id="claim_reward"
+                    defaultMessage={'Claim Reward'}
+                  />
+                ) : proposal?.status === 'InProgress' &&
+                  ONLY_ZEROS.test(veShare) ? (
                   <FormattedMessage id="no_veLPT" defaultMessage={'No veLPT'} />
                 ) : (
                   <FormattedMessage id="vote" defaultMessage={'Vote'} />
                 )
               }
               onClick={() => {
-                setShowVotePop(true);
+                unClaimed
+                  ? claimRewardVE({
+                      proposal_id: proposal?.id,
+                    })
+                  : setShowVotePop(true);
               }}
               padding="px-0 py-2.5"
               disabled={
-                proposal?.status !== 'InProgress' ||
-                (proposal?.status === 'InProgress' && ONLY_ZEROS.test(veShare))
+                (proposal?.status !== 'InProgress' ||
+                  (proposal?.status === 'InProgress' &&
+                    ONLY_ZEROS.test(veShare))) &&
+                !unClaimed
               }
-              className="w-20"
+              className={unClaimed ? 'w-28' : 'w-20'}
             />
           )}
         </div>
@@ -1682,13 +1699,13 @@ const GovProposalItem = ({
 
   const incentive = proposal?.incentive;
 
-  const { globalState } = useContext(WalletContext);
-
   const { veShare } = useAccountInfo();
 
   const [incentiveToken, setIncentiveToken] = useState<TokenMetadata>();
 
   const [showAddBonus, setShowAddBonus] = useState<boolean>(false);
+
+  const history = useHistory();
 
   useEffect(() => {
     if (proposal?.incentive) {
@@ -1728,10 +1745,10 @@ const GovProposalItem = ({
   const ratios = (
     proposal?.kind?.Common ? proposal?.votes?.slice(0, 2) : proposal?.votes
   )?.map((v, i) => {
-    return `${new Big(v || '0')
+    return new Big(v || '0')
       .div(new Big(Number(totalVE) > 0 ? totalVE : 1))
       .times(100)
-      .toNumber()}`;
+      .toNumber();
   });
 
   const ended = proposal?.status === 'Expired';
@@ -1769,6 +1786,7 @@ const GovProposalItem = ({
           voted={voted}
           incentiveToken={incentiveToken}
           veShare={veShare}
+          unClaimed={unClaimed}
         />
       ) : (
         <Card
@@ -1801,7 +1819,9 @@ const GovProposalItem = ({
                   <FormattedMessage id="proposer" defaultMessage={'Proposer'} />
                 </span>
 
-                <span className="font-bold">{proposal.proposer}</span>
+                <span className="font-bold">
+                  {getAccountName(proposal.proposer)}
+                </span>
               </div>
 
               <span
@@ -1857,7 +1877,7 @@ const GovProposalItem = ({
                       ></div>
                     )}
 
-                    <span>
+                    <span className="truncate">
                       {proposal.status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
                         ? '-'
                         : topOption}
@@ -1876,13 +1896,7 @@ const GovProposalItem = ({
                   color="#182632"
                   onClick={() => {
                     setShowDetail(proposal.id);
-                    window.history.replaceState(
-                      {},
-                      '',
-                      window.location.origin +
-                        window.location.pathname +
-                        `?proposal_id=${proposal.id}`
-                    );
+                    history.push(`/referendum/${proposal.id}`);
                   }}
                 />
 
@@ -1931,7 +1945,7 @@ const GovProposalItem = ({
                       unClaimed ||
                       (proposal?.status === 'InProgress' && !!voted)
                     }
-                    className="ml-2.5 h-11 w-20"
+                    className={`ml-2.5 h-11 ${unClaimed ? 'w-28' : 'w-20'}`}
                     padding="px-0 "
                     disabled={
                       (ended && !unClaimed) ||
@@ -1940,13 +1954,13 @@ const GovProposalItem = ({
                         ONLY_ZEROS.test(veShare))
                     }
                     onClick={() => {
-                      if (voted) {
-                        cancelVote({
-                          proposal_id: proposal.id,
-                        });
-                      } else if (unClaimed) {
+                      if (unClaimed) {
                         claimRewardVE({
                           proposal_id: proposal?.id,
+                        });
+                      } else if (voted) {
+                        cancelVote({
+                          proposal_id: proposal.id,
                         });
                       } else if (proposal?.status === 'InProgress') {
                         setShowVotePop(true);
@@ -2065,7 +2079,7 @@ export const VoteGovPopUp = (
     title: JSX.Element | string;
     proposalTitle: string;
     options: string[];
-    ratios: string[];
+    ratios: number[];
     proposal: Proposal;
     totalVE: string;
   }
@@ -2133,7 +2147,7 @@ export const VoteGovPopUp = (
                 <span className="flex items-center ">
                   <CheckComponent checked={value === o} />
 
-                  <span className="ml-4">{o}</span>
+                  <span className="ml-4 truncate">{o}</span>
                 </span>
 
                 <span className="flex items-center">
@@ -2151,7 +2165,11 @@ export const VoteGovPopUp = (
                   ) : null}
 
                   <span>
-                    {toPrecision(scientificNotationToString(ratios[i]), 1)}%
+                    {toPrecision(
+                      scientificNotationToString(ratios[i].toString()),
+                      1
+                    )}
+                    %
                   </span>
                 </span>
               </button>
@@ -2360,7 +2378,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
             )}
           </span>
           <span className="col-span-1 text-center">
-            {toPrecision(ratio, 1, false)}%
+            {toPrecision(ratio, 2, false)}%
           </span>
           <span className="col-span-1 text-center">
             {toPrecision(allocate, 0, true)}
@@ -3133,13 +3151,19 @@ export const GovProposal = ({
   return (
     <div className="flex flex-col text-white text-sm relative">
       {!unClaimedRewards ||
-      showDetail ||
-      Object.keys(unClaimedRewards).length === 0 ? null : (
-        <RewardCard rewardList={unClaimedRewards || {}} />
+      unClaimedRewards?.length === 0 ||
+      showDetail ? null : (
+        <RewardCard rewardList={unClaimedRewards} />
       )}
 
       {showDetail ? null : (
-        <div className="flex items-center justify-end pb-6 relative">
+        <div
+          className={`flex items-center justify-end relative ${
+            !unClaimedRewards || unClaimedRewards.length === 0
+              ? 'pb-10'
+              : 'pb-6'
+          }`}
+        >
           {!VEmeta?.whitelisted_accounts?.includes(
             getCurrentWallet().wallet.getAccountId()
           ) ? null : (
@@ -3178,7 +3202,6 @@ export const GovProposal = ({
           />
         </div>
       )}
-
       <div className="flex flex-col">
         {proposals
           ?.filter((p) => state === 'All' || proposalStatus[p.status] === state)
@@ -3232,12 +3255,10 @@ export const ProposalCard = () => {
 
   const config = useVEconfig();
 
-  const proposal_id = new URLSearchParams(window.location.search).get(
-    'proposal_id'
-  );
+  const proposal_id = window.location.pathname.split('/')?.[2];
 
   const [showDetail, setShowDetail] = useState<number>(
-    proposal_id ? Number(proposal_id) : undefined
+    proposal_id && Number(proposal_id) >= 0 ? Number(proposal_id) : undefined
   );
 
   useEffect(() => {
