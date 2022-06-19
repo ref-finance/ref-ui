@@ -174,23 +174,14 @@ export default function FarmsMigrate() {
                 }
               )}
             </div>
-          ) : seed_loading ? (
-            <div className="flex items-center justify-center bg-cardBg rounded-2xl p-5 mt-8 text-white text-base">
-              Loading ...
-            </div>
           ) : null}
 
-          {Object.keys(user_claimed_rewards).length > 0 &&
-          Object.keys(all_token_price_list).length ? (
+          {Object.keys(user_claimed_rewards).length > 0 ? (
             <div className="withDrawBox bg-cardBg rounded-2xl p-5 mt-3">
               <WithDrawBox
                 userRewardList={user_claimed_rewards}
                 tokenPriceList={all_token_price_list}
               ></WithDrawBox>
-            </div>
-          ) : rewards_loading ? (
-            <div className="flex items-center justify-center bg-cardBg rounded-2xl p-5 mt-8 text-white text-base">
-              Loading ...
             </div>
           ) : null}
         </>
@@ -282,35 +273,29 @@ function WithDrawBox(props: { userRewardList: any; tokenPriceList: any }) {
   const intl = useIntl();
   const withdrawNumber = 5;
   useEffect(() => {
-    if (
-      Object.keys(userRewardList).length &&
-      Object.keys(tokenPriceList).length
-    ) {
-      const tempList = Object.keys(userRewardList).map(async (key: string) => {
-        const rewardToken = await ftGetTokenMetadata(key);
-        const price = tokenPriceList[key]?.price;
-        return {
-          tokenId: key,
-          rewardToken,
-          price,
-          number: userRewardList[key],
-        };
+    const tempList = Object.keys(userRewardList).map(async (key: string) => {
+      const rewardToken = await ftGetTokenMetadata(key);
+      return {
+        tokenId: key,
+        rewardToken,
+        number: userRewardList[key],
+      };
+    });
+    Promise.all(tempList).then((list) => {
+      const tempRewardList = {};
+      list.forEach((item: any) => {
+        tempRewardList[item.tokenId] = item;
       });
-      Promise.all(tempList).then((list) => {
-        const tempRewardList = {};
-        list.forEach((item: any) => {
-          tempRewardList[item.tokenId] = item;
-        });
-        setRewardList(tempRewardList);
-      });
-    }
-  }, [Object.keys(userRewardList).length, Object.keys(tokenPriceList).length]);
+      setRewardList(tempRewardList);
+    });
+  }, [Object.keys(userRewardList).length]);
   function valueOfWithDrawLimitTip() {
     const tip = intl.formatMessage({ id: 'over_tip' });
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
-  function displaySinglePrice(price: string) {
+  function displaySinglePrice(item: any) {
+    const price = tokenPriceList[item.tokenId]?.price || '';
     let displayPrice = '$-';
     if (price && price != 'N/A') {
       if (new BigNumber('0.01').isGreaterThan(price)) {
@@ -322,7 +307,8 @@ function WithDrawBox(props: { userRewardList: any; tokenPriceList: any }) {
     return displayPrice;
   }
   function displayTotalPrice(item: any) {
-    const { rewardToken, number, price } = item;
+    const { rewardToken, number, tokenId } = item;
+    const price = tokenPriceList[tokenId]?.price || '';
     let resultTotalPrice = '0';
     if (price && price != 'N/A') {
       const totalPrice = new BigNumber(price).multipliedBy(
@@ -428,7 +414,7 @@ function WithDrawBox(props: { userRewardList: any; tokenPriceList: any }) {
                     {toRealSymbol(item.rewardToken.symbol)}
                   </label>
                   <label className="text-primaryText text-xs">
-                    {displaySinglePrice(item.price)}
+                    {displaySinglePrice(item)}
                   </label>
                 </div>
               </div>

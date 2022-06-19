@@ -22,6 +22,7 @@ import {
   RuIcon,
   JaIcon,
   KoIcon,
+  NavLogoSimple,
 } from '~components/icon';
 import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
@@ -528,7 +529,7 @@ export function MobileNavBar(props: any) {
       >
         {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}
         <div className="flex items-center text-2xl text-white justify-between p-4">
-          <NavLogo />
+          <NavLogoSimple />
           <div className="flex">
             <div
               className={`flex px-1 mr-px items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
