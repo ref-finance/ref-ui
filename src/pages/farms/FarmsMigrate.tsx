@@ -43,7 +43,12 @@ export default function FarmsMigrate() {
   const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
   const goBacktoFarms = () => {
-    history.push('/farms');
+    const from = new URLSearchParams(location.search).get('from');
+    if (from == 'v2') {
+      history.push('/farmsBoost');
+    } else {
+      history.push('/farms');
+    }
   };
   useEffect(() => {
     if (isSignedIn) {

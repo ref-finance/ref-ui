@@ -842,7 +842,7 @@ export default function FarmsHome(props: any) {
     setBoostInstructions(!boostInstructions);
   }
   function goMigrate() {
-    history.push('/farmsMigrate');
+    history.push('/farmsMigrate?from=v2');
   }
   const endFarmLength = useMemo(() => {
     return getFarmVisibleLength();
@@ -2623,7 +2623,10 @@ function WithDrawBox(props: {
         className="relative bg-veGradient px-5 overflow-hidden"
         style={{ height: '68px' }}
       >
-        <span className="absolute top-0 left-5 text-white text-xs bg-senderHot rounded-b-lg px-3 py-0.5 whitespace-nowrap">
+        <span
+          className="absolute top-0 left-5 text-white text-xs bg-senderHot rounded-b-lg px-3 py-0.5 whitespace-nowrap"
+          style={{ boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)' }}
+        >
           <label className="text-black text-xs font-bold">
             <FormattedMessage id="claimed_Rewards"></FormattedMessage>
           </label>
@@ -2991,11 +2994,11 @@ function WithDrawModal(props: {
             </div>
           </div>
         </div>
-        <div className="flex items-center bg-cardBg justify-between rounded-lg mt-3 px-3.5 py-3 xs:flex-col md:flex-col xs:items-start md:items-start">
+        <div className="flex flex-col items-start bg-cardBg justify-between rounded-lg mt-3 px-3.5 py-3">
           <span className="text-white text-sm">
             <FormattedMessage id="how_to_earn_more"></FormattedMessage>
           </span>
-          <div className="flex items-center xs:mt-2 md:mt-2">
+          <div className="flex items-center mt-2">
             <span className="flex items-center text-xs text-primaryText mr-2">
               <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
                 1
