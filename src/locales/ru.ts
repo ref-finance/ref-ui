@@ -650,5 +650,7 @@ const ru = {
   click_to_view: 'Нажмите, чтобы просмотреть',
   migrate: 'Migrate',
   go_to_new_farm: 'Go to New Farm',
+  voting_gauge_share_tip:
+    'The proportion of the REF used for voting allocation to the total REF reward in this period',
 };
 export default Object.assign(ru, ru_in_risks_page);

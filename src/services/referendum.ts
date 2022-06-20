@@ -16,8 +16,17 @@ import {
 import { storageDepositAction } from './creators/storage';
 import moment from 'moment';
 import { ftGetTokenMetadata, ftGetStorageBalance } from './ft-contract';
-import { toNonDivisibleNumber } from '../utils/numbers';
-import { WRAP_NEAR_CONTRACT_ID, nearDepositTransaction } from './wrap-near';
+import {
+  toNonDivisibleNumber,
+  ONLY_ZEROS,
+  toReadableNumber,
+} from '../utils/numbers';
+import {
+  WRAP_NEAR_CONTRACT_ID,
+  nearDepositTransaction,
+  nearWithdraw,
+  nearWithdrawTransaction,
+} from './wrap-near';
 import { registerAccountOnToken } from './creators/token';
 export interface LockOptions {
   token_id: string;
@@ -443,8 +452,10 @@ export const claimRewardVE = async ({
 
 export const withdrawRewardVE = async ({
   token_ids,
+  rewardList,
 }: {
   token_ids: string[];
+  rewardList: { tokenId: string; amount: string }[];
 }) => {
   const transactions: Transaction[] = token_ids.map((token_id) => {
     return {
@@ -463,7 +474,7 @@ export const withdrawRewardVE = async ({
   });
 
   await Promise.all(
-    token_ids.map(async (id) => {
+    token_ids.map(async (id, i) => {
       const tokenRegistered = await ftGetStorageBalance(id);
       if (tokenRegistered === null) {
         transactions.unshift({
@@ -473,6 +484,17 @@ export const withdrawRewardVE = async ({
       }
     })
   );
+
+  if (token_ids.includes(WRAP_NEAR_CONTRACT_ID)) {
+    const nearReward = rewardList.find(
+      (r) => r.tokenId === WRAP_NEAR_CONTRACT_ID
+    );
+    if (!ONLY_ZEROS.test(nearReward.amount)) {
+      transactions.push(
+        nearWithdrawTransaction(toReadableNumber(24, nearReward.amount))
+      );
+    }
+  }
 
   return executeMultipleTransactions(transactions);
 };

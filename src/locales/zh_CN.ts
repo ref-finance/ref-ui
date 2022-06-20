@@ -619,5 +619,7 @@ const zh_CN = {
   burrow_usn_tip: '你可以通过Burrow来借USN.',
   migrate: '迁移',
   go_to_new_farm: '访问新版农场',
+  voting_gauge_share_tip:
+    'The proportion of the REF used for voting allocation to the total REF reward in this period',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

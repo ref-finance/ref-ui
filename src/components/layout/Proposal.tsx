@@ -16,6 +16,7 @@ import {
   getProposalList,
   Proposal,
 } from '~services/referendum';
+
 import { scientificNotationToString, toPrecision } from '~utils/numbers';
 import { Card } from '../card/Card';
 import {
@@ -111,6 +112,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { getCurrentUnixTime } from '../../services/api';
 import { useHistory, useParams } from 'react-router-dom';
 import { checkAllocations } from '../../utils/numbers';
+import { QuestionTip } from './TipWrapper';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -603,11 +605,13 @@ const VoteChart = ({
               <div
                 className="w-2.5 h-2.5 rounded-sm mr-1 flex-shrink-0 "
                 style={{
-                  backgroundColor: OPTIONS_COLORS[activeIndex] || 'black',
+                  backgroundColor: OPTIONS_COLORS[activeIndex] || '#8EA0CF',
                 }}
               ></div>
 
-              <div className="text-right">{name}</div>
+              <div className="text-right truncate" title={name}>
+                {name}
+              </div>
             </div>
             <div className="self-end">{value}%</div>
           </div>
@@ -641,7 +645,7 @@ const VoteChart = ({
             return (
               <Cell
                 key={`cell-${index}`}
-                fill={OPTIONS_COLORS[options.indexOf(entry.name)]}
+                fill={OPTIONS_COLORS[options.indexOf(entry.name)] || '#8EA0CF'}
                 stroke="#304048"
                 strokeOpacity={10}
                 strokeWidth={2}
@@ -936,7 +940,9 @@ export const PreviewPopUp = (
                             'black',
                         }}
                       ></div>
-                      <span className="mx-2 truncate">{d.option}</span>
+                      <span className="mx-2 truncate w-3/5" title={d.option}>
+                        {d.option}
+                      </span>
                     </span>
 
                     <span className="col-span-2 ">
@@ -981,6 +987,9 @@ const FarmChart = ({
   ratio,
   size,
   voted,
+  innerRadiusProp,
+  outerRadiusProp,
+  forLastRound,
 }: {
   ratio: {
     name: string;
@@ -993,6 +1002,9 @@ const FarmChart = ({
   }[];
   size: number;
   voted: number;
+  innerRadiusProp?: number;
+  outerRadiusProp?: number;
+  forLastRound?: boolean;
 }) => {
   if (!ratio) return null;
   const [activeIndex, setActiveIndex] = useState<number>();
@@ -1012,7 +1024,9 @@ const FarmChart = ({
 
     return (
       <div
-        className="rounded-lg relative top-12 border w-full border-gradientFrom px-3 pt-6 pb-3 flex flex-col text-base"
+        className={`rounded-lg relative top-12 border w-full border-gradientFrom px-3 pt-6 pb-3 flex flex-col ${
+          forLastRound ? 'text-sm' : 'text-base'
+        }`}
         style={{
           backgroundColor: 'rgba(26, 35, 41, 0.6)',
           backdropFilter: 'blur(50px)',
@@ -1115,7 +1129,12 @@ const FarmChart = ({
           {`${emptyVote ? '-' : (percent * 100).toFixed(2)}%`}
         </text>
         {index === activeIndex ? (
-          <foreignObject x={cx - 120} y={cy - 150} height="220" width="250">
+          <foreignObject
+            x={cx - 100}
+            y={cy - 130}
+            height={`220`}
+            width={forLastRound ? '200' : `250`}
+          >
             <ActiveLabel />
           </foreignObject>
         ) : null}
@@ -1172,17 +1191,14 @@ const FarmChart = ({
           stroke={'#1D2932'}
           strokeWidth={2}
         />
-        {/* <foreignObject x={cx - 120} y={cy - 100} height="160" width="250">
-          <ActiveLabel />
-        </foreignObject> */}
       </g>
     );
   };
 
-  const innerRadius = 140;
-  const outerRadius = 170;
+  const innerRadius = innerRadiusProp || 140;
+  const outerRadius = outerRadiusProp || 170;
   return (
-    <ResponsiveContainer width={'100%'} height={600}>
+    <ResponsiveContainer width={'100%'} height={forLastRound ? 350 : 500}>
       <PieChart>
         <Pie
           data={data}
@@ -1279,7 +1295,7 @@ const GovItemDetail = ({
   });
 
   const ratios = checkAllocations(
-    '100',
+    ONLY_ZEROS.test(totalVE) ? '0' : '100',
     dataRaw?.map((d) => d.ratio)
   );
 
@@ -1438,7 +1454,7 @@ const GovItemDetail = ({
               <VoteChart
                 options={data?.map((d) => d.option)}
                 ratios={checkAllocations(
-                  '100',
+                  ONLY_ZEROS.test(totalVE) ? '0' : '100',
                   data?.map((d) => d.ratio)
                 )}
                 forDetail
@@ -1478,15 +1494,27 @@ const GovItemDetail = ({
                           style={{
                             backgroundColor:
                               OPTIONS_COLORS[options.indexOf(d.option)] ||
-                              '#3D455B',
+                              '#8EA0CF',
                           }}
                         ></div>
-                        <span className="mx-2 truncate">{d.option}</span>
+                        <span
+                          className="mx-2"
+                          style={{
+                            maxWidth: '60%',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                          title={d.option}
+                        >
+                          {d.option}
+                        </span>
                         {i === 0 && !ONLY_ZEROS.test(totalVE) ? (
                           <span
                             className=""
                             style={{
-                              color: OPTIONS_COLORS[options.indexOf(d.option)],
+                              color:
+                                OPTIONS_COLORS[options.indexOf(d.option)] ||
+                                '#8EA0CF',
                             }}
                           >
                             Top
@@ -1823,7 +1851,10 @@ const GovProposalItem = ({
             ) : (
               <VoteChart
                 options={options}
-                ratios={checkAllocations('100', ratios)}
+                ratios={checkAllocations(
+                  ONLY_ZEROS.test(totalVE) ? '0' : '100',
+                  ratios
+                )}
               />
             )}
           </div>
@@ -1896,12 +1927,19 @@ const GovProposalItem = ({
                         className="w-2.5 h-2.5 rounded-sm mr-3 flex-shrink-0"
                         style={{
                           backgroundColor:
-                            OPTIONS_COLORS[topVoteIndex] || 'black',
+                            OPTIONS_COLORS[topVoteIndex] || '#8EA0CF',
                         }}
                       ></div>
                     )}
 
-                    <span className="truncate">
+                    <span
+                      className="truncate w-80"
+                      title={
+                        proposal.status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
+                          ? ''
+                          : topOption
+                      }
+                    >
                       {proposal.status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
                         ? '-'
                         : topOption}
@@ -2043,7 +2081,10 @@ const GovProposalItem = ({
         proposalTitle={description?.title}
         onRequestClose={() => setShowVotePop(false)}
         options={options}
-        ratios={checkAllocations('100', ratios)}
+        ratios={checkAllocations(
+          ONLY_ZEROS.test(totalVE) ? '0' : '100',
+          ratios
+        )}
         proposal={proposal}
         totalVE={totalVE}
       />
@@ -2171,7 +2212,9 @@ export const VoteGovPopUp = (
                 <span className="flex items-center ">
                   <CheckComponent checked={value === o} />
 
-                  <span className="ml-4 truncate">{o}</span>
+                  <span className="ml-4 truncate w-56 text-left" title={o}>
+                    {o}
+                  </span>
                 </span>
 
                 <span className="flex items-center">
@@ -2220,7 +2263,218 @@ export const VoteGovPopUp = (
   );
 };
 
-export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
+export const LastRoundFarmVoting = (
+  props: Modal.Props & {
+    title: string | JSX.Element;
+    proposal: Proposal;
+    VEmeta: VEMETA & {
+      totalVE: string;
+    };
+  }
+) => {
+  const { proposal: farmProposal, VEmeta } = props;
+
+  const voteDetail = useVoteDetail();
+
+  const votedVE = BigNumber.sum(...(farmProposal?.votes || ['0', '0']));
+
+  const [tokens, setTokens] = useState<Record<string, TokenMetadata>>();
+
+  useEffect(() => {
+    ftGetTokensMetadata(
+      farmProposal?.kind?.FarmingReward?.farm_list
+        ?.map((pair) => {
+          return pair.split(PAIR_SEPERATOR);
+        })
+        .flat() || []
+    ).then(setTokens);
+  }, [farmProposal]);
+
+  const displayRatios = votedVE.isGreaterThan(0)
+    ? farmProposal?.votes.map((vote) =>
+        new BigNumber(vote).div(votedVE).times(100).toFixed(2)
+      )
+    : farmProposal?.kind?.FarmingReward?.farm_list?.map((_, i) => '0');
+
+  const checkedRatios = checkAllocations('100', displayRatios);
+
+  const displayVELPT = farmProposal?.votes.map((vote) =>
+    toPrecision(toReadableNumber(LOVE_TOKEN_DECIMAL, vote), 2, false)
+  );
+
+  const checkedVELPTs = checkAllocations(
+    toPrecision(
+      toReadableNumber(
+        LOVE_TOKEN_DECIMAL,
+        scientificNotationToString(votedVE.toString())
+      ),
+      2
+    ),
+    displayVELPT
+  );
+
+  const allocations = checkAllocations('100', displayRatios).map((r) => {
+    return toPrecision(
+      multiply(
+        divide(r, '100').toString(),
+        farmProposal?.kind?.FarmingReward?.total_reward.toString()
+      ),
+      0
+    );
+  });
+
+  const checkedAllocations = checkAllocations(
+    farmProposal?.kind?.FarmingReward?.total_reward.toString(),
+    allocations
+  );
+  const supplyPercent = votedVE
+    .dividedBy(toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, VEmeta.totalVE || '1'))
+    .times(100)
+    .toNumber()
+    .toFixed(2);
+  const InfoRow = ({
+    title,
+    value,
+    valueTitle,
+  }: {
+    title: string | JSX.Element;
+    value: string;
+    valueTitle?: string;
+  }) => {
+    return (
+      <div className="my-2 text-sm whitespace-nowrap text-farmText flex items-center justify-between w-full">
+        <span>{title}</span>
+        <div className="mx-1 border border-b border-dashed border-white border-opacity-10 w-full"></div>
+
+        <span className="text-white whitespace-nowrap" title={valueTitle}>
+          {value}
+        </span>
+      </div>
+    );
+  };
+
+  return (
+    <ModalWrapper {...props} customWidth="650px">
+      <FarmChart
+        ratio={farmProposal?.kind?.FarmingReward?.farm_list?.map((f, i) => ({
+          name: f,
+          value: Number(farmProposal.votes[i]),
+          pairSymbol: f
+            .split(PAIR_SEPERATOR)
+            .map((id) => toRealSymbol(tokens?.[id]?.symbol || ''))
+            .join('/'),
+          tokens: f.split(PAIR_SEPERATOR).map((id) => tokens?.[id]),
+
+          r: checkedRatios[i] + '%',
+          allocation: toPrecision(checkedAllocations[i] || '0', 0, true),
+          veLPT: checkedVELPTs[i] || '0',
+        }))}
+        size={farmProposal?.kind?.FarmingReward?.farm_list?.length}
+        voted={voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id}
+        outerRadiusProp={130}
+        innerRadiusProp={100}
+        forLastRound
+      />
+
+      <div className="w-full border-b border-white border-opacity-10 mb-4"></div>
+
+      <InfoRow
+        title={
+          <FormattedMessage
+            id="Voting Apply Period"
+            defaultMessage={'Voting Apply Period'}
+          />
+        }
+        value={`1-${moment(
+          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
+        ).daysInMonth()}, ${moment(
+          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('MMMM')}`}
+      />
+      <InfoRow
+        title={
+          <span className="flex items-center">
+            <FormattedMessage
+              id="voting_gauge_share"
+              defaultMessage={'Voting Gauge Share'}
+            />
+            <span className="ml-1">
+              <QuestionTip id="voting_gauge_share_tip" />
+            </span>
+          </span>
+        }
+        value={'10%'}
+      />
+      <InfoRow
+        title={
+          <FormattedMessage
+            id="ref_allocation"
+            defaultMessage={'REF Allocation'}
+          />
+        }
+        value={`${toPrecision(
+          farmProposal?.kind?.FarmingReward.total_reward.toString() || '0',
+          0,
+          true
+        )} REF`}
+      />
+      <InfoRow
+        title={
+          <FormattedMessage
+            id="designatated_pools"
+            defaultMessage={'Designated Pools'}
+          />
+        }
+        value={farmProposal?.kind?.FarmingReward.farm_list.length.toString()}
+      />
+      <InfoRow
+        title={
+          <FormattedMessage
+            id="voted"
+            defaultMessage={'Voted'}
+          ></FormattedMessage>
+        }
+        value={`${toPrecision(
+          toReadableNumber(
+            18,
+            scientificNotationToString(
+              BigNumber.sum(...(farmProposal?.votes || ['0', '0'])).toString()
+            )
+          ),
+          2,
+          true
+        )} veLPT`}
+      />
+      <InfoRow
+        title={
+          <FormattedMessage
+            id="total"
+            defaultMessage={'Total'}
+          ></FormattedMessage>
+        }
+        value={`${
+          Number(VEmeta.totalVE) === 0
+            ? '0'
+            : toPrecision(VEmeta.totalVE, 2, true, false)
+        } veLPT`}
+      />
+      <InfoRow
+        title={
+          <FormattedMessage id="supply_voted" defaultMessage={'Supply Voted'} />
+        }
+        value={`${Number(supplyPercent) === 0 ? 0 : supplyPercent}%`}
+      />
+    </ModalWrapper>
+  );
+};
+
+export const FarmProposal = ({
+  farmProposal,
+  lastRoundFarmProposal,
+}: {
+  farmProposal: Proposal;
+  lastRoundFarmProposal: Proposal;
+}) => {
   const base = Math.floor(
     Number(
       farmProposal?.status === 'InProgress'
@@ -2240,6 +2494,9 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
     setCounterDownStirng,
     id: farmProposal?.id,
   });
+
+  const [showLastRoundVoting, setShowLastRoundVoting] =
+    useState<boolean>(false);
 
   const curMonth = moment().format('MMMM');
   const curYear = moment().format('y');
@@ -2505,7 +2762,7 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
         {curYear}
         <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs pr-4 pl-2 text-gradientFrom absolute right-0">
           {ended ? (
-            <span className="text-primaryText">
+            <span className="text-primaryText ml-2">
               <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
             </span>
           ) : (
@@ -2533,10 +2790,15 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
         <InfoCard
           className="text-sm mr-2 w-full"
           titles={[
-            <FormattedMessage
-              id="voting_gauge_share"
-              defaultMessage={'Voting Gauge Share'}
-            />,
+            <span className="flex items-center">
+              <FormattedMessage
+                id="voting_gauge_share"
+                defaultMessage={'Voting Gauge Share'}
+              />
+              <span className="ml-1">
+                <QuestionTip id="voting_gauge_share_tip" />
+              </span>
+            </span>,
             <FormattedMessage
               id="ref_allocation"
               defaultMessage={'REF Allocation'}
@@ -2589,6 +2851,23 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
           ]}
         />
       </div>
+      {!lastRoundFarmProposal ? null : (
+        <BorderGradientButton
+          text={
+            <FormattedMessage
+              id="check_last_round"
+              defaultMessage={'Check Last Round'}
+            />
+          }
+          className="text-white text-sm  w-full h-full"
+          padding=" py-2"
+          width="w-36 h-12 relative self-start"
+          color="#192431"
+          onClick={() => {
+            setShowLastRoundVoting(true);
+          }}
+        />
+      )}
 
       <FarmChart
         ratio={farmProposal?.kind?.FarmingReward?.farm_list?.map((f, i) => ({
@@ -2650,6 +2929,22 @@ export const FarmProposal = ({ farmProposal }: { farmProposal: Proposal }) => {
           }
         )}
       </Card>
+      {!lastRoundFarmProposal ? null : (
+        <LastRoundFarmVoting
+          isOpen={showLastRoundVoting}
+          onRequestClose={() => {
+            setShowLastRoundVoting(false);
+          }}
+          title={
+            <FormattedMessage
+              id="last_round_voting_result"
+              defaultMessage={'Last Round Voting Result'}
+            />
+          }
+          proposal={lastRoundFarmProposal}
+          VEmeta={VEmeta}
+        />
+      )}
     </div>
   );
 };
@@ -2750,7 +3045,7 @@ export const CreateGovProposal = ({
       };
     }
 
-    if (options.length === 1 && !options[0]?.trim()) {
+    if (options.filter((_) => !!_.trim()).length < 2) {
       newRequire = {
         ...newRequire,
         option: intl.formatMessage({
@@ -2764,7 +3059,7 @@ export const CreateGovProposal = ({
       dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
       !link?.trim() ||
       !title?.trim() ||
-      (options.length === 1 && !options[0]?.trim())
+      options.filter((_) => !!_.trim()).length < 2
     ) {
       setRequire(newRequire);
 
@@ -2854,18 +3149,14 @@ export const CreateGovProposal = ({
           />
         </div>
 
-        <div
-          className={`flex items-center flex-wrap pt-2 ${
-            !require?.['option'] ? 'pb-10' : 'pb-2'
-          } pb-2`}
-        >
+        <div className={`flex items-center flex-wrap pt-2 pb-10`}>
           {options?.map((o, i) => {
             return (
               <>
                 {type === 'Poll' ? (
                   <span
-                    className={`flex items-center pr-1 py-1 pl-2 w-28 mt-2 ${
-                      require?.['option']
+                    className={`flex items-center pr-1 py-1 pl-2 w-28 mt-2 relative ${
+                      require?.['option'] && !o.trim() && i < 2
                         ? 'border border-error border-opacity-30'
                         : ''
                     }  bg-black ${
@@ -2879,6 +3170,7 @@ export const CreateGovProposal = ({
                           OPTIONS_COLORS[i % OPTIONS_COLORS.length],
                       }}
                     ></span>
+
                     <input
                       value={o}
                       onFocus={() => {
@@ -2919,6 +3211,13 @@ export const CreateGovProposal = ({
                     >
                       <span>-</span>
                     </button>
+                    {require?.['option'] && !o.trim() && i < 2 ? (
+                      <div
+                        className={`mx-2 whitespace-nowrap top-10 absolute text-error text-sm  `}
+                      >
+                        {`${require?.['option']} !`}{' '}
+                      </div>
+                    ) : null}
                   </span>
                 ) : (
                   <div
@@ -2953,14 +3252,6 @@ export const CreateGovProposal = ({
               </button>
             </>
           )}
-        </div>
-
-        <div
-          className={`mx-2 pt-2 pb-6 text-error text-sm ${
-            require?.['option'] ? 'block' : 'hidden'
-          } `}
-        >
-          {`${require?.['option']} !`}{' '}
         </div>
 
         <div className="pb-4">
@@ -3094,7 +3385,7 @@ export const CreateGovProposal = ({
               dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
               !link?.trim() ||
               !title?.trim() ||
-              (options.length === 1 && !options[0]?.trim())
+              options.filter((_) => !!_.trim()).length < 2
             }
             beatStyling={beating}
             className="ml-4"
@@ -3188,14 +3479,14 @@ export const GovProposal = ({
         <div
           className={`flex items-center justify-end relative ${
             !unClaimedRewards || unClaimedRewards.length === 0
-              ? 'pb-10'
-              : 'pb-6'
+              ? 'pb-6'
+              : 'pb-16 top-11'
           }`}
         >
           {!VEmeta?.whitelisted_accounts?.includes(
             getCurrentWallet().wallet.getAccountId()
           ) ? null : (
-            <div className="absolute left-0">
+            <div className={`absolute left-0 `}>
               <BorderGradientButton
                 text={
                   <FormattedMessage
@@ -3277,6 +3568,9 @@ export const ProposalCard = () => {
 
   const [farmProposal, setFarmProposal] = useState<Proposal>();
 
+  const [lastRoundFarmProposal, setLastRoundFarmProposal] =
+    useState<Proposal>();
+
   const [proposals, setProposals] = useState<Proposal[]>();
 
   const [showCreateProposal, setShowCreateProposal] = useState<boolean>(false);
@@ -3304,11 +3598,21 @@ export const ProposalCard = () => {
               (o) => Number(o.start_at)
             );
 
-      if (!farmProposal) {
-        setFarmProposal(farmProposals[farmProposals.length - 1]);
-      } else {
-        setFarmProposal(farmProposal);
-      }
+      const toSetFarmProposal =
+        farmProposal || farmProposals[farmProposals.length - 1];
+
+      setFarmProposal(toSetFarmProposal);
+
+      const lastRoundProposal = _.maxBy(
+        farmProposals.filter(
+          (p) =>
+            p.status === 'Expired' &&
+            Number(p.end_at) < Number(toSetFarmProposal.end_at)
+        ),
+        (o) => Number(o.end_at)
+      );
+
+      setLastRoundFarmProposal(lastRoundProposal || undefined);
     });
   }, []);
   useEffect(() => {
@@ -3319,7 +3623,12 @@ export const ProposalCard = () => {
     <div className="w-full flex flex-col items-center ">
       <ProposalTab curTab={curTab} setTab={setTab} className="mt-12 mb-4" />
       <ProposalWrapper show={curTab === PROPOSAL_TAB.FARM}>
-        {!farmProposal ? null : <FarmProposal farmProposal={farmProposal} />}
+        {!farmProposal ? null : (
+          <FarmProposal
+            lastRoundFarmProposal={lastRoundFarmProposal}
+            farmProposal={farmProposal}
+          />
+        )}
       </ProposalWrapper>
 
       <ProposalWrapper show={curTab === PROPOSAL_TAB.GOV} bgcolor={'bg-cardBg'}>

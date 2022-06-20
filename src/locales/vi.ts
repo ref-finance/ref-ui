@@ -658,5 +658,7 @@ const vi = {
   trading_successfull: 'Giao dịch thành công. ',
   migrate: 'Migrate',
   go_to_new_farm: 'Go to New Farm',
+  voting_gauge_share_tip:
+    'The proportion of the REF used for voting allocation to the total REF reward in this period',
 };
 export default Object.assign(vi, vi_in_risks_page);

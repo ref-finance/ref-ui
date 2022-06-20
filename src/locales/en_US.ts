@@ -650,5 +650,7 @@ const en_US = {
   burrow_usn_tip: 'You can borrow USN on Burrow.',
   migrate: 'Migrate',
   go_to_new_farm: 'Go to New Farm',
+  voting_gauge_share_tip:
+    'The proportion of the REF used for voting allocation to the total REF reward in this period',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

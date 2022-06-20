@@ -36,7 +36,7 @@ import { CloseIcon, mapToView } from '../components/icon/Actions';
 import { Symbols } from '../components/stableswap/CommonComp';
 import { NewFarmInputAmount } from '~components/forms/InputAmount';
 import { isMobile } from '../utils/device';
-import { VEConfig } from '../services/referendum';
+import { VEConfig, Proposal } from '../services/referendum';
 import {
   useLOVEbalance,
   useLOVEmeta,
@@ -83,6 +83,9 @@ import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
 import { ConnectToNearBtnGradient } from '../components/button/Button';
 import { WithGradientButton } from '../components/button/Button';
 import { useVEmeta, useVEconfig } from '../state/referendum';
+import { QuestionTip } from '../components/layout/TipWrapper';
+import QuestionMark from '../components/farm/QuestionMark';
+import ReactTooltip from 'react-tooltip';
 
 export interface AccountInfo {
   duration_sec: number;
@@ -192,7 +195,7 @@ export const RewardCard = ({
   };
 
   return (
-    <div className="px-3 pt-3 rounded-lg bg-veGradient flex flex-col w-80 absolute left-1/2 transform -translate-x-1/2 text-sm z-50">
+    <div className="px-3 pt-3 -top-3 rounded-lg bg-veGradient flex flex-col w-80 absolute left-1/2 transform -translate-x-1/2 text-sm z-50">
       <div
         className="flex items-center pb-4 relative  cursor-pointer "
         onClick={() => setShowDetail(!showDetail)}
@@ -253,7 +256,10 @@ export const RewardCard = ({
             <button
               className="px-5 py-1.5 bg-black bg-opacity-30 rounded-lg"
               onClick={() => {
-                withdrawRewardVE({ token_ids: checkList });
+                withdrawRewardVE({
+                  token_ids: checkList,
+                  rewardList: rewardList,
+                });
               }}
               disabled={!checkList?.length}
             >
@@ -603,7 +609,41 @@ export const LockPopUp = ({
               <span className="mr-1">
                 <VE_ICON />
               </span>
-              <span>veLPT</span>
+              <span className="flex items-center">
+                <span>veLPT</span>
+                <div
+                  className="ml-1 text-xs"
+                  data-type="info"
+                  data-place="right"
+                  data-multiline={true}
+                  data-class="reactTip"
+                  data-html={true}
+                  data-tip={`
+              <div className="text-xs">
+                <div 
+                  style="font-weight: 700",
+                >veLPT</div>
+                <div 
+                  style="max-width: 250px;font-weight:400",
+                >
+The veLPT is not an actual, transferable token, but represents your voting power corresponding to your locked LP position. It only shows up on your Ref account balance
+                </div>
+              </div>
+            `}
+                  data-for="tipId_lock_ve"
+                >
+                  <QuestionMark color="dark" />
+                  <ReactTooltip
+                    className="w-20"
+                    id="tipId_lock_ve"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </span>
             </span>
           </div>
           <div className="flex flex-col w-1/2 items-center">
@@ -646,7 +686,42 @@ export const LockPopUp = ({
               <span className="mr-1">
                 <LOVE_ICON />
               </span>
-              <span>LOVE</span>
+              <span className="flex items-center">
+                <span>LOVE</span>
+
+                <div
+                  className="ml-1 text-xs"
+                  data-type="info"
+                  data-place="left"
+                  data-multiline={true}
+                  data-class="reactTip"
+                  data-html={true}
+                  data-tip={`
+              <div className="text-xs">
+                <div 
+                  style="font-weight: 700",
+                >LOVE</div>
+                <div 
+                  style="max-width: 250px;font-weight:400",
+                >
+                "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded                </div>
+              </div>
+            `}
+                  data-for="tipId_lock_love"
+                >
+                  <QuestionMark color="dark" />
+
+                  <ReactTooltip
+                    className="w-20"
+                    id="tipId_lock_love"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </span>
             </span>
           </div>
         </div>
@@ -915,7 +990,42 @@ const UnLockPopUp = ({
               <span className="mr-1">
                 <VE_ICON />
               </span>
-              <span>veLPT</span>
+              <span className="flex items-center">
+                <span>veLPT</span>
+                <div
+                  className="ml-1 text-xs"
+                  data-type="info"
+                  data-place="right"
+                  data-multiline={true}
+                  data-class="reactTip"
+                  data-html={true}
+                  data-tip={`
+              <div className="text-xs">
+                <div 
+                  style="font-weight: 700",
+                >veLPT</div>
+                <div 
+                  style="max-width: 250px;font-weight:400",
+                >
+The veLPT is not an actual, transferable token, but represents your voting power corresponding to your locked LP position. It only shows up on your Ref account balance
+                </div>
+              </div>
+            `}
+                  data-for="tipId_unlock_ve"
+                >
+                  <QuestionMark color="dark" />
+
+                  <ReactTooltip
+                    className="w-20"
+                    id="tipId_unlock_ve"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </span>
             </span>
           </div>
           <div className="flex flex-col w-1/2 items-center ">
@@ -949,11 +1059,6 @@ const UnLockPopUp = ({
                           : 'text-sm'
                         : 'text-base'
                     } ${Number(finalLove) >= 0 ? 'text-white' : 'text-warn'} `}
-                    style={
-                      {
-                        // transform:
-                      }
-                    }
                   >
                     {ONLY_ZEROS.test(
                       toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, finalLove)
@@ -968,7 +1073,42 @@ const UnLockPopUp = ({
               <span className="mr-1">
                 <LOVE_ICON />
               </span>
-              <span>LOVE</span>
+              <span className="flex items-center">
+                <span>LOVE</span>
+
+                <div
+                  className="ml-1 text-xs"
+                  data-type="info"
+                  data-place="left"
+                  data-multiline={true}
+                  data-class="reactTip"
+                  data-html={true}
+                  data-tip={`
+              <div className="text-xs">
+                <div 
+                  style="font-weight: 700",
+                >LOVE</div>
+                <div 
+                  style="max-width: 250px;font-weight:400",
+                >
+                "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded                </div>
+              </div>
+            `}
+                  data-for="tipId_unlock_love"
+                >
+                  <QuestionMark color="dark" />
+
+                  <ReactTooltip
+                    className="w-20"
+                    id="tipId_unlock_love"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </span>
             </span>
           </div>
         </div>
@@ -1020,23 +1160,92 @@ const VotingPowerCard = ({
         </span>
 
         <span className="pt-10">
-          <span title={veShare}>
+          <span title={veShare} className="flex items-center">
             {allZeros ? (
-              <LeftArrowVE />
+              <>
+                <LeftArrowVE />
+
+                <div
+                  className="ml-1 text-xs"
+                  data-type="info"
+                  data-place="right"
+                  data-multiline={true}
+                  data-class="reactTip"
+                  data-html={true}
+                  data-tip={`
+              <div className="text-xs">
+                <div 
+                  style="font-weight: 700",
+                >veLPT</div>
+                <div 
+                  style="max-width: 250px;font-weight:400",
+                >
+The veLPT is not an actual, transferable token, but represents your voting power corresponding to your locked LP position. It only shows up on your Ref account balance
+                </div>
+              </div>
+            `}
+                  data-for="tipId"
+                >
+                  <QuestionMark color="dark" colorHex="#000000" />
+                  <ReactTooltip
+                    className="w-20"
+                    id="tipId"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </>
             ) : Number(veShare) > 0 && Number(veShare) < 0.01 ? (
               '< 0.01'
             ) : (
               toPrecision(veShare, 2) || '0'
             )}
           </span>
-          <div className="text-sm font-normal">
+          <div className="text-sm flex items-center font-normal">
             {allZeros ? (
               <FormattedMessage
                 id="lock_lp_tokens_first"
                 defaultMessage="Lock LP tokens first!"
               />
             ) : (
-              'veLPT'
+              <>
+                <span>veLPT</span>
+                <div
+                  className="ml-1 text-xs"
+                  data-type="info"
+                  data-place="right"
+                  data-multiline={true}
+                  data-class="reactTip"
+                  data-html={true}
+                  data-tip={`
+              <div className="text-xs">
+                <div 
+                  style="font-weight: 700",
+                >veLPT</div>
+                <div 
+                  style="max-width: 250px;font-weight:400",
+                >
+The veLPT is not an actual, transferable token, but represents your voting power corresponding to your locked LP position. It only shows up on your Ref account balance
+                </div>
+              </div>
+            `}
+                  data-for="tipId"
+                >
+                  <QuestionMark color="dark" colorHex="#000000" />
+                  <ReactTooltip
+                    className="w-20"
+                    id="tipId"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </>
             )}
           </div>
         </span>
@@ -1049,8 +1258,6 @@ const VotingPowerCard = ({
 };
 
 const FarmBoosterCard = ({ lpShare }: { lpShare: string }) => {
-  const history = useHistory();
-
   const balance = useLOVEbalance();
 
   const allZeros = ONLY_ZEROS.test(balance) && ONLY_ZEROS.test(lpShare);
@@ -1063,16 +1270,50 @@ const FarmBoosterCard = ({ lpShare }: { lpShare: string }) => {
         </span>
 
         <span className="text-white pt-10">
-          <span title={balance}>
+          <span title={balance} className="flex items-center">
             {allZeros ? (
-              <LeftArrowVE stroke="#00ffd1" />
+              <>
+                <LeftArrowVE stroke="#00ffd1" />
+
+                <div
+                  className="ml-1 text-xs"
+                  data-type="info"
+                  data-place="right"
+                  data-multiline={true}
+                  data-class="reactTip"
+                  data-html={true}
+                  data-tip={`
+              <div className="text-xs">
+                <div 
+                  style="font-weight: 700",
+                >LOVE</div>
+                <div 
+                  style="max-width: 250px;font-weight:400",
+                >
+                "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded                </div>
+              </div>
+            `}
+                  data-for="tipId"
+                >
+                  <QuestionMark color="bright" />
+                  <ReactTooltip
+                    className="w-20"
+                    id="tipId"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </>
             ) : Number(balance) > 0 && Number(balance) < 0.01 ? (
               '< 0.01'
             ) : (
               toPrecision(balance, 2) || '0'
             )}
           </span>
-          <div className="text-sm font-normal">
+          <div className="text-sm font-normal flex items-center">
             {' '}
             {allZeros ? (
               <FormattedMessage
@@ -1080,7 +1321,40 @@ const FarmBoosterCard = ({ lpShare }: { lpShare: string }) => {
                 defaultMessage="Lock LP tokens first!"
               />
             ) : (
-              'LOVE'
+              <>
+                <span>LOVE</span>
+                <div
+                  className="ml-1 text-xs"
+                  data-type="info"
+                  data-place="right"
+                  data-multiline={true}
+                  data-class="reactTip"
+                  data-html={true}
+                  data-tip={`
+              <div className="text-xs">
+                <div 
+                  style="font-weight: 700",
+                >LOVE</div>
+                <div 
+                  style="max-width: 250px;font-weight:400",
+                >
+                "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded                </div>
+              </div>
+            `}
+                  data-for="tipId"
+                >
+                  <QuestionMark color="bright" />
+                  <ReactTooltip
+                    className="w-20"
+                    id="tipId"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              </>
             )}
           </div>
         </span>

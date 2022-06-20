@@ -650,5 +650,7 @@ const ko = {
   trading_successfull: '거래 성공. ',
   migrate: 'Migrate',
   go_to_new_farm: 'Go to New Farm',
+  voting_gauge_share_tip:
+    'The proportion of the REF used for voting allocation to the total REF reward in this period',
 };
 export default Object.assign(ko, ko_in_risks_page);
