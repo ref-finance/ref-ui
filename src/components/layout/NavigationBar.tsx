@@ -115,27 +115,29 @@ function Anchor({
   className?: string;
   newFuntion?: boolean;
 }) {
-  const [hover, setHover] = useState(false);
   const location = useLocation();
-  const isSelected = matchPath(location.pathname, {
-    path: pattern,
-    exact: true,
-    strict: false,
-  });
-
+  let isSelected;
+  if (pattern == '/pools') {
+    isSelected =
+      location.pathname.startsWith('/pools') ||
+      location.pathname.startsWith('/pool') ||
+      location.pathname.startsWith('/more_pools');
+  } else {
+    isSelected = matchPath(location.pathname, {
+      path: pattern,
+      exact: true,
+      strict: false,
+    });
+  }
   return (
     <Link
       to={to}
-      className={`relative ${name === 'Risks' ? 'lg:hidden lg2:block' : ''}`}
-      onMouseEnter={() => {
-        setHover(true);
-      }}
-      onMouseLeave={() => {
-        setHover(false);
-      }}
+      className={`relative flex items-center justify-center h-full border-t-4 mx-4 border-greenColor ${
+        isSelected ? 'border-opacity-100' : 'border-opacity-0'
+      } ${name === 'Risks' ? 'lg:hidden lg2:block' : ''}`}
     >
       <h2
-        className={`link hover:text-greenColor text-lg font-bold p-4 cursor-pointer relative z-10 ${className} ${
+        className={`link hover:text-white text-lg font-bold py-4 cursor-pointer relative z-10 ${className} ${
           isSelected ? 'text-greenColor' : 'text-gray-400'
         }`}
       >
@@ -146,7 +148,6 @@ function Anchor({
           </span>
         ) : null}
       </h2>
-      <GreenArrow hover={hover}></GreenArrow>
     </Link>
   );
 }
@@ -501,25 +502,27 @@ export function AuroraEntry({
 function Xref() {
   const history = useHistory();
   const location = useLocation();
-  const [hover, setHover] = useState(false);
+  // const [hover, setHover] = useState(false);
   const goXrefPage = () => {
     history.push('/xref');
   };
   return (
     <div
-      className={`relative p-4 cursor-pointer hover:opacity-100 ${
-        location.pathname == '/xref' ? 'opacity-100' : 'opacity-60'
+      className={`h-full flex items-center justify-center relative py-4 mx-4 cursor-pointer hover:opacity-100 border-t-4 border-greenColor ${
+        location.pathname == '/xref'
+          ? 'opacity-100 border-opacity-100'
+          : 'opacity-60 border-opacity-0'
       }`}
       onClick={goXrefPage}
-      onMouseEnter={() => {
-        setHover(true);
-      }}
-      onMouseLeave={() => {
-        setHover(false);
-      }}
+      // onMouseEnter={() => {
+      //   setHover(true);
+      // }}
+      // onMouseLeave={() => {
+      //   setHover(false);
+      // }}
     >
       <XrefIcon className="cursor-pointer"></XrefIcon>
-      <GreenArrow hover={hover}></GreenArrow>
+      {/* <GreenArrow hover={hover}></GreenArrow> */}
     </div>
   );
 }
@@ -1042,10 +1045,10 @@ function NavigationBar() {
           .
         </div>
         <nav
-          className="flex items-center justify-between px-9 py-3 col-span-8"
+          className="flex items-center justify-between px-9 col-span-8 h-20"
           style={{ borderBottom: '2px solid rgba(8, 97, 81, 0.39)' }}
         >
-          <div className="flex items-center">
+          <div className="flex items-center h-full">
             <div className="relative -top-0.5 flex-1 xs:hidden md:hidden">
               <NavLogoSimple
                 className="mr-12 cursor-pointer"
@@ -1054,16 +1057,20 @@ function NavigationBar() {
                 }}
               />
             </div>
-            <div className="flex items-center">
-              <Anchor to="/" pattern="/" name="Swap" />
-              <Anchor to="/sauce" pattern="/sauce" name="Sauce" />
-              <PoolsMenu />
-              <Anchor to="/farmsBoost" pattern="/farmsBoost" name="Farms" />
+            <div className="flex items-center h-full">
+              <Anchor to="/" pattern="/" name="swap_capital" />
+              <Anchor to="/sauce" pattern="/sauce" name="sauce_capital" />
+              <Anchor to="/pools" pattern="/pools" name="POOL" />
+              <Anchor
+                to="/farmsBoost"
+                pattern="/farmsBoost"
+                name="farm_capital"
+              />
               <Xref></Xref>
               <Anchor
                 to="/referendum"
                 pattern="/referendum"
-                name="Referendum"
+                name="dao_capital"
               />
             </div>
           </div>

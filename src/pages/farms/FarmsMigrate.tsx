@@ -121,15 +121,19 @@ export default function FarmsMigrate() {
           <FormattedMessage id="farms" />
         </label>
       </div>
-      <div className="instruction flex justify-between items-center mt-10">
-        <MigrateIcon className="flex-shrink-0 mr-4"></MigrateIcon>
+      <div className="instruction flex xs:flex-col md:flex-col justify-between items-center mt-10">
+        <MigrateIcon
+          className={`flex-shrink-0 mr-4 ${
+            isSignedIn ? 'xs:hidden md:hidden' : ''
+          }`}
+        ></MigrateIcon>
         {!isSignedIn ? (
-          <GreenConnectToNearBtn className="mt-6 ml-16"></GreenConnectToNearBtn>
+          <GreenConnectToNearBtn className="mt-6 ml-16 xs:ml-0 md:ml-0"></GreenConnectToNearBtn>
         ) : (
           <>
             {noData ? (
               <div className="flex flex-col items-center">
-                <span className="text-2xl font-bold text-lightGreenColor">
+                <span className="flex w-full items-center text-2xl font-bold text-lightGreenColor">
                   No Farm need to Migrate
                 </span>
                 <GradientButton
@@ -146,7 +150,7 @@ export default function FarmsMigrate() {
               </div>
             ) : (
               <div>
-                <span className="text-2xl font-bold text-lightGreenColor">
+                <span className="flex w-full xs:justify-center md:justify-center text-2xl font-bold text-lightGreenColor">
                   V2 New Farm Migration
                 </span>
                 <p className="text-base text-white mt-4">
@@ -162,7 +166,7 @@ export default function FarmsMigrate() {
       {!isSignedIn ? null : (
         <>
           {user_migrate_seeds.length > 0 ? (
-            <div className="migratSeedBox bg-cardBg rounded-2xl p-5 mt-8">
+            <div className="migratSeedBox bg-cardBg rounded-2xl p-5 xs:p-2 md:p-2 mt-8">
               {user_migrate_seeds.map(
                 (migrateSeed: MigrateSeed, index: number) => {
                   return (
@@ -177,7 +181,7 @@ export default function FarmsMigrate() {
           ) : null}
 
           {Object.keys(user_claimed_rewards).length > 0 ? (
-            <div className="withDrawBox bg-cardBg rounded-2xl p-5 mt-3">
+            <div className="withDrawBox bg-cardBg rounded-2xl p-1 mt-3">
               <WithDrawBox
                 userRewardList={user_claimed_rewards}
                 tokenPriceList={all_token_price_list}
@@ -207,7 +211,7 @@ function MigrateLineBox(props: { migrateSeed: MigrateSeed }) {
           <img
             key={id + index}
             className={
-              'h-9 w-9 rounded-full border border-gradientFromHover bg-cardBg ' +
+              'h-8 w-8 rounded-full border border-gradientFromHover bg-cardBg ' +
               (index != 0 ? '-ml-1.5' : '')
             }
             src={icon}
@@ -217,7 +221,7 @@ function MigrateLineBox(props: { migrateSeed: MigrateSeed }) {
         <div
           key={id + index}
           className={
-            'h-9 w-9 rounded-full bg-cardBg border border-gradientFromHover ' +
+            'h-8 w-8 rounded-full bg-cardBg border border-gradientFromHover ' +
             (index == 1 ? '-ml-1.5' : '')
           }
         />
@@ -246,7 +250,7 @@ function MigrateLineBox(props: { migrateSeed: MigrateSeed }) {
       <div className="flex justify-center items-center">
         <GradientButton
           color="#fff"
-          className={`w-36 h-9 text-center text-base text-white focus:outline-none font-semibold`}
+          className={`w-36 xs:w-28 md:w-28 h-9 text-center text-base text-white focus:outline-none font-semibold`}
           onClick={doMigrate}
           loading={migrateLoading}
         >
@@ -430,7 +434,7 @@ function WithDrawBox(props: { userRewardList: any; tokenPriceList: any }) {
           );
         })}
       </div>
-      <div className="flex justify-between items-center pt-4 pb-3 pl-3 pr-6 select-none">
+      <div className="flex justify-between items-center pt-4 pb-3 px-3 select-none">
         <div className="flex items-center text-primaryText">
           <label className="mr-3 cursor-pointer" onClick={clickAllCheckBox}>
             {selectAll ? (

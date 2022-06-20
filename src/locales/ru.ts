@@ -564,7 +564,7 @@ const ru = {
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
   claimed_Rewards: 'Claimed Rewards',
-  POOL: 'POOL',
+  POOL: 'Пулы',
   STAKE: 'STAKE',
   lp_Token: 'LP Token',
   booster: 'Booster',
@@ -652,5 +652,9 @@ const ru = {
   go_to_new_farm: 'Go to New Farm',
   voting_gauge_share_tip:
     'The proportion of the REF used for voting allocation to the total REF reward in this period',
+  swap_capital: 'Обмен',
+  farm_capital: 'Фермы',
+  sauce_capital: 'SAUCE',
+  dao_capital: 'DAO',
 };
 export default Object.assign(ru, ru_in_risks_page);
