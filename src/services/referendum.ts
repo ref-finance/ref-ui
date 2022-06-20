@@ -467,7 +467,6 @@ export const withdrawRewardVE = async ({
             token_id,
           },
           gas: '180000000000000',
-          amount: ONE_YOCTO_NEAR,
         },
       ],
     };
