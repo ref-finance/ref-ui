@@ -658,5 +658,9 @@ const vi = {
   trading_successfull: 'Giao dịch thành công. ',
   migrate: 'Migrate',
   go_to_new_farm: 'Go to New Farm',
+  swap_capital: 'Giao dịch',
+  farm_capital: 'FARM',
+  sauce_capital: 'SAUCE',
+  dao_capital: 'DAO',
 };
 export default Object.assign(vi, vi_in_risks_page);

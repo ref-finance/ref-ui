@@ -62,6 +62,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { scientificNotationToString } from '../../utils/numbers';
 import { useMobile, useClientMobile } from '../../utils/device';
 import { usePoolsMorePoolIds } from '../../state/pool';
+import { PoolTab } from '../../components/pool/PoolTab';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -397,136 +398,143 @@ function MobileLiquidityPage({
   };
 
   return (
-    <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:flex lg:hidden xl:hidden xs:flex">
-      <div className="mx-4 mb-6 mt-3">
-        <div className="text-white text-xl">
-          <FormattedMessage
-            id="liquidity_pools"
-            defaultMessage="Liquidity Pools"
-          />
-        </div>
-      </div>
-      <MobileWatchListCard
-        poolTokenMetas={poolTokenMetas}
-        watchPools={watchPools}
-      />
-
-      <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
-        <div className="mx-4 flex items-center justify-between my-4">
-          <div className="flex items-center">
-            <div className="text-white text-base">Top Pools</div>
-            <QuestionTip id="topPoolsCopy" />
-          </div>
-
-          <div className="text-gray-400 text-xs">
-            {(pools?.length ? pools?.filter(poolFilterFunc).length : '-') +
-              ' out of ' +
-              (allPools ? allPools : '-')}
+    <>
+      <PoolTab></PoolTab>
+      <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:flex lg:hidden xl:hidden xs:flex">
+        <div className="mx-4 mb-6 mt-3">
+          <div className="text-white text-xl">
+            <FormattedMessage
+              id="liquidity_pools"
+              defaultMessage="Liquidity Pools"
+            />
           </div>
         </div>
-        <div className="rounded my-2 text-gray-400 flex items-center pr-2 mx-6 mb-5 bg-inputDarkBg">
-          <input
-            ref={inputRef}
-            className={`text-sm outline-none rounded w-full py-2 px-3`}
-            placeholder={intl.formatMessage({
-              id: 'token',
-            })}
-            value={tokenName}
-            onChange={(evt) => {
-              onSearch(evt.target.value);
-            }}
-          />
-        </div>
+        <MobileWatchListCard
+          poolTokenMetas={poolTokenMetas}
+          watchPools={watchPools}
+        />
 
-        <div className="flex items-center justify-between mx-4 mb-2">
-          <div
-            className=" inline-flex items-center cursor-pointer"
-            onClick={() => {
-              hideLowTVL && onHide(false);
-              !hideLowTVL && onHide(true);
-            }}
-          >
-            <div className="mr-2">
-              {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
-            </div>
-            <div className="text-gray-400 text-sm">
-              <FormattedMessage
-                id="hide_low_tvl_pools"
-                defaultMessage="Hide low TVL pools"
-              />
-            </div>
-          </div>
-
-          <SelectUi
-            list={filterList}
-            onChange={setSelectCoinClass}
-            curvalue={selectCoinClass}
-          />
-        </div>
-
-        <section className="w-full">
-          <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
-            <div>
-              <FormattedMessage id="pair" defaultMessage="Pair" />
-            </div>
+        <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
+          <div className="mx-4 flex items-center justify-between my-4">
             <div className="flex items-center">
-              <div
-                className="mr-2"
-                onClick={() => {
-                  onOrderChange(order === 'desc' ? 'asc' : 'desc');
-                }}
-              >
-                {order === 'desc' ? <DownArrowLightMobile /> : <UpArrowDeep />}
+              <div className="text-white text-base">Top Pools</div>
+              <QuestionTip id="topPoolsCopy" />
+            </div>
+
+            <div className="text-gray-400 text-xs">
+              {(pools?.length ? pools?.filter(poolFilterFunc).length : '-') +
+                ' out of ' +
+                (allPools ? allPools : '-')}
+            </div>
+          </div>
+          <div className="rounded my-2 text-gray-400 flex items-center pr-2 mx-6 mb-5 bg-inputDarkBg">
+            <input
+              ref={inputRef}
+              className={`text-sm outline-none rounded w-full py-2 px-3`}
+              placeholder={intl.formatMessage({
+                id: 'token',
+              })}
+              value={tokenName}
+              onChange={(evt) => {
+                onSearch(evt.target.value);
+              }}
+            />
+          </div>
+
+          <div className="flex items-center justify-between mx-4 mb-2">
+            <div
+              className=" inline-flex items-center cursor-pointer"
+              onClick={() => {
+                hideLowTVL && onHide(false);
+                !hideLowTVL && onHide(true);
+              }}
+            >
+              <div className="mr-2">
+                {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
               </div>
-              <div
-                className={`relative rounded-full flex items-center border    ${
-                  showSelectModal
-                    ? 'border-greenColor text-white'
-                    : 'border-farmText text-farmText'
-                } w-32`}
-              >
-                <span
-                  className={`px-3 w-full text-xs h-5
-                    flex items-center justify-between
-                  `}
+              <div className="text-gray-400 text-sm">
+                <FormattedMessage
+                  id="hide_low_tvl_pools"
+                  defaultMessage="Hide low TVL pools"
+                />
+              </div>
+            </div>
+
+            <SelectUi
+              list={filterList}
+              onChange={setSelectCoinClass}
+              curvalue={selectCoinClass}
+            />
+          </div>
+
+          <section className="w-full">
+            <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
+              <div>
+                <FormattedMessage id="pair" defaultMessage="Pair" />
+              </div>
+              <div className="flex items-center">
+                <div
+                  className="mr-2"
                   onClick={() => {
-                    setShowSelectModal(true);
+                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
                   }}
                 >
-                  <label>
-                    <FormattedMessage id={sortBy} defaultMessage={sortBy} />
-                  </label>
-                  <ArrowDownLarge />
-                </span>
+                  {order === 'desc' ? (
+                    <DownArrowLightMobile />
+                  ) : (
+                    <UpArrowDeep />
+                  )}
+                </div>
+                <div
+                  className={`relative rounded-full flex items-center border    ${
+                    showSelectModal
+                      ? 'border-greenColor text-white'
+                      : 'border-farmText text-farmText'
+                  } w-32`}
+                >
+                  <span
+                    className={`px-3 w-full text-xs h-5
+                      flex items-center justify-between
+                    `}
+                    onClick={() => {
+                      setShowSelectModal(true);
+                    }}
+                  >
+                    <label>
+                      <FormattedMessage id={sortBy} defaultMessage={sortBy} />
+                    </label>
+                    <ArrowDownLarge />
+                  </span>
 
-                {showSelectModal && (
-                  <SelectModal
-                    sortMode={sortBy}
-                    onSortChange={onSortChange}
-                    setShowModal={setShowSelectModal}
-                    className="top-8"
-                  />
-                )}
+                  {showSelectModal && (
+                    <SelectModal
+                      sortMode={sortBy}
+                      onSortChange={onSortChange}
+                      setShowModal={setShowSelectModal}
+                      className="top-8"
+                    />
+                  )}
+                </div>
               </div>
+            </header>
+            <div className="border-b border-gray-700 border-opacity-70" />
+            <div className="max-h-96 overflow-y-auto pool-list-container-mobile">
+              {pools?.filter(poolFilterFunc).map((pool, i) => (
+                <MobilePoolRow
+                  selectCoinClass={selectCoinClass}
+                  tokens={poolTokenMetas[pool.id]}
+                  pool={pool}
+                  sortBy={sortBy}
+                  watched={!!find(watchPools, { id: pool.id })}
+                  key={i}
+                  morePoolIds={poolsMorePoolsIds[pool.id]}
+                />
+              ))}
             </div>
-          </header>
-          <div className="border-b border-gray-700 border-opacity-70" />
-          <div className="max-h-96 overflow-y-auto pool-list-container-mobile">
-            {pools?.filter(poolFilterFunc).map((pool, i) => (
-              <MobilePoolRow
-                selectCoinClass={selectCoinClass}
-                tokens={poolTokenMetas[pool.id]}
-                pool={pool}
-                sortBy={sortBy}
-                watched={!!find(watchPools, { id: pool.id })}
-                key={i}
-                morePoolIds={poolsMorePoolsIds[pool.id]}
-              />
-            ))}
-          </div>
-        </section>
-      </Card>
-    </div>
+          </section>
+        </Card>
+      </div>
+    </>
   );
 }
 
@@ -753,166 +761,174 @@ function LiquidityPage_({
   };
 
   return (
-    <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-      <div className="mb-4 mx-8">
-        <div className="text-white text-xl">
-          <FormattedMessage
-            id="liquidity_pools"
-            defaultMessage="Liquidity Pools"
-          />
-        </div>
-      </div>
-      <WatchListCard poolTokenMetas={poolTokenMetas} watchPools={watchPools} />
-
-      <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
-        <div className="flex mx-8 justify-between pb-4">
-          <div>
-            <div className="text-white text-lg">
-              {/* <FormattedMessage id="top_pools" defaultMessage="Top Pools" /> */}
-              Top Pools
-            </div>
-
-            <div className="flex items-center">
-              <div className="text-gray-400 text-sm">
-                {(pools?.length ? pools?.filter(poolFilterFunc).length : '-') +
-                  ' out of ' +
-                  (allPools ? allPools : '-')}
-              </div>
-              <QuestionTip id="topPoolsCopy" />
-            </div>
+    <>
+      <PoolTab></PoolTab>
+      <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
+        <div className="mb-4 mx-8">
+          <div className="text-white text-xl">
+            <FormattedMessage
+              id="liquidity_pools"
+              defaultMessage="Liquidity Pools"
+            />
           </div>
-          <div className="flex items-center w-3/7">
-            <div className="flex items-center">
-              <SelectUi
-                list={filterList}
-                onChange={setSelectCoinClass}
-                curvalue={selectCoinClass}
-              />
-            </div>
+        </div>
+        <WatchListCard
+          poolTokenMetas={poolTokenMetas}
+          watchPools={watchPools}
+        />
 
-            <div
-              className="flex items-center mr-5 cursor-pointer"
-              onClick={() => {
-                hideLowTVL && onHide(false);
-                !hideLowTVL && onHide(true);
-              }}
-            >
-              <div className="mr-2">
-                {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
+        <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
+          <div className="flex mx-8 justify-between pb-4">
+            <div>
+              <div className="text-white text-lg">
+                {/* <FormattedMessage id="top_pools" defaultMessage="Top Pools" /> */}
+                Top Pools
               </div>
-              <div className="text-gray-400 text-sm ">
-                <FormattedMessage
-                  id="hide_low_tvl_pools"
-                  defaultMessage="Hide low TVL pools"
+
+              <div className="flex items-center">
+                <div className="text-gray-400 text-sm">
+                  {(pools?.length
+                    ? pools?.filter(poolFilterFunc).length
+                    : '-') +
+                    ' out of ' +
+                    (allPools ? allPools : '-')}
+                </div>
+                <QuestionTip id="topPoolsCopy" />
+              </div>
+            </div>
+            <div className="flex items-center w-3/7">
+              <div className="flex items-center">
+                <SelectUi
+                  list={filterList}
+                  onChange={setSelectCoinClass}
+                  curvalue={selectCoinClass}
+                />
+              </div>
+
+              <div
+                className="flex items-center mr-5 cursor-pointer"
+                onClick={() => {
+                  hideLowTVL && onHide(false);
+                  !hideLowTVL && onHide(true);
+                }}
+              >
+                <div className="mr-2">
+                  {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
+                </div>
+                <div className="text-gray-400 text-sm ">
+                  <FormattedMessage
+                    id="hide_low_tvl_pools"
+                    defaultMessage="Hide low TVL pools"
+                  />
+                </div>
+              </div>
+              <div className="rounded w-full my-2 text-gray-400 flex items-center pr-2 bg-inputDarkBg">
+                <input
+                  ref={inputRef}
+                  className={`text-sm outline-none rounded w-full py-2 px-3`}
+                  placeholder={intl.formatMessage({
+                    id: 'token',
+                  })}
+                  onChange={(evt) => {
+                    onSearch(evt.target.value);
+                  }}
                 />
               </div>
             </div>
-            <div className="rounded w-full my-2 text-gray-400 flex items-center pr-2 bg-inputDarkBg">
-              <input
-                ref={inputRef}
-                className={`text-sm outline-none rounded w-full py-2 px-3`}
-                placeholder={intl.formatMessage({
-                  id: 'token',
-                })}
-                onChange={(evt) => {
-                  onSearch(evt.target.value);
-                }}
-              />
-            </div>
           </div>
-        </div>
 
-        <section className="">
-          <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
-            <div className="col-span-5 md:col-span-4 flex">
-              <div className="mr-6 w-2">#</div>
-              <FormattedMessage id="pair" defaultMessage="Pair" />
-            </div>
-            <div className="col-span-1 md:hidden flex items-center">
-              <div
-                className="pr-1 cursor-pointer"
-                onClick={() => {
-                  onSortChange('fee');
-                  sortBy !== 'fee' && onOrderChange('asc');
-                  sortBy === 'fee' &&
-                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
-                }}
-              >
-                <FormattedMessage id="fee" defaultMessage="Fee" />
+          <section className="">
+            <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
+              <div className="col-span-5 md:col-span-4 flex">
+                <div className="mr-6 w-2">#</div>
+                <FormattedMessage id="pair" defaultMessage="Pair" />
               </div>
-              <span
-                className="cursor-pointer"
-                onClick={() => {
-                  onSortChange('fee');
-                  sortBy !== 'fee' && onOrderChange('asc');
-                  sortBy === 'fee' &&
-                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
-                }}
-              >
-                {sortBy === 'fee' ? (
-                  order === 'desc' ? (
-                    <DownArrowLight />
+              <div className="col-span-1 md:hidden flex items-center">
+                <div
+                  className="pr-1 cursor-pointer"
+                  onClick={() => {
+                    onSortChange('fee');
+                    sortBy !== 'fee' && onOrderChange('asc');
+                    sortBy === 'fee' &&
+                      onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                  }}
+                >
+                  <FormattedMessage id="fee" defaultMessage="Fee" />
+                </div>
+                <span
+                  className="cursor-pointer"
+                  onClick={() => {
+                    onSortChange('fee');
+                    sortBy !== 'fee' && onOrderChange('asc');
+                    sortBy === 'fee' &&
+                      onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                  }}
+                >
+                  {sortBy === 'fee' ? (
+                    order === 'desc' ? (
+                      <DownArrowLight />
+                    ) : (
+                      <UpArrowLight />
+                    )
                   ) : (
-                    <UpArrowLight />
-                  )
-                ) : (
-                  <UpArrowDeep />
-                )}
-              </span>
-            </div>
+                    <UpArrowDeep />
+                  )}
+                </span>
+              </div>
 
-            <div className="col-span-1 flex items-center">
-              <span
-                className="pr-1 cursor-pointer"
-                onClick={() => {
-                  onSortChange('tvl');
-                  sortBy !== 'tvl' && onOrderChange('asc');
-                  sortBy === 'tvl' &&
-                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
-                }}
-              >
-                <FormattedMessage id="tvl" defaultMessage="TVL" />
-              </span>
-              <span
-                className="cursor-pointer"
-                onClick={() => {
-                  onSortChange('tvl');
-                  sortBy !== 'tvl' && onOrderChange('asc');
-                  sortBy === 'tvl' &&
-                    onOrderChange(order === 'desc' ? 'asc' : 'desc');
-                }}
-              >
-                {sortBy === 'tvl' ? (
-                  order === 'desc' ? (
-                    <DownArrowLight />
+              <div className="col-span-1 flex items-center">
+                <span
+                  className="pr-1 cursor-pointer"
+                  onClick={() => {
+                    onSortChange('tvl');
+                    sortBy !== 'tvl' && onOrderChange('asc');
+                    sortBy === 'tvl' &&
+                      onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                  }}
+                >
+                  <FormattedMessage id="tvl" defaultMessage="TVL" />
+                </span>
+                <span
+                  className="cursor-pointer"
+                  onClick={() => {
+                    onSortChange('tvl');
+                    sortBy !== 'tvl' && onOrderChange('asc');
+                    sortBy === 'tvl' &&
+                      onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                  }}
+                >
+                  {sortBy === 'tvl' ? (
+                    order === 'desc' ? (
+                      <DownArrowLight />
+                    ) : (
+                      <UpArrowLight />
+                    )
                   ) : (
-                    <UpArrowLight />
-                  )
-                ) : (
-                  <UpArrowDeep />
-                )}
-              </span>
-            </div>
-            <p className="col-span-1">
-              <FormattedMessage id="pools" defaultMessage="Pools" />
-            </p>
-          </header>
+                    <UpArrowDeep />
+                  )}
+                </span>
+              </div>
+              <p className="col-span-1">
+                <FormattedMessage id="pools" defaultMessage="Pools" />
+              </p>
+            </header>
 
-          <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
-            {pools?.filter(poolFilterFunc).map((pool, i) => (
-              <PoolRow
-                tokens={poolTokenMetas[pool.id]}
-                key={i}
-                pool={pool}
-                index={i + 1}
-                selectCoinClass={selectCoinClass}
-                morePoolIds={poolsMorePoolsIds[pool.id]}
-              />
-            ))}
-          </div>
-        </section>
-      </Card>
-    </div>
+            <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
+              {pools?.filter(poolFilterFunc).map((pool, i) => (
+                <PoolRow
+                  tokens={poolTokenMetas[pool.id]}
+                  key={i}
+                  pool={pool}
+                  index={i + 1}
+                  selectCoinClass={selectCoinClass}
+                  morePoolIds={poolsMorePoolsIds[pool.id]}
+                />
+              ))}
+            </div>
+          </section>
+        </Card>
+      </div>
+    </>
   );
 }
 

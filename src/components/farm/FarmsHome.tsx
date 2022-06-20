@@ -1984,7 +1984,7 @@ function FarmView(props: {
       const { id, decimals } = token;
       const num = (user_unclaimed_map[seed.seed_id] || {})[id];
       const amount = toReadableNumber(decimals, num || '0');
-      const tokenPrice = tokenPriceList[id].price;
+      const tokenPrice = tokenPriceList[id]?.price;
       if (tokenPrice && tokenPrice != 'N/A') {
         totalPrice += +amount * tokenPrice;
       }
@@ -2592,7 +2592,7 @@ function WithDrawBox(props: {
     let totalUnWithDraw = 0;
     Object.entries(actualRewardList).forEach((arr: [string, string]) => {
       const [key, v] = arr;
-      const singlePrice = tokenPriceList[key].price;
+      const singlePrice = tokenPriceList[key]?.price;
       const token = rewardTokenList[key];
       const number: any = toReadableNumber(token.decimals, v);
       if (singlePrice && singlePrice != 'N/A') {
@@ -2804,7 +2804,7 @@ function WithDrawModal(props: {
     let totalUnWithDraw = 0;
     Object.entries(actualRewardList).forEach((arr: [string, string]) => {
       const [key, v] = arr;
-      const singlePrice = tokenPriceList[key].price;
+      const singlePrice = tokenPriceList[key]?.price;
       const token = rewardTokenList[key];
       const number: any = toReadableNumber(token.decimals, v);
       if (singlePrice && singlePrice != 'N/A') {

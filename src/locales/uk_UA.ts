@@ -550,7 +550,7 @@ const uk_UA = {
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
   claimed_Rewards: 'Claimed Rewards',
-  POOL: 'POOL',
+  POOL: 'Пули',
   STAKE: 'STAKE',
   lp_Token: 'LP Token',
   booster: 'Booster',
@@ -620,5 +620,9 @@ const uk_UA = {
   trading_successfull: 'Торгівля успішна. ',
   migrate: 'Migrate',
   go_to_new_farm: 'Go to New Farm',
+  swap_capital: 'своп',
+  farm_capital: 'Фарм',
+  sauce_capital: 'SAUCE',
+  dao_capital: 'DAO',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

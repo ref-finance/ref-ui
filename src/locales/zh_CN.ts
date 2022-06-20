@@ -534,7 +534,7 @@ const zh_CN = {
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
   claimed_Rewards: 'Claimed Rewards',
-  POOL: 'POOL',
+  POOL: '流动池',
   STAKE: 'STAKE',
   lp_Token: 'LP Token',
   booster: 'Booster',
@@ -619,5 +619,9 @@ const zh_CN = {
   burrow_usn_tip: '你可以通过Burrow来借USN.',
   migrate: '迁移',
   go_to_new_farm: '访问新版农场',
+  swap_capital: '兑换',
+  farm_capital: '农场',
+  sauce_capital: 'SAUCE',
+  dao_capital: 'DAO',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

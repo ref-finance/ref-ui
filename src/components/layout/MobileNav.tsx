@@ -471,16 +471,16 @@ export function MobileNavBar(props: any) {
     }
   }, [show]);
 
-  if (isSignedIn) {
-    moreLinks[2].children[2] = {
-      id: 'Your_Liquidity',
-      label: 'Your Liquidity',
-      url: '/pools/yours',
-      pattern: '/pools/yours',
-      isExternal: false,
-      logo: <IconMyLiquidity />,
-    };
-  }
+  // if (isSignedIn) {
+  //   moreLinks[2].children[2] = {
+  //     id: 'Your_Liquidity',
+  //     label: 'Your Liquidity',
+  //     url: '/pools/yours',
+  //     pattern: '/pools/yours',
+  //     isExternal: false,
+  //     logo: <IconMyLiquidity />,
+  //   };
+  // }
 
   function close() {
     setShow(false);
@@ -529,7 +529,11 @@ export function MobileNavBar(props: any) {
       >
         {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}
         <div className="flex items-center text-2xl text-white justify-between p-4">
-          <NavLogoSimple />
+          <NavLogoSimple
+            onClick={() => {
+              window.open('https://www.ref.finance/');
+            }}
+          />
           <div className="flex">
             <div
               className={`flex px-1 mr-px items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
@@ -683,10 +687,11 @@ export function MobileNavBar(props: any) {
                         strict: false,
                       });
                   if (
-                    location.pathname.startsWith('/pool/') ||
-                    location.pathname.startsWith('/more_pools/')
+                    location.pathname.startsWith('/pools') ||
+                    location.pathname.startsWith('/pool') ||
+                    location.pathname.startsWith('/more_pools')
                   ) {
-                    if (id === 'pools') {
+                    if (id === 'POOL') {
                       isSelected = true;
                     }
                   }

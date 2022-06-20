@@ -564,7 +564,7 @@ const ru = {
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
   claimed_Rewards: 'Claimed Rewards',
-  POOL: 'POOL',
+  POOL: 'Пулы',
   STAKE: 'STAKE',
   lp_Token: 'LP Token',
   booster: 'Booster',
@@ -650,5 +650,9 @@ const ru = {
   click_to_view: 'Нажмите, чтобы просмотреть',
   migrate: 'Migrate',
   go_to_new_farm: 'Go to New Farm',
+  swap_capital: 'Обмен',
+  farm_capital: 'Фермы',
+  sauce_capital: 'SAUCE',
+  dao_capital: 'DAO',
 };
 export default Object.assign(ru, ru_in_risks_page);

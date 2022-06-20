@@ -650,5 +650,9 @@ const en_US = {
   burrow_usn_tip: 'You can borrow USN on Burrow.',
   migrate: 'Migrate',
   go_to_new_farm: 'Go to New Farm',
+  swap_capital: 'SWAP',
+  farm_capital: 'FARM',
+  sauce_capital: 'SAUCE',
+  dao_capital: 'DAO',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

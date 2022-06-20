@@ -50,6 +50,7 @@ import { WalletContext, getSenderLoginRes } from '../../utils/sender-wallet';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
 import { useFarmStake, useAllFarms, useCanFarmV2 } from '../../state/farm';
+import { PoolTab } from '../../components/pool/PoolTab';
 
 function MyShares({
   shares,
@@ -244,13 +245,124 @@ export function YourLiquidityPage() {
   ];
 
   return (
-    <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
-      <div className="w-full flex justify-center self-center">
-        {error && <Alert level="warn" message={error.message} />}
-      </div>
-      {/* PC */}
-      <Card width="w-full" padding="px-0 py-6" className="xs:hidden md:hidden">
-        <div className="text-white text-xl pr-6 pl-6 lg:pl-10 pb-6">
+    <>
+      <PoolTab></PoolTab>
+      <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
+        <div className="w-full flex justify-center self-center">
+          {error && <Alert level="warn" message={error.message} />}
+        </div>
+        {/* PC */}
+        <Card
+          width="w-full"
+          padding="px-0 py-6"
+          className="xs:hidden md:hidden"
+        >
+          <div className="text-white text-xl pr-6 pl-6 lg:pl-10 pb-6">
+            <FormattedMessage
+              id="your_liquidity"
+              defaultMessage="Your Liquidity"
+            />
+          </div>
+          {pools.length > 0 ||
+          stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
+            <section>
+              <div className="">
+                <div
+                  style={{
+                    gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
+                  }}
+                  className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:pl-10
+                xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
+                >
+                  <div className="col-span-2">
+                    <FormattedMessage id="pair" defaultMessage="Pair" />
+                  </div>
+                  <div className="col-span-2 ">
+                    <FormattedMessage id="token" defaultMessage="Token" />
+                  </div>
+
+                  <div className="col-span-3 text-left ml-8 xl:ml-14">
+                    <FormattedMessage id="my_shares" defaultMessage="Shares" />
+                  </div>
+                  <div className="col-span-6 xl:ml-8 ml-4">
+                    <FormattedMessage id="value" defaultMessage="Value" />
+                  </div>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {stablePools.map((p) => {
+                    const supportFarmV1 = getFarmsCount(
+                      p.id.toString(),
+                      v1Farm
+                    );
+
+                    const supportFarmV2 = getFarmsCount(
+                      p.id.toString(),
+                      v2Farm
+                    );
+
+                    const endedFarmV2 = getEndedFarmsCount(
+                      p.id.toString(),
+                      v2Farm
+                    );
+                    return (
+                      <div
+                        className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
+                        key={Number(p.id)}
+                      >
+                        <PoolRow
+                          pool={p}
+                          tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
+                          supportFarmV1={supportFarmV1}
+                          supportFarmV2={supportFarmV2}
+                          onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
+                        />
+                      </div>
+                    );
+                  })}
+
+                  {pools.map((pool, i) => {
+                    const supportFarmV1 = getFarmsCount(
+                      pool.id.toString(),
+                      v1Farm
+                    );
+
+                    const supportFarmV2 = getFarmsCount(
+                      pool.id.toString(),
+                      v2Farm
+                    );
+
+                    const endedFarmV2 = getEndedFarmsCount(
+                      pool.id.toString(),
+                      v2Farm
+                    );
+                    return (
+                      <div
+                        key={i}
+                        className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
+                      >
+                        <PoolRow
+                          pool={pool}
+                          tokens={
+                            pool.token_account_ids.map(
+                              (id) => tokensMeta[id]
+                            ) || []
+                          }
+                          supportFarmV1={supportFarmV1}
+                          supportFarmV2={supportFarmV2}
+                          onlyEndedFarmV2={supportFarmV2 === endedFarmV2}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          ) : (
+            <Empty />
+          )}
+        </Card>
+        {/* Mobile */}
+        <div className="text-white text-2xl font-semibold px-4 lg:hidden">
           <FormattedMessage
             id="your_liquidity"
             defaultMessage="Your Liquidity"
@@ -258,144 +370,50 @@ export function YourLiquidityPage() {
         </div>
         {pools.length > 0 ||
         stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
-          <section>
-            <div className="">
-              <div
-                style={{
-                  gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
-                }}
-                className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:pl-10
-                xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
-              >
-                <div className="col-span-2">
-                  <FormattedMessage id="pair" defaultMessage="Pair" />
-                </div>
-                <div className="col-span-2 ">
-                  <FormattedMessage id="token" defaultMessage="Token" />
-                </div>
+          <div className="lg:hidden">
+            {stablePools.map((p) => {
+              const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
 
-                <div className="col-span-3 text-left ml-8 xl:ml-14">
-                  <FormattedMessage id="my_shares" defaultMessage="Shares" />
-                </div>
-                <div className="col-span-6 xl:ml-8 ml-4">
-                  <FormattedMessage id="value" defaultMessage="Value" />
-                </div>
-              </div>
-              <div className="max-h-96 overflow-y-auto">
-                {stablePools.map((p) => {
-                  const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
+              const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
 
-                  const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
+              const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
+              return (
+                <PoolRow
+                  pool={p}
+                  key={Number(p.id)}
+                  tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
+                  supportFarmV1={supportFarmV1}
+                  supportFarmV2={supportFarmV2}
+                  onlyEndedFarmV2={supportFarmV2 === endedFarmV2}
+                />
+              );
+            })}
 
-                  const endedFarmV2 = getEndedFarmsCount(
-                    p.id.toString(),
-                    v2Farm
-                  );
-                  return (
-                    <div
-                      className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
-                      key={Number(p.id)}
-                    >
-                      <PoolRow
-                        pool={p}
-                        tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
-                        supportFarmV1={supportFarmV1}
-                        supportFarmV2={supportFarmV2}
-                        onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
-                      />
-                    </div>
-                  );
-                })}
+            {pools.map((p, i) => {
+              const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
 
-                {pools.map((pool, i) => {
-                  const supportFarmV1 = getFarmsCount(
-                    pool.id.toString(),
-                    v1Farm
-                  );
+              const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
 
-                  const supportFarmV2 = getFarmsCount(
-                    pool.id.toString(),
-                    v2Farm
-                  );
-
-                  const endedFarmV2 = getEndedFarmsCount(
-                    pool.id.toString(),
-                    v2Farm
-                  );
-                  return (
-                    <div
-                      key={i}
-                      className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
-                    >
-                      <PoolRow
-                        pool={pool}
-                        tokens={
-                          pool.token_account_ids.map((id) => tokensMeta[id]) ||
-                          []
-                        }
-                        supportFarmV1={supportFarmV1}
-                        supportFarmV2={supportFarmV2}
-                        onlyEndedFarmV2={supportFarmV2 === endedFarmV2}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
+              const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
+              return (
+                <PoolRow
+                  pool={p}
+                  key={i}
+                  tokens={p.token_account_ids.map((id) => tokensMeta[id])}
+                  supportFarmV1={supportFarmV1}
+                  supportFarmV2={supportFarmV2}
+                  onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
+                />
+              );
+            })}
+          </div>
         ) : (
-          <Empty />
+          <Card className="lg:hidden mt-4" width="w-full">
+            <Empty />
+          </Card>
         )}
-      </Card>
-      {/* Mobile */}
-      <div className="text-white text-2xl font-semibold px-4 lg:hidden">
-        <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
       </div>
-      {pools.length > 0 ||
-      stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
-        <div className="lg:hidden">
-          {stablePools.map((p) => {
-            const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
-
-            const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
-
-            const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
-            return (
-              <PoolRow
-                pool={p}
-                key={Number(p.id)}
-                tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
-                supportFarmV1={supportFarmV1}
-                supportFarmV2={supportFarmV2}
-                onlyEndedFarmV2={supportFarmV2 === endedFarmV2}
-              />
-            );
-          })}
-
-          {pools.map((p, i) => {
-            const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
-
-            const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
-
-            const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
-            return (
-              <PoolRow
-                pool={p}
-                key={i}
-                tokens={p.token_account_ids.map((id) => tokensMeta[id])}
-                supportFarmV1={supportFarmV1}
-                supportFarmV2={supportFarmV2}
-                onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
-              />
-            );
-          })}
-        </div>
-      ) : (
-        <Card className="lg:hidden mt-4" width="w-full">
-          <Empty />
-        </Card>
-      )}
-    </div>
+    </>
   );
 }
 

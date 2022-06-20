@@ -575,7 +575,7 @@ const ja = {
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
   claimed_Rewards: 'Claimed Rewards',
-  POOL: 'POOL',
+  POOL: 'プール',
   STAKE: 'STAKE',
   lp_Token: 'LP Token',
   booster: 'Booster',
@@ -660,5 +660,9 @@ const ja = {
   burrow_usn_tip: 'あなたはBurrowでUSNを借りることができます。',
   migrate: 'Migrate',
   go_to_new_farm: 'Go to New Farm',
+  swap_capital: 'スワップ',
+  farm_capital: 'ファーム',
+  sauce_capital: 'SAUCE',
+  dao_capital: 'DAO',
 };
 export default Object.assign(ja, ja_in_risks_page);

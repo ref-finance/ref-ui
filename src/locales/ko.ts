@@ -565,7 +565,7 @@ const ko = {
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
   claimed_Rewards: 'Claimed Rewards',
-  POOL: 'POOL',
+  POOL: '풀들',
   STAKE: 'STAKE',
   lp_Token: 'LP Token',
   booster: 'Booster',
@@ -650,5 +650,9 @@ const ko = {
   trading_successfull: '거래 성공. ',
   migrate: 'Migrate',
   go_to_new_farm: 'Go to New Farm',
+  swap_capital: '스왑',
+  farm_capital: '농장',
+  sauce_capital: 'SAUCE',
+  dao_capital: 'DAO',
 };
 export default Object.assign(ko, ko_in_risks_page);
