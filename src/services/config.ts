@@ -71,7 +71,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
-        indexerUrl: 'https://indexer.ref-finance.net',
+        indexerUrl: 'https://indexer.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
@@ -235,7 +235,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
-        indexerUrl: 'https://indexer.ref-finance.net',
+        indexerUrl: 'https://indexer.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
