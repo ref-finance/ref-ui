@@ -3605,9 +3605,7 @@ export const ProposalCard = () => {
 
       const lastRoundProposal = _.maxBy(
         farmProposals.filter(
-          (p) =>
-            p.status === 'Expired' &&
-            Number(p.end_at) < Number(toSetFarmProposal.end_at)
+          (p) => p.id < toSetFarmProposal.id && p.status === 'Expired'
         ),
         (o) => Number(o.end_at)
       );
