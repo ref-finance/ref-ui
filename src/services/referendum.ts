@@ -395,8 +395,6 @@ export const addBonus = async ({
 }) => {
   const tokenMeta = await ftGetTokenMetadata(tokenId);
 
-  console.log(tokenMeta, tokenId);
-
   const msg = JSON.stringify({
     Reward: {
       incentive_type,
@@ -424,6 +422,16 @@ export const addBonus = async ({
 
   if (tokenId === WRAP_NEAR_CONTRACT_ID) {
     transactions.unshift(nearDepositTransaction(amount));
+  }
+
+  if (tokenId === WRAP_NEAR_CONTRACT_ID) {
+    const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+    if (registered === null) {
+      transactions.unshift({
+        receiverId: WRAP_NEAR_CONTRACT_ID,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
   }
   return executeMultipleTransactions(transactions);
 };

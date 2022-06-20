@@ -1267,6 +1267,16 @@ SwapOptions) => {
       transactions.push(nearWithdrawTransaction(minAmountOut));
     }
 
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+      const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+      if (registered === null) {
+        transactions.unshift({
+          receiverId: WRAP_NEAR_CONTRACT_ID,
+          functionCalls: [registerAccountOnToken()],
+        });
+      }
+    }
+
     return executeMultipleTransactions(transactions);
   }
 };
@@ -1418,6 +1428,16 @@ export const crossInstantSwap = async ({
 
       transactions.push(nearWithdrawTransaction(minAmountOut));
     }
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+      const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+      if (registered === null) {
+        transactions.unshift({
+          receiverId: WRAP_NEAR_CONTRACT_ID,
+          functionCalls: [registerAccountOnToken()],
+        });
+      }
+    }
+
     return executeMultipleTransactions(transactions);
   }
 };

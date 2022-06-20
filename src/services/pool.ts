@@ -29,7 +29,7 @@ import getConfig from '../services/config';
 import { registerTokensAction } from '../services/creators/token';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
-import { withdrawAction } from './creators/token';
+import { withdrawAction, registerAccountOnToken } from './creators/token';
 import { getExplorer, ExplorerType } from '../utils/device';
 import {
   STABLE_POOL_ID,
@@ -530,6 +530,16 @@ export const addLiquidityToPool = async ({
     transactions.unshift(nearDepositTransaction(wNearTokenAmount.amount));
   }
 
+  if (tokenAmounts.map((ta) => ta.token.id).includes(WRAP_NEAR_CONTRACT_ID)) {
+    const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+    if (registered === null) {
+      transactions.unshift({
+        receiverId: WRAP_NEAR_CONTRACT_ID,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
+  }
+
   return executeMultipleTransactions(transactions);
 };
 
@@ -580,6 +590,16 @@ export const addLiquidityToStablePool = async ({
     receiverId: REF_FI_CONTRACT_ID,
     functionCalls: [...actions],
   });
+
+  if (tokens.map((t) => t.id).includes(WRAP_NEAR_CONTRACT_ID)) {
+    const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+    if (registered === null) {
+      transactions.unshift({
+        receiverId: WRAP_NEAR_CONTRACT_ID,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
+  }
 
   return executeMultipleTransactions(transactions);
 };
