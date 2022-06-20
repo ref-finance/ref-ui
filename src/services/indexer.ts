@@ -21,6 +21,9 @@ import {
   ALL_STABLE_POOL_IDS,
   STABLE_POOL_ID,
 } from './near';
+
+import { getPool as getPoolRPC } from '../services/pool';
+
 const config = getConfig();
 
 export const getPoolMonthVolume = async (
@@ -105,9 +108,9 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
           .filter((id) => Number(id) !== Number(STABLE_POOL_ID))
           .filter((_) => _)
           .map(async (id) => {
-            const pool = await getPool(id);
+            const pool = await getPoolRPC(Number(id));
 
-            const ids = pool.token_account_ids;
+            const ids = pool.tokenIds;
 
             const twoTokenStablePoolIds = (
               await getPoolsByTokens({

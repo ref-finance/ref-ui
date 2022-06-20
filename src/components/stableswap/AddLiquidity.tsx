@@ -40,6 +40,8 @@ import { checkAccountTip, getURLInfo } from '../layout/transactionTipPopUp';
 import { checkTransaction } from '../../services/swap';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
+export const RATED_POOL_LP_TOKEN_DECIMALS = 24;
+
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
 const ONLY_ZEROS = /^0*\.?0*$/;
 

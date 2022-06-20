@@ -1328,12 +1328,16 @@ export async function getSmartRouteSwapActions(
   maxPathLength = 3,
   threshold = 0.001,
   numberOfRoutesLimit = 2,
-  MAX_NUMBER_PARALLEL_POOLS = 4
+  MAX_NUMBER_PARALLEL_POOLS = 4,
+  decimalsCulledPoolIds = []
 ) {
   if (!totalInput) {
     return [];
   }
   var totalInput = new Big(totalInput);
+
+  // remove pools that have an id from the decimalCulledPoolIds
+  pools = pools.filter((p) => !decimalsCulledPoolIds.includes(p.id));
 
   let resDict = await getBestOptimalAllocationsAndOutputs(
     pools,
@@ -1697,6 +1701,24 @@ export async function getSmartRouteSwapActions(
     let decimalEstimate = new Big(expectedHopOutput)
       .div(new Big(10).pow(hopOutputTokenDecimals))
       .toString();
+
+    // Need to check if expected Hop Output is > 1. If not, then cull the corresponding pool and re-calculate.
+    if (new Big(expectedHopOutput).lt(new Big(1))) {
+      // purge the pool and recalculate.
+
+      decimalsCulledPoolIds.push(hops[i].pool.id);
+      return getSmartRouteSwapActions(
+        pools,
+        inputToken,
+        outputToken,
+        totalInput,
+        (maxPathLength = maxPathLength),
+        (threshold = threshold),
+        (numberOfRoutesLimit = numberOfRoutesLimit),
+        (MAX_NUMBER_PARALLEL_POOLS = MAX_NUMBER_PARALLEL_POOLS),
+        (decimalsCulledPoolIds = decimalsCulledPoolIds)
+      );
+    }
 
     if (
       hops[i].inputToken == inputToken &&

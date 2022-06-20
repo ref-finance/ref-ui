@@ -42,9 +42,7 @@ export const ShareInFarm = ({
 
   return (
     <div
-      className={`items-center inline-flex text-xs text-gradientFrom rounded-full py-0.5 border border-${
-        forStable ? 'gradientFrom' : 'transparent'
-      } hover:border-gradientFrom hover:text-gradientFrom px-2 cursor-pointer`}
+      className={`items-center inline-flex text-xs text-gradientFrom rounded-full py-0.5 border border-transparent hover:border-gradientFrom hover:text-gradientFrom px-2 cursor-pointer`}
     >
       <FarmDot inFarm={Number(farmShare) > 0} className="mr-1" />
       <div className="self-start whitespace-nowrap">

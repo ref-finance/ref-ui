@@ -1487,8 +1487,13 @@ function FarmView({
   }
   function plusAllFarmApr() {
     let apr = 0;
+    const allPendingFarms = isPending(farmData);
     farmsData.forEach(function (item) {
-      apr += Number(item.apr);
+      const pendingFarm =
+        moment.unix(item.start_at).valueOf() > moment().valueOf();
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+        apr += Number(item.apr);
+      }
     });
     if (apr == 0) {
       return '-';

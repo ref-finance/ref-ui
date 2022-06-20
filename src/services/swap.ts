@@ -42,7 +42,6 @@ import {
   getPoolsByTokens,
   getPoolByToken,
   parsePool,
-  Pool,
   getPool,
   getStablePool,
   StablePool,
@@ -82,8 +81,9 @@ import { getCurrentWallet } from '../utils/sender-wallet';
 import { multiply, separateRoutes } from '../utils/numbers';
 import { auroraSwapTransactions } from './aurora/aurora';
 import { PoolSlippageSelector } from '../components/forms/SlippageSelector';
-import { getAllStablePoolsFromCache } from './pool';
+import { getAllStablePoolsFromCache, Pool } from './pool';
 import { PoolInfo } from '../components/layout/SwapRoutes';
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
 // Big.strict = false;
@@ -169,6 +169,8 @@ const getStablePoolEstimate = ({
   stablePoolInfo: StablePool;
   stablePool: Pool;
 }) => {
+  const STABLE_LP_TOKEN_DECIMALS = getStablePoolDecimal(stablePool.id);
+
   const [amount_swapped, fee, dy] = getSwappedAmount(
     tokenIn.id,
     tokenOut.id,
@@ -778,16 +780,6 @@ export async function getHybridStableSmart(
     }
   }
 
-  // return best estimate
-  // console.log(candidatePools, 'candidate pools');
-  // candidatePools = candidatePools.filter((pools) => {
-  //   pools.every((p) =>
-  //     new Big(p.supplies[p.tokenIds[0]])
-  //       .times(new Big(p.supplies[p.tokenIds[1]]))
-  //       .gt(0)
-  //   );
-  // });
-
   if (candidatePools.length > 0) {
     const tokensMedata = await ftGetTokensMetadata(
       candidatePools.map((cp) => cp.map((p) => p.tokenIds).flat()).flat()
@@ -1109,8 +1101,6 @@ SwapOptions) => {
         receiverId: tokenIn.id,
         functionCalls: tokenInActions,
       });
-
-      return executeMultipleTransactions(transactions);
     } else if (isSmartRouteV1Swap) {
       //making sure all actions get included for hybrid stable smart.
       await registerToken(tokenOut);
@@ -1159,8 +1149,6 @@ SwapOptions) => {
           },
         ],
       });
-
-      return executeMultipleTransactions(transactions);
     } else {
       //making sure all actions get included.
       await registerToken(tokenOut);
@@ -1229,9 +1217,12 @@ SwapOptions) => {
           },
         ],
       });
-
-      return executeMultipleTransactions(transactions);
     }
+
+    if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
+      return window.location.reload();
+    }
+    return executeMultipleTransactions(transactions);
   }
 };
 

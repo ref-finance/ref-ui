@@ -111,9 +111,9 @@ const vi_in_risks_page = {
   Locked_paragraph_6:
     'Nếu có ít nhất một khóa toàn quyền truy cập được đăng ký trên tài khoản hợp đồng, hợp đồng sẽ không bị khóa.',
   audited_first_sentence:
-    'Smart contracts của Ref.finance hiện đang được kiểm định bởi <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label>. chúng tôi sẽ tích cực tìm kiếm thêm một bên thẩm định thứ 3 nữa ngay sau khi lần kiểm định với Jita kết thúc.',
+    'Các hợp đồng thông minh của Ref Finance đã được <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/audits')" +
+    '>kiểm toán</label>.',
   admin_first_sentence:
     'Ref finance được quản trị bởi <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -576,5 +576,7 @@ const vi = {
   borrow: 'Vay',
   burrow_usn_tip: 'Bạn có thể mượn USN trên Burrow.',
   stake_min_deposit: 'Input must be greater than or equal to ',
+  total_near_amount: 'Số lượng tất cả NEAR',
+  near_value: 'NEAR giá trị',
 };
 export default Object.assign(vi, vi_in_risks_page);
