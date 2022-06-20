@@ -306,7 +306,7 @@ function StablePoolCard({
                 <Link
                   to={'/farms'}
                   target="_blank"
-                  className="relative top-0.5"
+                  className="relative top-0.5 h-6"
                 >
                   {poolData.displayShareInFarm}
                 </Link>
