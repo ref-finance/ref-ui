@@ -56,6 +56,7 @@ import {
   frontConfigBoost,
   getBoostTokenPrices,
   getBoostSeeds,
+  useMigrate_user_data,
 } from '~services/farm';
 import { getLoveAmount } from '~services/referendum';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
@@ -112,6 +113,12 @@ export default function FarmsHome(props: any) {
   const isSignedIn = globalState.isSignedIn;
   const [popUp, setPopUp] = useState(false);
   const { txHash, pathname, errorType } = getURLInfo();
+  const {
+    user_migrate_seeds,
+    seed_loading,
+    user_claimed_rewards,
+    rewards_loading,
+  } = useMigrate_user_data();
   useEffect(() => {
     if (txHash && isSignedIn && popUp) {
       checkTransaction(txHash)
@@ -848,6 +855,11 @@ export default function FarmsHome(props: any) {
     return getFarmVisibleLength();
   }, [farm_display_ended_List]);
   const isMobileSite = isMobile();
+  const showMigrateEntry =
+    !seed_loading &&
+    !rewards_loading &&
+    (user_migrate_seeds.length > 0 ||
+      Object.keys(user_claimed_rewards).length > 0);
   return (
     <div className={`${getUrlParams() ? 'hidden' : ''}`}>
       <div
@@ -975,34 +987,37 @@ export default function FarmsHome(props: any) {
           </div>
         </div>
       </div>
-      <div className="relative migrateArea m-auto lg:w-2/3 xs:w-full md:w-full bg-veGradient rounded-2xl p-4 mb-4 pr-6 xs:hidden md:hidden">
-        <MigrateIcon
-          className="absolute left-0 -top-8"
-          style={{ zoom: 0.75 }}
-        ></MigrateIcon>
-        <div className="flex justify-between items-end ml-32">
-          <div className="w-3/4 mr-5">
-            <p className="text-white text-lg font-bold mb-3">
-              V2 NEW Farm Migration
-            </p>
-            <p className="text-sm text-white">
-              V2 Farm will support boost farm for the LOVE token stakers.
-              Meanwhile, the V1 farm rewards will stop at{' '}
-              <label className="font-bold">1. July,2022.</label>
-            </p>
-          </div>
-          {isSignedIn ? (
-            <div
-              onClick={goMigrate}
-              className="flex items-center h-8 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer px-5 whitespace-nowrap mb-2"
-            >
-              Migrate Now!
+      {showMigrateEntry ? (
+        <div className="relative migrateArea m-auto lg:w-2/3 xs:w-full md:w-full bg-veGradient rounded-2xl p-4 mb-4 pr-6 xs:hidden md:hidden">
+          <MigrateIcon
+            className="absolute left-0 -top-8"
+            style={{ zoom: 0.75 }}
+          ></MigrateIcon>
+          <div className="flex justify-between items-end ml-32">
+            <div className="w-3/4 mr-5">
+              <p className="text-white text-lg font-bold mb-3">
+                V2 NEW Farm Migration
+              </p>
+              <p className="text-sm text-white">
+                V2 Farm will support boost farm for the LOVE token stakers.
+                Meanwhile, the V1 farm rewards will stop at{' '}
+                <label className="font-bold">1. July,2022.</label>
+              </p>
             </div>
-          ) : (
-            <BlacklightConnectToNearBtn className="h-8 w-52 mb-2" />
-          )}
+            {isSignedIn ? (
+              <div
+                onClick={goMigrate}
+                className="flex items-center h-8 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer px-5 whitespace-nowrap mb-2"
+              >
+                Migrate Now!
+              </div>
+            ) : (
+              <BlacklightConnectToNearBtn className="h-8 w-52 mb-2" />
+            )}
+          </div>
         </div>
-      </div>
+      ) : null}
+
       <div className="searchArea m-auto lg:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
         <div className="flex justify-between items-center flex-wrap mb-5 xs:mb-3 md:mb-3 xs:w-full md:w-full xs:justify-start md:justify-start">
           {Object.keys(statusList).map((item: string) => {

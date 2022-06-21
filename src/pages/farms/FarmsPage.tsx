@@ -45,6 +45,7 @@ import {
   defaultConfig,
   frontConfig,
   get_seed_info,
+  useMigrate_user_data,
 } from '~services/farm';
 import {
   stake,
@@ -238,6 +239,12 @@ export function FarmsPage() {
       searchByCondition();
     }
   }, [location.search]);
+  const {
+    user_migrate_seeds,
+    seed_loading,
+    user_claimed_rewards,
+    rewards_loading,
+  } = useMigrate_user_data();
   async function loadFarmInfoList(isUpload?: boolean, isSignedIn?: boolean) {
     if (isUpload) {
       setUnclaimedFarmsIsLoading(false);
@@ -719,6 +726,12 @@ export function FarmsPage() {
   function goMigrate() {
     history.push('/farmsMigrate');
   }
+  const showMigrateEntry =
+    !seed_loading &&
+    !rewards_loading &&
+    (user_migrate_seeds.length > 0 ||
+      Object.keys(user_claimed_rewards).length > 0);
+
   return (
     <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
@@ -744,35 +757,38 @@ export function FarmsPage() {
               </span>
             </div>
           </div>
-          <div className="relative bg-veGradient rounded-2xl p-4 mb-4 mt-2">
-            <span className="flex items-center justify-center text-white text-lg font-bold my-2">
-              V2 NEW Farm Migration
-            </span>
-            <p className="flex items-center justify-center text-white text-sm">
-              V2 Farm will support boost farm for the LOVE token stakers.
-            </p>
-            <p className="text-white text-sm">
-              Meanwhile, the V1 farm rewards will stop at{' '}
-              <span className="font-bold">1. July,2022.</span>
-            </p>
-            <MigrateIcon
-              className="absolute -bottom-6 -left-16"
-              style={{ zoom: 0.5 }}
-            ></MigrateIcon>
-            <div className="flex justify-end">
-              {isSignedIn ? (
-                <div
-                  onClick={goMigrate}
-                  className="flex items-center h-8 w-2/3 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer mt-6 mb-3"
-                >
-                  Migrate Now!
-                </div>
-              ) : (
-                <BlacklightConnectToNearBtn className="h-8 w-3/4 mt-6 mb-5" />
-              )}
+          {showMigrateEntry ? (
+            <div className="relative bg-veGradient rounded-2xl p-4 mt-2">
+              <span className="flex items-center justify-center text-white text-lg font-bold my-2">
+                V2 NEW Farm Migration
+              </span>
+              <p className="flex items-center justify-center text-white text-sm">
+                V2 Farm will support boost farm for the LOVE token stakers.
+              </p>
+              <p className="text-white text-sm">
+                Meanwhile, the V1 farm rewards will stop at{' '}
+                <span className="font-bold">1. July,2022.</span>
+              </p>
+              <MigrateIcon
+                className="absolute -bottom-6 -left-16"
+                style={{ zoom: 0.5 }}
+              ></MigrateIcon>
+              <div className="flex justify-end">
+                {isSignedIn ? (
+                  <div
+                    onClick={goMigrate}
+                    className="flex items-center h-8 w-2/3 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer mt-6 mb-3"
+                  >
+                    Migrate Now!
+                  </div>
+                ) : (
+                  <BlacklightConnectToNearBtn className="h-8 w-3/4 mt-6 mb-5" />
+                )}
+              </div>
             </div>
-          </div>
-          <div className="rounded-2xl bg-cardBg pt-5 pb-8 relative overflow-hidden">
+          ) : null}
+
+          <div className="rounded-2xl bg-cardBg pt-5 pb-8 relative overflow-hidden mt-4 ">
             <div className="flex justify-between px-5 pb-12 relative">
               <div className="flex flex-col items-center">
                 <div className="flex items-center text-white text-sm text-center mb-1.5">

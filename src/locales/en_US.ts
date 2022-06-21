@@ -566,7 +566,7 @@ const en_US = {
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
   claimed_Rewards: 'Claimed Rewards',
-  POOL: 'POOL',
+  POOL: 'POOLS',
   STAKE: 'STAKE',
   lp_Token: 'LP Token',
   booster: 'Booster',
@@ -656,7 +656,7 @@ const en_US = {
   voting_gauge_share_tip:
     'The proportion of the REF used for voting allocation to the total REF reward in this period',
   swap_capital: 'SWAP',
-  farm_capital: 'FARM',
+  farm_capital: 'FARMS',
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
 };

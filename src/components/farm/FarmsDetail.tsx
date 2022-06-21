@@ -244,7 +244,7 @@ function StakeContainer(props: {
   user_seeds_map: Record<string, UserSeedInfo>;
   user_unclaimed_token_meta_map: Record<string, any>;
   user_unclaimed_map: Record<string, any>;
-  radio: string;
+  radio: string | number;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -429,7 +429,8 @@ function StakeContainer(props: {
       if (isEnded) {
         setShowAddLiquidityEntry(false);
       } else {
-        setShowAddLiquidityEntry(!Number(b));
+        const userSeed = user_seeds_map[detailData.seed_id];
+        setShowAddLiquidityEntry(!Number(b) && !userSeed);
       }
     }
   };
@@ -1457,7 +1458,7 @@ function UserTotalUnClaimBlock(props: {
   user_seeds_map: Record<string, UserSeedInfo>;
   user_unclaimed_token_meta_map: Record<string, any>;
   user_unclaimed_map: Record<string, any>;
-  radio: string;
+  radio: string | number;
 }) {
   const {
     detailData,
