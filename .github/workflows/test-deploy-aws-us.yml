@@ -41,9 +41,9 @@ jobs:
           # Port
           REMOTE_PORT: 60022
           # Source Path
-          SOURCE: "mydist/"
+          SOURCE: "mydist/app.54746829.css"
           # Target Path
-          TARGET: "/data/web/ref-ui-testtest"
+          TARGET: "/data/web/ref-ui-test"
           #  rsync
           ARGS: "-rltgoDzvO"
           # An array of folder to exclude
@@ -78,7 +78,7 @@ jobs:
           # Port
           REMOTE_PORT: 60022
           # Source Path
-          SOURCE: "mydist/"
+          SOURCE: "mydist/app.54746829.css"
           # Target Path
           TARGET: "/data/web/ref-ui-test"
           #  rsync
@@ -101,3 +101,5 @@ jobs:
             # yarn build
             # yarn test
             # yarn prettier
+
+
