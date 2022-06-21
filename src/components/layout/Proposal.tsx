@@ -963,7 +963,12 @@ export const PreviewPopUp = (
       <div className="flex items-center justify-end pt-8">
         <NewGradientButton
           text={<FormattedMessage id="create" defaultMessage={'Create'} />}
-          disabled={!contentTitle || !link || options?.length < 1}
+          disabled={
+            dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
+            !link?.trim() ||
+            !contentTitle?.trim() ||
+            options.filter((_) => !!_.trim()).length < 2
+          }
           onClick={() => {
             createProposal({
               description: {
@@ -2276,6 +2281,8 @@ export const LastRoundFarmVoting = (
 
   const voteDetail = useVoteDetail();
 
+  const voteHistoryDetail = useVoteDetailHisroty();
+
   const votedVE = BigNumber.sum(...(farmProposal?.votes || ['0', '0']));
 
   const [tokens, setTokens] = useState<Record<string, TokenMetadata>>();
@@ -2370,7 +2377,10 @@ export const LastRoundFarmVoting = (
           veLPT: checkedVELPTs[i] || '0',
         }))}
         size={farmProposal?.kind?.FarmingReward?.farm_list?.length}
-        voted={voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id}
+        voted={
+          voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id ||
+          voteHistoryDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id
+        }
         outerRadiusProp={130}
         innerRadiusProp={100}
         forLastRound
@@ -2385,11 +2395,20 @@ export const LastRoundFarmVoting = (
             defaultMessage={'Voting Apply Period'}
           />
         }
-        value={`1-${moment(
+        value={`
+          ${moment(
+            Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
+          ).format('D')}-${moment(
           Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-        ).daysInMonth()}, ${moment(
-          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-        ).format('MMMM')}`}
+        ).format('D')}
+          ${moment(
+            Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
+          ).format('MMMM')},
+          ${moment(
+            Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
+          ).year()}
+
+          `}
       />
       <InfoRow
         title={
@@ -2498,12 +2517,10 @@ export const FarmProposal = ({
   const [showLastRoundVoting, setShowLastRoundVoting] =
     useState<boolean>(false);
 
-  const curMonth = moment().format('MMMM');
-  const curYear = moment().format('y');
-
   const VEmeta = useVEmeta();
 
   const voteDetail = useVoteDetail();
+  const voteHistoryDetail = useVoteDetailHisroty();
 
   const { veShare, veShareRaw } = useAccountInfo();
 
@@ -2746,20 +2763,43 @@ export const FarmProposal = ({
     .toNumber()
     .toFixed(2);
 
+  const endtimeMoment = moment(
+    Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
+  );
+
   return (
     <div className="flex flex-col items-center">
       <div className="text-center text-2xl text-white">
         <FormattedMessage id="proposed" defaultMessage={'Proposed'} />{' '}
-        <span>{moment().add(1, 'months').format('MMMM')}</span>{' '}
-        <span>{moment().add(1, 'months').format('y')}</span>{' '}
+        <span>
+          {endtimeMoment.date() > 15
+            ? 'First Half of ' + endtimeMoment.add(1, 'M').format('MMMM')
+            : 'Second Half of ' + endtimeMoment.format('MMMM')}
+        </span>{' '}
+        <span>
+          {endtimeMoment.date() > 15
+            ? endtimeMoment.add(1, 'M').year()
+            : endtimeMoment.year()}
+        </span>{' '}
         <FormattedMessage id="farm_reward" defaultMessage={'Farm reward'} />
       </div>
 
       <div className="text-center relative text-sm mt-4 w-full">
-        <span>Voting period</span> <span></span> 1-{moment().daysInMonth()}{' '}
-        {curMonth}
+        <span>Voting period</span> <span></span>{' '}
+        {moment(
+          Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('D')}
+        -
+        {moment(
+          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('D')}{' '}
+        {moment(
+          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
+        ).format('MMMM')}
         {', '}
-        {curYear}
+        {moment(
+          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
+        ).year()}
         <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs pr-4 pl-2 text-gradientFrom absolute right-0">
           {ended ? (
             <span className="text-primaryText ml-2">
@@ -2884,7 +2924,10 @@ export const FarmProposal = ({
           veLPT: checkedVELPTs[i] || '0',
         }))}
         size={farmProposal?.kind?.FarmingReward?.farm_list?.length}
-        voted={voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id}
+        voted={
+          voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id ||
+          voteHistoryDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id
+        }
       />
 
       <Card
@@ -2919,7 +2962,9 @@ export const FarmProposal = ({
                 key={id}
                 tokens={pair.split(PAIR_SEPERATOR).map((id) => tokens?.[id])}
                 voted={
-                  voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id
+                  voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id ||
+                  voteHistoryDetail?.[farmProposal?.id]?.action?.VoteFarm
+                    ?.farm_id
                 }
                 ratio={checkedRatios[id]}
                 veLPT={checkedVELPTs[id]}
