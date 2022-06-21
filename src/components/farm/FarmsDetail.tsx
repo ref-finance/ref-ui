@@ -66,7 +66,7 @@ import {
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useTokens, getDepositableBalance } from '~state/token';
 import { scientificNotationToString, divide } from '../../utils/numbers';
-import { NewFarmInputAmount } from '~components/forms/InputAmount';
+import { BoostInputAmount } from '~components/forms/InputAmount';
 import Alert from '~components/alert/Alert';
 import { mftGetBalance } from '~services/mft-contract';
 import { getMftTokenId, toRealSymbol } from '~utils/token';
@@ -828,10 +828,6 @@ function CommonModal(props: any) {
         },
         content: {
           outline: 'none',
-          transform:
-            title.trim() === 'add_liquidity' && !isMobile()
-              ? 'translate(-50%, -70%)'
-              : 'translate(-50%, -50%)',
         },
       }}
     >
@@ -1356,7 +1352,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
             </span>
           </div>
           <div className="flex items-center pr-5">
-            <NewFarmInputAmount
+            <BoostInputAmount
               className="w-full border border-transparent rounded"
               max={getMax(
                 tokens[0].id,
@@ -1388,7 +1384,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
             </span>
           </div>
           <div className="flex items-center pr-5">
-            <NewFarmInputAmount
+            <BoostInputAmount
               className="w-full border border-transparent rounded"
               max={getMax(
                 tokens[1].id,
