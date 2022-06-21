@@ -22,6 +22,8 @@ import {
   toPrecision,
   toInternationalCurrencySystem,
   calculateFairShare,
+  toReadableNumber,
+  ONLY_ZEROS,
 } from '~utils/numbers';
 import { usePool } from '~state/pool';
 import {
@@ -39,8 +41,16 @@ import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import { canFarm, Pool } from '~services/pool';
 import { ftGetTokensMetadata, TokenMetadata } from '~services/ft-contract';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
-import { usePoolTVL, useYourliquidity } from '../../state/pool';
-import { multiply, divide } from '../../utils/numbers';
+import {
+  usePoolTVL,
+  useYourliquidity,
+  useAllStablePools,
+} from '../../state/pool';
+import {
+  multiply,
+  divide,
+  scientificNotationToString,
+} from '../../utils/numbers';
 import { STABLE_POOL_USN_ID, isStablePool } from '../../services/near';
 import { STABLE_POOL_ID } from '../../services/near';
 import {
@@ -54,6 +64,8 @@ import { useStabelPoolData } from '../../state/sauce';
 import { useFarmStake, useAllFarms, useCanFarmV2 } from '../../state/farm';
 import { PoolTab } from '../../components/pool/PoolTab';
 import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
+import { getVEPoolId } from '../ReferendumPage';
+import { useAccountInfo } from '~state/referendum';
 
 function MyShares({
   shares,
@@ -80,10 +92,6 @@ function MyShares({
 }) {
   if (!shares || !totalShares) return <div>-</div>;
 
-  if (poolId == 1) {
-    console.log(supportFarmV2);
-  }
-
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
   let displayPercent;
@@ -96,7 +104,7 @@ function MyShares({
 
   return (
     <div className="h-12 inline-flex flex-col justify-center xs:text-right md:text-right">
-      <div className="pl-2 pb-1 xs:pr-0 md:pr-0 text-sm whitespace-nowrap">{`${toRoundedReadableNumber(
+      <div className="pl-2 xs:pr-0 md:pr-0 text-sm whitespace-nowrap">{`${toRoundedReadableNumber(
         {
           decimals: isStablePool(poolId)
             ? getStablePoolDecimal(poolId)
@@ -107,45 +115,6 @@ function MyShares({
           precision: decimal || 6,
         }
       )} (${displayPercent}%)`}</div>
-      {supportFarmV1 > 0 && (
-        <object>
-          <Link
-            to={{
-              pathname: '/farms',
-            }}
-            target="_blank"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            <ShareInFarm
-              farmStake={farmStakeV1}
-              userTotalShare={userTotalShare}
-              version={'V1'}
-            />
-          </Link>
-        </object>
-      )}
-
-      {supportFarmV2 > 0 && (
-        <object>
-          <Link
-            to={{
-              pathname: `/farmsBoost/${poolId}-${onlyEndedFarmV2 ? 'e' : 'r'}`,
-            }}
-            target="_blank"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            <ShareInFarm
-              farmStake={farmStakeV2}
-              userTotalShare={userTotalShare}
-              version={'V2'}
-            />
-          </Link>
-        </object>
-      )}
     </div>
   );
 }
@@ -187,6 +156,8 @@ export function YourLiquidityPage() {
   const isSignedIn = globalState.isSignedIn;
   const senderLoginRes = getSenderLoginRes();
   const history = useHistory();
+
+  const { lptAmount } = useAccountInfo();
 
   const { poolData: pool3tokenData } = useStabelPoolData(STABLE_POOL_ID);
 
@@ -258,6 +229,54 @@ export function YourLiquidityPage() {
     LINEARPoolData.pool,
   ];
 
+  const RowRender = ({ p, ids }: { p: Pool | PoolRPCView; ids: string[] }) => {
+    const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
+
+    const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
+
+    const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
+    return (
+      <div
+        className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
+        key={Number(p.id)}
+      >
+        <PoolRow
+          pool={p}
+          tokens={ids.map((id) => tokensMeta[id]) || []}
+          supportFarmV1={supportFarmV1}
+          supportFarmV2={supportFarmV2}
+          onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
+          lptAmount={lptAmount}
+        />
+      </div>
+    );
+  };
+  const RowRenderMobile = ({
+    p,
+    ids,
+  }: {
+    p: Pool | PoolRPCView;
+    ids: string[];
+  }) => {
+    const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
+
+    const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
+
+    const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
+    return (
+      <PoolRow
+        pool={p}
+        tokens={ids.map((id) => tokensMeta[id]) || []}
+        supportFarmV1={supportFarmV1}
+        supportFarmV2={supportFarmV2}
+        onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
+        lptAmount={lptAmount}
+      />
+    );
+  };
+
+  const vePool = pools.find((p) => Number(p.id) === Number(getVEPoolId()));
+
   return (
     <>
       <PoolTab></PoolTab>
@@ -285,7 +304,7 @@ export function YourLiquidityPage() {
                   style={{
                     gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
                   }}
-                  className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:pl-10
+                  className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:px-8
                 xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
                 >
                   <div className="col-span-2">
@@ -295,79 +314,29 @@ export function YourLiquidityPage() {
                     <FormattedMessage id="token" defaultMessage="Token" />
                   </div>
 
-                  <div className="col-span-3 text-left ml-8 xl:ml-14">
+                  <div className="col-span-5 text-left ml-8 xl:ml-14">
                     <FormattedMessage id="my_shares" defaultMessage="Shares" />
                   </div>
-                  <div className="col-span-6 xl:ml-8 ml-4">
+                  <div className="col-span-4 xl:ml-8 ml-4">
                     <FormattedMessage id="value" defaultMessage="Value" />
                   </div>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
+                  {!vePool
+                    ? null
+                    : [vePool].map((p) => {
+                        return <RowRender p={p} ids={p.token_account_ids} />;
+                      })}
+
                   {stablePools.map((p) => {
-                    const supportFarmV1 = getFarmsCount(
-                      p.id.toString(),
-                      v1Farm
-                    );
-
-                    const supportFarmV2 = getFarmsCount(
-                      p.id.toString(),
-                      v2Farm
-                    );
-
-                    const endedFarmV2 = getEndedFarmsCount(
-                      p.id.toString(),
-                      v2Farm
-                    );
-                    return (
-                      <div
-                        className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
-                        key={Number(p.id)}
-                      >
-                        <PoolRow
-                          pool={p}
-                          tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
-                          supportFarmV1={supportFarmV1}
-                          supportFarmV2={supportFarmV2}
-                          onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
-                        />
-                      </div>
-                    );
+                    return <RowRender p={p} ids={p.tokenIds} />;
                   })}
 
-                  {pools.map((pool, i) => {
-                    const supportFarmV1 = getFarmsCount(
-                      pool.id.toString(),
-                      v1Farm
-                    );
-
-                    const supportFarmV2 = getFarmsCount(
-                      pool.id.toString(),
-                      v2Farm
-                    );
-
-                    const endedFarmV2 = getEndedFarmsCount(
-                      pool.id.toString(),
-                      v2Farm
-                    );
-                    return (
-                      <div
-                        key={i}
-                        className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
-                      >
-                        <PoolRow
-                          pool={pool}
-                          tokens={
-                            pool.token_account_ids.map(
-                              (id) => tokensMeta[id]
-                            ) || []
-                          }
-                          supportFarmV1={supportFarmV1}
-                          supportFarmV2={supportFarmV2}
-                          onlyEndedFarmV2={supportFarmV2 === endedFarmV2}
-                        />
-                      </div>
-                    );
-                  })}
+                  {pools
+                    .filter((p) => !vePool || p.id !== vePool.id)
+                    .map((p, i) => {
+                      return <RowRender p={p} ids={p.token_account_ids} />;
+                    })}
                 </div>
               </div>
             </section>
@@ -385,41 +354,21 @@ export function YourLiquidityPage() {
         {pools.length > 0 ||
         stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
           <div className="lg:hidden">
+            {!vePool
+              ? null
+              : [vePool].map((p) => {
+                  return <RowRenderMobile p={p} ids={p.token_account_ids} />;
+                })}
+
             {stablePools.map((p) => {
-              const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
-
-              const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
-
-              const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
-              return (
-                <PoolRow
-                  pool={p}
-                  key={Number(p.id)}
-                  tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
-                  supportFarmV1={supportFarmV1}
-                  supportFarmV2={supportFarmV2}
-                  onlyEndedFarmV2={supportFarmV2 === endedFarmV2}
-                />
-              );
+              return <RowRenderMobile p={p} ids={p.tokenIds} />;
             })}
 
-            {pools.map((p, i) => {
-              const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
-
-              const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
-
-              const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
-              return (
-                <PoolRow
-                  pool={p}
-                  key={i}
-                  tokens={p.token_account_ids.map((id) => tokensMeta[id])}
-                  supportFarmV1={supportFarmV1}
-                  supportFarmV2={supportFarmV2}
-                  onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
-                />
-              );
-            })}
+            {pools
+              .filter((p) => !vePool || p.id !== vePool.id)
+              .map((p, i) => {
+                return <RowRenderMobile p={p} ids={p.token_account_ids} />;
+              })}
           </div>
         ) : (
           <Card className="lg:hidden mt-4" width="w-full">
@@ -437,9 +386,10 @@ function PoolRow(props: {
   supportFarmV1: number;
   supportFarmV2: number;
   onlyEndedFarmV2: boolean;
+  lptAmount?: string;
 }) {
   const tokens = props.tokens;
-
+  const lptAmount = props.lptAmount;
   const poolTVL = usePoolTVL(props.pool.id);
 
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -561,6 +511,8 @@ function PoolRow(props: {
     );
   };
 
+  const lpDecimal = isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24;
+
   return (
     <>
       {/* PC */}
@@ -568,7 +520,7 @@ function PoolRow(props: {
         style={{
           gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
         }}
-        className="xs:hidden md:hidden grid  py-5 content-center items-center text-sm text-white pl-10 pr-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
+        className="xs:hidden md:hidden grid  py-5 content-center items-center text-sm text-white px-8 border-t border-gray-700 border-opacity-70 cursor-pointer"
         to={{ pathname: `/pool/${pool.id}` }}
       >
         <div className="col-span-2 inline-flex items-start flex-col relative">
@@ -593,7 +545,9 @@ function PoolRow(props: {
             decimal={2}
             poolId={pool.id}
             supportFarmV1={supportFarmV1}
-            userTotalShare={userTotalShare}
+            userTotalShare={userTotalShare.plus(
+              Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0'
+            )}
             farmStakeV1={farmStakeV1}
             farmStakeV2={farmStakeV2}
             supportFarmV2={supportFarmV2}
@@ -601,10 +555,127 @@ function PoolRow(props: {
           />
         </div>
 
+        <div className="col-span-2 flex flex-col text-xs text-farmText">
+          {supportFarmV1 > 0 && (
+            <Link
+              to={{
+                pathname: '/farms',
+              }}
+              target="_blank"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="text-primaryText mb-1.5"
+            >
+              <span>
+                {toPrecision(
+                  toReadableNumber(
+                    lpDecimal,
+                    scientificNotationToString(farmStakeV1.toString())
+                  ),
+                  2
+                )}
+              </span>
+              <span className="mx-1">
+                <FormattedMessage id="in" defaultMessage={'in'} />
+              </span>
+              <span className="hover:border-b hover:border-white hover:text-white border-b border-transparent">
+                <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                <span className="ml-1">V1</span>
+              </span>
+            </Link>
+          )}
+
+          {supportFarmV2 > 0 && (
+            <Link
+              to={{
+                pathname: `/farmsBoost/${pool.id}-${
+                  props.onlyEndedFarmV2 ? 'e' : 'r'
+                }`,
+              }}
+              target="_blank"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="text-primaryText mb-1.5"
+            >
+              <span>
+                {toPrecision(
+                  toReadableNumber(
+                    lpDecimal,
+                    scientificNotationToString(farmStakeV2.toString())
+                  ),
+                  2
+                )}
+              </span>
+              <span className="mx-1">
+                <FormattedMessage id="in" defaultMessage={'in'} />
+              </span>
+              <span className="hover:border-b hover:border-white hover:text-white border-b border-transparent">
+                <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                <span className="ml-1">V2</span>
+              </span>
+            </Link>
+          )}
+          {Number(getVEPoolId()) === Number(pool.id) ? (
+            <Link
+              to={{
+                pathname: `/farmsBoost/${pool.id}-${
+                  props.onlyEndedFarmV2 ? 'e' : 'r'
+                }`,
+              }}
+              target="_blank"
+              onClick={(e) => {
+                window.open('/referendum');
+              }}
+              className="text-primaryText mb-1.5"
+            >
+              <span>
+                {toPrecision(toReadableNumber(24, lptAmount || '0'), 2)}
+              </span>
+              <span className="mx-1">
+                <FormattedMessage id="locked" defaultMessage={'locked'} />
+              </span>
+              <span className="mr-1">
+                <FormattedMessage id="in" defaultMessage={'in'} />
+              </span>
+              <span className="hover:border-b hover:border-white hover:text-white border-b border-transparent">
+                <FormattedMessage id="dao" defaultMessage={'DAO'} />
+              </span>
+            </Link>
+          ) : null}
+
+          <div>
+            <span
+              className={`${
+                ONLY_ZEROS.test(shares)
+                  ? 'text-primaryText'
+                  : 'text-gradientFrom'
+              }`}
+              title={toReadableNumber(
+                isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
+                shares
+              )}
+            >
+              {toPrecision(
+                toReadableNumber(
+                  isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
+                  shares
+                ),
+                2
+              )}
+            </span>
+
+            <span className="ml-1">
+              <FormattedMessage id="available" />
+            </span>
+          </div>
+        </div>
+
         <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
 
-        <div className="flex items-center justify-end  text-center  col-span-4 ">
-          <div className="flex items-center justify-end flex-wrap">
+        <div className="flex items-center justify-end  text-center  col-span-2 ">
+          <div className="flex items-center flex-col justify-end flex-wrap">
             <SolidButton
               onClick={(e) => {
                 e.stopPropagation();
@@ -618,9 +689,9 @@ function PoolRow(props: {
                   });
                 }
               }}
-              className="text-xs col-span-2 px-1.5 text-center whitespace-nowrap mb-1"
+              className="text-xs col-span-2 px-1.5 text-center whitespace-nowrap mb-3"
               style={{
-                minWidth: '96px',
+                minWidth: '104px',
               }}
             >
               <FormattedMessage
@@ -644,9 +715,9 @@ function PoolRow(props: {
 
                 setShowWithdraw(true);
               }}
-              className="text-xs px-4 col-span-2 text-center h-8 ml-2 mb-1"
+              className="text-xs px-4 col-span-2 text-center h-8 mb-1"
               style={{
-                minWidth: '80px',
+                minWidth: '104px',
               }}
             >
               <FormattedMessage id="remove" defaultMessage="Remove" />

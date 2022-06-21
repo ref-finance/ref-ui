@@ -276,7 +276,7 @@ const timeStampToDate = (ts: number) => {
   return moment(ts * 1000).format('YYYY-MM-DD');
 };
 
-export const getPoolId = (env: string = process.env.NEAR_ENV) => {
+export const getVEPoolId = (env: string = process.env.NEAR_ENV) => {
   switch (env) {
     case 'pub-testnet':
       return 269;
@@ -471,7 +471,7 @@ export const LockPopUp = ({
               className={`${
                 ONLY_ZEROS.test(lpShare) ? 'hidden' : ''
               } text-gradientFrom pl-1 py-1`}
-              onClick={() => window.open(`/pool/${getPoolId()}`, '_blank')}
+              onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
             >
               ↗
             </button>
@@ -482,7 +482,7 @@ export const LockPopUp = ({
             ) : (
               <button
                 className="text-gradientFrom"
-                onClick={() => window.open(`/pool/${getPoolId()}`, '_blank')}
+                onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
               >
                 <FormattedMessage
                   id="get_lptoken"
@@ -771,7 +771,7 @@ The veLPT is not an actual, transferable token, but represents your voting power
             className="mt-6 text-lg"
             onClick={() =>
               lockLP({
-                token_id: ':' + getPoolId().toString(),
+                token_id: ':' + getVEPoolId().toString(),
                 amount: toNonDivisibleNumber(24, inputValue),
                 duration,
                 leftTime,
@@ -1416,7 +1416,7 @@ export const FarmStakeTip = ({
           onClick={() => {
             if (version === 1) {
               window.open('farms', '_blank');
-            } else window.open(`/farmsBoost/${getPoolId()}-r`, '_blank');
+            } else window.open(`/farmsBoost/${getVEPoolId()}-r`, '_blank');
           }}
         >
           <FormattedMessage id="farm" defaultMessage={'farm'} /> {`V${version}`}
@@ -1459,7 +1459,7 @@ const UserReferendumCard = ({
 
   const lockedLpShare = toReadableNumber(24, accountInfo?.lpt_amount || '0');
 
-  const { farmStakeV1, farmStakeV2 } = useYourliquidity(Number(getPoolId()));
+  const { farmStakeV1, farmStakeV2 } = useYourliquidity(Number(getVEPoolId()));
 
   return (
     <Card
@@ -1628,7 +1628,7 @@ const UserReferendumCard = ({
 };
 
 export const ReferendumPage = () => {
-  const id = getPoolId();
+  const id = getVEPoolId();
   const lpShare = usePoolShare(id);
 
   const { veShare, accountInfo } = useAccountInfo();
@@ -1639,7 +1639,7 @@ export const ReferendumPage = () => {
       moment().unix();
 
   return (
-    <div className="m-auto overflow-hidden lg:w-1024px xs:w-full md:w-5/6 text-white relative">
+    <div className="m-auto lg:w-1024px xs:w-full md:w-5/6 text-white relative top-8">
       <div className="w-full flex ">
         <UserReferendumCard
           veShare={veShare}

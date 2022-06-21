@@ -833,11 +833,13 @@ export const PreviewPopUp = (
     value,
     nameClass,
     valueClass,
+    valueTitle,
   }: {
     name: string | JSX.Element;
     value: string | JSX.Element;
     nameClass?: string;
     valueClass?: string;
+    valueTitle?: string;
   }) => {
     return (
       <div className="py-2.5 flex items-center ">
@@ -865,6 +867,7 @@ export const PreviewPopUp = (
           })}
           value={`${getAccountName(getCurrentWallet().wallet.getAccountId())}`}
           valueClass={'font-bold'}
+          valueTitle={getCurrentWallet().wallet.getAccountId()}
         />
 
         <InfoRow
@@ -1038,7 +1041,7 @@ const FarmChart = ({
           WebkitBackdropFilter: 'blur(50px)',
         }}
       >
-        {voted === activeIndex ? (
+        {ratio[voted].name === activeFarm.name ? (
           <NewGradientButton
             text={
               <FormattedMessage id="you_voted" defaultMessage={'You Voted'} />
@@ -1879,7 +1882,7 @@ const GovProposalItem = ({
                   <FormattedMessage id="proposer" defaultMessage={'Proposer'} />
                 </span>
 
-                <span className="font-bold">
+                <span className="font-bold" title={proposal.proposer}>
                   {getAccountName(proposal.proposer)}
                 </span>
               </div>
@@ -2490,9 +2493,11 @@ export const LastRoundFarmVoting = (
 export const FarmProposal = ({
   farmProposal,
   lastRoundFarmProposal,
+  VEmeta,
 }: {
   farmProposal: Proposal;
   lastRoundFarmProposal: Proposal;
+  VEmeta: VEMETA & { totalVE: string };
 }) => {
   const base = Math.floor(
     Number(
@@ -2516,8 +2521,6 @@ export const FarmProposal = ({
 
   const [showLastRoundVoting, setShowLastRoundVoting] =
     useState<boolean>(false);
-
-  const VEmeta = useVEmeta();
 
   const voteDetail = useVoteDetail();
   const voteHistoryDetail = useVoteDetailHisroty();
@@ -3620,6 +3623,8 @@ export const ProposalCard = () => {
 
   const [showCreateProposal, setShowCreateProposal] = useState<boolean>(false);
 
+  const VEmeta = useVEmeta();
+
   const config = useVEconfig();
 
   const proposal_id = window.location.pathname.split('/')?.[2];
@@ -3670,6 +3675,7 @@ export const ProposalCard = () => {
           <FarmProposal
             lastRoundFarmProposal={lastRoundFarmProposal}
             farmProposal={farmProposal}
+            VEmeta={VEmeta}
           />
         )}
       </ProposalWrapper>

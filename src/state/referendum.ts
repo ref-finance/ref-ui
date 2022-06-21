@@ -236,7 +236,12 @@ export const useAccountInfo = () => {
     });
   }, [isSignedIn]);
 
-  return { accountInfo, veShare, veShareRaw: accountInfo?.ve_lpt_amount };
+  return {
+    accountInfo,
+    veShare,
+    veShareRaw: accountInfo?.ve_lpt_amount,
+    lptAmount: accountInfo?.lpt_amount,
+  };
 };
 
 export interface UnclaimedProposal {

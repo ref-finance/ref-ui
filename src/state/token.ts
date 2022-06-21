@@ -263,16 +263,21 @@ export const useTokenBalances = () => {
 export const useWalletTokenBalances = (tokenIds: string[] = []) => {
   const [balances, setBalances] = useState<TokenBalancesView>();
 
+  const near = useDepositableBalance('NEAR');
+
   useEffect(() => {
     Promise.all<string>(tokenIds.map((id) => ftGetBalance(id))).then((res) => {
       let balances = {};
       res.map((item, index) => {
         const tokenId: string = tokenIds[index];
         balances[tokenId] = item;
+        if (tokenId === WRAP_NEAR_CONTRACT_ID) {
+          balances[tokenId] = near;
+        }
       });
       setBalances(balances);
     });
-  }, [tokenIds.join('')]);
+  }, [tokenIds.join(''), near]);
 
   return balances;
 };
