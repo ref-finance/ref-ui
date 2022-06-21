@@ -206,7 +206,7 @@ function MigrateLineBox(props: { migrateSeed: MigrateSeed }) {
       <div className="flex justify-center items-center">
         <GradientButton
           color="#fff"
-          className={`w-36 xs:w-28 md:w-28 h-9 text-center text-base text-white focus:outline-none font-semibold`}
+          className={`w-36 xs:w-24 md:w-24 h-9 text-center text-base xs:text-sm md:text-sm text-white focus:outline-none font-semibold`}
           onClick={doMigrate}
           loading={migrateLoading}
         >

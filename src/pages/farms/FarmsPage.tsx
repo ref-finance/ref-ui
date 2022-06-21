@@ -97,7 +97,7 @@ import {
   usnBuyAndSellToast,
   swapToast,
 } from '../../components/layout/transactionTipPopUp';
-import { MigrateIcon } from '../../components/icon/FarmBoost';
+import { MigrateIconSmall } from '../../components/icon/FarmBoost';
 
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
@@ -769,10 +769,7 @@ export function FarmsPage() {
                 Meanwhile, the V1 farm rewards will stop at{' '}
                 <span className="font-bold">1. July,2022.</span>
               </p>
-              <MigrateIcon
-                className="absolute -bottom-6 -left-16"
-                style={{ zoom: 0.5 }}
-              ></MigrateIcon>
+              <MigrateIconSmall className="absolute -bottom-3 -left-5"></MigrateIconSmall>
               <div className="flex justify-end">
                 {isSignedIn ? (
                   <div

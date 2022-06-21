@@ -20,6 +20,7 @@ import {
   BoostRightArrowIcon,
   DirectionButton,
   BoostLoveIcon,
+  MigrateIconSmall,
   MigrateIcon,
 } from '~components/icon/FarmBoost';
 import {
@@ -871,34 +872,34 @@ export default function FarmsHome(props: any) {
             : 'linear-gradient(270deg, #001320 0%, #1D2932 95.06%)',
         }}
       >
-        <div className="relative bg-veGradient rounded-2xl p-4 mb-4 mt-3 mx-3 lg:hidden">
-          <span className="flex items-center justify-center text-white text-lg font-bold my-2">
-            V2 NEW Farm Migration
-          </span>
-          <p className="flex items-center justify-center text-white text-sm">
-            V2 Farm will support boost farm for the LOVE token stakers.
-          </p>
-          <p className="text-white text-sm">
-            Meanwhile, the V1 farm rewards will stop at{' '}
-            <span className="font-bold">1. July,2022.</span>
-          </p>
-          <MigrateIcon
-            className="absolute -bottom-6 -left-5"
-            style={{ zoom: 0.6 }}
-          ></MigrateIcon>
-          <div className="flex justify-end">
-            {isSignedIn ? (
-              <div
-                onClick={goMigrate}
-                className="flex items-center h-8 w-2/3 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer mt-6 mb-3"
-              >
-                Migrate Now!
-              </div>
-            ) : (
-              <BlacklightConnectToNearBtn className="h-8 w-3/4 mt-6 mb-5" />
-            )}
+        {showMigrateEntry ? (
+          <div className="relative bg-veGradient rounded-2xl p-4 mb-4 mt-3 mx-3 lg:hidden">
+            <span className="flex items-center justify-center text-white text-lg font-bold my-2">
+              V2 NEW Farm Migration
+            </span>
+            <p className="flex items-center justify-center text-white text-sm">
+              V2 Farm will support boost farm for the LOVE token stakers.
+            </p>
+            <p className="text-white text-sm">
+              Meanwhile, the V1 farm rewards will stop at{' '}
+              <span className="font-bold">1. July,2022.</span>
+            </p>
+            <MigrateIconSmall className="absolute -bottom-3 -left-5"></MigrateIconSmall>
+            <div className="flex justify-end">
+              {isSignedIn ? (
+                <div
+                  onClick={goMigrate}
+                  className="flex items-center h-8 w-2/3 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer mt-6 mb-3"
+                >
+                  Migrate Now!
+                </div>
+              ) : (
+                <BlacklightConnectToNearBtn className="h-8 w-3/4 mt-6 mb-5" />
+              )}
+            </div>
           </div>
-        </div>
+        ) : null}
+
         <span className="absolute left-0 top-0 h-full overflow-hidden xs:hidden md:hidden">
           <BannerBgLeft />
         </span>
@@ -990,7 +991,7 @@ export default function FarmsHome(props: any) {
       {showMigrateEntry ? (
         <div className="relative migrateArea m-auto lg:w-2/3 xs:w-full md:w-full bg-veGradient rounded-2xl p-4 mb-4 pr-6 xs:hidden md:hidden">
           <MigrateIcon
-            className="absolute left-0 -top-8"
+            className="absolute left-0 -top-5"
             style={{ zoom: 0.75 }}
           ></MigrateIcon>
           <div className="flex justify-between items-end ml-32">
