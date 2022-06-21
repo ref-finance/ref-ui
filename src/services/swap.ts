@@ -42,7 +42,6 @@ import {
   getPoolsByTokens,
   getPoolByToken,
   parsePool,
-  Pool,
   getPool,
   getStablePool,
   StablePool,
@@ -91,7 +90,7 @@ import {
 } from '../utils/numbers';
 import { auroraSwapTransactions } from './aurora/aurora';
 import { PoolSlippageSelector } from '../components/forms/SlippageSelector';
-import { getAllStablePoolsFromCache } from './pool';
+import { getAllStablePoolsFromCache, Pool } from './pool';
 import { PoolInfo } from '../components/layout/SwapRoutes';
 import {
   WRAP_NEAR_CONTRACT_ID,
@@ -100,6 +99,7 @@ import {
   nearDepositTransaction,
   nearWithdrawTransaction,
 } from './wrap-near';
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
 // Big.strict = false;
@@ -185,6 +185,8 @@ const getStablePoolEstimate = ({
   stablePoolInfo: StablePool;
   stablePool: Pool;
 }) => {
+  const STABLE_LP_TOKEN_DECIMALS = getStablePoolDecimal(stablePool.id);
+
   const [amount_swapped, fee, dy] = getSwappedAmount(
     tokenIn.id,
     tokenOut.id,
@@ -796,16 +798,6 @@ export async function getHybridStableSmart(
       }
     }
   }
-
-  // return best estimate
-  // console.log(candidatePools, 'candidate pools');
-  // candidatePools = candidatePools.filter((pools) => {
-  //   pools.every((p) =>
-  //     new Big(p.supplies[p.tokenIds[0]])
-  //       .times(new Big(p.supplies[p.tokenIds[1]]))
-  //       .gt(0)
-  //   );
-  // });
 
   if (candidatePools.length > 0) {
     const tokensMedata = await ftGetTokensMetadata(

@@ -38,8 +38,9 @@ import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
 import StableTokenListUSN from './StableTokenListUSN';
 import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
+import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
+import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 
-export const STABLE_LP_TOKEN_DECIMALS = 18;
 const getSwapSlippageKey = (id: string | number) =>
   `REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE_${id}`;
 const ONLY_ZEROS = /^0*\.?0*$/;
@@ -47,9 +48,11 @@ const ONLY_ZEROS = /^0*\.?0*$/;
 export function myShares({
   totalShares,
   userTotalShare,
+  pool,
 }: {
   totalShares: string;
   userTotalShare: BigNumber;
+  pool: Pool;
 }) {
   const sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
@@ -63,7 +66,7 @@ export function myShares({
   } else displayPercent = toPrecision(String(sharePercent), 3);
 
   const nonPrecisionDisplayUserTotalShares = toReadableNumber(
-    STABLE_LP_TOKEN_DECIMALS,
+    getStablePoolDecimal(pool.id),
     displayUserTotalShare
   );
 
@@ -98,7 +101,6 @@ export default function AddLiquidityComponentUSN(props: {
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
   const [error, setError] = useState<Error>();
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
-  const intl = useIntl();
   const [canAddLP, setCanAddLP] = useState<boolean>(false);
   const history = useHistory();
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
@@ -386,6 +388,7 @@ export default function AddLiquidityComponentUSN(props: {
                 userTotalShare: new BigNumber(
                   toPrecision(percentLess(slippageTolerance, predicedShares), 0)
                 ),
+                pool,
               })}
             </div>
           </div>

@@ -52,13 +52,11 @@ import db, { TokenPrice, BoostSeeds, FarmDexie } from '../store/RefDatabase';
 import { getMftTokenId } from '../utils/token';
 
 const config = getConfig();
-export const DEFAULT_PAGE_LIMIT = 150;
-const {
-  STABLE_POOL_ID,
-  STABLE_POOL_IDS,
-  STABLE_POOL_USN_ID,
-  REF_VE_CONTRACT_ID,
-} = config;
+const { REF_VE_CONTRACT_ID } = config;
+export const DEFAULT_PAGE_LIMIT = 300;
+const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
+const STABLE_POOL_IDS = getConfig().STABLE_POOL_IDS;
+const STABLE_POOL_USN_ID = getConfig().STABLE_POOL_USN_ID;
 const expand = 6;
 export interface Farm {
   farm_id: string;

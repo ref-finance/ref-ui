@@ -16,11 +16,13 @@ export enum TRANSACTION_WALLET_TYPE {
 export enum TRANSACTION_ERROR_TYPE {
   SLIPPAGE_VIOLATION = 'Slippage Violation',
   INVALID_PARAMS = 'Invalid Params',
+  RATES_EXPIRED = 'Rates Expired',
 }
 
 const ERROR_PATTERN = {
   slippageErrorPattern: /ERR_MIN_AMOUNT|slippage error/i,
   invaliParamsErrorPattern: /invalid params/i,
+  ratesExpiredErrorPattern: /Rates expired/i,
 };
 
 export enum TRANSACTION_STATE {
@@ -381,10 +383,19 @@ export const getErrorMessage = (res: any) => {
     );
   });
 
+  const isRatesExpiredError = res.receipts_outcome.some((outcome: any) => {
+    return ERROR_PATTERN.ratesExpiredErrorPattern.test(
+      outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+        ?.ExecutionError
+    );
+  });
+
   if (isSlippageError) {
     return TRANSACTION_ERROR_TYPE.SLIPPAGE_VIOLATION;
   } else if (isInvalidAmountError) {
     return TRANSACTION_ERROR_TYPE.INVALID_PARAMS;
+  } else if (isRatesExpiredError) {
+    return TRANSACTION_ERROR_TYPE.RATES_EXPIRED;
   } else {
     return null;
   }

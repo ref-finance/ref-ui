@@ -48,7 +48,7 @@ const getTokens = async () => {
 };
 
 const getFarms = (page: number) => {
-  const MAX_PER_PAGE = 150;
+  const MAX_PER_PAGE = 300;
   const index = (page - 1) * MAX_PER_PAGE;
 
   return farmView({

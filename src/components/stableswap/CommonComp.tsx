@@ -123,6 +123,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
           shares,
           userTotalShare,
           haveFarm: !!countV1 || !!countV2,
+          pool,
         })}
         <div className="flex flex-col items-end">
           {countV1 > 0 ? (

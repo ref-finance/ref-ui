@@ -112,9 +112,9 @@ const uk_UA_in_risks_page = {
   Locked_paragraph_6:
     'Якщо на обліковому записі контракта зареєстровано, хоча б один ключ повного доступу, контракт не блокується.',
   audited_first_sentence:
-    'Смарт-контракти Ref Finance пройшли аудит <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label>. Ref Finance буде активно шукати можливості проведення другого незалежного аудиту після завершення першого.',
+    'Розумні контракти Ref Finance пройшли <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/audits')" +
+    '>аудит</label>.',
   admin_first_sentence:
     'Управління Ref Finance здійснюється<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -626,5 +626,7 @@ const uk_UA = {
   farm_capital: 'Фарм',
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
+  total_near_amount: 'Загальна сума NEAR',
+  near_value: 'Значення NEAR',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

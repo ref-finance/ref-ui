@@ -111,9 +111,9 @@ const ja_in_risks_page = {
   Locked_paragraph_6:
     'コントラクトアカウントに少なくとも1つのフルアクセスキーが登録されている場合、コントラクトはロックされません。',
   audited_first_sentence:
-    '<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label> Ref Financeのスマートコントラクトが監査されています。最初の監査が完了した後、Ref Financeは2回目の独立した監査を積極的に求めます。',
+    'Ref Financeのスマートコントラクトは<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/audits')" +
+    '>監査</label>されています。',
   admin_first_sentence:
     'Ref Financeによる <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -656,6 +656,8 @@ const ja = {
   get_love: 'Get LOVE',
   swap_successful: 'スワップが成功しました。 ',
   trading_successfull: '取引は成功しました。 ',
+  total_near_amount: '合計NEAR量',
+  near_value: 'NEAR価値',
   borrow: '借りる',
   burrow_usn_tip: 'あなたはBurrowでUSNを借りることができます。',
   migrate: 'Migrate',

@@ -179,11 +179,11 @@ export const useSwap = ({
       })
         .then(async (estimates) => {
           if (!estimates) throw '';
-
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);
 
             if (!loadingTrigger) {
+              setSwapError(null);
               const expectedOut = (
                 await getExpectedOutputFromActions(
                   estimates,

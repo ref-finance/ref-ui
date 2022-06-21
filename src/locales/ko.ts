@@ -107,9 +107,9 @@ const ko_in_risks_page = {
   Locked_paragraph_6:
     '만약 하나라도 풀 액세스 키가 계약 계정에 등록되어 있는 경우, 그 계약은 잠기지 않습니다. ',
   audited_first_sentence:
-    'Ref Finance의 스마트 계약들은 이 기관에서 감사 합니다:  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label>. Ref Finance는 첫 감사가 끝난 이후, 이와 독립적인 두 번째 감사를 찾아 받을 예정입니다.',
+    'Ref Finance 스마트 계약은 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/audits')" +
+    '>감사</label> 되었습니다.',
   admin_first_sentence:
     'Ref Finance 는 이 사람들이 관리합니다 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -656,5 +656,7 @@ const ko = {
   farm_capital: '농장',
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
+  total_near_amount: '총 NEAR 금액',
+  near_value: 'NEAR 값',
 };
 export default Object.assign(ko, ko_in_risks_page);

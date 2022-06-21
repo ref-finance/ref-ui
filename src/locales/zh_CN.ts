@@ -98,9 +98,9 @@ const zh_CN_in_risks_page = {
   Locked_paragraph_6:
     '如果合约账户上至少注册了一个完全访问密钥，则合约不会被锁定。',
   audited_first_sentence:
-    '<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
-    "window.open('https://jitadigital.com/')" +
-    '>Jita</label> 正在审核 Ref Finance 智能合约。 一旦第一次审计完成，Ref Finance 将积极寻求第二次独立审计。',
+    'Ref Finance 智能合约已经过<label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
+    "window.open('https://guide.ref.finance/developers/audits')" +
+    '>审计</label>。',
   admin_first_sentence:
     'Ref Finance 由 <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -615,6 +615,8 @@ const zh_CN = {
   get_love: 'Get LOVE',
   swap_successful: '交易成功. ',
   trading_successfull: '交易成功. ',
+  total_near_amount: '所有NEAR数量',
+  near_value: 'NEAR价值',
   borrow: '借',
   burrow_usn_tip: '你可以通过Burrow来借USN.',
   migrate: '迁移',

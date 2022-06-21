@@ -38,7 +38,7 @@ import {
 } from './near';
 import moment from 'moment';
 import { getAllTriPools } from './aurora/aurora';
-import { ALL_STABLE_POOL_IDS, isStablePool } from './near';
+import { ALL_STABLE_POOL_IDS, isStablePool, isRatedPool } from './near';
 import { filterBlackListPools } from './near';
 import { nearWithdrawTransaction, nearMetadata } from './wrap-near';
 import {
@@ -46,6 +46,8 @@ import {
   wrapNear,
   nearDepositTransaction,
 } from './wrap-near';
+import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 100;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
@@ -63,6 +65,9 @@ export interface Pool {
   token0_ref_price: string;
   partialAmountIn?: string;
   Dex?: string;
+  rates?: {
+    [id: string]: string;
+  };
 }
 
 export interface StablePool {
@@ -74,17 +79,7 @@ export interface StablePool {
   total_fee: number;
   shares_total_supply: string;
   amp: number;
-}
-
-export interface StablePool {
-  id: number;
-  token_account_ids: string[];
-  decimals: number[];
-  amounts: string[];
-  c_amounts: string[];
-  total_fee: number;
-  shares_total_supply: string;
-  amp: number;
+  rates: string[];
 }
 
 export const getPoolByToken = async (tokenId: string) => {
@@ -939,6 +934,18 @@ export const addSimpleLiquidityPool = async (
 };
 
 export const getStablePool = async (pool_id: number): Promise<StablePool> => {
+  if (isRatedPool(pool_id)) {
+    const pool_info = await refFiViewFunction({
+      methodName: 'get_rated_pool',
+      args: { pool_id },
+    });
+
+    return {
+      ...pool_info,
+      id: pool_id,
+    };
+  }
+
   const pool_info = await refFiViewFunction({
     methodName: 'get_stable_pool',
     args: { pool_id },
@@ -947,6 +954,9 @@ export const getStablePool = async (pool_id: number): Promise<StablePool> => {
   return {
     ...pool_info,
     id: pool_id,
+    rates: pool_info.c_amounts.map((i: any) =>
+      toNonDivisibleNumber(STABLE_LP_TOKEN_DECIMALS, '1')
+    ),
   };
 };
 
@@ -1001,6 +1011,16 @@ export const getStablePoolFromCache = async (
       JSON.stringify({ ...stablePoolInfo, update_time: moment().unix() })
     );
   }
+  stablePool.rates = stablePoolInfo.token_account_ids.reduce(
+    (acc: any, cur: any, i: number) => ({
+      ...acc,
+      [cur]: toReadableNumber(
+        getStablePoolDecimal(stablePool.id),
+        stablePoolInfo.rates[i]
+      ),
+    }),
+    {}
+  );
 
   return [stablePool, stablePoolInfo];
 };

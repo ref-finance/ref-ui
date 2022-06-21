@@ -5,8 +5,6 @@ import {
   useWhitelistStableTokens,
   useWhitelistTokens,
 } from '../../state/token';
-import SquareRadio from '~components/radio/SquareRadio';
-import StableSwap from '~components/stableswap/StableSwap';
 import AddLiquidityComponent from '../../components/stableswap/AddLiquidity';
 import { usePool, useStablePool } from '../../state/pool';
 import { isMobile } from '~utils/device';

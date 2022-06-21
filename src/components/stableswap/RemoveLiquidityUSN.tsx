@@ -64,39 +64,10 @@ import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
 import { StableTokensSymbolUSN } from './StableTokenListUSN';
 import { useTokenBalances } from '../../state/token';
 import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
+import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
 
 const getSlippageKey = (id: string | number) =>
   `REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE_${id}`;
-
-export function shareToUserTotal({
-  shares,
-  userTotalShare,
-  pool,
-  stakeList,
-}: {
-  shares: string;
-  userTotalShare: BigNumber;
-  stakeList?: Record<string, string>;
-  pool?: Pool;
-}) {
-  return (
-    <div className="text-xs">
-      <span className="text-white">
-        {toRoundedReadableNumber({
-          decimals: STABLE_LP_TOKEN_DECIMALS,
-          number: shares,
-          precision: 3,
-        })}
-      </span>
-
-      <span className="text-primaryText">{` / ${toRoundedReadableNumber({
-        decimals: STABLE_LP_TOKEN_DECIMALS,
-        number: scientificNotationToString(userTotalShare.toExponential()),
-        precision: 3,
-      })}`}</span>
-    </div>
-  );
-}
 
 export function RemoveLiquidityComponentUSN(props: {
   shares: string;
@@ -113,7 +84,7 @@ export function RemoveLiquidityComponentUSN(props: {
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [isPercentage, setIsPercentage] = useState<boolean>(true);
   const [amountByShare, setAmountByShare] = useState<string>('');
-
+  const STABLE_LP_TOKEN_DECIMALS = getStablePoolDecimal(pool.id);
   const SWAP_SLIPPAGE_KEY_USN = getSlippageKey(pool.id);
 
   const [slippageTolerance, setSlippageTolerance] = useState<number>(
@@ -209,6 +180,7 @@ export function RemoveLiquidityComponentUSN(props: {
 
   useEffect(() => {
     setCanSubmitByShare(true);
+
     const readableShares = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, shares);
 
     const shareParam = toNonDivisibleNumber(
@@ -224,18 +196,17 @@ export function RemoveLiquidityComponentUSN(props: {
       setReceiveAmounts(['0', '0', '0']);
       return;
     }
-    // setCanSubmitByShare(false);
 
     const receiveAmounts = getRemoveLiquidityByShare(shareParam, stablePool);
 
     const parsedAmounts = receiveAmounts.map((amount, i) =>
-      tokens[i].decimals > LP_STABLE_TOKEN_DECIMALS
+      tokens[i].decimals > STABLE_LP_TOKEN_DECIMALS
         ? toNonDivisibleNumber(
-            tokens[i].decimals - LP_STABLE_TOKEN_DECIMALS,
+            tokens[i].decimals - STABLE_LP_TOKEN_DECIMALS,
             amount
           )
         : toRoundedReadableNumber({
-            decimals: LP_STABLE_TOKEN_DECIMALS - tokens[i].decimals,
+            decimals: STABLE_LP_TOKEN_DECIMALS - tokens[i].decimals,
             number: amount,
             precision: 0,
             withCommas: false,

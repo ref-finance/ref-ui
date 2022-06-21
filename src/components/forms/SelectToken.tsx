@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon';
-import { isMobile } from '../../utils/device';
+import { isMobile, getExplorer } from '../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenBalancesView } from '../../services/token';
 import { IoCloseOutline } from 'react-icons/io5';
@@ -14,8 +14,14 @@ import { FaSearch } from 'react-icons/fa';
 import AddToken from './AddToken';
 import { getTokenPriceList } from '../../services/indexer';
 import { toPrecision, divide } from '../../utils/numbers';
-import { BTCIDS, CUSDIDS, STABLE_TOKEN_USN_IDS } from '../../services/near';
-import { STABLE_TOKEN_IDS } from '../../services/near';
+import {
+  BTCIDS,
+  CUSDIDS,
+  LINEARIDS,
+  STABLE_TOKEN_USN_IDS,
+  STNEARIDS,
+} from '../../services/near';
+import { STABLE_TOKEN_IDS, STABLE_POOL_TYPE } from '../../services/near';
 import _ from 'lodash';
 
 function sort(a: any, b: any) {
@@ -110,7 +116,13 @@ export const StableSelectToken = ({
 
   const BTCTokenList = BTCIDS.map((id) => id);
 
-  const [stableCoinType, setStableCoinType] = useState<string>('USD');
+  const NEARTokenList = new Array(...new Set(STNEARIDS.concat(LINEARIDS))).map(
+    (id) => id
+  );
+
+  const [stableCoinType, setStableCoinType] = useState<STABLE_POOL_TYPE>(
+    STABLE_POOL_TYPE.USD
+  );
 
   // const stableTokensIdList = USDTokenList.concat(BTCTokenList);
 
@@ -122,11 +134,16 @@ export const StableSelectToken = ({
 
   const BTCtokens = BTCTokenList.map((id) => tokens.find((t) => t.id === id));
 
+  const NEARtokens = NEARTokenList.map((id) => tokens.find((t) => t.id === id));
+
   const coverUSD =
-    preSelected && BTCtokens.find((token) => token.id === preSelected.id);
+    preSelected && !USDtokens.find((token) => token.id === preSelected.id);
 
   const coverBTC =
-    preSelected && USDtokens.find((token) => token.id === preSelected.id);
+    preSelected && !BTCtokens.find((token) => token.id === preSelected.id);
+
+  const coverNEAR =
+    preSelected && !NEARtokens.find((token) => token.id === preSelected.id);
 
   const handleSelect = (token: TokenMetadata) => {
     onSelect(token);
@@ -139,21 +156,30 @@ export const StableSelectToken = ({
 
     const onTokenUSD = USDtokens.find((t) => t.id === token.id);
 
+    const onTokenNEAR = NEARtokens.find((t) => t.id === token.id);
+
     if (onTokenBTC && !BTCtokens.find((t) => t.id === postSelected.id)) {
       onSelectPost(BTCtokens.find((t) => t.id !== token.id));
     } else if (onTokenUSD && !USDtokens.find((t) => t.id === postSelected.id)) {
       onSelectPost(USDtokens.find((t) => t.id !== token.id));
+    } else if (
+      onTokenNEAR &&
+      !NEARtokens.find((t) => t.id === postSelected.id)
+    ) {
+      onSelectPost(NEARtokens.find((t) => t.id !== token.id));
     }
   };
 
   useEffect(() => {
-    if (coverUSD) {
-      setStableCoinType('BTC');
+    if (!coverUSD) {
+      setStableCoinType(STABLE_POOL_TYPE.USD);
       // onSelect(BTCtokens.find((token) => token.id !== preSelected.id));
-    } else if (coverBTC) {
-      setStableCoinType('USD');
+    } else if (!coverBTC) {
+      setStableCoinType(STABLE_POOL_TYPE.BTC);
+    } else if (!coverNEAR) {
+      setStableCoinType(STABLE_POOL_TYPE.NEAR);
     }
-  }, [coverBTC, coverUSD]);
+  }, [coverBTC, coverUSD, coverNEAR]);
 
   useEffect(() => {
     if (visible)
@@ -162,7 +188,18 @@ export const StableSelectToken = ({
       });
   }, [visible]);
 
-  const displayList = stableCoinType === 'USD' ? USDtokens : BTCtokens;
+  const getDisplayList = (type: string) => {
+    switch (type) {
+      case 'USD':
+        return USDtokens;
+      case 'BTC':
+        return BTCtokens;
+      case 'NEAR':
+        return NEARtokens;
+    }
+  };
+
+  const displayList = getDisplayList(stableCoinType);
 
   return (
     <div className="w-2/5 outline-none my-auto relative overflow-visible">
@@ -185,11 +222,12 @@ export const StableSelectToken = ({
         {selected}
       </div>
       <div
-        className={`stable-token-selector rounded-2xl flex flex-col w-54 top-12 py-3 ${
+        className={`stable-token-selector rounded-2xl flex flex-col w-56 top-12 py-3 ${
           visible ? 'block' : 'hidden'
         } absolute`}
         style={{
-          background: 'rgba(58,69,77,0.6)',
+          background:
+            getExplorer() === 'Firefox' ? '#323E46' : 'rgba(58,69,77,0.6)',
           backdropFilter: 'blur(15px)',
           WebkitBackdropFilter: 'blur(15px)',
           border: '1px solid #415462',
@@ -212,13 +250,13 @@ export const StableSelectToken = ({
             onClick={(e) => {
               e.nativeEvent.stopImmediatePropagation();
               if (coverUSD) return;
-              else setStableCoinType('USD');
+              else setStableCoinType(STABLE_POOL_TYPE.USD);
             }}
           >
             USD
           </div>
           <div
-            className={`rounded-lg w-full py-1 text-center mr-3 font-bold  px-4 mb-2 mt-1
+            className={`rounded-lg w-full py-1 text-center font-bold  px-4 mb-2 mt-1
           ${
             stableCoinType === 'BTC'
               ? 'text-BTCColor bg-black bg-opacity-20'
@@ -230,10 +268,29 @@ export const StableSelectToken = ({
             onClick={(e) => {
               e.nativeEvent.stopImmediatePropagation();
               if (coverBTC) return;
-              else setStableCoinType('BTC');
+              else setStableCoinType(STABLE_POOL_TYPE.BTC);
             }}
           >
             BTC
+          </div>
+
+          <div
+            className={`rounded-lg w-full py-1 text-center mr-3 font-bold  px-4 mb-2 mt-1
+          ${
+            stableCoinType === 'NEAR'
+              ? 'text-NEARBlue bg-black bg-opacity-20'
+              : 'text-primaryText cursor-pointer'
+          }
+           text-sm  self-start
+            ${coverNEAR ? 'opacity-30' : ''}
+            `}
+            onClick={(e) => {
+              e.nativeEvent.stopImmediatePropagation();
+              if (coverNEAR) return;
+              else setStableCoinType(STABLE_POOL_TYPE.NEAR);
+            }}
+          >
+            NEAR
           </div>
         </div>
         <div

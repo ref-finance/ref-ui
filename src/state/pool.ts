@@ -59,6 +59,7 @@ import {
 import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
 import getConfig from '../services/config';
 import { useFarmStake } from './farm';
+import { ONLY_ZEROS } from '../utils/numbers';
 import {
   getStablePoolFromCache,
   getRefPoolsByToken1ORToken2,
@@ -294,7 +295,7 @@ export const usePoolsFarmCount = ({
   );
 
   const getFarms = async () => {
-    return await db.queryFarms();
+    return (await db.queryFarms()).filter((farm) => farm.status !== 'Ended');
   };
 
   useEffect(() => {
@@ -526,15 +527,19 @@ export const usePredictShares = ({
   const [predicedShares, setPredictedShares] = useState<string>('0');
 
   const zeroValidae = () => {
-    return tokenAmounts.some((amount) => Number(amount) > 0);
+    return tokenAmounts.every((amount) => ONLY_ZEROS.test(amount));
   };
 
   useEffect(() => {
-    if (!zeroValidae()) {
+    if (zeroValidae()) {
       setPredictedShares('0');
       return;
     }
-    getAddLiquidityShares(poolId, tokenAmounts, stablePool)
+    getAddLiquidityShares(
+      poolId,
+      tokenAmounts.map((amount) => amount || '0'),
+      stablePool
+    )
       .then(setPredictedShares)
       .catch((e) => e);
   }, [...tokenAmounts]);
@@ -579,7 +584,10 @@ export const usePredictRemoveShares = ({
     setCanSubmitByToken(false);
 
     try {
-      const burn_shares = getRemoveLiquidityByTokens(amounts, stablePool);
+      const burn_shares = getRemoveLiquidityByTokens(
+        amounts.map((amount) => amount || '0'),
+        stablePool
+      );
 
       validate(burn_shares);
       setPredictedRemoveShares(burn_shares);
