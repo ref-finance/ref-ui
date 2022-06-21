@@ -29,25 +29,7 @@ jobs:
           name: mydist
           path: mydist
 
-      - name: deploy to remote server [44.202.226.33]
-        uses: easingthemes/ssh-deploy@v2.2.11
-        with:
-          # 服务器私钥
-          SSH_PRIVATE_KEY:  ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
-          # Server IP
-          REMOTE_HOST:  44.202.226.33
-          # Username
-          REMOTE_USER:  root
-          # Port
-          REMOTE_PORT: 60022
-          # Source Path
-          SOURCE: "mydist/app.54746829.css"
-          # Target Path
-          TARGET: "/data/web/ref-ui-test"
-          #  rsync
-          ARGS: "-rltgoDzvO"
-          # An array of folder to exclude
-          EXCLUDE: ".git, .github"
+     
 
 
       - name: Execute SSH commmands on remote server[44.202.226.33]
@@ -66,26 +48,7 @@ jobs:
             # yarn prettier
  
             
-      - name: deploy to remote server [3.238.218.91]
-        uses: easingthemes/ssh-deploy@v2.2.11
-        with:
-          # Private Key
-          SSH_PRIVATE_KEY:  ${{ secrets.SSH_PRIVATE_KEY_PROD_02 }}
-          # Server IP
-          REMOTE_HOST:  3.238.218.91
-          # Useranme
-          REMOTE_USER:  root
-          # Port
-          REMOTE_PORT: 60022
-          # Source Path
-          SOURCE: "mydist/app.54746829.css"
-          # Target Path
-          TARGET: "/data/web/ref-ui-test"
-          #  rsync
-          ARGS: "-rltgoDzvO"
-          # An array of folder to exclude
-          EXCLUDE: ".git, .github"
-
+     
 
       - name: Execute SSH commmands on remote server[3.238.218.91]
         uses: appleboy/ssh-action@master
