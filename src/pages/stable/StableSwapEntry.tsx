@@ -273,7 +273,7 @@ function StablePoolCard({
               </span>
               <div className="flex flex-col xs:items-end">
                 <span
-                  className="text-lg w-1/5 whitespace-nowrap text-white md:py-2 lg:py-2 xs:pb-2"
+                  className="text-lg lg:w-1/5 whitespace-nowrap text-white md:py-2 lg:py-2 xs:pb-2"
                   title={poolData.TVLtitle}
                 >
                   {poolData.displayTVL}
@@ -303,7 +303,11 @@ function StablePoolCard({
                   </span>
                 </span>
 
-                <Link to={'/farms'} target="_blank">
+                <Link
+                  to={'/farms'}
+                  target="_blank"
+                  className="relative top-0.5 h-6 w-28"
+                >
                   {poolData.displayShareInFarm}
                 </Link>
               </div>
