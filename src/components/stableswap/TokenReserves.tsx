@@ -27,14 +27,6 @@ import {
   STABLE_POOL_TYPE,
 } from '../../services/near';
 import getConfig from '../../services/config';
-import { currentTokensPrice } from '../../services/api';
-import {
-  STABLE_TOKEN_USN_IDS,
-  STABLE_POOL_ID,
-  STABLE_TOKEN_IDS,
-  CUSDIDS,
-  BTCIDS,
-} from '../../services/near';
 
 export function OnlyTokenReserves() {}
 
@@ -69,11 +61,11 @@ function TokenChart({
     HBTC: '#4D85F8',
     WBTC: '#ED9234',
     STNEAR: 'rgba(160, 160, 255, 0.5)',
-    wNEAR: 'rgba(0, 198, 162, 0.5)',
+    NEAR: 'rgba(0, 198, 162, 0.5)',
     LINEAR: 'rgba(64, 129, 255, 0.5)',
   };
 
-  const noBorderTokens = ['wNEAR', 'LINEAR'];
+  const noBorderTokens = ['LINEAR'];
 
   const noBgTokens = ['LINEAR'];
 
@@ -119,7 +111,18 @@ function TokenChart({
             strokeWidth={1}
           />
         )}
-        <image width="30" height="30" x={x1} y={y1} xlinkHref={token.icon} />
+        <foreignObject width="30" height="30" x={x1} y={y1}>
+          <img
+            src={token.icon}
+            alt=""
+            className="rounded-full"
+            style={{
+              width: '30px',
+              height: '30px',
+            }}
+          />
+        </foreignObject>
+        {/* <image width="30" height="30" x={x1} y={y1} xlinkHref={token.icon} /> */}
       </g>
     );
   }

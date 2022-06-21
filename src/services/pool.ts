@@ -587,6 +587,11 @@ export const addLiquidityToStablePool = async ({
   });
 
   if (tokens.map((t) => t.id).includes(WRAP_NEAR_CONTRACT_ID)) {
+    const idx = tokens.findIndex((t) => t.id === WRAP_NEAR_CONTRACT_ID);
+    if (idx !== -1) {
+      transactions.unshift(nearDepositTransaction(amounts[idx]));
+    }
+
     const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
     if (registered === null) {
       transactions.unshift({
@@ -796,6 +801,17 @@ export const removeLiquidityFromStablePool = async ({
     });
   }
 
+  if (tokenIds.includes(WRAP_NEAR_CONTRACT_ID)) {
+    transactions.push(
+      nearWithdrawTransaction(
+        toReadableNumber(
+          nearMetadata.decimals,
+          min_amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)]
+        )
+      )
+    );
+  }
+
   return executeMultipleTransactions(transactions);
 };
 
@@ -893,6 +909,17 @@ export const removeLiquidityByTokensFromStablePool = async ({
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: withdrawActionsFireFox,
     });
+  }
+
+  if (tokenIds.includes(WRAP_NEAR_CONTRACT_ID)) {
+    transactions.push(
+      nearWithdrawTransaction(
+        toReadableNumber(
+          nearMetadata.decimals,
+          amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)]
+        )
+      )
+    );
   }
 
   return executeMultipleTransactions(transactions);
