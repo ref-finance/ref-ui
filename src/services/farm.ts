@@ -40,6 +40,7 @@ import getConfig from './config';
 import {
   getCurrentWallet,
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
+  WalletContext,
 } from '../utils/sender-wallet';
 import { currentStorageBalanceOfFarm_boost } from '../services/account';
 import { WRAP_NEAR_CONTRACT_ID, nearMetadata } from '../services/wrap-near';
@@ -50,6 +51,8 @@ import { nearWithdrawTransaction } from './wrap-near';
 import { currentStorageBalanceOfVE } from './account';
 import db, { TokenPrice, BoostSeeds, FarmDexie } from '../store/RefDatabase';
 import { getMftTokenId } from '../utils/token';
+import { useEffect, useContext, useState } from 'react';
+import { getPoolIdBySeedId } from '~components/farm/FarmsHome';
 
 const config = getConfig();
 const { REF_VE_CONTRACT_ID } = config;
@@ -1030,6 +1033,69 @@ export const migrate_user_seed = async ({
   });
   return executeFarmMultipleTransactions(transactions);
 };
+export function useMigrate_user_data() {
+  const [user_migrate_seeds, set_user_migrate_seeds] = useState([]);
+  const [user_claimed_rewards, set_user_claimed_rewards] = useState({});
+  const [seed_loading, set_seed_loading] = useState(true);
+  const [rewards_loading, set_rewards_loading] = useState(true);
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  useEffect(() => {
+    if (isSignedIn) {
+      get_user_seeds();
+      get_user_claimed_rewards();
+    }
+  }, []);
+  async function get_user_seeds() {
+    const userMigrateSeeds: MigrateSeed[] = [];
+    const result_old: Record<string, string> = await get_list_user_seeds({});
+    const result_new: Record<string, any> = await getBoostSeeds();
+    const { seeds, pools } = result_new;
+    Object.keys(result_old).forEach((seedId: string) => {
+      const poolId = getPoolIdBySeedId(seedId);
+      const boostFarmHasSamePool = seeds.find((seed: Seed) => {
+        const id = getPoolIdBySeedId(seed.seed_id);
+        if (poolId == id) return true;
+      });
+      if (boostFarmHasSamePool) {
+        // can migrate
+        const pool = pools.find((p: PoolRPCView) => {
+          if (p.id == +poolId) return true;
+        });
+        userMigrateSeeds.push({
+          seed_id: seedId,
+          amount: result_old[seedId],
+          pool,
+        });
+      }
+    });
+    set_user_migrate_seeds(userMigrateSeeds);
+    set_seed_loading(false);
+  }
+  async function get_user_claimed_rewards() {
+    const rewards = await getRewards({});
+    const tempMap = {};
+    Object.entries(rewards).forEach((item) => {
+      const [key, v] = item;
+      if (v !== '0') {
+        tempMap[key] = v;
+      }
+    });
+    set_user_claimed_rewards(tempMap);
+    set_rewards_loading(false);
+  }
+  return {
+    user_migrate_seeds,
+    seed_loading,
+    user_claimed_rewards,
+    rewards_loading,
+  };
+}
+export interface MigrateSeed {
+  seed_id: string;
+  amount: string;
+  pool: PoolRPCView;
+}
 // migrate related methods end
 export const get_seed_info = async (seed_id: string): Promise<any> => {
   return refFarmViewFunction({

@@ -7,12 +7,10 @@ import {
   GreenConnectToNearBtn,
 } from '~components/button/Button';
 import {
-  getRewards,
-  get_list_user_seeds,
-  getBoostSeeds,
-  Seed,
   getBoostTokenPrices,
   migrate_user_seed,
+  MigrateSeed,
+  useMigrate_user_data,
 } from '~services/farm';
 import { withdrawAllReward } from '~services/m-token';
 import {
@@ -29,16 +27,10 @@ import { Link, useHistory, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { BigNumber } from 'bignumber.js';
-import { getPoolIdBySeedId } from '~components/farm/FarmsHome';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
-import { PoolRPCView } from '~services/api';
 import Loading from '~components/layout/Loading';
 export default function FarmsMigrate() {
-  const [user_migrate_seeds, set_user_migrate_seeds] = useState([]);
-  const [user_claimed_rewards, set_user_claimed_rewards] = useState({});
   const [all_token_price_list, set_all_token_price_list] = useState({});
-  const [seed_loading, set_seed_loading] = useState(true);
-  const [rewards_loading, set_rewards_loading] = useState(true);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
@@ -52,52 +44,16 @@ export default function FarmsMigrate() {
   };
   useEffect(() => {
     if (isSignedIn) {
-      get_user_seeds();
-      get_user_claimed_rewards();
       get_price_list();
     }
   }, []);
+  const {
+    user_migrate_seeds,
+    seed_loading,
+    user_claimed_rewards,
+    rewards_loading,
+  } = useMigrate_user_data();
 
-  async function get_user_seeds() {
-    const userMigrateSeeds: MigrateSeed[] = [];
-    if (isSignedIn) {
-      const result_old: Record<string, string> = await get_list_user_seeds({});
-      const result_new: Record<string, any> = await getBoostSeeds();
-      const { seeds, pools } = result_new;
-      Object.keys(result_old).forEach((seedId: string) => {
-        const poolId = getPoolIdBySeedId(seedId);
-        const boostFarmHasSamePool = seeds.find((seed: Seed) => {
-          const id = getPoolIdBySeedId(seed.seed_id);
-          if (poolId == id) return true;
-        });
-        if (boostFarmHasSamePool) {
-          // can migrate
-          const pool = pools.find((p: PoolRPCView) => {
-            if (p.id == +poolId) return true;
-          });
-          userMigrateSeeds.push({
-            seed_id: seedId,
-            amount: result_old[seedId],
-            pool,
-          });
-        }
-      });
-      set_user_migrate_seeds(userMigrateSeeds);
-    }
-    set_seed_loading(false);
-  }
-  async function get_user_claimed_rewards() {
-    const rewards = await getRewards({});
-    const tempMap = {};
-    Object.entries(rewards).forEach((item) => {
-      const [key, v] = item;
-      if (v !== '0') {
-        tempMap[key] = v;
-      }
-    });
-    set_user_claimed_rewards(tempMap);
-    set_rewards_loading(false);
-  }
   async function get_price_list() {
     const tokenPriceList = await getBoostTokenPrices();
     set_all_token_price_list(tokenPriceList);
@@ -150,7 +106,7 @@ export default function FarmsMigrate() {
               </div>
             ) : (
               <div>
-                <span className="flex w-full xs:justify-center md:justify-center text-2xl font-bold text-lightGreenColor">
+                <span className="flex w-full xs:justify-center md:justify-center text-2xl font-bold text-lightGreenColor whitespace-nowrap">
                   V2 New Farm Migration
                 </span>
                 <p className="text-base text-white mt-4">
@@ -498,9 +454,4 @@ function WithDrawBox(props: { userRewardList: any; tokenPriceList: any }) {
       </div>
     </div>
   );
-}
-interface MigrateSeed {
-  seed_id: string;
-  amount: string;
-  pool: PoolRPCView;
 }

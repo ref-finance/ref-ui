@@ -573,7 +573,7 @@ const vi = {
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
   claimed_Rewards: 'Claimed Rewards',
-  POOL: 'POOL',
+  POOL: 'POOLS',
   STAKE: 'STAKE',
   lp_Token: 'LP Token',
   booster: 'Booster',
