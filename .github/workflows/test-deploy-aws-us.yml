@@ -4,7 +4,10 @@ on:
   push:
     branches: [ test-cicd ]
   pull_request:
-    branches: [ test-cicd ]
+    types:
+      - closed
+    branches: 
+      - 'test-cicd'
 
 jobs:
   build:
@@ -40,7 +43,7 @@ jobs:
           # Source Path
           SOURCE: "mydist/"
           # Target Path
-          TARGET: "/data/web/ref-ui"
+          TARGET: "/data/web/ref-ui-testtest"
           #  rsync
           ARGS: "-rltgoDzvO"
           # An array of folder to exclude
@@ -55,12 +58,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
           port: 60022
           script: |
-            cd /data/web/ref-ui
-            chown -R root:root /data/web/ref-ui
-            yarn install --frozen-lockfile
-            yarn build
-            yarn test
-            yarn prettier
+            cd /data/web/ref-ui-test
+            # chown -R root:root /data/web/ref-ui-test
+            # yarn install --frozen-lockfile
+            # yarn build
+            # yarn test
+            # yarn prettier
  
             
       - name: deploy to remote server [3.238.218.91]
@@ -77,7 +80,7 @@ jobs:
           # Source Path
           SOURCE: "mydist/"
           # Target Path
-          TARGET: "/data/web/ref-ui"
+          TARGET: "/data/web/ref-ui-test"
           #  rsync
           ARGS: "-rltgoDzvO"
           # An array of folder to exclude
@@ -92,11 +95,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_PROD_02 }}
           port: 60022
           script: |
-            cd /data/web/ref-ui
-            chown -R root:root /data/web/ref-ui
-            yarn install --frozen-lockfile
-            yarn build
-            yarn test
-            yarn prettier
-            
-
+            cd /data/web/ref-ui-test
+            # chown -R root:root /data/web/ref-ui-test
+            # yarn install --frozen-lockfile
+            # yarn build
+            # yarn test
+            # yarn prettier
