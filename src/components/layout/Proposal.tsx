@@ -1041,12 +1041,12 @@ const FarmChart = ({
           WebkitBackdropFilter: 'blur(50px)',
         }}
       >
-        {ratio[voted].name === activeFarm.name ? (
+        {ratio[voted]?.name === activeFarm?.name ? (
           <NewGradientButton
             text={
               <FormattedMessage id="you_voted" defaultMessage={'You Voted'} />
             }
-            className=" absolute text-white text-sm top-0 right-1/2 transform translate-x-1/2 -translate-y-1/2 opacity-100"
+            className=" absolute text-white text-sm top-0 right-1/2 transform translate-x-1/2 -translate-y-1/2 opacity-100 cursor-default"
             padding="px-2 py-2.5"
           />
         ) : null}
@@ -1322,16 +1322,20 @@ const GovItemDetail = ({
     value,
     nameClass,
     valueClass,
+    valueTitle,
   }: {
     name: string | JSX.Element;
     value: string | JSX.Element;
     nameClass?: string;
     valueClass?: string;
+    valueTitle?: string;
   }) => {
     return (
       <div className="py-2.5 flex items-center ">
         <span className={`${nameClass} text-primaryText`}>{name}</span>
-        <span className={`${valueClass} ml-3`}>{value}</span>
+        <span className={`${valueClass} ml-3`} title={valueTitle}>
+          {value}
+        </span>
       </div>
     );
   };
@@ -1410,6 +1414,7 @@ const GovItemDetail = ({
           })}
           value={getAccountName(proposal.proposer)}
           valueClass={'font-bold'}
+          valueTitle={proposal.proposer}
         />
 
         <InfoRow
@@ -1530,7 +1535,7 @@ const GovItemDetail = ({
                         ) : null}
                         {!votedThisOption ? null : (
                           <NewGradientButton
-                            className="ml-2 text-xs h-4 flex items-center py-3 cursor-default"
+                            className="ml-2 text-xs h-4 flex items-center py-3 cursor-default opacity-100"
                             padding="px-2 py-2.5"
                             text={
                               <FormattedMessage
@@ -1667,6 +1672,7 @@ const GovItemDetail = ({
         )}
         proposal={proposal}
         totalVE={toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, totalVE)}
+        veShare={veShare}
       />
     </div>
   );
@@ -1682,6 +1688,7 @@ const GovProposalItem = ({
   voteDetail,
   voteHistory,
   unClaimed,
+  veShare,
 }: {
   status: string;
   description?: Description;
@@ -1692,6 +1699,7 @@ const GovProposalItem = ({
   voteDetail: VoteDetail;
   voteHistory: VoteDetail;
   unClaimed: boolean;
+  veShare: string;
 }) => {
   const StatusIcon = () => {
     return (
@@ -1750,8 +1758,6 @@ const GovProposalItem = ({
     | 'VoteApprove';
 
   const incentive = proposal?.incentive;
-
-  const { veShare } = useAccountInfo();
 
   const [incentiveToken, setIncentiveToken] = useState<TokenMetadata>();
 
@@ -2095,6 +2101,7 @@ const GovProposalItem = ({
         )}
         proposal={proposal}
         totalVE={totalVE}
+        veShare={veShare}
       />
       <AddBonusPopUp
         isOpen={showAddBonus}
@@ -2155,9 +2162,11 @@ export const VoteGovPopUp = (
     ratios: string[];
     proposal: Proposal;
     totalVE: string;
+    veShare: string;
   }
 ) => {
-  const { title, proposalTitle, ratios, proposal, options, totalVE } = props;
+  const { title, proposalTitle, ratios, proposal, options, totalVE, veShare } =
+    props;
 
   const [value, setvalue] = useState<string>();
 
@@ -2178,8 +2187,6 @@ export const VoteGovPopUp = (
     );
   };
 
-  const { veShare } = useAccountInfo();
-
   const newPercent = new Big(toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, veShare))
     .plus(
       options.indexOf(value) !== -1
@@ -2195,7 +2202,7 @@ export const VoteGovPopUp = (
         : 0
     )
     .div(
-      new Big(Number(totalVE) > 0 ? totalVE : 0).plus(
+      new Big(ONLY_ZEROS.test(totalVE) ? 0 : totalVE).plus(
         Number(veShare) > 0
           ? toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, veShare)
           : '1'
@@ -2206,7 +2213,7 @@ export const VoteGovPopUp = (
   return (
     <ModalWrapper {...props}>
       <div className="pt-6 pb-8">
-        <div className="pb-4">{proposalTitle}</div>
+        <div className="pb-4 truncate">{proposalTitle}</div>
 
         <div className="pt-6 px-5 pr-6 rounded-lg bg-black bg-opacity-20">
           {options?.map((o, i) => {
@@ -2220,7 +2227,7 @@ export const VoteGovPopUp = (
                 <span className="flex items-center ">
                   <CheckComponent checked={value === o} />
 
-                  <span className="ml-4 truncate w-56 text-left" title={o}>
+                  <span className="ml-4 truncate w-44 text-left" title={o}>
                     {o}
                   </span>
                 </span>
@@ -2229,12 +2236,16 @@ export const VoteGovPopUp = (
                   {value === o ? (
                     <span className="mr-2.5 text-gradientFrom">
                       +
-                      {toPrecision(
-                        scientificNotationToString(
-                          newPercent.minus(ratios[i] || 0).toString()
-                        ),
-                        2
-                      )}
+                      {newPercent.minus(ratios[i]).lt(0)
+                        ? 0
+                        : toPrecision(
+                            scientificNotationToString(
+                              newPercent.minus(ratios[i] || 0).toString()
+                            ),
+                            2,
+                            false,
+                            false
+                          )}
                       %
                     </span>
                   ) : null}
@@ -2685,7 +2696,7 @@ export const FarmProposal = ({
 
             {voted === index ? (
               <NewGradientButton
-                className="ml-2 text-white text-sm px-2.5 py-1.5 cursor-default"
+                className="ml-2 text-white text-sm px-2.5 py-1.5 cursor-default opacity-100"
                 text={
                   <FormattedMessage
                     id="you_voted"
@@ -2703,7 +2714,7 @@ export const FarmProposal = ({
             {toPrecision(allocate, 0, true)}
           </span>
           <span className="col-span-1 text-center text-white text-sm">
-            {hover || voted === index ? (
+            {hover || (voted === index && farmProposal.status !== 'Expired') ? (
               <NewGradientButton
                 onClick={submit}
                 text={text}
@@ -2775,14 +2786,8 @@ export const FarmProposal = ({
       <div className="text-center text-2xl text-white">
         <FormattedMessage id="proposed" defaultMessage={'Proposed'} />{' '}
         <span>
-          {endtimeMoment.date() > 15
-            ? 'First Half of ' + endtimeMoment.add(1, 'M').format('MMMM')
-            : 'Second Half of ' + endtimeMoment.format('MMMM')}
-        </span>{' '}
-        <span>
-          {endtimeMoment.date() > 15
-            ? endtimeMoment.add(1, 'M').year()
-            : endtimeMoment.year()}
+          {endtimeMoment.add(1, 'weeks').startOf('week').format('ll')}-
+          {endtimeMoment.add(2, 'weeks').format('ll')}
         </span>{' '}
         <FormattedMessage id="farm_reward" defaultMessage={'Farm reward'} />
       </div>
@@ -3507,6 +3512,8 @@ export const GovProposal = ({
     'All'
   );
 
+  const { veShare } = useAccountInfo();
+
   const UnclaimedProposal = useUnclaimedProposal();
 
   const proposalStatus = {
@@ -3598,6 +3605,7 @@ export const GovProposal = ({
                 !!UnclaimedProposal?.[p?.id] &&
                 !ONLY_ZEROS.test(UnclaimedProposal?.[p?.id]?.amount)
               }
+              veShare={veShare}
             />
           )) || []}
       </div>

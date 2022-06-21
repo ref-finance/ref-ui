@@ -588,8 +588,11 @@ export const addLiquidityToStablePool = async ({
 
   if (tokens.map((t) => t.id).includes(WRAP_NEAR_CONTRACT_ID)) {
     const idx = tokens.findIndex((t) => t.id === WRAP_NEAR_CONTRACT_ID);
+
     if (idx !== -1) {
-      transactions.unshift(nearDepositTransaction(amounts[idx]));
+      transactions.unshift(
+        nearDepositTransaction(toReadableNumber(24, amounts[idx]))
+      );
     }
 
     const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);

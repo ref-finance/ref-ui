@@ -9,6 +9,7 @@ import { EstimateSwapView } from '../services/swap';
 import Big from 'big.js';
 import _, { sortBy } from 'lodash';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 
 const BPS_CONVERSION = 10000;
 
@@ -643,4 +644,15 @@ export const checkAllocations = (sum: string, allocations: string[]) => {
       ...allocations.slice(maxIndex + 1),
     ];
   } else return allocations;
+};
+
+export const getMax = function (id: string, max: string) {
+  return id !== WRAP_NEAR_CONTRACT_ID
+    ? max
+    : Number(max) <= 0.5
+    ? '0'
+    : toPrecision(
+        scientificNotationToString(new Big(max).minus(0.5).toString()),
+        24
+      );
 };

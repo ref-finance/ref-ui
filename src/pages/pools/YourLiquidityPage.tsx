@@ -314,7 +314,7 @@ export function YourLiquidityPage() {
                     <FormattedMessage id="token" defaultMessage="Token" />
                   </div>
 
-                  <div className="col-span-5 text-left ml-8 xl:ml-14">
+                  <div className="col-span-5 text-left ml-5 xl:ml-14">
                     <FormattedMessage id="my_shares" defaultMessage="Shares" />
                   </div>
                   <div className="col-span-4 xl:ml-8 ml-4">
@@ -538,7 +538,7 @@ function PoolRow(props: {
           ))}
         </div>
 
-        <div className="col-span-3  text-left pl-6 xl:pl-12">
+        <div className="col-span-3  text-left pl-3 xl:pl-12">
           <MyShares
             shares={shares}
             totalShares={pool.shareSupply}
@@ -645,31 +645,29 @@ function PoolRow(props: {
             </Link>
           ) : null}
 
-          <div>
-            <span
-              className={`${
-                ONLY_ZEROS.test(shares)
-                  ? 'text-primaryText'
-                  : 'text-gradientFrom'
-              }`}
-              title={toReadableNumber(
-                isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
-                shares
-              )}
-            >
-              {toPrecision(
-                toReadableNumber(
+          {ONLY_ZEROS.test(shares) ? null : (
+            <div>
+              <span
+                className={'text-gradientFrom'}
+                title={toReadableNumber(
                   isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
                   shares
-                ),
-                2
-              )}
-            </span>
+                )}
+              >
+                {toPrecision(
+                  toReadableNumber(
+                    isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
+                    shares
+                  ),
+                  2
+                )}
+              </span>
 
-            <span className="ml-1">
-              <FormattedMessage id="available" />
-            </span>
-          </div>
+              <span className="ml-1">
+                <FormattedMessage id="available" />
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
