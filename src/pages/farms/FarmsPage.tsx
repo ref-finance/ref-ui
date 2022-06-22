@@ -107,7 +107,7 @@ export function FarmsPage() {
   const location = useLocation();
   const sortList = {
     default: intl.formatMessage({ id: 'default' }),
-    multiple: intl.formatMessage({ id: 'multiple' }),
+    // multiple: intl.formatMessage({ id: 'multiple' }),
     apr: intl.formatMessage({ id: 'apr' }),
     new: intl.formatMessage({ id: 'new' }),
     total_staked: intl.formatMessage({ id: 'total_staked' }),
