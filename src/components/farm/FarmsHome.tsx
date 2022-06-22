@@ -93,9 +93,13 @@ import {
 import { checkTransaction } from '../../services/stable-swap';
 import Modal from 'react-modal';
 import { ModalClose } from '~components/icon';
-import { LockPopUp, getPoolId, AccountInfo } from '../../pages/ReferendumPage';
+import {
+  LockPopUp,
+  getVEPoolId,
+  AccountInfo,
+} from '../../pages/ReferendumPage';
 import { wnearMetadata } from '../../services/wrap-near';
-import { usePoolShare } from '../../state/pool';
+import { usePoolShare, useYourliquidity } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
@@ -1423,9 +1427,10 @@ export default function FarmsHome(props: any) {
 function GetLoveTokenModal(props: { isOpen: boolean; onRequestClose: any }) {
   const { isOpen, onRequestClose } = props;
   const REF_NEAR_TOKENS = [REF_META_DATA, wnearMetadata];
-  const id = getPoolId();
+  const id = getVEPoolId();
   const lpShare = usePoolShare(id);
   const { accountInfo } = useAccountInfo();
+  const { farmStakeV1, farmStakeV2 } = useYourliquidity(Number(getVEPoolId()));
   return (
     <LockPopUp
       isOpen={isOpen}
@@ -1434,6 +1439,8 @@ function GetLoveTokenModal(props: { isOpen: boolean; onRequestClose: any }) {
       lpShare={lpShare}
       accountInfo={accountInfo}
       title="get_love"
+      farmStakeV1={farmStakeV1}
+      farmStakeV2={farmStakeV2}
     />
   );
 }
@@ -2370,12 +2377,7 @@ function FarmView(props: {
           <div className="relative flex flex-col items-center  px-5 rounded-t-2xl overflow-hidden bg-boostUpBoxBg">
             <div className="flex items-center cursor-pointer text-white font-bold text-xl xs:text-sm md:text-sm mt-7">
               {/* link for looking into */}
-              <a
-                href={`/pool/${pool.id}`}
-                onClick={() => {
-                  return false;
-                }}
-              >
+              <a href={`javascript:void(${'/pool/' + pool.id})`}>
                 {tokens.map((token, index) => {
                   const hLine = index === tokens.length - 1 ? '' : '-';
                   return `${toRealSymbol(token.symbol)}${hLine}`;

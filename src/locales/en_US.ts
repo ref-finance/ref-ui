@@ -659,5 +659,6 @@ const en_US = {
   farm_capital: 'FARMS',
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
+  available_to_stake: 'available to stake',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

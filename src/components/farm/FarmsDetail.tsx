@@ -95,6 +95,7 @@ export default function FarmsDetail(props: {
   loveSeed: Seed;
   boostConfig: BoostConfig;
   user_data: Record<string, any>;
+  user_data_loading: Boolean;
 }) {
   const {
     detailData,
@@ -103,6 +104,7 @@ export default function FarmsDetail(props: {
     loveSeed,
     boostConfig,
     user_data,
+    user_data_loading,
   } = props;
   const {
     user_seeds_map = {},
@@ -231,6 +233,7 @@ export default function FarmsDetail(props: {
         user_seeds_map={user_seeds_map}
         user_unclaimed_map={user_unclaimed_map}
         user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
+        user_data_loading={user_data_loading}
         radio={radio}
       ></StakeContainer>
     </div>
@@ -245,10 +248,11 @@ function StakeContainer(props: {
   user_unclaimed_token_meta_map: Record<string, any>;
   user_unclaimed_map: Record<string, any>;
   radio: string | number;
+  user_data_loading: Boolean;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const [lpBalance, setLpBalance] = useState('0');
+  const [lpBalance, setLpBalance] = useState('');
   const [showAddLiquidityEntry, setShowAddLiquidityEntry] = useState(false);
   const [calcVisible, setCalcVisible] = useState(false);
   const [dayVolume, setDayVolume] = useState('');
@@ -261,6 +265,7 @@ function StakeContainer(props: {
     user_unclaimed_map,
     user_unclaimed_token_meta_map,
     radio,
+    user_data_loading,
   } = props;
   const pool = detailData.pool;
   const intl = useIntl();
@@ -407,9 +412,11 @@ function StakeContainer(props: {
     return result;
   }
   useEffect(() => {
-    getStakeBalance();
     getPoolFee();
   }, []);
+  useEffect(() => {
+    getStakeBalance();
+  }, [Object.keys(user_seeds_map).length, user_data_loading]);
   async function getPoolFee() {
     const fee = await get24hVolume(pool.id.toString());
     setDayVolume(fee);
@@ -430,7 +437,7 @@ function StakeContainer(props: {
         setShowAddLiquidityEntry(false);
       } else {
         const userSeed = user_seeds_map[detailData.seed_id];
-        setShowAddLiquidityEntry(!Number(b) && !userSeed);
+        setShowAddLiquidityEntry(!Number(b) && !userSeed && !user_data_loading);
       }
     }
   };
@@ -1775,7 +1782,9 @@ function UserStakeBlock(props: {
     }
   }
   function displayLpBalance() {
-    return toPrecision(lpBalance || '0', 3);
+    if (lpBalance) {
+      return toPrecision(lpBalance || '0', 3);
+    }
   }
   function closeStakeModalVisible() {
     setStakeType('');
@@ -1949,13 +1958,13 @@ function UserStakeBlock(props: {
         <div className="pt-5 mt-5 borde border-dashed border-dashBorderColor border-t-2 border-opacity-20">
           {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? (
             <div className="flex justify-between items-center xs:flex-col md:flex-col">
-              {Number(lpBalance) == 0 || isEnded ? null : (
+              {isEnded ? null : (
                 <div className="flex justify-center text-farmText text-sm xs:mb-3 md:mb-3">
                   <FormattedMessage id="you_have" />{' '}
                   <label className="text-white mx-1">
                     {displayLpBalance()}
                   </label>{' '}
-                  LP <FormattedMessage id="tokens_small" />
+                  <FormattedMessage id="available_to_stake" />
                 </div>
               )}
               <div className="flex justify-end flex-grow">
@@ -1985,13 +1994,13 @@ function UserStakeBlock(props: {
             </div>
           ) : (
             <>
-              {Number(lpBalance) == 0 || isEnded ? null : (
+              {isEnded ? null : (
                 <div className="flex justify-center text-farmText text-sm mb-4">
                   <FormattedMessage id="you_have" />{' '}
                   <label className="text-white mx-1">
                     {displayLpBalance()}
                   </label>{' '}
-                  LP <FormattedMessage id="tokens_small" />
+                  <FormattedMessage id="available_to_stake" />
                 </div>
               )}
               <div className="flex items-start justify-between">

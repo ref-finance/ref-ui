@@ -9,6 +9,7 @@ export default function FarmsBoosterPage(props: any) {
   const [loveSeed, serLoveSeed] = useState(null);
   const [boostConfig, setBoostConfig] = useState(null);
   const [user_data, set_user_data] = useState({});
+  const [user_data_loading, set_user_data_loading] = useState(true);
   const paramId = props.match.params.id;
   const getDetailData_user_data = (data: {
     user_seeds_map: Record<string, UserSeedInfo>;
@@ -25,6 +26,7 @@ export default function FarmsBoosterPage(props: any) {
       user_unclaimed_map,
       user_unclaimed_token_meta_map,
     });
+    set_user_data_loading(false);
   };
   const getDetailData_boost_config = (boostConfig: BoostConfig) => {
     setBoostConfig(boostConfig);
@@ -64,6 +66,7 @@ export default function FarmsBoosterPage(props: any) {
           loveSeed={loveSeed}
           boostConfig={boostConfig}
           user_data={user_data}
+          user_data_loading={user_data_loading}
         ></FarmsDetail>
       ) : null}
     </>

@@ -627,5 +627,6 @@ const zh_CN = {
   farm_capital: '农场',
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
+  available_to_stake: 'available to stake',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

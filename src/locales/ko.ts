@@ -658,5 +658,6 @@ const ko = {
   dao_capital: 'DAO',
   total_near_amount: '총 NEAR 금액',
   near_value: 'NEAR 값',
+  available_to_stake: 'available to stake',
 };
 export default Object.assign(ko, ko_in_risks_page);
