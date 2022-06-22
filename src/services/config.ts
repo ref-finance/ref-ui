@@ -237,7 +237,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-dev.testnet',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
-        VotingGauge: ['10%', '10%'],
+        VotingGauge: ['5%', '10%'],
       };
     default:
       return {
