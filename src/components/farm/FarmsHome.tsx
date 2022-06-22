@@ -2377,12 +2377,7 @@ function FarmView(props: {
           <div className="relative flex flex-col items-center  px-5 rounded-t-2xl overflow-hidden bg-boostUpBoxBg">
             <div className="flex items-center cursor-pointer text-white font-bold text-xl xs:text-sm md:text-sm mt-7">
               {/* link for looking into */}
-              <a
-                href={`/pool/${pool.id}`}
-                onClick={() => {
-                  return false;
-                }}
-              >
+              <a href={`javascript:void(${'/pool/' + pool.id})`}>
                 {tokens.map((token, index) => {
                   const hLine = index === tokens.length - 1 ? '' : '-';
                   return `${toRealSymbol(token.symbol)}${hLine}`;
