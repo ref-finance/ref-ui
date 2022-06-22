@@ -668,5 +668,6 @@ const ja = {
   farm_capital: 'ファーム',
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
+  available_to_stake: 'available to stake',
 };
 export default Object.assign(ja, ja_in_risks_page);

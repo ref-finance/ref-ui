@@ -666,5 +666,6 @@ const vi = {
   dao_capital: 'DAO',
   total_near_amount: 'Số lượng tất cả NEAR',
   near_value: 'NEAR giá trị',
+  available_to_stake: 'available to stake',
 };
 export default Object.assign(vi, vi_in_risks_page);

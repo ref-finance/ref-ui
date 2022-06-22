@@ -305,7 +305,7 @@ function WithDrawBox(props: { userRewardList: any; tokenPriceList: any }) {
         setSelectAll(false);
       }
     } else if (Object.keys(checkedList).length < withdrawNumber) {
-      checkedList[tokenId] = { value: rewardList[tokenId].number };
+      checkedList[tokenId] = rewardList[tokenId].number;
       if (
         Object.keys(checkedList).length ==
         Math.min(withdrawNumber, Object.keys(rewardList).length)

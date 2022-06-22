@@ -32,6 +32,7 @@ import { WatchListStartFull } from '~components/icon/WatchListStar';
 import { scientificNotationToString } from '../../utils/numbers';
 import { usePoolsFarmCount } from '../../state/pool';
 import { useClientMobile } from '../../utils/device';
+import { PoolTab } from '../../components/pool/PoolTab';
 
 interface LocationTypes {
   morePoolIds: string[];
@@ -243,6 +244,7 @@ export const MorePoolsPage = () => {
 
   return (
     <>
+      <PoolTab></PoolTab>
       {/* PC */}
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
         <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">

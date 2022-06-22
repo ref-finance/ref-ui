@@ -658,5 +658,6 @@ const ru = {
   dao_capital: 'DAO',
   total_near_amount: 'Общая сумма NEAR',
   near_value: 'Ценность NEAR',
+  available_to_stake: 'available to stake',
 };
 export default Object.assign(ru, ru_in_risks_page);

@@ -628,5 +628,6 @@ const uk_UA = {
   dao_capital: 'DAO',
   total_near_amount: 'Загальна сума NEAR',
   near_value: 'Значення NEAR',
+  available_to_stake: 'available to stake',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
