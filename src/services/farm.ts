@@ -1166,14 +1166,14 @@ export const classificationOfCoins_key = [
   'nft',
 ];
 export const incentiveLpTokenConfig = {
-  '1207': '4',
-  '4': '4',
-  '79': '2',
-  '1889': '2',
-  [STABLE_POOL_ID]: '5',
-  '3': '4',
-  '2734': '4',
-  '974': '4',
+  // '1207': '4',
+  // '4': '4',
+  // '79': '2',
+  // '1889': '2',
+  // [STABLE_POOL_ID]: '5',
+  // '3': '4',
+  // '2734': '4',
+  // '974': '4',
 };
 export const defaultConfig = {
   '3364': '102',

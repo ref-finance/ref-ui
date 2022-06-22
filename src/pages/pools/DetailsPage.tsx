@@ -1615,16 +1615,10 @@ export function PoolDetailsPage() {
                     ${toInternationalCurrencySystem(poolTVL?.toString())}
                   </div>
                 </div>
-                <div className="flex items-center justify-between py-2.5">
-                  <div>
-                    <FormattedMessage
-                      id="h24_volume"
-                      defaultMessage="24h volume"
-                    />
-                  </div>
-                  <div className="text-white">
-                    {dayVolume ? toInternationalCurrencySystem(dayVolume) : '-'}
-                  </div>
+                <div className="text-white">
+                  {dayVolume
+                    ? '$' + toInternationalCurrencySystem(dayVolume)
+                    : '-'}
                 </div>
                 <div className="flex items-center justify-between py-2.5">
                   <div>
