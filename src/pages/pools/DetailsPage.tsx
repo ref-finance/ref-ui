@@ -1599,7 +1599,9 @@ export function PoolDetailsPage() {
                   />
                 </div>
                 <div className="text-white">
-                  {dayVolume ? toInternationalCurrencySystem(dayVolume) : '-'}
+                  {dayVolume
+                    ? '$' + toInternationalCurrencySystem(dayVolume)
+                    : '-'}
                 </div>
               </div>
               <div className="flex items-center justify-between py-2.5">
