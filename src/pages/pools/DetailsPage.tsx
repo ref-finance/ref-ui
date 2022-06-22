@@ -124,6 +124,7 @@ import { OutLinkIcon } from '~components/icon/Common';
 import ReactTooltip from 'react-tooltip';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useAccountInfo } from '../../state/referendum';
+import { getVEPoolId } from '../ReferendumPage';
 interface ParamTypes {
   id: string;
 }
@@ -917,7 +918,11 @@ function MyShares({
     }
   });
 
-  const userTotalShare = BigNumber.sum(shares, farmStake, lptAmount || '0');
+  const userTotalShare = BigNumber.sum(
+    shares,
+    farmStake,
+    Number(poolId) === Number(getVEPoolId()) ? lptAmount || '0' : '0'
+  );
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
   let displayPercent;

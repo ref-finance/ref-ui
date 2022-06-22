@@ -300,6 +300,9 @@ export const useCounterDownVE = ({
   useEffect(() => {
     let timer = setInterval(() => {
       const duration = moment.duration(base - moment().unix(), 'seconds');
+
+      console.log(duration);
+
       setCounterDownStirng(
         duration.asSeconds() < 0 ? '0d: 0h: 0m' : durationFomatter(duration)
       );

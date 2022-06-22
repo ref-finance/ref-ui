@@ -15,6 +15,7 @@ import {
   NewGradientButton,
   BorderGradientButton,
   CheckRadioButtonVE,
+  ButtonTextWrapper,
 } from '../components/button/Button';
 import { useHistory } from 'react-router-dom';
 import {
@@ -126,6 +127,8 @@ export const RewardCard = ({
   const [checkList, setCheckList] = useState<string[]>([]);
 
   const [showDetail, setShowDetail] = useState<boolean>(false);
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   const RewardRow = ({
     id,
@@ -254,8 +257,9 @@ export const RewardCard = ({
             </button>
 
             <button
-              className="px-5 py-1.5 bg-black bg-opacity-30 rounded-lg"
+              className=" py-1.5 w-24 text-center bg-black bg-opacity-30 rounded-lg"
               onClick={() => {
+                setLoading(true);
                 withdrawRewardVE({
                   token_ids: checkList,
                   rewardList: rewardList,
@@ -263,7 +267,17 @@ export const RewardCard = ({
               }}
               disabled={!checkList?.length}
             >
-              <FormattedMessage id="withdraw" defaultMessage={'withdraw'} />
+              <ButtonTextWrapper
+                Text={() => {
+                  return (
+                    <FormattedMessage
+                      id="withdraw"
+                      defaultMessage={'withdraw'}
+                    />
+                  );
+                }}
+                loading={loading}
+              />
             </button>
           </div>
         </>

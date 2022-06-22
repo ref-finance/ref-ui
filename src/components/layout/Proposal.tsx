@@ -113,6 +113,7 @@ import { getCurrentUnixTime } from '../../services/api';
 import { useHistory, useParams } from 'react-router-dom';
 import { checkAllocations } from '../../utils/numbers';
 import { QuestionTip } from './TipWrapper';
+import getConfig from '../../services/config';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -547,9 +548,14 @@ enum PROPOSAL_TAB {
   GOV = 'GOV',
 }
 const PAIR_SEPERATOR = '|';
+const seedIdSeparator = '&';
+
+export const VotingGauge = getConfig().VotingGauge;
 
 export const durationFomatter = (duration: moment.Duration) => {
-  return `${duration.days()}d: ${duration.hours()}h: ${duration.minutes()}m`;
+  return `${Math.floor(
+    duration.asDays()
+  )}d: ${duration.hours()}h: ${duration.minutes()}m`;
 };
 
 const VoteChart = ({
@@ -1015,6 +1021,8 @@ const FarmChart = ({
   forLastRound?: boolean;
 }) => {
   if (!ratio) return null;
+
+  console.log(ratio);
   const [activeIndex, setActiveIndex] = useState<number>();
 
   const emptyVote = ratio.every((r, i) => r.value === 0);
@@ -1404,7 +1412,7 @@ const GovItemDetail = ({
         }`}
       >
         <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 text-white text-xl mb-4">
-          {description.title}
+          {`#${proposal.id} `} {description.title}
         </div>
 
         <InfoRow
@@ -1460,7 +1468,7 @@ const GovItemDetail = ({
         </div>
 
         <div className="flex items-center justify-center mt-8 pb-6">
-          <div className="w-1/5 flex items-center justify-center">
+          <div className="w-1/5 flex items-center justify-center relative top-10 self-start">
             {proposal?.status === 'WarmUp' ? (
               <NoResultChart expand="1.25" />
             ) : (
@@ -1667,7 +1675,7 @@ const GovItemDetail = ({
         onRequestClose={() => setShowVotePop(false)}
         options={data.map((d) => d.option)}
         ratios={checkAllocations(
-          '100',
+          ONLY_ZEROS.test(totalVE) ? '0' : '100',
           data.map((d) => d.ratio)
         )}
         proposal={proposal}
@@ -2047,7 +2055,10 @@ const GovProposalItem = ({
               </div>
             </div>
           </div>
-          {proposal?.kind?.Common ? null : (
+          {proposal?.kind?.Common ||
+          (proposal?.proposer !== getCurrentWallet().wallet.getAccountId() &&
+            !proposal?.incentive) ||
+          (proposal?.status === 'Expired' && !proposal?.incentive) ? null : (
             <div
               className={`absolute w-full h-8 bg-veGradient bottom-0 right-0 flex items-center text-center justify-center text-white ${
                 proposal?.status === 'Expired' ? 'opacity-30' : ''
@@ -2129,7 +2140,9 @@ export const ProposalTab = ({
   return (
     <div className={className}>
       <NewGradientButton
-        className="w-72 mr-2"
+        className={`w-72 mr-2 ${
+          curTab === PROPOSAL_TAB.FARM ? 'opacity-100' : ''
+        }`}
         grayDisable={curTab !== PROPOSAL_TAB.FARM}
         disableForUI
         text={
@@ -2142,7 +2155,9 @@ export const ProposalTab = ({
       />
 
       <NewGradientButton
-        className="w-72 ml-2"
+        className={`w-72 mr-2 ${
+          curTab === PROPOSAL_TAB.GOV ? 'opacity-100' : ''
+        }`}
         onClick={() => setTab(PROPOSAL_TAB.GOV)}
         grayDisable={curTab !== PROPOSAL_TAB.GOV}
         disableForUI
@@ -2215,7 +2230,12 @@ export const VoteGovPopUp = (
       <div className="pt-6 pb-8">
         <div className="pb-4 truncate">{proposalTitle}</div>
 
-        <div className="pt-6 px-5 pr-6 rounded-lg bg-black bg-opacity-20">
+        <div
+          className="pt-6 px-5 pr-6 rounded-lg bg-black bg-opacity-20 overflow-auto"
+          style={{
+            maxHeight: '60vh',
+          }}
+        >
           {options?.map((o, i) => {
             return (
               <button
@@ -2227,7 +2247,7 @@ export const VoteGovPopUp = (
                 <span className="flex items-center ">
                   <CheckComponent checked={value === o} />
 
-                  <span className="ml-4 truncate w-44 text-left" title={o}>
+                  <span className="ml-4 truncate w-40 text-left" title={o}>
                     {o}
                   </span>
                 </span>
@@ -2305,7 +2325,7 @@ export const LastRoundFarmVoting = (
     ftGetTokensMetadata(
       farmProposal?.kind?.FarmingReward?.farm_list
         ?.map((pair) => {
-          return pair.split(PAIR_SEPERATOR);
+          return pair.split(seedIdSeparator)[0].split(PAIR_SEPERATOR);
         })
         .flat() || []
     ).then(setTokens);
@@ -2381,10 +2401,14 @@ export const LastRoundFarmVoting = (
           name: f,
           value: Number(farmProposal.votes[i]),
           pairSymbol: f
+            .split(seedIdSeparator)[0]
             .split(PAIR_SEPERATOR)
             .map((id) => toRealSymbol(tokens?.[id]?.symbol || ''))
             .join('/'),
-          tokens: f.split(PAIR_SEPERATOR).map((id) => tokens?.[id]),
+          tokens: f
+            .split(seedIdSeparator)[0]
+            .split(PAIR_SEPERATOR)
+            .map((id) => tokens?.[id]),
 
           r: checkedRatios[i] + '%',
           allocation: toPrecision(checkedAllocations[i] || '0', 0, true),
@@ -2412,15 +2436,9 @@ export const LastRoundFarmVoting = (
         value={`
           ${moment(
             Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
-          ).format('D')}-${moment(
+          ).format('ll')}-${moment(
           Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-        ).format('D')}
-          ${moment(
-            Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-          ).format('MMMM')},
-          ${moment(
-            Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-          ).year()}
+        ).format('ll')}
 
           `}
       />
@@ -2436,7 +2454,7 @@ export const LastRoundFarmVoting = (
             </span>
           </span>
         }
-        value={'10%'}
+        value={VotingGauge[0]}
       />
       <InfoRow
         title={
@@ -2521,6 +2539,7 @@ export const FarmProposal = ({
   const baseCounterDown = durationFomatter(
     moment.duration(base - moment().unix(), 'seconds')
   );
+
   const [counterDownStirng, setCounterDownStirng] =
     useState<string>(baseCounterDown);
 
@@ -2582,7 +2601,7 @@ export const FarmProposal = ({
     ftGetTokensMetadata(
       farmProposal?.kind?.FarmingReward?.farm_list
         ?.map((pair) => {
-          return pair.split(PAIR_SEPERATOR);
+          return pair.split(seedIdSeparator)[0].split(PAIR_SEPERATOR);
         })
         .flat() || []
     ).then(setTokens);
@@ -2594,7 +2613,10 @@ export const FarmProposal = ({
       )
     : farmProposal?.kind?.FarmingReward?.farm_list?.map((_, i) => '0');
 
-  const checkedRatios = checkAllocations('100', displayRatios);
+  const checkedRatios = checkAllocations(
+    farmProposal.status === 'WarmUp' ? '0' : '100',
+    displayRatios
+  );
 
   const displayVELPT = farmProposal?.votes.map((vote) =>
     toPrecision(toReadableNumber(LOVE_TOKEN_DECIMAL, vote), 2, false)
@@ -2611,7 +2633,10 @@ export const FarmProposal = ({
     displayVELPT
   );
 
-  const allocations = checkAllocations('100', displayRatios).map((r) => {
+  const allocations = checkAllocations(
+    farmProposal.status === 'WarmUp' ? '0' : '100',
+    displayRatios
+  ).map((r) => {
     return toPrecision(
       multiply(
         divide(r, '100').toString(),
@@ -2622,7 +2647,9 @@ export const FarmProposal = ({
   });
 
   const checkedAllocations = checkAllocations(
-    farmProposal?.kind?.FarmingReward?.total_reward.toString(),
+    farmProposal?.status === 'WarmUp'
+      ? '0'
+      : farmProposal?.kind?.FarmingReward?.total_reward.toString(),
     allocations
   );
 
@@ -2796,18 +2823,11 @@ export const FarmProposal = ({
         <span>Voting period</span> <span></span>{' '}
         {moment(
           Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
-        ).format('D')}
+        ).format('ll')}
         -
         {moment(
           Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-        ).format('D')}{' '}
-        {moment(
-          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-        ).format('MMMM')}
-        {', '}
-        {moment(
-          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-        ).year()}
+        ).format('ll')}
         <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs pr-4 pl-2 text-gradientFrom absolute right-0">
           {ended ? (
             <span className="text-primaryText ml-2">
@@ -2825,10 +2845,21 @@ export const FarmProposal = ({
                 {farmProposal?.status === 'InProgress' ? (
                   <FormattedMessage id="live" defaultMessage={'Live'} />
                 ) : (
-                  <FormattedMessage id="pending" defaultMessage={'Pending'} />
+                  <FormattedMessage
+                    id="pending_ve"
+                    defaultMessage={'Pending'}
+                  />
                 )}
               </span>
-              <span>{counterDownStirng}</span>
+              <span
+                className={`${
+                  farmProposal?.status === 'WarmUp'
+                    ? 'text-primaryText'
+                    : 'text-gradientFrom'
+                }`}
+              >
+                {counterDownStirng}
+              </span>
             </div>
           )}
         </span>
@@ -2857,7 +2888,7 @@ export const FarmProposal = ({
             />,
           ]}
           values={[
-            '10%',
+            VotingGauge[1],
             `${toPrecision(
               farmProposal?.kind?.FarmingReward.total_reward.toString() || '0',
               0,
@@ -2922,10 +2953,14 @@ export const FarmProposal = ({
           name: f,
           value: Number(farmProposal.votes[i]),
           pairSymbol: f
+            .split(seedIdSeparator)[0]
             .split(PAIR_SEPERATOR)
             .map((id) => toRealSymbol(tokens?.[id]?.symbol || ''))
             .join('/'),
-          tokens: f.split(PAIR_SEPERATOR).map((id) => tokens?.[id]),
+          tokens: f
+            .split(seedIdSeparator)[0]
+            .split(PAIR_SEPERATOR)
+            .map((id) => tokens?.[id]),
 
           r: checkedRatios[i] + '%',
           allocation: toPrecision(checkedAllocations[i] || '0', 0, true),
@@ -2968,7 +3003,10 @@ export const FarmProposal = ({
               <FarmLine
                 index={id}
                 key={id}
-                tokens={pair.split(PAIR_SEPERATOR).map((id) => tokens?.[id])}
+                tokens={pair
+                  .split(seedIdSeparator)[0]
+                  .split(PAIR_SEPERATOR)
+                  .map((id) => tokens?.[id])}
                 voted={
                   voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id ||
                   voteHistoryDetail?.[farmProposal?.id]?.action?.VoteFarm
@@ -3127,8 +3165,8 @@ export const CreateGovProposal = ({
     <div className="text-white">
       <div className="text-center relative text-xl pb-7">
         <FormattedMessage
-          id="create_a_proposal"
-          defaultMessage={'Create A Proposal'}
+          id="create_proposal"
+          defaultMessage={'Create Proposal'}
         />
 
         <button

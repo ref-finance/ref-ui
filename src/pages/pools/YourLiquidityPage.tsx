@@ -314,7 +314,7 @@ export function YourLiquidityPage() {
                     <FormattedMessage id="token" defaultMessage="Token" />
                   </div>
 
-                  <div className="col-span-5 text-left ml-5 xl:ml-14">
+                  <div className="col-span-5 text-left ml-5 xl:ml-8">
                     <FormattedMessage id="my_shares" defaultMessage="Shares" />
                   </div>
                   <div className="col-span-4 xl:ml-8 ml-4">
@@ -538,7 +538,7 @@ function PoolRow(props: {
           ))}
         </div>
 
-        <div className="col-span-3  text-left pl-3 xl:pl-12">
+        <div className="col-span-3  text-left pl-3 xl:pl-6">
           <MyShares
             shares={shares}
             totalShares={pool.shareSupply}
@@ -645,7 +645,8 @@ function PoolRow(props: {
             </Link>
           ) : null}
 
-          {ONLY_ZEROS.test(shares) ? null : (
+          {ONLY_ZEROS.test(shares) ||
+          (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
             <div>
               <span
                 className={'text-gradientFrom'}
