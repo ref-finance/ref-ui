@@ -284,7 +284,7 @@ export const SenderWalletLarge = () => {
         stroke="none"
         stroke-width="1"
         fill="none"
-        fill-rule="evenodd"
+        fillRule="evenodd"
       >
         <g id="Sender-svg" transform="translate(-468.000000, -240.000000)">
           <g id="1" transform="translate(240.000000, 240.000000)">

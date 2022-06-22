@@ -227,8 +227,8 @@ export const LOVE_ICON = () => {
         />
       </mask>
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M8.63259 5.38477H6.58127V6.92325L5.21378 6.92325V8.46174H3.84619V10.0002H5.21378V11.5387H6.58127V13.0772H7.94886V14.6157H9.31635V16.1542H10.6839V14.6157H12.0515V13.0772H13.419V11.5387H14.7866V10.0002H16.1541V8.46174H14.7866V6.92325L13.419 6.92325V5.38477H11.3677V6.92325H8.63259V5.38477Z"
         fill="url(#paint0_linear_157_1039)"
       />
@@ -247,7 +247,7 @@ export const LOVE_ICON = () => {
           gradientUnits="userSpaceOnUse"
         >
           <stop stopColor="#A076FF" />
-          <stop offset="1" stop-color="#A076FF" stop-opacity="0" />
+          <stop offset="1" stopColor="#A076FF" stopOpacity="0" />
         </linearGradient>
       </defs>
     </svg>
@@ -448,8 +448,8 @@ export const NO_RESULT_CHART = ({ expand }: { expand?: string }) => {
           y2="125"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#849DA8" />
-          <stop offset="1" stop-color="#849DA8" stop-opacity="0" />
+          <stop stopColor="#849DA8" />
+          <stop offset="1" stopColor="#849DA8" stopOpacity="0" />
         </linearGradient>
       </defs>
     </svg>
@@ -501,8 +501,8 @@ export const VotedIcon = () => {
           y2="84.7109"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#00C6A2" />
-          <stop offset="1" stop-color="#00866E" />
+          <stop stopColor="#00C6A2" />
+          <stop offset="1" stopColor="#00866E" />
         </linearGradient>
       </defs>
     </svg>
@@ -563,8 +563,8 @@ export const UnLockExpiredIcon = () => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M8.22444 2.50711C4.64564 2.9426 2.09748 6.19683 2.53298 9.77563C2.96847 13.3544 6.2227 15.9026 9.8015 15.4671C10.231 15.4148 10.6215 15.7206 10.6737 16.1501C10.726 16.5795 10.4202 16.97 9.99075 17.0223C5.55304 17.5623 1.51779 14.4026 0.977779 9.96488C0.437767 5.52717 3.59748 1.49192 8.03519 0.951908C11.8043 0.493254 15.2813 2.70299 16.5756 6.09668C16.7298 6.50091 16.5271 6.95357 16.1229 7.10774C15.7186 7.26191 15.266 7.05921 15.1118 6.65499C14.0679 3.91799 11.2622 2.13745 8.22444 2.50711Z"
         fill="white"
       />
@@ -573,14 +573,14 @@ export const UnLockExpiredIcon = () => {
         fill="white"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M17.6432 11.5488C17.9588 11.8447 17.9748 12.3404 17.6789 12.656L15.231 15.2671C15.0829 15.4251 14.876 15.5147 14.6595 15.5147C14.443 15.5147 14.2361 15.4251 14.088 15.2671L12.6193 13.7005C12.3234 13.3848 12.3394 12.8891 12.655 12.5932C12.9706 12.2973 13.4663 12.3133 13.7622 12.6289L14.6595 13.586L16.536 11.5845C16.8318 11.2689 17.3276 11.2529 17.6432 11.5488Z"
         fill="#0ABDA9"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M9.01313 4.02588C9.44576 4.02588 9.79647 4.37659 9.79647 4.80921V9.50923C9.79647 9.78071 9.6559 10.0328 9.42496 10.1756C9.19402 10.3183 8.90564 10.3313 8.66281 10.2099L5.52947 8.64319C5.14252 8.44972 4.98568 7.97919 5.17915 7.59224C5.37263 7.20529 5.84316 7.04844 6.23011 7.24192L8.2298 8.24176V4.80921C8.2298 4.37659 8.58051 4.02588 9.01313 4.02588Z"
         fill="white"
       />
