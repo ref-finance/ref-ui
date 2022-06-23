@@ -222,7 +222,7 @@ export const RewardCard = ({
       </div>
       {!showDetail ? null : (
         <>
-          <div className="bg-black bg-opacity-30 rounded-lg p-4 mb-2">
+          <div className="bg-chartBg bg-opacity-50 rounded-lg p-4 mb-2">
             {tokens?.map((token, i) => {
               return <RewardRow id={token.id} token={token} index={i} />;
             })}

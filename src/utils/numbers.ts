@@ -382,6 +382,18 @@ export const toInternationalCurrencySystem = (
     ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(percent || 2) + 'K'
     : Math.abs(Number(labelValue)).toFixed(percent || 2);
 };
+
+export const toInternationalCurrencySystemLongString = (
+  labelValue: string,
+  percent?: number
+) => {
+  return Math.abs(Number(labelValue)) >= 1.0e9
+    ? (Math.abs(Number(labelValue)) / 1.0e9).toFixed(percent || 2) + 'B'
+    : Math.abs(Number(labelValue)) >= 1.0e6
+    ? (Math.abs(Number(labelValue)) / 1.0e6).toFixed(percent || 2) + 'M'
+    : Math.abs(Number(labelValue)).toFixed(percent || 2);
+};
+
 export const toInternationalCurrencySystemNature = (
   labelValue: string,
   percent?: number

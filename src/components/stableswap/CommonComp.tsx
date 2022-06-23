@@ -40,7 +40,7 @@ export const Images = ({
   size?: string;
 }) => {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center flex-shrink-0">
       {tokens?.map((token, index) => {
         const icon = token?.icon;
         const id = token?.id;

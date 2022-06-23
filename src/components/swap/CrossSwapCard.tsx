@@ -29,6 +29,7 @@ import {
   calculateSmartRoutesV2PriceImpact,
   separateRoutes,
   calcStableSwapPriceImpact,
+  toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount, {
@@ -217,15 +218,15 @@ export const GetPriceImpact = (
       ? 'text-warn'
       : 'text-error';
 
-  const displayValue = toPrecision(
-    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
-    3
+  const displayValue = scientificNotationToString(
+    multiply(tokenInAmount, divide(value, '100'))
   );
-
   const tokenInInfo =
     Number(displayValue) <= 0
       ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
-      : ` / -${displayValue} ${tokenIn.symbol}`;
+      : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)} ${
+          tokenIn.symbol
+        }`;
 
   if (Number(value) < 0.01)
     return (

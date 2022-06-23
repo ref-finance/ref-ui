@@ -13,7 +13,12 @@ import { toRealSymbol } from '../../utils/token';
 import { FaSearch } from 'react-icons/fa';
 import AddToken from './AddToken';
 import { getTokenPriceList } from '../../services/indexer';
-import { toPrecision, divide } from '../../utils/numbers';
+import {
+  toPrecision,
+  divide,
+  toInternationalCurrencySystem,
+  toInternationalCurrencySystemLongString,
+} from '../../utils/numbers';
 import {
   BTCIDS,
   CUSDIDS,
@@ -36,7 +41,11 @@ function sort(a: any, b: any) {
 export function tokenPrice(price: string, error?: boolean) {
   return (
     <span className="text-xs text-primaryText">
-      {`$${error || !price ? '-' : toPrecision(price, 2)}`}
+      {`$${
+        error || !price
+          ? '-'
+          : toInternationalCurrencySystemLongString(price, 2)
+      }`}
     </span>
   );
 }

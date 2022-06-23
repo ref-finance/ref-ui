@@ -103,7 +103,7 @@ function MyShares({
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
   return (
-    <div className="h-12 inline-flex flex-col justify-center xs:text-right md:text-right">
+    <div className=" inline-flex flex-col justify-center xs:text-right md:text-right">
       <div className="pl-2 xs:pr-0 md:pr-0 text-sm whitespace-nowrap">{`${toRoundedReadableNumber(
         {
           decimals: isStablePool(poolId)
@@ -565,7 +565,7 @@ function PoolRow(props: {
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              className="text-primaryText mb-1.5"
+              className="text-primaryText mb-1.5 flex"
             >
               <span>
                 {toPrecision(
@@ -579,10 +579,14 @@ function PoolRow(props: {
               <span className="mx-1">
                 <FormattedMessage id="in" defaultMessage={'in'} />
               </span>
-              <span className="hover:border-b hover:border-white hover:text-white border-b border-transparent">
-                <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                <span className="ml-1">V1</span>
-              </span>
+              <div className="text-primaryText hover:text-gradientFrom flex-shrink-0">
+                <span className="underline">
+                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                  &nbsp; V1
+                </span>
+
+                <span className="ml-0.5">↗</span>
+              </div>
             </Link>
           )}
 
@@ -597,7 +601,7 @@ function PoolRow(props: {
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              className="text-primaryText mb-1.5"
+              className="text-primaryText mb-1.5 flex"
             >
               <span>
                 {toPrecision(
@@ -611,10 +615,14 @@ function PoolRow(props: {
               <span className="mx-1">
                 <FormattedMessage id="in" defaultMessage={'in'} />
               </span>
-              <span className="hover:border-b hover:border-white hover:text-white border-b border-transparent">
-                <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                <span className="ml-1">V2</span>
-              </span>
+              <div className="text-primaryText hover:text-gradientFrom flex-shrink-0">
+                <span className="underline">
+                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                  &nbsp; V2
+                </span>
+
+                <span className="ml-0.5">↗</span>
+              </div>
             </Link>
           )}
           {Number(getVEPoolId()) === Number(pool.id) ? (
@@ -628,7 +636,7 @@ function PoolRow(props: {
               onClick={(e) => {
                 window.open('/referendum');
               }}
-              className="text-primaryText mb-1.5"
+              className="text-primaryText mb-1.5 flex"
             >
               <span>
                 {toPrecision(toReadableNumber(24, lptAmount || '0'), 2)}
@@ -639,9 +647,12 @@ function PoolRow(props: {
               <span className="mr-1">
                 <FormattedMessage id="in" defaultMessage={'in'} />
               </span>
-              <span className="hover:border-b hover:border-white hover:text-white border-b border-transparent">
-                <FormattedMessage id="dao" defaultMessage={'DAO'} />
-              </span>
+              <div className="text-primaryText hover:text-gradientFrom flex-shrink-0">
+                <span className="underline">
+                  <FormattedMessage id="dao" defaultMessage={'DAO'} />
+                </span>
+                <span className="ml-0.5">↗</span>
+              </div>
             </Link>
           ) : null}
 
@@ -760,19 +771,146 @@ function PoolRow(props: {
               <FormattedMessage id="my_shares" defaultMessage="Shares" />
             </div>
 
-            <div>
-              <MyShares
-                shares={shares}
-                totalShares={pool.shareSupply}
-                decimal={2}
-                poolId={pool.id}
-                supportFarmV1={supportFarmV1}
-                supportFarmV2={supportFarmV2}
-                userTotalShare={userTotalShare}
-                farmStakeV1={farmStakeV1}
-                farmStakeV2={farmStakeV2}
-                onlyEndedFarmV2={props.onlyEndedFarmV2}
-              />
+            <div className={`flex flex-col  text-white items-end `}>
+              <div
+                className={`flex ${
+                  supportFarmV1 === 0 && supportFarmV2 === 0 ? 'h-12' : 'mb-1.5'
+                }`}
+              >
+                <MyShares
+                  shares={shares}
+                  totalShares={pool.shareSupply}
+                  decimal={2}
+                  poolId={pool.id}
+                  supportFarmV1={supportFarmV1}
+                  supportFarmV2={supportFarmV2}
+                  userTotalShare={userTotalShare}
+                  farmStakeV1={farmStakeV1}
+                  farmStakeV2={farmStakeV2}
+                  onlyEndedFarmV2={props.onlyEndedFarmV2}
+                />
+              </div>
+
+              {supportFarmV1 > 0 && (
+                <Link
+                  to={{
+                    pathname: '/farms',
+                  }}
+                  target="_blank"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  className="text-primaryText mb-1.5 text-xs"
+                >
+                  <span>
+                    {toPrecision(
+                      toReadableNumber(
+                        lpDecimal,
+                        scientificNotationToString(farmStakeV1.toString())
+                      ),
+                      2
+                    )}
+                  </span>
+                  <span className="mx-1">
+                    <FormattedMessage id="in" defaultMessage={'in'} />
+                  </span>
+                  <span className="border-b border-primaryText">
+                    <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                    <span className="ml-1">V1</span>
+                  </span>
+                  <span className="text-gradientFrom ml-0.5">↗</span>
+                </Link>
+              )}
+
+              {supportFarmV2 > 0 && (
+                <Link
+                  to={{
+                    pathname: `/farmsBoost/${pool.id}-${
+                      props.onlyEndedFarmV2 ? 'e' : 'r'
+                    }`,
+                  }}
+                  target="_blank"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  className="text-primaryText mb-1.5 text-xs"
+                >
+                  <span>
+                    {toPrecision(
+                      toReadableNumber(
+                        lpDecimal,
+                        scientificNotationToString(farmStakeV2.toString())
+                      ),
+                      2
+                    )}
+                  </span>
+                  <span className="mx-1">
+                    <FormattedMessage id="in" defaultMessage={'in'} />
+                  </span>
+                  <span className="border-b border-primaryText">
+                    <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                    <span className="ml-1">V2</span>
+                  </span>
+                  <span className="text-gradientFrom ml-0.5">↗</span>
+                </Link>
+              )}
+              {Number(getVEPoolId()) === Number(pool.id) ? (
+                <Link
+                  to={{
+                    pathname: `/farmsBoost/${pool.id}-${
+                      props.onlyEndedFarmV2 ? 'e' : 'r'
+                    }`,
+                  }}
+                  target="_blank"
+                  onClick={(e) => {
+                    window.open('/referendum');
+                  }}
+                  className="text-primaryText mb-1.5 text-xs"
+                >
+                  <span>
+                    {toPrecision(toReadableNumber(24, lptAmount || '0'), 2)}
+                  </span>
+                  <span className="mx-1">
+                    <FormattedMessage id="locked" defaultMessage={'locked'} />
+                  </span>
+                  <span className="mr-1">
+                    <FormattedMessage id="in" defaultMessage={'in'} />
+                  </span>
+                  <span className="border-b border-primaryText">
+                    <FormattedMessage id="dao" defaultMessage={'DAO'} />
+                  </span>
+                  <span className="text-gradientFrom ml-0.5">↗</span>
+                </Link>
+              ) : null}
+
+              {ONLY_ZEROS.test(shares) ||
+              (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
+                <div className="text-xs">
+                  <span
+                    className={'text-gradientFrom'}
+                    title={toReadableNumber(
+                      isStablePool(pool.id)
+                        ? getStablePoolDecimal(pool.id)
+                        : 24,
+                      shares
+                    )}
+                  >
+                    {toPrecision(
+                      toReadableNumber(
+                        isStablePool(pool.id)
+                          ? getStablePoolDecimal(pool.id)
+                          : 24,
+                        shares
+                      ),
+                      2
+                    )}
+                  </span>
+
+                  <span className="ml-1 text-primaryText">
+                    <FormattedMessage id="available" />
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

@@ -1013,6 +1013,7 @@ const FarmChart = ({
     allocation: string;
     r: string;
     veLPT: string;
+    poolId: string;
   }[];
   size: number;
   voted: number;
@@ -1022,7 +1023,6 @@ const FarmChart = ({
 }) => {
   if (!ratio) return null;
 
-  console.log(ratio);
   const [activeIndex, setActiveIndex] = useState<number>();
 
   const emptyVote = ratio.every((r, i) => r.value === 0);
@@ -1060,11 +1060,16 @@ const FarmChart = ({
         ) : null}
         <div className="flex items-center justify-between w-full pb-2">
           <Images tokens={activeFarm.tokens} size="6" />
-          <Symbols
-            tokens={activeFarm.tokens}
-            seperator={'-'}
-            size="text-base"
-          />
+          <div className="flex items-center">
+            <Symbols
+              tokens={activeFarm.tokens}
+              seperator={'-'}
+              size="text-sm"
+            />
+            {activeFarm.poolId ? (
+              <span className="text-sm ml-1 text-white">{`#${activeFarm.poolId}`}</span>
+            ) : null}
+          </div>
         </div>
 
         <div className="flex items-center justify-between pb-2">
@@ -1380,18 +1385,48 @@ const GovItemDetail = ({
             <FormattedMessage id="back" defaultMessage={'Back'} />
           </span>
         </button>
-        {proposal?.status === 'InProgress' ? (
-          <span className={'text-gradientFrom text-sm absolute right-0 top-2'}>
-            {durationFomatter(
-              moment.duration(
-                Math.floor(Number(proposal.end_at) / TIMESTAMP_DIVISOR) -
-                  moment().unix(),
-                'seconds'
-              )
-            )}
-            {` left`}
-          </span>
-        ) : null}
+
+        <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs pr-4 pl-2 text-gradientFrom absolute right-0">
+          {proposal.status === 'Expired' ? (
+            <span className="text-primaryText ml-2">
+              <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
+            </span>
+          ) : (
+            <div className="flex items-center">
+              <span
+                className={`rounded-3xl px-2 py-0.5 mr-2  ${
+                  proposal?.status === 'WarmUp'
+                    ? 'text-white bg-pendingPurple'
+                    : 'text-black bg-gradientFrom'
+                }`}
+              >
+                {proposal?.status === 'InProgress' ? (
+                  <FormattedMessage id="live" defaultMessage={'Live'} />
+                ) : (
+                  <FormattedMessage
+                    id="pending_ve"
+                    defaultMessage={'Pending'}
+                  />
+                )}
+              </span>
+              <span
+                className={`${
+                  proposal?.status === 'WarmUp'
+                    ? 'text-primaryText'
+                    : 'text-gradientFrom'
+                }`}
+              >
+                {durationFomatter(
+                  moment.duration(
+                    Math.floor(Number(proposal.end_at) / TIMESTAMP_DIVISOR) -
+                      moment().unix(),
+                    'seconds'
+                  )
+                )}
+              </span>
+            </div>
+          )}
+        </span>
 
         <span className="absolute right-1">{timeDuration}</span>
       </div>
@@ -2413,6 +2448,7 @@ export const LastRoundFarmVoting = (
           r: checkedRatios[i] + '%',
           allocation: toPrecision(checkedAllocations[i] || '0', 0, true),
           veLPT: checkedVELPTs[i] || '0',
+          poolId: f.split(seedIdSeparator)[1],
         }))}
         size={farmProposal?.kind?.FarmingReward?.farm_list?.length}
         voted={
@@ -2719,7 +2755,16 @@ export const FarmProposal = ({
           <span className="col-span-3 pl-4 flex items-center">
             <Images tokens={tokens} size={'9'} />
             <span className="pr-2.5"></span>
-            <Symbols tokens={tokens} seperator={'-'} />
+            <div className="flex">
+              <Symbols tokens={tokens} seperator={'-'} />
+              <span className="ml-1">
+                {`#${
+                  farmProposal.kind.FarmingReward.farm_list[index].split(
+                    seedIdSeparator
+                  )[1]
+                }`}
+              </span>
+            </div>
 
             {voted === index ? (
               <NewGradientButton
@@ -2965,6 +3010,7 @@ export const FarmProposal = ({
           r: checkedRatios[i] + '%',
           allocation: toPrecision(checkedAllocations[i] || '0', 0, true),
           veLPT: checkedVELPTs[i] || '0',
+          poolId: f.split(seedIdSeparator)[1],
         }))}
         size={farmProposal?.kind?.FarmingReward?.farm_list?.length}
         voted={
