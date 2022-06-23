@@ -35,12 +35,14 @@ export function BackToStablePoolList() {
 export const Images = ({
   tokens,
   size,
+  className,
 }: {
   tokens: TokenMetadata[];
   size?: string;
+  className?: string;
 }) => {
   return (
-    <div className="flex items-center flex-shrink-0">
+    <div className={`${className} flex items-center flex-shrink-0`}>
       {tokens?.map((token, index) => {
         const icon = token?.icon;
         const id = token?.id;

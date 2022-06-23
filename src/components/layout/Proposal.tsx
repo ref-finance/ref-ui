@@ -114,6 +114,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { checkAllocations } from '../../utils/numbers';
 import { QuestionTip } from './TipWrapper';
 import getConfig from '../../services/config';
+import { cos } from 'mathjs';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -589,17 +590,22 @@ const VoteChart = ({
   const [activeIndex, setActiveIndex] = useState<number>(-1);
 
   function customLabel(props: any) {
-    let { cx, cy, index, value, name } = props;
+    let { cx, cy, index, value, name, x, y, midAngle } = props;
+    const RADIAN = Math.PI / 180;
+
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x1 = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y1 = cy + radius * Math.sin(-midAngle * RADIAN);
 
     if (index !== activeIndex) return null;
 
     return (
-      <g>
+      <g height={70}>
         <foreignObject
           x={cx - (forDetail ? 50 : 35)}
           y={cy - 20}
           width={`${name.length * 13 > 70 ? 70 : name.length * 13}%`}
-          height={100}
+          height={55}
         >
           <div
             className="pt-1 pb-2 px-1 flex flex-col rounded-lg bg-voteLabel text-xs border border-black border-opacity-10"
@@ -655,8 +661,12 @@ const VoteChart = ({
                 stroke="#304048"
                 strokeOpacity={10}
                 strokeWidth={2}
-                onMouseEnter={() => setActiveIndex(index)}
-                // onMouseLeave={() => setActiveIndex(-1)}
+                onMouseEnter={() => {
+                  setActiveIndex(index);
+                }}
+                onMouseLeave={() => {
+                  setActiveIndex(-1);
+                }}
               />
             );
           })}
@@ -1031,16 +1041,26 @@ const FarmChart = ({
     ? ratio.map((r, i) => {
         const newr = JSON.parse(JSON.stringify(r));
         newr.value = (1 / ratio.length) * 0.99;
-        return newr;
+        return {
+          ...newr,
+          index: i,
+        };
       })
-    : ratio.filter((r) => r.value > 0);
+    : ratio
+        .filter((r, i) => r.value > 0)
+        .map((r, i) => {
+          return {
+            ...r,
+            index: i,
+          };
+        });
 
-  const ActiveLabel = () => {
+  const ActiveLabel = ({ activeIndex }: { activeIndex: number }) => {
     const activeFarm = data[activeIndex];
 
     return (
       <div
-        className={`rounded-lg relative top-12 border w-full border-gradientFrom px-3 pt-6 pb-3 flex flex-col ${
+        className={`rounded-lg w-full3 flex flex-col ${
           forLastRound ? 'text-sm' : 'text-base'
         }`}
         style={{
@@ -1058,21 +1078,24 @@ const FarmChart = ({
             padding="px-2 py-2.5"
           />
         ) : null}
-        <div className="flex items-center justify-between w-full pb-2">
-          <Images tokens={activeFarm.tokens} size="6" />
-          <div className="flex items-center">
-            <Symbols
+
+        <div className="bg-black rounded-t-lg p-3 bg-opacity-30">
+          <div className="flex items-center justify-between w-full">
+            <Images
+              className={forLastRound ? '' : 'relative top-2'}
               tokens={activeFarm.tokens}
-              seperator={'-'}
-              size="text-sm"
+              size={forLastRound ? '6' : '7'}
             />
-            {activeFarm.poolId ? (
-              <span className="text-sm ml-1 text-white">{`#${activeFarm.poolId}`}</span>
-            ) : null}
+            <div className="flex items-center">
+              <Symbols tokens={activeFarm.tokens} seperator={'-'} />
+            </div>
           </div>
+          {activeFarm.poolId ? (
+            <div className="text-base ml-1 text-white text-right">{`#${activeFarm.poolId}`}</div>
+          ) : null}
         </div>
 
-        <div className="flex items-center justify-between pb-2">
+        <div className="flex items-center px-3 pt-3 justify-between pb-2">
           <span className="text-primaryText">
             <FormattedMessage id="voted_veLPT" defaultMessage={'Voted veLPT'} />
           </span>
@@ -1082,7 +1105,7 @@ const FarmChart = ({
           </span>
         </div>
 
-        <div className="flex items-center justify-between pb-2">
+        <div className="flex items-center px-3 justify-between pb-2">
           <span className="text-primaryText">
             <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
           </span>
@@ -1090,7 +1113,7 @@ const FarmChart = ({
           <span className="text-white">{activeFarm.r}</span>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center px-3 pb-2.5 justify-between">
           <span className="text-primaryText">
             <FormattedMessage
               id="ref_allocation"
@@ -1122,17 +1145,25 @@ const FarmChart = ({
 
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x1 = cx + radius * Math.cos(-midAngle * RADIAN) - 15;
-    const y1 = cy + radius * Math.sin(-midAngle * RADIAN) - 15;
+    const x1 = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y1 = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    const cos = Math.cos(-midAngle * RADIAN);
+    const sin = Math.sin(-midAngle * RADIAN);
+
     if (y < cy) {
       y = y - 30;
     }
+
+    const width = forLastRound ? '200' : `250`;
+
+    const height = forLastRound ? '174' : '188';
 
     return (
       <g>
         <text
           x={x}
-          y={y + 10}
+          y={!data[index].poolId ? y + 10 : y - 10}
           fill="#91A2AE"
           fontSize="14px"
           textAnchor={x > cx ? 'start' : 'end'}
@@ -1140,10 +1171,23 @@ const FarmChart = ({
         >
           {pairSymbol}
         </text>
+        {!data[index].poolId ? null : (
+          <text
+            x={x}
+            y={y + 10}
+            fill="#91A2AE"
+            fontSize="14px"
+            textAnchor={x > cx ? 'start' : 'end'}
+            dominantBaseline="central"
+          >
+            {`#${data[index].poolId}`}
+          </text>
+        )}
+
         <text
           x={x}
           y={y + 30}
-          fill="#91A2AE"
+          fill="white"
           textAnchor={x > cx ? 'start' : 'end'}
           dominantBaseline="central"
         >
@@ -1151,12 +1195,12 @@ const FarmChart = ({
         </text>
         {index === activeIndex ? (
           <foreignObject
-            x={cx - 100}
-            y={cy - 130}
-            height={`220`}
-            width={forLastRound ? '200' : `250`}
+            x={x1 + Number(width) * (cos > 0 ? -1 : 0)}
+            y={y1 + Number(height) * (sin < 0 ? 0 : -1)}
+            height={height}
+            width={width}
           >
-            <ActiveLabel />
+            <ActiveLabel activeIndex={activeIndex} />
           </foreignObject>
         ) : null}
       </g>
@@ -1187,10 +1231,13 @@ const FarmChart = ({
     const my = cy + (outerRadius + 30) * sin;
     const ex = mx + (cos >= 0 ? 1 : -1) * 30;
     const ey = my;
-    const textAnchor = cos >= 0 ? 'start' : 'end';
 
-    return (
-      <g>
+    return activeIndex === index ? (
+      <g
+        onMouseLeave={() => {
+          setActiveIndex(null);
+        }}
+      >
         <Sector
           cx={cx}
           cy={cy}
@@ -1209,6 +1256,34 @@ const FarmChart = ({
           innerRadius={innerRadius - 10}
           outerRadius={outerRadius}
           fill={'#00FFD1'}
+          stroke={'#1D2932'}
+          strokeWidth={2}
+        />
+      </g>
+    ) : (
+      <g
+        onMouseEnter={() => {
+          setActiveIndex(index);
+        }}
+      >
+        <Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={0}
+          outerRadius={innerRadius}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={color[activeIndex]}
+          opacity="0.1"
+        />
+        <Sector
+          cx={cx}
+          cy={cy}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius}
+          fill={color[activeIndex]}
           stroke={'#1D2932'}
           strokeWidth={2}
         />
@@ -1241,7 +1316,8 @@ const FarmChart = ({
                 fill={color[index]}
                 stroke="#1D2932"
                 strokeWidth={2}
-                onMouseMove={() => setActiveIndex(index)}
+                onMouseEnter={() => setActiveIndex(index)}
+                onMouseLeave={() => setActiveIndex(-1)}
               />
             );
           })}
@@ -1356,6 +1432,29 @@ const GovItemDetail = ({
   const [showAddBonus, setShowAddBonus] = useState<boolean>(false);
 
   const [showVotePop, setShowVotePop] = useState<boolean>(false);
+  const base = Math.floor(
+    Number(
+      proposal?.status === 'InProgress' ? proposal?.end_at : proposal?.start_at
+    ) / TIMESTAMP_DIVISOR
+  );
+  const baseCounterDown = durationFomatter(
+    moment.duration(base - moment().unix(), 'seconds')
+  );
+  const [counterDownStirng, setCounterDownStirng] =
+    useState<string>(baseCounterDown);
+
+  useEffect(() => {
+    const baseCounterDown = durationFomatter(
+      moment.duration(base - moment().unix(), 'seconds')
+    );
+    setCounterDownStirng(baseCounterDown);
+  }, [base]);
+
+  useCounterDownVE({
+    base,
+    setCounterDownStirng,
+    id: proposal?.id,
+  });
 
   const history = useHistory();
 
@@ -1416,13 +1515,7 @@ const GovItemDetail = ({
                     : 'text-gradientFrom'
                 }`}
               >
-                {durationFomatter(
-                  moment.duration(
-                    Math.floor(Number(proposal.end_at) / TIMESTAMP_DIVISOR) -
-                      moment().unix(),
-                    'seconds'
-                  )
-                )}
+                {counterDownStirng}
               </span>
             </div>
           )}
@@ -2755,9 +2848,9 @@ export const FarmProposal = ({
           <span className="col-span-3 pl-4 flex items-center">
             <Images tokens={tokens} size={'9'} />
             <span className="pr-2.5"></span>
-            <div className="flex">
+            <div className="flex flex-col font-bold">
               <Symbols tokens={tokens} seperator={'-'} />
-              <span className="ml-1">
+              <span className="text-sm text-primaryText font-normal">
                 {`#${
                   farmProposal.kind.FarmingReward.farm_list[index].split(
                     seedIdSeparator

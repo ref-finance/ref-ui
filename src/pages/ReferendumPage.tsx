@@ -198,91 +198,101 @@ export const RewardCard = ({
   };
 
   return (
-    <div className="px-3 pt-3 -top-3 rounded-lg bg-veGradient flex flex-col w-80 absolute left-1/2 transform -translate-x-1/2 text-sm z-50">
-      <div
-        className="flex items-center pb-4 relative  cursor-pointer "
-        onClick={() => setShowDetail(!showDetail)}
-      >
-        <span className="mr-2">
-          <GiftIcon />
-        </span>
+    <>
+      <div className="px-3 pt-3 -top-3 rounded-lg bg-veGradient flex flex-col w-80 absolute left-1/2 transform -translate-x-1/2 text-sm z-50">
+        <div
+          className="flex items-center pb-4 relative  cursor-pointer "
+          onClick={() => setShowDetail(!showDetail)}
+        >
+          <span className="mr-2">
+            <GiftIcon />
+          </span>
 
-        <span>
-          {Object.keys(rewardList)?.length}{' '}
-          <FormattedMessage
-            id="rewards to be withdraw"
-            defaultMessage="rewards to be withdraw"
-          />
-          !
-        </span>
+          <span>
+            {Object.keys(rewardList)?.length}{' '}
+            <FormattedMessage
+              id="rewards to be withdraw"
+              defaultMessage="rewards to be withdraw"
+            />
+            !
+          </span>
 
-        <button className="pl-1 text-sm absolute right-0">
-          {showDetail ? <FaAngleUp /> : <FaAngleDown />}
-        </button>
-      </div>
-      {!showDetail ? null : (
-        <>
-          <div className="bg-chartBg bg-opacity-50 rounded-lg p-4 mb-2">
-            {tokens?.map((token, i) => {
-              return <RewardRow id={token.id} token={token} index={i} />;
-            })}
-          </div>
+          <button className="pl-1 text-sm absolute right-0">
+            {showDetail ? <FaAngleUp /> : <FaAngleDown />}
+          </button>
+        </div>
+        {!showDetail ? null : (
+          <>
+            <div className="bg-chartBg bg-opacity-50 rounded-lg p-4 mb-2">
+              {tokens?.map((token, i) => {
+                return <RewardRow id={token.id} token={token} index={i} />;
+              })}
+            </div>
 
-          <div className="flex items-center justify-between pb-4">
-            <button
-              className={`mr-2  flex items-center justify-center`}
-              onClick={() => {
-                checkList?.length === tokenIds?.length
-                  ? setCheckList([])
-                  : setCheckList(tokenIds);
-              }}
-            >
+            <div className="flex items-center justify-between pb-4">
               <button
-                className={`mr-2 h-4 w-4 rounded bg-opacity-30 flex items-center justify-center ${
-                  tokens?.length > 0 &&
-                  tokens?.every((token) => checkList.includes(token.id))
-                    ? 'bg-black'
-                    : 'bg-white'
-                }`}
+                className={`mr-2  flex items-center justify-center`}
+                onClick={() => {
+                  checkList?.length === tokenIds?.length
+                    ? setCheckList([])
+                    : setCheckList(tokenIds);
+                }}
               >
-                {tokens?.length > 0 &&
-                tokens?.every((token) => checkList.includes(token.id)) ? (
-                  <RewardCheck />
-                ) : null}
+                <button
+                  className={`mr-2 h-4 w-4 rounded bg-opacity-30 flex items-center justify-center ${
+                    tokens?.length > 0 &&
+                    tokens?.every((token) => checkList.includes(token.id))
+                      ? 'bg-black'
+                      : 'bg-white'
+                  }`}
+                >
+                  {tokens?.length > 0 &&
+                  tokens?.every((token) => checkList.includes(token.id)) ? (
+                    <RewardCheck />
+                  ) : null}
+                </button>
+
+                <span className="">
+                  <FormattedMessage id="all" defaultMessage={'all'} />
+                </span>
               </button>
 
-              <span className="">
-                <FormattedMessage id="all" defaultMessage={'all'} />
-              </span>
-            </button>
-
-            <button
-              className=" py-1.5 w-24 text-center bg-black bg-opacity-30 rounded-lg"
-              onClick={() => {
-                setLoading(true);
-                withdrawRewardVE({
-                  token_ids: checkList,
-                  rewardList: rewardList,
-                });
-              }}
-              disabled={!checkList?.length}
-            >
-              <ButtonTextWrapper
-                Text={() => {
-                  return (
-                    <FormattedMessage
-                      id="withdraw"
-                      defaultMessage={'withdraw'}
-                    />
-                  );
+              <button
+                className=" py-1.5 w-24 text-center bg-black bg-opacity-30 rounded-lg"
+                onClick={() => {
+                  setLoading(true);
+                  withdrawRewardVE({
+                    token_ids: checkList,
+                    rewardList: rewardList,
+                  });
                 }}
-                loading={loading}
-              />
-            </button>
-          </div>
-        </>
+                disabled={!checkList?.length}
+              >
+                <ButtonTextWrapper
+                  Text={() => {
+                    return (
+                      <FormattedMessage
+                        id="withdraw"
+                        defaultMessage={'withdraw'}
+                      />
+                    );
+                  }}
+                  loading={loading}
+                />
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+      {!showDetail ? null : (
+        <div
+          className="fixed w-screen h-screen top-0 left-0 right-0 bottom-0 bg-cardBg bg-opacity-30 z-30"
+          onClick={() => {
+            setShowDetail(false);
+          }}
+        ></div>
       )}
-    </div>
+    </>
   );
 };
 
