@@ -1959,7 +1959,7 @@ function UserStakeBlock(props: {
           {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? (
             <div className="flex justify-between items-center xs:flex-col md:flex-col">
               {isEnded ? null : (
-                <div className="flex justify-center text-farmText text-sm xs:mb-3 md:mb-3">
+                <div className="flex justify-start flex-wrap text-farmText text-sm xs:mb-3 md:mb-3">
                   <FormattedMessage id="you_have" />{' '}
                   <label className="text-white mx-1">
                     {displayLpBalance()}
@@ -1995,7 +1995,7 @@ function UserStakeBlock(props: {
           ) : (
             <>
               {isEnded ? null : (
-                <div className="flex justify-center text-farmText text-sm mb-4">
+                <div className="flex flex-wrap justify-start text-farmText text-sm mb-4">
                   <FormattedMessage id="you_have" />{' '}
                   <label className="text-white mx-1">
                     {displayLpBalance()}
