@@ -2465,7 +2465,12 @@ export const LastRoundFarmVoting = (
       )
     : farmProposal?.kind?.FarmingReward?.farm_list?.map((_, i) => '0');
 
-  const checkedRatios = checkAllocations('100', displayRatios);
+  const checkedRatios = checkAllocations(
+    ONLY_ZEROS.test(scientificNotationToString(votedVE.toString()))
+      ? '0'
+      : '100',
+    displayRatios
+  );
 
   const displayVELPT = farmProposal?.votes.map((vote) =>
     toPrecision(toReadableNumber(LOVE_TOKEN_DECIMAL, vote), 2, false)
@@ -2482,7 +2487,12 @@ export const LastRoundFarmVoting = (
     displayVELPT
   );
 
-  const allocations = checkAllocations('100', displayRatios).map((r) => {
+  const allocations = checkAllocations(
+    ONLY_ZEROS.test(scientificNotationToString(votedVE.toString()))
+      ? '0'
+      : '100',
+    displayRatios
+  ).map((r) => {
     return toPrecision(
       multiply(
         divide(r, '100').toString(),
@@ -2493,7 +2503,9 @@ export const LastRoundFarmVoting = (
   });
 
   const checkedAllocations = checkAllocations(
-    farmProposal?.kind?.FarmingReward?.total_reward.toString(),
+    ONLY_ZEROS.test(scientificNotationToString(votedVE.toString()))
+      ? '0'
+      : farmProposal?.kind?.FarmingReward?.total_reward.toString(),
     allocations
   );
   const supplyPercent = votedVE
@@ -2743,7 +2755,9 @@ export const FarmProposal = ({
     : farmProposal?.kind?.FarmingReward?.farm_list?.map((_, i) => '0');
 
   const checkedRatios = checkAllocations(
-    farmProposal.status === 'WarmUp' ? '0' : '100',
+    ONLY_ZEROS.test(scientificNotationToString(votedVE.toString()))
+      ? '0'
+      : '100',
     displayRatios
   );
 
@@ -2763,7 +2777,9 @@ export const FarmProposal = ({
   );
 
   const allocations = checkAllocations(
-    farmProposal.status === 'WarmUp' ? '0' : '100',
+    ONLY_ZEROS.test(scientificNotationToString(votedVE.toString()))
+      ? '0'
+      : '100',
     displayRatios
   ).map((r) => {
     return toPrecision(
@@ -2776,7 +2792,7 @@ export const FarmProposal = ({
   });
 
   const checkedAllocations = checkAllocations(
-    farmProposal?.status === 'WarmUp'
+    ONLY_ZEROS.test(scientificNotationToString(votedVE.toString()))
       ? '0'
       : farmProposal?.kind?.FarmingReward?.total_reward.toString(),
     allocations
