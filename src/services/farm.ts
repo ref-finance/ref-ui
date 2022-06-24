@@ -912,6 +912,20 @@ export const getBoostSeedsFromServer = async (): Promise<{
     return null;
   }
 };
+
+export const getVeSeedShare = async (): Promise<any> => {
+  // REF_VE_CONTRACT_ID
+  return await fetch(
+    config.sodakiApiUrl + `/seed/v2.ref-finance.near@79/accounts`,
+    {
+      method: 'GET',
+    }
+  )
+    .then((res) => res.json())
+    .then((res) => {
+      return res;
+    });
+};
 export interface Seed {
   min_deposit: string;
   min_locking_duration_sec: number;

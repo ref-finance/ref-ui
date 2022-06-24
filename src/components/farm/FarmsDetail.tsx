@@ -34,6 +34,7 @@ import {
   force_unlock,
   BoostConfig,
   UserSeedInfo,
+  getVeSeedShare,
 } from '~services/farm';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import {
@@ -256,6 +257,7 @@ function StakeContainer(props: {
   const [showAddLiquidityEntry, setShowAddLiquidityEntry] = useState(false);
   const [calcVisible, setCalcVisible] = useState(false);
   const [dayVolume, setDayVolume] = useState('');
+  const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
   const {
     detailData,
     tokenPriceList,
@@ -413,7 +415,19 @@ function StakeContainer(props: {
   }
   useEffect(() => {
     getPoolFee();
+    get_ve_seed_share();
   }, []);
+  async function get_ve_seed_share() {
+    const result = await getVeSeedShare();
+    const maxShareObj = result?.accounts?.accounts[0];
+    const amount = maxShareObj?.amount;
+    if (amount) {
+      const amountStr = new BigNumber(amount).toFixed().toString();
+      // const amountStr_readable = toReadableNumber(LOVE_TOKEN_DECIMAL, amountStr);
+      const amountStr_readable = toReadableNumber(24, amountStr);
+      setMaxLoveShareAmount(amountStr_readable);
+    }
+  }
   useEffect(() => {
     getStakeBalance();
   }, [Object.keys(user_seeds_map).length, user_data_loading]);
@@ -442,12 +456,21 @@ function StakeContainer(props: {
     }
   };
   function getTotalApr(containPoolFee: boolean = true) {
-    const farms = detailData.farmList;
-    let apr = 0;
     let day24Volume = 0;
     if (containPoolFee) {
       day24Volume = +getPoolFeeApr(dayVolume);
     }
+    let apr = getActualTotalApr();
+    if (apr == 0 && day24Volume == 0) {
+      return '-';
+    } else {
+      apr = +new BigNumber(apr).multipliedBy(100).plus(day24Volume).toFixed();
+      return toPrecision(apr.toString(), 2) + '%';
+    }
+  }
+  function getActualTotalApr() {
+    const farms = detailData.farmList;
+    let apr = 0;
     const allPendingFarms = isPending();
     farms.forEach(function (item: FarmBoost) {
       const pendingFarm = item.status == 'Created' || item.status == 'Pending';
@@ -455,12 +478,7 @@ function StakeContainer(props: {
         apr = +new BigNumber(apr).plus(item.apr).toFixed();
       }
     });
-    if (apr == 0 && day24Volume == 0) {
-      return '-';
-    } else {
-      apr = +new BigNumber(apr).multipliedBy(100).plus(day24Volume).toFixed();
-      return toPrecision(apr.toString(), 2) + '%';
-    }
+    return apr;
   }
   function getPoolFeeApr(dayVolume: string) {
     let result = '0';
@@ -598,6 +616,36 @@ function StakeContainer(props: {
     const farms = detailData.farmList;
     return farms[0].status == 'Ended';
   }
+  function getAprUpperLimit() {
+    if (!boostConfig || !maxLoveShareAmount) return '';
+    const { affected_seeds } = boostConfig;
+    const { seed_id } = detailData;
+    const base = affected_seeds[seed_id];
+    let rate;
+    if (+maxLoveShareAmount < 1) {
+      rate = 1;
+    } else {
+      rate = new BigNumber(1)
+        .plus(Math.log(+maxLoveShareAmount) / Math.log(base))
+        .toFixed();
+    }
+    const apr = getActualTotalApr();
+    let boostApr;
+    if (apr) {
+      boostApr = new BigNumber(apr).multipliedBy(rate);
+    }
+    if (boostApr && +boostApr > 0) {
+      const r = +new BigNumber(boostApr).multipliedBy(100).toFixed();
+      return (
+        <span>
+          <label className="mx-0.5">~</label>
+          {toPrecision(r.toString(), 2) + '%'}
+        </span>
+      );
+    }
+    return '';
+  }
+  const aprUpLimit = getAprUpperLimit();
   return (
     <div className="mt-5">
       <div
@@ -644,8 +692,13 @@ function StakeContainer(props: {
               data-for={'aprId' + detailData.farmList[0].farm_id}
               data-class="reactTip"
             >
-              <span className="text-white text-base mt-2.5">
-                {getTotalApr()}
+              <span
+                className={`flex items-center flex-wrap justify-center text-white text-base mt-2.5 text-right`}
+              >
+                <label className={`${aprUpLimit ? 'text-xs' : 'text-sm'}`}>
+                  {getTotalApr()}
+                </label>
+                {aprUpLimit}
               </span>
               <ReactTooltip
                 id={'aprId' + detailData.farmList[0].farm_id}

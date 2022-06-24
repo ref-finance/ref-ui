@@ -58,6 +58,7 @@ import {
   getBoostTokenPrices,
   getBoostSeeds,
   useMigrate_user_data,
+  getVeSeedShare,
 } from '~services/farm';
 import { getLoveAmount } from '~services/referendum';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
@@ -235,6 +236,7 @@ export default function FarmsHome(props: any) {
   const [globalConfigLoading, setGlobalConfigLoading] = useState<boolean>(true);
   const [userDataLoading, setUserDataLoading] = useState<boolean>(true);
   const [boostInstructions, setBoostInstructions] = useState<boolean>(false);
+  const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
   const location = useLocation();
   const history = useHistory();
   /** search area options end **/
@@ -244,6 +246,7 @@ export default function FarmsHome(props: any) {
     get_user_unWithDraw_rewards();
     get_user_seeds_and_unClaimedRewards();
     getLoveTokenBalance();
+    get_ve_seed_share();
   }, [isSignedIn]);
   useEffect(() => {
     if (count > 0) {
@@ -258,6 +261,17 @@ export default function FarmsHome(props: any) {
       clearInterval(intervalId);
     };
   }, [count]);
+  async function get_ve_seed_share() {
+    const result = await getVeSeedShare();
+    const maxShareObj = result?.accounts?.accounts[0];
+    const amount = maxShareObj?.amount;
+    if (amount) {
+      const amountStr = new BigNumber(amount).toFixed().toString();
+      // const amountStr_readable = toReadableNumber(LOVE_TOKEN_DECIMAL, amountStr);
+      const amountStr_readable = toReadableNumber(24, amountStr);
+      setMaxLoveShareAmount(amountStr_readable);
+    }
+  }
   async function getLoveTokenBalance() {
     // get LoveToken balance
     if (isSignedIn) {
@@ -1357,6 +1371,7 @@ export default function FarmsHome(props: any) {
                     user_unclaimed_token_meta_map={
                       user_unclaimed_token_meta_map
                     }
+                    maxLoveShareAmount={maxLoveShareAmount}
                   ></FarmView>
                 </div>
               );
@@ -1413,6 +1428,7 @@ export default function FarmsHome(props: any) {
                       user_unclaimed_token_meta_map={
                         user_unclaimed_token_meta_map
                       }
+                      maxLoveShareAmount={maxLoveShareAmount}
                     ></FarmView>
                   </div>
                 );
@@ -1923,6 +1939,7 @@ function FarmView(props: {
   user_seeds_map: Record<string, UserSeedInfo>;
   user_unclaimed_map: Record<string, any>;
   user_unclaimed_token_meta_map: Record<string, any>;
+  maxLoveShareAmount: string;
 }) {
   const {
     seed,
@@ -1934,6 +1951,7 @@ function FarmView(props: {
     user_seeds_map,
     user_unclaimed_map,
     user_unclaimed_token_meta_map,
+    maxLoveShareAmount,
   } = props;
   const { pool, seedTvl, total_seed_amount, seed_id } = seed;
   const { globalState } = useContext(WalletContext);
@@ -1949,6 +1967,19 @@ function FarmView(props: {
   const intl = useIntl();
 
   function getTotalApr(containPoolFee: boolean = true) {
+    let dayVolume = 0;
+    if (containPoolFee) {
+      dayVolume = +getPoolFeeApr(dayVolumeMap[seed.pool.id]);
+    }
+    let apr = getActualTotalApr();
+    if (apr == 0 && dayVolume == 0) {
+      return '-';
+    } else {
+      apr = +new BigNumber(apr).multipliedBy(100).plus(dayVolume).toFixed();
+      return toPrecision(apr.toString(), 2) + '%';
+    }
+  }
+  function getActualTotalApr() {
     const farms = seed.farmList;
     let apr = 0;
     const allPendingFarms = isPending();
@@ -1958,16 +1989,7 @@ function FarmView(props: {
         apr = +new BigNumber(apr).plus(item.apr).toFixed();
       }
     });
-    let dayVolume = 0;
-    if (containPoolFee) {
-      dayVolume = +getPoolFeeApr(dayVolumeMap[seed.pool.id]);
-    }
-    if (apr == 0 && dayVolume == 0) {
-      return '-';
-    } else {
-      apr = +new BigNumber(apr).multipliedBy(100).plus(dayVolume).toFixed();
-      return toPrecision(apr.toString(), 2) + '%';
-    }
+    return apr;
   }
   function getAllRewardsSymbols() {
     const tempMap = {};
@@ -2344,6 +2366,37 @@ function FarmView(props: {
     }
     return '';
   }
+  function getAprUpperLimit() {
+    if (!boostConfig || !maxLoveShareAmount) return '';
+    const { affected_seeds } = boostConfig;
+    const { seed_id } = seed;
+    const base = affected_seeds[seed_id];
+    let rate;
+    if (+maxLoveShareAmount < 1) {
+      rate = 1;
+    } else {
+      rate = new BigNumber(1)
+        .plus(Math.log(+maxLoveShareAmount) / Math.log(base))
+        .toFixed();
+    }
+    const apr = getActualTotalApr();
+    let boostApr;
+    if (apr) {
+      boostApr = new BigNumber(apr).multipliedBy(rate);
+    }
+    if (boostApr && +boostApr > 0) {
+      const r = +new BigNumber(boostApr).multipliedBy(100).toFixed();
+      return (
+        <span>
+          <label className="mx-0.5">~</label>
+          {toPrecision(r.toString(), 2) + '%'}
+        </span>
+      );
+    }
+    return '';
+  }
+  const isHaveUnclaimedReward = haveUnclaimedReward();
+  const aprUpLimit = getAprUpperLimit();
   return (
     <>
       <div
@@ -2430,55 +2483,68 @@ function FarmView(props: {
             ) : null}
           </div>
           <div className="flex items-center justify-between px-5 py-4 h-24">
-            <div className="flex flex-col items-center">
-              <label className="text-farmText text-sm">
-                <FormattedMessage id="total_staked"></FormattedMessage>
-              </label>
-              <label className="text-white text-base mt-1.5">
-                {`${
-                  Number(seed.seedTvl) == 0
-                    ? '-'
-                    : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`
-                }`}
-              </label>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="flex items-center">
-                <CalcIcon
-                  onClick={(e: any) => {
-                    e.stopPropagation();
-                    setCalcVisible(true);
-                  }}
-                  className="mr-1.5 cursor-pointer"
-                />
+            <div className="flex items-start justify-between w-full">
+              <div className="flex flex-col items-center flex-shrink-0">
                 <label className="text-farmText text-sm">
-                  <FormattedMessage id="apr"></FormattedMessage>
+                  <FormattedMessage id="total_staked"></FormattedMessage>
                 </label>
-              </span>
+                <label className="text-white text-base mt-1.5">
+                  {`${
+                    Number(seed.seedTvl) == 0
+                      ? '-'
+                      : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`
+                  }`}
+                </label>
+              </div>
               <div
-                className="text-xl text-white"
-                data-type="info"
-                data-place="top"
-                data-multiline={true}
-                data-tip={getAprTip()}
-                data-html={true}
-                data-for={'aprId' + seed.farmList[0].farm_id}
-                data-class="reactTip"
+                className={`flex flex-col ${
+                  isHaveUnclaimedReward ? 'items-center' : 'items-end'
+                } justify-center`}
               >
-                <span className="text-white text-base mt-1.5">
-                  {getTotalApr()}
+                <span className="flex items-center">
+                  <CalcIcon
+                    onClick={(e: any) => {
+                      e.stopPropagation();
+                      setCalcVisible(true);
+                    }}
+                    className="mr-1.5 cursor-pointer"
+                  />
+                  <label className="text-farmText text-sm">
+                    <FormattedMessage id="apr"></FormattedMessage>
+                  </label>
                 </span>
-                <ReactTooltip
-                  id={'aprId' + seed.farmList[0].farm_id}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
+                <div
+                  className="text-xl text-white"
+                  data-type="info"
+                  data-place="top"
+                  data-multiline={true}
+                  data-tip={getAprTip()}
+                  data-html={true}
+                  data-for={'aprId' + seed.farmList[0].farm_id}
+                  data-class="reactTip"
+                >
+                  <span
+                    className={`flex items-center flex-wrap justify-center text-white text-base mt-1.5 ${
+                      isHaveUnclaimedReward ? 'text-center mx-2' : 'text-right'
+                    }`}
+                  >
+                    <label className={`${aprUpLimit ? 'text-xs' : 'text-sm'}`}>
+                      {getTotalApr()}
+                    </label>
+                    {aprUpLimit}
+                  </span>
+                  <ReactTooltip
+                    id={'aprId' + seed.farmList[0].farm_id}
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
+                </div>
               </div>
             </div>
-            {haveUnclaimedReward() ? (
-              <div className="flex flex-col items-center">
+            {isHaveUnclaimedReward ? (
+              <div className="flex flex-col items-center flex-shrink-0">
                 <div
                   className="text-xl text-white"
                   data-type="info"
