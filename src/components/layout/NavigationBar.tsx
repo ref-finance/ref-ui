@@ -137,7 +137,7 @@ function Anchor({
       } ${name === 'Risks' ? 'lg:hidden lg2:block' : ''}`}
     >
       <h2
-        className={`link hover:text-white text-lg font-bold py-4 cursor-pointer relative z-10 ${className} ${
+        className={`link hover:text-white text-lg font-normal py-4 cursor-pointer relative z-10 ${className} ${
           isSelected ? 'text-greenColor' : 'text-gray-400'
         }`}
       >
