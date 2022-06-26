@@ -18,7 +18,7 @@ export function BorderlessButton(
   return (
     <button
       disabled={disabled}
-      className={`rounded-xl border border-greenLight focus:outline-none font-semibold focus:outline-none ${props.className}`}
+      className={`rounded-xl border border-greenLight focus:outline-none font-semibold  ${props.className}`}
       {...props}
     >
       {props.children}
@@ -108,7 +108,7 @@ export function WithdrawButton(
   return (
     <button
       disabled={disabled}
-      className={`rounded-full text-xs px-3 py-1.5 focus:outline-none font-semibold focus:outline-none bg-white text-green-700 ${className} ${
+      className={`rounded-full text-xs px-3 py-1.5 focus:outline-none font-semibold  bg-white text-green-700 ${className} ${
         disabled ? 'bg-opacity-50 disabled:cursor-not-allowed' : ''
       }`}
       {...propsWithoutClassName}
@@ -502,6 +502,7 @@ export function NewGradientButton(porps: {
   beatStyling?: boolean;
   opacity?: boolean;
   padding?: string;
+  gradient?: string;
 }) {
   const {
     text,
@@ -514,6 +515,7 @@ export function NewGradientButton(porps: {
     beatStyling,
     opacity,
     padding,
+    gradient,
   } = porps;
 
   const [beating, setBeating] = useState<boolean>(false);
@@ -521,7 +523,7 @@ export function NewGradientButton(porps: {
   return (
     <button
       className={`  ${
-        grayDisable ? 'opacity-30' : 'bg-veGradient'
+        grayDisable ? 'opacity-30' : gradient || 'bg-veGradient'
       } ${width} ${className}  ${
         disabled || beating
           ? 'opacity-30 cursor-not-allowed'
@@ -540,6 +542,58 @@ export function NewGradientButton(porps: {
       }}
     >
       <span>{beating ? <BeatLoading /> : text}</span>
+    </button>
+  );
+}
+
+export function FarmProposalGrayButton(porps: {
+  text: string | JSX.Element;
+  onClick?: any;
+  className?: string;
+  disabled?: boolean;
+  grayDisable?: boolean;
+  disableForUI?: boolean;
+  width?: string;
+  beatStyling?: boolean;
+  opacity?: boolean;
+  padding?: string;
+}) {
+  const {
+    text,
+    onClick,
+    className,
+    disabled,
+    grayDisable,
+    disableForUI,
+    width,
+    beatStyling,
+    padding,
+  } = porps;
+
+  const [beating, setBeating] = useState<boolean>(false);
+
+  return (
+    <button
+      className={`cursor-not-allowed  ${
+        grayDisable ? 'opacity-30' : 'bg-white bg-opacity-10'
+      } ${width} ${className}  ${
+        disabled || beating ? 'opacity-30 ' : 'opacity-80 '
+      } ${padding ? padding : 'px-5 py-3'} rounded-lg text-center   `}
+      onClick={(e) => {
+        if (beatStyling) {
+          setBeating(true);
+        }
+
+        onClick && onClick(e);
+      }}
+      disabled={disableForUI ? false : disabled || grayDisable}
+      style={{
+        backgroundColor: grayDisable ? '#445867' : '',
+      }}
+    >
+      <span className="text-white opacity-30">
+        {beating ? <BeatLoading /> : text}
+      </span>
     </button>
   );
 }
@@ -755,3 +809,13 @@ export function BlacklightConnectToNearBtn(props: any) {
     </>
   );
 }
+
+export const YouVotedButton = () => {
+  return (
+    <NewGradientButton
+      className=" text-white text-sm self-start cursor-default opacity-100 h-6"
+      text={<FormattedMessage id="you_voted" defaultMessage={'You voted'} />}
+      padding="px-2 py-0"
+    />
+  );
+};

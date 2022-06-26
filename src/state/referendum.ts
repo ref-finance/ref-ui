@@ -171,6 +171,7 @@ export interface VEMETA {
   cur_total_ve_lpt: string;
   cur_lock_lpt: string;
   lostfound: string;
+  whitelisted_incentive_tokens: string[];
 }
 
 export const useVEconfig = () => {
@@ -260,6 +261,8 @@ export const useUnclaimedProposal = () => {
 
     getUnclaimedProposal().then(setRecord);
   }, [isSignedIn]);
+
+  console.log('record', record);
 
   return record;
 };

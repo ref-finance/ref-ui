@@ -572,3 +572,90 @@ export default function SelectToken({
     </MicroModal>
   );
 }
+
+export const SelectTokenForList = ({
+  onSelect,
+  tokens,
+  selected,
+}: {
+  tokens: TokenMetadata[];
+  onSelect?: (token: TokenMetadata) => void;
+  selected: string | React.ReactElement;
+}) => {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (visible)
+      document.addEventListener('click', () => {
+        setVisible(false);
+      });
+  }, [visible]);
+
+  return (
+    <div className="w-2/5 left-0 outline-none my-auto relative overflow-visible">
+      <div
+        className={`w-full relative `}
+        onClick={(e) => {
+          e.nativeEvent.stopImmediatePropagation();
+          setVisible(!visible);
+        }}
+      >
+        {selected}
+      </div>
+      <div
+        className={` rounded-2xl left-0 flex flex-col w-56 top-12 py-3 ${
+          visible ? 'block' : 'hidden'
+        } absolute`}
+        style={{
+          background:
+            getExplorer() === 'Firefox' ? '#323E46' : 'rgba(58,69,77,0.6)',
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
+          border: '1px solid #415462',
+          zIndex: 999,
+          right: 0,
+        }}
+      >
+        <div className={`flex flex-col`}>
+          {tokens.map((token) => {
+            return (
+              <div
+                key={`${token.id}`}
+                className={`flex items-center justify-between hover:bg-black hover:bg-opacity-20 cursor-pointer py-2 pl-4 pr-2 mx-3 mt-3 rounded-2xl `}
+                onClick={(e) => {
+                  e.nativeEvent.stopImmediatePropagation();
+                  onSelect(token);
+                  setVisible(!visible);
+                }}
+              >
+                <span className="text-white font-semibold text-sm">
+                  {toRealSymbol(token.symbol)}
+                </span>
+                <span>
+                  {token.icon ? (
+                    <img
+                      className="rounded-full border border-gradientFromHover"
+                      src={token.icon}
+                      style={{
+                        width: '26px',
+                        height: '26px',
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className="rounded-full border border-gradientFromHover"
+                      style={{
+                        width: '26px',
+                        height: '26px',
+                      }}
+                    ></div>
+                  )}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};

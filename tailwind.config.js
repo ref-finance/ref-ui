@@ -25,10 +25,13 @@ module.exports = {
       backgroundImage: (theme) => ({
         farmSearch: 'linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)',
         veCardGradient: 'linear-gradient(0deg, #001320 -2.77%, #1D2932 100%)',
+        redGradient: 'linear-gradient(270deg, #7F43FF 0%, #FF8B8B 97.06%)',
+        veCardGradientRight:
+          'linear-gradient(270deg, #001320 0%, #1D2932 95.06%)',
         veUserCard: 'linear-gradient(270deg, #001320 0%, #1D2932 95.06%);',
         veVotingPowerCard: 'linear-gradient(90deg, #00FFD1 0%, #009277 100%)',
         veFarmBoostCard: 'linear-gradient(90deg, #7C47FD 0%, #34177C 100%)',
-        veGradient: 'linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%);',
+        veGradient: 'linear-gradient(270deg, #7F43FF 0%, #00977C 97.06%);',
         stableTab: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         primaryGradient: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         buttonGradientBg: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',

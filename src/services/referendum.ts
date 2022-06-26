@@ -35,11 +35,14 @@ export interface LockOptions {
   leftTime?: number;
 }
 
+export interface IncentiveItem {
+  incentive_token_ids: string[];
+  incentive_amounts: string[];
+  claimed_amounts: string;
+}
+
 export type Incentive = {
-  incentive_type: 'Evenly' | 'Proportion';
-  incentive_token_id: string;
-  incentive_amount: string;
-  claimed_amount: string;
+  [index: string]: IncentiveItem;
 };
 
 export interface Proposal {
@@ -50,21 +53,27 @@ export interface Proposal {
       total_reward: number;
     };
     Poll?: {
-      description?: string;
       options?: string[];
+      description?: string;
     };
     Common?: {
       description?: string;
     };
   };
   votes: string[];
+  votesDetail: {
+    total_ballots: string;
+    participants: number;
+  }[];
   start_at: string;
   end_at: string;
+  description: string;
   participants: string;
-  incentive: null | Incentive;
+  incentive: {} | Incentive;
   status: 'WarmUp' | 'InProgress' | 'Expired';
   is_nonsense: null;
   id?: number;
+  ve_amount_at_last_action: string;
 }
 
 export type VoteAction = {
@@ -217,12 +226,15 @@ export const createProposal = async ({
   start: number;
 }) => {
   const args = {
-    kind: {
-      [kind]: {
-        description: JSON.stringify(description),
-        options,
-      },
-    },
+    kind:
+      kind === 'Common'
+        ? 'Common'
+        : {
+            [kind]: {
+              options,
+            },
+          },
+    description: JSON.stringify(description),
     start_at: start,
     duration_sec,
   };
@@ -246,15 +258,52 @@ export const createProposal = async ({
 export const getProposalList = () => {
   return refVeViewFunction({
     methodName: 'list_proposals',
+  }).then((reslist: any) => {
+    console.log(reslist);
+    return reslist.map((res: any) => {
+      if (res?.kind?.Poll) {
+        res.kind.Poll.description = res.description;
+      }
+      if (res?.kind === 'Common') {
+        res.kind = {
+          Common: {
+            description: res.description,
+          },
+        };
+      }
+
+      return {
+        ...res,
+        votesDetail: res.votes,
+        votes: res.votes.map((v: any) => v.total_ballots),
+      };
+    });
   });
 };
 
-export const getProposal = (proposal_id: number) => {
+export const getProposal = async (proposal_id: number) => {
   return refVeViewFunction({
     methodName: 'get_proposal',
     args: {
       proposal_id,
     },
+  }).then((res: any) => {
+    if (res?.kind?.Poll) {
+      res.kind.Poll.description = res.description;
+    }
+    if (res?.kind === 'Common') {
+      res.kind = {
+        Common: {
+          description: res.description,
+        },
+      };
+    }
+
+    return {
+      ...res,
+      votesDetail: res.votes,
+      votes: res.votes.map((v: any) => v.total_ballots),
+    };
   });
 };
 
@@ -277,8 +326,6 @@ export const getVoteDetailHistory = () => {
 };
 
 export const getUnclaimedProposal = () => {
-  console.log(getCurrentWallet().wallet.getAccountId(), 'un pro');
-
   return refVeViewFunction({
     methodName: 'get_unclaimed_proposal',
     args: { account_id: getCurrentWallet().wallet.getAccountId() },
@@ -385,19 +432,19 @@ export const VoteCommon = async ({
 export const addBonus = async ({
   tokenId,
   amount,
-  incentive_type,
+  incentive_key,
   proposal_id,
 }: {
   tokenId: string;
   amount: string;
-  incentive_type: 'Evenly' | 'Proportion';
+  incentive_key: number;
   proposal_id: number;
 }) => {
   const tokenMeta = await ftGetTokenMetadata(tokenId);
 
   const msg = JSON.stringify({
     Reward: {
-      incentive_type,
+      incentive_key,
       proposal_id,
     },
   });
@@ -513,6 +560,25 @@ export const claimAndWithdrawAll = async () => {
       functionCalls: [
         {
           methodName: 'claim_and_withdraw_all',
+          gas: '180000000000000',
+          amount: ONE_YOCTO_NEAR,
+        },
+      ],
+    },
+  ];
+  return executeMultipleTransactions(transactions);
+};
+
+export const removeProposal = async (proposal_id: number) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_VE_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'remove_proposal',
+          args: {
+            proposal_id,
+          },
           gas: '180000000000000',
           amount: ONE_YOCTO_NEAR,
         },

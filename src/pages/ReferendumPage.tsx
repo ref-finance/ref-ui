@@ -87,6 +87,7 @@ import { useVEmeta, useVEconfig } from '../state/referendum';
 import { QuestionTip } from '../components/layout/TipWrapper';
 import QuestionMark from '../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
+import { createContext } from 'react';
 
 export interface AccountInfo {
   duration_sec: number;
@@ -123,7 +124,8 @@ export const RewardCard = ({
   const tokenIds = rewardList.map(({ tokenId }) => tokenId);
 
   const tokens = useTokens(tokenIds);
-  const tokenPriceList = useTokenPriceList();
+  const tokenPriceList = useContext(ReferendumPageContext).tokenPriceList;
+
   const [checkList, setCheckList] = useState<string[]>([]);
 
   const [showDetail, setShowDetail] = useState<boolean>(false);
@@ -211,8 +213,8 @@ export const RewardCard = ({
           <span>
             {Object.keys(rewardList)?.length}{' '}
             <FormattedMessage
-              id="rewards to be withdraw"
-              defaultMessage="rewards to be withdraw"
+              id="bonus to be withdraw"
+              defaultMessage="bonus to be withdraw"
             />
             !
           </span>
@@ -1177,9 +1179,14 @@ const VotingPowerCard = ({
   const allZeros = ONLY_ZEROS.test(veShare) && ONLY_ZEROS.test(lpShare);
 
   return (
-    <div className="rounded-2xl bg-veVotingPowerCard flex p-6 font-bold text-black ml-5 mb-2 h-52">
-      <div className="flex flex-col">
-        <span>
+    <div
+      className="rounded-2xl bg-veVotingPowerCard flex py-4 px-5 font-bold text-black ml-5 h-1/2 mb-2"
+      style={{
+        width: '350px',
+      }}
+    >
+      <div className="flex flex-col justify-between">
+        <span className="whitespace-nowrap">
           <FormattedMessage id="voting_power" defaultMessage={'Voting Power'} />
         </span>
 
@@ -1187,40 +1194,15 @@ const VotingPowerCard = ({
           <span title={veShare} className="flex items-center">
             {allZeros ? (
               <>
-                <LeftArrowVE />
-
-                <div
-                  className="ml-1 text-xs"
-                  data-type="info"
-                  data-place="right"
-                  data-multiline={true}
-                  data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
-              <div className="text-xs">
-                <div 
-                  style="font-weight: 700",
-                >veLPT</div>
-                <div 
-                  style="max-width: 250px;font-weight:400",
-                >
-The veLPT is not an actual, transferable token, but represents your voting power corresponding to your locked LP position. It only shows up on your Ref account balance
-                </div>
-              </div>
-            `}
-                  data-for="tipId"
-                >
-                  <QuestionMark color="dark" colorHex="#000000" />
-                  <ReactTooltip
-                    className="w-20"
-                    id="tipId"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
+                <span className="transform scale-75">
+                  <LeftArrowVE />
+                </span>
+                <span className="text-black text-xs ml-2">
+                  <FormattedMessage
+                    id="lock_lp_tokens_first"
+                    defaultMessage="Lock LP tokens first!"
                   />
-                </div>
+                </span>
               </>
             ) : Number(veShare) > 0 && Number(veShare) < 0.01 ? (
               '< 0.01'
@@ -1228,23 +1210,17 @@ The veLPT is not an actual, transferable token, but represents your voting power
               toPrecision(veShare, 2) || '0'
             )}
           </span>
-          <div className="text-sm flex items-center font-normal">
-            {allZeros ? (
-              <FormattedMessage
-                id="lock_lp_tokens_first"
-                defaultMessage="Lock LP tokens first!"
-              />
-            ) : (
-              <>
-                <span>veLPT</span>
-                <div
-                  className="ml-1 text-xs"
-                  data-type="info"
-                  data-place="right"
-                  data-multiline={true}
-                  data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
+          <div className="text-sm flex items-center font-normal mt-2">
+            <>
+              <span>veLPT</span>
+              <div
+                className="ml-1 text-xs"
+                data-type="info"
+                data-place="right"
+                data-multiline={true}
+                data-class="reactTip"
+                data-html={true}
+                data-tip={`
               <div className="text-xs">
                 <div 
                   style="font-weight: 700",
@@ -1256,25 +1232,24 @@ The veLPT is not an actual, transferable token, but represents your voting power
                 </div>
               </div>
             `}
-                  data-for="tipId"
-                >
-                  <QuestionMark color="dark" colorHex="#000000" />
-                  <ReactTooltip
-                    className="w-20"
-                    id="tipId"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
-                </div>
-              </>
-            )}
+                data-for="tipId"
+              >
+                <QuestionMark color="dark" colorHex="#000000" />
+                <ReactTooltip
+                  className="w-20"
+                  id="tipId"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  textColor="#C6D1DA"
+                  effect="solid"
+                />
+              </div>
+            </>
           </div>
         </span>
       </div>
-      <div>
+      <div className="relative bottom-11 right-5">
         <VotingPowerIcon />
       </div>
     </div>
@@ -1287,8 +1262,13 @@ const FarmBoosterCard = ({ lpShare }: { lpShare: string }) => {
   const allZeros = ONLY_ZEROS.test(balance) && ONLY_ZEROS.test(lpShare);
 
   return (
-    <div className="rounded-2xl bg-veFarmBoostCard flex p-6 font-bold text-senderHot ml-5 mt-2 h-52 relative">
-      <div className="flex flex-col">
+    <div
+      className="rounded-2xl bg-veFarmBoostCard flex py-4 px-5 font-bold text-senderHot ml-5 mt-2 h-1/2  relative"
+      style={{
+        width: '350px',
+      }}
+    >
+      <div className="flex flex-col justify-between">
         <span>
           <FormattedMessage id="farm_booster" defaultMessage={'Farm Booster'} />
         </span>
@@ -1297,39 +1277,15 @@ const FarmBoosterCard = ({ lpShare }: { lpShare: string }) => {
           <span title={balance} className="flex items-center">
             {allZeros ? (
               <>
-                <LeftArrowVE stroke="#00ffd1" />
-
-                <div
-                  className="ml-1 text-xs"
-                  data-type="info"
-                  data-place="right"
-                  data-multiline={true}
-                  data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
-              <div className="text-xs">
-                <div 
-                  style="font-weight: 700",
-                >LOVE</div>
-                <div 
-                  style="max-width: 250px;font-weight:400",
-                >
-                "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded                </div>
-              </div>
-            `}
-                  data-for="tipId"
-                >
-                  <QuestionMark color="bright" />
-                  <ReactTooltip
-                    className="w-20"
-                    id="tipId"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
+                <span className="transform scale-75">
+                  <LeftArrowVE stroke="#00ffd1" />
+                </span>
+                <span className="text-xs text-white font-normal ml-2">
+                  <FormattedMessage
+                    id="lock_lp_tokens_first"
+                    defaultMessage="Lock LP tokens first!"
                   />
-                </div>
+                </span>
               </>
             ) : Number(balance) > 0 && Number(balance) < 0.01 ? (
               '< 0.01'
@@ -1337,24 +1293,17 @@ const FarmBoosterCard = ({ lpShare }: { lpShare: string }) => {
               toPrecision(balance, 2) || '0'
             )}
           </span>
-          <div className="text-sm font-normal flex items-center">
-            {' '}
-            {allZeros ? (
-              <FormattedMessage
-                id="lock_lp_tokens_first"
-                defaultMessage="Lock LP tokens first!"
-              />
-            ) : (
-              <>
-                <span>LOVE</span>
-                <div
-                  className="ml-1 text-xs"
-                  data-type="info"
-                  data-place="right"
-                  data-multiline={true}
-                  data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
+          <div className="text-sm font-normal flex items-center mt-2">
+            <>
+              <span>LOVE</span>
+              <div
+                className="ml-1 text-xs"
+                data-type="info"
+                data-place="right"
+                data-multiline={true}
+                data-class="reactTip"
+                data-html={true}
+                data-tip={`
               <div className="text-xs">
                 <div 
                   style="font-weight: 700",
@@ -1365,30 +1314,32 @@ const FarmBoosterCard = ({ lpShare }: { lpShare: string }) => {
                 "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded                </div>
               </div>
             `}
-                  data-for="tipId"
-                >
-                  <QuestionMark color="bright" />
-                  <ReactTooltip
-                    className="w-20"
-                    id="tipId"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    textColor="#C6D1DA"
-                    effect="solid"
-                  />
-                </div>
-              </>
-            )}
+                data-for="tipId"
+              >
+                <QuestionMark color="bright" />
+                <ReactTooltip
+                  className="w-20"
+                  id="tipId"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  textColor="#C6D1DA"
+                  effect="solid"
+                />
+              </div>
+            </>
           </div>
         </span>
       </div>
-      <div>
+      <div className="relative bottom-11 right-5">
         <LOVEBoosterIcon />
       </div>
 
       <button
-        className="absolute right-4 bottom-4 font-normal text-sm"
+        className="absolute right-4 bottom-4 px-4 py-px rounded-full font-normal text-sm"
+        style={{
+          backgroundColor: 'rgba(43, 23, 85, 0.7)',
+        }}
         onClick={() => {
           window.open('/farmsBoost', '_blank');
         }}
@@ -1408,7 +1359,7 @@ const PosterCard = ({
   lpShare: string;
 }) => {
   return (
-    <div className="flex flex-col text-3xl font-bold">
+    <div className="flex flex-col text-2xl font-bold">
       <VotingPowerCard veShare={veShare} lpShare={lpShare} />
       <FarmBoosterCard lpShare={lpShare} />
     </div>
@@ -1471,8 +1422,6 @@ const UserReferendumCard = ({
 
   const [unLockPopOpen, setUnLockPopOpen] = useState<boolean>(false);
 
-  const preLocked = Number(accountInfo?.unlock_timestamp) > 0;
-
   const unlockTime = new Big(accountInfo?.unlock_timestamp || 0)
     .div(new Big(1000000000))
     .toNumber();
@@ -1487,9 +1436,11 @@ const UserReferendumCard = ({
 
   return (
     <Card
-      className={`flex  flex-col relative z-50 overflow-hidden`}
+      className={`flex  flex-col relative z-30 justify-between overflow-hidden`}
       width="w-2/3"
-      bgcolor="bg-veUserCard"
+      padding={'p-0'}
+      bgcolor="bg-transparent"
+      rounded="rounded-none"
     >
       <div className="text-3xl font-bold mb-2">
         <FormattedMessage
@@ -1497,23 +1448,30 @@ const UserReferendumCard = ({
           defaultMessage="Lock Your LP Tokens"
         />
       </div>
-      <span
-        className={`${
-          allowUnlock ? 'pb-12' : 'pb-16'
-        } text-5xl valueStyle font-bold`}
-      >
+      <span className={`pb-7 text-5xl valueStyle font-bold`}>
         <FormattedMessage
           id="unlock_your_defi_power"
           defaultMessage="Unlock your DeFi Power"
         />
       </span>
-      <div className=" flex items-center text-lg">
+      <div className=" flex items-center text-lg relative left-1">
         <Images tokens={tokens} size="6" />
         <span className="mx-1"></span>
-        <Symbols tokens={tokens} seperator="-" size="text-lg" />
+        <Symbols
+          tokens={tokens}
+          seperator="-"
+          size="text-lg"
+          fontSize="font-normal"
+        />
+        <button
+          className={` text-gradientFrom pl-1 py-1`}
+          onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
+        >
+          ↗
+        </button>
       </div>
 
-      {Number(farmStakeV1) > 0 ? (
+      {/* {Number(farmStakeV1) > 0 ? (
         <div>
           <FarmStakeTip stake={farmStakeV1} version={1} />
         </div>
@@ -1529,9 +1487,9 @@ const UserReferendumCard = ({
         </div>
       ) : (
         <div className="w-full h-5"></div>
-      )}
+      )} */}
 
-      <div className="flex items-center justify-between mt-6 mb-2">
+      <div className="flex items-center justify-between mt-10 mb-4">
         <div className="flex flex-col w-1/2 mr-4">
           <div
             className={`text-3xl font-bold text-gradientFromHover ${
@@ -1576,9 +1534,12 @@ const UserReferendumCard = ({
       </div>
 
       {isSignedIn ? (
-        <div className={`text-base flex items-center pt-4 w-full `}>
+        <div className={`text-base flex items-center w-full `}>
           <NewGradientButton
-            className={`${ONLY_ZEROS.test(veShare) ? 'w-full' : 'w-1/2'} mr-2`}
+            className={`${
+              ONLY_ZEROS.test(veShare) ? 'w-full' : 'w-1/2'
+            } mr-2 h-11`}
+            padding="p-0"
             text={
               <FormattedMessage
                 id="lock_lptoken"
@@ -1598,8 +1559,9 @@ const UserReferendumCard = ({
                   </span>
                 </span>
               }
-              className="rounded-lg w-full px-5 py-3"
-              width="w-1/2 ml-2"
+              className="rounded-lg w-full h-full"
+              padding="p-0"
+              width="w-1/2 ml-2 h-11"
             />
           ) : (
             <WithGradientButton
@@ -1611,7 +1573,7 @@ const UserReferendumCard = ({
                   </span>
                 </span>
               }
-              className="rounded-lg w-1/2 ml-2"
+              className="rounded-lg w-1/2 ml-2 h-11"
               grayDisable={moment().unix() < unlockTime}
               disabled={moment().unix() < unlockTime}
               gradientWith={`${Math.ceil(
@@ -1621,13 +1583,7 @@ const UserReferendumCard = ({
           )}
         </div>
       ) : (
-        <ConnectToNearBtnGradient className="mt-8 py-2" />
-      )}
-
-      {!allowUnlock ? null : (
-        <div className="absolute w-full bottom-0 right-0">
-          <UnLockTip />
-        </div>
+        <ConnectToNearBtnGradient className="mt-0 py-2 h-11" />
       )}
 
       <LockPopUp
@@ -1651,11 +1607,14 @@ const UserReferendumCard = ({
   );
 };
 
+export const ReferendumPageContext = createContext(null);
+
 export const ReferendumPage = () => {
   const id = getVEPoolId();
   const lpShare = usePoolShare(id);
 
-  const { veShare, accountInfo } = useAccountInfo();
+  const { veShare, accountInfo, veShareRaw } = useAccountInfo();
+  const tokenPriceList = useTokenPriceList();
 
   const allowUnlock =
     Number(accountInfo?.unlock_timestamp || 0) > 0 &&
@@ -1663,26 +1622,44 @@ export const ReferendumPage = () => {
       moment().unix();
 
   return (
-    <div className="m-auto lg:w-1024px xs:w-full md:w-5/6 text-white relative top-8">
-      <div className="w-full flex ">
-        <UserReferendumCard
-          veShare={veShare}
-          lpShare={lpShare}
-          accountInfo={accountInfo}
-          allowUnlock={allowUnlock}
-        />
-        <PosterCard veShare={veShare} lpShare={lpShare} />
-      </div>
+    <ReferendumPageContext.Provider
+      value={{
+        tokenPriceList,
+        veShare,
+        veShareRaw,
+      }}
+    >
+      <div className="m-auto lg:w-1024px xs:w-full md:w-5/6 text-white relative top-8">
+        <Card
+          className="w-full flex z-20 overflow-hidden relative"
+          bgcolor="bg-veCardGradientRight "
+          padding={allowUnlock ? 'px-6 pb-12 py-6' : 'p-6'}
+        >
+          <UserReferendumCard
+            veShare={veShare}
+            lpShare={lpShare}
+            accountInfo={accountInfo}
+            allowUnlock={allowUnlock}
+          />
+          <PosterCard veShare={veShare} lpShare={lpShare} />
 
-      <ProposalCard />
+          {!allowUnlock ? null : (
+            <div className="absolute w-full bottom-0 right-0">
+              <UnLockTip />
+            </div>
+          )}
+        </Card>
 
-      <div
-        className="absolute -top-14 z-20 -left-10
+        <ProposalCard />
+
+        <div
+          className="absolute -top-14 z-10 -left-10
         "
-      >
-        <PowerZone />
+        >
+          <PowerZone />
+        </div>
       </div>
-    </div>
+    </ReferendumPageContext.Provider>
   );
 };
 

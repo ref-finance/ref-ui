@@ -10,6 +10,7 @@ export const LOVEBoosterIcon = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       transform="scale(0.8)"
+      className="absolute"
     >
       <path
         d="M191.178 39.3654C208.037 61.1063 185.897 106.498 141.727 140.75C97.5563 175.002 48.0821 185.144 31.223 163.404C14.3638 141.663 36.5039 96.2712 80.6743 62.019C124.845 27.7668 174.319 17.6244 191.178 39.3654Z"
@@ -71,6 +72,7 @@ export const VotingPowerIcon = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       transform="scale(0.8)"
+      className="absolute top-0 left-0"
     >
       <ellipse
         cx="110.504"
@@ -257,9 +259,11 @@ export const LOVE_ICON = () => {
 export const LeftArrowVE = ({
   stroke,
   strokeWidth,
+  size,
 }: {
   stroke?: string;
   strokeWidth?: number;
+  size?: string;
 }) => {
   return (
     <svg
