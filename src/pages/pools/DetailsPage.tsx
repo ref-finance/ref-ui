@@ -193,7 +193,7 @@ export const GetExchangeRate = ({
     <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
       <span>
         1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
-        <span title={`${rate}`}>
+        <span title={`${rate}`} className="font-sans">
           {rate < 0.01 ? '' : '≈'} {showRate}
         </span>
         &nbsp;{toRealSymbol(tokens[1].symbol)}
@@ -689,7 +689,7 @@ export function AddLiquidityModal(
           <label>
             <FormattedMessage id="my_shares"></FormattedMessage>
           </label>
-          <span className="text-white text-sm">{shareDisplay()}</span>
+          <span className="text-white text-sm font-sans">{shareDisplay()}</span>
         </div>
         <div className="">
           <ButtonRender />
