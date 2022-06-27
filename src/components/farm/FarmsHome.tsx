@@ -891,8 +891,8 @@ export default function FarmsHome(props: any) {
         }}
       >
         {showMigrateEntry ? (
-          <div className="relative bg-veGradient rounded-2xl p-4 mb-4 mt-3 mx-3 lg:hidden">
-            <span className="flex items-center justify-center text-white text-lg font-bold my-2">
+          <div className="relative bg-veGradient px-7 pb-4 pt-0  mb-4 lg:hidden">
+            <span className="flex items-center justify-start text-white text-lg font-bold my-2">
               V2 NEW Farm Migration
             </span>
             <p className="flex items-center justify-center text-white text-sm">
@@ -902,7 +902,7 @@ export default function FarmsHome(props: any) {
               Meanwhile, the V1 farm rewards will stop at{' '}
               <span className="font-bold">1. July,2022.</span>
             </p>
-            <MigrateIconSmall className="absolute -bottom-3 -left-5"></MigrateIconSmall>
+            <MigrateIconSmall className="absolute -bottom-3 left-0"></MigrateIconSmall>
             <div className="flex justify-end">
               {isSignedIn ? (
                 <div
@@ -939,14 +939,11 @@ export default function FarmsHome(props: any) {
                 </span>
               </div>
             </div>
-            {/* {user_unWithdraw_rewards &&
-            Object.keys(user_unWithdraw_rewards).length > 0 ? ( */}
             <WithDrawBox
               userRewardList={user_unWithdraw_rewards}
               tokenPriceList={tokenPriceList}
               farmDisplayList={farm_display_List}
             ></WithDrawBox>
-            {/* ) : null} */}
           </div>
           <div className="absolute right-0 -top-24 xs:hidden md:hidden">
             <BoostBannerLogo></BoostBannerLogo>
@@ -985,13 +982,13 @@ export default function FarmsHome(props: any) {
             <span className="text-farmText mr-1">
               <SortIcon></SortIcon>
             </span>
-            <div className="flex items-center bg-farmSbg bg-opacity-50 rounded-lg p-1 h-9">
+            <div className="flex items-center rounded-lg p-1 h-9">
               {Object.keys(sortList).map((item, index) => {
                 const value = sortList[item];
                 return (
                   <div
-                    className={`flex items-center justify-between rounded-lg px-2 h-full py-0.5 cursor-pointer text-xs ${
-                      sort == item ? 'bg-cardBg text-white' : 'text-farmText'
+                    className={`flex items-center justify-between rounded-lg px-1 h-full py-0.5 cursor-pointer text-xs ${
+                      sort == item ? 'text-white' : 'text-farmText'
                     }`}
                     key={index}
                     onClick={() => {
@@ -1014,7 +1011,7 @@ export default function FarmsHome(props: any) {
           ></MigrateIcon>
           <div className="flex justify-between items-end ml-32">
             <div className="w-3/4 mr-5">
-              <p className="text-white text-lg font-bold mb-3">
+              <p className="text-white text-lg font-black mb-3">
                 V2 NEW Farm Migration
               </p>
               <p className="text-sm text-white">
@@ -1046,7 +1043,7 @@ export default function FarmsHome(props: any) {
                   changeStatus(item);
                 }}
                 key={item}
-                className={`flex  justify-center mx-1 items-center h-9 px-3 xs:mb-2 md:mb-2 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
+                className={`flex  justify-center mx-1 items-center h-9 px-3 xs:px-1.5 md:px-1.5 xs:mr-1.5 xs:ml-0 md:mr-1.5 md:ml-0 xs:mb-2 md:mb-2 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
                   status == item ? 'bg-cardBg text-white' : 'text-farmText'
                 }`}
               >
@@ -1144,7 +1141,7 @@ export default function FarmsHome(props: any) {
                     </label>
                     <DirectionButton
                       className={
-                        boostInstructions ? 'transform rotate-180' : ''
+                        boostInstructions ? '' : 'transform rotate-180'
                       }
                     ></DirectionButton>
                   </span>
@@ -1180,9 +1177,9 @@ export default function FarmsHome(props: any) {
                           onClick={() => {
                             setShowLoveTokenModalVisible(true);
                           }}
-                          className="absolute xs:-left-8 md:-left-8 flex items-center justify-center text-sm text-lightGreenColor border border-lightGreenColor rounded-lg top-8 whitespace-nowrap px-5 py-1 cursor-pointer"
+                          className="absolute xs:-left-6 md:-left-6 flex items-center justify-center text-sm xs:text-xs md:text-xs text-lightGreenColor border border-lightGreenColor rounded-lg top-8 whitespace-nowrap pl-2 pr-1 py-1 cursor-pointer"
                         >
-                          Get LOVE
+                          Get LOVE ↗
                         </span>
                       </div>
                       <div className="line w-32 h-px bg-lightGreenColor xs:w-24 md:w-24"></div>
@@ -1197,7 +1194,7 @@ export default function FarmsHome(props: any) {
                           onClick={() => {
                             setLoveStakeModalVisible(true);
                           }}
-                          className="absolute xs:-left-10 md:-left-10 flex items-center justify-center text-sm text-lightGreenColor border border-lightGreenColor rounded-lg top-8 whitespace-nowrap px-5 py-1 cursor-pointer"
+                          className="absolute xs:-left-10 md:-left-10 flex items-center justify-center text-sm xs:text-xs md:text-xs text-lightGreenColor border border-lightGreenColor rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
                         >
                           Stake LOVE
                         </span>
@@ -1213,8 +1210,8 @@ export default function FarmsHome(props: any) {
                         <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:hidden md:hidden">
                           Get Farm Boost
                         </span>
-                        <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 lg:hidden">
-                          Farm boost
+                        <span className="absolute flex items-center justify-center text-xs text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 -left-14 lg:hidden">
+                          Farm Boost
                         </span>
                       </div>
                     </div>
@@ -1304,7 +1301,7 @@ export default function FarmsHome(props: any) {
                   </div>
                 </div>
                 {!isSignedIn ? (
-                  <GreenConnectToNearBtn></GreenConnectToNearBtn>
+                  <GreenConnectToNearBtn className="w-full"></GreenConnectToNearBtn>
                 ) : null}
               </div>
             </div>
@@ -1383,10 +1380,22 @@ export default function FarmsHome(props: any) {
             <div
               className={`flex items-center ${
                 showEndedFarmList ? 'justify-between' : 'justify-end'
-              } m-auto lg:w-2/3 xs:w-full md:w-full my-10 xs:my-8 md:my-8 xs:px-3 md:px-3`}
+              } m-auto lg:w-2/3 xs:w-full md:w-full my-10 xs:my-8 md:my-8 xs:px-3 md:px-3 xs:flex-col md:flex-col`}
             >
+              <div
+                onClick={switchEndedFarmListDisplayStatus}
+                className="flex items-center justify-center text-xs text-farmText cursor-pointer lg:hidden"
+              >
+                <ArrowDownIcon
+                  className={showEndedFarmList ? 'transform rotate-180' : ''}
+                ></ArrowDownIcon>
+                <a className="text-xs text-greenColor mx-1">
+                  {showEndedFarmList ? 'Hidden' : 'Show'}
+                </a>
+                the {endFarmLength} ended farms
+              </div>
               <p
-                className={`text-xl text-farmText ${
+                className={`text-xl text-farmText xs:mt-5 md:mt-5 ${
                   showEndedFarmList ? '' : 'hidden'
                 }`}
               >
@@ -1394,7 +1403,7 @@ export default function FarmsHome(props: any) {
               </p>
               <div
                 onClick={switchEndedFarmListDisplayStatus}
-                className="flex items-center justify-center text-xs text-farmText cursor-pointer"
+                className="flex items-center justify-center text-xs text-farmText cursor-pointer xs:hidden md:hidden"
               >
                 <ArrowDownIcon
                   className={showEndedFarmList ? 'transform rotate-180' : ''}
@@ -1670,7 +1679,7 @@ function LoveStakeModal(props: {
           />
         </GradientButton>
       ) : (
-        <GreenConnectToNearBtn className="h-9 mt-8 text-base"></GreenConnectToNearBtn>
+        <GreenConnectToNearBtn className="h-9 mt-8 text-base w-full"></GreenConnectToNearBtn>
       )}
     </CommonModal>
   );
@@ -2408,7 +2417,7 @@ function FarmView(props: {
         }
       `}
       >
-        <div className="flex absolute -top-3.5 z-10 justify-center w-full">
+        <div className="flex absolute -top-5 z-10 justify-center w-full">
           {tokens.map((token, index) => {
             return (
               <label
@@ -2416,7 +2425,7 @@ function FarmView(props: {
                 style={{
                   border: '4px solid #374958',
                 }}
-                className={`h-9 w-9 rounded-full overflow-hidden bg-cardBg ${
+                className={`h-9 w-9 rounded-full box-content overflow-hidden bg-cardBg ${
                   index != 0 ? '-ml-1' : ''
                 }`}
               >
@@ -2428,7 +2437,7 @@ function FarmView(props: {
         {getBoostMutil()}
         <div className="boxInfo">
           <div className="relative flex flex-col items-center  px-5 rounded-t-2xl overflow-hidden bg-boostUpBoxBg">
-            <div className="flex items-center cursor-pointer text-white font-bold text-xl xs:text-sm md:text-sm mt-7">
+            <div className="flex items-center cursor-pointer text-white font-bold text-xl mt-8">
               {/* link for looking into */}
               <a href={`javascript:void(${'/pool/' + pool.id})`}>
                 {tokens.map((token, index) => {
@@ -2728,6 +2737,9 @@ function WithDrawBox(props: {
               <FormattedMessage id="details" />
               <UpArrowIcon className={`ml-2 transform rotate-180 text-white`} />
             </div>
+          ) : null}
+          {!isSignedIn ? (
+            <GreenConnectToNearBtn className="w-52"></GreenConnectToNearBtn>
           ) : null}
         </div>
       </div>

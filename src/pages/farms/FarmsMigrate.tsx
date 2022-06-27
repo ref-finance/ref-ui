@@ -84,7 +84,7 @@ export default function FarmsMigrate() {
           }`}
         ></MigrateIcon>
         {!isSignedIn ? (
-          <GreenConnectToNearBtn className="mt-6 ml-16 xs:ml-0 md:ml-0"></GreenConnectToNearBtn>
+          <GreenConnectToNearBtn className="mt-6 ml-16 xs:ml-0 md:ml-0 w-full"></GreenConnectToNearBtn>
         ) : (
           <>
             {noData ? (

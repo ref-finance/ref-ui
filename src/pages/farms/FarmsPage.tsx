@@ -759,7 +759,7 @@ export function FarmsPage() {
           </div>
           {showMigrateEntry ? (
             <div className="relative bg-veGradient rounded-2xl p-4 mt-2">
-              <span className="flex items-center justify-center text-white text-lg font-bold my-2">
+              <span className="flex items-center justify-start text-white text-lg font-black my-2">
                 V2 NEW Farm Migration
               </span>
               <p className="flex items-center justify-center text-white text-sm">
@@ -769,7 +769,7 @@ export function FarmsPage() {
                 Meanwhile, the V1 farm rewards will stop at{' '}
                 <span className="font-bold">1. July,2022.</span>
               </p>
-              <MigrateIconSmall className="absolute -bottom-3 -left-5"></MigrateIconSmall>
+              <MigrateIconSmall className="absolute -bottom-3 -left-3.5"></MigrateIconSmall>
               <div className="flex justify-end">
                 {isSignedIn ? (
                   <div

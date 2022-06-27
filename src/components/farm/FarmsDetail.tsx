@@ -193,33 +193,47 @@ export default function FarmsDetail(props: {
         </label>
       </div>
       <div
-        className={`flex justify-between items-center mt-4 flex-wrap ${
+        className={`flex justify-between items-center mt-7 flex-wrap ${
           isEnded() ? 'farmEnded' : ''
         }`}
       >
-        <div className="left flex items-center h-11 ml-3 mt-3">
-          <span className="flex">{displayImgs()}</span>
-          <span className="flex items-center text-white font-bold text-xl ml-4 xs:text-sm md:text-sm">
-            {displaySymbols()}
-          </span>
-          {isEnded() ? (
-            <span className="text-farmText text-sm ml-2 relative top-0.5 xs:top-0 md:xs-0">
-              <FormattedMessage id="ended_search"></FormattedMessage>
-            </span>
-          ) : null}
-          {radio ? (
-            <div
-              className={`rounded-lg text-xs  font-bold px-2 py-0.5 ml-2 ${
-                Object.keys(user_seeds_map[detailData.seed_id] || {}).length
-                  ? 'bg-lightGreenColor text-black'
-                  : 'text-farmText border border-farmText'
-              }`}
-            >
-              {`x${toPrecision(radio.toString(), 2)}`}
+        <div className="left flex items-center h-11 ml-3">
+          <span className="flex mr-4 xs:mr-3 md:mr-3">{displayImgs()}</span>
+          <div className="flex items-center xs:flex-col md:flex-col xs:items-start md:items-start">
+            <div className="flex items-center">
+              <span className="flex items-center text-white font-bold text-xl whitespace-nowrap xs:text-sm md:text-sm">
+                {displaySymbols()}
+              </span>
+              {isEnded() ? (
+                <span className="text-farmText text-sm ml-2 relative top-0.5 xs:top-0 md:xs-0">
+                  <FormattedMessage id="ended_search"></FormattedMessage>
+                </span>
+              ) : null}
+              {radio ? (
+                <div
+                  className={`rounded-lg text-xs  font-bold px-2 py-0.5 ml-2 ${
+                    Object.keys(user_seeds_map[detailData.seed_id] || {}).length
+                      ? 'bg-lightGreenColor text-black'
+                      : 'text-farmText border border-farmText'
+                  }`}
+                >
+                  {`x${toPrecision(radio.toString(), 2)}`}
+                </div>
+              ) : null}
             </div>
-          ) : null}
+            <div className="flex items-center lg:hidden" onClick={goPoolPage}>
+              <label className="mr-1 text-xs text-greenColor">
+                <FormattedMessage id="get_lp_token"></FormattedMessage>
+              </label>
+              <label className="text-xs text-greenColor">↗</label>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center mt-3" onClick={goPoolPage}>
+
+        <div
+          className="flex items-center xs:hidden md:hidden"
+          onClick={goPoolPage}
+        >
           <label className="mx-2 text-sm text-primaryText hover:text-framBorder cursor-pointer">
             <FormattedMessage id="get_lp_token"></FormattedMessage>
           </label>
