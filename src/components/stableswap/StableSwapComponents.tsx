@@ -59,7 +59,7 @@ const GetPriceImpact = (
           {tokenInInfo}
         </span>
       ) : (
-        <span className={`${textColor}`}>
+        <span className={`${textColor} font-sans`}>
           {`≈ -${toPrecision(value, 2)}%`}
           {tokenInInfo}
         </span>

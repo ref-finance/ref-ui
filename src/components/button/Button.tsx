@@ -728,7 +728,7 @@ export function GreenConnectToNearBtn(props: any) {
   return (
     <>
       <div
-        className={`flex items-center cursor-pointer w-full justify-center rounded-full py-1 text-sm text-black bg-darkGreenColor hover:bg-lightGreenColor ${className} ${
+        className={`flex items-center cursor-pointer justify-center rounded-full py-1 text-sm text-black bg-darkGreenColor hover:bg-lightGreenColor ${className} ${
           buttonLoading ? 'opacity-40' : ''
         }`}
         onClick={(e) => {

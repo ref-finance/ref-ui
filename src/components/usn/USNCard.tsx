@@ -108,7 +108,7 @@ function USNRateDetail({
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
           <FaExchangeAlt color="#00C6A2" />
         </span>
-        <span>{newValue}</span>
+        <span className="font-sans">{newValue}</span>
       </p>
     </section>
   );

@@ -154,7 +154,7 @@ export function SwapRateDetail({
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
           <FaExchangeAlt color="#00C6A2" />
         </span>
-        <span>{newValue}</span>
+        <span className="font-sans">{newValue}</span>
       </p>
     </section>
   );
@@ -245,7 +245,7 @@ export const GetPriceImpact = (
     );
 
   return (
-    <span className={`${textColor}`}>
+    <span className={`${textColor} font-sans`}>
       {`≈ -${toPrecision(value, 2)}%`}
       {tokenInInfo}
     </span>
