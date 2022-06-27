@@ -67,7 +67,7 @@ import {
 } from '../../services/ft-contract';
 import { PieChart, Pie, Cell, Sector, ResponsiveContainer } from 'recharts';
 import { toRealSymbol } from '../../utils/token';
-import _, { conformsTo, pad } from 'lodash';
+import _, { before, conformsTo, pad } from 'lodash';
 import { CustomSwitch } from '../forms/SlippageSelector';
 import { ArrowDownLarge } from '~components/icon';
 import { FilterIcon } from '~components/icon/PoolFilter';
@@ -129,7 +129,7 @@ import getConfig from '../../services/config';
 import { cos } from 'mathjs';
 import { AccountInfo, ReferendumPageContext } from '../../pages/ReferendumPage';
 import { SelectTokenForList, tokenPrice } from '../forms/SelectToken';
-import { removeProposal } from '../../services/referendum';
+import { removeProposal, ProposalStatus } from '../../services/referendum';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -215,14 +215,22 @@ export const BonusBar = ({
   const total = scientificNotationToString(
     prices
       ?.reduce((acc, price, i) => {
-        return acc
-          .plus(price || 0)
-          .times(
+        console.log(
+          price,
+          toReadableNumber(
+            tokens?.[i]?.decimals || 24,
+            incentiveItem?.incentive_amounts?.[i] || '0'
+          )
+        );
+
+        return acc.plus(
+          new Big(price || 0).times(
             toReadableNumber(
               tokens?.[i]?.decimals || 24,
               incentiveItem?.incentive_amounts?.[i] || '0'
             )
-          );
+          )
+        );
       }, new Big(0))
       .toString() || '0'
   );
@@ -1150,6 +1158,8 @@ export const PreviewPopUp = (
             !contentTitle?.trim() ||
             options.filter((_) => !!_.trim()).length < 2
           }
+          padding="p-0"
+          className="w-28 h-8 text-sm"
           onClick={() => {
             createProposal({
               description: {
@@ -1177,6 +1187,8 @@ const FarmChart = ({
   outerRadiusProp,
   forLastRound,
   proposal,
+  voteDetail,
+  voteHistory,
 }: {
   ratio: {
     name: string;
@@ -1194,10 +1206,13 @@ const FarmChart = ({
   outerRadiusProp?: number;
   forLastRound?: boolean;
   proposal: Proposal;
+  voteDetail: VoteDetail;
+  voteHistory: VoteDetail;
 }) => {
   if (!ratio) return null;
 
-  const veShareRaw = useContext(ReferendumPageContext).veShareRaw;
+  const votedAmount =
+    voteDetail?.[proposal?.id]?.amount || voteHistory?.[proposal?.id]?.amount;
 
   const [activeIndex, setActiveIndex] = useState<number>();
 
@@ -1223,6 +1238,8 @@ const FarmChart = ({
 
   const totalVotes = BigNumber.sum(...proposal.votes);
 
+  console.log(totalVotes.toString());
+
   const ActiveLabel = ({ activeIndex }: { activeIndex: number }) => {
     const activeFarm = data[activeIndex];
 
@@ -1237,14 +1254,29 @@ const FarmChart = ({
         proposal.kind.FarmingReward.farm_list.indexOf(activeFarm.name)
       ]
     )
-      .minus(veShareRaw)
+      .minus(votedAmount)
       .div(
-        totalVotes.minus(veShareRaw).gt(0) ? totalVotes.minus(veShareRaw) : 1
+        totalVotes.minus(votedAmount).gt(0) ? totalVotes.minus(votedAmount) : 1
       );
 
     const contribution = scientificNotationToString(
       afterRatio.minus(beforeRatio).times(100).toString()
     );
+
+    const displayContribution = new BigNumber(
+      proposal.votes[
+        proposal.kind.FarmingReward.farm_list.indexOf(activeFarm.name)
+      ]
+    ).eq(BigNumber.sum(...proposal.votes))
+      ? new BigNumber(votedAmount)
+          .div(
+            BigNumber.sum(...proposal.votes).gt(0)
+              ? BigNumber.sum(...proposal.votes)
+              : 1
+          )
+          .times(100)
+          .toString()
+      : contribution;
 
     return (
       <div
@@ -1310,7 +1342,7 @@ const FarmChart = ({
             </span>
 
             <span className="text-white">
-              {'+' + toPrecision(contribution, 2) + '%'}
+              {'+' + toPrecision(displayContribution, 2) + '%'}
             </span>
           </div>
         ) : null}
@@ -1568,6 +1600,8 @@ const GovItemDetail = ({
 }) => {
   const intl = useIntl();
 
+  const [status, setStatus] = useState<ProposalStatus>(proposal.status);
+
   const startTime = Math.floor(Number(proposal?.start_at) / TIMESTAMP_DIVISOR);
   const endTime = Math.floor(Number(proposal?.end_at) / TIMESTAMP_DIVISOR);
 
@@ -1643,9 +1677,8 @@ const GovItemDetail = ({
 
   const [showVotePop, setShowVotePop] = useState<boolean>(false);
   const base = Math.floor(
-    Number(
-      proposal?.status === 'InProgress' ? proposal?.end_at : proposal?.start_at
-    ) / TIMESTAMP_DIVISOR
+    Number(status === 'InProgress' ? proposal?.end_at : proposal?.start_at) /
+      TIMESTAMP_DIVISOR
   );
   const baseCounterDown = durationFomatter(
     moment.duration(base - moment().unix(), 'seconds')
@@ -1664,6 +1697,8 @@ const GovItemDetail = ({
     base,
     setCounterDownStirng,
     id: proposal?.id,
+    status,
+    setStatus,
   });
 
   const history = useHistory();
@@ -1696,7 +1731,7 @@ const GovItemDetail = ({
         </button>
 
         <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs pr-4 pl-2 text-gradientFrom absolute right-0">
-          {proposal.status === 'Expired' ? (
+          {status === 'Expired' ? (
             <span className="text-primaryText ml-2">
               <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
             </span>
@@ -1704,12 +1739,12 @@ const GovItemDetail = ({
             <div className="flex items-center">
               <span
                 className={`rounded-3xl px-2 py-0.5 mr-2  ${
-                  proposal?.status === 'WarmUp'
+                  status === 'WarmUp'
                     ? 'text-white bg-pendingPurple'
                     : 'text-black bg-gradientFrom'
                 }`}
               >
-                {proposal?.status === 'InProgress' ? (
+                {status === 'InProgress' ? (
                   <FormattedMessage id="live" defaultMessage={'Live'} />
                 ) : (
                   <FormattedMessage
@@ -1720,9 +1755,7 @@ const GovItemDetail = ({
               </span>
               <span
                 className={`${
-                  proposal?.status === 'WarmUp'
-                    ? 'text-primaryText'
-                    : 'text-gradientFrom'
+                  status === 'WarmUp' ? 'text-primaryText' : 'text-gradientFrom'
                 }`}
               >
                 {counterDownStirng}
@@ -1736,7 +1769,7 @@ const GovItemDetail = ({
       {!voted || forPreview ? null : (
         <div
           className={`${
-            proposal?.status === 'Expired' ? 'opacity-30' : ''
+            status === 'Expired' ? 'opacity-30' : ''
           } absolute -right-4 top-10`}
         >
           <VotedIcon />
@@ -1805,7 +1838,7 @@ const GovItemDetail = ({
 
         <div className="flex items-center justify-center mt-8 pb-6">
           <div className="w-1/5 flex items-center justify-center relative top-0 self-start">
-            {proposal?.status === 'WarmUp' ? (
+            {status === 'WarmUp' ? (
               <NoResultChart expand="1.25" />
             ) : (
               <VoteChart
@@ -1902,10 +1935,10 @@ const GovItemDetail = ({
         </div>
 
         <div className="flex items-center justify-end pt-6 border-t border-white border-opacity-10">
-          {(voted || proposal?.status === 'Expired') && !unClaimed ? (
+          {(voted || status === 'Expired') && !unClaimed ? (
             <BorderGradientButton
               text={
-                voted && proposal?.status === 'InProgress' ? (
+                voted && status === 'InProgress' ? (
                   <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
                 ) : !voted ? (
                   <FormattedMessage id="ended_ve" defaultMessage={'Ended'} />
@@ -1921,8 +1954,10 @@ const GovItemDetail = ({
                   proposal_id: proposal?.id,
                 })
               }
+              beatStyling
+              hoverStyle
               className="h-full"
-              disabled={proposal?.status === 'Expired'}
+              disabled={status === 'Expired'}
             />
           ) : (
             <NewGradientButton
@@ -1932,8 +1967,7 @@ const GovItemDetail = ({
                     id="claim_reward"
                     defaultMessage={'Claim Reward'}
                   />
-                ) : proposal?.status === 'InProgress' &&
-                  ONLY_ZEROS.test(veShare) ? (
+                ) : status === 'InProgress' && ONLY_ZEROS.test(veShare) ? (
                   <FormattedMessage id="no_veLPT" defaultMessage={'No veLPT'} />
                 ) : (
                   <FormattedMessage id="vote" defaultMessage={'Vote'} />
@@ -1948,9 +1982,8 @@ const GovItemDetail = ({
               }}
               padding="px-0 py-0"
               disabled={
-                (proposal?.status !== 'InProgress' ||
-                  (proposal?.status === 'InProgress' &&
-                    ONLY_ZEROS.test(veShare))) &&
+                (status !== 'InProgress' ||
+                  (status === 'InProgress' && ONLY_ZEROS.test(veShare))) &&
                 !unClaimed
               }
               className={unClaimed ? 'w-28 h-8' : 'w-20 h-8'}
@@ -1961,14 +1994,14 @@ const GovItemDetail = ({
         <BonusBar
           proposal={proposal}
           incentiveItem={proposal?.incentive?.[0]}
-          bright={proposal?.status !== 'Expired' && proposal?.incentive?.[0]}
+          bright={status !== 'Expired' && proposal?.incentive?.[0]}
           showYourShare={true}
           yourShare={
             !!voted && Number(yourShare) > 0
               ? `${toPrecision(yourShare, 2)}%`
               : '-'
           }
-          showAddBonus={proposal?.status !== 'Expired'}
+          showAddBonus={status !== 'Expired'}
           tokens={proposal?.incentive?.[0]?.incentive_token_ids?.map(
             (id: string) => {
               return incentiveTokens?.find((token) => token.id === id);
@@ -2006,7 +2039,6 @@ const GovItemDetail = ({
 };
 
 const GovProposalItem = ({
-  status,
   description,
   proposal,
   VEmeta,
@@ -2017,7 +2049,6 @@ const GovProposalItem = ({
   unClaimed,
   veShare,
 }: {
-  status: string;
   description?: Description;
   proposal: Proposal;
   VEmeta: VEMETA;
@@ -2028,10 +2059,11 @@ const GovProposalItem = ({
   unClaimed: boolean;
   veShare: string;
 }) => {
+  const [status, setStatus] = useState<ProposalStatus>(proposal.status);
+
   const base = Math.floor(
-    Number(
-      proposal?.status === 'InProgress' ? proposal?.end_at : proposal?.start_at
-    ) / TIMESTAMP_DIVISOR
+    Number(status === 'InProgress' ? proposal?.end_at : proposal?.start_at) /
+      TIMESTAMP_DIVISOR
   );
 
   const baseCounterDown = durationFomatter(
@@ -2051,6 +2083,8 @@ const GovProposalItem = ({
     base,
     setCounterDownStirng,
     id: proposal?.id,
+    status,
+    setStatus,
   });
 
   const voted = (voteDetail?.[proposal?.id]?.action ||
@@ -2116,7 +2150,7 @@ const GovProposalItem = ({
     );
   });
 
-  const ended = proposal?.status === 'Expired';
+  const ended = status === 'Expired';
 
   const topVote = _.maxBy(
     proposal?.kind?.Common
@@ -2163,6 +2197,15 @@ const GovProposalItem = ({
     afterRatio.minus(beforeRatio).times(100).toString()
   );
 
+  const displayContribution = new BigNumber(proposal.votes[youVotedIndex]).eq(
+    totalVE
+  )
+    ? new BigNumber(votedAmount)
+        .div(new BigNumber(totalVE).gt(0) ? totalVE : 1)
+        .times(100)
+        .toString()
+    : contribution;
+
   return (
     <>
       {showDetail === Number(proposal?.id) ? (
@@ -2191,7 +2234,7 @@ const GovProposalItem = ({
           padding={`px-8 pt-8 pb-12`}
         >
           <div className="w-1/5">
-            {status === 'Pending' ? (
+            {status === 'WarmUp' ? (
               <div className="pr-10">
                 <NoResultChart />
               </div>
@@ -2214,19 +2257,19 @@ const GovProposalItem = ({
 
               <span className="rounded-3xl text-xs px-1 text-senderHot">
                 {ended ? (
-                  <span className="text-primaryText">
+                  <span className="bg-black bg-opacity-20 px-2 py-1 rounded-3xl text-primaryText">
                     <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
                   </span>
                 ) : (
                   <div className="flex items-center">
                     <span
                       className={`rounded-3xl px-2 py-0.5  ${
-                        proposal?.status === 'WarmUp'
+                        status === 'WarmUp'
                           ? 'text-white bg-pendingPurple'
                           : 'text-black bg-senderHot'
                       }`}
                     >
-                      {proposal?.status === 'InProgress' ? (
+                      {status === 'InProgress' ? (
                         <FormattedMessage id="live" defaultMessage={'Live'} />
                       ) : (
                         <FormattedMessage
@@ -2253,17 +2296,17 @@ const GovProposalItem = ({
 
               <span
                 className={
-                  status === 'Ended'
+                  status === 'Expired'
                     ? 'hidden'
                     : `${
-                        status === 'Pending'
+                        status === 'WarmUp'
                           ? 'text-primaryText'
                           : 'text-senderHot'
                       } text-xs `
                 }
               >
                 {counterDownStirng}
-                {`${proposal?.status === 'WarmUp' ? ' start' : ' left'}`}
+                {`${status === 'WarmUp' ? ' start' : ' left'}`}
               </span>
             </div>
 
@@ -2278,7 +2321,7 @@ const GovProposalItem = ({
                   </span>
 
                   <span className="mt-1">
-                    {proposal.status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
+                    {status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
                       ? '-'
                       : `${turnOut}%`}
                   </span>
@@ -2293,8 +2336,7 @@ const GovProposalItem = ({
                   </span>
 
                   <span className="flex items-center mt-1">
-                    {proposal.status === 'WarmUp' ||
-                    ONLY_ZEROS.test(totalVE) ? null : (
+                    {status === 'WarmUp' || ONLY_ZEROS.test(totalVE) ? null : (
                       <div
                         className="w-2.5 h-2.5 rounded-sm mr-3 flex-shrink-0"
                         style={{
@@ -2307,15 +2349,15 @@ const GovProposalItem = ({
                     <span
                       className="truncate"
                       style={{
-                        maxWidth: '150px',
+                        maxWidth: '120px',
                       }}
                       title={
-                        proposal.status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
+                        status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
                           ? ''
                           : topOption
                       }
                     >
-                      {proposal.status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
+                      {status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
                         ? '-'
                         : topOption}
                     </span>
@@ -2338,14 +2380,14 @@ const GovProposalItem = ({
                         className="truncate "
                         title={options?.[youVotedIndex]}
                         style={{
-                          maxWidth: '150px',
+                          maxWidth: '120px',
                         }}
                       >
                         {options?.[youVotedIndex]}
                       </span>
 
                       <span className="ml-1 mt-px">
-                        {`+${toPrecision(contribution, 2)}%`}
+                        {`+${toPrecision(displayContribution, 2)}%`}
                       </span>
                     </span>
                   </span>
@@ -2366,7 +2408,7 @@ const GovProposalItem = ({
                   }}
                 />
 
-                {proposal?.status === 'WarmUp' &&
+                {status === 'WarmUp' &&
                 getCurrentWallet().wallet.getAccountId() ===
                   proposal?.proposer ? (
                   <NewGradientButton
@@ -2381,7 +2423,7 @@ const GovProposalItem = ({
                     }}
                     beatStyling
                   />
-                ) : proposal?.status === 'Expired' && !unClaimed ? (
+                ) : status === 'Expired' && !unClaimed ? (
                   <BorderGradientButton
                     text={
                       !!voted ? (
@@ -2407,12 +2449,12 @@ const GovProposalItem = ({
                           id="claim_bonus"
                           defaultMessage={'Claim Bonus'}
                         />
-                      ) : proposal?.status === 'InProgress' && voted ? (
+                      ) : status === 'InProgress' && voted ? (
                         <FormattedMessage
                           id="cancel"
                           defaultMessage={'Cancel'}
                         />
-                      ) : proposal?.status === 'InProgress' &&
+                      ) : status === 'InProgress' &&
                         ONLY_ZEROS.test(veShare) ? (
                         <FormattedMessage
                           id="no_veLPT"
@@ -2423,16 +2465,14 @@ const GovProposalItem = ({
                       )
                     }
                     beatStyling={
-                      unClaimed ||
-                      (proposal?.status === 'InProgress' && !!voted)
+                      unClaimed || (status === 'InProgress' && !!voted)
                     }
                     className={`ml-2.5 h-8 ${unClaimed ? 'w-28' : 'w-20'}`}
                     padding="px-0 "
                     disabled={
                       (ended && !unClaimed) ||
-                      proposal?.status === 'WarmUp' ||
-                      (proposal?.status === 'InProgress' &&
-                        ONLY_ZEROS.test(veShare))
+                      status === 'WarmUp' ||
+                      (status === 'InProgress' && ONLY_ZEROS.test(veShare))
                     }
                     onClick={() => {
                       if (unClaimed) {
@@ -2443,7 +2483,7 @@ const GovProposalItem = ({
                         cancelVote({
                           proposal_id: proposal.id,
                         });
-                      } else if (proposal?.status === 'InProgress') {
+                      } else if (status === 'InProgress') {
                         setShowVotePop(true);
                       }
                     }}
@@ -2456,14 +2496,14 @@ const GovProposalItem = ({
           <BonusBar
             proposal={proposal}
             incentiveItem={proposal?.incentive?.[0]}
-            bright={proposal?.status !== 'Expired' && proposal?.incentive?.[0]}
+            bright={status !== 'Expired' && proposal?.incentive?.[0]}
             showYourShare={true}
             yourShare={
               !!voted && Number(yourShare) > 0
                 ? `${toPrecision(yourShare, 2)}%`
                 : '-'
             }
-            showAddBonus={proposal?.status !== 'Expired'}
+            showAddBonus={status !== 'Expired'}
             tokens={proposal?.incentive?.[0]?.incentive_token_ids?.map(
               (id: string) => {
                 return incentiveTokens?.find((token) => token.id === id);
@@ -2682,7 +2722,7 @@ export const LastRoundFarmVoting = (
     };
   }
 ) => {
-  const { proposal: farmProposal, VEmeta } = props;
+  const { proposal: farmProposal } = props;
 
   const voteDetail = useVoteDetail();
 
@@ -2807,6 +2847,8 @@ export const LastRoundFarmVoting = (
         innerRadiusProp={100}
         forLastRound
         proposal={farmProposal}
+        voteDetail={voteDetail}
+        voteHistory={voteHistoryDetail}
       />
 
       <div className="w-full border-b border-white border-opacity-10 mb-4"></div>
@@ -2923,11 +2965,11 @@ export const FarmProposal = ({
   VEmeta: VEMETA & { totalVE: string };
   UnclaimedProposal: UnclaimedProposal;
 }) => {
+  const [status, setStatus] = useState<ProposalStatus>(farmProposal.status);
+
   const base = Math.floor(
     Number(
-      farmProposal?.status === 'InProgress'
-        ? farmProposal?.end_at
-        : farmProposal?.start_at
+      status === 'InProgress' ? farmProposal?.end_at : farmProposal?.start_at
     ) / TIMESTAMP_DIVISOR
   );
 
@@ -2942,6 +2984,8 @@ export const FarmProposal = ({
     base,
     setCounterDownStirng,
     id: farmProposal?.id,
+    setStatus,
+    status,
   });
 
   const [showLastRoundVoting, setShowLastRoundVoting] =
@@ -3107,7 +3151,7 @@ export const FarmProposal = ({
     );
 
     const Button =
-      farmProposal.status === 'Expired' ? (
+      status === 'Expired' ? (
         UnclaimedProposal?.[farmProposal.id] &&
         !ONLY_ZEROS.test(UnclaimedProposal?.[farmProposal.id]?.amount) ? (
           <NewGradientButton
@@ -3142,6 +3186,8 @@ export const FarmProposal = ({
             onClick={() => {
               cancelVote({ proposal_id: farmProposal.id });
             }}
+            hoverStyle
+            beatStyling
           />
         ) : (
           <FarmProposalGrayButton
@@ -3156,7 +3202,7 @@ export const FarmProposal = ({
           className="h-8 w-20"
           padding="px-1 py-0"
         />
-      ) : farmProposal.status === 'WarmUp' ? (
+      ) : status === 'WarmUp' ? (
         <FarmProposalGrayButton
           text={<FormattedMessage id="vote" defaultMessage={'Vote'} />}
           className="h-8 w-20"
@@ -3222,9 +3268,9 @@ export const FarmProposal = ({
             showYourShare={votedIndex === index}
             yourShare={`${toPrecision(yourShare, 2)}%`}
             showAddBonus={
-              farmProposal.status !== 'WarmUp' &&
+              status !== 'WarmUp' &&
               (typeof votedIndex === 'undefined' || votedIndex === index) &&
-              farmProposal.status !== 'Expired'
+              status !== 'Expired'
             }
             tokens={farmProposal.incentive?.[index]?.incentive_token_ids?.map(
               (id: string) => {
@@ -3365,19 +3411,19 @@ export const FarmProposal = ({
         ).format('ll')}
         <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs pr-4 pl-2 text-senderHot absolute right-0">
           {ended ? (
-            <span className="text-primaryText ml-2">
+            <span className="bg-black bg-opacity-20 px-2 py-1 ml-2 rounded-3xl text-primaryText">
               <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
             </span>
           ) : (
             <div className="flex items-center">
               <span
                 className={`rounded-3xl px-2 py-0.5 mr-2  ${
-                  farmProposal?.status === 'WarmUp'
+                  status === 'WarmUp'
                     ? 'text-white bg-pendingPurple'
                     : 'text-black bg-senderHot'
                 }`}
               >
-                {farmProposal?.status === 'InProgress' ? (
+                {status === 'InProgress' ? (
                   <FormattedMessage id="live" defaultMessage={'Live'} />
                 ) : (
                   <FormattedMessage
@@ -3388,9 +3434,7 @@ export const FarmProposal = ({
               </span>
               <span
                 className={`${
-                  farmProposal?.status === 'WarmUp'
-                    ? 'text-primaryText'
-                    : 'text-senderHot'
+                  status === 'WarmUp' ? 'text-primaryText' : 'text-senderHot'
                 }`}
               >
                 {counterDownStirng}
@@ -3513,6 +3557,8 @@ export const FarmProposal = ({
         size={farmProposal?.kind?.FarmingReward?.farm_list?.length}
         voted={votedIndex}
         proposal={farmProposal}
+        voteDetail={voteDetail}
+        voteHistory={voteHistoryDetail}
       />
 
       <Card
@@ -4012,7 +4058,7 @@ export const CreateGovProposal = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-end pt-6 text-xs">
+        <div className="flex items-center justify-end pt-6 text-sm">
           <BorderGradientButton
             text={<FormattedMessage id="preview" defaultMessage={'Preview'} />}
             color={'#192734'}
@@ -4241,7 +4287,6 @@ export const GovProposal = ({
           .map((p) => (
             <GovProposalItem
               VEmeta={VEmeta}
-              status={proposalStatus[p.status]}
               proposal={p}
               description={JSON.parse(p.description)}
               setShowDetail={setShowDetail}
@@ -4317,7 +4362,7 @@ export const ProposalCard = () => {
 
       setLastRoundFarmProposal(lastRoundProposal || undefined);
     });
-  }, []);
+  }, [showDetail]);
   useEffect(() => {
     localStorage.setItem(REF_FI_PROPOSALTAB, curTab);
   }, [curTab]);

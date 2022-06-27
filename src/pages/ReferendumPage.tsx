@@ -488,7 +488,7 @@ export const LockPopUp = ({
       }
     >
       <div className="flex flex-col text-white pt-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-5">
           <div className="flex items-center">
             <Images tokens={tokens} size={'7'} />
             &nbsp;
@@ -528,7 +528,7 @@ export const LockPopUp = ({
           max={lpShare}
           onChangeAmount={setInputValue}
           decimalLimit={LOVE_TOKEN_DECIMAL}
-          className="mt-4"
+          className=""
           value={inputValue}
         />
 
@@ -1383,7 +1383,7 @@ export const FarmStakeTip = ({
   }
 
   return (
-    <div className="text-primaryText flex items-center text-xs relative top-1 pt-5">
+    <div className="text-primaryText flex items-center text-xs relative mb-1.5">
       <FormattedMessage id="you_have" defaultMessage={'You have'} />{' '}
       {toPrecision(
         toReadableNumber(24, scientificNotationToString(stake.toString())),
@@ -1520,24 +1520,27 @@ const UserReferendumCard = ({
 
       <div className="flex items-center justify-between mt-10 mb-4">
         <div className="flex flex-col w-1/2 mr-4">
-          <div
-            className={`text-3xl font-bold text-gradientFromHover ${
-              ONLY_ZEROS.test(lpShare) || !isSignedIn ? 'opacity-20' : ''
-            }`}
-          >
+          <div className={`text-3xl font-bold text-gradientFromHover `}>
             <span className="flex items-center">
               {isSignedIn ? (
                 Number(lpShare) > 0 && Number(lpShare) < 0.01 ? (
                   '< 0.01'
                 ) : (
-                  <span title={lpShare}>{`${toPrecision(lpShare, 2)}`} </span>
+                  <span
+                    className={`
+                  ${ONLY_ZEROS.test(lpShare) || !isSignedIn ? 'opacity-20' : ''}
+                  `}
+                    title={lpShare}
+                  >
+                    {`${toPrecision(lpShare, 2)}`}{' '}
+                  </span>
                 )
               ) : (
                 '-'
               )}
 
-              {!isSignedIn &&
-              (Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0) ? null : (
+              {!isSignedIn ||
+              !(Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0) ? null : (
                 <div
                   className={`ml-2 relative  flex items-start  pl-1 py-0.5`}
                   onMouseEnter={() => setHoverTip(true)}
@@ -1546,9 +1549,8 @@ const UserReferendumCard = ({
                   <div className={`relative z-20`}>
                     <VETip />
                   </div>
-
-                  <div className="-top-0.5 -left-0.5 pl-6 pr-3 z-10 absolute bg-black bg-opacity-80  rounded-xl text-sm">
-                    {!hoverTip ? null : (
+                  {!hoverTip ? null : (
+                    <div className="-top-0.5 -left-0.5 pl-6 pr-3 z-10 absolute bg-black bg-opacity-80  rounded-xl text-sm">
                       <div className={`ml-1 mt-0.5`}>
                         <div
                           className={Number(farmStakeV1) > 0 ? 'mb-1.5' : ''}
@@ -1569,8 +1571,8 @@ const UserReferendumCard = ({
                           ) : null}
                         </div>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               )}
             </span>

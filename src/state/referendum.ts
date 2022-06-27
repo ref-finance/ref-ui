@@ -33,6 +33,7 @@ import {
 } from '../utils/numbers';
 import moment from 'moment';
 import { durationFomatter } from '../components/layout/Proposal';
+import { ProposalStatus } from '../services/referendum';
 
 const minMultiplier = 10000;
 
@@ -293,10 +294,14 @@ export const useCounterDownVE = ({
   setCounterDownStirng,
   base,
   id,
+  setStatus,
+  status,
 }: {
   setCounterDownStirng: (s: string) => void;
   base: number;
   id: number | undefined;
+  setStatus?: (status?: ProposalStatus) => void;
+  status?: ProposalStatus;
 }) => {
   const interval = 60 * 1000;
 
@@ -304,11 +309,16 @@ export const useCounterDownVE = ({
     let timer = setInterval(() => {
       const duration = moment.duration(base - moment().unix(), 'seconds');
 
-      console.log(duration);
-
-      setCounterDownStirng(
-        duration.asSeconds() < 0 ? '0d: 0h: 0m' : durationFomatter(duration)
-      );
+      if (duration.asSeconds() < 0) {
+        setCounterDownStirng('0d: 0h: 0m');
+        if (status === 'WarmUp') {
+          setStatus('InProgress');
+        } else if (status === 'InProgress') {
+          setStatus('Expired');
+        }
+      } else {
+        setCounterDownStirng(durationFomatter(duration));
+      }
     }, interval);
 
     return () => clearInterval(timer);

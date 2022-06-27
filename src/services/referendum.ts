@@ -45,6 +45,8 @@ export type Incentive = {
   [index: string]: IncentiveItem;
 };
 
+export type ProposalStatus = 'WarmUp' | 'InProgress' | 'Expired';
+
 export interface Proposal {
   proposer: string;
   kind: {
@@ -70,7 +72,7 @@ export interface Proposal {
   description: string;
   participants: string;
   incentive: {} | Incentive;
-  status: 'WarmUp' | 'InProgress' | 'Expired';
+  status: ProposalStatus;
   is_nonsense: null;
   id?: number;
   ve_amount_at_last_action: string;
@@ -255,7 +257,7 @@ export const createProposal = async ({
   return executeMultipleTransactions(transactions);
 };
 
-export const getProposalList = () => {
+export const getProposalList = async () => {
   return refVeViewFunction({
     methodName: 'list_proposals',
   }).then((reslist: any) => {

@@ -658,13 +658,29 @@ export function BorderGradientButton(porps: {
   color?: string;
   opacity?: string;
   padding?: string;
+  hoverStyle?: boolean;
+  beatStyling?: boolean;
 }) {
-  const { text, onClick, padding, className, disabled, width, color, opacity } =
-    porps;
+  const {
+    text,
+    onClick,
+    padding,
+    className,
+    disabled,
+    width,
+    color,
+    opacity,
+    hoverStyle,
+    beatStyling,
+  } = porps;
+
+  const [beating, setBeating] = useState<boolean>(false);
 
   return (
     <button
-      className={` p-px rounded-lg text-center ${
+      className={`${
+        hoverStyle ? 'opacity-80 hover:opacity-100' : ''
+      } p-px rounded-lg text-center ${
         disabled ? 'opacity-30 cursor-not-allowed' : ''
       }  bg-veGradient ${width} ${opacity}`}
     >
@@ -678,9 +694,19 @@ export function BorderGradientButton(porps: {
         style={{
           backgroundColor: color || 'rgb(0,12,21)',
         }}
-        onClick={(e) => onClick && onClick(e)}
+        onClick={(e) => {
+          if (beatStyling) {
+            setBeating(true);
+          }
+          onClick && onClick(e);
+        }}
       >
-        <span className="px-0.5 py-0.5 my-px">{text}</span>
+        <span className="px-0.5 py-0.5 my-px">
+          <ButtonTextWrapper
+            loading={beating}
+            Text={() => <span>{text}</span>}
+          />
+        </span>
       </button>
     </button>
   );
