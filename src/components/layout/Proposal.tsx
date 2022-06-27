@@ -267,7 +267,7 @@ export const BonusBar = ({
         <button
           className={`flex items-center rounded-2xl ml-4 hover:bg-senderHot 
           
-          hover:text-black px-3 py-px border border-white border-opacity-30  hover:border-opacity-0 opacity-80
+          hover:text-black px-2 border border-white border-opacity-30  hover:border-opacity-0 opacity-80
           bg-black bg-opacity-20
           
           `}
@@ -586,10 +586,12 @@ const AddBonusPopUp = (
 
   const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
 
-  const tokens = useTokens([
+  const tokenIds = [
     ...(extraIncentiveTokens || []),
     ...(veMeta?.whitelisted_incentive_tokens || []),
-  ]);
+  ];
+
+  const tokens = useTokens(new Array(...new Set(tokenIds)));
 
   const nearBalance = useDepositableBalance('NEAR');
 
@@ -1500,7 +1502,7 @@ const FarmChart = ({
   const innerRadius = innerRadiusProp || 140;
   const outerRadius = outerRadiusProp || 170;
   return (
-    <ResponsiveContainer width={'100%'} height={forLastRound ? 350 : 500}>
+    <ResponsiveContainer width={'100%'} height={forLastRound ? 400 : 500}>
       <PieChart>
         <Pie
           data={data}
@@ -1919,6 +1921,7 @@ const GovItemDetail = ({
                   proposal_id: proposal?.id,
                 })
               }
+              className="h-full"
               disabled={proposal?.status === 'Expired'}
             />
           ) : (
@@ -2237,7 +2240,7 @@ const GovProposalItem = ({
               </span>
             </div>
 
-            <div className="w-full flex items-center justify-between pb-8 pt-3">
+            <div className="w-full flex items-center justify-between pb-8 pt-2.5">
               <div className="flex items-center">
                 <span className="text-primaryText mr-3">
                   <FormattedMessage id="proposer" defaultMessage={'Proposer'} />
@@ -2256,7 +2259,7 @@ const GovProposalItem = ({
                         status === 'Pending'
                           ? 'text-primaryText'
                           : 'text-senderHot'
-                      }`
+                      } text-xs `
                 }
               >
                 {counterDownStirng}
@@ -2302,7 +2305,10 @@ const GovProposalItem = ({
                     )}
 
                     <span
-                      className="truncate max-w-xs"
+                      className="truncate"
+                      style={{
+                        maxWidth: '150px',
+                      }}
                       title={
                         proposal.status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
                           ? ''
@@ -2329,8 +2335,11 @@ const GovProposalItem = ({
                         }}
                       ></div>
                       <span
-                        className="truncate max-w-xs"
+                        className="truncate "
                         title={options?.[youVotedIndex]}
+                        style={{
+                          maxWidth: '150px',
+                        }}
                       >
                         {options?.[youVotedIndex]}
                       </span>
@@ -2743,7 +2752,7 @@ export const LastRoundFarmVoting = (
     allocations
   );
   const supplyPercent = votedVE
-    .dividedBy(toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, VEmeta.totalVE || '1'))
+    .dividedBy(farmProposal?.ve_amount_at_last_action || '1')
     .times(100)
     .toNumber()
     .toFixed(2);
@@ -2880,9 +2889,17 @@ export const LastRoundFarmVoting = (
           ></FormattedMessage>
         }
         value={`${
-          Number(VEmeta.totalVE) === 0
+          Number(farmProposal.ve_amount_at_last_action) === 0
             ? '0'
-            : toPrecision(VEmeta.totalVE, 2, true, false)
+            : toPrecision(
+                toReadableNumber(
+                  LOVE_TOKEN_DECIMAL,
+                  farmProposal.ve_amount_at_last_action
+                ),
+                2,
+                true,
+                false
+              )
         } veLPT`}
       />
       <InfoRow
@@ -2934,10 +2951,6 @@ export const FarmProposal = ({
   const voteHistoryDetail = useVoteDetailHisroty();
 
   const { veShare, veShareRaw } = useAccountInfo();
-
-  const startTime = Math.floor(
-    new Big(farmProposal?.start_at || 0).div(TIMESTAMP_DIVISOR).toNumber()
-  );
 
   const endTime = Math.floor(
     new Big(farmProposal?.end_at || 0).div(TIMESTAMP_DIVISOR).toNumber()
@@ -3059,7 +3072,7 @@ export const FarmProposal = ({
       ? voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id
       : voteHistoryDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id;
 
-  const [sortBy, setSortBy] = useState<string>();
+  const [sortBy, setSortBy] = useState<string>('allocation');
 
   const FarmLine = ({
     className,
@@ -3143,6 +3156,12 @@ export const FarmProposal = ({
           className="h-8 w-20"
           padding="px-1 py-0"
         />
+      ) : farmProposal.status === 'WarmUp' ? (
+        <FarmProposalGrayButton
+          text={<FormattedMessage id="vote" defaultMessage={'Vote'} />}
+          className="h-8 w-20"
+          padding="px-1 py-0"
+        />
       ) : (
         <NewGradientButton
           text={<FormattedMessage id="vote" defaultMessage={'Vote'} />}
@@ -3203,6 +3222,7 @@ export const FarmProposal = ({
             showYourShare={votedIndex === index}
             yourShare={`${toPrecision(yourShare, 2)}%`}
             showAddBonus={
+              farmProposal.status !== 'WarmUp' &&
               (typeof votedIndex === 'undefined' || votedIndex === index) &&
               farmProposal.status !== 'Expired'
             }
@@ -3328,8 +3348,8 @@ export const FarmProposal = ({
       <div className="text-center text-2xl text-white">
         <FormattedMessage id="proposed" defaultMessage={'Proposed'} />{' '}
         <span>
-          {endtimeMoment.add(1, 'weeks').startOf('week').format('ll')}-
-          {endtimeMoment.add(2, 'weeks').format('ll')}
+          {endtimeMoment.add(1, 'month').startOf('month').format('ll')}-
+          {endtimeMoment.endOf('month').format('ll')}
         </span>{' '}
         <FormattedMessage id="farm_reward" defaultMessage={'Farm reward'} />
       </div>
@@ -3512,7 +3532,7 @@ export const FarmProposal = ({
               }`}
               onClick={() => {
                 if (sortBy === 'bonus') {
-                  setSortBy('');
+                  setSortBy('allocation');
                 } else {
                   setSortBy('bonus');
                 }
@@ -3536,7 +3556,7 @@ export const FarmProposal = ({
               }`}
               onClick={() => {
                 if (sortBy === 'allocation') {
-                  setSortBy('');
+                  setSortBy('bonus');
                 } else {
                   setSortBy('allocation');
                 }
@@ -3641,8 +3661,6 @@ export const CreateGovProposal = ({
 
   const isClientMobie = useClientMobile();
 
-  const [beating, setBeating] = useState<boolean>(false);
-
   const [focuesIndex, setFocusedIndex] = useState<number>(-1);
 
   const validate = () => {
@@ -3698,9 +3716,14 @@ export const CreateGovProposal = ({
       return false;
     }
 
-    setBeating(true);
     return true;
   };
+
+  const disabled =
+    dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
+    !link?.trim() ||
+    !title?.trim() ||
+    options.filter((_) => !!_.trim()).length < 2;
 
   return !show ? null : (
     <div className="text-white">
@@ -3989,11 +4012,14 @@ export const CreateGovProposal = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-end pt-6">
+        <div className="flex items-center justify-end pt-6 text-xs">
           <BorderGradientButton
             text={<FormattedMessage id="preview" defaultMessage={'Preview'} />}
             color={'#192734'}
             onClick={() => setShowPreview(true)}
+            width="w-28 h-8"
+            className="w-full h-full"
+            padding="p-0"
           />
 
           <NewGradientButton
@@ -4013,14 +4039,10 @@ export const CreateGovProposal = ({
                 });
               }
             }}
-            disabled={
-              dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
-              !link?.trim() ||
-              !title?.trim() ||
-              options.filter((_) => !!_.trim()).length < 2
-            }
-            beatStyling={beating}
-            className="ml-4"
+            disabled={disabled}
+            beatStyling={!disabled}
+            className="ml-4 h-8 w-28"
+            padding="p-0"
             disableForUI
           />
         </div>

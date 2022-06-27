@@ -420,17 +420,16 @@ export const LockPopUp = ({
     setDuration(candidateDurations?.[0] || 0);
   }, [candidateDurations?.length]);
 
-  const { multiplier, finalAmount, appendAmount, finalLoveAmount } =
-    useMultiplier({
-      duration: duration || 0,
-      maxMultiplier: config?.max_locking_multiplier || 20000,
-      maxDuration: config?.max_locking_duration_sec || 31104000,
-      amount: toNonDivisibleNumber(24, inputValue),
-      lockedAmount: accountInfo?.lpt_amount || '0',
-      curDuration: accountInfo?.duration_sec || 0,
-      curVEAmount: accountInfo?.ve_lpt_amount || '0',
-      loveBalance: balance,
-    });
+  const { multiplier, finalAmount, finalLoveAmount } = useMultiplier({
+    duration: duration || 0,
+    maxMultiplier: config?.max_locking_multiplier || 20000,
+    maxDuration: config?.max_locking_duration_sec || 31104000,
+    amount: toNonDivisibleNumber(24, inputValue),
+    lockedAmount: accountInfo?.lpt_amount || '0',
+    curDuration: accountInfo?.duration_sec || 0,
+    curVEAmount: accountInfo?.ve_lpt_amount || '0',
+    loveBalance: balance,
+  });
   const showVeAmount = !ONLY_ZEROS.test(inputValue) && duration;
 
   const currentVeAmount = toPrecision(
@@ -529,7 +528,7 @@ export const LockPopUp = ({
           max={lpShare}
           onChangeAmount={setInputValue}
           decimalLimit={LOVE_TOKEN_DECIMAL}
-          className="mt-5"
+          className="mt-4"
           value={inputValue}
         />
 
@@ -1177,7 +1176,7 @@ const VotingPowerCard = ({
   veShare: string;
   lpShare: string;
 }) => {
-  const allZeros = ONLY_ZEROS.test(veShare) && ONLY_ZEROS.test(lpShare);
+  const allZeros = ONLY_ZEROS.test(veShare);
 
   return (
     <div
@@ -1257,10 +1256,16 @@ The veLPT is not an actual, transferable token, but represents your voting power
   );
 };
 
-const FarmBoosterCard = ({ lpShare }: { lpShare: string }) => {
+const FarmBoosterCard = ({
+  lpShare,
+  veShare,
+}: {
+  lpShare: string;
+  veShare: string;
+}) => {
   const balance = useLOVEbalance();
 
-  const allZeros = ONLY_ZEROS.test(balance) && ONLY_ZEROS.test(lpShare);
+  const allZeros = ONLY_ZEROS.test(veShare);
 
   return (
     <div
@@ -1362,7 +1367,7 @@ const PosterCard = ({
   return (
     <div className="flex flex-col text-2xl font-bold">
       <VotingPowerCard veShare={veShare} lpShare={lpShare} />
-      <FarmBoosterCard lpShare={lpShare} />
+      <FarmBoosterCard lpShare={lpShare} veShare={veShare} />
     </div>
   );
 };
@@ -1378,7 +1383,7 @@ export const FarmStakeTip = ({
   }
 
   return (
-    <div className="text-primaryText flex items-center text-xs relative top-1 pt-1">
+    <div className="text-primaryText flex items-center text-xs relative top-1 pt-5">
       <FormattedMessage id="you_have" defaultMessage={'You have'} />{' '}
       {toPrecision(
         toReadableNumber(24, scientificNotationToString(stake.toString())),
@@ -1388,7 +1393,7 @@ export const FarmStakeTip = ({
       <span className="ml-1">
         <FormattedMessage id="in" defaultMessage={'in'} />
         <span
-          className="text-gradientFrom ml-1 cursor-pointer"
+          className="text-gradientFrom ml-1 cursor-pointer underline"
           onClick={() => {
             if (version === 1) {
               window.open('farms', '_blank');
@@ -1414,7 +1419,7 @@ export const FarmStakeTipHomePage = ({
   }
 
   return (
-    <div className="text-lightBg flex items-center text-sm flex-shrink-0 whitespace-nowrap">
+    <div className="text-lightBg font-light flex items-center text-sm flex-shrink-0 whitespace-nowrap">
       {toPrecision(
         toReadableNumber(24, scientificNotationToString(stake.toString())),
         2
@@ -1423,16 +1428,16 @@ export const FarmStakeTipHomePage = ({
       <span className="ml-1">
         <FormattedMessage id="in" defaultMessage={'in'} />
         <span
-          className=" ml-1 cursor-pointer hover:text-white"
+          className=" ml-1 cursor-pointer hover:text-gradientFrom "
           onClick={() => {
             if (version === 1) {
               window.open('farms', '_blank');
             } else window.open(`/farmsBoost/${getVEPoolId()}-r`, '_blank');
           }}
         >
-          <span className="underline ">
+          <span className="underline mr-1 ">
             <FormattedMessage id="farm" defaultMessage={'farm'} />{' '}
-            {`V${version}`}
+            <span className="text-xs">{`V${version}`}</span>
           </span>
           ↗
         </span>
@@ -1534,32 +1539,35 @@ const UserReferendumCard = ({
               {!isSignedIn &&
               (Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0) ? null : (
                 <div
-                  className={`ml-2  opacity-80 relative  flex items-start ${
-                    hoverTip ? ' opacity-100' : ''
-                  } p-1`}
+                  className={`ml-2 relative  flex items-start  pl-1 py-0.5`}
                   onMouseEnter={() => setHoverTip(true)}
                   onMouseLeave={() => setHoverTip(false)}
                 >
-                  <div className="relative z-20">
+                  <div className={`relative z-20`}>
                     <VETip />
                   </div>
 
-                  <div className="top-0 left-0 pl-6 pr-2 z-10 absolute bg-black bg-opacity-80  rounded-xl">
+                  <div className="-top-0.5 -left-0.5 pl-6 pr-3 z-10 absolute bg-black bg-opacity-80  rounded-xl text-sm">
                     {!hoverTip ? null : (
                       <div className={`ml-1 mt-0.5`}>
-                        {Number(farmStakeV1) > 0 ? (
-                          <FarmStakeTipHomePage
-                            stake={farmStakeV1}
-                            version={1}
-                          />
-                        ) : null}
-
-                        {Number(farmStakeV2) > 0 ? (
-                          <FarmStakeTipHomePage
-                            stake={farmStakeV2}
-                            version={2}
-                          />
-                        ) : null}
+                        <div
+                          className={Number(farmStakeV1) > 0 ? 'mb-1.5' : ''}
+                        >
+                          {Number(farmStakeV1) > 0 ? (
+                            <FarmStakeTipHomePage
+                              stake={farmStakeV1}
+                              version={1}
+                            />
+                          ) : null}
+                        </div>
+                        <div className={Number(farmStakeV1) > 0 ? 'mb-1' : ''}>
+                          {Number(farmStakeV2) > 0 ? (
+                            <FarmStakeTipHomePage
+                              stake={farmStakeV2}
+                              version={2}
+                            />
+                          ) : null}
+                        </div>
                       </div>
                     )}
                   </div>
