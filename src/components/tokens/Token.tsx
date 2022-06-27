@@ -119,12 +119,12 @@ export const TokenLinks = {
   LINK: 'https://awesomenear.com/chainlink',
   Cheddar: 'https://awesomenear.com/cheddar-farm',
   AURORA: 'https://awesomenear.com/aurora-dev',
-  META: 'https://awesomenear.com/meta-pool',
+  $META: 'https://awesomenear.com/meta-pool',
   UMINT: 'https://awesomenear.com/youminter',
   UTO: 'https://awesomenear.com/secret-skellies-society',
   DEIP: 'https://awesomenear.com/deip',
   WOO: 'https://awesomenear.com/woo-dex',
-  LiNEAR: 'https://awesomenear.com/linear-protocol',
+  LINEAR: 'https://awesomenear.com/linear-protocol',
   PEM: 'https://awesomenear.com/pembrock-finance',
   ATO: 'https://awesomenear.com/atocha-protocol',
   SEAT: 'https://awesomenear.com/seatlab-nft',
@@ -132,5 +132,5 @@ export const TokenLinks = {
   BSTN: 'https://awesomenear.com/bastion',
   BRRR: 'https://awesomenear.com/burrow',
   XNL: 'https://awesomenear.com/chronicle',
-  KSW: 'https://awesomenear.com/killswitch-finance'
+  KSW: 'https://awesomenear.com/killswitch-finance',
 };
