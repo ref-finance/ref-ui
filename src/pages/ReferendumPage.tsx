@@ -88,6 +88,7 @@ import { QuestionTip } from '../components/layout/TipWrapper';
 import QuestionMark from '../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { createContext } from 'react';
+import { VETip } from '../components/icon/Referendum';
 
 export interface AccountInfo {
   duration_sec: number;
@@ -1401,6 +1402,45 @@ export const FarmStakeTip = ({
   );
 };
 
+export const FarmStakeTipHomePage = ({
+  stake,
+  version,
+}: {
+  stake: string | number;
+  version: number;
+}) => {
+  if (Number(stake) === 0) {
+    return null;
+  }
+
+  return (
+    <div className="text-lightBg flex items-center text-sm flex-shrink-0 whitespace-nowrap">
+      {toPrecision(
+        toReadableNumber(24, scientificNotationToString(stake.toString())),
+        2
+      )}{' '}
+      <FormattedMessage id="more_lowercase" defaultMessage={'more'} />
+      <span className="ml-1">
+        <FormattedMessage id="in" defaultMessage={'in'} />
+        <span
+          className=" ml-1 cursor-pointer hover:text-white"
+          onClick={() => {
+            if (version === 1) {
+              window.open('farms', '_blank');
+            } else window.open(`/farmsBoost/${getVEPoolId()}-r`, '_blank');
+          }}
+        >
+          <span className="underline ">
+            <FormattedMessage id="farm" defaultMessage={'farm'} />{' '}
+            {`V${version}`}
+          </span>
+          ↗
+        </span>
+      </span>
+    </div>
+  );
+};
+
 const UserReferendumCard = ({
   veShare,
   lpShare,
@@ -1433,6 +1473,8 @@ const UserReferendumCard = ({
   const lockedLpShare = toReadableNumber(24, accountInfo?.lpt_amount || '0');
 
   const { farmStakeV1, farmStakeV2 } = useYourliquidity(Number(getVEPoolId()));
+
+  const [hoverTip, setHoverTip] = useState<boolean>(false);
 
   return (
     <Card
@@ -1471,24 +1513,6 @@ const UserReferendumCard = ({
         </button>
       </div>
 
-      {/* {Number(farmStakeV1) > 0 ? (
-        <div>
-          <FarmStakeTip stake={farmStakeV1} version={1} />
-        </div>
-      ) : (
-        <div className="w-full h-5"></div>
-      )}
-
-      {Number(farmStakeV2) > 0 ? (
-        <div
-          className={`${Number(farmStakeV1) === 0 ? 'relative bottom-4' : ''}`}
-        >
-          <FarmStakeTip stake={farmStakeV2} version={2} />
-        </div>
-      ) : (
-        <div className="w-full h-5"></div>
-      )} */}
-
       <div className="flex items-center justify-between mt-10 mb-4">
         <div className="flex flex-col w-1/2 mr-4">
           <div
@@ -1496,12 +1520,51 @@ const UserReferendumCard = ({
               ONLY_ZEROS.test(lpShare) || !isSignedIn ? 'opacity-20' : ''
             }`}
           >
-            <span title={lpShare}>
-              {isSignedIn
-                ? Number(lpShare) > 0 && Number(lpShare) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(lpShare, 2)
-                : '-'}
+            <span className="flex items-center">
+              {isSignedIn ? (
+                Number(lpShare) > 0 && Number(lpShare) < 0.01 ? (
+                  '< 0.01'
+                ) : (
+                  <span title={lpShare}>{`${toPrecision(lpShare, 2)}`} </span>
+                )
+              ) : (
+                '-'
+              )}
+
+              {!isSignedIn &&
+              (Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0) ? null : (
+                <div
+                  className={`ml-2  opacity-80 relative  flex items-start ${
+                    hoverTip ? ' opacity-100' : ''
+                  } p-1`}
+                  onMouseEnter={() => setHoverTip(true)}
+                  onMouseLeave={() => setHoverTip(false)}
+                >
+                  <div className="relative z-20">
+                    <VETip />
+                  </div>
+
+                  <div className="top-0 left-0 pl-6 pr-2 z-10 absolute bg-black bg-opacity-80  rounded-xl">
+                    {!hoverTip ? null : (
+                      <div className={`ml-1 mt-0.5`}>
+                        {Number(farmStakeV1) > 0 ? (
+                          <FarmStakeTipHomePage
+                            stake={farmStakeV1}
+                            version={1}
+                          />
+                        ) : null}
+
+                        {Number(farmStakeV2) > 0 ? (
+                          <FarmStakeTipHomePage
+                            stake={farmStakeV2}
+                            version={2}
+                          />
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </span>
           </div>
 

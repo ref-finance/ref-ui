@@ -626,14 +626,10 @@ function PoolRow(props: {
             </Link>
           )}
           {Number(getVEPoolId()) === Number(pool.id) ? (
-            <Link
-              to={{
-                pathname: `/farmsBoost/${pool.id}-${
-                  props.onlyEndedFarmV2 ? 'e' : 'r'
-                }`,
-              }}
-              target="_blank"
+            <div
               onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
                 window.open('/referendum');
               }}
               className="text-primaryText mb-1.5 flex"
@@ -653,7 +649,7 @@ function PoolRow(props: {
                 </span>
                 <span className="ml-0.5">↗</span>
               </div>
-            </Link>
+            </div>
           ) : null}
 
           {ONLY_ZEROS.test(shares) ||
@@ -855,14 +851,10 @@ function PoolRow(props: {
                 </Link>
               )}
               {Number(getVEPoolId()) === Number(pool.id) ? (
-                <Link
-                  to={{
-                    pathname: `/farmsBoost/${pool.id}-${
-                      props.onlyEndedFarmV2 ? 'e' : 'r'
-                    }`,
-                  }}
-                  target="_blank"
+                <div
                   onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     window.open('/referendum');
                   }}
                   className="text-primaryText mb-1.5 text-xs"
@@ -880,7 +872,7 @@ function PoolRow(props: {
                     <FormattedMessage id="dao" defaultMessage={'DAO'} />
                   </span>
                   <span className="text-gradientFrom ml-0.5">↗</span>
-                </Link>
+                </div>
               ) : null}
 
               {ONLY_ZEROS.test(shares) ||
