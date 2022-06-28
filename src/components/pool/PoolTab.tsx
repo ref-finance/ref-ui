@@ -10,7 +10,11 @@ export const PoolTab = () => {
   const history = useHistory();
   useEffect(() => {
     const pathname = location.pathname;
-    if (pathname == '/pools') {
+    if (
+      pathname.startsWith('/pool/') ||
+      pathname.startsWith('/more_pools/') ||
+      pathname == '/pools'
+    ) {
       setChoosedTab('1');
     } else if (pathname == '/pools/add') {
       setChoosedTab('2');
