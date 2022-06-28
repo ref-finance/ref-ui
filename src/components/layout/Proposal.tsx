@@ -2218,7 +2218,7 @@ const GovProposalItem = ({
 
   const yourShare = scientificNotationToString(
     new BigNumber(votedAmount || '0')
-      .div(proposal.votes?.[youVotedIndex] || '1')
+      .div(new BigNumber(totalVE).gt(0) ? totalVE : 1)
       .times(100)
       .toString()
   );
