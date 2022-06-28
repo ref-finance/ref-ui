@@ -2218,7 +2218,7 @@ const GovProposalItem = ({
 
   const yourShare = scientificNotationToString(
     new BigNumber(votedAmount || '0')
-      .div(new BigNumber(totalVE).gt(0) ? new BigNumber(totalVE) : 0)
+      .div(proposal.votes?.[youVotedIndex] || '1')
       .times(100)
       .toString()
   );
@@ -3151,13 +3151,6 @@ export const FarmProposal = ({
     voteDetail?.[farmProposal?.id]?.amount ||
     voteHistoryDetail?.[farmProposal?.id]?.amount;
 
-  const yourShare = scientificNotationToString(
-    new BigNumber(votedAmount || '0')
-      .div(votedVE.gt(0) ? votedVE : 0)
-      .times(100)
-      .toString()
-  );
-
   const checkedAllocations = checkAllocations(
     ONLY_ZEROS.test(scientificNotationToString(votedVE.toString()))
       ? '0'
@@ -3170,6 +3163,13 @@ export const FarmProposal = ({
     'undefined'
       ? voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id
       : voteHistoryDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id;
+
+  const yourShare = scientificNotationToString(
+    new BigNumber(votedAmount || '0')
+      .div(farmProposal.votes?.[votedIndex] || '1')
+      .times(100)
+      .toString()
+  );
 
   const [sortBy, setSortBy] = useState<string>('allocation');
 
