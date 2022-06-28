@@ -4436,13 +4436,29 @@ export const ProposalCard = () => {
               farmProposals.filter(
                 (p) =>
                   Math.floor(Number(p.start_at) / TIMESTAMP_DIVISOR) <
-                  moment().unix()
+                    moment().unix() && p.status === 'InProgress'
               ),
               (o) => Number(o.start_at)
             );
 
       const toSetFarmProposal =
-        farmProposal || farmProposals[farmProposals.length - 1];
+        farmProposal ||
+        _.minBy(
+          farmProposals.filter(
+            (p) =>
+              Math.floor(Number(p.start_at) / TIMESTAMP_DIVISOR) >
+                moment().unix() && p.status === 'WarmUp'
+          ),
+          (o) => Number(o.start_at)
+        ) ||
+        _.maxBy(
+          farmProposals.filter(
+            (p) =>
+              Math.floor(Number(p.end_at) / TIMESTAMP_DIVISOR) <
+                moment().unix() && p.status === 'Expired'
+          ),
+          (o) => Number(o.end_at)
+        );
 
       setFarmProposal(toSetFarmProposal);
 
