@@ -1479,9 +1479,9 @@ const FarmChart = ({
 
     return activeIndex === index ? (
       <g
-      onMouseLeave={() => {
-        setActiveIndex(null);
-      }}
+        onMouseLeave={() => {
+          setActiveIndex(null);
+        }}
       >
         <Sector
           cx={cx}
@@ -1709,6 +1709,84 @@ const GovItemDetail = ({
 
   const history = useHistory();
 
+  const Button =
+    status === 'WarmUp' ? (
+      getCurrentWallet().wallet.getAccountId() === proposal?.proposer ? (
+        <NewGradientButton
+          text={<FormattedMessage id="delete" defaultMessage={'Delete'} />}
+          padding="px-0 py-0"
+          className="h-8 w-20 ml-2.5"
+          gradient="bg-redGradient"
+          onClick={() => {
+            removeProposal(proposal.id);
+          }}
+          beatStyling
+        />
+      ) : (
+        <FarmProposalGrayButton
+          text={
+            <FormattedMessage id="not_start" defaultMessage={'Not start'} />
+          }
+          padding="px-0 py-0"
+          className="h-8 w-20 ml-2.5"
+        />
+      )
+    ) : status === 'InProgress' ? (
+      ONLY_ZEROS.test(veShare) ? (
+        <FarmProposalGrayButton
+          text={<FormattedMessage id="no_veLPT" defaultMessage={'No veLPT'} />}
+          padding="px-0 py-0"
+          className="h-8 w-20 ml-2.5"
+        />
+      ) : (
+        <NewGradientButton
+          text={
+            !!voted ? (
+              <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
+            ) : (
+              <FormattedMessage id="vote" defaultMessage={'Vote'} />
+            )
+          }
+          padding="px-0 py-0"
+          className="h-8 w-20 ml-2.5"
+          onClick={() => {
+            !!voted
+              ? cancelVote({
+                  proposal_id: proposal.id,
+                })
+              : setShowVotePop(true);
+          }}
+          beatStyling={!!voted}
+        />
+      )
+    ) : unClaimed ? (
+      <NewGradientButton
+        text={
+          <FormattedMessage id="claim_bonus" defaultMessage={'Claim Bonus'} />
+        }
+        padding="px-0 py-0"
+        className="h-8 w-20 ml-2.5"
+        beatStyling
+        onClick={() => {
+          claimRewardVE({
+            proposal_id: proposal?.id,
+          });
+        }}
+      />
+    ) : (
+      <FarmProposalGrayButton
+        text={
+          !!voted ? (
+            <FormattedMessage id="voted" defaultMessage={'Voted'} />
+          ) : (
+            <FormattedMessage id="ended_ve" defaultMessage={'Ended'} />
+          )
+        }
+        padding="px-0 py-0"
+        className="h-8 w-20 ml-2.5"
+      />
+    );
+
   return !show ? null : (
     <div className="text-white text-sm relative">
       <div
@@ -1736,38 +1814,45 @@ const GovItemDetail = ({
           </span>
         </button>
 
-        <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs pr-4 pl-2 text-gradientFrom absolute right-0">
-          {status === 'Expired' ? (
-            <span className="text-primaryText ml-2">
-              <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
-            </span>
-          ) : (
-            <div className="flex items-center">
-              <span
-                className={`rounded-3xl px-2 py-0.5 mr-2  ${
-                  status === 'WarmUp'
-                    ? 'text-white bg-pendingPurple'
-                    : 'text-black bg-gradientFrom'
-                }`}
-              >
-                {status === 'InProgress' ? (
-                  <FormattedMessage id="live" defaultMessage={'Live'} />
-                ) : (
-                  <FormattedMessage
-                    id="pending_ve"
-                    defaultMessage={'Pending'}
-                  />
-                )}
+        <span className=" py-1.5 flex flex-col items-end text-xs pr-4 pl-2 absolute right-0 -top-4">
+          <span className="rounded-3xl mb-3 text-xs px-1 text-senderHot">
+            {status === 'Expired' ? (
+              <span className="bg-black bg-opacity-20 px-2 py-1 rounded-3xl text-primaryText">
+                <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
               </span>
-              <span
-                className={`${
-                  status === 'WarmUp' ? 'text-primaryText' : 'text-gradientFrom'
-                }`}
-              >
-                {counterDownStirng}
-              </span>
-            </div>
-          )}
+            ) : (
+              <div className="flex items-center">
+                <span
+                  className={`rounded-3xl px-2 py-0.5  ${
+                    status === 'WarmUp'
+                      ? 'text-white bg-pendingPurple'
+                      : 'text-black bg-senderHot'
+                  }`}
+                >
+                  {status === 'InProgress' ? (
+                    <FormattedMessage id="live" defaultMessage={'Live'} />
+                  ) : (
+                    <FormattedMessage
+                      id="pending_ve"
+                      defaultMessage={'Pending'}
+                    />
+                  )}
+                </span>
+              </div>
+            )}
+          </span>
+          <span
+            className={
+              status === 'Expired'
+                ? 'hidden'
+                : `${
+                    status === 'WarmUp' ? 'text-primaryText' : 'text-senderHot'
+                  } text-xs `
+            }
+          >
+            {counterDownStirng}
+            {`${status === 'WarmUp' ? ' start' : ' left'}`}
+          </span>
         </span>
 
         <span className="absolute right-1">{timeDuration}</span>
@@ -1941,60 +2026,7 @@ const GovItemDetail = ({
         </div>
 
         <div className="flex items-center justify-end pt-6 border-t border-white border-opacity-10">
-          {(voted || status === 'Expired') && !unClaimed ? (
-            <BorderGradientButton
-              text={
-                voted && status === 'InProgress' ? (
-                  <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
-                ) : !voted ? (
-                  <FormattedMessage id="ended_ve" defaultMessage={'Ended'} />
-                ) : (
-                  <FormattedMessage id="voted" defaultMessage={'Voted'} />
-                )
-              }
-              color={'#192734'}
-              width="w-20 h-8"
-              padding="px-0 py-0"
-              onClick={() =>
-                cancelVote({
-                  proposal_id: proposal?.id,
-                })
-              }
-              beatStyling
-              hoverStyle
-              className="h-full"
-              disabled={status === 'Expired'}
-            />
-          ) : (
-            <NewGradientButton
-              text={
-                unClaimed ? (
-                  <FormattedMessage
-                    id="claim_reward"
-                    defaultMessage={'Claim Reward'}
-                  />
-                ) : status === 'InProgress' && ONLY_ZEROS.test(veShare) ? (
-                  <FormattedMessage id="no_veLPT" defaultMessage={'No veLPT'} />
-                ) : (
-                  <FormattedMessage id="vote" defaultMessage={'Vote'} />
-                )
-              }
-              onClick={() => {
-                unClaimed
-                  ? claimRewardVE({
-                      proposal_id: proposal?.id,
-                    })
-                  : setShowVotePop(true);
-              }}
-              padding="px-0 py-0"
-              disabled={
-                (status !== 'InProgress' ||
-                  (status === 'InProgress' && ONLY_ZEROS.test(veShare))) &&
-                !unClaimed
-              }
-              className={unClaimed ? 'w-28 h-8' : 'w-20 h-8'}
-            />
-          )}
+          {Button}
         </div>
 
         <BonusBar
@@ -2067,6 +2099,10 @@ const GovProposalItem = ({
 }) => {
   const [status, setStatus] = useState<ProposalStatus>(proposal.status);
 
+  useEffect(() => {
+    setStatus(proposal.status);
+  }, [proposal.id, proposal]);
+
   const base = Math.floor(
     Number(status === 'InProgress' ? proposal?.end_at : proposal?.start_at) /
       TIMESTAMP_DIVISOR
@@ -2083,7 +2119,7 @@ const GovProposalItem = ({
       moment.duration(base + 60 - moment().unix(), 'seconds')
     );
     setCounterDownStirng(baseCounterDown);
-  }, [base]);
+  }, [base, proposal.id]);
 
   useCounterDownVE({
     base,
@@ -2227,6 +2263,84 @@ const GovProposalItem = ({
     .sort((d1, d2) => {
       return Number(d2.ratio) - Number(d1.ratio);
     });
+
+  const Button =
+    status === 'WarmUp' ? (
+      getCurrentWallet().wallet.getAccountId() === proposal?.proposer ? (
+        <NewGradientButton
+          text={<FormattedMessage id="delete" defaultMessage={'Delete'} />}
+          padding="px-0 py-0"
+          className="h-8 w-20 ml-2.5"
+          gradient="bg-redGradient"
+          onClick={() => {
+            removeProposal(proposal.id);
+          }}
+          beatStyling
+        />
+      ) : (
+        <FarmProposalGrayButton
+          text={
+            <FormattedMessage id="not_start" defaultMessage={'Not start'} />
+          }
+          padding="px-0 py-0"
+          className="h-8 w-20 ml-2.5"
+        />
+      )
+    ) : status === 'InProgress' ? (
+      ONLY_ZEROS.test(veShare) ? (
+        <FarmProposalGrayButton
+          text={<FormattedMessage id="no_veLPT" defaultMessage={'No veLPT'} />}
+          padding="px-0 py-0"
+          className="h-8 w-20 ml-2.5"
+        />
+      ) : (
+        <NewGradientButton
+          text={
+            !!voted ? (
+              <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
+            ) : (
+              <FormattedMessage id="vote" defaultMessage={'Vote'} />
+            )
+          }
+          padding="px-0 py-0"
+          className="h-8 w-20 ml-2.5"
+          onClick={() => {
+            !!voted
+              ? cancelVote({
+                  proposal_id: proposal.id,
+                })
+              : setShowVotePop(true);
+          }}
+          beatStyling={!!voted}
+        />
+      )
+    ) : unClaimed ? (
+      <NewGradientButton
+        text={
+          <FormattedMessage id="claim_bonus" defaultMessage={'Claim Bonus'} />
+        }
+        padding="px-0 py-0"
+        className="h-8 w-20 ml-2.5"
+        beatStyling
+        onClick={() => {
+          claimRewardVE({
+            proposal_id: proposal?.id,
+          });
+        }}
+      />
+    ) : (
+      <FarmProposalGrayButton
+        text={
+          !!voted ? (
+            <FormattedMessage id="voted" defaultMessage={'Voted'} />
+          ) : (
+            <FormattedMessage id="ended_ve" defaultMessage={'Ended'} />
+          )
+        }
+        padding="px-0 py-0"
+        className="h-8 w-20 ml-2.5"
+      />
+    );
 
   return (
     <>
@@ -2429,88 +2543,7 @@ const GovProposalItem = ({
                     history.push(`/referendum/${proposal.id}`);
                   }}
                 />
-
-                {status === 'WarmUp' &&
-                getCurrentWallet().wallet.getAccountId() ===
-                  proposal?.proposer ? (
-                  <NewGradientButton
-                    text={
-                      <FormattedMessage id="delete" defaultMessage={'Delete'} />
-                    }
-                    padding="px-0 py-0"
-                    className="h-8 w-20 ml-2.5"
-                    gradient="bg-redGradient"
-                    onClick={() => {
-                      removeProposal(proposal.id);
-                    }}
-                    beatStyling
-                  />
-                ) : status === 'Expired' && !unClaimed ? (
-                  <BorderGradientButton
-                    text={
-                      !!voted ? (
-                        <FormattedMessage id="voted" defaultMessage={'Voted'} />
-                      ) : (
-                        <FormattedMessage
-                          id="ended_ve"
-                          defaultMessage={'Ended'}
-                        />
-                      )
-                    }
-                    width="h-8 ml-2.5  w-20"
-                    disabled
-                    padding="px-0"
-                    className="h-full"
-                    color="#293540"
-                  />
-                ) : (
-                  <NewGradientButton
-                    text={
-                      unClaimed ? (
-                        <FormattedMessage
-                          id="claim_bonus"
-                          defaultMessage={'Claim Bonus'}
-                        />
-                      ) : status === 'InProgress' && voted ? (
-                        <FormattedMessage
-                          id="cancel"
-                          defaultMessage={'Cancel'}
-                        />
-                      ) : status === 'InProgress' &&
-                        ONLY_ZEROS.test(veShare) ? (
-                        <FormattedMessage
-                          id="no_veLPT"
-                          defaultMessage={'No veLPT'}
-                        />
-                      ) : (
-                        <FormattedMessage id="vote" defaultMessage={'Vote'} />
-                      )
-                    }
-                    beatStyling={
-                      unClaimed || (status === 'InProgress' && !!voted)
-                    }
-                    className={`ml-2.5 h-8 ${unClaimed ? 'w-28' : 'w-20'}`}
-                    padding="px-0 "
-                    disabled={
-                      (ended && !unClaimed) ||
-                      status === 'WarmUp' ||
-                      (status === 'InProgress' && ONLY_ZEROS.test(veShare))
-                    }
-                    onClick={() => {
-                      if (unClaimed) {
-                        claimRewardVE({
-                          proposal_id: proposal?.id,
-                        });
-                      } else if (voted) {
-                        cancelVote({
-                          proposal_id: proposal.id,
-                        });
-                      } else if (status === 'InProgress') {
-                        setShowVotePop(true);
-                      }
-                    }}
-                  />
-                )}
+                {Button}
               </div>
             </div>
           </div>
@@ -3101,12 +3134,7 @@ export const FarmProposal = ({
     displayVELPT
   );
 
-  const allocations = checkAllocations(
-    ONLY_ZEROS.test(scientificNotationToString(votedVE.toString()))
-      ? '0'
-      : '100',
-    displayRatios
-  ).map((r) => {
+  const allocations = checkedRatios.map((r) => {
     return toPrecision(
       multiply(
         divide(r, '100').toString(),
@@ -3161,18 +3189,36 @@ export const FarmProposal = ({
 
     const [addBonusOpen, setAddBonusOpen] = useState<boolean>(false);
 
-    const ratioNew = scientificNotationToString(
-      new BigNumber(farmProposal?.votes?.[index])
-        .plus(new BigNumber(veShareRaw))
-        .div(votedVE.plus(veShareRaw))
+    const displayRatiosNew = farmProposal?.votes?.map((vote, i) =>
+      new BigNumber(vote)
+        .plus(i === index ? veShareRaw || '0' : '0')
+        .div(votedVE.plus(veShareRaw || '0'))
         .times(100)
-        .toString()
+        .toFixed(2)
     );
 
-    const allocateNew = multiply(
-      divide(ratioNew, '100').toString(),
-      farmProposal?.kind?.FarmingReward?.total_reward.toString()
+    console.log(displayRatiosNew, votedVE.toString(), veShareRaw);
+
+    const checkedRatiosNew = checkAllocations('100', displayRatiosNew || []);
+
+    const allocationsNew = checkedRatiosNew?.map((r) => {
+      return toPrecision(
+        multiply(
+          divide(r, '100').toString(),
+          farmProposal?.kind?.FarmingReward?.total_reward?.toString()
+        ),
+        0
+      );
+    });
+
+    const ratioNew = checkedRatiosNew?.[index];
+
+    const checkedAllocationsNew = checkAllocations(
+      farmProposal?.kind?.FarmingReward?.total_reward.toString(),
+      allocationsNew
     );
+
+    const allocateNew = checkedAllocationsNew?.[index];
 
     const Button =
       status === 'Expired' ? (
@@ -3202,15 +3248,13 @@ export const FarmProposal = ({
         )
       ) : typeof votedIndex !== 'undefined' ? (
         votedIndex === index ? (
-          <BorderGradientButton
+          <NewGradientButton
             text={<FormattedMessage id="cancel" defaultMessage={'Cancel'} />}
-            width="h-8 w-20"
-            className="h-full"
+            className=" h-8 w-20"
             padding="px-0 py-0"
             onClick={() => {
               cancelVote({ proposal_id: farmProposal.id });
             }}
-            hoverStyle
             beatStyling
           />
         ) : (
@@ -3220,15 +3264,17 @@ export const FarmProposal = ({
             padding="px-1 py-0"
           />
         )
-      ) : ONLY_ZEROS.test(veShare) ? (
+      ) : status === 'WarmUp' ? (
         <FarmProposalGrayButton
-          text={<FormattedMessage id="no_veLPT" defaultMessage={'NO veLPT'} />}
+          text={
+            <FormattedMessage id="not_start" defaultMessage={'Not start'} />
+          }
           className="h-8 w-20"
           padding="px-1 py-0"
         />
-      ) : status === 'WarmUp' ? (
+      ) : ONLY_ZEROS.test(veShare) ? (
         <FarmProposalGrayButton
-          text={<FormattedMessage id="vote" defaultMessage={'Vote'} />}
+          text={<FormattedMessage id="no_veLPT" defaultMessage={'NO veLPT'} />}
           className="h-8 w-20"
           padding="px-1 py-0"
         />

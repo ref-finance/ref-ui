@@ -637,6 +637,8 @@ export function getPoolAllocationPercents(pools: Pool[]) {
 }
 
 export const checkAllocations = (sum: string, allocations: string[]) => {
+  if (!allocations || allocations?.length === 0) return [];
+
   const sumNumber = new Big(sum);
   const sumAllocations = allocations.reduce((acc, cur, i) => {
     return acc.plus(new Big(cur));
