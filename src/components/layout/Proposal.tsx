@@ -2226,6 +2226,7 @@ const GovProposalItem = ({
   const afterRatio = new Big(proposal?.votes?.[youVotedIndex] || '0').div(
     new Big(totalVE).gt(0) ? totalVE : 1
   );
+  console.log('dot 4');
 
   const beforeRatio = new Big(proposal?.votes?.[youVotedIndex] || '0')
     .minus(votedAmount || '0')
@@ -2263,6 +2264,8 @@ const GovProposalItem = ({
     .sort((d1, d2) => {
       return Number(d2.ratio) - Number(d1.ratio);
     });
+
+  console.log('dot 5');
 
   const Button =
     status === 'WarmUp' ? (
@@ -3192,12 +3195,21 @@ export const FarmProposal = ({
     const displayRatiosNew = farmProposal?.votes?.map((vote, i) =>
       new BigNumber(vote)
         .plus(i === index ? veShareRaw || '0' : '0')
-        .div(votedVE.plus(veShareRaw || '0'))
+        .div(
+          votedVE.plus(veShareRaw || '0').gt(0)
+            ? votedVE.plus(veShareRaw || '0')
+            : 1
+        )
         .times(100)
         .toFixed(2)
     );
 
-    console.log(displayRatiosNew, votedVE.toString(), veShareRaw);
+    console.log(
+      displayRatiosNew,
+      'display ratios',
+      farmProposal,
+      votedVE.toString()
+    );
 
     const checkedRatiosNew = checkAllocations('100', displayRatiosNew || []);
 
@@ -3239,6 +3251,7 @@ export const FarmProposal = ({
                 proposal_id: farmProposal.id,
               });
             }}
+            beatStyling
             padding="px-1 py-0"
           />
         ) : (
@@ -3485,13 +3498,13 @@ export const FarmProposal = ({
           .utc()
           .format('ll')}
         {` (UTC)`}
-        <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs pr-4 pl-2 text-senderHot absolute right-0">
+        <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs px-2 text-senderHot absolute right-0">
           {ended ? (
-            <span className="bg-black bg-opacity-20 px-2 py-1 ml-2 rounded-3xl text-primaryText">
+            <span className=" rounded-3xl text-primaryText">
               <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
             </span>
           ) : (
-            <div className="flex items-center">
+            <div className="flex items-center mr-2">
               <span
                 className={`rounded-3xl px-2 py-0.5 mr-2  ${
                   status === 'WarmUp'
