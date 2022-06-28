@@ -261,7 +261,6 @@ export const getProposalList = async () => {
   return refVeViewFunction({
     methodName: 'list_proposals',
   }).then((reslist: any) => {
-    console.log(reslist);
     return reslist.map((res: any) => {
       if (res?.kind?.Poll) {
         res.kind.Poll.description = res.description;

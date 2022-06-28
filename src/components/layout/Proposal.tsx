@@ -215,14 +215,6 @@ export const BonusBar = ({
   const total = scientificNotationToString(
     prices
       ?.reduce((acc, price, i) => {
-        console.log(
-          price,
-          toReadableNumber(
-            tokens?.[i]?.decimals || 24,
-            incentiveItem?.incentive_amounts?.[i] || '0'
-          )
-        );
-
         return acc.plus(
           new Big(price || 0).times(
             toReadableNumber(
@@ -234,6 +226,10 @@ export const BonusBar = ({
       }, new Big(0))
       .toString() || '0'
   );
+
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState?.isSignedIn;
 
   return (
     <div
@@ -248,9 +244,7 @@ export const BonusBar = ({
       </span>
 
       <span className={` ${!bright ? 'opacity-50' : ''}`}>
-        {prices?.some((p) => !p) || !prices
-          ? '-'
-          : '$' + toInternationalCurrencySystem(total || '0', 2)}
+        {!prices ? '-' : '$' + toInternationalCurrencySystem(total || '0', 2)}
       </span>
 
       {tokens?.map((t, i) => {
@@ -271,7 +265,7 @@ export const BonusBar = ({
           </div>
         );
       })}
-      {!showAddBonus ? null : (
+      {!showAddBonus || !isSignedIn ? null : (
         <button
           className={`flex items-center rounded-2xl ml-4 hover:bg-senderHot 
           
@@ -1238,8 +1232,6 @@ const FarmChart = ({
 
   const totalVotes = BigNumber.sum(...proposal.votes);
 
-  console.log(totalVotes.toString());
-
   const ActiveLabel = ({ activeIndex }: { activeIndex: number }) => {
     const activeFarm = data[activeIndex];
 
@@ -1383,7 +1375,7 @@ const FarmChart = ({
     const height = forLastRound ? '190' : '200';
 
     return (
-      <g>
+      <g z={index === activeIndex ? 20 : 10}>
         {ratio[voted] && ratio[voted]?.name === data[index]?.name ? (
           <foreignObject
             x={x + 78 * (cos > 0 ? 0 : -1)}
@@ -1439,6 +1431,7 @@ const FarmChart = ({
             y={y1 + Number(height) * (sin < 0 ? 0 : -1)}
             height={height}
             width={width}
+            className="option-info-label"
           >
             <ActiveLabel activeIndex={activeIndex} />
           </foreignObject>
@@ -1534,7 +1527,7 @@ const FarmChart = ({
   const innerRadius = innerRadiusProp || 140;
   const outerRadius = outerRadiusProp || 170;
   return (
-    <ResponsiveContainer width={'100%'} height={forLastRound ? 400 : 500}>
+    <ResponsiveContainer width={'100%'} height={forLastRound ? 430 : 560}>
       <PieChart>
         <Pie
           data={data}
@@ -1688,7 +1681,7 @@ const GovItemDetail = ({
 
   useEffect(() => {
     const baseCounterDown = durationFomatter(
-      moment.duration(base - moment().unix(), 'seconds')
+      moment.duration(base + 60 - moment().unix(), 'seconds')
     );
     setCounterDownStirng(baseCounterDown);
   }, [base]);
@@ -2074,7 +2067,7 @@ const GovProposalItem = ({
 
   useEffect(() => {
     const baseCounterDown = durationFomatter(
-      moment.duration(base - moment().unix(), 'seconds')
+      moment.duration(base + 60 - moment().unix(), 'seconds')
     );
     setCounterDownStirng(baseCounterDown);
   }, [base]);
@@ -2205,6 +2198,22 @@ const GovProposalItem = ({
         .times(100)
         .toString()
     : contribution;
+
+  const displayRatios = checkAllocations(
+    ONLY_ZEROS.test(totalVE) ? '0' : '100',
+    ratios
+  );
+
+  const voteData = options
+    .map((o, i) => {
+      return {
+        option: o,
+        ratio: displayRatios[i],
+      };
+    })
+    .sort((d1, d2) => {
+      return Number(d2.ratio) - Number(d1.ratio);
+    });
 
   return (
     <>
@@ -2518,11 +2527,8 @@ const GovProposalItem = ({
         title={<FormattedMessage id="you_vote" defaultMessage={'You vote'} />}
         proposalTitle={description?.title}
         onRequestClose={() => setShowVotePop(false)}
-        options={options}
-        ratios={checkAllocations(
-          ONLY_ZEROS.test(totalVE) ? '0' : '100',
-          ratios
-        )}
+        options={voteData.map((d) => d.option)}
+        ratios={voteData.map((d) => d.ratio)}
         proposal={proposal}
         totalVE={totalVE}
         veShare={veShare}
@@ -2730,6 +2736,8 @@ export const LastRoundFarmVoting = (
 
   const votedVE = BigNumber.sum(...(farmProposal?.votes || ['0', '0']));
 
+  console.log(farmProposal);
+
   const [tokens, setTokens] = useState<Record<string, TokenMetadata>>();
 
   useEffect(() => {
@@ -2863,10 +2871,13 @@ export const LastRoundFarmVoting = (
         value={`
           ${moment(
             Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
-          ).format('ll')}-${moment(
+          )
+            .utc()
+            .format('ll')}-${moment(
           Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-        ).format('ll')}
-
+        )
+          .utc()
+          .format('ll')} (UTC)
           `}
       />
       <InfoRow
@@ -2974,7 +2985,7 @@ export const FarmProposal = ({
   );
 
   const baseCounterDown = durationFomatter(
-    moment.duration(base - moment().unix(), 'seconds')
+    moment.duration(base + 60 - moment().unix(), 'seconds')
   );
 
   const [counterDownStirng, setCounterDownStirng] =
@@ -3268,7 +3279,6 @@ export const FarmProposal = ({
             showYourShare={votedIndex === index}
             yourShare={`${toPrecision(yourShare, 2)}%`}
             showAddBonus={
-              status !== 'WarmUp' &&
               (typeof votedIndex === 'undefined' || votedIndex === index) &&
               status !== 'Expired'
             }
@@ -3299,7 +3309,7 @@ export const FarmProposal = ({
             false
           )}%`}
           allocationOld={toPrecision(allocate, 0, true)}
-          ratioNew={`${toPrecision(ratioNew, 1, false)}%`}
+          ratioNew={`${toPrecision(ratioNew, 2, false, false)}%`}
           allocationNew={toPrecision(allocateNew, 0, true)}
           curVotedVe={toPrecision(
             toReadableNumber(LOVE_TOKEN_DECIMAL, farmProposal?.votes[index]),
@@ -3404,11 +3414,16 @@ export const FarmProposal = ({
         <span>Voting period</span> <span></span>{' '}
         {moment(
           Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
-        ).format('ll')}
+        )
+          .utc()
+          .format('ll')}
         -
         {moment(
           Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-        ).format('ll')}
+        )
+          .utc()
+          .format('ll')}
+        {` (UTC)`}
         <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs pr-4 pl-2 text-senderHot absolute right-0">
           {ended ? (
             <span className="bg-black bg-opacity-20 px-2 py-1 ml-2 rounded-3xl text-primaryText">
@@ -4344,7 +4359,11 @@ export const ProposalCard = () => {
         farmProposals.length === 1
           ? farmProposals[0]
           : _.maxBy(
-              farmProposals.filter((p) => Number(p.start_at) < moment().unix()),
+              farmProposals.filter(
+                (p) =>
+                  Math.floor(Number(p.start_at) / TIMESTAMP_DIVISOR) <
+                  moment().unix()
+              ),
               (o) => Number(o.start_at)
             );
 

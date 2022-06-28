@@ -941,7 +941,7 @@ const UnLockPopUp = ({
           </div>
           <div className="text-center flex items-center pt-4 justify-between">
             <span>
-              <FormattedMessage id="avaliable" defaultMessage="Available" />
+              <FormattedMessage id="available" defaultMessage="Available" />
             </span>
             <span className="pb-1 text-white">
               {currentMaxUnlock.gt(0)
@@ -1265,7 +1265,7 @@ const FarmBoosterCard = ({
 }) => {
   const balance = useLOVEbalance();
 
-  const allZeros = ONLY_ZEROS.test(veShare);
+  const allZeros = ONLY_ZEROS.test(veShare) && ONLY_ZEROS.test(balance);
 
   return (
     <div
@@ -1522,22 +1522,21 @@ const UserReferendumCard = ({
         <div className="flex flex-col w-1/2 mr-4">
           <div className={`text-3xl font-bold text-gradientFromHover `}>
             <span className="flex items-center">
-              {isSignedIn ? (
-                Number(lpShare) > 0 && Number(lpShare) < 0.01 ? (
-                  '< 0.01'
+              <span
+                className={`
+              ${ONLY_ZEROS.test(lpShare) || !isSignedIn ? 'opacity-20' : ''}
+              `}
+              >
+                {isSignedIn ? (
+                  Number(lpShare) > 0 && Number(lpShare) < 0.01 ? (
+                    '< 0.01'
+                  ) : (
+                    <span title={lpShare}>{`${toPrecision(lpShare, 2)}`} </span>
+                  )
                 ) : (
-                  <span
-                    className={`
-                  ${ONLY_ZEROS.test(lpShare) || !isSignedIn ? 'opacity-20' : ''}
-                  `}
-                    title={lpShare}
-                  >
-                    {`${toPrecision(lpShare, 2)}`}{' '}
-                  </span>
-                )
-              ) : (
-                '-'
-              )}
+                  '-'
+                )}
+              </span>
 
               {!isSignedIn ||
               !(Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0) ? null : (
