@@ -1342,6 +1342,16 @@ const FarmChart = ({
     );
   };
 
+  useEffect(() => {
+    const activeG = document.getElementsByClassName('active-label')?.[0];
+    const pNode = activeG?.parentNode;
+    const ppNode = pNode?.parentNode;
+    if (ppNode && pNode) {
+      ppNode.removeChild(pNode);
+      ppNode.appendChild(pNode);
+    }
+  }, [activeIndex]);
+
   const color = ['#51626B', '#667A86', '#849DA8', '#B5C9CA'];
 
   function customLabel(props: any) {
@@ -1375,7 +1385,9 @@ const FarmChart = ({
     const height = forLastRound ? '190' : '200';
 
     return (
-      <g z={index === activeIndex ? 20 : 10}>
+      <g
+        className={`${activeIndex === index ? 'active-label' : 'sleep-label'}`}
+      >
         {ratio[voted] && ratio[voted]?.name === data[index]?.name ? (
           <foreignObject
             x={x + 78 * (cos > 0 ? 0 : -1)}
@@ -1467,9 +1479,9 @@ const FarmChart = ({
 
     return activeIndex === index ? (
       <g
-        onMouseLeave={() => {
-          setActiveIndex(null);
-        }}
+      onMouseLeave={() => {
+        setActiveIndex(null);
+      }}
       >
         <Sector
           cx={cx}
@@ -1530,6 +1542,7 @@ const FarmChart = ({
     <ResponsiveContainer width={'100%'} height={forLastRound ? 430 : 560}>
       <PieChart>
         <Pie
+          className={`recharts-pie-propopsal-${proposal.id}`}
           data={data}
           innerRadius={innerRadius}
           outerRadius={outerRadius}
