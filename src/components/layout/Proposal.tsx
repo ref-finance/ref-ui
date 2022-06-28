@@ -3223,7 +3223,9 @@ export const FarmProposal = ({
     const Button =
       status === 'Expired' ? (
         UnclaimedProposal?.[farmProposal.id] &&
-        !ONLY_ZEROS.test(UnclaimedProposal?.[farmProposal.id]?.amount) ? (
+        !ONLY_ZEROS.test(UnclaimedProposal?.[farmProposal.id]?.amount) &&
+        UnclaimedProposal?.[farmProposal.id]?.action?.VoteFarm?.farm_id ===
+          index ? (
           <NewGradientButton
             text={
               <FormattedMessage
