@@ -262,7 +262,6 @@ export default function FarmsHome(props: any) {
     };
   }, [count]);
   async function get_ve_seed_share() {
-    debugger;
     const result = await getVeSeedShare();
     const maxShareObj = result?.accounts?.accounts[0] || {};
     const amount = maxShareObj?.amount;
@@ -871,6 +870,102 @@ export default function FarmsHome(props: any) {
   function goMigrate() {
     history.push('/farmsMigrate?from=v2');
   }
+  function LoveBox(props: any) {
+    const { inside } = props;
+    return (
+      <div
+        className={`relative flex flex-col items-center justify-between rounded-2xl p-4 pb-6 ${
+          inside
+            ? 'xs:hidden md:hidden 2xl:hidden flex-grow ml-5 pr-2 lg:pl-8 xl:pl-16'
+            : 'lg:hidden xl:hidden 2xl:flex'
+        }`}
+        style={{
+          backgroundImage: inside
+            ? ''
+            : 'linear-gradient(90deg, #7C47FD 0%, #34177C 100%)',
+        }}
+      >
+        <span className="absolute -top-5">
+          <LoveIcon></LoveIcon>
+        </span>
+        <span
+          className={`text-white text-2xl ${inside ? 'mt-4 mb-2' : 'mt-6'}`}
+        >
+          Love
+        </span>
+        <div className="flex justify-between items-center w-full">
+          <div className="flex flex-col items-center stakeBox w-2 flex-grow mx-1.5">
+            <span className="text-white opacity-50 text-sm whitespace-nowrap">
+              Available to stake
+            </span>
+            <span className="text-white text-lg my-1 whitespace-nowrap">
+              {getLoveBalance()}
+            </span>
+            {!isSignedIn ? null : isSignedIn && +loveTokenBalance == 0 ? (
+              <div
+                onClick={() => {
+                  setShowLoveTokenModalVisible(true);
+                }}
+                className="flex items-center justify-center cursor-pointer text-sm text-white bg-veGradient p-px rounded-lg w-full overflow-hidden"
+              >
+                <div
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(90deg, rgb(124, 71, 253) 0%, rgba(52,23,124,0.6) 100%)',
+                  }}
+                  className="flex items-center justify-center w-full h-full rounded-lg"
+                >
+                  <div className="h-full w-full py-1 rounded-lg flex items-center justify-center bg-black bg-opacity-20 whitespace-nowrap">
+                    <FormattedMessage id="get_love"></FormattedMessage>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div
+                onClick={() => {
+                  setLoveStakeModalVisible(true);
+                }}
+                className="flex items-center justify-center cursor-pointer text-sm text-black bg-lightGreenColor rounded-lg w-full py-1"
+              >
+                <FormattedMessage id="stake"></FormattedMessage>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col items-center  unstakeBox w-2 flex-grow mx-1.5">
+            <span className="text-white opacity-50 text-sm whitespace-nowrap">
+              You staked
+            </span>
+            <span className="text-white text-lg my-1">
+              {getLoveUserStaked()}
+            </span>
+            {!isSignedIn ? null : (
+              <div
+                onClick={() => {
+                  setLoveUnStakeModalVisible(true);
+                }}
+                className="flex items-center justify-center cursor-pointer text-sm text-white bg-veGradient p-px rounded-lg w-full overflow-hidden"
+              >
+                <div
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(90deg, rgb(124, 71, 253) 0%, rgba(52,23,124,0.5) 100%)',
+                  }}
+                  className="flex items-center justify-center w-full h-full rounded-lg"
+                >
+                  <div className="h-full w-full py-1 rounded-lg flex items-center justify-center bg-black bg-opacity-20">
+                    <FormattedMessage id="unstake"></FormattedMessage>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        {!isSignedIn ? (
+          <GreenConnectToNearBtn className="w-full"></GreenConnectToNearBtn>
+        ) : null}
+      </div>
+    );
+  }
   const endFarmLength = useMemo(() => {
     return getFarmVisibleLength();
   }, [farm_display_ended_List]);
@@ -1148,7 +1243,7 @@ export default function FarmsHome(props: any) {
                   </span>
                 </div>
                 <div
-                  className={`flex justify-between rounded-2xl xs:justify-center md:justify-center xs:mt-3 md:mt-3 ${
+                  className={`flex justify-between xs:h-auto md:h-auto h-full rounded-2xl xs:justify-center md:justify-center xs:mt-3 md:mt-3 ${
                     !boostInstructions && isMobileSite ? 'hidden' : ''
                   }`}
                   style={{
@@ -1217,94 +1312,13 @@ export default function FarmsHome(props: any) {
                       </div>
                     </div>
                   </div>
-                  <div className="xs:hidden md:hidden">
+                  <div className="xs:hidden md:hidden lg:hidden xl:hidden 2xl:block">
                     <Flight></Flight>
                   </div>
+                  <LoveBox inside={true}></LoveBox>
                 </div>
               </div>
-              <div
-                className="relative flex flex-col items-center justify-between rounded-2xl p-4 pb-6"
-                style={{
-                  backgroundImage:
-                    'linear-gradient(90deg, #7C47FD 0%, #34177C 100%)',
-                }}
-              >
-                <span className="absolute -top-5">
-                  <LoveIcon></LoveIcon>
-                </span>
-                <span className="text-white text-2xl mt-6">Love</span>
-                <div className="flex justify-between items-center w-full">
-                  <div className="flex flex-col items-center stakeBox w-2 flex-grow mx-1.5">
-                    <span className="text-white opacity-50 text-sm">
-                      Available to stake
-                    </span>
-                    <span className="text-white text-lg my-1">
-                      {getLoveBalance()}
-                    </span>
-                    {!isSignedIn ? null : isSignedIn &&
-                      +loveTokenBalance == 0 ? (
-                      <div
-                        onClick={() => {
-                          setShowLoveTokenModalVisible(true);
-                        }}
-                        className="flex items-center justify-center cursor-pointer text-sm text-white bg-veGradient p-px rounded-lg w-full overflow-hidden"
-                      >
-                        <div
-                          style={{
-                            backgroundImage:
-                              'linear-gradient(90deg, rgb(124, 71, 253) 0%, rgba(52,23,124,0.6) 100%)',
-                          }}
-                          className="flex items-center justify-center w-full h-full rounded-lg"
-                        >
-                          <div className="h-full w-full py-1 rounded-lg flex items-center justify-center bg-black bg-opacity-20">
-                            <FormattedMessage id="get_love"></FormattedMessage>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div
-                        onClick={() => {
-                          setLoveStakeModalVisible(true);
-                        }}
-                        className="flex items-center justify-center cursor-pointer text-sm text-black bg-lightGreenColor rounded-lg w-full py-1"
-                      >
-                        <FormattedMessage id="stake"></FormattedMessage>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-center  unstakeBox w-2 flex-grow mx-1.5">
-                    <span className="text-white opacity-50 text-sm">
-                      You staked
-                    </span>
-                    <span className="text-white text-lg my-1">
-                      {getLoveUserStaked()}
-                    </span>
-                    {!isSignedIn ? null : (
-                      <div
-                        onClick={() => {
-                          setLoveUnStakeModalVisible(true);
-                        }}
-                        className="flex items-center justify-center cursor-pointer text-sm text-white bg-veGradient p-px rounded-lg w-full overflow-hidden"
-                      >
-                        <div
-                          style={{
-                            backgroundImage:
-                              'linear-gradient(90deg, rgb(124, 71, 253) 0%, rgba(52,23,124,0.5) 100%)',
-                          }}
-                          className="flex items-center justify-center w-full h-full rounded-lg"
-                        >
-                          <div className="h-full w-full py-1 rounded-lg flex items-center justify-center bg-black bg-opacity-20">
-                            <FormattedMessage id="unstake"></FormattedMessage>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {!isSignedIn ? (
-                  <GreenConnectToNearBtn className="w-full"></GreenConnectToNearBtn>
-                ) : null}
-              </div>
+              <LoveBox inside={false}></LoveBox>
             </div>
           )}
 
