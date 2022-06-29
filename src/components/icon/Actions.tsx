@@ -725,6 +725,12 @@ const viewMap = {
   Unlock: RemoveLiquidity,
   'Lock Free Seed': AddLiquidity,
   Lock: AddLiquidity,
+  'Create Proposal': AddLiquidity,
+  'Extend Whitelisted Accounts': AddLiquidity,
+  'Claim Rewards': Withdraw,
+  'Action Proposal': Deposit,
+  'Remove Proposal': RemoveLiquidity,
+  'Action Cancel': RemoveLiquidity,
 };
 
 const blackViewMap = {
@@ -755,6 +761,12 @@ const blackViewMap = {
   Unlock: RemoveLiquidityBlack,
   'Lock Free Seed': AddLiquidityBlack,
   Lock: AddLiquidityBlack,
+  'Create Proposal': AddLiquidityBlack,
+  'Extend Whitelisted Accounts': AddLiquidityBlack,
+  'Claim Rewards': WithdrawBlack,
+  'Action Proposal': DepositBlack,
+  'Remove Proposal': RemoveLiquidityBlack,
+  'Action Cancel': RemoveLiquidityBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

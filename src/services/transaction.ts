@@ -1,5 +1,5 @@
 import { ftGetTokenMetadata, TokenMetadata } from '../services/ft-contract';
-import { toReadableNumber } from '../utils/numbers';
+import { toPrecision, toReadableNumber } from '../utils/numbers';
 import { getPoolDetails } from '../services/pool';
 import { useIntl } from 'react-intl';
 import getConfig from '../services/config';
@@ -12,6 +12,7 @@ import BigNumber from 'bignumber.js';
 import { ParserDependencies } from 'mathjs';
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
+import moment from 'moment';
 
 export const parseAction = async (
   methodName: string,
@@ -91,6 +92,24 @@ export const parseAction = async (
     }
     case 'lock_free_seed': {
       return await lockFreeSeed(params);
+    }
+    case 'create_proposal': {
+      return await createProposal(params);
+    }
+    case 'extend_whitelisted_accounts': {
+      return await extendWhitelistedAccounts(params);
+    }
+    case 'claim_reward': {
+      return await claimReward(params);
+    }
+    case 'action_proposal': {
+      return await actionProposal(params);
+    }
+    case 'remove_proposal': {
+      return await removeProposal(params);
+    }
+    case 'action_cancel': {
+      return await actionCancel(params);
     }
     default: {
       return await parseDefault();
@@ -571,6 +590,128 @@ const lockFreeSeed = async (params: any) => {
       ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
       : toReadableNumber(24, amount),
     Month: month + 'M',
+  };
+};
+const createProposal = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { description, duration_sec, start_at, kind } = params;
+  const displayField: any = {};
+  if (duration_sec) {
+    displayField.Duration =
+      toPrecision((duration_sec / (60 * 60)).toString(), 3) + 'h';
+  }
+  if (start_at) {
+    displayField['Start time'] = moment
+      .unix(start_at)
+      .format('YYYY-MM-DD HH:mm:ss');
+  }
+  if (kind == 'Common') {
+    displayField.Type = 'Common';
+    if (description) {
+      const { title, link } = JSON.parse(description.replace(/\\"/g, '"'));
+      displayField.Title = title;
+      displayField.Link = link;
+    }
+  }
+  if (kind && kind['FarmingReward']) {
+    displayField.Description = description;
+    displayField.Type = 'FarmingReward';
+    const { FarmingReward } = kind;
+    if (FarmingReward) {
+      const { total_reward, farm_list } = FarmingReward;
+      displayField['Total Reward'] = total_reward;
+      displayField['Farm List'] = farm_list.join(',');
+    }
+  }
+  if (kind && kind['Poll']) {
+    displayField.Type = 'Poll';
+    if (description) {
+      const { title, link } = JSON.parse(description.replace(/\\"/g, '"'));
+      displayField.Title = title;
+      displayField.Link = link;
+    }
+    const { Poll } = kind;
+    if (Poll) {
+      displayField.Options = Poll.options.join(',');
+    }
+  }
+  return {
+    Action: 'Create Proposal',
+    ...displayField,
+  };
+};
+const extendWhitelistedAccounts = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { accounts } = params;
+  return {
+    Action: 'Extend Whitelisted Accounts',
+    Accounts: accounts?.join(',') || '',
+  };
+};
+const claimReward = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { proposal_id } = params;
+  return {
+    Action: 'Claim Rewards',
+    proposalId: proposal_id,
+  };
+};
+const actionProposal = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { proposal_id, action } = params;
+  const field: any = {};
+  const farmId = action?.VoteFarm?.farm_id?.toString() || '';
+  const pollId = action?.VotePoll?.poll_id?.toString() || '';
+  if (farmId) {
+    field.farmId = farmId;
+  }
+  if (pollId) {
+    field.pollId = pollId;
+  }
+  return {
+    Action: 'Action Proposal',
+    proposalId: proposal_id,
+    ...field,
+  };
+};
+const removeProposal = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { proposal_id } = params;
+  return {
+    Action: 'Remove Proposal',
+    proposalId: proposal_id,
+  };
+};
+const actionCancel = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { proposal_id } = params;
+  return {
+    Action: 'Action Cancel',
+    proposalId: proposal_id,
   };
 };
 

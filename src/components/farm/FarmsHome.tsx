@@ -262,8 +262,9 @@ export default function FarmsHome(props: any) {
     };
   }, [count]);
   async function get_ve_seed_share() {
+    debugger;
     const result = await getVeSeedShare();
-    const maxShareObj = result?.accounts?.accounts[0];
+    const maxShareObj = result?.accounts?.accounts[0] || {};
     const amount = maxShareObj?.amount;
     if (amount) {
       const amountStr = new BigNumber(amount).toFixed().toString();
@@ -2376,7 +2377,8 @@ function FarmView(props: {
     return '';
   }
   function getAprUpperLimit() {
-    if (!boostConfig || !maxLoveShareAmount) return '';
+    if (!boostConfig || !maxLoveShareAmount || +maxLoveShareAmount == 0)
+      return '';
     const { affected_seeds } = boostConfig;
     const { seed_id } = seed;
     const base = affected_seeds[seed_id];
