@@ -928,12 +928,12 @@ function SelectUI({
 }
 
 export const ProposalWrapper = (
-  props: any & { show: boolean; bgcolor?: string }
+  props: any & { show: boolean; bgcolor?: string; padding?: string }
 ) => {
-  const { show, bgcolor } = props;
+  const { padding, show, bgcolor } = props;
   return (
     <Card
-      padding={'p-8'}
+      padding={padding || 'p-8'}
       width="w-full"
       bgcolor={bgcolor}
       className={!show ? 'hidden' : 'text-primaryText '}
@@ -1682,10 +1682,24 @@ const GovItemDetail = ({
   const [showAddBonus, setShowAddBonus] = useState<boolean>(false);
 
   const [showVotePop, setShowVotePop] = useState<boolean>(false);
-  const base = Math.floor(
-    Number(status === 'InProgress' ? proposal?.end_at : proposal?.start_at) /
-      TIMESTAMP_DIVISOR
+
+  const [base, setBase] = useState<number>(
+    Math.floor(
+      Number(status === 'InProgress' ? proposal?.end_at : proposal?.start_at) /
+        TIMESTAMP_DIVISOR
+    )
   );
+
+  useEffect(() => {
+    setBase(
+      Math.floor(
+        Number(
+          status === 'InProgress' ? proposal?.end_at : proposal?.start_at
+        ) / TIMESTAMP_DIVISOR
+      )
+    );
+  }, [status]);
+
   const baseCounterDown = durationFomatter(
     moment.duration(base - moment().unix(), 'seconds')
   );
@@ -1765,7 +1779,7 @@ const GovItemDetail = ({
           <FormattedMessage id="claim_bonus" defaultMessage={'Claim Bonus'} />
         }
         padding="px-0 py-0"
-        className="h-8 w-20 ml-2.5"
+        className="h-8 w-28 ml-2.5"
         beatStyling
         onClick={() => {
           claimRewardVE({
@@ -1851,7 +1865,7 @@ const GovItemDetail = ({
             }
           >
             {counterDownStirng}
-            {`${status === 'WarmUp' ? ' start' : ' left'}`}
+            {`${status === 'WarmUp' ? ' starts' : ' left'}`}
           </span>
         </span>
 
@@ -1861,7 +1875,7 @@ const GovItemDetail = ({
         <div
           className={`${
             status === 'Expired' ? 'opacity-30' : ''
-          } absolute -right-4 top-10`}
+          } absolute -right-4 top-10 z-30`}
         >
           <VotedIcon />
         </div>
@@ -2084,7 +2098,6 @@ const GovProposalItem = ({
   setShowDetail,
   voteDetail,
   voteHistory,
-  unClaimed,
   veShare,
 }: {
   description?: Description;
@@ -2094,7 +2107,6 @@ const GovProposalItem = ({
   setShowDetail: (s: number) => void;
   voteDetail: VoteDetail;
   voteHistory: VoteDetail;
-  unClaimed: boolean;
   veShare: string;
 }) => {
   const [status, setStatus] = useState<ProposalStatus>(proposal.status);
@@ -2103,10 +2115,22 @@ const GovProposalItem = ({
     setStatus(proposal.status);
   }, [proposal.id, proposal]);
 
-  const base = Math.floor(
-    Number(status === 'InProgress' ? proposal?.end_at : proposal?.start_at) /
-      TIMESTAMP_DIVISOR
+  const [base, setBase] = useState<number>(
+    Math.floor(
+      Number(status === 'InProgress' ? proposal?.end_at : proposal?.start_at) /
+        TIMESTAMP_DIVISOR
+    )
   );
+
+  useEffect(() => {
+    setBase(
+      Math.floor(
+        Number(
+          status === 'InProgress' ? proposal?.end_at : proposal?.start_at
+        ) / TIMESTAMP_DIVISOR
+      )
+    );
+  }, [status]);
 
   const baseCounterDown = durationFomatter(
     moment.duration(base - moment().unix(), 'seconds')
@@ -2146,6 +2170,12 @@ const GovProposalItem = ({
   const incentiveTokens = useTokens([
     ...(VEmeta?.whitelisted_incentive_tokens || []),
   ]);
+
+  const unClaimedProposal = useUnclaimedProposal(status);
+
+  const unClaimed =
+    !!unClaimedProposal?.[proposal?.id] &&
+    !ONLY_ZEROS.test(unClaimedProposal?.[proposal?.id]?.amount);
 
   if (
     typeof showDetail !== 'undefined' &&
@@ -2206,7 +2236,6 @@ const GovProposalItem = ({
       ? proposal?.votes?.slice(0, 2)
       : proposal?.votes
     )?.indexOf(topVote) || 0;
-  console.log('dot 3');
 
   const youVotedIndex = proposal?.kind?.Common
     ? voted === 'VoteApprove'
@@ -2265,8 +2294,6 @@ const GovProposalItem = ({
       return Number(d2.ratio) - Number(d1.ratio);
     });
 
-  console.log('dot 5');
-
   const Button =
     status === 'WarmUp' ? (
       getCurrentWallet().wallet.getAccountId() === proposal?.proposer ? (
@@ -2323,7 +2350,7 @@ const GovProposalItem = ({
           <FormattedMessage id="claim_bonus" defaultMessage={'Claim Bonus'} />
         }
         padding="px-0 py-0"
-        className="h-8 w-20 ml-2.5"
+        className="h-8 w-28 ml-2.5"
         beatStyling
         onClick={() => {
           claimRewardVE({
@@ -2368,11 +2395,11 @@ const GovProposalItem = ({
         />
       ) : (
         <Card
-          className="w-full flex items-center my-2 relative overflow-hidden"
-          bgcolor="bg-black bg-opacity-20"
+          className={`w-full flex items-center my-2 relative overflow-hidden `}
+          bgcolor={`bg-black bg-opacity-20`}
           padding={`px-8 pt-8 pb-12`}
         >
-          <div className="w-1/5">
+          <div className={`w-1/5 ${status === 'Expired' ? 'opacity-70' : ''}`}>
             {status === 'WarmUp' ? (
               <div className="pr-10">
                 <NoResultChart />
@@ -2388,7 +2415,11 @@ const GovProposalItem = ({
             )}
           </div>
           <div className="flex flex-col w-4/5 ml-8">
-            <div className="w-full flex items-center  justify-between">
+            <div
+              className={`w-full flex items-center  justify-between  ${
+                status === 'Expired' ? 'opacity-70' : ''
+              }`}
+            >
               <span className="text-lg break-words">
                 {' '}
                 {`#${proposal?.id} ${description.title}`}{' '}
@@ -2422,7 +2453,11 @@ const GovProposalItem = ({
               </span>
             </div>
 
-            <div className="w-full flex items-center justify-between pb-8 pt-2.5">
+            <div
+              className={`w-full flex items-center justify-between pb-8 pt-2.5  ${
+                status === 'Expired' ? 'opacity-70' : ''
+              }`}
+            >
               <div className="flex items-center">
                 <span className="text-primaryText mr-3">
                   <FormattedMessage id="proposer" defaultMessage={'Proposer'} />
@@ -2445,12 +2480,16 @@ const GovProposalItem = ({
                 }
               >
                 {counterDownStirng}
-                {`${status === 'WarmUp' ? ' start' : ' left'}`}
+                {`${status === 'WarmUp' ? ' starts' : ' left'}`}
               </span>
             </div>
 
             <div className="w-full flex items-center justify-between">
-              <div className="flex items-center">
+              <div
+                className={`flex items-center  ${
+                  status === 'Expired' ? 'opacity-70' : ''
+                }`}
+              >
                 <span className="flex flex-col mr-10">
                   <span className="text-primaryText">
                     <FormattedMessage
@@ -2537,7 +2576,9 @@ const GovProposalItem = ({
                   text={
                     <FormattedMessage id="detail" defaultMessage={'Detail'} />
                   }
-                  width="h-8 w-20"
+                  width={`h-8 w-20  ${
+                    status === 'Expired' ? 'opacity-70' : ''
+                  }`}
                   className="h-full"
                   padding="px-0"
                   color="#182632"
@@ -3027,12 +3068,25 @@ export const FarmProposal = ({
 }) => {
   const [status, setStatus] = useState<ProposalStatus>(farmProposal.status);
 
-  const base = Math.floor(
-    Number(
-      status === 'InProgress' ? farmProposal?.end_at : farmProposal?.start_at
-    ) / TIMESTAMP_DIVISOR
+  const [base, setBase] = useState<number>(
+    Math.floor(
+      Number(
+        status === 'InProgress' ? farmProposal?.end_at : farmProposal?.start_at
+      ) / TIMESTAMP_DIVISOR
+    )
   );
 
+  useEffect(() => {
+    setBase(
+      Math.floor(
+        Number(
+          status === 'InProgress'
+            ? farmProposal?.end_at
+            : farmProposal?.start_at
+        ) / TIMESTAMP_DIVISOR
+      )
+    );
+  }, [status]);
   const baseCounterDown = durationFomatter(
     moment.duration(base + 60 - moment().unix(), 'seconds')
   );
@@ -4253,8 +4307,6 @@ export const GovProposal = ({
 
   const VEmeta = useVEmeta();
 
-  const unClaimedRewards = useUnClaimedRewardsVE();
-
   const voteHistory = useVoteDetailHisroty();
 
   const voteDetail = useVoteDetail();
@@ -4298,20 +4350,8 @@ export const GovProposal = ({
 
   return (
     <div className="flex flex-col text-white text-sm relative">
-      {!unClaimedRewards ||
-      unClaimedRewards?.length === 0 ||
-      showDetail ? null : (
-        <RewardCard rewardList={unClaimedRewards} />
-      )}
-
       {showDetail ? null : (
-        <div
-          className={`flex items-center justify-between relative ${
-            !unClaimedRewards || unClaimedRewards.length === 0
-              ? 'pb-6'
-              : 'pb-20 top-16'
-          }`}
-        >
+        <div className={`flex items-center justify-between relative pb-6`}>
           <div className="flex items-center">
             {!VEmeta?.whitelisted_accounts?.includes(
               getCurrentWallet().wallet.getAccountId()
@@ -4382,10 +4422,6 @@ export const GovProposal = ({
               showDetail={showDetail}
               voteHistory={voteHistory}
               voteDetail={voteDetail}
-              unClaimed={
-                !!UnclaimedProposal?.[p?.id] &&
-                !ONLY_ZEROS.test(UnclaimedProposal?.[p?.id]?.amount)
-              }
               veShare={veShare}
             />
           )) || []}
@@ -4476,11 +4512,21 @@ export const ProposalCard = () => {
     localStorage.setItem(REF_FI_PROPOSALTAB, curTab);
   }, [curTab]);
   const UnclaimedProposal = useUnclaimedProposal();
+  const unClaimedRewards = useUnClaimedRewardsVE();
+
+  const notShowRewardCard =
+    !unClaimedRewards || unClaimedRewards?.length === 0 || showDetail;
 
   return (
-    <div className="w-full flex flex-col items-center ">
+    <div className="w-full flex flex-col items-center relative">
       <ProposalTab curTab={curTab} setTab={setTab} className="mt-12 mb-4" />
-      <ProposalWrapper show={curTab === PROPOSAL_TAB.FARM}>
+
+      {notShowRewardCard ? null : <RewardCard rewardList={unClaimedRewards} />}
+
+      <ProposalWrapper
+        show={curTab === PROPOSAL_TAB.FARM}
+        padding={!notShowRewardCard ? 'px-8 pb-8 pt-20' : 'p-8'}
+      >
         {!farmProposal ? null : (
           <FarmProposal
             lastRoundFarmProposal={lastRoundFarmProposal}
@@ -4491,7 +4537,11 @@ export const ProposalCard = () => {
         )}
       </ProposalWrapper>
 
-      <ProposalWrapper show={curTab === PROPOSAL_TAB.GOV} bgcolor={'bg-cardBg'}>
+      <ProposalWrapper
+        show={curTab === PROPOSAL_TAB.GOV}
+        bgcolor={'bg-cardBg'}
+        padding={!notShowRewardCard ? 'px-8 pb-8 pt-20' : 'p-8'}
+      >
         {showCreateProposal ? (
           <CreateGovProposal
             show={showCreateProposal}

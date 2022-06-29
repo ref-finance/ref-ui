@@ -253,7 +253,7 @@ export interface UnclaimedProposal {
   };
 }
 
-export const useUnclaimedProposal = () => {
+export const useUnclaimedProposal = (status?: ProposalStatus) => {
   const [record, setRecord] = useState<UnclaimedProposal>();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -261,7 +261,7 @@ export const useUnclaimedProposal = () => {
     if (!isSignedIn) return;
 
     getUnclaimedProposal().then(setRecord);
-  }, [isSignedIn]);
+  }, [isSignedIn, status]);
 
   console.log('record', record);
 

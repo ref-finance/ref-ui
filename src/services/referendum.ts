@@ -164,14 +164,6 @@ export const lockLP = async ({
     },
   ];
 
-  // const neededStorage = await checkTokenNeedsStorageDeposit_ve();
-  // if (neededStorage) {
-  //   transactions.unshift({
-  //     receiverId: REF_VE_CONTRACT_ID,
-  //     functionCalls: [storageDepositAction({ amount: neededStorage })],
-  //   });
-  // }
-
   return executeMultipleTransactions(transactions);
 };
 
@@ -240,7 +232,6 @@ export const createProposal = async ({
     start_at: start,
     duration_sec,
   };
-  console.log(args);
   const transactions: Transaction[] = [
     {
       receiverId: REF_VE_CONTRACT_ID,
@@ -254,6 +245,15 @@ export const createProposal = async ({
       ],
     },
   ];
+
+  const neededStorage = await checkTokenNeedsStorageDeposit_ve();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_VE_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+
   return executeMultipleTransactions(transactions);
 };
 

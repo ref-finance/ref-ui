@@ -159,7 +159,7 @@ export const RewardCard = ({
               checkList?.indexOf(id) !== -1 ? 'bg-black' : 'bg-white'
             } flex items-center justify-center`}
             onClick={() => {
-              if (checkList?.indexOf(id) == -1) {
+              if (checkList?.indexOf(id) == -1 && checkList.length < 5) {
                 setCheckList([...checkList, id]);
               } else {
                 const idx = checkList.indexOf(id);
@@ -202,7 +202,7 @@ export const RewardCard = ({
 
   return (
     <>
-      <div className="px-3 pt-3 -top-3 rounded-lg bg-veGradient flex flex-col w-80 absolute left-1/2 transform -translate-x-1/2 text-sm z-50">
+      <div className="px-3 pt-3 top-32 rounded-lg bg-veGradient flex flex-col w-80 absolute left-1/2 transform -translate-x-1/2 text-sm z-50">
         <div
           className="flex items-center pb-4 relative  cursor-pointer "
           onClick={() => setShowDetail(!showDetail)}
@@ -236,21 +236,43 @@ export const RewardCard = ({
               <button
                 className={`mr-2  flex items-center justify-center`}
                 onClick={() => {
-                  checkList?.length === tokenIds?.length
-                    ? setCheckList([])
-                    : setCheckList(tokenIds);
+                  if (
+                    checkList?.length === tokenIds?.length ||
+                    checkList.length === 5
+                  ) {
+                    setCheckList([]);
+                  } else {
+                    if (tokenIds.length <= 5) {
+                      setCheckList(tokenIds);
+                    } else {
+                      const candidateList = [];
+
+                      for (let i = 0; i < tokenIds.length; i++) {
+                        const id = tokenIds[i];
+                        if (!checkList.includes(id)) {
+                          candidateList.push(id);
+                          if (candidateList.length === 5 - checkList.length) {
+                            break;
+                          }
+                        }
+                      }
+                      setCheckList([...checkList, ...candidateList]);
+                    }
+                  }
                 }}
               >
                 <button
                   className={`mr-2 h-4 w-4 rounded bg-opacity-30 flex items-center justify-center ${
-                    tokens?.length > 0 &&
-                    tokens?.every((token) => checkList.includes(token.id))
+                    (tokens?.length > 0 &&
+                      tokens?.every((token) => checkList.includes(token.id))) ||
+                    checkList.length === 5
                       ? 'bg-black'
                       : 'bg-white'
                   }`}
                 >
-                  {tokens?.length > 0 &&
-                  tokens?.every((token) => checkList.includes(token.id)) ? (
+                  {(tokens?.length > 0 &&
+                    tokens?.every((token) => checkList.includes(token.id))) ||
+                  checkList.length === 5 ? (
                     <RewardCheck />
                   ) : null}
                 </button>
@@ -483,7 +505,7 @@ export const LockPopUp = ({
       title={
         <FormattedMessage
           id={title || 'lock_lp_tokens'}
-          defaultMessage="Lock LP Tokens"
+          defaultMessage="Lock LPtoken"
         />
       }
     >
@@ -755,21 +777,21 @@ The veLPT is not an actual, transferable token, but represents your voting power
         {!showVeAmount || !preLocked ? null : (
           <div className="rounded-lg border text-sm border-gradientFrom px-3 py-2.5 mt-4 text-center">
             <span>
-              <FormattedMessage
-                id="existing_amount"
-                defaultMessage={'Existing amount'}
-              />{' '}
               <span className="text-gradientFrom">
                 {toPrecision(toReadableNumber(24, accountInfo.lpt_amount), 2)}
               </span>{' '}
-              +{' '}
               <FormattedMessage
-                id="append_amount"
-                defaultMessage={'Append amount'}
+                id="existing_lptoken"
+                defaultMessage={'Existing LPtokens'}
               />{' '}
+              +{' '}
               <span className="text-gradientFrom">
                 {toPrecision(inputValue, 2)}
               </span>{' '}
+              <FormattedMessage
+                id="append_lptoken"
+                defaultMessage={'Append LPtokens'}
+              />{' '}
               <FormattedMessage
                 id="will_be_able_to_unstake_after"
                 defaultMessage={'will be able to unstaked after'}
@@ -1200,7 +1222,7 @@ const VotingPowerCard = ({
                 <span className="text-black text-xs ml-2">
                   <FormattedMessage
                     id="lock_lp_tokens_first"
-                    defaultMessage="Lock LP tokens first!"
+                    defaultMessage="Lock LPtoken first!"
                   />
                 </span>
               </>
@@ -1289,7 +1311,7 @@ const FarmBoosterCard = ({
                 <span className="text-xs text-white font-normal ml-2">
                   <FormattedMessage
                     id="lock_lp_tokens_first"
-                    defaultMessage="Lock LP tokens first!"
+                    defaultMessage="Lock LPtoken first!"
                   />
                 </span>
               </>
@@ -1388,7 +1410,8 @@ export const FarmStakeTip = ({
       {toPrecision(
         toReadableNumber(24, scientificNotationToString(stake.toString())),
         2
-      )}{' '}
+      )}
+      {' more '}
       LPtokens
       <span className="ml-1">
         <FormattedMessage id="in" defaultMessage={'in'} />
@@ -1492,7 +1515,7 @@ const UserReferendumCard = ({
       <div className="text-3xl font-bold mb-2">
         <FormattedMessage
           id="lock_your_lp_tokens"
-          defaultMessage="Lock Your LP Tokens"
+          defaultMessage="Lock Your LPtoken"
         />
       </div>
       <span className={`pb-7 text-5xl valueStyle font-bold`}>
