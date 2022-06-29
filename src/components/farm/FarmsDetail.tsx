@@ -433,7 +433,7 @@ function StakeContainer(props: {
   }, []);
   async function get_ve_seed_share() {
     const result = await getVeSeedShare();
-    const maxShareObj = result?.accounts?.accounts[0];
+    const maxShareObj = result?.accounts?.accounts[0] || {};
     const amount = maxShareObj?.amount;
     if (amount) {
       const amountStr = new BigNumber(amount).toFixed().toString();
@@ -631,7 +631,8 @@ function StakeContainer(props: {
     return farms[0].status == 'Ended';
   }
   function getAprUpperLimit() {
-    if (!boostConfig || !maxLoveShareAmount) return '';
+    if (!boostConfig || !maxLoveShareAmount || +maxLoveShareAmount == 0)
+      return '';
     const { affected_seeds } = boostConfig;
     const { seed_id } = detailData;
     const base = affected_seeds[seed_id];

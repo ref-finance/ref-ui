@@ -924,6 +924,9 @@ export const getVeSeedShare = async (): Promise<any> => {
     .then((res) => res.json())
     .then((res) => {
       return res;
+    })
+    .catch(() => {
+      return {};
     });
 };
 export interface Seed {
