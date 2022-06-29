@@ -731,6 +731,7 @@ const viewMap = {
   'Action Proposal': Deposit,
   'Remove Proposal': RemoveLiquidity,
   'Action Cancel': RemoveLiquidity,
+  'Withdraw lpt': Withdraw,
 };
 
 const blackViewMap = {
@@ -767,6 +768,7 @@ const blackViewMap = {
   'Action Proposal': DepositBlack,
   'Remove Proposal': RemoveLiquidityBlack,
   'Action Cancel': RemoveLiquidityBlack,
+  'Withdraw lpt': WithdrawBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

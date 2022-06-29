@@ -111,6 +111,9 @@ export const parseAction = async (
     case 'action_cancel': {
       return await actionCancel(params);
     }
+    case 'withdraw_lpt': {
+      return await withdrawLpt(params);
+    }
     default: {
       return await parseDefault();
     }
@@ -378,6 +381,18 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       Action,
       Amount,
       'Receiver Id': receiver_id,
+    };
+  } else if (receiver_id == config.REF_VE_CONTRACT_ID) {
+    Action = 'Deposit Bonus';
+    Amount = toReadableNumber(24, amount);
+    const rewardObj = JSON.parse(msg.replace(/\\"/g, '"')).Reward;
+    const { incentive_key, proposal_id } = rewardObj;
+    return {
+      Action,
+      Amount,
+      'Receiver Id': receiver_id,
+      IncentiveKey: incentive_key,
+      ProposalId: proposal_id,
     };
   } else if (msg && receiver_id !== 'aurora') {
     Action = 'Instant swap';
@@ -712,6 +727,18 @@ const actionCancel = async (params: any) => {
   return {
     Action: 'Action Cancel',
     proposalId: proposal_id,
+  };
+};
+const withdrawLpt = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { amount } = params;
+  return {
+    Action: 'Withdraw lpt',
+    Amount: toReadableNumber(24, amount),
   };
 };
 

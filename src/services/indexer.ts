@@ -263,5 +263,8 @@ export const getListHistoryTokenPriceByIds = async (
     .then((res) => res.json())
     .then((list) => {
       return list;
+    })
+    .catch(() => {
+      return [];
     });
 };
