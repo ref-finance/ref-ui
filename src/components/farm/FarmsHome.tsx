@@ -218,6 +218,7 @@ export default function FarmsHome(props: any) {
   const [keyWords, setKeyWords] = useState('');
   const searchData = { sort, status, keyWords };
   const [loveTokenBalance, setLoveTokenBalance] = useState<string>('0');
+  const [loveTokeStaked, setLoveTokeStaked] = useState('0');
   let [loveSeed, setLoveSeed] = useState<Seed>(null);
   let [boostConfig, setBoostConfig] = useState<BoostConfig>(null);
 
@@ -860,6 +861,7 @@ export default function FarmsHome(props: any) {
         .plus(locked_amount)
         .toFixed();
       loveStakedAmount = toReadableNumber(LOVE_TOKEN_DECIMAL, totalAmount);
+      setLoveTokeStaked(loveStakedAmount);
     }
     if (!loveStakedAmount || +loveStakedAmount == 0) {
       return isSignedIn ? <label className="opacity-50">0.000</label> : '-';
@@ -884,6 +886,8 @@ export default function FarmsHome(props: any) {
       "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded</div>
     </div>`;
     };
+    const noLoveRelatedAmount =
+      isSignedIn && +loveTokenBalance == 0 && +loveTokeStaked == 0;
     return (
       <div
         className={`relative flex flex-col items-center justify-between rounded-2xl p-4 pb-6 ${
@@ -937,7 +941,9 @@ export default function FarmsHome(props: any) {
                 onClick={() => {
                   setShowLoveTokenModalVisible(true);
                 }}
-                className="flex items-center justify-center h-full w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20"
+                className={`flex items-center justify-center h-full w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20 ${
+                  noLoveRelatedAmount ? 'hidden' : ''
+                }`}
               >
                 <FormattedMessage id="get_love"></FormattedMessage> ↗
               </div>
@@ -946,7 +952,7 @@ export default function FarmsHome(props: any) {
                 onClick={() => {
                   setLoveStakeModalVisible(true);
                 }}
-                className="flex items-center justify-center h-full w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20"
+                className="flex items-center justify-center cursor-pointer text-sm text-black bg-darkGreenColor hover:bg-lightGreenColor rounded-lg w-full py-1 border border-greenColor border-opacity-0"
               >
                 <FormattedMessage id="stake"></FormattedMessage>
               </div>
@@ -964,7 +970,9 @@ export default function FarmsHome(props: any) {
                 onClick={() => {
                   setLoveUnStakeModalVisible(true);
                 }}
-                className={`flex items-center justify-center h-full w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20`}
+                className={`flex items-center justify-center h-full w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20 ${
+                  noLoveRelatedAmount ? 'hidden' : ''
+                }`}
               >
                 <FormattedMessage id="unstake"></FormattedMessage>
               </div>
@@ -973,6 +981,16 @@ export default function FarmsHome(props: any) {
         </div>
         {!isSignedIn ? (
           <GreenConnectToNearBtn className="w-full"></GreenConnectToNearBtn>
+        ) : null}
+        {noLoveRelatedAmount ? (
+          <div
+            onClick={() => {
+              setShowLoveTokenModalVisible(true);
+            }}
+            className="flex items-center justify-center w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20"
+          >
+            <FormattedMessage id="get_love"></FormattedMessage> ↗
+          </div>
         ) : null}
       </div>
     );
