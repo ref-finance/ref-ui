@@ -99,7 +99,7 @@ import {
   getVEPoolId,
   AccountInfo,
 } from '../../pages/ReferendumPage';
-import { wnearMetadata } from '../../services/wrap-near';
+import { wnearMetadata, unwrapedNear } from '../../services/wrap-near';
 import { usePoolShare, useYourliquidity } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 
@@ -877,6 +877,13 @@ export default function FarmsHome(props: any) {
   }
   function LoveBox(props: any) {
     const { inside } = props;
+    const loveTip = () => {
+      return `<div class="text-xs text-navHighLightText w-64">
+      <h1 class="font-bold">LOVE</h1>
+      <div>
+      "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded</div>
+    </div>`;
+    };
     return (
       <div
         className={`relative flex flex-col items-center justify-between rounded-2xl p-4 pb-6 ${
@@ -891,13 +898,32 @@ export default function FarmsHome(props: any) {
         }}
       >
         <span className="absolute -top-5">
-          <LoveIcon></LoveIcon>
+          <LoveIcon linear={inside ? 'paint0_linear_1477_3' : ''}></LoveIcon>
         </span>
-        <span
-          className={`text-white text-2xl ${inside ? 'mt-4 mb-2' : 'mt-6'}`}
+        <div
+          className={`flex items-center text-white text-2xl ${
+            inside ? 'mt-4 mb-2' : 'mt-6'
+          }`}
         >
           Love
-        </span>
+          <div
+            className="ml-2"
+            data-class="reactTip"
+            data-for="selectAllId"
+            data-place="top"
+            data-html={true}
+            data-tip={loveTip()}
+          >
+            <QuestionMark></QuestionMark>
+            <ReactTooltip
+              id="selectAllId"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        </div>
         <div className="flex justify-between items-center w-full">
           <div className="flex flex-col items-center stakeBox w-2 flex-grow mx-1.5">
             <span className="text-white opacity-50 text-sm whitespace-nowrap">
@@ -911,26 +937,16 @@ export default function FarmsHome(props: any) {
                 onClick={() => {
                   setShowLoveTokenModalVisible(true);
                 }}
-                className="flex items-center justify-center cursor-pointer text-sm text-white bg-veGradient p-px rounded-lg w-full overflow-hidden"
+                className="flex items-center justify-center h-full w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20"
               >
-                <div
-                  style={{
-                    backgroundImage:
-                      'linear-gradient(90deg, rgb(124, 71, 253) 0%, rgba(52,23,124,0.6) 100%)',
-                  }}
-                  className="flex items-center justify-center w-full h-full rounded-lg"
-                >
-                  <div className="h-full w-full py-1 rounded-lg flex items-center justify-center bg-black bg-opacity-20 whitespace-nowrap">
-                    <FormattedMessage id="get_love"></FormattedMessage>
-                  </div>
-                </div>
+                <FormattedMessage id="get_love"></FormattedMessage> ↗
               </div>
             ) : (
               <div
                 onClick={() => {
                   setLoveStakeModalVisible(true);
                 }}
-                className="flex items-center justify-center cursor-pointer text-sm text-black bg-lightGreenColor rounded-lg w-full py-1"
+                className="flex items-center justify-center h-full w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20"
               >
                 <FormattedMessage id="stake"></FormattedMessage>
               </div>
@@ -948,19 +964,9 @@ export default function FarmsHome(props: any) {
                 onClick={() => {
                   setLoveUnStakeModalVisible(true);
                 }}
-                className="flex items-center justify-center cursor-pointer text-sm text-white bg-veGradient p-px rounded-lg w-full overflow-hidden"
+                className={`flex items-center justify-center h-full w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20`}
               >
-                <div
-                  style={{
-                    backgroundImage:
-                      'linear-gradient(90deg, rgb(124, 71, 253) 0%, rgba(52,23,124,0.5) 100%)',
-                  }}
-                  className="flex items-center justify-center w-full h-full rounded-lg"
-                >
-                  <div className="h-full w-full py-1 rounded-lg flex items-center justify-center bg-black bg-opacity-20">
-                    <FormattedMessage id="unstake"></FormattedMessage>
-                  </div>
-                </div>
+                <FormattedMessage id="unstake"></FormattedMessage>
               </div>
             )}
           </div>
@@ -1022,7 +1028,7 @@ export default function FarmsHome(props: any) {
         <span className="absolute left-0 top-0 h-full overflow-hidden xs:hidden md:hidden">
           <BannerBgLeft />
         </span>
-        <div className="relative h-full  flex justify-between items-center lg:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0">
+        <div className="relative h-full  flex justify-between items-center lg:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0 overflow-hidden">
           <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-3 md:px-3 xs:pt-2 md:pt-2">
             <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4">
               <FormattedMessage id="farms"></FormattedMessage>
@@ -1471,7 +1477,7 @@ export default function FarmsHome(props: any) {
 }
 function GetLoveTokenModal(props: { isOpen: boolean; onRequestClose: any }) {
   const { isOpen, onRequestClose } = props;
-  const REF_NEAR_TOKENS = [REF_META_DATA, wnearMetadata];
+  const REF_NEAR_TOKENS = [REF_META_DATA, unwrapedNear];
   const id = getVEPoolId();
   const lpShare = usePoolShare(id);
   const { accountInfo } = useAccountInfo();

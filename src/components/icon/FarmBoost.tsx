@@ -2605,7 +2605,8 @@ export const Flight = function () {
   );
 };
 
-export const LoveIcon = function () {
+export const LoveIcon = function (props: any) {
+  const { linear } = props;
   return (
     <svg
       width="44"
@@ -2614,7 +2615,12 @@ export const LoveIcon = function () {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <circle cx="22" cy="22" r="22" fill="url(#paint0_linear_1477_2)" />
+      <circle
+        cx="22"
+        cy="22"
+        r="22"
+        fill={`url(#${linear || 'paint0_linear_1477_2'})`}
+      />
       <circle cx="22" cy="22" r="17.5" fill="#0F1D27" stroke="#00D6AF" />
       <mask
         id="path-3-outside-1_1477_2"
@@ -2645,7 +2651,7 @@ export const LoveIcon = function () {
       />
       <defs>
         <linearGradient
-          id="paint0_linear_1477_2"
+          id={linear || 'paint0_linear_1477_2'}
           x1="22"
           y1="0"
           x2="22"
