@@ -396,7 +396,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       Amount,
       'Receiver Id': receiver_id,
       'Incentive Key': incentive_key,
-      ProposalId: proposal_id,
+      'Proposal Id': proposal_id,
     };
   } else if (receiver_id == config.REF_FARM_BOOST_CONTRACT_ID) {
     Action = 'Stake';
@@ -589,9 +589,11 @@ const unlockAndWithdrawSeed = async (params: any) => {
   const poolId = (seed_id || '').split('@')[1];
   const extraData = {};
   if (Number(withdraw_amount) > 0) {
-    extraData['Amount'] = new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
-      ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, withdraw_amount)
-      : toReadableNumber(24, withdraw_amount);
+    extraData['Amount'] =
+      new Set(STABLE_POOL_IDS || []).has(poolId?.toString()) ||
+      seed_id == config.REF_VE_CONTRACT_ID
+        ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, withdraw_amount)
+        : toReadableNumber(24, withdraw_amount);
   }
   if (Number(unlock_amount) > 0) {
     extraData['Amount'] = new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
@@ -600,7 +602,7 @@ const unlockAndWithdrawSeed = async (params: any) => {
   }
   return {
     Action: Number(unlock_amount) > 0 ? 'Unlock' : 'Unstake',
-    seedId: seed_id,
+    'Seed Id': seed_id,
     ...extraData,
   };
 };

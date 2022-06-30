@@ -308,6 +308,10 @@ export default function FarmsHome(props: any) {
         setLoveSeed(seed);
       }
     });
+    // filter Love Seed
+    list_seeds.filter((seed: Seed) => {
+      if (seed.seed_id.indexOf('@') > -1) return true;
+    });
     // filter no farm seed
     const new_list_seeds: any[] = [];
     list_farm.forEach((farmList: FarmBoost[], index: number) => {
@@ -318,6 +322,7 @@ export default function FarmsHome(props: any) {
         });
       }
     });
+
     list_seeds = new_list_seeds;
     // get all token prices
     const tokenPriceList = await getBoostTokenPrices();
@@ -2508,66 +2513,66 @@ function FarmView(props: {
             ) : null}
           </div>
           <div className="flex items-center justify-between px-5 py-4 h-24">
-            <div className="flex items-start justify-between w-full">
-              <div className="flex flex-col items-center flex-shrink-0">
+            {/* <div className="flex items-start justify-between w-full"> */}
+            <div className="flex flex-col items-center flex-shrink-0">
+              <label className="text-farmText text-sm">
+                <FormattedMessage id="total_staked"></FormattedMessage>
+              </label>
+              <label className="text-white text-base mt-1.5">
+                {`${
+                  Number(seed.seedTvl) == 0
+                    ? '-'
+                    : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`
+                }`}
+              </label>
+            </div>
+            <div
+              className={`flex flex-col ${
+                isHaveUnclaimedReward ? 'items-center' : 'items-end'
+              } justify-center`}
+            >
+              <span className="flex items-center">
+                <CalcIcon
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    setCalcVisible(true);
+                  }}
+                  className="mr-1.5 cursor-pointer"
+                />
                 <label className="text-farmText text-sm">
-                  <FormattedMessage id="total_staked"></FormattedMessage>
+                  <FormattedMessage id="apr"></FormattedMessage>
                 </label>
-                <label className="text-white text-base mt-1.5">
-                  {`${
-                    Number(seed.seedTvl) == 0
-                      ? '-'
-                      : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`
-                  }`}
-                </label>
-              </div>
+              </span>
               <div
-                className={`flex flex-col ${
-                  isHaveUnclaimedReward ? 'items-center' : 'items-end'
-                } justify-center`}
+                className="text-xl text-white"
+                data-type="info"
+                data-place="top"
+                data-multiline={true}
+                data-tip={getAprTip()}
+                data-html={true}
+                data-for={'aprId' + seed.farmList[0].farm_id}
+                data-class="reactTip"
               >
-                <span className="flex items-center">
-                  <CalcIcon
-                    onClick={(e: any) => {
-                      e.stopPropagation();
-                      setCalcVisible(true);
-                    }}
-                    className="mr-1.5 cursor-pointer"
-                  />
-                  <label className="text-farmText text-sm">
-                    <FormattedMessage id="apr"></FormattedMessage>
-                  </label>
-                </span>
-                <div
-                  className="text-xl text-white"
-                  data-type="info"
-                  data-place="top"
-                  data-multiline={true}
-                  data-tip={getAprTip()}
-                  data-html={true}
-                  data-for={'aprId' + seed.farmList[0].farm_id}
-                  data-class="reactTip"
+                <span
+                  className={`flex items-center flex-wrap justify-center text-white text-base mt-1.5 ${
+                    isHaveUnclaimedReward ? 'text-center mx-2' : 'text-right'
+                  }`}
                 >
-                  <span
-                    className={`flex items-center flex-wrap justify-center text-white text-base mt-1.5 ${
-                      isHaveUnclaimedReward ? 'text-center mx-2' : 'text-right'
-                    }`}
-                  >
-                    <label className={`${aprUpLimit ? 'text-xs' : 'text-sm'}`}>
-                      {getTotalApr()}
-                    </label>
-                    {aprUpLimit}
-                  </span>
-                  <ReactTooltip
-                    id={'aprId' + seed.farmList[0].farm_id}
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    effect="solid"
-                  />
-                </div>
+                  <label className={`${aprUpLimit ? 'text-xs' : 'text-sm'}`}>
+                    {getTotalApr()}
+                  </label>
+                  {aprUpLimit}
+                </span>
+                <ReactTooltip
+                  id={'aprId' + seed.farmList[0].farm_id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
               </div>
             </div>
+            {/* </div> */}
             {isHaveUnclaimedReward ? (
               <div className="flex flex-col items-center flex-shrink-0">
                 <div
