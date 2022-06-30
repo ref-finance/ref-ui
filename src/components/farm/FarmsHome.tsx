@@ -879,13 +879,6 @@ export default function FarmsHome(props: any) {
   }
   function LoveBox(props: any) {
     const { inside } = props;
-    const loveTip = () => {
-      return `<div class="text-xs text-navHighLightText w-64">
-      <h1 class="font-bold">LOVE</h1>
-      <div>
-      "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded</div>
-    </div>`;
-    };
     const noLoveRelatedAmount =
       isSignedIn && +loveTokenBalance == 0 && +loveTokeStaked == 0;
     return (
@@ -902,31 +895,19 @@ export default function FarmsHome(props: any) {
         }}
       >
         <span className="absolute -top-5">
-          <LoveIcon linear={inside ? 'paint0_linear_1477_3' : ''}></LoveIcon>
+          <LoveIcon
+            linear0={inside ? 'paint0_linear_1477_3' : ''}
+            linear1={inside ? 'paint1_linear_1477_3' : ''}
+            linear2={inside ? 'path-3-outside-1_1477_3' : ''}
+          ></LoveIcon>
         </span>
         <div
           className={`flex items-center text-white text-2xl ${
             inside ? 'mt-4 mb-2' : 'mt-6'
           }`}
         >
-          Love
-          <div
-            className="ml-2"
-            data-class="reactTip"
-            data-for="selectAllId"
-            data-place="top"
-            data-html={true}
-            data-tip={loveTip()}
-          >
-            <QuestionMark></QuestionMark>
-            <ReactTooltip
-              id="selectAllId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
-          </div>
+          LOVE
+          <LoveMask />
         </div>
         <div className="flex justify-between items-center w-full">
           <div className="flex flex-col items-center stakeBox w-2 flex-grow mx-1.5">
@@ -1629,9 +1610,10 @@ function LoveStakeModal(props: {
   return (
     <CommonModal {...reset}>
       <div className="flex justify-between items-center mt-6">
-        <span className="flex items-center text-base text-white font-bold">
+        <div className="flex items-center text-base text-white font-bold">
           <LoveTokenIcon className="mr-2.5"></LoveTokenIcon> LOVE
-        </span>
+          <LoveMask />
+        </div>
         <span className="text-sm text-white">
           {toPrecision(loveTokenBalance, 6)}
         </span>
@@ -1866,9 +1848,10 @@ function LoveUnStakeModal(props: {
   return (
     <CommonModal {...reset}>
       <div className="flex justify-between items-center mt-6">
-        <span className="flex items-center text-base text-white font-bold">
+        <div className="flex items-center text-base text-white font-bold">
           <LoveTokenIcon className="mr-2.5"></LoveTokenIcon> LOVE
-        </span>
+          <LoveMask />
+        </div>
         <span className="text-sm text-white">
           {toPrecision(loveTokenBalance, 6)}
         </span>
@@ -3173,3 +3156,32 @@ export const getPoolIdBySeedId = (seed_id: string) => {
   }
   return '';
 };
+
+function LoveMask() {
+  const loveTip = () => {
+    return `<div class="text-xs text-navHighLightText w-64">
+    <h1 class="font-bold">LOVE</h1>
+    <div>
+    "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded</div>
+  </div>`;
+  };
+  return (
+    <div
+      className="ml-2"
+      data-class="reactTip"
+      data-for="loveTipId"
+      data-place="top"
+      data-html={true}
+      data-tip={loveTip()}
+    >
+      <QuestionMark></QuestionMark>
+      <ReactTooltip
+        id="loveTipId"
+        backgroundColor="#1D2932"
+        border
+        borderColor="#7e8a93"
+        effect="solid"
+      />
+    </div>
+  );
+}
