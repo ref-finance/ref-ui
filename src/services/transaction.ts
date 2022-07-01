@@ -296,7 +296,7 @@ const parseMtfTransferCall = async (params: any) => {
     Amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
       ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
       : toReadableNumber(24, amount),
-    'Receiver Id': receiver_id,
+    'Receiver ID': receiver_id,
     'Token Id': token_id,
     ...extraData,
   };
@@ -383,7 +383,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     return {
       Action,
       Amount,
-      'Receiver Id': receiver_id,
+      'Receiver ID': receiver_id,
     };
   } else if (receiver_id == config.REF_VE_CONTRACT_ID) {
     Action = 'Deposit Bonus';
@@ -394,9 +394,9 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     return {
       Action,
       Amount,
-      'Receiver Id': receiver_id,
+      'Receiver ID': receiver_id,
       'Incentive Key': incentive_key,
-      'Proposal Id': proposal_id,
+      'Proposal ID': proposal_id,
     };
   } else if (receiver_id == config.REF_FARM_BOOST_CONTRACT_ID) {
     Action = 'Stake';
@@ -405,7 +405,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     return {
       Action,
       Amount,
-      'Receiver Id': receiver_id,
+      'Receiver ID': receiver_id,
       msg: (msg && msg.replace(/\\"/g, '"')) || '',
     };
   } else if (msg && receiver_id !== 'aurora') {
@@ -439,7 +439,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       'Min Amount Out': toReadableNumber(out_token.decimals, amountOut),
       'Token In': in_token.symbol,
       'Token Out': out_token.symbol,
-      'Receiver Id': receiver_id,
+      'Receiver ID': receiver_id,
     };
   } else {
     Action = 'Deposit';
@@ -448,7 +448,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     return {
       Action,
       Amount,
-      'Receiver Id': receiver_id,
+      'Receiver ID': receiver_id,
     };
   }
 };
@@ -696,7 +696,7 @@ const claimReward = async (params: any) => {
   }
   const { proposal_id } = params;
   return {
-    Action: 'Claim bonus',
+    Action: 'Claim Bonus',
     'Proposal ID': proposal_id,
   };
 };
