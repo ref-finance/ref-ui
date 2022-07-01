@@ -919,7 +919,7 @@ const AddBonusPopUp = (
   };
 
   return (
-    <ModalWrapper {...props}>
+    <ModalWrapper {...props} overflow="visible">
       <div className="flex items-center justify-between py-5">
         <SelectTokenForList
           tokens={tokens || []}
@@ -1055,7 +1055,7 @@ const VoteChart = ({
         <foreignObject
           x={cx - (forDetail ? 50 : 35)}
           y={cy - 20}
-          width={`${name.length * 13 > 70 ? 70 : name.length * 13}%`}
+          width={60}
           height={55}
         >
           <div
@@ -1511,6 +1511,7 @@ export const PreviewPopUp = (
               }
               padding="p-0"
               className="w-1/2 ml-1 h-10 text-sm"
+              beatStyling
               onClick={() => {
                 createProposal({
                   description: {
@@ -1658,6 +1659,7 @@ export const PreviewPopUp = (
               }
               padding="p-0"
               className="w-28 h-8 text-sm"
+              beatStyling
               onClick={() => {
                 createProposal({
                   description: {
@@ -3058,9 +3060,11 @@ const GovProposalItem = ({
       />
     );
 
+  console.log(proposal, 'detail');
+
   return (
     <>
-      {showDetail === Number(proposal?.id) ? (
+      {proposal && proposal?.id && showDetail === Number(proposal?.id) ? (
         <GovItemDetail
           incentiveTokens={incentiveTokens}
           yourShare={yourShare}
@@ -3707,8 +3711,8 @@ export const LastRoundFarmVoting = (
       <InfoRow
         title={
           <FormattedMessage
-            id="Voting Apply Period"
-            defaultMessage={'Voting Apply Period'}
+            id="applying_period"
+            defaultMessage={'Applying Period'}
           />
         }
         value={`
@@ -4327,7 +4331,7 @@ export const FarmProposal = ({
       };
     })
     .sort((a, b) => {
-      if (sortBy === 'allocation') {
+      if (sortBy === 'REF allocation') {
         return Number(b.allocate) - Number(a.allocate);
       } else if (sortBy === 'bonus') {
         return Number(b.total) - Number(a.total);
@@ -5207,6 +5211,18 @@ export const GovProposal = ({
     return true;
   };
 
+  const history = useHistory();
+
+  useEffect(() => {
+    if (
+      typeof showDetail === 'number' &&
+      proposals &&
+      !proposals.find((p) => p.id === showDetail)
+    ) {
+      history.push('/referendum');
+    }
+  }, [showDetail, proposals]);
+
   return (
     <div className={`flex flex-col text-white text-sm relative `}>
       {showDetail ? null : (
@@ -5419,11 +5435,13 @@ export const ProposalCard = ({
         curTab={curTab}
         setTab={setTab}
         className={`${
-          !mobileSecondPage ? 'hidden' : 'xsm:flex'
+          !mobileSecondPage ? 'xsm:hidden' : 'xsm:flex'
         } text-sm mt-12 xsm:w-full  xsm:mt-8 mb-4  xsm:items-center`}
       />
 
-      {notShowRewardCard || !mobileSecondPage || showCreateProposal ? null : (
+      {notShowRewardCard ||
+      (!mobileSecondPage && isClientMobie) ||
+      (showCreateProposal && isClientMobie) ? null : (
         <RewardCard rewardList={unClaimedRewards} />
       )}
 

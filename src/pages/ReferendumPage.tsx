@@ -36,7 +36,7 @@ import Modal from 'react-modal';
 import { CloseIcon, mapToView } from '../components/icon/Actions';
 import { Symbols } from '../components/stableswap/CommonComp';
 import { NewFarmInputAmount } from '~components/forms/InputAmount';
-import { isMobile, useClientMobile } from '../utils/device';
+import { isClientMobie, isMobile, useClientMobile } from '../utils/device';
 import { VEConfig, Proposal } from '../services/referendum';
 import {
   useLOVEbalance,
@@ -363,9 +363,11 @@ export const ModalWrapper = (
     title: JSX.Element | string | null;
     customWidth?: string;
     customHeight?: string;
+    overflow?: string;
   }
 ) => {
-  const { isOpen, onRequestClose, title, customHeight, customWidth } = props;
+  const { isOpen, onRequestClose, title, customHeight, customWidth, overflow } =
+    props;
 
   const cardWidth = isMobile() ? '90vw' : '423px';
   const cardHeight = '90vh';
@@ -392,6 +394,7 @@ export const ModalWrapper = (
         style={{
           width: customWidth || cardWidth,
           maxHeight: customHeight || cardHeight,
+          overflow: overflow || '',
         }}
         padding="p-6 xsm:p-4"
       >
@@ -1855,7 +1858,7 @@ export const ReferendumPage = () => {
 
         <Card
           className={`w-full  flex xsm:flex-col z-20 overflow-hidden relative ${
-            !mobileSecondPage || hideLockCard ? 'hidden' : ''
+            !mobileSecondPage || hideLockCard ? 'xs:hidden' : ''
           }`}
           bgcolor="bg-veCardGradientRight xsm:bg-veCardGradient"
           padding={
@@ -1884,7 +1887,7 @@ export const ReferendumPage = () => {
 
         <div
           className={` lg:hidden mt-3 ${
-            hideLockCard || !mobileSecondPage ? 'hidden' : ''
+            hideLockCard || !mobileSecondPage ? 'xsm:hidden' : ''
           }`}
         >
           <PosterCard veShare={veShare} lpShare={lpShare} />
@@ -1892,7 +1895,7 @@ export const ReferendumPage = () => {
 
         <div
           className={` ${hideLockCard ? 'relative top-12' : ''} ${
-            !mobileSecondPage ? 'relative -top-12' : ''
+            !mobileSecondPage ? 'xs:relative xs:-top-12' : ''
           }`}
         >
           <ProposalCard
@@ -1903,7 +1906,7 @@ export const ReferendumPage = () => {
 
         <div
           className={`absolute -top-14 z-10  lg:-left-10  xsm:-right-4 ${
-            hideLockCard || !mobileSecondPage ? 'hidden' : ''
+            hideLockCard || !mobileSecondPage ? 'xsm:hidden' : ''
           }`}
         >
           <PowerZone />
