@@ -137,7 +137,7 @@ function Anchor({
       } ${name === 'Risks' ? 'lg:hidden lg2:block' : ''}`}
     >
       <h2
-        className={`link hover:text-white text-lg font-normal py-4 cursor-pointer relative z-10 ${className} ${
+        className={`link hover:text-white text-base font-normal py-4 cursor-pointer relative z-10 ${className} ${
           isSelected ? 'text-greenColor' : 'text-gray-400'
         }`}
       >
@@ -1045,8 +1045,11 @@ function NavigationBar() {
           .
         </div>
         <nav
-          className="flex items-center justify-between px-9 col-span-8 h-20"
-          style={{ borderBottom: '2px solid rgba(8, 97, 81, 0.39)' }}
+          className="flex items-center justify-between px-9 col-span-8"
+          style={{
+            borderBottom: '2px solid rgba(8, 97, 81, 0.39)',
+            height: '70px',
+          }}
         >
           <div className="flex items-center h-full">
             <div className="relative -top-0.5 flex-1 xs:hidden md:hidden">
