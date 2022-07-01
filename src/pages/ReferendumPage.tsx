@@ -36,7 +36,7 @@ import Modal from 'react-modal';
 import { CloseIcon, mapToView } from '../components/icon/Actions';
 import { Symbols } from '../components/stableswap/CommonComp';
 import { NewFarmInputAmount } from '~components/forms/InputAmount';
-import { isMobile } from '../utils/device';
+import { isMobile, useClientMobile } from '../utils/device';
 import { VEConfig, Proposal } from '../services/referendum';
 import {
   useLOVEbalance,
@@ -101,17 +101,26 @@ export interface AccountInfo {
 
 const UnLockTip = () => {
   return (
-    <div className="px-4 py-1.5 flex items-center justify-center bg-veGradient text-sm ">
+    <div className="px-4  py-1.5 flex items-center justify-center bg-veGradient text-sm ">
       <span className="mr-2.5">
         <UnLockExpiredIcon />
       </span>
       <span>
-        <FormattedMessage
-          id="unlock_tip_top"
-          defaultMessage={
-            'Your locking has been expired, unlocking is available now!'
-          }
-        />
+        <span className="lg:hidden ">
+          <FormattedMessage
+            id="unlock_tip_mobile"
+            defaultMessage={'Unlocking is available now!'}
+          />
+        </span>
+
+        <span className="xsm:hidden">
+          <FormattedMessage
+            id="unlock_tip_top"
+            defaultMessage={
+              'Your locking has been expired, unlocking is available now!'
+            }
+          />
+        </span>
       </span>
     </div>
   );
@@ -202,9 +211,9 @@ export const RewardCard = ({
 
   return (
     <>
-      <div className="px-3 pt-3 top-32 rounded-lg bg-veGradient flex flex-col w-80 absolute left-1/2 transform -translate-x-1/2 text-sm z-50">
+      <div className="px-3 xsm:w-full pt-3 xsm:pt-2 top-32 xsm:top-24 rounded-lg bg-veGradient flex flex-col w-80 absolute left-1/2 transform -translate-x-1/2 text-sm z-40">
         <div
-          className="flex items-center pb-4 relative  cursor-pointer "
+          className="flex items-center pb-4 xsm:pb-2 relative  cursor-pointer "
           onClick={() => setShowDetail(!showDetail)}
         >
           <span className="mr-2">
@@ -277,8 +286,19 @@ export const RewardCard = ({
                   ) : null}
                 </button>
 
-                <span className="">
-                  <FormattedMessage id="all" defaultMessage={'all'} />
+                <span className="text-sm">
+                  {Object.keys(rewardList).length > 5 ? (
+                    <div className="flex items-center ">
+                      <label className="mr-1 ">
+                        <FormattedMessage id="all_5_v2" />
+                      </label>
+                      <QuestionTip id="over_tip" color="bright" />
+                    </div>
+                  ) : (
+                    <label className="">
+                      <FormattedMessage id="all" />
+                    </label>
+                  )}
                 </span>
               </button>
 
@@ -348,7 +368,7 @@ export const ModalWrapper = (
   const { isOpen, onRequestClose, title, customHeight, customWidth } = props;
 
   const cardWidth = isMobile() ? '90vw' : '423px';
-  const cardHeight = '95vh';
+  const cardHeight = '90vh';
   return (
     <Modal
       {...props}
@@ -368,11 +388,12 @@ export const ModalWrapper = (
     >
       <Card
         width="w-full"
-        className="border border-gradientFrom border-opacity-50 flex flex-col justify-center text-white"
+        className="border border-gradientFrom border-opacity-50 flex overflow-y-auto overflow-x-hidden flex-col justify-center text-white "
         style={{
           width: customWidth || cardWidth,
           maxHeight: customHeight || cardHeight,
         }}
+        padding="p-6 xsm:p-4"
       >
         <div className="flex items-center justify-between">
           <span className="text-xl ">{title}</span>
@@ -461,17 +482,17 @@ export const LockPopUp = ({
   if (!config) return null;
 
   const Durations = () => (
-    <div className="w-full flex items-center pt-1.5">
+    <div className="w-full flex items-center pt-1.5 xsm:justify-between">
       {candidateDurations.map((d) => {
         const base = 2592000;
         return (
           <button
             key={d}
-            className={`rounded-lg  mr-2.5 hover:bg-gradientFrom  ${
+            className={`rounded-lg text-center xsm:mr-1.5  mr-2.5 hover:bg-gradientFrom  ${
               duration === d
                 ? 'text-chartBg bg-gradientFrom'
                 : 'text-farmText bg-black bg-opacity-20'
-            } hover:text-chartBg px-3 py-1 text-xs`}
+            } hover:text-chartBg px-3 xsm:px-1.5 py-1 text-xs`}
             onClick={() => setDuration(d)}
           >
             {' '}
@@ -554,7 +575,7 @@ export const LockPopUp = ({
           value={inputValue}
         />
 
-        <div className="text-sm text-farmText py-5 pb-2.5 flex items-center justify-between">
+        <div className="text-sm text-farmText py-5 xsm:pt-3 pb-2.5 flex items-center justify-between">
           <span>
             <FormattedMessage id="durations" defaultMessage="Durations" />
           </span>
@@ -603,7 +624,7 @@ export const LockPopUp = ({
 
         <Durations />
 
-        <div className="text-sm text-farmText pt-7 pb-2.5 flex items-center justify-between">
+        <div className="text-sm text-farmText pt-7 xsm:pt-3 pb-2.5 flex items-center justify-between">
           <span>
             <FormattedMessage id="get" defaultMessage="Get" />
           </span>
@@ -615,7 +636,7 @@ export const LockPopUp = ({
           </span>
         </div>
 
-        <div className="rounded-lg  pt-6 pb-5 flex items-center justify-between ">
+        <div className="rounded-lg  pt-6 pb-5 xsm:py-0 flex items-center justify-between ">
           <div className="flex flex-col w-1/2 items-center border-r border-white border-opacity-10">
             <div
               className="flex items-center"
@@ -816,7 +837,8 @@ The veLPT is not an actual, transferable token, but represents your voting power
               )
             }
             beatStyling
-            className="mt-6 text-lg"
+            className="mt-6 text-lg xsm:text-base"
+            padding="py-2 px-0"
             onClick={() =>
               lockLP({
                 token_id: ':' + getVEPoolId().toString(),
@@ -1173,7 +1195,7 @@ The veLPT is not an actual, transferable token, but represents your voting power
 
         <NewGradientButton
           text={<FormattedMessage id="unlock" defaultMessage={'Unlock'} />}
-          className="mt-5 text-white text-lg py-4"
+          className="mt-5 text-white text-lg py-4 xsm:text-base"
           onClick={() => {
             unlockLP({
               amount: toNonDivisibleNumber(24, toUnlockAmount),
@@ -1200,49 +1222,56 @@ const VotingPowerCard = ({
 }) => {
   const allZeros = ONLY_ZEROS.test(veShare);
 
+  const isClientMobile = useClientMobile();
+
+  const mobileNotSignedIn = isClientMobile && allZeros;
+
   return (
     <div
-      className="rounded-2xl bg-veVotingPowerCard flex py-4 px-5 font-bold text-black ml-5 h-1/2 mb-2"
+      className="rounded-2xl relative bg-veVotingPowerCard flex py-4 px-5 font-bold text-black ml-5  h-1/2 mb-2 xsm:ml-0 xsm:mr-1 xsm:mb-0"
       style={{
-        width: '350px',
+        width: isClientMobile ? '50%' : '350px',
+        height: isClientMobile ? '120px' : '',
       }}
     >
       <div className="flex flex-col justify-between">
-        <span className="whitespace-nowrap">
+        <span className="whitespace-nowrap xsm:text-lg">
           <FormattedMessage id="voting_power" defaultMessage={'Voting Power'} />
         </span>
 
-        <span className="pt-10">
-          <span title={veShare} className="flex items-center">
-            {allZeros ? (
-              <>
-                <span className="transform scale-75">
-                  <LeftArrowVE />
-                </span>
-                <span className="text-black text-xs ml-2">
-                  <FormattedMessage
-                    id="lock_lp_tokens_first"
-                    defaultMessage="Lock LPtoken first!"
-                  />
-                </span>
-              </>
-            ) : Number(veShare) > 0 && Number(veShare) < 0.01 ? (
-              '< 0.01'
-            ) : (
-              toPrecision(veShare, 2) || '0'
-            )}
-          </span>
-          <div className="text-sm flex items-center font-normal mt-2">
+        <span className="pt-10 xsm:pt-6">
+          {mobileNotSignedIn ? null : (
             <>
-              <span>veLPT</span>
-              <div
-                className="ml-1 text-xs"
-                data-type="info"
-                data-place="right"
-                data-multiline={true}
-                data-class="reactTip"
-                data-html={true}
-                data-tip={`
+              <span title={veShare} className="flex items-center xsm:text-xl">
+                {allZeros ? (
+                  <>
+                    <span className="transform scale-75">
+                      <LeftArrowVE />
+                    </span>
+                    <span className="text-black text-xs ml-2">
+                      <FormattedMessage
+                        id="lock_lp_tokens_first"
+                        defaultMessage="Lock LPtoken first!"
+                      />
+                    </span>
+                  </>
+                ) : Number(veShare) > 0 && Number(veShare) < 0.01 ? (
+                  '< 0.01'
+                ) : (
+                  toPrecision(veShare, 2) || '0'
+                )}
+              </span>
+              <div className="text-sm flex items-center font-normal xsm:mt-0 mt-2 xsm:text-xs">
+                <>
+                  <span>veLPT</span>
+                  <div
+                    className="ml-1 text-xs"
+                    data-type="info"
+                    data-place={isClientMobile ? 'top' : 'right'}
+                    data-multiline={true}
+                    data-class="reactTip"
+                    data-html={true}
+                    data-tip={`
               <div className="text-xs">
                 <div 
                   style="font-weight: 700",
@@ -1254,24 +1283,33 @@ The veLPT is not an actual, transferable token, but represents your voting power
                 </div>
               </div>
             `}
-                data-for="tipId"
-              >
-                <QuestionMark color="dark" colorHex="#000000" />
-                <ReactTooltip
-                  className="w-20"
-                  id="tipId"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
+                    data-for="tipId_ve_post_card"
+                  >
+                    <QuestionMark color="dark" colorHex="#000000" />
+                    <ReactTooltip
+                      className="w-20"
+                      id="tipId_ve_post_card"
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      textColor="#C6D1DA"
+                      effect="solid"
+                    />
+                  </div>
+                </>
               </div>
             </>
-          </div>
+          )}
         </span>
       </div>
-      <div className="relative bottom-11 right-5">
+      <div
+        className={`${
+          !(isClientMobile && mobileNotSignedIn) ? 'opacity-50' : ''
+        } relative xsm:absolute xsm:right-28 lg:bottom-11 right-5 xsm:top-6 xsm:transform`}
+        style={{
+          transform: isClientMobile ? 'scale(0.55,0.55)' : '',
+        }}
+      >
         <VotingPowerIcon />
       </div>
     </div>
@@ -1289,92 +1327,114 @@ const FarmBoosterCard = ({
 
   const allZeros = ONLY_ZEROS.test(veShare) && ONLY_ZEROS.test(balance);
 
+  const isClientMobile = useClientMobile();
+
+  const mobileNotSignedIn = isClientMobile && allZeros;
+
   return (
     <div
-      className="rounded-2xl bg-veFarmBoostCard flex py-4 px-5 font-bold text-senderHot ml-5 mt-2 h-1/2  relative"
+      className="rounded-2xl bg-veFarmBoostCard flex py-4 px-5 font-bold text-senderHot ml-5 mt-2 h-1/2  relative xsm:ml-1 xsm:mt-0"
       style={{
-        width: '350px',
+        width: isClientMobile ? '50%' : '350px',
+        height: isClientMobile ? '120px' : '',
       }}
     >
-      <div className="flex flex-col justify-between">
+      <div className="flex flex-col whitespace-nowrap justify-between xsm:text-lg">
         <span>
           <FormattedMessage id="farm_booster" defaultMessage={'Farm Booster'} />
         </span>
 
-        <span className="text-white pt-10">
-          <span title={balance} className="flex items-center">
-            {allZeros ? (
-              <>
-                <span className="transform scale-75">
-                  <LeftArrowVE stroke="#00ffd1" />
-                </span>
-                <span className="text-xs text-white font-normal ml-2">
-                  <FormattedMessage
-                    id="lock_lp_tokens_first"
-                    defaultMessage="Lock LPtoken first!"
-                  />
-                </span>
-              </>
-            ) : Number(balance) > 0 && Number(balance) < 0.01 ? (
-              '< 0.01'
-            ) : (
-              toPrecision(balance, 2) || '0'
-            )}
-          </span>
-          <div className="text-sm font-normal flex items-center mt-2">
+        <span className="text-white pt-10 xsm:pt-6">
+          {mobileNotSignedIn ? null : (
             <>
-              <span>LOVE</span>
-              <div
-                className="ml-1 text-xs"
-                data-type="info"
-                data-place="right"
-                data-multiline={true}
-                data-class="reactTip"
-                data-html={true}
-                data-tip={`
+              <span title={balance} className="flex items-center">
+                {allZeros ? (
+                  <>
+                    <span className="transform scale-75">
+                      <LeftArrowVE stroke="#00ffd1" />
+                    </span>
+                    <span className="text-xs text-white font-normal ml-2">
+                      <FormattedMessage
+                        id="lock_lp_tokens_first"
+                        defaultMessage="Lock LPtoken first!"
+                      />
+                    </span>
+                  </>
+                ) : Number(balance) > 0 && Number(balance) < 0.01 ? (
+                  '< 0.01'
+                ) : (
+                  toPrecision(balance, 2) || '0'
+                )}
+              </span>
+              <div className="text-sm font-normal flex items-center mt-2 xsm:mt-0 xsm:text-xs">
+                <>
+                  <span>LOVE</span>
+                  <div
+                    className="ml-1 text-xs"
+                    data-type="info"
+                    data-place={isClientMobile ? 'left' : 'right'}
+                    data-multiline={true}
+                    data-class="reactTip"
+                    data-html={true}
+                    data-tip={`
               <div className="text-xs">
                 <div 
                   style="font-weight: 700",
                 >LOVE</div>
                 <div 
-                  style="max-width: 250px;font-weight:400",
+                  style="max-width: ${
+                    isClientMobile ? '200px' : '250px'
+                  };font-weight:400;white-space: initial;",
                 >
                 "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded                </div>
               </div>
             `}
-                data-for="tipId"
-              >
-                <QuestionMark color="bright" />
-                <ReactTooltip
-                  className="w-20"
-                  id="tipId"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
+                    data-for="tipId_love_post_card"
+                  >
+                    <QuestionMark color="bright" />
+                    <ReactTooltip
+                      className="w-20"
+                      id="tipId_love_post_card"
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      textColor="#C6D1DA"
+                      effect="solid"
+                    />
+                  </div>
+                </>
               </div>
             </>
-          </div>
+          )}
         </span>
       </div>
-      <div className="relative bottom-11 right-5">
-        <LOVEBoosterIcon />
-      </div>
-
-      <button
-        className="absolute right-4 bottom-4 px-4 py-px rounded-full font-normal text-sm"
+      <div
+        className={`relative ${
+          !(isClientMobile && mobileNotSignedIn) ? 'opacity-50' : ''
+        } xsm:absolute  lg:bottom-11 right-5 xsm:right-28 xsm:top-6 xsm:transform`}
         style={{
-          backgroundColor: 'rgba(43, 23, 85, 0.7)',
-        }}
-        onClick={() => {
-          window.open('/farmsBoost', '_blank');
+          transform: isClientMobile ? 'scale(0.55,0.55)' : '',
         }}
       >
-        <FormattedMessage id="go_to_farm" defaultMessage="Go to farm" />
-        <span className="ml-1">↗</span>
-      </button>
+        <LOVEBoosterIcon />
+      </div>
+      {mobileNotSignedIn ? null : (
+        <button
+          className="absolute xsm:right-6 xsm:bottom-1  right-4 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal text-sm "
+          style={{
+            backgroundColor: isClientMobile
+              ? 'transparent'
+              : 'rgba(43, 23, 85, 0.7)',
+            fontSize: isClientMobile ? '10px' : '',
+          }}
+          onClick={() => {
+            window.open('/farmsBoost', '_blank');
+          }}
+        >
+          <FormattedMessage id="go_to_farm" defaultMessage="Go to farm" />
+          <span className="ml-1">↗</span>
+        </button>
+      )}
     </div>
   );
 };
@@ -1387,7 +1447,7 @@ const PosterCard = ({
   lpShare: string;
 }) => {
   return (
-    <div className="flex flex-col text-2xl font-bold">
+    <div className="flex flex-col xsm:flex-row text-2xl font-bold">
       <VotingPowerCard veShare={veShare} lpShare={lpShare} />
       <FarmBoosterCard lpShare={lpShare} veShare={veShare} />
     </div>
@@ -1506,25 +1566,27 @@ const UserReferendumCard = ({
 
   return (
     <Card
-      className={`flex  flex-col relative z-30 justify-between overflow-hidden`}
-      width="w-2/3"
+      className={`flex  flex-col  relative z-30 justify-between overflow-hidden`}
+      width="w-2/3 xsm:w-full"
       padding={'p-0'}
       bgcolor="bg-transparent"
       rounded="rounded-none"
     >
-      <div className="text-3xl font-bold mb-2">
+      <div className="text-3xl xsm:text-2xl font-bold mb-2 xsm:px-2">
         <FormattedMessage
           id="lock_your_lp_tokens"
           defaultMessage="Lock Your LPtoken"
         />
       </div>
-      <span className={`pb-7 text-5xl valueStyle font-bold`}>
+      <span
+        className={`pb-7 text-5xl xsm:text-2xl valueStyle font-bold xsm:px-2`}
+      >
         <FormattedMessage
           id="unlock_your_defi_power"
           defaultMessage="Unlock your DeFi Power"
         />
       </span>
-      <div className=" flex items-center text-lg relative left-1">
+      <div className=" flex items-center text-lg relative left-1 xsm:px-2">
         <Images tokens={tokens} size="6" />
         <span className="mx-1"></span>
         <Symbols
@@ -1541,7 +1603,7 @@ const UserReferendumCard = ({
         </button>
       </div>
 
-      <div className="flex items-center justify-between mt-10 mb-4">
+      <div className="flex items-center justify-between mt-10 mb-4 xsm:px-2">
         <div className="flex flex-col w-1/2 mr-4">
           <div className={`text-3xl font-bold text-gradientFromHover `}>
             <span className="flex items-center">
@@ -1629,7 +1691,7 @@ const UserReferendumCard = ({
       </div>
 
       {isSignedIn ? (
-        <div className={`text-base flex items-center w-full `}>
+        <div className={`text-base flex items-center w-full xsm:text-sm `}>
           <NewGradientButton
             className={`${
               ONLY_ZEROS.test(veShare) ? 'w-full' : 'w-1/2'
@@ -1702,6 +1764,60 @@ const UserReferendumCard = ({
   );
 };
 
+export const LockCardWithdrawer = ({
+  hideLockCard,
+  setLockHideCard,
+  className,
+}: {
+  hideLockCard: boolean;
+  setLockHideCard: (hide: boolean) => void;
+  className?: string;
+}) => {
+  const { veShare } = useContext(ReferendumPageContext);
+
+  return (
+    <div className={`flex flex-col w-full ${className}`}>
+      <div className="flex items-center mb-4">
+        <button
+          className="bg-cardBg flex items-center justify-center text-center bg-opacity-90 rounded-lg h-6 w-6 "
+          onClick={() => setLockHideCard(!hideLockCard)}
+        >
+          {hideLockCard ? (
+            <FaAngleDown color="#00C6A2" />
+          ) : (
+            <FaAngleUp color="#7E8A93" />
+          )}
+        </button>
+        {!hideLockCard ? null : (
+          <div className="ml-2 text-xs text-white text-opacity-30">
+            <FormattedMessage
+              id="lock_lptoken"
+              defaultMessage={'Lock LPtoken'}
+            />
+          </div>
+        )}
+      </div>
+
+      {!hideLockCard ? null : (
+        <div className="rounded-2xl flex justify-between bg-veVotingPowerCard px-4 py-3 text-lg font-bold text-black">
+          <span className="">
+            <FormattedMessage
+              id="voting_power"
+              defaultMessage={'Voting Power'}
+            />
+          </span>
+          <span className="flex flex-col ">
+            <span>{toPrecision(veShare, 2, false, false)}</span>
+            <span className="text-xs font-normal">
+              <FormattedMessage id="velpt" defaultMessage={'veLPT'} />
+            </span>
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const ReferendumPageContext = createContext(null);
 
 export const ReferendumPage = () => {
@@ -1711,10 +1827,14 @@ export const ReferendumPage = () => {
   const { veShare, accountInfo, veShareRaw } = useAccountInfo();
   const tokenPriceList = useTokenPriceList();
 
+  const [hideLockCard, setLockHideCard] = useState<boolean>(false);
+
   const allowUnlock =
     Number(accountInfo?.unlock_timestamp || 0) > 0 &&
     Math.floor(Number(accountInfo?.unlock_timestamp || 0) / TIMESTAMP_DIVISOR) <
       moment().unix();
+
+  const [mobileSecondPage, setMobileSecondPage] = useState<boolean>(false);
 
   return (
     <ReferendumPageContext.Provider
@@ -1724,11 +1844,25 @@ export const ReferendumPage = () => {
         veShareRaw,
       }}
     >
-      <div className="m-auto lg:w-1024px xs:w-full md:w-5/6 text-white relative top-8">
+      <div className="m-auto lg:w-1024px xsm:w-11/12 md:w-5/6 text-white relative top-6">
+        {mobileSecondPage && (
+          <LockCardWithdrawer
+            hideLockCard={hideLockCard}
+            setLockHideCard={setLockHideCard}
+            className={` lg:hidden absolute -top-12 `}
+          ></LockCardWithdrawer>
+        )}
+
         <Card
-          className="w-full flex z-20 overflow-hidden relative"
-          bgcolor="bg-veCardGradientRight "
-          padding={allowUnlock ? 'px-6 pb-12 py-6' : 'p-6'}
+          className={`w-full  flex xsm:flex-col z-20 overflow-hidden relative ${
+            !mobileSecondPage || hideLockCard ? 'hidden' : ''
+          }`}
+          bgcolor="bg-veCardGradientRight xsm:bg-veCardGradient"
+          padding={
+            allowUnlock
+              ? 'px-6 xsm:px-3 xsm:py-4 xsm:pb-10 pb-12 py-6'
+              : 'p-6 xsm:px-3 py-4'
+          }
         >
           <UserReferendumCard
             veShare={veShare}
@@ -1736,20 +1870,41 @@ export const ReferendumPage = () => {
             accountInfo={accountInfo}
             allowUnlock={allowUnlock}
           />
-          <PosterCard veShare={veShare} lpShare={lpShare} />
+
+          <div className="xsm:hidden">
+            <PosterCard veShare={veShare} lpShare={lpShare} />
+          </div>
 
           {!allowUnlock ? null : (
-            <div className="absolute w-full bottom-0 right-0">
+            <div className="absolute w-full bottom-0 right-0 xsm:text-xs">
               <UnLockTip />
             </div>
           )}
         </Card>
 
-        <ProposalCard />
+        <div
+          className={` lg:hidden mt-3 ${
+            hideLockCard || !mobileSecondPage ? 'hidden' : ''
+          }`}
+        >
+          <PosterCard veShare={veShare} lpShare={lpShare} />
+        </div>
 
         <div
-          className="absolute -top-14 z-10 -left-10
-        "
+          className={` ${hideLockCard ? 'relative top-12' : ''} ${
+            !mobileSecondPage ? 'relative -top-12' : ''
+          }`}
+        >
+          <ProposalCard
+            setMobileSecondPage={setMobileSecondPage}
+            mobileSecondPage={mobileSecondPage}
+          />
+        </div>
+
+        <div
+          className={`absolute -top-14 z-10  lg:-left-10  xsm:-right-4 ${
+            hideLockCard || !mobileSecondPage ? 'hidden' : ''
+          }`}
         >
           <PowerZone />
         </div>

@@ -27,6 +27,7 @@ import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
 import { getUserWalletTokens } from './api';
 import { extraStableTokenIds } from './near';
+import getConfig from './config';
 import {
   getCurrentWallet,
   WALLET_TYPE,
@@ -469,7 +470,12 @@ export const getWhitelistedTokensAndNearTokens = async (): Promise<
     await Promise.all(requestAll);
 
   return [
-    ...new Set<string>([...globalWhitelist, ...userWhitelist, ...walletTokens]),
+    ...new Set<string>([
+      ...globalWhitelist,
+      ...userWhitelist,
+      ...walletTokens,
+      getConfig().REF_VE_CONTRACT_ID,
+    ]),
   ];
 };
 

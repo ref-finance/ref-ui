@@ -7,7 +7,7 @@ import {
   ftGetBalance,
 } from '../services/ft-contract';
 import { REF_VE_CONTRACT_ID } from '../services/near';
-import { toNonDivisibleNumber } from '../utils/numbers';
+import { toNonDivisibleNumber, ONLY_ZEROS } from '../utils/numbers';
 import {
   VoteDetail,
   getVoteDetailHistory,
@@ -287,7 +287,7 @@ export const useUnClaimedRewardsVE = () => {
       .then(setReward);
   }, [isSignedIn]);
 
-  return rewards;
+  return rewards?.filter((r) => !ONLY_ZEROS.test(r.amount));
 };
 
 export const useCounterDownVE = ({

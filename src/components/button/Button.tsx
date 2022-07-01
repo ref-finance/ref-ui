@@ -628,7 +628,7 @@ export function WithGradientButton(porps: {
     <button
       className={` ${width} ${className} ${
         disabled || grayDisable ? 'cursor-not-allowed' : ''
-      } relative px-5 py-3  ${
+      } relative  py-3  ${
         disabled ? 'opacity-30' : ''
       }  rounded-lg text-center `}
       onClick={(e) => onClick && onClick(e)}

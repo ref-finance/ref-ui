@@ -50,16 +50,18 @@ export const Images = ({
           return (
             <img
               key={id || 0 + index}
-              className={`inline-block h-${size || 10} w-${
+              className={`inline-block flex-shrink-0 h-${size || 10} w-${
                 size || 10
-              } rounded-full border border-gradientFromHover -ml-1 bg-cardBg`}
+              } rounded-full border border-gradientFromHover ${
+                tokens?.length > 1 ? '-ml-1' : ''
+              } bg-cardBg`}
               src={icon}
             />
           );
         return (
           <div
             key={id || 0 + index}
-            className={`inline-block h-${size || 10} w-${
+            className={`inline-block h-${size || 10} flex-shrink-0 w-${
               size || 10
             } rounded-full bg-cardBg border border-gradientFromHover -ml-1 `}
           ></div>

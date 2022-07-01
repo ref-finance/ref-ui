@@ -14,7 +14,6 @@ import {
   cancelVote,
   claimRewardVE,
   getProposalList,
-  Proposal,
 } from '~services/referendum';
 
 import { scientificNotationToString, toPrecision } from '~utils/numbers';
@@ -69,7 +68,7 @@ import { PieChart, Pie, Cell, Sector, ResponsiveContainer } from 'recharts';
 import { toRealSymbol } from '../../utils/token';
 import _, { before, conformsTo, pad } from 'lodash';
 import { CustomSwitch } from '../forms/SlippageSelector';
-import { ArrowDownLarge } from '~components/icon';
+import { ArrowDownLarge, Radio } from '~components/icon';
 import { FilterIcon } from '~components/icon/PoolFilter';
 import {
   LOVE_TOKEN_DECIMAL,
@@ -104,7 +103,7 @@ import {
 } from '../../state/token';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useDepositableBalance, useTokens } from '../../state/token';
-import { REF_TOKEN_ID, near } from '../../services/near';
+import { REF_TOKEN_ID, near, wallet } from '../../services/near';
 import { NewFarmInputAmount } from '../forms/InputAmount';
 import {
   VoteAction,
@@ -112,7 +111,7 @@ import {
   VEConfig,
   Incentive,
 } from '../../services/referendum';
-import { VotedIcon } from '../icon/Referendum';
+import { VotedIcon, FilterIconVE } from '../icon/Referendum';
 import { useClientMobile, isClientMobie } from '../../utils/device';
 
 import DatePicker from 'react-datepicker';
@@ -126,10 +125,19 @@ import {
 } from '../../utils/numbers';
 import { QuestionTip } from './TipWrapper';
 import getConfig from '../../services/config';
-import { cos } from 'mathjs';
+import { cos, filter } from 'mathjs';
 import { AccountInfo, ReferendumPageContext } from '../../pages/ReferendumPage';
 import { SelectTokenForList, tokenPrice } from '../forms/SelectToken';
-import { removeProposal, ProposalStatus } from '../../services/referendum';
+import {
+  removeProposal,
+  ProposalStatus,
+  Proposal,
+} from '../../services/referendum';
+import { CloseIcon } from '../icon/Actions';
+const VotedOnlyKey = 'REF_FI_GOV_PROPOSAL_VOTED_ONLY';
+const BonusOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
+
+const CreatedOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
 
@@ -186,6 +194,136 @@ export const FilterSelector = ({
   );
 };
 
+export const FarmMobileSelector = ({
+  statusList,
+  setStatus,
+  curStatus,
+  votedOnly,
+  setVotedOnly,
+  bonusOnly,
+  setBonusOnly,
+  createdOnly,
+  setCreatedOnly,
+  filterOpen,
+  setFilterOpen,
+}: {
+  statusList: string[];
+  setStatus: (status: string) => void;
+  curStatus: string;
+  votedOnly: boolean;
+  setVotedOnly: (votedOnly: boolean) => void;
+  bonusOnly: boolean;
+  setBonusOnly: (bonusOnly: boolean) => void;
+  createdOnly: boolean;
+  setCreatedOnly: (createdOnly: boolean) => void;
+  filterOpen: boolean;
+  setFilterOpen: (filterOpen: boolean) => void;
+}) => {
+  return (
+    <div className=" relative">
+      <button
+        className={`flex items-center  ${
+          filterOpen ? 'text-white' : 'text-primaryText'
+        }`}
+        onClick={() => {
+          setFilterOpen(true);
+        }}
+      >
+        <span className="mr-1">
+          <FilterIconVE />
+        </span>
+
+        <span>
+          <FormattedMessage id="filter" defaultMessage={'Filter'} />
+        </span>
+      </button>
+      {!filterOpen ? null : (
+        <div
+          className="fixed h-screen w-screen right-0 top-0 z-40 bg-black bg-opacity-50"
+          onClick={() => {
+            setFilterOpen(false);
+          }}
+        ></div>
+      )}
+
+      <div
+        className={`flex absolute  flex-col right-0 rounded-lg w-90vw z-50 ${
+          !filterOpen ? 'hidden' : ''
+        } bg-cardBg border border-primaryText`}
+      >
+        <div className="flex items-center justify-between pt-4 pb-6 mx-5">
+          <div className="text-base font-bold">
+            <FormattedMessage id="filter" defaultMessage={'Filter'} />
+          </div>
+
+          <button className="pl-2 pb-1" onClick={() => setFilterOpen(false)}>
+            <CloseIcon width="12" height="12" />
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between mx-5">
+          {statusList.map((status) => {
+            return (
+              <button
+                className="flex"
+                onClick={() => {
+                  if (status === curStatus) {
+                    setStatus('All');
+                  } else {
+                    setStatus(status);
+                  }
+                }}
+              >
+                <Radio
+                  checked={status === curStatus}
+                  handleSelect={() => {
+                    if (status === curStatus) {
+                      setStatus('All');
+                    } else {
+                      setStatus(status);
+                    }
+                  }}
+                />
+                <span className="ml-1.5">{status}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="border-b border-white border-opacity-10 mx-2 mt-4 mb-5"></div>
+
+        <div className="flex flex-col mx-4">
+          <FilterSelector
+            textId="voted_only"
+            defaultText="Voted Only"
+            isOpen={votedOnly}
+            setIsOpen={setVotedOnly}
+            storageKey={VotedOnlyKey}
+            className="justify-between mb-4"
+          />
+          <FilterSelector
+            textId="bonus_only"
+            defaultText="Bonus Only"
+            isOpen={bonusOnly}
+            setIsOpen={setBonusOnly}
+            storageKey={BonusOnlyKey}
+            className="justify-between mb-4"
+          />
+
+          <FilterSelector
+            textId="created_only"
+            defaultText="Created Only"
+            isOpen={createdOnly}
+            setIsOpen={setCreatedOnly}
+            storageKey={CreatedOnlyKey}
+            className="justify-between mb-4"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const BonusBar = ({
   bright,
   incentiveItem,
@@ -195,8 +333,9 @@ export const BonusBar = ({
   showYourShare,
   showAddBonus,
   totalPrice,
+  forDetail,
 }: {
-  proposal: Proposal;
+  proposal?: Proposal;
   bright: boolean;
   incentiveItem: IncentiveItem | null;
   setShowAddBonus?: (show: boolean) => void;
@@ -205,6 +344,7 @@ export const BonusBar = ({
   showYourShare: boolean;
   showAddBonus?: boolean;
   totalPrice?: string;
+  forDetail?: boolean;
 }) => {
   const tokenPriceList = useContext(ReferendumPageContext).tokenPriceList;
 
@@ -229,72 +369,211 @@ export const BonusBar = ({
 
   const { globalState } = useContext(WalletContext);
 
+  const isClientMobie = useClientMobile();
+
   const isSignedIn = globalState?.isSignedIn;
 
   return (
-    <div
-      className={`w-full left-0 h-8 ${
-        bright
-          ? 'bg-veGradient'
-          : 'bg-transparent border-t border-white border-opacity-10'
-      } flex items-center text-center bottom-0 absolute text-sm  text-white`}
-    >
-      <span className={`pl-8 pr-1 ${!bright ? 'opacity-50' : ''} `}>
-        <FormattedMessage id="bonus" defaultMessage={'Bonus'} />:
-      </span>
+    <>
+      <div
+        className={`w-full left-0 h-8 xsm:hidden ${
+          bright
+            ? 'bg-veGradient'
+            : 'bg-transparent border-t border-white border-opacity-10'
+        } flex items-center text-center bottom-0 absolute text-sm  text-white`}
+      >
+        <span className={`pl-8 pr-1 ${!bright ? 'opacity-50' : ''} `}>
+          <FormattedMessage id="bonus" defaultMessage={'Bonus'} />:
+        </span>
 
-      <span className={` ${!bright ? 'opacity-50' : ''}`}>
-        {!prices ? '-' : '$' + toInternationalCurrencySystem(total || '0', 2)}
-      </span>
+        <span className={` ${!bright ? 'opacity-50' : ''}`}>
+          {!prices ? '-' : '$' + toInternationalCurrencySystem(total || '0', 2)}
+        </span>
 
-      {tokens?.map((t, i) => {
-        return (
-          <div
-            className={`flex ml-4 items-center ${!bright ? 'opacity-50' : ''} `}
-          >
-            <TokenIcon token={t} size={'5'} />
-            <span className="ml-1">
-              {toPrecision(
-                toReadableNumber(
-                  t?.decimals || 24,
-                  incentiveItem?.incentive_amounts[i] || '0'
-                ),
-                2
-              )}
-            </span>
-          </div>
-        );
-      })}
-      {!showAddBonus || !isSignedIn ? null : (
-        <button
-          className={`flex items-center rounded-2xl ml-4 hover:bg-senderHot 
+        {tokens?.map((t, i) => {
+          return (
+            <div
+              className={`flex ml-4 items-center ${
+                !bright ? 'opacity-50' : ''
+              } `}
+            >
+              <TokenIcon token={t} size={'5'} />
+              <span className="ml-1">
+                {toPrecision(
+                  toReadableNumber(
+                    t?.decimals || 24,
+                    incentiveItem?.incentive_amounts[i] || '0'
+                  ),
+                  2
+                )}
+              </span>
+            </div>
+          );
+        })}
+        {!showAddBonus || !isSignedIn ? null : (
+          <button
+            className={`flex items-center rounded-2xl ml-4 hover:bg-senderHot 
           
           hover:text-black px-2 border border-white border-opacity-30  hover:border-opacity-0 opacity-80
           bg-black bg-opacity-20
           
           `}
-          onClick={() => {
-            setShowAddBonus(true);
+            onClick={() => {
+              setShowAddBonus(true);
+            }}
+          >
+            <span className="mr-1">+</span>
+            <span>
+              <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
+            </span>
+          </button>
+        )}
+
+        {!showYourShare ? null : (
+          <span className={`absolute right-8 ${!bright ? 'opacity-50' : ''}`}>
+            <FormattedMessage
+              id="your_shares_ve"
+              defaultMessage={'Your Shares'}
+            />
+            : &nbsp;
+            {yourShare}
+          </span>
+        )}
+      </div>
+
+      {forDetail ? (
+        <>
+          {!showYourShare ? null : (
+            <div
+              className={`flex lg:hidden  w-full text-sm mt-3 items-center pb-3 justify-between ${
+                !bright ? 'opacity-50' : ''
+              }`}
+            >
+              <span className="">
+                <FormattedMessage
+                  id="your_shares_ve"
+                  defaultMessage={'Your Shares'}
+                />
+              </span>
+
+              <span>{yourShare}</span>
+            </div>
+          )}
+          <div
+            className={`w-full left-0   lg:hidden p-3 ${
+              bright || true
+                ? 'bg-veGradient'
+                : 'bg-transparent border-t border-white border-opacity-10'
+            } flex items-center xsm:flex-col xsm:flex text-center bottom-0 relative rounded-xl text-sm  text-white`}
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center text-base">
+                <span className={` pr-1 ${!bright ? 'opacity-50' : ''} `}>
+                  <FormattedMessage id="bonus" defaultMessage={'Bonus'} />:
+                </span>
+
+                <span className={` ${!bright ? 'opacity-50' : ''}`}>
+                  {!prices
+                    ? '$-'
+                    : '$' + toInternationalCurrencySystem(total || '0', 2)}
+                </span>
+              </div>
+
+              {!showAddBonus || !isSignedIn ? null : (
+                <button
+                  className={`flex items-center rounded-2xl ml-4 hover:bg-senderHot 
+            
+            hover:text-black px-2 border border-white border-opacity-30 text-sm  hover:border-opacity-0 opacity-80
+            bg-black bg-opacity-20 
+            
+            `}
+                  onClick={() => {
+                    setShowAddBonus(true);
+                  }}
+                >
+                  <span className="mr-1">+</span>
+                  <span>
+                    <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
+                  </span>
+                </button>
+              )}
+            </div>
+
+            <div
+              className={`w-full flex items-center pt-3 ${
+                !tokens || tokens.length === 0 ? 'hidden' : ''
+              }`}
+            >
+              {tokens?.map((t, i) => {
+                return (
+                  <div
+                    className={`flex ${i > 0 ? 'ml-3' : 'ml-0'} items-center ${
+                      !bright ? 'opacity-50' : ''
+                    } `}
+                  >
+                    <TokenIcon token={t} size={'5'} />
+                    <span className="relative -left-1">
+                      {toPrecision(
+                        toReadableNumber(
+                          t?.decimals || 24,
+                          incentiveItem?.incentive_amounts[i] || '0'
+                        ),
+                        2
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div
+          className={`w-full left-0 h-8  lg:hidden ${
+            bright
+              ? 'bg-veGradient'
+              : 'bg-transparent border-t border-white border-opacity-10'
+          } flex items-center justify-between text-center bottom-0 absolute text-sm  text-white`}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
           }}
         >
-          <span className="mr-1">+</span>
-          <span>
-            <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
-          </span>
-        </button>
-      )}
+          <div className="flex items-center">
+            <span className={`pl-4 pr-1 ${!bright ? 'opacity-50' : ''} `}>
+              <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
+            </span>
 
-      {!showYourShare ? null : (
-        <span className={`absolute right-8 ${!bright ? 'opacity-50' : ''}`}>
-          <FormattedMessage
-            id="your_shares_ve"
-            defaultMessage={'Your Shares'}
-          />
-          : &nbsp;
-          {yourShare}
-        </span>
+            {!showAddBonus || !isSignedIn ? null : (
+              <button
+                className={`flex items-center rounded-2xl ml-1 hover:bg-senderHot 
+            
+            hover:text-black px-2 border border-white border-opacity-30  hover:border-opacity-0 opacity-80
+            bg-black bg-opacity-20
+            
+            `}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setShowAddBonus(true);
+                }}
+              >
+                <span className="">+</span>
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center mr-4">
+            <span className={`mr-4 ${!bright ? 'opacity-50' : ''}`}>
+              {!prices
+                ? '-'
+                : '$' + toInternationalCurrencySystem(total || '0', 2)}
+            </span>
+            <Images tokens={tokens} size="4" className="flex-shrink-0" />
+          </div>
+        </div>
       )}
-    </div>
+    </>
   );
 };
 
@@ -306,7 +585,12 @@ export const getCurUTCDate = (base?: Date) => {
   return utc;
 };
 
-export const timeStampToUTC = (ts: number) => {
+export const timeStampToUTC = (ts: number, mobile?: Boolean) => {
+  if (mobile) {
+    return moment(ts * 1000)
+      .utc()
+      .format('yyyy-MM-DD HH:mm');
+  }
   return moment(ts * 1000)
     .utc()
     .format('yyyy-MM-DD HH:mm:ss');
@@ -440,6 +724,7 @@ export const CustomDatePicker = ({
       onKeyDown={(e) => {
         e.preventDefault();
       }}
+      className="xsm:text-sm"
     />
   );
 };
@@ -597,7 +882,9 @@ const AddBonusPopUp = (
 
   const nearBalance = useDepositableBalance('NEAR');
 
-  const balance = useDepositableBalance(selectToken.id);
+  const balance = useDepositableBalance(
+    selectToken.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : selectToken.id
+  );
 
   const [displayBalance, setDisplayBalance] = useState<string>(
     toPrecision(
@@ -619,7 +906,7 @@ const AddBonusPopUp = (
         2
       )
     );
-  }, [balance]);
+  }, [balance, nearBalance]);
 
   const [value, setValue] = useState<string>('');
 
@@ -746,7 +1033,7 @@ const VoteChart = ({
     ratios.every((r) => Number(r) === 0)
   )
     return (
-      <div className="pr-10">
+      <div className="pr-10 xsm:pr-0">
         <NoResultChart expand={forDetail ? '1.25' : ''} />
       </div>
     );
@@ -860,6 +1147,8 @@ function SelectUI({
   labelClassName,
   dropDownClassName,
   canSelect,
+  notshowOption,
+  brightClick,
 }: {
   onChange: (e: any) => void;
   list: string[];
@@ -870,6 +1159,8 @@ function SelectUI({
   labelClassName?: string;
   dropDownClassName?: string;
   canSelect?: boolean;
+  notshowOption?: boolean;
+  brightClick?: boolean;
 }) {
   const [showSelectBox, setShowSelectBox] = useState(false);
   const switchSelectBoxStatus = () => {
@@ -882,7 +1173,9 @@ function SelectUI({
     <div
       className={`${className} relative flex ${
         shrink ? 'items-end' : 'items-center '
-      } outline-none`}
+      } outline-none ${
+        brightClick ? (!showSelectBox ? 'opacity-70' : 'opacity-100') : ''
+      }`}
     >
       <span
         onClick={switchSelectBoxStatus}
@@ -890,15 +1183,27 @@ function SelectUI({
         onBlur={hideSelectBox}
         className={`${labelClassName} flex items-center justify-between bg-black bg-opacity-20 w-24 h-5 rounded-md px-2.5 py-3  cursor-pointer ${
           size || 'text-xs'
-        } outline-none ${shrink ? 'xs:w-8 md:w-8' : ''} text-white`}
+        } outline-none ${shrink ? 'xsm:w-8 md:w-8' : ''} text-white`}
       >
-        <label
-          className={`whitespace-nowrap ${shrink ? 'xs:hidden md:hidden' : ''}`}
-        >
-          {curvalue ? curvalue : null}
+        <label className={` whitespace-nowrap ${shrink ? 'xsm:hidden ' : ''}`}>
+          {notshowOption ? (
+            <FormattedMessage id="sort_by" defaultMessage={'Sort by'} />
+          ) : curvalue ? (
+            curvalue
+          ) : null}
         </label>
         <span className="text-primaryText">
-          <ArrowDownLarge />
+          {brightClick ? (
+            showSelectBox ? (
+              <div className="transform rotate-180 relative bottom-0.5 text-white">
+                <ArrowDownLarge />
+              </div>
+            ) : (
+              <ArrowDownLarge />
+            )
+          ) : (
+            <ArrowDownLarge />
+          )}
         </span>
       </span>
       <div
@@ -933,10 +1238,10 @@ export const ProposalWrapper = (
   const { padding, show, bgcolor } = props;
   return (
     <Card
-      padding={padding || 'p-8'}
+      padding={`${padding || 'p-8'} xsm:px-0`}
       width="w-full"
       bgcolor={bgcolor}
-      className={!show ? 'hidden' : 'text-primaryText '}
+      className={!show ? 'hidden' : 'text-primaryText  xsm:bg-transparent'}
     >
       {props.children}
     </Card>
@@ -1008,21 +1313,25 @@ export const PreviewPopUp = (
     };
   });
 
+  const isClientMobie = useClientMobile();
+
   const InfoRow = ({
     name,
     value,
     nameClass,
     valueClass,
     valueTitle,
+    className,
   }: {
     name: string | JSX.Element;
     value: string | JSX.Element;
     nameClass?: string;
     valueClass?: string;
     valueTitle?: string;
+    className?: string;
   }) => {
     return (
-      <div className="py-2.5 flex items-center ">
+      <div className={`py-2.5 flex items-center ${className} `}>
         <span className={`${nameClass} text-primaryText`}>{name}</span>
         <span className={`${valueClass} ml-3`}>{value}</span>
       </div>
@@ -1030,146 +1339,343 @@ export const PreviewPopUp = (
   };
 
   return (
-    <ModalWrapper {...props}>
-      <Card
-        className="w-full relative overflow-auto mt-9"
-        bgcolor="bg-black bg-opacity-20 "
-        padding={`px-10 pb-9  `}
-      >
-        <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 text-white text-xl mb-4">
-          {contentTitle}
-        </div>
-
-        <InfoRow
-          name={intl.formatMessage({
-            id: 'proposer',
-            defaultMessage: 'Proposer',
-          })}
-          value={`${getAccountName(getCurrentWallet().wallet.getAccountId())}`}
-          valueClass={'font-bold'}
-          valueTitle={getCurrentWallet().wallet.getAccountId()}
-        />
-
-        <InfoRow
-          name={intl.formatMessage({
-            id: 'voting_period',
-            defaultMessage: 'Voting Period',
-          })}
-          value={`${moment(startTime).format('yyyy-MM-DD HH:mm:ss')} - ${moment(
-            endTime
-          ).format('yyyy-MM-DD HH:mm:ss')} UTC`}
-        />
-        <InfoRow
-          name={intl.formatMessage({
-            id: 'turn_out',
-            defaultMessage: 'Turnout',
-          })}
-          value={turnOut}
-        />
-        <div className="w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
-          <InfoRow
-            name={intl.formatMessage({
-              id: 'total_velpt',
-              defaultMessage: 'Total veLPT',
-            })}
-            value={toPrecision(totalVE, 2)}
-          />
-
-          <button
-            className={`flex items-center ${
-              !link ? 'cursor-not-allowed' : ''
-            } `}
-            onClick={() => {
-              link && window.open(displayLink, '_blank');
-            }}
-          >
-            <span>
+    <>
+      {isClientMobie && show ? (
+        <div className="text-white text-sm relative">
+          <div className={`text-center relative text-xl pb-7 xsm:pb-3`}>
+            <span className="text-lg">
               <FormattedMessage
-                id="forum_discussion"
-                defaultMessage={'Forum Discussion'}
+                id="preview_your_proposal"
+                defaultMessage={'Preview Your Proposal'}
               />
             </span>
 
-            <span className="text-gradientFrom ml-2">↗</span>
-          </button>
-        </div>
-
-        <div className="flex items-center justify-center mt-8 pb-6">
-          <div className="w-1/5 flex items-center justify-center self-start pt-10">
-            <NoResultChart expand="1.25" />
+            <button
+              className="absolute left-0 pr-2 top-2 xsm:top-0 text-sm text-primaryText flex items-center"
+              onClick={() => setShow(false)}
+            >
+              <span className=" lg:hidden pl-2 font-bold text-xl">{'<'}</span>
+            </button>
           </div>
 
-          <div className="w-4/5 text-primaryText flex flex-col ml-16 pb-6 ">
-            <div className="grid grid-cols-10 pb-5 px-6">
-              <span className="col-span-6 ">
-                <FormattedMessage id="options" defaultMessage={'Options'} />
-              </span>
-              <span className="col-span-2  ">
-                <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
-              </span>
-              <span className="col-span-2 text-right">veLPT</span>
+          <Card
+            className="w-full relative overflow-hidden xsm:mb-10"
+            bgcolor="bg-black bg-opacity-20 xsm:bg-white xsm:bg-opacity-10"
+            padding={`px-10 pt-9 pb-14 xsm:px-4 xsm:py-6`}
+          >
+            <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 xsm:pt-0 text-white text-xl mb-4 xsm:mb-0">
+              {contentTitle}
             </div>
 
-            <div className="flex flex-col w-full text-white">
-              {data?.map((d, i) => {
-                return (
-                  <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 py-4">
-                    <span className="col-span-6 flex items-center">
-                      <div
-                        className="w-2.5 h-2.5 rounded-sm"
-                        style={{
-                          backgroundColor:
-                            OPTIONS_COLORS[i % OPTIONS_COLORS.length] ||
-                            'black',
-                        }}
-                      ></div>
-                      <span className="mx-2 truncate w-3/5" title={d.option}>
-                        {d.option}
-                      </span>
-                    </span>
-
-                    <span className="col-span-2 ">
-                      {toPrecision(scientificNotationToString(d.ratio), 2)}%
-                    </span>
-
-                    <span className="col-span-2 text-right">
-                      {toPrecision(d.v, 2)}
-                    </span>
-                  </div>
-                );
+            <InfoRow
+              name={intl.formatMessage({
+                id: 'proposer',
+                defaultMessage: 'Proposer',
               })}
+              value={getAccountName(getCurrentWallet().wallet.getAccountId())}
+              valueClass={'font-bold'}
+              valueTitle={getCurrentWallet().wallet.getAccountId()}
+              className="xsm:py-2.5"
+            />
+
+            <InfoRow
+              name={intl.formatMessage({
+                id: 'voting_period',
+                defaultMessage: 'Voting Period',
+              })}
+              value={`${moment(startTime).format(
+                'yyyy-MM-DD HH:mm'
+              )} - ${moment(endTime).format('yyyy-MM-DD HH:mm')} UTC`}
+              className="xsm:flex-col xsm:items-start"
+              valueClass="xsm:ml-0 xsm:pt-2.5"
+            />
+
+            <div className=" flex items-center justify-center relative top-0 self-start xsm:py-8">
+              <NoResultChart expand="1.25" />
             </div>
+
+            <div className="lg:hidden  w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
+              <InfoRow
+                name={intl.formatMessage({
+                  id: 'turn_out',
+                  defaultMessage: 'Turnout',
+                })}
+                value={turnOut}
+                className=" lg:hidden xsm:flex-col "
+                valueClass="xsm:ml-0 xsm:items-start"
+              />
+              <InfoRow
+                name={intl.formatMessage({
+                  id: 'total_veLPT',
+                  defaultMessage: 'total veLPT',
+                })}
+                value={toPrecision(totalVE, 2)}
+                valueClass="xsm:ml-0 "
+                className="xsm:flex-col xsm:items-end"
+              />
+            </div>
+
+            <div className="flex items-center justify-center mt-8 xsm:mt-4 pb-6 xsm:pb-2">
+              <div className="w-4/5 xsm:w-full text-primaryText flex flex-col ml-16 xsm:ml-0 pb-6 xsm:pb-0">
+                <div className="grid xsm:hidden grid-cols-10 pb-5 xsm:pb-0 px-6 xsm:px-4">
+                  <span className="col-span-6 ">
+                    <FormattedMessage id="options" defaultMessage={'Options'} />
+                  </span>
+                  <span className="col-span-2  ">
+                    <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
+                  </span>
+                  <span className="col-span-2 text-right">veLPT</span>
+                </div>
+
+                <div className="flex flex-col w-full text-white xsm:border-b border-white border-opacity-10">
+                  {data?.map((d, i) => {
+                    return (
+                      <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 xsm:px-0 py-4">
+                        <span className="col-span-6 flex items-center">
+                          <div
+                            className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
+                            style={{
+                              backgroundColor:
+                                OPTIONS_COLORS[options.indexOf(d.option)] ||
+                                '#8EA0CF',
+                            }}
+                          ></div>
+                          <span
+                            className="mx-2"
+                            style={{
+                              maxWidth: '60%',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                            title={d.option}
+                          >
+                            {d.option}
+                          </span>
+                        </span>
+
+                        <span className="col-span-2 ">{d.ratio}%</span>
+
+                        <span className="col-span-2 text-right">{d.v}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <BonusBar
+                  incentiveItem={null}
+                  bright
+                  showYourShare={false}
+                  yourShare={'-'}
+                  showAddBonus={false}
+                  forDetail
+                />
+              </div>
+            </div>
+
+            <button
+              className="flex items-center text-sm  mx-auto justify-center lg:hidden mt-4 text-center"
+              onClick={() => {
+                window.open(displayLink, '_blank');
+              }}
+            >
+              <span>
+                <FormattedMessage
+                  id="forum_discussion"
+                  defaultMessage={'Forum Discussion'}
+                />
+              </span>
+
+              <span className="text-white ml-0.5">↗</span>
+            </button>
+          </Card>
+          <div className="flex items-center justify-end -bottom-14 text-sm xsm:absolute xsm:right-0 xsm:w-full">
+            <BorderGradientButton
+              text={
+                <FormattedMessage id="go_back" defaultMessage={'Go back'} />
+              }
+              color={isClientMobie ? '#011320' : '#192734 '}
+              onClick={props.onRequestClose}
+              width="w-1/2 h-10 mr-1 xsm:w-1/2 xsm:mr-2 xsm:h-10"
+              className="w-full h-full"
+              padding="p-0"
+            />
+
+            <NewGradientButton
+              text={<FormattedMessage id="create" defaultMessage={'Create'} />}
+              disabled={
+                dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <=
+                  0 ||
+                !link?.trim() ||
+                !contentTitle?.trim() ||
+                options.filter((_) => !!_.trim()).length < 2
+              }
+              padding="p-0"
+              className="w-1/2 ml-1 h-10 text-sm"
+              onClick={() => {
+                createProposal({
+                  description: {
+                    title: `${contentTitle}`,
+                    link,
+                  },
+                  duration_sec:
+                    dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime),
+                  kind: type === 'Poll' ? 'Poll' : 'Common',
+                  options,
+                  start: dateToUnixTimeSec(startTime),
+                });
+              }}
+            />
           </div>
         </div>
-      </Card>
+      ) : (
+        <ModalWrapper {...props}>
+          <Card
+            className="w-full relative overflow-auto mt-9"
+            bgcolor="bg-black bg-opacity-20 "
+            padding={`px-10 pb-9  `}
+          >
+            <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 text-white text-xl mb-4">
+              {contentTitle}
+            </div>
 
-      <div className="flex items-center justify-end pt-8">
-        <NewGradientButton
-          text={<FormattedMessage id="create" defaultMessage={'Create'} />}
-          disabled={
-            dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
-            !link?.trim() ||
-            !contentTitle?.trim() ||
-            options.filter((_) => !!_.trim()).length < 2
-          }
-          padding="p-0"
-          className="w-28 h-8 text-sm"
-          onClick={() => {
-            createProposal({
-              description: {
-                title: `${contentTitle}`,
-                link,
-              },
-              duration_sec:
-                dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime),
-              kind: type === 'Poll' ? 'Poll' : 'Common',
-              options,
-              start: dateToUnixTimeSec(startTime),
-            });
-          }}
-        />
-      </div>
-    </ModalWrapper>
+            <InfoRow
+              name={intl.formatMessage({
+                id: 'proposer',
+                defaultMessage: 'Proposer',
+              })}
+              value={`${getAccountName(
+                getCurrentWallet().wallet.getAccountId()
+              )}`}
+              valueClass={'font-bold'}
+              valueTitle={getCurrentWallet().wallet.getAccountId()}
+            />
+
+            <InfoRow
+              name={intl.formatMessage({
+                id: 'voting_period',
+                defaultMessage: 'Voting Period',
+              })}
+              value={`${moment(startTime).format(
+                'yyyy-MM-DD HH:mm:ss'
+              )} - ${moment(endTime).format('yyyy-MM-DD HH:mm:ss')} UTC`}
+            />
+            <InfoRow
+              name={intl.formatMessage({
+                id: 'turn_out',
+                defaultMessage: 'Turnout',
+              })}
+              value={turnOut}
+            />
+            <div className="w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
+              <InfoRow
+                name={intl.formatMessage({
+                  id: 'total_velpt',
+                  defaultMessage: 'Total veLPT',
+                })}
+                value={toPrecision(totalVE, 2)}
+              />
+
+              <button
+                className={`flex items-center ${
+                  !link ? 'cursor-not-allowed' : ''
+                } `}
+                onClick={() => {
+                  link && window.open(displayLink, '_blank');
+                }}
+              >
+                <span>
+                  <FormattedMessage
+                    id="forum_discussion"
+                    defaultMessage={'Forum Discussion'}
+                  />
+                </span>
+
+                <span className="text-gradientFrom ml-2">↗</span>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-center mt-8 pb-6">
+              <div className="w-1/5 flex items-center justify-center self-start pt-10">
+                <NoResultChart expand="1.25" />
+              </div>
+
+              <div className="w-4/5 text-primaryText flex flex-col ml-16 pb-6 ">
+                <div className="grid grid-cols-10 pb-5 px-6">
+                  <span className="col-span-6 ">
+                    <FormattedMessage id="options" defaultMessage={'Options'} />
+                  </span>
+                  <span className="col-span-2  ">
+                    <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
+                  </span>
+                  <span className="col-span-2 text-right">veLPT</span>
+                </div>
+
+                <div className="flex flex-col w-full text-white">
+                  {data?.map((d, i) => {
+                    return (
+                      <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 py-4">
+                        <span className="col-span-6 flex items-center">
+                          <div
+                            className="w-2.5 h-2.5 rounded-sm"
+                            style={{
+                              backgroundColor:
+                                OPTIONS_COLORS[i % OPTIONS_COLORS.length] ||
+                                'black',
+                            }}
+                          ></div>
+                          <span
+                            className="mx-2 truncate w-3/5"
+                            title={d.option}
+                          >
+                            {d.option}
+                          </span>
+                        </span>
+
+                        <span className="col-span-2 ">
+                          {toPrecision(scientificNotationToString(d.ratio), 2)}%
+                        </span>
+
+                        <span className="col-span-2 text-right">
+                          {toPrecision(d.v, 2)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <div className="flex items-center justify-end pt-8">
+            <NewGradientButton
+              text={<FormattedMessage id="create" defaultMessage={'Create'} />}
+              disabled={
+                dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <=
+                  0 ||
+                !link?.trim() ||
+                !contentTitle?.trim() ||
+                options.filter((_) => !!_.trim()).length < 2
+              }
+              padding="p-0"
+              className="w-28 h-8 text-sm"
+              onClick={() => {
+                createProposal({
+                  description: {
+                    title: `${contentTitle}`,
+                    link,
+                  },
+                  duration_sec:
+                    dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime),
+                  kind: type === 'Poll' ? 'Poll' : 'Common',
+                  options,
+                  start: dateToUnixTimeSec(startTime),
+                });
+              }}
+            />
+          </div>
+        </ModalWrapper>
+      )}
+    </>
   );
 };
 
@@ -1205,6 +1711,8 @@ const FarmChart = ({
 }) => {
   if (!ratio) return null;
 
+  const isClientMobie = useClientMobile();
+
   const votedAmount =
     voteDetail?.[proposal?.id]?.amount || voteHistory?.[proposal?.id]?.amount;
 
@@ -1235,6 +1743,10 @@ const FarmChart = ({
   const ActiveLabel = ({ activeIndex }: { activeIndex: number }) => {
     const activeFarm = data[activeIndex];
 
+    const votedIndex = proposal.kind.FarmingReward.farm_list.indexOf(
+      activeFarm.name
+    );
+
     const afterRatio = new BigNumber(
       proposal.votes[
         proposal.kind.FarmingReward.farm_list.indexOf(activeFarm.name)
@@ -1255,11 +1767,15 @@ const FarmChart = ({
       afterRatio.minus(beforeRatio).times(100).toString()
     );
 
-    const displayContribution = new BigNumber(
-      proposal.votes[
-        proposal.kind.FarmingReward.farm_list.indexOf(activeFarm.name)
-      ]
-    ).eq(BigNumber.sum(...proposal.votes))
+    const displayContribution = new BigNumber(votedAmount).eq(
+      new BigNumber(proposal?.votes?.[votedIndex] || '0')
+    )
+      ? ratio[votedIndex].r
+      : new BigNumber(
+          proposal.votes[
+            proposal.kind.FarmingReward.farm_list.indexOf(activeFarm.name)
+          ]
+        ).eq(BigNumber.sum(...proposal.votes))
       ? new BigNumber(votedAmount)
           .div(
             BigNumber.sum(...proposal.votes).gt(0)
@@ -1272,7 +1788,7 @@ const FarmChart = ({
 
     return (
       <div
-        className={`rounded-2xl w-full flex flex-col text-sm`}
+        className={`rounded-2xl w-full flex flex-col xsm:text-xs text-sm`}
         style={{
           backgroundColor: 'rgba(26, 35, 41, 0.6)',
           backdropFilter: 'blur(50px)',
@@ -1350,11 +1866,11 @@ const FarmChart = ({
       ppNode.removeChild(pNode);
       ppNode.appendChild(pNode);
     }
-  }, [activeIndex]);
+  }, [activeIndex, proposal.id]);
 
   const color = ['#51626B', '#667A86', '#849DA8', '#B5C9CA'];
 
-  function customLabel(props: any) {
+  function CustomLabel(props: any) {
     let {
       cx,
       cy,
@@ -1380,17 +1896,33 @@ const FarmChart = ({
       y = y - 30;
     }
 
-    const width = forLastRound ? '200' : `250`;
+    const width = forLastRound
+      ? isClientMobie
+        ? '180'
+        : '200'
+      : isClientMobie
+      ? '200'
+      : `250`;
 
     const height = forLastRound ? '190' : '200';
+
+    const labelx = x1 + Number(width) * (cos > 0 ? -1 : 0);
+
+    const votedThisOption =
+      ratio[voted] && ratio[voted]?.name === data[index]?.name;
 
     return (
       <g
         className={`${activeIndex === index ? 'active-label' : 'sleep-label'}`}
       >
-        {ratio[voted] && ratio[voted]?.name === data[index]?.name ? (
+        {votedThisOption ? (
           <foreignObject
-            x={x + 78 * (cos > 0 ? 0 : -1)}
+            x={
+              x +
+              78 * (cos > 0 ? 0 : -1) +
+              (isClientMobie ? (pairSymbol.length > 10 ? 18 : 15) : 0) *
+                (cos > 0 ? -1 : 1)
+            }
             y={!data[index].poolId ? y - 25 : y - 45}
             height="24"
             width={'78'}
@@ -1406,10 +1938,14 @@ const FarmChart = ({
         ) : null}
 
         <text
-          x={x}
+          x={
+            x +
+            (isClientMobie ? (pairSymbol.length > 10 ? 18 : 15) : 0) *
+              (cos > 0 ? -1 : 1)
+          }
           y={!data[index].poolId ? y + 10 : y - 10}
           fill="#91A2AE"
-          fontSize="14px"
+          fontSize={isClientMobie ? '12px' : '14px'}
           textAnchor={x > cx ? 'start' : 'end'}
           dominantBaseline="central"
         >
@@ -1417,10 +1953,14 @@ const FarmChart = ({
         </text>
         {!data[index].poolId ? null : (
           <text
-            x={x}
+            x={
+              x +
+              (isClientMobie ? (pairSymbol.length > 10 ? 18 : 15) : 0) *
+                (cos > 0 ? -1 : 1)
+            }
             y={y + 10}
             fill="#91A2AE"
-            fontSize="14px"
+            fontSize={isClientMobie ? '12px' : '14px'}
             textAnchor={x > cx ? 'start' : 'end'}
             dominantBaseline="central"
           >
@@ -1429,7 +1969,11 @@ const FarmChart = ({
         )}
 
         <text
-          x={x}
+          x={
+            x +
+            (isClientMobie ? (pairSymbol.length > 10 ? 18 : 15) : 0) *
+              (cos > 0 ? -1 : 1)
+          }
           y={y + 30}
           fill="white"
           textAnchor={x > cx ? 'start' : 'end'}
@@ -1439,8 +1983,11 @@ const FarmChart = ({
         </text>
         {index === activeIndex ? (
           <foreignObject
-            x={x1 + Number(width) * (cos > 0 ? -1 : 0)}
-            y={y1 + Number(height) * (sin < 0 ? 0 : -1)}
+            x={labelx}
+            y={
+              y1 +
+              Number(height) * (votedThisOption ? 1 : 0.9) * (sin < 0 ? 0 : -1)
+            }
             height={height}
             width={width}
             className="option-info-label"
@@ -1536,10 +2083,16 @@ const FarmChart = ({
     );
   };
 
-  const innerRadius = innerRadiusProp || 140;
-  const outerRadius = outerRadiusProp || 170;
+  const innerRadius = isClientMobie ? 70 : innerRadiusProp || 140;
+  const outerRadius = isClientMobie ? 85 : outerRadiusProp || 170;
   return (
-    <ResponsiveContainer width={'100%'} height={forLastRound ? 430 : 560}>
+    <ResponsiveContainer
+      width={'100%'}
+      height={
+        isClientMobie ? (forLastRound ? 360 : 390) : forLastRound ? 450 : 575
+      }
+      className={`relative ${!forLastRound ? 'xsm:bottom-10' : ''}`}
+    >
       <PieChart>
         <Pie
           className={`recharts-pie-propopsal-${proposal.id}`}
@@ -1548,7 +2101,7 @@ const FarmChart = ({
           outerRadius={outerRadius}
           dataKey="value"
           labelLine={false}
-          label={customLabel}
+          label={CustomLabel}
           cx="50%"
           cy="50%"
           activeIndex={activeIndex}
@@ -1656,23 +2209,32 @@ const GovItemDetail = ({
     return d;
   });
 
+  const isClientMobie = useClientMobile();
+
   const InfoRow = ({
     name,
     value,
     nameClass,
     valueClass,
     valueTitle,
+    className,
+    valueClassName,
   }: {
     name: string | JSX.Element;
     value: string | JSX.Element;
     nameClass?: string;
     valueClass?: string;
     valueTitle?: string;
+    className?: string;
+    valueClassName?: string;
   }) => {
     return (
-      <div className="py-2.5 flex items-center ">
+      <div className={`py-2.5 flex items-center ${className}`}>
         <span className={`${nameClass} text-primaryText`}>{name}</span>
-        <span className={`${valueClass} ml-3`} title={valueTitle}>
+        <span
+          className={`${valueClass} ml-3 ${valueClassName}`}
+          title={valueTitle}
+        >
           {value}
         </span>
       </div>
@@ -1708,10 +2270,19 @@ const GovItemDetail = ({
 
   useEffect(() => {
     const baseCounterDown = durationFomatter(
-      moment.duration(base + 60 - moment().unix(), 'seconds')
+      moment.duration(
+        Math.floor(
+          Number(
+            status === 'InProgress' ? proposal?.end_at : proposal?.start_at
+          ) / TIMESTAMP_DIVISOR
+        ) +
+          60 -
+          moment().unix(),
+        'seconds'
+      )
     );
     setCounterDownStirng(baseCounterDown);
-  }, [base]);
+  }, [base, status, proposal]);
 
   useCounterDownVE({
     base,
@@ -1729,7 +2300,7 @@ const GovItemDetail = ({
         <NewGradientButton
           text={<FormattedMessage id="delete" defaultMessage={'Delete'} />}
           padding="px-0 py-0"
-          className="h-8 w-20 ml-2.5"
+          className="h-8 w-20 xsm:h-10 xsm:w-full ml-2.5 xsm:ml-0"
           gradient="bg-redGradient"
           onClick={() => {
             removeProposal(proposal.id);
@@ -1742,7 +2313,7 @@ const GovItemDetail = ({
             <FormattedMessage id="not_start" defaultMessage={'Not start'} />
           }
           padding="px-0 py-0"
-          className="h-8 w-20 ml-2.5"
+          className="h-8 w-20 ml-2.5 xsm:ml-0 xsm:h-10 xsm:w-full"
         />
       )
     ) : status === 'InProgress' ? (
@@ -1750,7 +2321,7 @@ const GovItemDetail = ({
         <FarmProposalGrayButton
           text={<FormattedMessage id="no_veLPT" defaultMessage={'No veLPT'} />}
           padding="px-0 py-0"
-          className="h-8 w-20 ml-2.5"
+          className="h-8 w-20 ml-2.5 xsm:h-10 xsm:w-full xsm:ml-0"
         />
       ) : (
         <NewGradientButton
@@ -1762,7 +2333,7 @@ const GovItemDetail = ({
             )
           }
           padding="px-0 py-0"
-          className="h-8 w-20 ml-2.5"
+          className="h-8 w-20 ml-2.5 xsm:h-10 xsm:w-full xsm:ml-0"
           onClick={() => {
             !!voted
               ? cancelVote({
@@ -1779,7 +2350,7 @@ const GovItemDetail = ({
           <FormattedMessage id="claim_bonus" defaultMessage={'Claim Bonus'} />
         }
         padding="px-0 py-0"
-        className="h-8 w-28 ml-2.5"
+        className="h-8 w-28 ml-2.5 xsm:ml-0 xsm:h-10 xsm:w-full"
         beatStyling
         onClick={() => {
           claimRewardVE({
@@ -1797,7 +2368,7 @@ const GovItemDetail = ({
           )
         }
         padding="px-0 py-0"
-        className="h-8 w-20 ml-2.5"
+        className="h-8 w-20 ml-2.5 xsm:h-10 xsm:w-full xsm:ml-0"
       />
     );
 
@@ -1806,29 +2377,32 @@ const GovItemDetail = ({
       <div
         className={`${
           forPreview ? 'hidden' : ''
-        } text-center relative text-xl pb-7`}
+        } text-center relative text-xl pb-7 xsm:pb-10`}
       >
-        <FormattedMessage
-          id="proposal_detail"
-          defaultMessage={'Proposal Detail'}
-        />
+        <span className="xsm:hidden">
+          <FormattedMessage
+            id="proposal_detail"
+            defaultMessage={'Proposal Detail'}
+          />
+        </span>
 
         <button
-          className="absolute left-0 top-2 text-sm text-primaryText flex items-center"
+          className="absolute left-0 pr-2 top-2 xsm:top-0 text-sm text-primaryText flex items-center"
           onClick={() => {
-            history.push('/referendum');
             setShow(undefined);
+            history.push('/referendum');
           }}
         >
-          <span className="transform scale-50">
+          <span className="transform scale-50 xsm:hidden">
             {<LeftArrowVE stroke="#7E8A93" strokeWidth={2} />}
           </span>
-          <span className="ml-1">
+          <span className="ml-1 xsm:hidden">
             <FormattedMessage id="back" defaultMessage={'Back'} />
           </span>
+          <span className=" lg:hidden pl-2 font-bold text-xl">{'<'}</span>
         </button>
 
-        <span className=" py-1.5 flex flex-col items-end text-xs pr-4 pl-2 absolute right-0 -top-4">
+        <span className="xsm:hidden py-1.5 flex flex-col items-end text-xs pr-4 pl-2 absolute right-0 -top-4">
           <span className="rounded-3xl mb-3 text-xs px-1 text-senderHot">
             {status === 'Expired' ? (
               <span className="bg-black bg-opacity-20 px-2 py-1 rounded-3xl text-primaryText">
@@ -1869,23 +2443,57 @@ const GovItemDetail = ({
           </span>
         </span>
 
-        <span className="absolute right-1">{timeDuration}</span>
+        <span className="absolute right-1 xsm:hidden">{timeDuration}</span>
+
+        <div className="rounded-3xl lg:hidden  bg-black   xsm:bg-opacity-0 bg-opacity-20 py-1.5 text-xs px-2 xsm:mx-auto text-senderHot absolute xsm:right-0 xsm:bottom-1">
+          {status === 'Expired' ? (
+            <span className=" rounded-3xl text-primaryText xsm:bg-white relative bottom-1 xsm:py-1.5  xsm:bg-opacity-10 xsm:px-2 ">
+              <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
+            </span>
+          ) : (
+            <span className="flex items-center mr-2 xsm:inline-flex xsm:rounded-3xl xsm:py-1.5 xsm:bg-white xsm:bg-opacity-10 xsm:pl-2 xsm:pr-4">
+              <span
+                className={`rounded-3xl px-2 py-0.5 mr-2   ${
+                  status === 'WarmUp'
+                    ? 'text-white bg-pendingPurple'
+                    : 'text-black bg-senderHot'
+                }`}
+              >
+                {status === 'InProgress' ? (
+                  <FormattedMessage id="live" defaultMessage={'Live'} />
+                ) : (
+                  <FormattedMessage
+                    id="pending_ve"
+                    defaultMessage={'Pending'}
+                  />
+                )}
+              </span>
+              <span
+                className={`${
+                  status === 'WarmUp' ? 'text-primaryText' : 'text-senderHot'
+                }`}
+              >
+                {counterDownStirng}
+              </span>
+            </span>
+          )}
+        </div>
       </div>
       {!voted || forPreview ? null : (
         <div
           className={`${
             status === 'Expired' ? 'opacity-30' : ''
-          } absolute -right-4 top-10 z-30`}
+          } absolute -right-4 top-10 xsm:top-16 xsm:right-0 xsm:transform xsm:scale-90 z-30`}
         >
           <VotedIcon />
         </div>
       )}
       <Card
         className="w-full relative overflow-hidden"
-        bgcolor="bg-black bg-opacity-20 "
-        padding={`px-10 pt-9 pb-14`}
+        bgcolor="bg-black bg-opacity-20 xsm:bg-white xsm:bg-opacity-10"
+        padding={`px-10 pt-9 pb-14 xsm:px-4 xsm:py-6`}
       >
-        <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 text-white text-xl mb-4">
+        <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 xsm:pt-0 text-white text-xl mb-4 xsm:mb-0">
           {`#${proposal.id} `} {description.title}
         </div>
 
@@ -1897,6 +2505,7 @@ const GovItemDetail = ({
           value={getAccountName(proposal.proposer)}
           valueClass={'font-bold'}
           valueTitle={proposal.proposer}
+          className="xsm:py-2.5"
         />
 
         <InfoRow
@@ -1904,9 +2513,12 @@ const GovItemDetail = ({
             id: 'voting_period',
             defaultMessage: 'Voting Period',
           })}
-          value={`${timeStampToUTC(startTime)} - ${timeStampToUTC(
-            endTime
-          )} UTC`}
+          value={`${timeStampToUTC(
+            startTime,
+            isClientMobie
+          )} - ${timeStampToUTC(endTime, isClientMobie)} UTC`}
+          className="xsm:flex-col xsm:items-start"
+          valueClassName="xsm:ml-0 xsm:pt-2.5"
         />
         <InfoRow
           name={intl.formatMessage({
@@ -1914,8 +2526,9 @@ const GovItemDetail = ({
             defaultMessage: 'Turnout',
           })}
           value={turnOut}
+          className="xsm:hidden"
         />
-        <div className="w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
+        <div className="xsm:hidden w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
           <InfoRow
             name={intl.formatMessage({
               id: 'voted_veLPT',
@@ -1940,9 +2553,46 @@ const GovItemDetail = ({
             <span className="text-gradientFrom ml-2">↗</span>
           </button>
         </div>
+        {!isClientMobie ? null : (
+          <div className=" flex items-center justify-center relative top-0 self-start xsm:py-8">
+            {status === 'WarmUp' ? (
+              <NoResultChart expand="1.25" />
+            ) : (
+              <VoteChart
+                options={data?.map((d) => d.option)}
+                ratios={checkAllocations(
+                  ONLY_ZEROS.test(totalVE) ? '0' : '100',
+                  data?.map((d) => d.ratio)
+                )}
+                forDetail
+              />
+            )}
+          </div>
+        )}
 
-        <div className="flex items-center justify-center mt-8 pb-6">
-          <div className="w-1/5 flex items-center justify-center relative top-0 self-start">
+        <div className="lg:hidden  w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
+          <InfoRow
+            name={intl.formatMessage({
+              id: 'turn_out',
+              defaultMessage: 'Turnout',
+            })}
+            value={turnOut}
+            className=" lg:hidden xsm:flex-col "
+            valueClassName="xsm:ml-0 xsm:items-start"
+          />
+          <InfoRow
+            name={intl.formatMessage({
+              id: 'total_veLPT',
+              defaultMessage: 'total veLPT',
+            })}
+            value={toPrecision(totalVE, 2)}
+            valueClassName="xsm:ml-0 "
+            className="xsm:flex-col xsm:items-end"
+          />
+        </div>
+
+        <div className="flex items-center justify-center mt-8 xsm:mt-4 pb-6 xsm:pb-2">
+          <div className="w-1/5 xsm:hidden flex items-center justify-center relative top-0 self-start">
             {status === 'WarmUp' ? (
               <NoResultChart expand="1.25" />
             ) : (
@@ -1957,8 +2607,8 @@ const GovItemDetail = ({
             )}
           </div>
 
-          <div className="w-4/5 text-primaryText flex flex-col ml-16 pb-6 ">
-            <div className="grid grid-cols-10 pb-5 px-6">
+          <div className="w-4/5 xsm:w-full text-primaryText flex flex-col ml-16 xsm:ml-0 pb-6 xsm:pb-0">
+            <div className="grid xsm:hidden grid-cols-10 pb-5 xsm:pb-0 px-6 xsm:px-4">
               <span className="col-span-6 ">
                 <FormattedMessage id="options" defaultMessage={'Options'} />
               </span>
@@ -1968,7 +2618,7 @@ const GovItemDetail = ({
               <span className="col-span-2 text-right">veLPT</span>
             </div>
 
-            <div className="flex flex-col w-full text-white">
+            <div className="flex flex-col w-full text-white xsm:border-b border-white border-opacity-10">
               {data
                 .sort((a, b) => {
                   return Number(b.v) - Number(a.v);
@@ -1982,7 +2632,7 @@ const GovItemDetail = ({
                         (1 === optionId && voted === 'VoteReject')
                       : (voted as VoteAction)?.VotePoll?.poll_id === optionId);
                   return (
-                    <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 py-4">
+                    <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 xsm:px-0 py-4">
                       <span className="col-span-6 flex items-center">
                         <div
                           className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
@@ -2039,7 +2689,7 @@ const GovItemDetail = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-end pt-6 border-t border-white border-opacity-10">
+        <div className="flex items-center justify-end pt-6 xsm:border-t xsm:hidden border-white border-opacity-10">
           {Button}
         </div>
 
@@ -2060,8 +2710,27 @@ const GovItemDetail = ({
             }
           )}
           setShowAddBonus={setShowAddBonus}
+          forDetail={true}
         />
+
+        <button
+          className="flex items-center text-sm  mx-auto justify-center lg:hidden mt-4 text-center"
+          onClick={() => {
+            window.open(displayLink, '_blank');
+          }}
+        >
+          <span>
+            <FormattedMessage
+              id="forum_discussion"
+              defaultMessage={'Forum Discussion'}
+            />
+          </span>
+
+          <span className="text-white ml-0.5">↗</span>
+        </button>
       </Card>
+
+      <div className=" xsm:relative pt-2   lg:hidden xsm:w-full">{Button}</div>
 
       <AddBonusPopUp
         isOpen={showAddBonus}
@@ -2140,10 +2809,19 @@ const GovProposalItem = ({
 
   useEffect(() => {
     const baseCounterDown = durationFomatter(
-      moment.duration(base + 60 - moment().unix(), 'seconds')
+      moment.duration(
+        Math.floor(
+          Number(
+            status === 'InProgress' ? proposal?.end_at : proposal?.start_at
+          ) / TIMESTAMP_DIVISOR
+        ) +
+          60 -
+          moment().unix(),
+        'seconds'
+      )
     );
     setCounterDownStirng(baseCounterDown);
-  }, [base, proposal.id]);
+  }, [base, proposal.id, status]);
 
   useCounterDownVE({
     base,
@@ -2176,6 +2854,8 @@ const GovProposalItem = ({
   const unClaimed =
     !!unClaimedProposal?.[proposal?.id] &&
     !ONLY_ZEROS.test(unClaimedProposal?.[proposal?.id]?.amount);
+
+  const isClientMobie = useClientMobile();
 
   if (
     typeof showDetail !== 'undefined' &&
@@ -2245,17 +2925,9 @@ const GovProposalItem = ({
 
   const topOption = options?.[topVoteIndex];
 
-  const yourShare = scientificNotationToString(
-    new BigNumber(votedAmount || '0')
-      .div(new BigNumber(totalVE).gt(0) ? totalVE : 1)
-      .times(100)
-      .toString()
-  );
-
   const afterRatio = new Big(proposal?.votes?.[youVotedIndex] || '0').div(
     new Big(totalVE).gt(0) ? totalVE : 1
   );
-  console.log('dot 4');
 
   const beforeRatio = new Big(proposal?.votes?.[youVotedIndex] || '0')
     .minus(votedAmount || '0')
@@ -2268,20 +2940,20 @@ const GovProposalItem = ({
   const contribution = scientificNotationToString(
     afterRatio.minus(beforeRatio).times(100).toString()
   );
-
-  const displayContribution = new BigNumber(proposal.votes[youVotedIndex]).eq(
-    totalVE
+  const displayRatios = checkAllocations(
+    ONLY_ZEROS.test(totalVE) ? '0' : '100',
+    ratios
+  );
+  const displayContribution = new BigNumber(votedAmount).eq(
+    new BigNumber(proposal?.votes?.[youVotedIndex] || '0')
   )
+    ? displayRatios[youVotedIndex]
+    : new BigNumber(proposal?.votes?.[youVotedIndex] || '0').eq(totalVE)
     ? new BigNumber(votedAmount)
         .div(new BigNumber(totalVE).gt(0) ? totalVE : 1)
         .times(100)
         .toString()
     : contribution;
-
-  const displayRatios = checkAllocations(
-    ONLY_ZEROS.test(totalVE) ? '0' : '100',
-    ratios
-  );
 
   const voteData = options
     .map((o, i) => {
@@ -2293,6 +2965,17 @@ const GovProposalItem = ({
     .sort((d1, d2) => {
       return Number(d2.ratio) - Number(d1.ratio);
     });
+
+  const yourShare = new BigNumber(votedAmount).eq(
+    new BigNumber(proposal?.votes?.[youVotedIndex] || '0')
+  )
+    ? displayRatios[youVotedIndex]
+    : scientificNotationToString(
+        new BigNumber(votedAmount || '0')
+          .div(new BigNumber(totalVE).gt(0) ? totalVE : 1)
+          .times(100)
+          .toString()
+      );
 
   const Button =
     status === 'WarmUp' ? (
@@ -2334,8 +3017,11 @@ const GovProposalItem = ({
           }
           padding="px-0 py-0"
           className="h-8 w-20 ml-2.5"
-          onClick={() => {
-            !!voted
+          onClick={(e: any) => {
+            e.stopPropagation();
+            e.preventDefault();
+
+            return !!voted
               ? cancelVote({
                   proposal_id: proposal.id,
                 })
@@ -2396,10 +3082,22 @@ const GovProposalItem = ({
       ) : (
         <Card
           className={`w-full flex items-center my-2 relative overflow-hidden `}
-          bgcolor={`bg-black bg-opacity-20`}
-          padding={`px-8 pt-8 pb-12`}
+          bgcolor={`bg-black bg-opacity-20 xsm:bg-white xsm:bg-opacity-10`}
+          padding={`px-8 pt-8 pb-12 xsm:px-4 xsm:pt-4 xsm:pb-10`}
+          onClick={(e) => {
+            if (isClientMobie) {
+              e.stopPropagation();
+              e.preventDefault();
+              setShowDetail(proposal.id);
+              history.push(`/referendum/${proposal.id}`);
+            }
+          }}
         >
-          <div className={`w-1/5 ${status === 'Expired' ? 'opacity-70' : ''}`}>
+          <div
+            className={`xsm:hidden w-1/5 ${
+              status === 'Expired' ? 'opacity-70' : ''
+            }`}
+          >
             {status === 'WarmUp' ? (
               <div className="pr-10">
                 <NoResultChart />
@@ -2414,52 +3112,79 @@ const GovProposalItem = ({
               />
             )}
           </div>
-          <div className="flex flex-col w-4/5 ml-8">
+          <div className="flex flex-col w-4/5 xsm:w-full ml-8 xsm:ml-0">
             <div
-              className={`w-full flex items-center  justify-between  ${
+              className={`w-full flex items-center xsm:flex-col xsm:items-start justify-between  ${
                 status === 'Expired' ? 'opacity-70' : ''
               }`}
             >
-              <span className="text-lg break-words">
+              <span className="xsm:hidden  text-lg break-words">
                 {' '}
                 {`#${proposal?.id} ${description.title}`}{' '}
               </span>
 
-              <span className="rounded-3xl text-xs px-1 text-senderHot">
-                {ended ? (
-                  <span className="bg-black bg-opacity-20 px-2 py-1 rounded-3xl text-primaryText">
-                    <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
-                  </span>
-                ) : (
-                  <div className="flex items-center">
-                    <span
-                      className={`rounded-3xl px-2 py-0.5  ${
-                        status === 'WarmUp'
-                          ? 'text-white bg-pendingPurple'
-                          : 'text-black bg-senderHot'
-                      }`}
-                    >
-                      {status === 'InProgress' ? (
-                        <FormattedMessage id="live" defaultMessage={'Live'} />
-                      ) : (
-                        <FormattedMessage
-                          id="pending_ve"
-                          defaultMessage={'Pending'}
-                        />
-                      )}
+              {/* counter down */}
+              <div className="flex items-center">
+                <span className="rounded-3xl text-xs px-1 text-senderHot xsm:mr-2  md:mr-0 lg:mr-0">
+                  {ended ? (
+                    <span className="bg-black bg-opacity-20 px-2 py-1 rounded-3xl text-primaryText">
+                      <FormattedMessage
+                        id={'ended_ve'}
+                        defaultMessage="Ended"
+                      />
                     </span>
-                  </div>
-                )}
+                  ) : (
+                    <div className="flex items-center">
+                      <span
+                        className={`rounded-3xl px-2 py-0.5  ${
+                          status === 'WarmUp'
+                            ? 'text-white bg-pendingPurple'
+                            : 'text-black bg-senderHot'
+                        }`}
+                      >
+                        {status === 'InProgress' ? (
+                          <FormattedMessage id="live" defaultMessage={'Live'} />
+                        ) : (
+                          <FormattedMessage
+                            id="pending_ve"
+                            defaultMessage={'Pending'}
+                          />
+                        )}
+                      </span>
+                    </div>
+                  )}
+                </span>
+
+                <span
+                  className={
+                    status === 'Expired'
+                      ? 'hidden'
+                      : `${
+                          status === 'WarmUp'
+                            ? 'text-primaryText'
+                            : 'text-senderHot'
+                        } text-xs   lg:hidden `
+                  }
+                >
+                  {counterDownStirng}
+                  {`${status === 'WarmUp' ? ' starts' : ' left'}`}
+                </span>
+              </div>
+
+              <span className="lg:hidden  mt-4  text-lg break-words">
+                {' '}
+                <span className="font-bold">{`#${proposal?.id}`}</span>
+                {` ${description.title}`}{' '}
               </span>
             </div>
 
             <div
-              className={`w-full flex items-center justify-between pb-8 pt-2.5  ${
+              className={`w-full flex items-center justify-between pb-8 xsm:pb-5 pt-2.5  ${
                 status === 'Expired' ? 'opacity-70' : ''
               }`}
             >
               <div className="flex items-center">
-                <span className="text-primaryText mr-3">
+                <span className="text-primaryText mr-3 xsm:hidden">
                   <FormattedMessage id="proposer" defaultMessage={'Proposer'} />
                 </span>
 
@@ -2476,7 +3201,7 @@ const GovProposalItem = ({
                         status === 'WarmUp'
                           ? 'text-primaryText'
                           : 'text-senderHot'
-                      } text-xs `
+                      } text-xs  xsm:hidden`
                 }
               >
                 {counterDownStirng}
@@ -2486,11 +3211,11 @@ const GovProposalItem = ({
 
             <div className="w-full flex items-center justify-between">
               <div
-                className={`flex items-center  ${
+                className={`flex items-center xsm:w-full xsm:justify-between  ${
                   status === 'Expired' ? 'opacity-70' : ''
                 }`}
               >
-                <span className="flex flex-col mr-10">
+                <span className="flex flex-col mr-10  xsm:mr-0">
                   <span className="text-primaryText">
                     <FormattedMessage
                       id="turn_out"
@@ -2505,7 +3230,11 @@ const GovProposalItem = ({
                   </span>
                 </span>
 
-                <span className="flex flex-col mr-10">
+                <span
+                  className={`flex ${
+                    !voted ? 'xsm:mr-14' : 'xsm:mr-0'
+                  } flex-col mr-10 `}
+                >
                   <span className="text-primaryText flex items-center ">
                     <FormattedMessage
                       id="top_answer"
@@ -2516,7 +3245,7 @@ const GovProposalItem = ({
                   <span className="flex items-center mt-1">
                     {status === 'WarmUp' || ONLY_ZEROS.test(totalVE) ? null : (
                       <div
-                        className="w-2.5 h-2.5 rounded-sm mr-3 flex-shrink-0"
+                        className="w-2.5 h-2.5 rounded-sm mr-3 xsm:mr-1 flex-shrink-0"
                         style={{
                           backgroundColor:
                             OPTIONS_COLORS[topVoteIndex] || '#8EA0CF',
@@ -2527,7 +3256,7 @@ const GovProposalItem = ({
                     <span
                       className="truncate"
                       style={{
-                        maxWidth: '120px',
+                        maxWidth: isClientMobie ? '80px' : '120px',
                       }}
                       title={
                         status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
@@ -2548,7 +3277,7 @@ const GovProposalItem = ({
 
                     <span className="flex items-center mt-1">
                       <div
-                        className="w-2.5 h-2.5 rounded-sm mr-3 flex-shrink-0"
+                        className="w-2.5 h-2.5 rounded-sm mr-3 xsm:mr-1 flex-shrink-0"
                         style={{
                           backgroundColor:
                             OPTIONS_COLORS[youVotedIndex] || '#8EA0CF',
@@ -2558,7 +3287,7 @@ const GovProposalItem = ({
                         className="truncate "
                         title={options?.[youVotedIndex]}
                         style={{
-                          maxWidth: '120px',
+                          maxWidth: isClientMobie ? '80px' : '120px',
                         }}
                       >
                         {options?.[youVotedIndex]}
@@ -2571,14 +3300,14 @@ const GovProposalItem = ({
                   </span>
                 ) : null}
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center ">
                 <BorderGradientButton
                   text={
                     <FormattedMessage id="detail" defaultMessage={'Detail'} />
                   }
                   width={`h-8 w-20  ${
                     status === 'Expired' ? 'opacity-70' : ''
-                  }`}
+                  } xsm:hidden`}
                   className="h-full"
                   padding="px-0"
                   color="#182632"
@@ -2587,7 +3316,9 @@ const GovProposalItem = ({
                     history.push(`/referendum/${proposal.id}`);
                   }}
                 />
-                {Button}
+                <div className="xsm:absolute xsm:right-2 xsm:top-2">
+                  {Button}
+                </div>
               </div>
             </div>
           </div>
@@ -2647,7 +3378,7 @@ export const ProposalTab = ({
   return (
     <div className={className}>
       <NewGradientButton
-        className={`w-72 mr-2 ${
+        className={`w-72  xsm:w-1/2 mr-2 ${
           curTab === PROPOSAL_TAB.FARM ? 'opacity-100' : ''
         }`}
         grayDisable={curTab !== PROPOSAL_TAB.FARM}
@@ -2658,15 +3389,17 @@ export const ProposalTab = ({
             defaultMessage={'Gauge Weight Vote'}
           />
         }
+        padding="px-0 py-2"
         onClick={() => setTab(PROPOSAL_TAB.FARM)}
       />
 
       <NewGradientButton
-        className={`w-72 mr-2 ${
+        className={`w-72 xsm:w-1/2 mr-2 ${
           curTab === PROPOSAL_TAB.GOV ? 'opacity-100' : ''
         }`}
         onClick={() => setTab(PROPOSAL_TAB.GOV)}
         grayDisable={curTab !== PROPOSAL_TAB.GOV}
+        padding="px-0 py-2"
         disableForUI
         text={
           <FormattedMessage id="governance" defaultMessage={'Governance'} />
@@ -2754,7 +3487,10 @@ export const VoteGovPopUp = (
                 <span className="flex items-center ">
                   <CheckComponent checked={value === o} />
 
-                  <span className="ml-4 truncate w-40 text-left" title={o}>
+                  <span
+                    className="ml-4 truncate w-40 xsm:w-28 text-left"
+                    title={o}
+                  >
                     {o}
                   </span>
                 </span>
@@ -2820,13 +3556,15 @@ export const LastRoundFarmVoting = (
 ) => {
   const { proposal: farmProposal } = props;
 
+  const endtimeMoment = moment(
+    Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
+  );
+
   const voteDetail = useVoteDetail();
 
   const voteHistoryDetail = useVoteDetailHisroty();
 
   const votedVE = BigNumber.sum(...(farmProposal?.votes || ['0', '0']));
-
-  console.log(farmProposal);
 
   const [tokens, setTokens] = useState<Record<string, TokenMetadata>>();
 
@@ -2904,7 +3642,7 @@ export const LastRoundFarmVoting = (
     valueTitle?: string;
   }) => {
     return (
-      <div className="my-2 text-sm whitespace-nowrap text-farmText flex items-center justify-between w-full">
+      <div className="my-2 xsm:my-1 text-sm xsm:text-xs whitespace-nowrap text-farmText flex items-center justify-between w-full">
         <span>{title}</span>
         <div className="mx-1 border border-b border-dashed border-white border-opacity-10 w-full"></div>
 
@@ -2915,8 +3653,14 @@ export const LastRoundFarmVoting = (
     );
   };
 
+  const isClientMobie = useClientMobile();
+
   return (
-    <ModalWrapper {...props} customWidth="650px">
+    <ModalWrapper
+      {...props}
+      customHeight="95vh"
+      customWidth={isClientMobie ? '95vw' : '650px'}
+    >
       <FarmChart
         ratio={farmProposal?.kind?.FarmingReward?.farm_list?.map((f, i) => ({
           name: f,
@@ -2950,7 +3694,16 @@ export const LastRoundFarmVoting = (
       />
 
       <div className="w-full border-b border-white border-opacity-10 mb-4"></div>
-
+      <InfoRow
+        title={
+          <FormattedMessage
+            id="voting_period"
+            defaultMessage={'Voting Period'}
+          />
+        }
+        value={`${endtimeMoment.add(1, 'month').startOf('month').format('ll')}-
+        ${endtimeMoment.endOf('month').format('ll')}`}
+      />
       <InfoRow
         title={
           <FormattedMessage
@@ -3059,14 +3812,14 @@ export const FarmProposal = ({
   farmProposal,
   lastRoundFarmProposal,
   VEmeta,
-  UnclaimedProposal,
 }: {
   farmProposal: Proposal;
   lastRoundFarmProposal: Proposal;
   VEmeta: VEMETA & { totalVE: string };
-  UnclaimedProposal: UnclaimedProposal;
 }) => {
   const [status, setStatus] = useState<ProposalStatus>(farmProposal.status);
+
+  const UnclaimedProposal = useUnclaimedProposal(status);
 
   const [base, setBase] = useState<number>(
     Math.floor(
@@ -3093,6 +3846,24 @@ export const FarmProposal = ({
 
   const [counterDownStirng, setCounterDownStirng] =
     useState<string>(baseCounterDown);
+
+  useEffect(() => {
+    const baseCounterDown = durationFomatter(
+      moment.duration(
+        Math.floor(
+          Number(
+            status === 'InProgress'
+              ? farmProposal?.end_at
+              : farmProposal?.start_at
+          ) / TIMESTAMP_DIVISOR
+        ) +
+          60 -
+          moment().unix(),
+        'seconds'
+      )
+    );
+    setCounterDownStirng(baseCounterDown);
+  }, [base, status, farmProposal]);
 
   useCounterDownVE({
     base,
@@ -3136,7 +3907,7 @@ export const FarmProposal = ({
   }) => {
     return (
       <div
-        className={`${className} bg-black bg-opacity-20 rounded-2xl px-6 flex flex-col`}
+        className={`${className} bg-black bg-opacity-20 rounded-2xl px-6 flex flex-col xsm:bg-white xsm:bg-opacity-10`}
       >
         {titles.map((t, i) => {
           return (
@@ -3218,14 +3989,18 @@ export const FarmProposal = ({
       ? voteDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id
       : voteHistoryDetail?.[farmProposal?.id]?.action?.VoteFarm?.farm_id;
 
-  const yourShare = scientificNotationToString(
-    new BigNumber(votedAmount || '0')
-      .div(farmProposal.votes?.[votedIndex] || '1')
-      .times(100)
-      .toString()
-  );
+  const yourShare = new BigNumber(votedAmount).eq(
+    farmProposal.votes[votedIndex]
+  )
+    ? displayRatios[votedIndex]
+    : scientificNotationToString(
+        new BigNumber(votedAmount || '0')
+          .div(farmProposal.votes?.[votedIndex] || '1')
+          .times(100)
+          .toString()
+      );
 
-  const [sortBy, setSortBy] = useState<string>('allocation');
+  const [sortBy, setSortBy] = useState<string>('REF allocation');
 
   const FarmLine = ({
     className,
@@ -3256,13 +4031,6 @@ export const FarmProposal = ({
         )
         .times(100)
         .toFixed(2)
-    );
-
-    console.log(
-      displayRatiosNew,
-      'display ratios',
-      farmProposal,
-      votedVE.toString()
     );
 
     const checkedRatiosNew = checkAllocations('100', displayRatiosNew || []);
@@ -3299,7 +4067,7 @@ export const FarmProposal = ({
                 defaultMessage={'Claim Bonus'}
               />
             }
-            className="h-8 w-28"
+            className="h-8 w-28 xsm:w-24"
             onClick={() => {
               claimRewardVE({
                 proposal_id: farmProposal.id,
@@ -3361,25 +4129,44 @@ export const FarmProposal = ({
     return (
       <>
         <div
-          className={`my-2.5 pt-7 pb-14 relative grid bg-black bg-opacity-20 rounded-2xl grid-cols-7 overflow-hidden items-center text-white`}
+          className={` my-2.5  xsm:my-4 xsm:flex xsm:flex-col pt-7 xsm:pt-4 pb-14 xsm:pb-8 relative grid bg-black bg-opacity-20 rounded-2xl grid-cols-7 overflow-hidden items-center  xsm:bg-cardBg xsm:bg-opacity-100 text-white`}
         >
-          <span className="col-span-3 pl-4 flex items-center">
-            <Images tokens={tokens} size={'9'} />
-            <span className="pr-2.5"></span>
+          <span className="col-span-3 pl-4 flex items-center xsm:w-full xsm:px-4 xsm:pb-3">
+            <Images
+              tokens={tokens}
+              className="self-start"
+              size={isClientMobie ? '6' : '9'}
+            />
+            <span className="pr-2.5 xsm:pr-1"></span>
             <div className="flex flex-col font-bold">
               <Symbols tokens={tokens} seperator={'-'} />
-              <span className="text-sm text-primaryText font-normal">
-                {`#${
-                  farmProposal.kind.FarmingReward.farm_list[index].split(
-                    seedIdSeparator
-                  )[1]
-                }`}
-              </span>
+              <div className="flex items-center">
+                <span className="text-sm text-primaryText font-normal">
+                  {`#${
+                    farmProposal.kind.FarmingReward.farm_list[index].split(
+                      seedIdSeparator
+                    )[1]
+                  }`}
+                </span>
+
+                {votedIndex === index && isClientMobie ? (
+                  <NewGradientButton
+                    className="ml-2 text-white text-sm xsm:text-xs self-start cursor-default opacity-100 h-6"
+                    text={
+                      <FormattedMessage
+                        id="you_voted"
+                        defaultMessage={'You voted'}
+                      />
+                    }
+                    padding="px-2 py-0"
+                  />
+                ) : null}
+              </div>
             </div>
 
-            {votedIndex === index ? (
+            {votedIndex === index && !isClientMobie ? (
               <NewGradientButton
-                className="ml-2 text-white text-sm self-start cursor-default opacity-100 h-6"
+                className="ml-2 text-white text-sm xsm:text-xs self-start cursor-default opacity-100 h-6"
                 text={
                   <FormattedMessage
                     id="you_voted"
@@ -3390,14 +4177,34 @@ export const FarmProposal = ({
               />
             ) : null}
           </span>
-          <span className="col-span-1 text-center">
+          <span className="col-span-1 text-center xsm:w-full xsm:flex xsm:items-center xsm:justify-between xsm:px-4 xsm:pb-3">
+            <span className="text-primaryText  lg:hidden text-sm">
+              <FormattedMessage id="ve_LPT" defaultMessage={'veLPT'} />
+            </span>
+
             {toPrecision(veLPT, 2, true)}
           </span>
-          <span className="col-span-1 text-center">{ratio}%</span>
-          <span className="col-span-1 text-center">
+          <span className="col-span-1 text-center xsm:w-full xsm:flex xsm:items-center xsm:justify-between xsm:px-4 xsm:pb-3">
+            <span className="text-primaryText  lg:hidden text-sm">
+              <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
+            </span>
+
+            <span>{ratio}%</span>
+          </span>
+          <span className="col-span-1 text-center xsm:w-full xsm:flex xsm:items-center xsm:justify-between xsm:px-4 xsm:pb-3">
+            <span className="text-primaryText  lg:hidden text-sm">
+              <FormattedMessage
+                id="ref_allocation"
+                defaultMessage={'REF allocation'}
+              />
+            </span>
             {toPrecision(allocate, 0, true)}
           </span>
-          <span className="col-span-1 text-center text-white text-sm">
+          <span className="col-span-1 text-center text-white text-sm xsm:hidden">
+            {Button}
+          </span>
+
+          <span className="col-span-1 absolute right-3 top-4 text-center text-white text-sm  lg:hidden">
             {Button}
           </span>
           <BonusBar
@@ -3462,6 +4269,8 @@ export const FarmProposal = ({
       </>
     );
   };
+
+  const isClientMobie = useClientMobile();
 
   const supplyPercent = votedVE
     .dividedBy(toNonDivisibleNumber(LOVE_TOKEN_DECIMAL, VEmeta.totalVE || '1'))
@@ -3529,7 +4338,7 @@ export const FarmProposal = ({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="text-center text-2xl text-white">
+      <div className="text-center text-2xl xsm:font-bold xsm:text-base text-white">
         <FormattedMessage id="proposed" defaultMessage={'Proposed'} />{' '}
         <span>
           {endtimeMoment.add(1, 'month').startOf('month').format('ll')}-
@@ -3538,7 +4347,7 @@ export const FarmProposal = ({
         <FormattedMessage id="farm_reward" defaultMessage={'Farm reward'} />
       </div>
 
-      <div className="text-center relative text-sm mt-4 w-full">
+      <div className="text-center relative text-sm mt-4 xsm:mt-3 w-full">
         <span>Voting period</span> <span></span>{' '}
         {moment(
           Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
@@ -3552,15 +4361,15 @@ export const FarmProposal = ({
           .utc()
           .format('ll')}
         {` (UTC)`}
-        <span className="rounded-3xl bg-black bg-opacity-20 py-1.5 text-xs px-2 text-senderHot absolute right-0">
+        <div className="rounded-3xl bg-black xsm:mt-2 xsm:  xsm:bg-opacity-0 bg-opacity-20 py-1.5 text-xs px-2 xsm:mx-auto text-senderHot absolute xsm:relative md:right-0 lg:right-0">
           {ended ? (
-            <span className=" rounded-3xl text-primaryText">
+            <span className=" rounded-3xl text-primaryText xsm:bg-white xsm:py-1.5  xsm:bg-opacity-10 xsm:px-2 ">
               <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
             </span>
           ) : (
-            <div className="flex items-center mr-2">
+            <span className="flex items-center mr-2 xsm:inline-flex xsm:rounded-3xl xsm:py-1.5 xsm:bg-white xsm:bg-opacity-10 xsm:pl-2 xsm:pr-4">
               <span
-                className={`rounded-3xl px-2 py-0.5 mr-2  ${
+                className={`rounded-3xl px-2 py-0.5 mr-2   ${
                   status === 'WarmUp'
                     ? 'text-white bg-pendingPurple'
                     : 'text-black bg-senderHot'
@@ -3582,14 +4391,14 @@ export const FarmProposal = ({
               >
                 {counterDownStirng}
               </span>
-            </div>
+            </span>
           )}
-        </span>
+        </div>
       </div>
 
-      <div className="flex mt-10 w-full mb-10">
+      <div className="flex xsm:flex-col xsm:my-5  w-full my-10">
         <InfoCard
-          className="text-sm mr-2 w-full"
+          className="text-sm mr-2 xsm:mr-0 w-full"
           titles={[
             <span className="flex items-center">
               <FormattedMessage
@@ -3621,7 +4430,7 @@ export const FarmProposal = ({
         />
 
         <InfoCard
-          className="text-sm ml-2 w-full"
+          className="text-sm ml-2 xsm:ml-0 xsm:mt-2.5 w-full"
           titles={[
             <FormattedMessage id="voted" defaultMessage={'Voted'} />,
             <FormattedMessage id="total" defaultMessage={'Total'} />,
@@ -3668,9 +4477,9 @@ export const FarmProposal = ({
               defaultMessage={'Check Last Round'}
             />
           }
-          className="text-white text-sm  w-full h-full"
+          className="text-white text-sm  w-full h-full "
           padding=" py-2"
-          width="w-36 h-12 relative self-start"
+          width="w-36 h-12 relative self-start xsm:hidden"
           color="#192431"
           onClick={() => {
             setShowLastRoundVoting(true);
@@ -3705,11 +4514,43 @@ export const FarmProposal = ({
       />
 
       <Card
-        className="w-full"
+        className="w-full xsm:relative xsm:bottom-14"
         bgcolor="bg-transparent"
         padding={'px-2 pt-8 pb-4'}
       >
-        <div className="grid grid-cols-7 pb-1">
+        <div className="flex items-center justify-between">
+          {!lastRoundFarmProposal ? null : (
+            <BorderGradientButton
+              text={
+                <FormattedMessage
+                  id="check_last_round"
+                  defaultMessage={'Check Last Round'}
+                />
+              }
+              className="text-white text-xs text-opacity-80  w-full h-full "
+              padding=" py-2"
+              width="w-36 h-8 relative self-start  lg:hidden"
+              color="#192431"
+              onClick={() => {
+                setShowLastRoundVoting(true);
+              }}
+            />
+          )}
+
+          <SelectUI
+            list={['Bonus', 'REF allocation']}
+            curvalue={sortBy}
+            onChange={setSortBy}
+            className=" lg:hidden "
+            canSelect
+            labelClassName="w-24 border border-primaryText rounded-xl border-opacity-70"
+            dropDownClassName="w-40 text-sm"
+            notshowOption
+            brightClick
+          />
+        </div>
+
+        <div className="grid grid-cols-7 xsm:hidden pb-1">
           <span className="col-span-3 pl-4">
             <FormattedMessage id="farms" defaultMessage={'Farms'} />
             {' & '}
@@ -3720,9 +4561,7 @@ export const FarmProposal = ({
                 sortBy === 'bonus' ? 'text-gradientFrom' : ''
               }`}
               onClick={() => {
-                if (sortBy === 'bonus') {
-                  setSortBy('allocation');
-                } else {
+                if (sortBy !== 'bonus') {
                   setSortBy('bonus');
                 }
               }}
@@ -3741,13 +4580,11 @@ export const FarmProposal = ({
             />
             <button
               className={` pl-2  ${
-                sortBy === 'allocation' ? 'text-gradientFrom' : ''
+                sortBy === 'REF allocation' ? 'text-gradientFrom' : ''
               }`}
               onClick={() => {
-                if (sortBy === 'allocation') {
-                  setSortBy('bonus');
-                } else {
-                  setSortBy('allocation');
+                if (sortBy !== 'REF allocation') {
+                  setSortBy('REF allocation');
                 }
               }}
             >
@@ -3916,36 +4753,43 @@ export const CreateGovProposal = ({
 
   return !show ? null : (
     <div className="text-white">
-      <div className="text-center relative text-xl pb-7">
+      <div
+        className={` ${
+          isClientMobie && showPreview ? 'hidden' : ''
+        } text-center relative text-xl xsm:text-lg pb-7 xsm:pb-3`}
+      >
         <FormattedMessage
           id="create_proposal"
           defaultMessage={'Create Proposal'}
         />
 
         <button
-          className="absolute left-0 top-2 text-sm text-primaryText flex items-center"
+          className="absolute left-0 pr-2 top-2 xsm:top-0 text-sm text-primaryText flex items-center"
           onClick={() => setShow(false)}
         >
-          <span className="transform scale-50">
+          <span className="transform scale-50 xsm:hidden">
             {<LeftArrowVE stroke="#7E8A93" strokeWidth={2} />}
           </span>
-          <span className="ml-1">
+          <span className="ml-1 xsm:hidden">
             <FormattedMessage id="back" defaultMessage={'Back'} />
           </span>
+          <span className=" lg:hidden pl-2 font-bold text-xl">{'<'}</span>
         </button>
       </div>
 
       <Card
-        className="w-full"
-        bgcolor="bg-black bg-opacity-20 "
-        padding={'px-6 py-9'}
+        className={`w-full xsm:mb-20 ${
+          isClientMobie && showPreview ? 'hidden' : ''
+        }`}
+        bgcolor="bg-black bg-opacity-20 xsm:bg-white xsm:bg-opacity-10"
+        padding={'px-6 py-9 xsm:py-6'}
       >
         <div
           className={`pb-3 border-b ${
             require?.['title']
               ? 'border-error'
               : 'border-white border-opacity-10'
-          }  px-2 pt-8 text-primaryText text-xl`}
+          }  px-2 pt-8  xsm:pt-0 text-primaryText text-xl`}
         >
           <input
             value={title}
@@ -3978,8 +4822,8 @@ export const CreateGovProposal = ({
           {title?.length || 0}/100
         </div>
 
-        <div className="flex items-center">
-          <span>
+        <div className="flex items-center xsm:justify-between xsm:pt-5">
+          <span className="xsm:text-sm">
             <FormattedMessage id="type" defaultMessage={'Type'} />
           </span>
 
@@ -3990,6 +4834,7 @@ export const CreateGovProposal = ({
             size={'text-sm'}
             className={'ml-2'}
             canSelect
+            labelClassName="xsm:w-32 h-8"
           />
         </div>
 
@@ -3999,13 +4844,13 @@ export const CreateGovProposal = ({
               <>
                 {type === 'Poll' ? (
                   <span
-                    className={`flex items-center pr-1 py-1 pl-2 w-28 mt-2 relative ${
+                    className={`flex items-center pr-1 py-1 xsm:py-2 pl-2 xsm:pr-2 w-28 xsm:w-full mt-2 relative ${
                       require?.['option'] && !o.trim() && i < 2
                         ? 'border border-error border-opacity-30'
                         : ''
                     }  bg-black ${
                       focuesIndex === i ? 'bg-opacity-20' : 'bg-opacity-10'
-                    } text-sm mr-4 rounded-md `}
+                    } text-sm mr-4 xsm:mr-0 rounded-md `}
                   >
                     <span
                       className="rounded-full mr-2 h-2 w-2 flex-shrink-0"
@@ -4085,14 +4930,23 @@ export const CreateGovProposal = ({
           {type === 'Yes/No' ? null : (
             <>
               <button
-                className=" rounded-lg text-lg bg-black bg-opacity-20 px-2.5 text-primaryText mt-2"
+                className=" rounded-lg xsm:w-full xsm:py-1 text-lg bg-black bg-opacity-20 xsm:bg-opacity-30 px-2.5 text-primaryText xsm:text-white mt-2 xsm:mt-5"
+                style={{
+                  backgroundColor: isClientMobie ? '#445867' : '',
+                }}
                 onClick={(e) => {
                   if (options[options.length - 1]) {
                     setOptions([...options, '']);
                   }
                 }}
               >
-                +
+                <span>+</span>
+                <span className=" lg:hidden ml-2 text-sm relative bottom-0.5">
+                  <FormattedMessage
+                    id="add_option"
+                    defaultMessage={'Add option'}
+                  />
+                </span>
               </button>
             </>
           )}
@@ -4106,47 +4960,57 @@ export const CreateGovProposal = ({
           (UTC)
         </div>
 
-        <div className="flex items-center">
-          <div className="rounded-lg bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
-            <CustomDatePicker
-              startTime={startTime}
-              setStartTime={setStartTime}
-              setEndTime={setEndTime}
-              endTime={endTime}
-              openPicker={openPickerStart}
-              setOpenPicker={setOpenPickerStart}
-              veconfig={config}
-            />
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
+        <div className="flex items-center xsm:flex-col">
+          <div className="flex items-center xsm:mb-5 xsm:w-full">
+            <div className=" lg:hidden mr-3 text-primaryText text-sm">
+              <FormattedMessage id="from" defaultMessage={'From'} />
+            </div>
+            <div className="rounded-lg xsm:w-full  bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
+              <CustomDatePicker
+                startTime={startTime}
+                setStartTime={setStartTime}
+                setEndTime={setEndTime}
+                endTime={endTime}
+                openPicker={openPickerStart}
+                setOpenPicker={setOpenPickerStart}
+                veconfig={config}
+              />
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
 
-                setOpenPickerStart(!openPickerStart);
-              }}
-            >
-              <CalenderIcon />
+                  setOpenPickerStart(!openPickerStart);
+                }}
+              >
+                <CalenderIcon />
+              </div>
             </div>
           </div>{' '}
-          <span className="mx-4">-</span>
-          <div className="rounded-lg bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
-            <CustomDatePicker
-              startTime={startTime}
-              setStartTime={setStartTime}
-              endTime={endTime}
-              setEndTime={setEndTime}
-              forEnd
-              openPicker={openPickerEnd}
-              setOpenPicker={setOpenPickerEnd}
-              veconfig={config}
-            />
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
+          <span className="mx-4 xsm:hidden">-</span>
+          <div className="flex items-center xsm:w-full">
+            <div className=" lg:hidden mr-8 text-primaryText text-sm">
+              <FormattedMessage id="to" defaultMessage={'To'} />
+            </div>
+            <div className="rounded-lg xsm:w-full bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
+              <CustomDatePicker
+                startTime={startTime}
+                setStartTime={setStartTime}
+                endTime={endTime}
+                setEndTime={setEndTime}
+                forEnd
+                openPicker={openPickerEnd}
+                setOpenPicker={setOpenPickerEnd}
+                veconfig={config}
+              />
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
 
-                setOpenPickerEnd(!openPickerEnd);
-              }}
-            >
-              <CalenderIcon />
+                  setOpenPickerEnd(!openPickerEnd);
+                }}
+              >
+                <CalenderIcon />
+              </div>
             </div>
           </div>
         </div>
@@ -4165,7 +5029,7 @@ export const CreateGovProposal = ({
             defaultMessage={'Forum Discussion'}
           />
         </div>
-        <div className='border-b border-white border-opacity-10 pb-6 mb-6"'>
+        <div className='border-b border-white xsm:border-none xsm:pb-0 border-opacity-10 pb-6 mb-6"'>
           <div
             className={`w-full ${
               require?.['link'] ? 'border border-error border-opacity-30' : ''
@@ -4201,12 +5065,12 @@ export const CreateGovProposal = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-end pt-6 text-sm">
+        <div className="flex items-center justify-end pt-6 xsm:pt-10 text-sm xsm:absolute xsm:right-0 xsm:w-full">
           <BorderGradientButton
             text={<FormattedMessage id="preview" defaultMessage={'Preview'} />}
-            color={'#192734'}
+            color={isClientMobie ? '#011320' : '#192734 '}
             onClick={() => setShowPreview(true)}
-            width="w-28 h-8"
+            width="w-28 h-8 xsm:w-1/2 xsm:mr-2 xsm:h-10"
             className="w-full h-full"
             padding="p-0"
           />
@@ -4230,7 +5094,7 @@ export const CreateGovProposal = ({
             }}
             disabled={disabled}
             beatStyling={!disabled}
-            className="ml-4 h-8 w-28"
+            className="ml-4 xsm:ml-2 h-8 w-28 xsm:text-sm xsm:w-1/2 xsm:h-10"
             padding="p-0"
             disableForUI
           />
@@ -4260,8 +5124,8 @@ export const CreateGovProposal = ({
           0,
           !!options[options.length - 1] ? options.length : options.length - 1
         )}
-        turnOut={'0.00%'}
-        totalVE={'0'}
+        turnOut={'-%'}
+        totalVE={'-'}
         type={type}
       />
     </div>
@@ -4281,11 +5145,6 @@ export const GovProposal = ({
   setShowDetail: (s: number) => void;
   UnclaimedProposal: UnclaimedProposal;
 }) => {
-  const VotedOnlyKey = 'REF_FI_GOV_PROPOSAL_VOTED_ONLY';
-  const BonusOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
-
-  const CreatedOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
-
   const { globalState } = useContext(WalletContext);
 
   const isSignedIn = globalState.isSignedIn;
@@ -4305,15 +5164,15 @@ export const GovProposal = ({
       false
   );
 
+  const [filterOpen, setFilterOpen] = useState<boolean>(false);
+
   const VEmeta = useVEmeta();
 
   const voteHistory = useVoteDetailHisroty();
 
   const voteDetail = useVoteDetail();
 
-  const [state, setState] = useState<'All' | 'Live' | 'Ended' | 'Pending'>(
-    'All'
-  );
+  const [state, setState] = useState<string>('All');
 
   const { veShare } = useAccountInfo();
 
@@ -4349,9 +5208,11 @@ export const GovProposal = ({
   };
 
   return (
-    <div className="flex flex-col text-white text-sm relative">
+    <div className={`flex flex-col text-white text-sm relative `}>
       {showDetail ? null : (
-        <div className={`flex items-center justify-between relative pb-6`}>
+        <div
+          className={`flex items-center justify-between relative pb-6 xsm:pb-2`}
+        >
           <div className="flex items-center">
             {!VEmeta?.whitelisted_accounts?.includes(
               getCurrentWallet().wallet.getAccountId()
@@ -4367,6 +5228,9 @@ export const GovProposal = ({
                   setShowCreateProposal(true);
                 }}
                 color="#182430"
+                width="h-7"
+                className="h-full"
+                padding="px-3 py-0"
               />
             )}
 
@@ -4376,11 +5240,27 @@ export const GovProposal = ({
               isOpen={createdOnly}
               setIsOpen={setCreatedOnly}
               storageKey={CreatedOnlyKey}
-              className="ml-6"
+              className="ml-6 xsm:hidden"
             />
           </div>
 
-          <div className="flex items-center">
+          <div className="flex  lg:hidden">
+            <FarmMobileSelector
+              curStatus={state}
+              setBonusOnly={setBonusOnly}
+              bonusOnly={bonusOnly}
+              setCreatedOnly={setCreatedOnly}
+              createdOnly={createdOnly}
+              setVotedOnly={setVotedOnly}
+              votedOnly={votedOnly}
+              setFilterOpen={setFilterOpen}
+              filterOpen={filterOpen}
+              statusList={['All', 'Live', 'Ended', 'Pending']}
+              setStatus={setState}
+            />
+          </div>
+
+          <div className="flex items-center xsm:hidden">
             <FilterSelector
               textId="voted_only"
               defaultText="Voted Only"
@@ -4408,7 +5288,7 @@ export const GovProposal = ({
           </div>
         </div>
       )}
-      <div className="flex flex-col">
+      <div className={`flex flex-col ${filterOpen ? 'xsm:pb-44' : ''}`}>
         {proposals
           ?.filter((p) => state === 'All' || proposalStatus[p.status] === state)
           ?.filter(filterFunc)
@@ -4434,7 +5314,13 @@ interface ParamTypes {
   proposal_id: string;
 }
 
-export const ProposalCard = () => {
+export const ProposalCard = ({
+  setMobileSecondPage,
+  mobileSecondPage,
+}: {
+  setMobileSecondPage: (s: boolean) => void;
+  mobileSecondPage: boolean;
+}) => {
   const [curTab, setTab] = useState<PROPOSAL_TAB>(
     PROPOSAL_TAB[localStorage.getItem(REF_FI_PROPOSALTAB)] || PROPOSAL_TAB.FARM
   );
@@ -4457,6 +5343,16 @@ export const ProposalCard = () => {
   const [showDetail, setShowDetail] = useState<number>(
     proposal_id && Number(proposal_id) >= 0 ? Number(proposal_id) : undefined
   );
+
+  const isClientMobie = useClientMobile();
+
+  useEffect(() => {
+    if (showCreateProposal || typeof showDetail === 'number') {
+      isClientMobie && setMobileSecondPage(false);
+    } else {
+      setMobileSecondPage(true);
+    }
+  }, [showCreateProposal, showDetail, isClientMobie]);
 
   useEffect(() => {
     getProposalList().then((list: Proposal[]) => {
@@ -4519,20 +5415,27 @@ export const ProposalCard = () => {
 
   return (
     <div className="w-full flex flex-col items-center relative">
-      <ProposalTab curTab={curTab} setTab={setTab} className="mt-12 mb-4" />
+      <ProposalTab
+        curTab={curTab}
+        setTab={setTab}
+        className={`${
+          !mobileSecondPage ? 'hidden' : 'xsm:flex'
+        } text-sm mt-12 xsm:w-full  xsm:mt-8 mb-4  xsm:items-center`}
+      />
 
-      {notShowRewardCard ? null : <RewardCard rewardList={unClaimedRewards} />}
+      {notShowRewardCard || !mobileSecondPage || showCreateProposal ? null : (
+        <RewardCard rewardList={unClaimedRewards} />
+      )}
 
       <ProposalWrapper
         show={curTab === PROPOSAL_TAB.FARM}
-        padding={!notShowRewardCard ? 'px-8 pb-8 pt-20' : 'p-8'}
+        padding={!notShowRewardCard ? 'px-8 pb-8 xsm:pt-16 pt-20' : 'p-8'}
       >
         {!farmProposal ? null : (
           <FarmProposal
             lastRoundFarmProposal={lastRoundFarmProposal}
             farmProposal={farmProposal}
             VEmeta={VEmeta}
-            UnclaimedProposal={UnclaimedProposal}
           />
         )}
       </ProposalWrapper>
@@ -4540,7 +5443,11 @@ export const ProposalCard = () => {
       <ProposalWrapper
         show={curTab === PROPOSAL_TAB.GOV}
         bgcolor={'bg-cardBg'}
-        padding={!notShowRewardCard ? 'px-8 pb-8 pt-20' : 'p-8'}
+        padding={
+          !notShowRewardCard && mobileSecondPage
+            ? 'px-8 pb-8 xsm:pt-16 pt-20'
+            : 'p-8 xsm:pt-0 pb-8'
+        }
       >
         {showCreateProposal ? (
           <CreateGovProposal

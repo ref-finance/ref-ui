@@ -1426,7 +1426,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               )}
             </span>
           </div>
-          <div className="flex items-center pr-5">
+          <div className="flex items-center">
             <BoostInputAmount
               className="w-full border border-transparent rounded"
               max={getMax(
@@ -1458,7 +1458,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               )}
             </span>
           </div>
-          <div className="flex items-center pr-5">
+          <div className="flex items-center ">
             <BoostInputAmount
               className="w-full border border-transparent rounded"
               max={getMax(
@@ -3437,6 +3437,7 @@ function UnClaimBox(props: {
     </div>
   );
 }
+
 interface Lock {
   second: number;
   month: number;

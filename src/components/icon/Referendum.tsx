@@ -464,7 +464,7 @@ export const NoResultChart = ({ expand }: { expand?: string }) => {
   return (
     <div className={`relative`}>
       <NO_RESULT_CHART expand={expand} />
-      <div className="absolute right-1/2 top-1/2 text-sm text-primaryText transform translate-x-1/2 -translate-y-1/2">
+      <div className="absolute whitespace-nowrap right-1/2 top-1/2 text-sm text-primaryText transform translate-x-1/2 -translate-y-1/2">
         <FormattedMessage
           id="no_result_pending_proposal"
           defaultMessage={'No result'}
@@ -612,6 +612,46 @@ export const VETip = () => {
           <rect width="14" height="14" fill="white" />
         </clipPath>
       </defs>
+    </svg>
+  );
+};
+
+export const FilterIconVE = () => {
+  return (
+    <svg
+      width="16"
+      height="12"
+      viewBox="0 0 16 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <line
+        x1="0.75"
+        y1="1.25"
+        x2="15.25"
+        y2="1.25"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+      />
+      <line
+        x1="3.03564"
+        y1="5.82129"
+        x2="12.9642"
+        y2="5.82129"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+      />
+      <line
+        x1="5.32129"
+        y1="10.3926"
+        x2="10.6784"
+        y2="10.3926"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+      />
     </svg>
   );
 };
