@@ -99,7 +99,7 @@ import {
   getVEPoolId,
   AccountInfo,
 } from '../../pages/ReferendumPage';
-import { wnearMetadata } from '../../services/wrap-near';
+import { wnearMetadata, unwrapedNear } from '../../services/wrap-near';
 import { usePoolShare, useYourliquidity } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 
@@ -218,6 +218,7 @@ export default function FarmsHome(props: any) {
   const [keyWords, setKeyWords] = useState('');
   const searchData = { sort, status, keyWords };
   const [loveTokenBalance, setLoveTokenBalance] = useState<string>('0');
+  const [loveTokeStaked, setLoveTokeStaked] = useState('0');
   let [loveSeed, setLoveSeed] = useState<Seed>(null);
   let [boostConfig, setBoostConfig] = useState<BoostConfig>(null);
 
@@ -262,7 +263,6 @@ export default function FarmsHome(props: any) {
     };
   }, [count]);
   async function get_ve_seed_share() {
-    debugger;
     const result = await getVeSeedShare();
     const maxShareObj = result?.accounts?.accounts[0] || {};
     const amount = maxShareObj?.amount;
@@ -309,6 +309,10 @@ export default function FarmsHome(props: any) {
         setLoveSeed(seed);
       }
     });
+    // filter Love Seed
+    list_seeds.filter((seed: Seed) => {
+      if (seed.seed_id.indexOf('@') > -1) return true;
+    });
     // filter no farm seed
     const new_list_seeds: any[] = [];
     list_farm.forEach((farmList: FarmBoost[], index: number) => {
@@ -319,6 +323,7 @@ export default function FarmsHome(props: any) {
         });
       }
     });
+
     list_seeds = new_list_seeds;
     // get all token prices
     const tokenPriceList = await getBoostTokenPrices();
@@ -856,6 +861,7 @@ export default function FarmsHome(props: any) {
         .plus(locked_amount)
         .toFixed();
       loveStakedAmount = toReadableNumber(LOVE_TOKEN_DECIMAL, totalAmount);
+      setLoveTokeStaked(loveStakedAmount);
     }
     if (!loveStakedAmount || +loveStakedAmount == 0) {
       return isSignedIn ? <label className="opacity-50">0.000</label> : '-';
@@ -870,6 +876,105 @@ export default function FarmsHome(props: any) {
   }
   function goMigrate() {
     history.push('/farmsMigrate?from=v2');
+  }
+  function LoveBox(props: any) {
+    const { inside } = props;
+    const noLoveRelatedAmount =
+      isSignedIn && +loveTokenBalance == 0 && +loveTokeStaked == 0;
+    return (
+      <div
+        className={`relative flex flex-col items-center justify-between rounded-2xl p-4 pb-6 ${
+          inside
+            ? 'xs:hidden md:hidden 2xl:hidden flex-grow ml-5 pr-2 lg:pl-8 xl:pl-16'
+            : 'lg:hidden xl:hidden 2xl:flex'
+        }`}
+        style={{
+          backgroundImage: inside
+            ? ''
+            : 'linear-gradient(90deg, #7C47FD 0%, #34177C 100%)',
+        }}
+      >
+        <span className="absolute -top-5">
+          <LoveIcon
+            linear0={inside ? 'paint0_linear_1477_3' : ''}
+            linear1={inside ? 'paint1_linear_1477_3' : ''}
+            linear2={inside ? 'path-3-outside-1_1477_3' : ''}
+          ></LoveIcon>
+        </span>
+        <div
+          className={`flex items-center text-white text-2xl ${
+            inside ? 'mt-4 mb-2' : 'mt-6'
+          }`}
+        >
+          LOVE
+          <LoveMask />
+        </div>
+        <div className="flex justify-between items-center w-full">
+          <div className="flex flex-col items-center stakeBox w-2 flex-grow mx-1.5">
+            <span className="text-white opacity-50 text-sm whitespace-nowrap">
+              Available to stake
+            </span>
+            <span className="text-white text-lg my-1 whitespace-nowrap">
+              {getLoveBalance()}
+            </span>
+            {!isSignedIn ? null : isSignedIn && +loveTokenBalance == 0 ? (
+              <div
+                onClick={() => {
+                  setShowLoveTokenModalVisible(true);
+                }}
+                className={`flex items-center justify-center h-full w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20 ${
+                  noLoveRelatedAmount ? 'hidden' : ''
+                }`}
+              >
+                <FormattedMessage id="get_love"></FormattedMessage> ↗
+              </div>
+            ) : (
+              <div
+                onClick={() => {
+                  setLoveStakeModalVisible(true);
+                }}
+                className="flex items-center justify-center cursor-pointer text-sm text-black bg-darkGreenColor hover:bg-lightGreenColor rounded-lg w-full py-1 border border-greenColor border-opacity-0"
+              >
+                <FormattedMessage id="stake"></FormattedMessage>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col items-center  unstakeBox w-2 flex-grow mx-1.5">
+            <span className="text-white opacity-50 text-sm whitespace-nowrap">
+              You staked
+            </span>
+            <span className="text-white text-lg my-1">
+              {getLoveUserStaked()}
+            </span>
+            {!isSignedIn ? null : (
+              <div
+                onClick={() => {
+                  setLoveUnStakeModalVisible(true);
+                }}
+                className={`flex items-center justify-center h-full w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20 ${
+                  noLoveRelatedAmount ? 'hidden' : ''
+                }`}
+              >
+                <FormattedMessage id="unstake"></FormattedMessage>
+              </div>
+            )}
+          </div>
+        </div>
+        {!isSignedIn ? (
+          <GreenConnectToNearBtn className="w-full"></GreenConnectToNearBtn>
+        ) : null}
+        {noLoveRelatedAmount ? (
+          <div
+            onClick={() => {
+              setShowLoveTokenModalVisible(true);
+            }}
+            className="flex items-center justify-center w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20"
+          >
+            <FormattedMessage id="get_love"></FormattedMessage> ↗
+          </div>
+        ) : null}
+      </div>
+    );
   }
   const endFarmLength = useMemo(() => {
     return getFarmVisibleLength();
@@ -922,7 +1027,7 @@ export default function FarmsHome(props: any) {
         <span className="absolute left-0 top-0 h-full overflow-hidden xs:hidden md:hidden">
           <BannerBgLeft />
         </span>
-        <div className="relative h-full  flex justify-between items-center lg:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0">
+        <div className="relative h-full  flex justify-between items-center lg:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0 overflow-hidden">
           <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-3 md:px-3 xs:pt-2 md:pt-2">
             <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4">
               <FormattedMessage id="farms"></FormattedMessage>
@@ -1148,7 +1253,7 @@ export default function FarmsHome(props: any) {
                   </span>
                 </div>
                 <div
-                  className={`flex justify-between rounded-2xl xs:justify-center md:justify-center xs:mt-3 md:mt-3 ${
+                  className={`flex justify-between xs:h-auto md:h-auto h-full rounded-2xl xs:justify-center md:justify-center xs:mt-3 md:mt-3 ${
                     !boostInstructions && isMobileSite ? 'hidden' : ''
                   }`}
                   style={{
@@ -1217,94 +1322,13 @@ export default function FarmsHome(props: any) {
                       </div>
                     </div>
                   </div>
-                  <div className="xs:hidden md:hidden">
+                  <div className="xs:hidden md:hidden lg:hidden xl:hidden 2xl:block">
                     <Flight></Flight>
                   </div>
+                  <LoveBox inside={true}></LoveBox>
                 </div>
               </div>
-              <div
-                className="relative flex flex-col items-center justify-between rounded-2xl p-4 pb-6"
-                style={{
-                  backgroundImage:
-                    'linear-gradient(90deg, #7C47FD 0%, #34177C 100%)',
-                }}
-              >
-                <span className="absolute -top-5">
-                  <LoveIcon></LoveIcon>
-                </span>
-                <span className="text-white text-2xl mt-6">Love</span>
-                <div className="flex justify-between items-center w-full">
-                  <div className="flex flex-col items-center stakeBox w-2 flex-grow mx-1.5">
-                    <span className="text-white opacity-50 text-sm">
-                      Available to stake
-                    </span>
-                    <span className="text-white text-lg my-1">
-                      {getLoveBalance()}
-                    </span>
-                    {!isSignedIn ? null : isSignedIn &&
-                      +loveTokenBalance == 0 ? (
-                      <div
-                        onClick={() => {
-                          setShowLoveTokenModalVisible(true);
-                        }}
-                        className="flex items-center justify-center cursor-pointer text-sm text-white bg-veGradient p-px rounded-lg w-full overflow-hidden"
-                      >
-                        <div
-                          style={{
-                            backgroundImage:
-                              'linear-gradient(90deg, rgb(124, 71, 253) 0%, rgba(52,23,124,0.6) 100%)',
-                          }}
-                          className="flex items-center justify-center w-full h-full rounded-lg"
-                        >
-                          <div className="h-full w-full py-1 rounded-lg flex items-center justify-center bg-black bg-opacity-20">
-                            <FormattedMessage id="get_love"></FormattedMessage>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div
-                        onClick={() => {
-                          setLoveStakeModalVisible(true);
-                        }}
-                        className="flex items-center justify-center cursor-pointer text-sm text-black bg-lightGreenColor rounded-lg w-full py-1"
-                      >
-                        <FormattedMessage id="stake"></FormattedMessage>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-center  unstakeBox w-2 flex-grow mx-1.5">
-                    <span className="text-white opacity-50 text-sm">
-                      You staked
-                    </span>
-                    <span className="text-white text-lg my-1">
-                      {getLoveUserStaked()}
-                    </span>
-                    {!isSignedIn ? null : (
-                      <div
-                        onClick={() => {
-                          setLoveUnStakeModalVisible(true);
-                        }}
-                        className="flex items-center justify-center cursor-pointer text-sm text-white bg-veGradient p-px rounded-lg w-full overflow-hidden"
-                      >
-                        <div
-                          style={{
-                            backgroundImage:
-                              'linear-gradient(90deg, rgb(124, 71, 253) 0%, rgba(52,23,124,0.5) 100%)',
-                          }}
-                          className="flex items-center justify-center w-full h-full rounded-lg"
-                        >
-                          <div className="h-full w-full py-1 rounded-lg flex items-center justify-center bg-black bg-opacity-20">
-                            <FormattedMessage id="unstake"></FormattedMessage>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {!isSignedIn ? (
-                  <GreenConnectToNearBtn className="w-full"></GreenConnectToNearBtn>
-                ) : null}
-              </div>
+              <LoveBox inside={false}></LoveBox>
             </div>
           )}
 
@@ -1452,7 +1476,7 @@ export default function FarmsHome(props: any) {
 }
 function GetLoveTokenModal(props: { isOpen: boolean; onRequestClose: any }) {
   const { isOpen, onRequestClose } = props;
-  const REF_NEAR_TOKENS = [REF_META_DATA, wnearMetadata];
+  const REF_NEAR_TOKENS = [REF_META_DATA, unwrapedNear];
   const id = getVEPoolId();
   const lpShare = usePoolShare(id);
   const { accountInfo } = useAccountInfo();
@@ -1586,9 +1610,10 @@ function LoveStakeModal(props: {
   return (
     <CommonModal {...reset}>
       <div className="flex justify-between items-center mt-6">
-        <span className="flex items-center text-base text-white font-bold">
+        <div className="flex items-center text-base text-white font-bold">
           <LoveTokenIcon className="mr-2.5"></LoveTokenIcon> LOVE
-        </span>
+          <LoveMask />
+        </div>
         <span className="text-sm text-white">
           {toPrecision(loveTokenBalance, 6)}
         </span>
@@ -1823,9 +1848,10 @@ function LoveUnStakeModal(props: {
   return (
     <CommonModal {...reset}>
       <div className="flex justify-between items-center mt-6">
-        <span className="flex items-center text-base text-white font-bold">
+        <div className="flex items-center text-base text-white font-bold">
           <LoveTokenIcon className="mr-2.5"></LoveTokenIcon> LOVE
-        </span>
+          <LoveMask />
+        </div>
         <span className="text-sm text-white">
           {toPrecision(loveTokenBalance, 6)}
         </span>
@@ -2494,66 +2520,66 @@ function FarmView(props: {
             ) : null}
           </div>
           <div className="flex items-center justify-between px-5 py-4 h-24">
-            <div className="flex items-start justify-between w-full">
-              <div className="flex flex-col items-center flex-shrink-0">
+            {/* <div className="flex items-start justify-between w-full"> */}
+            <div className="flex flex-col items-center flex-shrink-0">
+              <label className="text-farmText text-sm">
+                <FormattedMessage id="total_staked"></FormattedMessage>
+              </label>
+              <label className="text-white text-base mt-1.5">
+                {`${
+                  Number(seed.seedTvl) == 0
+                    ? '-'
+                    : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`
+                }`}
+              </label>
+            </div>
+            <div
+              className={`flex flex-col ${
+                isHaveUnclaimedReward ? 'items-center' : 'items-end'
+              } justify-center`}
+            >
+              <span className="flex items-center">
+                <CalcIcon
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    setCalcVisible(true);
+                  }}
+                  className="mr-1.5 cursor-pointer"
+                />
                 <label className="text-farmText text-sm">
-                  <FormattedMessage id="total_staked"></FormattedMessage>
+                  <FormattedMessage id="apr"></FormattedMessage>
                 </label>
-                <label className="text-white text-base mt-1.5">
-                  {`${
-                    Number(seed.seedTvl) == 0
-                      ? '-'
-                      : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`
-                  }`}
-                </label>
-              </div>
+              </span>
               <div
-                className={`flex flex-col ${
-                  isHaveUnclaimedReward ? 'items-center' : 'items-end'
-                } justify-center`}
+                className="text-xl text-white"
+                data-type="info"
+                data-place="top"
+                data-multiline={true}
+                data-tip={getAprTip()}
+                data-html={true}
+                data-for={'aprId' + seed.farmList[0].farm_id}
+                data-class="reactTip"
               >
-                <span className="flex items-center">
-                  <CalcIcon
-                    onClick={(e: any) => {
-                      e.stopPropagation();
-                      setCalcVisible(true);
-                    }}
-                    className="mr-1.5 cursor-pointer"
-                  />
-                  <label className="text-farmText text-sm">
-                    <FormattedMessage id="apr"></FormattedMessage>
-                  </label>
-                </span>
-                <div
-                  className="text-xl text-white"
-                  data-type="info"
-                  data-place="top"
-                  data-multiline={true}
-                  data-tip={getAprTip()}
-                  data-html={true}
-                  data-for={'aprId' + seed.farmList[0].farm_id}
-                  data-class="reactTip"
+                <span
+                  className={`flex items-center flex-wrap justify-center text-white text-base mt-1.5 ${
+                    isHaveUnclaimedReward ? 'text-center mx-2' : 'text-right'
+                  }`}
                 >
-                  <span
-                    className={`flex items-center flex-wrap justify-center text-white text-base mt-1.5 ${
-                      isHaveUnclaimedReward ? 'text-center mx-2' : 'text-right'
-                    }`}
-                  >
-                    <label className={`${aprUpLimit ? 'text-xs' : 'text-sm'}`}>
-                      {getTotalApr()}
-                    </label>
-                    {aprUpLimit}
-                  </span>
-                  <ReactTooltip
-                    id={'aprId' + seed.farmList[0].farm_id}
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    effect="solid"
-                  />
-                </div>
+                  <label className={`${aprUpLimit ? 'text-xs' : 'text-sm'}`}>
+                    {getTotalApr()}
+                  </label>
+                  {aprUpLimit}
+                </span>
+                <ReactTooltip
+                  id={'aprId' + seed.farmList[0].farm_id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
               </div>
             </div>
+            {/* </div> */}
             {isHaveUnclaimedReward ? (
               <div className="flex flex-col items-center flex-shrink-0">
                 <div
@@ -3130,3 +3156,32 @@ export const getPoolIdBySeedId = (seed_id: string) => {
   }
   return '';
 };
+
+function LoveMask() {
+  const loveTip = () => {
+    return `<div class="text-xs text-navHighLightText w-64">
+    <h1 class="font-bold">LOVE</h1>
+    <div>
+    "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded</div>
+  </div>`;
+  };
+  return (
+    <div
+      className="ml-2"
+      data-class="reactTip"
+      data-for="loveTipId"
+      data-place="top"
+      data-html={true}
+      data-tip={loveTip()}
+    >
+      <QuestionMark></QuestionMark>
+      <ReactTooltip
+        id="loveTipId"
+        backgroundColor="#1D2932"
+        border
+        borderColor="#7e8a93"
+        effect="solid"
+      />
+    </div>
+  );
+}

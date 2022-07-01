@@ -55,7 +55,7 @@ export const parseAction = async (
       return await parseClaimRewardBySeed(params);
     }
     case 'withdraw_reward': {
-      return await parseWithdrawReward(params);
+      return await parseWithdrawReward(params, tokenId);
     }
     case 'near_deposit': {
       return await parseNearDeposit();
@@ -110,6 +110,9 @@ export const parseAction = async (
     }
     case 'action_cancel': {
       return await actionCancel(params);
+    }
+    case 'withdraw_lpt': {
+      return await withdrawLpt(params);
     }
     default: {
       return await parseDefault();
@@ -289,11 +292,11 @@ const parseMtfTransferCall = async (params: any) => {
     }
   }
   return {
-    Action: extraData['Month'] || extraData['Second'] ? 'Lock' : 'Stake',
+    Action: extraData['Month'] || extraData['Second'] ? 'Lock LPt' : 'Stake',
     Amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
       ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, amount)
       : toReadableNumber(24, amount),
-    'Receiver Id': receiver_id,
+    'Receiver ID': receiver_id,
     'Token Id': token_id,
     ...extraData,
   };
@@ -338,7 +341,7 @@ const parseClaimRewardBySeed = async (params: any) => {
     'Seed Id': seed_id,
   };
 };
-const parseWithdrawReward = async (params: any) => {
+const parseWithdrawReward = async (params: any, tokenId: string) => {
   try {
     params = JSON.parse(params);
   } catch (error) {
@@ -352,7 +355,10 @@ const parseWithdrawReward = async (params: any) => {
     extraData['Unregister'] = unregister;
   }
   return {
-    Action: 'Withdraw Reward',
+    Action:
+      tokenId == config.REF_VE_CONTRACT_ID
+        ? 'Withdraw Bonus'
+        : 'Withdraw Reward',
     'Token Id': token_id,
     ...extraData,
   };
@@ -377,7 +383,30 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     return {
       Action,
       Amount,
-      'Receiver Id': receiver_id,
+      'Receiver ID': receiver_id,
+    };
+  } else if (receiver_id == config.REF_VE_CONTRACT_ID) {
+    Action = 'Deposit Bonus';
+    const token = await ftGetTokenMetadata(tokenId);
+    Amount = toReadableNumber(token.decimals, amount);
+    const rewardObj = JSON.parse(msg.replace(/\\"/g, '"')).Reward;
+    const { incentive_key, proposal_id } = rewardObj;
+    return {
+      Action,
+      Amount,
+      'Receiver ID': receiver_id,
+      'Incentive Key': incentive_key,
+      'Proposal ID': proposal_id,
+    };
+  } else if (receiver_id == config.REF_FARM_BOOST_CONTRACT_ID) {
+    Action = 'Stake';
+    const token = await ftGetTokenMetadata(tokenId);
+    Amount = toReadableNumber(token.decimals, amount);
+    return {
+      Action,
+      Amount,
+      'Receiver ID': receiver_id,
+      msg: (msg && msg.replace(/\\"/g, '"')) || '',
     };
   } else if (msg && receiver_id !== 'aurora') {
     Action = 'Instant swap';
@@ -391,6 +420,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     }
     let amountOut = '0';
     let poolIdArr: (string | number)[] = [];
+    const l = actions[0];
     const in_token = await ftGetTokenMetadata(actions[0].token_in);
     const out_token = await ftGetTokenMetadata(
       actions[actions.length - 1].token_out
@@ -409,7 +439,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       'Min Amount Out': toReadableNumber(out_token.decimals, amountOut),
       'Token In': in_token.symbol,
       'Token Out': out_token.symbol,
-      'Receiver Id': receiver_id,
+      'Receiver ID': receiver_id,
     };
   } else {
     Action = 'Deposit';
@@ -418,7 +448,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
     return {
       Action,
       Amount,
-      'Receiver Id': receiver_id,
+      'Receiver ID': receiver_id,
     };
   }
 };
@@ -559,9 +589,11 @@ const unlockAndWithdrawSeed = async (params: any) => {
   const poolId = (seed_id || '').split('@')[1];
   const extraData = {};
   if (Number(withdraw_amount) > 0) {
-    extraData['Amount'] = new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
-      ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, withdraw_amount)
-      : toReadableNumber(24, withdraw_amount);
+    extraData['Amount'] =
+      new Set(STABLE_POOL_IDS || []).has(poolId?.toString()) ||
+      seed_id == config.REF_VE_CONTRACT_ID
+        ? toReadableNumber(LP_STABLE_TOKEN_DECIMALS, withdraw_amount)
+        : toReadableNumber(24, withdraw_amount);
   }
   if (Number(unlock_amount) > 0) {
     extraData['Amount'] = new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
@@ -570,7 +602,7 @@ const unlockAndWithdrawSeed = async (params: any) => {
   }
   return {
     Action: Number(unlock_amount) > 0 ? 'Unlock' : 'Unstake',
-    seedId: seed_id,
+    'Seed Id': seed_id,
     ...extraData,
   };
 };
@@ -664,8 +696,8 @@ const claimReward = async (params: any) => {
   }
   const { proposal_id } = params;
   return {
-    Action: 'Claim Rewards',
-    proposalId: proposal_id,
+    Action: 'Claim Bonus',
+    'Proposal ID': proposal_id,
   };
 };
 const actionProposal = async (params: any) => {
@@ -678,15 +710,19 @@ const actionProposal = async (params: any) => {
   const field: any = {};
   const farmId = action?.VoteFarm?.farm_id?.toString() || '';
   const pollId = action?.VotePoll?.poll_id?.toString() || '';
+
   if (farmId) {
-    field.farmId = farmId;
+    field['Farm ID'] = farmId;
   }
   if (pollId) {
-    field.pollId = pollId;
+    field['Poll ID'] = pollId;
+  }
+  if (action == 'VoteApprove' || action == 'VoteReject') {
+    field['Vote'] = action;
   }
   return {
     Action: 'Action Proposal',
-    proposalId: proposal_id,
+    'Proposal ID': proposal_id,
     ...field,
   };
 };
@@ -699,7 +735,7 @@ const removeProposal = async (params: any) => {
   const { proposal_id } = params;
   return {
     Action: 'Remove Proposal',
-    proposalId: proposal_id,
+    'Proposal ID': proposal_id,
   };
 };
 const actionCancel = async (params: any) => {
@@ -711,7 +747,19 @@ const actionCancel = async (params: any) => {
   const { proposal_id } = params;
   return {
     Action: 'Action Cancel',
-    proposalId: proposal_id,
+    'Proposal ID': proposal_id,
+  };
+};
+const withdrawLpt = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { amount } = params;
+  return {
+    Action: 'Unlock LPt',
+    Amount: toReadableNumber(24, amount),
   };
 };
 

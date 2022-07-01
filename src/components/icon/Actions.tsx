@@ -724,13 +724,16 @@ const viewMap = {
   'Aurora Call': Withdraw,
   Unlock: RemoveLiquidity,
   'Lock Free Seed': AddLiquidity,
-  Lock: AddLiquidity,
+  'Lock LPt': AddLiquidity,
   'Create Proposal': AddLiquidity,
   'Extend Whitelisted Accounts': AddLiquidity,
-  'Claim Rewards': Withdraw,
-  'Action Proposal': Deposit,
+  'Claim Bonus': Withdraw,
+  'Action Proposal': AddLiquidity,
   'Remove Proposal': RemoveLiquidity,
   'Action Cancel': RemoveLiquidity,
+  'Unlock LPt': Withdraw,
+  'Withdraw Bonus': Withdraw,
+  'Deposit Bonus': Deposit,
 };
 
 const blackViewMap = {
@@ -760,13 +763,16 @@ const blackViewMap = {
   'Aurora Call': WithdrawBlack,
   Unlock: RemoveLiquidityBlack,
   'Lock Free Seed': AddLiquidityBlack,
-  Lock: AddLiquidityBlack,
+  'Lock LPt': AddLiquidityBlack,
   'Create Proposal': AddLiquidityBlack,
   'Extend Whitelisted Accounts': AddLiquidityBlack,
-  'Claim Rewards': WithdrawBlack,
-  'Action Proposal': DepositBlack,
+  'Claim Bonus': WithdrawBlack,
+  'Action Proposal': AddLiquidityBlack,
   'Remove Proposal': RemoveLiquidityBlack,
   'Action Cancel': RemoveLiquidityBlack,
+  'Unlock LPt': WithdrawBlack,
+  'Withdraw Bonus': WithdrawBlack,
+  'Deposit Bonus': DepositBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {
