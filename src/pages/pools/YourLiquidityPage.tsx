@@ -62,10 +62,13 @@ import { WalletContext, getSenderLoginRes } from '../../utils/sender-wallet';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
 import { useFarmStake, useAllFarms, useCanFarmV2 } from '../../state/farm';
-import { PoolTab } from '../../components/pool/PoolTab';
+
+import { PoolTab } from '~components/pool/PoolTab';
+
 import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
 import { getVEPoolId } from '../ReferendumPage';
 import { useAccountInfo } from '~state/referendum';
+import { VEARROW } from '../../components/icon/Referendum';
 
 function MyShares({
   shares,
@@ -585,7 +588,9 @@ function PoolRow(props: {
                   &nbsp; V1
                 </span>
 
-                <span className="ml-0.5">↗</span>
+                <span className="ml-0.5">
+                  <VEARROW />
+                </span>
               </div>
             </Link>
           )}
@@ -621,7 +626,9 @@ function PoolRow(props: {
                   &nbsp; V2
                 </span>
 
-                <span className="ml-0.5">↗</span>
+                <span className="ml-0.5">
+                  <VEARROW />
+                </span>
               </div>
             </Link>
           )}
@@ -647,7 +654,9 @@ function PoolRow(props: {
                 <span className="underline">
                   <FormattedMessage id="dao" defaultMessage={'DAO'} />
                 </span>
-                <span className="ml-0.5">↗</span>
+                <span className="ml-0.5">
+                  <VEARROW />
+                </span>
               </div>
             </div>
           ) : null}
@@ -814,7 +823,9 @@ function PoolRow(props: {
                     <FormattedMessage id="farm" defaultMessage={'Farm'} />
                     <span className="ml-1">V1</span>
                   </span>
-                  <span className="text-gradientFrom ml-0.5">↗</span>
+                  <span className="text-gradientFrom ml-0.5">
+                    <VEARROW />
+                  </span>
                 </Link>
               )}
 
@@ -847,7 +858,9 @@ function PoolRow(props: {
                     <FormattedMessage id="farm" defaultMessage={'Farm'} />
                     <span className="ml-1">V2</span>
                   </span>
-                  <span className="text-gradientFrom ml-0.5">↗</span>
+                  <span className="text-gradientFrom ml-0.5">
+                    <VEARROW />
+                  </span>
                 </Link>
               )}
               {Number(getVEPoolId()) === Number(pool.id) ? (
@@ -871,7 +884,9 @@ function PoolRow(props: {
                   <span className="border-b border-primaryText">
                     <FormattedMessage id="dao" defaultMessage={'DAO'} />
                   </span>
-                  <span className="text-gradientFrom ml-0.5">↗</span>
+                  <span className="text-gradientFrom ml-0.5">
+                    <VEARROW />
+                  </span>
                 </div>
               ) : null}
 

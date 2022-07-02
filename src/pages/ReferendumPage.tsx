@@ -26,7 +26,7 @@ import {
   withdrawRewardVE,
 } from '../services/referendum';
 import { ONLY_ZEROS, percent, divide, multiply } from '../utils/numbers';
-import { VotingPowerIcon } from '~components/icon/Referendum';
+import { VEARROW, VotingPowerIcon } from '~components/icon/Referendum';
 import {
   LOVEBoosterIcon,
   PowerZone,
@@ -545,7 +545,7 @@ export const LockPopUp = ({
               } text-gradientFrom pl-1 py-1`}
               onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
             >
-              ↗
+              <VEARROW />
             </button>
           </div>
           <span>
@@ -560,7 +560,7 @@ export const LockPopUp = ({
                   id="get_lptoken"
                   defaultMessage={'Get LPtoken'}
                 />
-                &nbsp; ↗
+                &nbsp; <VEARROW />
               </button>
             )}
           </span>
@@ -1423,7 +1423,7 @@ const FarmBoosterCard = ({
       </div>
       {mobileNotSignedIn ? null : (
         <button
-          className="absolute xsm:right-6 xsm:bottom-1  right-4 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal text-sm "
+          className="absolute flex whitespace-nowrap  xsm:bottom-1  right-4 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal text-sm "
           style={{
             backgroundColor: isClientMobile
               ? 'transparent'
@@ -1434,8 +1434,12 @@ const FarmBoosterCard = ({
             window.open('/farmsBoost', '_blank');
           }}
         >
-          <FormattedMessage id="go_to_farm" defaultMessage="Go to farm" />
-          <span className="ml-1">↗</span>
+          <span>
+            <FormattedMessage id="go_to_farm" defaultMessage="Go to farm" />
+          </span>
+          <span className="ml-1 relative top-1 xsm:transform xsm:scale-75">
+            <VEARROW />
+          </span>
         </button>
       )}
     </div>
@@ -1525,7 +1529,7 @@ export const FarmStakeTipHomePage = ({
             <FormattedMessage id="farm" defaultMessage={'farm'} />{' '}
             <span className="text-xs">{`V${version}`}</span>
           </span>
-          ↗
+          <VEARROW />
         </span>
       </span>
     </div>
@@ -1602,7 +1606,7 @@ const UserReferendumCard = ({
           className={` text-gradientFrom pl-1 py-1`}
           onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
         >
-          ↗
+          <VEARROW />
         </button>
       </div>
 

@@ -10,6 +10,7 @@ import { FormattedMessage } from 'react-intl';
 import { BeatLoading } from '../../components/layout/Loading';
 import { WalletSelectorModal } from '../layout/WalletSelector';
 import { CheckedTick, UnCheckedBoxVE } from '../icon/CheckBox';
+import { isClientMobie, useClientMobile } from '../../utils/device';
 
 export function BorderlessButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
@@ -212,6 +213,58 @@ export function ConnectToNearBtnGradient({
             )}
           />
         </button>
+      </div>
+      <WalletSelectorModal
+        isOpen={showWalletSelector}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowWalletSelector(false);
+        }}
+        setShowWalletSelector={setShowWalletSelector}
+      />
+    </>
+  );
+}
+
+export function ConnectToNearBtnGradientMoible({
+  className,
+}: {
+  className?: string;
+}) {
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
+
+  return (
+    <>
+      <div
+        className={`${className} flex items-center cursor-pointer  px-3 w-24 py-0.5 justify-center rounded-full  text-sm bg-veGradient ${
+          buttonLoading ? 'opacity-40' : ''
+        }`}
+        style={{
+          color: '#fff',
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setButtonLoading(true);
+          setShowWalletSelector(true);
+        }}
+      >
+        <button className="relative left-1">
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <FormattedMessage id="connect" defaultMessage="Connect" />
+            )}
+          />
+        </button>
+
+        {!buttonLoading && (
+          <div className="ml-1 transform scale-50">
+            <UnLoginIcon />
+          </div>
+        )}
       </div>
       <WalletSelectorModal
         isOpen={showWalletSelector}
@@ -503,6 +556,7 @@ export function NewGradientButton(porps: {
   opacity?: boolean;
   padding?: string;
   gradient?: string;
+  style?: any;
 }) {
   const {
     text,
@@ -516,9 +570,12 @@ export function NewGradientButton(porps: {
     opacity,
     padding,
     gradient,
+    style,
   } = porps;
 
   const [beating, setBeating] = useState<boolean>(false);
+
+  const isClientMobie = useClientMobile();
 
   return (
     <button
@@ -538,7 +595,12 @@ export function NewGradientButton(porps: {
       }}
       disabled={disableForUI ? false : disabled || grayDisable}
       style={{
-        backgroundColor: grayDisable ? '#445867' : '',
+        backgroundColor: grayDisable
+          ? isClientMobie
+            ? '#1D2932'
+            : '#445867'
+          : '',
+        ...style,
       }}
     >
       <span>{beating ? <BeatLoading /> : text}</span>

@@ -111,7 +111,12 @@ import {
   VEConfig,
   Incentive,
 } from '../../services/referendum';
-import { VotedIcon, FilterIconVE } from '../icon/Referendum';
+import {
+  VotedIcon,
+  FilterIconVE,
+  VEARROW,
+  YouVotedAngle,
+} from '../icon/Referendum';
 import { useClientMobile, isClientMobie } from '../../utils/device';
 
 import DatePicker from 'react-datepicker';
@@ -134,6 +139,10 @@ import {
   Proposal,
 } from '../../services/referendum';
 import { CloseIcon } from '../icon/Actions';
+import {
+  ConnectToNearBtnGradient,
+  ConnectToNearBtnGradientMoible,
+} from '../button/Button';
 const VotedOnlyKey = 'REF_FI_GOV_PROPOSAL_VOTED_ONLY';
 const BonusOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
 
@@ -206,6 +215,7 @@ export const FarmMobileSelector = ({
   setCreatedOnly,
   filterOpen,
   setFilterOpen,
+  className,
 }: {
   statusList: string[];
   setStatus: (status: string) => void;
@@ -218,13 +228,14 @@ export const FarmMobileSelector = ({
   setCreatedOnly: (createdOnly: boolean) => void;
   filterOpen: boolean;
   setFilterOpen: (filterOpen: boolean) => void;
+  className?: string;
 }) => {
   return (
     <div className=" relative">
       <button
         className={`flex items-center  ${
-          filterOpen ? 'text-white' : 'text-primaryText'
-        }`}
+          filterOpen ? 'text-white' : ''
+        } ${className}`}
         onClick={() => {
           setFilterOpen(true);
         }}
@@ -368,8 +379,6 @@ export const BonusBar = ({
   );
 
   const { globalState } = useContext(WalletContext);
-
-  const isClientMobie = useClientMobile();
 
   const isSignedIn = globalState?.isSignedIn;
 
@@ -1485,7 +1494,9 @@ export const PreviewPopUp = (
                 />
               </span>
 
-              <span className="text-white ml-0.5">↗</span>
+              <span className="text-white ml-0.5">
+                <VEARROW />
+              </span>
             </button>
           </Card>
           <div className="flex items-center justify-end -bottom-14 text-sm xsm:absolute xsm:right-0 xsm:w-full">
@@ -1591,7 +1602,9 @@ export const PreviewPopUp = (
                   />
                 </span>
 
-                <span className="text-gradientFrom ml-2">↗</span>
+                <span className="text-gradientFrom ml-2">
+                  <VEARROW />
+                </span>
               </button>
             </div>
 
@@ -1900,7 +1913,7 @@ const FarmChart = ({
 
     const width = forLastRound
       ? isClientMobie
-        ? '180'
+        ? '200'
         : '200'
       : isClientMobie
       ? '200'
@@ -2265,7 +2278,7 @@ const GovItemDetail = ({
   }, [status]);
 
   const baseCounterDown = durationFomatter(
-    moment.duration(base - moment().unix(), 'seconds')
+    moment.duration(base + 60 - moment().unix(), 'seconds')
   );
   const [counterDownStirng, setCounterDownStirng] =
     useState<string>(baseCounterDown);
@@ -2295,6 +2308,11 @@ const GovItemDetail = ({
   });
 
   const history = useHistory();
+
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+
+  console.log(isSignedIn, 'isSignedIn');
 
   const Button =
     status === 'WarmUp' ? (
@@ -2447,13 +2465,13 @@ const GovItemDetail = ({
 
         <span className="absolute right-1 xsm:hidden">{timeDuration}</span>
 
-        <div className="rounded-3xl lg:hidden  bg-black   xsm:bg-opacity-0 bg-opacity-20 py-1.5 text-xs px-2 xsm:mx-auto text-senderHot absolute xsm:right-0 xsm:bottom-1">
+        <div className="rounded-3xl lg:hidden  bg-black   xsm:bg-opacity-0 bg-opacity-20 py-1.5 text-xs pr-0 pl-2 xsm:mx-auto text-senderHot absolute xsm:right-0 xsm:bottom-1">
           {status === 'Expired' ? (
             <span className=" rounded-3xl text-primaryText xsm:bg-white relative bottom-1 xsm:py-1.5  xsm:bg-opacity-10 xsm:px-2 ">
               <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
             </span>
           ) : (
-            <span className="flex items-center mr-2 xsm:inline-flex xsm:rounded-3xl xsm:py-1.5 xsm:bg-white xsm:bg-opacity-10 xsm:pl-2 xsm:pr-4">
+            <span className="flex items-center xsm:inline-flex xsm:rounded-3xl xsm:py-1.5 xsm:bg-white xsm:bg-opacity-10 xsm:pl-2 xsm:pr-4">
               <span
                 className={`rounded-3xl px-2 py-0.5 mr-2   ${
                   status === 'WarmUp'
@@ -2552,7 +2570,9 @@ const GovItemDetail = ({
               />
             </span>
 
-            <span className="text-gradientFrom ml-2">↗</span>
+            <span className="text-gradientFrom ml-2">
+              <VEARROW />
+            </span>
           </button>
         </div>
         {!isClientMobie ? null : (
@@ -2584,8 +2604,8 @@ const GovItemDetail = ({
           />
           <InfoRow
             name={intl.formatMessage({
-              id: 'total_veLPT',
-              defaultMessage: 'total veLPT',
+              id: 'voted_veLPT',
+              defaultMessage: 'Voted veLPT',
             })}
             value={toPrecision(totalVE, 2)}
             valueClassName="xsm:ml-0 "
@@ -2728,11 +2748,23 @@ const GovItemDetail = ({
             />
           </span>
 
-          <span className="text-white ml-0.5">↗</span>
+          <span className="text-white ml-0.5">
+            <VEARROW />
+          </span>
         </button>
       </Card>
 
-      <div className=" xsm:relative pt-2   lg:hidden xsm:w-full">{Button}</div>
+      {!isSignedIn && isClientMobie ? (
+        <div className=" xsm:relative pt-2   lg:hidden xsm:w-full">
+          {' '}
+          <ConnectToNearBtnGradient />
+        </div>
+      ) : (
+        <div className=" xsm:relative pt-2   lg:hidden xsm:w-full">
+          {' '}
+          {Button}
+        </div>
+      )}
 
       <AddBonusPopUp
         isOpen={showAddBonus}
@@ -2804,7 +2836,7 @@ const GovProposalItem = ({
   }, [status]);
 
   const baseCounterDown = durationFomatter(
-    moment.duration(base - moment().unix(), 'seconds')
+    moment.duration(base + 60 - moment().unix(), 'seconds')
   );
   const [counterDownStirng, setCounterDownStirng] =
     useState<string>(baseCounterDown);
@@ -2987,7 +3019,10 @@ const GovProposalItem = ({
           padding="px-0 py-0"
           className="h-8 w-20 ml-2.5"
           gradient="bg-redGradient"
-          onClick={() => {
+          onClick={(e: any) => {
+            e.stopPropagation();
+            e.preventDefault();
+
             removeProposal(proposal.id);
           }}
           beatStyling
@@ -3040,7 +3075,10 @@ const GovProposalItem = ({
         padding="px-0 py-0"
         className="h-8 w-28 ml-2.5"
         beatStyling
-        onClick={() => {
+        onClick={(e: any) => {
+          e.stopPropagation();
+          e.preventDefault();
+
           claimRewardVE({
             proposal_id: proposal?.id,
           });
@@ -3056,11 +3094,39 @@ const GovProposalItem = ({
           )
         }
         padding="px-0 py-0"
-        className="h-8 w-20 ml-2.5"
+        className="h-8 w-20 ml-2.5 hidden"
       />
     );
 
-  console.log(proposal, 'detail');
+  const tokenPriceList = useContext(ReferendumPageContext).tokenPriceList;
+
+  const prices: (string | undefined)[] =
+    proposal?.incentive?.[0]?.incentive_token_ids
+      ?.map((id: string) => {
+        return incentiveTokens?.find((token) => token.id === id);
+      })
+      ?.map((token: TokenMetadata) => {
+        return tokenPriceList?.[token?.id]?.price;
+      });
+
+  const total = scientificNotationToString(
+    prices
+      ?.reduce((acc, price, i) => {
+        return acc.plus(
+          new Big(price || 0).times(
+            toReadableNumber(
+              proposal?.incentive?.[0]?.incentive_token_ids?.map(
+                (id: string) => {
+                  return incentiveTokens?.find((token) => token.id === id);
+                }
+              )?.[i]?.decimals || 24,
+              proposal?.incentive?.[0]?.incentive_amounts?.[i] || '0'
+            )
+          )
+        );
+      }, new Big(0))
+      .toString() || '0'
+  );
 
   return (
     <>
@@ -3183,7 +3249,7 @@ const GovProposalItem = ({
             </div>
 
             <div
-              className={`w-full flex items-center justify-between pb-8 xsm:pb-5 pt-2.5  ${
+              className={`w-full flex items-center justify-between pb-8 xsm:border-b xsm:border-white xsm:border-opacity-10 xsm:pb-2.5 xsm:mb-1.5 pt-2.5  ${
                 status === 'Expired' ? 'opacity-70' : ''
               }`}
             >
@@ -3192,7 +3258,10 @@ const GovProposalItem = ({
                   <FormattedMessage id="proposer" defaultMessage={'Proposer'} />
                 </span>
 
-                <span className="font-bold" title={proposal.proposer}>
+                <span
+                  className="font-bold xsm:text-primaryText"
+                  title={proposal.proposer}
+                >
                   {getAccountName(proposal.proposer)}
                 </span>
               </div>
@@ -3213,7 +3282,7 @@ const GovProposalItem = ({
               </span>
             </div>
 
-            <div className="w-full flex items-center justify-between">
+            <div className="w-full flex items-center xsm:flex-col justify-between">
               <div
                 className={`flex items-center xsm:w-full xsm:justify-between  ${
                   status === 'Expired' ? 'opacity-70' : ''
@@ -3234,11 +3303,7 @@ const GovProposalItem = ({
                   </span>
                 </span>
 
-                <span
-                  className={`flex ${
-                    !voted ? 'xsm:mr-14' : 'xsm:mr-0'
-                  } flex-col mr-10 `}
-                >
+                <span className={`flex xsm:mr-0 flex-col xsm:items-end mr-10 `}>
                   <span className="text-primaryText flex items-center ">
                     <FormattedMessage
                       id="top_answer"
@@ -3275,7 +3340,7 @@ const GovProposalItem = ({
                   </span>
                 </span>
 
-                {!!voted ? (
+                {!!voted && !isClientMobie ? (
                   <span className="flex flex-col">
                     <YouVotedButton />
 
@@ -3304,6 +3369,77 @@ const GovProposalItem = ({
                   </span>
                 ) : null}
               </div>
+
+              {!!voted ? (
+                <div className="lg:hidden flex items-center justify-between xsm:mt-2.5 xsm:w-full">
+                  <span className="flex flex-col">
+                    <YouVotedButton />
+
+                    <span className="flex items-center mt-1">
+                      <div
+                        className="w-2.5 h-2.5 rounded-sm mr-3 xsm:mr-1 flex-shrink-0"
+                        style={{
+                          backgroundColor:
+                            OPTIONS_COLORS[youVotedIndex] || '#8EA0CF',
+                        }}
+                      ></div>
+                      <span
+                        className="truncate "
+                        title={options?.[youVotedIndex]}
+                        style={{
+                          maxWidth: isClientMobie ? '80px' : '120px',
+                        }}
+                      >
+                        {options?.[youVotedIndex]}
+                      </span>
+
+                      <span className="ml-1 mt-px">
+                        {`+${toPrecision(displayContribution, 2)}%`}
+                      </span>
+                    </span>
+                  </span>
+
+                  <span className="flex flex-col items-end">
+                    <span
+                      className={`text-primaryText
+                    ${status === 'Expired' ? 'opacity-70' : ''}`}
+                    >
+                      {status === 'Expired' ? (
+                        <FormattedMessage
+                          id="your_bonus"
+                          defaultMessage={'Your bonus'}
+                        />
+                      ) : (
+                        <FormattedMessage
+                          id="your_shares_ve"
+                          defaultMessage={'Your shares'}
+                        />
+                      )}
+                    </span>
+
+                    <span className="flex items-center  mt-1">
+                      {status === 'Expired' ? (
+                        <span className="ml-1 mt-px">
+                          {!!voted && Number(yourShare) > 0
+                            ? `$${new Big(yourShare)
+                                .times(new Big(total))
+                                .div(100)
+                                .toNumber()
+                                .toFixed(2)} (${toPrecision(yourShare, 2)}%)`
+                            : '-'}
+                        </span>
+                      ) : (
+                        <span className="ml-1 mt-px">
+                          {!!voted && Number(yourShare) > 0
+                            ? `${toPrecision(yourShare, 2)}%`
+                            : '-'}
+                        </span>
+                      )}
+                    </span>
+                  </span>
+                </div>
+              ) : null}
+
               <div className="flex items-center ">
                 <BorderGradientButton
                   text={
@@ -3379,10 +3515,17 @@ export const ProposalTab = ({
   curTab: PROPOSAL_TAB;
   setTab: (t: PROPOSAL_TAB) => void;
 }) => {
+  const isClientMobie = useClientMobile();
+
   return (
-    <div className={className}>
+    <div
+      className={className}
+      style={{
+        backgroundColor: isClientMobie ? '#1D2932' : '',
+      }}
+    >
       <NewGradientButton
-        className={`w-72  xsm:w-1/2 mr-2 ${
+        className={`w-72  xsm:w-1/2 mr-2 xsm:mr-0 ${
           curTab === PROPOSAL_TAB.FARM ? 'opacity-100' : ''
         }`}
         grayDisable={curTab !== PROPOSAL_TAB.FARM}
@@ -3398,7 +3541,7 @@ export const ProposalTab = ({
       />
 
       <NewGradientButton
-        className={`w-72 xsm:w-1/2 mr-2 ${
+        className={`w-72 xsm:w-1/2  xsm:mr-0 mr-2 ${
           curTab === PROPOSAL_TAB.GOV ? 'opacity-100' : ''
         }`}
         onClick={() => setTab(PROPOSAL_TAB.GOV)}
@@ -3705,8 +3848,17 @@ export const LastRoundFarmVoting = (
             defaultMessage={'Voting Period'}
           />
         }
-        value={`${endtimeMoment.add(1, 'month').startOf('month').format('ll')}-
-        ${endtimeMoment.endOf('month').format('ll')}`}
+        value={`
+          ${moment(
+            Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
+          )
+            .utc()
+            .format('MMM D')}-${moment(
+          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
+        )
+          .utc()
+          .format('ll')} (UTC)
+          `}
       />
       <InfoRow
         title={
@@ -3715,18 +3867,13 @@ export const LastRoundFarmVoting = (
             defaultMessage={'Applying Period'}
           />
         }
-        value={`
-          ${moment(
-            Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
-          )
-            .utc()
-            .format('ll')}-${moment(
-          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-        )
-          .utc()
-          .format('ll')} (UTC)
-          `}
+        value={`${endtimeMoment
+          .add(1, 'month')
+          .startOf('month')
+          .format('MMM D')}-
+        ${endtimeMoment.endOf('month').format('ll')}`}
       />
+
       <InfoRow
         title={
           <span className="flex items-center">
@@ -4006,6 +4153,10 @@ export const FarmProposal = ({
 
   const [sortBy, setSortBy] = useState<string>('REF allocation');
 
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
   const FarmLine = ({
     className,
     index,
@@ -4059,7 +4210,9 @@ export const FarmProposal = ({
     const allocateNew = checkedAllocationsNew?.[index];
 
     const Button =
-      status === 'Expired' ? (
+      !isSignedIn && isClientMobie ? (
+        <ConnectToNearBtnGradientMoible />
+      ) : status === 'Expired' ? (
         UnclaimedProposal?.[farmProposal.id] &&
         !ONLY_ZEROS.test(UnclaimedProposal?.[farmProposal.id]?.amount) &&
         UnclaimedProposal?.[farmProposal.id]?.action?.VoteFarm?.farm_id ===
@@ -4071,7 +4224,7 @@ export const FarmProposal = ({
                 defaultMessage={'Claim Bonus'}
               />
             }
-            className="h-8 w-28 xsm:w-24"
+            className="h-8 xsm:h-7 w-28 xsm:w-24"
             onClick={() => {
               claimRewardVE({
                 proposal_id: farmProposal.id,
@@ -4083,7 +4236,7 @@ export const FarmProposal = ({
         ) : (
           <FarmProposalGrayButton
             text={<FormattedMessage id="ended_ve" defaultMessage={'Ended'} />}
-            className="h-8 w-20"
+            className="h-8 w-20 xsm:h-7"
             padding="px-1 py-0"
           />
         )
@@ -4091,7 +4244,7 @@ export const FarmProposal = ({
         votedIndex === index ? (
           <NewGradientButton
             text={<FormattedMessage id="cancel" defaultMessage={'Cancel'} />}
-            className=" h-8 w-20"
+            className=" h-8 w-20 xsm:h-7"
             padding="px-0 py-0"
             onClick={() => {
               cancelVote({ proposal_id: farmProposal.id });
@@ -4101,7 +4254,7 @@ export const FarmProposal = ({
         ) : (
           <FarmProposalGrayButton
             text={<FormattedMessage id="vote" defaultMessage={'Vote'} />}
-            className="h-8 w-20"
+            className="h-8 w-20 xsm:h-7"
             padding="px-1 py-0"
           />
         )
@@ -4110,19 +4263,19 @@ export const FarmProposal = ({
           text={
             <FormattedMessage id="not_start" defaultMessage={'Not start'} />
           }
-          className="h-8 w-20"
+          className="h-8 w-20 xsm:h-7"
           padding="px-1 py-0"
         />
       ) : ONLY_ZEROS.test(veShare) ? (
         <FarmProposalGrayButton
           text={<FormattedMessage id="no_veLPT" defaultMessage={'NO veLPT'} />}
-          className="h-8 w-20"
+          className="h-8 w-20 xsm:h-7"
           padding="px-1 py-0"
         />
       ) : (
         <NewGradientButton
           text={<FormattedMessage id="vote" defaultMessage={'Vote'} />}
-          className="h-8 w-20"
+          className="h-8 w-20 xsm:h-7"
           onClick={() => {
             setVotePopUpOpen(true);
           }}
@@ -4133,8 +4286,16 @@ export const FarmProposal = ({
     return (
       <>
         <div
-          className={` my-2.5  xsm:my-4 xsm:flex xsm:flex-col pt-7 xsm:pt-4 pb-14 xsm:pb-8 relative grid bg-black bg-opacity-20 rounded-2xl grid-cols-7 overflow-hidden items-center  xsm:bg-cardBg xsm:bg-opacity-100 text-white`}
+          className={` my-2.5 ${
+            votedIndex === index && isClientMobie ? 'xsm:pt-8' : 'xsm:pt-4'
+          }  xsm:my-4 xsm:flex xsm:flex-col pt-7 pb-14 xsm:pb-8 relative grid bg-black bg-opacity-20 rounded-2xl grid-cols-7 items-center  xsm:bg-cardBg xsm:bg-opacity-100 text-white overflow-hidden`}
         >
+          {votedIndex === index && isClientMobie ? (
+            <div className="absolute top-0.5 left-5">
+              <YouVotedAngle />
+            </div>
+          ) : null}
+
           <span className="col-span-3 pl-4 flex items-center xsm:w-full xsm:px-4 xsm:pb-3">
             <Images
               tokens={tokens}
@@ -4143,7 +4304,7 @@ export const FarmProposal = ({
             />
             <span className="pr-2.5 xsm:pr-1"></span>
             <div className="flex flex-col font-bold">
-              <Symbols tokens={tokens} seperator={'-'} />
+              <Symbols tokens={tokens} seperator={'-'} size="xs:text-sm" />
               <div className="flex items-center">
                 <span className="text-sm text-primaryText font-normal">
                   {`#${
@@ -4152,19 +4313,6 @@ export const FarmProposal = ({
                     )[1]
                   }`}
                 </span>
-
-                {votedIndex === index && isClientMobie ? (
-                  <NewGradientButton
-                    className="ml-2 text-white text-sm xsm:text-xs self-start cursor-default opacity-100 h-6"
-                    text={
-                      <FormattedMessage
-                        id="you_voted"
-                        defaultMessage={'You voted'}
-                      />
-                    }
-                    padding="px-2 py-0"
-                  />
-                ) : null}
               </div>
             </div>
 
@@ -4204,11 +4352,28 @@ export const FarmProposal = ({
             </span>
             {toPrecision(allocate, 0, true)}
           </span>
+
+          {votedIndex === index && isClientMobie ? (
+            <span className="col-span-1 text-center xsm:w-full xsm:flex xsm:items-center xsm:justify-between xsm:px-4 xsm:pb-3">
+              <span className="text-primaryText  lg:hidden text-sm">
+                <FormattedMessage
+                  id="your_shares_ve"
+                  defaultMessage={'Your shares'}
+                />
+              </span>
+              {`${toPrecision(yourShare, 2)}%`}
+            </span>
+          ) : null}
+
           <span className="col-span-1 text-center text-white text-sm xsm:hidden">
             {Button}
           </span>
 
-          <span className="col-span-1 absolute right-3 top-4 text-center text-white text-sm  lg:hidden">
+          <span
+            className={`col-span-1 absolute right-3 ${
+              votedIndex === index && isClientMobie ? 'top-8' : 'top-4'
+            } text-center text-white text-sm  lg:hidden`}
+          >
             {Button}
           </span>
           <BonusBar
@@ -4345,25 +4510,24 @@ export const FarmProposal = ({
       <div className="text-center text-2xl xsm:font-bold xsm:text-base text-white">
         <FormattedMessage id="proposed" defaultMessage={'Proposed'} />{' '}
         <span>
-          {endtimeMoment.add(1, 'month').startOf('month').format('ll')}-
-          {endtimeMoment.endOf('month').format('ll')}
+          {endtimeMoment.add(1, 'month').startOf('month').format('MMM')}{' '}
+          {endtimeMoment.format('yyyy')}
         </span>{' '}
         <FormattedMessage id="farm_reward" defaultMessage={'Farm reward'} />
       </div>
 
       <div className="text-center relative text-sm mt-4 xsm:mt-3 w-full">
-        <span>Voting period</span> <span></span>{' '}
-        {moment(
-          Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
-        )
-          .utc()
-          .format('ll')}
-        -
+        <span>Voting period</span> <span></span> {1}-
         {moment(
           Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
         )
           .utc()
-          .format('ll')}
+          .daysInMonth()}{' '}
+        {moment(
+          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
+        )
+          .utc()
+          .format('MMM, yyyy')}
         {` (UTC)`}
         <div className="rounded-3xl bg-black xsm:mt-2 xsm:  xsm:bg-opacity-0 bg-opacity-20 py-1.5 text-xs px-2 xsm:mx-auto text-senderHot absolute xsm:relative md:right-0 lg:right-0">
           {ended ? (
@@ -5039,7 +5203,9 @@ export const CreateGovProposal = ({
               require?.['link'] ? 'border border-error border-opacity-30' : ''
             } text-sm text-primaryText px-5 bg-black bg-opacity-20 py-2 flex items-center rounded-lg `}
           >
-            <span className="text-white mr-3">↗</span>
+            <span className="text-white mr-3">
+              <VEARROW />
+            </span>
 
             <input
               value={link}
@@ -5273,6 +5439,11 @@ export const GovProposal = ({
               filterOpen={filterOpen}
               statusList={['All', 'Live', 'Ended', 'Pending']}
               setStatus={setState}
+              className={`${
+                state === 'All' && !bonusOnly && !votedOnly && !createdOnly
+                  ? 'text-primaryText'
+                  : 'text-white'
+              }`}
             />
           </div>
 
@@ -5436,7 +5607,7 @@ export const ProposalCard = ({
         setTab={setTab}
         className={`${
           !mobileSecondPage ? 'xsm:hidden' : 'xsm:flex'
-        } text-sm mt-12 xsm:w-full  xsm:mt-8 mb-4  xsm:items-center`}
+        } text-sm mt-12 xsm:w-full  xsm:mt-8 mb-4  xsm:items-center xsm:p-1 xsm:rounded-lg`}
       />
 
       {notShowRewardCard ||

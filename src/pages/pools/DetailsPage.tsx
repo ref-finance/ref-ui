@@ -126,6 +126,7 @@ import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useAccountInfo } from '../../state/referendum';
 import { getVEPoolId } from '../ReferendumPage';
 import { PoolTab } from '../../components/pool/PoolTab';
+
 interface ParamTypes {
   id: string;
 }

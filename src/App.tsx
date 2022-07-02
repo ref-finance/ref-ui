@@ -248,8 +248,6 @@ function App() {
       <Router>
         <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
           <BgShapeLeftTop />
-          {/* <BgShapeCenter /> */}
-          <BgShapeCenterSmall />
           <NavigationBar />
           <ToastContainer
             style={{

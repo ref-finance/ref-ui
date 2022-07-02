@@ -655,3 +655,64 @@ export const FilterIconVE = () => {
     </svg>
   );
 };
+
+export const VEARROW = () => {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0.592725 9.07808L8.95679 0.714013M3.9397 0.545655L9.07801 0.592795L9.12515 5.7311"
+        stroke="currentColor"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+};
+
+export const YouVotedAngleMatrix = () => {
+  return (
+    <svg
+      width="120"
+      height="22"
+      viewBox="0 0 120 22"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0 22H97.2747C99.6365 22 101.878 20.9564 103.398 19.1488L119.5 -7.15256e-07H8C3.58172 -7.15256e-07 0 3.58172 0 8V22Z"
+        fill="url(#paint0_linear_1190_5368)"
+      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_1190_5368"
+          x1="101"
+          y1="11"
+          x2="2.97057"
+          y2="11"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#7F43FF" />
+          <stop offset="1" stop-color="#00C6A2" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+export const YouVotedAngle = () => {
+  return (
+    <div className="relative  flex items-center justify-center">
+      <div className="absolute z-10">
+        <YouVotedAngleMatrix />
+      </div>
+      <span className="relative z-20 text-xs text-white">
+        <FormattedMessage id="you_voted" defaultMessage={'You Voted'} />
+      </span>
+    </div>
+  );
+};
