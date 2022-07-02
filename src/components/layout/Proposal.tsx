@@ -4305,14 +4305,14 @@ export const FarmProposal = ({
       const total = scientificNotationToString(
         prices
           ?.reduce((acc, price, i) => {
-            return acc
-              .plus(price || 0)
-              .times(
+            return acc.plus(
+              new Big(price || 0).times(
                 toReadableNumber(
                   itemTokens?.[i]?.decimals || 24,
                   farmProposal?.incentive[id]?.incentive_amounts?.[i] || '0'
                 )
-              );
+              )
+            );
           }, new Big(0))
           .toString() || '0'
       );
