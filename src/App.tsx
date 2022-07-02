@@ -121,7 +121,8 @@ function App() {
 
   const [globalState, globalStatedispatch] = GlobalStateReducer;
 
-  const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
+  const { txHash, pathname, errorType, signInErrorType, txHashes } =
+    getURLInfo();
 
   useEffect(() => {
     if (errorType) {
@@ -169,8 +170,10 @@ function App() {
           return {
             isUSN: methodName == 'buy' || methodName == 'sell',
             isSlippageError,
-            isNearWithdraw: methodName == 'near_withdraw',
-            isNearDeposit: methodName == 'near_deposit',
+            isNearWithdraw:
+              methodName == 'near_withdraw' && txHashes.length === 1,
+            isNearDeposit:
+              methodName == 'near_deposit' && txHashes.length === 1,
           };
         })
         .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
