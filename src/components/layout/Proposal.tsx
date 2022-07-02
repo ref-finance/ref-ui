@@ -4542,7 +4542,7 @@ export const FarmProposal = ({
           )}
 
           <SelectUI
-            list={['Bonus', 'REF allocation']}
+            list={['bonus', 'REF allocation']}
             curvalue={sortBy}
             onChange={setSortBy}
             className=" lg:hidden "
