@@ -570,5 +570,6 @@ const ko = {
   stake_min_deposit: 'Input must be greater than or equal to ',
   total_near_amount: '총 NEAR 금액',
   near_value: 'NEAR 값',
+  recent_one_mounth_activity: '한 달 활동',
 };
 export default Object.assign(ko, ko_in_risks_page);

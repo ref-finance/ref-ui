@@ -580,5 +580,6 @@ const ja = {
   near_value: 'NEAR価値',
   borrow: '借りる',
   burrow_usn_tip: 'あなたはBurrowでUSNを借りることができます。',
+  recent_one_mounth_activity: '1ヶ月の活動',
 };
 export default Object.assign(ja, ja_in_risks_page);

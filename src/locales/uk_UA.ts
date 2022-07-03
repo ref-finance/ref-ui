@@ -555,5 +555,6 @@ const uk_UA = {
   stake_min_deposit: 'Input must be greater than or equal to ',
   total_near_amount: 'Загальна сума NEAR',
   near_value: 'Значення NEAR',
+  recent_one_mounth_activity: 'Заходи за один місяць',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

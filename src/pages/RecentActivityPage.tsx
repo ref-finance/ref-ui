@@ -58,8 +58,8 @@ export function RecentActivityPage() {
         >
           <div className="font-semibold text-white text-2xl">
             <FormattedMessage
-              id="recent_activity"
-              defaultMessage="Recent Activity"
+              id="recent_one_mounth_activity"
+              // defaultMessage="Recent Activity"
             />
           </div>
           <div></div>
