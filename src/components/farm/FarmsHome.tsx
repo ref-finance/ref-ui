@@ -102,6 +102,7 @@ import {
 import { wnearMetadata, unwrapedNear } from '../../services/wrap-near';
 import { usePoolShare, useYourliquidity } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
+import { VEARROW } from '../icon/Referendum';
 
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsHome(props: any) {
@@ -926,7 +927,8 @@ export default function FarmsHome(props: any) {
                   noLoveRelatedAmount ? 'hidden' : ''
                 }`}
               >
-                <FormattedMessage id="get_love"></FormattedMessage> ↗
+                <FormattedMessage id="get_love"></FormattedMessage>
+                <VEARROW className="ml-1"></VEARROW>
               </div>
             ) : (
               <div
@@ -970,7 +972,8 @@ export default function FarmsHome(props: any) {
             }}
             className="flex items-center justify-center w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20"
           >
-            <FormattedMessage id="get_love"></FormattedMessage> ↗
+            <FormattedMessage id="get_love"></FormattedMessage>{' '}
+            <VEARROW className="ml-1"></VEARROW>
           </div>
         ) : null}
       </div>
@@ -1013,7 +1016,7 @@ export default function FarmsHome(props: any) {
               {isSignedIn ? (
                 <div
                   onClick={goMigrate}
-                  className="flex items-center h-8 w-2/3 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer mt-6 mb-3"
+                  className="flex items-center h-8 w-2/3 justify-center bg-otherGreenColor  hover:bg-black hover:text-greenColor rounded-lg text-black text-sm cursor-pointer mt-6 mb-3"
                 >
                   Migrate Now!
                 </div>
@@ -1129,7 +1132,7 @@ export default function FarmsHome(props: any) {
             {isSignedIn ? (
               <div
                 onClick={goMigrate}
-                className="flex items-center h-8 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer px-5 whitespace-nowrap mb-2"
+                className="flex items-center h-8 justify-center bg-otherGreenColor hover:bg-black hover:text-greenColor rounded-lg text-black text-sm cursor-pointer px-5 whitespace-nowrap mb-2"
               >
                 Migrate Now!
               </div>
@@ -1283,9 +1286,9 @@ export default function FarmsHome(props: any) {
                           onClick={() => {
                             setShowLoveTokenModalVisible(true);
                           }}
-                          className="absolute xs:-left-6 md:-left-6 flex items-center justify-center text-sm xs:text-xs md:text-xs text-lightGreenColor border border-lightGreenColor rounded-lg top-8 whitespace-nowrap pl-2 pr-1 py-1 cursor-pointer"
+                          className="absolute xs:-left-6 md:-left-6 flex items-center justify-center text-sm xs:text-xs md:text-xs text-lightGreenColor border border-lightGreenColor hover:bg-black hover:bg-opacity-20 rounded-lg top-8 whitespace-nowrap pl-2 pr-1 py-1 cursor-pointer"
                         >
-                          Get LOVE ↗
+                          Get LOVE <VEARROW className="ml-1"></VEARROW>
                         </span>
                       </div>
                       <div className="line w-32 h-px bg-lightGreenColor xs:w-24 md:w-24"></div>
@@ -1300,7 +1303,7 @@ export default function FarmsHome(props: any) {
                           onClick={() => {
                             setLoveStakeModalVisible(true);
                           }}
-                          className="absolute xs:-left-10 md:-left-10 flex items-center justify-center text-sm xs:text-xs md:text-xs text-lightGreenColor border border-lightGreenColor rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
+                          className="absolute xs:-left-10 md:-left-10 flex items-center justify-center text-sm xs:text-xs md:text-xs text-lightGreenColor border border-lightGreenColor hover:bg-black hover:bg-opacity-20 rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
                         >
                           Stake LOVE
                         </span>
@@ -2606,7 +2609,7 @@ function FarmView(props: {
                       />
                     </div>
                     <span
-                      className="flex items-center justify-center bg-deepBlue rounded-lg text-sm text-white h-7 w-16 cursor-pointer"
+                      className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 w-16 cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
                         claimReward();

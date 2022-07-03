@@ -86,7 +86,9 @@ import { getPool } from '~services/indexer';
 import CalcModelBooster from '~components/farm/CalcModelBooster';
 import { get24hVolume } from '~services/indexer';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
+import { VEARROW } from '../icon/Referendum';
 import moment from 'moment';
+import { VERSION } from 'lodash';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsDetail(props: {
@@ -225,7 +227,7 @@ export default function FarmsDetail(props: {
               <label className="mr-1 text-xs text-greenColor">
                 <FormattedMessage id="get_lp_token"></FormattedMessage>
               </label>
-              <label className="text-xs text-greenColor">↗</label>
+              <VEARROW className="text-greenColor"></VEARROW>
             </div>
           </div>
         </div>
@@ -1693,7 +1695,7 @@ function UserTotalUnClaimBlock(props: {
         </div>
         {unclaimedRewardsData.showClaimButton ? (
           <span
-            className="flex items-center justify-center bg-deepBlue rounded-lg text-sm text-white h-8 w-20 cursor-pointer"
+            className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-8 w-20 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               claimReward();
@@ -1920,7 +1922,7 @@ function UserStakeBlock(props: {
         >
           <div
             className={`rounded-2xl h-full ${
-              durationData.pecent >= 0.8 ? 'bg-greenColor' : 'bg-lightGreyColor'
+              durationData.pecent >= 0.8 ? 'bg-greenColor' : 'bg-bgGreyDefault'
             }`}
             style={{ width: durationData.pecent * 100 + '%' }}
           ></div>
@@ -2052,7 +2054,7 @@ function UserStakeBlock(props: {
                     openUnStakeModalVisible('free');
                   }}
                   color="#fff"
-                  className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-lightGreyColor ${
+                  className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
                     Number(freeAmount) > 0 ? '' : 'hidden'
                   }`}
                 >
@@ -2138,7 +2140,7 @@ function UserStakeBlock(props: {
                             openUnStakeModalVisible('free');
                           }}
                           color="#fff"
-                          className={`flex items-center justify-center w-1/2 h-8 text-center text-base text-white focus:outline-none font-semibold bg-lightGreyColor`}
+                          className={`flex items-center justify-center w-1/2 h-8 text-center text-base text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
                         >
                           <FormattedMessage
                             id="unstake"
@@ -2248,7 +2250,7 @@ function UserStakeBlock(props: {
                             openUnStakeModalVisible('lock');
                           }}
                           color="#fff"
-                          className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-lightGreyColor`}
+                          className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
                         >
                           <LockImgIcon></LockImgIcon>
                           <FormattedMessage
