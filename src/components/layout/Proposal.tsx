@@ -140,6 +140,7 @@ import {
 } from '../../services/referendum';
 import { CloseIcon } from '../icon/Actions';
 import { getProposal } from '../../services/referendum';
+import { NoResultFilter } from '../icon/Referendum';
 import {
   ConnectToNearBtnGradient,
   ConnectToNearBtnGradientMoible,
@@ -156,6 +157,7 @@ const hideElementsMobile = () => {
   elements.forEach((e) => {
     e.classList.add('xsm:hidden');
   });
+  document.body.scrollTop = document.documentElement.scrollTop = 0;
 };
 
 const recoverElementsMobile = () => {
@@ -2212,6 +2214,11 @@ const GovItemDetail = ({
   unClaimed,
   yourShare,
   incentiveTokens,
+  status,
+  setStatus,
+  setCounterDownStirng,
+  base,
+  counterDownStirng,
 }: {
   show?: number;
   proposal: Proposal;
@@ -2227,10 +2234,13 @@ const GovItemDetail = ({
   unClaimed?: boolean;
   yourShare?: string;
   incentiveTokens?: TokenMetadata[];
+  status: ProposalStatus;
+  setStatus: (s: ProposalStatus) => void;
+  base: number;
+  setCounterDownStirng: (s: string) => void;
+  counterDownStirng: string;
 }) => {
   const intl = useIntl();
-
-  const [status, setStatus] = useState<ProposalStatus>(proposal.status);
 
   const startTime = Math.floor(Number(proposal?.start_at) / TIMESTAMP_DIVISOR);
   const endTime = Math.floor(Number(proposal?.end_at) / TIMESTAMP_DIVISOR);
@@ -2269,6 +2279,9 @@ const GovItemDetail = ({
     ONLY_ZEROS.test(totalVE) ? '0' : '100',
     dataRaw?.map((d) => d.ratio)
   );
+
+  const [mobileOptionDisplay, setMobileOptionDisplay] =
+    useState<string>('ratio');
 
   const veLPTs = checkAllocations(
     toPrecision(totalVE, 2),
@@ -2315,53 +2328,6 @@ const GovItemDetail = ({
   const [showAddBonus, setShowAddBonus] = useState<boolean>(false);
 
   const [showVotePop, setShowVotePop] = useState<boolean>(false);
-
-  const [base, setBase] = useState<number>(
-    Math.floor(
-      Number(status === 'InProgress' ? proposal?.end_at : proposal?.start_at) /
-        TIMESTAMP_DIVISOR
-    )
-  );
-
-  useEffect(() => {
-    setBase(
-      Math.floor(
-        Number(
-          status === 'InProgress' ? proposal?.end_at : proposal?.start_at
-        ) / TIMESTAMP_DIVISOR
-      )
-    );
-  }, [status]);
-
-  const baseCounterDown = durationFomatter(
-    moment.duration(base + 60 - moment().unix(), 'seconds')
-  );
-  const [counterDownStirng, setCounterDownStirng] =
-    useState<string>(baseCounterDown);
-
-  useEffect(() => {
-    const baseCounterDown = durationFomatter(
-      moment.duration(
-        Math.floor(
-          Number(
-            status === 'InProgress' ? proposal?.end_at : proposal?.start_at
-          ) / TIMESTAMP_DIVISOR
-        ) +
-          60 -
-          moment().unix(),
-        'seconds'
-      )
-    );
-
-    if (moment.duration(base - moment().unix(), 'seconds').asSeconds() < 0) {
-      if (status === 'WarmUp') {
-        setStatus('InProgress');
-      } else if (status === 'InProgress') {
-        setStatus('Expired');
-      }
-    }
-    setCounterDownStirng(baseCounterDown);
-  }, [base, status, proposal]);
 
   useCounterDownVE({
     base,
@@ -2655,25 +2621,55 @@ const GovItemDetail = ({
           </div>
         )}
 
-        <div className="lg:hidden  w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
-          <InfoRow
-            name={intl.formatMessage({
-              id: 'turn_out',
-              defaultMessage: 'Turnout',
-            })}
-            value={turnOut}
-            className=" lg:hidden xsm:flex-col "
-            valueClassName="xsm:ml-0 xsm:items-start"
-          />
-          <InfoRow
-            name={intl.formatMessage({
-              id: 'voted_veLPT',
-              defaultMessage: 'Voted veLPT',
-            })}
-            value={toPrecision(totalVE, 2)}
-            valueClassName="xsm:ml-0 "
-            className="xsm:flex-col xsm:items-end"
-          />
+        <div className="lg:hidden  w-full relative flex flex-col items-center justify-between pb-4 border-b border-white border-opacity-10">
+          <div className="flex items-center justify-between w-full">
+            <InfoRow
+              name={intl.formatMessage({
+                id: 'turn_out',
+                defaultMessage: 'Turnout',
+              })}
+              value={turnOut}
+              className=" lg:hidden xsm:flex-col "
+              valueClassName="xsm:ml-0 xsm:items-start"
+            />
+            <InfoRow
+              name={intl.formatMessage({
+                id: 'voted_veLPT',
+                defaultMessage: 'Voted veLPT',
+              })}
+              value={toPrecision(totalVE, 2)}
+              valueClassName="xsm:ml-0 "
+              className="xsm:flex-col xsm:items-end"
+            />
+          </div>
+
+          <div className="flex items-center justify-between w-full lg:hidden mt-8 text-primaryText">
+            <div>
+              <FormattedMessage id="options" defaultMessage={'options'} />
+            </div>
+            <div className="flex items-center ">
+              <span
+                className={`pr-1.5 border-r border-primaryText border-opacity-30 ${
+                  mobileOptionDisplay === 'ratio' ? 'text-white' : ''
+                }`}
+                onClick={() => {
+                  setMobileOptionDisplay('ratio');
+                }}
+              >
+                <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
+              </span>
+              <span
+                className={`pl-1.5 ${
+                  mobileOptionDisplay === 'velpt' ? 'text-white' : ''
+                }`}
+                onClick={() => {
+                  setMobileOptionDisplay('velpt');
+                }}
+              >
+                veLPT
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center justify-center mt-8 xsm:mt-4 pb-6 xsm:pb-2">
@@ -2717,7 +2713,7 @@ const GovItemDetail = ({
                         (1 === optionId && voted === 'VoteReject')
                       : (voted as VoteAction)?.VotePoll?.poll_id === optionId);
                   return (
-                    <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 xsm:px-0 py-4">
+                    <div className="grid grid-cols-10 xsm:flex xsm:items-center xsm:justify-between hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 xsm:px-0 py-4">
                       <span className="col-span-6 flex items-center">
                         <div
                           className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
@@ -2763,10 +2759,12 @@ const GovItemDetail = ({
                           />
                         )}
                       </span>
-
-                      <span className="col-span-2 ">{d.ratio}%</span>
-
-                      <span className="col-span-2 text-right">{d.v}</span>
+                      {mobileOptionDisplay !== 'ratio' ? null : (
+                        <span className="col-span-2 ">{d.ratio}%</span>
+                      )}
+                      {mobileOptionDisplay !== 'velpt' ? null : (
+                        <span className="col-span-2 text-right">{d.v}</span>
+                      )}
                     </div>
                   );
                 })}
@@ -3211,6 +3209,11 @@ const GovProposalItem = ({
           voted={voted}
           veShare={veShare}
           unClaimed={unClaimed}
+          status={status}
+          setStatus={setStatus}
+          counterDownStirng={counterDownStirng}
+          setCounterDownStirng={setCounterDownStirng}
+          base={base}
         />
       ) : (
         <Card
@@ -5457,6 +5460,11 @@ export const GovProposal = ({
     }
   }, [showDetail, proposals]);
 
+  const filteredProposals = proposals
+    ?.filter((p) => state === 'All' || proposalStatus[p.status] === state)
+    ?.filter(filterFunc)
+    ?.sort((a, b) => b.id - a.id);
+
   return (
     <div className={`flex flex-col text-white text-sm relative `}>
       {showDetail ? null : (
@@ -5546,22 +5554,19 @@ export const GovProposal = ({
         </div>
       )}
       <div className={`flex flex-col ${filterOpen ? 'xsm:pb-44' : ''}`}>
-        {proposals
-          ?.filter((p) => state === 'All' || proposalStatus[p.status] === state)
-          ?.filter(filterFunc)
-          ?.sort((a, b) => b.id - a.id)
-          .map((p) => (
-            <GovProposalItem
-              VEmeta={VEmeta}
-              proposal={p}
-              description={JSON.parse(p.description)}
-              setShowDetail={setShowDetail}
-              showDetail={showDetail}
-              voteHistory={voteHistory}
-              voteDetail={voteDetail}
-              veShare={veShare}
-            />
-          )) || []}
+        {filteredProposals?.length === 0 ? <NoResultFilter /> : null}
+        {filteredProposals?.map((p) => (
+          <GovProposalItem
+            VEmeta={VEmeta}
+            proposal={p}
+            description={JSON.parse(p.description)}
+            setShowDetail={setShowDetail}
+            showDetail={showDetail}
+            voteHistory={voteHistory}
+            voteDetail={voteDetail}
+            veShare={veShare}
+          />
+        )) || []}
       </div>
     </div>
   );
