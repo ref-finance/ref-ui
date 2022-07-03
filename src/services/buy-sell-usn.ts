@@ -118,11 +118,8 @@ export const buyUSNInUSDT = async ({ amount }: { amount: string }) => {
       },
     ],
   };
-  const params = new URLSearchParams(location.search);
-  params.append('action', 'usn');
-  const b = params.toString();
-  const callbackUrl = location.origin + location.pathname + '?' + b;
-  executeMultipleTransactions([transaction], callbackUrl);
+  sessionStorage.setItem('usn', '1');
+  executeMultipleTransactions([transaction]);
 };
 export const sellUSNGetUSDT = async ({ amount }: { amount: string }) => {
   const transactions: Transaction[] = [];
@@ -151,12 +148,8 @@ export const sellUSNGetUSDT = async ({ amount }: { amount: string }) => {
       ],
     });
   }
-  const params = new URLSearchParams(location.search);
-  params.append('action', 'usn');
-  const b = params.toString();
-  const callbackUrl = location.origin + location.pathname + '?' + b;
-
-  executeMultipleTransactions(transactions, callbackUrl);
+  sessionStorage.setItem('usn', '1');
+  executeMultipleTransactions(transactions);
 };
 
 function get_usdt_id() {

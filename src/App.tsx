@@ -158,9 +158,12 @@ function App() {
           const transaction = res.transaction;
           const methodName =
             transaction?.actions[0]?.['FunctionCall']?.method_name;
-          const action = new URLSearchParams(location.search).get('action');
+          const isUsn =
+            sessionStorage.getItem('usn') == '1' &&
+            (methodName == 'ft_transfer_call' || methodName == 'withdraw');
+          sessionStorage.removeItem('usn');
           return {
-            isUSN: action == 'usn',
+            isUSN: isUsn,
             isSlippageError,
             isNearWithdraw: methodName == 'near_withdraw',
             isNearDeposit: methodName == 'near_deposit',
@@ -182,6 +185,9 @@ function App() {
             );
           }
         });
+    }
+    if (!txHash) {
+      sessionStorage.removeItem('usn');
     }
   }, [txHash, isSignedIn]);
   // for usn end
