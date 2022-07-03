@@ -2329,13 +2329,13 @@ const GovItemDetail = ({
 
   const [showVotePop, setShowVotePop] = useState<boolean>(false);
 
-  useCounterDownVE({
-    base,
-    setCounterDownStirng,
-    id: proposal?.id,
-    status,
-    setStatus,
-  });
+  // useCounterDownVE({
+  //   base,
+  //   setCounterDownStirng,
+  //   id: proposal?.id,
+  //   status,
+  //   setStatus,
+  // });
 
   const history = useHistory();
 
