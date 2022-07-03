@@ -603,7 +603,9 @@ export function NewGradientButton(porps: {
         ...style,
       }}
     >
-      <span>{beating ? <BeatLoading /> : text}</span>
+      <span className="flex items-center justify-center">
+        {beating ? <BeatLoading /> : text}
+      </span>
     </button>
   );
 }
@@ -690,7 +692,7 @@ export function WithGradientButton(porps: {
     <button
       className={` ${width} ${className} ${
         disabled || grayDisable ? 'cursor-not-allowed' : ''
-      } relative  py-3  ${
+      } relative  py-3 xsm:py-0  ${
         disabled ? 'opacity-30' : ''
       }  rounded-lg text-center `}
       onClick={(e) => onClick && onClick(e)}
@@ -907,3 +909,54 @@ export const YouVotedButton = () => {
     />
   );
 };
+
+export function ConnectToNearBtnVotingMobile() {
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
+
+  return (
+    <>
+      <div
+        className={`flex items-center cursor-pointer border w-40 border-white px-3 justify-center rounded-full bg-opacity-50 py-1 text-sm ${
+          buttonLoading ? 'opacity-40' : ''
+        }`}
+        style={{
+          color: '#fff',
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setButtonLoading(true);
+          setShowWalletSelector(true);
+        }}
+      >
+        {!buttonLoading && (
+          <div className="transform scale-50">
+            <UnLoginIcon />
+          </div>
+        )}
+
+        <button className="text-sm">
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <FormattedMessage
+                id="connect_to_wallet"
+                defaultMessage="Connect Wallet"
+              />
+            )}
+          />
+        </button>
+      </div>
+      <WalletSelectorModal
+        isOpen={showWalletSelector}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowWalletSelector(false);
+        }}
+        setShowWalletSelector={setShowWalletSelector}
+      />
+    </>
+  );
+}

@@ -36,10 +36,12 @@ export const Images = ({
   tokens,
   size,
   className,
+  noverlap,
 }: {
   tokens: TokenMetadata[];
   size?: string;
   className?: string;
+  noverlap?: boolean;
 }) => {
   return (
     <div className={`${className} flex items-center flex-shrink-0`}>
@@ -53,7 +55,7 @@ export const Images = ({
               className={`inline-block flex-shrink-0 h-${size || 10} w-${
                 size || 10
               } rounded-full border border-gradientFromHover ${
-                tokens?.length > 1 ? '-ml-1' : ''
+                tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
               } bg-cardBg`}
               src={icon}
             />

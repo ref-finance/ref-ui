@@ -139,6 +139,7 @@ import {
   Proposal,
 } from '../../services/referendum';
 import { CloseIcon } from '../icon/Actions';
+import { getProposal } from '../../services/referendum';
 import {
   ConnectToNearBtnGradient,
   ConnectToNearBtnGradientMoible,
@@ -149,6 +150,31 @@ const BonusOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
 const CreatedOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
 
 const REF_FI_PROPOSALTAB = 'REF_FI_PROPOSALTAB_VALUE';
+
+const hideElementsMobile = () => {
+  const elements = document.querySelectorAll('.hiddenOnSecondPage');
+  elements.forEach((e) => {
+    e.classList.add('xsm:hidden');
+  });
+};
+
+const recoverElementsMobile = () => {
+  const elements = document.querySelectorAll('.hiddenOnSecondPage');
+  elements.forEach((e) => {
+    e.classList.remove('xsm:hidden');
+  });
+};
+
+const reArrangeChartGElements = () => {
+  const activeG = document?.getElementsByClassName('active-label')?.[0];
+  const pNode = activeG?.parentNode;
+  const ppNode = pNode?.parentNode;
+
+  if (ppNode && pNode) {
+    ppNode.removeChild(pNode);
+    ppNode.appendChild(pNode);
+  }
+};
 
 export const TokenIcon = ({
   token,
@@ -1242,15 +1268,22 @@ function SelectUI({
 }
 
 export const ProposalWrapper = (
-  props: any & { show: boolean; bgcolor?: string; padding?: string }
+  props: any & {
+    show: boolean;
+    bgcolor?: string;
+    padding?: string;
+    className?: string;
+  }
 ) => {
-  const { padding, show, bgcolor } = props;
+  const { padding, show, bgcolor, className } = props;
   return (
     <Card
       padding={`${padding || 'p-8'} xsm:px-0`}
       width="w-full"
       bgcolor={bgcolor}
-      className={!show ? 'hidden' : 'text-primaryText  xsm:bg-transparent'}
+      className={
+        !show ? 'hidden' : `text-primaryText  xsm:bg-transparent ${className}`
+      }
     >
       {props.children}
     </Card>
@@ -1731,7 +1764,11 @@ const FarmChart = ({
   const votedAmount =
     voteDetail?.[proposal?.id]?.amount || voteHistory?.[proposal?.id]?.amount;
 
-  const [activeIndex, setActiveIndex] = useState<number>();
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
+
+  useEffect(() => {
+    reArrangeChartGElements();
+  }, [activeIndex]);
 
   const emptyVote = ratio.every((r, i) => r.value === 0);
 
@@ -1873,16 +1910,6 @@ const FarmChart = ({
     );
   };
 
-  useEffect(() => {
-    const activeG = document.getElementsByClassName('active-label')?.[0];
-    const pNode = activeG?.parentNode;
-    const ppNode = pNode?.parentNode;
-    if (ppNode && pNode) {
-      ppNode.removeChild(pNode);
-      ppNode.appendChild(pNode);
-    }
-  }, [activeIndex, proposal.id]);
-
   const color = ['#51626B', '#667A86', '#849DA8', '#B5C9CA'];
 
   function CustomLabel(props: any) {
@@ -1897,34 +1924,38 @@ const FarmChart = ({
       percent,
       pairSymbol,
       index,
+      r,
     } = props;
 
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+
     const x1 = cx + radius * Math.cos(-midAngle * RADIAN);
+
     const y1 = cy + radius * Math.sin(-midAngle * RADIAN);
 
     const cos = Math.cos(-midAngle * RADIAN);
     const sin = Math.sin(-midAngle * RADIAN);
 
-    if (y < cy) {
+    if (y < cy || Math.abs(y - cy) < 20) {
       y = y - 30;
     }
 
-    const width = forLastRound
-      ? isClientMobie
-        ? '200'
-        : '200'
-      : isClientMobie
-      ? '200'
-      : `250`;
-
-    const height = forLastRound ? '190' : '200';
-
-    const labelx = x1 + Number(width) * (cos > 0 ? -1 : 0);
+    reArrangeChartGElements();
 
     const votedThisOption =
       ratio[voted] && ratio[voted]?.name === data[index]?.name;
+
+    const width = forLastRound ? '210' : isClientMobie ? '210' : `250`;
+
+    const height = forLastRound
+      ? votedThisOption
+        ? '190'
+        : '170'
+      : votedThisOption
+      ? '200'
+      : '190';
+    const labelx = x1 + Number(width) * (cos > 0 ? -1 : 0);
 
     return (
       <g
@@ -1941,6 +1972,7 @@ const FarmChart = ({
             y={!data[index].poolId ? y - 25 : y - 45}
             height="24"
             width={'78'}
+            className=""
           >
             <NewGradientButton
               text={
@@ -2042,7 +2074,7 @@ const FarmChart = ({
     return activeIndex === index ? (
       <g
         onMouseLeave={() => {
-          setActiveIndex(null);
+          setActiveIndex(-1);
         }}
       >
         <Sector
@@ -2106,7 +2138,13 @@ const FarmChart = ({
       height={
         isClientMobie ? (forLastRound ? 360 : 390) : forLastRound ? 450 : 575
       }
-      className={`relative ${!forLastRound ? 'xsm:bottom-10' : ''}`}
+      className={`relative  ${
+        !isClientMobie
+          ? ''
+          : !forLastRound
+          ? 'xsm:bottom-10 farmChartScreenWidth'
+          : 'farmChartScreenWidthLastRound'
+      } `}
     >
       <PieChart>
         <Pie
@@ -2296,6 +2334,14 @@ const GovItemDetail = ({
         'seconds'
       )
     );
+
+    if (moment.duration(base - moment().unix(), 'seconds').asSeconds() < 0) {
+      if (status === 'WarmUp') {
+        setStatus('InProgress');
+      } else if (status === 'InProgress') {
+        setStatus('Expired');
+      }
+    }
     setCounterDownStirng(baseCounterDown);
   }, [base, status, proposal]);
 
@@ -2311,8 +2357,6 @@ const GovItemDetail = ({
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-
-  console.log(isSignedIn, 'isSignedIn');
 
   const Button =
     status === 'WarmUp' ? (
@@ -2410,6 +2454,7 @@ const GovItemDetail = ({
           className="absolute left-0 pr-2 top-2 xsm:top-0 text-sm text-primaryText flex items-center"
           onClick={() => {
             setShow(undefined);
+            recoverElementsMobile();
             history.push('/referendum');
           }}
         >
@@ -3094,7 +3139,7 @@ const GovProposalItem = ({
           )
         }
         padding="px-0 py-0"
-        className="h-8 w-20 ml-2.5 hidden"
+        className="h-8 w-20 ml-2.5 xsm:hidden"
       />
     );
 
@@ -3159,6 +3204,7 @@ const GovProposalItem = ({
               e.stopPropagation();
               e.preventDefault();
               setShowDetail(proposal.id);
+              hideElementsMobile();
               history.push(`/referendum/${proposal.id}`);
             }
           }}
@@ -3404,7 +3450,9 @@ const GovProposalItem = ({
                       className={`text-primaryText
                     ${status === 'Expired' ? 'opacity-70' : ''}`}
                     >
-                      {status === 'Expired' ? (
+                      {status === 'Expired' &&
+                      Number(yourShare) > 0 &&
+                      Number(total) > 0 ? (
                         <FormattedMessage
                           id="your_bonus"
                           defaultMessage={'Your bonus'}
@@ -3418,7 +3466,9 @@ const GovProposalItem = ({
                     </span>
 
                     <span className="flex items-center  mt-1">
-                      {status === 'Expired' ? (
+                      {status === 'Expired' &&
+                      Number(yourShare) > 0 &&
+                      Number(total) > 0 ? (
                         <span className="ml-1 mt-px">
                           {!!voted && Number(yourShare) > 0
                             ? `$${new Big(yourShare)
@@ -4517,17 +4567,18 @@ export const FarmProposal = ({
       </div>
 
       <div className="text-center relative text-sm mt-4 xsm:mt-3 w-full">
-        <span>Voting period</span> <span></span> {1}-
+        <span>Voting period</span> <span></span>{' '}
+        {moment(
+          Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
+        )
+          .utc()
+          .format('D')}
+        -
         {moment(
           Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
         )
           .utc()
-          .daysInMonth()}{' '}
-        {moment(
-          Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
-        )
-          .utc()
-          .format('MMM, yyyy')}
+          .format('D MMM, yyyy')}
         {` (UTC)`}
         <div className="rounded-3xl bg-black xsm:mt-2 xsm:  xsm:bg-opacity-0 bg-opacity-20 py-1.5 text-xs px-2 xsm:mx-auto text-senderHot absolute xsm:relative md:right-0 lg:right-0">
           {ended ? (
@@ -4933,7 +4984,11 @@ export const CreateGovProposal = ({
 
         <button
           className="absolute left-0 pr-2 top-2 xsm:top-0 text-sm text-primaryText flex items-center"
-          onClick={() => setShow(false)}
+          onClick={() => {
+            recoverElementsMobile();
+
+            setShow(false);
+          }}
         >
           <span className="transform scale-50 xsm:hidden">
             {<LeftArrowVE stroke="#7E8A93" strokeWidth={2} />}
@@ -5378,6 +5433,7 @@ export const GovProposal = ({
   };
 
   const history = useHistory();
+  const isClientMobie = useClientMobile();
 
   useEffect(() => {
     if (
@@ -5386,6 +5442,7 @@ export const GovProposal = ({
       !proposals.find((p) => p.id === showDetail)
     ) {
       history.push('/referendum');
+      isClientMobie && recoverElementsMobile();
     }
   }, [showDetail, proposals]);
 
@@ -5407,6 +5464,8 @@ export const GovProposal = ({
                   />
                 }
                 onClick={() => {
+                  hideElementsMobile();
+
                   setShowCreateProposal(true);
                 }}
                 color="#182430"
@@ -5501,13 +5560,7 @@ interface ParamTypes {
   proposal_id: string;
 }
 
-export const ProposalCard = ({
-  setMobileSecondPage,
-  mobileSecondPage,
-}: {
-  setMobileSecondPage: (s: boolean) => void;
-  mobileSecondPage: boolean;
-}) => {
+export const ProposalCard = () => {
   const [curTab, setTab] = useState<PROPOSAL_TAB>(
     PROPOSAL_TAB[localStorage.getItem(REF_FI_PROPOSALTAB)] || PROPOSAL_TAB.FARM
   );
@@ -5532,14 +5585,6 @@ export const ProposalCard = ({
   );
 
   const isClientMobie = useClientMobile();
-
-  useEffect(() => {
-    if (showCreateProposal || typeof showDetail === 'number') {
-      isClientMobie && setMobileSecondPage(false);
-    } else {
-      setMobileSecondPage(true);
-    }
-  }, [showCreateProposal, showDetail, isClientMobie]);
 
   useEffect(() => {
     getProposalList().then((list: Proposal[]) => {
@@ -5591,6 +5636,13 @@ export const ProposalCard = ({
       setLastRoundFarmProposal(lastRoundProposal || undefined);
     });
   }, [showDetail]);
+
+  useEffect(() => {
+    if (typeof showDetail === 'number' && isClientMobie) {
+      hideElementsMobile();
+    }
+  }, [showDetail]);
+
   useEffect(() => {
     localStorage.setItem(REF_FI_PROPOSALTAB, curTab);
   }, [curTab]);
@@ -5605,20 +5657,18 @@ export const ProposalCard = ({
       <ProposalTab
         curTab={curTab}
         setTab={setTab}
-        className={`${
-          !mobileSecondPage ? 'xsm:hidden' : 'xsm:flex'
-        } text-sm mt-12 xsm:w-full  xsm:mt-8 mb-4  xsm:items-center xsm:p-1 xsm:rounded-lg`}
+        className={`hiddenOnSecondPage  text-sm mt-12 xsm:w-full  xsm:mt-8 mb-4  xsm:items-center xsm:p-1 xsm:rounded-lg`}
       />
 
-      {notShowRewardCard ||
-      (!mobileSecondPage && isClientMobie) ||
-      (showCreateProposal && isClientMobie) ? null : (
-        <RewardCard rewardList={unClaimedRewards} />
+      {notShowRewardCard || (showCreateProposal && isClientMobie) ? null : (
+        <div className="hiddenOnSecondPage xsm:w-full">
+          <RewardCard rewardList={unClaimedRewards} />
+        </div>
       )}
 
       <ProposalWrapper
         show={curTab === PROPOSAL_TAB.FARM}
-        padding={!notShowRewardCard ? 'px-8 pb-8 xsm:pt-16 pt-20' : 'p-8'}
+        padding={!notShowRewardCard ? 'px-8 pb-8 xsm:pt-0 pt-20' : 'p-8'}
       >
         {!farmProposal ? null : (
           <FarmProposal
@@ -5633,8 +5683,8 @@ export const ProposalCard = ({
         show={curTab === PROPOSAL_TAB.GOV}
         bgcolor={'bg-cardBg'}
         padding={
-          !notShowRewardCard && mobileSecondPage
-            ? 'px-8 pb-8 xsm:pt-16 pt-20'
+          !notShowRewardCard && !isClientMobie
+            ? 'px-8 pb-8 pt-20 '
             : 'p-8 xsm:pt-0 pb-8'
         }
       >

@@ -27,6 +27,8 @@ module.exports = {
         farmSearch: 'linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)',
         veCardGradient: 'linear-gradient(0deg, #001320 -2.77%, #1D2932 100%)',
         redGradient: 'linear-gradient(270deg, #7F43FF 0%, #FF8B8B 97.06%)',
+        veReverseGradient:
+          'linear-gradient(270deg, rgba(127, 67, 255, 0.3) 0%, rgba(0, 198, 162, 0.3) 97.06%)',
         veCardGradientRight:
           'linear-gradient(270deg, #001320 0%, #1D2932 95.06%)',
         veUserCard: 'linear-gradient(270deg, #001320 0%, #1D2932 95.06%);',
@@ -170,6 +172,9 @@ module.exports = {
         smartRoute: '292px',
         54: '13.5rem',
         34: '8.5rem',
+      },
+      maxWidth: {
+        '200px': '200px',
       },
     },
     plugins: [],

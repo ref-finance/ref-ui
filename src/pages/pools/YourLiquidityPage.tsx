@@ -582,7 +582,7 @@ function PoolRow(props: {
               <span className="mx-1">
                 <FormattedMessage id="in" defaultMessage={'in'} />
               </span>
-              <div className="text-primaryText hover:text-gradientFrom flex-shrink-0">
+              <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
                 <span className="underline">
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
                   &nbsp; V1
@@ -620,7 +620,7 @@ function PoolRow(props: {
               <span className="mx-1">
                 <FormattedMessage id="in" defaultMessage={'in'} />
               </span>
-              <div className="text-primaryText hover:text-gradientFrom flex-shrink-0">
+              <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
                 <span className="underline">
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
                   &nbsp; V2
@@ -650,7 +650,7 @@ function PoolRow(props: {
               <span className="mr-1">
                 <FormattedMessage id="in" defaultMessage={'in'} />
               </span>
-              <div className="text-primaryText hover:text-gradientFrom flex-shrink-0">
+              <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
                 <span className="underline">
                   <FormattedMessage id="dao" defaultMessage={'DAO'} />
                 </span>
@@ -805,7 +805,7 @@ function PoolRow(props: {
                   onClick={(e) => {
                     e.stopPropagation();
                   }}
-                  className="text-primaryText mb-1.5 text-xs"
+                  className="text-primaryText flex items-center mb-1.5 text-xs"
                 >
                   <span>
                     {toPrecision(
@@ -840,7 +840,7 @@ function PoolRow(props: {
                   onClick={(e) => {
                     e.stopPropagation();
                   }}
-                  className="text-primaryText mb-1.5 text-xs"
+                  className="text-primaryText mb-1.5 flex items-center text-xs"
                 >
                   <span>
                     {toPrecision(
@@ -870,7 +870,7 @@ function PoolRow(props: {
                     e.stopPropagation();
                     window.open('/referendum');
                   }}
-                  className="text-primaryText mb-1.5 text-xs"
+                  className="text-primaryText flex items-center mb-1.5 text-xs"
                 >
                   <span>
                     {toPrecision(toReadableNumber(24, lptAmount || '0'), 2)}
