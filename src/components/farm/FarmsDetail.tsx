@@ -1695,7 +1695,7 @@ function UserTotalUnClaimBlock(props: {
         </div>
         {unclaimedRewardsData.showClaimButton ? (
           <span
-            className="flex items-center justify-center bg-deepBlue rounded-lg text-sm text-white h-8 w-20 cursor-pointer"
+            className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-8 w-20 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               claimReward();
@@ -1922,7 +1922,7 @@ function UserStakeBlock(props: {
         >
           <div
             className={`rounded-2xl h-full ${
-              durationData.pecent >= 0.8 ? 'bg-greenColor' : 'bg-lightGreyColor'
+              durationData.pecent >= 0.8 ? 'bg-greenColor' : 'bg-bgGreyDefault'
             }`}
             style={{ width: durationData.pecent * 100 + '%' }}
           ></div>
@@ -2054,7 +2054,7 @@ function UserStakeBlock(props: {
                     openUnStakeModalVisible('free');
                   }}
                   color="#fff"
-                  className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-lightGreyColor ${
+                  className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
                     Number(freeAmount) > 0 ? '' : 'hidden'
                   }`}
                 >
@@ -2140,7 +2140,7 @@ function UserStakeBlock(props: {
                             openUnStakeModalVisible('free');
                           }}
                           color="#fff"
-                          className={`flex items-center justify-center w-1/2 h-8 text-center text-base text-white focus:outline-none font-semibold bg-lightGreyColor`}
+                          className={`flex items-center justify-center w-1/2 h-8 text-center text-base text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
                         >
                           <FormattedMessage
                             id="unstake"
@@ -2250,7 +2250,7 @@ function UserStakeBlock(props: {
                             openUnStakeModalVisible('lock');
                           }}
                           color="#fff"
-                          className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-lightGreyColor`}
+                          className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
                         >
                           <LockImgIcon></LockImgIcon>
                           <FormattedMessage

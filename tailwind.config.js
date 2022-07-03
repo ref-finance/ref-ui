@@ -47,6 +47,8 @@ module.exports = {
         v2boostBg:
           'linear-gradient(360deg, rgba(0, 19, 32, 0) 6.2%, #1D2932 100%)',
         boostUpBoxBg: 'linear-gradient(0deg, #273A46 0%, #15232D 100%)',
+        bgGreyDefault: 'linear-gradient(180deg, #C0B1A3 0%, #92877D 100%)',
+        bgGreyHover: 'linear-gradient(180deg, #E6D6C7 0%, #92877D 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -135,6 +137,7 @@ module.exports = {
         lockedBg: '#323C43',
         redwarningColor: '#FF7575',
         deepBlue: '#4627FF',
+        deepBlueHover: '#7176FB',
         searchBgColor: 'rgba(29, 41, 50, 0.5)',
         lightGreyColor: '#92877D',
         dashBorderColor: '#6e7c85',
@@ -151,6 +154,7 @@ module.exports = {
         lightPurpleColor: 'rgba(126, 69, 255, 0.2)',
         lightBGreyColor: '#646464',
         pendingPurple: '#615EFF',
+        otherGreenColor:'#00E9BF',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

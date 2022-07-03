@@ -774,7 +774,7 @@ export function FarmsPage() {
                 {isSignedIn ? (
                   <div
                     onClick={goMigrate}
-                    className="flex items-center h-8 w-2/3 justify-center bg-black bg-opacity-30 border border-white border-opacity-30 rounded-lg text-white text-sm cursor-pointer mt-6 mb-3"
+                    className="flex items-center h-8 w-2/3 justify-center bg-otherGreenColor hover:bg-black hover:text-greenColor rounded-lg text-black text-sm cursor-pointer mt-6 mb-3"
                   >
                     Migrate Now!
                   </div>
