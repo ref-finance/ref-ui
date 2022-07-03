@@ -688,6 +688,13 @@ export function WithGradientButton(porps: {
       ? gradientWith
       : '3%';
 
+  const mobileParsedWith =
+    Number(gradientWith.substring(0, gradientWith.length - 1)) > 5
+      ? gradientWith
+      : '5%';
+
+  const isClientMobie = useClientMobile();
+
   return (
     <button
       className={` ${width} ${className} ${
@@ -706,7 +713,7 @@ export function WithGradientButton(porps: {
       <div
         className="w-full h-full left-0 top-0 rounded-lg we bg-veGradient whitespace-nowrap absolute"
         style={{
-          width: parsedWith,
+          width: isClientMobie ? mobileParsedWith : parsedWith,
         }}
       ></div>
     </button>

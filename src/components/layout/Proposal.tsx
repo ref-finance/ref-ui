@@ -1937,16 +1937,24 @@ const FarmChart = ({
     const cos = Math.cos(-midAngle * RADIAN);
     const sin = Math.sin(-midAngle * RADIAN);
 
-    if (y < cy || Math.abs(y - cy) < 20) {
+    if (y < cy) {
       y = y - 30;
     }
+
+    const thereshR = Number(r.substring(0, r.length - 1));
 
     reArrangeChartGElements();
 
     const votedThisOption =
       ratio[voted] && ratio[voted]?.name === data[index]?.name;
 
-    const width = forLastRound ? '210' : isClientMobie ? '210' : `250`;
+    const width = forLastRound
+      ? isClientMobie
+        ? '210'
+        : '220'
+      : isClientMobie
+      ? '210'
+      : `250`;
 
     const height = forLastRound
       ? votedThisOption
@@ -1961,7 +1969,7 @@ const FarmChart = ({
       <g
         className={`${activeIndex === index ? 'active-label' : 'sleep-label'}`}
       >
-        {votedThisOption ? (
+        {votedThisOption && thereshR >= 3 ? (
           <foreignObject
             x={
               x +
@@ -1990,7 +1998,7 @@ const FarmChart = ({
             (isClientMobie ? (pairSymbol.length > 10 ? 18 : 15) : 0) *
               (cos > 0 ? -1 : 1)
           }
-          y={!data[index].poolId ? y + 10 : y - 10}
+          y={thereshR < 3 ? y : !data[index].poolId ? y + 10 : y - 10}
           fill="#91A2AE"
           fontSize={isClientMobie ? '12px' : '14px'}
           textAnchor={x > cx ? 'start' : 'end'}
@@ -1998,7 +2006,7 @@ const FarmChart = ({
         >
           {pairSymbol}
         </text>
-        {!data[index].poolId ? null : (
+        {!data[index].poolId || thereshR < 3 ? null : (
           <text
             x={
               x +
@@ -2014,20 +2022,22 @@ const FarmChart = ({
             {`#${data[index].poolId}`}
           </text>
         )}
+        {thereshR < 3 ? null : (
+          <text
+            x={
+              x +
+              (isClientMobie ? (pairSymbol.length > 10 ? 18 : 15) : 0) *
+                (cos > 0 ? -1 : 1)
+            }
+            y={y + 30}
+            fill="white"
+            textAnchor={x > cx ? 'start' : 'end'}
+            dominantBaseline="central"
+          >
+            {`${emptyVote ? '-' : (percent * 100).toFixed(2)}%`}
+          </text>
+        )}
 
-        <text
-          x={
-            x +
-            (isClientMobie ? (pairSymbol.length > 10 ? 18 : 15) : 0) *
-              (cos > 0 ? -1 : 1)
-          }
-          y={y + 30}
-          fill="white"
-          textAnchor={x > cx ? 'start' : 'end'}
-          dominantBaseline="central"
-        >
-          {`${emptyVote ? '-' : (percent * 100).toFixed(2)}%`}
-        </text>
         {index === activeIndex ? (
           <foreignObject
             x={labelx}
@@ -2130,8 +2140,16 @@ const FarmChart = ({
     );
   };
 
-  const innerRadius = isClientMobie ? 70 : innerRadiusProp || 140;
-  const outerRadius = isClientMobie ? 85 : outerRadiusProp || 170;
+  const innerRadius = isClientMobie
+    ? forLastRound
+      ? 60
+      : 70
+    : innerRadiusProp || 140;
+  const outerRadius = isClientMobie
+    ? forLastRound
+      ? 75
+      : 85
+    : outerRadiusProp || 170;
   return (
     <ResponsiveContainer
       width={'100%'}
@@ -3903,11 +3921,11 @@ export const LastRoundFarmVoting = (
             Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
           )
             .utc()
-            .format('MMM D')}-${moment(
+            .format('D')}-${moment(
           Math.floor(Number(farmProposal.end_at) / TIMESTAMP_DIVISOR) * 1000
         )
           .utc()
-          .format('ll')} (UTC)
+          .format('D MMM, yyyy')} (UTC)
           `}
       />
       <InfoRow
@@ -3917,11 +3935,7 @@ export const LastRoundFarmVoting = (
             defaultMessage={'Applying Period'}
           />
         }
-        value={`${endtimeMoment
-          .add(1, 'month')
-          .startOf('month')
-          .format('MMM D')}-
-        ${endtimeMoment.endOf('month').format('ll')}`}
+        value={`${endtimeMoment.add(1, 'month').format('MMM yyyy')}`}
       />
 
       <InfoRow
@@ -4559,10 +4573,7 @@ export const FarmProposal = ({
     <div className="flex flex-col items-center">
       <div className="text-center text-2xl xsm:font-bold xsm:text-base text-white">
         <FormattedMessage id="proposed" defaultMessage={'Proposed'} />{' '}
-        <span>
-          {endtimeMoment.add(1, 'month').startOf('month').format('MMM')}{' '}
-          {endtimeMoment.format('yyyy')}
-        </span>{' '}
+        <span>{endtimeMoment.add(1, 'month').format('MMM yyyy')}</span>{' '}
         <FormattedMessage id="farm_reward" defaultMessage={'Farm reward'} />
       </div>
 
@@ -5661,7 +5672,7 @@ export const ProposalCard = () => {
       />
 
       {notShowRewardCard || (showCreateProposal && isClientMobie) ? null : (
-        <div className="hiddenOnSecondPage xsm:w-full">
+        <div className="hiddenOnSecondPage xsm:w-64 xsm:fixed xsm:bottom-8 xsm:z-50">
           <RewardCard rewardList={unClaimedRewards} />
         </div>
       )}

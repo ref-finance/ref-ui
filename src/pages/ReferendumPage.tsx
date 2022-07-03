@@ -212,6 +212,8 @@ export const RewardCard = ({
     );
   };
 
+  const isClientMobie = useClientMobile();
+
   return (
     <>
       <div className="px-3 xsm:w-full pt-3 xsm:pt-2 lg:top-32 xsm:mb-4  rounded-lg bg-veGradient flex flex-col w-80 absolute xsm:relative left-1/2 transform -translate-x-1/2 text-sm z-40">
@@ -233,7 +235,17 @@ export const RewardCard = ({
           </span>
 
           <button className="pl-1 text-sm absolute right-0">
-            {showDetail ? <FaAngleUp /> : <FaAngleDown />}
+            {showDetail ? (
+              isClientMobie ? (
+                <FaAngleDown />
+              ) : (
+                <FaAngleUp />
+              )
+            ) : isClientMobie ? (
+              <FaAngleUp />
+            ) : (
+              <FaAngleDown />
+            )}
           </button>
         </div>
         {!showDetail ? null : (
@@ -1245,7 +1257,7 @@ const VotingPowerCard = ({
           <FormattedMessage id="voting_power" defaultMessage={'Voting Power'} />
         </span>
 
-        <span className="pt-10 xsm:pt-3">
+        <span className={`pt-10 xsm:pt-3 `}>
           <>
             <span title={veShare} className="flex items-center xsm:text-xl">
               {allZeros ? (
@@ -1312,10 +1324,10 @@ The veLPT is not an actual, transferable token, but represents your voting power
       </div>
       <div
         className={`${
-          !(isClientMobile && mobileNotSignedIn) ? 'opacity-30' : ''
-        } relative xsm:absolute xsm:right-28 lg:bottom-11 right-5 xsm:top-2 xsm:transform`}
+          isClientMobile ? 'opacity-30' : ''
+        } relative xsm:absolute xsm:right-24 lg:bottom-11 right-5 xsm:top-6 xsm:transform`}
         style={{
-          transform: isClientMobile ? 'scale(0.55,0.55)' : '',
+          transform: isClientMobile ? 'scale(0.4,0.4)' : '',
         }}
       >
         <VotingPowerIcon />
@@ -1352,7 +1364,7 @@ const FarmBoosterCard = ({
           <FormattedMessage id="farm_booster" defaultMessage={'Farm Booster'} />
         </span>
 
-        <span className="text-white pt-10 xsm:pt-3">
+        <span className={`text-white pt-10 xsm:pt-3`}>
           <>
             <span title={balance} className="flex items-center">
               {allZeros ? (
@@ -1377,6 +1389,7 @@ const FarmBoosterCard = ({
                 toPrecision(balance, 2) || '0'
               )}
             </span>
+
             <div className="text-sm font-normal flex items-center mt-2 xsm:mt-0 xsm:text-xs">
               <>
                 <span>LOVE</span>
@@ -1420,35 +1433,33 @@ const FarmBoosterCard = ({
       </div>
       <div
         className={`relative ${
-          !(isClientMobile && mobileNotSignedIn) ? 'opacity-30' : ''
-        } xsm:absolute  lg:bottom-11 right-5 xsm:right-28 xsm:top-2 xsm:transform`}
+          isClientMobile ? 'opacity-30' : ''
+        } xsm:absolute  lg:bottom-11 right-5 xsm:right-24 xsm:top-6 xsm:transform`}
         style={{
-          transform: isClientMobile ? 'scale(0.55,0.55)' : '',
+          transform: isClientMobile ? 'scale(0.4,0.4)' : '',
         }}
       >
         <LOVEBoosterIcon />
       </div>
-      {mobileNotSignedIn ? null : (
-        <button
-          className="absolute flex whitespace-nowrap  xsm:bottom-1  right-4 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal text-sm "
-          style={{
-            backgroundColor: isClientMobile
-              ? 'transparent'
-              : 'rgba(43, 23, 85, 0.7)',
-            fontSize: isClientMobile ? '10px' : '',
-          }}
-          onClick={() => {
-            window.open('/farmsBoost', '_blank');
-          }}
-        >
-          <span>
-            <FormattedMessage id="go_to_farm" defaultMessage="Go to farm" />
-          </span>
-          <span className="ml-1 relative top-1 xsm:transform xsm:scale-75">
-            <VEARROW />
-          </span>
-        </button>
-      )}
+      <button
+        className="absolute flex whitespace-nowrap  xsm:bottom-1  right-4 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal text-sm "
+        style={{
+          backgroundColor: isClientMobile
+            ? 'transparent'
+            : 'rgba(43, 23, 85, 0.7)',
+          fontSize: isClientMobile ? '10px' : '',
+        }}
+        onClick={() => {
+          window.open('/farmsBoost', '_blank');
+        }}
+      >
+        <span>
+          <FormattedMessage id="go_to_farm" defaultMessage="Go to farm" />
+        </span>
+        <span className="ml-1 relative top-1 xsm:transform xsm:scale-75">
+          <VEARROW />
+        </span>
+      </button>
     </div>
   );
 };
@@ -1791,35 +1802,36 @@ const UserReferendumCard = ({
               </span>
             </button>
           )}
-          {/* {!allowUnlock ? null : ( */}
-          <span className="flex items-center">
-            <div
-              className="ml-1 text-xs"
-              data-type="info"
-              data-place="bottom"
-              data-multiline={true}
-              data-class="reactTip"
-              data-html={true}
-              data-tip={`<div className="text-xs w-48" style="white-space: initial;width:200px" >
+          {!allowUnlock ? null : (
+            <span className="flex items-center">
+              <div
+                className="ml-1 text-xs"
+                data-type="info"
+                data-place="bottom"
+                data-multiline={true}
+                data-class="reactTip"
+                data-html={true}
+                data-tip={`<div className="text-xs w-48" style="white-space: initial;width:200px" >
                 Your locking has been expired, unlocking is available now!
                 </div>
               </div>`}
-              data-for="mobile_unlock_tip_lptoken"
-            >
-              <div className="text-gradientFrom ml-2">
-                <VETip />
+                data-for="mobile_unlock_tip_lptoken"
+              >
+                <div className="text-gradientFrom ml-2">
+                  <VETip />
+                </div>
+                <ReactTooltip
+                  id="mobile_unlock_tip_lptoken"
+                  backgroundColor="#1D2932"
+                  border
+                  place="bottom"
+                  borderColor="#7e8a93"
+                  textColor="#C6D1DA"
+                  effect="solid"
+                />
               </div>
-              <ReactTooltip
-                id="mobile_unlock_tip_lptoken"
-                backgroundColor="#1D2932"
-                border
-                place="bottom"
-                borderColor="#7e8a93"
-                textColor="#C6D1DA"
-                effect="solid"
-              />
-            </div>
-          </span>
+            </span>
+          )}
         </div>
 
         <div
