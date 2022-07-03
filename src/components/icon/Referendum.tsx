@@ -551,7 +551,7 @@ export const RewardCheck = () => {
         d="M1 3.5L3.66667 6L9 1"
         stroke="currentColor"
         stroke-width="2"
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
     </svg>
   );
@@ -632,7 +632,7 @@ export const FilterIconVE = () => {
         y2="1.25"
         stroke="currentColor"
         stroke-width="1.5"
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
       <line
         x1="3.03564"
@@ -641,7 +641,7 @@ export const FilterIconVE = () => {
         y2="5.82129"
         stroke="currentColor"
         stroke-width="1.5"
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
       <line
         x1="5.32129"
@@ -650,15 +650,16 @@ export const FilterIconVE = () => {
         y2="10.3926"
         stroke="currentColor"
         stroke-width="1.5"
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
     </svg>
   );
 };
 
-export const VEARROW = () => {
+export const VEARROW = (props: any) => {
   return (
     <svg
+      {...props}
       width="10"
       height="10"
       viewBox="0 0 10 10"
@@ -668,7 +669,7 @@ export const VEARROW = () => {
       <path
         d="M0.592725 9.07808L8.95679 0.714013M3.9397 0.545655L9.07801 0.592795L9.12515 5.7311"
         stroke="currentColor"
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
     </svg>
   );

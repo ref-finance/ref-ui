@@ -86,7 +86,9 @@ import { getPool } from '~services/indexer';
 import CalcModelBooster from '~components/farm/CalcModelBooster';
 import { get24hVolume } from '~services/indexer';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
+import { VEARROW } from '../icon/Referendum';
 import moment from 'moment';
+import { VERSION } from 'lodash';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsDetail(props: {
@@ -225,7 +227,7 @@ export default function FarmsDetail(props: {
               <label className="mr-1 text-xs text-greenColor">
                 <FormattedMessage id="get_lp_token"></FormattedMessage>
               </label>
-              <label className="text-xs text-greenColor">↗</label>
+              <VEARROW className="text-greenColor"></VEARROW>
             </div>
           </div>
         </div>
