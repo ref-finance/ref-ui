@@ -5,7 +5,7 @@ import { useTokens } from '~state/token';
 import Modal from 'react-modal';
 import { IoClose } from 'react-icons/io5';
 import { isMobile } from '../../utils/device';
-import { SolidButton } from '../button/Button';
+import { SolidButton, ConnectToNearBtn } from '../button/Button';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import QuestionMark from '~components/farm/QuestionMark';
@@ -38,9 +38,9 @@ function USNPage(props: ReactModal.Props) {
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [usdtBalance, setUsdtBalance] = useState('0');
   const [usnBalance, setUsnBalance] = useState('0');
-  const { globalState } = useContext(WalletContext);
   const [showBuyLoading, setShowBuyLoading] = useState<boolean>(false);
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+  const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const { USN_ID } = getConfig();
   const ids = [USDT_ID, USN_ID];
@@ -65,7 +65,7 @@ function USNPage(props: ReactModal.Props) {
         });
       }
     }
-  }, [tokens]);
+  }, [tokens, isSignedIn]);
   let tokenInMax = '0';
   let tokenOutMax = '0';
   if (tokenIn?.id === ids[0]) {
@@ -195,27 +195,33 @@ function USNPage(props: ReactModal.Props) {
                 <FormattedMessage id="usn_fee_tip"></FormattedMessage>
               </div>
             </div>
-            <GradientButton
-              color="#fff"
-              className={`w-full h-10 text-center text-base text-white mt-7 focus:outline-none font-semibold ${
-                !canSubmit ? 'opacity-40' : ''
-              }`}
-              onClick={handleSubmit}
-              disabled={!canSubmit}
-              btnClassName={!canSubmit ? 'cursor-not-allowed' : ''}
-              loading={showBuyLoading}
-            >
-              <div>
-                <ButtonTextWrapper
-                  loading={showBuyLoading}
-                  Text={() => (
-                    <FormattedMessage
-                      id={tokenIn?.id == tokens[1].id ? 'sell' : 'buy'}
-                    />
-                  )}
-                />
+            {isSignedIn ? (
+              <GradientButton
+                color="#fff"
+                className={`w-full h-10 text-center text-base text-white mt-7 focus:outline-none font-semibold ${
+                  !canSubmit ? 'opacity-40' : ''
+                }`}
+                onClick={handleSubmit}
+                disabled={!canSubmit}
+                btnClassName={!canSubmit ? 'cursor-not-allowed' : ''}
+                loading={showBuyLoading}
+              >
+                <div>
+                  <ButtonTextWrapper
+                    loading={showBuyLoading}
+                    Text={() => (
+                      <FormattedMessage
+                        id={tokenIn?.id == tokens[1].id ? 'sell' : 'buy'}
+                      />
+                    )}
+                  />
+                </div>
+              </GradientButton>
+            ) : (
+              <div className="mt-7">
+                <ConnectToNearBtn />
               </div>
-            </GradientButton>
+            )}
           </div>
         </section>
       </div>
