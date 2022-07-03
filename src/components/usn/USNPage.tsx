@@ -32,7 +32,6 @@ import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
 
 function USNPage(props: ReactModal.Props) {
   const intl = useIntl();
-  const [error, setError] = useState<Error>();
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
@@ -150,7 +149,6 @@ function USNPage(props: ReactModal.Props) {
                 className="text-primaryText cursor-pointer ml-2"
               />
             </h2>
-            {error && <Alert level="warn" message={error.message} />}
             <TokenAmountV2
               amount={tokenInAmount}
               total={tokenInMax}

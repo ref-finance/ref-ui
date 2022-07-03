@@ -161,10 +161,10 @@ export const sellUSNGetUSDT = async ({ amount }: { amount: string }) => {
 
 function get_usdt_id() {
   let id;
-  if (networkId === 'mainnet') {
-    id = 'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near';
-  } else {
+  if (networkId == 'testnet' || networkId == 'pub-testnet') {
     id = 'usdt.fakes.testnet';
+  } else {
+    id = 'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near';
   }
   return id;
 }
