@@ -9,7 +9,6 @@ import {
 } from '../services/m-token';
 import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import BigNumber from 'bignumber.js';
-import { ParserDependencies } from 'mathjs';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
@@ -152,6 +151,9 @@ const parseWithdraw = async (params: any, tokenId: string) => {
     // present is sell usn
     const token = await ftGetTokenMetadata(tokenId);
     field.Amount = toReadableNumber(token.decimals, amount);
+    if (tokenId == config.USN_ID) {
+      field.Action = 'Sell USN';
+    }
   }
   return {
     Action: 'Withdraw',
@@ -371,7 +373,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       'Receiver Id': receiver_id,
     };
   } else {
-    Action = 'Deposit';
+    Action = receiver_id == config.USN_ID ? 'Buy USN' : 'Deposit';
     const token = await ftGetTokenMetadata(tokenId);
     Amount = toReadableNumber(token.decimals, amount);
     return {
