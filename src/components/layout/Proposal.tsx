@@ -244,6 +244,7 @@ export const FarmMobileSelector = ({
   filterOpen,
   setFilterOpen,
   className,
+  veMeta,
 }: {
   statusList: string[];
   setStatus: (status: string) => void;
@@ -257,6 +258,7 @@ export const FarmMobileSelector = ({
   filterOpen: boolean;
   setFilterOpen: (filterOpen: boolean) => void;
   className?: string;
+  veMeta: VEMETA;
 }) => {
   return (
     <div className=" relative">
@@ -355,7 +357,13 @@ export const FarmMobileSelector = ({
             isOpen={createdOnly}
             setIsOpen={setCreatedOnly}
             storageKey={CreatedOnlyKey}
-            className="justify-between mb-4"
+            className={`justify-between mb-4 ${
+              !veMeta?.whitelisted_accounts?.includes(
+                getCurrentWallet().wallet.getAccountId()
+              )
+                ? 'hidden'
+                : ''
+            }`}
           />
         </div>
       </div>
@@ -5538,7 +5546,13 @@ export const GovProposal = ({
               isOpen={createdOnly}
               setIsOpen={setCreatedOnly}
               storageKey={CreatedOnlyKey}
-              className="ml-6 xsm:hidden"
+              className={`ml-6 xsm:hidden ${
+                !VEmeta?.whitelisted_accounts?.includes(
+                  getCurrentWallet().wallet.getAccountId()
+                )
+                  ? 'hidden'
+                  : ''
+              }`}
             />
           </div>
 
@@ -5560,6 +5574,7 @@ export const GovProposal = ({
                   ? 'text-primaryText'
                   : 'text-white'
               }`}
+              veMeta={VEmeta}
             />
           </div>
 
