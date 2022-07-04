@@ -363,7 +363,7 @@ const timeStampToDate = (ts: number) => {
 export const getVEPoolId = (env: string = process.env.NEAR_ENV) => {
   switch (env) {
     case 'pub-testnet':
-      return 269;
+      return 17;
     case 'testnet':
       return 269;
     case 'mainnet':

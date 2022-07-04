@@ -1506,7 +1506,7 @@ export const PreviewPopUp = (
                   <span className="col-span-2 text-right">veLPT</span>
                 </div>
 
-                <div className="flex flex-col w-full text-white xsm:border-b border-white border-opacity-10">
+                <div className="flex flex-col w-full text-white xsm:border-b xsm:mb-4 border-white border-opacity-10">
                   {data?.map((d, i) => {
                     return (
                       <div className="grid grid-cols-10 xsm:flex xsm:items-center xsm:justify-between hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 xsm:px-0 py-4">
@@ -3985,8 +3985,8 @@ export const LastRoundFarmVoting = (
         title={
           <span className="flex items-center">
             <FormattedMessage
-              id="voting_gauge_share"
-              defaultMessage={'Voting Gauge Share'}
+              id="community_gauge_share"
+              defaultMessage={'Community Voting Gauge'}
             />
             <span className="ml-1">
               <QuestionTip id="voting_gauge_share_tip" />
@@ -4011,8 +4011,8 @@ export const LastRoundFarmVoting = (
       <InfoRow
         title={
           <FormattedMessage
-            id="designatated_pools"
-            defaultMessage={'Designated Pools'}
+            id="qualified_pools"
+            defaultMessage={'Qualified Pools'}
           />
         }
         value={farmProposal?.kind?.FarmingReward.farm_list.length.toString()}
@@ -4675,8 +4675,8 @@ export const FarmProposal = ({
           titles={[
             <span className="flex items-center">
               <FormattedMessage
-                id="voting_gauge_share"
-                defaultMessage={'Voting Gauge Share'}
+                id="community_gauge_share"
+                defaultMessage={'Community Voting Gauge'}
               />
               <span className="ml-1">
                 <QuestionTip id="voting_gauge_share_tip" />
@@ -4687,8 +4687,8 @@ export const FarmProposal = ({
               defaultMessage={'REF Allocation'}
             />,
             <FormattedMessage
-              id="designatated_pools"
-              defaultMessage={'Designated Pools'}
+              id="qualified_pools"
+              defaultMessage={'Qualified Pools'}
             />,
           ]}
           values={[

@@ -141,6 +141,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.testnet',
         REF_TOKEN_ID: 'ref.fakes.testnet',
         XREF_TOKEN_ID: 'xref.ref-finance.testnet',
+        REF_VE_CONTRACT_ID: 'v010.refve.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,

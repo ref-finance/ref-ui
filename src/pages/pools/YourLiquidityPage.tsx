@@ -320,7 +320,7 @@ export function YourLiquidityPage() {
                   <div className="col-span-5 text-left ml-5 xl:ml-8">
                     <FormattedMessage id="my_shares" defaultMessage="Shares" />
                   </div>
-                  <div className="col-span-4 xl:ml-8 ml-4">
+                  <div className="col-span-4 xl:ml-8 ml-6">
                     <FormattedMessage id="value" defaultMessage="Value" />
                   </div>
                 </div>
@@ -687,7 +687,7 @@ function PoolRow(props: {
           )}
         </div>
 
-        <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
+        <div className="col-span-2 text-left ml-6 xl:ml-8">{usdValue}</div>
 
         <div className="flex items-center justify-end  text-center  col-span-2 ">
           <div className="flex items-center flex-col justify-end flex-wrap">
