@@ -5769,8 +5769,9 @@ export const ProposalCard = () => {
             proposals={proposals?.filter(
               (p) =>
                 !Object.keys(p.kind).includes('FarmingReward') &&
-                p.id !== 1 && //TODO:
-                p.id !== 2
+                (process.env.NEAR_ENV === 'testnet'
+                  ? p.id !== 1 && p.id !== 2
+                  : true)
             )}
             setShowCreateProposal={setShowCreateProposal}
             showDetail={showDetail}
