@@ -357,13 +357,7 @@ export const FarmMobileSelector = ({
             isOpen={createdOnly}
             setIsOpen={setCreatedOnly}
             storageKey={CreatedOnlyKey}
-            className={`justify-between mb-4 ${
-              !veMeta?.whitelisted_accounts?.includes(
-                getCurrentWallet().wallet.getAccountId()
-              )
-                ? 'hidden'
-                : ''
-            }`}
+            className={`justify-between mb-4`}
           />
         </div>
       </div>
@@ -5546,13 +5540,7 @@ export const GovProposal = ({
               isOpen={createdOnly}
               setIsOpen={setCreatedOnly}
               storageKey={CreatedOnlyKey}
-              className={`ml-6 xsm:hidden ${
-                !VEmeta?.whitelisted_accounts?.includes(
-                  getCurrentWallet().wallet.getAccountId()
-                )
-                  ? 'hidden'
-                  : ''
-              }`}
+              className={`ml-6 xsm:hidden `}
             />
           </div>
 
