@@ -308,16 +308,7 @@ export const tokenListMainnet = {
         'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/brrr.svg',
       tags: [],
     },
-    {
-      chainId: 1313161554,
-      address: '0x885f8CF6E45bdd3fdcDc644efdcd0AC93880c781',
-      symbol: 'PAD',
-      name: 'NearPad Token',
-      decimals: 18,
-      logoURI:
-        'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/pad.svg',
-      tags: ['ethereum'],
-    },
+
     {
       chainId: 1313161554,
       address: '0xC4bdd27c33ec7daa6fcfd8532ddB524Bf4038096',
@@ -348,16 +339,7 @@ export const tokenListMainnet = {
         'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/abr_busd.svg',
       tags: ['allbridge'],
     },
-    {
-      chainId: 1313161554,
-      address: '0x0fAD0ED848A7A16526E8a7574e418B015Dbf41B5',
-      symbol: 'PAD',
-      name: 'SmartPad Token - Allbridge',
-      decimals: 18,
-      logoURI:
-        'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/abr_smartpad.svg',
-      tags: ['ethereum', 'allbridge'],
-    },
+
     {
       chainId: 1313161554,
       address: '0x0f00576d07B594Bdc1caf44b6014A6A02E5AFd48',
@@ -770,13 +752,13 @@ export const tokenListMainnet = {
     },
     {
       chainId: 1313161554,
-      address: '0x885f8CF6E45bdd3fdcDc644efdcd0AC93880c781',
+      address: '0x34F291934b88c7870B7A17835B926B264fc13a81',
       symbol: 'PAD',
-      name: 'NearPad Token',
+      name: 'SmartPad token',
       decimals: 18,
       logoURI:
-        'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/pad.svg',
-      tags: ['ethereum'],
+        'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/smartpad.svg',
+      tags: [],
     },
     {
       chainId: 1313161554,
