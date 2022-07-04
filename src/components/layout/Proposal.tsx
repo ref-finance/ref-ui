@@ -1382,6 +1382,9 @@ export const PreviewPopUp = (
     );
   };
 
+  const [mobileOptionDisplay, setMobileOptionDisplay] =
+    useState<string>('ratio');
+
   return (
     <>
       {isClientMobie && show ? (
@@ -1438,30 +1441,60 @@ export const PreviewPopUp = (
               <NoResultChart expand="1.25" />
             </div>
 
-            <div className="lg:hidden  w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
-              <InfoRow
-                name={intl.formatMessage({
-                  id: 'turn_out',
-                  defaultMessage: 'Turnout',
-                })}
-                value={turnOut}
-                className=" lg:hidden xsm:flex-col "
-                valueClass="xsm:ml-0 xsm:items-start"
-              />
-              <InfoRow
-                name={intl.formatMessage({
-                  id: 'total_veLPT',
-                  defaultMessage: 'total veLPT',
-                })}
-                value={toPrecision(totalVE, 2)}
-                valueClass="xsm:ml-0 "
-                className="xsm:flex-col xsm:items-end"
-              />
+            <div className="lg:hidden  w-full xsm:flex-col  relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
+              <div className="flex items-center justify-between w-full">
+                <InfoRow
+                  name={intl.formatMessage({
+                    id: 'turn_out',
+                    defaultMessage: 'Turnout',
+                  })}
+                  value={turnOut}
+                  className=" lg:hidden xsm:flex-col "
+                  valueClass="xsm:ml-0 xsm:items-start"
+                />
+                <InfoRow
+                  name={intl.formatMessage({
+                    id: 'total_veLPT',
+                    defaultMessage: 'total veLPT',
+                  })}
+                  value={toPrecision(totalVE, 2)}
+                  valueClass="xsm:ml-0 "
+                  className="xsm:flex-col xsm:items-end"
+                />
+              </div>
+
+              <div className="flex items-center justify-between w-full lg:hidden mt-8 text-primaryText">
+                <div>
+                  <FormattedMessage id="options" defaultMessage={'options'} />
+                </div>
+                <div className="flex items-center ">
+                  <span
+                    className={`pr-1.5 border-r border-primaryText border-opacity-30 ${
+                      mobileOptionDisplay === 'ratio' ? 'text-white' : ''
+                    }`}
+                    onClick={() => {
+                      setMobileOptionDisplay('ratio');
+                    }}
+                  >
+                    <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
+                  </span>
+                  <span
+                    className={`pl-1.5 ${
+                      mobileOptionDisplay === 'velpt' ? 'text-white' : ''
+                    }`}
+                    onClick={() => {
+                      setMobileOptionDisplay('velpt');
+                    }}
+                  >
+                    veLPT
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center justify-center mt-8 xsm:mt-4 pb-6 xsm:pb-2">
               <div className="w-4/5 xsm:w-full text-primaryText flex flex-col ml-16 xsm:ml-0 pb-6 xsm:pb-0">
-                <div className="grid xsm:hidden grid-cols-10 pb-5 xsm:pb-0 px-6 xsm:px-4">
+                <div className="grid xsm:hidden  grid-cols-10 pb-5 xsm:pb-0 px-6 xsm:px-4">
                   <span className="col-span-6 ">
                     <FormattedMessage id="options" defaultMessage={'Options'} />
                   </span>
@@ -1474,7 +1507,7 @@ export const PreviewPopUp = (
                 <div className="flex flex-col w-full text-white xsm:border-b border-white border-opacity-10">
                   {data?.map((d, i) => {
                     return (
-                      <div className="grid grid-cols-10 hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 xsm:px-0 py-4">
+                      <div className="grid grid-cols-10 xsm:flex xsm:items-center xsm:justify-between hover:bg-chartBg hover:bg-opacity-20 rounded-lg px-6 xsm:px-0 py-4">
                         <span className="col-span-6 flex items-center">
                           <div
                             className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
@@ -1496,10 +1529,13 @@ export const PreviewPopUp = (
                             {d.option}
                           </span>
                         </span>
+                        {isClientMobie && mobileOptionDisplay === 'ratio' ? (
+                          <span className="col-span-2 ">{d.ratio}%</span>
+                        ) : null}
 
-                        <span className="col-span-2 ">{d.ratio}%</span>
-
-                        <span className="col-span-2 text-right">{d.v}</span>
+                        {isClientMobie && mobileOptionDisplay === 'velpt' ? (
+                          <span className="col-span-2 text-right">{d.v}</span>
+                        ) : null}
                       </div>
                     );
                   })}
@@ -2759,10 +2795,12 @@ const GovItemDetail = ({
                           />
                         )}
                       </span>
-                      {mobileOptionDisplay !== 'ratio' ? null : (
+                      {isClientMobie &&
+                      mobileOptionDisplay !== 'ratio' ? null : (
                         <span className="col-span-2 ">{d.ratio}%</span>
                       )}
-                      {mobileOptionDisplay !== 'velpt' ? null : (
+                      {isClientMobie &&
+                      mobileOptionDisplay !== 'velpt' ? null : (
                         <span className="col-span-2 text-right">{d.v}</span>
                       )}
                     </div>
