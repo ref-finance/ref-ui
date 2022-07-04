@@ -67,6 +67,10 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
           'LINEAR-wNEAR': '0xbceA13f9125b0E3B66e979FedBCbf7A4AfBa6fd1',
           'KSW-wNEAR': '0x29C160d2EF4790F9A23B813e7544D99E539c28Ba',
           'AURORA-wNEAR': '0x1e0e812FBcd3EB75D8562AD6F310Ed94D258D008',
+          'BRRR-wNEAR': '0x71dBEB011EAC90C51b42854A77C45C1E53242698',
+          'PAD-wNEAR': '0x6a29e635BCaB8aBeE1491059728e3D6D11d6A114',
+          'BSTN-wNEAR': '0xBBf3D4281F10E537d5b13CA80bE22362310b2bf9',
+          'stNEAR-TRI': '0x120e713AD36eCBff171FC8B7cf19FA8B6f6Ba50C',
         },
         networkId: 'mainnet',
       };
@@ -107,6 +111,10 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
           'LINEAR-wNEAR': '0xbceA13f9125b0E3B66e979FedBCbf7A4AfBa6fd1',
           'KSW-wNEAR': '0x29C160d2EF4790F9A23B813e7544D99E539c28Ba',
           'AURORA-wNEAR': '0x1e0e812FBcd3EB75D8562AD6F310Ed94D258D008',
+          'BRRR-wNEAR': '0x71dBEB011EAC90C51b42854A77C45C1E53242698',
+          'PAD-wNEAR': '0x6a29e635BCaB8aBeE1491059728e3D6D11d6A114',
+          'BSTN-wNEAR': '0xBBf3D4281F10E537d5b13CA80bE22362310b2bf9',
+          'stNEAR-TRI': '0x120e713AD36eCBff171FC8B7cf19FA8B6f6Ba50C',
         },
         networkId: 'mainnet',
       };
@@ -289,6 +297,26 @@ export const tokenListMainnet = {
       logoURI:
         'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/usn.svg',
       tags: [],
+    },
+    {
+      chainId: 1313161554,
+      address: '0x0240ae04c9f47b91cf47ca2e7ef44c9de0d385ac',
+      symbol: 'BRRR',
+      name: 'Burrow Token',
+      decimals: 18,
+      logoURI:
+        'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/brrr.svg',
+      tags: [],
+    },
+    {
+      chainId: 1313161554,
+      address: '0x885f8CF6E45bdd3fdcDc644efdcd0AC93880c781',
+      symbol: 'PAD',
+      name: 'NearPad Token',
+      decimals: 18,
+      logoURI:
+        'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/pad.svg',
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
