@@ -564,18 +564,20 @@ export const LockPopUp = ({
               <VEARROW />
             </button>
           </div>
-          <span>
+          <span className="text-xs">
             {!ONLY_ZEROS.test(lpShare) ? (
               toPrecision(lpShare, 2)
             ) : (
               <button
-                className="text-gradientFrom"
+                className="text-gradientFrom flex items-center"
                 onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
               >
-                <FormattedMessage
-                  id="get_lptoken"
-                  defaultMessage={'Get LP Tokens'}
-                />
+                <span>
+                  <FormattedMessage
+                    id="get_lptoken"
+                    defaultMessage={'Get LP Tokens'}
+                  />
+                </span>
                 &nbsp; <VEARROW />
               </button>
             )}
