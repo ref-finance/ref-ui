@@ -539,7 +539,6 @@ export const fetchAllowance = async (address: string, tokenAddress: string) => {
     const out = decodeOutput(Erc20Abi, 'allowance', res);
     return Big(out[0]);
   } catch (e) {
-    console.log(e);
     return new Big(0);
   }
 };
@@ -827,8 +826,6 @@ export const getAllTriPools = async () => {
       const tokenMetas = await Promise.all(
         nep141s.map((id: string) => ftGetTokenMetadata(id))
       );
-
-      console.log(pairInfo, nep141s, tokenMetas);
 
       return getAuroraPool(
         address,
