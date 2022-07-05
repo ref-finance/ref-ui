@@ -4602,7 +4602,7 @@ export const FarmProposal = ({
     .sort((a, b) => {
       if (sortBy === 'REF allocation') {
         return Number(b.allocate) - Number(a.allocate);
-      } else if (sortBy === 'bonus') {
+      } else if (sortBy === 'Bonus') {
         return Number(b.total) - Number(a.total);
       } else {
         return a.index - b.index;
@@ -4812,7 +4812,7 @@ export const FarmProposal = ({
           )}
 
           <SelectUI
-            list={['bonus', 'REF allocation']}
+            list={['Bonus', 'REF allocation']}
             curvalue={sortBy}
             onChange={setSortBy}
             className=" lg:hidden "
@@ -4832,11 +4832,11 @@ export const FarmProposal = ({
 
             <button
               className={` pl-2  ${
-                sortBy === 'bonus' ? 'text-gradientFrom' : ''
+                sortBy === 'Bonus' ? 'text-gradientFrom' : ''
               }`}
               onClick={() => {
-                if (sortBy !== 'bonus') {
-                  setSortBy('bonus');
+                if (sortBy !== 'Bonus') {
+                  setSortBy('Bonus');
                 }
               }}
             >
