@@ -59,7 +59,7 @@ export default function InputAmount({
         ref={field}
       >
         <div
-          className={`relative flex align-center items-center bg-inputDarkBg rounded`}
+          className={`relative flex align-center items-center bg-inputDarkBg rounded-md`}
         >
           <input
             ref={ref}

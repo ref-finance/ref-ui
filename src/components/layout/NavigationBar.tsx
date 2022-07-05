@@ -855,12 +855,10 @@ function USNButton() {
           content: {
             outline: 'none',
             position: 'fixed',
-            width: isMobile() ? '98%' : 550,
             bottom: '50%',
           },
         }}
       ></USNPage>
-
       <BorrowLinkCard
         isOpen={showeBorrowCard}
         onRequestClose={(e) => {

@@ -660,5 +660,6 @@ const en_US = {
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
   available_to_stake: 'available to stake',
+  recent_one_mounth_activity: 'One Month Activities',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

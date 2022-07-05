@@ -669,5 +669,6 @@ const ja = {
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
   available_to_stake: 'available to stake',
+  recent_one_mounth_activity: '1ヶ月の活動',
 };
 export default Object.assign(ja, ja_in_risks_page);

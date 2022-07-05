@@ -629,5 +629,6 @@ const uk_UA = {
   total_near_amount: 'Загальна сума NEAR',
   near_value: 'Значення NEAR',
   available_to_stake: 'available to stake',
+  recent_one_mounth_activity: 'Заходи за один місяць',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

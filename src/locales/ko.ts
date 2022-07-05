@@ -659,5 +659,6 @@ const ko = {
   total_near_amount: '총 NEAR 금액',
   near_value: 'NEAR 값',
   available_to_stake: 'available to stake',
+  recent_one_mounth_activity: '한 달 활동',
 };
 export default Object.assign(ko, ko_in_risks_page);

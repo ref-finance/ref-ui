@@ -530,7 +530,6 @@ export const fetchAllowance = async (address: string, tokenAddress: string) => {
     const out = decodeOutput(Erc20Abi, 'allowance', res);
     return Big(out[0]);
   } catch (e) {
-    console.log(e);
     return new Big(0);
   }
 };

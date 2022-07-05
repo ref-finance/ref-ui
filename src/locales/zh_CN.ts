@@ -628,5 +628,6 @@ const zh_CN = {
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
   available_to_stake: 'available to stake',
+  recent_one_mounth_activity: '一个月的活动',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

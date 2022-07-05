@@ -659,5 +659,6 @@ const ru = {
   total_near_amount: 'Общая сумма NEAR',
   near_value: 'Ценность NEAR',
   available_to_stake: 'available to stake',
+  recent_one_mounth_activity: 'Мероприятия на один месяц',
 };
 export default Object.assign(ru, ru_in_risks_page);
