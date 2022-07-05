@@ -1328,14 +1328,14 @@ export default function FarmsHome(props: any) {
             </div>
           )}
 
-          {showLoveTokenModalVisible ? (
-            <GetLoveTokenModal
-              isOpen={showLoveTokenModalVisible}
-              onRequestClose={() => {
-                setShowLoveTokenModalVisible(false);
-              }}
-            ></GetLoveTokenModal>
-          ) : null}
+          {/* {showLoveTokenModalVisible ? ( */}
+          <GetLoveTokenModal
+            isOpen={showLoveTokenModalVisible}
+            onRequestClose={() => {
+              setShowLoveTokenModalVisible(false);
+            }}
+          ></GetLoveTokenModal>
+          {/* ) : null} */}
 
           {loveStakeModalVisible ? (
             <LoveStakeModal
