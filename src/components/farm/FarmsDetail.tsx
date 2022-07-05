@@ -1576,7 +1576,7 @@ function UserTotalUnClaimBlock(props: {
       // total price
       const { id, decimals, icon } = token;
       const amount = toReadableNumber(decimals, unclaimed[id] || '0');
-      const tokenPrice = tokenPriceList[id].price;
+      const tokenPrice = tokenPriceList[id]?.price;
       if (tokenPrice && tokenPrice != 'N/A') {
         totalPrice += +amount * tokenPrice;
       }
@@ -1883,7 +1883,7 @@ function UserStakeBlock(props: {
     unClaimedTokens?.forEach((token: TokenMetadata) => {
       const { id, decimals } = token;
       const amount = toReadableNumber(decimals, user_unclaimed_map[id] || '0');
-      const tokenPrice = tokenPriceList[id].price;
+      const tokenPrice = tokenPriceList[id]?.price;
       if (tokenPrice && tokenPrice != 'N/A') {
         totalPrice += +amount * tokenPrice;
       }
@@ -3349,7 +3349,7 @@ function UnClaimBox(props: {
       const token = user_unclaimed_token_meta_map[rewardId];
       const { id, decimals } = token;
       const amount = toReadableNumber(decimals, unclaimed[rewardId]);
-      const tokenPrice = tokenPriceList[id].price;
+      const tokenPrice = tokenPriceList[id]?.price;
       if (tokenPrice && tokenPrice != 'N/A') {
         totalPrice += +amount * tokenPrice;
       }
