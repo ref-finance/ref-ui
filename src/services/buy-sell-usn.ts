@@ -8,7 +8,13 @@ import {
 } from './near';
 import { wallet } from './near';
 import { toNonDivisibleNumber } from '../utils/numbers';
+import { ftGetStorageBalance } from '../services/ft-contract';
+import {
+  storageDepositAction,
+  STORAGE_TO_REGISTER_WITH_MFT,
+} from '../services/creators/storage';
 const { networkId, USN_ID } = getConfig();
+export const USDT_ID = get_usdt_id();
 
 export const fetchMultiplier = async () => {
   try {
@@ -95,3 +101,63 @@ export const sellUSN = async ({
 
   executeMultipleTransactions([transaction]);
 };
+
+export const buyUSNInUSDT = async ({ amount }: { amount: string }) => {
+  const transaction: Transaction = {
+    receiverId: USDT_ID,
+    functionCalls: [
+      {
+        methodName: 'ft_transfer_call',
+        args: {
+          receiver_id: USN_ID,
+          amount,
+          msg: '',
+        },
+        amount: ONE_YOCTO_NEAR,
+        gas: '100000000000000',
+      },
+    ],
+  };
+  sessionStorage.setItem('usn', '1');
+  executeMultipleTransactions([transaction]);
+};
+export const sellUSNGetUSDT = async ({ amount }: { amount: string }) => {
+  const transactions: Transaction[] = [];
+  transactions.push({
+    receiverId: USN_ID,
+    functionCalls: [
+      {
+        methodName: 'withdraw',
+        args: {
+          amount,
+        },
+        amount: ONE_YOCTO_NEAR,
+        gas: '100000000000000',
+      },
+    ],
+  });
+  const ftBalance = await ftGetStorageBalance(USDT_ID);
+  if (!ftBalance) {
+    transactions.unshift({
+      receiverId: USDT_ID,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+  sessionStorage.setItem('usn', '1');
+  executeMultipleTransactions(transactions);
+};
+
+function get_usdt_id() {
+  let id;
+  if (networkId == 'testnet' || networkId == 'pub-testnet') {
+    id = 'usdt.fakes.testnet';
+  } else {
+    id = 'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near';
+  }
+  return id;
+}

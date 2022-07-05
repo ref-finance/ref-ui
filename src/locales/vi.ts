@@ -578,5 +578,6 @@ const vi = {
   stake_min_deposit: 'Input must be greater than or equal to ',
   total_near_amount: 'Số lượng tất cả NEAR',
   near_value: 'NEAR giá trị',
+  recent_one_mounth_activity: 'Hoạt động một tháng',
 };
 export default Object.assign(vi, vi_in_risks_page);

@@ -828,6 +828,8 @@ export const getAllTriPools = async () => {
         nep141s.map((id: string) => ftGetTokenMetadata(id))
       );
 
+      console.log(pairInfo, nep141s, tokenMetas);
+
       return getAuroraPool(
         address,
         tokenMetas[0],
