@@ -288,11 +288,31 @@ export const FarmMobileSelector = ({
       )}
 
       <div
-        className={`flex absolute  flex-col right-0 rounded-lg w-90vw z-50 ${
-          !filterOpen ? 'hidden' : ''
-        } bg-cardBg border border-primaryText`}
+        className={` absolute z-50 top-8 right-0 bg-selectUI rounded-2xl px-2  text-sm w-28 ${
+          filterOpen ? '' : 'hidden'
+        }`}
+        style={{
+          border: '1px solid #415462',
+        }}
       >
-        <div className="flex items-center justify-between pt-4 pb-6 mx-5">
+        {statusList.map((item: string, index) => (
+          <p
+            key={index}
+            onMouseDown={() => {
+              setStatus(item);
+              setFilterOpen(false);
+            }}
+            className={`flex rounded-lg items-center p-4 h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-black hover:bg-opacity-20 hover:text-opacity-100
+            ${
+              item == curStatus ? 'bg-black bg-opacity-20 text-opacity-100' : ''
+            }
+            `}
+          >
+            {item}
+          </p>
+        ))}
+      </div>
+      {/* <div className="flex items-center justify-between pt-4 pb-6 mx-5">
           <div className="text-base font-bold">
             <FormattedMessage id="filter" defaultMessage={'Filter'} />
           </div>
@@ -359,8 +379,7 @@ export const FarmMobileSelector = ({
             storageKey={CreatedOnlyKey}
             className={`justify-between mb-4`}
           />
-        </div>
-      </div>
+        </div> */}
     </div>
   );
 };
@@ -820,12 +839,7 @@ const VotePopUp = (
 
         <div className="pt-7 w-full">
           <InfoRow
-            title={
-              <FormattedMessage
-                id="currently_voted"
-                defaultMessage={'Currently voted'}
-              />
-            }
+            title={<FormattedMessage id="voted" defaultMessage={'Voted'} />}
             value={votedThisFarm}
           />
 
@@ -842,8 +856,8 @@ const VotePopUp = (
           <InfoRow
             title={
               <FormattedMessage
-                id="voting_ratio"
-                defaultMessage={'Voting ratio '}
+                id="new_voting_ratio"
+                defaultMessage={'New voting ratio '}
               />
             }
             value={
@@ -861,8 +875,8 @@ const VotePopUp = (
           <InfoRow
             title={
               <FormattedMessage
-                id="currently_REF_allocation"
-                defaultMessage={'Currently REF allocation'}
+                id="REF_allocation"
+                defaultMessage={'REF allocation'}
               />
             }
             value={
@@ -2489,52 +2503,13 @@ const GovItemDetail = ({
           <span className=" lg:hidden pl-2 font-bold text-xl">{'<'}</span>
         </button>
 
-        <span className="xsm:hidden py-1.5 flex flex-col items-end text-xs pr-4 pl-2 absolute right-0 -top-4">
-          <span className="rounded-3xl mb-3 text-xs px-1 text-senderHot">
-            {status === 'Expired' ? (
-              <span className="bg-black bg-opacity-20 px-2 py-1 rounded-3xl text-primaryText">
-                <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
-              </span>
-            ) : (
-              <div className="flex items-center">
-                <span
-                  className={`rounded-3xl px-2 py-0.5  ${
-                    status === 'WarmUp'
-                      ? 'text-white bg-pendingPurple'
-                      : 'text-black bg-senderHot'
-                  }`}
-                >
-                  {status === 'InProgress' ? (
-                    <FormattedMessage id="live" defaultMessage={'Live'} />
-                  ) : (
-                    <FormattedMessage
-                      id="pending_ve"
-                      defaultMessage={'Pending'}
-                    />
-                  )}
-                </span>
-              </div>
-            )}
-          </span>
-          <span
-            className={
-              status === 'Expired'
-                ? 'hidden'
-                : `${
-                    status === 'WarmUp' ? 'text-primaryText' : 'text-senderHot'
-                  } text-xs `
-            }
-          >
-            {counterDownStirng}
-            {`${status === 'WarmUp' ? ' starts' : ' left'}`}
-          </span>
-        </span>
-
-        <span className="absolute right-1 xsm:hidden">{timeDuration}</span>
-
-        <div className="rounded-3xl lg:hidden  bg-black   xsm:bg-opacity-0 bg-opacity-20 py-1.5 text-xs pr-0 pl-2 xsm:mx-auto text-senderHot absolute xsm:right-0 xsm:bottom-1">
+        <div
+          className={`rounded-3xl  bg-black   xsm:bg-opacity-0 bg-opacity-20 py-1.5 text-xs pr-0 ${
+            status === 'Expired' ? 'lg:pr-2' : 'lg:pr-4'
+          }  pl-2 xsm:mx-auto text-senderHot absolute right-0 xsm:bottom-1 lg:bottom-6`}
+        >
           {status === 'Expired' ? (
-            <span className=" rounded-3xl text-primaryText xsm:bg-white relative bottom-1 xsm:py-1.5  xsm:bg-opacity-10 xsm:px-2 ">
+            <span className=" rounded-3xl text-primaryText xsm:bg-white relative bottom-1 lg:bottom-0 xsm:py-1.5  xsm:bg-opacity-10 xsm:px-2 ">
               <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
             </span>
           ) : (
@@ -4512,7 +4487,10 @@ export const FarmProposal = ({
             2,
             true
           )}
-          myPower={toPrecision(veShare, 2, true)}
+          myPower={`${toPrecision(veShare, 2, true)}${new Big(veShareRaw || 0)
+            .div(farmProposal?.ve_amount_at_last_action || '1')
+            .times(100)
+            .toFixed(2)}%`}
           ratioOld={`${toPrecision(
             scientificNotationToString(ratio.toString()),
             2,
@@ -4634,7 +4612,7 @@ export const FarmProposal = ({
           .utc()
           .format('D MMM, yyyy')}
         {` (UTC)`}
-        <div className="rounded-3xl bg-black xsm:mt-2 xsm:  xsm:bg-opacity-0 bg-opacity-20 py-1.5 text-xs px-2 xsm:mx-auto text-senderHot absolute xsm:relative md:right-0 lg:right-0">
+        <div className="rounded-3xl bg-black xsm:mt-2 lg:bottom-8  xsm:bg-opacity-0 bg-opacity-20 py-1.5 text-xs px-2 xsm:mx-auto text-senderHot absolute xsm:relative md:right-0 lg:right-0">
           {ended ? (
             <span className=" rounded-3xl text-primaryText xsm:bg-white xsm:py-1.5  xsm:bg-opacity-10 xsm:px-2 ">
               <FormattedMessage id={'ended_ve'} defaultMessage="Ended" />
@@ -5534,14 +5512,14 @@ export const GovProposal = ({
               />
             )}
 
-            <FilterSelector
+            {/* <FilterSelector
               textId="created_only"
               defaultText="Created Only"
               isOpen={createdOnly}
               setIsOpen={setCreatedOnly}
               storageKey={CreatedOnlyKey}
               className={`ml-6 xsm:hidden `}
-            />
+            /> */}
           </div>
 
           <div className="flex  lg:hidden">
@@ -5567,7 +5545,7 @@ export const GovProposal = ({
           </div>
 
           <div className="flex items-center xsm:hidden">
-            <FilterSelector
+            {/* <FilterSelector
               textId="voted_only"
               defaultText="Voted Only"
               isOpen={votedOnly}
@@ -5582,7 +5560,7 @@ export const GovProposal = ({
               setIsOpen={setBonusOnly}
               storageKey={BonusOnlyKey}
               className="ml-6"
-            />
+            /> */}
 
             <SelectUI
               curvalue={state}
