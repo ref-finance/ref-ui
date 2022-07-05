@@ -159,6 +159,7 @@ module.exports = {
         otherGreenColor:'#00E9BF',
         greyCircleColor:'#889FAE',
         mengColor:'#3A4D5B',
+        lightGreenColor_p: '#70d44b',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
