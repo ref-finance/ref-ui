@@ -107,17 +107,23 @@ function MyShares({
 
   return (
     <div className=" inline-flex flex-col justify-center xs:text-right md:text-right">
-      <div className="pl-2 xs:pr-0 md:pr-0 text-sm whitespace-nowrap">{`${toRoundedReadableNumber(
-        {
-          decimals: isStablePool(poolId)
-            ? getStablePoolDecimal(poolId)
-            : LP_TOKEN_DECIMALS,
-          number: userTotalShare
-            .toNumber()
-            .toLocaleString('fullwide', { useGrouping: false }),
-          precision: decimal || 6,
-        }
-      )} (${displayPercent}%)`}</div>
+      <div className="pl-2 xs:pr-0 md:pr-0 flex flex-col xs:flex-row md:flex-row text-sm whitespace-nowrap">
+        <span>
+          {`${toRoundedReadableNumber({
+            decimals: isStablePool(poolId)
+              ? getStablePoolDecimal(poolId)
+              : LP_TOKEN_DECIMALS,
+            number: userTotalShare
+              .toNumber()
+              .toLocaleString('fullwide', { useGrouping: false }),
+            precision: decimal || 6,
+          })} `}
+        </span>
+
+        <span className="xs:hidden md:hidden">{displayPercent}%</span>
+
+        <span className="lg:hidden ml-1">{`(${displayPercent}%)`}</span>
+      </div>
     </div>
   );
 }
@@ -317,10 +323,10 @@ export function YourLiquidityPage() {
                     <FormattedMessage id="token" defaultMessage="Token" />
                   </div>
 
-                  <div className="col-span-5 text-left ml-5 xl:ml-8">
+                  <div className="col-span-5 text-left ml-8">
                     <FormattedMessage id="my_shares" defaultMessage="Shares" />
                   </div>
-                  <div className="col-span-4 xl:ml-8 ml-6">
+                  <div className="col-span-4 xl:ml-8 ml-4">
                     <FormattedMessage id="value" defaultMessage="Value" />
                   </div>
                 </div>
@@ -541,7 +547,7 @@ function PoolRow(props: {
           ))}
         </div>
 
-        <div className="col-span-3  text-left pl-3 xl:pl-6">
+        <div className="col-span-3  text-left pl-6">
           <MyShares
             shares={shares}
             totalShares={pool.shareSupply}
@@ -558,7 +564,7 @@ function PoolRow(props: {
           />
         </div>
 
-        <div className="col-span-2 flex flex-col text-xs text-farmText">
+        <div className="col-span-2 flex flex-col text-xs  -ml-5 text-farmText">
           {supportFarmV1 > 0 && (
             <Link
               to={{
@@ -687,7 +693,7 @@ function PoolRow(props: {
           )}
         </div>
 
-        <div className="col-span-2 text-left ml-6 xl:ml-8">{usdValue}</div>
+        <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
 
         <div className="flex items-center justify-end  text-center  col-span-2 ">
           <div className="flex items-center flex-col justify-end flex-wrap">

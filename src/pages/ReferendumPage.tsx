@@ -545,7 +545,7 @@ export const LockPopUp = ({
       title={
         <FormattedMessage
           id={title || 'lock_lp_tokens'}
-          defaultMessage="Lock LPtoken"
+          defaultMessage="Lock LP Tokens"
         />
       }
     >
@@ -574,7 +574,7 @@ export const LockPopUp = ({
               >
                 <FormattedMessage
                   id="get_lptoken"
-                  defaultMessage={'Get LPtoken'}
+                  defaultMessage={'Get LP Tokens'}
                 />
                 &nbsp; <VEARROW />
               </button>
@@ -817,7 +817,7 @@ export const LockPopUp = ({
               </span>{' '}
               <FormattedMessage
                 id="existing_lptoken"
-                defaultMessage={'Existing LPtokens'}
+                defaultMessage={'Existing LP Tokens'}
               />{' '}
               +{' '}
               <span className="text-gradientFrom">
@@ -825,7 +825,7 @@ export const LockPopUp = ({
               </span>{' '}
               <FormattedMessage
                 id="append_lptoken"
-                defaultMessage={'Append LPtokens'}
+                defaultMessage={'Append LP Tokens'}
               />{' '}
               <FormattedMessage
                 id="will_be_able_to_unstake_after"
@@ -844,7 +844,7 @@ export const LockPopUp = ({
               ONLY_ZEROS.test(lpShare) ? (
                 <FormattedMessage
                   id="you_have_no_lp_share"
-                  defaultMessage={'You have no LPtoken'}
+                  defaultMessage={'You have no LP Token'}
                 />
               ) : (
                 <FormattedMessage id="lock" defaultMessage={'Lock'} />
@@ -976,7 +976,7 @@ const UnLockPopUp = ({
       title={
         <FormattedMessage
           id="unlock_lptoken"
-          defaultMessage={'Unlock LPtoken'}
+          defaultMessage={'Unlock LP Tokens'}
         />
       }
     >
@@ -994,7 +994,7 @@ const UnLockPopUp = ({
             </span>
             <span className="pb-1 text-white">
               {toPrecision(lockedLPAmount, 2)}
-              <span className="text-primaryText ml-2">{'LPtoken'}</span>
+              <span className="text-primaryText ml-2">{'LP Tokens'}</span>
             </span>
           </div>
           <div className="text-center flex items-center pt-4 justify-between">
@@ -1008,7 +1008,7 @@ const UnLockPopUp = ({
                     2
                   )
                 : 0}
-              <span className="text-primaryText ml-2">{'LPtoken'}</span>
+              <span className="text-primaryText ml-2">{'LP Tokens'}</span>
             </span>
           </div>
         </div>
@@ -1085,14 +1085,11 @@ const UnLockPopUp = ({
                   data-html={true}
                   data-tip={`
               <div className="text-xs">
-                <div 
-                  style="font-weight: 700",
-                >veLPT</div>
+ 
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
-The veLPT is not an actual, transferable token, but represents your voting power corresponding to your locked LP position. It only shows up on your Ref account balance
-                </div>
+                veLP tokens are not transferable. veLPT represent your voting power. You can check your veLPT in your Ref Account                </div>
               </div>
             `}
                   data-for="tipId_unlock_ve"
@@ -1169,14 +1166,11 @@ The veLPT is not an actual, transferable token, but represents your voting power
                   data-html={true}
                   data-tip={`
               <div className="text-xs">
-                <div 
-                  style="font-weight: 700",
-                >LOVE</div>
+
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
-                "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded                </div>
-              </div>
+                LOVE stands for Liquidity Of veToken. LOVE, like any NEP-141 token, is transferable and can be swapped, pooled, staked and farmed. LOVE represents the underlying liquidity of your veTokens              </div>
             `}
                   data-for="tipId_unlock_love"
                 >
@@ -1265,7 +1259,7 @@ const VotingPowerCard = ({
                     <span className="text-black text-xs ml-2">
                       <FormattedMessage
                         id="lock_lp_tokens_first"
-                        defaultMessage="Lock LPtoken first!"
+                        defaultMessage="Lock LP Tokens first!"
                       />
                     </span>
                   </>
@@ -1290,14 +1284,12 @@ const VotingPowerCard = ({
                   data-html={true}
                   data-tip={`
               <div className="text-xs">
-                <div 
-                  style="font-weight: 700",
-                >veLPT</div>
+
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
-The veLPT is not an actual, transferable token, but represents your voting power corresponding to your locked LP position. It only shows up on your Ref account balance
-                </div>
+                veLP tokens are not transferable. veLPT represent your voting power. You can check your veLPT in your Ref Account
+                                </div>
               </div>
             `}
                   data-for="tipId_ve_post_card"
@@ -1372,7 +1364,7 @@ const FarmBoosterCard = ({
                     <span className="text-xs text-white font-normal ml-2">
                       <FormattedMessage
                         id="lock_lp_tokens_first"
-                        defaultMessage="Lock LPtoken first!"
+                        defaultMessage="Lock LP Tokens first!"
                       />
                     </span>
                   </>
@@ -1398,16 +1390,13 @@ const FarmBoosterCard = ({
                   data-html={true}
                   data-tip={`
               <div className="text-xs">
-                <div 
-                  style="font-weight: 700",
-                >LOVE</div>
+  
                 <div 
                   style="max-width: ${
                     isClientMobile ? '200px' : '250px'
                   };font-weight:400;white-space: initial;",
                 >
-                "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded                </div>
-              </div>
+                LOVE stands for Liquidity Of veToken. LOVE, like any NEP-141 token, is transferable and can be swapped, pooled, staked and farmed. LOVE represents the underlying liquidity of your veTokens              </div>
             `}
                   data-for="tipId_love_post_card"
                 >
@@ -1493,7 +1482,7 @@ export const FarmStakeTip = ({
         2
       )}
       {' more '}
-      LPtokens
+      LP Tokens
       <span className="ml-1">
         <FormattedMessage id="in" defaultMessage={'in'} />
         <span
@@ -1601,7 +1590,7 @@ const UserReferendumCard = ({
         <div className="text-3xl xsm:text-2xl font-bold mb-2 xsm:px-2">
           <FormattedMessage
             id="lock_your_lp_tokens"
-            defaultMessage="Lock Your LPtoken"
+            defaultMessage="Lock Your LP Tokens"
           />
         </div>
         <span
@@ -1732,7 +1721,7 @@ const UserReferendumCard = ({
               text={
                 <FormattedMessage
                   id="lock_lptoken"
-                  defaultMessage="Lock LPtoken"
+                  defaultMessage="Lock LP Tokens"
                 />
               }
               onClick={() => setLockPopOpen(true)}
@@ -1791,7 +1780,7 @@ const UserReferendumCard = ({
             >
               <FormattedMessage
                 id="lptoken_locker"
-                defaultMessage={'LPtoken Locker'}
+                defaultMessage={'LP Token Locker'}
               />
               <span className="ml-3">
                 {showMobileLocker ? <FaAngleUp /> : <FaAngleDown />}

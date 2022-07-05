@@ -4293,6 +4293,19 @@ export const FarmProposal = ({
 
     const allocateNew = checkedAllocationsNew?.[index];
 
+    console.log(
+      farmProposal.ve_amount_at_last_action,
+      've share at last action',
+      new Big(veShareRaw || 0)
+        .div(
+          new Big(farmProposal?.ve_amount_at_last_action || '0').plus(
+            veShareRaw || 1
+          )
+        )
+        .times(100)
+        .toFixed(2)
+    );
+
     const Button =
       !isSignedIn && isClientMobie ? (
         <ConnectToNearBtnGradientMoible />
@@ -4489,14 +4502,14 @@ export const FarmProposal = ({
             2,
             true
           )}
-          myPower={`${toPrecision(veShare, 2, true)}${new Big(veShareRaw || 0)
+          myPower={`${toPrecision(veShare, 2, true)}(${new Big(veShareRaw || 0)
             .div(
-              ONLY_ZEROS.test(farmProposal?.ve_amount_at_last_action)
-                ? '1'
-                : farmProposal?.ve_amount_at_last_action
+              new Big(farmProposal?.ve_amount_at_last_action || '0').plus(
+                veShareRaw || 1
+              )
             )
             .times(100)
-            .toFixed(2)}%`}
+            .toFixed(2)}%)`}
           ratioOld={`${toPrecision(
             scientificNotationToString(ratio.toString()),
             2,
@@ -5528,7 +5541,7 @@ export const GovProposal = ({
             /> */}
           </div>
 
-          <div className="flex  lg:hidden">
+          {/* <div className="flex  lg:hidden">
             <FarmMobileSelector
               curStatus={state}
               setBonusOnly={setBonusOnly}
@@ -5548,9 +5561,9 @@ export const GovProposal = ({
               }`}
               veMeta={VEmeta}
             />
-          </div>
+          </div> */}
 
-          <div className="flex items-center xsm:hidden">
+          <div className="flex items-center">
             {/* <FilterSelector
               textId="voted_only"
               defaultText="Voted Only"
@@ -5574,6 +5587,9 @@ export const GovProposal = ({
               onChange={setState}
               className="ml-6"
               canSelect
+              labelClassName="xsm:w-28 xsm:bg-cardBg xsm:border xsm:border-selectBorder"
+              dropDownClassName="xsm:w-32"
+              brightClick
             />
           </div>
         </div>

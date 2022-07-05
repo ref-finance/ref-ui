@@ -132,6 +132,7 @@ module.exports = {
         farmV2TabColor: '#4A5862',
         farmV2SmallTabCOlor: '#1A2329',
         farmV2BoxBg: '#141D24',
+        selectBorder: '#415462',
         farmV2WithDrawBg: '#151E29',
         maxBorderColor: '#373F45',
         darkBg: '#111518',
@@ -155,8 +156,8 @@ module.exports = {
         lightPurpleColor: 'rgba(126, 69, 255, 0.2)',
         lightBGreyColor: '#646464',
         pendingPurple: '#615EFF',
-        otherGreenColor:'#00E9BF',
-        greyCircleColor:'#889FAE',
+        otherGreenColor: '#00E9BF',
+        greyCircleColor: '#889FAE',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
