@@ -106,7 +106,7 @@ export default function FarmsMigrate() {
               </div>
             ) : (
               <div>
-                <span className="flex w-full xs:justify-center md:justify-center text-2xl font-bold text-lightGreenColor whitespace-nowrap">
+                <span className="flex w-full xs:justify-center md:justify-center text-2xl font-bold text-white whitespace-nowrap">
                   V2 New Farm Migration
                 </span>
                 <p className="text-base text-white mt-4">

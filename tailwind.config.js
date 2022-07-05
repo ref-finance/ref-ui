@@ -122,7 +122,7 @@ module.exports = {
         auroraGreen: '#70D44B',
         triPool: '#329DFF',
         refPool: '#00C6A2',
-        lightGreenColor: '#70d44b',
+        lightGreenColor: '#00FFF0',
         tabChosen: '#4A5862',
         liqBtn: '#141D24',
         farmV2TabColor: '#4A5862',
