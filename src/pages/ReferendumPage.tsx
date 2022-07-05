@@ -564,12 +564,12 @@ export const LockPopUp = ({
               <VEARROW />
             </button>
           </div>
-          <span className="text-xs">
+          <span className="">
             {!ONLY_ZEROS.test(lpShare) ? (
               toPrecision(lpShare, 2)
             ) : (
               <button
-                className="text-gradientFrom flex items-center"
+                className="text-gradientFrom flex items-center text-xs "
                 onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
               >
                 <span>
