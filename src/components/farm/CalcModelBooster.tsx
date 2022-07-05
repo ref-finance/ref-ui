@@ -527,7 +527,7 @@ export function CalcEle(props: {
         } else {
           result = new BigNumber(1)
             .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
-            .toFixed();
+            .toFixed(2);
         }
         return result;
       }

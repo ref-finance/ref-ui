@@ -1279,7 +1279,7 @@ export default function FarmsHome(props: any) {
                           onClick={() => {
                             setShowLoveTokenModalVisible(true);
                           }}
-                          className="absolute opacity-80 xs:-left-6 md:-left-6 flex items-center justify-center text-sm xs:text-xs md:text-xs text-greenColor border border-greenColor bg-black bg-opacity-30 hover:bg-opacity-10 rounded-lg top-8 whitespace-nowrap pl-2 pr-1 py-1 cursor-pointer"
+                          className="absolute xs:-left-6 md:-left-6 flex items-center justify-center text-sm xs:text-xs md:text-xs  text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
                         >
                           Get LOVE <VEARROW className="ml-1"></VEARROW>
                         </span>
@@ -1296,7 +1296,7 @@ export default function FarmsHome(props: any) {
                           onClick={() => {
                             setLoveStakeModalVisible(true);
                           }}
-                          className="absolute xs:-left-10 md:-left-10 flex opacity-80 items-center justify-center text-sm xs:text-xs md:text-xs text-greenColor border border-greenColor bg-black bg-opacity-30 hover:bg-opacity-10 rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
+                          className="absolute xs:-left-10 md:-left-10 flex items-center justify-center text-sm xs:text-xs md:text-xs text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
                         >
                           Stake LOVE
                         </span>
@@ -1581,7 +1581,7 @@ function LoveStakeModal(props: {
       } else {
         result = new BigNumber(1)
           .plus(Math.log(+totalAmount) / Math.log(base))
-          .toFixed();
+          .toFixed(2);
       }
       return `x${toPrecision(result.toString(), 2)}`;
     } else if (+lastTotalAmount > 0) {
@@ -1591,7 +1591,7 @@ function LoveStakeModal(props: {
       } else {
         result = new BigNumber(1)
           .plus(Math.log(+lastTotalAmount) / Math.log(base))
-          .toFixed();
+          .toFixed(2);
       }
       return `x${toPrecision(result.toString(), 2)}`;
     } else {
@@ -1798,7 +1798,7 @@ function LoveUnStakeModal(props: {
       } else {
         init_radio = new BigNumber(1)
           .plus(Math.log(+loveTokenBalance) / Math.log(base))
-          .toFixed();
+          .toFixed(2);
       }
     }
     if (!loveTokenBalance || +loveTokenBalance == 0) {
@@ -1819,7 +1819,7 @@ function LoveUnStakeModal(props: {
         } else {
           current_radio = new BigNumber(1)
             .plus(Math.log(+remain) / Math.log(base))
-            .toFixed();
+            .toFixed(2);
         }
       }
       return (
@@ -2380,7 +2380,7 @@ function FarmView(props: {
         } else {
           result = new BigNumber(1)
             .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
-            .toFixed();
+            .toFixed(2);
         }
         return (
           <div
@@ -2410,7 +2410,7 @@ function FarmView(props: {
     } else {
       rate = new BigNumber(1)
         .plus(Math.log(+maxLoveShareAmount) / Math.log(base))
-        .toFixed();
+        .toFixed(2);
     }
     const apr = getActualTotalApr();
     let boostApr;
