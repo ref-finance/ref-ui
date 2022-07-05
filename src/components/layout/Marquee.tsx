@@ -172,7 +172,7 @@ export default function Marquee() {
                       {}
                       {Number(item.float_ratio) >= 0 ? (
                         <span
-                          className={`flex items-center text-xs text-lightGreenColor ${
+                          className={`flex items-center text-xs text-lightGreenColor_p ${
                             Number(item.float_ratio) == 1 ? 'hidden' : ''
                           }`}
                         >

@@ -1091,7 +1091,7 @@ const UnLockPopUp = ({
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
-                veLP tokens are not transferable. veLPT represent your voting power. You can check your veLPT in your Ref Account                </div>
+                veLP tokens are not transferable. veLPT represent your voting power.                 </div>
               </div>
             `}
                   data-for="tipId_unlock_ve"
@@ -1290,7 +1290,7 @@ const VotingPowerCard = ({
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
-                veLP tokens are not transferable. veLPT represent your voting power. You can check your veLPT in your Ref Account
+                veLP tokens are not transferable. veLPT represent your voting power. 
                                 </div>
               </div>
             `}
