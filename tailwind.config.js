@@ -156,10 +156,11 @@ module.exports = {
         lightPurpleColor: 'rgba(126, 69, 255, 0.2)',
         lightBGreyColor: '#646464',
         pendingPurple: '#615EFF',
-        otherGreenColor:'#00E9BF',
-        greyCircleColor:'#889FAE',
         mengColor:'#3A4D5B',
         lightGreenColor_p: '#70d44b',
+        otherGreenColor: '#00E9BF',
+        greyCircleColor: '#889FAE',
+        farmBoostingGotoFarm: 'rgba(43, 23, 85, 0.7)',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

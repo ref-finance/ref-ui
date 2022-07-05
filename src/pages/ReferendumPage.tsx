@@ -564,12 +564,12 @@ export const LockPopUp = ({
               <VEARROW />
             </button>
           </div>
-          <span className="text-xs">
+          <span className="">
             {!ONLY_ZEROS.test(lpShare) ? (
               toPrecision(lpShare, 2)
             ) : (
               <button
-                className="text-gradientFrom flex items-center"
+                className="text-gradientFrom flex items-center text-xs "
                 onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
               >
                 <span>
@@ -1429,11 +1429,8 @@ const FarmBoosterCard = ({
         <LOVEBoosterIcon />
       </div>
       <button
-        className="absolute flex whitespace-nowrap  xsm:bottom-1  right-4 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal text-sm "
+        className="absolute flex xsm:bg-none hover:bg-farmBoostingGotoFarm text-white hover:text-gradientFrom xsm:text-gradientFrom whitespace-nowrap  xsm:bottom-1  right-4 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal text-sm "
         style={{
-          backgroundColor: isClientMobile
-            ? 'transparent'
-            : 'rgba(43, 23, 85, 0.7)',
           fontSize: isClientMobile ? '10px' : '',
         }}
         onClick={() => {
@@ -1622,7 +1619,7 @@ const UserReferendumCard = ({
 
         <div className="flex items-center justify-between mt-10 mb-4 xsm:px-2">
           <div className="flex flex-col w-1/2 mr-4">
-            <div className={`text-3xl font-bold text-gradientFromHover `}>
+            <div className={`text-2xl font-bold text-gradientFromHover `}>
               <span className="flex items-center">
                 <span
                   className={`
@@ -1692,7 +1689,7 @@ const UserReferendumCard = ({
           </div>
           <div className="flex flex-col w-1/2">
             <div
-              className={`text-3xl font-bold text-gradientFromHover ${
+              className={`text-2xl font-bold text-gradientFromHover ${
                 ONLY_ZEROS.test(lockedLpShare) || !isSignedIn
                   ? 'opacity-20'
                   : ''
