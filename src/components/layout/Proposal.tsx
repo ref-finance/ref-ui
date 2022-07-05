@@ -4270,6 +4270,8 @@ export const FarmProposal = ({
         .toFixed(2)
     );
 
+    console.log(displayRatiosNew);
+
     const checkedRatiosNew = checkAllocations('100', displayRatiosNew || []);
 
     const allocationsNew = checkedRatiosNew?.map((r) => {
@@ -4488,7 +4490,11 @@ export const FarmProposal = ({
             true
           )}
           myPower={`${toPrecision(veShare, 2, true)}${new Big(veShareRaw || 0)
-            .div(farmProposal?.ve_amount_at_last_action || '1')
+            .div(
+              ONLY_ZEROS.test(farmProposal?.ve_amount_at_last_action)
+                ? '1'
+                : farmProposal?.ve_amount_at_last_action
+            )
             .times(100)
             .toFixed(2)}%`}
           ratioOld={`${toPrecision(
