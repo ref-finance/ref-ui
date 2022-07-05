@@ -177,7 +177,7 @@ export default function FarmsDetail(props: {
         } else {
           result = new BigNumber(1)
             .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
-            .toFixed();
+            .toFixed(2);
         }
         return result;
       }
@@ -644,7 +644,7 @@ function StakeContainer(props: {
     } else {
       rate = new BigNumber(1)
         .plus(Math.log(+maxLoveShareAmount) / Math.log(base))
-        .toFixed();
+        .toFixed(2);
     }
     const apr = getActualTotalApr();
     let boostApr;

@@ -156,8 +156,9 @@ module.exports = {
         lightPurpleColor: 'rgba(126, 69, 255, 0.2)',
         lightBGreyColor: '#646464',
         pendingPurple: '#615EFF',
-        otherGreenColor: '#00E9BF',
-        greyCircleColor: '#889FAE',
+        otherGreenColor:'#00E9BF',
+        greyCircleColor:'#889FAE',
+        mengColor:'#3A4D5B',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
