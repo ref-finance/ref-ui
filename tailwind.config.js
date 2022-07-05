@@ -148,7 +148,6 @@ module.exports = {
         priceBoardColor: '#172128',
         lightRedColor: '#FF7575',
         newpurple: '#7F43FF',
-        lightGreenColor: '#00FFF0',
         purpleColor: '#BD9FFF',
         lightPurpleColor: 'rgba(126, 69, 255, 0.2)',
         darkGreenColor: '#00CEC2',
@@ -157,6 +156,7 @@ module.exports = {
         lightBGreyColor: '#646464',
         pendingPurple: '#615EFF',
         otherGreenColor:'#00E9BF',
+        greyCircleColor:'#889FAE',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -629,5 +629,9 @@ const zh_CN = {
   dao_capital: 'DAO',
   available_to_stake: 'available to stake',
   recent_one_mounth_activity: '一个月的活动',
+  veTip:
+    'veLP tokens are not transferable. veLPT represent your voting power. You can check your veLPT in your Ref Account',
+  loveTip:
+    'LOVE stands for Liquidity Of veToken. LOVE, like any NEP-141 token, is transferable and can be swapped, pooled, staked and farmed. LOVE represents the underlying liquidity of your veTokens',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
