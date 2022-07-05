@@ -120,9 +120,7 @@ function MyShares({
           })} `}
         </span>
 
-        <span className="xs:hidden md:hidden">{displayPercent}%</span>
-
-        <span className="lg:hidden ml-1">{`(${displayPercent}%)`}</span>
+        <span className="md:ml-1 xs:ml-1">{`(${displayPercent}%)`}</span>
       </div>
     </div>
   );
