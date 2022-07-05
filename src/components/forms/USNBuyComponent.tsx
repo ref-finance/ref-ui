@@ -2,9 +2,15 @@ import React, { useEffect, useState, useContext } from 'react';
 import { USNIcon } from '~components/icon/Common';
 import { FormattedMessage } from 'react-intl';
 
-export default function USNBuyComponent({ hover }: { hover?: boolean }) {
+export default function USNBuyComponent({
+  hover,
+  onClick,
+}: {
+  hover?: boolean;
+  onClick?: any;
+}) {
   return (
-    <div className="flex items-end cursor-pointer">
+    <div className="flex items-end cursor-pointer" onClick={onClick}>
       <div
         className={`flex items-center text-xs text-chartBg  rounded-full xs:hidden ${
           hover

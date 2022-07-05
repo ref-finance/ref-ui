@@ -458,6 +458,7 @@ export const LockPopUp = ({
   const { globalState } = useContext(WalletContext);
 
   const isSignedIn = globalState.isSignedIn;
+  const intl = useIntl();
 
   const unlockTime = Number(
     new Big(accountInfo?.unlock_timestamp || 0)
@@ -595,7 +596,7 @@ export const LockPopUp = ({
 
         <div className="text-sm text-farmText py-5 xsm:pt-3 pb-2.5 flex items-center justify-between">
           <span>
-            <FormattedMessage id="durations" defaultMessage="Durations" />
+            <FormattedMessage id="stake_for" defaultMessage="Duration" />
           </span>
 
           <span className="text-white">
@@ -708,12 +709,9 @@ export const LockPopUp = ({
                   data-tip={`
               <div className="text-xs">
                 <div 
-                  style="font-weight: 700",
-                >veLPT</div>
-                <div 
                   style="max-width: 250px;font-weight:400",
                 >
-The veLPT is not an actual, transferable token, but represents your voting power corresponding to your locked LP position. It only shows up on your Ref account balance
+                ${intl.formatMessage({ id: 'veTip' })}
                 </div>
               </div>
             `}
@@ -786,12 +784,10 @@ The veLPT is not an actual, transferable token, but represents your voting power
                   data-tip={`
               <div className="text-xs">
                 <div 
-                  style="font-weight: 700",
-                >LOVE</div>
-                <div 
                   style="max-width: 250px;font-weight:400",
                 >
-                "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded                </div>
+                ${intl.formatMessage({ id: 'loveTip' })}
+                </div>
               </div>
             `}
                   data-for="tipId_lock_love"

@@ -9,7 +9,6 @@ import {
 } from '../services/m-token';
 import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import BigNumber from 'bignumber.js';
-import { ParserDependencies } from 'mathjs';
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 import moment from 'moment';
@@ -25,7 +24,7 @@ export const parseAction = async (
       return await parseSwap(params);
     }
     case 'withdraw': {
-      return await parseWithdraw(params);
+      return await parseWithdraw(params, tokenId);
     }
     case 'register_tokens': {
       return parseRegisterTokens(params);
@@ -165,19 +164,30 @@ const parseSwap = async (params: any) => {
   };
 };
 
-const parseWithdraw = async (params: any) => {
+const parseWithdraw = async (params: any, tokenId: string) => {
   try {
     params = JSON.parse(params);
   } catch (error) {
     params = {};
   }
-  const token = await ftGetTokenMetadata(params.token_id);
-
+  const field: any = {};
+  const { token_id, amount } = params;
+  if (token_id) {
+    const token = await ftGetTokenMetadata(token_id);
+    field.Amount = toReadableNumber(token.decimals, amount);
+    field.Token = token.symbol;
+    field['Token Address'] = token.id;
+  } else {
+    // present is sell usn
+    const token = await ftGetTokenMetadata(tokenId);
+    field.Amount = toReadableNumber(token.decimals, amount);
+    if (tokenId == config.USN_ID) {
+      field.Action = 'Sell USN';
+    }
+  }
   return {
     Action: 'Withdraw',
-    Amount: toReadableNumber(token.decimals, params.amount),
-    Token: token.symbol,
-    'Token Address': token.id,
+    ...field,
   };
 };
 
@@ -442,7 +452,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       'Receiver ID': receiver_id,
     };
   } else {
-    Action = 'Deposit';
+    Action = receiver_id == config.USN_ID ? 'Buy USN' : 'Deposit';
     const token = await ftGetTokenMetadata(tokenId);
     Amount = toReadableNumber(token.decimals, amount);
     return {

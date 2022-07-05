@@ -1237,7 +1237,7 @@ export default function FarmsHome(props: any) {
             >
               <div className="col-span-2 xs:col-span-1 md:col-span-1">
                 <div className="flex items-center justify-between lg:hidden">
-                  <span className="text-2xl text-lightGreenColor font-bold">
+                  <span className="text-2xl text-white font-bold">
                     Farm Booster
                   </span>
                   <span className="flex items-center" onClick={switchStatus}>
@@ -1256,28 +1256,21 @@ export default function FarmsHome(props: any) {
                   </span>
                 </div>
                 <div
-                  className={`flex justify-between xs:h-auto md:h-auto h-full rounded-2xl xs:justify-center md:justify-center xs:mt-3 md:mt-3 ${
+                  className={`flex justify-between xs:h-auto md:h-auto h-full rounded-2xl xs:justify-center bg-cardBg md:justify-center xs:mt-3 md:mt-3 ${
                     !boostInstructions && isMobileSite ? 'hidden' : ''
                   }`}
-                  style={{
-                    backgroundImage:
-                      'linear-gradient(90deg, #7C47FD 0%, #34177C 100%)',
-                  }}
                 >
-                  <div className="flex flex-col justify-between  items-center lg:items-start pl-14 pb-16 pt-4 xs:pl-0 md:pl-0">
+                  <div className="flex flex-col justify-between  items-center lg:items-start pl-14 pb-14 pt-5 xs:pl-0 md:pl-0">
                     <span
-                      className="text-senderHot xs:hidden md:hidden transform -translate-x-9"
+                      className="text-white xs:hidden md:hidden transform -translate-x-9"
                       style={{ fontSize: '32px' }}
                     >
                       Farm Booster
                     </span>
-                    <span className="lg:hidden text-white text-sm mb-3">
-                      How to get farm booster?
-                    </span>
                     <div className="flex justify-center items-center">
                       <div className="relative flex items-center justify-center mr-1.5">
                         <span
-                          className="ball flex items-center justify-center bg-lightGreenColor text-sm text-priceBoardColor rounded-full"
+                          className="ball flex items-center justify-center bg-greyCircleColor text-sm text-priceBoardColor rounded-full"
                           style={{ width: '22px', height: '22px' }}
                         >
                           1
@@ -1286,15 +1279,15 @@ export default function FarmsHome(props: any) {
                           onClick={() => {
                             setShowLoveTokenModalVisible(true);
                           }}
-                          className="absolute xs:-left-6 md:-left-6 flex items-center justify-center text-sm xs:text-xs md:text-xs text-lightGreenColor border border-lightGreenColor hover:bg-black hover:bg-opacity-20 rounded-lg top-8 whitespace-nowrap pl-2 pr-1 py-1 cursor-pointer"
+                          className="absolute opacity-80 xs:-left-6 md:-left-6 flex items-center justify-center text-sm xs:text-xs md:text-xs text-greenColor border border-greenColor bg-black bg-opacity-30 hover:bg-opacity-10 rounded-lg top-8 whitespace-nowrap pl-2 pr-1 py-1 cursor-pointer"
                         >
                           Get LOVE <VEARROW className="ml-1"></VEARROW>
                         </span>
                       </div>
-                      <div className="line w-32 h-px bg-lightGreenColor xs:w-24 md:w-24"></div>
+                      <div className="line w-32 h-px bg-white bg-opacity-20 xs:w-24 md:w-24"></div>
                       <div className="relative flex items-center justify-center mx-1.5">
                         <span
-                          className="ball flex items-center justify-center bg-lightGreenColor text-sm text-priceBoardColor rounded-full"
+                          className="ball flex items-center justify-center bg-greyCircleColor text-sm text-priceBoardColor rounded-full"
                           style={{ width: '22px', height: '22px' }}
                         >
                           2
@@ -1303,24 +1296,24 @@ export default function FarmsHome(props: any) {
                           onClick={() => {
                             setLoveStakeModalVisible(true);
                           }}
-                          className="absolute xs:-left-10 md:-left-10 flex items-center justify-center text-sm xs:text-xs md:text-xs text-lightGreenColor border border-lightGreenColor hover:bg-black hover:bg-opacity-20 rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
+                          className="absolute xs:-left-10 md:-left-10 flex opacity-80 items-center justify-center text-sm xs:text-xs md:text-xs text-greenColor border border-greenColor bg-black bg-opacity-30 hover:bg-opacity-10 rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
                         >
                           Stake LOVE
                         </span>
                       </div>
-                      <div className="line w-32 h-px bg-lightGreenColor xs:w-24 md:w-24"></div>
+                      <div className="line w-32 h-px bg-white bg-opacity-20 xs:w-24 md:w-24"></div>
                       <div className="relative flex items-center justify-center ml-1.5">
                         <span
-                          className="ball flex items-center justify-center bg-lightGreenColor text-sm text-priceBoardColor rounded-full"
+                          className="ball flex items-center justify-center bg-greyCircleColor text-sm text-priceBoardColor rounded-full"
                           style={{ width: '22px', height: '22px' }}
                         >
                           3
                         </span>
-                        <span className="absolute flex items-center justify-center text-sm text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:hidden md:hidden">
-                          Get Farm Boost
+                        <span className="absolute flex items-center justify-center text-sm text-greyCircleColor rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:hidden md:hidden">
+                          Get Booster
                         </span>
-                        <span className="absolute flex items-center justify-center text-xs text-white rounded-lg top-8 whitespace-nowrap px-5 py-1 -left-14 lg:hidden">
-                          Farm Boost
+                        <span className="absolute flex items-center justify-center text-xs text-greyCircleColor rounded-lg top-8 whitespace-nowrap px-5 py-1 -left-14 lg:hidden">
+                          Get Booster
                         </span>
                       </div>
                     </div>
@@ -1420,7 +1413,7 @@ export default function FarmsHome(props: any) {
                 <a className="text-xs text-greenColor mx-1">
                   {showEndedFarmList ? 'Hidden' : 'Show'}
                 </a>
-                the {endFarmLength} ended farms
+                ended farms
               </div>
               <p
                 className={`text-xl text-farmText xs:mt-5 md:mt-5 ${
@@ -1439,7 +1432,7 @@ export default function FarmsHome(props: any) {
                 <a className="text-xs text-greenColor mx-1">
                   {showEndedFarmList ? 'Hidden' : 'Show'}
                 </a>
-                the {endFarmLength} ended farms
+                ended farms
               </div>
             </div>
             <div
@@ -3161,11 +3154,10 @@ export const getPoolIdBySeedId = (seed_id: string) => {
 };
 
 function LoveMask() {
+  const intl = useIntl();
   const loveTip = () => {
     return `<div class="text-xs text-navHighLightText w-64">
-    <h1 class="font-bold">LOVE</h1>
-    <div>
-    "Love" stands for "liquidity of veToken." It is a fungible token that is transferable, and represents the liquidity underlying your veTokens, i.e. your locked up LP shares. The Love token can be used to farm, boost rewards, and even be traded</div>
+    ${intl.formatMessage({ id: 'loveTip' })}
   </div>`;
   };
   return (

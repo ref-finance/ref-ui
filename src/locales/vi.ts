@@ -667,5 +667,10 @@ const vi = {
   total_near_amount: 'Số lượng tất cả NEAR',
   near_value: 'NEAR giá trị',
   available_to_stake: 'available to stake',
+  recent_one_mounth_activity: 'Hoạt động một tháng',
+  veTip:
+    'veLP tokens are not transferable. veLPT represent your voting power. You can check your veLPT in your Ref Account',
+  loveTip:
+    'LOVE stands for Liquidity Of veToken. LOVE, like any NEP-141 token, is transferable and can be swapped, pooled, staked and farmed. LOVE represents the underlying liquidity of your veTokens',
 };
 export default Object.assign(vi, vi_in_risks_page);

@@ -48,6 +48,7 @@ interface TokenAmountProps {
   postSelected?: TokenMetadata;
   onSelectPost?: (token: TokenMetadata) => void;
   forWrap?: boolean;
+  showQuickButton?: Boolean;
 }
 
 export function HalfAndMaxAmount({
@@ -459,5 +460,71 @@ export function CrossSwapTokens({
         </span>
       </div>
     </div>
+  );
+}
+export function TokenAmountV2({
+  amount,
+  max,
+  total,
+  selectedToken,
+  onChangeAmount,
+  disabled = false,
+  isError,
+  tokenPriceList,
+  showQuickButton = false,
+}: TokenAmountProps) {
+  const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
+  return (
+    <>
+      <div
+        className={`flex items-center justify-between text-xs font-semibold pb-0.5`}
+      >
+        {selectedToken && (
+          <div className="flex items-center">
+            <img
+              className="w-7 h-7 rounded-full border border-greenLight"
+              src={selectedToken.icon}
+            ></img>
+            <span className="text-sm text-white font-bold ml-2">
+              {selectedToken.symbol}
+            </span>
+          </div>
+        )}
+        <div className="flex items-center">
+          {onChangeAmount && showQuickButton ? (
+            <HalfAndMaxAmount
+              token={selectedToken}
+              max={max}
+              onChangeAmount={onChangeAmount}
+              amount={amount}
+            />
+          ) : null}
+          <div
+            className={`text-primaryText ${
+              showQuickButton ? 'border-l border-primaryText pl-3 ml-1' : ''
+            }`}
+          >
+            <span title={total}>{toPrecision(total, 3, true)}</span>
+          </div>
+        </div>
+      </div>
+      <fieldset className="relative flex  align-center my-2">
+        <InputAmount
+          className="w-full border border-transparent rounded"
+          id="inputAmount"
+          name={selectedToken?.id}
+          max={max}
+          value={amount}
+          onChangeAmount={onChangeAmount}
+          disabled={disabled}
+          forSwap={true}
+          price={
+            tokenPrice && !ONLY_ZEROS.test(amount) && !isError
+              ? multiply(tokenPrice, amount)
+              : null
+          }
+        />
+      </fieldset>
+    </>
   );
 }
