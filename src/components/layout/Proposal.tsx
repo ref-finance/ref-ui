@@ -1470,8 +1470,8 @@ export const PreviewPopUp = (
                 />
                 <InfoRow
                   name={intl.formatMessage({
-                    id: 'total_veLPT',
-                    defaultMessage: 'total veLPT',
+                    id: 'voted_veLPT',
+                    defaultMessage: 'Voted veLPT',
                   })}
                   value={toPrecision(totalVE, 2)}
                   valueClass="xsm:ml-0 "
@@ -1668,8 +1668,8 @@ export const PreviewPopUp = (
             <div className="w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
               <InfoRow
                 name={intl.formatMessage({
-                  id: 'total_velpt',
-                  defaultMessage: 'Total veLPT',
+                  id: 'voted_velpt',
+                  defaultMessage: 'Voted veLPT',
                 })}
                 value={toPrecision(totalVE, 2)}
               />
@@ -4788,7 +4788,11 @@ export const FarmProposal = ({
         bgcolor="bg-transparent"
         padding={'px-2 pt-8 pb-4'}
       >
-        <div className="flex items-center justify-between">
+        <div
+          className={`flex items-center  ${
+            lastRoundFarmProposal ? 'justify-between' : 'justify-end'
+          }`}
+        >
           {!lastRoundFarmProposal ? null : (
             <BorderGradientButton
               text={
