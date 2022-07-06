@@ -496,6 +496,18 @@ function StakeContainer(props: {
     });
     return apr;
   }
+  function getActualTotalBaseApr() {
+    const farms = detailData.farmList;
+    let apr = 0;
+    const allPendingFarms = isPending();
+    farms.forEach(function (item: FarmBoost) {
+      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+        apr = +new BigNumber(apr).plus(item.baseApr).toFixed();
+      }
+    });
+    return apr;
+  }
   function getPoolFeeApr(dayVolume: string) {
     let result = '0';
     if (dayVolume) {
@@ -646,7 +658,7 @@ function StakeContainer(props: {
         .plus(Math.log(+maxLoveShareAmount) / Math.log(base))
         .toFixed(2);
     }
-    const apr = getActualTotalApr();
+    const apr = getActualTotalBaseApr();
     let boostApr;
     if (apr) {
       boostApr = new BigNumber(apr).multipliedBy(rate);
