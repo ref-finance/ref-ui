@@ -961,6 +961,7 @@ export interface FarmBoost {
   total_reward: string;
   token_meta_data?: TokenMetadata;
   apr?: string;
+  baseApr?: string;
 }
 interface StakeOptions {
   token_id?: string;

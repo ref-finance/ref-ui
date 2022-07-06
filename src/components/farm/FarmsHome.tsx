@@ -389,7 +389,8 @@ export default function FarmsHome(props: any) {
   async function getFarmDataList(initData: any) {
     const { list_seeds, tokenPriceList, pools } = initData;
     const promise_new_list_seeds = list_seeds.map(async (newSeed: Seed) => {
-      const { seed_id, farmList, total_seed_amount } = newSeed;
+      const { seed_id, farmList, total_seed_amount, total_seed_power } =
+        newSeed;
       const poolId = getPoolIdBySeedId(seed_id);
       const pool = pools.find((pool: PoolRPCView) => {
         if (pool.id == Number(poolId)) return true;
@@ -417,6 +418,7 @@ export default function FarmsHome(props: any) {
         DECIMALS,
         total_seed_amount
       );
+      const seedTotalStakedPower = toReadableNumber(DECIMALS, total_seed_power);
       const poolShares = Number(
         toReadableNumber(DECIMALS, shares_total_supply)
       );
@@ -426,6 +428,15 @@ export default function FarmsHome(props: any) {
           : Number(
               toPrecision(
                 ((Number(seedTotalStakedAmount) * tvl) / poolShares).toString(),
+                1
+              )
+            );
+      const seedPowerTvl =
+        poolShares == 0
+          ? 0
+          : Number(
+              toPrecision(
+                ((Number(seedTotalStakedPower) * tvl) / poolShares).toString(),
                 1
               )
             );
@@ -441,10 +452,16 @@ export default function FarmsHome(props: any) {
           tokenPriceList[reward_token]?.price || 0
         );
         const apr =
+          seedPowerTvl == 0
+            ? 0
+            : (Number(readableNumber) * 360 * reward_token_price) /
+              seedPowerTvl;
+        const baseApr =
           seedTvl == 0
             ? 0
             : (Number(readableNumber) * 360 * reward_token_price) / seedTvl;
         farm.apr = apr.toString();
+        farm.baseApr = baseApr.toString();
       });
       newSeed.pool = pool;
       newSeed.seedTvl = seedTvl?.toString() || '0';
@@ -2023,6 +2040,18 @@ function FarmView(props: {
     });
     return apr;
   }
+  function getActualTotalBaseApr() {
+    const farms = seed.farmList;
+    let apr = 0;
+    const allPendingFarms = isPending();
+    farms.forEach(function (item: FarmBoost) {
+      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+        apr = +new BigNumber(apr).plus(item.baseApr).toFixed();
+      }
+    });
+    return apr;
+  }
   function getAllRewardsSymbols() {
     const tempMap = {};
     seed.farmList.forEach((farm: FarmBoost) => {
@@ -2412,7 +2441,7 @@ function FarmView(props: {
         .plus(Math.log(+maxLoveShareAmount) / Math.log(base))
         .toFixed(2);
     }
-    const apr = getActualTotalApr();
+    const apr = getActualTotalBaseApr();
     let boostApr;
     if (apr) {
       boostApr = new BigNumber(apr).multipliedBy(rate);
