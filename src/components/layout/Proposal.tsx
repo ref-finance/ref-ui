@@ -4827,7 +4827,7 @@ export const FarmProposal = ({
           <span className="col-span-1 text-center">
             <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
           </span>
-          <span className="col-span-1 text-center">
+          <span className="col-span-1 text-center flex items-center whitespace-nowrap flex-nowrap">
             <FormattedMessage
               id="ref_allocation"
               defaultMessage={'REF allocation'}

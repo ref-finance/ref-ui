@@ -817,7 +817,7 @@ export const LockPopUp = ({
               <TipTriangle h="16" w="17" c="#00C6A2" />
             </span>
             <span>
-              <FormattedMessage id="locking" defaultMessage={'Locking'} />{' '}
+              <FormattedMessage id="locking_ve" defaultMessage={'Locking'} />{' '}
               <span className="text-gradientFrom">
                 {toPrecision(inputValue, 2)}
               </span>{' '}
