@@ -606,7 +606,7 @@ const vi = {
 
   more_than_seed: 'Input must be greater than or equal to ',
   how_to_earn_more: 'How to earn more?',
-  you_staked: 'You Staked',
+  you_shares: 'You Shares',
   lock_your_lp_tokens_with_booster: 'Lock your LP tokens for boosted rewards',
   unstaked_anytime_no_booster: 'Unstaked anytime, no booster',
   ordinary_stake: 'Ordinary Stake',

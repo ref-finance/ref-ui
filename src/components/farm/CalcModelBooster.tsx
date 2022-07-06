@@ -508,10 +508,14 @@ export function CalcEle(props: {
     }
   }
   function getBoostMutil() {
-    if (!boostConfig) return '';
+    let lastObj: any = {};
+    if (!boostConfig) return lastObj;
     const { affected_seeds, booster_decimal } = boostConfig;
     const { seed_id } = seed;
-    const user_seed = user_seeds_map[seed_id] || {};
+    const user_seed: UserSeedInfo = user_seeds_map[seed_id];
+    if (user_seed && user_seed.free_amount) {
+      lastObj.amount = user_seed.free_amount;
+    }
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
     if (base && loveSeed) {
@@ -529,13 +533,14 @@ export function CalcEle(props: {
             .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
             .toFixed(2);
         }
-        return result;
+        lastObj.radio = result;
+        return lastObj;
       }
-      return '';
+      return lastObj;
     }
-    return '';
+    return lastObj;
   }
-  const seedRadio = getBoostMutil();
+  const { radio: seedRadio, amount: seed_free_amount } = getBoostMutil();
   return (
     <div>
       <div>
@@ -633,7 +638,11 @@ export function CalcEle(props: {
               <label className="text-sm text-farmText mr-2">
                 <FormattedMessage id="booster"></FormattedMessage>
               </label>
-              <span className="flex items-center text-sm text-senderHot text-right break-all">
+              <span
+                className={`flex items-center text-sm text-right break-all ${
+                  +seed_free_amount > 0 ? 'text-senderHot' : 'text-farmText'
+                }`}
+              >
                 {getRate()}
                 <LightningIcon></LightningIcon>
               </span>

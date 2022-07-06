@@ -47,12 +47,7 @@ export default function FarmsMigrate() {
       get_price_list();
     }
   }, []);
-  const {
-    user_migrate_seeds,
-    seed_loading,
-    user_claimed_rewards,
-    rewards_loading,
-  } = useMigrate_user_data();
+  const { user_migrate_seeds, seed_loading } = useMigrate_user_data();
 
   async function get_price_list() {
     const tokenPriceList = await getBoostTokenPrices();
@@ -61,14 +56,9 @@ export default function FarmsMigrate() {
   function goBoostFarmPage() {
     history.push('/farmsBoost');
   }
-  const noData =
-    user_migrate_seeds.length == 0 &&
-    Object.keys(user_claimed_rewards).length == 0 &&
-    !seed_loading &&
-    !rewards_loading;
+  const noData = user_migrate_seeds.length == 0 && !seed_loading;
 
-  if (isSignedIn && (seed_loading || rewards_loading))
-    return <Loading></Loading>;
+  if (isSignedIn && seed_loading) return <Loading></Loading>;
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12 xs:-mt-4 md:-mt-4`}>
       <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
@@ -107,12 +97,12 @@ export default function FarmsMigrate() {
             ) : (
               <div>
                 <span className="flex w-full xs:justify-center md:justify-center text-2xl font-bold text-white whitespace-nowrap">
-                  V2 New Farm Migration
+                  V2 New Farms
                 </span>
                 <p className="text-base text-white mt-4">
-                  V2 Farm will support boost farm for the LOVE token stakers.
-                  Meanwhile, the V1 farm rewards will stop at 1. July,2022.
-                  Please migrate your farms and withdraw your rewards.
+                  V2 farms will support boosted farms. The V1 farms will run dry
+                  of rewards the{' '}
+                  <span className="font-bold">1st. August, 2022.</span>
                 </p>
               </div>
             )}
@@ -136,14 +126,14 @@ export default function FarmsMigrate() {
             </div>
           ) : null}
 
-          {Object.keys(user_claimed_rewards).length > 0 ? (
+          {/* {Object.keys(user_claimed_rewards).length > 0 ? (
             <div className="withDrawBox bg-cardBg rounded-2xl p-1 mt-3">
               <WithDrawBox
                 userRewardList={user_claimed_rewards}
                 tokenPriceList={all_token_price_list}
               ></WithDrawBox>
             </div>
-          ) : null}
+          ) : null} */}
         </>
       )}
     </div>
