@@ -605,7 +605,7 @@ export const LockPopUp = ({
           </span>
         </div>
 
-        {preLocked && leftTime > 0 ? (
+        {preLocked && leftTime > config?.min_locking_duration_sec ? (
           <div className="flex items-center pb-1.5">
             <span className="mr-1">
               <TipTriangle h="14" w="13" c="#00C6A2" />
@@ -615,24 +615,22 @@ export const LockPopUp = ({
                 id="ve_lock_tip"
                 defaultMessage={'Cannot be earlier than current unlocking date'}
               />
-              {leftTime > config?.min_locking_duration_sec ? (
-                <span>
-                  {`, `}
-                  <button
-                    className={` font-bold  underline text-gradientFrom hover:text-senderHot
+              <span>
+                {`, `}
+                <button
+                  className={` font-bold  underline text-gradientFrom hover:text-senderHot
                     ${duration === leftTime ? '  text-senderHot ' : ''} `}
-                    onClick={() => {
-                      setDuration(leftTime);
-                    }}
-                    style={{
-                      textDecorationThickness: '0.5px',
-                      textUnderlineOffset: '1px',
-                    }}
-                  >
-                    {timeStampToDate(unlockTime)}
-                  </button>
-                </span>
-              ) : null}
+                  onClick={() => {
+                    setDuration(leftTime);
+                  }}
+                  style={{
+                    textDecorationThickness: '0.5px',
+                    textUnderlineOffset: '1px',
+                  }}
+                >
+                  {timeStampToDate(unlockTime)}
+                </button>
+              </span>
             </span>
           </div>
         ) : null}
