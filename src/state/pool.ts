@@ -687,7 +687,7 @@ export const useYourliquidity = (poolId: number) => {
   };
 };
 
-export const usePoolShare = (id: string | number) => {
+export const usePoolShare = (id: string | number, decimalLimit?: number) => {
   const [myPoolShare, setMyPoolShare] = useState<string>('0');
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -699,5 +699,11 @@ export const usePoolShare = (id: string | number) => {
     });
   }, [isSignedIn]);
 
-  return myPoolShare;
+  if (!decimalLimit) {
+    return myPoolShare;
+  } else {
+    return ONLY_ZEROS.test(toNonDivisibleNumber(decimalLimit, myPoolShare))
+      ? '0'
+      : myPoolShare;
+  }
 };

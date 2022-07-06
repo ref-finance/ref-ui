@@ -141,10 +141,12 @@ import {
 import { CloseIcon } from '../icon/Actions';
 import { getProposal } from '../../services/referendum';
 import { NoResultFilter } from '../icon/Referendum';
+import QuestionMark from '../farm/QuestionMark';
 import {
   ConnectToNearBtnGradient,
   ConnectToNearBtnGradientMoible,
 } from '../button/Button';
+import ReactTooltip from 'react-tooltip';
 const VotedOnlyKey = 'REF_FI_GOV_PROPOSAL_VOTED_ONLY';
 const BonusOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
 
@@ -1407,10 +1409,7 @@ export const PreviewPopUp = (
         <div className="text-white text-sm relative">
           <div className={`text-center relative text-xl pb-7 xsm:pb-3`}>
             <span className="text-lg">
-              <FormattedMessage
-                id="preview_your_proposal"
-                defaultMessage={'Preview Your Proposal'}
-              />
+              <FormattedMessage id="preview" defaultMessage={'Preview'} />
             </span>
 
             <button
@@ -1432,8 +1431,8 @@ export const PreviewPopUp = (
 
             <InfoRow
               name={intl.formatMessage({
-                id: 'proposer',
-                defaultMessage: 'Proposer',
+                id: 'Creator',
+                defaultMessage: 'Creator',
               })}
               value={getAccountName(getCurrentWallet().wallet.getAccountId())}
               valueClass={'font-bold'}
@@ -1639,8 +1638,8 @@ export const PreviewPopUp = (
 
             <InfoRow
               name={intl.formatMessage({
-                id: 'proposer',
-                defaultMessage: 'Proposer',
+                id: 'Creator',
+                defaultMessage: 'Creator',
               })}
               value={`${getAccountName(
                 getCurrentWallet().wallet.getAccountId()
@@ -1873,6 +1872,9 @@ const FarmChart = ({
       afterRatio.minus(beforeRatio).times(100).toString()
     );
 
+    const votedThisActiveOption =
+      ratio[voted] && ratio[voted]?.name === data[activeIndex]?.name;
+
     const displayContribution = new BigNumber(votedAmount).eq(
       new BigNumber(proposal?.votes?.[votedIndex] || '0')
     )
@@ -1908,12 +1910,20 @@ const FarmChart = ({
               tokens={activeFarm.tokens}
               size={forLastRound ? '6' : '7'}
             />
-            <div className="flex items-center">
+            <div
+              className={`flex items-center ${
+                votedThisActiveOption ? 'valueStyleVE' : ''
+              }  `}
+            >
               <Symbols tokens={activeFarm.tokens} seperator={'-'} />
             </div>
           </div>
           {activeFarm.poolId ? (
-            <div className=" ml-1 text-white text-right">{`#${activeFarm.poolId}`}</div>
+            <div className="flex items-center justify-end">
+              {votedThisActiveOption ? <YouVotedButton /> : null}
+
+              <div className="ml-2 text-white text-right">{`#${activeFarm.poolId}`}</div>
+            </div>
           ) : null}
         </div>
 
@@ -2023,67 +2033,37 @@ const FarmChart = ({
       <g
         className={`${activeIndex === index ? 'active-label' : 'sleep-label'}`}
       >
-        {votedThisOption && thereshR >= 3 ? (
-          <foreignObject
-            x={
-              x +
-              78 * (cos > 0 ? 0 : -1) +
-              (isClientMobie ? (pairSymbol.length > 10 ? 18 : 15) : 0) *
-                (cos > 0 ? -1 : 1)
-            }
-            y={!data[index].poolId ? y - 25 : y - 45}
-            height="24"
-            width={'78'}
-            className=""
-          >
-            <NewGradientButton
-              text={
-                <FormattedMessage id="you_voted" defaultMessage={'You Voted'} />
-              }
-              className=" text-white text-xs opacity-100 cursor-default"
-              padding="px-2 py-1"
-            />
-          </foreignObject>
-        ) : null}
+        <defs>
+          <linearGradient id="votedIndex" x1="0" x2="100%" y1="0" y2="0%">
+            <stop stop-color="#00C6A2" offset="0%" stopOpacity={'1'} />
 
+            <stop stop-color="#7F43FF" offset="100%" stopOpacity={'1'} />
+          </linearGradient>
+        </defs>
         <text
           x={
             x +
             (isClientMobie ? (pairSymbol.length > 10 ? 18 : 15) : 0) *
               (cos > 0 ? -1 : 1)
           }
-          y={thereshR < 3 ? y : !data[index].poolId ? y + 10 : y - 10}
-          fill="#91A2AE"
+          y={thereshR < 3 && !emptyVote ? y : y - 10}
           fontSize={isClientMobie ? '12px' : '14px'}
+          fontWeight="bold"
           textAnchor={x > cx ? 'start' : 'end'}
           dominantBaseline="central"
+          fill={votedThisOption ? 'url(#votedIndex)' : '#91a2ae'}
         >
           {pairSymbol}
         </text>
-        {!data[index].poolId || thereshR < 3 ? null : (
+
+        {thereshR < 3 && !emptyVote ? null : (
           <text
             x={
               x +
               (isClientMobie ? (pairSymbol.length > 10 ? 18 : 15) : 0) *
                 (cos > 0 ? -1 : 1)
             }
-            y={y + 10}
-            fill="#91A2AE"
-            fontSize={isClientMobie ? '12px' : '14px'}
-            textAnchor={x > cx ? 'start' : 'end'}
-            dominantBaseline="central"
-          >
-            {`#${data[index].poolId}`}
-          </text>
-        )}
-        {thereshR < 3 ? null : (
-          <text
-            x={
-              x +
-              (isClientMobie ? (pairSymbol.length > 10 ? 18 : 15) : 0) *
-                (cos > 0 ? -1 : 1)
-            }
-            y={y + 30}
+            y={y + 8}
             fill="white"
             textAnchor={x > cx ? 'start' : 'end'}
             dominantBaseline="central"
@@ -2481,8 +2461,8 @@ const GovItemDetail = ({
       >
         <span className="xsm:hidden">
           <FormattedMessage
-            id="proposal_detail"
-            defaultMessage={'Proposal Detail'}
+            id="proposal_details"
+            defaultMessage={'Proposal Details'}
           />
         </span>
 
@@ -2561,8 +2541,8 @@ const GovItemDetail = ({
 
         <InfoRow
           name={intl.formatMessage({
-            id: 'proposer',
-            defaultMessage: 'Proposer',
+            id: 'Creator',
+            defaultMessage: 'Creator',
           })}
           value={getAccountName(proposal.proposer)}
           valueClass={'font-bold'}
@@ -3337,7 +3317,7 @@ const GovProposalItem = ({
             >
               <div className="flex items-center">
                 <span className="text-primaryText mr-3 xsm:hidden">
-                  <FormattedMessage id="proposer" defaultMessage={'Proposer'} />
+                  <FormattedMessage id="Creator" defaultMessage={'Creator'} />
                 </span>
 
                 <span
@@ -3529,7 +3509,7 @@ const GovProposalItem = ({
               <div className="flex items-center ">
                 <BorderGradientButton
                   text={
-                    <FormattedMessage id="detail" defaultMessage={'Detail'} />
+                    <FormattedMessage id="details" defaultMessage={'Details'} />
                   }
                   width={`h-8 w-20  ${
                     status === 'Expired' ? 'opacity-70' : ''
@@ -3611,7 +3591,7 @@ export const ProposalTab = ({
       }}
     >
       <NewGradientButton
-        className={`w-72  xsm:w-1/2 mr-2 xsm:mr-0 ${
+        className={`lg:text-lg lg:h-12 w-72  xsm:w-1/2 mr-2 xsm:mr-0 ${
           curTab === PROPOSAL_TAB.FARM ? 'opacity-100' : ''
         }`}
         grayDisable={curTab !== PROPOSAL_TAB.FARM}
@@ -3627,7 +3607,7 @@ export const ProposalTab = ({
       />
 
       <NewGradientButton
-        className={`w-72 xsm:w-1/2  xsm:mr-0 mr-2 ${
+        className={`lg:text-lg lg:h-12 w-72 xsm:w-1/2  xsm:mr-0 mr-2 ${
           curTab === PROPOSAL_TAB.GOV ? 'opacity-100' : ''
         }`}
         onClick={() => setTab(PROPOSAL_TAB.GOV)}
@@ -4502,7 +4482,7 @@ export const FarmProposal = ({
             2,
             true
           )}
-          myPower={`${toPrecision(veShare, 2, true)}(${new Big(veShareRaw || 0)
+          myPower={`${toPrecision(veShare, 2, true)} (${new Big(veShareRaw || 0)
             .div(
               new Big(farmProposal?.ve_amount_at_last_action || '0').plus(
                 veShareRaw || 1
@@ -5385,12 +5365,7 @@ export const CreateGovProposal = ({
         isOpen={showPreview}
         onRequestClose={() => setShowPreview(false)}
         index={index}
-        title={
-          <FormattedMessage
-            id="preview_your_proposal"
-            defaultMessage={'Preview your proposal'}
-          />
-        }
+        title={<FormattedMessage id="preview" defaultMessage={'Preview'} />}
         startTime={startTime}
         endTime={endTime}
         setStartTime={setStartTime}
@@ -5446,7 +5421,7 @@ export const GovProposal = ({
 
   const [filterOpen, setFilterOpen] = useState<boolean>(false);
 
-  const VEmeta = useVEmeta();
+  const VEmeta = useContext(ReferendumPageContext).VEmeta;
 
   const voteHistory = useVoteDetailHisroty();
 
@@ -5513,27 +5488,67 @@ export const GovProposal = ({
           className={`flex items-center justify-between relative pb-6 xsm:pb-2`}
         >
           <div className="flex items-center">
-            {!VEmeta?.whitelisted_accounts?.includes(
-              getCurrentWallet().wallet.getAccountId()
-            ) ? null : (
-              <BorderGradientButton
-                text={
-                  <FormattedMessage
-                    id="create_proposal"
-                    defaultMessage={'Create Proposal'}
-                  />
-                }
-                onClick={() => {
-                  hideElementsMobile();
+            <div
+              className="ml-1"
+              data-type="info"
+              data-place={'top'}
+              data-multiline={true}
+              data-class="reactTip"
+              data-html={true}
+              data-tip={`
+              <div className="text-xs">
 
-                  setShowCreateProposal(true);
-                }}
-                color="#182430"
-                width="h-7"
-                className="h-full"
-                padding="px-3 py-0"
+                <div 
+                  style="font-weight:400",
+                >
+                Only for whitelist address
+                                </div>
+              </div>
+            `}
+              data-for="create_propopsal_tip"
+            >
+              {!VEmeta?.whitelisted_accounts?.includes(
+                getCurrentWallet().wallet.getAccountId()
+              ) ? (
+                <FarmProposalGrayButton
+                  text={
+                    <FormattedMessage
+                      id="create_proposal"
+                      defaultMessage={'Create Proposal'}
+                    />
+                  }
+                  className="h-10 xsm:h-8 opacity-100"
+                  padding="py-0 px-3"
+                />
+              ) : (
+                <BorderGradientButton
+                  text={
+                    <FormattedMessage
+                      id="create_proposal"
+                      defaultMessage={'Create Proposal'}
+                    />
+                  }
+                  onClick={() => {
+                    hideElementsMobile();
+
+                    setShowCreateProposal(true);
+                  }}
+                  color="#182430"
+                  width="h-10 xsm:h-8"
+                  className="h-full "
+                  padding="px-3 py-0"
+                />
+              )}
+              <ReactTooltip
+                className="w-20"
+                id="create_propopsal_tip"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                textColor="#C6D1DA"
+                effect="solid"
               />
-            )}
+            </div>
 
             {/* <FilterSelector
               textId="created_only"

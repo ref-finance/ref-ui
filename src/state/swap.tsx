@@ -101,7 +101,7 @@ export const useSwap = ({
   const history = useHistory();
   const [count, setCount] = useState<number>(0);
 
-  const { txHash, pathname, errorType } = getURLInfo();
+  const { txHash, pathname, errorType, txHashes } = getURLInfo();
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -137,13 +137,17 @@ export const useSwap = ({
         .then((res: any) => {
           const transactionErrorType = getErrorMessage(res);
           const transaction = res.transaction;
+
           return {
             isSwap:
               transaction?.actions[1]?.['FunctionCall']?.method_name ===
                 'ft_transfer_call' ||
               transaction?.actions[0]?.['FunctionCall']?.method_name ===
                 'ft_transfer_call' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name === 'swap',
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'swap' ||
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'near_withdraw',
             transactionErrorType,
           };
         })

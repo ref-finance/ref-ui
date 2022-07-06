@@ -591,7 +591,6 @@ export const LockPopUp = ({
         <NewFarmInputAmount
           max={lpShare}
           onChangeAmount={setInputValue}
-          decimalLimit={LOVE_TOKEN_DECIMAL}
           className=""
           value={inputValue}
         />
@@ -624,15 +623,14 @@ export const LockPopUp = ({
                     defaultMessage={'keep'}
                   />{' '}
                   <button
-                    className={`text-white font-bold border-b border-white
-                    hover:border-gradientFrom hover:text-gradientFrom
-                    ${
-                      duration === leftTime
-                        ? ' border-primaryText text-primaryText hover:border-gradientFrom'
-                        : ''
-                    } `}
+                    className={` font-bold  underline text-gradientFrom hover:text-senderHot
+                    ${duration === leftTime ? '  text-senderHot ' : ''} `}
                     onClick={() => {
                       setDuration(leftTime);
+                    }}
+                    style={{
+                      textDecorationThickness: '0.5px',
+                      textUnderlineOffset: '1px',
                     }}
                   >
                     {timeStampToDate(unlockTime)}
@@ -1091,7 +1089,8 @@ const UnLockPopUp = ({
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
-                veLP tokens are not transferable. veLPT represent your voting power.                 </div>
+                veLP tokens are not transferable, veLPT represent your voting power
+                 </div>
               </div>
             `}
                   data-for="tipId_unlock_ve"
@@ -1290,7 +1289,7 @@ const VotingPowerCard = ({
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
-                veLP tokens are not transferable. veLPT represent your voting power. 
+                veLP tokens are not transferable, veLPT represent your voting power 
                                 </div>
               </div>
             `}
@@ -1597,7 +1596,7 @@ const UserReferendumCard = ({
         >
           <FormattedMessage
             id="unlock_your_defi_power"
-            defaultMessage="Unlock your DeFi Power"
+            defaultMessage="Unlock Your DeFi Power"
           />
         </span>
         <div className=" flex items-center text-lg relative left-1 xsm:px-2">
@@ -2012,7 +2011,7 @@ export const ReferendumPageContext = createContext(null);
 
 export const ReferendumPage = () => {
   const id = getVEPoolId();
-  const lpShare = usePoolShare(id);
+  const lpShare = usePoolShare(id, LOVE_TOKEN_DECIMAL);
 
   const { veShare, accountInfo, veShareRaw } = useAccountInfo();
   const tokenPriceList = useTokenPriceList();
@@ -2023,13 +2022,14 @@ export const ReferendumPage = () => {
       moment().unix();
 
   const isClientMobie = useClientMobile();
-
+  const VEmeta = useVEmeta();
   return (
     <ReferendumPageContext.Provider
       value={{
         tokenPriceList,
         veShare,
         veShareRaw,
+        VEmeta,
       }}
     >
       <div className="m-auto lg:w-1024px  xsm:w-11/12 md:w-5/6 text-white relative lg:top-6 xsm:-top-4">
@@ -2043,7 +2043,7 @@ export const ReferendumPage = () => {
               ? 'px-6 xsm:px-3 xsm:py-4 xsm:pb-10 pb-12 py-6'
               : 'p-6 xsm:px-3 py-4'
           }
-          rounded="xsm:rounded-none"
+          rounded="xsm:rounded-none lg:rounded-2xl"
         >
           <UserReferendumCard
             veShare={veShare}

@@ -69,6 +69,8 @@ import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
 import { getVEPoolId } from '../ReferendumPage';
 import { useAccountInfo } from '~state/referendum';
 import { VEARROW } from '../../components/icon/Referendum';
+import { toNonDivisibleNumber } from '../../utils/numbers';
+import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 
 function MyShares({
   shares,
@@ -646,7 +648,17 @@ function PoolRow(props: {
               className="text-primaryText mb-1.5 flex"
             >
               <span>
-                {toPrecision(toReadableNumber(24, lptAmount || '0'), 2)}
+                {toPrecision(
+                  ONLY_ZEROS.test(
+                    toNonDivisibleNumber(
+                      LOVE_TOKEN_DECIMAL,
+                      toReadableNumber(24, lptAmount || '0')
+                    )
+                  )
+                    ? '0'
+                    : toReadableNumber(24, lptAmount || '0'),
+                  2
+                )}
               </span>
               <span className="mx-1">
                 <FormattedMessage id="locked" defaultMessage={'locked'} />
@@ -793,7 +805,9 @@ function PoolRow(props: {
                   poolId={pool.id}
                   supportFarmV1={supportFarmV1}
                   supportFarmV2={supportFarmV2}
-                  userTotalShare={userTotalShare}
+                  userTotalShare={userTotalShare.plus(
+                    Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0'
+                  )}
                   farmStakeV1={farmStakeV1}
                   farmStakeV2={farmStakeV2}
                   onlyEndedFarmV2={props.onlyEndedFarmV2}

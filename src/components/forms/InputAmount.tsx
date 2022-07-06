@@ -123,16 +123,9 @@ export function NewFarmInputAmount({
   const [isFocus, setIsFocus] = useState<boolean>(false);
 
   const handleChange = (amount: string) => {
-    const newAmount = !decimalLimit
-      ? amount
-      : !ONLY_ZEROS.test(amount) &&
-        ONLY_ZEROS.test(toNonDivisibleNumber(decimalLimit, amount))
-      ? '0'
-      : amount;
+    onChangeAmount(amount);
 
-    onChangeAmount(newAmount);
-
-    ref.current.value = newAmount;
+    ref.current.value = amount;
   };
 
   return (

@@ -596,6 +596,12 @@ input[type='range']::-webkit-slider-runnable-track {
   -webkit-text-fill-color: transparent;
 }
 
+.valueStyleVE {
+  background-image: -webkit-linear-gradient(180deg, #7f43ff 0%, #00c6a2 97.06%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .popUpPc {
   width: 320px;
   height: 285px;
