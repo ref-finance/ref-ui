@@ -658,7 +658,7 @@ function StakeContainer(props: {
         .plus(Math.log(+maxLoveShareAmount) / Math.log(base))
         .toFixed(2);
     }
-    const apr = getActualTotalBaseApr();
+    const apr = getActualTotalApr();
     let boostApr;
     if (apr) {
       boostApr = new BigNumber(apr).multipliedBy(rate);
@@ -765,6 +765,7 @@ function StakeContainer(props: {
         user_seeds_map={user_seeds_map}
         user_unclaimed_map={user_unclaimed_map}
         user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
+        user_data_loading={user_data_loading}
       ></UserStakeBlock>
       <UserTotalUnClaimBlock
         detailData={detailData}
@@ -1780,6 +1781,7 @@ function UserStakeBlock(props: {
   user_seeds_map: Record<string, UserSeedInfo>;
   user_unclaimed_token_meta_map: Record<string, any>;
   user_unclaimed_map: Record<string, any>;
+  user_data_loading: Boolean;
 }) {
   const {
     detailData,
@@ -1790,6 +1792,7 @@ function UserStakeBlock(props: {
     user_seeds_map,
     user_unclaimed_token_meta_map,
     user_unclaimed_map,
+    user_data_loading,
   } = props;
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
   const [unStakeModalVisible, setUnStakeModalVisible] = useState(false);
@@ -1843,6 +1846,22 @@ function UserStakeBlock(props: {
     } else {
       return toPrecision(userTotalStake, 3);
     }
+  }
+  function getUserLpPercent() {
+    let result = '(- %)';
+    const { total_seed_amount } = detailData;
+    if (+total_seed_amount && !user_data_loading && +userTotalStake) {
+      const totalAmount = toReadableNumber(DECIMALS, total_seed_amount);
+      const percent = new BigNumber(userTotalStake)
+        .dividedBy(totalAmount)
+        .multipliedBy(100);
+      if (percent.isLessThan('0.001')) {
+        result = '(<0.001%)';
+      } else {
+        result = `(${toPrecision(percent.toFixed().toString(), 3)}%)`;
+      }
+    }
+    return result;
   }
   function showLpWorth() {
     const poolLpAmount = Number(
@@ -2027,22 +2046,25 @@ function UserStakeBlock(props: {
   const isEnded = detailData.farmList[0].status == 'Ended';
   return (
     <div className="bg-cardBg rounded-2xl p-5 mt-5">
-      <div className="text-sm text-primaryText">
-        <FormattedMessage id="you_staked" />
-      </div>
-      <div className="flex justify-between items-center mt-4">
-        <span className="text-xl text-white">{showLpWorth()}</span>
-        <span className="text-sm text-primaryText">
-          {showLpAmount()} <FormattedMessage id="lp_tokens"></FormattedMessage>
+      <div className="flex justify-between items-center text-sm text-primaryText">
+        <span>
+          <FormattedMessage id="you_shares" />
         </span>
+        <span className="text-xl text-white">{showLpAmount()}</span>
       </div>
-      <div className={`stakeEntryArea ${!isSignedIn ? 'hidden' : ''}`}>
+      <div className="flex justify-end items-center">
+        <span className="text-sm text-primaryText">{getUserLpPercent()}</span>
+      </div>
+      <div
+        className={`stakeEntryArea ${
+          !isSignedIn || (isEnded && Number(freeAmount) == 0) ? 'hidden' : ''
+        }`}
+      >
         <div className="pt-5 mt-5 borde border-dashed border-dashBorderColor border-t-2 border-opacity-20">
           {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? (
             <div className="flex justify-between items-center xs:flex-col md:flex-col">
               {isEnded ? null : (
                 <div className="flex justify-start flex-wrap text-farmText text-sm xs:mb-3 md:mb-3">
-                  <FormattedMessage id="you_have" />{' '}
                   <label className="text-white mx-1">
                     {displayLpBalance()}
                   </label>{' '}

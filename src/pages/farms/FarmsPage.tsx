@@ -239,12 +239,7 @@ export function FarmsPage() {
       searchByCondition();
     }
   }, [location.search]);
-  const {
-    user_migrate_seeds,
-    seed_loading,
-    user_claimed_rewards,
-    rewards_loading,
-  } = useMigrate_user_data();
+  const { user_migrate_seeds, seed_loading } = useMigrate_user_data();
   async function loadFarmInfoList(isUpload?: boolean, isSignedIn?: boolean) {
     if (isUpload) {
       setUnclaimedFarmsIsLoading(false);
@@ -726,11 +721,7 @@ export function FarmsPage() {
   function goMigrate() {
     history.push('/farmsMigrate');
   }
-  const showMigrateEntry =
-    !seed_loading &&
-    !rewards_loading &&
-    (user_migrate_seeds.length > 0 ||
-      Object.keys(user_claimed_rewards).length > 0);
+  const showMigrateEntry = !seed_loading && user_migrate_seeds.length > 0;
 
   return (
     <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
@@ -760,14 +751,12 @@ export function FarmsPage() {
           {showMigrateEntry ? (
             <div className="relative bg-veGradient rounded-2xl p-4 mt-2">
               <span className="flex items-center justify-start text-white text-lg font-black my-2">
-                V2 NEW Farm Migration
+                V2 New Farms
               </span>
-              <p className="flex items-center justify-center text-white text-sm">
-                V2 Farm will support boost farm for the LOVE token stakers.
-              </p>
               <p className="text-white text-sm">
-                Meanwhile, the V1 farm rewards will stop at{' '}
-                <span className="font-bold">1. July,2022.</span>
+                V2 farms will support boosted farms. The V1 farms will run dry
+                of rewards the{' '}
+                <span className="font-bold">1st. August, 2022.</span>
               </p>
               <MigrateIconSmall className="absolute -bottom-3 -left-3.5"></MigrateIconSmall>
               <div className="flex justify-end">

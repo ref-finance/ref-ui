@@ -21,6 +21,7 @@ import {
   DirectionButton,
   BoostLoveIcon,
   MigrateIconSmall,
+  MigrateIconMiddle,
   MigrateIcon,
 } from '~components/icon/FarmBoost';
 import {
@@ -120,12 +121,7 @@ export default function FarmsHome(props: any) {
   const isSignedIn = globalState.isSignedIn;
   const [popUp, setPopUp] = useState(false);
   const { txHash, pathname, errorType } = getURLInfo();
-  const {
-    user_migrate_seeds,
-    seed_loading,
-    user_claimed_rewards,
-    rewards_loading,
-  } = useMigrate_user_data();
+  const { user_migrate_seeds, seed_loading } = useMigrate_user_data();
   useEffect(() => {
     if (txHash && isSignedIn && popUp) {
       checkTransaction(txHash)
@@ -1000,11 +996,7 @@ export default function FarmsHome(props: any) {
     return getFarmVisibleLength();
   }, [farm_display_ended_List]);
   const isMobileSite = isMobile();
-  const showMigrateEntry =
-    !seed_loading &&
-    !rewards_loading &&
-    (user_migrate_seeds.length > 0 ||
-      Object.keys(user_claimed_rewards).length > 0);
+  const showMigrateEntry = !seed_loading && user_migrate_seeds.length > 0;
   return (
     <div className={`${getUrlParams() ? 'hidden' : ''}`}>
       <div
@@ -1019,14 +1011,11 @@ export default function FarmsHome(props: any) {
         {showMigrateEntry ? (
           <div className="relative bg-veGradient px-7 pb-4 pt-0  mb-4 lg:hidden">
             <span className="flex items-center justify-start text-white text-lg font-bold my-2">
-              V2 NEW Farm Migration
+              V2 New Farms
             </span>
-            <p className="flex items-center justify-center text-white text-sm">
-              V2 Farm will support boost farm for the LOVE token stakers.
-            </p>
             <p className="text-white text-sm">
-              Meanwhile, the V1 farm rewards will stop at{' '}
-              <span className="font-bold">1. July,2022.</span>
+              V2 farms will support boosted farms. The V1 farms will run dry of
+              rewards the <span className="font-bold">1st. August, 2022.</span>
             </p>
             <MigrateIconSmall className="absolute -bottom-3 left-0"></MigrateIconSmall>
             <div className="flex justify-end">
@@ -1131,19 +1120,14 @@ export default function FarmsHome(props: any) {
       </div>
       {showMigrateEntry ? (
         <div className="relative migrateArea m-auto lg:w-2/3 xs:w-full md:w-full bg-veGradient rounded-2xl p-4 mb-4 pr-6 xs:hidden md:hidden">
-          <MigrateIcon
-            className="absolute left-0 -top-5"
-            style={{ zoom: 0.75 }}
-          ></MigrateIcon>
+          <MigrateIconMiddle className="absolute left-0 -top-5"></MigrateIconMiddle>
           <div className="flex justify-between items-end ml-32">
             <div className="w-3/4 mr-5">
-              <p className="text-white text-lg font-black mb-3">
-                V2 NEW Farm Migration
-              </p>
+              <p className="text-white text-lg font-black mb-3">V2 New Farms</p>
               <p className="text-sm text-white">
-                V2 Farm will support boost farm for the LOVE token stakers.
-                Meanwhile, the V1 farm rewards will stop at{' '}
-                <label className="font-bold">1. July,2022.</label>
+                V2 farms will support boosted farms. The V1 farms will run dry
+                of rewards the{' '}
+                <span className="font-bold">1st. August, 2022.</span>
               </p>
             </div>
             {isSignedIn ? (
@@ -1254,9 +1238,7 @@ export default function FarmsHome(props: any) {
             >
               <div className="col-span-2 xs:col-span-1 md:col-span-1">
                 <div className="flex items-center justify-between lg:hidden">
-                  <span className="text-2xl text-white font-bold">
-                    Farm Booster
-                  </span>
+                  <span className="text-2xl text-white font-bold">Booster</span>
                   <span className="flex items-center" onClick={switchStatus}>
                     <label
                       className={`text-farmText text-sm mr-2 ${
@@ -1282,7 +1264,7 @@ export default function FarmsHome(props: any) {
                       className="text-white xs:hidden md:hidden transform -translate-x-9"
                       style={{ fontSize: '32px' }}
                     >
-                      Farm Booster
+                      Booster
                     </span>
                     <div className="flex justify-center items-center">
                       <div className="relative flex items-center justify-center mr-1.5">
@@ -1666,7 +1648,7 @@ function LoveStakeModal(props: {
         </div>
       )}
       <div className="flex items-center justify-between mt-6 mb-4">
-        <span className="text-sm text-farmText">Boost farm</span>
+        <span className="text-sm text-farmText">Boosted farms</span>
         <span className="text-sm text-farmText">Boost</span>
       </div>
       {affectSeeds &&
@@ -1895,7 +1877,7 @@ function LoveUnStakeModal(props: {
       {yourAffectSeeds && yourAffectSeeds.length ? (
         <>
           <div className="flex items-center justify-between mt-6 mb-4">
-            <span className="text-sm text-farmText">Your boost farm</span>
+            <span className="text-sm text-farmText">Your boosted farms</span>
             <span className="text-sm text-farmText">Boost</span>
           </div>
           {yourAffectSeeds.map((seed: Seed) => {
@@ -2441,7 +2423,7 @@ function FarmView(props: {
         .plus(Math.log(+maxLoveShareAmount) / Math.log(base))
         .toFixed(2);
     }
-    const apr = getActualTotalBaseApr();
+    const apr = getActualTotalApr();
     let boostApr;
     if (apr) {
       boostApr = new BigNumber(apr).multipliedBy(rate);
