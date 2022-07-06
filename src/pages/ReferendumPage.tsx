@@ -605,7 +605,7 @@ export const LockPopUp = ({
           </span>
         </div>
 
-        {preLocked ? (
+        {preLocked && leftTime > 0 ? (
           <div className="flex items-center pb-1.5">
             <span className="mr-1">
               <TipTriangle h="14" w="13" c="#00C6A2" />
@@ -613,15 +613,11 @@ export const LockPopUp = ({
             <span className="text-xs text-farmText">
               <FormattedMessage
                 id="ve_lock_tip"
-                defaultMessage={'Cannot be earlier than current duration'}
+                defaultMessage={'Cannot be earlier than current unlocking date'}
               />
               {leftTime > config?.min_locking_duration_sec ? (
                 <span>
                   {`, `}
-                  <FormattedMessage
-                    id="keep_lower"
-                    defaultMessage={'keep'}
-                  />{' '}
                   <button
                     className={` font-bold  underline text-gradientFrom hover:text-senderHot
                     ${duration === leftTime ? '  text-senderHot ' : ''} `}
@@ -809,27 +805,40 @@ export const LockPopUp = ({
           </div>
         </div>
 
+        {/* Locking 50 LP Tokens in addition to the 100 already locked. Unlocking is Dec 1, 2022 */}
+
         {!showVeAmount || !preLocked ? null : (
-          <div className="rounded-lg border text-sm border-gradientFrom px-3 py-2.5 mt-4 text-center">
+          <div
+            className="rounded-lg border text-sm flex items-center border-gradientFrom px-3 py-2.5 mt-4 text-center"
+            style={{
+              backgroundColor: '#0D131C',
+            }}
+          >
+            {' '}
+            <span className="">
+              <TipTriangle h="16" w="17" c="#00C6A2" />
+            </span>
             <span>
+              <FormattedMessage id="locking" defaultMessage={'Locking'} />{' '}
+              <span className="text-gradientFrom">
+                {toPrecision(inputValue, 2)}
+              </span>{' '}
+              <FormattedMessage id="lp_tokens" defaultMessage={'LP Tokens'} />{' '}
+              <FormattedMessage
+                id="in_addition_to_the"
+                defaultMessage={'in addition to the'}
+              />{' '}
               <span className="text-gradientFrom">
                 {toPrecision(toReadableNumber(24, accountInfo.lpt_amount), 2)}
               </span>{' '}
               <FormattedMessage
-                id="existing_lptoken"
-                defaultMessage={'Existing LP Tokens'}
-              />{' '}
-              +{' '}
-              <span className="text-gradientFrom">
-                {toPrecision(inputValue, 2)}
-              </span>{' '}
+                id="already_locked"
+                defaultMessage={'already locked'}
+              />
+              {'. '}
               <FormattedMessage
-                id="append_lptoken"
-                defaultMessage={'Append LP Tokens'}
-              />{' '}
-              <FormattedMessage
-                id="will_be_able_to_unstake_after"
-                defaultMessage={'will be able to unstaked after'}
+                id="unlocking_id"
+                defaultMessage={'Unlocking is'}
               />{' '}
               <span className="text-gradientFrom">
                 {moment(moment().unix() * 1000 + duration * 1000).format('ll')}
@@ -838,20 +847,36 @@ export const LockPopUp = ({
           </div>
         )}
 
+        <div className="pt-4 text-sm flex items-start ">
+          <button
+            className="w-4 h-4 bg-navHighLightBg flex items-center text-gradientFrom justify-center border flex-shrink-0 border-gradientFrom rounded mr-2.5"
+            onClick={() => {
+              setTermsCheck(!termsCheck);
+            }}
+          >
+            {!termsCheck ? null : <RewardCheck />}
+          </button>
+
+          <span>
+            I understand that I won't be able to remove my LP Tokens for the
+            entire duration of the agreed locking period
+          </span>
+        </div>
+
         {isSignedIn ? (
           <NewGradientButton
             text={
               ONLY_ZEROS.test(lpShare) ? (
                 <FormattedMessage
                   id="you_have_no_lp_share"
-                  defaultMessage={'You have no LP Token'}
+                  defaultMessage={'You have no LP Tokens'}
                 />
               ) : (
                 <FormattedMessage id="lock" defaultMessage={'Lock'} />
               )
             }
             beatStyling
-            className="mt-6 text-lg xsm:text-base"
+            className="mt-4 text-lg xsm:text-base"
             padding="py-2 px-0"
             onClick={() =>
               lockLP({
@@ -872,22 +897,6 @@ export const LockPopUp = ({
         ) : (
           <ConnectToNearBtnGradient className="mt-6" />
         )}
-
-        <div className="pt-4 text-sm flex items-start ">
-          <button
-            className="w-4 h-4 bg-navHighLightBg flex items-center text-gradientFrom justify-center border flex-shrink-0 border-gradientFrom rounded mr-2.5"
-            onClick={() => {
-              setTermsCheck(!termsCheck);
-            }}
-          >
-            {!termsCheck ? null : <RewardCheck />}
-          </button>
-
-          <span>
-            I understand and accept the terms relating to the early unlocking
-            penalty
-          </span>
-        </div>
       </div>
     </ModalWrapper>
   );

@@ -3244,7 +3244,7 @@ const GovProposalItem = ({
               />
             )}
           </div>
-          <div className="flex flex-col w-4/5 xsm:w-full ml-8 xsm:ml-0">
+          <div className="flex flex-col w-4/5 xsm:w-full">
             <div
               className={`w-full flex items-center xsm:flex-col xsm:items-start justify-between  ${
                 status === 'Expired' ? 'opacity-70' : ''
