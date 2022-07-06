@@ -93,14 +93,14 @@ function USNPage(props: ReactModal.Props) {
   }
   function displayCutAmount() {
     let display = '';
-    if (cutAmount.isLessThan('0.0001')) {
+    if (cutAmount.isLessThan('0.00001')) {
       display = '0';
     } else {
-      display = toPrecision(cutAmount.toFixed().toString(), 4);
+      display = toPrecision(cutAmount.toFixed().toString(), 5);
     }
     return display;
   }
-  const cutAmount = new BigNumber(+tokenInAmount).multipliedBy(0.0005);
+  const cutAmount = new BigNumber(+tokenInAmount).multipliedBy(0.0001);
   const tokenOutAmount = new BigNumber(+tokenInAmount)
     .minus(cutAmount)
     .toFixed();
@@ -185,7 +185,7 @@ function USNPage(props: ReactModal.Props) {
                 <FormattedMessage id="protocol_fee"></FormattedMessage>
               </span>
               <span className="text-xs text-white">
-                0.05% / {displayCutAmount()} {tokenIn?.symbol}
+                0.01% / {displayCutAmount()} {tokenIn?.symbol}
               </span>
             </div>
             <div className="flex items-center justify-end">
