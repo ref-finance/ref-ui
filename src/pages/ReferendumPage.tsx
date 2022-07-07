@@ -405,7 +405,7 @@ export const ModalWrapper = (
     >
       <Card
         width="w-full"
-        className="border border-gradientFrom border-opacity-50 flex overflow-y-auto overflow-x-hidden flex-col justify-center text-white "
+        className="border border-gradientFrom border-opacity-50 flex overflow-y-auto overflow-x-hidden flex-col  text-white "
         style={{
           width: customWidth || cardWidth,
           maxHeight: customHeight || cardHeight,
@@ -807,13 +807,13 @@ export const LockPopUp = ({
 
         {!showVeAmount || !preLocked ? null : (
           <div
-            className="rounded-lg border text-sm flex items-center border-gradientFrom px-3 py-2.5 mt-4 text-center"
+            className="rounded-lg border text-sm flex items-center border-gradientFrom px-3 py-2.5 mt-4 text-left"
             style={{
               backgroundColor: '#0D131C',
             }}
           >
             {' '}
-            <span className="">
+            <span className="mr-4">
               <TipTriangle h="16" w="17" c="#00C6A2" />
             </span>
             <span>
