@@ -1059,7 +1059,7 @@ export default function FarmsHome(props: any) {
                 <WarningIcon className="mr-1.5 flex-shrink-0" />
                 Legacy rewards to be withdraw in
                 <a
-                  className="text-sm text-greenColor cursor-pointer underline ml-1"
+                  className="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"
                   onClick={() => {
                     history.push('/farms');
                   }}

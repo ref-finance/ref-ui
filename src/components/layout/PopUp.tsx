@@ -59,19 +59,19 @@ export default function PopUpSwiper() {
             loop={false}
           >
             <SwiperSlide>
-              <div
-                className="relative cursor-pointer pt-9"
-                onClick={() => {
-                  window.open('/farmsBoost');
-                }}
-              >
+              <div className="relative pt-9">
                 <div
                   onClick={closePop}
                   className="flex justify-end items-center absolute top-0 right-0 cursor-pointer w-8 h-8"
                 >
                   <CircleCloseBtn></CircleCloseBtn>
                 </div>
-                <FarmsMigrateBg></FarmsMigrateBg>
+                <FarmsMigrateBg
+                  className="cursor-pointer"
+                  onClick={() => {
+                    window.open('/farmsBoost');
+                  }}
+                ></FarmsMigrateBg>
               </div>
             </SwiperSlide>
           </Swiper>
@@ -80,9 +80,10 @@ export default function PopUpSwiper() {
     </>
   );
 }
-function FarmsMigrateBg() {
+function FarmsMigrateBg(props: any) {
   return (
     <svg
+      {...props}
       width="289"
       height="145"
       viewBox="0 0 289 145"

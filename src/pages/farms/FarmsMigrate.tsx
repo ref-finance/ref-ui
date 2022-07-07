@@ -131,7 +131,7 @@ export default function FarmsMigrate() {
             <div className="withDrawBoxTip bg-white bg-opacity-10 rounded-lg px-5 py-1.5 mt-3 text-primaryText text-base">
               You still have claimed rewards to be withdraw in{' '}
               <a
-                className="text-white text-base cursor-pointer underline"
+                className="text-greenColor text-base cursor-pointer underline hover:text-senderHot"
                 onClick={() => {
                   history.push('/farms');
                 }}

@@ -310,7 +310,23 @@ function StakeContainer(props: {
         : '$' + toInternationalCurrencySystem(totalPrice.toString(), 2);
     return (
       <>
-        <span>{totalPriceDisplay}</span>
+        <div
+          className="text-white text-right"
+          data-class="reactTip"
+          data-for={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
+          data-place="top"
+          data-html={true}
+          data-tip={getRewardsPerWeekTip()}
+        >
+          <span>{totalPriceDisplay}</span>
+          <ReactTooltip
+            id={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+          />
+        </div>
         <div
           className="text-white text-right"
           data-class="reactTip"
@@ -674,6 +690,11 @@ function StakeContainer(props: {
     }
     return '';
   }
+  function valueOfRewardsTip() {
+    const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
   const aprUpLimit = getAprUpperLimit();
   return (
     <div className="mt-5">
@@ -743,9 +764,26 @@ function StakeContainer(props: {
           className="flex flex-col items-start  justify-between bg-cardBg rounded-lg py-3.5 px-5 flex-grow xs:mt-4 md:mt-4 xs:w-full md:w-full"
           style={{ height: '85px' }}
         >
-          <span className="text-farmText text-sm">
-            <FormattedMessage id="rewards_week"></FormattedMessage>
-          </span>
+          <div className="flex items-center text-farmText text-sm">
+            <FormattedMessage id="rewards_per_week"></FormattedMessage>
+            <div
+              className="text-white text-right ml-1"
+              data-class="reactTip"
+              data-for={'rewardPerWeekQId'}
+              data-place="top"
+              data-html={true}
+              data-tip={valueOfRewardsTip()}
+            >
+              <QuestionMark></QuestionMark>
+              <ReactTooltip
+                id={'rewardPerWeekQId'}
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
+          </div>
           <div className="flex items-center justify-between text-white text-base w-full">
             {totalTvlPerWeekDisplay()}
           </div>
@@ -866,7 +904,7 @@ function AddLiquidityEntryBar(props: {
           onClick={openAddLiquidityModal}
           color="#fff"
           loading={addLiquidityButtonLoading}
-          className={` flex-shrink-0 w-36 h-8 ml-5 text-center text-base text-white focus:outline-none font-semibold `}
+          className={` flex-shrink-0 w-36 h-8 ml-5 text-center text-sm text-white focus:outline-none font-semibold `}
         >
           <ButtonTextWrapper
             loading={addLiquidityButtonLoading}
@@ -1663,50 +1701,73 @@ function UserTotalUnClaimBlock(props: {
   function switchDetailButton() {
     setShowDetail(!showDetail);
   }
+  function valueOfRewardsTip() {
+    const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
   return (
     <div
       className="bg-cardBg rounded-2xl p-5"
       style={{ backgroundColor: 'rgba(29, 41, 50, 0.5)' }}
     >
-      <div className="text-sm text-primaryText">
-        <FormattedMessage id="unclaimed_rewards"></FormattedMessage>
-      </div>
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex items-center justify-between text-sm text-primaryText">
         <div className="flex items-center">
+          <FormattedMessage id="unclaimed_rewards"></FormattedMessage>
           <div
-            className="text-white text-right"
+            className="text-white text-right ml-1"
             data-class="reactTip"
-            data-for={'unclaimedRewardId' + detailData.seed_id}
+            data-for={'unclaimedRewardQIdx'}
             data-place="top"
             data-html={true}
-            data-tip={unclaimedRewardsData.tip}
+            data-tip={valueOfRewardsTip()}
           >
-            <span className="text-xl text-white">
-              {unclaimedRewardsData.worth}
-            </span>
+            <QuestionMark></QuestionMark>
             <ReactTooltip
-              id={'unclaimedRewardId' + detailData.seed_id}
+              id={'unclaimedRewardQIdx'}
               backgroundColor="#1D2932"
               border
               borderColor="#7e8a93"
               effect="solid"
             />
           </div>
-          {unclaimedRewardsData.showClaimButton ? (
-            <div
-              onClick={switchDetailButton}
-              className="flex items-center text-sm text-farmText bg-lightBGreyColor bg-opacity-20 rounded-full px-4 py-0.5 cursor-pointer ml-7"
-            >
-              <FormattedMessage id="detail" />
-              <UpArrowIcon
-                className={`ml-1 transform ${
-                  showDetail ? 'text-greenColor' : 'text-primaryText rotate-180'
-                }`}
-              ></UpArrowIcon>
-            </div>
-          ) : null}
         </div>
-        {unclaimedRewardsData.showClaimButton ? (
+
+        <div
+          className="text-white text-right"
+          data-class="reactTip"
+          data-for={'unclaimedRewardId' + detailData.seed_id}
+          data-place="top"
+          data-html={true}
+          data-tip={unclaimedRewardsData.tip}
+        >
+          <span className="text-xl text-white">
+            {unclaimedRewardsData.worth}
+          </span>
+          <ReactTooltip
+            id={'unclaimedRewardId' + detailData.seed_id}
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+          />
+        </div>
+      </div>
+      {unclaimedRewardsData.showClaimButton ? (
+        <div className="flex justify-between items-center mt-4">
+          <div
+            onClick={switchDetailButton}
+            className={`flex items-center text-xs bg-lightBGreyColor bg-opacity-20 rounded-full px-4 py-0.5 cursor-pointer ${
+              showDetail ? 'text-greenColor' : 'text-farmText'
+            }`}
+          >
+            <FormattedMessage id="detail" />
+            <UpArrowIcon
+              className={`ml-1 transform ${
+                showDetail ? 'text-greenColor' : 'text-primaryText rotate-180'
+              }`}
+            ></UpArrowIcon>
+          </div>
           <span
             className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-8 w-20 cursor-pointer"
             onClick={(e) => {
@@ -1719,8 +1780,9 @@ function UserTotalUnClaimBlock(props: {
               Text={() => <FormattedMessage id="claim" />}
             />
           </span>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
+
       <div
         className={`grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 gap-y-4 mt-4 pt-4 ${
           showDetail ? '' : 'hidden'
@@ -1840,15 +1902,15 @@ function UserStakeBlock(props: {
   function showLpAmount() {
     const totalSharesBigNumber = new BigNumber(userTotalStake);
     if (totalSharesBigNumber.isEqualTo(0)) {
-      return isSignedIn ? <label className="opacity-50">0.000</label> : '-';
+      return <label className="opacity-50">{isSignedIn ? 0.0 : '-'}</label>;
     } else if (totalSharesBigNumber.isLessThan('0.001')) {
       return '<0.001';
     } else {
-      return toPrecision(userTotalStake, 3);
+      return formatWithCommas(toPrecision(userTotalStake, 3));
     }
   }
   function getUserLpPercent() {
-    let result = '(- %)';
+    let result = '(-%)';
     const { total_seed_amount } = detailData;
     if (+total_seed_amount && !user_data_loading && +userTotalStake) {
       const totalAmount = toReadableNumber(DECIMALS, total_seed_amount);
