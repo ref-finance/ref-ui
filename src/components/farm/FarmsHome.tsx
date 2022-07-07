@@ -22,7 +22,7 @@ import {
   BoostLoveIcon,
   MigrateIconSmall,
   MigrateIconMiddle,
-  MigrateIcon,
+  WarningIcon,
 } from '~components/icon/FarmBoost';
 import {
   GradientButton,
@@ -1055,10 +1055,11 @@ export default function FarmsHome(props: any) {
               farmDisplayList={farm_display_List}
             ></WithDrawBox>
             {Object.keys(user_claimed_rewards).length > 0 ? (
-              <div className="flex items-center justify-center rounded-lg bg-black bg-opacity-30 px-7 py-1.5 text-sm text-primaryText mt-3 xs:mt-0 md:mt-0 xs:mb-2 md:mb-2">
+              <div className="flex items-center justify-start text-sm text-primaryText mt-3 whitespace-nowrap xs:mt-0 md:mt-0 xs:mb-2 md:mb-2">
+                <WarningIcon className="mr-1.5 flex-shrink-0" />
                 Legacy rewards to be withdraw in
                 <a
-                  className="text-sm text-white cursor-pointer underline ml-1"
+                  className="text-sm text-greenColor cursor-pointer underline ml-1"
                   onClick={() => {
                     history.push('/farms');
                   }}
