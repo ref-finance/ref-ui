@@ -2492,14 +2492,14 @@ function FarmView(props: {
               </a>
             </div>
             <div
-              className="text-white text-right"
+              className="text-white text-right my-4"
               data-class="reactTip"
               data-for={'rewardPerWeekId' + seed?.farmList[0]?.farm_id}
               data-place="top"
               data-html={true}
               data-tip={getRewardsPerWeekTip()}
             >
-              <div className="flex items-center bg-black bg-opacity-20 rounded-full p-0.5  my-4">
+              <div className="flex items-center bg-black bg-opacity-20 rounded-full p-0.5">
                 <span className="flex hover:bg-black hover:bg-opacity-20 rounded-full">
                   {getAllRewardsSymbols().map(
                     ([id, icon]: [string, string], index) => {
