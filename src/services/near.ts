@@ -215,6 +215,8 @@ export const executeMultipleTransactions = async (
 ) => {
   const { wallet, wallet_type } = getCurrentWallet();
 
+  console.log(wallet, wallet_type, transactions);
+
   const currentTransactions =
     wallet_type === WALLET_TYPE.SENDER_WALLET
       ? transactions
@@ -234,6 +236,8 @@ export const executeMultipleTransactions = async (
             });
           })
         );
+
+  console.log(currentTransactions);
 
   return wallet.requestSignTransactions(currentTransactions, callbackUrl);
 };

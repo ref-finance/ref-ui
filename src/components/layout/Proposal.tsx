@@ -4483,11 +4483,7 @@ export const FarmProposal = ({
             true
           )}
           myPower={`${toPrecision(veShare, 2, true)} (${new Big(veShareRaw || 0)
-            .div(
-              new Big(farmProposal?.ve_amount_at_last_action || '0').plus(
-                veShareRaw || 1
-              )
-            )
+            .div(new Big(farmProposal?.ve_amount_at_last_action || '1'))
             .times(100)
             .toFixed(2)}%)`}
           ratioOld={`${toPrecision(
