@@ -2150,7 +2150,7 @@ function UserStakeBlock(props: {
                     openUnStakeModalVisible('free');
                   }}
                   color="#fff"
-                  className={`flex items-center justify-center w-36 h-8 text-center text-base text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                  className={`flex items-center justify-center w-36 h-8 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
                     Number(freeAmount) > 0 ? '' : 'hidden'
                   }`}
                 >
@@ -2236,7 +2236,7 @@ function UserStakeBlock(props: {
                             openUnStakeModalVisible('free');
                           }}
                           color="#fff"
-                          className={`flex items-center justify-center w-1/2 h-8 text-center text-base text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
+                          className={`flex items-center justify-center w-1/2 h-8 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
                         >
                           <FormattedMessage
                             id="unstake"
