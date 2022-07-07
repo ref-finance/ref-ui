@@ -121,7 +121,8 @@ export default function FarmsHome(props: any) {
   const isSignedIn = globalState.isSignedIn;
   const [popUp, setPopUp] = useState(false);
   const { txHash, pathname, errorType } = getURLInfo();
-  const { user_migrate_seeds, seed_loading } = useMigrate_user_data();
+  const { user_migrate_seeds, seed_loading, user_claimed_rewards } =
+    useMigrate_user_data();
   useEffect(() => {
     if (txHash && isSignedIn && popUp) {
       checkTransaction(txHash)
@@ -582,9 +583,7 @@ export default function FarmsHome(props: any) {
     farm_display_List = farm_display_List.sort();
     farm_display_ended_List = farm_display_ended_List.sort();
     let noDataEnd = true,
-      noDataLive = true,
-      noData = true;
-    farm_display_List.length && (noData = true);
+      noDataLive = true;
     const commonSeedFarms = mergeCommonSeedsFarms();
     const { status, keyWords, sort } = searchData;
     // filter
@@ -634,15 +633,11 @@ export default function FarmsHome(props: any) {
         }
       } else if (status == 'others' && boostConfig) {
         // others
-        const affected_seeds_keys = Object.keys(
-          boostConfig?.affected_seeds || []
-        );
-        const isNotBoost = affected_seeds_keys.indexOf(seed_id) == -1;
         const isNotNear =
           farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
         const isNotEth =
           farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
-        if (isNotBoost && isNotNear && isNotEth && !isEnd) {
+        if (isNotNear && isNotEth && !isEnd) {
           condition1 = true;
         } else {
           condition1 = false;
@@ -1059,6 +1054,20 @@ export default function FarmsHome(props: any) {
               tokenPriceList={tokenPriceList}
               farmDisplayList={farm_display_List}
             ></WithDrawBox>
+            {Object.keys(user_claimed_rewards).length > 0 ? (
+              <div className="flex items-center justify-center rounded-lg bg-black bg-opacity-30 px-7 py-1.5 text-sm text-primaryText mt-3 xs:mt-0 md:mt-0 xs:mb-2 md:mb-2">
+                Legacy rewards to be withdraw in
+                <a
+                  className="text-sm text-white cursor-pointer underline ml-1"
+                  onClick={() => {
+                    history.push('/farms');
+                  }}
+                >
+                  V1 Farms
+                </a>
+                .
+              </div>
+            ) : null}
           </div>
           <div className="absolute right-0 -top-24 xs:hidden md:hidden">
             <BoostBannerLogo></BoostBannerLogo>
@@ -2749,7 +2758,7 @@ function WithDrawBox(props: {
     setWithdrawModalVisible(false);
   }
   return (
-    <div className="rounded-xl overflow-hidden mb-3.5 mt-5">
+    <div className="rounded-xl overflow-hidden mb-3.5 mt-12 xs:mt-5 md:mt-5">
       <div
         className="relative bg-veGradient px-5 overflow-hidden"
         style={{ height: '68px' }}

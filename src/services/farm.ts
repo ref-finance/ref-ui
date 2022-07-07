@@ -1061,7 +1061,7 @@ export function useMigrate_user_data() {
   useEffect(() => {
     if (isSignedIn) {
       get_user_seeds();
-      // get_user_claimed_rewards();
+      get_user_claimed_rewards();
     }
   }, []);
   async function get_user_seeds() {
@@ -1105,8 +1105,8 @@ export function useMigrate_user_data() {
   return {
     user_migrate_seeds,
     seed_loading,
-    // user_claimed_rewards,
-    // rewards_loading,
+    user_claimed_rewards,
+    rewards_loading,
   };
 }
 export interface MigrateSeed {

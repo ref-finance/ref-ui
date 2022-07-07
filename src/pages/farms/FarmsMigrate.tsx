@@ -47,7 +47,8 @@ export default function FarmsMigrate() {
       get_price_list();
     }
   }, []);
-  const { user_migrate_seeds, seed_loading } = useMigrate_user_data();
+  const { user_migrate_seeds, seed_loading, user_claimed_rewards } =
+    useMigrate_user_data();
 
   async function get_price_list() {
     const tokenPriceList = await getBoostTokenPrices();
@@ -85,7 +86,7 @@ export default function FarmsMigrate() {
                 <GradientButton
                   onClick={goBoostFarmPage}
                   color="#fff"
-                  className={`mt-8 px-10 h-8 text-center text-lg text-white focus:outline-none font-semibold`}
+                  className={`mt-8 px-10 h-8 text-center text-sm text-white focus:outline-none font-semibold`}
                   backgroundImage="linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)"
                 >
                   <ButtonTextWrapper
@@ -126,14 +127,20 @@ export default function FarmsMigrate() {
             </div>
           ) : null}
 
-          {/* {Object.keys(user_claimed_rewards).length > 0 ? (
-            <div className="withDrawBox bg-cardBg rounded-2xl p-1 mt-3">
-              <WithDrawBox
-                userRewardList={user_claimed_rewards}
-                tokenPriceList={all_token_price_list}
-              ></WithDrawBox>
+          {Object.keys(user_claimed_rewards).length > 0 ? (
+            <div className="withDrawBoxTip bg-white bg-opacity-10 rounded-lg px-5 py-1.5 mt-3 text-primaryText text-base">
+              You still have claimed rewards to be withdraw in{' '}
+              <a
+                className="text-white text-base cursor-pointer underline"
+                onClick={() => {
+                  history.push('/farms');
+                }}
+              >
+                V1 Farms
+              </a>
+              . The rewards are not going anywhere, you can withdraw anytime.
             </div>
-          ) : null} */}
+          ) : null}
         </>
       )}
     </div>
