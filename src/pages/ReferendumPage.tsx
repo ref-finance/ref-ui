@@ -228,7 +228,7 @@ export const RewardCard = ({
           <span>
             {Object.keys(rewardList)?.length}{' '}
             <FormattedMessage
-              id="bonus to be withdraw"
+              id="bonus_to_be_withdraw"
               defaultMessage="bonus to be withdraw"
             />
             !
@@ -518,7 +518,7 @@ export const LockPopUp = ({
             {d === leftTime ? (
               <span>
                 {' '}
-                <FormattedMessage id="keep" defaultMessage={'keep'} />
+                <FormattedMessage id="keep_ve" defaultMessage={'keep'} />
                 &nbsp; {timeStampToDate(unlockTime)}{' '}
               </span>
             ) : (
@@ -597,7 +597,7 @@ export const LockPopUp = ({
 
         <div className="text-sm text-farmText py-5 xsm:pt-3 pb-2.5 flex items-center justify-between">
           <span>
-            <FormattedMessage id="stake_for" defaultMessage="Duration" />
+            <FormattedMessage id="duration" defaultMessage="Duration" />
           </span>
 
           <span className="text-white">
@@ -638,7 +638,7 @@ export const LockPopUp = ({
         <Durations />
 
         <div className="text-sm text-farmText pt-7 xsm:pt-3 pb-2.5 flex items-center justify-between">
-          <span>
+          <span className="whitespace-nowrap">
             <FormattedMessage id="get" defaultMessage="Get" />
           </span>
 
@@ -835,7 +835,7 @@ export const LockPopUp = ({
               />
               {'. '}
               <FormattedMessage
-                id="unlocking_id"
+                id="unlocking_is"
                 defaultMessage={'Unlocking is'}
               />{' '}
               <span className="text-gradientFrom">
@@ -856,8 +856,12 @@ export const LockPopUp = ({
           </button>
 
           <span>
-            I understand that I won't be able to remove my LP Tokens for the
-            entire duration of the agreed locking period
+            <FormattedMessage
+              id="lock_lp_terms"
+              defaultMessage={
+                "I understand that I won't be able to remove my LP Tokens for the entire duration of the agreed locking period"
+              }
+            />
           </span>
         </div>
 
@@ -1015,7 +1019,13 @@ const UnLockPopUp = ({
                     2
                   )
                 : 0}
-              <span className="text-primaryText ml-2">{'LP Tokens'}</span>
+              <span className="text-primaryText ml-2">
+                {' '}
+                <FormattedMessage
+                  id="lp_tokens"
+                  defaultMessage={'LP Tokens'}
+                />{' '}
+              </span>
             </span>
           </div>
         </div>
@@ -1096,7 +1106,7 @@ const UnLockPopUp = ({
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
-                veLP tokens are not transferable, veLPT represent your voting power
+                ${intl.formatMessage({ id: 'veTip' })}
                  </div>
               </div>
             `}
@@ -1178,7 +1188,8 @@ const UnLockPopUp = ({
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
-                LOVE stands for Liquidity Of veToken. LOVE, like any NEP-141 token, is transferable and can be swapped, pooled, staked and farmed. LOVE represents the underlying liquidity of your veTokens              </div>
+                ${intl.formatMessage({ id: 'loveTip' })}
+</div>
             `}
                   data-for="tipId_unlock_love"
                 >
@@ -1242,6 +1253,8 @@ const VotingPowerCard = ({
 
   const mobileNotSignedIn = isClientMobile && allZeros;
 
+  const intl = useIntl();
+
   return (
     <div
       className="rounded-2xl relative bg-veVotingPowerCard flex py-4 px-5 xsm:p-3 font-bold text-black ml-5  h-1/2 mb-2 xsm:ml-0 xsm:mr-1 xsm:mb-0"
@@ -1296,7 +1309,7 @@ const VotingPowerCard = ({
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
-                veLP tokens are not transferable, veLPT represent your voting power 
+                ${intl.formatMessage({ id: 'veTip' })}
                                 </div>
               </div>
             `}
@@ -1346,6 +1359,8 @@ const FarmBoosterCard = ({
   const isClientMobile = useClientMobile();
 
   const mobileNotSignedIn = isClientMobile && allZeros;
+
+  const intl = useIntl();
 
   return (
     <div
@@ -1404,7 +1419,8 @@ const FarmBoosterCard = ({
                     isClientMobile ? '200px' : '250px'
                   };font-weight:400;white-space: initial;",
                 >
-                LOVE stands for Liquidity Of veToken. LOVE, like any NEP-141 token, is transferable and can be swapped, pooled, staked and farmed. LOVE represents the underlying liquidity of your veTokens              </div>
+                ${intl.formatMessage({ id: 'loveTip' })}
+                             </div>
             `}
                   data-for="tipId_love_post_card"
                 >
@@ -1485,9 +1501,9 @@ export const FarmStakeTip = ({
       {toPrecision(
         toReadableNumber(24, scientificNotationToString(stake.toString())),
         2
-      )}
-      {' more '}
-      LP Tokens
+      )}{' '}
+      <FormattedMessage id="more" defaultMessage={'more'} />
+      <FormattedMessage id="lp_tokens" defaultMessage={'LP Tokens'} />
       <span className="ml-1">
         <FormattedMessage id="in" defaultMessage={'in'} />
         <span

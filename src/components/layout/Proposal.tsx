@@ -1244,7 +1244,7 @@ function SelectUI({
           {notshowOption ? (
             <FormattedMessage id="sort_by" defaultMessage={'Sort by'} />
           ) : curvalue ? (
-            curvalue
+            <FormattedMessage id={curvalue} />
           ) : null}
         </label>
         <span className="text-primaryText">
@@ -1279,7 +1279,7 @@ function SelectUI({
             ${item == curvalue ? 'bg-black bg-opacity-20 text-opacity-100' : ''}
             `}
           >
-            {item}
+            {<FormattedMessage id={item} />}
           </p>
         ))}
       </div>
@@ -1948,7 +1948,7 @@ const FarmChart = ({
         <div className="flex items-center px-3 pb-2 justify-between">
           <span className="text-primaryText">
             <FormattedMessage
-              id="ref_allocation"
+              id="REF_allocation"
               defaultMessage={'REF allocation'}
             />
           </span>
@@ -3953,7 +3953,7 @@ export const LastRoundFarmVoting = (
       <InfoRow
         title={
           <FormattedMessage
-            id="ref_allocation"
+            id="REF_allocation"
             defaultMessage={'REF Allocation'}
           />
         }
@@ -4213,7 +4213,7 @@ export const FarmProposal = ({
           .toString()
       );
 
-  const [sortBy, setSortBy] = useState<string>('REF allocation');
+  const [sortBy, setSortBy] = useState<string>('REF_allocation');
 
   const { globalState } = useContext(WalletContext);
 
@@ -4423,7 +4423,7 @@ export const FarmProposal = ({
           <span className="col-span-1 text-center xsm:w-full xsm:flex xsm:items-center xsm:justify-between xsm:px-4 xsm:pb-3">
             <span className="text-primaryText  lg:hidden text-sm">
               <FormattedMessage
-                id="ref_allocation"
+                id="REF_allocation"
                 defaultMessage={'REF allocation'}
               />
             </span>
@@ -4576,9 +4576,9 @@ export const FarmProposal = ({
       };
     })
     .sort((a, b) => {
-      if (sortBy === 'REF allocation') {
+      if (sortBy === 'REF_allocation') {
         return Number(b.allocate) - Number(a.allocate);
-      } else if (sortBy === 'Bonus') {
+      } else if (sortBy === 'bonus') {
         return Number(b.total) - Number(a.total);
       } else {
         return a.index - b.index;
@@ -4591,10 +4591,17 @@ export const FarmProposal = ({
         <FormattedMessage id="proposed" defaultMessage={'Proposed'} />{' '}
         <span>{endtimeMoment.add(1, 'month').format('MMM yyyy')}</span>{' '}
         <FormattedMessage id="farm_reward" defaultMessage={'Farm reward'} />
+        <FormattedMessage id="proposed_zh" defaultMessage={' '} />
       </div>
 
       <div className="text-center relative text-sm mt-4 xsm:mt-3 w-full">
-        <span>Voting period</span> <span></span>{' '}
+        <span>
+          <FormattedMessage
+            id="voting_period"
+            defaultMessage={'Voting period'}
+          />
+        </span>{' '}
+        <span></span>{' '}
         {moment(
           Math.floor(Number(farmProposal.start_at) / TIMESTAMP_DIVISOR) * 1000
         )
@@ -4656,7 +4663,7 @@ export const FarmProposal = ({
               </span>
             </span>,
             <FormattedMessage
-              id="ref_allocation"
+              id="REF_allocation"
               defaultMessage={'REF Allocation'}
             />,
             <FormattedMessage
@@ -4788,7 +4795,7 @@ export const FarmProposal = ({
           )}
 
           <SelectUI
-            list={['Bonus', 'REF allocation']}
+            list={['bonus', 'REF_allocation']}
             curvalue={sortBy}
             onChange={setSortBy}
             className=" lg:hidden "
@@ -4808,11 +4815,11 @@ export const FarmProposal = ({
 
             <button
               className={` pl-2  ${
-                sortBy === 'Bonus' ? 'text-gradientFrom' : ''
+                sortBy === 'bonus' ? 'text-gradientFrom' : ''
               }`}
               onClick={() => {
-                if (sortBy !== 'Bonus') {
-                  setSortBy('Bonus');
+                if (sortBy !== 'bonus') {
+                  setSortBy('bonus');
                 }
               }}
             >
@@ -4825,16 +4832,16 @@ export const FarmProposal = ({
           </span>
           <span className="col-span-1 text-center flex items-center whitespace-nowrap flex-nowrap">
             <FormattedMessage
-              id="ref_allocation"
+              id="REF_allocation"
               defaultMessage={'REF allocation'}
             />
             <button
               className={` pl-2  ${
-                sortBy === 'REF allocation' ? 'text-gradientFrom' : ''
+                sortBy === 'REF_allocation' ? 'text-gradientFrom' : ''
               }`}
               onClick={() => {
-                if (sortBy !== 'REF allocation') {
-                  setSortBy('REF allocation');
+                if (sortBy !== 'REF_allocation') {
+                  setSortBy('REF_allocation');
                 }
               }}
             >
@@ -5396,6 +5403,7 @@ export const GovProposal = ({
   setShowDetail: (s: number) => void;
   UnclaimedProposal: UnclaimedProposal;
 }) => {
+  const intl = useIntl();
   const { globalState } = useContext(WalletContext);
 
   const isSignedIn = globalState.isSignedIn;
@@ -5423,7 +5431,7 @@ export const GovProposal = ({
 
   const voteDetail = useVoteDetail();
 
-  const [state, setState] = useState<string>('All');
+  const [state, setState] = useState<string>('all');
 
   const { veShare } = useAccountInfo();
 
@@ -5497,7 +5505,10 @@ export const GovProposal = ({
                 <div 
                   style="font-weight:400",
                 >
-                Only for whitelist address
+                ${intl.formatMessage({
+                  id: 'only_for_whitelist_address',
+                  defaultMessage: 'Only for whitelist address',
+                })}
                                 </div>
               </div>
             `}
@@ -5598,7 +5609,7 @@ export const GovProposal = ({
 
             <SelectUI
               curvalue={state}
-              list={['All', 'Live', 'Ended', 'Pending']}
+              list={['all', 'live', 'ended_ve', 'pending_ve']}
               onChange={setState}
               className="ml-6"
               canSelect

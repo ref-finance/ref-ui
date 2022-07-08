@@ -888,7 +888,7 @@ export function BlacklightConnectToNearBtn(props: any) {
             loading={buttonLoading}
             Text={() => (
               <FormattedMessage
-                id="connect_to_wallet"
+                id="connect_wallet"
                 defaultMessage="Connect Wallet"
               />
             )}
