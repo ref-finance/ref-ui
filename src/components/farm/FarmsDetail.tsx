@@ -990,15 +990,21 @@ function CommonModal(props: any) {
 function DetailIcons({ tokens }: { tokens: TokenMetadata[] }) {
   return (
     <div className="flex items-center">
-      {tokens.map((token) => {
+      {tokens.map((token, index) => {
         return token.icon ? (
           <img
             src={token.icon}
-            className="w-4 h-4 rounded-full border border-gradientFrom"
+            className={`w-6 h-6 rounded-full border border-gradientFrom bg-cardBg ${
+              index != 0 ? '-ml-1' : ''
+            }`}
             alt=""
           />
         ) : (
-          <div className="w-4 h-4 rounded-full border border-gradientFrom bg-cardBg"></div>
+          <div
+            className={`w-6 h-6 rounded-full border border-gradientFrom bg-cardBg ${
+              index != 0 ? '-ml-1' : ''
+            }`}
+          ></div>
         );
       })}
     </div>
@@ -1013,7 +1019,7 @@ function DetailSymbol({
   id: string | number;
 }) {
   return (
-    <div className="text-xs text-white flex items-center">
+    <div className="text-sm text-white flex items-center">
       <span className="pl-2">
         {tokens.map((token) => toRealSymbol(token.symbol)).join('-')}
       </span>
@@ -1784,12 +1790,9 @@ function UserTotalUnClaimBlock(props: {
       ) : null}
 
       <div
-        className={`grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 gap-y-4 mt-4 pt-4 ${
+        className={`grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 gap-y-4 mt-4 pt-4 border-t border-borderGreyColor border-opacity-20 ${
           showDetail ? '' : 'hidden'
         }`}
-        style={{
-          borderTop: '2px dashed rgba(110, 124, 133, 0.2)',
-        }}
       >
         {unclaimedRewardsData.list.map(
           (
@@ -2122,7 +2125,7 @@ function UserStakeBlock(props: {
           !isSignedIn || (isEnded && Number(freeAmount) == 0) ? 'hidden' : ''
         }`}
       >
-        <div className="pt-5 mt-5 borde border-dashed border-dashBorderColor border-t-2 border-opacity-20">
+        <div className="pt-5 mt-5  border-t  border-borderGreyColor border-opacity-20">
           {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? (
             <div className="flex justify-between items-center xs:flex-col md:flex-col">
               {isEnded ? null : (

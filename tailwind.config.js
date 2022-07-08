@@ -161,6 +161,7 @@ module.exports = {
         otherGreenColor: '#00E9BF',
         greyCircleColor: '#889FAE',
         farmBoostingGotoFarm: 'rgba(43, 23, 85, 0.7)',
+        borderGreyColor:'#6E7C85'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
