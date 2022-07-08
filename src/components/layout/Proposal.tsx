@@ -4808,7 +4808,14 @@ export const FarmProposal = ({
         </div>
 
         <div className="grid grid-cols-7 xsm:hidden pb-1">
-          <span className="col-span-3 pl-4">
+          <span
+            className="col-span-3 pl-4 cursor-pointer"
+            onClick={() => {
+              if (sortBy !== 'bonus') {
+                setSortBy('bonus');
+              }
+            }}
+          >
             <FormattedMessage id="farms" defaultMessage={'Farms'} />
             {' & '}
             <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
@@ -4817,11 +4824,6 @@ export const FarmProposal = ({
               className={` pl-2  ${
                 sortBy === 'bonus' ? 'text-gradientFrom' : ''
               }`}
-              onClick={() => {
-                if (sortBy !== 'bonus') {
-                  setSortBy('bonus');
-                }
-              }}
             >
               <DownArrowVE />
             </button>
@@ -4830,7 +4832,14 @@ export const FarmProposal = ({
           <span className="col-span-1 text-center">
             <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
           </span>
-          <span className="col-span-1 text-center flex items-center whitespace-nowrap flex-nowrap">
+          <span
+            className="col-span-1 cursor-pointer text-center flex items-center whitespace-nowrap flex-nowrap"
+            onClick={() => {
+              if (sortBy !== 'REF_allocation') {
+                setSortBy('REF_allocation');
+              }
+            }}
+          >
             <FormattedMessage
               id="REF_allocation"
               defaultMessage={'REF allocation'}
@@ -4839,11 +4848,6 @@ export const FarmProposal = ({
               className={` pl-2  ${
                 sortBy === 'REF_allocation' ? 'text-gradientFrom' : ''
               }`}
-              onClick={() => {
-                if (sortBy !== 'REF_allocation') {
-                  setSortBy('REF_allocation');
-                }
-              }}
             >
               <DownArrowVE />
             </button>
