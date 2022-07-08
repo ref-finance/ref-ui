@@ -111,8 +111,8 @@ function USNPage(props: ReactModal.Props) {
     tokenOut;
   return (
     <Modal {...props}>
-      <div className="swap">
-        <section className="lg:w-480px md:w-5/6 xs:w-full xs:p-2 m-auto relative">
+      <div className="swap md:w-5/6 xs:w-full">
+        <section className="lg:w-480px xs:p-2 m-auto relative">
           <div
             style={{
               height: isMobile() ? '510px' : '',
