@@ -5,13 +5,14 @@ import React, {
   createContext,
   useReducer,
 } from 'react';
+import { REF_FARM_CONTRACT_ID, wallet as webWallet } from '../services/near';
+
 import {
-  REF_FARM_CONTRACT_ID,
-  wallet as webWallet,
+  getAmount,
+  RefFiFunctionCallOptions,
+  getGas,
   wallet,
 } from '../services/near';
-
-import { getAmount, RefFiFunctionCallOptions, getGas } from '../services/near';
 import { scientificNotationToString } from './numbers';
 import { ACCOUNT_ID_KEY } from '../context/WalletSelectorContext';
 import {
@@ -267,5 +268,13 @@ export const globalStateReducer = (
         ...state,
         isSignedIn: false,
       };
+  }
+};
+
+export const transactionCallback = async () => {
+  const { wallet } = getCurrentWallet();
+
+  if (!((await wallet.wallet()).type === 'browser')) {
+    window.location.reload();
   }
 };

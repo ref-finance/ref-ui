@@ -1109,7 +1109,9 @@ function Account(props: any) {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const auroraAddress = auroraAddr(getCurrentWallet()?.wallet?.getAccountId());
+  const auroraAddress = auroraAddr(
+    getCurrentWallet()?.wallet?.getAccountId() || ''
+  );
   const displayAddr = `${auroraAddress?.substring(
     0,
     6
@@ -1118,7 +1120,7 @@ function Account(props: any) {
     auroraAddress.length
   )}`;
 
-  const nearAddress: string = getCurrentWallet()?.wallet?.getAccountId();
+  const nearAddress: string = getCurrentWallet()?.wallet?.getAccountId() || '';
 
   const displayAddrNear =
     nearAddress.indexOf('.') === -1
@@ -1283,7 +1285,9 @@ function MobileAccount(props: any) {
   const [showTip, setShowTip] = useState(false);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const auroraAddress = auroraAddr(getCurrentWallet()?.wallet?.getAccountId());
+  const auroraAddress = auroraAddr(
+    getCurrentWallet()?.wallet?.getAccountId() || ''
+  );
   const [refAccountTokenNumber, setRefAccountTokenNumber] = useState();
   const [mapAccountTokenNumber, setMapAccountTokenNumber] = useState();
   const [hasRefBalanceOver, setHasRefBalanceOver] = useState(false);
@@ -1296,7 +1300,7 @@ function MobileAccount(props: any) {
     auroraAddress.length - 6,
     auroraAddress.length
   )}`;
-  const nearAddress: string = getCurrentWallet()?.wallet?.getAccountId();
+  const nearAddress: string = getCurrentWallet()?.wallet?.getAccountId() || '';
 
   const displayAddrNear =
     nearAddress.indexOf('.') === -1
@@ -1684,7 +1688,9 @@ export function AccountPage() {
     return null;
   }
 
-  const auroraAddress = auroraAddr(getCurrentWallet()?.wallet?.getAccountId());
+  const auroraAddress = auroraAddr(
+    getCurrentWallet()?.wallet?.getAccountId() || ''
+  );
 
   const userTokens = useUserRegisteredTokensAllAndNearBalance(isSignedIn);
   const balances = useTokenBalances(); // inner account balance

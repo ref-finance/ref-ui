@@ -179,7 +179,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
-        helperUrl: 'https://helper.testnet.near.org',
+        helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
         indexerUrl: 'https://dev-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
@@ -190,7 +190,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.WRAP_NEAR_CONTRACT_ID || 'wrap.testnet',
         REF_ADBOARD_CONTRACT_ID: 'ref-adboard.near',
         REF_FARM_CONTRACT_ID:
-          process.env.REF_FARM_CONTRACT_ID || 'farm110.ref-dev.testnet',
+          process.env.REF_FARM_CONTRACT_ID || 'farm-dev.ref-dev.testnet',
         REF_TOKEN_ID: 'ref.fakes.testnet',
         XREF_TOKEN_ID: 'xref.ref-dev.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',

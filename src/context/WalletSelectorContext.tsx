@@ -129,9 +129,9 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
     return () => subscription.unsubscribe();
   }, [selector, accountId]);
 
-  // if (!selector || !modal) {
-  //   return null;
-  // }
+  if (!selector || !modal) {
+    return null;
+  }
 
   return (
     <WalletSelectorContext.Provider

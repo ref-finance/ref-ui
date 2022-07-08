@@ -3,7 +3,11 @@ import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
 import getConfig, { getExtraStablePoolConfig } from './config';
 import SpecialWallet from './SpecialWallet';
-import { getCurrentWallet, senderWallet } from '../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  senderWallet,
+  transactionCallback,
+} from '../utils/sender-wallet';
 
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
@@ -203,10 +207,6 @@ export const refFiManyFunctionCalls = async (
       },
     })),
   });
-
-  // return wallet_type === WALLET_TYPE.SENDER_WALLET
-  //   ? wallet.sendTransactionWithActions(REF_FI_CONTRACT_ID, functionCalls)
-  //   : wallet.account().sendTransactionWithActions(REF_FI_CONTRACT_ID, actions);
 };
 
 export interface Transaction {
@@ -246,7 +246,8 @@ export const executeMultipleTransactions = async (
     })
     .then((res) => {
       console.log(res);
-    });
+    })
+    .finally(transactionCallback);
 };
 
 export const refFarmFunctionCall = async ({
@@ -273,9 +274,7 @@ export const refFarmFunctionCall = async ({
         },
       ],
     })
-    .finally(() => {
-      window.location.reload();
-    });
+    .finally(transactionCallback);
 };
 
 export const refFarmViewFunction = ({

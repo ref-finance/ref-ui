@@ -54,7 +54,7 @@ function StableSwapPageUSN({ pool }: { pool: Pool }) {
 
   const [actionName, setAction] = useState<string>(stableTab || storageTab);
 
-  const { shares, stakeList } = state?.pool ? state : usePool(id);
+  const { shares, stakeList } = usePool(id);
 
   const farmStake =
     state?.farmStake ||
