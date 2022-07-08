@@ -5436,9 +5436,9 @@ export const GovProposal = ({
   const { veShare } = useAccountInfo();
 
   const proposalStatus = {
-    InProgress: 'Live',
-    Expired: 'Ended',
-    WarmUp: 'Pending',
+    InProgress: 'live',
+    Expired: 'ended_ve',
+    WarmUp: 'pending_ve',
   };
 
   const filterFunc = (p: Proposal) => {
@@ -5481,7 +5481,7 @@ export const GovProposal = ({
   }, [showDetail, proposals]);
 
   const filteredProposals = proposals
-    ?.filter((p) => state === 'All' || proposalStatus[p.status] === state)
+    ?.filter((p) => state === 'all' || proposalStatus[p.status] === state)
     ?.filter(filterFunc)
     ?.sort((a, b) => b.id - a.id);
 
