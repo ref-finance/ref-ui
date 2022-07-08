@@ -744,7 +744,6 @@ const en_US = {
   connect_to_near_wallet: 'Connect to NEAR Wallet',
   connect: 'Connect',
   only_for_whitelist_address: 'Only for whitelist address',
-  // start
   v1Legacy: 'V1-Legacy',
   v2New: 'V2-New',
   v2_new_farms: 'V2 New Farms',
@@ -767,5 +766,6 @@ const en_US = {
   your_farm: 'Your farm',
   your_boosted_farms: 'Your boosted farms',
   search_farms_by_token: 'Search farms by token...',
+  search_farms: 'Search farms',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

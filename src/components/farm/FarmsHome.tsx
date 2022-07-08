@@ -1088,7 +1088,7 @@ export default function FarmsHome(props: any) {
               className="h-full text-sm text-white mr-3 w-40 placeholder-white placeholder-opacity-40"
               onWheel={() => searchRef.current.blur()}
               onChange={({ target }) => searchByKeyWords(target.value)}
-              placeholder="Search farms"
+              placeholder={intl.formatMessage({ id: 'search_farms' })}
             ></input>
             <span
               className={`${

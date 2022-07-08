@@ -535,7 +535,6 @@ const zh_CN = {
   rewards: 'Rewards',
   claimed_Rewards: 'Claimed Rewards',
   POOL: '流动池',
-  // start
   STAKE: '质押',
   lp_Token: 'LP 代币',
   booster: '助推器',
@@ -731,5 +730,6 @@ const zh_CN = {
   your_farm: '你的农场',
   your_boosted_farms: '你的助推农场',
   search_farms_by_token: '通过代币搜索农场...',
+  search_farms: '搜索农场',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
