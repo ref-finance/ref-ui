@@ -182,17 +182,31 @@ export const refFiViewFunction = ({
   return wallet.account().viewFunction(REF_FI_CONTRACT_ID, methodName, args);
 };
 
-export const refFiManyFunctionCalls = (
+export const refFiManyFunctionCalls = async (
   functionCalls: RefFiFunctionCallOptions[]
 ) => {
   const actions = functionCalls.map((fc) =>
     functionCall(fc.methodName, fc.args, getGas(fc.gas), getAmount(fc.amount))
   );
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
-  return wallet_type === WALLET_TYPE.SENDER_WALLET
-    ? wallet.sendTransactionWithActions(REF_FI_CONTRACT_ID, functionCalls)
-    : wallet.account().sendTransactionWithActions(REF_FI_CONTRACT_ID, actions);
+  return (await wallet.wallet()).signAndSendTransaction({
+    signerId: wallet.getAccountId()!,
+    receiverId: REF_FI_CONTRACT_ID,
+    actions: functionCalls.map((fc) => ({
+      type: 'FunctionCall',
+      params: {
+        methodName: fc.methodName,
+        args: fc.args,
+        gas: getGas(fc.gas).toNumber().toFixed(),
+        deposit: utils.format.parseNearAmount(fc.amount)!,
+      },
+    })),
+  });
+
+  // return wallet_type === WALLET_TYPE.SENDER_WALLET
+  //   ? wallet.sendTransactionWithActions(REF_FI_CONTRACT_ID, functionCalls)
+  //   : wallet.account().sendTransactionWithActions(REF_FI_CONTRACT_ID, actions);
 };
 
 export interface Transaction {
@@ -235,23 +249,33 @@ export const executeMultipleTransactions = async (
     });
 };
 
-export const refFarmFunctionCall = ({
+export const refFarmFunctionCall = async ({
   methodName,
   args,
   gas,
   amount,
 }: RefFiFunctionCallOptions) => {
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
-  return wallet
-    .account()
-    .functionCall(
-      REF_FARM_CONTRACT_ID,
-      methodName,
-      args,
-      getGas(gas),
-      getAmount(amount)
-    );
+  return (await wallet.wallet())
+    .signAndSendTransaction({
+      signerId: wallet.getAccountId()!,
+      receiverId: REF_FARM_CONTRACT_ID,
+      actions: [
+        {
+          type: 'FunctionCall',
+          params: {
+            methodName,
+            args,
+            gas: getGas(gas).toNumber().toFixed(),
+            deposit: utils.format.parseNearAmount(amount),
+          },
+        },
+      ],
+    })
+    .finally(() => {
+      window.location.reload();
+    });
 };
 
 export const refFarmViewFunction = ({
@@ -261,19 +285,26 @@ export const refFarmViewFunction = ({
   return wallet.account().viewFunction(REF_FARM_CONTRACT_ID, methodName, args);
 };
 
-export const refFarmManyFunctionCalls = (
+export const refFarmManyFunctionCalls = async (
   functionCalls: RefFiFunctionCallOptions[]
 ) => {
   const actions = functionCalls.map((fc) =>
     functionCall(fc.methodName, fc.args, getGas(fc.gas), getAmount(fc.amount))
   );
-  const { wallet, wallet_type } = getCurrentWallet();
-
-  return wallet_type === WALLET_TYPE.SENDER_WALLET
-    ? wallet.sendTransactionWithActions(REF_FARM_CONTRACT_ID, functionCalls)
-    : wallet
-        .account()
-        .sendTransactionWithActions(REF_FARM_CONTRACT_ID, actions);
+  const { wallet } = getCurrentWallet();
+  return (await wallet.wallet()).signAndSendTransaction({
+    signerId: wallet.getAccountId()!,
+    receiverId: REF_FARM_CONTRACT_ID,
+    actions: functionCalls.map((fc) => ({
+      type: 'FunctionCall',
+      params: {
+        methodName: fc.methodName,
+        args: fc.args,
+        gas: getGas(fc.gas).toNumber().toFixed(),
+        deposit: utils.format.parseNearAmount(fc.amount)!,
+      },
+    })),
+  });
 };
 
 export const executeFarmMultipleTransactions = async (
