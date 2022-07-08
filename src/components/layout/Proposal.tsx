@@ -140,7 +140,7 @@ import {
 } from '../../services/referendum';
 import { CloseIcon } from '../icon/Actions';
 import { getProposal } from '../../services/referendum';
-import { NoResultFilter } from '../icon/Referendum';
+import { NoResultFilter, DownArrowVE } from '../icon/Referendum';
 import QuestionMark from '../farm/QuestionMark';
 import {
   ConnectToNearBtnGradient,
@@ -4816,7 +4816,7 @@ export const FarmProposal = ({
                 }
               }}
             >
-              ↓
+              <DownArrowVE />
             </button>
           </span>
           <span className="col-span-1 text-center">veLPT</span>
@@ -4838,7 +4838,7 @@ export const FarmProposal = ({
                 }
               }}
             >
-              ↓
+              <DownArrowVE />
             </button>
           </span>
           <span className="col-span-1 text-center"></span>

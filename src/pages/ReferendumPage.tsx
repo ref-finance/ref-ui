@@ -569,7 +569,7 @@ export const LockPopUp = ({
               toPrecision(lpShare, 2)
             ) : (
               <button
-                className="text-gradientFrom flex items-center text-xs "
+                className="text-gradientFrom hover:text-senderHot flex items-center text-xs "
                 onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
               >
                 <span>
@@ -1491,7 +1491,7 @@ export const FarmStakeTip = ({
       <span className="ml-1">
         <FormattedMessage id="in" defaultMessage={'in'} />
         <span
-          className="text-gradientFrom ml-1 cursor-pointer underline"
+          className="text-gradientFrom hover:text-senderHot ml-1 cursor-pointer underline"
           onClick={() => {
             if (version === 1) {
               window.open('farms', '_blank');
