@@ -743,9 +743,9 @@ function StakeContainer(props: {
               data-class="reactTip"
             >
               <span
-                className={`flex items-center flex-wrap justify-center text-white text-base mt-2.5 text-right`}
+                className={`flex items-center flex-wrap justify-center text-white text-base text-right`}
               >
-                <label className={`${aprUpLimit ? 'text-xs' : 'text-sm'}`}>
+                <label className={`${aprUpLimit ? 'text-xs' : 'text-base'}`}>
                   {getTotalApr()}
                 </label>
                 {aprUpLimit}

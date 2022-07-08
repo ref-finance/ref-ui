@@ -2537,7 +2537,6 @@ function FarmView(props: {
             ) : null}
           </div>
           <div className="flex items-center justify-between px-5 py-4 h-24">
-            {/* <div className="flex items-start justify-between w-full"> */}
             <div className="flex flex-col items-center flex-shrink-0">
               <label className="text-farmText text-sm">
                 <FormattedMessage id="total_staked"></FormattedMessage>
@@ -2582,7 +2581,7 @@ function FarmView(props: {
                     isHaveUnclaimedReward ? 'text-center mx-2' : 'text-right'
                   }`}
                 >
-                  <label className={`${aprUpLimit ? 'text-xs' : 'text-sm'}`}>
+                  <label className={`${aprUpLimit ? 'text-xs' : 'text-base'}`}>
                     {getTotalApr()}
                   </label>
                   {aprUpLimit}
@@ -2596,7 +2595,6 @@ function FarmView(props: {
                 />
               </div>
             </div>
-            {/* </div> */}
             {isHaveUnclaimedReward ? (
               <div className="flex flex-col items-center flex-shrink-0">
                 <div
