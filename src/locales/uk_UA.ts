@@ -594,11 +594,7 @@ const uk_UA = {
   add_lp_tokens_tip:
     'You need LP tokens to stake into the corresponding farm. First, add liquidity to the pool to get LP tokens.',
   slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
-  starPool: 'Star Pools',
-  nearPool: 'NEAR ecosystem Pools',
-  stablePool: 'Stablecoin Pools',
-  endedFarms: 'Ended Farms',
-  otherPool: 'Other Pools',
+
   ordinary: 'Ordinary',
   exit_fee_tip: 'Estimated amount you would pay to break your lock-up period',
   forbiddenTip: 'This farm does not support this duration option',

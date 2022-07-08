@@ -266,6 +266,7 @@ export default function FarmsHome(props: any) {
     const amount = maxShareObj?.amount;
     if (amount) {
       const amountStr = new BigNumber(amount).toFixed().toString();
+      // todo 现在是 用 ref-near替代，上mainnet后替代
       // const amountStr_readable = toReadableNumber(LOVE_TOKEN_DECIMAL, amountStr);
       const amountStr_readable = toReadableNumber(24, amountStr);
       setMaxLoveShareAmount(amountStr_readable);
@@ -915,13 +916,13 @@ export default function FarmsHome(props: any) {
             inside ? 'mt-4 mb-2' : 'mt-6'
           }`}
         >
-          LOVE
+          <FormattedMessage id="love" />
           <LoveMask />
         </div>
         <div className="flex justify-between items-center w-full">
           <div className="flex flex-col items-center stakeBox w-2 flex-grow mx-1.5">
             <span className="text-white opacity-50 text-sm whitespace-nowrap">
-              Available to stake
+              <FormattedMessage id="Available_to_stake" />
             </span>
             <span className="text-white text-lg my-1 whitespace-nowrap">
               {getLoveBalance()}
@@ -951,7 +952,7 @@ export default function FarmsHome(props: any) {
           </div>
           <div className="flex flex-col items-center  unstakeBox w-2 flex-grow mx-1.5">
             <span className="text-white opacity-50 text-sm whitespace-nowrap">
-              You staked
+              <FormattedMessage id="you_staked" />
             </span>
             <span className="text-white text-lg my-1">
               {getLoveUserStaked()}
@@ -1006,12 +1007,14 @@ export default function FarmsHome(props: any) {
         {showMigrateEntry ? (
           <div className="relative bg-veGradient px-7 pb-4 pt-0  mb-4 lg:hidden">
             <span className="flex items-center justify-start text-white text-lg font-bold my-2">
-              V2 New Farms
+              <FormattedMessage id="v2_new_farms" />
             </span>
-            <p className="text-white text-sm">
-              V2 farms will support boosted farms. The V1 farms will run dry of
-              rewards the <span className="font-bold">1st. August, 2022.</span>
-            </p>
+            <p
+              className="text-white text-sm"
+              dangerouslySetInnerHTML={{
+                __html: intl.formatMessage({ id: 'v2_boost_tip' }),
+              }}
+            ></p>
             <MigrateIconSmall className="absolute -bottom-3 left-0"></MigrateIconSmall>
             <div className="flex justify-end">
               {isSignedIn ? (
@@ -1019,7 +1022,7 @@ export default function FarmsHome(props: any) {
                   onClick={goMigrate}
                   className="flex items-center h-8 w-2/3 justify-center bg-otherGreenColor  hover:bg-black hover:text-greenColor rounded-lg text-black text-sm cursor-pointer mt-6 mb-3"
                 >
-                  Migrate Now!
+                  <FormattedMessage id="migrate_now" />
                 </div>
               ) : (
                 <BlacklightConnectToNearBtn className="h-8 w-3/4 mt-6 mb-5" />
@@ -1042,10 +1045,10 @@ export default function FarmsHome(props: any) {
                   }}
                   className="flex items-center justify-center text-sm text-farmText cursor-pointer px-2 h-full  rounded-2xl"
                 >
-                  V1-Legacy
+                  <FormattedMessage id="v1Legacy" />
                 </span>
                 <span className="flex items-center justify-center rounded-2xl text-sm text-chartBg cursor-pointer px-3 h-full bg-farmSearch">
-                  V2-New
+                  <FormattedMessage id="v2New" />
                 </span>
               </div>
             </div>
@@ -1057,16 +1060,11 @@ export default function FarmsHome(props: any) {
             {Object.keys(user_claimed_rewards).length > 0 ? (
               <div className="flex items-center justify-start text-sm text-primaryText mt-3 whitespace-nowrap xs:mt-0 md:mt-0 xs:mb-2 md:mb-2">
                 <WarningIcon className="mr-1.5 flex-shrink-0" />
-                Legacy rewards to be withdraw in
-                <a
-                  className="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"
-                  onClick={() => {
-                    history.push('/farms');
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: intl.formatMessage({ id: 'has_rewards_tip_in_v2' }),
                   }}
-                >
-                  V1 Farms
-                </a>
-                .
+                ></span>
               </div>
             ) : null}
           </div>
@@ -1133,19 +1131,22 @@ export default function FarmsHome(props: any) {
           <MigrateIconMiddle className="absolute left-0 -top-5"></MigrateIconMiddle>
           <div className="flex justify-between items-end ml-32">
             <div className="w-3/4 mr-5">
-              <p className="text-white text-lg font-black mb-3">V2 New Farms</p>
-              <p className="text-sm text-white">
-                V2 farms will support boosted farms. The V1 farms will run dry
-                of rewards the{' '}
-                <span className="font-bold">1st. August, 2022.</span>
+              <p className="text-white text-lg font-black mb-3">
+                <FormattedMessage id="v2_new_farms" />
               </p>
+              <p
+                className="text-sm text-white"
+                dangerouslySetInnerHTML={{
+                  __html: intl.formatMessage({ id: 'v2_boost_tip' }),
+                }}
+              ></p>
             </div>
             {isSignedIn ? (
               <div
                 onClick={goMigrate}
                 className="flex items-center h-8 justify-center bg-otherGreenColor hover:bg-black hover:text-greenColor rounded-lg text-black text-sm cursor-pointer px-5 whitespace-nowrap mb-2"
               >
-                Migrate Now!
+                <FormattedMessage id="migrate_now" />
               </div>
             ) : (
               <BlacklightConnectToNearBtn className="h-8 w-52 mb-2" />
@@ -1188,7 +1189,7 @@ export default function FarmsHome(props: any) {
               className="h-full text-sm text-white mr-3 w-48 xs:w-32 md:w-32 placeholder-white placeholder-opacity-40"
               onWheel={() => searchRef.current.blur()}
               onChange={({ target }) => searchByKeyWords(target.value)}
-              placeholder="Search farms by token..."
+              placeholder={intl.formatMessage({ id: 'search_farms_by_token' })}
             ></input>
             <span
               className={`${
@@ -1255,7 +1256,7 @@ export default function FarmsHome(props: any) {
                         boostInstructions ? 'hidden' : ''
                       }`}
                     >
-                      How to get?
+                      <FormattedMessage id="how_to_get" />
                     </label>
                     <DirectionButton
                       className={
@@ -1274,7 +1275,7 @@ export default function FarmsHome(props: any) {
                       className="text-white xs:hidden md:hidden transform -translate-x-9"
                       style={{ fontSize: '32px' }}
                     >
-                      Booster
+                      <FormattedMessage id="booster" />
                     </span>
                     <div className="flex justify-center items-center">
                       <div className="relative flex items-center justify-center mr-1.5">
@@ -1290,7 +1291,8 @@ export default function FarmsHome(props: any) {
                           }}
                           className="absolute xs:-left-6 md:-left-6 flex items-center justify-center text-sm xs:text-xs md:text-xs  text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
                         >
-                          Get LOVE <VEARROW className="ml-1"></VEARROW>
+                          <FormattedMessage id="get_love" />{' '}
+                          <VEARROW className="ml-1"></VEARROW>
                         </span>
                       </div>
                       <div className="line w-32 h-px bg-white bg-opacity-20 xs:w-24 md:w-24"></div>
@@ -1307,7 +1309,7 @@ export default function FarmsHome(props: any) {
                           }}
                           className="absolute xs:-left-10 md:-left-10 flex items-center justify-center text-sm xs:text-xs md:text-xs text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
                         >
-                          Stake LOVE
+                          <FormattedMessage id="stakeLove" />
                         </span>
                       </div>
                       <div className="line w-32 h-px bg-white bg-opacity-20 xs:w-24 md:w-24"></div>
@@ -1318,11 +1320,8 @@ export default function FarmsHome(props: any) {
                         >
                           3
                         </span>
-                        <span className="absolute flex items-center justify-center text-sm text-greyCircleColor rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:hidden md:hidden">
-                          Get Booster
-                        </span>
-                        <span className="absolute flex items-center justify-center text-xs text-greyCircleColor rounded-lg top-8 whitespace-nowrap px-5 py-1 -left-14 lg:hidden">
-                          Get Booster
+                        <span className="absolute flex items-center justify-center text-sm xs:text-xs md:text-xs text-greyCircleColor rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:-left-14 md:-left-14">
+                          <FormattedMessage id="get_booster" />
                         </span>
                       </div>
                     </div>
@@ -1337,14 +1336,12 @@ export default function FarmsHome(props: any) {
             </div>
           )}
 
-          {/* {showLoveTokenModalVisible ? ( */}
           <GetLoveTokenModal
             isOpen={showLoveTokenModalVisible}
             onRequestClose={() => {
               setShowLoveTokenModalVisible(false);
             }}
           ></GetLoveTokenModal>
-          {/* ) : null} */}
 
           {loveStakeModalVisible ? (
             <LoveStakeModal
@@ -1422,7 +1419,7 @@ export default function FarmsHome(props: any) {
                 <a className="text-xs text-greenColor mx-1">
                   {showEndedFarmList ? 'Hidden' : 'Show'}
                 </a>
-                ended farms
+                <FormattedMessage id="ended_farms" />
               </div>
               <p
                 className={`text-xl text-farmText xs:mt-5 md:mt-5 ${
@@ -1441,7 +1438,7 @@ export default function FarmsHome(props: any) {
                 <a className="text-xs text-greenColor mx-1">
                   {showEndedFarmList ? 'Hidden' : 'Show'}
                 </a>
-                ended farms
+                <FormattedMessage id="ended_farms" />
               </div>
             </div>
             <div
@@ -1658,8 +1655,12 @@ function LoveStakeModal(props: {
         </div>
       )}
       <div className="flex items-center justify-between mt-6 mb-4">
-        <span className="text-sm text-farmText">Boosted farms</span>
-        <span className="text-sm text-farmText">Boost</span>
+        <span className="text-sm text-farmText">
+          <FormattedMessage id="boosted_farms" />
+        </span>
+        <span className="text-sm text-farmText">
+          <FormattedMessage id="boost" />
+        </span>
       </div>
       {affectSeeds &&
         affectSeeds.map((seed: Seed) => {
@@ -1675,7 +1676,7 @@ function LoveStakeModal(props: {
                 </span>
                 {Object.keys(user_seed).length > 0 ? (
                   <span className="ml-3 text-sm text-lightGreenColor bg-black bg-opacity-20 rounded-lg px-1.5 py-1">
-                    Your farm
+                    <FormattedMessage id="your_farm" />
                   </span>
                 ) : null}
               </div>
@@ -1854,7 +1855,8 @@ function LoveUnStakeModal(props: {
     <CommonModal {...reset}>
       <div className="flex justify-between items-center mt-6">
         <div className="flex items-center text-base text-white font-bold">
-          <LoveTokenIcon className="mr-2.5"></LoveTokenIcon> LOVE
+          <LoveTokenIcon className="mr-2.5"></LoveTokenIcon>{' '}
+          <FormattedMessage id="love" />
           <LoveMask />
         </div>
         <span className="text-sm text-white">
@@ -1887,8 +1889,12 @@ function LoveUnStakeModal(props: {
       {yourAffectSeeds && yourAffectSeeds.length ? (
         <>
           <div className="flex items-center justify-between mt-6 mb-4">
-            <span className="text-sm text-farmText">Your boosted farms</span>
-            <span className="text-sm text-farmText">Boost</span>
+            <span className="text-sm text-farmText">
+              <FormattedMessage id="your_boosted_farms" />
+            </span>
+            <span className="text-sm text-farmText">
+              <FormattedMessage id="boost" />
+            </span>
           </div>
           {yourAffectSeeds.map((seed: Seed) => {
             return (

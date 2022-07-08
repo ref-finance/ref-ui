@@ -623,11 +623,7 @@ const en_US = {
   add_lp_tokens_tip:
     'You need LP tokens to stake into the corresponding farm. First, add liquidity to the pool to get LP tokens.',
   slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
-  starPool: 'Star Pools',
-  nearPool: 'NEAR ecosystem Pools',
-  stablePool: 'Stablecoin Pools',
-  endedFarms: 'Ended Farms',
-  otherPool: 'Other Pools',
+
   ordinary: 'Ordinary',
   exit_fee_tip: 'Estimated amount you would pay to break your lock-up period',
   forbiddenTip: 'This farm does not support this duration option',
@@ -748,5 +744,28 @@ const en_US = {
   connect_to_near_wallet: 'Connect to NEAR Wallet',
   connect: 'Connect',
   only_for_whitelist_address: 'Only for whitelist address',
+  // start
+  v1Legacy: 'V1-Legacy',
+  v2New: 'V2-New',
+  v2_new_farms: 'V2 New Farms',
+  migrate_now: 'Migrate Now!',
+  v2_boost_tip:
+    'V2 farms will support boosted farms. The V1 farms will run dry of rewards the <span class="font-bold">1st. August, 2022.</span>',
+  no_farm_need_to_migrate: 'No Farm need to Migrate',
+  v1_farms: 'V1 Farms',
+  has_rewards_tip:
+    'You still have claimed rewards to be withdraw in <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >V1 Farms</a>. The rewards are not going anywhere, you can withdraw anytime.</div>',
+  love: 'LOVE',
+  Available_to_stake: 'Available to stake',
+  you_staked: 'You staked',
+  has_rewards_tip_in_v2:
+    'Legacy rewards to be withdraw in <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Farms</a>.',
+  how_to_get: 'How to get?',
+  get_booster: 'Get Booster',
+  ended_farms: 'ended farms',
+  boosted_farms: 'Boosted farms',
+  your_farm: 'Your farm',
+  your_boosted_farms: 'Your boosted farms',
+  search_farms_by_token: 'Search farms by token...',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

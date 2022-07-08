@@ -34,6 +34,7 @@ export default function FarmsMigrate() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
+  const intl = useIntl();
   const goBacktoFarms = () => {
     const from = new URLSearchParams(location.search).get('from');
     if (from == 'v2') {
@@ -81,7 +82,7 @@ export default function FarmsMigrate() {
             {noData ? (
               <div className="flex flex-col items-center">
                 <span className="flex w-full items-center text-2xl font-bold text-lightGreenColor">
-                  No Farm need to Migrate
+                  <FormattedMessage id="no_farm_need_to_migrate" />
                 </span>
                 <GradientButton
                   onClick={goBoostFarmPage}
@@ -98,13 +99,14 @@ export default function FarmsMigrate() {
             ) : (
               <div>
                 <span className="flex w-full xs:justify-center md:justify-center text-2xl font-bold text-white whitespace-nowrap">
-                  V2 New Farms
+                  <FormattedMessage id="v2_new_farms" />
                 </span>
-                <p className="text-base text-white mt-4">
-                  V2 farms will support boosted farms. The V1 farms will run dry
-                  of rewards the{' '}
-                  <span className="font-bold">1st. August, 2022.</span>
-                </p>
+                <p
+                  dangerouslySetInnerHTML={{
+                    __html: intl.formatMessage({ id: 'v2_boost_tip' }),
+                  }}
+                  className="text-base text-white mt-4"
+                ></p>
               </div>
             )}
           </>
@@ -128,18 +130,12 @@ export default function FarmsMigrate() {
           ) : null}
 
           {Object.keys(user_claimed_rewards).length > 0 ? (
-            <div className="withDrawBoxTip bg-white bg-opacity-10 rounded-lg px-5 py-1.5 mt-3 text-primaryText text-base">
-              You still have claimed rewards to be withdraw in{' '}
-              <a
-                className="text-greenColor text-base cursor-pointer underline hover:text-senderHot"
-                onClick={() => {
-                  history.push('/farms');
-                }}
-              >
-                V1 Farms
-              </a>
-              . The rewards are not going anywhere, you can withdraw anytime.
-            </div>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: intl.formatMessage({ id: 'has_rewards_tip' }),
+              }}
+              className="withDrawBoxTip bg-white bg-opacity-10 rounded-lg px-5 py-1.5 mt-3 text-primaryText text-base"
+            ></div>
           ) : null}
         </>
       )}

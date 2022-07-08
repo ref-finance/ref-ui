@@ -736,7 +736,7 @@ export function FarmsPage() {
             </div>
             <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
               <span className="flex items-center justify-center text-sm  text-chartBg cursor-pointer px-2 h-full  rounded-2xl bg-farmSearch">
-                V1-Legacy
+                <FormattedMessage id="v1Legacy" />
               </span>
               <span
                 onClick={() => {
@@ -744,20 +744,21 @@ export function FarmsPage() {
                 }}
                 className="flex items-center justify-center rounded-2xl text-sm  text-farmText cursor-pointer px-3 h-full"
               >
-                V2-New
+                <FormattedMessage id="v2New" />
               </span>
             </div>
           </div>
           {showMigrateEntry ? (
             <div className="relative bg-veGradient rounded-2xl p-4 mt-2">
               <span className="flex items-center justify-start text-white text-lg font-black my-2">
-                V2 New Farms
+                <FormattedMessage id="v2_new_farms" />
               </span>
-              <p className="text-white text-sm">
-                V2 farms will support boosted farms. The V1 farms will run dry
-                of rewards the{' '}
-                <span className="font-bold">1st. August, 2022.</span>
-              </p>
+              <p
+                className="text-white text-sm"
+                dangerouslySetInnerHTML={{
+                  __html: intl.formatMessage({ id: 'v2_boost_tip' }),
+                }}
+              ></p>
               <MigrateIconSmall className="absolute -bottom-3 -left-3.5"></MigrateIconSmall>
               <div className="flex justify-end">
                 {isSignedIn ? (
@@ -765,7 +766,7 @@ export function FarmsPage() {
                     onClick={goMigrate}
                     className="flex items-center h-8 w-2/3 justify-center bg-otherGreenColor hover:bg-black hover:text-greenColor rounded-lg text-black text-sm cursor-pointer mt-6 mb-3"
                   >
-                    Migrate Now!
+                    <FormattedMessage id="migrate_now" />
                   </div>
                 ) : (
                   <BlacklightConnectToNearBtn className="h-8 w-3/4 mt-6 mb-5" />
@@ -965,7 +966,6 @@ export function FarmsPage() {
                       id={searchData.coin}
                       list={filterList}
                       onChange={changeCoinOption}
-                      // className="w-36"
                       Icon={isMobile() ? CoinPropertyIcon : ''}
                     />
                   </div>
@@ -978,7 +978,6 @@ export function FarmsPage() {
                       list={sortList}
                       onChange={changeSortOption}
                       Icon={isMobile() ? SortIcon : ''}
-                      // className="w-56"
                     />
                   </div>
                 </div>
@@ -2414,7 +2413,6 @@ function ActionModal(
               <div className="flex items-center">
                 {displayTokenData.imgs}
                 <label className="ml-3 text-base text-white">
-                  {/* {displayTokenData.symbols}{' '} */}
                   <FormattedMessage id="my_shares"></FormattedMessage>
                 </label>
               </div>
