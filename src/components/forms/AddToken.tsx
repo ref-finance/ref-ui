@@ -63,7 +63,7 @@ export default function AddToken() {
             onChange={({ target }) => setTokenId(target.value)}
           />
           <div className="my-5">
-            {getCurrentWallet().wallet.isSignedIn() ? (
+            {getCurrentWallet()?.wallet?.isSignedIn() ? (
               <button
                 onClick={(e) => {
                   handleSubmit(e);

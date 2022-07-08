@@ -63,7 +63,7 @@ export const stake = async ({ amount, msg = '' }: StakeOptions) => {
         {
           methodName: 'storage_deposit',
           args: {
-            account_id: getCurrentWallet().wallet.getAccountId(),
+            account_id: getCurrentWallet()?.wallet?.getAccountId(),
             registration_only: true,
           },
           gas: '50000000000000',

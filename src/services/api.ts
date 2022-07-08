@@ -41,7 +41,7 @@ export const getPoolBalance = async (pool_id: number) => {
     methodName: 'get_pool_shares',
     args: {
       pool_id: pool_id,
-      account_id: getCurrentWallet().wallet.getAccountId(),
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
     },
   }).then((balance) => {
     return new BigNumber(balance.toString()).toFixed();
@@ -74,7 +74,7 @@ export const getUserWalletTokens = async (): Promise<any> => {
   return await fetch(
     config.helperUrl +
       '/account/' +
-      getCurrentWallet().wallet.getAccountId() +
+      getCurrentWallet()?.wallet?.getAccountId() +
       '/likelyTokens',
     {
       method: 'GET',

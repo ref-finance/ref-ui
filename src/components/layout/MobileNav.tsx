@@ -222,8 +222,8 @@ export function Logout() {
         className={
           'whitespace-nowrap flex text-lg text-left p-4 text-primaryText bg-cardBg'
         }
-        onClick={() => {
-          wallet.signOut();
+        onClick={async () => {
+          (await wallet.wallet()).signOut();
           window.location.assign('/');
         }}
       >
@@ -275,8 +275,8 @@ export function AccountModel(props: any) {
     {
       icon: <SignoutIcon />,
       textId: 'sign_out',
-      click: () => {
-        wallet.signOut();
+      click: async () => {
+        (await wallet.wallet()).signOut();
         window.location.assign('/');
       },
     },

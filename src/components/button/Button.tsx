@@ -9,6 +9,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { BeatLoading } from '../../components/layout/Loading';
 import { WalletSelectorModal } from '../layout/WalletSelector';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 export function BorderlessButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
@@ -122,6 +123,9 @@ export function ConnectToNearBtn() {
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
   return (
     <>
       <div
@@ -136,7 +140,8 @@ export function ConnectToNearBtn() {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          // setShowWalletSelector(true);
+          modal.show();
         }}
       >
         {!buttonLoading && (

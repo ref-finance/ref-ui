@@ -87,7 +87,7 @@ export function shareToUserTotal({
   return (
     <div className="text-xs">
       <span className="text-white">
-        {getCurrentWallet().wallet.isSignedIn()
+        {getCurrentWallet()?.wallet?.isSignedIn()
           ? toRoundedReadableNumber({
               decimals: getStablePoolDecimal(pool?.id),
               number: shares,
@@ -97,7 +97,7 @@ export function shareToUserTotal({
       </span>
 
       <span className={`text-primaryText ${canFarm == 0 ? 'hidden' : ''}`}>
-        {getCurrentWallet().wallet.isSignedIn()
+        {getCurrentWallet()?.wallet?.isSignedIn()
           ? ` / ${toRoundedReadableNumber({
               decimals: getStablePoolDecimal(pool?.id),
               number: scientificNotationToString(

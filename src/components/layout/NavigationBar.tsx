@@ -163,9 +163,9 @@ function AccountEntry({
   const [hover, setHover] = useState(false);
 
   const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+  const { wallet } = getCurrentWallet();
 
-  const { wallet, wallet_type } = getCurrentWallet();
+  const isSignedIn = globalState.isSignedIn && !!wallet.getAccountId();
 
   const [showAccountTip, setShowAccountTip] = useState<boolean>(false);
 
@@ -216,9 +216,12 @@ function AccountEntry({
     {
       icon: <SignoutIcon />,
       textId: 'sign_out',
-      click: () => {
-        wallet.signOut();
-        wallet_type === 'near-wallet' && window.location.assign('/');
+      click: async () => {
+        const curWallet = await wallet.wallet();
+
+        await curWallet.signOut();
+
+        window.location.assign('/');
       },
     },
   ];
@@ -350,7 +353,7 @@ export function AuroraEntry({
   hasBalanceOnAurora?: boolean;
   extraClick?: (e?: any) => void;
 }) {
-  const nearAccount = getCurrentWallet().wallet.getAccountId();
+  const nearAccount = getCurrentWallet()?.wallet?.getAccountId() || '';
   const auroraAddress = auroraAddr(nearAccount);
 
   const isMobile = useMobile();
@@ -895,7 +898,9 @@ function NavigationBar() {
   const [hoverClick, setHoverClick] = useState<boolean>(false);
 
   const auroraTokens = useAuroraTokens();
-  const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
+  const auroraAddress = auroraAddr(
+    getCurrentWallet()?.wallet?.getAccountId() || ''
+  );
 
   const [withdrawDone, setWithdrawDone] = useState<any>();
 

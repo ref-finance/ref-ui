@@ -4,6 +4,9 @@ import BN from 'bn.js';
 import getConfig, { getExtraStablePoolConfig } from './config';
 import SpecialWallet from './SpecialWallet';
 import { getCurrentWallet, senderWallet } from '../utils/sender-wallet';
+
+import { Transaction as WSTransaction } from '@near-wallet-selector/core';
+
 import {
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
   WALLET_TYPE,
@@ -201,29 +204,35 @@ export const executeMultipleTransactions = async (
   transactions: Transaction[],
   callbackUrl?: string
 ) => {
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
-  const currentTransactions =
-    wallet_type === WALLET_TYPE.SENDER_WALLET
-      ? transactions
-      : await Promise.all(
-          transactions.map((t, i) => {
-            return wallet.createTransaction({
-              receiverId: t.receiverId,
-              nonceOffset: i + 1,
-              actions: t.functionCalls.map((fc) =>
-                functionCall(
-                  fc.methodName,
-                  fc.args,
-                  getGas(fc.gas),
-                  getAmount(fc.amount)
-                )
-              ),
-            });
-          })
-        );
+  const wstransactions: WSTransaction[] = [];
 
-  return wallet.requestSignTransactions(currentTransactions, callbackUrl);
+  transactions.forEach((transaction) => {
+    wstransactions.push({
+      signerId: wallet.getAccountId()!,
+      receiverId: transaction.receiverId,
+      actions: transaction.functionCalls.map((fc) => {
+        return {
+          type: 'FunctionCall',
+          params: {
+            methodName: fc.methodName,
+            args: fc.args,
+            gas: getGas(fc.gas).toNumber().toFixed(),
+            deposit: utils.format.parseNearAmount(fc.amount)!,
+          },
+        };
+      }),
+    });
+  });
+
+  return (await wallet.wallet())
+    .signAndSendTransactions({
+      transactions: wstransactions,
+    })
+    .then((res) => {
+      console.log(res);
+    });
 };
 
 export const refFarmFunctionCall = ({
@@ -271,29 +280,7 @@ export const executeFarmMultipleTransactions = async (
   transactions: Transaction[],
   callbackUrl?: string
 ) => {
-  const { wallet, wallet_type } = getCurrentWallet();
-
-  const currentTransactions =
-    wallet_type === WALLET_TYPE.SENDER_WALLET
-      ? transactions
-      : await Promise.all(
-          transactions.map((t, i) => {
-            return wallet.createTransaction({
-              receiverId: t.receiverId,
-              nonceOffset: i + 1,
-              actions: t.functionCalls.map((fc) =>
-                functionCall(
-                  fc.methodName,
-                  fc.args,
-                  getGas(fc.gas),
-                  getAmount(fc.amount)
-                )
-              ),
-            });
-          })
-        );
-
-  return wallet.requestSignTransactions(currentTransactions, callbackUrl);
+  return executeMultipleTransactions(transactions, callbackUrl);
 };
 
 export interface RefContractViewFunctionOptions

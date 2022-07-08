@@ -6,6 +6,7 @@ import {
   useMemo,
   useContext,
 } from 'react';
+
 import {
   STABLE_TOKEN_IDS,
   wallet,
@@ -38,6 +39,7 @@ import {
 } from '../services/aurora/aurora';
 import { AllStableTokenIds } from '../services/near';
 import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
+import { wallet as webWallet } from '~services/near';
 import {
   WalletContext,
   getCurrentWallet,
@@ -149,7 +151,7 @@ export const useRainbowWhitelistTokens = () => {
         );
       })
       .then(setTokens);
-  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
+  }, [getCurrentWallet()?.wallet?.isSignedIn(), extraTokenIds.join('-')]);
 
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };
@@ -165,7 +167,7 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
         );
       })
       .then(setTokens);
-  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
+  }, [getCurrentWallet()?.wallet?.isSignedIn(), extraTokenIds.join('-')]);
 
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };
@@ -279,11 +281,11 @@ export const getDepositableBalance = async (
   tokenId: string,
   decimals?: number
 ) => {
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
   if (tokenId === 'NEAR') {
-    if (getCurrentWallet().wallet.isSignedIn()) {
-      return wallet
+    if (getCurrentWallet()?.wallet?.isSignedIn()) {
+      return webWallet
         .account()
         .getAccountBalance()
         .then(({ available }: any) => {
@@ -384,12 +386,12 @@ export const useDepositableBalance = (
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
   useEffect(() => {
-    if (isSignedIn && wallet.account) {
+    if (isSignedIn && wallet) {
       if (tokenId === 'NEAR') {
-        wallet
+        webWallet
           .account()
           .getAccountBalance()
           .then(({ available }: any) => setDepositable(available));
@@ -399,7 +401,7 @@ export const useDepositableBalance = (
     } else {
       setDepositable('0');
     }
-  }, [tokenId, isSignedIn, wallet_type, wallet.account]);
+  }, [tokenId, isSignedIn, wallet]);
 
   useEffect(() => {
     const max = toReadableNumber(decimals, depositable) || '0';

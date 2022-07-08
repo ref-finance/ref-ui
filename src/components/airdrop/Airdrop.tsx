@@ -207,7 +207,7 @@ export default function AirdropView() {
   const [participateAirdrop, setParticipateAirdrop] = useState<boolean>(false);
   const [accountInfo, setAccountInfo] = useState<AccountOptions>();
   const [statsInfo, setStatsInfo] = useState<StatsOptions>();
-  const currentAccountId = getCurrentWallet().wallet.getAccountId();
+  const currentAccountId = getCurrentWallet()?.wallet?.getAccountId();
   const [token, setToken] = useState<TokenMetadata>();
   const [currentTimestamp, setCurrentTimestamp] = useState<number>();
 

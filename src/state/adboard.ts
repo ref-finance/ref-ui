@@ -15,11 +15,11 @@ export const useAdboardState = () => {
   }, []);
 
   const ownedFrames = adboardState?.metadata.filter(
-    (metadata) => metadata.owner === getCurrentWallet().wallet.getAccountId()
+    (metadata) => metadata.owner === getCurrentWallet()?.wallet?.getAccountId()
   );
 
   const isOwnFrame = (owner: string) => {
-    return owner === getCurrentWallet().wallet.getAccountId();
+    return owner === getCurrentWallet()?.wallet?.getAccountId();
   };
 
   return {

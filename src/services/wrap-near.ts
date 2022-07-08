@@ -79,7 +79,7 @@ export const wrapNear = async (amount: string) => {
         {
           methodName: 'storage_deposit',
           args: {
-            account_id: getCurrentWallet().wallet.getAccountId(),
+            account_id: getCurrentWallet()?.wallet?.getAccountId(),
             registration_only: false,
           },
           gas: '30000000000000',

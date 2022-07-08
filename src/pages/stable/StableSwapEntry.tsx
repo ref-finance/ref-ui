@@ -113,7 +113,7 @@ export function formatePoolData({
   farmCount: Number;
   poolTVL: number;
 }) {
-  const isSignedIn = getCurrentWallet().wallet.isSignedIn();
+  const isSignedIn = getCurrentWallet()?.wallet?.isSignedIn();
 
   const tokensMap: {
     [id: string]: TokenMetadata;

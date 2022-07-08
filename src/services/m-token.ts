@@ -36,7 +36,7 @@ export const FARM_STORAGE_BALANCE = '0.045';
 export const checkTokenNeedsStorageDeposit = async (page?: string) => {
   let storageNeeded: math.MathType = 0;
   const balance = await currentStorageBalanceOfFarm(
-    getCurrentWallet().wallet.getAccountId()
+    getCurrentWallet()?.wallet?.getAccountId()
   );
 
   if (!balance) {

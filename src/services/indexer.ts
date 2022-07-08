@@ -76,7 +76,7 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
   return await fetch(
     config.indexerUrl +
       '/liquidity-pools/' +
-      getCurrentWallet().wallet.getAccountId(),
+      getCurrentWallet()?.wallet?.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
@@ -236,7 +236,7 @@ export const getLatestActions = async (): Promise<Array<ActionData>> => {
   return await fetch(
     config.indexerUrl +
       '/latest-actions/' +
-      getCurrentWallet().wallet.getAccountId(),
+      getCurrentWallet()?.wallet?.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },

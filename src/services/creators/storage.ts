@@ -21,7 +21,7 @@ interface StorageDepositActionOptions {
   amount: string;
 }
 export const storageDepositAction = ({
-  accountId = getCurrentWallet().wallet.getAccountId(),
+  accountId = getCurrentWallet()?.wallet?.getAccountId(),
   registrationOnly = false,
   amount,
 }: StorageDepositActionOptions): RefFiFunctionCallOptions => ({
@@ -34,7 +34,7 @@ export const storageDepositAction = ({
 });
 
 export const storageDepositForTokenAction = (
-  accountId: string = getCurrentWallet().wallet.getAccountId()
+  accountId: string = getCurrentWallet()?.wallet?.getAccountId()
 ): RefFiFunctionCallOptions =>
   storageDepositAction({
     accountId,
@@ -54,7 +54,7 @@ export const storageDepositForMFTAction = () =>
   });
 
 export const needDepositStorage = async (
-  accountId = getCurrentWallet().wallet.getAccountId()
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
 ) => {
   const storage = await refFiViewFunction({
     methodName: 'get_user_storage_state',

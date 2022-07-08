@@ -90,7 +90,7 @@ export const getSeeds = async ({
 };
 
 export const getStakedListByAccountId = async ({
-  accountId = getCurrentWallet().wallet.getAccountId(),
+  accountId = getCurrentWallet()?.wallet?.getAccountId(),
 }): Promise<Record<string, string>> => {
   const stakedList = await refFarmViewFunction({
     methodName: 'list_user_seeds',
@@ -186,7 +186,7 @@ export const getFarmInfo = async (
   seed: string,
   lpTokenId: string
 ): Promise<FarmInfo> => {
-  const isSignedIn: boolean = getCurrentWallet().wallet.isSignedIn();
+  const isSignedIn: boolean = getCurrentWallet()?.wallet?.isSignedIn();
   const { tvl, token_account_ids, id } = pool;
   if (new Set(STABLE_POOL_IDS || []).has(id?.toString())) {
     staked = toNonDivisibleNumber(expand, staked ?? '0');
@@ -341,7 +341,7 @@ export const getFarm = async (id: number): Promise<Farm> => {
 };
 
 export const getRewards = async ({
-  accountId = getCurrentWallet().wallet.getAccountId(),
+  accountId = getCurrentWallet()?.wallet?.getAccountId(),
 }): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'list_rewards',
@@ -351,7 +351,7 @@ export const getRewards = async ({
 
 export const getRewardByTokenId = async (
   token_id: string,
-  accountId = getCurrentWallet().wallet.getAccountId()
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'get_reward',
@@ -361,7 +361,7 @@ export const getRewardByTokenId = async (
 
 export const getUnclaimedReward = async (
   farm_id: string,
-  accountId = getCurrentWallet().wallet.getAccountId()
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'get_unclaimed_reward',
@@ -370,7 +370,7 @@ export const getUnclaimedReward = async (
 };
 
 export const listRewards = async (
-  accountId = getCurrentWallet().wallet.getAccountId()
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'list_rewards',

@@ -1022,7 +1022,7 @@ SwapOptions) => {
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
   const registerToken = async (token: TokenMetadata) => {
     const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
@@ -1034,7 +1034,7 @@ SwapOptions) => {
         methodName: 'storage_deposit',
         args: {
           registration_only: true,
-          account_id: getCurrentWallet().wallet.getAccountId(),
+          account_id: getCurrentWallet()?.wallet?.getAccountId(),
         },
         gas: '30000000000000',
         amount: STORAGE_TO_REGISTER_WITH_MFT,
@@ -1250,7 +1250,7 @@ export const crossInstantSwap = async ({
         methodName: 'storage_deposit',
         args: {
           registration_only: true,
-          account_id: getCurrentWallet().wallet.getAccountId(),
+          account_id: getCurrentWallet()?.wallet?.getAccountId(),
         },
         gas: '30000000000000',
         amount: STORAGE_TO_REGISTER_WITH_MFT,
@@ -1510,14 +1510,14 @@ SwapOptions) => {
 export const checkTransaction = (txHash: string) => {
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
-    [txHash, getCurrentWallet().wallet.getAccountId()]
+    [txHash, getCurrentWallet()?.wallet?.getAccountId()]
   );
 };
 
 export const checkTransactionStatus = (txHash: string) => {
   return near.connection.provider.txStatus(
     txHash,
-    getCurrentWallet().wallet.getAccountId()
+    getCurrentWallet()?.wallet?.getAccountId()
   );
 };
 

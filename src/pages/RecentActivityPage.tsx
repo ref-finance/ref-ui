@@ -20,14 +20,14 @@ function useLastActions() {
   const [actions, setActions] = useState<ActionData[]>(null);
 
   useEffect(() => {
-    const isSignedIn = getCurrentWallet().wallet.isSignedIn();
+    const isSignedIn = getCurrentWallet()?.wallet?.isSignedIn();
 
     if (!isSignedIn) return;
     else
       getLatestActions().then((resp) => {
         setActions(resp);
       });
-  }, [getCurrentWallet().wallet.isSignedIn()]);
+  }, [getCurrentWallet()?.wallet?.isSignedIn()]);
 
   return actions;
 }
@@ -102,7 +102,7 @@ export function RecentActivityPage() {
               const url =
                 config.explorerUrl +
                 '/address/' +
-                getCurrentWallet().wallet.getAccountId();
+                getCurrentWallet()?.wallet?.getAccountId();
               window.open(url, '_blank');
             }}
           >

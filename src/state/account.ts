@@ -10,10 +10,10 @@ const REFRESH_TIME = 60 * 1000;
 export const useCurrentStorageBalance = () => {
   const [storageBalance, setStorageBalance] = useState<AccountStorageView>();
   useEffect(() => {
-    currentStorageBalance(getCurrentWallet().wallet.getAccountId())
+    currentStorageBalance(getCurrentWallet()?.wallet?.getAccountId())
       .then(setStorageBalance)
       .catch(() => setStorageBalance(null));
-  }, [getCurrentWallet().wallet.getAccountId()]);
+  }, [getCurrentWallet()?.wallet?.getAccountId()]);
   return storageBalance;
 };
 

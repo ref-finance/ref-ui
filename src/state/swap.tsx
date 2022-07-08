@@ -132,7 +132,7 @@ export const useSwap = ({
   };
 
   useEffect(() => {
-    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
+    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransaction(txHash)
         .then((res: any) => {
           const transactionErrorType = getErrorMessage(res);
@@ -342,7 +342,7 @@ export const useStableSwap = ({
   };
 
   useEffect(() => {
-    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
+    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransaction(txHash)
         .then((res: any) => {
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;

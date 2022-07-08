@@ -13,6 +13,7 @@ import {
 
 import { getAmount, RefFiFunctionCallOptions, getGas } from '../services/near';
 import { scientificNotationToString } from './numbers';
+import { ACCOUNT_ID_KEY } from '../context/WalletSelectorContext';
 import {
   TRANSACTION_WALLET_TYPE,
   TRANSACTION_STATE,
@@ -235,23 +236,17 @@ export const getAccountName = (accountId: string) => {
 };
 
 export const getCurrentWallet = () => {
-  const SENDER_LOGIN_RES = getSenderLoginRes();
+  const walletInstance = window.selector;
 
-  if (window.near && SENDER_LOGIN_RES && !webWallet.isSignedIn()) {
-    senderWalletFunc.prototype = window.near;
-
-    return {
-      wallet: new (senderWalletFunc as any)(window),
-      wallet_type: WALLET_TYPE.SENDER_WALLET,
-      accountName: getAccountName(window.near.getAccountId()),
+  if (walletInstance) {
+    walletInstance.getAccountId = () => {
+      return localStorage.getItem(ACCOUNT_ID_KEY) || '';
     };
   }
 
   return {
-    wallet: webWallet,
+    wallet: walletInstance,
     wallet_type: WALLET_TYPE.WEB_WALLET,
-
-    accountName: getAccountName(webWallet.getAccountId()),
   };
 };
 

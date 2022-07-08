@@ -156,7 +156,7 @@ export const getAllPoolsFromDb = async () => {
 };
 
 export const getAllWatchListFromDb = async ({
-  account = getCurrentWallet().wallet.getAccountId(),
+  account = getCurrentWallet()?.wallet?.getAccountId(),
 }: {
   account?: string;
 }) => {
@@ -170,7 +170,7 @@ export const getAllWatchListFromDb = async ({
 
 export const getWatchListFromDb = async ({
   pool_id,
-  account = getCurrentWallet().wallet.getAccountId(),
+  account = getCurrentWallet()?.wallet?.getAccountId(),
 }: {
   pool_id: string;
   account?: string;
@@ -186,7 +186,7 @@ export const getWatchListFromDb = async ({
 
 export const addPoolToWatchList = async ({
   pool_id,
-  account = getCurrentWallet().wallet.getAccountId(),
+  account = getCurrentWallet()?.wallet?.getAccountId(),
 }: {
   pool_id: string;
   account?: string;
@@ -200,7 +200,7 @@ export const addPoolToWatchList = async ({
 };
 export const removePoolFromWatchList = async ({
   pool_id,
-  account = getCurrentWallet().wallet.getAccountId(),
+  account = getCurrentWallet()?.wallet?.getAccountId(),
 }: {
   pool_id: string;
   account?: string;
@@ -359,7 +359,10 @@ export const getPoolVolumes = async (id: number): Promise<PoolVolumes> => {
 export const getSharesInPool = (id: number): Promise<string> => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
-    args: { pool_id: id, account_id: getCurrentWallet().wallet.getAccountId() },
+    args: {
+      pool_id: id,
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
+    },
   });
 };
 

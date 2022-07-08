@@ -523,7 +523,7 @@ export default function CrossSwapCard(props: {
 
   const canSubmit = requested
     ? canSwap &&
-      getCurrentWallet().wallet.isSignedIn() &&
+      getCurrentWallet()?.wallet?.isSignedIn() &&
       !ONLY_ZEROS.test(tokenInMax) &&
       !ONLY_ZEROS.test(tokenInAmount) &&
       new BigNumber(tokenInAmount).lte(new BigNumber(tokenInMax))
