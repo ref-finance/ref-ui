@@ -63,13 +63,19 @@ import QuestionMark from '~components/farm/QuestionMark';
 import { useInView } from 'react-intersection-observer';
 import { QuestionTip } from '~components/layout/TipWrapper';
 import { FilterIcon } from '../../components/icon/PoolFilter';
-import { TokenMetadata } from '../../services/ft-contract';
+import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
 import { scientificNotationToString } from '../../utils/numbers';
 import { useMobile, useClientMobile } from '../../utils/device';
 import { usePoolsMorePoolIds } from '../../state/pool';
 import { PoolTab } from '../../components/pool/PoolTab';
 import { SearchIcon } from '~components/icon/FarmBoost';
 import { WalletContext } from '../../utils/sender-wallet';
+import { unwrapedNear } from '../../services/wrap-near';
+import { Images, Symbols } from '../../components/stableswap/CommonComp';
+import { getVEPoolId } from '../ReferendumPage';
+import { StartPoolIcon } from '../../components/icon/WatchListStar';
+import { PoolDaoBanner, PoolDaoBannerMobile } from '../../components/icon/Logo';
+import { VEARROW } from '../../components/icon/Referendum';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -393,6 +399,19 @@ function MobileLiquidityPage({
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
   const inputRef = useRef(null);
+
+  const [supportFarmStar, setSupportFarmStar] = useState<Boolean>(false);
+  const [farmCountStar, setFarmCountStar] = useState<Number>(1);
+
+  useEffect(() => {
+    canFarm(getVEPoolId()).then(({ count }) => {
+      setSupportFarmStar(!!count);
+      setFarmCountStar(count);
+    });
+  }, []);
+
+  const tokensStar = [REF_META_DATA, unwrapedNear];
+
   const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
@@ -423,6 +442,36 @@ function MobileLiquidityPage({
           poolTokenMetas={poolTokenMetas}
           watchPools={watchPools}
         />
+
+        {/* start pool card */}
+        <div className="mt-1 mb-5">
+          <div className="flex items-center">
+            <span className="text-white text-lg ml-4 mr-2">
+              <FormattedMessage id="start_pool" defaultMessage={'Star Pool'} />
+            </span>
+            <StartPoolIcon />
+          </div>
+          <Card
+            className="mt-2 bg-cardBg flex items-center "
+            width="w-full"
+            padding="px-4 py-3"
+          >
+            <div className="flex items-center">
+              <div className="flex items-center">
+                <Images tokens={tokensStar} size="6" className="mr-2.5" />
+                <Symbols
+                  tokens={tokensStar}
+                  seperator="-"
+                  fontSize="text-sm"
+                ></Symbols>
+              </div>
+            </div>
+
+            <PoolDaoBannerMobile />
+
+            {/* {supportFarmStar && <FarmButton farmCount={farmCountStar} />} */}
+          </Card>
+        </div>
 
         <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
           <div className="mx-4 flex items-center justify-between my-4">
@@ -612,23 +661,7 @@ function PoolRow({
         <div className="col-span-5 md:col-span-4 flex items-center">
           <div className="mr-6 w-2">{index}</div>
           <div className="flex items-center">
-            <div className="flex items-center">
-              <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
-                <img
-                  key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                  className="rounded-full mr-2 w-full"
-                  src={tokens[0].icon}
-                />
-              </div>
-
-              <div className="h-9 w-9 border border-gradientFromHover rounded-full">
-                <img
-                  key={tokens[1].id}
-                  className="rounded-full mr-2 w-full"
-                  src={tokens[1].icon}
-                />
-              </div>
-            </div>
+            <Images tokens={tokens} size="9" />
             <div className="text-sm ml-7">
               {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
@@ -779,6 +812,18 @@ function LiquidityPage_({
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
+  const [supportFarmStar, setSupportFarmStar] = useState<Boolean>(false);
+  const [farmCountStar, setFarmCountStar] = useState<Number>(1);
+
+  useEffect(() => {
+    canFarm(getVEPoolId()).then(({ count }) => {
+      setSupportFarmStar(!!count);
+      setFarmCountStar(count);
+    });
+  }, []);
+
+  const tokensStar = [REF_META_DATA, unwrapedNear];
+
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
 
@@ -803,14 +848,59 @@ function LiquidityPage_({
           poolTokenMetas={poolTokenMetas}
           watchPools={watchPools}
         />
+        {/* start pool card */}
+        <div className="mt-3 mb-5">
+          <div className="flex items-center">
+            <span className="text-white text-lg ml-8 mr-2">
+              <FormattedMessage id="start_pool" defaultMessage={'Star Pool'} />
+            </span>
+            <StartPoolIcon />
+          </div>
+          <Card
+            className="mt-2 bg-cardBg relative flex items-center "
+            width="w-full"
+            padding="px-8 py-3"
+          >
+            <div className="flex items-center">
+              <div className="flex items-center">
+                <Images tokens={tokensStar} size="9" className="mr-7" />
+                <Symbols
+                  tokens={tokensStar}
+                  seperator="-"
+                  fontSize="text-sm"
+                ></Symbols>
+              </div>
+            </div>
+
+            {supportFarmStar && <FarmButton farmCount={farmCountStar} />}
+
+            <div className="absolute flex items-center right-0 bottom-0">
+              <button
+                className="text-white text-xl z-30 relative top-3 right-3 flex items-center"
+                onClick={() => {
+                  history.push('/referendum');
+                }}
+              >
+                <span>
+                  <FormattedMessage
+                    id="more_than_a_simple_pool"
+                    defaultMessage={'More than a simple pool'}
+                  />
+                </span>
+
+                <button className="text-white hover:text-gradientFrom ml-1.5">
+                  <VEARROW />
+                </button>
+              </button>
+              <PoolDaoBanner />
+            </div>
+          </Card>
+        </div>
 
         <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
           <div className="flex mx-8 justify-between pb-4">
             <div>
-              <div className="text-white text-lg">
-                {/* <FormattedMessage id="top_pools" defaultMessage="Top Pools" /> */}
-                Top Pools
-              </div>
+              <div className="text-white text-lg">Top Pools</div>
 
               <div className="flex items-center">
                 <div className="text-gray-400 text-sm">

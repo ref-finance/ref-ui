@@ -26,6 +26,7 @@ module.exports = {
       backgroundImage: (theme) => ({
         farmSearch: 'linear-gradient(106.25deg, #00FFD1 6.88%, #00BA98 81.93%)',
         veCardGradient: 'linear-gradient(0deg, #001320 -2.77%, #1D2932 100%)',
+        poolDaoBanner: 'linear-gradient(0deg, #1D2932 0%, #00A385 100%)',
         redGradient: 'linear-gradient(270deg, #7F43FF 0%, #FF8B8B 97.06%)',
         veReverseGradient:
           'linear-gradient(270deg, rgba(127, 67, 255, 0.3) 0%, rgba(0, 198, 162, 0.3) 97.06%)',
@@ -156,12 +157,12 @@ module.exports = {
         lightPurpleColor: 'rgba(126, 69, 255, 0.2)',
         lightBGreyColor: '#646464',
         pendingPurple: '#615EFF',
-        mengColor:'#3A4D5B',
+        mengColor: '#3A4D5B',
         lightGreenColor_p: '#70d44b',
         otherGreenColor: '#00E9BF',
         greyCircleColor: '#889FAE',
         farmBoostingGotoFarm: 'rgba(43, 23, 85, 0.7)',
-        borderGreyColor:'#6E7C85'
+        borderGreyColor: '#6E7C85',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
