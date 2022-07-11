@@ -742,5 +742,16 @@ const ru = {
   add_option: 'Add Option',
   lock_lp_terms:
     "I understand that I won't be able to remove my LP Tokens for the entire duration of the agreed locking period",
+  more_lock_ve_popup: 'more ',
+  more_in: 'more in',
+  only_for_whitelist_address: 'Only for whitelist address',
+  starts: 'starts',
+  left: 'left',
+  proposal_title: 'Proposal Title',
+  share_forum_discussion_link_here: 'Share forum discussion link here',
+  required_field: 'Required field',
+  voting_power_and_extra_earnings: 'Voting power & Extra earnings',
+
+  more_lock_ve_popup2: 'more ',
 };
 export default Object.assign(ru, ru_in_risks_page);

@@ -752,5 +752,16 @@ const ja = {
   connect_wallet: 'Connect Wallet',
   connect_to_near_wallet: 'Connect to NEAR Wallet',
   connect: 'Connect',
+  more_lock_ve_popup: 'more ',
+  more_in: 'more in',
+  more_lock_ve_popup2: 'more ',
+  only_for_whitelist_address: 'Only for whitelist address',
+  starts: 'starts',
+  left: 'left',
+  voting_power_and_extra_earnings: 'Voting power & Extra earnings',
+
+  proposal_title: 'Proposal Title',
+  share_forum_discussion_link_here: 'Share forum discussion link here',
+  required_field: 'Required field',
 };
 export default Object.assign(ja, ja_in_risks_page);

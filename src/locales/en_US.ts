@@ -767,5 +767,14 @@ const en_US = {
   your_boosted_farms: 'Your boosted farms',
   search_farms_by_token: 'Search farms by token...',
   search_farms: 'Search farms',
+  more_lock_ve_popup: 'more ',
+  more_lock_ve_popup2: 'more',
+  more_in: 'more in',
+  starts: 'starts',
+  left: 'left',
+  proposal_title: 'Proposal Title',
+  share_forum_discussion_link_here: 'Share forum discussion link here',
+  required_field: 'Required field',
+  voting_power_and_extra_earnings: 'Voting power & Extra earnings',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

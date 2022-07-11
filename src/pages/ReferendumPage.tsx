@@ -501,13 +501,13 @@ export const LockPopUp = ({
   if (!config) return null;
 
   const Durations = () => (
-    <div className="w-full flex items-center pt-1.5 xsm:justify-between">
+    <div className="w-full flex items-center pt-1.5 ">
       {candidateDurations.map((d) => {
         const base = 2592000;
         return (
           <button
             key={d}
-            className={`rounded-lg text-center xsm:mr-1.5  mr-2.5 hover:bg-gradientFrom  ${
+            className={`rounded-lg text-center xsm:mr-7  mr-2.5 hover:bg-gradientFrom  ${
               duration === d
                 ? 'text-chartBg bg-gradientFrom'
                 : 'text-farmText bg-black bg-opacity-20'
@@ -556,7 +556,7 @@ export const LockPopUp = ({
             &nbsp;
             <Symbols withArrow={false} tokens={tokens} size="text-base" />
             <button
-              className={`${
+              className={`hover:text-senderHot ${
                 ONLY_ZEROS.test(lpShare) ? 'hidden' : ''
               } text-gradientFrom pl-1 py-1`}
               onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
@@ -973,7 +973,9 @@ const UnLockPopUp = ({
     if (Number(finalLove) < 0) {
       setError(
         new Error(
-          `You don’t have enough LOVE ${intl.formatMessage({ id: 'token' })}`
+          `${intl.formatMessage({
+            id: 'you_do_not_have_enough',
+          })} LOVE ${intl.formatMessage({ id: 'token' })}`
         )
       );
     } else if (Number(finalve) < 0) {
@@ -1502,10 +1504,10 @@ export const FarmStakeTip = ({
         toReadableNumber(24, scientificNotationToString(stake.toString())),
         2
       )}{' '}
-      <FormattedMessage id="more" defaultMessage={'more'} />
+      <FormattedMessage id="more_lock_ve_popup2" defaultMessage={'more '} />{' '}
       <FormattedMessage id="lp_tokens" defaultMessage={'LP Tokens'} />
       <span className="ml-1">
-        <FormattedMessage id="in" defaultMessage={'in'} />
+        <FormattedMessage id="more_in_cn" defaultMessage={'in'} />
         <span
           className="text-gradientFrom hover:text-senderHot ml-1 cursor-pointer underline"
           onClick={() => {
@@ -1538,9 +1540,8 @@ export const FarmStakeTipHomePage = ({
         toReadableNumber(24, scientificNotationToString(stake.toString())),
         2
       )}{' '}
-      <FormattedMessage id="more_lowercase" defaultMessage={'more'} />
-      <span className="ml-1 flex">
-        <FormattedMessage id="in" defaultMessage={'in'} />
+      <span className={`flex ml-1`}>
+        <FormattedMessage id="more_in" defaultMessage={'more in'} />
         <span
           className=" ml-1 flex cursor-pointer hover:text-gradientFrom "
           onClick={() => {
@@ -1632,7 +1633,7 @@ const UserReferendumCard = ({
             fontSize="font-normal"
           />
           <button
-            className={` text-gradientFrom pl-1 py-1`}
+            className={`hover:text-senderHot text-gradientFrom pl-1 py-1`}
             onClick={() => window.open(`/pool/${getVEPoolId()}`, '_blank')}
           >
             <VEARROW />
@@ -1788,7 +1789,14 @@ const UserReferendumCard = ({
 
       <div className="lg:hidden bg-veReverseGradient  relative rounded-b-2xl text-white pb-14 mb-14 overflow-visible">
         <div className="text-2xl font-bold mt-5 text-center">DAO</div>
-        <div className="text-sm mt-2 text-center">{`Voting power & Extra earnings`}</div>
+        <div className="text-sm mt-2 text-center">
+          <span>
+            <FormattedMessage
+              id="voting_power_and_extra_earnings"
+              defaultMessage={'Voting power & Extra earnings'}
+            />
+          </span>
+        </div>
         <div className="mt-5 flex items-center justify-center">
           {!isSignedIn ? (
             <ConnectToNearBtnVotingMobile />

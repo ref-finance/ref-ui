@@ -1535,7 +1535,7 @@ export const PreviewPopUp = (
                           <span
                             className="mx-2"
                             style={{
-                              maxWidth: '60%',
+                              maxWidth: isClientMobie ? '180px' : '60%',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                             }}
@@ -1667,7 +1667,7 @@ export const PreviewPopUp = (
             <div className="w-full relative flex items-center justify-between pb-4 border-b border-white border-opacity-10">
               <InfoRow
                 name={intl.formatMessage({
-                  id: 'voted_velpt',
+                  id: 'voted_veLPT',
                   defaultMessage: 'Voted veLPT',
                 })}
                 value={toPrecision(totalVE, 2)}
@@ -2592,7 +2592,7 @@ const GovItemDetail = ({
               />
             </span>
 
-            <span className="text-gradientFrom ml-2">
+            <span className="text-gradientFrom hover:text-senderHot ml-2">
               <VEARROW />
             </span>
           </button>
@@ -2719,7 +2719,7 @@ const GovItemDetail = ({
                         <span
                           className="mx-2"
                           style={{
-                            maxWidth: '60%',
+                            maxWidth: isClientMobie ? '180px' : '60%',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                           }}
@@ -3299,7 +3299,15 @@ const GovProposalItem = ({
                   }
                 >
                   {counterDownStirng}
-                  {`${status === 'WarmUp' ? ' starts' : ' left'}`}
+                  {`${status === 'WarmUp'}` ? (
+                    <span className="ml-1">
+                      <FormattedMessage id="starts" defaultMessage={'starts'} />
+                    </span>
+                  ) : (
+                    <span className="ml-1">
+                      <FormattedMessage id="left" defaultMessage={'left'} />
+                    </span>
+                  )}
                 </span>
               </div>
 
@@ -4250,8 +4258,6 @@ export const FarmProposal = ({
         .toFixed(2)
     );
 
-    console.log(displayRatiosNew);
-
     const checkedRatiosNew = checkAllocations('100', displayRatiosNew || []);
 
     const allocationsNew = checkedRatiosNew?.map((r) => {
@@ -4272,19 +4278,6 @@ export const FarmProposal = ({
     );
 
     const allocateNew = checkedAllocationsNew?.[index];
-
-    console.log(
-      farmProposal.ve_amount_at_last_action,
-      've share at last action',
-      new Big(veShareRaw || 0)
-        .div(
-          new Big(farmProposal?.ve_amount_at_last_action || '0').plus(
-            veShareRaw || 1
-          )
-        )
-        .times(100)
-        .toFixed(2)
-    );
 
     const Button =
       !isSignedIn && isClientMobie ? (
@@ -4833,7 +4826,7 @@ export const FarmProposal = ({
             <FormattedMessage id="ratio" defaultMessage={'Ratio'} />
           </span>
           <span
-            className="col-span-1 cursor-pointer text-center flex items-center whitespace-nowrap flex-nowrap"
+            className="col-span-1 cursor-pointer justify-center text-center flex items-center whitespace-nowrap flex-nowrap"
             onClick={() => {
               if (sortBy !== 'REF_allocation') {
                 setSortBy('REF_allocation');
@@ -5226,11 +5219,16 @@ export const CreateGovProposal = ({
         </div>
 
         <div className="flex items-center xsm:flex-col">
-          <div className="flex items-center xsm:mb-5 xsm:w-full">
-            <div className=" lg:hidden mr-3 text-primaryText text-sm">
+          <div className="flex items-center xsm:mb-5 xsm:w-full justify-between">
+            <div
+              className=" lg:hidden mr-3 text-primaryText text-sm text-left"
+              style={{
+                minWidth: '20px',
+              }}
+            >
               <FormattedMessage id="from" defaultMessage={'From'} />
             </div>
-            <div className="rounded-lg xsm:w-full  bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
+            <div className="rounded-lg xsm:w-10/12  bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
               <CustomDatePicker
                 startTime={startTime}
                 setStartTime={setStartTime}
@@ -5252,11 +5250,16 @@ export const CreateGovProposal = ({
             </div>
           </div>{' '}
           <span className="mx-4 xsm:hidden">-</span>
-          <div className="flex items-center xsm:w-full">
-            <div className=" lg:hidden mr-8 text-primaryText text-sm">
+          <div className="flex items-center xsm:w-full justify-between">
+            <div
+              className=" lg:hidden mr-3  text-primaryText text-sm text-left"
+              style={{
+                minWidth: '20px',
+              }}
+            >
               <FormattedMessage id="to" defaultMessage={'To'} />
             </div>
-            <div className="rounded-lg xsm:w-full bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
+            <div className="rounded-lg xsm:w-10/12 bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
               <CustomDatePicker
                 startTime={startTime}
                 setStartTime={setStartTime}
