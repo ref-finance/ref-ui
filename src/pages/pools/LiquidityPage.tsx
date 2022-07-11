@@ -452,11 +452,11 @@ function MobileLiquidityPage({
             <StartPoolIcon />
           </div>
           <Card
-            className="mt-2 bg-cardBg flex items-center "
+            className="mt-2 bg-cardBg flex flex-col  "
             width="w-full"
-            padding="px-4 py-3"
+            padding="px-0 py-3"
           >
-            <div className="flex items-center">
+            <div className="flex items-center ml-5">
               <div className="flex items-center">
                 <Images tokens={tokensStar} size="6" className="mr-2.5" />
                 <Symbols
@@ -878,7 +878,7 @@ function LiquidityPage_({
               <button
                 className="text-white text-xl z-30 relative top-3 right-3 flex items-center"
                 onClick={() => {
-                  history.push('/referendum');
+                  window.open('/referendum');
                 }}
               >
                 <span>

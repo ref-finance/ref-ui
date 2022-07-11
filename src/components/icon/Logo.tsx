@@ -3677,19 +3677,17 @@ export const POOL_DAO_ICONS_MOBILE = () => {
 };
 
 export const PoolDaoBannerMobile = () => {
-  const history = useHistory();
-
   return (
-    <div className="relative flex flex-col bg-poolDaoBanner items-center rounded-lg">
-      <div>
+    <div className="relative mt-11 h-24 flex flex-col bg-poolDaoBanner items-center rounded-lg">
+      <div className="relative bottom-10">
         <POOL_DAO_ICONS_MOBILE />
       </div>
 
       <button
         onClick={() => {
-          history.push('/referendum');
+          window.open('/referendum');
         }}
-        className="text-white text-base"
+        className="text-white text-base relative bottom-10"
       >
         <span>
           <FormattedMessage
@@ -3698,7 +3696,7 @@ export const PoolDaoBannerMobile = () => {
           />
         </span>
 
-        <button className="text-white hover:text-gradientFrom ml-1.5">
+        <button className="text-white  hover:text-gradientFrom ml-1.5">
           <VEARROW />
         </button>
       </button>
