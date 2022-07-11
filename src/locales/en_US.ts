@@ -781,5 +781,11 @@ const en_US = {
   yes_continue: 'Yes, continue',
   unlocking_tip:
     'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
+  create_pool: 'Create Pool',
+  search_by_token: 'Search by token',
+  your_power: 'Your Power',
+  farm_has_boost_tip:
+    'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
+  farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

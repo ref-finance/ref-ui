@@ -4,6 +4,7 @@ import React, {
   useRef,
   useCallback,
   useMemo,
+  useContext,
 } from 'react';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
@@ -46,7 +47,11 @@ import {
   UpArrowLight,
 } from '~components/icon';
 import { FarmStamp } from '~components/icon/FarmStamp';
-import { SolidButton, FarmButton } from '~components/button/Button';
+import {
+  SolidButton,
+  FarmButton,
+  GradientButton,
+} from '~components/button/Button';
 import { wallet } from '~services/near';
 import {
   WatchListStartEmpty,
@@ -63,6 +68,8 @@ import { scientificNotationToString } from '../../utils/numbers';
 import { useMobile, useClientMobile } from '../../utils/device';
 import { usePoolsMorePoolIds } from '../../state/pool';
 import { PoolTab } from '../../components/pool/PoolTab';
+import { SearchIcon } from '~components/icon/FarmBoost';
+import { WalletContext } from '../../utils/sender-wallet';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -380,6 +387,9 @@ function MobileLiquidityPage({
   nextPage: (...args: []) => void;
   poolsMorePoolsIds: Record<string, string[]>;
 }) {
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  const history = useHistory();
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
   const inputRef = useRef(null);
@@ -427,18 +437,32 @@ function MobileLiquidityPage({
                 (allPools ? allPools : '-')}
             </div>
           </div>
-          <div className="rounded my-2 text-gray-400 flex items-center pr-2 mx-6 mb-5 bg-inputDarkBg">
-            <input
-              ref={inputRef}
-              className={`text-sm outline-none rounded w-full py-2 px-3`}
-              placeholder={intl.formatMessage({
-                id: 'token',
-              })}
-              value={tokenName}
-              onChange={(evt) => {
-                onSearch(evt.target.value);
-              }}
-            />
+          <div className="rounded my-2 text-gray-400 flex items-center pr-2 mx-4 mb-5">
+            <div className="relative flex items-center flex-grow">
+              <input
+                ref={inputRef}
+                className={`text-sm outline-none rounded py-2 pl-3 pr-7 flex-grow bg-inputDarkBg`}
+                placeholder={intl.formatMessage({
+                  id: 'search_by_token',
+                })}
+                value={tokenName}
+                onChange={(evt) => {
+                  onSearch(evt.target.value);
+                }}
+              />
+              <SearchIcon className="absolute right-1.5"></SearchIcon>
+            </div>
+            {isSignedIn ? (
+              <GradientButton
+                color="#fff"
+                className={`px-4 h-9 text-center text-sm  ml-3 text-white focus:outline-none font-semibold whitespace-nowrap`}
+                onClick={() => {
+                  history.push('/pools/add');
+                }}
+              >
+                <FormattedMessage id="create_pool" />
+              </GradientButton>
+            ) : null}
           </div>
 
           <div className="flex items-center justify-between mx-4 mb-2">
@@ -746,11 +770,14 @@ function LiquidityPage_({
 }) {
   const intl = useIntl();
   const inputRef = useRef(null);
+  const history = useHistory();
   const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
   });
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
@@ -822,18 +849,30 @@ function LiquidityPage_({
                   />
                 </div>
               </div>
-              <div className="rounded w-full my-2 text-gray-400 flex items-center pr-2 bg-inputDarkBg">
+              <div className="relative rounded w-full my-2 text-gray-400 flex items-center pr-2 bg-inputDarkBg">
                 <input
                   ref={inputRef}
-                  className={`text-sm outline-none rounded w-full py-2 px-3`}
+                  className={`text-sm outline-none rounded w-full py-2 pl-3 pr-6`}
                   placeholder={intl.formatMessage({
-                    id: 'token',
+                    id: 'search_by_token',
                   })}
                   onChange={(evt) => {
                     onSearch(evt.target.value);
                   }}
                 />
+                <SearchIcon className="absolute right-2"></SearchIcon>
               </div>
+              {isSignedIn ? (
+                <GradientButton
+                  color="#fff"
+                  className={`px-4 h-9 text-center text-sm  ml-3 text-white focus:outline-none font-semibold`}
+                  onClick={() => {
+                    history.push('/pools/add');
+                  }}
+                >
+                  <FormattedMessage id="create_pool" />
+                </GradientButton>
+              ) : null}
             </div>
           </div>
 
