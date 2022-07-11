@@ -1908,9 +1908,10 @@ export const ArrowDownIcon = function (props: any) {
   );
 };
 
-export const SearchIcon = function () {
+export const SearchIcon = function (props: any) {
   return (
     <svg
+      {...props}
       width="19"
       height="19"
       viewBox="0 0 19 19"

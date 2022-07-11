@@ -778,5 +778,11 @@ const en_US = {
   voting_power_and_extra_earnings: 'Voting power & Extra earnings',
   bonus_tip:
     'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
+  create_pool: 'Create Pool',
+  search_by_token: 'Search by token',
+  your_power: 'Your Power',
+  farm_has_boost_tip:
+    'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
+  farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

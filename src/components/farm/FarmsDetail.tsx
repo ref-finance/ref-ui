@@ -804,6 +804,7 @@ function StakeContainer(props: {
         user_unclaimed_map={user_unclaimed_map}
         user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
         user_data_loading={user_data_loading}
+        radio={radio}
       ></UserStakeBlock>
       <UserTotalUnClaimBlock
         detailData={detailData}
@@ -1847,6 +1848,7 @@ function UserStakeBlock(props: {
   user_unclaimed_token_meta_map: Record<string, any>;
   user_unclaimed_map: Record<string, any>;
   user_data_loading: Boolean;
+  radio: string;
 }) {
   const {
     detailData,
@@ -1858,6 +1860,7 @@ function UserStakeBlock(props: {
     user_unclaimed_token_meta_map,
     user_unclaimed_map,
     user_data_loading,
+    radio,
   } = props;
   const [stakeModalVisible, setStakeModalVisible] = useState(false);
   const [unStakeModalVisible, setUnStakeModalVisible] = useState(false);
@@ -1902,14 +1905,17 @@ function UserStakeBlock(props: {
     const timestamp = await getServerTime();
     setServerTime(timestamp);
   };
-  function showLpAmount() {
-    const totalSharesBigNumber = new BigNumber(userTotalStake);
-    if (totalSharesBigNumber.isEqualTo(0)) {
+  function showLpPower() {
+    const powerBig = new BigNumber(radio || 1)
+      .multipliedBy(free_amount)
+      .plus(x_locked_amount);
+    const power = toReadableNumber(DECIMALS, powerBig.toFixed().toString());
+    if (powerBig.isEqualTo(0)) {
       return <label className="opacity-50">{isSignedIn ? 0.0 : '-'}</label>;
-    } else if (totalSharesBigNumber.isLessThan('0.001')) {
+    } else if (powerBig.isLessThan('0.001')) {
       return '<0.001';
     } else {
-      return formatWithCommas(toPrecision(userTotalStake, 3));
+      return formatWithCommas(toPrecision(power, 3));
     }
   }
   function getUserLpPercent() {
@@ -2103,19 +2109,82 @@ function UserStakeBlock(props: {
   function getExitFeeTip() {
     const txt = intl.formatMessage({ id: 'exit_fee_tip' });
     return `<div class="w-54 text-left">
-    <span class="text-farmText text-xs">
-      ${txt}
-    </span>
-</div>`;
+        <span class="text-farmText text-xs">
+          ${txt}
+        </span>
+    </div>`;
+  }
+  function getPowerTip() {
+    const tip = intl.formatMessage({
+      id:
+        radio && user_seeds_map[detailData.seed_id]
+          ? 'farm_has_boost_tip'
+          : 'farm_no_boost_tip',
+    });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
+  function getPowerDetail() {
+    const freeAmount = toReadableNumber(DECIMALS, free_amount);
+    const isBoost = radio && user_seeds_map[detailData.seed_id];
+    if (isBoost) {
+      return `<div class="flex items-center justify-start text-xs">
+      <span class="text-farmText">${toPrecision(
+        freeAmount,
+        3
+      )}</span> <span class="ml-1 flex items-center text-senderHot">x${radio}<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTkiIHZpZXdCb3g9IjAgMCAxOCAxOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfZl8xOTI4XzMwKSI+CjxjaXJjbGUgY3g9IjkuMzg0NjciIGN5PSI5LjQ2MTA5IiByPSI0LjYxNTM4IiBmaWxsPSIjMDBGRkQxIiBmaWxsLW9wYWNpdHk9IjAuNCIvPgo8L2c+CjxwYXRoIGQ9Ik05LjY2NDE2IDMuMDA0N0M5LjgxNzg0IDMuMDQ0NyA5Ljg0MjMxIDMuMzA5NDQgOS44NDUyNSAzLjgyODQ1TDkuODQ2MjMgNi44MTAxNUM5Ljg0NjIzIDcuMDM0ODkgOS44NDYyMyA3LjE0NzI3IDkuOTE3NjkgNy4yMTY3OEM5Ljk3NzM5IDcuMjczOTIgMTAuMDY3NCA3LjI4NDQgMTAuMjI5OSA3LjI4NjNIMTEuMzc2MkMxMi44NzM4IDcuMjg2MyAxMy42MjE2IDcuMjg2MyAxMy45MDQ1IDcuNzU5NkMxNC4xODg0IDguMjMyOSAxMy44MTg0IDguODY2MTkgMTMuMDc4NCAxMC4xMzE4TDEwLjc2MTQgMTQuMTAwMUMxMC4zOTQ0IDE0LjcyODYgMTAuMjEwNCAxNS4wNDI5IDEwLjAyODMgMTQuOTk1M0M5Ljg0NjIzIDE0Ljk0OTYgOS44NDYyMyAxNC41ODg2IDkuODQ2MjMgMTMuODY1OFYxMS4xOTA4QzkuODQ2MjMgMTAuOTY2IDkuODQ2MjMgMTAuODUzNyA5Ljc3NDc3IDEwLjc4NDJDOS43MDMzMiAxMC43MTQ2IDkuNTg3ODEgMTAuNzE0NiA5LjM1NjgxIDEwLjcxNDZINy44NDQ0OUM2LjY1OTExIDEwLjcwODkgNi4wMzk1IDEwLjY2MjMgNS43ODc5NCAxMC4yNDEzQzUuNTA0MDcgOS43NjgwMyA1Ljg3NDA4IDkuMTM0NzUgNi42MTQwOCA3Ljg2OTEyTDguOTMxMDEgMy45MDA4M0M5LjI5ODA4IDMuMjcyMyA5LjQ4MjEgMi45NTcwOCA5LjY2NDE2IDMuMDA0N1oiIGZpbGw9IiMwMEZGRDEiLz4KPGRlZnM+CjxmaWx0ZXIgaWQ9ImZpbHRlcjBfZl8xOTI4XzMwIiB4PSIwLjc2OTI4NyIgeT0iMC44NDU3MDMiIHdpZHRoPSIxNy4yMzA3IiBoZWlnaHQ9IjE3LjIzMDUiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0ic2hhcGUiLz4KPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMiIgcmVzdWx0PSJlZmZlY3QxX2ZvcmVncm91bmRCbHVyXzE5MjhfMzAiLz4KPC9maWx0ZXI+CjwvZGVmcz4KPC9zdmc+"/></span>
+  </div>`;
+    } else {
+      return `<div class="flex items-center justify-start text-xs">
+      <span class="text-farmText">${toPrecision(
+        freeAmount,
+        3
+      )}</span> <span class="ml-1 flex items-center text-farmText">x1<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTkiIHZpZXdCb3g9IjAgMCAxOCAxOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfZl8xOTI4XzMwKSI+CjxjaXJjbGUgY3g9IjkuMzg0NjciIGN5PSI5LjQ2MTA5IiByPSI0LjYxNTM4IiBmaWxsPSIjNzM4MThCIiBmaWxsLW9wYWNpdHk9IjAuNCIvPgo8L2c+CjxwYXRoIGQ9Ik05LjY2NDE2IDMuMDA0N0M5LjgxNzg0IDMuMDQ0NyA5Ljg0MjMxIDMuMzA5NDQgOS44NDUyNSAzLjgyODQ1TDkuODQ2MjMgNi44MTAxNUM5Ljg0NjIzIDcuMDM0ODkgOS44NDYyMyA3LjE0NzI3IDkuOTE3NjkgNy4yMTY3OEM5Ljk3NzM5IDcuMjczOTIgMTAuMDY3NCA3LjI4NDQgMTAuMjI5OSA3LjI4NjNIMTEuMzc2MkMxMi44NzM4IDcuMjg2MyAxMy42MjE2IDcuMjg2MyAxMy45MDQ1IDcuNzU5NkMxNC4xODg0IDguMjMyOSAxMy44MTg0IDguODY2MTkgMTMuMDc4NCAxMC4xMzE4TDEwLjc2MTQgMTQuMTAwMUMxMC4zOTQ0IDE0LjcyODYgMTAuMjEwNCAxNS4wNDI5IDEwLjAyODMgMTQuOTk1M0M5Ljg0NjIzIDE0Ljk0OTYgOS44NDYyMyAxNC41ODg2IDkuODQ2MjMgMTMuODY1OFYxMS4xOTA4QzkuODQ2MjMgMTAuOTY2IDkuODQ2MjMgMTAuODUzNyA5Ljc3NDc3IDEwLjc4NDJDOS43MDMzMiAxMC43MTQ2IDkuNTg3ODEgMTAuNzE0NiA5LjM1NjgxIDEwLjcxNDZINy44NDQ0OUM2LjY1OTExIDEwLjcwODkgNi4wMzk1IDEwLjY2MjMgNS43ODc5NCAxMC4yNDEzQzUuNTA0MDcgOS43NjgwMyA1Ljg3NDA4IDkuMTM0NzUgNi42MTQwOCA3Ljg2OTEyTDguOTMxMDEgMy45MDA4M0M5LjI5ODA4IDMuMjcyMyA5LjQ4MjEgMi45NTcwOCA5LjY2NDE2IDMuMDA0N1oiIGZpbGw9IiM3MzgxOEIiLz4KPGRlZnM+CjxmaWx0ZXIgaWQ9ImZpbHRlcjBfZl8xOTI4XzMwIiB4PSIwLjc2OTI4NyIgeT0iMC44NDU3MDMiIHdpZHRoPSIxNy4yMzA3IiBoZWlnaHQ9IjE3LjIzMDUiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0ic2hhcGUiLz4KPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMiIgcmVzdWx0PSJlZmZlY3QxX2ZvcmVncm91bmRCbHVyXzE5MjhfMzAiLz4KPC9maWx0ZXI+CjwvZGVmcz4KPC9zdmc+"/></span>
+  </div>`;
+    }
   }
   const isEnded = detailData.farmList[0].status == 'Ended';
   return (
     <div className="bg-cardBg rounded-2xl p-5 mt-5">
       <div className="flex justify-between items-center text-sm text-primaryText">
-        <span>
-          <FormattedMessage id="you_shares" />
-        </span>
-        <span className="text-xl text-white">{showLpAmount()}</span>
+        <div className="flex items-center">
+          <FormattedMessage id="your_power" />
+          <div
+            className="text-white text-right ml-1"
+            data-class="reactTip"
+            data-for="powerTipId"
+            data-place="top"
+            data-html={true}
+            data-tip={getPowerTip()}
+          >
+            <QuestionMark></QuestionMark>
+            <ReactTooltip
+              id="powerTipId"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        </div>
+        <div className="flex items-center text-xl text-white">
+          <div
+            data-class="reactTip"
+            data-for="powerDetailId"
+            data-place="top"
+            data-html={true}
+            data-tip={getPowerDetail()}
+          >
+            {showLpPower()}
+            <ReactTooltip
+              id="powerDetailId"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        </div>
       </div>
       <div className="flex justify-end items-center">
         <span className="text-sm text-primaryText">{getUserLpPercent()}</span>
@@ -2917,7 +2986,6 @@ function StakeModal(props: {
                           <div
                             className={`absolute right-0 flex flex-col items-center transform translate-x-1/2 z-10`}
                           >
-                            {/*  todo delete */}
                             <label
                               className={`text-white text-sm h-5 whitespace-nowrap ${
                                 selectedLockData?.month == item.month
