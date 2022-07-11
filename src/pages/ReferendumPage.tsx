@@ -979,7 +979,11 @@ const UnLockPopUp = ({
         )
       );
     } else if (Number(finalve) < 0) {
-      setError(new Error(`You don’t have enough veLPT`));
+      setError(
+        new Error(
+          `${intl.formatMessage({ id: 'you_do_not_have_enough' })} veLPT`
+        )
+      );
     } else setError(null);
   }, [toUnlockAmount]);
   return (

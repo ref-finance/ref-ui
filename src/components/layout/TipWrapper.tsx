@@ -14,6 +14,7 @@ export function QuestionTip({
   dataPlace,
   uniquenessId,
   colorHex,
+  opacity,
 }: {
   id: string;
   color?: 'bright' | 'dark';
@@ -22,6 +23,7 @@ export function QuestionTip({
   dataPlace?: string;
   uniquenessId?: string;
   colorHex?: string;
+  opacity?: string;
 }) {
   const intl = useIntl();
 
@@ -47,7 +49,9 @@ export function QuestionTip({
       data-tip={getValue()}
       data-multiline={true}
     >
-      <QuestionMark colorHex={colorHex} />
+      <span className={`${opacity}`}>
+        <QuestionMark colorHex={colorHex} color={color}></QuestionMark>
+      </span>
       <ReactTooltip
         id={uniquenessId || 'auto_router'}
         backgroundColor="#1D2932"

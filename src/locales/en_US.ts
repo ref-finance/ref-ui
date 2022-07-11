@@ -776,5 +776,7 @@ const en_US = {
   share_forum_discussion_link_here: 'Share forum discussion link here',
   required_field: 'Required field',
   voting_power_and_extra_earnings: 'Voting power & Extra earnings',
+  bonus_tip:
+    'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

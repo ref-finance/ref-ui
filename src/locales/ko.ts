@@ -748,7 +748,8 @@ const ko = {
   starts: 'starts',
   left: 'left',
   voting_power_and_extra_earnings: 'Voting power & Extra earnings',
-
+  bonus_tip:
+    'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
   proposal_title: 'Proposal Title',
   share_forum_discussion_link_here: 'Share forum discussion link here',
   required_field: 'Required field',

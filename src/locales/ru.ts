@@ -751,7 +751,8 @@ const ru = {
   share_forum_discussion_link_here: 'Share forum discussion link here',
   required_field: 'Required field',
   voting_power_and_extra_earnings: 'Voting power & Extra earnings',
-
+  bonus_tip:
+    'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
   more_lock_ve_popup2: 'more ',
 };
 export default Object.assign(ru, ru_in_risks_page);

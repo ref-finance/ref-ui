@@ -742,5 +742,6 @@ const zh_CN = {
   share_forum_discussion_link_here: '在这里分享论坛讨论链接',
   required_field: '请输入',
   voting_power_and_extra_earnings: '投票治理能力 & 额外收益',
+  bonus_tip: '投票奖励用于激励用户去投票. 你的奖励将和你的投票份额相关',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -718,7 +718,8 @@ const uk_UA = {
   only_for_whitelist_address: 'Only for whitelist address',
   starts: 'starts',
   voting_power_and_extra_earnings: 'Voting power & Extra earnings',
-
+  bonus_tip:
+    'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
   left: 'left',
   proposal_title: 'Proposal Title',
   share_forum_discussion_link_here: 'Share forum discussion link here',

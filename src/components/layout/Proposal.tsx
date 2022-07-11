@@ -392,6 +392,7 @@ export const BonusBar = ({
   setShowAddBonus,
   tokens,
   yourShare,
+  proposal,
   showYourShare,
   showAddBonus,
   totalPrice,
@@ -442,7 +443,22 @@ export const BonusBar = ({
             : 'bg-transparent border-t border-white border-opacity-10'
         } flex items-center text-center bottom-0 absolute text-sm  text-white`}
       >
-        <span className={`pl-8 pr-1 ${!bright ? 'opacity-50' : ''} `}>
+        <span className="pl-6 mr-1.5 ">
+          <QuestionTip
+            color="bright"
+            id="bonus_tip"
+            uniquenessId={`bonus_tip_${proposal?.id || 'preview'}`}
+            defaultMessage="Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares"
+            opacity={
+              !bright
+                ? 'opacity-50 hover:opacity-80'
+                : 'opacity-80 hover:opacity-100'
+            }
+          />
+        </span>
+        <span
+          className={` pr-1 ${!bright ? 'opacity-50' : ''}  flex items-center`}
+        >
           <FormattedMessage id="bonus" defaultMessage={'Bonus'} />:
         </span>
 
@@ -528,6 +544,19 @@ export const BonusBar = ({
           >
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center text-base">
+                <span className="mr-1 ">
+                  <QuestionTip
+                    color="bright"
+                    id="bonus_tip"
+                    uniquenessId={`bonus_tip_${proposal?.id || 'preview'}`}
+                    defaultMessage="Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares"
+                    opacity={
+                      !bright
+                        ? 'opacity-50 hover:opacity-80'
+                        : 'opacity-80 hover:opacity-100'
+                    }
+                  />
+                </span>
                 <span className={` pr-1 ${!bright ? 'opacity-50' : ''} `}>
                   <FormattedMessage id="bonus" defaultMessage={'Bonus'} />:
                 </span>
@@ -600,7 +629,20 @@ export const BonusBar = ({
           }}
         >
           <div className="flex items-center">
-            <span className={`pl-4 pr-1 ${!bright ? 'opacity-50' : ''} `}>
+            <span className="ml-4 mr-1.5 ">
+              <QuestionTip
+                color="bright"
+                id="bonus_tip"
+                uniquenessId={`bonus_tip_${proposal?.id || 'preview'}`}
+                defaultMessage="Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares"
+                opacity={
+                  !bright
+                    ? 'opacity-50 hover:opacity-80'
+                    : 'opacity-80 hover:opacity-100'
+                }
+              />
+            </span>
+            <span className={`pr-1 ${!bright ? 'opacity-50' : ''} `}>
               <FormattedMessage id="bonus" defaultMessage={'Bonus'} />
             </span>
 
@@ -3226,6 +3268,7 @@ const GovProposalItem = ({
           }}
         >
           <div
+            id={proposal.id + 'vote_chart'}
             className={`xsm:hidden w-1/5 ${
               status === 'Expired' ? 'opacity-70' : ''
             }`}
@@ -3395,7 +3438,7 @@ const GovProposalItem = ({
                     <span
                       className="truncate"
                       style={{
-                        maxWidth: isClientMobie ? '80px' : '120px',
+                        maxWidth: '120px',
                       }}
                       title={
                         status === 'WarmUp' || ONLY_ZEROS.test(totalVE)
