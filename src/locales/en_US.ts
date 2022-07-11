@@ -778,5 +778,8 @@ const en_US = {
   voting_power_and_extra_earnings: 'Voting power & Extra earnings',
   bonus_tip:
     'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
+  yes_continue: 'Yes, continue',
+  unlocking_tip:
+    'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -723,6 +723,9 @@ const uk_UA = {
   left: 'left',
   proposal_title: 'Proposal Title',
   share_forum_discussion_link_here: 'Share forum discussion link here',
+  yes_continue: 'Yes, continue',
   required_field: 'Required field',
+  unlocking_tip:
+    'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

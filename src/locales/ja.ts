@@ -764,5 +764,9 @@ const ja = {
   proposal_title: 'Proposal Title',
   share_forum_discussion_link_here: 'Share forum discussion link here',
   required_field: 'Required field',
+  yes_continue: 'Yes, continue',
+
+  unlocking_tip:
+    'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
 };
 export default Object.assign(ja, ja_in_risks_page);

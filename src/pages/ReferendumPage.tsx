@@ -2,7 +2,11 @@ import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { Card } from '../components/card/Card';
-import { REF_TOKEN_ID, REF_VE_CONTRACT_ID } from '../services/near';
+import {
+  REF_TOKEN_ID,
+  REF_VE_CONTRACT_ID,
+  isRatedPool,
+} from '../services/near';
 import {
   ftGetTokenMetadata,
   TokenMetadata,
@@ -26,7 +30,11 @@ import {
   withdrawRewardVE,
 } from '../services/referendum';
 import { ONLY_ZEROS, percent, divide, multiply } from '../utils/numbers';
-import { VEARROW, VotingPowerIcon } from '~components/icon/Referendum';
+import {
+  RightArrowUnlockingVE,
+  VEARROW,
+  VotingPowerIcon,
+} from '~components/icon/Referendum';
 import {
   LOVEBoosterIcon,
   PowerZone,
@@ -37,7 +45,12 @@ import { CloseIcon, mapToView } from '../components/icon/Actions';
 import { Symbols } from '../components/stableswap/CommonComp';
 import { NewFarmInputAmount } from '~components/forms/InputAmount';
 import { isClientMobie, isMobile, useClientMobile } from '../utils/device';
-import { VEConfig, Proposal } from '../services/referendum';
+import {
+  VEConfig,
+  Proposal,
+  ProposalStatus,
+  batchFetchProposals,
+} from '../services/referendum';
 import {
   useLOVEbalance,
   useLOVEmeta,
@@ -86,12 +99,19 @@ import {
   ConnectToNearBtnVotingMobile,
 } from '../components/button/Button';
 import { WithGradientButton } from '../components/button/Button';
-import { useVEmeta, useVEconfig } from '../state/referendum';
+import {
+  useVEmeta,
+  useVEconfig,
+  useVoteDetail,
+  useCounterDownVE,
+} from '../state/referendum';
 import { QuestionTip, ExclamationTip } from '../components/layout/TipWrapper';
 import QuestionMark from '../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { createContext } from 'react';
 import { VETip } from '../components/icon/Referendum';
+import { durationFomatter } from '../components/layout/Proposal';
+import BigNumber from 'bignumber.js';
 
 export interface AccountInfo {
   duration_sec: number;
@@ -1246,6 +1266,115 @@ const UnLockPopUp = ({
   );
 };
 
+const UnlockCheckPopUp = (
+  props: Modal.Props & {
+    setUnlockingOpen: (o: boolean) => void;
+  }
+) => {
+  const { setUnlockingOpen } = props;
+
+  const [proposals, setProposals] = useState<Proposal[]>();
+  const myVoteDetail = useContext(ReferendumPageContext).myVoteDetail;
+
+  useEffect(() => {
+    const proposal_ids = Object.keys(myVoteDetail || {}).map((id) =>
+      Number(id)
+    );
+    if (proposal_ids && proposal_ids.length > 0) {
+      batchFetchProposals(proposal_ids).then(setProposals);
+    }
+  }, [myVoteDetail]);
+
+  const sortFunc = (proposala: Proposal, proposalb: Proposal) => {
+    const isFarmProposala = Object.keys(proposala.kind).includes(
+      'FarmingReward'
+    );
+    const isFarmProposalb = Object.keys(proposalb.kind).includes(
+      'FarmingReward'
+    );
+
+    if (isFarmProposala) {
+      return -2;
+    } else if (isFarmProposalb) {
+      return 2;
+    } else {
+      if (proposala.id > proposalb.id) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }
+  };
+
+  return (
+    <ModalWrapper
+      {...props}
+      title={
+        <FormattedMessage
+          id="unlock_lptoken"
+          defaultMessage={'Unlock LP Tokens'}
+        />
+      }
+    >
+      <div className="mx-auto mt-9 mb-6">
+        <TipTriangle w="30" h="26" c="#00C6A2" />
+      </div>
+
+      <div className="text-center text-white mb-10">
+        <FormattedMessage id="unlocking_tip" />
+      </div>
+
+      <NewGradientButton
+        text={
+          <FormattedMessage
+            id="yes_continue"
+            defaultMessage={'Yes, continue'}
+          />
+        }
+        className="mb-9"
+        onClick={(e: any) => {
+          setUnlockingOpen(true);
+          props.onRequestClose(e);
+        }}
+      />
+
+      <div className="w-full">
+        {proposals?.sort(sortFunc).map((p) => {
+          return <ProposalThumbnail proposal={p} />;
+        })}
+      </div>
+
+      <div className="mt-2 flex items-center text-xs text-primaryText">
+        <span className="text-gradientFrom mr-1">*</span>
+
+        <span className="whitespace-nowrap">
+          <FormattedMessage
+            id="estimate_bonus"
+            defaultMessage={'Estimate Bonus'}
+          />
+        </span>
+        <span className="mx-1">=</span>
+
+        <span className="whitespace-nowrap">
+          <FormattedMessage
+            id="your_shares_ve"
+            defaultMessage={'Your shares'}
+          />
+        </span>
+
+        <span className="mx-1">*</span>
+
+        <span className="">
+          <FormattedMessage
+            id="current_value_of_bonus"
+            defaultMessage={'Current Value of bonus'}
+          />
+        </span>
+      </div>
+    </ModalWrapper>
+  );
+};
+
 const VotingPowerCard = ({
   veShare,
   lpShare,
@@ -1588,6 +1717,8 @@ const UserReferendumCard = ({
 
   const [unLockPopOpen, setUnLockPopOpen] = useState<boolean>(false);
 
+  const [unlockCheckPopUp, setUnlockCheckPopUp] = useState<boolean>(false);
+
   const unlockTime = new Big(accountInfo?.unlock_timestamp || 0)
     .div(new Big(1000000000))
     .toNumber();
@@ -1599,6 +1730,7 @@ const UserReferendumCard = ({
   const lockedLpShare = toReadableNumber(24, accountInfo?.lpt_amount || '0');
 
   const { farmStakeV1, farmStakeV2 } = useYourliquidity(Number(getVEPoolId()));
+  const myVoteDetail = useContext(ReferendumPageContext).myVoteDetail;
 
   const [hoverTip, setHoverTip] = useState<boolean>(false);
 
@@ -1754,7 +1886,15 @@ const UserReferendumCard = ({
             />
             {ONLY_ZEROS.test(veShare) ? null : moment().unix() > unlockTime ? (
               <BorderGradientButton
-                onClick={() => setUnLockPopOpen(true)}
+                onClick={() => {
+                  console.log(myVoteDetail, 'onclick');
+
+                  if (Object.keys(myVoteDetail || {}).length > 0) {
+                    setUnlockCheckPopUp(true);
+                  } else {
+                    setUnLockPopOpen(true);
+                  }
+                }}
                 text={
                   <span>
                     {timeStampToDate(unlockTime)}{' '}
@@ -1982,7 +2122,13 @@ const UserReferendumCard = ({
             />
             {ONLY_ZEROS.test(veShare) ? null : moment().unix() > unlockTime ? (
               <BorderGradientButton
-                onClick={() => setUnLockPopOpen(true)}
+                onClick={() => {
+                  if (Object.keys(myVoteDetail || {}).length > 0) {
+                    setUnlockCheckPopUp(true);
+                  } else {
+                    setUnLockPopOpen(true);
+                  }
+                }}
                 text={
                   <span>
                     {timeStampToDate(unlockTime)}{' '}
@@ -2038,11 +2184,181 @@ const UserReferendumCard = ({
         lpShare={lpShare}
         accountInfo={accountInfo}
       />
+
+      <UnlockCheckPopUp
+        isOpen={unlockCheckPopUp}
+        onRequestClose={() => {
+          setUnlockCheckPopUp(false);
+        }}
+        setUnlockingOpen={setUnLockPopOpen}
+      />
     </>
   );
 };
 
 export const ReferendumPageContext = createContext(null);
+
+export const ProposalThumbnail = ({ proposal }: { proposal: Proposal }) => {
+  const [status, setStatus] = useState<ProposalStatus>(proposal.status);
+
+  const isFarmProposal = Object.keys(proposal.kind).includes('FarmingReward');
+
+  const myVoteDetail = useContext(ReferendumPageContext).myVoteDetail;
+
+  const votedIndex = isFarmProposal
+    ? myVoteDetail?.[proposal?.id]?.action?.VoteFarm?.farm_id
+    : 0;
+
+  const tokenPriceList = useContext(ReferendumPageContext).tokenPriceList;
+
+  const votedAmount = myVoteDetail?.[proposal?.id]?.amount;
+
+  const totalVE = !isFarmProposal
+    ? scientificNotationToString(
+        BigNumber.sum(
+          ...(proposal?.kind?.Common
+            ? proposal?.votes?.slice(0, 2)
+            : proposal?.votes || [])
+        ).toString()
+      )
+    : new BigNumber(proposal.votes?.[votedIndex]);
+
+  const tokens = useTokens(
+    proposal?.incentive?.[votedIndex]?.incentive_token_ids || []
+  );
+
+  const prices: (string | undefined)[] = tokens?.map((token) => {
+    return tokenPriceList?.[token?.id]?.price;
+  });
+
+  const total = scientificNotationToString(
+    prices
+      ?.reduce((acc, price, i) => {
+        return acc.plus(
+          new Big(price || 0).times(
+            toReadableNumber(
+              tokens?.[i]?.decimals || 24,
+              proposal?.incentive?.[votedIndex]?.incentive_amounts?.[i] || '0'
+            )
+          )
+        );
+      }, new Big(0))
+      .toString() || '0'
+  );
+
+  const yourShare = scientificNotationToString(
+    new BigNumber(votedAmount).div(totalVE).times(total).toString()
+  );
+
+  useEffect(() => {
+    setStatus(proposal.status);
+  }, [proposal.id, proposal]);
+
+  const [base, setBase] = useState<number>(
+    Math.floor(
+      Number(status === 'InProgress' ? proposal?.end_at : proposal?.start_at) /
+        TIMESTAMP_DIVISOR
+    )
+  );
+
+  useEffect(() => {
+    setBase(
+      Math.floor(
+        Number(
+          status === 'InProgress' ? proposal?.end_at : proposal?.start_at
+        ) / TIMESTAMP_DIVISOR
+      )
+    );
+  }, [status]);
+
+  const baseCounterDown = durationFomatter(
+    moment.duration(base + 60 - moment().unix(), 'seconds')
+  );
+  const [counterDownStirng, setCounterDownStirng] =
+    useState<string>(baseCounterDown);
+
+  useEffect(() => {
+    const baseCounterDown = durationFomatter(
+      moment.duration(
+        Math.floor(
+          Number(
+            status === 'InProgress' ? proposal?.end_at : proposal?.start_at
+          ) / TIMESTAMP_DIVISOR
+        ) +
+          60 -
+          moment().unix(),
+        'seconds'
+      )
+    );
+    setCounterDownStirng(baseCounterDown);
+  }, [base, proposal.id, status]);
+
+  useCounterDownVE({
+    base,
+    setCounterDownStirng,
+    id: proposal?.id,
+    status,
+    setStatus,
+  });
+
+  const endtimeMoment = isFarmProposal
+    ? moment(Math.floor(Number(proposal.end_at) / TIMESTAMP_DIVISOR) * 1000)
+    : null;
+
+  const farmTitle = isFarmProposal ? (
+    <div className="text-base text-white">
+      <FormattedMessage id="proposed" defaultMessage={'Proposed'} />{' '}
+      <span>{endtimeMoment.add(1, 'month').format('MMM yyyy')}</span>{' '}
+      <FormattedMessage id="farm_reward" defaultMessage={'Farm reward'} />
+      <FormattedMessage id="proposed_zh" defaultMessage={' '} />
+    </div>
+  ) : null;
+
+  const govProposalTitle = isFarmProposal ? null : (
+    <div className="text-base text-white">
+      {`#${proposal.id}`} {JSON.parse(proposal.description).title}
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col my-2 rounded-lg p-3 bg-priceBoardColor">
+      <div className="flex items-center justify-between">
+        <div className="text-senderHot">{counterDownStirng}</div>
+        <button
+          onClick={() => {
+            if (isFarmProposal) {
+              window.open('/referendum?tab=farm');
+            } else {
+              window.open('/referendum/' + proposal.id);
+            }
+          }}
+        >
+          <RightArrowUnlockingVE />
+        </button>
+      </div>
+
+      {isFarmProposal ? farmTitle : govProposalTitle}
+      {ONLY_ZEROS.test(total) || ONLY_ZEROS.test(yourShare) ? null : (
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-primaryText mt-1">
+            <FormattedMessage
+              id="estimate_bonus"
+              defaultMessage={'Estimate bonus'}
+            />
+          </span>
+
+          <span
+            style={{
+              color: '#5B62FF',
+            }}
+          >
+            ${toPrecision(yourShare, 2, false, false)}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const ReferendumPage = () => {
   const id = getVEPoolId();
@@ -2058,6 +2374,9 @@ export const ReferendumPage = () => {
 
   const isClientMobie = useClientMobile();
   const VEmeta = useVEmeta();
+
+  const myVoteDetail = useVoteDetail();
+
   return (
     <ReferendumPageContext.Provider
       value={{
@@ -2065,6 +2384,7 @@ export const ReferendumPage = () => {
         veShare,
         veShareRaw,
         VEmeta,
+        myVoteDetail,
       }}
     >
       <div className="m-auto lg:w-1024px  xsm:w-11/12 md:w-5/6 text-white relative lg:top-6 xsm:-top-4">

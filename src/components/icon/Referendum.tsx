@@ -830,3 +830,22 @@ export const DownArrowVE = () => {
     </svg>
   );
 };
+
+export const RightArrowUnlockingVE = () => {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="8" cy="8" r="7.5" stroke="#7E8A93" />
+      <path
+        d="M3.75696 7.69982H11.6427M9.35696 5.25537L11.757 7.69982L9.35696 10.1443"
+        stroke="#7E8A93"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+};

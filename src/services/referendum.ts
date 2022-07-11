@@ -308,6 +308,10 @@ export const getProposal = async (proposal_id: number) => {
   });
 };
 
+export const batchFetchProposals = async (proposal_ids: number[]) => {
+  return await Promise.all(proposal_ids.map((id) => getProposal(id)));
+};
+
 export const getVoteDetail = () => {
   console.log(getCurrentWallet().wallet.getAccountId(), 'votedetail');
 

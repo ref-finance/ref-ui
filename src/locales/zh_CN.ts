@@ -743,5 +743,7 @@ const zh_CN = {
   required_field: '请输入',
   voting_power_and_extra_earnings: '投票治理能力 & 额外收益',
   bonus_tip: '投票奖励用于激励用户去投票. 你的奖励将和你的投票份额相关',
+  unlocking_tip: '解锁LP代币会自动取消你的以下提案的投票以及相应的奖励',
+  yes_continue: '是的, 继续',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

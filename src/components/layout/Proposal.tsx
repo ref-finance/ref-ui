@@ -5694,9 +5694,24 @@ interface ParamTypes {
 }
 
 export const ProposalCard = () => {
+  const tab = new URLSearchParams(window.location.search).get('tab');
+
   const [curTab, setTab] = useState<PROPOSAL_TAB>(
-    PROPOSAL_TAB[localStorage.getItem(REF_FI_PROPOSALTAB)] || PROPOSAL_TAB.FARM
+    tab === 'farm'
+      ? PROPOSAL_TAB.FARM
+      : PROPOSAL_TAB[localStorage.getItem(REF_FI_PROPOSALTAB)] ||
+          PROPOSAL_TAB.FARM
   );
+  useEffect(() => {
+    localStorage.setItem(REF_FI_PROPOSALTAB, curTab);
+    if (tab) {
+      window.history.replaceState(
+        {},
+        '',
+        window.location.origin + window.location.pathname
+      );
+    }
+  }, [curTab]);
 
   const [farmProposal, setFarmProposal] = useState<Proposal>();
 
