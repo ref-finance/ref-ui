@@ -161,7 +161,8 @@ export function Content() {
       return null;
     }
 
-    getAccount().then(() => {
+    getAccount().then((res) => {
+      console.log(res);
       globalStatedispatch({ type: 'signIn' });
     });
   }, [accountId, getAccount]);

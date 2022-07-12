@@ -82,15 +82,15 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         setupMathWallet(),
         setupNightly(),
         setupLedger(),
-        setupWalletConnect({
-          projectId: 'c4f79cc...',
-          metadata: {
-            name: 'NEAR Wallet Selector',
-            description: 'Example dApp used by NEAR Wallet Selector',
-            url: 'https://github.com/near/wallet-selector',
-            icons: ['https://avatars.githubusercontent.com/u/37784886'],
-          },
-        }),
+        // setupWalletConnect({
+        //   projectId: 'c4f79cc...',
+        //   metadata: {
+        //     name: 'NEAR Wallet Selector',
+        //     description: 'Example dApp used by NEAR Wallet Selector',
+        //     url: 'https://github.com/near/wallet-selector',
+        //     icons: ['https://avatars.githubusercontent.com/u/37784886'],
+        //   },
+        // }),
       ],
     });
     const _modal = setupModal(_selector, { contractId: CONTRACT_ID });

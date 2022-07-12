@@ -37,7 +37,7 @@ import {
   getBatchTokenNearAcounts,
   useTriTokenIdsOnRef,
 } from '../services/aurora/aurora';
-import { AllStableTokenIds } from '../services/near';
+import { AllStableTokenIds, getAccountNearBalance } from '../services/near';
 import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
 import { wallet as webWallet } from '~services/near';
 import {
@@ -285,12 +285,11 @@ export const getDepositableBalance = async (
 
   if (tokenId === 'NEAR') {
     if (getCurrentWallet()?.wallet?.isSignedIn()) {
-      return webWallet
-        .account()
-        .getAccountBalance()
-        .then(({ available }: any) => {
-          return toReadableNumber(decimals, available);
-        });
+      return getAccountNearBalance(
+        getCurrentWallet().wallet.getAccountId()
+      ).then(({ available }: any) => {
+        return toReadableNumber(decimals, available);
+      });
     } else {
       return toReadableNumber(decimals, '0');
     }
@@ -391,10 +390,9 @@ export const useDepositableBalance = (
   useEffect(() => {
     if (isSignedIn && wallet) {
       if (tokenId === 'NEAR') {
-        webWallet
-          .account()
-          .getAccountBalance()
-          .then(({ available }: any) => setDepositable(available));
+        getAccountNearBalance(getCurrentWallet().wallet.getAccountId()).then(
+          ({ available }: any) => setDepositable(available)
+        );
       } else if (tokenId) {
         ftGetBalance(tokenId).then(setDepositable);
       }

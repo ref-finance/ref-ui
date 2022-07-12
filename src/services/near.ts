@@ -1,4 +1,10 @@
-import { Near, keyStores, utils, WalletConnection } from 'near-api-js';
+import {
+  Near,
+  keyStores,
+  utils,
+  WalletConnection,
+  providers,
+} from 'near-api-js';
 import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
 import getConfig, { getExtraStablePoolConfig } from './config';
@@ -15,6 +21,7 @@ import {
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
   WALLET_TYPE,
 } from '../utils/sender-wallet';
+import { AccountView } from 'near-api-js/lib/providers/provider';
 
 const config = getConfig();
 
@@ -325,4 +332,18 @@ export const refContractViewFunction = ({
   args,
 }: RefContractViewFunctionOptions) => {
   return wallet.account().viewFunction(XREF_TOKEN_ID, methodName, args);
+};
+
+export const getAccountNearBalance = async (accountId: string) => {
+  const provider = new providers.JsonRpcProvider({
+    url: getConfig().nodeUrl,
+  });
+
+  return provider
+    .query<AccountView>({
+      request_type: 'view_account',
+      finality: 'final',
+      account_id: accountId,
+    })
+    .then((data) => ({ available: data.amount }));
 };
