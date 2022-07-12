@@ -1970,10 +1970,7 @@ const UserReferendumCard = ({
                 data-multiline={true}
                 data-class="reactTip"
                 data-html={true}
-                data-tip={`<div className="text-xs w-48" style="white-space: initial;width:200px" >
-                ${intl.formatMessage({ id: 'unlock_tip_top' })}
-                </div>
-              </div>`}
+                data-tip={`${intl.formatMessage({ id: 'unlock_tip_top' })}`}
                 data-for="mobile_unlock_tip_lptoken"
               >
                 <div className="text-gradientFrom ml-2">
