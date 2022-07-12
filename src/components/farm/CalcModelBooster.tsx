@@ -639,9 +639,7 @@ export function CalcEle(props: {
                 <FormattedMessage id="booster"></FormattedMessage>
               </label>
               <span
-                className={`flex items-center text-sm text-right break-all ${
-                  +seed_free_amount > 0 ? 'text-senderHot' : 'text-farmText'
-                }`}
+                className={`flex items-center text-sm text-right break-all text-senderHot`}
               >
                 {getRate()}
                 <LightningIcon></LightningIcon>
