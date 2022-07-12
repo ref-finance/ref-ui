@@ -150,7 +150,7 @@ export function Content() {
         finality: 'final',
         account_id: accountId,
       })
-      .then((data) => ({
+      .then((data: any) => ({
         ...data,
         account_id: accountId,
       }));

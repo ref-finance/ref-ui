@@ -84,6 +84,7 @@ import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 const config = getConfig();
 
@@ -226,6 +227,9 @@ function AccountEntry({
     },
   ];
 
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
   return (
     <div className="bubble-box relative user text-xs text-center justify-end z-30 mx-3.5">
       {showAccountTip ? (
@@ -269,7 +273,8 @@ function AccountEntry({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setShowWalletSelector(true);
+                  // setShowWalletSelector(true);
+                  modal.show();
 
                   setHover(false);
                 }}

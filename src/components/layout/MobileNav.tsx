@@ -64,6 +64,7 @@ import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage from '~components/usn/USNPage';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 export function MobileAnchor({
   to,
@@ -373,6 +374,8 @@ export function MobileNavBar(props: any) {
   const [pathnameState, setPathnameState] = useState<boolean>(
     window.location.pathname !== '/account'
   );
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
 
   const {
     setShowWalletSelector,
@@ -568,7 +571,8 @@ export function MobileNavBar(props: any) {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setShowWalletSelector(true);
+                      // setShowWalletSelector(true);
+                      modal.show();
                     }}
                     type="button"
                   >
