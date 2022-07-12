@@ -688,7 +688,7 @@ export function AddLiquidityModal(
         ) : null}
         <div className="flex justify-between text-primaryText text-sm my-6">
           <label>
-            <FormattedMessage id="my_shares"></FormattedMessage>
+            <FormattedMessage id="lp_token"></FormattedMessage>
           </label>
           <span className="text-white text-sm font-sans">{shareDisplay()}</span>
         </div>
@@ -797,7 +797,7 @@ export function RemoveLiquidityModal(
 
         <div>
           <div className="text-xs text-right mb-1 text-gray-400">
-            <FormattedMessage id="my_shares" defaultMessage="Shares" />
+            <FormattedMessage id="lp_token" defaultMessage="LP Tokens" />
             :&nbsp;
             {toPrecision(toReadableNumber(24, shares), 2)}
           </div>
@@ -1636,10 +1636,9 @@ export function PoolDetailsPage() {
                 </div>
                 <div className="flex items-center justify-between py-2.5">
                   <div>
-                    <FormattedMessage
-                      id="total_shares"
-                      defaultMessage="Total Shares"
-                    />
+                    <FormattedMessage id="total_label" />
+                    &nbsp;
+                    <FormattedMessage id="lp_token"></FormattedMessage>
                   </div>
                   <div className=" text-white">
                     {toInternationalCurrencySystem(
@@ -1649,10 +1648,7 @@ export function PoolDetailsPage() {
                 </div>
                 <div className="flex items-center justify-between pt-2.5 pb-5">
                   <div>
-                    <FormattedMessage
-                      id="my_shares"
-                      defaultMessage="My Shares"
-                    />
+                    <FormattedMessage id="yours" />
                   </div>
                   <div className="text-white">
                     <MyShares

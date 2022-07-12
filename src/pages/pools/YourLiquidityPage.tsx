@@ -323,8 +323,18 @@ export function YourLiquidityPage() {
                     <FormattedMessage id="token" defaultMessage="Token" />
                   </div>
 
-                  <div className="col-span-5 text-left ml-8">
-                    <FormattedMessage id="my_shares" defaultMessage="Shares" />
+                  <div className="flex flex-col col-span-5 text-left ml-8">
+                    <span>
+                      <FormattedMessage id="lp_token"></FormattedMessage>
+                    </span>
+                    <span>
+                      (
+                      <FormattedMessage
+                        id="my_shares"
+                        defaultMessage="Shares"
+                      />
+                      )
+                    </span>
                   </div>
                   <div className="col-span-4 xl:ml-8 ml-4">
                     <FormattedMessage id="value" defaultMessage="Value" />
@@ -788,8 +798,13 @@ function PoolRow(props: {
               supportFarmV1 > 0 && supportFarmV2 > 0 ? 'pt-2 pb-4' : 'py-2'
             }`}
           >
-            <div className="text-gray-400 text-sm">
-              <FormattedMessage id="my_shares" defaultMessage="Shares" />
+            <div className="flex flex-col text-gray-400 text-sm">
+              <span>
+                <FormattedMessage id="lp_token"></FormattedMessage>
+              </span>
+              <span>
+                (<FormattedMessage id="my_shares" defaultMessage="Shares" />)
+              </span>
             </div>
 
             <div className={`flex flex-col  text-white items-end `}>

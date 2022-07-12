@@ -386,7 +386,7 @@ const en_US = {
   roi_calculator: 'ROI Calculator',
   lp_staked: 'LP staked',
   usd: 'USD',
-  lp_token: 'LP token',
+  lp_token: 'LP Tokens',
   stake_for: 'Duration',
   day_1: '1D',
   day_2: '7D',

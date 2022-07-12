@@ -745,5 +745,10 @@ const zh_CN = {
   bonus_tip: '投票奖励用于激励用户去投票. 你的奖励将和你的投票份额相关',
   unlocking_tip: '解锁LP代币会自动取消你的以下提案的投票以及相应的奖励',
   yes_continue: '是的, 继续',
+  create_pool: '创建流动池',
+  search_by_token: '根据代币搜索',
+  your_power: '你的能量',
+  farm_has_boost_tip: '你的能量 = 你的流动性代币 * 倍率 (根据质押的LOVE数量)',
+  farm_no_boost_tip: '你的能量 = 你质押的流动性代币',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
