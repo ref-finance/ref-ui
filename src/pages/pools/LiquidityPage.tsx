@@ -857,38 +857,47 @@ function LiquidityPage_({
             <StartPoolIcon />
           </div>
           <Card
-            className="mt-2 bg-cardBg relative flex items-center "
+            className="mt-2  relative flex items-center "
             width="w-full"
-            padding="px-8 py-3"
+            bgcolor="bg-cardBg "
+            padding="px-0 "
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              window.open('/referendum');
+            }}
           >
-            <div className="flex items-center">
+            <div className="w-full cursor-pointer flex items-center px-8 py-3 hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
               <div className="flex items-center">
-                <Images tokens={tokensStar} size="9" className="mr-7" />
-                <Symbols
-                  tokens={tokensStar}
-                  seperator="-"
-                  fontSize="text-sm"
-                ></Symbols>
+                <div className="flex items-center">
+                  <Images tokens={tokensStar} size="9" className="mr-7" />
+                  <Symbols
+                    tokens={tokensStar}
+                    seperator="-"
+                    fontSize="text-sm"
+                  ></Symbols>
+                </div>
               </div>
+
+              {supportFarmStar && <FarmButton farmCount={farmCountStar} />}
             </div>
-
-            {supportFarmStar && <FarmButton farmCount={farmCountStar} />}
-
             <div className="absolute flex items-center right-0 bottom-0">
               <button
-                className="text-white text-xl z-30 relative top-3 right-3 flex items-center"
-                onClick={() => {
+                className="text-white hover:text-gradientFrom text-xl z-30 relative top-3 right-3 flex items-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
                   window.open('/referendum');
                 }}
               >
-                <span>
+                <span className="text-white">
                   <FormattedMessage
                     id="more_than_a_simple_pool"
                     defaultMessage={'More than a simple pool'}
                   />
                 </span>
 
-                <button className="text-white hover:text-gradientFrom ml-1.5">
+                <button className=" ml-1.5">
                   <VEARROW />
                 </button>
               </button>

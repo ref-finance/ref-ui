@@ -754,6 +754,7 @@ const ru = {
   bonus_tip:
     'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
   yes_continue: 'Yes, continue',
+  more_than_a_simple_pool: 'More than a simple pool',
   more_lock_ve_popup2: 'more ',
   unlocking_tip:
     'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',

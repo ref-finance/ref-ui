@@ -3198,10 +3198,10 @@ export const PoolDaoBanner = () => {
       </div>
 
       <div className="relative z-20 top-2.5 flex items-center">
-        <span className="right-5 z-20">
+        <span className="right-5 z-30">
           <POOL_REF_PC />
         </span>
-        <span className="relative right-12 z-30">
+        <span className="relative right-5 z-20">
           <POOL_NEAR_PC />
         </span>
 
@@ -3213,7 +3213,7 @@ export const PoolDaoBanner = () => {
           <POOL_LOVE_PC />
         </span>
 
-        <span className="absolute left-16 z-10">
+        <span className="absolute left-20 z-10">
           <DASH />
         </span>
       </div>

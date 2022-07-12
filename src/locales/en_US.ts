@@ -787,5 +787,6 @@ const en_US = {
   farm_has_boost_tip:
     'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
   farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
+  more_than_a_simple_pool: 'More than a simple pool',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
