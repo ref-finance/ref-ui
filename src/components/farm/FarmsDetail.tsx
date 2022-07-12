@@ -2159,7 +2159,7 @@ function UserStakeBlock(props: {
     const base = affected_seeds[seed_id];
     if (base) {
       const freeAmount = toReadableNumber(DECIMALS, free_amount);
-      const isBoost = user_seeds_map[detailData.seed_id];
+      const isBoost = radio && user_seeds_map[detailData.seed_id];
       if (isBoost) {
         return `<div class="flex items-center justify-start text-xs">
         <span class="text-farmText">${toPrecision(
