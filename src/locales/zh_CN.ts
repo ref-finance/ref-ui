@@ -751,5 +751,6 @@ const zh_CN = {
   farm_has_boost_tip: '你的能量 = 你的流动性代币 * 倍率 (根据质押的LOVE数量)',
   more_than_a_simple_pool: '不只是一个简单的流动池',
   farm_no_boost_tip: '你的能量 = 你质押的流动性代币',
+  ended_Farms: '已结束的农场',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

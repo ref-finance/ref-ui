@@ -955,6 +955,7 @@ function CommonModal(props: any) {
         },
         content: {
           outline: 'none',
+          transform: 'translate(-50%, -50%)',
         },
       }}
     >
