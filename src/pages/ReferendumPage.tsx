@@ -1309,6 +1309,7 @@ const UnlockCheckPopUp = (
   return (
     <ModalWrapper
       {...props}
+      customHeight="85vh"
       title={
         <FormattedMessage
           id="unlock_lptoken"
@@ -2304,7 +2305,7 @@ export const ProposalThumbnail = ({ proposal }: { proposal: Proposal }) => {
     : null;
 
   const farmTitle = isFarmProposal ? (
-    <div className="text-base text-white">
+    <div className="text-base text-white truncate">
       <FormattedMessage id="proposed" defaultMessage={'Proposed'} />{' '}
       <span>{endtimeMoment.add(1, 'month').format('MMM yyyy')}</span>{' '}
       <FormattedMessage id="farm_reward" defaultMessage={'Farm reward'} />
@@ -2313,7 +2314,10 @@ export const ProposalThumbnail = ({ proposal }: { proposal: Proposal }) => {
   ) : null;
 
   const govProposalTitle = isFarmProposal ? null : (
-    <div className="text-base text-white">
+    <div
+      className="text-base text-white truncate"
+      title={`#${proposal.id} ${JSON.parse(proposal.description).title}`}
+    >
       {`#${proposal.id}`} {JSON.parse(proposal.description).title}
     </div>
   );

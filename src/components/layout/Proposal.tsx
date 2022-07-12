@@ -147,6 +147,7 @@ import {
   ConnectToNearBtnGradientMoible,
 } from '../button/Button';
 import ReactTooltip from 'react-tooltip';
+import { DownArrowLightMobile } from '../icon/Arrows';
 const VotedOnlyKey = 'REF_FI_GOV_PROPOSAL_VOTED_ONLY';
 const BonusOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
 
@@ -1246,6 +1247,7 @@ function SelectUI({
   canSelect,
   notshowOption,
   brightClick,
+  forMobileFarm,
 }: {
   onChange: (e: any) => void;
   list: string[];
@@ -1258,6 +1260,7 @@ function SelectUI({
   canSelect?: boolean;
   notshowOption?: boolean;
   brightClick?: boolean;
+  forMobileFarm?: boolean;
 }) {
   const [showSelectBox, setShowSelectBox] = useState(false);
   const switchSelectBoxStatus = () => {
@@ -1271,14 +1274,24 @@ function SelectUI({
       className={`${className} relative flex ${
         shrink ? 'items-end' : 'items-center '
       } outline-none ${
-        brightClick ? (!showSelectBox ? 'opacity-70' : 'opacity-100') : ''
+        brightClick
+          ? !showSelectBox && !forMobileFarm
+            ? 'opacity-70'
+            : 'opacity-100'
+          : ''
       }`}
     >
       <span
         onClick={switchSelectBoxStatus}
         tabIndex={-1}
         onBlur={hideSelectBox}
-        className={`${labelClassName} flex items-center justify-between bg-black bg-opacity-20 w-24 h-5 rounded-md px-2.5 py-3  cursor-pointer ${
+        className={` ${labelClassName}  ${
+          forMobileFarm
+            ? showSelectBox
+              ? 'text-white border-gradientFrom'
+              : 'text-primaryText border-primaryText'
+            : ''
+        } flex items-center justify-between bg-black bg-opacity-20 w-24 h-5 rounded-md px-2.5 py-3  cursor-pointer ${
           size || 'text-xs'
         } outline-none ${shrink ? 'xsm:w-8 md:w-8' : ''} text-white`}
       >
@@ -4830,17 +4843,22 @@ export const FarmProposal = ({
             />
           )}
 
-          <SelectUI
-            list={['bonus', 'REF_allocation']}
-            curvalue={sortBy}
-            onChange={setSortBy}
-            className=" lg:hidden "
-            canSelect
-            labelClassName="w-24 border border-primaryText rounded-xl border-opacity-70"
-            dropDownClassName="w-40 text-sm"
-            notshowOption
-            brightClick
-          />
+          <div className="flex items-center">
+            <span className="mr-2">
+              <DownArrowLightMobile color="#7E8A93" />
+            </span>
+            <SelectUI
+              list={['bonus', 'REF_allocation']}
+              curvalue={sortBy}
+              onChange={setSortBy}
+              className=" lg:hidden "
+              canSelect
+              labelClassName="w-36 border  rounded-2xl"
+              dropDownClassName="w-40 text-sm"
+              brightClick
+              forMobileFarm
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-7 xsm:hidden pb-1">
@@ -5788,6 +5806,10 @@ export const ProposalCard = () => {
   useEffect(() => {
     if (typeof showDetail === 'number' && isClientMobie) {
       hideElementsMobile();
+    }
+
+    if (typeof showDetail === 'number') {
+      setTab(PROPOSAL_TAB.GOV);
     }
   }, [showDetail]);
 

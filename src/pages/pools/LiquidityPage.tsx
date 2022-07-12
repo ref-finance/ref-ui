@@ -457,14 +457,21 @@ function MobileLiquidityPage({
             padding="px-0 py-3"
           >
             <div className="flex items-center ml-5">
-              <div className="flex items-center">
+              <button
+                className="flex items-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  window.open(`/pool/${getVEPoolId()}`);
+                }}
+              >
                 <Images tokens={tokensStar} size="6" className="mr-2.5" />
                 <Symbols
                   tokens={tokensStar}
                   seperator="-"
                   fontSize="text-sm"
                 ></Symbols>
-              </div>
+              </button>
             </div>
 
             <PoolDaoBannerMobile />
@@ -864,7 +871,7 @@ function LiquidityPage_({
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              window.open('/referendum');
+              window.open(`/pool/${getVEPoolId()}`);
             }}
           >
             <div className="w-full cursor-pointer flex items-center px-8 py-3 hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
