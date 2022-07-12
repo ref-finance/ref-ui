@@ -1720,6 +1720,8 @@ const UserReferendumCard = ({
 
   const [unlockCheckPopUp, setUnlockCheckPopUp] = useState<boolean>(false);
 
+  const intl = useIntl();
+
   const unlockTime = new Big(accountInfo?.unlock_timestamp || 0)
     .div(new Big(1000000000))
     .toNumber();
@@ -1969,7 +1971,7 @@ const UserReferendumCard = ({
                 data-class="reactTip"
                 data-html={true}
                 data-tip={`<div className="text-xs w-48" style="white-space: initial;width:200px" >
-                Your locking has been expired, unlocking is available now!
+                ${intl.formatMessage({ id: 'unlock_tip_top' })}
                 </div>
               </div>`}
                 data-for="mobile_unlock_tip_lptoken"
