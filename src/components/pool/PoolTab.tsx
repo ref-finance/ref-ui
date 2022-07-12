@@ -13,11 +13,10 @@ export const PoolTab = () => {
     if (
       pathname.startsWith('/pool/') ||
       pathname.startsWith('/more_pools/') ||
-      pathname == '/pools'
+      pathname == '/pools' ||
+      pathname == '/pools/add'
     ) {
       setChoosedTab('1');
-    } else if (pathname == '/pools/add') {
-      setChoosedTab('2');
     } else if (pathname == '/pools/yours') {
       setChoosedTab('3');
     }

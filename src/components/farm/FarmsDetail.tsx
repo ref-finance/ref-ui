@@ -160,10 +160,8 @@ export default function FarmsDetail(props: {
     if (!boostConfig) return '';
     const { affected_seeds } = boostConfig;
     const { seed_id } = detailData;
-    const user_seed = user_seeds_map[seed_id] || {};
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
-    const hasUserStaked = Object.keys(user_seed).length;
     if (base && loveSeed) {
       const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
       const totalStakeLoveAmount = toReadableNumber(
@@ -957,6 +955,7 @@ function CommonModal(props: any) {
         },
         content: {
           outline: 'none',
+          transform: 'translate(-50%, -50%)',
         },
       }}
     >
@@ -1848,7 +1847,7 @@ function UserStakeBlock(props: {
   user_unclaimed_token_meta_map: Record<string, any>;
   user_unclaimed_map: Record<string, any>;
   user_data_loading: Boolean;
-  radio: string;
+  radio: string | number;
 }) {
   const {
     detailData,
@@ -1906,10 +1905,8 @@ function UserStakeBlock(props: {
     setServerTime(timestamp);
   };
   function showLpPower() {
-    const powerBig = new BigNumber(radio || 1)
-      .multipliedBy(free_amount)
-      .plus(x_locked_amount);
-    const power = toReadableNumber(DECIMALS, powerBig.toFixed().toString());
+    const power = getUserPower();
+    const powerBig = new BigNumber(power);
     if (powerBig.isEqualTo(0)) {
       return <label className="opacity-50">{isSignedIn ? 0.0 : '-'}</label>;
     } else if (powerBig.isLessThan('0.001')) {
@@ -1918,12 +1915,42 @@ function UserStakeBlock(props: {
       return formatWithCommas(toPrecision(power, 3));
     }
   }
+  function getUserPower() {
+    if (!boostConfig) return '';
+    let realRadio;
+    const { affected_seeds } = boostConfig;
+    const { seed_id } = detailData;
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
+    const base = affected_seeds[seed_id];
+    if (base && loveSeed) {
+      const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
+      const totalStakeLoveAmount = toReadableNumber(
+        LOVE_TOKEN_DECIMAL,
+        new BigNumber(free_amount).plus(locked_amount).toFixed()
+      );
+      if (+totalStakeLoveAmount > 0) {
+        if (+totalStakeLoveAmount < 1) {
+          realRadio = 1;
+        } else {
+          realRadio = new BigNumber(1)
+            .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+            .toFixed();
+        }
+      }
+    }
+    const powerBig = new BigNumber(+(realRadio || 1))
+      .multipliedBy(free_amount)
+      .plus(x_locked_amount);
+    const power = toReadableNumber(DECIMALS, powerBig.toFixed(0).toString());
+    return power;
+  }
   function getUserLpPercent() {
     let result = '(-%)';
-    const { total_seed_amount } = detailData;
-    if (+total_seed_amount && !user_data_loading && +userTotalStake) {
-      const totalAmount = toReadableNumber(DECIMALS, total_seed_amount);
-      const percent = new BigNumber(userTotalStake)
+    const { total_seed_power } = detailData;
+    const userPower = getUserPower();
+    if (+total_seed_power && !user_data_loading && +userPower) {
+      const totalAmount = toReadableNumber(DECIMALS, total_seed_power);
+      const percent = new BigNumber(userPower)
         .dividedBy(totalAmount)
         .multipliedBy(100);
       if (percent.isLessThan('0.001')) {
@@ -2115,33 +2142,41 @@ function UserStakeBlock(props: {
     </div>`;
   }
   function getPowerTip() {
+    if (!boostConfig) return '';
+    const { affected_seeds } = boostConfig;
+    const { seed_id } = detailData;
+    const base = affected_seeds[seed_id];
     const tip = intl.formatMessage({
-      id:
-        radio && user_seeds_map[detailData.seed_id]
-          ? 'farm_has_boost_tip'
-          : 'farm_no_boost_tip',
+      id: base ? 'farm_has_boost_tip' : 'farm_no_boost_tip',
     });
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
   function getPowerDetail() {
-    const freeAmount = toReadableNumber(DECIMALS, free_amount);
-    const isBoost = radio && user_seeds_map[detailData.seed_id];
-    if (isBoost) {
-      return `<div class="flex items-center justify-start text-xs">
-      <span class="text-farmText">${toPrecision(
-        freeAmount,
-        3
-      )}</span> <span class="ml-1 flex items-center text-senderHot">x${radio}<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTkiIHZpZXdCb3g9IjAgMCAxOCAxOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfZl8xOTI4XzMwKSI+CjxjaXJjbGUgY3g9IjkuMzg0NjciIGN5PSI5LjQ2MTA5IiByPSI0LjYxNTM4IiBmaWxsPSIjMDBGRkQxIiBmaWxsLW9wYWNpdHk9IjAuNCIvPgo8L2c+CjxwYXRoIGQ9Ik05LjY2NDE2IDMuMDA0N0M5LjgxNzg0IDMuMDQ0NyA5Ljg0MjMxIDMuMzA5NDQgOS44NDUyNSAzLjgyODQ1TDkuODQ2MjMgNi44MTAxNUM5Ljg0NjIzIDcuMDM0ODkgOS44NDYyMyA3LjE0NzI3IDkuOTE3NjkgNy4yMTY3OEM5Ljk3NzM5IDcuMjczOTIgMTAuMDY3NCA3LjI4NDQgMTAuMjI5OSA3LjI4NjNIMTEuMzc2MkMxMi44NzM4IDcuMjg2MyAxMy42MjE2IDcuMjg2MyAxMy45MDQ1IDcuNzU5NkMxNC4xODg0IDguMjMyOSAxMy44MTg0IDguODY2MTkgMTMuMDc4NCAxMC4xMzE4TDEwLjc2MTQgMTQuMTAwMUMxMC4zOTQ0IDE0LjcyODYgMTAuMjEwNCAxNS4wNDI5IDEwLjAyODMgMTQuOTk1M0M5Ljg0NjIzIDE0Ljk0OTYgOS44NDYyMyAxNC41ODg2IDkuODQ2MjMgMTMuODY1OFYxMS4xOTA4QzkuODQ2MjMgMTAuOTY2IDkuODQ2MjMgMTAuODUzNyA5Ljc3NDc3IDEwLjc4NDJDOS43MDMzMiAxMC43MTQ2IDkuNTg3ODEgMTAuNzE0NiA5LjM1NjgxIDEwLjcxNDZINy44NDQ0OUM2LjY1OTExIDEwLjcwODkgNi4wMzk1IDEwLjY2MjMgNS43ODc5NCAxMC4yNDEzQzUuNTA0MDcgOS43NjgwMyA1Ljg3NDA4IDkuMTM0NzUgNi42MTQwOCA3Ljg2OTEyTDguOTMxMDEgMy45MDA4M0M5LjI5ODA4IDMuMjcyMyA5LjQ4MjEgMi45NTcwOCA5LjY2NDE2IDMuMDA0N1oiIGZpbGw9IiMwMEZGRDEiLz4KPGRlZnM+CjxmaWx0ZXIgaWQ9ImZpbHRlcjBfZl8xOTI4XzMwIiB4PSIwLjc2OTI4NyIgeT0iMC44NDU3MDMiIHdpZHRoPSIxNy4yMzA3IiBoZWlnaHQ9IjE3LjIzMDUiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0ic2hhcGUiLz4KPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMiIgcmVzdWx0PSJlZmZlY3QxX2ZvcmVncm91bmRCbHVyXzE5MjhfMzAiLz4KPC9maWx0ZXI+CjwvZGVmcz4KPC9zdmc+"/></span>
-  </div>`;
-    } else {
-      return `<div class="flex items-center justify-start text-xs">
-      <span class="text-farmText">${toPrecision(
-        freeAmount,
-        3
-      )}</span> <span class="ml-1 flex items-center text-farmText">x1<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTkiIHZpZXdCb3g9IjAgMCAxOCAxOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfZl8xOTI4XzMwKSI+CjxjaXJjbGUgY3g9IjkuMzg0NjciIGN5PSI5LjQ2MTA5IiByPSI0LjYxNTM4IiBmaWxsPSIjNzM4MThCIiBmaWxsLW9wYWNpdHk9IjAuNCIvPgo8L2c+CjxwYXRoIGQ9Ik05LjY2NDE2IDMuMDA0N0M5LjgxNzg0IDMuMDQ0NyA5Ljg0MjMxIDMuMzA5NDQgOS44NDUyNSAzLjgyODQ1TDkuODQ2MjMgNi44MTAxNUM5Ljg0NjIzIDcuMDM0ODkgOS44NDYyMyA3LjE0NzI3IDkuOTE3NjkgNy4yMTY3OEM5Ljk3NzM5IDcuMjczOTIgMTAuMDY3NCA3LjI4NDQgMTAuMjI5OSA3LjI4NjNIMTEuMzc2MkMxMi44NzM4IDcuMjg2MyAxMy42MjE2IDcuMjg2MyAxMy45MDQ1IDcuNzU5NkMxNC4xODg0IDguMjMyOSAxMy44MTg0IDguODY2MTkgMTMuMDc4NCAxMC4xMzE4TDEwLjc2MTQgMTQuMTAwMUMxMC4zOTQ0IDE0LjcyODYgMTAuMjEwNCAxNS4wNDI5IDEwLjAyODMgMTQuOTk1M0M5Ljg0NjIzIDE0Ljk0OTYgOS44NDYyMyAxNC41ODg2IDkuODQ2MjMgMTMuODY1OFYxMS4xOTA4QzkuODQ2MjMgMTAuOTY2IDkuODQ2MjMgMTAuODUzNyA5Ljc3NDc3IDEwLjc4NDJDOS43MDMzMiAxMC43MTQ2IDkuNTg3ODEgMTAuNzE0NiA5LjM1NjgxIDEwLjcxNDZINy44NDQ0OUM2LjY1OTExIDEwLjcwODkgNi4wMzk1IDEwLjY2MjMgNS43ODc5NCAxMC4yNDEzQzUuNTA0MDcgOS43NjgwMyA1Ljg3NDA4IDkuMTM0NzUgNi42MTQwOCA3Ljg2OTEyTDguOTMxMDEgMy45MDA4M0M5LjI5ODA4IDMuMjcyMyA5LjQ4MjEgMi45NTcwOCA5LjY2NDE2IDMuMDA0N1oiIGZpbGw9IiM3MzgxOEIiLz4KPGRlZnM+CjxmaWx0ZXIgaWQ9ImZpbHRlcjBfZl8xOTI4XzMwIiB4PSIwLjc2OTI4NyIgeT0iMC44NDU3MDMiIHdpZHRoPSIxNy4yMzA3IiBoZWlnaHQ9IjE3LjIzMDUiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0ic2hhcGUiLz4KPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMiIgcmVzdWx0PSJlZmZlY3QxX2ZvcmVncm91bmRCbHVyXzE5MjhfMzAiLz4KPC9maWx0ZXI+CjwvZGVmcz4KPC9zdmc+"/></span>
-  </div>`;
+    if (!boostConfig) return '';
+    const { affected_seeds } = boostConfig;
+    const { seed_id } = detailData;
+    const base = affected_seeds[seed_id];
+    if (base) {
+      const freeAmount = toReadableNumber(DECIMALS, free_amount);
+      const isBoost = radio && user_seeds_map[detailData.seed_id];
+      if (isBoost) {
+        return `<div class="flex items-center justify-start text-xs">
+        <span class="text-farmText">${toPrecision(
+          freeAmount,
+          3
+        )}</span> <span class="ml-1 flex items-center text-senderHot">x${radio}<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTkiIHZpZXdCb3g9IjAgMCAxOCAxOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfZl8xOTI4XzMwKSI+CjxjaXJjbGUgY3g9IjkuMzg0NjciIGN5PSI5LjQ2MTA5IiByPSI0LjYxNTM4IiBmaWxsPSIjMDBGRkQxIiBmaWxsLW9wYWNpdHk9IjAuNCIvPgo8L2c+CjxwYXRoIGQ9Ik05LjY2NDE2IDMuMDA0N0M5LjgxNzg0IDMuMDQ0NyA5Ljg0MjMxIDMuMzA5NDQgOS44NDUyNSAzLjgyODQ1TDkuODQ2MjMgNi44MTAxNUM5Ljg0NjIzIDcuMDM0ODkgOS44NDYyMyA3LjE0NzI3IDkuOTE3NjkgNy4yMTY3OEM5Ljk3NzM5IDcuMjczOTIgMTAuMDY3NCA3LjI4NDQgMTAuMjI5OSA3LjI4NjNIMTEuMzc2MkMxMi44NzM4IDcuMjg2MyAxMy42MjE2IDcuMjg2MyAxMy45MDQ1IDcuNzU5NkMxNC4xODg0IDguMjMyOSAxMy44MTg0IDguODY2MTkgMTMuMDc4NCAxMC4xMzE4TDEwLjc2MTQgMTQuMTAwMUMxMC4zOTQ0IDE0LjcyODYgMTAuMjEwNCAxNS4wNDI5IDEwLjAyODMgMTQuOTk1M0M5Ljg0NjIzIDE0Ljk0OTYgOS44NDYyMyAxNC41ODg2IDkuODQ2MjMgMTMuODY1OFYxMS4xOTA4QzkuODQ2MjMgMTAuOTY2IDkuODQ2MjMgMTAuODUzNyA5Ljc3NDc3IDEwLjc4NDJDOS43MDMzMiAxMC43MTQ2IDkuNTg3ODEgMTAuNzE0NiA5LjM1NjgxIDEwLjcxNDZINy44NDQ0OUM2LjY1OTExIDEwLjcwODkgNi4wMzk1IDEwLjY2MjMgNS43ODc5NCAxMC4yNDEzQzUuNTA0MDcgOS43NjgwMyA1Ljg3NDA4IDkuMTM0NzUgNi42MTQwOCA3Ljg2OTEyTDguOTMxMDEgMy45MDA4M0M5LjI5ODA4IDMuMjcyMyA5LjQ4MjEgMi45NTcwOCA5LjY2NDE2IDMuMDA0N1oiIGZpbGw9IiMwMEZGRDEiLz4KPGRlZnM+CjxmaWx0ZXIgaWQ9ImZpbHRlcjBfZl8xOTI4XzMwIiB4PSIwLjc2OTI4NyIgeT0iMC44NDU3MDMiIHdpZHRoPSIxNy4yMzA3IiBoZWlnaHQ9IjE3LjIzMDUiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0ic2hhcGUiLz4KPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMiIgcmVzdWx0PSJlZmZlY3QxX2ZvcmVncm91bmRCbHVyXzE5MjhfMzAiLz4KPC9maWx0ZXI+CjwvZGVmcz4KPC9zdmc+"/></span>
+    </div>`;
+      } else {
+        return `<div class="flex items-center justify-start text-xs">
+        <span class="text-farmText">${toPrecision(
+          freeAmount,
+          3
+        )}</span> <span class="ml-1 flex items-center text-farmText">x1<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTkiIHZpZXdCb3g9IjAgMCAxOCAxOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfZl8xOTI4XzMwKSI+CjxjaXJjbGUgY3g9IjkuMzg0NjciIGN5PSI5LjQ2MTA5IiByPSI0LjYxNTM4IiBmaWxsPSIjNzM4MThCIiBmaWxsLW9wYWNpdHk9IjAuNCIvPgo8L2c+CjxwYXRoIGQ9Ik05LjY2NDE2IDMuMDA0N0M5LjgxNzg0IDMuMDQ0NyA5Ljg0MjMxIDMuMzA5NDQgOS44NDUyNSAzLjgyODQ1TDkuODQ2MjMgNi44MTAxNUM5Ljg0NjIzIDcuMDM0ODkgOS44NDYyMyA3LjE0NzI3IDkuOTE3NjkgNy4yMTY3OEM5Ljk3NzM5IDcuMjczOTIgMTAuMDY3NCA3LjI4NDQgMTAuMjI5OSA3LjI4NjNIMTEuMzc2MkMxMi44NzM4IDcuMjg2MyAxMy42MjE2IDcuMjg2MyAxMy45MDQ1IDcuNzU5NkMxNC4xODg0IDguMjMyOSAxMy44MTg0IDguODY2MTkgMTMuMDc4NCAxMC4xMzE4TDEwLjc2MTQgMTQuMTAwMUMxMC4zOTQ0IDE0LjcyODYgMTAuMjEwNCAxNS4wNDI5IDEwLjAyODMgMTQuOTk1M0M5Ljg0NjIzIDE0Ljk0OTYgOS44NDYyMyAxNC41ODg2IDkuODQ2MjMgMTMuODY1OFYxMS4xOTA4QzkuODQ2MjMgMTAuOTY2IDkuODQ2MjMgMTAuODUzNyA5Ljc3NDc3IDEwLjc4NDJDOS43MDMzMiAxMC43MTQ2IDkuNTg3ODEgMTAuNzE0NiA5LjM1NjgxIDEwLjcxNDZINy44NDQ0OUM2LjY1OTExIDEwLjcwODkgNi4wMzk1IDEwLjY2MjMgNS43ODc5NCAxMC4yNDEzQzUuNTA0MDcgOS43NjgwMyA1Ljg3NDA4IDkuMTM0NzUgNi42MTQwOCA3Ljg2OTEyTDguOTMxMDEgMy45MDA4M0M5LjI5ODA4IDMuMjcyMyA5LjQ4MjEgMi45NTcwOCA5LjY2NDE2IDMuMDA0N1oiIGZpbGw9IiM3MzgxOEIiLz4KPGRlZnM+CjxmaWx0ZXIgaWQ9ImZpbHRlcjBfZl8xOTI4XzMwIiB4PSIwLjc2OTI4NyIgeT0iMC44NDU3MDMiIHdpZHRoPSIxNy4yMzA3IiBoZWlnaHQ9IjE3LjIzMDUiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0ic2hhcGUiLz4KPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMiIgcmVzdWx0PSJlZmZlY3QxX2ZvcmVncm91bmRCbHVyXzE5MjhfMzAiLz4KPC9maWx0ZXI+CjwvZGVmcz4KPC9zdmc+"/></span>
+    </div>`;
+      }
     }
+    return '';
   }
   const isEnded = detailData.farmList[0].status == 'Ended';
   return (

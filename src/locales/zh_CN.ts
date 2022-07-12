@@ -531,9 +531,9 @@ const zh_CN = {
   ref_account_balance_tip_mobile: '你的REF账户中有代币.',
   click: '点击',
   to_recover: '来取回.',
-  rewards_week: 'Rewards/week',
-  rewards: 'Rewards',
-  claimed_Rewards: 'Claimed Rewards',
+  rewards_week: '奖励/周',
+  rewards: '奖励',
+  claimed_Rewards: '已领取奖励',
   POOL: '流动池',
   STAKE: '质押',
   lp_Token: 'LP 代币',
@@ -625,7 +625,7 @@ const zh_CN = {
   recent_one_mounth_activity: '一个月的活动',
   veTip: 'veLP代币不可转移, 代表你的投票治理能力 ',
   loveTip:
-    'LOVE代表veToken的流动性, 就像NEP-141代币,可转移, 可交易, 可建立流动池, 可质押,可作为农场激励的.代表veTokens的潜在流动性',
+    'LOVE代表veToken的流动性, 就像NEP-141代币,可转移, 可交易, 可建立流动池, 可质押,可作为农场激励.代表veTokens的潜在流动性',
   lock_your_lp_tokens: '锁定你的流动性代币',
   unlock_your_defi_power: '解锁你的DeFi能量',
   unlock_tip_mobile: '现在已可解锁!',
@@ -713,7 +713,7 @@ const zh_CN = {
   v2_new_farms: 'V2 新版农场',
   migrate_now: '现在迁移!',
   v2_boost_tip:
-    'V2农场将支持助推农场。V1农场将在<span class="font-bold">1st. August, 2022.</span>耗尽奖励。',
+    'V2农场将支持助推农场。V1农场将在<span class="font-bold">2022年8月1日</span>耗尽奖励。',
   no_farm_need_to_migrate: '没有需要迁移的农场',
   v1_farms: 'V1 农场',
   has_rewards_tip:
@@ -751,5 +751,6 @@ const zh_CN = {
   farm_has_boost_tip: '你的能量 = 你的流动性代币 * 倍率 (根据质押的LOVE数量)',
   more_than_a_simple_pool: '不只是一个简单的流动池',
   farm_no_boost_tip: '你的能量 = 你质押的流动性代币',
+  ended_Farms: '已结束的农场',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

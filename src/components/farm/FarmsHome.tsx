@@ -1426,7 +1426,7 @@ export default function FarmsHome(props: any) {
                   showEndedFarmList ? '' : 'hidden'
                 }`}
               >
-                <FormattedMessage id="endedFarms"></FormattedMessage>
+                <FormattedMessage id="ended_Farms"></FormattedMessage>
               </p>
               <div
                 onClick={switchEndedFarmListDisplayStatus}
