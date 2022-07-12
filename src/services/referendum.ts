@@ -103,7 +103,6 @@ export interface VEConfig {
 }
 
 export const getAccountInfo = () => {
-  console.log(getCurrentWallet().wallet.getAccountId(), 'accouninfo');
   return refVeViewFunction({
     methodName: 'get_account_info',
     args: { account_id: getCurrentWallet().wallet.getAccountId() },
@@ -122,8 +121,6 @@ export const getVEConfig = () => {
   });
 };
 export const getLoveAmount = () => {
-  console.log(getCurrentWallet().wallet.getAccountId(), 'love');
-
   return refVeViewFunction({
     methodName: 'ft_balance_of',
     args: { account_id: getCurrentWallet().wallet.getAccountId() },
@@ -313,8 +310,6 @@ export const batchFetchProposals = async (proposal_ids: number[]) => {
 };
 
 export const getVoteDetail = () => {
-  console.log(getCurrentWallet().wallet.getAccountId(), 'votedetail');
-
   return refVeViewFunction({
     methodName: 'get_vote_detail',
     args: { account_id: getCurrentWallet().wallet.getAccountId() },
@@ -322,8 +317,6 @@ export const getVoteDetail = () => {
 };
 
 export const getVoteDetailHistory = () => {
-  console.log(getCurrentWallet().wallet.getAccountId(), 'votedetail his');
-
   return refVeViewFunction({
     methodName: 'get_vote_detail_history',
     args: { account_id: getCurrentWallet().wallet.getAccountId() },

@@ -426,7 +426,6 @@ export const VE_ICON = () => {
 };
 
 export const NO_RESULT_CHART = ({ expand }: { expand?: string }) => {
-  console.log(expand);
   return (
     <svg
       width="125"

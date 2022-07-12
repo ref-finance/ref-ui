@@ -1887,8 +1887,6 @@ const UserReferendumCard = ({
             {ONLY_ZEROS.test(veShare) ? null : moment().unix() > unlockTime ? (
               <BorderGradientButton
                 onClick={() => {
-                  console.log(myVoteDetail, 'onclick');
-
                   if (Object.keys(myVoteDetail || {}).length > 0) {
                     setUnlockCheckPopUp(true);
                   } else {

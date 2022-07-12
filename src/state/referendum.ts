@@ -263,8 +263,6 @@ export const useUnclaimedProposal = (status?: ProposalStatus) => {
     getUnclaimedProposal().then(setRecord);
   }, [isSignedIn, status]);
 
-  console.log('record', record);
-
   return record;
 };
 
