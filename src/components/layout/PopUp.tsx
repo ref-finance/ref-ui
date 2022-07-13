@@ -78,15 +78,15 @@ export default function PopUpSwiper() {
                 >
                   <CircleCloseBtn></CircleCloseBtn>
                 </div>
-                {/* <video
+                <video
                   controlsList="nodownload"
                   src={
                     '//video-qn.51miz.com/preview/video/00/00/15/34/V-153443-511735E3.mp4'
                   }
                   preload="metadata"
                   controls
-                ></video> */}
-                <iframe
+                ></video>
+                {/* <iframe
                   width="350"
                   height="196"
                   src="https://www.youtube.com/embed/NEwv8WwRdM0"
@@ -94,7 +94,7 @@ export default function PopUpSwiper() {
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
-                ></iframe>
+                ></iframe> */}
               </div>
             </SwiperSlide>
           </Swiper>
