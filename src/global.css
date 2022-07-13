@@ -641,7 +641,7 @@ input[type='range']::-webkit-slider-runnable-track {
     bottom: -190px;
   }
   to {
-    bottom: 0;
+    bottom: 20px;
   }
 }
 @keyframes showfrombottomMobile {
