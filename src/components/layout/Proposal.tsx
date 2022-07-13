@@ -4843,7 +4843,7 @@ export const FarmProposal = ({
             />
           )}
 
-          <div className="flex items-center">
+          <div className="flex items-center lg:hidden">
             <span className="mr-2">
               <DownArrowLightMobile color="#7E8A93" />
             </span>
