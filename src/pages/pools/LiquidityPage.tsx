@@ -187,13 +187,12 @@ function MobilePoolRow({
 
   if (!curRowTokens) return <></>;
 
-  tokens = curRowTokens;
-
-  tokens.sort((a, b) => {
-    if (a.symbol === 'wNEAR') return 1;
-    if (b.symbol === 'wNEAR') return -1;
+  tokens = curRowTokens.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
+
   const showSortedValue = ({
     sortBy,
     value,
@@ -647,11 +646,9 @@ function PoolRow({
 
   if (!curRowTokens) return <></>;
 
-  tokens = curRowTokens;
-
-  tokens.sort((a, b) => {
-    if (a.symbol === 'wNEAR') return 1;
-    if (b.symbol === 'wNEAR') return -1;
+  tokens = curRowTokens.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
 
