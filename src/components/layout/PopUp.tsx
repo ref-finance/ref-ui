@@ -45,7 +45,7 @@ export default function PopUpSwiper() {
     <>
       {closeStatus ? null : (
         <div
-          className={`fixed xs:left-1/2 xs:transform xs:-translate-x-1/2 md:left-1/2 md:transform md:-translate-x-1/2 z-50 lg:right-8  ${
+          className={`fixed xs:left-1/2 xs:transform xs:-translate-x-1/2 md:left-1/2 md:transform md:-translate-x-1/2 z-50 lg:right-8 ${
             mobile ? 'farmPopupBoxMobile' : 'farmPopupBox'
           }`}
         >
@@ -60,7 +60,7 @@ export default function PopUpSwiper() {
           >
             <SwiperSlide>
               <div className="relative pt-9">
-                <div
+                {/* <div
                   onClick={closePop}
                   className="flex justify-end items-center absolute top-0 right-0 cursor-pointer w-8 h-8"
                 >
@@ -71,7 +71,21 @@ export default function PopUpSwiper() {
                   onClick={() => {
                     window.open('/farmsBoost');
                   }}
-                ></FarmsMigrateBg>
+                ></FarmsMigrateBg> */}
+                <div
+                  onClick={closePop}
+                  className="flex justify-end items-center absolute top-0 right-0 cursor-pointer w-8 h-8"
+                >
+                  <CircleCloseBtn></CircleCloseBtn>
+                </div>
+                <video
+                  controlsList="nodownload"
+                  src={
+                    '//video-qn.51miz.com/preview/video/00/00/15/34/V-153443-511735E3.mp4'
+                  }
+                  preload="metadata"
+                  controls
+                ></video>
               </div>
             </SwiperSlide>
           </Swiper>

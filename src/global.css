@@ -453,8 +453,8 @@ input[type='range']::-webkit-slider-runnable-track {
   z-index: 1;
 }
 .swiper-container {
-  width: 289px;
-  height: 182px;
+  width: 350px;
+  /* height: 182px; */
 }
 .swiper-wrapper {
   width: 100%;
