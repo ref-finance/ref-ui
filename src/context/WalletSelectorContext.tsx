@@ -92,17 +92,16 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
             icon: 'https://near.org/wp-content/uploads/2020/09/cropped-favicon-192x192.png',
           },
         }),
-        // setupWalletConnect({
-        //   projectId: 'c4f79cc...',
-        //   relayUrl: 'wss://relay.walletconnect.com',
-
-        //   metadata: {
-        //     name: 'NEAR Wallet Selector',
-        //     description: 'Example dApp used by NEAR Wallet Selector',
-        //     url: 'https://github.com/near/wallet-selector',
-        //     icons: ['https://avatars.githubusercontent.com/u/37784886'],
-        //   },
-        // }),
+        setupWalletConnect({
+          projectId: 'c4f79cc...',
+          relayUrl: 'wss://relay.walletconnect.com',
+          metadata: {
+            name: 'NEAR Wallet Selector',
+            description: 'Example dApp used by NEAR Wallet Selector',
+            url: 'https://github.com/near/wallet-selector',
+            icons: ['https://avatars.githubusercontent.com/u/37784886'],
+          },
+        }),
       ],
     });
     const _modal = setupModal(_selector, { contractId: CONTRACT_ID });
@@ -117,11 +116,22 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    init().catch((err) => {
-      console.error(err);
-      console.log(err);
-      alert('Failed to initialise wallet selector');
-    });
+    init()
+      .catch((err) => {
+        console.error(err);
+        console.log(err);
+        alert('Failed to initialise wallet selector');
+      })
+      .then(() => {
+        const subscription = selector.store.observable
+          .pipe(
+            map((state) => state.accounts),
+            distinctUntilChanged()
+          )
+          .subscribe((nextAccounts) => {
+            syncAccountState(accountId, nextAccounts);
+          });
+      });
   }, [init]);
 
   useEffect(() => {
@@ -135,6 +145,8 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         distinctUntilChanged()
       )
       .subscribe((nextAccounts) => {
+        console.log('acconts update ', nextAccounts);
+
         syncAccountState(accountId, nextAccounts);
       });
 

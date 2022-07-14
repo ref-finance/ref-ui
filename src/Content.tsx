@@ -166,6 +166,22 @@ export function Content() {
     });
   }, [accountId, getAccount]);
 
+  // useEffect(() => {
+  //   if (!window.near) return;
+
+  //   setTimeout(async () => {
+  //     window.near.on('accountChanged', async () => {
+  //       // (await selector.wallet()).signOut();
+
+  //       console.log('account changed');
+
+  //       window.near.requestSignedIn({
+  //         contractId: REF_FARM_CONTRACT_ID,
+  //       });
+  //     });
+  //   }, 300);
+  // }, [window, window.near]);
+
   useGlobalPopUp(globalState);
 
   return (

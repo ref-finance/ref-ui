@@ -52,7 +52,10 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import { WalletSelectorModal } from './WalletSelector';
-import { WalletContext } from '../../utils/wallets-integration';
+import {
+  WalletContext,
+  getSenderWallet,
+} from '../../utils/wallets-integration';
 import { getAccountName } from '../../utils/wallets-integration';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import { useTokenBalances } from '../../state/token';
@@ -87,6 +90,7 @@ import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
+import { REF_FARM_CONTRACT_ID } from '../../services/near';
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
@@ -226,11 +230,7 @@ function AccountEntry({
       click: async () => {
         const curWallet = await wallet.wallet();
 
-        if (curWallet.id === 'sender') {
-          await senderWallet.signOut();
-        } else {
-          await curWallet.signOut();
-        }
+        await curWallet.signOut();
 
         localStorage.removeItem(ACCOUNT_ID_KEY);
 

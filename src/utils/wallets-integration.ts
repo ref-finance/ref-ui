@@ -218,7 +218,7 @@ function senderWalletFunc(window: Window) {
 
 senderWalletFunc.prototype = window.near;
 
-export const senderWallet = new (senderWalletFunc as any)(window);
+export const senderWallet = new (senderWalletFunc as any)();
 
 export const getSenderWallet = (window: Window) => {
   senderWalletFunc.prototype = window.near;
