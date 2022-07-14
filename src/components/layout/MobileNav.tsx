@@ -849,7 +849,7 @@ function MobileUSNButton({
         <USNBuyComponent></USNBuyComponent>
 
         <div className="ml-3 w-full flex items-center">
-          {/* <button className="pr-2.5 border-r-2 border-white border-opacity-10">
+          <button className="pr-2.5 border-r-2 border-white border-opacity-10">
             <div
               className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-3 py-1 ${
                 btnTouched === 'buy'
@@ -870,7 +870,7 @@ function MobileUSNButton({
             >
               <FormattedMessage id="buy" defaultMessage="Buy" />
             </div>
-          </button> */}
+          </button>
 
           <button className="pl-2.5">
             <div

@@ -804,15 +804,10 @@ function USNButton() {
         className="relative lg:py-5 z-50"
       >
         <div className="mr-3">
-          <USNBuyComponent
-            hover={USNButtonHover}
-            onClick={() => {
-              setShowBorrowCard(true);
-            }}
-          />
+          <USNBuyComponent hover={USNButtonHover} />
         </div>
 
-        {false ? (
+        {USNButtonHover ? (
           <div className=" absolute pt-2 right-0 lg:top-14 xs:top-8 md:top-8 ">
             <div
               style={{
@@ -866,12 +861,10 @@ function USNButton() {
           content: {
             outline: 'none',
             position: 'fixed',
-            width: isMobile() ? '98%' : 550,
             bottom: '50%',
           },
         }}
       ></USNPage>
-
       <BorrowLinkCard
         isOpen={showeBorrowCard}
         onRequestClose={(e) => {
