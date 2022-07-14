@@ -722,7 +722,7 @@ const zh_CN = {
   Available_to_stake: '可供质押',
   you_staked: '你已质押',
   has_rewards_tip_in_v2:
-    '从<a href="/farms" class="text-sm text-greenColor cursor-pointer underline hover:text-senderHot mr-1"> V1 农场</a>中提取遗产奖励。',
+    '从<a href="/farms" class="text-sm text-greenColor cursor-pointer underline hover:text-senderHot mr-1"> V1 农场</a>中提取遗留奖励。',
   how_to_get: '如何获取?',
   get_booster: '获得加速器',
   ended_farms: '已结束农场',
