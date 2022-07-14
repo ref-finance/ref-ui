@@ -41,7 +41,7 @@ interface LocationTypes {
 function PoolRow({
   pool,
   index,
-  tokens,
+  tokens: curTokens,
   watched,
   morePoolIds,
   farmCount,
@@ -55,9 +55,9 @@ function PoolRow({
 }) {
   const supportFarm = !!farmCount;
 
-  tokens.sort((a, b) => {
-    if (a.symbol === 'wNEAR') return 1;
-    if (b.symbol === 'wNEAR') return -1;
+  const tokens = curTokens.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
 
@@ -129,7 +129,7 @@ function PoolRow({
 }
 const MobileRow = ({
   pool,
-  tokens,
+  tokens: curTokens,
   watched,
   morePoolIds,
   farmCount,
@@ -141,6 +141,12 @@ const MobileRow = ({
   farmCount: number;
 }) => {
   const supportFarm = !!farmCount;
+
+  const tokens = curTokens.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return a.symbol > b.symbol ? 1 : -1;
+  });
 
   return (
     <Card
