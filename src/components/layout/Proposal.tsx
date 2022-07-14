@@ -2741,9 +2741,9 @@ const GovItemDetail = ({
                           }}
                         ></div>
                         <span
-                          className="mx-2"
+                          className="mx-2 max-w-max"
                           style={{
-                            maxWidth: isClientMobie ? '180px' : '60%',
+                            maxWidth: isClientMobie ? '' : '60%',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                           }}
@@ -2753,7 +2753,7 @@ const GovItemDetail = ({
                         </span>
                         {i === 0 && !ONLY_ZEROS.test(totalVE) ? (
                           <span
-                            className=""
+                            className="flex-shrink-0"
                             style={{
                               color:
                                 OPTIONS_COLORS[options.indexOf(d.option)] ||
@@ -2765,7 +2765,7 @@ const GovItemDetail = ({
                         ) : null}
                         {!votedThisOption ? null : (
                           <NewGradientButton
-                            className="ml-2 text-xs h-4 flex items-center py-3 cursor-default opacity-100"
+                            className="ml-2 xsm:mr-1 flex-shrink-0 whitespace-nowrap text-xs h-4 flex items-center py-3 cursor-default opacity-100"
                             padding="px-2 py-2.5"
                             text={
                               <FormattedMessage
@@ -5652,9 +5652,9 @@ export const GovProposal = ({
               curvalue={state}
               list={['all', 'live', 'ended_ve', 'pending_ve']}
               onChange={setState}
-              className="ml-6"
+              className="ml-6 "
               canSelect
-              labelClassName="xsm:w-28 xsm:bg-cardBg xsm:border xsm:border-selectBorder"
+              labelClassName="xsm:w-28 lg:w-32 xsm:bg-cardBg xsm:border xsm:border-selectBorder"
               dropDownClassName="w-36 text-sm"
               brightClick
             />
