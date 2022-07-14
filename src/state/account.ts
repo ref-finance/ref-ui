@@ -3,7 +3,7 @@ import { AccountStorageView, currentStorageBalance } from '../services/account';
 import { wallet } from '../services/near';
 import { currentRefPrice } from '~services/api';
 import { useMobile } from '~utils/device';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 
 const REFRESH_TIME = 60 * 1000;
 

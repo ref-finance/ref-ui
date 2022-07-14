@@ -1,5 +1,5 @@
 import BN from 'bn.js';
-import { getCurrentWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 import {
   RefFiFunctionCallOptions,
   REF_FI_CONTRACT_ID,

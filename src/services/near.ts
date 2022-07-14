@@ -9,19 +9,17 @@ import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
 import getConfig, { getExtraStablePoolConfig } from './config';
 import SpecialWallet from './SpecialWallet';
-import {
-  getCurrentWallet,
-  senderWallet,
-  transactionCallback,
-} from '../utils/sender-wallet';
+import { getCurrentWallet, senderWallet } from '../utils/wallets-integration';
 
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
 import {
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
   WALLET_TYPE,
-} from '../utils/sender-wallet';
+} from '../utils/wallets-integration';
 import { AccountView } from 'near-api-js/lib/providers/provider';
+import { addQueryParams } from '../utils/wallets-integration';
+import { TRANSACTION_WALLET_TYPE } from '../components/layout/transactionTipPopUp';
 
 const config = getConfig();
 
@@ -252,9 +250,19 @@ export const executeMultipleTransactions = async (
       transactions: wstransactions,
     })
     .then((res) => {
-      console.log(res);
-    })
-    .finally(transactionCallback);
+      if (!res) return;
+
+      const transactionHashes = res?.map((r) => r.transaction.hash);
+      const parsedTransactionHashes = transactionHashes?.join(',');
+      const newHref = addQueryParams(
+        window.location.origin + window.location.pathname,
+        {
+          [TRANSACTION_WALLET_TYPE.WalletSelector]: parsedTransactionHashes,
+        }
+      );
+
+      window.location.href = newHref;
+    });
 };
 
 export const refFarmFunctionCall = async ({
@@ -265,23 +273,21 @@ export const refFarmFunctionCall = async ({
 }: RefFiFunctionCallOptions) => {
   const { wallet } = getCurrentWallet();
 
-  return (await wallet.wallet())
-    .signAndSendTransaction({
-      signerId: wallet.getAccountId()!,
-      receiverId: REF_FARM_CONTRACT_ID,
-      actions: [
-        {
-          type: 'FunctionCall',
-          params: {
-            methodName,
-            args,
-            gas: getGas(gas).toNumber().toFixed(),
-            deposit: utils.format.parseNearAmount(amount),
-          },
+  return (await wallet.wallet()).signAndSendTransaction({
+    signerId: wallet.getAccountId()!,
+    receiverId: REF_FARM_CONTRACT_ID,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName,
+          args,
+          gas: getGas(gas).toNumber().toFixed(),
+          deposit: utils.format.parseNearAmount(amount),
         },
-      ],
-    })
-    .finally(transactionCallback);
+      },
+    ],
+  });
 };
 
 export const refFarmViewFunction = ({

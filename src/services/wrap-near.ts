@@ -13,7 +13,7 @@ import {
 import { checkTokenNeedsStorageDeposit } from './token';
 import { storageDepositAction } from '../services/creators/storage';
 import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 
 export const { WRAP_NEAR_CONTRACT_ID } = getConfig();
 export const NEW_ACCOUNT_STORAGE_COST = '0.00125';

@@ -13,8 +13,8 @@ import Modal from 'react-modal';
 import { isMobile } from '~utils/device';
 const config = getConfig();
 import { useHistory } from 'react-router';
-import { getCurrentWallet, WalletContext } from '~utils/sender-wallet';
-import { getSenderLoginRes } from '../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '~utils/wallets-integration';
+import { getSenderLoginRes } from '../utils/wallets-integration';
 
 function useLastActions() {
   const [actions, setActions] = useState<ActionData[]>(null);

@@ -5,11 +5,12 @@ import { FormattedMessage } from 'react-intl';
 import { CloseIcon } from '../icon/Actions';
 import { isMobile } from '../../utils/device';
 import { checkTransaction } from '../../services/swap';
-import { getCurrentWallet } from '~utils/sender-wallet';
+import { getCurrentWallet } from '~utils/wallets-integration';
 
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',
   SENDER_WALLET = 'transactionHashesSender',
+  WalletSelector = 'transactionHashesWallets',
 }
 
 export enum TRANSACTION_ERROR_TYPE {
@@ -42,7 +43,8 @@ export const getURLInfo = () => {
 
   const txHashes = (
     new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.NEAR_WALLET) ||
-    new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.SENDER_WALLET)
+    new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.SENDER_WALLET) ||
+    new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.WalletSelector)
   )?.split(',');
 
   return {

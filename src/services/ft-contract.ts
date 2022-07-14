@@ -8,7 +8,7 @@ import {
 import metadataDefaults from '../utils/metadata';
 import { storageDepositForFTAction } from './creators/storage';
 import db from '../store/RefDatabase';
-import { getCurrentWallet, WALLET_TYPE } from '../utils/sender-wallet';
+import { getCurrentWallet, WALLET_TYPE } from '../utils/wallets-integration';
 import { WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 
 export const NEAR_ICON =

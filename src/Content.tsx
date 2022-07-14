@@ -62,7 +62,7 @@ import {
   getSenderWallet,
   WALLET_TYPE,
   getCurrentWallet,
-} from './utils/sender-wallet';
+} from './utils/wallets-integration';
 import {
   getURLInfo,
   failToast,
@@ -76,17 +76,17 @@ import {
   getSenderLoginRes,
   LOCK_INTERVAL,
   saveSenderLoginRes,
-} from './utils/sender-wallet';
+} from './utils/wallets-integration';
 import {
   senderWallet,
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
-} from './utils/sender-wallet';
+} from './utils/wallets-integration';
 
 import {
   WalletContext,
   globalStateReducer,
   removeSenderLoginRes,
-} from './utils/sender-wallet';
+} from './utils/wallets-integration';
 
 import { StableSwapRouter } from './pages/stable/StableSwapRouter';
 
@@ -162,7 +162,6 @@ export function Content() {
     }
 
     getAccount().then((res) => {
-      console.log(res);
       globalStatedispatch({ type: 'signIn' });
     });
   }, [accountId, getAccount]);

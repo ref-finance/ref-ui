@@ -48,11 +48,14 @@ import {
   SignoutIcon,
 } from '~components/icon/Common';
 
-import { WalletContext } from '~utils/sender-wallet';
+import { WalletContext } from '~utils/wallets-integration';
 
 const config = getConfig();
 import { isMobile } from '~utils/device';
-import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  getAccountName,
+} from '../../utils/wallets-integration';
 import { FarmDot } from '../icon/FarmStamp';
 import {
   AccountTipDownByAccountID,

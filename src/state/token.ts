@@ -44,7 +44,7 @@ import {
   WalletContext,
   getCurrentWallet,
   WALLET_TYPE,
-} from '../utils/sender-wallet';
+} from '../utils/wallets-integration';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();

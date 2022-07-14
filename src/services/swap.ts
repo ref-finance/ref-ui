@@ -77,7 +77,7 @@ import {
   getExpectedOutputFromActions,
   //@ts-ignore
 } from './smartRouteLogic';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 import { multiply, separateRoutes } from '../utils/numbers';
 import { auroraSwapTransactions } from './aurora/aurora';
 import { PoolSlippageSelector } from '../components/forms/SlippageSelector';

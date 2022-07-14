@@ -38,7 +38,10 @@ import { ConnectToNearBtn, SolidButton } from '../../components/button/Button';
 import { OutlineButton } from '../../components/button/Button';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { FarmMiningIcon } from '../../components/icon';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import { useStabelPoolData } from '../../state/sauce';
 import {
   STABLE_POOL_TYPE,

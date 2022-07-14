@@ -61,7 +61,10 @@ import {
   LP_TOKEN_DECIMALS,
 } from '../../services/m-token';
 import { QuestionTip } from '../../components/layout/TipWrapper';
-import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { percentOfBigNumber } from '../../utils/numbers';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';

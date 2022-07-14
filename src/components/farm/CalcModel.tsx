@@ -18,7 +18,10 @@ import {
 import { isMobile } from '~utils/device';
 import { useTokens } from '~state/token';
 import getConfig from '~services/config';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;

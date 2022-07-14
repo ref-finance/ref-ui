@@ -31,7 +31,7 @@ import {
   getCurrentWallet,
   WALLET_TYPE,
   senderWallet,
-} from '../utils/sender-wallet';
+} from '../utils/wallets-integration';
 
 const specialToken = 'pixeltoken.near';
 

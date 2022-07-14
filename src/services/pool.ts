@@ -27,7 +27,7 @@ import {
 } from '../services/token';
 import getConfig from '../services/config';
 import { registerTokensAction } from '../services/creators/token';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
 import { withdrawAction } from './creators/token';
 import { getExplorer, ExplorerType } from '../utils/device';

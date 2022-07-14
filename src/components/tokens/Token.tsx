@@ -7,7 +7,7 @@ import { SingleToken } from '../forms/SelectToken';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { RefIcon } from '../../components/icon/DexIcon';
 import { TriIcon } from '../icon/DexIcon';
-import { getCurrentWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 
 interface TokenProps {
   token: TokenMetadata;

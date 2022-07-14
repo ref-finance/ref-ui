@@ -17,7 +17,10 @@ import { toRealSymbol } from '~utils/token';
 import BigNumber from 'bignumber.js';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { checkTransactionStatus } from '../../services/swap';
 import { decodeBase64 } from 'lzutf8';

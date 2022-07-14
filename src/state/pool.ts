@@ -56,7 +56,7 @@ import {
   STABLE_POOL_ID,
   ALL_STABLE_POOL_IDS,
 } from '../services/near';
-import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import getConfig from '../services/config';
 import { ONLY_ZEROS } from '../utils/numbers';
 import {

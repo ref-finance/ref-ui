@@ -39,9 +39,9 @@ import { IoCloseOutline } from 'react-icons/io5';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory, useLocation, useParams } from 'react-router';
-import { WalletContext, getCurrentWallet } from '../utils/sender-wallet';
+import { WalletContext, getCurrentWallet } from '../utils/wallets-integration';
 
-import { getSenderLoginRes } from '../utils/sender-wallet';
+import { getSenderLoginRes } from '../utils/wallets-integration';
 import { Checkbox, CheckboxSelected, Near } from '../components/icon';
 import { GradientButton, ButtonTextWrapper } from '../components/button/Button';
 import { CloseIcon } from '../components/icon/Actions';

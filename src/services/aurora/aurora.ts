@@ -12,7 +12,10 @@ import { toBufferBE } from 'bigint-buffer';
 
 import { Erc20Abi } from './abi/erc20';
 
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 
 import { UniswapRouterAbi } from './abi/IUniswapV2Router02';
 

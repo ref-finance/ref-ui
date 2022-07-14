@@ -10,32 +10,18 @@ import {
   failToast,
 } from '../components/layout/transactionTipPopUp';
 import { senderSignedInToast } from '../components/layout/senderSignInPopUp';
-import { removeSenderLoginRes } from '../utils/sender-wallet';
+import { removeSenderLoginRes } from '../utils/wallets-integration';
 
 export const useGlobalPopUp = (globalState: any) => {
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
 
   useEffect(() => {
-    if (errorType) {
-      checkTransaction(txHash).then((res) => {
-        let displayErrorMessage = errorType;
-        const errorMessasge = getErrorMessage(res);
-
-        if (errorMessasge) displayErrorMessage = errorMessasge;
-
-        failToast(txHash, displayErrorMessage);
-
-        window.history.replaceState({}, '', window.location.origin + pathname);
-      });
-
-      // failing toast only once
-    }
     if (signInErrorType) {
       senderSignedInToast(signInErrorType);
       removeSenderLoginRes();
       window.history.replaceState({}, '', window.location.origin + pathname);
     }
-  }, [errorType, signInErrorType]);
+  }, [signInErrorType]);
   // for usn start
   const isSignedIn = globalState.isSignedIn;
   useEffect(() => {

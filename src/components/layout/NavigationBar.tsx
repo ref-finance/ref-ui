@@ -47,10 +47,13 @@ import WrapNear from '~components/forms/WrapNear';
 import { WrapNearIcon } from './WrapNear';
 import { XrefIcon } from '~components/icon/Xref';
 import { getAccount } from '../../services/airdrop';
-import { senderWallet, getCurrentWallet } from '../../utils/sender-wallet';
+import {
+  senderWallet,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { WalletSelectorModal } from './WalletSelector';
-import { WalletContext } from '../../utils/sender-wallet';
-import { getAccountName } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/wallets-integration';
+import { getAccountName } from '../../utils/wallets-integration';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import { useTokenBalances } from '../../state/token';
 import { toReadableNumber } from '../../utils/numbers';
@@ -84,7 +87,10 @@ import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
-import { useWalletSelector } from '../../context/WalletSelectorContext';
+import {
+  useWalletSelector,
+  ACCOUNT_ID_KEY,
+} from '../../context/WalletSelectorContext';
 
 const config = getConfig();
 
@@ -220,7 +226,13 @@ function AccountEntry({
       click: async () => {
         const curWallet = await wallet.wallet();
 
-        await curWallet.signOut();
+        if (curWallet.id === 'sender') {
+          await senderWallet.signOut();
+        } else {
+          await curWallet.signOut();
+        }
+
+        localStorage.removeItem(ACCOUNT_ID_KEY);
 
         window.location.assign('/');
       },

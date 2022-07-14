@@ -75,8 +75,6 @@ export const setCallbackUrl = (res: any) => {
     ? TRANSACTION_STATE.SUCCESS
     : TRANSACTION_STATE.FAIL;
 
-  const errorType =
-    state === TRANSACTION_STATE.FAIL ? res?.response?.error?.type : '';
   const transactionHashes = getTransactionHashes(res, state);
 
   const parsedTransactionHashes = transactionHashes?.join(',');
@@ -86,7 +84,6 @@ export const setCallbackUrl = (res: any) => {
     {
       [TRANSACTION_WALLET_TYPE.SENDER_WALLET]: parsedTransactionHashes,
       state: parsedTransactionHashes ? state : '',
-      errorType,
     }
   );
 
@@ -221,7 +218,7 @@ function senderWalletFunc(window: Window) {
 
 senderWalletFunc.prototype = window.near;
 
-export const senderWallet = new (senderWalletFunc as any)();
+export const senderWallet = new (senderWalletFunc as any)(window);
 
 export const getSenderWallet = (window: Window) => {
   senderWalletFunc.prototype = window.near;
@@ -271,10 +268,22 @@ export const globalStateReducer = (
   }
 };
 
-export const transactionCallback = async () => {
-  const { wallet } = getCurrentWallet();
+// export const setCallbackUrl = (res: any) => {
+//   const state = !res?.response?.error
+//     ? TRANSACTION_STATE.SUCCESS
+//     : TRANSACTION_STATE.FAIL;
 
-  if (!((await wallet.wallet()).type === 'browser')) {
-    window.location.reload();
-  }
-};
+//   const transactionHashes = getTransactionHashes(res, state);
+
+//   const parsedTransactionHashes = transactionHashes?.join(',');
+
+// const newHref = addQueryParams(
+//   window.location.origin + window.location.pathname,
+//   {
+//     [TRANSACTION_WALLET_TYPE.SENDER_WALLET]: parsedTransactionHashes,
+//     state: parsedTransactionHashes ? state : '',
+//   }
+// );
+
+//   window.location.href = newHref;
+// };

@@ -1,5 +1,5 @@
 import { ONE_YOCTO_NEAR } from '../near';
-import { getCurrentWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 import { STORAGE_TO_REGISTER_WITH_MFT } from './storage';
 
 interface WithdrawActionOptions {

@@ -11,6 +11,7 @@ import { setupMathWallet } from '@near-wallet-selector/math-wallet';
 import { setupNightly } from '@near-wallet-selector/nightly';
 import { setupLedger } from '@near-wallet-selector/ledger';
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
+import { setupNightlyConnect } from '@near-wallet-selector/nightly-connect';
 
 import getConfig from '../services/config';
 
@@ -82,8 +83,19 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         setupMathWallet(),
         setupNightly(),
         setupLedger(),
+        setupNightlyConnect({
+          url: 'wss://ncproxy.nightly.app/app',
+          appMetadata: {
+            additionalInfo: '',
+            application: 'ref fiannce',
+            description: 'Example dApp used by NEAR Wallet Selector',
+            icon: 'https://near.org/wp-content/uploads/2020/09/cropped-favicon-192x192.png',
+          },
+        }),
         // setupWalletConnect({
         //   projectId: 'c4f79cc...',
+        //   relayUrl: 'wss://relay.walletconnect.com',
+
         //   metadata: {
         //     name: 'NEAR Wallet Selector',
         //     description: 'Example dApp used by NEAR Wallet Selector',

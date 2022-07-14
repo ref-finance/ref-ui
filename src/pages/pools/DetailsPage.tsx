@@ -101,7 +101,10 @@ import moment from 'moment';
 import { ChartNoData } from '~components/icon/ChartNoData';
 import { WarnTriangle } from '~components/icon/SwapRefresh';
 import { RefIcon } from '~components/icon/Common';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 
 import { useWalletTokenBalances } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
@@ -119,6 +122,7 @@ export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 import { TokenLinks } from '~components/tokens/Token';
 import { OutLinkIcon } from '~components/icon/Common';
 import ReactTooltip from 'react-tooltip';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 interface ParamTypes {
   id: string;
 }
@@ -1310,9 +1314,12 @@ export function PoolDetailsPage() {
   const { wallet } = getCurrentWallet();
   const intl = useIntl();
 
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
   const handleSaveWatchList = () => {
     if (!isSignedIn) {
-      wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+      modal.show();
     } else {
       addPoolToWatchList({ pool_id: id }).then(() => {
         setShowFullStar(true);

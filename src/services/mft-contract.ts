@@ -1,5 +1,5 @@
 import { wallet, refFiViewFunction } from './near';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 
 export const mftGetBalance = async (
   token_id: string,

@@ -24,7 +24,7 @@ import {
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { utils } from 'near-api-js';
 import getConfig from '../services/config';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;

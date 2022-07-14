@@ -4,7 +4,7 @@ import CrossSwapCard from '../components/swap/CrossSwapCard';
 
 import Loading from '../components/layout/Loading';
 import { useTriTokens, useWhitelistTokens } from '../state/token';
-import { WalletContext } from '../utils/sender-wallet';
+import { WalletContext } from '../utils/wallets-integration';
 import { FormattedMessage } from 'react-intl';
 import { SwapCross } from '../components/icon/CrossSwapIcons';
 import { useTriTokenIdsOnRef } from '../services/aurora/aurora';

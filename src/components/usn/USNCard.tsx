@@ -16,7 +16,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import USNFormWrap from '../forms/USNFormWrap';
 import BigNumber from 'bignumber.js';
-import { senderWallet, WalletContext } from '../../utils/sender-wallet';
+import { senderWallet, WalletContext } from '../../utils/wallets-integration';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
 import { getTokenPriceList } from '../../services/indexer';
 import { fetchMultiplier, buyUSN, sellUSN } from '../../services/buy-sell-usn';
@@ -27,7 +27,7 @@ import {
   getURLInfo,
   usnBuyAndSellToast,
 } from '../../components/layout/transactionTipPopUp';
-import { getCurrentWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 import { checkTransaction } from '../../services/swap';
 
 const USN_SLIPPAGE_KEY = 'USN_FI_SLIPPAGE_VALUE';

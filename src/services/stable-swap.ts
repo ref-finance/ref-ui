@@ -39,7 +39,7 @@ import moment from 'moment';
 import BigNumber from 'bignumber.js';
 import _, { rearg } from 'lodash';
 import { PoolMode } from './swap';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 import { getStableTokenIndex } from './near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 const FEE_DIVISOR = 10000;

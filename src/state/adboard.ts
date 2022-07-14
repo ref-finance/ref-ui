@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import metadata from '~utils/metadata';
 import { AdboardState, getAdboardState } from '../services/adboard';
 import { wallet } from '../services/near';
-import { getCurrentWallet } from '~utils/sender-wallet';
+import { getCurrentWallet } from '~utils/wallets-integration';
 
 export const useAdboardState = () => {
   const [loading, setLoading] = useState<boolean>(true);

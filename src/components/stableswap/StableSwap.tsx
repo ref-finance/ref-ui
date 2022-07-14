@@ -35,7 +35,10 @@ import {
 import { CountdownTimer } from '~components/icon';
 import { StablePool } from '~services/pool';
 import { BeatLoading } from '~components/layout/Loading';
-import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { getAccount } from '../../services/airdrop';
 import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
 import BigNumber from 'bignumber.js';

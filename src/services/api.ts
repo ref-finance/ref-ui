@@ -3,7 +3,7 @@ import { wallet, refFiViewFunction } from './near';
 import { toPrecision } from '../utils/numbers';
 import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 
 const config = getConfig();
 

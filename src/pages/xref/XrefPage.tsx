@@ -35,7 +35,7 @@ import {
   senderWallet,
   WalletContext,
   getCurrentWallet,
-} from '../../utils/sender-wallet';
+} from '../../utils/wallets-integration';
 const {
   XREF_TOKEN_ID,
   REF_TOKEN_ID,

@@ -44,7 +44,10 @@ import { multiply, divide } from '../../utils/numbers';
 import { STABLE_POOL_USN_ID, isStablePool } from '../../services/near';
 import { STABLE_POOL_ID } from '../../services/near';
 import { isNotStablePool } from '../../services/pool';
-import { WalletContext, getSenderLoginRes } from '../../utils/sender-wallet';
+import {
+  WalletContext,
+  getSenderLoginRes,
+} from '../../utils/wallets-integration';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
 import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';

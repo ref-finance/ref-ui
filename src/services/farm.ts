@@ -28,7 +28,7 @@ import getConfig from './config';
 import {
   getCurrentWallet,
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
-} from '../utils/sender-wallet';
+} from '../utils/wallets-integration';
 const config = getConfig();
 export const DEFAULT_PAGE_LIMIT = 300;
 const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;

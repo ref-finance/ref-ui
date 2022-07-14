@@ -57,7 +57,7 @@ import {
   STABLE_POOL_USN_ID,
   BTC_POOL_ID,
 } from './services/near';
-import { getSenderWallet, getCurrentWallet } from './utils/sender-wallet';
+import { getSenderWallet, getCurrentWallet } from './utils/wallets-integration';
 import {
   getURLInfo,
   failToast,
@@ -71,17 +71,17 @@ import {
   getSenderLoginRes,
   LOCK_INTERVAL,
   saveSenderLoginRes,
-} from './utils/sender-wallet';
+} from './utils/wallets-integration';
 import {
   senderWallet,
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
-} from './utils/sender-wallet';
+} from './utils/wallets-integration';
 
 import {
   WalletContext,
   globalStateReducer,
   removeSenderLoginRes,
-} from './utils/sender-wallet';
+} from './utils/wallets-integration';
 import StableSwapPageUSN from '~pages/stable/StableSwapPageUSN';
 import { checkTransaction } from './services/swap';
 import {

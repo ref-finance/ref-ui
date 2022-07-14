@@ -13,7 +13,7 @@ import getConfig from '../services/config';
 import { checkTokenNeedsStorageDeposit } from './token';
 import { ftGetStorageBalance } from '../services/ft-contract';
 import { NEW_ACCOUNT_STORAGE_COST } from '../services/wrap-near';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 
 const XREF_TOKEN_ID = getConfig().XREF_TOKEN_ID;
 export const XREF_TOKEN_DECIMALS = 18;
