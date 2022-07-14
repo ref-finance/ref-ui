@@ -515,7 +515,7 @@ const zh_CN = {
   buy_nsn: '买 USN',
   buy_nsn_tip: 'USN是NEAR经济支持的原生稳定币',
   usn_tip_one: 'USN 允许你在REF上交易，',
-  vote_capital: 'VOTE!',
+  vote_capital: '公投',
   rate: '汇率',
   trading_fee: '交易费',
   usn_successful_click_to_view: '交易成功，点击查看详情',
@@ -757,7 +757,7 @@ const zh_CN = {
   starting_time: '开始时间',
   ending_time: '结束时间',
   please_choose_voting_duration: '请选择投票持续时间',
-  vote_mobile_capital: '投票',
+  vote_mobile_capital: '公投',
   days_ve: '天',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

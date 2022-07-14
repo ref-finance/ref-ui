@@ -714,7 +714,7 @@ const ko = {
   ended_ve: 'Ended',
   proposal_details: 'Proposal Details',
   back: 'Back',
-  pending_ve: 'Warming Up',
+  pending_ve: 'Warming up',
   you_voted: 'You voted',
   add_bonus: 'Add Bonus',
   you_vote: 'You vote',
@@ -756,7 +756,7 @@ const ko = {
   required_field: 'Required field',
   yes_continue: 'Yes, continue',
   more_than_a_simple_pool: 'More than a simple pool',
-  vote_capital: 'VOTE!',
+  vote_capital: 'VOTE',
   more_lock_ve_popup2: 'more ',
   please_choose_proposal_voting_duration:
     'Please choose proposal voting duration',
