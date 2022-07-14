@@ -67,7 +67,10 @@ import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage from '~components/usn/USNPage';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
-import { useWalletSelector } from '../../context/WalletSelectorContext';
+import {
+  useWalletSelector,
+  ACCOUNT_ID_KEY,
+} from '../../context/WalletSelectorContext';
 
 export function MobileAnchor({
   to,
@@ -228,6 +231,8 @@ export function Logout() {
         }
         onClick={async () => {
           (await wallet.wallet()).signOut();
+          localStorage.removeItem(ACCOUNT_ID_KEY);
+
           window.location.assign('/');
         }}
       >
@@ -280,7 +285,12 @@ export function AccountModel(props: any) {
       icon: <SignoutIcon />,
       textId: 'sign_out',
       click: async () => {
-        (await wallet.wallet()).signOut();
+        const curWallet = await wallet.wallet();
+
+        await curWallet.signOut();
+
+        localStorage.removeItem(ACCOUNT_ID_KEY);
+
         window.location.assign('/');
       },
     },
