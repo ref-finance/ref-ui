@@ -566,7 +566,8 @@ export default function SwapCard(props: {
   const location = useLocation();
   const history = useHistory();
 
-  const balances = useTokenBalances();
+  // const balances = useTokenBalances();
+  const balances = {};
   const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
     location.hash.slice(1)
   ).split(TOKEN_URL_SEPARATOR);

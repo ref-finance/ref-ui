@@ -500,9 +500,7 @@ export default function SelectToken({
         Overlay: {
           style: {
             zIndex: 110,
-            backgroundColor: 'rgba(0, 19, 32, 0.65)',
-            // backdropFilter: 'blur(20px)',
-            // WebkitBackdropFilter: 'blur(20px)',
+            backgroundColor: 'rgba(0, 19, 32, 0.95)',
           },
         },
         Dialog: {
