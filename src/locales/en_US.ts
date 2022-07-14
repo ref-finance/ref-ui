@@ -789,5 +789,12 @@ const en_US = {
   farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
   more_than_a_simple_pool: 'More than a simple pool',
   ended_Farms: 'Ended Farms',
+  vote_capital: 'VOTE!',
+  starting_time: 'Starting Time',
+  ending_time: 'Ending Time',
+  please_choose_voting_duration: 'Please choose voting duration',
+  please_choose_proposal_voting_duration:
+    'Please choose proposal voting duration',
+  days_ve: 'days',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

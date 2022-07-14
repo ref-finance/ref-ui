@@ -1071,7 +1071,7 @@ function NavigationBar() {
               <Anchor
                 to="/referendum"
                 pattern="/referendum"
-                name="dao_capital"
+                name="vote_capital"
               />
             </div>
           </div>

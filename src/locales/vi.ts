@@ -761,6 +761,13 @@ const vi = {
   voting_power_and_extra_earnings: 'Voting power & Extra earnings',
   yes_continue: 'Yes, continue',
   more_than_a_simple_pool: 'More than a simple pool',
+  days_ve: 'days',
+  vote_capital: 'VOTE!',
+  starting_time: 'Starting Time',
+  ending_time: 'Ending Time',
+  please_choose_voting_duration: 'Please choose voting duration',
+  please_choose_proposal_voting_duration:
+    'Please choose proposal voting duration',
   bonus_tip:
     'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
   unlocking_tip:

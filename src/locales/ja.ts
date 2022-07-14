@@ -764,9 +764,15 @@ const ja = {
   proposal_title: 'Proposal Title',
   share_forum_discussion_link_here: 'Share forum discussion link here',
   required_field: 'Required field',
+  days_ve: 'days',
   yes_continue: 'Yes, continue',
   more_than_a_simple_pool: 'More than a simple pool',
-
+  vote_capital: 'VOTE!',
+  starting_time: 'Starting Time',
+  ending_time: 'Ending Time',
+  please_choose_voting_duration: 'Please choose voting duration',
+  please_choose_proposal_voting_duration:
+    'Please choose proposal voting duration',
   unlocking_tip:
     'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
 };

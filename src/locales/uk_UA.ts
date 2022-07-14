@@ -726,6 +726,13 @@ const uk_UA = {
   yes_continue: 'Yes, continue',
   more_than_a_simple_pool: 'More than a simple pool',
   required_field: 'Required field',
+  vote_capital: 'VOTE!',
+  starting_time: 'Starting Time',
+  days_ve: 'days',
+  ending_time: 'Ending Time',
+  please_choose_voting_duration: 'Please choose voting duration',
+  please_choose_proposal_voting_duration:
+    'Please choose proposal voting duration',
   unlocking_tip:
     'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
 };

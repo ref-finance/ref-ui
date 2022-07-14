@@ -239,8 +239,8 @@ export const moreLinks: MobileMenuItem[] = [
     iconElement: <XrefIcon></XrefIcon>,
   },
   {
-    id: 'dao_capital',
-    label: 'DAO',
+    id: 'vote_capital',
+    label: 'VOTE!',
     pattern: '/referendum',
     url: '/referendum',
     isExternal: false,

@@ -110,6 +110,7 @@ module.exports = {
         xrefTab: '#293741',
         borderColor: '#7e8a93',
         warnColor: '#DE9450',
+        durationBg: '#445867',
         BTCColor: '#F38632',
         NEARBlue: '#418DFF',
         acccountTab: '#0F1D27',

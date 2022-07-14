@@ -1,6 +1,6 @@
 import Big from 'big.js';
 import BigNumber from 'bignumber.js';
-import moment from 'moment';
+import moment, { duration } from 'moment';
 import React, {
   forwardRef,
   useContext,
@@ -730,18 +730,12 @@ export const addHours = (date: Date, hours?: number) => {
 export const CustomDatePicker = ({
   startTime,
   setStartTime,
-  endTime,
-  setEndTime,
-  forEnd,
   setOpenPicker,
   openPicker,
   veconfig,
 }: {
   startTime: Date;
   setStartTime: (d: Date) => void;
-  endTime?: Date;
-  setEndTime?: (d: Date) => void;
-  forEnd?: boolean;
   openPicker?: boolean;
   setOpenPicker: (o: boolean) => void;
   veconfig: VEConfig;
@@ -751,11 +745,7 @@ export const CustomDatePicker = ({
   );
 
   const onChange = (date: Date) => {
-    if (forEnd) {
-      setEndTime(date);
-    } else {
-      setStartTime(date);
-    }
+    setStartTime(date);
   };
 
   const isSameDay = (d1: Date, d2: Date) => {
@@ -767,31 +757,16 @@ export const CustomDatePicker = ({
   };
 
   const getMinTime = () => {
-    if (forEnd) {
-      if (isSameDay(startTime, endTime)) {
-        const h1 = startTime.getHours();
+    if (isSameDay(startTime, minDate)) {
+      const h1 = minDate.getHours();
 
-        return new Date(getCurUTCDate().setHours(h1 + 1, 0, 0, 0));
-      } else {
-        return new Date(getCurUTCDate().setHours(0, 0, 0, 0));
-      }
+      const m1 = minDate.getMinutes();
+
+      return new Date(
+        getCurUTCDate().setHours(m1 > 30 ? h1 + 1 : h1, m1 > 30 ? 0 : 30, 0, 0)
+      );
     } else {
-      if (isSameDay(startTime, minDate)) {
-        const h1 = minDate.getHours();
-
-        const m1 = minDate.getMinutes();
-
-        return new Date(
-          getCurUTCDate().setHours(
-            m1 > 30 ? h1 + 1 : h1,
-            m1 > 30 ? 0 : 30,
-            0,
-            0
-          )
-        );
-      } else {
-        return new Date(getCurUTCDate().setHours(0, 0, 0, 0));
-      }
+      return new Date(getCurUTCDate().setHours(0, 0, 0, 0));
     }
   };
 
@@ -802,17 +777,13 @@ export const CustomDatePicker = ({
   };
 
   const getMinDate = () => {
-    if (forEnd) {
-      return startTime;
-    } else {
-      return minDate;
-    }
+    return minDate;
   };
 
   return (
     <DatePicker
       showTimeSelect
-      selected={forEnd ? endTime : startTime}
+      selected={startTime}
       onChange={onChange}
       minDate={getMinDate()}
       minTime={getMinTime()}
@@ -1500,9 +1471,9 @@ export const PreviewPopUp = (
                 id: 'voting_period',
                 defaultMessage: 'Voting Period',
               })}
-              value={`${moment(startTime).format(
-                'yyyy-MM-DD HH:mm'
-              )} - ${moment(endTime).format('yyyy-MM-DD HH:mm')} UTC`}
+              value={`${moment(startTime).format('yyyy-MM-DD HH:mm')} - ${
+                !endTime ? '/' : moment(endTime).format('yyyy-MM-DD HH:mm')
+              } UTC`}
               className="xsm:flex-col xsm:items-start"
               valueClass="xsm:ml-0 xsm:pt-2.5"
             />
@@ -1655,8 +1626,7 @@ export const PreviewPopUp = (
             <NewGradientButton
               text={<FormattedMessage id="create" defaultMessage={'Create'} />}
               disabled={
-                dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <=
-                  0 ||
+                !endTime ||
                 !link?.trim() ||
                 !contentTitle?.trim() ||
                 options.filter((_) => !!_.trim()).length < 2
@@ -1708,9 +1678,9 @@ export const PreviewPopUp = (
                 id: 'voting_period',
                 defaultMessage: 'Voting Period',
               })}
-              value={`${moment(startTime).format(
-                'yyyy-MM-DD HH:mm:ss'
-              )} - ${moment(endTime).format('yyyy-MM-DD HH:mm:ss')} UTC`}
+              value={`${moment(startTime).format('yyyy-MM-DD HH:mm:ss')} - ${
+                !endTime ? '/' : moment(endTime).format('yyyy-MM-DD HH:mm:ss')
+              } UTC`}
             />
             <InfoRow
               name={intl.formatMessage({
@@ -1805,8 +1775,7 @@ export const PreviewPopUp = (
             <NewGradientButton
               text={<FormattedMessage id="create" defaultMessage={'Create'} />}
               disabled={
-                dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <=
-                  0 ||
+                !endTime ||
                 !link?.trim() ||
                 !contentTitle?.trim() ||
                 options.filter((_) => !!_.trim()).length < 2
@@ -4970,12 +4939,20 @@ export const CreateGovProposal = ({
 
   const [startTime, setStartTime] = useState<Date>(baseStartTime);
 
-  const [endTime, setEndTime] = useState<Date>(
-    new Date(baseStartTime.getTime() + 3600 * 24 * 7 * 1000)
-  );
+  const [endTime, setEndTime] = useState<Date>();
+
+  const [duration, setDuration] = useState<number>();
+
+  useEffect(() => {
+    if (!duration) return;
+    setEndTime(new Date(startTime.getTime() + duration * 1000));
+  }, [duration, startTime]);
+
+  console.log('this is endtime', endTime);
 
   const [openPickerStart, setOpenPickerStart] = useState<boolean>(false);
-  const [openPickerEnd, setOpenPickerEnd] = useState<boolean>(false);
+
+  const durationList = [259200, 604800, 1209600, 2592000];
 
   const [require, setRequire] = useState<{
     [pos: string]: string;
@@ -5007,12 +4984,12 @@ export const CreateGovProposal = ({
   const validate = () => {
     let newRequire = { ...require };
 
-    if (dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0) {
+    if (!duration) {
       newRequire = {
         ...newRequire,
         time: intl.formatMessage({
-          defaultMessage: 'Start time must be before end time',
-          id: 'start_time_should_be_earlier_than_end_time',
+          defaultMessage: 'Please choose voting duration',
+          id: 'please_choose_voting_duration',
         }),
       };
     }
@@ -5047,7 +5024,7 @@ export const CreateGovProposal = ({
     }
 
     if (
-      dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
+      !duration ||
       !link?.trim() ||
       !title?.trim() ||
       options.filter((_) => !!_.trim()).length < 2
@@ -5061,7 +5038,7 @@ export const CreateGovProposal = ({
   };
 
   const disabled =
-    dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime) <= 0 ||
+    !duration ||
     !link?.trim() ||
     !title?.trim() ||
     options.filter((_) => !!_.trim()).length < 2;
@@ -5273,28 +5250,18 @@ export const CreateGovProposal = ({
 
         <div className="pb-4">
           <FormattedMessage
-            id="voting_period"
-            defaultMessage={'Voting Period'}
+            id="starting_time"
+            defaultMessage={'Starting Time'}
           />
           (UTC)
         </div>
 
-        <div className="flex items-center xsm:flex-col">
+        <div className="flex items-center xsm:items-start xsm:flex-col">
           <div className="flex items-center xsm:mb-5 xsm:w-full justify-between">
-            <div
-              className=" lg:hidden mr-3 text-primaryText text-sm text-left"
-              style={{
-                minWidth: '20px',
-              }}
-            >
-              <FormattedMessage id="from" defaultMessage={'From'} />
-            </div>
-            <div className="rounded-lg xsm:w-10/12  bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
+            <div className="rounded-lg xsm:w-10/12  bg-black bg-opacity-20 py-2 px-3 flex items-center justify-betwee w-64 cursor-pointer">
               <CustomDatePicker
                 startTime={startTime}
                 setStartTime={setStartTime}
-                setEndTime={setEndTime}
-                endTime={endTime}
                 openPicker={openPickerStart}
                 setOpenPicker={setOpenPickerStart}
                 veconfig={config}
@@ -5311,36 +5278,43 @@ export const CreateGovProposal = ({
             </div>
           </div>{' '}
           <span className="mx-4 xsm:hidden">-</span>
-          <div className="flex items-center xsm:w-full justify-between">
-            <div
-              className=" lg:hidden mr-3  text-primaryText text-sm text-left"
-              style={{
-                minWidth: '20px',
-              }}
-            >
-              <FormattedMessage id="to" defaultMessage={'To'} />
-            </div>
-            <div className="rounded-lg xsm:w-10/12 bg-black bg-opacity-20 py-2 px-3 flex items-center justify-between w-60 cursor-pointer">
-              <CustomDatePicker
-                startTime={startTime}
-                setStartTime={setStartTime}
-                endTime={endTime}
-                setEndTime={setEndTime}
-                forEnd
-                openPicker={openPickerEnd}
-                setOpenPicker={setOpenPickerEnd}
-                veconfig={config}
-              />
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
+          <div className="pb-4 lg:hidden">
+            <FormattedMessage id="ending_time" defaultMessage={'Ending Time'} />
+            (UTC)
+          </div>
+          <div className="flex items-center xsm:w-full justify-between xsm:text-sm xsm:ml-3 text-farmText">
+            {!duration
+              ? '/'
+              : moment(startTime)
+                  .add(duration, 'seconds')
+                  .format('yyyy-MM-DD HH:mm:ss A')}
+          </div>
+        </div>
 
-                  setOpenPickerEnd(!openPickerEnd);
-                }}
-              >
-                <CalenderIcon />
-              </div>
-            </div>
+        <div className="pb-4 mt-6 flex items-center xsm:flex-col xsm:items-start">
+          <span className="mr-3 xsm:mb-2">
+            <FormattedMessage id="duration" defaultMessage={'Duration'} />
+          </span>
+
+          <div className="bg-opacity-30 rounded-md bg-durationBg">
+            {durationList.map((d) => {
+              const days = d / 86400;
+              return (
+                <button
+                  className={`text-sm px-6 xsm:px-3 py-0.5 rounded-md ${
+                    duration === d
+                      ? 'text-poolRowHover bg-gradientFrom'
+                      : 'text-farmText'
+                  }`}
+                  onClick={() => {
+                    setDuration(d);
+                  }}
+                >
+                  {days}{' '}
+                  {<FormattedMessage id="days_ve" defaultMessage={'days'} />}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -5417,8 +5391,7 @@ export const CreateGovProposal = ({
                   },
                   kind: type === 'Poll' ? 'Poll' : 'Common',
                   options,
-                  duration_sec:
-                    dateToUnixTimeSec(endTime) - dateToUnixTimeSec(startTime),
+                  duration_sec: duration,
                   start: dateToUnixTimeSec(startTime),
                 });
               }
