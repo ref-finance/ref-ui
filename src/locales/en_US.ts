@@ -749,7 +749,7 @@ const en_US = {
   v2_new_farms: 'V2 New Farms',
   migrate_now: 'Migrate Now!',
   v2_boost_tip:
-    'V2 farms will support boosted farms. The V1 farms will run dry of rewards the <span class="font-bold">1st. August, 2022.</span>',
+    'V2 farms will support boosted farms. The V1 farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',
   no_farm_need_to_migrate: 'No Farm need to Migrate',
   v1_farms: 'V1 Farms',
   has_rewards_tip:
@@ -758,7 +758,7 @@ const en_US = {
   Available_to_stake: 'Available to stake',
   you_staked: 'You staked',
   has_rewards_tip_in_v2:
-    'Legacy rewards to be withdraw in <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Farms</a>.',
+    'Withdraw legacy rewards from <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Farms</a>.',
   how_to_get: 'How to get?',
   get_booster: 'Get Booster',
   ended_farms: 'ended farms',
