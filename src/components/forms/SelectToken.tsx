@@ -501,8 +501,8 @@ export default function SelectToken({
           style: {
             zIndex: 110,
             backgroundColor: 'rgba(0, 19, 32, 0.65)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
+            // backdropFilter: 'blur(20px)',
+            // WebkitBackdropFilter: 'blur(20px)',
           },
         },
         Dialog: {
