@@ -5655,7 +5655,7 @@ export const GovProposal = ({
               className="ml-6"
               canSelect
               labelClassName="xsm:w-28 xsm:bg-cardBg xsm:border xsm:border-selectBorder"
-              dropDownClassName="w-32 lg:w-36 text-sm"
+              dropDownClassName="w-36 text-sm"
               brightClick
             />
           </div>
