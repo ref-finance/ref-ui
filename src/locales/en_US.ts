@@ -690,7 +690,7 @@ const en_US = {
   go_to_farm: 'Go to Farm',
   in: 'in',
   more_lowercase: 'more',
-  avaliable_to_lock: 'available to lock',
+  avaliable_to_lock: 'Available to lock',
   lock_lptoken: 'Lock LP Tokens',
   lptoken_locker: 'LP Token Locker',
   filter: 'Filter',
@@ -714,7 +714,7 @@ const en_US = {
   ended_ve: 'Ended',
   proposal_details: 'Proposal Details',
   back: 'Back',
-  pending_ve: 'Warm Up',
+  pending_ve: 'Warming Up',
   you_voted: 'You voted',
   add_bonus: 'Add Bonus',
   you_vote: 'You vote',
@@ -796,5 +796,6 @@ const en_US = {
   please_choose_proposal_voting_duration:
     'Please choose proposal voting duration',
   days_ve: 'days',
+  vote_mobile_capital: 'VOTE',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

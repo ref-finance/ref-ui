@@ -1933,7 +1933,9 @@ const UserReferendumCard = ({
       </Card>
 
       <div className="lg:hidden bg-veReverseGradient  relative rounded-b-2xl text-white pb-14 mb-14 overflow-visible">
-        <div className="text-2xl font-bold mt-5 text-center">DAO</div>
+        <div className="text-2xl font-bold mt-5 text-center">
+          <FormattedMessage id="vote_mobile_capital" defaultMessage={'VOTE'} />
+        </div>
         <div className="text-sm mt-2 text-center">
           <span>
             <FormattedMessage

@@ -757,6 +757,7 @@ const zh_CN = {
   starting_time: '开始时间',
   ending_time: '结束时间',
   please_choose_voting_duration: '请选择投票持续时间',
+  vote_mobile_capital: '投票',
   days_ve: '天',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

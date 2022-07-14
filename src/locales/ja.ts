@@ -699,7 +699,7 @@ const ja = {
   go_to_farm: 'Go to Farm',
   in: 'in',
   more_lowercase: 'more',
-  avaliable_to_lock: 'available to lock',
+  avaliable_to_lock: 'Available to lock',
   lock_lptoken: 'Lock LP Tokens',
   lptoken_locker: 'LP Token Locker',
   filter: 'Filter',
@@ -723,7 +723,7 @@ const ja = {
   ended_ve: 'Ended',
   proposal_details: 'Proposal Details',
   back: 'Back',
-  pending_ve: 'Warm Up',
+  pending_ve: 'Warming Up',
   you_voted: 'You voted',
   add_bonus: 'Add Bonus',
   you_vote: 'You vote',
@@ -773,6 +773,7 @@ const ja = {
   please_choose_voting_duration: 'Please choose voting duration',
   please_choose_proposal_voting_duration:
     'Please choose proposal voting duration',
+  vote_mobile_capital: 'VOTE',
   unlocking_tip:
     'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
 };

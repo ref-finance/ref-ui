@@ -255,13 +255,14 @@ export const createProposal = async ({
 };
 
 export const getProposalList = async () => {
-  return refVeViewFunction({
+  const list = await refVeViewFunction({
     methodName: 'list_proposals',
   }).then((reslist: any) => {
     return reslist.map((res: any) => {
       if (res?.kind?.Poll) {
         res.kind.Poll.description = res.description;
       }
+
       if (res?.kind === 'Common') {
         res.kind = {
           Common: {
@@ -276,6 +277,18 @@ export const getProposalList = async () => {
         votes: res.votes.map((v: any) => v.total_ballots),
       };
     });
+  });
+
+  return list.filter((p: any) => {
+    try {
+      if (!p?.kind?.FarmingReward) {
+        JSON.parse(p.description);
+      }
+
+      return true;
+    } catch (error) {
+      return false;
+    }
   });
 };
 

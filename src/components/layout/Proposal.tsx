@@ -5655,7 +5655,7 @@ export const GovProposal = ({
               className="ml-6"
               canSelect
               labelClassName="xsm:w-28 xsm:bg-cardBg xsm:border xsm:border-selectBorder"
-              dropDownClassName="xsm:w-32"
+              dropDownClassName="w-32 lg:w-36 text-sm"
               brightClick
             />
           </div>
@@ -5841,11 +5841,7 @@ export const ProposalCard = () => {
         ) : (
           <GovProposal
             proposals={proposals?.filter(
-              (p) =>
-                !Object.keys(p.kind).includes('FarmingReward') &&
-                (process.env.NEAR_ENV === 'testnet'
-                  ? p.id !== 1 && p.id !== 2
-                  : true)
+              (p) => !Object.keys(p.kind).includes('FarmingReward')
             )}
             setShowCreateProposal={setShowCreateProposal}
             showDetail={showDetail}
