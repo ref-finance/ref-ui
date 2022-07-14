@@ -720,7 +720,7 @@ const vi = {
   ended_ve: 'Ended',
   proposal_details: 'Proposal Details',
   back: 'Back',
-  pending_ve: 'Pending',
+  pending_ve: 'Warm Up',
   you_voted: 'You voted',
   add_bonus: 'Add Bonus',
   you_vote: 'You vote',
