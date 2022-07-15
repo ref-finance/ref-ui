@@ -60,13 +60,13 @@ export default function PopUpSwiper() {
           >
             <SwiperSlide>
               <div className="relative pt-9">
-                {/* <div
+                <div
                   onClick={closePop}
                   className="flex justify-end items-center absolute top-0 right-0 cursor-pointer w-8 h-8"
                 >
                   <CircleCloseBtn></CircleCloseBtn>
                 </div>
-                <FarmsMigrateBg
+                {/*  <FarmsMigrateBg
                   className="cursor-pointer"
                   onClick={() => {
                     window.open('/farmsBoost');
