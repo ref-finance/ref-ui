@@ -759,5 +759,11 @@ const uk_UA = {
     'Поділіться посиланням обговорення на форумі тут',
   required_field: "Обов'язкове поле",
   voting_power_and_extra_earnings: 'Сила в голосування та додатковий заробіток',
+  search_farms: 'Search farms',
+  ended_Farms: 'Ended Farms',
+  your_power: 'Your Power',
+  farm_has_boost_tip:
+    'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
+  farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

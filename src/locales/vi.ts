@@ -797,5 +797,11 @@ const vi = {
   share_forum_discussion_link_here: 'Chia sẻ link diễn đàn tạiđây',
   required_field: '‘Phần ‘yêu cầu',
   voting_power_and_extra_earnings: '‘Lực bình chọn & Thưởng thêm',
+  search_farms: 'Search farms',
+  ended_Farms: 'Ended Farms',
+  your_power: 'Your Power',
+  farm_has_boost_tip:
+    'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
+  farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
 };
 export default Object.assign(vi, vi_in_risks_page);

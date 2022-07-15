@@ -801,6 +801,7 @@ const ja = {
   search_farms: 'Search farms',
   create_pool: 'Create Pool',
   search_by_token: 'Search by token',
+  ended_Farms: 'Ended Farms',
   your_power: 'Your Power',
   farm_has_boost_tip:
     'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
