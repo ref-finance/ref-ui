@@ -994,7 +994,7 @@ export default function FarmsHome(props: any) {
   const isMobileSite = isMobile();
   const showMigrateEntry = !seed_loading && user_migrate_seeds.length > 0;
   return (
-    <div className={`${getUrlParams() ? 'hidden' : ''}`}>
+    <div className={`lg:-mt-6 ${getUrlParams() ? 'hidden' : ''}`}>
       <div
         className="relative flex items-center justify-center mb-5 xs:mb-3 md:mb-3 xs:flex-col md:flex-col xs:bg-cardBg md:bg-cardBg xs:overflow-hidden md:overflow-hidden"
         style={{
