@@ -776,5 +776,34 @@ const ja = {
   vote_mobile_capital: 'VOTE',
   unlocking_tip:
     'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
+  v1Legacy: 'V1-Legacy',
+  v2New: 'V2-New',
+  v2_new_farms: 'V2 New Farms',
+  migrate_now: 'Migrate Now!',
+  v2_boost_tip:
+    'V2 farms will support boosted farms. The V1 farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',
+  no_farm_need_to_migrate: 'No Farm need to Migrate',
+  v1_farms: 'V1 Farms',
+  has_rewards_tip:
+    'You still have claimed rewards to be withdraw in <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >V1 Farms</a>. The rewards are not going anywhere, you can withdraw anytime.</div>',
+  love: 'LOVE',
+  Available_to_stake: 'Available to stake',
+  you_staked: 'You staked',
+  has_rewards_tip_in_v2:
+    'Withdraw legacy rewards from <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Farms</a>.',
+  how_to_get: 'How to get?',
+  get_booster: 'Get Booster',
+  ended_farms: 'ended farms',
+  boosted_farms: 'Boosted farms',
+  your_farm: 'Your farm',
+  your_boosted_farms: 'Your boosted farms',
+  search_farms_by_token: 'Search farms by token...',
+  search_farms: 'Search farms',
+  create_pool: 'Create Pool',
+  search_by_token: 'Search by token',
+  your_power: 'Your Power',
+  farm_has_boost_tip:
+    'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
+  farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
 };
 export default Object.assign(ja, ja_in_risks_page);
