@@ -15,7 +15,7 @@ import { setupNightlyConnect } from '@near-wallet-selector/nightly-connect';
 
 import getConfig from '../services/config';
 
-import './modal-ui/lib/components/styles';
+import './modal-ui/components/styles';
 
 const CONTRACT_ID = getConfig().REF_FARM_CONTRACT_ID;
 
