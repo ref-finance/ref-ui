@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AiOutlineMedium } from 'react-icons/ai';
 import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
-import { FooterLogo } from '~components/icon/FooterLogo';
+import { FooterLogo, FooterLogoREF } from '~components/icon/FooterLogo';
 import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
@@ -44,19 +44,32 @@ function Footer() {
     <>
       <div className="absolute w-full bottom-6 xs:bottom-0 md:bottom-0">
         <footer className="flex items-center justify-center pl-9 pr-9 xs:pb-9 md:pb-9">
-          <div className="fixed left-3 bottom-5 md:hidden xs:hidden">
-            <FooterLogo />
-            <div className="flex justify-star items-center pl-14 text-white">
-              ${data === '-' ? '-' : toPrecision(data, 2)}
+          <div className="fixed left-8 bottom-5 md:hidden xs:hidden">
+            <div className="flex items-center bg-cardBg rounded-2xl p-0.5 w-24">
+              <FooterLogoREF
+                className="rounded-full mr-1.5"
+                style={{ width: '28px', height: '28px' }}
+              ></FooterLogoREF>
+              <span className="text-sm text-white">
+                ${data === '-' ? '-' : toPrecision(data, 2)}
+              </span>
             </div>
             <div
-              className="mt-5 ml-5 cursor-pointer"
+              className="mt-5 cursor-pointer"
               onMouseOver={() => setHoverLogo(true)}
               onMouseLeave={() => setHoverLogo(false)}
               onClick={() => window.open('https://stats.ref.finance/')}
             >
-              {!hoverLogo && <RefAnalyticsGary />}
-              {hoverLogo && <RefAnalytics />}
+              {!hoverLogo && (
+                <RefAnalyticsGary
+                  style={{ transform: 'scale(0.8)', transformOrigin: '30% 0%' }}
+                />
+              )}
+              {hoverLogo && (
+                <RefAnalytics
+                  style={{ transform: 'scale(0.8)', transformOrigin: '30% 0%' }}
+                />
+              )}
             </div>
           </div>
           <div className="flex w-72 justify-between md:justify-around xs:justify-around">

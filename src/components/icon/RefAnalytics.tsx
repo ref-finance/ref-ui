@@ -1,8 +1,9 @@
 import React from 'react';
 
-export function RefAnalytics() {
+export function RefAnalytics(props: any) {
   return (
     <svg
+      {...props}
       width="138"
       height="24"
       viewBox="0 0 138 24"
@@ -40,9 +41,10 @@ export function RefAnalytics() {
   );
 }
 
-export function RefAnalyticsGary() {
+export function RefAnalyticsGary(props: any) {
   return (
     <svg
+      {...props}
       width="138"
       height="24"
       viewBox="0 0 138 24"
