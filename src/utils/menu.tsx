@@ -44,13 +44,6 @@ export const useMenuItems = () => {
 
   const menuData: any[] = [
     {
-      label: <FormattedMessage id="Risks" defaultMessage="Risks" />,
-      url: '/risks',
-      isExternal: false,
-      id: 0,
-      logo: <IconRisk />,
-    },
-    {
       label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
       url: '/airdrop',
       isExternal: false,
@@ -246,8 +239,8 @@ export const moreLinks: MobileMenuItem[] = [
     isExternal: false,
   },
   {
-    id: 'Risks',
-    label: 'Risks',
+    id: 'RISKS',
+    label: 'RISKS',
     pattern: '/risks',
     url: '/risks',
     isExternal: false,

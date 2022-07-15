@@ -803,5 +803,6 @@ const vi = {
   farm_has_boost_tip:
     'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
   farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
+  risks_capital: 'Rủi ro',
 };
 export default Object.assign(vi, vi_in_risks_page);

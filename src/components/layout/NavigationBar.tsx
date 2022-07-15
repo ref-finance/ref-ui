@@ -134,7 +134,7 @@ function Anchor({
       to={to}
       className={`relative flex items-center justify-center h-full border-t-4 mx-4 border-greenColor ${
         isSelected ? 'border-opacity-100' : 'border-opacity-0'
-      } ${name === 'Risks' ? 'lg:hidden lg2:block' : ''}`}
+      }`}
     >
       <h2
         className={`link hover:text-white text-base font-normal py-4 cursor-pointer relative z-10 ${className} ${
@@ -1073,6 +1073,7 @@ function NavigationBar() {
                 pattern="/referendum"
                 name="vote_capital"
               />
+              <Anchor to="/risks" pattern="/risks" name="risks_capital" />
             </div>
           </div>
           <div className="flex items-center justify-end flex-1">
