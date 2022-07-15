@@ -2,8 +2,8 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { map, distinctUntilChanged } from 'rxjs';
 import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
 import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
-import { setupModal } from '@near-wallet-selector/modal-ui';
-import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
+import { setupModal } from './modal-ui';
+import type { WalletSelectorModal } from './modal-ui';
 import { setupNearWallet } from '@near-wallet-selector/near-wallet/src';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { setupSender } from '@near-wallet-selector/sender';
@@ -15,7 +15,7 @@ import { setupNightlyConnect } from '@near-wallet-selector/nightly-connect';
 
 import getConfig from '../services/config';
 
-import './modal-ui.css';
+import './modal-ui/lib/components/styles';
 
 const CONTRACT_ID = getConfig().REF_FARM_CONTRACT_ID;
 
@@ -93,10 +93,10 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
           },
         }),
         setupWalletConnect({
-          projectId: 'c4f79cc...',
+          projectId: '423baa464ffaeca9d7165ab4222d534f',
           relayUrl: 'wss://relay.walletconnect.com',
           metadata: {
-            name: 'NEAR Wallet Selector',
+            name: 'ref_finance',
             description: 'Example dApp used by NEAR Wallet Selector',
             url: 'https://github.com/near/wallet-selector',
             icons: ['https://avatars.githubusercontent.com/u/37784886'],
