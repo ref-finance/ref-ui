@@ -581,7 +581,7 @@ const ko = {
   Rewards: 'Rewards',
   free: 'Free',
   lp_tokens: 'LP tokens',
-  connect_to_wallet: 'Connect Wallet',
+  connect_to_wallet: '지갑과 연결하기',
   anytime: 'Anytime',
   slash_policy_content:
     'Each seed has its own slash rate. And it will decreases linearly over time until be 0 at the unlock time of this CD Account.',
