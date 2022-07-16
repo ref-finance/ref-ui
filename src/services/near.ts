@@ -287,7 +287,7 @@ export const refFarmFunctionCall = async ({
             methodName,
             args,
             gas: getGas(gas).toNumber().toFixed(),
-            deposit: utils.format.parseNearAmount(amount),
+            deposit: utils.format.parseNearAmount(amount || '0')!,
           },
         },
       ],
