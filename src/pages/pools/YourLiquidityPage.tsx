@@ -435,7 +435,10 @@ function PoolRow(props: {
         return '-';
 
       const rawRes = multiply(
-        userTotalShareToString,
+        new BigNumber(userTotalShareToString)
+          .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
+          .toNumber()
+          .toFixed(),
         divide(poolTVL.toString(), pool.shareSupply)
       );
       return `$${toInternationalCurrencySystem(rawRes, 2)}`;
@@ -502,7 +505,14 @@ function PoolRow(props: {
       <div className="inline-flex items-center justify-between my-1 w-28">
         <div className="font-semibold">{toRealSymbol(token.symbol)}</div>
         <div className="font-normal">
-          {tokenAmountShare(pool, token, userTotalShareToString)}
+          {tokenAmountShare(
+            pool,
+            token,
+            new BigNumber(userTotalShareToString)
+              .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
+              .toNumber()
+              .toFixed()
+          )}
         </div>
       </div>
     );
@@ -515,7 +525,14 @@ function PoolRow(props: {
           {toRealSymbol(token.symbol)}
         </div>
         <div className="font-normal">
-          {tokenAmountShare(pool, token, userTotalShareToString)}
+          {tokenAmountShare(
+            pool,
+            token,
+            new BigNumber(userTotalShareToString)
+              .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
+              .toNumber()
+              .toFixed()
+          )}
         </div>
       </div>
     );
