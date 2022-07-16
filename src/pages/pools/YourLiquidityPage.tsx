@@ -286,6 +286,8 @@ export function YourLiquidityPage() {
 
   const vePool = pools.find((p) => Number(p.id) === Number(getVEPoolId()));
 
+  console.log(vePool, pools);
+
   return (
     <>
       <PoolTab></PoolTab>
@@ -444,7 +446,12 @@ function PoolRow(props: {
 
   if (!pool) return null;
 
-  if (!(userTotalShare.toNumber() > 0)) return null;
+  if (
+    userTotalShare
+      .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
+      .eq(new BigNumber(0))
+  )
+    return null;
 
   const Images = tokens.map((token, index) => {
     const { icon, id } = token;
