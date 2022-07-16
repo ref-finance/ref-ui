@@ -87,6 +87,7 @@ import CalcModelBooster from '~components/farm/CalcModelBooster';
 import { get24hVolume } from '~services/indexer';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
+import { isStablePool } from '../../services/near';
 import moment from 'moment';
 import { VERSION } from 'lodash';
 const ONLY_ZEROS = /^0*\.?0*$/;
@@ -871,7 +872,7 @@ function AddLiquidityEntryBar(props: {
   const history = useHistory();
   let addLiquidityButtonLoading;
   function openAddLiquidityModal() {
-    if (new Set(STABLE_POOL_IDS || []).has(poolId?.toString())) {
+    if (isStablePool(poolId)) {
       if (poolA.token_account_ids?.length > 2) {
         localStorage.setItem('REF_STABLE_SWAP_TAB_VALUE', 'add_liquidity');
       } else {
