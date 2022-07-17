@@ -262,10 +262,10 @@ export const executeMultipleTransactions = async (
       );
 
       window.location.href = newHref;
-    })
-    .catch(() => {
-      window.location.reload();
     });
+  // .catch(() => {
+  //   window.location.reload();
+  // });
 };
 
 export const refFarmFunctionCall = async ({
@@ -276,25 +276,24 @@ export const refFarmFunctionCall = async ({
 }: RefFiFunctionCallOptions) => {
   const { wallet } = getCurrentWallet();
 
-  return (await wallet.wallet())
-    .signAndSendTransaction({
-      signerId: wallet.getAccountId()!,
-      receiverId: REF_FARM_CONTRACT_ID,
-      actions: [
-        {
-          type: 'FunctionCall',
-          params: {
-            methodName,
-            args,
-            gas: getGas(gas).toNumber().toFixed(),
-            deposit: utils.format.parseNearAmount(amount || '0')!,
-          },
+  return (await wallet.wallet()).signAndSendTransaction({
+    signerId: wallet.getAccountId()!,
+    receiverId: REF_FARM_CONTRACT_ID,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName,
+          args,
+          gas: getGas(gas).toNumber().toFixed(),
+          deposit: utils.format.parseNearAmount(amount || '0')!,
         },
-      ],
-    })
-    .catch(() => {
-      window.location.reload();
-    });
+      },
+    ],
+  });
+  // .catch(() => {
+  //   window.location.reload();
+  // });
 };
 
 export const refFarmViewFunction = ({
