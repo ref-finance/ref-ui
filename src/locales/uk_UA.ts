@@ -637,7 +637,7 @@ const uk_UA = {
   go_to_new_farm: 'Перейти до Нової Ферми',
   voting_gauge_share_tip:
     'Частка REF, використаної для розподілу голосів, до загальної винагороди REF за цей період',
-  swap_capital: 'Обмін',
+  swap_capital: 'Своп',
   farm_capital: 'Ферма',
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
