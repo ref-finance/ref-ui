@@ -614,3 +614,14 @@
     visibility: hidden;
   }
 }
+
+@media screen and (min-width: 300px) and (max-width: 1023px) {
+  .nws-modal-wrapper .modal .wallet-options-wrapper .options-list {
+    margin: 0;
+    list-style-type: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(1, minmax(200px, 1fr));
+    gap: 10px;
+  }
+}

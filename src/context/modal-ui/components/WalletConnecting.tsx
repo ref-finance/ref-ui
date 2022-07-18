@@ -3,6 +3,7 @@ import { Wallet } from '@near-wallet-selector/core';
 import { BeatLoader } from 'react-spinners';
 import { FormattedMessage } from 'react-intl';
 import { GradientWrapper } from './BorderWrapper';
+import { useClientMobile } from '../../../utils/device';
 
 interface WalletConnectingProps {
   wallet: Wallet | undefined;
@@ -49,9 +50,16 @@ export const WalletConnecting: React.FC<WalletConnectingProps> = ({
   wallet,
   onBack,
 }) => {
+  const clientMobie = useClientMobile();
+
   return (
-    <div className="connecting-wrapper">
-      <GradientWrapper className="rounded-full p-2  inline-flex left-1/2 relative  transform -translate-x-1/2">
+    <div
+      className="flex flex-col items-center "
+      style={{
+        minWidth: !clientMobie ? '300px' : '',
+      }}
+    >
+      <GradientWrapper className="rounded-full p-2  inline-flex">
         <div
           className=" rounded-full flex items-center justify-center"
           style={{
