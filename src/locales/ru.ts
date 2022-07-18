@@ -644,7 +644,7 @@ const ru = {
   Rewards: 'Rewards',
   free: 'Free',
   lp_tokens: 'LP tokens',
-  connect_to_wallet: 'Підключити гаманець',
+  connect_to_wallet: 'Подключить кошелек',
   anytime: 'Anytime',
   slash_policy_content:
     'Each seed has its own slash rate. And it will decreases linearly over time until be 0 at the unlock time of this CD Account.',
