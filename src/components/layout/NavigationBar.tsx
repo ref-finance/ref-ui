@@ -1061,7 +1061,11 @@ function NavigationBar() {
             <div className="flex items-center h-full">
               <Anchor to="/" pattern="/" name="swap_capital" />
               <Anchor to="/sauce" pattern="/sauce" name="sauce_capital" />
-              <Anchor to="/pools" pattern="/pools" name="POOL" />
+              {isSignedIn ? (
+                <Anchor to="/pools/yours" pattern="/pools" name="POOL" />
+              ) : (
+                <Anchor to="/pools" pattern="/pools" name="POOL" />
+              )}
               <Anchor
                 to="/farmsBoost"
                 pattern="/farmsBoost"

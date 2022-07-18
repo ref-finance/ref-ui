@@ -35,32 +35,6 @@ export const PoolTab = () => {
         height: '50px',
       }}
     >
-      <span
-        className={`flex items-center justify-center h-full flex-grow text-center cursor-pointer ${
-          choosedTab == '1' ? 'bg-tabChosen text-white rounded-xl' : ''
-        }`}
-        onClick={() => {
-          goPage('/pools');
-        }}
-      >
-        <FormattedMessage id="view_pools" defaultMessage="View Pools" />
-      </span>
-      {/* {
-        <span
-          className={`flex items-center justify-center h-full  flex-grow text-center cursor-pointer ${
-            choosedTab == '2' ? 'bg-tabChosen text-white rounded-xl' : ''
-          }`}
-          onClick={() => {
-            goPage('/pools/add');
-          }}
-        >
-          <FormattedMessage
-            id="Create_New_Pool"
-            defaultMessage="Create New Pool"
-          />
-        </span>
-      } */}
-
       {isSignedIn ? (
         <span
           className={`flex items-center justify-center h-full  flex-grow text-center cursor-pointer ${
@@ -76,6 +50,16 @@ export const PoolTab = () => {
           />
         </span>
       ) : null}
+      <span
+        className={`flex items-center justify-center h-full flex-grow text-center cursor-pointer ${
+          choosedTab == '1' ? 'bg-tabChosen text-white rounded-xl' : ''
+        }`}
+        onClick={() => {
+          goPage('/pools');
+        }}
+      >
+        <FormattedMessage id="view_pools" defaultMessage="View Pools" />
+      </span>
     </div>
   );
 };

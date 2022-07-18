@@ -695,6 +695,11 @@ export function MobileNavBar(props: any) {
                       isSelected = true;
                     }
                   }
+                  let targetUrl = url;
+                  if (url.startsWith('/pools') && isSignedIn) {
+                    console.log('6666666666666');
+                    targetUrl = '/pools/yours';
+                  }
                   return (
                     <div key={id}>
                       <div
@@ -705,7 +710,9 @@ export function MobileNavBar(props: any) {
                               : 'text-white'
                             : 'text-primaryText'
                         }`}
-                        onClick={() => handleMenuClick(url, label, isExternal)}
+                        onClick={() =>
+                          handleMenuClick(targetUrl, label, isExternal)
+                        }
                       >
                         {showIcon ? (
                           <span
