@@ -672,7 +672,7 @@ const vi = {
   go_to_new_farm: 'đi tới Farm mới',
   voting_gauge_share_tip:
     'Một phần REF được sử dụng để bầu chọn cho tổng lượng phần thưởng REF trong giai đoạn này',
-  swap_capital: 'SWAP',
+  swap_capital: 'Giao dịch',
   farm_capital: 'FARMS',
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
