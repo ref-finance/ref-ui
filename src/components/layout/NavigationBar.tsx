@@ -95,6 +95,7 @@ import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
 } from '../../context/WalletSelectorContext';
+import { Modal } from '~context/modal-ui/components/Modal';
 
 const config = getConfig();
 

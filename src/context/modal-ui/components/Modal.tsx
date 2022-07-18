@@ -1,15 +1,16 @@
-import React, { useCallback, useEffect, useState } from "react";
-import type { WalletSelector } from "@near-wallet-selector/core";
+import React, { useCallback, useEffect, useState } from 'react';
+import type { WalletSelector } from '@near-wallet-selector/core';
 
-import type { ModalOptions, Theme } from "../modal.types";
-import type { ModalRoute } from "./Modal.types";
-import { WalletNetworkChanged } from "./WalletNetworkChanged";
-import { WalletOptions } from "./WalletOptions";
-import { AlertMessage } from "./AlertMessage";
-import { CloseButton } from "./CloseButton";
-import { DerivationPath } from "./DerivationPath";
-import { WalletConnecting } from "./WalletConnecting";
-import { WalletNotInstalled } from "./WalletNotInstalled";
+import type { ModalOptions, Theme } from '../modal.types';
+import type { ModalRoute } from './Modal.types';
+import { WalletNetworkChanged } from './WalletNetworkChanged';
+import { WalletOptions } from './WalletOptions';
+import { AlertMessage } from './AlertMessage';
+import { CloseButton } from './CloseButton';
+import { DerivationPath } from './DerivationPath';
+import { WalletConnecting } from './WalletConnecting';
+import { WalletNotInstalled } from './WalletNotInstalled';
+import { FormattedMessage } from 'react-intl';
 
 interface ModalProps {
   selector: WalletSelector;
@@ -20,12 +21,12 @@ interface ModalProps {
 
 const getThemeClass = (theme?: Theme) => {
   switch (theme) {
-    case "dark":
-      return "dark-theme";
-    case "light":
-      return "light-theme";
+    case 'dark':
+      return 'dark-theme';
+    case 'light':
+      return 'light-theme';
     default:
-      return "";
+      return '';
   }
 };
 
@@ -36,25 +37,25 @@ export const Modal: React.FC<ModalProps> = ({
   hide,
 }) => {
   const [route, setRoute] = useState<ModalRoute>({
-    name: "WalletOptions",
+    name: 'WalletOptions',
   });
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  // const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setRoute({
-      name: "WalletOptions",
+      name: 'WalletOptions',
     });
   }, [visible]);
 
   useEffect(() => {
-    const subscription = selector.on("networkChanged", ({ networkId }) => {
+    const subscription = selector.on('networkChanged', ({ networkId }) => {
       // Switched back to the correct network.
       if (networkId === selector.options.network.networkId) {
         return handleDismissClick();
       }
 
       setRoute({
-        name: "WalletNetworkChanged",
+        name: 'WalletNetworkChanged',
       });
     });
 
@@ -63,22 +64,24 @@ export const Modal: React.FC<ModalProps> = ({
   }, []);
 
   const handleDismissClick = useCallback(() => {
-    setAlertMessage(null);
+    // setAlertMessage(null);
     setRoute({
-      name: "WalletOptions",
+      name: 'WalletOptions',
     });
     hide();
+
+    window.location.reload();
   }, [hide]);
 
   useEffect(() => {
     const close = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         handleDismissClick();
       }
     };
-    window.addEventListener("keydown", close);
+    window.addEventListener('keydown', close);
 
-    return () => window.removeEventListener("keydown", close);
+    return () => window.removeEventListener('keydown', close);
   }, [handleDismissClick]);
 
   if (!visible) {
@@ -87,63 +90,71 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className={`nws-modal-wrapper ${getThemeClass(options?.theme)} ${
-        visible ? "open" : ""
+      className={` nws-modal-wrapper ${getThemeClass(options?.theme)} ${
+        visible ? 'open' : ''
       }`}
     >
       <div className="modal-overlay" onClick={handleDismissClick} />
       <div className="modal">
         <div className="modal-header">
-          <h2>Connect Wallet</h2>
+          {route.name === 'WalletOptions' ? (
+            <h2>
+              <FormattedMessage
+                id="connect_wallet"
+                defaultMessage={'Connect Wallet'}
+              />
+            </h2>
+          ) : (
+            <button
+              className="text-2xl pb-2 pr-2 text-primaryText"
+              onClick={() => {
+                setRoute({
+                  name: 'WalletOptions',
+                });
+              }}
+            >
+              {'<'}
+            </button>
+          )}
+
           <CloseButton onClick={handleDismissClick} />
         </div>
         <div className="modal-body">
-          {route.name === "AlertMessage" && alertMessage && (
-            <AlertMessage
-              message={alertMessage}
-              onBack={() => {
-                setAlertMessage(null);
-                setRoute({
-                  name: "WalletOptions",
-                });
-              }}
-            />
-          )}
-          {route.name === "WalletOptions" && (
+          {route.name === 'WalletOptions' && (
             <WalletOptions
               selector={selector}
               options={options}
               onWalletNotInstalled={(module) => {
                 setRoute({
-                  name: "WalletNotInstalled",
+                  name: 'WalletNotInstalled',
                   params: { module: module },
                 });
               }}
               onConnectHardwareWallet={() => {
                 setRoute({
-                  name: "DerivationPath",
+                  name: 'DerivationPath',
                   params: {
                     walletId:
-                      selector.store.getState().selectedWalletId || "ledger",
+                      selector.store.getState().selectedWalletId || 'ledger',
                   },
                 });
               }}
               onConnecting={(wallet) => {
                 setRoute({
-                  name: "WalletConnecting",
+                  name: 'WalletConnecting',
                   params: { wallet: wallet },
                 });
               }}
               onConnected={handleDismissClick}
               onError={(err) => {
-                setAlertMessage(err.message);
+                // setAlertMessage(err.message);
                 setRoute({
-                  name: "AlertMessage",
+                  name: 'WalletOptions',
                 });
               }}
             />
           )}
-          {route.name === "DerivationPath" && (
+          {route.name === 'DerivationPath' && (
             <DerivationPath
               selector={selector}
               options={options}
@@ -151,43 +162,36 @@ export const Modal: React.FC<ModalProps> = ({
               params={route.params}
               onBack={() =>
                 setRoute({
-                  name: "WalletOptions",
+                  name: 'WalletOptions',
                 })
               }
               onError={(message) => {
-                setAlertMessage(message);
+                // setAlertMessage(message);
                 setRoute({
-                  name: "AlertMessage",
+                  name: 'WalletOptions',
                 });
               }}
             />
           )}
-          {route.name === "WalletNetworkChanged" && (
+          {route.name === 'WalletNetworkChanged' && (
             <WalletNetworkChanged
               selector={selector}
               onSwitchWallet={() =>
                 setRoute({
-                  name: "WalletOptions",
+                  name: 'WalletOptions',
                 })
               }
               onDismiss={handleDismissClick}
             />
           )}
-          {route.name === "WalletNotInstalled" && (
-            <WalletNotInstalled
-              module={route.params?.module!}
-              onBack={() => {
-                setRoute({
-                  name: "WalletOptions",
-                });
-              }}
-            />
+          {route.name === 'WalletNotInstalled' && (
+            <WalletNotInstalled module={route.params?.module!} />
           )}
-          {route.name === "WalletConnecting" && (
+          {route.name === 'WalletConnecting' && (
             <WalletConnecting
               wallet={route.params?.wallet}
               onBack={() => {
-                setRoute({ name: "WalletOptions" });
+                setRoute({ name: 'WalletOptions' });
               }}
             />
           )}

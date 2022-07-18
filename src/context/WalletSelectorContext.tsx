@@ -77,12 +77,30 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
       network: getConfig().networkId as NetworkId,
       debug: false,
       modules: [
-        setupNearWallet(),
-        setupMyNearWallet(),
-        setupSender(),
-        setupMathWallet(),
-        setupNightly(),
-        setupLedger(),
+        setupNearWallet({
+          iconUrl:
+            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/near-wallet.png',
+        }),
+        setupMyNearWallet({
+          iconUrl:
+            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/my-near-wallet.png',
+        }),
+        setupSender({
+          iconUrl:
+            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/sender.png',
+        }),
+        setupMathWallet({
+          iconUrl:
+            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/math-wallet.png',
+        }),
+        setupNightly({
+          iconUrl:
+            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/nightly.png',
+        }),
+        setupLedger({
+          iconUrl:
+            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/ledger.png',
+        }),
         setupNightlyConnect({
           url: 'wss://ncproxy.nightly.app/app',
           appMetadata: {
@@ -91,6 +109,8 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
             description: 'Example dApp used by NEAR Wallet Selector',
             icon: 'https://near.org/wp-content/uploads/2020/09/cropped-favicon-192x192.png',
           },
+          iconUrl:
+            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/nightly-connect.png',
         }),
         setupWalletConnect({
           projectId: '423baa464ffaeca9d7165ab4222d534f',
@@ -101,6 +121,8 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
             url: 'https://github.com/near/wallet-selector',
             icons: ['https://avatars.githubusercontent.com/u/37784886'],
           },
+          iconUrl:
+            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/WalletConnect.png',
         }),
       ],
     });

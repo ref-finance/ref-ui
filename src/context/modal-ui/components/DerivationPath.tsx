@@ -1,10 +1,12 @@
-import React, { ChangeEvent, KeyboardEventHandler, useState } from "react";
-import type { Wallet, WalletSelector } from "@near-wallet-selector/core";
-import type { ModalOptions } from "../modal.types";
-import type { DerivationPathModalRouteParams } from "./Modal.types";
-import type { HardwareWalletAccount } from "@near-wallet-selector/core";
-import HardwareWalletAccountsForm from "./HardwareWalletAccountsForm";
-import { WalletConnecting } from "./WalletConnecting";
+import React, { ChangeEvent, KeyboardEventHandler, useState } from 'react';
+import type { Wallet, WalletSelector } from '@near-wallet-selector/core';
+import type { ModalOptions } from '../modal.types';
+import type { DerivationPathModalRouteParams } from './Modal.types';
+import type { HardwareWalletAccount } from '@near-wallet-selector/core';
+import HardwareWalletAccountsForm from './HardwareWalletAccountsForm';
+import { WalletConnecting } from './WalletConnecting';
+import { FormattedMessage } from 'react-intl';
+import { GradientWrapper } from './BorderWrapper';
 
 interface DerivationPathProps {
   selector: WalletSelector;
@@ -48,7 +50,7 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
 
   const handleDerivationPathAdd = () => {
     setDerivationPaths((prevDerivationPaths) => {
-      return [...prevDerivationPaths, { path: "" }];
+      return [...prevDerivationPaths, { path: '' }];
     });
   };
 
@@ -77,14 +79,14 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
     );
 
     if (!response.ok) {
-      throw new Error("Failed to get account id from public key");
+      throw new Error('Failed to get account id from public key');
     }
 
     const accountIds = await response.json();
 
     if (!Array.isArray(accountIds) || !accountIds.length) {
       throw new Error(
-        "Failed to find account linked for public key: " + publicKey
+        'Failed to find account linked for public key: ' + publicKey
       );
     }
 
@@ -97,7 +99,7 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
     for (let i = 0; i < derivationPaths.length; i += 1) {
       const derivationPath = derivationPaths[i].path;
 
-      if (wallet.type === "hardware") {
+      if (wallet.type === 'hardware') {
         const publicKey = await wallet.getPublicKey(derivationPath);
         const accountIds = await getAccountIdsFromPublicKey(publicKey);
 
@@ -112,7 +114,7 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
     return accounts;
   };
 
-  const signIn = (
+  const signIn = async (
     wallet: Wallet,
     contractId: string,
     methodNames: Array<string> | undefined,
@@ -133,7 +135,7 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
   const handleConnectClick = async () => {
     const wallet = await selector.wallet(params.walletId);
 
-    if (wallet.type !== "hardware") {
+    if (wallet.type !== 'hardware') {
       return;
     }
 
@@ -168,7 +170,7 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
     } catch (err) {
       setConnecting(false);
       const message =
-        err instanceof Error ? err.message : "Something went wrong";
+        err instanceof Error ? err.message : 'Something went wrong';
 
       onError(message);
     } finally {
@@ -209,7 +211,7 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
   const handleEnterClick: KeyboardEventHandler<HTMLInputElement> = async (
     e
   ) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       await handleConnectClick();
     }
   };
@@ -229,6 +231,16 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
 
   return (
     <div className="derivation-path-wrapper">
+      <div className="flex items-centerk justify-center mb-7">
+        <img
+          src="https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/ledger.png"
+          alt=""
+          className="w-12"
+        />
+      </div>
+
+      <div className="pb-4 text-xl">Ledger</div>
+
       {showMultipleAccountsSelect ? (
         <HardwareWalletAccountsForm
           hardwareWalletAccounts={hardwareWalletAccounts}
@@ -248,30 +260,52 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
           }}
         />
       ) : (
-        <div>
-          <p>
-            Make sure your device is plugged in, then enter an account id to
-            connect:
-          </p>
-          <div className="derivation-path-list">
+        <div className="text-center">
+          <span className="text-sm">
+            <FormattedMessage
+              id="make_sure_device_plugged_in"
+              defaultMessage={'Make sure your device is plugged in'}
+            />
+            ,
+            <br />
+            <FormattedMessage
+              id="then_enter_an_account_id_to_connect"
+              defaultMessage={'then enter an account id to connect'}
+            />
+            .
+          </span>
+          <div className="derivation-path-list flex flex-col mt-4">
             {derivationPaths.map((path, index) => {
               return (
-                <div key={index}>
-                  <input
-                    type="text"
-                    placeholder="Derivation Path"
-                    value={index === 0 ? derivationPaths[0].path : path.path}
-                    onChange={(e) => {
-                      handleDerivationPathChange(index, e);
-                    }}
-                    onKeyPress={handleEnterClick}
-                  />
+                <div
+                  key={index}
+                  className="mb-2 flex items-center justify-start text-sm text-primaryText"
+                >
+                  <GradientWrapper className="rounded-full mr-2">
+                    <input
+                      type="text"
+                      placeholder="Derivation Path"
+                      value={index === 0 ? derivationPaths[0].path : path.path}
+                      onChange={(e) => {
+                        handleDerivationPathChange(index, e);
+                      }}
+                      className="pl-4 py-2 text-white  rounded-full bg-black bg-opacity-10"
+                      onKeyPress={handleEnterClick}
+                      style={{
+                        backgroundColor: '#202834',
+                      }}
+                    />
+                  </GradientWrapper>
 
                   {index !== 0 && (
                     <button
                       type="button"
                       title="Remove"
                       onClick={() => handleDerivationPathRemove(index)}
+                      className="text-2xl mr-2"
+                      style={{
+                        color: '#4B5862',
+                      }}
                     >
                       -
                     </button>
@@ -281,6 +315,10 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
                       title="Add"
                       type="button"
                       onClick={() => handleDerivationPathAdd()}
+                      className="text-2xl"
+                      style={{
+                        color: '#4B5862',
+                      }}
                     >
                       +
                     </button>
@@ -289,14 +327,19 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
               );
             })}
           </div>
-          <div className="action-buttons">
-            <button className="left-button" onClick={onBack}>
-              Back
-            </button>
-            <button className="right-button" onClick={handleConnectClick}>
-              Connect
-            </button>
-          </div>
+
+          <button
+            className="py-1.5 flex items-center justify-center mx-auto text-sm rounded-lg"
+            style={{
+              width: '242px',
+              background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+              height: '40px',
+              marginBottom: '5px',
+            }}
+            onClick={handleConnectClick}
+          >
+            <FormattedMessage id="connect" defaultMessage="Connect" />
+          </button>
         </div>
       )}
     </div>
