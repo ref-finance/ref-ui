@@ -56,7 +56,10 @@ import {
   WalletContext,
   getSenderWallet,
 } from '../../utils/wallets-integration';
-import { getAccountName } from '../../utils/wallets-integration';
+import {
+  getAccountName,
+  saveSenderLoginRes,
+} from '../../utils/wallets-integration';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import { useTokenBalances } from '../../state/token';
 import { toReadableNumber } from '../../utils/numbers';
@@ -75,7 +78,7 @@ import {
 } from '../../services/aurora/aurora';
 
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { isMobile, useMobile } from '../../utils/device';
+import { isMobile, useMobile, useClientMobile } from '../../utils/device';
 import { getAuroraConfig } from '../../services/aurora/config';
 import {
   ETH_DECIMAL,
@@ -177,9 +180,22 @@ function AccountEntry({
   const { globalState } = useContext(WalletContext);
   const { wallet } = getCurrentWallet();
 
+  const [copyIconHover, setCopyIconHover] = useState<boolean>(false);
+
   const isSignedIn = globalState.isSignedIn && !!wallet.getAccountId();
 
   const [showAccountTip, setShowAccountTip] = useState<boolean>(false);
+
+  const [currentWalletName, setCurrentWalletName] = useState<string>();
+
+  const [currentWalletIcon, setCurrentWalletIcon] = useState<string>();
+
+  useEffect(() => {
+    wallet.wallet().then((res) => {
+      setCurrentWalletName(res.metadata.name);
+      setCurrentWalletIcon(res.metadata.iconUrl);
+    });
+  }, []);
 
   useEffect(() => {
     setShowAccountTip(hasBalanceOnRefAccount);
@@ -198,7 +214,7 @@ function AccountEntry({
   const accountList = [
     {
       icon: <AccountIcon />,
-      textId: 'view_account',
+      textId: 'my_assets',
       selected: location.pathname == '/account',
       click: () => {
         if (location.pathname == '/account') {
@@ -220,25 +236,27 @@ function AccountEntry({
     {
       icon: <WalletIcon />,
       textId: 'go_to_near_wallet',
-      subIcon: <HiOutlineExternalLink />,
+      // subIcon: <HiOutlineExternalLink />,
       click: () => {
         window.open(config.walletUrl, '_blank');
       },
     },
-    {
-      icon: <SignoutIcon />,
-      textId: 'sign_out',
-      click: async () => {
-        const curWallet = await wallet.wallet();
+    // {
+    //   icon: <SignoutIcon />,
+    //   textId: 'sign_out',
+    //   click: async () => {
+    //     const curWallet = await wallet.wallet();
 
-        await curWallet.signOut();
+    //     await curWallet.signOut();
 
-        localStorage.removeItem(ACCOUNT_ID_KEY);
+    //     localStorage.removeItem(ACCOUNT_ID_KEY);
 
-        window.location.assign('/');
-      },
-    },
+    //     window.location.assign('/');
+    //   },
+    // },
   ];
+
+  const isMobile = useClientMobile();
 
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
@@ -306,26 +324,87 @@ function AccountEntry({
         {isSignedIn && hover ? (
           <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
             <Card
-              className="menu-max-height cursor-default shadow-4xl  border border-primaryText"
+              className="menu-max-height cursor-default shadow-4xl "
               width="w-72"
               padding="py-4"
+              style={{
+                backgroundColor: 'rgba(58, 69, 77, 0.6)',
+                border: '1px solid #415462',
+              }}
             >
+              <div className="mx-7 flex justify-between">
+                <div className="text-white text-lg text-left flex-col flex">
+                  <span>{getAccountName(wallet.getAccountId())}</span>
+
+                  <span className="flex items-center ">
+                    <span className="mr-1">
+                      {!currentWalletIcon ? (
+                        <div className="w-4 h-4"></div>
+                      ) : (
+                        <img
+                          src={currentWalletIcon}
+                          className="w-4 h-4 rounded-full"
+                          alt=""
+                        />
+                      )}
+                    </span>
+                    <span className="text-xs text-primaryText">
+                      {currentWalletName || '-'}
+                    </span>
+                  </span>
+                </div>
+
+                <div>
+                  <CopyToClipboard text={wallet.getAccountId()}>
+                    <div
+                      className={` bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                      onMouseEnter={() => {
+                        !isMobile && setCopyIconHover(true);
+                      }}
+                      onMouseLeave={() => {
+                        !isMobile && setCopyIconHover(false);
+                      }}
+                      onTouchStart={() => {
+                        setCopyIconHover(true);
+                      }}
+                      onTouchEnd={() => {
+                        setCopyIconHover(false);
+                      }}
+                    >
+                      <CopyIcon
+                        fillColor={copyIconHover ? '#4075FF' : '#7E8A93'}
+                      />
+                    </div>
+                  </CopyToClipboard>
+                </div>
+              </div>
+
+              <div
+                className="my-3 "
+                style={{
+                  borderBottom: '1px solid rgba(126, 138, 147, 0.3)',
+                }}
+              ></div>
+
               {accountList.map((item, index) => {
                 return (
                   <>
                     <div
                       onClick={item.click}
                       key={item.textId + index}
-                      className={`flex items-center text-sm cursor-pointer font-semibold py-4 pl-7 hover:text-white hover:bg-navHighLightBg ${
+                      className={`flex items-center mx-3 text-sm cursor-pointer font-semibold py-4 pl-3 hover:text-white hover:bg-black rounded-lg hover:bg-opacity-10 ${
                         item.selected
-                          ? 'text-white bg-navHighLightBg'
+                          ? 'text-white bg-black bg-opacity-10'
                           : 'text-primaryText'
                       }`}
                     >
                       <label className="w-9 text-left cursor-pointer">
                         {item.icon}
                       </label>
-                      <label className="cursor-pointer">
+                      <label className="cursor-pointer text-base">
                         <FormattedMessage id={item.textId} />
                       </label>
                       <label htmlFor="" className="ml-1.5">
@@ -334,9 +413,9 @@ function AccountEntry({
                           <FarmDot inFarm={hasBalanceOnRefAccount} />
                         ) : null}
                       </label>
-                      {item.subIcon ? (
+                      {/* {item.subIcon ? (
                         <label className="text-lg ml-2">{item.subIcon}</label>
-                      ) : null}
+                      ) : null} */}
                     </div>
                     {hasBalanceOnRefAccount &&
                     item.textId === 'view_account' ? (
