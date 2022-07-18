@@ -2258,7 +2258,8 @@ function UserStakeBlock(props: {
                     openUnStakeModalVisible('free');
                   }}
                   color="#fff"
-                  className={`flex items-center justify-center w-36 h-8 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                  minWidth="9rem"
+                  className={`flex items-center justify-center min-w-36 h-8 px-0.5 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
                     Number(freeAmount) > 0 ? '' : 'hidden'
                   }`}
                 >

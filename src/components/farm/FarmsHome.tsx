@@ -962,7 +962,7 @@ export default function FarmsHome(props: any) {
                 onClick={() => {
                   setLoveUnStakeModalVisible(true);
                 }}
-                className={`flex items-center justify-center h-full w-full cursor-pointer text-sm text-white border border-greenColor p-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20 ${
+                className={`flex items-center whitespace-nowrap justify-center h-full min-w-full cursor-pointer text-sm text-white border border-greenColor px-px py-1 rounded-lg hover:bg-black hover:bg-opacity-20 ${
                   noLoveRelatedAmount ? 'hidden' : ''
                 }`}
               >
@@ -1058,7 +1058,7 @@ export default function FarmsHome(props: any) {
               farmDisplayList={farm_display_List}
             ></WithDrawBox>
             {Object.keys(user_claimed_rewards).length > 0 ? (
-              <div className="flex items-center justify-start text-sm text-primaryText mt-3 whitespace-nowrap xs:mt-0 md:mt-0 xs:mb-2 md:mb-2">
+              <div className="flex items-center justify-start text-sm text-primaryText mt-3 xs:mt-0 md:mt-0 xs:mb-2 md:mb-2">
                 <WarningIcon className="mr-1.5 flex-shrink-0" />
                 <span
                   dangerouslySetInnerHTML={{
@@ -1270,7 +1270,7 @@ export default function FarmsHome(props: any) {
                     !boostInstructions && isMobileSite ? 'hidden' : ''
                   }`}
                 >
-                  <div className="flex flex-col justify-between  items-center lg:items-start pl-14 pb-14 pt-5 xs:pl-0 md:pl-0">
+                  <div className="flex flex-col justify-between  items-center lg:items-start pl-16 pb-14 pt-5 xs:pl-0 md:pl-0">
                     <span
                       className="text-white xs:hidden md:hidden transform -translate-x-9"
                       style={{ fontSize: '32px' }}
@@ -1289,7 +1289,7 @@ export default function FarmsHome(props: any) {
                           onClick={() => {
                             setShowLoveTokenModalVisible(true);
                           }}
-                          className="absolute xs:-left-6 md:-left-6 flex items-center justify-center text-sm xs:text-xs md:text-xs  text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
+                          className="absolute xs:-left-8 md:-left-8 flex items-center justify-center text-sm xs:text-xs md:text-xs  text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
                         >
                           <FormattedMessage id="get_love" />{' '}
                           <VEARROW className="ml-1"></VEARROW>
@@ -1307,7 +1307,7 @@ export default function FarmsHome(props: any) {
                           onClick={() => {
                             setLoveStakeModalVisible(true);
                           }}
-                          className="absolute xs:-left-10 md:-left-10 flex items-center justify-center text-sm xs:text-xs md:text-xs text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
+                          className="absolute xs:-left-8 md:-left-8 flex items-center justify-center text-sm xs:text-xs md:text-xs text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
                         >
                           <FormattedMessage id="stakeLove" />
                         </span>
@@ -1320,7 +1320,7 @@ export default function FarmsHome(props: any) {
                         >
                           3
                         </span>
-                        <span className="absolute flex items-center justify-center text-sm xs:text-xs md:text-xs text-greyCircleColor rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:-left-14 md:-left-14">
+                        <span className="absolute flex items-center justify-center text-sm xs:text-xs md:text-xs text-greyCircleColor rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:-left-15 md:-left-15">
                           <FormattedMessage id="get_booster" />
                         </span>
                       </div>
@@ -2544,7 +2544,10 @@ function FarmView(props: {
           </div>
           <div className="flex items-center justify-between px-5 py-4 h-24">
             <div className="flex flex-col items-center flex-shrink-0">
-              <label className="text-farmText text-sm">
+              <label
+                className="text-farmText text-sm"
+                style={{ maxWidth: '150px' }}
+              >
                 <FormattedMessage id="total_staked"></FormattedMessage>
               </label>
               <label className="text-white text-base mt-1.5">
@@ -2627,7 +2630,8 @@ function FarmView(props: {
                       />
                     </div>
                     <span
-                      className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 w-16 cursor-pointer"
+                      className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer"
+                      style={{ width: '4.6rem' }}
                       onClick={(e) => {
                         e.stopPropagation();
                         claimReward();
@@ -3146,20 +3150,20 @@ function WithDrawModal(props: {
           <span className="text-white text-sm">
             <FormattedMessage id="how_to_earn_more"></FormattedMessage>
           </span>
-          <div className="flex items-center mt-2">
-            <span className="flex items-center text-xs text-primaryText mr-2">
+          <div className="flex items-center flex-wrap mt-2">
+            <span className="flex items-center text-xs text-primaryText mr-2 mb-1">
               <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
                 1
               </label>{' '}
               <FormattedMessage id="withdraw" /> {'>>'}
             </span>
-            <span className="flex items-center text-xs text-primaryText mr-2">
+            <span className="flex items-center text-xs text-primaryText mr-2 mb-1">
               <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
                 2
               </label>{' '}
               <FormattedMessage id="add_liquidity" /> {'>>'}
             </span>
-            <span className="flex items-center text-xs text-primaryText">
+            <span className="flex items-center text-xs text-primaryText mb-1">
               <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
                 3
               </label>

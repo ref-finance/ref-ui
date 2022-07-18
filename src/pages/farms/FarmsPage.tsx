@@ -731,7 +731,7 @@ export function FarmsPage() {
       <div className="grid grid-cols-farmContainerOther 2xl:grid-cols-farmContainer grid-flow-col xs:grid-cols-1 xs:grid-flow-row md:grid-cols-1 md:grid-flow-row">
         <div className="text-white pl-12 xs:px-5 md:px-5">
           <div className="flex items-center justify-between -mt-3">
-            <div className="flex items-center text-white text-3xl h-12">
+            <div className="flex items-center text-white text-2xl h-12">
               <FormattedMessage id="farms" defaultMessage="Farms" />
             </div>
             <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">

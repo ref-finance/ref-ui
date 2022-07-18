@@ -730,7 +730,8 @@ const uk_UA = {
   v1Legacy: 'V1-Спадок',
   v2New: 'V2-Новий',
   v2_new_farms: 'V2 Нові Ферми',
-  migrate_now: 'Розпочніть міграцію зараз ! ',
+  // migrate_now: 'Розпочніть міграцію зараз ! ',
+  migrate_now: 'міграцію зараз ! ',
   v2_boost_tip:
     'Ферми V2 підтримуватимуть посилені ферми. На фермах V1 закінчаться нагороди <span class="font-bold">1st. August, 2022.</span>',
   no_farm_need_to_migrate: 'Немає ферм для переносу',

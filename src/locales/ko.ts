@@ -234,7 +234,7 @@ const ko = {
   ended: '끝남',
   pending: '대기중',
   rewards_per_week: '주당 보상',
-  apr: 'APR(연간이율) ',
+  apr: '연간이율',
   total_staked: '스테이킹 총합',
   unclaimed_rewards: '미수령 보상',
   claim: '수령',
