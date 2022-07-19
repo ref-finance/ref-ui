@@ -1930,7 +1930,9 @@ const FarmChart = ({
         <div className="bg-black rounded-t-2xl p-3 bg-opacity-30">
           <div className="flex items-center justify-between w-full">
             <Images
-              className={forLastRound ? '' : 'relative top-2'}
+              className={
+                forLastRound || votedThisActiveOption ? '' : 'relative top-2'
+              }
               tokens={activeFarm.tokens}
               size={forLastRound ? '6' : '7'}
             />
@@ -1952,7 +1954,7 @@ const FarmChart = ({
         </div>
 
         <div className="flex items-center px-3 pt-3 justify-between pb-2">
-          <span className="text-primaryText">
+          <span className="text-primaryText whitespace-nowrap">
             <FormattedMessage id="voted_veLPT" defaultMessage={'Voted veLPT'} />
           </span>
 
@@ -2404,7 +2406,7 @@ const GovItemDetail = ({
         <NewGradientButton
           text={<FormattedMessage id="delete" defaultMessage={'Delete'} />}
           padding="px-0 py-0"
-          className="h-8 w-20 xsm:h-10 xsm:w-full ml-2.5 xsm:ml-0"
+          className="h-8 min-w-20 xsm:h-10 xsm:w-full ml-2.5 xsm:ml-0"
           gradient="bg-redGradient"
           onClick={() => {
             removeProposal(proposal.id);
@@ -2417,7 +2419,7 @@ const GovItemDetail = ({
             <FormattedMessage id="not_start" defaultMessage={'Not start'} />
           }
           padding="px-0 py-0"
-          className="h-8 w-20 ml-2.5 xsm:ml-0 xsm:h-10 xsm:w-full"
+          className="h-8 min-w-20 ml-2.5 xsm:ml-0 xsm:h-10 xsm:w-full"
         />
       )
     ) : status === 'InProgress' ? (
@@ -2425,7 +2427,7 @@ const GovItemDetail = ({
         <FarmProposalGrayButton
           text={<FormattedMessage id="no_veLPT" defaultMessage={'No veLPT'} />}
           padding="px-0 py-0"
-          className="h-8 w-20 ml-2.5 xsm:h-10 xsm:w-full xsm:ml-0"
+          className="h-8 min-w-20 ml-2.5 xsm:h-10 xsm:w-full xsm:ml-0"
         />
       ) : (
         <NewGradientButton
@@ -2437,7 +2439,7 @@ const GovItemDetail = ({
             )
           }
           padding="px-0 py-0"
-          className="h-8 w-20 ml-2.5 xsm:h-10 xsm:w-full xsm:ml-0"
+          className="h-8 min-w-20 ml-2.5 xsm:h-10 xsm:w-full xsm:ml-0"
           onClick={() => {
             !!voted
               ? cancelVote({
@@ -2454,7 +2456,7 @@ const GovItemDetail = ({
           <FormattedMessage id="claim_bonus" defaultMessage={'Claim Bonus'} />
         }
         padding="px-0 py-0"
-        className="h-8 w-28 ml-2.5 xsm:ml-0 xsm:h-10 xsm:w-full"
+        className="h-8 min-w-28 ml-2.5 xsm:ml-0 xsm:h-10 xsm:w-full"
         beatStyling
         onClick={() => {
           claimRewardVE({
@@ -2472,7 +2474,7 @@ const GovItemDetail = ({
           )
         }
         padding="px-0 py-0"
-        className="h-8 w-20 ml-2.5 xsm:h-10 xsm:w-full xsm:ml-0"
+        className="h-8 min-w-20 ml-2.5 xsm:h-10 xsm:w-full xsm:ml-0"
       />
     );
 
@@ -3097,7 +3099,7 @@ const GovProposalItem = ({
         <NewGradientButton
           text={<FormattedMessage id="delete" defaultMessage={'Delete'} />}
           padding="px-0 py-0"
-          className="h-8 w-20 ml-2.5"
+          className="h-8 min-w-20 ml-2.5"
           gradient="bg-redGradient"
           onClick={(e: any) => {
             e.stopPropagation();
@@ -3113,7 +3115,7 @@ const GovProposalItem = ({
             <FormattedMessage id="not_start" defaultMessage={'Not start'} />
           }
           padding="px-0 py-0"
-          className="h-8 w-20 ml-2.5"
+          className="h-8 min-w-20 ml-2.5"
         />
       )
     ) : status === 'InProgress' ? (
@@ -3121,7 +3123,7 @@ const GovProposalItem = ({
         <FarmProposalGrayButton
           text={<FormattedMessage id="no_veLPT" defaultMessage={'No veLPT'} />}
           padding="px-0 py-0"
-          className="h-8 w-20 ml-2.5"
+          className="h-8 min-w-20 ml-2.5"
         />
       ) : (
         <NewGradientButton
@@ -3133,7 +3135,7 @@ const GovProposalItem = ({
             )
           }
           padding="px-0 py-0"
-          className="h-8 w-20 ml-2.5"
+          className="h-8 min-w-20 ml-2.5"
           onClick={(e: any) => {
             e.stopPropagation();
             e.preventDefault();
@@ -3153,7 +3155,7 @@ const GovProposalItem = ({
           <FormattedMessage id="claim_bonus" defaultMessage={'Claim Bonus'} />
         }
         padding="px-0 py-0"
-        className="h-8 w-28 ml-2.5"
+        className="h-8 min-w-28 ml-2.5"
         beatStyling
         onClick={(e: any) => {
           e.stopPropagation();
@@ -3174,7 +3176,7 @@ const GovProposalItem = ({
           )
         }
         padding="px-0 py-0"
-        className="h-8 w-20 ml-2.5 xsm:hidden"
+        className="h-8 min-w-20 ml-2.5 xsm:hidden"
       />
     );
 
@@ -3544,7 +3546,7 @@ const GovProposalItem = ({
                   text={
                     <FormattedMessage id="details" defaultMessage={'Details'} />
                   }
-                  width={`h-8 w-20  ${
+                  width={`h-8 min-w-20  ${
                     status === 'Expired' ? 'opacity-70' : ''
                   } xsm:hidden`}
                   className="h-full"
@@ -3618,13 +3620,13 @@ export const ProposalTab = ({
 
   return (
     <div
-      className={className}
+      className={`${className} xsm:flex`}
       style={{
         backgroundColor: isClientMobie ? '#1D2932' : '',
       }}
     >
       <NewGradientButton
-        className={`lg:text-lg lg:h-12 w-72  xsm:w-1/2 mr-2 xsm:mr-0 ${
+        className={`lg:text-lg lg:h-12  lg:min-w-72  xsm:w-1/2 mr-2 xsm:mr-0 ${
           curTab === PROPOSAL_TAB.FARM ? 'opacity-100' : ''
         }`}
         grayDisable={curTab !== PROPOSAL_TAB.FARM}
@@ -3640,7 +3642,7 @@ export const ProposalTab = ({
       />
 
       <NewGradientButton
-        className={`lg:text-lg lg:h-12 w-72 xsm:w-1/2  xsm:mr-0 mr-2 ${
+        className={`lg:text-lg lg:h-12 xsm:flex-grow lg:min-w-72 xsm:w-1/2  xsm:mr-0 mr-2 ${
           curTab === PROPOSAL_TAB.GOV ? 'opacity-100' : ''
         }`}
         onClick={() => setTab(PROPOSAL_TAB.GOV)}
@@ -4319,7 +4321,7 @@ export const FarmProposal = ({
                 defaultMessage={'Claim Bonus'}
               />
             }
-            className="h-8 xsm:h-7 w-28 xsm:w-24"
+            className="h-8 xsm:h-7 min-w-28 xsm:w-24"
             onClick={() => {
               claimRewardVE({
                 proposal_id: farmProposal.id,
@@ -4331,7 +4333,7 @@ export const FarmProposal = ({
         ) : (
           <FarmProposalGrayButton
             text={<FormattedMessage id="ended_ve" defaultMessage={'Ended'} />}
-            className="h-8 w-20 xsm:h-7"
+            className="h-8 min-w-20 xsm:h-7"
             padding="px-1 py-0"
           />
         )
@@ -4339,7 +4341,7 @@ export const FarmProposal = ({
         votedIndex === index ? (
           <NewGradientButton
             text={<FormattedMessage id="cancel" defaultMessage={'Cancel'} />}
-            className=" h-8 w-20 xsm:h-7"
+            className=" h-8 min-w-20 xsm:h-7"
             padding="px-0 py-0"
             onClick={() => {
               cancelVote({ proposal_id: farmProposal.id });
@@ -4349,7 +4351,7 @@ export const FarmProposal = ({
         ) : (
           <FarmProposalGrayButton
             text={<FormattedMessage id="vote" defaultMessage={'Vote'} />}
-            className="h-8 w-20 xsm:h-7"
+            className="h-8 min-w-20 xsm:h-7"
             padding="px-1 py-0"
           />
         )
@@ -4358,19 +4360,19 @@ export const FarmProposal = ({
           text={
             <FormattedMessage id="not_start" defaultMessage={'Not start'} />
           }
-          className="h-8 w-20 xsm:h-7"
+          className="h-8 min-w-20 xsm:h-7"
           padding="px-1 py-0"
         />
       ) : ONLY_ZEROS.test(veShare) ? (
         <FarmProposalGrayButton
           text={<FormattedMessage id="no_veLPT" defaultMessage={'NO veLPT'} />}
-          className="h-8 w-20 xsm:h-7"
+          className="h-8 min-w-20 xsm:h-7"
           padding="px-1 py-0"
         />
       ) : (
         <NewGradientButton
           text={<FormattedMessage id="vote" defaultMessage={'Vote'} />}
-          className="h-8 w-20 xsm:h-7"
+          className="h-8 min-w-20 xsm:h-7"
           onClick={() => {
             setVotePopUpOpen(true);
           }}
@@ -4386,7 +4388,7 @@ export const FarmProposal = ({
           }  xsm:my-4 xsm:flex xsm:flex-col pt-7 pb-14 xsm:pb-8 relative grid bg-black bg-opacity-20 rounded-2xl grid-cols-7 items-center  xsm:bg-cardBg xsm:bg-opacity-100 text-white overflow-hidden`}
         >
           {votedIndex === index && isClientMobie ? (
-            <div className="absolute top-0.5 left-5">
+            <div className="absolute top-0.5 left-2">
               <YouVotedAngle />
             </div>
           ) : null}
@@ -4750,7 +4752,7 @@ export const FarmProposal = ({
           }
           className="text-white text-sm  w-full h-full "
           padding=" py-2"
-          width="w-36 h-12 relative self-start xsm:hidden"
+          width="min-w-36 h-12 relative self-start xsm:hidden"
           color="#192431"
           onClick={() => {
             setShowLastRoundVoting(true);
@@ -4802,9 +4804,9 @@ export const FarmProposal = ({
                   defaultMessage={'Check Last Round'}
                 />
               }
-              className="text-white text-xs text-opacity-80  w-full h-full "
+              className="text-white whitespace-nowrap text-xs text-opacity-80  w-full h-full "
               padding=" py-2"
-              width="w-36 h-8 relative self-start  lg:hidden"
+              width="min-w-36 h-8 relative self-start  lg:hidden"
               color="#192431"
               onClick={() => {
                 setShowLastRoundVoting(true);
@@ -4822,8 +4824,8 @@ export const FarmProposal = ({
               onChange={setSortBy}
               className=" lg:hidden "
               canSelect
-              labelClassName="w-36 border  rounded-2xl"
-              dropDownClassName="w-40 text-sm"
+              labelClassName="min-w-36 border  rounded-2xl"
+              dropDownClassName="min-w-40 text-sm"
               brightClick
               forMobileFarm
             />

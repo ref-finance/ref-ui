@@ -188,6 +188,14 @@ module.exports = {
       maxWidth: {
         '200px': '200px',
       },
+      minWidth: {
+        20: '5rem',
+        28: '7rem',
+        72: '18rem',
+        36: '9rem',
+        24: '6rem',
+        40: '10rem',
+      },
     },
     plugins: [],
   },

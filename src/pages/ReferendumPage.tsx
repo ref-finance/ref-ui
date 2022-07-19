@@ -988,6 +988,11 @@ const UnLockPopUp = ({
     new Big(balance || 0).minus(reduced).toString()
   );
 
+  useEffect(() => {
+    setError(null);
+    setToUnlockAmount('');
+  }, [isOpen]);
+
   const intl = useIntl();
   useEffect(() => {
     if (Number(finalLove) < 0) {
@@ -1399,12 +1404,12 @@ const VotingPowerCard = ({
         height: isClientMobile ? '100px' : '',
       }}
     >
-      <div className="flex flex-col justify-between">
-        <span className="whitespace-nowrap xsm:text-lg">
+      <div className="flex xsm:relative flex-col justify-between">
+        <span className="lg:whitespace-nowrap xsm:text-lg xsm:leading-5">
           <FormattedMessage id="voting_power" defaultMessage={'Voting Power'} />
         </span>
 
-        <span className={`pt-10 xsm:pt-3 `}>
+        <span className={`pt-10 xsm:pt-3 xsm:absolute xsm:-bottom-2`}>
           <>
             <span title={veShare} className="flex items-center xsm:text-xl">
               {allZeros ? (
@@ -1470,7 +1475,7 @@ const VotingPowerCard = ({
       <div
         className={`${
           isClientMobile ? 'opacity-30' : ''
-        } relative xsm:absolute xsm:right-24 lg:bottom-11 right-5 xsm:top-6 xsm:transform`}
+        } absolute xsm:right-24 lg:bottom-11 lg:left-40 lg:-top-6 xsm:top-6 xsm:transform`}
         style={{
           transform: isClientMobile ? 'scale(0.4,0.4)' : '',
         }}
@@ -1506,12 +1511,14 @@ const FarmBoosterCard = ({
         height: isClientMobile ? '100px' : '',
       }}
     >
-      <div className="flex flex-col whitespace-nowrap justify-between xsm:text-lg">
-        <span>
+      <div className="flex xsm:relative  flex-col lg:whitespace-nowrap justify-between xsm:text-lg">
+        <span className="xsm:leading-5">
           <FormattedMessage id="farm_booster" defaultMessage={'Farm Booster'} />
         </span>
 
-        <span className={`text-white pt-10 xsm:pt-3`}>
+        <span
+          className={`text-white pt-10 xsm:pt-3 xsm:absolute xsm:-bottom-2`}
+        >
           <>
             <span title={balance} className="flex items-center">
               {allZeros ? (
@@ -1577,9 +1584,9 @@ const FarmBoosterCard = ({
         </span>
       </div>
       <div
-        className={`relative ${
+        className={` ${
           isClientMobile ? 'opacity-30' : ''
-        } xsm:absolute  lg:bottom-11 right-5 xsm:right-24 xsm:top-6 xsm:transform`}
+        } absolute   lg:left-40 lg:-top-6 xsm:right-24 xsm:top-6 xsm:transform`}
         style={{
           transform: isClientMobile ? 'scale(0.4,0.4)' : '',
         }}
@@ -1587,7 +1594,7 @@ const FarmBoosterCard = ({
         <LOVEBoosterIcon />
       </div>
       <button
-        className="absolute flex xsm:bg-none hover:bg-farmBoostingGotoFarm text-white hover:text-gradientFrom xsm:text-gradientFrom whitespace-nowrap  xsm:bottom-1  right-4 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal text-sm "
+        className="absolute flex xsm:bg-none hover:bg-farmBoostingGotoFarm text-white hover:text-gradientFrom xsm:text-gradientFrom whitespace-nowrap  xsm:bottom-1  right-1 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal text-sm "
         style={{
           fontSize: isClientMobile ? '10px' : '',
         }}

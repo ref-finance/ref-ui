@@ -729,7 +729,7 @@ const ko = {
   proposal_details: '프로포절 세부사항',
   back: 'Back',
   pending_ve: '대기중',
-  you_voted: '당신이 투표함:',
+  you_voted: '당신이 투표함',
   add_bonus: 'Bonus 추가',
   you_vote: '당신의 투표:',
   Creator: '제작자',

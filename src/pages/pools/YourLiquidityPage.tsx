@@ -286,8 +286,6 @@ export function YourLiquidityPage() {
 
   const vePool = pools.find((p) => Number(p.id) === Number(getVEPoolId()));
 
-  console.log(vePool, pools);
-
   return (
     <>
       <PoolTab></PoolTab>
@@ -451,7 +449,7 @@ function PoolRow(props: {
 
   if (
     userTotalShare
-      .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
+      .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0')
       .eq(new BigNumber(0))
   )
     return null;
@@ -780,7 +778,7 @@ function PoolRow(props: {
 
                 setShowWithdraw(true);
               }}
-              className="text-xs px-4 col-span-2 text-center h-8 mb-1"
+              className="text-xs w-full px-4 col-span-2 text-center h-8 mb-1"
               style={{
                 minWidth: '104px',
               }}

@@ -238,7 +238,7 @@ export function ConnectToNearBtnGradientMoible({
   return (
     <>
       <div
-        className={`${className} flex items-center cursor-pointer  px-3 w-24 py-0.5 justify-center rounded-full  text-sm bg-veGradient ${
+        className={`${className} flex items-center cursor-pointer  px-3 min-w-24 py-0.5 justify-center rounded-full  text-sm bg-veGradient ${
           buttonLoading ? 'opacity-40' : ''
         }`}
         style={{
