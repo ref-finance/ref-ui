@@ -572,7 +572,6 @@ const vi = {
   to_recover: 'để phục hồi.',
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
-  claimed_Rewards: 'Claimed Rewards',
   POOL: 'POOLS',
   STAKE: 'STAKE',
   lp_Token: 'LP Token',
@@ -588,7 +587,24 @@ const vi = {
   value_of_rewards: 'Value of Rewards',
   Rewards: 'Rewards',
   free: 'Free',
+  how_to_earn_more: 'Làm thế nào để nhận nhiều hơn?',
+  claimed_Rewards: 'Nhận phần thưởng',
+  all_5_v2: '5 tokens/lần',
+  search_farms: 'Tìm kiếm farms',
+  ended_Farms: 'Kết thúc Farms',
+  your_power: 'Lực của bạn',
+  farm_has_boost_tip:
+    'Lực của bạn = Staked LP Tokens của bạn * booster (bằng staking LOVE)',
+  farm_no_boost_tip: 'Lực của bạn = Staked LP Tokens của bạn',
+  search_by_token: 'Tìm kiếm bằng token',
+  more_than_a_simple_pool: 'Nhiều hơn một pool đơn giản',
+  create_pool: 'Tạo lập Pool',
+  you_have: 'Bạn có',
   lp_tokens: 'LP tokens',
+  bonus_tip:
+    'Phần thưởng vote cộng thêm được thiết kế để khuyến khích người dùng vote. Phần thưởng thêm của bạn phụ thuộc vào lượng đóng góp',
+  add_lp_tokens_tip:
+    'Bạn cần LP tokens để stake vào một farm tương ứng. Đầu tiên, thê thanh khoản vào pool để nhận LP tokens.',
   connect_to_wallet: 'Kết nối Wallet',
   anytime: 'Anytime',
   slash_policy_content:
@@ -602,10 +618,8 @@ const vi = {
   append_timing: 'Append timing',
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
-  all_5_v2: '5 tokens/time',
 
   more_than_seed: 'Input must be greater than or equal to ',
-  how_to_earn_more: 'How to earn more?',
   you_shares: 'Your Shares',
   lock_your_lp_tokens_with_booster: 'Lock your LP tokens for boosted rewards',
   unstaked_anytime_no_booster: 'Unstaked anytime, no booster',
@@ -618,7 +632,6 @@ const vi = {
   append_amount: 'Append amount',
   will_be_able_to_unstaked_after: 'will be able to unstaked after',
   expected_reward: 'Expected reward',
-  you_have: 'You have',
   tokens_small: 'tokens',
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
@@ -628,8 +641,6 @@ const vi = {
   unlock: 'Unlock',
   exit_fee: 'Exit fee',
   end_locking_period: 'End of locking period',
-  add_lp_tokens_tip:
-    'You need LP tokens to stake into the corresponding farm. First, add liquidity to the pool to get LP tokens.',
   slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
 
   ordinary: 'Ordinary',
@@ -641,18 +652,15 @@ const vi = {
   near_value: 'NEAR giá trị',
   recent_one_mounth_activity: 'Hoạt động trong một tháng',
   yes_continue: 'Yes, continue',
-  more_than_a_simple_pool: 'More than a simple pool',
   days_ve: 'days',
-  vote_capital: 'VOTE',
+  vote_capital: 'Bình chọn',
   starting_time: 'Starting Time',
   ending_time: 'Ending Time',
-  please_choose_voting_duration: 'Please choose voting duration',
+  please_choose_voting_duration: 'Hãy chọn khoảng thời gian bình chọn diễn ra',
   please_choose_proposal_voting_duration:
     'Please choose proposal voting duration',
-  bonus_tip:
-    'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
   unlocking_tip:
-    'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
+    'Mở khoá LP Token sẽ tự động huỷ bình chọn của bạn (và phần thưởng liên quan) trong đề xuất đang diễn ra',
   stake_min_deposit: 'Lượng nhập vào phải lớn hơn hoặc bằng ',
   unstakeTip: 'Staking hoặc unstaking sẽ tự động nhận phần thưởng của bạn.',
   endedFarmsUnstakeTip:
@@ -797,12 +805,6 @@ const vi = {
   share_forum_discussion_link_here: 'Chia sẻ link diễn đàn tạiđây',
   required_field: '‘Phần ‘yêu cầu',
   voting_power_and_extra_earnings: '‘Lực bình chọn & Thưởng thêm',
-  search_farms: 'Search farms',
-  ended_Farms: 'Ended Farms',
-  your_power: 'Your Power',
-  farm_has_boost_tip:
-    'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
-  farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
   risks_capital: 'Rủi ro',
 };
 export default Object.assign(vi, vi_in_risks_page);

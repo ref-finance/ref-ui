@@ -564,7 +564,6 @@ const ko = {
   to_recover: '회복.',
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
-  claimed_Rewards: 'Claimed Rewards',
   POOL: '풀들',
   STAKE: 'STAKE',
   lp_Token: 'LP Token',
@@ -580,7 +579,6 @@ const ko = {
   value_of_rewards: 'Value of Rewards',
   Rewards: 'Rewards',
   free: 'Free',
-  lp_tokens: 'LP tokens',
   connect_to_wallet: '지갑과 연결하기',
   anytime: 'Anytime',
   slash_policy_content:
@@ -594,10 +592,25 @@ const ko = {
   append_timing: 'Append timing',
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
-  all_5_v2: '5 tokens/time',
-
+  how_to_earn_more: '더 버는 방법?',
+  claimed_Rewards: '획득된 보상',
+  all_5_v2: '타임당 5 토큰',
+  search_farms: '농장 검색',
+  ended_Farms: '종료된 농장들',
+  your_power: '당신의 "파워"',
+  farm_has_boost_tip:
+    '당신의 "파워" = 당신이 스테이킹한 LP 토큰 * 부스터 (부스터는 LOVE를 스테이킹하면 나옴)',
+  farm_no_boost_tip: '당신의 "파워" = 당신이 스테이킹한 LP 토큰',
+  search_by_token: '토큰으로 검색',
+  more_than_a_simple_pool: '단순한 풀이 아니다',
+  create_pool: '풀 만들기',
+  you_have: 'you have',
+  lp_tokens: 'LP 토큰',
+  bonus_tip:
+    '투표 보너스는 유저들의 투표를 독려하게끔 설계되었습니다. 보너스는 당신의 지분에 따라 달라집니다',
+  add_lp_tokens_tip:
+    '특정 농장에 스테이킹하려면 LP 토큰이 필요합니다. 우선 풀에 유동성을 공급하여 LP 토큰을 받으세요.',
   more_than_seed: 'Input must be greater than or equal to ',
-  how_to_earn_more: 'How to earn more?',
   you_shares: 'Your Shares',
   lock_your_lp_tokens_with_booster: 'Lock your LP tokens for boosted rewards',
   unstaked_anytime_no_booster: 'Unstaked anytime, no booster',
@@ -610,7 +623,6 @@ const ko = {
   append_amount: 'Append amount',
   will_be_able_to_unstaked_after: 'will be able to unstaked after',
   expected_reward: 'Expected reward',
-  you_have: 'You have',
   tokens_small: 'tokens',
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
@@ -620,8 +632,6 @@ const ko = {
   unlock: 'Unlock',
   exit_fee: 'Exit fee',
   end_locking_period: 'End of locking period',
-  add_lp_tokens_tip:
-    'You need LP tokens to stake into the corresponding farm. First, add liquidity to the pool to get LP tokens.',
   slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
 
   ordinary: 'Ordinary',
@@ -637,19 +647,16 @@ const ko = {
   near_value: 'NEAR 값',
   recent_one_mounth_activity: '최근 한 달 사용내역',
   vote_mobile_capital: 'VOTE',
-  bonus_tip:
-    'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
   yes_continue: 'Yes, continue',
-  more_than_a_simple_pool: 'More than a simple pool',
   vote_capital: 'VOTE',
   please_choose_proposal_voting_duration:
     'Please choose proposal voting duration',
   starting_time: 'Starting Time',
   days_ve: 'days',
   ending_time: 'Ending Time',
-  please_choose_voting_duration: 'Please choose voting duration',
+  please_choose_voting_duration: '투표 기간을 설정해 주세요!',
   unlocking_tip:
-    'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
+    'LP 토큰을 잠금 해제하면 다음 프로포절들에 대한 당신의 투표는 자동으로 취소됩니다. (관련 보너스도 사라집니다)',
   stake_min_deposit: '입력된 값은 다음보다 크거나 같아야 합니다: ',
   unstakeTip:
     '스테이킹을 하면, 혹은 스테이킹을 해제하면 보상은 자동으로 획득됩니다.',
@@ -789,12 +796,6 @@ const ko = {
   share_forum_discussion_link_here: '포럼 토론 링크를 여기에 남겨주세요',
   required_field: '필수 입력 항목',
   voting_power_and_extra_earnings: '투표권 & 추가 수익',
-  search_farms: 'Search farms',
-  ended_Farms: 'Ended Farms',
-  your_power: 'Your Power',
-  farm_has_boost_tip:
-    'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
-  farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
   risks_capital: '리스크',
 };
 export default Object.assign(ko, ko_in_risks_page);

@@ -563,7 +563,6 @@ const ru = {
   to_recover: 'выздороветь.',
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
-  claimed_Rewards: 'Claimed Rewards',
   you_voted: 'Вы проголосовали',
   add_bonus: 'Добавить бонус',
   you_vote: 'Ваш голос',
@@ -643,7 +642,6 @@ const ru = {
   value_of_rewards: 'Value of Rewards',
   Rewards: 'Rewards',
   free: 'Free',
-  lp_tokens: 'LP tokens',
   connect_to_wallet: 'Подключить кошелек',
   anytime: 'Anytime',
   slash_policy_content:
@@ -657,10 +655,25 @@ const ru = {
   append_timing: 'Append timing',
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
-  all_5_v2: '5 tokens/time',
-
+  how_to_earn_more: 'Как можно заработать больше?',
+  claimed_Rewards: 'Полученные награды',
+  all_5_v2: '5 токенов за раз',
+  search_farms: 'Искать фермы',
+  ended_Farms: 'Завершенные фермы',
+  your_power: 'Ваша энергия',
+  farm_has_boost_tip:
+    'Ваша энергия = Ваши застейканные LP токены * бустер (от стейкинга LOVE)',
+  farm_no_boost_tip: 'Ваша энергия = Ваши застейканные LP токены',
+  search_by_token: 'Поиск по токены',
+  more_than_a_simple_pool: 'Больше, чем обычный пул',
+  create_pool: 'Создать пул',
+  you_have: 'У вас есть',
+  lp_tokens: 'LP токены',
+  bonus_tip:
+    'Премия за голосование разработана для того, чтобы стимулировать пользователей голосовать. Ваш бонус зависит от количества принадлежащих вам долей',
+  add_lp_tokens_tip:
+    'Вам нужны LP токены, чтобы застейкать их в соответствующей ферме. Для получения LP-токенов сначала добавьте ликвидность в пул.',
   more_than_seed: 'Input must be greater than or equal to ',
-  how_to_earn_more: 'How to earn more?',
   you_shares: 'Your Shares',
   lock_your_lp_tokens_with_booster: 'Lock your LP tokens for boosted rewards',
   unstaked_anytime_no_booster: 'Unstaked anytime, no booster',
@@ -673,7 +686,6 @@ const ru = {
   append_amount: 'Append amount',
   will_be_able_to_unstaked_after: 'will be able to unstaked after',
   expected_reward: 'Expected reward',
-  you_have: 'You have',
   tokens_small: 'tokens',
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
@@ -683,35 +695,24 @@ const ru = {
   unlock: 'Unlock',
   exit_fee: 'Exit fee',
   end_locking_period: 'End of locking period',
-  add_lp_tokens_tip:
-    'You need LP tokens to stake into the corresponding farm. First, add liquidity to the pool to get LP tokens.',
   slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
 
   ordinary: 'Ordinary',
   exit_fee_tip: 'Estimated amount you would pay to break your lock-up period',
   forbiddenTip: 'This farm does not support this duration option',
   click_to_view: 'Нажмите, чтобы просмотреть',
-  bonus_tip:
-    'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
   yes_continue: 'Yes, continue',
-  more_than_a_simple_pool: 'More than a simple pool',
   days_ve: 'days',
-  vote_capital: 'VOTE',
+  vote_capital: 'Голосование',
   starting_time: 'Starting Time',
   ending_time: 'Ending Time',
-  please_choose_voting_duration: 'Please choose voting duration',
+  please_choose_voting_duration: 'Пожалуйста, выберите срок голосования',
   please_choose_proposal_voting_duration:
     'Please choose proposal voting duration',
   unlocking_tip:
-    'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
+    'Разблокировка LP токенов автоматически аннулирует ваш голос (и соответствующий бонус) в рамках следующего предложения(й)',
   endedFarmsUnstakeTip:
     'Подобным действим вы отмените стейкинг со всех активных и предстоящих ферм данной пары',
-  search_farms: 'Search farms',
-  ended_Farms: 'Ended Farms',
-  your_power: 'Your Power',
-  farm_has_boost_tip:
-    'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
-  farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
   risks_capital: 'Риски',
   stake_min_deposit: 'Введеное количество должно быть больше или равно',
   unstakeTip:
