@@ -142,15 +142,8 @@
   padding-top: 30px;
   padding-left: 28px;
   padding-right: 28px;
-  /* overflow-y: auto; */
   font-size: 16px;
   line-height: 1.6;
-  /* background: linear-gradient(
-    180deg,
-    rgba(0, 255, 216, 0.2) 0%,
-    rgba(0, 108, 92, 0.2) 100%
-  );
-  transform: translate3d(0px, 20px, 0) scale(0.95) translate(-50%, 0px); */
 }
 
 .nws-modal-wrapper .modal {

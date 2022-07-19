@@ -145,7 +145,9 @@ export const Modal: React.FC<ModalProps> = ({
                   params: { wallet: wallet },
                 });
               }}
-              onConnected={handleDismissClick}
+              onConnected={() => {
+                handleDismissClick();
+              }}
               onError={(err) => {
                 // setAlertMessage(err.message);
                 setRoute({

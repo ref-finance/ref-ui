@@ -51,6 +51,7 @@ import {
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
 import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 function MyShares({
   shares,
@@ -166,7 +167,10 @@ export function YourLiquidityPage() {
 
   const { poolData: LINEARPoolData } = useStabelPoolData(LINEAR_POOL_ID);
 
-  if (!senderLoginRes && !webWallet.isSignedIn()) {
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
+  if (!accountId) {
     history.push('/');
     return null;
   }

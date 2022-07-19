@@ -7,6 +7,7 @@ import type {
 
 import type { ModalOptions } from '../modal.types';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { useClientMobile } from '../../../utils/device';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -18,6 +19,64 @@ const walletOfficialUrl = {
   WalletConnect: 'walletconnect.com',
   'My NEAR Wallet': 'mynearwallet.com',
 };
+
+const SelectedIcon = () => {
+  return (
+    <div className="left-1 bottom-1 relative">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle cx="10" cy="10" r="9.5" fill="#00C6A2" stroke="#1D2932" />
+        <path
+          d="M6 10.5L8.66667 13L14 8"
+          stroke="white"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </svg>
+    </div>
+  );
+};
+
+const Installed = () => {
+  return (
+    <div
+      className="bg-white bg-opacity-10 relative bottom-6 left-4 pl-2 pr-6 pt-6 rounded-lg text-primaryText"
+      style={{
+        fontSize: '10px',
+      }}
+    >
+      <FormattedMessage id="installed" defaultMessage={'installed'} />
+    </div>
+  );
+};
+
+const Beta = () => {
+  return (
+    <div
+      className="bg-farmText px-1 relative right-px top-px rounded-md"
+      style={{
+        color: '#01121D',
+        fontSize: '8px',
+      }}
+    >
+      <FormattedMessage id="beta" defaultMessage={'Beta'} />
+    </div>
+  );
+};
+
+const notSupportingIcons = [
+  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/sender.png',
+  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/math-wallet.png',
+  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/nightly.png',
+  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/ledger.png',
+  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/nightly-connect.png',
+  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/WalletConnect.png',
+];
 
 interface WalletOptionsProps {
   selector: WalletSelector;
@@ -64,7 +123,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
   onConnecting,
   onConnected,
 }) => {
-  const [walletInfoVisible, setWalletInfoVisible] = useState(false);
   const [modules, setModules] = useState<Array<ModuleState>>([]);
 
   useEffect(() => {
@@ -83,22 +141,12 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const intl = useIntl();
-
   const handleWalletClick = (module: ModuleState) => async () => {
     try {
-      const { deprecated, available } = module.metadata;
+      const { available } = module.metadata;
 
       if (module.type === 'injected' && !available) {
         return onWalletNotInstalled(module);
-      }
-
-      if (deprecated) {
-        return onError(
-          new Error(
-            `${module.metadata.name} is deprecated. Please select another wallet.`
-          )
-        );
       }
 
       const wallet = await module.wallet();
@@ -113,7 +161,9 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
         methodNames: options.methodNames,
       });
 
-      onConnected();
+      if (wallet.type !== 'browser') {
+        onConnected();
+      }
     } catch (err) {
       const { name } = module.metadata;
 
@@ -124,6 +174,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
     }
   };
 
+  const isMobile = useClientMobile();
+
   return (
     <Fragment>
       <div className="wallet-options-wrapper">
@@ -132,13 +184,36 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
             const { selectedWalletId } = selector.store.getState();
             const { name, description, iconUrl, deprecated } = module.metadata;
             const selected = module.id === selectedWalletId;
+            if (isMobile && module.type !== 'browser') {
+              return result;
+            }
+
+            const installed =
+              module.type === 'injected' && module.metadata.available;
+
+            console.log(module);
+
+            const isBeta = module.metadata.name === 'My NEAR Wallet';
+
             result.push(
               <li
                 key={module.id}
                 id={module.id}
                 onClick={selected ? undefined : handleWalletClick(module)}
-                className="px-5 py-3"
+                className={`px-5 py-3 relative ${
+                  !selected && installed ? 'overflow-hidden' : ''
+                }`}
               >
+                <div className="absolute top-0 right-0">
+                  {selected ? (
+                    <SelectedIcon />
+                  ) : installed ? (
+                    <Installed />
+                  ) : isBeta ? (
+                    <Beta />
+                  ) : null}
+                </div>
+
                 <div
                   title={description || ''}
                   className="wallet-content flex items-center"
@@ -163,6 +238,24 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
           }, [])}
         </ul>
       </div>
+
+      {isMobile && (
+        <div className="flex flex-col mt-7">
+          <div className="text-xs mb-4">
+            <FormattedMessage
+              id="wallets_below_supports_on_PC"
+              defaultMessage={'Wallets below support on PC'}
+            />
+          </div>
+
+          <div className="flex items-center opacity-50">
+            {notSupportingIcons.map((url) => {
+              return <img src={url} className="w-7 h-7 mr-4" alt="" />;
+            })}
+          </div>
+        </div>
+      )}
+
       <WalletSelectorFooter />
     </Fragment>
   );

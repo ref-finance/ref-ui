@@ -64,6 +64,7 @@ import {
   useAuroraTokens,
 } from '../services/aurora/aurora';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from './SwapPage';
+import { useWalletSelector } from '../context/WalletSelectorContext';
 
 const ACCOUNT_PAGE_AURORA_SHOW = REF_FI_SWAP_SWAPPAGE_TAB_KEY;
 const REF_ACCOUNT_WITHDRAW_TIP = 'REF_ACCOUNT_WITHDRAW_TIP';
@@ -1683,7 +1684,12 @@ export function AccountPage() {
 
   const senderLoginRes = getSenderLoginRes();
 
-  if (!senderLoginRes && !webWallet.isSignedIn()) {
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
+  console.log(accountId);
+
+  if (!accountId) {
     history.push('/');
     return null;
   }

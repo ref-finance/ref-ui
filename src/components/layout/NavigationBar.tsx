@@ -211,6 +211,16 @@ function AccountEntry({
     return () => clearTimeout(timer);
   }, [showAccountTip]);
 
+  const signOut = async () => {
+    const curWallet = await wallet.wallet();
+
+    await curWallet.signOut();
+
+    localStorage.removeItem(ACCOUNT_ID_KEY);
+
+    window.location.assign('/');
+  };
+
   const accountList = [
     {
       icon: <AccountIcon />,
@@ -324,15 +334,14 @@ function AccountEntry({
         {isSignedIn && hover ? (
           <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
             <Card
-              className="menu-max-height cursor-default shadow-4xl "
+              className="menu-max-height bg-cardBg cursor-default shadow-4xl "
               width="w-72"
               padding="py-4"
               style={{
-                backgroundColor: 'rgba(58, 69, 77, 0.6)',
                 border: '1px solid #415462',
               }}
             >
-              <div className="mx-7 flex justify-between">
+              <div className="mx-7 flex justify-between items-start">
                 <div className="text-white text-lg text-left flex-col flex">
                   <span>{getAccountName(wallet.getAccountId())}</span>
 
@@ -354,7 +363,7 @@ function AccountEntry({
                   </span>
                 </div>
 
-                <div>
+                <div className="flex items-center">
                   <CopyToClipboard text={wallet.getAccountId()}>
                     <div
                       className={` bg-opacity-20 rounded-lg flex items-center justify-center p-1.5 cursor-pointer`}
@@ -379,7 +388,48 @@ function AccountEntry({
                       />
                     </div>
                   </CopyToClipboard>
+
+                  <button
+                    className="hover:text-gradientFrom text-primaryText ml-2"
+                    onClick={() => {
+                      window.open(
+                        `https://${
+                          getConfig().networkId === 'testnet' ? 'testnet.' : ''
+                        }nearblocks.io/address/${wallet.getAccountId()}#transaction`
+                      );
+                    }}
+                  >
+                    <HiOutlineExternalLink size={18} />
+                  </button>
                 </div>
+              </div>
+
+              <div className="flex mx-7 my-3 items-center text-xs justify-center">
+                <button
+                  className="text-BTCColor mr-2 w-1/2 py-1.5 border rounded-lg border-BTCColor border-opacity-30"
+                  onClick={() => {
+                    signOut();
+                  }}
+                >
+                  <FormattedMessage
+                    id="disconnect"
+                    defaultMessage={'Disconnect'}
+                  />
+                </button>
+
+                <button
+                  className="text-gradientFrom ml-2 w-1/2 py-1.5 border rounded-lg border-gradientFrom border-opacity-30"
+                  onClick={async () => {
+                    // const curWallet = await wallet.wallet();
+
+                    // await curWallet.signOut();
+
+                    // localStorage.removeItem(ACCOUNT_ID_KEY);
+                    modal.show();
+                  }}
+                >
+                  <FormattedMessage id="change" defaultMessage={'Change'} />
+                </button>
               </div>
 
               <div
@@ -983,6 +1033,10 @@ function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
   const [hoverClick, setHoverClick] = useState<boolean>(false);
@@ -1045,7 +1099,6 @@ function NavigationBar() {
   const [pathnameState, setPathnameState] = useState<boolean>(
     window.location.pathname !== '/account'
   );
-  const historyInit = useHistory();
   const setPatheState = () =>
     setPathnameState(window.location.pathname !== '/account');
 
@@ -1193,7 +1246,7 @@ function NavigationBar() {
             />
             <div
               className={
-                isSignedIn ? ' relative right-3 flex items-center' : 'hidden'
+                !!accountId ? ' relative right-3 flex items-center' : 'hidden'
               }
             >
               <ConnectDot />
