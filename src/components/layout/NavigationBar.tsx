@@ -406,7 +406,7 @@ function AccountEntry({
 
               <div className="flex mx-7 my-3 items-center text-xs justify-center">
                 <button
-                  className="text-BTCColor mr-2 w-1/2 py-1.5 border rounded-lg border-BTCColor border-opacity-30"
+                  className="text-BTCColor mr-2 w-1/2 py-1.5 border rounded-lg hover:border-transparent hover:bg-BTCColor hover:bg-opacity-20 border-BTCColor border-opacity-30"
                   onClick={() => {
                     signOut();
                   }}
@@ -418,13 +418,14 @@ function AccountEntry({
                 </button>
 
                 <button
-                  className="text-gradientFrom ml-2 w-1/2 py-1.5 border rounded-lg border-gradientFrom border-opacity-30"
+                  className="text-gradientFrom ml-2 w-1/2 py-1.5 border rounded-lg hover:border-transparent hover:bg-gradientFrom hover:bg-opacity-20 border-gradientFrom border-opacity-30"
                   onClick={async () => {
-                    const curWallet = await wallet.wallet();
+                    //TODO: bug on change between browser wallet
+                    // const curWallet = await wallet.wallet();
 
-                    await curWallet.signOut();
+                    // await curWallet.signOut();
 
-                    localStorage.removeItem(ACCOUNT_ID_KEY);
+                    // localStorage.removeItem(ACCOUNT_ID_KEY);
                     modal.show();
                   }}
                 >
@@ -467,8 +468,7 @@ function AccountEntry({
                         <label className="text-lg ml-2">{item.subIcon}</label>
                       ) : null} */}
                     </div>
-                    {hasBalanceOnRefAccount &&
-                    item.textId === 'view_account' ? (
+                    {hasBalanceOnRefAccount && item.textId === 'your_assets' ? (
                       <div
                         className="text-center py-0.5 font-normal bg-gradientFrom w-full cursor-pointer text-xs"
                         onClick={item.click}

@@ -23,6 +23,12 @@ import {
 export const SENDER_WALLET_SIGNEDIN_STATE_KEY =
   'SENDER_WALLET_SIGNEDIN_STATE_VALUE';
 
+export const walletsRejectError = [
+  'User reject',
+  'User rejected the signature request',
+  'Invalid message. Only transactions can be signed',
+];
+
 export const getSenderLoginRes = () => {
   return localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
 };

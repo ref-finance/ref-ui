@@ -70,7 +70,7 @@ export const Modal: React.FC<ModalProps> = ({
     });
     hide();
 
-    // window.location.reload();
+    window.location.reload();
   }, [hide]);
 
   useEffect(() => {

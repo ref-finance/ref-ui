@@ -146,6 +146,15 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
 
   const handleWalletClick = (module: ModuleState) => async () => {
     try {
+      const currentWallet = await window.selector.wallet();
+      console.log(currentWallet);
+
+      if (currentWallet.type === 'browser') {
+        await currentWallet.signOut();
+      }
+    } catch (error) {}
+
+    try {
       const { available } = module.metadata;
 
       if (module.type === 'injected' && !available) {
@@ -179,66 +188,72 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
 
   const isMobile = useClientMobile();
 
+  const [hoverOption, setHoverOption] = useState<number>(-1);
+
   return (
     <Fragment>
       <div className="wallet-options-wrapper">
         <ul className={'options-list'}>
-          {modules.reduce<Array<JSX.Element>>((result, module) => {
-            const { selectedWalletId } = selector.store.getState();
-            const { name, description, iconUrl, deprecated } = module.metadata;
-            const selected = module.id === selectedWalletId;
-            if (isMobile && module.type !== 'browser') {
-              return result;
-            }
+          {modules.reduce<Array<JSX.Element>>(
+            (result, module, currentIndex) => {
+              const { selectedWalletId } = selector.store.getState();
+              const { name, description, iconUrl, deprecated } =
+                module.metadata;
+              const selected = module.id === selectedWalletId;
+              if (isMobile && module.type !== 'browser') {
+                return result;
+              }
 
-            const installed =
-              module.type === 'injected' && module.metadata.available;
+              const installed =
+                module.type === 'injected' && module.metadata.available;
 
-            console.log(module);
+              const isBeta = module.metadata.name === 'My NEAR Wallet';
 
-            const isBeta = module.metadata.name === 'My NEAR Wallet';
-
-            result.push(
-              <li
-                key={module.id}
-                id={module.id}
-                onClick={selected ? undefined : handleWalletClick(module)}
-                className={`px-5 py-3 relative ${
-                  !selected && installed ? 'overflow-hidden' : ''
-                }`}
-              >
-                <div className="absolute top-0 right-0">
-                  {selected ? (
-                    <SelectedIcon />
-                  ) : installed ? (
-                    <Installed />
-                  ) : isBeta ? (
-                    <Beta />
-                  ) : null}
-                </div>
-
-                <div
-                  title={description || ''}
-                  className="wallet-content flex items-center"
+              result.push(
+                <li
+                  key={module.id}
+                  id={module.id}
+                  onClick={selected ? undefined : handleWalletClick(module)}
+                  className={`px-5 py-3 relative ${
+                    hoverOption === currentIndex ? 'bottom-1' : ''
+                  } ${!selected && installed ? 'overflow-hidden' : ''}`}
+                  onMouseEnter={() => setHoverOption(currentIndex)}
+                  onMouseLeave={() => setHoverOption(-1)}
                 >
-                  <div className="wallet-img-box">
-                    <img src={iconUrl} alt={name} />
+                  <div className="absolute top-0 right-0">
+                    {selected ? (
+                      <SelectedIcon />
+                    ) : installed ? (
+                      <Installed />
+                    ) : isBeta ? (
+                      <Beta />
+                    ) : null}
                   </div>
-                  <div className="flex items-start flex-col">
-                    <span className="">
-                      {name === 'NEAR Wallet' ? 'NEAR' : name}
-                    </span>
 
-                    <span className="text-xs text-primaryText official-url">
-                      {walletOfficialUrl[name]}
-                    </span>
+                  <div
+                    title={description || ''}
+                    className="wallet-content flex items-center"
+                  >
+                    <div className="wallet-img-box">
+                      <img src={iconUrl} alt={name} />
+                    </div>
+                    <div className="flex items-start flex-col text-sm">
+                      <span className="">
+                        {name === 'NEAR Wallet' ? 'NEAR' : name}
+                      </span>
+
+                      <span className="text-xs text-primaryText official-url">
+                        {walletOfficialUrl[name]}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </li>
-            );
+                </li>
+              );
 
-            return result;
-          }, [])}
+              return result;
+            },
+            []
+          )}
         </ul>
       </div>
 

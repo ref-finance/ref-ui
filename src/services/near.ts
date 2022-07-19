@@ -9,7 +9,11 @@ import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
 import getConfig, { getExtraStablePoolConfig } from './config';
 import SpecialWallet from './SpecialWallet';
-import { getCurrentWallet, senderWallet } from '../utils/wallets-integration';
+import {
+  getCurrentWallet,
+  senderWallet,
+  walletsRejectError,
+} from '../utils/wallets-integration';
 
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
@@ -262,10 +266,12 @@ export const executeMultipleTransactions = async (
       );
 
       window.location.href = newHref;
+    })
+    .catch((e: Error) => {
+      if (walletsRejectError.includes(e.message)) {
+        window.location.reload();
+      }
     });
-  // .catch(() => {
-  //   window.location.reload();
-  // });
 };
 
 export const refFarmFunctionCall = async ({
@@ -291,9 +297,6 @@ export const refFarmFunctionCall = async ({
       },
     ],
   });
-  // .catch(() => {
-  //   window.location.reload();
-  // });
 };
 
 export const refFarmViewFunction = ({
