@@ -5,9 +5,12 @@ import type {
   Wallet,
 } from '@near-wallet-selector/core';
 
+import { InjectedWallet } from '@near-wallet-selector/core';
+
 import type { ModalOptions } from '../modal.types';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useClientMobile } from '../../../utils/device';
+import { ACCOUNT_ID_KEY } from '../../WalletSelectorContext';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -148,8 +151,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       if (module.type === 'injected' && !available) {
         return onWalletNotInstalled(module);
       }
-
       const wallet = await module.wallet();
+
       onConnecting(wallet);
 
       if (wallet.type === 'hardware') {

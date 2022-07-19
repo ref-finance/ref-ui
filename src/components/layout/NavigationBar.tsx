@@ -190,12 +190,15 @@ function AccountEntry({
 
   const [currentWalletIcon, setCurrentWalletIcon] = useState<string>();
 
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
   useEffect(() => {
     wallet.wallet().then((res) => {
       setCurrentWalletName(res.metadata.name);
       setCurrentWalletIcon(res.metadata.iconUrl);
     });
-  }, []);
+  }, [accountId]);
 
   useEffect(() => {
     setShowAccountTip(hasBalanceOnRefAccount);
@@ -267,9 +270,6 @@ function AccountEntry({
   ];
 
   const isMobile = useClientMobile();
-
-  const { selector, modal, accounts, accountId, setAccountId } =
-    useWalletSelector();
 
   return (
     <div className="bubble-box relative user text-xs text-center justify-end z-30 mx-3.5">
@@ -420,11 +420,11 @@ function AccountEntry({
                 <button
                   className="text-gradientFrom ml-2 w-1/2 py-1.5 border rounded-lg border-gradientFrom border-opacity-30"
                   onClick={async () => {
-                    // const curWallet = await wallet.wallet();
+                    const curWallet = await wallet.wallet();
 
-                    // await curWallet.signOut();
+                    await curWallet.signOut();
 
-                    // localStorage.removeItem(ACCOUNT_ID_KEY);
+                    localStorage.removeItem(ACCOUNT_ID_KEY);
                     modal.show();
                   }}
                 >

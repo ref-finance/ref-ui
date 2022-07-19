@@ -13,9 +13,12 @@ import { setupLedger } from '@near-wallet-selector/ledger';
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect/src';
 import { setupNightlyConnect } from '@near-wallet-selector/nightly-connect';
 
+import { InjectedWallet } from '@near-wallet-selector/core';
+
 import getConfig from '../services/config';
 
 import './modal-ui/components/styles';
+import { REF_FARM_CONTRACT_ID } from '../services/near';
 
 const CONTRACT_ID = getConfig().REF_FARM_CONTRACT_ID;
 
@@ -178,6 +181,25 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
   if (!selector || !modal) {
     return null;
   }
+
+  window.near.on('accountChanged', async (changedAccountId: string) => {
+    // window.location.reload();
+    const currentWallet = await selector.wallet();
+
+    await currentWallet.signOut();
+
+    console.log(changedAccountId);
+
+    const senderModule = selector.store
+      .getState()
+      .modules.find((m) => m.id === 'sender');
+
+    const senderWallet = (await senderModule.wallet()) as InjectedWallet;
+
+    await senderWallet.signIn({
+      contractId: REF_FARM_CONTRACT_ID,
+    });
+  });
 
   return (
     <WalletSelectorContext.Provider
