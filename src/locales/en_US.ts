@@ -572,5 +572,6 @@ const en_US = {
   borrow: 'Borrow',
   burrow_usn_tip: 'You can borrow USN on Burrow.',
   recent_one_mounth_activity: 'One Month Activities',
+  your_assets: 'Your Assets',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -224,7 +224,7 @@ function AccountEntry({
   const accountList = [
     {
       icon: <AccountIcon />,
-      textId: 'my_assets',
+      textId: 'your_assets',
       selected: location.pathname == '/account',
       click: () => {
         if (location.pathname == '/account') {

@@ -579,5 +579,6 @@ const vi = {
   total_near_amount: 'Số lượng tất cả NEAR',
   near_value: 'NEAR giá trị',
   recent_one_mounth_activity: 'Hoạt động một tháng',
+  your_assets: 'Your Assets',
 };
 export default Object.assign(vi, vi_in_risks_page);
