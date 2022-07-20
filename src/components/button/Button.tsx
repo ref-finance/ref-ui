@@ -353,6 +353,7 @@ export function GradientButton(
     btnClassName?: string;
     loading?: boolean;
     backgroundImage?: string;
+    minWidth?: string;
   }
 ) {
   const {
@@ -362,6 +363,7 @@ export function GradientButton(
     color,
     btnClassName,
     backgroundImage,
+    minWidth,
     onClick,
   } = props;
   return (
@@ -373,6 +375,7 @@ export function GradientButton(
         borderRadius: '5px',
         color: color || '',
         backgroundImage: backgroundImage || '',
+        minWidth: minWidth || '',
       }}
     >
       <button
