@@ -434,7 +434,7 @@ function AccountEntry({
               </div>
 
               <div
-                className="my-3 "
+                className="my-3 mx-7 "
                 style={{
                   borderBottom: '1px solid rgba(126, 138, 147, 0.3)',
                 }}
