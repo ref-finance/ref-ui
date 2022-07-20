@@ -242,7 +242,7 @@ export const executeMultipleTransactions = async (
             methodName: fc.methodName,
             args: fc.args,
             gas: getGas(fc.gas).toNumber().toFixed(),
-            deposit: utils.format.parseNearAmount(fc.amount)!,
+            deposit: utils.format.parseNearAmount(fc.amount || '0')!,
           },
         };
       }),
