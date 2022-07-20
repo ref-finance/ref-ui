@@ -150,7 +150,7 @@ export function ConnectToNearBtn() {
           </div>
         )}
 
-        <button>
+        <button disabled={buttonLoading}>
           <ButtonTextWrapper
             loading={buttonLoading}
             Text={() => (

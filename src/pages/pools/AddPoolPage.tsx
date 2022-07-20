@@ -276,7 +276,7 @@ export function AddPoolPage() {
         <div className="pt-6 w-full">
           {isSignedIn ? (
             <button
-              disabled={!canSubmit}
+              disabled={!canSubmit || buttonLoading}
               className={`rounded-full w-full text-lg text-white px-5 py-2.5 focus:outline-none font-semibold ${
                 canSubmit ? '' : 'opacity-40 disabled:cursor-not-allowed'
               } ${buttonLoading ? 'opacity-40' : ''}`}

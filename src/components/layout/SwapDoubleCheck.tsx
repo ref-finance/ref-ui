@@ -126,6 +126,7 @@ export function DoubleCheckModal(
             className="text-xs w-auto text-center"
             padding="px-4 py-1.5"
             loading={buttonLoading}
+            disabled={buttonLoading}
           >
             <ButtonTextWrapper
               loading={buttonLoading}

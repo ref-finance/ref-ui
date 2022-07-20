@@ -773,7 +773,9 @@ export function FarmsPage() {
                         Object.keys(checkedList).length == 0 ? 'opacity-40' : ''
                       }`}
                       onClick={doWithDraw}
-                      disabled={Object.keys(checkedList).length == 0}
+                      disabled={
+                        Object.keys(checkedList).length == 0 || withdrawLoading
+                      }
                       btnClassName={
                         Object.keys(checkedList).length == 0
                           ? 'cursor-not-allowed'
@@ -2002,7 +2004,7 @@ function FarmView({
                 <GradientButton
                   color="#fff"
                   onClick={() => claimReward()}
-                  disabled={disableClaim}
+                  disabled={disableClaim || claimLoading}
                   className="text-white text-sm flex-grow  w-20"
                   loading={claimLoading}
                 >

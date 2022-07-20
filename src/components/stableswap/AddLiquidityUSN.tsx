@@ -427,7 +427,7 @@ export default function AddLiquidityComponentUSN(props: {
           ) : null}
           {isSignedIn ? (
             <SolidButton
-              disabled={!canSubmit}
+              disabled={!canSubmit || buttonLoading}
               className="focus:outline-none px-4 w-full text-lg"
               loading={buttonLoading}
               onClick={() => {

@@ -459,7 +459,7 @@ function AccountEntry({
                         <FormattedMessage id={item.textId} />
                       </label>
                       <label htmlFor="" className="ml-1.5">
-                        {item.textId === 'view_account' &&
+                        {item.textId === 'your_assets' &&
                         hasBalanceOnRefAccount ? (
                           <FarmDot inFarm={hasBalanceOnRefAccount} />
                         ) : null}

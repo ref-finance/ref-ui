@@ -437,7 +437,7 @@ export function AddLiquidityModal(
     };
     return (
       <SolidButton
-        disabled={!canSubmit || canDeposit}
+        disabled={!canSubmit || canDeposit || buttonLoading}
         className="focus:outline-none px-4 w-full"
         onClick={handleClick}
         loading={buttonLoading}
@@ -861,7 +861,7 @@ export function RemoveLiquidityModal(
         <div className="">
           {isSignedIn ? (
             <SolidButton
-              disabled={!canSubmit}
+              disabled={!canSubmit || buttonLoading}
               className={`focus:outline-none px-4 w-full`}
               onClick={async () => {
                 try {

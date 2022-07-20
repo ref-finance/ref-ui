@@ -481,7 +481,7 @@ function InputView(props: any) {
             buttonStatus ? 'opacity-40' : ''
           }`}
           onClick={onSubmit}
-          disabled={buttonStatus}
+          disabled={buttonStatus || loading}
           btnClassName={buttonStatus ? 'cursor-not-allowed' : ''}
         >
           {tab == 0 ? (

@@ -366,7 +366,11 @@ export default function StableSwap({
           {isSignedIn ? (
             <SolidButton
               className="w-full text-lg"
-              disabled={!canSubmit}
+              disabled={
+                !canSubmit ||
+                showSwapLoading ||
+                (loadingTrigger && !loadingPause)
+              }
               loading={showSwapLoading || (loadingTrigger && !loadingPause)}
             >
               <ButtonTextWrapper

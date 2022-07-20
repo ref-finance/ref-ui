@@ -647,7 +647,9 @@ function AccountTable(props: any) {
                       : ''
                   }`}
                   onClick={doWithDraw}
-                  disabled={Object.keys(checkedAuroraMap).length == 0}
+                  disabled={
+                    Object.keys(checkedAuroraMap).length == 0 || withdrawLoading
+                  }
                   btnClassName={
                     Object.keys(checkedAuroraMap).length == 0
                       ? 'cursor-not-allowed'
@@ -674,7 +676,9 @@ function AccountTable(props: any) {
                     Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
                   }`}
                   onClick={doWithDraw}
-                  disabled={Object.keys(checkedMap).length == 0}
+                  disabled={
+                    Object.keys(checkedMap).length == 0 || withdrawLoading
+                  }
                   btnClassName={
                     Object.keys(checkedMap).length == 0
                       ? 'cursor-not-allowed'
@@ -994,7 +998,9 @@ function MobileAccountTable(props: any) {
                     Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
                   }`}
                   onClick={doWithDraw}
-                  disabled={Object.keys(checkedMap).length == 0}
+                  disabled={
+                    Object.keys(checkedMap).length == 0 || withdrawLoading
+                  }
                   btnClassName={
                     Object.keys(checkedMap).length == 0
                       ? 'cursor-not-allowed'
@@ -1035,7 +1041,9 @@ function MobileAccountTable(props: any) {
                       : ''
                   }`}
                   onClick={doWithDraw}
-                  disabled={Object.keys(checkedAuroraMap).length == 0}
+                  disabled={
+                    Object.keys(checkedAuroraMap).length == 0 || withdrawLoading
+                  }
                   btnClassName={
                     Object.keys(checkedAuroraMap).length == 0
                       ? 'cursor-not-allowed'

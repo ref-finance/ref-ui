@@ -457,7 +457,7 @@ export function RemoveLiquidityComponent(props: {
 
         {isSignedIn ? (
           <SolidButton
-            disabled={!canSubmit}
+            disabled={!canSubmit || buttonLoading}
             className={`focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
               if (canSubmit) {
