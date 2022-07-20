@@ -28,6 +28,7 @@ import {
   nearWithdrawTransaction,
 } from './wrap-near';
 import { registerAccountOnToken } from './creators/token';
+import { getProposalHashes } from './indexer';
 export interface LockOptions {
   token_id: string;
   amount: string;
@@ -74,6 +75,7 @@ export interface Proposal {
   incentive: {} | Incentive;
   status: ProposalStatus;
   is_nonsense: null;
+  transaction_hash?: string | null;
   id?: number;
   ve_amount_at_last_action: string;
 }

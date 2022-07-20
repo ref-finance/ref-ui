@@ -1594,7 +1594,7 @@ const FarmBoosterCard = ({
         <LOVEBoosterIcon />
       </div>
       <button
-        className={`absolute flex xsm:items-center xsm:bg-none hover:bg-farmBoostingGotoFarm text-white hover:text-gradientFrom xsm:text-gradientFrom whitespace-nowrap  xsm:bottom-1  right-1 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal `}
+        className={`absolute lg:text-xs flex xsm:items-center xsm:bg-none hover:bg-farmBoostingGotoFarm text-white hover:text-gradientFrom xsm:text-gradientFrom whitespace-nowrap  xsm:bottom-1  right-1 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal `}
         style={{
           fontSize: isClientMobile
             ? intl.locale === 'uk'

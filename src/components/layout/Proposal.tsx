@@ -148,6 +148,7 @@ import {
 } from '../button/Button';
 import ReactTooltip from 'react-tooltip';
 import { DownArrowLightMobile } from '../icon/Arrows';
+import { getProposalHashes, ProposalHash } from '../../services/indexer';
 const VotedOnlyKey = 'REF_FI_GOV_PROPOSAL_VOTED_ONLY';
 const BonusOnlyKey = 'REF_FI_GOV_PROPOSAL_BONUS_ONLY';
 
@@ -519,7 +520,7 @@ export const BonusBar = ({
       </div>
 
       {forDetail ? (
-        <>
+        <div className="flex flex-col ">
           {!showYourShare ? null : (
             <div
               className={`flex lg:hidden  w-full text-sm mt-3 items-center pb-3 justify-between ${
@@ -541,7 +542,10 @@ export const BonusBar = ({
               bright || true
                 ? 'bg-veGradient'
                 : 'bg-transparent border-t border-white border-opacity-10'
-            } flex items-center xsm:flex-col xsm:flex text-center bottom-0 relative rounded-xl text-sm  text-white`}
+            } flex items-center xsm:flex-col xsm:flex -mx-4 text-center bottom-0 relative  text-sm  text-white`}
+            style={{
+              width: 'calc(100% + 2rem)',
+            }}
           >
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center text-base">
@@ -616,7 +620,7 @@ export const BonusBar = ({
               })}
             </div>
           </div>
-        </>
+        </div>
       ) : (
         <div
           className={`w-full left-0 h-8  lg:hidden ${
@@ -1537,7 +1541,7 @@ export const PreviewPopUp = (
               </div>
             </div>
 
-            <div className="flex items-center justify-center mt-8 xsm:mt-4 pb-6 xsm:pb-2">
+            <div className="flex items-center justify-center mt-8 xsm:mt-4 ">
               <div className="w-4/5 xsm:w-full text-primaryText flex flex-col ml-16 xsm:ml-0 pb-6 xsm:pb-0">
                 <div className="grid xsm:hidden  grid-cols-10 pb-5 xsm:pb-0 px-6 xsm:px-4">
                   <span className="col-span-6 ">
@@ -2289,6 +2293,7 @@ const GovItemDetail = ({
   setCounterDownStirng,
   base,
   counterDownStirng,
+  transaction_hash,
 }: {
   show?: number;
   proposal: Proposal;
@@ -2309,8 +2314,11 @@ const GovItemDetail = ({
   base: number;
   setCounterDownStirng: (s: string) => void;
   counterDownStirng: string;
+  transaction_hash?: string;
 }) => {
   const intl = useIntl();
+
+  console.log(transaction_hash, 'transaction_hash');
 
   const startTime = Math.floor(Number(proposal?.start_at) / TIMESTAMP_DIVISOR);
   const endTime = Math.floor(Number(proposal?.end_at) / TIMESTAMP_DIVISOR);
@@ -2571,22 +2579,45 @@ const GovItemDetail = ({
       <Card
         className="w-full relative overflow-hidden"
         bgcolor="bg-black bg-opacity-20 xsm:bg-white xsm:bg-opacity-10"
-        padding={`px-10 pt-9 pb-14 xsm:px-4 xsm:py-6`}
+        padding={`px-10 pt-9 pb-14 xsm:px-4 xsm:pt-6 xsm:pb-0`}
       >
         <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 xsm:pt-0 text-white text-xl mb-4 xsm:mb-0">
           {`#${proposal.id} `} {description.title}
         </div>
 
-        <InfoRow
-          name={intl.formatMessage({
-            id: 'Creator',
-            defaultMessage: 'Creator',
-          })}
-          value={getAccountName(proposal.proposer)}
-          valueClass={'font-bold'}
-          valueTitle={proposal.proposer}
-          className="xsm:py-2.5"
-        />
+        <div className="flex xsm:flex-col lg:flex-row lg:items-center lg:justify-between">
+          <InfoRow
+            name={intl.formatMessage({
+              id: 'Creator',
+              defaultMessage: 'Creator',
+            })}
+            value={getAccountName(proposal.proposer)}
+            valueClass={'font-bold'}
+            valueTitle={proposal.proposer}
+            className="xsm:py-2.5"
+          />
+
+          <button
+            className={`cursor-pointer flex items-center text-sm ${
+              !transaction_hash ? 'hidden' : ''
+            } text-gradientFrom hover:text-senderHot`}
+            onClick={() => {
+              window.open(
+                `${getConfig().explorerUrl}/txns/${transaction_hash}`
+              );
+            }}
+          >
+            <span className="text-primaryText">
+              <FormattedMessage id="view_on" defaultMessage={'View on'} />
+            </span>
+
+            <span className="underline text-primaryText ml-1">Nearblocks</span>
+
+            <span className="ml-1">
+              <VEARROW />
+            </span>
+          </button>
+        </div>
 
         <InfoRow
           name={intl.formatMessage({
@@ -2616,24 +2647,6 @@ const GovItemDetail = ({
             })}
             value={toPrecision(totalVE, 2)}
           />
-
-          <button
-            className="flex items-center "
-            onClick={() => {
-              window.open(displayLink, '_blank');
-            }}
-          >
-            <span>
-              <FormattedMessage
-                id="forum_discussion"
-                defaultMessage={'Forum Discussion'}
-              />
-            </span>
-
-            <span className="text-gradientFrom hover:text-senderHot ml-2">
-              <VEARROW />
-            </span>
-          </button>
         </div>
         {!isClientMobie ? null : (
           <div className=" flex items-center justify-center relative top-0 self-start xsm:py-8">
@@ -2703,7 +2716,7 @@ const GovItemDetail = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-center mt-8 xsm:mt-4 pb-6 xsm:pb-2">
+        <div className="flex items-center justify-center mt-8 xsm:mt-4 pb-6 xsm:pb-2 lg:border-b lg:border-white lg:border-opacity-10 pb-6 xsm:pb-2">
           <div className="w-1/5 xsm:hidden flex items-center justify-center relative top-0 self-start">
             {status === 'WarmUp' ? (
               <NoResultChart expand="1.25" />
@@ -2805,9 +2818,55 @@ const GovItemDetail = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-end pt-6 xsm:border-t xsm:hidden border-white border-opacity-10">
+        <div className="flex items-center justify-between pt-6 xsm:border-t xsm:hidden border-white border-opacity-10">
+          <BorderGradientButton
+            className="flex items-center justify-center h-full "
+            onClick={() => {
+              window.open(displayLink, '_blank');
+            }}
+            text={
+              <span className="flex items-center">
+                <span>
+                  <FormattedMessage
+                    id="forum_discussion"
+                    defaultMessage={'Forum Discussion'}
+                  />
+                </span>
+
+                <span className="text-white hover:text-senderHot ml-2">
+                  <VEARROW />
+                </span>
+              </span>
+            }
+            width="h-8 min-w-40"
+            padding="px-2"
+          />
+
           {Button}
         </div>
+
+        <BorderGradientButton
+          className="flex items-center justify-center h-full"
+          onClick={() => {
+            window.open(displayLink, '_blank');
+          }}
+          text={
+            <span className="flex items-center">
+              <span>
+                <FormattedMessage
+                  id="forum_discussion"
+                  defaultMessage={'Forum Discussion'}
+                />
+              </span>
+
+              <span className="text-white hover:text-senderHot ml-2">
+                <VEARROW />
+              </span>
+            </span>
+          }
+          width="h-8 lg:hidden mt-4 min-w-40"
+          padding="px-2"
+        />
 
         <BonusBar
           proposal={proposal}
@@ -2828,24 +2887,6 @@ const GovItemDetail = ({
           setShowAddBonus={setShowAddBonus}
           forDetail={true}
         />
-
-        <button
-          className="flex items-center text-sm  mx-auto justify-center lg:hidden mt-4 text-center"
-          onClick={() => {
-            window.open(displayLink, '_blank');
-          }}
-        >
-          <span>
-            <FormattedMessage
-              id="forum_discussion"
-              defaultMessage={'Forum Discussion'}
-            />
-          </span>
-
-          <span className="text-white ml-0.5">
-            <VEARROW />
-          </span>
-        </button>
       </Card>
 
       {!isSignedIn && isClientMobie ? (
@@ -2896,6 +2937,7 @@ const GovProposalItem = ({
   voteDetail,
   voteHistory,
   veShare,
+  transaction_hash,
 }: {
   description?: Description;
   proposal: Proposal;
@@ -2905,6 +2947,7 @@ const GovProposalItem = ({
   voteDetail: VoteDetail;
   voteHistory: VoteDetail;
   veShare: string;
+  transaction_hash?: string;
 }) => {
   const [status, setStatus] = useState<ProposalStatus>(proposal.status);
 
@@ -3230,6 +3273,7 @@ const GovProposalItem = ({
           yourShare={yourShare}
           show={showDetail}
           setShow={setShowDetail}
+          transaction_hash={transaction_hash}
           proposal={proposal}
           description={JSON.parse(
             proposal?.kind?.Poll
@@ -5465,6 +5509,23 @@ export const GovProposal = ({
 
   const isSignedIn = globalState.isSignedIn;
 
+  const [transactionHashes, setTransactionHashes] = useState<ProposalHash[]>(
+    []
+  );
+
+  useEffect(() => {
+    if (!proposals || proposals.length === 0) return;
+
+    const proposal_ids = proposals.map((p) => p.id);
+
+    console.log(proposal_ids, 'propposal ids');
+
+    getProposalHashes({ proposal_ids }).then((res: ProposalHash[]) => {
+      console.log(res);
+      setTransactionHashes(res);
+    });
+  }, [proposals]);
+
   const [bonusOnly, setBonusOnly] = useState<boolean>(
     (isSignedIn && localStorage.getItem(BonusOnlyKey)?.toString() === '1') ||
       false
@@ -5690,6 +5751,10 @@ export const GovProposal = ({
             voteHistory={voteHistory}
             voteDetail={voteDetail}
             veShare={veShare}
+            transaction_hash={
+              transactionHashes.find((t) => Number(t.proposal_id) === p.id)
+                ?.transaction_hash || ''
+            }
           />
         )) || []}
       </div>

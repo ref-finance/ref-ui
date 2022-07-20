@@ -805,6 +805,7 @@ const vi = {
   share_forum_discussion_link_here: 'Chia sẻ link diễn đàn tạiđây',
   required_field: '‘Phần ‘yêu cầu',
   voting_power_and_extra_earnings: '‘Lực bình chọn & Thưởng thêm',
+  view_on: 'View on',
   risks_capital: 'Rủi ro',
 };
 export default Object.assign(vi, vi_in_risks_page);

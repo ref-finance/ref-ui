@@ -801,6 +801,7 @@ const ru = {
   ended_ve: 'Завершено',
   proposal_details: 'Детали предложения',
   back: 'Вернуться',
+  view_on: 'View on',
   pending_ve: 'Ожидается',
 };
 export default Object.assign(ru, ru_in_risks_page);

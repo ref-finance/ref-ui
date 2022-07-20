@@ -766,6 +766,7 @@ const uk_UA = {
   farm_has_boost_tip:
     'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
   farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
+  view_on: 'View on',
   risks_capital: 'Ризики',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

@@ -798,5 +798,6 @@ const en_US = {
   days_ve: 'days',
   vote_mobile_capital: 'VOTE',
   risks_capital: 'RISKS',
+  view_on: 'View on',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -796,6 +796,7 @@ const ko = {
   share_forum_discussion_link_here: '포럼 토론 링크를 여기에 남겨주세요',
   required_field: '필수 입력 항목',
   voting_power_and_extra_earnings: '투표권 & 추가 수익',
+  view_on: 'View on',
   risks_capital: '리스크',
 };
 export default Object.assign(ko, ko_in_risks_page);

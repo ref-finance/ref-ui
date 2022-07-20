@@ -166,6 +166,35 @@ export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
     });
 };
 
+// https://testnet-indexer.ref-finance.com/get-proposal-hash-by-id?proposal_id=11|12
+
+export interface ProposalHash {
+  proposal_id: string;
+  receipt_id: string;
+  transaction_hash: string;
+}
+
+export const getProposalHashes = async ({
+  proposal_ids,
+}: {
+  proposal_ids: number[];
+}) => {
+  return fetch(
+    config.indexerUrl +
+      '/get-proposal-hash-by-id?proposal_id=' +
+      proposal_ids.join('|'),
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+
+    .catch(() => {
+      return [];
+    });
+};
+
 export const getPoolsByIds = async ({
   pool_ids,
 }: {
