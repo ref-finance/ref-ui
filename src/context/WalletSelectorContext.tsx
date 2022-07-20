@@ -178,28 +178,31 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
     return () => subscription.unsubscribe();
   }, [selector, accountId]);
 
+  useEffect(() => {
+    if (!selector || !modal) return;
+    if (!window?.near?.isSender) return;
+
+    window.near.on('accountChanged', async (changedAccountId: string) => {
+      // window.location.reload();
+      const currentWallet = await selector.wallet();
+
+      await currentWallet.signOut();
+
+      const senderModule = selector.store
+        .getState()
+        .modules.find((m) => m.id === 'sender');
+
+      const senderWallet = (await senderModule.wallet()) as InjectedWallet;
+
+      await senderWallet.signIn({
+        contractId: REF_FARM_CONTRACT_ID,
+      });
+    });
+  }, [selector, modal]);
+
   if (!selector || !modal) {
     return null;
   }
-
-  window.near.on('accountChanged', async (changedAccountId: string) => {
-    // window.location.reload();
-    const currentWallet = await selector.wallet();
-
-    await currentWallet.signOut();
-
-    console.log(changedAccountId);
-
-    const senderModule = selector.store
-      .getState()
-      .modules.find((m) => m.id === 'sender');
-
-    const senderWallet = (await senderModule.wallet()) as InjectedWallet;
-
-    await senderWallet.signIn({
-      contractId: REF_FARM_CONTRACT_ID,
-    });
-  });
 
   return (
     <WalletSelectorContext.Provider

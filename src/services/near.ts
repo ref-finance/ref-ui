@@ -268,6 +268,7 @@ export const executeMultipleTransactions = async (
       window.location.href = newHref;
     })
     .catch((e: Error) => {
+      console.log(e);
       if (walletsRejectError.includes(e.message)) {
         window.location.reload();
       }

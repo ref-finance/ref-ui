@@ -27,6 +27,7 @@ export const walletsRejectError = [
   'User reject',
   'User rejected the signature request',
   'Invalid message. Only transactions can be signed',
+  'Ledger device: Condition of use not satisfied (denied by the user?) (0x6985)',
 ];
 
 export const getSenderLoginRes = () => {

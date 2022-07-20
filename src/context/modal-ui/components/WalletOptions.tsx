@@ -149,7 +149,10 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       const currentWallet = await window.selector.wallet();
       console.log(currentWallet);
 
-      if (currentWallet.type === 'browser') {
+      if (
+        (currentWallet.type === 'browser' && module.type === 'browser') ||
+        module.type === 'hardware'
+      ) {
         await currentWallet.signOut();
       }
     } catch (error) {}
