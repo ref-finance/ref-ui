@@ -2391,7 +2391,8 @@ function ActionModal(
                   !amount ||
                   new BigNumber(amount).isEqualTo(0) ||
                   new BigNumber(amount).isGreaterThan(maxToFormat) ||
-                  stakeCheck
+                  stakeCheck ||
+                  buttonLoading
                 }
                 loading={buttonLoading}
               >

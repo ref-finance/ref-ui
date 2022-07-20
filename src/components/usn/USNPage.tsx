@@ -200,7 +200,7 @@ function USNPage(props: ReactModal.Props) {
                   !canSubmit ? 'opacity-40' : ''
                 }`}
                 onClick={handleSubmit}
-                disabled={!canSubmit}
+                disabled={!canSubmit || showBuyLoading}
                 btnClassName={!canSubmit ? 'cursor-not-allowed' : ''}
                 loading={showBuyLoading}
               >

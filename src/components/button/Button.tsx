@@ -204,6 +204,7 @@ export function SolidButton(
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={`${disabled ? 'cursor-not-allowed opacity-40' : ''}  ${
         loading ? 'opacity-40' : ''
       }
