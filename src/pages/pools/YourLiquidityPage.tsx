@@ -677,7 +677,7 @@ function PoolRow(props: {
                 e.preventDefault();
                 window.open('/referendum');
               }}
-              className="text-primaryText mb-1.5 flex"
+              className="text-primaryText mb-1.5 flex whitespace-nowrap items-center"
             >
               <span>
                 {toPrecision(
