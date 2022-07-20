@@ -3193,7 +3193,7 @@ export const BG_RECTANGLE = () => {
 export const PoolDaoBanner = () => {
   return (
     <div className="relative">
-      <div className="z-10 absolute -right-5">
+      <div className="z-10 absolute right-2 transform scale-110">
         <BG_RECTANGLE />
       </div>
 

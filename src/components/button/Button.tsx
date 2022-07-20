@@ -238,7 +238,7 @@ export function ConnectToNearBtnGradientMoible({
   return (
     <>
       <div
-        className={`${className} flex items-center cursor-pointer  px-3 min-w-24 py-0.5 justify-center rounded-full  text-sm bg-veGradient ${
+        className={`${className} flex items-center cursor-pointer  min-w-24 py-0.5 justify-center rounded-full  text-sm bg-veGradient ${
           buttonLoading ? 'opacity-40' : ''
         }`}
         style={{
@@ -912,7 +912,7 @@ export function BlacklightConnectToNearBtn(props: any) {
 export const YouVotedButton = () => {
   return (
     <NewGradientButton
-      className=" text-white text-sm self-start cursor-default opacity-100 h-6"
+      className=" text-white whitespace-nowrap text-sm self-start cursor-default opacity-100 h-6"
       text={<FormattedMessage id="you_voted" defaultMessage={'You voted'} />}
       padding="px-2 py-0"
     />

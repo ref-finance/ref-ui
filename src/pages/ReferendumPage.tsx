@@ -1594,9 +1594,13 @@ const FarmBoosterCard = ({
         <LOVEBoosterIcon />
       </div>
       <button
-        className="absolute flex xsm:bg-none hover:bg-farmBoostingGotoFarm text-white hover:text-gradientFrom xsm:text-gradientFrom whitespace-nowrap  xsm:bottom-1  right-1 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal text-sm "
+        className={`absolute flex xsm:items-center xsm:bg-none hover:bg-farmBoostingGotoFarm text-white hover:text-gradientFrom xsm:text-gradientFrom whitespace-nowrap  xsm:bottom-1  right-1 bottom-4 px-4 xsm:px-0 py-px rounded-full font-normal `}
         style={{
-          fontSize: isClientMobile ? '10px' : '',
+          fontSize: isClientMobile
+            ? intl.locale === 'uk'
+              ? '8px'
+              : '10px'
+            : '',
         }}
         onClick={() => {
           window.open('/farmsBoost', '_blank');
@@ -1605,7 +1609,7 @@ const FarmBoosterCard = ({
         <span>
           <FormattedMessage id="go_to_farm" defaultMessage="Go to farm" />
         </span>
-        <span className="ml-1 relative top-1 xsm:transform xsm:scale-75">
+        <span className="ml-1 lg:relative lg:top-1 xsm:transform xsm:scale-75">
           <VEARROW />
         </span>
       </button>

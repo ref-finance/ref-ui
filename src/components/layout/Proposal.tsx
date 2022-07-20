@@ -1219,6 +1219,7 @@ function SelectUI({
   notshowOption,
   brightClick,
   forMobileFarm,
+  dropDownItemClassName,
 }: {
   onChange: (e: any) => void;
   list: string[];
@@ -1232,6 +1233,7 @@ function SelectUI({
   notshowOption?: boolean;
   brightClick?: boolean;
   forMobileFarm?: boolean;
+  dropDownItemClassName?: string;
 }) {
   const [showSelectBox, setShowSelectBox] = useState(false);
   const switchSelectBoxStatus = () => {
@@ -1288,7 +1290,9 @@ function SelectUI({
         </span>
       </span>
       <div
-        className={`${dropDownClassName} absolute z-50 top-8 right-0 bg-selectUI rounded-2xl px-2  text-sm w-28 ${
+        className={`${
+          dropDownClassName || 'w-28'
+        } absolute z-50 top-8 right-0 bg-selectUI rounded-2xl px-2  text-sm ${
           showSelectBox ? '' : 'hidden'
         }`}
         style={{
@@ -1301,7 +1305,7 @@ function SelectUI({
             onMouseDown={() => {
               onChange(item);
             }}
-            className={`flex rounded-lg items-center p-4 h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-black hover:bg-opacity-20 hover:text-opacity-100
+            className={`${dropDownItemClassName} flex rounded-lg items-center p-4 h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-black hover:bg-opacity-20 hover:text-opacity-100
             ${item == curvalue ? 'bg-black bg-opacity-20 text-opacity-100' : ''}
             `}
           >
@@ -1838,6 +1842,8 @@ const FarmChart = ({
 
   const isClientMobie = useClientMobile();
 
+  const intl = useIntl();
+
   const votedAmount =
     voteDetail?.[proposal?.id]?.amount || voteHistory?.[proposal?.id]?.amount;
 
@@ -1954,7 +1960,13 @@ const FarmChart = ({
         </div>
 
         <div className="flex items-center px-3 pt-3 justify-between pb-2">
-          <span className="text-primaryText whitespace-nowrap">
+          <span
+            className={`text-primaryText whitespace-nowrap ${
+              forLastRound && (intl.locale === 'uk' || intl.locale === 'ru')
+                ? 'text-xs'
+                : ''
+            }`}
+          >
             <FormattedMessage id="voted_veLPT" defaultMessage={'Voted veLPT'} />
           </span>
 
@@ -3284,7 +3296,7 @@ const GovProposalItem = ({
 
               {/* counter down */}
               <div className="flex items-center">
-                <span className="rounded-3xl text-xs px-1 text-senderHot xsm:mr-2  md:mr-0 lg:mr-0">
+                <span className="rounded-3xl xsm:relative xsm:right-2 text-xs px-1 text-senderHot xsm:mr-2  md:mr-0 lg:mr-0">
                   {ended ? (
                     <span className="bg-black bg-opacity-20 px-2 py-1 rounded-3xl text-primaryText">
                       <FormattedMessage
@@ -3322,7 +3334,7 @@ const GovProposalItem = ({
                           status === 'WarmUp'
                             ? 'text-primaryText'
                             : 'text-senderHot'
-                        } text-xs   lg:hidden `
+                        } text-xs xsm:right-3 xsm:relative   lg:hidden `
                   }
                 >
                   {counterDownStirng}
@@ -3637,7 +3649,7 @@ export const ProposalTab = ({
             defaultMessage={'Gauge Weight Vote'}
           />
         }
-        padding="px-0 py-2"
+        padding="px-1 py-2"
         onClick={() => setTab(PROPOSAL_TAB.FARM)}
       />
 
@@ -4388,7 +4400,7 @@ export const FarmProposal = ({
           }  xsm:my-4 xsm:flex xsm:flex-col pt-7 pb-14 xsm:pb-8 relative grid bg-black bg-opacity-20 rounded-2xl grid-cols-7 items-center  xsm:bg-cardBg xsm:bg-opacity-100 text-white overflow-hidden`}
         >
           {votedIndex === index && isClientMobie ? (
-            <div className="absolute top-0.5 left-2">
+            <div className="absolute top-0.5 left-5">
               <YouVotedAngle />
             </div>
           ) : null}
@@ -4828,6 +4840,7 @@ export const FarmProposal = ({
               dropDownClassName="min-w-40 text-sm"
               brightClick
               forMobileFarm
+              dropDownItemClassName="min-w-40"
             />
           </div>
         </div>
@@ -5133,6 +5146,7 @@ export const CreateGovProposal = ({
             className={'ml-2'}
             canSelect
             labelClassName="xsm:w-32 h-8"
+            dropDownItemClassName="xsm:min-w-32"
           />
         </div>
 
@@ -5657,8 +5671,9 @@ export const GovProposal = ({
               className="ml-6 "
               canSelect
               labelClassName="xsm:w-28 lg:w-32 xsm:bg-cardBg xsm:border xsm:border-selectBorder"
-              dropDownClassName="w-36 text-sm"
+              dropDownClassName="min-w-36 text-sm"
               brightClick
+              dropDownItemClassName="min-w-36"
             />
           </div>
         </div>

@@ -596,7 +596,7 @@ function PoolRow(props: {
           />
         </div>
 
-        <div className="col-span-2 flex flex-col text-xs  -ml-5 text-farmText">
+        <div className="col-span-2 flex flex-col text-xs  -ml-12 text-farmText">
           {supportFarmV1 > 0 && (
             <Link
               to={{

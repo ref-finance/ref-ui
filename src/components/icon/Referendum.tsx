@@ -707,7 +707,7 @@ export const YouVotedAngleMatrix = () => {
 export const YouVotedAngle = () => {
   return (
     <div className="relative  flex items-center justify-center">
-      <div className="absolute z-10">
+      <div className="absolute z-10 transform scale-x-125">
         <YouVotedAngleMatrix />
       </div>
       <span className="relative z-20 text-xs text-white">
