@@ -904,7 +904,8 @@ function AddLiquidityEntryBar(props: {
           onClick={openAddLiquidityModal}
           color="#fff"
           loading={addLiquidityButtonLoading}
-          className={` flex-shrink-0 w-36 h-8 ml-5 text-center text-sm text-white focus:outline-none font-semibold `}
+          minWidth="9rem"
+          className={`flex-shrink-0 px-1 h-8 ml-5 text-center text-sm text-white focus:outline-none font-semibold `}
         >
           <ButtonTextWrapper
             loading={addLiquidityButtonLoading}
