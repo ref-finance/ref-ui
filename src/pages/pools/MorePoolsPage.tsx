@@ -33,6 +33,11 @@ import { scientificNotationToString } from '../../utils/numbers';
 import { usePoolsFarmCount } from '../../state/pool';
 import { useClientMobile } from '../../utils/device';
 import { PoolTab } from '../../components/pool/PoolTab';
+import Loading from '~components/layout/Loading';
+
+interface ParamTypes {
+  tokenIds: string;
+}
 
 interface LocationTypes {
   morePoolIds: string[];
@@ -239,14 +244,23 @@ export const MorePoolsPage = () => {
   const { state } = useLocation<LocationTypes>();
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState<boolean | 'desc' | 'asc'>('desc');
-  const morePoolIds = state?.morePoolIds;
-  const tokens = state?.tokens;
-  const morePools = useMorePools({ morePoolIds, order, sortBy });
+
+  const { tokenIds } = useParams<ParamTypes>();
+
+  const tokenIdsArray = tokenIds.split(',');
+
+  const tokens = state?.tokens || useTokens(tokenIdsArray);
+  const morePools = useMorePools({ tokenIds: tokenIdsArray, order, sortBy });
+  const morePoolIds = morePools?.map((p) => p.id.toString());
 
   const watchList = useAllWatchList();
 
-  const poolsFarmCount = usePoolsFarmCount({ morePoolIds });
+  const poolsFarmCount = usePoolsFarmCount({
+    morePoolIds,
+  });
   const clientMobileDevice = useClientMobile();
+
+  if (!tokens) return <Loading />;
 
   return (
     <>

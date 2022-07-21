@@ -26,6 +26,34 @@ import { getPool as getPoolRPC } from '../services/pool';
 
 const config = getConfig();
 
+export const getPoolsByTokensIndexer = async ({
+  token0,
+  token1,
+}: {
+  token0: string;
+  token1: string;
+}) => {
+  const res1 = await fetch(
+    config.indexerUrl +
+      `/list-pools-by-tokens?token0=${token0}&token1=${token1}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+
+  const res2 = await fetch(
+    config.indexerUrl +
+      `/list-pools-by-tokens?token0=${token1}&token1=${token0}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+
+  const res = res1.concat(res2);
+
+  return res.filter((p: any) => !isStablePool(p.id));
+};
+
 export const getPoolMonthVolume = async (
   pool_id: string
 ): Promise<volumeType[]> => {
