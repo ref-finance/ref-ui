@@ -62,7 +62,7 @@ import {
   AuroraEntry,
   USNCard,
 } from './NavigationBar';
-import { ConnectDot } from '../icon/CrossSwapIcons';
+import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage from '~components/usn/USNPage';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
@@ -71,6 +71,7 @@ import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
 } from '../../context/WalletSelectorContext';
+import CopyToClipboard from 'react-copy-to-clipboard';
 
 export function MobileAnchor({
   to,
@@ -254,7 +255,7 @@ export function AccountModel(props: any) {
   const accountList = [
     {
       icon: <AccountIcon />,
-      textId: 'view_account',
+      textId: 'your_assets',
       selected: location.pathname == '/account',
       click: () => {
         if (location.pathname == '/account') {
@@ -281,20 +282,44 @@ export function AccountModel(props: any) {
         window.open(config.walletUrl, '_blank');
       },
     },
-    {
-      icon: <SignoutIcon />,
-      textId: 'sign_out',
-      click: async () => {
-        const curWallet = await wallet.wallet();
+    // {
+    //   icon: <SignoutIcon />,
+    //   textId: 'sign_out',
+    //   click: async () => {
+    //     const curWallet = await wallet.wallet();
 
-        await curWallet.signOut();
+    //     await curWallet.signOut();
 
-        localStorage.removeItem(ACCOUNT_ID_KEY);
+    //     localStorage.removeItem(ACCOUNT_ID_KEY);
 
-        window.location.assign('/');
-      },
-    },
+    //     window.location.assign('/');
+    //   },
+    // },
   ];
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+  const [currentWalletName, setCurrentWalletName] = useState<string>();
+
+  const [currentWalletIcon, setCurrentWalletIcon] = useState<string>();
+  const signOut = async () => {
+    const curWallet = await wallet.wallet();
+
+    await curWallet.signOut();
+
+    localStorage.removeItem(ACCOUNT_ID_KEY);
+
+    window.location.assign('/');
+  };
+
+  useEffect(() => {
+    wallet.wallet().then((res) => {
+      setCurrentWalletName(res.metadata.name);
+      setCurrentWalletIcon(res.metadata.iconUrl);
+    });
+  }, [accountId]);
+
+  const [copyIconHover, setCopyIconHover] = useState<boolean>(false);
+
   const handleClick = (e: any) => {
     if (!accountWrapRef.current.contains(e.target)) {
       props.closeAccount();
@@ -321,6 +346,88 @@ export function AccountModel(props: any) {
       }}
     >
       <div className="w-full bg-cardBg" ref={accountWrapRef}>
+        <div className="mx-7 pt-4 flex justify-between items-start">
+          <div className="text-white text-lg text-left flex-col flex">
+            <span>{getAccountName(wallet.getAccountId())}</span>
+
+            <span className="flex items-center ">
+              <span className="mr-1">
+                {!currentWalletIcon ? (
+                  <div className="w-4 h-4"></div>
+                ) : (
+                  <img
+                    src={currentWalletIcon}
+                    className="w-4 h-4 rounded-full"
+                    alt=""
+                  />
+                )}
+              </span>
+              <span className="text-xs text-primaryText">
+                {currentWalletName || '-'}
+              </span>
+            </span>
+          </div>
+
+          <div className="flex items-center">
+            <CopyToClipboard text={wallet.getAccountId()}>
+              <div
+                className={`bg-black bg-opacity-30  rounded-xl flex items-center justify-center p-1 cursor-pointer`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                onTouchStart={() => {
+                  setCopyIconHover(true);
+                }}
+                onTouchEnd={() => {
+                  setCopyIconHover(false);
+                }}
+              >
+                <CopyIcon fillColor={copyIconHover ? '#4075FF' : '#7E8A93'} />
+              </div>
+            </CopyToClipboard>
+
+            <button
+              className="hover:text-gradientFrom text-primaryText w-6 h-6 flex items-center justify-center ml-2 p-0.5 rounded-xl bg-black bg-opacity-30"
+              onClick={() => {
+                window.open(
+                  `https://${
+                    getConfig().networkId === 'testnet' ? 'testnet.' : ''
+                  }nearblocks.io/address/${wallet.getAccountId()}#transaction`
+                );
+              }}
+            >
+              <HiOutlineExternalLink size={18} />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex mx-7 my-3 items-center text-xs justify-center">
+          <button
+            className="text-BTCColor mr-2 w-1/2 py-2.5 border rounded-lg hover:border-transparent hover:bg-BTCColor hover:bg-opacity-20 border-BTCColor border-opacity-30"
+            onClick={() => {
+              signOut();
+            }}
+          >
+            <FormattedMessage id="disconnect" defaultMessage={'Disconnect'} />
+          </button>
+
+          <button
+            className="text-gradientFrom ml-2 w-1/2 py-2.5 border rounded-lg hover:border-transparent hover:bg-gradientFrom hover:bg-opacity-20 border-gradientFrom border-opacity-30"
+            onClick={async () => {
+              modal.show();
+            }}
+          >
+            <FormattedMessage id="change" defaultMessage={'Change'} />
+          </button>
+        </div>
+
+        <div
+          className="mb-3 mx-7 mt-6"
+          style={{
+            borderBottom: '1px solid rgba(126, 138, 147, 0.3)',
+          }}
+        ></div>
+
         {accountList.map((item, index) => {
           return (
             <>
