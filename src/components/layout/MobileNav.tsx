@@ -450,7 +450,7 @@ export function AccountModel(props: any) {
                   <FormattedMessage id={item.textId}></FormattedMessage>
                 </label>
                 <label htmlFor="" className="ml-1.5">
-                  {item.textId === 'view_account' && hasBalanceOnRefAccount ? (
+                  {item.textId === 'your_assets' && hasBalanceOnRefAccount ? (
                     <FarmDot inFarm={hasBalanceOnRefAccount} />
                   ) : null}
                 </label>
@@ -459,7 +459,7 @@ export function AccountModel(props: any) {
                   <label className="text-lg ml-2">{item.subIcon}</label>
                 ) : null}
               </div>
-              {hasBalanceOnRefAccount && item.textId === 'view_account' ? (
+              {hasBalanceOnRefAccount && item.textId === 'your_assets' ? (
                 <div
                   className="text-center py-0.5 font-normal bg-gradientFrom w-full cursor-pointer text-xs"
                   onClick={item.click}
