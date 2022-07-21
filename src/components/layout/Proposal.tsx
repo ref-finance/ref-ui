@@ -562,11 +562,13 @@ export const BonusBar = ({
                     }
                   />
                 </span>
-                <span className={` pr-1 ${!bright ? 'opacity-50' : ''} `}>
+                <span
+                  className={`font-bold pr-1 ${!bright ? 'opacity-50' : ''} `}
+                >
                   <FormattedMessage id="bonus" defaultMessage={'Bonus'} />:
                 </span>
 
-                <span className={` ${!bright ? 'opacity-50' : ''}`}>
+                <span className={`font-bold ${!bright ? 'opacity-50' : ''}`}>
                   {!prices
                     ? '$-'
                     : '$' + toInternationalCurrencySystem(total || '0', 2)}
@@ -1457,7 +1459,7 @@ export const PreviewPopUp = (
           <Card
             className="w-full relative overflow-hidden xsm:mb-10"
             bgcolor="bg-black bg-opacity-20 xsm:bg-white xsm:bg-opacity-10"
-            padding={`px-10 pt-9 pb-14 xsm:px-4 xsm:py-6`}
+            padding={`px-10 pt-9 pb-14 xsm:px-4 xsm:py-6 xsm:pb-0`}
           >
             <div className="pb-4 border-b border-white border-opacity-10 px-2 pt-8 xsm:pt-0 text-white text-xl mb-4 xsm:mb-0">
               {contentTitle}
@@ -1589,35 +1591,38 @@ export const PreviewPopUp = (
                     );
                   })}
                 </div>
-
-                <BonusBar
-                  incentiveItem={null}
-                  bright
-                  showYourShare={false}
-                  yourShare={'-'}
-                  showAddBonus={false}
-                  forDetail
-                />
               </div>
             </div>
-
-            <button
-              className="flex items-center text-sm  mx-auto justify-center lg:hidden mt-4 text-center"
+            <BorderGradientButton
+              className="flex items-center justify-center h-full"
               onClick={() => {
                 window.open(displayLink, '_blank');
               }}
-            >
-              <span>
-                <FormattedMessage
-                  id="forum_discussion"
-                  defaultMessage={'Forum Discussion'}
-                />
-              </span>
+              text={
+                <span className="flex items-center">
+                  <span>
+                    <FormattedMessage
+                      id="forum_discussion"
+                      defaultMessage={'Forum Discussion'}
+                    />
+                  </span>
 
-              <span className="text-white ml-0.5">
-                <VEARROW />
-              </span>
-            </button>
+                  <span className="text-white hover:text-senderHot ml-2">
+                    <VEARROW />
+                  </span>
+                </span>
+              }
+              width="h-8 lg:hidden mb-4 min-w-40"
+              padding="px-2"
+            />
+            <BonusBar
+              incentiveItem={null}
+              bright
+              showYourShare={false}
+              yourShare={'-'}
+              showAddBonus={false}
+              forDetail
+            />
           </Card>
           <div className="flex items-center justify-end -bottom-14 text-sm xsm:absolute xsm:right-0 xsm:w-full">
             <BorderGradientButton
@@ -4986,6 +4991,8 @@ export const CreateGovProposal = ({
 
   const intl = useIntl();
 
+  console.log(intl.locale);
+
   const [type, setType] = useState<string>('Poll');
 
   const [options, setOptions] = useState<string[]>([]);
@@ -5007,8 +5014,6 @@ export const CreateGovProposal = ({
     setEndTime(new Date(startTime.getTime() + duration * 1000));
   }, [duration, startTime]);
 
-  console.log('this is endtime', endTime);
-
   const [openPickerStart, setOpenPickerStart] = useState<boolean>(false);
 
   const durationList = [259200, 604800, 1209600, 2592000];
@@ -5016,6 +5021,12 @@ export const CreateGovProposal = ({
   const [require, setRequire] = useState<{
     [pos: string]: string;
   }>();
+
+  useEffect(() => {
+    if (require && Object.keys(require).length > 0) {
+      validate();
+    }
+  }, [intl.locale]);
 
   useEffect(() => {
     if (startTime < endTime) {
