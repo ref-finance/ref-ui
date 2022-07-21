@@ -562,13 +562,11 @@ export const BonusBar = ({
                     }
                   />
                 </span>
-                <span
-                  className={`font-bold pr-1 ${!bright ? 'opacity-50' : ''} `}
-                >
+                <span className={`font-bold pr-1 } `}>
                   <FormattedMessage id="bonus" defaultMessage={'Bonus'} />:
                 </span>
 
-                <span className={`font-bold ${!bright ? 'opacity-50' : ''}`}>
+                <span className={`font-bold `}>
                   {!prices
                     ? '$-'
                     : '$' + toInternationalCurrencySystem(total || '0', 2)}
