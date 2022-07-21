@@ -463,17 +463,16 @@ export const getWhitelistedTokensAndNearTokens = async (): Promise<
       methodName: 'get_user_whitelisted_tokens',
       args: { account_id: getCurrentWallet().wallet.getAccountId() },
     });
-    const request3 = getUserWalletTokens();
-    requestAll.push(request2, request3);
+    requestAll.push(request2);
   }
-  const [globalWhitelist = [], userWhitelist = [], walletTokens = []] =
-    await Promise.all(requestAll);
+  const [globalWhitelist = [], userWhitelist = []] = await Promise.all(
+    requestAll
+  );
 
   return [
     ...new Set<string>([
       ...globalWhitelist,
       ...userWhitelist,
-      ...walletTokens,
       getConfig().REF_VE_CONTRACT_ID,
     ]),
   ];
