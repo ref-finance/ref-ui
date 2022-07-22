@@ -121,18 +121,24 @@ function App() {
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
 
   useEffect(() => {
-    checkTransaction(txHash).then((res) => {
-      let displayErrorMessage = errorType;
-      const errorMessasge = getErrorMessage(res);
+    if (txHash) {
+      checkTransaction(txHash).then((res) => {
+        let displayErrorMessage = errorType;
+        const errorMessasge = getErrorMessage(res);
 
-      if (errorMessasge) displayErrorMessage = errorMessasge;
+        if (errorMessasge) displayErrorMessage = errorMessasge;
 
-      if (displayErrorMessage) {
-        failToast(txHash, displayErrorMessage);
+        if (displayErrorMessage) {
+          failToast(txHash, displayErrorMessage);
 
-        window.history.replaceState({}, '', window.location.origin + pathname);
-      }
-    });
+          window.history.replaceState(
+            {},
+            '',
+            window.location.origin + pathname
+          );
+        }
+      });
+    }
 
     // failing toast only once
     if (signInErrorType) {
