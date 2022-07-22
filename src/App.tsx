@@ -264,7 +264,7 @@ function App() {
               component={AutoHeight(MorePoolsPage)}
             />
             <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
-            <Route path="/adboard" component={AutoHeight(AdboardPage)} />
+            {/* <Route path="/adboard" component={AutoHeight(AdboardPage)} /> */}
             <Route path="/pools/add" component={AutoHeight(AddPoolPage)} />
             <Route
               path="/pools/add-token"
