@@ -282,11 +282,19 @@ export const useMorePools = ({
       token0: tokenIds[0],
       token1: tokenIds[1],
     }).then((res) => {
-      const orderedPools = orderBy(res, [sortBy], [order]);
-      setMorePools(orderedPools);
+      // const orderedPools = orderBy(res, [sortBy], [order]);
+      setMorePools(res);
     });
   }, [order, sortBy]);
-  return morePools;
+
+  return orderBy(
+    morePools?.map((p) => ({
+      ...p,
+      tvl: Number(p.tvl),
+    })),
+    [sortBy],
+    [order]
+  );
 };
 
 export const usePoolsFarmCount = ({
