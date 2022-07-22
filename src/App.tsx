@@ -119,9 +119,12 @@ function App() {
   const [globalState, globalStatedispatch] = GlobalStateReducer;
 
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
-    if (txHash) {
+    if (txHash && isSignedIn) {
+      console.log(txHash, 'app');
+
       checkTransaction(txHash).then((res) => {
         let displayErrorMessage = errorType;
         const errorMessasge = getErrorMessage(res);
@@ -146,9 +149,8 @@ function App() {
       removeSenderLoginRes();
       window.history.replaceState({}, '', window.location.origin + pathname);
     }
-  }, [errorType, signInErrorType]);
+  }, [errorType, signInErrorType, isSignedIn]);
   // for usn start
-  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     if (txHash && isSignedIn) {
       checkTransaction(txHash)
