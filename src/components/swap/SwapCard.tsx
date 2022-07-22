@@ -47,6 +47,8 @@ import {
   CUSDIDS,
   LINEARIDS,
   LINEAR_POOL_ID,
+  NEARXIDS,
+  NEAX_POOL_ID,
   STABLE_POOL_TYPE,
   STABLE_TOKEN_IDS,
   STNEARIDS,
@@ -1001,7 +1003,9 @@ export default function SwapCard(props: {
                     .map((id) => id.toString())
                     .includes(token.id);
                 case 'NEAR':
-                  return LINEARIDS.concat(STNEARIDS).includes(token.id);
+                  return LINEARIDS.concat(STNEARIDS)
+                    .concat(NEARXIDS)
+                    .includes(token.id);
               }
             })}
           pools={stablePools.filter((p) => {
@@ -1011,13 +1015,15 @@ export default function SwapCard(props: {
               case 'NEAR':
                 return (
                   p.id.toString() === STNEAR_POOL_ID ||
-                  p.id.toString() === LINEAR_POOL_ID
+                  p.id.toString() === LINEAR_POOL_ID ||
+                  p.id.toString() === NEAX_POOL_ID
                 );
               case 'USD':
                 return (
                   p.id.toString() !== BTC_STABLE_POOL_ID &&
                   p.id.toString() !== STNEAR_POOL_ID &&
-                  p.id.toString() !== LINEAR_POOL_ID
+                  p.id.toString() !== LINEAR_POOL_ID &&
+                  p.id.toString() !== NEAX_POOL_ID
                 );
             }
           })}

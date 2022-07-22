@@ -300,6 +300,8 @@ export default function ({
   const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
 
+  console.log(tokens, pools);
+
   const ids = pools.map((p) => p.id);
   const [volume, setVolume] = useState<string>(null);
 

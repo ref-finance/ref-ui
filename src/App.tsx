@@ -121,20 +121,20 @@ function App() {
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
 
   useEffect(() => {
-    if (errorType) {
-      checkTransaction(txHash).then((res) => {
-        let displayErrorMessage = errorType;
-        const errorMessasge = getErrorMessage(res);
+    checkTransaction(txHash).then((res) => {
+      let displayErrorMessage = errorType;
+      const errorMessasge = getErrorMessage(res);
 
-        if (errorMessasge) displayErrorMessage = errorMessasge;
+      if (errorMessasge) displayErrorMessage = errorMessasge;
 
+      if (displayErrorMessage) {
         failToast(txHash, displayErrorMessage);
 
         window.history.replaceState({}, '', window.location.origin + pathname);
-      });
+      }
+    });
 
-      // failing toast only once
-    }
+    // failing toast only once
     if (signInErrorType) {
       senderSignedInToast(signInErrorType);
       removeSenderLoginRes();

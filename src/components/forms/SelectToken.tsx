@@ -18,6 +18,7 @@ import {
   BTCIDS,
   CUSDIDS,
   LINEARIDS,
+  NEARXIDS,
   STABLE_TOKEN_USN_IDS,
   STNEARIDS,
 } from '../../services/near';
@@ -116,9 +117,9 @@ export const StableSelectToken = ({
 
   const BTCTokenList = BTCIDS.map((id) => id);
 
-  const NEARTokenList = new Array(...new Set(STNEARIDS.concat(LINEARIDS))).map(
-    (id) => id
-  );
+  const NEARTokenList = new Array(
+    ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEARXIDS))
+  ).map((id) => id);
 
   const [stableCoinType, setStableCoinType] = useState<STABLE_POOL_TYPE>(
     STABLE_POOL_TYPE.USD

@@ -375,8 +375,10 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
         CUSD_STABLE_POOL_ID: '608',
         STNEAR_POOL_ID: '621',
         LINEAR_POOL_ID: '622',
+        NEAX_POOL_ID: '661',
         STNEARIDS: ['meta-v2.pool.testnet', 'wrap.testnet'],
         LINEARIDS: ['linear-protocol.testnet', 'wrap.testnet'],
+        NEARXIDS: ['dev-1656877137694-34571929023079', 'wrap.testnet'],
         STNEAR_POOL_INDEX: {
           'meta-v2.pool.testnet': 0,
           'wrap.testnet': 1,
@@ -385,7 +387,11 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['621', '622'],
+        NEAX_POOL_INDEX: {
+          'dev-1656877137694-34571929023079': 0,
+          'wrap.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['621', '622', '661'],
       };
     default:
       return {
