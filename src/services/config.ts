@@ -357,7 +357,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['568', '571'],
+        NEARXIDS: ['dev-1656877137694-34571929023079', 'wrap.testnet'],
+        NEAX_POOL_ID: '990',
+        NEAX_POOL_INDEX: {
+          'dev-1656877137694-34571929023079': 0,
+          'wrap.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['568', '571', '990'],
       };
     case 'testnet':
       return {
