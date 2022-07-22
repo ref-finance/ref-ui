@@ -585,8 +585,8 @@ export default function SwapCard(props: {
       setReservesType(STABLE_POOL_TYPE.BTC);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.BTC);
     } else if (
-      STNEARIDS.concat(LINEARIDS).includes(tokenIn.id) &&
-      STNEARIDS.concat(LINEARIDS).includes(tokenOut.id)
+      STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).includes(tokenIn.id) &&
+      STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).includes(tokenOut.id)
     ) {
       setReservesType(STABLE_POOL_TYPE.NEAR);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.NEAR);
