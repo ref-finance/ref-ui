@@ -798,5 +798,8 @@ const ko = {
   voting_power_and_extra_earnings: '투표권 & 추가 수익',
   view_on: 'View on',
   risks_capital: '리스크',
+  boostFarmTip: 'This farm can be boosted by staking LOVE',
+  boosted: 'Boosted',
+  love_staked: 'LOVE staked',
 };
 export default Object.assign(ko, ko_in_risks_page);

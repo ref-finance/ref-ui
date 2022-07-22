@@ -799,5 +799,8 @@ const en_US = {
   vote_mobile_capital: 'VOTE',
   risks_capital: 'RISKS',
   view_on: 'View on',
+  boostFarmTip: 'This farm can be boosted by staking LOVE',
+  boosted: 'Boosted',
+  love_staked: 'LOVE staked',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

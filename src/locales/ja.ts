@@ -808,5 +808,8 @@ const ja = {
   farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
   view_on: 'View on',
   risks_capital: 'リスク',
+  boostFarmTip: 'This farm can be boosted by staking LOVE',
+  boosted: 'Boosted',
+  love_staked: 'LOVE staked',
 };
 export default Object.assign(ja, ja_in_risks_page);

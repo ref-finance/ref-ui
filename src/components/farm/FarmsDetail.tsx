@@ -11,13 +11,13 @@ import {
   GoldLevel2,
   GoldLevel3,
   GoldLevel4,
-  LockedIcon,
-  UnLockedIcon,
   CalcIcon,
   LockImgIcon,
   FreenWarningIcon,
   UpArrowIcon,
   BoostRightArrowIcon,
+  BoostOptIcon,
+  LightningBase64,
 } from '~components/icon/FarmBoost';
 import { useHistory, useLocation } from 'react-router-dom';
 import getConfig from '../../services/config';
@@ -36,7 +36,7 @@ import {
   UserSeedInfo,
   getVeSeedShare,
 } from '~services/farm';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/sender-wallet';
 import {
   toPrecision,
   toReadableNumber,
@@ -45,7 +45,6 @@ import {
   percent,
   formatWithCommas,
   calculateFairShare,
-  niceDecimals,
 } from '../../utils/numbers';
 import BigNumber from 'bignumber.js';
 import {
@@ -89,7 +88,6 @@ import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import { isStablePool } from '../../services/near';
 import moment from 'moment';
-import { VERSION } from 'lodash';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsDetail(props: {
@@ -116,6 +114,7 @@ export default function FarmsDetail(props: {
     user_unclaimed_token_meta_map = {},
   } = user_data;
   const history = useHistory();
+  const intl = useIntl();
   const pool = detailData.pool;
   const { token_account_ids } = pool;
   const tokens = useTokens(token_account_ids) || [];
@@ -184,7 +183,53 @@ export default function FarmsDetail(props: {
     }
     return '';
   }
+  function getBoostDom() {
+    if (!boostConfig) return '';
+    const { affected_seeds } = boostConfig;
+    const { seed_id } = detailData;
+    const base = affected_seeds[seed_id];
+    if (base && loveSeed) {
+      const tip = intl.formatMessage({ id: 'boostFarmTip' });
+      const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+      return (
+        <div className="flex items-center justify-center ml-2 px-2 py-0.5 rounded-lg text-greyCircleColor text-xs border border-farmText">
+          <div
+            className="text-white text-right"
+            data-class="reactTip"
+            data-for="boostFarmTipId"
+            data-place="top"
+            data-html={true}
+            data-tip={result}
+          >
+            <div className="flex items-center justify-center">
+              <BoostOptIcon className="mr-0.5"></BoostOptIcon>
+              <FormattedMessage id="boost"></FormattedMessage>
+            </div>
+            <ReactTooltip
+              id="boostFarmTipId"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        </div>
+      );
+    }
+  }
   const radio = getBoostMutil();
+  let tipContent = '';
+  const tip1 = `You may get ${toPrecision(
+    radio.toString(),
+    2
+  )}x booster on this farm`;
+  const tip2 = `You got ${toPrecision(
+    radio.toString(),
+    2
+  )}x booster on this farm now`;
+  tipContent = `<div class="text-navHighLightText text-xs w-52 text-left">${
+    Object.keys(user_seeds_map[detailData.seed_id] || {}).length ? tip2 : tip1
+  }</div>`;
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
@@ -212,15 +257,34 @@ export default function FarmsDetail(props: {
               ) : null}
               {radio ? (
                 <div
-                  className={`rounded-lg text-xs  font-bold px-2 py-0.5 ml-2 ${
-                    Object.keys(user_seeds_map[detailData.seed_id] || {}).length
-                      ? 'bg-lightGreenColor text-black'
-                      : 'text-farmText border border-farmText'
-                  }`}
+                  className="text-white text-right"
+                  data-class="reactTip"
+                  data-for="selectAllId"
+                  data-place="top"
+                  data-html={true}
+                  data-tip={tipContent}
                 >
-                  {`x${toPrecision(radio.toString(), 2)}`}
+                  <div
+                    className={`rounded-lg text-xs  font-bold px-2 py-0.5 ml-2 ${
+                      Object.keys(user_seeds_map[detailData.seed_id] || {})
+                        .length
+                        ? 'bg-lightGreenColor text-black'
+                        : 'text-farmText border border-farmText'
+                    }`}
+                  >
+                    {`x${toPrecision(radio.toString(), 2)}`}
+                  </div>
+                  <ReactTooltip
+                    id="selectAllId"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
                 </div>
-              ) : null}
+              ) : (
+                getBoostDom()
+              )}
             </div>
             <div className="flex items-center lg:hidden" onClick={goPoolPage}>
               <label className="mr-1 text-xs text-greenColor">
@@ -273,6 +337,8 @@ function StakeContainer(props: {
   const [calcVisible, setCalcVisible] = useState(false);
   const [dayVolume, setDayVolume] = useState('');
   const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
+  const [yourApr, setYourApr] = useState('');
+  const [yourAprRate, setYourAprRate] = useState('1');
   const {
     detailData,
     tokenPriceList,
@@ -462,6 +528,12 @@ function StakeContainer(props: {
   useEffect(() => {
     getStakeBalance();
   }, [Object.keys(user_seeds_map).length, user_data_loading]);
+  useEffect(() => {
+    const yourApr = getYourApr();
+    if (yourApr) {
+      setYourApr(yourApr);
+    }
+  }, [boostConfig, user_seeds_map]);
   async function getPoolFee() {
     const fee = await get24hVolume(pool.id.toString());
     setDayVolume(fee);
@@ -535,13 +607,14 @@ function StakeContainer(props: {
     }
     return result;
   }
-  function getAprTip() {
+  function getAprTip(isYour?: Boolean) {
     const tempList = detailData.farmList;
     const lastList: any[] = [];
     const pending_farms: FarmBoost[] = [];
     const no_pending_farms: FarmBoost[] = [];
     const day24Volume = getPoolFeeApr(dayVolume);
-    const totalApr = getTotalApr(false);
+    let totalApr;
+    const baseApr = getTotalApr(false);
     const txt1 = intl.formatMessage({ id: 'pool_fee_apr' });
     const txt2 = intl.formatMessage({ id: 'reward_apr' });
     tempList.forEach((farm: FarmBoost) => {
@@ -578,6 +651,11 @@ function StakeContainer(props: {
         });
       });
     }
+    if (isYour) {
+      totalApr = yourApr;
+    } else {
+      totalApr = baseApr;
+    }
     // show last display string
     let result: string = '';
     result = `
@@ -593,10 +671,20 @@ function StakeContainer(props: {
       <span class="text-sm text-white font-bold">${totalApr}</span>
     </div>
     `;
+    if (isYour) {
+      result += `<div class="flex items-center justify-end text-xs text-farmText">
+      (${baseApr}<span class="flex items-center text-senderHot text-xs ml-0.5">x${yourAprRate}<img src="${LightningBase64()}"/></span>)
+    </div>`;
+    }
+
     lastList.forEach((item: any) => {
-      const { rewardToken, apr, pending, startTime } = item;
+      const { rewardToken, apr: baseApr, pending, startTime } = item;
       const token = rewardToken;
       let itemHtml = '';
+      let apr = baseApr;
+      if (isYour && yourApr && yourAprRate) {
+        apr = new BigNumber(apr).multipliedBy(yourAprRate).toFixed();
+      }
       if (pending) {
         const startDate = moment.unix(startTime).format('YYYY-MM-DD');
         const txt = intl.formatMessage({ id: 'start' });
@@ -682,7 +770,7 @@ function StakeContainer(props: {
       const r = +new BigNumber(boostApr).multipliedBy(100).toFixed();
       return (
         <span>
-          <label className="mx-0.5">~</label>
+          <label className="mx-0.5">～</label>
           {toPrecision(r.toString(), 2) + '%'}
         </span>
       );
@@ -694,7 +782,56 @@ function StakeContainer(props: {
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
+  function getYourApr() {
+    if (!boostConfig) return '';
+    const { affected_seeds } = boostConfig;
+    const { seed_id } = detailData;
+    const user_seed = user_seeds_map[seed_id] || {};
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
+    const base = affected_seeds[seed_id];
+    const hasUserStaked = Object.keys(user_seed).length;
+    const { free_amount } = love_user_seed || {};
+    const userLoveAmount = toReadableNumber(LOVE_TOKEN_DECIMAL, free_amount);
+    if (base && hasUserStaked) {
+      let rate;
+      if (+userLoveAmount < 1) {
+        rate = '1';
+      } else {
+        rate = new BigNumber(1)
+          .plus(Math.log(+userLoveAmount) / Math.log(base))
+          .toFixed(2);
+      }
+      setYourAprRate(rate);
+      const apr = getActualTotalApr();
+      let boostApr;
+      if (apr) {
+        boostApr = new BigNumber(apr).multipliedBy(rate);
+      }
+      if (boostApr && +boostApr > 0) {
+        const r = +new BigNumber(boostApr).multipliedBy(100).toFixed();
+        return toPrecision(r.toString(), 2) + '%';
+      }
+      return '';
+    } else {
+      return '';
+    }
+  }
+  function getAprTitleTip() {
+    // const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
+    let result: string = '';
+    if (yourApr) {
+      result = `<div class="flex items-center text-navHighLightText text-xs  text-left">
+      <span class="text-white">Your APR / </span> &nbsp;Range or reference APR 
+    </div>`;
+    } else {
+      result = `<div class="flex items-center text-navHighLightText text-xs  text-left">
+      Range or reference APR 
+    </div>`;
+    }
+    return result;
+  }
   const aprUpLimit = getAprUpperLimit();
+  const mobile = isMobile();
   return (
     <div className="mt-5">
       <div
@@ -704,26 +841,47 @@ function StakeContainer(props: {
       >
         <div
           className="flex flex-col items-start justify-between bg-cardBg rounded-lg py-3.5 px-5 flex-grow mr-3.5 xs:mr-0 md:mr-0  xs:w-full md:w-full"
-          style={{ height: '85px' }}
+          style={{ height: '90px' }}
         >
           <div className="flex items-center justify-between w-full">
             <span className="text-farmText text-sm">
               <FormattedMessage id="total_staked"></FormattedMessage>
             </span>
-            <span className="flex items-center">
-              <CalcIcon
-                onClick={(e: any) => {
-                  e.stopPropagation();
-                  setCalcVisible(true);
-                }}
-                className="mr-1.5 cursor-pointer"
-              />
-              <label className="text-farmText text-sm">
-                <FormattedMessage id="apr"></FormattedMessage>
-              </label>
-            </span>
+            {yourApr && !mobile ? null : (
+              <span className={`flex items-center`}>
+                <CalcIcon
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    setCalcVisible(true);
+                  }}
+                  className="text-farmText mr-1.5 cursor-pointer hover:text-greenColor"
+                />
+                <div className="flex items-center">
+                  <label className="text-farmText text-sm">
+                    <FormattedMessage id="apr"></FormattedMessage>
+                  </label>
+                  <div
+                    className="text-white text-right ml-1"
+                    data-class="reactTip"
+                    data-for={'yourAprTipId_m'}
+                    data-place="top"
+                    data-html={true}
+                    data-tip={getAprTitleTip()}
+                  >
+                    <QuestionMark></QuestionMark>
+                    <ReactTooltip
+                      id={'yourAprTipId_m'}
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
+                </div>
+              </span>
+            )}
           </div>
-          <div className="flex items-center justify-between w-full">
+          <div className={`flex items-start mt-1 justify-between w-full`}>
             <span className="text-white text-base">
               {`${
                 Number(detailData.seedTvl) == 0
@@ -731,37 +889,142 @@ function StakeContainer(props: {
                   : `$${toInternationalCurrencySystem(detailData.seedTvl, 2)}`
               }`}
             </span>
-            <div
-              className="text-xl text-white"
-              data-type="info"
-              data-place="top"
-              data-multiline={true}
-              data-tip={getAprTip()}
-              data-html={true}
-              data-for={'aprId' + detailData.farmList[0].farm_id}
-              data-class="reactTip"
-            >
-              <span
-                className={`flex items-center flex-wrap justify-center text-white text-base text-right`}
+            {yourApr && !mobile ? null : (
+              <div
+                className={`text-xl text-white`}
+                data-type="info"
+                data-place="top"
+                data-multiline={true}
+                data-tip={getAprTip(yourApr ? true : false)}
+                data-html={true}
+                data-for={'aprId' + detailData.farmList[0].farm_id}
+                data-class="reactTip"
               >
-                <label className={`${aprUpLimit ? 'text-xs' : 'text-base'}`}>
-                  {getTotalApr()}
-                </label>
-                {aprUpLimit}
-              </span>
-              <ReactTooltip
-                id={'aprId' + detailData.farmList[0].farm_id}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
-            </div>
+                <span
+                  className={`flex items-center flex-wrap justify-center text-white text-base text-right`}
+                >
+                  {' '}
+                  {yourApr ? (
+                    <div className="flex flex-col items-end justify-center">
+                      <label className="text-white">{yourApr}</label>
+                      <span className="text-sm text-primaryText">
+                        ({getTotalApr()}
+                        {aprUpLimit})
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <label
+                        className={`${aprUpLimit ? 'text-xs' : 'text-base'}`}
+                      >
+                        {getTotalApr()}
+                      </label>
+                      {aprUpLimit}
+                    </>
+                  )}
+                </span>
+                <ReactTooltip
+                  id={'aprId' + detailData.farmList[0].farm_id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+            )}
           </div>
         </div>
+        {yourApr && !mobile ? (
+          <div
+            className="flex flex-col items-start justify-between bg-cardBg rounded-lg py-3.5 px-5 flex-grow mr-3.5 xs:mr-0 md:mr-0  xs:w-full md:w-full"
+            style={{ height: '90px' }}
+          >
+            <div className="flex justify-between items-center w-full">
+              <div className="flex items-center">
+                <label className="text-farmText text-sm">
+                  <FormattedMessage id="apr"></FormattedMessage>
+                </label>
+                <div
+                  className="text-white text-right ml-1"
+                  data-class="reactTip"
+                  data-for={'yourAprTipId'}
+                  data-place="top"
+                  data-html={true}
+                  data-tip={getAprTitleTip()}
+                >
+                  <QuestionMark></QuestionMark>
+                  <ReactTooltip
+                    id={'yourAprTipId'}
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
+                </div>
+              </div>
+              <CalcIcon
+                onClick={(e: any) => {
+                  e.stopPropagation();
+                  setCalcVisible(true);
+                }}
+                className="text-farmText mr-1.5 cursor-pointer hover:text-greenColor"
+              />
+            </div>
+            <div className="flex justify-between items-end w-full">
+              <div
+                className={`text-xl text-white`}
+                data-type="info"
+                data-place="top"
+                data-multiline={true}
+                data-tip={getAprTip(true)}
+                data-html={true}
+                data-for={'aprId' + detailData.farmList[0].farm_id + 'your'}
+                data-class="reactTip"
+              >
+                <span
+                  className={`flex items-center flex-wrap justify-center text-white text-base text-right`}
+                >
+                  <label className={`text-base`}>{yourApr}</label>
+                </span>
+                <ReactTooltip
+                  id={'aprId' + detailData.farmList[0].farm_id + 'your'}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+              <div
+                className={`text-xl text-white`}
+                data-type="info"
+                data-place="top"
+                data-multiline={true}
+                data-tip={getAprTip()}
+                data-html={true}
+                data-for={'aprId' + detailData.farmList[0].farm_id}
+                data-class="reactTip"
+              >
+                <span
+                  className={`flex items-center flex-wrap justify-center text-farmText text-xs text-right relative -top-0.5`}
+                >
+                  <label className={'text-xs'}>{getTotalApr()}</label>
+                  {aprUpLimit}
+                </span>
+                <ReactTooltip
+                  id={'aprId' + detailData.farmList[0].farm_id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <div
           className="flex flex-col items-start  justify-between bg-cardBg rounded-lg py-3.5 px-5 flex-grow xs:mt-4 md:mt-4 xs:w-full md:w-full"
-          style={{ height: '85px' }}
+          style={{ height: '90px' }}
         >
           <div className="flex items-center text-farmText text-sm">
             <FormattedMessage id="rewards_per_week"></FormattedMessage>

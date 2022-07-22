@@ -697,7 +697,6 @@ export function MobileNavBar(props: any) {
                   }
                   let targetUrl = url;
                   if (url.startsWith('/pools') && isSignedIn) {
-                    console.log('6666666666666');
                     targetUrl = '/pools/yours';
                   }
                   return (

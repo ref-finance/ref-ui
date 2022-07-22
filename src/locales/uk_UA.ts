@@ -549,7 +549,6 @@ const uk_UA = {
   to_recover: 'для відновлення.',
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
-  claimed_Rewards: 'Claimed Rewards',
   POOL: 'Пули',
   STAKE: 'STAKE',
   lp_Token: 'LP Token',
@@ -565,7 +564,6 @@ const uk_UA = {
   value_of_rewards: 'Value of Rewards',
   Rewards: 'Rewards',
   free: 'Free',
-  lp_tokens: 'LP tokens',
   connect_to_wallet: 'Підключити гаманець',
   anytime: 'Anytime',
   slash_policy_content:
@@ -579,8 +577,6 @@ const uk_UA = {
   append_timing: 'Append timing',
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
-  all_5_v2: '5 tokens/time',
-
   more_than_seed: 'Input must be greater than or equal to ',
   reward_apr: 'Rewards APR',
   price_board: 'Price board',
@@ -590,8 +586,6 @@ const uk_UA = {
   unlock: 'Unlock',
   exit_fee: 'Exit fee',
   end_locking_period: 'End of locking period',
-  add_lp_tokens_tip:
-    'You need LP tokens to stake into the corresponding farm. First, add liquidity to the pool to get LP tokens.',
   slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
 
   ordinary: 'Ordinary',
@@ -604,19 +598,16 @@ const uk_UA = {
   applying_period: 'Applying Period',
   community_gauge_share: 'Community Gauge Share',
   qualified_pools: 'Qualified Pools',
-  bonus_tip:
-    'Voting bonus is designed to encourage users to vote. Your bonus depends on your number of shares',
   yes_continue: 'Yes, continue',
-  more_than_a_simple_pool: 'More than a simple pool',
-  vote_capital: 'VOTE',
+  vote_capital: 'Голосування',
   starting_time: 'Starting Time',
   days_ve: 'days',
   ending_time: 'Ending Time',
-  please_choose_voting_duration: 'Please choose voting duration',
+  please_choose_voting_duration: 'Будь ласка, виберіть тривалість голосування!',
   please_choose_proposal_voting_duration:
     'Please choose proposal voting duration',
   unlocking_tip:
-    'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
+    'Розблокування LP токенів автоматично відмінить ваш голос ( та відповідний бонус) в наступній пропозиції',
   stake_min_deposit: 'Введене значення має дорівнювати або бути більше ',
   unstakeTip: 'При стейкінгу та анстейкінгу винагороди автоматично збираються ',
   endedFarmsUnstakeTip:
@@ -642,6 +633,24 @@ const uk_UA = {
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
   available_to_stake: 'є можливість стейкінгу',
+  how_to_earn_more: 'Як заробити більше ? ',
+  claimed_Rewards: 'Отримані нагороди',
+  all_5_v2: '5 токенів/час',
+  search_farms: 'пошук ферм',
+  ended_Farms: 'закінчені ферми',
+  your_power: 'Ваша сила',
+  farm_has_boost_tip:
+    'Ваша сила = Ваші LP токени в стейкінгу * бустер (стейкаючи токени Love)',
+  farm_no_boost_tip: 'Ваша сила = Your staked LP Tokens',
+  search_by_token: 'Пошук за токеном',
+  more_than_a_simple_pool: 'Більше ніж просто пул',
+  create_pool: 'Створити пул',
+  you_have: 'Ви маєте',
+  lp_tokens: 'LP токени',
+  bonus_tip:
+    'Бонус за голосування розроблений для заохочення користувачів приймати участь в голосуванні. Ваш бонус залежить від кількості вашої частки',
+  add_lp_tokens_tip:
+    'LP токени потрібно стейкати в відповідній фермі. Спочатку добавте ліквідність в пул щоб отримати LP токени.',
   veTip: 'Токени veLP не підлягають передачі, veLPT дають вам право голосу ',
   loveTip:
     'LOVE розшифровується як Liquidity Of veToken. LOVE, як і будь-який токен NEP-141, можна передавати, обмінювати, закидати в пули, стейкати та фармити. LOVE представляє основну ліквідність ваших veTokens',
@@ -760,13 +769,10 @@ const uk_UA = {
     'Поділіться посиланням обговорення на форумі тут',
   required_field: "Обов'язкове поле",
   voting_power_and_extra_earnings: 'Сила в голосування та додатковий заробіток',
-  search_farms: 'Search farms',
-  ended_Farms: 'Ended Farms',
-  your_power: 'Your Power',
-  farm_has_boost_tip:
-    'Your Power = Your staked LP Tokens * booster (by staking LOVE)',
-  farm_no_boost_tip: 'Your Power = Your staked LP Tokens',
-  view_on: 'View on',
+  view_on: 'Переглянути на',
   risks_capital: 'Ризики',
+  boostFarmTip: 'This farm can be boosted by staking LOVE',
+  boosted: 'Boosted',
+  love_staked: 'LOVE staked',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

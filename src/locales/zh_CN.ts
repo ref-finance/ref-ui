@@ -761,5 +761,8 @@ const zh_CN = {
   days_ve: '天',
   view_on: '查看',
   risks_capital: '风险',
+  boostFarmTip: 'This farm can be boosted by staking LOVE',
+  boosted: 'Boosted',
+  love_staked: 'LOVE staked',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

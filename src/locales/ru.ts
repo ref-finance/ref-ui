@@ -803,5 +803,8 @@ const ru = {
   back: 'Вернуться',
   view_on: 'View on',
   pending_ve: 'Ожидается',
+  boostFarmTip: 'This farm can be boosted by staking LOVE',
+  boosted: 'Boosted',
+  love_staked: 'LOVE staked',
 };
 export default Object.assign(ru, ru_in_risks_page);

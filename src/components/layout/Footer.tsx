@@ -62,12 +62,12 @@ function Footer() {
             >
               {!hoverLogo && (
                 <RefAnalyticsGary
-                  style={{ transform: 'scale(0.8)', transformOrigin: '30% 0%' }}
+                  style={{ transform: 'scale(0.9)', transformOrigin: '30% 0%' }}
                 />
               )}
               {hoverLogo && (
                 <RefAnalytics
-                  style={{ transform: 'scale(0.8)', transformOrigin: '30% 0%' }}
+                  style={{ transform: 'scale(0.9)', transformOrigin: '30% 0%' }}
                 />
               )}
             </div>

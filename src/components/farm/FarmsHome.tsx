@@ -23,6 +23,7 @@ import {
   MigrateIconSmall,
   MigrateIconMiddle,
   WarningIcon,
+  LightningBase64,
 } from '~components/icon/FarmBoost';
 import {
   GradientButton,
@@ -104,6 +105,7 @@ import { wnearMetadata, unwrapedNear } from '../../services/wrap-near';
 import { usePoolShare, useYourliquidity } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
+import { constant } from 'lodash';
 
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsHome(props: any) {
@@ -2006,13 +2008,21 @@ function FarmView(props: {
   const [claimLoading, setClaimLoading] = useState(false);
   const [calcVisible, setCalcVisible] = useState(false);
   const [error, setError] = useState<Error>();
+  const [aprSwitchStatus, setAprSwitchStatus] = useState('1');
+  const [yourApr, setYourApr] = useState('');
+  const [yourAprRate, setYourAprRate] = useState('1');
   const tokens = seed.pool.tokens_meta_data;
   const unClaimedTokens = useTokens(
     Object.keys(user_unclaimed_map[seed_id] || {})
   );
   const history = useHistory();
   const intl = useIntl();
-
+  useEffect(() => {
+    const yourApr = getYourApr();
+    if (yourApr) {
+      setYourApr(yourApr);
+    }
+  }, [boostConfig, user_seeds_map]);
   function getTotalApr(containPoolFee: boolean = true) {
     let dayVolume = 0;
     if (containPoolFee) {
@@ -2107,7 +2117,8 @@ function FarmView(props: {
     const pending_farms: FarmBoost[] = [];
     const no_pending_farms: FarmBoost[] = [];
     const dayVolume = getPoolFeeApr(dayVolumeMap[seed.pool.id]);
-    const totalApr = getTotalApr(false);
+    let totalApr;
+    const baseAPR = getTotalApr(false);
     const txt1 = intl.formatMessage({ id: 'pool_fee_apr' });
     const txt2 = intl.formatMessage({ id: 'reward_apr' });
     tempList.forEach((farm: FarmBoost) => {
@@ -2144,6 +2155,11 @@ function FarmView(props: {
         });
       });
     }
+    if (yourApr && +aprSwitchStatus == 1) {
+      totalApr = yourApr;
+    } else {
+      totalApr = baseAPR;
+    }
     // show last display string
     let result: string = '';
     result = `
@@ -2159,10 +2175,20 @@ function FarmView(props: {
       <span class="text-sm text-white font-bold">${totalApr}</span>
     </div>
     `;
+    if (yourApr && +aprSwitchStatus == 1) {
+      result += `<div class="flex items-center justify-end text-xs text-farmText">
+        (${baseAPR}<span class="flex items-center text-senderHot text-xs ml-0.5">x${yourAprRate}<img src="${LightningBase64()}"/></span>)
+      </div>`;
+    }
+
     lastList.forEach((item: any) => {
-      const { rewardToken, apr, pending, startTime } = item;
+      const { rewardToken, apr: baseApr, pending, startTime } = item;
       const token = rewardToken;
       let itemHtml = '';
+      let apr = baseApr;
+      if (yourApr && +aprSwitchStatus == 1 && yourAprRate) {
+        apr = new BigNumber(apr).multipliedBy(yourAprRate).toFixed();
+      }
       if (pending) {
         const startDate = moment.unix(startTime).format('YYYY-MM-DD');
         const txt = intl.formatMessage({ id: 'start' });
@@ -2409,19 +2435,71 @@ function FarmView(props: {
             .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
             .toFixed(2);
         }
+        const tip1 = `You may get ${toPrecision(
+          result.toString(),
+          2
+        )}x booster on this farm`;
+        const tip2 = `You got ${toPrecision(
+          result.toString(),
+          2
+        )}x booster on this farm now`;
+        const tipContent: string = `<div class="text-navHighLightText text-xs w-52 text-left">${
+          hasUserStaked ? tip2 : tip1
+        }</div>`;
         return (
           <div
-            className={`absolute flex items-center justify-center top-3 right-4 z-10 px-2 py-0.5  text-xs  rounded-lg font-bold ${
-              hasUserStaked
-                ? 'bg-lightGreenColor text-black'
-                : 'text-farmText border border-farmText'
-            }`}
+            className="absolute top-3 right-4 z-10 text-white text-right"
+            data-class="reactTip"
+            data-for="selectAllId"
+            data-place="top"
+            data-html={true}
+            data-tip={tipContent}
           >
-            {`x${toPrecision(result.toString(), 2)}`}
+            <div
+              className={` flex items-center justify-center px-2 py-0.5  text-xs  rounded-lg font-bold ${
+                hasUserStaked
+                  ? 'bg-lightGreenColor text-black'
+                  : 'text-farmText border border-farmText'
+              }`}
+            >
+              {`x${toPrecision(result.toString(), 2)}`}
+            </div>
+            <ReactTooltip
+              id="selectAllId"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
           </div>
         );
       }
-      return '';
+      const tip = intl.formatMessage({ id: 'boostFarmTip' });
+      const result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+      return (
+        <div className="absolute flex items-center justify-center top-3 right-4 z-10 px-2 py-0.5 rounded-lg text-greyCircleColor text-xs border border-farmText">
+          <div
+            className="text-white text-right"
+            data-class="reactTip"
+            data-for="boostFarmTipId"
+            data-place="top"
+            data-html={true}
+            data-tip={result}
+          >
+            <div className="flex items-center justify-center">
+              <BoostOptIcon></BoostOptIcon>
+              <FormattedMessage id="boost"></FormattedMessage>
+            </div>
+            <ReactTooltip
+              id="boostFarmTipId"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        </div>
+      );
     }
     return '';
   }
@@ -2454,6 +2532,48 @@ function FarmView(props: {
       );
     }
     return '';
+  }
+  function getYourApr() {
+    if (!boostConfig) return '';
+    const { affected_seeds } = boostConfig;
+    const { seed_id } = seed;
+    const user_seed = user_seeds_map[seed_id] || {};
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
+    const base = affected_seeds[seed_id];
+    const hasUserStaked = Object.keys(user_seed).length;
+    const { free_amount } = love_user_seed || {};
+    const userLoveAmount = toReadableNumber(LOVE_TOKEN_DECIMAL, free_amount);
+    if (base && hasUserStaked) {
+      let rate;
+      if (+userLoveAmount < 1) {
+        rate = '1';
+      } else {
+        rate = new BigNumber(1)
+          .plus(Math.log(+userLoveAmount) / Math.log(base))
+          .toFixed(2);
+      }
+      setYourAprRate(rate);
+      const apr = getActualTotalApr();
+      let boostApr;
+      if (apr) {
+        boostApr = new BigNumber(apr).multipliedBy(rate);
+      }
+      if (boostApr && +boostApr > 0) {
+        const r = +new BigNumber(boostApr).multipliedBy(100).toFixed();
+        return toPrecision(r.toString(), 2) + '%';
+      }
+      return '';
+    } else {
+      return '';
+    }
+  }
+  function switchApr(e: any) {
+    e.stopPropagation();
+    if (+aprSwitchStatus == 1) {
+      setAprSwitchStatus('2');
+    } else {
+      setAprSwitchStatus('1');
+    }
   }
   const isHaveUnclaimedReward = haveUnclaimedReward();
   const aprUpLimit = getAprUpperLimit();
@@ -2546,7 +2666,7 @@ function FarmView(props: {
             <div className="flex flex-col items-center flex-shrink-0">
               <label
                 className="text-farmText text-sm"
-                style={{ maxWidth: '150px' }}
+                style={{ maxWidth: '130px' }}
               >
                 <FormattedMessage id="total_staked"></FormattedMessage>
               </label>
@@ -2564,16 +2684,41 @@ function FarmView(props: {
               } justify-center`}
             >
               <span className="flex items-center">
+                {yourApr ? (
+                  <>
+                    <label
+                      onClick={switchApr}
+                      className={`text-sm cursor-pointer ${
+                        +aprSwitchStatus == 1 ? 'text-white' : 'text-farmText'
+                      }`}
+                    >
+                      {/* <FormattedMessage id="yours"></FormattedMessage> */}
+                      Yours
+                    </label>
+                    <label className="text-farmText text-sm">/</label>
+                    <label
+                      onClick={switchApr}
+                      className={`text-sm cursor-pointer ${
+                        +aprSwitchStatus == 1 ? 'text-farmText' : 'text-white'
+                      }`}
+                    >
+                      {/* <FormattedMessage id="apr"></FormattedMessage> */}
+                      APR
+                    </label>
+                  </>
+                ) : (
+                  <label className="text-farmText text-sm cursor-pointer">
+                    {/* <FormattedMessage id="apr"></FormattedMessage> */}
+                    APR
+                  </label>
+                )}
                 <CalcIcon
                   onClick={(e: any) => {
                     e.stopPropagation();
                     setCalcVisible(true);
                   }}
-                  className="mr-1.5 cursor-pointer"
+                  className="text-farmText ml-1.5 cursor-pointer hover:text-greenColor"
                 />
-                <label className="text-farmText text-sm">
-                  <FormattedMessage id="apr"></FormattedMessage>
-                </label>
               </span>
               <div
                 className="text-xl text-white"
@@ -2590,10 +2735,18 @@ function FarmView(props: {
                     isHaveUnclaimedReward ? 'text-center mx-2' : 'text-right'
                   }`}
                 >
-                  <label className={`${aprUpLimit ? 'text-xs' : 'text-base'}`}>
-                    {getTotalApr()}
-                  </label>
-                  {aprUpLimit}
+                  {yourApr && +aprSwitchStatus == 1 ? (
+                    <label className="text-base">{yourApr}</label>
+                  ) : (
+                    <>
+                      <label
+                        className={`${aprUpLimit ? 'text-xs' : 'text-base'}`}
+                      >
+                        {getTotalApr()}
+                      </label>
+                      {aprUpLimit}
+                    </>
+                  )}
                 </span>
                 <ReactTooltip
                   id={'aprId' + seed.farmList[0].farm_id}

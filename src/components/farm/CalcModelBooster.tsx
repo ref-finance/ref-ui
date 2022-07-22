@@ -27,7 +27,13 @@ import { useTokens } from '~state/token';
 import getConfig from '~services/config';
 import { TokenMetadata, unWrapToken } from '../../services/ft-contract';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
-import { LightningIcon, ForbiddenIcon } from '~components/icon/FarmBoost';
+import {
+  LightningIcon,
+  ForbiddenIcon,
+  BoostOptIcon,
+} from '~components/icon/FarmBoost';
+import { getLoveAmount } from '~services/referendum';
+import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import ReactTooltip from 'react-tooltip';
 
 const config = getConfig();
@@ -277,7 +283,11 @@ export function CalcEle(props: {
   let [lpTokenNum, setLpTokenNum] = useState(lpTokenNumAmount);
   const [dateList, setDateList] = useState<MonthData[]>([]);
   const [accountType, setAccountType] = useState('free');
-  const { farmList: farms, pool, min_locking_duration_sec } = seed;
+  const [loveTokenBalance, setLoveTokenBalance] = useState<string>('0');
+  const [amount, setAmount] = useState('');
+  const { farmList: farms, pool } = seed;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
     ? LP_STABLE_TOKEN_DECIMALS
     : LP_TOKEN_DECIMALS;
@@ -285,11 +295,12 @@ export function CalcEle(props: {
   const intl = useIntl();
   useEffect(() => {
     get_all_date_list();
+    getLoveTokenBalance();
   }, []);
   useEffect(() => {
     if (!selecteDate) return;
-    if (accountType == 'cd' || seedRadio) {
-      const rate = selecteDate.rate || seedRadio;
+    if (accountType == 'cd') {
+      const rate = seedRadio;
       const power = new BigNumber(rate)
         .multipliedBy(+lpTokenNumAmount)
         .toFixed();
@@ -402,7 +413,7 @@ export function CalcEle(props: {
     } else {
       setROI('- %');
     }
-  }, [lpTokenNumAmount, selecteDate, accountType]);
+  }, [lpTokenNumAmount, selecteDate, accountType, amount]);
 
   function changeDate(v: MonthData) {
     setSelecteDate(v);
@@ -448,39 +459,11 @@ export function CalcEle(props: {
         day: duration * 30,
       };
     });
-    if (min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0) {
-      setDateList(date_list);
-      setSelecteDate(date_list[0]);
-    } else {
-      get_config().then((config) => {
-        const { min_locking_duration_sec } = seed;
-        const { maximum_locking_duration_sec, max_locking_multiplier } = config;
-        date_list.forEach((item: MonthData) => {
-          if (
-            item.second >= min_locking_duration_sec &&
-            item.second <= maximum_locking_duration_sec
-          ) {
-            const locking_multiplier =
-              ((max_locking_multiplier - 10000) * item.second) /
-              (maximum_locking_duration_sec * 10000);
-            item.rate = locking_multiplier + 1;
-          }
-        });
-        setDateList(date_list);
-        setSelecteDate(date_list[0]);
-      });
-    }
+    setDateList(date_list);
+    setSelecteDate(date_list[0]);
   };
   function switchAccountType(type: string) {
     setAccountType(type);
-    if (type == 'cd') {
-      if (!selecteDate.rate) {
-        const newSelectdate = dateList.find((date: MonthData) => {
-          if (date.rate) return date;
-        });
-        setSelecteDate(newSelectdate);
-      }
-    }
   }
   function displayNum(num: string) {
     if (!num) return '-';
@@ -492,24 +475,14 @@ export function CalcEle(props: {
     }
     return resultRewardTokenNum;
   }
-  function getForbiddenTip() {
-    const txt = intl.formatMessage({ id: 'forbiddenTip' });
-    return `<div class="text-xs text-farmText w-44 text-left">${txt}</div>`;
-  }
   function getRate() {
-    if (accountType == 'free') {
-      return `x ${toPrecision(seedRadio.toString(), 2)}`;
-    } else if (accountType == 'cd') {
-      return `${
-        selecteDate?.rate?.toString()
-          ? toPrecision(selecteDate?.rate?.toString(), 2)
-          : '-'
-      }`;
-    }
+    return `x ${toPrecision(seedRadio.toString(), 2)}`;
   }
   function getBoostMutil() {
-    let lastObj: any = {};
-    if (!boostConfig) return lastObj;
+    let lastObj: any = {
+      radio: '1',
+    };
+    if (!boostConfig || !isSignedIn) return lastObj;
     const { affected_seeds, booster_decimal } = boostConfig;
     const { seed_id } = seed;
     const user_seed: UserSeedInfo = user_seeds_map[seed_id];
@@ -519,11 +492,15 @@ export function CalcEle(props: {
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
     if (base && loveSeed) {
+      lastObj.base = base;
       const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
-      const totalStakeLoveAmount = toReadableNumber(
+      const totalStakeLoveAmount_pre = toReadableNumber(
         booster_decimal,
         new BigNumber(free_amount).plus(locked_amount).toFixed()
       );
+      const totalStakeLoveAmount = new BigNumber(totalStakeLoveAmount_pre)
+        .plus(amount || 0)
+        .toFixed();
       if (+totalStakeLoveAmount > 0) {
         let result;
         if (+totalStakeLoveAmount < 1) {
@@ -540,7 +517,17 @@ export function CalcEle(props: {
     }
     return lastObj;
   }
-  const { radio: seedRadio, amount: seed_free_amount } = getBoostMutil();
+  function changeAmount(value: string) {
+    setAmount(value);
+  }
+  async function getLoveTokenBalance() {
+    // get LoveToken balance
+    if (isSignedIn) {
+      const loveBalance = await getLoveAmount();
+      setLoveTokenBalance(toReadableNumber(LOVE_TOKEN_DECIMAL, loveBalance));
+    }
+  }
+  const { radio: seedRadio, amount: seed_free_amount, base } = getBoostMutil();
   return (
     <div>
       <div>
@@ -554,53 +541,24 @@ export function CalcEle(props: {
             return (
               <div
                 onClick={() => {
-                  if (!(accountType == 'cd' && !date.rate)) {
-                    changeDate(date);
-                  }
+                  changeDate(date);
                 }}
                 className={
-                  `flex items-center justify-center flex-grow text-sm rounded-md h-full ${
-                    accountType == 'cd' && !date.rate
-                      ? 'cursor-not-allowed '
-                      : 'cursor-pointer '
-                  }` +
+                  `flex items-center justify-center flex-grow text-sm rounded-md h-full cursor-pointer ` +
                   (selecteDate?.day == date.day
                     ? 'bg-gradientFromHover text-chartBg'
                     : 'text-farmText')
                 }
                 key={date.text}
               >
-                {accountType == 'cd' && !date.rate ? (
-                  <div
-                    className="text-white text-right ml-1"
-                    data-class="reactTip"
-                    data-for={`fobiddenId${index}`}
-                    data-place="top"
-                    data-html={true}
-                    data-tip={getForbiddenTip()}
-                  >
-                    <span className="flex items-center text-farmText">
-                      <ForbiddenIcon className="mr-1"></ForbiddenIcon>{' '}
-                      {date.text}
-                    </span>
-                    <ReactTooltip
-                      id={`fobiddenId${index}`}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
-                  </div>
-                ) : (
-                  <>{date.text}</>
-                )}
+                {date.text}
               </div>
             );
           })}
         </div>
       </div>
       <div className="mt-3">
-        {min_locking_duration_sec == 0 || FARM_LOCK_SWITCH == 0 ? null : (
+        {!base ? null : (
           <div className="flex items-center">
             <div className="flex items-center justify-center w-1/2">
               <span
@@ -617,7 +575,7 @@ export function CalcEle(props: {
               </span>
             </div>
             <div className="flex items-center justify-center w-1/2">
-              <span
+              <div
                 onClick={() => {
                   switchAccountType('cd');
                 }}
@@ -627,24 +585,65 @@ export function CalcEle(props: {
                     : 'text-primaryText'
                 }`}
               >
-                <FormattedMessage id="locking_stake"></FormattedMessage>
-              </span>
+                <BoostOptIcon
+                  className={`mr-1 ${accountType == 'cd' ? '' : 'opacity-40'}`}
+                ></BoostOptIcon>
+                <FormattedMessage id="boosted"></FormattedMessage>
+              </div>
             </div>
           </div>
         )}
         <div className="flex flex-col rounded p-5 xs:px-3.5 md:px-3.5 bg-black bg-opacity-25">
-          {accountType == 'cd' || seedRadio ? (
-            <p className={`flex justify-between mb-4`}>
-              <label className="text-sm text-farmText mr-2">
-                <FormattedMessage id="booster"></FormattedMessage>
-              </label>
-              <span
-                className={`flex items-center text-sm text-right break-all text-senderHot`}
-              >
-                {getRate()}
-                <LightningIcon></LightningIcon>
-              </span>
-            </p>
+          {accountType == 'cd' ? (
+            <>
+              <div className="flex items-center justify-between mb-4 mt-5">
+                <label className="text-sm text-farmText mr-8 xs:mr-2 md:mr-2 whitespace-nowrap">
+                  <FormattedMessage id="love_staked"></FormattedMessage>
+                </label>
+                <div className="relative flex flex-col flex-grow">
+                  <span className="absolute text-xs text-primaryText right-0 -top-5">
+                    <label className="mr-1">
+                      +<FormattedMessage id="balance" />:
+                    </label>
+                    {toPrecision(loveTokenBalance, 6)}
+                  </span>
+                  <div className="flex justify-between items-center h-9 px-3 bg-black bg-opacity-20 rounded-lg">
+                    <input
+                      type="number"
+                      placeholder="0.0"
+                      value={amount}
+                      onChange={({ target }) => changeAmount(target.value)}
+                      className="text-white text-sm focus:outline-non appearance-none leading-tight"
+                    ></input>
+                    <div className="flex items-center ml-2">
+                      <span
+                        onClick={() => {
+                          changeAmount(loveTokenBalance);
+                        }}
+                        className={`text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
+                          amount == loveTokenBalance
+                            ? 'bg-black bg-opacity-20 border-black border-opacity-20'
+                            : 'border-maxBorderColor'
+                        }`}
+                      >
+                        Max
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p className={`flex justify-between mb-4`}>
+                <label className="text-sm text-farmText mr-2">
+                  <FormattedMessage id="booster"></FormattedMessage>
+                </label>
+                <span
+                  className={`flex items-center text-sm text-right break-all text-senderHot`}
+                >
+                  {getRate()}
+                  <LightningIcon></LightningIcon>
+                </span>
+              </p>
+            </>
           ) : null}
           <p className="flex justify-between">
             <label className="text-sm text-farmText mr-2">
