@@ -23,6 +23,7 @@ import {
 } from './near';
 
 import { getPool as getPoolRPC } from '../services/pool';
+import { BLACKLIST_POOL_IDS } from './near';
 
 const config = getConfig();
 
@@ -41,17 +42,9 @@ export const getPoolsByTokensIndexer = async ({
     }
   ).then((res) => res.json());
 
-  const res2 = await fetch(
-    config.indexerUrl +
-      `/list-pools-by-tokens?token0=${token1}&token1=${token0}`,
-    {
-      method: 'GET',
-    }
-  ).then((res) => res.json());
-
-  const res = res1.concat(res2);
-
-  return res.filter((p: any) => !isStablePool(p.id));
+  return res1.filter(
+    (p: any) => !isStablePool(p.id) && !BLACKLIST_POOL_IDS.includes(p.id)
+  );
 };
 
 export const getPoolMonthVolume = async (
