@@ -541,5 +541,12 @@ const zh_CN = {
   burrow_usn_tip: '你可以通过Burrow来借USN.',
   recent_one_mounth_activity: '一个月的活动',
   your_assets: '你的资产',
+  connect_wallet: '连接钱包',
+  disconnect: '断开连接',
+  change: '切换钱包',
+  wallets_below_supports_on_PC: '一下钱包支持在PC上使用',
+  connect: '连接',
+  make_sure_device_plugged_in: '请确认你的设备已插入电脑',
+  then_enter_an_account_id_to_connect: '输入一个账号ID来连接',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

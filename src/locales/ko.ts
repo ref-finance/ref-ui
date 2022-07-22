@@ -571,6 +571,14 @@ const ko = {
   total_near_amount: '총 NEAR 금액',
   near_value: 'NEAR 값',
   recent_one_mounth_activity: '한 달 활동',
-  your_assets: 'Your Assets',
+  your_assets: '자산',
+  connect_wallet: '지갑 연결',
+  disconnect: '연결 해제',
+  change: '변화',
+  wallets_below_supports_on_PC: '아래 지갑은 PC에서 지원합니다.',
+  connect: '연결하다',
+  make_sure_device_plugged_in: '장치가 연결되어 있는지 확인',
+  then_enter_an_account_id_to_connect:
+    '그런 다음 연결할 계정 ID를 입력하십시오.',
 };
 export default Object.assign(ko, ko_in_risks_page);

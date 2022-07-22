@@ -570,6 +570,14 @@ const ru = {
   total_near_amount: 'Общая сумма NEAR',
   near_value: 'Ценность NEAR',
   recent_one_mounth_activity: 'Мероприятия на один месяц',
-  your_assets: 'Your Assets',
+  your_assets: 'Ваши активы',
+  connect_wallet: 'Подключить кошелек',
+  disconnect: 'Отключить',
+  change: 'Изменять',
+  wallets_below_supports_on_PC: 'Кошельки ниже поддерживаются на ПК',
+  connect: 'Соединять',
+  make_sure_device_plugged_in: 'Убедитесь, что ваше устройство подключено',
+  then_enter_an_account_id_to_connect:
+    'затем введите идентификатор учетной записи для подключения',
 };
 export default Object.assign(ru, ru_in_risks_page);

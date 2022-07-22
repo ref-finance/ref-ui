@@ -579,6 +579,13 @@ const vi = {
   total_near_amount: 'Số lượng tất cả NEAR',
   near_value: 'NEAR giá trị',
   recent_one_mounth_activity: 'Hoạt động một tháng',
-  your_assets: 'Your Assets',
+  your_assets: 'Tài sản của bạn',
+  connect_wallet: 'Kết nối ví',
+  disconnect: 'Ngắt kết nối',
+  change: 'Biến đổi',
+  wallets_below_supports_on_PC: 'Ví dưới đây hỗ trợ trên PC',
+  connect: 'Liên kết',
+  make_sure_device_plugged_in: 'Đảm bảo rằng thiết bị của bạn đã được cắm vào',
+  then_enter_an_account_id_to_connect: 'sau đó nhập ID tài khoản để kết nối',
 };
 export default Object.assign(vi, vi_in_risks_page);

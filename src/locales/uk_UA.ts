@@ -556,6 +556,14 @@ const uk_UA = {
   total_near_amount: 'Загальна сума NEAR',
   near_value: 'Значення NEAR',
   recent_one_mounth_activity: 'Заходи за один місяць',
-  your_assets: 'Your Assets',
+  your_assets: 'Ваші активи',
+  connect_wallet: 'Підключити гаманець',
+  disconnect: 'Відключити',
+  change: 'Зміна',
+  wallets_below_supports_on_PC: 'Гаманці нижче підтримуються на ПК',
+  connect: 'Підключитися',
+  make_sure_device_plugged_in: 'Переконайтеся, що пристрій підключено',
+  then_enter_an_account_id_to_connect:
+    'потім введіть ідентифікатор облікового запису для підключення',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

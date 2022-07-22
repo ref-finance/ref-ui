@@ -573,5 +573,12 @@ const en_US = {
   burrow_usn_tip: 'You can borrow USN on Burrow.',
   recent_one_mounth_activity: 'One Month Activities',
   your_assets: 'Your Assets',
+  connect_wallet: 'Connect Wallet',
+  disconnect: 'Disconnect',
+  change: 'Change',
+  wallets_below_supports_on_PC: 'Wallets below supports on PC',
+  connect: 'Connect',
+  make_sure_device_plugged_in: 'Make sure your device is plugged in',
+  then_enter_an_account_id_to_connect: 'then enter an account ID to connect',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

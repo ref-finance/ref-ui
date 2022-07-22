@@ -581,6 +581,13 @@ const ja = {
   borrow: '借りる',
   burrow_usn_tip: 'あなたはBurrowでUSNを借りることができます。',
   recent_one_mounth_activity: '1ヶ月の活動',
-  your_assets: 'Your Assets',
+  your_assets: 'あなたの資産',
+  connect_wallet: 'ウォレットを接続する',
+  disconnect: '切断する',
+  change: '変化する',
+  wallets_below_supports_on_PC: '以下のウォレットはPCでサポートされています',
+  connect: '接続',
+  make_sure_device_plugged_in: 'デバイスが接続されていることを確認してください',
+  then_enter_an_account_id_to_connect: '次に、接続するアカウントIDを入力します',
 };
 export default Object.assign(ja, ja_in_risks_page);
