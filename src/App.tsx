@@ -87,6 +87,7 @@ import {
   getErrorMessage,
 } from './components/layout/transactionTipPopUp';
 import { StableSwapRouter } from './pages/stable/StableSwapRouter';
+import { NEAR_WITHDRAW_KEY } from './components/forms/WrapNear';
 
 Modal.defaultStyles = {
   overlay: {
@@ -170,10 +171,16 @@ function App() {
             sessionStorage.getItem('usn') == '1' &&
             (methodName == 'ft_transfer_call' || methodName == 'withdraw');
           sessionStorage.removeItem('usn');
+
+          const fromWrapNear =
+            sessionStorage.getItem(NEAR_WITHDRAW_KEY) === '1';
+
+          sessionStorage.removeItem(NEAR_WITHDRAW_KEY);
+
           return {
             isUSN: isUsn,
             isSlippageError,
-            isNearWithdraw: methodName == 'near_withdraw',
+            isNearWithdraw: methodName == 'near_withdraw' && fromWrapNear,
             isNearDeposit: methodName == 'near_deposit',
           };
         })
