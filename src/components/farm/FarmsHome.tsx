@@ -2424,8 +2424,8 @@ function FarmView(props: {
       });
   }
   function getBoostMutil() {
-    if (!boostConfig) return '';
-    const { affected_seeds } = boostConfig;
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
+    const { affected_seeds = {} } = boostConfig || {};
     const { seed_id } = seed;
     const user_seed = user_seeds_map[seed_id] || {};
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];

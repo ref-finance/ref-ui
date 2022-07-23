@@ -158,8 +158,8 @@ export default function FarmsDetail(props: {
     return farms[0].status == 'Ended';
   }
   function getBoostMutil() {
-    if (!boostConfig) return '';
-    const { affected_seeds } = boostConfig;
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
+    const { affected_seeds = {} } = boostConfig || {};
     const { seed_id } = detailData;
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
@@ -185,8 +185,8 @@ export default function FarmsDetail(props: {
     return '';
   }
   function getBoostDom() {
-    if (!boostConfig) return '';
-    const { affected_seeds } = boostConfig;
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
+    const { affected_seeds = {} } = boostConfig || {};
     const { seed_id } = detailData;
     const base = affected_seeds[seed_id];
     if (base && loveSeed) {
@@ -2194,9 +2194,9 @@ function UserStakeBlock(props: {
     }
   }
   function getUserPower() {
-    if (!boostConfig) return '';
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
     let realRadio;
-    const { affected_seeds } = boostConfig;
+    const { affected_seeds = {} } = boostConfig || {};
     const { seed_id } = detailData;
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
@@ -2420,8 +2420,8 @@ function UserStakeBlock(props: {
     </div>`;
   }
   function getPowerTip() {
-    if (!boostConfig) return '';
-    const { affected_seeds } = boostConfig;
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
+    const { affected_seeds = {} } = boostConfig || {};
     const { seed_id } = detailData;
     const base = affected_seeds[seed_id];
     const tip = intl.formatMessage({
@@ -2431,8 +2431,8 @@ function UserStakeBlock(props: {
     return result;
   }
   function getPowerDetail() {
-    if (!boostConfig) return '';
-    const { affected_seeds } = boostConfig;
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
+    const { affected_seeds = {} } = boostConfig || {};
     const { seed_id } = detailData;
     const base = affected_seeds[seed_id];
     if (base) {
