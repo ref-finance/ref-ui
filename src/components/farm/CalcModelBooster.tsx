@@ -537,7 +537,7 @@ export function CalcEle(props: {
   }
   async function getLoveTokenBalance() {
     // get LoveToken balance
-    if (isSignedIn) {
+    if (REF_VE_CONTRACT_ID && isSignedIn) {
       const loveBalance = await getLoveAmount();
       setLoveTokenBalance(toReadableNumber(LOVE_TOKEN_DECIMAL, loveBalance));
     }
