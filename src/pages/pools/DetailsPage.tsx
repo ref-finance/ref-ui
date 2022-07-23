@@ -126,6 +126,7 @@ import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useAccountInfo } from '../../state/referendum';
 import { getVEPoolId } from '../ReferendumPage';
 import { PoolTab } from '../../components/pool/PoolTab';
+import getConfig from '../../services/config';
 
 interface ParamTypes {
   id: string;
@@ -1336,7 +1337,9 @@ export function PoolDetailsPage() {
     }
   };
 
-  const { lptAmount } = useAccountInfo();
+  const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
+    ? useAccountInfo()
+    : { lptAmount: '0' };
 
   const handleRemoveFromWatchList = () => {
     removePoolFromWatchList({ pool_id: id }).then(() => {

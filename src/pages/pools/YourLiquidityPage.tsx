@@ -71,6 +71,7 @@ import { useAccountInfo } from '~state/referendum';
 import { VEARROW } from '../../components/icon/Referendum';
 import { toNonDivisibleNumber } from '../../utils/numbers';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
+import getConfig from '../../services/config';
 
 function MyShares({
   shares,
@@ -166,7 +167,9 @@ export function YourLiquidityPage() {
   const senderLoginRes = getSenderLoginRes();
   const history = useHistory();
 
-  const { lptAmount } = useAccountInfo();
+  const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
+    ? useAccountInfo()
+    : { lptAmount: '0' };
 
   const { poolData: pool3tokenData } = useStabelPoolData(STABLE_POOL_ID);
 
@@ -341,7 +344,7 @@ export function YourLiquidityPage() {
                   </div>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
-                  {!vePool
+                  {!vePool || !getConfig().REF_VE_CONTRACT_ID
                     ? null
                     : [vePool].map((p) => {
                         return <RowRender p={p} ids={p.token_account_ids} />;
@@ -352,7 +355,12 @@ export function YourLiquidityPage() {
                   })}
 
                   {pools
-                    .filter((p) => !vePool || p.id !== vePool.id)
+                    .filter(
+                      (p) =>
+                        !getConfig().REF_VE_CONTRACT_ID ||
+                        !vePool ||
+                        p.id !== vePool.id
+                    )
                     .map((p, i) => {
                       return <RowRender p={p} ids={p.token_account_ids} />;
                     })}
@@ -373,7 +381,7 @@ export function YourLiquidityPage() {
         {pools.length > 0 ||
         stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
           <div className="lg:hidden">
-            {!vePool
+            {!vePool || !getConfig().REF_VE_CONTRACT_ID
               ? null
               : [vePool].map((p) => {
                   return <RowRenderMobile p={p} ids={p.token_account_ids} />;
@@ -384,7 +392,12 @@ export function YourLiquidityPage() {
             })}
 
             {pools
-              .filter((p) => !vePool || p.id !== vePool.id)
+              .filter(
+                (p) =>
+                  !getConfig().REF_VE_CONTRACT_ID ||
+                  !vePool ||
+                  p.id !== vePool.id
+              )
               .map((p, i) => {
                 return <RowRenderMobile p={p} ids={p.token_account_ids} />;
               })}
@@ -670,7 +683,8 @@ function PoolRow(props: {
               </div>
             </Link>
           )}
-          {Number(getVEPoolId()) === Number(pool.id) ? (
+          {Number(getVEPoolId()) === Number(pool.id) &&
+          !!getConfig().REF_VE_CONTRACT_ID ? (
             <div
               onClick={(e) => {
                 e.stopPropagation();
@@ -918,7 +932,8 @@ function PoolRow(props: {
                   </span>
                 </Link>
               )}
-              {Number(getVEPoolId()) === Number(pool.id) ? (
+              {Number(getVEPoolId()) === Number(pool.id) &&
+              !!getConfig().REF_VE_CONTRACT_ID ? (
                 <div
                   onClick={(e) => {
                     e.preventDefault();

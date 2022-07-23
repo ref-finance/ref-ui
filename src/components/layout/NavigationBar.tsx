@@ -1072,11 +1072,14 @@ function NavigationBar() {
                 name="farm_capital"
               />
               <Xref></Xref>
-              <Anchor
-                to="/referendum"
-                pattern="/referendum"
-                name="vote_capital"
-              />
+              {!!getConfig().REF_VE_CONTRACT_ID ? (
+                <Anchor
+                  to="/referendum"
+                  pattern="/referendum"
+                  name="vote_capital"
+                />
+              ) : null}
+
               <Anchor to="/risks" pattern="/risks" name="risks_capital" />
             </div>
           </div>

@@ -677,7 +677,9 @@ export function MobileNavBar(props: any) {
                   newFunction,
                   showIcon,
                   iconElement,
+                  hidden,
                 }) => {
+                  if (hidden) return null;
                   let location = useLocation();
                   let isSelected = subRoute
                     ? subRoute.includes(location.pathname)

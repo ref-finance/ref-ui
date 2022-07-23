@@ -90,6 +90,7 @@ import {
 } from './components/layout/transactionTipPopUp';
 import { StableSwapRouter } from './pages/stable/StableSwapRouter';
 import { ReferendumPage } from './pages/ReferendumPage';
+import getConfig from './services/config';
 
 Modal.defaultStyles = {
   overlay: {
@@ -295,7 +296,12 @@ function App() {
 
             <Route path="/xref" component={AutoHeight(XrefPage)} />
             <Route path="/risks" component={AutoHeight(RiskPage)} />
-            <Route path="/referendum" component={AutoHeight(ReferendumPage)} />
+            {!!getConfig().REF_VE_CONTRACT_ID ? (
+              <Route
+                path="/referendum"
+                component={AutoHeight(ReferendumPage)}
+              />
+            ) : null}
 
             <Route
               path="/farmsBoost/:id?"

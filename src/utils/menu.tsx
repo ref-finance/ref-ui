@@ -28,6 +28,7 @@ import {
   IconRisk,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
+import getConfig from '../services/config';
 
 export type MenuItem = {
   id: number;
@@ -191,6 +192,7 @@ export type MobileMenuItem = {
   newFunction?: boolean;
   showIcon?: boolean;
   iconElement?: ReactNode;
+  hidden?: boolean;
 };
 export const moreLinks: MobileMenuItem[] = [
   {
@@ -237,6 +239,7 @@ export const moreLinks: MobileMenuItem[] = [
     pattern: '/referendum',
     url: '/referendum',
     isExternal: false,
+    hidden: !getConfig().REF_VE_CONTRACT_ID,
   },
   {
     id: 'risks_capital',
