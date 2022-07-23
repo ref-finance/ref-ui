@@ -197,10 +197,10 @@ export default function CalcModelBooster(
             <div className="flex items-center justify-between text-sm text-farmText">
               {symbols} <FormattedMessage id="lp_staked"></FormattedMessage>
               <span
-                className="flex items-center text-greenColor cursor-pointer"
+                className="flex items-center text-greenColor cursor-pointer hover:text-senderHot"
                 onClick={goPool}
               >
-                <FormattedMessage id="lp_token"></FormattedMessage>
+                <FormattedMessage id="get_lp_token"></FormattedMessage>
                 <VEARROW className="ml-1.5"></VEARROW>
               </span>
             </div>
