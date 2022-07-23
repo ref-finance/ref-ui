@@ -276,7 +276,7 @@ export default function FarmsHome(props: any) {
   }
   async function getLoveTokenBalance() {
     // get LoveToken balance
-    if (isSignedIn) {
+    if (isSignedIn && REF_VE_CONTRACT_ID) {
       const loveBalance = await getLoveAmount();
       setLoveTokenBalance(toReadableNumber(LOVE_TOKEN_DECIMAL, loveBalance));
       console.log('love Token balance 获取到了');
@@ -1337,13 +1337,14 @@ export default function FarmsHome(props: any) {
               <LoveBox inside={false}></LoveBox>
             </div>
           )}
-
-          <GetLoveTokenModal
-            isOpen={showLoveTokenModalVisible}
-            onRequestClose={() => {
-              setShowLoveTokenModalVisible(false);
-            }}
-          ></GetLoveTokenModal>
+          {REF_VE_CONTRACT_ID ? (
+            <GetLoveTokenModal
+              isOpen={showLoveTokenModalVisible}
+              onRequestClose={() => {
+                setShowLoveTokenModalVisible(false);
+              }}
+            ></GetLoveTokenModal>
+          ) : null}
 
           {loveStakeModalVisible ? (
             <LoveStakeModal
