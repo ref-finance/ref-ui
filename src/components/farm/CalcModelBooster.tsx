@@ -6,7 +6,7 @@ import { BigNumber } from 'bignumber.js';
 import { wallet } from '~services/near';
 import { mftGetBalance } from '~services/mft-contract';
 import Modal from 'react-modal';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { getMftTokenId } from '~utils/token';
 import { Card } from '~components/card/Card';
 import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
@@ -34,6 +34,7 @@ import {
 } from '~components/icon/FarmBoost';
 import { getLoveAmount } from '~services/referendum';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
+import { VEARROW } from '../icon/Referendum';
 import ReactTooltip from 'react-tooltip';
 
 const config = getConfig();
@@ -75,6 +76,7 @@ export default function CalcModelBooster(
     : LP_TOKEN_DECIMALS;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const history = useHistory();
   useEffect(() => {
     getUserLpTokenInPool();
   }, []);
@@ -167,6 +169,12 @@ export default function CalcModelBooster(
   function switchInputSort() {
     setInputType(!inputType);
   }
+  function goPool() {
+    const poolId = seed.pool.id;
+    if (poolId) {
+      window.open(`/pool/${poolId}`);
+    }
+  }
   return (
     <Modal {...props}>
       <Card
@@ -186,9 +194,16 @@ export default function CalcModelBooster(
             </div>
           </div>
           <div className="mt-7 xs:mt-4 md:mt-4">
-            <label className="text-sm text-farmText">
+            <div className="flex items-center justify-between text-sm text-farmText">
               {symbols} <FormattedMessage id="lp_staked"></FormattedMessage>
-            </label>
+              <span
+                className="flex items-center text-greenColor cursor-pointer hover:text-senderHot"
+                onClick={goPool}
+              >
+                <FormattedMessage id="get_lp_token"></FormattedMessage>
+                <VEARROW className="ml-1.5"></VEARROW>
+              </span>
+            </div>
             <div className="flex items-center rounded px-5 py-2.5 xs:px-3.5 md:px-3.5 bg-black bg-opacity-25 mt-2.5">
               {inputType ? (
                 <UsdInput usd={usd} changeUsd={changeUsd}></UsdInput>
@@ -249,9 +264,9 @@ export default function CalcModelBooster(
               user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
             ></CalcEle>
           </div>
-          <div className="mt-5 xs:mt-3 md:mt-3">
+          {/* <div className="mt-5 xs:mt-3 md:mt-3">
             <LinkPool pooId={seed.pool.id}></LinkPool>
-          </div>
+          </div> */}
         </div>
       </Card>
     </Modal>

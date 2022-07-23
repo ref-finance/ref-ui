@@ -24,6 +24,7 @@ import {
   MigrateIconMiddle,
   WarningIcon,
   LightningBase64,
+  LightningBase64Grey,
 } from '~components/icon/FarmBoost';
 import {
   GradientButton,
@@ -2181,7 +2182,13 @@ function FarmView(props: {
         2
       );
       result += `<div class="flex items-center justify-end text-xs text-farmText">
-        (${baseAPR}<span class="flex items-center text-senderHot text-xs ml-0.5">x${displayYourActualAprRate}<img src="${LightningBase64()}"/></span>)
+        (${baseAPR}<span class="flex items-center ${
+        +displayYourActualAprRate == 1 ? 'text-farmText' : 'text-senderHot'
+      } text-xs ml-0.5">x${displayYourActualAprRate}<img src="${
+        +displayYourActualAprRate == 1
+          ? LightningBase64Grey()
+          : LightningBase64()
+      }"/></span>)
       </div>`;
     }
 
@@ -2417,8 +2424,8 @@ function FarmView(props: {
       });
   }
   function getBoostMutil() {
-    if (!boostConfig) return '';
-    const { affected_seeds } = boostConfig;
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
+    const { affected_seeds = {} } = boostConfig || {};
     const { seed_id } = seed;
     const user_seed = user_seeds_map[seed_id] || {};
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
