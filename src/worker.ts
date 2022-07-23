@@ -136,6 +136,7 @@ const get_list_seed_farms = async (seed_id: string) => {
 };
 const getPoolsByIds = async (pool_ids: string[]): Promise<PoolRPCView[]> => {
   const ids = pool_ids.join('|');
+  if (!ids) return [];
   return fetch(config.indexerUrl + '/list-pools-by-ids?ids=' + ids, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
