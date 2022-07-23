@@ -2010,7 +2010,7 @@ function FarmView(props: {
   const [error, setError] = useState<Error>();
   const [aprSwitchStatus, setAprSwitchStatus] = useState('1');
   const [yourApr, setYourApr] = useState('');
-  const [yourAprRate, setYourAprRate] = useState('1');
+  const [yourActualAprRate, setYourActualAprRate] = useState('1');
   const tokens = seed.pool.tokens_meta_data;
   const unClaimedTokens = useTokens(
     Object.keys(user_unclaimed_map[seed_id] || {})
@@ -2176,8 +2176,11 @@ function FarmView(props: {
     </div>
     `;
     if (yourApr && +aprSwitchStatus == 1) {
+      const displayYourActualAprRate = new BigNumber(yourActualAprRate).toFixed(
+        2
+      );
       result += `<div class="flex items-center justify-end text-xs text-farmText">
-        (${baseAPR}<span class="flex items-center text-senderHot text-xs ml-0.5">x${yourAprRate}<img src="${LightningBase64()}"/></span>)
+        (${baseAPR}<span class="flex items-center text-senderHot text-xs ml-0.5">x${displayYourActualAprRate}<img src="${LightningBase64()}"/></span>)
       </div>`;
     }
 
@@ -2186,8 +2189,8 @@ function FarmView(props: {
       const token = rewardToken;
       let itemHtml = '';
       let apr = baseApr;
-      if (yourApr && +aprSwitchStatus == 1 && yourAprRate) {
-        apr = new BigNumber(apr).multipliedBy(yourAprRate).toFixed();
+      if (yourApr && +aprSwitchStatus == 1 && yourActualAprRate) {
+        apr = new BigNumber(apr).multipliedBy(yourActualAprRate).toFixed();
       }
       if (pending) {
         const startDate = moment.unix(startTime).format('YYYY-MM-DD');
@@ -2550,9 +2553,9 @@ function FarmView(props: {
       } else {
         rate = new BigNumber(1)
           .plus(Math.log(+userLoveAmount) / Math.log(base))
-          .toFixed(2);
+          .toFixed();
       }
-      setYourAprRate(rate);
+      setYourActualAprRate(rate);
       const apr = getActualTotalApr();
       let boostApr;
       if (apr) {

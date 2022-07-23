@@ -338,7 +338,7 @@ function StakeContainer(props: {
   const [dayVolume, setDayVolume] = useState('');
   const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
   const [yourApr, setYourApr] = useState('');
-  const [yourAprRate, setYourAprRate] = useState('1');
+  const [yourActualAprRate, setYourActualAprRate] = useState('1');
   const {
     detailData,
     tokenPriceList,
@@ -672,8 +672,11 @@ function StakeContainer(props: {
     </div>
     `;
     if (isYour) {
+      const displayYourActualAprRate = new BigNumber(yourActualAprRate).toFixed(
+        2
+      );
       result += `<div class="flex items-center justify-end text-xs text-farmText">
-      (${baseApr}<span class="flex items-center text-senderHot text-xs ml-0.5">x${yourAprRate}<img src="${LightningBase64()}"/></span>)
+      (${baseApr}<span class="flex items-center text-senderHot text-xs ml-0.5">x${displayYourActualAprRate}<img src="${LightningBase64()}"/></span>)
     </div>`;
     }
 
@@ -682,8 +685,8 @@ function StakeContainer(props: {
       const token = rewardToken;
       let itemHtml = '';
       let apr = baseApr;
-      if (isYour && yourApr && yourAprRate) {
-        apr = new BigNumber(apr).multipliedBy(yourAprRate).toFixed();
+      if (isYour && yourApr && yourActualAprRate) {
+        apr = new BigNumber(apr).multipliedBy(yourActualAprRate).toFixed();
       }
       if (pending) {
         const startDate = moment.unix(startTime).format('YYYY-MM-DD');
@@ -799,9 +802,9 @@ function StakeContainer(props: {
       } else {
         rate = new BigNumber(1)
           .plus(Math.log(+userLoveAmount) / Math.log(base))
-          .toFixed(2);
+          .toFixed();
       }
-      setYourAprRate(rate);
+      setYourActualAprRate(rate);
       const apr = getActualTotalApr();
       let boostApr;
       if (apr) {
