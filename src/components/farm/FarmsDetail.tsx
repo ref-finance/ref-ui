@@ -18,6 +18,7 @@ import {
   BoostRightArrowIcon,
   BoostOptIcon,
   LightningBase64,
+  LightningBase64Grey,
 } from '~components/icon/FarmBoost';
 import { useHistory, useLocation } from 'react-router-dom';
 import getConfig from '../../services/config';
@@ -676,7 +677,13 @@ function StakeContainer(props: {
         2
       );
       result += `<div class="flex items-center justify-end text-xs text-farmText">
-      (${baseApr}<span class="flex items-center text-senderHot text-xs ml-0.5">x${displayYourActualAprRate}<img src="${LightningBase64()}"/></span>)
+      (${baseApr}<span class="flex items-center ${
+        +displayYourActualAprRate == 1 ? 'text-farmText' : 'text-senderHot'
+      } text-xs ml-0.5">x${displayYourActualAprRate}<img src="${
+        +displayYourActualAprRate == 1
+          ? LightningBase64Grey()
+          : LightningBase64()
+      }"/></span>)
     </div>`;
     }
 
@@ -2072,7 +2079,10 @@ function UserTotalUnClaimBlock(props: {
             index: number
           ) => {
             return (
-              <div className="flex items-center" key={index}>
+              <div
+                className="flex items-center xs:justify-between md:justify-between"
+                key={index}
+              >
                 <div className="flex items-center w-28">
                   <img
                     className="w-5 h-5 rounded-full border border-greenColor"

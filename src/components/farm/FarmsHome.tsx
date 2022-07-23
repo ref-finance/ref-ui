@@ -24,6 +24,7 @@ import {
   MigrateIconMiddle,
   WarningIcon,
   LightningBase64,
+  LightningBase64Grey,
 } from '~components/icon/FarmBoost';
 import {
   GradientButton,
@@ -2181,7 +2182,13 @@ function FarmView(props: {
         2
       );
       result += `<div class="flex items-center justify-end text-xs text-farmText">
-        (${baseAPR}<span class="flex items-center text-senderHot text-xs ml-0.5">x${displayYourActualAprRate}<img src="${LightningBase64()}"/></span>)
+        (${baseAPR}<span class="flex items-center ${
+        +displayYourActualAprRate == 1 ? 'text-farmText' : 'text-senderHot'
+      } text-xs ml-0.5">x${displayYourActualAprRate}<img src="${
+        +displayYourActualAprRate == 1
+          ? LightningBase64Grey()
+          : LightningBase64()
+      }"/></span>)
       </div>`;
     }
 

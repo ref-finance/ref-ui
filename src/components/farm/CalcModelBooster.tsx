@@ -6,7 +6,7 @@ import { BigNumber } from 'bignumber.js';
 import { wallet } from '~services/near';
 import { mftGetBalance } from '~services/mft-contract';
 import Modal from 'react-modal';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { getMftTokenId } from '~utils/token';
 import { Card } from '~components/card/Card';
 import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
@@ -76,6 +76,7 @@ export default function CalcModelBooster(
     : LP_TOKEN_DECIMALS;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const history = useHistory();
   useEffect(() => {
     getUserLpTokenInPool();
   }, []);
@@ -168,6 +169,12 @@ export default function CalcModelBooster(
   function switchInputSort() {
     setInputType(!inputType);
   }
+  function goPool() {
+    const poolId = seed.pool.id;
+    if (poolId) {
+      window.open(`/pool/${poolId}`);
+    }
+  }
   return (
     <Modal {...props}>
       <Card
@@ -187,10 +194,12 @@ export default function CalcModelBooster(
             </div>
           </div>
           <div className="mt-7 xs:mt-4 md:mt-4">
-            {/* todo */}
             <div className="flex items-center justify-between text-sm text-farmText">
               {symbols} <FormattedMessage id="lp_staked"></FormattedMessage>
-              <span className="flex items-center text-greenColor cursor-pointer">
+              <span
+                className="flex items-center text-greenColor cursor-pointer"
+                onClick={goPool}
+              >
                 <FormattedMessage id="lp_token"></FormattedMessage>
                 <VEARROW className="ml-1.5"></VEARROW>
               </span>
