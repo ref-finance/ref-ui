@@ -1219,9 +1219,10 @@ export const frontConfig = {
   '79': '98',
 };
 export const farmClassification = {
-  near: [17, 568, 53, 50],
+  near: [17, 568, 53, 50, 269, 621],
   eth: [605],
 };
 export const frontConfigBoost = {
   '17': '100',
+  '269': '99',
 };
