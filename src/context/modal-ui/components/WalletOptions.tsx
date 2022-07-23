@@ -130,13 +130,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
 
   useEffect(() => {
     const subscription = selector.store.observable.subscribe((state) => {
-      state.modules.sort((current, next) => {
-        if (current.metadata.deprecated === next.metadata.deprecated) {
-          return 0;
-        }
-
-        return current.metadata.deprecated ? 1 : -1;
-      });
       setModules(state.modules);
     });
 
