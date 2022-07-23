@@ -76,6 +76,7 @@ import { getVEPoolId } from '../ReferendumPage';
 import { StartPoolIcon } from '../../components/icon/WatchListStar';
 import { PoolDaoBanner, PoolDaoBannerMobile } from '../../components/icon/Logo';
 import { VEARROW } from '../../components/icon/Referendum';
+import getConfig from '../../services/config';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -443,41 +444,46 @@ function MobileLiquidityPage({
         />
 
         {/* start pool card */}
-        <div className="mt-1 mb-5">
-          <div className="flex items-center">
-            <span className="text-white text-lg ml-4 mr-2">
-              <FormattedMessage id="start_pool" defaultMessage={'Star Pool'} />
-            </span>
-            <StartPoolIcon />
-          </div>
-          <Card
-            className="mt-2 bg-cardBg flex flex-col  "
-            width="w-full"
-            padding="px-0 py-3"
-          >
-            <div className="flex items-center ml-5">
-              <button
-                className="flex items-center"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  window.open(`/pool/${getVEPoolId()}`);
-                }}
-              >
-                <Images tokens={tokensStar} size="6" className="mr-2.5" />
-                <Symbols
-                  tokens={tokensStar}
-                  seperator="-"
-                  fontSize="text-sm"
-                ></Symbols>
-              </button>
+        {!!getConfig().REF_VE_CONTRACT_ID ? (
+          <div className="mt-1 mb-5">
+            <div className="flex items-center">
+              <span className="text-white text-lg ml-4 mr-2">
+                <FormattedMessage
+                  id="start_pool"
+                  defaultMessage={'Star Pool'}
+                />
+              </span>
+              <StartPoolIcon />
             </div>
+            <Card
+              className="mt-2 bg-cardBg flex flex-col  "
+              width="w-full"
+              padding="px-0 py-3"
+            >
+              <div className="flex items-center ml-5">
+                <button
+                  className="flex items-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    window.open(`/pool/${getVEPoolId()}`);
+                  }}
+                >
+                  <Images tokens={tokensStar} size="6" className="mr-2.5" />
+                  <Symbols
+                    tokens={tokensStar}
+                    seperator="-"
+                    fontSize="text-sm"
+                  ></Symbols>
+                </button>
+              </div>
 
-            <PoolDaoBannerMobile />
+              <PoolDaoBannerMobile />
 
-            {/* {supportFarmStar && <FarmButton farmCount={farmCountStar} />} */}
-          </Card>
-        </div>
+              {/* {supportFarmStar && <FarmButton farmCount={farmCountStar} />} */}
+            </Card>
+          </div>
+        ) : null}
 
         <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
           <div className="mx-4 flex items-center justify-between my-4">
@@ -853,62 +859,67 @@ function LiquidityPage_({
           watchPools={watchPools}
         />
         {/* start pool card */}
-        <div className="mt-3 mb-5">
-          <div className="flex items-center">
-            <span className="text-white text-lg ml-8 mr-2">
-              <FormattedMessage id="start_pool" defaultMessage={'Star Pool'} />
-            </span>
-            <StartPoolIcon />
-          </div>
-          <Card
-            className="mt-2  relative flex items-center "
-            width="w-full"
-            bgcolor="bg-cardBg "
-            padding="px-0 "
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              window.open(`/pool/${getVEPoolId()}`);
-            }}
-          >
-            <div className="w-full cursor-pointer flex items-center px-8 py-3 hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
-              <div className="flex items-center">
+        {!!getConfig().REF_VE_CONTRACT_ID ? (
+          <div className="mt-3 mb-5">
+            <div className="flex items-center">
+              <span className="text-white text-lg ml-8 mr-2">
+                <FormattedMessage
+                  id="start_pool"
+                  defaultMessage={'Star Pool'}
+                />
+              </span>
+              <StartPoolIcon />
+            </div>
+            <Card
+              className="mt-2  relative flex items-center "
+              width="w-full"
+              bgcolor="bg-cardBg "
+              padding="px-0 "
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                window.open(`/pool/${getVEPoolId()}`);
+              }}
+            >
+              <div className="w-full cursor-pointer flex items-center px-8 py-3 hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
                 <div className="flex items-center">
-                  <Images tokens={tokensStar} size="9" className="mr-7" />
-                  <Symbols
-                    tokens={tokensStar}
-                    seperator="-"
-                    fontSize="text-sm"
-                  ></Symbols>
+                  <div className="flex items-center">
+                    <Images tokens={tokensStar} size="9" className="mr-7" />
+                    <Symbols
+                      tokens={tokensStar}
+                      seperator="-"
+                      fontSize="text-sm"
+                    ></Symbols>
+                  </div>
                 </div>
+
+                {supportFarmStar && <FarmButton farmCount={farmCountStar} />}
               </div>
+              <div className="absolute flex items-center right-0 bottom-0">
+                <button
+                  className="text-white hover:text-gradientFrom text-xl z-30 relative top-3 right-3 flex items-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    window.open('/referendum');
+                  }}
+                >
+                  <span className="text-white">
+                    <FormattedMessage
+                      id="more_than_a_simple_pool"
+                      defaultMessage={'More than a simple pool'}
+                    />
+                  </span>
 
-              {supportFarmStar && <FarmButton farmCount={farmCountStar} />}
-            </div>
-            <div className="absolute flex items-center right-0 bottom-0">
-              <button
-                className="text-white hover:text-gradientFrom text-xl z-30 relative top-3 right-3 flex items-center"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  window.open('/referendum');
-                }}
-              >
-                <span className="text-white">
-                  <FormattedMessage
-                    id="more_than_a_simple_pool"
-                    defaultMessage={'More than a simple pool'}
-                  />
-                </span>
-
-                <button className=" ml-1.5">
-                  <VEARROW />
+                  <button className=" ml-1.5">
+                    <VEARROW />
+                  </button>
                 </button>
-              </button>
-              <PoolDaoBanner />
-            </div>
-          </Card>
-        </div>
+                <PoolDaoBanner />
+              </div>
+            </Card>
+          </div>
+        ) : null}
 
         <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
           <div className="flex mx-8 justify-between pb-4">
