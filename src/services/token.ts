@@ -450,6 +450,13 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
   ];
 };
 
+export const getGlobalWhitelist = async (): Promise<string[]> => {
+  const globalWhitelist = await refFiViewFunction({
+    methodName: 'get_whitelisted_tokens',
+  });
+  return [...new Set<string>([...globalWhitelist])];
+};
+
 export const getWhitelistedTokensAndNearTokens = async (): Promise<
   string[]
 > => {

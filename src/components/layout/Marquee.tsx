@@ -6,7 +6,10 @@ import {
   CloseRadiusIcon,
 } from '~components/icon/Common';
 import { getListHistoryTokenPriceByIds } from '~services/indexer';
-import { useWhitelistTokens } from '../../state/token';
+import {
+  useWhitelistTokens,
+  useGlobalWhitelistTokens,
+} from '../../state/token';
 import anime from 'animejs';
 import { TokenMetadata } from '~services/ft-contract';
 import { useLocation } from 'react-router-dom';
@@ -43,7 +46,8 @@ export default function Marquee() {
     }
     setShowMarquee(!showMarquee);
   };
-  const allTokens = useWhitelistTokens() || [];
+  // const allTokens = useWhitelistTokens() || [];
+  const allTokens = useGlobalWhitelistTokens() || [];
   useEffect(() => {
     if (tokenHistoryList.length > 0 && !animationObj) {
       const length = (tokenHistoryList.length / 2) * 220;

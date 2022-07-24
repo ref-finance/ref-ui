@@ -22,6 +22,7 @@ import {
   getUserRegisteredTokens,
   TokenBalancesView,
   getWhitelistedTokensAndNearTokens,
+  getGlobalWhitelist,
 } from '../services/token';
 import {
   toPrecision,
@@ -160,6 +161,21 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
   useEffect(() => {
     getWhitelistedTokens()
+      .then((tokenIds) => {
+        const allTokenIds = [...new Set([...tokenIds, ...extraTokenIds])];
+        return Promise.all(
+          allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+        );
+      })
+      .then(setTokens);
+  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
+
+  return tokens?.map((t) => ({ ...t, onRef: true }));
+};
+export const useGlobalWhitelistTokens = (extraTokenIds: string[] = []) => {
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
+  useEffect(() => {
+    getGlobalWhitelist()
       .then((tokenIds) => {
         const allTokenIds = [...new Set([...tokenIds, ...extraTokenIds])];
         return Promise.all(
