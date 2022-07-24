@@ -45,7 +45,7 @@ export default function Marquee() {
   };
   const allTokens = useWhitelistTokens() || [];
   useEffect(() => {
-    if (tokenHistoryList.length > 0) {
+    if (tokenHistoryList.length > 0 && !animationObj) {
       const length = (tokenHistoryList.length / 2) * 220;
       const xTrans: any = [];
       anime.set('.box', {
