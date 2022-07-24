@@ -519,7 +519,7 @@ class RefDatabase extends Dexie {
     );
   }
   public async cacheTokenPrices(tokenPriceMap: Record<string, TokenPrice>) {
-    await this.tokenPrices.clear();
+    // await this.tokenPrices.clear();
     const cacheData: TokenPrice[] = [];
     const tokenIds = Object.keys(tokenPriceMap);
     tokenIds.forEach((tokenId: string) => {
@@ -532,7 +532,7 @@ class RefDatabase extends Dexie {
     this.tokenPrices.bulkPut(cacheData);
   }
   public async cacheBoostSeeds(boostSeeds: BoostSeeds[]) {
-    await this.boostSeeds.clear();
+    // await this.boostSeeds.clear();
     await this.boostSeeds.bulkPut(
       boostSeeds.map((boostSeed: BoostSeeds) => ({
         ...boostSeed,
