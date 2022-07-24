@@ -1068,10 +1068,19 @@ export function useMigrate_user_data() {
     const userMigrateSeeds: MigrateSeed[] = [];
     const result_old: Record<string, string> = await get_list_user_seeds({});
     const result_new: Record<string, any> = await getBoostSeeds();
-    const { seeds, pools } = result_new;
+    const { seeds, pools, farms } = result_new;
+    // filter no farm seed
+    const new_list_seeds: any[] = [];
+    farms.forEach((farmList: FarmBoost[], index: number) => {
+      if (farmList?.length > 0) {
+        new_list_seeds.push({
+          ...seeds[index],
+        });
+      }
+    });
     Object.keys(result_old).forEach((seedId: string) => {
       const poolId = getPoolIdBySeedId(seedId);
-      const boostFarmHasSamePool = seeds.find((seed: Seed) => {
+      const boostFarmHasSamePool = new_list_seeds.find((seed: Seed) => {
         const id = getPoolIdBySeedId(seed.seed_id);
         if (poolId == id) return true;
       });
