@@ -182,6 +182,7 @@ export default function FarmsHome(props: any) {
     tvl: intl.formatMessage({ id: 'tvl' }),
     apr: intl.formatMessage({ id: 'apr' }),
   };
+
   const statusList = {
     live: {
       txt: intl.formatMessage({ id: 'all' }),
@@ -189,6 +190,7 @@ export default function FarmsHome(props: any) {
     boost: {
       txt: intl.formatMessage({ id: 'boost' }),
       icon: <BoostOptIcon></BoostOptIcon>,
+      hidden: REF_VE_CONTRACT_ID ? false : true,
     },
     near: {
       txt: intl.formatMessage({ id: 'near' }),
@@ -805,13 +807,26 @@ export default function FarmsHome(props: any) {
         apr = +new BigNumber(item.apr).plus(apr).toFixed();
       }
     });
-
     // get pool fee apy
-    const poolApy = dayVolumeMap[seed.pool.id];
+    const poolApy = getPoolFeeApr(dayVolumeMap[seed.pool.id], seed);
     if (poolApy) {
-      apr = +new BigNumber(poolApy).plus(apr).toFixed();
+      apr = +new BigNumber(poolApy)
+        .plus(new BigNumber(apr || 0).multipliedBy(100).toFixed())
+        .toFixed();
     }
     return apr;
+  }
+  function getPoolFeeApr(dayVolume: string, seed: Seed) {
+    let result = '0';
+    if (dayVolume) {
+      const { total_fee, tvl } = seed.pool;
+      const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
+      if (tvl > 0 && revenu24h > 0) {
+        const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+        result = toPrecision(annualisedFeesPrct.toString(), 2);
+      }
+    }
+    return result;
   }
   function isPending(seed: Seed) {
     let pending: boolean = true;
@@ -1156,6 +1171,7 @@ export default function FarmsHome(props: any) {
       <div className="searchArea m-auto lg:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
         <div className="flex justify-between items-center flex-wrap mb-5 xs:mb-3 md:mb-3 xs:w-full md:w-full xs:justify-start md:justify-start">
           {Object.keys(statusList).map((item: string) => {
+            if (statusList[item].hidden) return null;
             return (
               <span
                 onClick={() => {

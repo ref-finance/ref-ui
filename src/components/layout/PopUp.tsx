@@ -20,8 +20,10 @@ import { IncentivePopup, LoveIcon, CloseButton } from '~components/icon/Farm';
 import { ModalCloseAuto } from '~components/icon';
 import { isMobile } from '~utils/device';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import getConfig from '../../services/config';
 import 'swiper/swiper.min.css';
 import SwiperCore, { Autoplay } from 'swiper';
+const { REF_VE_CONTRACT_ID } = getConfig();
 SwiperCore.use([Autoplay]);
 
 export default function PopUpSwiper() {
@@ -43,7 +45,7 @@ export default function PopUpSwiper() {
   const mobile = isMobile();
   return (
     <>
-      {closeStatus ? null : (
+      {closeStatus || !REF_VE_CONTRACT_ID ? null : (
         <div
           className={`fixed xs:left-1/2 xs:transform xs:-translate-x-1/2 md:left-1/2 md:transform md:-translate-x-1/2 z-50 lg:right-8 ${
             mobile ? 'farmPopupBoxMobile' : 'farmPopupBox'
