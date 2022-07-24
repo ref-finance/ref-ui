@@ -635,7 +635,7 @@ export default function FarmsHome(props: any) {
         } else {
           condition1 = false;
         }
-      } else if (status == 'others' && boostConfig) {
+      } else if (status == 'others') {
         // others
         const isNotNear =
           farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
@@ -697,17 +697,12 @@ export default function FarmsHome(props: any) {
         } else {
           condition1 = false;
         }
-      } else if (status == 'others' && boostConfig) {
-        // others
-        const affected_seeds_keys = Object.keys(
-          boostConfig?.affected_seeds || []
-        );
-        const isNotBoost = affected_seeds_keys.indexOf(seed_id) == -1;
+      } else if (status == 'others') {
         const isNotNear =
           farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
         const isNotEth =
           farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
-        if (isNotBoost && isNotNear && isNotEth) {
+        if (isNotNear && isNotEth) {
           condition1 = true;
         } else {
           condition1 = false;
