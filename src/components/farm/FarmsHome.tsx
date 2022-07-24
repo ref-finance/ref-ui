@@ -1047,7 +1047,7 @@ export default function FarmsHome(props: any) {
         <span className="absolute left-0 top-0 h-full overflow-hidden xs:hidden md:hidden">
           <BannerBgLeft />
         </span>
-        <div className="relative h-full  flex justify-between items-center lg:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0 overflow-hidden">
+        <div className="relative h-full  flex justify-between items-center lg:w-5/6 xl:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0 overflow-hidden">
           <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-3 md:px-3 xs:pt-2 md:pt-2">
             <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4">
               <FormattedMessage id="farms"></FormattedMessage>
@@ -1140,7 +1140,7 @@ export default function FarmsHome(props: any) {
         </div>
       </div>
       {showMigrateEntry ? (
-        <div className="relative migrateArea m-auto lg:w-2/3 xs:w-full md:w-full bg-veGradient rounded-2xl p-4 mb-4 pr-6 xs:hidden md:hidden">
+        <div className="relative migrateArea m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full bg-veGradient rounded-2xl p-4 mb-4 pr-6 xs:hidden md:hidden">
           <MigrateIconMiddle className="absolute left-0 -top-5"></MigrateIconMiddle>
           <div className="flex justify-between items-end ml-32">
             <div className="w-3/4 mr-5">
@@ -1168,7 +1168,7 @@ export default function FarmsHome(props: any) {
         </div>
       ) : null}
 
-      <div className="searchArea m-auto lg:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
+      <div className="searchArea m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
         <div className="flex justify-between items-center flex-wrap mb-5 xs:mb-3 md:mb-3 xs:w-full md:w-full xs:justify-start md:justify-start">
           {Object.keys(statusList).map((item: string) => {
             if (statusList[item].hidden) return null;
@@ -1178,7 +1178,7 @@ export default function FarmsHome(props: any) {
                   changeStatus(item);
                 }}
                 key={item}
-                className={`flex  justify-center mx-1 items-center h-9 px-3 xs:px-1.5 md:px-1.5 xs:mr-1.5 xs:ml-0 md:mr-1.5 md:ml-0 xs:mb-2 md:mb-2 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
+                className={`flex  justify-center mx-1 items-center h-9 px-2 xs:px-1.5 md:px-1.5 xs:mr-1.5 xs:ml-0 md:mr-1.5 md:ml-0 xs:mb-2 md:mb-2 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
                   status == item ? 'bg-cardBg text-white' : 'text-farmText'
                 }`}
               >
@@ -1200,7 +1200,7 @@ export default function FarmsHome(props: any) {
             <input
               ref={searchRef}
               type="text"
-              className="h-full text-sm text-white mr-3 w-48 xs:w-32 md:w-32 placeholder-white placeholder-opacity-40"
+              className="h-full text-sm text-white mr-3 w-40 xs:w-32 md:w-32 placeholder-white placeholder-opacity-40"
               onWheel={() => searchRef.current.blur()}
               onChange={({ target }) => searchByKeyWords(target.value)}
               placeholder={intl.formatMessage({ id: 'search_farms_by_token' })}
@@ -1257,7 +1257,7 @@ export default function FarmsHome(props: any) {
           {/* boost start */}
           {!loveSeed ? null : (
             <div
-              className={`grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 xs:gap-x-0 md:gap-x-0  m-auto lg:w-2/3 xs:w-full md:w-full xs:px-3 md:px-3 mb-9 ${
+              className={`grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 xs:gap-x-0 md:gap-x-0  m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full xs:px-3 md:px-3 mb-9 ${
                 status != 'boost' || noData ? 'hidden' : ''
               }`}
             >
@@ -1391,7 +1391,7 @@ export default function FarmsHome(props: any) {
           ) : null}
 
           {/* boost end */}
-          <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-2/3 xs:px-3 md:px-3 xs:w-full md:w-full">
+          <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-5/6 xl:w-2/3 xs:px-3 md:px-3 xs:w-full md:w-full">
             {farm_display_List.map((seed: Seed, index: number) => {
               return (
                 <div
@@ -1422,7 +1422,7 @@ export default function FarmsHome(props: any) {
             <div
               className={`flex items-center ${
                 showEndedFarmList ? 'justify-between' : 'justify-end'
-              } m-auto lg:w-2/3 xs:w-full md:w-full my-10 xs:my-8 md:my-8 xs:px-3 md:px-3 xs:flex-col md:flex-col`}
+              } m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full my-10 xs:my-8 md:my-8 xs:px-3 md:px-3 xs:flex-col md:flex-col`}
             >
               <div
                 onClick={switchEndedFarmListDisplayStatus}
@@ -1457,7 +1457,7 @@ export default function FarmsHome(props: any) {
               </div>
             </div>
             <div
-              className={`farmListArea grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-2/3 xs:w-full md:w-full xs:px-3 md:px-3 ${
+              className={`farmListArea grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full xs:px-3 md:px-3 ${
                 showEndedFarmList ? '' : 'hidden'
               }`}
             >
