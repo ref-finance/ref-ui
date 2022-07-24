@@ -161,6 +161,8 @@ export const StableSelectToken = ({
       return;
     }
 
+    console.log(postSelected);
+
     const onTokenBTC = BTCtokens.find((t) => t.id === token.id);
 
     const onTokenUSD = USDtokens.find((t) => t.id === token.id);

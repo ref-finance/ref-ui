@@ -902,6 +902,8 @@ export default function SwapCard(props: {
           }}
           tokenPriceList={tokenPriceList}
           isError={tokenIn?.id === tokenOut?.id}
+          postSelected={tokenOut}
+          onSelectPost={setTokenOut}
         />
         <div
           className="flex items-center justify-center border-t mt-12"
