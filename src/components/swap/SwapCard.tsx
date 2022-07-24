@@ -945,6 +945,7 @@ export default function SwapCard(props: {
           tokens={allTokens}
           selectedToken={tokenOut}
           balances={balances}
+          preSelected={tokenIn}
           text={intl.formatMessage({ id: 'to' })}
           useNearBalance={useNearBalance}
           onSelectToken={(token) => {
