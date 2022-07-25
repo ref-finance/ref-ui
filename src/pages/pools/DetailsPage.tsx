@@ -1331,6 +1331,7 @@ export function PoolDetailsPage() {
       setPoolTVL(state?.tvl);
     } else {
       getPool(id).then((pool) => {
+
         setPoolTVL(pool?.tvl);
       });
     }
@@ -1588,7 +1589,10 @@ export function PoolDetailsPage() {
                   )}
                 >
                   {' '}
-                  ${toInternationalCurrencySystem(poolTVL?.toString())}
+                  $
+                  {toInternationalCurrencySystem(
+                    scientificNotationToString(poolTVL?.toString())
+                  )}
                 </div>
               </div>
               <div className="flex items-center justify-between py-2.5">
