@@ -1014,7 +1014,7 @@ export default function FarmsHome(props: any) {
           height: isMobileSite ? '' : '250px',
           backgroundImage: isMobileSite
             ? ''
-            : 'linear-gradient(270deg, #001320 0%, #1D2932 95.06%)',
+            : 'linear-gradient(180deg, #001320 0%, #0C2427 100%)',
         }}
       >
         {showMigrateEntry ? (
@@ -1044,9 +1044,6 @@ export default function FarmsHome(props: any) {
           </div>
         ) : null}
 
-        <span className="absolute left-0 top-0 h-full overflow-hidden xs:hidden md:hidden">
-          <BannerBgLeft />
-        </span>
         <div className="relative h-full  flex justify-between items-center lg:w-5/6 xl:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0 overflow-hidden">
           <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-3 md:px-3 xs:pt-2 md:pt-2">
             <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4">
@@ -1085,9 +1082,6 @@ export default function FarmsHome(props: any) {
             <BoostBannerLogo></BoostBannerLogo>
           </div>
         </div>
-        <span className="absolute right-0 top-0 h-full overflow-hidden xs:hidden md:hidden">
-          <BannerBgRight />
-        </span>
         <div className="flex items-center justify-between w-full mt-2 lg:hidden px-3 mb-3">
           <div
             className="flex items-center justify-between px-4 h-9 py-1 bg-farmSbg rounded-lg bg-opacity-50"

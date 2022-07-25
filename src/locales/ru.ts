@@ -801,7 +801,7 @@ const ru = {
   ended_ve: 'Завершено',
   proposal_details: 'Детали предложения',
   back: 'Вернуться',
-  view_on: 'View on',
+  view_on: 'посмотреть в Nearblocks',
   pending_ve: 'Ожидается',
   boostFarmTip: 'This farm can be boosted by staking LOVE',
   boosted: 'Boosted',
