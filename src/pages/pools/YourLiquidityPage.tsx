@@ -327,7 +327,8 @@ export function YourLiquidityPage() {
               defaultMessage="Your Liquidity"
             />
           </div>
-          {pools.length > 0 && !isClientMobile ? (
+          {(pools.length > 0 || batchTotalShares?.some((s) => s > 0)) &&
+          !isClientMobile ? (
             <section>
               <div className="">
                 <div
@@ -398,7 +399,8 @@ export function YourLiquidityPage() {
             defaultMessage="Your Liquidity"
           />
         </div>
-        {pools.length > 0 && isClientMobile ? (
+        {(pools.length > 0 || batchTotalShares?.some((s) => s > 0)) &&
+        isClientMobile ? (
           <div className="lg:hidden">
             {!vePool || !getConfig().REF_VE_CONTRACT_ID
               ? null
