@@ -4380,7 +4380,7 @@ export const FarmProposal = ({
                 defaultMessage={'Claim Bonus'}
               />
             }
-            className="h-8 xsm:h-7 min-w-28 xsm:w-24"
+            className="min-h-8 xsm:h-7 min-w-28 xsm:min-w-24"
             onClick={() => {
               claimRewardVE({
                 proposal_id: farmProposal.id,
