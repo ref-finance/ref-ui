@@ -65,9 +65,101 @@ import {
   getStablePoolFromCache,
   getRefPoolsByToken1ORToken2,
 } from '../services/pool';
+import Big from 'big.js';
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
+
+export const usePoolUserTotalShare = (id: string | number) => {
+  const shares = usePoolShareRaw(id.toString());
+  const { stakeList, v2StakeList, finalStakeList } = useStakeListByAccountId();
+
+  const farmStake = useFarmStake({
+    poolId: Number(id),
+    stakeList: finalStakeList,
+  });
+
+  const userTotalShare = BigNumber.sum(shares, farmStake);
+
+  return userTotalShare.toNumber();
+};
+
+export const useBatchTotalShares = (
+  ids: (string | number)[],
+  finalStakeList: Record<string, string>
+) => {
+  const [batchShares, setBatchShares] = useState<string[]>();
+
+  const [batchFarmStake, setBatchFarmStake] = useState<(string | number)[]>();
+
+  const getFarmStake = (pool_id: number) => {
+    let farmStake = '0';
+
+    const seedIdList: string[] = Object.keys(finalStakeList);
+    let tempFarmStake: string | number = '0';
+    seedIdList.forEach((seed) => {
+      const id = Number(seed.split('@')[1]);
+      if (id == pool_id) {
+        tempFarmStake = BigNumber.sum(
+          farmStake,
+          finalStakeList[seed]
+        ).valueOf();
+      }
+    });
+
+    return tempFarmStake;
+  };
+
+  useEffect(() => {
+    if (!ids || !finalStakeList) return undefined;
+
+    Promise.all(ids.map((id) => getSharesInPool(Number(id)))).then(
+      setBatchShares
+    );
+
+    Promise.all(ids.map((id) => getFarmStake(Number(id)))).then(
+      setBatchFarmStake
+    );
+  }, [ids?.join('-'), finalStakeList]);
+
+  return (
+    ids?.map((id, index) => {
+      return new Big(batchShares?.[index] || '0')
+        .plus(new Big(batchFarmStake?.[index] || '0'))
+        .toNumber();
+    }) || undefined
+  );
+};
+
+export const useStakeListByAccountId = () => {
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
+  const [stakeList, setStakeList] = useState<Record<string, string>>({});
+  const [v2StakeList, setV2StakeList] = useState<Record<string, string>>({});
+
+  const [finalStakeList, setFinalStakeList] = useState<Record<string, string>>(
+    {}
+  );
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+    getStakedListByAccountId({})
+      .then(({ stakedList, finalStakeList, v2StakedList }) => {
+        setStakeList(stakedList);
+        setV2StakeList(v2StakedList);
+        setFinalStakeList(finalStakeList);
+      })
+      .catch(() => {});
+  }, [isSignedIn]);
+
+  return {
+    stakeList,
+    v2StakeList,
+    finalStakeList,
+  };
+};
 
 export const usePool = (id: number | string) => {
   const { globalState } = useContext(WalletContext);
@@ -738,6 +830,21 @@ export const useYourliquidity = (poolId: number) => {
     userTotalShare,
     userTotalShareToString,
   };
+};
+
+export const usePoolShareRaw = (id: string | number) => {
+  const [myPoolShare, setMyPoolShare] = useState<string>('0');
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+    getSharesInPool(Number(id)).then((res) => {
+      setMyPoolShare(res);
+    });
+  }, [isSignedIn]);
+
+  return myPoolShare;
 };
 
 export const usePoolShare = (id: string | number, decimalLimit?: number) => {

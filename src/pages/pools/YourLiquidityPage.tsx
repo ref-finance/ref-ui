@@ -25,7 +25,7 @@ import {
   toReadableNumber,
   ONLY_ZEROS,
 } from '~utils/numbers';
-import { usePool } from '~state/pool';
+import { usePool, usePools } from '~state/pool';
 import {
   RemoveLiquidityModal,
   AddLiquidityModal,
@@ -51,7 +51,11 @@ import {
   divide,
   scientificNotationToString,
 } from '../../utils/numbers';
-import { STABLE_POOL_USN_ID, isStablePool } from '../../services/near';
+import {
+  STABLE_POOL_USN_ID,
+  isStablePool,
+  ALL_STABLE_POOL_IDS,
+} from '../../services/near';
 import { STABLE_POOL_ID } from '../../services/near';
 import {
   isNotStablePool,
@@ -72,6 +76,14 @@ import { VEARROW } from '../../components/icon/Referendum';
 import { toNonDivisibleNumber } from '../../utils/numbers';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import getConfig from '../../services/config';
+import { useStakeListByAccountId, useBatchTotalShares } from '../../state/pool';
+import { getPoolsByIds } from '../../services/indexer';
+import { parsePool } from '../../services/pool';
+import { usePoolShareRaw } from '../../state/pool';
+import { createContext } from 'react';
+import { useClientMobile, isClientMobie } from '../../utils/device';
+
+const StakeListContext = createContext(null);
 
 function MyShares({
   shares,
@@ -167,28 +179,36 @@ export function YourLiquidityPage() {
   const senderLoginRes = getSenderLoginRes();
   const history = useHistory();
 
-  const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
-    ? useAccountInfo()
-    : { lptAmount: '0' };
-
-  const { poolData: pool3tokenData } = useStabelPoolData(STABLE_POOL_ID);
-
-  const { poolData: USNPoolData } = useStabelPoolData(STABLE_POOL_USN_ID);
-
-  const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
-
-  const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
-
-  const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
-
-  const { poolData: LINEARPoolData } = useStabelPoolData(LINEAR_POOL_ID);
-
   if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
   }
 
+  const [stablePools, setStablePools] = useState<PoolRPCView[]>();
+
+  const [tvls, setTvls] = useState<Record<string, number>>();
+
+  const isClientMobile = useClientMobile();
+
+  const { finalStakeList, stakeList, v2StakeList } = useStakeListByAccountId();
+
+  const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
+    ? useAccountInfo()
+    : { lptAmount: '0' };
+
+  const batchTotalShares = useBatchTotalShares(
+    stablePools?.map((p) => p.id),
+    finalStakeList
+  );
+
   const [tokensMeta, setTokensMeta] = useState<{}>();
+
+  useEffect(() => {
+    const ids = ALL_STABLE_POOL_IDS;
+    getPoolsByIds({ pool_ids: ids }).then((res) => {
+      setStablePools(res);
+    });
+  }, []);
 
   useEffect(() => {
     if (!pools) return;
@@ -198,50 +218,36 @@ export function YourLiquidityPage() {
         AllStableTokenIds
       )
     ).then(setTokensMeta);
+
+    getPoolsByIds({ pool_ids: pools.map((p) => p.id.toString()) }).then(
+      (res) => {
+        setTvls(
+          res
+            .map((p) => p.tvl)
+            .reduce((pre, cur, i) => {
+              return {
+                ...pre,
+                [res[i].id]: cur,
+              };
+            }, {})
+        );
+      }
+    );
   }, [pools]);
 
   useEffect(() => {
-    if (isSignedIn) {
-      getYourPools().then((res) =>
-        setPools(res.filter((p) => !isStablePool(p.id.toString())))
-      );
-    }
+    if (!isSignedIn) return;
+
+    getYourPools().then((res) => {
+      setPools(res.filter((p) => !isStablePool(p.id.toString())));
+    });
   }, [isSignedIn]);
 
-  if (
-    !pools ||
-    !pool3tokenData ||
-    !USNPoolData ||
-    !BTCPoolData ||
-    !CUSDPoolData ||
-    !tokensMeta ||
-    !v1Farm ||
-    !v2Farm ||
-    !STNEARPoolData ||
-    !LINEARPoolData ||
-    !tokensMeta
-  )
-    return <Loading />;
+  if (!pools || !tokensMeta || !v1Farm || !v2Farm) return <Loading />;
 
-  const stablePoolsData = [
-    pool3tokenData,
-    USNPoolData,
-    BTCPoolData,
-    CUSDPoolData,
-    STNEARPoolData,
-    LINEARPoolData,
-  ];
+  console.log(stablePools);
 
-  const stablePools = [
-    pool3tokenData.pool,
-    USNPoolData.pool,
-    BTCPoolData.pool,
-    CUSDPoolData.pool,
-    STNEARPoolData.pool,
-    LINEARPoolData.pool,
-  ];
-
-  const RowRender = ({ p, ids }: { p: Pool | PoolRPCView; ids: string[] }) => {
+  const RowRender = ({ p, ids }: { p: PoolRPCView; ids: string[] }) => {
     const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
 
     const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
@@ -252,38 +258,50 @@ export function YourLiquidityPage() {
         className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
         key={Number(p.id)}
       >
-        <PoolRow
-          pool={p}
-          tokens={ids.map((id) => tokensMeta[id]) || []}
-          supportFarmV1={supportFarmV1}
-          supportFarmV2={supportFarmV2}
-          onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
-          lptAmount={lptAmount}
-        />
+        <StakeListContext.Provider
+          value={{
+            stakeList,
+            finalStakeList,
+            v2StakeList,
+          }}
+        >
+          <PoolRow
+            tvl={tvls?.[p.id.toString()]}
+            pool={p}
+            tokens={ids.map((id) => tokensMeta[id]) || []}
+            supportFarmV1={supportFarmV1}
+            supportFarmV2={supportFarmV2}
+            onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
+            lptAmount={lptAmount}
+          />
+        </StakeListContext.Provider>
       </div>
     );
   };
-  const RowRenderMobile = ({
-    p,
-    ids,
-  }: {
-    p: Pool | PoolRPCView;
-    ids: string[];
-  }) => {
+  const RowRenderMobile = ({ p, ids }: { p: PoolRPCView; ids: string[] }) => {
     const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
 
     const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
 
     const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
     return (
-      <PoolRow
-        pool={p}
-        tokens={ids.map((id) => tokensMeta[id]) || []}
-        supportFarmV1={supportFarmV1}
-        supportFarmV2={supportFarmV2}
-        onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
-        lptAmount={lptAmount}
-      />
+      <StakeListContext.Provider
+        value={{
+          stakeList,
+          finalStakeList,
+          v2StakeList,
+        }}
+      >
+        <PoolRow
+          pool={p}
+          tvl={tvls?.[p.id.toString()]}
+          tokens={ids.map((id) => tokensMeta[id]) || []}
+          supportFarmV1={supportFarmV1}
+          supportFarmV2={supportFarmV2}
+          onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
+          lptAmount={lptAmount}
+        />
+      </StakeListContext.Provider>
     );
   };
 
@@ -297,6 +315,7 @@ export function YourLiquidityPage() {
           {error && <Alert level="warn" message={error.message} />}
         </div>
         {/* PC */}
+
         <Card
           width="w-full"
           padding="px-0 py-6"
@@ -308,8 +327,7 @@ export function YourLiquidityPage() {
               defaultMessage="Your Liquidity"
             />
           </div>
-          {pools.length > 0 ||
-          stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
+          {pools.length > 0 && !isClientMobile ? (
             <section>
               <div className="">
                 <div
@@ -350,9 +368,11 @@ export function YourLiquidityPage() {
                         return <RowRender p={p} ids={p.token_account_ids} />;
                       })}
 
-                  {stablePools.map((p) => {
-                    return <RowRender p={p} ids={p.tokenIds} />;
-                  })}
+                  {batchTotalShares &&
+                    batchTotalShares?.some((s) => s > 0) &&
+                    stablePools?.map((p) => {
+                      return <RowRender p={p} ids={p.token_account_ids} />;
+                    })}
 
                   {pools
                     .filter(
@@ -378,8 +398,7 @@ export function YourLiquidityPage() {
             defaultMessage="Your Liquidity"
           />
         </div>
-        {pools.length > 0 ||
-        stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
+        {pools.length > 0 && isClientMobile ? (
           <div className="lg:hidden">
             {!vePool || !getConfig().REF_VE_CONTRACT_ID
               ? null
@@ -387,9 +406,11 @@ export function YourLiquidityPage() {
                   return <RowRenderMobile p={p} ids={p.token_account_ids} />;
                 })}
 
-            {stablePools.map((p) => {
-              return <RowRenderMobile p={p} ids={p.tokenIds} />;
-            })}
+            {batchTotalShares &&
+              batchTotalShares?.some((s) => s > 0) &&
+              stablePools?.map((p) => {
+                return <RowRenderMobile p={p} ids={p.token_account_ids} />;
+              })}
 
             {pools
               .filter(
@@ -413,16 +434,23 @@ export function YourLiquidityPage() {
 }
 
 function PoolRow(props: {
-  pool: any;
+  pool: PoolRPCView;
   tokens: TokenMetadata[];
   supportFarmV1: number;
   supportFarmV2: number;
   onlyEndedFarmV2: boolean;
   lptAmount?: string;
+  tvl: number;
 }) {
+  const { pool: poolRPC } = props;
+
+  const pool = parsePool(poolRPC);
+
+  const poolId = pool.id;
+
   const tokens = props.tokens;
   const lptAmount = props.lptAmount;
-  const poolTVL = usePoolTVL(props.pool.id);
+  const poolTVL = pool.tvl || props.tvl;
 
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showFunding, setShowFunding] = useState(false);
@@ -431,14 +459,20 @@ function PoolRow(props: {
 
   const history = useHistory();
 
-  const {
-    pool,
-    shares,
-    farmStakeV1,
-    farmStakeV2,
-    userTotalShare,
-    userTotalShareToString,
-  } = useYourliquidity(Number(props.pool.id));
+  const shares = usePoolShareRaw(pool.id);
+
+  const { stakeList, v2StakeList, finalStakeList } =
+    useContext(StakeListContext);
+
+  const farmStakeV1 = useFarmStake({ poolId, stakeList });
+  const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
+  const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
+
+  const userTotalShare = BigNumber.sum(shares, farmStakeTotal);
+
+  const userTotalShareToString = userTotalShare
+    .toNumber()
+    .toLocaleString('fullwide', { useGrouping: false });
 
   const usdValue = useMemo(() => {
     try {
@@ -450,15 +484,13 @@ function PoolRow(props: {
           .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
           .toNumber()
           .toFixed(),
-        divide(poolTVL.toString(), pool.shareSupply)
+        divide(poolTVL.toString(), pool?.shareSupply)
       );
       return `$${toInternationalCurrencySystem(rawRes, 2)}`;
     } catch (error) {
       return '-';
     }
   }, [poolTVL, userTotalShareToString, pool]);
-
-  if (!pool) return null;
 
   if (
     userTotalShare
@@ -803,6 +835,7 @@ function PoolRow(props: {
         </div>
       </Link>
       {/* Mobile */}
+
       <Link
         className="lg:hidden pb-4 px-6 text-sm text-white cursor-pointer"
         to={{ pathname: `/pool/${pool.id}` }}

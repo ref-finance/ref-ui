@@ -17,7 +17,6 @@ import { getCurrentWallet } from '../utils/sender-wallet';
 import { getPoolsByTokens } from './pool';
 import {
   filterBlackListPools,
-  BLACKLIST_POOL_IDS,
   ALL_STABLE_POOL_IDS,
   STABLE_POOL_ID,
 } from './near';
