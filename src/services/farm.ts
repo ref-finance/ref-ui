@@ -804,10 +804,10 @@ export const getBoostTokenPrices = async (): Promise<
         tokenPrices[id] = priceInfo;
       });
       getBoostTokenPricesFromServer();
-      console.log('缓存 price');
+      // console.log('缓存 price');
     } else {
       tokenPrices = await getBoostTokenPricesFromServer();
-      console.log('接口 price');
+      // console.log('接口 price');
     }
     return tokenPrices;
   } catch (error) {
@@ -849,12 +849,12 @@ export const getBoostSeeds = async (): Promise<{
           pools.push(pool);
         }
       });
-      console.log('缓存 seed');
+      // console.log('缓存 seed');
       getBoostSeedsFromServer();
       return { seeds, farms, pools };
     } else {
       const result = await getBoostSeedsFromServer();
-      console.log('接口 seed');
+      // console.log('接口 seed');
       return result;
     }
   } catch (error) {
@@ -1192,16 +1192,7 @@ export const classificationOfCoins_key = [
   'gaming',
   'nft',
 ];
-export const incentiveLpTokenConfig = {
-  // '1207': '4',
-  // '4': '4',
-  // '79': '2',
-  // '1889': '2',
-  // [STABLE_POOL_ID]: '5',
-  // '3': '4',
-  // '2734': '4',
-  // '974': '4',
-};
+export const incentiveLpTokenConfig = {};
 export const defaultConfig = {
   '3364': '102',
   '1195': '101',
@@ -1228,10 +1219,15 @@ export const frontConfig = {
   '79': '98',
 };
 export const farmClassification = {
-  near: [17, 568, 53, 50, 269, 621],
-  eth: [605],
+  near: [
+    0, 1207, 1371, 1395, 2330, 2448, 2799, 3, 3019, 3097, 3474, 3514, 3515,
+    3519, 377, 4, 974, 1195, 1923, 3448, 553,
+  ],
+  eth: [
+    605, 1207, 2734, 1395, 1910, 2330, 2657, 2691, 2799, 2800, 3, 3020, 3433, 4,
+    974,
+  ],
 };
 export const frontConfigBoost = {
-  '17': '100',
-  '269': '99',
+  '79': '100',
 };
