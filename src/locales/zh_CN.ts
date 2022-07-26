@@ -715,6 +715,8 @@ const zh_CN = {
   migrate_now: '现在升级!',
   v2_boost_tip:
     'V2农场将支持加速农场。V1农场将在<span class="font-bold">2022年8月1日</span>耗尽奖励。',
+  v2_boost_no_tip:
+    'V1农场将在<span class="font-bold">2022年8月1日</span>耗尽奖励。',
   no_farm_need_to_migrate: '没有需要升级的农场',
   v1_farms: 'V1 农场',
   has_rewards_tip:

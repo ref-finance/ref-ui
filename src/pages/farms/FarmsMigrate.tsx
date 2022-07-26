@@ -26,9 +26,11 @@ import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
+import getConfig from '../../services/config';
 import { BigNumber } from 'bignumber.js';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import Loading from '~components/layout/Loading';
+const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsMigrate() {
   const [all_token_price_list, set_all_token_price_list] = useState({});
   const { globalState } = useContext(WalletContext);
@@ -103,7 +105,11 @@ export default function FarmsMigrate() {
                 </span>
                 <p
                   dangerouslySetInnerHTML={{
-                    __html: intl.formatMessage({ id: 'v2_boost_tip' }),
+                    __html: intl.formatMessage({
+                      id: REF_VE_CONTRACT_ID
+                        ? 'v2_boost_tip'
+                        : 'v2_boost_no_tip',
+                    }),
                   }}
                   className="text-base text-white mt-4"
                 ></p>

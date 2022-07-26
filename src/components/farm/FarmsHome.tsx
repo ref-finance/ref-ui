@@ -1025,7 +1025,9 @@ export default function FarmsHome(props: any) {
             <p
               className="text-white text-sm"
               dangerouslySetInnerHTML={{
-                __html: intl.formatMessage({ id: 'v2_boost_tip' }),
+                __html: intl.formatMessage({
+                  id: REF_VE_CONTRACT_ID ? 'v2_boost_tip' : 'v2_boost_no_tip',
+                }),
               }}
             ></p>
             <MigrateIconSmall className="absolute -bottom-3 left-0"></MigrateIconSmall>
@@ -1144,7 +1146,9 @@ export default function FarmsHome(props: any) {
               <p
                 className="text-sm text-white"
                 dangerouslySetInnerHTML={{
-                  __html: intl.formatMessage({ id: 'v2_boost_tip' }),
+                  __html: intl.formatMessage({
+                    id: REF_VE_CONTRACT_ID ? 'v2_boost_tip' : 'v2_boost_no_tip',
+                  }),
                 }}
               ></p>
             </div>

@@ -98,11 +98,8 @@ import {
   swapToast,
 } from '../../components/layout/transactionTipPopUp';
 import { MigrateIconSmall } from '../../components/icon/FarmBoost';
-
-const config = getConfig();
-const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
-const XREF_TOKEN_ID = config.XREF_TOKEN_ID;
-const REF_TOKEN_ID = config.REF_TOKEN_ID;
+const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID, XREF_TOKEN_ID, REF_TOKEN_ID } =
+  getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 interface SearchData {
   status: number;
@@ -756,7 +753,9 @@ export function FarmsPage() {
               <p
                 className="text-white text-sm"
                 dangerouslySetInnerHTML={{
-                  __html: intl.formatMessage({ id: 'v2_boost_tip' }),
+                  __html: intl.formatMessage({
+                    id: REF_VE_CONTRACT_ID ? 'v2_boost_tip' : 'v2_boost_no_tip',
+                  }),
                 }}
               ></p>
               <MigrateIconSmall className="absolute -bottom-3 -left-3.5"></MigrateIconSmall>

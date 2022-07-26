@@ -601,6 +601,8 @@ const ru = {
   migrate_now: 'миграцию сейчас!',
   v2_boost_tip:
     'V2-фарминг будет работа для ферм с бустом. V1-фарминг будет лишен наград после <span class="font-bold">1 августа 2022 года</span>',
+  v2_boost_no_tip:
+    'V1-фарминг будет лишен наград после <span class="font-bold">1 августа 2022 года</span>',
   no_farm_need_to_migrate: 'Не требуется перенос фермы',
   v1_farms: 'V1 Фермы',
   has_rewards_tip:
