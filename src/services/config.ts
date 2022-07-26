@@ -121,6 +121,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         BLACKLIST_POOL_IDS: [''],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
+        REF_FARM_BOOST_CONTRACT_ID:
+          process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
       };
     case 'pub-testnet':
       return {
@@ -308,6 +310,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         BLACKLIST_POOL_IDS: [''],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
+        REF_FARM_BOOST_CONTRACT_ID:
+          process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
       };
   }
 }
