@@ -101,7 +101,7 @@ export const ftGetTokenMetadata = async (
       metadata.id === HAPI_ID ||
       metadata.id === WOO_ID ||
       metadata.id === WRAP_NEAR_CONTRACT_ID ||
-      metadata.id === getExtraStablePoolConfig().NEARXIDS[0]
+      (metadata.id === getExtraStablePoolConfig().NEARXIDS[0] && !metadata.icon)
     ) {
       metadata.icon = metadataDefaults[id];
     }
