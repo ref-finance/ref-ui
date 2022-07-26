@@ -115,9 +115,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
+          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
       };
     case 'pub-testnet':
@@ -169,9 +169,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
+          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
       };
     case 'testnet':
@@ -223,9 +223,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
+          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
       };
     default:
@@ -288,9 +288,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
+          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
       };
   }
