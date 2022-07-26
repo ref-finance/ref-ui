@@ -111,10 +111,6 @@ export const StableSelectToken = ({
     ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
   );
 
-  // const USDTokenList = new Array(
-  //   ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS))
-  // );
-
   const BTCTokenList = BTCIDS.map((id) => id);
 
   const NEARTokenList = new Array(
@@ -124,8 +120,6 @@ export const StableSelectToken = ({
   const [stableCoinType, setStableCoinType] = useState<STABLE_POOL_TYPE>(
     STABLE_POOL_TYPE.USD
   );
-
-  // const stableTokensIdList = USDTokenList.concat(BTCTokenList);
 
   const ref = useRef(null);
 
