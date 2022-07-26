@@ -656,6 +656,7 @@ export default function SwapCard(props: {
           candTokenOut = allTokens.find(
             (token) => token.id === USDTokenList[1]
           );
+          setTokenInAmount('1');
         }
 
         setTokenIn(candTokenIn);
