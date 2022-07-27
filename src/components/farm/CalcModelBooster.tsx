@@ -586,7 +586,7 @@ export function CalcEle(props: {
                     : 'text-primaryText'
                 }`}
               >
-                <FormattedMessage id="ordinary"></FormattedMessage>
+                <FormattedMessage id="nonBoosted"></FormattedMessage>
               </span>
             </div>
             <div className="flex items-center justify-center w-1/2">

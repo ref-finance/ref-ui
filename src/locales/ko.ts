@@ -634,7 +634,7 @@ const ko = {
   end_locking_period: 'End of locking period',
   slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
 
-  ordinary: 'Ordinary',
+  nonBoosted: 'Non-boosted',
   exit_fee_tip: 'Estimated amount you would pay to break your lock-up period',
   forbiddenTip: 'This farm does not support this duration option',
   swap_successful: '스왑에 성공했습니다. ',
@@ -800,8 +800,10 @@ const ko = {
   voting_power_and_extra_earnings: '투표권 & 추가 수익',
   view_on: 'View on',
   risks_capital: '리스크',
-  boostFarmTip: 'This farm can be boosted by staking LOVE',
+  boostFarmTip: 'Get booster by staking LOVE',
   boosted: 'Boosted',
-  love_staked: 'LOVE staked',
+  love_staked: 'Staked LOVE',
+  your_apr: 'Your APR',
+  range_apr: 'Range or reference APR',
 };
 export default Object.assign(ko, ko_in_risks_page);

@@ -219,18 +219,6 @@ export default function FarmsDetail(props: {
     }
   }
   const radio = getBoostMutil();
-  let tipContent = '';
-  const tip1 = `You may get ${toPrecision(
-    radio.toString(),
-    2
-  )}x booster on this farm`;
-  const tip2 = `You got ${toPrecision(
-    radio.toString(),
-    2
-  )}x booster on this farm now`;
-  tipContent = `<div class="text-navHighLightText text-xs w-52 text-left">${
-    Object.keys(user_seeds_map[detailData.seed_id] || {}).length ? tip2 : tip1
-  }</div>`;
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
@@ -258,30 +246,13 @@ export default function FarmsDetail(props: {
               ) : null}
               {radio ? (
                 <div
-                  className="text-white text-right"
-                  data-class="reactTip"
-                  data-for="selectAllId"
-                  data-place="top"
-                  data-html={true}
-                  data-tip={tipContent}
+                  className={`rounded-lg text-xs  font-bold px-2 py-0.5 ml-2 ${
+                    Object.keys(user_seeds_map[detailData.seed_id] || {}).length
+                      ? 'bg-lightGreenColor text-black'
+                      : 'text-farmText border border-farmText'
+                  }`}
                 >
-                  <div
-                    className={`rounded-lg text-xs  font-bold px-2 py-0.5 ml-2 ${
-                      Object.keys(user_seeds_map[detailData.seed_id] || {})
-                        .length
-                        ? 'bg-lightGreenColor text-black'
-                        : 'text-farmText border border-farmText'
-                    }`}
-                  >
-                    {`x${toPrecision(radio.toString(), 2)}`}
-                  </div>
-                  <ReactTooltip
-                    id="selectAllId"
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    effect="solid"
-                  />
+                  {`x${toPrecision(radio.toString(), 2)}`}
                 </div>
               ) : (
                 getBoostDom()
@@ -827,15 +798,16 @@ function StakeContainer(props: {
     }
   }
   function getAprTitleTip() {
-    // const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
+    const yourAprTip = intl.formatMessage({ id: 'your_apr' });
+    const rangeAprTip = intl.formatMessage({ id: 'range_apr' });
     let result: string = '';
     if (yourApr) {
       result = `<div class="flex items-center text-navHighLightText text-xs  text-left">
-      <span class="text-white">Your APR / </span> &nbsp;Range or reference APR 
+      <span class="text-white">${yourAprTip} / </span> &nbsp;${rangeAprTip} 
     </div>`;
     } else {
       result = `<div class="flex items-center text-navHighLightText text-xs  text-left">
-      Range or reference APR 
+      ${rangeAprTip} 
     </div>`;
     }
     return result;

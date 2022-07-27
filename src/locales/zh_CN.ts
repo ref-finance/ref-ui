@@ -593,7 +593,7 @@ const zh_CN = {
     '您需要 LP 代币来质押相应的农场。 首先，向池中添加流动性以获得 LP 代币。',
   slash_tip: '退出费用=退出费率*锁定期结束*解锁金额',
 
-  ordinary: '普通',
+  nonBoosted: '非加速器',
   exit_fee_tip: '打破锁定期您将支付的估计金额',
   forbiddenTip: '此场不支持此持续时间选项',
   unstakeTip: '质押或取消质押将自动获得您的奖励。',
@@ -763,8 +763,10 @@ const zh_CN = {
   days_ve: '天',
   view_on: '查看',
   risks_capital: '风险',
-  boostFarmTip: 'This farm can be boosted by staking LOVE',
-  boosted: 'Boosted',
-  love_staked: 'LOVE staked',
+  boostFarmTip: '通过质押LOVE获得加速',
+  boosted: '加速',
+  love_staked: '已质押的LOVE',
+  your_apr: '你的奖励年化收益率',
+  range_apr: '范围和参考年化收益率',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -2455,42 +2455,15 @@ function FarmView(props: {
             .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
             .toFixed(2);
         }
-        const tip1 = `You may get ${toPrecision(
-          result.toString(),
-          2
-        )}x booster on this farm`;
-        const tip2 = `You got ${toPrecision(
-          result.toString(),
-          2
-        )}x booster on this farm now`;
-        const tipContent: string = `<div class="text-navHighLightText text-xs w-52 text-left">${
-          hasUserStaked ? tip2 : tip1
-        }</div>`;
         return (
           <div
-            className="absolute top-3 right-4 z-10 text-white text-right"
-            data-class="reactTip"
-            data-for="selectAllId"
-            data-place="top"
-            data-html={true}
-            data-tip={tipContent}
+            className={`absolute top-3 right-4 z-10 flex items-center justify-center px-2 py-0.5  text-xs  rounded-lg font-bold ${
+              hasUserStaked
+                ? 'bg-lightGreenColor text-black'
+                : 'text-farmText border border-farmText'
+            }`}
           >
-            <div
-              className={` flex items-center justify-center px-2 py-0.5  text-xs  rounded-lg font-bold ${
-                hasUserStaked
-                  ? 'bg-lightGreenColor text-black'
-                  : 'text-farmText border border-farmText'
-              }`}
-            >
-              {`x${toPrecision(result.toString(), 2)}`}
-            </div>
-            <ReactTooltip
-              id="selectAllId"
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
+            {`x${toPrecision(result.toString(), 2)}`}
           </div>
         );
       }

@@ -624,7 +624,7 @@ const en_US = {
     'You need LP tokens to stake into the corresponding farm. First, add liquidity to the pool to get LP tokens.',
   slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
 
-  ordinary: 'Ordinary',
+  nonBoosted: 'Non-boosted',
   exit_fee_tip: 'Estimated amount you would pay to break your lock-up period',
   forbiddenTip: 'This farm does not support this duration option',
   unstakeTip: 'Staking or unstaking will automatically claim your rewards.',
@@ -801,5 +801,10 @@ const en_US = {
   vote_mobile_capital: 'VOTE',
   risks_capital: 'RISKS',
   view_on: 'View on',
+  boostFarmTip: 'Get booster by staking LOVE',
+  boosted: 'Boosted',
+  love_staked: 'Staked LOVE',
+  your_apr: 'Your APR',
+  range_apr: 'Range or reference APR',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
