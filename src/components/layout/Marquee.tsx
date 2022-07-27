@@ -25,7 +25,7 @@ export default function Marquee() {
   const [animationObj, setAnimationObj] = useState(null);
   const location = useLocation();
   const COMMON_BASSES = [
-    'wNEAR',
+    'NEAR',
     'REF',
     'SKYWARD',
     'OCT',
