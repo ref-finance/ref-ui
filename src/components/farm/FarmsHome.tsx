@@ -77,7 +77,7 @@ import {
   toNonDivisibleNumber,
   toInternationalCurrencySystem,
   formatWithCommas,
-  niceDecimals,
+  niceDecimalsExtreme,
 } from '../../utils/numbers';
 import { ftGetTokenMetadata } from '../../services/ft-contract';
 import { BigNumber } from 'bignumber.js';
@@ -2344,16 +2344,13 @@ function FarmView(props: {
       } = item;
       const token = commonRewardToken;
       const txt = intl.formatMessage({ id: 'start' });
-      const commonRewardTotalRewardsPerWeek2 = new BigNumber(
-        commonRewardTotalRewardsPerWeek
-      ).toFixed(4, 1);
       if (pending) {
         itemHtml = `<div class="flex flex-col items-end my-2">
                       <div class="flex justify-between items-center w-full"><img class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${
                         token.icon
                       }"/>
                       <label class="text-xs text-farmText">${formatWithCommas(
-                        niceDecimals(commonRewardTotalRewardsPerWeek2, 4)
+                        niceDecimalsExtreme(commonRewardTotalRewardsPerWeek, 4)
                       )}</label>
                       </div>
                       <label class="text-xs text-farmText mt-0.5">${txt}: ${moment
@@ -2366,7 +2363,7 @@ function FarmView(props: {
                         token.icon
                       }"/>
                       <label class="text-xs text-navHighLightText">${formatWithCommas(
-                        niceDecimals(commonRewardTotalRewardsPerWeek2, 4)
+                        niceDecimalsExtreme(commonRewardTotalRewardsPerWeek, 4)
                       )}</label>
                     </div>`;
       }

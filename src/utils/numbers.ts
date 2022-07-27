@@ -503,6 +503,23 @@ export const niceDecimals = (number: string | number, precision = 2) => {
     return new BigNumber(number).toFixed(precision, 1);
   }
 };
+export const niceDecimalsExtreme = (number: string | number, precision = 2) => {
+  const str = number.toString();
+  const [whole, decimals] = str.split('.');
+  if (!decimals || Number(decimals) == 0) {
+    return whole;
+  } else if (decimals.length > precision) {
+    const temp = new BigNumber(number).toFixed(precision, 1);
+    const [tempWhole, tempDecimals] = temp.split('.');
+    if (!tempDecimals || Number(tempDecimals) == 0) {
+      return tempWhole;
+    } else {
+      return temp;
+    }
+  } else {
+    return str;
+  }
+};
 
 export function separateRoutes(
   actions: EstimateSwapView[],
