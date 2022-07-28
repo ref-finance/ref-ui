@@ -577,7 +577,7 @@ const ja = {
   claimed_Rewards: 'Claimed Rewards',
   POOL: 'プール',
   STAKE: 'STAKE',
-  lp_Token: 'LP Token',
+  lp_Token: 'LP Tokens',
   booster: 'Booster',
   slash_policy: 'Slash Policy',
   stake_period: 'Stake Period',
@@ -657,7 +657,7 @@ const ja = {
   borrow: '借りる',
   burrow_usn_tip: 'あなたはBurrowでUSNを借りることができます。',
   migrate: 'Migrate',
-  go_to_new_farm: 'Go to New Farm',
+  go_to_new_farm: 'Go to New Farms',
   voting_gauge_share_tip:
     'The proportion of the REF used for voting allocation to the total REF reward in this period',
   swap_capital: 'スワップ',

@@ -631,7 +631,7 @@ const ru = {
   voting_power_and_extra_earnings: 'Право голоса и дополнительный доход',
   POOL: 'Пулы',
   STAKE: 'STAKE',
-  lp_Token: 'LP Token',
+  lp_Token: 'LP Tokens',
   booster: 'Booster',
   slash_policy: 'Slash Policy',
   stake_period: 'Stake Period',

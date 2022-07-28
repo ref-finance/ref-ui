@@ -566,7 +566,7 @@ const ko = {
   rewards: 'Rewards',
   POOL: '풀들',
   STAKE: 'STAKE',
-  lp_Token: 'LP Token',
+  lp_Token: 'LP Tokens',
   booster: 'Booster',
   slash_policy: 'Slash Policy',
   stake_period: 'Stake Period',

@@ -551,7 +551,7 @@ const uk_UA = {
   rewards: 'Rewards',
   POOL: 'Пули',
   STAKE: 'STAKE',
-  lp_Token: 'LP Token',
+  lp_Token: 'LP Tokens',
   booster: 'Booster',
   slash_policy: 'Slash Policy',
   stake_period: 'Stake Period',
