@@ -544,7 +544,7 @@ const zh_CN = {
   connect_wallet: '连接钱包',
   disconnect: '断开连接',
   change: '切换钱包',
-  wallets_below_supports_on_PC: '一下钱包支持在PC上使用',
+  wallets_below_supports_on_PC: '以下钱包支持在PC上使用',
   connect: '连接',
   make_sure_device_plugged_in: '请确认你的设备已插入电脑',
   then_enter_an_account_id_to_connect: '输入一个账号ID来连接',
