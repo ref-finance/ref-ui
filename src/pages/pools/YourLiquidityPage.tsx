@@ -185,8 +185,6 @@ export function YourLiquidityPage() {
     return 0;
   };
 
-  console.log(pools);
-
   return (
     <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
       <div className="w-full flex justify-center self-center">

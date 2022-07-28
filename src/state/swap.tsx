@@ -135,11 +135,7 @@ export const useSwap = ({
     if (txHash && getCurrentWallet().wallet.isSignedIn()) {
       checkTransaction(txHash)
         .then((res: any) => {
-          console.log(res);
-
           const transactionErrorType = getErrorMessage(res);
-
-          console.log(transactionErrorType);
 
           const transaction = res.transaction;
           return {

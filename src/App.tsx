@@ -124,8 +124,6 @@ function App() {
 
   useEffect(() => {
     if (txHash && isSignedIn) {
-      console.log(txHash, 'app');
-
       checkTransaction(txHash).then((res) => {
         let displayErrorMessage = errorType;
         const errorMessasge = getErrorMessage(res);
