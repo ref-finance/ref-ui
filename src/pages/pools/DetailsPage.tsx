@@ -1590,7 +1590,7 @@ export function PoolDetailsPage() {
                   {' '}
                   $
                   {toInternationalCurrencySystem(
-                    scientificNotationToString(poolTVL?.toString())
+                    scientificNotationToString(poolTVL?.toString() || '0')
                   )}
                 </div>
               </div>
