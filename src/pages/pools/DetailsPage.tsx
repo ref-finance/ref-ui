@@ -1331,7 +1331,6 @@ export function PoolDetailsPage() {
       setPoolTVL(state?.tvl);
     } else {
       getPool(id).then((pool) => {
-
         setPoolTVL(pool?.tvl);
       });
     }
