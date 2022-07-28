@@ -118,7 +118,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
-        BLACKLIST_POOL_IDS: [''],
+        BLACKLIST_POOL_IDS: ['3612'],
       };
     case 'pub-testnet':
       return {
@@ -291,7 +291,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
-        BLACKLIST_POOL_IDS: [''],
+        BLACKLIST_POOL_IDS: ['3612'],
       };
   }
 }
