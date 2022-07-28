@@ -328,7 +328,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.near': 0,
           'wrap.near': 1,
         },
-        RATED_POOLS_IDS: ['3514', '3515'],
+        NEAX_POOL_ID: '3612',
+        NEARXIDS: ['nearx.stader-labs.near', 'wrap.near'],
+        NEAX_POOL_INDEX: {
+          'nearx.stader-labs.near': 0,
+          'wrap.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515', '3612'],
       };
     case 'development':
     case 'pub-testnet':
@@ -428,7 +434,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.near': 0,
           'wrap.near': 1,
         },
-        RATED_POOLS_IDS: ['3514', '3515'],
+        NEAX_POOL_ID: '3612',
+        NEARXIDS: ['nearx.stader-labs.near', 'wrap.near'],
+        NEAX_POOL_INDEX: {
+          'nearx.stader-labs.near': 0,
+          'wrap.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515', '3612'],
       };
   }
 }
