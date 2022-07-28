@@ -100,8 +100,7 @@ export const ftGetTokenMetadata = async (
       metadata.id === CUCUMBER_ID ||
       metadata.id === HAPI_ID ||
       metadata.id === WOO_ID ||
-      metadata.id === WRAP_NEAR_CONTRACT_ID ||
-      (metadata.id === getExtraStablePoolConfig().NEARXIDS[0] && !metadata.icon)
+      metadata.id === WRAP_NEAR_CONTRACT_ID
     ) {
       metadata.icon = metadataDefaults[id];
     }
