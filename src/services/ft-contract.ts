@@ -105,7 +105,11 @@ export const ftGetTokenMetadata = async (
     }
 
     if (metadata.id === WRAP_NEAR_CONTRACT_ID) {
-      if (accountPage) return metadata;
+      if (accountPage)
+        return {
+          ...metadata,
+          icon: metadataDefaults[WRAP_NEAR_CONTRACT_ID],
+        };
 
       return {
         ...metadata,
