@@ -432,7 +432,7 @@ export default function FarmsHome(props: any) {
           : Number(
               toPrecision(
                 ((Number(seedTotalStakedAmount) * tvl) / poolShares).toString(),
-                1
+                2
               )
             );
       const seedPowerTvl =
@@ -441,7 +441,7 @@ export default function FarmsHome(props: any) {
           : Number(
               toPrecision(
                 ((Number(seedTotalStakedPower) * tvl) / poolShares).toString(),
-                1
+                2
               )
             );
       // get apr per farm
