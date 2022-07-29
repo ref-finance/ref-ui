@@ -21,6 +21,8 @@ import {
   CUSD_STABLE_POOL_ID,
   LINEAR_POOL_ID,
   LINEARIDS,
+  NEAX_POOL_ID,
+  NEARXIDS,
 } from '../../services/near';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber, percent } from '../../utils/numbers';
@@ -417,6 +419,8 @@ export function StableSwapPageEntry() {
 
   const { poolData: LINEARPoolData } = useStabelPoolData(LINEAR_POOL_ID);
 
+  const { poolData: NEAXPoolData } = useStabelPoolData(NEAX_POOL_ID);
+
   const [chosenState, setChosesState] = useState<number>();
 
   const [allStableTokens, setAllStableTokens] = useState<TokenMetadata[]>();
@@ -441,6 +445,7 @@ export function StableSwapPageEntry() {
     !CUSDPoolData ||
     !STNEARPoolData ||
     !LINEARPoolData ||
+    !NEAXPoolData ||
     !allStableTokens
   )
     return <Loading />;
@@ -454,19 +459,21 @@ export function StableSwapPageEntry() {
 
   const formatedLINEARPoolData = formatePoolData(LINEARPoolData);
 
+  const formatedNEAXPoolData = formatePoolData(NEAXPoolData);
+
   const displayPoolData =
     reserveType === STABLE_POOL_TYPE.USD
       ? [formatedPool3tokenData, formatedUSNPoolData, formatedCUSDPoolData]
       : reserveType === STABLE_POOL_TYPE.BTC
       ? [formatedBTCPoolData]
-      : [formatedSTNEARPoolData, formatedLINEARPoolData];
+      : [formatedSTNEARPoolData, formatedLINEARPoolData, formatedNEAXPoolData];
 
   const displayPools =
     reserveType === STABLE_POOL_TYPE.USD
       ? [pool3tokenData, USNPoolData, CUSDPoolData]
       : reserveType === STABLE_POOL_TYPE.BTC
       ? [BTCPoolData]
-      : [STNEARPoolData, LINEARPoolData];
+      : [STNEARPoolData, LINEARPoolData, NEAXPoolData];
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2 flex flex-col">
@@ -510,14 +517,16 @@ export function StableSwapPageEntry() {
                 .map((id) => id.toString())
                 .includes(token.id);
             case 'NEAR':
-              return STNEARIDS.concat(LINEARIDS).includes(token.id);
+              return STNEARIDS.concat(LINEARIDS)
+                .concat(NEARXIDS)
+                .includes(token.id);
           }
         })}
         pools={
           reserveType === STABLE_POOL_TYPE.BTC
             ? [BTCPoolData.pool]
             : reserveType === STABLE_POOL_TYPE.NEAR
-            ? [STNEARPoolData.pool, LINEARPoolData.pool]
+            ? [STNEARPoolData.pool, LINEARPoolData.pool, NEAXPoolData.pool]
             : [USNPoolData.pool, pool3tokenData.pool, CUSDPoolData.pool]
         }
         hiddenMag={true}

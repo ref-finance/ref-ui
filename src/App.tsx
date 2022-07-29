@@ -87,6 +87,7 @@ import {
   getErrorMessage,
 } from './components/layout/transactionTipPopUp';
 import { StableSwapRouter } from './pages/stable/StableSwapRouter';
+import { NEAR_WITHDRAW_KEY } from './components/forms/WrapNear';
 
 Modal.defaultStyles = {
   overlay: {
@@ -119,30 +120,36 @@ function App() {
   const [globalState, globalStatedispatch] = GlobalStateReducer;
 
   const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
-    if (errorType) {
+    if (txHash && isSignedIn) {
       checkTransaction(txHash).then((res) => {
         let displayErrorMessage = errorType;
         const errorMessasge = getErrorMessage(res);
 
         if (errorMessasge) displayErrorMessage = errorMessasge;
 
-        failToast(txHash, displayErrorMessage);
+        if (displayErrorMessage) {
+          failToast(txHash, displayErrorMessage);
 
-        window.history.replaceState({}, '', window.location.origin + pathname);
+          window.history.replaceState(
+            {},
+            '',
+            window.location.origin + pathname
+          );
+        }
       });
-
-      // failing toast only once
     }
+
+    // failing toast only once
     if (signInErrorType) {
       senderSignedInToast(signInErrorType);
       removeSenderLoginRes();
       window.history.replaceState({}, '', window.location.origin + pathname);
     }
-  }, [errorType, signInErrorType]);
+  }, [errorType, signInErrorType, isSignedIn]);
   // for usn start
-  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     if (txHash && isSignedIn) {
       checkTransaction(txHash)
@@ -162,10 +169,16 @@ function App() {
             sessionStorage.getItem('usn') == '1' &&
             (methodName == 'ft_transfer_call' || methodName == 'withdraw');
           sessionStorage.removeItem('usn');
+
+          const fromWrapNear =
+            sessionStorage.getItem(NEAR_WITHDRAW_KEY) === '1';
+
+          sessionStorage.removeItem(NEAR_WITHDRAW_KEY);
+
           return {
             isUSN: isUsn,
             isSlippageError,
-            isNearWithdraw: methodName == 'near_withdraw',
+            isNearWithdraw: methodName == 'near_withdraw' && fromWrapNear,
             isNearDeposit: methodName == 'near_deposit',
           };
         })
@@ -264,7 +277,7 @@ function App() {
               component={AutoHeight(MorePoolsPage)}
             />
             <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
-            <Route path="/adboard" component={AutoHeight(AdboardPage)} />
+            {/* <Route path="/adboard" component={AutoHeight(AdboardPage)} /> */}
             <Route path="/pools/add" component={AutoHeight(AddPoolPage)} />
             <Route
               path="/pools/add-token"
@@ -289,7 +302,7 @@ function App() {
             <Route path="/" component={AutoHeight(SwapPage)} />
           </Switch>
           <Footer />
-          <PopUpSwiper></PopUpSwiper>
+          {/* <PopUpSwiper></PopUpSwiper> */}
         </div>
       </Router>
     </WalletContext.Provider>
