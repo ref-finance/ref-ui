@@ -194,8 +194,13 @@ export default function CalcModelBooster(
             </div>
           </div>
           <div className="mt-7 xs:mt-4 md:mt-4">
-            <div className="flex items-center justify-between text-sm text-farmText">
-              {symbols} <FormattedMessage id="lp_staked"></FormattedMessage>
+            <div className="flex  items-center xs:items-end md:items-end justify-between text-sm text-farmText">
+              <div className="flex items-center xs:flex-col md:flex-col xs:items-start md:items-start">
+                <span>{symbols}</span>
+                <span>
+                  <FormattedMessage id="lp_staked"></FormattedMessage>
+                </span>
+              </div>
               <span
                 className="flex items-center text-greenColor cursor-pointer hover:text-senderHot"
                 onClick={goPool}

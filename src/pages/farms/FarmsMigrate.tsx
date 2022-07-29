@@ -82,14 +82,14 @@ export default function FarmsMigrate() {
         ) : (
           <>
             {noData ? (
-              <div className="flex flex-col items-center">
-                <span className="flex w-full items-center text-2xl font-bold text-lightGreenColor">
+              <div>
+                {/* <span className="flex w-full items-center text-2xl font-bold text-lightGreenColor">
                   <FormattedMessage id="no_farm_need_to_migrate" />
-                </span>
+                </span> */}
                 <GradientButton
                   onClick={goBoostFarmPage}
                   color="#fff"
-                  className={`mt-8 px-10 h-8 text-center text-sm text-white focus:outline-none font-semibold`}
+                  className={`px-10 h-8 text-center text-sm text-white focus:outline-none font-semibold`}
                   backgroundImage="linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)"
                 >
                   <ButtonTextWrapper
