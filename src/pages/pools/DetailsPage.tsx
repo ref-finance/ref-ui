@@ -1588,7 +1588,10 @@ export function PoolDetailsPage() {
                   )}
                 >
                   {' '}
-                  ${toInternationalCurrencySystem(poolTVL?.toString())}
+                  $
+                  {toInternationalCurrencySystem(
+                    scientificNotationToString(poolTVL?.toString() || '0')
+                  )}
                 </div>
               </div>
               <div className="flex items-center justify-between py-2.5">
@@ -1599,7 +1602,9 @@ export function PoolDetailsPage() {
                   />
                 </div>
                 <div className="text-white">
-                  {dayVolume ? toInternationalCurrencySystem(dayVolume) : '-'}
+                  {dayVolume
+                    ? '$' + toInternationalCurrencySystem(dayVolume)
+                    : '-'}
                 </div>
               </div>
               <div className="flex items-center justify-between py-2.5">

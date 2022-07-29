@@ -71,7 +71,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
-        indexerUrl: 'https://indexer.ref-finance.net',
+        indexerUrl: 'https://indexer.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
@@ -115,9 +115,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
+          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
       };
     case 'pub-testnet':
@@ -125,7 +125,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
-        helperUrl: 'https://helper.testnet.near.org',
+        helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
@@ -169,9 +169,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
+          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
       };
     case 'testnet':
@@ -179,7 +179,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
-        helperUrl: 'https://helper.testnet.near.org',
+        helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
         indexerUrl: 'https://testnet-indexer.ref-finance.com/',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
@@ -225,7 +225,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         TOTAL_PLATFORM_FEE_REVENUE:
             process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
+          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
       };
     default:
@@ -235,7 +235,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         walletUrl: 'https://wallet.near.org',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
-        indexerUrl: 'https://indexer.ref-finance.net',
+        indexerUrl: 'https://indexer.ref.finance',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
@@ -288,9 +288,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '132011.3147',
+          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
       };
   }
@@ -328,7 +328,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.near': 0,
           'wrap.near': 1,
         },
-        RATED_POOLS_IDS: ['3514', '3515'],
+        NEAX_POOL_ID: '3612',
+        NEARXIDS: ['nearx.stader-labs.near', 'wrap.near'],
+        NEAX_POOL_INDEX: {
+          'nearx.stader-labs.near': 0,
+          'wrap.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515', '3612'],
       };
     case 'development':
     case 'pub-testnet':
@@ -357,7 +363,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['568', '571'],
+        NEARXIDS: ['dev-1656877137694-34571929023079', 'wrap.testnet'],
+        NEAX_POOL_ID: '990',
+        NEAX_POOL_INDEX: {
+          'dev-1656877137694-34571929023079': 0,
+          'wrap.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['568', '571', '990'],
       };
     case 'testnet':
       return {
@@ -375,8 +387,10 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
         CUSD_STABLE_POOL_ID: '608',
         STNEAR_POOL_ID: '621',
         LINEAR_POOL_ID: '622',
+        NEAX_POOL_ID: '661',
         STNEARIDS: ['meta-v2.pool.testnet', 'wrap.testnet'],
         LINEARIDS: ['linear-protocol.testnet', 'wrap.testnet'],
+        NEARXIDS: ['dev-1656877137694-34571929023079', 'wrap.testnet'],
         STNEAR_POOL_INDEX: {
           'meta-v2.pool.testnet': 0,
           'wrap.testnet': 1,
@@ -385,7 +399,11 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['621', '622'],
+        NEAX_POOL_INDEX: {
+          'dev-1656877137694-34571929023079': 0,
+          'wrap.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['621', '622', '661'],
       };
     default:
       return {
@@ -416,7 +434,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.near': 0,
           'wrap.near': 1,
         },
-        RATED_POOLS_IDS: ['3514', '3515'],
+        NEAX_POOL_ID: '3612',
+        NEARXIDS: ['nearx.stader-labs.near', 'wrap.near'],
+        NEAX_POOL_INDEX: {
+          'nearx.stader-labs.near': 0,
+          'wrap.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515', '3612'],
       };
   }
 }

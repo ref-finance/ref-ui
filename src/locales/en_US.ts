@@ -559,7 +559,7 @@ const en_US = {
   total_usd_value: 'Total USD value',
   bitcoin_value: 'Bitcoin Value',
   stable_coin_value: 'StableCoin Value',
-  pool_fee_apr: 'Pool fee APR',
+  pool_fee_apr: 'Pool fee APY',
   ref_account_balance_tip_mobile: 'You have tokens in your REF account.',
   click: 'Click',
   to_recover: 'to recover.',
@@ -571,5 +571,6 @@ const en_US = {
   near_value: 'NEAR Value',
   borrow: 'Borrow',
   burrow_usn_tip: 'You can borrow USN on Burrow.',
+  recent_one_mounth_activity: 'One Month Activities',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
