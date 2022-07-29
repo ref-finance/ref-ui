@@ -136,6 +136,7 @@ export const useSwap = ({
       checkTransaction(txHash)
         .then((res: any) => {
           const transactionErrorType = getErrorMessage(res);
+
           const transaction = res.transaction;
 
           return {

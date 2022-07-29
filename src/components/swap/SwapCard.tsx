@@ -49,6 +49,8 @@ import {
   CUSDIDS,
   LINEARIDS,
   LINEAR_POOL_ID,
+  NEARXIDS,
+  NEAX_POOL_ID,
   STABLE_POOL_TYPE,
   STABLE_TOKEN_IDS,
   STNEARIDS,
@@ -86,15 +88,29 @@ import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 
-const STABLE_SWAP_IN_KEY = 'STABLE_REF_FI_SWAP_IN';
-const STABLE_SWAP_OUT_KEY = 'STABLE_REF_FI_SWAP_OUT';
-
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 
 const SWAP_SLIPPAGE_KEY_STABLE = 'REF_FI_SLIPPAGE_VALUE_STABLE';
 
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
+
+const isSameClass = (token1: string, token2: string) => {
+  const USDTokenList = new Array(
+    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
+  );
+
+  const BTCTokenList = BTCIDS.map((id) => id);
+
+  const NEARTokenList = new Array(
+    ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEARXIDS))
+  ).map((id) => id);
+  return (
+    (USDTokenList.includes(token1) && USDTokenList.includes(token2)) ||
+    (BTCTokenList.includes(token1) && BTCTokenList.includes(token2)) ||
+    (NEARTokenList.includes(token1) && NEARTokenList.includes(token2))
+  );
+};
 
 export const SUPPORT_LEDGER_KEY = 'REF_FI_SUPPORT_LEDGER';
 
@@ -596,8 +612,8 @@ export default function SwapCard(props: {
       setReservesType(STABLE_POOL_TYPE.BTC);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.BTC);
     } else if (
-      STNEARIDS.concat(LINEARIDS).includes(tokenIn.id) &&
-      STNEARIDS.concat(LINEARIDS).includes(tokenOut.id)
+      STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).includes(tokenIn.id) &&
+      STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).includes(tokenOut.id)
     ) {
       setReservesType(STABLE_POOL_TYPE.NEAR);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.NEAR);
@@ -605,16 +621,20 @@ export default function SwapCard(props: {
       setReservesType(STABLE_POOL_TYPE.USD);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.USD);
     }
-  }, [tokenIn, tokenOut]);
+
+    history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
+
+    localStorage.setItem(SWAP_IN_KEY, tokenIn.id);
+    localStorage.setItem(SWAP_OUT_KEY, tokenOut.id);
+  }, [tokenIn?.id, tokenOut?.id]);
 
   useEffect(() => {
     if (allTokens) {
+      const rememberedIn =
+        wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
+      const rememberedOut =
+        wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
       if (swapMode === SWAP_MODE.NORMAL) {
-        const rememberedIn =
-          wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
-        const rememberedOut =
-          wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
-
         const candTokenIn =
           allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
 
@@ -630,41 +650,32 @@ export default function SwapCard(props: {
         )
           setReEstimateTrigger(!reEstimateTrigger);
       } else if (swapMode === SWAP_MODE.STABLE) {
-        const rememberedIn = localStorage.getItem(STABLE_SWAP_IN_KEY);
-        const rememberedOut = localStorage.getItem(STABLE_SWAP_OUT_KEY);
-
         let candTokenIn: TokenMetadata;
         let candTokenOut: TokenMetadata;
 
-        if (rememberedIn) {
-          candTokenIn =
-            allTokens.find((token) => token.id === rememberedIn) ||
-            allTokens.find(
-              (token) => isStableToken(token.id) && token.id !== tokenOut?.id
-            );
+        if (
+          rememberedIn &&
+          rememberedOut &&
+          isSameClass(rememberedIn, rememberedOut)
+        ) {
+          candTokenIn = allTokens.find((token) => token.id === rememberedIn);
+          candTokenOut = allTokens.find((token) => token.id === rememberedOut);
         } else {
-          candTokenIn = allTokens.find(
-            (token) => isStableToken(token.id) && token.id !== tokenOut?.id
+          const USDTokenList = new Array(
+            ...new Set(
+              STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS)
+            )
           );
+
+          candTokenIn = allTokens.find((token) => token.id === USDTokenList[0]);
+          candTokenOut = allTokens.find(
+            (token) => token.id === USDTokenList[1]
+          );
+          setTokenInAmount('1');
         }
 
         setTokenIn(candTokenIn);
 
-        if (rememberedOut && rememberedOut !== candTokenIn.id) {
-          const candToken = allTokens.find(
-            (token) => token.id === rememberedOut && isStableToken(token.id)
-          );
-          if (candToken) candTokenOut = candToken;
-          else {
-            candTokenOut = allTokens.find(
-              (token) => token.id !== candTokenIn.id && isStableToken(token.id)
-            );
-          }
-        } else {
-          candTokenOut = allTokens.find(
-            (token) => token.id !== candTokenIn.id && isStableToken(token.id)
-          );
-        }
         setTokenOut(candTokenOut);
 
         if (
@@ -881,10 +892,7 @@ export default function SwapCard(props: {
           selectedToken={tokenIn}
           balances={balances}
           onSelectToken={(token) => {
-            localStorage.setItem(
-              swapMode === SWAP_MODE.NORMAL ? SWAP_IN_KEY : STABLE_SWAP_IN_KEY,
-              token.id
-            );
+            localStorage.setItem(SWAP_IN_KEY, token.id);
             swapMode === SWAP_MODE.NORMAL &&
               history.replace(
                 `#${unWrapTokenId(
@@ -903,7 +911,9 @@ export default function SwapCard(props: {
           tokenPriceList={tokenPriceList}
           isError={tokenIn?.id === tokenOut?.id}
           postSelected={tokenOut}
-          onSelectPost={setTokenOut}
+          onSelectPost={(token) => {
+            setTokenOut(token);
+          }}
         />
         <div
           className="flex items-center justify-center border-t mt-12"
@@ -912,19 +922,9 @@ export default function SwapCard(props: {
           <SwapExchange
             onChange={() => {
               setTokenIn(tokenOut);
-              localStorage.setItem(
-                swapMode === SWAP_MODE.NORMAL
-                  ? SWAP_IN_KEY
-                  : STABLE_SWAP_IN_KEY,
-                tokenOut.id
-              );
+              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               setTokenOut(tokenIn);
-              localStorage.setItem(
-                swapMode === SWAP_MODE.NORMAL
-                  ? SWAP_OUT_KEY
-                  : STABLE_SWAP_OUT_KEY,
-                tokenIn.id
-              );
+              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
 
               setTokenInAmount(toPrecision('1', 6));
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
@@ -949,12 +949,7 @@ export default function SwapCard(props: {
           text={intl.formatMessage({ id: 'to' })}
           useNearBalance={useNearBalance}
           onSelectToken={(token) => {
-            localStorage.setItem(
-              swapMode === SWAP_MODE.NORMAL
-                ? SWAP_OUT_KEY
-                : STABLE_SWAP_OUT_KEY,
-              token.id
-            );
+            localStorage.setItem(SWAP_OUT_KEY, token.id);
             swapMode === SWAP_MODE.NORMAL &&
               history.replace(
                 `#${unWrapTokenId(
@@ -1016,7 +1011,9 @@ export default function SwapCard(props: {
                     .map((id) => id.toString())
                     .includes(token.id);
                 case 'NEAR':
-                  return LINEARIDS.concat(STNEARIDS).includes(token.id);
+                  return LINEARIDS.concat(STNEARIDS)
+                    .concat(NEARXIDS)
+                    .includes(token.id);
               }
             })}
           pools={stablePools.filter((p) => {
@@ -1026,13 +1023,15 @@ export default function SwapCard(props: {
               case 'NEAR':
                 return (
                   p.id.toString() === STNEAR_POOL_ID ||
-                  p.id.toString() === LINEAR_POOL_ID
+                  p.id.toString() === LINEAR_POOL_ID ||
+                  p.id.toString() === NEAX_POOL_ID
                 );
               case 'USD':
                 return (
                   p.id.toString() !== BTC_STABLE_POOL_ID &&
                   p.id.toString() !== STNEAR_POOL_ID &&
-                  p.id.toString() !== LINEAR_POOL_ID
+                  p.id.toString() !== LINEAR_POOL_ID &&
+                  p.id.toString() !== NEAX_POOL_ID
                 );
             }
           })}

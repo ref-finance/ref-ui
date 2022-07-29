@@ -63,6 +63,8 @@ function TokenChart({
     STNEAR: 'rgba(160, 160, 255, 0.5)',
     NEAR: 'rgba(0, 198, 162, 0.5)',
     LINEAR: 'rgba(64, 129, 255, 0.5)',
+    NEARX: '#4d5971',
+    NearX: '#4d5971',
   };
 
   const noBorderTokens = ['LINEAR'];

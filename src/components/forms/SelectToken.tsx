@@ -23,6 +23,7 @@ import {
   BTCIDS,
   CUSDIDS,
   LINEARIDS,
+  NEARXIDS,
   STABLE_TOKEN_USN_IDS,
   STNEARIDS,
 } from '../../services/near';
@@ -119,21 +120,15 @@ export const StableSelectToken = ({
     ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
   );
 
-  // const USDTokenList = new Array(
-  //   ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS))
-  // );
-
   const BTCTokenList = BTCIDS.map((id) => id);
 
-  const NEARTokenList = new Array(...new Set(STNEARIDS.concat(LINEARIDS))).map(
-    (id) => id
-  );
+  const NEARTokenList = new Array(
+    ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEARXIDS))
+  ).map((id) => id);
 
   const [stableCoinType, setStableCoinType] = useState<STABLE_POOL_TYPE>(
     STABLE_POOL_TYPE.USD
   );
-
-  // const stableTokensIdList = USDTokenList.concat(BTCTokenList);
 
   const ref = useRef(null);
 
@@ -184,7 +179,6 @@ export const StableSelectToken = ({
   useEffect(() => {
     if (!coverUSD) {
       setStableCoinType(STABLE_POOL_TYPE.USD);
-      // onSelect(BTCtokens.find((token) => token.id !== preSelected.id));
     } else if (!coverBTC) {
       setStableCoinType(STABLE_POOL_TYPE.BTC);
     } else if (!coverNEAR) {

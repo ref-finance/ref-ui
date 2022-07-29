@@ -36,7 +36,8 @@ export const isStableToken = (id: string) => {
     BTCIDS.includes(id) ||
     STNEARIDS.includes(id) ||
     CUSDIDS.includes(id) ||
-    LINEARIDS.includes(id)
+    LINEARIDS.includes(id) ||
+    NEARXIDS.includes(id)
   );
 };
 
@@ -53,10 +54,14 @@ export const {
   LINEARIDS,
   LINEAR_POOL_INDEX,
   LINEAR_POOL_ID,
+  NEAX_POOL_ID,
+  NEAX_POOL_INDEX,
+  NEARXIDS,
 } = getExtraStablePoolConfig();
 
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
   .concat(STNEARIDS)
+  .concat(NEARXIDS)
   .concat(CUSDIDS)
   .filter((_) => !!_);
 
@@ -77,6 +82,7 @@ export const ALL_STABLE_POOL_IDS = [
   STNEAR_POOL_ID,
   CUSD_STABLE_POOL_ID,
   LINEAR_POOL_ID,
+  NEAX_POOL_ID,
 ]
   .filter((_) => _)
   .map((id) => id.toString());
@@ -107,6 +113,8 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
       return CUSD_STABLE_POOL_INDEX;
     case LINEAR_POOL_ID:
       return LINEAR_POOL_INDEX;
+    case NEAX_POOL_ID:
+      return NEAX_POOL_INDEX;
   }
 };
 

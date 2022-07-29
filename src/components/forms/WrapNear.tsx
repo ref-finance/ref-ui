@@ -27,6 +27,8 @@ import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapExchange } from '../icon/Arrows';
 import SelectToken from './SelectToken';
 
+export const NEAR_WITHDRAW_KEY = 'REF_FI_NEAR_WITHDRAW_VALUE';
+
 function WrapNear(props: ReactModal.Props) {
   const [showError, setShowError] = useState(false);
   const [tokenOut, setTokenOut] = useState<TokenMetadata>(wnearMetadata);
@@ -110,6 +112,7 @@ function WrapNear(props: ReactModal.Props) {
       return nearDeposit(tokenInAmount);
     } else {
       setButtonLoading(true);
+      sessionStorage.setItem(NEAR_WITHDRAW_KEY, '1');
       return nearWithdraw(tokenInAmount);
     }
   };

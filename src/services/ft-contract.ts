@@ -12,6 +12,7 @@ import { getCurrentWallet, WALLET_TYPE } from '../utils/sender-wallet';
 import getConfig from './config';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { REF_TOKEN_ID } from './near';
+import { getExtraStablePoolConfig } from './config';
 
 export const NEAR_ICON =
   'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png';
