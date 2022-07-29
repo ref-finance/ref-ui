@@ -1,6 +1,6 @@
 import getConfig from './config';
 import { wallet, refFiViewFunction } from './near';
-import { toPrecision } from '../utils/numbers';
+import { toPrecision, scientificNotationToString } from '../utils/numbers';
 import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
 import { getCurrentWallet } from '../utils/wallets-integration';
@@ -31,7 +31,14 @@ export const parsePoolView = (pool: any): PoolRPCView => ({
   amounts: pool.amounts,
   total_fee: pool.total_fee,
   shares_total_supply: pool.shares_total_supply,
-  tvl: Number(toPrecision(pool?.tvl?.toString() || '0', 2, false, false)),
+  tvl: Number(
+    toPrecision(
+      scientificNotationToString(pool?.tvl?.toString() || '0'),
+      2,
+      false,
+      false
+    )
+  ),
   token0_ref_price: pool.token0_ref_price,
   share: pool.share,
 });

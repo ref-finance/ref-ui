@@ -10,6 +10,7 @@ import { storageDepositForFTAction } from './creators/storage';
 import db from '../store/RefDatabase';
 import { getCurrentWallet, WALLET_TYPE } from '../utils/wallets-integration';
 import { WRAP_NEAR_CONTRACT_ID } from './wrap-near';
+import { getExtraStablePoolConfig } from './config';
 
 export const NEAR_ICON =
   'https://near.org/wp-content/themes/near-19/assets/img/brand-icon.png';

@@ -17,12 +17,16 @@ export enum TRANSACTION_ERROR_TYPE {
   SLIPPAGE_VIOLATION = 'Slippage Violation',
   INVALID_PARAMS = 'Invalid Params',
   RATES_EXPIRED = 'Rates Expired',
+  INTEGEROVERFLOW = 'Integer Overflow',
+  SHARESUPPLYOVERFLOW = 'Share Supply Overflow',
 }
 
 const ERROR_PATTERN = {
   slippageErrorPattern: /ERR_MIN_AMOUNT|slippage error/i,
   invaliParamsErrorPattern: /invalid params/i,
   ratesExpiredErrorPattern: /Rates expired/i,
+  integerOverflowErrorPattern: /Integer overflow/i,
+  ShareSupplyOverflowErrorPattern: /shares_total_supply overflow/i,
 };
 
 export enum TRANSACTION_STATE {
@@ -325,12 +329,32 @@ export const getErrorMessage = (res: any) => {
     );
   });
 
+  const isIntegerOverFlowError = res.receipts_outcome.some((outcome: any) => {
+    return ERROR_PATTERN.integerOverflowErrorPattern.test(
+      outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+        ?.ExecutionError
+    );
+  });
+
+  const isShareSupplyOerflowError = res.receipts_outcome.some(
+    (outcome: any) => {
+      return ERROR_PATTERN.ShareSupplyOverflowErrorPattern.test(
+        outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+          ?.ExecutionError
+      );
+    }
+  );
+
   if (isSlippageError) {
     return TRANSACTION_ERROR_TYPE.SLIPPAGE_VIOLATION;
   } else if (isInvalidAmountError) {
     return TRANSACTION_ERROR_TYPE.INVALID_PARAMS;
   } else if (isRatesExpiredError) {
     return TRANSACTION_ERROR_TYPE.RATES_EXPIRED;
+  } else if (isIntegerOverFlowError) {
+    return TRANSACTION_ERROR_TYPE.INTEGEROVERFLOW;
+  } else if (isShareSupplyOerflowError) {
+    return TRANSACTION_ERROR_TYPE.SHARESUPPLYOVERFLOW;
   } else {
     return null;
   }

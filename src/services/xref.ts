@@ -105,7 +105,24 @@ export const unstake = async ({ amount, msg = '' }: UnstakeOptions) => {
       ],
     },
   ];
+  const balance = await ftGetStorageBalance(REF_TOKEN_ID);
 
+  if (!balance) {
+    transactions.unshift({
+      receiverId: REF_TOKEN_ID,
+      functionCalls: [
+        {
+          methodName: 'storage_deposit',
+          args: {
+            account_id: getCurrentWallet().wallet.getAccountId(),
+            registration_only: true,
+          },
+          gas: '50000000000000',
+          amount: NEW_ACCOUNT_STORAGE_COST,
+        },
+      ],
+    });
+  }
   const needDeposit = await checkTokenNeedsStorageDeposit();
   if (needDeposit) {
     transactions.unshift({

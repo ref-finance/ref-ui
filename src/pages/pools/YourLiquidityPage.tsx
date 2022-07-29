@@ -155,22 +155,7 @@ export function YourLiquidityPage() {
   const senderLoginRes = getSenderLoginRes();
   const history = useHistory();
 
-  const { poolData: pool3tokenData } = useStabelPoolData(STABLE_POOL_ID);
-
-  const { poolData: USNPoolData } = useStabelPoolData(STABLE_POOL_USN_ID);
-
-  const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
-
-  const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
-
-  const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
-
-  const { poolData: LINEARPoolData } = useStabelPoolData(LINEAR_POOL_ID);
-
-  const { selector, modal, accounts, accountId, setAccountId } =
-    useWalletSelector();
-
-  if (!accountId) {
+  if (!senderLoginRes && !webWallet.isSignedIn()) {
     history.push('/');
     return null;
   }
@@ -189,41 +174,20 @@ export function YourLiquidityPage() {
 
   useEffect(() => {
     if (isSignedIn) {
-      getYourPools().then((res) =>
-        setPools(res.filter((p) => !isStablePool(p.id.toString())))
-      );
+      getYourPools().then((res) => {
+        setPools(res);
+      });
     }
   }, [isSignedIn]);
 
-  if (
-    !pools ||
-    !pool3tokenData ||
-    !USNPoolData ||
-    !BTCPoolData ||
-    !CUSDPoolData ||
-    !STNEARPoolData ||
-    !LINEARPoolData ||
-    !tokensMeta
-  )
-    return <Loading />;
+  if (!pools || !tokensMeta) return <Loading />;
 
-  const stablePoolsData = [
-    pool3tokenData,
-    USNPoolData,
-    BTCPoolData,
-    CUSDPoolData,
-    STNEARPoolData,
-    LINEARPoolData,
-  ];
+  const poolSortingFunc = (p1: PoolRPCView, p2: PoolRPCView) => {
+    if (isStablePool(p1.id.toString())) return -1;
+    else if (isStablePool(p2.id.toString())) return 1;
 
-  const stablePools = [
-    pool3tokenData.pool,
-    USNPoolData.pool,
-    BTCPoolData.pool,
-    CUSDPoolData.pool,
-    STNEARPoolData.pool,
-    LINEARPoolData.pool,
-  ];
+    return 0;
+  };
 
   return (
     <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
@@ -238,8 +202,7 @@ export function YourLiquidityPage() {
             defaultMessage="Your Liquidity"
           />
         </div>
-        {pools.length > 0 ||
-        stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
+        {pools.length > 0 ? (
           <section>
             <div className="">
               <div
@@ -264,21 +227,7 @@ export function YourLiquidityPage() {
                 </div>
               </div>
               <div className="max-h-96 overflow-y-auto">
-                {stablePools.map((p) => {
-                  return (
-                    <div
-                      className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
-                      key={Number(p.id)}
-                    >
-                      <PoolRow
-                        pool={p}
-                        tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
-                      />
-                    </div>
-                  );
-                })}
-
-                {pools.map((pool, i) => (
+                {pools.sort(poolSortingFunc).map((pool, i) => (
                   <div
                     key={i}
                     className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
@@ -302,20 +251,9 @@ export function YourLiquidityPage() {
       <div className="text-white text-2xl font-semibold px-4 lg:hidden">
         <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
       </div>
-      {pools.length > 0 ||
-      stablePoolsData.some((pd) => Number(pd.userTotalShare) > 0) ? (
+      {pools.length > 0 ? (
         <div className="lg:hidden">
-          {stablePools.map((p) => {
-            return (
-              <PoolRow
-                pool={p}
-                key={Number(p.id)}
-                tokens={p.tokenIds.map((id) => tokensMeta[id]) || []}
-              />
-            );
-          })}
-
-          {pools.map((pool, i) => {
+          {pools.sort(poolSortingFunc).map((pool, i) => {
             return (
               <PoolRow
                 pool={pool}

@@ -93,11 +93,7 @@ import {
   WalletSelectorContextProvider,
   useWalletSelector,
 } from './context/WalletSelectorContext';
-import { useGlobalPopUp } from './state/popUp';
-import { providers } from 'near-api-js';
-import { ACCOUNT_ID_KEY } from './context/WalletSelectorContext';
-import getConfig from './services/config';
-import { AccountView } from 'near-api-js/lib/providers/provider';
+
 import { Content } from '~Content';
 
 function App() {

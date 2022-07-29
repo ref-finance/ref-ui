@@ -1595,7 +1595,10 @@ export function PoolDetailsPage() {
                   )}
                 >
                   {' '}
-                  ${toInternationalCurrencySystem(poolTVL?.toString())}
+                  $
+                  {toInternationalCurrencySystem(
+                    scientificNotationToString(poolTVL?.toString() || '0')
+                  )}
                 </div>
               </div>
               <div className="flex items-center justify-between py-2.5">
