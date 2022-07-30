@@ -300,8 +300,6 @@ export const getPoolsByTokens = async ({
     let triPools;
     if (crossSwap) {
       triPools = await getAllTriPools();
-
-      console.log(triPools, 'tripools');
     }
 
     filtered_pools = pools

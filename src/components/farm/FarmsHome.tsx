@@ -257,7 +257,6 @@ export default function FarmsHome(props: any) {
     if (count > 0) {
       init();
       get_user_seeds_and_unClaimedRewards();
-      // console.log('定时任务走起');
     }
     const intervalId = setInterval(() => {
       setCount(count + 1);
@@ -283,7 +282,6 @@ export default function FarmsHome(props: any) {
     if (isSignedIn && REF_VE_CONTRACT_ID) {
       const loveBalance = await getLoveAmount();
       setLoveTokenBalance(toReadableNumber(LOVE_TOKEN_DECIMAL, loveBalance));
-      // console.log('love Token balance 获取到了');
     }
   }
   async function getConfig() {
@@ -295,10 +293,8 @@ export default function FarmsHome(props: any) {
     searchByCondition();
     // for detail page
     getDetailData_boost_config(data);
-    // console.log('getConfig 获取到了');
   }
   async function init() {
-    // console.log('开始了');
     let list_seeds: Seed[];
     let list_farm: FarmBoost[][];
     let pools: PoolRPCView[];
@@ -380,7 +376,6 @@ export default function FarmsHome(props: any) {
       await Promise.all(prom_rewards);
       set_user_unclaimed_token_meta_map(unclaimed_token_meta_datas);
       setUserDataLoading(false);
-      // console.log('user data 获取到了');
       // for detail page
       getDetailData_user_data({
         user_seeds_map: list_user_seeds,

@@ -630,8 +630,6 @@ export const checkTokenNeedsStorageDeposit_ve = async () => {
     getCurrentWallet().wallet.getAccountId()
   );
 
-  console.log(balance);
-
   if (!balance) {
     storageNeeded = '0.1';
   }
@@ -804,10 +802,8 @@ export const getBoostTokenPrices = async (): Promise<
         tokenPrices[id] = priceInfo;
       });
       getBoostTokenPricesFromServer();
-      // console.log('缓存 price');
     } else {
       tokenPrices = await getBoostTokenPricesFromServer();
-      // console.log('接口 price');
     }
     return tokenPrices;
   } catch (error) {
@@ -849,12 +845,10 @@ export const getBoostSeeds = async (): Promise<{
           pools.push(pool);
         }
       });
-      // console.log('缓存 seed');
       getBoostSeedsFromServer();
       return { seeds, farms, pools };
     } else {
       const result = await getBoostSeedsFromServer();
-      // console.log('接口 seed');
       return result;
     }
   } catch (error) {

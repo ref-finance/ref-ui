@@ -562,8 +562,6 @@ export const getOneSwapActionResult = async (
           p.tokenIds.includes(tokenOut.id)
       );
 
-      console.log(pools.filter((p) => p.Dex === 'tri'));
-
       if (triPoolThisPair) {
         const triPoolEstimateRes = getSinglePoolEstimate(
           tokenIn,

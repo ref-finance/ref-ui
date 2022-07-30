@@ -2321,8 +2321,6 @@ const GovItemDetail = ({
 }) => {
   const intl = useIntl();
 
-  console.log(transaction_hash, 'transaction_hash');
-
   const startTime = Math.floor(Number(proposal?.start_at) / TIMESTAMP_DIVISOR);
   const endTime = Math.floor(Number(proposal?.end_at) / TIMESTAMP_DIVISOR);
 
@@ -4989,8 +4987,6 @@ export const CreateGovProposal = ({
 
   const intl = useIntl();
 
-  console.log(intl.locale);
-
   const [type, setType] = useState<string>('Poll');
 
   const [options, setOptions] = useState<string[]>([]);
@@ -5527,10 +5523,7 @@ export const GovProposal = ({
 
     const proposal_ids = proposals.map((p) => p.id);
 
-    console.log(proposal_ids, 'propposal ids');
-
     getProposalHashes({ proposal_ids }).then((res: ProposalHash[]) => {
-      console.log(res);
       setTransactionHashes(res);
     });
   }, [proposals]);

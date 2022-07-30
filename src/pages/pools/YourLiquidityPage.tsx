@@ -245,8 +245,6 @@ export function YourLiquidityPage() {
 
   if (!pools || !tokensMeta || !v1Farm || !v2Farm) return <Loading />;
 
-  console.log(stablePools);
-
   const RowRender = ({ p, ids }: { p: PoolRPCView; ids: string[] }) => {
     const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
 
