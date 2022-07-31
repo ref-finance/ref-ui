@@ -1421,9 +1421,7 @@ export function PoolDetailsPage() {
                     <Link
                       to={{
                         pathname:
-                          farmVersion === 'V1'
-                            ? '/farms'
-                            : `/farmsBoost/${id}-r`,
+                          farmVersion === 'V1' ? '/farms' : `/v2farms/${id}-r`,
                       }}
                       target="_blank"
                     >

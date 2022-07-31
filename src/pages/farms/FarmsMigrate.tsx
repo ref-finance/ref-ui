@@ -40,7 +40,7 @@ export default function FarmsMigrate() {
   const goBacktoFarms = () => {
     const from = new URLSearchParams(location.search).get('from');
     if (from == 'v2') {
-      history.push('/farmsBoost');
+      history.push('/v2farms');
     } else {
       history.push('/farms');
     }
@@ -58,7 +58,7 @@ export default function FarmsMigrate() {
     set_all_token_price_list(tokenPriceList);
   }
   function goBoostFarmPage() {
-    history.push('/farmsBoost');
+    history.push('/v2farms');
   }
   const noData = user_migrate_seeds.length == 0 && !seed_loading;
 

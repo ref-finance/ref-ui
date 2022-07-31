@@ -25,6 +25,7 @@ import {
   WarningIcon,
   LightningBase64,
   LightningBase64Grey,
+  BoostFarmBannerImg,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -543,7 +544,7 @@ export default function FarmsHome(props: any) {
           return true;
       });
       if (!targetFarms) {
-        history.replace('/farmsBoost');
+        history.replace('/v2farms');
       } else {
         getDetailData({
           detailData: targetFarms,
@@ -1007,10 +1008,8 @@ export default function FarmsHome(props: any) {
       <div
         className="relative flex items-center justify-center mb-5 xs:mb-3 md:mb-3 xs:flex-col md:flex-col xs:bg-cardBg md:bg-cardBg xs:overflow-hidden md:overflow-hidden"
         style={{
-          height: isMobileSite ? '' : '250px',
-          backgroundImage: isMobileSite
-            ? ''
-            : 'linear-gradient(180deg, #001320 0%, #0C2427 100%)',
+          height: isMobileSite ? '' : '230px',
+          backgroundColor: isMobileSite ? '' : '#04131f',
         }}
       >
         {showMigrateEntry ? (
@@ -1076,8 +1075,8 @@ export default function FarmsHome(props: any) {
               </div>
             ) : null}
           </div>
-          <div className="absolute right-0 -top-24 xs:hidden md:hidden">
-            <BoostBannerLogo></BoostBannerLogo>
+          <div className="absolute right-0 -bottom-3 xs:hidden md:hidden">
+            <BoostFarmBannerImg style={{ width: '517px' }}></BoostFarmBannerImg>
           </div>
         </div>
         <div className="flex items-center justify-between w-full mt-2 lg:hidden px-3 mb-3">
@@ -1161,301 +1160,238 @@ export default function FarmsHome(props: any) {
           </div>
         </div>
       ) : null}
-
-      <div className="searchArea m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
-        <div className="flex justify-between items-center flex-wrap mb-5 xs:mb-3 md:mb-3 xs:w-full md:w-full xs:justify-start md:justify-start">
-          {Object.keys(statusList).map((item: string) => {
-            if (statusList[item].hidden) return null;
-            return (
-              <span
-                onClick={() => {
-                  changeStatus(item);
-                }}
-                key={item}
-                className={`flex  justify-center mx-1 items-center h-9 px-2 xs:px-1.5 md:px-1.5 xs:mr-1.5 xs:ml-0 md:mr-1.5 md:ml-0 xs:mb-2 md:mb-2 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
-                  status == item ? 'bg-cardBg text-white' : 'text-farmText'
-                }`}
-              >
-                <label className={`mr-1 ${status == item ? '' : 'opacity-40'}`}>
-                  {statusList[item].icon}
-                </label>
-                {statusList[item].txt}
-              </span>
-            );
-          })}
-        </div>
-        <div className="flex items-center  justify-between mb-5 xs:hidden md:hidden">
-          <div
-            className="flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5"
-            style={{
-              border: keyWords ? '1px solid rgba(115, 129, 139, 0.5)' : '',
-            }}
-          >
-            <input
-              ref={searchRef}
-              type="text"
-              className="h-full text-sm text-white mr-3 w-40 xs:w-32 md:w-32 placeholder-white placeholder-opacity-40"
-              onWheel={() => searchRef.current.blur()}
-              onChange={({ target }) => searchByKeyWords(target.value)}
-              placeholder={intl.formatMessage({ id: 'search_farms_by_token' })}
-            ></input>
-            <span
-              className={`${
-                keyWords ? 'text-lightGreenColor' : 'text-farmText'
-              }`}
-            >
-              <SearchIcon></SearchIcon>
-            </span>
-          </div>
-          <div className="flex items-center">
-            <label className="text-farmText text-xs mr-2 whitespace-nowrap">
-              <FormattedMessage id="sort_by" defaultMessage="Sort by" />
-            </label>
-            {Object.keys(sortList).map((item, index) => {
-              const value = sortList[item];
+      <div>
+        <div className="searchArea m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
+          <div className="flex justify-between items-center flex-wrap mb-5 xs:mb-3 md:mb-3 xs:w-full md:w-full xs:justify-start md:justify-start">
+            {Object.keys(statusList).map((item: string) => {
+              if (statusList[item].hidden) return null;
               return (
-                <div
-                  className={`flex items-center justify-between rounded-lg h-9  px-3 py-0.5 ml-2 cursor-pointer hover:bg-cardBg text-xs ${
-                    sort == item ? 'bg-cardBg text-white' : 'text-farmText'
-                  }`}
-                  key={index}
+                <span
                   onClick={() => {
-                    changeSort(item);
+                    changeStatus(item);
                   }}
+                  key={item}
+                  className={`flex  justify-center mx-1 items-center h-9 px-2 xs:px-1.5 md:px-1.5 xs:mr-1.5 xs:ml-0 md:mr-1.5 md:ml-0 xs:mb-2 md:mb-2 rounded-lg text-sm hover:bg-cardBg cursor-pointer ${
+                    status == item ? 'bg-cardBg text-white' : 'text-farmText'
+                  }`}
                 >
-                  {value}
-                </div>
+                  <label
+                    className={`mr-1 ${status == item ? '' : 'opacity-40'}`}
+                  >
+                    {statusList[item].icon}
+                  </label>
+                  {statusList[item].txt}
+                </span>
               );
             })}
           </div>
-        </div>
-      </div>
-      {homePageLoading && getUrlParams() ? null : homePageLoading ? (
-        <Loading></Loading>
-      ) : (
-        <>
-          {noData ? (
-            <div className="flex flex-col w-full justify-center items-center mt-20 xs:mt-8 md:mt-8">
-              <NoDataIcon />
-              <span className="text-farmText text-base mt-4 text-center w-48">
-                {((status == 'boost' || status == 'others') &&
-                  globalConfigLoading) ||
-                (status == 'my' && isSignedIn && userDataLoading) ? (
-                  'Loading ...'
-                ) : (
-                  <FormattedMessage id="no_result"></FormattedMessage>
-                )}
+          <div className="flex items-center  justify-between mb-5 xs:hidden md:hidden">
+            <div
+              className="flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5"
+              style={{
+                border: keyWords ? '1px solid rgba(115, 129, 139, 0.5)' : '',
+              }}
+            >
+              <input
+                ref={searchRef}
+                type="text"
+                className="h-full text-sm text-white mr-3 w-40 xs:w-32 md:w-32 placeholder-white placeholder-opacity-40"
+                onWheel={() => searchRef.current.blur()}
+                onChange={({ target }) => searchByKeyWords(target.value)}
+                placeholder={intl.formatMessage({
+                  id: 'search_farms_by_token',
+                })}
+              ></input>
+              <span
+                className={`${
+                  keyWords ? 'text-lightGreenColor' : 'text-farmText'
+                }`}
+              >
+                <SearchIcon></SearchIcon>
               </span>
             </div>
-          ) : null}
-          {/* boost start */}
-          {!loveSeed ? null : (
-            <div
-              className={`grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 xs:gap-x-0 md:gap-x-0  m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full xs:px-3 md:px-3 mb-9 ${
-                status != 'boost' || noData ? 'hidden' : ''
-              }`}
-            >
-              <div className="col-span-2 xs:col-span-1 md:col-span-1">
-                <div className="flex items-center justify-between lg:hidden">
-                  <span className="text-2xl text-white font-bold">Booster</span>
-                  <span className="flex items-center" onClick={switchStatus}>
-                    <label
-                      className={`text-farmText text-sm mr-2 ${
-                        boostInstructions ? 'hidden' : ''
-                      }`}
-                    >
-                      <FormattedMessage id="how_to_get" />
-                    </label>
-                    <DirectionButton
-                      className={
-                        boostInstructions ? '' : 'transform rotate-180'
-                      }
-                    ></DirectionButton>
-                  </span>
-                </div>
-                <div
-                  className={`flex justify-between xs:h-auto md:h-auto h-full rounded-2xl xs:justify-center bg-cardBg md:justify-center xs:mt-3 md:mt-3 ${
-                    !boostInstructions && isMobileSite ? 'hidden' : ''
-                  }`}
-                >
-                  <div className="flex flex-col justify-between  items-center lg:items-start pl-16 pb-14 pt-5 xs:pl-0 md:pl-0">
-                    <span
-                      className="text-white xs:hidden md:hidden transform -translate-x-9"
-                      style={{ fontSize: '32px' }}
-                    >
-                      <FormattedMessage id="booster" />
+            <div className="flex items-center">
+              <label className="text-farmText text-xs mr-2 whitespace-nowrap">
+                <FormattedMessage id="sort_by" defaultMessage="Sort by" />
+              </label>
+              {Object.keys(sortList).map((item, index) => {
+                const value = sortList[item];
+                return (
+                  <div
+                    className={`flex items-center justify-between rounded-lg h-9  px-3 py-0.5 ml-2 cursor-pointer hover:bg-cardBg text-xs ${
+                      sort == item ? 'bg-cardBg text-white' : 'text-farmText'
+                    }`}
+                    key={index}
+                    onClick={() => {
+                      changeSort(item);
+                    }}
+                  >
+                    {value}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        {homePageLoading && getUrlParams() ? null : homePageLoading ? (
+          <Loading></Loading>
+        ) : (
+          <>
+            {noData ? (
+              <div className="flex flex-col w-full justify-center items-center mt-20 xs:mt-8 md:mt-8">
+                <NoDataIcon />
+                <span className="text-farmText text-base mt-4 text-center w-48">
+                  {((status == 'boost' || status == 'others') &&
+                    globalConfigLoading) ||
+                  (status == 'my' && isSignedIn && userDataLoading) ? (
+                    'Loading ...'
+                  ) : (
+                    <FormattedMessage id="no_result"></FormattedMessage>
+                  )}
+                </span>
+              </div>
+            ) : null}
+            {/* boost start */}
+            {!loveSeed ? null : (
+              <div
+                className={`grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 xs:gap-x-0 md:gap-x-0  m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full xs:px-3 md:px-3 mb-9 ${
+                  status != 'boost' || noData ? 'hidden' : ''
+                }`}
+              >
+                <div className="col-span-2 xs:col-span-1 md:col-span-1">
+                  <div className="flex items-center justify-between lg:hidden">
+                    <span className="text-2xl text-white font-bold">
+                      Booster
                     </span>
-                    <div className="flex justify-center items-center">
-                      <div className="relative flex items-center justify-center mr-1.5">
-                        <span
-                          className="ball flex items-center justify-center bg-greyCircleColor text-sm text-priceBoardColor rounded-full"
-                          style={{ width: '22px', height: '22px' }}
-                        >
-                          1
-                        </span>
-                        <span
-                          onClick={() => {
-                            setShowLoveTokenModalVisible(true);
-                          }}
-                          className="absolute xs:-left-8 md:-left-8 flex items-center justify-center text-sm xs:text-xs md:text-xs  text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
-                        >
-                          <FormattedMessage id="get_love" />{' '}
-                          <VEARROW className="ml-1"></VEARROW>
-                        </span>
-                      </div>
-                      <div className="line w-32 h-px bg-white bg-opacity-20 xs:w-24 md:w-24"></div>
-                      <div className="relative flex items-center justify-center mx-1.5">
-                        <span
-                          className="ball flex items-center justify-center bg-greyCircleColor text-sm text-priceBoardColor rounded-full"
-                          style={{ width: '22px', height: '22px' }}
-                        >
-                          2
-                        </span>
-                        <span
-                          onClick={() => {
-                            setLoveStakeModalVisible(true);
-                          }}
-                          className="absolute xs:-left-8 md:-left-8 flex items-center justify-center text-sm xs:text-xs md:text-xs text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
-                        >
-                          <FormattedMessage id="stakeLove" />
-                        </span>
-                      </div>
-                      <div className="line w-32 h-px bg-white bg-opacity-20 xs:w-24 md:w-24"></div>
-                      <div className="relative flex items-center justify-center ml-1.5">
-                        <span
-                          className="ball flex items-center justify-center bg-greyCircleColor text-sm text-priceBoardColor rounded-full"
-                          style={{ width: '22px', height: '22px' }}
-                        >
-                          3
-                        </span>
-                        <span className="absolute flex items-center justify-center text-sm xs:text-xs md:text-xs text-greyCircleColor rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:-left-15 md:-left-15">
-                          <FormattedMessage id="get_booster" />
-                        </span>
+                    <span className="flex items-center" onClick={switchStatus}>
+                      <label
+                        className={`text-farmText text-sm mr-2 ${
+                          boostInstructions ? 'hidden' : ''
+                        }`}
+                      >
+                        <FormattedMessage id="how_to_get" />
+                      </label>
+                      <DirectionButton
+                        className={
+                          boostInstructions ? '' : 'transform rotate-180'
+                        }
+                      ></DirectionButton>
+                    </span>
+                  </div>
+                  <div
+                    className={`flex justify-between xs:h-auto md:h-auto h-full rounded-2xl xs:justify-center bg-cardBg md:justify-center xs:mt-3 md:mt-3 ${
+                      !boostInstructions && isMobileSite ? 'hidden' : ''
+                    }`}
+                  >
+                    <div className="flex flex-col justify-between  items-center lg:items-start pl-16 pb-14 pt-5 xs:pl-0 md:pl-0">
+                      <span
+                        className="text-white xs:hidden md:hidden transform -translate-x-9"
+                        style={{ fontSize: '32px' }}
+                      >
+                        <FormattedMessage id="booster" />
+                      </span>
+                      <div className="flex justify-center items-center">
+                        <div className="relative flex items-center justify-center mr-1.5">
+                          <span
+                            className="ball flex items-center justify-center bg-greyCircleColor text-sm text-priceBoardColor rounded-full"
+                            style={{ width: '22px', height: '22px' }}
+                          >
+                            1
+                          </span>
+                          <span
+                            onClick={() => {
+                              setShowLoveTokenModalVisible(true);
+                            }}
+                            className="absolute xs:-left-8 md:-left-8 flex items-center justify-center text-sm xs:text-xs md:text-xs  text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
+                          >
+                            <FormattedMessage id="get_love" />{' '}
+                            <VEARROW className="ml-1"></VEARROW>
+                          </span>
+                        </div>
+                        <div className="line w-32 h-px bg-white bg-opacity-20 xs:w-24 md:w-24"></div>
+                        <div className="relative flex items-center justify-center mx-1.5">
+                          <span
+                            className="ball flex items-center justify-center bg-greyCircleColor text-sm text-priceBoardColor rounded-full"
+                            style={{ width: '22px', height: '22px' }}
+                          >
+                            2
+                          </span>
+                          <span
+                            onClick={() => {
+                              setLoveStakeModalVisible(true);
+                            }}
+                            className="absolute xs:-left-8 md:-left-8 flex items-center justify-center text-sm xs:text-xs md:text-xs text-greenColor border border-greenColor bg-mengColor bg-opacity-50 hover:bg-black rounded-lg top-8 whitespace-nowrap px-2 py-1 cursor-pointer"
+                          >
+                            <FormattedMessage id="stakeLove" />
+                          </span>
+                        </div>
+                        <div className="line w-32 h-px bg-white bg-opacity-20 xs:w-24 md:w-24"></div>
+                        <div className="relative flex items-center justify-center ml-1.5">
+                          <span
+                            className="ball flex items-center justify-center bg-greyCircleColor text-sm text-priceBoardColor rounded-full"
+                            style={{ width: '22px', height: '22px' }}
+                          >
+                            3
+                          </span>
+                          <span className="absolute flex items-center justify-center text-sm xs:text-xs md:text-xs text-greyCircleColor rounded-lg top-8 whitespace-nowrap px-5 py-1 xs:-left-15 md:-left-15">
+                            <FormattedMessage id="get_booster" />
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <div className="xs:hidden md:hidden lg:hidden xl:hidden 2xl:block">
+                      <Flight></Flight>
+                    </div>
+                    <LoveBox inside={true}></LoveBox>
                   </div>
-                  <div className="xs:hidden md:hidden lg:hidden xl:hidden 2xl:block">
-                    <Flight></Flight>
-                  </div>
-                  <LoveBox inside={true}></LoveBox>
                 </div>
+                <LoveBox inside={false}></LoveBox>
               </div>
-              <LoveBox inside={false}></LoveBox>
-            </div>
-          )}
-          {REF_VE_CONTRACT_ID ? (
-            <GetLoveTokenModal
-              isOpen={showLoveTokenModalVisible}
-              onRequestClose={() => {
-                setShowLoveTokenModalVisible(false);
-              }}
-            ></GetLoveTokenModal>
-          ) : null}
+            )}
+            {REF_VE_CONTRACT_ID ? (
+              <GetLoveTokenModal
+                isOpen={showLoveTokenModalVisible}
+                onRequestClose={() => {
+                  setShowLoveTokenModalVisible(false);
+                }}
+              ></GetLoveTokenModal>
+            ) : null}
 
-          {loveStakeModalVisible ? (
-            <LoveStakeModal
-              isOpen={loveStakeModalVisible}
-              onRequestClose={() => {
-                setLoveStakeModalVisible(false);
-              }}
-              title="stakeLove"
-              loveTokenBalance={loveTokenBalance}
-              loveSeed={loveSeed}
-              boostConfig={boostConfig}
-              farm_display_List={farm_display_List}
-              user_seeds_map={user_seeds_map}
-              user_unclaimed_map={user_unclaimed_map}
-              user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
-            ></LoveStakeModal>
-          ) : null}
-          {loveUnStakeModalVisible ? (
-            <LoveUnStakeModal
-              isOpen={loveUnStakeModalVisible}
-              onRequestClose={() => {
-                setLoveUnStakeModalVisible(false);
-              }}
-              title="unstakeLove"
-              loveSeed={loveSeed}
-              boostConfig={boostConfig}
-              farm_display_List={farm_display_List}
-              user_seeds_map={user_seeds_map}
-              user_unclaimed_map={user_unclaimed_map}
-              user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
-            ></LoveUnStakeModal>
-          ) : null}
+            {loveStakeModalVisible ? (
+              <LoveStakeModal
+                isOpen={loveStakeModalVisible}
+                onRequestClose={() => {
+                  setLoveStakeModalVisible(false);
+                }}
+                title="stakeLove"
+                loveTokenBalance={loveTokenBalance}
+                loveSeed={loveSeed}
+                boostConfig={boostConfig}
+                farm_display_List={farm_display_List}
+                user_seeds_map={user_seeds_map}
+                user_unclaimed_map={user_unclaimed_map}
+                user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
+              ></LoveStakeModal>
+            ) : null}
+            {loveUnStakeModalVisible ? (
+              <LoveUnStakeModal
+                isOpen={loveUnStakeModalVisible}
+                onRequestClose={() => {
+                  setLoveUnStakeModalVisible(false);
+                }}
+                title="unstakeLove"
+                loveSeed={loveSeed}
+                boostConfig={boostConfig}
+                farm_display_List={farm_display_List}
+                user_seeds_map={user_seeds_map}
+                user_unclaimed_map={user_unclaimed_map}
+                user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
+              ></LoveUnStakeModal>
+            ) : null}
 
-          {/* boost end */}
-          <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-5/6 xl:w-2/3 xs:px-3 md:px-3 xs:w-full md:w-full">
-            {farm_display_List.map((seed: Seed, index: number) => {
-              return (
-                <div
-                  key={seed.seed_id + index}
-                  className={seed.hidden ? 'hidden' : ''}
-                >
-                  <FarmView
-                    seed={seed}
-                    tokenPriceList={tokenPriceList}
-                    getDetailData={getDetailData}
-                    dayVolumeMap={dayVolumeMap}
-                    boostConfig={boostConfig}
-                    loveSeed={loveSeed}
-                    user_seeds_map={user_seeds_map}
-                    user_unclaimed_map={user_unclaimed_map}
-                    user_unclaimed_token_meta_map={
-                      user_unclaimed_token_meta_map
-                    }
-                    maxLoveShareAmount={maxLoveShareAmount}
-                  ></FarmView>
-                </div>
-              );
-            })}
-          </div>
-          <div
-            className={`${endFarmLength > 0 && status != 'my' ? '' : 'hidden'}`}
-          >
-            <div
-              className={`flex items-center ${
-                showEndedFarmList ? 'justify-between' : 'justify-end'
-              } m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full my-10 xs:my-8 md:my-8 xs:px-3 md:px-3 xs:flex-col md:flex-col`}
-            >
-              <div
-                onClick={switchEndedFarmListDisplayStatus}
-                className="flex items-center justify-center text-xs text-farmText cursor-pointer lg:hidden"
-              >
-                <ArrowDownIcon
-                  className={showEndedFarmList ? 'transform rotate-180' : ''}
-                ></ArrowDownIcon>
-                <a className="text-xs text-greenColor mx-1">
-                  {showEndedFarmList ? 'Hidden' : 'Show'}
-                </a>
-                <FormattedMessage id="ended_farms" />
-              </div>
-              <p
-                className={`text-xl text-farmText xs:mt-5 md:mt-5 ${
-                  showEndedFarmList ? '' : 'hidden'
-                }`}
-              >
-                <FormattedMessage id="ended_Farms"></FormattedMessage>
-              </p>
-              <div
-                onClick={switchEndedFarmListDisplayStatus}
-                className="flex items-center justify-center text-xs text-farmText cursor-pointer xs:hidden md:hidden"
-              >
-                <ArrowDownIcon
-                  className={showEndedFarmList ? 'transform rotate-180' : ''}
-                ></ArrowDownIcon>
-                <a className="text-xs text-greenColor mx-1">
-                  {showEndedFarmList ? 'Hidden' : 'Show'}
-                </a>
-                <FormattedMessage id="ended_farms" />
-              </div>
-            </div>
-            <div
-              className={`farmListArea grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full xs:px-3 md:px-3 ${
-                showEndedFarmList ? '' : 'hidden'
-              }`}
-            >
-              {farm_display_ended_List.map((seed: Seed, index: number) => {
+            {/* boost end */}
+            <div className="farmListArea grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-5/6 xl:w-2/3 xs:px-3 md:px-3 xs:w-full md:w-full">
+              {farm_display_List.map((seed: Seed, index: number) => {
                 return (
                   <div
                     key={seed.seed_id + index}
@@ -1479,9 +1415,81 @@ export default function FarmsHome(props: any) {
                 );
               })}
             </div>
-          </div>
-        </>
-      )}
+            <div
+              className={`${
+                endFarmLength > 0 && status != 'my' ? '' : 'hidden'
+              }`}
+            >
+              <div
+                className={`flex items-center ${
+                  showEndedFarmList ? 'justify-between' : 'justify-end'
+                } m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full my-10 xs:my-8 md:my-8 xs:px-3 md:px-3 xs:flex-col md:flex-col`}
+              >
+                <div
+                  onClick={switchEndedFarmListDisplayStatus}
+                  className="flex items-center justify-center text-xs text-farmText cursor-pointer lg:hidden"
+                >
+                  <ArrowDownIcon
+                    className={showEndedFarmList ? 'transform rotate-180' : ''}
+                  ></ArrowDownIcon>
+                  <a className="text-xs text-greenColor mx-1">
+                    {showEndedFarmList ? 'Hidden' : 'Show'}
+                  </a>
+                  <FormattedMessage id="ended_farms" />
+                </div>
+                <p
+                  className={`text-xl text-farmText xs:mt-5 md:mt-5 ${
+                    showEndedFarmList ? '' : 'hidden'
+                  }`}
+                >
+                  <FormattedMessage id="ended_Farms"></FormattedMessage>
+                </p>
+                <div
+                  onClick={switchEndedFarmListDisplayStatus}
+                  className="flex items-center justify-center text-xs text-farmText cursor-pointer xs:hidden md:hidden"
+                >
+                  <ArrowDownIcon
+                    className={showEndedFarmList ? 'transform rotate-180' : ''}
+                  ></ArrowDownIcon>
+                  <a className="text-xs text-greenColor mx-1">
+                    {showEndedFarmList ? 'Hidden' : 'Show'}
+                  </a>
+                  <FormattedMessage id="ended_farms" />
+                </div>
+              </div>
+              <div
+                className={`farmListArea grid grid-cols-2 xs:grid-cols-1 md:grid-cols-1 2xl:grid-cols-3 gap-x-5 gap-y-9 m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full xs:px-3 md:px-3 ${
+                  showEndedFarmList ? '' : 'hidden'
+                }`}
+              >
+                {farm_display_ended_List.map((seed: Seed, index: number) => {
+                  return (
+                    <div
+                      key={seed.seed_id + index}
+                      className={seed.hidden ? 'hidden' : ''}
+                    >
+                      <FarmView
+                        seed={seed}
+                        tokenPriceList={tokenPriceList}
+                        getDetailData={getDetailData}
+                        dayVolumeMap={dayVolumeMap}
+                        boostConfig={boostConfig}
+                        loveSeed={loveSeed}
+                        user_seeds_map={user_seeds_map}
+                        user_unclaimed_map={user_unclaimed_map}
+                        user_unclaimed_token_meta_map={
+                          user_unclaimed_token_meta_map
+                        }
+                        maxLoveShareAmount={maxLoveShareAmount}
+                      ></FarmView>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -2414,7 +2422,7 @@ function FarmView(props: {
     });
     const poolId = getPoolIdBySeedId(seed.seed_id);
     const status = seed.farmList[0].status == 'Ended' ? 'e' : 'r';
-    history.replace(`/farmsBoost/${poolId}-${status}`);
+    history.replace(`/v2farms/${poolId}-${status}`);
   }
   function claimReward() {
     if (claimLoading) return;

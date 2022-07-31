@@ -160,7 +160,7 @@ function App() {
       txHash &&
       isSignedIn &&
       pathname !== '/farms' &&
-      pathname.indexOf('farmsBoost') === -1
+      pathname.indexOf('v2farms') === -1
     ) {
       checkTransaction(txHash)
         .then((res: any) => {
@@ -319,7 +319,7 @@ function App() {
             ) : null}
 
             <Route
-              path="/farmsBoost/:id?"
+              path="/v2farms/:id?"
               component={AutoHeight(FarmsBoosterPage)}
             />
             <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
