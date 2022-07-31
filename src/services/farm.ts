@@ -52,7 +52,7 @@ import { currentStorageBalanceOfVE } from './account';
 import db, { TokenPrice, BoostSeeds, FarmDexie } from '../store/RefDatabase';
 import { getMftTokenId } from '../utils/token';
 import { useEffect, useContext, useState } from 'react';
-import { getPoolIdBySeedId } from '~components/farm/FarmsHome';
+import { getPoolIdBySeedId } from '../components/farm/FarmsHome';
 
 const config = getConfig();
 const { REF_VE_CONTRACT_ID } = config;

@@ -1,38 +1,46 @@
 import React, { useContext } from 'react';
-import { ModalClose, SwitchBtn, HandIcon, LinkIcon } from '~components/icon';
+import {
+  ModalClose,
+  SwitchBtn,
+  HandIcon,
+  LinkIcon,
+} from '../../components/icon';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useState, useEffect, useRef } from 'react';
 import { BigNumber } from 'bignumber.js';
-import { wallet } from '~services/near';
-import { mftGetBalance } from '~services/mft-contract';
+import { wallet } from '../../services/near';
+import { mftGetBalance } from '../../services/mft-contract';
 import Modal from 'react-modal';
 import { Link, useHistory } from 'react-router-dom';
-import { getMftTokenId } from '~utils/token';
-import { Card } from '~components/card/Card';
-import { LP_TOKEN_DECIMALS, LP_STABLE_TOKEN_DECIMALS } from '~services/m-token';
+import { getMftTokenId } from '../../utils/token';
+import { Card } from '../../components/card/Card';
+import {
+  LP_TOKEN_DECIMALS,
+  LP_STABLE_TOKEN_DECIMALS,
+} from '../../services/m-token';
 import {
   FarmBoost,
   Seed,
   get_config,
   BoostConfig,
   UserSeedInfo,
-} from '~services/farm';
+} from '../../services/farm';
 import {
   toPrecision,
   toReadableNumber,
   toInternationalCurrencySystem,
-} from '~utils/numbers';
-import { isMobile } from '~utils/device';
-import { useTokens } from '~state/token';
-import getConfig from '~services/config';
+} from '../../utils/numbers';
+import { isMobile } from '../../utils/device';
+import { useTokens } from '../../state/token';
+import getConfig from '../../services/config';
 import { TokenMetadata, unWrapToken } from '../../services/ft-contract';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import {
   LightningIcon,
   ForbiddenIcon,
   BoostOptIcon,
-} from '~components/icon/FarmBoost';
-import { getLoveAmount } from '~services/referendum';
+} from '../../components/icon/FarmBoost';
+import { getLoveAmount } from '../../services/referendum';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import ReactTooltip from 'react-tooltip';

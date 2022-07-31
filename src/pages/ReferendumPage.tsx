@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { Card } from '../components/card/Card';
 import {
   REF_TOKEN_ID,
@@ -12,7 +12,7 @@ import {
   TokenMetadata,
   REF_META_DATA,
 } from '../services/ft-contract';
-import { Images } from '~components/stableswap/CommonComp';
+import { Images } from '../components/stableswap/CommonComp';
 import { wnearMetadata, unwrapedNear } from '../services/wrap-near';
 import { usePoolShare, useYourliquidity } from '../state/pool';
 import {
@@ -34,7 +34,7 @@ import {
   RightArrowUnlockingVE,
   VEARROW,
   VotingPowerIcon,
-} from '~components/icon/Referendum';
+} from '../components/icon/Referendum';
 import {
   LOVEBoosterIcon,
   PowerZone,
@@ -43,7 +43,7 @@ import {
 import Modal from 'react-modal';
 import { CloseIcon, mapToView } from '../components/icon/Actions';
 import { Symbols } from '../components/stableswap/CommonComp';
-import { NewFarmInputAmount } from '~components/forms/InputAmount';
+import { NewFarmInputAmount } from '../components/forms/InputAmount';
 import { isClientMobie, isMobile, useClientMobile } from '../utils/device';
 import {
   VEConfig,
@@ -56,8 +56,8 @@ import {
   useLOVEmeta,
   useMultiplier,
   useUnClaimedRewardsVE,
-} from '~state/referendum';
-import { ArrowLeftIcon } from '~components/icon/FarmBoost';
+} from '../state/referendum';
+import { ArrowLeftIcon } from '../components/icon/FarmBoost';
 import {
   LeftArrowVE,
   RightArrowVE,
@@ -65,7 +65,7 @@ import {
 } from '../components/icon/Referendum';
 
 import moment, { duration } from 'moment';
-import { CheckedTick, ErrorTriangle, TipTriangle } from '~components/icon';
+import { CheckedTick, ErrorTriangle, TipTriangle } from '../components/icon';
 import { UnCheckedBoxVE } from '../components/icon/CheckBox';
 import {
   toReadableNumber,

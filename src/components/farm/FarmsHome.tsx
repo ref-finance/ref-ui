@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useContext, useMemo } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import SelectUi from '~components/farm/SelectUi';
+import SelectUi from '../../components/farm/SelectUi';
 import {
   CalcIcon,
   UpArrowIcon,
@@ -25,23 +25,23 @@ import {
   WarningIcon,
   LightningBase64,
   LightningBase64Grey,
-} from '~components/icon/FarmBoost';
+} from '../../components/icon/FarmBoost';
 import {
   GradientButton,
   ButtonTextWrapper,
   GreenConnectToNearBtn,
   BlacklightConnectToNearBtn,
-} from '~components/button/Button';
+} from '../../components/button/Button';
 import {
   Checkbox,
   CheckboxSelected,
   NoDataIcon,
   ArrowDown,
   SortIcon,
-} from '~components/icon';
-import QuestionMark from '~components/farm/QuestionMark';
+} from '../../components/icon';
+import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import CalcModelBooster from '~components/farm/CalcModelBooster';
+import CalcModelBooster from '../../components/farm/CalcModelBooster';
 import {
   classificationOfCoins_key,
   farmClassification,
@@ -62,8 +62,8 @@ import {
   getBoostSeeds,
   useMigrate_user_data,
   getVeSeedShare,
-} from '~services/farm';
-import { getLoveAmount } from '~services/referendum';
+} from '../../services/farm';
+import { getLoveAmount } from '../../services/referendum';
 import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import getConfig from '../../services/config';
 import { PoolRPCView } from '../../services/api';
@@ -81,15 +81,15 @@ import {
 } from '../../utils/numbers';
 import { ftGetTokenMetadata } from '../../services/ft-contract';
 import { BigNumber } from 'bignumber.js';
-import { useTokens } from '~state/token';
-import { toRealSymbol } from '~utils/token';
-import { isMobile } from '~utils/device';
+import { useTokens } from '../../state/token';
+import { toRealSymbol } from '../../utils/token';
+import { isMobile } from '../../utils/device';
 import moment from 'moment';
 import { useHistory, useLocation } from 'react-router-dom';
-import Alert from '~components/alert/Alert';
-import Loading, { BeatLoading } from '~components/layout/Loading';
+import Alert from '../../components/alert/Alert';
+import Loading, { BeatLoading } from '../../components/layout/Loading';
 import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
-import { get24hVolume, getPoolsByIds } from '~services/indexer';
+import { get24hVolume, getPoolsByIds } from '../../services/indexer';
 import {
   getURLInfo,
   usnBuyAndSellToast,
@@ -97,7 +97,7 @@ import {
 } from '../layout/transactionTipPopUp';
 import { checkTransaction } from '../../services/stable-swap';
 import Modal from 'react-modal';
-import { ModalClose } from '~components/icon';
+import { ModalClose } from '../../components/icon';
 import {
   LockPopUp,
   getVEPoolId,
