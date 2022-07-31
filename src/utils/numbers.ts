@@ -9,7 +9,7 @@ import { EstimateSwapView } from '../services/swap';
 import Big from 'big.js';
 import _, { sortBy } from 'lodash';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 
 const BPS_CONVERSION = 10000;
 

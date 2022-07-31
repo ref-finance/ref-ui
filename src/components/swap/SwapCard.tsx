@@ -34,7 +34,7 @@ import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
-import db from '~store/RefDatabase';
+import db from '../../store/RefDatabase';
 import {
   ButtonTextWrapper,
   GradientButton,
@@ -62,9 +62,9 @@ import SwapTip from '../../components/forms/SwapTip';
 import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
-import { Card } from '~components/card/Card';
-import { isMobile, useMobile } from '~utils/device';
-import { ModalClose } from '~components/icon';
+import { Card } from '../../components/card/Card';
+import { isMobile, useMobile } from '../../utils/device';
+import { ModalClose } from '../../components/icon';
 import BigNumber from 'bignumber.js';
 import {
   AutoRouterText,
@@ -83,7 +83,7 @@ import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import { isStableToken, STABLE_TOKEN_USN_IDS } from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
-import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';

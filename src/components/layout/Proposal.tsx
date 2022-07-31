@@ -9,14 +9,14 @@ import React, {
   useState,
 } from 'react';
 import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
-import { NewGradientButton } from '~components/button/Button';
+import { NewGradientButton } from '../button/Button';
 import {
   cancelVote,
   claimRewardVE,
   getProposalList,
-} from '~services/referendum';
+} from '../../services/referendum';
 
-import { scientificNotationToString, toPrecision } from '~utils/numbers';
+import { scientificNotationToString, toPrecision } from '../../utils/numbers';
 import { Card } from '../card/Card';
 import {
   useVEmeta,
@@ -68,8 +68,8 @@ import { PieChart, Pie, Cell, Sector, ResponsiveContainer } from 'recharts';
 import { toRealSymbol } from '../../utils/token';
 import _, { before, conformsTo, pad } from 'lodash';
 import { CustomSwitch } from '../forms/SlippageSelector';
-import { ArrowDownLarge, Radio } from '~components/icon';
-import { FilterIcon } from '~components/icon/PoolFilter';
+import { ArrowDownLarge, Radio } from '../../components/icon';
+import { FilterIcon } from '../icon/PoolFilter';
 import {
   LOVE_TOKEN_DECIMAL,
   VEMETA,
@@ -101,7 +101,7 @@ import {
   useWhitelistTokens,
   useTokenBalances,
 } from '../../state/token';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { useDepositableBalance, useTokens } from '../../state/token';
 import { REF_TOKEN_ID, near, wallet } from '../../services/near';
 import { NewFarmInputAmount } from '../forms/InputAmount';

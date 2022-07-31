@@ -68,7 +68,7 @@ import { getTokenPriceList } from '../../services/indexer';
 import { TokenCardOut, CrossSwapTokens } from '../forms/TokenAmount';
 import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
 import { TriIcon, RefIcon, WannaIconDark } from '../icon/DexIcon';
-import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { unWrapTokenId, wrapTokenId } from './SwapCard';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';

@@ -14,7 +14,7 @@ import { toInternationalCurrencySystem } from '../../utils/numbers';
 import SelectToken, { StableSelectToken } from './SelectToken';
 import { toPrecision, multiply, ONLY_ZEROS } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
-import { SmallWallet } from '~components/icon/SmallWallet';
+import { SmallWallet } from '../../components/icon/SmallWallet';
 import { RefIcon } from '../../components/icon/Common';
 import { currentTokensPrice } from '../../services/api';
 import { IconLeft } from '../tokens/Icon';
@@ -23,7 +23,7 @@ import { ArrowDownGreen, ArrowDownWhite } from '../icon/Arrows';
 import { percentLess } from '../../utils/numbers';
 import { isMobile } from '../../utils/device';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 
 interface TokenAmountProps {
   amount?: string;
