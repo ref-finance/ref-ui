@@ -88,6 +88,9 @@ export const useBatchTotalShares = (
   ids: (string | number)[],
   finalStakeList: Record<string, string>
 ) => {
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+
   const [batchShares, setBatchShares] = useState<string[]>();
 
   const [batchFarmStake, setBatchFarmStake] = useState<(string | number)[]>();
@@ -111,7 +114,7 @@ export const useBatchTotalShares = (
   };
 
   useEffect(() => {
-    if (!ids || !finalStakeList) return undefined;
+    if (!ids || !finalStakeList || !isSignedIn) return undefined;
 
     Promise.all(ids.map((id) => getSharesInPool(Number(id)))).then(
       setBatchShares
@@ -120,7 +123,7 @@ export const useBatchTotalShares = (
     Promise.all(ids.map((id) => getFarmStake(Number(id)))).then(
       setBatchFarmStake
     );
-  }, [ids?.join('-'), finalStakeList]);
+  }, [ids?.join('-'), finalStakeList, isSignedIn]);
 
   return (
     ids?.map((id, index) => {
