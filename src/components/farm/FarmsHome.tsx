@@ -1009,7 +1009,9 @@ export default function FarmsHome(props: any) {
         className="relative flex items-center justify-center mb-5 xs:mb-3 md:mb-3 xs:flex-col md:flex-col xs:bg-cardBg md:bg-cardBg xs:overflow-hidden md:overflow-hidden"
         style={{
           height: isMobileSite ? '' : '230px',
-          backgroundColor: isMobileSite ? '' : '#04131f',
+          backgroundImage: isMobileSite
+            ? ''
+            : 'linear-gradient(180deg, #001320 0%, #0C2427 100%)',
         }}
       >
         {showMigrateEntry ? (
