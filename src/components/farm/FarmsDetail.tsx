@@ -120,7 +120,7 @@ export default function FarmsDetail(props: {
   const { token_account_ids } = pool;
   const tokens = useTokens(token_account_ids) || [];
   const goBacktoFarms = () => {
-    history.replace('/farmsBoost');
+    history.replace('/v2farms');
     emptyDetailData();
   };
   const displaySymbols = () => {

@@ -1603,7 +1603,7 @@ const FarmBoosterCard = ({
             : '',
         }}
         onClick={() => {
-          window.open('/farmsBoost', '_blank');
+          window.open('/v2farms', '_blank');
         }}
       >
         <span>
@@ -1658,7 +1658,7 @@ export const FarmStakeTip = ({
           onClick={() => {
             if (version === 1) {
               window.open('farms', '_blank');
-            } else window.open(`/farmsBoost/${getVEPoolId()}-r`, '_blank');
+            } else window.open(`/v2farms/${getVEPoolId()}-r`, '_blank');
           }}
         >
           <FormattedMessage id="farm" defaultMessage={'farm'} /> {`V${version}`}
@@ -1692,7 +1692,7 @@ export const FarmStakeTipHomePage = ({
           onClick={() => {
             if (version === 1) {
               window.open('farms', '_blank');
-            } else window.open(`/farmsBoost/${getVEPoolId()}-r`, '_blank');
+            } else window.open(`/v2farms/${getVEPoolId()}-r`, '_blank');
           }}
         >
           <span className="underline mr-1 ">

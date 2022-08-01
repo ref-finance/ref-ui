@@ -681,7 +681,7 @@ function PoolRow(props: {
           {supportFarmV2 > 0 && (
             <Link
               to={{
-                pathname: `/farmsBoost/${pool.id}-${
+                pathname: `/v2farms/${pool.id}-${
                   props.onlyEndedFarmV2 ? 'e' : 'r'
                 }`,
               }}
@@ -934,7 +934,7 @@ function PoolRow(props: {
               {supportFarmV2 > 0 && (
                 <Link
                   to={{
-                    pathname: `/farmsBoost/${pool.id}-${
+                    pathname: `/v2farms/${pool.id}-${
                       props.onlyEndedFarmV2 ? 'e' : 'r'
                     }`,
                   }}
