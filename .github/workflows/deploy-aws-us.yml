@@ -3,11 +3,11 @@ name: deploy-aws-us
 on:
   push:
     branches: [ main ]
-  pull_request:
-    types:
-      closed
-    branches: 
-      - 'main'
+#  pull_request:
+#    types:
+#      closed
+#    branches: 
+#      - 'main'
 
 jobs:
   build:
