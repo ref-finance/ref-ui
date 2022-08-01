@@ -2580,7 +2580,7 @@ function FarmView(props: {
       return null;
     } else {
       return (
-        <div>
+        <div style={{ width: '85px' }}>
           {countdown.days ? countdown.days + 'd: ' : ''}
           {zeroPad(countdown.hours)}
           {'h'}: {zeroPad(countdown.minutes)}
@@ -2635,7 +2635,7 @@ function FarmView(props: {
         {getBoostMutil()}
         <div className="boxInfo">
           <div className="relative flex flex-col items-center  px-5 rounded-t-2xl overflow-hidden bg-boostUpBoxBg">
-            <div className="flex items-center cursor-pointer text-white font-bold text-xl mt-8">
+            <div className="flex items-center cursor-pointer text-white font-bold text-xl mt-12">
               {/* link for looking into */}
               <a href={`javascript:void(${'/pool/' + pool.id})`}>
                 {tokens.map((token, index) => {
