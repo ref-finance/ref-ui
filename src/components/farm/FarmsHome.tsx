@@ -2581,10 +2581,11 @@ function FarmView(props: {
     } else {
       return (
         <div>
-          {countdown.days}
-          {'d'}:{zeroPad(countdown.hours)}
-          {'h'}:{zeroPad(countdown.minutes)}
+          {countdown.days ? countdown.days + 'd: ' : ''}
+          {zeroPad(countdown.hours)}
+          {'h'}: {zeroPad(countdown.minutes)}
           {'m'}
+          {countdown.days ? '' : ': ' + zeroPad(countdown.seconds) + 's'}
         </div>
       );
     }
