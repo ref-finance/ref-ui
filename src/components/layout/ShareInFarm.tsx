@@ -136,7 +136,7 @@ export const ShareInFarmV2 = ({
         <Link
           to={
             poolId
-              ? `/farmsBoost/${poolId}-${onlyEndedFarm ? 'e' : 'r'}`
+              ? `/v2farms/${poolId}-${onlyEndedFarm ? 'e' : 'r'}`
               : '/farms'
           }
           target="_blank"

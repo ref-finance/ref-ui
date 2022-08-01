@@ -737,7 +737,7 @@ export function FarmsPage() {
               </span>
               <span
                 onClick={() => {
-                  history.push('/farmsBoost');
+                  history.push('/v2farms');
                 }}
                 className="flex items-center justify-center rounded-2xl text-sm  text-farmText cursor-pointer px-3 h-full"
               >

@@ -1066,11 +1066,7 @@ function NavigationBar() {
               ) : (
                 <Anchor to="/pools" pattern="/pools" name="POOL" />
               )}
-              <Anchor
-                to="/farmsBoost"
-                pattern="/farmsBoost"
-                name="farm_capital"
-              />
+              <Anchor to="/v2farms" pattern="/v2farms" name="farm_capital" />
               <Xref></Xref>
               {!!getConfig().REF_VE_CONTRACT_ID ? (
                 <Anchor

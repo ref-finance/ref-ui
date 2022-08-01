@@ -71,7 +71,7 @@ export default function PopUpSwiper() {
                 {/*  <FarmsMigrateBg
                   className="cursor-pointer"
                   onClick={() => {
-                    window.open('/farmsBoost');
+                    window.open('/v2farms');
                   }}
                 ></FarmsMigrateBg> */}
                 <div

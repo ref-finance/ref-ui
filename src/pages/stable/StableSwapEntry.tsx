@@ -230,7 +230,7 @@ function StablePoolCard({
           <Link
             to={
               countV2
-                ? `/farmsBoost/${stablePool.id}-${onlyEndedFarmsV2 ? 'e' : 'r'}`
+                ? `/v2farms/${stablePool.id}-${onlyEndedFarmsV2 ? 'e' : 'r'}`
                 : '/farms'
             }
             target={'_blank'}
@@ -314,7 +314,7 @@ function StablePoolCard({
                   )}
                   {countV2 > 0 && (
                     <Link
-                      to={`/farmsBoost/${stablePool.id}-${
+                      to={`/v2farms/${stablePool.id}-${
                         onlyEndedFarmsV2 ? 'e' : 'r'
                       }`}
                       target="_blank"
