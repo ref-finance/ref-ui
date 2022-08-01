@@ -6,7 +6,10 @@ import {
   CloseRadiusIcon,
 } from '~components/icon/Common';
 import { getListHistoryTokenPriceByIds } from '~services/indexer';
-import { useWhitelistTokens } from '../../state/token';
+import {
+  useWhitelistTokens,
+  useGlobalWhitelistTokens,
+} from '../../state/token';
 import anime from 'animejs';
 import { TokenMetadata } from '~services/ft-contract';
 import { useLocation } from 'react-router-dom';
@@ -22,7 +25,7 @@ export default function Marquee() {
   const [animationObj, setAnimationObj] = useState(null);
   const location = useLocation();
   const COMMON_BASSES = [
-    'wNEAR',
+    'NEAR',
     'REF',
     'SKYWARD',
     'OCT',
@@ -43,9 +46,10 @@ export default function Marquee() {
     }
     setShowMarquee(!showMarquee);
   };
-  const allTokens = useWhitelistTokens() || [];
+  // const allTokens = useWhitelistTokens() || [];
+  const allTokens = useGlobalWhitelistTokens() || [];
   useEffect(() => {
-    if (tokenHistoryList.length > 0) {
+    if (tokenHistoryList.length > 0 && !animationObj) {
       const length = (tokenHistoryList.length / 2) * 220;
       const xTrans: any = [];
       anime.set('.box', {
@@ -172,7 +176,7 @@ export default function Marquee() {
                       {}
                       {Number(item.float_ratio) >= 0 ? (
                         <span
-                          className={`flex items-center text-xs text-lightGreenColor ${
+                          className={`flex items-center text-xs text-lightGreenColor_p ${
                             Number(item.float_ratio) == 1 ? 'hidden' : ''
                           }`}
                         >

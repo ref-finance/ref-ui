@@ -22,6 +22,7 @@ import {
   getUserRegisteredTokens,
   TokenBalancesView,
   getWhitelistedTokensAndNearTokens,
+  getGlobalWhitelist,
 } from '../services/token';
 import {
   toPrecision,
@@ -30,7 +31,7 @@ import {
 } from '../utils/numbers';
 import { toRealSymbol } from '../utils/token';
 import getConfig from '../services/config';
-import { nearMetadata } from '../services/wrap-near';
+import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { Pool } from '../services/pool';
 import {
   getBatchTokenNearAcounts,
@@ -38,6 +39,7 @@ import {
 } from '../services/aurora/aurora';
 import { AllStableTokenIds } from '../services/near';
 import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
+import { getTokenPriceList } from '../services/indexer';
 import {
   WalletContext,
   getCurrentWallet,
@@ -97,6 +99,7 @@ export const useTokens = (ids: string[] = [], curTokens?: TokenMetadata[]) => {
 
   return tokens;
 };
+
 export const useTriTokens = () => {
   const [triTokens, setTriTokens] = useState<TokenMetadata[]>();
   const auroraTokens = defaultTokenList.tokens;
@@ -169,6 +172,21 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
 
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };
+export const useGlobalWhitelistTokens = (extraTokenIds: string[] = []) => {
+  const [tokens, setTokens] = useState<TokenMetadata[]>();
+  useEffect(() => {
+    getGlobalWhitelist()
+      .then((tokenIds) => {
+        const allTokenIds = [...new Set([...tokenIds, ...extraTokenIds])];
+        return Promise.all(
+          allTokenIds.map((tokenId) => ftGetTokenMetadata(tokenId))
+        );
+      })
+      .then(setTokens);
+  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
+
+  return tokens?.map((t) => ({ ...t, onRef: true }));
+};
 
 export const useBTCTokens = () => {
   const [tokens, setTokens] = useState<TokenMetadata[]>();
@@ -224,7 +242,7 @@ export const useUserRegisteredTokensAllAndNearBalance = (
           })
         );
         const tokenMetadataPromise = Promise.all(
-          tokenList.map((tokenId) => ftGetTokenMetadata(tokenId))
+          tokenList.map((tokenId) => ftGetTokenMetadata(tokenId, true))
         );
         return Promise.all([tokenMetadataPromise, walletBalancePromise]);
       })
@@ -261,16 +279,21 @@ export const useTokenBalances = () => {
 export const useWalletTokenBalances = (tokenIds: string[] = []) => {
   const [balances, setBalances] = useState<TokenBalancesView>();
 
+  const near = useDepositableBalance('NEAR');
+
   useEffect(() => {
     Promise.all<string>(tokenIds.map((id) => ftGetBalance(id))).then((res) => {
       let balances = {};
       res.map((item, index) => {
         const tokenId: string = tokenIds[index];
         balances[tokenId] = item;
+        if (tokenId === WRAP_NEAR_CONTRACT_ID) {
+          balances[tokenId] = near;
+        }
       });
       setBalances(balances);
     });
-  }, [tokenIds.join('')]);
+  }, [tokenIds.join(''), near]);
 
   return balances;
 };
@@ -303,6 +326,15 @@ export const getDepositableBalance = async (
   }
 };
 
+export const useTokenPriceList = () => {
+  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    getTokenPriceList().then(setTokenPriceList);
+  }, []);
+  return tokenPriceList;
+};
+
 export const useTokensData = (
   tokens: TokenMetadata[],
   balances?: TokenBalancesView
@@ -331,7 +363,10 @@ export const useTokensData = (
       for (let i = 0; i < tokens.length; i++) {
         const index = i;
         const item = tokens[index];
-        getDepositableBalance(item.id, item.decimals)
+        getDepositableBalance(
+          item.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : item.id,
+          item.decimals
+        )
           .then((max: string) => {
             if (currentFetchId !== fetchIdRef.current) {
               throw new Error();

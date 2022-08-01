@@ -105,7 +105,7 @@ export const Icon = ({
   } else {
     return (
       <div
-        className={`w-${imgSize}  h-${imgSize} bg-cardBg  rounded-full border bg-cardBg border-gradientFromHover flex-shrink-0	`}
+        className={`w-${imgSize}  h-${imgSize}   rounded-full border bg-cardBg border-gradientFromHover flex-shrink-0	`}
       />
     );
   }

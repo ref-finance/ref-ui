@@ -11,6 +11,7 @@ import {
 import { toRealSymbol } from '../../utils/token';
 import { RefIcon } from '../../components/icon/Common';
 import { SmallWallet } from '../icon/SmallWallet';
+import { getMax } from '../../utils/numbers';
 
 export function Icon(props: {
   icon?: string;
@@ -78,7 +79,10 @@ export default function StableTokenListUSN(props: {
         </div>
         <InputAmount
           className="flex-grow border border-transparent rounded"
-          max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+          max={getMax(
+            tokens[0].id,
+            toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+          )}
           onChangeAmount={(e) => {
             changeFirstTokenAmount(e);
           }}
@@ -111,7 +115,10 @@ export default function StableTokenListUSN(props: {
           </div>
           <InputAmount
             className="flex-grow border border-transparent rounded"
-            max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+            max={getMax(
+              tokens[1].id,
+              toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+            )}
             onChangeAmount={changeSecondTokenAmount}
             value={secondTokenAmount}
           />

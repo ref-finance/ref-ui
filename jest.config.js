@@ -9,4 +9,7 @@ module.exports = {
   transformIgnorePatterns: [
     'node_modules[/\\\\](?!@aurora-is-near[/\\\\]engine[/\\\\])',
   ],
+  "moduleNameMapper": {
+    "\\.(css|less)$": "<rootDir>/src/__mocks__/styleMock.js"
+  }
 };

@@ -722,6 +722,18 @@ const viewMap = {
   'Sell USN': Swap,
   'Buy USN': Swap,
   'Aurora Call': Withdraw,
+  Unlock: RemoveLiquidity,
+  'Lock Free Seed': AddLiquidity,
+  'Lock LPt': AddLiquidity,
+  'Create Proposal': AddLiquidity,
+  'Extend Whitelisted Accounts': AddLiquidity,
+  'Claim Bonus': Withdraw,
+  'Action Proposal': AddLiquidity,
+  'Remove Proposal': RemoveLiquidity,
+  'Action Cancel': RemoveLiquidity,
+  'Unlock LPt': Withdraw,
+  'Withdraw Bonus': Withdraw,
+  'Deposit Bonus': Deposit,
 };
 
 const blackViewMap = {
@@ -749,6 +761,18 @@ const blackViewMap = {
   'Sell USN': SwapBlack,
   'Buy USN': SwapBlack,
   'Aurora Call': WithdrawBlack,
+  Unlock: RemoveLiquidityBlack,
+  'Lock Free Seed': AddLiquidityBlack,
+  'Lock LPt': AddLiquidityBlack,
+  'Create Proposal': AddLiquidityBlack,
+  'Extend Whitelisted Accounts': AddLiquidityBlack,
+  'Claim Bonus': WithdrawBlack,
+  'Action Proposal': AddLiquidityBlack,
+  'Remove Proposal': RemoveLiquidityBlack,
+  'Action Cancel': RemoveLiquidityBlack,
+  'Unlock LPt': WithdrawBlack,
+  'Withdraw Bonus': WithdrawBlack,
+  'Deposit Bonus': DepositBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

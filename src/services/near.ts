@@ -17,6 +17,8 @@ export const REF_ADBOARD_CONTRACT_ID = config.REF_ADBOARD_CONTRACT_ID;
 
 export const POOL_TOKEN_REFRESH_INTERVAL = config.POOL_TOKEN_REFRESH_INTERVAL;
 
+export const REF_VE_CONTRACT_ID = config.REF_VE_CONTRACT_ID;
+
 export const STABLE_TOKEN_IDS = config.STABLE_TOKEN_IDS;
 
 export const STABLE_POOL_ID = config.STABLE_POOL_ID;
@@ -24,6 +26,8 @@ export const STABLE_POOL_ID = config.STABLE_POOL_ID;
 export const STABLE_POOL_USN_ID = config.STABLE_POOL_USN_ID;
 
 export const STABLE_TOKEN_USN_IDS = config.STABLE_TOKEN_USN_IDS;
+
+export const REF_FARM_BOOST_CONTRACT_ID = config.REF_FARM_BOOST_CONTRACT_ID;
 
 export const isStableToken = (id: string) => {
   return (
@@ -187,6 +191,13 @@ export const refFiViewFunction = ({
   return wallet.account().viewFunction(REF_FI_CONTRACT_ID, methodName, args);
 };
 
+export const refVeViewFunction = ({
+  methodName,
+  args,
+}: RefFiViewFunctionOptions) => {
+  return wallet.account().viewFunction(REF_VE_CONTRACT_ID, methodName, args);
+};
+
 export const refFiManyFunctionCalls = (
   functionCalls: RefFiFunctionCallOptions[]
 ) => {
@@ -316,4 +327,13 @@ export const refContractViewFunction = ({
   args,
 }: RefContractViewFunctionOptions) => {
   return wallet.account().viewFunction(XREF_TOKEN_ID, methodName, args);
+};
+
+export const refFarmBoostViewFunction = ({
+  methodName,
+  args,
+}: RefFiViewFunctionOptions) => {
+  return wallet
+    .account()
+    .viewFunction(REF_FARM_BOOST_CONTRACT_ID, methodName, args);
 };

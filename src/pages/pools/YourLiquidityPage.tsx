@@ -22,8 +22,10 @@ import {
   toPrecision,
   toInternationalCurrencySystem,
   calculateFairShare,
+  toReadableNumber,
+  ONLY_ZEROS,
 } from '~utils/numbers';
-import { usePool } from '~state/pool';
+import { usePool, usePools } from '~state/pool';
 import {
   RemoveLiquidityModal,
   AddLiquidityModal,
@@ -39,33 +41,71 @@ import { LP_TOKEN_DECIMALS } from '~services/m-token';
 import { canFarm, Pool } from '~services/pool';
 import { ftGetTokensMetadata, TokenMetadata } from '~services/ft-contract';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
-import { usePoolTVL } from '../../state/pool';
-import { multiply, divide } from '../../utils/numbers';
-import { STABLE_POOL_USN_ID, isStablePool } from '../../services/near';
+import {
+  usePoolTVL,
+  useYourliquidity,
+  useAllStablePools,
+} from '../../state/pool';
+import {
+  multiply,
+  divide,
+  scientificNotationToString,
+} from '../../utils/numbers';
+import {
+  STABLE_POOL_USN_ID,
+  isStablePool,
+  ALL_STABLE_POOL_IDS,
+} from '../../services/near';
 import { STABLE_POOL_ID } from '../../services/near';
-import { isNotStablePool } from '../../services/pool';
+import {
+  isNotStablePool,
+  getFarmsCount,
+  getEndedFarmsCount,
+} from '../../services/pool';
 import { WalletContext, getSenderLoginRes } from '../../utils/sender-wallet';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
+import { useFarmStake, useAllFarms, useCanFarmV2 } from '../../state/farm';
+
+import { PoolTab } from '~components/pool/PoolTab';
+
 import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
+import { getVEPoolId } from '../ReferendumPage';
+import { useAccountInfo } from '~state/referendum';
+import { VEARROW } from '../../components/icon/Referendum';
+import { toNonDivisibleNumber } from '../../utils/numbers';
+import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
+import getConfig from '../../services/config';
+import { useStakeListByAccountId, useBatchTotalShares } from '../../state/pool';
+import { getPoolsByIds } from '../../services/indexer';
+import { parsePool } from '../../services/pool';
+import { usePoolShareRaw } from '../../state/pool';
+import { createContext } from 'react';
+import { useClientMobile, isClientMobie } from '../../utils/device';
+
+const StakeListContext = createContext(null);
 
 function MyShares({
   shares,
   totalShares,
   poolId,
-  stakeList = {},
   decimal,
-  supportFarm,
-  farmStake = '0',
+  supportFarmV1,
+  supportFarmV2,
+  farmStakeV1 = '0',
+  farmStakeV2 = '0',
   userTotalShare,
+  onlyEndedFarmV2,
 }: {
   shares: string;
   totalShares: string;
   poolId?: number;
-  stakeList?: Record<string, string>;
   decimal?: number;
-  supportFarm: Number;
-  farmStake: string | number;
+  supportFarmV1: Number;
+  supportFarmV2: Number;
+  farmStakeV1: string | number;
+  farmStakeV2: string | number;
+  onlyEndedFarmV2: boolean;
   userTotalShare: BigNumber;
 }) {
   if (!shares || !totalShares) return <div>-</div>;
@@ -81,36 +121,22 @@ function MyShares({
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
   return (
-    <div className="h-12 inline-flex flex-col justify-center xs:text-right md:text-right">
-      <div className="pl-2 pb-1 xs:pr-0 md:pr-0 text-sm whitespace-nowrap">{`${toRoundedReadableNumber(
-        {
-          decimals: isStablePool(poolId)
-            ? getStablePoolDecimal(poolId)
-            : LP_TOKEN_DECIMALS,
-          number: userTotalShare
-            .toNumber()
-            .toLocaleString('fullwide', { useGrouping: false }),
-          precision: decimal || 6,
-        }
-      )} (${displayPercent}%)`}</div>
-      {supportFarm > 0 && (
-        <object>
-          <Link
-            to={{
-              pathname: '/farms',
-            }}
-            target="_blank"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            <ShareInFarm
-              farmStake={farmStake}
-              userTotalShare={userTotalShare}
-            />
-          </Link>
-        </object>
-      )}
+    <div className=" inline-flex flex-col justify-center xs:text-right md:text-right">
+      <div className="pl-2 xs:pr-0 md:pr-0 flex flex-col xs:flex-row md:flex-row text-sm whitespace-nowrap">
+        <span>
+          {`${toRoundedReadableNumber({
+            decimals: isStablePool(poolId)
+              ? getStablePoolDecimal(poolId)
+              : LP_TOKEN_DECIMALS,
+            number: userTotalShare
+              .toNumber()
+              .toLocaleString('fullwide', { useGrouping: false }),
+            precision: decimal || 6,
+          })} `}
+        </span>
+
+        <span className="md:ml-1 xs:ml-1">{`(${displayPercent}%)`}</span>
+      </div>
     </div>
   );
 }
@@ -146,6 +172,8 @@ export function YourLiquidityPage() {
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
 
+  const { v1Farm, v2Farm } = useAllFarms();
+
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const senderLoginRes = getSenderLoginRes();
@@ -156,7 +184,31 @@ export function YourLiquidityPage() {
     return null;
   }
 
+  const [stablePools, setStablePools] = useState<PoolRPCView[]>();
+
+  const [tvls, setTvls] = useState<Record<string, number>>();
+
+  const isClientMobile = useClientMobile();
+
+  const { finalStakeList, stakeList, v2StakeList } = useStakeListByAccountId();
+
+  const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
+    ? useAccountInfo()
+    : { lptAmount: '0' };
+
+  const batchTotalShares = useBatchTotalShares(
+    stablePools?.map((p) => p.id),
+    finalStakeList
+  );
+
   const [tokensMeta, setTokensMeta] = useState<{}>();
+
+  useEffect(() => {
+    const ids = ALL_STABLE_POOL_IDS;
+    getPoolsByIds({ pool_ids: ids }).then((res) => {
+      setStablePools(res);
+    });
+  }, []);
 
   useEffect(() => {
     if (!pools) return;
@@ -166,139 +218,257 @@ export function YourLiquidityPage() {
         AllStableTokenIds
       )
     ).then(setTokensMeta);
+
+    getPoolsByIds({ pool_ids: pools.map((p) => p.id.toString()) }).then(
+      (res) => {
+        setTvls(
+          res
+            .map((p) => p.tvl)
+            .reduce((pre, cur, i) => {
+              return {
+                ...pre,
+                [res[i].id]: cur,
+              };
+            }, {})
+        );
+      }
+    );
   }, [pools]);
 
   useEffect(() => {
-    if (isSignedIn) {
-      getYourPools().then((res) => {
-        setPools(res);
-      });
-    }
+    if (!isSignedIn) return;
+
+    getYourPools().then((res) => {
+      setPools(res.filter((p) => !isStablePool(p.id.toString())));
+    });
   }, [isSignedIn]);
 
-  if (!pools || !tokensMeta) return <Loading />;
+  if (!pools || !tokensMeta || !v1Farm || !v2Farm) return <Loading />;
 
-  const poolSortingFunc = (p1: PoolRPCView, p2: PoolRPCView) => {
-    if (isStablePool(p1.id.toString())) return -1;
-    else if (isStablePool(p2.id.toString())) return 1;
+  const RowRender = ({ p, ids }: { p: PoolRPCView; ids: string[] }) => {
+    const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
 
-    return 0;
+    const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
+
+    const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
+    return (
+      <div
+        className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
+        key={Number(p.id)}
+      >
+        <StakeListContext.Provider
+          value={{
+            stakeList,
+            finalStakeList,
+            v2StakeList,
+          }}
+        >
+          <PoolRow
+            tvl={tvls?.[p.id.toString()]}
+            pool={p}
+            tokens={ids.map((id) => tokensMeta[id]) || []}
+            supportFarmV1={supportFarmV1}
+            supportFarmV2={supportFarmV2}
+            onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
+            lptAmount={lptAmount}
+          />
+        </StakeListContext.Provider>
+      </div>
+    );
+  };
+  const RowRenderMobile = ({ p, ids }: { p: PoolRPCView; ids: string[] }) => {
+    const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
+
+    const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
+
+    const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
+    return (
+      <StakeListContext.Provider
+        value={{
+          stakeList,
+          finalStakeList,
+          v2StakeList,
+        }}
+      >
+        <PoolRow
+          pool={p}
+          tvl={tvls?.[p.id.toString()]}
+          tokens={ids.map((id) => tokensMeta[id]) || []}
+          supportFarmV1={supportFarmV1}
+          supportFarmV2={supportFarmV2}
+          onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
+          lptAmount={lptAmount}
+        />
+      </StakeListContext.Provider>
+    );
   };
 
+  const vePool = pools.find((p) => Number(p.id) === Number(getVEPoolId()));
+
   return (
-    <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
-      <div className="w-full flex justify-center self-center">
-        {error && <Alert level="warn" message={error.message} />}
-      </div>
-      {/* PC */}
-      <Card width="w-full" padding="px-0 py-6" className="xs:hidden md:hidden">
-        <div className="text-white text-xl pr-6 pl-6 lg:pl-10 pb-6">
+    <>
+      <PoolTab></PoolTab>
+      <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
+        <div className="w-full flex justify-center self-center">
+          {error && <Alert level="warn" message={error.message} />}
+        </div>
+        {/* PC */}
+
+        <Card
+          width="w-full"
+          padding="px-0 py-6"
+          className="xs:hidden md:hidden"
+        >
+          <div className="text-white text-xl pr-6 pl-6 lg:pl-10 pb-6">
+            <FormattedMessage
+              id="your_liquidity"
+              defaultMessage="Your Liquidity"
+            />
+          </div>
+          {(pools.length > 0 || batchTotalShares?.some((s) => s > 0)) &&
+          !isClientMobile ? (
+            <section>
+              <div className="">
+                <div
+                  style={{
+                    gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
+                  }}
+                  className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:px-8
+                xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
+                >
+                  <div className="col-span-2">
+                    <FormattedMessage id="pair" defaultMessage="Pair" />
+                  </div>
+                  <div className="col-span-2 ">
+                    <FormattedMessage id="token" defaultMessage="Token" />
+                  </div>
+
+                  <div className="flex flex-col col-span-5 text-left ml-8">
+                    <span>
+                      <FormattedMessage id="lp_token"></FormattedMessage>
+                    </span>
+                    <span>
+                      (
+                      <FormattedMessage
+                        id="my_shares"
+                        defaultMessage="Shares"
+                      />
+                      )
+                    </span>
+                  </div>
+                  <div className="col-span-4 xl:ml-8 ml-4">
+                    <FormattedMessage id="value" defaultMessage="Value" />
+                  </div>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {!vePool || !getConfig().REF_VE_CONTRACT_ID
+                    ? null
+                    : [vePool].map((p) => {
+                        return <RowRender p={p} ids={p.token_account_ids} />;
+                      })}
+
+                  {batchTotalShares &&
+                    batchTotalShares?.some((s) => s > 0) &&
+                    stablePools?.map((p) => {
+                      return <RowRender p={p} ids={p.token_account_ids} />;
+                    })}
+
+                  {pools
+                    .filter(
+                      (p) =>
+                        !getConfig().REF_VE_CONTRACT_ID ||
+                        !vePool ||
+                        p.id !== vePool.id
+                    )
+                    .map((p, i) => {
+                      return <RowRender p={p} ids={p.token_account_ids} />;
+                    })}
+                </div>
+              </div>
+            </section>
+          ) : (
+            <Empty />
+          )}
+        </Card>
+        {/* Mobile */}
+        <div className="text-white text-2xl font-semibold px-4 lg:hidden">
           <FormattedMessage
             id="your_liquidity"
             defaultMessage="Your Liquidity"
           />
         </div>
-        {pools.length > 0 ? (
-          <section>
-            <div className="">
-              <div
-                style={{
-                  gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
-                }}
-                className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:pl-10
-                xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
-              >
-                <div className="col-span-2">
-                  <FormattedMessage id="pair" defaultMessage="Pair" />
-                </div>
-                <div className="col-span-2 ">
-                  <FormattedMessage id="token" defaultMessage="Token" />
-                </div>
+        {(pools.length > 0 || batchTotalShares?.some((s) => s > 0)) &&
+        isClientMobile ? (
+          <div className="lg:hidden">
+            {!vePool || !getConfig().REF_VE_CONTRACT_ID
+              ? null
+              : [vePool].map((p) => {
+                  return <RowRenderMobile p={p} ids={p.token_account_ids} />;
+                })}
 
-                <div className="col-span-3 text-left ml-8 xl:ml-14">
-                  <FormattedMessage id="my_shares" defaultMessage="Shares" />
-                </div>
-                <div className="col-span-6 xl:ml-8 ml-4">
-                  <FormattedMessage id="value" defaultMessage="Value" />
-                </div>
-              </div>
-              <div className="max-h-96 overflow-y-auto">
-                {pools.sort(poolSortingFunc).map((pool, i) => (
-                  <div
-                    key={i}
-                    className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
-                  >
-                    <PoolRow
-                      pool={pool}
-                      tokens={
-                        pool.token_account_ids.map((id) => tokensMeta[id]) || []
-                      }
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+            {batchTotalShares &&
+              batchTotalShares?.some((s) => s > 0) &&
+              stablePools?.map((p) => {
+                return <RowRenderMobile p={p} ids={p.token_account_ids} />;
+              })}
+
+            {pools
+              .filter(
+                (p) =>
+                  !getConfig().REF_VE_CONTRACT_ID ||
+                  !vePool ||
+                  p.id !== vePool.id
+              )
+              .map((p, i) => {
+                return <RowRenderMobile p={p} ids={p.token_account_ids} />;
+              })}
+          </div>
         ) : (
-          <Empty />
+          <Card className="lg:hidden mt-4" width="w-full">
+            <Empty />
+          </Card>
         )}
-      </Card>
-      {/* Mobile */}
-      <div className="text-white text-2xl font-semibold px-4 lg:hidden">
-        <FormattedMessage id="your_liquidity" defaultMessage="Your Liquidity" />
       </div>
-      {pools.length > 0 ? (
-        <div className="lg:hidden">
-          {pools.sort(poolSortingFunc).map((pool, i) => {
-            return (
-              <PoolRow
-                pool={pool}
-                key={i}
-                tokens={pool.token_account_ids.map((id) => tokensMeta[id])}
-              />
-            );
-          })}
-        </div>
-      ) : (
-        <Card className="lg:hidden mt-4" width="w-full">
-          <Empty />
-        </Card>
-      )}
-    </div>
+    </>
   );
 }
 
-function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
+function PoolRow(props: {
+  pool: PoolRPCView;
+  tokens: TokenMetadata[];
+  supportFarmV1: number;
+  supportFarmV2: number;
+  onlyEndedFarmV2: boolean;
+  lptAmount?: string;
+  tvl: number;
+}) {
+  const { pool: poolRPC } = props;
+
+  const pool = parsePool(poolRPC);
+
+  const poolId = pool.id;
+
   const tokens = props.tokens;
-
-  const { pool, shares, stakeList } = usePool(props.pool.id);
-
-  const poolTVL = usePoolTVL(props.pool.id);
+  const lptAmount = props.lptAmount;
+  const poolTVL = pool.tvl || props.tvl;
 
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showFunding, setShowFunding] = useState(false);
-  const [supportFarm, setSupportFarm] = useState<Number>();
-  const [farmStake, setFarmStake] = useState<string | number>('0');
+  const supportFarmV1 = props.supportFarmV1;
+  const supportFarmV2 = props.supportFarmV2;
 
   const history = useHistory();
 
-  useEffect(() => {
-    canFarm(Number(props.pool.id), true).then(setSupportFarm);
-  }, [props.pool]);
+  const shares = usePoolShareRaw(pool.id);
 
-  useEffect(() => {
-    const seedIdList: string[] = Object.keys(stakeList);
-    let tempFarmStake: string | number = '0';
-    seedIdList.forEach((seed) => {
-      const id = Number(seed.split('@')[1]);
-      if (id == props.pool.id) {
-        tempFarmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
-      }
-    });
-    setFarmStake(tempFarmStake);
-  }, [stakeList]);
+  const { stakeList, v2StakeList, finalStakeList } =
+    useContext(StakeListContext);
 
-  const userTotalShare = BigNumber.sum(shares, farmStake);
+  const farmStakeV1 = useFarmStake({ poolId, stakeList });
+  const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
+  const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
+
+  const userTotalShare = BigNumber.sum(shares, farmStakeTotal);
 
   const userTotalShareToString = userTotalShare
     .toNumber()
@@ -310,8 +480,11 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
         return '-';
 
       const rawRes = multiply(
-        userTotalShareToString,
-        divide(poolTVL.toString(), pool.shareSupply)
+        new BigNumber(userTotalShareToString)
+          .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
+          .toNumber()
+          .toFixed(),
+        divide(poolTVL.toString(), pool?.shareSupply)
       );
       return `$${toInternationalCurrencySystem(rawRes, 2)}`;
     } catch (error) {
@@ -319,9 +492,12 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
     }
   }, [poolTVL, userTotalShareToString, pool]);
 
-  if (!pool) return <div />;
-
-  if (!(userTotalShare.toNumber() > 0)) return null;
+  if (
+    userTotalShare
+      .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0')
+      .eq(new BigNumber(0))
+  )
+    return null;
 
   const Images = tokens.map((token, index) => {
     const { icon, id } = token;
@@ -372,7 +548,14 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
       <div className="inline-flex items-center justify-between my-1 w-28">
         <div className="font-semibold">{toRealSymbol(token.symbol)}</div>
         <div className="font-normal">
-          {tokenAmountShare(pool, token, userTotalShareToString)}
+          {tokenAmountShare(
+            pool,
+            token,
+            new BigNumber(userTotalShareToString)
+              .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
+              .toNumber()
+              .toFixed()
+          )}
         </div>
       </div>
     );
@@ -385,7 +568,14 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
           {toRealSymbol(token.symbol)}
         </div>
         <div className="font-normal">
-          {tokenAmountShare(pool, token, userTotalShareToString)}
+          {tokenAmountShare(
+            pool,
+            token,
+            new BigNumber(userTotalShareToString)
+              .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
+              .toNumber()
+              .toFixed()
+          )}
         </div>
       </div>
     );
@@ -407,6 +597,8 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
     );
   };
 
+  const lpDecimal = isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24;
+
   return (
     <>
       {/* PC */}
@@ -414,7 +606,7 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
         style={{
           gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
         }}
-        className="xs:hidden md:hidden grid  py-5 content-center items-center text-sm text-white pl-10 pr-6 border-t border-gray-700 border-opacity-70 cursor-pointer"
+        className="xs:hidden md:hidden grid  py-5 content-center items-center text-sm text-white px-8 border-t border-gray-700 border-opacity-70 cursor-pointer"
         to={{ pathname: `/pool/${pool.id}` }}
       >
         <div className="col-span-2 inline-flex items-start flex-col relative">
@@ -432,23 +624,167 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
           ))}
         </div>
 
-        <div className="col-span-3  text-left pl-6 xl:pl-12">
+        <div className="col-span-3  text-left pl-6">
           <MyShares
             shares={shares}
             totalShares={pool.shareSupply}
             decimal={2}
-            stakeList={stakeList}
             poolId={pool.id}
-            supportFarm={supportFarm}
-            userTotalShare={userTotalShare}
-            farmStake={farmStake}
+            supportFarmV1={supportFarmV1}
+            userTotalShare={userTotalShare.plus(
+              Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0'
+            )}
+            farmStakeV1={farmStakeV1}
+            farmStakeV2={farmStakeV2}
+            supportFarmV2={supportFarmV2}
+            onlyEndedFarmV2={props.onlyEndedFarmV2}
           />
+        </div>
+
+        <div className="col-span-2 flex flex-col text-xs  -ml-12 text-farmText">
+          {supportFarmV1 > 0 && (
+            <Link
+              to={{
+                pathname: '/farms',
+              }}
+              target="_blank"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="text-primaryText mb-1.5 flex"
+            >
+              <span>
+                {toPrecision(
+                  toReadableNumber(
+                    lpDecimal,
+                    scientificNotationToString(farmStakeV1.toString())
+                  ),
+                  2
+                )}
+              </span>
+              <span className="mx-1">
+                <FormattedMessage id="in" defaultMessage={'in'} />
+              </span>
+              <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
+                <span className="underline">
+                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                  &nbsp; V1
+                </span>
+
+                <span className="ml-0.5">
+                  <VEARROW />
+                </span>
+              </div>
+            </Link>
+          )}
+
+          {supportFarmV2 > 0 && (
+            <Link
+              to={{
+                pathname: `/v2farms/${pool.id}-${
+                  props.onlyEndedFarmV2 ? 'e' : 'r'
+                }`,
+              }}
+              target="_blank"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="text-primaryText mb-1.5 flex"
+            >
+              <span>
+                {toPrecision(
+                  toReadableNumber(
+                    lpDecimal,
+                    scientificNotationToString(farmStakeV2.toString())
+                  ),
+                  2
+                )}
+              </span>
+              <span className="mx-1">
+                <FormattedMessage id="in" defaultMessage={'in'} />
+              </span>
+              <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
+                <span className="underline">
+                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                  &nbsp; V2
+                </span>
+
+                <span className="ml-0.5">
+                  <VEARROW />
+                </span>
+              </div>
+            </Link>
+          )}
+          {Number(getVEPoolId()) === Number(pool.id) &&
+          !!getConfig().REF_VE_CONTRACT_ID ? (
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                window.open('/referendum');
+              }}
+              className="text-primaryText mb-1.5 flex whitespace-nowrap items-center"
+            >
+              <span>
+                {toPrecision(
+                  ONLY_ZEROS.test(
+                    toNonDivisibleNumber(
+                      LOVE_TOKEN_DECIMAL,
+                      toReadableNumber(24, lptAmount || '0')
+                    )
+                  )
+                    ? '0'
+                    : toReadableNumber(24, lptAmount || '0'),
+                  2
+                )}
+              </span>
+              <span className="mx-1">
+                <FormattedMessage id="locked" defaultMessage={'locked'} />
+              </span>
+              <span className="mr-1">
+                <FormattedMessage id="in" defaultMessage={'in'} />
+              </span>
+              <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
+                <span className="underline">
+                  <FormattedMessage id="dao" defaultMessage={'DAO'} />
+                </span>
+                <span className="ml-0.5">
+                  <VEARROW />
+                </span>
+              </div>
+            </div>
+          ) : null}
+
+          {ONLY_ZEROS.test(shares) ||
+          (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
+            <div>
+              <span
+                className={'text-gradientFrom'}
+                title={toReadableNumber(
+                  isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
+                  shares
+                )}
+              >
+                {toPrecision(
+                  toReadableNumber(
+                    isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
+                    shares
+                  ),
+                  2
+                )}
+              </span>
+
+              <span className="ml-1">
+                <FormattedMessage id="available" />
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="col-span-2 text-left ml-4 xl:ml-8">{usdValue}</div>
 
-        <div className="flex items-center justify-end  text-center  col-span-4 ">
-          <div className="flex items-center justify-end flex-wrap">
+        <div className="flex items-center justify-end  text-center  col-span-2 ">
+          <div className="flex items-center flex-col justify-end flex-wrap">
             <SolidButton
               onClick={(e) => {
                 e.stopPropagation();
@@ -462,9 +798,9 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
                   });
                 }
               }}
-              className="text-xs col-span-2 px-1.5 text-center whitespace-nowrap mb-1"
+              className="text-xs col-span-2 px-1.5 text-center whitespace-nowrap mb-3"
               style={{
-                minWidth: '96px',
+                minWidth: '104px',
               }}
             >
               <FormattedMessage
@@ -488,9 +824,9 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
 
                 setShowWithdraw(true);
               }}
-              className="text-xs px-4 col-span-2 text-center h-8 ml-2 mb-1"
+              className="text-xs w-full px-4 col-span-2 text-center h-8 mb-1"
               style={{
-                minWidth: '80px',
+                minWidth: '104px',
               }}
             >
               <FormattedMessage id="remove" defaultMessage="Remove" />
@@ -499,6 +835,7 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
         </div>
       </Link>
       {/* Mobile */}
+
       <Link
         className="lg:hidden pb-4 px-6 text-sm text-white cursor-pointer"
         to={{ pathname: `/pool/${pool.id}` }}
@@ -525,22 +862,165 @@ function PoolRow(props: { pool: any; tokens: TokenMetadata[] }) {
             ))}
           </div>
 
-          <div className="flex items justify-between border-b border-gray-700 border-opacity-70 px-6 py-2">
-            <div className="text-gray-400 text-sm">
-              <FormattedMessage id="my_shares" defaultMessage="Shares" />
+          <div
+            className={`flex items justify-between border-b border-gray-700 border-opacity-70 px-6 ${
+              supportFarmV1 > 0 && supportFarmV2 > 0 ? 'pt-2 pb-4' : 'py-2'
+            }`}
+          >
+            <div className="flex flex-col text-gray-400 text-sm">
+              <span>
+                <FormattedMessage id="lp_token"></FormattedMessage>
+              </span>
+              <span>
+                (<FormattedMessage id="my_shares" defaultMessage="Shares" />)
+              </span>
             </div>
 
-            <div>
-              <MyShares
-                shares={shares}
-                totalShares={pool.shareSupply}
-                decimal={2}
-                poolId={pool.id}
-                stakeList={stakeList}
-                supportFarm={supportFarm}
-                userTotalShare={userTotalShare}
-                farmStake={farmStake}
-              />
+            <div className={`flex flex-col  text-white items-end `}>
+              <div
+                className={`flex ${
+                  supportFarmV1 === 0 && supportFarmV2 === 0 ? 'h-12' : 'mb-1.5'
+                }`}
+              >
+                <MyShares
+                  shares={shares}
+                  totalShares={pool.shareSupply}
+                  decimal={2}
+                  poolId={pool.id}
+                  supportFarmV1={supportFarmV1}
+                  supportFarmV2={supportFarmV2}
+                  userTotalShare={userTotalShare.plus(
+                    Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0'
+                  )}
+                  farmStakeV1={farmStakeV1}
+                  farmStakeV2={farmStakeV2}
+                  onlyEndedFarmV2={props.onlyEndedFarmV2}
+                />
+              </div>
+
+              {supportFarmV1 > 0 && (
+                <Link
+                  to={{
+                    pathname: '/farms',
+                  }}
+                  target="_blank"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  className="text-primaryText flex items-center mb-1.5 text-xs"
+                >
+                  <span>
+                    {toPrecision(
+                      toReadableNumber(
+                        lpDecimal,
+                        scientificNotationToString(farmStakeV1.toString())
+                      ),
+                      2
+                    )}
+                  </span>
+                  <span className="mx-1">
+                    <FormattedMessage id="in" defaultMessage={'in'} />
+                  </span>
+                  <span className="border-b border-primaryText">
+                    <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                    <span className="ml-1">V1</span>
+                  </span>
+                  <span className="text-gradientFrom ml-0.5">
+                    <VEARROW />
+                  </span>
+                </Link>
+              )}
+
+              {supportFarmV2 > 0 && (
+                <Link
+                  to={{
+                    pathname: `/v2farms/${pool.id}-${
+                      props.onlyEndedFarmV2 ? 'e' : 'r'
+                    }`,
+                  }}
+                  target="_blank"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  className="text-primaryText mb-1.5 flex items-center text-xs"
+                >
+                  <span>
+                    {toPrecision(
+                      toReadableNumber(
+                        lpDecimal,
+                        scientificNotationToString(farmStakeV2.toString())
+                      ),
+                      2
+                    )}
+                  </span>
+                  <span className="mx-1">
+                    <FormattedMessage id="in" defaultMessage={'in'} />
+                  </span>
+                  <span className="border-b border-primaryText">
+                    <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                    <span className="ml-1">V2</span>
+                  </span>
+                  <span className="text-gradientFrom ml-0.5">
+                    <VEARROW />
+                  </span>
+                </Link>
+              )}
+              {Number(getVEPoolId()) === Number(pool.id) &&
+              !!getConfig().REF_VE_CONTRACT_ID ? (
+                <div
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open('/referendum');
+                  }}
+                  className="text-primaryText flex items-center mb-1.5 text-xs"
+                >
+                  <span>
+                    {toPrecision(toReadableNumber(24, lptAmount || '0'), 2)}
+                  </span>
+                  <span className="mx-1">
+                    <FormattedMessage id="locked" defaultMessage={'locked'} />
+                  </span>
+                  <span className="mr-1">
+                    <FormattedMessage id="in" defaultMessage={'in'} />
+                  </span>
+                  <span className="border-b border-primaryText">
+                    <FormattedMessage id="dao" defaultMessage={'DAO'} />
+                  </span>
+                  <span className="text-gradientFrom ml-0.5">
+                    <VEARROW />
+                  </span>
+                </div>
+              ) : null}
+
+              {ONLY_ZEROS.test(shares) ||
+              (supportFarmV1 === 0 && supportFarmV2 === 0) ? null : (
+                <div className="text-xs">
+                  <span
+                    className={'text-gradientFrom'}
+                    title={toReadableNumber(
+                      isStablePool(pool.id)
+                        ? getStablePoolDecimal(pool.id)
+                        : 24,
+                      shares
+                    )}
+                  >
+                    {toPrecision(
+                      toReadableNumber(
+                        isStablePool(pool.id)
+                          ? getStablePoolDecimal(pool.id)
+                          : 24,
+                        shares
+                      ),
+                      2
+                    )}
+                  </span>
+
+                  <span className="ml-1 text-primaryText">
+                    <FormattedMessage id="available" />
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

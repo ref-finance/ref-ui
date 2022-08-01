@@ -29,7 +29,7 @@ import getConfig from '../services/config';
 import { registerTokensAction } from '../services/creators/token';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
-import { withdrawAction } from './creators/token';
+import { withdrawAction, registerAccountOnToken } from './creators/token';
 import { getExplorer, ExplorerType } from '../utils/device';
 import {
   STABLE_POOL_ID,
@@ -40,6 +40,12 @@ import moment from 'moment';
 import { getAllTriPools } from './aurora/aurora';
 import { ALL_STABLE_POOL_IDS, isStablePool, isRatedPool } from './near';
 import { filterBlackListPools } from './near';
+import { nearWithdrawTransaction, nearMetadata } from './wrap-near';
+import {
+  WRAP_NEAR_CONTRACT_ID,
+  wrapNear,
+  nearDepositTransaction,
+} from './wrap-near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 const explorerType = getExplorer();
@@ -81,7 +87,7 @@ export const getPoolByToken = async (tokenId: string) => {
 };
 
 export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
-  id: id >= 0 ? id : pool.id,
+  id: Number(id >= 0 ? id : pool.id),
   tokenIds: pool.token_account_ids,
   supplies: pool.amounts.reduce(
     (acc: { [tokenId: string]: string }, amount: string, i: number) => {
@@ -363,11 +369,63 @@ export const getSharesInPool = (id: number): Promise<string> => {
   });
 };
 
+export const getFarmsCount = (poolId: string | number, farms: any) => {
+  const count = farms.reduce((pre: number, cur: any) => {
+    if (Number(cur.pool_id) === Number(poolId)) return pre + 1;
+    return pre;
+  }, 0);
+
+  return count;
+};
+
+export const getEndedFarmsCount = (poolId: string | number, farms: any) => {
+  const count = farms.reduce((pre: number, cur: any) => {
+    if (Number(cur.pool_id) === Number(poolId) && cur.status === 'Ended')
+      return pre + 1;
+    return pre;
+  }, 0);
+
+  return count;
+};
+
 export const canFarm = async (
   pool_id: number,
   withEnded?: boolean
-): Promise<Number> => {
+): Promise<Record<string, any>> => {
   let farms;
+  let boostFarms;
+
+  if (!withEnded) {
+    farms = (await db.queryFarms()).filter((farm) => farm.status !== 'Ended');
+    boostFarms = (await db.queryBoostFarms()).filter(
+      (farm) => farm.status !== 'Ended'
+    );
+  } else {
+    farms = await db.queryFarms();
+    boostFarms = await db.queryBoostFarms();
+  }
+
+  const countV1 = farms.reduce((pre, cur) => {
+    if (Number(cur.pool_id) === pool_id) return pre + 1;
+    return pre;
+  }, 0);
+
+  const countV2 = boostFarms.reduce((pre, cur) => {
+    if (Number(cur.pool_id) === pool_id) return pre + 1;
+    return pre;
+  }, 0);
+
+  return {
+    count: countV2 > 0 ? countV2 : countV1,
+    version: countV2 > 0 ? 'V2' : 'V1',
+  };
+};
+export const canFarmV1 = async (
+  pool_id: number,
+  withEnded?: boolean
+): Promise<Record<string, any>> => {
+  let farms;
+
   if (!withEnded) {
     farms = (await db.queryFarms()).filter((farm) => farm.status !== 'Ended');
   } else {
@@ -379,7 +437,49 @@ export const canFarm = async (
     return pre;
   }, 0);
 
-  return count;
+  const endedCount = farms.reduce((pre, cur) => {
+    if (cur.status === 'Ended' && Number(cur.pool_id) === pool_id)
+      return pre + 1;
+    return pre;
+  }, 0);
+
+  return {
+    count,
+    version: 'V1',
+    endedCount,
+  };
+};
+
+export const canFarmV2 = async (
+  pool_id: number,
+  withEnded?: boolean
+): Promise<Record<string, any>> => {
+  let boostFarms;
+
+  if (!withEnded) {
+    boostFarms = (await db.queryBoostFarms()).filter(
+      (farm) => farm.status !== 'Ended'
+    );
+  } else {
+    boostFarms = await db.queryBoostFarms();
+  }
+
+  const countV2 = boostFarms.reduce((pre, cur) => {
+    if (Number(cur.pool_id) === pool_id) return pre + 1;
+    return pre;
+  }, 0);
+
+  const endedCount = boostFarms.reduce((pre, cur) => {
+    if (cur.status === 'Ended' && Number(cur.pool_id) === pool_id)
+      return pre + 1;
+    return pre;
+  }, 0);
+
+  return {
+    count: countV2,
+    version: 'V2',
+    endedCount,
+  };
 };
 
 interface AddLiquidityToPoolOptions {
@@ -391,11 +491,13 @@ export const addLiquidityToPool = async ({
   id,
   tokenAmounts,
 }: AddLiquidityToPoolOptions) => {
+  // const transactions:Transaction[] = []
+
   const amounts = tokenAmounts.map(({ token, amount }) =>
     toNonDivisibleNumber(token.decimals, amount)
   );
 
-  const depositTransactions = await getDepositTransactions({
+  const transactions = await getDepositTransactions({
     tokens: tokenAmounts.map(({ token, amount }) => token),
     amounts: tokenAmounts.map(({ token, amount }) => amount),
   });
@@ -408,13 +510,30 @@ export const addLiquidityToPool = async ({
     },
   ];
 
-  return executeMultipleTransactions([
-    ...depositTransactions,
-    {
-      receiverId: REF_FI_CONTRACT_ID,
-      functionCalls: [...actions],
-    },
-  ]);
+  transactions.push({
+    receiverId: REF_FI_CONTRACT_ID,
+    functionCalls: [...actions],
+  });
+
+  const wNearTokenAmount = tokenAmounts.find(
+    (TA) => TA.token.id === WRAP_NEAR_CONTRACT_ID
+  );
+
+  if (wNearTokenAmount && !ONLY_ZEROS.test(wNearTokenAmount.amount)) {
+    transactions.unshift(nearDepositTransaction(wNearTokenAmount.amount));
+  }
+
+  if (tokenAmounts.map((ta) => ta.token.id).includes(WRAP_NEAR_CONTRACT_ID)) {
+    const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+    if (registered === null) {
+      transactions.unshift({
+        receiverId: WRAP_NEAR_CONTRACT_ID,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
+  }
+
+  return executeMultipleTransactions(transactions);
 };
 
 export const predictLiquidityShares = async (
@@ -464,6 +583,24 @@ export const addLiquidityToStablePool = async ({
     receiverId: REF_FI_CONTRACT_ID,
     functionCalls: [...actions],
   });
+
+  if (tokens.map((t) => t.id).includes(WRAP_NEAR_CONTRACT_ID)) {
+    const idx = tokens.findIndex((t) => t.id === WRAP_NEAR_CONTRACT_ID);
+
+    if (idx !== -1 && !ONLY_ZEROS.test(amounts[idx])) {
+      transactions.unshift(
+        nearDepositTransaction(toReadableNumber(24, amounts[idx]))
+      );
+    }
+
+    const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+    if (registered === null) {
+      transactions.unshift({
+        receiverId: WRAP_NEAR_CONTRACT_ID,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
+  }
 
   return executeMultipleTransactions(transactions);
 };
@@ -553,6 +690,20 @@ export const removeLiquidityFromPool = async ({
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: withdrawActionsFireFox,
     });
+  }
+
+  if (
+    tokenIds.includes(WRAP_NEAR_CONTRACT_ID) &&
+    !ONLY_ZEROS.test(minimumAmounts[WRAP_NEAR_CONTRACT_ID])
+  ) {
+    transactions.push(
+      nearWithdrawTransaction(
+        toReadableNumber(
+          nearMetadata.decimals,
+          minimumAmounts[WRAP_NEAR_CONTRACT_ID]
+        )
+      )
+    );
   }
 
   return executeMultipleTransactions(transactions);
@@ -654,6 +805,20 @@ export const removeLiquidityFromStablePool = async ({
     });
   }
 
+  if (
+    tokenIds.includes(WRAP_NEAR_CONTRACT_ID) &&
+    !ONLY_ZEROS.test(min_amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)])
+  ) {
+    transactions.push(
+      nearWithdrawTransaction(
+        toReadableNumber(
+          nearMetadata.decimals,
+          min_amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)]
+        )
+      )
+    );
+  }
+
   return executeMultipleTransactions(transactions);
 };
 
@@ -751,6 +916,20 @@ export const removeLiquidityByTokensFromStablePool = async ({
       receiverId: REF_FI_CONTRACT_ID,
       functionCalls: withdrawActionsFireFox,
     });
+  }
+
+  if (
+    tokenIds.includes(WRAP_NEAR_CONTRACT_ID) &&
+    !ONLY_ZEROS.test(amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)])
+  ) {
+    transactions.push(
+      nearWithdrawTransaction(
+        toReadableNumber(
+          nearMetadata.decimals,
+          amounts[tokenIds.indexOf(WRAP_NEAR_CONTRACT_ID)]
+        )
+      )
+    );
   }
 
   return executeMultipleTransactions(transactions);

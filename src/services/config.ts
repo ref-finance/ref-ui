@@ -119,6 +119,10 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
+        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
+        VotingGauge: ['10%', '10%'],
+        REF_FARM_BOOST_CONTRACT_ID:
+          process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
       };
     case 'pub-testnet':
       return {
@@ -139,6 +143,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_FARM_CONTRACT_ID || 'v2.ref-farming.testnet',
         REF_TOKEN_ID: 'ref.fakes.testnet',
         XREF_TOKEN_ID: 'xref.ref-finance.testnet',
+        REF_VE_CONTRACT_ID: 'v010.refve.testnet',
         REF_AIRDROP_CONTRACT_ID: 'locker002.ref-dev.testnet',
         TOP_POOLS_TOKEN_REFRESH_INTERVAL:
           process.env.POOL_TOKEN_REFRESH_INTERVAL || 60,
@@ -173,6 +178,11 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
+        REF_FARM_BOOST_CONTRACT_ID:
+          process.env.REF_FARM_BOOST_CONTRACT_ID ||
+          'boostfarm.ref-finance.testnet',
+        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
+        VotingGauge: ['10%', '10%'],
       };
     case 'testnet':
       return {
@@ -227,6 +237,11 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
+        REF_FARM_BOOST_CONTRACT_ID:
+          process.env.REF_FARM_BOOST_CONTRACT_ID ||
+          'boostfarm024.ref-dev.testnet',
+        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
+        VotingGauge: ['5%', '10%'],
       };
     default:
       return {
@@ -292,6 +307,10 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
         BLACKLIST_POOL_IDS: [''],
+        FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
+        VotingGauge: ['10%', '10%'],
+        REF_FARM_BOOST_CONTRACT_ID:
+          process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
       };
   }
 }

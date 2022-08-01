@@ -60,7 +60,12 @@ import {
 } from './creators/storage';
 import { registerTokenAction, registerAccountOnToken } from './creators/token';
 import { BigNumber } from 'bignumber.js';
-import _, { filter, MemoVoidIteratorCapped, StringNullableChain } from 'lodash';
+import _, {
+  filter,
+  MemoVoidIteratorCapped,
+  split,
+  StringNullableChain,
+} from 'lodash';
 import { getSwappedAmount } from './stable-swap';
 import {
   isStablePool,
@@ -78,11 +83,22 @@ import {
   //@ts-ignore
 } from './smartRouteLogic';
 import { getCurrentWallet } from '../utils/sender-wallet';
-import { multiply, separateRoutes } from '../utils/numbers';
+import {
+  multiply,
+  separateRoutes,
+  toRoundedReadableNumber,
+} from '../utils/numbers';
 import { auroraSwapTransactions } from './aurora/aurora';
 import { PoolSlippageSelector } from '../components/forms/SlippageSelector';
 import { getAllStablePoolsFromCache, Pool } from './pool';
 import { PoolInfo } from '../components/layout/SwapRoutes';
+import {
+  WRAP_NEAR_CONTRACT_ID,
+  nearWithdraw,
+  nearMetadata,
+  nearDepositTransaction,
+  nearWithdrawTransaction,
+} from './wrap-near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
@@ -549,6 +565,7 @@ export const getOneSwapActionResult = async (
           p.tokenIds.includes(tokenIn.id) &&
           p.tokenIds.includes(tokenOut.id)
       );
+
       if (triPoolThisPair) {
         const triPoolEstimateRes = getSinglePoolEstimate(
           tokenIn,
@@ -1225,9 +1242,37 @@ SwapOptions) => {
       });
     }
 
-    if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
-      return window.location.reload();
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+      transactions.unshift(nearDepositTransaction(amountIn));
     }
+    if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
+      let outEstimate = new Big(0);
+      const routes = separateRoutes(swapsToDo, tokenOut.id);
+
+      const bigEstimate = routes.reduce((acc, cur) => {
+        const curEstimate = cur[cur.length - 1].estimate;
+        return acc.plus(curEstimate);
+      }, outEstimate);
+
+      const minAmountOut = percentLess(
+        slippageTolerance,
+
+        scientificNotationToString(bigEstimate.toString())
+      );
+
+      transactions.push(nearWithdrawTransaction(minAmountOut));
+    }
+
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+      const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+      if (registered === null) {
+        transactions.unshift({
+          receiverId: WRAP_NEAR_CONTRACT_ID,
+          functionCalls: [registerAccountOnToken()],
+        });
+      }
+    }
+
     return executeMultipleTransactions(transactions);
   }
 };
@@ -1357,6 +1402,35 @@ export const crossInstantSwap = async ({
           slippageTolerance,
         });
         curTransactions.forEach((t) => transactions.push(t));
+      }
+    }
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+      transactions.unshift(nearDepositTransaction(amountIn));
+    }
+    if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
+      let outEstimate = new Big(0);
+      const routes = separateRoutes(swapsToDo, tokenOut.id);
+
+      const bigEstimate = routes.reduce((acc, cur) => {
+        const curEstimate = cur[cur.length - 1].estimate;
+        return acc.plus(curEstimate);
+      }, outEstimate);
+
+      const minAmountOut = percentLess(
+        slippageTolerance,
+
+        scientificNotationToString(bigEstimate.toString())
+      );
+
+      transactions.push(nearWithdrawTransaction(minAmountOut));
+    }
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+      const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+      if (registered === null) {
+        transactions.unshift({
+          receiverId: WRAP_NEAR_CONTRACT_ID,
+          functionCalls: [registerAccountOnToken()],
+        });
       }
     }
 

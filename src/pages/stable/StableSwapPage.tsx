@@ -57,15 +57,7 @@ function StableSwapPage({ pool }: { pool: Pool }) {
 
   const [actionName, setAction] = useState<string>(stableTab || storageTab);
 
-  const { shares, stakeList } = state?.pool ? state : usePool(id);
-
-  const farmStake =
-    state?.farmStake ||
-    useFarmStake({
-      poolId: Number(id),
-      stakeList,
-    });
-  const userTotalShare = BigNumber.sum(shares, farmStake);
+  const { shares } = state?.pool ? state : usePool(id);
 
   const [stablePool, setStablePool] = useState<StablePool>();
 
@@ -108,8 +100,6 @@ function StableSwapPage({ pool }: { pool: Pool }) {
             stablePool={stablePool}
             pool={pool}
             tokens={tokens}
-            totalShares={shares}
-            stakeList={stakeList}
             balances={nearBalances}
           />
         );
@@ -122,7 +112,6 @@ function StableSwapPage({ pool }: { pool: Pool }) {
             shares={shares}
             balances={nearBalances}
             pool={pool}
-            stakeList={stakeList}
           />
         );
     }
@@ -132,14 +121,7 @@ function StableSwapPage({ pool }: { pool: Pool }) {
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">
       {<BackToStablePoolList />}
       {<StableTokens tokens={tokens} />}
-      {
-        <SharesCard
-          shares={shares}
-          userTotalShare={userTotalShare}
-          stakeList={stakeList}
-          pool={pool}
-        />
-      }
+      {<SharesCard shares={shares} pool={pool} />}
       {renderModule(actionName)}
       {<TokenReserves tokens={tokens} pools={[pool]} forPool hiddenChart />}
     </div>

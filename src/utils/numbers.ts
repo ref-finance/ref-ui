@@ -7,8 +7,9 @@ import { Pool, getStablePoolInfoKey } from '../services/pool';
 import { getSwappedAmount, estimateSwap } from '../services/stable-swap';
 import { EstimateSwapView } from '../services/swap';
 import Big from 'big.js';
-import { sortBy } from 'lodash';
+import _, { sortBy } from 'lodash';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 
 const BPS_CONVERSION = 10000;
 
@@ -381,6 +382,18 @@ export const toInternationalCurrencySystem = (
     ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(percent || 2) + 'K'
     : Math.abs(Number(labelValue)).toFixed(percent || 2);
 };
+
+export const toInternationalCurrencySystemLongString = (
+  labelValue: string,
+  percent?: number
+) => {
+  return Math.abs(Number(labelValue)) >= 1.0e9
+    ? (Math.abs(Number(labelValue)) / 1.0e9).toFixed(percent || 2) + 'B'
+    : Math.abs(Number(labelValue)) >= 1.0e6
+    ? (Math.abs(Number(labelValue)) / 1.0e6).toFixed(percent || 2) + 'M'
+    : Math.abs(Number(labelValue)).toFixed(percent || 2);
+};
+
 export const toInternationalCurrencySystemNature = (
   labelValue: string,
   percent?: number
@@ -488,6 +501,23 @@ export const niceDecimals = (number: string | number, precision = 2) => {
     return whole;
   } else {
     return new BigNumber(number).toFixed(precision, 1);
+  }
+};
+export const niceDecimalsExtreme = (number: string | number, precision = 2) => {
+  const str = number.toString();
+  const [whole, decimals] = str.split('.');
+  if (!decimals || Number(decimals) == 0) {
+    return whole;
+  } else if (decimals.length > precision) {
+    const temp = new BigNumber(number).toFixed(precision, 1);
+    const [tempWhole, tempDecimals] = temp.split('.');
+    if (!tempDecimals || Number(tempDecimals) == 0) {
+      return tempWhole;
+    } else {
+      return temp;
+    }
+  } else {
+    return str;
   }
 };
 
@@ -624,3 +654,38 @@ export function getPoolAllocationPercents(pools: Pool[]) {
     return [];
   }
 }
+
+export const checkAllocations = (sum: string, allocations: string[]) => {
+  if (!allocations || allocations?.length === 0) return [];
+
+  const sumNumber = new Big(sum);
+  const sumAllocations = allocations.reduce((acc, cur, i) => {
+    return acc.plus(new Big(cur));
+  }, new Big(0));
+
+  if (!sumAllocations.eq(sumNumber)) {
+    const maxNum = _.maxBy(allocations, (o) => Number(o));
+
+    const maxIndex = allocations.indexOf(maxNum);
+
+    const leftSum = sumAllocations.minus(maxNum);
+    const newMaxNum = sumNumber.minus(leftSum);
+
+    return [
+      ...allocations.slice(0, maxIndex),
+      newMaxNum.toString(),
+      ...allocations.slice(maxIndex + 1),
+    ];
+  } else return allocations;
+};
+
+export const getMax = function (id: string, max: string) {
+  return id !== WRAP_NEAR_CONTRACT_ID
+    ? max
+    : Number(max) <= 0.5
+    ? '0'
+    : toPrecision(
+        scientificNotationToString(new Big(max).minus(0.5).toString()),
+        24
+      );
+};

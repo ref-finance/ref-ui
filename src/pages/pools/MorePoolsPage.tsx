@@ -16,7 +16,6 @@ import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useTokens } from '../../state/token';
 import { TokenMetadata } from '~services/ft-contract';
-import { canFarm, Pool } from '../../services/pool';
 import { FarmButton } from '~components/button/Button';
 
 import {
@@ -33,6 +32,12 @@ import { WatchListStartFull } from '~components/icon/WatchListStar';
 import { scientificNotationToString } from '../../utils/numbers';
 import { usePoolsFarmCount } from '../../state/pool';
 import { useClientMobile } from '../../utils/device';
+import { PoolTab } from '../../components/pool/PoolTab';
+import Loading from '~components/layout/Loading';
+
+interface ParamTypes {
+  tokenIds: string;
+}
 
 interface LocationTypes {
   morePoolIds: string[];
@@ -41,7 +46,7 @@ interface LocationTypes {
 function PoolRow({
   pool,
   index,
-  tokens,
+  tokens: curTokens,
   watched,
   morePoolIds,
   farmCount,
@@ -55,9 +60,9 @@ function PoolRow({
 }) {
   const supportFarm = !!farmCount;
 
-  tokens.sort((a, b) => {
-    if (a.symbol === 'wNEAR') return 1;
-    if (b.symbol === 'wNEAR') return -1;
+  const tokens = curTokens.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
 
@@ -129,7 +134,7 @@ function PoolRow({
 }
 const MobileRow = ({
   pool,
-  tokens,
+  tokens: curTokens,
   watched,
   morePoolIds,
   farmCount,
@@ -141,6 +146,12 @@ const MobileRow = ({
   farmCount: number;
 }) => {
   const supportFarm = !!farmCount;
+
+  const tokens = curTokens.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return a.symbol > b.symbol ? 1 : -1;
+  });
 
   return (
     <Card
@@ -233,17 +244,27 @@ export const MorePoolsPage = () => {
   const { state } = useLocation<LocationTypes>();
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState<boolean | 'desc' | 'asc'>('desc');
-  const morePoolIds = state?.morePoolIds;
-  const tokens = state?.tokens;
-  const morePools = useMorePools({ morePoolIds, order, sortBy });
+
+  const { tokenIds } = useParams<ParamTypes>();
+
+  const tokenIdsArray = tokenIds.split(',');
+
+  const tokens = state?.tokens || useTokens(tokenIdsArray);
+  const morePools = useMorePools({ tokenIds: tokenIdsArray, order, sortBy });
+  const morePoolIds = morePools?.map((p) => p.id.toString());
 
   const watchList = useAllWatchList();
 
-  const poolsFarmCount = usePoolsFarmCount({ morePoolIds });
+  const poolsFarmCount = usePoolsFarmCount({
+    morePoolIds,
+  });
   const clientMobileDevice = useClientMobile();
+
+  if (!tokens) return <Loading />;
 
   return (
     <>
+      <PoolTab></PoolTab>
       {/* PC */}
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
         <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">
