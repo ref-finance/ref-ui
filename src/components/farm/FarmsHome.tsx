@@ -2580,7 +2580,7 @@ function FarmView(props: {
       return null;
     } else {
       return (
-        <div style={{ width: '95px' }}>
+        <div style={{ width: '85px' }} className="whitespace-nowrap">
           {countdown.days ? countdown.days + 'd: ' : ''}
           {zeroPad(countdown.hours)}
           {'h'}: {zeroPad(countdown.minutes)}
