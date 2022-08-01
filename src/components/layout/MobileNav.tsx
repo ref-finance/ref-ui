@@ -174,7 +174,7 @@ export function MobileSwitchLanguage() {
           <span className="text-2xl mr-5">
             <UkIcon />
           </span>
-          Yкраїнський
+          Українська
         </div>
         <div
           className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${

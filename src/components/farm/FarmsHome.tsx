@@ -108,7 +108,8 @@ import { wnearMetadata, unwrapedNear } from '../../services/wrap-near';
 import { usePoolShare, useYourliquidity } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
-import { constant } from 'lodash';
+import Countdown, { zeroPad } from 'react-countdown';
+import _ from 'lodash';
 
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsHome(props: any) {
@@ -2574,6 +2575,33 @@ function FarmView(props: {
       setAprSwitchStatus('1');
     }
   }
+  const renderer = (countdown: any) => {
+    if (countdown.completed) {
+      return null;
+    } else {
+      return (
+        <div style={{ width: '85px' }} className="whitespace-nowrap">
+          {countdown.days ? countdown.days + 'd: ' : ''}
+          {zeroPad(countdown.hours)}
+          {'h'}: {zeroPad(countdown.minutes)}
+          {'m'}
+          {countdown.days ? '' : ': ' + zeroPad(countdown.seconds) + 's'}
+        </div>
+      );
+    }
+  };
+  function getStartTime() {
+    let start_at: any[] = [];
+    const farmList = seed.farmList;
+    farmList.forEach(function (item) {
+      start_at.push(item.terms.start_at);
+    });
+    start_at = _.sortBy(start_at);
+    start_at = start_at.filter(function (val) {
+      return val != '0';
+    });
+    return start_at[0];
+  }
   const isHaveUnclaimedReward = haveUnclaimedReward();
   const aprUpLimit = getAprUpperLimit();
   return (
@@ -2607,7 +2635,7 @@ function FarmView(props: {
         {getBoostMutil()}
         <div className="boxInfo">
           <div className="relative flex flex-col items-center  px-5 rounded-t-2xl overflow-hidden bg-boostUpBoxBg">
-            <div className="flex items-center cursor-pointer text-white font-bold text-xl mt-8">
+            <div className="flex items-center cursor-pointer text-white font-bold text-xl mt-12">
               {/* link for looking into */}
               <a href={`javascript:void(${'/pool/' + pool.id})`}>
                 {tokens.map((token, index) => {
@@ -2656,8 +2684,12 @@ function FarmView(props: {
               {error ? <Alert level="warn" message={error.message} /> : null}
             </div>
             {isPending() ? (
-              <div className="absolute left-2.5 top-2 text-purpleColor text-xs bg-lightPurpleColor rounded-3xl px-2 py-0.5">
+              <div className="flex flex-col absolute left-2.5 top-2 text-purpleColor text-xs bg-lightPurpleColor rounded-lg px-2 py-0.5">
                 <FormattedMessage id="comimg" defaultMessage="COMING" />
+                <Countdown
+                  date={moment.unix(getStartTime()).valueOf()}
+                  renderer={renderer}
+                />
               </div>
             ) : null}
           </div>

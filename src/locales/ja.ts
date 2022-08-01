@@ -787,7 +787,7 @@ const ja = {
   no_farm_need_to_migrate: 'No Farm need to Migrate',
   v1_farms: 'V1 Farms',
   has_rewards_tip:
-    'You still have claimed rewards to be withdraw in <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >V1 Farms</a>. The rewards are not going anywhere, you can withdraw anytime.</div>',
+    'You have claimed rewards in <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >V1 Farms</a>. You can withdraw them at any time.</div>',
   love: 'LOVE',
   Available_to_stake: 'Available to stake',
   you_staked: 'You staked',
