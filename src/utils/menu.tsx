@@ -28,6 +28,7 @@ import {
   IconRisk,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
+import getConfig from '../services/config';
 
 export type MenuItem = {
   id: number;
@@ -43,13 +44,6 @@ export const useMenuItems = () => {
   const intl = useIntl();
 
   const menuData: any[] = [
-    {
-      label: <FormattedMessage id="Risks" defaultMessage="Risks" />,
-      url: '/risks',
-      isExternal: false,
-      id: 0,
-      logo: <IconRisk />,
-    },
     {
       label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
       url: '/airdrop',
@@ -198,52 +192,35 @@ export type MobileMenuItem = {
   newFunction?: boolean;
   showIcon?: boolean;
   iconElement?: ReactNode;
+  hidden?: boolean;
 };
 export const moreLinks: MobileMenuItem[] = [
   {
-    id: 'Swap',
+    id: 'swap_capital',
     label: 'Swap',
     pattern: '/',
     url: '/',
     isExternal: false,
   },
   {
-    id: 'Sauce',
+    id: 'sauce_capital',
     label: 'Sauce',
     pattern: '/sauce',
     url: '/sauce',
     isExternal: false,
   },
   {
-    id: 'pools',
-    label: 'Pools',
-    url: '',
-    subRoute: ['/pools', '/pools/add', '/pools/yours'],
+    id: 'POOL',
+    label: 'POOL',
+    pattern: '/pools',
+    url: '/pools',
     isExternal: false,
-    children: [
-      {
-        id: 'view_pools',
-        label: 'View Pools',
-        url: '/pools',
-        pattern: '/pools',
-        isExternal: false,
-        logo: <IconPools />,
-      },
-      {
-        id: 'Create_New_Pool',
-        label: 'Create New Pool',
-        url: '/pools/add',
-        pattern: '/pools/add',
-        isExternal: false,
-        logo: <IconCreateNew />,
-      },
-    ],
   },
   {
-    id: 'Farms',
+    id: 'farm_capital',
     label: 'Farms',
-    pattern: '/farms',
-    url: '/farms',
+    pattern: '/farmsBoost',
+    url: '/farmsBoost',
     isExternal: false,
   },
   {
@@ -257,8 +234,16 @@ export const moreLinks: MobileMenuItem[] = [
     iconElement: <XrefIcon></XrefIcon>,
   },
   {
-    id: 'Risks',
-    label: 'Risks',
+    id: 'vote_capital',
+    label: 'VOTE!',
+    pattern: '/referendum',
+    url: '/referendum',
+    isExternal: false,
+    hidden: !getConfig().REF_VE_CONTRACT_ID,
+  },
+  {
+    id: 'risks_capital',
+    label: 'RISKS',
     pattern: '/risks',
     url: '/risks',
     isExternal: false,

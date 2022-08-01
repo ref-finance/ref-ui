@@ -14,7 +14,7 @@ import { toInternationalCurrencySystem } from '../../utils/numbers';
 import SelectToken, { StableSelectToken } from './SelectToken';
 import { toPrecision, multiply, ONLY_ZEROS } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
-import { SmallWallet } from '~components/icon/SmallWallet';
+import { SmallWallet } from '../../components/icon/SmallWallet';
 import { RefIcon } from '../../components/icon/Common';
 import { currentTokensPrice } from '../../services/api';
 import { IconLeft } from '../tokens/Icon';
@@ -23,6 +23,7 @@ import { ArrowDownGreen, ArrowDownWhite } from '../icon/Arrows';
 import { percentLess } from '../../utils/numbers';
 import { isMobile } from '../../utils/device';
 import { SWAP_MODE } from '../../pages/SwapPage';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 
 interface TokenAmountProps {
   amount?: string;
@@ -46,6 +47,7 @@ interface TokenAmountProps {
   preSelected?: TokenMetadata;
   postSelected?: TokenMetadata;
   onSelectPost?: (token: TokenMetadata) => void;
+  forWrap?: boolean;
   showQuickButton?: Boolean;
 }
 
@@ -118,6 +120,7 @@ export default function TokenAmount({
   preSelected,
   postSelected,
   onSelectPost,
+  forWrap,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -128,6 +131,13 @@ export default function TokenAmount({
   const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
 
   const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
+
+  const curMax =
+    selectedToken?.id === WRAP_NEAR_CONTRACT_ID && !forWrap
+      ? Number(max) <= 0.5
+        ? '0'
+        : String(Number(max) - 0.5)
+      : max;
 
   return (
     <>
@@ -144,7 +154,7 @@ export default function TokenAmount({
         {forSwap && onChangeAmount ? (
           <HalfAndMaxAmount
             token={selectedToken}
-            max={max}
+            max={curMax}
             onChangeAmount={onChangeAmount}
             amount={amount}
           />
@@ -155,7 +165,7 @@ export default function TokenAmount({
           className="w-3/5 border border-transparent rounded"
           id="inputAmount"
           name={selectedToken?.id}
-          max={max}
+          max={onChangeAmount ? curMax : null}
           value={amount}
           onChangeAmount={onChangeAmount}
           disabled={disabled}
@@ -241,7 +251,12 @@ export function TokenCardIn({
 
   const price = tokenPriceList?.[tokenIn?.id]?.price || null;
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
-
+  const curMax =
+    tokenIn?.id === WRAP_NEAR_CONTRACT_ID
+      ? Number(max) <= 0.5
+        ? '0'
+        : String(Number(max) - 0.5)
+      : max;
   if (hidden) return null;
 
   return (
@@ -258,7 +273,7 @@ export function TokenCardIn({
         <div className="text-xs text-primaryText flex items-center">
           <HalfAndMaxAmount
             token={tokenIn}
-            max={max}
+            max={curMax}
             onChangeAmount={onChangeAmount}
             forCrossSwap
             amount={amount}

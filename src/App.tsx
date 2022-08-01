@@ -64,6 +64,8 @@ import {
 import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
 import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
 import { getAllTriPools } from './services/aurora/aurora';
+import FarmsBoosterPage from './pages/farms/FarmsBoostPage';
+import FarmsMigrate from './pages/farms/FarmsMigrate';
 
 import {
   getSenderLoginRes,
@@ -87,6 +89,8 @@ import {
   getErrorMessage,
 } from './components/layout/transactionTipPopUp';
 import { StableSwapRouter } from './pages/stable/StableSwapRouter';
+import { ReferendumPage } from './pages/ReferendumPage';
+import getConfig from './services/config';
 import { NEAR_WITHDRAW_KEY } from './components/forms/WrapNear';
 
 Modal.defaultStyles = {
@@ -119,7 +123,8 @@ function App() {
 
   const [globalState, globalStatedispatch] = GlobalStateReducer;
 
-  const { txHash, pathname, errorType, signInErrorType } = getURLInfo();
+  const { txHash, pathname, errorType, signInErrorType, txHashes } =
+    getURLInfo();
   const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
@@ -151,7 +156,12 @@ function App() {
   }, [errorType, signInErrorType, isSignedIn]);
   // for usn start
   useEffect(() => {
-    if (txHash && isSignedIn) {
+    if (
+      txHash &&
+      isSignedIn &&
+      pathname !== '/farms' &&
+      pathname.indexOf('farmsBoost') === -1
+    ) {
       checkTransaction(txHash)
         .then((res: any) => {
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
@@ -178,8 +188,12 @@ function App() {
           return {
             isUSN: isUsn,
             isSlippageError,
-            isNearWithdraw: methodName == 'near_withdraw' && fromWrapNear,
-            isNearDeposit: methodName == 'near_deposit',
+            isNearWithdraw:
+              methodName == 'near_withdraw' &&
+              txHashes.length === 1 &&
+              fromWrapNear,
+            isNearDeposit:
+              methodName == 'near_deposit' && txHashes.length === 1,
           };
         })
         .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
@@ -260,8 +274,6 @@ function App() {
       <Router>
         <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
           <BgShapeLeftTop />
-          <BgShapeCenter />
-          <BgShapeCenterSmall />
           <NavigationBar />
           <ToastContainer
             style={{
@@ -299,6 +311,18 @@ function App() {
 
             <Route path="/xref" component={AutoHeight(XrefPage)} />
             <Route path="/risks" component={AutoHeight(RiskPage)} />
+            {!!getConfig().REF_VE_CONTRACT_ID ? (
+              <Route
+                path="/referendum"
+                component={AutoHeight(ReferendumPage)}
+              />
+            ) : null}
+
+            <Route
+              path="/farmsBoost/:id?"
+              component={AutoHeight(FarmsBoosterPage)}
+            />
+            <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
             <Route path="/" component={AutoHeight(SwapPage)} />
           </Switch>
           <Footer />
@@ -315,7 +339,7 @@ function App() {
 function AutoHeight(Comp: any) {
   return (props: any) => {
     return (
-      <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-12 relative">
+      <div className="xs:flex xs:flex-col md:flex md:flex-col justify-center h-4/5 lg:mt-6 relative">
         <Comp {...props} />
       </div>
     );

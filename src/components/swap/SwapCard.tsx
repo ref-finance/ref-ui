@@ -9,7 +9,7 @@ import React, {
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
-import { useTokenBalances } from '../../state/token';
+import { useTokenBalances, useDepositableBalance } from '../../state/token';
 import { useSwap } from '../../state/swap';
 import {
   calculateExchangeRate,
@@ -25,6 +25,7 @@ import {
   calculateSmartRoutesV2PriceImpact,
   separateRoutes,
   calcStableSwapPriceImpact,
+  toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
@@ -33,7 +34,7 @@ import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
-import db from '~store/RefDatabase';
+import db from '../../store/RefDatabase';
 import {
   ButtonTextWrapper,
   GradientButton,
@@ -42,6 +43,7 @@ import {
   ConnectToNearBtn,
 } from '../../components/button/Button';
 import {
+  AllStableTokenIds,
   BTCIDS,
   BTC_STABLE_POOL_ID,
   CUSDIDS,
@@ -60,9 +62,9 @@ import SwapTip from '../../components/forms/SwapTip';
 import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
-import { Card } from '~components/card/Card';
-import { isMobile, useMobile } from '~utils/device';
-import { ModalClose } from '~components/icon';
+import { Card } from '../../components/card/Card';
+import { isMobile, useMobile } from '../../utils/device';
+import { ModalClose } from '../../components/icon';
 import BigNumber from 'bignumber.js';
 import {
   AutoRouterText,
@@ -79,14 +81,9 @@ import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import {
-  isStableToken,
-  ALL_STABLE_POOL_IDS,
-  AllStableTokenIds,
-} from '../../services/near';
+import { isStableToken, STABLE_TOKEN_USN_IDS } from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
-import { STABLE_TOKEN_USN_IDS } from '../../services/near';
-import { IoFlower } from 'react-icons/io5';
+import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -116,6 +113,18 @@ const isSameClass = (token1: string, token2: string) => {
 };
 
 export const SUPPORT_LEDGER_KEY = 'REF_FI_SUPPORT_LEDGER';
+
+export const unWrapTokenId = (id: string) => {
+  if (id === WRAP_NEAR_CONTRACT_ID) {
+    return 'near';
+  } else return id;
+};
+
+export const wrapTokenId = (id: string) => {
+  if (id === 'near') {
+    return WRAP_NEAR_CONTRACT_ID;
+  } else return id;
+};
 
 export function SwapDetail({
   title,
@@ -193,7 +202,7 @@ export function SwapRateDetail({
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
           <FaExchangeAlt color="#00C6A2" />
         </span>
-        <span>{newValue}</span>
+        <span className="font-sans">{newValue}</span>
       </p>
     </section>
   );
@@ -330,15 +339,16 @@ export const GetPriceImpact = (
       ? 'text-warn'
       : 'text-error';
 
-  const displayValue = toPrecision(
-    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
-    3
+  const displayValue = scientificNotationToString(
+    multiply(tokenInAmount, divide(value, '100'))
   );
 
   const tokenInInfo =
     Number(displayValue) <= 0
       ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
-      : ` / -${displayValue} ${tokenIn.symbol}`;
+      : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)} ${
+          tokenIn.symbol
+        }`;
 
   if (Number(value) < 0.01)
     return (
@@ -357,7 +367,7 @@ export const GetPriceImpact = (
     );
 
   return (
-    <span className={`${textColor}`}>
+    <span className={`${textColor} font-sans`}>
       {`≈ -${toPrecision(value, 2)}%`}
       {tokenInInfo}
     </span>
@@ -576,6 +586,9 @@ export default function SwapCard(props: {
   const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
     location.hash.slice(1)
   ).split(TOKEN_URL_SEPARATOR);
+
+  const nearBalance = useDepositableBalance('NEAR');
+
   const [slippageToleranceNormal, setSlippageToleranceNormal] =
     useState<number>(
       Number(localStorage.getItem(SWAP_SLIPPAGE_KEY) || urlSlippageTolerance) ||
@@ -617,8 +630,10 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (allTokens) {
-      const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
-      const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+      const rememberedIn =
+        wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
+      const rememberedOut =
+        wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
       if (swapMode === SWAP_MODE.NORMAL) {
         const candTokenIn =
           allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
@@ -680,7 +695,10 @@ export default function SwapCard(props: {
           if (isSignedIn) {
             ftGetBalance(tokenInId).then((available: string) =>
               setTokenInBalanceFromNear(
-                toReadableNumber(tokenIn?.decimals, available)
+                toReadableNumber(
+                  tokenIn?.decimals,
+                  tokenIn.id === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
+                )
               )
             );
           }
@@ -692,14 +710,19 @@ export default function SwapCard(props: {
           if (isSignedIn) {
             ftGetBalance(tokenOutId).then((available: string) =>
               setTokenOutBalanceFromNear(
-                toReadableNumber(tokenOut?.decimals, available)
+                toReadableNumber(
+                  tokenOut?.decimals,
+                  tokenOut.id === WRAP_NEAR_CONTRACT_ID
+                    ? nearBalance
+                    : available
+                )
               )
             );
           }
         }
       }
     }
-  }, [tokenIn, tokenOut, useNearBalance, isSignedIn]);
+  }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
 
   const slippageTolerance =
     swapMode === SWAP_MODE.NORMAL
@@ -755,7 +778,7 @@ export default function SwapCard(props: {
           ).toString()
         );
       } else return '0';
-    } catch (err) {
+    } catch {
       return '0';
     }
   }, [tokenOutAmount, swapsToDo]);
@@ -872,7 +895,9 @@ export default function SwapCard(props: {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             swapMode === SWAP_MODE.NORMAL &&
               history.replace(
-                `#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`
+                `#${unWrapTokenId(
+                  token.id
+                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenOut.id)}`
               );
             setTokenIn(token);
             setCanSwap(false);
@@ -887,14 +912,7 @@ export default function SwapCard(props: {
           isError={tokenIn?.id === tokenOut?.id}
           postSelected={tokenOut}
           onSelectPost={(token) => {
-            localStorage.setItem(SWAP_OUT_KEY, token.id);
-            swapMode === SWAP_MODE.NORMAL &&
-              history.replace(
-                `#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`
-              );
             setTokenOut(token);
-            setCanSwap(false);
-            setTokenOutBalanceFromNear(token?.near?.toString());
           }}
         />
         <div
@@ -912,7 +930,9 @@ export default function SwapCard(props: {
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
               history.replace(
-                `#${tokenOut.id}${TOKEN_URL_SEPARATOR}${tokenIn.id}`
+                `#${unWrapTokenId(
+                  tokenOut.id
+                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenIn.id)}`
               );
             }}
           />
@@ -925,13 +945,16 @@ export default function SwapCard(props: {
           tokens={allTokens}
           selectedToken={tokenOut}
           balances={balances}
+          preSelected={tokenIn}
           text={intl.formatMessage({ id: 'to' })}
           useNearBalance={useNearBalance}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_OUT_KEY, token.id);
             swapMode === SWAP_MODE.NORMAL &&
               history.replace(
-                `#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`
+                `#${unWrapTokenId(
+                  tokenIn.id
+                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(token.id)}`
               );
             setTokenOut(token);
             setCanSwap(false);
@@ -939,7 +962,6 @@ export default function SwapCard(props: {
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
-          preSelected={tokenIn}
         />
         <DetailView
           pools={pools}
