@@ -37,7 +37,7 @@ import {
   UserSeedInfo,
   getVeSeedShare,
 } from '~services/farm';
-import { WalletContext } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/wallets-integration';
 import {
   toPrecision,
   toReadableNumber,

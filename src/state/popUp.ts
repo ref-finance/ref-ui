@@ -46,7 +46,12 @@ export const useGlobalPopUp = (globalState: any) => {
   }, [signInErrorType, txHash, isSignedIn]);
   // for usn start
   useEffect(() => {
-    if (txHash && isSignedIn) {
+    if (
+      txHash &&
+      isSignedIn &&
+      pathname !== '/farms' &&
+      pathname.indexOf('v2farms') === -1
+    ) {
       checkTransaction(txHash)
         .then((res: any) => {
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
@@ -65,8 +70,14 @@ export const useGlobalPopUp = (globalState: any) => {
             sessionStorage.getItem(NEAR_WITHDRAW_KEY) === '1';
 
           sessionStorage.removeItem(NEAR_WITHDRAW_KEY);
+
+          const isUsn =
+            sessionStorage.getItem('usn') == '1' &&
+            (methodName == 'ft_transfer_call' || methodName == 'withdraw');
+          sessionStorage.removeItem('usn');
+
           return {
-            isUSN: methodName == 'buy' || methodName == 'sell',
+            isUSN: isUsn,
             isSlippageError,
             isNearWithdraw:
               methodName == 'near_withdraw' &&
@@ -92,6 +103,10 @@ export const useGlobalPopUp = (globalState: any) => {
             );
           }
         });
+    }
+
+    if (!txHash) {
+      sessionStorage.removeItem('usn');
     }
   }, [txHash, isSignedIn]);
   // for usn end

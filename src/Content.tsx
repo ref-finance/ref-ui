@@ -6,6 +6,12 @@ import React, {
   useCallback,
   useState,
 } from 'react';
+
+import { ReferendumPage } from '~pages/ReferendumPage';
+
+import FarmsMigrate from '~pages/farms/FarmsMigrate';
+import FarmsBoosterPage from '~pages/farms/FarmsBoostPage';
+
 import {
   BrowserRouter as Router,
   Switch,
@@ -166,22 +172,6 @@ export function Content() {
     });
   }, [accountId, getAccount]);
 
-  // useEffect(() => {
-  //   if (!window.near) return;
-
-  //   setTimeout(async () => {
-  //     window.near.on('accountChanged', async () => {
-  //       // (await selector.wallet()).signOut();
-
-  //       console.log('account changed');
-
-  //       window.near.requestSignedIn({
-  //         contractId: REF_FARM_CONTRACT_ID,
-  //       });
-  //     });
-  //   }, 300);
-  // }, [window, window.near]);
-
   useGlobalPopUp(globalState);
 
   return (
@@ -192,7 +182,6 @@ export function Content() {
           marginTop: isMobile() ? 'none' : '44px',
         }}
       />
-
       <Switch>
         <Route path="/account" component={AccountPage} />
         <Route path="/recent" component={RecentActivityPage} />
@@ -214,6 +203,12 @@ export function Content() {
 
         <Route path="/xref" component={AutoHeight(XrefPage)} />
         <Route path="/risks" component={AutoHeight(RiskPage)} />
+        {!!getConfig().REF_VE_CONTRACT_ID ? (
+          <Route path="/referendum" component={AutoHeight(ReferendumPage)} />
+        ) : null}
+
+        <Route path="/v2farms/:id?" component={AutoHeight(FarmsBoosterPage)} />
+        <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
         <Route path="/" component={AutoHeight(SwapPage)} />
       </Switch>
     </WalletContext.Provider>

@@ -69,7 +69,7 @@ import { useMobile, useClientMobile } from '../../utils/device';
 import { usePoolsMorePoolIds } from '../../state/pool';
 import { PoolTab } from '../../components/pool/PoolTab';
 import { SearchIcon } from '~components/icon/FarmBoost';
-import { WalletContext } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/wallets-integration';
 import { unwrapedNear } from '../../services/wrap-near';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { getVEPoolId } from '../ReferendumPage';

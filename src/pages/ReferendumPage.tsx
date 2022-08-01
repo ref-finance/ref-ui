@@ -66,6 +66,7 @@ import {
 
 import moment, { duration } from 'moment';
 import { CheckedTick, ErrorTriangle, TipTriangle } from '../components/icon';
+
 import { UnCheckedBoxVE } from '../components/icon/CheckBox';
 import {
   toReadableNumber,
@@ -83,7 +84,9 @@ import {
   ProposalCard,
   TIMESTAMP_DIVISOR,
 } from '../components/layout/Proposal';
-import { WalletContext } from '../utils/sender-wallet';
+
+import { WalletContext } from '~utils/wallets-integration';
+
 import { scientificNotationToString, toPrecision } from '../utils/numbers';
 import { WarnTriangle } from '../components/icon/SwapRefresh';
 import { useTokens, useTokenPriceList } from '../state/token';

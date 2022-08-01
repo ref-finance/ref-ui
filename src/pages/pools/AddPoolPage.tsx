@@ -228,27 +228,6 @@ export function AddPoolPage() {
                   textColor="#C6D1DA"
                 />
               </div>
-<<<<<<< HEAD
-            );
-          })}
-        </div>
-        <div className="pt-6 w-full">
-          {isSignedIn ? (
-            <button
-              disabled={!canSubmit || buttonLoading}
-              className={`rounded-full w-full text-lg text-white px-5 py-2.5 focus:outline-none font-semibold ${
-                canSubmit ? '' : 'opacity-40 disabled:cursor-not-allowed'
-              } ${buttonLoading ? 'opacity-40' : ''}`}
-              style={{
-                background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
-                borderRadius: '5px',
-              }}
-              onClick={() => {
-                if (canSubmit) {
-                  const v = new BigNumber(fee).multipliedBy(100).toFixed(0, 1);
-                  setButtonLoading(true);
-                  addSimpleLiquidityPool([token1.id, token2.id], Number(v));
-=======
             </div>
             <Toggle
               opts={[
@@ -273,7 +252,6 @@ export function AddPoolPage() {
                   }
                   // setFee((parseFloat(v) + Number.EPSILON).toFixed(2));
                   setFee(bigV.toString());
->>>>>>> main
                 }
                 setErrorKey('');
               }}

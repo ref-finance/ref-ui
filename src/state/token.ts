@@ -185,7 +185,7 @@ export const useGlobalWhitelistTokens = (extraTokenIds: string[] = []) => {
         );
       })
       .then(setTokens);
-  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
+  }, [getCurrentWallet()?.wallet?.isSignedIn(), extraTokenIds.join('-')]);
 
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };

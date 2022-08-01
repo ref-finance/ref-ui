@@ -125,16 +125,13 @@ export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 import { TokenLinks } from '~components/tokens/Token';
 import { OutLinkIcon } from '~components/icon/Common';
 import ReactTooltip from 'react-tooltip';
-<<<<<<< HEAD
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-=======
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useAccountInfo } from '../../state/referendum';
 import { getVEPoolId } from '../ReferendumPage';
 import { PoolTab } from '../../components/pool/PoolTab';
 import getConfig from '../../services/config';
 
->>>>>>> main
 interface ParamTypes {
   id: string;
 }

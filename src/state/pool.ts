@@ -172,15 +172,12 @@ export const usePool = (id: number | string) => {
   const [pool, setPool] = useState<PoolDetails>();
   const [shares, setShares] = useState<string>('0');
   const [stakeList, setStakeList] = useState<Record<string, string>>({});
-<<<<<<< HEAD
-=======
   const [v2StakeList, setV2StakeList] = useState<Record<string, string>>({});
 
   const [finalStakeList, setFinalStakeList] = useState<Record<string, string>>(
     {}
   );
 
->>>>>>> main
   useEffect(() => {
     getPoolDetails(Number(id)).then(setPool);
     getSharesInPool(Number(id))
@@ -196,11 +193,6 @@ export const usePool = (id: number | string) => {
       .catch(() => {});
   }, [id, isSignedIn]);
 
-<<<<<<< HEAD
-  console.log(pool?.tokenIds, shares);
-
-  return { pool, shares, stakeList };
-=======
   return {
     pool,
     shares,
@@ -208,7 +200,6 @@ export const usePool = (id: number | string) => {
     v2StakeList,
     finalStakeList,
   };
->>>>>>> main
 };
 
 interface LoadPoolsOpts {

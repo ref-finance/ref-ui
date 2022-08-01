@@ -207,9 +207,6 @@ export const refFiViewFunction = ({
   return wallet.account().viewFunction(REF_FI_CONTRACT_ID, methodName, args);
 };
 
-<<<<<<< HEAD
-export const refFiManyFunctionCalls = async (
-=======
 export const refVeViewFunction = ({
   methodName,
   args,
@@ -217,8 +214,7 @@ export const refVeViewFunction = ({
   return wallet.account().viewFunction(REF_VE_CONTRACT_ID, methodName, args);
 };
 
-export const refFiManyFunctionCalls = (
->>>>>>> main
+export const refFiManyFunctionCalls = async (
   functionCalls: RefFiFunctionCallOptions[]
 ) => {
   const actions = functionCalls.map((fc) =>
@@ -380,7 +376,6 @@ export const refContractViewFunction = ({
   return wallet.account().viewFunction(XREF_TOKEN_ID, methodName, args);
 };
 
-<<<<<<< HEAD
 export const getAccountNearBalance = async (accountId: string) => {
   const provider = new providers.JsonRpcProvider({
     url: getConfig().nodeUrl,
@@ -393,7 +388,8 @@ export const getAccountNearBalance = async (accountId: string) => {
       account_id: accountId,
     })
     .then((data) => ({ available: data.amount }));
-=======
+};
+
 export const refFarmBoostViewFunction = ({
   methodName,
   args,
@@ -401,5 +397,4 @@ export const refFarmBoostViewFunction = ({
   return wallet
     .account()
     .viewFunction(REF_FARM_BOOST_CONTRACT_ID, methodName, args);
->>>>>>> main
 };

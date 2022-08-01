@@ -97,13 +97,8 @@ export function shareToUserTotal({
           : '- '}
       </span>
 
-<<<<<<< HEAD
-      <span className={`text-primaryText ${canFarm == 0 ? 'hidden' : ''}`}>
-        {getCurrentWallet()?.wallet?.isSignedIn()
-=======
       <span className={`text-primaryText ${!haveFarm ? 'hidden' : ''}`}>
-        {getCurrentWallet().wallet.isSignedIn()
->>>>>>> main
+        {getCurrentWallet()?.wallet?.isSignedIn()
           ? ` / ${toRoundedReadableNumber({
               decimals: getStablePoolDecimal(pool?.id),
               number: scientificNotationToString(

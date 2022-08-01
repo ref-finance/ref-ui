@@ -40,18 +40,13 @@ import { ConnectToNearBtn, SolidButton } from '../../components/button/Button';
 import { OutlineButton } from '../../components/button/Button';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { FarmMiningIcon } from '../../components/icon';
-<<<<<<< HEAD
 import {
   getCurrentWallet,
   WalletContext,
 } from '../../utils/wallets-integration';
-import { useStabelPoolData } from '../../state/sauce';
-=======
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
 import { useStabelPoolData, PoolData } from '../../state/sauce';
 import { useYourliquidity } from '../../state/pool';
 import { useCanFarmV1, useCanFarmV2 } from '../../state/farm';
->>>>>>> main
 import {
   STABLE_POOL_TYPE,
   isStablePool,
@@ -113,22 +108,8 @@ export function formatePoolData({
   tokens,
   shares,
   poolTVL,
-<<<<<<< HEAD
-}: {
-  pool: Pool;
-  userTotalShare: BigNumber;
-  farmStake: string | number;
-  tokens: TokenMetadata[];
-  shares: string;
-  stakeList: Record<string, string>;
-  farmCount: Number;
-  poolTVL: number;
-}) {
-  const isSignedIn = getCurrentWallet()?.wallet?.isSignedIn();
-=======
 }: PoolData) {
-  const isSignedIn = getCurrentWallet().wallet.isSignedIn();
->>>>>>> main
+  const isSignedIn = getCurrentWallet()?.wallet?.isSignedIn();
 
   const tokensMap: {
     [id: string]: TokenMetadata;
@@ -214,7 +195,8 @@ function StablePoolCard({
     true
   );
 
-  const haveFarm = !!countV1 || !!countV2;
+  const haveFarm =
+    !!(countV1 > endedFarmCountV1) || !!(countV2 > endedFarmCountV2);
 
   const multiMining =
     countV2 > 0
@@ -324,7 +306,7 @@ function StablePoolCard({
                 </span>
 
                 <div className="flex flex-col">
-                  {countV1 > 0 && (
+                  {(countV1 > endedFarmCountV1 || Number(farmStakeV1) > 0) && (
                     <Link to={'/farms'} target="_blank">
                       <ShareInFarm
                         farmStake={farmStakeV1}
@@ -334,7 +316,7 @@ function StablePoolCard({
                       />
                     </Link>
                   )}
-                  {countV2 > 0 && (
+                  {(countV2 > endedFarmCountV2 || Number(farmStakeV2) > 0) && (
                     <Link
                       to={`/v2farms/${stablePool.id}-${
                         onlyEndedFarmsV2 ? 'e' : 'r'

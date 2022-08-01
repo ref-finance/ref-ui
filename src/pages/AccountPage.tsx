@@ -1690,12 +1690,8 @@ export function AccountPage() {
   const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
 
-  const senderLoginRes = getSenderLoginRes();
-
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
-
-  console.log(accountId);
 
   if (!accountId) {
     history.push('/');

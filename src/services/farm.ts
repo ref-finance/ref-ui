@@ -40,11 +40,9 @@ import getConfig from './config';
 import {
   getCurrentWallet,
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
-<<<<<<< HEAD
-} from '../utils/wallets-integration';
-=======
   WalletContext,
-} from '../utils/sender-wallet';
+} from '../utils/wallets-integration';
+
 import { currentStorageBalanceOfFarm_boost } from '../services/account';
 import { WRAP_NEAR_CONTRACT_ID, nearMetadata } from '../services/wrap-near';
 import { utils } from 'near-api-js';
@@ -57,7 +55,6 @@ import { getMftTokenId } from '../utils/token';
 import { useEffect, useContext, useState } from 'react';
 import { getPoolIdBySeedId } from '../components/farm/FarmsHome';
 
->>>>>>> main
 const config = getConfig();
 const { REF_VE_CONTRACT_ID } = config;
 export const DEFAULT_PAGE_LIMIT = 300;
@@ -115,11 +112,7 @@ export const getSeeds = async ({
 };
 
 export const getStakedListByAccountId = async ({
-<<<<<<< HEAD
   accountId = getCurrentWallet()?.wallet?.getAccountId(),
-}): Promise<Record<string, string>> => {
-=======
-  accountId = getCurrentWallet().wallet.getAccountId(),
 }) => {
   const [stakedList, v2StakedList] = await Promise.all([
     refFarmViewFunction({
@@ -158,7 +151,6 @@ export const getStakedListByAccountId = async ({
 export const get_list_user_seeds = async ({
   accountId = getCurrentWallet().wallet.getAccountId(),
 }) => {
->>>>>>> main
   const stakedList = await refFarmViewFunction({
     methodName: 'list_user_seeds',
     args: { account_id: accountId },

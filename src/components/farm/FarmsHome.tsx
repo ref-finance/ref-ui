@@ -65,7 +65,10 @@ import {
   getVeSeedShare,
 } from '../../services/farm';
 import { getLoveAmount } from '../../services/referendum';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import getConfig from '../../services/config';
 import { PoolRPCView } from '../../services/api';
 import {

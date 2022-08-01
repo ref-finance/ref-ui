@@ -1,5 +1,5 @@
-import React from "react";
-import type { HardwareWalletAccountState } from "./DerivationPath";
+import React from 'react';
+import type { HardwareWalletAccountState } from './DerivationPath';
 
 interface FormProps {
   hardwareWalletAccounts: Array<HardwareWalletAccountState>;

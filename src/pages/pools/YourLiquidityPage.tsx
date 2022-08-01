@@ -57,20 +57,12 @@ import {
   ALL_STABLE_POOL_IDS,
 } from '../../services/near';
 import { STABLE_POOL_ID } from '../../services/near';
-<<<<<<< HEAD
 import { isNotStablePool } from '../../services/pool';
 import {
   WalletContext,
   getSenderLoginRes,
 } from '../../utils/wallets-integration';
-=======
-import {
-  isNotStablePool,
-  getFarmsCount,
-  getEndedFarmsCount,
-} from '../../services/pool';
-import { WalletContext, getSenderLoginRes } from '../../utils/sender-wallet';
->>>>>>> main
+import { getFarmsCount, getEndedFarmsCount } from '../../services/pool';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
 import { useFarmStake, useAllFarms, useCanFarmV2 } from '../../state/farm';
@@ -78,9 +70,7 @@ import { useFarmStake, useAllFarms, useCanFarmV2 } from '../../state/farm';
 import { PoolTab } from '~components/pool/PoolTab';
 
 import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
-<<<<<<< HEAD
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-=======
 import { getVEPoolId } from '../ReferendumPage';
 import { useAccountInfo } from '~state/referendum';
 import { VEARROW } from '../../components/icon/Referendum';
@@ -95,7 +85,6 @@ import { createContext } from 'react';
 import { useClientMobile, isClientMobie } from '../../utils/device';
 
 const StakeListContext = createContext(null);
->>>>>>> main
 
 function MyShares({
   shares,
@@ -188,10 +177,12 @@ export function YourLiquidityPage() {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const senderLoginRes = getSenderLoginRes();
   const history = useHistory();
 
-  if (!senderLoginRes && !webWallet.isSignedIn()) {
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
+  if (!accountId) {
     history.push('/');
     return null;
   }
@@ -217,6 +208,9 @@ export function YourLiquidityPage() {
 
   useEffect(() => {
     const ids = ALL_STABLE_POOL_IDS;
+
+    console.log(ids);
+
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       setStablePools(res);
     });

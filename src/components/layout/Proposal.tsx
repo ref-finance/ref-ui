@@ -68,6 +68,7 @@ import { PieChart, Pie, Cell, Sector, ResponsiveContainer } from 'recharts';
 import { toRealSymbol } from '../../utils/token';
 import _, { before, conformsTo, pad } from 'lodash';
 import { CustomSwitch } from '../forms/SlippageSelector';
+
 import { ArrowDownLarge, Radio } from '../../components/icon';
 import { FilterIcon } from '../icon/PoolFilter';
 import {
@@ -79,7 +80,7 @@ import {
   getAccountName,
   getCurrentWallet,
   WalletContext,
-} from '../../utils/sender-wallet';
+} from '../../utils/wallets-integration';
 import { Item } from '../airdrop/Item';
 import { ShareInFarmV2 } from './ShareInFarm';
 import {

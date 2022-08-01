@@ -54,19 +54,7 @@ function StableSwapPageUSN({ pool }: { pool: Pool }) {
 
   const [actionName, setAction] = useState<string>(stableTab || storageTab);
 
-<<<<<<< HEAD
-  const { shares, stakeList } = usePool(id);
-
-  const farmStake =
-    state?.farmStake ||
-    useFarmStake({
-      poolId: Number(id),
-      stakeList,
-    });
-  const userTotalShare = BigNumber.sum(shares, farmStake);
-=======
   const { shares } = state?.pool ? state : usePool(id);
->>>>>>> main
 
   const allTokens = useWhitelistStableTokens();
 
