@@ -23,7 +23,6 @@ import {
   WalletContext,
 } from '../../utils/wallets-integration';
 const config = getConfig();
-const STABLE_POOL_ID = config.STABLE_POOL_ID;
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 
 export default function CalcModel(

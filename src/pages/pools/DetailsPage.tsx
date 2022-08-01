@@ -106,7 +106,10 @@ import {
   WalletContext,
 } from '../../utils/wallets-integration';
 
-import { useWalletTokenBalances } from '../../state/token';
+import {
+  useWalletTokenBalances,
+  useDepositableBalance,
+} from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { scientificNotationToString } from '../../utils/numbers';
 import { isNotStablePool } from '../../services/pool';
@@ -122,7 +125,16 @@ export const REF_FI_PRE_LIQUIDITY_ID_KEY = 'REF_FI_PRE_LIQUIDITY_ID_VALUE';
 import { TokenLinks } from '~components/tokens/Token';
 import { OutLinkIcon } from '~components/icon/Common';
 import ReactTooltip from 'react-tooltip';
+<<<<<<< HEAD
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+=======
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { useAccountInfo } from '../../state/referendum';
+import { getVEPoolId } from '../ReferendumPage';
+import { PoolTab } from '../../components/pool/PoolTab';
+import getConfig from '../../services/config';
+
+>>>>>>> main
 interface ParamTypes {
   id: string;
 }
@@ -133,6 +145,13 @@ interface LocationTypes {
 }
 const ONLY_ZEROS = /^0*\.?0*$/;
 
+const getMax = function (id: string, max: string) {
+  return id !== WRAP_NEAR_CONTRACT_ID
+    ? max
+    : Number(max) <= 0.5
+    ? '0'
+    : String(Number(max) - 0.5);
+};
 const formatDate = (rawDate: string) => {
   const date = rawDate
     .split('-')
@@ -183,7 +202,7 @@ export const GetExchangeRate = ({
     <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
       <span>
         1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
-        <span title={`${rate}`}>
+        <span title={`${rate}`} className="font-sans">
           {rate < 0.01 ? '' : '≈'} {showRate}
         </span>
         &nbsp;{toRealSymbol(tokens[1].symbol)}
@@ -205,9 +224,9 @@ export function AddLiquidityModal(
   const [messageId, setMessageId] = useState<string>('add_liquidity');
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
   const balances = useWalletTokenBalances(tokens.map((token) => token.id));
+  const nearBalance = useDepositableBalance('NEAR');
   const [error, setError] = useState<Error>();
   const intl = useIntl();
-  const history = useHistory();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [canDeposit, setCanDeposit] = useState<boolean>(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
@@ -219,6 +238,8 @@ export function AddLiquidityModal(
   const isSignedIn = globalState.isSignedIn;
 
   if (!balances) return null;
+
+  balances[WRAP_NEAR_CONTRACT_ID] = nearBalance.toString();
 
   const changeFirstTokenAmount = (amount: string) => {
     setError(null);
@@ -333,11 +354,17 @@ export function AddLiquidityModal(
   }) {
     const firstTokenAmountBN = new BigNumber(firstAmount.toString());
     const firstTokenBalanceBN = new BigNumber(
-      toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+      getMax(
+        tokens[0].id,
+        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+      )
     );
     const secondTokenAmountBN = new BigNumber(secondAmount.toString());
     const secondTokenBalanceBN = new BigNumber(
-      toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+      getMax(
+        tokens[1].id,
+        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+      )
     );
 
     setCanSubmit(false);
@@ -492,18 +519,6 @@ export function AddLiquidityModal(
                 defaultMessage="Add Liquidity"
               />
             </div>
-            {/* <p className="text-xs text-primaryText">
-              <a
-                className="underline cursor-pointer"
-                onClick={() => {
-                  window.open('/account');
-                }}
-              >
-                <FormattedMessage id="deposit"></FormattedMessage>
-              </a>
-              &nbsp;
-              <FormattedMessage id="deposit_into_ref_account" />
-            </p> */}
           </div>
           <div
             className="ml-2 cursor-pointer p-1"
@@ -540,7 +555,10 @@ export function AddLiquidityModal(
             </div>
             <InputAmount
               className="w-full border border-transparent rounded"
-              max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+              max={getMax(
+                tokens[0].id,
+                toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+              )}
               onChangeAmount={changeFirstTokenAmount}
               value={firstTokenAmount}
             />
@@ -572,7 +590,10 @@ export function AddLiquidityModal(
             </div>
             <InputAmount
               className="w-full border border-transparent rounded"
-              max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+              max={getMax(
+                tokens[1].id,
+                toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+              )}
               onChangeAmount={changeSecondTokenAmount}
               value={secondTokenAmount}
             />
@@ -608,7 +629,10 @@ export function AddLiquidityModal(
           </div>
           <InputAmount
             className="w-full border border-transparent rounded"
-            max={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
+            max={getMax(
+              tokens[0].id,
+              toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+            )}
             onChangeAmount={changeFirstTokenAmount}
             value={firstTokenAmount}
             disabled={!isSignedIn}
@@ -649,7 +673,10 @@ export function AddLiquidityModal(
           </div>
           <InputAmount
             className="w-full border border-transparent rounded"
-            max={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
+            max={getMax(
+              tokens[1].id,
+              toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+            )}
             onChangeAmount={changeSecondTokenAmount}
             value={secondTokenAmount}
           />
@@ -671,21 +698,13 @@ export function AddLiquidityModal(
                 {modal?.token?.symbol}！
               </label>
             </div>
-            {/* <SolidButton
-              className="focus:outline-none px-3 py-1.5 text-sm"
-              onClick={() => {
-                setVisible(true);
-              }}
-            >
-              <FormattedMessage id="deposit" />
-            </SolidButton> */}
           </div>
         ) : null}
         <div className="flex justify-between text-primaryText text-sm my-6">
           <label>
-            <FormattedMessage id="my_shares"></FormattedMessage>
+            <FormattedMessage id="lp_token"></FormattedMessage>
           </label>
-          <span className="text-white text-sm">{shareDisplay()}</span>
+          <span className="text-white text-sm font-sans">{shareDisplay()}</span>
         </div>
         <div className="">
           <ButtonRender />
@@ -723,8 +742,6 @@ export function RemoveLiquidityModal(
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-
-  const { wallet } = getCurrentWallet();
 
   function submit() {
     const amountBN = new BigNumber(amount?.toString());
@@ -794,7 +811,7 @@ export function RemoveLiquidityModal(
 
         <div>
           <div className="text-xs text-right mb-1 text-gray-400">
-            <FormattedMessage id="my_shares" defaultMessage="Shares" />
+            <FormattedMessage id="lp_token" defaultMessage="LP Tokens" />
             :&nbsp;
             {toPrecision(toReadableNumber(24, shares), 2)}
           </div>
@@ -897,6 +914,7 @@ function MyShares({
   poolId,
   stakeList = {},
   decimal,
+  lptAmount,
 }: {
   shares: string;
   totalShares: string;
@@ -904,6 +922,7 @@ function MyShares({
   stakeList?: Record<string, string>;
   decimal?: number;
   yourLP?: boolean;
+  lptAmount?: string;
 }) {
   if (!shares || !totalShares) return <div>-</div>;
   const seedIdList: string[] = Object.keys(stakeList);
@@ -915,7 +934,11 @@ function MyShares({
     }
   });
 
-  const userTotalShare = BigNumber.sum(shares, farmStake);
+  const userTotalShare = BigNumber.sum(
+    shares,
+    farmStake,
+    Number(poolId) === Number(getVEPoolId()) ? lptAmount || '0' : '0'
+  );
   let sharePercent = percent(userTotalShare.valueOf(), totalShares);
 
   let displayPercent;
@@ -1290,7 +1313,10 @@ export function TVLChart({
 export function PoolDetailsPage() {
   const { id } = useParams<ParamTypes>();
   const { state } = useLocation<LocationTypes>();
-  const { pool, shares, stakeList } = usePool(id);
+  const { pool, shares, finalStakeList: stakeList } = usePool(id);
+
+  const [farmVersion, setFarmVersion] = useState<string>('');
+
   const dayVolume = useDayVolume(id);
   const tokens = useTokens(pool?.tokenIds);
 
@@ -1327,6 +1353,10 @@ export function PoolDetailsPage() {
     }
   };
 
+  const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
+    ? useAccountInfo()
+    : { lptAmount: '0' };
+
   const handleRemoveFromWatchList = () => {
     removePoolFromWatchList({ pool_id: id }).then(() => {
       setShowFullStar(false);
@@ -1341,9 +1371,10 @@ export function PoolDetailsPage() {
         setPoolTVL(pool?.tvl);
       });
     }
-    canFarm(Number(id)).then((canFarm) => {
-      setBackToFarmsButton(!!canFarm);
-      setFarmCount(canFarm);
+    canFarm(Number(id)).then(({ count, version }) => {
+      setBackToFarmsButton(!!count);
+      setFarmVersion(version);
+      setFarmCount(count);
     });
 
     getWatchListFromDb({ pool_id: id }).then((watchlist) => {
@@ -1362,51 +1393,302 @@ export function PoolDetailsPage() {
     return result;
   }
   return (
-    <div>
-      <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
-        <BreadCrumb
-          routes={[
-            { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
-            {
-              id: 'more_pools',
-              msg: 'More Pools',
-              pathname: `/more_pools/${tokens.map((tk) => tk.id)}`,
-              state: {
-                fromMorePools,
-                tokens,
-                morePoolIds,
+    <>
+      <PoolTab></PoolTab>
+      <div>
+        <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
+          <BreadCrumb
+            routes={[
+              { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
+              {
+                id: 'more_pools',
+                msg: 'More Pools',
+                pathname: `/more_pools/${tokens.map((tk) => tk.id)}`,
+                state: {
+                  fromMorePools,
+                  tokens,
+                  morePoolIds,
+                },
               },
-            },
-            {
-              id: 'detail',
-              msg: 'Detail',
-              pathname: `/pool`,
-            },
-          ]}
-        />
-      </div>
-      <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
-        <div className="md:w-full xs:w-full">
-          <Card
-            className="rounded-2xl mr-3 lg:w-96 md:w-full xs:w-full"
-            padding="p-0"
-            bgcolor="bg-cardBg"
-          >
-            <div className="flex flex-col text-center text-base mx-4 py-4">
-              <div className="flex items-center justify-end mb-4">
-                {backToFarmsButton ? (
-                  <Link
-                    to={{
-                      pathname: '/farms',
-                    }}
-                    target="_blank"
+              {
+                id: 'detail',
+                msg: 'Detail',
+                pathname: `/pool`,
+              },
+            ]}
+          />
+        </div>
+        <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
+          <div className="md:w-full xs:w-full">
+            <Card
+              className="rounded-2xl mr-3 lg:w-96 md:w-full xs:w-full"
+              padding="p-0"
+              bgcolor="bg-cardBg"
+            >
+              <div className="flex flex-col text-center text-base mx-4 py-4">
+                <div className="flex items-center justify-end mb-4">
+                  {backToFarmsButton ? (
+                    <Link
+                      to={{
+                        pathname:
+                          farmVersion === 'V1' ? '/farms' : `/v2farms/${id}-r`,
+                      }}
+                      target="_blank"
+                    >
+                      <FarmButton farmCount={farmCount} />
+                    </Link>
+                  ) : (
+                    <span>' '</span>
+                  )}
+                  <div className="lg:hidden ml-2">
+                    <div onClick={handleSaveWatchList}>
+                      {!showFullStart && <WatchListStartEmpty />}
+                    </div>
+                    <div onClick={handleRemoveFromWatchList}>
+                      {showFullStart && <WatchListStartFull />}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-end">
+                    <Icon icon={tokens[0].icon} className="h-10 w-10 mr-2" />
+                    <div className="flex items-start flex-col">
+                      <div className="flex items-center text-white text-base">
+                        {toRealSymbol(tokens[0].symbol)}
+                        {TokenLinks[tokens[0].symbol] ? (
+                          <div
+                            className="ml-2 text-sm"
+                            data-type="info"
+                            data-place="right"
+                            data-multiline={true}
+                            data-class="reactTip"
+                            data-html={true}
+                            data-tip={valueOfNearTokenTip()}
+                            data-for="nearVerifiedId0"
+                          >
+                            <a
+                              className=""
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(TokenLinks[tokens[0].symbol]);
+                              }}
+                            >
+                              <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
+                            </a>
+                            <ReactTooltip
+                              className="w-20"
+                              id="nearVerifiedId0"
+                              backgroundColor="#1D2932"
+                              border
+                              borderColor="#7e8a93"
+                              effect="solid"
+                            />
+                          </div>
+                        ) : null}
+                      </div>
+                      <a
+                        target="_blank"
+                        href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
+                        className="text-xs text-gray-400"
+                        title={tokens[0].id}
+                      >{`${tokens[0].id.substring(0, 24)}${
+                        tokens[0].id.length > 24 ? '...' : ''
+                      }`}</a>
+                    </div>
+                  </div>
+                  <div
+                    className="flex items-center text-white text-sm"
+                    title={toReadableNumber(
+                      tokens[0].decimals,
+                      pool.supplies[tokens[0].id]
+                    )}
                   >
-                    <FarmButton farmCount={farmCount} />
-                  </Link>
-                ) : (
-                  <span>' '</span>
-                )}
-                <div className="lg:hidden ml-2">
+                    {Number(
+                      toReadableNumber(
+                        tokens[0].decimals,
+                        pool.supplies[tokens[0].id]
+                      )
+                    ) < 0.01 &&
+                    Number(
+                      toReadableNumber(
+                        tokens[0].decimals,
+                        pool.supplies[tokens[0].id]
+                      )
+                    ) > 0
+                      ? '< 0.01'
+                      : toInternationalCurrencySystem(
+                          toReadableNumber(
+                            tokens[0].decimals,
+                            pool.supplies[tokens[0].id]
+                          )
+                        )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-end">
+                    <Icon icon={tokens[1].icon} className="h-10 w-10 mr-2" />
+                    <div className="flex items-start flex-col">
+                      <div className="flex items-center text-white text-base">
+                        {toRealSymbol(tokens[1].symbol)}
+                        {TokenLinks[tokens[1].symbol] ? (
+                          <div
+                            className="ml-2 text-sm"
+                            data-type="info"
+                            data-place="right"
+                            data-multiline={true}
+                            data-class="reactTip"
+                            data-html={true}
+                            data-tip={valueOfNearTokenTip()}
+                            data-for="nearVerifiedId1"
+                          >
+                            <a
+                              className=""
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(TokenLinks[tokens[1].symbol]);
+                              }}
+                            >
+                              <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
+                            </a>
+                            <ReactTooltip
+                              id="nearVerifiedId1"
+                              backgroundColor="#1D2932"
+                              border
+                              borderColor="#7e8a93"
+                              effect="solid"
+                            />
+                          </div>
+                        ) : null}
+                      </div>
+                      <a
+                        target="_blank"
+                        href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
+                        className="text-xs text-gray-400"
+                        title={tokens[1].id}
+                      >{`${tokens[1].id.substring(0, 24)}${
+                        tokens[1].id.length > 24 ? '...' : ''
+                      }`}</a>
+                    </div>
+                  </div>
+                  <div
+                    className="flex items-center text-white text-sm
+                "
+                    title={toReadableNumber(
+                      tokens[1].decimals,
+                      pool.supplies[tokens[1].id]
+                    )}
+                  >
+                    {Number(
+                      toReadableNumber(
+                        tokens[1].decimals,
+                        pool.supplies[tokens[1].id]
+                      )
+                    ) < 0.01 &&
+                    Number(
+                      toReadableNumber(
+                        tokens[1].decimals,
+                        pool.supplies[tokens[1].id]
+                      )
+                    ) > 0
+                      ? '< 0.01'
+                      : toInternationalCurrencySystem(
+                          toReadableNumber(
+                            tokens[1].decimals,
+                            pool.supplies[tokens[1].id]
+                          )
+                        )}
+                  </div>
+                </div>
+                {/* rate */}
+                <div className="flex justify-between text-sm md:text-xs xs:text-xs">
+                  <GetExchangeRate
+                    tokens={[tokens[0], tokens[1]]}
+                    pool={pool}
+                  />
+                  <GetExchangeRate
+                    tokens={[tokens[1], tokens[0]]}
+                    pool={pool}
+                  />
+                </div>
+              </div>
+              <div className="border-b border-solid border-gray-600" />
+              <div className="text-sm text-gray-400 pt-4 mx-4">
+                {/* fee */}
+                <div className="flex items-center justify-between py-2.5">
+                  <div>
+                    <FormattedMessage id="fee" defaultMessage="Fee" />
+                  </div>
+                  <div className="text-xs text-white border-greenLight border px-2 rounded-sm">{`${calculateFeePercent(
+                    pool.fee
+                  )}%`}</div>
+                </div>
+                {/* TVL */}
+                <div className="flex items-center justify-between py-2.5">
+                  <div>
+                    <FormattedMessage id="tvl" defaultMessage="TVL" />
+                  </div>
+                  <div
+                    className="text-base text-white"
+                    title={toPrecision(
+                      scientificNotationToString(poolTVL?.toString() || '0'),
+                      0
+                    )}
+                  >
+                    {' '}
+                    $
+                    {toInternationalCurrencySystem(
+                      scientificNotationToString(poolTVL?.toString() || '0')
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between py-2.5">
+                  <div>
+                    <FormattedMessage
+                      id="h24_volume"
+                      defaultMessage="24h volume"
+                    />
+                  </div>
+                  <div className="text-white">
+                    {dayVolume
+                      ? '$' + toInternationalCurrencySystem(dayVolume)
+                      : '-'}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between py-2.5">
+                  <div>
+                    <FormattedMessage id="total_label" />
+                    &nbsp;
+                    <FormattedMessage id="lp_token"></FormattedMessage>
+                  </div>
+                  <div className=" text-white">
+                    {toInternationalCurrencySystem(
+                      toReadableNumber(24, pool?.shareSupply)
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-2.5 pb-5">
+                  <div>
+                    <FormattedMessage id="yours" />
+                  </div>
+                  <div className="text-white">
+                    <MyShares
+                      shares={shares}
+                      totalShares={pool.shareSupply}
+                      poolId={pool.id}
+                      stakeList={stakeList}
+                      lptAmount={lptAmount}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* chart */}
+          <div className="w-full flex flex-col h-full">
+            <div className="lg:flex items-center justify-end mb-4">
+              <div className="flex items-center xs:hidden md:hidden">
+                <div className="mr-2 cursor-pointer">
                   <div onClick={handleSaveWatchList}>
                     {!showFullStart && <WatchListStartEmpty />}
                   </div>
@@ -1414,352 +1696,111 @@ export function PoolDetailsPage() {
                     {showFullStart && <WatchListStartFull />}
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-end">
-                  <Icon icon={tokens[0].icon} className="h-10 w-10 mr-2" />
-                  <div className="flex items-start flex-col">
-                    <div className="flex items-center text-white text-base">
-                      {toRealSymbol(tokens[0].symbol)}
-                      {TokenLinks[tokens[0].symbol] ? (
-                        <div
-                          className="ml-2 text-sm"
-                          data-type="info"
-                          data-place="right"
-                          data-multiline={true}
-                          data-class="reactTip"
-                          data-html={true}
-                          data-tip={valueOfNearTokenTip()}
-                          data-for="nearVerifiedId0"
-                        >
-                          <a
-                            className=""
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.open(TokenLinks[tokens[0].symbol]);
-                            }}
-                          >
-                            <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
-                          </a>
-                          <ReactTooltip
-                            className="w-20"
-                            id="nearVerifiedId0"
-                            backgroundColor="#1D2932"
-                            border
-                            borderColor="#7e8a93"
-                            effect="solid"
-                          />
-                        </div>
-                      ) : null}
-                    </div>
-                    <a
-                      target="_blank"
-                      href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
-                      className="text-xs text-gray-400"
-                      title={tokens[0].id}
-                    >{`${tokens[0].id.substring(0, 24)}${
-                      tokens[0].id.length > 24 ? '...' : ''
-                    }`}</a>
-                  </div>
-                </div>
-                <div
-                  className="flex items-center text-white text-sm"
-                  title={toReadableNumber(
-                    tokens[0].decimals,
-                    pool.supplies[tokens[0].id]
-                  )}
-                >
-                  {Number(
-                    toReadableNumber(
-                      tokens[0].decimals,
-                      pool.supplies[tokens[0].id]
-                    )
-                  ) < 0.01 &&
-                  Number(
-                    toReadableNumber(
-                      tokens[0].decimals,
-                      pool.supplies[tokens[0].id]
-                    )
-                  ) > 0
-                    ? '< 0.01'
-                    : toInternationalCurrencySystem(
-                        toReadableNumber(
-                          tokens[0].decimals,
-                          pool.supplies[tokens[0].id]
-                        )
-                      )}
-                </div>
-              </div>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-end">
-                  <Icon icon={tokens[1].icon} className="h-10 w-10 mr-2" />
-                  <div className="flex items-start flex-col">
-                    <div className="flex items-center text-white text-base">
-                      {toRealSymbol(tokens[1].symbol)}
-                      {TokenLinks[tokens[1].symbol] ? (
-                        <div
-                          className="ml-2 text-sm"
-                          data-type="info"
-                          data-place="right"
-                          data-multiline={true}
-                          data-class="reactTip"
-                          data-html={true}
-                          data-tip={valueOfNearTokenTip()}
-                          data-for="nearVerifiedId1"
-                        >
-                          <a
-                            className=""
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.open(TokenLinks[tokens[1].symbol]);
-                            }}
-                          >
-                            <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
-                          </a>
-                          <ReactTooltip
-                            id="nearVerifiedId1"
-                            backgroundColor="#1D2932"
-                            border
-                            borderColor="#7e8a93"
-                            effect="solid"
-                          />
-                        </div>
-                      ) : null}
-                    </div>
-                    <a
-                      target="_blank"
-                      href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
-                      className="text-xs text-gray-400"
-                      title={tokens[1].id}
-                    >{`${tokens[1].id.substring(0, 24)}${
-                      tokens[1].id.length > 24 ? '...' : ''
-                    }`}</a>
-                  </div>
-                </div>
-                <div
-                  className="flex items-center text-white text-sm
-                "
-                  title={toReadableNumber(
-                    tokens[1].decimals,
-                    pool.supplies[tokens[1].id]
-                  )}
-                >
-                  {Number(
-                    toReadableNumber(
-                      tokens[1].decimals,
-                      pool.supplies[tokens[1].id]
-                    )
-                  ) < 0.01 &&
-                  Number(
-                    toReadableNumber(
-                      tokens[1].decimals,
-                      pool.supplies[tokens[1].id]
-                    )
-                  ) > 0
-                    ? '< 0.01'
-                    : toInternationalCurrencySystem(
-                        toReadableNumber(
-                          tokens[1].decimals,
-                          pool.supplies[tokens[1].id]
-                        )
-                      )}
-                </div>
-              </div>
-              {/* rate */}
-              <div className="flex justify-between text-sm md:text-xs xs:text-xs">
-                <GetExchangeRate tokens={[tokens[0], tokens[1]]} pool={pool} />
-                <GetExchangeRate tokens={[tokens[1], tokens[0]]} pool={pool} />
-              </div>
-            </div>
-            <div className="border-b border-solid border-gray-600" />
-            <div className="text-sm text-gray-400 pt-4 mx-4">
-              {/* fee */}
-              <div className="flex items-center justify-between py-2.5">
-                <div>
-                  <FormattedMessage id="fee" defaultMessage="Fee" />
-                </div>
-                <div className="text-xs text-white border-greenLight border px-2 rounded-sm">{`${calculateFeePercent(
-                  pool.fee
-                )}%`}</div>
-              </div>
-              {/* TVL */}
-              <div className="flex items-center justify-between py-2.5">
-                <div>
-                  <FormattedMessage id="tvl" defaultMessage="TVL" />
-                </div>
-                <div
-                  className="text-base text-white"
-                  title={toPrecision(
-                    scientificNotationToString(poolTVL?.toString() || '0'),
-                    0
-                  )}
-                >
-                  {' '}
-                  $
-                  {toInternationalCurrencySystem(
-                    scientificNotationToString(poolTVL?.toString() || '0')
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center justify-between py-2.5">
-                <div>
+                <div className="text-gray-400 text-xs whitespace-nowrap ">
                   <FormattedMessage
-                    id="h24_volume"
-                    defaultMessage="24h volume"
-                  />
-                </div>
-                <div className="text-white">
-                  {dayVolume
-                    ? '$' + toInternationalCurrencySystem(dayVolume)
-                    : '-'}
-                </div>
-              </div>
-              <div className="flex items-center justify-between py-2.5">
-                <div>
-                  <FormattedMessage
-                    id="total_shares"
-                    defaultMessage="Total Shares"
-                  />
-                </div>
-                <div className=" text-white">
-                  {toInternationalCurrencySystem(
-                    toReadableNumber(24, pool?.shareSupply)
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-2.5 pb-5">
-                <div>
-                  <FormattedMessage id="my_shares" defaultMessage="My Shares" />
-                </div>
-                <div className="text-white">
-                  <MyShares
-                    shares={shares}
-                    totalShares={pool.shareSupply}
-                    poolId={pool.id}
-                    stakeList={stakeList}
+                    id={showFullStart ? 'remove_watchlist' : 'add_watchlist'}
+                    defaultMessage={
+                      showFullStart ? 'Remove Watchlist' : 'Add Watchlist'
+                    }
                   />
                 </div>
               </div>
-            </div>
-          </Card>
-        </div>
 
-        {/* chart */}
-        <div className="w-full flex flex-col h-full">
-          <div className="lg:flex items-center justify-end mb-4">
-            <div className="flex items-center xs:hidden md:hidden">
-              <div className="mr-2 cursor-pointer">
-                <div onClick={handleSaveWatchList}>
-                  {!showFullStart && <WatchListStartEmpty />}
+              <div className="lg:flex items-center justify-end xs:mt-4 md:mt-4 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2 w-full">
+                <div className="pr-2">
+                  <SolidButton
+                    padding="px-0"
+                    className="w-48 h-10 xs:w-full  md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm"
+                    onClick={() => {
+                      setShowFunding(true);
+                    }}
+                  >
+                    <FormattedMessage
+                      id="add_liquidity"
+                      defaultMessage="Add Liquidity"
+                    />
+                  </SolidButton>
                 </div>
-                <div onClick={handleRemoveFromWatchList}>
-                  {showFullStart && <WatchListStartFull />}
+                <div className="pl-2">
+                  <OutlineButton
+                    padding="px-0"
+                    onClick={() => {
+                      setShowWithdraw(true);
+                    }}
+                    className="w-48 h-10 xs:w-full md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm bg-poolRowHover"
+                  >
+                    <FormattedMessage
+                      id="remove_liquidity"
+                      defaultMessage="Remove Liquidity"
+                    />
+                  </OutlineButton>
                 </div>
               </div>
-              <div className="text-gray-400 text-xs whitespace-nowrap ">
-                <FormattedMessage
-                  id={showFullStart ? 'remove_watchlist' : 'add_watchlist'}
-                  defaultMessage={
-                    showFullStart ? 'Remove Watchlist' : 'Add Watchlist'
-                  }
+            </div>
+
+            <Card
+              width="w-full"
+              className="relative rounded-2xl h-full flex flex-col justify-center md:hidden xs:hidden items-center"
+              padding="px-7 py-5"
+              bgcolor="bg-cardBg"
+              style={{
+                height: '397px',
+              }}
+            >
+              {chartDisplay === 'volume' ? (
+                <VolumeChart
+                  data={monthVolume}
+                  chartDisplay={chartDisplay}
+                  setChartDisplay={setChartDisplay}
                 />
-              </div>
-            </div>
-
-            <div className="lg:flex items-center justify-end xs:mt-4 md:mt-4 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2 w-full">
-              <div className="pr-2">
-                <SolidButton
-                  padding="px-0"
-                  className="w-48 h-10 xs:w-full  md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm"
-                  onClick={() => {
-                    setShowFunding(true);
-                  }}
-                >
-                  <FormattedMessage
-                    id="add_liquidity"
-                    defaultMessage="Add Liquidity"
-                  />
-                </SolidButton>
-              </div>
-              <div className="pl-2">
-                <OutlineButton
-                  padding="px-0"
-                  onClick={() => {
-                    setShowWithdraw(true);
-                  }}
-                  className="w-48 h-10 xs:w-full md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm bg-poolRowHover"
-                >
-                  <FormattedMessage
-                    id="remove_liquidity"
-                    defaultMessage="Remove Liquidity"
-                  />
-                </OutlineButton>
-              </div>
-            </div>
+              ) : (
+                <TVLChart
+                  data={monthTVL}
+                  chartDisplay={chartDisplay}
+                  setChartDisplay={setChartDisplay}
+                />
+              )}
+            </Card>
           </div>
 
-          <Card
-            width="w-full"
-            className="relative rounded-2xl h-full flex flex-col justify-center md:hidden xs:hidden items-center"
-            padding="px-7 py-5"
-            bgcolor="bg-cardBg"
+          <RemoveLiquidityModal
+            pool={pool}
+            shares={shares}
+            tokens={tokens}
+            isOpen={showWithdraw}
+            onRequestClose={() => setShowWithdraw(false)}
             style={{
-              height: '397px',
+              overlay: {
+                backdropFilter: 'blur(15px)',
+                WebkitBackdropFilter: 'blur(15px)',
+              },
+              content: {
+                outline: 'none',
+                position: 'fixed',
+                bottom: '50%',
+              },
             }}
-          >
-            {chartDisplay === 'volume' ? (
-              <VolumeChart
-                data={monthVolume}
-                chartDisplay={chartDisplay}
-                setChartDisplay={setChartDisplay}
-              />
-            ) : (
-              <TVLChart
-                data={monthTVL}
-                chartDisplay={chartDisplay}
-                setChartDisplay={setChartDisplay}
-              />
-            )}
-          </Card>
+          />
+          <AddLiquidityModal
+            pool={pool}
+            tokens={tokens}
+            isOpen={showFunding}
+            onRequestClose={() => setShowFunding(false)}
+            overlayClassName=""
+            style={{
+              overlay: {
+                backdropFilter: 'blur(15px)',
+                WebkitBackdropFilter: 'blur(15px)',
+              },
+              content: {
+                outline: 'none',
+                position: 'fixed',
+                bottom: '50%',
+              },
+            }}
+          />
         </div>
-
-        <RemoveLiquidityModal
-          pool={pool}
-          shares={shares}
-          tokens={tokens}
-          isOpen={showWithdraw}
-          onRequestClose={() => setShowWithdraw(false)}
-          style={{
-            overlay: {
-              backdropFilter: 'blur(15px)',
-              WebkitBackdropFilter: 'blur(15px)',
-            },
-            content: {
-              outline: 'none',
-              position: 'fixed',
-              bottom: '50%',
-            },
-          }}
-        />
-        <AddLiquidityModal
-          pool={pool}
-          tokens={tokens}
-          isOpen={showFunding}
-          onRequestClose={() => setShowFunding(false)}
-          overlayClassName=""
-          style={{
-            overlay: {
-              backdropFilter: 'blur(15px)',
-              WebkitBackdropFilter: 'blur(15px)',
-            },
-            content: {
-              outline: 'none',
-              position: 'fixed',
-              bottom: '50%',
-            },
-          }}
-        />
       </div>
-    </div>
+    </>
   );
 }

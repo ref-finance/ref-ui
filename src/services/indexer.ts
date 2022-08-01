@@ -17,14 +17,34 @@ import { getCurrentWallet } from '../utils/wallets-integration';
 import { getPoolsByTokens } from './pool';
 import {
   filterBlackListPools,
-  BLACKLIST_POOL_IDS,
   ALL_STABLE_POOL_IDS,
   STABLE_POOL_ID,
 } from './near';
 
 import { getPool as getPoolRPC } from '../services/pool';
+import { BLACKLIST_POOL_IDS } from './near';
 
 const config = getConfig();
+
+export const getPoolsByTokensIndexer = async ({
+  token0,
+  token1,
+}: {
+  token0: string;
+  token1: string;
+}) => {
+  const res1 = await fetch(
+    config.indexerUrl +
+      `/list-pools-by-tokens?token0=${token0}&token1=${token1}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+
+  return res1.filter(
+    (p: any) => !isStablePool(p.id) && !BLACKLIST_POOL_IDS.includes(p.id)
+  );
+};
 
 export const getPoolMonthVolume = async (
   pool_id: string
@@ -166,12 +186,42 @@ export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
     });
 };
 
+// https://testnet-indexer.ref-finance.com/get-proposal-hash-by-id?proposal_id=11|12
+
+export interface ProposalHash {
+  proposal_id: string;
+  receipt_id: string;
+  transaction_hash: string;
+}
+
+export const getProposalHashes = async ({
+  proposal_ids,
+}: {
+  proposal_ids: number[];
+}) => {
+  return fetch(
+    config.indexerUrl +
+      '/get-proposal-hash-by-id?proposal_id=' +
+      proposal_ids.join('|'),
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+
+    .catch(() => {
+      return [];
+    });
+};
+
 export const getPoolsByIds = async ({
   pool_ids,
 }: {
   pool_ids: string[];
 }): Promise<PoolRPCView[]> => {
   const ids = pool_ids.join('|');
+  if (!ids) return [];
   return fetch(config.indexerUrl + '/list-pools-by-ids?ids=' + ids, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
@@ -263,5 +313,8 @@ export const getListHistoryTokenPriceByIds = async (
     .then((res) => res.json())
     .then((list) => {
       return list;
+    })
+    .catch(() => {
+      return [];
     });
 };

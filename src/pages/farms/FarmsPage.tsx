@@ -19,12 +19,14 @@ import {
   CoinPropertyIcon,
   SortIcon,
   NoDataIcon,
+  LightSmall,
 } from '~components/icon';
 import {
   GreenLButton,
   BorderButton,
   GradientButton,
   ButtonTextWrapper,
+  BlacklightConnectToNearBtn,
 } from '~components/button/Button';
 import {
   getFarms,
@@ -43,6 +45,7 @@ import {
   defaultConfig,
   frontConfig,
   get_seed_info,
+  useMigrate_user_data,
 } from '~services/farm';
 import {
   stake,
@@ -76,7 +79,7 @@ import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { getTokenPriceList } from '~services/indexer';
 import Countdown, { zeroPad } from 'react-countdown';
 import moment from 'moment';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
@@ -91,12 +94,15 @@ import { scientificNotationToString } from '../../utils/numbers';
 import { getPrice } from '~services/xref';
 import { get24hVolume } from '~services/indexer';
 import { PoolRPCView } from '~services/api';
-
-const config = getConfig();
-const STABLE_POOL_ID = config.STABLE_POOL_ID;
-const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
-const XREF_TOKEN_ID = config.XREF_TOKEN_ID;
-const REF_TOKEN_ID = config.REF_TOKEN_ID;
+import { checkTransaction } from '../../services/swap';
+import {
+  getURLInfo,
+  usnBuyAndSellToast,
+  swapToast,
+} from '../../components/layout/transactionTipPopUp';
+import { MigrateIconSmall } from '../../components/icon/FarmBoost';
+const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID, XREF_TOKEN_ID, REF_TOKEN_ID } =
+  getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 interface SearchData {
   status: number;
@@ -158,6 +164,52 @@ export function FarmsPage() {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const history = useHistory();
+
+  const [popUp, setPopUp] = useState(false);
+
+  const { txHash, pathname, errorType } = getURLInfo();
+
+  useEffect(() => {
+    if (txHash && isSignedIn && pathname === '/farms' && popUp) {
+      checkTransaction(txHash)
+        .then((res: any) => {
+          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+
+          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
+            return slippageErrorPattern.test(
+              outcome?.outcome?.status?.Failure?.ActionError?.kind
+                ?.FunctionCallError?.ExecutionError
+            );
+          });
+          const transaction = res.transaction;
+          const methodName =
+            transaction?.actions[0]?.['FunctionCall']?.method_name;
+          return {
+            isUSN: methodName == 'buy' || methodName == 'sell',
+            isSlippageError,
+            isNearWithdraw: methodName == 'near_withdraw',
+            isNearDeposit: methodName == 'near_deposit',
+          };
+        })
+        .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
+          if (isUSN || isNearWithdraw || isNearDeposit) {
+            isUSN &&
+              !isSlippageError &&
+              !errorType &&
+              usnBuyAndSellToast(txHash);
+            (isNearWithdraw || isNearDeposit) &&
+              !errorType &&
+              swapToast(txHash);
+            window.history.replaceState(
+              {},
+              '',
+              window.location.origin + pathname
+            );
+          }
+        });
+    }
+  }, [txHash, isSignedIn, popUp]);
 
   useEffect(() => {
     loadFarmInfoList(false, isSignedIn).then();
@@ -187,6 +239,7 @@ export function FarmsPage() {
       searchByCondition();
     }
   }, [location.search]);
+  const { user_migrate_seeds, seed_loading } = useMigrate_user_data();
   async function loadFarmInfoList(isUpload?: boolean, isSignedIn?: boolean) {
     if (isUpload) {
       setUnclaimedFarmsIsLoading(false);
@@ -198,7 +251,7 @@ export function FarmsPage() {
       return {};
     };
     let Params: [
-      Promise<Record<string, string>>,
+      any,
       Promise<Record<string, string>>,
       Promise<any>,
       Promise<Record<string, string>>,
@@ -224,14 +277,15 @@ export function FarmsPage() {
     }
 
     const resolvedParams: [
-      Record<string, string>,
+      any,
       Record<string, string>,
       any,
       Record<string, string>,
       any
     ] = await Promise.all(Params);
 
-    const stakedList: Record<string, string> = resolvedParams[0];
+    const stakedList: Record<string, string> =
+      resolvedParams[0].stakedList || {};
     const tokenPriceList: any = resolvedParams[2];
     const seeds: Record<string, string> = resolvedParams[3];
     getAllPoolsDayVolume(seeds);
@@ -339,6 +393,7 @@ export function FarmsPage() {
       }
     }
     setUnclaimedFarmsIsLoading(false);
+    setPopUp(true);
     getTokenSinglePrice(farms, rewardList, tokenPriceList);
     const [mergeFarms, commonSeedFarms] = composeFarms(farms);
     searchByCondition(mergeFarms, commonSeedFarms);
@@ -663,6 +718,11 @@ export function FarmsPage() {
     }
     return Number(result);
   }
+  function goMigrate() {
+    history.push('/farmsMigrate');
+  }
+  const showMigrateEntry = !seed_loading && user_migrate_seeds.length > 0;
+
   return (
     <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
@@ -670,10 +730,54 @@ export function FarmsPage() {
       </div>
       <div className="grid grid-cols-farmContainerOther 2xl:grid-cols-farmContainer grid-flow-col xs:grid-cols-1 xs:grid-flow-row md:grid-cols-1 md:grid-flow-row">
         <div className="text-white pl-12 xs:px-5 md:px-5">
-          <div className="text-white text-3xl h-12">
-            <FormattedMessage id="farms" defaultMessage="Farms" />
+          <div className="flex items-center justify-between -mt-3">
+            <div className="flex items-center text-white text-2xl h-12">
+              <FormattedMessage id="farms" defaultMessage="Farms" />
+            </div>
+            <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
+              <span className="flex items-center justify-center text-sm  text-chartBg cursor-pointer px-2 h-full  rounded-2xl bg-farmSearch">
+                <FormattedMessage id="v1Legacy" />
+              </span>
+              <span
+                onClick={() => {
+                  history.push('/v2farms');
+                }}
+                className="flex items-center justify-center rounded-2xl text-sm  text-farmText cursor-pointer px-3 h-full"
+              >
+                <FormattedMessage id="v2New" />
+              </span>
+            </div>
           </div>
-          <div className="rounded-2xl bg-cardBg pt-5 pb-8 relative overflow-hidden">
+          {showMigrateEntry ? (
+            <div className="relative bg-veGradient rounded-2xl p-4 mt-2">
+              <span className="flex items-center justify-start text-white text-lg font-black my-2">
+                <FormattedMessage id="v2_new_farms" />
+              </span>
+              <p
+                className="text-white text-sm"
+                dangerouslySetInnerHTML={{
+                  __html: intl.formatMessage({
+                    id: REF_VE_CONTRACT_ID ? 'v2_boost_tip' : 'v2_boost_no_tip',
+                  }),
+                }}
+              ></p>
+              <MigrateIconSmall className="absolute -bottom-3 -left-3.5"></MigrateIconSmall>
+              <div className="flex justify-end">
+                {isSignedIn ? (
+                  <div
+                    onClick={goMigrate}
+                    className="flex items-center h-8 w-2/3 justify-center bg-otherGreenColor hover:bg-black hover:text-greenColor rounded-lg text-black text-sm cursor-pointer mt-6 mb-3"
+                  >
+                    <FormattedMessage id="migrate_now" />
+                  </div>
+                ) : (
+                  <BlacklightConnectToNearBtn className="h-8 w-3/4 mt-6 mb-5" />
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          <div className="rounded-2xl bg-cardBg pt-5 pb-8 relative overflow-hidden mt-4 ">
             <div className="flex justify-between px-5 pb-12 relative">
               <div className="flex flex-col items-center">
                 <div className="flex items-center text-white text-sm text-center mb-1.5">
@@ -866,7 +970,6 @@ export function FarmsPage() {
                       id={searchData.coin}
                       list={filterList}
                       onChange={changeCoinOption}
-                      // className="w-36"
                       Icon={isMobile() ? CoinPropertyIcon : ''}
                     />
                   </div>
@@ -879,7 +982,6 @@ export function FarmsPage() {
                       list={sortList}
                       onChange={changeSortOption}
                       Icon={isMobile() ? SortIcon : ''}
-                      // className="w-56"
                     />
                   </div>
                 </div>
@@ -2315,7 +2417,6 @@ function ActionModal(
               <div className="flex items-center">
                 {displayTokenData.imgs}
                 <label className="ml-3 text-base text-white">
-                  {/* {displayTokenData.symbols}{' '} */}
                   <FormattedMessage id="my_shares"></FormattedMessage>
                 </label>
               </div>
@@ -2347,7 +2448,7 @@ function ActionModal(
                       </label>
                       <label
                         className={
-                          'cursor-pointer ' +
+                          'text-white cursor-pointer ' +
                           (showCalc ? 'transform rotate-180' : '')
                         }
                       >

@@ -184,7 +184,6 @@ function XrefPage() {
     } else if (receive.isLessThan(0.001)) {
       return '<0.001';
     } else {
-      // return `≈ ${receive.toFixed(3, 1)}`;
       return `≈ ${toPrecision(receive.valueOf(), 3, true)}`;
     }
   };
@@ -240,7 +239,7 @@ function XrefPage() {
                     </p>
                   </div>
                 </div>
-                <div className="whitespace-nowrap ml-8 text-white text-sm text-right">
+                <div className="whitespace-nowrap ml-8 text-white text-sm text-right font-sans">
                   {displayTotalREF()}{' '}
                   <FormattedMessage id="ref"></FormattedMessage>
                 </div>
@@ -261,7 +260,7 @@ function XrefPage() {
               </div>
               <div className="flex flex-col items-end text-xl xs:text-base md:text-base text-white relative top-3">
                 <label>{displayBalance(xrefBalance)}</label>
-                <div className="whitespace-nowrap text-white text-sm">
+                <div className="whitespace-nowrap text-white text-sm font-sans">
                   {displayTotalREF()}{' '}
                   <FormattedMessage id="ref"></FormattedMessage>
                 </div>
@@ -472,7 +471,10 @@ function InputView(props: any) {
           </label>
         )}
 
-        <label className="text-sm text-white"> {exchangeDisplay()}</label>
+        <label className="text-sm text-white font-sans">
+          {' '}
+          {exchangeDisplay()}
+        </label>
       </div>
       {isSignedIn ? (
         <GradientButton

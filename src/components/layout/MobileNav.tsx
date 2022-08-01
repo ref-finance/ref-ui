@@ -22,6 +22,7 @@ import {
   RuIcon,
   JaIcon,
   KoIcon,
+  NavLogoSimple,
 } from '~components/icon';
 import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
@@ -593,16 +594,16 @@ export function MobileNavBar(props: any) {
     }
   }, [show]);
 
-  if (isSignedIn) {
-    moreLinks[2].children[2] = {
-      id: 'Your_Liquidity',
-      label: 'Your Liquidity',
-      url: '/pools/yours',
-      pattern: '/pools/yours',
-      isExternal: false,
-      logo: <IconMyLiquidity />,
-    };
-  }
+  // if (isSignedIn) {
+  //   moreLinks[2].children[2] = {
+  //     id: 'Your_Liquidity',
+  //     label: 'Your Liquidity',
+  //     url: '/pools/yours',
+  //     pattern: '/pools/yours',
+  //     isExternal: false,
+  //     logo: <IconMyLiquidity />,
+  //   };
+  // }
 
   function close() {
     setShow(false);
@@ -651,7 +652,11 @@ export function MobileNavBar(props: any) {
       >
         {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}
         <div className="flex items-center text-2xl text-white justify-between p-4">
-          <NavLogo />
+          <NavLogoSimple
+            onClick={() => {
+              window.open('https://www.ref.finance/');
+            }}
+          />
           <div className="flex">
             <div
               className={`flex px-1 mr-px items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
@@ -796,7 +801,9 @@ export function MobileNavBar(props: any) {
                   newFunction,
                   showIcon,
                   iconElement,
+                  hidden,
                 }) => {
+                  if (hidden) return null;
                   let location = useLocation();
                   let isSelected = subRoute
                     ? subRoute.includes(location.pathname)
@@ -806,12 +813,17 @@ export function MobileNavBar(props: any) {
                         strict: false,
                       });
                   if (
-                    location.pathname.startsWith('/pool/') ||
-                    location.pathname.startsWith('/more_pools/')
+                    location.pathname.startsWith('/pools') ||
+                    location.pathname.startsWith('/pool') ||
+                    location.pathname.startsWith('/more_pools')
                   ) {
-                    if (id === 'pools') {
+                    if (id === 'POOL') {
                       isSelected = true;
                     }
+                  }
+                  let targetUrl = url;
+                  if (url.startsWith('/pools') && isSignedIn) {
+                    targetUrl = '/pools/yours';
                   }
                   return (
                     <div key={id}>
@@ -823,7 +835,9 @@ export function MobileNavBar(props: any) {
                               : 'text-white'
                             : 'text-primaryText'
                         }`}
-                        onClick={() => handleMenuClick(url, label, isExternal)}
+                        onClick={() =>
+                          handleMenuClick(targetUrl, label, isExternal)
+                        }
                       >
                         {showIcon ? (
                           <span

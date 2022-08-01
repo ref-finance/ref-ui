@@ -18,7 +18,7 @@ interface CommonBassesProps {
 }
 const COMMON_BASSES = [
   'USN',
-  'wNEAR',
+  'NEAR',
   'REF',
   'SKYWARD',
   'OCT',

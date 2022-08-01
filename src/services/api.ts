@@ -4,6 +4,7 @@ import { toPrecision, scientificNotationToString } from '../utils/numbers';
 import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
 import { getCurrentWallet } from '../utils/wallets-integration';
+import { TokenMetadata } from './ft-contract';
 
 const config = getConfig();
 
@@ -22,6 +23,7 @@ export interface PoolRPCView {
   token0_ref_price: string;
   share: string;
   decimalsHandled?: boolean;
+  tokens_meta_data?: TokenMetadata[];
 }
 
 export const parsePoolView = (pool: any): PoolRPCView => ({

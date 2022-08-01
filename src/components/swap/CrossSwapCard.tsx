@@ -9,7 +9,7 @@ import React, {
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
-import { useTokenBalances } from '../../state/token';
+import { useTokenBalances, useDepositableBalance } from '../../state/token';
 import { useSwap, useCrossSwap } from '../../state/swap';
 import {
   calculateExchangeRate,
@@ -29,6 +29,7 @@ import {
   calculateSmartRoutesV2PriceImpact,
   separateRoutes,
   calcStableSwapPriceImpact,
+  toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount, {
@@ -67,6 +68,8 @@ import { getTokenPriceList } from '../../services/indexer';
 import { TokenCardOut, CrossSwapTokens } from '../forms/TokenAmount';
 import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
 import { TriIcon, RefIcon, WannaIconDark } from '../icon/DexIcon';
+import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { unWrapTokenId, wrapTokenId } from './SwapCard';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -151,7 +154,7 @@ export function SwapRateDetail({
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
           <FaExchangeAlt color="#00C6A2" />
         </span>
-        <span>{newValue}</span>
+        <span className="font-sans">{newValue}</span>
       </p>
     </section>
   );
@@ -215,15 +218,15 @@ export const GetPriceImpact = (
       ? 'text-warn'
       : 'text-error';
 
-  const displayValue = toPrecision(
-    scientificNotationToString(multiply(tokenInAmount, divide(value, '100'))),
-    3
+  const displayValue = scientificNotationToString(
+    multiply(tokenInAmount, divide(value, '100'))
   );
-
   const tokenInInfo =
     Number(displayValue) <= 0
       ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
-      : ` / -${displayValue} ${tokenIn.symbol}`;
+      : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)} ${
+          tokenIn.symbol
+        }`;
 
   if (Number(value) < 0.01)
     return (
@@ -242,7 +245,7 @@ export const GetPriceImpact = (
     );
 
   return (
-    <span className={`${textColor}`}>
+    <span className={`${textColor} font-sans`}>
       {`≈ -${toPrecision(value, 2)}%`}
       {tokenInInfo}
     </span>
@@ -386,6 +389,8 @@ export default function CrossSwapCard(props: {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
+  const nearBalance = useDepositableBalance('NEAR');
+
   const [tokenInBalanceFromNear, setTokenInBalanceFromNear] =
     useState<string>();
 
@@ -412,8 +417,10 @@ export default function CrossSwapCard(props: {
   }, []);
 
   useEffect(() => {
-    const rememberedIn = urlTokenIn || localStorage.getItem(SWAP_IN_KEY);
-    const rememberedOut = urlTokenOut || localStorage.getItem(SWAP_OUT_KEY);
+    const rememberedIn =
+      wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
+    const rememberedOut =
+      wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
 
     if (allTokens) {
       setTokenIn(
@@ -430,14 +437,22 @@ export default function CrossSwapCard(props: {
     const tokenInId = tokenIn.id;
     const tokenOutId = tokenOut.id;
     ftGetBalance(tokenInId).then((available: string) =>
-      setTokenInBalanceFromNear(toReadableNumber(tokenIn?.decimals, available))
+      setTokenInBalanceFromNear(
+        toReadableNumber(
+          tokenIn?.decimals,
+          tokenInId === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
+        )
+      )
     );
     ftGetBalance(tokenOutId).then((available: string) =>
       setTokenOutBalanceFromNear(
-        toReadableNumber(tokenOut?.decimals, available)
+        toReadableNumber(
+          tokenOut?.decimals,
+          tokenOutId === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
+        )
       )
     );
-  }, [tokenIn, tokenOut, isSignedIn]);
+  }, [tokenIn, tokenOut, isSignedIn, nearBalance]);
 
   const {
     tokenOutAmount,
@@ -521,12 +536,24 @@ export default function CrossSwapCard(props: {
 
   const tokenOutMax = tokenOutBalanceFromNear || '0';
 
+  const curMax =
+    tokenIn?.id === WRAP_NEAR_CONTRACT_ID
+      ? Number(tokenInMax) <= 0.5
+        ? '0'
+        : String(Number(tokenInMax) - 0.5)
+      : tokenInMax;
+
   const canSubmit = requested
     ? canSwap &&
+<<<<<<< HEAD
       getCurrentWallet()?.wallet?.isSignedIn() &&
       !ONLY_ZEROS.test(tokenInMax) &&
+=======
+      getCurrentWallet().wallet.isSignedIn() &&
+      !ONLY_ZEROS.test(curMax) &&
+>>>>>>> main
       !ONLY_ZEROS.test(tokenInAmount) &&
-      new BigNumber(tokenInAmount).lte(new BigNumber(tokenInMax))
+      new BigNumber(tokenInAmount).lte(new BigNumber(curMax))
     : tokenIn?.id !== tokenOut?.id &&
       !loadingTrigger &&
       !ONLY_ZEROS.test(tokenInAmount);
@@ -632,7 +659,11 @@ export default function CrossSwapCard(props: {
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             setTokenIn(token);
-            history.replace(`#${token.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
+            history.replace(
+              `#${unWrapTokenId(token.id)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
+                tokenOut.id
+              )}`
+            );
           }}
           amount={tokenInAmount}
           hidden={requested}
@@ -651,7 +682,9 @@ export default function CrossSwapCard(props: {
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
               history.replace(
-                `#${tokenOut.id}${TOKEN_URL_SEPARATOR}${tokenIn.id}`
+                `#${unWrapTokenId(
+                  tokenOut.id
+                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenIn.id)}`
               );
             }}
           />
@@ -663,7 +696,11 @@ export default function CrossSwapCard(props: {
           onSelectToken={(token) => {
             setTokenOut(token);
             localStorage.setItem(SWAP_OUT_KEY, token.id);
-            history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${token.id}`);
+            history.replace(
+              `#${unWrapTokenId(
+                tokenIn.id
+              )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(token.id)}`
+            );
           }}
           balances={balances}
           tokenPriceList={tokenPriceList}

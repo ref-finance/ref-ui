@@ -33,7 +33,6 @@ import {
 } from '~services/stable-swap';
 import { TokenBalancesView } from '~services/token';
 import { usePredictRemoveShares, useRemoveLiquidity } from '~state/pool';
-import { useCanFarm, useFarmStake } from '~state/farm';
 import {
   percent,
   percentLess,
@@ -78,13 +77,12 @@ export function RemoveLiquidityComponentUSN(props: {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
   pool: Pool;
-  stakeList: Record<string, string>;
   stablePool: StablePool;
   changeAction?: (actionName: string) => void;
 }) {
   const [slippageInvalid, setSlippageInvalid] = useState(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-  const { shares, tokens, pool, stakeList, stablePool, changeAction } = props;
+  const { shares, tokens, pool, stablePool, changeAction } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [isPercentage, setIsPercentage] = useState<boolean>(true);

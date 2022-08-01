@@ -6,12 +6,13 @@ import { shareToUserTotal } from './RemoveLiquidity';
 import { Card } from '../card/Card';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import BigNumber from 'bignumber.js';
-import { useCanFarm } from '../../state/farm';
+import { useCanFarm, useCanFarmV1, useCanFarmV2 } from '../../state/farm';
 import { useFarmStake } from '../../state/farm';
-import { Pool } from '../../services/pool';
+import { Pool, canFarmV1, canFarmV2 } from '../../services/pool';
 import { Link, useHistory } from 'react-router-dom';
 import { FarmDot } from '~components/icon';
 import { ShareInFarmV2 } from '../layout/ShareInFarm';
+import { useYourliquidity } from '../../state/pool';
 
 export function BackToStablePoolList() {
   const history = useHistory();
@@ -31,27 +32,40 @@ export function BackToStablePoolList() {
   );
 }
 
-export const Images = ({ tokens }: { tokens: TokenMetadata[] }) => {
+export const Images = ({
+  tokens,
+  size,
+  className,
+  noverlap,
+}: {
+  tokens: TokenMetadata[];
+  size?: string;
+  className?: string;
+  noverlap?: boolean;
+}) => {
   return (
-    <div className="flex items-center">
-      {tokens.map((token, index) => {
-        const { icon, id } = token;
+    <div className={`${className} flex items-center flex-shrink-0`}>
+      {tokens?.map((token, index) => {
+        const icon = token?.icon;
+        const id = token?.id;
         if (icon)
           return (
             <img
-              key={id}
-              className={
-                'inline-block h-10 w-10 rounded-full border border-gradientFromHover -ml-1 bg-cardBg'
-              }
+              key={id || 0 + index}
+              className={`inline-block flex-shrink-0 h-${size || 10} w-${
+                size || 10
+              } rounded-full border border-gradientFromHover ${
+                tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
+              } bg-cardBg`}
               src={icon}
             />
           );
         return (
           <div
-            key={id}
-            className={
-              'inline-block h-10 w-10 rounded-full bg-cardBg border border-gradientFromHover -ml-1'
-            }
+            key={id || 0 + index}
+            className={`inline-block h-${size || 10} flex-shrink-0 w-${
+              size || 10
+            } rounded-full bg-cardBg border border-gradientFromHover -ml-1 `}
           ></div>
         );
       })}
@@ -63,21 +77,25 @@ export const Symbols = ({
   withArrow,
   tokens,
   size,
+  seperator,
+  fontSize,
 }: {
   withArrow?: boolean;
   tokens: TokenMetadata[];
   size?: string;
+  seperator?: string;
+  fontSize?: string;
 }) => {
   return (
     <div
-      className={`text-white font-bold ${
+      className={`text-white ${fontSize || 'font-bold'}  ${
         withArrow ? 'cursor-pointer' : null
       } ${size}`}
     >
-      {tokens.map((token, index) => (
-        <span key={token.id}>
-          {index ? '/' : ''}
-          {toRealSymbol(token.symbol)}
+      {tokens?.map((token, index) => (
+        <span key={token?.id || index}>
+          {index ? seperator || '/' : ''}
+          {toRealSymbol(token?.symbol || '')}
         </span>
       ))}
       {withArrow ? <span className="ml-1.5">{'>'}</span> : null}
@@ -85,23 +103,17 @@ export const Symbols = ({
   );
 };
 
-export function SharesCard({
-  shares,
-  userTotalShare,
-  stakeList,
-  pool,
-}: {
-  shares: string;
-  userTotalShare: BigNumber;
-  stakeList: Record<string, string>;
-  pool: Pool;
-}) {
-  const canFarm = useCanFarm(pool.id);
+export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
+  const { farmCount: countV1 } = useCanFarmV1(pool.id, true);
 
-  const farmStake = useFarmStake({
-    poolId: pool.id,
-    stakeList,
-  });
+  const { farmCount: countV2, endedFarmCount: endedFarmCountV2 } = useCanFarmV2(
+    pool.id,
+    true
+  );
+
+  const { farmStakeV1, farmStakeV2, userTotalShare } = useYourliquidity(
+    pool.id
+  );
 
   return (
     <Card
@@ -118,15 +130,28 @@ export function SharesCard({
         {shareToUserTotal({
           shares,
           userTotalShare,
-          canFarm,
+          haveFarm: !!countV1 || !!countV2,
           pool,
         })}
-        {canFarm > 0 ? (
-          <ShareInFarmV2
-            farmStake={farmStake}
-            userTotalShare={userTotalShare}
-          />
-        ) : null}
+        <div className="flex flex-col items-end">
+          {countV1 > 0 ? (
+            <ShareInFarmV2
+              farmStake={farmStakeV1}
+              userTotalShare={userTotalShare}
+              version={'V1'}
+            />
+          ) : null}
+
+          {countV2 > 0 ? (
+            <ShareInFarmV2
+              farmStake={farmStakeV2}
+              userTotalShare={userTotalShare}
+              version={'V2'}
+              poolId={pool.id}
+              onlyEndedFarm={endedFarmCountV2 === countV2}
+            />
+          ) : null}
+        </div>
       </div>
     </Card>
   );

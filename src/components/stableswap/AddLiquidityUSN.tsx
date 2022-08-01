@@ -43,6 +43,7 @@ import StableTokenListUSN from './StableTokenListUSN';
 import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
 import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
+import { getMax } from '../../utils/numbers';
 
 const getSwapSlippageKey = (id: string | number) =>
   `REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE_${id}`;
@@ -87,19 +88,10 @@ export default function AddLiquidityComponentUSN(props: {
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
   totalShares: string;
-  stakeList: Record<string, string>;
   stablePool: StablePool;
   changeAction?: (actionName: string) => void;
 }) {
-  const {
-    pool,
-    tokens,
-    balances,
-    totalShares,
-    stakeList,
-    stablePool,
-    changeAction,
-  } = props;
+  const { pool, tokens, balances, stablePool, changeAction } = props;
 
   const SWAP_SLIPPAGE_KEY_USN = getSwapSlippageKey(pool.id);
 
@@ -129,14 +121,14 @@ export default function AddLiquidityComponentUSN(props: {
   const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
-    const firstAmount = toReadableNumber(
-      tokens[0].decimals,
-      balances[tokens[0].id]
+    const firstAmount = getMax(
+      tokens[0].id,
+      toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
     );
 
-    const secondAmount = toReadableNumber(
-      tokens[1].decimals,
-      balances[tokens[1].id]
+    const secondAmount = getMax(
+      tokens[1].id,
+      toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
     );
 
     if (addType === 'addMax') {
@@ -251,11 +243,17 @@ export default function AddLiquidityComponentUSN(props: {
   }) {
     const firstTokenAmountBN = new BigNumber(firstAmount.toString());
     const firstTokenBalanceBN = new BigNumber(
-      toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+      getMax(
+        tokens[0].id,
+        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+      )
     );
     const secondTokenAmountBN = new BigNumber(secondAmount.toString());
     const secondTokenBalanceBN = new BigNumber(
-      toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+      getMax(
+        tokens[1].id,
+        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+      )
     );
 
     setCanAddLP(true);

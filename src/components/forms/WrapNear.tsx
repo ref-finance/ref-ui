@@ -28,6 +28,7 @@ import {
   WalletContext,
 } from '../../utils/wallets-integration';
 import { SwapExchange } from '../icon/Arrows';
+import SelectToken from './SelectToken';
 
 export const NEAR_WITHDRAW_KEY = 'REF_FI_NEAR_WITHDRAW_VALUE';
 
@@ -163,6 +164,7 @@ function WrapNear(props: ReactModal.Props) {
             onChangeAmount={(amount) => {
               setTokenInAmount(amount);
             }}
+            forWrap
           />
           <div
             className="flex items-center justify-center border-t mt-12 mb-3"
