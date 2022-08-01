@@ -317,6 +317,7 @@ const ko = {
   h24_volume: '24시간 거래량',
   volume: '거래량',
   hide_low_tvl_pools: '잠금총액(TVL) 낮은 풀 숨기기',
+  hide_low_tvl_pools_mobile: '잠금총액(TVL) 낮은 풀 숨기기',
   watchlist_title: '나의 워치리스트 상단 ',
   add_watchlist: '워치리스트에 추가하기',
   remove_watchlist: '워치리스트에서 제거하기',

@@ -327,6 +327,7 @@ const ru = {
   h24_volume: '24ч объем',
   volume: 'Объем',
   hide_low_tvl_pools: 'Скрыть с низким TVL',
+  hide_low_tvl_pools_mobile: 'Скрыть с низким TVL',
   watchlist_title: 'Мой список отслеживания сверху',
   add_watchlist: 'Добавить в список отслеживания',
   remove_watchlist: 'Удалить из списка отслеживания',

@@ -109,7 +109,7 @@ function SelectUi({
       <span className="lg:hidden mr-2">
         <FilterIcon onShow={showSelectBox} />
       </span>
-      <span className="text-farmText text-xs mr-2.5 xs:hidden md:hidden">
+      <span className="text-farmText text-sm mr-2.5 xs:hidden md:hidden">
         <FormattedMessage id="filter_by" defaultMessage="Filter by" />
       </span>
 
@@ -539,7 +539,7 @@ function MobileLiquidityPage({
               </div>
               <div className="text-gray-400 text-sm">
                 <FormattedMessage
-                  id="hide_low_tvl_pools"
+                  id="hide_low_tvl_pools_mobile"
                   defaultMessage="Hide low TVL pools"
                 />
               </div>
@@ -923,59 +923,24 @@ function LiquidityPage_({
 
         <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
           <div className="flex mx-8 justify-between pb-4">
-            <div>
+            <div className="flex items-center">
               <div className="text-white text-lg">Top Pools</div>
 
               <div className="flex items-center">
-                <div className="text-gray-400 text-sm">
+                <span className="mr-1">
+                  <QuestionTip id="topPoolsCopy" />
+                </span>
+
+                <div className="text-primaryText text-sm">
                   {(pools?.length
                     ? pools?.filter(poolFilterFunc).length
                     : '-') +
                     ' out of ' +
                     (allPools ? allPools : '-')}
                 </div>
-                <QuestionTip id="topPoolsCopy" />
               </div>
             </div>
             <div className="flex items-center w-3/7">
-              <div className="flex items-center">
-                <SelectUi
-                  list={filterList}
-                  onChange={setSelectCoinClass}
-                  curvalue={selectCoinClass}
-                />
-              </div>
-
-              <div
-                className="flex items-center mr-5 cursor-pointer"
-                onClick={() => {
-                  hideLowTVL && onHide(false);
-                  !hideLowTVL && onHide(true);
-                }}
-              >
-                <div className="mr-2">
-                  {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
-                </div>
-                <div className="text-gray-400 text-sm ">
-                  <FormattedMessage
-                    id="hide_low_tvl_pools"
-                    defaultMessage="Hide low TVL pools"
-                  />
-                </div>
-              </div>
-              <div className="relative rounded w-full my-2 text-gray-400 flex items-center pr-2 bg-inputDarkBg">
-                <input
-                  ref={inputRef}
-                  className={`text-sm outline-none rounded w-full py-2 pl-3 pr-6`}
-                  placeholder={intl.formatMessage({
-                    id: 'search_by_token',
-                  })}
-                  onChange={(evt) => {
-                    onSearch(evt.target.value);
-                  }}
-                />
-                <SearchIcon className="absolute right-2"></SearchIcon>
-              </div>
               {isSignedIn ? (
                 <GradientButton
                   color="#fff"
@@ -987,6 +952,49 @@ function LiquidityPage_({
                   <FormattedMessage id="create_pool" />
                 </GradientButton>
               ) : null}
+            </div>
+          </div>
+
+          <div className="mx-8 justify-between pb-4 flex">
+            <div className="flex items-center">
+              <div
+                className="flex items-center mr-5 cursor-pointer"
+                onClick={() => {
+                  hideLowTVL && onHide(false);
+                  !hideLowTVL && onHide(true);
+                }}
+              >
+                <div className="mr-2">
+                  {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
+                </div>
+                <div className="text-primaryText text-sm ">
+                  <FormattedMessage
+                    id="hide_low_tvl_pools"
+                    defaultMessage="Hide low TVL pools"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center">
+                <SelectUi
+                  list={filterList}
+                  onChange={setSelectCoinClass}
+                  curvalue={selectCoinClass}
+                />
+              </div>
+            </div>
+
+            <div className="relative rounded w-1/5 my-2 text-primaryText flex items-center pr-2 bg-inputDarkBg">
+              <input
+                ref={inputRef}
+                className={`text-sm outline-none rounded w-full py-2 pl-3 pr-6`}
+                placeholder={intl.formatMessage({
+                  id: 'search_by_token',
+                })}
+                onChange={(evt) => {
+                  onSearch(evt.target.value);
+                }}
+              />
+              <SearchIcon className="absolute right-2"></SearchIcon>
             </div>
           </div>
 

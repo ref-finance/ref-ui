@@ -292,6 +292,7 @@ const zh_CN = {
   h24_volume: '24小时交易量',
   volume: '交易量',
   hide_low_tvl_pools: '隐藏低锁仓量池',
+  hide_low_tvl_pools_mobile: '隐藏低锁仓量池',
   watchlist_title: '顶部的我的收藏',
   add_watchlist: '添加到收藏',
   remove_watchlist: '取消收藏',

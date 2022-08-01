@@ -328,6 +328,7 @@ const ja = {
   h24_volume: '24時間取引量',
   volume: '取引量',
   hide_low_tvl_pools: '低ロックアッププールを隠す',
+  hide_low_tvl_pools_mobile: '低ロックアッププールを隠す',
   watchlist_title: '私のトップウォッチリスト',
   add_watchlist: 'ウォッチリストに追加',
   remove_watchlist: 'ウォッチリストから除外する',

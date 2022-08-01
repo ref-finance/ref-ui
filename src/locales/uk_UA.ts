@@ -313,6 +313,7 @@ const uk_UA = {
   h24_volume: 'Обсяг за добу',
   volume: 'Volume',
   hide_low_tvl_pools: 'Приховати низький TVL',
+  hide_low_tvl_pools_mobile: 'Приховати низький TVL',
   watchlist_title: 'Мій список спостережень вгорі',
   add_watchlist: 'Додати список спостережень',
   remove_watchlist: 'Видалити список спостережень',

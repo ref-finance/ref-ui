@@ -315,6 +315,7 @@ const vi = {
   h24_volume: 'Khối lượng giao dịch 24h',
   volume: 'Volume',
   hide_low_tvl_pools: 'Ẩn TVL thấp',
+  hide_low_tvl_pools_mobile: 'Ẩn TVL thấp',
   watchlist_title: 'Danh sách xem của tôi ở trên đầu',
   add_watchlist: 'Thêm vào danh sách yêu thích',
   remove_watchlist: 'Xóa danh sách xem',
