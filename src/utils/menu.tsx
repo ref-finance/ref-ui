@@ -140,7 +140,7 @@ export const useMenuItems = () => {
           logo: <IconVi />,
         },
         {
-          label: 'Yкраїнський',
+          label: 'Українська',
           isExternal: false,
           language: 'uk',
           url: '',
