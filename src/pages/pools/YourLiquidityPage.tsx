@@ -918,7 +918,7 @@ function PoolRow(props: {
                 />
               </div>
 
-              {supportFarmV1 > 0 && (
+              {(supportFarmV1 > endedFarmV1 || Number(farmStakeV1) > 0) && (
                 <Link
                   to={{
                     pathname: '/farms',
@@ -951,7 +951,7 @@ function PoolRow(props: {
                 </Link>
               )}
 
-              {supportFarmV2 > 0 && (
+              {(supportFarmV2 > endedFarmV2 || Number(farmStakeV2) > 0) && (
                 <Link
                   to={{
                     pathname: `/v2farms/${pool.id}-${
