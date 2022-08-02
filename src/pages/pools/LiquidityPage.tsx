@@ -533,7 +533,7 @@ function MobileLiquidityPage({
                 data-for="add_pool_tip"
               >
                 <button
-                  className={`text-base ml-2 px-3 text-primaryText w-8 h-8 bg-black bg-opacity-20 rounded-md flex items-center justify-center`}
+                  className={`text-base ml-2 px-3 text-primaryText w-8 h-8 bg-black bg-opacity-20 hover:bg-opacity-40 hover:text-gradientFrom rounded-md flex items-center justify-center`}
                   onClick={() => {
                     history.push('/pools/add');
                   }}
@@ -1032,7 +1032,7 @@ function LiquidityPage_({
                   data-for="add_pool_tip"
                 >
                   <button
-                    className={`text-base ml-2 px-3 text-primaryText w-8 h-8 bg-black bg-opacity-20 rounded-md flex items-center justify-center`}
+                    className={`text-base ml-2 px-3 text-primaryText w-8 h-8 bg-black bg-opacity-20 hover:bg-opacity-40 hover:text-gradientFrom rounded-md flex items-center justify-center`}
                     onClick={() => {
                       history.push('/pools/add');
                     }}
