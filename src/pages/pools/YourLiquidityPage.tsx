@@ -567,7 +567,7 @@ function PoolRow(props: {
     return (
       <div className="inline-flex items-center justify-between my-1 w-28">
         <div className="font-semibold">{toRealSymbol(token.symbol)}</div>
-        <div className="font-normal">
+        <div className="font-normal relative left-2.5">
           {tokenAmountShare(
             pool,
             token,
