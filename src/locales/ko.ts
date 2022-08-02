@@ -643,13 +643,6 @@ const ko = {
   dao_capital: 'DAO',
   total_near_amount: '총 NEAR 금액',
   near_value: 'NEAR 값',
-  your_assets: '자산',
-  disconnect: '연결 해제',
-  change: '변화',
-  wallets_below_supports_on_PC: '아래 지갑은 PC에서 지원합니다.',
-  make_sure_device_plugged_in: '장치가 연결되어 있는지 확인',
-  then_enter_an_account_id_to_connect:
-    '그런 다음 연결할 계정 ID를 입력하십시오.',
   recent_one_mounth_activity: '최근 한 달 사용내역',
   vote_mobile_capital: 'VOTE',
   yes_continue: 'Yes, continue',
@@ -766,9 +759,7 @@ const ko = {
   add_option: '옵션 더하기',
   lock_lp_terms:
     '나는 내가 잠근 LP 토큰을 동의한 기간 전까지 꺼낼 수 없다는 점을 이해합니다',
-  connect_wallet: '지갑과 연결하기',
   connect_to_near_wallet: 'NEAR Wallet에 연결하기',
-  connect: '연결',
   only_for_whitelist_address: 'whitelist된 주소에만 허용',
   v1Legacy: 'V1-구버전',
   v2New: 'V2-신버전',
@@ -812,5 +803,13 @@ const ko = {
   your_apr: '당신의 APR',
   range_apr: 'Range or reference APR',
   how_to_earn_more: '보상을 복리로 받는 법?',
+  your_assets: '당신의 자산',
+  connect_wallet: '지갑 연결',
+  disconnect: '연결 해제',
+  change: '변경하기',
+  wallets_below_supports_on_PC: '아래의 지갑은 PC에서 지원 됩니다',
+  connect: '연결하기',
+  make_sure_device_plugged_in: '디바이스 연결을 확인하십시오',
+  then_enter_an_account_id_to_connect: 'ID를 입력하시고 엔터를 눌러 연결하세요',
 };
 export default Object.assign(ko, ko_in_risks_page);

@@ -589,9 +589,7 @@ const ru = {
   add_option: 'Добавьте опцию',
   lock_lp_terms:
     'Я понимаю, что не смогу забрать свои LP токены в течение указанного срока блокировки.',
-  connect_wallet: 'Подключите кошелек',
   connect_to_near_wallet: 'Подключите NEAR кошелек',
-  connect: 'Подключить',
   only_for_whitelist_address: 'Только для белого списка адресов',
   // v1Legacy: 'V1-Традиционные',
   // v2New: 'V2-Новые',
@@ -693,13 +691,7 @@ const ru = {
   close: 'Close',
   burrow_usn_tip: 'Вы можете одолжить USN на Burrow.',
   borrow: 'Занимать',
-  your_assets: 'Ваши активы',
-  disconnect: 'Отключить',
-  change: 'Изменять',
-  wallets_below_supports_on_PC: 'Кошельки ниже поддерживаются на ПК',
-  make_sure_device_plugged_in: 'Убедитесь, что ваше устройство подключено',
-  then_enter_an_account_id_to_connect:
-    'затем введите идентификатор учетной записи для подключения',
+
   unlock: 'Unlock',
   exit_fee: 'Exit fee',
   end_locking_period: 'End of locking period',
@@ -816,5 +808,14 @@ const ru = {
   your_apr: 'Ваш APR',
   range_apr: 'В пределах диапазона или базового APR',
   how_to_earn_more: 'Как заработать больше наград?',
+  your_assets: 'Ваши активы',
+  connect_wallet: 'Подключить кошелек',
+  disconnect: 'Отключить',
+  change: 'Поменять',
+  wallets_below_supports_on_PC: 'Указанные ниже кошельки поддерживаются на ПК',
+  connect: 'Подключиться',
+  make_sure_device_plugged_in: 'Убедитесь, что ваше устройство подключено',
+  then_enter_an_account_id_to_connect:
+    'Укажите идентификатор учетной записи для подключения',
 };
 export default Object.assign(ru, ru_in_risks_page);

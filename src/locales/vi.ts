@@ -648,12 +648,6 @@ const vi = {
   trading_successfull: 'Giao dịch thành công. ',
   total_near_amount: 'Số lượng tất cả NEAR',
   near_value: 'NEAR giá trị',
-  your_assets: 'Tài sản của bạn',
-  disconnect: 'Ngắt kết nối',
-  change: 'Biến đổi',
-  wallets_below_supports_on_PC: 'Ví dưới đây hỗ trợ trên PC',
-  make_sure_device_plugged_in: 'Đảm bảo rằng thiết bị của bạn đã được cắm vào',
-  then_enter_an_account_id_to_connect: 'sau đó nhập ID tài khoản để kết nối',
   recent_one_mounth_activity: 'Hoạt động trong một tháng',
   yes_continue: 'Yes, continue',
   days_ve: 'days',
@@ -774,9 +768,7 @@ const vi = {
   add_option: 'Thêm lựa chọn',
   lock_lp_terms:
     'Tôi hiểu rằng Tôi sẽ không thể xóa LP Tokens của tôi trong thời gian hết hạn của thời gian đồng ý khóa',
-  connect_wallet: 'Kết nối Wallet',
   connect_to_near_wallet: 'Kết nối tới NEAR Wallet',
-  connect: 'Kết nối',
   only_for_whitelist_address: 'Chỉ dành cho địa chỉ whitelist',
   v1Legacy: 'V1-Legacy',
   v2New: 'V2-New',
@@ -820,5 +812,14 @@ const vi = {
   your_apr: 'APR của bạn',
   range_apr: 'Xếp loại hoặc tham khảo APR',
   how_to_earn_more: 'Làm thế nào để gộp phần thưởng?',
+  your_assets: 'Tài sản của bạn',
+  connect_wallet: 'Kết nối ví',
+  disconnect: 'Ngắt kết nối',
+  change: 'Thay đổi',
+  wallets_below_supports_on_PC: 'Các ví dưới đây hỗ trợ trên PC',
+  connect: 'Kết nối',
+  make_sure_device_plugged_in:
+    'Hãy chắc chắn rằng thiết bị của bạn được kết nối',
+  then_enter_an_account_id_to_connect: 'sau đó nhập ID tài khoản để kết nối',
 };
 export default Object.assign(vi, vi_in_risks_page);
