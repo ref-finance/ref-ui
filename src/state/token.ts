@@ -270,6 +270,7 @@ export const useTokenBalances = () => {
   const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
+    if (!isSignedIn) return;
     getTokenBalances()
       .then(setBalances)
       .catch(() => setBalances({}));
