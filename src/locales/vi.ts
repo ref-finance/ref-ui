@@ -587,7 +587,6 @@ const vi = {
   value_of_rewards: 'Value of Rewards',
   Rewards: 'Rewards',
   free: 'Free',
-  how_to_earn_more: 'Làm thế nào để nhận nhiều hơn?',
   claimed_Rewards: 'Nhận phần thưởng',
   all_5_v2: '5 tokens/lần',
   search_farms: 'Tìm kiếm farms',
@@ -642,8 +641,6 @@ const vi = {
   exit_fee: 'Exit fee',
   end_locking_period: 'End of locking period',
   slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
-
-  nonBoosted: 'Non-boosted',
   exit_fee_tip: 'Estimated amount you would pay to break your lock-up period',
   forbiddenTip: 'This farm does not support this duration option',
   swap_successful: 'Hoán đổi thành công. ',
@@ -809,10 +806,12 @@ const vi = {
   voting_power_and_extra_earnings: '‘Lực bình chọn & Thưởng thêm',
   view_on: 'xem trên',
   risks_capital: 'Rủi ro',
-  boostFarmTip: 'Get booster by staking LOVE',
-  boosted: 'Boosted',
+  boostFarmTip: 'Tăng phần thưởng bằng cách staking LOVE',
+  nonBoosted: 'Không được boost ',
+  boosted: 'Đã boost',
   love_staked: 'Staked LOVE',
-  your_apr: 'Your APR',
-  range_apr: 'Range or reference APR',
+  your_apr: 'APR của bạn',
+  range_apr: 'Xếp loại hoặc tham khảo APR',
+  how_to_earn_more: 'Làm thế nào để gộp phần thưởng?',
 };
 export default Object.assign(vi, vi_in_risks_page);
