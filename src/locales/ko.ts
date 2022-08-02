@@ -593,7 +593,6 @@ const ko = {
   append_timing: 'Append timing',
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
-  how_to_earn_more: '더 버는 방법?',
   claimed_Rewards: '획득된 보상',
   all_5_v2: '타임당 5 토큰',
   search_farms: '농장 검색',
@@ -634,8 +633,6 @@ const ko = {
   exit_fee: 'Exit fee',
   end_locking_period: 'End of locking period',
   slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
-
-  nonBoosted: 'Non-boosted',
   exit_fee_tip: 'Estimated amount you would pay to break your lock-up period',
   forbiddenTip: 'This farm does not support this duration option',
   swap_successful: '스왑에 성공했습니다. ',
@@ -808,10 +805,12 @@ const ko = {
   voting_power_and_extra_earnings: '투표권 & 추가 수익',
   view_on: 'View on',
   risks_capital: '리스크',
-  boostFarmTip: 'Get booster by staking LOVE',
-  boosted: 'Boosted',
-  love_staked: 'Staked LOVE',
-  your_apr: 'Your APR',
+  boostFarmTip: 'LOVE를 스테이킹하고 부스터를 받으세요',
+  nonBoosted: '부스트 없음',
+  boosted: '부스트 있음',
+  love_staked: '스테이킹 된 LOVE',
+  your_apr: '당신의 APR',
   range_apr: 'Range or reference APR',
+  how_to_earn_more: '보상을 복리로 받는 법?',
 };
 export default Object.assign(ko, ko_in_risks_page);

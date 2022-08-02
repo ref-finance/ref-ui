@@ -598,8 +598,7 @@ const ru = {
   v1Legacy: 'V1-Legacy',
   v2New: 'V2-New',
   v2_new_farms: 'V2 Новые фермы',
-  // migrate_now: 'Осуществить миграцию сейчас!',
-  migrate_now: 'миграцию сейчас!',
+  migrate_now: 'Выполнить миграцию!',
   v2_boost_tip:
     'V2-фарминг будет работа для ферм с бустом. V1-фарминг будет лишен наград после <span class="font-bold">1 августа 2022 года</span>',
   v2_boost_no_tip:
@@ -612,7 +611,7 @@ const ru = {
   Available_to_stake: 'Доступно для стейкинга',
   you_staked: 'Вы застейкали',
   has_rewards_tip_in_v2:
-    'Традиционные награды, которые будут выведены из <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Ферм</a>.',
+    'Ваши обычные награды, которые вы заберете из <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Ферм</a>.',
   how_to_get: 'Как получить?',
   get_booster: 'Получите бустер',
   ended_farms: 'завершенные фермы',
@@ -658,7 +657,6 @@ const ru = {
   append_timing: 'Append timing',
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
-  how_to_earn_more: 'Как можно заработать больше?',
   claimed_Rewards: 'Полученные награды',
   all_5_v2: '5 токенов за раз',
   search_farms: 'Искать фермы',
@@ -706,8 +704,6 @@ const ru = {
   exit_fee: 'Exit fee',
   end_locking_period: 'End of locking period',
   slash_tip: 'Exit fee = Exit fee rate * End of locking period * Unlock amount',
-
-  nonBoosted: 'Non-boosted',
   exit_fee_tip: 'Estimated amount you would pay to break your lock-up period',
   forbiddenTip: 'This farm does not support this duration option',
   click_to_view: 'Нажмите, чтобы просмотреть',
@@ -813,10 +809,12 @@ const ru = {
   back: 'Вернуться',
   view_on: 'посмотреть в Nearblocks',
   pending_ve: 'Ожидается',
-  boostFarmTip: 'Get booster by staking LOVE',
-  boosted: 'Boosted',
-  love_staked: 'Staked LOVE',
-  your_apr: 'Your APR',
-  range_apr: 'Range or reference APR',
+  boostFarmTip: 'Получить буст, застейкав LOVE',
+  nonBoosted: 'Без буста',
+  boosted: 'Применен буст',
+  love_staked: 'Застейканные LOVE',
+  your_apr: 'Ваш APR',
+  range_apr: 'В пределах диапазона или базового APR',
+  how_to_earn_more: 'Как заработать больше наград?',
 };
 export default Object.assign(ru, ru_in_risks_page);
