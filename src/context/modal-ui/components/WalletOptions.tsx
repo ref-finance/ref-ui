@@ -143,7 +143,6 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
   const handleWalletClick = (module: ModuleState) => async () => {
     try {
       const currentWallet = await window.selector.wallet();
-      console.log(currentWallet);
 
       if (
         (currentWallet.type === 'browser' && module.type === 'browser') ||

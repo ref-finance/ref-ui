@@ -18,7 +18,7 @@ import { InjectedWallet } from '@near-wallet-selector/core';
 import getConfig from '../services/config';
 
 import './modal-ui/components/styles';
-import { REF_FARM_CONTRACT_ID } from '../services/near';
+import { REF_FARM_CONTRACT_ID, wallet } from '../services/near';
 
 const CONTRACT_ID = getConfig().REF_FARM_CONTRACT_ID;
 
@@ -177,28 +177,6 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
 
     return () => subscription.unsubscribe();
   }, [selector, accountId]);
-
-  useEffect(() => {
-    if (!selector || !modal) return;
-    if (!window?.near?.isSender) return;
-
-    window.near.on('accountChanged', async (changedAccountId: string) => {
-      // window.location.reload();
-      const currentWallet = await selector.wallet();
-
-      await currentWallet.signOut();
-
-      const senderModule = selector.store
-        .getState()
-        .modules.find((m) => m.id === 'sender');
-
-      const senderWallet = (await senderModule.wallet()) as InjectedWallet;
-
-      await senderWallet.signIn({
-        contractId: REF_FARM_CONTRACT_ID,
-      });
-    });
-  }, [selector, modal]);
 
   if (!selector || !modal) {
     return null;

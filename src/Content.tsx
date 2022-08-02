@@ -104,6 +104,7 @@ import {
 } from './context/WalletSelectorContext';
 import getConfig from './services/config';
 import { AccountView } from 'near-api-js/lib/providers/provider';
+import { InjectedWallet } from '@near-wallet-selector/core';
 
 export type Account = AccountView & {
   account_id: string;
@@ -171,6 +172,28 @@ export function Content() {
       globalStatedispatch({ type: 'signIn' });
     });
   }, [accountId, getAccount]);
+
+  useEffect(() => {
+    if (
+      !window?.near?.isSender ||
+      selector?.store?.getState()?.selectedWalletId !== 'sender'
+    )
+      return;
+
+    window.near.on('accountChanged', async (changedAccountId: string) => {
+      const senderModule = selector.store
+        .getState()
+        .modules.find((m) => m.id === 'sender');
+
+      const senderWallet = (await senderModule.wallet()) as InjectedWallet;
+
+      await senderWallet.signIn({
+        contractId: REF_FARM_CONTRACT_ID,
+      });
+
+      window.location.reload();
+    });
+  }, [window.near]);
 
   useGlobalPopUp(globalState);
 
