@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import type { WalletSelector } from '@near-wallet-selector/core';
 
 import type { ModalOptions, Theme } from '../modal.types';
@@ -10,7 +10,8 @@ import { CloseButton } from './CloseButton';
 import { DerivationPath } from './DerivationPath';
 import { WalletConnecting } from './WalletConnecting';
 import { WalletNotInstalled } from './WalletNotInstalled';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { Context } from '~components/wrapper';
 
 interface ModalProps {
   selector: WalletSelector;
@@ -39,7 +40,15 @@ export const Modal: React.FC<ModalProps> = ({
   const [route, setRoute] = useState<ModalRoute>({
     name: 'WalletOptions',
   });
-  // const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
+  const walletModalLanguageContext = useContext(Context);
+  useEffect(() => {
+    window.addEventListener('setItemEvent', (e: any) => {
+      if (typeof e?.local === 'string') {
+        walletModalLanguageContext.setLocale(e.local);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     setRoute({
