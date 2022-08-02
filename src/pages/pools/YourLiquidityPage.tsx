@@ -65,7 +65,12 @@ import {
 import { getFarmsCount, getEndedFarmsCount } from '../../services/pool';
 import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
 import { useStabelPoolData } from '../../state/sauce';
-import { useFarmStake, useAllFarms, useCanFarmV2 } from '../../state/farm';
+import {
+  useFarmStake,
+  useAllFarms,
+  useCanFarmV2,
+  useCanFarmV1,
+} from '../../state/farm';
 
 import { PoolTab } from '~components/pool/PoolTab';
 
@@ -256,6 +261,8 @@ export function YourLiquidityPage() {
 
     const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
 
+    const endedFarmV1 = getEndedFarmsCount(p.id.toString(), v1Farm);
+
     const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
     return (
       <div
@@ -276,6 +283,8 @@ export function YourLiquidityPage() {
             supportFarmV1={supportFarmV1}
             supportFarmV2={supportFarmV2}
             onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
+            endedFarmV2={endedFarmV2}
+            endedFarmV1={endedFarmV1}
             lptAmount={lptAmount}
           />
         </StakeListContext.Provider>
@@ -286,6 +295,7 @@ export function YourLiquidityPage() {
     const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
 
     const supportFarmV2 = getFarmsCount(p.id.toString(), v2Farm);
+    const endedFarmV1 = getEndedFarmsCount(p.id.toString(), v1Farm);
 
     const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
     return (
@@ -304,6 +314,8 @@ export function YourLiquidityPage() {
           supportFarmV2={supportFarmV2}
           onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
           lptAmount={lptAmount}
+          endedFarmV2={endedFarmV2}
+          endedFarmV1={endedFarmV1}
         />
       </StakeListContext.Provider>
     );
@@ -446,10 +458,12 @@ function PoolRow(props: {
   supportFarmV2: number;
   onlyEndedFarmV2: boolean;
   lptAmount?: string;
+  endedFarmV1?: number;
+  endedFarmV2?: number;
+
   tvl: number;
 }) {
-  const { pool: poolRPC } = props;
-
+  const { pool: poolRPC, endedFarmV1, endedFarmV2 } = props;
   const pool = parsePool(poolRPC);
 
   const poolId = pool.id;
@@ -648,7 +662,7 @@ function PoolRow(props: {
         </div>
 
         <div className="col-span-2 flex flex-col text-xs  -ml-12 text-farmText">
-          {supportFarmV1 > 0 && (
+          {(supportFarmV1 > endedFarmV1 || Number(farmStakeV1) > 0) && (
             <Link
               to={{
                 pathname: '/farms',
@@ -684,7 +698,7 @@ function PoolRow(props: {
             </Link>
           )}
 
-          {supportFarmV2 > 0 && (
+          {(supportFarmV2 > endedFarmV2 || Number(farmStakeV2) > 0) && (
             <Link
               to={{
                 pathname: `/v2farms/${pool.id}-${

@@ -103,9 +103,12 @@ export const WalletSelectorFooter = () => {
         ?
       </span>
       <div
-        className="ml-2 cursor-pointer font-bold"
+        className="ml-2 cursor-pointer hover:underline font-bold"
         onClick={() => {
           window.open('https://ref.finance', '_blank');
+        }}
+        style={{
+          textDecorationThickness: '0.5px',
         }}
       >
         {intl.formatMessage({

@@ -502,7 +502,7 @@ function MobileLiquidityPage({
             <div className="relative flex items-center flex-grow">
               <input
                 ref={inputRef}
-                className={`text-sm outline-none rounded py-2 pl-3 pr-7 flex-grow bg-inputDarkBg`}
+                className={`text-sm outline-none rounded py-1.5 pl-3 pr-7 flex-grow bg-inputDarkBg`}
                 placeholder={intl.formatMessage({
                   id: 'search_by_token',
                 })}
@@ -514,15 +514,42 @@ function MobileLiquidityPage({
               <SearchIcon className="absolute right-1.5"></SearchIcon>
             </div>
             {isSignedIn ? (
-              <GradientButton
-                color="#fff"
-                className={`px-4 h-9 text-center text-sm  ml-3 text-white focus:outline-none font-semibold whitespace-nowrap`}
-                onClick={() => {
-                  history.push('/pools/add');
-                }}
+              <div
+                className="ml-1 text-xs"
+                data-type="info"
+                data-place="top"
+                data-multiline={true}
+                data-class="reactTip"
+                data-html={true}
+                data-tip={`
+              <div className="text-xs">
+                <div 
+                  style="max-width: 250px;font-weight:400",
+                >
+                ${intl.formatMessage({ id: 'create_new_pool' })}
+                </div>
+              </div>
+            `}
+                data-for="add_pool_tip"
               >
-                <FormattedMessage id="create_pool" />
-              </GradientButton>
+                <button
+                  className={`text-base ml-2 px-3 text-primaryText w-8 h-8 bg-black bg-opacity-20 rounded-md flex items-center justify-center`}
+                  onClick={() => {
+                    history.push('/pools/add');
+                  }}
+                >
+                  +
+                </button>
+                <ReactTooltip
+                  className="w-20"
+                  id="add_pool_tip"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  textColor="#C6D1DA"
+                  effect="solid"
+                />
+              </div>
             ) : null}
           </div>
 
@@ -940,19 +967,6 @@ function LiquidityPage_({
                 </div>
               </div>
             </div>
-            <div className="flex items-center w-3/7">
-              {isSignedIn ? (
-                <GradientButton
-                  color="#fff"
-                  className={`px-4 h-9 text-center text-sm  ml-3 text-white focus:outline-none font-semibold`}
-                  onClick={() => {
-                    history.push('/pools/add');
-                  }}
-                >
-                  <FormattedMessage id="create_pool" />
-                </GradientButton>
-              ) : null}
-            </div>
           </div>
 
           <div className="mx-8 justify-between pb-4 flex">
@@ -983,18 +997,59 @@ function LiquidityPage_({
               </div>
             </div>
 
-            <div className="relative rounded w-1/5 my-2 text-primaryText flex items-center pr-2 bg-inputDarkBg">
-              <input
-                ref={inputRef}
-                className={`text-sm outline-none rounded w-full py-2 pl-3 pr-6`}
-                placeholder={intl.formatMessage({
-                  id: 'search_by_token',
-                })}
-                onChange={(evt) => {
-                  onSearch(evt.target.value);
-                }}
-              />
-              <SearchIcon className="absolute right-2"></SearchIcon>
+            <div className="flex items-center justify-end w-1/4">
+              <div className="relative rounded w-full my-2 text-primaryText flex items-center pr-2 bg-inputDarkBg">
+                <input
+                  ref={inputRef}
+                  className={`text-sm outline-none rounded w-full py-1.5 pl-3 pr-6`}
+                  placeholder={intl.formatMessage({
+                    id: 'search_by_token',
+                  })}
+                  onChange={(evt) => {
+                    onSearch(evt.target.value);
+                  }}
+                />
+                <SearchIcon className="absolute right-2"></SearchIcon>
+              </div>
+
+              {isSignedIn ? (
+                <div
+                  className="ml-1 text-xs"
+                  data-type="info"
+                  data-place="top"
+                  data-multiline={true}
+                  data-class="reactTip"
+                  data-html={true}
+                  data-tip={`
+              <div className="text-xs">
+                <div 
+                  style="max-width: 250px;font-weight:400",
+                >
+                ${intl.formatMessage({ id: 'create_new_pool' })}
+                </div>
+              </div>
+            `}
+                  data-for="add_pool_tip"
+                >
+                  <button
+                    className={`text-base ml-2 px-3 text-primaryText w-8 h-8 bg-black bg-opacity-20 rounded-md flex items-center justify-center`}
+                    onClick={() => {
+                      history.push('/pools/add');
+                    }}
+                  >
+                    +
+                  </button>
+                  <ReactTooltip
+                    className="w-20"
+                    id="add_pool_tip"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                </div>
+              ) : null}
             </div>
           </div>
 

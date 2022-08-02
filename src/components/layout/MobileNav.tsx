@@ -354,13 +354,9 @@ export function AccountModel(props: any) {
             <span className="flex items-center ">
               <span className="mr-1">
                 {!currentWalletIcon ? (
-                  <div className="w-4 h-4"></div>
+                  <div className="w-3 h-3"></div>
                 ) : (
-                  <img
-                    src={currentWalletIcon}
-                    className="w-4 h-4 rounded-full"
-                    alt=""
-                  />
+                  <img src={currentWalletIcon} className="w-3 h-3" alt="" />
                 )}
               </span>
               <span className="text-xs text-primaryText">

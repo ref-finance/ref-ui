@@ -3507,6 +3507,7 @@ function StakeModal(props: {
     </CommonModal>
   );
 }
+
 function UnStakeModal(props: {
   title: string;
   isOpen: boolean;

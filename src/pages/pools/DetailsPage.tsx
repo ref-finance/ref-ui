@@ -131,6 +131,10 @@ import { useAccountInfo } from '../../state/referendum';
 import { getVEPoolId } from '../ReferendumPage';
 import { PoolTab } from '../../components/pool/PoolTab';
 import getConfig from '../../services/config';
+import { BoostInputAmount } from '../../components/forms/InputAmount';
+import { ExternalLinkIcon } from '~components/icon/Risk';
+import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
+import { useClientMobile } from '../../utils/device';
 
 interface ParamTypes {
   id: string;
@@ -208,20 +212,180 @@ export const GetExchangeRate = ({
   );
 };
 
-export function AddLiquidityModal(
-  props: ReactModal.Props & {
-    pool: Pool;
-    tokens: TokenMetadata[];
-    closeTip?: boolean;
-  }
-) {
-  const { pool, tokens, closeTip } = props;
+function DetailIcons({ tokens }: { tokens: TokenMetadata[] }) {
+  return (
+    <div className="flex items-center">
+      {tokens.map((token, index) => {
+        return token.icon ? (
+          <img
+            src={token.icon}
+            className={`w-6 h-6 rounded-full border border-gradientFrom bg-cardBg ${
+              index != 0 ? '-ml-1' : ''
+            }`}
+            alt=""
+          />
+        ) : (
+          <div
+            className={`w-6 h-6 rounded-full border border-gradientFrom bg-cardBg ${
+              index != 0 ? '-ml-1' : ''
+            }`}
+          ></div>
+        );
+      })}
+    </div>
+  );
+}
+
+function DetailSymbol({
+  tokens,
+  id,
+}: {
+  tokens: TokenMetadata[];
+  id: string | number;
+}) {
+  return (
+    <div className="text-sm text-white flex items-center">
+      <span className="pl-2">
+        {tokens.map((token) => toRealSymbol(token.symbol)).join('-')}
+      </span>
+
+      <span
+        className="cursor-pointer pl-2 py-0.5 text-gradientFrom"
+        onClick={() => window.open(`/pool/${id}`, '_blank')}
+      >
+        <ExternalLinkIcon />
+      </span>
+    </div>
+  );
+}
+
+function PoolDetailCard({
+  tokens,
+  pool,
+}: {
+  tokens: TokenMetadata[];
+  pool: Pool;
+}) {
+  const [showDetail, setShowDetail] = useState(false);
+
+  const [poolTVL, setPoolTVl] = useState<string>('');
+  const h24Volume = useDayVolume(pool.id.toString());
+
+  useEffect(() => {
+    getPool(pool.id.toString()).then((pool) => {
+      setPoolTVl(pool.tvl.toString());
+    });
+  }, []);
+
+  const DetailRow = ({
+    value,
+    valueTitle,
+    title,
+  }: {
+    value: JSX.Element | string;
+    valueTitle?: string;
+    title: JSX.Element | string;
+  }) => {
+    return (
+      <div className="flex items-center justify-between pt-4">
+        <div className="text-farmText">{title}</div>
+        <div className="text-white" title={valueTitle}>
+          {value}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="bg-cardBg rounded-2xl p-6 text-xs w-full right-0">
+      <div className="detail-header flex items-center justify-between">
+        <div className="flex items-center">
+          <DetailIcons tokens={tokens} />
+          <DetailSymbol tokens={tokens} id={pool.id} />
+        </div>
+        <div
+          className="cursor-pointer text-gradientFrom flex items-center"
+          onClick={() => setShowDetail(!showDetail)}
+        >
+          <span>
+            <FormattedMessage id="pool_stats" defaultMessage="Pool Stats" />
+          </span>
+          <span>
+            <div className="pl-1">
+              {showDetail ? <FaAngleUp /> : <FaAngleDown />}
+            </div>
+          </span>
+        </div>
+      </div>
+      {!showDetail ? null : (
+        <>
+          {' '}
+          <DetailRow
+            title={
+              <FormattedMessage
+                id="TVL"
+                defaultMessage={'TVL'}
+              ></FormattedMessage>
+            }
+            value={`$${toInternationalCurrencySystem(poolTVL || '0', 2)}`}
+            valueTitle={poolTVL}
+          />
+          <DetailRow
+            title={toRealSymbol(tokens[0].symbol)}
+            value={toInternationalCurrencySystem(
+              toReadableNumber(tokens[0].decimals, pool.supplies[tokens[0].id]),
+              2
+            )}
+            valueTitle={toReadableNumber(
+              tokens[0].decimals,
+              pool.supplies[tokens[0].id]
+            )}
+          />
+          <DetailRow
+            title={toRealSymbol(tokens[1].symbol)}
+            value={toInternationalCurrencySystem(
+              toReadableNumber(tokens[1].decimals, pool.supplies[tokens[1].id]),
+              2
+            )}
+            valueTitle={toReadableNumber(
+              tokens[1].decimals,
+              pool.supplies[tokens[1].id]
+            )}
+          />
+          <DetailRow
+            title={
+              <FormattedMessage id="h24_volume" defaultMessage="24h volume" />
+            }
+            value={
+              h24Volume ? toInternationalCurrencySystem(h24Volume, 2) : '-'
+            }
+            valueTitle={h24Volume || ''}
+          />
+          <DetailRow
+            title={
+              <FormattedMessage
+                id="Fee"
+                defaultMessage="Fee"
+              ></FormattedMessage>
+            }
+            value={`${pool.fee / 100}%`}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
+  const { pool, tokens } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [messageId, setMessageId] = useState<string>('add_liquidity');
   const [defaultMessage, setDefaultMessage] = useState<string>('Add Liquidity');
   const balances = useWalletTokenBalances(tokens.map((token) => token.id));
+
   const nearBalance = useDepositableBalance('NEAR');
+
   const [error, setError] = useState<Error>();
   const intl = useIntl();
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
@@ -229,14 +393,13 @@ export function AddLiquidityModal(
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const [preShare, setPreShare] = useState(null);
   const [modal, setModal] = useState(null);
-  const [visible, setVisible] = useState(false);
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
-  if (!balances) return null;
+  // if (!balances) return null;
 
-  balances[WRAP_NEAR_CONTRACT_ID] = nearBalance.toString();
+  balances && (balances[WRAP_NEAR_CONTRACT_ID] = nearBalance);
 
   const changeFirstTokenAmount = (amount: string) => {
     setError(null);
@@ -396,7 +559,6 @@ export function AddLiquidityModal(
         setModal(Object.assign({}, modalData));
       });
       setModal(modalData);
-
       return;
     }
 
@@ -445,8 +607,6 @@ export function AddLiquidityModal(
     });
   }
 
-  const cardWidth = isMobile() ? '95vw' : '40vw';
-
   const ButtonRender = () => {
     if (!isSignedIn) {
       return <ConnectToNearBtn />;
@@ -456,15 +616,15 @@ export function AddLiquidityModal(
       if (canSubmit) {
         setButtonLoading(true);
         submit();
-        localStorage.setItem(REF_FI_PRE_LIQUIDITY_ID_KEY, pool.id.toString());
       }
     };
     return (
       <SolidButton
-        disabled={!canSubmit || canDeposit || buttonLoading}
-        className="focus:outline-none px-4 w-full"
+        disabled={!canSubmit || canDeposit}
+        className="focus:outline-none  w-full text-lg"
         onClick={handleClick}
         loading={buttonLoading}
+        padding={'p-4'}
       >
         <div className="flex items-center justify-center w-full m-auto">
           <div>
@@ -482,236 +642,227 @@ export function AddLiquidityModal(
       </SolidButton>
     );
   };
+
   const shareDisplay = () => {
     let result = '';
+    let percentShare = '';
+    let displayPercentShare = '';
     if (preShare && new BigNumber('0').isLessThan(preShare)) {
       const myShareBig = new BigNumber(preShare);
       if (myShareBig.isLessThan('0.001')) {
         result = '<0.001';
       } else {
-        result = `≈ ${myShareBig.toFixed(3)}`;
+        result = `${myShareBig.toFixed(3)}`;
       }
     } else {
       result = '-';
     }
-    return result;
+
+    if (result !== '-') {
+      percentShare = `${percent(
+        preShare,
+        scientificNotationToString(
+          new BigNumber(toReadableNumber(24, pool.shareSupply))
+            .plus(new BigNumber(preShare))
+            .toString()
+        )
+      )}`;
+
+      if (Number(percentShare) > 0 && Number(percentShare) < 0.01) {
+        displayPercentShare = '< 0.01%';
+      } else {
+        displayPercentShare = `${toPrecision(percentShare, 2)}%`;
+      }
+    }
+
+    return {
+      lpTokens: result,
+      shareDisplay: displayPercentShare,
+    };
+  };
+
+  const getMax = function (id: string, amount: string) {
+    return id !== WRAP_NEAR_CONTRACT_ID
+      ? amount
+      : Number(amount) <= 0.5
+      ? '0'
+      : String(Number(amount) - 0.5);
   };
 
   return (
-    <Modal {...props}>
-      <Card
-        style={{
-          width: cardWidth,
-          border: '1px solid rgba(0, 198, 162, 0.5)',
-        }}
-        padding="p-8"
-        bgcolor="bg-cardBg"
-        className="text-white outline-none "
-      >
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-base font-bold pb-2">
-              <FormattedMessage
-                id="add_liquidity"
-                defaultMessage="Add Liquidity"
-              />
-            </div>
-          </div>
-          <div
-            className="ml-2 cursor-pointer p-1"
-            onClick={props.onRequestClose}
-          >
-            <ModalClose />
-          </div>
-        </div>
-
-        {/* PC display */}
-        <div className="mt-8 md:hidden xs:hidden">
-          <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
+    <>
+      <div className="text-white outline-none ">
+        <div className="mt-8">
+          <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
             <FormattedMessage id="balance" defaultMessage="Balance" />
-            :&nbsp;
+            {':'}
             <span
+              className="ml-1"
               title={toReadableNumber(
                 tokens[0].decimals,
-                balances[tokens[0].id]
+                balances?.[tokens[0].id]
               )}
             >
               {toPrecision(
-                toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-                2,
-                true
-              )}
-            </span>
-          </div>
-          <div className="flex items-center ">
-            <div className="flex items-center mr-4 w-1/3">
-              <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
-              <div className="text-white text-base" title={tokens[0].id}>
-                {toRealSymbol(tokens[0].symbol)}
-              </div>
-            </div>
-            <InputAmount
-              className="w-full border border-transparent rounded"
-              max={getMax(
-                tokens[0].id,
-                toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-              )}
-              onChangeAmount={changeFirstTokenAmount}
-              value={firstTokenAmount}
-            />
-          </div>
-        </div>
-        <div className="my-8 md:hidden xs:hidden">
-          <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
-            <FormattedMessage id="balance" defaultMessage="Balance" />
-            :&nbsp;
-            <span
-              title={toReadableNumber(
-                tokens[1].decimals,
-                balances[tokens[1].id]
-              )}
-            >
-              {toPrecision(
-                toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+                toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id]),
                 2,
                 true
               )}
             </span>
           </div>
           <div className="flex items-center">
-            <div className="flex items-center mr-4 w-1/3">
-              <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
-              <div className="text-white text-base" title={tokens[1].id}>
-                {toRealSymbol(tokens[1].symbol)}
-              </div>
-            </div>
-            <InputAmount
+            <BoostInputAmount
               className="w-full border border-transparent rounded"
               max={getMax(
-                tokens[1].id,
-                toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+                tokens[0].id,
+                toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id])
               )}
-              onChangeAmount={changeSecondTokenAmount}
-              value={secondTokenAmount}
+              onChangeAmount={changeFirstTokenAmount}
+              value={firstTokenAmount}
+              tokenSymbol={toRealSymbol(tokens[0].symbol)}
             />
           </div>
         </div>
-        {/* mobile display */}
-        <div className="my-6 lg:hidden">
-          <div className="flex items-end justify-between mb-2">
-            <div className="flex items-center">
-              <Icon icon={tokens[0].icon} className="h-9 w-9 mr-2" />
-              <div className="flex items-start flex-col">
-                <div className="text-white text-base">
-                  {toRealSymbol(tokens[0].symbol)}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-end text-xs text-right mb-1 text-gray-400">
-              <FormattedMessage id="balance" defaultMessage="Balance" />
-              :&nbsp;
-              <span
-                title={toReadableNumber(
-                  tokens[0].decimals,
-                  balances[tokens[0].id]
-                )}
-              >
-                {toPrecision(
-                  toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-                  2,
-                  true
-                )}
-              </span>
-            </div>
+
+        <div className="my-8">
+          <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
+            <FormattedMessage id="balance" defaultMessage="Balance" />
+            {':'}
+            <span
+              className="ml-1"
+              title={toReadableNumber(
+                tokens[1].decimals,
+                balances?.[tokens[1].id]
+              )}
+            >
+              {toPrecision(
+                toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id]),
+                2,
+                true
+              )}
+            </span>
           </div>
-          <InputAmount
-            className="w-full border border-transparent rounded"
-            max={getMax(
-              tokens[0].id,
-              toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-            )}
-            onChangeAmount={changeFirstTokenAmount}
-            value={firstTokenAmount}
-            disabled={!isSignedIn}
-          />
-        </div>
-        <div className="my-8 lg:hidden">
-          <div className="flex items-end justify-between mb-2">
-            <div className="flex items-center">
-              <Icon icon={tokens[1].icon} className="h-9 w-9 mr-2" />
-              <div className="flex items-start flex-col">
-                <div className="text-white text-base">
-                  {toRealSymbol(tokens[1].symbol)}
-                </div>
-                {/* <div
-                  className="text-xs text-gray-400"
-                  title={tokens[1].id}
-                >{`${tokens[1].id.substring(0, 25)}${
-                  tokens[1].id.length > 25 ? '...' : ''
-                }`}</div> */}
-              </div>
-            </div>
-            <div className="flex justify-end items-end text-xs text-right mb-1 text-gray-400">
-              <FormattedMessage id="balance" defaultMessage="Balance" />
-              :&nbsp;
-              <span
-                title={toReadableNumber(
-                  tokens[1].decimals,
-                  balances[tokens[1].id]
-                )}
-              >
-                {toPrecision(
-                  toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-                  2,
-                  true
-                )}
-              </span>
-            </div>
+          <div className="flex items-center ">
+            <BoostInputAmount
+              className="w-full border border-transparent rounded"
+              max={getMax(
+                tokens[1].id,
+                toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id])
+              )}
+              onChangeAmount={changeSecondTokenAmount}
+              value={secondTokenAmount}
+              tokenSymbol={toRealSymbol(tokens[1].symbol)}
+            />
           </div>
-          <InputAmount
-            className="w-full border border-transparent rounded"
-            max={getMax(
-              tokens[1].id,
-              toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
-            )}
-            onChangeAmount={changeSecondTokenAmount}
-            value={secondTokenAmount}
-          />
         </div>
         {error ? (
           <div className="flex justify-center mb-8 ">
             <Alert level="warn" message={error.message} />
           </div>
         ) : null}
+        <div className="flex justify-between flex-col bg-black bg-opacity-20 text-farmText text-sm mt-6 mb-4 border border-gradientFrom p-5 rounded-lg">
+          <div className="flex items-center justify-between">
+            <label>
+              <FormattedMessage id="lp_tokens" defaultMessage={'LP tokens'} />
+            </label>
+            <span className="text-white text-sm">
+              {canDeposit ? '-' : shareDisplay().lpTokens}
+            </span>
+          </div>
+          <div className="flex items-center justify-between pt-4">
+            <label>
+              <FormattedMessage id="Share" defaultMessage="Share" />
+            </label>
+            <span className="text-white text-sm">
+              {!shareDisplay().shareDisplay || canDeposit
+                ? '-'
+                : shareDisplay().shareDisplay}
+            </span>
+          </div>
+        </div>
 
         {canDeposit ? (
-          <div className="flex xs:flex-col md:flex-col justify-between items-center rounded-md p-4 xs:px-2 md:px-2 border border-warnColor">
-            <div className="flex items-center xs:mb-3 md:mb-3">
-              <label className="flex-shrink-0">
-                <WarnTriangle />
-              </label>
-              <label className="ml-2.5 text-base text-warnColor xs:text-sm md:text-sm">
-                <FormattedMessage id="you_do_not_have_enough" />{' '}
-                {modal?.token?.symbol}！
-              </label>
-            </div>
+          <div className="flex items-center rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
+            <label className="text-warnColor ">
+              <FormattedMessage id="oops" defaultMessage="Oops" />!
+            </label>
+            <label className="ml-2.5 text-warnColor ">
+              <FormattedMessage id="you_do_not_have_enough" />{' '}
+              {toRealSymbol(modal?.token?.symbol)}.
+            </label>
           </div>
         ) : null}
-        <div className="flex justify-between text-primaryText text-sm my-6">
-          <label>
-            <FormattedMessage id="lp_token"></FormattedMessage>
-          </label>
-          <span className="text-white text-sm font-sans">{shareDisplay()}</span>
+
+        <ButtonRender />
+      </div>
+      <div
+        className="absolute pb-20 w-full right-0"
+        style={{
+          top: '102%',
+          height: '300px',
+        }}
+      >
+        <PoolDetailCard tokens={tokens} pool={pool} />
+      </div>
+    </>
+  );
+}
+
+export function AddLiquidityModal(props: any) {
+  const { pool, tokens } = props;
+  return (
+    <CommonModal {...props}>
+      <AddLiquidity pool={pool} tokens={tokens} />
+    </CommonModal>
+  );
+}
+function CommonModal(props: any) {
+  const { isOpen, onRequestClose } = props;
+
+  const isMobile = useClientMobile();
+
+  const cardWidth = isMobile ? '90vw' : '30vw';
+  const cardHeight = isMobile ? '90vh' : '80vh';
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      style={{
+        overlay: {
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
+          overflow: 'auto',
+        },
+        content: {
+          outline: 'none',
+          transform: 'translate(-50%, -50%)',
+        },
+      }}
+    >
+      <div className="flex flex-col">
+        <div
+          className="px-5 xs:px-3 md:px-3 py-6 rounded-2xl bg-cardBg overflow-auto"
+          style={{
+            width: cardWidth,
+            maxHeight: cardHeight,
+            border: '1px solid rgba(0, 198, 162, 0.5)',
+          }}
+        >
+          <div className="title flex items-center justify-between">
+            <div className="flex items-center">
+              <label className="text-white text-xl">
+                <FormattedMessage id={'add_liquidity'}></FormattedMessage>
+              </label>
+            </div>
+            <ModalClose className="cursor-pointer" onClick={onRequestClose} />
+          </div>
+          {props.children}
         </div>
-        <div className="">
-          <ButtonRender />
-        </div>
-      </Card>
-      <ActionModel
-        modal={modal}
-        visible={visible}
-        onRequestClose={setVisible}
-      ></ActionModel>
+        {props.subChildren ? (
+          <div style={{ width: cardWidth }}>{props.subChildren}</div>
+        ) : null}
+      </div>
     </Modal>
   );
 }
