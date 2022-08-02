@@ -1710,6 +1710,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
       ? '0'
       : String(Number(amount) - 0.5);
   };
+  const shareMessage = shareDisplay();
 
   return (
     <>
@@ -1788,7 +1789,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               <FormattedMessage id="lp_tokens" defaultMessage={'LP tokens'} />
             </label>
             <span className="text-white text-sm">
-              {canDeposit ? '-' : shareDisplay().lpTokens}
+              {shareMessage?.lpTokens || '-'}
             </span>
           </div>
           <div className="flex items-center justify-between pt-4">
@@ -1796,9 +1797,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               <FormattedMessage id="Share" defaultMessage="Share" />
             </label>
             <span className="text-white text-sm">
-              {!shareDisplay().shareDisplay || canDeposit
-                ? '-'
-                : shareDisplay().shareDisplay}
+              {shareMessage?.shareDisplay || '-'}
             </span>
           </div>
         </div>
