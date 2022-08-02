@@ -326,7 +326,7 @@ function App() {
             <Route path="/" component={AutoHeight(SwapPage)} />
           </Switch>
           <Footer />
-          {/* <PopUpSwiper></PopUpSwiper> */}
+          <PopUpSwiper></PopUpSwiper>
         </div>
       </Router>
     </WalletContext.Provider>

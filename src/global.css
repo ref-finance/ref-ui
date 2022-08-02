@@ -641,7 +641,7 @@ input[type='range']::-webkit-slider-runnable-track {
     bottom: -190px;
   }
   to {
-    bottom: 25px;
+    bottom: 26px;
   }
 }
 @keyframes showfrombottomMobile {
@@ -649,7 +649,7 @@ input[type='range']::-webkit-slider-runnable-track {
     bottom: -190px;
   }
   to {
-    bottom: 1rem;
+    bottom: 26px;
   }
 }
 @keyframes pushLeftanimation {
