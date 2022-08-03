@@ -124,7 +124,7 @@ const StableSwapText = () => {
 const StableSwapLogo = (props: any) => {
   const { width, height } = props;
   return (
-    <div className="relative">
+    <div className="relative" {...props}>
       <StableSwapIcon with={width} height={height}></StableSwapIcon>
       <span
         className="absolute"

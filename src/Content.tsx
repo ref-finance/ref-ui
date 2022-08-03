@@ -27,7 +27,6 @@ import { AccountPage } from './pages/AccountPage';
 import { RecentActivityPage } from './pages/RecentActivityPage';
 import { LiquidityPage } from './pages/pools/LiquidityPage';
 import { YourLiquidityPage } from './pages/pools/YourLiquidityPage';
-import { AddPoolPage } from './pages/pools/AddPoolPage';
 import { AddTokenPage } from './pages/pools/AddTokenPage';
 import AdboardPage from './pages/Adboard/AdboardPage';
 import NavigationBar from './components/layout/NavigationBar';
@@ -213,8 +212,6 @@ export function Content() {
           component={AutoHeight(MorePoolsPage)}
         />
         <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
-        {/* <Route path="/adboard" component={AutoHeight(AdboardPage)} /> */}
-        <Route path="/pools/add" component={AutoHeight(AddPoolPage)} />
         <Route path="/pools/add-token" component={AutoHeight(AddTokenPage)} />
         <Route path="/pools/yours" component={AutoHeight(YourLiquidityPage)} />
         <Route path="/pools" component={AutoHeight(LiquidityPage)} />

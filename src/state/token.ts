@@ -397,15 +397,15 @@ export const useTokensData = (
           });
       }
     }
-  }, [balances, tokens.length, isSignedIn]);
+  }, [balances, tokens?.length, isSignedIn]);
 
   useEffect(() => {
     trigger();
-  }, [tokens, tokens.length]);
+  }, [tokens?.map((t) => t.id).join('-'), tokens?.length]);
 
   return {
     trigger,
-    loading: count < tokens.length,
+    loading: count < tokens?.length,
     tokensData: result,
   };
 };

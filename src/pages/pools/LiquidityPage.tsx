@@ -27,7 +27,12 @@ import {
   useWatchPools,
 } from '../../state/pool';
 import Loading from '~components/layout/Loading';
-import { useTokens, usePoolTokens } from '../../state/token';
+import {
+  useTokens,
+  usePoolTokens,
+  useRainbowWhitelistTokens,
+  useTokenBalances,
+} from '../../state/token';
 import { Link } from 'react-router-dom';
 import { canFarm, Pool, isNotStablePool } from '../../services/pool';
 import {
@@ -77,6 +82,7 @@ import { StartPoolIcon } from '../../components/icon/WatchListStar';
 import { PoolDaoBanner, PoolDaoBannerMobile } from '../../components/icon/Logo';
 import { VEARROW } from '../../components/icon/Referendum';
 import getConfig from '../../services/config';
+import { AddPoolModal } from './AddPoolPage';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -399,7 +405,9 @@ function MobileLiquidityPage({
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
   const inputRef = useRef(null);
+  const selectTokens = useRainbowWhitelistTokens();
 
+  const selectBalances = useTokenBalances();
   const [supportFarmStar, setSupportFarmStar] = useState<Boolean>(false);
   const [farmCountStar, setFarmCountStar] = useState<Number>(1);
 
@@ -417,6 +425,7 @@ function MobileLiquidityPage({
     filterList[key] = intl.formatMessage({ id: key });
   });
   const [selectCoinClass, setSelectCoinClass] = useState<string>('all');
+  const [showAddPoolModal, setShowAddPoolModal] = useState<boolean>(false);
 
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
@@ -535,7 +544,7 @@ function MobileLiquidityPage({
                 <button
                   className={`text-base ml-2 px-3 text-primaryText w-8 h-8 bg-black bg-opacity-20 hover:bg-opacity-40 hover:text-gradientFrom rounded-md flex items-center justify-center`}
                   onClick={() => {
-                    history.push('/pools/add');
+                    setShowAddPoolModal(true);
                   }}
                 >
                   +
@@ -646,6 +655,14 @@ function MobileLiquidityPage({
           </section>
         </Card>
       </div>
+      <AddPoolModal
+        isOpen={showAddPoolModal}
+        onRequestClose={(e) => {
+          setShowAddPoolModal(false);
+        }}
+        tokens={selectTokens}
+        balances={selectBalances}
+      />
     </>
   );
 }
@@ -841,6 +858,11 @@ function LiquidityPage_({
   const intl = useIntl();
   const inputRef = useRef(null);
   const history = useHistory();
+
+  const selectTokens = useRainbowWhitelistTokens();
+
+  const selectBalances = useTokenBalances();
+
   const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
   classificationOfCoins_key.forEach((key) => {
     filterList[key] = intl.formatMessage({ id: key });
@@ -851,6 +873,8 @@ function LiquidityPage_({
 
   const [supportFarmStar, setSupportFarmStar] = useState<Boolean>(false);
   const [farmCountStar, setFarmCountStar] = useState<Number>(1);
+
+  const [showAddPoolModal, setShowAddPoolModal] = useState<boolean>(false);
 
   useEffect(() => {
     canFarm(getVEPoolId()).then(({ count }) => {
@@ -1034,7 +1058,7 @@ function LiquidityPage_({
                   <button
                     className={`text-base ml-2 px-3 text-primaryText w-8 h-8 bg-black bg-opacity-20 hover:bg-opacity-40 hover:text-gradientFrom rounded-md flex items-center justify-center`}
                     onClick={() => {
-                      history.push('/pools/add');
+                      setShowAddPoolModal(true);
                     }}
                   >
                     +
@@ -1144,6 +1168,14 @@ function LiquidityPage_({
           </section>
         </Card>
       </div>
+      <AddPoolModal
+        isOpen={showAddPoolModal}
+        onRequestClose={(e) => {
+          setShowAddPoolModal(false);
+        }}
+        tokens={selectTokens}
+        balances={selectBalances}
+      />
     </>
   );
 }

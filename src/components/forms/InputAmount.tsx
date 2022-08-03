@@ -103,6 +103,7 @@ export default function InputAmount({
     </>
   );
 }
+
 export function NewFarmInputAmount({
   max,
   className,

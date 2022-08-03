@@ -297,7 +297,7 @@ function PoolDetailCard({
   };
 
   return (
-    <div className="bg-cardBg rounded-2xl p-6 text-xs w-full right-0">
+    <div className="bg-cardBg mt-4 rounded-2xl p-6 text-xs w-full right-0">
       <div className="detail-header flex items-center justify-between">
         <div className="flex items-center">
           <DetailIcons tokens={tokens} />
@@ -397,8 +397,6 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
-  // if (!balances) return null;
-
   balances && (balances[WRAP_NEAR_CONTRACT_ID] = nearBalance);
 
   const changeFirstTokenAmount = (amount: string) => {
@@ -491,6 +489,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           })
         );
       }
+      ``;
       setSecondTokenAmount(amount);
       setFirstTokenAmount(firstAmount);
       setPreShare(toReadableNumber(24, fairShares));
@@ -504,6 +503,12 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
       }
     }
   };
+  useEffect(() => {
+    validate({
+      firstAmount: firstTokenAmount,
+      secondAmount: secondTokenAmount,
+    });
+  }, [balances]);
 
   function validate({
     firstAmount,
@@ -516,14 +521,14 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
     const firstTokenBalanceBN = new BigNumber(
       getMax(
         tokens[0].id,
-        toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+        toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id] || '0')
       )
     );
     const secondTokenAmountBN = new BigNumber(secondAmount.toString());
     const secondTokenBalanceBN = new BigNumber(
       getMax(
         tokens[1].id,
-        toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+        toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id] || '0')
       )
     );
 
@@ -690,119 +695,108 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
   };
 
   return (
-    <>
-      <div className="text-white outline-none ">
-        <div className="mt-8">
-          <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
-            <FormattedMessage id="balance" defaultMessage="Balance" />
-            {':'}
-            <span
-              className="ml-1"
-              title={toReadableNumber(
-                tokens[0].decimals,
-                balances?.[tokens[0].id]
-              )}
-            >
-              {toPrecision(
-                toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id]),
-                2,
-                true
-              )}
-            </span>
-          </div>
-          <div className="flex items-center">
-            <BoostInputAmount
-              className="w-full border border-transparent rounded"
-              max={getMax(
-                tokens[0].id,
-                toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id])
-              )}
-              onChangeAmount={changeFirstTokenAmount}
-              value={firstTokenAmount}
-              tokenSymbol={toRealSymbol(tokens[0].symbol)}
-            />
-          </div>
+    <div className="text-white outline-none ">
+      <div className="mt-8">
+        <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
+          <FormattedMessage id="balance" defaultMessage="Balance" />
+          {':'}
+          <span
+            className="ml-1"
+            title={toReadableNumber(
+              tokens[0].decimals,
+              balances?.[tokens[0].id]
+            )}
+          >
+            {toPrecision(
+              toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id]),
+              2,
+              true
+            )}
+          </span>
         </div>
-
-        <div className="my-8">
-          <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
-            <FormattedMessage id="balance" defaultMessage="Balance" />
-            {':'}
-            <span
-              className="ml-1"
-              title={toReadableNumber(
-                tokens[1].decimals,
-                balances?.[tokens[1].id]
-              )}
-            >
-              {toPrecision(
-                toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id]),
-                2,
-                true
-              )}
-            </span>
-          </div>
-          <div className="flex items-center ">
-            <BoostInputAmount
-              className="w-full border border-transparent rounded"
-              max={getMax(
-                tokens[1].id,
-                toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id])
-              )}
-              onChangeAmount={changeSecondTokenAmount}
-              value={secondTokenAmount}
-              tokenSymbol={toRealSymbol(tokens[1].symbol)}
-            />
-          </div>
+        <div className="flex items-center">
+          <BoostInputAmount
+            className="w-full border border-transparent rounded"
+            max={getMax(
+              tokens[0].id,
+              toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id])
+            )}
+            onChangeAmount={changeFirstTokenAmount}
+            value={firstTokenAmount}
+            tokenSymbol={toRealSymbol(tokens[0].symbol)}
+          />
         </div>
-        {error ? (
-          <div className="flex justify-center mb-8 ">
-            <Alert level="warn" message={error.message} />
-          </div>
-        ) : null}
-        <div className="flex justify-between flex-col bg-black bg-opacity-20 text-farmText text-sm mt-6 mb-4 border border-gradientFrom p-5 rounded-lg">
-          <div className="flex items-center justify-between">
-            <label>
-              <FormattedMessage id="lp_tokens" defaultMessage={'LP tokens'} />
-            </label>
-            <span className="text-white text-sm">
-              {shareDisplay().lpTokens || '-'}
-            </span>
-          </div>
-          <div className="flex items-center justify-between pt-4">
-            <label>
-              <FormattedMessage id="Share" defaultMessage="Share" />
-            </label>
-            <span className="text-white text-sm">
-              {shareDisplay().shareDisplay || '-'}
-            </span>
-          </div>
-        </div>
-
-        {canDeposit ? (
-          <div className="flex items-center rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
-            <label className="text-warnColor ">
-              <FormattedMessage id="oops" defaultMessage="Oops" />!
-            </label>
-            <label className="ml-2.5 text-warnColor ">
-              <FormattedMessage id="you_do_not_have_enough" />{' '}
-              {toRealSymbol(modal?.token?.symbol)}.
-            </label>
-          </div>
-        ) : null}
-
-        <ButtonRender />
       </div>
-      <div
-        className="absolute pb-20 w-full right-0"
-        style={{
-          top: '102%',
-          height: '300px',
-        }}
-      >
-        <PoolDetailCard tokens={tokens} pool={pool} />
+
+      <div className="my-8">
+        <div className="flex justify-end items-center text-sm text-right mb-1.5 text-farmText">
+          <FormattedMessage id="balance" defaultMessage="Balance" />
+          {':'}
+          <span
+            className="ml-1"
+            title={toReadableNumber(
+              tokens[1].decimals,
+              balances?.[tokens[1].id]
+            )}
+          >
+            {toPrecision(
+              toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id]),
+              2,
+              true
+            )}
+          </span>
+        </div>
+        <div className="flex items-center ">
+          <BoostInputAmount
+            className="w-full border border-transparent rounded"
+            max={getMax(
+              tokens[1].id,
+              toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id])
+            )}
+            onChangeAmount={changeSecondTokenAmount}
+            value={secondTokenAmount}
+            tokenSymbol={toRealSymbol(tokens[1].symbol)}
+          />
+        </div>
       </div>
-    </>
+      {error ? (
+        <div className="flex justify-center mb-8 ">
+          <Alert level="warn" message={error.message} />
+        </div>
+      ) : null}
+      <div className="flex justify-between flex-col bg-black bg-opacity-20 text-farmText text-sm mt-6 mb-4 border border-gradientFrom p-5 rounded-lg">
+        <div className="flex items-center justify-between">
+          <label>
+            <FormattedMessage id="lp_tokens" defaultMessage={'LP tokens'} />
+          </label>
+          <span className="text-white text-sm">
+            {shareDisplay().lpTokens || '-'}
+          </span>
+        </div>
+        <div className="flex items-center justify-between pt-4">
+          <label>
+            <FormattedMessage id="Share" defaultMessage="Share" />
+          </label>
+          <span className="text-white text-sm">
+            {shareDisplay().shareDisplay || '-'}
+          </span>
+        </div>
+      </div>
+
+      {canDeposit ? (
+        <div className="flex items-center rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
+          <label className="text-warnColor ">
+            <FormattedMessage id="oops" defaultMessage="Oops" />!
+          </label>
+          <label className="ml-2.5 text-warnColor ">
+            <FormattedMessage id="you_do_not_have_enough" />{' '}
+            {toRealSymbol(modal?.token?.symbol)}.
+          </label>
+        </div>
+      ) : null}
+
+      <ButtonRender />
+    </div>
   );
 }
 
@@ -815,7 +809,7 @@ export function AddLiquidityModal(props: any) {
   );
 }
 function CommonModal(props: any) {
-  const { isOpen, onRequestClose } = props;
+  const { isOpen, onRequestClose, tokens, pool } = props;
 
   const isMobile = useClientMobile();
 
@@ -859,7 +853,9 @@ function CommonModal(props: any) {
         </div>
         {props.subChildren ? (
           <div style={{ width: cardWidth }}>{props.subChildren}</div>
-        ) : null}
+        ) : (
+          <PoolDetailCard tokens={tokens} pool={pool} />
+        )}
       </div>
     </Modal>
   );

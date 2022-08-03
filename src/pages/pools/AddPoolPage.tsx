@@ -16,6 +16,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { toRealSymbol } from '~utils/token';
 import BigNumber from 'bignumber.js';
 import QuestionMark from '~components/farm/QuestionMark';
+import Modal from 'react-modal';
 import ReactTooltip from 'react-tooltip';
 import {
   getCurrentWallet,
@@ -23,17 +24,32 @@ import {
 } from '../../utils/wallets-integration';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { checkTransactionStatus } from '../../services/swap';
-import { decodeBase64 } from 'lzutf8';
 import { useHistory } from 'react-router-dom';
 import { getTokenPriceList } from '../../services/indexer';
 import { useRainbowWhitelistTokens } from '../../state/token';
 import { PoolTab } from '../../components/pool/PoolTab';
+import { useClientMobile } from '../../utils/device';
+import { TokenBalancesView } from '../../services/token';
+import { ModalClose } from '../../components/icon/ModalClose';
 
-export function AddPoolPage() {
-  const tokens = useRainbowWhitelistTokens();
-  const balances = useTokenBalances();
-  const [token1, setToken1] = useState<TokenMetadata | null>(null);
-  const [token2, setToken2] = useState<TokenMetadata | null>(null);
+export function AddPoolModal(
+  props: ReactModal.Props & {
+    tokens: TokenMetadata[];
+    balances: TokenBalancesView;
+    token1Pre?: TokenMetadata;
+    token2Pre?: TokenMetadata;
+  }
+) {
+  const { tokens, balances, token1Pre, token2Pre } = props;
+
+  const [token1, setToken1] = useState<TokenMetadata | null>(token1Pre || null);
+  const [token2, setToken2] = useState<TokenMetadata | null>(token2Pre || null);
+
+  useEffect(() => {
+    setToken1(token1Pre);
+    setToken2(token2Pre);
+  }, [token1Pre, token2Pre]);
+
   const [fee, setFee] = useState('0.30');
   const [error, setError] = useState<Error>();
   const [errorKey, setErrorKey] = useState<string>();
@@ -43,27 +59,11 @@ export function AddPoolPage() {
   const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
 
-  const { txHash } = getURLInfo();
-
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
 
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
   }, []);
-
-  useEffect(() => {
-    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
-      checkTransactionStatus(txHash).then((res) => {
-        const status: any = res.status;
-        const data: string | undefined = status.SuccessValue;
-        if (data) {
-          const buff = Buffer.from(data, 'base64');
-          const pool_id = buff.toString('ascii');
-          history.push(`/pool/${pool_id}`);
-        }
-      });
-    }
-  }, [txHash]);
 
   const tip: any = {
     moreThan: intl.formatMessage({ id: 'more_than' }),
@@ -84,7 +84,12 @@ export function AddPoolPage() {
       percent: '4',
     },
   };
+
+  const isMobile = useClientMobile();
+  const cardWidth = isMobile ? '90vw' : '450px';
+
   if (!tokens || !balances) return <Loading />;
+  if (!props.isOpen) return null;
 
   const render = (token: TokenMetadata) => {
     return toRoundedReadableNumber({
@@ -152,21 +157,37 @@ export function AddPoolPage() {
     }
     return result + ' %';
   };
+
   return (
-    <>
-      <PoolTab></PoolTab>
-      <div className="flex items flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-full xs:p-2 m-auto">
-        <div className="formTitle text-2xl text-white pb-4 px-4 lg:hidden">
-          <FormattedMessage
-            id="Create_New_Pool"
-            defaultMessage="Create New Pool"
-          />
-        </div>
+    <Modal
+      {...props}
+      style={{
+        overlay: {
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
+          overflow: 'auto',
+        },
+        content: {
+          outline: 'none',
+          transform: `translate(-50%,  ${isMobile ? '-270px' : '-50%'})`,
+        },
+      }}
+    >
+      <div
+        className="flex items flex-col  xs:p-2 m-auto"
+        style={{
+          width: cardWidth,
+        }}
+      >
         <Card width="w-full" bgcolor="bg-cardBg">
-          <div className="text-white text-xl pb-6 xs:hidden md:hidden">
+          <div className="text-white flex items-center justify-between text-xl pb-6">
             <FormattedMessage
               id="Create_New_Pool"
               defaultMessage="Create New Pool"
+            />
+            <ModalClose
+              className="cursor-pointer"
+              onClick={props.onRequestClose}
             />
           </div>
           <div className="flex flex-col lg:flex-row items-center lg:justify-between pb-6">
@@ -313,6 +334,6 @@ export function AddPoolPage() {
           </div>
         </Card>
       </div>
-    </>
+    </Modal>
   );
 }

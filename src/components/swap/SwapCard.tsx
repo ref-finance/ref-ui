@@ -95,7 +95,7 @@ const SWAP_SLIPPAGE_KEY_STABLE = 'REF_FI_SLIPPAGE_VALUE_STABLE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
-const isSameClass = (token1: string, token2: string) => {
+export const isSameStableClass = (token1: string, token2: string) => {
   const USDTokenList = new Array(
     ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
   );
@@ -656,7 +656,7 @@ export default function SwapCard(props: {
         if (
           rememberedIn &&
           rememberedOut &&
-          isSameClass(rememberedIn, rememberedOut)
+          isSameStableClass(rememberedIn, rememberedOut)
         ) {
           candTokenIn = allTokens.find((token) => token.id === rememberedIn);
           candTokenOut = allTokens.find((token) => token.id === rememberedOut);

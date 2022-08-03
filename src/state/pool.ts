@@ -125,13 +125,15 @@ export const useBatchTotalShares = (
     );
   }, [ids?.join('-'), finalStakeList, isSignedIn]);
 
-  return (
-    ids?.map((id, index) => {
-      return new Big(batchShares?.[index] || '0')
-        .plus(new Big(batchFarmStake?.[index] || '0'))
-        .toNumber();
-    }) || undefined
-  );
+  return {
+    shares: batchShares,
+    batchTotalShares:
+      ids?.map((id, index) => {
+        return new Big(batchShares?.[index] || '0')
+          .plus(new Big(batchFarmStake?.[index] || '0'))
+          .toNumber();
+      }) || undefined,
+  };
 };
 
 export const useStakeListByAccountId = () => {
