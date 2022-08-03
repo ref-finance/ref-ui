@@ -2968,22 +2968,12 @@ function WithDrawBox(props: {
         </span>
         <div className="flex items-center justify-between mt-7">
           <label className="text-white text-xl font-bold">{yourReward}</label>
-          {/* {Object.keys(userRewardList).length > 0 ? (
-            <div
-              onClick={switchDetailStatus}
-              className="flex items-center text-white text-xs cursor-pointer"
-            >
-              <FormattedMessage id="details" />
-              <UpArrowIcon className={`ml-2 transform rotate-180 text-white`} />
-            </div>
-          ) : null} */}
           {!isSignedIn ? (
             <GreenConnectToNearBtn className="w-52"></GreenConnectToNearBtn>
           ) : (
             <div
               onClick={switchDetailStatus}
-              className="text-xs text-white border border-white rounded-md cursor-pointer py-1.5 px-4"
-              style={{ background: 'rgba(27, 27, 27, 0.24)' }}
+              className="text-xs text-white border border-white rounded-md cursor-pointer py-1.5 px-4 bg-purpleColorF hover:bg-otherGreenColor hover:border-otherGreenColor hover:text-black"
             >
               <FormattedMessage id="withdraw"></FormattedMessage>
             </div>
@@ -3198,7 +3188,13 @@ function WithDrawModal(props: {
               border: '1px solid rgba(0, 198, 162, 0.5)',
             }}
           >
-            <div className="relative bg-veGradient">
+            <div
+              className="relative"
+              style={{
+                background:
+                  'linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)',
+              }}
+            >
               <BoostDotIcon className="absolute right-5"></BoostDotIcon>
               <div className="relative z-10 px-5 py-3">
                 <div className="flex flex-col items-start px-2">
