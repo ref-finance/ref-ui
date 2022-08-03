@@ -435,19 +435,41 @@ export const listRewards = async (
     args: { account_id: accountId },
   });
 };
-
+// todo1
 export const claimRewardByFarm = async (farm_id: string): Promise<any> => {
-  return refFarmFunctionCall({
-    methodName: 'claim_reward_by_farm',
-    args: { farm_id: farm_id },
+  // return refFarmFunctionCall({
+  //   methodName: 'claim_reward_by_farm',
+  //   args: { farm_id: farm_id },
+  // });
+  const transactions: Transaction[] = [];
+  transactions.push({
+    receiverId: config.REF_FARM_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'claim_reward_by_farm',
+        args: { farm_id: farm_id },
+      },
+    ],
   });
+  executeFarmMultipleTransactions(transactions);
 };
-
+// todo2
 export const claimRewardBySeed = async (seed_id: string): Promise<any> => {
-  return refFarmFunctionCall({
-    methodName: 'claim_reward_by_seed',
-    args: { seed_id: seed_id },
+  // return refFarmFunctionCall({
+  //   methodName: 'claim_reward_by_seed',
+  //   args: { seed_id: seed_id },
+  // });
+  const transactions: Transaction[] = [];
+  transactions.push({
+    receiverId: config.REF_FARM_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'claim_reward_by_seed',
+        args: { seed_id: seed_id },
+      },
+    ],
   });
+  executeFarmMultipleTransactions(transactions);
 };
 
 export const getAllSinglePriceByTokenIds = async (
