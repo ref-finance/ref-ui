@@ -150,7 +150,7 @@ export const near = new Near({
   headers: {},
   ...config,
 });
-export const wallet = new SpecialWallet(near, REF_FARM_CONTRACT_ID);
+export const wallet = new SpecialWallet(near, REF_FARM_BOOST_CONTRACT_ID);
 
 export const getGas = (gas: string) =>
   gas ? new BN(gas) : new BN('100000000000000');
@@ -336,4 +336,22 @@ export const refFarmBoostViewFunction = ({
   return wallet
     .account()
     .viewFunction(REF_FARM_BOOST_CONTRACT_ID, methodName, args);
+};
+
+export const refFarmBoostFunctionCall = ({
+  methodName,
+  args,
+  gas,
+  amount,
+}: RefFiFunctionCallOptions) => {
+  const { wallet } = getCurrentWallet();
+  return wallet
+    .account()
+    .functionCall(
+      REF_FARM_BOOST_CONTRACT_ID,
+      methodName,
+      args,
+      getGas(gas),
+      getAmount(amount)
+    );
 };

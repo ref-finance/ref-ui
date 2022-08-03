@@ -9,6 +9,7 @@ import {
   REF_FARM_CONTRACT_ID,
   wallet as webWallet,
   wallet,
+  REF_FARM_BOOST_CONTRACT_ID,
 } from '../services/near';
 
 import { getAmount, RefFiFunctionCallOptions, getGas } from '../services/near';
@@ -155,7 +156,7 @@ function senderWalletFunc(window: Window) {
       });
     } else {
       return window.near.signOut({
-        contractId: REF_FARM_CONTRACT_ID,
+        contractId: REF_FARM_BOOST_CONTRACT_ID,
       });
     }
   };
@@ -165,7 +166,7 @@ function senderWalletFunc(window: Window) {
     callbackUrl?: string
   ) {
     if (!window.near.isSignedIn()) {
-      await this.requestSignIn(REF_FARM_CONTRACT_ID);
+      await this.requestSignIn(REF_FARM_BOOST_CONTRACT_ID);
     }
 
     const senderTransaction = transactions.map((item: any) => {
@@ -193,7 +194,7 @@ function senderWalletFunc(window: Window) {
     functionCalls: RefFiFunctionCallOptions[]
   ) {
     if (!window.near.isSignedIn()) {
-      await this.requestSignIn(REF_FARM_CONTRACT_ID);
+      await this.requestSignIn(REF_FARM_BOOST_CONTRACT_ID);
     }
 
     return window.near

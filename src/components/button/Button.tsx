@@ -1,5 +1,9 @@
 import React, { HTMLAttributes, useState } from 'react';
-import { wallet, REF_FARM_CONTRACT_ID } from '../../services/near';
+import {
+  wallet,
+  REF_FARM_CONTRACT_ID,
+  REF_FARM_BOOST_CONTRACT_ID,
+} from '../../services/near';
 import {
   Near,
   UnLoginIcon,
@@ -281,7 +285,9 @@ export function ConnectToNearBtnGradientMoible({
 export function SmallConnectToNearBtn() {
   return (
     <div className="flex items-center justify-center pt-2">
-      <GrayButton onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}>
+      <GrayButton
+        onClick={() => wallet.requestSignIn(REF_FARM_BOOST_CONTRACT_ID)}
+      >
         <div className="pr-1">
           <Near />
         </div>
