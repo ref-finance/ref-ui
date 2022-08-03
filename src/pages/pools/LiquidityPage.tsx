@@ -74,7 +74,10 @@ import { useMobile, useClientMobile } from '../../utils/device';
 import { usePoolsMorePoolIds } from '../../state/pool';
 import { PoolTab } from '../../components/pool/PoolTab';
 import { SearchIcon } from '~components/icon/FarmBoost';
-import { WalletContext } from '../../utils/wallets-integration';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { unwrapedNear } from '../../services/wrap-near';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { getVEPoolId } from '../ReferendumPage';
@@ -83,6 +86,9 @@ import { PoolDaoBanner, PoolDaoBannerMobile } from '../../components/icon/Logo';
 import { VEARROW } from '../../components/icon/Referendum';
 import getConfig from '../../services/config';
 import { AddPoolModal } from './AddPoolPage';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { checkTransactionStatus } from '../../services/swap';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -1214,6 +1220,30 @@ export function LiquidityPage() {
     _.debounce(setTokenName, clientMobileDevice ? 50 : 500),
     [clientMobileDevice]
   );
+
+  const history = useHistory();
+
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+  const { txHash } = getURLInfo();
+  useEffect(() => {
+    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
+      checkTransactionStatus(txHash).then((res) => {
+        const status: any = res.status;
+        const data: string | undefined = status.SuccessValue;
+        if (data) {
+          const buff = Buffer.from(data, 'base64');
+          const pool_id = buff.toString('ascii');
+          history.push(`/pool/${pool_id}`);
+        }
+      });
+    }
+  }, [txHash]);
+
+  if (!accountId) {
+    history.push('/');
+    return null;
+  }
 
   const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: displayPools });
 
