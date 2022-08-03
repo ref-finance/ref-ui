@@ -19,6 +19,7 @@ import getConfig from '../services/config';
 
 import './modal-ui/components/styles';
 import { REF_FARM_CONTRACT_ID, wallet } from '../services/near';
+import { walletIcons } from './walletIcons';
 
 const CONTRACT_ID = getConfig().REF_FARM_CONTRACT_ID;
 
@@ -81,28 +82,22 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
       debug: false,
       modules: [
         setupNearWallet({
-          iconUrl:
-            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/near-wallet.png',
+          iconUrl: walletIcons['near-wallet'],
         }),
         setupMyNearWallet({
-          iconUrl:
-            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/my-near-wallet.png',
+          iconUrl: walletIcons['my-near-wallet'],
         }),
         setupSender({
-          iconUrl:
-            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/sender.png',
+          iconUrl: walletIcons['sender'],
         }),
         setupMathWallet({
-          iconUrl:
-            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/math-wallet.png',
+          iconUrl: walletIcons['math-wallet'],
         }),
         setupNightly({
-          iconUrl:
-            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/nightly.png',
+          iconUrl: walletIcons['nightly'],
         }),
         setupLedger({
-          iconUrl:
-            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/ledger.png',
+          iconUrl: walletIcons['ledger'],
         }),
         setupNightlyConnect({
           url: 'wss://ncproxy.nightly.app/app',
@@ -112,8 +107,7 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
             description: 'Example dApp used by NEAR Wallet Selector',
             icon: 'https://near.org/wp-content/uploads/2020/09/cropped-favicon-192x192.png',
           },
-          iconUrl:
-            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/nightly-connect.png',
+          iconUrl: walletIcons['nightly-connect'],
         }),
         setupWalletConnect({
           projectId: '423baa464ffaeca9d7165ab4222d534f',
@@ -124,8 +118,7 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
             url: 'https://github.com/near/wallet-selector',
             icons: ['https://avatars.githubusercontent.com/u/37784886'],
           },
-          iconUrl:
-            'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/WalletConnect.png',
+          iconUrl: walletIcons['wallet-connect'],
         }),
       ],
     });
