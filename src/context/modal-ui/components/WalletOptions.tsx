@@ -11,6 +11,7 @@ import type { ModalOptions } from '../modal.types';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useClientMobile } from '../../../utils/device';
 import { ACCOUNT_ID_KEY } from '../../WalletSelectorContext';
+import { walletIcons } from '../../walletIcons';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -73,12 +74,12 @@ const Beta = () => {
 };
 
 const notSupportingIcons = [
-  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/sender.png',
-  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/math-wallet.png',
-  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/nightly.png',
-  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/ledger.png',
-  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/nightly-connect.png',
-  'https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/WalletConnect.png',
+  walletIcons['sender'],
+  walletIcons['math-wallet'],
+  walletIcons['nightly'],
+  walletIcons['ledger'],
+  walletIcons['nightly-connect'],
+  walletIcons['wallet-connect'],
 ];
 
 interface WalletOptionsProps {
