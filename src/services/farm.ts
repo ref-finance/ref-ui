@@ -674,14 +674,13 @@ export const withdrawAllReward_boost = async (
       methodName: 'withdraw_reward',
       args: {
         token_id: token_id,
-        // amount: checkedList[token_id].value,
       },
       gas: '50000000000000',
     });
   });
   const resolvedBalanceList = await Promise.all(ftBalancePromiseList);
   resolvedBalanceList.forEach((ftBalance, index) => {
-    if (!ftBalance || ftBalance.total === '0') {
+    if (!ftBalance) {
       transactions.unshift({
         receiverId: token_id_list[index],
         functionCalls: [

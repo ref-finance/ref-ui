@@ -453,7 +453,7 @@ input[type='range']::-webkit-slider-runnable-track {
   z-index: 1;
 }
 .swiper-container {
-  width: 350px;
+  width: 292px;
   /* height: 182px; */
 }
 .swiper-wrapper {
@@ -641,7 +641,7 @@ input[type='range']::-webkit-slider-runnable-track {
     bottom: -190px;
   }
   to {
-    bottom: 26px;
+    bottom: 0px;
   }
 }
 @keyframes showfrombottomMobile {
@@ -649,7 +649,7 @@ input[type='range']::-webkit-slider-runnable-track {
     bottom: -190px;
   }
   to {
-    bottom: 26px;
+    bottom: 10px;
   }
 }
 @keyframes pushLeftanimation {
