@@ -269,7 +269,7 @@ function App() {
         );
 
         getSenderWallet(window)
-          .requestSignIn(getConfig().REF_FARM_BOOST_CONTRACT_ID)
+          .requestSignIn(REF_FARM_BOOST_CONTRACT_ID)
           .then((res: any) => {
             !res?.error && saveSenderLoginRes();
           });
