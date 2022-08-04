@@ -261,12 +261,7 @@ function App() {
         getCurrentWallet().wallet_type === 'sender-wallet' &&
         !signInErrorType
       ) {
-        console.log(
-          REF_FARM_BOOST_CONTRACT_ID,
-          'REF_FARM_BOOST_CONTRACT_ID',
-          getConfig().REF_FARM_BOOST_CONTRACT_ID,
-          'config ref farm'
-        );
+   
 
         getSenderWallet(window)
           .requestSignIn(REF_FARM_BOOST_CONTRACT_ID)

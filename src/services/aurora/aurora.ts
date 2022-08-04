@@ -808,7 +808,6 @@ export const getAllTriPools = async () => {
     };
   });
 
-  console.log(pairAddresses, 'pairAddresses');
 
   const allPools = await Promise.all(
     pairAddresses.map(async (pairInfo, i) => {
