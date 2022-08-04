@@ -106,7 +106,7 @@ import { unwrapedNear, WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { BoostInputAmount } from '../../components/forms/InputAmount';
 import SelectToken from '../../components/forms/SelectToken';
 import { useRainbowWhitelistTokens, useTokenBalances } from '../../state/token';
-import { ArrowDownWhite } from '../../components/icon/Arrows';
+import { ArrowDownCur, ArrowDownWhite } from '../../components/icon/Arrows';
 import {
   getDepositableBalance,
   useWalletTokenBalances,
@@ -1470,6 +1470,12 @@ function YourLiquidityAddLiquidityModal(
     getTokenPriceList().then(setTokenPriceList);
   }, []);
 
+  useEffect(() => {
+    if (!pool || tokens[0].id === tokens[1].id) {
+      setCanDeposit(false);
+    }
+  }, [tokens.map((t) => t.id).join('-'), pool]);
+
   balances && (balances[WRAP_NEAR_CONTRACT_ID] = nearBalance);
 
   const changeFirstTokenAmount = (amount: string) => {
@@ -1822,7 +1828,7 @@ function YourLiquidityAddLiquidityModal(
           },
           content: {
             outline: 'none',
-            transform: `translate(-50%,  ${isMobile ? '-270px' : '-50%'})`,
+            transform: `translate(-50%,  ${isMobile ? '-270px' : '-400px'})`,
           },
         }}
       >
@@ -1882,12 +1888,14 @@ function YourLiquidityAddLiquidityModal(
                         render={render}
                         selected={
                           tokens[0] && (
-                            <div className="flex items-center">
-                              <span>{toRealSymbol(tokens[0].symbol)}</span>
-                              <span className="ml-1">
-                                <ArrowDownWhite />
+                            <button className="flex items-center text-white hover:text-gradientFrom">
+                              <span className="text-white">
+                                {toRealSymbol(tokens[0].symbol)}
                               </span>
-                            </div>
+                              <span className="ml-1">
+                                <ArrowDownCur />
+                              </span>
+                            </button>
                           )
                         }
                         onSelect={(token: TokenMetadata) => {
@@ -1940,12 +1948,14 @@ function YourLiquidityAddLiquidityModal(
                         render={render}
                         selected={
                           tokens[1] && (
-                            <div className="flex items-center">
-                              <span>{toRealSymbol(tokens[1].symbol)}</span>
-                              <span className="ml-1">
-                                <ArrowDownWhite />
+                            <button className="flex items-center text-white hover:text-gradientFrom">
+                              <span className="text-white">
+                                {toRealSymbol(tokens[1].symbol)}
                               </span>
-                            </div>
+                              <span className="ml-1">
+                                <ArrowDownCur />
+                              </span>
+                            </button>
                           )
                         }
                         onSelect={(token: TokenMetadata) => {
