@@ -83,7 +83,6 @@ import {
   //@ts-ignore
 } from './smartRouteLogic';
 import { getCurrentWallet } from '../utils/wallets-integration';
-import { multiply, separateRoutes } from '../utils/numbers';
 import {
   multiply,
   separateRoutes,

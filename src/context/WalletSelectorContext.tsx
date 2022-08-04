@@ -173,6 +173,8 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
     return null;
   }
 
+  console.log('current selector', selector);
+
   return (
     <WalletSelectorContext.Provider
       value={{

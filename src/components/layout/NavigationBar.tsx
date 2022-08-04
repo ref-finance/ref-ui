@@ -184,8 +184,6 @@ function AccountEntry({
 
   const [copyIconHover, setCopyIconHover] = useState<boolean>(false);
 
-  const isSignedIn = globalState.isSignedIn && !!wallet.getAccountId();
-
   const [showAccountTip, setShowAccountTip] = useState<boolean>(false);
 
   const [currentWalletName, setCurrentWalletName] = useState<string>();
@@ -194,6 +192,8 @@ function AccountEntry({
 
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
+
+  const isSignedIn = !!accountId;
 
   useEffect(() => {
     wallet.wallet().then((res) => {
@@ -1034,10 +1034,10 @@ function USNButton() {
 function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
   const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
 
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
+  const isSignedIn = !!accountId;
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 

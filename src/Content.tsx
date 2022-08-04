@@ -167,9 +167,15 @@ export function Content() {
       return null;
     }
 
-    getAccount().then((res) => {
-      globalStatedispatch({ type: 'signIn' });
-    });
+    getAccount()
+      .then((res) => {
+        console.log(res, 'dispatch sign in: content');
+
+        globalStatedispatch({ type: 'signIn' });
+      })
+      .catch((e) => {
+        console.log('this is error dispatch signin', e);
+      });
   }, [accountId, getAccount]);
 
   useEffect(() => {
