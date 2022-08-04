@@ -141,7 +141,7 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         alert('Failed to initialise wallet selector');
       })
       .then(() => {
-        const subscription = selector.store.observable
+        const subscription = window.selector.store.observable
           .pipe(
             map((state) => state.accounts),
             distinctUntilChanged()

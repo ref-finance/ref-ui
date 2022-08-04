@@ -661,14 +661,16 @@ function MobileLiquidityPage({
           </section>
         </Card>
       </div>
-      <AddPoolModal
-        isOpen={showAddPoolModal}
-        onRequestClose={(e) => {
-          setShowAddPoolModal(false);
-        }}
-        tokens={selectTokens}
-        balances={selectBalances}
-      />
+      {isSignedIn && (
+        <AddPoolModal
+          isOpen={showAddPoolModal}
+          onRequestClose={(e) => {
+            setShowAddPoolModal(false);
+          }}
+          tokens={selectTokens}
+          balances={selectBalances}
+        />
+      )}
     </>
   );
 }
@@ -1174,14 +1176,16 @@ function LiquidityPage_({
           </section>
         </Card>
       </div>
-      <AddPoolModal
-        isOpen={showAddPoolModal}
-        onRequestClose={(e) => {
-          setShowAddPoolModal(false);
-        }}
-        tokens={selectTokens}
-        balances={selectBalances}
-      />
+      {isSignedIn && (
+        <AddPoolModal
+          isOpen={showAddPoolModal}
+          onRequestClose={(e) => {
+            setShowAddPoolModal(false);
+          }}
+          tokens={selectTokens}
+          balances={selectBalances}
+        />
+      )}
     </>
   );
 }
@@ -1239,11 +1243,6 @@ export function LiquidityPage() {
       });
     }
   }, [txHash]);
-
-  if (!accountId) {
-    history.push('/');
-    return null;
-  }
 
   const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: displayPools });
 
