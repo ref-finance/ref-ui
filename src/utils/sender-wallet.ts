@@ -14,6 +14,7 @@ import {
 
 import { getAmount, RefFiFunctionCallOptions, getGas } from '../services/near';
 import { scientificNotationToString } from './numbers';
+import getConfig from '../services/config';
 import {
   TRANSACTION_WALLET_TYPE,
   TRANSACTION_STATE,
@@ -106,9 +107,11 @@ export const LOCK_INTERVAL = 1000 * 60 * 20;
 
 function senderWalletFunc(window: Window) {
   this.requestSignIn = async function (contractId: string) {
+    console.log(contractId, 'request sign in happened');
+
     return window.near
       .requestSignIn({
-        contractId,
+        contractId: getConfig().REF_FARM_BOOST_CONTRACT_ID,
       })
       .then((res: any) => {
         // Login reject
