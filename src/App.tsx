@@ -47,6 +47,7 @@ import { isMobile } from '~utils/device';
 import {
   wallet as webWallet,
   REF_FARM_CONTRACT_ID,
+  REF_FARM_BOOST_CONTRACT_ID,
   STABLE_POOL_ID,
   STABLE_POOL_USN_ID,
   BTC_POOL_ID,
@@ -261,7 +262,7 @@ function App() {
         !signInErrorType
       ) {
         getSenderWallet(window)
-          .requestSignIn(REF_FARM_CONTRACT_ID)
+          .requestSignIn(REF_FARM_BOOST_CONTRACT_ID)
           .then((res: any) => {
             !res?.error && saveSenderLoginRes();
           });

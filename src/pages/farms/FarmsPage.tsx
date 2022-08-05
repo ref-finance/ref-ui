@@ -1418,7 +1418,7 @@ function FarmView({
     if (farmsData.length > 1) {
       claimRewardBySeed(data.seed_id)
         .then(() => {
-          window.location.reload();
+          // window.location.reload();
         })
         .catch((error) => {
           setDisableClaim(false);
@@ -1427,7 +1427,7 @@ function FarmView({
     } else {
       claimRewardByFarm(data.farm_id)
         .then(() => {
-          window.location.reload();
+          // window.location.reload();
         })
         .catch((error) => {
           setDisableClaim(false);

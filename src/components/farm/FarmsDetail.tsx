@@ -1856,7 +1856,7 @@ function UserTotalUnClaimBlock(props: {
     setClaimLoading(true);
     claimRewardBySeed_boost(detailData.seed_id)
       .then(() => {
-        // window.location.reload();
+        window.location.reload();
       })
       .catch((error) => {
         setClaimLoading(false);
