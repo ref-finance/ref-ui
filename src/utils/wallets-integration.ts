@@ -12,9 +12,11 @@ import {
   RefFiFunctionCallOptions,
   getGas,
   wallet,
+  REF_FARM_BOOST_CONTRACT_ID,
 } from '../services/near';
 import { scientificNotationToString } from './numbers';
 import { ACCOUNT_ID_KEY } from '../context/WalletSelectorContext';
+import getConfig from '../services/config';
 import {
   TRANSACTION_WALLET_TYPE,
   TRANSACTION_STATE,
@@ -113,7 +115,7 @@ function senderWalletFunc(window: Window) {
   this.requestSignIn = async function (contractId: string) {
     return window.near
       .requestSignIn({
-        contractId,
+        contractId: contractId || getConfig().REF_FARM_BOOST_CONTRACT_ID,
       })
       .then((res: any) => {
         // Login reject
@@ -161,7 +163,7 @@ function senderWalletFunc(window: Window) {
       });
     } else {
       return window.near.signOut({
-        contractId: REF_FARM_CONTRACT_ID,
+        contractId: REF_FARM_BOOST_CONTRACT_ID,
       });
     }
   };
@@ -171,7 +173,7 @@ function senderWalletFunc(window: Window) {
     callbackUrl?: string
   ) {
     if (!window.near.isSignedIn()) {
-      await this.requestSignIn(REF_FARM_CONTRACT_ID);
+      await this.requestSignIn(REF_FARM_BOOST_CONTRACT_ID);
     }
 
     const senderTransaction = transactions.map((item: any) => {
@@ -199,7 +201,7 @@ function senderWalletFunc(window: Window) {
     functionCalls: RefFiFunctionCallOptions[]
   ) {
     if (!window.near.isSignedIn()) {
-      await this.requestSignIn(REF_FARM_CONTRACT_ID);
+      await this.requestSignIn(REF_FARM_BOOST_CONTRACT_ID);
     }
 
     return window.near

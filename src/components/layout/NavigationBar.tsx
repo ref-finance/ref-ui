@@ -274,7 +274,7 @@ function AccountEntry({
   const isMobile = useClientMobile();
 
   return (
-    <div className="bubble-box relative user text-xs text-center justify-end z-30 mx-3.5">
+    <div className="bubble-box relative user text-xs text-center justify-end z-40 mx-3.5">
       {showAccountTip ? (
         <AccountTipDownByAccountID show={showAccountTip} />
       ) : null}
@@ -334,7 +334,7 @@ function AccountEntry({
           </div>
         </div>
         {isSignedIn && hover ? (
-          <div className={`absolute top-14 pt-2 right-0 w-64 z-20`}>
+          <div className={`absolute top-14 pt-2 right-0 w-64 z-40`}>
             <Card
               className="menu-max-height bg-cardBg cursor-default shadow-4xl "
               width="w-72"

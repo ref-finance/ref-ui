@@ -2,7 +2,11 @@ import React, { useContext, useState } from 'react';
 
 import ReactModal from 'react-modal';
 import { Card } from '../card/Card';
-import { wallet, REF_FARM_CONTRACT_ID } from '../../services/near';
+import {
+  wallet,
+  REF_FARM_CONTRACT_ID,
+  REF_FARM_BOOST_CONTRACT_ID,
+} from '../../services/near';
 import {
   senderWallet,
   getCurrentWallet,
@@ -409,7 +413,7 @@ export const WalletSelectorModal = (
             description={<FormattedMessage id="web" defaultMessage="web" />}
             officialUrl="wallet.near.org"
             connect={() => {
-              wallet.requestSignIn(REF_FARM_CONTRACT_ID);
+              wallet.requestSignIn(REF_FARM_BOOST_CONTRACT_ID);
             }}
           />
 
@@ -449,7 +453,7 @@ export const WalletSelectorModal = (
                 setWalletIcon(<SenderWalletLarge />);
 
                 getSenderWallet(window)
-                  .requestSignIn(REF_FARM_CONTRACT_ID)
+                  .requestSignIn(REF_FARM_BOOST_CONTRACT_ID)
                   .then((res: any) => {
                     !res?.error && setShowConnecting(false);
                     !res?.error && globalStatedispatch({ type: 'signIn' });

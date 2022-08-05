@@ -26,6 +26,8 @@ import {
   LightningBase64,
   LightningBase64Grey,
   BoostFarmBannerImg,
+  BoostFarmNoDataIcon,
+  BoostDotIcon,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -2435,7 +2437,7 @@ function FarmView(props: {
     setClaimLoading(true);
     claimRewardBySeed_boost(seed.seed_id)
       .then(() => {
-        // window.location.reload();
+        window.location.reload();
       })
       .catch((error) => {
         setClaimLoading(false);
@@ -2969,18 +2971,16 @@ function WithDrawBox(props: {
         </span>
         <div className="flex items-center justify-between mt-7">
           <label className="text-white text-xl font-bold">{yourReward}</label>
-          {Object.keys(userRewardList).length > 0 ? (
-            <div
-              onClick={switchDetailStatus}
-              className="flex items-center text-white text-xs cursor-pointer"
-            >
-              <FormattedMessage id="details" />
-              <UpArrowIcon className={`ml-2 transform rotate-180 text-white`} />
-            </div>
-          ) : null}
           {!isSignedIn ? (
             <GreenConnectToNearBtn className="w-52"></GreenConnectToNearBtn>
-          ) : null}
+          ) : (
+            <div
+              onClick={switchDetailStatus}
+              className="text-xs text-white border border-white rounded-md cursor-pointer py-1.5 px-4 bg-purpleColorF hover:bg-otherGreenColor hover:border-otherGreenColor hover:text-black"
+            >
+              <FormattedMessage id="withdraw"></FormattedMessage>
+            </div>
+          )}
         </div>
       </div>
       <WithDrawModal
@@ -3017,7 +3017,7 @@ function WithDrawModal(props: {
   const [checkedList, setCheckedList] = useState<Record<string, any>>({});
   const [selectAll, setSelectAll] = useState(false);
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
-  const [yourReward, setYourReward] = useState('-');
+  const [yourReward, setYourReward] = useState('$0');
   const rewardRef = useRef(null);
   const intl = useIntl();
   const withdrawNumber = 5;
@@ -3191,20 +3191,27 @@ function WithDrawModal(props: {
               border: '1px solid rgba(0, 198, 162, 0.5)',
             }}
           >
-            <div className="bg-veGradient" style={{ height: '68px' }}>
-              <div className="relative px-5 pt-3">
-                <div className="flex justify-end">
-                  <ModalClose
-                    className="cursor-pointer"
-                    fillColor="#fff"
-                    onClick={onRequestClose}
-                  />
-                </div>
-                <div className="flex items-center justify-between mt-2 px-2">
-                  <span className="text-white text-lg font-bold">
-                    <FormattedMessage id="claimed_Rewards"></FormattedMessage>
-                  </span>
-                  <span className="text-white text-xl font-bold">
+            <div
+              className="relative"
+              style={{
+                background:
+                  'linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)',
+              }}
+            >
+              <BoostDotIcon className="absolute right-5"></BoostDotIcon>
+              <div className="relative z-10 px-5 py-3">
+                <div className="flex flex-col items-start px-2">
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-white text-lg">
+                      <FormattedMessage id="claimed_Rewards"></FormattedMessage>
+                    </span>
+                    <ModalClose
+                      className="cursor-pointer"
+                      fillColor="#fff"
+                      onClick={onRequestClose}
+                    />
+                  </div>
+                  <span className="text-white text-xl font-bold mt-1">
                     {yourReward}
                   </span>
                 </div>
@@ -3258,6 +3265,14 @@ function WithDrawModal(props: {
                     </div>
                   );
                 })}
+                {Object.values(rewardList).length == 0 ? (
+                  <div className="flex flex-col items-center justify-center py-6">
+                    <BoostFarmNoDataIcon></BoostFarmNoDataIcon>
+                    <p className="text-sm text-white opacity-50 mt-3">
+                      No claimed rewards yet
+                    </p>
+                  </div>
+                ) : null}
               </div>
               <div className="flex justify-between items-center pt-4 pb-3 bg-farmV2WithDrawBg pl-3 pr-6 select-none">
                 <div className="flex items-center text-primaryText">

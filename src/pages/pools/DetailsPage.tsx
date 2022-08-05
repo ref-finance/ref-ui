@@ -35,6 +35,7 @@ import {
   REF_FARM_CONTRACT_ID,
   REF_FI_CONTRACT_ID,
   STABLE_POOL_ID,
+  REF_FARM_BOOST_CONTRACT_ID,
 } from '~services/near';
 import { PoolSlippageSelector } from '~components/forms/SlippageSelector';
 import { Link } from 'react-router-dom';
