@@ -808,7 +808,6 @@ export const getAllTriPools = async () => {
     };
   });
 
-
   const allPools = await Promise.all(
     pairAddresses.map(async (pairInfo, i) => {
       const nep141s = await getBatchTokenNearAcounts(pairInfo.ids);

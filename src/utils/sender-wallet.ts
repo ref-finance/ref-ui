@@ -107,10 +107,9 @@ export const LOCK_INTERVAL = 1000 * 60 * 20;
 
 function senderWalletFunc(window: Window) {
   this.requestSignIn = async function (contractId: string) {
-
     return window.near
       .requestSignIn({
-        contractId: contractId||getConfig().REF_FARM_BOOST_CONTRACT_ID,
+        contractId: contractId || getConfig().REF_FARM_BOOST_CONTRACT_ID,
       })
       .then((res: any) => {
         // Login reject
