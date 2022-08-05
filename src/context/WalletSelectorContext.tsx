@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { map, distinctUntilChanged } from 'rxjs';
-import { NetworkId, setupWalletSelector } from '@near-wallet-selector/core';
+import { NetworkId, setupWalletSelector, waitFor } from '@near-wallet-selector/core';
 import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
 import { setupModal } from './modal-ui';
 import type { WalletSelectorModal } from './modal-ui';
