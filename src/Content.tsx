@@ -104,6 +104,7 @@ import {
 import getConfig from './services/config';
 import { AccountView } from 'near-api-js/lib/providers/provider';
 import { InjectedWallet } from '@near-wallet-selector/core';
+import { REF_FARM_BOOST_CONTRACT_ID } from './services/near';
 
 export type Account = AccountView & {
   account_id: string;
@@ -193,7 +194,7 @@ export function Content() {
       const senderWallet = (await senderModule.wallet()) as InjectedWallet;
 
       await senderWallet.signIn({
-        contractId: REF_FARM_CONTRACT_ID,
+        contractId: REF_FARM_BOOST_CONTRACT_ID,
       });
 
       window.location.reload();
