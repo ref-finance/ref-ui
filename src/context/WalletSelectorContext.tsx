@@ -21,7 +21,7 @@ import './modal-ui/components/styles';
 import { REF_FARM_CONTRACT_ID, wallet } from '../services/near';
 import { walletIcons } from './walletIcons';
 
-const CONTRACT_ID = getConfig().REF_FARM_CONTRACT_ID;
+const CONTRACT_ID = getConfig().REF_FARM_BOOST_CONTRACT_ID;
 
 export const ACCOUNT_ID_KEY = 'REF_FI_STATE_SYNC_ACCOUNT_ID';
 
@@ -173,7 +173,6 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
     return null;
   }
 
-  console.log('current selector', selector);
 
   return (
     <WalletSelectorContext.Provider
