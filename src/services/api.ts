@@ -17,6 +17,7 @@ export interface PoolRPCView {
   token_account_ids: string[];
   token_symbols: string[];
   amounts: string[];
+  pool_kind?: string;
   total_fee: number;
   shares_total_supply: string;
   tvl: number;

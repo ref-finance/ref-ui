@@ -1581,7 +1581,7 @@ export function PoolDetailsPage() {
                       <FarmButton farmCount={farmCount} />
                     </Link>
                   ) : (
-                    <span>' '</span>
+                    <div className="h-4"></div>
                   )}
                   <div className="lg:hidden ml-2">
                     <div onClick={handleSaveWatchList}>

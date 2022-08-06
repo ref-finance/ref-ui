@@ -811,5 +811,7 @@ const ko = {
   connect: '연결하기',
   make_sure_device_plugged_in: '디바이스 연결을 확인하십시오',
   then_enter_an_account_id_to_connect: 'ID를 입력하시고 엔터를 눌러 연결하세요',
+  no_pair_found: '쌍을 찾을 수 없습니다',
+  found_stable_pool_in_sauce: 'SAUCE에서 안정적인 풀을 찾았습니다',
 };
 export default Object.assign(ko, ko_in_risks_page);

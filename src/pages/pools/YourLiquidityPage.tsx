@@ -179,18 +179,14 @@ function MyShares({
 }
 
 function Empty() {
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
-
   return (
     <div className="px-6">
-      <div className="text-center font-semibold text-xs mb-4 text-primaryText">
+      <div className="text-center font-semibold text-xs my-4 text-primaryText">
         <FormattedMessage
           id="your_positions_will_be_displayed_here"
           defaultMessage="Your position(s) will be displayed here."
         />
       </div>
-      {isSignedIn ? <AddLiquidityButton /> : <ConnectToNearBtn />}
     </div>
   );
 }
@@ -421,7 +417,7 @@ export function YourLiquidityPage() {
           padding="px-0 py-6"
           className="xs:hidden md:hidden"
         >
-          <div className="text-white text-xl pr-6 pl-6 lg:px-10 pt-3 pb-6 flex items-center justify-between">
+          <div className="text-white text-xl pr-6 pl-6 lg:pl-10 lg:pr-8 pt-3 pb-6 flex items-center justify-between">
             <span>
               <FormattedMessage
                 id="your_liquidity"
@@ -1385,7 +1381,6 @@ function YourLiquidityAddLiquidityModal(
   useEffect(() => {
     if (!candPools) return;
     Promise.all(candPools.map((p) => canFarmV2(p.id))).then((res) => {
-      console.log(res, 'get farms count');
       setFarmV2Counts(
         res
           .map((r) => r.count)
@@ -1403,13 +1398,18 @@ function YourLiquidityAddLiquidityModal(
     const AfarmCount = farmV2Counts?.[a.id] || 0;
     const BfarmCount = farmV2Counts?.[b.id] || 0;
     if (AfarmCount > BfarmCount) {
+      return -3;
+    } else if (Number(a.tvl) > Number(b.tvl)) {
       return -2;
-    } else if (a.tvl > b.tvl) {
+    } else if (Number(b.fee) > Number(a.fee)) {
       return -1;
     } else return 0;
   };
 
-  const displayCandPools = candPools?.sort(candPoolsSortingFunc);
+  const displayCandPools = useMemo(
+    () => candPools?.sort(candPoolsSortingFunc),
+    [candPools]
+  );
 
   // control  default pool
   useEffect(() => {
@@ -1424,8 +1424,11 @@ function YourLiquidityAddLiquidityModal(
   ]);
 
   const forStableClass =
-    isSameStableClass(tokens[0].id, tokens[1].id) &&
-    tokens[0].id !== tokens[1].id;
+    stablePools?.some(
+      (p) =>
+        p.token_account_ids.includes(tokens[0].id) &&
+        p.token_account_ids.includes(tokens[1].id)
+    ) && tokens[0].id !== tokens[1].id;
 
   useEffect(() => {
     getPoolsByTokensIndexer({
@@ -1434,7 +1437,12 @@ function YourLiquidityAddLiquidityModal(
     }).then((res) => {
       setCandPools(
         res
-          .filter((p: PoolRPCView) => !isStablePool(p.id))
+          .filter(
+            (p: PoolRPCView) =>
+              !isStablePool(p.id) &&
+              p?.pool_kind !== 'STABLE_SWAP' &&
+              p?.pool_kind !== 'RATED_SWAP'
+          )
           .map((r: PoolRPCView) => parsePool(r))
       );
     });
@@ -1443,7 +1451,6 @@ function YourLiquidityAddLiquidityModal(
   const isMobile = useClientMobile();
 
   const cardWidth = isMobile ? '90vw' : '450px';
-  const cardHeight = isMobile ? '90vh' : '80vh';
 
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
@@ -1888,7 +1895,7 @@ function YourLiquidityAddLiquidityModal(
                         render={render}
                         selected={
                           tokens[0] && (
-                            <button className="flex items-center text-white hover:text-gradientFrom">
+                            <button className="flex items-center hover:bg-black hover:bg-opacity-20 rounded-lg px-2 py-2.5 text-white hover:text-gradientFrom">
                               <span className="text-white">
                                 {toRealSymbol(tokens[0].symbol)}
                               </span>
@@ -1948,7 +1955,7 @@ function YourLiquidityAddLiquidityModal(
                         render={render}
                         selected={
                           tokens[1] && (
-                            <button className="flex items-center text-white hover:text-gradientFrom">
+                            <button className="flex hover:bg-black hover:bg-opacity-20 rounded-lg px-2 py-2.5 items-center text-white hover:text-gradientFrom">
                               <span className="text-white">
                                 {toRealSymbol(tokens[1].symbol)}
                               </span>
@@ -1974,7 +1981,7 @@ function YourLiquidityAddLiquidityModal(
                 </div>
               ) : null}
               {!!pool ? (
-                <div className="flex justify-between flex-col bg-black bg-opacity-20 text-farmText text-sm mt-6 mb-4 border border-gradientFrom p-5 rounded-lg">
+                <div className=" text-farmText text-sm mt-6 mb-4  px-2 rounded-lg">
                   <div className="flex items-center justify-between">
                     <label>
                       <FormattedMessage
@@ -1998,7 +2005,7 @@ function YourLiquidityAddLiquidityModal(
               ) : null}
 
               {canDeposit ? (
-                <div className="flex items-center rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
+                <div className=" rounded-md mb-6 px-4 text-center xs:px-2  text-base">
                   <label className="text-warnColor ">
                     <FormattedMessage id="oops" defaultMessage="Oops" />!
                   </label>

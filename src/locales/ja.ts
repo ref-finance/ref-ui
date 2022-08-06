@@ -822,5 +822,7 @@ const ja = {
   love_staked: 'Staked LOVE',
   your_apr: 'Your APR',
   range_apr: 'Range or reference APR',
+  no_pair_found: 'ペアが見つかりません',
+  found_stable_pool_in_sauce: 'SAUCE に安定したプールが見つかりました',
 };
 export default Object.assign(ja, ja_in_risks_page);

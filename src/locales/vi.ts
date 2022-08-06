@@ -821,5 +821,7 @@ const vi = {
   make_sure_device_plugged_in:
     'Hãy chắc chắn rằng thiết bị của bạn được kết nối',
   then_enter_an_account_id_to_connect: 'sau đó nhập ID tài khoản để kết nối',
+  no_pair_found: 'Không tìm thấy cặp',
+  found_stable_pool_in_sauce: 'Đã tìm thấy nhóm ổn định trong SAUCE',
 };
 export default Object.assign(vi, vi_in_risks_page);

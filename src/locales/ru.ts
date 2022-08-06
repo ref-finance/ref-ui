@@ -817,5 +817,7 @@ const ru = {
   make_sure_device_plugged_in: 'Убедитесь, что ваше устройство подключено',
   then_enter_an_account_id_to_connect:
     'Укажите идентификатор учетной записи для подключения',
+  no_pair_found: 'Пара не найдена',
+  found_stable_pool_in_sauce: 'Найден стабильный пул в SAUCE',
 };
 export default Object.assign(ru, ru_in_risks_page);

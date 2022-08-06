@@ -813,5 +813,7 @@ const en_US = {
   love_staked: 'Staked LOVE',
   your_apr: 'Your APR',
   range_apr: 'Range or reference APR',
+  no_pair_found: 'No pair found',
+  found_stable_pool_in_sauce: 'Found stable pool in SAUCE',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

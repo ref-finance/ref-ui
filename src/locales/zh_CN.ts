@@ -775,5 +775,7 @@ const zh_CN = {
   love_staked: '已质押的LOVE',
   your_apr: '你的奖励年化收益率',
   range_apr: '范围和参考年化收益率',
+  no_pair_found: '没有找到匹配的交易对',
+  found_stable_pool_in_sauce: '在SAUCE中找到一个稳定池',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

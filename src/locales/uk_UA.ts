@@ -786,5 +786,7 @@ const uk_UA = {
   your_apr: 'Ваш APR',
   range_apr: 'Діапазон чи стандартний APR',
   how_to_earn_more: 'Як поєднати винагороду?',
+  no_pair_found: 'Пари не знайдено',
+  found_stable_pool_in_sauce: 'Знайдено стабільний пул у SAUCE',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
