@@ -1835,7 +1835,7 @@ function YourLiquidityAddLiquidityModal(
           },
           content: {
             outline: 'none',
-            transform: `translate(-50%,  ${isMobile ? '-270px' : '-400px'})`,
+            transform: `translate(-50%,  ${isMobile ? '-270px' : '-40vh'})`,
           },
         }}
       >
