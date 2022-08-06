@@ -1334,7 +1334,7 @@ function MorePoolRow({
         {canFarm && (
           <a
             href={`/v2farms/${pool.id}-r`}
-            className="bg-gradientFrom ml-2 text-black text-sm px-1 py-0.5 flex items-center hover:bg-senderHot rounded-md"
+            className="bg-gradientFrom ml-2 xs:ml-1 text-black whitespace-nowrap text-sm px-1 py-0.5 flex items-center hover:bg-senderHot rounded-md"
           >
             <FormattedMessage id="farm" />
             <span className="ml-1">
@@ -1397,18 +1397,20 @@ function YourLiquidityAddLiquidityModal(
   const candPoolsSortingFunc = (a: Pool, b: Pool) => {
     const AfarmCount = farmV2Counts?.[a.id] || 0;
     const BfarmCount = farmV2Counts?.[b.id] || 0;
-    if (AfarmCount > BfarmCount) {
-      return -3;
-    } else if (Number(a.tvl) > Number(b.tvl)) {
-      return -2;
-    } else if (Number(b.fee) > Number(a.fee)) {
-      return -1;
-    } else return 0;
+    if (AfarmCount !== BfarmCount) {
+      return BfarmCount - AfarmCount;
+    }
+
+    if (a.tvl !== b.tvl) {
+      return Number(b.tvl) - Number(a.tvl);
+    }
+
+    return b.fee - a.fee;
   };
 
   const displayCandPools = useMemo(
     () => candPools?.sort(candPoolsSortingFunc),
-    [candPools]
+    [candPools, farmV2Counts]
   );
 
   // control  default pool
@@ -1416,7 +1418,7 @@ function YourLiquidityAddLiquidityModal(
     if (!displayCandPools || displayCandPools.length < 1 || forStableClass) {
       setPool(null);
     } else setPool(displayCandPools[0]);
-  }, [displayCandPools]);
+  }, [displayCandPools, farmV2Counts]);
 
   const [tokens, setTokens] = useState<TokenMetadata[]>([
     REF_META_DATA,
@@ -1613,7 +1615,7 @@ function YourLiquidityAddLiquidityModal(
         firstAmount: firstTokenAmount,
         secondAmount: secondTokenAmount,
       });
-  }, [balances, pool]);
+  }, [balances, pool?.id, firstTokenAmount, secondTokenAmount]);
 
   function validate({
     firstAmount,
@@ -2096,7 +2098,7 @@ function YourLiquidityAddLiquidityModal(
               })}
               {displayCandPools?.length > 3 ? (
                 <a
-                  className="mt-2.5 flex items-center justify-end text-right text-sm text-primaryText hover:text-gradientFrom"
+                  className="mt-2.5 inline-flex absolute right-0 items-center justify-end text-right text-sm text-primaryText hover:text-gradientFrom"
                   href={`/more_pools/${tokens[0].id},${tokens[1].id}`}
                   target="_blank"
                 >
