@@ -1059,7 +1059,7 @@ export default function FarmsHome(props: any) {
 
         <div className="relative h-full  flex justify-between items-center lg:w-5/6 xl:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0 overflow-hidden">
           <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-3 md:px-3 xs:pt-2 md:pt-2">
-            <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4">
+            <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4 pl-2">
               <FormattedMessage id="farms"></FormattedMessage>
               <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
                 <span
@@ -1074,6 +1074,15 @@ export default function FarmsHome(props: any) {
                   <FormattedMessage id="v2New" />
                 </span>
               </div>
+            </div>
+            <div className="text-xs text-farmText my-4 pl-2">
+              V2 farms support boosted farms.{' '}
+              <a
+                className="hover:text-white underline cursor-pointer"
+                onClick={goLearMore}
+              >
+                Learn more
+              </a>
             </div>
             <WithDrawBox
               userRewardList={user_unWithdraw_rewards}
@@ -1091,14 +1100,8 @@ export default function FarmsHome(props: any) {
               </div>
             ) : null}
           </div>
-          <div className="absolute right-10 -bottom-3 xs:hidden md:hidden">
+          <div className="absolute right-0 -bottom-3 xs:hidden md:hidden">
             <BoostFarmBannerImg style={{ width: '517px' }}></BoostFarmBannerImg>
-          </div>
-          <div
-            onClick={goLearMore}
-            className="absolute z-10 right-0 bottom-2.5 cursor-pointer text-farmText text-xs rounded-lg border border-borderLightBlueColor px-2.5 py-1.5 hover:text-white hover:bg-bgDarkColor"
-          >
-            <FormattedMessage id="learn_more"></FormattedMessage>
           </div>
         </div>
         <div className="flex items-center justify-between w-full mt-2 lg:hidden px-3 mb-3">
@@ -2968,7 +2971,7 @@ function WithDrawBox(props: {
     setWithdrawModalVisible(false);
   }
   return (
-    <div className="rounded-xl overflow-hidden mb-3.5 mt-12 xs:mt-5 md:mt-5">
+    <div className="rounded-xl overflow-hidden mb-3.5">
       <div
         className="relative bg-veGradient px-5 overflow-hidden"
         style={{ height: '68px' }}
