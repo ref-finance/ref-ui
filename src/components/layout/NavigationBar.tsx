@@ -1037,7 +1037,7 @@ function NavigationBar() {
 
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
-  const isSignedIn = globalState.isSignIn;
+  const isSignedIn = globalState.isSignedIn;
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 

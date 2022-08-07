@@ -212,11 +212,11 @@ export function YourLiquidityPage() {
     useState<boolean>(false);
 
   const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
 
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
+  const isSignedIn = !!accountId;
 
   const { txHash } = getURLInfo();
 
@@ -240,7 +240,7 @@ export function YourLiquidityPage() {
     }
   }, [txHash]);
 
-  if (!globalState.isSignedIn) {
+  if (!isSignedIn) {
     history.push('/');
     return null;
   }
