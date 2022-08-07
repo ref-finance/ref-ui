@@ -115,8 +115,12 @@ import _ from 'lodash';
 
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsHome(props: any) {
-  const { getDetailData, getDetailData_user_data, getDetailData_boost_config } =
-    props;
+  const {
+    getDetailData,
+    getDetailData_user_data,
+    getDetailData_boost_config,
+    getDayVolumeMap,
+  } = props;
   let [user_unWithdraw_rewards, set_user_unWithdraw_rewards] = useState<
     Record<string, string>
   >({});
@@ -521,6 +525,8 @@ export default function FarmsHome(props: any) {
         tempMap[poolId] = resolvedResult[index];
       });
       setDayVolumeMap(tempMap);
+      // for detail page
+      getDayVolumeMap(tempMap);
     } catch (error) {}
   }
   function getSpecialSeed({
@@ -1001,6 +1007,11 @@ export default function FarmsHome(props: any) {
       </div>
     );
   }
+  function goLearMore() {
+    window.open(
+      'https://ref-finance.medium.com/ref-tokenomics-2-0-vetokenomics-on-testnet-c2b6ea0e4f96'
+    );
+  }
   const endFarmLength = useMemo(() => {
     return getFarmVisibleLength();
   }, [farm_display_ended_List]);
@@ -1080,16 +1091,21 @@ export default function FarmsHome(props: any) {
               </div>
             ) : null}
           </div>
-          <div className="absolute right-0 -bottom-3 xs:hidden md:hidden">
+          <div className="absolute right-10 -bottom-3 xs:hidden md:hidden">
             <BoostFarmBannerImg style={{ width: '517px' }}></BoostFarmBannerImg>
+          </div>
+          <div
+            onClick={goLearMore}
+            className="absolute z-10 right-0 bottom-2.5 cursor-pointer text-farmText text-xs rounded-lg border border-borderLightBlueColor px-2.5 py-1.5 hover:text-white hover:bg-bgDarkColor"
+          >
+            <FormattedMessage id="learn_more"></FormattedMessage>
           </div>
         </div>
         <div className="flex items-center justify-between w-full mt-2 lg:hidden px-3 mb-3">
           <div
-            className="flex items-center justify-between px-4 h-9 py-1 bg-farmSbg rounded-lg bg-opacity-50"
-            style={{
-              border: keyWords ? '1px solid rgba(115, 129, 139, 0.5)' : '',
-            }}
+            className={`flex items-center justify-between px-4 h-9 py-1 bg-farmSbg rounded-lg bg-opacity-50 ${
+              keyWords ? 'border border-borderLightBlueColor' : ''
+            }`}
           >
             <input
               ref={searchRef}
@@ -1192,10 +1208,9 @@ export default function FarmsHome(props: any) {
           </div>
           <div className="flex items-center  justify-between mb-5 xs:hidden md:hidden">
             <div
-              className="flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5"
-              style={{
-                border: keyWords ? '1px solid rgba(115, 129, 139, 0.5)' : '',
-              }}
+              className={`flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5 ${
+                keyWords ? 'border border-borderLightBlueColor' : ''
+              }`}
             >
               <input
                 ref={searchRef}
