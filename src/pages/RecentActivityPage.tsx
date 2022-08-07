@@ -40,7 +40,7 @@ export function RecentActivityPage() {
 
   const senderLoginRes = getSenderLoginRes();
 
-  if (!senderLoginRes && !webWallet.isSignedIn()) {
+  if (!isSignedIn) {
     history.push('/');
     return null;
   }
