@@ -193,7 +193,7 @@ function AccountEntry({
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
 
-  const isSignedIn = !!accountId;
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
     wallet.wallet().then((res) => {
@@ -1037,7 +1037,7 @@ function NavigationBar() {
 
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
-  const isSignedIn = !!accountId;
+  const isSignedIn = globalState.isSignIn;
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
@@ -1269,7 +1269,7 @@ function NavigationBar() {
             />
             <div
               className={
-                !!accountId ? ' relative right-3 flex items-center' : 'hidden'
+                isSignedIn ? ' relative right-3 flex items-center' : 'hidden'
               }
             >
               <ConnectDot />

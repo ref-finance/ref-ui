@@ -120,6 +120,7 @@ import { AddPoolModal } from './AddPoolPage';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 import { checkTransactionStatus } from '../../services/swap';
+import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
 const StakeListContext = createContext(null);
 
 function MyShares({
@@ -239,7 +240,7 @@ export function YourLiquidityPage() {
     }
   }, [txHash]);
 
-  if (!accountId) {
+  if (!globalState.isSignedIn) {
     history.push('/');
     return null;
   }
@@ -2080,6 +2081,10 @@ function YourLiquidityAddLiquidityModal(
                   <GradientButton
                     className="py-2.5 px-4 mx-auto"
                     onClick={() => {
+                      const saucePageTabKey = getStableSwapTabKey(
+                        getStablePoolIdByTokens()
+                      );
+                      localStorage.setItem(saucePageTabKey, 'add_liquidity');
                       window.open(`/sauce/${getStablePoolIdByTokens()}`);
                     }}
                   >
