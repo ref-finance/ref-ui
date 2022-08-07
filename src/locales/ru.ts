@@ -809,6 +809,6 @@ const ru = {
   your_apr: 'Ваш APR',
   range_apr: 'В пределах диапазона или базового APR',
   how_to_earn_more: 'Как заработать больше наград?',
-  learn_more: 'Learn more',
+  learn_more: 'Учить больше',
 };
 export default Object.assign(ru, ru_in_risks_page);
