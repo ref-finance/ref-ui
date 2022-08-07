@@ -95,7 +95,7 @@ import { parsePool } from '../../services/pool';
 import { usePoolShareRaw } from '../../state/pool';
 import { createContext } from 'react';
 import { useClientMobile, isClientMobie } from '../../utils/device';
-import _ from 'lodash';
+import _, { method } from 'lodash';
 import {
   GradientButton,
   ButtonTextWrapper,
@@ -222,9 +222,15 @@ export function YourLiquidityPage() {
   useEffect(() => {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
+        console.log(res);
+
+        const transaction = res.transaction;
+        const methodName =
+          transaction?.actions[0]?.['FunctionCall']?.method_name;
+
         const status: any = res.status;
         const data: string | undefined = status.SuccessValue;
-        if (data) {
+        if (data && methodName === 'add_simple_pool') {
           const buff = Buffer.from(data, 'base64');
           const pool_id = buff.toString('ascii');
           history.push(`/pool/${pool_id}`);
@@ -1710,11 +1716,18 @@ function YourLiquidityAddLiquidityModal(
   }
 
   function submit() {
+    const token0 = tokens.find((token) => token.id === pool.tokenIds[0]);
+    const token1 = tokens.find((token) => token.id === pool.tokenIds[1]);
+    const amount0 =
+      token0.id === tokens[0].id ? firstTokenAmount : secondTokenAmount;
+    const amount1 =
+      token1.id === tokens[1].id ? secondTokenAmount : firstTokenAmount;
+
     return addLiquidityToPool({
       id: pool.id,
       tokenAmounts: [
-        { token: tokens[0], amount: firstTokenAmount },
-        { token: tokens[1], amount: secondTokenAmount },
+        { token: token0, amount: amount0 },
+        { token: token1, amount: amount1 },
       ],
     });
   }
@@ -2084,7 +2097,7 @@ function YourLiquidityAddLiquidityModal(
 
           {/* for candidate list */}
           {candPools?.length > 0 && (
-            <div style={{ width: cardWidth }} className="xs:pb-10">
+            <div style={{ width: cardWidth }} className="xs:pb-10 xs:mb-10">
               {displayCandPools?.slice(0, 3)?.map((p) => {
                 return (
                   <MorePoolRow
