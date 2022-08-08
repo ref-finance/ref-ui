@@ -834,7 +834,7 @@ export const LockPopUp = ({
             }}
           >
             {' '}
-            <span className="mr-4">
+            <span className="mr-4 self-start">
               <TipTriangle h="16" w="17" c="#00C6A2" />
             </span>
             <span>
@@ -854,7 +854,7 @@ export const LockPopUp = ({
                   id="scheduled_to_be_unlocked"
                   defaultMessage={'scheduled to be unlocked'}
                 />{' '}
-                <span>{moment(unlockTime * 1000).format('MMM DD YYYY')}</span>
+                <span>{moment(unlockTime * 1000).format('MMM D YYYY')}</span>
                 {'. '}
               </div>
 
@@ -882,7 +882,7 @@ export const LockPopUp = ({
                 </span>
                 <span>
                   {moment(moment().unix() * 1000 + duration * 1000).format(
-                    'MMM DD YYYY'
+                    'MMM D YYYY'
                   )}
                 </span>
               </div>
@@ -905,7 +905,14 @@ export const LockPopUp = ({
               defaultMessage={"I understand that I won't be able to remove my"}
             />
             <span className="text-white font-bold">
-              {toPrecision(inputValue, 2)}
+              {toPrecision(
+                scientificNotationToString(
+                  new Big(toReadableNumber(24, accountInfo?.lpt_amount || '0'))
+                    .plus(new Big(inputValue || '0'))
+                    .toString()
+                ),
+                2
+              )}
             </span>
             <FormattedMessage
               id="lp_tokens_locking"
@@ -914,7 +921,7 @@ export const LockPopUp = ({
             <FormattedMessage id="until" defaultMessage={'until'} />{' '}
             <span className="text-white font-bold">
               {moment(moment().unix() * 1000 + duration * 1000).format(
-                'MMM DD YYYY'
+                'MMM D YYYY'
               )}
             </span>
           </span>

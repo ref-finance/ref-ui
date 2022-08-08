@@ -187,7 +187,8 @@ export function ConnectToNearBtnGradient({
 }) {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
-  const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
 
   return (
     <>
@@ -202,7 +203,7 @@ export function ConnectToNearBtnGradient({
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          modal.show();
         }}
       >
         {!buttonLoading && (
@@ -223,14 +224,6 @@ export function ConnectToNearBtnGradient({
           />
         </button>
       </div>
-      <WalletSelectorModal
-        isOpen={showWalletSelector}
-        onRequestClose={() => {
-          window.location.reload();
-          setShowWalletSelector(false);
-        }}
-        setShowWalletSelector={setShowWalletSelector}
-      />
     </>
   );
 }
@@ -878,6 +871,7 @@ export function GreenConnectToNearBtn(props: any) {
     </>
   );
 }
+
 export function BlacklightConnectToNearBtn(props: any) {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const { className } = props;
@@ -937,7 +931,8 @@ export const YouVotedButton = () => {
 export function ConnectToNearBtnVotingMobile() {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
-  const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
 
   return (
     <>
@@ -952,7 +947,7 @@ export function ConnectToNearBtnVotingMobile() {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          modal.show();
         }}
       >
         {!buttonLoading && (
@@ -973,14 +968,6 @@ export function ConnectToNearBtnVotingMobile() {
           />
         </button>
       </div>
-      <WalletSelectorModal
-        isOpen={showWalletSelector}
-        onRequestClose={() => {
-          window.location.reload();
-          setShowWalletSelector(false);
-        }}
-        setShowWalletSelector={setShowWalletSelector}
-      />
     </>
   );
 }
