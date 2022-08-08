@@ -578,7 +578,7 @@ export function YourLiquidityPage() {
               .map((p, i) => {
                 return (
                   <RowRenderMobile
-                    shares={batchStableShares?.[i] || ''}
+                    shares={batchShares?.[i] || ''}
                     p={p}
                     ids={p.token_account_ids}
                   />
@@ -623,7 +623,6 @@ function PoolRow(props: {
   endedFarmV1?: number;
   endedFarmV2?: number;
   shares: string;
-
   tvl: number;
 }) {
   const { pool: poolRPC, endedFarmV1, endedFarmV2, shares } = props;
