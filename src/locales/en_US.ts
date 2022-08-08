@@ -815,5 +815,14 @@ const en_US = {
   range_apr: 'Range or reference APR',
   no_pair_found: 'No pair found',
   found_stable_pool_in_sauce: 'Found stable pool in SAUCE',
+  lp_tokens_locking: ' LP Tokens ',
+  you_currently_have: 'You currently have ',
+  scheduled_to_be_unlocked: 'scheduled to be unlocked',
+  locking_more_lp_tokens: 'Locking more LP Tokens ',
+  will_mean_these: 'will mean these ',
+  lp_tokens_will_not_be_unlocked_until: ' LP Tokens will not be unlocked until',
+  "I_understand_that_I_won't_be_able_to_remove_my":
+    "I understand that I won't be able to remove my ",
+  until: 'until',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

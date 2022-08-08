@@ -823,5 +823,15 @@ const vi = {
   then_enter_an_account_id_to_connect: 'sau đó nhập ID tài khoản để kết nối',
   no_pair_found: 'Không tìm thấy cặp',
   found_stable_pool_in_sauce: 'Đã tìm thấy nhóm ổn định trong SAUCE',
+  lp_tokens_locking: ' LP Tokens ',
+  you_currently_have: 'Bạn rất muốn ',
+  scheduled_to_be_unlocked: 'dự kiến sẽ được mở khóa',
+  locking_more_lp_tokens: 'Khóa thêm mã thông báo LP ',
+  will_mean_these: 'sẽ có nghĩa là những ',
+  lp_tokens_will_not_be_unlocked_until:
+    ' Mã thông báo LP sẽ không được mở khóa cho đến khi',
+  "I_understand_that_I_won't_be_able_to_remove_my":
+    'Tôi hiểu rằng tôi sẽ không thể xóa ',
+  until: 'cho đến khi',
 };
 export default Object.assign(vi, vi_in_risks_page);

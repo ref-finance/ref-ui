@@ -824,5 +824,14 @@ const ja = {
   range_apr: 'Range or reference APR',
   no_pair_found: 'ペアが見つかりません',
   found_stable_pool_in_sauce: 'SAUCE に安定したプールが見つかりました',
+  lp_tokens_locking: 'LP Tokens',
+  you_currently_have: '現在持っている',
+  scheduled_to_be_unlocked: '解禁予定',
+  locking_more_lp_tokens: 'もっとロックする LP Tokens',
+  will_mean_these: 'これらを意味します',
+  lp_tokens_will_not_be_unlocked_until: 'LP Tokens までロック解除されません',
+  "I_understand_that_I_won't_be_able_to_remove_my":
+    '削除できないことを理解しています',
+  until: 'それまで',
 };
 export default Object.assign(ja, ja_in_risks_page);

@@ -813,5 +813,15 @@ const ko = {
   then_enter_an_account_id_to_connect: 'ID를 입력하시고 엔터를 눌러 연결하세요',
   no_pair_found: '쌍을 찾을 수 없습니다',
   found_stable_pool_in_sauce: 'SAUCE에서 안정적인 풀을 찾았습니다',
+  lp_tokens_locking: 'LP 토큰',
+  you_currently_have: '현재 가지고 있는',
+  scheduled_to_be_unlocked: '잠금 해제 예정',
+  locking_more_lp_tokens: '더 많은 LP 토큰 잠금',
+  will_mean_these: '이것들을 의미할 것이다',
+  lp_tokens_will_not_be_unlocked_until:
+    'LP 토큰은 다음 시간까지 잠금 해제되지 않습니다',
+  "I_understand_that_I_won't_be_able_to_remove_my":
+    '내 계정을 삭제할 수 없음을 이해합니다',
+  until: '~까지',
 };
 export default Object.assign(ko, ko_in_risks_page);

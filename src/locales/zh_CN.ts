@@ -777,5 +777,13 @@ const zh_CN = {
   range_apr: '范围和参考年化收益率',
   no_pair_found: '没有找到匹配的交易对',
   found_stable_pool_in_sauce: '在SAUCE中找到一个稳定池',
+  you_currently_have: '你现在有',
+  scheduled_to_be_unlocked: '将可解锁于',
+  locking_more_lp_tokens: '锁定更多LP代币',
+  will_mean_these: '意味着',
+  lp_tokens_will_not_be_unlocked_until: 'LP代币将不可被解锁直到',
+  "I_understand_that_I_won't_be_able_to_remove_my": '我已了解我将不能解锁我的',
+  until: '直到',
+  lp_tokens_locking: 'LP代币',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

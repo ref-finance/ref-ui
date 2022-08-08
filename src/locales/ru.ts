@@ -819,5 +819,15 @@ const ru = {
     'Укажите идентификатор учетной записи для подключения',
   no_pair_found: 'Пара не найдена',
   found_stable_pool_in_sauce: 'Найден стабильный пул в SAUCE',
+  lp_tokens_locking: ' LP токены ',
+  you_currently_have: 'В настоящее время у вас есть ',
+  scheduled_to_be_unlocked: 'планируется разблокировать',
+  locking_more_lp_tokens: 'Блокировка большего количества токенов LP ',
+  will_mean_these: 'будет означать эти ',
+  lp_tokens_will_not_be_unlocked_until:
+    ' Токены LP не будут разблокированы до тех пор, пока',
+  "I_understand_that_I_won't_be_able_to_remove_my":
+    'Я понимаю, что не смогу удалить свой ',
+  until: 'до того как',
 };
 export default Object.assign(ru, ru_in_risks_page);

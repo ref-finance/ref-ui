@@ -788,5 +788,14 @@ const uk_UA = {
   how_to_earn_more: 'Як поєднати винагороду?',
   no_pair_found: 'Пари не знайдено',
   found_stable_pool_in_sauce: 'Знайдено стабільний пул у SAUCE',
+  lp_tokens_locking: ' LP токени ',
+  you_currently_have: 'Ви зараз маєте ',
+  scheduled_to_be_unlocked: 'заплановано для розблокування',
+  locking_more_lp_tokens: 'Блокування більше токенів LP ',
+  will_mean_these: 'буде означати ці ',
+  lp_tokens_will_not_be_unlocked_until: ' Токени LP не буде розблоковано до',
+  "I_understand_that_I_won't_be_able_to_remove_my":
+    'Я розумію, що не зможу видалити свій ',
+  until: 'поки',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
