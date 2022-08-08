@@ -114,12 +114,6 @@ function SwapTab({
 
   return (
     <div className="mb-5 flex items-center justify-between">
-      {/* <div
-        className="mr-5 bg-cardBg rounded-2xl w-full text-white text-lg flex items-center justify-center"
-        style={{
-          height: '50px',
-        }}
-      > */}
       <TabTitle />
       {/* </div> */}
 

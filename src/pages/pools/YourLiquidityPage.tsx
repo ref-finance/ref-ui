@@ -182,7 +182,7 @@ function MyShares({
 function Empty() {
   return (
     <div className="px-6">
-      <div className="text-center font-semibold text-xs my-4 text-primaryText">
+      <div className="text-center font-semibold text-xs my-10 text-primaryText">
         <FormattedMessage
           id="your_positions_will_be_displayed_here"
           defaultMessage="Your position(s) will be displayed here."
@@ -412,7 +412,7 @@ export function YourLiquidityPage() {
 
   return (
     <>
-      <PoolTab></PoolTab>
+      <PoolTab count={count}></PoolTab>
       <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
         <div className="w-full flex justify-center self-center">
           {error && <Alert level="warn" message={error.message} />}
@@ -535,24 +535,7 @@ export function YourLiquidityPage() {
           )}
         </Card>
         {/* Mobile */}
-        <div className="text-white text-2xl font-semibold px-4 flex items-center justify-between lg:hidden">
-          <FormattedMessage
-            id="your_liquidity"
-            defaultMessage="Your Liquidity"
-          />
 
-          <GradientButton
-            className="px-4 py-1.5 text-sm"
-            onClick={() => {
-              setGeneralAddLiquidity(true);
-            }}
-          >
-            <FormattedMessage
-              id="add_liquidity"
-              defaultMessage={'Add Liquidity'}
-            />
-          </GradientButton>
-        </div>
         {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
           batchTotalShares?.some((s) => s > 0)) &&
         isClientMobile ? (
@@ -607,6 +590,17 @@ export function YourLiquidityPage() {
             <Empty />
           </Card>
         )}
+        <GradientButton
+          className="px-4 py-1.5 text-sm text-white lg:hidden"
+          onClick={() => {
+            setGeneralAddLiquidity(true);
+          }}
+        >
+          <FormattedMessage
+            id="add_liquidity"
+            defaultMessage={'Add Liquidity'}
+          />
+        </GradientButton>
       </div>
       <YourLiquidityAddLiquidityModal
         isOpen={generalAddLiquidity}
@@ -1024,7 +1018,7 @@ function PoolRow(props: {
       {/* Mobile */}
 
       <Link
-        className="lg:hidden pb-4 px-6 text-sm text-white cursor-pointer"
+        className="lg:hidden pb-2 px-6 text-sm text-white cursor-pointer"
         to={{ pathname: `/pool/${pool.id}` }}
       >
         <Card width="w-full" padding="py-4 px-0">
