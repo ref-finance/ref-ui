@@ -300,7 +300,7 @@ function MobileWatchListCard({
   const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: watchPools });
 
   return (
-    <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4">
+    <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4 mt-2">
       <div className="mx-4 flex items-center justify-between mt-4">
         <div className="flex items-center">
           <div
@@ -445,14 +445,6 @@ function MobileLiquidityPage({
     <>
       <PoolTab></PoolTab>
       <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:flex lg:hidden xl:hidden xs:flex">
-        <div className="mx-4 mb-6 mt-3">
-          <div className="text-white text-xl">
-            <FormattedMessage
-              id="liquidity_pools"
-              defaultMessage="Liquidity Pools"
-            />
-          </div>
-        </div>
         <MobileWatchListCard
           poolTokenMetas={poolTokenMetas}
           watchPools={watchPools}
