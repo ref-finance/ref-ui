@@ -1075,7 +1075,7 @@ export default function FarmsHome(props: any) {
                 </span>
               </div>
             </div>
-            <div className="text-xs text-farmText my-4 pl-2">
+            <div className="text-sm text-farmText my-4 pl-2">
               <FormattedMessage id="v2_boost_tip2" />{' '}
               <a
                 className="hover:text-white underline cursor-pointer"
