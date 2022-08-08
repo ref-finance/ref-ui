@@ -600,6 +600,7 @@ const ru = {
   migrate_now: 'Выполнить миграцию!',
   v2_boost_tip:
     'V2-фарминг будет работа для ферм с бустом. V1-фарминг будет лишен наград после <span class="font-bold">1 августа 2022 года</span>',
+  v2_boost_tip2: 'V2-фарминг будет работа для ферм с бустом.',
   v2_boost_no_tip:
     'V1-фарминг будет лишен наград после <span class="font-bold">1 августа 2022 года</span>',
   no_farm_need_to_migrate: 'Не требуется перенос фермы',
@@ -808,5 +809,6 @@ const ru = {
   your_apr: 'Ваш APR',
   range_apr: 'В пределах диапазона или базового APR',
   how_to_earn_more: 'Как заработать больше наград?',
+  learn_more: 'Учить больше',
 };
 export default Object.assign(ru, ru_in_risks_page);

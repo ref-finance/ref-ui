@@ -782,6 +782,7 @@ const ja = {
   migrate_now: 'Migrate Now!',
   v2_boost_tip:
     'V2 farms will support boosted farms. The V1 farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',
+  v2_boost_tip2: 'V2 ファームはブースト ファームをサポートします。',
   v2_boost_no_tip:
     'The V1 farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',
   no_farm_need_to_migrate: 'No Farm need to Migrate',

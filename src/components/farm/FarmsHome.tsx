@@ -115,8 +115,12 @@ import _ from 'lodash';
 
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsHome(props: any) {
-  const { getDetailData, getDetailData_user_data, getDetailData_boost_config } =
-    props;
+  const {
+    getDetailData,
+    getDetailData_user_data,
+    getDetailData_boost_config,
+    getDayVolumeMap,
+  } = props;
   let [user_unWithdraw_rewards, set_user_unWithdraw_rewards] = useState<
     Record<string, string>
   >({});
@@ -521,6 +525,8 @@ export default function FarmsHome(props: any) {
         tempMap[poolId] = resolvedResult[index];
       });
       setDayVolumeMap(tempMap);
+      // for detail page
+      getDayVolumeMap(tempMap);
     } catch (error) {}
   }
   function getSpecialSeed({
@@ -1001,6 +1007,11 @@ export default function FarmsHome(props: any) {
       </div>
     );
   }
+  function goLearMore() {
+    window.open(
+      'https://ref-finance.medium.com/ref-tokenomics-2-0-vetokenomics-on-testnet-c2b6ea0e4f96'
+    );
+  }
   const endFarmLength = useMemo(() => {
     return getFarmVisibleLength();
   }, [farm_display_ended_List]);
@@ -1048,7 +1059,7 @@ export default function FarmsHome(props: any) {
 
         <div className="relative h-full  flex justify-between items-center lg:w-5/6 xl:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0 overflow-hidden">
           <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-3 md:px-3 xs:pt-2 md:pt-2">
-            <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4">
+            <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4 pl-2">
               <FormattedMessage id="farms"></FormattedMessage>
               <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
                 <span
@@ -1063,6 +1074,15 @@ export default function FarmsHome(props: any) {
                   <FormattedMessage id="v2New" />
                 </span>
               </div>
+            </div>
+            <div className="text-sm text-farmText my-4 pl-2">
+              <FormattedMessage id="v2_boost_tip2" />{' '}
+              <a
+                className="hover:text-white underline cursor-pointer"
+                onClick={goLearMore}
+              >
+                <FormattedMessage id="learn_more" />
+              </a>
             </div>
             <WithDrawBox
               userRewardList={user_unWithdraw_rewards}
@@ -1086,10 +1106,9 @@ export default function FarmsHome(props: any) {
         </div>
         <div className="flex items-center justify-between w-full mt-2 lg:hidden px-3 mb-3">
           <div
-            className="flex items-center justify-between px-4 h-9 py-1 bg-farmSbg rounded-lg bg-opacity-50"
-            style={{
-              border: keyWords ? '1px solid rgba(115, 129, 139, 0.5)' : '',
-            }}
+            className={`flex items-center justify-between px-4 h-9 py-1 bg-farmSbg rounded-lg bg-opacity-50 ${
+              keyWords ? 'border border-borderLightBlueColor' : ''
+            }`}
           >
             <input
               ref={searchRef}
@@ -1192,10 +1211,9 @@ export default function FarmsHome(props: any) {
           </div>
           <div className="flex items-center  justify-between mb-5 xs:hidden md:hidden">
             <div
-              className="flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5"
-              style={{
-                border: keyWords ? '1px solid rgba(115, 129, 139, 0.5)' : '',
-              }}
+              className={`flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5 ${
+                keyWords ? 'border border-borderLightBlueColor' : ''
+              }`}
             >
               <input
                 ref={searchRef}
@@ -2953,7 +2971,7 @@ function WithDrawBox(props: {
     setWithdrawModalVisible(false);
   }
   return (
-    <div className="rounded-xl overflow-hidden mb-3.5 mt-12 xs:mt-5 md:mt-5">
+    <div className="rounded-xl overflow-hidden mb-3.5">
       <div
         className="relative bg-veGradient px-5 overflow-hidden"
         style={{ height: '68px' }}

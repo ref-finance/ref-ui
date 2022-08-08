@@ -740,6 +740,7 @@ const uk_UA = {
   migrate_now: 'міграцію зараз ! ',
   v2_boost_tip:
     'Ферми V2 підтримуватимуть посилені ферми. На фермах V1 закінчаться нагороди <span class="font-bold">1st. August, 2022.</span>',
+  v2_boost_tip2: 'Ферми V2 підтримуватимуть посилені ферми.',
   v2_boost_no_tip:
     'На фермах V1 закінчаться нагороди <span class="font-bold">1st. August, 2022.</span>',
   no_farm_need_to_migrate: 'Немає ферм для переносу',
@@ -777,5 +778,6 @@ const uk_UA = {
   your_apr: 'Ваш APR',
   range_apr: 'Діапазон чи стандартний APR',
   how_to_earn_more: 'Як поєднати винагороду?',
+  learn_more: 'Вивчайте більше',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
