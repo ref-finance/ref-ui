@@ -714,8 +714,12 @@ export const useAuroraBalancesNearMapping = (address: string) => {
 
   const [nearMapping, setNearMapping] = useState(null);
 
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
   useEffect(() => {
-    if (!auroraMapping) return;
+    if (!auroraMapping || !isSignedIn) return;
     const auroraAddresses = Object.keys(auroraMapping);
 
     getBatchTokenNearAcounts(auroraAddresses)
@@ -728,7 +732,7 @@ export const useAuroraBalancesNearMapping = (address: string) => {
         }, {});
       })
       .then(setNearMapping);
-  }, [auroraMapping]);
+  }, [auroraMapping, isSignedIn]);
 
   return nearMapping;
 };

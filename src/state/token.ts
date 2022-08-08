@@ -232,14 +232,21 @@ export const useUserRegisteredTokens = () => {
 export const useUserRegisteredTokensAllAndNearBalance = (
   isSignedIn?: boolean
 ) => {
-  const [tokens, setTokens] = useState<any[]>();
+  const triTokenIds = useTriTokenIdsOnRef() as string[];
 
+  const memoTriTokens = useMemo(() => {
+    return triTokenIds || [];
+  }, [triTokenIds?.join('-')]);
+
+  const [tokens, setTokens] = useState<any[]>();
   useEffect(() => {
     if (!isSignedIn) return;
     getWhitelistedTokensAndNearTokens()
       .then((tokenList) => {
+        const newList = [...new Set(tokenList.concat(memoTriTokens))];
+
         const walletBalancePromise = Promise.all(
-          [nearMetadata.id, ...tokenList].map((tokenId) => {
+          [nearMetadata.id, ...newList].map((tokenId) => {
             return getDepositableBalance(tokenId);
           })
         );
@@ -257,7 +264,7 @@ export const useUserRegisteredTokensAllAndNearBalance = (
         });
         setTokens(arr);
       });
-  }, [isSignedIn]);
+  }, [isSignedIn, memoTriTokens?.join('-')]);
 
   return tokens;
 };
