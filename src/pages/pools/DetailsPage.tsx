@@ -765,7 +765,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           <Alert level="warn" message={error.message} />
         </div>
       ) : null}
-      <div className="flex justify-between flex-col bg-black bg-opacity-20 text-farmText text-sm mt-6 mb-4 border border-gradientFrom p-5 rounded-lg">
+      <div className=" text-farmText text-sm mt-6 mb-4  px-2 rounded-lg">
         <div className="flex items-center justify-between">
           <label>
             <FormattedMessage id="lp_tokens" defaultMessage={'LP tokens'} />
@@ -785,7 +785,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
       </div>
 
       {canDeposit ? (
-        <div className="flex items-center rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
+        <div className="rounded-md mb-6 px-4 text-center xs:px-2  text-base">
           <label className="text-warnColor ">
             <FormattedMessage id="oops" defaultMessage="Oops" />!
           </label>
