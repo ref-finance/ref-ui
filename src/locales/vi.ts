@@ -775,7 +775,8 @@ const vi = {
   v2_new_farms: 'V2 Farms mới',
   migrate_now: 'Migrate ngay bây giờ!',
   v2_boost_tip:
-    'V2 farms sẽ không hỗ trợ boosted farms. V1 farms sẽ chạy phần thưởng <span class="font-bold">1st. Tháng 8, 2022.</span>',
+    'V2 farms sẽ hỗ trợ boosted farms. V1 farms sẽ chạy phần thưởng <span class="font-bold">1st. Tháng 8, 2022.</span>',
+  v2_boost_tip2: 'V2 farms sẽ hỗ trợ boosted farms.',
   v2_boost_no_tip:
     'V1 farms sẽ chạy phần thưởng <span class="font-bold">1st. Tháng 8, 2022.</span>',
   no_farm_need_to_migrate: 'Không có farm nào cần Migrate',

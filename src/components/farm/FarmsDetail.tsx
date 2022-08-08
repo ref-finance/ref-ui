@@ -99,6 +99,7 @@ export default function FarmsDetail(props: {
   boostConfig: BoostConfig;
   user_data: Record<string, any>;
   user_data_loading: Boolean;
+  dayVolumeMap: Record<string, string>;
 }) {
   const {
     detailData,
@@ -108,6 +109,7 @@ export default function FarmsDetail(props: {
     boostConfig,
     user_data,
     user_data_loading,
+    dayVolumeMap,
   } = props;
   const {
     user_seeds_map = {},
@@ -287,6 +289,7 @@ export default function FarmsDetail(props: {
         user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
         user_data_loading={user_data_loading}
         radio={radio}
+        dayVolumeMap={dayVolumeMap}
       ></StakeContainer>
     </div>
   );
@@ -301,6 +304,7 @@ function StakeContainer(props: {
   user_unclaimed_map: Record<string, any>;
   radio: string | number;
   user_data_loading: Boolean;
+  dayVolumeMap: Record<string, string>;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -321,6 +325,7 @@ function StakeContainer(props: {
     user_unclaimed_token_meta_map,
     radio,
     user_data_loading,
+    dayVolumeMap,
   } = props;
   const pool = detailData.pool;
   const intl = useIntl();
@@ -507,8 +512,13 @@ function StakeContainer(props: {
     }
   }, [boostConfig, user_seeds_map]);
   async function getPoolFee() {
-    const fee = await get24hVolume(pool.id.toString());
-    setDayVolume(fee);
+    const feeCache = dayVolumeMap && dayVolumeMap[pool.id];
+    if (feeCache) {
+      setDayVolume(feeCache);
+    } else {
+      const fee = await get24hVolume(pool.id.toString());
+      setDayVolume(fee);
+    }
   }
   const getStakeBalance = async () => {
     if (!isSignedIn) {

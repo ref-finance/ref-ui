@@ -749,6 +749,7 @@ const uk_UA = {
   migrate_now: 'міграцію зараз ! ',
   v2_boost_tip:
     'Ферми V2 підтримуватимуть посилені ферми. На фермах V1 закінчаться нагороди <span class="font-bold">1st. August, 2022.</span>',
+  v2_boost_tip2: 'Ферми V2 підтримуватимуть посилені ферми.',
   v2_boost_no_tip:
     'На фермах V1 закінчаться нагороди <span class="font-bold">1st. August, 2022.</span>',
   no_farm_need_to_migrate: 'Немає ферм для переносу',
@@ -797,5 +798,6 @@ const uk_UA = {
   "I_understand_that_I_won't_be_able_to_remove_my":
     'Я розумію, що не зможу видалити свій ',
   until: 'поки',
+  learn_more: 'Вивчайте більше',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
