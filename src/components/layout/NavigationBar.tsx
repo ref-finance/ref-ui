@@ -94,7 +94,10 @@ import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
-import { REF_FARM_CONTRACT_ID } from '../../services/near';
+import {
+  REF_FARM_CONTRACT_ID,
+  REF_FARM_BOOST_CONTRACT_ID,
+} from '../../services/near';
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
@@ -219,9 +222,10 @@ function AccountEntry({
   const signOut = async () => {
     const curWallet = await wallet.wallet();
 
-    await curWallet.signOut();
-
-    localStorage.removeItem(ACCOUNT_ID_KEY);
+    if (curWallet.id === 'sender') {
+      await window.near.signOut();
+      await curWallet.signOut();
+    }
 
     window.location.assign('/');
   };
@@ -256,19 +260,6 @@ function AccountEntry({
         window.open(config.walletUrl, '_blank');
       },
     },
-    // {
-    //   icon: <SignoutIcon />,
-    //   textId: 'sign_out',
-    //   click: async () => {
-    //     const curWallet = await wallet.wallet();
-
-    //     await curWallet.signOut();
-
-    //     localStorage.removeItem(ACCOUNT_ID_KEY);
-
-    //     window.location.assign('/');
-    //   },
-    // },
   ];
 
   const isMobile = useClientMobile();
@@ -422,12 +413,6 @@ function AccountEntry({
                 <button
                   className="text-gradientFrom ml-2 w-1/2 py-1.5 border rounded-lg hover:border-transparent hover:bg-gradientFrom hover:bg-opacity-20 border-gradientFrom border-opacity-30"
                   onClick={async () => {
-                    //TODO: bug on change between browser wallet
-                    // const curWallet = await wallet.wallet();
-
-                    // await curWallet.signOut();
-
-                    // localStorage.removeItem(ACCOUNT_ID_KEY);
                     modal.show();
                   }}
                 >
@@ -664,12 +649,6 @@ function Xref() {
           : 'opacity-60 border-opacity-0'
       }`}
       onClick={goXrefPage}
-      // onMouseEnter={() => {
-      //   setHover(true);
-      // }}
-      // onMouseLeave={() => {
-      //   setHover(false);
-      // }}
     >
       <XrefIcon className="cursor-pointer"></XrefIcon>
       {/* <GreenArrow hover={hover}></GreenArrow> */}

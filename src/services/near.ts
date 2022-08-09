@@ -302,6 +302,18 @@ export const refFarmFunctionCall = async ({
 }: RefFiFunctionCallOptions) => {
   const { wallet } = getCurrentWallet();
 
+  if ((await wallet.wallet()).id === 'sender') {
+    return window.near
+      .account()
+      .functionCall(
+        REF_FARM_CONTRACT_ID,
+        methodName,
+        args,
+        getGas(gas),
+        getAmount(amount)
+      );
+  }
+
   return (await wallet.wallet())
     .signAndSendTransaction({
       signerId: wallet.getAccountId()!,
@@ -407,6 +419,17 @@ export const refFarmBoostFunctionCall = async ({
 }: RefFiFunctionCallOptions) => {
   const { wallet } = getCurrentWallet();
 
+  if ((await wallet.wallet()).id === 'sender') {
+    return window.near
+      .account()
+      .functionCall(
+        REF_FARM_BOOST_CONTRACT_ID,
+        methodName,
+        args,
+        getGas(gas),
+        getAmount(amount)
+      );
+  }
   return (await wallet.wallet())
     .signAndSendTransaction({
       signerId: wallet.getAccountId()!,
