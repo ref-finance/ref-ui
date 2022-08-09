@@ -223,7 +223,7 @@ function AccountEntry({
     const curWallet = await wallet.wallet();
 
     if (curWallet.id === 'sender') {
-      await window.near.signOut();
+      await window.near.signOut({ contractId: REF_FARM_BOOST_CONTRACT_ID });
       await curWallet.signOut();
     }
 
