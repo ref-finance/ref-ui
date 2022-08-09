@@ -49,6 +49,7 @@ import { ONE_YOCTO_NEAR, executeMultipleTransactions, wallet } from '../near';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { STORAGE_TO_REGISTER_WITH_MFT } from '../creators/storage';
 import { ftGetStorageBalance } from '../ft-contract';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -672,7 +673,6 @@ export const useAuroraTokens = () => {
 // OK
 export const useAuroraBalances = (address: string) => {
   const [tokenBalances, setTokenBalances] = useState(null);
-
   const { globalState } = useContext(WalletContext);
 
   const isSignedIn = globalState?.isSignedIn;
@@ -704,7 +704,7 @@ export const useAuroraBalances = (address: string) => {
         }, {})
       );
     });
-  }, [tokens, isSignedIn]);
+  }, [tokens, isSignedIn, address]);
 
   return tokenBalances;
 };

@@ -80,7 +80,7 @@
   color: var(--wallet-selector-text-color, var(--text-color));
   font-family: inherit;
   font-weight: 500;
-  z-index: 100;
+  z-index: 101;
   display: flex;
   justify-content: center;
   align-items: center;

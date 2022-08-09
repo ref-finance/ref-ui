@@ -1024,8 +1024,6 @@ function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
   const { globalState } = useContext(WalletContext);
 
-  const { selector, modal, accounts, accountId, setAccountId } =
-    useWalletSelector();
   const isSignedIn = globalState.isSignedIn;
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
@@ -1033,9 +1031,10 @@ function NavigationBar() {
   const [hoverClick, setHoverClick] = useState<boolean>(false);
 
   const auroraTokens = useAuroraTokens();
-  const auroraAddress = auroraAddr(
-    getCurrentWallet()?.wallet?.getAccountId() || ''
-  );
+
+  const { accountId } = useWalletSelector();
+
+  const auroraAddress = auroraAddr(accountId || '');
 
   const [withdrawDone, setWithdrawDone] = useState<any>();
 
@@ -1047,13 +1046,6 @@ function NavigationBar() {
 
   useEffect(() => {
     if (!auroraBalances || !isSignedIn) return;
-    const auroraAddresses = Object.keys(auroraBalances);
-
-    const amounts = Object.values(auroraBalances) as string[];
-
-    // withdrawBalanceAfterTransaction(auroraAddresses, amounts).then(
-    //   setWithdrawDone
-    // );
 
     setWithdrawDone(false);
   }, [auroraBalances, txHash, isSignedIn]);
@@ -1062,10 +1054,15 @@ function NavigationBar() {
     if (
       !auroraBalances ||
       !auroraTokens ||
-      !(typeof withdrawDone === 'boolean' && withdrawDone === false) ||
-      Object.keys(auroraBalances).length === 0
-    )
+      !(typeof withdrawDone === 'boolean' && withdrawDone === false)
+    ) {
       return;
+    }
+
+    if (Object.keys(auroraBalances).length === 0) {
+      setHasAuroraBalance(false);
+      return;
+    }
 
     const balanceOver = Object.entries(auroraBalances).some(
       ([address, balance]) => {
@@ -1082,8 +1079,15 @@ function NavigationBar() {
         );
       }
     );
+
     setHasAuroraBalance(balanceOver);
-  }, [auroraTokens, auroraBalances, withdrawDone, isSignedIn]);
+  }, [
+    auroraTokens,
+    Object.values(auroraBalances || {}).join('-'),
+    withdrawDone,
+    isSignedIn,
+    accountId,
+  ]);
 
   const [tokensMeta, setTokensMeta] = useState<{}>();
 
@@ -1129,7 +1133,11 @@ function NavigationBar() {
     const ids = Object.keys(refAccountBalances);
 
     ftGetTokensMetadata(ids).then(setTokensMeta);
-  }, [refAccountBalances, isSignedIn]);
+  }, [
+    Object.values(refAccountBalances || {}).join('-'),
+    refAccountBalances,
+    isSignedIn,
+  ]);
 
   useEffect(() => {
     if (!refAccountBalances || !tokensMeta) {
@@ -1147,7 +1155,12 @@ function NavigationBar() {
     );
 
     setHasBalanceOnRefAccount(hasRefBalanceOver);
-  }, [refAccountBalances, tokensMeta, isSignedIn]);
+  }, [
+    refAccountBalances,
+    Object.values(refAccountBalances || {}).join('-'),
+    tokensMeta,
+    isSignedIn,
+  ]);
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">

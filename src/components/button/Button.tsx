@@ -282,11 +282,12 @@ export function ConnectToNearBtnGradientMoible({
 }
 
 export function SmallConnectToNearBtn() {
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
   return (
     <div className="flex items-center justify-center pt-2">
-      <GrayButton
-        onClick={() => wallet.requestSignIn(REF_FARM_BOOST_CONTRACT_ID)}
-      >
+      <GrayButton onClick={() => modal.show()}>
         <div className="pr-1">
           <Near />
         </div>

@@ -42,6 +42,7 @@ import { AllStableTokenIds, getAccountNearBalance } from '../services/near';
 import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
 import { wallet as webWallet } from '~services/near';
 import { getTokenPriceList } from '../services/indexer';
+import { useWalletSelector } from '../context/WalletSelectorContext';
 import {
   WalletContext,
   getCurrentWallet,
@@ -274,7 +275,7 @@ export const useUserRegisteredTokensAllAndNearBalance = (
 
 export const useTokenBalances = () => {
   const [balances, setBalances] = useState<TokenBalancesView>();
-
+  const { accountId } = useWalletSelector();
   const { globalState } = useContext(WalletContext);
 
   const isSignedIn = globalState.isSignedIn;
@@ -284,7 +285,7 @@ export const useTokenBalances = () => {
     getTokenBalances()
       .then(setBalances)
       .catch(() => setBalances({}));
-  }, [isSignedIn]);
+  }, [isSignedIn, accountId]);
 
   return balances;
 };

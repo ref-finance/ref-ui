@@ -155,7 +155,7 @@ export const Modal: React.FC<ModalProps> = ({
                 });
               }}
               onConnected={() => {
-                handleDismissClick();
+                hide();
               }}
               onError={(err) => {
                 // setAlertMessage(err.message);
