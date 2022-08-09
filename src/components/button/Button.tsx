@@ -236,7 +236,8 @@ export function ConnectToNearBtnGradientMoible({
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
-
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
   return (
     <>
       <div
@@ -250,7 +251,7 @@ export function ConnectToNearBtnGradientMoible({
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          modal.show();
         }}
       >
         <button className="relative left-1">
@@ -513,6 +514,9 @@ export function ConnectToNearButton(props: any) {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const [showWalletSelector, setShowWalletSelector] = useState(false);
   const { className = '' } = props;
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
   return (
     <>
       <div
@@ -527,7 +531,8 @@ export function ConnectToNearButton(props: any) {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          // setShowWalletSelector(true);
+          modal.show();
         }}
       >
         <button>
@@ -831,6 +836,8 @@ export function GreenConnectToNearBtn(props: any) {
   const { className } = props;
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
 
   return (
     <>
@@ -842,7 +849,7 @@ export function GreenConnectToNearBtn(props: any) {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          modal.show();
         }}
       >
         <span className="mr-2">
@@ -877,6 +884,8 @@ export function BlacklightConnectToNearBtn(props: any) {
   const { className } = props;
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
 
   return (
     <>
@@ -888,7 +897,8 @@ export function BlacklightConnectToNearBtn(props: any) {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          // setShowWalletSelector(true);
+          modal.show();
         }}
       >
         <span className="mr-2">
