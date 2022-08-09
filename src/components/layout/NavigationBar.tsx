@@ -224,8 +224,10 @@ function AccountEntry({
 
     if (curWallet.id === 'sender') {
       await window.near.signOut({ contractId: REF_FARM_BOOST_CONTRACT_ID });
-      await curWallet.signOut();
     }
+    await curWallet.signOut();
+
+    localStorage.removeItem(ACCOUNT_ID_KEY);
 
     window.location.assign('/');
   };
