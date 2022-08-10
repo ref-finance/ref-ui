@@ -661,11 +661,14 @@ function PoolRow(props: {
 
       const rawRes = multiply(
         new BigNumber(userTotalShareToString)
-          .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
+          .plus(
+            Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0'
+          )
           .toNumber()
           .toFixed(),
         divide(poolTVL.toString(), pool?.shareSupply)
       );
+
       return `$${toInternationalCurrencySystem(rawRes, 2)}`;
     } catch (error) {
       return '-';
