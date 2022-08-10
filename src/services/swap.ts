@@ -1331,11 +1331,13 @@ export const crossInstantSwap = async ({
   }
 
   // force register
-  new Array(...new Set(forceRegisterTokens)).map((id) =>
-    transactions.push({
-      receiverId: id,
-      functionCalls: [registerAccountOnToken()],
-    })
+  new Array(...new Set(forceRegisterTokens)).map(
+    (id) =>
+      id !== 'usn' &&
+      transactions.push({
+        receiverId: id,
+        functionCalls: [registerAccountOnToken()],
+      })
   );
 
   const validateRegisterTokens: string[] = [];
@@ -1358,7 +1360,7 @@ export const crossInstantSwap = async ({
 
   await Promise.all(
     new Array(...new Set(validateRegisterTokens))
-      .filter((id) => !forceRegisterTokens.includes(id))
+      .filter((id) => !forceRegisterTokens.includes(id) && id !== 'usn')
       .map((token) => registerToken(token))
   );
 
