@@ -631,7 +631,7 @@ function PoolRow(props: {
   const poolId = pool.id;
 
   const tokens = props.tokens;
-  const lptAmount = props.lptAmount;
+  const lptAmount = props.lptAmount || '0';
   const poolTVL = pool.tvl || props.tvl;
 
   const [showWithdraw, setShowWithdraw] = useState(false);
