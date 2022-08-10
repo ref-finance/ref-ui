@@ -71,6 +71,7 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
           'PAD-wNEAR': '0x6a29e635BCaB8aBeE1491059728e3D6D11d6A114',
           'BSTN-wNEAR': '0xBBf3D4281F10E537d5b13CA80bE22362310b2bf9',
           'STNEAR-TRI': '0x120e713AD36eCBff171FC8B7cf19FA8B6f6Ba50C',
+          'USN-wNEAR': '0xa36df7c571beba7b3fb89f25dfc990eac75f525a',
         },
         networkId: 'mainnet',
       };
@@ -115,6 +116,7 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
           'PAD-wNEAR': '0x6a29e635BCaB8aBeE1491059728e3D6D11d6A114',
           'BSTN-wNEAR': '0xBBf3D4281F10E537d5b13CA80bE22362310b2bf9',
           'STNEAR-TRI': '0x120e713AD36eCBff171FC8B7cf19FA8B6f6Ba50C',
+          'USN-wNEAR': '0xa36df7c571beba7b3fb89f25dfc990eac75f525a',
         },
         networkId: 'mainnet',
       };
