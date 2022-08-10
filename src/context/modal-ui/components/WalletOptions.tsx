@@ -21,7 +21,7 @@ const walletOfficialUrl = {
   'Nightly Connect': 'nightly.app',
   Ledger: 'ledger.com',
   WalletConnect: 'walletconnect.com',
-  'My NEAR Wallet': 'mynearwallet.com',
+  MyNearWallet: 'mynearwallet.com',
 };
 
 const SelectedIcon = () => {
@@ -207,7 +207,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
               const installed =
                 module.type === 'injected' && module.metadata.available;
 
-              const isBeta = module.metadata.name === 'My NEAR Wallet';
+              const isBeta = module.metadata.name === 'MyNearWallet';
 
               result.push(
                 <li
