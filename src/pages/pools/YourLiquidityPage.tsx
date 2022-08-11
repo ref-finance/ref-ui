@@ -1350,7 +1350,10 @@ function MorePoolRow({
       <span className="flex items-center col-span-4">
         <FormattedMessage id="tvl" />
         <span className={`ml-2 ${checked ? 'text-white' : ''}`}>
-          ${toInternationalCurrencySystem(pool.tvl.toString(), 2)}
+          $
+          {Number(pool.tvl) > 0 && Number(pool.tvl) < 0.01
+            ? '< 0.01'
+            : toInternationalCurrencySystem(pool.tvl.toString(), 2)}
         </span>
       </span>
 
