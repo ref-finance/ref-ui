@@ -107,27 +107,27 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         setupLedger({
           iconUrl: walletIcons['ledger'],
         }),
-        setupNightlyConnect({
-          url: 'wss://ncproxy.nightly.app/app',
-          appMetadata: {
-            additionalInfo: '',
-            application: 'ref fiannce',
-            description: 'Example dApp used by NEAR Wallet Selector',
-            icon: 'https://near.org/wp-content/uploads/2020/09/cropped-favicon-192x192.png',
-          },
-          iconUrl: walletIcons['nightly-connect'],
-        }),
-        setupWalletConnect({
-          projectId: '423baa464ffaeca9d7165ab4222d534f',
-          relayUrl: 'wss://relay.walletconnect.com',
-          metadata: {
-            name: 'ref_finance',
-            description: 'Example dApp used by NEAR Wallet Selector',
-            url: 'https://github.com/near/wallet-selector',
-            icons: ['https://avatars.githubusercontent.com/u/37784886'],
-          },
-          iconUrl: walletIcons['wallet-connect'],
-        }),
+        // setupNightlyConnect({
+        //   url: 'wss://ncproxy.nightly.app/app',
+        //   appMetadata: {
+        //     additionalInfo: '',
+        //     application: 'ref fiannce',
+        //     description: 'Example dApp used by NEAR Wallet Selector',
+        //     icon: 'https://near.org/wp-content/uploads/2020/09/cropped-favicon-192x192.png',
+        //   },
+        //   iconUrl: walletIcons['nightly-connect'],
+        // }),
+        // setupWalletConnect({
+        //   projectId: '423baa464ffaeca9d7165ab4222d534f',
+        //   relayUrl: 'wss://relay.walletconnect.com',
+        //   metadata: {
+        //     name: 'ref_finance',
+        //     description: 'Example dApp used by NEAR Wallet Selector',
+        //     url: 'https://github.com/near/wallet-selector',
+        //     icons: ['https://avatars.githubusercontent.com/u/37784886'],
+        //   },
+        //   iconUrl: walletIcons['wallet-connect'],
+        // }),
       ],
     });
     const _modal = setupModal(_selector, {

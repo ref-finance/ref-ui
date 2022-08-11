@@ -78,8 +78,8 @@ const notSupportingIcons = [
   walletIcons['math-wallet'],
   walletIcons['nightly'],
   walletIcons['ledger'],
-  walletIcons['nightly-connect'],
-  walletIcons['wallet-connect'],
+  // walletIcons['nightly-connect'],
+  // walletIcons['wallet-connect'],
 ];
 
 interface WalletOptionsProps {

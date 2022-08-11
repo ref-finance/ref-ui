@@ -222,22 +222,11 @@ function AccountEntry({
   const signOut = async () => {
     const curWallet = await wallet.wallet();
 
-    if (curWallet.id === 'sender') {
-      await window.near
-        .signOut({ contractId: REF_FARM_BOOST_CONTRACT_ID })
-        .then(async (res: any) => {
-          if (res?.error === 'User reject') return;
-          await curWallet.signOut();
-          localStorage.removeItem(ACCOUNT_ID_KEY);
-          window.location.assign('/');
-        });
-    } else {
-      await curWallet.signOut();
+    await curWallet.signOut();
 
-      localStorage.removeItem(ACCOUNT_ID_KEY);
+    localStorage.removeItem(ACCOUNT_ID_KEY);
 
-      window.location.assign('/');
-    }
+    window.location.assign('/');
   };
 
   const accountList = [

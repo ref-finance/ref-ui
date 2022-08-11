@@ -328,7 +328,11 @@ function PoolDetailCard({
                 defaultMessage={'TVL'}
               ></FormattedMessage>
             }
-            value={`$${toInternationalCurrencySystem(poolTVL || '0', 2)}`}
+            value={`$${
+              Number(poolTVL) < 0.01 && Number(poolTVL) > 0
+                ? '< 0.01'
+                : toInternationalCurrencySystem(poolTVL || '0', 2)
+            }`}
             valueTitle={poolTVL}
           />
           <DetailRow
@@ -1779,9 +1783,11 @@ export function PoolDetailsPage() {
                   >
                     {' '}
                     $
-                    {toInternationalCurrencySystem(
-                      scientificNotationToString(poolTVL?.toString() || '0')
-                    )}
+                    {Number(poolTVL) < 0.01 && Number(poolTVL) > 0
+                      ? '< 0.01'
+                      : toInternationalCurrencySystem(
+                          scientificNotationToString(poolTVL?.toString() || '0')
+                        )}
                   </div>
                 </div>
                 <div className="flex items-center justify-between py-2.5">
