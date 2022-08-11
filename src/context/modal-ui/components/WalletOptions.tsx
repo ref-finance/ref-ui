@@ -258,7 +258,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       </div>
 
       {isMobile && (
-        <div className="flex flex-col mt-7">
+        <div className="flex flex-col items-center mt-7">
           <div className="text-xs mb-4">
             <FormattedMessage
               id="wallets_below_supports_on_PC"
