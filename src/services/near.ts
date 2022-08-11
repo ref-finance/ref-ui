@@ -306,36 +306,63 @@ export const refFarmFunctionCall = async ({
     return window.near
       .account()
       .functionCall(
-        REF_FARM_CONTRACT_ID,
+        REF_FARM_BOOST_CONTRACT_ID,
         methodName,
         args,
         getGas(gas),
         getAmount(amount)
-      );
-  }
+      )
+      .catch(async (e: any) => {
+        console.log(e);
 
-  return (await wallet.wallet())
-    .signAndSendTransaction({
-      signerId: wallet.getAccountId()!,
-      receiverId: REF_FARM_CONTRACT_ID,
-      actions: [
-        {
-          type: 'FunctionCall',
-          params: {
-            methodName,
-            args,
-            gas: getGas(gas).toNumber().toFixed(),
-            deposit: utils.format.parseNearAmount(amount || '0')!,
+        return (await wallet.wallet())
+          .signAndSendTransaction({
+            signerId: wallet.getAccountId()!,
+            receiverId: REF_FARM_CONTRACT_ID,
+            actions: [
+              {
+                type: 'FunctionCall',
+                params: {
+                  methodName,
+                  args,
+                  gas: getGas(gas).toNumber().toFixed(),
+                  deposit: utils.format.parseNearAmount(amount || '0')!,
+                },
+              },
+            ],
+          })
+          .catch((e: Error) => {
+            console.log(e);
+
+            if (walletsRejectError.includes(e.message)) {
+              window.location.reload();
+            }
+          });
+      });
+  } else {
+    return (await wallet.wallet())
+      .signAndSendTransaction({
+        signerId: wallet.getAccountId()!,
+        receiverId: REF_FARM_CONTRACT_ID,
+        actions: [
+          {
+            type: 'FunctionCall',
+            params: {
+              methodName,
+              args,
+              gas: getGas(gas).toNumber().toFixed(),
+              deposit: utils.format.parseNearAmount(amount || '0')!,
+            },
           },
-        },
-      ],
-    })
-    .catch((e: Error) => {
-      console.log(e);
-      if (walletsRejectError.includes(e.message)) {
-        window.location.reload();
-      }
-    });
+        ],
+      })
+      .catch((e: Error) => {
+        console.log(e);
+        if (walletsRejectError.includes(e.message)) {
+          window.location.reload();
+        }
+      });
+  }
 };
 
 export const refFarmViewFunction = ({
@@ -428,28 +455,56 @@ export const refFarmBoostFunctionCall = async ({
         args,
         getGas(gas),
         getAmount(amount)
-      );
-  }
-  return (await wallet.wallet())
-    .signAndSendTransaction({
-      signerId: wallet.getAccountId()!,
-      receiverId: REF_FARM_BOOST_CONTRACT_ID,
-      actions: [
-        {
-          type: 'FunctionCall',
-          params: {
-            methodName,
-            args,
-            gas: getGas(gas).toNumber().toFixed(),
-            deposit: utils.format.parseNearAmount(amount || '0')!,
+      )
+      .catch(async (e: any) => {
+        console.log(e);
+
+        return (await wallet.wallet())
+          .signAndSendTransaction({
+            signerId: wallet.getAccountId()!,
+            receiverId: REF_FARM_BOOST_CONTRACT_ID,
+            actions: [
+              {
+                type: 'FunctionCall',
+                params: {
+                  methodName,
+                  args,
+                  gas: getGas(gas).toNumber().toFixed(),
+                  deposit: utils.format.parseNearAmount(amount || '0')!,
+                },
+              },
+            ],
+          })
+          .catch((e: Error) => {
+            console.log(e);
+
+            if (walletsRejectError.includes(e.message)) {
+              window.location.reload();
+            }
+          });
+      });
+  } else {
+    return (await wallet.wallet())
+      .signAndSendTransaction({
+        signerId: wallet.getAccountId()!,
+        receiverId: REF_FARM_BOOST_CONTRACT_ID,
+        actions: [
+          {
+            type: 'FunctionCall',
+            params: {
+              methodName,
+              args,
+              gas: getGas(gas).toNumber().toFixed(),
+              deposit: utils.format.parseNearAmount(amount || '0')!,
+            },
           },
-        },
-      ],
-    })
-    .catch((e: Error) => {
-      console.log(e);
-      if (walletsRejectError.includes(e.message)) {
-        window.location.reload();
-      }
-    });
+        ],
+      })
+      .catch((e: Error) => {
+        console.log(e);
+        if (walletsRejectError.includes(e.message)) {
+          window.location.reload();
+        }
+      });
+  }
 };

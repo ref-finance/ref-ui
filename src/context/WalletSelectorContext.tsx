@@ -1,6 +1,10 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { map, distinctUntilChanged } from 'rxjs';
-import { NetworkId, setupWalletSelector, waitFor } from '@near-wallet-selector/core';
+import {
+  NetworkId,
+  setupWalletSelector,
+  waitFor,
+} from '@near-wallet-selector/core';
 import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
 import { setupModal } from './modal-ui';
 import type { WalletSelectorModal } from './modal-ui';
@@ -18,7 +22,11 @@ import { InjectedWallet } from '@near-wallet-selector/core';
 import getConfig from '../services/config';
 
 import './modal-ui/components/styles';
-import { REF_FARM_CONTRACT_ID, wallet } from '../services/near';
+import {
+  REF_FARM_CONTRACT_ID,
+  wallet,
+  REF_FARM_BOOST_CONTRACT_ID,
+} from '../services/near';
 import { walletIcons } from './walletIcons';
 
 const CONTRACT_ID = getConfig().REF_FARM_BOOST_CONTRACT_ID;
@@ -122,7 +130,9 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         }),
       ],
     });
-    const _modal = setupModal(_selector, { contractId: CONTRACT_ID });
+    const _modal = setupModal(_selector, {
+      contractId: REF_FARM_BOOST_CONTRACT_ID,
+    });
     const state = _selector.store.getState();
     syncAccountState(localStorage.getItem(ACCOUNT_ID_KEY), state.accounts);
 
@@ -172,7 +182,6 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
   if (!selector || !modal) {
     return null;
   }
-
 
   return (
     <WalletSelectorContext.Provider

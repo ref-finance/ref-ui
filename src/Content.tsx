@@ -104,7 +104,7 @@ import {
 import getConfig from './services/config';
 import { AccountView } from 'near-api-js/lib/providers/provider';
 import { InjectedWallet } from '@near-wallet-selector/core';
-import { REF_FARM_BOOST_CONTRACT_ID } from './services/near';
+import { REF_FARM_BOOST_CONTRACT_ID, wallet } from './services/near';
 
 export type Account = AccountView & {
   account_id: string;
@@ -169,10 +169,18 @@ export function Content() {
     }
 
     getAccount()
-      .then((res) => {
-        console.log(res, 'dispatch sign in: content');
-
-        globalStatedispatch({ type: 'signIn' });
+      .then(async (res) => {
+        if ((await selector.wallet()).id === 'sender') {
+          ((await selector.wallet()) as InjectedWallet)
+            .signIn({
+              contractId: REF_FARM_BOOST_CONTRACT_ID,
+            })
+            .then(() => {
+              globalStatedispatch({ type: 'signIn' });
+            });
+        } else {
+          globalStatedispatch({ type: 'signIn' });
+        }
       })
       .catch((e) => {
         console.log('this is error dispatch signin', e);
