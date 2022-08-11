@@ -1648,6 +1648,25 @@ export const CloseRadiusIcon = () => {
     </svg>
   );
 };
+export const AddButtonIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="9"
+      height="9"
+      viewBox="0 0 9 9"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M3.2 7.55002C3.2 7.96424 3.53579 8.30002 3.95 8.30002C4.36421 8.30002 4.7 7.96424 4.7 7.55002V4.90002H7.55C7.96421 4.90002 8.3 4.56424 8.3 4.15002C8.3 3.73581 7.96421 3.40002 7.55 3.40002H4.7V0.750023C4.7 0.335809 4.36421 2.28882e-05 3.95 2.28882e-05C3.53579 2.28882e-05 3.2 0.335809 3.2 0.750023V3.40002H0.75C0.335786 3.40002 0 3.73581 0 4.15002C0 4.56424 0.335786 4.90002 0.75 4.90002H3.2V7.55002Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
 export {
   Learn_more,
   CloseBtn,

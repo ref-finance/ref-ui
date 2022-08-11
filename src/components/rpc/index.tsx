@@ -1,21 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
-import { CircleIcon } from '~components/icon/Common';
-import getConfig, { getExtendConfig } from '~services/config';
+import { CircleIcon, AddButtonIcon } from '~components/icon/Common';
+import getConfig, { getExtendConfig, getCustomConfig } from '~services/config';
 import { JsonRpcProvider } from 'near-api-js/lib/providers';
 import { near } from '~services/near';
 import { isMobile } from '~utils/device';
 import Modal from 'react-modal';
 import { ModalClose, Checkbox, CheckboxSelected } from '~components/icon';
 import { BeatLoading } from '~components/layout/Loading';
-const RPCLIST = getExtendConfig().RPC_LIST;
+import { FormattedMessage, useIntl } from 'react-intl';
+import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
 const MAXELOADTIMES = 3;
 const RpcList = () => {
-  const rpclist = RPCLIST;
+  const rpclist = getRpcList();
   const [hover, setHover] = useState(false);
   const [responseTimeList, setResponseTimeList] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
-  const currentEndPoint = localStorage.getItem('endPoint') || 'defaultRpc';
+  const [modalCustomVisible, setModalCustomVisible] = useState(false);
+  let currentEndPoint = localStorage.getItem('endPoint') || 'defaultRpc';
+  if (!rpclist[currentEndPoint]) {
+    currentEndPoint = 'defaultRpc';
+    localStorage.removeItem('endPoint');
+  }
   useEffect(() => {
     Object.entries(rpclist).forEach(([key, data]) => {
       ping(data.url, key).then((time) => {
@@ -24,9 +30,21 @@ const RpcList = () => {
       });
     });
   }, []);
+  function updateResponseTimeList(data: any) {
+    const { key, responseTime } = data;
+    responseTimeList[key] = responseTime;
+    setResponseTimeList(Object.assign({}, responseTimeList));
+  }
+  function addCustomNetwork() {
+    setModalCustomVisible(true);
+    if (mobile) {
+      setHover(false);
+    }
+  }
   const minWidth = '180px';
   const maxWith = '230px';
   const mobile = isMobile();
+  const prd = isPrd();
   return (
     <>
       {mobile ? (
@@ -35,25 +53,77 @@ const RpcList = () => {
             zIndex: 999999,
             boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
           }}
-          className="fixed bottom-0 left-0 w-full h-8 px-16 bg-cardBg mt-3"
+          className="fixed bottom-0 left-0 w-full h-8 bg-cardBg mt-3"
         >
-          <div
-            className="flex items-center w-full h-full justify-between"
-            onClick={() => {
-              setModalVisible(true);
-            }}
-          >
-            <div className="flex items-center w-2/3">
-              <label className="text-xs text-primaryText mr-5">RPC</label>
-              <label className="text-xs text-primaryText cursor-pointer pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis">
-                {rpclist[currentEndPoint].simpleName}
-              </label>
+          <div className="flex items-center w-full h-full justify-between">
+            <div
+              className={`flex items-center justify-between flex-grow pl-12 ${
+                prd ? 'pr-7' : 'pr-20'
+              }`}
+              onClick={() => {
+                setHover(!hover);
+              }}
+            >
+              <div className="flex items-center">
+                <label className="text-xs text-primaryText mr-5">RPC</label>
+                <label className="text-xs text-primaryText cursor-pointer pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis">
+                  {rpclist[currentEndPoint].simpleName}
+                </label>
+              </div>
+              <div className="flex items-center">
+                {displayCurrentRpc(responseTimeList, currentEndPoint)}
+                <FiChevronDown
+                  className={`text-primaryText transform rotate-180 cursor-pointer ${
+                    hover ? 'text-greenColor' : ''
+                  }`}
+                ></FiChevronDown>
+              </div>
             </div>
-            <div className="flex items-center">
-              {displayCurrentRpc(responseTimeList, currentEndPoint)}
-            </div>
+            {prd ? (
+              <div
+                onClick={addCustomNetwork}
+                className="flex items-center justify-between px-5 h-full"
+                style={{ borderLeft: '1px solid rgba(115, 129, 139, 0.15)' }}
+              >
+                <AddButtonIcon className="text-primaryText hover:text-greenColor"></AddButtonIcon>
+              </div>
+            ) : null}
           </div>
-          <ModalBox
+          <div
+            className={`flex flex-col items-center justify-center absolute bottom-8 w-full bg-cardBg rounded mb-px ${
+              hover ? '' : 'hidden'
+            }`}
+            style={{ boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)' }}
+          >
+            {Object.entries(rpclist).map(([key, data]) => {
+              return (
+                <div
+                  key={key}
+                  className={`flex items-center w-full pl-20 pr-24 py-2 justify-between text-primaryText hover:bg-navHighLightBg  hover:text-white ${
+                    currentEndPoint == key ? 'bg-navHighLightBg' : ''
+                  }`}
+                  onClick={() => {
+                    switchPoint(key);
+                  }}
+                >
+                  <label
+                    className={`text-xs pl-3 pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis ${
+                      responseTimeList[key] && responseTimeList[key] != -1
+                        ? 'cursor-pointer'
+                        : 'cursor-pointer'
+                    }`}
+                  >
+                    {data.simpleName}
+                  </label>
+                  <div className={`flex items-center`}>
+                    {displayCurrentRpc(responseTimeList, key)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* <ModalBox
             isOpen={modalVisible}
             onRequestClose={() => {
               setModalVisible(false);
@@ -72,71 +142,113 @@ const RpcList = () => {
                 transform: 'translate(-50%, -50%)',
               },
             }}
-          ></ModalBox>
+          ></ModalBox> */}
         </div>
       ) : (
-        <div
-          style={{ zIndex: 999999 }}
-          className="fixed right-8 bottom-0 pt-3"
-          onMouseEnter={() => {
-            setHover(true);
-          }}
-          onMouseLeave={() => {
-            setHover(false);
-          }}
-        >
+        <>
           <div
-            className="flex items-center justify-between px-2 py-1 bg-darkGradientHoverBg rounded cursor-pointer"
-            style={{
-              minWidth: minWidth,
-              maxWidth: maxWith,
-              boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
-            }}
+            style={{ zIndex: 999999 }}
+            className="flex items-end fixed right-8 bottom-0"
           >
-            <label className="text-xs text-primaryText cursor-pointer pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis">
-              {rpclist[currentEndPoint].simpleName}
-            </label>
-            <div className="flex items-center">
-              {displayCurrentRpc(responseTimeList, currentEndPoint)}
-              <FiChevronDown className="text-primaryText transform rotate-180 cursor-pointer"></FiChevronDown>
-            </div>
-          </div>
-          <div
-            className={`absolute py-2 bottom-8 flex flex-col w-full bg-cardBg rounded ${
-              hover ? '' : 'hidden'
-            }`}
-            style={{ boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)' }}
-          >
-            {Object.entries(rpclist).map(([key, data]) => {
-              return (
+            <div
+              onMouseEnter={() => {
+                setHover(true);
+              }}
+              onMouseLeave={() => {
+                setHover(false);
+              }}
+              className="relative"
+            >
+              <div className="pt-3">
                 <div
-                  key={key}
-                  className={`flex items-center px-2 py-1 justify-between text-primaryText hover:bg-navHighLightBg  hover:text-white ${
-                    currentEndPoint == key ? 'bg-navHighLightBg' : ''
-                  }`}
-                  style={{ minWidth: minWidth, maxWidth: maxWith }}
-                  onClick={() => {
-                    switchPoint(key);
+                  className="flex items-center justify-between px-2  bg-darkGradientHoverBg rounded cursor-pointer"
+                  style={{
+                    minWidth: minWidth,
+                    maxWidth: maxWith,
+                    boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+                    height: '25px',
                   }}
                 >
-                  <label
-                    className={`text-xs pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis ${
-                      responseTimeList[key] && responseTimeList[key] != -1
-                        ? 'cursor-pointer'
-                        : 'cursor-pointer'
-                    }`}
-                  >
-                    {data.simpleName}
-                  </label>
-                  <div className={`flex items-center`}>
-                    {displayCurrentRpc(responseTimeList, key)}
+                  <div className="flex items-center">
+                    <label className="text-xs text-primaryText cursor-pointer pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis">
+                      {rpclist[currentEndPoint].simpleName}
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    {displayCurrentRpc(responseTimeList, currentEndPoint)}
+                    <FiChevronDown
+                      className={`text-primaryText transform rotate-180 cursor-pointer ${
+                        hover ? 'text-greenColor' : ''
+                      }`}
+                    ></FiChevronDown>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+              <div
+                className={`absolute py-2 bottom-8 flex flex-col w-full bg-cardBg rounded ${
+                  hover ? '' : 'hidden'
+                }`}
+                style={{ boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)' }}
+              >
+                {Object.entries(rpclist).map(([key, data]) => {
+                  return (
+                    <div
+                      key={key}
+                      className={`flex items-center px-2 py-1 justify-between text-primaryText hover:bg-navHighLightBg  hover:text-white ${
+                        currentEndPoint == key ? 'bg-navHighLightBg' : ''
+                      }`}
+                      style={{ minWidth: minWidth, maxWidth: maxWith }}
+                      onClick={() => {
+                        switchPoint(key);
+                      }}
+                    >
+                      <label
+                        className={`text-xs pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis ${
+                          responseTimeList[key] && responseTimeList[key] != -1
+                            ? 'cursor-pointer'
+                            : 'cursor-pointer'
+                        }`}
+                      >
+                        {data.simpleName}
+                      </label>
+                      <div className={`flex items-center`}>
+                        {displayCurrentRpc(responseTimeList, key)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {prd ? (
+              <div
+                onClick={addCustomNetwork}
+                style={{ height: '25px' }}
+                className="flex items-center bg-darkGradientHoverBg rounded  cursor-pointer ml-0.5 px-2 "
+              >
+                <AddButtonIcon className="text-primaryText hover:text-greenColor"></AddButtonIcon>
+              </div>
+            ) : null}
           </div>
-        </div>
+        </>
       )}
+      <ModalAddCustomNetWork
+        isOpen={modalCustomVisible}
+        onRequestClose={() => {
+          setModalCustomVisible(false);
+        }}
+        updateResponseTimeList={updateResponseTimeList}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+            zIndex: '999999',
+          },
+          content: {
+            outline: 'none',
+            transform: 'translate(-50%, -50%)',
+          },
+        }}
+      ></ModalAddCustomNetWork>
     </>
   );
 };
@@ -231,8 +343,175 @@ const displayCurrentRpc = (responseTimeList: any, key: any) => {
     );
   }
 };
+const ModalAddCustomNetWork = (props: any) => {
+  // todo
+  const [customLoading, setCustomLoading] = useState(false);
+  const [customRpcName, setCustomRpcName] = useState('');
+  const [customRpUrl, setCustomRpUrl] = useState('');
+  const [unavailableError, setUnavailableError] = useState(false);
+  const [testnetError, setTestnetError] = useState(false);
+  const [nameError, setNameError] = useState(false);
+  const cardWidth = isMobile() ? '90vw' : '400px';
+  async function addCustomNetWork() {
+    setCustomLoading(true);
+    const rpcMap = getRpcList();
+    // check if has same url and same name
+    const fondItem = Object.values(rpcMap).find((item) => {
+      if (item['simpleName'] == customRpcName) {
+        return true;
+      }
+    });
+    if (fondItem) {
+      setNameError(true);
+      setCustomLoading(false);
+      return;
+    }
+    // check network
+    const { status, responseTime, chain_id } = await pingChain(customRpUrl);
+    if (!status) {
+      setUnavailableError(true);
+      setCustomLoading(false);
+      return;
+    }
+    if (status && chain_id == 'testnet') {
+      setTestnetError(true);
+      setCustomLoading(false);
+      return;
+    }
+    const customRpcMap = getCustomConfig();
+    const key = 'custom' + Object.keys(customRpcMap).length + 1;
+    customRpcMap[key] = {
+      url: customRpUrl,
+      simpleName: customRpcName,
+    };
 
+    localStorage.setItem('customRpc', JSON.stringify(customRpcMap));
+    setCustomLoading(false);
+    props.onRequestClose();
+    props.updateResponseTimeList({
+      key,
+      responseTime,
+    });
+  }
+  function changeNetName(v: string) {
+    setNameError(false);
+    setCustomRpcName(v);
+  }
+  function changeNetUrl(v: string) {
+    setUnavailableError(false);
+    setTestnetError(false);
+    setCustomRpUrl(v);
+  }
+  const submitStatus =
+    customRpcName &&
+    customRpUrl &&
+    !unavailableError &&
+    !nameError &&
+    !testnetError;
+  return (
+    <Modal {...props}>
+      <div
+        className="px-6 py-7 text-white bg-cardBg border border-gradientFrom border-opacity-50 rounded-lg"
+        style={{
+          width: cardWidth,
+        }}
+      >
+        <div className="flex items-center justify-between text-xl text-white">
+          Add Custom Network
+          <span
+            onClick={() => {
+              props.onRequestClose();
+            }}
+            className="cursor-pointer"
+          >
+            <ModalClose></ModalClose>
+          </span>
+        </div>
+        <div className="flex flex-col  mt-10">
+          <span className="text-white text-sm mb-2.5">Network Name</span>
+          <div
+            className={`overflow-hidden rounded-md ${
+              nameError ? 'border border-warnRedColor' : ''
+            }`}
+          >
+            <input
+              className="px-3 h-12 bg-black bg-opacity-20"
+              onChange={({ target }) => changeNetName(target.value)}
+            ></input>
+          </div>
+          <span
+            className={`errorTip text-redwarningColor text-sm mt-2 ${
+              nameError ? '' : 'hidden'
+            }`}
+          >
+            The Network name was already taken.
+          </span>
+        </div>
+        <div className="flex flex-col mt-10">
+          <span className="text-white text-sm mb-2.5">RPC URL</span>
+          <div
+            className={`overflow-hidden rounded-md ${
+              unavailableError ? 'border border-warnRedColor' : ''
+            }`}
+          >
+            <input
+              className="px-3 h-12 rounded-md bg-black bg-opacity-20"
+              onChange={({ target }) => changeNetUrl(target.value)}
+            ></input>
+          </div>
+          <span
+            className={`errorTip text-redwarningColor text-sm mt-2 ${
+              unavailableError ? '' : 'hidden'
+            }`}
+          >
+            The Network was invalid
+          </span>
+          <span
+            className={`errorTip text-redwarningColor text-sm mt-2 ${
+              testnetError ? '' : 'hidden'
+            }`}
+          >
+            RPC server's network (testnet) is different with this network
+            (mainnet)
+          </span>
+        </div>
+        <GradientButton
+          color="#fff"
+          className={`w-full h-10 text-center text-base text-white mt-10 focus:outline-none font-semibold ${
+            submitStatus ? '' : 'opacity-40'
+          }`}
+          onClick={addCustomNetWork}
+          disabled={!submitStatus}
+          btnClassName={submitStatus ? '' : 'cursor-not-allowed'}
+          loading={customLoading}
+        >
+          <div>
+            <ButtonTextWrapper
+              loading={customLoading}
+              // Text={() => (
+              //   <FormattedMessage
+              //     id="add"
+              //     defaultMessage="Add"
+              //   />
+              // )}
+              Text={() => {
+                return <>{'Add'}</>;
+              }}
+            />
+          </div>
+        </GradientButton>
+      </div>
+    </Modal>
+  );
+};
+const getRpcList = () => {
+  const RPCLIST_system = getExtendConfig().RPC_LIST;
+  const RPCLIST_custom = getCustomConfig();
+  const RPCLIST = Object.assign(RPCLIST_system, RPCLIST_custom);
+  return RPCLIST;
+};
 async function ping(url: string, key: string) {
+  const RPCLIST = getRpcList();
   const start = new Date().getTime();
   const businessRequest = fetch(url, {
     method: 'POST',
@@ -290,4 +569,44 @@ async function ping(url: string, key: string) {
     });
   return responseTime;
 }
+async function pingChain(url: string) {
+  const start = new Date().getTime();
+  let status;
+  let responseTime;
+  let chain_id;
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 'dontcare',
+        method: 'status',
+        params: [],
+      }),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .catch(() => {
+        return {};
+      });
+    if (res?.result?.chain_id) {
+      const end = new Date().getTime();
+      responseTime = end - start;
+      status = true;
+      chain_id = res.result.chain_id;
+    }
+  } catch {
+    status = false;
+  }
+  return {
+    status,
+    responseTime,
+    chain_id,
+  };
+}
+export const isPrd = (env: string = process.env.NEAR_ENV) => {
+  if (env != 'pub-testnet' && env != 'testnet') return true;
+};
 export default RpcList;

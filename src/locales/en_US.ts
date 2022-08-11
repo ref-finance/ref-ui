@@ -807,5 +807,6 @@ const en_US = {
   love_staked: 'Staked LOVE',
   your_apr: 'Your APR',
   range_apr: 'Range or reference APR',
+  add: 'Add',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

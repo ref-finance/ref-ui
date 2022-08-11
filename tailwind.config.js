@@ -166,7 +166,8 @@ module.exports = {
         borderGreyColor: '#6E7C85',
         purpleColorF:'gba(27, 27, 27, 0.24)',
         borderLightBlueColor:'rgba(115, 129, 139, 0.5)',
-        bgDarkColor:'rgba(0, 19, 32, 0.5)'
+        bgDarkColor:'rgba(0, 19, 32, 0.5)',
+        warnRedColor: 'rgba(255, 117, 117, 0.5)'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
