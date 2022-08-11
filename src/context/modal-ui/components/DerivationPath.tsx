@@ -10,6 +10,7 @@ import type { DerivationPathModalRouteParams } from './Modal.types';
 import HardwareWalletAccountsForm from './HardwareWalletAccountsForm';
 import { WalletConnecting } from './WalletConnecting';
 import { GradientWrapper } from './BorderWrapper';
+import { FormattedMessage } from 'react-intl';
 
 interface DerivationPathProps {
   selector: WalletSelector;
@@ -236,14 +237,18 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
               </GradientWrapper>
             </div>
           </div>
-          <div className="action-buttons">
-            <button className="left-button" onClick={onBack}>
-              Back
-            </button>
-            <button className="right-button" onClick={handleValidateAccount}>
-              Continue
-            </button>
-          </div>
+          <button
+            className="py-1.5 flex items-center justify-center mx-auto text-sm rounded-lg"
+            style={{
+              width: '242px',
+              background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+              height: '40px',
+              marginBottom: '5px',
+            }}
+            onClick={handleValidateAccount}
+          >
+            <FormattedMessage id="connect" defaultMessage="Connect" />
+          </button>
         </div>
       )}
 
