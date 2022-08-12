@@ -368,8 +368,10 @@ export const useTokensData = (
 
   const isSignedIn = globalState.isSignedIn;
 
+  const triggerBalances = balances || {};
+
   const trigger = useCallback(() => {
-    if (!!balances) {
+    if (!!triggerBalances) {
       setCount(0);
       setResult([]);
       const currentFetchId = fetchIdRef.current;
@@ -412,7 +414,7 @@ export const useTokensData = (
 
   useEffect(() => {
     trigger();
-  }, [tokens?.map((t) => t.id).join('-'), tokens?.length]);
+  }, [tokens?.map((t) => t.id).join('-'), tokens?.length, tokens]);
 
   return {
     trigger,
