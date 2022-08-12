@@ -319,7 +319,8 @@ const displayCurrentRpc = (
   }
 };
 const ModalAddCustomNetWork = (props: any) => {
-  const { rpclist, currentEndPoint, responseTimeList, onRequestClose } = props;
+  const { rpclist, currentEndPoint, responseTimeList, onRequestClose, isOpen } =
+    props;
   const [customLoading, setCustomLoading] = useState(false);
   const [customRpcName, setCustomRpcName] = useState('');
   const [customRpUrl, setCustomRpUrl] = useState('');
@@ -329,6 +330,9 @@ const ModalAddCustomNetWork = (props: any) => {
   const [nameError, setNameError] = useState(false);
   const [isInEditStatus, setIsInEditStatus] = useState(false);
   const cardWidth = isMobile() ? '90vw' : '400px';
+  useEffect(() => {
+    hideCustomNetWork();
+  }, [isOpen]);
   async function addCustomNetWork() {
     setCustomLoading(true);
     const rpcMap = getRpcList();
@@ -381,14 +385,16 @@ const ModalAddCustomNetWork = (props: any) => {
     setCustomRpUrl(v);
   }
   function showCustomNetWork() {
-    setIsInEditStatus(false);
     setCustomShow(true);
+    initData();
   }
   function hideCustomNetWork() {
     setCustomShow(false);
+    initData();
   }
   function closeModal() {
     setCustomShow(false);
+    initData();
     onRequestClose();
   }
   function switchEditStatus() {
@@ -409,6 +415,14 @@ const ModalAddCustomNetWork = (props: any) => {
         setIsInEditStatus(false);
       }
     }
+  }
+  function initData() {
+    setCustomRpcName('');
+    setCustomRpUrl('');
+    setTestnetError(false);
+    setNameError(false);
+    setUnavailableError(false);
+    setIsInEditStatus(false);
   }
   const submitStatus =
     customRpcName &&
@@ -455,7 +469,7 @@ const ModalAddCustomNetWork = (props: any) => {
                   nameError ? '' : 'hidden'
                 }`}
               >
-                The Network name was already taken.
+                The network name was already taken.
               </span>
             </div>
             <div className="flex flex-col mt-10">
@@ -475,7 +489,7 @@ const ModalAddCustomNetWork = (props: any) => {
                   unavailableError ? '' : 'hidden'
                 }`}
               >
-                The Network was invalid
+                The network was invalid
               </span>
               <span
                 className={`errorTip text-redwarningColor text-sm mt-2 ${
@@ -587,7 +601,7 @@ const ModalAddCustomNetWork = (props: any) => {
                     </span>
                   ) : null}
                   <SetButtonIcon
-                    className="cursor-pointer"
+                    className="cursor-pointer text-primaryText hover:text-white"
                     onClick={switchEditStatus}
                   ></SetButtonIcon>
                 </div>
