@@ -59,7 +59,7 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
 export function getCustomConfig() {
   let customRpcMapStr;
   try {
-    customRpcMapStr = window.localStorage.getItem('customRpc');
+    customRpcMapStr = window.localStorage.getItem('customRpcList');
   } catch (error) {}
 
   let customRpcMap = {};
