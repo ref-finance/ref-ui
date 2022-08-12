@@ -11,6 +11,7 @@ import HardwareWalletAccountsForm from './HardwareWalletAccountsForm';
 import { WalletConnecting } from './WalletConnecting';
 import { GradientWrapper } from './BorderWrapper';
 import { FormattedMessage } from 'react-intl';
+import getConfig from '../../../services/config';
 
 interface DerivationPathProps {
   selector: WalletSelector;
@@ -65,8 +66,16 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
     if (!Array.isArray(accountIds) || !accountIds.length) {
       return [];
     }
+    // return [];
 
-    return accountIds;
+    if (
+      typeof getConfig().kitWalletOn === 'boolean' &&
+      !getConfig().kitWalletOn
+    ) {
+      throw new Error();
+    } else {
+      return accountIds;
+    }
   };
 
   const resolveAccounts = async (
@@ -126,6 +135,8 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
       const message =
         err instanceof Error ? err.message : 'Something went wrong';
 
+      console.log(message);
+
       onError(message);
     } finally {
       setConnecting(false);
@@ -175,6 +186,8 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
       })
       .then(() => onConnected())
       .catch((err) => {
+        console.log(err);
+
         onError(`Error: ${err.message}`);
       });
   };

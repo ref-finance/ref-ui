@@ -183,6 +183,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'boostfarm.ref-finance.testnet',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
+        kitWalletOn: true,
       };
     case 'testnet':
       return {
@@ -243,6 +244,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'boostfarm024.ref-dev.testnet',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['5%', '10%'],
+        kitWalletOn: false,
       };
     default:
       return {
