@@ -3042,6 +3042,7 @@ function WithDrawBox(props: {
             </div>
           )}
         </div>
+        <BoostDotIcon className="absolute top-1.5 right-5"></BoostDotIcon>
       </div>
       <WithDrawb
         isOpen={isOpen}
@@ -3218,7 +3219,8 @@ function WithDrawb(props: {
   const cardHeight = isMobile() ? '90vh' : '80vh';
   return (
     <div
-      className={`xs:absolute md:absolute rounded-b-2xl bg-darkBlackColor overflow-auto w-full ${
+      // xs:absolute md:absolute xs:shadow-withDrawColor md:shadow-withDrawColor
+      className={`rounded-b-2xl bg-darkBlackColor overflow-auto w-full ${
         isOpen ? '' : 'hidden'
       }`}
       style={{

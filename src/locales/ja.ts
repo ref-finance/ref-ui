@@ -819,7 +819,7 @@ const ja = {
   add: '追加',
   finish: '終了',
   add_custom_network: 'カスタム ネットワークを追加',
-  network_name: 'ネットワーク名',
+  network_name: 'ネットワークネーム',
   rpc_name_taken_tip: 'ネットワーク名は既に使用されています',
   network_invalid: 'ネットワークが無効でした',
   fobidden_testnet_rpc_tip:

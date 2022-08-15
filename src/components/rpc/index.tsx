@@ -328,7 +328,7 @@ const ModalAddCustomNetWork = (props: any) => {
   const [nameError, setNameError] = useState(false);
   const [isInEditStatus, setIsInEditStatus] = useState(false);
   const cardWidth = isMobile() ? '90vw' : '400px';
-  const cardHeight = isMobile() ? '70vh' : '400px';
+  const cardHeight = isMobile() ? '40vh' : '400px';
   useEffect(() => {
     hideCustomNetWork();
   }, [isOpen]);
@@ -337,7 +337,7 @@ const ModalAddCustomNetWork = (props: any) => {
     const rpcMap = getRpcList();
     // check if has same url and same name
     const fondItem = Object.values(rpcMap).find((item) => {
-      if (item['simpleName'] == customRpcName) {
+      if (trimStr(item['simpleName']) == trimStr(customRpcName)) {
         return true;
       }
     });
@@ -369,7 +369,7 @@ const ModalAddCustomNetWork = (props: any) => {
     const key = 'custom' + Object.keys(customRpcMap).length + 1;
     customRpcMap[key] = {
       url: customRpUrl,
-      simpleName: customRpcName,
+      simpleName: trimStr(customRpcName),
       custom: true,
     };
 
@@ -431,10 +431,12 @@ const ModalAddCustomNetWork = (props: any) => {
     setIsInEditStatus(false);
     setNotSupportTestnetError(false);
   }
-  const handleName = customRpcName.replace(/\s+/g, '');
-  const handleURl = customRpUrl.replace(/\s+/g, '');
   const submitStatus =
-    handleName && handleURl && !unavailableError && !nameError && !testnetError;
+    trimStr(customRpcName) &&
+    trimStr(customRpUrl) &&
+    !unavailableError &&
+    !nameError &&
+    !testnetError;
   return (
     <Modal {...props}>
       <div
@@ -523,7 +525,7 @@ const ModalAddCustomNetWork = (props: any) => {
               btnClassName={submitStatus ? '' : 'cursor-not-allowed'}
               loading={customLoading}
             >
-              <div>
+              <div className={`${isInEditStatus ? 'hidden' : ''}`}>
                 <ButtonTextWrapper
                   loading={customLoading}
                   Text={() => {
@@ -600,13 +602,19 @@ const ModalAddCustomNetWork = (props: any) => {
                 }
               )}
             </div>
-            <div className="flex items-end justify-between mt-6">
+            <div
+              className={`flex items-end mt-6 ${
+                isInEditStatus ? 'justify-end' : 'justify-between'
+              }`}
+            >
               <GradientButton
                 color="#fff"
-                className={`h-10 px-4 text-center text-base text-white focus:outline-none font-semibold`}
+                className={`h-10 px-4 text-center text-base text-white focus:outline-none font-semibold ${
+                  isInEditStatus ? 'hidden' : ''
+                }`}
                 onClick={showCustomNetWork}
               >
-                <div className="flex items-center">
+                <div className={'flex items-center'}>
                   <AddButtonIcon
                     style={{ zoom: 1.35 }}
                     className="mr-1"
@@ -739,7 +747,10 @@ async function pingChain(url: string) {
     chain_id,
   };
 }
-export const isPrd = (env: string = process.env.NEAR_ENV) => {
+const isPrd = (env: string = process.env.NEAR_ENV) => {
   if (env != 'pub-testnet' && env != 'testnet') return true;
 };
+function trimStr(str: string = '') {
+  return str.replace(/(^\s*)|(\s*$)/g, '');
+}
 export default RpcList;
