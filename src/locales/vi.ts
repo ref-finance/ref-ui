@@ -842,8 +842,7 @@ const vi = {
   input_account_id: 'Nhập ID tài khoản',
   we_found: 'Chúng tôi đã tìm thấy',
   accounts_on_your_device: 'tài khoản trên thiết bị của bạn',
-  select_the_accounts_you_wish_to_connect:
-    'Chọn (các) tài khoản bạn muốn kết nối',
+  select_the_accounts_you_wish_to_connect: 'Chọn tài khoản bạn muốn kết nối',
   can_not_find_any_accounts:
     "Can't found any account associated with this Ledger. Please create a new NEAR account on",
   or_connect_another_ledger: 'or connect an another Ledger',

@@ -235,7 +235,13 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                     className="wallet-content flex items-center"
                   >
                     <div className="wallet-img-box">
-                      <img src={iconUrl} alt={name} />
+                      <img
+                        src={iconUrl}
+                        alt={name}
+                        style={{
+                          maxWidth: '25px',
+                        }}
+                      />
                     </div>
                     <div className="flex items-start flex-col text-sm">
                       <span className="">

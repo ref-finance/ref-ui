@@ -840,7 +840,7 @@ const ru = {
   we_found: 'Мы нашли',
   accounts_on_your_device: 'аккаунты на вашем устройстве',
   select_the_accounts_you_wish_to_connect:
-    'Выберите учетные записи, которые вы хотите подключить',
+    'Выберите учетную запись, которую вы хотите подключить',
   can_not_find_any_accounts:
     "Can't found any account associated with this Ledger. Please create a new NEAR account on",
   or_connect_another_ledger: 'or connect an another Ledger',

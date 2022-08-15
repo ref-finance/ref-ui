@@ -21,9 +21,8 @@ const HardwareWalletAccountsForm: React.FC<FormProps> = ({
     <div className="choose-ledger-account-form-wrapper">
       <p className="text-sm text-center">
         <FormattedMessage id="we_found" defaultMessage={'We found'} />
-        <span className="px-0.5">{accounts.length}</span>
-        <FormattedMessage id="accounts_on_your_device" />
-        .
+        <span className="px-1">{accounts.length}</span>
+        <FormattedMessage id="accounts_on_your_device" />.{' '}
         <FormattedMessage id="select_the_accounts_you_wish_to_connect" />.
       </p>
       <form

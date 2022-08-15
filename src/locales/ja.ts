@@ -841,7 +841,7 @@ const ja = {
   input_account_id: 'アカウントIDを入力',
   we_found: '見つけた',
   accounts_on_your_device: 'デバイス上のアカウント',
-  select_the_accounts_you_wish_to_connect: '接続するアカウントを選択します',
+  select_the_accounts_you_wish_to_connect: '接続したいアカウントを選択',
   can_not_find_any_accounts:
     "Can't found any account associated with this Ledger. Please create a new NEAR account on",
   or_connect_another_ledger: 'or connect an another Ledger',

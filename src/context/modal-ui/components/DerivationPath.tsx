@@ -299,8 +299,8 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
                   );
                 }}
                 style={{
-                  minWidth: '10px',
-                  width: `${derivationPathLastCode.length * 10}px`,
+                  minWidth: '14px',
+                  width: `${derivationPathLastCode.length * 12}px`,
                 }}
                 onKeyPress={handleEnterClick}
               />

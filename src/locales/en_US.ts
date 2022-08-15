@@ -834,7 +834,7 @@ const en_US = {
   we_found: 'We found ',
   accounts_on_your_device: 'accounts on your device',
   select_the_accounts_you_wish_to_connect:
-    'Select the account(s) you wish to connect',
+    'Select the account you wish to connect',
   can_not_find_any_accounts:
     "Can't found any account associated with this Ledger. Please create a new NEAR account on",
   or_connect_another_ledger: 'or connect an another Ledger',

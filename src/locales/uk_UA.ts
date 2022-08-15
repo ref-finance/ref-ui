@@ -808,7 +808,7 @@ const uk_UA = {
   we_found: 'Ми виявили',
   accounts_on_your_device: 'облікові записи на вашому пристрої',
   select_the_accounts_you_wish_to_connect:
-    'Виберіть облікові записи, які ви хочете підключити',
+    'Виберіть обліковий запис, який потрібно підключити',
   can_not_find_any_accounts:
     "Can't found any account associated with this Ledger. Please create a new NEAR account on",
   or_connect_another_ledger: 'or connect an another Ledger',
