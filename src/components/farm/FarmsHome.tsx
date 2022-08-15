@@ -2894,7 +2894,7 @@ function WithDrawBox(props: {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const actualRewardList = {};
-  const maxLength = 14;
+  const maxLength = 10;
   Object.entries(userRewardList).forEach(([key, value]) => {
     if (Number(value) > 0) {
       actualRewardList[key] = value;
@@ -3007,14 +3007,14 @@ function WithDrawBox(props: {
                       <img
                         key={index}
                         src={reward.rewardToken.icon}
-                        className={`w-4 h-4 rounded-full  bg-cardBg border border-greenColor ${
+                        className={`w-5 h-5 rounded-full  bg-cardBg border border-greenColor ${
                           index > 0 ? '-ml-1' : ''
                         }`}
                       ></img>
                     );
                   })}
                 {Object.values(rewardList).length > maxLength ? (
-                  <div className="flex items-center justify-center w-4 h-4 rounded-full  bg-cardBg border border-greenColor -ml-1">
+                  <div className="flex items-center justify-center w-5 h-5 rounded-full  bg-cardBg border border-greenColor -ml-1">
                     <MoreButtonIcon
                       className="text-greenColor"
                       style={{ zoom: 0.8 }}
@@ -3029,7 +3029,7 @@ function WithDrawBox(props: {
           ) : (
             <div className="flex justify-between items-center">
               <div
-                className={`text-xs border rounded-md cursor-pointer py-1.5 px-4 ${
+                className={`text-sm border rounded-md cursor-pointer py-1.5 px-4 ${
                   isOpen ? 'hidden' : ''
                 } ${
                   Object.values(rewardList).length > 0

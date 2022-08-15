@@ -323,6 +323,7 @@ const ModalAddCustomNetWork = (props: any) => {
   const [nameError, setNameError] = useState(false);
   const [isInEditStatus, setIsInEditStatus] = useState(false);
   const cardWidth = isMobile() ? '90vw' : '400px';
+  const cardHeight = isMobile() ? '70vh' : '400px';
   useEffect(() => {
     hideCustomNetWork();
   }, [isOpen]);
@@ -424,16 +425,14 @@ const ModalAddCustomNetWork = (props: any) => {
     setUnavailableError(false);
     setIsInEditStatus(false);
   }
+  const handleName = customRpcName.replace(/\s+/g, '');
+  const handleURl = customRpUrl.replace(/\s+/g, '');
   const submitStatus =
-    customRpcName &&
-    customRpUrl &&
-    !unavailableError &&
-    !nameError &&
-    !testnetError;
+    handleName && handleURl && !unavailableError && !nameError && !testnetError;
   return (
     <Modal {...props}>
       <div
-        className="px-6 py-7 text-white bg-cardBg border border-gradientFrom border-opacity-50 rounded-lg"
+        className="px-4 py-7 text-white bg-cardBg border border-gradientFrom border-opacity-50 rounded-lg"
         style={{
           width: cardWidth,
         }}
@@ -538,54 +537,63 @@ const ModalAddCustomNetWork = (props: any) => {
                 <ModalClose></ModalClose>
               </span>
             </div>
-            {Object.entries(rpclist).map(([key, data]: any, index: number) => {
-              return (
-                <div className="flex items-center" key={data.simpleName}>
-                  <div
-                    className={`relative flex items-center rounded-lg h-14 px-5 ${
-                      isInEditStatus && data.custom ? 'w-4/5' : 'w-full'
-                    } ${
-                      index != Object.entries(rpclist).length - 1 ? 'mb-3' : ''
-                    } ${isInEditStatus ? '' : 'cursor-pointer'} ${
-                      isInEditStatus && !data.custom
-                        ? ''
-                        : 'bg-black bg-opacity-20 hover:bg-opacity-30'
-                    } justify-between text-white ${
-                      currentEndPoint == key && !isInEditStatus
-                        ? 'bg-opacity-30'
-                        : ''
-                    }`}
-                    onClick={() => {
-                      if (!isInEditStatus) {
-                        switchPoint(key);
-                      }
-                    }}
-                  >
-                    <label
-                      className={`text-sm pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis`}
-                    >
-                      {data.simpleName}
-                    </label>
-                    <div className={`flex items-center text-sm`}>
-                      {displayCurrentRpc(responseTimeList, key, true)}
-                    </div>
-                    {currentEndPoint == key && !isInEditStatus ? (
-                      <SelectedButtonIcon className="absolute -right-1 -top-1"></SelectedButtonIcon>
-                    ) : null}
-                  </div>
-                  {isInEditStatus && data.custom ? (
-                    <div>
-                      <DeleteButtonIcon
-                        className="cursor-pointer ml-4"
+            <div
+              style={{ maxHeight: cardHeight }}
+              className="overflow-y-auto overflow-x-hidden px-2 py-2"
+            >
+              {Object.entries(rpclist).map(
+                ([key, data]: any, index: number) => {
+                  return (
+                    <div className="flex items-center" key={data.simpleName}>
+                      <div
+                        className={`relative flex items-center rounded-lg h-14 px-5 ${
+                          isInEditStatus && data.custom ? 'w-4/5' : 'w-full'
+                        } ${
+                          index != Object.entries(rpclist).length - 1
+                            ? 'mb-3'
+                            : ''
+                        } ${isInEditStatus ? '' : 'cursor-pointer'} ${
+                          isInEditStatus && !data.custom
+                            ? ''
+                            : 'bg-black bg-opacity-20 hover:bg-opacity-30'
+                        } justify-between text-white ${
+                          currentEndPoint == key && !isInEditStatus
+                            ? 'bg-opacity-30'
+                            : ''
+                        }`}
                         onClick={() => {
-                          deleteCustomNetwork(key);
+                          if (!isInEditStatus) {
+                            switchPoint(key);
+                          }
                         }}
-                      ></DeleteButtonIcon>
+                      >
+                        <label
+                          className={`text-sm pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis`}
+                        >
+                          {data.simpleName}
+                        </label>
+                        <div className={`flex items-center text-sm`}>
+                          {displayCurrentRpc(responseTimeList, key, true)}
+                        </div>
+                        {currentEndPoint == key && !isInEditStatus ? (
+                          <SelectedButtonIcon className="absolute -right-1 -top-1"></SelectedButtonIcon>
+                        ) : null}
+                      </div>
+                      {isInEditStatus && data.custom ? (
+                        <div>
+                          <DeleteButtonIcon
+                            className="cursor-pointer ml-4"
+                            onClick={() => {
+                              deleteCustomNetwork(key);
+                            }}
+                          ></DeleteButtonIcon>
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
-                </div>
-              );
-            })}
+                  );
+                }
+              )}
+            </div>
             <div className="flex items-end justify-between mt-6">
               <GradientButton
                 color="#fff"
