@@ -820,7 +820,7 @@ const ja = {
   finish: '終了',
   add_custom_network: 'カスタム ネットワークを追加',
   network_name: 'ネットワークネーム',
-  rpc_name_taken_tip: 'ネットワーク名は既に使用されています',
+  rpc_name_taken_tip: 'ネットワークネームは既に使用されています',
   network_invalid: 'ネットワークが無効でした',
   fobidden_testnet_rpc_tip:
     'RPC サーバーのネットワーク (テストネット) は、このネットワーク (メインネット) とは異なります',
