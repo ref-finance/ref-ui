@@ -36,6 +36,11 @@ const RpcList = () => {
         setResponseTimeList(Object.assign({}, responseTimeList));
       });
     });
+    window.addEventListener('storage', (e) => {
+      if (e.key == 'customRpcList') {
+        localStorage.setItem(e.key, e.oldValue); //restore
+      }
+    });
   }, []);
   function updateResponseTimeList(data: any) {
     const { key, responseTime, isDelete } = data;
@@ -424,6 +429,7 @@ const ModalAddCustomNetWork = (props: any) => {
     setNameError(false);
     setUnavailableError(false);
     setIsInEditStatus(false);
+    setNotSupportTestnetError(false);
   }
   const handleName = customRpcName.replace(/\s+/g, '');
   const handleURl = customRpUrl.replace(/\s+/g, '');
