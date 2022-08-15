@@ -469,6 +469,7 @@ const zh_CN = {
   connect_to_dapps_with_one_click: '一键连接到dApp',
   install: '安装',
   Connecting: '连接中',
+  connecting: '连接中',
   check_sender_wallet_extension: '请确认Sender钱包插件',
   having_trouble: '有问题?',
   go_back: '返回',
@@ -786,5 +787,14 @@ const zh_CN = {
   "I_understand_that_I_won't_be_able_to_remove_my": '我已了解我将不能解锁我的',
   until: '直到',
   lp_tokens_locking: 'LP代币',
+  continue: '继续',
+  then_enter_a_derivation_path_to_connect: '输入一个衍生路径来连接',
+  account_identification_failed: '账号验证失败! 请手动输入',
+  input_account_id: '输入账号ID',
+  we_found: '我们发现',
+  accounts_on_your_device: '个账号在你的设备中',
+  select_the_accounts_you_wish_to_connect: '选择你想连接的账号',
+  can_not_find_any_accounts: '找不到和当前Ledger相关的账号. 请重新创建账号于',
+  or_connect_another_ledger: '或连接其他Ledger',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

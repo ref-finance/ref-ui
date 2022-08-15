@@ -831,5 +831,18 @@ const ru = {
     'Я понимаю, что не смогу удалить свой ',
   until: 'до того как',
   learn_more: 'Учить больше',
+  continue: 'Продолжать',
+  then_enter_a_derivation_path_to_connect:
+    'затем введите путь вывода для подключения',
+  account_identification_failed:
+    'Ошибка идентификации аккаунта! Пожалуйста, укажите вручную',
+  input_account_id: 'Введите идентификатор учетной записи',
+  we_found: 'Мы нашли',
+  accounts_on_your_device: 'аккаунты на вашем устройстве',
+  select_the_accounts_you_wish_to_connect:
+    'Выберите учетные записи, которые вы хотите подключить',
+  can_not_find_any_accounts:
+    "Can't found any account associated with this Ledger. Please create a new NEAR account on",
+  or_connect_another_ledger: 'or connect an another Ledger',
 };
 export default Object.assign(ru, ru_in_risks_page);

@@ -834,5 +834,16 @@ const ja = {
   "I_understand_that_I_won't_be_able_to_remove_my":
     '削除できないことを理解しています',
   until: 'それまで',
+  continue: '継続する',
+  then_enter_a_derivation_path_to_connect: '次に、派生パスを入力して接続します',
+  account_identification_failed:
+    'アカウントの識別に失敗しました! 手動で入力してください',
+  input_account_id: 'アカウントIDを入力',
+  we_found: '見つけた',
+  accounts_on_your_device: 'デバイス上のアカウント',
+  select_the_accounts_you_wish_to_connect: '接続するアカウントを選択します',
+  can_not_find_any_accounts:
+    "Can't found any account associated with this Ledger. Please create a new NEAR account on",
+  or_connect_another_ledger: 'or connect an another Ledger',
 };
 export default Object.assign(ja, ja_in_risks_page);

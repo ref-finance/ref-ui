@@ -799,5 +799,18 @@ const uk_UA = {
     'Я розумію, що не зможу видалити свій ',
   until: 'поки',
   learn_more: 'Вивчайте більше',
+  continue: 'Продовжити',
+  then_enter_a_derivation_path_to_connect:
+    'потім введіть шлях похідного підключення',
+  account_identification_failed:
+    'Помилка ідентифікації облікового запису! Будь ласка, надайте вручну',
+  input_account_id: 'Введіть ідентифікатор облікового запису',
+  we_found: 'Ми виявили',
+  accounts_on_your_device: 'облікові записи на вашому пристрої',
+  select_the_accounts_you_wish_to_connect:
+    'Виберіть облікові записи, які ви хочете підключити',
+  can_not_find_any_accounts:
+    "Can't found any account associated with this Ledger. Please create a new NEAR account on",
+  or_connect_another_ledger: 'or connect an another Ledger',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

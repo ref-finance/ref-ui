@@ -223,6 +223,7 @@
   flex-direction: column;
   align-items: center;
   min-width: 300px;
+  max-width: 400px;
 }
 .nws-modal-wrapper .modal .derivation-path-wrapper .derivation-path-list {
   display: flex;
@@ -359,9 +360,9 @@
   justify-content: center;
 }
 
-.nws-modal-wrapper .modal .derivation-path-wrapper .enter-custom-account input {
+/* .nws-modal-wrapper .modal .derivation-path-wrapper input {
   max-width: 250px;
-}
+} */
 
 .nws-modal-wrapper
   .modal

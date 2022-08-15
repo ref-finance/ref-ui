@@ -1,5 +1,7 @@
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import type { HardwareWalletAccountState } from './DerivationPath';
+import { LedgerCheckbox } from '../../../components/icon/CheckBox';
 
 interface FormProps {
   accounts: Array<HardwareWalletAccountState>;
@@ -17,9 +19,12 @@ const HardwareWalletAccountsForm: React.FC<FormProps> = ({
 }) => {
   return (
     <div className="choose-ledger-account-form-wrapper">
-      <p>
-        We found {accounts.length} accounts on your device. Select the
-        account(s) you wish to connect.
+      <p className="text-sm text-center">
+        <FormattedMessage id="we_found" defaultMessage={'We found'} />
+        <span className="px-0.5">{accounts.length}</span>
+        <FormattedMessage id="accounts_on_your_device" />
+        .
+        <FormattedMessage id="select_the_accounts_you_wish_to_connect" />.
       </p>
       <form
         className="form"
@@ -28,32 +33,40 @@ const HardwareWalletAccountsForm: React.FC<FormProps> = ({
         }}
       >
         <div>
-          <div className="form-control">
+          <div className="px-10 flex flex-col">
             {accounts.map((account, index) => (
-              <div key={index}>
-                <input
-                  onChange={(e) => {
-                    onSelectedChanged(index, e.target.checked);
-                  }}
+              <div
+                key={index}
+                className="w-full mt-3 relative px-4 py-3 bg-black text-sm bg-opacity-10 rounded-md"
+              >
+                <label className=" " htmlFor={account.accountId}>
+                  {' '}
+                  {account.accountId}
+                </label>
+
+                <LedgerCheckbox
                   checked={account.selected}
-                  type="checkbox"
-                  id={account.accountId}
-                  name={account.accountId}
-                  value={account.accountId}
+                  index={index}
+                  setChecked={onSelectedChanged}
                 />
-                <label htmlFor={account.accountId}> {account.accountId}</label>
+
                 <br />
               </div>
             ))}
           </div>
-
-          <div className="action-buttons">
+          <div className="px-10">
             <button
-              className="right-button"
+              className="py-1.5 mt-7 w-full flex items-center justify-center text-sm rounded-lg"
+              style={{
+                // width: '242px',
+                background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+                height: '40px',
+                marginBottom: '5px',
+              }}
               type="submit"
               disabled={!accounts.some((x) => x.selected)}
             >
-              Continue
+              <FormattedMessage id="continue" defaultMessage="Continue" />
             </button>
           </div>
         </div>

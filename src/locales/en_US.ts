@@ -825,5 +825,18 @@ const en_US = {
   "I_understand_that_I_won't_be_able_to_remove_my":
     "I understand that I won't be able to remove my ",
   until: 'until',
+  continue: 'Continue',
+  then_enter_a_derivation_path_to_connect:
+    'then enter a derivation path to connect',
+  account_identification_failed:
+    'Account identification failed! Please provide manually',
+  input_account_id: 'Input account ID',
+  we_found: 'We found ',
+  accounts_on_your_device: 'accounts on your device',
+  select_the_accounts_you_wish_to_connect:
+    'Select the account(s) you wish to connect',
+  can_not_find_any_accounts:
+    "Can't found any account associated with this Ledger. Please create a new NEAR account on",
+  or_connect_another_ledger: 'or connect an another Ledger',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -97,7 +97,7 @@ export const WalletConnecting: React.FC<WalletConnectingProps> = ({
         </div>
       </GradientWrapper>
 
-      <div className="text-center py-5 text-xl font-bold">
+      <div className="text-center pt-5 pb-10 text-xl font-bold">
         <FormattedMessage id="connecting" defaultMessage={'Connecting'} />
       </div>
 

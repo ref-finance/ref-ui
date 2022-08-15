@@ -834,5 +834,18 @@ const vi = {
   "I_understand_that_I_won't_be_able_to_remove_my":
     'Tôi hiểu rằng tôi sẽ không thể xóa ',
   until: 'cho đến khi',
+  continue: 'Tiếp tục',
+  then_enter_a_derivation_path_to_connect:
+    'sau đó nhập một đường dẫn xuất để kết nối',
+  account_identification_failed:
+    'Không xác định được tài khoản! Vui lòng cung cấp thủ công',
+  input_account_id: 'Nhập ID tài khoản',
+  we_found: 'Chúng tôi đã tìm thấy',
+  accounts_on_your_device: 'tài khoản trên thiết bị của bạn',
+  select_the_accounts_you_wish_to_connect:
+    'Chọn (các) tài khoản bạn muốn kết nối',
+  can_not_find_any_accounts:
+    "Can't found any account associated with this Ledger. Please create a new NEAR account on",
+  or_connect_another_ledger: 'or connect an another Ledger',
 };
 export default Object.assign(vi, vi_in_risks_page);

@@ -10,8 +10,10 @@ import type { DerivationPathModalRouteParams } from './Modal.types';
 import HardwareWalletAccountsForm from './HardwareWalletAccountsForm';
 import { WalletConnecting } from './WalletConnecting';
 import { GradientWrapper } from './BorderWrapper';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import getConfig from '../../../services/config';
+import { walletIcons } from '../../walletIcons';
+import { WarningTip } from '~components/icon/Common';
 
 interface DerivationPathProps {
   selector: WalletSelector;
@@ -28,12 +30,14 @@ export type HardwareWalletAccountState = HardwareWalletAccount & {
 
 type HardwareRoutes =
   | 'EnterDerivationPath'
-  | 'NoAccountsFound'
   | 'ChooseAccount'
   | 'AddCustomAccountId'
-  | 'OverviewAccounts';
+  | 'OverviewAccounts'
+  | 'ErrorRoute';
 
 export const DEFAULT_DERIVATION_PATH = "44'/397'/0'/0'/1'";
+
+export const BASE_DERIVATION_PATH = "44'/397'/0'/0'/";
 
 export const DerivationPath: React.FC<DerivationPathProps> = ({
   selector,
@@ -45,12 +49,19 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
 }) => {
   const [route, setRoute] = useState<HardwareRoutes>('EnterDerivationPath');
   const [derivationPath, setDerivationPath] = useState(DEFAULT_DERIVATION_PATH);
+
+  const [error, setError] = useState<string | JSX.Element>();
+
+  const [derivationPathLastCode, setDerivationPathLastCode] = useState('1');
+
   const [accounts, setAccounts] = useState<Array<HardwareWalletAccountState>>(
     []
   );
   const [hardwareWallet, setHardwareWallet] = useState<Wallet>();
   const [customAccountId, setCustomAccountId] = useState('');
   const [connecting, setConnecting] = useState(false);
+
+  const intl = useIntl();
 
   const getAccountIds = async (publicKey: string): Promise<Array<string>> => {
     const response = await fetch(
@@ -120,7 +131,26 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
       const multipleAccounts = resolvedAccounts.length > 1;
 
       if (noAccounts) {
-        setRoute('NoAccountsFound');
+        setError(
+          <span>
+            <FormattedMessage id="can_not_find_any_accounts" />{' '}
+            <a
+              href={`https://${
+                selector.options.network.networkId === 'testnet'
+                  ? 'testnet'
+                  : 'app'
+              }.mynearwallet.com/create`}
+              target="_blank"
+              style={{
+                color: 'rgba(0, 148, 255, 1)',
+              }}
+            >
+              MyNearWallet
+            </a>{' '}
+            <FormattedMessage id="or_connect_another_ledger" />.
+          </span>
+        );
+        setRoute('ErrorRoute');
         return;
       }
       setAccounts(resolvedAccounts);
@@ -137,7 +167,21 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
 
       console.log(message);
 
-      onError(message);
+      if (/Ledger device:/.test(message)) {
+        const content = message.split(':')[1];
+
+        setError(
+          <span>
+            Ledger device:
+            <span className="text-warn ml-0.5">{content}</span>
+          </span>
+        );
+      } else {
+        setError(message);
+      }
+
+      // setError(message);
+      setRoute('ErrorRoute');
     } finally {
       setConnecting(false);
     }
@@ -163,7 +207,8 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
       setConnecting(false);
       const message =
         err instanceof Error ? err.message : 'Something went wrong';
-      onError(message);
+      setError(message);
+      setRoute('ErrorRoute');
     } finally {
       setConnecting(false);
     }
@@ -188,7 +233,8 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
       .catch((err) => {
         console.log(err);
 
-        onError(`Error: ${err.message}`);
+        setError(`Error: ${err.message}`);
+        setRoute('ErrorRoute');
       });
   };
 
@@ -214,82 +260,65 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
   }
 
   return (
-    <div className="derivation-path-wrapper">
-      <div className="flex items-centerk justify-center mb-7">
-        <img
-          src="https://ref-finance-images.s3.amazonaws.com/images/wallets-icons/ledger.png"
-          alt=""
-          className="w-12"
-        />
-      </div>
-      <div className="pb-4 text-xl">Ledger</div>
+    <div className="derivation-path-wrapper px-3">
+      {route !== 'ErrorRoute' && (
+        <>
+          <div className="flex items-centerk justify-center mb-7">
+            <img src={walletIcons['ledger']} alt="" className="w-12" />
+          </div>
+          <div className="pb-4 text-xl">Ledger</div>
+        </>
+      )}
+
       {route === 'EnterDerivationPath' && (
         <div className="enter-derivation-path">
           <div>
-            <p className="text-center">
-              Make sure your device is plugged in, then enter a derivation path
-              to connect:
+            <p className="text-center mb-7">
+              <FormattedMessage
+                id="make_sure_device_plugged_in"
+                defaultMessage={'Make sure your device is plugged in'}
+              />
+              ,{' '}
+              <FormattedMessage
+                id="then_enter_a_derivation_path_to_connect"
+                defaultMessage={'then enter a derivation path to connect'}
+              />
+              .
             </p>
-
-            <div className=" mb-2 mt-4 flex items-center justify-center text-sm text-primaryText">
-              <GradientWrapper className="rounded-full mr-2">
-                <input
-                  className="pl-4 py-2 text-white  rounded-full bg-black bg-opacity-10"
-                  type="text"
-                  placeholder="Derivation Path"
-                  value={derivationPath}
-                  onChange={(e) => {
-                    setDerivationPath(e.target.value);
-                  }}
-                  style={{
-                    backgroundColor: '#202834',
-                    textAlign: 'center',
-                  }}
-                  onKeyPress={handleEnterClick}
-                />
-              </GradientWrapper>
+            <div className="bg-black bg-opacity-20 rounded-md flex items-center justify-center mx-10">
+              <span className="text-primaryText">{BASE_DERIVATION_PATH}</span>
+              <input
+                className="pl-1 py-2 text-white   rounded-full "
+                type="text"
+                // placeholder="Derivation Path"
+                value={derivationPathLastCode}
+                onChange={(e) => {
+                  setDerivationPathLastCode(e.target.value);
+                  setDerivationPath(
+                    BASE_DERIVATION_PATH + e.target.value + "'"
+                  );
+                }}
+                style={{
+                  minWidth: '10px',
+                  width: `${derivationPathLastCode.length * 10}px`,
+                }}
+                onKeyPress={handleEnterClick}
+              />
+              <span className="text-primaryText">'</span>
             </div>
           </div>
-          <button
-            className="py-1.5 flex items-center justify-center mx-auto text-sm rounded-lg"
-            style={{
-              width: '242px',
-              background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
-              height: '40px',
-              marginBottom: '5px',
-            }}
-            onClick={handleValidateAccount}
-          >
-            <FormattedMessage id="connect" defaultMessage="Connect" />
-          </button>
-        </div>
-      )}
-
-      {route === 'NoAccountsFound' && (
-        <div className="no-accounts-found-wrapper">
-          <p>
-            Can't found any account associated with this Ledger. Please create a
-            new NEAR account on{' '}
-            <a
-              href={`https://${
-                selector.options.network.networkId === 'testnet'
-                  ? 'testnet'
-                  : 'app'
-              }.mynearwallet.com/create`}
-              target="_blank"
-            >
-              MyNearWallet
-            </a>{' '}
-            or connect an another Ledger.
-          </p>
-          <div className="action-buttons">
+          <div className="px-10">
             <button
-              className="left-button"
-              onClick={() => {
-                setRoute('EnterDerivationPath');
+              className="py-1.5 mt-7 w-full flex items-center justify-center text-sm rounded-lg"
+              style={{
+                // width: '242px',
+                background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+                height: '40px',
+                marginBottom: '5px',
               }}
+              onClick={handleValidateAccount}
             >
-              Back
+              <FormattedMessage id="continue" defaultMessage="Continue" />
             </button>
           </div>
         </div>
@@ -301,8 +330,7 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
           onSelectedChanged={(index, selected) => {
             setAccounts((prevAccounts) => {
               const updateAccounts = prevAccounts.map((account, idx) => {
-                const selectedValue =
-                  index === idx ? selected : account.selected;
+                const selectedValue = index === idx ? selected : false;
                 return {
                   ...account,
                   selected: selectedValue,
@@ -326,53 +354,89 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
       )}
       {route === 'AddCustomAccountId' && (
         <div className="enter-custom-account">
-          <p className="text-center">
-            Failed to automatically find account id. Provide it manually:
+          <p className="text-center text-sm px-10">
+            <FormattedMessage id="account_identification_failed" />
           </p>
-          <div className=" mt-4 mb-2 flex items-center justify-start text-sm text-primaryText">
-            <GradientWrapper className="rounded-full mr-2">
-              <input
-                type="text"
-                placeholder="Account ID"
-                value={customAccountId}
-                onChange={(e) => {
-                  setCustomAccountId(e.target.value);
-                }}
-                style={{
-                  backgroundColor: '#202834',
-                }}
-              />
-            </GradientWrapper>
+          <div className=" mt-4 mb-2 mx-10 py-2 text-sm rounded-md text-white bg-black bg-opacity-20">
+            {/* <GradientWrapper className="rounded-full mr-2"> */}
+            <input
+              type="text"
+              placeholder={intl.formatMessage({ id: 'input_account_id' })}
+              // placeholder={'input account ID'}
+              value={customAccountId}
+              onChange={(e) => {
+                setCustomAccountId(e.target.value);
+              }}
+              style={{
+                // backgroundColor: '#202834',
+                width: '100%',
+                textAlign: 'center',
+                fontSize: '16px',
+              }}
+            />
+            {/* </GradientWrapper> */}
           </div>
-          <div className="action-buttons">
-            <button className="right-button" onClick={handleAddCustomAccountId}>
-              Continue
+          <div className="px-10 w-full">
+            <button
+              className="py-1.5 mt-7 w-full flex items-center justify-center text-sm rounded-lg"
+              style={{
+                // width: '242px',
+                background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+                height: '40px',
+                marginBottom: '5px',
+              }}
+              disabled={!customAccountId}
+              onClick={handleAddCustomAccountId}
+            >
+              <FormattedMessage id="continue" defaultMessage="Continue" />
             </button>
           </div>
         </div>
       )}
       {route === 'OverviewAccounts' && (
-        <div className="overview-wrapper">
-          <div className="overview-header">
-            <h4>Accounts</h4>
-          </div>
+        <div className="w-full">
           {accounts.map((account, index) => (
-            <div key={account.accountId}>
+            <div
+              key={account.accountId}
+              className="pt-10 text-center text-base font-bold"
+            >
               <div className="account">
                 <span>{account.accountId}</span>
               </div>
             </div>
           ))}
 
-          <div className="action-buttons">
+          <div className="px-5 w-full">
             <button
-              className="right-button"
+              className="py-1.5 mt-7 w-full flex items-center justify-center text-sm rounded-lg"
+              style={{
+                // width: '242px',
+                background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+                height: '40px',
+                marginBottom: '5px',
+              }}
               onClick={handleSignIn}
               disabled={accounts.length === 0}
             >
-              Connect
+              <FormattedMessage id="connect" defaultMessage="Connect" />
             </button>
           </div>
+        </div>
+      )}
+      {route === 'ErrorRoute' && (
+        <div className="flex flex-col items-center text-white">
+          <div className="pb-6">
+            <WarningTip />
+          </div>
+          <div className="text-center text-sm">{error}</div>
+          <button
+            className=" pt-8 text-xs font-bold"
+            onClick={() => {
+              setRoute('EnterDerivationPath');
+            }}
+          >
+            <FormattedMessage id="go_back" defaultMessage={'Go back'} />
+          </button>
         </div>
       )}
     </div>

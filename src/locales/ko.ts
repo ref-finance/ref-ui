@@ -824,5 +824,17 @@ const ko = {
   "I_understand_that_I_won't_be_able_to_remove_my":
     '내 계정을 삭제할 수 없음을 이해합니다',
   until: '~까지',
+  continue: '계속하다',
+  then_enter_a_derivation_path_to_connect:
+    '그런 다음 연결할 파생 경로를 입력하십시오.',
+  account_identification_failed:
+    '계정 식별에 실패했습니다! 수동으로 제공하십시오',
+  input_account_id: '계정 아이디 입력',
+  we_found: '우리는 발견',
+  accounts_on_your_device: '기기의 계정',
+  select_the_accounts_you_wish_to_connect: '연결하려는 계정을 선택하십시오',
+  can_not_find_any_accounts:
+    "Can't found any account associated with this Ledger. Please create a new NEAR account on",
+  or_connect_another_ledger: 'or connect an another Ledger',
 };
 export default Object.assign(ko, ko_in_risks_page);
