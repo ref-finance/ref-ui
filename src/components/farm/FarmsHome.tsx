@@ -2972,6 +2972,7 @@ function WithDrawBox(props: {
       className={`relative rounded-xl mb-3.5 z-50 ${
         isOpen ? 'shadow-withDrawColor' : ''
       }`}
+      style={{ height: Object.values(rewardList).length > 0 ? '92px' : '72px' }}
       onMouseOver={() => {
         if (isMobile()) return;
         setIsOpen(true);
@@ -2982,7 +2983,7 @@ function WithDrawBox(props: {
         className={`relative bg-veGradient px-5 overflow-hidden pb-2.5 ${
           isOpen ? 'rounded-t-xl' : 'rounded-xl'
         }`}
-        style={{ minHeight: '68px' }}
+        style={{ minHeight: '72px' }}
         onClick={() => {
           setIsOpen(!isOpen);
         }}
@@ -3030,7 +3031,7 @@ function WithDrawBox(props: {
             <div className="flex justify-between items-center">
               <div
                 className={`text-sm border rounded-md cursor-pointer py-1.5 px-4 ${
-                  isOpen ? 'hidden' : ''
+                  isOpen ? 'invisible' : ''
                 } ${
                   Object.values(rewardList).length > 0
                     ? 'bg-otherGreenColor border-otherGreenColor text-black'
@@ -3042,7 +3043,11 @@ function WithDrawBox(props: {
             </div>
           )}
         </div>
-        <BoostDotIcon className="absolute top-1.5 right-5"></BoostDotIcon>
+        <BoostDotIcon
+          className={`absolute right-5 ${
+            Object.values(rewardList).length > 0 ? 'top-1.5' : 'top-0'
+          }`}
+        ></BoostDotIcon>
       </div>
       <WithDrawb
         isOpen={isOpen}
