@@ -779,5 +779,14 @@ const uk_UA = {
   range_apr: 'Діапазон чи стандартний APR',
   how_to_earn_more: 'Як поєднати винагороду?',
   learn_more: 'Вивчайте більше',
+  add: 'додати',
+  finish: 'Закінчити',
+  add_custom_network: 'Додати спеціальну мережу',
+  network_name: 'Назва мережі',
+  rpc_name_taken_tip: 'Назва мережі вже зайнята',
+  network_invalid: 'Мережа була недійсною',
+  fobidden_testnet_rpc_tip:
+    'Мережа сервера RPC (testnet) відрізняється від цієї мережі (mainnet)',
+  no_support_testnet_rpc_tip: 'Testnet не підтримує додавання власного RPC',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

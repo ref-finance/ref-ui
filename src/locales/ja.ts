@@ -816,5 +816,15 @@ const ja = {
   love_staked: 'Staked LOVE',
   your_apr: 'Your APR',
   range_apr: 'Range or reference APR',
+  add: '追加',
+  finish: '終了',
+  add_custom_network: 'カスタム ネットワークを追加',
+  network_name: 'ネットワーク名',
+  rpc_name_taken_tip: 'ネットワーク名は既に使用されています',
+  network_invalid: 'ネットワークが無効でした',
+  fobidden_testnet_rpc_tip:
+    'RPC サーバーのネットワーク (テストネット) は、このネットワーク (メインネット) とは異なります',
+  no_support_testnet_rpc_tip:
+    'Testnet はカスタム RPC の追加をサポートしていません',
 };
 export default Object.assign(ja, ja_in_risks_page);

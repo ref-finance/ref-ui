@@ -814,5 +814,14 @@ const vi = {
   your_apr: 'APR của bạn',
   range_apr: 'Xếp loại hoặc tham khảo APR',
   how_to_earn_more: 'Làm thế nào để gộp phần thưởng?',
+  add: 'cộng',
+  finish: 'Kết thúc',
+  add_custom_network: 'Thêm mạng tùy chỉnh',
+  network_name: 'Tên mạng',
+  rpc_name_taken_tip: 'Tên mạng đã được sử dụng',
+  network_invalid: 'Mạng không hợp lệ',
+  fobidden_testnet_rpc_tip:
+    'Mạng của máy chủ RPC (testnet) khác với mạng này (mainnet)',
+  no_support_testnet_rpc_tip: 'Testnet không hỗ trợ thêm RPC tùy chỉnh',
 };
 export default Object.assign(vi, vi_in_risks_page);

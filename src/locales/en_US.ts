@@ -808,5 +808,13 @@ const en_US = {
   your_apr: 'Your APR',
   range_apr: 'Range or reference APR',
   add: 'Add',
+  finish: 'Finish',
+  add_custom_network: 'Add Custom Network',
+  network_name: 'Network Name',
+  rpc_name_taken_tip: 'The network name was already taken',
+  network_invalid: 'The network was invalid',
+  fobidden_testnet_rpc_tip:
+    "RPC server's network (testnet) is different with this network(mainnet)",
+  no_support_testnet_rpc_tip: 'Testnet does not support adding custom RPC',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

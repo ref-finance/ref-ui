@@ -71,9 +71,7 @@ const RpcList = () => {
             onClick={addCustomNetwork}
           >
             <div
-              className={`flex items-center justify-between w-full flex-grow pl-12 ${
-                prd ? 'pr-7' : 'pr-20'
-              }`}
+              className={`flex items-center justify-between w-full flex-grow px-16`}
             >
               <div className="flex items-center w-3/4">
                 <label className="text-xs text-primaryText mr-5">RPC</label>
@@ -87,12 +85,6 @@ const RpcList = () => {
                   className={`text-primaryText transform rotate-180 cursor-pointer`}
                 ></FiChevronDown>
               </div>
-            </div>
-            <div
-              className="flex items-center justify-between px-5 h-full"
-              style={{ borderLeft: '1px solid rgba(115, 129, 139, 0.15)' }}
-            >
-              <AddButtonIcon className="text-primaryText hover:text-greenColor"></AddButtonIcon>
             </div>
           </div>
         </div>
@@ -121,8 +113,8 @@ const RpcList = () => {
                     height: '25px',
                   }}
                 >
-                  <div className="flex items-center">
-                    <label className="text-xs text-primaryText cursor-pointer pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis">
+                  <div className="flex items-center w-2/3">
+                    <label className="text-xs w-full text-primaryText cursor-pointer pr-3 whitespace-nowrap overflow-hidden overflow-ellipsis">
                       {rpclist[currentEndPoint].simpleName}
                     </label>
                   </div>
@@ -327,6 +319,7 @@ const ModalAddCustomNetWork = (props: any) => {
   const [customShow, setCustomShow] = useState(false);
   const [unavailableError, setUnavailableError] = useState(false);
   const [testnetError, setTestnetError] = useState(false);
+  const [notSupportTestnetError, setNotSupportTestnetError] = useState(false);
   const [nameError, setNameError] = useState(false);
   const [isInEditStatus, setIsInEditStatus] = useState(false);
   const cardWidth = isMobile() ? '90vw' : '400px';
@@ -351,6 +344,13 @@ const ModalAddCustomNetWork = (props: any) => {
     const { status, responseTime, chain_id } = await pingChain(customRpUrl);
     if (!status) {
       setUnavailableError(true);
+      setCustomLoading(false);
+      return;
+    }
+    // do not support testnet
+    const env = process.env.NEAR_ENV;
+    if (env == 'testnet' || env == 'pub-testnet') {
+      setNotSupportTestnetError(true);
       setCustomLoading(false);
       return;
     }
@@ -446,14 +446,16 @@ const ModalAddCustomNetWork = (props: any) => {
                   className="mr-3 cursor-pointer"
                   onClick={hideCustomNetWork}
                 ></ReturnArrowButtonIcon>
-                Add Custom Network
+                <FormattedMessage id="add_custom_network" />
               </div>
               <span onClick={closeModal} className="cursor-pointer">
                 <ModalClose></ModalClose>
               </span>
             </div>
             <div className="flex flex-col  mt-10">
-              <span className="text-white text-sm mb-2.5">Network Name</span>
+              <span className="text-white text-sm mb-2.5">
+                <FormattedMessage id="network_name"></FormattedMessage>
+              </span>
               <div
                 className={`overflow-hidden rounded-md ${
                   nameError ? 'border border-warnRedColor' : ''
@@ -469,7 +471,7 @@ const ModalAddCustomNetWork = (props: any) => {
                   nameError ? '' : 'hidden'
                 }`}
               >
-                The network name was already taken.
+                <FormattedMessage id="rpc_name_taken_tip" />
               </span>
             </div>
             <div className="flex flex-col mt-10">
@@ -489,15 +491,21 @@ const ModalAddCustomNetWork = (props: any) => {
                   unavailableError ? '' : 'hidden'
                 }`}
               >
-                The network was invalid
+                <FormattedMessage id="network_invalid" />
               </span>
               <span
                 className={`errorTip text-redwarningColor text-sm mt-2 ${
                   testnetError ? '' : 'hidden'
                 }`}
               >
-                RPC server's network (testnet) is different with this network
-                (mainnet)
+                <FormattedMessage id="fobidden_testnet_rpc_tip" />
+              </span>
+              <span
+                className={`errorTip text-redwarningColor text-sm mt-2 ${
+                  notSupportTestnetError ? '' : 'hidden'
+                }`}
+              >
+                <FormattedMessage id="no_support_testnet_rpc_tip" />
               </span>
             </div>
             <GradientButton
@@ -514,7 +522,9 @@ const ModalAddCustomNetWork = (props: any) => {
                 <ButtonTextWrapper
                   loading={customLoading}
                   Text={() => {
-                    return <>{'Add'}</>;
+                    return (
+                      <>{<FormattedMessage id="add"></FormattedMessage>}</>
+                    );
                   }}
                 />
               </div>
@@ -587,7 +597,7 @@ const ModalAddCustomNetWork = (props: any) => {
                     style={{ zoom: 1.35 }}
                     className="mr-1"
                   ></AddButtonIcon>
-                  Add
+                  <FormattedMessage id="add" />
                 </div>
               </GradientButton>
               {Object.keys(rpclist).length > 2 ? (
@@ -597,7 +607,7 @@ const ModalAddCustomNetWork = (props: any) => {
                       className="text-sm text-white cursor-pointer mr-2"
                       onClick={switchEditStatus}
                     >
-                      Finish
+                      <FormattedMessage id="finish" />
                     </span>
                   ) : null}
                   <SetButtonIcon

@@ -810,5 +810,15 @@ const ru = {
   range_apr: 'В пределах диапазона или базового APR',
   how_to_earn_more: 'Как заработать больше наград?',
   learn_more: 'Учить больше',
+  add: 'Добавлять',
+  finish: 'Заканчивать',
+  add_custom_network: 'Добавить сеть',
+  network_name: 'Имя сети',
+  rpc_name_taken_tip: 'Сетевое имя уже занято',
+  network_invalid: 'Сеть недействительна',
+  fobidden_testnet_rpc_tip:
+    'Сеть сервера RPC (тестовая сеть) отличается от этой сети (основной сети)',
+  no_support_testnet_rpc_tip:
+    'Testnet не поддерживает добавление пользовательских RPC',
 };
 export default Object.assign(ru, ru_in_risks_page);

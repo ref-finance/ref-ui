@@ -111,6 +111,8 @@ import { usePoolShare, useYourliquidity } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import Countdown, { zeroPad } from 'react-countdown';
+import { MoreButtonIcon } from '~components/icon/Common';
+
 import _ from 'lodash';
 
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
@@ -2892,6 +2894,7 @@ function WithDrawBox(props: {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const actualRewardList = {};
+  const maxLength = 14;
   Object.entries(userRewardList).forEach(([key, value]) => {
     if (Number(value) > 0) {
       actualRewardList[key] = value;
@@ -2966,7 +2969,9 @@ function WithDrawBox(props: {
   }
   return (
     <div
-      className="relative rounded-xl mb-3.5 z-50"
+      className={`relative rounded-xl mb-3.5 z-50 ${
+        isOpen ? 'shadow-withDrawColor' : ''
+      }`}
       onMouseOver={() => {
         if (isMobile()) return;
         setIsOpen(true);
@@ -2990,28 +2995,52 @@ function WithDrawBox(props: {
             <FormattedMessage id="claimed_Rewards"></FormattedMessage>
           </label>
         </span>
-        <div
-          className={`flex mt-7 ${
-            !isSignedIn ? 'justify-between items-center' : 'flex-col'
-          }`}
-        >
-          <label className="text-white text-xl font-bold">{yourReward}</label>
+        <div className={`flex mt-7 justify-between items-end`}>
+          <div className="flex flex-col">
+            <label className="text-white text-xl font-bold">{yourReward}</label>
+            {Object.values(rewardList).length > 0 ? (
+              <div className="flex items-center mt-1.5">
+                {Object.values(rewardList)
+                  .slice(0, maxLength)
+                  .map((reward: any, index: number) => {
+                    return (
+                      <img
+                        key={index}
+                        src={reward.rewardToken.icon}
+                        className={`w-4 h-4 rounded-full  bg-cardBg border border-greenColor ${
+                          index > 0 ? '-ml-1' : ''
+                        }`}
+                      ></img>
+                    );
+                  })}
+                {Object.values(rewardList).length > maxLength ? (
+                  <div className="flex items-center justify-center w-4 h-4 rounded-full  bg-cardBg border border-greenColor -ml-1">
+                    <MoreButtonIcon
+                      className="text-greenColor"
+                      style={{ zoom: 0.8 }}
+                    ></MoreButtonIcon>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
           {!isSignedIn ? (
             <GreenConnectToNearBtn className="w-52"></GreenConnectToNearBtn>
-          ) : null}
-          {Object.values(rewardList).length > 0 ? (
-            <div className="flex items-center mt-1.5">
-              {Object.values(rewardList).map((reward: any, index: number) => {
-                return (
-                  <img
-                    key={index}
-                    src={reward.rewardToken.icon}
-                    className="w-4 h-4 rounded-full mr-0.5"
-                  ></img>
-                );
-              })}
+          ) : (
+            <div className="flex justify-between items-center">
+              <div
+                className={`text-xs border rounded-md cursor-pointer py-1.5 px-4 ${
+                  isOpen ? 'hidden' : ''
+                } ${
+                  Object.values(rewardList).length > 0
+                    ? 'bg-otherGreenColor border-otherGreenColor text-black'
+                    : 'bg-purpleColorF border-white text-white'
+                }`}
+              >
+                <FormattedMessage id="withdraw"></FormattedMessage>
+              </div>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
       <WithDrawb
@@ -3189,11 +3218,10 @@ function WithDrawb(props: {
   const cardHeight = isMobile() ? '90vh' : '80vh';
   return (
     <div
-      className={`xs:absolute md:absolute rounded-b-2xl bg-cardBg overflow-auto w-full ${
+      className={`xs:absolute md:absolute rounded-b-2xl bg-darkBlackColor overflow-auto w-full ${
         isOpen ? '' : 'hidden'
       }`}
       style={{
-        // width: cardWidth,
         maxHeight: cardHeight,
         border: '1px solid rgba(0, 198, 162, 0.5)',
       }}
@@ -3254,7 +3282,11 @@ function WithDrawb(props: {
           </div>
         ) : null}
       </div>
-      <div className="flex justify-between items-center pt-4 pb-3 bg-farmV2WithDrawBg pl-3 pr-6 select-none">
+      <div
+        className={`flex justify-between items-center pt-4 pb-3 pl-3 pr-6 select-none ${
+          Object.values(rewardList).length == 0 ? 'hidden' : ''
+        }`}
+      >
         <div className="flex items-center text-primaryText">
           <label className="mr-3 cursor-pointer" onClick={clickAllCheckBox}>
             {selectAll ? (
@@ -3315,6 +3347,31 @@ function WithDrawb(props: {
               />
             </div>
           </GradientButton>
+        </div>
+      </div>
+      <div className="flex flex-col items-start bg-cardBg justify-between rounded-b-lg mt-3 px-3.5 py-3">
+        <span className="text-white text-sm">
+          <FormattedMessage id="how_to_earn_more"></FormattedMessage>
+        </span>
+        <div className="flex items-center flex-wrap mt-2">
+          <span className="flex items-center text-xs text-primaryText mr-2 mb-1">
+            <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
+              1
+            </label>{' '}
+            <FormattedMessage id="withdraw" /> {'>>'}
+          </span>
+          <span className="flex items-center text-xs text-primaryText mr-2 mb-1">
+            <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
+              2
+            </label>{' '}
+            <FormattedMessage id="add_liquidity" /> {'>>'}
+          </span>
+          <span className="flex items-center text-xs text-primaryText mb-1">
+            <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
+              3
+            </label>
+            <FormattedMessage id="stake" />
+          </span>
         </div>
       </div>
     </div>

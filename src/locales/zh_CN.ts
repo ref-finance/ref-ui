@@ -769,5 +769,13 @@ const zh_CN = {
   love_staked: '已质押的LOVE',
   your_apr: '你的奖励年化收益率',
   range_apr: '范围和参考年化收益率',
+  add: '添加',
+  finish: '完成',
+  add_custom_network: '添加自定义网络',
+  network_name: '网络名称',
+  rpc_name_taken_tip: '网络名称已不占用',
+  network_invalid: '无效网络',
+  fobidden_testnet_rpc_tip: 'RPC服务器的网络(测试网)与本网络(主网)不同',
+  no_support_testnet_rpc_tip: 'Testnet不支持添加自定义RPC',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
