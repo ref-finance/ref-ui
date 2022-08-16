@@ -613,7 +613,7 @@ const ModalAddCustomNetWork = (props: any) => {
                 )}
               </div>
               <div
-                className={`flex items-center mt-6 ${
+                className={`flex items-center mt-6 px-2 ${
                   isInEditStatus ? 'justify-end' : 'justify-between'
                 }`}
               >
