@@ -2996,7 +2996,7 @@ function WithDrawBox(props: {
             <FormattedMessage id="claimed_Rewards"></FormattedMessage>
           </label>
         </span>
-        <div className={`flex mt-7 justify-between items-end`}>
+        <div className={`relative z-10 flex mt-7 justify-between items-end`}>
           <div className="flex flex-col">
             <label className="text-white text-xl font-bold">{yourReward}</label>
             {Object.values(rewardList).length > 0 ? (
