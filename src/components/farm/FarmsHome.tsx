@@ -3078,7 +3078,7 @@ function WithDrawb(props: {
   const [yourReward, setYourReward] = useState('$0');
   const rewardRef = useRef(null);
   const intl = useIntl();
-  const withdrawNumber = 5;
+  const withdrawNumber = 4;
   useEffect(() => {
     const tempList = Object.keys(actualRewardList).map(async (key: string) => {
       const rewardToken = await ftGetTokenMetadata(key);
@@ -3305,7 +3305,7 @@ function WithDrawb(props: {
           {Object.keys(rewardList).length > withdrawNumber ? (
             <div className="flex items-center ">
               <label className="mr-1 text-xs">
-                <FormattedMessage id="all_5_v2" />
+                <FormattedMessage id="all_4_v2" />
               </label>
               <div
                 className="text-white text-right ml-1"
@@ -3680,7 +3680,7 @@ function WithDrawModal(props: {
                   {Object.keys(rewardList).length > withdrawNumber ? (
                     <div className="flex items-center ">
                       <label className="mr-1 text-xs">
-                        <FormattedMessage id="all_5_v2" />
+                        <FormattedMessage id="all_4_v2" />
                       </label>
                       <div
                         className="text-white text-right ml-1"

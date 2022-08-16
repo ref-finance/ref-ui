@@ -367,7 +367,7 @@ const ko = {
   value_rewards: '수령한 보상',
   stake_unstake_tip: '스테이킹 및 해제시 당신의 보상은 자동으로 수령됩니다',
   over_tip:
-    '가스 수수료를 최적화하려면 최대 5개씩 토큰을 인출하는 것이 바람직합니다.',
+    '가스 수수료를 최적화하려면 최대 4개씩 토큰을 인출하는 것이 바람직합니다.',
   no_token_tip: '보상 토큰 없음',
   getToken_tip:
     '보상 토큰을 수령하거나, 유동성 풀의 토큰을 스테이킹 할 수 있습니다!.',
@@ -594,6 +594,7 @@ const ko = {
   expired: 'Expired',
   claimed_Rewards: '획득된 보상',
   all_5_v2: '타임당 5 토큰',
+  all_4_v2: '타임당 4 토큰',
   search_farms: '농장 검색',
   ended_Farms: '종료된 농장들',
   your_power: '당신의 "파워"',

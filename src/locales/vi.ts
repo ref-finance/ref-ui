@@ -366,7 +366,7 @@ const vi = {
   stake_unstake_tip:
     'Staking hay unstaking sẽ tự động nhận phần thưởng của bạn.',
   over_tip:
-    'Để tối ưu hóa phí gas, bạn có thể rút tối đa 5 token cùng một lúc.',
+    'Để tối ưu hóa phí gas, bạn có thể rút tối đa 4 token cùng một lúc.',
   no_token_tip: 'Không có token thưởng',
   getToken_tip:
     'Bạn có thể nhận token thưởng hoặc  stake LP token của bạn ngay bây giờ!',
@@ -589,6 +589,7 @@ const vi = {
   free: 'Free',
   claimed_Rewards: 'Nhận phần thưởng',
   all_5_v2: '5 tokens/lần',
+  all_4_v2: '4 tokens/lần',
   search_farms: 'Tìm kiếm farms',
   ended_Farms: 'Kết thúc Farms',
   your_power: 'Lực của bạn',

@@ -368,7 +368,7 @@ const en_US = {
   value_rewards: 'Claimed rewards',
   stake_unstake_tip:
     'Staking or unstaking will automatically claim your rewards.',
-  over_tip: 'To optimise gas fee, you can withdraw up to 5 tokens at a time',
+  over_tip: 'To optimise gas fee, you can withdraw up to 4 tokens at a time',
   no_token_tip: 'No reward token',
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
   in_farm: 'in Farm',
@@ -596,6 +596,7 @@ const en_US = {
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
   all_5_v2: '5 tokens/time',
+  all_4_v2: '4 tokens/time',
 
   more_than_seed: 'Input must be greater than or equal to ',
   how_to_earn_more: 'How to compound rewards?',

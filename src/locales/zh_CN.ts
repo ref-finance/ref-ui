@@ -338,7 +338,7 @@ const zh_CN = {
   unstake_tip_b: '你想取消质押吗?',
   value_rewards: '已领取的奖励',
   stake_unstake_tip: '质押或取消质押操作将自动领取奖励',
-  over_tip: '为了优化gas费用，您一次最多可以提取5个代币',
+  over_tip: '为了优化gas费用，您一次最多可以提取4个代币',
   no_token_tip: '没有可提取的代币',
   getToken_tip: '你可以现在认领你的奖励或质押代币！',
   in_farm: '在农场',
@@ -565,6 +565,7 @@ const zh_CN = {
   cd_limit: '超过 16 cd 帐户限制',
   expired: '已到期',
   all_5_v2: '5 代币/每次',
+  all_4_v2: '4 代币/每次',
 
   more_than_seed: '输入必须大于或等于 ',
   how_to_earn_more: '如何赚更多?',

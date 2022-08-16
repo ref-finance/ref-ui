@@ -377,7 +377,7 @@ const ja = {
   value_rewards: 'リワード',
   stake_unstake_tip:
     'ステーキングやステーキングをキャンセルすると、自動的にリワードが回収されます',
-  over_tip: 'ガスフィーの最適化のため、一度に5トークンまで引き出しが可能です',
+  over_tip: 'ガスフィーの最適化のため、一度に4トークンまで引き出しが可能です',
   no_token_tip: '出金可能なトークンはありません',
   getToken_tip:
     '今すぐリワードやステーキングトークンを請求することができます。',
@@ -605,6 +605,7 @@ const ja = {
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
   all_5_v2: '5 tokens/time',
+  all_4_v2: '4 tokens/time',
 
   more_than_seed: 'Input must be greater than or equal to ',
   how_to_earn_more: 'How to earn more?',
