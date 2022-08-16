@@ -314,6 +314,7 @@ export function SolidButton(
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={`${disabled ? 'cursor-not-allowed opacity-40' : ''}  ${
         loading ? 'opacity-40' : ''
       }
@@ -341,7 +342,7 @@ export function OutlineButton(
       style={style}
       onClick={onClick}
       disabled={disabled}
-      className={`rounded ${
+      className={`rounded ${disabled ? 'cursor-not-allowed  opacity-40' : ''} ${
         padding ? padding : 'py-2'
       } border border-gradientFromHover text-gradientFrom ${className}`}
     >

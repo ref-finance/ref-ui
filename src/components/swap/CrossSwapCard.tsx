@@ -70,6 +70,7 @@ import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
 import { TriIcon, RefIcon, WannaIconDark } from '../icon/DexIcon';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { unWrapTokenId, wrapTokenId } from './SwapCard';
+import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -369,6 +370,8 @@ export default function CrossSwapCard(props: {
   tokenInAmount: string;
   setTokenInAmount: (amount: string) => void;
 }) {
+  const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
+  const { REF_TOKEN_ID } = getConfig();
   const { allTokens, tokenInAmount, setTokenInAmount } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
@@ -417,11 +420,16 @@ export default function CrossSwapCard(props: {
   }, []);
 
   useEffect(() => {
-    const rememberedIn =
+    let rememberedIn =
       wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
-    const rememberedOut =
+    let rememberedOut =
       wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
-
+    if (rememberedIn == NEARXIDS[0]) {
+      rememberedIn = REF_TOKEN_ID;
+    }
+    if (rememberedOut == NEARXIDS[0]) {
+      rememberedOut = REF_TOKEN_ID;
+    }
     if (allTokens) {
       setTokenIn(
         allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
@@ -453,6 +461,10 @@ export default function CrossSwapCard(props: {
       )
     );
   }, [tokenIn, tokenOut, isSignedIn, nearBalance]);
+  useEffect(() => {
+    if (!tokenIn || !tokenOut) return;
+    history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
+  }, [tokenIn?.id, tokenOut?.id]);
 
   const {
     tokenOutAmount,
