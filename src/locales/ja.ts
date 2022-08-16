@@ -400,7 +400,7 @@ const ja = {
   rewards_claimed: '受領可能なリワードあり',
   value_rewards_token: 'リワードトークンの価値',
   all: 'すべて選択',
-  all_5: '一度に5種類までのトークン',
+  all_5: '一度に4種類までのトークン',
   your_positions_will_be_displayed_here: '参加したプールはここに表示されます。',
   price_impact: '価格への影響',
   shares_left: '残額',

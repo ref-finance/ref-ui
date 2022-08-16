@@ -360,7 +360,7 @@ const zh_CN = {
   rewards_claimed: '可领取的奖励',
   value_rewards_token: '奖励代币的价值',
   all: '全选',
-  all_5: '一次最多5种代币',
+  all_5: '一次最多4种代币',
   your_positions_will_be_displayed_here: '你参与的流动池将会出现在这里',
   price_impact: '价格影响',
   shares_left: '剩下的份额',

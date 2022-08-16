@@ -399,7 +399,7 @@ const ko = {
   rewards_claimed: '수령된 보상',
   value_rewards_token: '보상액',
   all: '전부',
-  all_5: '한번에 최대 5토큰씩만',
+  all_5: '한번에 최대 4토큰씩만',
   insufficient_shares: '지분이 불충분함',
   shares_removed: '지분',
   shares_avaliable: '가능한 지분',

@@ -400,7 +400,7 @@ const en_US = {
   rewards_claimed: 'Rewards claimed',
   value_rewards_token: 'Value of rewards',
   all: 'All',
-  all_5: 'Max 5 tokens at a time',
+  all_5: 'Max 4 tokens at a time',
   insufficient_shares: 'Insufficient shares',
   shares_removed: 'Shares',
   shares_avaliable: 'Shares avaliable',

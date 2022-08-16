@@ -399,7 +399,7 @@ const vi = {
   rewards_claimed: 'Phần thưởng đã được nhận',
   value_rewards_token: 'Gía trị thưởng',
   all: 'Tất cả',
-  all_5: '5 tokens một lần',
+  all_5: '4 tokens một lần',
   insufficient_shares: 'Không đủ shares',
   shares_removed: 'Shares',
   shares_avaliable: 'Shares khả dụng',

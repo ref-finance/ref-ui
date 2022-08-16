@@ -412,7 +412,7 @@ const ru = {
   rewards_claimed: 'Полученные награды',
   value_rewards_token: 'Стоимость наград',
   all: 'Все',
-  all_5: '5 токенов за раз',
+  all_5: '4 токенов за раз',
   insufficient_shares: 'Недостаток долей',
   shares_removed: 'Доли',
   shares_avaliable: 'Доступные доли',

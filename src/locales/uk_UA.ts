@@ -397,7 +397,7 @@ const uk_UA = {
   rewards_claimed: 'Винагороди отримано',
   value_rewards_token: 'Вартість винагород',
   all: 'Всі',
-  all_5: '5 токенів за раз',
+  all_5: '4 токенів за раз',
   insufficient_shares: 'Часток недостатньо',
   shares_removed: 'Частки',
   shares_avaliable: 'Доступні частки',
