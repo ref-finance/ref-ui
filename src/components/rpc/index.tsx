@@ -439,208 +439,219 @@ const ModalAddCustomNetWork = (props: any) => {
     !testnetError;
   return (
     <Modal {...props}>
-      <div
-        className="px-4 py-7 text-white bg-cardBg border border-gradientFrom border-opacity-50 rounded-lg"
-        style={{
-          width: cardWidth,
-        }}
-      >
-        {customShow ? (
-          <div>
-            <div className="flex items-center justify-between text-xl text-white">
-              <div className="flex items-center">
-                <ReturnArrowButtonIcon
-                  className="mr-3 cursor-pointer"
-                  onClick={hideCustomNetWork}
-                ></ReturnArrowButtonIcon>
-                <FormattedMessage id="add_custom_network" />
+      <div className="relative flex items-center justify-center">
+        <div
+          className="absolute top-0 bottom-0"
+          style={{
+            background:
+              'linear-gradient(146.59deg, rgba(0, 255, 209, 0.6) 1.14%, rgba(147, 62, 255, 0.6) 99.25%)',
+            filter: 'blur(50px)',
+            width: cardWidth,
+          }}
+        ></div>
+        <div
+          className="relative z-10 px-4 py-7 text-white bg-cardBg border border-gradientFrom border-opacity-50 rounded-lg"
+          style={{
+            width: cardWidth,
+          }}
+        >
+          {customShow ? (
+            <div>
+              <div className="flex items-center justify-between text-xl text-white">
+                <div className="flex items-center">
+                  <ReturnArrowButtonIcon
+                    className="mr-3 cursor-pointer"
+                    onClick={hideCustomNetWork}
+                  ></ReturnArrowButtonIcon>
+                  <FormattedMessage id="add_custom_network" />
+                </div>
+                <span onClick={closeModal} className="cursor-pointer">
+                  <ModalClose></ModalClose>
+                </span>
               </div>
-              <span onClick={closeModal} className="cursor-pointer">
-                <ModalClose></ModalClose>
-              </span>
-            </div>
-            <div className="flex flex-col  mt-10">
-              <span className="text-white text-sm mb-2.5">
-                <FormattedMessage id="network_name"></FormattedMessage>
-              </span>
-              <div
-                className={`overflow-hidden rounded-md ${
-                  nameError ? 'border border-warnRedColor' : ''
-                }`}
-              >
-                <input
-                  className="px-3 h-12 bg-black bg-opacity-20"
-                  onChange={({ target }) => changeNetName(target.value)}
-                ></input>
+              <div className="flex flex-col  mt-10">
+                <span className="text-white text-sm mb-2.5">
+                  <FormattedMessage id="network_name"></FormattedMessage>
+                </span>
+                <div
+                  className={`overflow-hidden rounded-md ${
+                    nameError ? 'border border-warnRedColor' : ''
+                  }`}
+                >
+                  <input
+                    className="px-3 h-12 bg-black bg-opacity-20"
+                    onChange={({ target }) => changeNetName(target.value)}
+                  ></input>
+                </div>
+                <span
+                  className={`errorTip text-redwarningColor text-sm mt-2 ${
+                    nameError ? '' : 'hidden'
+                  }`}
+                >
+                  <FormattedMessage id="rpc_name_taken_tip" />
+                </span>
               </div>
-              <span
-                className={`errorTip text-redwarningColor text-sm mt-2 ${
-                  nameError ? '' : 'hidden'
-                }`}
-              >
-                <FormattedMessage id="rpc_name_taken_tip" />
-              </span>
-            </div>
-            <div className="flex flex-col mt-10">
-              <span className="text-white text-sm mb-2.5">RPC URL</span>
-              <div
-                className={`overflow-hidden rounded-md ${
-                  unavailableError ? 'border border-warnRedColor' : ''
-                }`}
-              >
-                <input
-                  className="px-3 h-12 rounded-md bg-black bg-opacity-20"
-                  onChange={({ target }) => changeNetUrl(target.value)}
-                ></input>
+              <div className="flex flex-col mt-10">
+                <span className="text-white text-sm mb-2.5">RPC URL</span>
+                <div
+                  className={`overflow-hidden rounded-md ${
+                    unavailableError ? 'border border-warnRedColor' : ''
+                  }`}
+                >
+                  <input
+                    className="px-3 h-12 rounded-md bg-black bg-opacity-20"
+                    onChange={({ target }) => changeNetUrl(target.value)}
+                  ></input>
+                </div>
+                <span
+                  className={`errorTip text-redwarningColor text-sm mt-2 ${
+                    unavailableError ? '' : 'hidden'
+                  }`}
+                >
+                  <FormattedMessage id="network_invalid" />
+                </span>
+                <span
+                  className={`errorTip text-redwarningColor text-sm mt-2 ${
+                    testnetError ? '' : 'hidden'
+                  }`}
+                >
+                  <FormattedMessage id="fobidden_testnet_rpc_tip" />
+                </span>
+                <span
+                  className={`errorTip text-redwarningColor text-sm mt-2 ${
+                    notSupportTestnetError ? '' : 'hidden'
+                  }`}
+                >
+                  <FormattedMessage id="no_support_testnet_rpc_tip" />
+                </span>
               </div>
-              <span
-                className={`errorTip text-redwarningColor text-sm mt-2 ${
-                  unavailableError ? '' : 'hidden'
-                }`}
-              >
-                <FormattedMessage id="network_invalid" />
-              </span>
-              <span
-                className={`errorTip text-redwarningColor text-sm mt-2 ${
-                  testnetError ? '' : 'hidden'
-                }`}
-              >
-                <FormattedMessage id="fobidden_testnet_rpc_tip" />
-              </span>
-              <span
-                className={`errorTip text-redwarningColor text-sm mt-2 ${
-                  notSupportTestnetError ? '' : 'hidden'
-                }`}
-              >
-                <FormattedMessage id="no_support_testnet_rpc_tip" />
-              </span>
-            </div>
-            <GradientButton
-              color="#fff"
-              className={`w-full h-10 text-center text-base text-white mt-10 focus:outline-none font-semibold ${
-                submitStatus ? '' : 'opacity-40'
-              }`}
-              onClick={addCustomNetWork}
-              disabled={!submitStatus}
-              btnClassName={submitStatus ? '' : 'cursor-not-allowed'}
-              loading={customLoading}
-            >
-              <div className={`${isInEditStatus ? 'hidden' : ''}`}>
-                <ButtonTextWrapper
-                  loading={customLoading}
-                  Text={() => {
-                    return (
-                      <>{<FormattedMessage id="add"></FormattedMessage>}</>
-                    );
-                  }}
-                />
-              </div>
-            </GradientButton>
-          </div>
-        ) : (
-          <div>
-            <div className="flex items-center justify-between text-xl text-white mb-5">
-              RPC
-              <span onClick={closeModal} className="cursor-pointer">
-                <ModalClose></ModalClose>
-              </span>
-            </div>
-            <div
-              style={{ maxHeight: cardHeight }}
-              className="overflow-y-auto overflow-x-hidden px-2 py-2"
-            >
-              {Object.entries(rpclist).map(
-                ([key, data]: any, index: number) => {
-                  return (
-                    <div className="flex items-center" key={data.simpleName}>
-                      <div
-                        className={`relative flex items-center rounded-lg h-14 px-5 ${
-                          isInEditStatus && data.custom ? 'w-4/5' : 'w-full'
-                        } ${
-                          index != Object.entries(rpclist).length - 1
-                            ? 'mb-3'
-                            : ''
-                        } ${isInEditStatus ? '' : 'cursor-pointer'} ${
-                          isInEditStatus && !data.custom
-                            ? ''
-                            : 'bg-black bg-opacity-20 hover:bg-opacity-30'
-                        } justify-between text-white ${
-                          currentEndPoint == key && !isInEditStatus
-                            ? 'bg-opacity-30'
-                            : ''
-                        }`}
-                        onClick={() => {
-                          if (!isInEditStatus) {
-                            switchPoint(key);
-                          }
-                        }}
-                      >
-                        <label
-                          className={`text-sm pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis`}
-                        >
-                          {data.simpleName}
-                        </label>
-                        <div className={`flex items-center text-sm`}>
-                          {displayCurrentRpc(responseTimeList, key, true)}
-                        </div>
-                        {currentEndPoint == key && !isInEditStatus ? (
-                          <SelectedButtonIcon className="absolute -right-1 -top-1"></SelectedButtonIcon>
-                        ) : null}
-                      </div>
-                      {isInEditStatus && data.custom ? (
-                        <div>
-                          <DeleteButtonIcon
-                            className="cursor-pointer ml-4"
-                            onClick={() => {
-                              deleteCustomNetwork(key);
-                            }}
-                          ></DeleteButtonIcon>
-                        </div>
-                      ) : null}
-                    </div>
-                  );
-                }
-              )}
-            </div>
-            <div
-              className={`flex items-end mt-6 ${
-                isInEditStatus ? 'justify-end' : 'justify-between'
-              }`}
-            >
               <GradientButton
                 color="#fff"
-                className={`h-10 px-4 text-center text-base text-white focus:outline-none font-semibold ${
-                  isInEditStatus ? 'hidden' : ''
+                className={`w-full h-10 text-center text-base text-white mt-10 focus:outline-none font-semibold ${
+                  submitStatus ? '' : 'opacity-40'
                 }`}
-                onClick={showCustomNetWork}
+                onClick={addCustomNetWork}
+                disabled={!submitStatus}
+                btnClassName={submitStatus ? '' : 'cursor-not-allowed'}
+                loading={customLoading}
               >
-                <div className={'flex items-center'}>
-                  <AddButtonIcon
-                    style={{ zoom: 1.35 }}
-                    className="mr-1"
-                  ></AddButtonIcon>
-                  <FormattedMessage id="add" />
+                <div className={`${isInEditStatus ? 'hidden' : ''}`}>
+                  <ButtonTextWrapper
+                    loading={customLoading}
+                    Text={() => {
+                      return (
+                        <>{<FormattedMessage id="add"></FormattedMessage>}</>
+                      );
+                    }}
+                  />
                 </div>
               </GradientButton>
-              {Object.keys(rpclist).length > 2 ? (
-                <div className="flex items-center mb-2">
-                  {isInEditStatus ? (
-                    <span
-                      className="text-sm text-white cursor-pointer mr-2"
-                      onClick={switchEditStatus}
-                    >
-                      <FormattedMessage id="finish" />
-                    </span>
-                  ) : null}
-                  <SetButtonIcon
-                    className="cursor-pointer text-primaryText hover:text-white"
-                    onClick={switchEditStatus}
-                  ></SetButtonIcon>
-                </div>
-              ) : null}
             </div>
-          </div>
-        )}
+          ) : (
+            <div>
+              <div className="flex items-center justify-between text-xl text-white mb-5">
+                RPC
+                <span onClick={closeModal} className="cursor-pointer">
+                  <ModalClose></ModalClose>
+                </span>
+              </div>
+              <div
+                style={{ maxHeight: cardHeight }}
+                className="overflow-y-auto overflow-x-hidden px-2 py-2"
+              >
+                {Object.entries(rpclist).map(
+                  ([key, data]: any, index: number) => {
+                    return (
+                      <div className="flex items-center" key={data.simpleName}>
+                        <div
+                          className={`relative flex items-center rounded-lg h-14 px-5 ${
+                            isInEditStatus && data.custom ? 'w-4/5' : 'w-full'
+                          } ${
+                            index != Object.entries(rpclist).length - 1
+                              ? 'mb-3'
+                              : ''
+                          } ${isInEditStatus ? '' : 'cursor-pointer'} ${
+                            isInEditStatus && !data.custom
+                              ? ''
+                              : 'bg-black bg-opacity-20 hover:bg-opacity-30'
+                          } justify-between text-white ${
+                            currentEndPoint == key && !isInEditStatus
+                              ? 'bg-opacity-30'
+                              : ''
+                          }`}
+                          onClick={() => {
+                            if (!isInEditStatus) {
+                              switchPoint(key);
+                            }
+                          }}
+                        >
+                          <label
+                            className={`text-sm pr-5 whitespace-nowrap overflow-hidden overflow-ellipsis`}
+                          >
+                            {data.simpleName}
+                          </label>
+                          <div className={`flex items-center text-sm`}>
+                            {displayCurrentRpc(responseTimeList, key, true)}
+                          </div>
+                          {currentEndPoint == key && !isInEditStatus ? (
+                            <SelectedButtonIcon className="absolute -right-1 -top-1"></SelectedButtonIcon>
+                          ) : null}
+                        </div>
+                        {isInEditStatus && data.custom ? (
+                          <div>
+                            <DeleteButtonIcon
+                              className="cursor-pointer ml-4"
+                              onClick={() => {
+                                deleteCustomNetwork(key);
+                              }}
+                            ></DeleteButtonIcon>
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+              <div
+                className={`flex items-center mt-6 ${
+                  isInEditStatus ? 'justify-end' : 'justify-between'
+                }`}
+              >
+                <GradientButton
+                  color="#fff"
+                  className={`h-10 px-4 text-center text-base text-white focus:outline-none font-semibold ${
+                    isInEditStatus ? 'hidden' : ''
+                  }`}
+                  onClick={showCustomNetWork}
+                >
+                  <div className={'flex items-center'}>
+                    <AddButtonIcon
+                      style={{ zoom: 1.35 }}
+                      className="mr-1"
+                    ></AddButtonIcon>
+                    <FormattedMessage id="add" />
+                  </div>
+                </GradientButton>
+                {Object.keys(rpclist).length > 2 ? (
+                  <div className="flex items-center">
+                    {isInEditStatus ? (
+                      <span
+                        className="text-sm text-white cursor-pointer mr-2"
+                        onClick={switchEditStatus}
+                      >
+                        <FormattedMessage id="finish" />
+                      </span>
+                    ) : null}
+                    <SetButtonIcon
+                      className="cursor-pointer text-primaryText hover:text-white"
+                      onClick={switchEditStatus}
+                    ></SetButtonIcon>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </Modal>
   );

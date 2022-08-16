@@ -2972,7 +2972,7 @@ function WithDrawBox(props: {
       className={`relative rounded-xl mb-3.5 z-50 ${
         isOpen ? 'shadow-withDrawColor' : ''
       }`}
-      style={{ height: Object.values(rewardList).length > 0 ? '92px' : '72px' }}
+      // style={{ height: Object.values(rewardList).length > 0 ? '92px' : '72px' }}
       onMouseOver={() => {
         if (isMobile()) return;
         setIsOpen(true);
