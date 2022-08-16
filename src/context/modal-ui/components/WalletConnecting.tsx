@@ -88,9 +88,12 @@ export const WalletConnecting: React.FC<WalletConnectingProps> = ({
               }}
             >
               <img
-                className="rounded-full"
+                // className="rounded-full"
                 src={wallet?.metadata.iconUrl}
                 alt=""
+                style={{
+                  maxWidth: '36px',
+                }}
               />
             </div>
           </GradientWrapper>

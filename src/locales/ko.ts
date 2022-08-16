@@ -826,7 +826,7 @@ const ko = {
   until: '~까지',
   continue: '계속하다',
   then_enter_a_derivation_path_to_connect:
-    '그런 다음 연결할 파생 경로를 입력하십시오.',
+    '그런 다음 연결할 파생 경로를 입력하십시오',
   account_identification_failed:
     '계정 식별에 실패했습니다! 수동으로 제공하십시오',
   input_account_id: '계정 아이디 입력',
