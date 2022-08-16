@@ -84,6 +84,7 @@ import { SWAP_MODE } from '../../pages/SwapPage';
 import { isStableToken, STABLE_TOKEN_USN_IDS } from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -544,6 +545,9 @@ export default function SwapCard(props: {
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
 }) {
+  const { NEARXIDS } = getExtraStablePoolConfig();
+  const { REF_TOKEN_ID } = getConfig();
+  getConfig();
   const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
 
   const { allTokens, swapMode, stablePools, tokenInAmount, setTokenInAmount } =
@@ -630,17 +634,20 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (allTokens) {
-      const rememberedIn =
+      // todo
+      let rememberedIn =
         wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
       const rememberedOut =
         wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
       if (swapMode === SWAP_MODE.NORMAL) {
+        if (rememberedIn == NEARXIDS[0]) {
+          rememberedIn = REF_TOKEN_ID;
+        }
         const candTokenIn =
           allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
 
         const candTokenOut =
           allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
-
         setTokenIn(candTokenIn);
         setTokenOut(candTokenOut);
 
