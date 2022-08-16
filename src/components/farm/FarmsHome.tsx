@@ -2969,7 +2969,7 @@ function WithDrawBox(props: {
   }
   return (
     <div
-      className={`relative rounded-xl mb-3.5 z-50 ${
+      className={`relative rounded-2xl mb-3.5 z-50 ${
         isOpen ? 'shadow-withDrawColor' : ''
       }`}
       // style={{ height: Object.values(rewardList).length > 0 ? '92px' : '72px' }}
