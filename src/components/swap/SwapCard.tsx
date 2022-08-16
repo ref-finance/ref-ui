@@ -545,7 +545,7 @@ export default function SwapCard(props: {
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
 }) {
-  const { NEARXIDS } = getExtraStablePoolConfig();
+  const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
   getConfig();
   const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
@@ -625,7 +625,7 @@ export default function SwapCard(props: {
       setReservesType(STABLE_POOL_TYPE.USD);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.USD);
     }
-
+    // todo
     history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
 
     localStorage.setItem(SWAP_IN_KEY, tokenIn.id);
@@ -637,11 +637,14 @@ export default function SwapCard(props: {
       // todo
       let rememberedIn =
         wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
-      const rememberedOut =
+      let rememberedOut =
         wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
       if (swapMode === SWAP_MODE.NORMAL) {
         if (rememberedIn == NEARXIDS[0]) {
           rememberedIn = REF_TOKEN_ID;
+        }
+        if (rememberedOut == NEARXIDS[0]) {
+          rememberedOut = REF_TOKEN_ID;
         }
         const candTokenIn =
           allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
@@ -659,7 +662,12 @@ export default function SwapCard(props: {
       } else if (swapMode === SWAP_MODE.STABLE) {
         let candTokenIn: TokenMetadata;
         let candTokenOut: TokenMetadata;
-
+        if (rememberedIn == NEARXIDS[0]) {
+          rememberedIn = STNEARIDS[0];
+        }
+        if (rememberedOut == NEARXIDS[0]) {
+          rememberedOut = STNEARIDS[0];
+        }
         if (
           rememberedIn &&
           rememberedOut &&
