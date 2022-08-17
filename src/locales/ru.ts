@@ -380,7 +380,7 @@ const ru = {
   stake_unstake_tip:
     'Стейкинг или отмена стейкинга автоматически начислит ваши награды.',
   over_tip:
-    'В связи с ограничением комиссии за газ, за один раз можно выбрать только 5 позиций',
+    'В связи с ограничением комиссии за газ, за один раз можно выбрать только 4 позиций',
   no_token_tip: 'Нет награды',
   getToken_tip:
     'Вы можете получить награду или застейкать свои LP токены прямо сейчас!',
@@ -413,7 +413,7 @@ const ru = {
   rewards_claimed: 'Полученные награды',
   value_rewards_token: 'Стоимость наград',
   all: 'Все',
-  all_5: '5 токенов за раз',
+  all_5: '4 токенов за раз',
   insufficient_shares: 'Недостаток долей',
   shares_removed: 'Доли',
   shares_avaliable: 'Доступные доли',
@@ -658,6 +658,7 @@ const ru = {
   expired: 'Expired',
   claimed_Rewards: 'Полученные награды',
   all_5_v2: '5 токенов за раз',
+  all_4_v2: '4 токенов за раз',
   search_farms: 'Искать фермы',
   ended_Farms: 'Завершенные фермы',
   your_power: 'Ваша энергия',
@@ -844,5 +845,15 @@ const ru = {
   can_not_find_any_accounts:
     "Can't found any account associated with this Ledger. Please create a new NEAR account on",
   or_connect_another_ledger: 'or connect an another Ledger',
+  add: 'Добавлять',
+  finish: 'Заканчивать',
+  add_custom_network: 'Добавить сеть',
+  network_name: 'Имя сети',
+  rpc_name_taken_tip: 'Сетевое имя уже занято',
+  network_invalid: 'Сеть недействительна',
+  fobidden_testnet_rpc_tip:
+    'Сеть сервера RPC (тестовая сеть) отличается от этой сети (основной сети)',
+  no_support_testnet_rpc_tip:
+    'Testnet не поддерживает добавление пользовательских RPC',
 };
 export default Object.assign(ru, ru_in_risks_page);

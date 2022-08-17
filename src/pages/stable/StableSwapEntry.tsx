@@ -344,12 +344,15 @@ function StablePoolCard({
           <SolidButton
             className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm"
             onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               history.push(`/sauce/${stablePool.id}`, {
                 stableTab: 'add_liquidity',
                 shares,
                 pool: stablePool,
               });
             }}
+            disabled={stablePool.id === Number(NEAX_POOL_ID)}
           >
             <FormattedMessage
               id="add_liquidity"
@@ -358,7 +361,10 @@ function StablePoolCard({
           </SolidButton>
           <OutlineButton
             className="w-full py-3 ml-2 text-sm h-11"
+            disabled={stablePool.id === Number(NEAX_POOL_ID)}
             onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               history.push(`/sauce/${stablePool.id}`, {
                 stableTab: 'remove_liquidity',
                 shares,

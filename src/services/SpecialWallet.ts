@@ -6,7 +6,6 @@ import { PublicKey } from 'near-api-js/lib/utils';
 export default class SpecialWallet extends WalletConnection {
   _connectedAccount: SpecialWalletAccount;
 
-
   async _completeSignInWithAccessKey() {
     const currentUrl = new URL(window.location.href);
     const publicKey = currentUrl.searchParams.get('public_key') || '';

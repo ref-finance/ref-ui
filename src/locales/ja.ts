@@ -378,7 +378,7 @@ const ja = {
   value_rewards: 'リワード',
   stake_unstake_tip:
     'ステーキングやステーキングをキャンセルすると、自動的にリワードが回収されます',
-  over_tip: 'ガスフィーの最適化のため、一度に5トークンまで引き出しが可能です',
+  over_tip: 'ガスフィーの最適化のため、一度に4トークンまで引き出しが可能です',
   no_token_tip: '出金可能なトークンはありません',
   getToken_tip:
     '今すぐリワードやステーキングトークンを請求することができます。',
@@ -401,7 +401,7 @@ const ja = {
   rewards_claimed: '受領可能なリワードあり',
   value_rewards_token: 'リワードトークンの価値',
   all: 'すべて選択',
-  all_5: '一度に5種類までのトークン',
+  all_5: '一度に4種類までのトークン',
   your_positions_will_be_displayed_here: '参加したプールはここに表示されます。',
   price_impact: '価格への影響',
   shares_left: '残額',
@@ -606,6 +606,7 @@ const ja = {
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
   all_5_v2: '5 tokens/time',
+  all_4_v2: '4 tokens/time',
 
   more_than_seed: 'Input must be greater than or equal to ',
   how_to_earn_more: 'How to earn more?',
@@ -845,5 +846,15 @@ const ja = {
   can_not_find_any_accounts:
     "Can't found any account associated with this Ledger. Please create a new NEAR account on",
   or_connect_another_ledger: 'or connect an another Ledger',
+  add: '追加',
+  finish: '終了',
+  add_custom_network: 'カスタム ネットワークを追加',
+  network_name: 'ネットワークネーム',
+  rpc_name_taken_tip: 'ネットワークネームは既に使用されています',
+  network_invalid: 'ネットワークが無効でした',
+  fobidden_testnet_rpc_tip:
+    'RPC サーバーのネットワーク (テストネット) は、このネットワーク (メインネット) とは異なります',
+  no_support_testnet_rpc_tip:
+    'Testnet はカスタム RPC の追加をサポートしていません',
 };
 export default Object.assign(ja, ja_in_risks_page);

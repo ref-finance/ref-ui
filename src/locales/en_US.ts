@@ -369,7 +369,7 @@ const en_US = {
   value_rewards: 'Claimed rewards',
   stake_unstake_tip:
     'Staking or unstaking will automatically claim your rewards.',
-  over_tip: 'To optimise gas fee, you can withdraw up to 5 tokens at a time',
+  over_tip: 'To optimise gas fee, you can withdraw up to 4 tokens at a time',
   no_token_tip: 'No reward token',
   getToken_tip: 'You can claim your rewards or stake your LP Tokens now!',
   in_farm: 'in Farm',
@@ -401,7 +401,7 @@ const en_US = {
   rewards_claimed: 'Rewards claimed',
   value_rewards_token: 'Value of rewards',
   all: 'All',
-  all_5: 'Max 5 tokens at a time',
+  all_5: 'Max 4 tokens at a time',
   insufficient_shares: 'Insufficient shares',
   shares_removed: 'Shares',
   shares_avaliable: 'Shares avaliable',
@@ -597,6 +597,7 @@ const en_US = {
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
   all_5_v2: '5 tokens/time',
+  all_4_v2: '4 tokens/time',
 
   more_than_seed: 'Input must be greater than or equal to ',
   how_to_earn_more: 'How to compound rewards?',
@@ -838,5 +839,14 @@ const en_US = {
   can_not_find_any_accounts:
     "Can't found any account associated with this Ledger. Please create a new NEAR account on",
   or_connect_another_ledger: 'or connect an another Ledger',
+  add: 'Add',
+  finish: 'Finish',
+  add_custom_network: 'Add Custom Network',
+  network_name: 'Network Name',
+  rpc_name_taken_tip: 'The network name was already taken',
+  network_invalid: 'The network was invalid',
+  fobidden_testnet_rpc_tip:
+    "RPC server's network (testnet) is different with this network(mainnet)",
+  no_support_testnet_rpc_tip: 'Testnet does not support adding custom RPC',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

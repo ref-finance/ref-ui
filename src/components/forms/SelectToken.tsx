@@ -150,7 +150,9 @@ export const StableSelectToken = ({
     preSelected && !NEARtokens.find((token) => token.id === preSelected.id);
 
   const handleSelect = (token: TokenMetadata) => {
-    onSelect(token);
+    if (token.id != NEARXIDS[0]) {
+      onSelect(token);
+    }
 
     if (!postSelected || !onSelectPost) {
       return;
@@ -553,7 +555,9 @@ export default function SelectToken({
             onSortChange={onSortChange}
             tokens={listData}
             onClick={(token) => {
-              onSelect && onSelect(token);
+              if (token.id != NEARXIDS[0]) {
+                onSelect && onSelect(token);
+              }
               handleClose();
             }}
             balances={balances}

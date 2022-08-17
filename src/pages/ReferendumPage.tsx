@@ -157,6 +157,7 @@ export const RewardCard = ({
 }: {
   rewardList: { tokenId: string; amount: string }[];
 }) => {
+  const length_at_once = 4;
   const tokenIds = rewardList.map(({ tokenId }) => tokenId);
 
   const tokens = useTokens(tokenIds);
@@ -285,11 +286,11 @@ export const RewardCard = ({
                 onClick={() => {
                   if (
                     checkList?.length === tokenIds?.length ||
-                    checkList.length === 5
+                    checkList.length === length_at_once
                   ) {
                     setCheckList([]);
                   } else {
-                    if (tokenIds.length <= 5) {
+                    if (tokenIds.length <= length_at_once) {
                       setCheckList(tokenIds);
                     } else {
                       const candidateList = [];
@@ -298,7 +299,10 @@ export const RewardCard = ({
                         const id = tokenIds[i];
                         if (!checkList.includes(id)) {
                           candidateList.push(id);
-                          if (candidateList.length === 5 - checkList.length) {
+                          if (
+                            candidateList.length ===
+                            length_at_once - checkList.length
+                          ) {
                             break;
                           }
                         }
@@ -312,23 +316,23 @@ export const RewardCard = ({
                   className={`mr-2 h-4 w-4 rounded bg-opacity-30 flex items-center justify-center ${
                     (tokens?.length > 0 &&
                       tokens?.every((token) => checkList.includes(token.id))) ||
-                    checkList.length === 5
+                    checkList.length === length_at_once
                       ? 'bg-black'
                       : 'bg-white'
                   }`}
                 >
                   {(tokens?.length > 0 &&
                     tokens?.every((token) => checkList.includes(token.id))) ||
-                  checkList.length === 5 ? (
+                  checkList.length === length_at_once ? (
                     <RewardCheck />
                   ) : null}
                 </button>
 
                 <span className="text-sm">
-                  {Object.keys(rewardList).length > 5 ? (
+                  {Object.keys(rewardList).length > length_at_once ? (
                     <div className="flex items-center ">
                       <label className="mr-1 ">
-                        <FormattedMessage id="all_5_v2" />
+                        <FormattedMessage id="all_4_v2" />
                       </label>
                       <QuestionTip id="over_tip" color="bright" />
                     </div>

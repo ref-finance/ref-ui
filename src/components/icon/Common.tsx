@@ -475,6 +475,21 @@ const CircleIcon = (props: any) => {
     </svg>
   );
 };
+export const CircleIconLarge = (props: any) => {
+  const { width, height, className, ...rest } = props;
+  return (
+    <svg
+      {...props}
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="5" cy="5" r="5" fill="currentColor" />
+    </svg>
+  );
+};
 const WNEARExchngeIcon = (props: any) => {
   const { width, height, className, ...rest } = props;
   const [hover, setHover] = useState(false);
@@ -1758,6 +1773,23 @@ const WarningTip = () => {
   );
 };
 
+export const DeleteButtonIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M10 20C15.5 20 20 15.5 20 10C20 4.5 15.5 0 10 0C4.5 0 0 4.5 0 10C0 15.5 4.5 20 10 20ZM10 2.5C14.125 2.5 17.5 5.875 17.5 10C17.5 14.125 14.125 17.5 10 17.5C5.875 17.5 2.5 14.125 2.5 10C2.5 5.875 5.875 2.5 10 2.5ZM7.5 11.25H12.5C13.25 11.25 13.75 10.75 13.75 10C13.75 9.25 13.25 8.75 12.5 8.75H7.5C6.75 8.75 6.25 9.25 6.25 10C6.25 10.75 6.75 11.25 7.5 11.25Z"
+        fill="#DE5050"
+      />
+    </svg>
+  );
+};
 export {
   Learn_more,
   CloseBtn,

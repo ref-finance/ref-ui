@@ -154,7 +154,7 @@ export function FarmsPage() {
 
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
-  const withdrawNumber = 5;
+  const withdrawNumber = 4;
   const refreshTime = 120000;
   const [count, setCount] = useState(0);
   const [commonSeedFarms, setCommonSeedFarms] = useState({});

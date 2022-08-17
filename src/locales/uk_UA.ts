@@ -365,7 +365,7 @@ const uk_UA = {
   stake_unstake_tip:
     'Стейкінг або анстейкінг автоматично отримає ваші винагороди.',
   over_tip:
-    'Через обмеження комісії gas, одночасно можна вибрати не більше 5 позицій.',
+    'Через обмеження комісії gas, одночасно можна вибрати не більше 4 позицій.',
   no_token_tip: 'Винагорода у токенах відсутня',
   getToken_tip:
     'Ви можете отримати свої винагороди або здійснити стейкінг своїх токенів LP прямо зараз!',
@@ -398,7 +398,7 @@ const uk_UA = {
   rewards_claimed: 'Винагороди отримано',
   value_rewards_token: 'Вартість винагород',
   all: 'Всі',
-  all_5: '5 токенів за раз',
+  all_5: '4 токенів за раз',
   insufficient_shares: 'Часток недостатньо',
   shares_removed: 'Частки',
   shares_avaliable: 'Доступні частки',
@@ -635,6 +635,7 @@ const uk_UA = {
   available_to_stake: 'є можливість стейкінгу',
   claimed_Rewards: 'Отримані нагороди',
   all_5_v2: '5 токенів/час',
+  all_4_v2: '4 токенів/час',
   search_farms: 'пошук ферм',
   ended_Farms: 'закінчені ферми',
   your_power: 'Ваша сила',
@@ -812,5 +813,14 @@ const uk_UA = {
   can_not_find_any_accounts:
     "Can't found any account associated with this Ledger. Please create a new NEAR account on",
   or_connect_another_ledger: 'or connect an another Ledger',
+  add: 'додати',
+  finish: 'Закінчити',
+  add_custom_network: 'Додати спеціальну мережу',
+  network_name: 'Назва мережі',
+  rpc_name_taken_tip: 'Назва мережі вже зайнята',
+  network_invalid: 'Мережа була недійсною',
+  fobidden_testnet_rpc_tip:
+    'Мережа сервера RPC (testnet) відрізняється від цієї мережі (mainnet)',
+  no_support_testnet_rpc_tip: 'Testnet не підтримує додавання власного RPC',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
