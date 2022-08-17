@@ -111,7 +111,7 @@ import { usePoolShare, useYourliquidity } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import Countdown, { zeroPad } from 'react-countdown';
-import { MoreButtonIcon } from '~components/icon/Common';
+import { MoreButtonIcon } from '../../components/icon/Common';
 
 import _ from 'lodash';
 
