@@ -149,7 +149,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       if (
         currentWallet.type === 'browser' ||
         module.type === 'hardware' ||
-        currentWallet.id === 'sender'
+        currentWallet.id === 'sender' ||
+        currentWallet.id === 'meteor-wallet'
       ) {
         await currentWallet.signOut();
       }
@@ -182,6 +183,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
 
       const message =
         err instanceof Error ? err.message : 'Something went wrong';
+
+      console.log(err);
 
       onError(new Error(`Failed to sign in with ${name}: ${message}`));
     }
