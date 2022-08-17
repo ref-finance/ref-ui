@@ -1836,6 +1836,14 @@
   resolved "https://registry.yarnpkg.com/@ledgerhq/logs/-/logs-6.10.0.tgz#c012c1ecc1a0e53d50e6af381618dca5268461c1"
   integrity sha512-lLseUPEhSFUXYTKj6q7s2O3s2vW2ebgA11vMAlKodXGf5AFw4zUoEbTz9CoFOC9jS6xY4Qr8BmRnxP/odT4Uuw==
 
+"@meteorwallet/sdk@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@meteorwallet/sdk/-/sdk-0.3.0.tgz#d8f17d780c646caa3b96d08142705160dcaa29b2"
+  integrity sha512-eoMcLItP7pabA7E5tNY265fypQAwcjn/Ev6l/8Ag3hyJ5L8rkS5A+WPCVnWZCaE5HmXZyuiXhp5HTtjlR8u8mg==
+  dependencies:
+    is-mobile "^3.1.1"
+    near-api-js "^0.44.2"
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
@@ -1851,6 +1859,13 @@
   dependencies:
     near-api-js "0.44.2"
     rxjs "~7.4.0"
+
+"@near-wallet-selector/core@6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-6.0.0.tgz#4686d804fa408de257e7449b3e7aa86244f83f64"
+  integrity sha512-sKyfN6NoKuNP3TjGUNkNfcFrLV03Ddh1C1zZ+30D137EMAUAmteWD+eNgHYuFiUmxdFba/9joHci/Vv+m1QIyg==
+  dependencies:
+    rxjs "^7.5.5"
 
 "@near-wallet-selector/ledger@5.0.2":
   version "5.0.2"
@@ -1877,6 +1892,15 @@
     is-mobile "^3.0.0"
     near-api-js "0.44.2"
     rxjs "~7.4.0"
+
+"@near-wallet-selector/meteor-wallet@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/meteor-wallet/-/meteor-wallet-6.0.0.tgz#44af01bb866353f88a9ea74d27070ef377ed0d87"
+  integrity sha512-ye5NRTqPNrPnzq8LbnMFaCtjbhHAcj9V8j5gXQd3gu/b0+aLjVn7PfTYtNrmcupoxCWx/pqGsTMgv9r8pqsWLg==
+  dependencies:
+    "@meteorwallet/sdk" "0.3.0"
+    "@near-wallet-selector/core" "6.0.0"
+    "@near-wallet-selector/wallet-utils" "6.0.0"
 
 "@near-wallet-selector/modal-ui@5.0.2":
   version "5.0.2"
@@ -1966,6 +1990,14 @@
     bn.js "^5.2.0"
     near-api-js "0.44.2"
     rxjs "~7.4.0"
+
+"@near-wallet-selector/wallet-utils@6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-utils/-/wallet-utils-6.0.0.tgz#d521eb66c6d8ad978e5dd911eac82f1a47e8d606"
+  integrity sha512-si2d7e6aKePJJDuh+Bmln0x6CHarePeZFBpMyXV/3JbyY4xHROhAh/NU77Bb/CE5N6JzG6r69qivHkJugTcVOA==
+  dependencies:
+    "@near-wallet-selector/core" "6.0.0"
+    bn.js "^5.2.0"
 
 "@nightlylabs/connect@0.0.23":
   version "0.0.23"
@@ -6437,7 +6469,7 @@ is-html@^1.1.0:
   dependencies:
     html-tags "^1.0.0"
 
-is-mobile@^3.0.0:
+is-mobile@^3.0.0, is-mobile@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/is-mobile/-/is-mobile-3.1.1.tgz#3b9e48f40068e4ea2da411f5009779844ce8d6aa"
   integrity sha512-RRoXXR2HNFxNkUnxtaBdGBXtFlUMFa06S0NUKf/LCF+MuGLu13gi9iBCkoEmc6+rpXuwi5Mso5V8Zf7mNynMBQ==
@@ -9704,6 +9736,13 @@ rxjs@6:
   integrity sha512-hTdwr+7yYNIT5n4AMYp85KA6yw2Va0FLa3Rguvbpa4W3I5xynaBZo41cM3XM+4Q6fRMj3sBYIR1VAmZMXYJvRQ==
   dependencies:
     tslib "^1.9.0"
+
+rxjs@^7.5.5:
+  version "7.5.6"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.5.6.tgz#0446577557862afd6903517ce7cae79ecb9662bc"
+  integrity sha512-dnyv2/YsXhnm461G+R/Pe5bWP41Nm6LBXEYWI6eiFP4fiwx6WRI/CD0zbdVAudd9xwLEF2IDcKXLHit0FYjUzw==
+  dependencies:
+    tslib "^2.1.0"
 
 rxjs@~7.4.0:
   version "7.4.0"

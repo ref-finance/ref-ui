@@ -22,6 +22,7 @@ const walletOfficialUrl = {
   Ledger: 'ledger.com',
   WalletConnect: 'walletconnect.com',
   MyNearWallet: 'mynearwallet.com',
+  'Meteor Wallet': 'wallet.meteorwallet.app',
 };
 
 const SelectedIcon = () => {
@@ -208,6 +209,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                 module.type === 'injected' && module.metadata.available;
 
               const isBeta = module.metadata.name === 'MyNearWallet';
+
+              console.log(module.metadata);
 
               result.push(
                 <li
