@@ -3225,8 +3225,8 @@ export const BoostFarmNoDataIcon = (props: any) => {
       <path
         d="M27.3154 12.099C28.7232 11.8476 29.1573 10.7529 31.1256 10.4878M59.8189 11.3063C58.6528 10.9474 57.3143 10.6796 55.8547 10.4878M31.1256 10.4878C29.6811 9.16657 23.9907 1 23.9907 1C23.9907 1 23.1979 8.13569 21.6124 14.4778C19.6897 22.1685 18.3752 31.4565 17.6488 35.8818C17.0611 39.4626 26.8068 40.8294 37.4675 41.432C39.7917 41.5633 41.4045 39.8283 43.8099 39.8464M31.1256 10.4878C38.039 9.55666 48.9578 9.58172 55.8547 10.4878M55.8547 10.4878L62.1968 1C62.1968 1 62.6563 8.20766 63.6291 12.099C65.2147 18.4412 68.3855 32.7115 69.971 39.8464C69.1783 39.0537 61.2449 41.0023 50.9446 41.432C48.3769 41.5391 46.4899 39.8666 43.8099 39.8464M43.8099 39.8464C43.8099 36.7505 43.8099 35.0147 43.8099 31.9188M43.8099 31.9188C41.1198 31.9188 41 33.5043 41 33.5043M43.8099 31.9188C46.5 31.9188 47 33.5043 47 33.5043"
         stroke="#7E8A93"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <circle
         cx="32.0712"
@@ -3234,7 +3234,7 @@ export const BoostFarmNoDataIcon = (props: any) => {
         r="6.34215"
         fill="black"
         stroke="#7E8A93"
-        stroke-linejoin="round"
+        strokeLinejoin="round"
       />
       <circle
         cx="55.8544"
@@ -3242,7 +3242,7 @@ export const BoostFarmNoDataIcon = (props: any) => {
         r="6.34215"
         fill="black"
         stroke="#7E8A93"
-        stroke-linejoin="round"
+        strokeLinejoin="round"
       />
       <g filter="url(#filter0_d_2265_237)">
         <path
@@ -3272,8 +3272,8 @@ export const BoostFarmNoDataIcon = (props: any) => {
         d="M100.889 70.7645C99.6206 64.4223 88.7332 61.2513 83.4481 60.4585L85.0336 69.179C86.3549 69.179 89.156 69.4961 89.7902 70.7645C90.583 72.35 85.8264 74.7283 81.8625 76.3139C77.8987 77.8994 80.277 83.4488 83.4481 84.2416C86.6191 85.0343 102.475 78.6922 100.889 70.7645Z"
         fill="#121B21"
         stroke="#7E8A93"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M79.7802 45.6792C81.5556 49.6738 85.8224 69.0759 84.3455 70.7879C80.4072 75.3531 60.9485 79.9183 44.9703 79.9183C26.1388 79.9183 9.58987 77.445 2.1714 72.4999C-1.25286 70.2172 3.73758 49.395 5.5955 45.6792C7.87816 41.114 22.2022 38.2607 42.6877 38.2607C63.1733 38.2607 77.4977 40.5433 79.7802 45.6792Z"
@@ -3295,8 +3295,8 @@ export const BoostFarmNoDataIcon = (props: any) => {
       <path
         d="M16.0626 44.3491C16.8133 44.5142 17.6123 44.6032 18.4409 44.6032C19.8344 44.6032 21.144 44.3515 22.2818 43.9095M16.0626 44.3491C12.8462 43.642 10.5132 41.5386 10.5132 39.0538C10.5132 35.9889 14.0625 33.5044 18.4409 33.5044C22.8192 33.5044 26.3686 35.9889 26.3686 39.0538C26.3686 41.1431 24.719 42.9628 22.2818 43.9095M16.0626 44.3491C15.7983 43.2777 15.2698 40.9961 15.2698 40.4411M22.2818 43.9095C22.2818 42.7534 22.2818 40.3024 22.2818 39.7474"
         stroke="#7E8A93"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M75.5204 39.0538C75.5204 41.1431 73.8709 42.9628 71.4337 43.9095C70.2958 44.3515 68.9863 44.6032 67.5927 44.6032C66.7641 44.6032 65.9652 44.5142 65.2144 44.3491C61.9981 43.642 59.665 41.5386 59.665 39.0538C59.665 35.9889 63.2144 33.5044 67.5927 33.5044C71.9711 33.5044 75.5204 35.9889 75.5204 39.0538Z"
@@ -3305,8 +3305,8 @@ export const BoostFarmNoDataIcon = (props: any) => {
       <path
         d="M65.2144 44.3491C65.9652 44.5142 66.7641 44.6032 67.5927 44.6032C68.9863 44.6032 70.2958 44.3515 71.4337 43.9095M65.2144 44.3491C61.9981 43.642 59.665 41.5386 59.665 39.0538C59.665 35.9889 63.2144 33.5044 67.5927 33.5044C71.9711 33.5044 75.5204 35.9889 75.5204 39.0538C75.5204 41.1431 73.8709 42.9628 71.4337 43.9095M65.2144 44.3491C64.9502 43.2777 64.4217 40.9961 64.4217 40.4411M71.4337 43.9095C71.4337 42.7534 71.4337 40.3024 71.4337 39.7474"
         stroke="#7E8A93"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <defs>
         <filter
@@ -3316,9 +3316,9 @@ export const BoostFarmNoDataIcon = (props: any) => {
           width="18.0986"
           height="18.0986"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -3351,9 +3351,9 @@ export const BoostFarmNoDataIcon = (props: any) => {
           width="19.6841"
           height="19.6841"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -3386,9 +3386,9 @@ export const BoostFarmNoDataIcon = (props: any) => {
           width="18.0986"
           height="18.0986"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -3421,9 +3421,9 @@ export const BoostFarmNoDataIcon = (props: any) => {
           width="19.6841"
           height="19.6841"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"

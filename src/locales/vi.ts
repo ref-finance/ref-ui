@@ -366,7 +366,7 @@ const vi = {
   stake_unstake_tip:
     'Staking hay unstaking sẽ tự động nhận phần thưởng của bạn.',
   over_tip:
-    'Để tối ưu hóa phí gas, bạn có thể rút tối đa 5 token cùng một lúc.',
+    'Để tối ưu hóa phí gas, bạn có thể rút tối đa 4 token cùng một lúc.',
   no_token_tip: 'Không có token thưởng',
   getToken_tip:
     'Bạn có thể nhận token thưởng hoặc  stake LP token của bạn ngay bây giờ!',
@@ -399,7 +399,7 @@ const vi = {
   rewards_claimed: 'Phần thưởng đã được nhận',
   value_rewards_token: 'Gía trị thưởng',
   all: 'Tất cả',
-  all_5: '5 tokens một lần',
+  all_5: '4 tokens một lần',
   insufficient_shares: 'Không đủ shares',
   shares_removed: 'Shares',
   shares_avaliable: 'Shares khả dụng',
@@ -589,6 +589,7 @@ const vi = {
   free: 'Free',
   claimed_Rewards: 'Nhận phần thưởng',
   all_5_v2: '5 tokens/lần',
+  all_4_v2: '4 tokens/lần',
   search_farms: 'Tìm kiếm farms',
   ended_Farms: 'Kết thúc Farms',
   your_power: 'Lực của bạn',
@@ -814,5 +815,14 @@ const vi = {
   your_apr: 'APR của bạn',
   range_apr: 'Xếp loại hoặc tham khảo APR',
   how_to_earn_more: 'Làm thế nào để gộp phần thưởng?',
+  add: 'cộng',
+  finish: 'Kết thúc',
+  add_custom_network: 'Thêm mạng tùy chỉnh',
+  network_name: 'Tên mạng',
+  rpc_name_taken_tip: 'Tên mạng đã được sử dụng',
+  network_invalid: 'Mạng không hợp lệ',
+  fobidden_testnet_rpc_tip:
+    'Mạng của máy chủ RPC (testnet) khác với mạng này (mainnet)',
+  no_support_testnet_rpc_tip: 'Testnet không hỗ trợ thêm RPC tùy chỉnh',
 };
 export default Object.assign(vi, vi_in_risks_page);
