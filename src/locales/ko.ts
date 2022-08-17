@@ -367,7 +367,7 @@ const ko = {
   value_rewards: '수령한 보상',
   stake_unstake_tip: '스테이킹 및 해제시 당신의 보상은 자동으로 수령됩니다',
   over_tip:
-    '가스 수수료를 최적화하려면 최대 5개씩 토큰을 인출하는 것이 바람직합니다.',
+    '가스 수수료를 최적화하려면 최대 4개씩 토큰을 인출하는 것이 바람직합니다.',
   no_token_tip: '보상 토큰 없음',
   getToken_tip:
     '보상 토큰을 수령하거나, 유동성 풀의 토큰을 스테이킹 할 수 있습니다!.',
@@ -399,7 +399,7 @@ const ko = {
   rewards_claimed: '수령된 보상',
   value_rewards_token: '보상액',
   all: '전부',
-  all_5: '한번에 최대 5토큰씩만',
+  all_5: '한번에 최대 4토큰씩만',
   insufficient_shares: '지분이 불충분함',
   shares_removed: '지분',
   shares_avaliable: '가능한 지분',
@@ -594,6 +594,7 @@ const ko = {
   expired: 'Expired',
   claimed_Rewards: '획득된 보상',
   all_5_v2: '타임당 5 토큰',
+  all_4_v2: '타임당 4 토큰',
   search_farms: '농장 검색',
   ended_Farms: '종료된 농장들',
   your_power: '당신의 "파워"',
@@ -805,5 +806,15 @@ const ko = {
   your_apr: '당신의 APR',
   range_apr: 'Range or reference APR',
   how_to_earn_more: '보상을 복리로 받는 법?',
+  add: '추가하다',
+  finish: '마치다',
+  add_custom_network: '사용자 지정 네트워크 추가',
+  network_name: '네트워크 이름',
+  rpc_name_taken_tip: '네트워크 이름은 이미 사용 중입니다',
+  network_invalid: '네트워크가 잘못되었습니다',
+  fobidden_testnet_rpc_tip:
+    'RPC 서버의 네트워크(테스트넷)가 이 네트워크(메인넷)와 다릅니다',
+  no_support_testnet_rpc_tip:
+    '테스트넷은 사용자 지정 RPC 추가를 지원하지 않습니다',
 };
 export default Object.assign(ko, ko_in_risks_page);

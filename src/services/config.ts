@@ -56,11 +56,31 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
       };
   }
 }
+export function getCustomConfig() {
+  let customRpcMapStr;
+  try {
+    customRpcMapStr = window.localStorage.getItem('customRpcList');
+  } catch (error) {}
+
+  let customRpcMap = {};
+  if (customRpcMapStr) {
+    try {
+      customRpcMap = JSON.parse(customRpcMapStr);
+    } catch (error) {}
+  }
+  return customRpcMap;
+}
 export default function getConfig(env: string = process.env.NEAR_ENV) {
-  const RPC_LIST = getExtendConfig().RPC_LIST;
+  const RPC_LIST_system = getExtendConfig().RPC_LIST;
+  const RPC_LIST_custom = getCustomConfig();
+  const RPC_LIST = Object.assign(RPC_LIST_system, RPC_LIST_custom);
   let endPoint = 'defaultRpc';
   try {
     endPoint = window.localStorage.getItem('endPoint') || endPoint;
+    if (!RPC_LIST[endPoint]) {
+      endPoint = 'defaultRpc';
+      localStorage.removeItem('endPoint');
+    }
   } catch (error) {}
   switch (env) {
     case 'production':
