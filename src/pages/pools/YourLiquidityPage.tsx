@@ -113,7 +113,6 @@ import {
   useDepositableBalance,
 } from '../../state/token';
 import { WarnTriangle } from '~components/icon';
-import { isSameStableClass } from '~components/swap/SwapCard';
 import { StableSwapLogo } from '~components/icon/StableSwap';
 import { GoodIcon } from '../../components/icon/Common';
 import { AddPoolModal } from './AddPoolPage';
@@ -521,7 +520,11 @@ export function YourLiquidityPage() {
                     .map((p, i) => {
                       return (
                         <RowRender
-                          shares={batchShares?.[i] || ''}
+                          shares={
+                            batchShares?.[
+                              pools.findIndex((p2) => p2.id === p.id)
+                            ] || ''
+                          }
                           p={p}
                           ids={p.token_account_ids}
                         />
@@ -578,7 +581,10 @@ export function YourLiquidityPage() {
               .map((p, i) => {
                 return (
                   <RowRenderMobile
-                    shares={batchShares?.[i] || ''}
+                    shares={
+                      batchShares?.[pools.findIndex((p2) => p2.id === p.id)] ||
+                      ''
+                    }
                     p={p}
                     ids={p.token_account_ids}
                   />
