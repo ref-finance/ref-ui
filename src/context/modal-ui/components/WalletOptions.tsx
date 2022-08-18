@@ -12,6 +12,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useClientMobile } from '../../../utils/device';
 import { ACCOUNT_ID_KEY } from '../../WalletSelectorContext';
 import { walletIcons } from '../../walletIcons';
+import { walletsRejectError } from '../../../utils/wallets-integration';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -154,7 +155,15 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       ) {
         await currentWallet.signOut();
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error.message);
+
+      if (walletsRejectError.includes(error.message)) {
+        // window.location.reload();
+        onError(error.message);
+        return;
+      }
+    }
 
     try {
       const { available } = module.metadata;
