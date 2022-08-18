@@ -20,6 +20,7 @@ export enum TRANSACTION_ERROR_TYPE {
   RATES_EXPIRED = 'Rates Expired',
   INTEGEROVERFLOW = 'Integer Overflow',
   SHARESUPPLYOVERFLOW = 'Share Supply Overflow',
+  TOKEN_FROZEN = 'Token Frozen',
 }
 
 const ERROR_PATTERN = {
@@ -28,6 +29,7 @@ const ERROR_PATTERN = {
   ratesExpiredErrorPattern: /Rates expired/i,
   integerOverflowErrorPattern: /Integer overflow/i,
   ShareSupplyOverflowErrorPattern: /shares_total_supply overflow/i,
+  tokenFrozenErrorPattern: /token frozen/i,
 };
 
 export enum TRANSACTION_STATE {
@@ -459,6 +461,13 @@ export const getErrorMessage = (res: any) => {
     }
   );
 
+  const isTokenFrozen = res.receipts_outcome.some((outcome: any) => {
+    return ERROR_PATTERN.tokenFrozenErrorPattern.test(
+      outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+        ?.ExecutionError
+    );
+  });
+
   if (isSlippageError) {
     return TRANSACTION_ERROR_TYPE.SLIPPAGE_VIOLATION;
   } else if (isInvalidAmountError) {
@@ -469,6 +478,8 @@ export const getErrorMessage = (res: any) => {
     return TRANSACTION_ERROR_TYPE.INTEGEROVERFLOW;
   } else if (isShareSupplyOerflowError) {
     return TRANSACTION_ERROR_TYPE.SHARESUPPLYOVERFLOW;
+  } else if (isTokenFrozen) {
+    return TRANSACTION_ERROR_TYPE.TOKEN_FROZEN;
   } else {
     return null;
   }
