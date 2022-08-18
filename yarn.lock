@@ -1960,15 +1960,13 @@
     near-api-js "0.44.2"
     rxjs "~7.4.0"
 
-"@near-wallet-selector/sender@5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/sender/-/sender-5.0.2.tgz#0cb8bb6d9e35f3bbf439f551095e923a43b6fbce"
-  integrity sha512-23CHIEf3FBkgJfA6daq2VsQOHf9yrSADGsd/JUwxAFy5cw+tGjDgfnWEkjejukCJtXKoa2Bvb4kgrxhQ1T5jlw==
+"@near-wallet-selector/sender@6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/sender/-/sender-6.0.0.tgz#734a6e4c52ec6d8280809fd91d69b45841593568"
+  integrity sha512-i5MF6W7PmZW3RMRCaSGee0mrCtPqaGx1/GuA3ydiu0pC208fuj9qG6g2Yw2C07mjKktsgtOSxLAnOCqkGUE0DQ==
   dependencies:
-    "@near-wallet-selector/core" "5.0.2"
-    is-mobile "^3.0.0"
-    near-api-js "0.44.2"
-    rxjs "~7.4.0"
+    "@near-wallet-selector/core" "6.0.0"
+    is-mobile "^3.1.1"
 
 "@near-wallet-selector/wallet-connect@5.0.2":
   version "5.0.2"

@@ -23,7 +23,10 @@ import {
 } from '../utils/wallets-integration';
 import { AccountView } from 'near-api-js/lib/providers/provider';
 import { addQueryParams } from '../utils/wallets-integration';
-import { TRANSACTION_WALLET_TYPE } from '../components/layout/transactionTipPopUp';
+import {
+  TRANSACTION_WALLET_TYPE,
+  failToastAccount,
+} from '../components/layout/transactionTipPopUp';
 
 const config = getConfig();
 
@@ -290,6 +293,8 @@ export const executeMultipleTransactions = async (
       console.log(e);
       if (walletsRejectError.includes(e.message)) {
         window.location.reload();
+      } else {
+        failToastAccount(e.message);
       }
     });
 };

@@ -186,6 +186,53 @@ export const failToast = (txHash: string, errorType?: string) => {
   );
 };
 
+export const failToastAccount = (errorMsg: string) => {
+  toast(
+    <a
+      className="text-error w-full h-full pl-1.5 py-1 flex flex-col text-sm"
+      href={`${
+        getConfig().explorerUrl
+      }/address/${getCurrentWallet()?.wallet?.getAccountId()}`}
+      target="_blank"
+      style={{
+        lineHeight: '20px',
+      }}
+    >
+      <span className=" flex items-center">
+        <span className="mr-2.5">
+          <ErrorTriangle />
+        </span>
+
+        <span>
+          <FormattedMessage
+            id="transaction_failed"
+            defaultMessage="Transaction failed"
+          />
+          {'. '}
+        </span>
+      </span>
+
+      <span>{errorMsg}</span>
+    </a>,
+    {
+      autoClose: false,
+      closeOnClick: true,
+      hideProgressBar: false,
+      closeButton: <CloseIcon />,
+      progressStyle: {
+        background: '#FF7575',
+        borderRadius: '8px',
+      },
+      style: {
+        background: '#1D2932',
+        boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+        border: '1px solid #FF7575',
+        borderRadius: '8px',
+      },
+    }
+  );
+};
+
 export const checkAccountTip = () => {
   toast(
     <span
