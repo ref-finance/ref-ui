@@ -341,6 +341,8 @@ export const refFarmFunctionCall = async ({
 
             if (walletsRejectError.includes(e.message)) {
               window.location.reload();
+            } else {
+              failToastAccount(e.message);
             }
           });
       });
@@ -365,6 +367,8 @@ export const refFarmFunctionCall = async ({
         console.log(e);
         if (walletsRejectError.includes(e.message)) {
           window.location.reload();
+        } else {
+          failToastAccount(e.message);
         }
       });
   }
@@ -485,6 +489,8 @@ export const refFarmBoostFunctionCall = async ({
 
             if (walletsRejectError.includes(e.message)) {
               window.location.reload();
+            } else {
+              failToastAccount(e.message);
             }
           });
       });
@@ -509,6 +515,8 @@ export const refFarmBoostFunctionCall = async ({
         console.log(e);
         if (walletsRejectError.includes(e.message)) {
           window.location.reload();
+        } else {
+          failToastAccount(e.message);
         }
       });
   }
