@@ -107,7 +107,6 @@
   bottom: 0;
   left: 0;
   background: linear-gradient(135deg, #00ffd1 0%, #933eff 100%);
-  /* transform: translate3d(0px, 0px, 0) scale(0.95); */
   filter: blur(30px);
   opacity: 0.5;
   transition: opacity 0.3s;
@@ -144,6 +143,15 @@
   padding-right: 28px;
   font-size: 16px;
   line-height: 1.6;
+  border: solid 1px transparent;
+  background-image: linear-gradient(var(--content-bg), var(--content-bg)),
+    linear-gradient(
+      135deg,
+      rgba(0, 255, 209, 0.2) 0%,
+      rgba(147, 62, 255, 0.2) 100%
+    );
+  background-origin: border-box;
+  background-clip: content-box, border-box;
 }
 
 .nws-modal-wrapper .modal {
