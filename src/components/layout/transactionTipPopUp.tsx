@@ -213,7 +213,12 @@ export const failToastAccount = (errorMsg: string) => {
           {'. '}
         </span>
       </span>
-      <span>
+      <span
+        className="underline"
+        style={{
+          textDecorationThickness: '1px',
+        }}
+      >
         <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
       </span>
     </a>,
