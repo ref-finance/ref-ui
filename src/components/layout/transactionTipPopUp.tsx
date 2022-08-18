@@ -213,8 +213,9 @@ export const failToastAccount = (errorMsg: string) => {
           {'. '}
         </span>
       </span>
-
-      <span>{errorMsg}</span>
+      <span>
+        <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
+      </span>
     </a>,
     {
       autoClose: false,
