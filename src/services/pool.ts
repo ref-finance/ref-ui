@@ -455,8 +455,6 @@ export const canFarms = async ({
       return pre;
     }, 0);
 
-    console.log(pool_id, countV1, countV2);
-
     return {
       count: countV2 > 0 ? countV2 : countV1,
       version: countV2 > 0 ? 'V2' : 'V1',

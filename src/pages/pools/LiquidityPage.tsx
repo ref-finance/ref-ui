@@ -1245,7 +1245,7 @@ export function LiquidityPage() {
   });
 
   const [farmOnly, setFarmOnly] = useState<boolean>(
-    !!localStorage.getItem(REF_FI_FARM_ONLY) || false
+    localStorage.getItem(REF_FI_FARM_ONLY) === '1' || false
   );
 
   const [farmCounts, setFarmCounts] = useState<Record<string, number>>({});
@@ -1268,10 +1268,10 @@ export function LiquidityPage() {
       tempPools = _.filter(tempPools, (pool) => pool.tvl > 1000);
     }
     if (farmOnly) {
-      tempPools = _.filter(tempPools, (pool) => farmCounts[pool.id] > 0);
+      tempPools = _.filter(tempPools, (pool) => !!farmCounts[pool.id]);
     }
     setDisplayPools(tempPools);
-  }, [pools, hideLowTVL, farmOnly]);
+  }, [pools, hideLowTVL, farmOnly, farmCounts]);
   const poolTokenMetas = usePoolTokens(pools);
 
   const onSearch = useCallback(
@@ -1316,7 +1316,10 @@ export function LiquidityPage() {
           farmCounts={farmCounts}
           hideLowTVL={hideLowTVL}
           farmOnly={farmOnly}
-          setFarmOnly={setFarmOnly}
+          setFarmOnly={(farmOnly: boolean) => {
+            setFarmOnly(farmOnly);
+            localStorage.setItem(REF_FI_FARM_ONLY, farmOnly ? '1' : '0');
+          }}
           watchPools={watchPools}
           order={order}
           sortBy={sortBy}
@@ -1342,7 +1345,10 @@ export function LiquidityPage() {
           sortBy={sortBy}
           farmCounts={farmCounts}
           farmOnly={farmOnly}
-          setFarmOnly={setFarmOnly}
+          setFarmOnly={(farmOnly: boolean) => {
+            setFarmOnly(farmOnly);
+            localStorage.setItem(REF_FI_FARM_ONLY, farmOnly ? '1' : '0');
+          }}
           onOrderChange={setOrder}
           onSortChange={setSortBy}
           onHide={(isHide) => {
