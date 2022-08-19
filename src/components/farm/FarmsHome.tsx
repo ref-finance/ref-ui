@@ -2043,14 +2043,17 @@ function FarmView(props: {
     user_unclaimed_token_meta_map,
     maxLoveShareAmount,
   } = props;
-  const { pool, seedTvl, total_seed_amount, seed_id, farmList } = seed;
+  const { pool, seedTvl, total_seed_amount, seed_id, farmList, seed_decimal } =
+    seed;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const [claimLoading, setClaimLoading] = useState(false);
   const [calcVisible, setCalcVisible] = useState(false);
   const [error, setError] = useState<Error>();
   const [aprSwitchStatus, setAprSwitchStatus] = useState('1');
+  const [lpSwitchStatus, setLpSwitchStatus] = useState('1');
   const [yourApr, setYourApr] = useState('');
+  const [yourTvl, setYourTvl] = useState('');
   const [yourActualAprRate, setYourActualAprRate] = useState('1');
   const tokens = seed.pool.tokens_meta_data;
   const unClaimedTokens = useTokens(
@@ -2062,6 +2065,25 @@ function FarmView(props: {
     const yourApr = getYourApr();
     if (yourApr) {
       setYourApr(yourApr);
+    }
+    const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
+    const yourLp = toReadableNumber(
+      seed_decimal,
+      new BigNumber(free_amount || 0).plus(locked_amount || 0).toFixed()
+    );
+    const { tvl, id, shares_total_supply } = pool;
+    const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
+      ? LP_STABLE_TOKEN_DECIMALS
+      : LP_TOKEN_DECIMALS;
+    const poolShares = Number(toReadableNumber(DECIMALS, shares_total_supply));
+    const yourTvl =
+      poolShares == 0
+        ? 0
+        : Number(
+            toPrecision(((Number(yourLp) * tvl) / poolShares).toString(), 2)
+          );
+    if (yourTvl) {
+      setYourTvl(yourTvl.toString());
     }
   }, [boostConfig, user_seeds_map]);
   function getTotalApr(containPoolFee: boolean = true) {
@@ -2264,6 +2286,108 @@ function FarmView(props: {
       result += itemHtml;
     });
     return result;
+  }
+  function getYourTvlTip() {
+    const txt1 = intl.formatMessage({ id: 'you_staked' });
+    const txt2 = intl.formatMessage({ id: 'total_staked' });
+    const txt3 = intl.formatMessage({ id: 'booster' });
+    const txt4 = intl.formatMessage({ id: 'your_power' });
+    const boost = getBoostValue();
+    let result: string = '';
+    result = `
+    <div class="flex items-center justify-between mb-1.5">
+      <span class="text-xs text-farmText mr-3">${txt1}</span>
+      <span class="text-xs text-white">${
+        Number(yourTvl) == 0
+          ? '-'
+          : `$${toInternationalCurrencySystem(yourTvl, 2)}`
+      }</span>
+    </div>
+    <div class="flex items-center justify-between mb-1.5">
+      <span class="text-xs text-farmText mr-3">${txt2}</span>
+      <span class="text-xs text-white">${
+        Number(seed.seedTvl) == 0
+          ? '-'
+          : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`
+      }</span>
+    </div>
+    <div class="flex items-center justify-between mb-1.5 ${
+      boost ? '' : 'hidden'
+    }">
+      <span class="text-xs text-farmText mr-3">${txt3}</span>
+      <span class="text-xs text-white">x${boost}</span>
+    </div>
+    <div class="flex items-center justify-between mb-1.5">
+      <span class="text-xs text-farmText mr-3">${txt4}</span>
+      <span class="text-xs text-white">${showLpPower()}${getUserLpPercent()}</span>
+    </div>
+    `;
+    return result;
+  }
+  function showLpPower() {
+    const power = getUserPower();
+    const powerBig = new BigNumber(power);
+    if (powerBig.isEqualTo(0)) {
+      return <label className="opacity-50">{isSignedIn ? 0.0 : '-'}</label>;
+    } else if (powerBig.isLessThan('0.001')) {
+      return '<0.001';
+    } else {
+      return formatWithCommas(toPrecision(power, 3));
+    }
+  }
+  function getUserLpPercent() {
+    let result = '(-%)';
+    const { total_seed_power } = seed;
+    const userPower = getUserPower();
+    const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
+      ? LP_STABLE_TOKEN_DECIMALS
+      : LP_TOKEN_DECIMALS;
+    if (+total_seed_power && +userPower) {
+      const totalAmount = toReadableNumber(DECIMALS, total_seed_power);
+      const percent = new BigNumber(userPower)
+        .dividedBy(totalAmount)
+        .multipliedBy(100);
+      if (percent.isLessThan('0.001')) {
+        result = '(<0.001%)';
+      } else {
+        result = `(${toPrecision(percent.toFixed().toString(), 3)}%)`;
+      }
+    }
+    return result;
+  }
+  function getUserPower() {
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
+    const DECIMALS = new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())
+      ? LP_STABLE_TOKEN_DECIMALS
+      : LP_TOKEN_DECIMALS;
+    const { free_amount = '0', x_locked_amount = '0' } =
+      user_seeds_map[seed.seed_id] || {};
+    let realRadio;
+    const { affected_seeds = {} } = boostConfig || {};
+    const { seed_id } = seed;
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
+    const base = affected_seeds[seed_id];
+    if (base && loveSeed) {
+      const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
+      const totalStakeLoveAmount = toReadableNumber(
+        LOVE_TOKEN_DECIMAL,
+        new BigNumber(free_amount).plus(locked_amount).toFixed()
+      );
+      if (+totalStakeLoveAmount > 0) {
+        if (+totalStakeLoveAmount < 1) {
+          realRadio = 1;
+        } else {
+          realRadio = new BigNumber(1)
+            .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+            .toFixed();
+        }
+      }
+    }
+    const powerBig = new BigNumber(+(realRadio || 1))
+      .multipliedBy(free_amount)
+      .plus(x_locked_amount);
+    const power = toReadableNumber(DECIMALS, powerBig.toFixed(0).toString());
+    return power;
   }
   function getPoolFeeApr(dayVolume: string) {
     let result = '0';
@@ -2626,6 +2750,8 @@ function FarmView(props: {
     return start_at[0];
   }
   function isInMonth() {
+    const endedStatus = isEnded();
+    if (endedStatus) return false;
     const result = farmList.find((farm: FarmBoost) => {
       const start_at = farm?.terms?.start_at;
       if (start_at == 0) return true;
@@ -2641,6 +2767,45 @@ function FarmView(props: {
     });
     if (result) return true;
     return false;
+  }
+  function switchLp(e: any) {
+    e.stopPropagation();
+    if (+lpSwitchStatus == 1) {
+      setLpSwitchStatus('2');
+    } else {
+      setLpSwitchStatus('1');
+    }
+  }
+  function getBoostValue() {
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
+    const { affected_seeds = {} } = boostConfig || {};
+    const { seed_id } = seed;
+    const user_seed = user_seeds_map[seed_id] || {};
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
+    const base = affected_seeds[seed_id];
+    const hasUserStaked = Object.keys(user_seed).length;
+    if (base && loveSeed) {
+      const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
+      const totalStakeLoveAmount = toReadableNumber(
+        LOVE_TOKEN_DECIMAL,
+        new BigNumber(free_amount).plus(locked_amount).toFixed()
+      );
+      if (+totalStakeLoveAmount > 0) {
+        let result;
+        if (+totalStakeLoveAmount < 1) {
+          result = 1;
+        } else {
+          result = new BigNumber(1)
+            .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+            .toFixed(2);
+        }
+        if (hasUserStaked) return toPrecision(result.toString(), 2);
+        return 1;
+      } else {
+        return 1;
+      }
+    }
+    return '';
   }
   const isHaveUnclaimedReward = haveUnclaimedReward();
   const aprUpLimit = getAprUpperLimit();
@@ -2738,19 +2903,66 @@ function FarmView(props: {
           </div>
           <div className="flex items-center justify-between px-5 py-4 h-24">
             <div className="flex flex-col items-center flex-shrink-0">
-              <label
-                className="text-farmText text-sm"
-                style={{ maxWidth: '130px' }}
-              >
-                <FormattedMessage id="total_staked"></FormattedMessage>
-              </label>
-              <label className="text-white text-base mt-1.5">
-                {`${
-                  Number(seed.seedTvl) == 0
+              {yourTvl ? (
+                <div className="flex items-center">
+                  <label
+                    onClick={switchLp}
+                    className={`text-sm cursor-pointer ${
+                      +lpSwitchStatus == 1 ? 'text-white' : 'text-farmText'
+                    }`}
+                  >
+                    Yours
+                  </label>
+                  <label className="text-farmText text-sm">/</label>
+                  <label
+                    onClick={switchLp}
+                    className={`text-sm cursor-pointer ${
+                      +lpSwitchStatus == 1 ? 'text-farmText' : 'text-white'
+                    }`}
+                  >
+                    Total
+                  </label>
+                </div>
+              ) : (
+                <label
+                  className="text-farmText text-sm"
+                  style={{ maxWidth: '130px' }}
+                >
+                  <FormattedMessage id="total_staked"></FormattedMessage>
+                </label>
+              )}
+
+              {yourTvl ? (
+                <div
+                  className="text-xl text-white"
+                  data-type="info"
+                  data-place="top"
+                  data-multiline={true}
+                  data-tip={getYourTvlTip()}
+                  data-html={true}
+                  data-for={'yourTvlId' + seed.farmList[0].farm_id}
+                  data-class="reactTip"
+                >
+                  <label className="text-white text-base mt-1.5">
+                    {+lpSwitchStatus == 1
+                      ? toInternationalCurrencySystem(yourTvl, 2)
+                      : toInternationalCurrencySystem(seed.seedTvl, 2)}
+                  </label>
+                  <ReactTooltip
+                    id={'yourTvlId' + seed.farmList[0].farm_id}
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
+                </div>
+              ) : (
+                <label className="text-white text-base mt-1.5">
+                  {Number(seed.seedTvl) == 0
                     ? '-'
-                    : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`
-                }`}
-              </label>
+                    : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`}
+                </label>
+              )}
             </div>
             <div
               className={`flex flex-col ${
