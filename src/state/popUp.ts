@@ -12,11 +12,14 @@ import {
 import { senderSignedInToast } from '../components/layout/senderSignInPopUp';
 import { removeSenderLoginRes } from '../utils/wallets-integration';
 import { NEAR_WITHDRAW_KEY } from '../components/forms/WrapNear';
+import { failToastAccount } from '../components/layout/transactionTipPopUp';
 
 export const useGlobalPopUp = (globalState: any) => {
   const { txHash, pathname, errorType, signInErrorType, txHashes } =
     getURLInfo();
   const isSignedIn = globalState.isSignedIn;
+
+  const isWalletsTXError = !!sessionStorage.getItem('WALLETS_TX_ERROR');
 
   useEffect(() => {
     if (txHash && isSignedIn) {
@@ -110,4 +113,11 @@ export const useGlobalPopUp = (globalState: any) => {
     }
   }, [txHash, isSignedIn]);
   // for usn end
+
+  useEffect(() => {
+    if (isWalletsTXError) {
+      failToastAccount();
+      sessionStorage.removeItem('WALLETS_TX_ERROR');
+    }
+  }, [isWalletsTXError]);
 };

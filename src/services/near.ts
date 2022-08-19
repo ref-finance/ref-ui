@@ -291,11 +291,11 @@ export const executeMultipleTransactions = async (
     })
     .catch((e: Error) => {
       console.log(e);
-      if (walletsRejectError.includes(e.message)) {
-        window.location.reload();
-      } else {
-        failToastAccount(e.message);
+      if (!walletsRejectError.includes(e.message)) {
+        sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
       }
+
+      window.location.reload();
     });
 };
 
@@ -338,12 +338,11 @@ export const refFarmFunctionCall = async ({
           })
           .catch((e: Error) => {
             console.log(e);
-
-            if (walletsRejectError.includes(e.message)) {
-              window.location.reload();
-            } else {
-              failToastAccount(e.message);
+            if (!walletsRejectError.includes(e.message)) {
+              sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
             }
+
+            window.location.reload();
           });
       });
   } else {
@@ -365,11 +364,11 @@ export const refFarmFunctionCall = async ({
       })
       .catch((e: Error) => {
         console.log(e);
-        if (walletsRejectError.includes(e.message)) {
-          window.location.reload();
-        } else {
-          failToastAccount(e.message);
+        if (!walletsRejectError.includes(e.message)) {
+          sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
         }
+
+        window.location.reload();
       });
   }
 };
@@ -486,12 +485,11 @@ export const refFarmBoostFunctionCall = async ({
           })
           .catch((e: Error) => {
             console.log(e);
-
-            if (walletsRejectError.includes(e.message)) {
-              window.location.reload();
-            } else {
-              failToastAccount(e.message);
+            if (!walletsRejectError.includes(e.message)) {
+              sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
             }
+
+            window.location.reload();
           });
       });
   } else {
@@ -513,11 +511,12 @@ export const refFarmBoostFunctionCall = async ({
       })
       .catch((e: Error) => {
         console.log(e);
-        if (walletsRejectError.includes(e.message)) {
-          window.location.reload();
-        } else {
-          failToastAccount(e.message);
+        console.log(e);
+        if (!walletsRejectError.includes(e.message)) {
+          sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
         }
+
+        window.location.reload();
       });
   }
 };

@@ -188,7 +188,7 @@ export const failToast = (txHash: string, errorType?: string) => {
   );
 };
 
-export const failToastAccount = (errorMsg: string) => {
+export const failToastAccount = (errorMsg?: string) => {
   toast(
     <a
       className="text-error w-full h-full pl-1.5 py-1 flex flex-col text-sm"
