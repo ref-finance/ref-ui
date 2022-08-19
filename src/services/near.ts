@@ -22,7 +22,10 @@ import {
   WALLET_TYPE,
 } from '../utils/wallets-integration';
 import { AccountView } from 'near-api-js/lib/providers/provider';
-import { addQueryParams } from '../utils/wallets-integration';
+import {
+  addQueryParams,
+  extraWalletsError,
+} from '../utils/wallets-integration';
 import {
   TRANSACTION_WALLET_TYPE,
   failToastAccount,
@@ -291,7 +294,15 @@ export const executeMultipleTransactions = async (
     })
     .catch((e: Error) => {
       console.log(e);
-      if (!walletsRejectError.includes(e.message)) {
+
+      if (extraWalletsError.includes(e.message)) {
+        return;
+      }
+
+      if (
+        !walletsRejectError.includes(e.message) &&
+        !extraWalletsError.includes(e.message)
+      ) {
         sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
       }
 
@@ -338,7 +349,15 @@ export const refFarmFunctionCall = async ({
           })
           .catch((e: Error) => {
             console.log(e);
-            if (!walletsRejectError.includes(e.message)) {
+
+            if (extraWalletsError.includes(e.message)) {
+              return;
+            }
+
+            if (
+              !walletsRejectError.includes(e.message) &&
+              !extraWalletsError.includes(e.message)
+            ) {
               sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
             }
 
@@ -364,7 +383,15 @@ export const refFarmFunctionCall = async ({
       })
       .catch((e: Error) => {
         console.log(e);
-        if (!walletsRejectError.includes(e.message)) {
+
+        if (extraWalletsError.includes(e.message)) {
+          return;
+        }
+
+        if (
+          !walletsRejectError.includes(e.message) &&
+          !extraWalletsError.includes(e.message)
+        ) {
           sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
         }
 
@@ -485,7 +512,15 @@ export const refFarmBoostFunctionCall = async ({
           })
           .catch((e: Error) => {
             console.log(e);
-            if (!walletsRejectError.includes(e.message)) {
+
+            if (extraWalletsError.includes(e.message)) {
+              return;
+            }
+
+            if (
+              !walletsRejectError.includes(e.message) &&
+              !extraWalletsError.includes(e.message)
+            ) {
               sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
             }
 
@@ -512,7 +547,15 @@ export const refFarmBoostFunctionCall = async ({
       .catch((e: Error) => {
         console.log(e);
         console.log(e);
-        if (!walletsRejectError.includes(e.message)) {
+
+        if (extraWalletsError.includes(e.message)) {
+          return;
+        }
+
+        if (
+          !walletsRejectError.includes(e.message) &&
+          !extraWalletsError.includes(e.message)
+        ) {
           sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
         }
 

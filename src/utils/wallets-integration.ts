@@ -34,6 +34,10 @@ export const walletsRejectError = [
   'User closed the window before completing the action',
 ];
 
+export const extraWalletsError = [
+  "Couldn't open popup window to complete wallet action",
+];
+
 export const getSenderLoginRes = () => {
   return localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
 };
