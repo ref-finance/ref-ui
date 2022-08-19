@@ -467,9 +467,9 @@ const en_US = {
   check_the_transaction_settings: 'Check the transaction settings',
   filter_by: 'Filter by',
   allOption: 'All',
-  stablecoin: 'Stablecoin',
-  near_ecosystem: 'Near ecosystem',
-  bridged_tokens: 'Bridged tokens',
+  stablecoin: 'Stable',
+  near_ecosystem: 'Near-eco',
+  bridged_tokens: 'Bridged',
   gaming: 'Gaming',
   nft: 'NFT',
   bridge: 'Bridge to/from',
@@ -848,5 +848,6 @@ const en_US = {
   fobidden_testnet_rpc_tip:
     "RPC server's network (testnet) is different with this network(mainnet)",
   no_support_testnet_rpc_tip: 'Testnet does not support adding custom RPC',
+  farm_only: 'Farm only',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

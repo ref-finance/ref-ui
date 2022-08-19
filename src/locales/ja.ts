@@ -856,5 +856,6 @@ const ja = {
     'RPC サーバーのネットワーク (テストネット) は、このネットワーク (メインネット) とは異なります',
   no_support_testnet_rpc_tip:
     'Testnet はカスタム RPC の追加をサポートしていません',
+  farm_only: '農場のみ',
 };
 export default Object.assign(ja, ja_in_risks_page);

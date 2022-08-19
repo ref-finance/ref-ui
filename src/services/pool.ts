@@ -423,6 +423,56 @@ export const canFarm = async (
     version: countV2 > 0 ? 'V2' : 'V1',
   };
 };
+
+export const canFarms = async ({
+  pool_ids,
+  withEnded,
+}: {
+  pool_ids: number[];
+  withEnded?: boolean;
+}) => {
+  let farms: any;
+  let boostFarms: any;
+
+  if (!withEnded) {
+    farms = (await db.queryFarms()).filter((farm) => farm.status !== 'Ended');
+    boostFarms = (await db.queryBoostFarms()).filter(
+      (farm) => farm.status !== 'Ended'
+    );
+  } else {
+    farms = await db.queryFarms();
+    boostFarms = await db.queryBoostFarms();
+  }
+
+  const getCounts = (pool_id: number) => {
+    const countV1 = farms.reduce((pre: any, cur: any) => {
+      if (Number(cur.pool_id) === pool_id) return pre + 1;
+      return pre;
+    }, 0);
+
+    const countV2 = boostFarms.reduce((pre: any, cur: any) => {
+      if (Number(cur.pool_id) === pool_id) return pre + 1;
+      return pre;
+    }, 0);
+
+    console.log(pool_id, countV1, countV2);
+
+    return {
+      count: countV2 > 0 ? countV2 : countV1,
+      version: countV2 > 0 ? 'V2' : 'V1',
+    };
+  };
+
+  return pool_ids
+    .map((pool_id) => getCounts(pool_id).count)
+    .reduce((acc, cur, i) => {
+      return {
+        ...acc,
+        [pool_ids[i]]: cur,
+      };
+    }, {}) as Record<string, number>;
+};
+
 export const canFarmV1 = async (
   pool_id: number,
   withEnded?: boolean
