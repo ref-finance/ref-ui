@@ -28,6 +28,7 @@ import {
   BoostFarmBannerImg,
   BoostFarmNoDataIcon,
   BoostDotIcon,
+  NewTag,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -2042,7 +2043,7 @@ function FarmView(props: {
     user_unclaimed_token_meta_map,
     maxLoveShareAmount,
   } = props;
-  const { pool, seedTvl, total_seed_amount, seed_id } = seed;
+  const { pool, seedTvl, total_seed_amount, seed_id, farmList } = seed;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const [claimLoading, setClaimLoading] = useState(false);
@@ -2624,6 +2625,23 @@ function FarmView(props: {
     });
     return start_at[0];
   }
+  function isInMonth() {
+    const result = farmList.find((farm: FarmBoost) => {
+      const start_at = farm?.terms?.start_at;
+      if (start_at == 0) return true;
+      const one_month_seconds = 30 * 24 * 60 * 60;
+      const currentA = new Date().getTime();
+      const compareB = new BigNumber(start_at)
+        .plus(one_month_seconds)
+        .multipliedBy(1000);
+      const compareResult = compareB.minus(currentA);
+      if (compareResult.isGreaterThan(0)) {
+        return true;
+      }
+    });
+    if (result) return true;
+    return false;
+  }
   const isHaveUnclaimedReward = haveUnclaimedReward();
   const aprUpLimit = getAprUpperLimit();
   return (
@@ -2705,15 +2723,18 @@ function FarmView(props: {
             <div className="flex items-center justify-between">
               {error ? <Alert level="warn" message={error.message} /> : null}
             </div>
-            {isPending() ? (
-              <div className="flex flex-col absolute left-2.5 top-2 text-purpleColor text-xs bg-lightPurpleColor rounded-lg px-2 py-0.5">
-                <FormattedMessage id="comimg" defaultMessage="COMING" />
-                <Countdown
-                  date={moment.unix(getStartTime()).valueOf()}
-                  renderer={renderer}
-                />
-              </div>
-            ) : null}
+            <div className="flex flex-col absolute left-2.5 top-2">
+              {isPending() ? (
+                <div className="flex flex-col text-purpleColor text-xs bg-lightPurpleColor rounded-lg px-2 py-0.5">
+                  <FormattedMessage id="comimg" defaultMessage="COMING" />
+                  <Countdown
+                    date={moment.unix(getStartTime()).valueOf()}
+                    renderer={renderer}
+                  />
+                </div>
+              ) : null}
+              {isInMonth() ? <NewTag></NewTag> : null}
+            </div>
           </div>
           <div className="flex items-center justify-between px-5 py-4 h-24">
             <div className="flex flex-col items-center flex-shrink-0">
