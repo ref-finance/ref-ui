@@ -2126,9 +2126,11 @@ function UserStakeBlock(props: {
   const [stakeType, setStakeType] = useState('');
   const [unStakeType, setUnStakeType] = useState('');
   const [serverTime, setServerTime] = useState<number>();
+  const [yourTvl, setYourTvl] = useState('');
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const { pool, min_locking_duration_sec, slash_rate, seed_id } = detailData;
+  const { pool, min_locking_duration_sec, slash_rate, seed_id, seed_decimal } =
+    detailData;
   const {
     free_amount = '0',
     locked_amount = '0',
@@ -2160,6 +2162,28 @@ function UserStakeBlock(props: {
   useEffect(() => {
     get_server_time();
   }, []);
+  useEffect(() => {
+    const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
+    const yourLp = toReadableNumber(
+      seed_decimal,
+      new BigNumber(free_amount || 0).plus(locked_amount || 0).toFixed()
+    );
+    const { tvl, id, shares_total_supply } = pool;
+    const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
+      ? LP_STABLE_TOKEN_DECIMALS
+      : LP_TOKEN_DECIMALS;
+    const poolShares = Number(toReadableNumber(DECIMALS, shares_total_supply));
+    const yourTvl =
+      poolShares == 0
+        ? 0
+        : Number(
+            toPrecision(((Number(yourLp) * tvl) / poolShares).toString(), 2)
+          );
+    if (yourTvl) {
+      setYourTvl(yourTvl.toString());
+    }
+  }, [Object.keys(user_seeds_map || {})]);
+
   const get_server_time = async () => {
     const timestamp = await getServerTime();
     setServerTime(timestamp);
@@ -2470,7 +2494,13 @@ function UserStakeBlock(props: {
             data-html={true}
             data-tip={getPowerDetail()}
           >
-            {showLpPower()}
+            <div className="flex items-center">
+              <span>{showLpPower()}</span>
+              <span className="text-sm text-primaryText ml-1.5">
+                {getUserLpPercent()}
+              </span>
+            </div>
+
             <ReactTooltip
               id="powerDetailId"
               backgroundColor="#1D2932"
@@ -2481,8 +2511,15 @@ function UserStakeBlock(props: {
           </div>
         </div>
       </div>
-      <div className="flex justify-end items-center">
-        <span className="text-sm text-primaryText">{getUserLpPercent()}</span>
+      <div className="flex justify-between items-center mt-4">
+        <span className="text-sm text-primaryText">
+          <FormattedMessage id="value"></FormattedMessage>
+        </span>
+        <span className="text-base text-white">
+          {Number(yourTvl) == 0
+            ? '-'
+            : '$' + toInternationalCurrencySystem(yourTvl, 2)}
+        </span>
       </div>
       <div
         className={`stakeEntryArea ${

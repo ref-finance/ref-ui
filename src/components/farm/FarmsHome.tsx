@@ -28,6 +28,7 @@ import {
   BoostFarmBannerImg,
   BoostFarmNoDataIcon,
   BoostDotIcon,
+  NewTag,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -2042,13 +2043,15 @@ function FarmView(props: {
     user_unclaimed_token_meta_map,
     maxLoveShareAmount,
   } = props;
-  const { pool, seedTvl, total_seed_amount, seed_id } = seed;
+  const { pool, seedTvl, total_seed_amount, seed_id, farmList, seed_decimal } =
+    seed;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const [claimLoading, setClaimLoading] = useState(false);
   const [calcVisible, setCalcVisible] = useState(false);
   const [error, setError] = useState<Error>();
   const [aprSwitchStatus, setAprSwitchStatus] = useState('1');
+  const [lpSwitchStatus, setLpSwitchStatus] = useState('1');
   const [yourApr, setYourApr] = useState('');
   const [yourActualAprRate, setYourActualAprRate] = useState('1');
   const tokens = seed.pool.tokens_meta_data;
@@ -2624,6 +2627,64 @@ function FarmView(props: {
     });
     return start_at[0];
   }
+  function isInMonth() {
+    const endedStatus = isEnded();
+    if (endedStatus) return false;
+    const result = farmList.find((farm: FarmBoost) => {
+      const start_at = farm?.terms?.start_at;
+      if (start_at == 0) return true;
+      const one_month_seconds = 15 * 24 * 60 * 60;
+      const currentA = new Date().getTime();
+      const compareB = new BigNumber(start_at)
+        .plus(one_month_seconds)
+        .multipliedBy(1000);
+      const compareResult = compareB.minus(currentA);
+      if (compareResult.isGreaterThan(0)) {
+        return true;
+      }
+    });
+    if (result) return true;
+    return false;
+  }
+  function switchLp(e: any) {
+    e.stopPropagation();
+    if (+lpSwitchStatus == 1) {
+      setLpSwitchStatus('2');
+    } else {
+      setLpSwitchStatus('1');
+    }
+  }
+  function getBoostValue() {
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
+    const { affected_seeds = {} } = boostConfig || {};
+    const { seed_id } = seed;
+    const user_seed = user_seeds_map[seed_id] || {};
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
+    const base = affected_seeds[seed_id];
+    const hasUserStaked = Object.keys(user_seed).length;
+    if (base && loveSeed) {
+      const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
+      const totalStakeLoveAmount = toReadableNumber(
+        LOVE_TOKEN_DECIMAL,
+        new BigNumber(free_amount).plus(locked_amount).toFixed()
+      );
+      if (+totalStakeLoveAmount > 0) {
+        let result;
+        if (+totalStakeLoveAmount < 1) {
+          result = 1;
+        } else {
+          result = new BigNumber(1)
+            .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+            .toFixed(2);
+        }
+        if (hasUserStaked) return toPrecision(result.toString(), 2);
+        return 1;
+      } else {
+        return 1;
+      }
+    }
+    return '';
+  }
   const isHaveUnclaimedReward = haveUnclaimedReward();
   const aprUpLimit = getAprUpperLimit();
   return (
@@ -2705,15 +2766,18 @@ function FarmView(props: {
             <div className="flex items-center justify-between">
               {error ? <Alert level="warn" message={error.message} /> : null}
             </div>
-            {isPending() ? (
-              <div className="flex flex-col absolute left-2.5 top-2 text-purpleColor text-xs bg-lightPurpleColor rounded-lg px-2 py-0.5">
-                <FormattedMessage id="comimg" defaultMessage="COMING" />
-                <Countdown
-                  date={moment.unix(getStartTime()).valueOf()}
-                  renderer={renderer}
-                />
-              </div>
-            ) : null}
+            <div className="flex flex-col absolute left-2.5 top-2">
+              {isPending() ? (
+                <div className="flex flex-col text-purpleColor text-xs bg-lightPurpleColor rounded-lg px-2 py-0.5">
+                  <FormattedMessage id="comimg" defaultMessage="COMING" />
+                  <Countdown
+                    date={moment.unix(getStartTime()).valueOf()}
+                    renderer={renderer}
+                  />
+                </div>
+              ) : null}
+              {isInMonth() ? <NewTag></NewTag> : null}
+            </div>
           </div>
           <div className="flex items-center justify-between px-5 py-4 h-24">
             <div className="flex flex-col items-center flex-shrink-0">
@@ -2723,12 +2787,11 @@ function FarmView(props: {
               >
                 <FormattedMessage id="total_staked"></FormattedMessage>
               </label>
+
               <label className="text-white text-base mt-1.5">
-                {`${
-                  Number(seed.seedTvl) == 0
-                    ? '-'
-                    : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`
-                }`}
+                {Number(seed.seedTvl) == 0
+                  ? '-'
+                  : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`}
               </label>
             </div>
             <div

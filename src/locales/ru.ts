@@ -821,5 +821,6 @@ const ru = {
     'Сеть сервера RPC (тестовая сеть) отличается от этой сети (основной сети)',
   no_support_testnet_rpc_tip:
     'Testnet не поддерживает добавление пользовательских RPC',
+  value: 'ценность',
 };
 export default Object.assign(ru, ru_in_risks_page);
