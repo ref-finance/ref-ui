@@ -789,5 +789,6 @@ const uk_UA = {
   fobidden_testnet_rpc_tip:
     'Мережа сервера RPC (testnet) відрізняється від цієї мережі (mainnet)',
   no_support_testnet_rpc_tip: 'Testnet не підтримує додавання власного RPC',
+  value: 'значення',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
