@@ -856,5 +856,6 @@ const ru = {
   no_support_testnet_rpc_tip:
     'Testnet не поддерживает добавление пользовательских RPC',
   farm_only: 'Только ферма',
+  value: 'ценность',
 };
 export default Object.assign(ru, ru_in_risks_page);

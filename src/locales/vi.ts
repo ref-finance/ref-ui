@@ -857,5 +857,6 @@ const vi = {
     'Mạng của máy chủ RPC (testnet) khác với mạng này (mainnet)',
   no_support_testnet_rpc_tip: 'Testnet không hỗ trợ thêm RPC tùy chỉnh',
   farm_only: 'Chỉ trang trại',
+  value: 'giá trị',
 };
 export default Object.assign(vi, vi_in_risks_page);
