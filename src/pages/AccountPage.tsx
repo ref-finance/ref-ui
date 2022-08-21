@@ -1162,21 +1162,26 @@ function Account(props: any) {
   const accountTitle = !showCrossBalance ? (
     <>
       <NearIcon />
-      <label className="ml-3 text-xl">{isSignedIn && displayAddrNear}</label>
+      <label className="ml-3 text-xl w-3/5 overflow-hidden whitespace-nowrap overflow-ellipsis">
+        {isSignedIn && displayAddrNear}
+      </label>
     </>
   ) : (
-    <div className="flex items-center">
+    <div className="flex items-center w-full">
       <div
         className="rounded-2xl flex items-center text-sm text-white py-0.5 px-3 mr-px"
         style={{
           background: 'rgba(255, 255, 255, 0.15)',
+          maxWidth: '40%',
         }}
       >
         <div className="mr-2">
           <Near color="white" />
         </div>
 
-        <div>{displayAddrNear}</div>
+        <div className="w-full whitespace-nowrap overflow-hidden overflow-ellipsis">
+          {displayAddrNear}
+        </div>
       </div>
 
       <ConnectDot />
@@ -1245,12 +1250,13 @@ function Account(props: any) {
 
       <div className="flex items-center justify-between ">
         <div
-          className="relative flex items-center font-semibold bg-cardBg rounded-t-lg text-white w-full"
+          className="relative flex items-center font-semibold bg-cardBg rounded-t-lg text-white"
           style={{
             height: '66px',
+            width: 'calc(100% - 8.25rem)',
           }}
         >
-          <div className="relative top-2 left-8 flex items-center">
+          <div className="relative top-2 left-8 flex items-center w-full">
             {accountTitle}
           </div>
           <div className="absolute bottom-0 -right-4">
@@ -1369,7 +1375,7 @@ function MobileAccount(props: any) {
   const accountTitle = !showCrossBalance ? (
     <>
       <NearIcon />
-      <label className="text-lg text-white ml-3">
+      <label className="text-lg text-white ml-3 overflow-hidden whitespace-nowrap overflow-ellipsis w-2/3">
         {isSignedIn && displayAddrNear}
       </label>
     </>
@@ -1452,9 +1458,12 @@ function MobileAccount(props: any) {
             className="relative flex items-center  justify-center font-semibold bg-cardBg rounded-t-2xl text-white w-full"
             style={{
               height: '66px',
+              width: 'calc(100% - 8.25rem)',
             }}
           >
-            <div className="flex items-center">{accountTitle}</div>
+            <div className="flex items-center justify-center w-full">
+              {accountTitle}
+            </div>
             <div className="absolute bottom-0 -right-4">
               <ArcIcon></ArcIcon>
             </div>
