@@ -164,9 +164,8 @@ export default function SwapFormWrap({
       ) : (
         <SubmitButton
           disabled={
-            false
-            // !canSubmit ||
-            // (typeof loadingTrigger !== 'undefined' && loadingTrigger)
+            !canSubmit ||
+            (typeof loadingTrigger !== 'undefined' && loadingTrigger)
           }
           label={buttonText || title}
           info={info}
@@ -305,10 +304,8 @@ export function CrossSwapFormWrap({
         <SubmitButton
           signedInConfig={!requested}
           disabled={
-            false
-            // false ||
-            // !canSubmit ||
-            // (typeof loadingTrigger !== 'undefined' && loadingTrigger)
+            !canSubmit ||
+            (typeof loadingTrigger !== 'undefined' && loadingTrigger)
           }
           label={buttonText || title}
           info={info}
