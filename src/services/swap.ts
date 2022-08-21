@@ -1236,6 +1236,9 @@ SwapOptions) => {
       });
     }
 
+    if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
+      return window.location.reload();
+    }
     if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
       transactions.unshift(nearDepositTransaction(amountIn));
     }
