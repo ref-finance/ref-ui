@@ -304,6 +304,7 @@ export function CrossSwapFormWrap({
         <SubmitButton
           signedInConfig={!requested}
           disabled={
+            false ||
             !canSubmit ||
             (typeof loadingTrigger !== 'undefined' && loadingTrigger)
           }
