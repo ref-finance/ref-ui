@@ -816,5 +816,8 @@ const ko = {
     'RPC 서버의 네트워크(테스트넷)가 이 네트워크(메인넷)와 다릅니다',
   no_support_testnet_rpc_tip:
     '테스트넷은 사용자 지정 RPC 추가를 지원하지 않습니다',
+  trade_capital: 'TRADE',
+  pro: 'Pro',
+  limit: 'Limit',
 };
 export default Object.assign(ko, ko_in_risks_page);

@@ -178,7 +178,7 @@ export default function SlippageSelector({
   }, [swapMode]);
 
   return (
-    <div className="relative z-10 font-normal">
+    <div className="relative self-start z-10 font-normal">
       <div
         className="p-1 w-8 h-8 bg-black flex items-center justify-center bg-opacity-20 border border-opacity-20 border-primaryText rounded-xl text-2xl text-white cursor-pointer"
         onClick={(e) => openToolTip(e)}

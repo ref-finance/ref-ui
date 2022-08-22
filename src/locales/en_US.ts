@@ -817,5 +817,9 @@ const en_US = {
   fobidden_testnet_rpc_tip:
     "RPC server's network (testnet) is different with this network(mainnet)",
   no_support_testnet_rpc_tip: 'Testnet does not support adding custom RPC',
+  stable: 'Stable',
+  trade_capital: 'TRADE',
+  pro: 'Pro',
+  limit: 'Limit',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

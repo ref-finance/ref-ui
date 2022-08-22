@@ -361,10 +361,15 @@ export function TokenAmountV3({
                     onMouseEnter={() => setHoverSelectToken(true)}
                     onMouseLeave={() => setHoverSelectToken(false)}
                   >
-                    <Icon token={selectedToken} hover={hoverSelectToken} />
+                    <IconLeftV3
+                      size={'8'}
+                      token={selectedToken}
+                      hover={hoverSelectToken}
+                    />
                   </div>
                 )
               }
+              customWidth
               tokens={tokens}
               onSelect={onSelectToken}
               preSelected={preSelected}

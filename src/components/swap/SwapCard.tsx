@@ -59,7 +59,11 @@ import {
 } from '../../services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
 import SwapTip from '../../components/forms/SwapTip';
-import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
+import {
+  WarnTriangle,
+  ErrorTriangle,
+  CountdownTimer,
+} from '../../components/icon/SwapRefresh';
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '../../components/card/Card';
@@ -654,14 +658,21 @@ export default function SwapCard(props: {
   stablePools: Pool[];
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
+  swapTab?: JSX.Element;
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
   // getConfig();
   const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
 
-  const { allTokens, swapMode, stablePools, tokenInAmount, setTokenInAmount } =
-    props;
+  const {
+    allTokens,
+    swapMode,
+    stablePools,
+    tokenInAmount,
+    setTokenInAmount,
+    swapTab,
+  } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
@@ -1007,6 +1018,7 @@ export default function SwapCard(props: {
           setShowSwapLoading,
         }}
       >
+        {swapTab}
         <TokenAmountV3
           forSwap
           swapMode={swapMode}
@@ -1087,6 +1099,29 @@ export default function SwapCard(props: {
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
+          ExtraElement={
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (loadingPause) {
+                  setLoadingPause(false);
+                  setLoadingTrigger(true);
+                  setLoadingData(true);
+                } else {
+                  setLoadingPause(true);
+                  setLoadingTrigger(false);
+                }
+              }}
+              className="mx-4 cursor-pointer"
+            >
+              <CountdownTimer
+                loadingTrigger={loadingTrigger}
+                loadingPause={loadingPause}
+              />
+            </div>
+          }
         />
         <DetailView
           pools={pools}

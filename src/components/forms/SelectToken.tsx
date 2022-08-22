@@ -108,6 +108,7 @@ export const StableSelectToken = ({
   preSelected,
   postSelected,
   onSelectPost,
+  customWidth,
 }: {
   tokens: TokenMetadata[];
   onSelect?: (token: TokenMetadata) => void;
@@ -115,6 +116,7 @@ export const StableSelectToken = ({
   preSelected?: TokenMetadata;
   postSelected?: TokenMetadata;
   onSelectPost?: (t: TokenMetadata) => void;
+  customWidth?: boolean;
 }) => {
   const USDTokenList = new Array(
     ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
@@ -207,7 +209,11 @@ export const StableSelectToken = ({
   const displayList = getDisplayList(stableCoinType);
 
   return (
-    <div className="w-2/5 outline-none my-auto relative overflow-visible">
+    <div
+      className={`${
+        customWidth ? '' : 'w-2/5'
+      }  outline-none my-auto relative overflow-visible`}
+    >
       <div
         className={`w-full relative `}
         onClick={(e) => {

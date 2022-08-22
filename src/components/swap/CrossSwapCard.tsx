@@ -67,7 +67,12 @@ import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { TokenCardOut, CrossSwapTokens } from '../forms/TokenAmount';
 import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
-import { TriIcon, RefIcon, WannaIconDark } from '../icon/DexIcon';
+import {
+  TriIcon,
+  RefIcon,
+  WannaIconDark,
+  SwapProIconLarge,
+} from '../icon/DexIcon';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { unWrapTokenId, wrapTokenId } from './SwapCard';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
@@ -369,10 +374,11 @@ export default function CrossSwapCard(props: {
   allTokens: TokenMetadata[];
   tokenInAmount: string;
   setTokenInAmount: (amount: string) => void;
+  swapTab?: JSX.Element;
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
-  const { allTokens, tokenInAmount, setTokenInAmount } = props;
+  const { allTokens, tokenInAmount, setTokenInAmount, swapTab } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
@@ -621,7 +627,7 @@ export default function CrossSwapCard(props: {
         }}
         tokensTitle={
           requested ? (
-            <div className="flex items-center  absolute left-6 ">
+            <div className="flex items-center  left-6 ">
               <span
                 className="text-white text-xl pr-2 px-0.5 cursor-pointer"
                 onClick={() => {
@@ -638,12 +644,24 @@ export default function CrossSwapCard(props: {
               <span className="mx-1">{toRealSymbol(tokenOut?.symbol)}</span>
             </div>
           ) : (
-            <div className="flex items-center absolute left-8">
-              <RefIcon lightTrigger={true} />
-
-              <TriIcon lightTrigger={true} />
-
-              <WannaIconDark />
+            <div className="flex flex-col left-8">
+              <div className="flex items-center">
+                <FormattedMessage
+                  id="swap_pro"
+                  defaultMessage={'Swap Pro'}
+                ></FormattedMessage>
+                <span
+                  className=" ml-3 h-3 flex items-center text-black bg-farmText rounded-md px-0.5 py-px"
+                  style={{
+                    fontSize: '10px',
+                  }}
+                >
+                  <FormattedMessage id="beta" defaultMessage={'beta'} />
+                </span>
+              </div>
+              <div className="flex items-center mt-5 mb-3">
+                <SwapProIconLarge />
+              </div>
             </div>
           )
         }
@@ -654,6 +672,7 @@ export default function CrossSwapCard(props: {
         title={requested ? 'Confirm' : 'Request_for_Quote'}
         showAllResults={showAllResults}
       >
+        {requested ? null : swapTab}
         <TokenCardIn
           tokenIn={tokenIn}
           max={tokenInMax}

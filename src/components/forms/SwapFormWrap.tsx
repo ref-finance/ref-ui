@@ -99,7 +99,7 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 ${
+      className={`overflow-y-visible relative bg-secondary shadow-2xl rounded-2xl px-7 py-6 ${
         swapMode === SWAP_MODE.STABLE ? 'pb-16' : ''
       } bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
       onSubmit={handleSubmit}
@@ -108,30 +108,6 @@ export default function SwapFormWrap({
         <>
           <h2 className="formTitle flex justify-end font-bold text-xl text-white text-left pb-4">
             <div className="flex items-center">
-              {crossSwap ? null : (
-                <div
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    if (loadingPause) {
-                      setLoadingPause(false);
-                      setLoadingTrigger(true);
-                      setLoadingData(true);
-                    } else {
-                      setLoadingPause(true);
-                      setLoadingTrigger(false);
-                    }
-                  }}
-                  className="mx-4 cursor-pointer"
-                >
-                  <CountdownTimer
-                    loadingTrigger={loadingTrigger}
-                    loadingPause={loadingPause}
-                  />
-                </div>
-              )}
-
               <SlippageSelector
                 slippageTolerance={slippageTolerance}
                 onChange={onChange}
@@ -226,7 +202,7 @@ export function CrossSwapFormWrap({
 
   return (
     <form
-      className={`overflow-visible relative bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg  ${
+      className={`overflow-visible relative bg-secondary shadow-2xl rounded-2xl px-7 py-6 bg-dark xs:rounded-lg md:rounded-lg  ${
         showAllResults && requested ? 'pb-14' : ''
       }`}
       onSubmit={handleSubmit}
@@ -251,7 +227,7 @@ export function CrossSwapFormWrap({
       {title && (
         <>
           <h2 className="formTitle flex justify-end  font-bold text-xl text-white text-left pb-4">
-            <div className="flex items-center">
+            <div className="flex items-center  w-full justify-between">
               {tokensTitle}
               {!requested ? null : (
                 <div

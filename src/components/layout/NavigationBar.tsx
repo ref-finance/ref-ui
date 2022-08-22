@@ -83,7 +83,11 @@ import {
 import { getURLInfo } from './transactionTipPopUp';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
+import {
+  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+  SWAP_MODE,
+  SWAP_MODE_KEY,
+} from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
 
 const config = getConfig();
@@ -108,15 +112,23 @@ function Anchor({
   name,
   className,
   newFuntion,
+  subMenu,
 }: {
   to: string;
   pattern: string;
   name: string;
   className?: string;
   newFuntion?: boolean;
+  subMenu?: {
+    name: string;
+    click: (e?: any) => void;
+  }[];
 }) {
   const location = useLocation();
   let isSelected;
+
+  const [hover, setHover] = useState<boolean>(false);
+
   if (pattern == '/pools') {
     isSelected =
       location.pathname.startsWith('/pools') ||
@@ -130,25 +142,56 @@ function Anchor({
     });
   }
   return (
-    <Link
-      to={to}
-      className={`relative flex items-center justify-center h-full border-t-4 mx-4 border-greenColor ${
-        isSelected ? 'border-opacity-100' : 'border-opacity-0'
-      }`}
-    >
-      <h2
-        className={`link hover:text-white text-base font-normal py-4 cursor-pointer relative z-10 ${className} ${
-          isSelected ? 'text-greenColor' : 'text-gray-400'
+    <>
+      <Link
+        to={to}
+        className={`relative flex items-center justify-center h-full border-t-4 mx-4 border-greenColor ${
+          isSelected ? 'border-opacity-100' : 'border-opacity-0'
         }`}
+        onMouseLeave={() => setHover(false)}
+        onMouseEnter={() => setHover(true)}
       >
-        <FormattedMessage id={name} defaultMessage={name} />
-        {newFuntion ? (
-          <span className="absolute top-5 right-2">
-            <IconAirDropGreenTip />
+        <h2
+          className={`link hover:text-white text-base font-normal py-4 cursor-pointer relative z-10 ${className} ${
+            isSelected ? 'text-greenColor' : 'text-gray-400'
+          }`}
+        >
+          <FormattedMessage id={name} defaultMessage={name} />
+          {newFuntion ? (
+            <span className="absolute top-5 right-2">
+              <IconAirDropGreenTip />
+            </span>
+          ) : null}
+        </h2>
+
+        {!!subMenu && hover && (
+          <span className="top-6 pt-8 absolute z-50">
+            <div
+              className="py-2  px-1.5 rounded-xl min-w-28 flex flex-col"
+              style={{
+                background: 'rgba(23,32,38)',
+                border: '1px solid #415462',
+              }}
+            >
+              {subMenu.map((m) => {
+                return (
+                  <span
+                    className="hover:bg-primaryText hover:bg-opacity-30 py-0.5 mb-0.5 hover:text-white rounded-lg  text-primaryText text-center text-base cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      m.click();
+                    }}
+                  >
+                    {<FormattedMessage id={m.name} />}
+                  </span>
+                );
+              })}
+            </div>
           </span>
-        ) : null}
-      </h2>
-    </Link>
+        )}
+      </Link>
+    </>
   );
 }
 
@@ -902,13 +945,6 @@ function NavigationBar() {
 
   useEffect(() => {
     if (!auroraBalances || !isSignedIn) return;
-    const auroraAddresses = Object.keys(auroraBalances);
-
-    const amounts = Object.values(auroraBalances) as string[];
-
-    // withdrawBalanceAfterTransaction(auroraAddresses, amounts).then(
-    //   setWithdrawDone
-    // );
 
     setWithdrawDone(false);
   }, [auroraBalances, txHash, isSignedIn]);
@@ -1058,8 +1094,58 @@ function NavigationBar() {
                 }}
               />
             </div>
-            <div className="flex items-center h-full">
-              <Anchor to="/" pattern="/" name="swap_capital" />
+            <div className="flex items-center h-full relative">
+              <Anchor
+                to="/"
+                pattern="/"
+                name="trade_capital"
+                subMenu={[
+                  {
+                    name: 'swap',
+                    click: () => {
+                      historyInit.push('/swap/normal');
+                      localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
+                      localStorage.setItem(
+                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+                        'normal'
+                      );
+                    },
+                  },
+                  {
+                    name: 'stable',
+                    click: () => {
+                      historyInit.push('/swap/stable');
+                      localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
+                      localStorage.setItem(
+                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+                        'normal'
+                      );
+                    },
+                  },
+                  {
+                    name: 'pro',
+                    click: () => {
+                      localStorage.setItem(
+                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+                        'cross'
+                      );
+
+                      historyInit.push('/swap');
+                    },
+                  },
+                  {
+                    name: 'limit',
+                    click: () => {
+                      historyInit.push('/swap/limit');
+                      localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+                      localStorage.setItem(
+                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+                        'normal'
+                      );
+                    },
+                  },
+                ]}
+              />
               <Anchor to="/sauce" pattern="/sauce" name="sauce_capital" />
               {isSignedIn ? (
                 <Anchor to="/pools/yours" pattern="/pools" name="POOL" />

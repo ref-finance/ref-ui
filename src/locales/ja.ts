@@ -827,5 +827,8 @@ const ja = {
     'RPC サーバーのネットワーク (テストネット) は、このネットワーク (メインネット) とは異なります',
   no_support_testnet_rpc_tip:
     'Testnet はカスタム RPC の追加をサポートしていません',
+  trade_capital: 'TRADE',
+  pro: 'Pro',
+  limit: 'Limit',
 };
 export default Object.assign(ja, ja_in_risks_page);

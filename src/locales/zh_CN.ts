@@ -778,5 +778,8 @@ const zh_CN = {
   network_invalid: '无效网络',
   fobidden_testnet_rpc_tip: 'RPC服务器的网络(测试网)与本网络(主网)不同',
   no_support_testnet_rpc_tip: 'Testnet不支持添加自定义RPC',
+  trade_capital: 'TRADE',
+  pro: 'Pro',
+  limit: 'Limit',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
