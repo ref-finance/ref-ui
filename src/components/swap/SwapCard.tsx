@@ -85,6 +85,8 @@ import { isStableToken, STABLE_TOKEN_USN_IDS } from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
+import { SwapMinReceiveCheck } from '../icon/swapV3';
+import { TokenAmountV3 } from '../forms/TokenAmount';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -135,7 +137,7 @@ export function SwapDetail({
   value: string | JSX.Element;
 }) {
   return (
-    <section className="grid grid-cols-12 py-1 text-xs">
+    <section className="grid grid-cols-12 pt-1 pb-2 text-xs">
       <p className="text-primaryText text-left col-span-6">{title}</p>
       <p className="text-right text-white col-span-6">{value}</p>
     </section>
@@ -209,6 +211,80 @@ export function SwapRateDetail({
   );
 }
 
+export function SwapRate({
+  value,
+  from,
+  to,
+  tokenIn,
+  tokenOut,
+  fee,
+  tokenPriceList,
+}: {
+  fee: number;
+  value: string;
+  from: string;
+  to: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  tokenPriceList?: any;
+}) {
+  const [newValue, setNewValue] = useState<string>('');
+  const [isRevert, setIsRevert] = useState<boolean>(false);
+
+  const exchangeRageValue = useMemo(() => {
+    const fromNow = isRevert ? from : to;
+    const toNow = isRevert ? to : from;
+    if (ONLY_ZEROS.test(fromNow)) return '-';
+
+    return calculateExchangeRate(fee, fromNow, toNow);
+  }, [isRevert, to]);
+
+  useEffect(() => {
+    setNewValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    setNewValue(
+      `1 ${toRealSymbol(
+        isRevert ? tokenIn.symbol : tokenOut.symbol
+      )} ≈ ${exchangeRageValue} ${toRealSymbol(
+        isRevert ? tokenOut.symbol : tokenIn.symbol
+      )}`
+    );
+  }, [isRevert, exchangeRageValue]);
+
+  const price =
+    tokenPriceList?.[isRevert ? tokenIn.id : tokenOut.id]?.price || null;
+
+  const displayPrice = !price ? null : (
+    <span className="text-primaryText">{`($${toInternationalCurrencySystemLongString(
+      price,
+      2
+    )})`}</span>
+  );
+
+  function switchSwapRate(e: React.MouseEvent<HTMLDivElement>) {
+    e.stopPropagation();
+    e.preventDefault();
+    setIsRevert(!isRevert);
+  }
+
+  return (
+    <section className=" py-1 text-xs flex items-center">
+      <p
+        className="flex justify-end text-white cursor-pointer text-right mr-1"
+        onClick={switchSwapRate}
+      >
+        <span className="mr-2" style={{ marginTop: '0.1rem' }}>
+          <FaExchangeAlt color="#00C6A2" />
+        </span>
+        <span className="font-sans">{newValue}</span>
+      </p>
+      {displayPrice}
+    </section>
+  );
+}
+
 export function SmartRoutesV2Detail({
   swapsTodo,
 }: {
@@ -230,8 +306,13 @@ export function SmartRoutesV2Detail({
   }, [identicalRoutes, pools]);
 
   return (
-    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
-      <div className="text-primaryText text-left self-start">
+    <section
+      className="md:flex px-2 lg:flex py-1 text-xs items-center md:justify-between lg:justify-between rounded-xl"
+      style={{
+        border: '1.2px solid rgba(145, 162, 174, 0.2)',
+      }}
+    >
+      <div className="text-primaryText relative top-1 text-left self-start">
         <div className="inline-flex items-center">
           <RouterIcon />
           <AutoRouterText />
@@ -241,7 +322,7 @@ export function SmartRoutesV2Detail({
 
       <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2 self-start">
         {tokensPerRoute.map((tokens, index) => (
-          <div key={index} className="mb-2 md:w-smartRoute lg:w-smartRoute">
+          <div key={index} className=" md:w-smartRoute lg:w-smartRoute">
             <div className="text-right text-white col-span-6 xs:mt-2 md:mt-2">
               {
                 <SmartRouteV2
@@ -272,7 +353,12 @@ export function ParallelSwapRoutesDetail({
   }, [pools]);
 
   return (
-    <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
+    <section
+      className="md:grid lg:grid grid-cols-12 py-1 text-xs rounded-xl"
+      style={{
+        border: '1.2px solid rgba(145, 162, 174, 0.2)',
+      }}
+    >
       <div className="text-primaryText text-left col-span-5">
         <div className="inline-flex items-center">
           <RouterIcon />
@@ -306,7 +392,12 @@ export function SmartRoutesDetail({
   swapsTodo: EstimateSwapView[];
 }) {
   return (
-    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
+    <section
+      className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between px-2 rounded-xl"
+      style={{
+        border: '1.2px solid rgba(145, 162, 174, 0.2)',
+      }}
+    >
       <div className="text-primaryText text-left ">
         <div className="inline-flex items-center">
           <RouterIcon />
@@ -416,6 +507,7 @@ function DetailView({
   swapsTodo,
   priceImpact,
   swapMode,
+  tokenPriceList,
 }: {
   pools: Pool[];
   tokenIn: TokenMetadata;
@@ -428,6 +520,7 @@ function DetailView({
   swapsTodo?: EstimateSwapView[];
   priceImpact?: string;
   swapMode?: SWAP_MODE;
+  tokenPriceList?: any;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -473,29 +566,8 @@ function DetailView({
 
   return (
     <div className="mt-8">
-      <div className="flex justify-center">
-        <div
-          className="flex items-center text-white cursor-pointer"
-          onClick={() => {
-            setShowDetails(!showDetails);
-          }}
-        >
-          <label className="mr-2">{getPriceImpactTipType(priceImpact)}</label>
-          <p className="block text-xs">
-            <FormattedMessage id="details" defaultMessage="Details" />
-          </p>
-          <div className="pl-1 text-sm">
-            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
-          </div>
-        </div>
-      </div>
-      <div className={showDetails ? '' : 'hidden'}>
-        <SwapDetail
-          title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
-        />
-        <SwapRateDetail
-          title={intl.formatMessage({ id: 'swap_rate' })}
+      <div className="flex items-center mb-1 justify-between text-white ">
+        <SwapRate
           value={`1 ${toRealSymbol(
             tokenOut.symbol
           )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
@@ -504,7 +576,45 @@ function DetailView({
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           fee={fee}
+          tokenPriceList={tokenPriceList}
         />
+
+        <div
+          className="pl-1 text-sm flex items-center cursor-pointer"
+          onClick={() => {
+            setShowDetails(!showDetails);
+          }}
+        >
+          {showDetails ? null : (
+            <span className="py-1 pl-1 pr-1.5 rounded-md flex items-center bg-opacity-20 bg-black mr-1.5">
+              <SwapMinReceiveCheck />
+
+              <span
+                className=" text-white ml-1 relative top-0.5"
+                style={{
+                  fontSize: '13px',
+                }}
+              >
+                {toPrecision(minAmountOutValue, 8)}
+              </span>
+            </span>
+          )}
+
+          <span>
+            {showDetails ? (
+              <FaAngleUp color="#91A2AE" />
+            ) : (
+              <FaAngleDown color="#91A2AE" />
+            )}
+          </span>
+        </div>
+      </div>
+      <div className={showDetails ? '' : 'hidden'}>
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
+        />
+
         {Number(priceImpact) > 2 && (
           <div className="py-1 text-xs text-right">
             <PriceImpactWarning value={priceImpact} />
@@ -547,7 +657,7 @@ export default function SwapCard(props: {
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
-  getConfig();
+  // getConfig();
   const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
 
   const { allTokens, swapMode, stablePools, tokenInAmount, setTokenInAmount } =
@@ -897,7 +1007,7 @@ export default function SwapCard(props: {
           setShowSwapLoading,
         }}
       >
-        <TokenAmount
+        <TokenAmountV3
           forSwap
           swapMode={swapMode}
           amount={tokenInAmount}
@@ -952,7 +1062,7 @@ export default function SwapCard(props: {
             }}
           />
         </div>
-        <TokenAmount
+        <TokenAmountV3
           forSwap
           swapMode={swapMode}
           amount={toPrecision(tokenOutAmount, 8)}
@@ -990,6 +1100,7 @@ export default function SwapCard(props: {
           swapsTodo={swapsToDo}
           priceImpact={PriceImpactValue}
           swapMode={swapMode}
+          tokenPriceList={tokenPriceList}
         />
         {swapError ? (
           <div className="pb-2 relative -mb-5">

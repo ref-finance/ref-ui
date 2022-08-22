@@ -10,20 +10,24 @@ import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import { tokenPrice } from './SelectToken';
-import { toInternationalCurrencySystem } from '../../utils/numbers';
+import {
+  toInternationalCurrencySystem,
+  toInternationalCurrencySystemLongString,
+} from '../../utils/numbers';
 import SelectToken, { StableSelectToken } from './SelectToken';
 import { toPrecision, multiply, ONLY_ZEROS } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { RefIcon } from '../../components/icon/Common';
 import { currentTokensPrice } from '../../services/api';
-import { IconLeft } from '../tokens/Icon';
+import { IconLeft, IconLeftV3 } from '../tokens/Icon';
 import { toRealSymbol } from '../../utils/token';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon/Arrows';
 import { percentLess } from '../../utils/numbers';
 import { isMobile } from '../../utils/device';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { InputAmountV3 } from './InputAmount';
 
 interface TokenAmountProps {
   amount?: string;
@@ -49,6 +53,7 @@ interface TokenAmountProps {
   onSelectPost?: (token: TokenMetadata) => void;
   forWrap?: boolean;
   showQuickButton?: Boolean;
+  ExtraElement?: JSX.Element;
 }
 
 export function HalfAndMaxAmount({
@@ -99,6 +104,54 @@ export function HalfAndMaxAmount({
   );
 }
 
+export function HalfAndMaxAmountV3({
+  max,
+  onChangeAmount,
+  token,
+  forCrossSwap,
+  amount,
+}: {
+  max: string;
+  token: TokenMetadata;
+  onChangeAmount: (amount: string) => void;
+  forCrossSwap?: boolean;
+  amount?: string;
+}) {
+  const halfValue = percentOfBigNumber(50, max, token?.decimals);
+
+  return (
+    <div className="flex items-center">
+      <span
+        className={`px-2 py-1 mr-2 cursor-pointer rounded-lg text-primaryText hover:text-gradientFrom ${
+          amount === halfValue && !ONLY_ZEROS.test(halfValue)
+            ? ' bg-black bg-opacity-20 border border-transparent'
+            : ' border border-primaryText border-opacity-20 hover:border-gradientFrom '
+        } text-xs`}
+        onClick={() => {
+          const half = percentOfBigNumber(50, max, token.decimals);
+
+          onChangeAmount(half);
+        }}
+      >
+        <FormattedMessage id="half" defaultMessage="Half" />
+      </span>
+
+      <span
+        className={`px-2 py-1 cursor-pointer rounded-lg text-primaryText hover:text-gradientFrom ${
+          amount === max && !ONLY_ZEROS.test(max)
+            ? ' bg-black bg-opacity-20 border border-transparent'
+            : 'border border-primaryText border-opacity-20 hover:border-gradientFrom '
+        } text-xs`}
+        onClick={() => {
+          onChangeAmount(max);
+        }}
+      >
+        <FormattedMessage id="max" defaultMessage="Max" />
+      </span>
+    </div>
+  );
+}
+
 export default function TokenAmount({
   amount,
   max,
@@ -131,6 +184,8 @@ export default function TokenAmount({
   const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
 
   const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
+
+  console.log(tokenPrice, 'token price');
 
   const curMax =
     selectedToken?.id === WRAP_NEAR_CONTRACT_ID && !forWrap
@@ -223,6 +278,143 @@ export default function TokenAmount({
         )}
       </fieldset>
     </>
+  );
+}
+
+export function TokenAmountV3({
+  amount,
+  max,
+  total,
+  tokens,
+  selectedToken,
+  balances,
+  onSelectToken,
+  onSearchToken,
+  onChangeAmount,
+  text,
+  showSelectToken = true,
+  disabled = false,
+  useNearBalance,
+  forSwap,
+  isError,
+  tokenPriceList,
+  swapMode,
+  preSelected,
+  postSelected,
+  onSelectPost,
+  forWrap,
+  ExtraElement,
+}: TokenAmountProps) {
+  const render = (token: TokenMetadata) =>
+    toRoundedReadableNumber({
+      decimals: token.decimals,
+      number: balances ? balances[token.id] : '0',
+    });
+
+  const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
+
+  const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
+
+  const curMax =
+    selectedToken?.id === WRAP_NEAR_CONTRACT_ID && !forWrap
+      ? Number(max) <= 0.5
+        ? '0'
+        : String(Number(max) - 0.5)
+      : max;
+
+  return (
+    <div
+      className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-xl p-4`}
+    >
+      <div className="flex items-center justify-between">
+        {showSelectToken &&
+          (!swapMode || swapMode === SWAP_MODE.NORMAL ? (
+            <SelectToken
+              tokenPriceList={tokenPriceList}
+              tokens={tokens}
+              render={render}
+              customWidth
+              selected={
+                selectedToken && (
+                  <div
+                    className="flex items-center justify-end font-semibold "
+                    onMouseEnter={() => setHoverSelectToken(true)}
+                    onMouseLeave={() => setHoverSelectToken(false)}
+                  >
+                    <IconLeftV3
+                      size={'8'}
+                      token={selectedToken}
+                      hover={hoverSelectToken}
+                    />
+                  </div>
+                )
+              }
+              onSelect={onSelectToken}
+              balances={balances}
+            />
+          ) : (
+            <StableSelectToken
+              selected={
+                selectedToken && (
+                  <div
+                    className="flex items-center justify-end font-semibold "
+                    onMouseEnter={() => setHoverSelectToken(true)}
+                    onMouseLeave={() => setHoverSelectToken(false)}
+                  >
+                    <Icon token={selectedToken} hover={hoverSelectToken} />
+                  </div>
+                )
+              }
+              tokens={tokens}
+              onSelect={onSelectToken}
+              preSelected={preSelected}
+              postSelected={postSelected}
+              onSelectPost={onSelectPost}
+            />
+          ))}
+        <span className="text-primaryText">
+          <FormattedMessage id="balance" defaultMessage="Balance" />
+          :&nbsp;
+          <span title={total}>{toPrecision(total, 3, true)}</span>
+        </span>
+      </div>
+
+      <fieldset className="relative flex  align-center items-center my-2">
+        <InputAmountV3
+          className="border border-transparent rounded w-full mr-2"
+          id="inputAmount"
+          name={selectedToken?.id}
+          max={onChangeAmount ? curMax : null}
+          value={amount}
+          onChangeAmount={onChangeAmount}
+          disabled={disabled}
+          forSwap={!!forSwap}
+          openClear={swapMode !== SWAP_MODE.LIMIT && !!onChangeAmount}
+        />
+        {ExtraElement}
+      </fieldset>
+
+      <div className="flex items-center justify-between">
+        <span className="mr-3 text-primaryText">
+          {!!tokenPrice && !ONLY_ZEROS.test(amount) && !isError
+            ? '$' +
+              toInternationalCurrencySystemLongString(
+                multiply(tokenPrice || '0', amount || '0'),
+                2
+              )
+            : '$-'}
+        </span>
+
+        {forSwap && onChangeAmount ? (
+          <HalfAndMaxAmountV3
+            token={selectedToken}
+            max={curMax}
+            onChangeAmount={onChangeAmount}
+            amount={amount}
+          />
+        ) : null}
+      </div>
+    </div>
   );
 }
 

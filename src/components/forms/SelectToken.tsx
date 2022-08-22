@@ -358,6 +358,7 @@ export default function SelectToken({
   balances,
   tokenPriceList,
   forCross,
+  customWidth,
 }: {
   tokens: TokenMetadata[];
   selected: string | React.ReactElement;
@@ -369,6 +370,7 @@ export default function SelectToken({
   balances?: TokenBalancesView;
   tokenPriceList?: Record<string, any>;
   forCross?: boolean;
+  customWidth?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
@@ -467,7 +469,7 @@ export default function SelectToken({
       trigger={() => (
         <div
           className={`focus:outline-none my-auto  ${
-            standalone ? 'w-full' : 'w-2/5'
+            !customWidth ? (standalone ? 'w-full' : 'w-2/5') : ''
           }`}
           onClick={() => setVisible(true)}
         >

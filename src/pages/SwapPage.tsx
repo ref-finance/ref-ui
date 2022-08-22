@@ -27,6 +27,7 @@ const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 export enum SWAP_MODE {
   NORMAL = 'normal',
   STABLE = 'stable',
+  LIMIT = 'limit',
 }
 
 const ChangeSwapMode = ({

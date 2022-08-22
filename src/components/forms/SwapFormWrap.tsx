@@ -132,27 +132,18 @@ export default function SwapFormWrap({
                 </div>
               )}
 
-              {swapMode === SWAP_MODE.NORMAL ? (
-                <SlippageSelector
-                  slippageTolerance={slippageTolerance}
-                  onChange={onChange}
-                  bindUseBalance={bindUseBalance}
-                  useNearBalance={useNearBalance}
-                  supportLedger={supportLedger}
-                  setSupportLedger={setSupportLedger}
-                />
-              ) : null}
-              {swapMode === SWAP_MODE.STABLE ? (
-                <SlippageSelectorForStable
-                  slippageTolerance={slippageTolerance}
-                  onChange={onChange}
-                  validSlippageList={[0.05, 0.1, 0.2]}
-                  useNearBalance={useNearBalance}
-                  bindUseBalance={bindUseBalance}
-                  supportLedger={supportLedger}
-                  setSupportLedger={setSupportLedger}
-                />
-              ) : null}
+              <SlippageSelector
+                slippageTolerance={slippageTolerance}
+                onChange={onChange}
+                bindUseBalance={bindUseBalance}
+                useNearBalance={useNearBalance}
+                supportLedger={supportLedger}
+                setSupportLedger={setSupportLedger}
+                validSlippageList={
+                  swapMode === SWAP_MODE.NORMAL ? null : [0.05, 0.1, 0.2]
+                }
+                swapMode={swapMode}
+              />
             </div>
           </h2>
         </>
