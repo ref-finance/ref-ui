@@ -433,6 +433,7 @@ export function TokenCardIn({
   balances,
   amount,
   hidden,
+  ExtraElement,
 }: {
   tokenIn: TokenMetadata;
   max: string;
@@ -443,6 +444,7 @@ export function TokenCardIn({
   balances: TokenBalancesView;
   amount: string;
   hidden: boolean;
+  ExtraElement?: JSX.Element;
 }) {
   const [hoverSelectToken, setHoverSelectToken] = useState(false);
 
@@ -458,27 +460,11 @@ export function TokenCardIn({
 
   return (
     <div
-      className="bg-black bg-opacity-20 p-5 xs:px-4 py-5 flex flex-col"
+      className="bg-black bg-opacity-20  p-5 xs:px-4 py-5 flex flex-col"
       style={{
         borderRadius: '20px',
       }}
     >
-      <div className="flex items-center justify-between pb-4">
-        <span className="text-sm text-primaryText">
-          <FormattedMessage id="from" defaultMessage="From" />
-        </span>
-        <div className="text-xs text-primaryText flex items-center">
-          <HalfAndMaxAmount
-            token={tokenIn}
-            max={curMax}
-            onChangeAmount={onChangeAmount}
-            forCrossSwap
-            amount={amount}
-          />
-          <span className="ml-2">{toPrecision(max, 3, true)}</span>
-        </div>
-      </div>
-
       <div className="flex items-center justify-between">
         <SelectToken
           tokenPriceList={tokenPriceList}
@@ -491,37 +477,47 @@ export function TokenCardIn({
               onMouseLeave={() => setHoverSelectToken(false)}
             >
               {tokenIn ? (
-                <IconLeft token={tokenIn} hover={hoverSelectToken} />
+                <IconLeftV3 token={tokenIn} hover={hoverSelectToken} />
               ) : null}
             </div>
           }
           onSelect={onSelectToken}
           balances={balances}
         />
-
-        <div
-          className="flex flex-col items-end"
+        <span
+          className="ml-2 text-xs"
           style={{
-            width: !isMobile() ? '100%' : '55%',
+            color: '#91A2AE',
           }}
         >
-          <input
-            className="text-right text-white text-xl xs:text-lg"
-            value={amount}
-            type="number"
-            min="0"
-            placeholder="0.0"
-            onChange={(e) => onChangeAmount(e.target.value)}
-            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
-            step="any"
-          />
+          <FormattedMessage id="balance" />: &nbsp; {toPrecision(max, 3, true)}
+        </span>
+      </div>
 
-          <div>
-            {tokenPrice(
-              price && !ONLY_ZEROS.test(amount) ? multiply(price, amount) : null
-            )}
-          </div>
-        </div>
+      <fieldset className="relative flex  align-center items-center my-2">
+        <InputAmountV3
+          className="border border-transparent rounded w-full mr-2"
+          id="inputAmount"
+          name={tokenIn?.id}
+          max={onChangeAmount ? curMax : null}
+          value={amount}
+          onChangeAmount={onChangeAmount}
+          openClear
+        />
+        {ExtraElement}
+      </fieldset>
+
+      <div className="flex items-center justify-between">
+        {tokenPrice(
+          price && !ONLY_ZEROS.test(amount) ? multiply(price, amount) : null
+        )}
+
+        <HalfAndMaxAmountV3
+          token={tokenIn}
+          max={curMax}
+          onChangeAmount={onChangeAmount}
+          amount={amount}
+        />
       </div>
     </div>
   );
@@ -548,23 +544,16 @@ export function TokenCardOut({
   if (hidden) return null;
   return (
     <div
-      className="bg-black bg-opacity-20 py-5"
+      className="bg-black flex items-center justify-between bg-opacity-20 py-5 pr-5 xs:pr-4"
       style={{
         borderRadius: '20px',
       }}
     >
-      <div className="text-sm text-primaryText pb-4 flex items-center justify-between px-5">
-        <span>
-          <FormattedMessage id="to" defaultMessage="To" />
-        </span>
-
-        <span className="ml-2 text-xs">{toPrecision(max, 3, true)}</span>
-      </div>
       <SelectToken
         tokenPriceList={tokenPriceList}
         tokens={tokens}
         forCross
-        standalone
+        customWidth
         selected={
           <div
             className="flex font-semibold w-full cursor-pointer pl-4 xs:pl-3 pr-3"
@@ -572,33 +561,22 @@ export function TokenCardOut({
             onMouseLeave={() => setHoverSelectToken(false)}
           >
             {tokenOut ? (
-              <div
-                className={`flex items-center text-lg text-white justify-between w-full rounded-full flex-shrink-0  ${
-                  hoverSelectToken ? 'bg-black bg-opacity-20 ' : ''
-                }`}
-                style={{ lineHeight: 'unset' }}
-              >
-                <div className="flex items-center">
-                  <img
-                    key={tokenOut.id}
-                    className="mr-2 xs:ml-0 xs:mr-1  h-11 w-11 xs:h-7 xs:w-7 border rounded-full border-greenLight"
-                    src={tokenOut.icon}
-                  />
-                  <p className="block text-lg xs:text-sm">
-                    {toRealSymbol(tokenOut.symbol)}
-                  </p>
-                </div>
-
-                <div className="pl-2 xs:pl-1 text-xs pr-4">
-                  {hoverSelectToken ? <ArrowDownGreen /> : <ArrowDownWhite />}
-                </div>
-              </div>
+              <IconLeftV3 token={tokenOut} hover={hoverSelectToken} />
             ) : null}
           </div>
         }
         onSelect={onSelectToken}
         balances={balances}
       />
+
+      <span
+        className="ml-2 text-xs"
+        style={{
+          color: '#91A2AE',
+        }}
+      >
+        <FormattedMessage id="balance" />: &nbsp; {toPrecision(max, 3, true)}
+      </span>
     </div>
   );
 }

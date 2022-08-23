@@ -52,6 +52,10 @@ import {
   parsedTransactionSuccessValue,
   checkCrossSwapTransactions,
 } from '../components/layout/transactionTipPopUp';
+import { get_pool, PoolInfoV3, quote, v3Swap } from '~services/swapV3';
+import { getV3PoolId, pointToPrice } from '../services/swapV3';
+import _ from 'lodash';
+import Big from 'big.js';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -74,6 +78,20 @@ interface SwapOptions {
   requested?: boolean;
   setRequested?: (requested?: boolean) => void;
   setRequestingTrigger?: (requestingTrigger?: boolean) => void;
+}
+
+interface SwapV3Options {
+  tokenIn: TokenMetadata;
+  tokenInAmount: string;
+  tokenOut: TokenMetadata;
+  slippageTolerance: number;
+  setLoadingData?: (loading: boolean) => void;
+  loadingData?: boolean;
+  loadingTrigger?: boolean;
+  setLoadingTrigger?: (loadingTrigger: boolean) => void;
+  loadingPause?: boolean;
+  setLoadingPause?: (pause: boolean) => void;
+  swapMode?: SWAP_MODE;
 }
 
 export const useSwap = ({
@@ -101,7 +119,7 @@ export const useSwap = ({
   const history = useHistory();
   const [count, setCount] = useState<number>(0);
 
-  const { txHash, pathname, errorType, txHashes } = getURLInfo();
+  const { txHash, pathname, errorType } = getURLInfo();
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -275,6 +293,123 @@ export const useSwap = ({
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
     isSmartRouteV2Swap: swapsToDo?.every((e) => e.status !== PoolMode.SMART),
+  };
+};
+
+export const useSwapV3 = ({
+  tokenIn,
+  tokenInAmount,
+  tokenOut,
+  slippageTolerance,
+  swapMode,
+  loadingTrigger,
+}: SwapV3Options) => {
+  const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
+
+  const [bestPool, setBestPool] = useState<PoolInfoV3>();
+
+  const [estimates, setEstimates] =
+    useState<{ amount: string; tag: string }[]>();
+
+  const [canSwap, setCanSwap] = useState<boolean>();
+
+  const fees = [100, 400, 2000, 10000];
+
+  const getQuote = (fee: number) => {
+    const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
+
+    return quote({
+      pool_ids: [pool_id],
+      input_token: tokenIn,
+      output_token: tokenOut,
+      input_amount: tokenInAmount,
+      tag: `${tokenIn.id}-${tokenInAmount}`,
+    });
+  };
+
+  const bestEstimate = estimates?.some((e) => !!e)
+    ? _.maxBy(estimates, (e) => Number(e?.amount || '0'))
+    : null;
+
+  const bestFee = !!bestEstimate
+    ? fees[estimates.findIndex((e) => e.amount === bestEstimate.amount)]
+    : null;
+
+  useEffect(() => {
+    if (!bestFee) return;
+    get_pool(getV3PoolId(tokenIn.id, tokenOut.id, bestFee)).then(setBestPool);
+  }, [bestFee]);
+
+  useEffect(() => {
+    if (!bestEstimate) {
+      setTokenOutAmount(bestEstimate.amount);
+    }
+  }, [bestEstimate]);
+
+  useEffect(() => {
+    if (!tokenIn || !tokenOut || !tokenInAmount) return;
+
+    setCanSwap(false);
+
+    Promise.all(fees.map((fee) => getQuote(fee)))
+      .then(setEstimates)
+      .then(() => {
+        setCanSwap(true);
+      })
+      .catch((err) => {
+        setCanSwap(false);
+      });
+  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
+
+  const makeSwap = () => {
+    v3Swap({
+      Swap: {
+        pool_ids: [getV3PoolId(tokenIn.id, tokenOut.id, bestFee)],
+        min_output_amount: percentLess(slippageTolerance, bestEstimate[1]),
+      },
+      swapInfo: {
+        tokenA: tokenIn,
+        tokenB: tokenOut,
+        amountA: tokenInAmount,
+        amountB: bestEstimate[1],
+      },
+    });
+  };
+
+  const priceImpact = useMemo(() => {
+    try {
+      const curPrice = pointToPrice({
+        tokenA: tokenIn,
+        tokenB: tokenOut,
+        point: bestPool.current_point,
+      });
+
+      const newPrice = new Big(bestEstimate.amount)
+        .div(tokenInAmount)
+        .toNumber();
+
+      const pi = new Big(newPrice)
+        .minus(curPrice)
+        .div(newPrice)
+        .minus(bestFee / 10000)
+        .toString();
+
+      return scientificNotationToString(pi);
+    } catch (error) {
+      return '';
+    }
+  }, [bestEstimate, estimates, bestPool, tokenIn, tokenOut]);
+
+  return {
+    makeSwap,
+    canSwap,
+    setCanSwap,
+    tokenOutAmount,
+    bestPool,
+    priceImpact,
+    minAmountOut: tokenOutAmount
+      ? percentLess(slippageTolerance, tokenOutAmount)
+      : null,
   };
 };
 

@@ -243,7 +243,6 @@ export const StableSelectToken = ({
           WebkitBackdropFilter: 'blur(15px)',
           border: '1px solid #415462',
           zIndex: 999,
-          right: 0,
         }}
       >
         <div

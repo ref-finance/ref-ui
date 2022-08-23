@@ -34,7 +34,7 @@ export interface UserOrderInfo {
   bought_amount: string; // accumalated amount into inner account
 }
 
-export interface PoolInfo {
+export interface PoolInfoV3 {
   pool_id: string;
   token_x: string;
   token_y: string;
@@ -49,11 +49,13 @@ export const quote = ({
   input_amount,
   input_token,
   output_token,
+  tag,
 }: {
   pool_ids: string[];
   input_token: TokenMetadata;
   output_token: TokenMetadata;
   input_amount: string;
+  tag?: string;
 }) => {
   return refSwapV3ViewFunction({
     methodName: 'quote',
@@ -62,6 +64,7 @@ export const quote = ({
       input_token: input_token.id,
       output_token: output_token.id,
       input_amount: toNonDivisibleNumber(input_token.decimals, input_amount),
+      tag,
     },
   });
 };
@@ -95,7 +98,11 @@ export const priceToPoint = ({
     .times(new Big(10).pow(tokenB.decimals))
     .div(new Big(10).pow(tokenA.decimals));
 
-  return Math.log(undecimal_price_A_by_B.toNumber()) / Math.log(LOG_BASE);
+  return (
+    Math.floor(
+      Math.log(undecimal_price_A_by_B.toNumber()) / Math.log(LOG_BASE) / 40
+    ) * 40
+  );
 };
 
 export const pointToPrice = ({
@@ -349,7 +356,7 @@ export const get_pool = (pool_id: string) => {
     args: {
       pool_id,
     },
-  }) as Promise<PoolInfo>;
+  }) as Promise<PoolInfoV3>;
 };
 
 export const get_pointorder_range = ({
