@@ -176,6 +176,8 @@ export const v3Swap = ({
 
   const { tokenA, tokenB, amountA, amountB } = swapInfo;
 
+  console.log(Swap, tokenA, tokenB, amountA, amountB);
+
   if (Swap) {
     const pool_ids = Swap.pool_ids;
 
@@ -186,9 +188,11 @@ export const v3Swap = ({
     );
 
     const msg = JSON.stringify({
-      pool_ids,
-      output_token,
-      min_output_amount,
+      Swap: {
+        pool_ids,
+        output_token,
+        min_output_amount,
+      },
     });
 
     transactions.push({
@@ -214,9 +218,11 @@ export const v3Swap = ({
     const output_token = tokenB.id;
     const output_amount = toNonDivisibleNumber(tokenB.decimals, amountB);
     const msg = JSON.stringify({
-      pool_ids,
-      output_token,
-      output_amount,
+      SwapByOutput: {
+        pool_ids,
+        output_token,
+        output_amount,
+      },
     });
 
     transactions.push({
@@ -249,9 +255,11 @@ export const v3Swap = ({
     });
 
     const msg = JSON.stringify({
-      pool_id,
-      buy_token,
-      point,
+      LimitOrder: {
+        pool_id,
+        buy_token,
+        point,
+      },
     });
 
     transactions.push({
@@ -356,7 +364,7 @@ export const get_pool = (pool_id: string) => {
     args: {
       pool_id,
     },
-  }) as Promise<PoolInfoV3>;
+  });
 };
 
 export const get_pointorder_range = ({

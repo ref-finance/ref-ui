@@ -113,7 +113,7 @@ export const useSwap = ({
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
-
+  const [quoteDone, setQuoteDone] = useState<boolean>(false);
   const [avgFee, setAvgFee] = useState<number>(0);
 
   const history = useHistory();
@@ -182,6 +182,7 @@ export const useSwap = ({
 
   const getEstimate = () => {
     setCanSwap(false);
+    setQuoteDone(false);
 
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
       setSwapError(null);
@@ -230,7 +231,10 @@ export const useSwap = ({
             setSwapError(err);
           }
         })
-        .finally(() => setLoadingTrigger(false));
+        .finally(() => {
+          setLoadingTrigger(false);
+          setQuoteDone(true);
+        });
     } else if (
       tokenIn &&
       tokenOut &&
@@ -293,6 +297,7 @@ export const useSwap = ({
     swapsToDo,
     isParallelSwap: swapsToDo?.every((e) => e.status === PoolMode.PARALLEL),
     isSmartRouteV2Swap: swapsToDo?.every((e) => e.status !== PoolMode.SMART),
+    quoteDone,
   };
 };
 
@@ -308,10 +313,12 @@ export const useSwapV3 = ({
 
   const [bestPool, setBestPool] = useState<PoolInfoV3>();
 
+  const [quoteDone, setQuoteDone] = useState<boolean>(false);
+
+  const [poolReFetch, setPoolReFetch] = useState<boolean>(false);
+
   const [estimates, setEstimates] =
     useState<{ amount: string; tag: string }[]>();
-
-  const [canSwap, setCanSwap] = useState<boolean>();
 
   const fees = [100, 400, 2000, 10000];
 
@@ -323,13 +330,14 @@ export const useSwapV3 = ({
       input_token: tokenIn,
       output_token: tokenOut,
       input_amount: tokenInAmount,
-      tag: `${tokenIn.id}-${tokenInAmount}`,
+      tag: `${tokenIn.id}-${fee}-${tokenInAmount}`,
     });
   };
 
-  const bestEstimate = estimates?.some((e) => !!e)
-    ? _.maxBy(estimates, (e) => Number(e?.amount || '0'))
-    : null;
+  const bestEstimate =
+    estimates && estimates?.some((e) => !!e)
+      ? _.maxBy(estimates, (e) => Number(e?.amount || '0'))
+      : null;
 
   const bestFee = !!bestEstimate
     ? fees[estimates.findIndex((e) => e.amount === bestEstimate.amount)]
@@ -337,11 +345,14 @@ export const useSwapV3 = ({
 
   useEffect(() => {
     if (!bestFee) return;
-    get_pool(getV3PoolId(tokenIn.id, tokenOut.id, bestFee)).then(setBestPool);
-  }, [bestFee]);
+
+    get_pool(getV3PoolId(tokenIn.id, tokenOut.id, bestFee)).then((p) => {
+      setBestPool(p);
+    });
+  }, [bestFee, tokenIn, tokenOut, poolReFetch]);
 
   useEffect(() => {
-    if (!bestEstimate) {
+    if (bestEstimate) {
       setTokenOutAmount(bestEstimate.amount);
     }
   }, [bestEstimate]);
@@ -349,15 +360,15 @@ export const useSwapV3 = ({
   useEffect(() => {
     if (!tokenIn || !tokenOut || !tokenInAmount) return;
 
-    setCanSwap(false);
+    setQuoteDone(false);
 
     Promise.all(fees.map((fee) => getQuote(fee)))
-      .then(setEstimates)
-      .then(() => {
-        setCanSwap(true);
+      .then((res) => {
+        setEstimates(res);
       })
-      .catch((err) => {
-        setCanSwap(false);
+      .finally(() => {
+        setPoolReFetch(!poolReFetch);
+        setQuoteDone(true);
       });
   }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
 
@@ -365,13 +376,13 @@ export const useSwapV3 = ({
     v3Swap({
       Swap: {
         pool_ids: [getV3PoolId(tokenIn.id, tokenOut.id, bestFee)],
-        min_output_amount: percentLess(slippageTolerance, bestEstimate[1]),
+        min_output_amount: percentLess(slippageTolerance, bestEstimate.amount),
       },
       swapInfo: {
         tokenA: tokenIn,
         tokenB: tokenOut,
         amountA: tokenInAmount,
-        amountB: bestEstimate[1],
+        amountB: bestEstimate.amount,
       },
     });
   };
@@ -384,9 +395,7 @@ export const useSwapV3 = ({
         point: bestPool.current_point,
       });
 
-      const newPrice = new Big(bestEstimate.amount)
-        .div(tokenInAmount)
-        .toNumber();
+      const newPrice = new Big(tokenOutAmount).div(tokenInAmount).toNumber();
 
       const pi = new Big(newPrice)
         .minus(curPrice)
@@ -396,20 +405,20 @@ export const useSwapV3 = ({
 
       return scientificNotationToString(pi);
     } catch (error) {
-      return '';
+      return '0';
     }
-  }, [bestEstimate, estimates, bestPool, tokenIn, tokenOut]);
+  }, [tokenOutAmount, estimates, bestPool, tokenIn, tokenOut]);
 
   return {
     makeSwap,
-    canSwap,
-    setCanSwap,
+    canSwap: !!bestPool && swapMode !== SWAP_MODE.STABLE && !loadingTrigger,
     tokenOutAmount,
-    bestPool,
     priceImpact,
     minAmountOut: tokenOutAmount
       ? percentLess(slippageTolerance, tokenOutAmount)
       : null,
+    quoteDone,
+    bestFee,
   };
 };
 

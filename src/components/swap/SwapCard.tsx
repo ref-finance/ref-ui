@@ -10,7 +10,7 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useTokenBalances, useDepositableBalance } from '../../state/token';
-import { useSwap } from '../../state/swap';
+import { useSwap, useSwapV3 } from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -91,6 +91,7 @@ import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SwapMinReceiveCheck } from '../icon/swapV3';
 import { TokenAmountV3 } from '../forms/TokenAmount';
+import Big from 'big.js';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -499,7 +500,7 @@ export const PriceImpactWarning = ({ value }: { value: string }) => {
   );
 };
 
-function DetailView({
+function DetailViewV2({
   pools,
   tokenIn,
   tokenOut,
@@ -652,6 +653,129 @@ function DetailView({
   );
 }
 
+function DetailViewV3({
+  tokenIn,
+  tokenOut,
+  from,
+  to,
+  minAmountOut,
+  fee,
+  priceImpact,
+  tokenPriceList,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  from: string;
+  to: string;
+  minAmountOut: string;
+  fee?: number;
+  priceImpact?: string;
+  tokenPriceList?: any;
+}) {
+  const intl = useIntl();
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+
+  const minAmountOutValue = useMemo(() => {
+    if (!minAmountOut) return '0';
+    else return toPrecision(minAmountOut, 8, true);
+  }, [minAmountOut]);
+
+  const exchangeRateValue = useMemo(() => {
+    if (!from || ONLY_ZEROS.test(to)) return '-';
+    else return calculateExchangeRate(fee, to, from);
+  }, [to]);
+
+  useEffect(() => {
+    if (Number(priceImpact) > 1) {
+      setShowDetails(true);
+    }
+  }, [priceImpact]);
+
+  const priceImpactDisplay = useMemo(() => {
+    if (!priceImpact || !tokenIn || !from) return null;
+    return GetPriceImpact(priceImpact, tokenIn, from);
+  }, [to, priceImpact]);
+
+  const poolFeeDisplay = useMemo(() => {
+    if (!fee || !from || !tokenIn) return null;
+
+    return `${toPrecision(
+      calculateFeePercent(fee).toString(),
+      2
+    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
+  }, [to]);
+
+  if (ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id) return null;
+
+  return (
+    <div className="mt-8">
+      <div className="flex items-center mb-1 justify-between text-white ">
+        <SwapRate
+          value={`1 ${toRealSymbol(
+            tokenOut.symbol
+          )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
+          from={from}
+          to={to}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          fee={fee}
+          tokenPriceList={tokenPriceList}
+        />
+
+        <div
+          className="pl-1 text-sm flex items-center cursor-pointer"
+          onClick={() => {
+            setShowDetails(!showDetails);
+          }}
+        >
+          {showDetails ? null : (
+            <span className="py-1 pl-1 pr-1.5 rounded-md flex items-center bg-opacity-20 bg-black mr-1.5">
+              <SwapMinReceiveCheck />
+
+              <span
+                className=" text-white ml-1 relative top-0.5"
+                style={{
+                  fontSize: '13px',
+                }}
+              >
+                {toPrecision(minAmountOutValue, 8)}
+              </span>
+            </span>
+          )}
+
+          <span>
+            {showDetails ? (
+              <FaAngleUp color="#91A2AE" />
+            ) : (
+              <FaAngleDown color="#91A2AE" />
+            )}
+          </span>
+        </div>
+      </div>
+      <div className={showDetails ? '' : 'hidden'}>
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
+        />
+
+        {Number(priceImpact) > 2 && (
+          <div className="py-1 text-xs text-right">
+            <PriceImpactWarning value={priceImpact} />
+          </div>
+        )}
+        <SwapDetail
+          title={intl.formatMessage({ id: 'price_impact' })}
+          value={!to || to === '0' ? '-' : priceImpactDisplay}
+        />
+        <SwapDetail
+          title={intl.formatMessage({ id: 'pool_fee' })}
+          value={poolFeeDisplay}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function SwapCard(props: {
   allTokens: TokenMetadata[];
   swapMode: SWAP_MODE;
@@ -682,6 +806,8 @@ export default function SwapCard(props: {
       STABLE_POOL_TYPE.USD
   );
 
+  const [bestSwap, setBestSwap] = useState<'v3' | 'v2'>('v2');
+
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
   );
@@ -706,6 +832,9 @@ export default function SwapCard(props: {
   const intl = useIntl();
   const location = useLocation();
   const history = useHistory();
+
+  const [displayTokenOutAmount, setDisplayTokenOutAmount] =
+    useState<string>('');
 
   const balances = useTokenBalances();
   const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
@@ -876,6 +1005,7 @@ export default function SwapCard(props: {
     isParallelSwap,
     swapsToDo,
     setCanSwap,
+    quoteDone,
   } = useSwap({
     tokenIn: tokenIn,
     tokenInAmount,
@@ -891,7 +1021,22 @@ export default function SwapCard(props: {
     supportLedger,
   });
 
-  console.log(swapsToDo, 'swapstodo');
+  const {
+    makeSwap: makeSwapV3,
+    canSwap: canSwapV3,
+    tokenOutAmount: tokenOutAmountV3,
+    minAmountOut: minAmountOutV3,
+    bestFee,
+    priceImpact: priceImpactV3,
+    quoteDone: quoteDoneV3,
+  } = useSwapV3({
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    slippageTolerance,
+    swapMode,
+    loadingTrigger,
+  });
 
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
@@ -931,6 +1076,44 @@ export default function SwapCard(props: {
     }
   }, [tokenOutAmount, swapsToDo]);
 
+  useEffect(() => {
+    if (
+      loadingTrigger ||
+      !quoteDone ||
+      (!quoteDoneV3 && swapMode !== SWAP_MODE.STABLE) ||
+      (!canSwap && !canSwapV3)
+    )
+      return;
+
+    if (canSwap && canSwapV3) {
+      setBestSwap(
+        new Big(tokenOutAmountV3 || '0').gt(tokenOutAmount || '0') &&
+          swapMode !== SWAP_MODE.STABLE
+          ? 'v3'
+          : 'v2'
+      );
+      setDisplayTokenOutAmount(
+        new Big(tokenOutAmountV3 || '0').gt(tokenOutAmount || '0')
+          ? tokenOutAmountV3
+          : tokenOutAmount
+      );
+    } else if (canSwap) {
+      setBestSwap('v2');
+      setDisplayTokenOutAmount(tokenOutAmount);
+    } else if (canSwapV3) {
+      setBestSwap('v3');
+      setDisplayTokenOutAmount(tokenOutAmountV3);
+    }
+  }, [
+    loadingTrigger,
+    quoteDoneV3,
+    canSwap,
+    canSwapV3,
+    tokenOutAmount,
+    tokenOutAmountV3,
+    quoteDone,
+  ]);
+
   let PriceImpactValue: string = '0';
 
   try {
@@ -946,6 +1129,50 @@ export default function SwapCard(props: {
     PriceImpactValue = '0';
   }
 
+  const bestSwapPriceImpact =
+    bestSwap === 'v3' ? priceImpactV3 : PriceImpactValue;
+
+  const makeBestSwap = () => {
+    if (bestSwap === 'v3') {
+      makeSwapV3();
+    } else {
+      makeSwap(useNearBalance);
+    }
+  };
+
+  const DetailView = useMemo(() => {
+    if (bestSwap === 'v2') {
+      return (
+        <DetailViewV2
+          pools={pools}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          from={tokenInAmount}
+          to={tokenOutAmount}
+          minAmountOut={minAmountOut}
+          isParallelSwap={isParallelSwap}
+          fee={avgFee}
+          swapsTodo={swapsToDo}
+          priceImpact={PriceImpactValue}
+          swapMode={swapMode}
+          tokenPriceList={tokenPriceList}
+        />
+      );
+    } else
+      return (
+        <DetailViewV3
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          from={tokenInAmount}
+          to={tokenOutAmountV3}
+          minAmountOut={minAmountOutV3}
+          fee={bestFee}
+          priceImpact={priceImpactV3}
+          tokenPriceList={tokenPriceList}
+        />
+      );
+  }, [displayTokenOutAmount]);
+
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'
     : toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
@@ -960,10 +1187,10 @@ export default function SwapCard(props: {
     const ifDoubleCheck =
       new BigNumber(tokenInAmount).isLessThanOrEqualTo(
         new BigNumber(tokenInMax)
-      ) && Number(PriceImpactValue) > 2;
+      ) && Number(bestSwapPriceImpact) > 2;
 
     if (ifDoubleCheck) setDoubleCheckOpen(true);
-    else makeSwap(useNearBalance);
+    else makeBestSwap();
   };
 
   return (
@@ -1079,7 +1306,7 @@ export default function SwapCard(props: {
         <TokenAmountV3
           forSwap
           swapMode={swapMode}
-          amount={toPrecision(tokenOutAmount, 8)}
+          amount={toPrecision(displayTokenOutAmount, 8)}
           total={tokenOutTotal}
           tokens={allTokens}
           selectedToken={tokenOut}
@@ -1125,20 +1352,9 @@ export default function SwapCard(props: {
             </div>
           }
         />
-        <DetailView
-          pools={pools}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          from={tokenInAmount}
-          to={tokenOutAmount}
-          minAmountOut={minAmountOut}
-          isParallelSwap={isParallelSwap}
-          fee={avgFee}
-          swapsTodo={swapsToDo}
-          priceImpact={PriceImpactValue}
-          swapMode={swapMode}
-          tokenPriceList={tokenPriceList}
-        />
+
+        {DetailView}
+
         {swapError ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />
@@ -1155,8 +1371,8 @@ export default function SwapCard(props: {
         tokenIn={tokenIn}
         tokenOut={tokenOut}
         from={tokenInAmount}
-        onSwap={() => makeSwap(useNearBalance)}
-        priceImpactValue={PriceImpactValue}
+        onSwap={() => makeBestSwap()}
+        priceImpactValue={bestSwapPriceImpact}
       />
       {swapMode === SWAP_MODE.STABLE ? (
         <TokenReserves
