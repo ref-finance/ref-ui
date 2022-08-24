@@ -418,3 +418,8 @@ export const create_pool = ({
 
   return executeMultipleTransactions(transactions);
 };
+export const list_pools = () => {
+  return refSwapV3ViewFunction({
+    methodName: 'list_pools',
+  });
+};

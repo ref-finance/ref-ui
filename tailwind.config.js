@@ -169,7 +169,12 @@ module.exports = {
         borderLightBlueColor:'rgba(115, 129, 139, 0.5)',
         bgDarkColor:'rgba(0, 19, 32, 0.5)',
         warnRedColor: 'rgba(255, 117, 117, 0.5)',
-        darkBlackColor:'#111C24'
+        darkBlackColor:'#111C24',
+        v3borderColor:'rgba(126, 138, 147, 0.2)',
+        v3LightGreyColor:'#91A2AE',
+        v3feeTextColor:'#586F80',
+        v3feeBorderColor:'rgba(145, 162, 174, 0.1)',
+        v3WarningColor:'#FFA24D',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
