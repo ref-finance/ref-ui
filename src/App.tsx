@@ -67,6 +67,8 @@ import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
 import { getAllTriPools } from './services/aurora/aurora';
 import FarmsBoosterPage from './pages/farms/FarmsBoostPage';
 import FarmsMigrate from './pages/farms/FarmsMigrate';
+import YourLiquidityPageV3 from './pages/poolsV3/YourLiquidityPageV3';
+import AddYourLiquidityPageV3 from './pages/poolsV3/AddYourLiquidityPageV3';
 
 import {
   getSenderLoginRes,
@@ -324,6 +326,14 @@ function App() {
               component={AutoHeight(FarmsBoosterPage)}
             />
             <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
+            <Route
+              path="/yoursV3"
+              component={AutoHeight(YourLiquidityPageV3)}
+            />
+            <Route
+              path="/addYoursV3"
+              component={AutoHeight(AddYourLiquidityPageV3)}
+            />
             <Route path="/" component={AutoHeight(SwapPage)} />
           </Switch>
           <Footer />
