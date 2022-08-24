@@ -412,6 +412,8 @@ export function SwapExchangeV3({
 
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   if (!tokenIn || !tokenOut) return null;
 
   return (
@@ -471,8 +473,9 @@ export function SwapExchangeV3({
         <span>{`1 ${tokenIn.symbol} = `}</span>
         <div className="ml-1 flex items-center bg-black bg-opacity-20 rounded-xl px-4 py-3">
           <input
-            onWheel={() => ref.current.blur()}
+            onWheel={() => inputRef.current.blur()}
             min="0"
+            ref={inputRef}
             step="any"
             type="number"
             placeholder={!curPrice ? '-' : '0.0'}

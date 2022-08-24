@@ -431,3 +431,85 @@ export const NewPro = ({
     </button>
   );
 };
+
+export const LimitOrderMask = () => {
+  return (
+    <svg
+      width="448"
+      height="265"
+      viewBox="0 0 448 265"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="absolute top-0 right-0"
+    >
+      <mask
+        id="mask0_120_4097"
+        style={{
+          maskType: 'alpha',
+        }}
+        maskUnits="userSpaceOnUse"
+        x="0"
+        y="0"
+        width="448"
+        height="265"
+      >
+        <rect width="448" height="265" rx="12" fill="black" />
+      </mask>
+      <g mask="url(#mask0_120_4097)">
+        <circle
+          opacity="0.1"
+          cx="421"
+          cy="12.8345"
+          r="40.8952"
+          transform="rotate(45 421 12.8345)"
+          fill="url(#paint0_linear_120_4097)"
+          stroke="url(#paint1_linear_120_4097)"
+          stroke-width="16"
+          stroke-linecap="round"
+        />
+        <path
+          opacity="0.1"
+          d="M-22 83.3478C-17.6273 92.0338 -2.32298 109.406 23.913 109.406C56.7081 109.406 69.8261 51 115.739 51C161.652 51 164.932 113 207.565 113C250.199 113 253.478 51 296.112 51C338.745 51 339.565 109.406 374 109.406"
+          stroke="url(#paint2_linear_120_4097)"
+          stroke-width="16"
+          stroke-linecap="round"
+        />
+      </g>
+      <defs>
+        <linearGradient
+          id="paint0_linear_120_4097"
+          x1="421"
+          y1="-28.0607"
+          x2="421"
+          y2="53.7297"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#26343E" />
+          <stop offset="1" stop-color="#1D2932" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_120_4097"
+          x1="377.902"
+          y1="53.7297"
+          x2="436.492"
+          y2="53.7297"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00FFD1" />
+          <stop offset="1" stop-color="#5B40FF" />
+        </linearGradient>
+        <linearGradient
+          id="paint2_linear_120_4097"
+          x1="384.664"
+          y1="113"
+          x2="100.995"
+          y2="113"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00FFD1" stop-opacity="0" />
+          <stop offset="1" stop-color="#5B40FF" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
