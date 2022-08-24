@@ -829,6 +829,7 @@ const ja = {
     'Testnet はカスタム RPC の追加をサポートしていません',
   trade_capital: 'TRADE',
   pro: 'Pro',
+  make_an_order: 'Make an order',
   limit: 'Limit',
 };
 export default Object.assign(ja, ja_in_risks_page);

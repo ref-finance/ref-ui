@@ -16,8 +16,20 @@ import {
 
 const LOG_BASE = 1.0001;
 
+export const V3_POOL_FEE_LIST = [100, 400, 2000, 10000];
+
+const LETF_POINT_MIN = -800000;
+
+const RIGHT_POINT_MAX = 800000;
+
+export const V3_POOL_SPLITER = '|';
+
 export const getV3PoolId = (tokenA: string, tokenB: string, fee: number) => {
   return `${tokenA}|${tokenB}|${fee}`;
+};
+
+export const allPoolsThisPair = (tokenA: string, tokenB: string) => {
+  return V3_POOL_FEE_LIST.map((fee) => getV3PoolId(tokenA, tokenB, fee));
 };
 
 export interface UserOrderInfo {
@@ -119,7 +131,7 @@ export const pointToPrice = ({
     .times(new Big(10).pow(tokenA.decimals))
     .div(new Big(10).pow(tokenB.decimals));
 
-  return decimal_price_A_by_B.toFixed();
+  return decimal_price_A_by_B.toFixed(18);
 };
 
 export const quote_by_output = ({
@@ -376,12 +388,12 @@ export const get_pointorder_range = ({
   left_point?: number;
   right_point?: number;
 }) => {
-  return refVeViewFunction({
+  return refSwapV3ViewFunction({
     methodName: 'get_pointorder_range',
     args: {
       pool_id,
-      left_point: left_point || -800000,
-      right_point: right_point || 800000,
+      left_point: left_point || LETF_POINT_MIN,
+      right_point: right_point || RIGHT_POINT_MAX,
     },
   });
 };

@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { isMobile } from '../../utils/device';
+import { TokenMetadata } from '../../services/ft-contract';
 
 export function ArrowDownGreen() {
   return (
@@ -165,10 +167,16 @@ export function UpArrowDeep() {
   );
 }
 
-export function SwapArrowDown({ light }: { light?: boolean }) {
+export function SwapArrowDown({
+  light,
+  width,
+}: {
+  light?: boolean;
+  width?: string;
+}) {
   return (
     <svg
-      width="6"
+      width={width || '6'}
       height="16"
       viewBox="0 0 6 16"
       fill="none"
@@ -186,10 +194,16 @@ export function SwapArrowDown({ light }: { light?: boolean }) {
   );
 }
 
-export function SwapArrowUp({ light }: { light?: boolean }) {
+export function SwapArrowUp({
+  light,
+  width,
+}: {
+  light?: boolean;
+  width?: string;
+}) {
   return (
     <svg
-      width="6"
+      width={width || '6'}
       height="16"
       viewBox="0 0 6 16"
       fill="none"
@@ -354,6 +368,133 @@ export function SwapExchange({ onChange }: { onChange: (e?: any) => void }) {
         </span>
       </div>
     </div>
+  );
+}
+
+export function SwapExchangeV3({
+  onChange,
+  tokenIn,
+  tokenOut,
+  rate,
+  setRate,
+  curPrice,
+}: {
+  onChange: (e?: any) => void;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  rate: string;
+  setRate: (r: string) => void;
+  curPrice?: string;
+}) {
+  const [hover, setHover] = useState<boolean>(false);
+  const upRow = useRef(null);
+  const downRow = useRef(null);
+
+  const mobileDevice = isMobile();
+
+  const [mobileAnimation, setMobileAnimation] = useState<boolean>(false);
+
+  const runSwapAnimation = function () {
+    upRow.current.style.animation = 'arrowUp 0.5s 0s ease-out 1';
+    downRow.current.style.animation = 'arrowDown 0.5s 0s ease-out 1';
+    setMobileAnimation(true);
+
+    upRow.current.addEventListener('animationend', function () {
+      upRow.current.style.animation = '';
+      setMobileAnimation(false);
+    });
+    downRow.current.addEventListener('animationend', function () {
+      downRow.current.style.animation = '';
+      setMobileAnimation(false);
+    });
+  };
+  const ref = useRef<HTMLInputElement>();
+
+  const [symbolsArr] = useState(['e', 'E', '+', '-']);
+
+  if (!tokenIn || !tokenOut) return null;
+
+  return (
+    <>
+      <div className="flex items-center">
+        <div
+          className="relative flex items-center justify-center  w-6 h-6 border border-primaryText border-opacity-30 rounded-full cursor-pointer bg-dark"
+          onClick={() => {
+            onChange();
+            mobileDevice && runSwapAnimation();
+          }}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+        >
+          <div className="flex items-center">
+            <span
+              className={`transition-transform transform ${
+                hover ? 'lg:-translate-y-0.5 ' : ''
+              }`}
+              ref={upRow}
+            >
+              <SwapArrowUp
+                width="5"
+                light={mobileDevice ? mobileAnimation : hover}
+              />
+            </span>
+            <span
+              className={`transition-transform transform ${
+                hover ? 'lg:translate-y-0.5 ' : ''
+              }`}
+              ref={downRow}
+            >
+              <SwapArrowDown
+                width="5"
+                light={mobileDevice ? mobileAnimation : hover}
+              />
+            </span>
+          </div>
+        </div>
+
+        <span className="text-v3SwapGray text-xs ml-2 mr-1">
+          <FormattedMessage id="rate" defaultMessage={'Rate'} />
+        </span>
+
+        <span
+          className="text-xs px-2 py-1 rounded-2xl whitespace-nowrap"
+          style={{
+            color: '#78C6FF',
+            background: 'rgba(66, 120, 202, 0.15)',
+          }}
+        >
+          <FormattedMessage id="current_rate" defaultMessage={'Current Rate'} />
+        </span>
+      </div>
+
+      <div className="flex items-center text-v3SwapGray text-xs">
+        <span>{`1 ${tokenIn.symbol} = `}</span>
+        <div className="ml-1 flex items-center bg-black bg-opacity-20 rounded-xl px-4 py-3">
+          <input
+            onWheel={() => ref.current.blur()}
+            min="0"
+            step="any"
+            type="number"
+            placeholder={!curPrice ? '-' : '0.0'}
+            value={!curPrice ? '-' : rate}
+            onChange={(e) => {
+              if (!curPrice) {
+                return null;
+              } else setRate(e.target.value);
+            }}
+            disabled={!curPrice}
+            style={{
+              fontSize: '16px',
+              color: 'white',
+              maxWidth: '150px',
+            }}
+            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
+          />
+
+          <span className="text-white text-xs">{tokenOut.symbol}</span>
+        </div>
+      </div>
+    </>
   );
 }
 

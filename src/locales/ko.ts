@@ -818,6 +818,7 @@ const ko = {
     '테스트넷은 사용자 지정 RPC 추가를 지원하지 않습니다',
   trade_capital: 'TRADE',
   pro: 'Pro',
+  make_an_order: 'Make an order',
   limit: 'Limit',
 };
 export default Object.assign(ko, ko_in_risks_page);

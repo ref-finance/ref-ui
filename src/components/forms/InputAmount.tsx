@@ -24,6 +24,7 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value?: string;
   curAmount?: string;
   openClear?: boolean;
+  forLimitOrder?: boolean;
 }
 
 export default function InputAmount({
@@ -74,7 +75,7 @@ export default function InputAmount({
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
             }`}
             type="number"
-            placeholder="0.0"
+            placeholder={'0.0'}
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
@@ -317,6 +318,7 @@ export function InputAmountV3({
   forSwap = false,
   decimalLimit,
   price,
+  forLimitOrder,
   openClear,
   ...rest
 }: InputAmountProps) {
@@ -346,7 +348,7 @@ export function InputAmountV3({
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
             }`}
             type="number"
-            placeholder="0.0"
+            placeholder={forLimitOrder ? '-' : '0.0'}
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}

@@ -18,12 +18,12 @@ interface SwapFormWrapProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   info?: string | JSX.Element;
   showElseView?: boolean;
+  swapTab?: JSX.Element;
   elseView?: JSX.Element;
   crossSwap?: boolean;
   requested?: boolean;
   tokensTitle?: JSX.Element;
   onChange: (slippage: number) => void;
-  bindUseBalance: (useNearBalance: boolean) => void;
   requestingTrigger?: boolean;
   loading?: {
     loadingData: boolean;
@@ -54,7 +54,7 @@ export default function SwapFormWrap({
   showElseView,
   elseView,
   onChange,
-  bindUseBalance,
+  swapTab,
   loading,
   useNearBalance,
   swapMode,
@@ -64,11 +64,8 @@ export default function SwapFormWrap({
   const [error, setError] = useState<Error>();
 
   const {
-    loadingData,
-    setLoadingData,
     loadingTrigger,
-    setLoadingTrigger,
-    loadingPause,
+
     setLoadingPause,
     showSwapLoading,
     setShowSwapLoading,
@@ -106,21 +103,19 @@ export default function SwapFormWrap({
     >
       {title && (
         <>
-          <h2 className="formTitle flex justify-end font-bold text-xl text-white text-left pb-4">
-            <div className="flex items-center">
-              <SlippageSelector
-                slippageTolerance={slippageTolerance}
-                onChange={onChange}
-                bindUseBalance={bindUseBalance}
-                useNearBalance={useNearBalance}
-                supportLedger={supportLedger}
-                setSupportLedger={setSupportLedger}
-                validSlippageList={
-                  swapMode === SWAP_MODE.NORMAL ? null : [0.05, 0.1, 0.2]
-                }
-                swapMode={swapMode}
-              />
-            </div>
+          <h2 className="formTitle flex items-center justify-between font-bold text-xl text-white text-left pb-4">
+            {swapTab}
+
+            <SlippageSelector
+              slippageTolerance={slippageTolerance}
+              onChange={onChange}
+              supportLedger={supportLedger}
+              setSupportLedger={setSupportLedger}
+              validSlippageList={
+                swapMode === SWAP_MODE.NORMAL ? null : [0.05, 0.1, 0.2]
+              }
+              swapMode={swapMode}
+            />
           </h2>
         </>
       )}
@@ -154,9 +149,9 @@ export function CrossSwapFormWrap({
   crossSwap,
   showElseView,
   elseView,
+  swapTab,
   showAllResults,
   onChange,
-  bindUseBalance,
   loading,
   useNearBalance,
   requestingTrigger,
@@ -225,44 +220,41 @@ export function CrossSwapFormWrap({
         </div>
       )}
       {title && (
-        <>
-          <h2 className="formTitle flex justify-end  font-bold text-xl text-white text-left pb-4">
-            <div className="flex items-center  w-full justify-between">
-              {tokensTitle}
-              {!requested ? null : (
-                <div
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+        <h2 className="formTitle flex items-center justify-between  font-bold text-xl text-white text-left pb-4 pt-1.5">
+          {tokensTitle}
+          <div className="flex self-start items-center">
+            {requested ? null : swapTab}
+            {!requested ? null : (
+              <div
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
 
-                    if (loadingPause) {
-                      setLoadingPause(false);
-                      setLoadingTrigger(true);
-                      setLoadingData(true);
-                    } else {
-                      setLoadingPause(true);
-                      setLoadingTrigger(false);
-                    }
-                  }}
-                  className="mx-4 cursor-pointer"
-                >
-                  <CountdownTimer
-                    loadingTrigger={loadingTrigger}
-                    loadingPause={loadingPause}
-                  />
-                </div>
-              )}
-              <SlippageSelector
-                slippageTolerance={slippageTolerance}
-                onChange={onChange}
-                bindUseBalance={bindUseBalance}
-                useNearBalance={useNearBalance}
-                supportLedger={supportLedger}
-                setSupportLedger={setSupportLedger}
-              />
-            </div>
-          </h2>
-        </>
+                  if (loadingPause) {
+                    setLoadingPause(false);
+                    setLoadingTrigger(true);
+                    setLoadingData(true);
+                  } else {
+                    setLoadingPause(true);
+                    setLoadingTrigger(false);
+                  }
+                }}
+                className="mx-4 cursor-pointer"
+              >
+                <CountdownTimer
+                  loadingTrigger={loadingTrigger}
+                  loadingPause={loadingPause}
+                />
+              </div>
+            )}
+            <SlippageSelector
+              slippageTolerance={slippageTolerance}
+              onChange={onChange}
+              supportLedger={supportLedger}
+              setSupportLedger={setSupportLedger}
+            />
+          </div>
+        </h2>
       )}
       {error && <Alert level="warn" message={error.message} />}
       {children}

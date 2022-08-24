@@ -10,7 +10,7 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useTokenBalances, useDepositableBalance } from '../../state/token';
-import { useSwap, useSwapV3 } from '../../state/swap';
+import { useSwap, useSwapV3, useLimitOrder } from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -80,7 +80,7 @@ import {
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
-import { SwapArrow, SwapExchange } from '../icon/Arrows';
+import { SwapArrow, SwapExchange, SwapExchangeV3 } from '../icon/Arrows';
 import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
@@ -92,6 +92,13 @@ import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SwapMinReceiveCheck } from '../icon/swapV3';
 import { TokenAmountV3 } from '../forms/TokenAmount';
 import Big from 'big.js';
+import { Slider } from '../icon/Info';
+import { pointToPrice, priceToPoint, v3Swap } from '../../services/swapV3';
+import {
+  V3_POOL_FEE_LIST,
+  getV3PoolId,
+  V3_POOL_SPLITER,
+} from '../../services/swapV3';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -99,6 +106,8 @@ const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 
 const SWAP_SLIPPAGE_KEY_STABLE = 'REF_FI_SLIPPAGE_VALUE_STABLE';
+
+const SWAP_SLIPPAGE_KEY_LIMIT = 'REF_FI_SLIPPAGE_VALUE_LIMIT';
 
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
@@ -700,9 +709,11 @@ function DetailViewV3({
     if (!fee || !from || !tokenIn) return null;
 
     return `${toPrecision(
-      calculateFeePercent(fee).toString(),
+      calculateFeePercent(fee / 100).toString(),
       2
-    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
+    )}% / ${calculateFeeCharge(fee / 100, from)} ${toRealSymbol(
+      tokenIn.symbol
+    )}`;
   }, [to]);
 
   if (ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id) return null;
@@ -776,6 +787,131 @@ function DetailViewV3({
   );
 }
 
+function DetailViewLimit({
+  setV3Pool,
+  v3Pool,
+  poolPercents,
+  tokenIn,
+  tokneOut,
+}: {
+  v3Pool: string;
+  setV3Pool: (p: string) => void;
+  poolPercents: {
+    [key: string]: string;
+  };
+  tokenIn: TokenMetadata;
+  tokneOut: TokenMetadata;
+}) {
+  const [showDetail, setShowDetail] = useState<boolean>(false);
+
+  const poolTips = [
+    'Best for very stable pairs',
+    'Best for stable pairs',
+    'Best for most pairs',
+    'Best for rare pairs',
+  ];
+
+  function SelectPercent({
+    fee,
+    forTier,
+    poolId,
+  }: {
+    fee?: number;
+    poolId?: string;
+    forTier?: boolean;
+  }) {
+    const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokneOut.id, fee);
+
+    return (
+      <span
+        className="py-1 px-2.5 bg-black bg-opacity-20 text-xs inline-flex items-center rounded-xl whitespace-nowrap"
+        style={{
+          color: '#91A2AE',
+        }}
+      >
+        <span className="mr-1">
+          {ONLY_ZEROS.test(poolPercents?.[id] || '0') && !forTier
+            ? ''
+            : `${poolPercents?.[id] || '0'}%`}
+        </span>
+        {ONLY_ZEROS.test(poolPercents?.[id] || '0') && !forTier ? (
+          <FormattedMessage id="no_pool" defaultMessage={'No Pool'} />
+        ) : (
+          <FormattedMessage id="select" defaultMessage={'select'} />
+        )}
+      </span>
+    );
+  }
+
+  return (
+    <div className="border border-primaryText flex-col border-opacity-20 rounded-xl mt-4 p-4 flex text-white">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <span className="whitespace-nowrap text-base mr-2.5">
+            {toPrecision(
+              calculateFeePercent(
+                Number(v3Pool?.split(V3_POOL_SPLITER)[2] || 2000) / 100
+              ).toString(),
+              2
+            )}
+            % &nbsp;
+            <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
+          </span>
+
+          <SelectPercent
+            poolId={v3Pool}
+            // fee={Number(v3Pool.split(V3_POOL_SPLITER)[2])}
+            forTier
+          />
+        </div>
+
+        <button
+          className="p-1 w-8 h-8 bg-black flex items-center justify-center bg-opacity-20 border border-opacity-20 border-primaryText rounded-xl"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setShowDetail(!showDetail);
+          }}
+        >
+          <Slider shrink showSlip={showDetail} />
+        </button>
+      </div>
+
+      {!showDetail ? null : (
+        <div className="w-full flex items-center justify-between mt-4">
+          {V3_POOL_FEE_LIST.map((fee, i) => {
+            const pool_id = getV3PoolId(tokenIn.id, tokneOut.id, fee);
+            const tip = poolTips[i];
+            const feePercent = toPrecision(
+              calculateFeePercent(fee / 100).toString(),
+              2
+            );
+
+            return (
+              <div
+                key={i + '-' + pool_id}
+                className="rounded-xl max-w-28 px-1 h-28 flex-col border flex items-center border-primaryText border-opacity-20 pb-2 py-3"
+              >
+                <span>{feePercent}%</span>
+                <span
+                  className="py-1.5 text-xs text-center"
+                  style={{
+                    color: '#91A2AE',
+                  }}
+                >
+                  {tip}
+                </span>
+
+                <SelectPercent fee={fee} />
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SwapCard(props: {
   allTokens: TokenMetadata[];
   swapMode: SWAP_MODE;
@@ -787,6 +923,9 @@ export default function SwapCard(props: {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
   // getConfig();
+
+  const [selectedV3LimitPool, setSelectedV3LimitPool] = useState<string>('');
+
   const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
 
   const {
@@ -805,6 +944,12 @@ export default function SwapCard(props: {
     STABLE_POOL_TYPE[localStorage.getItem(reserveTypeStorageKey)] ||
       STABLE_POOL_TYPE.USD
   );
+
+  const [curOrderPrice, setCurOrderPrice] = useState<string>('');
+
+  const [LimitAmountOutRate, setLimitAmountOutRate] = useState<string>('');
+
+  const [limitAmountOut, setLimitAmountOut] = useState<string>('');
 
   const [bestSwap, setBestSwap] = useState<'v3' | 'v2'>('v2');
 
@@ -854,6 +999,10 @@ export default function SwapCard(props: {
       Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_STABLE)) || 0.5
     );
 
+  const [slippageToleranceLimit, setSlippageToleranceLimit] = useState<number>(
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_LIMIT)) || 0.5
+  );
+
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
 
   useEffect(() => {
@@ -889,7 +1038,7 @@ export default function SwapCard(props: {
         wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
       let rememberedOut =
         wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
-      if (swapMode === SWAP_MODE.NORMAL) {
+      if (swapMode !== SWAP_MODE.STABLE) {
         if (rememberedIn == NEARXIDS[0]) {
           rememberedIn = REF_TOKEN_ID;
         }
@@ -989,10 +1138,45 @@ export default function SwapCard(props: {
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
 
-  const slippageTolerance =
-    swapMode === SWAP_MODE.NORMAL
-      ? slippageToleranceNormal
-      : slippageToleranceStable;
+  const getSlippageTolerance = (swapMode: SWAP_MODE) => {
+    switch (swapMode) {
+      case SWAP_MODE.STABLE:
+        return {
+          slippageValue: slippageToleranceStable,
+          setSlippageValue: setSlippageToleranceStable,
+          slippageKey: SWAP_SLIPPAGE_KEY_STABLE,
+        };
+      case SWAP_MODE.NORMAL:
+        return {
+          slippageValue: slippageToleranceNormal,
+          setSlippageValue: setSlippageToleranceNormal,
+          slippageKey: SWAP_SLIPPAGE_KEY,
+        };
+      case SWAP_MODE.LIMIT:
+        return {
+          slippageValue: slippageToleranceLimit,
+          setSlippageValue: setSlippageToleranceLimit,
+          slippageKey: SWAP_SLIPPAGE_KEY_LIMIT,
+        };
+      default:
+        return {
+          slippageValue: slippageToleranceNormal,
+          setSlippageValue: setSlippageToleranceNormal,
+          slippageKey: SWAP_SLIPPAGE_KEY,
+        };
+    }
+  };
+
+  const onChangeSlippage = (slippage: number) => {
+    const { slippageValue, setSlippageValue, slippageKey } =
+      getSlippageTolerance(swapMode);
+
+    setSlippageValue(slippage);
+
+    localStorage.setItem(slippageKey, slippage.toString());
+  };
+
+  const slippageTolerance = getSlippageTolerance(swapMode).slippageValue;
 
   const {
     canSwap,
@@ -1036,6 +1220,18 @@ export default function SwapCard(props: {
     slippageTolerance,
     swapMode,
     loadingTrigger,
+  });
+
+  const {
+    poolPercents,
+    mostPool,
+    fee: mostPoolFeeLimit,
+    mostPoolDetail,
+    quoteDone: quoteDoneLimit,
+  } = useLimitOrder({
+    tokenIn,
+    tokenOut,
+    swapMode,
   });
 
   const priceImpactValueSmartRouting = useMemo(() => {
@@ -1114,6 +1310,37 @@ export default function SwapCard(props: {
     quoteDone,
   ]);
 
+  useEffect(() => {
+    console.log(quoteDoneLimit);
+
+    if (!mostPoolDetail || !tokenIn || !tokenOut || !quoteDoneLimit) {
+      setLimitAmountOutRate('');
+      setLimitAmountOut('');
+      setCurOrderPrice(null);
+      return;
+    }
+    const price = pointToPrice({
+      tokenA: tokenIn,
+      tokenB: tokenOut,
+      point: mostPoolDetail.current_point,
+    });
+    setLimitAmountOutRate(price);
+
+    setCurOrderPrice(price);
+    setLimitAmountOut(
+      new Big(price).times(tokenInAmount).toFixed(tokenOut.decimals)
+    );
+  }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
+
+  const LimitChangeAmountOut = (amount: string) => {
+    setLimitAmountOut(amount);
+    if (tokenInAmount) {
+      setLimitAmountOutRate(
+        new Big(amount || '0').div(tokenInAmount).toFixed()
+      );
+    }
+  };
+
   let PriceImpactValue: string = '0';
 
   try {
@@ -1140,38 +1367,63 @@ export default function SwapCard(props: {
     }
   };
 
+  useEffect(() => {
+    if (!mostPool) return;
+    setSelectedV3LimitPool(mostPool);
+  }, [mostPool]);
+
   const DetailView = useMemo(() => {
-    if (bestSwap === 'v2') {
+    if (swapMode === SWAP_MODE.LIMIT && tokenIn && tokenOut)
       return (
-        <DetailViewV2
-          pools={pools}
+        <DetailViewLimit
           tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          from={tokenInAmount}
-          to={tokenOutAmount}
-          minAmountOut={minAmountOut}
-          isParallelSwap={isParallelSwap}
-          fee={avgFee}
-          swapsTodo={swapsToDo}
-          priceImpact={PriceImpactValue}
-          swapMode={swapMode}
-          tokenPriceList={tokenPriceList}
+          tokneOut={tokenOut}
+          poolPercents={poolPercents}
+          v3Pool={selectedV3LimitPool}
+          setV3Pool={setSelectedV3LimitPool}
         />
       );
-    } else
-      return (
-        <DetailViewV3
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          from={tokenInAmount}
-          to={tokenOutAmountV3}
-          minAmountOut={minAmountOutV3}
-          fee={bestFee}
-          priceImpact={priceImpactV3}
-          tokenPriceList={tokenPriceList}
-        />
-      );
-  }, [displayTokenOutAmount]);
+    else if (swapMode !== SWAP_MODE.LIMIT) {
+      if (bestSwap === 'v2') {
+        return (
+          <DetailViewV2
+            pools={pools}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            from={tokenInAmount}
+            to={tokenOutAmount}
+            minAmountOut={minAmountOut}
+            isParallelSwap={isParallelSwap}
+            fee={avgFee}
+            swapsTodo={swapsToDo}
+            priceImpact={PriceImpactValue}
+            swapMode={swapMode}
+            tokenPriceList={tokenPriceList}
+          />
+        );
+      } else
+        return (
+          <DetailViewV3
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            from={tokenInAmount}
+            to={tokenOutAmountV3}
+            minAmountOut={minAmountOutV3}
+            fee={bestFee}
+            priceImpact={priceImpactV3}
+            tokenPriceList={tokenPriceList}
+          />
+        );
+    }
+  }, [
+    displayTokenOutAmount,
+    swapMode,
+    mostPool,
+    selectedV3LimitPool,
+    poolPercents,
+    tokenIn,
+    tokenOut,
+  ]);
 
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'
@@ -1179,18 +1431,39 @@ export default function SwapCard(props: {
   const tokenOutTotal = useNearBalance
     ? tokenOutBalanceFromNear || '0'
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
-  const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
+
+  console.log(LimitAmountOutRate, curOrderPrice);
+
+  const canSubmit =
+    swapMode !== SWAP_MODE.LIMIT
+      ? canSwap && (tokenInMax != '0' || !useNearBalance)
+      : !!selectedV3LimitPool &&
+        new Big(LimitAmountOutRate || '0').gt(curOrderPrice || '0');
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const ifDoubleCheck =
-      new BigNumber(tokenInAmount).isLessThanOrEqualTo(
-        new BigNumber(tokenInMax)
-      ) && Number(bestSwapPriceImpact) > 2;
+    if (swapMode === SWAP_MODE.LIMIT) {
+      v3Swap({
+        swapInfo: {
+          tokenA: tokenIn,
+          tokenB: tokenOut,
+          amountA: tokenInAmount,
+          amountB: limitAmountOut,
+        },
+        LimitOrder: {
+          pool_id: selectedV3LimitPool,
+        },
+      });
+    } else {
+      const ifDoubleCheck =
+        new BigNumber(tokenInAmount).isLessThanOrEqualTo(
+          new BigNumber(tokenInMax)
+        ) && Number(bestSwapPriceImpact) > 2;
 
-    if (ifDoubleCheck) setDoubleCheckOpen(true);
-    else makeBestSwap();
+      if (ifDoubleCheck) setDoubleCheckOpen(true);
+      else makeBestSwap();
+    }
   };
 
   return (
@@ -1200,26 +1473,9 @@ export default function SwapCard(props: {
         setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
+        swapTab={swapTab}
         slippageTolerance={slippageTolerance}
-        onChange={(slippage) => {
-          swapMode === SWAP_MODE.NORMAL
-            ? setSlippageToleranceNormal(slippage)
-            : setSlippageToleranceStable(slippage);
-
-          localStorage.setItem(
-            swapMode === SWAP_MODE.NORMAL
-              ? SWAP_SLIPPAGE_KEY
-              : SWAP_SLIPPAGE_KEY_STABLE,
-            slippage?.toString()
-          );
-        }}
-        bindUseBalance={(useNearBalance) => {
-          setUseNearBalance(useNearBalance);
-          localStorage.setItem(
-            SWAP_USE_NEAR_BALANCE_KEY,
-            useNearBalance.toString()
-          );
-        }}
+        onChange={onChangeSlippage}
         showElseView={tokenInMax === '0' && !useNearBalance}
         elseView={
           <div className="flex justify-center">
@@ -1235,7 +1491,7 @@ export default function SwapCard(props: {
         swapMode={swapMode}
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
-        title={'swap'}
+        title={swapMode === SWAP_MODE.LIMIT ? 'make_an_order' : 'swap'}
         loading={{
           loadingData,
           setLoadingData,
@@ -1247,7 +1503,6 @@ export default function SwapCard(props: {
           setShowSwapLoading,
         }}
       >
-        {swapTab}
         <TokenAmountV3
           forSwap
           swapMode={swapMode}
@@ -1256,6 +1511,9 @@ export default function SwapCard(props: {
           max={tokenInMax}
           tokens={allTokens}
           selectedToken={tokenIn}
+          limitOrderDisable={
+            swapMode === SWAP_MODE.LIMIT && !selectedV3LimitPool
+          }
           balances={balances}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
@@ -1271,9 +1529,7 @@ export default function SwapCard(props: {
           }}
           text={intl.formatMessage({ id: 'from' })}
           useNearBalance={useNearBalance}
-          onChangeAmount={(amount) => {
-            setTokenInAmount(amount);
-          }}
+          onChangeAmount={setTokenInAmount}
           tokenPriceList={tokenPriceList}
           isError={tokenIn?.id === tokenOut?.id}
           postSelected={tokenOut}
@@ -1282,36 +1538,82 @@ export default function SwapCard(props: {
           }}
         />
         <div
-          className="flex items-center justify-center border-t mt-12"
+          className={`flex items-center  ${
+            swapMode === SWAP_MODE.LIMIT
+              ? 'my-3 justify-between'
+              : 'border-t mt-12 justify-center'
+          } `}
           style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
         >
-          <SwapExchange
-            onChange={() => {
-              setTokenIn(tokenOut);
-              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
-              setTokenOut(tokenIn);
-              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+          {swapMode === SWAP_MODE.LIMIT ? (
+            <SwapExchangeV3
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+              rate={toPrecision(LimitAmountOutRate, 3)}
+              onChange={() => {
+                setTokenIn(tokenOut);
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                setTokenOut(tokenIn);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
 
-              setTokenInAmount(toPrecision('1', 6));
-              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
-              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-              history.replace(
-                `#${unWrapTokenId(
-                  tokenOut.id
-                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenIn.id)}`
-              );
-            }}
-          />
+                setTokenInAmount(toPrecision('1', 6));
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+                history.replace(
+                  `#${unWrapTokenId(
+                    tokenOut.id
+                  )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenIn.id)}`
+                );
+              }}
+              curPrice={curOrderPrice}
+              setRate={(r: string) => {
+                setLimitAmountOutRate(r);
+                setLimitAmountOut(new Big(r).times(tokenInAmount).toFixed());
+              }}
+            />
+          ) : (
+            <SwapExchange
+              onChange={() => {
+                setTokenIn(tokenOut);
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                setTokenOut(tokenIn);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+
+                setTokenInAmount(toPrecision('1', 6));
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+                history.replace(
+                  `#${unWrapTokenId(
+                    tokenOut.id
+                  )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenIn.id)}`
+                );
+              }}
+            />
+          )}
         </div>
         <TokenAmountV3
           forSwap
           swapMode={swapMode}
-          amount={toPrecision(displayTokenOutAmount, 8)}
+          amount={toPrecision(
+            swapMode === SWAP_MODE.LIMIT
+              ? limitAmountOut
+              : displayTokenOutAmount,
+            8
+          )}
           total={tokenOutTotal}
           tokens={allTokens}
           selectedToken={tokenOut}
           balances={balances}
           preSelected={tokenIn}
+          onChangeAmount={
+            swapMode === SWAP_MODE.LIMIT && selectedV3LimitPool
+              ? LimitChangeAmountOut
+              : null
+          }
+          limitOrderDisable={
+            swapMode === SWAP_MODE.LIMIT && !selectedV3LimitPool
+          }
+          forLimitOrder
           text={intl.formatMessage({ id: 'to' })}
           useNearBalance={useNearBalance}
           onSelectToken={(token) => {
@@ -1328,6 +1630,11 @@ export default function SwapCard(props: {
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
+          marketPriceLimitOrder={
+            !curOrderPrice
+              ? null
+              : new Big(tokenInAmount).times(curOrderPrice).toFixed()
+          }
           ExtraElement={
             <div
               onClick={(e) => {

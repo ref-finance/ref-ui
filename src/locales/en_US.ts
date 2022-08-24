@@ -821,5 +821,6 @@ const en_US = {
   trade_capital: 'TRADE',
   pro: 'Pro',
   limit: 'Limit',
+  make_an_order: 'Make an order',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -108,8 +108,6 @@ export default function USNFormWrap({
           <SlippageSelector
             slippageTolerance={slippageTolerance}
             onChange={onChange}
-            bindUseBalance={bindUseBalance}
-            useNearBalance={useNearBalance}
             hideLedger={true}
           />
           <IoClose

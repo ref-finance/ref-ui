@@ -824,6 +824,7 @@ const ru = {
   value: 'ценность',
   trade_capital: 'TRADE',
   pro: 'Pro',
+  make_an_order: 'Make an order',
   limit: 'Limit',
 };
 export default Object.assign(ru, ru_in_risks_page);

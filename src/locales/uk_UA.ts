@@ -791,6 +791,7 @@ const uk_UA = {
   no_support_testnet_rpc_tip: 'Testnet не підтримує додавання власного RPC',
   value: 'значення',
   trade_capital: 'TRADE',
+  make_an_order: 'Make an order',
   pro: 'Pro',
   limit: 'Limit',
 };

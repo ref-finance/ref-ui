@@ -52,10 +52,19 @@ import {
   parsedTransactionSuccessValue,
   checkCrossSwapTransactions,
 } from '../components/layout/transactionTipPopUp';
-import { get_pool, PoolInfoV3, quote, v3Swap } from '~services/swapV3';
-import { getV3PoolId, pointToPrice } from '../services/swapV3';
+import {
+  get_pool,
+  PoolInfoV3,
+  quote,
+  v3Swap,
+  V3_POOL_FEE_LIST,
+  V3_POOL_SPLITER,
+} from '~services/swapV3';
+import { pointToPrice, get_pointorder_range } from '../services/swapV3';
 import _ from 'lodash';
 import Big from 'big.js';
+import { getV3PoolId } from '../services/swapV3';
+import { checkAllocations } from '../utils/numbers';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -320,7 +329,7 @@ export const useSwapV3 = ({
   const [estimates, setEstimates] =
     useState<{ amount: string; tag: string }[]>();
 
-  const fees = [100, 400, 2000, 10000];
+  const fees = V3_POOL_FEE_LIST;
 
   const getQuote = (fee: number) => {
     const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
@@ -419,6 +428,107 @@ export const useSwapV3 = ({
       : null,
     quoteDone,
     bestFee,
+  };
+};
+
+export const useLimitOrder = ({
+  tokenIn,
+  swapMode,
+  tokenOut,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  swapMode: SWAP_MODE;
+}) => {
+  const notLimitMode = swapMode !== SWAP_MODE.LIMIT;
+
+  const [mostPool, setMostPool] = useState<string>();
+
+  const [quoteDone, setQuoteDone] = useState<boolean>(false);
+
+  const [mostPoolDetail, setMostPoolDetail] = useState<PoolInfoV3>();
+
+  const [poolToOrderCounts, setPoolToOrderCounts] = useState<{
+    [key: string]: string;
+  }>();
+
+  useEffect(() => {
+    if (!mostPool) {
+      setQuoteDone(true);
+      return;
+    }
+    get_pool(mostPool)
+      .then(setMostPoolDetail)
+      .finally(() => {
+        setQuoteDone(true);
+      });
+  }, [mostPool]);
+
+  useEffect(() => {
+    if (notLimitMode || !tokenIn || !tokenOut) return null;
+    setQuoteDone(false);
+
+    Promise.all(
+      V3_POOL_FEE_LIST.map((fee) =>
+        get_pointorder_range({
+          pool_id: getV3PoolId(tokenIn.id, tokenOut.id, fee),
+        })
+      )
+    ).then((res) => {
+      const counts = res.map((r) => Object.keys(r || {}).length || 0);
+      const sumOfCounts = _.sum(counts);
+
+      const percents =
+        sumOfCounts === 0
+          ? ['0', '0', '0', '0']
+          : checkAllocations(
+              '100',
+              counts.map((c) => ((c / sumOfCounts) * 100).toFixed())
+            );
+
+      const toCounts = percents.reduce((acc, cur, index) => {
+        return {
+          ...acc,
+          [getV3PoolId(tokenIn.id, tokenOut.id, V3_POOL_FEE_LIST[index])]: cur,
+        };
+      }, {});
+
+      setPoolToOrderCounts(toCounts);
+    });
+  }, [tokenIn, tokenOut]);
+
+  useEffect(() => {
+    if (
+      !poolToOrderCounts ||
+      Object.values(poolToOrderCounts).every((c) => ONLY_ZEROS.test(c))
+    ) {
+      setQuoteDone(true);
+      setMostPool(null);
+      return;
+    } else {
+      const countValues = Object.values(poolToOrderCounts);
+
+      const maxOrderIndex = countValues.findIndex(
+        (c) => c === _.maxBy(countValues, (o) => Number(o))
+      );
+      const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
+        getV3PoolId(tokenIn.id, tokenOut.id, fee)
+      );
+
+      if (countValues.every((v) => v === countValues[0])) {
+        setMostPool(allPoolsForThisPair[2]);
+      } else {
+        setMostPool(allPoolsForThisPair[maxOrderIndex]);
+      }
+    }
+  }, [Object.keys(poolToOrderCounts || {}).join('-'), tokenOut, tokenIn]);
+
+  return {
+    poolPercents: notLimitMode ? null : poolToOrderCounts,
+    mostPool,
+    fee: !mostPool ? null : Number(mostPool.split(V3_POOL_SPLITER)[2]),
+    mostPoolDetail,
+    quoteDone,
   };
 };
 

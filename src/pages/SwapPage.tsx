@@ -31,7 +31,7 @@ const ChangeSwapModeV3 = ({
   setSwapMode: (e?: any) => void;
 }) => {
   return (
-    <div className="rounded-2xl absolute top-3 left-7  text-primaryText text-lg flex items-center  p-1  mx-auto mr-5 font-normal">
+    <div className="rounded-2xl  w-full text-primaryText text-lg flex items-center mx-auto mr-5 font-normal">
       <span
         className={`py-2 mr-10 text-center cursor-pointer ${
           swapMode === SWAP_MODE.NORMAL ? ' text-white' : ''
@@ -78,7 +78,7 @@ function SwapTab({
   setSwapTab: (tab: string) => void;
 }) {
   return (
-    <div className="mb-5 flex absolute top-6 right-20 items-center justify-between">
+    <div className=" flex mr-4 items-center justify-between">
       <NewPro
         ifCross={ifCross}
         onClick={() => {
@@ -94,6 +94,20 @@ function SwapTab({
     </div>
   );
 }
+
+const MyOrderTab = () => {
+  return (
+    <button
+      className="rounded-xl whitespace-nowrap text-white text-sm border border-primaryText border-opacity-20 h-8 px-2 mr-4"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
+      <FormattedMessage id="my_orders" defaultMessage={'My Orders'} />
+    </button>
+  );
+};
 
 function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
   triTokens.forEach((tk) => {
@@ -130,8 +144,6 @@ function SwapPage() {
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
     urlMode || storageMode || SWAP_MODE.NORMAL
   );
-
-  console.log(swapMode, 'swap mode');
 
   const stablePools = useAllStablePools();
 
@@ -189,6 +201,7 @@ function SwapPage() {
                   ifCross={swapTab === 'cross'}
                   setSwapTab={setSwapTab}
                 />
+                {swapMode === SWAP_MODE.LIMIT && <MyOrderTab />}
               </>
             }
           />

@@ -827,6 +827,7 @@ const vi = {
   value: 'giá trị',
   trade_capital: 'TRADE',
   pro: 'Pro',
+  make_an_order: 'Make an order',
   limit: 'Limit',
 };
 export default Object.assign(vi, vi_in_risks_page);

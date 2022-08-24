@@ -781,5 +781,6 @@ const zh_CN = {
   trade_capital: 'TRADE',
   pro: 'Pro',
   limit: 'Limit',
+  make_an_order: 'Make an order',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

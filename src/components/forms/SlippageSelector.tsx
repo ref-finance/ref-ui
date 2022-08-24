@@ -94,8 +94,6 @@ function CustomSwitchSwap({
 export default function SlippageSelector({
   slippageTolerance,
   onChange,
-  bindUseBalance,
-  useNearBalance,
   validSlippageList,
   supportLedger,
   setSupportLedger,
@@ -104,8 +102,6 @@ export default function SlippageSelector({
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
-  bindUseBalance: (useNearBalance: boolean) => void;
-  useNearBalance: string;
   validSlippageList?: number[];
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
@@ -178,7 +174,7 @@ export default function SlippageSelector({
   }, [swapMode]);
 
   return (
-    <div className="relative self-start z-10 font-normal">
+    <div className="relative z-10 font-normal">
       <div
         className="p-1 w-8 h-8 bg-black flex items-center justify-center bg-opacity-20 border border-opacity-20 border-primaryText rounded-xl text-2xl text-white cursor-pointer"
         onClick={(e) => openToolTip(e)}

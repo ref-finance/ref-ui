@@ -606,15 +606,9 @@ export default function CrossSwapCard(props: {
           setSlippageTolerance(slippage);
           localStorage.setItem(SWAP_SLIPPAGE_KEY, slippage?.toString());
         }}
+        swapTab={swapTab}
         requested={requested}
         requestingTrigger={loadingTrigger && !requested}
-        bindUseBalance={(useNearBalance) => {
-          setUseNearBalance(useNearBalance);
-          localStorage.setItem(
-            SWAP_USE_NEAR_BALANCE_KEY,
-            useNearBalance.toString()
-          );
-        }}
         loading={{
           loadingData,
           setLoadingData,
@@ -672,7 +666,6 @@ export default function CrossSwapCard(props: {
         title={requested ? 'Confirm' : 'Request_for_Quote'}
         showAllResults={showAllResults}
       >
-        {requested ? null : swapTab}
         <TokenCardIn
           tokenIn={tokenIn}
           max={tokenInMax}
