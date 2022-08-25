@@ -77,8 +77,8 @@ const Beta = () => {
 
 const notSupportingIcons = [
   walletIcons['sender'],
-  walletIcons['math-wallet'],
-  walletIcons['nightly'],
+  // walletIcons['math-wallet'],
+  // walletIcons['nightly'],
   walletIcons['ledger'],
   // walletIcons['nightly-connect'],
   // walletIcons['wallet-connect'],

@@ -101,15 +101,15 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         setupSender({
           iconUrl: walletIcons['sender'],
         }),
-        setupMeteorWallet({
-          iconUrl: walletIcons['meteor-wallet'],
-        }),
-        setupMathWallet({
-          iconUrl: walletIcons['math-wallet'],
-        }),
-        setupNightly({
-          iconUrl: walletIcons['nightly'],
-        }),
+        // setupMeteorWallet({
+        //   iconUrl: walletIcons['meteor-wallet'],
+        // }),
+        // setupMathWallet({
+        //   iconUrl: walletIcons['math-wallet'],
+        // }),
+        // setupNightly({
+        //   iconUrl: walletIcons['nightly'],
+        // }),
         setupLedger({
           iconUrl: walletIcons['ledger'],
         }),
