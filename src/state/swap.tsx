@@ -486,8 +486,6 @@ export const useLimitOrder = ({
         const counts = res.map((r) => Object.keys(r || {}).length || 0);
         const sumOfCounts = _.sum(counts);
 
-        console.log('get order');
-
         const percents =
           sumOfCounts === 0
             ? ['0', '0', '0', '0']

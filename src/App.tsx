@@ -95,6 +95,7 @@ import { StableSwapRouter } from './pages/stable/StableSwapRouter';
 import { ReferendumPage } from './pages/ReferendumPage';
 import getConfig from './services/config';
 import { NEAR_WITHDRAW_KEY } from './components/forms/WrapNear';
+import MyOrderPage from '~pages/MyOrder';
 
 Modal.defaultStyles = {
   overlay: {
@@ -309,6 +310,7 @@ function App() {
               path={`/sauce/:id`}
               component={AutoHeight(StableSwapRouter)}
             />
+            <Route path={'/myOrder'} component={AutoHeight(MyOrderPage)} />
 
             <Route path="/sauce" component={AutoHeight(StableSwapPageEntry)} />
 

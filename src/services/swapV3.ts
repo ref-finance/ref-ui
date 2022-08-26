@@ -342,14 +342,11 @@ export const find_order = ({
 
 export const cancel_order = ({
   order_id,
-  amount,
-  output_token,
+  undecimal_amount,
 }: {
   order_id: string;
-  amount: string;
-  output_token: TokenMetadata;
+  undecimal_amount: string;
 }) => {
-  const undecimal_amount = toNonDivisibleNumber(output_token.decimals, amount);
   const transactions: Transaction[] = [
     {
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
@@ -361,7 +358,6 @@ export const cancel_order = ({
             amount: undecimal_amount,
           },
           gas: '180000000000000',
-          amount: ONE_YOCTO_NEAR,
         },
       ],
     },
@@ -421,7 +417,6 @@ export const create_pool = ({
             fee,
             init_point,
           },
-          amount: ONE_YOCTO_NEAR,
           gas: '180000000000000',
         },
       ],

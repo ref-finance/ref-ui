@@ -902,12 +902,7 @@ function DetailViewLimit({
     const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokneOut.id, fee);
 
     return (
-      <span
-        className="py-1 px-2.5 bg-black bg-opacity-20 text-xs inline-flex items-center rounded-xl whitespace-nowrap"
-        style={{
-          color: '#91A2AE',
-        }}
-      >
+      <span className="py-1 px-2.5 text-v3SwapGray bg-black bg-opacity-20 text-xs inline-flex items-center rounded-xl whitespace-nowrap">
         <span className="mr-1">
           {ONLY_ZEROS.test(poolPercents?.[id] || '0') && !forTier
             ? ''
@@ -1655,6 +1650,8 @@ export default function SwapCard(props: {
       else makeBestSwap();
     }
   };
+
+  console.log(mostPoolDetail, 'mostPoolDetail');
 
   return (
     <>

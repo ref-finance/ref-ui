@@ -14,6 +14,7 @@ export const REF_FI_SWAP_SWAPPAGE_TAB_KEY = 'REF_FI_SWAP_SWAPPAGE_TAB_VALUE';
 
 import { useAllStablePools } from '../state/pool';
 import { NewPro } from '~components/icon';
+import { useHistory } from 'react-router-dom';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -96,12 +97,15 @@ function SwapTab({
 }
 
 const MyOrderTab = () => {
+  const history = useHistory();
+
   return (
     <button
       className="rounded-xl whitespace-nowrap text-white text-sm border border-primaryText border-opacity-20 h-8 px-2 mr-4"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        history.push('/myOrder');
       }}
     >
       <FormattedMessage id="my_orders" defaultMessage={'My Orders'} />
