@@ -7,7 +7,7 @@ import { WalletNetworkChanged } from './WalletNetworkChanged';
 import { WalletOptions } from './WalletOptions';
 import { AlertMessage } from './AlertMessage';
 import { CloseButton } from './CloseButton';
-import { DerivationPath } from './DerivationPath';
+import { DerivationPath, HardwareRoutes } from './DerivationPath';
 import { WalletConnecting } from './WalletConnecting';
 import { WalletNotInstalled } from './WalletNotInstalled';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -40,6 +40,10 @@ export const Modal: React.FC<ModalProps> = ({
   const [route, setRoute] = useState<ModalRoute>({
     name: 'WalletOptions',
   });
+
+  const [ledgerInitError, setLedgerInitError] = useState<
+    string | JSX.Element
+  >();
 
   const walletModalLanguageContext = useContext(Context);
   useEffect(() => {
@@ -159,9 +163,17 @@ export const Modal: React.FC<ModalProps> = ({
               }}
               onError={(err) => {
                 // setAlertMessage(err.message);
-                setRoute({
-                  name: 'WalletOptions',
-                });
+                if (err.message === 'Ledger is not available') {
+                  setLedgerInitError(err.message);
+
+                  setRoute({
+                    name: 'DerivationPath',
+                  });
+                } else {
+                  setRoute({
+                    name: 'WalletOptions',
+                  });
+                }
               }}
             />
           )}
@@ -169,6 +181,7 @@ export const Modal: React.FC<ModalProps> = ({
             <DerivationPath
               selector={selector}
               options={options}
+              initError={ledgerInitError}
               onConnected={handleDismissClick}
               params={route.params}
               onBack={() =>

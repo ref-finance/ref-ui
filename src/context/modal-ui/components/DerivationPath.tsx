@@ -14,7 +14,12 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import getConfig from '../../../services/config';
 import { walletIcons } from '../../walletIcons';
 import { WarningTip } from '~components/icon/Common';
-
+export type HardwareRoutes =
+  | 'EnterDerivationPath'
+  | 'ChooseAccount'
+  | 'AddCustomAccountId'
+  | 'OverviewAccounts'
+  | 'ErrorRoute';
 interface DerivationPathProps {
   selector: WalletSelector;
   options: ModalOptions;
@@ -22,18 +27,12 @@ interface DerivationPathProps {
   onConnected: () => void;
   params: DerivationPathModalRouteParams;
   onError: (message: string) => void;
+  initError?: string | JSX.Element;
 }
 
 export type HardwareWalletAccountState = HardwareWalletAccount & {
   selected: boolean;
 };
-
-type HardwareRoutes =
-  | 'EnterDerivationPath'
-  | 'ChooseAccount'
-  | 'AddCustomAccountId'
-  | 'OverviewAccounts'
-  | 'ErrorRoute';
 
 export const DEFAULT_DERIVATION_PATH = "44'/397'/0'/0'/1'";
 
@@ -46,11 +45,14 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
   onConnected,
   params,
   onError,
+  initError,
 }) => {
-  const [route, setRoute] = useState<HardwareRoutes>('EnterDerivationPath');
+  const [route, setRoute] = useState<HardwareRoutes>(
+    !!initError ? 'ErrorRoute' : 'EnterDerivationPath'
+  );
   const [derivationPath, setDerivationPath] = useState(DEFAULT_DERIVATION_PATH);
 
-  const [error, setError] = useState<string | JSX.Element>();
+  const [error, setError] = useState<string | JSX.Element>(initError);
 
   const [derivationPathLastCode, setDerivationPathLastCode] = useState('1');
 
@@ -432,7 +434,11 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
           <button
             className=" pt-8 text-xs font-bold"
             onClick={() => {
-              setRoute('EnterDerivationPath');
+              if (!!initError) {
+                onBack();
+              } else {
+                setRoute('EnterDerivationPath');
+              }
             }}
           >
             <FormattedMessage id="go_back" defaultMessage={'Go back'} />

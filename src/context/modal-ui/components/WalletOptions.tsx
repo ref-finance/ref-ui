@@ -188,14 +188,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
         onConnected();
       }
     } catch (err) {
-      const { name } = module.metadata;
-
-      const message =
-        err instanceof Error ? err.message : 'Something went wrong';
-
-      console.log(err);
-
-      onError(new Error(`Failed to sign in with ${name}: ${message}`));
+      onError(err);
     }
   };
 

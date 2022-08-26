@@ -160,9 +160,16 @@ function SwapPage() {
   const [swapTab, setSwapTab] = useState(
     localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)?.toString() || 'normal'
   );
+
+  const storedMode =
+    localStorage.getItem(SWAP_MODE_KEY) === 'normal'
+      ? SWAP_MODE.NORMAL
+      : localStorage.getItem(SWAP_MODE_KEY) === 'stable'
+      ? SWAP_MODE.STABLE
+      : null;
+
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
-    (localStorage.getItem(SWAP_MODE_KEY) as SWAP_MODE | null) ||
-      SWAP_MODE.NORMAL
+    storedMode || SWAP_MODE.NORMAL
   );
   const stablePools = useAllStablePools();
 
