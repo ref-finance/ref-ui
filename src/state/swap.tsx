@@ -53,6 +53,7 @@ import {
   checkCrossSwapTransactions,
 } from '../components/layout/transactionTipPopUp';
 import {
+  getLimitOrderRangeCountAndPool,
   get_pool,
   PoolInfoV3,
   quote,
@@ -331,8 +332,11 @@ export const useSwapV3 = ({
 
   const fees = V3_POOL_FEE_LIST;
 
-  const getQuote = (fee: number) => {
+  const getQuote = async (fee: number) => {
     const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
+
+    const pool = await get_pool(pool_id);
+    if (!pool) return null;
 
     return quote({
       pool_ids: [pool_id],
@@ -448,10 +452,12 @@ export const useLimitOrder = ({
 
   const [quoteDone, setQuoteDone] = useState<boolean>(false);
 
+  const [pools, setPools] = useState<(PoolInfoV3 | null)[]>();
+
   const [mostPoolDetail, setMostPoolDetail] = useState<PoolInfoV3>();
 
   const [poolToOrderCounts, setPoolToOrderCounts] = useState<{
-    [key: string]: string;
+    [key: string]: string | null;
   }>();
 
   useEffect(() => {
@@ -477,13 +483,19 @@ export const useLimitOrder = ({
 
     Promise.all(
       V3_POOL_FEE_LIST.map((fee) =>
-        get_pointorder_range({
+        getLimitOrderRangeCountAndPool({
           pool_id: getV3PoolId(tokenIn.id, tokenOut.id, fee),
         })
       )
     )
       .then((res) => {
-        const counts = res.map((r) => Object.keys(r || {}).length || 0);
+        const pools = res.map((r) => r.pool);
+
+        setPools(pools);
+
+        const counts = res.map(
+          (r) => Object.keys(r.rangeCount || {}).length || 0
+        );
         const sumOfCounts = _.sum(counts);
 
         const percents =
@@ -494,7 +506,9 @@ export const useLimitOrder = ({
                 counts.map((c) => ((c / sumOfCounts) * 100).toFixed())
               );
 
-        const toCounts = percents.reduce((acc, cur, index) => {
+        const percensNew = percents.map((p, i) => (!!pools[i] ? p : null));
+
+        const toCounts = percensNew.reduce((acc, cur, index) => {
           return {
             ...acc,
             [getV3PoolId(tokenIn.id, tokenOut.id, V3_POOL_FEE_LIST[index])]:
@@ -508,7 +522,7 @@ export const useLimitOrder = ({
         const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
           getV3PoolId(tokenIn.id, tokenOut.id, fee)
         );
-        setSelectedV3LimitPool(allPoolsForThisPair[0]);
+        setSelectedV3LimitPool(allPoolsForThisPair[2]);
       });
   }, [tokenIn, tokenOut]);
 
@@ -518,7 +532,7 @@ export const useLimitOrder = ({
     const countValues = Object.values(poolToOrderCounts);
 
     const maxOrderIndex = countValues.findIndex(
-      (c) => c === _.maxBy(countValues, (o) => Number(o))
+      (c) => c && c === _.maxBy(countValues, (o) => Number(o || 0))
     );
     const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
       getV3PoolId(tokenIn.id, tokenOut.id, fee)
@@ -527,7 +541,9 @@ export const useLimitOrder = ({
     if (countValues.every((v) => v === countValues[0])) {
       setSelectedV3LimitPool(allPoolsForThisPair[2]);
     } else {
-      setSelectedV3LimitPool(allPoolsForThisPair[maxOrderIndex]);
+      setSelectedV3LimitPool(
+        allPoolsForThisPair[maxOrderIndex === -1 ? 2 : maxOrderIndex]
+      );
     }
   }, [
     Object.keys(poolToOrderCounts || {}).join('-'),
@@ -542,6 +558,7 @@ export const useLimitOrder = ({
       : Number(selectedV3LimitPool.split(V3_POOL_SPLITER)[2]),
     mostPoolDetail,
     quoteDone,
+    idToPools: pools,
   };
 };
 

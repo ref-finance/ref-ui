@@ -96,7 +96,7 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className={`overflow-y-visible relative bg-secondary shadow-2xl rounded-2xl px-7 py-6 ${
+      className={`overflow-y-visible  relative bg-secondary shadow-2xl rounded-2xl px-7 py-6 ${
         swapMode === SWAP_MODE.STABLE ? 'pb-16' : ''
       } bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
       onSubmit={handleSubmit}
@@ -127,7 +127,9 @@ export default function SwapFormWrap({
         <SubmitButton
           disabled={
             !canSubmit ||
-            (typeof loadingTrigger !== 'undefined' && loadingTrigger)
+            (typeof loadingTrigger !== 'undefined' &&
+              loadingTrigger &&
+              swapMode !== SWAP_MODE.LIMIT)
           }
           label={buttonText || title}
           info={info}

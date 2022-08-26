@@ -890,25 +890,15 @@ function DetailViewLimit({
     'Best for rare pairs',
   ];
 
-  function SelectPercent({
-    fee,
-    forTier,
-    poolId,
-  }: {
-    fee?: number;
-    poolId?: string;
-    forTier?: boolean;
-  }) {
+  function SelectPercent({ fee, poolId }: { fee?: number; poolId?: string }) {
     const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokneOut.id, fee);
-
+    const count = poolPercents?.[id];
     return (
       <span className="py-1 px-2.5 text-v3SwapGray bg-black bg-opacity-20 text-xs inline-flex items-center rounded-xl whitespace-nowrap">
         <span className="mr-1">
-          {ONLY_ZEROS.test(poolPercents?.[id] || '0') && !forTier
-            ? ''
-            : `${poolPercents?.[id] || '0'}%`}
+          {!count ? '' : `${poolPercents?.[id] || '0'}%`}
         </span>
-        {ONLY_ZEROS.test(poolPercents?.[id] || '0') && !forTier ? (
+        {!count ? (
           <FormattedMessage id="no_pool" defaultMessage={'No Pool'} />
         ) : (
           <FormattedMessage id="select" defaultMessage={'select'} />
@@ -935,7 +925,6 @@ function DetailViewLimit({
           <SelectPercent
             poolId={v3Pool}
             // fee={Number(v3Pool.split(V3_POOL_SPLITER)[2])}
-            forTier
           />
         </div>
 
@@ -962,22 +951,30 @@ function DetailViewLimit({
             );
 
             return (
-              <div
-                key={i + '-' + pool_id}
-                className="rounded-xl max-w-28 px-1 h-28 flex-col border flex items-center border-primaryText border-opacity-20 pb-2 py-3"
+              <button
+                className={`${
+                  v3Pool === pool_id ? 'gradientBorderWrapperNoShadow' : ''
+                } max-w-28 h-28`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setV3Pool(pool_id);
+                }}
               >
-                <span>{feePercent}%</span>
-                <span
-                  className="py-1.5 text-xs text-center"
-                  style={{
-                    color: '#91A2AE',
-                  }}
+                <div
+                  key={i + '-' + pool_id}
+                  className={`rounded-xl   px-1  flex-col ${
+                    v3Pool === pool_id ? '' : 'border'
+                  }  flex items-center border-primaryText border-opacity-20 pb-2 py-3`}
                 >
-                  {tip}
-                </span>
+                  <span>{feePercent}%</span>
+                  <span className="py-1.5 text-xs text-center text-v3SwapGray">
+                    {tip}
+                  </span>
 
-                <SelectPercent fee={fee} />
-              </div>
+                  <SelectPercent fee={fee} />
+                </div>
+              </button>
             );
           })}
         </div>

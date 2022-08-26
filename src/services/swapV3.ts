@@ -38,6 +38,7 @@ export interface UserOrderInfo {
   pool_id: string;
   point: number;
   sell_token: string;
+  created_at: number;
   orginal_amount: string;
   remain_amount: string; // 0 means history order: ;
   cancel_amount: string;
@@ -392,6 +393,31 @@ export const get_pointorder_range = ({
       right_point: right_point || RIGHT_POINT_MAX,
     },
   });
+};
+
+export const getLimitOrderRangeCountAndPool = async ({
+  pool_id,
+  left_point,
+  right_point,
+}: {
+  pool_id: string;
+  left_point?: number;
+  right_point?: number;
+}) => {
+  const pool = await get_pool(pool_id);
+
+  const rangeCount = !pool
+    ? null
+    : await get_pointorder_range({
+        pool_id,
+        left_point,
+        right_point,
+      });
+
+  return {
+    rangeCount,
+    pool,
+  };
 };
 
 export const create_pool = ({

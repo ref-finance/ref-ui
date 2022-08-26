@@ -994,3 +994,48 @@ input[type='range']::-webkit-slider-runnable-track {
   margin-left: 2px;
   margin-right: 2px;
 }
+
+.gradientBorderWrapper {
+  border: solid 3px transparent;
+  background-image: linear-gradient(#1d2932, #1d2932),
+    linear-gradient(135deg, rgba(0, 255, 209, 1) 0%, rgba(91, 62, 255, 1) 100%);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  border-radius: 16px;
+}
+
+.gradientBorderWrapperNoShadow {
+  border: solid 2px transparent;
+  background-image: linear-gradient(#1d2932, #1d2932),
+    linear-gradient(135deg, rgba(0, 255, 209, 1) 0%, rgba(91, 62, 255, 1) 100%);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  border-radius: 16px;
+}
+
+.gradientBorderWrapper:before {
+  content: '';
+  /* z-index: -1; */
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(135deg, #00ffd1 0%, #933eff 100%);
+  filter: blur(30px);
+  opacity: 0.5;
+  transition: opacity 0.3s;
+  border-radius: inherit;
+}
+
+.gradientBorderWrapper::after {
+  content: '';
+  z-index: -1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: inherit;
+  border-radius: inherit;
+}
