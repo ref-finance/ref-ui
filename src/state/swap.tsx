@@ -426,6 +426,13 @@ export const useSwapV3 = ({
     }
   }, [tokenOutAmount, estimates, bestPool, tokenIn, tokenOut]);
 
+  console.log(
+    estimates,
+    'estimates for 4 pools',
+    tokenOutAmount,
+    'tokenOutAmount'
+  );
+
   return {
     makeSwap,
     canSwap: !!bestPool && swapMode !== SWAP_MODE.STABLE && !loadingTrigger,
@@ -561,7 +568,7 @@ export const useLimitOrder = ({
     tokenIn?.id,
   ]);
 
-  console.log(mostPoolDetail, 'most pool deta');
+  console.log('current pool info', mostPoolDetail);
 
   return {
     poolPercents: notLimitMode ? null : poolToOrderCounts,
