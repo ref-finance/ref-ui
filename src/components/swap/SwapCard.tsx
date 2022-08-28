@@ -81,7 +81,11 @@ import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { senderWallet, WalletContext } from '../../utils/sender-wallet';
 import { SwapArrow, SwapExchange, SwapExchangeV3 } from '../icon/Arrows';
-import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
+import {
+  getPoolAllocationPercents,
+  percentLess,
+  toNonDivisibleNumber,
+} from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
@@ -1424,6 +1428,7 @@ export default function SwapCard(props: {
     swapMode,
     selectedV3LimitPool,
     setSelectedV3LimitPool,
+    loadingTrigger,
   });
 
   const priceImpactValueSmartRouting = useMemo(() => {
@@ -1514,19 +1519,25 @@ export default function SwapCard(props: {
       tokenB: tokenOut,
       point: mostPoolDetail.current_point,
     });
-    setLimitAmountOutRate(price);
+    setLimitAmountOutRate(toPrecision(price, tokenOut.decimals));
 
     setCurOrderPrice(price);
+
     setLimitAmountOut(
-      new Big(price).times(tokenInAmount).toFixed(tokenOut.decimals)
+      new Big(price || 0).times(tokenInAmount || 0).toFixed(tokenOut.decimals)
     );
   }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
 
   const LimitChangeAmountOut = (amount: string) => {
-    setLimitAmountOut(amount);
-    if (tokenInAmount) {
+    const curAmount = toReadableNumber(
+      tokenOut.decimals,
+      toNonDivisibleNumber(tokenOut.decimals, amount)
+    );
+
+    setLimitAmountOut(curAmount);
+    if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
       setLimitAmountOutRate(
-        new Big(amount || '0').div(tokenInAmount).toFixed()
+        new Big(curAmount || '0').div(tokenInAmount || 1).toFixed()
       );
     }
   };
@@ -1639,8 +1650,8 @@ export default function SwapCard(props: {
       });
     } else {
       const ifDoubleCheck =
-        new BigNumber(tokenInAmount).isLessThanOrEqualTo(
-          new BigNumber(tokenInMax)
+        new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
+          new BigNumber(tokenInMax || 0)
         ) && Number(bestSwapPriceImpact) > 2;
 
       if (ifDoubleCheck) setDoubleCheckOpen(true);
@@ -1731,7 +1742,7 @@ export default function SwapCard(props: {
             <SwapExchangeV3
               tokenIn={tokenIn}
               tokenOut={tokenOut}
-              rate={toPrecision(LimitAmountOutRate, 3)}
+              rate={LimitAmountOutRate}
               onChange={() => {
                 setTokenIn(tokenOut);
                 localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
@@ -1749,8 +1760,17 @@ export default function SwapCard(props: {
               }}
               curPrice={curOrderPrice}
               setRate={(r: string) => {
-                setLimitAmountOutRate(r);
-                setLimitAmountOut(new Big(r).times(tokenInAmount).toFixed());
+                const curR = toReadableNumber(
+                  tokenOut.decimals,
+                  toNonDivisibleNumber(tokenOut.decimals, r)
+                );
+
+                setLimitAmountOutRate(curR);
+                setLimitAmountOut(
+                  new Big(curR || 0)
+                    .times(tokenInAmount || 0)
+                    .toFixed(tokenOut.decimals)
+                );
               }}
             />
           ) : (
@@ -1815,7 +1835,7 @@ export default function SwapCard(props: {
           marketPriceLimitOrder={
             !curOrderPrice
               ? null
-              : new Big(tokenInAmount).times(curOrderPrice).toFixed()
+              : new Big(tokenInAmount || 0).times(curOrderPrice || 0).toFixed()
           }
           ExtraElement={
             <div

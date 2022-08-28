@@ -25,7 +25,9 @@ const RIGHT_POINT_MAX = 800000;
 export const V3_POOL_SPLITER = '|';
 
 export const getV3PoolId = (tokenA: string, tokenB: string, fee: number) => {
-  return `${tokenA}|${tokenB}|${fee}`;
+  const tokenSeq = [tokenA, tokenB].sort().join('|');
+
+  return `${tokenSeq}|${fee}`;
 };
 
 export const allPoolsThisPair = (tokenA: string, tokenB: string) => {
@@ -38,7 +40,7 @@ export interface UserOrderInfo {
   pool_id: string;
   point: number;
   sell_token: string;
-  created_at: number;
+  created_at: string;
   orginal_amount: string;
   remain_amount: string; // 0 means history order: ;
   cancel_amount: string;
@@ -132,7 +134,7 @@ export const pointToPrice = ({
     .times(new Big(10).pow(tokenA.decimals))
     .div(new Big(10).pow(tokenB.decimals));
 
-  return decimal_price_A_by_B.toFixed(18);
+  return decimal_price_A_by_B.toFixed(tokenB.decimals);
 };
 
 export const quote_by_output = ({
@@ -267,11 +269,14 @@ export const v3Swap = ({
       tokenB,
     });
 
+    const new_point =
+      pool_id.split(V3_POOL_SPLITER)[0] === tokenA.id ? point : -point;
+
     const msg = JSON.stringify({
       LimitOrder: {
         pool_id,
         buy_token,
-        point,
+        point: new_point,
       },
     });
 
@@ -367,12 +372,27 @@ export const cancel_order = ({
   return executeMultipleTransactions(transactions);
 };
 
-export const get_pool = (pool_id: string) => {
+export const get_pool = async (pool_id: string, token0: string) => {
+  const [token_x, token_y, fee] = pool_id.split('|');
+
+  const token_seq = [token_x, token_y].sort().join('|');
+
+  const new_pool_id = `${token_seq}|${fee}`;
+
   return refSwapV3ViewFunction({
     methodName: 'get_pool',
     args: {
-      pool_id,
+      pool_id: new_pool_id,
     },
+  }).then((res) => {
+    if (!res || token0 === token_seq.split(V3_POOL_SPLITER)[0]) {
+      return res;
+    } else {
+      return {
+        ...res,
+        current_point: -res.current_point,
+      };
+    }
   });
 };
 
@@ -399,12 +419,14 @@ export const getLimitOrderRangeCountAndPool = async ({
   pool_id,
   left_point,
   right_point,
+  token0,
 }: {
   pool_id: string;
   left_point?: number;
   right_point?: number;
+  token0: string;
 }) => {
-  const pool = await get_pool(pool_id);
+  const pool = await get_pool(pool_id, token0);
 
   const rangeCount = !pool
     ? null

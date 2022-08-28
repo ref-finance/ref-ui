@@ -335,7 +335,7 @@ export const useSwapV3 = ({
   const getQuote = async (fee: number) => {
     const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
 
-    const pool = await get_pool(pool_id);
+    const pool = await get_pool(pool_id, tokenIn.id);
     if (!pool) return null;
 
     return quote({
@@ -353,20 +353,24 @@ export const useSwapV3 = ({
       : null;
 
   const bestFee = !!bestEstimate
-    ? fees[estimates.findIndex((e) => e.amount === bestEstimate.amount)]
+    ? fees[estimates.findIndex((e) => e?.amount === bestEstimate.amount)]
     : null;
 
   useEffect(() => {
     if (!bestFee) return;
 
-    get_pool(getV3PoolId(tokenIn.id, tokenOut.id, bestFee)).then((p) => {
-      setBestPool(p);
-    });
+    get_pool(getV3PoolId(tokenIn.id, tokenOut.id, bestFee), tokenIn.id).then(
+      (p) => {
+        setBestPool(p);
+      }
+    );
   }, [bestFee, tokenIn, tokenOut, poolReFetch]);
 
   useEffect(() => {
     if (bestEstimate) {
-      setTokenOutAmount(bestEstimate.amount);
+      setTokenOutAmount(
+        toReadableNumber(tokenOut.decimals, bestEstimate.amount)
+      );
     }
   }, [bestEstimate]);
 
@@ -441,12 +445,14 @@ export const useLimitOrder = ({
   tokenOut,
   selectedV3LimitPool,
   setSelectedV3LimitPool,
+  loadingTrigger,
 }: {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
   swapMode: SWAP_MODE;
   selectedV3LimitPool: string;
   setSelectedV3LimitPool?: (pool: string) => void;
+  loadingTrigger?: boolean;
 }) => {
   const notLimitMode = swapMode !== SWAP_MODE.LIMIT;
 
@@ -464,27 +470,29 @@ export const useLimitOrder = ({
     if (!selectedV3LimitPool) return;
     setQuoteDone(false);
 
-    get_pool(selectedV3LimitPool)
+    get_pool(selectedV3LimitPool, tokenIn.id)
       .then(setMostPoolDetail)
-      .catch(() => {
+      .catch((e) => {
+        console.log(e);
         setMostPoolDetail(null);
       })
       .finally(() => {
         setQuoteDone(true);
       });
-  }, [selectedV3LimitPool]);
+  }, [selectedV3LimitPool, loadingTrigger]);
 
   useEffect(() => {
     if (notLimitMode || !tokenIn || !tokenOut) {
       return null;
     }
 
-    setMostPoolDetail(null);
+    // setMostPoolDetail(null);
 
     Promise.all(
       V3_POOL_FEE_LIST.map((fee) =>
         getLimitOrderRangeCountAndPool({
           pool_id: getV3PoolId(tokenIn.id, tokenOut.id, fee),
+          token0: tokenIn.id,
         })
       )
     )
@@ -519,12 +527,14 @@ export const useLimitOrder = ({
         setPoolToOrderCounts(toCounts);
       })
       .catch((e) => {
+        console.log(e);
+
         const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
           getV3PoolId(tokenIn.id, tokenOut.id, fee)
         );
         setSelectedV3LimitPool(allPoolsForThisPair[2]);
       });
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn, tokenOut, loadingTrigger]);
 
   useEffect(() => {
     if (!poolToOrderCounts) return null;
@@ -550,6 +560,8 @@ export const useLimitOrder = ({
     tokenOut?.id,
     tokenIn?.id,
   ]);
+
+  console.log(mostPoolDetail, 'most pool deta');
 
   return {
     poolPercents: notLimitMode ? null : poolToOrderCounts,
