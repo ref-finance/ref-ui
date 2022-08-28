@@ -1648,8 +1648,6 @@ export default function SwapCard(props: {
     }
   };
 
-  console.log(mostPoolDetail, 'mostPoolDetail');
-
   return (
     <>
       <SwapFormWrap
@@ -1879,51 +1877,6 @@ export default function SwapCard(props: {
         onSwap={() => makeBestSwap()}
         priceImpactValue={bestSwapPriceImpact}
       />
-      {swapMode === SWAP_MODE.STABLE ? (
-        <TokenReserves
-          tokens={AllStableTokenIds.map((id) =>
-            allTokens.find((token) => token.id === id)
-          )
-            .filter((token) => isStableToken(token.id))
-            .filter((token) => {
-              switch (reservesType) {
-                case 'BTC':
-                  return BTCIDS.includes(token.id);
-                case 'USD':
-                  return STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
-                    .concat(CUSDIDS)
-                    .map((id) => id.toString())
-                    .includes(token.id);
-                case 'NEAR':
-                  return LINEARIDS.concat(STNEARIDS)
-                    .concat(NEARXIDS)
-                    .includes(token.id);
-              }
-            })}
-          pools={stablePools.filter((p) => {
-            switch (reservesType) {
-              case 'BTC':
-                return p.id.toString() === BTC_STABLE_POOL_ID;
-              case 'NEAR':
-                return (
-                  p.id.toString() === STNEAR_POOL_ID ||
-                  p.id.toString() === LINEAR_POOL_ID ||
-                  p.id.toString() === NEAX_POOL_ID
-                );
-              case 'USD':
-                return (
-                  p.id.toString() !== BTC_STABLE_POOL_ID &&
-                  p.id.toString() !== STNEAR_POOL_ID &&
-                  p.id.toString() !== LINEAR_POOL_ID &&
-                  p.id.toString() !== NEAX_POOL_ID
-                );
-            }
-          })}
-          type={reservesType}
-          setType={setReservesType}
-          swapPage
-        />
-      ) : null}
     </>
   );
 }

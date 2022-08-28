@@ -15,6 +15,23 @@ export const REF_FI_SWAP_SWAPPAGE_TAB_KEY = 'REF_FI_SWAP_SWAPPAGE_TAB_VALUE';
 import { useAllStablePools } from '../state/pool';
 import { NewPro } from '~components/icon';
 import { useHistory } from 'react-router-dom';
+import TokenReserves from '~components/stableswap/TokenReserves';
+import {
+  AllStableTokenIds,
+  isStableToken,
+  STABLE_TOKEN_USN_IDS,
+  STABLE_TOKEN_IDS,
+  CUSDIDS,
+  BTCIDS,
+  BTC_STABLE_POOL_ID,
+  STNEAR_POOL_ID,
+  LINEAR_POOL_ID,
+  NEAX_POOL_ID,
+  NEARXIDS,
+  LINEARIDS,
+  STNEARIDS,
+  STABLE_POOL_TYPE,
+} from '../services/near';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -159,6 +176,13 @@ function SwapPage() {
     if (storageMode) setSwapTab(storageTab);
   }, [storageTab]);
 
+  const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
+
+  const [reservesType, setReservesType] = useState<STABLE_POOL_TYPE>(
+    STABLE_POOL_TYPE[localStorage.getItem(reserveTypeStorageKey)] ||
+      STABLE_POOL_TYPE.USD
+  );
+
   if (!refTokens || !triTokens || !triTokenIds || !stablePools)
     return <Loading />;
 
@@ -210,6 +234,55 @@ function SwapPage() {
             }
           />
         )}
+      </section>
+
+      <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative">
+        {' '}
+        {swapMode === SWAP_MODE.STABLE ? (
+          <TokenReserves
+            tokens={AllStableTokenIds.map((id) =>
+              allTokens.find((token) => token.id === id)
+            )
+              .filter((token) => isStableToken(token.id))
+              .filter((token) => {
+                switch (reservesType) {
+                  case 'BTC':
+                    return BTCIDS.includes(token.id);
+                  case 'USD':
+                    return STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
+                      .concat(CUSDIDS)
+                      .map((id) => id.toString())
+                      .includes(token.id);
+                  case 'NEAR':
+                    return LINEARIDS.concat(STNEARIDS)
+                      .concat(NEARXIDS)
+                      .includes(token.id);
+                }
+              })}
+            pools={stablePools.filter((p) => {
+              switch (reservesType) {
+                case 'BTC':
+                  return p.id.toString() === BTC_STABLE_POOL_ID;
+                case 'NEAR':
+                  return (
+                    p.id.toString() === STNEAR_POOL_ID ||
+                    p.id.toString() === LINEAR_POOL_ID ||
+                    p.id.toString() === NEAX_POOL_ID
+                  );
+                case 'USD':
+                  return (
+                    p.id.toString() !== BTC_STABLE_POOL_ID &&
+                    p.id.toString() !== STNEAR_POOL_ID &&
+                    p.id.toString() !== LINEAR_POOL_ID &&
+                    p.id.toString() !== NEAX_POOL_ID
+                  );
+              }
+            })}
+            type={reservesType}
+            setType={setReservesType}
+            swapPage
+          />
+        ) : null}
       </section>
     </div>
   );

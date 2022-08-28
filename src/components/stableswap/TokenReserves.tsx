@@ -456,7 +456,7 @@ export default function ({
       {hiddenMag ? null : (
         <span
           className={`px-5 rounded-t-xl text-sm text-farmText mx-auto flex items-center justify-center cursor-pointer bg-cardBg pt-3 ${
-            showReserves ? 'pb-5' : 'pb-1.5'
+            showReserves ? 'pb-5' : 'pb-1'
           }`}
           style={{
             borderTop: '1px solid #415462',
