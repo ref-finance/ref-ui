@@ -399,7 +399,10 @@ export const useSwapV3 = ({
         tokenA: tokenIn,
         tokenB: tokenOut,
         amountA: tokenInAmount,
-        amountB: bestEstimate.amount,
+        amountB: toReadableNumber(
+          tokenOut.decimals,
+          percentLess(slippageTolerance, bestEstimate.amount)
+        ),
       },
     });
   };
