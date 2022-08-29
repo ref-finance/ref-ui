@@ -12,10 +12,10 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             url: 'https://public-rpc.blockpi.io/http/near',
             simpleName: 'blockpi rpc',
           },
-          infuraRpc: {
-            url: 'https://near-mainnet.infura.io/v3/391d915322284599936f0ee962399dc1',
-            simpleName: 'infura rpc',
-          },
+          // infuraRpc: {
+          //   url: 'https://near-mainnet.infura.io/v3/391d915322284599936f0ee962399dc1',
+          //   simpleName: 'infura rpc',
+          // },
           ankrRpc: {
             url: 'https://rpc.ankr.com/near',
             simpleName: 'ankr rpc',
@@ -60,10 +60,10 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             url: 'https://public-rpc.blockpi.io/http/near',
             simpleName: 'blockpi rpc',
           },
-          infuraRpc: {
-            url: 'https://near-mainnet.infura.io/v3/391d915322284599936f0ee962399dc1',
-            simpleName: 'infura rpc',
-          },
+          // infuraRpc: {
+          //   url: 'https://near-mainnet.infura.io/v3/391d915322284599936f0ee962399dc1',
+          //   simpleName: 'infura rpc',
+          // },
           ankrRpc: {
             url: 'https://rpc.ankr.com/near',
             simpleName: 'ankr rpc',
