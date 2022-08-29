@@ -933,7 +933,7 @@ function DetailViewLimit({
         </div>
 
         <button
-          className="p-1 w-8 h-8 bg-black flex items-center justify-center bg-opacity-20 border border-opacity-20 border-primaryText rounded-xl"
+          className=" justify-center bg-opacity-20 border border-opacity-20 border-primaryText rounded-xl"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();

@@ -171,11 +171,12 @@ module.exports = {
         warnRedColor: 'rgba(255, 117, 117, 0.5)',
         darkBlackColor: '#111C24',
         v3SwapGray: '#91A2AE',
-        v3borderColor: 'rgba(126, 138, 147, 0.2)',
-        v3LightGreyColor: '#91A2AE',
-        v3feeTextColor: '#586F80',
-        v3feeBorderColor: 'rgba(145, 162, 174, 0.1)',
-        v3WarningColor: '#FFA24D',
+        v3borderColor:'rgba(126, 138, 147, 0.2)',
+        v3LightGreyColor:'#91A2AE',
+        v3feeTextColor:'#586F80',
+        v3feeBorderColor:'rgba(145, 162, 174, 0.1)',
+        v3WarningColor:'#FFA24D',
+        v3BlackColor:'#1A242A'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

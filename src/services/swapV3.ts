@@ -4,7 +4,7 @@ import {
   REF_UNI_V3_SWAP_CONTRACT_ID,
   ONE_YOCTO_NEAR,
 } from './near';
-import { toNonDivisibleNumber } from '../utils/numbers';
+import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import _ from 'lodash';
 import Big from 'big.js';
@@ -13,6 +13,9 @@ import {
   executeMultipleTransactions,
   refVeViewFunction,
 } from './near';
+import { storageDepositAction } from '../services/creators/storage';
+import { currentStorageBalanceOfV3 } from './account';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 
 const LOG_BASE = 1.0001;
 
@@ -477,4 +480,118 @@ export const list_pools = () => {
   return refSwapV3ViewFunction({
     methodName: 'list_pools',
   });
+};
+export const add_liquidity = async ({
+  pool_id,
+  left_point,
+  right_point,
+  amount_x,
+  amount_y,
+  token_x,
+  token_y,
+}: {
+  pool_id: string;
+  left_point: number;
+  right_point: number;
+  amount_x: string;
+  amount_y: string;
+  token_x: TokenMetadata;
+  token_y: TokenMetadata;
+}) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: token_x.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
+            amount: amount_x,
+            msg: '"Deposit"',
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '150000000000000',
+        },
+      ],
+    },
+    {
+      receiverId: token_y.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
+            amount: amount_y,
+            msg: '"Deposit"',
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '150000000000000',
+        },
+      ],
+    },
+    {
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'add_liquidity',
+          args: {
+            pool_id,
+            left_point,
+            right_point,
+            amount_x,
+            amount_y,
+            min_amount_x: '0',
+            min_amount_y: '0',
+          },
+          gas: '150000000000000',
+        },
+      ],
+    },
+  ];
+  if (token_x.id == WRAP_NEAR_CONTRACT_ID) {
+    transactions.unshift({
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_deposit',
+          args: {},
+          gas: '50000000000000',
+          amount: toReadableNumber(token_x.decimals, amount_x),
+        },
+      ],
+    });
+  }
+  if (token_y.id == WRAP_NEAR_CONTRACT_ID) {
+    transactions.unshift({
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_deposit',
+          args: {},
+          gas: '50000000000000',
+          amount: toReadableNumber(token_y.decimals, amount_y),
+        },
+      ],
+    });
+  }
+  const neededStorage = await checkTokenNeedsStorageDeposit_v3();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+  return executeMultipleTransactions(transactions);
+};
+
+export const checkTokenNeedsStorageDeposit_v3 = async () => {
+  let storageNeeded;
+  const balance = await currentStorageBalanceOfV3(
+    getCurrentWallet().wallet.getAccountId()
+  );
+
+  if (!balance) {
+    storageNeeded = '0.1';
+  }
+  return storageNeeded;
 };
