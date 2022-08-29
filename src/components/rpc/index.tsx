@@ -347,21 +347,41 @@ const ModalAddCustomNetWork = (props: any) => {
       return;
     }
     // check network
-    const { status, responseTime, chain_id } = await pingChain(customRpUrl);
-    if (!status) {
-      setUnavailableError(true);
-      setCustomLoading(false);
-      return;
+    let responseTime;
+    // special check
+    if (customRpUrl.indexOf('https://near-mainnet.infura.io/v3') > -1) {
+      const { status, responseTime: responseTime_gas } = await ping_gas(
+        customRpUrl
+      );
+      if (!status) {
+        setUnavailableError(true);
+        setCustomLoading(false);
+        return;
+      }
+      responseTime = responseTime_gas;
+    } else {
+      // common check
+      const {
+        status,
+        responseTime: responseTime_status,
+        chain_id,
+      } = await pingChain(customRpUrl);
+      responseTime = responseTime_status;
+      if (!status) {
+        setUnavailableError(true);
+        setCustomLoading(false);
+        return;
+      }
+      if (status && chain_id == 'testnet') {
+        setTestnetError(true);
+        setCustomLoading(false);
+        return;
+      }
     }
     // do not support testnet
     const env = process.env.NEAR_ENV;
     if (env == 'testnet' || env == 'pub-testnet') {
       setNotSupportTestnetError(true);
-      setCustomLoading(false);
-      return;
-    }
-    if (status && chain_id == 'testnet') {
-      setTestnetError(true);
       setCustomLoading(false);
       return;
     }
@@ -763,5 +783,36 @@ const isPrd = (env: string = process.env.NEAR_ENV) => {
 };
 function trimStr(str: string = '') {
   return str.replace(/(^\s*)|(\s*$)/g, '');
+}
+async function ping_gas(url: string) {
+  const start = new Date().getTime();
+  let responseTime;
+  const businessRequest = fetch(url, {
+    method: 'POST',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'dontcare',
+      method: 'gas_price',
+      params: [null],
+    }),
+  });
+  let r;
+  try {
+    r = await businessRequest;
+    if (r?.status == 200) {
+      r = true;
+    } else {
+      r = false;
+    }
+  } catch (error) {
+    r = false;
+  }
+  const end = new Date().getTime();
+  responseTime = end - start;
+  return {
+    status: !!r,
+    responseTime,
+  };
 }
 export default RpcList;
