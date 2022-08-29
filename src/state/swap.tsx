@@ -62,7 +62,7 @@ import {
   V3_POOL_SPLITER,
 } from '~services/swapV3';
 import { pointToPrice, get_pointorder_range } from '../services/swapV3';
-import _ from 'lodash';
+import _, { toArray } from 'lodash';
 import Big from 'big.js';
 import { getV3PoolId } from '../services/swapV3';
 import { checkAllocations } from '../utils/numbers';
@@ -393,16 +393,16 @@ export const useSwapV3 = ({
     v3Swap({
       Swap: {
         pool_ids: [getV3PoolId(tokenIn.id, tokenOut.id, bestFee)],
-        min_output_amount: percentLess(slippageTolerance, bestEstimate.amount),
+        min_output_amount: toReadableNumber(
+          tokenOut.decimals,
+          percentLess(slippageTolerance, bestEstimate.amount)
+        ),
       },
       swapInfo: {
         tokenA: tokenIn,
         tokenB: tokenOut,
         amountA: tokenInAmount,
-        amountB: toReadableNumber(
-          tokenOut.decimals,
-          percentLess(slippageTolerance, bestEstimate.amount)
-        ),
+        amountB: toReadableNumber(tokenOut.decimals, bestEstimate.amount),
       },
     });
   };
