@@ -403,15 +403,15 @@ export const NewPro = ({
       onMouseLeave={() => setHover(false)}
       onClick={onClick}
     >
-      {!hover ? (
+      {ifCross ? (
+        <ProIconClick />
+      ) : !hover ? (
         <>
           <NewProIcon />
           <span className="absolute top-1.5 left-1 text-white text-sm font-bold opacity-70">
             <FormattedMessage id="pro" defaultMessage={'Pro'} />
           </span>
         </>
-      ) : ifCross ? (
-        <ProIconClick />
       ) : (
         <ProIconHover />
       )}

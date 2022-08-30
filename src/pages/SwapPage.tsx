@@ -116,12 +116,19 @@ function SwapTab({
 const MyOrderTab = () => {
   const history = useHistory();
 
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+
   return (
     <button
-      className="rounded-xl whitespace-nowrap text-white text-sm border border-primaryText border-opacity-20 h-8 px-2 mr-4"
+      className={`rounded-xl ${
+        !isSignedIn ? 'cursor-not-allowed opacity-30' : ''
+      } whitespace-nowrap hover:text-gradientFrom hover:bg-black hover:bg-opacity-20 text-white text-sm border border-primaryText border-opacity-20 h-8 px-2 `}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (!isSignedIn) return;
+
         history.push('/myOrder');
       }}
     >
@@ -219,6 +226,8 @@ function SwapPage() {
             stablePools={stablePools}
             tokenInAmount={tokenInAmount}
             setTokenInAmount={setTokenInAmount}
+            reservesType={reservesType}
+            setReservesType={setReservesType}
             swapTab={
               <>
                 <ChangeSwapModeV3

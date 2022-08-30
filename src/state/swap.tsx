@@ -420,8 +420,8 @@ export const useSwapV3 = ({
       const pi = new Big(newPrice)
         .minus(new Big(1).div(curPrice))
         .div(newPrice)
-        .minus(bestFee / 10000)
         .times(100)
+        .minus(bestFee / 10000)
         .toString();
 
       return scientificNotationToString(pi);
@@ -526,7 +526,7 @@ export const useLimitOrder = ({
                 counts.map((c) => ((c / sumOfCounts) * 100).toFixed())
               );
 
-        const percensNew = percents.map((p, i) => (!!pools[i] ? p : null));
+        const percensNew = percents.map((p, i) => (!!res[i] ? p : null));
 
         const toCounts = percensNew.reduce((acc, cur, index) => {
           return {

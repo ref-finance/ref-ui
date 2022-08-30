@@ -1,4 +1,4 @@
-import { TokenMetadata } from './ft-contract';
+import { TokenMetadata, ftGetStorageBalance } from './ft-contract';
 import {
   refSwapV3ViewFunction,
   REF_UNI_V3_SWAP_CONTRACT_ID,
@@ -16,6 +16,8 @@ import {
 import { storageDepositAction } from '../services/creators/storage';
 import { currentStorageBalanceOfV3 } from './account';
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { registerAccountOnToken } from './creators/token';
+import { nearDepositTransaction, nearWithdrawTransaction } from './wrap-near';
 
 const LOG_BASE = 1.0001;
 
@@ -105,6 +107,16 @@ export const feeToPointDelta = (fee: number) => {
   }
 };
 
+export const swapV3GetStorageBalance = (
+  tokenId: string,
+  accountId = getCurrentWallet().wallet.getAccountId()
+) => {
+  return refSwapV3ViewFunction({
+    methodName: 'storage_balance_of',
+    args: { account_id: accountId },
+  });
+};
+
 export const priceToPoint = ({
   tokenA,
   tokenB,
@@ -189,7 +201,7 @@ interface V3Swap {
   };
 }
 
-export const v3Swap = ({
+export const v3Swap = async ({
   Swap,
   SwapByOutput,
   LimitOrder,
@@ -203,6 +215,17 @@ export const v3Swap = ({
 
   if (Swap) {
     const pool_ids = Swap.pool_ids;
+
+    const tokenRegistered = await ftGetStorageBalance(tokenB.id).catch(() => {
+      throw new Error(`${tokenB.id} doesn't exist.`);
+    });
+
+    if (tokenRegistered === null) {
+      transactions.push({
+        receiverId: tokenB.id,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
 
     const output_token = tokenB.id;
     const min_output_amount = toNonDivisibleNumber(
@@ -233,7 +256,6 @@ export const v3Swap = ({
         },
       ],
     });
-    return executeMultipleTransactions(transactions);
   }
 
   if (SwapByOutput) {
@@ -247,6 +269,16 @@ export const v3Swap = ({
         output_amount,
       },
     });
+    const tokenRegistered = await ftGetStorageBalance(tokenB.id).catch(() => {
+      throw new Error(`${tokenB.id} doesn't exist.`);
+    });
+
+    if (tokenRegistered === null) {
+      transactions.push({
+        receiverId: tokenB.id,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
 
     transactions.push({
       receiverId: tokenA.id,
@@ -263,8 +295,6 @@ export const v3Swap = ({
         },
       ],
     });
-
-    return executeMultipleTransactions(transactions);
   }
 
   if (LimitOrder) {
@@ -276,6 +306,17 @@ export const v3Swap = ({
       tokenA,
       tokenB,
     });
+
+    const DCLRegistered = await swapV3GetStorageBalance(tokenB.id).catch(() => {
+      throw new Error(`${tokenB.id} doesn't exist.`);
+    });
+
+    if (DCLRegistered === null) {
+      transactions.push({
+        receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
 
     const new_point =
       pool_id.split(V3_POOL_SPLITER)[0] === tokenA.id ? point : -point;
@@ -303,9 +344,26 @@ export const v3Swap = ({
         },
       ],
     });
-
-    return executeMultipleTransactions(transactions);
   }
+
+  if (tokenA.id === WRAP_NEAR_CONTRACT_ID) {
+    transactions.unshift(nearDepositTransaction(amountA));
+  }
+  if (tokenB.id === WRAP_NEAR_CONTRACT_ID && !LimitOrder) {
+    transactions.push(nearWithdrawTransaction(Swap.min_output_amount));
+  }
+
+  if (tokenA.id === WRAP_NEAR_CONTRACT_ID) {
+    const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);
+    if (registered === null) {
+      transactions.unshift({
+        receiverId: WRAP_NEAR_CONTRACT_ID,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
+  }
+
+  return executeMultipleTransactions(transactions);
 };
 
 export const list_history_orders = () => {

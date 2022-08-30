@@ -459,10 +459,13 @@ export function SwapExchangeV3({
         </span>
 
         <span
-          className="text-xs px-2 py-1 rounded-2xl whitespace-nowrap"
-          style={{
-            color: '#78C6FF',
-            background: 'rgba(66, 120, 202, 0.15)',
+          className={`text-xs px-2 py-1 ${
+            rate === curPrice
+              ? 'text-v3Blue bg-v3Blue bg-opacity-10 border border-transparent'
+              : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-v3Blue hover:bg-v3Blue hover:bg-opacity-10'
+          }  rounded-2xl whitespace-nowrap cursor-pointer`}
+          onClick={() => {
+            setRate(curPrice);
           }}
         >
           <FormattedMessage id="current_rate" defaultMessage={'Current Rate'} />

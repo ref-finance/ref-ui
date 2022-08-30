@@ -25,7 +25,6 @@ import {
   calculateSmartRoutesV2PriceImpact,
   separateRoutes,
   calcStableSwapPriceImpact,
-  toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
@@ -97,6 +96,7 @@ import { SwapMinReceiveCheck, LimitOrderMask } from '../icon/swapV3';
 import { TokenAmountV3 } from '../forms/TokenAmount';
 import Big from 'big.js';
 import { Slider } from '../icon/Info';
+import { toInternationalCurrencySystemLongString } from '../../utils/numbers';
 import {
   pointToPrice,
   priceToPoint,
@@ -117,6 +117,8 @@ const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 const SWAP_SLIPPAGE_KEY_STABLE = 'REF_FI_SLIPPAGE_VALUE_STABLE';
 
 const SWAP_SLIPPAGE_KEY_LIMIT = 'REF_FI_SLIPPAGE_VALUE_LIMIT';
+
+const storageShoDetail = 'REF_FI_STORAGE_SHOW_DETAIL';
 
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
@@ -244,22 +246,30 @@ export function SwapRate({
   tokenPriceList,
 }: {
   fee: number;
-  value: string;
+  value: JSX.Element | string;
   from: string;
   to: string;
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
   tokenPriceList?: any;
 }) {
-  const [newValue, setNewValue] = useState<string>('');
+  const [newValue, setNewValue] = useState<string | JSX.Element>('');
   const [isRevert, setIsRevert] = useState<boolean>(false);
+  const price =
+    tokenPriceList?.[isRevert ? tokenIn.id : tokenOut.id]?.price || null;
+
+  const displayPrice = !price ? null : (
+    <span className="text-primaryText mx-1">
+      (${toInternationalCurrencySystemLongString(price, 2)})
+    </span>
+  );
 
   const exchangeRageValue = useMemo(() => {
     const fromNow = isRevert ? from : to;
     const toNow = isRevert ? to : from;
     if (ONLY_ZEROS.test(fromNow)) return '-';
 
-    return calculateExchangeRate(fee, fromNow, toNow);
+    return calculateExchangeRate(fee, fromNow, toNow, 6);
   }, [isRevert, to]);
 
   useEffect(() => {
@@ -268,23 +278,15 @@ export function SwapRate({
 
   useEffect(() => {
     setNewValue(
-      `1 ${toRealSymbol(
-        isRevert ? tokenIn.symbol : tokenOut.symbol
-      )} ≈ ${exchangeRageValue} ${toRealSymbol(
-        isRevert ? tokenOut.symbol : tokenIn.symbol
-      )}`
+      <span>
+        {`1 ${toRealSymbol(isRevert ? tokenIn.symbol : tokenOut.symbol)}`}
+        {displayPrice}
+        {`≈ ${exchangeRageValue} ${toRealSymbol(
+          isRevert ? tokenOut.symbol : tokenIn.symbol
+        )}`}
+      </span>
     );
   }, [isRevert, exchangeRageValue]);
-
-  const price =
-    tokenPriceList?.[isRevert ? tokenIn.id : tokenOut.id]?.price || null;
-
-  const displayPrice = !price ? null : (
-    <span className="text-primaryText">{`($${toInternationalCurrencySystemLongString(
-      price,
-      2
-    )})`}</span>
-  );
 
   function switchSwapRate(e: React.MouseEvent<HTMLDivElement>) {
     e.stopPropagation();
@@ -303,7 +305,6 @@ export function SwapRate({
         </span>
         <span className="font-sans">{newValue}</span>
       </p>
-      {displayPrice}
     </section>
   );
 }
@@ -620,7 +621,9 @@ function DetailViewV2({
   tokenPriceList?: any;
 }) {
   const intl = useIntl();
-  const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [showDetails, setShowDetails] = useState<boolean>(
+    !!sessionStorage.getItem(storageShoDetail) || false
+  );
 
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
@@ -635,12 +638,14 @@ function DetailViewV2({
   useEffect(() => {
     if (Number(priceImpact) > 1) {
       setShowDetails(true);
+      sessionStorage.setItem(storageShoDetail, 'open');
     }
   }, [priceImpact]);
 
   useEffect(() => {
     if (swapsTodo?.length > 1) {
       setShowDetails(true);
+      sessionStorage.setItem(storageShoDetail, 'open');
     }
   }, [swapsTodo]);
 
@@ -679,6 +684,12 @@ function DetailViewV2({
         <div
           className="pl-1 text-sm flex items-center cursor-pointer"
           onClick={() => {
+            if (showDetails) {
+              sessionStorage.removeItem(storageShoDetail);
+            } else {
+              sessionStorage.setItem(storageShoDetail, 'open');
+            }
+
             setShowDetails(!showDetails);
           }}
         >
@@ -765,7 +776,12 @@ function DetailViewV3({
   tokenPriceList?: any;
 }) {
   const intl = useIntl();
-  const [showDetails, setShowDetails] = useState<boolean>(false);
+
+  const [showDetails, setShowDetails] = useState<boolean>(
+    !!sessionStorage.getItem(storageShoDetail) || false
+  );
+
+  console.log(sessionStorage.getItem(storageShoDetail));
 
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
@@ -780,6 +796,7 @@ function DetailViewV3({
   useEffect(() => {
     if (Number(priceImpact) > 1) {
       setShowDetails(true);
+      sessionStorage.setItem(storageShoDetail, 'open');
     }
   }, [priceImpact]);
 
@@ -817,6 +834,12 @@ function DetailViewV3({
         <div
           className="pl-1 text-sm flex items-center cursor-pointer"
           onClick={() => {
+            if (showDetails) {
+              sessionStorage.removeItem(storageShoDetail);
+            } else {
+              sessionStorage.setItem(storageShoDetail, 'open');
+            }
+
             setShowDetails(!showDetails);
           }}
         >
@@ -892,6 +915,8 @@ function DetailViewLimit({
     'Best for rare pairs',
   ];
 
+  const [hoverSlider, setHoverSlider] = useState(false);
+
   function SelectPercent({ fee, poolId }: { fee?: number; poolId?: string }) {
     const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokneOut.id, fee);
     const count = poolPercents?.[id];
@@ -924,21 +949,24 @@ function DetailViewLimit({
             <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
           </span>
 
-          <SelectPercent
-            poolId={v3Pool}
-            // fee={Number(v3Pool.split(V3_POOL_SPLITER)[2])}
-          />
+          <SelectPercent poolId={v3Pool} />
         </div>
 
         <button
-          className=" justify-center bg-opacity-20 border border-opacity-20 border-primaryText rounded-xl"
+          className=" justify-center bg-opacity-20 border p-0.5 border-opacity-20 border-primaryText rounded-lg"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             setShowDetail(!showDetail);
           }}
+          onMouseEnter={() => {
+            setHoverSlider(true);
+          }}
+          onMouseLeave={() => {
+            setHoverSlider(false);
+          }}
         >
-          <Slider shrink showSlip={showDetail} />
+          <Slider shrink showSlip={showDetail || hoverSlider} />
         </button>
       </div>
 
@@ -987,20 +1015,19 @@ function DetailViewLimit({
 
 function NoLimitPoolCard() {
   return (
-    <div className="relative flex flex-col text-sm mt-6 text-warn z-50">
+    <div className="relative  text-sm mt-6 text-center text-warn z-50">
       <span className="self-center">
         <label className="">
           <FormattedMessage id="oops" defaultMessage="Oops" />!
         </label>
       </span>
 
-      <span className="self-center">
+      <span className="self-center ml-1">
         <FormattedMessage
-          id="the_pool_not_exist_try_another_fee_tiers"
-          defaultMessage={
-            'The pool does not exist, please try another fee tiers'
-          }
+          id="the_pool_not_exist"
+          defaultMessage={'The pool does not exist'}
         />
+        .
       </span>
     </div>
   );
@@ -1013,6 +1040,8 @@ export default function SwapCard(props: {
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
   swapTab?: JSX.Element;
+  reservesType: STABLE_POOL_TYPE;
+  setReservesType: (value: STABLE_POOL_TYPE) => void;
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
@@ -1029,15 +1058,12 @@ export default function SwapCard(props: {
     tokenInAmount,
     setTokenInAmount,
     swapTab,
+    reservesType,
+    setReservesType,
   } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
-
-  const [reservesType, setReservesType] = useState<STABLE_POOL_TYPE>(
-    STABLE_POOL_TYPE[localStorage.getItem(reserveTypeStorageKey)] ||
-      STABLE_POOL_TYPE.USD
-  );
 
   const [curOrderPrice, setCurOrderPrice] = useState<string>('');
 
@@ -1106,7 +1132,7 @@ export default function SwapCard(props: {
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
     if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id)) {
-      setReservesType(STABLE_POOL_TYPE.BTC);
+      STABLE_POOL_TYPE.BTC;
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.BTC);
     } else if (
       STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).includes(tokenIn.id) &&
@@ -1418,12 +1444,18 @@ export default function SwapCard(props: {
       tokenB: tokenOut,
       point: mostPoolDetail.current_point,
     });
-    setLimitAmountOutRate(toPrecision(price, tokenOut.decimals));
+    setLimitAmountOutRate(LimitAmountOutRate || toPrecision(price, 6));
 
-    setCurOrderPrice(price);
+    setCurOrderPrice(curOrderPrice || toPrecision(price, 6));
 
     setLimitAmountOut(
-      new Big(price || 0).times(tokenInAmount || 0).toFixed(tokenOut.decimals)
+      limitAmountOut ||
+        toPrecision(
+          scientificNotationToString(
+            new Big(price || 0).times(tokenInAmount || 0).toString()
+          ),
+          8
+        )
     );
   }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
 
@@ -1439,6 +1471,18 @@ export default function SwapCard(props: {
         new Big(curAmount || '0').div(tokenInAmount || 1).toFixed()
       );
     }
+  };
+
+  const onChangeLimitRate = (r: string) => {
+    const curR = toReadableNumber(6, toNonDivisibleNumber(6, r));
+
+    setLimitAmountOutRate(curR);
+
+    const curAmountOut = scientificNotationToString(
+      new Big(curR || 0).times(tokenInAmount || 0).toString()
+    );
+
+    setLimitAmountOut(toPrecision(curAmountOut, 8));
   };
 
   let PriceImpactValue: string = '0';
@@ -1519,6 +1563,9 @@ export default function SwapCard(props: {
     tokenOut,
     priceImpactV3,
     quoteDone,
+    slippageTolerance,
+    minAmountOut,
+    minAmountOutV3,
   ]);
 
   const tokenInMax = useNearBalance
@@ -1566,6 +1613,7 @@ export default function SwapCard(props: {
   return (
     <>
       <SwapFormWrap
+        quoteDoneLimit={quoteDoneLimit}
         supportLedger={supportLedger}
         setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
@@ -1663,19 +1711,7 @@ export default function SwapCard(props: {
                 );
               }}
               curPrice={curOrderPrice}
-              setRate={(r: string) => {
-                const curR = toReadableNumber(
-                  tokenOut.decimals,
-                  toNonDivisibleNumber(tokenOut.decimals, r)
-                );
-
-                setLimitAmountOutRate(curR);
-                setLimitAmountOut(
-                  new Big(curR || 0)
-                    .times(tokenInAmount || 0)
-                    .toFixed(tokenOut.decimals)
-                );
-              }}
+              setRate={onChangeLimitRate}
             />
           ) : (
             <SwapExchange
@@ -1736,11 +1772,9 @@ export default function SwapCard(props: {
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
-          marketPriceLimitOrder={
-            !curOrderPrice
-              ? null
-              : new Big(tokenInAmount || 0).times(curOrderPrice || 0).toFixed()
-          }
+          curRate={LimitAmountOutRate}
+          onChangeRate={onChangeLimitRate}
+          marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
           ExtraElement={
             <div
               onClick={(e) => {

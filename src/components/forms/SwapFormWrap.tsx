@@ -25,6 +25,7 @@ interface SwapFormWrapProps {
   tokensTitle?: JSX.Element;
   onChange: (slippage: number) => void;
   requestingTrigger?: boolean;
+  quoteDoneLimit?: boolean;
   loading?: {
     loadingData: boolean;
     setLoadingData: (loading: boolean) => void;
@@ -60,6 +61,7 @@ export default function SwapFormWrap({
   swapMode,
   supportLedger,
   setSupportLedger,
+  quoteDoneLimit,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
@@ -134,7 +136,9 @@ export default function SwapFormWrap({
           }
           label={buttonText || title}
           info={info}
-          loading={showSwapLoading}
+          loading={
+            swapMode !== SWAP_MODE.LIMIT ? showSwapLoading : !quoteDoneLimit
+          }
         />
       )}
     </form>

@@ -57,6 +57,8 @@ interface TokenAmountProps {
   forLimitOrder?: boolean;
   marketPriceLimitOrder?: string;
   limitOrderDisable?: boolean;
+  curRate?: string;
+  onChangeRate?: (rate: string) => void;
 }
 
 export function HalfAndMaxAmount({
@@ -158,29 +160,28 @@ export function HalfAndMaxAmountV3({
 export function QuickAmountLimitOrder({
   max,
   onChangeAmount,
-  token,
-  amount,
   marketPrice,
+  amount,
 }: {
   max: string;
-  token: TokenMetadata;
-  onChangeAmount: (amount: string) => void;
   amount?: string;
+  onChangeAmount: (amount: string) => void;
   marketPrice: string;
 }) {
-  const plus5 = percentOfBigNumber(105, max, token?.decimals);
-  const plus10 = percentOfBigNumber(110, max, token?.decimals);
+  const plus5 = percentOfBigNumber(105, max, 6);
+  const plus10 = percentOfBigNumber(110, max, 6);
+
+  console.log(plus10, amount, 'amount check for quick');
+
   return (
     <div className="flex items-center">
       <span
-        className={`px-2 py-1 mr-2 cursor-pointer rounded-lg text-primaryText hover:text-gradientFrom ${
-          amount === plus5 && !ONLY_ZEROS.test(plus5)
-            ? ' bg-black bg-opacity-20 border border-transparent'
-            : ' border border-primaryText border-opacity-20 hover:border-gradientFrom '
+        className={`px-2 py-1 mr-2 cursor-pointer rounded-xl  ${
+          Number(amount) === Number(plus5)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
         } text-xs`}
         onClick={() => {
-          const plus5 = percentOfBigNumber(105, max, token.decimals);
-
           onChangeAmount(plus5);
         }}
       >
@@ -188,13 +189,12 @@ export function QuickAmountLimitOrder({
       </span>
 
       <span
-        className={`px-2 py-1 cursor-pointer rounded-lg mr-2 text-primaryText hover:text-gradientFrom ${
-          amount === plus10 && !ONLY_ZEROS.test(plus10)
-            ? ' bg-black bg-opacity-20 border border-transparent'
-            : 'border border-primaryText border-opacity-20 hover:border-gradientFrom '
+        className={`px-2 py-1 cursor-pointer rounded-xl mr-2  ${
+          Number(amount) === Number(plus10)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
         } text-xs`}
         onClick={() => {
-          const plus10 = percentOfBigNumber(110, max, token.decimals);
           onChangeAmount(plus10);
         }}
       >
@@ -202,11 +202,14 @@ export function QuickAmountLimitOrder({
       </span>
 
       <span
-        className="text-xs px-2 py-1 rounded-2xl whitespace-nowrap cursor-pointer"
-        style={{
-          color: '#78C6FF',
-          background: 'rgba(66, 120, 202, 0.15)',
-        }}
+        className={`text-xs px-2 py-1 rounded-xl whitespace-nowrap cursor-pointer
+        ${
+          Number(amount) === Number(max)
+            ? 'text-v3Blue bg-v3Blue bg-opacity-10 border border-transparent'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-v3Blue hover:bg-v3Blue hover:bg-opacity-10'
+        }
+        
+        `}
         onClick={() => {
           onChangeAmount(marketPrice);
         }}
@@ -372,6 +375,8 @@ export function TokenAmountV3({
   ExtraElement,
   marketPriceLimitOrder,
   limitOrderDisable,
+  onChangeRate,
+  curRate,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -470,7 +475,7 @@ export function TokenAmountV3({
         {swapMode !== SWAP_MODE.LIMIT && ExtraElement}
       </fieldset>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between h-6">
         <span className="mr-3 text-primaryText">
           {!!tokenPrice && !ONLY_ZEROS.test(amount) && !isError
             ? '$' +
@@ -493,11 +498,11 @@ export function TokenAmountV3({
         marketPriceLimitOrder &&
         swapMode === SWAP_MODE.LIMIT ? (
           <QuickAmountLimitOrder
-            max={amount}
-            token={selectedToken}
-            onChangeAmount={onChangeAmount}
+            max={marketPriceLimitOrder}
+            onChangeAmount={onChangeRate}
             marketPrice={marketPriceLimitOrder}
-          ></QuickAmountLimitOrder>
+            amount={curRate}
+          />
         ) : null}
       </div>
     </div>

@@ -173,13 +173,17 @@ export default function SlippageSelector({
     }
   }, [swapMode]);
 
+  const [hoverSlider, setHoverSlider] = useState(false);
+
   return (
     <div className="relative z-10 font-normal">
       <div
         className="p-1 w-8 h-8 bg-black flex items-center justify-center bg-opacity-20 border border-opacity-20 border-primaryText rounded-xl text-2xl text-white cursor-pointer"
         onClick={(e) => openToolTip(e)}
+        onMouseEnter={() => setHoverSlider(true)}
+        onMouseLeave={() => setHoverSlider(false)}
       >
-        <Slider shrink showSlip={showSlip} />
+        <Slider shrink showSlip={showSlip || hoverSlider} />
       </div>
       {showSlip && (
         <div
