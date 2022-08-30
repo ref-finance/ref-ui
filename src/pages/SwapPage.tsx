@@ -165,19 +165,13 @@ function SwapPage() {
 
   const [swapTab, setSwapTab] = useState<string>(storageTab || 'normal');
 
-  const urlMode = window.location.pathname.split('/')?.[2] as SWAP_MODE | null;
-
   const storageMode = localStorage.getItem(SWAP_MODE_KEY) as SWAP_MODE | null;
 
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
-    urlMode || storageMode || SWAP_MODE.NORMAL
+    storageMode || SWAP_MODE.NORMAL
   );
 
   const stablePools = useAllStablePools();
-
-  useEffect(() => {
-    if (urlMode) setSwapMode(urlMode);
-  }, [urlMode]);
 
   useEffect(() => {
     if (storageMode) setSwapTab(storageTab);

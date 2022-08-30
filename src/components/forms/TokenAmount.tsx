@@ -168,8 +168,8 @@ export function QuickAmountLimitOrder({
   onChangeAmount: (amount: string) => void;
   marketPrice: string;
 }) {
-  const plus5 = percentOfBigNumber(105, max, 6);
-  const plus10 = percentOfBigNumber(110, max, 6);
+  const plus5 = percentOfBigNumber(105, max, 8);
+  const plus10 = percentOfBigNumber(110, max, 8);
 
   console.log(plus10, amount, 'amount check for quick');
 
@@ -472,7 +472,7 @@ export function TokenAmountV3({
             !!onChangeAmount && !forLimitOrder && !ONLY_ZEROS.test(amount)
           }
         />
-        {swapMode !== SWAP_MODE.LIMIT && ExtraElement}
+        {ExtraElement}
       </fieldset>
 
       <div className="flex items-center justify-between h-6">

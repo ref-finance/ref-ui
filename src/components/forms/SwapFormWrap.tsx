@@ -137,7 +137,9 @@ export default function SwapFormWrap({
           label={buttonText || title}
           info={info}
           loading={
-            swapMode !== SWAP_MODE.LIMIT ? showSwapLoading : !quoteDoneLimit
+            swapMode !== SWAP_MODE.LIMIT
+              ? showSwapLoading
+              : !quoteDoneLimit || showSwapLoading
           }
         />
       )}

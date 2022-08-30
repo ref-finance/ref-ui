@@ -96,7 +96,10 @@ import { SwapMinReceiveCheck, LimitOrderMask } from '../icon/swapV3';
 import { TokenAmountV3 } from '../forms/TokenAmount';
 import Big from 'big.js';
 import { Slider } from '../icon/Info';
-import { toInternationalCurrencySystemLongString } from '../../utils/numbers';
+import {
+  toInternationalCurrencySystemLongString,
+  toRoundedReadableNumber,
+} from '../../utils/numbers';
 import {
   pointToPrice,
   priceToPoint,
@@ -781,8 +784,6 @@ function DetailViewV3({
     !!sessionStorage.getItem(storageShoDetail) || false
   );
 
-  console.log(sessionStorage.getItem(storageShoDetail));
-
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
@@ -1434,8 +1435,8 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (!mostPoolDetail || !tokenIn || !tokenOut || !quoteDoneLimit) {
-      setLimitAmountOutRate('');
-      setLimitAmountOut('');
+      // setLimitAmountOutRate('');
+      // setLimitAmountOut('');
       setCurOrderPrice(null);
       return;
     }
@@ -1444,9 +1445,10 @@ export default function SwapCard(props: {
       tokenB: tokenOut,
       point: mostPoolDetail.current_point,
     });
-    setLimitAmountOutRate(LimitAmountOutRate || toPrecision(price, 6));
 
-    setCurOrderPrice(curOrderPrice || toPrecision(price, 6));
+    setLimitAmountOutRate(LimitAmountOutRate || toPrecision(price, 8));
+
+    setCurOrderPrice(curOrderPrice || toPrecision(price, 8));
 
     setLimitAmountOut(
       limitAmountOut ||
@@ -1460,21 +1462,23 @@ export default function SwapCard(props: {
   }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
 
   const LimitChangeAmountOut = (amount: string) => {
-    const curAmount = toReadableNumber(
-      tokenOut.decimals,
-      toNonDivisibleNumber(tokenOut.decimals, amount)
-    );
+    const curAmount = toPrecision(amount, 8);
 
     setLimitAmountOut(curAmount);
     if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
       setLimitAmountOutRate(
-        new Big(curAmount || '0').div(tokenInAmount || 1).toFixed()
+        toPrecision(
+          scientificNotationToString(
+            new Big(curAmount || '0').div(tokenInAmount || 1).toString()
+          ),
+          8
+        )
       );
     }
   };
 
   const onChangeLimitRate = (r: string) => {
-    const curR = toReadableNumber(6, toNonDivisibleNumber(6, r));
+    const curR = toPrecision(r, 8);
 
     setLimitAmountOutRate(curR);
 
@@ -1790,7 +1794,7 @@ export default function SwapCard(props: {
                   setLoadingTrigger(false);
                 }
               }}
-              className="mx-4 cursor-pointer"
+              className="mr-2 cursor-pointer"
             >
               <CountdownTimer
                 loadingTrigger={loadingTrigger}

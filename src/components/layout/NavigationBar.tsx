@@ -1103,7 +1103,7 @@ function NavigationBar() {
                   {
                     name: 'swap',
                     click: () => {
-                      historyInit.push('/swap/normal');
+                      historyInit.push('/swap');
                       localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
                       localStorage.setItem(
                         REF_FI_SWAP_SWAPPAGE_TAB_KEY,
@@ -1114,7 +1114,7 @@ function NavigationBar() {
                   {
                     name: 'stable',
                     click: () => {
-                      historyInit.push('/swap/stable');
+                      historyInit.push('/swap');
                       localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
                       localStorage.setItem(
                         REF_FI_SWAP_SWAPPAGE_TAB_KEY,
@@ -1136,7 +1136,7 @@ function NavigationBar() {
                   {
                     name: 'limit',
                     click: () => {
-                      historyInit.push('/swap/limit');
+                      historyInit.push('/swap');
                       localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
                       localStorage.setItem(
                         REF_FI_SWAP_SWAPPAGE_TAB_KEY,

@@ -460,7 +460,7 @@ export function SwapExchangeV3({
 
         <span
           className={`text-xs px-2 py-1 ${
-            rate === curPrice
+            Number(rate) === Number(curPrice)
               ? 'text-v3Blue bg-v3Blue bg-opacity-10 border border-transparent'
               : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-v3Blue hover:bg-v3Blue hover:bg-opacity-10'
           }  rounded-2xl whitespace-nowrap cursor-pointer`}
