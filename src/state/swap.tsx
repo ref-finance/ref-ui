@@ -415,19 +415,26 @@ export const useSwapV3 = ({
         point: bestPool.current_point,
       });
 
-      const newPrice = new Big(tokenOutAmount).div(tokenInAmount).toNumber();
+      const newPrice = new Big(tokenInAmount).div(tokenOutAmount).toNumber();
 
       const pi = new Big(newPrice)
-        .minus(curPrice)
+        .minus(new Big(1).div(curPrice))
         .div(newPrice)
         .minus(bestFee / 10000)
+        .times(100)
         .toString();
 
       return scientificNotationToString(pi);
     } catch (error) {
       return '0';
     }
-  }, [tokenOutAmount, estimates, bestPool, tokenIn, tokenOut]);
+  }, [tokenOutAmount, bestPool, bestFee, tokenIn, tokenOut, estimates]);
+
+  const displayPriceImpact = useMemo(() => {
+    return priceImpact;
+  }, [poolReFetch]);
+
+  console.log(displayPriceImpact, 'displayPriceImpact');
 
   console.log(
     estimates,
@@ -440,7 +447,7 @@ export const useSwapV3 = ({
     makeSwap,
     canSwap: !!bestPool && swapMode !== SWAP_MODE.STABLE && !loadingTrigger,
     tokenOutAmount,
-    priceImpact,
+    priceImpact: displayPriceImpact,
     minAmountOut: tokenOutAmount
       ? percentLess(slippageTolerance, tokenOutAmount)
       : null,
@@ -500,19 +507,14 @@ export const useLimitOrder = ({
 
     Promise.all(
       V3_POOL_FEE_LIST.map((fee) =>
-        getLimitOrderRangeCountAndPool({
-          pool_id: getV3PoolId(tokenIn.id, tokenOut.id, fee),
-          token0: tokenIn.id,
-        })
+        get_pool(getV3PoolId(tokenIn.id, tokenOut.id, fee), tokenIn.id)
       )
     )
       .then((res) => {
-        const pools = res.map((r) => r.pool);
+        setPools(res);
 
-        setPools(pools);
-
-        const counts = res.map(
-          (r) => Object.keys(r.rangeCount || {}).length || 0
+        const counts = res?.map((r) =>
+          r?.liquidity ? Number(r?.liquidity) : 0
         );
         const sumOfCounts = _.sum(counts);
 

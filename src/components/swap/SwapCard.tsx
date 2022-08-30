@@ -792,11 +792,9 @@ function DetailViewV3({
     if (!fee || !from || !tokenIn) return null;
 
     return `${toPrecision(
-      calculateFeePercent(fee / 100).toString(),
+      calculateFeePercent(fee).toString(),
       2
-    )}% / ${calculateFeeCharge(fee / 100, from)} ${toRealSymbol(
-      tokenIn.symbol
-    )}`;
+    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
   }, [to]);
 
   if (ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id) return null;
@@ -967,7 +965,7 @@ function DetailViewLimit({
               >
                 <div
                   key={i + '-' + pool_id}
-                  className={`rounded-xl   px-1  flex-col ${
+                  className={`rounded-xl   px-3  flex-col ${
                     v3Pool === pool_id ? '' : 'border'
                   }  flex items-center border-primaryText border-opacity-20 pb-2 py-3`}
                 >
@@ -987,122 +985,23 @@ function DetailViewLimit({
   );
 }
 
-function NoLimitPoolCard({
-  tokenIn,
-  tokenOut,
-  tokenPriceList,
-  from,
-  to,
-  fee,
-}: {
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-  tokenPriceList: any;
-  from?: string;
-  to?: string;
-  fee?: number;
-}) {
-  const [newPrice, setNewPrice] = useState<string>('');
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [symbolsArr] = useState(['e', 'E', '+', '-']);
-  // const exchangeRateValue = useMemo(() => {
-  //   if (!from || ONLY_ZEROS.test(to)) return '-';
-  //   else return calculateExchangeRate(fee, to, from);
-  // }, [to]);
-  // const marketRate = (
-  //   <SwapRate
-  //     value={`1 ${toRealSymbol(
-  //       tokenOut.symbol
-  //     )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
-  //     from={from}
-  //     to={to}
-  //     tokenIn={tokenIn}
-  //     tokenOut={tokenOut}
-  //     fee={fee}
-  //     tokenPriceList={tokenPriceList}
-  //   />
-  // );
-
+function NoLimitPoolCard() {
   return (
-    <div className="flex flex-col mt-4 p-6 text-center text-white rounded-xl text-sm relative  bg-black bg-opacity-30 whitespace-nowrap">
-      <div className="relative flex flex-col z-50">
-        <span className="self-center">
-          <label className="text-white ">
-            <FormattedMessage id="oops" defaultMessage="Oops" />!
-          </label>
-        </span>
+    <div className="relative flex flex-col text-sm mt-6 text-warn z-50">
+      <span className="self-center">
+        <label className="">
+          <FormattedMessage id="oops" defaultMessage="Oops" />!
+        </label>
+      </span>
 
-        <span className="self-center">
-          <FormattedMessage
-            id="the_pool_not_exist_try_another_fee_tiers"
-            defaultMessage={
-              'The pool does not exist, please try another fee tiers'
-            }
-          />
-        </span>
-
-        <span className="font-bold self-start text-base mt-6">
-          <FormattedMessage
-            id="starting_price"
-            defaultMessage={'Starting Price'}
-          />
-        </span>
-        <div className="flex items-center justify-between text-v3SwapGray text-sm">
-          <span>{`1 ${tokenIn.symbol} = `}</span>
-          <div className="ml-1 flex items-center bg-black bg-opacity-20 rounded-xl px-4 py-3">
-            <input
-              onWheel={() => inputRef.current.blur()}
-              min="0"
-              step="any"
-              type="number"
-              placeholder={'0.0'}
-              value={newPrice}
-              onChange={(e) => {
-                setNewPrice(e.target.value);
-              }}
-              style={{
-                fontSize: '16px',
-                color: 'white',
-                maxWidth: '150px',
-              }}
-              onKeyDown={(e) =>
-                symbolsArr.includes(e.key) && e.preventDefault()
-              }
-            />
-
-            <span className="text-white text-xs">{tokenOut.symbol}</span>
-          </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-v3SwapGray">
-            <FormattedMessage id="market_rate" defaultMessage={'Market Rate'} />
-          </span>
-          {/* {marketRate} */}
-        </div>
-
-        <SubmitButton
-          className="w-full"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            create_pool({
-              token_a: tokenIn.id,
-              token_b: tokenOut.id,
-              fee,
-              init_point: priceToPoint({
-                tokenA: tokenIn,
-                tokenB: tokenOut,
-                amountA: '1',
-                amountB: newPrice,
-              }),
-            });
-          }}
-          label="create_new_pool"
-          disabled={!newPrice}
+      <span className="self-center">
+        <FormattedMessage
+          id="the_pool_not_exist_try_another_fee_tiers"
+          defaultMessage={
+            'The pool does not exist, please try another fee tiers'
+          }
         />
-      </div>
-
-      <LimitOrderMask />
+      </span>
     </div>
   );
 }
@@ -1618,6 +1517,8 @@ export default function SwapCard(props: {
     poolPercents,
     tokenIn,
     tokenOut,
+    priceImpactV3,
+    quoteDone,
   ]);
 
   const tokenInMax = useNearBalance
@@ -1629,7 +1530,10 @@ export default function SwapCard(props: {
 
   const canSubmit =
     swapMode !== SWAP_MODE.LIMIT
-      ? canSwap && (tokenInMax != '0' || !useNearBalance)
+      ? canSwap &&
+        (tokenInMax != '0' || !useNearBalance) &&
+        quoteDone &&
+        quoteDoneV3
       : !!mostPoolDetail &&
         new Big(LimitAmountOutRate || '0').gt(curOrderPrice || '0');
 
@@ -1865,17 +1769,7 @@ export default function SwapCard(props: {
         {DetailView}
 
         {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail && (
-          <NoLimitPoolCard
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            tokenPriceList={tokenPriceList}
-            from={'1'}
-            fee={
-              selectedV3LimitPool
-                ? Number(selectedV3LimitPool.split(V3_POOL_SPLITER)[2])
-                : null
-            }
-          />
+          <NoLimitPoolCard />
         )}
 
         {swapError ? (

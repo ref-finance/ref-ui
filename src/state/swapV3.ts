@@ -21,7 +21,7 @@ export const useMyOrders = () => {
   }, [isSignedIn]);
 
   return {
-    activeOrder,
-    historyOrder,
+    activeOrder: activeOrder?.length > 0 ? activeOrder : null,
+    historyOrder: historyOrder?.length > 0 ? historyOrder : null,
   };
 };

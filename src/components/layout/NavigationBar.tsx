@@ -176,7 +176,7 @@ function Anchor({
               {subMenu.map((m) => {
                 return (
                   <span
-                    className="hover:bg-primaryText hover:bg-opacity-30 py-0.5 mb-0.5 hover:text-white rounded-lg  text-primaryText text-center text-base cursor-pointer"
+                    className="hover:bg-primaryText hover:bg-opacity-30 items-center flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg  text-primaryText text-center text-base cursor-pointer my-auto"
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();

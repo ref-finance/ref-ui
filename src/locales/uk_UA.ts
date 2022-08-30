@@ -794,5 +794,7 @@ const uk_UA = {
   make_an_order: 'Make an order',
   pro: 'Pro',
   limit: 'Limit',
+  your_active_orders_will_appear_here: 'Your active orders will appear here',
+  your_history_orders_will_appear_here: 'Your history orders will appear here',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

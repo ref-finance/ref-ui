@@ -31,7 +31,7 @@ import { DownArrowVE } from '../components/icon/Referendum';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
-function NoOrderCard() {
+function NoOrderCard({ text }: { text: 'active' | 'history' }) {
   return (
     <div
       className="w-full rounded-xl overflow-hidden h-48 relative text-white font-normal  flex items-center justify-center"
@@ -46,7 +46,7 @@ function NoOrderCard() {
 
         <span>
           <FormattedMessage
-            id="your_orders_will_appear_here"
+            id={`your_${text}_orders_will_appear_here`}
             defaultMessage={'Your orders will appear here'}
           />
           .
@@ -147,7 +147,7 @@ function OrderCard({
     if (!buyToken || !sellToken) return null;
     const unClaimedAmount = toReadableNumber(
       buyToken.decimals,
-      order.unclaimed_amount
+      order.unclaimed_amount || '0'
     );
 
     const price = pointToPrice({
@@ -227,7 +227,7 @@ function OrderCard({
         />
         <span className="text-white text-sm mx-1">
           {toPrecision(
-            toReadableNumber(buyToken.decimals, order.unclaimed_amount),
+            toReadableNumber(buyToken.decimals, order.unclaimed_amount || '0'),
             3
           )}
         </span>
@@ -249,10 +249,12 @@ function OrderCard({
     const unClaimedPercent = (
       <span
         className={`${
-          ONLY_ZEROS.test(order.unclaimed_amount) ? 'text-white ' : 'text-warn'
+          ONLY_ZEROS.test(order.unclaimed_amount || '0')
+            ? 'text-white '
+            : 'text-warn'
         } col-span-1 justify-self-center pr-6`}
       >
-        {new Big(order.unclaimed_amount)
+        {new Big(order.unclaimed_amount || '0')
           .div(ONLY_ZEROS.test(order.bought_amount) ? 1 : order.bought_amount)
           .times(100)
           .toFixed(0)}
@@ -274,7 +276,7 @@ function OrderCard({
         onClick={() => {
           cancel_order({
             order_id: order.order_id,
-            undecimal_amount: order.unclaimed_amount,
+            undecimal_amount: order.unclaimed_amount || '0',
           });
         }}
       >
@@ -405,7 +407,7 @@ function OrderCard({
       <span className="whitespace-nowrap col-span-1 flex items-center relative right-1">
         <span className="text-white text-sm mx-1">
           {new Big(order.bought_amount)
-            .minus(order.unclaimed_amount)
+            .minus(order.unclaimed_amount || '0')
             .div(
               ONLY_ZEROS.test(order.bought_amount) ? '1' : order.bought_amount
             )
@@ -419,7 +421,9 @@ function OrderCard({
     const claimedAmount = (
       <span
         className={`${
-          ONLY_ZEROS.test(order.unclaimed_amount) ? 'text-white ' : 'text-warn'
+          ONLY_ZEROS.test(order.unclaimed_amount || '0')
+            ? 'text-white '
+            : 'text-warn'
         } col-span-1 justify-self-center flex pr-6 items-center`}
       >
         <img
@@ -433,7 +437,7 @@ function OrderCard({
             toReadableNumber(
               buyToken.decimals,
               new Big(order.bought_amount)
-                .minus(order.unclaimed_amount)
+                .minus(order.unclaimed_amount || '0')
                 .toFixed()
             ),
             0,
@@ -638,6 +642,10 @@ function OrderCard({
           </span>
         </div>
       )}
+      {orderType === 'history' && !historyOrder && (
+        <NoOrderCard text="history" />
+      )}
+      {orderType === 'active' && !activeOrder && <NoOrderCard text="active" />}
 
       {orderType === 'active' &&
         activeOrder &&
@@ -657,12 +665,6 @@ function MyOrderPage() {
   const history = useHistory();
 
   const { activeOrder, historyOrder } = useMyOrders();
-
-  const noOrder =
-    (!activeOrder || activeOrder.length === 0) &&
-    (!historyOrder || historyOrder.length === 0);
-
-  console.log(activeOrder, historyOrder);
 
   return (
     <div

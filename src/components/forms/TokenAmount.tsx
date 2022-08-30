@@ -463,7 +463,9 @@ export function TokenAmountV3({
           forLimitOrder={limitOrderDisable}
           disabled={disabled || limitOrderDisable}
           forSwap={!!forSwap}
-          openClear={!!onChangeAmount && !forLimitOrder}
+          openClear={
+            !!onChangeAmount && !forLimitOrder && !ONLY_ZEROS.test(amount)
+          }
         />
         {swapMode !== SWAP_MODE.LIMIT && ExtraElement}
       </fieldset>
@@ -487,7 +489,9 @@ export function TokenAmountV3({
             amount={amount}
           />
         ) : null}
-        {forLimitOrder && marketPriceLimitOrder ? (
+        {forLimitOrder &&
+        marketPriceLimitOrder &&
+        swapMode === SWAP_MODE.LIMIT ? (
           <QuickAmountLimitOrder
             max={amount}
             token={selectedToken}

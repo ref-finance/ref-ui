@@ -26,36 +26,23 @@ export const SwapMinReceiveCheck = () => {
 };
 
 export const InputClear = () => {
+  const [hover, setHover] = useState<boolean>(false);
   return (
-    <div className="relative">
-      <svg
-        width="24"
-        height="20"
-        viewBox="0 0 24 20"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M5.92977 2.47612C6.97475 1.22387 8.52161 0.5 10.1526 0.5H18C21.0376 0.5 23.5 2.96243 23.5 6V14C23.5 17.0376 21.0376 19.5 18 19.5H10.1526C8.52161 19.5 6.97475 18.7761 5.92977 17.5239L2.59184 13.5239C0.888943 11.4832 0.888943 8.51678 2.59184 6.47612L5.92977 2.47612Z"
-          stroke="currentColor"
-          stroke-opacity="0.2"
-        />
-      </svg>
-      <svg
-        width="7"
-        height="8"
-        viewBox="0 0 7 8"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="absolute top-1.5 left-2.5"
-      >
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M6.56899 6.16571C6.84235 6.43907 6.84235 6.88229 6.56899 7.15566C6.29562 7.42902 5.8524 7.42902 5.57904 7.15566L3.38702 4.96364L1.195 7.15566C0.921636 7.42902 0.478421 7.42902 0.205054 7.15566C-0.0683132 6.88229 -0.0683132 6.43907 0.205054 6.16571L2.39707 3.97369L0.205025 1.78164C-0.0683417 1.50828 -0.0683418 1.06506 0.205025 0.791695C0.478392 0.518328 0.921607 0.518328 1.19497 0.791695L3.38702 2.98374L5.57907 0.791695C5.85243 0.518328 6.29565 0.518328 6.56902 0.791695C6.84238 1.06506 6.84238 1.50828 6.56902 1.78164L4.37697 3.97369L6.56899 6.16571Z"
-          fill="currentColor"
-        />
-      </svg>
+    <div
+      className={`relative flex items-center font-bold justify-center rounded-full ${
+        hover
+          ? 'text-warn border border-warn border-opacity-20'
+          : 'text-v3SwapGray border border-transparent bg-primaryText bg-opacity-20'
+      }`}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        height: '16px',
+        width: '16px',
+        fontSize: '10px',
+      }}
+    >
+      X
     </div>
   );
 };
@@ -419,7 +406,7 @@ export const NewPro = ({
       {!hover ? (
         <>
           <NewProIcon />
-          <span className="absolute top-1.5 left-1.5 text-white text-sm font-bold opacity-70">
+          <span className="absolute top-1.5 left-1 text-white text-sm font-bold opacity-70">
             <FormattedMessage id="pro" defaultMessage={'Pro'} />
           </span>
         </>

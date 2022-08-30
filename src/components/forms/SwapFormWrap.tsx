@@ -105,17 +105,18 @@ export default function SwapFormWrap({
         <>
           <h2 className="formTitle flex items-center justify-between font-bold text-xl text-white text-left pb-4">
             {swapTab}
-
-            <SlippageSelector
-              slippageTolerance={slippageTolerance}
-              onChange={onChange}
-              supportLedger={supportLedger}
-              setSupportLedger={setSupportLedger}
-              validSlippageList={
-                swapMode === SWAP_MODE.NORMAL ? null : [0.05, 0.1, 0.2]
-              }
-              swapMode={swapMode}
-            />
+            {swapMode !== SWAP_MODE.LIMIT && (
+              <SlippageSelector
+                slippageTolerance={slippageTolerance}
+                onChange={onChange}
+                supportLedger={supportLedger}
+                setSupportLedger={setSupportLedger}
+                validSlippageList={
+                  swapMode === SWAP_MODE.NORMAL ? null : [0.05, 0.1, 0.2]
+                }
+                swapMode={swapMode}
+              />
+            )}
           </h2>
         </>
       )}

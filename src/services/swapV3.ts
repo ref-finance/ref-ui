@@ -84,6 +84,11 @@ export const quote = ({
       input_amount: toNonDivisibleNumber(input_token.decimals, input_amount),
       tag,
     },
+  }).catch((e) => {
+    return {
+      amount: '0',
+      tag: null,
+    };
   });
 };
 
