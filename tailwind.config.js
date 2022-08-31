@@ -178,6 +178,8 @@ module.exports = {
         v3WarningColor: '#FFA24D',
         v3BlackColor: '#1A242A',
         v3Blue: '#78C6FF',
+        v3PurpleColor:'rgba(91, 64, 255, 0.25)',
+        v3GreyColor:'rgba(126, 138, 147, 0.2)'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
