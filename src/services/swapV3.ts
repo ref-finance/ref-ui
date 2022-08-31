@@ -307,6 +307,17 @@ export const v3Swap = async ({
       tokenB,
     });
 
+    const tokenRegistered = await ftGetStorageBalance(tokenB.id).catch(() => {
+      throw new Error(`${tokenB.id} doesn't exist.`);
+    });
+
+    if (tokenRegistered === null) {
+      transactions.push({
+        receiverId: tokenB.id,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
+
     const DCLRegistered = await swapV3GetStorageBalance(tokenB.id).catch(() => {
       throw new Error(`${tokenB.id} doesn't exist.`);
     });
