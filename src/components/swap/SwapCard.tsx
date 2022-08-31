@@ -1072,8 +1072,6 @@ export default function SwapCard(props: {
 
   const [limitAmountOut, setLimitAmountOut] = useState<string>('');
 
-  const [bestSwap, setBestSwap] = useState<'v3' | 'v2'>('v2');
-
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
   );
@@ -1357,6 +1355,21 @@ export default function SwapCard(props: {
     loadingTrigger,
   });
 
+  const bestSwap = new Big(tokenOutAmountV3 || '0').gt(tokenOutAmount || '0')
+    ? 'v3'
+    : 'v2';
+
+  useEffect(() => {
+    if (quoteDone && quoteDoneV3) {
+      const displayTokenOutAmount = new Big(tokenOutAmountV3 || '0').gt(
+        tokenOutAmount || '0'
+      )
+        ? tokenOutAmountV3
+        : tokenOutAmount;
+      setDisplayTokenOutAmount(displayTokenOutAmount);
+    }
+  }, [quoteDone, quoteDoneV3, tokenOutAmountV3, tokenOutAmount]);
+
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
       if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
@@ -1394,44 +1407,6 @@ export default function SwapCard(props: {
       return '0';
     }
   }, [tokenOutAmount, swapsToDo]);
-
-  useEffect(() => {
-    if (
-      loadingTrigger ||
-      !quoteDone ||
-      (!quoteDoneV3 && swapMode !== SWAP_MODE.STABLE) ||
-      (!canSwap && !canSwapV3)
-    )
-      return;
-
-    if (canSwap && canSwapV3) {
-      setBestSwap(
-        new Big(tokenOutAmountV3 || '0').gt(tokenOutAmount || '0') &&
-          swapMode !== SWAP_MODE.STABLE
-          ? 'v3'
-          : 'v2'
-      );
-      setDisplayTokenOutAmount(
-        new Big(tokenOutAmountV3 || '0').gt(tokenOutAmount || '0')
-          ? tokenOutAmountV3
-          : tokenOutAmount
-      );
-    } else if (canSwap) {
-      setBestSwap('v2');
-      setDisplayTokenOutAmount(tokenOutAmount);
-    } else if (canSwapV3) {
-      setBestSwap('v3');
-      setDisplayTokenOutAmount(tokenOutAmountV3);
-    }
-  }, [
-    loadingTrigger,
-    quoteDoneV3,
-    canSwap,
-    canSwapV3,
-    tokenOutAmount,
-    tokenOutAmountV3,
-    quoteDone,
-  ]);
 
   useEffect(() => {
     if (!mostPoolDetail || !tokenIn || !tokenOut || !quoteDoneLimit) {

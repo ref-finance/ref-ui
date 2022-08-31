@@ -371,6 +371,7 @@ export const useTokensData = (
             if (currentFetchId !== fetchIdRef.current) {
               throw new Error();
             }
+
             return max;
           })
           .then((max: string) => {
@@ -399,7 +400,7 @@ export const useTokensData = (
 
   useEffect(() => {
     trigger();
-  }, [tokens, tokens.length]);
+  }, [tokens?.map((t) => t.id).join('-'), tokens.length]);
 
   return {
     trigger,
