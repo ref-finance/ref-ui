@@ -367,7 +367,11 @@ export const useSwapV3 = ({
   }, [bestFee, tokenIn, tokenOut, poolReFetch]);
 
   useEffect(() => {
-    if (bestEstimate && !loadingTrigger) {
+    if (
+      bestEstimate &&
+      !loadingTrigger &&
+      bestEstimate?.tag?.split('-')?.[2] === tokenInAmount
+    ) {
       setTokenOutAmount(
         toReadableNumber(tokenOut.decimals, bestEstimate.amount)
       );
@@ -411,7 +415,7 @@ export const useSwapV3 = ({
     });
   };
 
-  console.log(estimates, 'all estimates', bestEstimate, 'best estimate');
+  // console.log(estimates, 'all estimates', bestEstimate, 'best estimate');
 
   const priceImpact = useMemo(() => {
     try {
@@ -440,7 +444,7 @@ export const useSwapV3 = ({
     return priceImpact;
   }, [poolReFetch, tokenOutAmount]);
 
-  console.log(displayPriceImpact, priceImpact, 'debug price impact ');
+  // console.log(displayPriceImpact, priceImpact, 'debug price impact ');
 
   return {
     makeSwap,
@@ -571,8 +575,6 @@ export const useLimitOrder = ({
     tokenOut?.id,
     tokenIn?.id,
   ]);
-
-  console.log('current pool info', mostPoolDetail);
 
   return {
     poolPercents: notLimitMode ? null : poolToOrderCounts,

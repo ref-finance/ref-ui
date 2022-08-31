@@ -1566,7 +1566,7 @@ export default function SwapCard(props: {
     tokenIn,
     tokenOut,
     priceImpactV3,
-    quoteDone,
+    quoteDoneV3,
     slippageTolerance,
     minAmountOut,
     minAmountOutV3,
