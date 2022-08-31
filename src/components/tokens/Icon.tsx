@@ -108,7 +108,7 @@ export function IconLeftV3({
         src={token.icon}
       />
       {label && (
-        <p className="block text-lg xs:text-sm">{toRealSymbol(token.symbol)}</p>
+        <p className="block text-sm font-bold">{toRealSymbol(token.symbol)}</p>
       )}
       {showArrow && (
         <div className="pl-2 xs:pl-1 text-xs">

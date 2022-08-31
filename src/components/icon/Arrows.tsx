@@ -341,7 +341,7 @@ export function SwapExchange({ onChange }: { onChange: (e?: any) => void }) {
 
   return (
     <div
-      className="relative flex items-center justify-center -mt-6 mb-4 w-11 h-11 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
+      className="relative flex items-center justify-center -mt-5 mb-4 w-9 h-9 border border-white border-opacity-40 rounded-full cursor-pointer bg-dark"
       onClick={() => {
         onChange();
         mobileDevice && runSwapAnimation();

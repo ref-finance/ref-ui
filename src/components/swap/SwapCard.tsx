@@ -1690,7 +1690,7 @@ export default function SwapCard(props: {
           className={`flex items-center  ${
             swapMode === SWAP_MODE.LIMIT
               ? 'my-3 justify-between'
-              : 'border-t mt-12 justify-center'
+              : 'border-t mt-10 justify-center'
           } `}
           style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
         >

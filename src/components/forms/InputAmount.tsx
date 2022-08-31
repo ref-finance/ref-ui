@@ -344,7 +344,7 @@ export function InputAmountV3({
             onWheel={() => ref.current.blur()}
             {...rest}
             step="any"
-            className={`xs:text-lg text-2xl font-bold w-full p-1 ${
+            className={`xs:text-lg text-xl font-bold w-full p-1 ${
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
             }`}
             type="number"

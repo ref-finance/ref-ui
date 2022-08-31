@@ -397,7 +397,7 @@ export function TokenAmountV3({
 
   return (
     <div
-      className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-xl p-4`}
+      className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-xl px-4 pb-2 pt-4`}
     >
       <div className="flex items-center justify-between">
         {showSelectToken &&
@@ -457,7 +457,7 @@ export function TokenAmountV3({
         </span>
       </div>
 
-      <fieldset className="relative flex  align-center items-center my-2">
+      <fieldset className="relative flex  align-center items-center my-1.5">
         <InputAmountV3
           className="border border-transparent rounded w-full mr-2"
           id="inputAmount"

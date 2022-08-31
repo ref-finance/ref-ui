@@ -334,7 +334,7 @@ export const useSwapV3 = ({
 
   const tagValidator = (bestEstimate: { amount: string; tag: string }) => {
     const [tokenInIdTag, poolFee, tokenInAmountTag] =
-      bestEstimate.tag.split('-');
+      bestEstimate?.tag?.split('-');
 
     return (
       !!bestEstimate &&
@@ -343,8 +343,6 @@ export const useSwapV3 = ({
       tokenInAmountTag === tokenInAmount
     );
   };
-
-  console.log(estimates, 'estimates');
 
   const getQuote = async (fee: number) => {
     const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
@@ -407,7 +405,11 @@ export const useSwapV3 = ({
       });
   }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
 
+  console.log(bestEstimate, 'bestEstimate');
+
   const makeSwap = () => {
+    if (!tagValidator(bestEstimate)) return;
+
     v3Swap({
       Swap: {
         pool_ids: [getV3PoolId(tokenIn.id, tokenOut.id, bestFee)],
