@@ -21,13 +21,14 @@ import {
   MyOrderMask2,
 } from '../components/icon/swapV3';
 import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
-import { toReadableNumber } from '../utils/numbers';
+import { toReadableNumber, scientificNotationToString } from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
 import Big from 'big.js';
 import { cancel_order } from '../services/swapV3';
 import { TIMESTAMP_DIVISOR } from '../components/layout/Proposal';
 import moment from 'moment';
 import { DownArrowVE } from '../components/icon/Referendum';
+import { Loading } from '~components/icon/Loading';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -77,11 +78,11 @@ function OrderCard({
 
   const [activeSortBy, setActiveSortBy] = useState<
     'pending' | 'unclaim' | 'created'
-  >();
+  >('created');
 
   const [historySortBy, setHistorySortBy] = useState<
     'filled' | 'claimed' | 'created'
-  >();
+  >('created');
 
   function OrderTab() {
     return (
@@ -149,12 +150,26 @@ function OrderCard({
       buyToken.decimals,
       order.unclaimed_amount || '0'
     );
+    const calPoint =
+      sellToken.id === order.pool_id.split(V3_POOL_SPLITER)[0]
+        ? order.point
+        : -order.point;
 
     const price = pointToPrice({
       tokenA: sellToken,
       tokenB: buyToken,
-      point: order.point,
+      point: calPoint,
     });
+
+    const sellAmountToBuyAmount = (undecimaled_amount: string) => {
+      const buy_amount = new Big(
+        toReadableNumber(sellToken.decimals, undecimaled_amount || '0')
+      )
+        .times(price)
+        .toString();
+      return scientificNotationToString(buy_amount);
+    };
+
     const sellTokenAmount = (
       <div className="flex items-center">
         <span className="flex items-center col-span-1">
@@ -166,7 +181,7 @@ function OrderCard({
 
           <span className="text-white text-sm mx-2">
             {toPrecision(
-              toReadableNumber(sellToken.decimals, order.orginal_amount),
+              toReadableNumber(sellToken.decimals, order.original_amount),
               2
             )}
           </span>
@@ -186,10 +201,7 @@ function OrderCard({
         />
 
         <span className="text-white mx-2 text-sm">
-          {toPrecision(
-            toReadableNumber(buyToken.decimals, order.bought_amount),
-            2
-          )}
+          {toPrecision(sellAmountToBuyAmount(order.original_amount), 2)}
         </span>
 
         <span className="text-v3SwapGray text-xs">{buyToken.symbol}</span>
@@ -254,8 +266,14 @@ function OrderCard({
             : 'text-warn'
         } col-span-1 justify-self-center pr-6`}
       >
-        {new Big(order.unclaimed_amount || '0')
-          .div(ONLY_ZEROS.test(order.bought_amount) ? 1 : order.bought_amount)
+        {new Big(
+          toReadableNumber(buyToken.decimals, order.unclaimed_amount || '0')
+        )
+          .div(
+            ONLY_ZEROS.test(order.remain_amount || '0')
+              ? 1
+              : sellAmountToBuyAmount(order.remain_amount)
+          )
           .times(100)
           .toFixed(0)}
         %
@@ -276,7 +294,7 @@ function OrderCard({
         onClick={() => {
           cancel_order({
             order_id: order.order_id,
-            undecimal_amount: order.unclaimed_amount || '0',
+            undecimal_amount: order.remain_amount || '0',
           });
         }}
       >
@@ -335,11 +353,26 @@ function OrderCard({
 
     if (!buyToken || !sellToken) return null;
 
+    const calPoint =
+      sellToken.id === order.pool_id.split(V3_POOL_SPLITER)[0]
+        ? order.point
+        : -order.point;
+
     const price = pointToPrice({
       tokenA: sellToken,
       tokenB: buyToken,
-      point: order.point,
+      point: calPoint,
     });
+
+    const buyAmountToSellAmount = (undecimaled_amount: string) => {
+      const sell_amount = new Big(
+        toReadableNumber(buyToken.decimals, undecimaled_amount || '0')
+      )
+        .div(price)
+        .toString();
+      return scientificNotationToString(sell_amount);
+    };
+
     const sellTokenAmount = (
       <div className="flex items-center">
         <span className="flex items-center col-span-1">
@@ -351,7 +384,7 @@ function OrderCard({
 
           <span className="text-white text-sm mx-2">
             {toPrecision(
-              toReadableNumber(sellToken.decimals, order.orginal_amount),
+              toReadableNumber(sellToken.decimals, order.original_amount),
               2
             )}
           </span>
@@ -406,11 +439,8 @@ function OrderCard({
     const filled = (
       <span className="whitespace-nowrap col-span-1 flex items-center relative right-1">
         <span className="text-white text-sm mx-1">
-          {new Big(order.bought_amount)
-            .minus(order.unclaimed_amount || '0')
-            .div(
-              ONLY_ZEROS.test(order.bought_amount) ? '1' : order.bought_amount
-            )
+          {new Big(buyAmountToSellAmount(order.bought_amount || '0'))
+            .div(toReadableNumber(sellToken.decimals, order.original_amount))
             .times(100)
             .toFixed()}
           %
@@ -434,15 +464,8 @@ function OrderCard({
 
         <span className="mx-1 text-white text-sm">
           {toPrecision(
-            toReadableNumber(
-              buyToken.decimals,
-              new Big(order.bought_amount)
-                .minus(order.unclaimed_amount || '0')
-                .toFixed()
-            ),
-            0,
-            false,
-            false
+            toReadableNumber(buyToken.decimals, order.bought_amount || '0'),
+            2
           )}
         </span>
       </span>
@@ -472,8 +495,9 @@ function OrderCard({
         {buyTokenAmount}
         {feeTier}
         {orderRate}
-        {filled}
         {claimedAmount}
+        {filled}
+
         {created}
         {actions}
       </div>
@@ -487,8 +511,8 @@ function OrderCard({
       return Number(b.unclaimed_amount) - Number(a.unclaimed_amount);
     } else if (activeSortBy === 'unclaim') {
     } else if (activeSortBy) {
-      const aP = new Big(a.unclaimed_amount).div(a.orginal_amount).toNumber();
-      const bP = new Big(b.unclaimed_amount).div(b.orginal_amount).toNumber();
+      const aP = new Big(a.unclaimed_amount).div(a.original_amount).toNumber();
+      const bP = new Big(b.unclaimed_amount).div(b.original_amount).toNumber();
 
       return bP - aP;
     }
@@ -589,22 +613,6 @@ function OrderCard({
           </span>
 
           <button
-            className="col-span-1 flex items-center mr-4 text-right"
-            onClick={() => {
-              setHistorySortBy('filled');
-            }}
-          >
-            <FormattedMessage id="filled" defaultMessage={'Filled'} />
-
-            <span
-              className={`ml-0.5 ${
-                historySortBy === 'filled' ? 'text-gradientFrom' : ''
-              }`}
-            >
-              <DownArrowVE />
-            </span>
-          </button>
-          <button
             className="col-span-1 flex items-center  text-right"
             onClick={() => {
               setHistorySortBy('claimed');
@@ -620,7 +628,22 @@ function OrderCard({
               <DownArrowVE />
             </span>
           </button>
+          <button
+            className="col-span-1 flex items-center mr-4 text-right"
+            onClick={() => {
+              setHistorySortBy('filled');
+            }}
+          >
+            <FormattedMessage id="filled" defaultMessage={'Filled'} />
 
+            <span
+              className={`ml-0.5 ${
+                historySortBy === 'filled' ? 'text-gradientFrom' : ''
+              }`}
+            >
+              <DownArrowVE />
+            </span>
+          </button>
           <button
             className="col-span-1 flex items-center relative lef-3  text-right"
             onClick={() => {
@@ -642,10 +665,13 @@ function OrderCard({
           </span>
         </div>
       )}
-      {orderType === 'history' && !historyOrder && (
-        <NoOrderCard text="history" />
+      {orderType === 'history' &&
+        (!historyOrder || historyOrder.length === 0) && (
+          <NoOrderCard text="history" />
+        )}
+      {orderType === 'active' && (!activeOrder || activeOrder.length === 0) && (
+        <NoOrderCard text="active" />
       )}
-      {orderType === 'active' && !activeOrder && <NoOrderCard text="active" />}
 
       {orderType === 'active' &&
         activeOrder &&
@@ -662,9 +688,13 @@ function OrderCard({
 }
 
 function MyOrderPage() {
+  const { activeOrder, historyOrder } = useMyOrders();
+
   const history = useHistory();
 
-  const { activeOrder, historyOrder } = useMyOrders();
+  if (!activeOrder || !historyOrder) {
+    return <Loading />;
+  }
 
   return (
     <div
@@ -687,18 +717,25 @@ function MyOrderPage() {
           <span className="text-xl font-bold mr-3">{'<'}</span>
           <FormattedMessage id="my_orders" defaultMessage={'My Orders'} />
         </button>
-        <SolidButton padding="px-4 py-2" className="rounded-lg">
+        <SolidButton
+          padding="px-4 py-2"
+          className="rounded-lg"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            history.push('/swap');
+            localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+            localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+          }}
+        >
           <FormattedMessage
             id="make_an_order"
             defaultMessage={'Make an Order'}
           />
         </SolidButton>
       </div>
-      {/* {noOrder ? (
-        <NoOrderCard />
-      ) : ( */}
+
       <OrderCard activeOrder={activeOrder} historyOrder={historyOrder} />
-      {/* )} */}
     </div>
   );
 }

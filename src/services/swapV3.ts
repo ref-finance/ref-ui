@@ -46,9 +46,15 @@ export interface UserOrderInfo {
   point: number;
   sell_token: string;
   created_at: string;
-  orginal_amount: string;
+  original_amount: string;
   remain_amount: string; // 0 means history order: ;
   cancel_amount: string;
+  // amount through ft_transfer_call
+
+  original_deposit_amount: string;
+  // earn token amount through swap before actual place order
+
+  swap_earn_amount: string;
   buy_token: string;
   unclaimed_amount: string; // claim will push it to inner account
   bought_amount: string; // accumalated amount into inner account
@@ -64,7 +70,7 @@ export interface PoolInfoV3 {
   state: string; // running or paused
 }
 
-export const quote = ({
+export const quote = async ({
   pool_ids,
   input_amount,
   input_token,
@@ -359,9 +365,6 @@ export const v3Swap = async ({
 
   if (tokenA.id === WRAP_NEAR_CONTRACT_ID) {
     transactions.unshift(nearDepositTransaction(amountA));
-  }
-  if (tokenB.id === WRAP_NEAR_CONTRACT_ID && !LimitOrder) {
-    transactions.push(nearWithdrawTransaction(Swap.min_output_amount));
   }
 
   if (tokenA.id === WRAP_NEAR_CONTRACT_ID) {

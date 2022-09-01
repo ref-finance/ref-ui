@@ -1433,13 +1433,14 @@ export default function SwapCard(props: {
     setCurOrderPrice(curOrderPrice || toPrecision(price, 8));
 
     setLimitAmountOut(
-      limitAmountOut ||
-        toPrecision(
-          scientificNotationToString(
-            new Big(price || 0).times(tokenInAmount || 0).toString()
-          ),
-          8
-        )
+      toPrecision(
+        scientificNotationToString(
+          new Big(LimitAmountOutRate || price || 0)
+            .times(tokenInAmount || 0)
+            .toString()
+        ),
+        8
+      )
     );
   }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
 
