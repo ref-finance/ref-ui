@@ -1331,6 +1331,7 @@ export default function SwapCard(props: {
     bestFee,
     priceImpact: priceImpactV3,
     quoteDone: quoteDoneV3,
+    canSwap: canSwapV3,
   } = useSwapV3({
     tokenIn,
     tokenOut,
@@ -1556,7 +1557,7 @@ export default function SwapCard(props: {
 
   const canSubmit =
     swapMode !== SWAP_MODE.LIMIT
-      ? canSwap &&
+      ? (canSwap || canSwapV3) &&
         (tokenInMax != '0' || !useNearBalance) &&
         quoteDone &&
         quoteDoneV3
@@ -1785,7 +1786,12 @@ export default function SwapCard(props: {
           <NoLimitPoolCard />
         )}
 
-        {swapError ? (
+        {swapError &&
+        !canSwap &&
+        !canSwapV3 &&
+        quoteDone &&
+        quoteDoneV3 &&
+        swapMode !== SWAP_MODE.LIMIT ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />
           </div>

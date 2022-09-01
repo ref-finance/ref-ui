@@ -492,6 +492,10 @@ export const useSwapV3 = ({
 
   return {
     makeSwap,
+    canSwap:
+      quoteDone &&
+      tagValidator(bestEstimate, tokenIn, tokenInAmount) &&
+      swapMode === SWAP_MODE.NORMAL,
     tokenOutAmount,
     priceImpact: displayPriceImpact,
     minAmountOut: tokenOutAmount
