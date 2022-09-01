@@ -1048,6 +1048,8 @@ export default function SwapCard(props: {
   const { REF_TOKEN_ID } = getConfig();
   // getConfig();
 
+  const [poolError, setPoolError] = useState<boolean>(false);
+
   const [selectedV3LimitPool, setSelectedV3LimitPool] = useState<string>('');
 
   const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
@@ -1361,6 +1363,11 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (quoteDone && quoteDoneV3) {
+      if (poolError) {
+        setDisplayTokenOutAmount('');
+        return;
+      }
+
       const displayTokenOutAmount = new Big(tokenOutAmountV3 || '0').gt(
         tokenOutAmount || '0'
       )
@@ -1368,7 +1375,7 @@ export default function SwapCard(props: {
         : tokenOutAmount;
       setDisplayTokenOutAmount(displayTokenOutAmount);
     }
-  }, [quoteDone, quoteDoneV3, tokenOutAmountV3, tokenOutAmount]);
+  }, [quoteDone, quoteDoneV3, tokenOutAmountV3, tokenOutAmount, poolError]);
 
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
@@ -1590,6 +1597,15 @@ export default function SwapCard(props: {
     }
   };
 
+  useEffect(() => {
+    if (!quoteDone || !quoteDoneV3) {
+      // setPoolError(false);
+      return;
+    }
+
+    setPoolError(!canSwap && !canSwapV3 && !!swapError?.message);
+  }, [quoteDone, quoteDoneV3, canSwap, canSwapV3, swapError]);
+
   return (
     <>
       <SwapFormWrap
@@ -1780,18 +1796,13 @@ export default function SwapCard(props: {
           }
         />
 
-        {DetailView}
+        {poolError ? null : DetailView}
 
         {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail && (
           <NoLimitPoolCard />
         )}
 
-        {swapError &&
-        !canSwap &&
-        !canSwapV3 &&
-        quoteDone &&
-        quoteDoneV3 &&
-        swapMode !== SWAP_MODE.LIMIT ? (
+        {poolError && !!swapError?.message && swapMode !== SWAP_MODE.LIMIT ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />
           </div>
