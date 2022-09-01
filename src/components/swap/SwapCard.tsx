@@ -1326,7 +1326,6 @@ export default function SwapCard(props: {
 
   const {
     makeSwap: makeSwapV3,
-    canSwap: canSwapV3,
     tokenOutAmount: tokenOutAmountV3,
     minAmountOut: minAmountOutV3,
     bestFee,
@@ -1545,6 +1544,7 @@ export default function SwapCard(props: {
     slippageTolerance,
     minAmountOut,
     minAmountOutV3,
+    swapsToDo,
   ]);
 
   const tokenInMax = useNearBalance

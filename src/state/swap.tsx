@@ -492,13 +492,15 @@ export const useSwapV3 = ({
 
   return {
     makeSwap,
-    canSwap: !!bestPool && swapMode === SWAP_MODE.NORMAL && !loadingTrigger,
     tokenOutAmount,
     priceImpact: displayPriceImpact,
     minAmountOut: tokenOutAmount
       ? percentLess(slippageTolerance, tokenOutAmount)
       : null,
-    quoteDone: quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount),
+    quoteDone:
+      quoteDone &&
+      (tagValidator(bestEstimate, tokenIn, tokenInAmount) ||
+        estimates?.every((e) => e.tag === null)),
     bestFee,
   };
 };
