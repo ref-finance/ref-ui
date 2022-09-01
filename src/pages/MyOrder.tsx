@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import { useClientMobile } from '~utils/device';
@@ -9,7 +9,7 @@ import {
   V3_POOL_SPLITER,
   pointToPrice,
 } from '../services/swapV3';
-import { useToken } from '../state/token';
+import { useToken, useTokens } from '../state/token';
 import {
   SWAP_MODE,
   SWAP_MODE_KEY,
@@ -27,8 +27,9 @@ import Big from 'big.js';
 import { cancel_order } from '../services/swapV3';
 import { TIMESTAMP_DIVISOR } from '../components/layout/Proposal';
 import moment from 'moment';
-import { DownArrowVE } from '../components/icon/Referendum';
+import { DownArrowVE, UpArrowVE } from '../components/icon/Referendum';
 import { Loading } from '~components/icon/Loading';
+import { RouterArrowLeft, RouterArrowRight } from '../components/icon/Arrows';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -63,9 +64,11 @@ function NoOrderCard({ text }: { text: 'active' | 'history' }) {
 function OrderCard({
   activeOrder,
   historyOrder,
+  tokensMap,
 }: {
   activeOrder: UserOrderInfo[];
   historyOrder: UserOrderInfo[];
+  tokensMap: { [key: string]: TokenMetadata };
 }) {
   const [orderType, setOrderType] = useState<'active' | 'history'>(
     sessionStorage.getItem(ORDER_TYPE_KEY) ||
@@ -79,6 +82,12 @@ function OrderCard({
   const [activeSortBy, setActiveSortBy] = useState<
     'pending' | 'unclaim' | 'created'
   >('created');
+
+  const [sortOrderActive, setSorOrderActive] = useState<'asc' | 'desc'>('desc');
+
+  const [sortOrderHistory, setSorOrderHistory] = useState<'asc' | 'desc'>(
+    'desc'
+  );
 
   const [historySortBy, setHistorySortBy] = useState<
     'filled' | 'claimed' | 'created'
@@ -139,11 +148,41 @@ function OrderCard({
       </div>
     );
   }
+  const sellAmountToBuyAmount = (
+    undecimaled_amount: string,
+    order: UserOrderInfo,
+    price: string
+  ) => {
+    const buy_amount = new Big(
+      toReadableNumber(
+        tokensMap[order.sell_token].decimals,
+        undecimaled_amount || '0'
+      )
+    )
+      .times(price)
+      .toString();
+    return scientificNotationToString(buy_amount);
+  };
 
+  const buyAmountToSellAmount = (
+    undecimaled_amount: string,
+    order: UserOrderInfo,
+    price: string
+  ) => {
+    const sell_amount = new Big(
+      toReadableNumber(
+        tokensMap[order.buy_token].decimals,
+        undecimaled_amount || '0'
+      )
+    )
+      .div(price)
+      .toString();
+    return scientificNotationToString(sell_amount);
+  };
   function ActiveLine({ order }: { order: UserOrderInfo }) {
-    const buyToken = useToken(order.buy_token);
+    const buyToken = tokensMap[order.buy_token];
 
-    const sellToken = useToken(order.sell_token);
+    const sellToken = tokensMap[order.sell_token];
 
     if (!buyToken || !sellToken) return null;
     const unClaimedAmount = toReadableNumber(
@@ -161,17 +200,8 @@ function OrderCard({
       point: calPoint,
     });
 
-    const sellAmountToBuyAmount = (undecimaled_amount: string) => {
-      const buy_amount = new Big(
-        toReadableNumber(sellToken.decimals, undecimaled_amount || '0')
-      )
-        .times(price)
-        .toString();
-      return scientificNotationToString(buy_amount);
-    };
-
     const sellTokenAmount = (
-      <div className="flex items-center">
+      <div className="flex items-center justify-between">
         <span className="flex items-center col-span-1">
           <img
             src={sellToken.icon}
@@ -188,7 +218,9 @@ function OrderCard({
 
           <span className="text-v3SwapGray text-xs">{sellToken.symbol}</span>
         </span>
-        <span className="text-white text-lg ml-5">{'>'}</span>
+        <span className="text-white text-lg pl-5 pr-3">
+          <RouterArrowRight />
+        </span>
       </div>
     );
 
@@ -201,7 +233,10 @@ function OrderCard({
         />
 
         <span className="text-white mx-2 text-sm">
-          {toPrecision(sellAmountToBuyAmount(order.original_amount), 2)}
+          {toPrecision(
+            sellAmountToBuyAmount(order.original_amount, order, price),
+            2
+          )}
         </span>
 
         <span className="text-v3SwapGray text-xs">{buyToken.symbol}</span>
@@ -245,10 +280,10 @@ function OrderCard({
         </span>
 
         <button
-          className={`rounded-lg bg-black bg-opacity-25 text-xs ml-1.5 p-1.5 ${
+          className={`rounded-lg  bg-black bg-opacity-25 text-xs ml-1.5 p-1.5 ${
             ONLY_ZEROS.test(unClaimedAmount)
               ? 'text-v3SwapGray cursor-not-allowed'
-              : 'text-gradientFrom '
+              : 'text-gradientFrom hover:border hover:border-transparent hover:text-black hover:bg-gradientFrom'
           }`}
           type="button"
           disabled={ONLY_ZEROS.test(unClaimedAmount)}
@@ -272,7 +307,7 @@ function OrderCard({
           .div(
             ONLY_ZEROS.test(order.remain_amount || '0')
               ? 1
-              : sellAmountToBuyAmount(order.remain_amount)
+              : sellAmountToBuyAmount(order.remain_amount, order, price)
           )
           .times(100)
           .toFixed(0)}
@@ -290,7 +325,7 @@ function OrderCard({
 
     const actions = (
       <button
-        className="border col-span-1 rounded-lg border-warn border-opacity-20 text-warn  text-xs justify-self-end p-1.5"
+        className="border col-span-1 rounded-lg hover:border hover:border-transparent hover:text-black hover:bg-warn border-warn border-opacity-20 text-warn  text-xs justify-self-end p-1.5"
         onClick={() => {
           cancel_order({
             order_id: order.order_id,
@@ -318,38 +353,60 @@ function OrderCard({
 
   const historyOrderSorting = (a: UserOrderInfo, b: UserOrderInfo) => {
     if (historySortBy === 'created') {
-      return Number(b.created_at) - Number(a.created_at);
+      return sortOrderHistory === 'desc'
+        ? Number(b.created_at) - Number(a.created_at)
+        : Number(a.created_at) - Number(b.created_at);
     } else if (historySortBy === 'claimed') {
-      const claimedA = new Big(a.bought_amount)
-        .minus(a.unclaimed_amount)
-        .toNumber();
-
-      const claimedB = new Big(b.bought_amount)
-        .minus(b.unclaimed_amount)
-        .toNumber();
-
-      return claimedB - claimedA;
+      return sortOrderHistory === 'desc'
+        ? Number(b.bought_amount) - Number(a.bought_amount)
+        : Number(a.bought_amount) - Number(b.bought_amount);
     } else if (historySortBy === 'filled') {
-      const fa = new Big(a.bought_amount)
-        .minus(a.unclaimed_amount)
-        .div(ONLY_ZEROS.test(a.bought_amount) ? '1' : a.bought_amount)
-        .times(100)
+      const calPointa =
+        a.sell_token === a.pool_id.split(V3_POOL_SPLITER)[0]
+          ? a.point
+          : -a.point;
+
+      const pricea = pointToPrice({
+        tokenA: tokensMap[a.sell_token],
+        tokenB: tokensMap[a.buy_token],
+        point: calPointa,
+      });
+
+      const fa = new Big(
+        buyAmountToSellAmount(a.bought_amount || '0', a, pricea)
+      )
+        .div(
+          toReadableNumber(tokensMap[a.sell_token].decimals, a.original_amount)
+        )
         .toNumber();
 
-      const fb = new Big(b.bought_amount)
-        .minus(b.unclaimed_amount)
-        .div(ONLY_ZEROS.test(b.bought_amount) ? '1' : b.bought_amount)
-        .times(100)
+      const calPointb =
+        b.sell_token === b.pool_id.split(V3_POOL_SPLITER)[0]
+          ? b.point
+          : -b.point;
+
+      const priceb = pointToPrice({
+        tokenA: tokensMap[b.sell_token],
+        tokenB: tokensMap[b.buy_token],
+        point: calPointb,
+      });
+
+      const fb = new Big(
+        buyAmountToSellAmount(b.bought_amount || '0', b, priceb)
+      )
+        .div(
+          toReadableNumber(tokensMap[b.sell_token].decimals, b.original_amount)
+        )
         .toNumber();
 
-      return fb - fa;
+      return sortOrderHistory === 'desc' ? fb - fa : fa - fb;
     }
   };
 
   function HistoryLine({ order }: { order: UserOrderInfo }) {
-    const buyToken = useToken(order.buy_token);
+    const buyToken = tokensMap[order.buy_token];
 
-    const sellToken = useToken(order.sell_token);
+    const sellToken = tokensMap[order.sell_token];
 
     if (!buyToken || !sellToken) return null;
 
@@ -364,17 +421,8 @@ function OrderCard({
       point: calPoint,
     });
 
-    const buyAmountToSellAmount = (undecimaled_amount: string) => {
-      const sell_amount = new Big(
-        toReadableNumber(buyToken.decimals, undecimaled_amount || '0')
-      )
-        .div(price)
-        .toString();
-      return scientificNotationToString(sell_amount);
-    };
-
     const sellTokenAmount = (
-      <div className="flex items-center">
+      <div className="flex items-center justify-between">
         <span className="flex items-center col-span-1">
           <img
             src={sellToken.icon}
@@ -391,7 +439,9 @@ function OrderCard({
 
           <span className="text-v3SwapGray text-xs">{sellToken.symbol}</span>
         </span>
-        <span className="text-white text-lg ml-5">{'>'}</span>
+        <span className="text-white text-lg pl-5 pr-3">
+          <RouterArrowRight />
+        </span>
       </div>
     );
 
@@ -439,7 +489,9 @@ function OrderCard({
     const filled = (
       <span className="whitespace-nowrap col-span-1 flex items-center relative right-1">
         <span className="text-white text-sm mx-1">
-          {new Big(buyAmountToSellAmount(order.bought_amount || '0'))
+          {new Big(
+            buyAmountToSellAmount(order.bought_amount || '0', order, price)
+          )
             .div(toReadableNumber(sellToken.decimals, order.original_amount))
             .times(100)
             .toFixed()}
@@ -506,15 +558,63 @@ function OrderCard({
 
   const activeOrderSorting = (a: UserOrderInfo, b: UserOrderInfo) => {
     if (activeSortBy === 'created') {
-      return Number(b.created_at) - Number(a.created_at);
+      return sortOrderActive === 'desc'
+        ? Number(b.created_at) - Number(a.created_at)
+        : Number(a.created_at) - Number(b.created_at);
     } else if (activeSortBy === 'pending') {
-      return Number(b.unclaimed_amount) - Number(a.unclaimed_amount);
+      return sortOrderActive === 'desc'
+        ? Number(b.unclaimed_amount) - Number(a.unclaimed_amount)
+        : Number(a.unclaimed_amount) - Number(b.unclaimed_amount);
     } else if (activeSortBy === 'unclaim') {
-    } else if (activeSortBy) {
-      const aP = new Big(a.unclaimed_amount).div(a.original_amount).toNumber();
-      const bP = new Big(b.unclaimed_amount).div(b.original_amount).toNumber();
+      const calPointa =
+        a.sell_token === a.pool_id.split(V3_POOL_SPLITER)[0]
+          ? a.point
+          : -a.point;
 
-      return bP - aP;
+      const pricea = pointToPrice({
+        tokenA: tokensMap[a.sell_token],
+        tokenB: tokensMap[a.buy_token],
+        point: calPointa,
+      });
+
+      const aP = new Big(
+        toReadableNumber(
+          tokensMap[a.buy_token].decimals,
+          a.unclaimed_amount || '0'
+        )
+      )
+        .div(
+          ONLY_ZEROS.test(a.remain_amount || '0')
+            ? 1
+            : sellAmountToBuyAmount(a.remain_amount, a, pricea)
+        )
+        .toNumber();
+
+      const calPointb =
+        b.sell_token === b.pool_id.split(V3_POOL_SPLITER)[0]
+          ? b.point
+          : -b.point;
+
+      const priceb = pointToPrice({
+        tokenA: tokensMap[b.sell_token],
+        tokenB: tokensMap[b.buy_token],
+        point: calPointb,
+      });
+
+      const bP = new Big(
+        toReadableNumber(
+          tokensMap[b.buy_token].decimals,
+          b.unclaimed_amount || '0'
+        )
+      )
+        .div(
+          ONLY_ZEROS.test(b.remain_amount || '0')
+            ? 1
+            : sellAmountToBuyAmount(b.remain_amount, b, priceb)
+        )
+        .toNumber();
+
+      return sortOrderActive === 'desc' ? bP - aP : aP - bP;
     }
   };
 
@@ -543,22 +643,47 @@ function OrderCard({
             className="col-span-1 flex items-center mr-4 text-right"
             onClick={() => {
               setActiveSortBy('pending');
+              if (activeSortBy === 'pending') {
+                if (sortOrderActive === 'asc') {
+                  setSorOrderActive('desc');
+                } else {
+                  setSorOrderActive('asc');
+                }
+              } else {
+                setSorOrderActive('desc');
+              }
             }}
           >
-            <FormattedMessage id="pending" defaultMessage={'Pending'} />
+            <FormattedMessage
+              id="pending_top_upper"
+              defaultMessage={'Pending'}
+            />
 
             <span
               className={`ml-0.5 ${
                 activeSortBy === 'pending' ? 'text-gradientFrom' : ''
               }`}
             >
-              <DownArrowVE />
+              {activeSortBy === 'pending' && sortOrderActive === 'asc' ? (
+                <UpArrowVE />
+              ) : (
+                <DownArrowVE />
+              )}
             </span>
           </button>
           <button
             className="col-span-1 flex items-center  text-right"
             onClick={() => {
               setActiveSortBy('unclaim');
+              if (activeSortBy === 'unclaim') {
+                if (sortOrderActive === 'asc') {
+                  setSorOrderActive('desc');
+                } else {
+                  setSorOrderActive('asc');
+                }
+              } else {
+                setSorOrderActive('desc');
+              }
             }}
           >
             <FormattedMessage id="Unclaimed" defaultMessage={'Unclaimed'} />
@@ -568,7 +693,11 @@ function OrderCard({
                 activeSortBy === 'unclaim' ? 'text-gradientFrom' : ''
               }`}
             >
-              <DownArrowVE />
+              {activeSortBy === 'unclaim' && sortOrderActive === 'asc' ? (
+                <UpArrowVE />
+              ) : (
+                <DownArrowVE />
+              )}
             </span>
           </button>
 
@@ -576,6 +705,15 @@ function OrderCard({
             className="col-span-1 flex items-center relative lef-3  text-right"
             onClick={() => {
               setActiveSortBy('created');
+              if (activeSortBy === 'created') {
+                if (sortOrderActive === 'asc') {
+                  setSorOrderActive('desc');
+                } else {
+                  setSorOrderActive('asc');
+                }
+              } else {
+                setSorOrderActive('desc');
+              }
             }}
           >
             <FormattedMessage id="created" defaultMessage={'Created'} />
@@ -585,7 +723,11 @@ function OrderCard({
                 activeSortBy === 'created' ? 'text-gradientFrom' : ''
               }`}
             >
-              <DownArrowVE />
+              {activeSortBy === 'created' && sortOrderActive === 'asc' ? (
+                <UpArrowVE />
+              ) : (
+                <DownArrowVE />
+              )}
             </span>
           </button>
           <span className="col-span-1 text-right">
@@ -616,6 +758,16 @@ function OrderCard({
             className="col-span-1 flex items-center  text-right"
             onClick={() => {
               setHistorySortBy('claimed');
+
+              if (historySortBy === 'claimed') {
+                if (sortOrderHistory === 'asc') {
+                  setSorOrderHistory('desc');
+                } else {
+                  setSorOrderHistory('asc');
+                }
+              } else {
+                setSorOrderHistory('desc');
+              }
             }}
           >
             <FormattedMessage id="claimed" defaultMessage={'Claimed'} />
@@ -625,13 +777,27 @@ function OrderCard({
                 historySortBy === 'claimed' ? 'text-gradientFrom' : ''
               }`}
             >
-              <DownArrowVE />
+              {historySortBy === 'claimed' && sortOrderHistory === 'asc' ? (
+                <UpArrowVE />
+              ) : (
+                <DownArrowVE />
+              )}
             </span>
           </button>
           <button
             className="col-span-1 flex items-center mr-4 text-right"
             onClick={() => {
               setHistorySortBy('filled');
+
+              if (historySortBy === 'filled') {
+                if (sortOrderHistory === 'asc') {
+                  setSorOrderHistory('desc');
+                } else {
+                  setSorOrderHistory('asc');
+                }
+              } else {
+                setSorOrderHistory('desc');
+              }
             }}
           >
             <FormattedMessage id="filled" defaultMessage={'Filled'} />
@@ -641,13 +807,26 @@ function OrderCard({
                 historySortBy === 'filled' ? 'text-gradientFrom' : ''
               }`}
             >
-              <DownArrowVE />
+              {historySortBy === 'filled' && sortOrderHistory === 'asc' ? (
+                <UpArrowVE />
+              ) : (
+                <DownArrowVE />
+              )}
             </span>
           </button>
           <button
             className="col-span-1 flex items-center relative lef-3  text-right"
             onClick={() => {
               setHistorySortBy('created');
+              if (historySortBy === 'created') {
+                if (sortOrderHistory === 'asc') {
+                  setSorOrderHistory('desc');
+                } else {
+                  setSorOrderHistory('asc');
+                }
+              } else {
+                setSorOrderHistory('desc');
+              }
             }}
           >
             <FormattedMessage id="created" defaultMessage={'Created'} />
@@ -657,7 +836,11 @@ function OrderCard({
                 historySortBy === 'created' ? 'text-gradientFrom' : ''
               }`}
             >
-              <DownArrowVE />
+              {historySortBy === 'created' && sortOrderHistory === 'asc' ? (
+                <UpArrowVE />
+              ) : (
+                <DownArrowVE />
+              )}
             </span>
           </button>
           <span className="col-span-1 text-right">
@@ -692,9 +875,36 @@ function MyOrderPage() {
 
   const history = useHistory();
 
-  if (!activeOrder || !historyOrder) {
+  const ActiveTokenIds = activeOrder
+    ?.map((order) => [order.sell_token, order.buy_token])
+    .flat();
+
+  const HistoryTokenIds = historyOrder
+    ?.map((order) => [order.sell_token, order.buy_token])
+    .flat();
+
+  const tokenIds =
+    !activeOrder || !historyOrder
+      ? null
+      : [...new Set([...ActiveTokenIds, ...HistoryTokenIds])];
+
+  const tokens = useTokens(tokenIds || []);
+
+  if (
+    !tokenIds ||
+    !activeOrder ||
+    !historyOrder ||
+    (tokenIds?.length > 0 && tokens?.length === 0)
+  ) {
     return <Loading />;
   }
+
+  const tokensMap = tokens.reduce((acc, cur, index) => {
+    return {
+      ...acc,
+      [cur.id]: cur,
+    };
+  }, {});
 
   return (
     <div
@@ -714,7 +924,9 @@ function MyOrderPage() {
             localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
           }}
         >
-          <span className="text-xl font-bold mr-3">{'<'}</span>
+          <span className="text-xl font-bold mr-3">
+            <RouterArrowLeft />
+          </span>
           <FormattedMessage id="my_orders" defaultMessage={'My Orders'} />
         </button>
         <SolidButton
@@ -735,7 +947,11 @@ function MyOrderPage() {
         </SolidButton>
       </div>
 
-      <OrderCard activeOrder={activeOrder} historyOrder={historyOrder} />
+      <OrderCard
+        tokensMap={tokensMap}
+        activeOrder={activeOrder}
+        historyOrder={historyOrder}
+      />
     </div>
   );
 }

@@ -371,6 +371,42 @@ export function SwapExchange({ onChange }: { onChange: (e?: any) => void }) {
   );
 }
 
+export const RouterArrowLeft = () => {
+  return (
+    <svg
+      width="6"
+      height="12"
+      viewBox="0 0 6 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M5.31152 1L0.999633 5.85088L5.31152 10.7018"
+        stroke="white"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+};
+
+export const RouterArrowRight = () => {
+  return (
+    <svg
+      width="6"
+      height="12"
+      viewBox="0 0 6 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 1L5.31189 5.85088L1 10.7018"
+        stroke="white"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+};
+
 export function SwapExchangeV3({
   onChange,
   tokenIn,

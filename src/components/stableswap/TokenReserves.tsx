@@ -450,23 +450,21 @@ export default function ({
   return (
     <div
       className={`${
-        swapPage || forPool ? 'relative bottom-10' : ''
+        swapPage || forPool ? 'relative bottom-3' : ''
       } ${className}`}
     >
       {hiddenMag ? null : (
         <span
-          className={`px-5 rounded-t-xl text-sm text-farmText mx-auto flex items-center justify-center cursor-pointer bg-cardBg pt-3 ${
-            showReserves ? 'pb-5' : 'pb-1'
-          }`}
+          className={`rounded-2xl relative z-50 text-sm gradientBorderWrapperNoShadow text-farmText mx-auto flex items-center justify-center cursor-pointer bg-cardBg `}
           style={{
-            borderTop: '1px solid #415462',
-            width: '175px',
+            width: '90px',
+            border: 'solid 1px transparent',
           }}
           onClick={() => {
             setShowReserves(!showReserves);
           }}
         >
-          <span>
+          <span className="my-2">
             <FormattedMessage id={magId} defaultMessage={magDefaultMessage} />
           </span>
           <span className="ml-2">
@@ -478,7 +476,9 @@ export default function ({
       <Card
         padding="p-8"
         bgcolor="bg-cardBg"
-        className={`text-xs text-primaryText ${!showReserves && 'hidden'}`}
+        className={`text-xs relative bottom-3 text-primaryText ${
+          !showReserves && 'hidden'
+        }`}
         width="w-full"
       >
         {forPool ? null : <TypeTab type={type} setType={setType} />}

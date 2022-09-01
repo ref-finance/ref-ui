@@ -98,9 +98,7 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className={`overflow-y-visible  relative bg-secondary shadow-2xl rounded-2xl px-7 py-6 ${
-        swapMode === SWAP_MODE.STABLE ? 'pb-16' : ''
-      } bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
+      className={`overflow-y-visible  relative bg-secondary shadow-2xl rounded-2xl px-7 pt-6 pb-7  bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
       onSubmit={handleSubmit}
     >
       {title && (
