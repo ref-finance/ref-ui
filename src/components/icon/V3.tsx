@@ -230,3 +230,229 @@ export const SwitchIcon = function (props: any) {
     </svg>
   );
 };
+export const SideIcon = function (props: any) {
+  return (
+    <svg
+      {...props}
+      width="46"
+      height="30"
+      viewBox="0 0 46 30"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <line
+        x1="0.772444"
+        y1="23.5548"
+        x2="45.7724"
+        y2="0.554784"
+        stroke="#00FFD1"
+      />
+      <circle cx="7.5" cy="9.5" r="7.5" fill="#00FFD1" />
+      <path d="M26.5 13L33.8612 25.75H19.1388L26.5 13Z" fill="#5B40FF" />
+    </svg>
+  );
+};
+
+export const InvalidIcon = function (props: any) {
+  return (
+    <svg
+      {...props}
+      width="51"
+      height="30"
+      viewBox="0 0 51 30"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <line
+        x1="0.767997"
+        y1="23.5571"
+        x2="21.768"
+        y2="12.5571"
+        stroke="#00FFD1"
+      />
+      <line
+        x1="50.7671"
+        y1="22.4425"
+        x2="31.7671"
+        y2="12.4425"
+        stroke="#00FFD1"
+      />
+      <line
+        x1="31.416"
+        y1="4.27735"
+        x2="29.416"
+        y2="7.27735"
+        stroke="#00FFD1"
+      />
+      <line
+        x1="35.1213"
+        y1="8.48507"
+        x2="31.1213"
+        y2="9.48507"
+        stroke="#00FFD1"
+      />
+      <circle cx="8.5" cy="7.5" r="7.5" fill="#00FFD1" />
+      <path d="M26.5 13L33.8612 25.75H19.1388L26.5 13Z" fill="#5B40FF" />
+    </svg>
+  );
+};
+export const BoxDarkBg = function (props: any) {
+  return (
+    <svg
+      {...props}
+      width="417"
+      height="82"
+      viewBox="0 0 417 82"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <mask
+        id="mask0_124_5697"
+        style={{ maskType: 'alpha' }}
+        maskUnits="userSpaceOnUse"
+        x="0"
+        y="0"
+        width="417"
+        height="82"
+      >
+        <rect width="417" height="82" rx="12" fill="black" />
+      </mask>
+      <g mask="url(#mask0_124_5697)">
+        <circle
+          opacity="0.1"
+          cx="390.938"
+          cy="10.8772"
+          r="35.9321"
+          transform="rotate(45 390.938 10.8772)"
+          fill="url(#paint0_linear_124_5697)"
+          stroke="url(#paint1_linear_124_5697)"
+          strokeWidth="12"
+          strokeLinecap="round"
+        />
+        <path
+          opacity="0.1"
+          d="M-20 56.3043C-17.4161 61.4879 -8.37266 71.8551 7.13044 71.8551C26.5093 71.8551 34.2609 37 61.3913 37C88.5217 37 90.4596 74 115.652 74C140.845 74 142.783 37 167.975 37C193.168 37 193.652 71.8551 214 71.8551"
+          stroke="url(#paint2_linear_124_5697)"
+          strokeWidth="12"
+          strokeLinecap="round"
+        />
+      </g>
+      <defs>
+        <linearGradient
+          id="paint0_linear_124_5697"
+          x1="390.938"
+          y1="-25.0549"
+          x2="390.938"
+          y2="46.8093"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#26343E" />
+          <stop offset="1" stopColor="#1D2932" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_124_5697"
+          x1="353.071"
+          y1="46.8093"
+          x2="404.55"
+          y2="46.8093"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#00FFD1" />
+          <stop offset="1" stopColor="#5B40FF" />
+        </linearGradient>
+        <linearGradient
+          id="paint2_linear_124_5697"
+          x1="220.302"
+          y1="74"
+          x2="52.6786"
+          y2="74"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#00FFD1" stopOpacity="0" />
+          <stop offset="1" stopColor="#5B40FF" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+export const WarningIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="20"
+      height="18"
+      viewBox="0 0 20 18"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M11.1274 6.07879C11.1317 6.04034 11.1339 6.0013 11.1339 5.96175C11.1339 5.36616 10.6336 4.88335 10.0164 4.88335C9.39924 4.88335 8.89893 5.36616 8.89893 5.96175C8.89893 5.96298 8.89893 5.9642 8.89894 5.96543H8.89547L9.1473 11.1058C9.14727 11.1086 9.14726 11.1114 9.14726 11.1141C9.14726 11.5774 9.53639 11.9529 10.0164 11.9529C10.4964 11.9529 10.8855 11.5774 10.8855 11.1141C10.8855 11.1065 10.8854 11.0989 10.8852 11.0913L11.1274 6.07879ZM7.2833 2.47745C8.76956 0.0286533 11.1824 0.0339056 12.6655 2.47745L19.3081 13.4219C20.7943 15.8707 19.6164 17.8559 16.6693 17.8559H3.27955C0.335916 17.8559 -0.842329 15.8655 0.640741 13.4219L7.2833 2.47745ZM10.0164 15.4277C10.6336 15.4277 11.1339 14.9449 11.1339 14.3493C11.1339 13.7537 10.6336 13.2709 10.0164 13.2709C9.39924 13.2709 8.89893 13.7537 8.89893 14.3493C8.89893 14.9449 9.39924 15.4277 10.0164 15.4277Z"
+        fill="#DE9450"
+      />
+    </svg>
+  );
+};
+
+export const EmptyIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="291"
+      height="28"
+      viewBox="0 0 291 28"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        y="12"
+        width="291"
+        height="8"
+        rx="4"
+        fill="black"
+        fillOpacity="0.1"
+      />
+      <rect x="106" y="13" width="97" height="6" rx="3" fill="#333F47" />
+      <circle
+        cx="97"
+        cy="14"
+        r="13"
+        fill="#1C272E"
+        stroke="#333F47"
+        strokeWidth="2"
+      />
+      <path
+        d="M92.5 11H102"
+        stroke="#333F47"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M92.5 17H102"
+        stroke="#333F47"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <circle
+        cx="194"
+        cy="14"
+        r="13"
+        fill="#1C272E"
+        stroke="#333F47"
+        strokeWidth="2"
+      />
+      <path
+        d="M189.5 11H199"
+        stroke="#333F47"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M189.5 17H199"
+        stroke="#333F47"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};

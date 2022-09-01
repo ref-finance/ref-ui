@@ -574,36 +574,6 @@ export const add_liquidity = async ({
 }) => {
   const transactions: Transaction[] = [
     {
-      receiverId: token_x.id,
-      functionCalls: [
-        {
-          methodName: 'ft_transfer_call',
-          args: {
-            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
-            amount: amount_x,
-            msg: '"Deposit"',
-          },
-          amount: ONE_YOCTO_NEAR,
-          gas: '150000000000000',
-        },
-      ],
-    },
-    {
-      receiverId: token_y.id,
-      functionCalls: [
-        {
-          methodName: 'ft_transfer_call',
-          args: {
-            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
-            amount: amount_y,
-            msg: '"Deposit"',
-          },
-          amount: ONE_YOCTO_NEAR,
-          gas: '150000000000000',
-        },
-      ],
-    },
-    {
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
         {
@@ -622,6 +592,40 @@ export const add_liquidity = async ({
       ],
     },
   ];
+  if (+amount_x > 0) {
+    transactions.unshift({
+      receiverId: token_x.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
+            amount: amount_x,
+            msg: '"Deposit"',
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '150000000000000',
+        },
+      ],
+    });
+  }
+  if (+amount_y > 0) {
+    transactions.unshift({
+      receiverId: token_y.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
+            amount: amount_y,
+            msg: '"Deposit"',
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '150000000000000',
+        },
+      ],
+    });
+  }
   if (token_x.id == WRAP_NEAR_CONTRACT_ID) {
     transactions.unshift({
       receiverId: WRAP_NEAR_CONTRACT_ID,
