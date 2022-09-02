@@ -340,6 +340,8 @@ export const useSwapV3 = ({
   const [estimates, setEstimates] =
     useState<{ amount: string; tag: string }[]>();
 
+  const [displayPriceImpact, setDisplayPriceImpact] = useState<string>('');
+
   const fees = V3_POOL_FEE_LIST;
 
   const tagValidator = (
@@ -354,7 +356,7 @@ export const useSwapV3 = ({
     return (
       !!bestEstimate &&
       !!bestEstimate?.tag &&
-      tagInfo?.[0] === tokenIn.id &&
+      tagInfo?.[0] === tokenIn?.id &&
       tagInfo?.[2] === tokenInAmount
     );
   };
@@ -372,13 +374,15 @@ export const useSwapV3 = ({
       output_token: tokenOut,
       input_amount: tokenInAmount,
       tag: `${tokenIn.id}-${fee}-${tokenInAmount}`,
-    }).catch(() => null);
+    }).catch((e) => null);
   };
 
   const bestFee =
     !!bestEstimate &&
     !!bestEstimate?.tag &&
     Number(bestEstimate.tag.split('-')[1]);
+
+  console.log(bestFee, 'best fee');
 
   useEffect(() => {
     if (!bestFee) return;
@@ -391,31 +395,23 @@ export const useSwapV3 = ({
   }, [bestFee, tokenIn, tokenOut, poolReFetch]);
 
   useEffect(() => {
-    if (
-      bestEstimate &&
-      !loadingTrigger &&
-      tagValidator(bestEstimate, tokenIn, tokenInAmount)
-    ) {
-      setTokenOutAmount(
-        toReadableNumber(tokenOut.decimals, bestEstimate.amount)
-      );
-    }
-  }, [bestEstimate?.amount]);
-
-  useEffect(() => {
     if (!tokenIn || !tokenOut || !tokenInAmount) return;
 
     setQuoteDone(false);
 
     Promise.all(fees.map((fee) => getQuote(fee, tokenIn, tokenOut)))
       .then((res) => {
+        console.log(res, 'dssasd');
+
         if (!loadingTrigger) {
           setEstimates(res);
 
           const bestEstimate =
             res && res?.some((e) => !!e)
-              ? _.maxBy(res, (e) => Number(e?.amount || '0'))
+              ? _.maxBy(res, (e) => Number(!e.tag ? -1 : e.amount))
               : null;
+
+          console.log(bestEstimate, 'this is best estimate');
 
           setBestEstimate(bestEstimate);
 
@@ -432,9 +428,12 @@ export const useSwapV3 = ({
           }
         }
       })
+      .catch((e) => {
+        console.log('e from estimate');
+        console.log(e);
+      })
       .finally(() => {
         setQuoteDone(true);
-
         setPoolReFetch(!poolReFetch);
       });
   }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
@@ -459,8 +458,6 @@ export const useSwapV3 = ({
     });
   };
 
-  // console.log(estimates, 'all estimates', bestEstimate, 'best estimate');
-
   const priceImpact = useMemo(() => {
     try {
       const curPrice = pointToPrice({
@@ -480,22 +477,33 @@ export const useSwapV3 = ({
 
       return scientificNotationToString(pi);
     } catch (error) {
+      console.log(error);
+
       return '0';
     }
   }, [tokenOutAmount, bestPool, tokenIn, tokenOut, estimates]);
 
-  const displayPriceImpact = useMemo(() => {
-    return priceImpact;
-  }, [poolReFetch, tokenOutAmount]);
+  useEffect(() => {
+    if (!quoteDone) return;
+    setDisplayPriceImpact(priceImpact || '0');
+  }, [
+    poolReFetch,
+    tokenOutAmount,
+    bestEstimate?.tag,
+    bestEstimate?.amount,
+    bestEstimate,
+    estimates,
+    quoteDone,
+    priceImpact,
+  ]);
 
-  // console.log(displayPriceImpact, priceImpact, 'debug price impact ');
+  console.log(tokenOutAmount, priceImpact, displayPriceImpact);
 
   return {
     makeSwap,
     canSwap:
-      quoteDone &&
-      tagValidator(bestEstimate, tokenIn, tokenInAmount) &&
-      swapMode === SWAP_MODE.NORMAL,
+      (quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount)) ||
+      swapMode !== SWAP_MODE.NORMAL,
     tokenOutAmount,
     priceImpact: displayPriceImpact,
     minAmountOut: tokenOutAmount
@@ -506,6 +514,7 @@ export const useSwapV3 = ({
       (tagValidator(bestEstimate, tokenIn, tokenInAmount) ||
         estimates?.every((e) => e.tag === null)),
     bestFee,
+    bestPool,
   };
 };
 

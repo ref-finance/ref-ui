@@ -203,81 +203,84 @@ export function CrossSwapFormWrap({
   };
 
   return (
-    <form
-      className={`overflow-visible relative bg-secondary shadow-2xl rounded-2xl px-7 py-6 bg-dark xs:rounded-lg md:rounded-lg  ${
-        showAllResults && requested ? 'pb-14' : ''
-      }`}
-      onSubmit={handleSubmit}
-    >
-      {!requestingTrigger ? null : (
-        <div className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0 rounded-2xl z-30">
-          <div className="flex flex-col items-center">
-            <RequestingSmile />
-            <span
-              className="pt-6"
-              style={{
-                color: '#c4c4c4',
-              }}
-            >
-              <span className="crossSwap-requesting-loading">
-                <FormattedMessage id="requesting" defaultMessage="Requesting" />
-              </span>
-            </span>
-          </div>
-        </div>
-      )}
-      {title && (
-        <h2 className="formTitle flex items-center justify-between  font-bold text-xl text-white text-left pb-4 pt-1.5">
-          {tokensTitle}
-          <div className="flex self-start items-center">
-            {requested ? null : swapTab}
-            {!requested ? null : (
-              <div
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-
-                  if (loadingPause) {
-                    setLoadingPause(false);
-                    setLoadingTrigger(true);
-                    setLoadingData(true);
-                  } else {
-                    setLoadingPause(true);
-                    setLoadingTrigger(false);
-                  }
+    <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative gradientBorderWrapper">
+      <form
+        className={`overflow-visible relative bg-secondary shadow-2xl rounded-2xl px-7 pt-6 pb-7 bg-dark xs:rounded-lg md:rounded-lg `}
+        onSubmit={handleSubmit}
+      >
+        {!requestingTrigger ? null : (
+          <div className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0 rounded-2xl z-30">
+            <div className="flex flex-col items-center">
+              <RequestingSmile />
+              <span
+                className="pt-6"
+                style={{
+                  color: '#c4c4c4',
                 }}
-                className="mx-4 cursor-pointer"
               >
-                <CountdownTimer
-                  loadingTrigger={loadingTrigger}
-                  loadingPause={loadingPause}
-                />
-              </div>
-            )}
-            <SlippageSelector
-              slippageTolerance={slippageTolerance}
-              onChange={onChange}
-              supportLedger={supportLedger}
-              setSupportLedger={setSupportLedger}
-            />
+                <span className="crossSwap-requesting-loading">
+                  <FormattedMessage
+                    id="requesting"
+                    defaultMessage="Requesting"
+                  />
+                </span>
+              </span>
+            </div>
           </div>
-        </h2>
-      )}
-      {error && <Alert level="warn" message={error.message} />}
-      {children}
+        )}
+        {title && (
+          <h2 className="formTitle flex items-center justify-between  font-bold text-xl text-white text-left pb-4 pt-1.5">
+            {tokensTitle}
+            <div className="flex self-start items-center">
+              {requested ? null : swapTab}
+              {!requested ? null : (
+                <div
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-      <div>
-        <SubmitButton
-          signedInConfig={!requested}
-          disabled={
-            !canSubmit ||
-            (typeof loadingTrigger !== 'undefined' && loadingTrigger)
-          }
-          label={buttonText || title}
-          info={info}
-          loading={showSwapLoading}
-        />
-      </div>
-    </form>
+                    if (loadingPause) {
+                      setLoadingPause(false);
+                      setLoadingTrigger(true);
+                      setLoadingData(true);
+                    } else {
+                      setLoadingPause(true);
+                      setLoadingTrigger(false);
+                    }
+                  }}
+                  className="mx-4 cursor-pointer"
+                >
+                  <CountdownTimer
+                    loadingTrigger={loadingTrigger}
+                    loadingPause={loadingPause}
+                  />
+                </div>
+              )}
+              <SlippageSelector
+                slippageTolerance={slippageTolerance}
+                onChange={onChange}
+                supportLedger={supportLedger}
+                setSupportLedger={setSupportLedger}
+              />
+            </div>
+          </h2>
+        )}
+        {error && <Alert level="warn" message={error.message} />}
+        {children}
+
+        <div>
+          <SubmitButton
+            signedInConfig={!requested}
+            disabled={
+              !canSubmit ||
+              (typeof loadingTrigger !== 'undefined' && loadingTrigger)
+            }
+            label={buttonText || title}
+            info={info}
+            loading={showSwapLoading}
+          />
+        </div>
+      </form>
+    </section>
   );
 }

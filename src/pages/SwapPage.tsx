@@ -198,22 +198,19 @@ function SwapPage() {
 
   return (
     <div className="swap">
-      <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative gradientBorderWrapper">
-        {swapTab === 'cross' ? (
-          <CrossSwapCard
-            allTokens={crossSwapTokens}
-            tokenInAmount={tokenInAmount}
-            setTokenInAmount={setTokenInAmount}
-            swapTab={
-              <>
-                <SwapTab
-                  ifCross={swapTab === 'cross'}
-                  setSwapTab={setSwapTab}
-                />
-              </>
-            }
-          />
-        ) : (
+      {swapTab === 'cross' ? (
+        <CrossSwapCard
+          allTokens={crossSwapTokens}
+          tokenInAmount={tokenInAmount}
+          setTokenInAmount={setTokenInAmount}
+          swapTab={
+            <>
+              <SwapTab ifCross={swapTab === 'cross'} setSwapTab={setSwapTab} />
+            </>
+          }
+        />
+      ) : (
+        <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative gradientBorderWrapper">
           <SwapCard
             allTokens={nearSwapTokens}
             swapMode={swapMode}
@@ -236,8 +233,8 @@ function SwapPage() {
               </>
             }
           />
-        )}
-      </section>
+        </section>
+      )}
 
       <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative">
         {' '}

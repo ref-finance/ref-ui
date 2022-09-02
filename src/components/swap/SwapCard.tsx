@@ -804,7 +804,7 @@ function DetailViewV3({
   const priceImpactDisplay = useMemo(() => {
     if (!priceImpact || !tokenIn || !from) return null;
     return GetPriceImpact(priceImpact, tokenIn, from);
-  }, [to, priceImpact]);
+  }, [priceImpact]);
 
   const poolFeeDisplay = useMemo(() => {
     if (!fee || !from || !tokenIn) return null;
@@ -1102,6 +1102,10 @@ export default function SwapCard(props: {
   const [displayTokenOutAmount, setDisplayTokenOutAmount] =
     useState<string>('');
 
+  const [displayPriceImpact, setDisplayPriceImpact] = useState<string>('');
+
+  const [displayDetailView, setDisplayDetailView] = useState<JSX.Element>();
+
   const balances = useTokenBalances();
   const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
     location.hash.slice(1)
@@ -1357,7 +1361,7 @@ export default function SwapCard(props: {
     loadingTrigger,
   });
 
-  const bestSwap = new Big(tokenOutAmountV3 || '0').gt(tokenOutAmount || '0')
+  const bestSwap = new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0')
     ? 'v3'
     : 'v2';
 
@@ -1368,11 +1372,12 @@ export default function SwapCard(props: {
         return;
       }
 
-      const displayTokenOutAmount = new Big(tokenOutAmountV3 || '0').gt(
+      const displayTokenOutAmount = new Big(tokenOutAmountV3 || '0').gte(
         tokenOutAmount || '0'
       )
         ? tokenOutAmountV3
         : tokenOutAmount;
+
       setDisplayTokenOutAmount(displayTokenOutAmount);
     }
   }, [quoteDone, quoteDoneV3, tokenOutAmountV3, tokenOutAmount, poolError]);
@@ -1422,20 +1427,34 @@ export default function SwapCard(props: {
       setCurOrderPrice(null);
       return;
     }
+
+    const curPrice =
+      tokenIn.id === mostPoolDetail.token_x
+        ? Math.abs(mostPoolDetail.current_point)
+        : Math.abs(mostPoolDetail.current_point) * -1;
+
     const price = pointToPrice({
       tokenA: tokenIn,
       tokenB: tokenOut,
-      point: mostPoolDetail.current_point,
+      point: curPrice,
     });
 
-    setLimitAmountOutRate(LimitAmountOutRate || toPrecision(price, 8));
+    const priceKeep = toPrecision(price, 8) === curOrderPrice;
 
-    setCurOrderPrice(curOrderPrice || toPrecision(price, 8));
+    setLimitAmountOutRate(
+      priceKeep
+        ? LimitAmountOutRate || toPrecision(price, 8)
+        : toPrecision(price, 8)
+    );
+
+    setCurOrderPrice(
+      priceKeep ? curOrderPrice || toPrecision(price, 8) : toPrecision(price, 8)
+    );
 
     setLimitAmountOut(
       toPrecision(
         scientificNotationToString(
-          new Big(LimitAmountOutRate || price || 0)
+          new Big(priceKeep ? LimitAmountOutRate || price || 0 : price)
             .times(tokenInAmount || 0)
             .toString()
         ),
@@ -1487,8 +1506,14 @@ export default function SwapCard(props: {
     PriceImpactValue = '0';
   }
 
-  const bestSwapPriceImpact =
-    bestSwap === 'v3' ? priceImpactV3 : PriceImpactValue;
+  useEffect(() => {
+    if (quoteDone && quoteDoneV3) {
+      const bestSwapPriceImpact =
+        bestSwap === 'v3' ? priceImpactV3 : PriceImpactValue;
+
+      setDisplayPriceImpact(bestSwapPriceImpact);
+    }
+  }, [priceImpactV3, PriceImpactValue, quoteDone, quoteDoneV3, bestSwap]);
 
   const makeBestSwap = () => {
     if (bestSwap === 'v3') {
@@ -1499,7 +1524,7 @@ export default function SwapCard(props: {
   };
 
   const DetailView = useMemo(() => {
-    if (swapMode === SWAP_MODE.LIMIT && tokenIn && tokenOut)
+    if (swapMode === SWAP_MODE.LIMIT && tokenIn && tokenOut) {
       return (
         <DetailViewLimit
           tokenIn={tokenIn}
@@ -1509,7 +1534,7 @@ export default function SwapCard(props: {
           setV3Pool={setSelectedV3LimitPool}
         />
       );
-    else if (swapMode !== SWAP_MODE.LIMIT) {
+    } else if (swapMode !== SWAP_MODE.LIMIT) {
       if (bestSwap === 'v2') {
         return (
           <DetailViewV2
@@ -1522,7 +1547,7 @@ export default function SwapCard(props: {
             isParallelSwap={isParallelSwap}
             fee={avgFee}
             swapsTodo={swapsToDo}
-            priceImpact={PriceImpactValue}
+            priceImpact={displayPriceImpact}
             swapMode={swapMode}
             tokenPriceList={tokenPriceList}
           />
@@ -1533,10 +1558,10 @@ export default function SwapCard(props: {
             tokenIn={tokenIn}
             tokenOut={tokenOut}
             from={tokenInAmount}
-            to={tokenOutAmountV3}
+            to={displayTokenOutAmount}
             minAmountOut={minAmountOutV3}
             fee={bestFee / 100}
-            priceImpact={priceImpactV3}
+            priceImpact={displayPriceImpact}
             tokenPriceList={tokenPriceList}
           />
         );
@@ -1548,13 +1573,18 @@ export default function SwapCard(props: {
     poolPercents,
     tokenIn,
     tokenOut,
-    priceImpactV3,
-    quoteDoneV3,
     slippageTolerance,
     minAmountOut,
     minAmountOutV3,
     swapsToDo,
+    displayPriceImpact,
   ]);
+
+  useEffect(() => {
+    if ((quoteDone && quoteDoneV3) || quoteDoneLimit) {
+      setDisplayDetailView(DetailView);
+    }
+  }, [quoteDone, quoteDoneV3, quoteDoneLimit, DetailView]);
 
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'
@@ -1569,8 +1599,7 @@ export default function SwapCard(props: {
         (tokenInMax != '0' || !useNearBalance) &&
         quoteDone &&
         quoteDoneV3
-      : !!mostPoolDetail &&
-        new Big(LimitAmountOutRate || '0').gt(curOrderPrice || '0');
+      : !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -1583,7 +1612,7 @@ export default function SwapCard(props: {
           amountA: tokenInAmount,
           amountB: limitAmountOut,
         },
-        LimitOrder: {
+        LimitOrderWithSwap: {
           pool_id: selectedV3LimitPool,
         },
       });
@@ -1591,7 +1620,7 @@ export default function SwapCard(props: {
       const ifDoubleCheck =
         new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
           new BigNumber(tokenInMax || 0)
-        ) && Number(bestSwapPriceImpact) > 2;
+        ) && Number(displayPriceImpact) > 2;
 
       if (ifDoubleCheck) setDoubleCheckOpen(true);
       else makeBestSwap();
@@ -1797,7 +1826,7 @@ export default function SwapCard(props: {
           }
         />
 
-        {poolError ? null : DetailView}
+        {poolError ? null : displayDetailView}
 
         {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail && (
           <NoLimitPoolCard />
@@ -1820,7 +1849,7 @@ export default function SwapCard(props: {
         tokenOut={tokenOut}
         from={tokenInAmount}
         onSwap={() => makeBestSwap()}
-        priceImpactValue={bestSwapPriceImpact}
+        priceImpactValue={displayPriceImpact || '0'}
       />
     </>
   );

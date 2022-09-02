@@ -171,8 +171,6 @@ export function QuickAmountLimitOrder({
   const plus5 = percentOfBigNumber(105, max, 8);
   const plus10 = percentOfBigNumber(110, max, 8);
 
-  console.log(plus10, amount, 'amount check for quick');
-
   return (
     <div className="flex items-center">
       <span
@@ -585,7 +583,6 @@ export function TokenCardIn({
           className="border border-transparent rounded w-full mr-2"
           id="inputAmount"
           name={tokenIn?.id}
-          max={onChangeAmount ? curMax : null}
           value={amount}
           onChangeAmount={onChangeAmount}
           openClear

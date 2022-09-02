@@ -118,7 +118,7 @@ export const CrossIcon = ({
   Icon: JSX.Element;
   poolId?: number | string;
 }) => {
-  return Number(poolId) > 0 ? (
+  return typeof poolId === 'number' && Number(poolId) >= 0 ? (
     <div className="h-4 relative rounded-xl bg-black bg-opacity-20 pl-2 pr-6 py-0.5 flex items-center">
       <span
         className="opacity-50"
@@ -167,7 +167,7 @@ export const ParaTokenFrom = ({
 export const PoolInfo = ({ poolId, fee }: { poolId: number; fee: number }) => {
   return (
     <div
-      className="flex items-center bg-inputDarkBg px-1 text-gray-400 rounded-md grid grid-cols-2 w-32"
+      className=" items-center bg-inputDarkBg px-1 text-gray-400 rounded-md grid grid-cols-2 w-32"
       style={{
         paddingTop: '3px',
         paddingBottom: '3px',
@@ -324,7 +324,7 @@ export const CrossSwapRoute = ({
       {route.length === 1 ? (
         <div
           className={`w-full h-4 flex items-center rounded-xl justify-between relative ${
-            route[0].pool.Dex === 'tri'
+            route[0].pool?.Dex === 'tri'
               ? 'bg-triPool bg-opacity-20'
               : 'bg-refPool bg-opacity-20'
           }`}
@@ -336,12 +336,12 @@ export const CrossSwapRoute = ({
               opacity: '0.5',
             }}
           >
-            {route[0].pool.Dex === 'tri' ? 'Trisolaris' : 'Ref'}
+            {route[0].pool?.Dex === 'tri' ? 'Trisolaris' : 'Ref'}
           </div>
 
           <CrossIcon
             Icon={<Icon token={route[0].tokens[1]} size={'5'} />}
-            poolId={route[0].pool.id}
+            poolId={route[0]?.pool?.id}
           />
         </div>
       ) : (
@@ -351,13 +351,12 @@ export const CrossSwapRoute = ({
           </div>
           <div
             className={`w-full flex items-center justify-center rounded-l-xl ${
-              route[0].pool.Dex === 'tri'
+              route[0].pool?.Dex === 'tri'
                 ? 'bg-triPool bg-opacity-20'
                 : 'bg-refPool bg-opacity-20'
             }`}
           >
-            {/* <span>{route[0].pool.Dex === 'tri' ? 'Trisolaris' : 'Ref'}</span> */}
-            <PoolName dex={route[0].pool.Dex} translate="0" />
+            <PoolName dex={route[0].pool?.Dex} translate="0" />
           </div>
 
           <div
@@ -368,24 +367,24 @@ export const CrossSwapRoute = ({
           >
             <CrossIcon
               Icon={<Icon token={route[0].tokens[1]} size="5" />}
-              poolId={route[0].pool.id}
+              poolId={route[0]?.pool?.id}
             />
           </div>
 
           <div
             className={`w-full flex items-center justify-center rounded-r-xl ${
-              route[1].pool.Dex === 'tri'
+              route[1].pool?.Dex === 'tri'
                 ? 'bg-triPool bg-opacity-20'
                 : 'bg-refPool bg-opacity-20'
             }`}
           >
-            <PoolName dex={route[1].pool.Dex} translate="15" />
+            <PoolName dex={route[1].pool?.Dex} translate="15" />
           </div>
 
           <div className="absolute right-0">
             <CrossIcon
               Icon={<Icon token={route[0].tokens[2]} size="5" />}
-              poolId={route[1].pool.id}
+              poolId={route[1]?.pool?.id}
             />
           </div>
         </div>
@@ -401,7 +400,6 @@ export const CrossSwapAllResult = ({
   tokenOutId,
   slippageTolerance,
   tokenOut,
-  tokenOutAmount,
   show,
 }: {
   refTodos: EstimateSwapView[];
@@ -410,11 +408,8 @@ export const CrossSwapAllResult = ({
   tokenOutId: string;
   slippageTolerance: number;
   tokenOut: TokenMetadata;
-  tokenOutAmount: string;
   show: boolean;
 }) => {
-  // const [expectedOuts, setExpectedOuts] = useState<(string | null)[]>();
-
   if (!show) return null;
 
   const results = [refTodos, triTodos];
@@ -458,7 +453,11 @@ export const CrossSwapAllResult = ({
 
   // const receives = expectedOuts.map((receive) => toPrecision(receive, 6));
   const receives = results.map((result) => {
-    if (result.every((r) => r.pool?.Dex === 'tri')) {
+    if (
+      result?.every((r) => r.pool?.Dex === 'tri') ||
+      (result?.every((r) => r.pool?.Dex === 'ref' || !r?.pool) &&
+        result.length === 1)
+    ) {
       return result[result.length - 1].estimate;
     } else {
       return getExpectedOutputFromActionsORIG(result, tokenOut.id).toString();
@@ -478,7 +477,6 @@ export const CrossSwapAllResult = ({
   });
 
   const Icons = [
-    // <TodoType Icon={<RefSwapPro />} title="Ref Swap Pro" />,
     <TodoType Icon={<RefIcon lightTrigger={true} />} title="Ref Finance" />,
     <TodoType Icon={<TriIcon lightTrigger={true} />} title="Trisolaris" />,
   ];
@@ -502,20 +500,18 @@ export const CrossSwapAllResult = ({
     });
 
   return (
-    <>
+    <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative ">
       <span
-        className={`px-5  rounded-t-xl text-sm text-farmText mx-auto relative bottom-10 flex items-center justify-center cursor-pointer bg-cardBg pt-3 ${
-          showAllResult ? 'pb-5' : 'pb-1.5'
-        }`}
+        className={`gradientBorderWrapperNoShadow z-50 rounded-2xl text-sm text-farmText mx-auto relative bottom-3 flex items-center justify-center cursor-pointer bg-cardBg `}
         style={{
-          borderTop: '1px solid #415462',
-          width: '175px',
+          width: '120px',
+          border: 'solid 1px transparent',
         }}
         onClick={() => {
           setShowAllResult(!showAllResult);
         }}
       >
-        <span>
+        <span className="my-2">
           <FormattedMessage id="all_results" defaultMessage="All Results" />
         </span>
         <span className="ml-2">
@@ -525,7 +521,7 @@ export const CrossSwapAllResult = ({
       <Card
         padding="pr-8  pl-7 xs:px-3 pt-8 pb-5"
         className={
-          showAllResult ? 'text-sm text-white relative bottom-10' : 'hidden'
+          showAllResult ? 'text-sm text-white relative bottom-6' : 'hidden'
         }
         width="w-full"
       >
@@ -563,6 +559,6 @@ export const CrossSwapAllResult = ({
           );
         })}
       </Card>
-    </>
+    </section>
   );
 };

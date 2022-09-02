@@ -202,7 +202,7 @@ interface V3Swap {
     pool_ids: string[];
     output_amount: string;
   };
-  LimitOrder?: {
+  LimitOrderWithSwap?: {
     pool_id: string;
   };
 }
@@ -210,14 +210,12 @@ interface V3Swap {
 export const v3Swap = async ({
   Swap,
   SwapByOutput,
-  LimitOrder,
+  LimitOrderWithSwap,
   swapInfo,
 }: V3Swap) => {
   const transactions: Transaction[] = [];
 
   const { tokenA, tokenB, amountA, amountB } = swapInfo;
-
-  console.log(Swap, tokenA, tokenB, amountA, amountB);
 
   if (Swap) {
     const pool_ids = Swap.pool_ids;
@@ -303,8 +301,8 @@ export const v3Swap = async ({
     });
   }
 
-  if (LimitOrder) {
-    const pool_id = LimitOrder.pool_id;
+  if (LimitOrderWithSwap) {
+    const pool_id = LimitOrderWithSwap.pool_id;
     const buy_token = tokenB.id;
     const point = priceToPoint({
       amountA,
@@ -339,7 +337,7 @@ export const v3Swap = async ({
       pool_id.split(V3_POOL_SPLITER)[0] === tokenA.id ? point : -point;
 
     const msg = JSON.stringify({
-      LimitOrder: {
+      LimitOrderWithSwap: {
         pool_id,
         buy_token,
         point: new_point,
@@ -465,6 +463,8 @@ export const get_pool = async (pool_id: string, token0: string) => {
       pool_id: new_pool_id,
     },
   }).then((res) => {
+    console.log(res, 'res');
+
     if (!res || token0 === token_seq.split(V3_POOL_SPLITER)[0]) {
       return res;
     } else {
