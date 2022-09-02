@@ -160,7 +160,7 @@ function OrderCard({
       )
     )
       .times(price)
-      .toString();
+      .toFixed(tokensMap[order.sell_token].decimals);
     return scientificNotationToString(buy_amount);
   };
 
@@ -202,7 +202,7 @@ function OrderCard({
 
     const sellTokenAmount = (
       <div className="flex items-center justify-between">
-        <span className="flex items-center col-span-1">
+        <span className="flex flex-shrink-0 items-center col-span-1">
           <img
             src={sellToken.icon}
             className="border border-gradientFrom rounded-full w-7 h-7"
@@ -218,7 +218,7 @@ function OrderCard({
 
           <span className="text-v3SwapGray text-xs">{sellToken.symbol}</span>
         </span>
-        <span className="text-white text-lg pl-5 pr-3">
+        <span className="text-white text-lg pl-2 pr-1">
           <RouterArrowRight />
         </span>
       </div>
@@ -228,11 +228,14 @@ function OrderCard({
       <span className="flex items-center col-span-1 mr-4">
         <img
           src={buyToken.icon}
-          className="border border-gradientFrom rounded-full w-7 h-7"
+          className="border flex-shrink-0 border-gradientFrom rounded-full w-7 h-7"
           alt=""
         />
 
-        <span className="text-white mx-2 text-sm">
+        <span
+          className="text-white mx-2 text-sm"
+          title={sellAmountToBuyAmount(order.original_amount, order, price)}
+        >
           {toPrecision(
             sellAmountToBuyAmount(order.original_amount, order, price),
             2
@@ -287,6 +290,15 @@ function OrderCard({
           }`}
           type="button"
           disabled={ONLY_ZEROS.test(unClaimedAmount)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            cancel_order({
+              order_id: order.order_id,
+              undecimal_amount: '0',
+            });
+          }}
         >
           <FormattedMessage id="claim" defaultMessage={'Claim'} />
         </button>
@@ -305,9 +317,9 @@ function OrderCard({
           toReadableNumber(buyToken.decimals, order.unclaimed_amount || '0')
         )
           .div(
-            ONLY_ZEROS.test(order.remain_amount || '0')
+            ONLY_ZEROS.test(order.original_amount || '0')
               ? 1
-              : sellAmountToBuyAmount(order.remain_amount, order, price)
+              : sellAmountToBuyAmount(order.original_amount, order, price)
           )
           .times(100)
           .toFixed(0)}
@@ -423,7 +435,7 @@ function OrderCard({
 
     const sellTokenAmount = (
       <div className="flex items-center justify-between">
-        <span className="flex items-center col-span-1">
+        <span className="flex flex-shrink-0 items-center col-span-1">
           <img
             src={sellToken.icon}
             className="border border-gradientFrom rounded-full w-7 h-7"
@@ -439,7 +451,7 @@ function OrderCard({
 
           <span className="text-v3SwapGray text-xs">{sellToken.symbol}</span>
         </span>
-        <span className="text-white text-lg pl-5 pr-3">
+        <span className="text-white text-lg pl-2 pr-1">
           <RouterArrowRight />
         </span>
       </div>
@@ -449,13 +461,16 @@ function OrderCard({
       <span className="flex items-center col-span-1 mr-4">
         <img
           src={buyToken.icon}
-          className="border border-gradientFrom rounded-full w-7 h-7"
+          className="border flex-shrink-0 border-gradientFrom rounded-full w-7 h-7"
           alt=""
         />
 
-        <span className="text-white mx-2 text-sm">
+        <span
+          className="text-white mx-2 text-sm"
+          title={sellAmountToBuyAmount(order.original_amount, order, price)}
+        >
           {toPrecision(
-            toReadableNumber(buyToken.decimals, order.bought_amount),
+            sellAmountToBuyAmount(order.original_amount, order, price),
             2
           )}
         </span>
@@ -489,12 +504,15 @@ function OrderCard({
     const filled = (
       <span className="whitespace-nowrap col-span-1 flex items-center relative right-1">
         <span className="text-white text-sm mx-1">
-          {new Big(
-            buyAmountToSellAmount(order.bought_amount || '0', order, price)
-          )
-            .div(toReadableNumber(sellToken.decimals, order.original_amount))
-            .times(100)
-            .toFixed()}
+          {toPrecision(
+            new Big(
+              buyAmountToSellAmount(order.bought_amount || '0', order, price)
+            )
+              .div(toReadableNumber(sellToken.decimals, order.original_amount))
+              .times(100)
+              .toFixed(),
+            0
+          )}
           %
         </span>
       </span>
@@ -585,9 +603,9 @@ function OrderCard({
         )
       )
         .div(
-          ONLY_ZEROS.test(a.remain_amount || '0')
+          ONLY_ZEROS.test(a.original_amount || '0')
             ? 1
-            : sellAmountToBuyAmount(a.remain_amount, a, pricea)
+            : sellAmountToBuyAmount(a.original_amount, a, pricea)
         )
         .toNumber();
 

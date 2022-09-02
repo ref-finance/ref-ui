@@ -73,6 +73,7 @@ import _, { toArray } from 'lodash';
 import Big from 'big.js';
 import { getV3PoolId } from '../services/swapV3';
 import { checkAllocations } from '../utils/numbers';
+import conformsTo from 'lodash';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -382,15 +383,11 @@ export const useSwapV3 = ({
     !!bestEstimate?.tag &&
     Number(bestEstimate.tag.split('-')[1]);
 
-  console.log(bestFee, 'best fee');
-
   useEffect(() => {
     if (!bestFee) return;
 
     get_pool(getV3PoolId(tokenIn.id, tokenOut.id, bestFee), tokenIn.id).then(
-      (p) => {
-        setBestPool(p);
-      }
+      setBestPool
     );
   }, [bestFee, tokenIn, tokenOut, poolReFetch]);
 
@@ -401,8 +398,6 @@ export const useSwapV3 = ({
 
     Promise.all(fees.map((fee) => getQuote(fee, tokenIn, tokenOut)))
       .then((res) => {
-        console.log(res, 'dssasd');
-
         if (!loadingTrigger) {
           setEstimates(res);
 
@@ -411,11 +406,7 @@ export const useSwapV3 = ({
               ? _.maxBy(res, (e) => Number(!e.tag ? -1 : e.amount))
               : null;
 
-          console.log(bestEstimate, 'this is best estimate');
-
           setBestEstimate(bestEstimate);
-
-          console.log(bestEstimate, 'best');
 
           if (
             bestEstimate &&
@@ -477,8 +468,6 @@ export const useSwapV3 = ({
 
       return scientificNotationToString(pi);
     } catch (error) {
-      console.log(error);
-
       return '0';
     }
   }, [tokenOutAmount, bestPool, tokenIn, tokenOut, estimates]);
@@ -497,7 +486,7 @@ export const useSwapV3 = ({
     priceImpact,
   ]);
 
-  console.log(tokenOutAmount, priceImpact, displayPriceImpact);
+  console.log(estimates, 'estimates');
 
   return {
     makeSwap,

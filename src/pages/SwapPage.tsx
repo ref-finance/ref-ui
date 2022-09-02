@@ -174,8 +174,12 @@ function SwapPage() {
   const stablePools = useAllStablePools();
 
   useEffect(() => {
-    if (storageMode) setSwapTab(storageTab);
+    if (storageTab) setSwapTab(storageTab);
   }, [storageTab]);
+
+  useEffect(() => {
+    if (storageMode) setSwapMode(storageMode);
+  }, [storageMode]);
 
   const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
 

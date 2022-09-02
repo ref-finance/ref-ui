@@ -114,7 +114,7 @@ function Anchor({
   newFuntion,
   subMenu,
 }: {
-  to: string;
+  to?: string;
   pattern: string;
   name: string;
   className?: string;
@@ -1096,7 +1096,7 @@ function NavigationBar() {
             </div>
             <div className="flex items-center h-full relative">
               <Anchor
-                to="/"
+                // to="/"
                 pattern="/"
                 name="trade_capital"
                 subMenu={[

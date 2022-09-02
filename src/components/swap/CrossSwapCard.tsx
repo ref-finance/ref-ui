@@ -843,7 +843,7 @@ export default function CrossSwapCard(props: {
         tokenOut={tokenOut}
         from={tokenInAmount}
         onSwap={() => makeBestSwap()}
-        priceImpactValue={bestSwapPriceImpact}
+        priceImpactValue={bestSwapPriceImpact || '0'}
       />
       {!requested || swapError ? null : (
         <CrossSwapAllResult

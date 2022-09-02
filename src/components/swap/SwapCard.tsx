@@ -1578,6 +1578,8 @@ export default function SwapCard(props: {
     minAmountOutV3,
     swapsToDo,
     displayPriceImpact,
+    bestFee,
+    avgFee,
   ]);
 
   useEffect(() => {
