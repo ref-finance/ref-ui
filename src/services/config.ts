@@ -265,7 +265,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         VotingGauge: ['5%', '10%'],
         REF_UNI_V3_SWAP_CONTRACT_ID:
           process.env.REF_UNI_V3_SWAP_CONTRACT_ID ||
-          'mock-dcl020.ref-dev.testnet',
+          'mock-dcl030.ref-dev.testnet',
       };
     default:
       return {
