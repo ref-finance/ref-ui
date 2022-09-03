@@ -122,12 +122,17 @@ function Anchor({
   subMenu?: {
     name: string;
     click: (e?: any) => void;
+    chosen?: boolean;
   }[];
 }) {
   const location = useLocation();
   let isSelected;
 
   const [hover, setHover] = useState<boolean>(false);
+
+  const defaultChosed = subMenu?.find((m) => !!m.chosen)?.name;
+
+  const [chosenSub, setChosenSub] = useState<string>(defaultChosed);
 
   if (pattern == '/pools') {
     isSelected =
@@ -148,6 +153,9 @@ function Anchor({
         className={`relative flex items-center justify-center h-full border-t-4 mx-4 border-greenColor ${
           isSelected ? 'border-opacity-100' : 'border-opacity-0'
         }`}
+        onClick={(e) => {
+          name === 'trade_capital' && e.preventDefault();
+        }}
         onMouseLeave={() => setHover(false)}
         onMouseEnter={() => setHover(true)}
       >
@@ -176,11 +184,16 @@ function Anchor({
               {subMenu.map((m) => {
                 return (
                   <span
-                    className="hover:bg-primaryText hover:bg-opacity-30 items-center flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg  text-primaryText text-center text-base cursor-pointer my-auto"
+                    className={`${
+                      chosenSub === m.name
+                        ? 'bg-primaryText bg-opacity-30 text-white'
+                        : 'text-primaryText'
+                    } hover:bg-primaryText hover:bg-opacity-30 items-center flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg   text-center text-base cursor-pointer my-auto`}
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                       m.click();
+                      setChosenSub(m.name);
                     }}
                   >
                     {<FormattedMessage id={m.name} />}
@@ -1096,7 +1109,7 @@ function NavigationBar() {
             </div>
             <div className="flex items-center h-full relative">
               <Anchor
-                // to="/"
+                to="/"
                 pattern="/"
                 name="trade_capital"
                 subMenu={[
@@ -1110,6 +1123,11 @@ function NavigationBar() {
                         'normal'
                       );
                     },
+                    chosen:
+                      localStorage.getItem(SWAP_MODE_KEY) ===
+                        SWAP_MODE.NORMAL &&
+                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
+                        'normal',
                   },
                   {
                     name: 'stable',
@@ -1121,6 +1139,11 @@ function NavigationBar() {
                         'normal'
                       );
                     },
+                    chosen:
+                      localStorage.getItem(SWAP_MODE_KEY) ===
+                        SWAP_MODE.STABLE &&
+                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
+                        'normal',
                   },
                   {
                     name: 'pro',
@@ -1132,6 +1155,9 @@ function NavigationBar() {
 
                       historyInit.push('/swap');
                     },
+                    chosen:
+                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
+                      'cross',
                   },
                   {
                     name: 'limit',
@@ -1143,6 +1169,10 @@ function NavigationBar() {
                         'normal'
                       );
                     },
+                    chosen:
+                      localStorage.getItem(SWAP_MODE_KEY) === SWAP_MODE.LIMIT &&
+                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
+                        'normal',
                   },
                 ]}
               />

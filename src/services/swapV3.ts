@@ -463,8 +463,6 @@ export const get_pool = async (pool_id: string, token0: string) => {
       pool_id: new_pool_id,
     },
   }).then((res) => {
-    console.log(res, 'res');
-
     if (!res || token0 === token_seq.split(V3_POOL_SPLITER)[0]) {
       return res;
     } else {

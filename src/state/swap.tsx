@@ -392,10 +392,7 @@ export const useSwapV3 = ({
     }).catch((e) => null);
   };
 
-  const bestFee =
-    !!bestEstimate &&
-    !!bestEstimate?.tag &&
-    Number(bestEstimate.tag.split('-')[1]);
+  const bestFee = Number(bestEstimate?.tag?.split('-')?.[1]);
 
   useEffect(() => {
     if (!bestFee) return;
@@ -420,12 +417,15 @@ export const useSwapV3 = ({
               ? _.maxBy(res, (e) => Number(!e.tag ? -1 : e.amount))
               : null;
 
+          console.log(bestEstimate, 'best estimate');
+
           setBestEstimate(bestEstimate);
 
           if (
             bestEstimate &&
             !loadingTrigger &&
-            tagValidator(bestEstimate, tokenIn, tokenInAmount)
+            (tagValidator(bestEstimate, tokenIn, tokenInAmount) ||
+              res?.every((e) => e.tag === null))
           ) {
             setTokenOutAmount(
               toReadableNumber(tokenOut.decimals, bestEstimate.amount)
@@ -434,7 +434,6 @@ export const useSwapV3 = ({
         }
       })
       .catch((e) => {
-        console.log('e from estimate');
         console.log(e);
       })
       .finally(() => {
@@ -499,6 +498,8 @@ export const useSwapV3 = ({
     quoteDone,
     priceImpact,
   ]);
+
+  console.log(bestEstimate, 'best estimate', estimates);
 
   return {
     makeSwap,

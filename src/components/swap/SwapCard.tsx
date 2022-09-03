@@ -1561,7 +1561,7 @@ export default function SwapCard(props: {
             tokenIn={tokenIn}
             tokenOut={tokenOut}
             from={tokenInAmount}
-            to={displayTokenOutAmount}
+            to={tokenOutAmountV3}
             minAmountOut={minAmountOutV3}
             fee={bestFee / 100}
             priceImpact={displayPriceImpact}
@@ -1583,6 +1583,8 @@ export default function SwapCard(props: {
     displayPriceImpact,
     bestFee,
     avgFee,
+    tokenOutAmount,
+    tokenOutAmountV3,
   ]);
 
   useEffect(() => {

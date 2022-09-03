@@ -251,8 +251,6 @@ export default function TokenAmount({
 
   const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
 
-  console.log(tokenPrice, 'token price');
-
   const curMax =
     selectedToken?.id === WRAP_NEAR_CONTRACT_ID && !forWrap
       ? Number(max) <= 0.5
