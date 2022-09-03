@@ -41,6 +41,7 @@ interface SwapFormWrapProps {
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
   showAllResults?: boolean;
+  reserves?: JSX.Element;
 }
 
 export default function SwapFormWrap({
@@ -62,6 +63,7 @@ export default function SwapFormWrap({
   supportLedger,
   setSupportLedger,
   quoteDoneLimit,
+  reserves,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
@@ -98,7 +100,7 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className={`overflow-y-visible  relative bg-secondary shadow-2xl rounded-2xl px-7 pt-6 pb-7  bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
+      className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7  bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
       onSubmit={handleSubmit}
     >
       {title && (
@@ -141,6 +143,7 @@ export default function SwapFormWrap({
           }
         />
       )}
+      {reserves}
     </form>
   );
 }
@@ -166,6 +169,7 @@ export function CrossSwapFormWrap({
   requested,
   tokensTitle,
   setSupportLedger,
+  reserves,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const {
@@ -203,84 +207,80 @@ export function CrossSwapFormWrap({
   };
 
   return (
-    <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative gradientBorderWrapper">
-      <form
-        className={`overflow-visible relative bg-secondary shadow-2xl rounded-2xl px-7 pt-6 pb-7 bg-dark xs:rounded-lg md:rounded-lg `}
-        onSubmit={handleSubmit}
-      >
-        {!requestingTrigger ? null : (
-          <div className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0 rounded-2xl z-30">
-            <div className="flex flex-col items-center">
-              <RequestingSmile />
-              <span
-                className="pt-6"
-                style={{
-                  color: '#c4c4c4',
-                }}
-              >
-                <span className="crossSwap-requesting-loading">
-                  <FormattedMessage
-                    id="requesting"
-                    defaultMessage="Requesting"
-                  />
-                </span>
+    <form
+      className={`overflow-visible relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 bg-dark xs:rounded-lg md:rounded-lg `}
+      onSubmit={handleSubmit}
+    >
+      {!requestingTrigger ? null : (
+        <div className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0 rounded-2xl z-30">
+          <div className="flex flex-col items-center">
+            <RequestingSmile />
+            <span
+              className="pt-6"
+              style={{
+                color: '#c4c4c4',
+              }}
+            >
+              <span className="crossSwap-requesting-loading">
+                <FormattedMessage id="requesting" defaultMessage="Requesting" />
               </span>
-            </div>
+            </span>
           </div>
-        )}
-        {title && (
-          <h2 className="formTitle flex items-center justify-between  font-bold text-xl text-white text-left pb-4 pt-1.5">
-            {tokensTitle}
-            <div className="flex self-start items-center">
-              {requested ? null : swapTab}
-              {!requested ? null : (
-                <div
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    if (loadingPause) {
-                      setLoadingPause(false);
-                      setLoadingTrigger(true);
-                      setLoadingData(true);
-                    } else {
-                      setLoadingPause(true);
-                      setLoadingTrigger(false);
-                    }
-                  }}
-                  className="mx-4 cursor-pointer"
-                >
-                  <CountdownTimer
-                    loadingTrigger={loadingTrigger}
-                    loadingPause={loadingPause}
-                  />
-                </div>
-              )}
-              <SlippageSelector
-                slippageTolerance={slippageTolerance}
-                onChange={onChange}
-                supportLedger={supportLedger}
-                setSupportLedger={setSupportLedger}
-              />
-            </div>
-          </h2>
-        )}
-        {error && <Alert level="warn" message={error.message} />}
-        {children}
-
-        <div>
-          <SubmitButton
-            signedInConfig={!requested}
-            disabled={
-              !canSubmit ||
-              (typeof loadingTrigger !== 'undefined' && loadingTrigger)
-            }
-            label={buttonText || title}
-            info={info}
-            loading={showSwapLoading}
-          />
         </div>
-      </form>
-    </section>
+      )}
+      {title && (
+        <h2 className="formTitle flex items-center justify-between  font-bold text-xl text-white text-left pb-4 pt-1.5">
+          {tokensTitle}
+          <div className="flex self-start items-center">
+            {requested ? null : swapTab}
+            {!requested ? null : (
+              <div
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  if (loadingPause) {
+                    setLoadingPause(false);
+                    setLoadingTrigger(true);
+                    setLoadingData(true);
+                  } else {
+                    setLoadingPause(true);
+                    setLoadingTrigger(false);
+                  }
+                }}
+                className="mx-4 cursor-pointer"
+              >
+                <CountdownTimer
+                  loadingTrigger={loadingTrigger}
+                  loadingPause={loadingPause}
+                />
+              </div>
+            )}
+            <SlippageSelector
+              slippageTolerance={slippageTolerance}
+              onChange={onChange}
+              supportLedger={supportLedger}
+              setSupportLedger={setSupportLedger}
+            />
+          </div>
+        </h2>
+      )}
+      {error && <Alert level="warn" message={error.message} />}
+      {children}
+
+      <div>
+        <SubmitButton
+          signedInConfig={!requested}
+          disabled={
+            !canSubmit ||
+            (typeof loadingTrigger !== 'undefined' && loadingTrigger)
+          }
+          label={buttonText || title}
+          info={info}
+          loading={showSwapLoading}
+        />
+      </div>
+      {reserves}
+    </form>
   );
 }

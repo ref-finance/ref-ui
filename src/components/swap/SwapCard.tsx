@@ -1043,6 +1043,7 @@ export default function SwapCard(props: {
   swapTab?: JSX.Element;
   reservesType: STABLE_POOL_TYPE;
   setReservesType: (value: STABLE_POOL_TYPE) => void;
+  stableReserves?: JSX.Element;
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
@@ -1063,6 +1064,7 @@ export default function SwapCard(props: {
     swapTab,
     reservesType,
     setReservesType,
+    stableReserves,
   } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
@@ -1338,6 +1340,7 @@ export default function SwapCard(props: {
     priceImpact: priceImpactV3,
     quoteDone: quoteDoneV3,
     canSwap: canSwapV3,
+    swapErrorV3,
   } = useSwapV3({
     tokenIn,
     tokenOut,
@@ -1635,14 +1638,15 @@ export default function SwapCard(props: {
       return;
     }
 
-    setPoolError(!canSwap && !canSwapV3 && !!swapError?.message);
-  }, [quoteDone, quoteDoneV3, canSwap, canSwapV3, swapError]);
+    setPoolError(!!swapError?.message && !!swapErrorV3?.message);
+  }, [quoteDone, quoteDoneV3, swapError, swapErrorV3]);
 
   return (
     <>
       <SwapFormWrap
         quoteDoneLimit={quoteDoneLimit}
         supportLedger={supportLedger}
+        reserves={stableReserves}
         setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
@@ -1834,7 +1838,10 @@ export default function SwapCard(props: {
           <NoLimitPoolCard />
         )}
 
-        {poolError && !!swapError?.message && swapMode !== SWAP_MODE.LIMIT ? (
+        {poolError &&
+        !!swapError?.message &&
+        !!swapErrorV3?.message &&
+        swapMode !== SWAP_MODE.LIMIT ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />
           </div>

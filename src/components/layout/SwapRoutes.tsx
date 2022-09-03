@@ -500,9 +500,9 @@ export const CrossSwapAllResult = ({
     });
 
   return (
-    <section className="lg:w-560px md:w-5/6 xs:w-full xs:p-2 m-auto relative ">
+    <section className="w-full relative top-4">
       <span
-        className={`gradientBorderWrapperNoShadow z-50 rounded-2xl text-sm text-farmText mx-auto relative bottom-3 flex items-center justify-center cursor-pointer bg-cardBg `}
+        className={`gradientBorderWrapperNoShadow z-50  rounded-2xl text-sm text-farmText mx-auto relative bottom-1 flex items-center justify-center cursor-pointer bg-cardBg `}
         style={{
           width: '120px',
           border: 'solid 1px transparent',

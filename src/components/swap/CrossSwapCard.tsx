@@ -724,6 +724,19 @@ export default function CrossSwapCard(props: {
             </div>
           )
         }
+        reserves={
+          !requested || swapError ? null : (
+            <CrossSwapAllResult
+              refTodos={swapsToDoRefV3}
+              triTodos={swapsToDoTri}
+              tokenInAmount={tokenInAmount}
+              tokenOutId={tokenOut?.id}
+              slippageTolerance={slippageTolerance}
+              tokenOut={tokenOut}
+              show={showAllResults}
+            />
+          )
+        }
         showElseView={tokenInMax === '0' && !useNearBalance}
         elseView={<SubmitButton disabled={true} loading={showSwapLoading} />}
         onSubmit={handleSubmit}
@@ -845,17 +858,6 @@ export default function CrossSwapCard(props: {
         onSwap={() => makeBestSwap()}
         priceImpactValue={bestSwapPriceImpact || '0'}
       />
-      {!requested || swapError ? null : (
-        <CrossSwapAllResult
-          refTodos={swapsToDoRefV3}
-          triTodos={swapsToDoTri}
-          tokenInAmount={tokenInAmount}
-          tokenOutId={tokenOut?.id}
-          slippageTolerance={slippageTolerance}
-          tokenOut={tokenOut}
-          show={showAllResults}
-        />
-      )}
     </>
   );
 }

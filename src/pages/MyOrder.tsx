@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import { useClientMobile } from '~utils/device';
-import { SolidButton } from '../components/button/Button';
+import { SolidButton, ButtonTextWrapper } from '../components/button/Button';
 import { useMyOrders } from '../state/swapV3';
 import {
   UserOrderInfo,
@@ -180,6 +180,10 @@ function OrderCard({
     return scientificNotationToString(sell_amount);
   };
   function ActiveLine({ order }: { order: UserOrderInfo }) {
+    const [claimLoading, setClaimLoading] = useState<boolean>(false);
+
+    const [cancelLoading, setCancelLoading] = useState<boolean>(false);
+
     const buyToken = tokensMap[order.buy_token];
 
     const sellToken = tokensMap[order.sell_token];
@@ -283,10 +287,12 @@ function OrderCard({
         </span>
 
         <button
-          className={`rounded-lg  bg-black bg-opacity-25 text-xs ml-1.5 p-1.5 ${
+          className={`rounded-lg  bg-deepBlue  text-xs ml-1.5 p-1.5 ${
             ONLY_ZEROS.test(unClaimedAmount)
-              ? 'text-v3SwapGray cursor-not-allowed'
-              : 'text-gradientFrom hover:border hover:border-transparent hover:text-black hover:bg-gradientFrom'
+              ? 'text-v3SwapGray cursor-not-allowe bg-black bg-opacity-25'
+              : `text-white  hover:text-white hover:bg-deepBlueHover ${
+                  claimLoading ? ' text-white bg-deepBlueHover ' : ''
+                }`
           }`}
           type="button"
           disabled={ONLY_ZEROS.test(unClaimedAmount)}
@@ -294,13 +300,20 @@ function OrderCard({
             e.preventDefault();
             e.stopPropagation();
 
+            setClaimLoading(true);
+
             cancel_order({
               order_id: order.order_id,
               undecimal_amount: '0',
             });
           }}
         >
-          <FormattedMessage id="claim" defaultMessage={'Claim'} />
+          <ButtonTextWrapper
+            Text={() => (
+              <FormattedMessage id="claim" defaultMessage={'Claim'} />
+            )}
+            loading={claimLoading}
+          ></ButtonTextWrapper>
         </button>
       </span>
     );
@@ -337,15 +350,30 @@ function OrderCard({
 
     const actions = (
       <button
-        className="border col-span-1 rounded-lg hover:border hover:border-transparent hover:text-black hover:bg-warn border-warn border-opacity-20 text-warn  text-xs justify-self-end p-1.5"
-        onClick={() => {
+        className={`border col-span-1 rounded-lg  text-xs justify-self-end p-1.5 ${
+          cancelLoading ? 'border border-transparent text-black bg-warn ' : ''
+        }  border-warn border-opacity-20 text-warn  ${
+          ONLY_ZEROS.test(order.remain_amount)
+            ? 'opacity-30 cursor-not-allowed'
+            : 'hover:border hover:border-transparent hover:text-black hover:bg-warn'
+        }`}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setCancelLoading(true);
           cancel_order({
             order_id: order.order_id,
             undecimal_amount: order.remain_amount || '0',
           });
         }}
+        disabled={ONLY_ZEROS.test(order.remain_amount)}
       >
-        <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
+        <ButtonTextWrapper
+          Text={() => (
+            <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
+          )}
+          loading={cancelLoading}
+        ></ButtonTextWrapper>
       </button>
     );
 

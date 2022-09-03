@@ -449,22 +449,35 @@ export default function ({
 
   return (
     <div
-      className={`${
-        swapPage || forPool ? 'relative bottom-3' : ''
+      className={`${swapPage ? 'relative top-4' : ''} ${
+        forPool ? 'relative bottom-10' : ''
       } ${className}`}
     >
       {hiddenMag ? null : (
         <span
-          className={`rounded-2xl relative z-50 text-sm gradientBorderWrapperNoShadow text-farmText mx-auto flex items-center justify-center cursor-pointer bg-cardBg `}
+          className={
+            forPool
+              ? `px-5 rounded-t-xl text-sm text-farmText mx-auto flex items-center justify-center cursor-pointer bg-cardBg pt-2 ${
+                  showReserves ? 'pb-5' : 'pb-0.5'
+                }`
+              : `rounded-2xl relative z-50 text-sm  ${
+                  showReserves ? 'gradientBorderWrapperNoShadow' : ''
+                } text-farmText mx-auto flex items-center justify-center cursor-pointer bg-cardBg `
+          }
           style={{
-            width: '90px',
-            border: 'solid 1px transparent',
+            width: forPool ? '175px' : '90px',
+            border: forPool
+              ? ''
+              : `solid 1px ${
+                  showReserves ? 'transparent' : 'rgba(145, 162, 174, 0.2)'
+                } `,
+            borderTop: forPool ? '1px solid #415462' : '',
           }}
           onClick={() => {
             setShowReserves(!showReserves);
           }}
         >
-          <span className="my-2">
+          <span className="my-1">
             <FormattedMessage id={magId} defaultMessage={magDefaultMessage} />
           </span>
           <span className="ml-2">
@@ -476,9 +489,12 @@ export default function ({
       <Card
         padding="p-8"
         bgcolor="bg-cardBg"
-        className={`text-xs relative bottom-3 text-primaryText ${
-          !showReserves && 'hidden'
-        }`}
+        className={`text-xs relative ${
+          forPool ? 'bottom-1' : 'bottom-4'
+        } text-primaryText ${!showReserves && 'hidden'}`}
+        style={{
+          border: swapPage ? '1px solid #283945' : '',
+        }}
         width="w-full"
       >
         {forPool ? null : <TypeTab type={type} setType={setType} />}

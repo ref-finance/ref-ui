@@ -343,6 +343,20 @@ export const useSwapV3 = ({
 
   const [displayPriceImpact, setDisplayPriceImpact] = useState<string>('');
 
+  const intl = useIntl();
+
+  const NoPoolError = () => {
+    return new Error(
+      `${intl.formatMessage({
+        id: 'no_pool_available_to_make_a_swap_from',
+      })} ${tokenIn.symbol} -> ${tokenOut.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${tokenInAmount} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
+    );
+  };
+
   const fees = V3_POOL_FEE_LIST;
 
   const tagValidator = (
@@ -486,8 +500,6 @@ export const useSwapV3 = ({
     priceImpact,
   ]);
 
-  console.log(estimates, 'estimates');
-
   return {
     makeSwap,
     canSwap:
@@ -504,6 +516,10 @@ export const useSwapV3 = ({
         estimates?.every((e) => e.tag === null)),
     bestFee,
     bestPool,
+    swapErrorV3:
+      bestEstimate && ONLY_ZEROS.test(bestEstimate.amount)
+        ? NoPoolError()
+        : null,
   };
 };
 

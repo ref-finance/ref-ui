@@ -53,6 +53,7 @@ module.exports = {
         boostUpBoxBg: 'linear-gradient(0deg, #273A46 0%, #15232D 100%)',
         bgGreyDefault: 'linear-gradient(180deg, #C0B1A3 0%, #92877D 100%)',
         bgGreyHover: 'linear-gradient(180deg, #E6D6C7 0%, #92877D 100%)',
+        swapCardGradient: 'linear-gradient(180deg, #26343E 0%, #1D2932 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -178,8 +179,8 @@ module.exports = {
         v3WarningColor: '#FFA24D',
         v3BlackColor: '#1A242A',
         v3Blue: '#78C6FF',
-        v3PurpleColor:'rgba(91, 64, 255, 0.25)',
-        v3GreyColor:'rgba(126, 138, 147, 0.2)'
+        v3PurpleColor: 'rgba(91, 64, 255, 0.25)',
+        v3GreyColor: 'rgba(126, 138, 147, 0.2)',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
