@@ -130,8 +130,6 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
           .map(async (id) => {
             const pool = await getPoolRPC(Number(id));
 
-            console.log(pool);
-
             const ids = pool.tokenIds;
 
             const twoTokenStablePoolIds = (

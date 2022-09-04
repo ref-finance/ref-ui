@@ -167,8 +167,6 @@ export const DerivationPath: React.FC<DerivationPathProps> = ({
       const message =
         err instanceof Error ? err.message : 'Something went wrong';
 
-      console.log(message);
-
       if (/Ledger device:/.test(message)) {
         const content = message.split(':')[1];
 

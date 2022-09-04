@@ -182,9 +182,7 @@ export function Content() {
           globalStatedispatch({ type: 'signIn' });
         }
       })
-      .catch((e) => {
-        console.log('this is error dispatch signin', e);
-      });
+      .catch((e) => {});
   }, [accountId, getAccount]);
 
   useEffect(() => {

@@ -83,7 +83,6 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
 
     localStorage.setItem(ACCOUNT_ID_KEY, newAccountId);
     setAccountId(newAccountId);
-    console.log('this is new account id');
     setAccounts(newAccounts);
   };
 

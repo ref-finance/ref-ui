@@ -237,11 +237,7 @@ export const useUserRegisteredTokensAllAndNearBalance = (
 
   const triTokenIds = useTriTokenIdsOnRef() as string[];
 
-  console.log(triTokenIds);
-
   const triTokenIdsMemo = [...new Set(triTokenIds || [])];
-
-  console.log(triTokenIdsMemo);
 
   useEffect(() => {
     if (!isSignedIn) return;

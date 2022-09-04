@@ -222,8 +222,6 @@ export function YourLiquidityPage() {
   useEffect(() => {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
-        console.log(res);
-
         const transaction = res.transaction;
         const methodName =
           transaction?.actions[0]?.['FunctionCall']?.method_name;
@@ -1830,7 +1828,6 @@ function YourLiquidityAddLiquidityModal(
   };
 
   const getStablePoolIdByTokens = () => {
-    console.log(tokens, stablePools);
     return (
       stablePools.find((p) => {
         return (
