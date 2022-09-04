@@ -151,7 +151,7 @@ export function AddPoolPage() {
   };
   return (
     <>
-      <PoolTab></PoolTab>
+      {/* <PoolTab></PoolTab> */}
       <div className="flex items flex-col xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-full xs:p-2 m-auto">
         <div className="formTitle text-2xl text-white pb-4 px-4 lg:hidden">
           <FormattedMessage

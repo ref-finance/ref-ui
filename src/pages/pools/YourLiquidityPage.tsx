@@ -168,7 +168,8 @@ function AddLiquidityButton() {
   );
 }
 
-export function YourLiquidityPage() {
+export function YourLiquidityPage(props: any) {
+  const { setNoOldLiquidity } = props;
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
 
@@ -304,131 +305,136 @@ export function YourLiquidityPage() {
   };
 
   const vePool = pools.find((p) => Number(p.id) === Number(getVEPoolId()));
-
+  const poolStatus =
+    (pools.length > 0 || batchTotalShares?.some((s) => s > 0)) &&
+    !isClientMobile;
+  if (!poolStatus) {
+    setNoOldLiquidity(true);
+  }
   return (
     <>
-      <PoolTab></PoolTab>
-      <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
-        <div className="w-full flex justify-center self-center">
-          {error && <Alert level="warn" message={error.message} />}
-        </div>
-        {/* PC */}
+      {/* <PoolTab></PoolTab> */}
+      {(pools.length > 0 || batchTotalShares?.some((s) => s > 0)) &&
+      !isClientMobile ? (
+        <div className="flex items flex-col">
+          <div className="text-white text-base mb-2.5">
+            Old ({pools.length})
+          </div>
+          <div className="w-full flex justify-center self-center">
+            {error && <Alert level="warn" message={error.message} />}
+          </div>
+          {/* PC */}
 
-        <Card
-          width="w-full"
-          padding="px-0 py-6"
-          className="xs:hidden md:hidden"
-        >
-          <div className="text-white text-xl pr-6 pl-6 lg:pl-10 pb-6">
+          <Card
+            width="w-full"
+            padding="px-0 py-6"
+            className="xs:hidden md:hidden"
+          >
+            {(pools.length > 0 || batchTotalShares?.some((s) => s > 0)) &&
+            !isClientMobile ? (
+              <section>
+                <div className="">
+                  <div
+                    style={{
+                      gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
+                    }}
+                    className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:px-8
+                xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
+                  >
+                    <div className="col-span-2">
+                      <FormattedMessage id="pair" defaultMessage="Pair" />
+                    </div>
+                    <div className="col-span-2 ">
+                      <FormattedMessage id="token" defaultMessage="Token" />
+                    </div>
+
+                    <div className="flex flex-col col-span-5 text-left ml-8">
+                      <span>
+                        <FormattedMessage id="lp_token"></FormattedMessage>
+                      </span>
+                      <span>
+                        (
+                        <FormattedMessage
+                          id="my_shares"
+                          defaultMessage="Shares"
+                        />
+                        )
+                      </span>
+                    </div>
+                    <div className="col-span-4 xl:ml-8 ml-4">
+                      <FormattedMessage id="value" defaultMessage="Value" />
+                    </div>
+                  </div>
+                  <div className="max-h-96 overflow-y-auto">
+                    {!vePool || !getConfig().REF_VE_CONTRACT_ID
+                      ? null
+                      : [vePool].map((p) => {
+                          return <RowRender p={p} ids={p.token_account_ids} />;
+                        })}
+
+                    {batchTotalShares &&
+                      batchTotalShares?.some((s) => s > 0) &&
+                      stablePools?.map((p) => {
+                        return <RowRender p={p} ids={p.token_account_ids} />;
+                      })}
+
+                    {pools
+                      .filter(
+                        (p) =>
+                          !getConfig().REF_VE_CONTRACT_ID ||
+                          !vePool ||
+                          p.id !== vePool.id
+                      )
+                      .map((p, i) => {
+                        return <RowRender p={p} ids={p.token_account_ids} />;
+                      })}
+                  </div>
+                </div>
+              </section>
+            ) : (
+              <Empty />
+            )}
+          </Card>
+          {/* Mobile */}
+          <div className="text-white text-2xl font-semibold px-4 lg:hidden">
             <FormattedMessage
               id="your_liquidity"
               defaultMessage="Your Liquidity"
             />
           </div>
           {(pools.length > 0 || batchTotalShares?.some((s) => s > 0)) &&
-          !isClientMobile ? (
-            <section>
-              <div className="">
-                <div
-                  style={{
-                    gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
-                  }}
-                  className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:px-8
-                xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
-                >
-                  <div className="col-span-2">
-                    <FormattedMessage id="pair" defaultMessage="Pair" />
-                  </div>
-                  <div className="col-span-2 ">
-                    <FormattedMessage id="token" defaultMessage="Token" />
-                  </div>
+          isClientMobile ? (
+            <div className="lg:hidden">
+              {!vePool || !getConfig().REF_VE_CONTRACT_ID
+                ? null
+                : [vePool].map((p) => {
+                    return <RowRenderMobile p={p} ids={p.token_account_ids} />;
+                  })}
 
-                  <div className="flex flex-col col-span-5 text-left ml-8">
-                    <span>
-                      <FormattedMessage id="lp_token"></FormattedMessage>
-                    </span>
-                    <span>
-                      (
-                      <FormattedMessage
-                        id="my_shares"
-                        defaultMessage="Shares"
-                      />
-                      )
-                    </span>
-                  </div>
-                  <div className="col-span-4 xl:ml-8 ml-4">
-                    <FormattedMessage id="value" defaultMessage="Value" />
-                  </div>
-                </div>
-                <div className="max-h-96 overflow-y-auto">
-                  {!vePool || !getConfig().REF_VE_CONTRACT_ID
-                    ? null
-                    : [vePool].map((p) => {
-                        return <RowRender p={p} ids={p.token_account_ids} />;
-                      })}
-
-                  {batchTotalShares &&
-                    batchTotalShares?.some((s) => s > 0) &&
-                    stablePools?.map((p) => {
-                      return <RowRender p={p} ids={p.token_account_ids} />;
-                    })}
-
-                  {pools
-                    .filter(
-                      (p) =>
-                        !getConfig().REF_VE_CONTRACT_ID ||
-                        !vePool ||
-                        p.id !== vePool.id
-                    )
-                    .map((p, i) => {
-                      return <RowRender p={p} ids={p.token_account_ids} />;
-                    })}
-                </div>
-              </div>
-            </section>
-          ) : (
-            <Empty />
-          )}
-        </Card>
-        {/* Mobile */}
-        <div className="text-white text-2xl font-semibold px-4 lg:hidden">
-          <FormattedMessage
-            id="your_liquidity"
-            defaultMessage="Your Liquidity"
-          />
-        </div>
-        {(pools.length > 0 || batchTotalShares?.some((s) => s > 0)) &&
-        isClientMobile ? (
-          <div className="lg:hidden">
-            {!vePool || !getConfig().REF_VE_CONTRACT_ID
-              ? null
-              : [vePool].map((p) => {
+              {batchTotalShares &&
+                batchTotalShares?.some((s) => s > 0) &&
+                stablePools?.map((p) => {
                   return <RowRenderMobile p={p} ids={p.token_account_ids} />;
                 })}
 
-            {batchTotalShares &&
-              batchTotalShares?.some((s) => s > 0) &&
-              stablePools?.map((p) => {
-                return <RowRenderMobile p={p} ids={p.token_account_ids} />;
-              })}
-
-            {pools
-              .filter(
-                (p) =>
-                  !getConfig().REF_VE_CONTRACT_ID ||
-                  !vePool ||
-                  p.id !== vePool.id
-              )
-              .map((p, i) => {
-                return <RowRenderMobile p={p} ids={p.token_account_ids} />;
-              })}
-          </div>
-        ) : (
-          <Card className="lg:hidden mt-4" width="w-full">
-            <Empty />
-          </Card>
-        )}
-      </div>
+              {pools
+                .filter(
+                  (p) =>
+                    !getConfig().REF_VE_CONTRACT_ID ||
+                    !vePool ||
+                    p.id !== vePool.id
+                )
+                .map((p, i) => {
+                  return <RowRenderMobile p={p} ids={p.token_account_ids} />;
+                })}
+            </div>
+          ) : (
+            <Card className="lg:hidden mt-4" width="w-full">
+              <Empty />
+            </Card>
+          )}
+        </div>
+      ) : null}
     </>
   );
 }

@@ -1385,7 +1385,7 @@ export function PoolDetailsPage() {
   }
   return (
     <>
-      <PoolTab></PoolTab>
+      {/* <PoolTab></PoolTab> */}
       <div>
         <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
           <BreadCrumb

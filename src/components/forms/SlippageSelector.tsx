@@ -380,6 +380,55 @@ export function PoolSlippageSelector({
     </>
   );
 }
+export function PoolSlippageSelectorV3({
+  slippageTolerance,
+  onChange,
+}: {
+  slippageTolerance: number;
+  onChange: (slippage: number) => void;
+}) {
+  const validSlippages = [0.1, 0.5, 1.0];
+  const intl = useIntl();
+  const slippageCopyId = isMobile() ? 'slippageCopyForMobile' : 'slippageCopy';
+
+  return (
+    <>
+      <fieldset className="flex lg:items-center md:flex-col xs:flex-col justify-between mb-4 pt-2">
+        <div className="flex items-center md:mb-4 xs:mb-4">
+          <label className="text-sm text-center text-white">
+            <FormattedMessage
+              id="slippage"
+              defaultMessage="Slippage tolerance"
+            />
+          </label>
+          <div className="text-gray-400">
+            <QuestionTip
+              id={slippageCopyId}
+              width="w-60"
+              uniquenessId="slippageId"
+            />
+          </div>
+        </div>
+
+        <div className="flex text-white items-center">
+          {validSlippages.map((slippage) => (
+            <div
+              key={slippage}
+              className={`flex items-center justify-center cursor-pointer w-12 rounded-lg text-xs border  hover:border-gradientFromHover  py-1 px-2 mx-1 ${
+                slippage === slippageTolerance
+                  ? 'text-black bg-gradientFromHover border-gradientFromHover hover:text-black'
+                  : 'text-farmText border-maxBorderColor hover:text-gradientFromHover'
+              }`}
+              onClick={() => onChange(slippage)}
+            >
+              {slippage}%
+            </div>
+          ))}
+        </div>
+      </fieldset>
+    </>
+  );
+}
 
 export function StableSlipSelecter({
   slippageTolerance,
