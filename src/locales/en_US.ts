@@ -824,5 +824,6 @@ const en_US = {
   make_an_order: 'Make an order',
   your_active_orders_will_appear_here: 'Your active orders will appear here',
   your_history_orders_will_appear_here: 'Your history orders will appear here',
+  liquidity_capital: 'LIQUIDITY',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

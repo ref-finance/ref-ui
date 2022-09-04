@@ -121,6 +121,7 @@ function Anchor({
   newFuntion?: boolean;
   subMenu?: {
     name: string;
+    path?: string;
     click: (e?: any) => void;
     chosen?: boolean;
   }[];
@@ -138,7 +139,9 @@ function Anchor({
     isSelected =
       location.pathname.startsWith('/pools') ||
       location.pathname.startsWith('/pool') ||
-      location.pathname.startsWith('/more_pools');
+      location.pathname.startsWith('/more_pools') ||
+      location.pathname.startsWith('/yoursLiquidity') ||
+      location.pathname.startsWith('/addLiquidityV3');
   } else {
     isSelected = matchPath(location.pathname, {
       path: pattern,
@@ -188,7 +191,13 @@ function Anchor({
                       chosenSub === m.name
                         ? 'bg-primaryText bg-opacity-30 text-white'
                         : 'text-primaryText'
-                    } hover:bg-primaryText hover:bg-opacity-30 items-center flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg   text-center text-base cursor-pointer my-auto`}
+                    }hover:bg-primaryText hover:bg-opacity-30 items-center
+                    flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg 
+                   text-center text-base cursor-pointer my-auto ${
+                     location.pathname.indexOf(m.path) > -1
+                       ? 'bg-primaryText bg-opacity-30 text-white'
+                       : 'text-primaryText'
+                   }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
@@ -1176,12 +1185,32 @@ function NavigationBar() {
                   },
                 ]}
               />
+              <Anchor
+                pattern="/pools"
+                name="liquidity_capital"
+                subMenu={[
+                  {
+                    name: 'pools',
+                    path: 'pool',
+                    click: () => {
+                      historyInit.push('/pools');
+                    },
+                  },
+                  {
+                    name: 'liquidity',
+                    path: 'Liquidity',
+                    click: () => {
+                      historyInit.push('/yoursLiquidity');
+                    },
+                  },
+                ]}
+              />
               <Anchor to="/sauce" pattern="/sauce" name="sauce_capital" />
-              {isSignedIn ? (
+              {/* {isSignedIn ? (
                 <Anchor to="/pools/yours" pattern="/pools" name="POOL" />
               ) : (
                 <Anchor to="/pools" pattern="/pools" name="POOL" />
-              )}
+              )} */}
               <Anchor to="/v2farms" pattern="/v2farms" name="farm_capital" />
               <Xref></Xref>
               {!!getConfig().REF_VE_CONTRACT_ID ? (

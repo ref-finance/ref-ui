@@ -13,12 +13,14 @@ import {
   executeMultipleTransactions,
   refVeViewFunction,
 } from './near';
-import { storageDepositAction } from '../services/creators/storage';
+import {
+  storageDepositAction,
+  STORAGE_TO_REGISTER_WITH_MFT,
+} from '../services/creators/storage';
 import { currentStorageBalanceOfV3 } from './account';
-import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { WRAP_NEAR_CONTRACT_ID, nearMetadata } from '../services/wrap-near';
 import { registerAccountOnToken } from './creators/token';
 import { nearDepositTransaction, nearWithdrawTransaction } from './wrap-near';
-
 const LOG_BASE = 1.0001;
 
 export const V3_POOL_FEE_LIST = [100, 400, 2000, 10000];
@@ -544,6 +546,7 @@ export const create_pool = ({
             init_point,
           },
           gas: '180000000000000',
+          amount: '0.1',
         },
       ],
     },
@@ -662,6 +665,47 @@ export const add_liquidity = async ({
   }
   return executeMultipleTransactions(transactions);
 };
+export const remove_liquidity = async ({
+  token_x,
+  token_y,
+  lpt_id,
+  amount,
+  min_amount_x,
+  min_amount_y,
+}: {
+  token_x: TokenMetadata;
+  token_y: TokenMetadata;
+  lpt_id: string;
+  amount: string;
+  min_amount_x: string;
+  min_amount_y: string;
+}) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'remove_liquidity',
+          args: {
+            lpt_id,
+            amount,
+            min_amount_x,
+            min_amount_y,
+          },
+          gas: '150000000000000',
+        },
+      ],
+    },
+  ];
+  const neededStorage = await checkTokenNeedsStorageDeposit_v3();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+  return executeMultipleTransactions(transactions);
+};
 
 export const checkTokenNeedsStorageDeposit_v3 = async () => {
   let storageNeeded;
@@ -674,3 +718,32 @@ export const checkTokenNeedsStorageDeposit_v3 = async () => {
   }
   return storageNeeded;
 };
+export const list_liquidities = async () => {
+  return refSwapV3ViewFunction({
+    methodName: 'list_liquidities',
+    args: {
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
+    },
+  });
+};
+export const get_liquidity = async (lpt_id: string) => {
+  return refSwapV3ViewFunction({
+    methodName: 'get_liquidity',
+    args: {
+      lpt_id,
+    },
+  });
+};
+export interface PoolInfo {
+  pool_id?: string;
+  token_x?: string;
+  token_y?: string;
+  fee: number;
+  point_delta?: number;
+  current_point?: number;
+  state?: string;
+  liquidity?: string;
+  liquidity_x?: string;
+  max_liquidity_per_point?: string;
+  percent?: string;
+}

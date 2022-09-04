@@ -69,6 +69,7 @@ import FarmsBoosterPage from './pages/farms/FarmsBoostPage';
 import FarmsMigrate from './pages/farms/FarmsMigrate';
 import YourLiquidityPageV3 from './pages/poolsV3/YourLiquidityPageV3';
 import AddYourLiquidityPageV3 from './pages/poolsV3/AddYourLiquidityPageV3';
+import YourLiquidityDetailV3 from './pages/poolsV3/YourLiquidityDetailV3';
 
 import {
   getSenderLoginRes,
@@ -299,10 +300,10 @@ function App() {
               path="/pools/add-token"
               component={AutoHeight(AddTokenPage)}
             />
-            <Route
+            {/* <Route
               path="/pools/yours"
               component={AutoHeight(YourLiquidityPage)}
-            />
+            /> */}
             <Route path="/pools" component={AutoHeight(LiquidityPage)} />
             <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
             <Route path="/farms" component={AutoHeight(FarmsPage)} />
@@ -329,12 +330,16 @@ function App() {
             />
             <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
             <Route
-              path="/yoursV3"
+              path="/yoursLiquidity"
               component={AutoHeight(YourLiquidityPageV3)}
             />
             <Route
-              path="/addYoursV3"
+              path="/addLiquidityV3"
               component={AutoHeight(AddYourLiquidityPageV3)}
+            />
+            <Route
+              path="/yoursLiquidityDetailV3/:poolId"
+              component={AutoHeight(YourLiquidityDetailV3)}
             />
             <Route path="/" component={AutoHeight(SwapPage)} />
           </Switch>

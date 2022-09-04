@@ -264,7 +264,7 @@ export const MorePoolsPage = () => {
 
   return (
     <>
-      <PoolTab></PoolTab>
+      {/* <PoolTab></PoolTab> */}
       {/* PC */}
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
         <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">

@@ -13,6 +13,7 @@ import {
   InvalidIcon,
   WarningIcon,
   EmptyIcon,
+  WarningMark,
 } from '~components/icon/V3';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
@@ -24,12 +25,32 @@ import {
 import SelectToken from '~components/forms/SelectToken';
 import { useTriTokens, useWhitelistTokens } from '../../state/token';
 import { useTriTokenIdsOnRef } from '../../services/aurora/aurora';
-import { TokenMetadata, ftGetBalance } from '../../services/ft-contract';
+import {
+  TokenMetadata,
+  ftGetBalance,
+  ftGetTokenMetadata,
+} from '../../services/ft-contract';
 import { getTokenPriceList } from '../../services/indexer';
+import { getBoostTokenPrices } from '../../services/farm';
 import { useTokenBalances, useDepositableBalance } from '../../state/token';
 import Loading from '~components/layout/Loading';
-import { list_pools, add_liquidity, create_pool } from '../../services/swapV3';
+import {
+  list_pools,
+  add_liquidity,
+  create_pool,
+  PoolInfo,
+} from '../../services/swapV3';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import {
+  getPriceByPoint,
+  getPointByPrice,
+  CONSTANT_D,
+  FEELIST,
+  POINTDELTAMAP,
+  DEFAULTSELECTEDFEE,
+  POINTLEFTRANGE,
+  POINTRIGHTRANGE,
+} from '../../services/commonV3';
 import {
   formatWithCommas,
   toPrecision,
@@ -45,6 +66,7 @@ import { WalletContext } from '../../utils/sender-wallet';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 import { toRealSymbol } from '../../utils/token';
+import ReactTooltip from 'react-tooltip';
 
 export default function AddYourLiquidityPageV3() {
   const [tokenX, setTokenX] = useState<TokenMetadata>(null);
@@ -76,7 +98,7 @@ export default function AddYourLiquidityPageV3() {
   const isSignedIn = globalState.isSignedIn;
   const nearBalance = useDepositableBalance('NEAR');
   useEffect(() => {
-    getTokenPriceList().then(setTokenPriceList);
+    getBoostTokenPrices().then(setTokenPriceList);
     get_list_pools();
   }, []);
   useEffect(() => {
@@ -111,13 +133,36 @@ export default function AddYourLiquidityPageV3() {
       }
     }
   }, [tokenX, tokenY, isSignedIn, nearBalance]);
+  useEffect(() => {
+    if (listPool.length > 0) {
+      get_init_pool();
+    }
+  }, [listPool]);
+  useEffect(() => {
+    if (currentSelectedPool && tokenX && tokenY) {
+      const { fee } = currentSelectedPool;
+      history.replace(`#${tokenX.id}|${tokenY.id}|${fee}`);
+    }
+  }, [currentSelectedPool, tokenX, tokenY]);
 
   if (!refTokens || !triTokens || !triTokenIds) return <Loading />;
   const allTokens = getAllTokens(refTokens, triTokens);
   const nearSwapTokens = allTokens.filter((token) => token.onRef);
-
+  async function get_init_pool() {
+    const hash = location.hash;
+    const [tokenx_id, tokeny_id, pool_fee] = decodeURIComponent(
+      hash.slice(1)
+    ).split('|');
+    if (tokenx_id && tokeny_id && pool_fee) {
+      const tokenx = await ftGetTokenMetadata(tokenx_id);
+      const tokeny = await ftGetTokenMetadata(tokeny_id);
+      setTokenX(tokenx);
+      setTokenY(tokeny);
+      searchPools(tokenx, tokeny, +pool_fee);
+    }
+  }
   function goYourLiquidityPage() {
-    history.push('/yoursV3');
+    history.push('/yoursLiquidity');
   }
   async function get_list_pools() {
     const list: PoolInfo[] = await list_pools();
@@ -125,7 +170,12 @@ export default function AddYourLiquidityPageV3() {
       setListPool(list);
     }
   }
-  function searchPools(tokenX: TokenMetadata, tokenY: TokenMetadata) {
+  function searchPools(
+    tokenX: TokenMetadata,
+    tokenY: TokenMetadata,
+    fee?: number
+  ) {
+    const currentPoolsMap = {};
     if (listPool.length > 0 && tokenX && tokenY) {
       const availablePools: PoolInfo[] = listPool.filter((pool: PoolInfo) => {
         // TODO 增加pool 状态的判断
@@ -133,7 +183,6 @@ export default function AddYourLiquidityPageV3() {
         if (token_x == tokenX.id && token_y == tokenY.id) return true;
       });
       if (availablePools.length > 0) {
-        const currentPoolsMap = {};
         let totalLiquidity = 0;
         let percents: string[];
         const liquidityList: number[] = availablePools.map((p: PoolInfo) => {
@@ -162,13 +211,16 @@ export default function AddYourLiquidityPageV3() {
         setCurrentPools(currentPoolsMap);
       } else {
         setCurrentPools({});
-        setCurrentSelectedPool({ fee: defaultSelectedFee });
+        setCurrentSelectedPool({ fee: DEFAULTSELECTEDFEE });
       }
     } else {
       setCurrentPools({});
       if (tokenX && tokenY) {
-        setCurrentSelectedPool({ fee: defaultSelectedFee });
+        setCurrentSelectedPool({ fee: DEFAULTSELECTEDFEE });
       }
+    }
+    if (fee) {
+      setCurrentSelectedPool(currentPoolsMap[fee] || { fee });
     }
   }
   function switchSelectedFee(fee: number) {
@@ -446,7 +498,7 @@ export default function AddYourLiquidityPageV3() {
                     feeBoxStatus ? 'flex' : 'hidden'
                   }`}
                 >
-                  {feeList.map((feeItem, index) => {
+                  {FEELIST.map((feeItem, index) => {
                     const { fee, text } = feeItem;
                     return (
                       <div
@@ -590,7 +642,7 @@ function CreatePoolComponent({
   function createPool() {
     setCreatePoolButtonLoading(true);
     const { fee } = currentSelectedPool;
-    const pointDelta = pointDeltaMap[fee];
+    const pointDelta = POINTDELTAMAP[fee];
     const decimalRate =
       Math.pow(10, tokenY.decimals) / Math.pow(10, tokenX.decimals);
     const init_point = getPointByPrice(pointDelta, createPoolRate, decimalRate);
@@ -743,6 +795,7 @@ function AddLiquidityComponent({
   const [quickOptions, setQuickOptions] = useState([1, 3, 5, 10]);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const intl = useIntl();
   // init
   useEffect(() => {
     const { point_delta, current_point } = currentSelectedPool;
@@ -987,6 +1040,11 @@ function AddLiquidityComponent({
     }
     return txt;
   }
+  function getPriceTip() {
+    const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
   const isAddLiquidityDisabled = getButtonStatus();
   return (
     <div className={`flex flex-col justify-between flex-grow self-stretch`}>
@@ -1073,6 +1131,27 @@ function AddLiquidityComponent({
             </div>
           </div>
           <div className="flex items-center justify-between mt-3">
+            {/* todo */}
+            <div
+              className="ml-2 text-sm"
+              data-type="info"
+              data-place="top"
+              data-multiline={true}
+              data-class="reactTip"
+              data-html={true}
+              data-tip={getPriceTip()}
+              data-for="priceTipId"
+            >
+              <WarningMark className="flex-shrink-0 cursor-pointer"></WarningMark>
+              <ReactTooltip
+                className="w-20"
+                id="priceTipId"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
             {quickOptions.map((item: number, index) => {
               return (
                 <div
@@ -1294,7 +1373,7 @@ function InputAmount({
   }, [inputValue, token, tokenPriceList.length]);
   function getBalance() {
     let r = '0';
-    if (token) {
+    if (token && balance) {
       r = formatWithCommas(toPrecision(balance.toString(), 3));
     }
     return r;
@@ -1380,78 +1459,3 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
 
   return refTokens;
 }
-interface PoolInfo {
-  pool_id?: string;
-  token_x?: string;
-  token_y?: string;
-  fee: number;
-  point_delta?: number;
-  current_point?: number;
-  state?: string;
-  liquidity?: string;
-  liquidity_x?: string;
-  max_liquidity_per_point?: string;
-  percent?: string;
-}
-/**
- * caculate price by point
- * @param pointDelta
- * @param point
- * @param decimalRate tokenX/tokenY
- * @returns
- */
-function getPriceByPoint(point: number, decimalRate: number) {
-  const price = Math.pow(CONSTANT_D, point) * decimalRate;
-  const price_handled = new BigNumber(price).toFixed();
-  return price_handled;
-}
-/**
- * caculate point by price
- * @param pointDelta
- * @param price
- * @param decimalRate tokenY/tokenX
- * @returns
- */
-function getPointByPrice(
-  pointDelta: number,
-  price: string,
-  decimalRate: number
-) {
-  const point = Math.log(+price * decimalRate) / Math.log(CONSTANT_D);
-  const point_int = Math.round(point);
-  const point_int_slot = Math.floor(point_int / pointDelta) * pointDelta;
-  if (point_int_slot < POINTLEFTRANGE) {
-    return POINTLEFTRANGE;
-  } else if (point_int_slot > POINTRIGHTRANGE) {
-    return 800000;
-  }
-  return point_int_slot;
-}
-const CONSTANT_D = 1.0001;
-const pointDeltaMap = {
-  100: 1,
-  400: 8,
-  2000: 40,
-  10000: 200,
-};
-const defaultSelectedFee = 2000;
-const feeList = [
-  {
-    fee: 100,
-    text: 'Best for very stable pairs',
-  },
-  {
-    fee: 400,
-    text: 'Best for stable pairs',
-  },
-  {
-    fee: 2000,
-    text: 'Best for most pairs',
-  },
-  {
-    fee: 10000,
-    text: 'Best for rare pairs',
-  },
-];
-const POINTLEFTRANGE = -800000;
-const POINTRIGHTRANGE = 800000;
