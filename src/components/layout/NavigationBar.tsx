@@ -188,16 +188,13 @@ function Anchor({
                 return (
                   <span
                     className={`${
-                      chosenSub === m.name
+                      chosenSub === m.name ||
+                      location.pathname.indexOf(m.path) > -1
                         ? 'bg-primaryText bg-opacity-30 text-white'
                         : 'text-primaryText'
-                    }hover:bg-primaryText hover:bg-opacity-30 items-center
+                    } hover:bg-primaryText hover:bg-opacity-30 items-center
                     flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg 
-                   text-center text-base cursor-pointer my-auto ${
-                     location.pathname.indexOf(m.path) > -1
-                       ? 'bg-primaryText bg-opacity-30 text-white'
-                       : 'text-primaryText'
-                   }`}
+                   text-center text-base cursor-pointer my-auto`}
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
