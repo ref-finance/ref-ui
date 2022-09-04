@@ -243,7 +243,7 @@ export const useUserRegisteredTokensAllAndNearBalance = (
     if (!isSignedIn) return;
     getWhitelistedTokensAndNearTokens()
       .then((tokenList) => {
-        const newList = [...new Set(triTokenIds.concat(tokenList))];
+        const newList = [...new Set((triTokenIds || []).concat(tokenList))];
 
         const walletBalancePromise = Promise.all(
           [nearMetadata.id, ...newList].map((tokenId) => {
