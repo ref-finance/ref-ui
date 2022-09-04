@@ -341,8 +341,7 @@ function DetailView({
     )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
   }, [to]);
 
-  if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
-    return null;
+  if (ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id) return null;
 
   return (
     <div className="mt-8">
@@ -513,6 +512,7 @@ export default function CrossSwapCard(props: {
     tokenOutAmount: tokenOutAmountV3,
     minAmountOut: minAmountOutV3,
     bestFee,
+    swapErrorV3,
     priceImpact: priceImpactV3,
     quoteDone: quoteDoneV3,
     canSwap: canSwapV3,
@@ -658,6 +658,10 @@ export default function CrossSwapCard(props: {
     swapsToDoTri &&
     swapsToDoTri.length > 0;
 
+  console.log(requested, 'requested');
+
+  const swapErrorCrossV3 = swapError && swapErrorV3;
+
   return (
     <>
       <CrossSwapFormWrap
@@ -725,7 +729,7 @@ export default function CrossSwapCard(props: {
           )
         }
         reserves={
-          !requested || swapError ? null : (
+          !requested || swapErrorCrossV3 ? null : (
             <CrossSwapAllResult
               refTodos={swapsToDoRefV3}
               triTodos={swapsToDoTri}
@@ -805,7 +809,7 @@ export default function CrossSwapCard(props: {
           max={tokenOutMax}
         />
 
-        <div className={requested && !swapError ? 'block' : 'hidden'}>
+        <div className={requested && !swapErrorCrossV3 ? 'block' : 'hidden'}>
           <div className="text-sm text-primaryText pb-2">
             <FormattedMessage
               id="minimum_received"
@@ -839,7 +843,7 @@ export default function CrossSwapCard(props: {
           />
         )}
 
-        {swapError ? (
+        {swapErrorCrossV3 ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />
           </div>

@@ -641,6 +641,8 @@ export const useLimitOrder = ({
     tokenIn?.id,
   ]);
 
+  console.log(mostPoolDetail, 'most pool detail');
+
   return {
     poolPercents: notLimitMode ? null : poolToOrderCounts,
     fee: !selectedV3LimitPool

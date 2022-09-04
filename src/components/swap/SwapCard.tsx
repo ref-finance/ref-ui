@@ -1151,7 +1151,6 @@ export default function SwapCard(props: {
       setReservesType(STABLE_POOL_TYPE.USD);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.USD);
     }
-    // todo
     history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
 
     localStorage.setItem(SWAP_IN_KEY, tokenIn.id);
@@ -1424,10 +1423,12 @@ export default function SwapCard(props: {
   }, [tokenOutAmount, swapsToDo]);
 
   useEffect(() => {
+    if (!mostPoolDetail) setCurOrderPrice(null);
+
     if (!mostPoolDetail || !tokenIn || !tokenOut || !quoteDoneLimit) {
       // setLimitAmountOutRate('');
       // setLimitAmountOut('');
-      setCurOrderPrice(null);
+      // setCurOrderPrice(null);
       return;
     }
 
@@ -1834,7 +1835,7 @@ export default function SwapCard(props: {
           }
         />
 
-        {poolError ? null : displayDetailView}
+        {poolError && swapMode !== SWAP_MODE.LIMIT ? null : displayDetailView}
 
         {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail && (
           <NoLimitPoolCard />
