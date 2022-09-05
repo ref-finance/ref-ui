@@ -547,15 +547,6 @@ function MobileLiquidityPage({
                 >
                   +
                 </button>
-                <ReactTooltip
-                  className="w-20"
-                  id="add_pool_tip"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
               </div>
             ) : null}
           </div>
@@ -890,6 +881,8 @@ function LiquidityPage_({
   const inputRef = useRef(null);
   const history = useHistory();
 
+  const isMobile = useClientMobile();
+
   const selectTokens = useRainbowWhitelistTokens();
 
   const selectBalances = useTokenBalances();
@@ -1065,6 +1058,7 @@ function LiquidityPage_({
                   >
                     +
                   </button>
+
                   <ReactTooltip
                     className="w-20"
                     id="add_pool_tip"
