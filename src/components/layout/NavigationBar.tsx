@@ -146,14 +146,12 @@ function Anchor({
   useEffect(() => {
     if (!isSwap) return;
     window.addEventListener('setItemEvent', (e: any) => {
-      console.log(e, 'e');
       const storageSwapTab = localStorage
         .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
         .toString();
 
       const storageSwapMode = localStorage.getItem(SWAP_MODE_KEY).toString();
       if (typeof e?.[SWAP_MODE_KEY] === 'string') {
-        // console.log(e?.[SWAP_MODE_KEY]);
         const curMode = e?.[SWAP_MODE_KEY];
 
         if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {

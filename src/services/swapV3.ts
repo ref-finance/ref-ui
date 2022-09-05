@@ -4,7 +4,11 @@ import {
   REF_UNI_V3_SWAP_CONTRACT_ID,
   ONE_YOCTO_NEAR,
 } from './near';
-import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
+import {
+  toNonDivisibleNumber,
+  toReadableNumber,
+  scientificNotationToString,
+} from '../utils/numbers';
 import { getCurrentWallet } from '../utils/sender-wallet';
 import _ from 'lodash';
 import Big from 'big.js';
@@ -21,6 +25,7 @@ import { currentStorageBalanceOfV3 } from './account';
 import { WRAP_NEAR_CONTRACT_ID, nearMetadata } from '../services/wrap-near';
 import { registerAccountOnToken } from './creators/token';
 import { nearDepositTransaction, nearWithdrawTransaction } from './wrap-near';
+import { getPointByPrice } from './commonV3';
 const LOG_BASE = 1.0001;
 
 export const V3_POOL_FEE_LIST = [100, 400, 2000, 10000];
@@ -143,12 +148,19 @@ export const priceToPoint = ({
     .times(new Big(10).pow(tokenB.decimals))
     .div(new Big(10).pow(tokenA.decimals));
 
-  return (
-    Math.floor(
-      Math.log(undecimal_price_A_by_B.toNumber()) /
-        Math.log(LOG_BASE) /
-        feeToPointDelta(fee)
-    ) * feeToPointDelta(fee)
+  const pointDelta = feeToPointDelta(fee);
+
+  const price = decimal_price_A_by_B;
+
+  const decimalRate = new Big(10)
+    .pow(tokenB.decimals)
+    .div(new Big(10).pow(tokenA.decimals))
+    .toNumber();
+
+  return getPointByPrice(
+    pointDelta,
+    scientificNotationToString(price.toString()),
+    decimalRate
   );
 };
 
@@ -320,6 +332,8 @@ export const v3Swap = async ({
       tokenB,
       fee,
     });
+
+    console.log(amountB, point);
 
     const tokenRegistered = await ftGetStorageBalance(tokenB.id).catch(() => {
       throw new Error(`${tokenB.id} doesn't exist.`);
