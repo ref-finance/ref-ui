@@ -143,8 +143,6 @@ function Anchor({
     }
   }, [isSwap]);
 
-  console.log(isSwap, 'isswap');
-
   useEffect(() => {
     if (!isSwap) return;
     window.addEventListener('setItemEvent', (e: any) => {
@@ -190,6 +188,8 @@ function Anchor({
       location.pathname.startsWith('/more_pools') ||
       location.pathname.startsWith('/yoursLiquidity') ||
       location.pathname.startsWith('/addLiquidityV3');
+  } else if (pattern == '/') {
+    isSelected = location.pathname === '/' || location.pathname === '/swap';
   } else {
     isSelected = matchPath(location.pathname, {
       path: pattern,
@@ -248,6 +248,7 @@ function Anchor({
                       e.preventDefault();
                       m.click();
                       setChosenSub(m.name);
+                      setHover(false);
                     }}
                   >
                     {<FormattedMessage id={m.name} />}
