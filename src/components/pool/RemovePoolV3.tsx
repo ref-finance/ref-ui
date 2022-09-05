@@ -75,6 +75,13 @@ export const RemovePoolV3 = (props: any) => {
   const cardWidth = isMobile() ? '90vw' : '30vw';
   useEffect(() => {
     if (tokenMetadata_x_y && userLiquidity && poolDetail) {
+      const { current_point } = poolDetail;
+      const { left_point, right_point } = userLiquidity;
+      if (current_point >= left_point && right_point > current_point) {
+        setIsInrange(true);
+      } else {
+        setIsInrange(false);
+      }
       get_liquidity_x_y();
       getLiquidityAmount();
     }
@@ -84,27 +91,22 @@ export const RemovePoolV3 = (props: any) => {
     const { left_point, right_point, amount: L } = userLiquidity;
     const { current_point } = poolDetail;
     //  in range
-    if (current_point > left_point && right_point > current_point) {
+    if (current_point >= left_point && right_point > current_point) {
       const tokenYAmount = getY(left_point, current_point, L, tokenY);
       const tokenXAmount = getX(current_point, right_point, L, tokenX);
       setTokenXAmount(tokenXAmount);
       setTokenYAmount(tokenYAmount);
-      setIsInrange(true);
     }
     // only y token
-    if (current_point > right_point) {
+    if (current_point >= right_point) {
       const tokenYAmount = getY(left_point, right_point, L, tokenY);
       setTokenYAmount(tokenYAmount);
-      setIsInrange(false);
     }
     // only x token
     if (left_point > current_point) {
       const tokenXAmount = getX(left_point, right_point, L, tokenX);
       setTokenXAmount(tokenXAmount);
-      setIsInrange(false);
     }
-    console.log('888888888-tokenXAmount', tokenXAmount);
-    console.log('999999999-tokenYAmount', tokenYAmount);
   }
   function getLiquidityPrice() {
     if (tokenPriceList && tokenMetadata_x_y) {

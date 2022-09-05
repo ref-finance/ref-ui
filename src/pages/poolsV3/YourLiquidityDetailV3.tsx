@@ -77,7 +77,7 @@ export default function YourLiquidityDetail(props: any) {
     if (userLiquidity && poolDetail && tokenMetadata_x_y) {
       const { current_point } = poolDetail;
       const { left_point, right_point } = userLiquidity;
-      if (current_point > left_point && right_point > current_point) {
+      if (current_point >= left_point && right_point > current_point) {
         setIsInrange(true);
       } else {
         setIsInrange(false);
@@ -100,18 +100,19 @@ export default function YourLiquidityDetail(props: any) {
     }
   }
   function get_liquidity_x_y() {
+    debugger;
     const [tokenX, tokenY] = tokenMetadata_x_y;
     const { left_point, right_point, amount: L } = userLiquidity;
     const { current_point } = poolDetail;
     //  in range
-    if (current_point > left_point && right_point > current_point) {
+    if (current_point >= left_point && right_point > current_point) {
       const tokenYAmount = getY(left_point, current_point, L, tokenY);
       const tokenXAmount = getX(current_point, right_point, L, tokenX);
       setTokenXAmount(tokenXAmount);
       setTokenYAmount(tokenYAmount);
     }
     // only y token
-    if (current_point > right_point) {
+    if (current_point >= right_point) {
       const tokenYAmount = getY(left_point, right_point, L, tokenY);
       setTokenYAmount(tokenYAmount);
     }

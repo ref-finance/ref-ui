@@ -14,6 +14,7 @@ import {
   WarningIcon,
   EmptyIcon,
   WarningMark,
+  SwitchLRButton,
 } from '~components/icon/V3';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
@@ -1131,7 +1132,6 @@ function AddLiquidityComponent({
             </div>
           </div>
           <div className="flex items-center justify-between mt-3">
-            {/* todo */}
             <div
               className="ml-2 text-sm"
               data-type="info"

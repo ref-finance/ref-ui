@@ -260,7 +260,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
     const detail = await get_pool(pool_id, token_x);
     if (detail) {
       const { current_point } = detail;
-      if (current_point > left_point && right_point > current_point) {
+      if (current_point >= left_point && right_point > current_point) {
         setIsInrange(true);
       } else {
         setIsInrange(false);
@@ -298,14 +298,14 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
     const priceX = tokenPriceList[tokenX.id]?.price || 0;
     const priceY = tokenPriceList[tokenY.id]?.price || 0;
     //  in range
-    if (current_point > left_point && right_point > current_point) {
+    if (current_point >= left_point && right_point > current_point) {
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
       setYour_liquidity(toPrecision(total_price, 3));
     }
     // only y token
-    if (current_point > right_point) {
+    if (current_point >= right_point) {
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const total_price = tokenYTotalPrice.toFixed();
       setYour_liquidity(toPrecision(total_price, 3));
