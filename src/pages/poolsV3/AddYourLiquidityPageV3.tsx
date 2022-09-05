@@ -1097,10 +1097,14 @@ function AddLiquidityComponent({
       pool_id,
       left_point: leftPoint,
       right_point: rightPoint,
-      amount_x: toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0'),
-      amount_y: toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0'),
-      token_x: tokenX,
-      token_y: tokenY,
+      amount_x: tokenSort
+        ? toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0')
+        : toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0'),
+      amount_y: tokenSort
+        ? toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0')
+        : toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0'),
+      token_x: tokenSort ? tokenX : tokenY,
+      token_y: tokenSort ? tokenY : tokenX,
     });
   }
   function quickChangePoint(item: string | number) {
