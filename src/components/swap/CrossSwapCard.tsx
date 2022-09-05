@@ -6,6 +6,10 @@ import React, {
   useState,
   useContext,
 } from 'react';
+
+// @ts-ignore
+import { getExpectedOutputFromActionsORIG } from '../../services/smartRouteLogic';
+
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
@@ -515,7 +519,7 @@ export default function CrossSwapCard(props: {
     swapErrorV3,
     priceImpact: priceImpactV3,
     quoteDone: quoteDoneV3,
-    canSwap: canSwapV3,
+    canSwapPro: canSwapV3,
     bestPool: bestPoolV3,
   } = useSwapV3({
     tokenIn,
@@ -579,9 +583,7 @@ export default function CrossSwapCard(props: {
     PriceImpactValue = '0';
   }
 
-  const bestSwap = new Big(tokenOutAmountV3 || '0').gt(
-    supportLedger ? swapsToDoRef?.[0]?.estimate || '0' : tokenOutAmount || '0'
-  )
+  const bestSwap = new Big(tokenOutAmountV3 || '0').gt(tokenOutAmount || '0')
     ? 'v3'
     : 'v2';
 
@@ -614,7 +616,7 @@ export default function CrossSwapCard(props: {
       : tokenInMax;
 
   const canSubmit = requested
-    ? canSwap &&
+    ? (canSwap || (!ONLY_ZEROS.test(tokenOutAmountV3) && canSwapV3)) &&
       getCurrentWallet().wallet.isSignedIn() &&
       !ONLY_ZEROS.test(curMax) &&
       !ONLY_ZEROS.test(tokenInAmount) &&
@@ -652,21 +654,21 @@ export default function CrossSwapCard(props: {
     },
   ];
 
-  const swapsToDoRefV3 = bestSwap === 'v2' ? swapsToDoRef : swapsToDoV3;
-
-  console.log(
-    swapsToDoRefV3,
-    swapsToDoRef,
-    bestSwap,
-    tokenOutAmount,
-    tokenOutAmountV3
-  );
+  const swapsToDoRefV3 = new Big(tokenOutAmountV3 || '0').lt(
+    tokenOut?.id && swapsToDoRef && swapsToDoRef.length > 0
+      ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut?.id)
+      : 0
+  )
+    ? swapsToDoRef
+    : swapsToDoV3;
 
   const showAllResults =
     swapsToDoRefV3 &&
     swapsToDoRefV3.length > 0 &&
     swapsToDoTri &&
-    swapsToDoTri.length > 0;
+    swapsToDoTri.length > 0 &&
+    swapsToDoTri[0].inputToken === tokenIn.id &&
+    swapsToDoTri[0].outputToken === tokenOut.id;
 
   const swapErrorCrossV3 = swapError && swapErrorV3;
 
@@ -851,7 +853,7 @@ export default function CrossSwapCard(props: {
           />
         )}
 
-        {swapErrorCrossV3 ? (
+        {swapErrorCrossV3 && requested ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />
           </div>

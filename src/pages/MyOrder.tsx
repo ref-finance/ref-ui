@@ -966,7 +966,7 @@ function MyOrderPage() {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            history.push('/swap/limit');
+            history.push('/swap');
             localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
             localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
           }}

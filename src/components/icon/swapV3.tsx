@@ -39,7 +39,7 @@ export const InputClear = () => {
       style={{
         height: '16px',
         width: '16px',
-        fontSize: '10px',
+        fontSize: '9px',
       }}
     >
       ✕

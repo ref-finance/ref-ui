@@ -468,15 +468,16 @@ export const LimitOrderPopUp = ({
           />
         </span>
       )}
-
-      <span className="mr-6 ">
-        {limitOrderAmount}
-        {<span className="mx-1">{tokenSymbol}</span>}
-        <FormattedMessage
-          id="goes_to_limit_order"
-          defaultMessage="goes to limit order. "
-        />
-      </span>
+      {ONLY_ZEROS.test(limitOrderAmount || '0') ? null : (
+        <span className="mr-6 ">
+          {limitOrderAmount}
+          {<span className="mx-1">{tokenSymbol}</span>}
+          <FormattedMessage
+            id="goes_to_limit_order"
+            defaultMessage="goes to limit order. "
+          />
+        </span>
+      )}
 
       <span
         className="underline"

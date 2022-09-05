@@ -491,7 +491,7 @@ export default function ({
 
   return (
     <div
-      className={`${swapPage ? 'relative top-8' : ''} ${
+      className={`${swapPage ? 'relative top-8 mb-4' : ''} ${
         forPool ? 'relative bottom-10' : ''
       } ${className}`}
     >

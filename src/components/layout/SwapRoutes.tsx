@@ -500,7 +500,9 @@ export const CrossSwapAllResult = ({
     });
 
   return (
-    <section className="w-full relative top-8">
+    <section
+      className={`w-full relative top-8 ${showAllResult ? '' : 'mb-4'} `}
+    >
       <span
         className={`gradientBorderWrapperNoShadow z-50  rounded-2xl text-sm text-farmText mx-auto relative bottom-1 flex items-center justify-center cursor-pointer bg-cardBg `}
         style={{

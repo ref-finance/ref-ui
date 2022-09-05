@@ -135,13 +135,13 @@ export const useSwapPopUp = (swapMode: SWAP_MODE) => {
       )
     );
 
-    const ft_transfer_call_args = res?.receipts?.find((r: any) =>
-      r?.receipt?.Action?.actions?.some(
-        (a: any) => a?.FunctionCall?.method_name === 'ft_on_transfer'
-      )
-    )?.receipt?.Action?.actions?.[0]?.FunctionCall?.args;
+    const ft_transfer_call_args = parseArgs(
+      res?.transaction?.actions?.[0]?.FunctionCall?.args
+    );
 
-    const parsedInputArgs = JSON.parse(parseArgs(ft_transfer_call_args) || '');
+    const parsedInputArgs = JSON.parse(ft_transfer_call_args || '');
+
+    console.log(parsedInputArgs, 'dsadadsa');
 
     const LimitOrderWithSwap = JSON.parse(
       parsedInputArgs?.msg || {}
@@ -163,41 +163,66 @@ export const useSwapPopUp = (swapMode: SWAP_MODE) => {
     const isFailed = ONLY_ZEROS.test(parsedValue);
 
     if (isFailed) {
+      // failed transaction
       LimitOrderFailPopUp(txHash);
 
       // fail pop up
     } else {
-      const { point, pool_id } = LimitOrderWithSwap;
+      const { point, pool_id, buy_token } = LimitOrderWithSwap;
+
+      const ids = pool_id.split(V3_POOL_SPLITER).splice(0, 2);
+
+      const sell_token_id = ids.find((t: string) => t !== buy_token);
+
+      const sellToken = await ftGetTokenMetadata(sell_token_id);
 
       const order = await find_order({
         pool_id,
         point,
       });
 
-      // const buyToken = await ftGetTokenMetadata(order.buy_token);
+      if (!!order) {
+        const limitOrderAmount =
+          Number(toReadableNumber(sellToken.decimals, order.original_amount)) <
+          0.01
+            ? '< 0.01'
+            : toPrecision(
+                toReadableNumber(sellToken.decimals, order.original_amount),
+                2
+              );
 
-      const sellToken = await ftGetTokenMetadata(order.sell_token);
+        const swapAmount = toReadableNumber(
+          sellToken.decimals,
+          scientificNotationToString(
+            new Big(order.original_deposit_amount)
+              .minus(toNonDivisibleNumber(sellToken.decimals, limitOrderAmount))
+              .toString()
+          )
+        );
 
-      const limitOrderAmount = toPrecision(
-        toReadableNumber(sellToken.decimals, order.original_amount),
-        6
-      );
-
-      const swapAmount = toReadableNumber(
-        sellToken.decimals,
-        scientificNotationToString(
-          new Big(order.original_deposit_amount)
-            .minus(toNonDivisibleNumber(sellToken.decimals, limitOrderAmount))
-            .toString()
-        )
-      );
-
-      LimitOrderPopUp({
-        tokenSymbol: toRealSymbol(sellToken.symbol),
-        swapAmount: toPrecision(swapAmount, 6),
-        limitOrderAmount,
-        txHash,
-      });
+        LimitOrderPopUp({
+          tokenSymbol: toRealSymbol(sellToken.symbol),
+          swapAmount:
+            Number(swapAmount) > 0 && Number(swapAmount) < 0.01
+              ? '< 0.01'
+              : toPrecision(swapAmount, 2),
+          limitOrderAmount,
+          txHash,
+        });
+      } else {
+        LimitOrderPopUp({
+          tokenSymbol: toRealSymbol(sellToken.symbol),
+          swapAmount:
+            Number(toReadableNumber(sellToken.decimals, parsedValue)) < 0.01
+              ? '< 0.01'
+              : toPrecision(
+                  toReadableNumber(sellToken.decimals, parsedValue),
+                  2
+                ),
+          limitOrderAmount: null,
+          txHash,
+        });
+      }
 
       // success pop up
     }
@@ -595,6 +620,7 @@ export const useSwapV3 = ({
       (quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount)) ||
       swapMode !== SWAP_MODE.NORMAL,
     tokenOutAmount,
+    canSwapPro: quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount),
     priceImpact: displayPriceImpact,
     minAmountOut: tokenOutAmount
       ? percentLess(slippageTolerance, tokenOutAmount)
