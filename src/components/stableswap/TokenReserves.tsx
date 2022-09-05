@@ -235,18 +235,32 @@ const calculateTokenValueAndShare = (
 const TypeTab = ({
   setType,
   type,
+  swapPage,
 }: {
   setType: (type: STABLE_POOL_TYPE) => void;
   type: STABLE_POOL_TYPE;
+  swapPage?: boolean;
 }) => {
   return (
-    <div className="flex items-center justify-center text-lg border-b border-gray-300 border-opacity-20 mb-10">
+    <div
+      className={`flex items-center  ${
+        swapPage ? 'text-base justify-between' : 'text-lg justify-center'
+      }   border-b border-gray-300 border-opacity-20 mb-10`}
+    >
       <div
-        className={`w-52 py-2 mb-4 text-center ${
-          type === STABLE_POOL_TYPE.USD
-            ? 'text-white bg-black bg-opacity-20'
-            : ''
-        } rounded-2xl cursor-pointer`}
+        className={
+          swapPage
+            ? `pb-1  ml-8 relative top-px cursor-pointer px-4 ${
+                type === STABLE_POOL_TYPE.USD
+                  ? 'text-white border-b border-gradientFrom'
+                  : ''
+              }`
+            : `w-52 py-2 mb-4 text-center ${
+                type === STABLE_POOL_TYPE.USD
+                  ? 'text-white bg-black bg-opacity-20'
+                  : ''
+              } rounded-2xl cursor-pointer`
+        }
         onClick={() => {
           setType(STABLE_POOL_TYPE.USD);
         }}
@@ -254,11 +268,19 @@ const TypeTab = ({
         USD
       </div>
       <div
-        className={`w-52 py-2 mb-4 text-center ${
-          type === STABLE_POOL_TYPE.BTC
-            ? 'text-white bg-black bg-opacity-20'
-            : ''
-        } rounded-2xl cursor-pointer`}
+        className={
+          swapPage
+            ? `pb-1 relative top-px cursor-pointer px-4 ${
+                type === STABLE_POOL_TYPE.BTC
+                  ? 'text-white border-b border-gradientFrom'
+                  : ''
+              }`
+            : `w-52 py-2 mb-4 text-center ${
+                type === STABLE_POOL_TYPE.BTC
+                  ? 'text-white bg-black bg-opacity-20'
+                  : ''
+              } rounded-2xl cursor-pointer`
+        }
         onClick={() => {
           setType(STABLE_POOL_TYPE.BTC);
         }}
@@ -266,11 +288,19 @@ const TypeTab = ({
         BTC
       </div>
       <div
-        className={`w-52 py-2 mb-4 text-center ${
-          type === STABLE_POOL_TYPE.NEAR
-            ? 'text-white bg-black bg-opacity-20'
-            : ''
-        } rounded-2xl cursor-pointer`}
+        className={
+          swapPage
+            ? `pb-1 mr-8 relative top-px cursor-pointer px-4 ${
+                type === STABLE_POOL_TYPE.NEAR
+                  ? 'text-white border-b border-gradientFrom'
+                  : ''
+              }`
+            : `w-52 py-2 mb-4 text-center ${
+                type === STABLE_POOL_TYPE.NEAR
+                  ? 'text-white bg-black bg-opacity-20'
+                  : ''
+              } rounded-2xl cursor-pointer`
+        }
         onClick={() => {
           setType(STABLE_POOL_TYPE.NEAR);
         }}
@@ -497,7 +527,9 @@ export default function ({
         }}
         width="w-full"
       >
-        {forPool ? null : <TypeTab type={type} setType={setType} />}
+        {forPool ? null : (
+          <TypeTab swapPage={swapPage} type={type} setType={setType} />
+        )}
         <div className={forPool ? 'hidden' : ''}>
           <FormattedMessage
             id={totalValueId}
