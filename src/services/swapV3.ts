@@ -26,6 +26,7 @@ import { WRAP_NEAR_CONTRACT_ID, nearMetadata } from '../services/wrap-near';
 import { registerAccountOnToken } from './creators/token';
 import { nearDepositTransaction, nearWithdrawTransaction } from './wrap-near';
 import { getPointByPrice } from './commonV3';
+import { toPrecision } from '../utils/numbers';
 const LOG_BASE = 1.0001;
 
 export const V3_POOL_FEE_LIST = [100, 400, 2000, 10000];
@@ -250,10 +251,7 @@ export const v3Swap = async ({
     }
 
     const output_token = tokenB.id;
-    const min_output_amount = toNonDivisibleNumber(
-      tokenB.decimals,
-      Swap.min_output_amount
-    );
+    const min_output_amount = toPrecision(Swap.min_output_amount, 0);
 
     const msg = JSON.stringify({
       Swap: {
@@ -332,8 +330,6 @@ export const v3Swap = async ({
       tokenB,
       fee,
     });
-
-    console.log(amountB, point);
 
     const tokenRegistered = await ftGetStorageBalance(tokenB.id).catch(() => {
       throw new Error(`${tokenB.id} doesn't exist.`);
@@ -429,17 +425,13 @@ export const get_order = (order_id: string) => {
   });
 };
 
-export const find_order = ({
+export const find_order = async ({
   pool_id,
-  swapInfo,
+  point,
 }: {
   pool_id: string;
-  swapInfo: SwapInfo;
+  point: number;
 }) => {
-  const fee = Number(pool_id.split(V3_POOL_SPLITER)[2]);
-
-  const point = priceToPoint({ ...swapInfo, fee });
-
   return refSwapV3ViewFunction({
     methodName: 'find_order',
     args: {
@@ -447,7 +439,7 @@ export const find_order = ({
       pool_id,
       point,
     },
-  });
+  }) as Promise<UserOrderInfo>;
 };
 
 export const cancel_order = ({

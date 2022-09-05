@@ -500,7 +500,7 @@ export const CrossSwapAllResult = ({
     });
 
   return (
-    <section className="w-full relative top-4">
+    <section className="w-full relative top-8">
       <span
         className={`gradientBorderWrapperNoShadow z-50  rounded-2xl text-sm text-farmText mx-auto relative bottom-1 flex items-center justify-center cursor-pointer bg-cardBg `}
         style={{
@@ -524,6 +524,9 @@ export const CrossSwapAllResult = ({
           showAllResult ? 'text-sm text-white relative bottom-6' : 'hidden'
         }
         width="w-full"
+        style={{
+          border: '1px solid #283945',
+        }}
       >
         <div className="text-primaryText flex items-center justify-between ml-1">
           <span>

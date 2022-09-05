@@ -10,7 +10,12 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useTokenBalances, useDepositableBalance } from '../../state/token';
-import { useSwap, useSwapV3, useLimitOrder } from '../../state/swap';
+import {
+  useSwap,
+  useSwapV3,
+  useLimitOrder,
+  useSwapPopUp,
+} from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -1303,6 +1308,8 @@ export default function SwapCard(props: {
   };
 
   const slippageTolerance = getSlippageTolerance(swapMode).slippageValue;
+
+  useSwapPopUp(swapMode);
 
   const {
     canSwap,

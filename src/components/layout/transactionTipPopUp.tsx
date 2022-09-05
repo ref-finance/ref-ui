@@ -7,6 +7,7 @@ import { isMobile } from '../../utils/device';
 import { checkTransaction } from '../../services/swap';
 import { getCurrentWallet } from '~utils/sender-wallet';
 import { ErrorTriangle } from '../icon/SwapRefresh';
+import { ONLY_ZEROS } from '../../utils/numbers';
 
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',
@@ -325,6 +326,15 @@ export const parsedTransactionSuccessValue = (res: any) => {
   }
 };
 
+export const parseArgs = (data: any) => {
+  if (data) {
+    const buff = Buffer.from(data, 'base64');
+    const parsedData = buff.toString('ascii');
+    return parsedData;
+  }
+  return null;
+};
+
 export const usnBuyAndSellToast = (txHash: string) => {
   toast(
     <a
@@ -423,4 +433,133 @@ export const getErrorMessage = (res: any) => {
   } else {
     return null;
   }
+};
+
+export const LimitOrderPopUp = ({
+  tokenSymbol,
+  swapAmount,
+  limitOrderAmount,
+  txHash,
+}: {
+  tokenSymbol: string;
+  swapAmount: string;
+  limitOrderAmount: string;
+  txHash: string;
+}) => {
+  toast(
+    <a
+      className="text-white w-full h-full pl-1.5 text-sm flex flex-wrap items-center"
+      href={`${getConfig().explorerUrl}/txns/${txHash}`}
+      target="_blank"
+      style={{
+        lineHeight: '25px',
+      }}
+    >
+      <span className="mr-2.5 ">
+        <SwapCheckIcon />
+      </span>
+      {ONLY_ZEROS.test(swapAmount || '0') ? null : (
+        <span className="mr-1 ">
+          {swapAmount}
+          {<span className="mx-1">{tokenSymbol}</span>}
+          <FormattedMessage
+            id="swap_successful_lower"
+            defaultMessage="swap successfully. "
+          />
+        </span>
+      )}
+
+      <span className="mr-6 ">
+        {limitOrderAmount}
+        {<span className="mx-1">{tokenSymbol}</span>}
+        <FormattedMessage
+          id="goes_to_limit_order"
+          defaultMessage="goes to limit order. "
+        />
+      </span>
+
+      <span
+        className="underline"
+        style={{
+          textDecorationThickness: '1px',
+        }}
+      >
+        <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
+      </span>
+    </a>,
+    {
+      autoClose: 8000,
+      closeOnClick: true,
+      hideProgressBar: false,
+      closeButton: <CloseIcon />,
+      progressStyle: {
+        background: '#00FFD1',
+        borderRadius: '8px',
+      },
+      style: {
+        background: '#1D2932',
+        boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+        borderRadius: '8px',
+        minHeight: '0px',
+      },
+    }
+  );
+};
+
+export const LimitOrderFailPopUp = (txHash: string) => {
+  toast(
+    <a
+      className="text-error w-full h-full pl-1.5 py-1 flex flex-col text-sm"
+      href={`${getConfig().explorerUrl}/txns/${txHash}`}
+      target="_blank"
+      style={{
+        lineHeight: '20px',
+      }}
+    >
+      <span className=" flex items-center">
+        <span className="mr-2.5">
+          <ErrorTriangle />
+        </span>
+
+        <span>
+          {/* <FormattedMessage
+            id="transaction_failed"
+            defaultMessage="Transaction failed"
+          /> */}
+          <FormattedMessage
+            id="limit_order_creation_fails"
+            defaultMessage="Limit order creation fails"
+          />
+          {'. '}
+        </span>
+      </span>
+
+      <span>
+        <span
+          className="underline decoration-1"
+          style={{
+            textDecorationThickness: '1px',
+          }}
+        >
+          <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
+        </span>
+      </span>
+    </a>,
+    {
+      autoClose: false,
+      closeOnClick: true,
+      hideProgressBar: false,
+      closeButton: <CloseIcon />,
+      progressStyle: {
+        background: '#FF7575',
+        borderRadius: '8px',
+      },
+      style: {
+        background: '#1D2932',
+        boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+        border: '1px solid #FF7575',
+        borderRadius: '8px',
+      },
+    }
+  );
 };

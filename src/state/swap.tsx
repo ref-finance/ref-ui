@@ -14,7 +14,7 @@ import {
   EstimateSwapView,
 } from '../services/stable-swap';
 
-import { TokenMetadata } from '../services/ft-contract';
+import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 import {
   percentLess,
   scientificNotationToString,
@@ -53,7 +53,10 @@ import {
   swapToast,
 } from '../components/layout/transactionTipPopUp';
 import { SWAP_MODE } from '../pages/SwapPage';
-import { getErrorMessage } from '../components/layout/transactionTipPopUp';
+import {
+  getErrorMessage,
+  parseArgs,
+} from '../components/layout/transactionTipPopUp';
 import { checkTransactionStatus } from '../services/swap';
 import {
   parsedTransactionSuccessValue,
@@ -68,12 +71,21 @@ import {
   V3_POOL_FEE_LIST,
   V3_POOL_SPLITER,
 } from '~services/swapV3';
-import { pointToPrice, get_pointorder_range } from '../services/swapV3';
+import {
+  pointToPrice,
+  get_pointorder_range,
+  find_order,
+} from '../services/swapV3';
 import _, { toArray } from 'lodash';
 import Big from 'big.js';
 import { getV3PoolId } from '../services/swapV3';
-import { checkAllocations } from '../utils/numbers';
+import { checkAllocations, toPrecision } from '../utils/numbers';
 import conformsTo from 'lodash';
+import {
+  LimitOrderFailPopUp,
+  LimitOrderPopUp,
+} from '../components/layout/transactionTipPopUp';
+import { toRealSymbol } from '../utils/token';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -112,6 +124,124 @@ interface SwapV3Options {
   swapMode?: SWAP_MODE;
 }
 
+export const useSwapPopUp = (swapMode: SWAP_MODE) => {
+  const { txHash, pathname, errorType } = getURLInfo();
+  const history = useHistory();
+
+  const parseLimitOrderPopUp = async (res: any) => {
+    const ft_resolved_id = res?.receipts?.findIndex((r: any) =>
+      r?.receipt?.Action?.actions?.some(
+        (a: any) => a?.FunctionCall?.method_name === 'ft_resolve_transfer'
+      )
+    );
+
+    const ft_transfer_call_args = res?.receipts?.find((r: any) =>
+      r?.receipt?.Action?.actions?.some(
+        (a: any) => a?.FunctionCall?.method_name === 'ft_on_transfer'
+      )
+    )?.receipt?.Action?.actions?.[0]?.FunctionCall?.args;
+
+    const parsedInputArgs = JSON.parse(parseArgs(ft_transfer_call_args) || '');
+
+    const LimitOrderWithSwap = JSON.parse(
+      parsedInputArgs?.msg || {}
+    )?.LimitOrderWithSwap;
+
+    //
+
+    if (!LimitOrderWithSwap) {
+      return false;
+    }
+
+    const ft_resolved_tx_outcome =
+      res?.receipts_outcome?.[ft_resolved_id]?.outcome;
+
+    const parsedValue = JSON.parse(
+      parsedTransactionSuccessValue(ft_resolved_tx_outcome)
+    );
+
+    const isFailed = ONLY_ZEROS.test(parsedValue);
+
+    if (isFailed) {
+      LimitOrderFailPopUp(txHash);
+
+      // fail pop up
+    } else {
+      const { point, pool_id } = LimitOrderWithSwap;
+
+      const order = await find_order({
+        pool_id,
+        point,
+      });
+
+      // const buyToken = await ftGetTokenMetadata(order.buy_token);
+
+      const sellToken = await ftGetTokenMetadata(order.sell_token);
+
+      const limitOrderAmount = toPrecision(
+        toReadableNumber(sellToken.decimals, order.original_amount),
+        6
+      );
+
+      const swapAmount = toReadableNumber(
+        sellToken.decimals,
+        scientificNotationToString(
+          new Big(order.original_deposit_amount)
+            .minus(toNonDivisibleNumber(sellToken.decimals, limitOrderAmount))
+            .toString()
+        )
+      );
+
+      LimitOrderPopUp({
+        tokenSymbol: toRealSymbol(sellToken.symbol),
+        swapAmount: toPrecision(swapAmount, 6),
+        limitOrderAmount,
+        txHash,
+      });
+
+      // success pop up
+    }
+
+    return true;
+
+    // find ft_resolve_on tx
+  };
+
+  useEffect(() => {
+    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
+      checkTransaction(txHash)
+        .then(async (res: any) => {
+          const isLimitOrder = await parseLimitOrderPopUp(res);
+
+          const transactionErrorType = getErrorMessage(res);
+
+          const transaction = res.transaction;
+
+          return {
+            isSwap:
+              (transaction?.actions[1]?.['FunctionCall']?.method_name ===
+                'ft_transfer_call' ||
+                transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                  'ft_transfer_call' ||
+                transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                  'swap' ||
+                transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                  'near_withdraw') &&
+              !isLimitOrder,
+            transactionErrorType,
+          };
+        })
+        .then(({ isSwap, transactionErrorType }) => {
+          if (isSwap) {
+            !transactionErrorType && !errorType && swapToast(txHash);
+            transactionErrorType && failToast(txHash, transactionErrorType);
+          }
+          history.replace(pathname);
+        });
+    }
+  }, [txHash]);
+};
+
 export const useSwap = ({
   tokenIn,
   tokenInAmount,
@@ -136,8 +266,6 @@ export const useSwap = ({
 
   const history = useHistory();
   const [count, setCount] = useState<number>(0);
-
-  const { txHash, pathname, errorType } = getURLInfo();
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
@@ -166,37 +294,6 @@ export const useSwap = ({
     }
     setAvgFee(avgFee);
   };
-
-  useEffect(() => {
-    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
-      checkTransaction(txHash)
-        .then((res: any) => {
-          const transactionErrorType = getErrorMessage(res);
-
-          const transaction = res.transaction;
-
-          return {
-            isSwap:
-              transaction?.actions[1]?.['FunctionCall']?.method_name ===
-                'ft_transfer_call' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'ft_transfer_call' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'swap' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'near_withdraw',
-            transactionErrorType,
-          };
-        })
-        .then(({ isSwap, transactionErrorType }) => {
-          if (isSwap) {
-            !transactionErrorType && !errorType && swapToast(txHash);
-            transactionErrorType && failToast(txHash, transactionErrorType);
-          }
-          history.replace(pathname);
-        });
-    }
-  }, [txHash]);
 
   const getEstimate = () => {
     setCanSwap(false);
@@ -431,9 +528,7 @@ export const useSwapV3 = ({
           }
         }
       })
-      .catch((e) => {
-        console.log(e);
-      })
+      .catch((e) => {})
       .finally(() => {
         setQuoteDone(true);
         setPoolReFetch(!poolReFetch);
@@ -446,10 +541,7 @@ export const useSwapV3 = ({
     v3Swap({
       Swap: {
         pool_ids: [getV3PoolId(tokenIn.id, tokenOut.id, bestFee)],
-        min_output_amount: toReadableNumber(
-          tokenOut.decimals,
-          percentLess(slippageTolerance, bestEstimate.amount)
-        ),
+        min_output_amount: percentLess(slippageTolerance, bestEstimate.amount),
       },
       swapInfo: {
         tokenA: tokenIn,
@@ -554,7 +646,6 @@ export const useLimitOrder = ({
     get_pool(selectedV3LimitPool, tokenIn.id)
       .then(setMostPoolDetail)
       .catch((e) => {
-        console.log(e);
         setMostPoolDetail(null);
       })
       .finally(() => {
@@ -603,8 +694,6 @@ export const useLimitOrder = ({
         setPoolToOrderCounts(toCounts);
       })
       .catch((e) => {
-        console.log(e);
-
         const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
           getV3PoolId(tokenIn.id, tokenOut.id, fee)
         );
@@ -891,7 +980,6 @@ export const useCrossSwap = ({
         setCanSwap(false);
         setTokenOutAmount('');
         setSwapError(err);
-        console.error(err);
       })
       .finally(() => {
         loadingTrigger && !requested && setRequested(true);

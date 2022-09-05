@@ -42,7 +42,7 @@ export const InputClear = () => {
         fontSize: '10px',
       }}
     >
-      X
+      ✕
     </div>
   );
 };

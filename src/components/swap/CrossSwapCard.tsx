@@ -579,7 +579,9 @@ export default function CrossSwapCard(props: {
     PriceImpactValue = '0';
   }
 
-  const bestSwap = new Big(tokenOutAmountV3 || '0').gt(tokenOutAmount || '0')
+  const bestSwap = new Big(tokenOutAmountV3 || '0').gt(
+    supportLedger ? swapsToDoRef?.[0]?.estimate || '0' : tokenOutAmount || '0'
+  )
     ? 'v3'
     : 'v2';
 
@@ -652,13 +654,19 @@ export default function CrossSwapCard(props: {
 
   const swapsToDoRefV3 = bestSwap === 'v2' ? swapsToDoRef : swapsToDoV3;
 
+  console.log(
+    swapsToDoRefV3,
+    swapsToDoRef,
+    bestSwap,
+    tokenOutAmount,
+    tokenOutAmountV3
+  );
+
   const showAllResults =
     swapsToDoRefV3 &&
     swapsToDoRefV3.length > 0 &&
     swapsToDoTri &&
     swapsToDoTri.length > 0;
-
-  console.log(requested, 'requested');
 
   const swapErrorCrossV3 = swapError && swapErrorV3;
 

@@ -642,7 +642,7 @@ const en_US = {
   stakeLove: 'Stake LOVE',
   unstakeLove: 'Unstake LOVE',
   get_love: 'Get LOVE',
-  swap_successful: 'Swap successful. ',
+  swap_successful: 'Swap successfully. ',
   trading_successfull: 'Trading successful. ',
   total_near_amount: 'Total NEAR amount',
   near_value: 'NEAR Value',
@@ -825,5 +825,6 @@ const en_US = {
   your_active_orders_will_appear_here: 'Your active orders will appear here',
   your_history_orders_will_appear_here: 'Your history orders will appear here',
   liquidity_capital: 'LIQUIDITY',
+  goes_to_limit_order: 'goes to limit order.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

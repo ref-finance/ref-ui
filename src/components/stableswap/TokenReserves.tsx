@@ -250,9 +250,9 @@ const TypeTab = ({
       <div
         className={
           swapPage
-            ? `pb-1  ml-8 relative top-px cursor-pointer px-4 ${
+            ? `pb-1 w-full text-center relative top-0.5 cursor-pointer px-4 ${
                 type === STABLE_POOL_TYPE.USD
-                  ? 'text-white border-b border-gradientFrom'
+                  ? 'text-white border-b-2 border-gradientFrom'
                   : ''
               }`
             : `w-52 py-2 mb-4 text-center ${
@@ -264,15 +264,19 @@ const TypeTab = ({
         onClick={() => {
           setType(STABLE_POOL_TYPE.USD);
         }}
+        style={{
+          borderBottomWidth:
+            swapPage && type === STABLE_POOL_TYPE.USD ? '3px' : '',
+        }}
       >
         USD
       </div>
       <div
         className={
           swapPage
-            ? `pb-1 relative top-px cursor-pointer px-4 ${
+            ? `pb-1 w-full text-center relative top-0.5 cursor-pointer px-4 ${
                 type === STABLE_POOL_TYPE.BTC
-                  ? 'text-white border-b border-gradientFrom'
+                  ? 'text-white border-b-2 border-gradientFrom'
                   : ''
               }`
             : `w-52 py-2 mb-4 text-center ${
@@ -284,15 +288,19 @@ const TypeTab = ({
         onClick={() => {
           setType(STABLE_POOL_TYPE.BTC);
         }}
+        style={{
+          borderBottomWidth:
+            swapPage && type === STABLE_POOL_TYPE.BTC ? '3px' : '',
+        }}
       >
         BTC
       </div>
       <div
         className={
           swapPage
-            ? `pb-1 mr-8 relative top-px cursor-pointer px-4 ${
+            ? `pb-1 w-full text-center  relative top-0.5 cursor-pointer px-4 ${
                 type === STABLE_POOL_TYPE.NEAR
-                  ? 'text-white border-b border-gradientFrom'
+                  ? 'text-white border-b-2 border-gradientFrom'
                   : ''
               }`
             : `w-52 py-2 mb-4 text-center ${
@@ -303,6 +311,10 @@ const TypeTab = ({
         }
         onClick={() => {
           setType(STABLE_POOL_TYPE.NEAR);
+        }}
+        style={{
+          borderBottomWidth:
+            swapPage && type === STABLE_POOL_TYPE.NEAR ? '3px' : '',
         }}
       >
         NEAR
@@ -479,7 +491,7 @@ export default function ({
 
   return (
     <div
-      className={`${swapPage ? 'relative top-4' : ''} ${
+      className={`${swapPage ? 'relative top-8' : ''} ${
         forPool ? 'relative bottom-10' : ''
       } ${className}`}
     >

@@ -71,8 +71,6 @@ export const getTransactionHashes = (
 };
 
 export const setCallbackUrl = (res: any) => {
-  console.log(res, 'res in sender');
-
   const state = !res?.response?.error
     ? TRANSACTION_STATE.SUCCESS
     : TRANSACTION_STATE.FAIL;
@@ -91,8 +89,6 @@ export const setCallbackUrl = (res: any) => {
       errorType,
     }
   );
-
-  console.log(newHref, 'dasdas');
 
   window.location.href = newHref;
 };
@@ -185,15 +181,11 @@ function senderWalletFunc(window: Window) {
       };
     });
 
-    console.log(senderTransaction, 'sender transactions');
-
     return window.near
       .requestSignTransactions({
         transactions: senderTransaction,
       })
       .then((res: any) => {
-        console.log('sender res', res);
-
         setCallbackUrl(res);
       });
   };
