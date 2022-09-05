@@ -208,7 +208,7 @@ export const SwitchLRButton = function (props: any) {
         ry="11.5"
         transform="rotate(-90 12.5 12.5)"
         stroke="#91A2AE"
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
       <g opacity="0.5">
         <path
