@@ -383,7 +383,10 @@ export const getFarmsCount = (poolId: string | number, farms: any) => {
 
 export const getEndedFarmsCount = (poolId: string | number, farms: any) => {
   const count = farms.reduce((pre: number, cur: any) => {
-    if (Number(cur.pool_id) === Number(poolId) && cur.status === 'Ended')
+    if (
+      Number(cur.pool_id) === Number(poolId) &&
+      (cur.status === 'Ended' || cur.status === 'Created')
+    )
       return pre + 1;
     return pre;
   }, 0);
