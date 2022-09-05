@@ -85,10 +85,10 @@ import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
 import {
   REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-  SWAP_MODE,
   SWAP_MODE_KEY,
 } from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
+import { SWAP_MODE } from '../../pages/SwapPage';
 
 const config = getConfig();
 
@@ -134,6 +134,54 @@ function Anchor({
   const defaultChosed = subMenu?.find((m) => !!m.chosen)?.name;
 
   const [chosenSub, setChosenSub] = useState<string>(defaultChosed);
+
+  const isSwap = location.pathname === '/' || location.pathname === '/swap';
+
+  useEffect(() => {
+    if (!isSwap) {
+      setChosenSub(null);
+    }
+  }, [isSwap]);
+
+  console.log(isSwap, 'isswap');
+
+  useEffect(() => {
+    if (!isSwap) return;
+    window.addEventListener('setItemEvent', (e: any) => {
+      console.log(e, 'e');
+      const storageSwapTab = localStorage
+        .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
+        .toString();
+
+      const storageSwapMode = localStorage.getItem(SWAP_MODE_KEY).toString();
+      if (typeof e?.[SWAP_MODE_KEY] === 'string') {
+        // console.log(e?.[SWAP_MODE_KEY]);
+        const curMode = e?.[SWAP_MODE_KEY];
+
+        if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {
+          setChosenSub('swap');
+        } else if (
+          e[SWAP_MODE_KEY] == SWAP_MODE.STABLE &&
+          storageSwapTab === 'normal'
+        ) {
+          setChosenSub('stable');
+        } else if (
+          e[SWAP_MODE_KEY] == SWAP_MODE.LIMIT &&
+          storageSwapTab === 'normal'
+        ) {
+          setChosenSub('limit');
+        }
+      }
+      if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
+        const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
+        if (curTab === 'normal') {
+          setChosenSub(storageSwapMode);
+        } else {
+          setChosenSub('pro');
+        }
+      }
+    });
+  }, [isSwap]);
 
   if (pattern == '/pools') {
     isSelected =

@@ -417,8 +417,6 @@ export const useSwapV3 = ({
               ? _.maxBy(res, (e) => Number(!e.tag ? -1 : e.amount))
               : null;
 
-          console.log(bestEstimate, 'best estimate');
-
           setBestEstimate(bestEstimate);
 
           if (
@@ -498,8 +496,6 @@ export const useSwapV3 = ({
     quoteDone,
     priceImpact,
   ]);
-
-  console.log(bestEstimate, 'best estimate', estimates);
 
   return {
     makeSwap,
@@ -640,8 +636,6 @@ export const useLimitOrder = ({
     tokenOut?.id,
     tokenIn?.id,
   ]);
-
-  console.log(mostPoolDetail, 'most pool detail');
 
   return {
     poolPercents: notLimitMode ? null : poolToOrderCounts,

@@ -130,11 +130,13 @@ export const priceToPoint = ({
   tokenB,
   amountA,
   amountB,
+  fee,
 }: {
   tokenA: TokenMetadata;
   tokenB: TokenMetadata;
   amountA: string;
   amountB: string;
+  fee: number;
 }) => {
   const decimal_price_A_by_B = new Big(amountB).div(amountA);
   const undecimal_price_A_by_B = decimal_price_A_by_B
@@ -143,8 +145,10 @@ export const priceToPoint = ({
 
   return (
     Math.floor(
-      Math.log(undecimal_price_A_by_B.toNumber()) / Math.log(LOG_BASE) / 40
-    ) * 40
+      Math.log(undecimal_price_A_by_B.toNumber()) /
+        Math.log(LOG_BASE) /
+        feeToPointDelta(fee)
+    ) * feeToPointDelta(fee)
   );
 };
 
@@ -305,12 +309,16 @@ export const v3Swap = async ({
 
   if (LimitOrderWithSwap) {
     const pool_id = LimitOrderWithSwap.pool_id;
+
+    const fee = Number(pool_id.split(V3_POOL_SPLITER)[2]);
+
     const buy_token = tokenB.id;
     const point = priceToPoint({
       amountA,
       amountB,
       tokenA,
       tokenB,
+      fee,
     });
 
     const tokenRegistered = await ftGetStorageBalance(tokenB.id).catch(() => {
@@ -414,7 +422,9 @@ export const find_order = ({
   pool_id: string;
   swapInfo: SwapInfo;
 }) => {
-  const point = priceToPoint(swapInfo);
+  const fee = Number(pool_id.split(V3_POOL_SPLITER)[2]);
+
+  const point = priceToPoint({ ...swapInfo, fee });
 
   return refSwapV3ViewFunction({
     methodName: 'find_order',

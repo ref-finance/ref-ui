@@ -35,6 +35,14 @@ import {
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
+const originalSetItem = localStorage.setItem;
+localStorage.setItem = function (key, newValue) {
+  const setItemEvent = new Event('setItemEvent');
+  setItemEvent[key] = newValue;
+  window.dispatchEvent(setItemEvent);
+  originalSetItem.apply(this, [key, newValue]);
+};
+
 export enum SWAP_MODE {
   NORMAL = 'normal',
   STABLE = 'stable',
