@@ -1309,7 +1309,7 @@ export default function SwapCard(props: {
 
   const slippageTolerance = getSlippageTolerance(swapMode).slippageValue;
 
-  useSwapPopUp(swapMode);
+  useSwapPopUp();
 
   const {
     canSwap,
@@ -1491,6 +1491,7 @@ export default function SwapCard(props: {
   };
 
   const onChangeLimitRate = (r: string) => {
+    if (!r) return;
     const curR = toPrecision(r, 8);
 
     setLimitAmountOutRate(curR);

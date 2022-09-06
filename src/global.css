@@ -274,6 +274,10 @@ input[type='number'] {
 .__react_component_tooltip::after {
   content: none !important;
 }
+.__react_component_tooltip {
+  z-index: 99999;
+}
+
 .farmChartScreenWidth {
   width: 100vw !important;
 }

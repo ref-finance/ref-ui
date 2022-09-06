@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+import React, { useEffect, useState, useContext, createContext } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import { useClientMobile } from '~utils/device';
 import { SolidButton, ButtonTextWrapper } from '../components/button/Button';
@@ -9,7 +9,7 @@ import {
   V3_POOL_SPLITER,
   pointToPrice,
 } from '../services/swapV3';
-import { useToken, useTokens } from '../state/token';
+import { useToken, useTokens, useTokenPriceList } from '../state/token';
 import {
   SWAP_MODE,
   SWAP_MODE_KEY,
@@ -21,7 +21,11 @@ import {
   MyOrderMask2,
 } from '../components/icon/swapV3';
 import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
-import { toReadableNumber, scientificNotationToString } from '../utils/numbers';
+import {
+  toReadableNumber,
+  scientificNotationToString,
+  checkAllocations,
+} from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
 import Big from 'big.js';
 import { cancel_order } from '../services/swapV3';
@@ -32,6 +36,8 @@ import { Loading } from '~components/icon/Loading';
 import { RouterArrowLeft, RouterArrowRight } from '../components/icon/Arrows';
 import QuestionMark from '../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
+import { toRealSymbol } from '../utils/token';
+import { QuestionTip } from '../components/layout/TipWrapper';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -63,6 +69,8 @@ function NoOrderCard({ text }: { text: 'active' | 'history' }) {
   );
 }
 
+const PriceContext = createContext(null);
+
 function OrderCard({
   activeOrder,
   historyOrder,
@@ -72,6 +80,8 @@ function OrderCard({
   historyOrder: UserOrderInfo[];
   tokensMap: { [key: string]: TokenMetadata };
 }) {
+  const intl = useIntl();
+
   const [orderType, setOrderType] = useState<'active' | 'history'>(
     sessionStorage.getItem(ORDER_TYPE_KEY) ||
       activeOrder?.length > 0 ||
@@ -81,9 +91,9 @@ function OrderCard({
       : 'history'
   );
 
-  const [activeSortBy, setActiveSortBy] = useState<
-    'pending' | 'unclaim' | 'created'
-  >('created');
+  const [activeSortBy, setActiveSortBy] = useState<'unclaim' | 'created'>(
+    'created'
+  );
 
   const [sortOrderActive, setSorOrderActive] = useState<'asc' | 'desc'>('desc');
 
@@ -91,9 +101,9 @@ function OrderCard({
     'desc'
   );
 
-  const [historySortBy, setHistorySortBy] = useState<
-    'filled' | 'claimed' | 'created'
-  >('created');
+  const [historySortBy, setHistorySortBy] = useState<'claimed' | 'created'>(
+    'created'
+  );
 
   function OrderTab() {
     return (
@@ -182,16 +192,43 @@ function OrderCard({
       .toString();
     return scientificNotationToString(sell_amount);
   };
-  function ActiveLine({ order }: { order: UserOrderInfo }) {
+  function ActiveLine({
+    order,
+    index,
+  }: {
+    order: UserOrderInfo;
+    index: number;
+  }) {
     const [claimLoading, setClaimLoading] = useState<boolean>(false);
 
     const [cancelLoading, setCancelLoading] = useState<boolean>(false);
+
+    const [hover, setHover] = useState<boolean>(false);
 
     const buyToken = tokensMap[order.buy_token];
 
     const sellToken = tokensMap[order.sell_token];
 
     if (!buyToken || !sellToken) return null;
+
+    const swapIn = toReadableNumber(
+      sellToken.decimals,
+      scientificNotationToString(
+        new Big(order.original_deposit_amount || '0')
+          .minus(order.original_amount || '0')
+          .toString()
+      )
+    );
+
+    const swapOut = toReadableNumber(
+      buyToken.decimals,
+      order.swap_earn_amount || '0'
+    );
+
+    const orderIn = toReadableNumber(
+      sellToken.decimals,
+      order.original_amount || '0'
+    );
 
     const calPoint =
       sellToken.id === order.pool_id.split(V3_POOL_SPLITER)[0]
@@ -213,6 +250,7 @@ function OrderCard({
       buyToken.decimals,
       order.bought_amount || '0'
     );
+
     const buyAmount = sellAmountToBuyAmount(
       order.original_amount,
       order,
@@ -220,11 +258,126 @@ function OrderCard({
     );
 
     const pendingAmount = scientificNotationToString(
-      new Big(buyAmount).minus(unClaimedAmount).minus(claimedAmount).toString()
+      new Big(buyAmount || 0)
+        .minus(unClaimedAmount || 0)
+        .minus(claimedAmount || 0)
+        .toString()
     );
 
+    const pUnClaimedAmount = new Big(unClaimedAmount)
+      .div(buyAmount)
+      .times(100)
+      .toNumber();
+
+    const pClaimedAmount = new Big(claimedAmount)
+      .div(buyAmount)
+      .times(100)
+      .toNumber();
+
+    const pPendingAmount = new Big(pendingAmount)
+      .div(buyAmount)
+      .times(100)
+      .toNumber();
+
+    const displayPercents = checkAllocations('100', [
+      pUnClaimedAmount > 0 && pUnClaimedAmount < 4
+        ? '4'
+        : scientificNotationToString(pUnClaimedAmount.toString()),
+      pClaimedAmount > 0 && pClaimedAmount < 4
+        ? '4'
+        : scientificNotationToString(pClaimedAmount.toString()),
+      pPendingAmount > 0 && pPendingAmount < 4
+        ? '4'
+        : scientificNotationToString(pPendingAmount.toString()),
+    ]);
+
+    const getUnclaimAmountTip = () => {
+      return `
+        <div 
+          class="flex flex-col text-xs min-w-36 text-farmText z-50"
+        >
+        ${
+          ONLY_ZEROS.test(claimedAmount)
+            ? ''
+            : `
+        <div class="flex items-center justify-between my-1">
+            <span class="flex items-center mr-1">
+                <div class="w-1.5 h-1.5 rounded-full bg-gradientFrom mr-1">
+                </div>
+
+                ${intl.formatMessage({ id: 'claimed' })}
+
+            </span>
+
+            <span>
+            ${
+              Number(claimedAmount) > 0 && Number(claimedAmount) < 0.001
+                ? '< 0.001'
+                : toPrecision(claimedAmount, 3)
+            }
+            </span>
+
+        </div>
+        `
+        }
+
+
+        ${
+          ONLY_ZEROS.test(unClaimedAmount)
+            ? ''
+            : `<div class="flex items-center my-1 justify-between">
+            <span class="flex items-center mr-1">
+                <div class="w-1.5 h-1.5 rounded-full bg-deepBlue mr-1">
+                </div>
+
+                ${intl.formatMessage({ id: 'unclaimed' })}
+
+            </span>
+
+            <span>
+            ${
+              Number(unClaimedAmount) > 0 && Number(unClaimedAmount) < 0.001
+                ? '< 0.001'
+                : toPrecision(unClaimedAmount, 3)
+            }
+            </span>
+
+        </div>`
+        }
+
+        ${
+          ONLY_ZEROS.test(pendingAmount)
+            ? ''
+            : `<div class="flex items-center my-1 justify-between">
+            <span class="flex items-center ">
+                <div class="w-1.5 h-1.5 rounded-full bg-primaryText mr-1">
+                </div>
+
+                ${intl.formatMessage({
+                  id: 'pending_upper',
+                  defaultMessage: 'Pending',
+                })}
+
+            </span>
+
+            <span>
+            ${
+              Number(pendingAmount) > 0 && Number(pendingAmount) < 0.001
+                ? '< 0.001'
+                : toPrecision(pendingAmount, 3)
+            }
+
+            </span>
+
+        </div>`
+        }
+
+        </div>
+    `;
+    };
+
     const sellTokenAmount = (
-      <div className="flex items-center justify-between">
+      <div className="flex items-center whitespace-nowrap w-28 justify-between">
         <span className="flex flex-shrink-0 items-center col-span-1">
           <img
             src={sellToken.icon}
@@ -233,25 +386,26 @@ function OrderCard({
           />
 
           <div className="flex flex-col ml-2">
-            <span className="text-white text-sm mr-2">
-              {toPrecision(
-                toReadableNumber(sellToken.decimals, order.original_amount),
-                2
-              )}
+            <span className="text-white text-sm mr-2" title={orderIn}>
+              {Number(orderIn) > 0 && Number(orderIn) < 0.01
+                ? '< 0.01'
+                : toPrecision(orderIn, 2)}
             </span>
 
-            <span className="text-v3SwapGray text-xs">{sellToken.symbol}</span>
+            <span className="text-v3SwapGray text-xs">
+              {toRealSymbol(sellToken.symbol)}
+            </span>
           </div>
         </span>
 
-        <span className="text-white text-lg pl-2 pr-1">
+        <span className="text-white text-lg pl-2  pr-1">
           <RouterArrowRight />
         </span>
       </div>
     );
 
     const buyTokenAmount = (
-      <span className="flex items-center col-span-1 ml-4">
+      <span className="flex items-center col-span-1 ml-8">
         <img
           src={buyToken.icon}
           className="border flex-shrink-0 border-gradientFrom rounded-full w-7 h-7"
@@ -260,16 +414,17 @@ function OrderCard({
 
         <div className="flex flex-col ml-2">
           <span
-            className="text-white mr-2 text-sm"
-            title={sellAmountToBuyAmount(order.original_amount, order, price)}
+            className="text-white mr-2 text-sm whitespace-nowrap"
+            title={buyAmount}
           >
-            {toPrecision(
-              sellAmountToBuyAmount(order.original_amount, order, price),
-              2
-            )}
+            {Number(buyAmount) > 0 && Number(buyAmount) < 0.01
+              ? '< 0.01'
+              : toPrecision(buyAmount, 2)}
           </span>
 
-          <span className="text-v3SwapGray text-xs">{buyToken.symbol}</span>
+          <span className="text-v3SwapGray text-xs">
+            {toRealSymbol(buyToken.symbol)}
+          </span>
         </div>
       </span>
     );
@@ -281,7 +436,7 @@ function OrderCard({
         style={{
           color: '#78C6FF',
         }}
-        className="col-span-2 ml-6"
+        className="col-span-2 ml-10"
       >
         {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
       </span>
@@ -289,32 +444,108 @@ function OrderCard({
 
     const orderRate = (
       <span className="whitespace-nowrap col-span-1 flex items-end flex-col relative right-4">
-        <span className="mr-1 text-white text-sm">{toPrecision(price, 2)}</span>
+        <span className="mr-1 text-white text-sm" title={price}>
+          {toPrecision(price, 2)}
+        </span>
         <span className="text-v3SwapGray text-xs">
-          {`${buyToken.symbol}/${sellToken.symbol}`}
+          {`${toRealSymbol(buyToken.symbol)}/${toRealSymbol(sellToken.symbol)}`}
         </span>
       </span>
     );
 
+    const unclaimTip = (
+      <div
+        className="text-xs mt-1 mr-1 w-20 flex items-center"
+        data-type="info"
+        data-place="bottom"
+        data-multiline={true}
+        data-class="reactTip"
+        data-html={true}
+        data-tip={getUnclaimAmountTip()}
+        data-for={'unclaim_tip_' + order.order_id}
+      >
+        <QuestionMark color="dark" />
+        <div className="flex items-center w-full">
+          {displayPercents.map((p, i) => {
+            if (ONLY_ZEROS.test(p)) return null;
+
+            const bgColor =
+              i === 0
+                ? 'bg-gradientFrom'
+                : i === 1
+                ? 'bg-deepBlue'
+                : 'bg-primaryText';
+
+            return (
+              <div
+                className={`mx-0.5 h-1 rounded-lg ${bgColor}`}
+                style={{
+                  width: p + '%',
+                }}
+              />
+            );
+          })}
+        </div>
+        <ReactTooltip
+          className="w-20"
+          id={'unclaim_tip_' + order.order_id}
+          backgroundColor="#1D2932"
+          place="bottom"
+          border
+          borderColor="#7e8a93"
+          textColor="#C6D1DA"
+          effect="solid"
+        />
+      </div>
+    );
+
     const unclaim = (
       <span className="whitespace-nowrap col-span-2 flex items-center ml-12">
-        <img
-          src={buyToken.icon}
-          className="border border-gradientFrom rounded-full w-4 h-4"
-          alt=""
-        />
-        <span className="text-white text-sm mx-1">
-          {toPrecision(
-            toReadableNumber(buyToken.decimals, order.unclaimed_amount || '0'),
-            3
-          )}
-        </span>
+        <div>
+          <div className="flex items-center">
+            <img
+              src={buyToken.icon}
+              className="border border-gradientFrom rounded-full w-4 h-4"
+              alt=""
+            />
+            <span
+              className="text-white text-sm mx-1"
+              title={toReadableNumber(
+                buyToken.decimals,
+                order.unclaimed_amount || '0'
+              )}
+            >
+              {Number(
+                toReadableNumber(
+                  buyToken.decimals,
+                  order.unclaimed_amount || '0'
+                )
+              ) > 0 &&
+              Number(
+                toReadableNumber(
+                  buyToken.decimals,
+                  order.unclaimed_amount || '0'
+                )
+              ) < 0.001
+                ? '< 0.001'
+                : toPrecision(
+                    toReadableNumber(
+                      buyToken.decimals,
+                      order.unclaimed_amount || '0'
+                    ),
+                    3
+                  )}
+            </span>
+          </div>
+
+          {unclaimTip}
+        </div>
 
         <button
-          className={`rounded-lg  bg-deepBlue  text-xs ml-1.5 p-1.5 ${
+          className={`rounded-lg    text-xs ml-1.5 p-1.5 ${
             ONLY_ZEROS.test(unClaimedAmount)
-              ? 'text-v3SwapGray cursor-not-allowe bg-black bg-opacity-25 cursor-not-allowed'
-              : `text-white  hover:text-white hover:bg-deepBlueHover ${
+              ? 'text-v3SwapGray cursor-not-allowe bg-black opacity-20 cursor-not-allowed'
+              : `text-white bg-deepBlue hover:text-white hover:bg-deepBlueHover ${
                   claimLoading ? ' text-white bg-deepBlueHover ' : ''
                 }`
           }`}
@@ -341,39 +572,6 @@ function OrderCard({
         </button>
       </span>
     );
-
-    const unclaimTip = () => {
-      <div
-        className="ml-1 text-xs"
-        data-type="info"
-        data-place="left"
-        data-multiline={true}
-        data-class="reactTip"
-        data-html={true}
-        data-tip={`
-  <div className="text-xs">
-    <div 
-      style="max-width: 250px;font-weight:400; ",
-    >
-
-    </div>
-  </div>
-`}
-        data-for={'unclaim_tip_' + order.order_id}
-      >
-        <QuestionMark color="dark" />
-
-        <ReactTooltip
-          className="w-20"
-          id={'unclaim_tip_' + order.order_id}
-          backgroundColor="#1D2932"
-          border
-          borderColor="#7e8a93"
-          textColor="#C6D1DA"
-          effect="solid"
-        />
-      </div>;
-    };
 
     const created = (
       <span className="col-span-2 relative whitespace-nowrap right-12 text-white text-right">
@@ -408,21 +606,129 @@ function OrderCard({
             <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
           )}
           loading={cancelLoading}
-        ></ButtonTextWrapper>
+        />
       </button>
     );
 
+    const tokenPrice = useContext(PriceContext);
+
+    const sellTokenPrice = tokenPrice?.[sellToken.id]?.price || null;
+
+    const swapBanner = (
+      <div className=" whitespace-nowrap relative z-10 bottom-4 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10">
+        <div className="flex items-center justify-between mb-7">
+          <span className="flex items-center">
+            <FormattedMessage
+              id="initial_order"
+              defaultMessage={'Initial Order'}
+            />
+            <QuestionTip
+              id="this_order_has_been_partially_instant_swapped "
+              defaultMessage="This order has been partially instant swapped "
+              dataPlace="right"
+            />
+          </span>
+
+          <span className="flex items-center">
+            <span title={orderIn} className="text-white">
+              {Number(orderIn) > 0 && Number(orderIn) < 0.01
+                ? '< 0.01'
+                : toPrecision(orderIn, 2)}
+            </span>
+
+            <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+            <span className="mx-6">
+              <RouterArrowRight />
+            </span>
+            <span title={buyAmount} className="text-white">
+              {Number(buyAmount) > 0 && Number(buyAmount) < 0.01
+                ? '< 0.01'
+                : toPrecision(buyAmount, 2)}
+            </span>
+
+            <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between ">
+          <span className="flex items-center ">
+            <FormattedMessage
+              id="instant_swap"
+              defaultMessage={'Instant Swap'}
+            />
+            <span className="flex items-center text-white ml-4">
+              {`1 ${toRealSymbol(sellToken.symbol)} `}&nbsp;
+              {!!sellTokenPrice ? (
+                <span className=" text-v3SwapGray mr-1">
+                  {`($${toPrecision(sellTokenPrice, 2)})`}
+                </span>
+              ) : null}
+              {` = `}
+              <span
+                className="mx-1"
+                title={new Big(swapOut)
+                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
+                  .toFixed(buyToken.decimals)}
+              >
+                {`${new Big(swapOut)
+                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
+                  .toFixed(3)}`}
+              </span>
+              {` ${toRealSymbol(buyToken.symbol)}`}
+            </span>
+          </span>
+          <span className="flex items-center">
+            <span title={swapIn} className="text-white">
+              {Number(swapIn) > 0 && Number(swapIn) < 0.01
+                ? '< 0.01'
+                : toPrecision(swapIn, 2)}
+            </span>
+
+            <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+            <span className="mx-6">
+              <RouterArrowRight />
+            </span>
+            <span title={swapOut} className="text-white">
+              {Number(swapOut) > 0 && Number(swapOut) < 0.01
+                ? '< 0.01'
+                : toPrecision(swapOut, 2)}
+            </span>
+
+            <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+          </span>
+        </div>
+      </div>
+    );
+
     return (
-      <div className="px-4 py-3 text-sm mb-4 grid grid-cols-10 w-full rounded-xl items-center  bg-cardBg">
-        {sellTokenAmount}
-        {buyTokenAmount}
-        {feeTier}
-        {orderRate}
-        {created}
+      <div
+        className="mb-4 w-full"
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+        style={{
+          zIndex: 20 - index,
+        }}
+      >
+        <div
+          className={`px-4 py-3 text-sm   z-20 grid grid-cols-10 relative  w-full rounded-xl items-center  bg-cardBg ${
+            hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
+          }`}
+          onMouseEnter={() => {
+            setHover(true);
+          }}
+        >
+          {sellTokenAmount}
+          {buyTokenAmount}
+          {feeTier}
+          {orderRate}
+          {created}
 
-        {unclaim}
+          {unclaim}
 
-        {actions}
+          {actions}
+        </div>
+        {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
       </div>
     );
   }
@@ -436,55 +742,42 @@ function OrderCard({
       return sortOrderHistory === 'desc'
         ? Number(b.bought_amount) - Number(a.bought_amount)
         : Number(a.bought_amount) - Number(b.bought_amount);
-    } else if (historySortBy === 'filled') {
-      const calPointa =
-        a.sell_token === a.pool_id.split(V3_POOL_SPLITER)[0]
-          ? a.point
-          : -a.point;
-
-      const pricea = pointToPrice({
-        tokenA: tokensMap[a.sell_token],
-        tokenB: tokensMap[a.buy_token],
-        point: calPointa,
-      });
-
-      const fa = new Big(
-        buyAmountToSellAmount(a.bought_amount || '0', a, pricea)
-      )
-        .div(
-          toReadableNumber(tokensMap[a.sell_token].decimals, a.original_amount)
-        )
-        .toNumber();
-
-      const calPointb =
-        b.sell_token === b.pool_id.split(V3_POOL_SPLITER)[0]
-          ? b.point
-          : -b.point;
-
-      const priceb = pointToPrice({
-        tokenA: tokensMap[b.sell_token],
-        tokenB: tokensMap[b.buy_token],
-        point: calPointb,
-      });
-
-      const fb = new Big(
-        buyAmountToSellAmount(b.bought_amount || '0', b, priceb)
-      )
-        .div(
-          toReadableNumber(tokensMap[b.sell_token].decimals, b.original_amount)
-        )
-        .toNumber();
-
-      return sortOrderHistory === 'desc' ? fb - fa : fa - fb;
     }
   };
 
-  function HistoryLine({ order }: { order: UserOrderInfo }) {
+  function HistoryLine({
+    order,
+    index,
+  }: {
+    order: UserOrderInfo;
+    index: number;
+  }) {
+    const [hover, setHover] = useState<boolean>(false);
+
     const buyToken = tokensMap[order.buy_token];
 
     const sellToken = tokensMap[order.sell_token];
 
     if (!buyToken || !sellToken) return null;
+
+    const swapIn = toReadableNumber(
+      sellToken.decimals,
+      scientificNotationToString(
+        new Big(order.original_deposit_amount || '0')
+          .minus(order.original_amount || '0')
+          .toString()
+      )
+    );
+
+    const swapOut = toReadableNumber(
+      buyToken.decimals,
+      order.swap_earn_amount || '0'
+    );
+
+    const orderIn = toReadableNumber(
+      sellToken.decimals,
+      order.original_amount || '0'
+    );
 
     const calPoint =
       sellToken.id === order.pool_id.split(V3_POOL_SPLITER)[0]
@@ -497,8 +790,110 @@ function OrderCard({
       point: calPoint,
     });
 
+    const buyAmount = sellAmountToBuyAmount(
+      order.original_amount,
+      order,
+      price
+    );
+
+    const claimedAmount = toReadableNumber(
+      buyToken.decimals,
+      order.bought_amount || '0'
+    );
+
+    const cancelAmount = sellAmountToBuyAmount(
+      order.cancel_amount,
+      order,
+      price
+    );
+
+    const amountTotal = new Big(claimedAmount || '0').plus(cancelAmount || '0');
+
+    const pClaimedAmount = new Big(claimedAmount || '0')
+      .div(amountTotal.lte(0) ? 1 : amountTotal)
+      .times(100)
+      .toNumber();
+
+    const pCancelAmount = new Big(cancelAmount || '0')
+      .div(amountTotal.lte(0) ? 1 : amountTotal)
+      .times(100)
+      .toNumber();
+
+    const displayPercents = checkAllocations('100', [
+      pClaimedAmount > 0 && pClaimedAmount < 4
+        ? '4'
+        : scientificNotationToString(pClaimedAmount.toString()),
+      pCancelAmount > 0 && pCancelAmount < 4
+        ? '4'
+        : scientificNotationToString(pCancelAmount.toString()),
+    ]);
+
+    const getClaimAmountTip = () => {
+      return `
+        <div 
+          class="flex flex-col text-xs min-w-36 text-farmText z-50"
+        >
+        ${
+          ONLY_ZEROS.test(claimedAmount)
+            ? ''
+            : `
+        <div class="flex items-center justify-between my-1">
+            <span class="flex items-center mr-1">
+                <div class="w-1.5 h-1.5 rounded-full bg-gradientFrom mr-1">
+                </div>
+
+                ${intl.formatMessage({ id: 'claimed' })}
+
+            </span>
+
+            <span>
+            ${
+              Number(claimedAmount) > 0 && Number(claimedAmount) < 0.001
+                ? '< 0.001'
+                : toPrecision(claimedAmount, 3)
+            }
+            </span>
+
+        </div>
+        `
+        }
+
+
+
+
+        ${
+          ONLY_ZEROS.test(cancelAmount)
+            ? ''
+            : `<div class="flex items-center my-1 justify-between">
+            <span class="flex items-center ">
+                <div class="w-1.5 h-1.5 rounded-full bg-primaryText mr-1">
+                </div>
+
+                ${intl.formatMessage({
+                  id: 'cancelled',
+                  defaultMessage: 'Canceled',
+                })}
+
+            </span>
+
+            <span>
+            ${
+              Number(cancelAmount) > 0 && Number(cancelAmount) < 0.001
+                ? '< 0.001'
+                : toPrecision(cancelAmount, 3)
+            }
+
+            </span>
+
+        </div>`
+        }
+
+        </div>
+    `;
+    };
+
     const sellTokenAmount = (
-      <div className="flex items-center justify-between">
+      <div className="flex items-center whitespace-nowrap w-28 justify-between">
         <span className="flex flex-shrink-0 items-center col-span-1">
           <img
             src={sellToken.icon}
@@ -506,40 +901,47 @@ function OrderCard({
             alt=""
           />
 
-          <span className="text-white text-sm mx-2">
-            {toPrecision(
-              toReadableNumber(sellToken.decimals, order.original_amount),
-              2
-            )}
-          </span>
+          <div className="flex flex-col ml-2">
+            <span className="text-white text-sm mr-2" title={orderIn}>
+              {Number(orderIn) > 0 && Number(orderIn) < 0.01
+                ? '< 0.01'
+                : toPrecision(orderIn, 2)}
+            </span>
 
-          <span className="text-v3SwapGray text-xs">{sellToken.symbol}</span>
+            <span className="text-v3SwapGray text-xs">
+              {toRealSymbol(sellToken.symbol)}
+            </span>
+          </div>
         </span>
-        <span className="text-white text-lg pl-2 pr-1">
+
+        <span className="text-white text-lg pl-2  pr-1">
           <RouterArrowRight />
         </span>
       </div>
     );
 
     const buyTokenAmount = (
-      <span className="flex items-center col-span-1 mr-4">
+      <span className="flex items-center col-span-1 ml-8">
         <img
           src={buyToken.icon}
           className="border flex-shrink-0 border-gradientFrom rounded-full w-7 h-7"
           alt=""
         />
 
-        <span
-          className="text-white mx-2 text-sm"
-          title={sellAmountToBuyAmount(order.original_amount, order, price)}
-        >
-          {toPrecision(
-            sellAmountToBuyAmount(order.original_amount, order, price),
-            2
-          )}
-        </span>
+        <div className="flex flex-col ml-2">
+          <span
+            className="text-white mr-2 text-sm whitespace-nowrap"
+            title={buyAmount}
+          >
+            {Number(buyAmount) > 0 && Number(buyAmount) < 0.01
+              ? '< 0.01'
+              : toPrecision(buyAmount, 2)}
+          </span>
 
-        <span className="text-v3SwapGray text-xs">{buyToken.symbol}</span>
+          <span className="text-v3SwapGray text-xs">
+            {toRealSymbol(buyToken.symbol)}
+          </span>
+        </div>
       </span>
     );
 
@@ -550,70 +952,116 @@ function OrderCard({
         style={{
           color: '#78C6FF',
         }}
-        className="col-span-1 ml-4"
+        className="col-span-2 ml-10"
       >
         {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
       </span>
     );
 
     const orderRate = (
-      <span className="whitespace-nowrap col-span-1 flex items-center relative right-4">
-        <span className="mr-1 text-white text-sm">{toPrecision(price, 2)}</span>
+      <span className="whitespace-nowrap col-span-1 flex items-end flex-col relative right-4">
+        <span className="mr-1 text-white text-sm" title={price}>
+          {toPrecision(price, 2)}
+        </span>
         <span className="text-v3SwapGray text-xs">
-          {`${buyToken.symbol}/${sellToken.symbol}`}
+          {`${toRealSymbol(buyToken.symbol)}/${toRealSymbol(sellToken.symbol)}`}
         </span>
       </span>
     );
 
-    const filled = (
-      <span className="whitespace-nowrap col-span-1 flex items-center relative right-1">
-        <span className="text-white text-sm mx-1">
-          {toPrecision(
-            new Big(
-              buyAmountToSellAmount(order.bought_amount || '0', order, price)
-            )
-              .div(toReadableNumber(sellToken.decimals, order.original_amount))
-              .times(100)
-              .toFixed(),
-            0
-          )}
-          %
-        </span>
-      </span>
-    );
-
-    const claimedAmount = (
-      <span
-        className={`${
-          ONLY_ZEROS.test(order.unclaimed_amount || '0')
-            ? 'text-white '
-            : 'text-warn'
-        } col-span-1 justify-self-center flex pr-6 items-center`}
+    const claimTip = (
+      <div
+        className="text-xs mt-1 mr-1 w-20 flex items-center"
+        data-type="info"
+        data-place="bottom"
+        data-multiline={true}
+        data-class="reactTip"
+        data-html={true}
+        data-tip={getClaimAmountTip()}
+        data-for={'claim_tip_' + order.order_id}
       >
-        <img
-          src={buyToken.icon}
-          className="border border-gradientFrom rounded-full w-7 h-7"
-          alt=""
-        />
+        <QuestionMark color="dark" />
+        <div className="flex items-center w-full">
+          {displayPercents.map((p, i) => {
+            if (ONLY_ZEROS.test(p)) return null;
 
-        <span className="mx-1 text-white text-sm">
-          {toPrecision(
-            toReadableNumber(buyToken.decimals, order.bought_amount || '0'),
-            2
-          )}
-        </span>
+            const bgColor = i === 0 ? 'bg-gradientFrom' : 'bg-primaryText';
+
+            return (
+              <div
+                className={`mx-0.5 h-1 rounded-lg ${bgColor}`}
+                style={{
+                  width: p + '%',
+                }}
+              />
+            );
+          })}
+        </div>
+        <ReactTooltip
+          className="w-20"
+          id={'claim_tip_' + order.order_id}
+          backgroundColor="#1D2932"
+          place="bottom"
+          border
+          borderColor="#7e8a93"
+          textColor="#C6D1DA"
+          effect="solid"
+        />
+      </div>
+    );
+
+    const claimed = (
+      <span className="whitespace-nowrap col-span-2 flex items-center ml-12">
+        <div>
+          <div className="flex items-center">
+            <img
+              src={buyToken.icon}
+              className="border border-gradientFrom rounded-full w-4 h-4"
+              alt=""
+            />
+            <span
+              className="text-white text-sm mx-1"
+              title={toReadableNumber(
+                buyToken.decimals,
+                order.unclaimed_amount || '0'
+              )}
+            >
+              {Number(
+                toReadableNumber(
+                  buyToken.decimals,
+                  order.unclaimed_amount || '0'
+                )
+              ) > 0 &&
+              Number(
+                toReadableNumber(
+                  buyToken.decimals,
+                  order.unclaimed_amount || '0'
+                )
+              ) < 0.001
+                ? '< 0.001'
+                : toPrecision(
+                    toReadableNumber(
+                      buyToken.decimals,
+                      order.unclaimed_amount || '0'
+                    ),
+                    3
+                  )}
+            </span>
+          </div>
+
+          {claimTip}
+        </div>
       </span>
     );
 
     const created = (
-      <span className="col-span-1 relative whitespace-nowrap right-3 text-white text-right">
+      <span className="col-span-2 relative whitespace-nowrap right-12 text-white text-right">
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('YYYY-MM-DD HH:mm')}
       </span>
     );
 
-    // TODO:
     const actions = (
       <div className=" col-span-1  text-primaryText  text-xs justify-self-end p-1.5">
         {ONLY_ZEROS.test(order.cancel_amount) ? (
@@ -624,17 +1072,127 @@ function OrderCard({
       </div>
     );
 
-    return (
-      <div className="px-4 py-3 text-sm mb-4 grid grid-cols-8 w-full rounded-xl items-center  bg-cardBg">
-        {sellTokenAmount}
-        {buyTokenAmount}
-        {feeTier}
-        {orderRate}
-        {claimedAmount}
-        {filled}
+    const tokenPrice = useContext(PriceContext);
 
-        {created}
-        {actions}
+    const sellTokenPrice = tokenPrice?.[sellToken.id]?.price || null;
+
+    const swapBanner = (
+      <div className=" whitespace-nowrap relative z-10 bottom-4 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10">
+        <div className="flex items-center justify-between mb-7">
+          <span className="flex items-center">
+            <FormattedMessage
+              id="initial_order"
+              defaultMessage={'Initial Order'}
+            />
+
+            <QuestionTip
+              id="this_order_has_been_partially_instant_swapped "
+              defaultMessage="This order has been partially instant swapped "
+              dataPlace="right"
+            />
+          </span>
+
+          <span className="flex items-center">
+            <span title={orderIn} className="text-white">
+              {Number(orderIn) > 0 && Number(orderIn) < 0.01
+                ? '< 0.01'
+                : toPrecision(orderIn, 2)}
+            </span>
+
+            <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+            <span className="mx-6">
+              <RouterArrowRight />
+            </span>
+            <span title={buyAmount} className="text-white">
+              {Number(buyAmount) > 0 && Number(buyAmount) < 0.01
+                ? '< 0.01'
+                : toPrecision(buyAmount, 2)}
+            </span>
+
+            <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between ">
+          <span className="flex items-center ">
+            <FormattedMessage
+              id="instant_swap"
+              defaultMessage={'Instant Swap'}
+            />
+
+            <span className="flex items-center text-white ml-4">
+              {`1 ${toRealSymbol(sellToken.symbol)}`} &nbsp;
+              {!!sellTokenPrice ? (
+                <span className=" text-v3SwapGray mr-1">
+                  {`($${toPrecision(sellTokenPrice, 2)})`}
+                </span>
+              ) : null}
+              {`= `}
+              <span
+                className="mx-1"
+                title={new Big(swapOut)
+                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
+                  .toFixed(buyToken.decimals)}
+              >
+                {`${new Big(swapOut)
+                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
+                  .toFixed(3)}`}
+              </span>
+              {` ${toRealSymbol(buyToken.symbol)}`}
+            </span>
+          </span>
+          <span className="flex items-center">
+            <span title={swapIn} className="text-white">
+              {Number(swapIn) > 0 && Number(swapIn) < 0.01
+                ? '< 0.01'
+                : toPrecision(swapIn, 2)}
+            </span>
+
+            <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
+            <span className="mx-6">
+              <RouterArrowRight />
+            </span>
+            <span title={swapOut} className="text-white">
+              {Number(swapOut) > 0 && Number(swapOut) < 0.01
+                ? '< 0.01'
+                : toPrecision(swapOut, 2)}
+            </span>
+
+            <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
+          </span>
+        </div>
+      </div>
+    );
+
+    return (
+      <div
+        className="mb-4 w-full"
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+        style={{
+          zIndex: 20 - index,
+        }}
+      >
+        <div
+          className={`px-4 py-3 text-sm   z-20 grid grid-cols-10 relative  w-full rounded-xl items-center  bg-cardBg ${
+            hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
+          }`}
+          onMouseEnter={() => {
+            setHover(true);
+          }}
+        >
+          {sellTokenAmount}
+          {buyTokenAmount}
+          {feeTier}
+          {orderRate}
+          {created}
+
+          {claimed}
+
+          {actions}
+        </div>
+        {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
       </div>
     );
   }
@@ -644,60 +1202,10 @@ function OrderCard({
       return sortOrderActive === 'desc'
         ? Number(b.created_at) - Number(a.created_at)
         : Number(a.created_at) - Number(b.created_at);
-    } else if (activeSortBy === 'pending') {
+    } else if (activeSortBy === 'unclaim') {
       return sortOrderActive === 'desc'
         ? Number(b.unclaimed_amount) - Number(a.unclaimed_amount)
         : Number(a.unclaimed_amount) - Number(b.unclaimed_amount);
-    } else if (activeSortBy === 'unclaim') {
-      const calPointa =
-        a.sell_token === a.pool_id.split(V3_POOL_SPLITER)[0]
-          ? a.point
-          : -a.point;
-
-      const pricea = pointToPrice({
-        tokenA: tokensMap[a.sell_token],
-        tokenB: tokensMap[a.buy_token],
-        point: calPointa,
-      });
-
-      const aP = new Big(
-        toReadableNumber(
-          tokensMap[a.buy_token].decimals,
-          a.unclaimed_amount || '0'
-        )
-      )
-        .div(
-          ONLY_ZEROS.test(a.original_amount || '0')
-            ? 1
-            : sellAmountToBuyAmount(a.original_amount, a, pricea)
-        )
-        .toNumber();
-
-      const calPointb =
-        b.sell_token === b.pool_id.split(V3_POOL_SPLITER)[0]
-          ? b.point
-          : -b.point;
-
-      const priceb = pointToPrice({
-        tokenA: tokensMap[b.sell_token],
-        tokenB: tokensMap[b.buy_token],
-        point: calPointb,
-      });
-
-      const bP = new Big(
-        toReadableNumber(
-          tokensMap[b.buy_token].decimals,
-          b.unclaimed_amount || '0'
-        )
-      )
-        .div(
-          ONLY_ZEROS.test(b.remain_amount || '0')
-            ? 1
-            : sellAmountToBuyAmount(b.remain_amount, b, priceb)
-        )
-        .toNumber();
-
-      return sortOrderActive === 'desc' ? bP - aP : aP - bP;
     }
   };
 
@@ -710,11 +1218,11 @@ function OrderCard({
             <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
           </span>
 
-          <span className="col-span-1 ml-4">
+          <span className="col-span-1 ml-8">
             <FormattedMessage id="you_buy" defaultMessage={'You Buy'} />
           </span>
 
-          <span className="col-span-2 ml-6">
+          <span className="col-span-2 ml-10">
             <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
           </span>
 
@@ -755,38 +1263,6 @@ function OrderCard({
           <button
             className="col-span-2 flex items-center ml-12 text-right"
             onClick={() => {
-              setActiveSortBy('pending');
-              if (activeSortBy === 'pending') {
-                if (sortOrderActive === 'asc') {
-                  setSorOrderActive('desc');
-                } else {
-                  setSorOrderActive('asc');
-                }
-              } else {
-                setSorOrderActive('desc');
-              }
-            }}
-          >
-            <FormattedMessage
-              id="pending_top_upper"
-              defaultMessage={'Pending'}
-            />
-
-            <span
-              className={`ml-0.5 ${
-                activeSortBy === 'pending' ? 'text-gradientFrom' : ''
-              }`}
-            >
-              {activeSortBy === 'pending' && sortOrderActive === 'asc' ? (
-                <UpArrowVE />
-              ) : (
-                <DownArrowVE />
-              )}
-            </span>
-          </button>
-          {/* <button
-            className="col-span-2 flex items-center  text-right"
-            onClick={() => {
               setActiveSortBy('unclaim');
               if (activeSortBy === 'unclaim') {
                 if (sortOrderActive === 'asc') {
@@ -799,8 +1275,7 @@ function OrderCard({
               }
             }}
           >
-            <FormattedMessage id="Unclaimed" defaultMessage={'Unclaimed'} />
-
+            <FormattedMessage id="unclaimed" defaultMessage={'Unclaimed'} />
             <span
               className={`ml-0.5 ${
                 activeSortBy === 'unclaim' ? 'text-gradientFrom' : ''
@@ -812,7 +1287,7 @@ function OrderCard({
                 <DownArrowVE />
               )}
             </span>
-          </button> */}
+          </button>
 
           <span className="col-span-1 text-right">
             <FormattedMessage id="actions" defaultMessage={'Actions'} />
@@ -821,85 +1296,25 @@ function OrderCard({
       )}
 
       {orderType === 'history' && (
-        <div className="mb-2.5 px-4 text-v3SwapGray text-sm grid grid-cols-8 whitespace-nowrap">
+        <div className="mb-2.5 px-4 text-v3SwapGray text-sm grid grid-cols-10 whitespace-nowrap">
           <span className="col-span-1 text-left">
             <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
           </span>
 
-          <span className="col-span-1 ml-4">
+          <span className="col-span-1 ml-8">
             <FormattedMessage id="you_buy" defaultMessage={'You Buy'} />
           </span>
 
-          <span className="col-span-1">
+          <span className="col-span-2 ml-10">
             <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
           </span>
 
-          <span className="col-span-1 text-left relative right-2">
+          <span className="col-span-1">
             <FormattedMessage id="order_rates" defaultMessage={'Order Rates'} />
           </span>
 
           <button
-            className="col-span-1 flex items-center  text-right"
-            onClick={() => {
-              setHistorySortBy('claimed');
-
-              if (historySortBy === 'claimed') {
-                if (sortOrderHistory === 'asc') {
-                  setSorOrderHistory('desc');
-                } else {
-                  setSorOrderHistory('asc');
-                }
-              } else {
-                setSorOrderHistory('desc');
-              }
-            }}
-          >
-            <FormattedMessage id="claimed" defaultMessage={'Claimed'} />
-
-            <span
-              className={`ml-0.5 ${
-                historySortBy === 'claimed' ? 'text-gradientFrom' : ''
-              }`}
-            >
-              {historySortBy === 'claimed' && sortOrderHistory === 'asc' ? (
-                <UpArrowVE />
-              ) : (
-                <DownArrowVE />
-              )}
-            </span>
-          </button>
-          <button
-            className="col-span-1 flex items-center mr-4 text-right"
-            onClick={() => {
-              setHistorySortBy('filled');
-
-              if (historySortBy === 'filled') {
-                if (sortOrderHistory === 'asc') {
-                  setSorOrderHistory('desc');
-                } else {
-                  setSorOrderHistory('asc');
-                }
-              } else {
-                setSorOrderHistory('desc');
-              }
-            }}
-          >
-            <FormattedMessage id="filled" defaultMessage={'Filled'} />
-
-            <span
-              className={`ml-0.5 ${
-                historySortBy === 'filled' ? 'text-gradientFrom' : ''
-              }`}
-            >
-              {historySortBy === 'filled' && sortOrderHistory === 'asc' ? (
-                <UpArrowVE />
-              ) : (
-                <DownArrowVE />
-              )}
-            </span>
-          </button>
-          <button
-            className="col-span-1 flex items-center relative lef-3  text-right"
+            className="col-span-2 flex items-center ml-20"
             onClick={() => {
               setHistorySortBy('created');
               if (historySortBy === 'created') {
@@ -927,8 +1342,38 @@ function OrderCard({
               )}
             </span>
           </button>
+
+          <button
+            className="col-span-2 flex items-center ml-12 text-right"
+            onClick={() => {
+              setHistorySortBy('claimed');
+              if (historySortBy === 'claimed') {
+                if (sortOrderHistory === 'asc') {
+                  setSorOrderHistory('desc');
+                } else {
+                  setSorOrderHistory('asc');
+                }
+              } else {
+                setSorOrderHistory('desc');
+              }
+            }}
+          >
+            <FormattedMessage id="claimed" defaultMessage={'Claimed'} />
+            <span
+              className={`ml-0.5 ${
+                historySortBy === 'claimed' ? 'text-gradientFrom' : ''
+              }`}
+            >
+              {historySortBy === 'claimed' && sortOrderHistory === 'asc' ? (
+                <UpArrowVE />
+              ) : (
+                <DownArrowVE />
+              )}
+            </span>
+          </button>
+
           <span className="col-span-1 text-right">
-            <FormattedMessage id="status" defaultMessage={'Status'} />
+            <FormattedMessage id="state" defaultMessage={'State'} />
           </span>
         </div>
       )}
@@ -942,13 +1387,17 @@ function OrderCard({
 
       {orderType === 'active' &&
         activeOrder &&
-        activeOrder.sort(activeOrderSorting).map((order) => {
-          return <ActiveLine key={order.order_id} order={order} />;
+        activeOrder.sort(activeOrderSorting).map((order, index) => {
+          return (
+            <ActiveLine index={index} key={order.order_id} order={order} />
+          );
         })}
       {orderType === 'history' &&
         historyOrder &&
-        historyOrder.sort(historyOrderSorting).map((order) => {
-          return <HistoryLine key={order.order_id} order={order} />;
+        historyOrder.sort(historyOrderSorting).map((order, index) => {
+          return (
+            <HistoryLine index={index} key={order.order_id} order={order} />
+          );
         })}
     </div>
   );
@@ -959,7 +1408,7 @@ function MyOrderPage() {
 
   const history = useHistory();
 
-  console.log(activeOrder, historyOrder, 'orders ');
+  const tokenPriceList = useTokenPriceList();
 
   const ActiveTokenIds = activeOrder
     ?.map((order) => [order.sell_token, order.buy_token])
@@ -1032,12 +1481,13 @@ function MyOrderPage() {
           />
         </SolidButton>
       </div>
-
-      <OrderCard
-        tokensMap={tokensMap}
-        activeOrder={activeOrder}
-        historyOrder={historyOrder}
-      />
+      <PriceContext.Provider value={tokenPriceList}>
+        <OrderCard
+          tokensMap={tokensMap}
+          activeOrder={activeOrder}
+          historyOrder={historyOrder}
+        />
+      </PriceContext.Provider>
     </div>
   );
 }

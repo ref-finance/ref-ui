@@ -79,7 +79,11 @@ import {
 import _, { toArray } from 'lodash';
 import Big from 'big.js';
 import { getV3PoolId } from '../services/swapV3';
-import { checkAllocations, toPrecision } from '../utils/numbers';
+import {
+  checkAllocations,
+  toPrecision,
+  getAllocationsLeastOne,
+} from '../utils/numbers';
 import conformsTo from 'lodash';
 import {
   LimitOrderFailPopUp,
@@ -124,7 +128,7 @@ interface SwapV3Options {
   swapMode?: SWAP_MODE;
 }
 
-export const useSwapPopUp = (swapMode: SWAP_MODE) => {
+export const useSwapPopUp = (stopOnCross?: boolean) => {
   const { txHash, pathname, errorType } = getURLInfo();
   const history = useHistory();
 
@@ -141,13 +145,9 @@ export const useSwapPopUp = (swapMode: SWAP_MODE) => {
 
     const parsedInputArgs = JSON.parse(ft_transfer_call_args || '');
 
-    console.log(parsedInputArgs, 'dsadadsa');
-
     const LimitOrderWithSwap = JSON.parse(
       parsedInputArgs?.msg || {}
     )?.LimitOrderWithSwap;
-
-    //
 
     if (!LimitOrderWithSwap) {
       return false;
@@ -233,6 +233,7 @@ export const useSwapPopUp = (swapMode: SWAP_MODE) => {
   };
 
   useEffect(() => {
+    if (stopOnCross) return;
     if (txHash && getCurrentWallet().wallet.isSignedIn()) {
       checkTransaction(txHash)
         .then(async (res: any) => {
@@ -264,7 +265,35 @@ export const useSwapPopUp = (swapMode: SWAP_MODE) => {
           history.replace(pathname);
         });
     }
-  }, [txHash]);
+  }, [txHash, stopOnCross]);
+};
+
+export const useCrossSwapPopUp = (bestSwap: 'v2' | 'v3') => {
+  const { txHash, pathname, errorType, txHashes } = getURLInfo();
+  const history = useHistory();
+
+  const { globalState } = useContext(WalletContext);
+
+  const isSignedIn = globalState.isSignedIn;
+
+  useSwapPopUp(bestSwap === 'v2');
+
+  useEffect(() => {
+    if (txHashes && txHashes.length > 0 && isSignedIn && bestSwap === 'v2') {
+      checkCrossSwapTransactions(txHashes).then(
+        async (res: { status: boolean; hash: string; errorType?: string }) => {
+          const { status, hash, errorType } = res;
+
+          if (errorType || !status) {
+            failToast(hash, errorType);
+          } else {
+            swapToast(hash);
+          }
+        }
+      );
+      history.replace(pathname);
+    }
+  }, [txHashes, bestSwap]);
 };
 
 export const useSwap = ({
@@ -699,13 +728,32 @@ export const useLimitOrder = ({
         );
         const sumOfCounts = _.sum(counts);
 
+        const rawPercents = counts.map((c) =>
+          scientificNotationToString(((c / sumOfCounts) * 100).toString())
+        );
+
+        const nonZeroIndexes: number[] = [];
+
+        rawPercents.forEach((p, index) => {
+          if (Number(p) > 0) {
+            nonZeroIndexes.push(index);
+          }
+        });
+
+        const nonZeroPercents = rawPercents.filter((r) => Number(r) > 0);
+
+        const checkedNonZero = getAllocationsLeastOne(nonZeroPercents);
+
+        const finalPercents = rawPercents.map((p, index) => {
+          if (nonZeroIndexes.includes(index)) {
+            const newP = checkedNonZero[nonZeroIndexes.indexOf(index)];
+            return newP;
+          }
+          return p;
+        });
+
         const percents =
-          sumOfCounts === 0
-            ? ['0', '0', '0', '0']
-            : checkAllocations(
-                '100',
-                counts.map((c) => ((c / sumOfCounts) * 100).toFixed())
-              );
+          sumOfCounts === 0 ? ['0', '0', '0', '0'] : finalPercents;
 
         const percensNew = percents.map((p, i) => (!!res[i] ? p : null));
 
@@ -959,23 +1007,6 @@ export const useCrossSwap = ({
     }
     setAvgFee(avgFee);
   };
-
-  useEffect(() => {
-    if (txHashes && txHashes.length > 0 && isSignedIn) {
-      checkCrossSwapTransactions(txHashes).then(
-        (res: { status: boolean; hash: string; errorType?: string }) => {
-          const { status, hash, errorType } = res;
-
-          if (errorType || !status) {
-            failToast(hash, errorType);
-          } else {
-            swapToast(hash);
-          }
-        }
-      );
-      history.replace(pathname);
-    }
-  }, [txHashes]);
 
   const getEstimateCrossSwap = () => {
     setCanSwap(false);

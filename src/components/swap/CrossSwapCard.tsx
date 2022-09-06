@@ -14,7 +14,12 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useTokenBalances, useDepositableBalance } from '../../state/token';
-import { useSwap, useCrossSwap, useSwapV3 } from '../../state/swap';
+import {
+  useSwap,
+  useCrossSwap,
+  useSwapV3,
+  useCrossSwapPopUp,
+} from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -530,6 +535,11 @@ export default function CrossSwapCard(props: {
     loadingTrigger,
   });
 
+  const bestSwap = new Big(tokenOutAmountV3 || '0').gt(tokenOutAmount || '0')
+    ? 'v3'
+    : 'v2';
+  useCrossSwapPopUp(bestSwap);
+
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
       if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
@@ -582,10 +592,6 @@ export default function CrossSwapCard(props: {
   } catch (error) {
     PriceImpactValue = '0';
   }
-
-  const bestSwap = new Big(tokenOutAmountV3 || '0').gt(tokenOutAmount || '0')
-    ? 'v3'
-    : 'v2';
 
   const bestSwapPriceImpact =
     bestSwap === 'v3' ? priceImpactV3 : PriceImpactValue;
