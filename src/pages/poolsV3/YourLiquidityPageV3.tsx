@@ -326,6 +326,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
   }
   function claimRewards(e: any) {
     e.stopPropagation();
+    if (!canClaim()) return;
     setClaimLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
     remove_liquidity({
@@ -389,8 +390,12 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
       }
     }
   }
-  function goAddLiquidityPage() {
-    history.push(`/addLiquidityV3#${pool_id}`);
+  function canClaim() {
+    if (liquidityDetail) {
+      const { unclaimed_fee_x, unclaimed_fee_y } = liquidityDetail;
+      if (+unclaimed_fee_x > 0 || +unclaimed_fee_y > 0) return true;
+    }
+    return false;
   }
   return (
     <div
@@ -508,7 +513,11 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
             {getTokenFeeAmount('r') || '-'}
           </span>
           <div
-            className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-8 w-20 cursor-pointer ml-5"
+            className={`flex items-center justify-center  rounded-lg text-sm h-8 w-20 ml-5 ${
+              !canClaim()
+                ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+            }`}
             onClick={claimRewards}
           >
             <ButtonTextWrapper

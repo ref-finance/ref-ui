@@ -15,7 +15,7 @@ import {
   remove_liquidity,
   get_liquidity,
 } from '../../services/swapV3';
-import { ReturnIcon } from '~components/icon/V3';
+import { ReturnIcon, SwitchButton } from '~components/icon/V3';
 import {
   GradientButton,
   BorderButton,
@@ -63,6 +63,8 @@ export default function YourLiquidityDetail(props: any) {
   const [isInrange, setIsInrange] = useState<boolean>(true);
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
+  const [rateSort, setRateSort] = useState<boolean>(true);
+  const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const history = useHistory();
   const hashId = location.hash?.split('#')[1];
   const poolId = (props.match.params?.poolId || '').replace(/@/g, '|');
@@ -229,7 +231,7 @@ export default function YourLiquidityDetail(props: any) {
       }
     }
   }
-  function getMinRate(direction: string) {
+  function getRate(direction: string) {
     let value = '';
     if (tokenMetadata_x_y && userLiquidity && poolDetail) {
       const [tokenX, tokenY] = tokenMetadata_x_y;
@@ -237,15 +239,51 @@ export default function YourLiquidityDetail(props: any) {
       const { current_point } = poolDetail;
       const decimalRate =
         Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
-      if (direction == 'left') {
-        value = toPrecision(getPriceByPoint(left_point, decimalRate), 6);
-      } else if (direction == 'right') {
-        value = toPrecision(getPriceByPoint(right_point, decimalRate), 6);
-      } else if (direction == 'current') {
-        value = toPrecision(getPriceByPoint(current_point, decimalRate), 6);
+      const l_price = getPriceByPoint(left_point, decimalRate);
+      const r_price = getPriceByPoint(right_point, decimalRate);
+      const c_price = getPriceByPoint(current_point, decimalRate);
+      if (rateSort) {
+        if (direction == 'left') {
+          value = toPrecision(l_price, 6);
+        } else if (direction == 'right') {
+          value = toPrecision(r_price, 6);
+        } else if (direction == 'current') {
+          value = toPrecision(c_price, 6);
+        }
+      } else {
+        if (direction == 'left') {
+          value = toPrecision(new BigNumber(1).dividedBy(r_price).toFixed(), 6);
+        } else if (direction == 'right') {
+          value = toPrecision(new BigNumber(1).dividedBy(l_price).toFixed(), 6);
+        } else if (direction == 'current') {
+          value = toPrecision(new BigNumber(1).dividedBy(c_price).toFixed(), 6);
+        }
       }
     }
     return value;
+  }
+  function switchRateSort() {
+    setRateSort(!rateSort);
+  }
+  function claimRewards() {
+    if (!canClaim()) return;
+    setClaimLoading(true);
+    const [tokenX, tokenY] = tokenMetadata_x_y;
+    remove_liquidity({
+      token_x: tokenX,
+      token_y: tokenY,
+      lpt_id: userLiquidity.lpt_id,
+      amount: '0',
+      min_amount_x: '0',
+      min_amount_y: '0',
+    });
+  }
+  function canClaim() {
+    if (userLiquidity) {
+      const { unclaimed_fee_x, unclaimed_fee_y } = userLiquidity;
+      if (+unclaimed_fee_x > 0 || +unclaimed_fee_y > 0) return true;
+    }
+    return false;
   }
   return (
     <div className={`m-auto lg:w-2/5 md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
@@ -369,7 +407,22 @@ export default function YourLiquidityDetail(props: any) {
           </div>
         </div>
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow">
-          <div className="text-white text-base">Unclaimed Fees</div>
+          <div className="flex items-center justify-between text-white text-base">
+            <span>Unclaimed Fees</span>
+            <div
+              className={`flex items-center justify-center  rounded-lg text-sm h-8 w-20 ${
+                !canClaim()
+                  ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                  : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+              }`}
+              onClick={claimRewards}
+            >
+              <ButtonTextWrapper
+                loading={claimLoading}
+                Text={() => <FormattedMessage id="claim" />}
+              />
+            </div>
+          </div>
           <div className="flex items-center mt-3.5">
             <span className="text-white text-xl">
               {getTokenFeeAmount('p') || '$-'}
@@ -410,46 +463,54 @@ export default function YourLiquidityDetail(props: any) {
         </div>
       </div>
       <div className="mt-2.5 bg-cardBg rounded-xl p-5">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center">
           <span className="text-sm text-white">Price Range</span>
-          <div className="flex items-center">
-            <span className="flex items-center justify-center text-xs text-primaryText px-1.5 h-5 bg-black bg-opacity-20 rounded-lg mr-1">
-              {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}
-            </span>
-            <span className="flex items-center justify-center text-xs text-primaryText px-1.5 h-5 border border-v3borderColor rounded-lg">
-              {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
-            </span>
-          </div>
         </div>
         <div className="flex items-stretch justify-between mt-4">
           <div className="flex flex-col items-center  bg-black bg-opacity-20 rounded-xl mr-3.5 px-3.5 py-5">
             <span className="text-xs text-primaryText">Min Price</span>
-            <span className="text-white text-xl my-2">
-              {getMinRate('left')}
-            </span>
+            <span className="text-white text-xl my-2">{getRate('left')}</span>
             <p className="text-xs text-primaryText text-center">
               Your position will be 100%{' '}
-              {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol} at this price
+              {rateSort
+                ? tokenMetadata_x_y && tokenMetadata_x_y[0].symbol
+                : tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}{' '}
+              at this price
             </p>
           </div>
           <div className="flex flex-col items-center  bg-black bg-opacity-20 rounded-xl  px-3.5 py-5">
             <span className="text-xs text-primaryText">Max Price</span>
-            <span className="text-white text-xl my-2">
-              {getMinRate('right')}
-            </span>
+            <span className="text-white text-xl my-2">{getRate('right')}</span>
             <p className="text-xs text-primaryText text-center">
               Your position will be 100%{' '}
-              {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol} at this price
+              {rateSort
+                ? tokenMetadata_x_y && tokenMetadata_x_y[1].symbol
+                : tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}{' '}
+              at this price
             </p>
           </div>
         </div>
         <div className="flex items-center justify-between bg-black bg-opacity-20 mt-2 rounded-xl px-3.5 py-3">
           <span className="text-xs text-primaryText">Current Price</span>
-          <span className="text-xl text-white">{getMinRate('current')}</span>
-          <span className="text-xs text-primaryText">
-            {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}/
-            {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}
-          </span>
+          <span className="text-xl text-white">{getRate('current')}</span>
+          <div className="flex items-center">
+            {rateSort ? (
+              <span className="text-xs text-primaryText">
+                {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}/
+                {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}
+              </span>
+            ) : (
+              <span className="text-xs text-primaryText">
+                {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
+                {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
+              </span>
+            )}
+
+            <SwitchButton
+              className="cursor-pointer ml-1"
+              onClick={switchRateSort}
+            ></SwitchButton>
+          </div>
         </div>
       </div>
       <RemovePoolV3

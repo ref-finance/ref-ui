@@ -203,7 +203,8 @@ function Anchor({
           isSelected ? 'border-opacity-100' : 'border-opacity-0'
         }`}
         onClick={(e) => {
-          name === 'trade_capital' && e.preventDefault();
+          (name === 'trade_capital' || name == 'liquidity_capital') &&
+            e.preventDefault();
         }}
         onMouseLeave={() => setHover(false)}
         onMouseEnter={() => setHover(true)}
@@ -1235,6 +1236,7 @@ function NavigationBar() {
                 ]}
               />
               <Anchor
+                to="/pools"
                 pattern="/pools"
                 name="liquidity_capital"
                 subMenu={[
