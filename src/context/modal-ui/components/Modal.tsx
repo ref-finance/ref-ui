@@ -11,7 +11,7 @@ import { DerivationPath, HardwareRoutes } from './DerivationPath';
 import { WalletConnecting } from './WalletConnecting';
 import { WalletNotInstalled } from './WalletNotInstalled';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Context } from '~components/wrapper';
+import { Context } from '../../../components/wrapper';
 
 interface ModalProps {
   selector: WalletSelector;
@@ -165,7 +165,7 @@ export const Modal: React.FC<ModalProps> = ({
                 // setAlertMessage(err.message);
                 if (err.message === 'Ledger is not available') {
                   setLedgerInitError(err.message);
-
+                  // @ts-ignore
                   setRoute({
                     name: 'DerivationPath',
                   });

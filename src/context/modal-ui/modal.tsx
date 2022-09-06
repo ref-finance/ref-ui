@@ -5,9 +5,9 @@ import type { WalletSelector } from '@near-wallet-selector/core';
 import type { WalletSelectorModal, ModalOptions } from './modal.types';
 import { Modal } from './components/Modal';
 import { FormattedMessage, IntlProvider } from 'react-intl';
-import Wrapper from '~components/wrapper';
+import Wrapper from '../../components/wrapper';
 import { CloseButton } from './components/CloseButton';
-import { LedgerTransaction } from '~components/icon/Wallet';
+import { LedgerTransaction } from '../../components/icon/Wallet';
 
 const MODAL_ELEMENT_ID = 'near-wallet-selector-modal';
 

@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { map, distinctUntilChanged } from 'rxjs';
+
 import {
   NetworkId,
   setupWalletSelector,
