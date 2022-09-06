@@ -56,11 +56,7 @@ import {
   formatWithCommas,
   toPrecision,
   toReadableNumber,
-  toInternationalCurrencySystem,
-  percentLess,
-  calculateFairShare,
   toNonDivisibleNumber,
-  percent,
   checkAllocations,
 } from '~utils/numbers';
 import { WalletContext } from '../../utils/sender-wallet';
@@ -187,7 +183,6 @@ export default function AddYourLiquidityPageV3() {
         )
           return true;
       });
-      console.log('888888-availablePools', availablePools);
       if (availablePools.length > 0) {
         let totalLiquidity = 0;
         let percents: string[];
@@ -749,15 +744,39 @@ function CreatePoolComponent({
     setCreatePoolButtonLoading(true);
     const { fee } = currentSelectedPool;
     const pointDelta = POINTDELTAMAP[fee];
-    const decimalRate =
+    let decimalRate =
       Math.pow(10, tokenY.decimals) / Math.pow(10, tokenX.decimals);
-    const init_point = getPointByPrice(pointDelta, createPoolRate, decimalRate);
-    create_pool({
-      token_a: tokenX.id,
-      token_b: tokenY.id,
-      fee: currentSelectedPool.fee,
-      init_point,
-    });
+    let init_point = getPointByPrice(
+      pointDelta,
+      createPoolRate,
+      decimalRate,
+      true
+    );
+    const arr = [tokenX.symbol, tokenY.symbol];
+    arr.reverse();
+    if (arr[0] !== tokenX.symbol) {
+      decimalRate =
+        Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
+      init_point = getPointByPrice(
+        pointDelta,
+        new BigNumber(1).dividedBy(createPoolRate).toFixed(),
+        decimalRate,
+        true
+      );
+      create_pool({
+        token_a: tokenY.id,
+        token_b: tokenX.id,
+        fee: currentSelectedPool.fee,
+        init_point,
+      });
+    } else {
+      create_pool({
+        token_a: tokenX.id,
+        token_b: tokenY.id,
+        fee: currentSelectedPool.fee,
+        init_point,
+      });
+    }
   }
   function switchRate() {
     setRateStatus(!rateStatus);
@@ -812,19 +831,19 @@ function CreatePoolComponent({
               <div className="flex items-center text-xs text-white">
                 {rateStatus ? (
                   <div className="mr-0.5">
-                    1 {toRealSymbol(tokenX?.symbol)} = {createPoolRate}{' '}
-                    {toRealSymbol(tokenY?.symbol)}
-                    <span className="text-v3LightGreyColor ml-0.5">
+                    1 {toRealSymbol(tokenX?.symbol)}
+                    <span className="text-v3LightGreyColor mx-0.5">
                       ({getCurrentPriceValue(tokenX)})
                     </span>
+                    = {createPoolRate} {toRealSymbol(tokenY?.symbol)}
                   </div>
                 ) : (
                   <div className="mr-0.5">
-                    1 {toRealSymbol(tokenY?.symbol)} = {getPoolRate()}{' '}
-                    {toRealSymbol(tokenX?.symbol)}
-                    <span className="text-v3LightGreyColor ml-0.5">
+                    1 {toRealSymbol(tokenY?.symbol)}
+                    <span className="text-v3LightGreyColor mx-0.5">
                       ({getCurrentPriceValue(tokenY)})
                     </span>
+                    = {getPoolRate()} {toRealSymbol(tokenX?.symbol)}
                   </div>
                 )}
 
@@ -1548,7 +1567,7 @@ function OneSide({ show }: { show: boolean }) {
       }`}
     >
       <BoxDarkBg className="absolute top-0 right-0"></BoxDarkBg>
-      <SideIcon className="mr-5"></SideIcon>
+      <SideIcon className="mr-5 flex-shrink-0"></SideIcon>
       <div className="relative z-10 text-white text-sm">
         The maket price is outside your price range.Single asset deposit only.
       </div>
@@ -1587,16 +1606,15 @@ function InputAmount({
   currentSelectedPool: PoolInfo;
   hidden: Boolean;
 }) {
-  const [inputValue, setInputValue] = useState('');
   const [inputPrice, setInputPrice] = useState('');
   useEffect(() => {
     const price = token ? tokenPriceList[token.id]?.price : '';
-    if (token && price && inputValue) {
-      setInputPrice(new BigNumber(price).multipliedBy(inputValue).toFixed());
+    if (price && amount) {
+      setInputPrice(new BigNumber(price).multipliedBy(amount).toFixed());
     } else {
       setInputPrice('');
     }
-  }, [inputValue, token, tokenPriceList.length]);
+  }, [amount, token, tokenPriceList.length]);
   function getBalance() {
     let r = '0';
     if (token && balance) {
@@ -1607,9 +1625,6 @@ function InputAmount({
   function showCurrentPrice() {
     if (inputPrice) {
       return '$' + formatWithCommas(toPrecision(inputPrice.toString(), 3));
-    }
-    if (amount) {
-      return '$' + formatWithCommas(toPrecision(amount.toString(), 3));
     }
     return '$-';
   }
@@ -1628,7 +1643,6 @@ function InputAmount({
           value={amount}
           onChange={({ target }) => {
             changeAmount(target.value);
-            setInputValue(target.value);
           }}
         />
         <span
@@ -1658,7 +1672,6 @@ function InputAmount({
                   ? '0'
                   : String(Number(balance) - 0.5);
               changeAmount(maxBalance);
-              setInputValue(maxBalance);
             }}
             className={`ml-2.5 text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
               false

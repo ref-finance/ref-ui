@@ -647,7 +647,7 @@ export const add_liquidity = async ({
       ],
     });
   }
-  if (token_x.id == WRAP_NEAR_CONTRACT_ID) {
+  if (+amount_x > 0 && token_x.id == WRAP_NEAR_CONTRACT_ID) {
     transactions.unshift({
       receiverId: WRAP_NEAR_CONTRACT_ID,
       functionCalls: [
@@ -660,7 +660,7 @@ export const add_liquidity = async ({
       ],
     });
   }
-  if (token_y.id == WRAP_NEAR_CONTRACT_ID) {
+  if (+amount_y > 0 && token_y.id == WRAP_NEAR_CONTRACT_ID) {
     transactions.unshift({
       receiverId: WRAP_NEAR_CONTRACT_ID,
       functionCalls: [

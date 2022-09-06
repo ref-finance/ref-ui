@@ -21,11 +21,15 @@ export function getPriceByPoint(point: number, decimalRate: number) {
 export function getPointByPrice(
   pointDelta: number,
   price: string,
-  decimalRate: number
+  decimalRate: number,
+  noNeedSlot?: boolean
 ) {
   const point = Math.log(+price * decimalRate) / Math.log(CONSTANT_D);
   const point_int = Math.round(point);
-  const point_int_slot = Math.floor(point_int / pointDelta) * pointDelta;
+  let point_int_slot = point_int;
+  if (!noNeedSlot) {
+    point_int_slot = Math.floor(point_int / pointDelta) * pointDelta;
+  }
   if (point_int_slot < POINTLEFTRANGE) {
     return POINTLEFTRANGE;
   } else if (point_int_slot > POINTRIGHTRANGE) {

@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-  useContext,
-} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
@@ -22,35 +15,18 @@ import {
   ButtonTextWrapper,
   ConnectToNearBtn,
 } from '~components/button/Button';
-import {
-  formatWithCommas,
-  toPrecision,
-  toReadableNumber,
-  toInternationalCurrencySystem,
-  percentLess,
-  calculateFairShare,
-  toNonDivisibleNumber,
-  percent,
-  checkAllocations,
-} from '~utils/numbers';
-import { ftGetTokenMetadata } from '../../services/ft-contract';
+import { toPrecision, toReadableNumber } from '~utils/numbers';
 import { TokenMetadata } from '../../services/ft-contract';
 import { useTokens } from '../../state/token';
 import {
   getPriceByPoint,
-  getPointByPrice,
   CONSTANT_D,
-  FEELIST,
-  POINTDELTAMAP,
-  DEFAULTSELECTEDFEE,
-  POINTLEFTRANGE,
-  POINTRIGHTRANGE,
   UserLiquidityInfo,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
-import { getTokenPriceList } from '../../services/indexer';
 import { getBoostTokenPrices } from '../../services/farm';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
+import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import { YourLiquidityPage } from '../pools/YourLiquidityPage';
 import { WalletContext } from '../../utils/sender-wallet';
 import {
@@ -232,6 +208,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
+  const [showAddBox, setShowAddBox] = useState<boolean>(false);
   const {
     lpt_id,
     owner_id,
@@ -494,7 +471,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
           <GradientButton
             onClick={(e) => {
               e.stopPropagation();
-              goAddLiquidityPage();
+              setShowAddBox(true);
             }}
             color="#fff"
             className={`w-20 h-8 text-center text-sm text-white focus:outline-none mr-2.5`}
@@ -561,6 +538,26 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
           },
         }}
       ></RemovePoolV3>
+      <AddPoolV3
+        isOpen={showAddBox}
+        onRequestClose={() => {
+          setShowAddBox(false);
+        }}
+        tokenMetadata_x_y={tokenMetadata_x_y}
+        poolDetail={poolDetail}
+        tokenPriceList={tokenPriceList}
+        userLiquidity={liquidityDetail}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            transform: 'translate(-50%, -50%)',
+          },
+        }}
+      ></AddPoolV3>
     </div>
   );
 }
