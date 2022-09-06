@@ -76,6 +76,7 @@ export interface PoolInfoV3 {
   point_delta: number;
   current_point: number;
   state: string; // running or paused
+  total_liquidity: string;
 }
 
 export const quote = async ({
@@ -489,7 +490,7 @@ export const get_pool = async (pool_id: string, token0: string) => {
         current_point: -res.current_point,
       };
     }
-  });
+  }) as Promise<PoolInfoV3>;
 };
 
 export const get_pointorder_range = ({

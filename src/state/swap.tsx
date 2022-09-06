@@ -695,7 +695,7 @@ export const useLimitOrder = ({
         setPools(res);
 
         const counts = res?.map((r) =>
-          r?.liquidity ? Number(r?.liquidity) : 0
+          r?.total_liquidity ? Number(r?.total_liquidity) : 0
         );
         const sumOfCounts = _.sum(counts);
 
