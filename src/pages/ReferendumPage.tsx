@@ -85,7 +85,7 @@ import {
   TIMESTAMP_DIVISOR,
 } from '../components/layout/Proposal';
 
-import { WalletContext } from '~utils/wallets-integration';
+import { WalletContext } from '../utils/wallets-integration';
 
 import { scientificNotationToString, toPrecision } from '../utils/numbers';
 import { WarnTriangle } from '../components/icon/SwapRefresh';

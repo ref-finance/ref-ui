@@ -25,7 +25,7 @@ import { InjectedWallet } from '@near-wallet-selector/core';
 
 import getConfig from '../services/config';
 
-import './modal-ui/components/styles';
+import './modal-ui/components/styles.css';
 import {
   REF_FARM_CONTRACT_ID,
   wallet,

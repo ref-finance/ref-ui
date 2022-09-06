@@ -49,7 +49,7 @@ import {
   SignoutIcon,
 } from '~components/icon/Common';
 
-import { WalletContext } from '~utils/wallets-integration';
+import { WalletContext } from '../../utils/wallets-integration';
 
 const config = getConfig();
 import { isMobile } from '~utils/device';

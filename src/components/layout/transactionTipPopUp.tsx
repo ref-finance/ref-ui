@@ -5,7 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import { CloseIcon } from '../icon/Actions';
 import { isMobile } from '../../utils/device';
 import { checkTransaction } from '../../services/swap';
-import { getCurrentWallet } from '~utils/wallets-integration';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 import { ErrorTriangle } from '../icon/SwapRefresh';
 
 export enum TRANSACTION_WALLET_TYPE {
