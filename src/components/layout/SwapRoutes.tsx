@@ -504,10 +504,15 @@ export const CrossSwapAllResult = ({
       className={`w-full relative top-8 ${showAllResult ? '' : 'mb-4'} `}
     >
       <span
-        className={`gradientBorderWrapperNoShadow z-50  rounded-2xl text-sm text-farmText mx-auto relative bottom-1 flex items-center justify-center cursor-pointer bg-cardBg `}
+        className={` ${
+          showAllResult ? 'gradientBorderWrapperNoShadow' : ''
+        } z-50  rounded-2xl text-sm text-farmText mx-auto relative bottom-1 flex items-center justify-center cursor-pointer bg-cardBg `}
         style={{
           width: '120px',
-          border: 'solid 1px transparent',
+
+          border: `solid 1px ${
+            showAllResult ? 'transparent' : 'rgba(145, 162, 174, 0.2)'
+          }`,
         }}
         onClick={() => {
           setShowAllResult(!showAllResult);
