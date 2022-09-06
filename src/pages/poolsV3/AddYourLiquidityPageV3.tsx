@@ -446,8 +446,11 @@ export default function AddYourLiquidityPageV3() {
       setTokenY(tokenX);
       setTokenXAmount(tokenYAmount);
       setTokenYAmount(tokenXAmount);
+      setTokenXBalanceFromNear(tokenYBalanceFromNear);
+      setTokenYBalanceFromNear(tokenXBalanceFromNear);
     }
   }
+  const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
   return (
     <div className="relative flex flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto text-white rounded-2xl">
       <div
@@ -654,7 +657,15 @@ export default function AddYourLiquidityPageV3() {
                   amount={tokenXAmount}
                   changeAmount={changeTokenXAmount}
                   currentSelectedPool={currentSelectedPool}
-                  hidden={onlyAddYToken || invalidRange ? true : false}
+                  hidden={
+                    tokenSort
+                      ? onlyAddYToken || invalidRange
+                        ? true
+                        : false
+                      : onlyAddXToken || invalidRange
+                      ? true
+                      : false
+                  }
                 ></InputAmount>
                 <InputAmount
                   token={tokenY}
@@ -663,7 +674,15 @@ export default function AddYourLiquidityPageV3() {
                   amount={tokenYAmount}
                   changeAmount={changeTokenYAmount}
                   currentSelectedPool={currentSelectedPool}
-                  hidden={onlyAddXToken || invalidRange ? true : false}
+                  hidden={
+                    tokenSort
+                      ? onlyAddXToken || invalidRange
+                        ? true
+                        : false
+                      : onlyAddYToken || invalidRange
+                      ? true
+                      : false
+                  }
                 ></InputAmount>
               </div>
             </div>
@@ -1023,17 +1042,33 @@ function AddLiquidityComponent({
     const condition1 = currentSelectedPool?.pool_id;
     let condition2;
     if (onlyAddXToken) {
-      condition2 =
-        +tokenXAmount > 0 &&
-        new BigNumber(
-          getMax(tokenX, tokenXBalanceFromNear)
-        ).isGreaterThanOrEqualTo(tokenXAmount);
+      if (tokenSort) {
+        condition2 =
+          +tokenXAmount > 0 &&
+          new BigNumber(
+            getMax(tokenX, tokenXBalanceFromNear)
+          ).isGreaterThanOrEqualTo(tokenXAmount);
+      } else {
+        condition2 =
+          +tokenYAmount > 0 &&
+          new BigNumber(
+            getMax(tokenY, tokenYBalanceFromNear)
+          ).isGreaterThanOrEqualTo(+tokenYAmount);
+      }
     } else if (onlyAddYToken) {
-      condition2 =
-        +tokenYAmount > 0 &&
-        new BigNumber(
-          getMax(tokenY, tokenYBalanceFromNear)
-        ).isGreaterThanOrEqualTo(+tokenYAmount);
+      if (tokenSort) {
+        condition2 =
+          +tokenYAmount > 0 &&
+          new BigNumber(
+            getMax(tokenY, tokenYBalanceFromNear)
+          ).isGreaterThanOrEqualTo(+tokenYAmount);
+      } else {
+        condition2 =
+          +tokenXAmount > 0 &&
+          new BigNumber(
+            getMax(tokenX, tokenXBalanceFromNear)
+          ).isGreaterThanOrEqualTo(tokenXAmount);
+      }
     } else if (!invalidRange) {
       condition2 =
         +tokenXAmount > 0 &&
@@ -1108,7 +1143,6 @@ function AddLiquidityComponent({
     });
   }
   function quickChangePoint(item: string | number) {
-    // todo
     if (currentCheckedQuickOption == item) return;
     const { point_delta } = currentSelectedPool;
     const decimalRateTurn =
@@ -1201,8 +1235,8 @@ function AddLiquidityComponent({
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
-  const isAddLiquidityDisabled = getButtonStatus();
   const tokenSort = tokenX.id == currentSelectedPool.token_x;
+  const isAddLiquidityDisabled = getButtonStatus();
   return (
     <div className={`flex flex-col justify-between flex-grow self-stretch`}>
       <div className="text-white font-bold text-base">Set Price Range</div>
