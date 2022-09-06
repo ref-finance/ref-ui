@@ -744,15 +744,39 @@ function CreatePoolComponent({
     setCreatePoolButtonLoading(true);
     const { fee } = currentSelectedPool;
     const pointDelta = POINTDELTAMAP[fee];
-    const decimalRate =
+    let decimalRate =
       Math.pow(10, tokenY.decimals) / Math.pow(10, tokenX.decimals);
-    const init_point = getPointByPrice(pointDelta, createPoolRate, decimalRate);
-    create_pool({
-      token_a: tokenX.id,
-      token_b: tokenY.id,
-      fee: currentSelectedPool.fee,
-      init_point,
-    });
+    let init_point = getPointByPrice(
+      pointDelta,
+      createPoolRate,
+      decimalRate,
+      true
+    );
+    const arr = [tokenX.symbol, tokenY.symbol];
+    arr.reverse();
+    if (arr[0] !== tokenX.symbol) {
+      decimalRate =
+        Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
+      init_point = getPointByPrice(
+        pointDelta,
+        new BigNumber(1).dividedBy(createPoolRate).toFixed(),
+        decimalRate,
+        true
+      );
+      create_pool({
+        token_a: tokenY.id,
+        token_b: tokenX.id,
+        fee: currentSelectedPool.fee,
+        init_point,
+      });
+    } else {
+      create_pool({
+        token_a: tokenX.id,
+        token_b: tokenY.id,
+        fee: currentSelectedPool.fee,
+        init_point,
+      });
+    }
   }
   function switchRate() {
     setRateStatus(!rateStatus);
@@ -807,19 +831,19 @@ function CreatePoolComponent({
               <div className="flex items-center text-xs text-white">
                 {rateStatus ? (
                   <div className="mr-0.5">
-                    1 {toRealSymbol(tokenX?.symbol)} = {createPoolRate}{' '}
-                    {toRealSymbol(tokenY?.symbol)}
-                    <span className="text-v3LightGreyColor ml-0.5">
+                    1 {toRealSymbol(tokenX?.symbol)}
+                    <span className="text-v3LightGreyColor mx-0.5">
                       ({getCurrentPriceValue(tokenX)})
                     </span>
+                    = {createPoolRate} {toRealSymbol(tokenY?.symbol)}
                   </div>
                 ) : (
                   <div className="mr-0.5">
-                    1 {toRealSymbol(tokenY?.symbol)} = {getPoolRate()}{' '}
-                    {toRealSymbol(tokenX?.symbol)}
-                    <span className="text-v3LightGreyColor ml-0.5">
+                    1 {toRealSymbol(tokenY?.symbol)}
+                    <span className="text-v3LightGreyColor mx-0.5">
                       ({getCurrentPriceValue(tokenY)})
                     </span>
+                    = {getPoolRate()} {toRealSymbol(tokenX?.symbol)}
                   </div>
                 )}
 
