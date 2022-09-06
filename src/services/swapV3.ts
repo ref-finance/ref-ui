@@ -672,6 +672,30 @@ export const add_liquidity = async ({
       ],
     });
   }
+  const ftBalance_x = ftGetStorageBalance(token_x.id);
+  if (!ftBalance_x) {
+    transactions.unshift({
+      receiverId: token_x.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+  const ftBalance_y = ftGetStorageBalance(token_y.id);
+  if (!ftBalance_y) {
+    transactions.unshift({
+      receiverId: token_y.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
   const neededStorage = await checkTokenNeedsStorageDeposit_v3();
   if (neededStorage) {
     transactions.unshift({
@@ -713,6 +737,32 @@ export const remove_liquidity = async ({
       ],
     },
   ];
+
+  const ftBalance_x = ftGetStorageBalance(token_x.id);
+  if (!ftBalance_x) {
+    transactions.unshift({
+      receiverId: token_x.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+  const ftBalance_y = ftGetStorageBalance(token_y.id);
+  if (!ftBalance_y) {
+    transactions.unshift({
+      receiverId: token_y.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+
   const neededStorage = await checkTokenNeedsStorageDeposit_v3();
   if (neededStorage) {
     transactions.unshift({
