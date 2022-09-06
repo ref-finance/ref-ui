@@ -17,34 +17,16 @@ import { PoolSlippageSelectorV3 } from '~components/forms/SlippageSelector';
 import Modal from 'react-modal';
 import BigNumber from 'bignumber.js';
 import {
-  formatWithCommas,
   toPrecision,
   toReadableNumber,
-  toInternationalCurrencySystem,
-  percentLess,
-  calculateFairShare,
   toNonDivisibleNumber,
-  percent,
-  checkAllocations,
 } from '~utils/numbers';
 import {
   getPriceByPoint,
-  getPointByPrice,
   CONSTANT_D,
-  FEELIST,
-  POINTDELTAMAP,
-  DEFAULTSELECTEDFEE,
-  POINTLEFTRANGE,
-  POINTRIGHTRANGE,
   UserLiquidityInfo,
 } from '../../services/commonV3';
-import {
-  list_liquidities,
-  get_pool,
-  PoolInfo,
-  remove_liquidity,
-  get_liquidity,
-} from '../../services/swapV3';
+import { PoolInfo, remove_liquidity } from '../../services/swapV3';
 import _ from 'lodash';
 export const RemovePoolV3 = (props: any) => {
   const {

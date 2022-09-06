@@ -56,11 +56,7 @@ import {
   formatWithCommas,
   toPrecision,
   toReadableNumber,
-  toInternationalCurrencySystem,
-  percentLess,
-  calculateFairShare,
   toNonDivisibleNumber,
-  percent,
   checkAllocations,
 } from '~utils/numbers';
 import { WalletContext } from '../../utils/sender-wallet';
@@ -187,7 +183,6 @@ export default function AddYourLiquidityPageV3() {
         )
           return true;
       });
-      console.log('888888-availablePools', availablePools);
       if (availablePools.length > 0) {
         let totalLiquidity = 0;
         let percents: string[];
@@ -1548,7 +1543,7 @@ function OneSide({ show }: { show: boolean }) {
       }`}
     >
       <BoxDarkBg className="absolute top-0 right-0"></BoxDarkBg>
-      <SideIcon className="mr-5"></SideIcon>
+      <SideIcon className="mr-5 flex-shrink-0"></SideIcon>
       <div className="relative z-10 text-white text-sm">
         The maket price is outside your price range.Single asset deposit only.
       </div>
@@ -1587,16 +1582,15 @@ function InputAmount({
   currentSelectedPool: PoolInfo;
   hidden: Boolean;
 }) {
-  const [inputValue, setInputValue] = useState('');
   const [inputPrice, setInputPrice] = useState('');
   useEffect(() => {
     const price = token ? tokenPriceList[token.id]?.price : '';
-    if (token && price && inputValue) {
-      setInputPrice(new BigNumber(price).multipliedBy(inputValue).toFixed());
+    if (price && amount) {
+      setInputPrice(new BigNumber(price).multipliedBy(amount).toFixed());
     } else {
       setInputPrice('');
     }
-  }, [inputValue, token, tokenPriceList.length]);
+  }, [amount, token, tokenPriceList.length]);
   function getBalance() {
     let r = '0';
     if (token && balance) {
@@ -1607,9 +1601,6 @@ function InputAmount({
   function showCurrentPrice() {
     if (inputPrice) {
       return '$' + formatWithCommas(toPrecision(inputPrice.toString(), 3));
-    }
-    if (amount) {
-      return '$' + formatWithCommas(toPrecision(amount.toString(), 3));
     }
     return '$-';
   }
@@ -1628,7 +1619,6 @@ function InputAmount({
           value={amount}
           onChange={({ target }) => {
             changeAmount(target.value);
-            setInputValue(target.value);
           }}
         />
         <span
@@ -1658,7 +1648,6 @@ function InputAmount({
                   ? '0'
                   : String(Number(balance) - 0.5);
               changeAmount(maxBalance);
-              setInputValue(maxBalance);
             }}
             className={`ml-2.5 text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
               false

@@ -23,6 +23,7 @@ import {
   ConnectToNearBtn,
 } from '~components/button/Button';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
+import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import {
   formatWithCommas,
   toPrecision,
@@ -61,6 +62,7 @@ export default function YourLiquidityDetail(props: any) {
   const [tokenYAmount, setTokenYAmount] = useState('');
   const [isInrange, setIsInrange] = useState<boolean>(true);
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
+  const [showAddBox, setShowAddBox] = useState<boolean>(false);
   const history = useHistory();
   const hashId = location.hash?.split('#')[1];
   const poolId = (props.match.params?.poolId || '').replace(/@/g, '|');
@@ -245,11 +247,6 @@ export default function YourLiquidityDetail(props: any) {
     }
     return value;
   }
-  function goAddLiquidityPage() {
-    if (poolDetail) {
-      history.push(`/addLiquidityV3#${poolDetail.pool_id}`);
-    }
-  }
   return (
     <div className={`m-auto lg:w-2/5 md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="flex items-center text-v3SwapGray hover:text-white">
@@ -300,7 +297,7 @@ export default function YourLiquidityDetail(props: any) {
           <GradientButton
             onClick={(e) => {
               e.stopPropagation();
-              goAddLiquidityPage();
+              setShowAddBox(true);
             }}
             color="#fff"
             className={`w-20 h-8 text-center text-sm text-white focus:outline-none mr-2.5`}
@@ -475,6 +472,26 @@ export default function YourLiquidityDetail(props: any) {
           },
         }}
       ></RemovePoolV3>
+      <AddPoolV3
+        isOpen={showAddBox}
+        onRequestClose={() => {
+          setShowAddBox(false);
+        }}
+        tokenMetadata_x_y={tokenMetadata_x_y}
+        poolDetail={poolDetail}
+        tokenPriceList={tokenPriceList}
+        userLiquidity={userLiquidity}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            transform: 'translate(-50%, -50%)',
+          },
+        }}
+      ></AddPoolV3>
     </div>
   );
 }
