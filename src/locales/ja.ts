@@ -857,5 +857,7 @@ const ja = {
   no_support_testnet_rpc_tip:
     'Testnet はカスタム RPC の追加をサポートしていません',
   farm_only: '農場のみ',
+  please_confirm_this_transaction_on_ledger:
+    'この取引をLedgerで確認してください',
 };
 export default Object.assign(ja, ja_in_risks_page);

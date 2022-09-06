@@ -1010,6 +1010,7 @@ export default function SwapCard(props: {
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
       />
+
       {swapMode === SWAP_MODE.STABLE ? (
         <TokenReserves
           tokens={AllStableTokenIds.map((id) =>

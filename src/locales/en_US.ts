@@ -849,5 +849,7 @@ const en_US = {
     "RPC server's network (testnet) is different with this network(mainnet)",
   no_support_testnet_rpc_tip: 'Testnet does not support adding custom RPC',
   farm_only: 'Farm only',
+  please_confirm_this_transaction_on_ledger:
+    'Please confirm this transaction on Ledger',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

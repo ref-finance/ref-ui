@@ -848,5 +848,7 @@ const ko = {
   no_support_testnet_rpc_tip:
     '테스트넷은 사용자 지정 RPC 추가를 지원하지 않습니다',
   farm_only: '농장만',
+  please_confirm_this_transaction_on_ledger:
+    'Ledger에서 이 거래를 확인하십시오.',
 };
 export default Object.assign(ko, ko_in_risks_page);

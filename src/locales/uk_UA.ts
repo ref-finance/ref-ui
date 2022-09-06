@@ -824,5 +824,7 @@ const uk_UA = {
   no_support_testnet_rpc_tip: 'Testnet не підтримує додавання власного RPC',
   farm_only: 'Тільки ферма',
   value: 'значення',
+  please_confirm_this_transaction_on_ledger:
+    'Підтвердьте цю транзакцію в Ledger',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

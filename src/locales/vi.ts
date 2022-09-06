@@ -858,5 +858,7 @@ const vi = {
   no_support_testnet_rpc_tip: 'Testnet không hỗ trợ thêm RPC tùy chỉnh',
   farm_only: 'Chỉ trang trại',
   value: 'giá trị',
+  please_confirm_this_transaction_on_ledger:
+    'Vui lòng xác nhận giao dịch này trên Ledger',
 };
 export default Object.assign(vi, vi_in_risks_page);

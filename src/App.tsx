@@ -34,6 +34,7 @@ import {
 } from './context/WalletSelectorContext';
 
 import { Content } from '~Content';
+import { LedgerTransactionModal } from './context/modal-ui/modal';
 
 function App() {
   return (
@@ -49,6 +50,8 @@ function App() {
         <Footer />
         <PopUpSwiper></PopUpSwiper>
       </div>
+
+      <LedgerTransactionModal />
     </Router>
   );
 }

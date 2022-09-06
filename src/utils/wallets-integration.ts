@@ -21,6 +21,7 @@ import {
   TRANSACTION_WALLET_TYPE,
   TRANSACTION_STATE,
 } from '../components/layout/transactionTipPopUp';
+import { WalletSelector } from '@near-wallet-selector/core';
 
 export const SENDER_WALLET_SIGNEDIN_STATE_KEY =
   'SENDER_WALLET_SIGNEDIN_STATE_VALUE';
@@ -302,3 +303,20 @@ export const globalStateReducer = (
 
 //   window.location.href = newHref;
 // };
+
+export const ledgerTipTrigger = async (wallet: WalletSelector) => {
+  const handlePopTrigger = () => {
+    const el = document.getElementsByClassName(
+      'ledger-transaction-pop-up'
+    )?.[0];
+    if (el) {
+      el.setAttribute('style', 'display:flex');
+    }
+  };
+
+  const isLedger = (await wallet.wallet()).id === 'ledger';
+
+  if (isLedger) {
+    handlePopTrigger();
+  }
+};

@@ -22,6 +22,7 @@ import {
   WALLET_TYPE,
 } from '../utils/wallets-integration';
 import { AccountView } from 'near-api-js/lib/providers/provider';
+import { ledgerTipTrigger } from '../utils/wallets-integration';
 import {
   addQueryParams,
   extraWalletsError,
@@ -228,6 +229,8 @@ export const refFiManyFunctionCalls = async (
   );
   const { wallet } = getCurrentWallet();
 
+  await ledgerTipTrigger(wallet);
+
   return (await wallet.wallet()).signAndSendTransaction({
     signerId: wallet.getAccountId()!,
     receiverId: REF_FI_CONTRACT_ID,
@@ -274,6 +277,8 @@ export const executeMultipleTransactions = async (
     });
   });
 
+  await ledgerTipTrigger(wallet);
+
   return (await wallet.wallet())
     .signAndSendTransactions({
       transactions: wstransactions,
@@ -317,6 +322,7 @@ export const refFarmFunctionCall = async ({
   amount,
 }: RefFiFunctionCallOptions) => {
   const { wallet } = getCurrentWallet();
+  await ledgerTipTrigger(wallet);
 
   if ((await wallet.wallet()).id === 'sender') {
     return window.near
@@ -413,7 +419,11 @@ export const refFarmManyFunctionCalls = async (
   const actions = functionCalls.map((fc) =>
     functionCall(fc.methodName, fc.args, getGas(fc.gas), getAmount(fc.amount))
   );
+
   const { wallet } = getCurrentWallet();
+
+  await ledgerTipTrigger(wallet);
+
   return (await wallet.wallet()).signAndSendTransaction({
     signerId: wallet.getAccountId()!,
     receiverId: REF_FARM_CONTRACT_ID,
@@ -480,6 +490,8 @@ export const refFarmBoostFunctionCall = async ({
   amount,
 }: RefFiFunctionCallOptions) => {
   const { wallet } = getCurrentWallet();
+
+  await ledgerTipTrigger(wallet);
 
   if ((await wallet.wallet()).id === 'sender') {
     return window.near

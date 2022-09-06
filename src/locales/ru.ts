@@ -857,5 +857,7 @@ const ru = {
     'Testnet не поддерживает добавление пользовательских RPC',
   farm_only: 'Только ферма',
   value: 'ценность',
+  please_confirm_this_transaction_on_ledger:
+    'Пожалуйста, подтвердите эту транзакцию в Ledger',
 };
 export default Object.assign(ru, ru_in_risks_page);
