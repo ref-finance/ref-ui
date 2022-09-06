@@ -194,8 +194,8 @@ export const useSwapPopUp = (swapMode: SWAP_MODE) => {
         const swapAmount = toReadableNumber(
           sellToken.decimals,
           scientificNotationToString(
-            new Big(order.original_deposit_amount)
-              .minus(toNonDivisibleNumber(sellToken.decimals, limitOrderAmount))
+            new Big(order.original_deposit_amount || '0')
+              .minus(order.original_amount || '0')
               .toString()
           )
         );

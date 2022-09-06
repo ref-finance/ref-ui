@@ -222,7 +222,12 @@ function Anchor({
         </h2>
 
         {!!subMenu && hover && (
-          <span className="top-10 pt-2 absolute z-50">
+          <span
+            className="top-10 pt-2 absolute"
+            style={{
+              zIndex: 9999,
+            }}
+          >
             <div
               className="py-2  px-1.5 rounded-xl min-w-28 flex flex-col"
               style={{

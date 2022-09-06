@@ -30,6 +30,8 @@ import moment from 'moment';
 import { DownArrowVE, UpArrowVE } from '../components/icon/Referendum';
 import { Loading } from '~components/icon/Loading';
 import { RouterArrowLeft, RouterArrowRight } from '../components/icon/Arrows';
+import QuestionMark from '../components/farm/QuestionMark';
+import ReactTooltip from 'react-tooltip';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -148,6 +150,7 @@ function OrderCard({
       </div>
     );
   }
+
   const sellAmountToBuyAmount = (
     undecimaled_amount: string,
     order: UserOrderInfo,
@@ -189,10 +192,7 @@ function OrderCard({
     const sellToken = tokensMap[order.sell_token];
 
     if (!buyToken || !sellToken) return null;
-    const unClaimedAmount = toReadableNumber(
-      buyToken.decimals,
-      order.unclaimed_amount || '0'
-    );
+
     const calPoint =
       sellToken.id === order.pool_id.split(V3_POOL_SPLITER)[0]
         ? order.point
@@ -204,6 +204,25 @@ function OrderCard({
       point: calPoint,
     });
 
+    const unClaimedAmount = toReadableNumber(
+      buyToken.decimals,
+      order.unclaimed_amount || '0'
+    );
+
+    const claimedAmount = toReadableNumber(
+      buyToken.decimals,
+      order.bought_amount || '0'
+    );
+    const buyAmount = sellAmountToBuyAmount(
+      order.original_amount,
+      order,
+      price
+    );
+
+    const pendingAmount = scientificNotationToString(
+      new Big(buyAmount).minus(unClaimedAmount).minus(claimedAmount).toString()
+    );
+
     const sellTokenAmount = (
       <div className="flex items-center justify-between">
         <span className="flex flex-shrink-0 items-center col-span-1">
@@ -213,15 +232,18 @@ function OrderCard({
             alt=""
           />
 
-          <span className="text-white text-sm mx-2">
-            {toPrecision(
-              toReadableNumber(sellToken.decimals, order.original_amount),
-              2
-            )}
-          </span>
+          <div className="flex flex-col ml-2">
+            <span className="text-white text-sm mr-2">
+              {toPrecision(
+                toReadableNumber(sellToken.decimals, order.original_amount),
+                2
+              )}
+            </span>
 
-          <span className="text-v3SwapGray text-xs">{sellToken.symbol}</span>
+            <span className="text-v3SwapGray text-xs">{sellToken.symbol}</span>
+          </div>
         </span>
+
         <span className="text-white text-lg pl-2 pr-1">
           <RouterArrowRight />
         </span>
@@ -229,24 +251,26 @@ function OrderCard({
     );
 
     const buyTokenAmount = (
-      <span className="flex items-center col-span-1 mr-4">
+      <span className="flex items-center col-span-1 ml-4">
         <img
           src={buyToken.icon}
           className="border flex-shrink-0 border-gradientFrom rounded-full w-7 h-7"
           alt=""
         />
 
-        <span
-          className="text-white mx-2 text-sm"
-          title={sellAmountToBuyAmount(order.original_amount, order, price)}
-        >
-          {toPrecision(
-            sellAmountToBuyAmount(order.original_amount, order, price),
-            2
-          )}
-        </span>
+        <div className="flex flex-col ml-2">
+          <span
+            className="text-white mr-2 text-sm"
+            title={sellAmountToBuyAmount(order.original_amount, order, price)}
+          >
+            {toPrecision(
+              sellAmountToBuyAmount(order.original_amount, order, price),
+              2
+            )}
+          </span>
 
-        <span className="text-v3SwapGray text-xs">{buyToken.symbol}</span>
+          <span className="text-v3SwapGray text-xs">{buyToken.symbol}</span>
+        </div>
       </span>
     );
 
@@ -257,14 +281,14 @@ function OrderCard({
         style={{
           color: '#78C6FF',
         }}
-        className="col-span-1 ml-4"
+        className="col-span-2 ml-6"
       >
         {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
       </span>
     );
 
     const orderRate = (
-      <span className="whitespace-nowrap col-span-1 flex items-center relative right-4">
+      <span className="whitespace-nowrap col-span-1 flex items-end flex-col relative right-4">
         <span className="mr-1 text-white text-sm">{toPrecision(price, 2)}</span>
         <span className="text-v3SwapGray text-xs">
           {`${buyToken.symbol}/${sellToken.symbol}`}
@@ -272,10 +296,10 @@ function OrderCard({
       </span>
     );
 
-    const pending = (
-      <span className="whitespace-nowrap col-span-1 flex items-center relative right-1">
+    const unclaim = (
+      <span className="whitespace-nowrap col-span-2 flex items-center ml-12">
         <img
-          src={sellToken.icon}
+          src={buyToken.icon}
           className="border border-gradientFrom rounded-full w-4 h-4"
           alt=""
         />
@@ -289,7 +313,7 @@ function OrderCard({
         <button
           className={`rounded-lg  bg-deepBlue  text-xs ml-1.5 p-1.5 ${
             ONLY_ZEROS.test(unClaimedAmount)
-              ? 'text-v3SwapGray cursor-not-allowe bg-black bg-opacity-25'
+              ? 'text-v3SwapGray cursor-not-allowe bg-black bg-opacity-25 cursor-not-allowed'
               : `text-white  hover:text-white hover:bg-deepBlueHover ${
                   claimLoading ? ' text-white bg-deepBlueHover ' : ''
                 }`
@@ -318,30 +342,41 @@ function OrderCard({
       </span>
     );
 
-    const unClaimedPercent = (
-      <span
-        className={`${
-          ONLY_ZEROS.test(order.unclaimed_amount || '0')
-            ? 'text-white '
-            : 'text-warn'
-        } col-span-1 justify-self-center pr-6`}
+    const unclaimTip = () => {
+      <div
+        className="ml-1 text-xs"
+        data-type="info"
+        data-place="left"
+        data-multiline={true}
+        data-class="reactTip"
+        data-html={true}
+        data-tip={`
+  <div className="text-xs">
+    <div 
+      style="max-width: 250px;font-weight:400; ",
+    >
+
+    </div>
+  </div>
+`}
+        data-for={'unclaim_tip_' + order.order_id}
       >
-        {new Big(
-          toReadableNumber(buyToken.decimals, order.unclaimed_amount || '0')
-        )
-          .div(
-            ONLY_ZEROS.test(order.original_amount || '0')
-              ? 1
-              : sellAmountToBuyAmount(order.original_amount, order, price)
-          )
-          .times(100)
-          .toFixed(0)}
-        %
-      </span>
-    );
+        <QuestionMark color="dark" />
+
+        <ReactTooltip
+          className="w-20"
+          id={'unclaim_tip_' + order.order_id}
+          backgroundColor="#1D2932"
+          border
+          borderColor="#7e8a93"
+          textColor="#C6D1DA"
+          effect="solid"
+        />
+      </div>;
+    };
 
     const created = (
-      <span className="col-span-1 relative whitespace-nowrap right-3 text-white text-right">
+      <span className="col-span-2 relative whitespace-nowrap right-12 text-white text-right">
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('YYYY-MM-DD HH:mm')}
@@ -378,14 +413,15 @@ function OrderCard({
     );
 
     return (
-      <div className="px-4 py-3 text-sm mb-4 grid grid-cols-8 w-full rounded-xl items-center  bg-cardBg">
+      <div className="px-4 py-3 text-sm mb-4 grid grid-cols-10 w-full rounded-xl items-center  bg-cardBg">
         {sellTokenAmount}
         {buyTokenAmount}
         {feeTier}
         {orderRate}
-        {pending}
-        {unClaimedPercent}
         {created}
+
+        {unclaim}
+
         {actions}
       </div>
     );
@@ -669,7 +705,7 @@ function OrderCard({
     <div className="flex flex-col">
       {OrderTab()}
       {orderType === 'active' && (
-        <div className="mb-2.5 px-4 text-v3SwapGray text-sm grid grid-cols-8 whitespace-nowrap">
+        <div className="mb-2.5 px-4 text-v3SwapGray text-sm grid grid-cols-10 whitespace-nowrap">
           <span className="col-span-1 text-left">
             <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
           </span>
@@ -678,16 +714,46 @@ function OrderCard({
             <FormattedMessage id="you_buy" defaultMessage={'You Buy'} />
           </span>
 
-          <span className="col-span-1">
+          <span className="col-span-2 ml-6">
             <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
           </span>
 
-          <span className="col-span-1 text-left relative right-2">
+          <span className="col-span-1">
             <FormattedMessage id="order_rates" defaultMessage={'Order Rates'} />
           </span>
 
           <button
-            className="col-span-1 flex items-center mr-4 text-right"
+            className="col-span-2 flex items-center ml-20"
+            onClick={() => {
+              setActiveSortBy('created');
+              if (activeSortBy === 'created') {
+                if (sortOrderActive === 'asc') {
+                  setSorOrderActive('desc');
+                } else {
+                  setSorOrderActive('asc');
+                }
+              } else {
+                setSorOrderActive('desc');
+              }
+            }}
+          >
+            <FormattedMessage id="created" defaultMessage={'Created'} />
+
+            <span
+              className={`ml-0.5 ${
+                activeSortBy === 'created' ? 'text-gradientFrom' : ''
+              }`}
+            >
+              {activeSortBy === 'created' && sortOrderActive === 'asc' ? (
+                <UpArrowVE />
+              ) : (
+                <DownArrowVE />
+              )}
+            </span>
+          </button>
+
+          <button
+            className="col-span-2 flex items-center ml-12 text-right"
             onClick={() => {
               setActiveSortBy('pending');
               if (activeSortBy === 'pending') {
@@ -718,8 +784,8 @@ function OrderCard({
               )}
             </span>
           </button>
-          <button
-            className="col-span-1 flex items-center  text-right"
+          {/* <button
+            className="col-span-2 flex items-center  text-right"
             onClick={() => {
               setActiveSortBy('unclaim');
               if (activeSortBy === 'unclaim') {
@@ -746,37 +812,8 @@ function OrderCard({
                 <DownArrowVE />
               )}
             </span>
-          </button>
+          </button> */}
 
-          <button
-            className="col-span-1 flex items-center relative lef-3  text-right"
-            onClick={() => {
-              setActiveSortBy('created');
-              if (activeSortBy === 'created') {
-                if (sortOrderActive === 'asc') {
-                  setSorOrderActive('desc');
-                } else {
-                  setSorOrderActive('asc');
-                }
-              } else {
-                setSorOrderActive('desc');
-              }
-            }}
-          >
-            <FormattedMessage id="created" defaultMessage={'Created'} />
-
-            <span
-              className={`ml-0.5 ${
-                activeSortBy === 'created' ? 'text-gradientFrom' : ''
-              }`}
-            >
-              {activeSortBy === 'created' && sortOrderActive === 'asc' ? (
-                <UpArrowVE />
-              ) : (
-                <DownArrowVE />
-              )}
-            </span>
-          </button>
           <span className="col-span-1 text-right">
             <FormattedMessage id="actions" defaultMessage={'Actions'} />
           </span>
@@ -921,6 +958,8 @@ function MyOrderPage() {
   const { activeOrder, historyOrder } = useMyOrders();
 
   const history = useHistory();
+
+  console.log(activeOrder, historyOrder, 'orders ');
 
   const ActiveTokenIds = activeOrder
     ?.map((order) => [order.sell_token, order.buy_token])
