@@ -163,8 +163,11 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
     const ft_resolved_tx_outcome =
       res?.receipts_outcome?.[ft_resolved_id]?.outcome;
 
+    const ft_on_transfer_logs =
+      res?.receipts_outcome?.[ft_on_transfer_id]?.outcome?.logs;
+
     const ft_on_transfer_log =
-      res?.receipts_outcome?.[ft_on_transfer_id]?.outcome?.logs?.[0];
+      ft_on_transfer_logs?.[ft_on_transfer_logs?.length - 1];
 
     const idx = ft_on_transfer_log?.indexOf('{');
 
