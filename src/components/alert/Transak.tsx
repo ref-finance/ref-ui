@@ -23,7 +23,7 @@ export function openTransak(accountId: string) {
     transak.close();
   });
   transak.on(transak.EVENTS.TRANSAK_ORDER_FAILED, () => {
-    normalFailToast('Transaction order was failed');
+    normalFailToast('Transaction order was failed.');
   });
   transak.on(transak.EVENTS.TRANSAK_ORDER_SUCCESSFUL, (successData: any) => {
     const fiatCurrency = successData?.status?.fiatCurrency;
@@ -31,7 +31,7 @@ export function openTransak(accountId: string) {
     const cryptoCurrency = successData?.status?.cryptoCurrency;
     const cryptoAmount = successData?.status?.cryptoAmount;
     normalSuccessToast(
-      `Transaction order to buy from ${fiatAmount} ${fiatCurrency} to ${cryptoAmount} ${cryptoCurrency} was successfully, please wait for 1-3 minutes for completing the order`
+      `Transaction order to buy from ${fiatAmount} ${fiatCurrency} to ${cryptoAmount} ${cryptoCurrency} was successfully, please wait for 1-3 minutes for completing the order.`
     );
 
     transak.close();
