@@ -86,7 +86,7 @@ export function getTextWidth(str: string, fontSize: string) {
   result = ele.offsetWidth;
 
   document.documentElement.removeChild(ele);
-  return result + 20;
+  return result + 24;
 }
 
 export function HalfAndMaxAmount({
@@ -568,6 +568,9 @@ export function TokenAmountV3({
           }
           rateDiff={
             forLimitOrder &&
+            !ONLY_ZEROS.test(amount) &&
+            Number(rateDiff) !== 0 &&
+            !ONLY_ZEROS.test(curRate) &&
             marketPriceLimitOrder &&
             swapMode === SWAP_MODE.LIMIT ? (
               <span

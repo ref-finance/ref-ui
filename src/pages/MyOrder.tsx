@@ -260,11 +260,17 @@ function OrderCard({
       )
     );
 
-    const buyAmount = sellAmountToBuyAmount(
+    const buyAmountRaw = sellAmountToBuyAmount(
       order.original_amount,
       order,
       price
     );
+
+    const buyAmount = new Big(buyAmountRaw).gt(
+      toReadableNumber(buyToken.decimals, order.bought_amount || '0')
+    )
+      ? buyAmountRaw
+      : toReadableNumber(buyToken.decimals, order.bought_amount || '0');
 
     const totalOut = scientificNotationToString(
       new Big(buyAmount).plus(swapOut).toString()
@@ -294,12 +300,13 @@ function OrderCard({
       .toNumber();
 
     const displayPercents = checkAllocations('100', [
-      pUnClaimedAmount > 0 && pUnClaimedAmount < 5
-        ? '5'
-        : scientificNotationToString(pUnClaimedAmount.toString()),
       pClaimedAmount > 0 && pClaimedAmount < 5
         ? '5'
         : scientificNotationToString(pClaimedAmount.toString()),
+      pUnClaimedAmount > 0 && pUnClaimedAmount < 5
+        ? '5'
+        : scientificNotationToString(pUnClaimedAmount.toString()),
+
       pPendingAmount > 0 && pPendingAmount < 5
         ? '5'
         : scientificNotationToString(pPendingAmount.toString()),
@@ -820,11 +827,17 @@ function OrderCard({
       point: calPoint,
     });
 
-    const buyAmount = sellAmountToBuyAmount(
+    const buyAmountRaw = sellAmountToBuyAmount(
       order.original_amount,
       order,
       price
     );
+
+    const buyAmount = new Big(buyAmountRaw).gt(
+      toReadableNumber(buyToken.decimals, order.bought_amount || '0')
+    )
+      ? buyAmountRaw
+      : toReadableNumber(buyToken.decimals, order.bought_amount || '0');
 
     const totalOut = scientificNotationToString(
       new Big(buyAmount).plus(swapOut).toString()
@@ -861,6 +874,8 @@ function OrderCard({
         ? '5'
         : scientificNotationToString(pCancelAmount.toString()),
     ]);
+
+    console.log(displayPercents, 'dasdaa');
 
     const getClaimAmountTip = () => {
       return `

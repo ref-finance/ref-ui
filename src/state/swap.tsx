@@ -140,8 +140,14 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
       )
     );
 
+    const ft_on_transfer_id = res?.receipts?.findIndex((r: any) =>
+      r?.receipt?.Action?.actions?.some(
+        (a: any) => a?.FunctionCall?.method_name === 'ft_on_transfer'
+      )
+    );
+
     const ft_transfer_call_args = parseArgs(
-      res?.transaction?.actions?.[0]?.FunctionCall?.args
+      res?.transaction?.actions?.[0]?.FunctionCall?.args || ''
     );
 
     const parsedInputArgs = JSON.parse(ft_transfer_call_args || '');
@@ -157,11 +163,28 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
     const ft_resolved_tx_outcome =
       res?.receipts_outcome?.[ft_resolved_id]?.outcome;
 
-    const parsedValue = JSON.parse(
-      parsedTransactionSuccessValue(ft_resolved_tx_outcome)
+    const ft_on_transfer_log =
+      res?.receipts_outcome?.[ft_on_transfer_id]?.outcome?.logs?.[0];
+
+    const idx = ft_on_transfer_log?.indexOf('{');
+
+    const parsed_ft_on_transfer_log = JSON.parse(
+      ft_on_transfer_log.slice(idx) || ''
     );
 
-    const isFailed = ONLY_ZEROS.test(parsedValue);
+    const order_id = parsed_ft_on_transfer_log?.['data']?.[0]?.['order_id'];
+
+    const original_amount =
+      parsed_ft_on_transfer_log?.['data']?.[0]?.['original_amount'];
+
+    const original_deposit_amount =
+      parsed_ft_on_transfer_log?.['data']?.[0]?.['original_deposit_amount'];
+
+    const parsedValue = JSON.parse(
+      parsedTransactionSuccessValue(ft_resolved_tx_outcome) || ''
+    );
+
+    const isFailed = ONLY_ZEROS.test(parsedValue || 0);
 
     if (isFailed) {
       // failed transaction
@@ -177,26 +200,21 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
 
       const sellToken = await ftGetTokenMetadata(sell_token_id);
 
-      const order = await find_order({
-        pool_id,
-        point,
-      });
-
-      if (!!order) {
+      if (!!order_id) {
         const limitOrderAmount =
-          Number(toReadableNumber(sellToken.decimals, order.original_amount)) <
+          Number(toReadableNumber(sellToken.decimals, original_amount || '0')) <
           0.01
             ? '< 0.01'
             : toPrecision(
-                toReadableNumber(sellToken.decimals, order.original_amount),
+                toReadableNumber(sellToken.decimals, original_amount || '0'),
                 2
               );
 
         const swapAmount = toReadableNumber(
           sellToken.decimals,
           scientificNotationToString(
-            new Big(order.original_deposit_amount || '0')
-              .minus(order.original_amount || '0')
+            new Big(original_deposit_amount || '0')
+              .minus(original_amount || '0')
               .toString()
           )
         );

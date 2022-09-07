@@ -182,7 +182,7 @@ export const pointToPrice = ({
     .times(new Big(10).pow(tokenA.decimals))
     .div(new Big(10).pow(tokenB.decimals));
 
-  return decimal_price_A_by_B.toFixed(tokenB.decimals);
+  return scientificNotationToString(decimal_price_A_by_B.toString());
 };
 
 export const regularizedPoint = (point: number, fee: number) => {

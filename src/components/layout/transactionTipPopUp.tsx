@@ -452,7 +452,7 @@ export const LimitOrderPopUp = ({
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
-        lineHeight: '25px',
+        lineHeight: '30px',
       }}
     >
       <span className="mr-2.5 ">
