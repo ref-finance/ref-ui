@@ -25,6 +25,7 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   curAmount?: string;
   openClear?: boolean;
   forLimitOrder?: boolean;
+  rateDiff?: JSX.Element | string;
 }
 
 export default function InputAmount({
@@ -320,6 +321,7 @@ export function InputAmountV3({
   price,
   forLimitOrder,
   openClear,
+  rateDiff,
   ...rest
 }: InputAmountProps) {
   const ref = useRef<HTMLInputElement>();
@@ -353,6 +355,8 @@ export function InputAmountV3({
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
           />
+
+          {rateDiff}
 
           <button
             className="cursor-pointer text-primaryText hover:text-warn"

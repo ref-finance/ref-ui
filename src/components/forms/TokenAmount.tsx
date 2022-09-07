@@ -15,7 +15,12 @@ import {
   toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import SelectToken, { StableSelectToken } from './SelectToken';
-import { toPrecision, multiply, ONLY_ZEROS } from '../../utils/numbers';
+import {
+  toPrecision,
+  multiply,
+  ONLY_ZEROS,
+  scientificNotationToString,
+} from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { RefIcon } from '../../components/icon/Common';
@@ -28,6 +33,8 @@ import { isMobile } from '../../utils/device';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { InputAmountV3 } from './InputAmount';
+import Big from 'big.js';
+import { QuestionTip } from '../layout/TipWrapper';
 
 interface TokenAmountProps {
   amount?: string;
@@ -59,6 +66,22 @@ interface TokenAmountProps {
   limitOrderDisable?: boolean;
   curRate?: string;
   onChangeRate?: (rate: string) => void;
+}
+
+export function getTextWidth(str: string, fontSize: string) {
+  let result = 10;
+
+  let ele = document.createElement('span');
+
+  ele.innerText = str;
+  ele.style.fontSize = fontSize;
+
+  document.documentElement.append(ele);
+
+  result = ele.offsetWidth;
+
+  document.documentElement.removeChild(ele);
+  return result + 20;
 }
 
 export function HalfAndMaxAmount({
@@ -173,6 +196,14 @@ export function QuickAmountLimitOrder({
 
   return (
     <div className="flex items-center">
+      <span className="mr-2">
+        <QuestionTip
+          id="the_price_should_be_in_one_slot_nearby"
+          defaultMessage="The price should be in one slot nearby"
+          dataPlace="bottom"
+        />
+      </span>
+
       <span
         className={`px-2 py-1 mr-2 cursor-pointer rounded-xl  ${
           Number(amount) === Number(plus5)
@@ -391,6 +422,38 @@ export function TokenAmountV3({
         : String(Number(max) - 0.5)
       : max;
 
+  const plus5 = percentOfBigNumber(105, marketPriceLimitOrder || 0, 8);
+  const plus10 = percentOfBigNumber(110, marketPriceLimitOrder || 0, 8);
+
+  const forLimitOrderOut =
+    forLimitOrder && marketPriceLimitOrder && swapMode === SWAP_MODE.LIMIT;
+
+  const rateDiff = new Big(curRate || '0')
+    .minus(marketPriceLimitOrder || '0')
+    .div(marketPriceLimitOrder || '1')
+    .times(100);
+
+  console.log(rateDiff.toString());
+
+  const displayRateDiff =
+    Number(curRate) === Number(plus5)
+      ? 5
+      : Number(curRate) === Number(plus10)
+      ? 10
+      : Math.abs(Number(rateDiff)) < 1
+      ? (Number(rateDiff) < 0 ? '-' : '') +
+        toPrecision(
+          Number(rateDiff) < 0
+            ? rateDiff.toString().slice(1, rateDiff.toString().length)
+            : rateDiff.toString(),
+          1
+        )
+      : rateDiff.toFixed(0);
+
+  console.log(amount, 'amount');
+
+  console.log(displayRateDiff, 'rate idff');
+
   return (
     <div
       className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-xl px-4 pb-2 pt-4`}
@@ -466,6 +529,21 @@ export function TokenAmountV3({
           forSwap={!!forSwap}
           openClear={
             !!onChangeAmount && !forLimitOrder && !ONLY_ZEROS.test(amount)
+          }
+          rateDiff={
+            forLimitOrder &&
+            marketPriceLimitOrder &&
+            swapMode === SWAP_MODE.LIMIT ? (
+              <span
+                className="rounded-xl text-white py-0.5 absolute px-2"
+                style={{
+                  background: 'rgba(0, 130, 106, 0.2)',
+                  left: getTextWidth(amount, '20px') + 'px',
+                }}
+              >
+                {displayRateDiff}%
+              </span>
+            ) : null
           }
         />
         {ExtraElement}

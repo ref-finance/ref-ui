@@ -1433,9 +1433,6 @@ export default function SwapCard(props: {
     if (!mostPoolDetail) setCurOrderPrice(null);
 
     if (!mostPoolDetail || !tokenIn || !tokenOut || !quoteDoneLimit) {
-      // setLimitAmountOutRate('');
-      // setLimitAmountOut('');
-      // setCurOrderPrice(null);
       return;
     }
 
