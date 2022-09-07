@@ -1012,7 +1012,12 @@ function AddLiquidityComponent({
     if (direction == 'l') {
       setLeftPoint(Math.max(Math.min(POINTRIGHTRANGE, l_p), POINTLEFTRANGE));
     } else if (direction == 'r') {
-      setRightPoint(Math.max(Math.min(POINTRIGHTRANGE, r_p), POINTLEFTRANGE));
+      const target_slot_r = Math.max(
+        Math.min(POINTRIGHTRANGE, r_p),
+        POINTLEFTRANGE
+      );
+      if (target_slot_r - leftPoint >= POINTRIGHTRANGE) return;
+      setRightPoint(target_slot_r);
     }
   }
   function reduceOneSlot(direction: string) {
@@ -1020,7 +1025,12 @@ function AddLiquidityComponent({
     const l_p = leftPoint - point_delta;
     const r_p = rightPoint - point_delta;
     if (direction == 'l') {
-      setLeftPoint(Math.max(Math.min(POINTRIGHTRANGE, l_p), POINTLEFTRANGE));
+      const target_slot_l = Math.max(
+        Math.min(POINTRIGHTRANGE, l_p),
+        POINTLEFTRANGE
+      );
+      if (rightPoint - target_slot_l >= POINTRIGHTRANGE) return;
+      setLeftPoint(target_slot_l);
     } else if (direction == 'r') {
       setRightPoint(Math.max(Math.min(POINTRIGHTRANGE, r_p), POINTLEFTRANGE));
     }
@@ -1041,6 +1051,10 @@ function AddLiquidityComponent({
       );
       setLeftCustomPrice('');
       setLeftPoint(c_point);
+      if (rightPoint - c_point >= POINTRIGHTRANGE) {
+        const appropriate_r_point = POINTRIGHTRANGE + c_point - point_delta;
+        setRightPoint(appropriate_r_point);
+      }
     }
     if (rightCustomPrice) {
       if (!tokenSort) {
@@ -1055,6 +1069,10 @@ function AddLiquidityComponent({
       );
       setRightCustomPrice('');
       setRightPoint(c_point);
+      if (c_point - leftPoint >= POINTRIGHTRANGE) {
+        const appropriate_l_point = c_point - POINTRIGHTRANGE + point_delta;
+        setLeftPoint(appropriate_l_point);
+      }
     }
   }
   function getButtonStatus() {
@@ -1163,12 +1181,19 @@ function AddLiquidityComponent({
   }
   function quickChangePoint(item: string | number) {
     if (currentCheckedQuickOption == item) return;
-    const { point_delta } = currentSelectedPool;
+    const { point_delta, current_point } = currentSelectedPool;
     const decimalRateTurn =
       Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
     if (item == 'full') {
-      setLeftPoint(-800000);
-      setRightPoint(800000);
+      const l_p_temp = _.max([current_point - 400000, -800000]);
+      const r_p_temp = _.min([current_point + 400000, 800000]);
+      let l_p = Math.floor(l_p_temp / point_delta) * point_delta;
+      let r_p = Math.floor(r_p_temp / point_delta) * point_delta;
+      if (r_p - l_p >= POINTRIGHTRANGE) {
+        l_p = l_p + point_delta;
+      }
+      setLeftPoint(l_p);
+      setRightPoint(r_p);
     } else {
       const decimalRate =
         Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
@@ -1480,7 +1505,7 @@ function PointInputComponent({
   );
 }
 function NoDataComponent() {
-  const [quickOptions, setQuickOptions] = useState([1, 3, 5, 10]);
+  const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
   return (
     <div className={`flex flex-col justify-between flex-grow self-stretch`}>
       <div className="text-white font-bold text-base">Set Price Range</div>

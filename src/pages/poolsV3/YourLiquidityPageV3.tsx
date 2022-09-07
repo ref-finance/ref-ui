@@ -586,7 +586,7 @@ function NoLiquidity() {
         </span>
 
         <span className="text-white text-base">
-          Your active liquidity positions will appear here.
+          Your liquidity positions will appear here.
         </span>
         {isSignedIn ? null : (
           <div className="mt-5 w-72">
