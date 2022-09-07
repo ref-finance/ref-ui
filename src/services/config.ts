@@ -500,7 +500,10 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
       };
   }
 }
-export function getTransakConfig(env: string = process.env.NEAR_ENV) {
+export function getTransakConfig(
+  accountId: string,
+  env: string = process.env.NEAR_ENV
+) {
   switch (env) {
     case 'production':
     case 'mainnet':
@@ -512,6 +515,7 @@ export function getTransakConfig(env: string = process.env.NEAR_ENV) {
         themeColor: `#00C6A2`,
         hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
         defaultCryptoCurrency: 'NEAR',
+        walletAddress: accountId || '',
       };
     case 'development':
     case 'pub-testnet':
@@ -524,9 +528,9 @@ export function getTransakConfig(env: string = process.env.NEAR_ENV) {
         themeColor: `#00C6A2`,
         hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
         defaultCryptoCurrency: 'NEAR',
+        walletAddress: accountId || '',
       };
     default:
       return {};
   }
 }
-
