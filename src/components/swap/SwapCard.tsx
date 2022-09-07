@@ -1463,29 +1463,33 @@ export default function SwapCard(props: {
         tokenOut,
         mostPoolDetail.fee
       ),
-      8
+      8,
+      false,
+      false
     );
 
+    const displayRate = ONLY_ZEROS.test(regularizedRate) ? '' : regularizedRate;
+
     setLimitAmountOutRate(
-      priceKeep
-        ? regularizedRate || toPrecision(price, 8)
-        : toPrecision(price, 8)
+      priceKeep ? displayRate || toPrecision(price, 8) : toPrecision(price, 8)
     );
 
     setCurOrderPrice(
       priceKeep ? curOrderPrice || toPrecision(price, 8) : toPrecision(price, 8)
     );
 
-    setLimitAmountOut(
-      toPrecision(
-        scientificNotationToString(
-          new Big(priceKeep ? regularizedRate || price || 0 : price)
-            .times(tokenInAmount || 0)
-            .toString()
-        ),
-        8
-      )
+    const amountOut = toPrecision(
+      scientificNotationToString(
+        new Big(priceKeep ? displayRate || price || 0 : price)
+          .times(tokenInAmount || 0)
+          .toString()
+      ),
+      8,
+      false,
+      false
     );
+
+    setLimitAmountOut(ONLY_ZEROS.test(amountOut) ? '' : amountOut);
   }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
 
   const LimitChangeAmountOut = (amount: string) => {
@@ -1505,18 +1509,22 @@ export default function SwapCard(props: {
   };
 
   const onChangeLimitRate = (r: string) => {
-    // TODO: price to point to price, to regularize the price
+    // if (!r) return;
+    const curR = toPrecision(r, 8, false, false);
 
-    if (!r) return;
-    const curR = toPrecision(r, 8);
+    const displayCurR = ONLY_ZEROS.test(curR) ? '' : curR;
 
-    setLimitAmountOutRate(curR);
+    setLimitAmountOutRate(displayCurR);
 
     const curAmountOut = scientificNotationToString(
-      new Big(curR || 0).times(tokenInAmount || 0).toString()
+      new Big(displayCurR || 0).times(tokenInAmount || 0).toString()
     );
 
-    setLimitAmountOut(toPrecision(curAmountOut, 8));
+    setLimitAmountOut(
+      ONLY_ZEROS.test(curAmountOut)
+        ? ''
+        : toPrecision(curAmountOut, 8, false, false)
+    );
   };
 
   let PriceImpactValue: string = '0';
