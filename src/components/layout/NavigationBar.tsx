@@ -98,11 +98,14 @@ import {
   REF_FARM_CONTRACT_ID,
   REF_FARM_BOOST_CONTRACT_ID,
 } from '../../services/near';
+
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
-} from '../../context/WalletSelectorContext';
+} from '~context/WalletSelectorContext';
+
 import { Modal } from '~context/modal-ui/components/Modal';
+import { openTransak } from '../alert/Transak';
 
 const config = getConfig();
 
@@ -416,6 +419,19 @@ function AccountEntry({
                   }}
                 >
                   <FormattedMessage id="change" defaultMessage={'Change'} />
+                </button>
+              </div>
+              <div className="w-full px-7">
+                <button
+                  className="border border-transakBlue border-opacity-50   w-full  py-1.5 rounded-lg px-px text-xs text-transakBlue hover:border-transparent hover:text-white hover:bg-transakBlue"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openTransak(wallet.getAccountId());
+                  }}
+                >
+                  <span className="font-bold mr-1">Buy NEAR</span>
+                  with Fiat
                 </button>
               </div>
 

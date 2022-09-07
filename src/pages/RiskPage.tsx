@@ -7,7 +7,6 @@ import {
   ExternalLinkIcon,
   ShapeTitleIcon,
 } from '~components/icon/Risk';
-import { openTransak } from '~components/alert/Transak';
 
 export default function RiskPage() {
   const intl = useIntl();
@@ -53,7 +52,9 @@ export default function RiskPage() {
       <div className="flex justify-center items-center mt-5">
         <div
           onClick={() => {
-            openTransak();
+            window.open(
+              'https://form.typeform.com/to/EPmUetxU?typeform-source=mzko2gfnij6.typeform.com'
+            );
           }}
           className="flex justify-between items-center w-48 bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white mr-2.5"
         >

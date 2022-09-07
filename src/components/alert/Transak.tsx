@@ -1,8 +1,19 @@
 import transakSDK from '@transak/transak-sdk';
 import { getTransakConfig } from '~services/config';
+import { isClientMobie } from '../../utils/device';
 
 export function openTransak(accountId: string) {
-  const transak = new transakSDK(getTransakConfig(accountId));
+  const isMobile = isClientMobie();
+
+  const modalSize = {
+    widgetWidth: isMobile ? '90%' : getTransakConfig(accountId).widgetWidth,
+    widgetHeight: isMobile ? '90%' : getTransakConfig(accountId).widgetHeight,
+  };
+
+  const transak = new transakSDK({
+    ...getTransakConfig(accountId),
+    ...modalSize,
+  });
   transak.init();
   transak.on(transak.EVENTS.TRANSAK_WIDGET_CLOSE, () => {
     transak.close();

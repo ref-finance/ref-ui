@@ -73,6 +73,7 @@ import {
   ACCOUNT_ID_KEY,
 } from '../../context/WalletSelectorContext';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { openTransak } from '../alert/Transak';
 
 export function MobileAnchor({
   to,
@@ -415,6 +416,20 @@ export function AccountModel(props: any) {
             }}
           >
             <FormattedMessage id="change" defaultMessage={'Change'} />
+          </button>
+        </div>
+
+        <div className="w-full px-7">
+          <button
+            className="border border-transakBlue border-opacity-50   w-full  py-2.5 rounded-lg px-px text-xs text-transakBlue hover:border-transparent hover:text-white hover:bg-transakBlue"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              openTransak(wallet.getAccountId());
+            }}
+          >
+            <span className="font-bold mr-1">Buy NEAR</span>
+            with Fiat
           </button>
         </div>
 
