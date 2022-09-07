@@ -23,16 +23,27 @@ export function openTransak(accountId: string) {
     transak.close();
   });
   transak.on(transak.EVENTS.TRANSAK_ORDER_FAILED, () => {
-    normalFailToast('Transaction order was failed.');
+    const el = document.getElementsByClassName(
+      'Toastify__toast-container'
+    )?.[0];
+    if (!el) {
+      normalFailToast('Transaction order was failed.');
+    }
   });
   transak.on(transak.EVENTS.TRANSAK_ORDER_SUCCESSFUL, (successData: any) => {
     const fiatCurrency = successData?.status?.fiatCurrency;
     const fiatAmount = successData?.status?.fiatAmount;
     const cryptoCurrency = successData?.status?.cryptoCurrency;
     const cryptoAmount = successData?.status?.cryptoAmount;
-    normalSuccessToast(
-      `Transaction order to buy from ${fiatAmount} ${fiatCurrency} to ${cryptoAmount} ${cryptoCurrency} was successfully, please wait for 1-3 minutes for completing the order.`
-    );
+
+    const el = document.getElementsByClassName(
+      'Toastify__toast-container'
+    )?.[0];
+    if (!el) {
+      normalSuccessToast(
+        `Transaction order to buy from ${fiatAmount} ${fiatCurrency} to ${cryptoAmount} ${cryptoCurrency} was successfully, please wait for 1-3 minutes for completing the order.`
+      );
+    }
 
     transak.close();
   });

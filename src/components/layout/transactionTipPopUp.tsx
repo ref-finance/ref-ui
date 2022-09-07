@@ -3,7 +3,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import getConfig from '../../services/config';
 import { FormattedMessage } from 'react-intl';
 import { CloseIcon } from '../icon/Actions';
-import { isMobile } from '../../utils/device';
+import { isMobile, isClientMobie } from '../../utils/device';
 import { checkTransaction } from '../../services/swap';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 import { ErrorTriangle } from '../icon/SwapRefresh';
@@ -497,7 +497,7 @@ export const normalFailToast = (text: string) => {
       className="text-error w-full h-full pl-1.5 py-1  flex-col text-sm"
       style={{
         lineHeight: '40px',
-        width: '280px',
+        width: isClientMobie() ? null : '280px',
       }}
     >
       <span>{text}</span>
@@ -526,7 +526,7 @@ export const normalSuccessToast = (text: string) => {
       className="text-white w-full h-full pl-1.5 text-sm  flex-wrap items-center"
       style={{
         lineHeight: '30px',
-        width: '270px',
+        width: isClientMobie() ? null : '270px',
       }}
     >
       <div className="w-4 h-4 mr-2  relative top-1 inline-flex">
