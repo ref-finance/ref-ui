@@ -230,6 +230,11 @@ function OrderCard({
       order.original_amount || '0'
     );
 
+    const totalIn = toReadableNumber(
+      sellToken.decimals,
+      order.original_deposit_amount || '0'
+    );
+
     const calPoint =
       sellToken.id === order.pool_id.split(V3_POOL_SPLITER)[0]
         ? order.point
@@ -248,7 +253,11 @@ function OrderCard({
 
     const claimedAmount = toReadableNumber(
       buyToken.decimals,
-      order.bought_amount || '0'
+      scientificNotationToString(
+        new Big(order.bought_amount || '0')
+          .minus(order.unclaimed_amount || '0')
+          .toString()
+      )
     );
 
     const buyAmount = sellAmountToBuyAmount(
@@ -257,10 +266,15 @@ function OrderCard({
       price
     );
 
+    const totalOut = scientificNotationToString(
+      new Big(buyAmount).plus(swapOut).toString()
+    );
+
     const pendingAmount = scientificNotationToString(
       new Big(buyAmount || 0)
-        .minus(unClaimedAmount || 0)
-        .minus(claimedAmount || 0)
+        .minus(
+          toReadableNumber(buyToken.decimals, order.bought_amount || '0') || 0
+        )
         .toString()
     );
 
@@ -280,14 +294,14 @@ function OrderCard({
       .toNumber();
 
     const displayPercents = checkAllocations('100', [
-      pUnClaimedAmount > 0 && pUnClaimedAmount < 4
-        ? '4'
+      pUnClaimedAmount > 0 && pUnClaimedAmount < 5
+        ? '5'
         : scientificNotationToString(pUnClaimedAmount.toString()),
-      pClaimedAmount > 0 && pClaimedAmount < 4
-        ? '4'
+      pClaimedAmount > 0 && pClaimedAmount < 5
+        ? '5'
         : scientificNotationToString(pClaimedAmount.toString()),
-      pPendingAmount > 0 && pPendingAmount < 4
-        ? '4'
+      pPendingAmount > 0 && pPendingAmount < 5
+        ? '5'
         : scientificNotationToString(pPendingAmount.toString()),
     ]);
 
@@ -305,7 +319,10 @@ function OrderCard({
                 <div class="w-1.5 h-1.5 rounded-full bg-gradientFrom mr-1">
                 </div>
 
-                ${intl.formatMessage({ id: 'claimed' })}
+                ${intl.formatMessage({
+                  id: 'claimed_upper',
+                  defaultMessage: 'Claimed',
+                })}
 
             </span>
 
@@ -330,7 +347,10 @@ function OrderCard({
                 <div class="w-1.5 h-1.5 rounded-full bg-deepBlue mr-1">
                 </div>
 
-                ${intl.formatMessage({ id: 'unclaimed' })}
+                ${intl.formatMessage({
+                  id: 'unclaimed_upper',
+                  defaultMessage: 'Unclaimed',
+                })}
 
             </span>
 
@@ -464,7 +484,9 @@ function OrderCard({
         data-tip={getUnclaimAmountTip()}
         data-for={'unclaim_tip_' + order.order_id}
       >
-        <QuestionMark color="dark" />
+        <span className="mr-1">
+          <QuestionMark color="dark" />
+        </span>
         <div className="flex items-center w-full">
           {displayPercents.map((p, i) => {
             if (ONLY_ZEROS.test(p)) return null;
@@ -478,7 +500,7 @@ function OrderCard({
 
             return (
               <div
-                className={`mx-0.5 h-1 rounded-lg ${bgColor}`}
+                className={`mx-px h-1 rounded-lg ${bgColor}`}
                 style={{
                   width: p + '%',
                 }}
@@ -630,20 +652,23 @@ function OrderCard({
           </span>
 
           <span className="flex items-center">
-            <span title={orderIn} className="text-white">
-              {Number(orderIn) > 0 && Number(orderIn) < 0.01
+            <span title={totalIn} className="text-white">
+              {Number(totalIn) > 0 && Number(totalIn) < 0.01
                 ? '< 0.01'
-                : toPrecision(orderIn, 2)}
+                : toPrecision(totalIn, 2)}
             </span>
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
             <span className="mx-6">
               <RouterArrowRight />
             </span>
-            <span title={buyAmount} className="text-white">
-              {Number(buyAmount) > 0 && Number(buyAmount) < 0.01
+            <span
+              title={toPrecision(totalOut, buyToken.decimals)}
+              className="text-white"
+            >
+              {Number(totalOut) > 0 && Number(totalOut) < 0.01
                 ? '< 0.01'
-                : toPrecision(buyAmount, 2)}
+                : toPrecision(totalOut, 2)}
             </span>
 
             <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
@@ -779,6 +804,11 @@ function OrderCard({
       order.original_amount || '0'
     );
 
+    const totalIn = toReadableNumber(
+      sellToken.decimals,
+      order.original_deposit_amount || '0'
+    );
+
     const calPoint =
       sellToken.id === order.pool_id.split(V3_POOL_SPLITER)[0]
         ? order.point
@@ -794,6 +824,10 @@ function OrderCard({
       order.original_amount,
       order,
       price
+    );
+
+    const totalOut = scientificNotationToString(
+      new Big(buyAmount).plus(swapOut).toString()
     );
 
     const claimedAmount = toReadableNumber(
@@ -820,11 +854,11 @@ function OrderCard({
       .toNumber();
 
     const displayPercents = checkAllocations('100', [
-      pClaimedAmount > 0 && pClaimedAmount < 4
-        ? '4'
+      pClaimedAmount > 0 && pClaimedAmount < 5
+        ? '5'
         : scientificNotationToString(pClaimedAmount.toString()),
-      pCancelAmount > 0 && pCancelAmount < 4
-        ? '4'
+      pCancelAmount > 0 && pCancelAmount < 5
+        ? '5'
         : scientificNotationToString(pCancelAmount.toString()),
     ]);
 
@@ -842,7 +876,10 @@ function OrderCard({
                 <div class="w-1.5 h-1.5 rounded-full bg-gradientFrom mr-1">
                 </div>
 
-                ${intl.formatMessage({ id: 'claimed' })}
+                ${intl.formatMessage({
+                  id: 'claimed_upper',
+                  defaultMessage: 'Claimed',
+                })}
 
             </span>
 
@@ -980,7 +1017,9 @@ function OrderCard({
         data-tip={getClaimAmountTip()}
         data-for={'claim_tip_' + order.order_id}
       >
-        <QuestionMark color="dark" />
+        <span className="mr-1">
+          <QuestionMark color="dark" />
+        </span>
         <div className="flex items-center w-full">
           {displayPercents.map((p, i) => {
             if (ONLY_ZEROS.test(p)) return null;
@@ -989,7 +1028,7 @@ function OrderCard({
 
             return (
               <div
-                className={`mx-0.5 h-1 rounded-lg ${bgColor}`}
+                className={`mx-px h-1 rounded-lg ${bgColor}`}
                 style={{
                   width: p + '%',
                 }}
@@ -1093,20 +1132,23 @@ function OrderCard({
           </span>
 
           <span className="flex items-center">
-            <span title={orderIn} className="text-white">
-              {Number(orderIn) > 0 && Number(orderIn) < 0.01
+            <span title={totalIn} className="text-white">
+              {Number(totalIn) > 0 && Number(totalIn) < 0.01
                 ? '< 0.01'
-                : toPrecision(orderIn, 2)}
+                : toPrecision(totalIn, 2)}
             </span>
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
             <span className="mx-6">
               <RouterArrowRight />
             </span>
-            <span title={buyAmount} className="text-white">
-              {Number(buyAmount) > 0 && Number(buyAmount) < 0.01
+            <span
+              title={toPrecision(totalOut, buyToken.decimals)}
+              className="text-white"
+            >
+              {Number(totalOut) > 0 && Number(totalOut) < 0.01
                 ? '< 0.01'
-                : toPrecision(buyAmount, 2)}
+                : toPrecision(totalOut, 2)}
             </span>
 
             <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>

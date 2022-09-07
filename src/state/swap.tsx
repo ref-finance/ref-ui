@@ -726,11 +726,15 @@ export const useLimitOrder = ({
         const counts = res?.map((r) =>
           r?.total_liquidity ? Number(r?.total_liquidity) : 0
         );
+
         const sumOfCounts = _.sum(counts);
 
-        const rawPercents = counts.map((c) =>
-          scientificNotationToString(((c / sumOfCounts) * 100).toString())
-        );
+        const rawPercents =
+          sumOfCounts === 0
+            ? ['0', '0', '0', '0']
+            : counts.map((c) =>
+                scientificNotationToString(((c / sumOfCounts) * 100).toString())
+              );
 
         const nonZeroIndexes: number[] = [];
 

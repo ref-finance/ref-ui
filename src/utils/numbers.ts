@@ -654,6 +654,8 @@ export function getPoolAllocationPercents(pools: Pool[]) {
 }
 
 export function getAllocationsLeastOne(arr: string[]) {
+  if (arr.length === 0) return [];
+
   if (arr.length === 1) return ['100'];
 
   if (arr) {
