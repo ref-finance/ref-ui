@@ -35,7 +35,7 @@ import {
   senderWallet,
   WalletContext,
   getCurrentWallet,
-} from '../../utils/sender-wallet';
+} from '../../utils/wallets-integration';
 const {
   XREF_TOKEN_ID,
   REF_TOKEN_ID,
@@ -480,11 +480,11 @@ function InputView(props: any) {
         <GradientButton
           color="#fff"
           className={`w-full h-11 text-center text-base text-white focus:outline-none font-semibold ${
-            buttonStatus ? 'opacity-40' : ''
+            buttonStatus || loading ? 'opacity-40' : ''
           }`}
           onClick={onSubmit}
-          disabled={buttonStatus}
-          btnClassName={buttonStatus ? 'cursor-not-allowed' : ''}
+          disabled={buttonStatus || loading}
+          btnClassName={buttonStatus || loading ? 'cursor-not-allowed' : ''}
         >
           {tab == 0 ? (
             <ButtonTextWrapper

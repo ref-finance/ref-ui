@@ -89,7 +89,7 @@ export default function Table({
                 key={token.id}
                 onClick={onClick}
                 token={token}
-                price={tokenPriceList[token.id]?.price}
+                price={tokenPriceList?.[token.id]?.price}
                 sortBy={sortBy}
                 forCross={forCross}
                 totalAmount={

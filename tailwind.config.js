@@ -41,6 +41,11 @@ module.exports = {
         primaryGradient: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         buttonGradientBg: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
         darkGradientBg: 'linear-gradient(180deg, #1D2932 0%, #001320 100%)',
+        grayBoderGradient:
+          'linear-gradient(180deg, rgba(126, 138, 147, 0.2) 0%, rgba(3, 5, 5, 0.2) 100%)',
+        grayBoderGradientReverse:
+          'linear-gradient(0deg, rgba(126, 138, 147, 0.2) 0%, rgba(3, 5, 5, 0.2) 100%)',
+
         darkGradientHoverBg:
           'linear-gradient(180deg, #24313A 0%, #14212B 100%)',
         switchButtonGradientBg:

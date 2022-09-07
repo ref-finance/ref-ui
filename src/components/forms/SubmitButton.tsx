@@ -9,7 +9,10 @@ import {
 } from '../../components/button/Button';
 
 import { BeatLoading } from '~components/layout/Loading';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 
 interface SubmitButtonProps {
   text?: string;
@@ -38,7 +41,7 @@ function SubmitButton({
       {isSignedIn || signedInConfig ? (
         <button
           type={onClick ? 'button' : 'submit'}
-          disabled={disabled}
+          disabled={disabled || loading}
           onClick={onClick}
           className={`flex flex-row w-full items-center justify-center px-5 py-2 mt-6 text-white mx-auto ${
             disabled ? 'disabled:cursor-not-allowed opacity-40' : ''

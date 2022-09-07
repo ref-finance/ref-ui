@@ -219,6 +219,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'boostfarm.ref-finance.testnet',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
+        kitWalletOn: true,
       };
     case 'testnet':
       return {
@@ -279,6 +280,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'boostfarm024.ref-dev.testnet',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['5%', '10%'],
+        kitWalletOn: true,
       };
     default:
       return {
@@ -419,13 +421,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.testnet': 0,
           'wrap.testnet': 1,
         },
-        NEARXIDS: ['dev-1656877137694-34571929023079', 'wrap.testnet'],
-        NEAX_POOL_ID: '990',
+        NEARXIDS: ['nearx.staderlabs.testnet', 'wrap.testnet'],
+        NEAX_POOL_ID: '1044',
         NEAX_POOL_INDEX: {
-          'dev-1656877137694-34571929023079': 0,
+          'nearx.staderlabs.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['568', '571', '990'],
+        RATED_POOLS_IDS: ['568', '571', '1044'],
       };
     case 'testnet':
       return {
@@ -443,10 +445,10 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
         CUSD_STABLE_POOL_ID: '608',
         STNEAR_POOL_ID: '621',
         LINEAR_POOL_ID: '622',
-        NEAX_POOL_ID: '661',
+        NEAX_POOL_ID: '666',
         STNEARIDS: ['meta-v2.pool.testnet', 'wrap.testnet'],
         LINEARIDS: ['linear-protocol.testnet', 'wrap.testnet'],
-        NEARXIDS: ['dev-1656877137694-34571929023079', 'wrap.testnet'],
+        NEARXIDS: ['nearx.staderlabs.testnet', 'wrap.testnet'],
         STNEAR_POOL_INDEX: {
           'meta-v2.pool.testnet': 0,
           'wrap.testnet': 1,
@@ -456,10 +458,10 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'wrap.testnet': 1,
         },
         NEAX_POOL_INDEX: {
-          'dev-1656877137694-34571929023079': 0,
+          'nearx.staderlabs.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['621', '622', '661'],
+        RATED_POOLS_IDS: ['621', '622', '666'],
       };
     default:
       return {

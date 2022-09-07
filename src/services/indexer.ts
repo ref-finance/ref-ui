@@ -13,7 +13,7 @@ import moment from 'moment/moment';
 import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 import { getPoolsByTokens } from './pool';
 import {
   filterBlackListPools,
@@ -96,7 +96,7 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
   return await fetch(
     config.indexerUrl +
       '/liquidity-pools/' +
-      getCurrentWallet().wallet.getAccountId(),
+      getCurrentWallet()?.wallet?.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
@@ -286,7 +286,7 @@ export const getLatestActions = async (): Promise<Array<ActionData>> => {
   return await fetch(
     config.indexerUrl +
       '/latest-actions/' +
-      getCurrentWallet().wallet.getAccountId(),
+      getCurrentWallet()?.wallet?.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },

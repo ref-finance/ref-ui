@@ -5,23 +5,39 @@ import React, {
   createContext,
   useReducer,
 } from 'react';
+import { REF_FARM_CONTRACT_ID, wallet as webWallet } from '../services/near';
+
 import {
-  REF_FARM_CONTRACT_ID,
-  wallet as webWallet,
+  getAmount,
+  RefFiFunctionCallOptions,
+  getGas,
   wallet,
   REF_FARM_BOOST_CONTRACT_ID,
 } from '../services/near';
-
-import { getAmount, RefFiFunctionCallOptions, getGas } from '../services/near';
 import { scientificNotationToString } from './numbers';
+import { ACCOUNT_ID_KEY } from '../context/WalletSelectorContext';
 import getConfig from '../services/config';
 import {
   TRANSACTION_WALLET_TYPE,
   TRANSACTION_STATE,
 } from '../components/layout/transactionTipPopUp';
+import { WalletSelector } from '@near-wallet-selector/core';
 
 export const SENDER_WALLET_SIGNEDIN_STATE_KEY =
   'SENDER_WALLET_SIGNEDIN_STATE_VALUE';
+
+export const walletsRejectError = [
+  'User reject',
+  'User rejected the signature request',
+  'Invalid message. Only transactions can be signed',
+  'Ledger device: Condition of use not satisfied (denied by the user?) (0x6985)',
+  'User cancelled the action',
+  'User closed the window before completing the action',
+];
+
+export const extraWalletsError = [
+  "Couldn't open popup window to complete wallet action",
+];
 
 export const getSenderLoginRes = () => {
   return localStorage.getItem(SENDER_WALLET_SIGNEDIN_STATE_KEY);
@@ -75,8 +91,6 @@ export const setCallbackUrl = (res: any) => {
     ? TRANSACTION_STATE.SUCCESS
     : TRANSACTION_STATE.FAIL;
 
-  const errorType =
-    state === TRANSACTION_STATE.FAIL ? res?.response?.error?.type : '';
   const transactionHashes = getTransactionHashes(res, state);
 
   const parsedTransactionHashes = transactionHashes?.join(',');
@@ -86,7 +100,6 @@ export const setCallbackUrl = (res: any) => {
     {
       [TRANSACTION_WALLET_TYPE.SENDER_WALLET]: parsedTransactionHashes,
       state: parsedTransactionHashes ? state : '',
-      errorType,
     }
   );
 
@@ -237,23 +250,17 @@ export const getAccountName = (accountId: string) => {
 };
 
 export const getCurrentWallet = () => {
-  const SENDER_LOGIN_RES = getSenderLoginRes();
+  const walletInstance = window.selector;
 
-  if (window.near && SENDER_LOGIN_RES && !webWallet.isSignedIn()) {
-    senderWalletFunc.prototype = window.near;
-
-    return {
-      wallet: new (senderWalletFunc as any)(window),
-      wallet_type: WALLET_TYPE.SENDER_WALLET,
-      accountName: getAccountName(window.near.getAccountId()),
+  if (walletInstance) {
+    walletInstance.getAccountId = () => {
+      return localStorage.getItem(ACCOUNT_ID_KEY) || '';
     };
   }
 
   return {
-    wallet: webWallet,
+    wallet: walletInstance,
     wallet_type: WALLET_TYPE.WEB_WALLET,
-
-    accountName: getAccountName(webWallet.getAccountId()),
   };
 };
 
@@ -274,5 +281,42 @@ export const globalStateReducer = (
         ...state,
         isSignedIn: false,
       };
+  }
+};
+
+// export const setCallbackUrl = (res: any) => {
+//   const state = !res?.response?.error
+//     ? TRANSACTION_STATE.SUCCESS
+//     : TRANSACTION_STATE.FAIL;
+
+//   const transactionHashes = getTransactionHashes(res, state);
+
+//   const parsedTransactionHashes = transactionHashes?.join(',');
+
+// const newHref = addQueryParams(
+//   window.location.origin + window.location.pathname,
+//   {
+//     [TRANSACTION_WALLET_TYPE.SENDER_WALLET]: parsedTransactionHashes,
+//     state: parsedTransactionHashes ? state : '',
+//   }
+// );
+
+//   window.location.href = newHref;
+// };
+
+export const ledgerTipTrigger = async (wallet: WalletSelector) => {
+  const handlePopTrigger = () => {
+    const el = document.getElementsByClassName(
+      'ledger-transaction-pop-up'
+    )?.[0];
+    if (el) {
+      el.setAttribute('style', 'display:flex');
+    }
+  };
+
+  const isLedger = (await wallet.wallet()).id === 'ledger';
+
+  if (isLedger) {
+    handlePopTrigger();
   }
 };

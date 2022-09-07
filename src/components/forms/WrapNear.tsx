@@ -23,7 +23,10 @@ import { useDepositableBalance, useToken } from '../../state/token';
 import { ONLY_ZEROS, toReadableNumber } from '../../utils/numbers';
 import SubmitButton from './SubmitButton';
 import TokenAmount from './TokenAmount';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import { SwapExchange } from '../icon/Arrows';
 import SelectToken from './SelectToken';
 

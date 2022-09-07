@@ -5,12 +5,13 @@ import { FormattedMessage } from 'react-intl';
 import { CloseIcon } from '../icon/Actions';
 import { isMobile } from '../../utils/device';
 import { checkTransaction } from '../../services/swap';
-import { getCurrentWallet } from '~utils/sender-wallet';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 import { ErrorTriangle } from '../icon/SwapRefresh';
 
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',
   SENDER_WALLET = 'transactionHashesSender',
+  WalletSelector = 'transactionHashesWallets',
 }
 
 export enum TRANSACTION_ERROR_TYPE {
@@ -19,6 +20,7 @@ export enum TRANSACTION_ERROR_TYPE {
   RATES_EXPIRED = 'Rates Expired',
   INTEGEROVERFLOW = 'Integer Overflow',
   SHARESUPPLYOVERFLOW = 'Share Supply Overflow',
+  TOKEN_FROZEN = 'Token Frozen',
 }
 
 const ERROR_PATTERN = {
@@ -27,6 +29,7 @@ const ERROR_PATTERN = {
   ratesExpiredErrorPattern: /Rates expired/i,
   integerOverflowErrorPattern: /Integer overflow/i,
   ShareSupplyOverflowErrorPattern: /shares_total_supply overflow/i,
+  tokenFrozenErrorPattern: /token frozen/i,
 };
 
 export enum TRANSACTION_STATE {
@@ -47,7 +50,8 @@ export const getURLInfo = () => {
 
   const txHashes = (
     new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.NEAR_WALLET) ||
-    new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.SENDER_WALLET)
+    new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.SENDER_WALLET) ||
+    new URLSearchParams(search).get(TRANSACTION_WALLET_TYPE.WalletSelector)
   )?.split(',');
 
   return {
@@ -163,6 +167,59 @@ export const failToast = (txHash: string, errorType?: string) => {
         >
           <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
         </span>
+      </span>
+    </a>,
+    {
+      autoClose: false,
+      closeOnClick: true,
+      hideProgressBar: false,
+      closeButton: <CloseIcon />,
+      progressStyle: {
+        background: '#FF7575',
+        borderRadius: '8px',
+      },
+      style: {
+        background: '#1D2932',
+        boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+        border: '1px solid #FF7575',
+        borderRadius: '8px',
+      },
+    }
+  );
+};
+
+export const failToastAccount = (errorMsg?: string) => {
+  toast(
+    <a
+      className="text-error w-full h-full pl-1.5 py-1 flex flex-col text-sm"
+      href={`${
+        getConfig().explorerUrl
+      }/address/${getCurrentWallet()?.wallet?.getAccountId()}`}
+      target="_blank"
+      style={{
+        lineHeight: '20px',
+      }}
+    >
+      <span className=" flex items-center">
+        <span className="mr-2.5">
+          <ErrorTriangle />
+        </span>
+
+        <span>
+          <FormattedMessage
+            id="transaction_failed"
+            defaultMessage="Transaction failed"
+          />
+          {'. '}
+        </span>
+      </span>
+      <span
+        className="underline"
+        style={{
+          textDecorationThickness: '1px',
+        }}
+      >
+        <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
       </span>
     </a>,
     {
@@ -410,6 +467,13 @@ export const getErrorMessage = (res: any) => {
     }
   );
 
+  const isTokenFrozen = res.receipts_outcome.some((outcome: any) => {
+    return ERROR_PATTERN.tokenFrozenErrorPattern.test(
+      outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+        ?.ExecutionError
+    );
+  });
+
   if (isSlippageError) {
     return TRANSACTION_ERROR_TYPE.SLIPPAGE_VIOLATION;
   } else if (isInvalidAmountError) {
@@ -420,6 +484,8 @@ export const getErrorMessage = (res: any) => {
     return TRANSACTION_ERROR_TYPE.INTEGEROVERFLOW;
   } else if (isShareSupplyOerflowError) {
     return TRANSACTION_ERROR_TYPE.SHARESUPPLYOVERFLOW;
+  } else if (isTokenFrozen) {
+    return TRANSACTION_ERROR_TYPE.TOKEN_FROZEN;
   } else {
     return null;
   }

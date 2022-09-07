@@ -33,7 +33,10 @@ import StableTokenList from './StableTokenList';
 import { WarnTriangle } from '../icon/SwapRefresh';
 import { ActionModel } from '../../pages/AccountPage';
 import { getDepositableBalance, useTokenBalances } from '../../state/token';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
 import { checkAccountTip, getURLInfo } from '../layout/transactionTipPopUp';
@@ -492,7 +495,7 @@ export default function AddLiquidityComponent(props: {
           ) : null}
           {isSignedIn ? (
             <SolidButton
-              disabled={!canSubmit}
+              disabled={!canSubmit || buttonLoading}
               className="focus:outline-none px-4 w-full text-lg"
               loading={buttonLoading}
               onClick={() => {

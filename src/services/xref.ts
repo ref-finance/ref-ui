@@ -13,7 +13,7 @@ import getConfig from '../services/config';
 import { checkTokenNeedsStorageDeposit } from './token';
 import { ftGetStorageBalance } from '../services/ft-contract';
 import { NEW_ACCOUNT_STORAGE_COST } from '../services/wrap-near';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 
 const XREF_TOKEN_ID = getConfig().XREF_TOKEN_ID;
 export const XREF_TOKEN_DECIMALS = 18;
@@ -63,7 +63,7 @@ export const stake = async ({ amount, msg = '' }: StakeOptions) => {
         {
           methodName: 'storage_deposit',
           args: {
-            account_id: getCurrentWallet().wallet.getAccountId(),
+            account_id: getCurrentWallet()?.wallet?.getAccountId(),
             registration_only: true,
           },
           gas: '50000000000000',

@@ -39,7 +39,7 @@ import moment from 'moment';
 import BigNumber from 'bignumber.js';
 import _, { rearg } from 'lodash';
 import { PoolMode } from './swap';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 import { getStableTokenIndex } from './near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 const FEE_DIVISOR = 10000;
@@ -270,7 +270,7 @@ export const instantSwapGetTransactions = async ({
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
   if (wallet.isSignedIn()) {
     const tokenOutRegistered = await ftGetStorageBalance(tokenOut.id).catch(
@@ -284,7 +284,7 @@ export const instantSwapGetTransactions = async ({
         methodName: 'storage_deposit',
         args: {
           registration_only: true,
-          account_id: getCurrentWallet().wallet.getAccountId(),
+          account_id: getCurrentWallet()?.wallet?.getAccountId(),
         },
         gas: '30000000000000',
         amount: STORAGE_TO_REGISTER_WITH_MFT,
@@ -363,7 +363,7 @@ export const depositSwap = async ({
 export const checkTransaction = (txHash: string) => {
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
-    [txHash, getCurrentWallet().wallet.getAccountId()]
+    [txHash, getCurrentWallet()?.wallet?.getAccountId()]
   );
 };
 

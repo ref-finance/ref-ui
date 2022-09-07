@@ -6,6 +6,7 @@ import {
   useMemo,
   useContext,
 } from 'react';
+
 import {
   STABLE_TOKEN_IDS,
   wallet,
@@ -37,14 +38,16 @@ import {
   getBatchTokenNearAcounts,
   useTriTokenIdsOnRef,
 } from '../services/aurora/aurora';
-import { AllStableTokenIds } from '../services/near';
+import { AllStableTokenIds, getAccountNearBalance } from '../services/near';
 import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
+import { wallet as webWallet } from '~services/near';
 import { getTokenPriceList } from '../services/indexer';
+import { useWalletSelector } from '../context/WalletSelectorContext';
 import {
   WalletContext,
   getCurrentWallet,
   WALLET_TYPE,
-} from '../utils/sender-wallet';
+} from '../utils/wallets-integration';
 
 export const useToken = (id: string) => {
   const [token, setToken] = useState<TokenMetadata>();
@@ -152,7 +155,7 @@ export const useRainbowWhitelistTokens = () => {
         );
       })
       .then(setTokens);
-  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
+  }, [getCurrentWallet()?.wallet?.isSignedIn(), extraTokenIds.join('-')]);
 
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };
@@ -168,7 +171,7 @@ export const useWhitelistTokens = (extraTokenIds: string[] = []) => {
         );
       })
       .then(setTokens);
-  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
+  }, [getCurrentWallet()?.wallet?.isSignedIn(), extraTokenIds.join('-')]);
 
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };
@@ -183,7 +186,7 @@ export const useGlobalWhitelistTokens = (extraTokenIds: string[] = []) => {
         );
       })
       .then(setTokens);
-  }, [getCurrentWallet().wallet.isSignedIn(), extraTokenIds.join('-')]);
+  }, [getCurrentWallet()?.wallet?.isSignedIn(), extraTokenIds.join('-')]);
 
   return tokens?.map((t) => ({ ...t, onRef: true }));
 };
@@ -232,17 +235,23 @@ export const useUserRegisteredTokensAllAndNearBalance = (
 ) => {
   const [tokens, setTokens] = useState<any[]>();
 
+  const triTokenIds = useTriTokenIdsOnRef() as string[];
+
+  const triTokenIdsMemo = [...new Set(triTokenIds || [])];
+
   useEffect(() => {
     if (!isSignedIn) return;
     getWhitelistedTokensAndNearTokens()
       .then((tokenList) => {
+        const newList = [...new Set((triTokenIds || []).concat(tokenList))];
+
         const walletBalancePromise = Promise.all(
-          [nearMetadata.id, ...tokenList].map((tokenId) => {
+          [nearMetadata.id, ...newList].map((tokenId) => {
             return getDepositableBalance(tokenId);
           })
         );
         const tokenMetadataPromise = Promise.all(
-          tokenList.map((tokenId) => ftGetTokenMetadata(tokenId, true))
+          newList.map((tokenId) => ftGetTokenMetadata(tokenId, true))
         );
         return Promise.all([tokenMetadataPromise, walletBalancePromise]);
       })
@@ -255,23 +264,24 @@ export const useUserRegisteredTokensAllAndNearBalance = (
         });
         setTokens(arr);
       });
-  }, [isSignedIn]);
+  }, [isSignedIn, triTokenIdsMemo.join('-')]);
 
   return tokens;
 };
 
 export const useTokenBalances = () => {
   const [balances, setBalances] = useState<TokenBalancesView>();
-
+  const { accountId } = useWalletSelector();
   const { globalState } = useContext(WalletContext);
 
   const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
+    if (!isSignedIn) return;
     getTokenBalances()
       .then(setBalances)
       .catch(() => setBalances({}));
-  }, [isSignedIn]);
+  }, [isSignedIn, accountId]);
 
   return balances;
 };
@@ -302,16 +312,15 @@ export const getDepositableBalance = async (
   tokenId: string,
   decimals?: number
 ) => {
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
   if (tokenId === 'NEAR') {
-    if (getCurrentWallet().wallet.isSignedIn()) {
-      return wallet
-        .account()
-        .getAccountBalance()
-        .then(({ available }: any) => {
-          return toReadableNumber(decimals, available);
-        });
+    if (getCurrentWallet()?.wallet?.isSignedIn()) {
+      return getAccountNearBalance(
+        getCurrentWallet().wallet.getAccountId()
+      ).then(({ available }: any) => {
+        return toReadableNumber(decimals, available);
+      });
     } else {
       return toReadableNumber(decimals, '0');
     }
@@ -355,8 +364,10 @@ export const useTokensData = (
 
   const isSignedIn = globalState.isSignedIn;
 
+  const triggerBalances = balances || {};
+
   const trigger = useCallback(() => {
-    if (!!balances) {
+    if (!!triggerBalances) {
       setCount(0);
       setResult([]);
       const currentFetchId = fetchIdRef.current;
@@ -395,15 +406,15 @@ export const useTokensData = (
           });
       }
     }
-  }, [balances, tokens.length, isSignedIn]);
+  }, [balances, tokens?.length, isSignedIn]);
 
   useEffect(() => {
     trigger();
-  }, [tokens, tokens.length]);
+  }, [tokens?.map((t) => t.id).join('-'), tokens?.length, tokens]);
 
   return {
     trigger,
-    loading: count < tokens.length,
+    loading: count < tokens?.length,
     tokensData: result,
   };
 };
@@ -419,22 +430,21 @@ export const useDepositableBalance = (
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
   useEffect(() => {
-    if (isSignedIn && wallet.account) {
+    if (isSignedIn && wallet) {
       if (tokenId === 'NEAR') {
-        wallet
-          .account()
-          .getAccountBalance()
-          .then(({ available }: any) => setDepositable(available));
+        getAccountNearBalance(getCurrentWallet().wallet.getAccountId()).then(
+          ({ available }: any) => setDepositable(available)
+        );
       } else if (tokenId) {
         ftGetBalance(tokenId).then(setDepositable);
       }
     } else {
       setDepositable('0');
     }
-  }, [tokenId, isSignedIn, wallet_type, wallet.account]);
+  }, [tokenId, isSignedIn, wallet]);
 
   useEffect(() => {
     const max = toReadableNumber(decimals, depositable) || '0';

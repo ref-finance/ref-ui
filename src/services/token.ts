@@ -32,7 +32,7 @@ import {
   getCurrentWallet,
   WALLET_TYPE,
   senderWallet,
-} from '../utils/sender-wallet';
+} from '../utils/wallets-integration';
 
 const specialToken = 'pixeltoken.near';
 
@@ -44,7 +44,7 @@ export const checkTokenNeedsStorageDeposit = async () => {
     storageNeeded = Number(ONE_MORE_DEPOSIT_AMOUNT);
   } else {
     const balance = await Promise.resolve(
-      currentStorageBalance(getCurrentWallet().wallet.getAccountId())
+      currentStorageBalance(getCurrentWallet()?.wallet?.getAccountId())
     );
 
     if (!balance) {
@@ -406,7 +406,7 @@ export interface TokenBalancesView {
 export const getTokenBalances = (): Promise<TokenBalancesView> => {
   return refFiViewFunction({
     methodName: 'get_deposits',
-    args: { account_id: getCurrentWallet().wallet.getAccountId() },
+    args: { account_id: getCurrentWallet()?.wallet?.getAccountId() },
   });
 };
 
@@ -414,14 +414,14 @@ export const getTokenBalance = (tokenId: string): Promise<number> => {
   return refFiViewFunction({
     methodName: 'get_deposit',
     args: {
-      account_id: getCurrentWallet().wallet.getAccountId(),
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
       token_id: tokenId,
     },
   });
 };
 
 export const getUserRegisteredTokens = (
-  accountId: string = getCurrentWallet().wallet.getAccountId()
+  accountId: string = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<string[]> => {
   return refFiViewFunction({
     methodName: 'get_user_whitelisted_tokens',
@@ -434,10 +434,10 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
   const globalWhitelist = await refFiViewFunction({
     methodName: 'get_whitelisted_tokens',
   });
-  if (getCurrentWallet().wallet.isSignedIn()) {
+  if (getCurrentWallet()?.wallet?.isSignedIn()) {
     userWhitelist = await refFiViewFunction({
       methodName: 'get_user_whitelisted_tokens',
-      args: { account_id: getCurrentWallet().wallet.getAccountId() },
+      args: { account_id: getCurrentWallet()?.wallet?.getAccountId() },
     });
   }
 
@@ -465,10 +465,10 @@ export const getWhitelistedTokensAndNearTokens = async (): Promise<
     methodName: 'get_whitelisted_tokens',
   });
   requestAll.push(request1);
-  if (getCurrentWallet().wallet.isSignedIn()) {
+  if (getCurrentWallet()?.wallet?.isSignedIn()) {
     const request2 = refFiViewFunction({
       methodName: 'get_user_whitelisted_tokens',
-      args: { account_id: getCurrentWallet().wallet.getAccountId() },
+      args: { account_id: getCurrentWallet()?.wallet?.getAccountId() },
     });
     requestAll.push(request2);
   }

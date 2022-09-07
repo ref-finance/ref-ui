@@ -60,7 +60,7 @@ import {
   senderWallet,
   WalletContext,
   getCurrentWallet,
-} from '../../utils/sender-wallet';
+} from '../../utils/wallets-integration';
 import { SwapArrow, SwapExchange, ExchangeArrow } from '../icon/Arrows';
 import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
@@ -557,7 +557,7 @@ export default function CrossSwapCard(props: {
 
   const canSubmit = requested
     ? canSwap &&
-      getCurrentWallet().wallet.isSignedIn() &&
+      getCurrentWallet()?.wallet?.isSignedIn() &&
       !ONLY_ZEROS.test(curMax) &&
       !ONLY_ZEROS.test(tokenInAmount) &&
       new BigNumber(tokenInAmount).lte(new BigNumber(curMax))
