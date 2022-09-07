@@ -419,7 +419,7 @@ export function AccountModel(props: any) {
           </button>
         </div>
 
-        <div className="w-full px-7">
+        <div className="w-full px-7 mb-4">
           <button
             className="border border-transakBlue border-opacity-50   w-full  py-2.5 rounded-lg px-px text-xs text-transakBlue hover:border-transparent hover:text-white hover:bg-transakBlue"
             onClick={(e) => {
@@ -432,13 +432,6 @@ export function AccountModel(props: any) {
             with Fiat
           </button>
         </div>
-
-        <div
-          className="mb-3 mx-7 mt-6"
-          style={{
-            borderBottom: '1px solid rgba(126, 138, 147, 0.3)',
-          }}
-        ></div>
 
         {accountList.map((item, index) => {
           return (
