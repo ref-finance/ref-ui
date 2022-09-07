@@ -101,6 +101,7 @@ import { SwapMinReceiveCheck, LimitOrderMask } from '../icon/swapV3';
 import { TokenAmountV3 } from '../forms/TokenAmount';
 import Big from 'big.js';
 import { Slider } from '../icon/Info';
+import { regularizedPoint, regularizedPrice } from '../../services/swapV3';
 import {
   toInternationalCurrencySystemLongString,
   toRoundedReadableNumber,
@@ -1436,7 +1437,7 @@ export default function SwapCard(props: {
       return;
     }
 
-    const curPrice =
+    const curPoint =
       tokenIn.id === mostPoolDetail.token_x
         ? Math.abs(mostPoolDetail.current_point)
         : Math.abs(mostPoolDetail.current_point) * -1;
@@ -1444,14 +1445,24 @@ export default function SwapCard(props: {
     const price = pointToPrice({
       tokenA: tokenIn,
       tokenB: tokenOut,
-      point: curPrice,
+      point: regularizedPoint(curPoint, mostPoolDetail.fee),
     });
 
     const priceKeep = toPrecision(price, 8) === curOrderPrice;
 
+    const regularizedRate = toPrecision(
+      regularizedPrice(
+        LimitAmountOutRate,
+        tokenIn,
+        tokenOut,
+        mostPoolDetail.fee
+      ),
+      8
+    );
+
     setLimitAmountOutRate(
       priceKeep
-        ? LimitAmountOutRate || toPrecision(price, 8)
+        ? regularizedRate || toPrecision(price, 8)
         : toPrecision(price, 8)
     );
 
@@ -1462,7 +1473,7 @@ export default function SwapCard(props: {
     setLimitAmountOut(
       toPrecision(
         scientificNotationToString(
-          new Big(priceKeep ? LimitAmountOutRate || price || 0 : price)
+          new Big(priceKeep ? regularizedRate || price || 0 : price)
             .times(tokenInAmount || 0)
             .toString()
         ),
@@ -1488,6 +1499,8 @@ export default function SwapCard(props: {
   };
 
   const onChangeLimitRate = (r: string) => {
+    // TODO: price to point to price, to regularize the price
+
     if (!r) return;
     const curR = toPrecision(r, 8);
 
@@ -1695,6 +1708,8 @@ export default function SwapCard(props: {
           total={tokenInMax}
           max={tokenInMax}
           tokens={allTokens}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
           selectedToken={tokenIn}
           limitOrderDisable={
             swapMode === SWAP_MODE.LIMIT && (!mostPoolDetail || !quoteDoneLimit)
@@ -1735,6 +1750,7 @@ export default function SwapCard(props: {
               tokenIn={tokenIn}
               tokenOut={tokenOut}
               rate={LimitAmountOutRate}
+              fee={mostPoolDetail?.fee}
               onChange={() => {
                 setTokenIn(tokenOut);
                 localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
@@ -1792,6 +1808,10 @@ export default function SwapCard(props: {
               ? LimitChangeAmountOut
               : null
           }
+          onBlur={swapMode === SWAP_MODE.LIMIT ? LimitChangeAmountOut : null}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          limitFee={mostPoolDetail?.fee}
           limitOrderDisable={
             swapMode === SWAP_MODE.LIMIT && (!mostPoolDetail || !quoteDoneLimit)
           }

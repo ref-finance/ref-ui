@@ -35,6 +35,7 @@ import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { InputAmountV3 } from './InputAmount';
 import Big from 'big.js';
 import { QuestionTip } from '../layout/TipWrapper';
+import { regularizedPrice } from '../../services/swapV3';
 
 interface TokenAmountProps {
   amount?: string;
@@ -66,6 +67,10 @@ interface TokenAmountProps {
   limitOrderDisable?: boolean;
   curRate?: string;
   onChangeRate?: (rate: string) => void;
+  tokenIn?: TokenMetadata;
+  tokenOut?: TokenMetadata;
+  onBlur?: (e?: any) => void;
+  limitFee?: number;
 }
 
 export function getTextWidth(str: string, fontSize: string) {
@@ -185,15 +190,16 @@ export function QuickAmountLimitOrder({
   onChangeAmount,
   marketPrice,
   amount,
+  plus10,
+  plus5,
 }: {
   max: string;
   amount?: string;
   onChangeAmount: (amount: string) => void;
   marketPrice: string;
+  plus5?: string;
+  plus10?: string;
 }) {
-  const plus5 = percentOfBigNumber(105, max, 8);
-  const plus10 = percentOfBigNumber(110, max, 8);
-
   return (
     <div className="flex items-center">
       <span className="mr-2">
@@ -394,6 +400,9 @@ export function TokenAmountV3({
   isError,
   tokenPriceList,
   forLimitOrder,
+  tokenIn,
+  tokenOut,
+  onBlur,
   swapMode,
   preSelected,
   postSelected,
@@ -404,6 +413,7 @@ export function TokenAmountV3({
   limitOrderDisable,
   onChangeRate,
   curRate,
+  limitFee,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -422,37 +432,52 @@ export function TokenAmountV3({
         : String(Number(max) - 0.5)
       : max;
 
-  const plus5 = percentOfBigNumber(105, marketPriceLimitOrder || 0, 8);
-  const plus10 = percentOfBigNumber(110, marketPriceLimitOrder || 0, 8);
-
-  const forLimitOrderOut =
-    forLimitOrder && marketPriceLimitOrder && swapMode === SWAP_MODE.LIMIT;
+  const plus5 =
+    tokenIn &&
+    tokenOut &&
+    limitFee &&
+    toPrecision(
+      regularizedPrice(
+        percentOfBigNumber(105, marketPriceLimitOrder || 0, 8),
+        tokenIn,
+        tokenOut,
+        limitFee
+      ),
+      8
+    );
+  const plus10 =
+    tokenIn &&
+    tokenOut &&
+    limitFee &&
+    toPrecision(
+      regularizedPrice(
+        percentOfBigNumber(110, marketPriceLimitOrder || 0, 8),
+        tokenIn,
+        tokenOut,
+        limitFee
+      ),
+      8
+    );
 
   const rateDiff = new Big(curRate || '0')
     .minus(marketPriceLimitOrder || '0')
     .div(marketPriceLimitOrder || '1')
     .times(100);
 
-  console.log(rateDiff.toString());
-
   const displayRateDiff =
-    Number(curRate) === Number(plus5)
+    (Number(rateDiff) < 0 ? '-' : Number(rateDiff) > 0 ? '+' : '') +
+    (Number(curRate) === Number(plus5)
       ? 5
       : Number(curRate) === Number(plus10)
       ? 10
       : Math.abs(Number(rateDiff)) < 1
-      ? (Number(rateDiff) < 0 ? '-' : '') +
-        toPrecision(
-          Number(rateDiff) < 0
-            ? rateDiff.toString().slice(1, rateDiff.toString().length)
-            : rateDiff.toString(),
+      ? toPrecision(
+          scientificNotationToString(
+            rateDiff.times(rateDiff.lt(0) ? -1 : 1).toString()
+          ),
           1
         )
-      : rateDiff.toFixed(0);
-
-  console.log(amount, 'amount');
-
-  console.log(displayRateDiff, 'rate idff');
+      : rateDiff.times(rateDiff.lt(0) ? -1 : 1).toFixed(0));
 
   return (
     <div
@@ -527,6 +552,17 @@ export function TokenAmountV3({
           forLimitOrder={limitOrderDisable}
           disabled={disabled || limitOrderDisable}
           forSwap={!!forSwap}
+          onBlur={(e) => {
+            if (!!onBlur) {
+              const newAmount = regularizedPrice(
+                curRate,
+                tokenIn,
+                tokenOut,
+                limitFee
+              );
+              onChangeAmount(newAmount);
+            }
+          }}
           openClear={
             !!onChangeAmount && !forLimitOrder && !ONLY_ZEROS.test(amount)
           }
@@ -576,6 +612,8 @@ export function TokenAmountV3({
             onChangeAmount={onChangeRate}
             marketPrice={marketPriceLimitOrder}
             amount={curRate}
+            plus10={plus10}
+            plus5={plus5}
           />
         ) : null}
       </div>

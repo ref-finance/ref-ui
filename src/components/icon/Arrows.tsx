@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { isMobile } from '../../utils/device';
 import { TokenMetadata } from '../../services/ft-contract';
+import { regularizedPrice } from '../../services/swapV3';
 
 export function ArrowDownGreen() {
   return (
@@ -414,6 +415,7 @@ export function SwapExchangeV3({
   rate,
   setRate,
   curPrice,
+  fee,
 }: {
   onChange: (e?: any) => void;
   tokenIn: TokenMetadata;
@@ -421,6 +423,7 @@ export function SwapExchangeV3({
   rate: string;
   setRate: (r: string) => void;
   curPrice?: string;
+  fee: number;
 }) {
   const [hover, setHover] = useState<boolean>(false);
   const upRow = useRef(null);
@@ -519,6 +522,10 @@ export function SwapExchangeV3({
             type="number"
             placeholder={!curPrice ? '-' : '0.0'}
             value={!curPrice ? '-' : rate}
+            onBlur={() => {
+              const newR = regularizedPrice(rate, tokenIn, tokenOut, fee);
+              setRate(newR);
+            }}
             onChange={(e) => {
               if (!curPrice) {
                 return null;

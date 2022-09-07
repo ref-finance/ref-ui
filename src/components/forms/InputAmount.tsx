@@ -322,6 +322,7 @@ export function InputAmountV3({
   forLimitOrder,
   openClear,
   rateDiff,
+  onBlur,
   ...rest
 }: InputAmountProps) {
   const ref = useRef<HTMLInputElement>();
@@ -354,6 +355,7 @@ export function InputAmountV3({
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
+            onBlur={onBlur}
           />
 
           {rateDiff}

@@ -183,6 +183,37 @@ export const pointToPrice = ({
   return decimal_price_A_by_B.toFixed(tokenB.decimals);
 };
 
+export const regularizedPoint = (point: number, fee: number) => {
+  const point_delta = feeToPointDelta(fee);
+
+  return Math.floor(point / point_delta) * point_delta;
+};
+
+export const regularizedPrice = (
+  price: string,
+  tokenA: TokenMetadata,
+  tokenB: TokenMetadata,
+  fee: number
+) => {
+  const pointDelta = feeToPointDelta(fee);
+  const decimalRate = new Big(10)
+    .pow(tokenB.decimals)
+    .div(new Big(10).pow(tokenA.decimals))
+    .toNumber();
+
+  const point = getPointByPrice(
+    pointDelta,
+    scientificNotationToString(price.toString()),
+    decimalRate
+  );
+
+  return pointToPrice({
+    tokenA,
+    tokenB,
+    point,
+  });
+};
+
 export const quote_by_output = ({
   pool_ids,
   output_amount,
