@@ -904,6 +904,7 @@ function DetailViewLimit({
   poolPercents,
   tokenIn,
   tokneOut,
+  tokenPriceList,
 }: {
   v3Pool: string;
   setV3Pool: (p: string) => void;
@@ -912,6 +913,7 @@ function DetailViewLimit({
   };
   tokenIn: TokenMetadata;
   tokneOut: TokenMetadata;
+  tokenPriceList: Record<string, any>;
 }) {
   const [showDetail, setShowDetail] = useState<boolean>(false);
 
@@ -930,7 +932,11 @@ function DetailViewLimit({
     return (
       <span className="py-1 px-2.5 text-v3SwapGray bg-black bg-opacity-20 text-xs inline-flex items-center rounded-xl whitespace-nowrap">
         <span className="mr-1">
-          {!count ? '' : `${poolPercents?.[id] || '0'}%`}
+          {!tokenPriceList
+            ? '-'
+            : !count
+            ? ''
+            : `${poolPercents?.[id] || '0'}%`}
         </span>
         {!count ? (
           <FormattedMessage id="no_pool" defaultMessage={'No Pool'} />
@@ -1554,6 +1560,7 @@ export default function SwapCard(props: {
           poolPercents={poolPercents}
           v3Pool={selectedV3LimitPool}
           setV3Pool={setSelectedV3LimitPool}
+          tokenPriceList={tokenPriceList}
         />
       );
     } else if (swapMode !== SWAP_MODE.LIMIT) {
@@ -1604,6 +1611,7 @@ export default function SwapCard(props: {
     avgFee,
     tokenOutAmount,
     tokenOutAmountV3,
+    tokenPriceList,
   ]);
 
   useEffect(() => {

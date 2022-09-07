@@ -77,6 +77,8 @@ export interface PoolInfoV3 {
   current_point: number;
   state: string; // running or paused
   total_liquidity: string;
+  total_x: string;
+  total_y: string;
 }
 
 export const quote = async ({

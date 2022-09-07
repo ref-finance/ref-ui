@@ -90,6 +90,7 @@ import {
   LimitOrderPopUp,
 } from '../components/layout/transactionTipPopUp';
 import { toRealSymbol } from '../utils/token';
+import { useTokenPriceList } from './token';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -682,6 +683,12 @@ export const useLimitOrder = ({
   setSelectedV3LimitPool?: (pool: string) => void;
   loadingTrigger?: boolean;
 }) => {
+  const tokenPriceList = useTokenPriceList();
+
+  const price_x = tokenPriceList?.[tokenIn?.id]?.price;
+
+  const price_y = tokenPriceList?.[tokenOut?.id]?.price;
+
   const notLimitMode = swapMode !== SWAP_MODE.LIMIT;
 
   const [quoteDone, setQuoteDone] = useState<boolean>(false);
@@ -723,9 +730,24 @@ export const useLimitOrder = ({
       .then((res) => {
         setPools(res);
 
-        const counts = res?.map((r) =>
-          r?.total_liquidity ? Number(r?.total_liquidity) : 0
-        );
+        const counts = res?.map((r) => {
+          if (!r) return 0;
+          const tokenX = r.token_x === tokenIn.id ? tokenIn : tokenOut;
+          const tokenY = r.token_y === tokenOut.id ? tokenOut : tokenIn;
+
+          const priceX = r.token_x === tokenIn.id ? price_x : price_y;
+          const priceY = r.token_y === tokenOut.id ? price_y : price_x;
+
+          const tvlx = new Big(toReadableNumber(tokenX.decimals, r.total_x))
+            .times(priceX || '0')
+            .toNumber();
+
+          const tvly = new Big(toReadableNumber(tokenY.decimals, r.total_y))
+            .times(priceY || '0')
+            .toNumber();
+
+          return tvlx + tvly;
+        });
 
         const sumOfCounts = _.sum(counts);
 
@@ -772,6 +794,8 @@ export const useLimitOrder = ({
         setPoolToOrderCounts(toCounts);
       })
       .catch((e) => {
+        console.log(e);
+
         const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
           getV3PoolId(tokenIn.id, tokenOut.id, fee)
         );
