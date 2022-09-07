@@ -7,6 +7,7 @@ import {
   ExternalLinkIcon,
   ShapeTitleIcon,
 } from '~components/icon/Risk';
+import {openTransak} from "~components/alert/Transak";
 
 export default function RiskPage() {
   const intl = useIntl();
@@ -49,12 +50,10 @@ export default function RiskPage() {
       <div className="text-riskTextColor text-sm mt-3">
         <FormattedMessage id="introduction" />
       </div>
-      {/* <div className="flex justify-center items-center mt-5">
+      <div className="flex justify-center items-center mt-5">
         <div
           onClick={() => {
-            window.open(
-              'https://form.typeform.com/to/EPmUetxU?typeform-source=mzko2gfnij6.typeform.com'
-            );
+            openTransak()
           }}
           className="flex justify-between items-center w-48 bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white mr-2.5"
         >
@@ -70,7 +69,7 @@ export default function RiskPage() {
           <FormattedMessage id="amm_core_design" />
           <ExternalLinkIcon></ExternalLinkIcon>
         </div>
-      </div> */}
+      </div>
       <div className="mt-7">
         <ModuleTemplate title={intl.formatMessage({ id: 'audits' })}>
           <p className="text-sm text-riskTextColor mb-4">

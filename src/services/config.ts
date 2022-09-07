@@ -500,3 +500,33 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
       };
   }
 }
+export function getTransakConfig(env: string = process.env.NEAR_ENV) {
+  switch (env) {
+    case 'production':
+    case 'mainnet':
+      return {
+        apiKey: '75a307aa-b7a9-457d-a44b-270bd0e65533',
+        environment: 'PRODUCTION',
+        widgetWidth: `500px`,
+        widgetHeight: `600px`,
+        themeColor: `#00C6A2`,
+        hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
+        defaultCryptoCurrency: 'NEAR',
+      };
+    case 'development':
+    case 'pub-testnet':
+    case 'testnet':
+      return {
+        apiKey: '538c522e-474e-4d3b-a7a2-38a736cea747',
+        environment: 'STAGING',
+        widgetWidth: `500px`,
+        widgetHeight: `600px`,
+        themeColor: `#00C6A2`,
+        hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
+        defaultCryptoCurrency: 'NEAR',
+      };
+    default:
+      return {};
+  }
+}
+

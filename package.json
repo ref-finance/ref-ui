@@ -54,6 +54,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.17.9",
     "@react-icons/all-files": "^4.1.0",
     "@svgr/parcel-plugin-svgr": "^5.5.0",
+    "@transak/transak-sdk": "^1.0.31",
     "@types/animejs": "^3.1.4",
     "@types/big.js": "^6.1.2",
     "@types/react-copy-to-clipboard": "^5.0.2",
