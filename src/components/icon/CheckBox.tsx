@@ -180,3 +180,58 @@ export function Radio({
     </div>
   );
 }
+
+export const LedgerAccountChecked = () => {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="10" cy="10" r="9.5" fill="#00C6A2" stroke="#00C6A2" />
+      <path
+        d="M6 10.5L8.66667 13L14 8"
+        stroke="white"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+};
+
+export const LedgerAccountNotChecked = () => {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="10" cy="10" r="9.5" fill="#19232A" stroke="#00C6A2" />
+    </svg>
+  );
+};
+
+export const LedgerCheckbox = ({
+  checked,
+  setChecked,
+  index,
+}: {
+  checked: boolean;
+  setChecked: (index: number, c: boolean) => void;
+  index: number;
+}) => {
+  return (
+    <div
+      onClick={() => {
+        setChecked(index, !checked);
+      }}
+      className="absolute cursor-pointer top-4 -right-8"
+    >
+      {checked ? <LedgerAccountChecked /> : <LedgerAccountNotChecked />}
+    </div>
+  );
+};

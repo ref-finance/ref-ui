@@ -7,7 +7,7 @@ import {
   REF_FARM_BOOST_CONTRACT_ID,
   ONE_YOCTO_NEAR,
 } from './near';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 import { executeMultipleTransactions, REF_VE_CONTRACT_ID } from './near';
 import {
   checkTokenNeedsStorageDeposit_boost,

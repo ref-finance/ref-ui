@@ -56,7 +56,7 @@ import {
   STABLE_POOL_ID,
   ALL_STABLE_POOL_IDS,
 } from '../services/near';
-import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import getConfig from '../services/config';
 import { useFarmStake } from './farm';
 import { ONLY_ZEROS } from '../utils/numbers';
@@ -125,13 +125,15 @@ export const useBatchTotalShares = (
     );
   }, [ids?.join('-'), finalStakeList, isSignedIn]);
 
-  return (
-    ids?.map((id, index) => {
-      return new Big(batchShares?.[index] || '0')
-        .plus(new Big(batchFarmStake?.[index] || '0'))
-        .toNumber();
-    }) || undefined
-  );
+  return {
+    shares: batchShares,
+    batchTotalShares:
+      ids?.map((id, index) => {
+        return new Big(batchShares?.[index] || '0')
+          .plus(new Big(batchFarmStake?.[index] || '0'))
+          .toNumber();
+      }) || undefined,
+  };
 };
 
 export const useStakeListByAccountId = () => {

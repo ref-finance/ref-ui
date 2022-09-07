@@ -104,7 +104,10 @@ export const Symbols = ({
 };
 
 export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
-  const { farmCount: countV1 } = useCanFarmV1(pool.id, true);
+  const { farmCount: countV1, endedFarmCount: endedFarmCountV1 } = useCanFarmV1(
+    pool.id,
+    true
+  );
 
   const { farmCount: countV2, endedFarmCount: endedFarmCountV2 } = useCanFarmV2(
     pool.id,
@@ -134,7 +137,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
           pool,
         })}
         <div className="flex flex-col items-end">
-          {countV1 > 0 ? (
+          {countV1 > endedFarmCountV1 || Number(farmStakeV1) > 0 ? (
             <ShareInFarmV2
               farmStake={farmStakeV1}
               userTotalShare={userTotalShare}
@@ -142,7 +145,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
             />
           ) : null}
 
-          {countV2 > 0 ? (
+          {countV2 > endedFarmCountV2 || Number(farmStakeV2) > 0 ? (
             <ShareInFarmV2
               farmStake={farmStakeV2}
               userTotalShare={userTotalShare}

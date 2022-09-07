@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
-import { REF_STABLE_SWAP_TAB_KEY } from '../../pages/stable/StableSwapPage';
 
 export default function SquareRadio({
   radios,
@@ -11,9 +10,7 @@ export default function SquareRadio({
   onChange: (chooseModule: string) => void;
   currentChoose: string;
 }) {
-  const [choose, setChoose] = useState(
-    currentChoose || localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) || radios[0]
-  );
+  const [choose, setChoose] = useState(currentChoose || radios[0]);
   const intl = useIntl();
   return (
     <>

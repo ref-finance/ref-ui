@@ -28,7 +28,10 @@ import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import getConfig from '../../services/config';
 import { BigNumber } from 'bignumber.js';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import Loading from '~components/layout/Loading';
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
 export default function FarmsMigrate() {

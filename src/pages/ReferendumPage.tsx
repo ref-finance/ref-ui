@@ -66,6 +66,7 @@ import {
 
 import moment, { duration } from 'moment';
 import { CheckedTick, ErrorTriangle, TipTriangle } from '../components/icon';
+
 import { UnCheckedBoxVE } from '../components/icon/CheckBox';
 import {
   toReadableNumber,
@@ -83,7 +84,9 @@ import {
   ProposalCard,
   TIMESTAMP_DIVISOR,
 } from '../components/layout/Proposal';
-import { WalletContext } from '../utils/sender-wallet';
+
+import { WalletContext } from '../utils/wallets-integration';
+
 import { scientificNotationToString, toPrecision } from '../utils/numbers';
 import { WarnTriangle } from '../components/icon/SwapRefresh';
 import { useTokens, useTokenPriceList } from '../state/token';
@@ -827,8 +830,6 @@ export const LockPopUp = ({
           </div>
         </div>
 
-        {/* Locking 50 LP Tokens in addition to the 100 already locked. Unlocking is Dec 1, 2022 */}
-
         {!showVeAmount || !preLocked ? null : (
           <div
             className="rounded-lg border text-sm flex items-center border-gradientFrom px-3 py-2.5 mt-4 text-left"
@@ -837,34 +838,58 @@ export const LockPopUp = ({
             }}
           >
             {' '}
-            <span className="mr-4">
+            <span className="mr-4 self-start">
               <TipTriangle h="16" w="17" c="#00C6A2" />
             </span>
             <span>
-              <FormattedMessage id="locking_ve" defaultMessage={'Locking'} />{' '}
-              <span className="text-gradientFrom">
-                {toPrecision(inputValue, 2)}
-              </span>{' '}
-              <FormattedMessage id="lp_tokens" defaultMessage={'LP Tokens'} />{' '}
-              <FormattedMessage
-                id="in_addition_to_the"
-                defaultMessage={'in addition to the'}
-              />{' '}
-              <span className="text-gradientFrom">
-                {toPrecision(toReadableNumber(24, accountInfo.lpt_amount), 2)}
-              </span>{' '}
-              <FormattedMessage
-                id="already_locked"
-                defaultMessage={'already locked'}
-              />
-              {'. '}
-              <FormattedMessage
-                id="unlocking_is"
-                defaultMessage={'Unlocking is'}
-              />{' '}
-              <span className="text-gradientFrom">
-                {moment(moment().unix() * 1000 + duration * 1000).format('ll')}
-              </span>
+              <div className="text-lightBg">
+                <FormattedMessage
+                  id="you_currently_have"
+                  defaultMessage={'You currently have '}
+                />
+                <span>
+                  {toPrecision(toReadableNumber(24, accountInfo.lpt_amount), 2)}
+                </span>
+                <FormattedMessage
+                  id="lp_tokens_locking"
+                  defaultMessage={'LP Tokens'}
+                />
+                <FormattedMessage
+                  id="scheduled_to_be_unlocked"
+                  defaultMessage={'scheduled to be unlocked'}
+                />{' '}
+                <span>{moment(unlockTime * 1000).format('MMM D YYYY')}</span>
+                {'. '}
+              </div>
+
+              <div className="text-white font-bold">
+                <span className="text-lightBg font-normal">
+                  <FormattedMessage
+                    id="locking_more_lp_tokens"
+                    defaultMessage={'Locking more LP Tokens'}
+                  />
+                </span>
+                <span>
+                  <FormattedMessage
+                    id="will_mean_these"
+                    defaultMessage={'will mean these'}
+                  />
+                </span>
+                <span>
+                  {toPrecision(toReadableNumber(24, accountInfo.lpt_amount), 2)}
+                </span>
+                <span>
+                  <FormattedMessage
+                    id="lp_tokens_will_not_be_unlocked_until"
+                    defaultMessage={'LP Tokens will not be unlocked until'}
+                  />{' '}
+                </span>
+                <span>
+                  {moment(moment().unix() * 1000 + duration * 1000).format(
+                    'MMM D YYYY'
+                  )}
+                </span>
+              </div>
             </span>
           </div>
         )}
@@ -878,14 +903,31 @@ export const LockPopUp = ({
           >
             {!termsCheck ? null : <RewardCheck />}
           </button>
-
-          <span>
+          <span className="text-lightBg">
             <FormattedMessage
-              id="lock_lp_terms"
-              defaultMessage={
-                "I understand that I won't be able to remove my LP Tokens for the entire duration of the agreed locking period"
-              }
+              id="I_understand_that_I_won't_be_able_to_remove_my"
+              defaultMessage={"I understand that I won't be able to remove my"}
             />
+            <span className="text-white font-bold">
+              {toPrecision(
+                scientificNotationToString(
+                  new Big(toReadableNumber(24, accountInfo?.lpt_amount || '0'))
+                    .plus(new Big(inputValue || '0'))
+                    .toString()
+                ),
+                2
+              )}
+            </span>
+            <FormattedMessage
+              id="lp_tokens_locking"
+              defaultMessage={'LP Tokens'}
+            />
+            <FormattedMessage id="until" defaultMessage={'until'} />{' '}
+            <span className="text-white font-bold">
+              {moment(moment().unix() * 1000 + duration * 1000).format(
+                'MMM D YYYY'
+              )}
+            </span>
           </span>
         </div>
 

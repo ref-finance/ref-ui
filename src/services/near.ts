@@ -1,13 +1,36 @@
-import { Near, keyStores, utils, WalletConnection } from 'near-api-js';
+import {
+  Near,
+  keyStores,
+  utils,
+  WalletConnection,
+  providers,
+} from 'near-api-js';
 import { functionCall } from 'near-api-js/lib/transaction';
 import BN from 'bn.js';
 import getConfig, { getExtraStablePoolConfig } from './config';
 import SpecialWallet from './SpecialWallet';
-import { getCurrentWallet, senderWallet } from '../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  senderWallet,
+  walletsRejectError,
+} from '../utils/wallets-integration';
+
+import { Transaction as WSTransaction } from '@near-wallet-selector/core';
+
 import {
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
   WALLET_TYPE,
-} from '../utils/sender-wallet';
+} from '../utils/wallets-integration';
+import { AccountView } from 'near-api-js/lib/providers/provider';
+import { ledgerTipTrigger } from '../utils/wallets-integration';
+import {
+  addQueryParams,
+  extraWalletsError,
+} from '../utils/wallets-integration';
+import {
+  TRANSACTION_WALLET_TYPE,
+  failToastAccount,
+} from '../components/layout/transactionTipPopUp';
 
 const config = getConfig();
 
@@ -198,17 +221,29 @@ export const refVeViewFunction = ({
   return wallet.account().viewFunction(REF_VE_CONTRACT_ID, methodName, args);
 };
 
-export const refFiManyFunctionCalls = (
+export const refFiManyFunctionCalls = async (
   functionCalls: RefFiFunctionCallOptions[]
 ) => {
   const actions = functionCalls.map((fc) =>
     functionCall(fc.methodName, fc.args, getGas(fc.gas), getAmount(fc.amount))
   );
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
-  return wallet_type === WALLET_TYPE.SENDER_WALLET
-    ? wallet.sendTransactionWithActions(REF_FI_CONTRACT_ID, functionCalls)
-    : wallet.account().sendTransactionWithActions(REF_FI_CONTRACT_ID, actions);
+  await ledgerTipTrigger(wallet);
+
+  return (await wallet.wallet()).signAndSendTransaction({
+    signerId: wallet.getAccountId()!,
+    receiverId: REF_FI_CONTRACT_ID,
+    actions: functionCalls.map((fc) => ({
+      type: 'FunctionCall',
+      params: {
+        methodName: fc.methodName,
+        args: fc.args,
+        gas: getGas(fc.gas).toNumber().toFixed(),
+        deposit: utils.format.parseNearAmount(fc.amount)!,
+      },
+    })),
+  });
 };
 
 export interface Transaction {
@@ -220,48 +255,155 @@ export const executeMultipleTransactions = async (
   transactions: Transaction[],
   callbackUrl?: string
 ) => {
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
-  const currentTransactions =
-    wallet_type === WALLET_TYPE.SENDER_WALLET
-      ? transactions
-      : await Promise.all(
-          transactions.map((t, i) => {
-            return wallet.createTransaction({
-              receiverId: t.receiverId,
-              nonceOffset: i + 1,
-              actions: t.functionCalls.map((fc) =>
-                functionCall(
-                  fc.methodName,
-                  fc.args,
-                  getGas(fc.gas),
-                  getAmount(fc.amount)
-                )
-              ),
-            });
-          })
-        );
+  const wstransactions: WSTransaction[] = [];
 
-  return wallet.requestSignTransactions(currentTransactions, callbackUrl);
+  transactions.forEach((transaction) => {
+    wstransactions.push({
+      signerId: wallet.getAccountId()!,
+      receiverId: transaction.receiverId,
+      actions: transaction.functionCalls.map((fc) => {
+        return {
+          type: 'FunctionCall',
+          params: {
+            methodName: fc.methodName,
+            args: fc.args,
+            gas: getGas(fc.gas).toNumber().toFixed(),
+            deposit: utils.format.parseNearAmount(fc.amount || '0')!,
+          },
+        };
+      }),
+    });
+  });
+
+  await ledgerTipTrigger(wallet);
+
+  return (await wallet.wallet())
+    .signAndSendTransactions({
+      transactions: wstransactions,
+    })
+    .then((res) => {
+      if (!res) return;
+
+      const transactionHashes = res?.map((r) => r.transaction.hash);
+      const parsedTransactionHashes = transactionHashes?.join(',');
+      const newHref = addQueryParams(
+        window.location.origin + window.location.pathname,
+        {
+          [TRANSACTION_WALLET_TYPE.WalletSelector]: parsedTransactionHashes,
+        }
+      );
+
+      window.location.href = newHref;
+    })
+    .catch((e: Error) => {
+      console.log(e);
+
+      if (extraWalletsError.includes(e.message)) {
+        return;
+      }
+
+      if (
+        !walletsRejectError.includes(e.message) &&
+        !extraWalletsError.includes(e.message)
+      ) {
+        sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
+      }
+
+      window.location.reload();
+    });
 };
 
-export const refFarmFunctionCall = ({
+export const refFarmFunctionCall = async ({
   methodName,
   args,
   gas,
   amount,
 }: RefFiFunctionCallOptions) => {
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
+  await ledgerTipTrigger(wallet);
 
-  return wallet
-    .account()
-    .functionCall(
-      REF_FARM_CONTRACT_ID,
-      methodName,
-      args,
-      getGas(gas),
-      getAmount(amount)
-    );
+  if ((await wallet.wallet()).id === 'sender') {
+    return window.near
+      .account()
+      .functionCall(
+        REF_FARM_BOOST_CONTRACT_ID,
+        methodName,
+        args,
+        getGas(gas),
+        getAmount(amount)
+      )
+      .catch(async (e: any) => {
+        console.log(e);
+
+        return (await wallet.wallet())
+          .signAndSendTransaction({
+            signerId: wallet.getAccountId()!,
+            receiverId: REF_FARM_CONTRACT_ID,
+            actions: [
+              {
+                type: 'FunctionCall',
+                params: {
+                  methodName,
+                  args,
+                  gas: getGas(gas).toNumber().toFixed(),
+                  deposit: utils.format.parseNearAmount(amount || '0')!,
+                },
+              },
+            ],
+          })
+          .catch((e: Error) => {
+            console.log(e);
+
+            if (extraWalletsError.includes(e.message)) {
+              return;
+            }
+
+            if (
+              !walletsRejectError.includes(e.message) &&
+              !extraWalletsError.includes(e.message)
+            ) {
+              sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
+            }
+
+            window.location.reload();
+          });
+      });
+  } else {
+    return (await wallet.wallet())
+      .signAndSendTransaction({
+        signerId: wallet.getAccountId()!,
+        receiverId: REF_FARM_CONTRACT_ID,
+        actions: [
+          {
+            type: 'FunctionCall',
+            params: {
+              methodName,
+              args,
+              gas: getGas(gas).toNumber().toFixed(),
+              deposit: utils.format.parseNearAmount(amount || '0')!,
+            },
+          },
+        ],
+      })
+      .catch((e: Error) => {
+        console.log(e);
+
+        if (extraWalletsError.includes(e.message)) {
+          return;
+        }
+
+        if (
+          !walletsRejectError.includes(e.message) &&
+          !extraWalletsError.includes(e.message)
+        ) {
+          sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
+        }
+
+        window.location.reload();
+      });
+  }
 };
 
 export const refFarmViewFunction = ({
@@ -271,48 +413,37 @@ export const refFarmViewFunction = ({
   return wallet.account().viewFunction(REF_FARM_CONTRACT_ID, methodName, args);
 };
 
-export const refFarmManyFunctionCalls = (
+export const refFarmManyFunctionCalls = async (
   functionCalls: RefFiFunctionCallOptions[]
 ) => {
   const actions = functionCalls.map((fc) =>
     functionCall(fc.methodName, fc.args, getGas(fc.gas), getAmount(fc.amount))
   );
-  const { wallet, wallet_type } = getCurrentWallet();
 
-  return wallet_type === WALLET_TYPE.SENDER_WALLET
-    ? wallet.sendTransactionWithActions(REF_FARM_CONTRACT_ID, functionCalls)
-    : wallet
-        .account()
-        .sendTransactionWithActions(REF_FARM_CONTRACT_ID, actions);
+  const { wallet } = getCurrentWallet();
+
+  await ledgerTipTrigger(wallet);
+
+  return (await wallet.wallet()).signAndSendTransaction({
+    signerId: wallet.getAccountId()!,
+    receiverId: REF_FARM_CONTRACT_ID,
+    actions: functionCalls.map((fc) => ({
+      type: 'FunctionCall',
+      params: {
+        methodName: fc.methodName,
+        args: fc.args,
+        gas: getGas(fc.gas).toNumber().toFixed(),
+        deposit: utils.format.parseNearAmount(fc.amount)!,
+      },
+    })),
+  });
 };
 
 export const executeFarmMultipleTransactions = async (
   transactions: Transaction[],
   callbackUrl?: string
 ) => {
-  const { wallet, wallet_type } = getCurrentWallet();
-
-  const currentTransactions =
-    wallet_type === WALLET_TYPE.SENDER_WALLET
-      ? transactions
-      : await Promise.all(
-          transactions.map((t, i) => {
-            return wallet.createTransaction({
-              receiverId: t.receiverId,
-              nonceOffset: i + 1,
-              actions: t.functionCalls.map((fc) =>
-                functionCall(
-                  fc.methodName,
-                  fc.args,
-                  getGas(fc.gas),
-                  getAmount(fc.amount)
-                )
-              ),
-            });
-          })
-        );
-
-  return wallet.requestSignTransactions(currentTransactions, callbackUrl);
+  return executeMultipleTransactions(transactions, callbackUrl);
 };
 
 export interface RefContractViewFunctionOptions
@@ -329,6 +460,20 @@ export const refContractViewFunction = ({
   return wallet.account().viewFunction(XREF_TOKEN_ID, methodName, args);
 };
 
+export const getAccountNearBalance = async (accountId: string) => {
+  const provider = new providers.JsonRpcProvider({
+    url: getConfig().nodeUrl,
+  });
+
+  return provider
+    .query<AccountView>({
+      request_type: 'view_account',
+      finality: 'final',
+      account_id: accountId,
+    })
+    .then((data) => ({ available: data.amount }));
+};
+
 export const refFarmBoostViewFunction = ({
   methodName,
   args,
@@ -338,20 +483,95 @@ export const refFarmBoostViewFunction = ({
     .viewFunction(REF_FARM_BOOST_CONTRACT_ID, methodName, args);
 };
 
-export const refFarmBoostFunctionCall = ({
+export const refFarmBoostFunctionCall = async ({
   methodName,
   args,
   gas,
   amount,
 }: RefFiFunctionCallOptions) => {
   const { wallet } = getCurrentWallet();
-  return wallet
-    .account()
-    .functionCall(
-      REF_FARM_BOOST_CONTRACT_ID,
-      methodName,
-      args,
-      getGas(gas),
-      getAmount(amount)
-    );
+
+  await ledgerTipTrigger(wallet);
+
+  if ((await wallet.wallet()).id === 'sender') {
+    return window.near
+      .account()
+      .functionCall(
+        REF_FARM_BOOST_CONTRACT_ID,
+        methodName,
+        args,
+        getGas(gas),
+        getAmount(amount)
+      )
+      .catch(async (e: any) => {
+        console.log(e);
+
+        return (await wallet.wallet())
+          .signAndSendTransaction({
+            signerId: wallet.getAccountId()!,
+            receiverId: REF_FARM_BOOST_CONTRACT_ID,
+            actions: [
+              {
+                type: 'FunctionCall',
+                params: {
+                  methodName,
+                  args,
+                  gas: getGas(gas).toNumber().toFixed(),
+                  deposit: utils.format.parseNearAmount(amount || '0')!,
+                },
+              },
+            ],
+          })
+          .catch((e: Error) => {
+            console.log(e);
+
+            if (extraWalletsError.includes(e.message)) {
+              return;
+            }
+
+            if (
+              !walletsRejectError.includes(e.message) &&
+              !extraWalletsError.includes(e.message)
+            ) {
+              sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
+            }
+
+            window.location.reload();
+          });
+      });
+  } else {
+    return (await wallet.wallet())
+      .signAndSendTransaction({
+        signerId: wallet.getAccountId()!,
+        receiverId: REF_FARM_BOOST_CONTRACT_ID,
+        actions: [
+          {
+            type: 'FunctionCall',
+            params: {
+              methodName,
+              args,
+              gas: getGas(gas).toNumber().toFixed(),
+              deposit: utils.format.parseNearAmount(amount || '0')!,
+            },
+          },
+        ],
+      })
+      .catch((e: Error) => {
+        console.log(e);
+        console.log(e);
+
+        if (extraWalletsError.includes(e.message)) {
+          return;
+        }
+
+        if (
+          !walletsRejectError.includes(e.message) &&
+          !extraWalletsError.includes(e.message)
+        ) {
+          sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
+        }
+
+        window.location.reload();
+      });
+  }
 };

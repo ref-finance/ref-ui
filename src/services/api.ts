@@ -3,7 +3,7 @@ import { wallet, refFiViewFunction } from './near';
 import { toPrecision, scientificNotationToString } from '../utils/numbers';
 import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 import { TokenMetadata } from './ft-contract';
 
 const config = getConfig();
@@ -17,6 +17,7 @@ export interface PoolRPCView {
   token_account_ids: string[];
   token_symbols: string[];
   amounts: string[];
+  pool_kind?: string;
   total_fee: number;
   shares_total_supply: string;
   tvl: number;
@@ -50,7 +51,7 @@ export const getPoolBalance = async (pool_id: number) => {
     methodName: 'get_pool_shares',
     args: {
       pool_id: pool_id,
-      account_id: getCurrentWallet().wallet.getAccountId(),
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
     },
   }).then((balance) => {
     return new BigNumber(balance.toString()).toFixed();
@@ -83,7 +84,7 @@ export const getUserWalletTokens = async (): Promise<any> => {
   return await fetch(
     config.helperUrl +
       '/account/' +
-      getCurrentWallet().wallet.getAccountId() +
+      getCurrentWallet()?.wallet?.getAccountId() +
       '/likelyTokens',
     {
       method: 'GET',

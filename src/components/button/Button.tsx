@@ -13,6 +13,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { BeatLoading } from '../../components/layout/Loading';
 import { WalletSelectorModal } from '../layout/WalletSelector';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { CheckedTick, UnCheckedBoxVE } from '../icon/CheckBox';
 import { isClientMobie, useClientMobile } from '../../utils/device';
 
@@ -128,6 +129,9 @@ export function ConnectToNearBtn() {
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
   return (
     <>
       <div
@@ -142,7 +146,8 @@ export function ConnectToNearBtn() {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          // setShowWalletSelector(true);
+          modal.show();
         }}
       >
         {!buttonLoading && (
@@ -151,7 +156,7 @@ export function ConnectToNearBtn() {
           </div>
         )}
 
-        <button>
+        <button disabled={buttonLoading}>
           <ButtonTextWrapper
             loading={buttonLoading}
             Text={() => (
@@ -182,7 +187,8 @@ export function ConnectToNearBtnGradient({
 }) {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
-  const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
 
   return (
     <>
@@ -197,7 +203,7 @@ export function ConnectToNearBtnGradient({
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          modal.show();
         }}
       >
         {!buttonLoading && (
@@ -218,14 +224,6 @@ export function ConnectToNearBtnGradient({
           />
         </button>
       </div>
-      <WalletSelectorModal
-        isOpen={showWalletSelector}
-        onRequestClose={() => {
-          window.location.reload();
-          setShowWalletSelector(false);
-        }}
-        setShowWalletSelector={setShowWalletSelector}
-      />
     </>
   );
 }
@@ -238,7 +236,8 @@ export function ConnectToNearBtnGradientMoible({
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
-
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
   return (
     <>
       <div
@@ -252,7 +251,7 @@ export function ConnectToNearBtnGradientMoible({
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          modal.show();
         }}
       >
         <button className="relative left-1">
@@ -283,11 +282,12 @@ export function ConnectToNearBtnGradientMoible({
 }
 
 export function SmallConnectToNearBtn() {
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
   return (
     <div className="flex items-center justify-center pt-2">
-      <GrayButton
-        onClick={() => wallet.requestSignIn(REF_FARM_BOOST_CONTRACT_ID)}
-      >
+      <GrayButton onClick={() => modal.show()}>
         <div className="pr-1">
           <Near />
         </div>
@@ -515,6 +515,9 @@ export function ConnectToNearButton(props: any) {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const [showWalletSelector, setShowWalletSelector] = useState(false);
   const { className = '' } = props;
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
   return (
     <>
       <div
@@ -529,7 +532,8 @@ export function ConnectToNearButton(props: any) {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          // setShowWalletSelector(true);
+          modal.show();
         }}
       >
         <button>
@@ -833,6 +837,8 @@ export function GreenConnectToNearBtn(props: any) {
   const { className } = props;
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
 
   return (
     <>
@@ -844,7 +850,7 @@ export function GreenConnectToNearBtn(props: any) {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          modal.show();
         }}
       >
         <span className="mr-2">
@@ -873,11 +879,14 @@ export function GreenConnectToNearBtn(props: any) {
     </>
   );
 }
+
 export function BlacklightConnectToNearBtn(props: any) {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const { className } = props;
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
 
   return (
     <>
@@ -889,7 +898,8 @@ export function BlacklightConnectToNearBtn(props: any) {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          // setShowWalletSelector(true);
+          modal.show();
         }}
       >
         <span className="mr-2">
@@ -932,7 +942,8 @@ export const YouVotedButton = () => {
 export function ConnectToNearBtnVotingMobile() {
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
-  const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
 
   return (
     <>
@@ -947,7 +958,7 @@ export function ConnectToNearBtnVotingMobile() {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          setShowWalletSelector(true);
+          modal.show();
         }}
       >
         {!buttonLoading && (
@@ -968,14 +979,6 @@ export function ConnectToNearBtnVotingMobile() {
           />
         </button>
       </div>
-      <WalletSelectorModal
-        isOpen={showWalletSelector}
-        onRequestClose={() => {
-          window.location.reload();
-          setShowWalletSelector(false);
-        }}
-        setShowWalletSelector={setShowWalletSelector}
-      />
     </>
   );
 }

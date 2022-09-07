@@ -27,9 +27,9 @@ import {
 } from '../../components/stableswap/CommonComp';
 import BigNumber from 'bignumber.js';
 import { getStablePoolFromCache, Pool, StablePool } from '../../services/pool';
+import { getStableSwapTabKey } from './StableSwapPageUSN';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
 const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
-export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
 
 interface LocationTypes {
   stableTab?: string;
@@ -46,6 +46,8 @@ interface ParamTypes {
 function StableSwapPage({ pool }: { pool: Pool }) {
   const { state } = useLocation<LocationTypes>();
   const { id } = useParams<ParamTypes>();
+
+  const REF_STABLE_SWAP_TAB_KEY = getStableSwapTabKey(pool.id);
 
   const stableTab = state?.stableTab;
 

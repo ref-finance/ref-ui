@@ -4,7 +4,7 @@ import CrossSwapCard from '../components/swap/CrossSwapCard';
 
 import Loading from '../components/layout/Loading';
 import { useTriTokens, useWhitelistTokens } from '../state/token';
-import { WalletContext } from '../utils/sender-wallet';
+import { WalletContext } from '../utils/wallets-integration';
 import { FormattedMessage } from 'react-intl';
 import { SwapCross } from '../components/icon/CrossSwapIcons';
 import { useTriTokenIdsOnRef } from '../services/aurora/aurora';
@@ -114,12 +114,6 @@ function SwapTab({
 
   return (
     <div className="mb-5 flex items-center justify-between">
-      {/* <div
-        className="mr-5 bg-cardBg rounded-2xl w-full text-white text-lg flex items-center justify-center"
-        style={{
-          height: '50px',
-        }}
-      > */}
       <TabTitle />
       {/* </div> */}
 
@@ -166,9 +160,16 @@ function SwapPage() {
   const [swapTab, setSwapTab] = useState(
     localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)?.toString() || 'normal'
   );
+
+  const storedMode =
+    localStorage.getItem(SWAP_MODE_KEY) === 'normal'
+      ? SWAP_MODE.NORMAL
+      : localStorage.getItem(SWAP_MODE_KEY) === 'stable'
+      ? SWAP_MODE.STABLE
+      : null;
+
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
-    (localStorage.getItem(SWAP_MODE_KEY) as SWAP_MODE | null) ||
-      SWAP_MODE.NORMAL
+    storedMode || SWAP_MODE.NORMAL
   );
   const stablePools = useAllStablePools();
 
