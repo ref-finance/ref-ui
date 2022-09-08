@@ -54,6 +54,7 @@ import { getTokenPriceList } from '../../services/indexer';
 import { getBoostTokenPrices } from '../../services/farm';
 import { getLiquidity } from '~utils/pool';
 import _ from 'lodash';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 export default function YourLiquidityDetail(props: any) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
@@ -70,6 +71,12 @@ export default function YourLiquidityDetail(props: any) {
   const poolId = (props.match.params?.poolId || '').replace(/@/g, '|');
   const [token_x, token_y, fee] = poolId.split('|');
   const tokenMetadata_x_y = useTokens([token_x, token_y]);
+  const { txHash } = getURLInfo();
+  useEffect(() => {
+    if (txHash) {
+      history.replace(location.pathname);
+    }
+  }, [txHash]);
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
     if (poolId && hashId) {

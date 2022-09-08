@@ -737,7 +737,8 @@ export const add_liquidity = async ({
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
-  return executeMultipleTransactions(transactions);
+  const callbackUrl = location.origin + '/addLiquidityV3';
+  return executeMultipleTransactions(transactions, callbackUrl);
 };
 export const remove_liquidity = async ({
   token_x,
@@ -804,7 +805,8 @@ export const remove_liquidity = async ({
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
-  return executeMultipleTransactions(transactions);
+  const callbackUrl = location.origin + '/yoursLiquidity';
+  return executeMultipleTransactions(transactions, callbackUrl);
 };
 
 export const checkTokenNeedsStorageDeposit_v3 = async () => {

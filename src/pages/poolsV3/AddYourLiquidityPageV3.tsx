@@ -64,6 +64,7 @@ import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 import { toRealSymbol } from '../../utils/token';
 import ReactTooltip from 'react-tooltip';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 
 export default function AddYourLiquidityPageV3() {
   const [tokenX, setTokenX] = useState<TokenMetadata>(null);
@@ -94,10 +95,16 @@ export default function AddYourLiquidityPageV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const nearBalance = useDepositableBalance('NEAR');
+  const { txHash } = getURLInfo();
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
     get_list_pools();
   }, []);
+  useEffect(() => {
+    if (txHash) {
+      history.replace(location.pathname);
+    }
+  }, [txHash]);
   useEffect(() => {
     if (tokenX) {
       const tokenXId = tokenX.id;

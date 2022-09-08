@@ -34,6 +34,7 @@ import {
   MyOrderMask,
   MyOrderMask2,
 } from '~components/icon/swapV3';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 export default function YourLiquidityPageV3() {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
@@ -59,6 +60,12 @@ export default function YourLiquidityPageV3() {
   const history = useHistory();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const { txHash } = getURLInfo();
+  useEffect(() => {
+    if (txHash) {
+      history.replace(location.pathname);
+    }
+  }, [txHash]);
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities();
