@@ -11,7 +11,7 @@ export function openTransak(accountId: string) {
 
   const modalSize = {
     widgetWidth: isMobile ? '90%' : getTransakConfig(accountId).widgetWidth,
-    widgetHeight: isMobile ? '90%' : getTransakConfig(accountId).widgetHeight,
+    widgetHeight: isMobile ? '95%' : getTransakConfig(accountId).widgetHeight,
   };
 
   const transak = new transakSDK({
