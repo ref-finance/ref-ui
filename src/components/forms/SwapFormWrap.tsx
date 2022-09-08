@@ -72,7 +72,6 @@ export default function SwapFormWrap({
 
   const {
     loadingTrigger,
-
     setLoadingPause,
     showSwapLoading,
     setShowSwapLoading,
@@ -142,7 +141,7 @@ export default function SwapFormWrap({
           loading={
             swapMode !== SWAP_MODE.LIMIT
               ? showSwapLoading
-              : !quoteDoneLimit || showSwapLoading
+              : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
           }
         />
       )}

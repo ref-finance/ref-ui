@@ -625,10 +625,15 @@ export const useSwapV3 = ({
 
   const priceImpact = useMemo(() => {
     try {
+      const curPoint =
+        tokenIn.id === bestPool.token_x
+          ? bestPool.current_point
+          : -1 * bestPool.current_point;
+
       const curPrice = pointToPrice({
         tokenA: tokenIn,
         tokenB: tokenOut,
-        point: bestPool.current_point,
+        point: curPoint,
       });
 
       const newPrice = new Big(tokenInAmount).div(tokenOutAmount).toNumber();
@@ -691,6 +696,7 @@ export const useLimitOrder = ({
   selectedV3LimitPool,
   setSelectedV3LimitPool,
   loadingTrigger,
+  tokenPriceList,
 }: {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
@@ -698,9 +704,8 @@ export const useLimitOrder = ({
   selectedV3LimitPool: string;
   setSelectedV3LimitPool?: (pool: string) => void;
   loadingTrigger?: boolean;
+  tokenPriceList: Record<string, any>;
 }) => {
-  const tokenPriceList = useTokenPriceList();
-
   const price_x = tokenPriceList?.[tokenIn?.id]?.price;
 
   const price_y = tokenPriceList?.[tokenOut?.id]?.price;
@@ -718,7 +723,7 @@ export const useLimitOrder = ({
   }>();
 
   useEffect(() => {
-    if (!selectedV3LimitPool || loadingTrigger) return;
+    if (!selectedV3LimitPool) return;
     setQuoteDone(false);
 
     get_pool(selectedV3LimitPool, tokenIn.id)
@@ -817,7 +822,7 @@ export const useLimitOrder = ({
         );
         setSelectedV3LimitPool(allPoolsForThisPair[2]);
       });
-  }, [tokenIn, tokenOut, loadingTrigger]);
+  }, [tokenIn, tokenOut, loadingTrigger, tokenPriceList]);
 
   useEffect(() => {
     if (!poolToOrderCounts) return null;

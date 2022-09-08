@@ -3,6 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { isMobile } from '../../utils/device';
 import { TokenMetadata } from '../../services/ft-contract';
 import { regularizedPrice } from '../../services/swapV3';
+import { ONLY_ZEROS, toPrecision } from '../../utils/numbers';
 
 export function ArrowDownGreen() {
   return (
@@ -436,6 +437,7 @@ export function SwapExchangeV3({
   setRate,
   curPrice,
   fee,
+  triggerFetch,
 }: {
   onChange: (e?: any) => void;
   tokenIn: TokenMetadata;
@@ -444,6 +446,7 @@ export function SwapExchangeV3({
   setRate: (r: string) => void;
   curPrice?: string;
   fee: number;
+  triggerFetch?: (e?: any) => void;
 }) {
   const [hover, setHover] = useState<boolean>(false);
   const upRow = useRef(null);
@@ -525,6 +528,7 @@ export function SwapExchangeV3({
           }  rounded-2xl whitespace-nowrap cursor-pointer`}
           onClick={() => {
             setRate(curPrice);
+            if (triggerFetch) triggerFetch();
           }}
         >
           <FormattedMessage id="current_rate" defaultMessage={'Current Rate'} />
@@ -542,8 +546,13 @@ export function SwapExchangeV3({
             type="number"
             placeholder={!curPrice ? '-' : '0.0'}
             value={!curPrice ? '-' : rate}
-            onBlur={() => {
+            onBlur={(e) => {
               const newR = regularizedPrice(rate, tokenIn, tokenOut, fee);
+
+              if (ONLY_ZEROS.test(toPrecision(newR, 8, false, false))) {
+                return;
+              }
+
               setRate(newR);
             }}
             onChange={(e) => {

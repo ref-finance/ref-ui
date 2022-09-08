@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { wallet } from '../../services/near';
 import {
   toRoundedReadableNumber,
@@ -36,6 +36,7 @@ import { InputAmountV3 } from './InputAmount';
 import Big from 'big.js';
 import { QuestionTip } from '../layout/TipWrapper';
 import { regularizedPrice } from '../../services/swapV3';
+import { LimitOrderTriggerContext } from '../swap/SwapCard';
 
 interface TokenAmountProps {
   amount?: string;
@@ -71,6 +72,7 @@ interface TokenAmountProps {
   tokenOut?: TokenMetadata;
   onBlur?: (e?: any) => void;
   limitFee?: number;
+  setDiff?: (d: string) => void;
 }
 
 export function getTextWidth(str: string, fontSize: string) {
@@ -86,7 +88,7 @@ export function getTextWidth(str: string, fontSize: string) {
   result = ele.offsetWidth;
 
   document.documentElement.removeChild(ele);
-  return result + 24;
+  return result + 25;
 }
 
 export function HalfAndMaxAmount({
@@ -192,26 +194,50 @@ export function QuickAmountLimitOrder({
   amount,
   plus10,
   plus5,
+  plus1,
+  minus1,
 }: {
   max: string;
   amount?: string;
   onChangeAmount: (amount: string) => void;
   marketPrice: string;
-  plus5?: string;
-  plus10?: string;
+  plus5: string;
+  plus10: string;
+  plus1: string;
+  minus1: string;
 }) {
+  const { triggerFetch } = useContext(LimitOrderTriggerContext);
+
   return (
     <div className="flex items-center">
-      <span className="mr-2">
-        <QuestionTip
-          id="the_price_should_be_in_one_slot_nearby"
-          defaultMessage="The price should be in one slot nearby"
-          dataPlace="bottom"
-        />
+      <span
+        className={`px-2 py-1 mr-1 w-5 h-5 flex items-center justify-center cursor-pointer rounded-md  ${
+          Number(amount) === Number(minus1)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+        } text-lg`}
+        onClick={() => {
+          onChangeAmount(minus1);
+        }}
+      >
+        -
       </span>
 
       <span
-        className={`px-2 py-1 mr-2 cursor-pointer rounded-xl  ${
+        className={`px-2 py-1 mr-2 flex items-center justify-center w-5 h-5 cursor-pointer rounded-md  ${
+          Number(amount) === Number(plus1)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+        } text-lg`}
+        onClick={() => {
+          onChangeAmount(plus1);
+        }}
+      >
+        +
+      </span>
+
+      <span
+        className={`px-2 py-1 mr-2 cursor-pointer flex items-center h-5 rounded-xl  ${
           Number(amount) === Number(plus5)
             ? 'text-gradientFrom  border border-gradientFrom'
             : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
@@ -224,7 +250,7 @@ export function QuickAmountLimitOrder({
       </span>
 
       <span
-        className={`px-2 py-1 cursor-pointer rounded-xl mr-2  ${
+        className={`px-2 py-1 cursor-pointer rounded-xl h-5 mr-1 flex items-center ${
           Number(amount) === Number(plus10)
             ? 'text-gradientFrom  border border-gradientFrom'
             : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
@@ -235,9 +261,15 @@ export function QuickAmountLimitOrder({
       >
         +10%
       </span>
-
+      <span className="mr-2">
+        <QuestionTip
+          id="the_price_should_be_in_one_slot_nearby"
+          defaultMessage="The price should be in one slot nearby"
+          dataPlace="bottom"
+        />
+      </span>
       <span
-        className={`text-xs px-2 py-1 rounded-xl whitespace-nowrap cursor-pointer
+        className={`text-xs px-2 py-1 rounded-xl whitespace-nowrap h-5 cursor-pointer flex items-center
         ${
           Number(amount) === Number(max)
             ? 'text-v3Blue bg-v3Blue bg-opacity-10 border border-transparent'
@@ -247,6 +279,7 @@ export function QuickAmountLimitOrder({
         `}
         onClick={() => {
           onChangeAmount(marketPrice);
+          triggerFetch && triggerFetch();
         }}
       >
         <FormattedMessage id="market_price" defaultMessage={'Market Price'} />
@@ -414,6 +447,7 @@ export function TokenAmountV3({
   onChangeRate,
   curRate,
   limitFee,
+  setDiff,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -431,6 +465,36 @@ export function TokenAmountV3({
         ? '0'
         : String(Number(max) - 0.5)
       : max;
+
+  const plus1 =
+    tokenIn &&
+    tokenOut &&
+    limitFee &&
+    toPrecision(
+      regularizedPrice(
+        percentOfBigNumber(100, marketPriceLimitOrder || 0, 8),
+        tokenIn,
+        tokenOut,
+        limitFee,
+        1
+      ),
+      8
+    );
+
+  const minus1 =
+    tokenIn &&
+    tokenOut &&
+    limitFee &&
+    toPrecision(
+      regularizedPrice(
+        percentOfBigNumber(100, marketPriceLimitOrder || 0, 8),
+        tokenIn,
+        tokenOut,
+        limitFee,
+        -1
+      ),
+      8
+    );
 
   const plus5 =
     tokenIn &&
@@ -478,6 +542,12 @@ export function TokenAmountV3({
           1
         )
       : rateDiff.times(rateDiff.lt(0) ? -1 : 1).toFixed(0));
+
+  useEffect(() => {
+    if (setDiff) {
+      setDiff(displayRateDiff);
+    }
+  }, [displayRateDiff]);
 
   return (
     <div
@@ -560,6 +630,9 @@ export function TokenAmountV3({
                 tokenOut,
                 limitFee
               );
+              if (ONLY_ZEROS.test(toPrecision(newAmount, 8, false, false)))
+                return;
+
               onChangeAmount(newAmount);
             }
           }}
@@ -574,9 +647,14 @@ export function TokenAmountV3({
             marketPriceLimitOrder &&
             swapMode === SWAP_MODE.LIMIT ? (
               <span
-                className="rounded-xl text-white py-0.5 absolute px-2"
+                className={`rounded-xl ${
+                  Number(displayRateDiff) > 0
+                    ? 'text-gradientFrom bg-gradientFrom '
+                    : Number(displayRateDiff) < -10
+                    ? 'text-error bg-error'
+                    : 'text-warn bg-warn'
+                }  py-0.5  absolute px-2 bg-opacity-20`}
                 style={{
-                  background: 'rgba(0, 130, 106, 0.2)',
                   left: getTextWidth(amount, '20px') + 'px',
                 }}
               >
@@ -617,6 +695,8 @@ export function TokenAmountV3({
             amount={curRate}
             plus10={plus10}
             plus5={plus5}
+            plus1={plus1}
+            minus1={minus1}
           />
         ) : null}
       </div>

@@ -1372,7 +1372,7 @@ function MorePoolRow({
   );
 }
 
-function YourLiquidityAddLiquidityModal(
+export function YourLiquidityAddLiquidityModal(
   props: ReactModal.Props & {
     stablePools: PoolRPCView[];
   }

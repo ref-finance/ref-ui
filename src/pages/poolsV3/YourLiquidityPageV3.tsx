@@ -27,7 +27,10 @@ import BigNumber from 'bignumber.js';
 import { getBoostTokenPrices } from '../../services/farm';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
-import { YourLiquidityPage } from '../pools/YourLiquidityPage';
+import {
+  YourLiquidityAddLiquidityModal,
+  YourLiquidityPage,
+} from '../pools/YourLiquidityPage';
 import { WalletContext } from '../../utils/wallets-integration';
 
 import {
@@ -36,6 +39,9 @@ import {
   MyOrderMask2,
 } from '~components/icon/swapV3';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { PoolRPCView } from '../../services/api';
+import { ALL_STABLE_POOL_IDS } from '../../services/near';
+import { getPoolsByIds } from '../../services/indexer';
 export default function YourLiquidityPageV3() {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
@@ -55,6 +61,19 @@ export default function YourLiquidityPageV3() {
       url: '/addLiquidityV3',
     },
   ]);
+
+  const [stablePools, setStablePools] = useState<PoolRPCView[]>();
+
+  useEffect(() => {
+    const ids = ALL_STABLE_POOL_IDS;
+
+    getPoolsByIds({ pool_ids: ids }).then((res) => {
+      setStablePools(res);
+    });
+  }, []);
+
+  const [generalAddLiquidity, setGeneralAddLiquidity] =
+    useState<boolean>(false);
   const [checkedStatus, setCheckedStatus] = useState('All');
   const [oldLiquidityHasNoData, setOldLiquidityHasNoData] = useState(false);
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
@@ -88,122 +107,136 @@ export default function YourLiquidityPageV3() {
     setOldLiquidityHasNoData(status);
   }
   return (
-    <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center">
-          <span className="text-white text-xl mr-5">Liquidity</span>
-          <div className="flex items-center text-xs text-primaryText border border-v3borderColor p-0.5 rounded-lg">
-            {liquidityStatusList.map((item: string, index: number) => {
-              return (
-                <span
-                  key={index}
-                  onClick={() => {
-                    switchButton(item);
-                  }}
-                  className="flex items-center justify-center h-6 py-0.5 px-1.5 rounded-md cursor-pointer"
-                  style={{
-                    background:
-                      checkedStatus == item ? 'rgba(48, 68, 82, 0.5)' : '',
-                    boxShadow:
-                      checkedStatus == item
-                        ? '0px 0px 10px rgba(0, 0, 0, 0.15)'
-                        : '',
-                    backdropFilter: checkedStatus == item ? 'blur(50px)' : '',
-                  }}
-                >
-                  {item}
-                </span>
-              );
-            })}
-          </div>
-        </div>
-        <div
-          className="relative pb-10"
-          onMouseOver={() => {
-            setAddLiqudityHover(true);
-          }}
-          onMouseLeave={() => {
-            setAddLiqudityHover(false);
-          }}
-        >
-          <GradientButton
-            color="#fff"
-            className={`px-4 h-8 text-center text-base text-white focus:outline-none`}
-          >
-            <FormattedMessage
-              id="add_liquidity"
-              defaultMessage="Add Liquidity"
-            />
-          </GradientButton>
-          <span
-            className={`top-10 pt-2 absolute z-50 ${
-              addLiqudityHover ? '' : 'hidden'
-            }`}
-          >
-            <div
-              className="py-2 px-1.5 rounded-xl min-w-28 flex flex-col"
-              style={{
-                background: 'rgba(23,32,38)',
-                border: '1px solid #415462',
-              }}
-            >
-              {addliquidityList.map((item: any, index: number) => {
+    <>
+      <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center">
+            <span className="text-white text-xl mr-5">Liquidity</span>
+            <div className="flex items-center text-xs text-primaryText border border-v3borderColor p-0.5 rounded-lg">
+              {liquidityStatusList.map((item: string, index: number) => {
                 return (
                   <span
                     key={index}
-                    onClick={(e) => {
-                      goAddLiquidityPage(item.url);
+                    onClick={() => {
+                      switchButton(item);
                     }}
-                    className={`whitespace-nowrap hover:bg-primaryText hover:bg-opacity-30 items-center flex justify-center px-4 py-0.5 h-11 mb-0.5 hover:text-white rounded-lg text-primaryText text-center text-sm cursor-pointer my-auto`}
+                    className="flex items-center justify-center h-6 py-0.5 px-1.5 rounded-md cursor-pointer"
+                    style={{
+                      background:
+                        checkedStatus == item ? 'rgba(48, 68, 82, 0.5)' : '',
+                      boxShadow:
+                        checkedStatus == item
+                          ? '0px 0px 10px rgba(0, 0, 0, 0.15)'
+                          : '',
+                      backdropFilter: checkedStatus == item ? 'blur(50px)' : '',
+                    }}
                   >
-                    {item.text}
+                    {item}
                   </span>
                 );
               })}
             </div>
-          </span>
+          </div>
+          <div
+            className="relative pb-10"
+            onMouseOver={() => {
+              setAddLiqudityHover(true);
+            }}
+            onMouseLeave={() => {
+              setAddLiqudityHover(false);
+            }}
+          >
+            <GradientButton
+              color="#fff"
+              className={`px-4 h-8 text-center text-base text-white focus:outline-none`}
+            >
+              <FormattedMessage
+                id="add_liquidity"
+                defaultMessage="Add Liquidity"
+              />
+            </GradientButton>
+            <span
+              className={`top-10 pt-2 absolute z-50 ${
+                addLiqudityHover ? '' : 'hidden'
+              }`}
+            >
+              <div
+                className="py-2 px-1.5 rounded-xl min-w-28 flex flex-col"
+                style={{
+                  background: 'rgba(23,32,38)',
+                  border: '1px solid #415462',
+                }}
+              >
+                {addliquidityList.map((item: any, index: number) => {
+                  return (
+                    <span
+                      key={index}
+                      onClick={(e) => {
+                        if (item.text === 'Old Liquidity') {
+                          setGeneralAddLiquidity(true);
+                        } else {
+                          goAddLiquidityPage(item.url);
+                        }
+                      }}
+                      className={`whitespace-nowrap hover:bg-primaryText hover:bg-opacity-30 items-center flex justify-center px-4 py-0.5 h-11 mb-0.5 hover:text-white rounded-lg text-primaryText text-center text-sm cursor-pointer my-auto`}
+                    >
+                      {item.text}
+                    </span>
+                  );
+                })}
+              </div>
+            </span>
+          </div>
         </div>
+        {!isSignedIn ||
+        (oldLiquidityHasNoData && listLiquidities.length == 0) ? (
+          <NoLiquidity></NoLiquidity>
+        ) : (
+          <>
+            {listLiquidities.length == 0 ? null : (
+              <div className={`mb-7 ${checkedStatus == 'Old' ? 'hidden' : ''}`}>
+                <div className="text-white text-base mb-2.5">
+                  New ({listLiquidities.length})
+                </div>
+                <div>
+                  {listLiquidities.map(
+                    (liquidity: UserLiquidityInfo, index: number) => {
+                      return (
+                        <div key={index}>
+                          <UserLiquidityLine
+                            liquidity={liquidity}
+                          ></UserLiquidityLine>
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
+              </div>
+            )}
+            {oldLiquidityHasNoData ? null : (
+              <div className={`${checkedStatus == 'New' ? 'hidden' : ''}`}>
+                <YourLiquidityPage
+                  setNoOldLiquidity={setNoOldLiquidity}
+                ></YourLiquidityPage>
+              </div>
+            )}
+            {checkedStatus == 'New' && listLiquidities.length == 0 ? (
+              <NoLiquidity></NoLiquidity>
+            ) : null}
+            {checkedStatus == 'Old' && oldLiquidityHasNoData ? (
+              <NoLiquidity></NoLiquidity>
+            ) : null}
+          </>
+        )}
       </div>
-      {!isSignedIn || (oldLiquidityHasNoData && listLiquidities.length == 0) ? (
-        <NoLiquidity></NoLiquidity>
-      ) : (
-        <>
-          {listLiquidities.length == 0 ? null : (
-            <div className={`mb-7 ${checkedStatus == 'Old' ? 'hidden' : ''}`}>
-              <div className="text-white text-base mb-2.5">
-                New ({listLiquidities.length})
-              </div>
-              <div>
-                {listLiquidities.map(
-                  (liquidity: UserLiquidityInfo, index: number) => {
-                    return (
-                      <div key={index}>
-                        <UserLiquidityLine
-                          liquidity={liquidity}
-                        ></UserLiquidityLine>
-                      </div>
-                    );
-                  }
-                )}
-              </div>
-            </div>
-          )}
-          {oldLiquidityHasNoData ? null : (
-            <div className={`${checkedStatus == 'New' ? 'hidden' : ''}`}>
-              <YourLiquidityPage
-                setNoOldLiquidity={setNoOldLiquidity}
-              ></YourLiquidityPage>
-            </div>
-          )}
-          {checkedStatus == 'New' && listLiquidities.length == 0 ? (
-            <NoLiquidity></NoLiquidity>
-          ) : null}
-          {checkedStatus == 'Old' && oldLiquidityHasNoData ? (
-            <NoLiquidity></NoLiquidity>
-          ) : null}
-        </>
-      )}
-    </div>
+      <YourLiquidityAddLiquidityModal
+        isOpen={generalAddLiquidity}
+        onRequestClose={() => {
+          setGeneralAddLiquidity(false);
+        }}
+        stablePools={stablePools}
+      />
+    </>
   );
 }
 
@@ -217,6 +250,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
+
   const {
     lpt_id,
     owner_id,

@@ -195,7 +195,8 @@ export const regularizedPrice = (
   price: string,
   tokenA: TokenMetadata,
   tokenB: TokenMetadata,
-  fee: number
+  fee: number,
+  offset?: number
 ) => {
   const pointDelta = feeToPointDelta(fee);
   const decimalRate = new Big(10)
@@ -203,11 +204,13 @@ export const regularizedPrice = (
     .div(new Big(10).pow(tokenA.decimals))
     .toNumber();
 
-  const point = getPointByPrice(
-    pointDelta,
-    scientificNotationToString(price.toString()),
-    decimalRate
-  );
+  const point =
+    getPointByPrice(
+      pointDelta,
+      scientificNotationToString(price.toString()),
+      decimalRate
+    ) +
+    (offset || 0) * pointDelta;
 
   return pointToPrice({
     tokenA,
@@ -514,15 +517,6 @@ export const get_pool = async (pool_id: string, token0: string) => {
     args: {
       pool_id: new_pool_id,
     },
-  }).then((res) => {
-    if (!res || token0 === token_seq.split(V3_POOL_SPLITER)[0]) {
-      return res;
-    } else {
-      return {
-        ...res,
-        current_point: -res.current_point,
-      };
-    }
   }) as Promise<PoolInfoV3>;
 };
 

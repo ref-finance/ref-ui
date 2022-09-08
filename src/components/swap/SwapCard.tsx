@@ -5,11 +5,16 @@ import React, {
   useRef,
   useState,
   useContext,
+  createContext,
 } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
-import { useTokenBalances, useDepositableBalance } from '../../state/token';
+import {
+  useTokenBalances,
+  useDepositableBalance,
+  useTokenPriceList,
+} from '../../state/token';
 import {
   useSwap,
   useSwapV3,
@@ -102,6 +107,7 @@ import { TokenAmountV3 } from '../forms/TokenAmount';
 import Big from 'big.js';
 import { Slider } from '../icon/Info';
 import { regularizedPoint, regularizedPrice } from '../../services/swapV3';
+import { DoubleCheckModalLimit } from '../layout/SwapDoubleCheck';
 import {
   toInternationalCurrencySystemLongString,
   toRoundedReadableNumber,
@@ -131,6 +137,8 @@ const storageShoDetail = 'REF_FI_STORAGE_SHOW_DETAIL';
 
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
+
+export const LimitOrderTriggerContext = createContext(null);
 
 export const isSameStableClass = (token1: string, token2: string) => {
   const USDTokenList = new Array(
@@ -1063,6 +1071,8 @@ export default function SwapCard(props: {
 
   const [poolError, setPoolError] = useState<boolean>(false);
 
+  const [diff, setDiff] = useState<string>('');
+
   const [selectedV3LimitPool, setSelectedV3LimitPool] = useState<string>('');
 
   const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
@@ -1081,6 +1091,9 @@ export default function SwapCard(props: {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
+
+  const [doubleCheckOpenLimit, setDoubleCheckOpenLimit] =
+    useState<boolean>(false);
 
   const [curOrderPrice, setCurOrderPrice] = useState<string>('');
 
@@ -1108,6 +1121,8 @@ export default function SwapCard(props: {
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
+
+  const [limitSwapTrigger, setLimiSwapTrigger] = useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -1142,11 +1157,7 @@ export default function SwapCard(props: {
     Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_LIMIT)) || 0.5
   );
 
-  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
-
-  useEffect(() => {
-    getTokenPriceList().then(setTokenPriceList);
-  }, []);
+  const tokenPriceList = useTokenPriceList();
 
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
@@ -1374,7 +1385,8 @@ export default function SwapCard(props: {
     swapMode,
     selectedV3LimitPool,
     setSelectedV3LimitPool,
-    loadingTrigger,
+    loadingTrigger: limitSwapTrigger,
+    tokenPriceList,
   });
 
   const bestSwap = new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0')
@@ -1445,8 +1457,8 @@ export default function SwapCard(props: {
 
     const curPoint =
       tokenIn.id === mostPoolDetail.token_x
-        ? Math.abs(mostPoolDetail.current_point)
-        : Math.abs(mostPoolDetail.current_point) * -1;
+        ? mostPoolDetail.current_point
+        : mostPoolDetail.current_point * -1;
 
     const price = pointToPrice({
       tokenA: tokenIn,
@@ -1493,7 +1505,7 @@ export default function SwapCard(props: {
   }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
 
   const LimitChangeAmountOut = (amount: string) => {
-    const curAmount = toPrecision(amount, 8);
+    const curAmount = toPrecision(amount, 8, false, false);
 
     setLimitAmountOut(curAmount);
     if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
@@ -1512,7 +1524,7 @@ export default function SwapCard(props: {
     // if (!r) return;
     const curR = toPrecision(r, 8, false, false);
 
-    const displayCurR = ONLY_ZEROS.test(curR) ? '' : curR;
+    const displayCurR = curR;
 
     setLimitAmountOutRate(displayCurR);
 
@@ -1558,6 +1570,18 @@ export default function SwapCard(props: {
       makeSwap(useNearBalance);
     }
   };
+  const limitSwap = () =>
+    v3Swap({
+      swapInfo: {
+        tokenA: tokenIn,
+        tokenB: tokenOut,
+        amountA: tokenInAmount,
+        amountB: limitAmountOut,
+      },
+      LimitOrderWithSwap: {
+        pool_id: selectedV3LimitPool,
+      },
+    });
 
   const DetailView = useMemo(() => {
     if (swapMode === SWAP_MODE.LIMIT && tokenIn && tokenOut) {
@@ -1647,17 +1671,20 @@ export default function SwapCard(props: {
     event.preventDefault();
 
     if (swapMode === SWAP_MODE.LIMIT) {
-      v3Swap({
-        swapInfo: {
-          tokenA: tokenIn,
-          tokenB: tokenOut,
-          amountA: tokenInAmount,
-          amountB: limitAmountOut,
-        },
-        LimitOrderWithSwap: {
-          pool_id: selectedV3LimitPool,
-        },
-      });
+      if (Number(diff) < -10) {
+        setDoubleCheckOpenLimit(true);
+      } else
+        v3Swap({
+          swapInfo: {
+            tokenA: tokenIn,
+            tokenB: tokenOut,
+            amountA: tokenInAmount,
+            amountB: limitAmountOut,
+          },
+          LimitOrderWithSwap: {
+            pool_id: selectedV3LimitPool,
+          },
+        });
     } else {
       const ifDoubleCheck =
         new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
@@ -1671,7 +1698,6 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (!quoteDone || !quoteDoneV3) {
-      // setPoolError(false);
       return;
     }
 
@@ -1782,6 +1808,7 @@ export default function SwapCard(props: {
                   )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenIn.id)}`
                 );
               }}
+              triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
               curPrice={curOrderPrice}
               setRate={onChangeLimitRate}
             />
@@ -1805,76 +1832,90 @@ export default function SwapCard(props: {
             />
           )}
         </div>
-        <TokenAmountV3
-          forSwap
-          swapMode={swapMode}
-          amount={toPrecision(
-            swapMode === SWAP_MODE.LIMIT
-              ? limitAmountOut
-              : displayTokenOutAmount,
-            8
-          )}
-          total={tokenOutTotal}
-          tokens={allTokens}
-          selectedToken={tokenOut}
-          balances={balances}
-          preSelected={tokenIn}
-          onChangeAmount={
-            swapMode === SWAP_MODE.LIMIT && mostPoolDetail
-              ? LimitChangeAmountOut
-              : null
-          }
-          onBlur={swapMode === SWAP_MODE.LIMIT ? LimitChangeAmountOut : null}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          limitFee={mostPoolDetail?.fee}
-          limitOrderDisable={
-            swapMode === SWAP_MODE.LIMIT && (!mostPoolDetail || !quoteDoneLimit)
-          }
-          forLimitOrder
-          text={intl.formatMessage({ id: 'to' })}
-          useNearBalance={useNearBalance}
-          onSelectToken={(token) => {
-            localStorage.setItem(SWAP_OUT_KEY, token.id);
-            swapMode === SWAP_MODE.NORMAL &&
-              history.replace(
-                `#${unWrapTokenId(
-                  tokenIn.id
-                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(token.id)}`
-              );
-            setTokenOut(token);
-            setCanSwap(false);
-            setTokenOutBalanceFromNear(token?.near?.toString());
+        <LimitOrderTriggerContext.Provider
+          value={{
+            triggerFetch: () => {
+              setLimiSwapTrigger(!limitSwapTrigger);
+            },
           }}
-          isError={tokenIn?.id === tokenOut?.id}
-          tokenPriceList={tokenPriceList}
-          curRate={LimitAmountOutRate}
-          onChangeRate={onChangeLimitRate}
-          marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
-          ExtraElement={
-            <div
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
+        >
+          <TokenAmountV3
+            forSwap
+            swapMode={swapMode}
+            amount={toPrecision(
+              swapMode === SWAP_MODE.LIMIT
+                ? limitAmountOut
+                : displayTokenOutAmount,
+              8,
+              false,
+              swapMode === SWAP_MODE.LIMIT ? false : true
+            )}
+            total={tokenOutTotal}
+            tokens={allTokens}
+            selectedToken={tokenOut}
+            balances={balances}
+            preSelected={tokenIn}
+            onChangeAmount={
+              swapMode === SWAP_MODE.LIMIT && mostPoolDetail
+                ? LimitChangeAmountOut
+                : null
+            }
+            onBlur={swapMode === SWAP_MODE.LIMIT ? LimitChangeAmountOut : null}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            limitFee={mostPoolDetail?.fee}
+            limitOrderDisable={
+              swapMode === SWAP_MODE.LIMIT &&
+              (!mostPoolDetail || !quoteDoneLimit)
+            }
+            setDiff={setDiff}
+            forLimitOrder
+            text={intl.formatMessage({ id: 'to' })}
+            useNearBalance={useNearBalance}
+            onSelectToken={(token) => {
+              localStorage.setItem(SWAP_OUT_KEY, token.id);
+              swapMode === SWAP_MODE.NORMAL &&
+                history.replace(
+                  `#${unWrapTokenId(
+                    tokenIn.id
+                  )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(token.id)}`
+                );
+              setTokenOut(token);
+              setCanSwap(false);
+              setTokenOutBalanceFromNear(token?.near?.toString());
+            }}
+            isError={tokenIn?.id === tokenOut?.id}
+            tokenPriceList={tokenPriceList}
+            curRate={LimitAmountOutRate}
+            onChangeRate={onChangeLimitRate}
+            marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
+            ExtraElement={
+              swapMode !== SWAP_MODE.LIMIT && (
+                <div
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                if (loadingPause) {
-                  setLoadingPause(false);
-                  setLoadingTrigger(true);
-                  setLoadingData(true);
-                } else {
-                  setLoadingPause(true);
-                  setLoadingTrigger(false);
-                }
-              }}
-              className="mr-2 cursor-pointer"
-            >
-              <CountdownTimer
-                loadingTrigger={loadingTrigger}
-                loadingPause={loadingPause}
-              />
-            </div>
-          }
-        />
+                    if (loadingPause) {
+                      setLoadingPause(false);
+                      setLoadingTrigger(true);
+                      setLoadingData(true);
+                    } else {
+                      setLoadingPause(true);
+                      setLoadingTrigger(false);
+                    }
+                  }}
+                  className="mr-2 cursor-pointer"
+                >
+                  <CountdownTimer
+                    loadingTrigger={loadingTrigger}
+                    loadingPause={loadingPause}
+                  />
+                </div>
+              )
+            }
+          />
+        </LimitOrderTriggerContext.Provider>
 
         {poolError && swapMode !== SWAP_MODE.LIMIT ? null : displayDetailView}
 
@@ -1903,6 +1944,18 @@ export default function SwapCard(props: {
         from={tokenInAmount}
         onSwap={() => makeBestSwap()}
         priceImpactValue={displayPriceImpact || '0'}
+      />
+
+      <DoubleCheckModalLimit
+        isOpen={doubleCheckOpenLimit}
+        onRequestClose={() => {
+          setDoubleCheckOpenLimit(false);
+        }}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        from={tokenInAmount}
+        onSwap={() => limitSwap()}
+        rateDiff={diff}
       />
     </>
   );
