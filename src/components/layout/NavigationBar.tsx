@@ -106,6 +106,7 @@ import {
 
 import { Modal } from '~context/modal-ui/components/Modal';
 import { openTransak } from '../alert/Transak';
+import { BuyNearButton } from '../button/Button';
 
 const config = getConfig();
 
@@ -939,9 +940,9 @@ function USNButton() {
       <div
         onMouseEnter={() => setUSNButtonHover(true)}
         onMouseLeave={() => setUSNButtonHover(false)}
-        className="relative lg:py-5 z-50"
+        className="relative lg:py-4 top-0.5 z-50"
       >
-        <div className="mr-3">
+        <div className="ml-3 mr-2">
           <USNBuyComponent hover={USNButtonHover} />
         </div>
 
@@ -1242,9 +1243,10 @@ function NavigationBar() {
             </div>
           </div>
           <div className="flex items-center justify-end flex-1">
-            <USNButton />
+            <BuyNearButton />
+
             {isSignedIn && (
-              <div className="flex items-center text-white">
+              <div className="flex ml-1 items-center text-white">
                 <div
                   className=" py-1 cursor-pointer items-center flex"
                   onClick={() => setShowWrapNear(true)}
@@ -1269,6 +1271,8 @@ function NavigationBar() {
                 />
               </div>
             )}
+
+            <USNButton />
             <AccountEntry
               hasBalanceOnRefAccount={hasBalanceOnRefAccount}
               setShowWalletSelector={setShowWalletSelector}

@@ -74,6 +74,7 @@ import {
 } from '../../context/WalletSelectorContext';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { openTransak } from '../alert/Transak';
+import { BuyNearButton } from '../button/Button';
 
 export function MobileAnchor({
   to,
@@ -284,19 +285,6 @@ export function AccountModel(props: any) {
         window.open(config.walletUrl, '_blank');
       },
     },
-    // {
-    //   icon: <SignoutIcon />,
-    //   textId: 'sign_out',
-    //   click: async () => {
-    //     const curWallet = await wallet.wallet();
-
-    //     await curWallet.signOut();
-
-    //     localStorage.removeItem(ACCOUNT_ID_KEY);
-
-    //     window.location.assign('/');
-    //   },
-    // },
   ];
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
@@ -755,17 +743,22 @@ export function MobileNavBar(props: any) {
                   onClick={() => setShow(false)}
                 >
                   <div
-                    className="flex p-4 justify-between items-center"
+                    className="flex flex-col p-4 "
                     onClick={() => {
                       setMobileWrapNear(true);
                       setShowUSN(false);
                       setShowBorrowCard(false);
                     }}
                   >
-                    <WNEARExchngeIcon width="75" height="32" />
-                    <span className="text-sm">
+                    <span className="text-sm mb-2">
                       NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
                     </span>
+
+                    <div className="flex items-center">
+                      <BuyNearButton />
+
+                      <WNEARExchngeIcon width="75" height="32" />
+                    </div>
                   </div>
                   <WrapNear
                     isOpen={mobileWrapNear}
