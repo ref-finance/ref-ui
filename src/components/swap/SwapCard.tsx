@@ -1671,7 +1671,7 @@ export default function SwapCard(props: {
     event.preventDefault();
 
     if (swapMode === SWAP_MODE.LIMIT) {
-      if (Number(diff) < -10) {
+      if (Number(diff) <= -10) {
         setDoubleCheckOpenLimit(true);
       } else
         v3Swap({
