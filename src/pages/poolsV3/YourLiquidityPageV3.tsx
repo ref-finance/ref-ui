@@ -346,7 +346,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
     });
   }
   function goYourLiquidityDetailPage() {
-    const id = lpt_id.replace(/\|/g, '@');
+    const id = lpt_id.replace(/\|/g, '@').replace('#', '@');
     history.push(`/yoursLiquidityDetailV3/${id}`);
   }
   function getTokenFeeAmount(p: string) {

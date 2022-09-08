@@ -805,7 +805,12 @@ export const remove_liquidity = async ({
       functionCalls: [storageDepositAction({ amount: neededStorage })],
     });
   }
-  const callbackUrl = location.origin + '/yoursLiquidity';
+  let callbackUrl;
+  if (+amount == 0 && +min_amount_x == 0 && +min_amount_y == 0) {
+    callbackUrl = '';
+  } else {
+    callbackUrl = location.origin + '/yoursLiquidity';
+  }
   return executeMultipleTransactions(transactions, callbackUrl);
 };
 

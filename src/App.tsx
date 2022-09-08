@@ -338,7 +338,7 @@ function App() {
               component={AutoHeight(AddYourLiquidityPageV3)}
             />
             <Route
-              path="/yoursLiquidityDetailV3/:poolId"
+              path="/yoursLiquidityDetailV3/:id"
               component={AutoHeight(YourLiquidityDetailV3)}
             />
             <Route path="/" component={AutoHeight(SwapPage)} />

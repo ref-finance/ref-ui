@@ -67,8 +67,10 @@ export default function YourLiquidityDetail(props: any) {
   const [rateSort, setRateSort] = useState<boolean>(true);
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const history = useHistory();
-  const hashId = location.hash?.split('#')[1];
-  const poolId = (props.match.params?.poolId || '').replace(/@/g, '|');
+  const paramsId = props.match.params?.id || '';
+  const [tokenXId, tokenYId, feeV, lId] = paramsId.split('@');
+  const hashId = lId;
+  const poolId = `${tokenXId}|${tokenYId}|${feeV}`;
   const [token_x, token_y, fee] = poolId.split('|');
   const tokenMetadata_x_y = useTokens([token_x, token_y]);
   const { txHash } = getURLInfo();
@@ -321,7 +323,7 @@ export default function YourLiquidityDetail(props: any) {
           </span>
           <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5 mx-2.5">
             <span className="text-xs text-v3SwapGray mr-1.5">Fee Tiers</span>
-            <span className="text-sm text-v3Blue">{fee / 10000}%</span>
+            <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
           </div>
           <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
             <span
