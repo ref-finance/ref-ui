@@ -470,31 +470,13 @@ export function TokenAmountV3({
     tokenIn &&
     tokenOut &&
     limitFee &&
-    toPrecision(
-      regularizedPrice(
-        percentOfBigNumber(100, marketPriceLimitOrder || 0, 8),
-        tokenIn,
-        tokenOut,
-        limitFee,
-        1
-      ),
-      8
-    );
+    toPrecision(regularizedPrice(curRate, tokenIn, tokenOut, limitFee, 1), 8);
 
   const minus1 =
     tokenIn &&
     tokenOut &&
     limitFee &&
-    toPrecision(
-      regularizedPrice(
-        percentOfBigNumber(100, marketPriceLimitOrder || 0, 8),
-        tokenIn,
-        tokenOut,
-        limitFee,
-        -1
-      ),
-      8
-    );
+    toPrecision(regularizedPrice(curRate, tokenIn, tokenOut, limitFee, -1), 8);
 
   const plus5 =
     tokenIn &&
@@ -624,16 +606,19 @@ export function TokenAmountV3({
           forSwap={!!forSwap}
           onBlur={(e) => {
             if (!!onBlur) {
-              const newAmount = regularizedPrice(
+              const newPrice = regularizedPrice(
                 curRate,
                 tokenIn,
                 tokenOut,
                 limitFee
               );
-              if (ONLY_ZEROS.test(toPrecision(newAmount, 8, false, false)))
+
+              console.log(e.target.value, newPrice, 'dassdsds');
+
+              if (ONLY_ZEROS.test(toPrecision(newPrice, 8, false, false)))
                 return;
 
-              onChangeAmount(newAmount);
+              onBlur(newPrice);
             }
           }}
           openClear={

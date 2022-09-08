@@ -1860,7 +1860,18 @@ export default function SwapCard(props: {
                 ? LimitChangeAmountOut
                 : null
             }
-            onBlur={swapMode === SWAP_MODE.LIMIT ? LimitChangeAmountOut : null}
+            onBlur={
+              swapMode === SWAP_MODE.LIMIT
+                ? (newRate: string) => {
+                    const newAmountOut = new Big(newRate)
+                      .times(tokenInAmount || 0)
+                      .toString();
+                    LimitChangeAmountOut(
+                      scientificNotationToString(newAmountOut)
+                    );
+                  }
+                : null
+            }
             tokenIn={tokenIn}
             tokenOut={tokenOut}
             limitFee={mostPoolDetail?.fee}
