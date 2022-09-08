@@ -422,19 +422,6 @@ function AccountEntry({
                   <FormattedMessage id="change" defaultMessage={'Change'} />
                 </button>
               </div>
-              <div className="w-full px-7">
-                <button
-                  className="border border-transakBlue border-opacity-50   w-full  py-1.5 rounded-lg px-px text-xs text-transakBlue hover:border-transparent hover:text-white hover:bg-transakBlue"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    openTransak(wallet.getAccountId());
-                  }}
-                >
-                  <span className="font-bold mr-1">Buy NEAR</span>
-                  with Fiat
-                </button>
-              </div>
 
               <div
                 className="my-3 mx-7 "
