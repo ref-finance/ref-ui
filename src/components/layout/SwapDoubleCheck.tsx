@@ -224,7 +224,7 @@ export function DoubleCheckModalLimit(
             {Math.abs(Number(rateDiff))}%
           </span>
 
-          <span className="mr-1 text-error">
+          <span className="mr-1 text-error font-bold">
             <FormattedMessage id={'lower'} defaultMessage="lower" />
           </span>
 

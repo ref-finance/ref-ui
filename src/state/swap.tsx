@@ -729,6 +729,8 @@ export const useLimitOrder = ({
     get_pool(selectedV3LimitPool, tokenIn.id)
       .then(setMostPoolDetail)
       .catch((e) => {
+        console.log('fetch pool error', e);
+
         setMostPoolDetail(null);
       })
       .finally(() => {
@@ -740,8 +742,6 @@ export const useLimitOrder = ({
     if (notLimitMode || !tokenIn || !tokenOut) {
       return null;
     }
-
-    // setMostPoolDetail(null);
 
     Promise.all(
       V3_POOL_FEE_LIST.map((fee) =>
