@@ -268,7 +268,7 @@ function AccountEntry({
   const isMobile = useClientMobile();
 
   return (
-    <div className="bubble-box relative user text-xs text-center justify-end z-40 mx-3.5">
+    <div className="bubble-box relative user text-xs text-center justify-end z-40 mr-3.5">
       {showAccountTip ? (
         <AccountTipDownByAccountID show={showAccountTip} />
       ) : null}
@@ -929,7 +929,7 @@ function USNButton() {
         onMouseLeave={() => setUSNButtonHover(false)}
         className="relative lg:py-4 top-0.5 z-50"
       >
-        <div className="ml-3 mr-2">
+        <div className="mx-2">
           <USNBuyComponent hover={USNButtonHover} />
         </div>
 
@@ -1233,7 +1233,7 @@ function NavigationBar() {
             <BuyNearButton />
 
             {isSignedIn && (
-              <div className="flex ml-1 items-center text-white">
+              <div className="flex ml-2 items-center text-white">
                 <div
                   className=" py-1 cursor-pointer items-center flex"
                   onClick={() => setShowWrapNear(true)}
