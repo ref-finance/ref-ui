@@ -50,8 +50,8 @@ export default function YourLiquidityPageV3() {
   );
   const [liquidityStatusList, setLiquidityStatusList] = useState<string[]>([
     'All',
-    'New',
-    'Old',
+    'V2',
+    'V1',
   ]);
   const [addliquidityList, setAddliquidityList] = useState<any[]>(
     isSignedIn
@@ -199,7 +199,7 @@ export default function YourLiquidityPageV3() {
         ) : (
           <>
             {listLiquidities.length == 0 ? null : (
-              <div className={`mb-7 ${checkedStatus == 'Old' ? 'hidden' : ''}`}>
+              <div className={`mb-7 ${checkedStatus == 'V1' ? 'hidden' : ''}`}>
                 <div className="text-white text-base mb-2.5">
                   V2 ({listLiquidities.length})
                 </div>
@@ -219,16 +219,16 @@ export default function YourLiquidityPageV3() {
               </div>
             )}
             {oldLiquidityHasNoData ? null : (
-              <div className={`${checkedStatus == 'New' ? 'hidden' : ''}`}>
+              <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
                 <YourLiquidityPage
                   setNoOldLiquidity={setNoOldLiquidity}
                 ></YourLiquidityPage>
               </div>
             )}
-            {checkedStatus == 'New' && listLiquidities.length == 0 ? (
+            {checkedStatus == 'V2' && listLiquidities.length == 0 ? (
               <NoLiquidity></NoLiquidity>
             ) : null}
-            {checkedStatus == 'Old' && oldLiquidityHasNoData ? (
+            {checkedStatus == 'V1' && oldLiquidityHasNoData ? (
               <NoLiquidity></NoLiquidity>
             ) : null}
           </>

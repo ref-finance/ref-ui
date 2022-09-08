@@ -764,7 +764,7 @@ function CreatePoolComponent({
     );
     const arr = [tokenX.id, tokenY.id];
     arr.sort();
-    if (arr[0] !== tokenX.symbol) {
+    if (arr[0] !== tokenX.id) {
       decimalRate =
         Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
       init_point = getPointByPrice(
