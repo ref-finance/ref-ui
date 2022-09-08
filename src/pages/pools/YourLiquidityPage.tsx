@@ -407,22 +407,25 @@ export function YourLiquidityPage(props: any) {
         return cur > 0 ? acc + 1 : acc;
       }, 0) +
     batchTotalShares.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
-
+  if (+count == 0) {
+    setNoOldLiquidity(true);
+  } else {
+    setNoOldLiquidity(false);
+  }
   return (
     <>
-      <PoolTab count={count}></PoolTab>
-      <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
+      <div className="flex items flex-col">
         <div className="w-full flex justify-center self-center">
           {error && <Alert level="warn" message={error.message} />}
         </div>
         {/* PC */}
-
+        <div className="text-white text-base my-2.5">V1 ({count})</div>
         <Card
           width="w-full"
           padding="px-0 py-6"
           className="xs:hidden md:hidden"
         >
-          <div className="text-white text-xl pr-6 pl-6 lg:pl-10 lg:pr-8 pt-3 pb-6 flex items-center justify-between">
+          {/* <div className="text-white text-xl pr-6 pl-6 lg:pl-10 lg:pr-8 pt-3 pb-6 flex items-center justify-between">
             <span>
               <FormattedMessage
                 id="your_liquidity"
@@ -442,7 +445,7 @@ export function YourLiquidityPage(props: any) {
                 defaultMessage={'Add Liquidity'}
               />
             </GradientButton>
-          </div>
+          </div> */}
 
           {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
             batchTotalShares?.some((s) => s > 0)) &&

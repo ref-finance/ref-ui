@@ -39,11 +39,12 @@ import {
   MyOrderMask,
   MyOrderMask2,
 } from '~components/icon/swapV3';
-import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { PoolRPCView } from '../../services/api';
 import { ALL_STABLE_POOL_IDS } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
 export default function YourLiquidityPageV3() {
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
@@ -52,16 +53,25 @@ export default function YourLiquidityPageV3() {
     'New',
     'Old',
   ]);
-  const [addliquidityList, setAddliquidityList] = useState<any[]>([
-    {
-      text: 'Old Liquidity',
-      url: '/pools',
-    },
-    {
-      text: 'New Liquidity',
-      url: '/addLiquidityV3',
-    },
-  ]);
+  const [addliquidityList, setAddliquidityList] = useState<any[]>(
+    isSignedIn
+      ? [
+          {
+            text: 'V1 Liquidity',
+            url: '/pools',
+          },
+          {
+            text: 'V2 Liquidity',
+            url: '/addLiquidityV3',
+          },
+        ]
+      : [
+          {
+            text: 'V2 Liquidity',
+            url: '/addLiquidityV3',
+          },
+        ]
+  );
 
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
 
@@ -81,8 +91,6 @@ export default function YourLiquidityPageV3() {
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities();
@@ -158,7 +166,7 @@ export default function YourLiquidityPageV3() {
               }`}
             >
               <div
-                className="py-2 px-1.5 rounded-xl min-w-28 flex flex-col"
+                className="p-1.5 rounded-xl min-w-28 flex flex-col"
                 style={{
                   background: 'rgba(23,32,38)',
                   border: '1px solid #415462',
@@ -169,13 +177,13 @@ export default function YourLiquidityPageV3() {
                     <span
                       key={index}
                       onClick={(e) => {
-                        if (item.text === 'Old Liquidity') {
+                        if (item.text === 'V1 Liquidity') {
                           setGeneralAddLiquidity(true);
                         } else {
                           goAddLiquidityPage(item.url);
                         }
                       }}
-                      className={`whitespace-nowrap hover:bg-primaryText hover:bg-opacity-30 items-center flex justify-center px-4 py-0.5 h-11 mb-0.5 hover:text-white rounded-lg text-primaryText text-center text-sm cursor-pointer my-auto`}
+                      className={`whitespace-nowrap hover:bg-primaryText hover:bg-opacity-30 items-center flex justify-center px-5 py-0.5 h-10 hover:text-white rounded-lg text-primaryText text-center text-sm cursor-pointer my-auto`}
                     >
                       {item.text}
                     </span>
@@ -193,7 +201,7 @@ export default function YourLiquidityPageV3() {
             {listLiquidities.length == 0 ? null : (
               <div className={`mb-7 ${checkedStatus == 'Old' ? 'hidden' : ''}`}>
                 <div className="text-white text-base mb-2.5">
-                  New ({listLiquidities.length})
+                  V2 ({listLiquidities.length})
                 </div>
                 <div>
                   {listLiquidities.map(
@@ -226,13 +234,15 @@ export default function YourLiquidityPageV3() {
           </>
         )}
       </div>
-      <YourLiquidityAddLiquidityModal
-        isOpen={generalAddLiquidity}
-        onRequestClose={() => {
-          setGeneralAddLiquidity(false);
-        }}
-        stablePools={stablePools}
-      />
+      {isSignedIn ? (
+        <YourLiquidityAddLiquidityModal
+          isOpen={generalAddLiquidity}
+          onRequestClose={() => {
+            setGeneralAddLiquidity(false);
+          }}
+          stablePools={stablePools}
+        />
+      ) : null}
     </>
   );
 }
