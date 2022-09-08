@@ -1231,6 +1231,8 @@ function NavigationBar() {
 
   const refAccountBalances = useTokenBalances();
 
+  const historyInit = useHistory();
+
   useEffect(() => {
     if (!refAccountBalances) return;
 
