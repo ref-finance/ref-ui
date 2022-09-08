@@ -35,6 +35,7 @@ import {
   MyOrderMask,
   MyOrderMask2,
 } from '~components/icon/swapV3';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 export default function YourLiquidityPageV3() {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
@@ -60,6 +61,12 @@ export default function YourLiquidityPageV3() {
   const history = useHistory();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const { txHash } = getURLInfo();
+  useEffect(() => {
+    if (txHash) {
+      history.replace(location.pathname);
+    }
+  }, [txHash]);
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities();
@@ -340,7 +347,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
     });
   }
   function goYourLiquidityDetailPage() {
-    const id = lpt_id.replace(/\|/g, '@');
+    const id = lpt_id.replace(/\|/g, '@').replace('#', '@');
     history.push(`/yoursLiquidityDetailV3/${id}`);
   }
   function getTokenFeeAmount(p: string) {
