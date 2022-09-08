@@ -40,14 +40,9 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { useTokens } from '../../state/token';
 import {
   getPriceByPoint,
-  getPointByPrice,
   CONSTANT_D,
-  FEELIST,
-  POINTDELTAMAP,
-  DEFAULTSELECTEDFEE,
-  POINTLEFTRANGE,
-  POINTRIGHTRANGE,
   UserLiquidityInfo,
+  useAddAndRemoveUrlHandle,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getTokenPriceList } from '../../services/indexer';
@@ -67,18 +62,14 @@ export default function YourLiquidityDetail(props: any) {
   const [rateSort, setRateSort] = useState<boolean>(true);
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const history = useHistory();
+  // callBack handle
+  useAddAndRemoveUrlHandle();
   const paramsId = props.match.params?.id || '';
   const [tokenXId, tokenYId, feeV, lId] = paramsId.split('@');
   const hashId = lId;
   const poolId = `${tokenXId}|${tokenYId}|${feeV}`;
   const [token_x, token_y, fee] = poolId.split('|');
   const tokenMetadata_x_y = useTokens([token_x, token_y]);
-  const { txHash } = getURLInfo();
-  useEffect(() => {
-    if (txHash) {
-      history.replace(location.pathname);
-    }
-  }, [txHash]);
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
     if (poolId && hashId) {

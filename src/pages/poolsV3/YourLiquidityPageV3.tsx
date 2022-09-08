@@ -22,6 +22,7 @@ import {
   getPriceByPoint,
   CONSTANT_D,
   UserLiquidityInfo,
+  useAddAndRemoveUrlHandle,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getBoostTokenPrices } from '../../services/farm';
@@ -77,15 +78,11 @@ export default function YourLiquidityPageV3() {
   const [checkedStatus, setCheckedStatus] = useState('All');
   const [oldLiquidityHasNoData, setOldLiquidityHasNoData] = useState(false);
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
+  // callBack handle
+  useAddAndRemoveUrlHandle();
   const history = useHistory();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const { txHash } = getURLInfo();
-  useEffect(() => {
-    if (txHash) {
-      history.replace(location.pathname);
-    }
-  }, [txHash]);
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities();

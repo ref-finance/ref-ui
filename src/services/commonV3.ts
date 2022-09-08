@@ -1,3 +1,8 @@
+import React, { useState, useEffect, useContext } from 'react';
+import { getURLInfo } from '../components/layout/transactionTipPopUp';
+import { checkTransaction, checkTransactionStatus } from '../services/swap';
+import { WalletContext } from '../utils/wallets-integration';
+import { useHistory } from 'react-router';
 import BigNumber from 'bignumber.js';
 /**
  * caculate price by point
@@ -74,4 +79,48 @@ export interface UserLiquidityInfo {
   amount: string;
   unclaimed_fee_x: string;
   unclaimed_fee_y: string;
+}
+
+export function useAddAndRemoveUrlHandle() {
+  const history = useHistory();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  const { txHash } = getURLInfo();
+  useEffect(() => {
+    if (txHash && isSignedIn) {
+      checkTransaction(txHash).then((res: any) => {
+        const { transaction, status } = res;
+        const successValue: string | undefined = status?.SuccessValue;
+        const methodName =
+          transaction?.actions[0]?.['FunctionCall']?.method_name;
+        let returnValue;
+        let argsValue;
+        if (successValue) {
+          const buff = Buffer.from(successValue, 'base64');
+          const v = buff.toString('ascii');
+          returnValue = v.substring(1, v.length - 1);
+        }
+        const args = transaction?.actions[0]?.['FunctionCall']?.args;
+        if (args) {
+          const buff = Buffer.from(args, 'base64');
+          const v = buff.toString('ascii');
+          argsValue = v;
+        }
+        if (methodName == 'add_liquidity' && returnValue) {
+          const [tokenX, tokenY, id] = returnValue.split('|');
+          const [fee, hashId] = id.split('#');
+          const paramsId = `${tokenX}@${tokenY}@${fee}@${hashId}`;
+          history.replace('/yoursLiquidityDetailV3/' + `${paramsId}`);
+        } else if (methodName == 'remove_liquidity' && argsValue) {
+          const parmas = JSON.parse(argsValue);
+          const { amount, min_amount_x, min_amount_y } = parmas;
+          if (+amount == 0 && +min_amount_x == 0 && +min_amount_y == 0) {
+            history.replace(`${location.pathname}`);
+          } else {
+            history.replace('/yoursLiquidity');
+          }
+        }
+      });
+    }
+  }, [txHash, isSignedIn]);
 }

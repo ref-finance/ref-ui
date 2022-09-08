@@ -51,6 +51,7 @@ import {
   DEFAULTSELECTEDFEE,
   POINTLEFTRANGE,
   POINTRIGHTRANGE,
+  useAddAndRemoveUrlHandle,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -87,6 +88,8 @@ export default function AddYourLiquidityPageV3() {
   const [currentSelectedPool, setCurrentSelectedPool] =
     useState<PoolInfo>(null); // real
   const [feeBoxStatus, setFeeBoxStatus] = useState(true);
+  // callBack handle
+  useAddAndRemoveUrlHandle();
   const history = useHistory();
   const triTokenIds = useTriTokenIdsOnRef();
   const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
@@ -100,11 +103,6 @@ export default function AddYourLiquidityPageV3() {
     getBoostTokenPrices().then(setTokenPriceList);
     get_list_pools();
   }, []);
-  useEffect(() => {
-    if (txHash) {
-      history.replace(location.pathname);
-    }
-  }, [txHash]);
   useEffect(() => {
     if (tokenX) {
       const tokenXId = tokenX.id;
