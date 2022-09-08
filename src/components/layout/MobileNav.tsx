@@ -407,20 +407,6 @@ export function AccountModel(props: any) {
           </button>
         </div>
 
-        <div className="w-full px-7 mb-4">
-          <button
-            className="border border-transakBlue border-opacity-50   w-full  py-2.5 rounded-lg px-px text-xs text-transakBlue hover:border-transparent hover:text-white hover:bg-transakBlue"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              openTransak(wallet.getAccountId());
-            }}
-          >
-            <span className="font-bold mr-1">Buy NEAR</span>
-            with Fiat
-          </button>
-        </div>
-
         {accountList.map((item, index) => {
           return (
             <>
@@ -737,47 +723,43 @@ export function MobileNavBar(props: any) {
               </span>
             </div>
             <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
-              {isSignedIn && (
+              <div className="text-primaryText" onClick={() => setShow(false)}>
                 <div
-                  className="text-primaryText"
-                  onClick={() => setShow(false)}
+                  className={`flex flex-col p-4 `}
+                  onClick={() => {
+                    setMobileWrapNear(true);
+                    setShowUSN(false);
+                    setShowBorrowCard(false);
+                  }}
                 >
-                  <div
-                    className="flex flex-col p-4 "
-                    onClick={() => {
-                      setMobileWrapNear(true);
-                      setShowUSN(false);
-                      setShowBorrowCard(false);
-                    }}
-                  >
+                  {!isSignedIn ? null : (
                     <span className="text-sm mb-2">
                       NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
                     </span>
+                  )}
 
-                    <div className="flex items-center">
-                      <BuyNearButton />
-
-                      <WNEARExchngeIcon width="75" height="32" />
-                    </div>
+                  <div className={`flex items-center ${isSignedIn ? '' : ''}`}>
+                    <BuyNearButton />
+                    {isSignedIn && <WNEARExchngeIcon width="75" height="32" />}
                   </div>
-                  <WrapNear
-                    isOpen={mobileWrapNear}
-                    onRequestClose={() => setMobileWrapNear(false)}
-                    style={{
-                      overlay: {
-                        backdropFilter: 'blur(15px)',
-                        WebkitBackdropFilter: 'blur(15px)',
-                      },
-                      content: {
-                        outline: 'none',
-                        position: 'fixed',
-                        width: '90%',
-                        bottom: '50%',
-                      },
-                    }}
-                  />
                 </div>
-              )}
+                <WrapNear
+                  isOpen={mobileWrapNear}
+                  onRequestClose={() => setMobileWrapNear(false)}
+                  style={{
+                    overlay: {
+                      backdropFilter: 'blur(15px)',
+                      WebkitBackdropFilter: 'blur(15px)',
+                    },
+                    content: {
+                      outline: 'none',
+                      position: 'fixed',
+                      width: '90%',
+                      bottom: '50%',
+                    },
+                  }}
+                />
+              </div>
               <MobileUSNButton
                 setShow={setShow}
                 setMobileWrapNear={setMobileWrapNear}
