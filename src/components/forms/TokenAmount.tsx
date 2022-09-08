@@ -635,7 +635,7 @@ export function TokenAmountV3({
                 className={`rounded-xl ${
                   Number(displayRateDiff) > 0
                     ? 'text-gradientFrom bg-gradientFrom '
-                    : Number(displayRateDiff) < -10
+                    : Number(displayRateDiff) <= -10
                     ? 'text-error bg-error'
                     : 'text-warn bg-warn'
                 }  py-0.5  absolute px-2 bg-opacity-20`}

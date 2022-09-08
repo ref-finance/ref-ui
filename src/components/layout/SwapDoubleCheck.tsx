@@ -224,7 +224,7 @@ export function DoubleCheckModalLimit(
             {Math.abs(Number(rateDiff))}%
           </span>
 
-          <span className="mr-1">
+          <span className="mr-1 text-error">
             <FormattedMessage id={'lower'} defaultMessage="lower" />
           </span>
 
@@ -258,7 +258,11 @@ export function DoubleCheckModalLimit(
               loading={buttonLoading}
               Text={() => (
                 <span>
-                  <FormattedMessage id="yes_swap" defaultMessage="Yes, swap" />!
+                  <FormattedMessage
+                    id="yes_make_order"
+                    defaultMessage="Yes, Make order"
+                  />
+                  !
                 </span>
               )}
             />

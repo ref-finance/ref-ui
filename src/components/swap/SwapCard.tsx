@@ -1961,6 +1961,7 @@ export default function SwapCard(props: {
         isOpen={doubleCheckOpenLimit}
         onRequestClose={() => {
           setDoubleCheckOpenLimit(false);
+          window.location.reload();
         }}
         tokenIn={tokenIn}
         tokenOut={tokenOut}
