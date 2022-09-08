@@ -4,7 +4,7 @@ import {
   list_active_orders,
   list_history_orders,
 } from '../services/swapV3';
-import { WalletContext } from '../utils/sender-wallet';
+import { WalletContext } from '../utils/wallets-integration';
 
 export const useMyOrders = () => {
   const [activeOrder, setActiveOrder] = useState<UserOrderInfo[]>();

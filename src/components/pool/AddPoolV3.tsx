@@ -1,7 +1,6 @@
 import { path } from 'animejs';
 import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { WalletContext } from '../../utils/sender-wallet';
 import { useHistory } from 'react-router-dom';
 import { Card } from '~components/card/Card';
 import { isMobile } from '~utils/device';
@@ -12,6 +11,8 @@ import {
   ButtonTextWrapper,
   ConnectToNearBtn,
 } from '../../components/button/Button';
+
+import { WalletContext } from '~utils/wallets-integration';
 import { PoolSlippageSelectorV3 } from '~components/forms/SlippageSelector';
 import Modal from 'react-modal';
 import BigNumber from 'bignumber.js';

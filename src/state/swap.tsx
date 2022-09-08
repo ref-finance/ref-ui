@@ -35,7 +35,7 @@ import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 
-import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import {
   POOL_TOKEN_REFRESH_INTERVAL,
   STABLE_TOKEN_IDS,
@@ -163,6 +163,17 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
     const ft_resolved_tx_outcome =
       res?.receipts_outcome?.[ft_resolved_id]?.outcome;
 
+    const parsedValue = JSON.parse(
+      parsedTransactionSuccessValue(ft_resolved_tx_outcome) || ''
+    );
+
+    const isFailed = ONLY_ZEROS.test(parsedValue || 0);
+
+    if (isFailed) {
+      LimitOrderFailPopUp(txHash);
+      return true;
+    }
+
     const ft_on_transfer_logs =
       res?.receipts_outcome?.[ft_on_transfer_id]?.outcome?.logs;
 
@@ -183,71 +194,55 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
     const original_deposit_amount =
       parsed_ft_on_transfer_log?.['data']?.[0]?.['original_deposit_amount'];
 
-    const parsedValue = JSON.parse(
-      parsedTransactionSuccessValue(ft_resolved_tx_outcome) || ''
-    );
+    const { point, pool_id, buy_token } = LimitOrderWithSwap;
 
-    const isFailed = ONLY_ZEROS.test(parsedValue || 0);
+    const ids = pool_id.split(V3_POOL_SPLITER).splice(0, 2);
 
-    if (isFailed) {
-      // failed transaction
-      LimitOrderFailPopUp(txHash);
+    const sell_token_id = ids.find((t: string) => t !== buy_token);
 
-      // fail pop up
-    } else {
-      const { point, pool_id, buy_token } = LimitOrderWithSwap;
+    const sellToken = await ftGetTokenMetadata(sell_token_id);
 
-      const ids = pool_id.split(V3_POOL_SPLITER).splice(0, 2);
+    if (!!order_id) {
+      const limitOrderAmount =
+        Number(toReadableNumber(sellToken.decimals, original_amount || '0')) <
+        0.01
+          ? '< 0.01'
+          : toPrecision(
+              toReadableNumber(sellToken.decimals, original_amount || '0'),
+              2
+            );
 
-      const sell_token_id = ids.find((t: string) => t !== buy_token);
+      const swapAmount = toReadableNumber(
+        sellToken.decimals,
+        scientificNotationToString(
+          new Big(original_deposit_amount || '0')
+            .minus(original_amount || '0')
+            .toString()
+        )
+      );
 
-      const sellToken = await ftGetTokenMetadata(sell_token_id);
-
-      if (!!order_id) {
-        const limitOrderAmount =
-          Number(toReadableNumber(sellToken.decimals, original_amount || '0')) <
-          0.01
+      LimitOrderPopUp({
+        tokenSymbol: toRealSymbol(sellToken.symbol),
+        swapAmount:
+          Number(swapAmount) > 0 && Number(swapAmount) < 0.01
             ? '< 0.01'
-            : toPrecision(
-                toReadableNumber(sellToken.decimals, original_amount || '0'),
-                2
-              );
-
-        const swapAmount = toReadableNumber(
-          sellToken.decimals,
-          scientificNotationToString(
-            new Big(original_deposit_amount || '0')
-              .minus(original_amount || '0')
-              .toString()
-          )
-        );
-
-        LimitOrderPopUp({
-          tokenSymbol: toRealSymbol(sellToken.symbol),
-          swapAmount:
-            Number(swapAmount) > 0 && Number(swapAmount) < 0.01
-              ? '< 0.01'
-              : toPrecision(swapAmount, 2),
-          limitOrderAmount,
-          txHash,
-        });
-      } else {
-        LimitOrderPopUp({
-          tokenSymbol: toRealSymbol(sellToken.symbol),
-          swapAmount:
-            Number(toReadableNumber(sellToken.decimals, parsedValue)) < 0.01
-              ? '< 0.01'
-              : toPrecision(
-                  toReadableNumber(sellToken.decimals, parsedValue),
-                  2
-                ),
-          limitOrderAmount: null,
-          txHash,
-        });
-      }
-
-      // success pop up
+            : toPrecision(swapAmount, 2),
+        limitOrderAmount,
+        txHash,
+      });
+    } else {
+      LimitOrderPopUp({
+        tokenSymbol: toRealSymbol(sellToken.symbol),
+        swapAmount:
+          Number(toReadableNumber(sellToken.decimals, parsedValue)) < 0.01
+            ? '< 0.01'
+            : toPrecision(toReadableNumber(sellToken.decimals, parsedValue), 2),
+        limitOrderAmount: null,
+        txHash,
+      });
     }
+
+    // success pop up
 
     return true;
 
@@ -929,7 +924,7 @@ export const useStableSwap = ({
   };
 
   useEffect(() => {
-    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
+    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransaction(txHash)
         .then((res: any) => {
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;

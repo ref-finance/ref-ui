@@ -107,6 +107,7 @@ export default function InputAmount({
     </>
   );
 }
+
 export function NewFarmInputAmount({
   max,
   className,
@@ -242,7 +243,7 @@ export function BoostInputAmount({
       ref={field}
     >
       <div
-        className={`relative flex flex-col align-center bg-inputDarkBg rounded-lg pr-5 `}
+        className={`relative flex flex-col align-center bg-inputDarkBg rounded-lg `}
       >
         <div
           className={`${
@@ -300,7 +301,7 @@ export function BoostInputAmount({
             >
               <span>Max</span>
             </a>
-            <span className="text-base font-bold text-white ml-3 whitespace-nowrap">
+            <span className="text-base font-bold text-white ml-2 whitespace-nowrap mr-3">
               {tokenSymbol}
             </span>
           </span>

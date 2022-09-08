@@ -4,20 +4,20 @@ import ReactTooltip from 'react-tooltip';
 import { wallet } from '~services/near';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import { FormattedMessage, useIntl } from 'react-intl';
-import Alert from '~components/alert/Alert';
+import Alert from '../../components/alert/Alert';
 import {
   ButtonTextWrapper,
   ConnectToNearBtn,
   SolidButton,
-} from '~components/button/Button';
-import { Card } from '~components/card/Card';
-import InputAmount from '~components/forms/InputAmount';
+} from '../../components/button/Button';
+import { Card } from '../../components/card/Card';
+import InputAmount from '../../components/forms/InputAmount';
 import QuestionMark from '~components/farm/QuestionMark';
 
 import {
   PoolSlippageSelector,
   StableSlipSelecter,
-} from '~components/forms/SlippageSelector';
+} from '../../components/forms/SlippageSelector';
 import { TokenMetadata } from '~services/ft-contract';
 import {
   Pool,
@@ -26,13 +26,13 @@ import {
   removeLiquidityByTokensFromStablePool,
   removeLiquidityFromPool,
   StablePool,
-} from '~services/pool';
+} from '../../services/pool';
 import {
   GetAmountToBalances,
   getRemoveLiquidityByShare,
-} from '~services/stable-swap';
-import { TokenBalancesView } from '~services/token';
-import { usePredictRemoveShares, useRemoveLiquidity } from '~state/pool';
+} from '../../services/stable-swap';
+import { TokenBalancesView } from '../../services/token';
+import { usePredictRemoveShares, useRemoveLiquidity } from '../../state/pool';
 import {
   percent,
   percentLess,
@@ -45,7 +45,7 @@ import {
   toRoundedReadableNumber,
   percentIncrese,
   scientificNotationToString,
-} from '~utils/numbers';
+} from '../../utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 import { InfoLine } from './LiquidityComponents';
@@ -56,8 +56,11 @@ import StableTokenList, {
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
 import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
-import { QuestionTip } from '~components/layout/TipWrapper';
-import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
+import { QuestionTip } from '../../components/layout/TipWrapper';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { percentOfBigNumber } from '../../utils/numbers';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
@@ -401,7 +404,7 @@ export function RemoveLiquidityComponentUSN(props: {
 
         {isSignedIn ? (
           <SolidButton
-            disabled={!canSubmit}
+            disabled={!canSubmit || buttonLoading}
             className={`focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
               if (canSubmit) {

@@ -3,7 +3,10 @@ import Alert from '../alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
 import SlippageSelector from './SlippageSelector';
 import { CountdownTimer } from '../../components/icon';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';

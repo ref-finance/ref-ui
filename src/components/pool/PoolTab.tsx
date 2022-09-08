@@ -1,13 +1,17 @@
 import { path } from 'animejs';
 import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { WalletContext } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/wallets-integration';
 import { useHistory } from 'react-router-dom';
-export const PoolTab = () => {
+import { useClientMobile } from '../../utils/device';
+export const PoolTab = ({ count }: { count?: number }) => {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const [choosedTab, setChoosedTab] = useState('');
   const history = useHistory();
+
+  const isMobile = useClientMobile();
+
   useEffect(() => {
     const pathname = location.pathname;
     if (
@@ -26,7 +30,9 @@ export const PoolTab = () => {
   }
   return (
     <div
-      className={`flex items-center justify-between rounded-2xl bg-cardBg text-primaryText font-normal mb-4 text-lg  p-1 mx-auto  xs:text-sm md:text-sm ${
+      className={`flex items-center justify-between rounded-2xl bg-cardBg text-primaryText font-normal mb-4 ${
+        choosedTab === '3' ? 'xs:mb-0' : ''
+      } text-lg  p-1 mx-auto   ${
         isSignedIn
           ? 'xl:w-1/3 2xl:w-1/3 3xl:w-1/4 lg:w-1/2 md:w-5/6 xs:w-auto xs:mx-2'
           : 'xl:w-1/4 2xl:w-1/4 3xl:w-1/4 lg:w-1/3 md:w-5/6 xs:w-5/6'
@@ -48,6 +54,7 @@ export const PoolTab = () => {
             id="Your_Liquidity"
             defaultMessage="Your Liquidity"
           />
+          {count && isMobile && choosedTab === '3' ? `(${count})` : ''}
         </span>
       ) : null}
       <span
@@ -58,7 +65,10 @@ export const PoolTab = () => {
           goPage('/pools');
         }}
       >
-        <FormattedMessage id="view_pools" defaultMessage="View Pools" />
+        <FormattedMessage
+          id={isMobile ? 'pools' : 'view_pools'}
+          defaultMessage={isMobile ? 'Pools' : 'View Pools'}
+        />
       </span>
     </div>
   );

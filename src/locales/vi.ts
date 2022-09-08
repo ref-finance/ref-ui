@@ -315,6 +315,7 @@ const vi = {
   h24_volume: 'Khối lượng giao dịch 24h',
   volume: 'Volume',
   hide_low_tvl_pools: 'Ẩn TVL thấp',
+  hide_low_tvl_pools_mobile: 'Ẩn TVL thấp',
   watchlist_title: 'Danh sách xem của tôi ở trên đầu',
   add_watchlist: 'Thêm vào danh sách yêu thích',
   remove_watchlist: 'Xóa danh sách xem',
@@ -768,9 +769,7 @@ const vi = {
   add_option: 'Thêm lựa chọn',
   lock_lp_terms:
     'Tôi hiểu rằng Tôi sẽ không thể xóa LP Tokens của tôi trong thời gian hết hạn của thời gian đồng ý khóa',
-  connect_wallet: 'Kết nối Wallet',
   connect_to_near_wallet: 'Kết nối tới NEAR Wallet',
-  connect: 'Kết nối',
   only_for_whitelist_address: 'Chỉ dành cho địa chỉ whitelist',
   v1Legacy: 'V1-Legacy',
   v2New: 'V2-New',
@@ -815,6 +814,39 @@ const vi = {
   your_apr: 'APR của bạn',
   range_apr: 'Xếp loại hoặc tham khảo APR',
   how_to_earn_more: 'Làm thế nào để gộp phần thưởng?',
+  your_assets: 'Tài sản của bạn',
+  connect_wallet: 'Kết nối ví',
+  disconnect: 'Ngắt kết nối',
+  change: 'Thay đổi',
+  wallets_below_supports_on_PC: 'Các ví dưới đây hỗ trợ trên PC',
+  connect: 'Kết nối',
+  make_sure_device_plugged_in:
+    'Hãy chắc chắn rằng thiết bị của bạn được kết nối',
+  then_enter_an_account_id_to_connect: 'sau đó nhập ID tài khoản để kết nối',
+  no_pair_found: 'Không tìm thấy cặp',
+  found_stable_pool_in_sauce: 'Đã tìm thấy nhóm ổn định trong SAUCE',
+  lp_tokens_locking: ' LP Tokens ',
+  you_currently_have: 'Bạn rất muốn ',
+  scheduled_to_be_unlocked: 'dự kiến sẽ được mở khóa',
+  locking_more_lp_tokens: 'Khóa thêm mã thông báo LP ',
+  will_mean_these: 'sẽ có nghĩa là những ',
+  lp_tokens_will_not_be_unlocked_until:
+    ' Mã thông báo LP sẽ không được mở khóa cho đến khi',
+  "I_understand_that_I_won't_be_able_to_remove_my":
+    'Tôi hiểu rằng tôi sẽ không thể xóa ',
+  until: 'cho đến khi',
+  continue: 'Tiếp tục',
+  then_enter_a_derivation_path_to_connect:
+    'sau đó nhập một đường dẫn xuất để kết nối',
+  account_identification_failed:
+    'Không xác định được tài khoản! Vui lòng cung cấp thủ công',
+  input_account_id: 'Nhập ID tài khoản',
+  we_found: 'Chúng tôi đã tìm thấy',
+  accounts_on_your_device: 'tài khoản trên thiết bị của bạn',
+  select_the_accounts_you_wish_to_connect: 'Chọn tài khoản bạn muốn kết nối',
+  can_not_find_any_accounts:
+    "Can't found any account associated with this Ledger. Please create a new NEAR account on",
+  or_connect_another_ledger: 'or connect an another Ledger',
   add: 'cộng',
   finish: 'Kết thúc',
   add_custom_network: 'Thêm mạng tùy chỉnh',
@@ -824,7 +856,10 @@ const vi = {
   fobidden_testnet_rpc_tip:
     'Mạng của máy chủ RPC (testnet) khác với mạng này (mainnet)',
   no_support_testnet_rpc_tip: 'Testnet không hỗ trợ thêm RPC tùy chỉnh',
+  farm_only: 'Chỉ trang trại',
   value: 'giá trị',
+  please_confirm_this_transaction_on_ledger:
+    'Vui lòng xác nhận giao dịch này trên Ledger',
   trade_capital: 'TRADE',
   pro: 'Pro',
   make_an_order: 'Make an order',

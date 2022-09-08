@@ -1,7 +1,7 @@
 import { path } from 'animejs';
 import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { WalletContext } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/wallets-integration';
 import { useHistory } from 'react-router-dom';
 import { Card } from '~components/card/Card';
 import { isMobile } from '~utils/device';

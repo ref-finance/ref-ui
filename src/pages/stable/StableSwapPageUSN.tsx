@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import Loading from '~components/layout/Loading';
+import Loading from '../../components/layout/Loading';
 import {
   useTokenBalances,
   useWhitelistStableTokens,
   useWhitelistTokens,
 } from '../../state/token';
-import { usePool, useStablePool } from '~state/pool';
-import TokenReserves from '~components/stableswap/TokenReserves';
+import { usePool, useStablePool } from '../../state/pool';
+import TokenReserves from '../../components/stableswap/TokenReserves';
 import getConfig from '~services/config';
 import { useWalletTokenBalances } from '../../state/token';
 import { useLocation, useParams } from 'react-router-dom';
@@ -18,7 +18,7 @@ import { useFarmStake } from '../../state/farm';
 import {
   BackToStablePoolList,
   Images,
-} from '~components/stableswap/CommonComp';
+} from '../../components/stableswap/CommonComp';
 import BigNumber from 'bignumber.js';
 import { Pool, StablePool, getStablePoolFromCache } from '../../services/pool';
 import AddLiquidityComponentUSN from '../../components/stableswap/AddLiquidityUSN';

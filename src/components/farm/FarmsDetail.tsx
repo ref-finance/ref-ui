@@ -37,7 +37,7 @@ import {
   UserSeedInfo,
   getVeSeedShare,
 } from '~services/farm';
-import { WalletContext } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/wallets-integration';
 import {
   toPrecision,
   toReadableNumber,
@@ -1720,6 +1720,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
       ? '0'
       : String(Number(amount) - 0.5);
   };
+  const shareMessage = shareDisplay();
 
   return (
     <>
@@ -1792,13 +1793,13 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
             <Alert level="warn" message={error.message} />
           </div>
         ) : null}
-        <div className="flex justify-between flex-col bg-black bg-opacity-20 text-farmText text-sm mt-6 mb-4 border border-gradientFrom p-5 rounded-lg">
+        <div className=" text-farmText text-sm mt-6 mb-4  px-2 rounded-lg">
           <div className="flex items-center justify-between">
             <label>
               <FormattedMessage id="lp_tokens" defaultMessage={'LP tokens'} />
             </label>
             <span className="text-white text-sm">
-              {canDeposit ? '-' : shareDisplay().lpTokens}
+              {shareMessage?.lpTokens || '-'}
             </span>
           </div>
           <div className="flex items-center justify-between pt-4">
@@ -1806,15 +1807,13 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               <FormattedMessage id="Share" defaultMessage="Share" />
             </label>
             <span className="text-white text-sm">
-              {!shareDisplay().shareDisplay || canDeposit
-                ? '-'
-                : shareDisplay().shareDisplay}
+              {shareMessage?.shareDisplay || '-'}
             </span>
           </div>
         </div>
 
         {canDeposit ? (
-          <div className="flex items-center rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
+          <div className=" rounded-md mb-6 px-4 text-center xs:px-2  text-base">
             <label className="text-warnColor ">
               <FormattedMessage id="oops" defaultMessage="Oops" />!
             </label>
@@ -3554,6 +3553,7 @@ function StakeModal(props: {
     </CommonModal>
   );
 }
+
 function UnStakeModal(props: {
   title: string;
   isOpen: boolean;

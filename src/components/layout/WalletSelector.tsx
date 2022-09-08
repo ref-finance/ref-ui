@@ -11,9 +11,12 @@ import {
   senderWallet,
   getCurrentWallet,
   getSenderWallet,
-} from '../../utils/sender-wallet';
+} from '../../utils/wallets-integration';
 import Modal from 'react-modal';
-import { WalletContext, removeSenderLoginRes } from '../../utils/sender-wallet';
+import {
+  WalletContext,
+  removeSenderLoginRes,
+} from '../../utils/wallets-integration';
 import { isMobile, isMobileExplorer } from '../../utils/device';
 import { BackArrowWhite, BackArrowGray } from '../icon/Arrows';
 import { CloseIcon } from '../../components/icon/Actions';

@@ -9,7 +9,7 @@ import {
   toReadableNumber,
   scientificNotationToString,
 } from '../utils/numbers';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 import _ from 'lodash';
 import Big from 'big.js';
 import {

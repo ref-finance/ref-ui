@@ -68,7 +68,10 @@ import {
   getVeSeedShare,
 } from '../../services/farm';
 import { getLoveAmount } from '../../services/referendum';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import getConfig from '../../services/config';
 import { PoolRPCView } from '../../services/api';
 import {
@@ -2633,7 +2636,7 @@ function FarmView(props: {
     const result = farmList.find((farm: FarmBoost) => {
       const start_at = farm?.terms?.start_at;
       if (start_at == 0) return true;
-      const one_month_seconds = 15 * 24 * 60 * 60;
+      const one_month_seconds = 30 * 24 * 60 * 60;
       const currentA = new Date().getTime();
       const compareB = new BigNumber(start_at)
         .plus(one_month_seconds)

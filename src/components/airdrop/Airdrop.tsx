@@ -23,7 +23,7 @@ import { checkTransaction } from '~services/swap';
 import { toast } from 'react-toastify';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { getCurrentWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 
 function notParticipateAirdropView(currentAccountId: string) {
   return currentAccountId ? (
@@ -207,7 +207,7 @@ export default function AirdropView() {
   const [participateAirdrop, setParticipateAirdrop] = useState<boolean>(false);
   const [accountInfo, setAccountInfo] = useState<AccountOptions>();
   const [statsInfo, setStatsInfo] = useState<StatsOptions>();
-  const currentAccountId = getCurrentWallet().wallet.getAccountId();
+  const currentAccountId = getCurrentWallet()?.wallet?.getAccountId();
   const [token, setToken] = useState<TokenMetadata>();
   const [currentTimestamp, setCurrentTimestamp] = useState<number>();
 

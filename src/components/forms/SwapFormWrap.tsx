@@ -5,7 +5,10 @@ import { FormattedMessage } from 'react-intl';
 import SlippageSelector, { StableSlipSelecter } from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '../../components/icon';
 import { wallet } from '~services/near';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import { RequestingSmile } from '../icon/CrossSwapIcons';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import SlippageSelectorForStable from './SlippageSelector';

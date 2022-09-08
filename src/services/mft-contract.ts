@@ -1,9 +1,9 @@
 import { wallet, refFiViewFunction } from './near';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 
 export const mftGetBalance = async (
   token_id: string,
-  accountId = getCurrentWallet().wallet.getAccountId()
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
 ) => {
   return await refFiViewFunction({
     methodName: 'mft_balance_of',
@@ -18,7 +18,7 @@ export interface MFTStorageBalance {
 
 export const mftGetStorageBalance = async (
   token_id: string,
-  accountId = getCurrentWallet().wallet.getAccountId()
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<MFTStorageBalance | null> => {
   return await refFiViewFunction({
     methodName: 'storage_balance_of',

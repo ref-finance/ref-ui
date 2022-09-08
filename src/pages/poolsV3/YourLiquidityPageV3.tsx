@@ -28,7 +28,8 @@ import { getBoostTokenPrices } from '../../services/farm';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import { YourLiquidityPage } from '../pools/YourLiquidityPage';
-import { WalletContext } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/wallets-integration';
+
 import {
   MyOrderCircle,
   MyOrderMask,

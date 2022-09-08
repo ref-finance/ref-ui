@@ -59,7 +59,7 @@ import {
   toNonDivisibleNumber,
   checkAllocations,
 } from '~utils/numbers';
-import { WalletContext } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/wallets-integration';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 import { toRealSymbol } from '../../utils/token';

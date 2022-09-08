@@ -5,13 +5,14 @@ import {
   initializeAccount,
 } from '../../services/account';
 import { TokenMetadata } from '../../services/ft-contract';
-import { wallet } from '../../services/near';
+import { wallet, getAccountNearBalance } from '../../services/near';
 import { deposit } from '../../services/token';
 import { nearMetadata, wrapNear } from '../../services/wrap-near';
 import { useDepositableBalance } from '../../state/token';
 import { toPrecision, toReadableNumber } from '../../utils/numbers';
 import TokenAmount from '../forms/TokenAmount';
 import { toRealSymbol } from '~utils/token';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 
 function FirstDepositForm() {
   const [amount, setAmount] = useState<string>();
@@ -27,10 +28,9 @@ function FirstDepositForm() {
     ) || '0';
 
   useEffect(() => {
-    wallet
-      .account()
-      .getAccountBalance()
-      .then(({ available }) => setNearBalance(available));
+    getAccountNearBalance(getCurrentWallet().wallet.getAccountId()).then(
+      ({ available }) => setNearBalance(available)
+    );
   }, []);
 
   const handleSubmit = (event: React.FormEvent) => {

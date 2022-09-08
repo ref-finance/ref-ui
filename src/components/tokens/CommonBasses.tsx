@@ -6,7 +6,10 @@ import { WNEARExchngeIcon } from '../../components/icon/Common';
 import WrapNear from '../../components/forms/WrapNear';
 import { wallet } from '~services/near';
 import { isMobile } from '../../utils/device';
-import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { tokenPrice, SingleToken } from '../forms/SelectToken';
 interface CommonBassesProps {
   tokens: TokenMetadata[];

@@ -8,7 +8,7 @@ import {
 import metadataDefaults from '../utils/metadata';
 import { storageDepositForFTAction } from './creators/storage';
 import db from '../store/RefDatabase';
-import { getCurrentWallet, WALLET_TYPE } from '../utils/sender-wallet';
+import { getCurrentWallet, WALLET_TYPE } from '../utils/wallets-integration';
 import getConfig from './config';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { REF_TOKEN_ID } from './near';
@@ -50,7 +50,7 @@ export const ftGetBalance = (tokenId: string, account_id?: string) => {
   return ftViewFunction(tokenId, {
     methodName: 'ft_balance_of',
     args: {
-      account_id: account_id || getCurrentWallet().wallet.getAccountId(),
+      account_id: account_id || getCurrentWallet()?.wallet?.getAccountId(),
     },
   }).catch(() => '0');
 };
@@ -61,7 +61,7 @@ export interface FTStorageBalance {
 }
 export const ftGetStorageBalance = (
   tokenId: string,
-  accountId = getCurrentWallet().wallet.getAccountId()
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<FTStorageBalance | null> => {
   return ftViewFunction(tokenId, {
     methodName: 'storage_balance_of',

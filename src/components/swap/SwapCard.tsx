@@ -83,7 +83,7 @@ import {
 
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
-import { senderWallet, WalletContext } from '../../utils/sender-wallet';
+import { senderWallet, WalletContext } from '../../utils/wallets-integration';
 import { SwapArrow, SwapExchange, SwapExchangeV3 } from '../icon/Arrows';
 import {
   getPoolAllocationPercents,
@@ -132,7 +132,7 @@ const storageShoDetail = 'REF_FI_STORAGE_SHOW_DETAIL';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
-const isSameClass = (token1: string, token2: string) => {
+export const isSameStableClass = (token1: string, token2: string) => {
   const USDTokenList = new Array(
     ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
   );
@@ -1208,7 +1208,7 @@ export default function SwapCard(props: {
         if (
           rememberedIn &&
           rememberedOut &&
-          isSameClass(rememberedIn, rememberedOut)
+          isSameStableClass(rememberedIn, rememberedOut)
         ) {
           candTokenIn = allTokens.find((token) => token.id === rememberedIn);
           candTokenOut = allTokens.find((token) => token.id === rememberedOut);

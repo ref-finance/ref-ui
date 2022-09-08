@@ -327,6 +327,7 @@ const ru = {
   h24_volume: '24ч объем',
   volume: 'Объем',
   hide_low_tvl_pools: 'Скрыть с низким TVL',
+  hide_low_tvl_pools_mobile: 'Скрыть с низким TVL',
   watchlist_title: 'Мой список отслеживания сверху',
   add_watchlist: 'Добавить в список отслеживания',
   remove_watchlist: 'Удалить из списка отслеживания',
@@ -588,9 +589,7 @@ const ru = {
   add_option: 'Добавьте опцию',
   lock_lp_terms:
     'Я понимаю, что не смогу забрать свои LP токены в течение указанного срока блокировки.',
-  connect_wallet: 'Подключите кошелек',
   connect_to_near_wallet: 'Подключите NEAR кошелек',
-  connect: 'Подключить',
   only_for_whitelist_address: 'Только для белого списка адресов',
   // v1Legacy: 'V1-Традиционные',
   // v2New: 'V2-Новые',
@@ -694,6 +693,7 @@ const ru = {
   close: 'Close',
   burrow_usn_tip: 'Вы можете одолжить USN на Burrow.',
   borrow: 'Занимать',
+
   unlock: 'Unlock',
   exit_fee: 'Exit fee',
   end_locking_period: 'End of locking period',
@@ -810,7 +810,41 @@ const ru = {
   your_apr: 'Ваш APR',
   range_apr: 'В пределах диапазона или базового APR',
   how_to_earn_more: 'Как заработать больше наград?',
+  your_assets: 'Ваши активы',
+  connect_wallet: 'Подключить кошелек',
+  disconnect: 'Отключить',
+  change: 'Поменять',
+  wallets_below_supports_on_PC: 'Указанные ниже кошельки поддерживаются на ПК',
+  connect: 'Подключиться',
+  make_sure_device_plugged_in: 'Убедитесь, что ваше устройство подключено',
+  then_enter_an_account_id_to_connect:
+    'Укажите идентификатор учетной записи для подключения',
+  no_pair_found: 'Пара не найдена',
+  found_stable_pool_in_sauce: 'Найден стабильный пул в SAUCE',
+  lp_tokens_locking: ' LP токены ',
+  you_currently_have: 'В настоящее время у вас есть ',
+  scheduled_to_be_unlocked: 'планируется разблокировать',
+  locking_more_lp_tokens: 'Блокировка большего количества токенов LP ',
+  will_mean_these: 'будет означать эти ',
+  lp_tokens_will_not_be_unlocked_until:
+    ' Токены LP не будут разблокированы до тех пор, пока',
+  "I_understand_that_I_won't_be_able_to_remove_my":
+    'Я понимаю, что не смогу удалить свой ',
+  until: 'до того как',
   learn_more: 'Учить больше',
+  continue: 'Продолжать',
+  then_enter_a_derivation_path_to_connect:
+    'затем введите путь вывода для подключения',
+  account_identification_failed:
+    'Ошибка идентификации аккаунта! Пожалуйста, укажите вручную',
+  input_account_id: 'Введите идентификатор учетной записи',
+  we_found: 'Мы нашли',
+  accounts_on_your_device: 'аккаунты на вашем устройстве',
+  select_the_accounts_you_wish_to_connect:
+    'Выберите учетную запись, которую вы хотите подключить',
+  can_not_find_any_accounts:
+    "Can't found any account associated with this Ledger. Please create a new NEAR account on",
+  or_connect_another_ledger: 'or connect an another Ledger',
   add: 'Добавлять',
   finish: 'Заканчивать',
   add_custom_network: 'Добавить сеть',
@@ -821,6 +855,7 @@ const ru = {
     'Сеть сервера RPC (тестовая сеть) отличается от этой сети (основной сети)',
   no_support_testnet_rpc_tip:
     'Testnet не поддерживает добавление пользовательских RPC',
+  farm_only: 'Только ферма',
   value: 'ценность',
   trade_capital: 'TRADE',
   pro: 'Pro',
@@ -829,5 +864,7 @@ const ru = {
   your_active_orders_will_appear_here: 'Your active orders will appear here',
   your_history_orders_will_appear_here: 'Your history orders will appear here',
   liquidity_capital: 'LIQUIDITY',
+  please_confirm_this_transaction_on_ledger:
+    'Пожалуйста, подтвердите эту транзакцию в Ledger',
 };
 export default Object.assign(ru, ru_in_risks_page);

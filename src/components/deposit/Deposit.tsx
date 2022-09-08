@@ -76,7 +76,7 @@ export function WithdrawModal(props: ReactModal.Props) {
         />
         <div className="flex items-center justify-center pt-5">
           <button
-            disabled={!canSubmit}
+            disabled={!canSubmit || loading}
             className={`flex flex-row w-full justify-center px-5 py-2 mt-6 text-white disabled:cursor-not-allowed mx-auto
               ${!canSubmit ? 'opacity-40 cursor-not-allowed' : ''} ${
               loading ? 'opacity-40' : ''
