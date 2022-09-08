@@ -293,6 +293,7 @@ export const executeMultipleTransactions = async (
   return (await wallet.wallet())
     .signAndSendTransactions({
       transactions: wstransactions,
+      callbackUrl,
     })
     .then((res) => {
       if (!res) return;

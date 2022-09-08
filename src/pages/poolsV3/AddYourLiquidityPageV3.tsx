@@ -235,6 +235,11 @@ export default function AddYourLiquidityPageV3() {
     if (tokenX && tokenY) {
       const pool = currentPools[fee];
       setCurrentSelectedPool(pool || { fee });
+      if (!pool) {
+        setOnlyAddXToken(false);
+        setOnlyAddYToken(false);
+        setInvalidRange(false);
+      }
     }
   }
   function changeTokenXAmount(amount: string = '0') {
@@ -759,9 +764,9 @@ function CreatePoolComponent({
       decimalRate,
       true
     );
-    const arr = [tokenX.symbol, tokenY.symbol];
+    const arr = [tokenX.id, tokenY.id];
     arr.sort();
-    if (arr[1] !== tokenX.symbol) {
+    if (arr[0] !== tokenX.symbol) {
       decimalRate =
         Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
       init_point = getPointByPrice(
@@ -866,7 +871,7 @@ function CreatePoolComponent({
       {isSignedIn ? (
         <GradientButton
           color="#fff"
-          className={`w-full h-10 mt-5 text-center text-base text-white focus:outline-none ${
+          className={`relative z-50 w-full h-10 mt-5 text-center text-base text-white focus:outline-none ${
             !createPoolRate ? 'opacity-40' : ''
           }`}
           loading={createPoolButtonLoading}
