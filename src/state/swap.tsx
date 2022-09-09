@@ -814,14 +814,13 @@ export const useLimitOrder = ({
 
         if (
           res?.some(
-            (r) =>
-              r !== null && (Number(r?.total_x) > 0 || Number(r?.total_y) > 0)
+            (r) => !!r && (Number(r?.total_x) > 0 || Number(r?.total_y) > 0)
           ) &&
           percents.every((p) => Number(p) === 0)
         )
           return;
 
-        console.log(toCounts);
+        console.log(toCounts, 'to set counts');
 
         setPoolToOrderCounts(toCounts);
       })
@@ -841,7 +840,7 @@ export const useLimitOrder = ({
     const countValues = Object.values(poolToOrderCounts);
 
     const maxOrderIndex = countValues.findIndex(
-      (c) => c && c === _.maxBy(countValues, (o) => Number(o || 0))
+      (c) => !!c && c === _.maxBy(countValues, (o) => Number(o || 0))
     );
     const allPoolsForThisPair = V3_POOL_FEE_LIST.map((fee) =>
       getV3PoolId(tokenIn.id, tokenOut.id, fee)
