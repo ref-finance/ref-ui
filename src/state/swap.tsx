@@ -845,8 +845,11 @@ export const useLimitOrder = ({
     }
   }, [
     Object.keys(poolToOrderCounts || {}).join('-'),
+    Object.values(poolToOrderCounts || {}).join('-'),
     tokenOut?.id,
     tokenIn?.id,
+    tokenPriceList,
+    pools,
   ]);
 
   return {
