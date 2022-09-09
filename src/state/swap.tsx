@@ -812,6 +812,17 @@ export const useLimitOrder = ({
           };
         }, {});
 
+        if (
+          res?.some(
+            (r) =>
+              r !== null && (Number(r?.total_x) > 0 || Number(r?.total_y) > 0)
+          ) &&
+          percents.every((p) => Number(p) === 0)
+        )
+          return;
+
+        console.log(toCounts);
+
         setPoolToOrderCounts(toCounts);
       })
       .catch((e) => {
@@ -850,6 +861,7 @@ export const useLimitOrder = ({
     tokenIn?.id,
     tokenPriceList,
     pools,
+    loadingTrigger,
   ]);
 
   return {

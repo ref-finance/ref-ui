@@ -1466,14 +1466,6 @@ export default function SwapCard(props: {
 
     const reguPoint = regularizedPoint(curPoint, mostPoolDetail.fee);
 
-    console.log(
-      curPoint,
-      'cur point',
-      reguPoint,
-      'regupoint ',
-      reguPoint + feeToPointDelta(mostPoolDetail.fee)
-    );
-
     const price = pointToPrice({
       tokenA: tokenIn,
       tokenB: tokenOut,
@@ -1720,8 +1712,6 @@ export default function SwapCard(props: {
 
     setPoolError(!!swapError?.message && !!swapErrorV3?.message);
   }, [quoteDone, quoteDoneV3, swapError, swapErrorV3]);
-
-  console.log(mostPoolDetail, 'most pool detail ');
 
   return (
     <>
