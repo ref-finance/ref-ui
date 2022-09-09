@@ -15,6 +15,8 @@ import {
   EmptyIcon,
   WarningMark,
   SwitchLRButton,
+  SwitchArrowL,
+  SwitchArrowR,
 } from '~components/icon/V3';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
@@ -76,6 +78,7 @@ export default function AddYourLiquidityPageV3() {
   const [tokenXAmount, setTokenXAmount] = useState('');
   const [tokenYAmount, setTokenYAmount] = useState('');
   const [listPool, setListPool] = useState<PoolInfo[]>([]);
+  const [buttonHover, setButtonHover] = useState<boolean>(false);
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
   const [currentPools, setCurrentPools] = useState<Record<string, PoolInfo>>(
     {}
@@ -578,10 +581,28 @@ export default function AddYourLiquidityPageV3() {
                     balances={balances}
                   />
                 </div>
-                <SwitchLRButton
-                  className="mx-2 cursor-pointer"
+                <div
+                  onMouseEnter={() => setButtonHover(true)}
+                  onMouseLeave={() => setButtonHover(false)}
                   onClick={switchButtonSort}
-                ></SwitchLRButton>
+                  className="flex flex-col items-center justify-center border border-v3SwapGray w-6 h-6 rounded-full mx-2 cursor-pointer box-content"
+                >
+                  <SwitchArrowR
+                    className={`transition-transform transform ${
+                      buttonHover
+                        ? 'translate-x-0.5 text-greenColor'
+                        : 'text-v3SwapGray'
+                    }`}
+                  ></SwitchArrowR>
+                  <SwitchArrowL
+                    style={{ marginTop: '3px' }}
+                    className={`transition-transform transform ${
+                      buttonHover
+                        ? '-translate-x-0.5 text-greenColor'
+                        : 'text-v3SwapGray'
+                    }`}
+                  ></SwitchArrowL>
+                </div>
                 <div className="flex flex-grow w-1">
                   <SelectToken
                     tokenPriceList={tokenPriceList}

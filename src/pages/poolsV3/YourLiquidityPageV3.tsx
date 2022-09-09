@@ -97,8 +97,13 @@ export default function YourLiquidityPageV3() {
     }
   }, [isSignedIn]);
   async function get_list_liquidities() {
-    const list = await list_liquidities();
+    const list: UserLiquidityInfo[] = await list_liquidities();
     if (list.length > 0) {
+      list.sort((item1: UserLiquidityInfo, item2: UserLiquidityInfo) => {
+        const item1_hashId = +item1.lpt_id.split('#')[1];
+        const item2_hashId = +item2.lpt_id.split('#')[1];
+        return item1_hashId - item2_hashId;
+      });
       setListLiquidities(list);
     }
   }

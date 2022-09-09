@@ -224,6 +224,42 @@ export const SwitchLRButton = function (props: any) {
   );
 };
 
+export const SwitchArrowL = function (props: any) {
+  return (
+    <svg
+      {...props}
+      width="13"
+      height="5"
+      viewBox="0 0 13 5"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1.72332 0.65738H11.2765C11.7071 0.65738 12.0554 0.967185 12.0554 1.35011C12.0554 1.73304 11.7071 2.04284 11.2765 2.04284H3.61453L4.8912 3.17815C5.1963 3.44947 5.1963 3.8882 4.8912 4.15759C4.5861 4.42891 4.09274 4.42891 3.7898 4.15759L1.25377 1.9043C1.06551 1.77729 0.944336 1.57717 0.944336 1.35011C0.944336 0.967185 1.29272 0.65738 1.72332 0.65738Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
+export const SwitchArrowR = function (props: any) {
+  return (
+    <svg
+      {...props}
+      width="13"
+      height="5"
+      viewBox="0 0 13 5"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M11.2764 4.69443H1.7233C1.29269 4.69443 0.944309 4.38462 0.944309 4.0017C0.944309 3.61877 1.29269 3.30897 1.7233 3.30897H9.38523L8.10855 2.17366C7.80345 1.90234 7.80345 1.46361 8.10855 1.19421C8.41366 0.922893 8.90702 0.922893 9.20995 1.19421L11.746 3.44751C11.9342 3.57451 12.0554 3.77463 12.0554 4.0017C12.0554 4.38462 11.707 4.69443 11.2764 4.69443Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
 export const ReduceButton = function (props: any) {
   return (
     <svg
