@@ -122,7 +122,7 @@ export default function YourLiquidityPageV3() {
         <div className="flex items-start justify-between">
           <div className="flex items-center">
             <span className="text-white text-xl mr-5">Liquidity</span>
-            <div className="flex items-center text-xs text-primaryText border border-v3borderColor p-0.5 rounded-lg">
+            <div className="flex items-center text-xs text-primaryText border border-selectBorder p-0.5 rounded-lg bg-v3LiquidityTabBgColor">
               {liquidityStatusList.map((item: string, index: number) => {
                 return (
                   <span
@@ -130,16 +130,11 @@ export default function YourLiquidityPageV3() {
                     onClick={() => {
                       switchButton(item);
                     }}
-                    className="flex items-center justify-center h-6 py-0.5 px-1.5 rounded-md cursor-pointer"
-                    style={{
-                      background:
-                        checkedStatus == item ? 'rgba(48, 68, 82, 0.5)' : '',
-                      boxShadow:
-                        checkedStatus == item
-                          ? '0px 0px 10px rgba(0, 0, 0, 0.15)'
-                          : '',
-                      backdropFilter: checkedStatus == item ? 'blur(50px)' : '',
-                    }}
+                    className={`flex items-center justify-center h-6 py-0.5 w-9 rounded-md cursor-pointer ${
+                      checkedStatus == item
+                        ? 'bg-primaryGradient text-white'
+                        : 'text-primaryText'
+                    }`}
                   >
                     {item}
                   </span>
@@ -469,7 +464,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <div className="flex items-center">
+            <div className="flex items-center flex-shrink-0">
               <img
                 src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
                 className="w-7 h-7 border border-greenColor rounded-full"
@@ -490,10 +485,14 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
           </div>
           <div className="flex items-center">
             <span className="text-v3SwapGray text-xs mr-1.5">Min</span>
-            <span className="text-white text-sm">{getMinRate('left')}</span>
+            <span className="text-white text-sm w-32 overflow-hidden whitespace-nowrap overflow-ellipsis">
+              {getMinRate('left')}
+            </span>
             <label className="text-v3SwapGray text-xs mx-2">-</label>
             <span className="text-v3SwapGray text-xs mr-1.5">Max</span>
-            <span className="text-white text-sm">{getMinRate('right')}</span>
+            <span className="text-white text-sm w-32 overflow-hidden whitespace-nowrap overflow-ellipsis">
+              {getMinRate('right')}
+            </span>
             <span className="text-v3SwapGray text-xs ml-1.5 mr-3">
               {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
               {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}

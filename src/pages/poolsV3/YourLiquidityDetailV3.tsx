@@ -469,7 +469,9 @@ export default function YourLiquidityDetail(props: any) {
         <div className="flex items-stretch justify-between mt-4">
           <div className="flex flex-col items-center  bg-black bg-opacity-20 rounded-xl mr-3.5 px-3.5 py-5">
             <span className="text-xs text-primaryText">Min Price</span>
-            <span className="text-white text-xl my-2">{getRate('left')}</span>
+            <span className="text-white text-xl my-2 break-all">
+              {getRate('left')}
+            </span>
             <p className="text-xs text-primaryText text-center">
               Your position will be 100%{' '}
               {rateSort
@@ -480,7 +482,9 @@ export default function YourLiquidityDetail(props: any) {
           </div>
           <div className="flex flex-col items-center  bg-black bg-opacity-20 rounded-xl  px-3.5 py-5">
             <span className="text-xs text-primaryText">Max Price</span>
-            <span className="text-white text-xl my-2">{getRate('right')}</span>
+            <span className="text-white text-xl my-2 break-all">
+              {getRate('right')}
+            </span>
             <p className="text-xs text-primaryText text-center">
               Your position will be 100%{' '}
               {rateSort

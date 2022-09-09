@@ -188,7 +188,8 @@ module.exports = {
         v3GreyColor:'rgba(126, 138, 147, 0.2)',
         v3BlueBorderColor: '#243C4D',
         v3HoverDarkBgColor:'#26343E',
-        v3GarkWarningColor: '#FFA149'
+        v3GarkWarningColor: '#FFA149',
+        v3LiquidityTabBgColor:'rgba(34, 45, 53, 0.8)'
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
