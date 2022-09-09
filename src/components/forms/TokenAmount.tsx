@@ -613,8 +613,6 @@ export function TokenAmountV3({
                 limitFee
               );
 
-              console.log(e.target.value, newPrice, 'dassdsds');
-
               if (ONLY_ZEROS.test(toPrecision(newPrice, 8, false, false)))
                 return;
 
@@ -653,7 +651,10 @@ export function TokenAmountV3({
 
       <div className="flex items-center justify-between h-6">
         <span className="mr-3 text-primaryText">
-          {!!tokenPrice && !ONLY_ZEROS.test(amount) && !isError
+          {!!tokenPrice &&
+          !ONLY_ZEROS.test(amount) &&
+          !isError &&
+          !limitOrderDisable
             ? '$' +
               toInternationalCurrencySystemLongString(
                 multiply(tokenPrice || '0', amount || '0'),

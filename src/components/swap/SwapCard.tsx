@@ -103,10 +103,14 @@ import TokenReserves from '../stableswap/TokenReserves';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SwapMinReceiveCheck, LimitOrderMask } from '../icon/swapV3';
-import { TokenAmountV3 } from '../forms/TokenAmount';
+import { TokenAmountV3, TokenCardIn } from '../forms/TokenAmount';
 import Big from 'big.js';
 import { Slider } from '../icon/Info';
-import { regularizedPoint, regularizedPrice } from '../../services/swapV3';
+import {
+  regularizedPoint,
+  regularizedPrice,
+  feeToPointDelta,
+} from '../../services/swapV3';
 import { DoubleCheckModalLimit } from '../layout/SwapDoubleCheck';
 import {
   toInternationalCurrencySystemLongString,
@@ -1460,10 +1464,23 @@ export default function SwapCard(props: {
         ? mostPoolDetail.current_point
         : mostPoolDetail.current_point * -1;
 
+    const reguPoint = regularizedPoint(curPoint, mostPoolDetail.fee);
+
+    console.log(
+      curPoint,
+      'cur point',
+      reguPoint,
+      'regupoint ',
+      reguPoint + feeToPointDelta(mostPoolDetail.fee)
+    );
+
     const price = pointToPrice({
       tokenA: tokenIn,
       tokenB: tokenOut,
-      point: regularizedPoint(curPoint, mostPoolDetail.fee),
+      point:
+        curPoint === reguPoint
+          ? reguPoint
+          : reguPoint + feeToPointDelta(mostPoolDetail.fee),
     });
 
     const priceKeep = toPrecision(price, 8) === curOrderPrice;
@@ -1703,6 +1720,8 @@ export default function SwapCard(props: {
 
     setPoolError(!!swapError?.message && !!swapErrorV3?.message);
   }, [quoteDone, quoteDoneV3, swapError, swapErrorV3]);
+
+  console.log(mostPoolDetail, 'most pool detail ');
 
   return (
     <>
