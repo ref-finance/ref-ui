@@ -132,8 +132,9 @@ export default function SwapFormWrap({
         <SubmitButton
           disabled={
             !canSubmit ||
-            (swapMode === SWAP_MODE.LIMIT &&
-              (!quoteDoneLimit || (showSwapLoading && !loadingTrigger)))
+            (swapMode === SWAP_MODE.LIMIT
+              ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+              : showSwapLoading)
           }
           label={buttonText || title}
           info={info}
