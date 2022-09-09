@@ -1306,7 +1306,10 @@ function AddLiquidityComponent({
           </div>
         </div>
         {/* range chart area */}
-        <div className=""></div>
+        <div className="flex flex-col items-center justify-center">
+          <span className="text-sm text-primaryText mb-10">Coming soon...</span>
+          <EmptyIcon></EmptyIcon>
+        </div>
         {/* input range area */}
         <div>
           <div className="flex items-center justify-between">
@@ -1521,7 +1524,8 @@ function NoDataComponent() {
       <div className="text-white font-bold text-base">Set Price Range</div>
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 opacity-50">
         {/* range chart area */}
-        <div className="flex justify-center mt-24">
+        <div className="flex flex-col items-center justify-center mt-16">
+          <span className="text-sm text-primaryText mb-10">Coming soon...</span>
           <EmptyIcon></EmptyIcon>
         </div>
         {/* input range area */}
