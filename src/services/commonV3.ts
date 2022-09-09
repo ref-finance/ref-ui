@@ -119,6 +119,8 @@ export function useAddAndRemoveUrlHandle() {
           } else {
             history.replace('/yoursLiquidity');
           }
+        } else if (methodName == 'create_pool' && returnValue) {
+          history.replace(`${location.pathname}#${returnValue}`);
         }
       });
     }

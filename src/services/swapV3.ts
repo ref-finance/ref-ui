@@ -840,4 +840,7 @@ export interface PoolInfo {
   liquidity_x?: string;
   max_liquidity_per_point?: string;
   percent?: string;
+  total_x?: string;
+  total_y?: string;
+  tvl?: number;
 }
