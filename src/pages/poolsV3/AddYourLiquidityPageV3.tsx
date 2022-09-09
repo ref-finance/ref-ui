@@ -59,6 +59,8 @@ import {
   toReadableNumber,
   toNonDivisibleNumber,
   checkAllocations,
+  scientificNotationToString,
+  getAllocationsLeastOne,
 } from '~utils/numbers';
 import { WalletContext } from '../../utils/wallets-integration';
 import _ from 'lodash';
@@ -66,6 +68,7 @@ import BigNumber from 'bignumber.js';
 import { toRealSymbol } from '../../utils/token';
 import ReactTooltip from 'react-tooltip';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import Big from 'big.js';
 
 export default function AddYourLiquidityPageV3() {
   const [tokenX, setTokenX] = useState<TokenMetadata>(null);
@@ -98,7 +101,6 @@ export default function AddYourLiquidityPageV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const nearBalance = useDepositableBalance('NEAR');
-  const { txHash } = getURLInfo();
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
     get_list_pools();
@@ -146,7 +148,23 @@ export default function AddYourLiquidityPageV3() {
       history.replace(`#${tokenX.id}|${tokenY.id}|${fee}`);
     }
   }, [currentSelectedPool, tokenX, tokenY]);
-
+  useEffect(() => {
+    if (
+      tokenX &&
+      tokenY &&
+      listPool.length > 0 &&
+      Object.keys(tokenPriceList).length > 0
+    ) {
+      // url fee
+      const hash = location.hash;
+      const url_fee = decodeURIComponent(hash.slice(1)).split('|')[2];
+      if (url_fee && !currentSelectedPool) {
+        searchPools(+url_fee);
+      } else {
+        searchPools();
+      }
+    }
+  }, [tokenX, tokenY, tokenPriceList, listPool]);
   if (!refTokens || !triTokens || !triTokenIds) return <Loading />;
   const allTokens = getAllTokens(refTokens, triTokens);
   const nearSwapTokens = allTokens.filter((token) => token.onRef);
@@ -160,7 +178,6 @@ export default function AddYourLiquidityPageV3() {
       const tokeny = await ftGetTokenMetadata(tokeny_id);
       setTokenX(tokenx);
       setTokenY(tokeny);
-      searchPools(tokenx, tokeny, +pool_fee);
     }
   }
   function goYourLiquidityPage() {
@@ -172,11 +189,7 @@ export default function AddYourLiquidityPageV3() {
       setListPool(list);
     }
   }
-  function searchPools(
-    tokenX: TokenMetadata,
-    tokenY: TokenMetadata,
-    fee?: number
-  ) {
+  function searchPools(fee?: number) {
     const currentPoolsMap = {};
     if (listPool.length > 0 && tokenX && tokenY) {
       const availablePools: PoolInfo[] = listPool.filter((pool: PoolInfo) => {
@@ -189,44 +202,83 @@ export default function AddYourLiquidityPageV3() {
           return true;
       });
       if (availablePools.length > 0) {
-        let totalLiquidity = 0;
-        let percents: string[];
-        const liquidityList: number[] = availablePools.map((p: PoolInfo) => {
-          return +p.liquidity || 0;
+        /*** percent start */
+        const tvlList: number[] = [];
+        availablePools.map((p: PoolInfo) => {
+          const { total_x, total_y, token_x, token_y } = p;
+          const firstToken = tokenX.id == token_x ? tokenX : tokenY;
+          const secondToken = tokenY.id == token_y ? tokenY : tokenX;
+          const firstTokenPrice =
+            (tokenPriceList &&
+              tokenPriceList[firstToken.id] &&
+              tokenPriceList[firstToken.id].price) ||
+            '0';
+          const secondTokenPrice =
+            (tokenPriceList &&
+              tokenPriceList[secondToken.id] &&
+              tokenPriceList[secondToken.id].price) ||
+            '0';
+          const tvlx = new Big(toReadableNumber(firstToken.decimals, total_x))
+            .times(firstTokenPrice)
+            .toNumber();
+          const tvly = new Big(toReadableNumber(secondToken.decimals, total_y))
+            .times(secondTokenPrice)
+            .toNumber();
+          const totalTvl = tvlx + tvly;
+          p.tvl = totalTvl;
+          tvlList.push(totalTvl);
+          return p;
         });
-        totalLiquidity = _.sum(liquidityList);
-        if (totalLiquidity == 0) {
-          percents = ['0', '0', '0', '0'];
-        } else
-          percents = checkAllocations(
-            '100',
-            liquidityList.map((c) => ((c / totalLiquidity) * 100).toFixed())
-          );
-        const maxPercent = _.max(percents);
+        const sumOfTvlList = _.sum(tvlList);
+        const tvlPercents =
+          sumOfTvlList === 0
+            ? ['0', '0', '0', '0']
+            : availablePools.map((p: PoolInfo) =>
+                scientificNotationToString(
+                  ((p.tvl / sumOfTvlList) * 100).toString()
+                )
+              );
+        const nonZeroIndexes: number[] = [];
+        tvlPercents.forEach((p, index) => {
+          if (Number(p) > 0) {
+            nonZeroIndexes.push(index);
+          }
+        });
+        const nonZeroPercents = tvlPercents.filter((r) => Number(r) > 0);
+        const checkedNonZero = getAllocationsLeastOne(nonZeroPercents);
+        const finalPercents = tvlPercents.map((p, index) => {
+          if (nonZeroIndexes.includes(index)) {
+            const newP = checkedNonZero[nonZeroIndexes.indexOf(index)];
+            return newP;
+          }
+          return p;
+        });
+        const maxPercent = _.max(finalPercents);
+        let maxPercentPool;
         availablePools.forEach((pool: PoolInfo, index) => {
           const f = pool.fee;
           const temp: PoolInfo = {
             ...pool,
-            percent: percents[index],
+            percent: finalPercents[index],
           };
           currentPoolsMap[f] = temp;
-          if (percents[index] == maxPercent) {
-            setCurrentSelectedPool(temp);
+          if (finalPercents[index] == maxPercent) {
+            maxPercentPool = temp;
           }
         });
+        // url-fee-pool
+        const urlFeePool = currentPoolsMap[fee];
         setCurrentPools(currentPoolsMap);
+        setCurrentSelectedPool(urlFeePool || maxPercentPool);
       } else {
         setCurrentPools({});
-        setCurrentSelectedPool({ fee: DEFAULTSELECTEDFEE });
+        setCurrentSelectedPool({ fee: fee || DEFAULTSELECTEDFEE });
       }
     } else {
       setCurrentPools({});
       if (tokenX && tokenY) {
-        setCurrentSelectedPool({ fee: DEFAULTSELECTEDFEE });
+        setCurrentSelectedPool({ fee: fee || DEFAULTSELECTEDFEE });
       }
-    }
-    if (fee) {
-      setCurrentSelectedPool(currentPoolsMap[fee] || { fee });
     }
   }
   function switchSelectedFee(fee: number) {
@@ -522,7 +574,6 @@ export default function AddYourLiquidityPageV3() {
                       if (tokenY && tokenY.id == token.id) return;
                       setTokenX(token);
                       setTokenXBalanceFromNear(token?.near?.toString());
-                      searchPools(token, tokenY);
                     }}
                     balances={balances}
                   />
@@ -564,7 +615,6 @@ export default function AddYourLiquidityPageV3() {
                       if (tokenX && tokenX.id == token.id) return;
                       setTokenY(token);
                       setTokenYBalanceFromNear(token?.near?.toString());
-                      searchPools(tokenX, token);
                     }}
                     balances={balances}
                   />
@@ -625,7 +675,10 @@ export default function AddYourLiquidityPageV3() {
                               ? (currentPools[fee].percent || '0') +
                                 '%' +
                                 ' select'
-                              : 'No Pool'}
+                              : Object.keys(tokenPriceList).length > 0 &&
+                                listPool.length > 0
+                              ? 'No Pool'
+                              : 'Loading...'}
                           </div>
                         </div>
                       </div>
