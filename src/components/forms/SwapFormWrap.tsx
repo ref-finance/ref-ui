@@ -130,7 +130,11 @@ export default function SwapFormWrap({
         elseView
       ) : (
         <SubmitButton
-          disabled={!canSubmit || showSwapLoading}
+          disabled={
+            !canSubmit ||
+            (swapMode === SWAP_MODE.LIMIT &&
+              (!quoteDoneLimit || (showSwapLoading && !loadingTrigger)))
+          }
           label={buttonText || title}
           info={info}
           loading={
