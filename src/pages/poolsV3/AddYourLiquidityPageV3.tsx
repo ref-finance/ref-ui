@@ -873,7 +873,9 @@ function CreatePoolComponent({
     return '';
   }
   return (
-    <div className={`flex flex-col justify-between flex-grow self-stretch`}>
+    <div
+      className={`w-1/2 flex flex-col justify-between flex-grow self-stretch`}
+    >
       <div className="text-white font-bold text-base">Initialize the pool:</div>
       <div className="relative flex-grow bg-black bg-opacity-10 rounded-xl px-4 py-7 mt-3">
         <BgIcon className="absolute right-0 top-0"></BgIcon>
@@ -1000,6 +1002,9 @@ function AddLiquidityComponent({
     number | string
   >();
   const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
+  const [quickOptionsMapPoint, setQuickOptionsMapPoint] = useState<
+    Record<string, any>
+  >({});
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
@@ -1010,56 +1015,90 @@ function AddLiquidityComponent({
     tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
   // init
   useEffect(() => {
-    const { point_delta, current_point, token_x, token_y } =
-      currentSelectedPool;
+    const { current_point, point_delta } = currentSelectedPool;
+    // 5, 10 20 50
+    const optionsMapPoints_temp = {};
+    quickOptions.forEach((p: number) => {
+      const { left_p, right_p } = getPointByCondition(p);
+      optionsMapPoints_temp[p] = { left_p, right_p };
+      if (p == 10) {
+        setLeftPoint(left_p);
+        setRightPoint(right_p);
+      }
+    });
+    // full
+    const l_p_temp = _.max([current_point - 400000, -800000]);
+    const r_p_temp = _.min([current_point + 400000, 800000]);
+    let l_p = Math.floor(l_p_temp / point_delta) * point_delta;
+    let r_p = Math.floor(r_p_temp / point_delta) * point_delta;
+    if (r_p - l_p >= POINTRIGHTRANGE) {
+      l_p = l_p + point_delta;
+    }
+    optionsMapPoints_temp['full'] = { left_p: l_p, right_p: r_p };
+    // set
     setCurrentPoint(current_point);
+    setQuickOptionsMapPoint(optionsMapPoints_temp);
     setCurrentCheckedQuickOption(10);
+  }, [currentSelectedPool]);
+  useEffect(() => {
+    pointChange({ leftPoint, rightPoint, currentPoint });
+    const targetKey = Object.keys(quickOptionsMapPoint).find((key: string) => {
+      const { left_p, right_p } = quickOptionsMapPoint[key];
+      if (left_p == leftPoint && right_p == rightPoint) {
+        return key;
+      }
+    });
+    if (targetKey) {
+      setCurrentCheckedQuickOption(targetKey);
+    } else {
+      setCurrentCheckedQuickOption(undefined);
+    }
+  }, [leftPoint, rightPoint]);
+  function getPointByCondition(p: number) {
+    const { point_delta, token_x } = currentSelectedPool;
     const c_price = getCurrentPrice_real_decimal();
     const decimalRate =
       Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
     const tokenSort = tokenX.id == token_x ? true : false;
+    const reduce_p = 1 - p / 100;
+    const add_p = 1 + p / 100;
     if (tokenSort) {
-      // -10%
-      const l_price = new BigNumber(c_price).multipliedBy(0.9).toFixed();
+      // -10% example
+      const l_price = new BigNumber(c_price).multipliedBy(reduce_p).toFixed();
       const point_l = getPointByPrice(
         point_delta,
         l_price.toString(),
         decimalRate
       );
-      setLeftPoint(point_l);
-      // +10%
-      const r_price = new BigNumber(c_price).multipliedBy(1.1).toFixed();
+      // +10% example
+      const r_price = new BigNumber(c_price).multipliedBy(add_p).toFixed();
       const point_r = getPointByPrice(
         point_delta,
         r_price.toString(),
         decimalRate
       );
-      setRightPoint(point_r);
+      return { left_p: point_l, right_p: point_r };
     } else {
       const c_price2 = new BigNumber(1).dividedBy(c_price).toFixed();
-      // +10%
-      const priceAdd = new BigNumber(c_price2).multipliedBy(1.1);
+      // +10% example
+      const priceAdd = new BigNumber(c_price2).multipliedBy(add_p);
       const l_price_2 = new BigNumber(1).dividedBy(priceAdd).toFixed();
       const point_l_2 = getPointByPrice(
         point_delta,
         l_price_2.toString(),
         decimalRate
       );
-      setLeftPoint(point_l_2);
-      // -10%
-      const priceDivide = new BigNumber(c_price2).multipliedBy(0.9);
+      // -10% example
+      const priceDivide = new BigNumber(c_price2).multipliedBy(reduce_p);
       const r_price_2 = new BigNumber(1).dividedBy(priceDivide).toFixed();
       const point_r_2 = getPointByPrice(
         point_delta,
         r_price_2.toString(),
         decimalRate
       );
-      setRightPoint(point_r_2);
+      return { left_p: point_l_2, right_p: point_r_2 };
     }
-  }, [currentSelectedPool]);
-  useEffect(() => {
-    pointChange({ leftPoint, rightPoint, currentPoint });
-  }, [leftPoint, rightPoint]);
+  }
   function getCurrentPrice() {
     let price = getCurrentPrice_real_decimal();
     if (tokenX.id == token_y) {
@@ -1120,7 +1159,6 @@ function AddLiquidityComponent({
     }
   }
   function handlePriceToAppropriatePoint() {
-    setCurrentCheckedQuickOption('');
     const { point_delta, token_x, token_y } = currentSelectedPool;
     const decimalRate =
       Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
@@ -1325,7 +1363,6 @@ function AddLiquidityComponent({
         setRightPoint(r_point);
       }
     }
-    setCurrentCheckedQuickOption(item);
   }
   function getButtonText() {
     let txt = 'Add Liquidity';
@@ -1359,14 +1396,16 @@ function AddLiquidityComponent({
     return txt;
   }
   function getPriceTip() {
-    const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
+    const tip = 'The price should be in one slot nearby';
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
   const tokenSort = tokenX.id == currentSelectedPool.token_x;
   const isAddLiquidityDisabled = getButtonStatus();
   return (
-    <div className={`flex flex-col justify-between flex-grow self-stretch`}>
+    <div
+      className={`w-1/2 flex flex-col justify-between flex-grow self-stretch`}
+    >
       <div className="text-white font-bold text-base">Set Price Range</div>
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3">
         <div className="flex items-center justify-between mt-3.5">
@@ -1380,7 +1419,7 @@ function AddLiquidityComponent({
           </div>
         </div>
         {/* range chart area */}
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex flex-col items-center justify-center my-10">
           <span className="text-sm text-primaryText mb-10">Coming soon...</span>
           <EmptyIcon></EmptyIcon>
         </div>
@@ -1450,7 +1489,7 @@ function AddLiquidityComponent({
           </div>
           <div className="flex items-center justify-between mt-3">
             <div
-              className="ml-2 text-sm"
+              className="text-sm"
               data-type="info"
               data-place="top"
               data-multiline={true}
@@ -1459,7 +1498,7 @@ function AddLiquidityComponent({
               data-tip={getPriceTip()}
               data-for="priceTipId"
             >
-              <WarningMark className="flex-shrink-0 cursor-pointer"></WarningMark>
+              <WarningMark className="flex-shrink-0 cursor-pointer text-primaryText hover:text-white"></WarningMark>
               <ReactTooltip
                 className="w-20"
                 id="priceTipId"
@@ -1476,7 +1515,7 @@ function AddLiquidityComponent({
                     quickChangePoint(item);
                   }}
                   key={index}
-                  className={`flex items-center justify-center rounded-lg h-6 py-0.5 px-3.5 box-content cursor-pointer font-sans text-sm border ${
+                  className={`flex items-center justify-center rounded-lg h-6 py-0.5 lg:px-1.5  2xl:px-3.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
                     currentCheckedQuickOption == item
                       ? 'bg-v3PurpleColor border-v3PurpleColor text-white'
                       : 'border-v3GreyColor text-v3LightGreyColor'
@@ -1490,7 +1529,7 @@ function AddLiquidityComponent({
               onClick={() => {
                 quickChangePoint('full');
               }}
-              className={`flex items-center justify-center rounded-lg h-6 py-0.5 px-3.5 box-content cursor-pointer font-sans text-sm border ${
+              className={`flex items-center justify-center rounded-lg h-6 py-0.5 lg:px-1.5  2xl:px-3.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
                 currentCheckedQuickOption == 'full'
                   ? 'bg-v3PurpleColor border-v3PurpleColor text-white'
                   : 'border-v3GreyColor text-v3LightGreyColor'
@@ -1594,7 +1633,9 @@ function PointInputComponent({
 function NoDataComponent() {
   const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
   return (
-    <div className={`flex flex-col justify-between flex-grow self-stretch`}>
+    <div
+      className={`w-1/2 flex flex-col justify-between flex-grow self-stretch`}
+    >
       <div className="text-white font-bold text-base">Set Price Range</div>
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 opacity-50">
         {/* range chart area */}
@@ -1641,11 +1682,12 @@ function NoDataComponent() {
             </div>
           </div>
           <div className="flex items-center justify-between mt-3">
+            <WarningMark className="text-sm flex-shrink-0 text-primaryText"></WarningMark>
             {quickOptions.map((item: number, index) => {
               return (
                 <div
                   key={index}
-                  className="flex items-center justify-center rounded-lg h-6 py-0.5 px-3.5 box-content font-sans text-v3LightGreyColor text-sm"
+                  className="flex items-center justify-center rounded-lg h-6 py-0.5 px-3.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
                   style={{ border: '1px solid rgba(126, 138, 147, 0.2)' }}
                 >
                   ± {item}%
@@ -1653,7 +1695,7 @@ function NoDataComponent() {
               );
             })}
             <div
-              className="flex items-center justify-center rounded-lg h-6 py-0.5 px-3.5 box-content font-sans text-v3LightGreyColor text-sm"
+              className="flex items-center justify-center rounded-lg h-6 py-0.5 px-3.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
               style={{ border: '1px solid rgba(126, 138, 147, 0.2)' }}
             >
               Full Range
@@ -1741,6 +1783,12 @@ function InputAmount({
     }
     return '$-';
   }
+  const maxBalance =
+    token?.id !== WRAP_NEAR_CONTRACT_ID
+      ? balance
+      : Number(balance) <= 0.5
+      ? '0'
+      : String(Number(balance) - 0.5);
   return (
     <div
       className={`bg-black bg-opacity-20 rounded-xl p-3 mt-3 ${
@@ -1778,16 +1826,10 @@ function InputAmount({
           </span>
           <span
             onClick={() => {
-              const maxBalance =
-                token.id !== WRAP_NEAR_CONTRACT_ID
-                  ? balance
-                  : Number(balance) <= 0.5
-                  ? '0'
-                  : String(Number(balance) - 0.5);
               changeAmount(maxBalance);
             }}
             className={`ml-2.5 text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
-              false
+              amount == maxBalance
                 ? 'bg-black bg-opacity-20 border-black border-opacity-20'
                 : 'border-maxBorderColor'
             }`}

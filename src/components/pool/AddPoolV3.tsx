@@ -356,6 +356,12 @@ function InputAmount({
     }
     return '$-';
   }
+  const maxBalance =
+    token?.id !== WRAP_NEAR_CONTRACT_ID
+      ? balance
+      : Number(balance) <= 0.5
+      ? '0'
+      : String(Number(balance) - 0.5);
   return (
     <div
       className={`bg-black bg-opacity-20 rounded-xl p-3 mt-3 ${
@@ -390,16 +396,10 @@ function InputAmount({
           </span>
           <span
             onClick={() => {
-              const maxBalance =
-                token.id !== WRAP_NEAR_CONTRACT_ID
-                  ? balance
-                  : Number(balance) <= 0.5
-                  ? '0'
-                  : String(Number(balance) - 0.5);
               changeAmount(maxBalance);
             }}
             className={`ml-2.5 text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
-              false
+              amount == maxBalance
                 ? 'bg-black bg-opacity-20 border-black border-opacity-20'
                 : 'border-maxBorderColor'
             }`}
