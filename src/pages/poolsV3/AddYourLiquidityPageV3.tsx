@@ -1396,7 +1396,7 @@ function AddLiquidityComponent({
     return txt;
   }
   function getPriceTip() {
-    const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
+    const tip = 'The price should be in one slot nearby';
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }

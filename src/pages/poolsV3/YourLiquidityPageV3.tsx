@@ -300,7 +300,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
       setLiquidityDetail(l);
     }
   }
-  function getMinRate(direction: string) {
+  function getRate(direction: string) {
     let value = '';
     if (tokenMetadata_x_y) {
       const [tokenX, tokenY] = tokenMetadata_x_y;
@@ -312,7 +312,12 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
         value = toPrecision(getPriceByPoint(right_point, decimalRate), 6);
       }
     }
-    return value;
+    const valueBig = new BigNumber(value);
+    if (valueBig.isGreaterThan('100000')) {
+      return new BigNumber(value).toExponential(3);
+    } else {
+      return value;
+    }
   }
   function getLpt_id() {
     return lpt_id.split('#')[1];
@@ -479,19 +484,21 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
               {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
             </span>
             <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
-              <span className="text-xs text-v3SwapGray mr-1.5">Fee Tiers</span>
+              <span className="text-xs text-v3SwapGray whitespace-nowrap mr-1.5">
+                Fee Tiers
+              </span>
               <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
             </div>
           </div>
           <div className="flex items-center">
             <span className="text-v3SwapGray text-xs mr-1.5">Min</span>
-            <span className="text-white text-sm w-32 overflow-hidden whitespace-nowrap overflow-ellipsis">
-              {getMinRate('left')}
+            <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis">
+              {getRate('left')}
             </span>
             <label className="text-v3SwapGray text-xs mx-2">-</label>
             <span className="text-v3SwapGray text-xs mr-1.5">Max</span>
-            <span className="text-white text-sm w-32 overflow-hidden whitespace-nowrap overflow-ellipsis">
-              {getMinRate('right')}
+            <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis">
+              {getRate('right')}
             </span>
             <span className="text-v3SwapGray text-xs ml-1.5 mr-3">
               {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
@@ -504,7 +511,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
                 }`}
               ></span>
               <span
-                className={`text-xs ${
+                className={`whitespace-nowrap text-xs ${
                   isInrange
                     ? 'text-gradientFromHover'
                     : 'text-v3GarkWarningColor'

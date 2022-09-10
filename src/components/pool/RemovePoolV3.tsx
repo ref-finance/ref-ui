@@ -54,7 +54,7 @@ export const RemovePoolV3 = (props: any) => {
   const [rateDirection, setRateDirection] = useState<boolean>(true);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const cardWidth = isMobile() ? '90vw' : '30vw';
+  // const cardWidth = isMobile() ? '90vw' : '30vw';
   useEffect(() => {
     if (tokenMetadata_x_y && userLiquidity && poolDetail) {
       const { current_point } = poolDetail;
@@ -290,8 +290,8 @@ export const RemovePoolV3 = (props: any) => {
   return (
     <Modal {...restProps}>
       <Card
-        style={{ width: cardWidth, maxHeight: '95vh' }}
-        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4"
+        style={{ maxHeight: '95vh' }}
+        className={`outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4 xs:w-90vw md:w-90vw lg:w-40vw xl:w-30vw`}
       >
         <div className="flex items-center justify-between">
           <span className="text-xl text-white">

@@ -260,7 +260,12 @@ export default function YourLiquidityDetail(props: any) {
         }
       }
     }
-    return value;
+    const valueBig = new BigNumber(value);
+    if (valueBig.isGreaterThan('100000')) {
+      return new BigNumber(value).toExponential(3);
+    } else {
+      return value;
+    }
   }
   function switchRateSort() {
     setRateSort(!rateSort);
@@ -286,7 +291,9 @@ export default function YourLiquidityDetail(props: any) {
     return false;
   }
   return (
-    <div className={`m-auto lg:w-2/5 md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
+    <div
+      className={`m-auto lg:w-3/5  xl:w-2/5 md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}
+    >
       <div className="flex items-center text-v3SwapGray hover:text-white">
         <div
           className="flex items-center cursor-pointer"
@@ -298,7 +305,7 @@ export default function YourLiquidityDetail(props: any) {
       </div>
       <div className="flex items-center justify-between mt-6">
         <div className="flex items-center">
-          <div className="flex items-center mr-2">
+          <div className="flex items-center mr-2 flex-shrink-0">
             <img
               src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
               className="w-8 h-8 border border-greenColor rounded-full"
@@ -313,7 +320,9 @@ export default function YourLiquidityDetail(props: any) {
             {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
           </span>
           <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5 mx-2.5">
-            <span className="text-xs text-v3SwapGray mr-1.5">Fee Tiers</span>
+            <span className="text-xs text-v3SwapGray mr-1.5 whitespace-nowrap">
+              Fee Tiers
+            </span>
             <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
           </div>
           <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
@@ -323,7 +332,7 @@ export default function YourLiquidityDetail(props: any) {
               }`}
             ></span>
             <span
-              className={`text-xs ${
+              className={`text-xs whitespace-nowrap ${
                 isInrange ? 'text-gradientFromHover' : 'text-v3GarkWarningColor'
               }`}
             >
