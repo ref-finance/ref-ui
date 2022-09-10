@@ -1393,9 +1393,11 @@ export default function SwapCard(props: {
     tokenPriceList,
   });
 
-  const bestSwap = new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0')
-    ? 'v3'
-    : 'v2';
+  const bestSwap =
+    swapMode === SWAP_MODE.NORMAL &&
+    new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0')
+      ? 'v3'
+      : 'v2';
 
   useEffect(() => {
     if (quoteDone && quoteDoneV3) {
@@ -1404,15 +1406,22 @@ export default function SwapCard(props: {
         return;
       }
 
-      const displayTokenOutAmount = new Big(tokenOutAmountV3 || '0').gte(
-        tokenOutAmount || '0'
-      )
-        ? tokenOutAmountV3
-        : tokenOutAmount;
+      const displayTokenOutAmount =
+        swapMode === SWAP_MODE.NORMAL &&
+        new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0')
+          ? tokenOutAmountV3
+          : tokenOutAmount;
 
       setDisplayTokenOutAmount(displayTokenOutAmount);
     }
-  }, [quoteDone, quoteDoneV3, tokenOutAmountV3, tokenOutAmount, poolError]);
+  }, [
+    quoteDone,
+    quoteDoneV3,
+    tokenOutAmountV3,
+    tokenOutAmount,
+    poolError,
+    swapMode,
+  ]);
 
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
