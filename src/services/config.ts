@@ -517,6 +517,7 @@ export function getTransakConfig(
         themeColor: `#00C6A2`,
         hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
         defaultCryptoCurrency: 'NEAR',
+        cryptoCurrencyCode: 'NEAR',
         walletAddress: accountId || '',
       };
     case 'development':
@@ -529,6 +530,7 @@ export function getTransakConfig(
         themeColor: `#00C6A2`,
         hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
         defaultCryptoCurrency: 'NEAR',
+        cryptoCurrencyCode: 'NEAR',
         walletAddress: accountId || '',
       };
     case 'testnet':
@@ -538,6 +540,7 @@ export function getTransakConfig(
         widgetWidth: `500px`,
         widgetHeight: `600px`,
         themeColor: `#00C6A2`,
+        cryptoCurrencyCode: 'NEAR',
         hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
         defaultCryptoCurrency: 'NEAR',
         walletAddress: accountId || '',

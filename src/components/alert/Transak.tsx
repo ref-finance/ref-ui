@@ -18,7 +18,9 @@ export function openTransak(accountId: string) {
     ...getTransakConfig(accountId),
     ...modalSize,
   });
+
   transak.init();
+
   transak.on(transak.EVENTS.TRANSAK_WIDGET_CLOSE, () => {
     transak.close();
   });
@@ -30,7 +32,10 @@ export function openTransak(accountId: string) {
       normalFailToast('Transaction order was failed.');
     }
   });
+
   transak.on(transak.EVENTS.TRANSAK_ORDER_SUCCESSFUL, (successData: any) => {
+    console.log(successData, 'data');
+
     const fiatCurrency = successData?.status?.fiatCurrency;
     const fiatAmount = successData?.status?.fiatAmount;
     const cryptoCurrency = successData?.status?.cryptoCurrency;
