@@ -53,25 +53,16 @@ export default function YourLiquidityPageV3() {
     'V2',
     'V1',
   ]);
-  const [addliquidityList, setAddliquidityList] = useState<any[]>(
-    isSignedIn
-      ? [
-          {
-            text: 'V1 Liquidity',
-            url: '/pools',
-          },
-          {
-            text: 'V2 Liquidity',
-            url: '/addLiquidityV3',
-          },
-        ]
-      : [
-          {
-            text: 'V2 Liquidity',
-            url: '/addLiquidityV3',
-          },
-        ]
-  );
+  const [addliquidityList, setAddliquidityList] = useState<any[]>([
+    {
+      text: 'V1 Liquidity',
+      url: '/pools',
+    },
+    {
+      text: 'V2 Liquidity',
+      url: '/addLiquidityV3',
+    },
+  ]);
 
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
 
@@ -234,15 +225,15 @@ export default function YourLiquidityPageV3() {
           </>
         )}
       </div>
-      {isSignedIn ? (
-        <YourLiquidityAddLiquidityModal
-          isOpen={generalAddLiquidity}
-          onRequestClose={() => {
-            setGeneralAddLiquidity(false);
-          }}
-          stablePools={stablePools}
-        />
-      ) : null}
+      {/* {isSignedIn ? ( */}
+      <YourLiquidityAddLiquidityModal
+        isOpen={generalAddLiquidity}
+        onRequestClose={() => {
+          setGeneralAddLiquidity(false);
+        }}
+        stablePools={stablePools}
+      />
+      {/* ) : null} */}
     </>
   );
 }

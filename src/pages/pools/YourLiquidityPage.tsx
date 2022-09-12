@@ -2038,7 +2038,9 @@ export function YourLiquidityAddLiquidityModal(
                 </div>
               ) : null}
 
-              {candPools?.length < 1 && tokens?.[0].id !== tokens?.[1].id ? (
+              {isSignedIn &&
+              candPools?.length < 1 &&
+              tokens?.[0].id !== tokens?.[1].id ? (
                 <div className="flex bg-black bg-opacity-20 items-center justify-between rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
                   <label className="text-warnColor text-base flex items-center">
                     <span className="mr-2">
@@ -2140,17 +2142,19 @@ export function YourLiquidityAddLiquidityModal(
           )}
         </div>
       </Modal>
-      <AddPoolModal
-        isOpen={addPoolOpen}
-        onRequestClose={(e) => {
-          setAddPoolOpen(false);
-          props.onRequestClose(e);
-        }}
-        tokens={selectTokens}
-        balances={selectBalances}
-        token1Pre={tokens[0]}
-        token2Pre={tokens[1]}
-      />
+      {isSignedIn ? (
+        <AddPoolModal
+          isOpen={addPoolOpen}
+          onRequestClose={(e) => {
+            setAddPoolOpen(false);
+            props.onRequestClose(e);
+          }}
+          tokens={selectTokens}
+          balances={selectBalances}
+          token1Pre={tokens[0]}
+          token2Pre={tokens[1]}
+        />
+      ) : null}
     </>
   );
 }
