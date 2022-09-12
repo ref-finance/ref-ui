@@ -512,7 +512,7 @@ export default function AddYourLiquidityPageV3() {
   }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
   return (
-    <div className="relative flex flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto text-white rounded-2xl">
+    <div className="relative flex flex-col lg:w-2/3 xl:w-3/5 md:w-11/12 xs:w-11/12 m-auto text-white rounded-2xl">
       <div
         className="absolute w-full top-0 bottom-0 rounded-2xl"
         style={{
@@ -529,10 +529,12 @@ export default function AddYourLiquidityPageV3() {
           }}
         >
           <div className="relative flex items-center justify-center">
-            <ReturnIcon
-              className="absolute left-1 cursor-pointer"
+            <div
+              className="absolute -left-1 cursor-pointer flex items-center justify-center w-6 h-6"
               onClick={goYourLiquidityPage}
-            ></ReturnIcon>
+            >
+              <ReturnIcon></ReturnIcon>
+            </div>
             <span className="text-v3LightGreyColor text-xl">
               <FormattedMessage id="add_liquidity"></FormattedMessage>
             </span>
@@ -554,7 +556,7 @@ export default function AddYourLiquidityPageV3() {
                         className={`flex items-center justify-between flex-grow h-12 text-base text-white rounded-xl px-4 cursor-pointer ${
                           tokenX
                             ? 'bg-black bg-opacity-20'
-                            : 'bg-primaryGradient'
+                            : 'bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover'
                         }`}
                       >
                         {tokenX ? (
@@ -613,7 +615,7 @@ export default function AddYourLiquidityPageV3() {
                         className={`flex items-center justify-between flex-grow h-12 text-base text-white rounded-xl px-4 cursor-pointer ${
                           tokenY
                             ? 'bg-black bg-opacity-20'
-                            : 'bg-primaryGradient'
+                            : 'bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover'
                         }`}
                       >
                         {tokenY ? (
@@ -1515,7 +1517,7 @@ function AddLiquidityComponent({
                     quickChangePoint(item);
                   }}
                   key={index}
-                  className={`flex items-center justify-center rounded-lg h-6 py-0.5 lg:px-1.5  2xl:px-3.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
+                  className={`flex items-center justify-center rounded-lg h-6 py-0.5 lg:px-1.5  xs:px-1 md:px-1  lg:px-1.5  2xl:px-3.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
                     currentCheckedQuickOption == item
                       ? 'bg-v3PurpleColor border-v3PurpleColor text-white'
                       : 'border-v3GreyColor text-v3LightGreyColor'
@@ -1529,7 +1531,7 @@ function AddLiquidityComponent({
               onClick={() => {
                 quickChangePoint('full');
               }}
-              className={`flex items-center justify-center rounded-lg h-6 py-0.5 lg:px-1.5  2xl:px-3.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
+              className={`flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5  2xl:px-3.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
                 currentCheckedQuickOption == 'full'
                   ? 'bg-v3PurpleColor border-v3PurpleColor text-white'
                   : 'border-v3GreyColor text-v3LightGreyColor'
@@ -1687,7 +1689,7 @@ function NoDataComponent() {
               return (
                 <div
                   key={index}
-                  className="flex items-center justify-center rounded-lg h-6 py-0.5 px-3.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
+                  className="flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5  2xl:px-3.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
                   style={{ border: '1px solid rgba(126, 138, 147, 0.2)' }}
                 >
                   ± {item}%
@@ -1695,7 +1697,7 @@ function NoDataComponent() {
               );
             })}
             <div
-              className="flex items-center justify-center rounded-lg h-6 py-0.5 px-3.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
+              className="flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5  2xl:px-3.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
               style={{ border: '1px solid rgba(126, 138, 147, 0.2)' }}
             >
               Full Range

@@ -292,7 +292,7 @@ export default function YourLiquidityDetail(props: any) {
   }
   return (
     <div
-      className={`m-auto lg:w-3/5  xl:w-2/5 md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}
+      className={`m-auto lg:w-3/5  xl:w-2/5 md:w-11/12 xs:w-11/12  xs:-mt-4 md:-mt-4`}
     >
       <div className="flex items-center text-v3SwapGray hover:text-white">
         <div
