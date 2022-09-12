@@ -660,13 +660,15 @@ export default function CrossSwapCard(props: {
     },
   ];
 
-  const swapsToDoRefV3 = new Big(tokenOutAmountV3 || '0').lt(
-    tokenOut?.id && swapsToDoRef && swapsToDoRef.length > 0
-      ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut?.id)
-      : 0
-  )
-    ? swapsToDoRef
-    : swapsToDoV3;
+  const swapsToDoRefV3 =
+    !swapErrorV3 &&
+    new Big(tokenOutAmountV3 || '0').gte(
+      tokenOut?.id && swapsToDoRef && swapsToDoRef.length > 0
+        ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut?.id)
+        : 0
+    )
+      ? swapsToDoV3
+      : swapsToDoRef;
 
   const showAllResults =
     swapsToDoRefV3 &&
