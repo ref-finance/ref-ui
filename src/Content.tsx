@@ -238,7 +238,7 @@ export function Content() {
         <Route path={`/sauce/:id`} component={AutoHeight(StableSwapRouter)} />
         <Route path={'/myOrder'} component={AutoHeight(MyOrderPage)} />
         <Route
-          path="/yoursLiquidity"
+          path="/yourliquidity"
           component={AutoHeight(YourLiquidityPageV3)}
         />
         <Route
@@ -246,7 +246,7 @@ export function Content() {
           component={AutoHeight(YourLiquidityDetailV3)}
         />
         <Route
-          path="/addLiquidityV3"
+          path="/addLiquidityV2"
           component={AutoHeight(AddYourLiquidityPageV3)}
         />
 

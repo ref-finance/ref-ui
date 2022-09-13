@@ -184,7 +184,7 @@ export default function AddYourLiquidityPageV3() {
     }
   }
   function goYourLiquidityPage() {
-    history.push('/yoursLiquidity');
+    history.push('/yourliquidity');
   }
   async function get_list_pools() {
     const list: PoolInfo[] = await list_pools();
@@ -912,18 +912,21 @@ function CreatePoolComponent({
                 </span>
               </div>
             </div>
-            <div className="flex items-center justify-between mt-3.5">
-              <span className="text-xs text-v3LightGreyColor">
+            <div className="flex items-center flex-wrap justify-between mt-3.5">
+              <span className="text-xs text-v3LightGreyColor mr-2 mb-2">
                 Current Price
               </span>
-              <div className="flex items-center text-xs text-white">
+              <div className="flex items-center text-xs text-white mb-2">
                 {rateStatus ? (
                   <div className="mr-0.5">
                     1 {toRealSymbol(tokenX?.symbol)}
                     <span className="text-v3LightGreyColor mx-0.5">
                       ({getCurrentPriceValue(tokenX)})
                     </span>
-                    = {createPoolRate} {toRealSymbol(tokenY?.symbol)}
+                    <label className="mx-0.5">=</label>
+                    <span>
+                      {createPoolRate} {toRealSymbol(tokenY?.symbol)}
+                    </span>
                   </div>
                 ) : (
                   <div className="mr-0.5">
@@ -931,7 +934,10 @@ function CreatePoolComponent({
                     <span className="text-v3LightGreyColor mx-0.5">
                       ({getCurrentPriceValue(tokenY)})
                     </span>
-                    = {getPoolRate()} {toRealSymbol(tokenX?.symbol)}
+                    <label className="mx-0.5">=</label>
+                    <span>
+                      {getPoolRate()} {toRealSymbol(tokenX?.symbol)}
+                    </span>
                   </div>
                 )}
 
@@ -1410,14 +1416,19 @@ function AddLiquidityComponent({
     >
       <div className="text-white font-bold text-base">Set Price Range</div>
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3">
-        <div className="flex items-center justify-between mt-3.5">
-          <span className="text-xs text-v3LightGreyColor">Current Price</span>
-          <div className="flex items-center text-xs text-white">
+        <div className="flex items-center flex-wrap justify-between mt-3.5">
+          <span className="text-xs text-v3LightGreyColor mb-2">
+            Current Price
+          </span>
+          <div className="flex items-center text-xs text-white mb-2">
             1 {toRealSymbol(tokenX?.symbol)}
             <span className="text-v3LightGreyColor ml-0.5">
               ({getCurrentPriceValue()})
-            </span>{' '}
-            = {getCurrentPrice()} {toRealSymbol(tokenY?.symbol)}
+            </span>
+            <label className="mx-0.5">=</label>
+            <span>
+              {getCurrentPrice()} {toRealSymbol(tokenY?.symbol)}
+            </span>
           </div>
         </div>
         {/* range chart area */}

@@ -181,7 +181,7 @@ export default function YourLiquidityDetail(props: any) {
     return toReadableNumber(token.decimals, toPrecision(x, 0));
   }
   function goYourLiquidityPage() {
-    history.push('/yoursLiquidity');
+    history.push('/yourliquidity');
   }
   function getTokenFeeAmount(p: string) {
     if (userLiquidity && tokenMetadata_x_y && tokenPriceList) {

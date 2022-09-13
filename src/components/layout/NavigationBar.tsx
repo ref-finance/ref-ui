@@ -202,8 +202,8 @@ function Anchor({
       location.pathname.startsWith('/pools') ||
       location.pathname.startsWith('/pool') ||
       location.pathname.startsWith('/more_pools') ||
-      location.pathname.startsWith('/yoursLiquidity') ||
-      location.pathname.startsWith('/addLiquidityV3');
+      location.pathname.startsWith('/yourliquidity') ||
+      location.pathname.startsWith('/addLiquidityV2');
   } else if (pattern == '/') {
     isSelected = location.pathname === '/' || location.pathname === '/swap';
   } else {
@@ -1406,7 +1406,7 @@ function NavigationBar() {
                     name: 'liquidity',
                     path: 'Liquidity',
                     click: () => {
-                      historyInit.push('/yoursLiquidity');
+                      historyInit.push('/yourliquidity');
                     },
                   },
                 ]}

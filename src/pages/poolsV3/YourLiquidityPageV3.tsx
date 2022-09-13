@@ -60,7 +60,7 @@ export default function YourLiquidityPageV3() {
     },
     {
       text: 'V2 Liquidity',
-      url: '/addLiquidityV3',
+      url: '/addLiquidityV2',
     },
   ]);
 
