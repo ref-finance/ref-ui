@@ -728,8 +728,8 @@ export default function CrossSwapCard(props: {
             <div className="flex flex-col left-8">
               <div className="flex items-center">
                 <FormattedMessage
-                  id="swap_pro"
-                  defaultMessage={'Swap Pro'}
+                  id="swap_with_aurora_liquidity"
+                  defaultMessage={'SWAP with Aurora Liquidity'}
                 ></FormattedMessage>
                 <span
                   className=" ml-3 h-3 flex items-center text-black bg-farmText rounded-md px-0.5 py-px"

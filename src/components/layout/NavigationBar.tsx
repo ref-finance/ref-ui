@@ -24,6 +24,7 @@ import {
   MoreMenuIcon,
   NavLogo,
   NavLogoSimple,
+  AuroraIconSwapNav,
 } from '~components/icon';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import {
@@ -107,6 +108,7 @@ import {
 } from '../../context/WalletSelectorContext';
 import { Modal } from '~context/modal-ui/components/Modal';
 import { SWAP_MODE } from '../../pages/SwapPage';
+import { Item } from '../airdrop/Item';
 
 const config = getConfig();
 
@@ -139,6 +141,7 @@ function Anchor({
   newFuntion?: boolean;
   subMenu?: {
     name: string;
+    display?: string | JSX.Element;
     path?: string;
     click: (e?: any) => void;
     chosen?: boolean;
@@ -271,7 +274,7 @@ function Anchor({
                       setHover(false);
                     }}
                   >
-                    {<FormattedMessage id={m.name} />}
+                    {m.display || <FormattedMessage id={m.name} />}
                   </span>
                 );
               })}
@@ -1327,6 +1330,7 @@ function NavigationBar() {
                 subMenu={[
                   {
                     name: 'swap',
+                    display: <FormattedMessage id="swap"></FormattedMessage>,
                     click: () => {
                       historyInit.push('/swap');
                       localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
@@ -1343,6 +1347,8 @@ function NavigationBar() {
                   },
                   {
                     name: 'stable',
+                    display: <FormattedMessage id="stable"></FormattedMessage>,
+
                     click: () => {
                       historyInit.push('/swap');
                       localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
@@ -1359,6 +1365,13 @@ function NavigationBar() {
                   },
                   {
                     name: 'pro',
+                    display: (
+                      <span className="flex items-center whitespace-nowrap">
+                        {' '}
+                        <span className="mr-2">Swap with</span>{' '}
+                        <AuroraIconSwapNav />{' '}
+                      </span>
+                    ),
                     click: () => {
                       localStorage.setItem(
                         REF_FI_SWAP_SWAPPAGE_TAB_KEY,
@@ -1373,6 +1386,9 @@ function NavigationBar() {
                   },
                   {
                     name: 'limit',
+                    display: (
+                      <FormattedMessage id="limit_order"></FormattedMessage>
+                    ),
                     click: () => {
                       historyInit.push('/swap');
                       localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);

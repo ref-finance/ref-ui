@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
+import ReactTooltip from 'react-tooltip';
 
 export const SwapMinReceiveCheck = () => {
   return (
@@ -405,6 +406,8 @@ export const NewPro = ({
 }) => {
   const [hover, setHover] = useState<boolean>(false);
 
+  const intl = useIntl();
+
   return (
     <button
       className="relative h-8"
@@ -422,7 +425,34 @@ export const NewPro = ({
           <NewProIcon />
         </>
       ) : (
-        <ProIconHover />
+        <div
+          className="flex items-center justify-center"
+          data-class="reactTip"
+          data-for={'swap_pro_tip'}
+          data-place="top"
+          data-html={true}
+          data-tip={`
+    
+  <div class="text-xs min-w-32 text-farmText">
+
+  ${intl.formatMessage({
+    id: 'swap_with_aurora_liquidity',
+    defaultMessage: 'SWAP with Aurora Liquidity',
+  })}
+</div>
+  `}
+        >
+          <ProIconHover />
+          {hover ? (
+            <ReactTooltip
+              id={'swap_pro_tip'}
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          ) : null}
+        </div>
       )}
     </button>
   );

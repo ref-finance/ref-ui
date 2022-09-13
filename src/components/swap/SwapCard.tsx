@@ -1260,12 +1260,11 @@ export default function SwapCard(props: {
         const tokenInId = tokenIn.id;
         if (tokenInId) {
           if (isSignedIn) {
-            ftGetBalance(tokenInId).then((available: string) =>
+            ftGetBalance(
+              tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : tokenIn.id
+            ).then((available: string) =>
               setTokenInBalanceFromNear(
-                toReadableNumber(
-                  tokenIn?.decimals,
-                  tokenIn.id === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
-                )
+                toReadableNumber(tokenIn?.decimals, available)
               )
             );
           }
@@ -1275,14 +1274,11 @@ export default function SwapCard(props: {
         const tokenOutId = tokenOut.id;
         if (tokenOutId) {
           if (isSignedIn) {
-            ftGetBalance(tokenOutId).then((available: string) =>
+            ftGetBalance(
+              tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : tokenOut.id
+            ).then((available: string) =>
               setTokenOutBalanceFromNear(
-                toReadableNumber(
-                  tokenOut?.decimals,
-                  tokenOut.id === WRAP_NEAR_CONTRACT_ID
-                    ? nearBalance
-                    : available
-                )
+                toReadableNumber(tokenOut?.decimals, available)
               )
             );
           }

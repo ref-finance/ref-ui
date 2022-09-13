@@ -277,9 +277,15 @@ function OrderCard({
     );
 
     const pendingAmount = scientificNotationToString(
-      new Big(buyAmount || 0)
+      new Big(toPrecision(buyAmount || '0', 9, false, false) || 0)
         .minus(
-          toReadableNumber(buyToken.decimals, order.bought_amount || '0') || 0
+          toPrecision(
+            toReadableNumber(buyToken.decimals, order.bought_amount || '0') ||
+              '0',
+            9,
+            false,
+            false
+          )
         )
         .toString()
     );

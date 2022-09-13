@@ -5,7 +5,7 @@ import CrossSwapCard from '../components/swap/CrossSwapCard';
 import Loading from '../components/layout/Loading';
 import { useTriTokens, useWhitelistTokens } from '../state/token';
 import { WalletContext } from '../utils/wallets-integration';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { SwapCross } from '../components/icon/CrossSwapIcons';
 import { useTriTokenIdsOnRef } from '../services/aurora/aurora';
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
@@ -32,6 +32,7 @@ import {
   STNEARIDS,
   STABLE_POOL_TYPE,
 } from '../services/near';
+import ReactTooltip from 'react-tooltip';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -57,7 +58,7 @@ const ChangeSwapModeV3 = ({
   setSwapMode: (e?: any) => void;
 }) => {
   return (
-    <div className="rounded-2xl  w-full text-primaryText text-lg flex items-center mx-auto mr-5 font-normal">
+    <div className="rounded-2xl  w-full text-primaryText text-lg flex items-center mx-auto  font-normal">
       <span
         className={`py-2 mr-10 text-center cursor-pointer ${
           swapMode === SWAP_MODE.NORMAL ? ' text-white' : ''
@@ -90,7 +91,7 @@ const ChangeSwapModeV3 = ({
           localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
         }}
       >
-        <FormattedMessage id="limit" defaultMessage="Limit" />
+        <FormattedMessage id="limit_order" defaultMessage="Limit Order" />
       </span>
     </div>
   );
@@ -103,6 +104,8 @@ function SwapTab({
   ifCross: boolean;
   setSwapTab: (tab: string) => void;
 }) {
+  const intl = useIntl();
+
   return (
     <div className=" flex mr-4 items-center justify-between">
       <NewPro

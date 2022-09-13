@@ -866,5 +866,6 @@ const ru = {
   liquidity_capital: 'LIQUIDITY',
   please_confirm_this_transaction_on_ledger:
     'Пожалуйста, подтвердите эту транзакцию в Ledger',
+  limit_order: 'Limit Order',
 };
 export default Object.assign(ru, ru_in_risks_page);
