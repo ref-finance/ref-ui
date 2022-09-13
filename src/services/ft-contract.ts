@@ -83,6 +83,7 @@ export interface TokenMetadata {
   onTri?: boolean;
   amountLabel?: string;
   amount?: number;
+  dcl?: number | string;
   nearNonVisible?: number | string;
 }
 export const ftGetTokenMetadata = async (

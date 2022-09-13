@@ -50,6 +50,7 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { STORAGE_TO_REGISTER_WITH_MFT } from '../creators/storage';
 import { ftGetStorageBalance } from '../ft-contract';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { list_user_assets } from '../swapV3';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -735,6 +736,16 @@ export const useAuroraBalancesNearMapping = (address: string) => {
   }, [auroraMapping, isSignedIn]);
 
   return nearMapping;
+};
+
+export const useDCLAccountBalance = (isSignedIn: boolean) => {
+  const [assets, setAssets] = useState<any>();
+
+  useEffect(() => {
+    list_user_assets().then(setAssets);
+  }, [isSignedIn]);
+
+  return assets;
 };
 
 export const useTriTokenIdsOnRef = () => {

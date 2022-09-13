@@ -47,7 +47,7 @@ export const InputClear = () => {
   );
 };
 
-export const NewProIcon = () => {
+export const NewProIcon = ({ colorLight }: { colorLight?: string }) => {
   return (
     <svg
       width="32"
@@ -56,10 +56,22 @@ export const NewProIcon = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect width="32" height="32" rx="12" fill="url(#paint0_radial_93_3249)" />
+      <rect
+        width="32"
+        height="32"
+        rx="12"
+        fill="url(#paint0_radial_1507_6301)"
+      />
+      <path
+        opacity={!!colorLight ? '1' : '0.5'}
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M12.7929 10.7396C14.1333 8.42012 17.8667 8.42012 19.2071 10.7396L23.5975 18.337C24.8286 20.4674 23.0867 23 20.3904 23H11.6096C8.91327 23 7.17137 20.4674 8.40246 18.337L12.7929 10.7396ZM17.069 11.7141C16.6222 10.9409 15.3778 10.9409 14.931 11.7141L10.5405 19.3115C10.1302 20.0216 10.7108 20.8658 11.6096 20.8658H20.3904C21.2892 20.8658 21.8698 20.0216 21.4595 19.3115L17.069 11.7141Z"
+        fill={colorLight || '#001320'}
+      />
       <defs>
         <radialGradient
-          id="paint0_radial_93_3249"
+          id="paint0_radial_1507_6301"
           cx="0"
           cy="0"
           r="1"
@@ -408,9 +420,6 @@ export const NewPro = ({
       ) : !hover ? (
         <>
           <NewProIcon />
-          <span className="absolute top-1.5 left-1 text-white text-sm font-bold opacity-70">
-            <FormattedMessage id="pro" defaultMessage={'Pro'} />
-          </span>
         </>
       ) : (
         <ProIconHover />

@@ -26,7 +26,7 @@ import {
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
 import { getUserWalletTokens } from './api';
-import { extraStableTokenIds } from './near';
+import { extraStableTokenIds, REF_UNI_V3_SWAP_CONTRACT_ID } from './near';
 import getConfig from './config';
 import {
   getCurrentWallet,
@@ -336,6 +336,7 @@ export const withdraw = async ({
 export const batchWithdraw = async (tokenMap: any) => {
   const transactions: Transaction[] = [];
   const neededStorage = await checkTokenNeedsStorageDeposit();
+
   if (neededStorage) {
     transactions.push({
       receiverId: REF_FI_CONTRACT_ID,
@@ -396,6 +397,54 @@ export const batchWithdraw = async (tokenMap: any) => {
   if (wNEARAction) {
     transactions.push(wNEARAction);
   }
+  return executeMultipleTransactions(transactions);
+};
+
+export const batchWithdrawDCL = async (tokenMap: any) => {
+  const transactions: Transaction[] = [];
+  const neededStorage = await checkTokenNeedsStorageDeposit();
+  if (neededStorage) {
+    transactions.push({
+      receiverId: REF_FI_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+  const tokenIdList = Object.keys(tokenMap);
+  const ftBalancePromiseList: any[] = [];
+  tokenIdList.forEach(async (tokenId) => {
+    const promise = ftGetStorageBalance(tokenId);
+    ftBalancePromiseList.push(promise);
+  });
+  const ftBalanceList = await Promise.all(ftBalancePromiseList);
+  ftBalanceList.forEach((ftBalance, index) => {
+    if (!ftBalance) {
+      transactions.push({
+        receiverId: tokenIdList[index],
+        functionCalls: [
+          storageDepositAction({
+            registrationOnly: true,
+            amount: STORAGE_TO_REGISTER_WITH_FT,
+          }),
+        ],
+      });
+    }
+  });
+
+  const widthdrawActions: any[] = [];
+  tokenIdList.forEach((tokenId) => {
+    const { decimals, amount } = tokenMap[tokenId];
+    const parsedAmount = toNonDivisibleNumber(decimals, amount);
+    widthdrawActions.push({
+      methodName: 'withdraw_asset',
+      args: { token_id: tokenId, amount: parsedAmount },
+      gas: '55000000000000',
+    });
+  });
+  transactions.push({
+    receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+    functionCalls: widthdrawActions,
+  });
+
   return executeMultipleTransactions(transactions);
 };
 
