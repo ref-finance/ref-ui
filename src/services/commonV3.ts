@@ -117,7 +117,7 @@ export function useAddAndRemoveUrlHandle() {
           if (+amount == 0 && +min_amount_x == 0 && +min_amount_y == 0) {
             history.replace(`${location.pathname}`);
           } else {
-            history.replace('/yoursLiquidity');
+            history.replace('/yourliquidity');
           }
         } else if (methodName == 'create_pool' && returnValue) {
           history.replace(`${location.pathname}#${returnValue}`);

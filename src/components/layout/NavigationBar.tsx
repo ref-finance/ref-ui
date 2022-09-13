@@ -202,8 +202,8 @@ function Anchor({
       location.pathname.startsWith('/pools') ||
       location.pathname.startsWith('/pool') ||
       location.pathname.startsWith('/more_pools') ||
-      location.pathname.startsWith('/yoursLiquidity') ||
-      location.pathname.startsWith('/addLiquidityV3');
+      location.pathname.startsWith('/yourliquidity') ||
+      location.pathname.startsWith('/addLiquidityV2');
   } else if (pattern == '/') {
     isSelected = location.pathname === '/' || location.pathname === '/swap';
   } else {
@@ -217,9 +217,7 @@ function Anchor({
     <>
       <Link
         to={to}
-        className={`relative flex items-center justify-center h-full border-t-4 mx-4 border-greenColor ${
-          isSelected ? 'border-opacity-100' : 'border-opacity-0'
-        }`}
+        className={`relative flex items-center justify-center h-full  mx-4 `}
         onClick={(e) => {
           (name === 'trade_capital' || name == 'liquidity_capital') &&
             e.preventDefault();
@@ -264,7 +262,7 @@ function Anchor({
                         : 'text-primaryText'
                     } hover:bg-primaryText hover:bg-opacity-30 items-center
                     flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg 
-                   text-center text-base cursor-pointer my-auto`}
+                   text-center text-base cursor-pointer my-auto whitespace-nowrap px-2`}
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
@@ -1403,10 +1401,10 @@ function NavigationBar() {
                     },
                   },
                   {
-                    name: 'liquidity',
+                    name: 'your_liquidity',
                     path: 'Liquidity',
                     click: () => {
-                      historyInit.push('/yoursLiquidity');
+                      historyInit.push('/yourliquidity');
                     },
                   },
                 ]}

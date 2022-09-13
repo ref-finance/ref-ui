@@ -80,9 +80,8 @@ export default function AddYourLiquidityPageV3() {
   const [listPool, setListPool] = useState<PoolInfo[]>([]);
   const [buttonHover, setButtonHover] = useState<boolean>(false);
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
-  const [currentPools, setCurrentPools] = useState<Record<string, PoolInfo>>(
-    {}
-  );
+  const [currentPools, setCurrentPools] =
+    useState<Record<string, PoolInfo>>(null);
   const [onlyAddYToken, setOnlyAddYToken] = useState(false); // real
   const [onlyAddXToken, setOnlyAddXToken] = useState(false); // real
   const [invalidRange, setInvalidRange] = useState(false); // real
@@ -152,20 +151,8 @@ export default function AddYourLiquidityPageV3() {
     }
   }, [currentSelectedPool, tokenX, tokenY]);
   useEffect(() => {
-    if (
-      tokenX &&
-      tokenY &&
-      listPool.length > 0 &&
-      Object.keys(tokenPriceList).length > 0
-    ) {
-      // url fee
-      const hash = location.hash;
-      const url_fee = decodeURIComponent(hash.slice(1)).split('|')[2];
-      if (url_fee && !currentSelectedPool) {
-        searchPools(+url_fee);
-      } else {
-        searchPools();
-      }
+    if (tokenX && tokenY && listPool.length > 0) {
+      searchPools();
     }
   }, [tokenX, tokenY, tokenPriceList, listPool]);
   if (!refTokens || !triTokens || !triTokenIds) return <Loading />;
@@ -184,7 +171,7 @@ export default function AddYourLiquidityPageV3() {
     }
   }
   function goYourLiquidityPage() {
-    history.push('/yoursLiquidity');
+    history.push('/yourliquidity');
   }
   async function get_list_pools() {
     const list: PoolInfo[] = await list_pools();
@@ -192,7 +179,9 @@ export default function AddYourLiquidityPageV3() {
       setListPool(list);
     }
   }
-  function searchPools(fee?: number) {
+  function searchPools() {
+    const hash = location.hash;
+    const url_fee = +decodeURIComponent(hash.slice(1)).split('|')[2];
     const currentPoolsMap = {};
     if (listPool.length > 0 && tokenX && tokenY) {
       const availablePools: PoolInfo[] = listPool.filter((pool: PoolInfo) => {
@@ -270,22 +259,24 @@ export default function AddYourLiquidityPageV3() {
           }
         });
         // url-fee-pool
-        const urlFeePool = currentPoolsMap[fee];
+        const urlFeePool = url_fee
+          ? currentPoolsMap[url_fee] || { fee: url_fee }
+          : null;
         setCurrentPools(currentPoolsMap);
         setCurrentSelectedPool(urlFeePool || maxPercentPool);
       } else {
         setCurrentPools({});
-        setCurrentSelectedPool({ fee: fee || DEFAULTSELECTEDFEE });
+        setCurrentSelectedPool({ fee: url_fee || DEFAULTSELECTEDFEE });
       }
     } else {
       setCurrentPools({});
       if (tokenX && tokenY) {
-        setCurrentSelectedPool({ fee: fee || DEFAULTSELECTEDFEE });
+        setCurrentSelectedPool({ fee: url_fee || DEFAULTSELECTEDFEE });
       }
     }
   }
   function switchSelectedFee(fee: number) {
-    if (tokenX && tokenY) {
+    if (tokenX && tokenY && currentPools) {
       const pool = currentPools[fee];
       setCurrentSelectedPool(pool || { fee });
       if (!pool) {
@@ -689,20 +680,19 @@ export default function AddYourLiquidityPageV3() {
                           <div className="text-v3feeTextColor text-xs text-center mt-2">
                             {text}
                           </div>
-                          <div
-                            className={`flex items-center justify-center w-full py-1 rounded-xl bg-black bg-opacity-20 text-xs text-v3LightGreyColor mt-2 ${
-                              tokenX && tokenY ? '' : 'hidden'
-                            }`}
-                          >
-                            {currentPools[fee]
-                              ? (currentPools[fee].percent || '0') +
-                                '%' +
-                                ' select'
-                              : Object.keys(tokenPriceList).length > 0 &&
-                                listPool.length > 0
-                              ? 'No Pool'
-                              : 'Loading...'}
-                          </div>
+                          {tokenX && tokenY && currentPools ? (
+                            <div
+                              className={`flex items-center justify-center w-full py-1 rounded-xl bg-black bg-opacity-20 text-xs text-v3LightGreyColor mt-2`}
+                            >
+                              {!currentPools[fee]
+                                ? 'No Pool'
+                                : Object.keys(tokenPriceList).length > 0
+                                ? (currentPools[fee].percent || '0') +
+                                  '%' +
+                                  ' select'
+                                : 'Loading...'}
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     );
@@ -912,18 +902,21 @@ function CreatePoolComponent({
                 </span>
               </div>
             </div>
-            <div className="flex items-center justify-between mt-3.5">
-              <span className="text-xs text-v3LightGreyColor">
+            <div className="flex items-center flex-wrap justify-between mt-3.5">
+              <span className="text-xs text-v3LightGreyColor mr-2 mb-2">
                 Current Price
               </span>
-              <div className="flex items-center text-xs text-white">
+              <div className="flex items-center text-xs text-white mb-2">
                 {rateStatus ? (
                   <div className="mr-0.5">
                     1 {toRealSymbol(tokenX?.symbol)}
                     <span className="text-v3LightGreyColor mx-0.5">
                       ({getCurrentPriceValue(tokenX)})
                     </span>
-                    = {createPoolRate} {toRealSymbol(tokenY?.symbol)}
+                    <label className="mx-0.5">=</label>
+                    <span>
+                      {createPoolRate} {toRealSymbol(tokenY?.symbol)}
+                    </span>
                   </div>
                 ) : (
                   <div className="mr-0.5">
@@ -931,7 +924,10 @@ function CreatePoolComponent({
                     <span className="text-v3LightGreyColor mx-0.5">
                       ({getCurrentPriceValue(tokenY)})
                     </span>
-                    = {getPoolRate()} {toRealSymbol(tokenX?.symbol)}
+                    <label className="mx-0.5">=</label>
+                    <span>
+                      {getPoolRate()} {toRealSymbol(tokenX?.symbol)}
+                    </span>
                   </div>
                 )}
 
@@ -1410,14 +1406,19 @@ function AddLiquidityComponent({
     >
       <div className="text-white font-bold text-base">Set Price Range</div>
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3">
-        <div className="flex items-center justify-between mt-3.5">
-          <span className="text-xs text-v3LightGreyColor">Current Price</span>
-          <div className="flex items-center text-xs text-white">
+        <div className="flex items-center flex-wrap justify-between mt-3.5">
+          <span className="text-xs text-v3LightGreyColor mb-2">
+            Current Price
+          </span>
+          <div className="flex items-center text-xs text-white mb-2">
             1 {toRealSymbol(tokenX?.symbol)}
             <span className="text-v3LightGreyColor ml-0.5">
               ({getCurrentPriceValue()})
-            </span>{' '}
-            = {getCurrentPrice()} {toRealSymbol(tokenY?.symbol)}
+            </span>
+            <label className="mx-0.5">=</label>
+            <span>
+              {getCurrentPrice()} {toRealSymbol(tokenY?.symbol)}
+            </span>
           </div>
         </div>
         {/* range chart area */}

@@ -60,7 +60,7 @@ export default function YourLiquidityPageV3() {
     },
     {
       text: 'V2 Liquidity',
-      url: '/addLiquidityV3',
+      url: '/addLiquidityV2',
     },
   ]);
 
@@ -113,7 +113,7 @@ export default function YourLiquidityPageV3() {
         <div className="flex items-start justify-between">
           <div className="flex items-center">
             <span className="text-white text-xl mr-5">Liquidity</span>
-            <div className="flex items-center text-xs text-primaryText border border-selectBorder p-0.5 rounded-lg bg-v3LiquidityTabBgColor">
+            <div className="flex items-center text-sm text-primaryText border border-selectBorder p-0.5 rounded-lg bg-v3LiquidityTabBgColor">
               {liquidityStatusList.map((item: string, index: number) => {
                 return (
                   <span
@@ -121,7 +121,7 @@ export default function YourLiquidityPageV3() {
                     onClick={() => {
                       switchButton(item);
                     }}
-                    className={`flex items-center justify-center h-6 py-0.5 w-9 rounded-md cursor-pointer ${
+                    className={`flex items-center justify-center h-6 py-px box-content w-9 rounded-md cursor-pointer ${
                       checkedStatus == item
                         ? 'bg-primaryGradient text-white'
                         : 'text-primaryText'
