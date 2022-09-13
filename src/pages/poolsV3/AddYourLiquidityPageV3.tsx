@@ -80,9 +80,8 @@ export default function AddYourLiquidityPageV3() {
   const [listPool, setListPool] = useState<PoolInfo[]>([]);
   const [buttonHover, setButtonHover] = useState<boolean>(false);
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
-  const [currentPools, setCurrentPools] = useState<Record<string, PoolInfo>>(
-    {}
-  );
+  const [currentPools, setCurrentPools] =
+    useState<Record<string, PoolInfo>>(null);
   const [onlyAddYToken, setOnlyAddYToken] = useState(false); // real
   const [onlyAddXToken, setOnlyAddXToken] = useState(false); // real
   const [invalidRange, setInvalidRange] = useState(false); // real
@@ -152,20 +151,8 @@ export default function AddYourLiquidityPageV3() {
     }
   }, [currentSelectedPool, tokenX, tokenY]);
   useEffect(() => {
-    if (
-      tokenX &&
-      tokenY &&
-      listPool.length > 0 &&
-      Object.keys(tokenPriceList).length > 0
-    ) {
-      // url fee
-      const hash = location.hash;
-      const url_fee = decodeURIComponent(hash.slice(1)).split('|')[2];
-      if (url_fee && !currentSelectedPool) {
-        searchPools(+url_fee);
-      } else {
-        searchPools();
-      }
+    if (tokenX && tokenY && listPool.length > 0) {
+      searchPools();
     }
   }, [tokenX, tokenY, tokenPriceList, listPool]);
   if (!refTokens || !triTokens || !triTokenIds) return <Loading />;
@@ -192,7 +179,9 @@ export default function AddYourLiquidityPageV3() {
       setListPool(list);
     }
   }
-  function searchPools(fee?: number) {
+  function searchPools() {
+    const hash = location.hash;
+    const url_fee = +decodeURIComponent(hash.slice(1)).split('|')[2];
     const currentPoolsMap = {};
     if (listPool.length > 0 && tokenX && tokenY) {
       const availablePools: PoolInfo[] = listPool.filter((pool: PoolInfo) => {
@@ -270,22 +259,24 @@ export default function AddYourLiquidityPageV3() {
           }
         });
         // url-fee-pool
-        const urlFeePool = currentPoolsMap[fee];
+        const urlFeePool = url_fee
+          ? currentPoolsMap[url_fee] || { fee: url_fee }
+          : null;
         setCurrentPools(currentPoolsMap);
         setCurrentSelectedPool(urlFeePool || maxPercentPool);
       } else {
         setCurrentPools({});
-        setCurrentSelectedPool({ fee: fee || DEFAULTSELECTEDFEE });
+        setCurrentSelectedPool({ fee: url_fee || DEFAULTSELECTEDFEE });
       }
     } else {
       setCurrentPools({});
       if (tokenX && tokenY) {
-        setCurrentSelectedPool({ fee: fee || DEFAULTSELECTEDFEE });
+        setCurrentSelectedPool({ fee: url_fee || DEFAULTSELECTEDFEE });
       }
     }
   }
   function switchSelectedFee(fee: number) {
-    if (tokenX && tokenY) {
+    if (tokenX && tokenY && currentPools) {
       const pool = currentPools[fee];
       setCurrentSelectedPool(pool || { fee });
       if (!pool) {
@@ -689,20 +680,19 @@ export default function AddYourLiquidityPageV3() {
                           <div className="text-v3feeTextColor text-xs text-center mt-2">
                             {text}
                           </div>
-                          <div
-                            className={`flex items-center justify-center w-full py-1 rounded-xl bg-black bg-opacity-20 text-xs text-v3LightGreyColor mt-2 ${
-                              tokenX && tokenY ? '' : 'hidden'
-                            }`}
-                          >
-                            {currentPools[fee]
-                              ? (currentPools[fee].percent || '0') +
-                                '%' +
-                                ' select'
-                              : Object.keys(tokenPriceList).length > 0 &&
-                                listPool.length > 0
-                              ? 'No Pool'
-                              : 'Loading...'}
-                          </div>
+                          {tokenX && tokenY && currentPools ? (
+                            <div
+                              className={`flex items-center justify-center w-full py-1 rounded-xl bg-black bg-opacity-20 text-xs text-v3LightGreyColor mt-2`}
+                            >
+                              {!currentPools[fee]
+                                ? 'No Pool'
+                                : Object.keys(tokenPriceList).length > 0
+                                ? (currentPools[fee].percent || '0') +
+                                  '%' +
+                                  ' select'
+                                : 'Loading...'}
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     );
