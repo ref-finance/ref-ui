@@ -109,6 +109,7 @@ import {
 import { Modal } from '~context/modal-ui/components/Modal';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import { Item } from '../airdrop/Item';
+import { useDCLAccountBalance } from '../../services/aurora/aurora';
 
 const config = getConfig();
 
@@ -1232,22 +1233,27 @@ function NavigationBar() {
 
   const refAccountBalances = useTokenBalances();
 
+  const dclAccountBalances = useDCLAccountBalance(isSignedIn);
+
   const historyInit = useHistory();
 
   useEffect(() => {
-    if (!refAccountBalances) return;
+    if (!refAccountBalances || !dclAccountBalances) return;
 
-    const ids = Object.keys(refAccountBalances);
+    const ids = Object.keys(refAccountBalances).concat(
+      Object.keys(dclAccountBalances)
+    );
 
     ftGetTokensMetadata(ids).then(setTokensMeta);
   }, [
     Object.values(refAccountBalances || {}).join('-'),
+    Object.values(dclAccountBalances || {}).join('-'),
     refAccountBalances,
     isSignedIn,
   ]);
 
   useEffect(() => {
-    if (!refAccountBalances || !tokensMeta) {
+    if (!refAccountBalances || !tokensMeta || !dclAccountBalances) {
       setHasBalanceOnRefAccount(false);
       return;
     }
@@ -1261,10 +1267,22 @@ function NavigationBar() {
       }
     );
 
-    setHasBalanceOnRefAccount(hasRefBalanceOver);
+    const hasDCLBalanceOver = Object.entries(refAccountBalances).some(
+      ([id, balance]) => {
+        return (
+          Number(
+            toReadableNumber(tokensMeta?.[id]?.decimals || 24, balance) || '0'
+          ) > 0
+        );
+      }
+    );
+
+    setHasBalanceOnRefAccount(hasRefBalanceOver || hasDCLBalanceOver);
   }, [
     refAccountBalances,
+    dclAccountBalances,
     Object.values(refAccountBalances || {}).join('-'),
+    Object.values(dclAccountBalances || {}).join('-'),
     tokensMeta,
     isSignedIn,
   ]);
@@ -1276,7 +1294,7 @@ function NavigationBar() {
             hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
           } text-xs py-1.5`}
           style={{
-            backgroundColor: '#CFCEFE',
+            backgroundColor: '#FFC940',
           }}
         >
           👀 &nbsp;
