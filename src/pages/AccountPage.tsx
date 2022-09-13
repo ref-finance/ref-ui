@@ -29,6 +29,7 @@ import {
   toInternationalCurrencySystemNature,
   toPrecision,
   toInternationalCurrencySystemLongString,
+  scientificNotationToString,
 } from '../utils/numbers';
 import BigNumber from 'bignumber.js';
 import OldInputAmount from '../components/forms/OldInputAmount';
@@ -332,6 +333,7 @@ function AccountTable(props: any) {
     DCLAccountTokenNumber,
     defaultTab,
   } = props;
+
   const [tokensSort, setTokensSort] = useState(userTokens);
   let [currentSort, setCurrentSort] = useState('');
   const [checkedMap, setCheckedMap] = useState({});
@@ -797,9 +799,11 @@ function AccountTable(props: any) {
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
                       : `~$${toInternationalCurrencySystemLongString(
-                          new Big(tokenPriceList?.[item.id]?.price || '0')
-                            .times(new Big(item.near || '0'))
-                            .toFixed(3),
+                          scientificNotationToString(
+                            new Big(tokenPriceList?.[item.id]?.price || '0')
+                              .times(new Big(item.near || '0'))
+                              .toString()
+                          ),
                           3
                         )}`}
                   </div>
@@ -816,9 +820,11 @@ function AccountTable(props: any) {
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
                       : `~$${toInternationalCurrencySystemLongString(
-                          new Big(tokenPriceList?.[item.id]?.price || '0')
-                            .times(new Big(item.ref || '0'))
-                            .toFixed(3),
+                          scientificNotationToString(
+                            new Big(tokenPriceList?.[item.id]?.price || '0')
+                              .times(new Big(item.ref || '0'))
+                              .toString()
+                          ),
                           3
                         )}`}
                   </div>
@@ -836,9 +842,11 @@ function AccountTable(props: any) {
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
                       : `~$${toInternationalCurrencySystemLongString(
-                          new Big(tokenPriceList?.[item.id]?.price || '0')
-                            .times(new Big(item.dcl || '0'))
-                            .toFixed(3),
+                          scientificNotationToString(
+                            new Big(tokenPriceList?.[item.id]?.price || '0')
+                              .times(new Big(item.dcl || '0'))
+                              .toString()
+                          ),
                           3
                         )}`}
                   </div>
@@ -858,9 +866,11 @@ function AccountTable(props: any) {
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
                       : `~$${toInternationalCurrencySystemLongString(
-                          new Big(tokenPriceList?.[item.id]?.price || '0')
-                            .times(new Big(item.aurora || '0'))
-                            .toFixed(3),
+                          scientificNotationToString(
+                            new Big(tokenPriceList?.[item.id]?.price || '0')
+                              .times(new Big(item.aurora || '0'))
+                              .toString()
+                          ),
                           3
                         )}`}
                   </div>
@@ -1536,6 +1546,13 @@ function Account(props: any) {
     </div>
   );
 
+  if (
+    refAccountTokenNumber === null ||
+    mapAccountTokenNumber === null ||
+    DCLAccountTokenNumber === null
+  )
+    return <Loading />;
+
   return (
     <div className="justify-center relative w-560px m-auto mt-16 xs:hidden md:hidden pb-5 flex flex-col">
       {showCrossBalance ? (
@@ -1593,7 +1610,13 @@ function Account(props: any) {
           showCrossBalance={showCrossBalance}
           hasDCLBalanceOver={hasDCLBalanceOver}
           DCLAccountTokenNumber={DCLAccountTokenNumber}
-          defaultTab={tab}
+          defaultTab={
+            tab === 'ref'
+              ? Number(refAccountTokenNumber) > 0
+                ? 'ref'
+                : 'dcl'
+              : tab
+          }
         />
       </Card>
     </div>

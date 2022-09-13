@@ -1267,11 +1267,14 @@ function NavigationBar() {
       }
     );
 
-    const hasDCLBalanceOver = Object.entries(refAccountBalances).some(
+    const hasDCLBalanceOver = Object.entries(dclAccountBalances).some(
       ([id, balance]) => {
         return (
           Number(
-            toReadableNumber(tokensMeta?.[id]?.decimals || 24, balance) || '0'
+            toReadableNumber(
+              tokensMeta?.[id]?.decimals || 24,
+              balance as string
+            ) || '0'
           ) > 0
         );
       }
@@ -1286,6 +1289,7 @@ function NavigationBar() {
     tokensMeta,
     isSignedIn,
   ]);
+
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
