@@ -165,13 +165,15 @@ export default function FarmsHome(props: any) {
         })
         .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
           if (isUSN || isNearWithdraw || isNearDeposit) {
+            const source = sessionStorage.getItem('near_with_draw_source');
             isUSN &&
               !isSlippageError &&
               !errorType &&
               usnBuyAndSellToast(txHash);
-            (isNearWithdraw || isNearDeposit) &&
+            ((isNearWithdraw && source != 'farm_token') || isNearDeposit) &&
               !errorType &&
               swapToast(txHash);
+            sessionStorage.removeItem('near_with_draw_source');
             window.history.replaceState(
               {},
               '',
@@ -3242,7 +3244,7 @@ function WithDrawb(props: {
     if (status) {
       const allAtOneTime = Object.entries(rewardList).slice(0, withdrawNumber);
       allAtOneTime.forEach(([key, value]) => {
-        checkedList[key] = value.number;
+        checkedList[key] = { value: value.number };
       });
     }
     setCheckedList(checkedList);
