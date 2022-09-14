@@ -32,7 +32,7 @@ import { WatchListStartFull } from '~components/icon/WatchListStar';
 import { scientificNotationToString } from '../../utils/numbers';
 import { usePoolsFarmCount } from '../../state/pool';
 import { useClientMobile } from '../../utils/device';
-import { PoolTab } from '../../components/pool/PoolTab';
+import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import Loading from '~components/layout/Loading';
 
 interface ParamTypes {
@@ -264,7 +264,7 @@ export const MorePoolsPage = () => {
 
   return (
     <>
-      {/* <PoolTab></PoolTab> */}
+      <PoolTabV3></PoolTabV3>
       {/* PC */}
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
         <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">

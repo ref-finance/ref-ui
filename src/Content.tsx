@@ -231,7 +231,7 @@ export function Content() {
         />
         <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
         <Route path="/pools/add-token" component={AutoHeight(AddTokenPage)} />
-        <Route path="/pools/yours" component={AutoHeight(YourLiquidityPage)} />
+        {/* <Route path="/pools/yours" component={AutoHeight(YourLiquidityPage)} /> */}
         <Route path="/pools" component={AutoHeight(LiquidityPage)} />
         <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
         <Route path="/farms" component={AutoHeight(FarmsPage)} />

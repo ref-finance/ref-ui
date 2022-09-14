@@ -72,7 +72,7 @@ import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
 import { scientificNotationToString } from '../../utils/numbers';
 import { useMobile, useClientMobile } from '../../utils/device';
 import { usePoolsMorePoolIds } from '../../state/pool';
-import { PoolTab } from '../../components/pool/PoolTab';
+import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import { SearchIcon } from '~components/icon/FarmBoost';
 import {
   WalletContext,
@@ -442,7 +442,7 @@ function MobileLiquidityPage({
 
   return (
     <>
-      {/* <PoolTab></PoolTab> */}
+      <PoolTabV3></PoolTabV3>
       <div className="flex flex-col w-3/6 md:w-11/12 lg:w-5/6 xs:w-11/12 m-auto md:flex lg:hidden xl:hidden xs:flex">
         <MobileWatchListCard
           poolTokenMetas={poolTokenMetas}
@@ -919,7 +919,7 @@ function LiquidityPage_({
 
   return (
     <>
-      {/* <PoolTab></PoolTab> */}
+      <PoolTabV3></PoolTabV3>
       <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
         <div className="mb-4 mx-8">
           <div className="text-white text-xl">

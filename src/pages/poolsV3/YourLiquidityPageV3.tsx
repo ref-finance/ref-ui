@@ -28,6 +28,7 @@ import BigNumber from 'bignumber.js';
 import { getBoostTokenPrices } from '../../services/farm';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
+import { PoolTabV3 } from '~components/pool/PoolTabV3';
 import {
   YourLiquidityAddLiquidityModal,
   YourLiquidityPage,
@@ -110,9 +111,9 @@ export default function YourLiquidityPageV3() {
   return (
     <>
       <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
+        <PoolTabV3></PoolTabV3>
         <div className="flex items-start justify-between">
           <div className="flex items-center">
-            <span className="text-white text-xl mr-5">Liquidity</span>
             <div className="flex items-center text-sm text-primaryText border border-selectBorder p-0.5 rounded-lg bg-v3LiquidityTabBgColor">
               {liquidityStatusList.map((item: string, index: number) => {
                 return (
