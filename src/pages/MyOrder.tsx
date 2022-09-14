@@ -881,8 +881,6 @@ function OrderCard({
         : scientificNotationToString(pCancelAmount.toString()),
     ]);
 
-    console.log(displayPercents, 'dasdaa');
-
     const getClaimAmountTip = () => {
       return `
         <div 
@@ -1083,26 +1081,20 @@ function OrderCard({
               className="text-white text-sm mx-1"
               title={toReadableNumber(
                 buyToken.decimals,
-                order.unclaimed_amount || '0'
+                order.bought_amount || '0'
               )}
             >
               {Number(
-                toReadableNumber(
-                  buyToken.decimals,
-                  order.unclaimed_amount || '0'
-                )
+                toReadableNumber(buyToken.decimals, order.bought_amount || '0')
               ) > 0 &&
               Number(
-                toReadableNumber(
-                  buyToken.decimals,
-                  order.unclaimed_amount || '0'
-                )
+                toReadableNumber(buyToken.decimals, order.bought_amount || '0')
               ) < 0.001
                 ? '< 0.001'
                 : toPrecision(
                     toReadableNumber(
                       buyToken.decimals,
-                      order.unclaimed_amount || '0'
+                      order.bought_amount || '0'
                     ),
                     3
                   )}
