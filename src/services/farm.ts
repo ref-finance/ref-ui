@@ -699,6 +699,7 @@ export const withdrawAllReward_boost = async (
     functionCalls,
   });
   if (Object.keys(checkedList).includes(WRAP_NEAR_CONTRACT_ID)) {
+    sessionStorage.setItem('near_with_draw_source', 'farm_token');
     transactions.push(
       nearWithdrawTransaction(
         toReadableNumber(
