@@ -777,9 +777,18 @@ function OrderCard({
         ? Number(b.created_at) - Number(a.created_at)
         : Number(a.created_at) - Number(b.created_at);
     } else if (historySortBy === 'claimed') {
+      const claimA = toReadableNumber(
+        tokensMap[a.buy_token].decimals,
+        a.bought_amount || '0'
+      );
+      const claimB = toReadableNumber(
+        tokensMap[b.buy_token].decimals,
+        b.bought_amount || '0'
+      );
+
       return sortOrderHistory === 'desc'
-        ? Number(b.bought_amount) - Number(a.bought_amount)
-        : Number(a.bought_amount) - Number(b.bought_amount);
+        ? Number(claimB) - Number(claimA)
+        : Number(claimA) - Number(claimB);
     }
   };
 
@@ -1258,9 +1267,18 @@ function OrderCard({
         ? Number(b.created_at) - Number(a.created_at)
         : Number(a.created_at) - Number(b.created_at);
     } else if (activeSortBy === 'unclaim') {
+      const unclaimA = toReadableNumber(
+        tokensMap[a.buy_token].decimals,
+        a.unclaimed_amount
+      );
+      const unclaimB = toReadableNumber(
+        tokensMap[b.buy_token].decimals,
+        b.unclaimed_amount
+      );
+
       return sortOrderActive === 'desc'
-        ? Number(b.unclaimed_amount) - Number(a.unclaimed_amount)
-        : Number(a.unclaimed_amount) - Number(b.unclaimed_amount);
+        ? Number(unclaimB) - Number(unclaimA)
+        : Number(unclaimA) - Number(unclaimB);
     }
   };
 
