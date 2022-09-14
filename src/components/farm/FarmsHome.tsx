@@ -145,6 +145,7 @@ export default function FarmsHome(props: any) {
     if (txHash && isSignedIn && popUp) {
       checkTransaction(txHash)
         .then((res: any) => {
+          debugger;
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
 
           const isSlippageError = res.receipts_outcome.some((outcome: any) => {
@@ -156,8 +157,12 @@ export default function FarmsHome(props: any) {
           const transaction = res.transaction;
           const methodName =
             transaction?.actions[0]?.['FunctionCall']?.method_name;
+          const isUsn =
+            sessionStorage.getItem('usn') == '1' &&
+            (methodName == 'ft_transfer_call' || methodName == 'withdraw');
+          sessionStorage.removeItem('usn');
           return {
-            isUSN: methodName == 'buy' || methodName == 'sell',
+            isUSN: isUsn,
             isSlippageError,
             isNearWithdraw: methodName == 'near_withdraw',
             isNearDeposit: methodName == 'near_deposit',
@@ -165,13 +170,15 @@ export default function FarmsHome(props: any) {
         })
         .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
           if (isUSN || isNearWithdraw || isNearDeposit) {
+            const source = sessionStorage.getItem('near_with_draw_source');
             isUSN &&
               !isSlippageError &&
               !errorType &&
               usnBuyAndSellToast(txHash);
-            (isNearWithdraw || isNearDeposit) &&
+            ((isNearWithdraw && source != 'farm_token') || isNearDeposit) &&
               !errorType &&
               swapToast(txHash);
+            sessionStorage.removeItem('near_with_draw_source');
             window.history.replaceState(
               {},
               '',
@@ -3242,7 +3249,7 @@ function WithDrawb(props: {
     if (status) {
       const allAtOneTime = Object.entries(rewardList).slice(0, withdrawNumber);
       allAtOneTime.forEach(([key, value]) => {
-        checkedList[key] = value.number;
+        checkedList[key] = { value: value.number };
       });
     }
     setCheckedList(checkedList);
