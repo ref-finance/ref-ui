@@ -110,8 +110,8 @@ export default function YourLiquidityPageV3() {
   }
   return (
     <>
+      <PoolTabV3></PoolTabV3>
       <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
-        <PoolTabV3></PoolTabV3>
         <div className="flex items-start justify-between">
           <div className="flex items-center">
             <div className="flex items-center text-sm text-primaryText border border-selectBorder p-0.5 rounded-lg bg-v3LiquidityTabBgColor">
@@ -386,7 +386,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
   }
   function goYourLiquidityDetailPage() {
     const id = lpt_id.replace(/\|/g, '@').replace('#', '@');
-    history.push(`/yoursLiquidityDetailV3/${id}`);
+    history.push(`/yoursLiquidityDetailV2/${id}`);
   }
   function getTokenFeeAmount(p: string) {
     if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {

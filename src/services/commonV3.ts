@@ -110,7 +110,7 @@ export function useAddAndRemoveUrlHandle() {
           const [tokenX, tokenY, id] = returnValue.split('|');
           const [fee, hashId] = id.split('#');
           const paramsId = `${tokenX}@${tokenY}@${fee}@${hashId}`;
-          history.replace('/yoursLiquidityDetailV3/' + `${paramsId}`);
+          history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);
         } else if (methodName == 'remove_liquidity' && argsValue) {
           const parmas = JSON.parse(argsValue);
           const { amount, min_amount_x, min_amount_y } = parmas;

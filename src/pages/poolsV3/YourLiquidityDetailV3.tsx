@@ -110,14 +110,26 @@ export default function YourLiquidityDetail(props: any) {
     const { current_point } = poolDetail;
     //  in range
     if (current_point >= left_point && right_point > current_point) {
-      const tokenYAmount = getY(left_point, current_point, L, tokenY);
-      const tokenXAmount = getX(current_point, right_point, L, tokenX);
+      const tokenYAmount = getY(
+        left_point,
+        current_point,
+        current_point,
+        L,
+        tokenY
+      );
+      const tokenXAmount = getX(current_point + 1, right_point, L, tokenX);
       setTokenXAmount(tokenXAmount);
       setTokenYAmount(tokenYAmount);
     }
     // only y token
     if (current_point >= right_point) {
-      const tokenYAmount = getY(left_point, right_point, L, tokenY);
+      const tokenYAmount = getY(
+        left_point,
+        right_point,
+        current_point,
+        L,
+        tokenY
+      );
       setTokenYAmount(tokenYAmount);
     }
     // only x token
@@ -153,17 +165,23 @@ export default function YourLiquidityDetail(props: any) {
   function getY(
     leftPoint: number,
     rightPoint: number,
+    currentPoint: number,
     L: string,
     token: TokenMetadata
   ) {
-    const y = new BigNumber(L)
-      .multipliedBy(
-        (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
-          Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
-          (Math.sqrt(CONSTANT_D) - 1)
-      )
-      .toFixed();
-    return toReadableNumber(token.decimals, toPrecision(y, 0));
+    const y = new BigNumber(L).multipliedBy(
+      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+        Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
+        (Math.sqrt(CONSTANT_D) - 1)
+    );
+    let Yc = new BigNumber(0);
+    if (rightPoint == currentPoint) {
+      Yc = new BigNumber(L).multipliedBy(
+        Math.pow(Math.sqrt(CONSTANT_D), currentPoint)
+      );
+    }
+    const y_result = y.plus(Yc).toFixed();
+    return toReadableNumber(token.decimals, toPrecision(y_result, 0));
   }
   function getX(
     leftPoint: number,

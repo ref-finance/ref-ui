@@ -356,14 +356,17 @@ export default function AddYourLiquidityPageV3() {
     const token_y_decimals =
       tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
     if (+amount == 0) {
-      // setTokenYAmount('');
       return '';
     } else {
+      // X-->L
       const L =
         +amount *
         ((Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
           Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1)) /
-          (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - currentPoint) - 1));
+          (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - currentPoint - 1) - 1));
+      // L-->current Y
+      const Yc = L * Math.pow(Math.sqrt(CONSTANT_D), currentPoint);
+      // L--> Y
       const Y =
         L *
         ((Math.pow(Math.sqrt(CONSTANT_D), currentPoint) -
@@ -371,8 +374,8 @@ export default function AddYourLiquidityPageV3() {
           (Math.sqrt(CONSTANT_D) - 1));
       const decimalsRate =
         Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
-      const Y_result = Y * decimalsRate;
-      // setTokenYAmount(Y_result.toString());
+
+      const Y_result = (Y + Yc) * decimalsRate;
       return Y_result.toString();
     }
   }
@@ -394,23 +397,28 @@ export default function AddYourLiquidityPageV3() {
     const token_y_decimals =
       tokenY.id == token_y ? tokenY.decimals : tokenX.decimals;
     if (+amount == 0) {
-      // setTokenXAmount('');
       return '';
     } else {
-      const L =
-        +amount *
-        ((Math.sqrt(CONSTANT_D) - 1) /
-          (Math.pow(Math.sqrt(CONSTANT_D), currentPoint) -
-            Math.pow(Math.sqrt(CONSTANT_D), leftPoint)));
+      let L;
+      // Yc-->L
+      if (leftPoint == currentPoint) {
+        L = +amount * (1 / Math.pow(Math.sqrt(CONSTANT_D), currentPoint));
+      } else {
+        // Y-->L
+        L =
+          +amount *
+          ((Math.sqrt(CONSTANT_D) - 1) /
+            (Math.pow(Math.sqrt(CONSTANT_D), currentPoint) -
+              Math.pow(Math.sqrt(CONSTANT_D), leftPoint)));
+      }
       const X =
         L *
-        ((Math.pow(Math.sqrt(CONSTANT_D), rightPoint - currentPoint) - 1) /
+        ((Math.pow(Math.sqrt(CONSTANT_D), rightPoint - currentPoint - 1) - 1) /
           (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
             Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1)));
       const decimalsRate =
         Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
       const X_result = X * decimalsRate;
-      // setTokenXAmount(X_result.toString());
       return X_result.toString();
     }
   }
@@ -426,6 +434,8 @@ export default function AddYourLiquidityPageV3() {
     rightPoint: number;
     currentPoint: number;
   }) {
+    const { token_x, token_y } = currentSelectedPool;
+    const sort = tokenX.id == token_x;
     setLeftPoint(leftPoint);
     setRightPoint(rightPoint);
     setCurrentPoint(currentPoint);
@@ -442,17 +452,23 @@ export default function AddYourLiquidityPageV3() {
     // can only add x token
     if (leftPoint > currentPoint) {
       setOnlyAddXToken(true);
-      setTokenYAmount('');
+      if (sort) {
+        setTokenYAmount('');
+      } else {
+        setTokenXAmount('');
+      }
       return;
     }
     // can only add y token
     if (rightPoint <= currentPoint) {
       setOnlyAddYToken(true);
-      setTokenXAmount('');
+      if (sort) {
+        setTokenXAmount('');
+      } else {
+        setTokenYAmount('');
+      }
       return;
     }
-    const { token_x, token_y } = currentSelectedPool;
-    const sort = tokenX.id == token_x;
     if (sort) {
       if (tokenXAmount) {
         const amount_result = getTokenYAmountByCondition({
@@ -482,7 +498,7 @@ export default function AddYourLiquidityPageV3() {
         setTokenYAmount(amount_result);
       } else if (tokenYAmount) {
         const amount_result = getTokenYAmountByCondition({
-          amount: tokenXAmount,
+          amount: tokenYAmount,
           leftPoint,
           rightPoint,
           currentPoint,
