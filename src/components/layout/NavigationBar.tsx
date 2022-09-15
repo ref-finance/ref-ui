@@ -155,9 +155,11 @@ function Anchor({
 
   const defaultChosed = subMenu?.find((m) => !!m.chosen)?.name;
 
+  const { pathname } = useLocation();
+
   const [chosenSub, setChosenSub] = useState<string>(defaultChosed);
 
-  const isSwap = location.pathname === '/' || location.pathname === '/swap';
+  const isSwap = pathname === '/' || pathname === '/swap';
 
   useEffect(() => {
     if (!isSwap) {

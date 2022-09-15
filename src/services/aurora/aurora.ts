@@ -51,6 +51,8 @@ import { STORAGE_TO_REGISTER_WITH_MFT } from '../creators/storage';
 import { ftGetStorageBalance } from '../ft-contract';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { list_user_assets } from '../swapV3';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { nearWithdrawTransaction } from '../wrap-near';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -1028,6 +1030,12 @@ export const batchWithdrawFromAurora = async (
       functionCalls: [action],
     })
   );
+
+  if (!!tokenMap[WRAP_NEAR_CONTRACT_ID]) {
+    transactions.push(
+      nearWithdrawTransaction(tokenMap[WRAP_NEAR_CONTRACT_ID].amount)
+    );
+  }
 
   return executeMultipleTransactions(transactions);
 };

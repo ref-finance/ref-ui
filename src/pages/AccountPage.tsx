@@ -557,9 +557,19 @@ function AccountTable(props: any) {
   }
   return (
     <>
-      <div className="rounded-lg text-sm border border-v3SwapGray inline-flex items-center border-opacity-20 p-0.5 mt-4 ml-6 text-primaryText">
+      <div
+        className={`rounded-lg text-sm border ${
+          (
+            showCrossBalance
+              ? !mapAccountTokenNumber
+              : !refAccountTokenNumber && !DCLAccountTokenNumber
+          )
+            ? 'hidden'
+            : ''
+        } border-v3SwapGray inline-flex items-center border-opacity-20 p-0.5 mt-4 ml-6 text-primaryText`}
+      >
         <button
-          className={`h-7 rounded-md w-20 flex items-center justify-center ${
+          className={`h-7 rounded-md w-24 flex items-center justify-center ${
             accountTab === 'near'
               ? 'text-white bg-navHighLightBg bg-opacity-50'
               : ''
@@ -573,8 +583,8 @@ function AccountTable(props: any) {
 
         <button
           className={`h-7 ${
-            refAccountTokenNumber > 0 && !showCrossBalance ? 'flex' : 'hidden'
-          } rounded-md w-20 flex items-center justify-center ${
+            hasRefBalanceOver > 0 && !showCrossBalance ? 'flex' : 'hidden'
+          } rounded-md w-24 flex items-center justify-center ${
             accountTab === 'ref'
               ? 'text-white bg-navHighLightBg bg-opacity-50'
               : ''
@@ -593,8 +603,8 @@ function AccountTable(props: any) {
         </button>
         <button
           className={`h-7 rounded-md ${
-            DCLAccountTokenNumber > 0 && !showCrossBalance ? 'flex' : 'hidden'
-          } w-20 flex items-center justify-center ${
+            hasDCLBalanceOver > 0 && !showCrossBalance ? 'flex' : 'hidden'
+          } w-24 flex items-center justify-center ${
             accountTab === 'dcl'
               ? 'text-white bg-navHighLightBg bg-opacity-50'
               : ''
@@ -614,7 +624,7 @@ function AccountTable(props: any) {
 
         <button
           className={`h-7 rounded-md ${
-            mapAccountTokenNumber > 0 && showCrossBalance ? 'flex' : 'hidden'
+            hasMapBalanceOver > 0 && showCrossBalance ? 'flex' : 'hidden'
           } w-20 flex items-center justify-center ${
             accountTab === 'aurora'
               ? 'text-white bg-navHighLightBg bg-opacity-50'
