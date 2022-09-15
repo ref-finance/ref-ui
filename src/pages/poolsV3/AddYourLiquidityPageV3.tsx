@@ -93,6 +93,7 @@ export default function AddYourLiquidityPageV3() {
   const [currentSelectedPool, setCurrentSelectedPool] =
     useState<PoolInfo>(null); // real
   const [feeBoxStatus, setFeeBoxStatus] = useState(true);
+  const [buttonSort, setButtonSort] = useState(false);
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
@@ -516,6 +517,7 @@ export default function AddYourLiquidityPageV3() {
       setTokenXBalanceFromNear(tokenYBalanceFromNear);
       setTokenYBalanceFromNear(tokenXBalanceFromNear);
     }
+    setButtonSort(!buttonSort);
   }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
   return (
@@ -783,6 +785,7 @@ export default function AddYourLiquidityPageV3() {
                 tokenX={tokenX}
                 tokenY={tokenY}
                 tokenPriceList={tokenPriceList}
+                buttonSort={buttonSort}
               ></CreatePoolComponent>
             ) : null}
             {/* add Liquidity part */}
@@ -813,17 +816,25 @@ function CreatePoolComponent({
   tokenX,
   tokenY,
   tokenPriceList,
+  buttonSort,
 }: {
   currentSelectedPool: PoolInfo;
   tokenX: TokenMetadata;
   tokenY: TokenMetadata;
   tokenPriceList: Record<string, any>;
+  buttonSort: boolean;
 }) {
   const [createPoolButtonLoading, setCreatePoolButtonLoading] = useState(false);
   const [createPoolRate, setCreatePoolRate] = useState<string>('');
   const [rateStatus, setRateStatus] = useState(true);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  useEffect(() => {
+    if (createPoolRate) {
+      const rateString = new BigNumber(1).dividedBy(createPoolRate).toFixed();
+      setCreatePoolRate(toPrecision(rateString, 6));
+    }
+  }, [buttonSort]);
   function getCurrentPriceValue(token: TokenMetadata) {
     if (token) {
       const price = tokenPriceList[token.id]?.price;
@@ -909,6 +920,7 @@ function CreatePoolComponent({
                   type="number"
                   placeholder="0.0"
                   className="text-xl font-bold"
+                  value={createPoolRate}
                   onChange={({ target }) => {
                     setCreatePoolRate(target.value);
                   }}

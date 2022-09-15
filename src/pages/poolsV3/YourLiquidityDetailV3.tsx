@@ -104,7 +104,6 @@ export default function YourLiquidityDetail(props: any) {
     }
   }
   function get_liquidity_x_y() {
-    debugger;
     const [tokenX, tokenY] = tokenMetadata_x_y;
     const { left_point, right_point, amount: L } = userLiquidity;
     const { current_point } = poolDetail;
@@ -169,13 +168,14 @@ export default function YourLiquidityDetail(props: any) {
     L: string,
     token: TokenMetadata
   ) {
+    const { right_point } = userLiquidity;
     const y = new BigNumber(L).multipliedBy(
       (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
         Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
         (Math.sqrt(CONSTANT_D) - 1)
     );
     let Yc = new BigNumber(0);
-    if (rightPoint == currentPoint) {
+    if (right_point > currentPoint) {
       Yc = new BigNumber(L).multipliedBy(
         Math.pow(Math.sqrt(CONSTANT_D), currentPoint)
       );

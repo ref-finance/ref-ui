@@ -120,7 +120,7 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 import { checkTransactionStatus } from '../../services/swap';
 import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
-import { ClipLoadering } from '../../components/layout/Loading';
+import { BlueCircleLoading } from '../../components/layout/Loading';
 const StakeListContext = createContext(null);
 
 function MyShares({
@@ -317,7 +317,7 @@ export function YourLiquidityPage(props: any) {
       <div>
         <div className="text-white text-base my-2.5">V1 (0)</div>
         <div className="flex items-center justify-center">
-          <ClipLoadering />
+          <BlueCircleLoading />
         </div>
       </div>
     );

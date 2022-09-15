@@ -14,3 +14,26 @@ export const BeatLoading = () => {
 export const ClipLoadering = () => {
   return <ClipLoader color="#ffffff" />;
 };
+
+export const BlueCircleLoading = () => {
+  return (
+    <svg
+      className="rotateInfinite"
+      width="60px"
+      height="60px"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="xMidYMid"
+      style={{ background: 'none' }}
+    >
+      {' '}
+      <path
+        ng-attr-d="{{config.pathCmd}}"
+        ng-attr-fill="{{config.color}}"
+        stroke="none"
+        d="M10 50A40 40 0 0 0 90 50A40 42 0 0 1 10 50"
+        fill="#10B981"
+      ></path>{' '}
+    </svg>
+  );
+};

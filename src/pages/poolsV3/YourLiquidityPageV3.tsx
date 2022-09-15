@@ -43,7 +43,10 @@ import {
 import { PoolRPCView } from '../../services/api';
 import { ALL_STABLE_POOL_IDS } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
-import { ClipLoadering } from '../../components/layout/Loading';
+import {
+  ClipLoadering,
+  BlueCircleLoading,
+} from '../../components/layout/Loading';
 export default function YourLiquidityPageV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -198,7 +201,7 @@ export default function YourLiquidityPageV3() {
               <div className={`${checkedStatus == 'V1' ? 'hidden' : ''}`}>
                 <div className="text-white text-base mb-2.5">V2 (0)</div>
                 <div className="flex justify-center items-center">
-                  <ClipLoadering></ClipLoadering>
+                  <BlueCircleLoading></BlueCircleLoading>
                 </div>
               </div>
             ) : (

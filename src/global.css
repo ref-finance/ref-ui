@@ -1043,3 +1043,7 @@ input[type='range']::-webkit-slider-runnable-track {
   background: inherit;
   border-radius: inherit;
 }
+.rotateInfinite {
+  animation: spin 1s linear infinite;
+  transform-origin: center;
+}

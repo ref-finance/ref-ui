@@ -107,11 +107,15 @@ export const AddPoolV3 = (props: any) => {
     if (+amount == 0) {
       setTokenYAmount('');
     } else {
+      // X-->L
       const L =
         +amount *
         ((Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
           Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1)) /
-          (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - currentPoint) - 1));
+          (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - currentPoint - 1) - 1));
+      // L-->current Y
+      const Yc = L * Math.pow(Math.sqrt(CONSTANT_D), currentPoint);
+      // L--> Y
       const Y =
         L *
         ((Math.pow(Math.sqrt(CONSTANT_D), currentPoint) -
@@ -119,7 +123,9 @@ export const AddPoolV3 = (props: any) => {
           (Math.sqrt(CONSTANT_D) - 1));
       const decimalsRate =
         Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
-      const Y_result = Y * decimalsRate;
+
+      const Y_result = (Y + Yc) * decimalsRate;
+
       setTokenYAmount(Y_result.toString());
     }
   }
@@ -138,14 +144,21 @@ export const AddPoolV3 = (props: any) => {
     if (+amount == 0) {
       setTokenXAmount('');
     } else {
-      const L =
-        +amount *
-        ((Math.sqrt(CONSTANT_D) - 1) /
-          (Math.pow(Math.sqrt(CONSTANT_D), currentPoint) -
-            Math.pow(Math.sqrt(CONSTANT_D), leftPoint)));
+      let L;
+      // Yc-->L
+      if (leftPoint == currentPoint) {
+        L = +amount * (1 / Math.pow(Math.sqrt(CONSTANT_D), currentPoint));
+      } else {
+        // Y-->L
+        L =
+          +amount *
+          ((Math.sqrt(CONSTANT_D) - 1) /
+            (Math.pow(Math.sqrt(CONSTANT_D), currentPoint) -
+              Math.pow(Math.sqrt(CONSTANT_D), leftPoint)));
+      }
       const X =
         L *
-        ((Math.pow(Math.sqrt(CONSTANT_D), rightPoint - currentPoint) - 1) /
+        ((Math.pow(Math.sqrt(CONSTANT_D), rightPoint - currentPoint - 1) - 1) /
           (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
             Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1)));
       const decimalsRate =
