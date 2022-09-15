@@ -1628,13 +1628,7 @@ function Account(props: any) {
           showCrossBalance={showCrossBalance}
           hasDCLBalanceOver={hasDCLBalanceOver}
           DCLAccountTokenNumber={DCLAccountTokenNumber}
-          defaultTab={
-            tab === 'ref'
-              ? Number(refAccountTokenNumber) > 0
-                ? 'ref'
-                : 'dcl'
-              : tab
-          }
+          defaultTab={tab === 'ref' ? (hasRefBalanceOver ? 'ref' : 'dcl') : tab}
         />
       </Card>
     </div>
