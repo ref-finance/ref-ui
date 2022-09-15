@@ -120,6 +120,7 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 import { checkTransactionStatus } from '../../services/swap';
 import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
+import { ClipLoadering } from '../../components/layout/Loading';
 const StakeListContext = createContext(null);
 
 function MyShares({
@@ -310,7 +311,16 @@ export function YourLiquidityPage(props: any) {
   }, [isSignedIn]);
 
   // if (!pools || !tokensMeta || !v1Farm || !v2Farm) return <Loading />;
-  if (!pools || !tokensMeta || !v1Farm || !v2Farm) return null;
+  // todo
+  if (!pools || !tokensMeta || !v1Farm || !v2Farm)
+    return (
+      <div>
+        <div className="text-white text-base my-2.5">V1 (0)</div>
+        <div className="flex items-center justify-center">
+          <ClipLoadering />
+        </div>
+      </div>
+    );
 
   const RowRender = ({
     p,
@@ -1843,7 +1853,8 @@ export function YourLiquidityAddLiquidityModal(
     );
   };
 
-  if (!selectTokens) return <Loading />;
+  // if (!selectTokens) return <Loading />;
+  if (!selectTokens) return null;
 
   return (
     <>

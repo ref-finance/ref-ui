@@ -1436,27 +1436,22 @@ function NavigationBar() {
                 name="liquidity_capital"
                 subMenu={[
                   {
-                    name: 'pools',
-                    path: 'pool',
-                    click: () => {
-                      historyInit.push('/pools');
-                    },
-                  },
-                  {
                     name: 'your_liquidity',
                     path: 'Liquidity',
                     click: () => {
                       historyInit.push('/yourliquidity');
                     },
                   },
+                  {
+                    name: 'pools',
+                    path: 'pool',
+                    click: () => {
+                      historyInit.push('/pools');
+                    },
+                  },
                 ]}
               />
               <Anchor to="/sauce" pattern="/sauce" name="sauce_capital" />
-              {/* {isSignedIn ? (
-                <Anchor to="/pools/yours" pattern="/pools" name="POOL" />
-              ) : (
-                <Anchor to="/pools" pattern="/pools" name="POOL" />
-              )} */}
               <Anchor to="/v2farms" pattern="/v2farms" name="farm_capital" />
               <Xref></Xref>
               {!!getConfig().REF_VE_CONTRACT_ID ? (

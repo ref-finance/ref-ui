@@ -43,6 +43,7 @@ import {
 import { PoolRPCView } from '../../services/api';
 import { ALL_STABLE_POOL_IDS } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
+import { ClipLoadering } from '../../components/layout/Loading';
 export default function YourLiquidityPageV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -56,25 +57,19 @@ export default function YourLiquidityPageV3() {
   ]);
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
-      text: 'V1 Liquidity',
-      url: '/pools',
-    },
-    {
       text: 'V2 Liquidity',
       url: '/addLiquidityV2',
+    },
+    {
+      text: 'V1 Liquidity',
+      url: '/pools',
     },
   ]);
 
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
-
-  useEffect(() => {
-    const ids = ALL_STABLE_POOL_IDS;
-
-    getPoolsByIds({ pool_ids: ids }).then((res) => {
-      setStablePools(res);
-    });
-  }, []);
-
+  const [listLiquiditiesLoading, setListLiquiditiesLoading] = useState(true);
+  const [oldListLiquiditiesLoading, setOldListLiquiditiesLoading] =
+    useState(true);
   const [generalAddLiquidity, setGeneralAddLiquidity] =
     useState<boolean>(false);
   const [checkedStatus, setCheckedStatus] = useState('All');
@@ -83,6 +78,12 @@ export default function YourLiquidityPageV3() {
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
+  useEffect(() => {
+    const ids = ALL_STABLE_POOL_IDS;
+    getPoolsByIds({ pool_ids: ids }).then((res) => {
+      setStablePools(res);
+    });
+  }, []);
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities();
@@ -98,6 +99,7 @@ export default function YourLiquidityPageV3() {
       });
       setListLiquidities(list);
     }
+    setListLiquiditiesLoading(false);
   }
   function goAddLiquidityPage(url: string) {
     history.push(url);
@@ -186,47 +188,67 @@ export default function YourLiquidityPageV3() {
           </div>
         </div>
         {!isSignedIn ||
-        (oldLiquidityHasNoData && listLiquidities.length == 0) ? (
+        (oldLiquidityHasNoData &&
+          !listLiquiditiesLoading &&
+          listLiquidities.length == 0) ? (
           <NoLiquidity></NoLiquidity>
         ) : (
           <>
-            {listLiquidities.length == 0 ? null : (
-              <div className={`mb-7 ${checkedStatus == 'V1' ? 'hidden' : ''}`}>
-                <div className="text-white text-base mb-2.5">
-                  V2 ({listLiquidities.length})
-                </div>
-                <div>
-                  {listLiquidities.map(
-                    (liquidity: UserLiquidityInfo, index: number) => {
-                      return (
-                        <div key={index}>
-                          <UserLiquidityLine
-                            liquidity={liquidity}
-                          ></UserLiquidityLine>
-                        </div>
-                      );
-                    }
-                  )}
+            {listLiquiditiesLoading ? (
+              <div className={`${checkedStatus == 'V1' ? 'hidden' : ''}`}>
+                <div className="text-white text-base mb-2.5">V2 (0)</div>
+                <div className="flex justify-center items-center">
+                  <ClipLoadering></ClipLoadering>
                 </div>
               </div>
+            ) : (
+              <>
+                {listLiquidities.length == 0 ? (
+                  <div
+                    className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
+                  >
+                    <div className="text-white text-base mb-2.5">V2 (0)</div>
+                    <NoLiquidity text="V2"></NoLiquidity>
+                  </div>
+                ) : (
+                  <div
+                    className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
+                  >
+                    <div className="text-white text-base mb-2.5">
+                      V2 ({listLiquidities.length})
+                    </div>
+                    <div>
+                      {listLiquidities.map(
+                        (liquidity: UserLiquidityInfo, index: number) => {
+                          return (
+                            <div key={index}>
+                              <UserLiquidityLine
+                                liquidity={liquidity}
+                              ></UserLiquidityLine>
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
-            {oldLiquidityHasNoData ? null : (
+            {oldLiquidityHasNoData ? (
+              <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
+                <div className="text-white text-base mb-2.5">V1 (0)</div>
+                <NoLiquidity text="V1"></NoLiquidity>
+              </div>
+            ) : (
               <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
                 <YourLiquidityPage
                   setNoOldLiquidity={setNoOldLiquidity}
                 ></YourLiquidityPage>
               </div>
             )}
-            {checkedStatus == 'V2' && listLiquidities.length == 0 ? (
-              <NoLiquidity></NoLiquidity>
-            ) : null}
-            {checkedStatus == 'V1' && oldLiquidityHasNoData ? (
-              <NoLiquidity></NoLiquidity>
-            ) : null}
           </>
         )}
       </div>
-      {/* {isSignedIn ? ( */}
       <YourLiquidityAddLiquidityModal
         isOpen={generalAddLiquidity}
         onRequestClose={() => {
@@ -234,7 +256,6 @@ export default function YourLiquidityPageV3() {
         }}
         stablePools={stablePools}
       />
-      {/* ) : null} */}
     </>
   );
 }
@@ -622,7 +643,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
     </div>
   );
 }
-function NoLiquidity() {
+function NoLiquidity({ text }: { text?: string }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   return (
@@ -638,7 +659,7 @@ function NoLiquidity() {
         </span>
 
         <span className="text-white text-base">
-          Your liquidity positions will appear here.
+          Your {text} liquidity positions will appear here.
         </span>
         {isSignedIn ? null : (
           <div className="mt-5 w-72">
