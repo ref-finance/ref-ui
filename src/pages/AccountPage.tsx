@@ -1480,11 +1480,6 @@ function Account(props: any) {
     if (tab === 'ref') {
       localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'normal');
     }
-    window.history.replaceState(
-      {},
-      '',
-      window.location.origin + window.location.pathname
-    );
   }, [tab]);
 
   const [auroraAccountHover, setAuroraAccountHover] = useState(false);
@@ -1564,11 +1559,17 @@ function Account(props: any) {
   );
 
   if (
-    refAccountTokenNumber === null ||
-    mapAccountTokenNumber === null ||
-    DCLAccountTokenNumber === null
+    refAccountTokenNumber === undefined ||
+    mapAccountTokenNumber === undefined ||
+    DCLAccountTokenNumber === undefined
   )
     return <Loading />;
+
+  window.history.replaceState(
+    {},
+    '',
+    window.location.origin + window.location.pathname
+  );
 
   return (
     <div className="justify-center relative w-560px m-auto mt-16 xs:hidden md:hidden pb-5 flex flex-col">
@@ -1684,11 +1685,6 @@ function MobileAccount(props: any) {
     if (tab === 'ref') {
       localStorage.setItem(ACCOUNT_PAGE_AURORA_SHOW, 'normal');
     }
-    window.history.replaceState(
-      {},
-      '',
-      window.location.origin + window.location.pathname
-    );
   }, [tab]);
   useEffect(() => {
     const refAccountHasToken = userTokens.filter((token: TokenMetadata) => {

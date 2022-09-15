@@ -358,7 +358,7 @@ function AccountEntry({
       click: () => {
         if (location.pathname == '/account') {
           localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-          window.location.reload();
+          window.location.href = '/account?tab=ref';
         } else {
           history.push('/account?tab=ref');
         }
