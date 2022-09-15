@@ -555,6 +555,7 @@ function AccountTable(props: any) {
       batchWithdrawDCL(checkedMap);
     }
   }
+
   return (
     <>
       <div
@@ -569,7 +570,7 @@ function AccountTable(props: any) {
         } border-v3SwapGray inline-flex items-center border-opacity-20 p-0.5 mt-4 ml-6 text-primaryText`}
       >
         <button
-          className={`h-7 rounded-md w-24 flex items-center justify-center ${
+          className={`h-7 rounded-md w-32 flex items-center justify-center ${
             accountTab === 'near'
               ? 'text-white bg-navHighLightBg bg-opacity-50'
               : ''
@@ -583,8 +584,8 @@ function AccountTable(props: any) {
 
         <button
           className={`h-7 ${
-            hasRefBalanceOver > 0 && !showCrossBalance ? 'flex' : 'hidden'
-          } rounded-md w-24 flex items-center justify-center ${
+            refAccountTokenNumber > 0 && !showCrossBalance ? 'flex' : 'hidden'
+          } rounded-md w-32 flex items-center justify-center ${
             accountTab === 'ref'
               ? 'text-white bg-navHighLightBg bg-opacity-50'
               : ''
@@ -594,17 +595,19 @@ function AccountTable(props: any) {
           }}
         >
           REF(V1)
-          <div
-            className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
-            style={{
-              background: '#ff3e83',
-            }}
-          ></div>
+          {hasRefBalanceOver ? (
+            <div
+              className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+              style={{
+                background: '#ff3e83',
+              }}
+            ></div>
+          ) : null}
         </button>
         <button
           className={`h-7 rounded-md ${
-            hasDCLBalanceOver > 0 && !showCrossBalance ? 'flex' : 'hidden'
-          } w-24 flex items-center justify-center ${
+            DCLAccountTokenNumber > 0 && !showCrossBalance ? 'flex' : 'hidden'
+          } w-32 flex items-center justify-center ${
             accountTab === 'dcl'
               ? 'text-white bg-navHighLightBg bg-opacity-50'
               : ''
@@ -614,18 +617,20 @@ function AccountTable(props: any) {
           }}
         >
           REF(V2)
-          <div
-            className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
-            style={{
-              background: '#ff3e83',
-            }}
-          ></div>
+          {hasDCLBalanceOver ? (
+            <div
+              className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+              style={{
+                background: '#ff3e83',
+              }}
+            ></div>
+          ) : null}
         </button>
 
         <button
           className={`h-7 rounded-md ${
-            hasMapBalanceOver > 0 && showCrossBalance ? 'flex' : 'hidden'
-          } w-20 flex items-center justify-center ${
+            mapAccountTokenNumber > 0 && showCrossBalance ? 'flex' : 'hidden'
+          } w-32 flex items-center justify-center ${
             accountTab === 'aurora'
               ? 'text-white bg-navHighLightBg bg-opacity-50'
               : ''
@@ -635,12 +640,14 @@ function AccountTable(props: any) {
           }}
         >
           Aurora
-          <div
-            className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
-            style={{
-              background: '#ff3e83',
-            }}
-          ></div>
+          {hasMapBalanceOver ? (
+            <div
+              className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+              style={{
+                background: '#ff3e83',
+              }}
+            ></div>
+          ) : null}
         </button>
       </div>
 

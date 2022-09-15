@@ -157,15 +157,17 @@ function Anchor({
 
   const { pathname } = useLocation();
 
-  const [chosenSub, setChosenSub] = useState<string>(defaultChosed);
-
   const isSwap = pathname === '/' || pathname === '/swap';
+
+  const [chosenSub, setChosenSub] = useState<string>(
+    isSwap ? defaultChosed : null
+  );
 
   useEffect(() => {
     if (!isSwap) {
       setChosenSub(null);
     }
-  }, [isSwap]);
+  }, [isSwap, pathname]);
 
   useEffect(() => {
     if (!isSwap) return;
@@ -262,8 +264,8 @@ function Anchor({
                 return (
                   <span
                     className={`${
-                      chosenSub === m.name ||
-                      location.pathname.indexOf(m.path) > -1
+                      (chosenSub === m.name && isSwap) ||
+                      pathname.indexOf(m.path) > -1
                         ? 'bg-primaryText bg-opacity-30 text-white'
                         : 'text-primaryText'
                     } hover:bg-primaryText hover:bg-opacity-30 items-center
