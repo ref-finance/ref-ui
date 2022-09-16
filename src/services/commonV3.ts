@@ -126,3 +126,17 @@ export function useAddAndRemoveUrlHandle() {
     }
   }, [txHash, isSignedIn]);
 }
+
+export function getXAmount_per_point_by_Lx(L: string, point: number) {
+  const xAmount = new BigNumber(L)
+    .dividedBy(Math.pow(Math.sqrt(CONSTANT_D), point))
+    .toFixed();
+  return xAmount;
+}
+
+export function getYAmount_per_point_by_Ly(L: string, point: number) {
+  const yAmount = new BigNumber(L)
+    .multipliedBy(Math.pow(Math.sqrt(CONSTANT_D), point))
+    .toFixed();
+  return yAmount;
+}

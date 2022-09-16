@@ -43,6 +43,8 @@ import {
   CONSTANT_D,
   UserLiquidityInfo,
   useAddAndRemoveUrlHandle,
+  getXAmount_per_point_by_Lx,
+  getYAmount_per_point_by_Ly,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getTokenPriceList } from '../../services/indexer';
@@ -117,8 +119,9 @@ export default function YourLiquidityDetail(props: any) {
         tokenY
       );
       const tokenXAmount = getX(current_point + 1, right_point, L, tokenX);
-      setTokenXAmount(tokenXAmount);
-      setTokenYAmount(tokenYAmount);
+      const { amountx, amounty } = get_X_Y_In_CurrentPoint(tokenX, tokenY, L);
+      setTokenXAmount(new BigNumber(tokenXAmount).plus(amountx).toFixed());
+      setTokenYAmount(new BigNumber(tokenYAmount).plus(amounty).toFixed());
     }
     // only y token
     if (current_point >= right_point) {
@@ -174,13 +177,7 @@ export default function YourLiquidityDetail(props: any) {
         Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
         (Math.sqrt(CONSTANT_D) - 1)
     );
-    let Yc = new BigNumber(0);
-    if (right_point > currentPoint) {
-      Yc = new BigNumber(L).multipliedBy(
-        Math.pow(Math.sqrt(CONSTANT_D), currentPoint)
-      );
-    }
-    const y_result = y.plus(Yc).toFixed();
+    const y_result = y.toFixed();
     return toReadableNumber(token.decimals, toPrecision(y_result, 0));
   }
   function getX(
@@ -198,6 +195,37 @@ export default function YourLiquidityDetail(props: any) {
       .toFixed();
     return toReadableNumber(token.decimals, toPrecision(x, 0));
   }
+
+  function get_X_Y_In_CurrentPoint(
+    tokenX: TokenMetadata,
+    tokenY: TokenMetadata,
+    L: string
+  ) {
+    const { liquidity, liquidity_x, current_point } = poolDetail;
+    const liquidity_y_big = new BigNumber(liquidity).minus(liquidity_x);
+    let Ly = '0';
+    let Lx = '0';
+    // only remove y
+    if (liquidity_y_big.isGreaterThanOrEqualTo(L)) {
+      Ly = L;
+    } else {
+      // have x and y
+      Ly = liquidity_y_big.toFixed();
+      Lx = new BigNumber(L).minus(Ly).toFixed();
+    }
+    const amountX = getXAmount_per_point_by_Lx(Lx, current_point);
+    const amountY = getYAmount_per_point_by_Ly(Ly, current_point);
+    const amountX_read = toReadableNumber(
+      tokenX.decimals,
+      toPrecision(amountX, 0)
+    );
+    const amountY_read = toReadableNumber(
+      tokenY.decimals,
+      toPrecision(amountY, 0)
+    );
+    return { amountx: amountX_read, amounty: amountY_read };
+  }
+
   function goYourLiquidityPage() {
     history.push('/yourliquidity');
   }
@@ -425,7 +453,7 @@ export default function YourLiquidityDetail(props: any) {
               </span>
             </div>
             <div className="flex items-center">
-              <span className="text-sm text-white">
+              <span className="text-sm text-white" title={tokenXAmount}>
                 {displayTokenXAmount()}
               </span>
             </div>
@@ -445,7 +473,7 @@ export default function YourLiquidityDetail(props: any) {
               </span>
             </div>
             <div className="flex items-center">
-              <span className="text-sm text-white">
+              <span className="text-sm text-white" title={tokenYAmount}>
                 {displayTokenYAmount()}
               </span>
             </div>

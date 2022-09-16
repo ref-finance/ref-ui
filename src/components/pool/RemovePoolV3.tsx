@@ -25,6 +25,8 @@ import {
   getPriceByPoint,
   CONSTANT_D,
   UserLiquidityInfo,
+  getXAmount_per_point_by_Lx,
+  getYAmount_per_point_by_Ly,
 } from '../../services/commonV3';
 import { PoolInfo, remove_liquidity } from '../../services/swapV3';
 import _ from 'lodash';
@@ -74,26 +76,15 @@ export const RemovePoolV3 = (props: any) => {
     const { current_point } = poolDetail;
     //  in range
     if (current_point >= left_point && right_point > current_point) {
-      const tokenYAmount = getY(
-        left_point,
-        current_point,
-        current_point,
-        L,
-        tokenY
-      );
+      const tokenYAmount = getY(left_point, current_point, L, tokenY);
       const tokenXAmount = getX(current_point + 1, right_point, L, tokenX);
-      setTokenXAmount(tokenXAmount);
-      setTokenYAmount(tokenYAmount);
+      const { amountx, amounty } = get_X_Y_In_CurrentPoint(tokenX, tokenY, L);
+      setTokenXAmount(new BigNumber(tokenXAmount).plus(amountx).toFixed());
+      setTokenYAmount(new BigNumber(tokenYAmount).plus(amounty).toFixed());
     }
     // only y token
     if (current_point >= right_point) {
-      const tokenYAmount = getY(
-        left_point,
-        right_point,
-        current_point,
-        L,
-        tokenY
-      );
+      const tokenYAmount = getY(left_point, right_point, L, tokenY);
       setTokenYAmount(tokenYAmount);
     }
     // only x token
@@ -138,23 +129,15 @@ export const RemovePoolV3 = (props: any) => {
   function getY(
     leftPoint: number,
     rightPoint: number,
-    currentPoint: number,
     L: string,
     token: TokenMetadata
   ) {
-    const { right_point } = userLiquidity;
     const y = new BigNumber(L).multipliedBy(
       (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
         Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
         (Math.sqrt(CONSTANT_D) - 1)
     );
-    let Yc = new BigNumber(0);
-    if (right_point > currentPoint) {
-      Yc = new BigNumber(L).multipliedBy(
-        Math.pow(Math.sqrt(CONSTANT_D), currentPoint)
-      );
-    }
-    const y_result = y.plus(Yc).toFixed();
+    const y_result = y.toFixed();
     return toReadableNumber(token.decimals, toPrecision(y_result, 0));
   }
   function getX(
@@ -172,6 +155,36 @@ export const RemovePoolV3 = (props: any) => {
       .toFixed();
     return toReadableNumber(token.decimals, toPrecision(x, 0));
   }
+  function get_X_Y_In_CurrentPoint(
+    tokenX: TokenMetadata,
+    tokenY: TokenMetadata,
+    L: string
+  ) {
+    const { liquidity, liquidity_x, current_point } = poolDetail;
+    const liquidity_y_big = new BigNumber(liquidity).minus(liquidity_x);
+    let Ly = '0';
+    let Lx = '0';
+    // only remove y
+    if (liquidity_y_big.isGreaterThanOrEqualTo(L)) {
+      Ly = L;
+    } else {
+      // have x and y
+      Ly = liquidity_y_big.toFixed();
+      Lx = new BigNumber(L).minus(Ly).toFixed();
+    }
+    const amountX = getXAmount_per_point_by_Lx(Lx, current_point);
+    const amountY = getYAmount_per_point_by_Ly(Ly, current_point);
+    const amountX_read = toReadableNumber(
+      tokenX.decimals,
+      toPrecision(amountX, 0)
+    );
+    const amountY_read = toReadableNumber(
+      tokenY.decimals,
+      toPrecision(amountY, 0)
+    );
+    return { amountx: amountX_read, amounty: amountY_read };
+  }
+
   function getPoolFee() {
     if (poolDetail) {
       return poolDetail.fee / 10000;
