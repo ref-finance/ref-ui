@@ -308,6 +308,24 @@ export default function YourLiquidityDetail(props: any) {
     }
     return false;
   }
+  function displayTokenYAmount() {
+    if (new BigNumber(tokenYAmount || '0').isEqualTo(0)) {
+      return '0';
+    } else if (new BigNumber(tokenYAmount).isLessThan(0.001)) {
+      return '<0.001';
+    } else {
+      return toPrecision(tokenYAmount, 3);
+    }
+  }
+  function displayTokenXAmount() {
+    if (new BigNumber(tokenXAmount || '0').isEqualTo(0)) {
+      return '0';
+    } else if (new BigNumber(tokenXAmount).isLessThan(0.001)) {
+      return '<0.001';
+    } else {
+      return toPrecision(tokenXAmount, 3);
+    }
+  }
   return (
     <div
       className={`m-auto lg:w-3/5 2xl:w-2/5 md:w-11/12 xs:w-11/12  xs:-mt-4 md:-mt-4`}
@@ -408,7 +426,7 @@ export default function YourLiquidityDetail(props: any) {
             </div>
             <div className="flex items-center">
               <span className="text-sm text-white">
-                {toPrecision(tokenXAmount, 3)}
+                {displayTokenXAmount()}
               </span>
             </div>
           </div>
@@ -428,7 +446,7 @@ export default function YourLiquidityDetail(props: any) {
             </div>
             <div className="flex items-center">
               <span className="text-sm text-white">
-                {toPrecision(tokenYAmount, 3)}
+                {displayTokenYAmount()}
               </span>
             </div>
           </div>
