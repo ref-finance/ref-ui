@@ -490,7 +490,7 @@ export function SwapExchangeV3({
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
         >
-          <div className="flex items-center">
+          <div className="flex items-center whitespace-nowrap">
             <span
               className={`transition-transform transform ${
                 hover ? 'lg:-translate-y-0.5 ' : ''
@@ -521,7 +521,7 @@ export function SwapExchangeV3({
         </span>
 
         <span
-          className={`text-xs px-2 py-1 ${
+          className={`text-xs px-2 xs:hidden py-1 ${
             Number(rate) === Number(curPrice)
               ? 'text-v3Blue bg-v3Blue bg-opacity-10 border border-transparent'
               : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-v3Blue hover:bg-v3Blue hover:bg-opacity-10'
@@ -535,41 +535,62 @@ export function SwapExchangeV3({
         </span>
       </div>
 
-      <div className="flex items-center text-v3SwapGray text-xs">
+      <div className="flex items-center text-v3SwapGray text-xs whitespace-nowrap xs:w-9/12">
         <span>{`1 ${tokenIn.symbol} = `}</span>
-        <div className="ml-1 flex items-center bg-black bg-opacity-20 rounded-xl px-4 py-3">
-          <input
-            onWheel={() => inputRef.current.blur()}
-            min="0"
-            ref={inputRef}
-            step="any"
-            type="number"
-            placeholder={!curPrice ? '-' : '0.0'}
-            value={!curPrice ? '-' : rate}
-            onBlur={(e) => {
-              const newR = regularizedPrice(rate, tokenIn, tokenOut, fee);
+        <div className="ml-1  items-center bg-black bg-opacity-20 rounded-xl px-4 py-3">
+          <div className="flex items-center">
+            <input
+              onWheel={() => inputRef.current.blur()}
+              min="0"
+              ref={inputRef}
+              step="any"
+              type="number"
+              placeholder={!curPrice ? '-' : '0.0'}
+              value={!curPrice ? '-' : rate}
+              onBlur={(e) => {
+                const newR = regularizedPrice(rate, tokenIn, tokenOut, fee);
 
-              if (ONLY_ZEROS.test(toPrecision(newR, 8, false, false))) {
-                return;
+                if (ONLY_ZEROS.test(toPrecision(newR, 8, false, false))) {
+                  return;
+                }
+
+                setRate(newR);
+              }}
+              onChange={(e) => {
+                if (!curPrice) {
+                  return null;
+                } else setRate(e.target.value);
+              }}
+              disabled={!curPrice}
+              style={{
+                fontSize: '16px',
+                color: 'white',
+                maxWidth: '150px',
+              }}
+              onKeyDown={(e) =>
+                symbolsArr.includes(e.key) && e.preventDefault()
               }
+            />
 
-              setRate(newR);
-            }}
-            onChange={(e) => {
-              if (!curPrice) {
-                return null;
-              } else setRate(e.target.value);
-            }}
-            disabled={!curPrice}
-            style={{
-              fontSize: '16px',
-              color: 'white',
-              maxWidth: '150px',
-            }}
-            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
-          />
+            <span className="text-white text-xs">{tokenOut.symbol}</span>
+          </div>
 
-          <span className="text-white text-xs">{tokenOut.symbol}</span>
+          <div
+            className={`text-xs px-2 mt-1 inline float-right lg:hidden md:hidden py-1 ${
+              Number(rate) === Number(curPrice)
+                ? 'text-v3Blue bg-v3Blue bg-opacity-10 border border-transparent'
+                : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-v3Blue hover:bg-v3Blue hover:bg-opacity-10'
+            }  rounded-2xl whitespace-nowrap cursor-pointer`}
+            onClick={() => {
+              setRate(curPrice);
+              if (triggerFetch) triggerFetch();
+            }}
+          >
+            <FormattedMessage
+              id="current_rate"
+              defaultMessage={'Current Rate'}
+            />
+          </div>
         </div>
       </div>
     </>

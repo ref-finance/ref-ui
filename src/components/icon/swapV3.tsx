@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import ReactTooltip from 'react-tooltip';
+import { useClientMobile } from '../../utils/device';
 
 export const SwapMinReceiveCheck = () => {
   return (
@@ -406,6 +407,8 @@ export const NewPro = ({
 }) => {
   const [hover, setHover] = useState<boolean>(false);
 
+  const isMobile = useClientMobile();
+
   const intl = useIntl();
 
   return (
@@ -420,7 +423,7 @@ export const NewPro = ({
     >
       {ifCross ? (
         <ProIconClick />
-      ) : !hover ? (
+      ) : !hover || isMobile ? (
         <>
           <NewProIcon />
         </>

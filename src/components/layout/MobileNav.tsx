@@ -66,7 +66,11 @@ import {
 import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage from '~components/usn/USNPage';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
+import {
+  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+  SWAP_MODE_KEY,
+  SWAP_MODE,
+} from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
 import {
   useWalletSelector,
@@ -283,19 +287,6 @@ export function AccountModel(props: any) {
         window.open(config.walletUrl, '_blank');
       },
     },
-    // {
-    //   icon: <SignoutIcon />,
-    //   textId: 'sign_out',
-    //   click: async () => {
-    //     const curWallet = await wallet.wallet();
-
-    //     await curWallet.signOut();
-
-    //     localStorage.removeItem(ACCOUNT_ID_KEY);
-
-    //     window.location.assign('/');
-    //   },
-    // },
   ];
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
@@ -590,16 +581,49 @@ export function MobileNavBar(props: any) {
     }
   }, [show]);
 
-  // if (isSignedIn) {
-  //   moreLinks[2].children[2] = {
-  //     id: 'Your_Liquidity',
-  //     label: 'Your Liquidity',
-  //     url: '/pools/yours',
-  //     pattern: '/pools/yours',
-  //     isExternal: false,
-  //     logo: <IconMyLiquidity />,
-  //   };
-  // }
+  const { pathname } = useLocation();
+
+  const isSwap = pathname === '/' || pathname === '/swap';
+
+  const [chosenSubSwap, setChosenSubSwap] = useState<string>(null);
+
+  console.log(chosenSubSwap, 'sun sawp', isSwap);
+
+  useEffect(() => {
+    if (!isSwap) return;
+    window.addEventListener('setItemEvent', (e: any) => {
+      const storageSwapTab = localStorage
+        .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
+        .toString();
+
+      const storageSwapMode = localStorage.getItem(SWAP_MODE_KEY).toString();
+      if (typeof e?.[SWAP_MODE_KEY] === 'string') {
+        const curMode = e?.[SWAP_MODE_KEY];
+
+        if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {
+          setChosenSubSwap('swap');
+        } else if (
+          e[SWAP_MODE_KEY] == SWAP_MODE.STABLE &&
+          storageSwapTab === 'normal'
+        ) {
+          setChosenSubSwap('stable');
+        } else if (
+          e[SWAP_MODE_KEY] == SWAP_MODE.LIMIT &&
+          storageSwapTab === 'normal'
+        ) {
+          setChosenSubSwap('limit');
+        }
+      }
+      if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
+        const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
+        if (curTab === 'normal') {
+          setChosenSubSwap(storageSwapMode);
+        } else {
+          setChosenSubSwap('pro');
+        }
+      }
+    });
+  }, [isSwap]);
 
   function close() {
     setShow(false);
@@ -817,6 +841,13 @@ export function MobileNavBar(props: any) {
                       isSelected = true;
                     }
                   }
+
+                  if (isSwap) {
+                    if (id === 'trade_capital') {
+                      isSelected = true;
+                    }
+                  }
+
                   let targetUrl = url;
                   if (url.startsWith('/pools') && isSignedIn) {
                     targetUrl = '/pools/yours';
@@ -895,6 +926,16 @@ export function MobileNavBar(props: any) {
                                 isSubMenuSelected = true;
                               }
                             }
+
+                            if (isSwap) {
+                              if (
+                                link.label === chosenSubSwap ||
+                                (link.subMenuDefaultChosen && !chosenSubSwap)
+                              ) {
+                                isSubMenuSelected = true;
+                              }
+                            }
+
                             return (
                               <div
                                 key={link.id}
@@ -904,7 +945,9 @@ export function MobileNavBar(props: any) {
                                     : 'text-primaryText'
                                 }`}
                                 onClick={() => {
-                                  link.url && link.isExternal
+                                  !!link.defaultClick
+                                    ? link.defaultClick()
+                                    : link.url && link.isExternal
                                     ? window.open(link.url)
                                     : window.open(link.url, '_self');
                                   close();
@@ -915,10 +958,13 @@ export function MobileNavBar(props: any) {
                                     {link.logo}
                                   </span>
                                 )}
-                                <FormattedMessage
-                                  id={link.id}
-                                  defaultMessage={link.label}
-                                />
+                                {link.idElement || (
+                                  <FormattedMessage
+                                    id={link.id}
+                                    defaultMessage={link.label}
+                                  />
+                                )}
+
                                 {link.tip && (
                                   <span className="ml-2 bg-gradientFrom px-2 flex justify-center items-center text-white text-xs rounded-full">
                                     {link.tip}

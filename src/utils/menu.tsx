@@ -26,9 +26,21 @@ import {
   JaIcon,
   KoIcon,
   IconRisk,
+  AuroraIconSwapNav,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
+import { MobileNavLimitOrder } from '../components/icon/Nav';
+import {
+  SWAP_MODE_KEY,
+  SWAP_MODE,
+  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+} from '../pages/SwapPage';
+import {
+  MobileNavSwap,
+  MobileNavStable,
+  MobileNavSwapPro,
+} from '../components/icon/Nav';
 
 export type MenuItem = {
   id: number;
@@ -193,14 +205,85 @@ export type MobileMenuItem = {
   showIcon?: boolean;
   iconElement?: ReactNode;
   hidden?: boolean;
+  idElement?: JSX.Element | string;
+  subMenuDefaultChosen?: boolean;
+  defaultClick?: (e?: any) => void;
 };
 export const moreLinks: MobileMenuItem[] = [
   {
-    id: 'swap_capital',
-    label: 'Swap',
-    pattern: '/',
-    url: '/',
+    id: 'trade_capital',
+    label: 'Trade',
+    url: '',
     isExternal: false,
+    children: [
+      {
+        id: 'swap',
+        label: 'swap',
+        url: '/',
+        isExternal: false,
+        logo: <MobileNavSwap />,
+        subMenuDefaultChosen:
+          localStorage.getItem(SWAP_MODE_KEY) === SWAP_MODE.NORMAL &&
+          localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'normal',
+
+        defaultClick: () => {
+          window.open('swap', '_self');
+          localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+        },
+      },
+      {
+        id: 'stable',
+        label: 'stable',
+        url: '/',
+        isExternal: false,
+        logo: <MobileNavStable />,
+        subMenuDefaultChosen:
+          localStorage.getItem(SWAP_MODE_KEY) === SWAP_MODE.STABLE &&
+          localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'normal',
+        defaultClick: () => {
+          window.open('swap', '_self');
+          localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+        },
+      },
+      {
+        id: 'swapPro',
+        label: 'pro',
+        url: '/',
+
+        isExternal: false,
+        logo: <MobileNavSwapPro />,
+        idElement: (
+          <span className="flex items-center whitespace-nowrap">
+            {' '}
+            <span className="mr-2">Swap with</span> <AuroraIconSwapNav />{' '}
+          </span>
+        ),
+        subMenuDefaultChosen:
+          localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'cross',
+        defaultClick: () => {
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'cross');
+
+          window.open('/swap', '_self');
+        },
+      },
+      {
+        id: 'limit_order',
+        label: 'limit',
+        url: '/',
+        isExternal: false,
+        logo: <MobileNavLimitOrder />,
+        subMenuDefaultChosen:
+          localStorage.getItem(SWAP_MODE_KEY) === SWAP_MODE.LIMIT &&
+          localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'normal',
+        defaultClick: () => {
+          window.open('/swap', '_self');
+          localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+        },
+      },
+    ],
   },
   {
     id: 'sauce_capital',

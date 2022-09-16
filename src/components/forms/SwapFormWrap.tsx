@@ -102,12 +102,12 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7  bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
+      className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xs:py-4 xs:px-3  bg-dark  overflow-x-visible`}
       onSubmit={handleSubmit}
     >
       {title && (
         <>
-          <h2 className="formTitle flex items-center justify-between font-bold text-xl text-white text-left pb-4">
+          <h2 className="formTitle flex items-center xs:justify-end justify-between font-bold text-xl text-white text-left pb-4 xs:pb-2">
             {swapTab}
             {swapMode !== SWAP_MODE.LIMIT && (
               <SlippageSelector
@@ -210,7 +210,7 @@ export function CrossSwapFormWrap({
 
   return (
     <form
-      className={`overflow-visible relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 bg-dark xs:rounded-lg md:rounded-lg `}
+      className={`overflow-visible relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xs:py-4 xs:px-3 bg-dark  `}
       onSubmit={handleSubmit}
     >
       {!requestingTrigger ? null : (
@@ -231,9 +231,9 @@ export function CrossSwapFormWrap({
         </div>
       )}
       {title && (
-        <h2 className="formTitle flex items-center justify-between  font-bold text-xl text-white text-left pb-4 pt-1.5">
+        <h2 className="formTitle flex xs:relative xs:bottom-2 items-center justify-between  font-bold text-xl text-white text-left xs:py-0 pb-4 pt-1.5 xs:h-11">
           {tokensTitle}
-          <div className="flex self-start items-center">
+          <div className="flex self-start xs:self-center items-center">
             {requested ? null : swapTab}
             {!requested ? null : (
               <div

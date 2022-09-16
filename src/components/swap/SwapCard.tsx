@@ -76,7 +76,7 @@ import {
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '../../components/card/Card';
-import { isMobile, useMobile } from '../../utils/device';
+import { isMobile, useMobile, isClientMobie } from '../../utils/device';
 import { ModalClose } from '../../components/icon';
 import BigNumber from 'bignumber.js';
 import {
@@ -183,9 +183,9 @@ export function SwapDetail({
   value: string | JSX.Element;
 }) {
   return (
-    <section className="grid grid-cols-12 pt-1 pb-2 text-xs">
-      <p className="text-primaryText text-left col-span-6">{title}</p>
-      <p className="text-right text-white col-span-6">{value}</p>
+    <section className="flex items-center justify-between pt-1 pb-2 text-xs">
+      <p className="text-primaryText text-left ">{title}</p>
+      <p className="text-right text-white ">{value}</p>
     </section>
   );
 }
@@ -324,7 +324,7 @@ export function SwapRate({
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
           <FaExchangeAlt color="#00C6A2" />
         </span>
-        <span className="font-sans">{newValue}</span>
+        <span className="font-sans whitespace-nowrap">{newValue}</span>
       </p>
     </section>
   );
@@ -646,6 +646,8 @@ function DetailViewV2({
     !!sessionStorage.getItem(storageShoDetail) || false
   );
 
+  const isMobile = useMobile();
+
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
@@ -688,19 +690,30 @@ function DetailViewV2({
     return null;
 
   return (
-    <div className="mt-8">
+    <div className=" mt-8 xs:my-4">
       <div className="flex items-center mb-1 justify-between text-white ">
-        <SwapRate
-          value={`1 ${toRealSymbol(
-            tokenOut.symbol
-          )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
-          from={from}
-          to={to}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          fee={fee}
-          tokenPriceList={tokenPriceList}
-        />
+        {isMobile ? (
+          <span
+            className="text-primaryText"
+            style={{
+              fontSize: '13px',
+            }}
+          >
+            {intl.formatMessage({ id: 'minimum_received' })}
+          </span>
+        ) : (
+          <SwapRate
+            value={`1 ${toRealSymbol(
+              tokenOut.symbol
+            )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
+            from={from}
+            to={to}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            fee={fee}
+            tokenPriceList={tokenPriceList}
+          />
+        )}
 
         <div
           className="pl-1 text-sm flex items-center cursor-pointer"
@@ -714,9 +727,9 @@ function DetailViewV2({
             setShowDetails(!showDetails);
           }}
         >
-          {showDetails ? null : (
-            <span className="py-1 pl-1 pr-1.5 rounded-md flex items-center bg-opacity-20 bg-black mr-1.5">
-              <SwapMinReceiveCheck />
+          {showDetails && !isMobile ? null : (
+            <span className="py-1 pl-1 pr-1.5 rounded-md flex items-center bg-opacity-20 xs:bg-opacity-100 xs:bg-transparent bg-black mr-1.5">
+              {isMobile ? null : <SwapMinReceiveCheck />}
 
               <span
                 className=" text-white ml-1 relative top-0.5"
@@ -739,10 +752,31 @@ function DetailViewV2({
         </div>
       </div>
       <div className={showDetails ? '' : 'hidden'}>
-        <SwapDetail
-          title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
-        />
+        {isMobile ? null : (
+          <SwapDetail
+            title={intl.formatMessage({ id: 'minimum_received' })}
+            value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
+          />
+        )}
+
+        {isMobile ? (
+          <SwapDetail
+            title={intl.formatMessage({ id: 'swap_rate' })}
+            value={
+              <SwapRate
+                value={`1 ${toRealSymbol(
+                  tokenOut.symbol
+                )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
+                from={from}
+                to={to}
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                fee={fee}
+                tokenPriceList={tokenPriceList}
+              />
+            }
+          />
+        ) : null}
 
         {Number(priceImpact) > 2 && (
           <div className="py-1 text-xs text-right">
@@ -757,6 +791,8 @@ function DetailViewV2({
           title={intl.formatMessage({ id: 'pool_fee' })}
           value={poolFeeDisplay}
         />
+
+        {}
 
         {isParallelSwap && swapsTodo && swapsTodo.length > 1 && (
           <ParallelSwapRoutesDetail
@@ -942,7 +978,12 @@ function DetailViewLimit({
     const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokneOut.id, fee);
     const count = poolPercents?.[id];
     return (
-      <span className="py-1 px-2.5 text-v3SwapGray bg-black bg-opacity-20 text-xs inline-flex items-center rounded-xl whitespace-nowrap">
+      <span
+        className="py-1 xs:py-0 xs:px-0.5 px-2.5 text-v3SwapGray bg-black bg-opacity-20 text-xs inline-flex items-center rounded-xl whitespace-nowrap"
+        style={{
+          fontSize: isClientMobie() ? '11px' : '',
+        }}
+      >
         <span className="mr-1">
           {!tokenPriceList
             ? '-'
@@ -960,9 +1001,9 @@ function DetailViewLimit({
   }
 
   return (
-    <div className="border border-primaryText flex-col border-opacity-20 rounded-xl mt-4 p-4 flex text-white">
+    <div className="border border-primaryText flex-col border-opacity-20 rounded-xl mt-4 p-4 xs:p-2 xs:px-1 flex text-white">
       <div className="flex items-center justify-between">
-        <div className="flex items-center">
+        <div className="flex items-center xs:relative xs:left-3">
           <span className="whitespace-nowrap text-base mr-2.5">
             {toPrecision(
               calculateFeePercent(
@@ -1009,7 +1050,12 @@ function DetailViewLimit({
               <button
                 className={`${
                   v3Pool === pool_id ? 'gradientBorderWrapperNoShadow' : ''
-                } max-w-28 h-28`}
+                } ${
+                  v3Pool === pool_id ? '' : 'border'
+                } border-primaryText rounded-xl  border-opacity-20 max-w-28 h-28  xs:h-24`}
+                style={{
+                  width: isClientMobie() ? '73px' : '',
+                }}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -1018,12 +1064,15 @@ function DetailViewLimit({
               >
                 <div
                   key={i + '-' + pool_id}
-                  className={`rounded-xl   px-3  flex-col ${
-                    v3Pool === pool_id ? '' : 'border'
-                  }  flex items-center border-primaryText border-opacity-20 pb-2 py-3`}
+                  className={`  px-3 xs:px-0  flex-col   flex items-center  pb-2 py-3 xs:py-1`}
                 >
-                  <span>{feePercent}%</span>
-                  <span className="py-1.5 text-xs text-center text-v3SwapGray">
+                  <span className="xs:text-sm">{feePercent}%</span>
+                  <span
+                    className="py-1.5 xs:py-1 text-xs text-center text-v3SwapGray"
+                    style={{
+                      fontSize: isClientMobie() ? '11px' : '',
+                    }}
+                  >
                     {tip}
                   </span>
 

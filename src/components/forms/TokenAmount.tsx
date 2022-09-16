@@ -29,7 +29,7 @@ import { IconLeft, IconLeftV3 } from '../tokens/Icon';
 import { toRealSymbol } from '../../utils/token';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon/Arrows';
 import { percentLess } from '../../utils/numbers';
-import { isMobile } from '../../utils/device';
+import { isMobile, useClientMobile } from '../../utils/device';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { InputAmountV3 } from './InputAmount';
@@ -211,7 +211,7 @@ export function QuickAmountLimitOrder({
   return (
     <div className="flex items-center">
       <span
-        className={`px-2 py-1 mr-1 w-5 h-5 flex items-center justify-center cursor-pointer rounded-md  ${
+        className={`px-2 py-1 xs:hidden mr-1 w-5 h-5 flex items-center justify-center cursor-pointer rounded-md  ${
           Number(amount) === Number(minus1)
             ? 'text-gradientFrom  border border-gradientFrom'
             : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
@@ -222,9 +222,15 @@ export function QuickAmountLimitOrder({
       >
         -
       </span>
-
+      <span className="mr-2 md:hidden lg:hidden">
+        <QuestionTip
+          id="the_price_should_be_in_one_slot_nearby"
+          defaultMessage="The price should be in one slot nearby"
+          dataPlace="bottom"
+        />
+      </span>
       <span
-        className={`px-2 py-1 mr-2 flex items-center justify-center w-5 h-5 cursor-pointer rounded-md  ${
+        className={`px-2 py-1 mr-2 xs:hidden flex items-center justify-center w-5 h-5 cursor-pointer rounded-md  ${
           Number(amount) === Number(plus1)
             ? 'text-gradientFrom  border border-gradientFrom'
             : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
@@ -261,7 +267,7 @@ export function QuickAmountLimitOrder({
       >
         +10%
       </span>
-      <span className="mr-2">
+      <span className="mr-2 xs:hidden">
         <QuestionTip
           id="the_price_should_be_in_one_slot_nearby"
           defaultMessage="The price should be in one slot nearby"
@@ -283,6 +289,48 @@ export function QuickAmountLimitOrder({
         }}
       >
         <FormattedMessage id="market_price" defaultMessage={'Market Price'} />
+      </span>
+    </div>
+  );
+}
+
+export function QuickAmountLimitOrderMobile({
+  onChangeAmount,
+  amount,
+  plus1,
+  minus1,
+}: {
+  amount?: string;
+  onChangeAmount: (amount: string) => void;
+  plus1: string;
+  minus1: string;
+}) {
+  return (
+    <div className="flex items-center">
+      <span
+        className={`px-2 py-1 mr-1 w-5 h-5 flex items-center justify-center cursor-pointer rounded-md  ${
+          Number(amount) === Number(minus1)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+        } text-lg`}
+        onClick={() => {
+          onChangeAmount(minus1);
+        }}
+      >
+        -
+      </span>
+
+      <span
+        className={`px-2 py-1 mr-2 flex items-center justify-center w-5 h-5 cursor-pointer rounded-md  ${
+          Number(amount) === Number(plus1)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+        } text-lg`}
+        onClick={() => {
+          onChangeAmount(plus1);
+        }}
+      >
+        +
       </span>
     </div>
   );
@@ -457,6 +505,8 @@ export function TokenAmountV3({
 
   const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
 
+  const isMobile = useClientMobile();
+
   const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
 
   const curMax =
@@ -575,6 +625,7 @@ export function TokenAmountV3({
                       token={selectedToken}
                       hover={hoverSelectToken}
                     />
+                    <span className="ml-2">{isMobile && ExtraElement}</span>
                   </div>
                 )
               }
@@ -646,7 +697,20 @@ export function TokenAmountV3({
             ) : null
           }
         />
-        {ExtraElement}
+        {isMobile ? (
+          forLimitOrder &&
+          marketPriceLimitOrder &&
+          swapMode === SWAP_MODE.LIMIT ? (
+            <QuickAmountLimitOrderMobile
+              onChangeAmount={onChangeRate}
+              amount={curRate}
+              plus1={plus1}
+              minus1={minus1}
+            />
+          ) : null
+        ) : (
+          ExtraElement
+        )}
       </fieldset>
 
       <div className="flex items-center justify-between h-6">

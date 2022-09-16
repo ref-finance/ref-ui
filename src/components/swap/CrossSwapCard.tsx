@@ -725,14 +725,17 @@ export default function CrossSwapCard(props: {
               <span className="mx-1">{toRealSymbol(tokenOut?.symbol)}</span>
             </div>
           ) : (
-            <div className="flex flex-col left-8">
+            <div className="flex flex-col xs:flex-row xs:items-center left-8">
               <div className="flex items-center">
-                <FormattedMessage
-                  id="swap_with_aurora_liquidity"
-                  defaultMessage={'SWAP with Aurora Liquidity'}
-                ></FormattedMessage>
+                <span className=" whitespace-nowrap xs:hidden">
+                  <FormattedMessage
+                    id="swap_with_aurora_liquidity"
+                    defaultMessage={'SWAP with Aurora Liquidity'}
+                  ></FormattedMessage>
+                </span>
+
                 <span
-                  className=" ml-3 h-3 flex items-center text-black bg-farmText rounded-md px-0.5 py-px"
+                  className=" ml-3 xs:mr-2 xs:relative xs:top-1 h-3 flex items-center text-black bg-farmText rounded-md px-0.5 py-px"
                   style={{
                     fontSize: '10px',
                   }}
@@ -788,7 +791,7 @@ export default function CrossSwapCard(props: {
           hidden={requested}
         />
         <div
-          className={`flex items-center justify-center border-t mt-12 ${
+          className={`flex items-center justify-center border-t mt-12 xs:mt-12 ${
             requested ? 'hidden' : 'block'
           }`}
           style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
