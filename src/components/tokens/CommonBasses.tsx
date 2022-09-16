@@ -28,7 +28,8 @@ const COMMON_BASSES = [
   'ETH',
   'DAI',
   'WBTC',
-  // 'FLX',
+  'AURORA',
+  'SWEAT',
 ];
 
 export default function CommonBasses({
