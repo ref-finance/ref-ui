@@ -20,6 +20,7 @@ import {
 import {
   storageDepositAction,
   STORAGE_TO_REGISTER_WITH_MFT,
+  storageDepositForV3Action,
 } from '../services/creators/storage';
 import { currentStorageBalanceOfV3 } from './account';
 import { WRAP_NEAR_CONTRACT_ID, nearMetadata } from '../services/wrap-near';
@@ -566,7 +567,7 @@ export const getLimitOrderRangeCountAndPool = async ({
   };
 };
 
-export const create_pool = ({
+export const create_pool = async ({
   token_a,
   token_b,
   fee,
@@ -577,25 +578,36 @@ export const create_pool = ({
   fee: number;
   init_point: number;
 }) => {
-  const transactions: Transaction[] = [
-    {
-      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'create_pool',
-          args: {
-            token_a,
-            token_b,
-            fee,
-            init_point,
-          },
-          gas: '180000000000000',
-          amount: '0.1',
-        },
-      ],
-    },
-  ];
+  const tokenIds = [token_a, token_b];
+  const storageBalances = await Promise.all(
+    tokenIds.map((id) => ftGetStorageBalance(id, REF_UNI_V3_SWAP_CONTRACT_ID))
+  );
 
+  const transactions: Transaction[] = storageBalances
+    .reduce((acc, sb, i) => {
+      if (!sb || sb.total === '0') acc.push(tokenIds[i]);
+      return acc;
+    }, [])
+    .map((id) => ({
+      receiverId: id,
+      functionCalls: [storageDepositForV3Action()],
+    }));
+  transactions.push({
+    receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'create_pool',
+        args: {
+          token_a,
+          token_b,
+          fee,
+          init_point,
+        },
+        gas: '180000000000000',
+        amount: '0.1',
+      },
+    ],
+  });
   return executeMultipleTransactions(transactions);
 };
 export const list_pools = () => {

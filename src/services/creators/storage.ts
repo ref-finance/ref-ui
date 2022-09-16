@@ -6,6 +6,7 @@ import {
   REF_FARM_CONTRACT_ID,
   wallet,
   refFiViewFunction,
+  REF_UNI_V3_SWAP_CONTRACT_ID,
 } from '../near';
 
 export const STORAGE_PER_TOKEN = '0.005';
@@ -63,3 +64,8 @@ export const needDepositStorage = async (
 
   return new BN(storage?.deposit).lte(new BN(storage?.usage));
 };
+export const storageDepositForV3Action = () =>
+  storageDepositAction({
+    accountId: REF_UNI_V3_SWAP_CONTRACT_ID,
+    amount: STORAGE_TO_REGISTER_WITH_FT,
+  });
