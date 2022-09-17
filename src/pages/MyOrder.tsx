@@ -16,6 +16,7 @@ import {
   REF_FI_SWAP_SWAPPAGE_TAB_KEY,
 } from './SwapPage';
 import {
+  MobileHistoryOrderStamp,
   MyOrderCircle,
   MyOrderMask,
   MyOrderMask2,
@@ -33,7 +34,11 @@ import { TIMESTAMP_DIVISOR } from '../components/layout/Proposal';
 import moment from 'moment';
 import { DownArrowVE, UpArrowVE } from '../components/icon/Referendum';
 import { Loading } from '~components/icon/Loading';
-import { RouterArrowLeft, RouterArrowRight } from '../components/icon/Arrows';
+import {
+  RouterArrowLeft,
+  RouterArrowRight,
+  MyOrderMobileArrow,
+} from '../components/icon/Arrows';
 import QuestionMark from '../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '../utils/token';
@@ -107,9 +112,9 @@ function OrderCard({
 
   function OrderTab() {
     return (
-      <div className="flex whitespace-nowrap text-white mb-4">
+      <div className="flex whitespace-nowrap xs:justify-center text-white mb-4">
         <button
-          className="mr-7 flex flex-col items-center"
+          className="mr-7 xs:mr-10 flex flex-col items-center"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -418,20 +423,20 @@ function OrderCard({
             alt=""
           />
 
-          <div className="flex flex-col ml-2">
+          <div className="flex   xs:flex-row flex-col ml-2">
             <span className="text-white text-sm mr-2" title={orderIn}>
               {Number(orderIn) > 0 && Number(orderIn) < 0.01
                 ? '< 0.01'
                 : toPrecision(orderIn, 2)}
             </span>
 
-            <span className="text-v3SwapGray text-xs">
+            <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
               {toRealSymbol(sellToken.symbol)}
             </span>
           </div>
         </span>
 
-        <span className="text-white text-lg pl-2  pr-1">
+        <span className="text-white text-lg xs:hidden pl-2  pr-1">
           <RouterArrowRight />
         </span>
       </div>
@@ -445,7 +450,7 @@ function OrderCard({
           alt=""
         />
 
-        <div className="flex flex-col ml-2">
+        <div className="flex xs:flex-row flex-col ml-2">
           <span
             className="text-white mr-2 text-sm whitespace-nowrap"
             title={buyAmount}
@@ -455,7 +460,7 @@ function OrderCard({
               : toPrecision(buyAmount, 2)}
           </span>
 
-          <span className="text-v3SwapGray text-xs">
+          <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
             {toRealSymbol(buyToken.symbol)}
           </span>
         </div>
@@ -465,30 +470,29 @@ function OrderCard({
     const fee = Number(order.pool_id.split(V3_POOL_SPLITER)[2]);
 
     const feeTier = (
-      <span
-        style={{
-          color: '#78C6FF',
-        }}
-        className="col-span-2 ml-10"
-      >
+      <span className="col-span-2 ml-10 xs:ml-0  text-v3Blue xs:text-white">
         {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
       </span>
     );
 
     const orderRate = (
-      <span className="whitespace-nowrap col-span-1 flex items-end flex-col relative right-4">
+      <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
         <span className="mr-1 text-white text-sm" title={price}>
           {toPrecision(price, 2)}
         </span>
-        <span className="text-v3SwapGray text-xs">
+        <span className="text-v3SwapGray text-xs xs:hidden">
           {`${toRealSymbol(buyToken.symbol)}/${toRealSymbol(sellToken.symbol)}`}
+        </span>
+
+        <span className="text-white text-sm lg:hidden md:hidden">
+          {`${toRealSymbol(sellToken.symbol)}`}
         </span>
       </span>
     );
 
     const unclaimTip = (
       <div
-        className="text-xs mt-1 mr-1 w-20 flex items-center"
+        className="text-xs xs:relative xs:bottom-2 mt-1 mr-1 w-20 xs:w-full flex items-center xs:flex-row-reverse"
         data-type="info"
         data-place="bottom"
         data-multiline={true}
@@ -497,7 +501,7 @@ function OrderCard({
         data-tip={getUnclaimAmountTip()}
         data-for={'unclaim_tip_' + order.order_id}
       >
-        <span className="mr-1">
+        <span className="mr-1 xs:ml-2">
           <QuestionMark color="dark" />
         </span>
         <div className="flex items-center w-full">
@@ -513,7 +517,7 @@ function OrderCard({
 
             return (
               <div
-                className={`mx-px h-1 rounded-lg ${bgColor}`}
+                className={`mx-px h-1 xs:h-2 rounded-lg ${bgColor}`}
                 style={{
                   width: p + '%',
                 }}
@@ -534,10 +538,40 @@ function OrderCard({
       </div>
     );
 
+    const claimButton = (
+      <button
+        className={`rounded-lg    text-xs xs:text-sm xs:w-1/2 ml-1.5 p-1.5 ${
+          ONLY_ZEROS.test(unClaimedAmount)
+            ? 'text-v3SwapGray cursor-not-allowe bg-black opacity-20 cursor-not-allowed'
+            : `text-white bg-deepBlue hover:text-white hover:bg-deepBlueHover ${
+                claimLoading ? ' text-white bg-deepBlueHover ' : ''
+              }`
+        }`}
+        type="button"
+        disabled={ONLY_ZEROS.test(unClaimedAmount)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          setClaimLoading(true);
+
+          cancel_order({
+            order_id: order.order_id,
+            undecimal_amount: '0',
+          });
+        }}
+      >
+        <ButtonTextWrapper
+          Text={() => <FormattedMessage id="claim" defaultMessage={'Claim'} />}
+          loading={claimLoading}
+        ></ButtonTextWrapper>
+      </button>
+    );
+
     const unclaim = (
-      <span className="whitespace-nowrap col-span-2 flex items-center ml-12">
+      <span className="whitespace-nowrap col-span-2 flex xs:flex-col items-center ml-12">
         <div>
-          <div className="flex items-center">
+          <div className="flex items-center xs:justify-end">
             <img
               src={buyToken.icon}
               className="border border-gradientFrom rounded-full w-4 h-4"
@@ -572,44 +606,14 @@ function OrderCard({
                   )}
             </span>
           </div>
-
-          {unclaimTip}
+          <div className="xs:hidden">{unclaimTip}</div>
         </div>
-
-        <button
-          className={`rounded-lg    text-xs ml-1.5 p-1.5 ${
-            ONLY_ZEROS.test(unClaimedAmount)
-              ? 'text-v3SwapGray cursor-not-allowe bg-black opacity-20 cursor-not-allowed'
-              : `text-white bg-deepBlue hover:text-white hover:bg-deepBlueHover ${
-                  claimLoading ? ' text-white bg-deepBlueHover ' : ''
-                }`
-          }`}
-          type="button"
-          disabled={ONLY_ZEROS.test(unClaimedAmount)}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            setClaimLoading(true);
-
-            cancel_order({
-              order_id: order.order_id,
-              undecimal_amount: '0',
-            });
-          }}
-        >
-          <ButtonTextWrapper
-            Text={() => (
-              <FormattedMessage id="claim" defaultMessage={'Claim'} />
-            )}
-            loading={claimLoading}
-          ></ButtonTextWrapper>
-        </button>
+        <span className="xs:hidden">{claimButton}</span>
       </span>
     );
 
     const created = (
-      <span className="col-span-2 relative whitespace-nowrap right-12 text-white text-right">
+      <span className="col-span-2 relative xs:flex xs:items-center xs:justify-center whitespace-nowrap right-12 xs:right-0  text-white xs:text-xs xs:text-primaryText text-right xs:opacity-50">
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('YYYY-MM-DD HH:mm')}
@@ -618,7 +622,7 @@ function OrderCard({
 
     const actions = (
       <button
-        className={`border col-span-1 rounded-lg  text-xs justify-self-end p-1.5 ${
+        className={`border col-span-1 rounded-lg xs:text-sm xs:w-1/2 text-xs justify-self-end p-1.5 ${
           cancelLoading ? 'border border-transparent text-black bg-warn ' : ''
         }  border-warn border-opacity-20 text-warn  ${
           ONLY_ZEROS.test(order.remain_amount)
@@ -650,8 +654,8 @@ function OrderCard({
     const sellTokenPrice = tokenPrice?.[sellToken.id]?.price || null;
 
     const swapBanner = (
-      <div className=" whitespace-nowrap relative z-10 bottom-4 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10">
-        <div className="flex items-center justify-between mb-7">
+      <div className="xs:flex xs:flex-col whitespace-nowrap xs:bg-cardBg xs:bg-opacity-50 relative z-10 bottom-4 xs:bottom-0 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10 xs:px-3 xs:py-4 xs:text-xs">
+        <div className="flex items-center justify-between mb-7 xs:mb-7">
           <span className="flex items-center">
             <FormattedMessage
               id="initial_order"
@@ -665,19 +669,19 @@ function OrderCard({
           </span>
 
           <span className="flex items-center">
-            <span title={totalIn} className="text-white">
+            <span title={totalIn} className="text-white xs:text-v3SwapGray">
               {Number(totalIn) > 0 && Number(totalIn) < 0.01
                 ? '< 0.01'
                 : toPrecision(totalIn, 2)}
             </span>
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-            <span className="mx-6">
+            <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
               <RouterArrowRight />
             </span>
             <span
               title={toPrecision(totalOut, buyToken.decimals)}
-              className="text-white"
+              className="text-white xs:text-v3SwapGray"
             >
               {Number(totalOut) > 0 && Number(totalOut) < 0.01
                 ? '< 0.01'
@@ -694,7 +698,7 @@ function OrderCard({
               id="instant_swap"
               defaultMessage={'Instant Swap'}
             />
-            <span className="flex items-center text-white ml-4">
+            <span className="flex xs:hidden items-center text-white ml-4">
               {`1 ${toRealSymbol(sellToken.symbol)} `}&nbsp;
               {!!sellTokenPrice ? (
                 <span className=" text-v3SwapGray mr-1">
@@ -715,18 +719,19 @@ function OrderCard({
               {` ${toRealSymbol(buyToken.symbol)}`}
             </span>
           </span>
+
           <span className="flex items-center">
-            <span title={swapIn} className="text-white">
+            <span title={swapIn} className="text-white xs:text-v3SwapGray">
               {Number(swapIn) > 0 && Number(swapIn) < 0.01
                 ? '< 0.01'
                 : toPrecision(swapIn, 2)}
             </span>
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-            <span className="mx-6">
+            <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
               <RouterArrowRight />
             </span>
-            <span title={swapOut} className="text-white">
+            <span title={swapOut} className="text-white xs:text-v3SwapGray">
               {Number(swapOut) > 0 && Number(swapOut) < 0.01
                 ? '< 0.01'
                 : toPrecision(swapOut, 2)}
@@ -735,39 +740,127 @@ function OrderCard({
             <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
           </span>
         </div>
+        <div className="flex md:hidden lg:hidden float-right items-center text-primaryText opacity-50 px-1 rounded-lg bg-black bg-opacity-20 self-end mt-4">
+          {`1 ${toRealSymbol(sellToken.symbol)} `}&nbsp;
+          {!!sellTokenPrice ? (
+            <span className=" text-v3SwapGray mr-1">
+              {`($${toPrecision(sellTokenPrice, 2)})`}
+            </span>
+          ) : null}
+          {` = `}
+          <span
+            className="mx-1"
+            title={new Big(swapOut)
+              .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
+              .toFixed(buyToken.decimals)}
+          >
+            {`${new Big(swapOut)
+              .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
+              .toFixed(3)}`}
+          </span>
+          {` ${toRealSymbol(buyToken.symbol)}`}
+        </div>
       </div>
     );
 
+    const MobileInfoBanner = ({
+      text,
+      value,
+    }: {
+      text: string | JSX.Element;
+      value: string | JSX.Element;
+    }) => {
+      return (
+        <div className="flex mb-4 items-center justify-between whitespace-nowrap">
+          <span className="text-xs text-v3SwapGray">{text}</span>
+          <span className="text-white text-sm">{value}</span>
+        </div>
+      );
+    };
+
     return (
-      <div
-        className="mb-4 w-full"
-        onMouseLeave={() => {
-          setHover(false);
-        }}
-        style={{
-          zIndex: 20 - index,
-        }}
-      >
+      <>
         <div
-          className={`px-4 py-3 text-sm   z-20 grid grid-cols-10 relative  w-full rounded-xl items-center  bg-cardBg ${
-            hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-          }`}
-          onMouseEnter={() => {
-            setHover(true);
+          className="mb-4 w-full xs:hidden"
+          onMouseLeave={() => {
+            setHover(false);
+          }}
+          style={{
+            zIndex: 20 - index,
           }}
         >
-          {sellTokenAmount}
-          {buyTokenAmount}
-          {feeTier}
-          {orderRate}
-          {created}
+          <div
+            className={`px-4 py-3 text-sm   z-20 grid grid-cols-10 relative  w-full rounded-xl items-center  bg-cardBg ${
+              hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
+            }`}
+            onMouseEnter={() => {
+              setHover(true);
+            }}
+          >
+            {sellTokenAmount}
+            {buyTokenAmount}
+            {feeTier}
+            {orderRate}
+            {created}
 
-          {unclaim}
+            {unclaim}
 
-          {actions}
+            {actions}
+          </div>
+          {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
         </div>
-        {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
-      </div>
+
+        <div
+          className="w-full mb-4 md:hidden lg:hidden"
+          style={{
+            zIndex: 20 - index,
+          }}
+        >
+          {/* title */}
+          <div className="rounded-t-xl bg-orderMobileTop px-3 pt-3">
+            <div className="flex items-center relative justify-between">
+              {sellTokenAmount}
+              <MyOrderMobileArrow />
+              {buyTokenAmount}
+            </div>
+
+            {created}
+          </div>
+          {/*  content */}
+          <div className="rounded-b-xl p-3 bg-cardBg">
+            <MobileInfoBanner
+              text={
+                <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
+              }
+              value={feeTier}
+            />
+
+            <MobileInfoBanner
+              text={`1 ${toRealSymbol(
+                tokensMap[order.sell_token].symbol
+              )} Price`}
+              value={orderRate}
+            />
+
+            <MobileInfoBanner
+              text={
+                <FormattedMessage defaultMessage={'Unclaimed'} id="unclaimed" />
+              }
+              value={unclaim}
+            />
+
+            {unclaimTip}
+
+            <div className="flex items-center w-full xs:mt-2">
+              {actions}
+              {claimButton}
+            </div>
+          </div>
+
+          {/* swap banner */}
+          {!ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
+        </div>
+      </>
     );
   }
 
@@ -966,20 +1059,20 @@ function OrderCard({
             alt=""
           />
 
-          <div className="flex flex-col ml-2">
+          <div className="flex   xs:flex-row flex-col ml-2">
             <span className="text-white text-sm mr-2" title={orderIn}>
               {Number(orderIn) > 0 && Number(orderIn) < 0.01
                 ? '< 0.01'
                 : toPrecision(orderIn, 2)}
             </span>
 
-            <span className="text-v3SwapGray text-xs">
+            <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
               {toRealSymbol(sellToken.symbol)}
             </span>
           </div>
         </span>
 
-        <span className="text-white text-lg pl-2  pr-1">
+        <span className="text-white text-lg xs:hidden pl-2  pr-1">
           <RouterArrowRight />
         </span>
       </div>
@@ -993,7 +1086,7 @@ function OrderCard({
           alt=""
         />
 
-        <div className="flex flex-col ml-2">
+        <div className="flex xs:flex-row flex-col ml-2">
           <span
             className="text-white mr-2 text-sm whitespace-nowrap"
             title={buyAmount}
@@ -1003,7 +1096,7 @@ function OrderCard({
               : toPrecision(buyAmount, 2)}
           </span>
 
-          <span className="text-v3SwapGray text-xs">
+          <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
             {toRealSymbol(buyToken.symbol)}
           </span>
         </div>
@@ -1013,30 +1106,29 @@ function OrderCard({
     const fee = Number(order.pool_id.split(V3_POOL_SPLITER)[2]);
 
     const feeTier = (
-      <span
-        style={{
-          color: '#78C6FF',
-        }}
-        className="col-span-2 ml-10"
-      >
+      <span className="col-span-2 ml-10 xs:ml-0  text-v3Blue xs:text-white">
         {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
       </span>
     );
 
     const orderRate = (
-      <span className="whitespace-nowrap col-span-1 flex items-end flex-col relative right-4">
+      <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
         <span className="mr-1 text-white text-sm" title={price}>
           {toPrecision(price, 2)}
         </span>
-        <span className="text-v3SwapGray text-xs">
+        <span className="text-v3SwapGray text-xs xs:hidden">
           {`${toRealSymbol(buyToken.symbol)}/${toRealSymbol(sellToken.symbol)}`}
+        </span>
+
+        <span className="text-white text-sm lg:hidden md:hidden">
+          {`${toRealSymbol(sellToken.symbol)}`}
         </span>
       </span>
     );
 
     const claimTip = (
       <div
-        className="text-xs mt-1 mr-1 w-20 flex items-center"
+        className="text-xs xs:relative xs:bottom-2 mt-1 mr-1 w-20 xs:w-full flex items-center xs:flex-row-reverse"
         data-type="info"
         data-place="bottom"
         data-multiline={true}
@@ -1045,7 +1137,7 @@ function OrderCard({
         data-tip={getClaimAmountTip()}
         data-for={'claim_tip_' + order.order_id}
       >
-        <span className="mr-1">
+        <span className="mr-1 xs:ml-2">
           <QuestionMark color="dark" />
         </span>
         <div className="flex items-center w-full">
@@ -1056,7 +1148,7 @@ function OrderCard({
 
             return (
               <div
-                className={`mx-px h-1 rounded-lg ${bgColor}`}
+                className={`mx-px h-1 xs:h-2 rounded-lg ${bgColor}`}
                 style={{
                   width: p + '%',
                 }}
@@ -1078,9 +1170,9 @@ function OrderCard({
     );
 
     const claimed = (
-      <span className="whitespace-nowrap col-span-2 flex items-center ml-12">
+      <span className="whitespace-nowrap col-span-2 xs:flex-col flex items-center ml-12">
         <div>
-          <div className="flex items-center">
+          <div className="flex items-center xs:justify-end">
             <img
               src={buyToken.icon}
               className="border border-gradientFrom rounded-full w-4 h-4"
@@ -1109,14 +1201,13 @@ function OrderCard({
                   )}
             </span>
           </div>
-
-          {claimTip}
+          <div className="xs:hidden">{claimTip}</div>
         </div>
       </span>
     );
 
     const created = (
-      <span className="col-span-2 relative whitespace-nowrap right-12 text-white text-right">
+      <span className="col-span-2 relative xs:opacity-50 xs:flex xs:items-center xs:justify-center whitespace-nowrap right-12 xs:right-0  text-white xs:text-xs xs:text-primaryText text-right">
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('YYYY-MM-DD HH:mm')}
@@ -1138,14 +1229,13 @@ function OrderCard({
     const sellTokenPrice = tokenPrice?.[sellToken.id]?.price || null;
 
     const swapBanner = (
-      <div className=" whitespace-nowrap relative z-10 bottom-4 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10">
-        <div className="flex items-center justify-between mb-7">
+      <div className="xs:flex xs:flex-col whitespace-nowrap xs:bg-cardBg xs:bg-opacity-50 relative z-10 bottom-4 xs:bottom-0 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10 xs:px-3 xs:py-4 xs:text-xs">
+        <div className="flex items-center justify-between mb-7 xs:mb-7">
           <span className="flex items-center">
             <FormattedMessage
               id="initial_order"
               defaultMessage={'Initial Order'}
             />
-
             <QuestionTip
               id="this_order_has_been_partially_instant_swapped "
               defaultMessage="This order has been partially instant swapped "
@@ -1154,19 +1244,19 @@ function OrderCard({
           </span>
 
           <span className="flex items-center">
-            <span title={totalIn} className="text-white">
+            <span title={totalIn} className="text-white xs:text-v3SwapGray">
               {Number(totalIn) > 0 && Number(totalIn) < 0.01
                 ? '< 0.01'
                 : toPrecision(totalIn, 2)}
             </span>
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-            <span className="mx-6">
+            <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
               <RouterArrowRight />
             </span>
             <span
               title={toPrecision(totalOut, buyToken.decimals)}
-              className="text-white"
+              className="text-white xs:text-v3SwapGray"
             >
               {Number(totalOut) > 0 && Number(totalOut) < 0.01
                 ? '< 0.01'
@@ -1183,15 +1273,14 @@ function OrderCard({
               id="instant_swap"
               defaultMessage={'Instant Swap'}
             />
-
-            <span className="flex items-center text-white ml-4">
-              {`1 ${toRealSymbol(sellToken.symbol)}`} &nbsp;
+            <span className="flex xs:hidden items-center text-white ml-4">
+              {`1 ${toRealSymbol(sellToken.symbol)} `}&nbsp;
               {!!sellTokenPrice ? (
                 <span className=" text-v3SwapGray mr-1">
                   {`($${toPrecision(sellTokenPrice, 2)})`}
                 </span>
               ) : null}
-              {`= `}
+              {` = `}
               <span
                 className="mx-1"
                 title={new Big(swapOut)
@@ -1205,18 +1294,19 @@ function OrderCard({
               {` ${toRealSymbol(buyToken.symbol)}`}
             </span>
           </span>
+
           <span className="flex items-center">
-            <span title={swapIn} className="text-white">
+            <span title={swapIn} className="text-white xs:text-v3SwapGray">
               {Number(swapIn) > 0 && Number(swapIn) < 0.01
                 ? '< 0.01'
                 : toPrecision(swapIn, 2)}
             </span>
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-            <span className="mx-6">
+            <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
               <RouterArrowRight />
             </span>
-            <span title={swapOut} className="text-white">
+            <span title={swapOut} className="text-white xs:text-v3SwapGray">
               {Number(swapOut) > 0 && Number(swapOut) < 0.01
                 ? '< 0.01'
                 : toPrecision(swapOut, 2)}
@@ -1225,39 +1315,123 @@ function OrderCard({
             <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
           </span>
         </div>
+        <div className="flex md:hidden lg:hidden float-right items-center text-primaryText opacity-50 px-1 rounded-lg bg-black bg-opacity-20 self-end mt-4">
+          {`1 ${toRealSymbol(sellToken.symbol)} `}&nbsp;
+          {!!sellTokenPrice ? (
+            <span className=" text-v3SwapGray mr-1">
+              {`($${toPrecision(sellTokenPrice, 2)})`}
+            </span>
+          ) : null}
+          {` = `}
+          <span
+            className="mx-1"
+            title={new Big(swapOut)
+              .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
+              .toFixed(buyToken.decimals)}
+          >
+            {`${new Big(swapOut)
+              .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
+              .toFixed(3)}`}
+          </span>
+          {` ${toRealSymbol(buyToken.symbol)}`}
+        </div>
       </div>
     );
-
+    const MobileInfoBanner = ({
+      text,
+      value,
+    }: {
+      text: string | JSX.Element;
+      value: string | JSX.Element;
+    }) => {
+      return (
+        <div className="flex mb-4 items-center justify-between whitespace-nowrap">
+          <span className="text-xs text-v3SwapGray">{text}</span>
+          <span className="text-white text-sm">{value}</span>
+        </div>
+      );
+    };
     return (
-      <div
-        className="mb-4 w-full"
-        onMouseLeave={() => {
-          setHover(false);
-        }}
-        style={{
-          zIndex: 20 - index,
-        }}
-      >
+      <>
         <div
-          className={`px-4 py-3 text-sm   z-20 grid grid-cols-10 relative  w-full rounded-xl items-center  bg-cardBg ${
-            hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-          }`}
-          onMouseEnter={() => {
-            setHover(true);
+          className="mb-4 w-full xs:hidden"
+          onMouseLeave={() => {
+            setHover(false);
+          }}
+          style={{
+            zIndex: 20 - index,
           }}
         >
-          {sellTokenAmount}
-          {buyTokenAmount}
-          {feeTier}
-          {orderRate}
-          {created}
+          <div
+            className={`px-4 py-3 text-sm   z-20 grid grid-cols-10 relative  w-full rounded-xl items-center  bg-cardBg ${
+              hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
+            }`}
+            onMouseEnter={() => {
+              setHover(true);
+            }}
+          >
+            {sellTokenAmount}
+            {buyTokenAmount}
+            {feeTier}
+            {orderRate}
+            {created}
 
-          {claimed}
+            {claimed}
 
-          {actions}
+            {actions}
+          </div>
+          {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
         </div>
-        {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
-      </div>
+
+        <div
+          className="w-full relative mb-4 md:hidden lg:hidden"
+          style={{
+            zIndex: 20 - index,
+          }}
+        >
+          <MobileHistoryOrderStamp
+            state={ONLY_ZEROS.test(order.cancel_amount) ? 'finish' : 'cancel'}
+          />
+          {/* title */}
+          <div className="rounded-t-xl bg-orderMobileTop px-3 pt-3">
+            <div className="flex items-center relative justify-between">
+              {sellTokenAmount}
+              <MyOrderMobileArrow />
+              {buyTokenAmount}
+            </div>
+
+            {created}
+          </div>
+          {/*  content */}
+          <div className="rounded-b-xl p-3 bg-cardBg">
+            <MobileInfoBanner
+              text={
+                <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
+              }
+              value={feeTier}
+            />
+
+            <MobileInfoBanner
+              text={`1 ${toRealSymbol(
+                tokensMap[order.sell_token].symbol
+              )} Price`}
+              value={orderRate}
+            />
+
+            <MobileInfoBanner
+              text={
+                <FormattedMessage defaultMessage={'Claimed'} id="claimed" />
+              }
+              value={claimed}
+            />
+
+            {claimTip}
+          </div>
+
+          {/* swap banner */}
+          {!ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
+        </div>
+      </>
     );
   }
 
@@ -1286,7 +1460,11 @@ function OrderCard({
     <div className="flex flex-col">
       {OrderTab()}
       {orderType === 'active' && (
-        <div className="mb-2.5 px-4 text-v3SwapGray text-sm grid grid-cols-10 whitespace-nowrap">
+        <div
+          className={`mb-2.5 px-4 xs:hidden ${
+            !activeOrder || activeOrder.length === 0 ? 'hidden' : ''
+          } text-v3SwapGray text-sm grid grid-cols-10 whitespace-nowrap`}
+        >
           <span className="col-span-1 text-left">
             <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
           </span>
@@ -1369,7 +1547,11 @@ function OrderCard({
       )}
 
       {orderType === 'history' && (
-        <div className="mb-2.5 px-4 text-v3SwapGray text-sm grid grid-cols-10 whitespace-nowrap">
+        <div
+          className={`mb-2.5 px-4 xs:hidden ${
+            !historyOrder || historyOrder.length === 0 ? 'hidden' : ''
+          } text-v3SwapGray text-sm grid grid-cols-10 whitespace-nowrap`}
+        >
           <span className="col-span-1 text-left">
             <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
           </span>
@@ -1515,12 +1697,7 @@ function MyOrderPage() {
   }, {});
 
   return (
-    <div
-      className="max-w-7xl mx-auto flex flex-col "
-      style={{
-        width: '1000px',
-      }}
-    >
+    <div className="max-w-7xl mx-auto flex flex-col xs:w-11/12 md:5/6 lg:w-1000px">
       <div className="flex items-center justify-between text-white mb-7">
         <button
           className="whitespace-nowrap flex items-center "

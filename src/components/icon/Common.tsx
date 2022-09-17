@@ -1864,6 +1864,7 @@ export const DeleteButtonIcon = (props: any) => {
     </svg>
   );
 };
+
 export {
   Learn_more,
   CloseBtn,

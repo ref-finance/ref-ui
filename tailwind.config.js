@@ -59,6 +59,7 @@ module.exports = {
         bgGreyDefault: 'linear-gradient(180deg, #C0B1A3 0%, #92877D 100%)',
         bgGreyHover: 'linear-gradient(180deg, #E6D6C7 0%, #92877D 100%)',
         swapCardGradient: 'linear-gradient(180deg, #26343E 0%, #1D2932 100%)',
+        orderMobileTop: 'linear-gradient(180deg, #1D2933 0%, #283A46 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -208,6 +209,7 @@ module.exports = {
         '30vw': '30vw',
         '480px': '480px',
         smartRoute: '292px',
+        '1000px': '1000px',
         54: '13.5rem',
         34: '8.5rem',
       },
