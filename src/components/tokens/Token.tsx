@@ -134,7 +134,7 @@ export const TokenLinks = {
   XNL: 'https://awesomenear.com/chronicle',
   KSW: 'https://awesomenear.com/killswitch-finance',
   STNEAR: 'https://awesomenear.com/meta-pool',
-  NearX: 'https://awesomenear.com/stader',
+  NearXC: 'https://awesomenear.com/stader',
   SD: 'https://awesomenear.com/stader',
   DISC: 'https://awesomenear.com/discovol',
 };
