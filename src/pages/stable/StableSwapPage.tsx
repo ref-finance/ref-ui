@@ -29,7 +29,7 @@ import BigNumber from 'bignumber.js';
 import { getStablePoolFromCache, Pool, StablePool } from '../../services/pool';
 import { getStableSwapTabKey } from './StableSwapPageUSN';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
-const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
+const STABLE_TOKENS = ['USDT.e', 'USDC', 'DAI'];
 
 interface LocationTypes {
   stableTab?: string;
