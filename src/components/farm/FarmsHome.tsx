@@ -29,6 +29,7 @@ import {
   BoostFarmNoDataIcon,
   BoostDotIcon,
   NewTag,
+  NewIcon,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -204,11 +205,16 @@ export default function FarmsHome(props: any) {
     tvl: intl.formatMessage({ id: 'tvl' }),
     apr: intl.formatMessage({ id: 'apr' }),
   };
-
-  const statusList = {
+  const status_fronts = {
     live: {
       txt: intl.formatMessage({ id: 'all' }),
     },
+    my: {
+      txt: intl.formatMessage({ id: 'yours' }),
+      // icon: <YoursOptIcon></YoursOptIcon>,
+    },
+  };
+  const statusList = {
     boost: {
       txt: intl.formatMessage({ id: 'boost' }),
       icon: <BoostOptIcon></BoostOptIcon>,
@@ -222,13 +228,13 @@ export default function FarmsHome(props: any) {
       txt: intl.formatMessage({ id: 'eth' }),
       icon: <EthOptIcon></EthOptIcon>,
     },
+    new: {
+      txt: intl.formatMessage({ id: 'newText' }),
+      icon: <NewIcon></NewIcon>,
+    },
     others: {
       txt: intl.formatMessage({ id: 'others' }),
       icon: <OthersOptIcon></OthersOptIcon>,
-    },
-    my: {
-      txt: intl.formatMessage({ id: 'yours' }),
-      icon: <YoursOptIcon></YoursOptIcon>,
     },
   };
   const coinList = { all: intl.formatMessage({ id: 'allOption' }) };
@@ -667,6 +673,14 @@ export default function FarmsHome(props: any) {
         } else {
           condition1 = false;
         }
+      } else if (status == 'new') {
+        // todo
+        const m = isInMonth(seed);
+        if (m) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
       }
       if (keyWords) {
         for (let i = 0; i < token_symbols.length; i++) {
@@ -815,6 +829,31 @@ export default function FarmsHome(props: any) {
         localStorage.getItem('endedfarmShow') == '1' ? true : false
       );
     }
+  }
+  function isEnded(seed: Seed) {
+    const farms = seed.farmList;
+    return farms[0].status == 'Ended';
+  }
+
+  function isInMonth(seed: Seed) {
+    const endedStatus = isEnded(seed);
+    if (endedStatus) return false;
+    const farmList = seed.farmList;
+    const result = farmList.find((farm: FarmBoost) => {
+      const start_at = farm?.terms?.start_at;
+      if (start_at == 0) return true;
+      const one_month_seconds = 30 * 24 * 60 * 60;
+      const currentA = new Date().getTime();
+      const compareB = new BigNumber(start_at)
+        .plus(one_month_seconds)
+        .multipliedBy(1000);
+      const compareResult = compareB.minus(currentA);
+      if (compareResult.isGreaterThan(0)) {
+        return true;
+      }
+    });
+    if (result) return true;
+    return false;
   }
   function getTotalAprForSeed(seed: Seed) {
     const farms = seed.farmList;
@@ -1200,6 +1239,30 @@ export default function FarmsHome(props: any) {
       <div>
         <div className="searchArea m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
           <div className="flex justify-between items-center flex-wrap mb-5 xs:mb-3 md:mb-3 xs:w-full md:w-full xs:justify-start md:justify-start">
+            {
+              <div
+                className="flex items-center justify-between rounded-lg p-1 mr-5 xs:mb-2 md:mb-2"
+                style={{ backgroundColor: 'rgba(115, 129, 139, 0.35)' }}
+              >
+                {Object.keys(status_fronts).map((item: string) => {
+                  return (
+                    <span
+                      key={item}
+                      onClick={() => {
+                        changeStatus(item);
+                      }}
+                      className={`rounded-md px-4 py-1 text-sm text-white cursor-pointer ${
+                        status == item
+                          ? 'bg-stableTab'
+                          : 'opacity-60 text-opacity-60'
+                      }`}
+                    >
+                      {status_fronts[item].txt}
+                    </span>
+                  );
+                })}
+              </div>
+            }
             {Object.keys(statusList).map((item: string) => {
               if (statusList[item].hidden) return null;
               return (

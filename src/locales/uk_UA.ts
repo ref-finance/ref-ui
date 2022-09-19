@@ -826,5 +826,6 @@ const uk_UA = {
   value: 'значення',
   please_confirm_this_transaction_on_ledger:
     'Підтвердьте цю транзакцію в Ledger',
+  newText: 'новий',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

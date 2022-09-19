@@ -859,5 +859,6 @@ const ru = {
   value: 'ценность',
   please_confirm_this_transaction_on_ledger:
     'Пожалуйста, подтвердите эту транзакцию в Ledger',
+  newText: 'новый',
 };
 export default Object.assign(ru, ru_in_risks_page);
