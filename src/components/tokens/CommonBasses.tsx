@@ -23,7 +23,7 @@ const COMMON_BASSES = [
   'SKYWARD',
   'OCT',
   'STNEAR',
-  'USDT',
+  'USDT.e',
   'USDC',
   'ETH',
   'DAI',

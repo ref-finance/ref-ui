@@ -54,7 +54,7 @@ function TokenChart({
   });
   const color = {
     DAI: 'rgba(255, 199, 0, 0.45)',
-    USDT: 'rgba(0, 198, 162, 0.47)',
+    'USDT.e': 'rgba(0, 198, 162, 0.47)',
     USDC: 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
@@ -63,8 +63,8 @@ function TokenChart({
     STNEAR: 'rgba(160, 160, 255, 0.5)',
     NEAR: 'rgba(0, 198, 162, 0.5)',
     LINEAR: 'rgba(64, 129, 255, 0.5)',
-    NEARX: '#4d5971',
-    NearX: '#4d5971',
+    NEARXC: '#4d5971',
+    NearXC: '#4d5971',
   };
 
   const noBorderTokens = ['LINEAR'];
