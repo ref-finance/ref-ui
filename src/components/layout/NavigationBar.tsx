@@ -763,14 +763,12 @@ function Xref() {
   };
   return (
     <div
-      className={`h-full flex items-center justify-center relative py-4 mx-4 cursor-pointer hover:opacity-100 border-t-4 border-greenColor ${
-        location.pathname == '/xref'
-          ? 'opacity-100 border-opacity-100'
-          : 'opacity-60 border-opacity-0'
+      className={`h-full flex items-center justify-center relative py-4 mx-4 cursor-pointer hover:opacity-100 ${
+        location.pathname == '/xref' ? 'opacity-100' : 'opacity-60'
       }`}
       onClick={goXrefPage}
     >
-      <XrefIcon className="cursor-pointer"></XrefIcon>
+      <XrefIcon className="relative -top-px cursor-pointer"></XrefIcon>
       {/* <GreenArrow hover={hover}></GreenArrow> */}
     </div>
   );
