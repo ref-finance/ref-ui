@@ -209,12 +209,11 @@ export default function FarmsHome(props: any) {
     live: {
       txt: intl.formatMessage({ id: 'all' }),
     },
-    my: {
-      txt: intl.formatMessage({ id: 'yours' }),
-      // icon: <YoursOptIcon></YoursOptIcon>,
-    },
   };
   const statusList = {
+    live: {
+      txt: intl.formatMessage({ id: 'all' }),
+    },
     boost: {
       txt: intl.formatMessage({ id: 'boost' }),
       icon: <BoostOptIcon></BoostOptIcon>,
@@ -235,6 +234,10 @@ export default function FarmsHome(props: any) {
     others: {
       txt: intl.formatMessage({ id: 'others' }),
       icon: <OthersOptIcon></OthersOptIcon>,
+    },
+    my: {
+      txt: intl.formatMessage({ id: 'yours' }),
+      icon: <YoursOptIcon></YoursOptIcon>,
     },
   };
   const coinList = { all: intl.formatMessage({ id: 'allOption' }) };
@@ -1239,30 +1242,6 @@ export default function FarmsHome(props: any) {
       <div>
         <div className="searchArea m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
           <div className="flex justify-between items-center flex-wrap mb-5 xs:mb-3 md:mb-3 xs:w-full md:w-full xs:justify-start md:justify-start">
-            {
-              <div
-                className="flex items-center justify-between rounded-lg p-1 mr-5 xs:mb-2 md:mb-2"
-                style={{ backgroundColor: 'rgba(115, 129, 139, 0.35)' }}
-              >
-                {Object.keys(status_fronts).map((item: string) => {
-                  return (
-                    <span
-                      key={item}
-                      onClick={() => {
-                        changeStatus(item);
-                      }}
-                      className={`rounded-md px-4 py-1 text-sm text-white cursor-pointer ${
-                        status == item
-                          ? 'bg-stableTab'
-                          : 'opacity-60 text-opacity-60'
-                      }`}
-                    >
-                      {status_fronts[item].txt}
-                    </span>
-                  );
-                })}
-              </div>
-            }
             {Object.keys(statusList).map((item: string) => {
               if (statusList[item].hidden) return null;
               return (
