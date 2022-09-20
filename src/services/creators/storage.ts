@@ -46,6 +46,7 @@ export const storageDepositForFTAction = () =>
   storageDepositAction({
     accountId: REF_FI_CONTRACT_ID,
     amount: STORAGE_TO_REGISTER_WITH_FT,
+    registrationOnly: true,
   });
 
 export const storageDepositForMFTAction = () =>
@@ -68,4 +69,5 @@ export const storageDepositForV3Action = () =>
   storageDepositAction({
     accountId: REF_UNI_V3_SWAP_CONTRACT_ID,
     amount: STORAGE_TO_REGISTER_WITH_FT,
+    registrationOnly: true,
   });
