@@ -461,7 +461,7 @@ export default function AddYourLiquidityPageV3() {
       return;
     }
     // can only add y token
-    if (rightPoint <= currentPoint) {
+    if (rightPoint <= currentPoint || currentPoint == rightPoint - 1) {
       setOnlyAddYToken(true);
       if (sort) {
         setTokenXAmount('');

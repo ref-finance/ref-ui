@@ -64,7 +64,7 @@ export const AddPoolV3 = (props: any) => {
         return;
       }
       // can only add y token
-      if (right_point <= current_point) {
+      if (right_point <= current_point || current_point == right_point - 1) {
         setOnlyAddYToken(true);
         return;
       }
