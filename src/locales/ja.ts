@@ -648,7 +648,7 @@ const ja = {
   boost: 'Boost',
   near: 'NEAR',
   eth: 'ETH',
-  others: 'others',
+  others: 'Others',
   stakeLove: 'Stake LOVE',
   unstakeLove: 'Unstake LOVE',
   get_love: 'Get LOVE',
