@@ -291,7 +291,7 @@ export function YourLiquidityPage() {
         setTvls(
           res
             .map((p) => p.tvl)
-            .reduce((pre, cur, i) => {
+            ?.reduce((pre, cur, i) => {
               return {
                 ...pre,
                 [res[i].id]: cur,
@@ -333,26 +333,18 @@ export function YourLiquidityPage() {
         className="hover:bg-poolRowHover w-full hover:bg-opacity-20"
         key={Number(p.id)}
       >
-        <StakeListContext.Provider
-          value={{
-            stakeList,
-            finalStakeList,
-            v2StakeList,
-          }}
-        >
-          <PoolRow
-            tvl={tvls?.[p.id.toString()]}
-            pool={p}
-            tokens={ids.map((id) => tokensMeta[id]) || []}
-            supportFarmV1={supportFarmV1}
-            supportFarmV2={supportFarmV2}
-            onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
-            endedFarmV2={endedFarmV2}
-            endedFarmV1={endedFarmV1}
-            lptAmount={lptAmount}
-            shares={shares}
-          />
-        </StakeListContext.Provider>
+        <PoolRow
+          tvl={tvls?.[p.id.toString()]}
+          pool={p}
+          tokens={ids.map((id) => tokensMeta[id]) || []}
+          supportFarmV1={supportFarmV1}
+          supportFarmV2={supportFarmV2}
+          onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
+          endedFarmV2={endedFarmV2}
+          endedFarmV1={endedFarmV1}
+          lptAmount={lptAmount}
+          shares={shares}
+        />
       </div>
     );
   };
@@ -372,26 +364,18 @@ export function YourLiquidityPage() {
 
     const endedFarmV2 = getEndedFarmsCount(p.id.toString(), v2Farm);
     return (
-      <StakeListContext.Provider
-        value={{
-          stakeList,
-          finalStakeList,
-          v2StakeList,
-        }}
-      >
-        <PoolRow
-          pool={p}
-          tvl={tvls?.[p.id.toString()]}
-          tokens={ids.map((id) => tokensMeta[id]) || []}
-          supportFarmV1={supportFarmV1}
-          supportFarmV2={supportFarmV2}
-          onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
-          lptAmount={lptAmount}
-          endedFarmV2={endedFarmV2}
-          endedFarmV1={endedFarmV1}
-          shares={shares}
-        />
-      </StakeListContext.Provider>
+      <PoolRow
+        pool={p}
+        tvl={tvls?.[p.id.toString()]}
+        tokens={ids.map((id) => tokensMeta[id]) || []}
+        supportFarmV1={supportFarmV1}
+        supportFarmV2={supportFarmV2}
+        onlyEndedFarmV2={endedFarmV2 === supportFarmV2}
+        lptAmount={lptAmount}
+        endedFarmV2={endedFarmV2}
+        endedFarmV1={endedFarmV1}
+        shares={shares}
+      />
     );
   };
 
@@ -404,153 +388,193 @@ export function YourLiquidityPage() {
           ? Number(lptAmount) + n
           : n
       )
-      .reduce((acc, cur) => {
+      ?.reduce((acc, cur) => {
         return cur > 0 ? acc + 1 : acc;
       }, 0) +
     batchTotalShares.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
 
   return (
     <>
-      <PoolTab count={count}></PoolTab>
-      <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
-        <div className="w-full flex justify-center self-center">
-          {error && <Alert level="warn" message={error.message} />}
-        </div>
-        {/* PC */}
-
-        <Card
-          width="w-full"
-          padding="px-0 py-6"
-          className="xs:hidden md:hidden"
-        >
-          <div className="text-white text-xl pr-6 pl-6 lg:pl-10 lg:pr-8 pt-3 pb-6 flex items-center justify-between">
-            <span>
-              <FormattedMessage
-                id="your_liquidity"
-                defaultMessage="Your Liquidity"
-              />
-              ({count})
-            </span>
-
-            <GradientButton
-              className="px-4 py-1.5 text-sm"
-              onClick={() => {
-                setGeneralAddLiquidity(true);
-              }}
-            >
-              <FormattedMessage
-                id="add_liquidity"
-                defaultMessage={'Add Liquidity'}
-              />
-            </GradientButton>
+      <StakeListContext.Provider
+        value={{
+          stakeList,
+          finalStakeList,
+          v2StakeList,
+        }}
+      >
+        <PoolTab count={count}></PoolTab>
+        <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
+          <div className="w-full flex justify-center self-center">
+            {error && <Alert level="warn" message={error.message} />}
           </div>
+          {/* PC */}
 
-          {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
-            batchTotalShares?.some((s) => s > 0)) &&
-          !isClientMobile ? (
-            <section>
-              <div className="">
-                <div
-                  style={{
-                    gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
-                  }}
-                  className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:px-8
+          <Card
+            width="w-full"
+            padding="px-0 py-6"
+            className="xs:hidden md:hidden"
+          >
+            <div className="text-white text-xl pr-6 pl-6 lg:pl-10 lg:pr-8 pt-3 pb-6 flex items-center justify-between">
+              <span>
+                <FormattedMessage
+                  id="your_liquidity"
+                  defaultMessage="Your Liquidity"
+                />
+                ({count})
+              </span>
+
+              <GradientButton
+                className="px-4 py-1.5 text-sm"
+                onClick={() => {
+                  setGeneralAddLiquidity(true);
+                }}
+              >
+                <FormattedMessage
+                  id="add_liquidity"
+                  defaultMessage={'Add Liquidity'}
+                />
+              </GradientButton>
+            </div>
+
+            {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
+              batchTotalShares?.some((s) => s > 0)) &&
+            !isClientMobile ? (
+              <section>
+                <div className="">
+                  <div
+                    style={{
+                      gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
+                    }}
+                    className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:px-8
                 xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
-                >
-                  <div className="col-span-2">
-                    <FormattedMessage id="pair" defaultMessage="Pair" />
-                  </div>
-                  <div className="col-span-2 ">
-                    <FormattedMessage id="token" defaultMessage="Token" />
-                  </div>
+                  >
+                    <div className="col-span-2">
+                      <FormattedMessage id="pair" defaultMessage="Pair" />
+                    </div>
+                    <div className="col-span-2 ">
+                      <FormattedMessage id="token" defaultMessage="Token" />
+                    </div>
 
-                  <div className="flex flex-col col-span-5 text-left ml-8">
-                    <span>
-                      <FormattedMessage id="lp_token"></FormattedMessage>
-                    </span>
-                    <span>
-                      (
-                      <FormattedMessage
-                        id="my_shares"
-                        defaultMessage="Shares"
-                      />
-                      )
-                    </span>
+                    <div className="flex flex-col col-span-5 text-left ml-8">
+                      <span>
+                        <FormattedMessage id="lp_token"></FormattedMessage>
+                      </span>
+                      <span>
+                        (
+                        <FormattedMessage
+                          id="my_shares"
+                          defaultMessage="Shares"
+                        />
+                        )
+                      </span>
+                    </div>
+                    <div className="col-span-4 xl:ml-8 ml-4">
+                      <FormattedMessage id="value" defaultMessage="Value" />
+                    </div>
                   </div>
-                  <div className="col-span-4 xl:ml-8 ml-4">
-                    <FormattedMessage id="value" defaultMessage="Value" />
-                  </div>
-                </div>
-                <div className="max-h-96 overflow-y-auto">
-                  {!vePool || !getConfig().REF_VE_CONTRACT_ID
-                    ? null
-                    : [vePool].map((p) => {
+                  <div className="max-h-96 overflow-y-auto">
+                    {!vePool || !getConfig().REF_VE_CONTRACT_ID
+                      ? null
+                      : [vePool].map((p) => {
+                          return (
+                            <RowRender
+                              p={p}
+                              ids={p.token_account_ids}
+                              shares={
+                                batchShares?.[
+                                  pools.findIndex((p2) => p2.id === vePool.id)
+                                ] || ''
+                              }
+                            />
+                          );
+                        })}
+
+                    {batchTotalShares &&
+                      batchTotalShares?.some((s) => s > 0) &&
+                      stablePools?.map((p, i) => {
                         return (
                           <RowRender
                             p={p}
                             ids={p.token_account_ids}
-                            shares={
-                              batchShares?.[
-                                pools.findIndex((p2) => p2.id === vePool.id)
-                              ] || ''
-                            }
+                            shares={batchStableShares?.[i] || ''}
                           />
                         );
                       })}
 
-                  {batchTotalShares &&
-                    batchTotalShares?.some((s) => s > 0) &&
-                    stablePools?.map((p, i) => {
-                      return (
-                        <RowRender
-                          p={p}
-                          ids={p.token_account_ids}
-                          shares={batchStableShares?.[i] || ''}
-                        />
-                      );
-                    })}
-
-                  {pools
-                    .filter(
-                      (p) =>
-                        !getConfig().REF_VE_CONTRACT_ID ||
-                        !vePool ||
-                        p.id !== vePool.id
-                    )
-                    .map((p, i) => {
-                      return (
-                        <RowRender
-                          shares={
-                            batchShares?.[
-                              pools.findIndex((p2) => p2.id === p.id)
-                            ] || ''
-                          }
-                          p={p}
-                          ids={p.token_account_ids}
-                        />
-                      );
-                    })}
+                    {pools
+                      .filter(
+                        (p) =>
+                          !getConfig().REF_VE_CONTRACT_ID ||
+                          !vePool ||
+                          p.id !== vePool.id
+                      )
+                      .map((p, i) => {
+                        return (
+                          <RowRender
+                            shares={
+                              batchShares?.[
+                                pools.findIndex((p2) => p2.id === p.id)
+                              ] || ''
+                            }
+                            p={p}
+                            ids={p.token_account_ids}
+                          />
+                        );
+                      })}
+                  </div>
                 </div>
-              </div>
-            </section>
-          ) : (
-            <Empty />
-          )}
-        </Card>
-        {/* Mobile */}
+              </section>
+            ) : (
+              <Empty />
+            )}
+          </Card>
+          {/* Mobile */}
 
-        {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
-          batchTotalShares?.some((s) => s > 0)) &&
-        isClientMobile ? (
-          <div className="lg:hidden">
-            {!vePool || !getConfig().REF_VE_CONTRACT_ID
-              ? null
-              : [vePool].map((p) => {
+          {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
+            batchTotalShares?.some((s) => s > 0)) &&
+          isClientMobile ? (
+            <div className="lg:hidden">
+              {!vePool || !getConfig().REF_VE_CONTRACT_ID
+                ? null
+                : [vePool].map((p) => {
+                    return (
+                      <RowRenderMobile
+                        shares={
+                          batchShares?.[
+                            pools.findIndex((p2) => p2.id === vePool.id)
+                          ] || ''
+                        }
+                        p={p}
+                        ids={p.token_account_ids}
+                      />
+                    );
+                  })}
+
+              {batchTotalShares &&
+                batchTotalShares?.some((s) => s > 0) &&
+                stablePools?.map((p, i) => {
+                  return (
+                    <RowRenderMobile
+                      shares={batchStableShares?.[i] || ''}
+                      p={p}
+                      ids={p.token_account_ids}
+                    />
+                  );
+                })}
+
+              {pools
+                .filter(
+                  (p) =>
+                    !getConfig().REF_VE_CONTRACT_ID ||
+                    !vePool ||
+                    p.id !== vePool.id
+                )
+                .map((p, i) => {
                   return (
                     <RowRenderMobile
                       shares={
                         batchShares?.[
-                          pools.findIndex((p2) => p2.id === vePool.id)
+                          pools.findIndex((p2) => p2.id === p.id)
                         ] || ''
                       }
                       p={p}
@@ -558,56 +582,25 @@ export function YourLiquidityPage() {
                     />
                   );
                 })}
-
-            {batchTotalShares &&
-              batchTotalShares?.some((s) => s > 0) &&
-              stablePools?.map((p, i) => {
-                return (
-                  <RowRenderMobile
-                    shares={batchStableShares?.[i] || ''}
-                    p={p}
-                    ids={p.token_account_ids}
-                  />
-                );
-              })}
-
-            {pools
-              .filter(
-                (p) =>
-                  !getConfig().REF_VE_CONTRACT_ID ||
-                  !vePool ||
-                  p.id !== vePool.id
-              )
-              .map((p, i) => {
-                return (
-                  <RowRenderMobile
-                    shares={
-                      batchShares?.[pools.findIndex((p2) => p2.id === p.id)] ||
-                      ''
-                    }
-                    p={p}
-                    ids={p.token_account_ids}
-                  />
-                );
-              })}
-          </div>
-        ) : (
-          <Card className="lg:hidden mt-4" width="w-full">
-            <Empty />
-          </Card>
-        )}
-        <GradientButton
-          className="px-4 py-1.5 text-sm text-white lg:hidden"
-          onClick={() => {
-            setGeneralAddLiquidity(true);
-          }}
-        >
-          <FormattedMessage
-            id="add_liquidity"
-            defaultMessage={'Add Liquidity'}
-          />
-        </GradientButton>
-      </div>
+            </div>
+          ) : (
+            <Card className="lg:hidden mt-4" width="w-full">
+              <Empty />
+            </Card>
+          )}
+          <GradientButton
+            className="px-4 py-1.5 text-sm text-white lg:hidden"
+            onClick={() => {
+              setGeneralAddLiquidity(true);
+            }}
+          >
+            <FormattedMessage
+              id="add_liquidity"
+              defaultMessage={'Add Liquidity'}
+            />
+          </GradientButton>
+        </div>
+      </StakeListContext.Provider>
       <YourLiquidityAddLiquidityModal
         isOpen={generalAddLiquidity}
         onRequestClose={() => {
@@ -1464,7 +1457,7 @@ function YourLiquidityAddLiquidityModal(
       setFarmV2Counts(
         res
           .map((r) => r.count)
-          .reduce((acc, cur, i) => {
+          ?.reduce((acc, cur, i) => {
             return {
               ...acc,
               [candPools[i].id]: cur,
