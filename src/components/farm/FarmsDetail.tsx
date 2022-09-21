@@ -1154,7 +1154,9 @@ function AddLiquidityEntryBar(props: {
   } else {
     addLiquidityButtonLoading = false;
   }
-  if (!showAddLiquidityEntry) return null;
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(poolId.toString()) > -1;
+  if (!showAddLiquidityEntry || needForbidden) return null;
   return (
     <div
       className="rounded-lg overflow-hidden mt-8"
@@ -2555,8 +2557,9 @@ function UserStakeBlock(props: {
                   }}
                   color="#fff"
                   disabled={needForbidden ? true : false}
+                  btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
                   className={`w-36 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
-                    needForbidden ? 'opacity-40 cursor-not-allowed' : ''
+                    needForbidden ? 'opacity-40' : ''
                   } ${isEnded ? 'hidden' : ''}`}
                 >
                   <FormattedMessage id="stake"></FormattedMessage>
