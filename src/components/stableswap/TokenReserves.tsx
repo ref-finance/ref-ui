@@ -562,7 +562,7 @@ export default function ({
           .map(({ token, display }) => {
             return (
               <InfoLine
-                key={token.symbol}
+                key={token.id + token.symbol}
                 title={token.symbol}
                 value={display}
                 valueTitle={toPrecision(
