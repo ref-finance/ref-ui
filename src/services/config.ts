@@ -386,13 +386,28 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.near': 0,
           'wrap.near': 1,
         },
-        NEAX_POOL_ID: '3612',
+        NEARX_POOL_ID: '3612',
         NEARXIDS: ['nearx.stader-labs.near', 'wrap.near'],
-        NEAX_POOL_INDEX: {
+        NEARX_POOL_INDEX: {
           'nearx.stader-labs.near': 0,
           'wrap.near': 1,
         },
-        RATED_POOLS_IDS: ['3514', '3515', '3612'],
+        NEW_NEARX_POOL_ID: '3688',
+        NEW_NEARXIDS: ['v2-nearx.stader-labs.near', 'wrap.near'],
+        NEW_NEARX_POOL_INDEX: {
+          'v2-nearx.stader-labs.near': 0,
+          'wrap.near': 1,
+        },
+        USDT_POOL_ID: '3689',
+        USDTIDS: [
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+          'usdt.tether-token.near',
+        ],
+        USDT_POOL_INDEX: {
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 0,
+          'usdt.tether-token.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
       };
     case 'development':
     case 'pub-testnet':
@@ -422,8 +437,8 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'wrap.testnet': 1,
         },
         NEARXIDS: ['nearx.staderlabs.testnet', 'wrap.testnet'],
-        NEAX_POOL_ID: '1044',
-        NEAX_POOL_INDEX: {
+        NEARX_POOL_ID: '1044',
+        NEARX_POOL_INDEX: {
           'nearx.staderlabs.testnet': 0,
           'wrap.testnet': 1,
         },
@@ -445,7 +460,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
         CUSD_STABLE_POOL_ID: '608',
         STNEAR_POOL_ID: '621',
         LINEAR_POOL_ID: '622',
-        NEAX_POOL_ID: '666',
+        NEARX_POOL_ID: '666',
         STNEARIDS: ['meta-v2.pool.testnet', 'wrap.testnet'],
         LINEARIDS: ['linear-protocol.testnet', 'wrap.testnet'],
         NEARXIDS: ['nearx.staderlabs.testnet', 'wrap.testnet'],
@@ -457,7 +472,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.testnet': 0,
           'wrap.testnet': 1,
         },
-        NEAX_POOL_INDEX: {
+        NEARX_POOL_INDEX: {
           'nearx.staderlabs.testnet': 0,
           'wrap.testnet': 1,
         },
@@ -492,9 +507,9 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.near': 0,
           'wrap.near': 1,
         },
-        NEAX_POOL_ID: '3612',
+        NEARX_POOL_ID: '3612',
         NEARXIDS: ['nearx.stader-labs.near', 'wrap.near'],
-        NEAX_POOL_INDEX: {
+        NEARX_POOL_INDEX: {
           'nearx.stader-labs.near': 0,
           'wrap.near': 1,
         },

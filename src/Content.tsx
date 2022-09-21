@@ -53,39 +53,10 @@ import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
-import PopUpSwiper from '~components/layout/PopUp';
-import SwapGuide from '~components/layout/SwapGuide';
-import { isMobile } from '~utils/device';
-import {
-  wallet as webWallet,
-  REF_FARM_CONTRACT_ID,
-  STABLE_POOL_ID,
-  STABLE_POOL_USN_ID,
-  BTC_POOL_ID,
-} from './services/near';
-import {
-  getSenderWallet,
-  WALLET_TYPE,
-  getCurrentWallet,
-} from './utils/wallets-integration';
-import {
-  getURLInfo,
-  failToast,
-  usnBuyAndSellToast,
-} from './components/layout/transactionTipPopUp';
-import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
-import { senderSignedInToast } from '~components/layout/senderSignInPopUp';
-import { getAllTriPools } from './services/aurora/aurora';
 
-import {
-  getSenderLoginRes,
-  LOCK_INTERVAL,
-  saveSenderLoginRes,
-} from './utils/wallets-integration';
-import {
-  senderWallet,
-  SENDER_WALLET_SIGNEDIN_STATE_KEY,
-} from './utils/wallets-integration';
+import { isMobile } from '~utils/device';
+
+import { StableSwapPageEntry } from '~pages/stable/StableSwapEntry';
 
 import {
   WalletContext,

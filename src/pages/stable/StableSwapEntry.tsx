@@ -9,21 +9,7 @@ import { FormattedMessage } from 'react-intl';
 import { Pool } from '../../services/pool';
 import { Card } from '../../components/card/Card';
 import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
-import {
-  STABLE_POOL_USN_ID,
-  STABLE_POOL_ID,
-  AllStableTokenIds,
-  BTC_STABLE_POOL_ID,
-  BTCIDS,
-  STNEARIDS,
-  STNEAR_POOL_ID,
-  CUSDIDS,
-  CUSD_STABLE_POOL_ID,
-  LINEAR_POOL_ID,
-  LINEARIDS,
-  NEAX_POOL_ID,
-  NEARXIDS,
-} from '../../services/near';
+import { AllStableTokenIds, NEARX_POOL_ID } from '../../services/near';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber, percent } from '../../utils/numbers';
 import { ShareInFarm } from '../../components/layout/ShareInFarm';
@@ -44,7 +30,11 @@ import {
   getCurrentWallet,
   WalletContext,
 } from '../../utils/wallets-integration';
-import { useStabelPoolData, PoolData } from '../../state/sauce';
+import {
+  useStabelPoolData,
+  PoolData,
+  useAllStablePoolData,
+} from '../../state/sauce';
 import { useYourliquidity } from '../../state/pool';
 import { useCanFarmV1, useCanFarmV2 } from '../../state/farm';
 import {
@@ -52,7 +42,13 @@ import {
   isStablePool,
   isRatedPool,
 } from '../../services/near';
-import { STABLE_TOKEN_IDS, STABLE_TOKEN_USN_IDS } from '../../services/near';
+import {
+  STABLE_TOKEN_IDS,
+  STABLE_TOKEN_USN_IDS,
+  USD_CLASS_STABLE_POOL_IDS,
+  BTC_CLASS_STABLE_POOL_IDS,
+  NEAR_CLASS_STABLE_POOL_IDS,
+} from '../../services/near';
 import { useClientMobile } from '~utils/device';
 
 export const getStablePoolDecimal = (id: string | number) => {
@@ -151,6 +147,7 @@ export function formatePoolData({
     displaySharePercent,
     shares,
     TVLtitle,
+    pool,
   };
 }
 
@@ -352,7 +349,6 @@ function StablePoolCard({
                 pool: stablePool,
               });
             }}
-            disabled={stablePool.id === Number(NEAX_POOL_ID)}
           >
             <FormattedMessage
               id="add_liquidity"
@@ -361,7 +357,7 @@ function StablePoolCard({
           </SolidButton>
           <OutlineButton
             className="w-full py-3 ml-2 text-sm h-11"
-            disabled={stablePool.id === Number(NEAX_POOL_ID)}
+            disabled={stablePool.id === Number(NEARX_POOL_ID)}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -431,17 +427,8 @@ export function StableSwapPageEntry() {
       localStorage.getItem(REF_SAUCE_PAGE_STABLE_CLASS_KEY)?.toString()
     ] || STABLE_POOL_TYPE.USD
   );
-  const { poolData: pool3tokenData } = useStabelPoolData(STABLE_POOL_ID);
-  const { poolData: USNPoolData } = useStabelPoolData(STABLE_POOL_USN_ID);
 
-  const { poolData: BTCPoolData } = useStabelPoolData(BTC_STABLE_POOL_ID);
-
-  const { poolData: STNEARPoolData } = useStabelPoolData(STNEAR_POOL_ID);
-  const { poolData: CUSDPoolData } = useStabelPoolData(CUSD_STABLE_POOL_ID);
-
-  const { poolData: LINEARPoolData } = useStabelPoolData(LINEAR_POOL_ID);
-
-  const { poolData: NEAXPoolData } = useStabelPoolData(NEAX_POOL_ID);
+  const allStablePoolData = useAllStablePoolData();
 
   const [chosenState, setChosesState] = useState<number>();
 
@@ -461,41 +448,41 @@ export function StableSwapPageEntry() {
   }, [reserveType]);
 
   if (
-    !pool3tokenData ||
-    !USNPoolData ||
-    !BTCPoolData ||
-    !CUSDPoolData ||
-    !STNEARPoolData ||
-    !LINEARPoolData ||
-    !NEAXPoolData ||
-    !allStableTokens
+    !allStableTokens ||
+    !allStablePoolData ||
+    allStablePoolData.some((pd) => !pd)
   )
     return <Loading />;
 
-  const formatedPool3tokenData = formatePoolData(pool3tokenData);
-  const formatedUSNPoolData = formatePoolData(USNPoolData);
-  const formatedBTCPoolData = formatePoolData(BTCPoolData);
-  const formatedCUSDPoolData = formatePoolData(CUSDPoolData);
-
-  const formatedSTNEARPoolData = formatePoolData(STNEARPoolData);
-
-  const formatedLINEARPoolData = formatePoolData(LINEARPoolData);
-
-  const formatedNEAXPoolData = formatePoolData(NEAXPoolData);
+  const formattedPools = allStablePoolData.map((pd) => formatePoolData(pd));
 
   const displayPoolData =
     reserveType === STABLE_POOL_TYPE.USD
-      ? [formatedPool3tokenData, formatedUSNPoolData, formatedCUSDPoolData]
+      ? formattedPools.filter((pd) =>
+          USD_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        )
       : reserveType === STABLE_POOL_TYPE.BTC
-      ? [formatedBTCPoolData]
-      : [formatedSTNEARPoolData, formatedLINEARPoolData, formatedNEAXPoolData];
+      ? formattedPools.filter((pd) =>
+          BTC_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        )
+      : formattedPools.filter((pd) =>
+          NEAR_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        );
 
   const displayPools =
     reserveType === STABLE_POOL_TYPE.USD
-      ? [pool3tokenData, USNPoolData, CUSDPoolData]
+      ? allStablePoolData.filter((pd) =>
+          USD_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        )
       : reserveType === STABLE_POOL_TYPE.BTC
-      ? [BTCPoolData]
-      : [STNEARPoolData, LINEARPoolData, NEAXPoolData];
+      ? allStablePoolData.filter((pd) =>
+          BTC_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        )
+      : allStablePoolData.filter((pd) =>
+          NEAR_CLASS_STABLE_POOL_IDS.includes(pd.pool.id.toString())
+        );
+
+  const displayPoolRaw = displayPools.map((pd) => pd.pool);
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2 flex flex-col">
@@ -529,28 +516,8 @@ export function StableSwapPageEntry() {
       })}
 
       <TokenReserves
-        tokens={allStableTokens.filter((token) => {
-          switch (reserveType) {
-            case 'BTC':
-              return BTCIDS.includes(token.id);
-            case 'USD':
-              return STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
-                .concat(CUSDIDS)
-                .map((id) => id.toString())
-                .includes(token.id);
-            case 'NEAR':
-              return STNEARIDS.concat(LINEARIDS)
-                .concat(NEARXIDS)
-                .includes(token.id);
-          }
-        })}
-        pools={
-          reserveType === STABLE_POOL_TYPE.BTC
-            ? [BTCPoolData.pool]
-            : reserveType === STABLE_POOL_TYPE.NEAR
-            ? [STNEARPoolData.pool, LINEARPoolData.pool, NEAXPoolData.pool]
-            : [USNPoolData.pool, pool3tokenData.pool, CUSDPoolData.pool]
-        }
+        tokens={allStableTokens}
+        pools={displayPoolRaw}
         hiddenMag={true}
         className="pt-6"
         type={reserveType}

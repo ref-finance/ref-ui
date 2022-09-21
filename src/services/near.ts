@@ -52,18 +52,6 @@ export const STABLE_TOKEN_USN_IDS = config.STABLE_TOKEN_USN_IDS;
 
 export const REF_FARM_BOOST_CONTRACT_ID = config.REF_FARM_BOOST_CONTRACT_ID;
 
-export const isStableToken = (id: string) => {
-  return (
-    STABLE_TOKEN_IDS.includes(id) ||
-    STABLE_TOKEN_USN_IDS.includes(id) ||
-    BTCIDS.includes(id) ||
-    STNEARIDS.includes(id) ||
-    CUSDIDS.includes(id) ||
-    LINEARIDS.includes(id) ||
-    NEARXIDS.includes(id)
-  );
-};
-
 export const {
   BTCIDS,
   CUSDIDS,
@@ -77,15 +65,23 @@ export const {
   LINEARIDS,
   LINEAR_POOL_INDEX,
   LINEAR_POOL_ID,
-  NEAX_POOL_ID,
-  NEAX_POOL_INDEX,
+  NEARX_POOL_ID,
+  NEARX_POOL_INDEX,
   NEARXIDS,
+  NEW_NEARXIDS,
+  NEW_NEARX_POOL_ID,
+  NEW_NEARX_POOL_INDEX,
+  USDTIDS,
+  USDT_POOL_ID,
+  USDT_POOL_INDEX,
 } = getExtraStablePoolConfig();
 
 export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
   .concat(STNEARIDS)
   .concat(NEARXIDS)
   .concat(CUSDIDS)
+  .concat(NEW_NEARXIDS)
+  .concat(USDTIDS)
   .filter((_) => !!_);
 
 export const isRatedPool = (id: string | number) => {
@@ -98,6 +94,10 @@ export const AllStableTokenIds = new Array(
   )
 );
 
+export const isStableToken = (id: string) => {
+  return AllStableTokenIds.includes(id);
+};
+
 export const ALL_STABLE_POOL_IDS = [
   STABLE_POOL_ID,
   STABLE_POOL_USN_ID,
@@ -105,7 +105,9 @@ export const ALL_STABLE_POOL_IDS = [
   STNEAR_POOL_ID,
   CUSD_STABLE_POOL_ID,
   LINEAR_POOL_ID,
-  NEAX_POOL_ID,
+  NEARX_POOL_ID,
+  NEW_NEARX_POOL_ID,
+  USDT_POOL_ID,
 ]
   .filter((_) => _)
   .map((id) => id.toString());
@@ -136,8 +138,12 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
       return CUSD_STABLE_POOL_INDEX;
     case LINEAR_POOL_ID:
       return LINEAR_POOL_INDEX;
-    case NEAX_POOL_ID:
-      return NEAX_POOL_INDEX;
+    case NEARX_POOL_ID:
+      return NEARX_POOL_INDEX;
+    case NEW_NEARX_POOL_ID:
+      return NEW_NEARX_POOL_INDEX;
+    case USDT_POOL_ID:
+      return USDT_POOL_INDEX;
   }
 };
 
@@ -151,7 +157,35 @@ export enum STABLE_POOL_TYPE {
   USD = 'USD',
 }
 
-export const BTC_POOL_ID = config.BTC_POOL_ID;
+export const BTC_CLASS_STABLE_POOL_IDS = [BTC_STABLE_POOL_ID];
+
+export const NEAR_CLASS_STABLE_POOL_IDS = [
+  LINEAR_POOL_ID,
+  NEARX_POOL_ID,
+  STNEAR_POOL_ID,
+  NEW_NEARX_POOL_ID,
+];
+
+export const USD_CLASS_STABLE_POOL_IDS = [
+  STABLE_POOL_ID.toString(),
+  STABLE_POOL_USN_ID.toString(),
+  CUSD_STABLE_POOL_ID,
+  USDT_POOL_ID,
+];
+
+export const BTC_CLASS_STABLE_TOKEN_IDS = BTCIDS;
+
+export const NEAR_CLASS_STABLE_TOKEN_IDS = new Array(
+  ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).concat(NEW_NEARXIDS))
+).map((id) => id);
+
+export const USD_CLASS_STABLE_TOKEN_IDS = new Array(
+  ...new Set(
+    STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS)
+      .concat(CUSDIDS)
+      .concat(USDTIDS)
+  )
+);
 
 export const REF_FARM_CONTRACT_ID = config.REF_FARM_CONTRACT_ID;
 
