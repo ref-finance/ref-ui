@@ -67,6 +67,7 @@ function TokenChart({
   const color = {
     DAI: 'rgba(255, 199, 0, 0.45)',
     'USDT.e': 'rgba(0, 198, 162, 0.47)',
+    USDT: 'rgba(0, 198, 162, 0.47)',
     USDC: 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
