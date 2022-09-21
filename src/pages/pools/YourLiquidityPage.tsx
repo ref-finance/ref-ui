@@ -391,7 +391,7 @@ export function YourLiquidityPage() {
       ?.reduce((acc, cur) => {
         return cur > 0 ? acc + 1 : acc;
       }, 0) +
-    batchTotalShares.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
+    batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
 
   return (
     <>
