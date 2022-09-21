@@ -18,10 +18,6 @@ export const StableSwapRouter = () => {
 
   if (!pool) return <Loading />;
 
-  if (id === NEARX_POOL_ID) {
-    history.push(`/`);
-  }
-
   if (pool.tokenIds.length > 2) return <StableSwapPage pool={pool} />;
   else return <StableSwapPageUSN pool={pool} />;
 };

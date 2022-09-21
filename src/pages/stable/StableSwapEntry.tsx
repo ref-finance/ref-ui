@@ -210,6 +210,7 @@ function StablePoolCard({
           ? 'border border-gradientFrom'
           : 'border border-transparent'
       }
+
       `}
       onTouchEnd={() => {
         if (chosenState !== index) setChosesState(index);
@@ -340,6 +341,7 @@ function StablePoolCard({
         >
           <SolidButton
             className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm"
+            disabled={stablePool.id === Number(NEARX_POOL_ID)}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -357,7 +359,6 @@ function StablePoolCard({
           </SolidButton>
           <OutlineButton
             className="w-full py-3 ml-2 text-sm h-11"
-            disabled={stablePool.id === Number(NEARX_POOL_ID)}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
