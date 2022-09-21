@@ -22,7 +22,8 @@ export default function SquareRadio({
           return (
             <span
               className={`py-2 text-center text-base cursor-pointer ${
-                Number(poolId) === Number(NEARX_POOL_ID)
+                Number(poolId) === Number(NEARX_POOL_ID) &&
+                radio === 'add_liquidity'
                   ? 'cursor-not-allowed'
                   : ''
               } w-full ${choose === radio ? ' text-white' : 'text-farmText'}`}
