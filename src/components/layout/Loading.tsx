@@ -15,10 +15,11 @@ export const ClipLoadering = () => {
   return <ClipLoader color="#ffffff" />;
 };
 
-export const BlueCircleLoading = () => {
+export const BlueCircleLoading = (props: any) => {
+  const { className } = props;
   return (
     <svg
-      className="rotateInfinite"
+      className={`rotateInfinite ${className}`}
       width="60px"
       height="60px"
       xmlns="http://www.w3.org/2000/svg"

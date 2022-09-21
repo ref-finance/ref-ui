@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import {
   ReturnIcon,
   AddIcon,
@@ -42,6 +42,7 @@ import {
   add_liquidity,
   create_pool,
   PoolInfo,
+  get_pool_marketdepth,
 } from '../../services/swapV3';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import {
@@ -70,7 +71,10 @@ import BigNumber from 'bignumber.js';
 import { toRealSymbol } from '../../utils/token';
 import ReactTooltip from 'react-tooltip';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { BlueCircleLoading } from '../../components/layout/Loading';
+
 import Big from 'big.js';
+import * as d3 from 'd3';
 
 export default function AddYourLiquidityPageV3() {
   const [tokenX, setTokenX] = useState<TokenMetadata>(null);
@@ -1022,6 +1026,8 @@ function AddLiquidityComponent({
   const [leftPoint, setLeftPoint] = useState<number>(0);
   const [rightPoint, setRightPoint] = useState<number>(0);
   const [currentPoint, setCurrentPoint] = useState<number>();
+  const [chartLoading, setChartLoading] = useState<boolean>(false);
+  const [noDataForChart, setNoDataForChart] = useState(false);
   const [addLiquidityButtonLoading, setAddLiquidityButtonLoading] =
     useState(false);
   const [currentCheckedQuickOption, setCurrentCheckedQuickOption] = useState<
@@ -1034,6 +1040,7 @@ function AddLiquidityComponent({
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
+  const chartDom = useRef(null);
   const { token_x, token_y } = currentSelectedPool;
   const token_x_decimals =
     tokenX.id == token_x ? tokenX.decimals : tokenY.decimals;
@@ -1065,6 +1072,8 @@ function AddLiquidityComponent({
     setCurrentPoint(current_point);
     setQuickOptionsMapPoint(optionsMapPoints_temp);
     setCurrentCheckedQuickOption(10);
+    // show chart data
+    getChartData();
   }, [currentSelectedPool]);
   useEffect(() => {
     pointChange({ leftPoint, rightPoint, currentPoint });
@@ -1080,6 +1089,104 @@ function AddLiquidityComponent({
       setCurrentCheckedQuickOption(undefined);
     }
   }, [leftPoint, rightPoint]);
+  async function getChartData() {
+    setChartLoading(true);
+    setNoDataForChart(false);
+    const depthData = await get_pool_marketdepth(currentSelectedPool.pool_id);
+    const { current_point, liquidities } = depthData;
+    const list = Object.values(liquidities);
+    if (list.length > 0) {
+      const priceList: string[] = [];
+      const L_list: string[] = [];
+      const displayList: any[] = [];
+      const decimalRate =
+        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
+      const price_c: any = getPriceByPoint(current_point, decimalRate);
+      list.forEach((item: any, index: number) => {
+        const { left_point, right_point, amount_l } = item;
+        const price_l = getPriceByPoint(left_point, decimalRate);
+        const price_r = getPriceByPoint(right_point, decimalRate);
+        const min_decimals = _.min([token_x_decimals, token_y_decimals]);
+        const l = toReadableNumber(min_decimals, amount_l);
+        // 过滤异常数据 极大极小的数据
+        const maxPrice = new BigNumber(price_c).multipliedBy(1000);
+        const minPrice = new BigNumber(price_c).dividedBy(1000);
+        const needFilterData =
+          minPrice.isGreaterThanOrEqualTo(price_l) ||
+          minPrice.isGreaterThanOrEqualTo(price_r) ||
+          maxPrice.isLessThanOrEqualTo(price_l) ||
+          maxPrice.isLessThanOrEqualTo(price_r);
+        if (!needFilterData) {
+          priceList.push(price_l, price_r);
+          L_list.push(l);
+          displayList.push({
+            left: price_l,
+            right: price_r,
+            l,
+          });
+        }
+      });
+      priceList.push(price_c);
+      priceList.sort((a: string, b: string) => {
+        return new BigNumber(a).minus(new BigNumber(b)).toNumber();
+      });
+      L_list.sort((a: string, b: string) => {
+        return new BigNumber(a).minus(new BigNumber(b)).toNumber();
+      });
+      const left_p: any = priceList[0];
+      const right_p: any = priceList[priceList.length - 1];
+      const l_r: any = L_list[L_list.length - 1];
+      const width = chartDom.current.clientWidth - 30;
+      const myScaleX = d3
+        .scaleLinear()
+        .domain([left_p, right_p])
+        .range([0, width]);
+      const myScaleY = d3.scaleLinear().domain([0, l_r]).range([0, 200]);
+      const axis: any = d3.axisBottom(myScaleX);
+      axis.ticks(5);
+      axis.tickSize(0).tickPadding(15);
+      d3.select('.g').call(axis).selectAll('text').style('fill', '#7E8A93');
+      // chart
+      d3.select('.chart')
+        .selectAll('rect')
+        .data(displayList)
+        .join('rect')
+        .attr('width', function (d, i) {
+          const { left, right, l } = d;
+          return myScaleX(right) - myScaleX(left);
+        })
+        .attr('height', function (d, i) {
+          const { left, right, l } = d;
+          return myScaleY(l);
+        })
+        .attr('x', function (d, i) {
+          const { left, right, l } = d;
+          return myScaleX(left) + 15;
+        })
+        .attr('y', function (d, i) {
+          const { left, right, l } = d;
+          return 200 - myScaleY(l);
+        })
+        .style('fill', 'rgba(91, 64, 255, 0.5)');
+      d3.select('.g2')
+        .selectAll('line')
+        .data([price_c])
+        .join('line')
+        .attr('x1', function (d) {
+          return myScaleX(d) + 15;
+        })
+        .attr('x2', function (d) {
+          return myScaleX(d) + 15;
+        })
+        .attr('y1', 0)
+        .attr('y2', 200)
+        .style('stroke-width', 1)
+        .style('stroke', '#fff');
+    } else {
+      setNoDataForChart(true);
+    }
+    setChartLoading(false);
+  }
   function getPointByCondition(p: number) {
     const { point_delta, token_x } = currentSelectedPool;
     const c_price = getCurrentPrice_real_decimal();
@@ -1450,9 +1557,23 @@ function AddLiquidityComponent({
           </div>
         </div>
         {/* range chart area */}
-        <div className="flex flex-col items-center justify-center my-10">
-          <span className="text-sm text-primaryText mb-10">Coming soon...</span>
-          <EmptyIcon></EmptyIcon>
+        <div className="relative flex flex-col items-center justify-center my-10">
+          <svg
+            width="100%"
+            height="230"
+            className={`chart ${
+              chartLoading || noDataForChart ? 'invisible' : 'visible'
+            }`}
+            ref={chartDom}
+            style={{ color: 'rgba(91, 64, 255, 0.5)' }}
+          >
+            <g className="g" transform="translate(15,200)"></g>
+            <g className="g2"></g>
+          </svg>
+          {chartLoading ? (
+            <BlueCircleLoading className="absolute"></BlueCircleLoading>
+          ) : null}
+          {noDataForChart ? <EmptyIcon className="absolute"></EmptyIcon> : null}
         </div>
         {/* input range area */}
         <div>
@@ -1670,8 +1791,7 @@ function NoDataComponent() {
       <div className="text-white font-bold text-base">Set Price Range</div>
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 opacity-50">
         {/* range chart area */}
-        <div className="flex flex-col items-center justify-center mt-16">
-          <span className="text-sm text-primaryText mb-10">Coming soon...</span>
+        <div className="flex flex-col items-center justify-center mt-24">
           <EmptyIcon></EmptyIcon>
         </div>
         {/* input range area */}

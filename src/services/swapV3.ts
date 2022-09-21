@@ -852,6 +852,16 @@ export const list_user_assets = async () => {
   });
 };
 
+export const get_pool_marketdepth = async (pool_id: string) => {
+  return refSwapV3ViewFunction({
+    methodName: 'get_marketdepth',
+    args: {
+      pool_id,
+      depth: 100,
+    },
+  });
+};
+
 export interface PoolInfo {
   pool_id?: string;
   token_x?: string;
