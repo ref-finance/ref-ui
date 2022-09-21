@@ -52,7 +52,7 @@ export function openTransak(accountId: string) {
       document.getElementsByClassName('Toastify__toast-container')?.length > 0;
     if (!el && marker) {
       normalSuccessToast(
-        `Transaction order to buy from ${fiatAmount} ${fiatCurrency} to ${cryptoAmount} ${cryptoCurrency} was successfully, please wait for 1-3 minutes for completing the order.`
+        `Purchase of ${cryptoAmount} ${cryptoCurrency} complete. Please wait 1-3 minutes for the transaction to be finalised.`
       );
       sessionStorage.removeItem(successMarker);
     }
