@@ -836,6 +836,7 @@ export default function SwapCard(props: {
   const tokenOutTotal = useNearBalance
     ? tokenOutBalanceFromNear || '0'
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
+
   const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -923,7 +924,6 @@ export default function SwapCard(props: {
               );
             setTokenIn(token);
             setCanSwap(false);
-            setTokenInBalanceFromNear(token?.near?.toString());
           }}
           text={intl.formatMessage({ id: 'from' })}
           useNearBalance={useNearBalance}
@@ -980,7 +980,6 @@ export default function SwapCard(props: {
               );
             setTokenOut(token);
             setCanSwap(false);
-            setTokenOutBalanceFromNear(token?.near?.toString());
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
