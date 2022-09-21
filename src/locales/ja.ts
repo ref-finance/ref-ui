@@ -859,5 +859,6 @@ const ja = {
   farm_only: '農場のみ',
   please_confirm_this_transaction_on_ledger:
     'この取引をLedgerで確認してください',
+  farm_stop_tip: 'This farm has been stopped.',
 };
 export default Object.assign(ja, ja_in_risks_page);

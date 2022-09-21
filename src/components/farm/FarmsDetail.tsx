@@ -90,7 +90,12 @@ import { VEARROW } from '../icon/Referendum';
 import { isStablePool } from '../../services/near';
 import moment from 'moment';
 const ONLY_ZEROS = /^0*\.?0*$/;
-const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = getConfig();
+const {
+  STABLE_POOL_IDS,
+  FARM_LOCK_SWITCH,
+  REF_VE_CONTRACT_ID,
+  FARM_BLACK_LIST_V2,
+} = getConfig();
 export default function FarmsDetail(props: {
   detailData: Seed;
   emptyDetailData: Function;
@@ -221,6 +226,8 @@ export default function FarmsDetail(props: {
     }
   }
   const radio = getBoostMutil();
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
@@ -231,7 +238,7 @@ export default function FarmsDetail(props: {
       </div>
       <div
         className={`flex justify-between items-center mt-7 flex-wrap ${
-          isEnded() ? 'farmEnded' : ''
+          isEnded() || needForbidden ? 'farmEnded' : ''
         }`}
       >
         <div className="left flex items-center h-11 ml-3">
@@ -824,11 +831,14 @@ function StakeContainer(props: {
   }
   const aprUpLimit = getAprUpperLimit();
   const mobile = isMobile();
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
+
   return (
     <div className="mt-5">
       <div
         className={`poolbaseInfo flex items-center xs:flex-col md:flex-col justify-between ${
-          isEnded() ? 'farmEnded' : ''
+          isEnded() || needForbidden ? 'farmEnded' : ''
         }`}
       >
         <div
@@ -2462,6 +2472,8 @@ function UserStakeBlock(props: {
     return '';
   }
   const isEnded = detailData.farmList[0].status == 'Ended';
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
   return (
     <div className="bg-cardBg rounded-2xl p-5 mt-5">
       <div className="flex justify-between items-center text-sm text-primaryText">
@@ -2542,9 +2554,10 @@ function UserStakeBlock(props: {
                     openStakeModalVisible('free');
                   }}
                   color="#fff"
+                  disabled={needForbidden ? true : false}
                   className={`w-36 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
-                    isEnded ? 'hidden' : ''
-                  }`}
+                    needForbidden ? 'opacity-40 cursor-not-allowed' : ''
+                  } ${isEnded ? 'hidden' : ''}`}
                 >
                   <FormattedMessage id="stake"></FormattedMessage>
                 </GradientButton>

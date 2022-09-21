@@ -29,6 +29,7 @@ import {
   BoostFarmNoDataIcon,
   BoostDotIcon,
   NewTag,
+  ForbiddonIcon,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -119,7 +120,7 @@ import { MoreButtonIcon } from '../../components/icon/Common';
 
 import _ from 'lodash';
 
-const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
+const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID, FARM_BLACK_LIST_V2 } = getConfig();
 export default function FarmsHome(props: any) {
   const {
     getDetailData,
@@ -2695,8 +2696,15 @@ function FarmView(props: {
     }
     return '';
   }
+  function getForbiddenTip() {
+    const tip = intl.formatMessage({ id: 'farm_stop_tip' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
   const isHaveUnclaimedReward = haveUnclaimedReward();
   const aprUpLimit = getAprUpperLimit();
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
   return (
     <>
       <div
@@ -2704,7 +2712,7 @@ function FarmView(props: {
           goFarmDetailPage(seed);
         }}
         className={`relative rounded-2xl cursor-pointer bg-cardBg hover:shadow-blue ${
-          isEnded() ? 'farmEnded' : ''
+          isEnded() || needForbidden ? 'farmEnded' : ''
         }
       `}
       >
@@ -2788,6 +2796,29 @@ function FarmView(props: {
               ) : null}
               {isInMonth() ? <NewTag></NewTag> : null}
             </div>
+            {needForbidden ? (
+              <div className="flex flex-col absolute left-3.5 top-3">
+                <div
+                  className="text-xl text-white"
+                  data-type="info"
+                  data-place="top"
+                  data-multiline={true}
+                  data-tip={getForbiddenTip()}
+                  data-html={true}
+                  data-for={'forbiddenTip' + seed.farmList[0].farm_id}
+                  data-class="reactTip"
+                >
+                  <ForbiddonIcon></ForbiddonIcon>
+                  <ReactTooltip
+                    id={'forbiddenTip' + seed.farmList[0].farm_id}
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
+                </div>
+              </div>
+            ) : null}
           </div>
           <div className="flex items-center justify-between px-5 py-4 h-24">
             <div className="flex flex-col items-center flex-shrink-0">

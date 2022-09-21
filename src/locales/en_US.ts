@@ -851,5 +851,6 @@ const en_US = {
   farm_only: 'Farm only',
   please_confirm_this_transaction_on_ledger:
     'Please confirm this transaction on Ledger',
+  farm_stop_tip: 'This farm has been stopped.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

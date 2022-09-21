@@ -850,5 +850,6 @@ const ko = {
   farm_only: '농장만',
   please_confirm_this_transaction_on_ledger:
     'Ledger에서 이 거래를 확인하십시오.',
+  farm_stop_tip: 'This farm has been stopped.',
 };
 export default Object.assign(ko, ko_in_risks_page);
