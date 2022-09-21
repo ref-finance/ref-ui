@@ -282,6 +282,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['5%', '10%'],
         kitWalletOn: true,
+        FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
       };
     default:
       return {
