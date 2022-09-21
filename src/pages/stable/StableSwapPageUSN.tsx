@@ -23,7 +23,7 @@ import BigNumber from 'bignumber.js';
 import { Pool, StablePool, getStablePoolFromCache } from '../../services/pool';
 import AddLiquidityComponentUSN from '../../components/stableswap/AddLiquidityUSN';
 import { RemoveLiquidityComponentUSN } from '../../components/stableswap/RemoveLiquidityUSN';
-import { STABLE_TOKEN_USN_IDS } from '../../services/near';
+import { NEARX_POOL_ID, STABLE_TOKEN_USN_IDS } from '../../services/near';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
 
 export const getStableSwapTabKey = (id: string | number) =>
@@ -52,7 +52,11 @@ function StableSwapPageUSN({ pool }: { pool: Pool }) {
       ? localStorage.getItem(REF_STABLE_SWAP_TAB_KEY)
       : DEFAULT_ACTIONS[0];
 
-  const [actionName, setAction] = useState<string>(stableTab || storageTab);
+  const [actionName, setAction] = useState<string>(
+    pool.id == Number(NEARX_POOL_ID)
+      ? 'remove_liquidity'
+      : stableTab || storageTab
+  );
 
   const { shares } = state?.pool ? state : usePool(id);
 

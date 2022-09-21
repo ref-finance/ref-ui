@@ -406,7 +406,7 @@ export const useTokensData = (
 
   useEffect(() => {
     trigger();
-  }, [tokens?.map((t) => t.id).join('-'), tokens?.length, tokens]);
+  }, [tokens?.map((t) => t.id).join('-')]);
 
   return {
     trigger,

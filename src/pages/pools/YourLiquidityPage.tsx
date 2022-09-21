@@ -14,6 +14,7 @@ import {
   BTC_STABLE_POOL_ID,
   CUSD_STABLE_POOL_ID,
   LINEAR_POOL_ID,
+  NEARX_POOL_ID,
   STNEAR_POOL_ID,
   wallet as webWallet,
 } from '~services/near';
@@ -120,6 +121,7 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 import { checkTransactionStatus } from '../../services/swap';
 import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
+import ReactTooltip from 'react-tooltip';
 const StakeListContext = createContext(null);
 
 function MyShares({
@@ -632,6 +634,8 @@ function PoolRow(props: {
   const { pool: poolRPC, endedFarmV1, endedFarmV2, shares } = props;
   const pool = parsePool(poolRPC);
 
+  const needForbidden = Number(pool.id) === Number(NEARX_POOL_ID);
+
   const poolId = pool.id;
 
   const tokens = props.tokens;
@@ -785,6 +789,17 @@ function PoolRow(props: {
   };
 
   const lpDecimal = isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24;
+
+  const intl = useIntl();
+
+  function getForbiddenTip() {
+    const tip = intl.formatMessage({
+      id: 'pool_stop_tip',
+      defaultMessage: 'This pool has been stopped.',
+    });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
 
   return (
     <>
@@ -972,29 +987,58 @@ function PoolRow(props: {
 
         <div className="flex items-center justify-end  text-center  col-span-2 ">
           <div className="flex items-center flex-col justify-end flex-wrap">
-            <SolidButton
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-
-                if (isNotStablePool(pool)) {
-                  setShowFunding(true);
-                } else {
-                  history.push(`/sauce/${pool.id}`, {
-                    stableTab: 'add_liquidity',
-                  });
-                }
-              }}
-              className="text-xs col-span-2 px-1.5 text-center whitespace-nowrap mb-3"
-              style={{
-                minWidth: '104px',
-              }}
+            <div
+              className="text-xl text-white"
+              data-type="info"
+              data-place="top"
+              data-multiline={true}
+              data-tip={getForbiddenTip()}
+              data-html={true}
+              data-for={'forbiddenTip' + 'your_lp' + pool.id}
+              data-class="reactTip"
             >
-              <FormattedMessage
-                id="add_liquidity"
-                defaultMessage="Add Liquidity"
-              />
-            </SolidButton>
+              <SolidButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+
+                  if (needForbidden) {
+                    return;
+                  }
+
+                  if (isNotStablePool(pool)) {
+                    setShowFunding(true);
+                  } else {
+                    history.push(`/sauce/${pool.id}`, {
+                      stableTab: 'add_liquidity',
+                    });
+                  }
+                }}
+                className={`text-xs col-span-2 ${
+                  needForbidden ? 'text-opacity-20' : ''
+                } px-1.5 text-center whitespace-nowrap mb-3`}
+                style={{
+                  minWidth: '104px',
+                  background: needForbidden ? '#314351' : '',
+                  border: needForbidden ? 'none' : '',
+                }}
+              >
+                <FormattedMessage
+                  id="add_liquidity"
+                  defaultMessage="Add Liquidity"
+                />
+              </SolidButton>
+              {needForbidden ? (
+                <ReactTooltip
+                  id={'forbiddenTip' + 'your_lp' + pool.id}
+                  backgroundColor="#1D2932"
+                  border
+                  place="bottom"
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              ) : null}
+            </div>
 
             <OutlineButton
               onClick={(e) => {
@@ -1219,29 +1263,55 @@ function PoolRow(props: {
           </div>
 
           <div className="mt-4 flex items-center justify-center px-6 py-2">
-            <SolidButton
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-
-                if (isNotStablePool(pool)) {
-                  setShowFunding(true);
-                } else {
-                  history.push(`/sauce/${pool.id}`, {
-                    stableTab: 'add_liquidity',
-                  });
-                }
-              }}
-              className="text-sm mr-4 h-8 py-0.5 px-1"
-              style={{
-                minWidth: '112px',
-              }}
+            <div
+              className="text-xl text-white"
+              data-type="info"
+              data-place="top"
+              data-multiline={true}
+              data-tip={getForbiddenTip()}
+              data-html={true}
+              data-for={'forbiddenTip' + 'your_lp' + pool.id}
+              data-class="reactTip"
             >
-              <FormattedMessage
-                id="add_liquidity"
-                defaultMessage="Add Liquidity"
-              />
-            </SolidButton>
+              <SolidButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+
+                  if (needForbidden) return;
+
+                  if (isNotStablePool(pool)) {
+                    setShowFunding(true);
+                  } else {
+                    history.push(`/sauce/${pool.id}`, {
+                      stableTab: 'add_liquidity',
+                    });
+                  }
+                }}
+                className={`text-sm mr-4 h-8 ${
+                  needForbidden ? 'text-opacity-20' : ''
+                } py-0.5 px-1`}
+                style={{
+                  minWidth: '112px',
+                  background: needForbidden ? '#314351' : '',
+                  border: needForbidden ? 'none' : '',
+                }}
+              >
+                <FormattedMessage
+                  id="add_liquidity"
+                  defaultMessage="Add Liquidity"
+                />
+              </SolidButton>
+              {needForbidden ? (
+                <ReactTooltip
+                  id={'forbiddenTip' + 'your_lp' + pool.id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              ) : null}
+            </div>
 
             <OutlineButton
               onClick={(e) => {

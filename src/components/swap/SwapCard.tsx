@@ -50,7 +50,7 @@ import {
   LINEARIDS,
   LINEAR_POOL_ID,
   NEARXIDS,
-  NEAX_POOL_ID,
+  NEARX_POOL_ID,
   STABLE_POOL_TYPE,
   STABLE_TOKEN_IDS,
   STNEARIDS,
@@ -81,10 +81,18 @@ import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import { isStableToken, STABLE_TOKEN_USN_IDS } from '../../services/near';
+import {
+  isStableToken,
+  STABLE_TOKEN_USN_IDS,
+  USD_CLASS_STABLE_TOKEN_IDS,
+} from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
+import {
+  NEAR_CLASS_STABLE_TOKEN_IDS,
+  BTC_CLASS_STABLE_TOKEN_IDS,
+} from '../../services/near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -97,15 +105,11 @@ export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
 export const isSameStableClass = (token1: string, token2: string) => {
-  const USDTokenList = new Array(
-    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
-  );
+  const USDTokenList = USD_CLASS_STABLE_TOKEN_IDS;
 
-  const BTCTokenList = BTCIDS.map((id) => id);
+  const BTCTokenList = BTC_CLASS_STABLE_TOKEN_IDS;
 
-  const NEARTokenList = new Array(
-    ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEARXIDS))
-  ).map((id) => id);
+  const NEARTokenList = NEAR_CLASS_STABLE_TOKEN_IDS;
   return (
     (USDTokenList.includes(token1) && USDTokenList.includes(token2)) ||
     (BTCTokenList.includes(token1) && BTCTokenList.includes(token2)) ||
@@ -612,12 +616,15 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
-    if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id)) {
+    if (
+      BTC_CLASS_STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+      BTC_CLASS_STABLE_TOKEN_IDS.includes(tokenOut.id)
+    ) {
       setReservesType(STABLE_POOL_TYPE.BTC);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.BTC);
     } else if (
-      STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).includes(tokenIn.id) &&
-      STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).includes(tokenOut.id)
+      NEAR_CLASS_STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+      NEAR_CLASS_STABLE_TOKEN_IDS.includes(tokenOut.id)
     ) {
       setReservesType(STABLE_POOL_TYPE.NEAR);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.NEAR);
@@ -829,6 +836,7 @@ export default function SwapCard(props: {
   const tokenOutTotal = useNearBalance
     ? tokenOutBalanceFromNear || '0'
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
+
   const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -916,7 +924,6 @@ export default function SwapCard(props: {
               );
             setTokenIn(token);
             setCanSwap(false);
-            setTokenInBalanceFromNear(token?.near?.toString());
           }}
           text={intl.formatMessage({ id: 'from' })}
           useNearBalance={useNearBalance}
@@ -973,7 +980,6 @@ export default function SwapCard(props: {
               );
             setTokenOut(token);
             setCanSwap(false);
-            setTokenOutBalanceFromNear(token?.near?.toString());
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
@@ -1015,42 +1021,8 @@ export default function SwapCard(props: {
         <TokenReserves
           tokens={AllStableTokenIds.map((id) =>
             allTokens.find((token) => token.id === id)
-          )
-            .filter((token) => isStableToken(token.id))
-            .filter((token) => {
-              switch (reservesType) {
-                case 'BTC':
-                  return BTCIDS.includes(token.id);
-                case 'USD':
-                  return STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
-                    .concat(CUSDIDS)
-                    .map((id) => id.toString())
-                    .includes(token.id);
-                case 'NEAR':
-                  return LINEARIDS.concat(STNEARIDS)
-                    .concat(NEARXIDS)
-                    .includes(token.id);
-              }
-            })}
-          pools={stablePools.filter((p) => {
-            switch (reservesType) {
-              case 'BTC':
-                return p.id.toString() === BTC_STABLE_POOL_ID;
-              case 'NEAR':
-                return (
-                  p.id.toString() === STNEAR_POOL_ID ||
-                  p.id.toString() === LINEAR_POOL_ID ||
-                  p.id.toString() === NEAX_POOL_ID
-                );
-              case 'USD':
-                return (
-                  p.id.toString() !== BTC_STABLE_POOL_ID &&
-                  p.id.toString() !== STNEAR_POOL_ID &&
-                  p.id.toString() !== LINEAR_POOL_ID &&
-                  p.id.toString() !== NEAX_POOL_ID
-                );
-            }
-          })}
+          ).filter((token) => isStableToken(token.id))}
+          pools={stablePools}
           type={reservesType}
           setType={setReservesType}
           swapPage

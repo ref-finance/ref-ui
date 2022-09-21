@@ -860,5 +860,7 @@ const ja = {
   please_confirm_this_transaction_on_ledger:
     'この取引をLedgerで確認してください',
   newText: '新着',
+  farm_stop_tip: 'This farm has been stopped.',
+  pool_stop_tip: 'This pool has been stopped.',
 };
 export default Object.assign(ja, ja_in_risks_page);
