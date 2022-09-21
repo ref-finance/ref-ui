@@ -444,7 +444,19 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'nearx.staderlabs.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['568', '571', '1044'],
+        NEW_NEARX_POOL_ID: '1751',
+        NEW_NEARXIDS: ['v2-nearx.staderlabs.testnet', 'wrap.testnet'],
+        NEW_NEARX_POOL_INDEX: {
+          'v2-nearx.staderlabs.testnet': 0,
+          'wrap.testnet': 1,
+        },
+        USDT_POOL_ID: '1750',
+        USDTIDS: ['usdt.fakes.testnet', 'usdtt.fakes.testnet'],
+        USDT_POOL_INDEX: {
+          'usdt.fakes.testnet': 0,
+          'usdtt.fakes.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['568', '571', '1044', '1752', '1751'],
       };
     case 'testnet':
       return {
@@ -478,7 +490,19 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'nearx.staderlabs.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['621', '622', '666'],
+        NEW_NEARX_POOL_ID: '685',
+        NEW_NEARXIDS: ['v2-nearx.staderlabs.testnet', 'wrap.testnet'],
+        NEW_NEARX_POOL_INDEX: {
+          'v2-nearx.staderlabs.testnet': 0,
+          'wrap.testnet': 1,
+        },
+        USDT_POOL_ID: '684',
+        USDTIDS: ['usdt.fakes.testnet', 'usdtt.fakes.testnet'],
+        USDT_POOL_INDEX: {
+          'usdt.fakes.testnet': 0,
+          'usdtt.fakes.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['621', '622', '666', '686', '685'],
       };
     default:
       return {
@@ -515,7 +539,22 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'nearx.stader-labs.near': 0,
           'wrap.near': 1,
         },
-        RATED_POOLS_IDS: ['3514', '3515', '3612'],
+        NEW_NEARX_POOL_ID: '3688',
+        NEW_NEARXIDS: ['v2-nearx.stader-labs.near', 'wrap.near'],
+        NEW_NEARX_POOL_INDEX: {
+          'v2-nearx.stader-labs.near': 0,
+          'wrap.near': 1,
+        },
+        USDT_POOL_ID: '3689',
+        USDTIDS: [
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+          'usdt.tether-token.near',
+        ],
+        USDT_POOL_INDEX: {
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 0,
+          'usdt.tether-token.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
       };
   }
 }

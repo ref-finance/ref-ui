@@ -5,7 +5,7 @@ import TokenReserves, {
 } from '../../components/stableswap/TokenReserves';
 import { StableSwapLogo } from '../../components/icon/StableSwap';
 import { Link, useHistory } from 'react-router-dom';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { Pool } from '../../services/pool';
 import { Card } from '../../components/card/Card';
 import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
@@ -50,6 +50,11 @@ import {
   NEAR_CLASS_STABLE_POOL_IDS,
 } from '../../services/near';
 import { useClientMobile } from '~utils/device';
+import ReactTooltip from 'react-tooltip';
+import {
+  ForbiddenIcon,
+  ForbiddenIconLarge,
+} from '../../components/icon/FarmBoost';
 
 export const getStablePoolDecimal = (id: string | number) => {
   if (isRatedPool(id)) return RATED_POOL_LP_TOKEN_DECIMALS;
@@ -202,12 +207,30 @@ function StablePoolCard({
 
   const onlyEndedFarmsV2 = endedFarmCountV2 === countV2;
 
+  const needForbidden = Number(stablePool.id) === Number(NEARX_POOL_ID);
+
+  const intl = useIntl();
+
+  function getForbiddenTip() {
+    const tip = intl.formatMessage({
+      id: 'pool_stop_tip',
+      defaultMessage: 'This pool has been stopped.',
+    });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
+
   return (
     <div
       className={`w-full flex flex-col relative overflow-hidden rounded-2xl mb-4
+
+      ${needForbidden ? 'stablePoolEnd' : ''}
+
       ${
         chosenState === index
-          ? 'border border-gradientFrom'
+          ? needForbidden
+            ? 'border border-primaryText'
+            : 'border border-gradientFrom'
           : 'border border-transparent'
       }
 
@@ -227,7 +250,9 @@ function StablePoolCard({
         <span
           className={`${
             !haveFarm ? 'hidden' : ''
-          } pl-3 absolute -right-5 -top-8 pr-8 pt-8   rounded-2xl text-black text-xs bg-gradientFrom `}
+          } pl-3 absolute -right-5 -top-8 pr-8 pt-8   rounded-2xl text-black text-xs ${
+            needForbidden ? 'bg-primaryText' : 'bg-gradientFrom'
+          }   `}
         >
           <Link
             to={
@@ -252,17 +277,46 @@ function StablePoolCard({
 
         <div className="flex items-center justify-between pb-6">
           <Images tokens={tokens} />
-          <Link
-            to={{
-              pathname: `/sauce/${stablePool.id}`,
-              state: {
-                shares,
-                pool: stablePool,
-              },
-            }}
+          <div
+            className=" text-white"
+            data-type="info"
+            data-place="top"
+            data-multiline={true}
+            data-tip={getForbiddenTip()}
+            data-html={true}
+            data-for={'forbiddenTip' + 'sauce_' + stablePool.id}
+            data-class="reactTip"
           >
-            <Symbols withArrow tokens={tokens} />
-          </Link>
+            <Link
+              to={{
+                pathname: `/sauce/${stablePool.id}`,
+                state: {
+                  shares,
+                  pool: stablePool,
+                },
+              }}
+              onClick={(e) => {
+                if (needForbidden) {
+                  e.preventDefault();
+                }
+              }}
+              className="inline-flex items-center"
+            >
+              <Symbols withArrow={!needForbidden} tokens={tokens} />
+              <span className="ml-2">
+                {needForbidden ? <ForbiddenIconLarge /> : null}
+              </span>
+            </Link>
+            {needForbidden ? (
+              <ReactTooltip
+                id={'forbiddenTip' + 'sauce_' + stablePool.id}
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            ) : null}
+          </div>
         </div>
 
         <div className="grid grid-cols-10 xs:flex xs:flex-col">
@@ -340,8 +394,12 @@ function StablePoolCard({
           }`}
         >
           <SolidButton
-            className="w-full text-center flex items-center justify-center py-3 mr-2 text-sm"
+            className={`w-full text-center  flex items-center justify-center py-3 mr-2 text-sm`}
             disabled={stablePool.id === Number(NEARX_POOL_ID)}
+            style={{
+              color: needForbidden ? 'rbga(255,255,255,0.2)' : '',
+              background: needForbidden ? '#314351' : '',
+            }}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();

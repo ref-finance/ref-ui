@@ -416,6 +416,10 @@ input[type='range']::-webkit-slider-runnable-track {
 .farmEnded .border-gradientFromHover {
   border-color: #73818b;
 }
+.farmEnded .border-gradientFrom {
+  border-color: #73818b;
+}
+
 .farmEnded .text-white {
   color: #73818b;
 }
