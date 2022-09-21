@@ -639,7 +639,7 @@ const en_US = {
   boost: 'Boost',
   near: 'NEAR',
   eth: 'ETH',
-  others: 'others',
+  others: 'Others',
   stakeLove: 'Stake LOVE',
   unstakeLove: 'Unstake LOVE',
   get_love: 'Get LOVE',
@@ -851,5 +851,6 @@ const en_US = {
   farm_only: 'Farm only',
   please_confirm_this_transaction_on_ledger:
     'Please confirm this transaction on Ledger',
+  newText: 'New',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -49,7 +49,7 @@ export default function RiskPage() {
       <div className="text-riskTextColor text-sm mt-3">
         <FormattedMessage id="introduction" />
       </div>
-      {/* <div className="flex justify-center items-center mt-5">
+      <div className="flex justify-center items-center mt-5">
         <div
           onClick={() => {
             window.open(
@@ -70,7 +70,7 @@ export default function RiskPage() {
           <FormattedMessage id="amm_core_design" />
           <ExternalLinkIcon></ExternalLinkIcon>
         </div>
-      </div> */}
+      </div>
       <div className="mt-7">
         <ModuleTemplate title={intl.formatMessage({ id: 'audits' })}>
           <p className="text-sm text-riskTextColor mb-4">

@@ -20,7 +20,7 @@ module.exports = {
       green: '0px 0px 2px rgba(0, 198, 162, 0.5)',
       dark: '0px 0px 10px rgba(0, 0, 0, 0.15)',
       blue: '0px 0px 20px rgba(0, 255, 209, 0.6)',
-      withDrawColor:'0px 0px 20px rgba(0, 255, 240, 0.6)'
+      withDrawColor: '0px 0px 20px rgba(0, 255, 240, 0.6)',
     },
 
     extend: {
@@ -109,6 +109,7 @@ module.exports = {
         framBorder: '#00C6A2',
         farmSbg: '#2F3D47',
         farmRound: '#B3C2CC',
+        transakBlue: '#2F8FFF',
         farmTopRight: '#008870',
         datebg: '#637684',
         xrefbg: '#0F1D27',
@@ -170,11 +171,11 @@ module.exports = {
         greyCircleColor: '#889FAE',
         farmBoostingGotoFarm: 'rgba(43, 23, 85, 0.7)',
         borderGreyColor: '#6E7C85',
-        purpleColorF:'gba(27, 27, 27, 0.24)',
-        borderLightBlueColor:'rgba(115, 129, 139, 0.5)',
-        bgDarkColor:'rgba(0, 19, 32, 0.5)',
+        purpleColorF: 'gba(27, 27, 27, 0.24)',
+        borderLightBlueColor: 'rgba(115, 129, 139, 0.5)',
+        bgDarkColor: 'rgba(0, 19, 32, 0.5)',
         warnRedColor: 'rgba(255, 117, 117, 0.5)',
-        darkBlackColor:'#111C24'
+        darkBlackColor: '#111C24',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

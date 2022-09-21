@@ -994,3 +994,6 @@ input[type='range']::-webkit-slider-runnable-track {
   margin-left: 2px;
   margin-right: 2px;
 }
+.transak_modal {
+  z-index: 99999 !important;
+}

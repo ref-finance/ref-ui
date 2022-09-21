@@ -29,6 +29,7 @@ import {
   BoostFarmNoDataIcon,
   BoostDotIcon,
   NewTag,
+  NewIcon,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -204,7 +205,11 @@ export default function FarmsHome(props: any) {
     tvl: intl.formatMessage({ id: 'tvl' }),
     apr: intl.formatMessage({ id: 'apr' }),
   };
-
+  const status_fronts = {
+    live: {
+      txt: intl.formatMessage({ id: 'all' }),
+    },
+  };
   const statusList = {
     live: {
       txt: intl.formatMessage({ id: 'all' }),
@@ -221,6 +226,10 @@ export default function FarmsHome(props: any) {
     eth: {
       txt: intl.formatMessage({ id: 'eth' }),
       icon: <EthOptIcon></EthOptIcon>,
+    },
+    new: {
+      txt: intl.formatMessage({ id: 'newText' }),
+      icon: <NewIcon></NewIcon>,
     },
     others: {
       txt: intl.formatMessage({ id: 'others' }),
@@ -667,6 +676,14 @@ export default function FarmsHome(props: any) {
         } else {
           condition1 = false;
         }
+      } else if (status == 'new') {
+        // todo
+        const m = isInMonth(seed);
+        if (m) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
       }
       if (keyWords) {
         for (let i = 0; i < token_symbols.length; i++) {
@@ -815,6 +832,31 @@ export default function FarmsHome(props: any) {
         localStorage.getItem('endedfarmShow') == '1' ? true : false
       );
     }
+  }
+  function isEnded(seed: Seed) {
+    const farms = seed.farmList;
+    return farms[0].status == 'Ended';
+  }
+
+  function isInMonth(seed: Seed) {
+    const endedStatus = isEnded(seed);
+    if (endedStatus) return false;
+    const farmList = seed.farmList;
+    const result = farmList.find((farm: FarmBoost) => {
+      const start_at = farm?.terms?.start_at;
+      if (start_at == 0) return true;
+      const one_month_seconds = 30 * 24 * 60 * 60;
+      const currentA = new Date().getTime();
+      const compareB = new BigNumber(start_at)
+        .plus(one_month_seconds)
+        .multipliedBy(1000);
+      const compareResult = compareB.minus(currentA);
+      if (compareResult.isGreaterThan(0)) {
+        return true;
+      }
+    });
+    if (result) return true;
+    return false;
   }
   function getTotalAprForSeed(seed: Seed) {
     const farms = seed.farmList;

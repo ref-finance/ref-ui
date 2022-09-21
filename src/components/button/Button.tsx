@@ -16,6 +16,9 @@ import { WalletSelectorModal } from '../layout/WalletSelector';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { CheckedTick, UnCheckedBoxVE } from '../icon/CheckBox';
 import { isClientMobie, useClientMobile } from '../../utils/device';
+import { BuyNearHover, BuyNearDefault, BuyNearMobile } from '../icon/Nav';
+import { openTransak } from '../alert/Transak';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 
 export function BorderlessButton(
   props: HTMLAttributes<HTMLButtonElement> & { disabled?: boolean }
@@ -982,3 +985,35 @@ export function ConnectToNearBtnVotingMobile() {
     </>
   );
 }
+
+export const BuyNearButton = () => {
+  const [hover, setHover] = useState<boolean>(false);
+
+  const wallet = getCurrentWallet().wallet;
+
+  const isMobile = useClientMobile();
+
+  return (
+    <button
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openTransak(wallet.getAccountId() || '');
+      }}
+      onMouseEnter={() => {
+        setHover(true);
+      }}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
+    >
+      {isMobile ? (
+        <BuyNearMobile />
+      ) : hover ? (
+        <BuyNearHover />
+      ) : (
+        <BuyNearDefault />
+      )}
+    </button>
+  );
+};
