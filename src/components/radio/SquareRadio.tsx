@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
-import { NEARX_POOL_ID } from '~services/near';
+import { NEARX_POOL_ID } from '../../services/near';
 
 export default function SquareRadio({
   radios,

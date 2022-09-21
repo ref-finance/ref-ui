@@ -557,8 +557,6 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
         },
         RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
       };
-    default:
-      return {};
   }
 }
 export function getTransakConfig(

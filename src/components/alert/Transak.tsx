@@ -1,5 +1,6 @@
+// @ts-ignore
 import transakSDK from '@transak/transak-sdk';
-import { getTransakConfig } from '~services/config';
+import { getTransakConfig } from '../../services/config';
 import { isClientMobie } from '../../utils/device';
 import {
   normalFailToast,
