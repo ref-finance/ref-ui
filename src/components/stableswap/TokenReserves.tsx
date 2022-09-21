@@ -66,23 +66,23 @@ function TokenChart({
   });
   const color = {
     DAI: 'rgba(255, 199, 0, 0.45)',
-    'USDT.e': 'rgba(0, 198, 162, 0.47)',
-    USDT: 'rgba(0, 198, 162, 0.47)',
+    'USDT.e': '#167356',
+    USDT: '#167356',
     USDC: 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
     WBTC: '#ED9234',
-    STNEAR: 'rgba(160, 160, 255, 0.5)',
-    NEAR: '#a0b1ae',
-    LINEAR: 'rgba(64, 129, 255, 0.5)',
+    STNEAR: '#A0A0FF',
+    NEAR: '#A0B1AE',
+    LINEAR: '#4081FF',
     NEARXC: '#4d5971',
     NearXC: '#4d5971',
-    NearX: '#00676d',
-    USDt: '#0e8585',
+    NearX: '#00676D',
+    USDt: '#0E8585',
   };
 
-  const noBorderTokens = ['LINEAR'];
+  const noBorderTokens = ['LINEAR', 'USDt'];
 
   const noBgTokens = ['LINEAR'];
 
