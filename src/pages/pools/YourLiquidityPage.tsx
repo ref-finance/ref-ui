@@ -310,7 +310,15 @@ export function YourLiquidityPage() {
     });
   }, [isSignedIn]);
 
-  if (!pools || !tokensMeta || !v1Farm || !v2Farm) return <Loading />;
+  if (
+    !pools ||
+    !tokensMeta ||
+    !v1Farm ||
+    !v2Farm ||
+    !batchTotalShares ||
+    !batchTotalSharesSimplePools
+  )
+    return <Loading />;
 
   const RowRender = ({
     p,
