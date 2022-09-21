@@ -450,7 +450,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'v2-nearx.staderlabs.testnet': 0,
           'wrap.testnet': 1,
         },
-        USDT_POOL_ID: '1750',
+        USDT_POOL_ID: '1752',
         USDTIDS: ['usdt.fakes.testnet', 'usdtt.fakes.testnet'],
         USDT_POOL_INDEX: {
           'usdt.fakes.testnet': 0,
@@ -496,7 +496,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'v2-nearx.staderlabs.testnet': 0,
           'wrap.testnet': 1,
         },
-        USDT_POOL_ID: '684',
+        USDT_POOL_ID: '686',
         USDTIDS: ['usdt.fakes.testnet', 'usdtt.fakes.testnet'],
         USDT_POOL_INDEX: {
           'usdt.fakes.testnet': 0,
