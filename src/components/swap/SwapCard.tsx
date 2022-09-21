@@ -81,10 +81,18 @@ import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import { isStableToken, STABLE_TOKEN_USN_IDS } from '../../services/near';
+import {
+  isStableToken,
+  STABLE_TOKEN_USN_IDS,
+  USD_CLASS_STABLE_TOKEN_IDS,
+} from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
+import {
+  NEAR_CLASS_STABLE_TOKEN_IDS,
+  BTC_CLASS_STABLE_TOKEN_IDS,
+} from '../../services/near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -97,15 +105,11 @@ export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
 export const isSameStableClass = (token1: string, token2: string) => {
-  const USDTokenList = new Array(
-    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
-  );
+  const USDTokenList = USD_CLASS_STABLE_TOKEN_IDS;
 
-  const BTCTokenList = BTCIDS.map((id) => id);
+  const BTCTokenList = BTC_CLASS_STABLE_TOKEN_IDS;
 
-  const NEARTokenList = new Array(
-    ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEARXIDS))
-  ).map((id) => id);
+  const NEARTokenList = NEAR_CLASS_STABLE_TOKEN_IDS;
   return (
     (USDTokenList.includes(token1) && USDTokenList.includes(token2)) ||
     (BTCTokenList.includes(token1) && BTCTokenList.includes(token2)) ||
@@ -612,12 +616,15 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
-    if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id)) {
+    if (
+      BTC_CLASS_STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+      BTC_CLASS_STABLE_TOKEN_IDS.includes(tokenOut.id)
+    ) {
       setReservesType(STABLE_POOL_TYPE.BTC);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.BTC);
     } else if (
-      STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).includes(tokenIn.id) &&
-      STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).includes(tokenOut.id)
+      NEAR_CLASS_STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+      NEAR_CLASS_STABLE_TOKEN_IDS.includes(tokenOut.id)
     ) {
       setReservesType(STABLE_POOL_TYPE.NEAR);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.NEAR);

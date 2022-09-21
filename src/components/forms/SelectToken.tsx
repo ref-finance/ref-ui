@@ -152,7 +152,11 @@ export const StableSelectToken = ({
     preSelected && !NEARtokens.find((token) => token.id === preSelected.id);
 
   const handleSelect = (token: TokenMetadata) => {
+    console.log(NEARXIDS, token.id, NEARXIDS[0]);
+
     if (token.id != NEARXIDS[0]) {
+      console.log('dasdsadas', token);
+
       onSelect(token);
     }
 
