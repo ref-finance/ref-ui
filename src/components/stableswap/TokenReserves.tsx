@@ -360,8 +360,6 @@ export default function ({
     ? inputTokens.filter((t) => BTC_CLASS_STABLE_TOKEN_IDS.includes(t.id))
     : inputTokens.filter((t) => NEAR_CLASS_STABLE_TOKEN_IDS.includes(t.id));
 
-  console.log(tokens, 'tokens');
-
   const ids = pools.map((p) => p.id);
   const [volume, setVolume] = useState<string>(null);
 
@@ -433,8 +431,6 @@ export default function ({
     {}
   );
 
-  console.log(tokensMap, 'tokensmap');
-
   const intl = useIntl();
 
   const calTotalStableCoins = useMemo(() => {
@@ -453,13 +449,10 @@ export default function ({
     }
   }, [pools, tokensMap]);
 
-  console.log(pools, coinsAmounts, 'wwwww');
-
   const tokensData = useMemo(() => {
     try {
       return calculateTokenValueAndShare(tokens, coinsAmounts, tokensMap);
     } catch (error) {
-      console.log(error);
       return {};
     }
   }, [pools, tokens, coinsAmounts, tokensMap]);
