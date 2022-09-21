@@ -807,5 +807,6 @@ const zh_CN = {
   no_support_testnet_rpc_tip: 'Testnet不支持添加自定义RPC',
   farm_only: '仅含农场',
   please_confirm_this_transaction_on_ledger: '请在Ledger上确认此次交易',
+  farm_stop_tip: '这个农场已经停止。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -860,5 +860,6 @@ const vi = {
   value: 'giá trị',
   please_confirm_this_transaction_on_ledger:
     'Vui lòng xác nhận giao dịch này trên Ledger',
+  farm_stop_tip: 'This farm has been stopped.',
 };
 export default Object.assign(vi, vi_in_risks_page);

@@ -159,6 +159,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
+        FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['3612'],
       };
     case 'pub-testnet':
       return {
@@ -350,6 +351,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
+        FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['3612'],
       };
   }
 }
