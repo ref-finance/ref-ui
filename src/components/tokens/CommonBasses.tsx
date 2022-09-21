@@ -24,6 +24,7 @@ const COMMON_BASSES = [
   'OCT',
   'STNEAR',
   'USDT.e',
+  'USDt',
   'USDC',
   'ETH',
   'DAI',
