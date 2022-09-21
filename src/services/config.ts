@@ -510,7 +510,7 @@ export function getTransakConfig(
     case 'production':
     case 'mainnet':
       return {
-        apiKey: '75a307aa-b7a9-457d-a44b-270bd0e65533',
+        apiKey: 'bf2238a1-ff5d-4a8f-9e1b-af7892ed0123',
         environment: 'PRODUCTION',
         widgetWidth: `500px`,
         widgetHeight: `600px`,
