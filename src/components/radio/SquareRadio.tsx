@@ -29,7 +29,10 @@ export default function SquareRadio({
               } w-full ${choose === radio ? ' text-white' : 'text-farmText'}`}
               key={radio}
               onClick={() => {
-                if (Number(poolId) === Number(NEARX_POOL_ID)) {
+                if (
+                  Number(poolId) ===
+                  Number(NEARX_POOL_ID && radio === 'add_liquidity')
+                ) {
                   return;
                 }
                 setChoose(radio);
