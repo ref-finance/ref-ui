@@ -827,5 +827,6 @@ const uk_UA = {
   please_confirm_this_transaction_on_ledger:
     'Підтвердьте цю транзакцію в Ledger',
   farm_stop_tip: 'This farm has been stopped.',
+  pool_stop_tip: 'This pool has been stopped.',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

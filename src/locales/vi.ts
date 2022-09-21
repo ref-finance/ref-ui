@@ -861,5 +861,6 @@ const vi = {
   please_confirm_this_transaction_on_ledger:
     'Vui lòng xác nhận giao dịch này trên Ledger',
   farm_stop_tip: 'This farm has been stopped.',
+  pool_stop_tip: 'This pool has been stopped.',
 };
 export default Object.assign(vi, vi_in_risks_page);

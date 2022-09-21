@@ -851,5 +851,6 @@ const ko = {
   please_confirm_this_transaction_on_ledger:
     'Ledger에서 이 거래를 확인하십시오.',
   farm_stop_tip: 'This farm has been stopped.',
+  pool_stop_tip: 'This pool has been stopped.',
 };
 export default Object.assign(ko, ko_in_risks_page);
