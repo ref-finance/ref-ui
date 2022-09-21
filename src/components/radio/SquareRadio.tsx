@@ -30,8 +30,8 @@ export default function SquareRadio({
               key={radio}
               onClick={() => {
                 if (
-                  Number(poolId) ===
-                  Number(NEARX_POOL_ID && radio === 'add_liquidity')
+                  Number(poolId) === Number(NEARX_POOL_ID) &&
+                  radio === 'add_liquidity'
                 ) {
                   return;
                 }
