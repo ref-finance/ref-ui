@@ -2462,10 +2462,10 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
-"@transak/transak-sdk@^1.2.0":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@transak/transak-sdk/-/transak-sdk-1.2.1.tgz#ad7bd31edca76b766b8a46c8ddac4a05b9eb40ed"
-  integrity sha512-Hkx+4PYorXxqqAAvGIugTid3upNG7fYn/7cH5v1mVmnkqH1tXMCCFcIlu10Yfz2ujyGSfJb5u4X1Dolu/QeZdA==
+"@transak/transak-sdk@1.2.2":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@transak/transak-sdk/-/transak-sdk-1.2.2.tgz#f4ad6d0cfe80ae448c6f14304fd51a8447403972"
+  integrity sha512-yUgURhqBPVlqJdtTJjJA58GXZjsRUjfphL/mx0vMSdfAlfArrvlmy/nkYcO7ACEngoSCtcecjDd1umwXSHABxA==
   dependencies:
     events "^3.1.0"
     query-string "^6.12.1"
