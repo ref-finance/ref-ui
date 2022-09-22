@@ -1038,6 +1038,7 @@ function AddLiquidityComponent({
     Record<string, any>
   >({});
   const { globalState } = useContext(WalletContext);
+  const [timer, setTimer] = useState(null);
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
   const chartDom = useRef(null);
@@ -1073,7 +1074,13 @@ function AddLiquidityComponent({
     setQuickOptionsMapPoint(optionsMapPoints_temp);
     setCurrentCheckedQuickOption(10);
     // show chart data
-    getChartData();
+    setChartLoading(true);
+    setNoDataForChart(false);
+    clearTimeout(timer);
+    const timer_latest = setTimeout(() => {
+      getChartData();
+    }, 1000);
+    setTimer(timer_latest);
   }, [currentSelectedPool]);
   useEffect(() => {
     pointChange({ leftPoint, rightPoint, currentPoint });
@@ -1090,8 +1097,6 @@ function AddLiquidityComponent({
     }
   }, [leftPoint, rightPoint]);
   async function getChartData() {
-    setChartLoading(true);
-    setNoDataForChart(false);
     const depthData = await get_pool_marketdepth(currentSelectedPool.pool_id);
     const { current_point, liquidities } = depthData;
     const list = Object.values(liquidities);
