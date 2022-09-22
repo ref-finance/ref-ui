@@ -603,6 +603,16 @@ export function getTransakConfig(
         walletAddress: accountId || '',
       };
     default:
-      return {};
+      return {
+        apiKey: 'bf2238a1-ff5d-4a8f-9e1b-af7892ed0123',
+        environment: 'PRODUCTION',
+        widgetWidth: `500px`,
+        widgetHeight: `600px`,
+        themeColor: `#00C6A2`,
+        hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
+        defaultCryptoCurrency: 'NEAR',
+        cryptoCurrencyCode: 'NEAR',
+        walletAddress: accountId || '',
+      };
   }
 }
