@@ -106,7 +106,6 @@ import {
 import TokenReserves from '../stableswap/TokenReserves';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
-<<<<<<< HEAD
 import { SwapMinReceiveCheck, LimitOrderMask } from '../icon/swapV3';
 import { TokenAmountV3, TokenCardIn } from '../forms/TokenAmount';
 import Big from 'big.js';
@@ -132,12 +131,10 @@ import {
   getV3PoolId,
   V3_POOL_SPLITER,
 } from '../../services/swapV3';
-=======
 import {
   NEAR_CLASS_STABLE_TOKEN_IDS,
   BTC_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
->>>>>>> main
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -1221,16 +1218,11 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
-<<<<<<< HEAD
-    if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id)) {
-      STABLE_POOL_TYPE.BTC;
-=======
     if (
       BTC_CLASS_STABLE_TOKEN_IDS.includes(tokenIn.id) &&
       BTC_CLASS_STABLE_TOKEN_IDS.includes(tokenOut.id)
     ) {
       setReservesType(STABLE_POOL_TYPE.BTC);
->>>>>>> main
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.BTC);
     } else if (
       NEAR_CLASS_STABLE_TOKEN_IDS.includes(tokenIn.id) &&
@@ -1737,7 +1729,6 @@ export default function SwapCard(props: {
     ? tokenOutBalanceFromNear || '0'
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
-<<<<<<< HEAD
   const canSubmit =
     swapMode !== SWAP_MODE.LIMIT
       ? (canSwap || canSwapV3) &&
@@ -1745,9 +1736,6 @@ export default function SwapCard(props: {
         quoteDone &&
         quoteDoneV3
       : !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut);
-=======
-  const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
->>>>>>> main
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -1913,35 +1901,11 @@ export default function SwapCard(props: {
             />
           )}
         </div>
-<<<<<<< HEAD
         <LimitOrderTriggerContext.Provider
           value={{
             triggerFetch: () => {
               setLimiSwapTrigger(!limitSwapTrigger);
             },
-=======
-        <TokenAmount
-          forSwap
-          swapMode={swapMode}
-          amount={toPrecision(tokenOutAmount, 8)}
-          total={tokenOutTotal}
-          tokens={allTokens}
-          selectedToken={tokenOut}
-          balances={balances}
-          preSelected={tokenIn}
-          text={intl.formatMessage({ id: 'to' })}
-          useNearBalance={useNearBalance}
-          onSelectToken={(token) => {
-            localStorage.setItem(SWAP_OUT_KEY, token.id);
-            swapMode === SWAP_MODE.NORMAL &&
-              history.replace(
-                `#${unWrapTokenId(
-                  tokenIn.id
-                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(token.id)}`
-              );
-            setTokenOut(token);
-            setCanSwap(false);
->>>>>>> main
           }}
         >
           <TokenAmountV3
@@ -2062,7 +2026,6 @@ export default function SwapCard(props: {
         priceImpactValue={displayPriceImpact || '0'}
       />
 
-<<<<<<< HEAD
       <DoubleCheckModalLimit
         isOpen={doubleCheckOpenLimit}
         onRequestClose={() => {
@@ -2075,19 +2038,6 @@ export default function SwapCard(props: {
         onSwap={() => limitSwap()}
         rateDiff={diff}
       />
-=======
-      {swapMode === SWAP_MODE.STABLE ? (
-        <TokenReserves
-          tokens={AllStableTokenIds.map((id) =>
-            allTokens.find((token) => token.id === id)
-          ).filter((token) => isStableToken(token.id))}
-          pools={stablePools}
-          type={reservesType}
-          setType={setReservesType}
-          swapPage
-        />
-      ) : null}
->>>>>>> main
     </>
   );
 }
