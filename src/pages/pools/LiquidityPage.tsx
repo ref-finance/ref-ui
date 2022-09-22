@@ -1280,11 +1280,16 @@ export function LiquidityPage() {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
         const status: any = res.status;
+        const transaction: any = res.transaction;
+        const methodName =
+          transaction?.actions[0]?.['FunctionCall']?.method_name;
         const data: string | undefined = status.SuccessValue;
-        if (data) {
+        if (data && methodName == 'add_simple_pool') {
           const buff = Buffer.from(data, 'base64');
           const pool_id = buff.toString('ascii');
           history.push(`/pool/${pool_id}`);
+        } else {
+          history.replace(`/pools`);
         }
       });
     }
