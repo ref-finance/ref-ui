@@ -356,6 +356,7 @@ export default function AddLiquidityComponentUSN(props: {
           onChange={changeAction}
           radios={DEFAULT_ACTIONS}
           currentChoose={'add_liquidity'}
+          poolId={pool.id}
         />
 
         <StableTokenListUSN

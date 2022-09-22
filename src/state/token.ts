@@ -230,9 +230,7 @@ export const useUserRegisteredTokens = () => {
 
   return tokens;
 };
-export const useUserRegisteredTokensAllAndNearBalance = (
-  isSignedIn?: boolean
-) => {
+export const useUserRegisteredTokensAllAndNearBalance = () => {
   const [tokens, setTokens] = useState<any[]>();
 
   const triTokenIds = useTriTokenIdsOnRef() as string[];
@@ -240,7 +238,6 @@ export const useUserRegisteredTokensAllAndNearBalance = (
   const triTokenIdsMemo = [...new Set(triTokenIds || [])];
 
   useEffect(() => {
-    if (!isSignedIn) return;
     getWhitelistedTokensAndNearTokens()
       .then((tokenList) => {
         const newList = [...new Set((triTokenIds || []).concat(tokenList))];
@@ -264,7 +261,7 @@ export const useUserRegisteredTokensAllAndNearBalance = (
         });
         setTokens(arr);
       });
-  }, [isSignedIn, triTokenIdsMemo.join('-')]);
+  }, [triTokenIdsMemo.join('-')]);
 
   return tokens;
 };
@@ -272,9 +269,8 @@ export const useUserRegisteredTokensAllAndNearBalance = (
 export const useTokenBalances = () => {
   const [balances, setBalances] = useState<TokenBalancesView>();
   const { accountId } = useWalletSelector();
-  const { globalState } = useContext(WalletContext);
 
-  const isSignedIn = globalState.isSignedIn;
+  const isSignedIn = !!accountId;
 
   useEffect(() => {
     if (!isSignedIn) return;
@@ -410,7 +406,7 @@ export const useTokensData = (
 
   useEffect(() => {
     trigger();
-  }, [tokens?.map((t) => t.id).join('-'), tokens?.length, tokens]);
+  }, [tokens?.map((t) => t.id).join('-')]);
 
   return {
     trigger,

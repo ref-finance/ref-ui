@@ -250,6 +250,7 @@ export function RemoveLiquidityComponentUSN(props: {
         onChange={changeAction}
         radios={DEFAULT_ACTIONS}
         currentChoose={'remove_liquidity'}
+        poolId={pool.id}
       />
 
       <div className="flex bg-inputDarkBg rounded text-white mx-8 xs:mx-5 md:mx-5 p-1.5 mb-8">

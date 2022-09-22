@@ -98,11 +98,15 @@ import {
   REF_FARM_CONTRACT_ID,
   REF_FARM_BOOST_CONTRACT_ID,
 } from '../../services/near';
+
 import {
   useWalletSelector,
   ACCOUNT_ID_KEY,
-} from '../../context/WalletSelectorContext';
+} from '~context/WalletSelectorContext';
+
 import { Modal } from '~context/modal-ui/components/Modal';
+import { openTransak } from '../alert/Transak';
+import { BuyNearButton } from '../button/Button';
 
 const config = getConfig();
 
@@ -264,7 +268,7 @@ function AccountEntry({
   const isMobile = useClientMobile();
 
   return (
-    <div className="bubble-box relative user text-xs text-center justify-end z-40 mx-3.5">
+    <div className="bubble-box relative user text-xs text-center justify-end z-40 mr-3.5">
       {showAccountTip ? (
         <AccountTipDownByAccountID show={showAccountTip} />
       ) : null}
@@ -923,9 +927,9 @@ function USNButton() {
       <div
         onMouseEnter={() => setUSNButtonHover(true)}
         onMouseLeave={() => setUSNButtonHover(false)}
-        className="relative lg:py-5 z-50"
+        className="relative lg:py-4 top-0.5 z-50"
       >
-        <div className="mr-3">
+        <div className="mx-2">
           <USNBuyComponent hover={USNButtonHover} />
         </div>
 
@@ -1226,9 +1230,10 @@ function NavigationBar() {
             </div>
           </div>
           <div className="flex items-center justify-end flex-1">
-            <USNButton />
+            <BuyNearButton />
+
             {isSignedIn && (
-              <div className="flex items-center text-white">
+              <div className="flex ml-2 items-center text-white">
                 <div
                   className=" py-1 cursor-pointer items-center flex"
                   onClick={() => setShowWrapNear(true)}
@@ -1253,6 +1258,8 @@ function NavigationBar() {
                 />
               </div>
             )}
+
+            <USNButton />
             <AccountEntry
               hasBalanceOnRefAccount={hasBalanceOnRefAccount}
               setShowWalletSelector={setShowWalletSelector}
