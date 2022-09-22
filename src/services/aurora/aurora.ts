@@ -717,9 +717,9 @@ export const useAuroraBalancesNearMapping = (address: string) => {
 
   const [nearMapping, setNearMapping] = useState(null);
 
-  const { globalState } = useContext(WalletContext);
+  const { accountId } = useWalletSelector();
 
-  const isSignedIn = globalState.isSignedIn;
+  const isSignedIn = !!accountId;
 
   useEffect(() => {
     if (!auroraMapping || !isSignedIn) return;

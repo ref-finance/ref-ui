@@ -111,6 +111,7 @@ module.exports = {
         framBorder: '#00C6A2',
         farmSbg: '#2F3D47',
         farmRound: '#B3C2CC',
+        transakBlue: '#2F8FFF',
         farmTopRight: '#008870',
         datebg: '#637684',
         xrefbg: '#0F1D27',

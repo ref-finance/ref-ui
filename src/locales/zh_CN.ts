@@ -815,5 +815,8 @@ const zh_CN = {
   your_history_orders_will_appear_here: 'Your history orders will appear here',
   liquidity_capital: 'LIQUIDITY',
   limit_order: 'Limit Order',
+  farm_stop_tip: '这个农场已经停止。',
+  pool_stop_tip: '这个流动池已经停止。',
+  newText: '最新',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

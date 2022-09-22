@@ -639,7 +639,7 @@ const en_US = {
   boost: 'Boost',
   near: 'NEAR',
   eth: 'ETH',
-  others: 'others',
+  others: 'Others',
   stakeLove: 'Stake LOVE',
   unstakeLove: 'Unstake LOVE',
   get_love: 'Get LOVE',
@@ -861,5 +861,8 @@ const en_US = {
   please_confirm_this_transaction_on_ledger:
     'Please confirm this transaction on Ledger',
   limit_order: 'Limit Order',
+  newText: 'New',
+  farm_stop_tip: 'This farm has been stopped.',
+  pool_stop_tip: 'This pool has been stopped.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

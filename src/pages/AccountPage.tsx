@@ -2048,7 +2048,7 @@ export function AccountPage() {
     getCurrentWallet()?.wallet?.getAccountId() || ''
   );
 
-  const userTokens = useUserRegisteredTokensAllAndNearBalance(isSignedIn);
+  const userTokens = useUserRegisteredTokensAllAndNearBalance();
 
   const balances = useTokenBalances(); // inner account balance
 
@@ -2069,6 +2069,7 @@ export function AccountPage() {
       auroaBalances[id] || '0'
     ).toString();
   });
+
   return (
     <>
       <Account userTokens={userTokens} />

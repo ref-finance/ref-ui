@@ -19,14 +19,26 @@ import { InfoLine } from './LiquidityComponents';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 import { useDayVolume } from '~state/pool';
-import { scientificNotationToString } from '../../utils/numbers';
+import {
+  scientificNotationToString,
+  checkAllocations,
+} from '../../utils/numbers';
 import { get24hVolume } from '../../services/indexer';
 import {
   ALL_STABLE_POOL_IDS,
+  BTC_CLASS_STABLE_TOKEN_IDS,
   BTC_STABLE_POOL_ID,
+  NEAR_CLASS_STABLE_TOKEN_IDS,
   STABLE_POOL_TYPE,
+  USD_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 import getConfig from '../../services/config';
+import {
+  USD_CLASS_STABLE_POOL_IDS,
+  BTC_CLASS_STABLE_POOL_IDS,
+  NEAR_CLASS_STABLE_POOL_IDS,
+} from '../../services/near';
+import Big from 'big.js';
 
 export function OnlyTokenReserves() {}
 
@@ -54,20 +66,23 @@ function TokenChart({
   });
   const color = {
     DAI: 'rgba(255, 199, 0, 0.45)',
-    'USDT.e': 'rgba(0, 198, 162, 0.47)',
+    'USDT.e': '#167356',
+    USDT: '#167356',
     USDC: 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
     WBTC: '#ED9234',
-    STNEAR: 'rgba(160, 160, 255, 0.5)',
-    NEAR: 'rgba(0, 198, 162, 0.5)',
-    LINEAR: 'rgba(64, 129, 255, 0.5)',
+    STNEAR: '#A0A0FF',
+    NEAR: '#A0B1AE',
+    LINEAR: '#4081FF',
     NEARXC: '#4d5971',
     NearXC: '#4d5971',
+    NearX: '#00676D',
+    USDt: '#0E8585',
   };
 
-  const noBorderTokens = ['LINEAR'];
+  const noBorderTokens = ['LINEAR', 'USDt'];
 
   const noBgTokens = ['LINEAR'];
 
@@ -205,6 +220,7 @@ const calculateTokenValueAndShare = (
     .reverse()
     .forEach((key, index: number) => {
       const token: TokenMetadata = tokensMap[key];
+
       const value = scientificNotationToString(
         coinsAmounts[token.id].toString()
       );
@@ -229,6 +245,24 @@ const calculateTokenValueAndShare = (
         display2: `${toInternationalCurrencySystem(value, 2)} / ${percentStr}%`,
       };
     });
+
+  const percents = Object.values(result).map((o) =>
+    new Big(o.value || '0')
+      .div(totalShares || 1)
+      .times(100)
+      .toFixed(2)
+  );
+
+  const finalPercents = checkAllocations('100', percents);
+
+  Object.keys(result).forEach((key, index) => {
+    result[key].percentStr = finalPercents[index];
+    result[key].display = `${toInternationalCurrencySystem(
+      result[key].value,
+      2
+    )} (${finalPercents[index]}%)`;
+  });
+
   return result;
 };
 
@@ -324,8 +358,8 @@ const TypeTab = ({
 };
 
 export default function ({
-  tokens,
-  pools,
+  tokens: inputTokens,
+  pools: inputPools,
   swapPage,
   hiddenChart,
   hiddenMag,
@@ -346,6 +380,28 @@ export default function ({
 }) {
   const [showReserves, setShowReserves] = useState<boolean>(true);
   const [chart, setChart] = useState(null);
+
+  const poolIds =
+    !type || forPool
+      ? inputPools.map((p) => p.id.toString())
+      : type === STABLE_POOL_TYPE.USD
+      ? USD_CLASS_STABLE_POOL_IDS
+      : type === STABLE_POOL_TYPE.BTC
+      ? BTC_CLASS_STABLE_POOL_IDS
+      : NEAR_CLASS_STABLE_POOL_IDS;
+
+  const pools =
+    !type || forPool
+      ? inputPools
+      : inputPools.filter((p) => poolIds.includes(p.id.toString()));
+
+  const tokens = forPool
+    ? inputTokens
+    : type === STABLE_POOL_TYPE.USD
+    ? inputTokens.filter((t) => USD_CLASS_STABLE_TOKEN_IDS.includes(t.id))
+    : type === STABLE_POOL_TYPE.BTC
+    ? inputTokens.filter((t) => BTC_CLASS_STABLE_TOKEN_IDS.includes(t.id))
+    : inputTokens.filter((t) => NEAR_CLASS_STABLE_TOKEN_IDS.includes(t.id));
 
   const ids = pools.map((p) => p.id);
   const [volume, setVolume] = useState<string>(null);
@@ -443,6 +499,7 @@ export default function ({
       return {};
     }
   }, [pools, tokens, coinsAmounts, tokensMap]);
+
   useEffect(() => {
     const chartList: any[] = [];
     pools
@@ -565,7 +622,7 @@ export default function ({
           .map(({ token, display }) => {
             return (
               <InfoLine
-                key={token.symbol}
+                key={token.id + token.symbol}
                 title={token.symbol}
                 value={display}
                 valueTitle={toPrecision(

@@ -834,5 +834,8 @@ const uk_UA = {
   your_history_orders_will_appear_here: 'Your history orders will appear here',
   liquidity_capital: 'LIQUIDITY',
   limit_order: 'Limit Order',
+  farm_stop_tip: 'This farm has been stopped.',
+  pool_stop_tip: 'This pool has been stopped.',
+  newText: 'новий',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

@@ -401,9 +401,29 @@ input[type='range']::-webkit-slider-runnable-track {
   background: transparent;
 }
 
+.stablePoolEnd .text-white {
+  color: #73818b;
+}
+.stablePoolEnd img {
+  filter: grayscale(100%);
+}
+.stablePoolEnd .bg-deepBlue.text-white {
+  color: #fff;
+}
+.stablePoolEnd .active .text-navHighLightText {
+  color: #fff;
+}
+.stablePoolEnd .active img {
+  filter: initial;
+}
+
 .farmEnded .border-gradientFromHover {
   border-color: #73818b;
 }
+.farmEnded .border-gradientFrom {
+  border-color: #73818b;
+}
+
 .farmEnded .text-white {
   color: #73818b;
 }
@@ -1072,4 +1092,7 @@ input[type='range']::-webkit-slider-runnable-track {
 .rotateInfinite {
   animation: spin 1s linear infinite;
   transform-origin: center;
+}
+.transak_modal {
+  z-index: 99999 !important;
 }

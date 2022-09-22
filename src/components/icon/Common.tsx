@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { WrapNearDefault, WrapNearHover, WrapNearMobile } from './Nav';
+import { isClientMobie, useClientMobile } from '../../utils/device';
+
 const Learn_more = () => {
   return (
     <svg
@@ -493,77 +496,20 @@ export const CircleIconLarge = (props: any) => {
 const WNEARExchngeIcon = (props: any) => {
   const { width, height, className, ...rest } = props;
   const [hover, setHover] = useState(false);
+
+  const isMobile = useClientMobile();
+
   return (
-    <svg
-      className={className}
-      {...rest}
-      onMouseEnter={() => {
-        setHover(true);
-      }}
-      onMouseLeave={() => {
-        setHover(false);
-      }}
-      width={width || '54'}
-      height={height || '24'}
-      viewBox="0 0 54 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="xs:ml-1"
     >
-      <rect
-        x="1"
-        y="1"
-        width="51.3333"
-        height="22"
-        rx="11"
-        fill="black"
-        fillOpacity="0.2"
-      />
-      <rect
-        x="0.5"
-        y="0.5"
-        width="52.3333"
-        height="23"
-        rx="11.5"
-        stroke="#00C6A2"
-        strokeOpacity={hover ? '1' : '0.3'}
-      />
-      <circle cx="11.0834" cy="12" r="6.8334" fill="white" stroke="#00D6AF" />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M8.0721 9.76046V14.2894L10.3879 12.5591L10.6195 12.7622L8.67753 15.4974C7.95599 16.1594 6.68262 15.7115 6.68262 14.7958V9.204C6.68262 8.25685 8.03054 7.82543 8.72622 8.54991L14.0932 14.1391V9.79602L12.009 11.3405L11.7774 11.1374L13.4291 8.58414C14.1185 7.84624 15.4827 8.27376 15.4827 9.22771V14.6956C15.4827 15.6427 14.1348 16.0742 13.4391 15.3497L8.0721 9.76046Z"
-        fill="#0F1D27"
-      />
-      <circle
-        cx="41.3327"
-        cy="12.0002"
-        r="8.66667"
-        fill="#0F1D27"
-        stroke="#00D6AF"
-      />
-      <path
-        d="M36.6607 12.3343L36.6607 15.8251C36.6607 16.1737 37.0632 16.3682 37.3363 16.1516L39.8256 14.1773C40.0528 13.9971 40.0311 13.6458 39.7835 13.495L37.2942 11.9785C37.0165 11.8093 36.6607 12.0092 36.6607 12.3343Z"
-        fill="#00C6A2"
-      />
-      <path
-        d="M45.9418 11.6656V8.17477C45.9418 7.82621 45.5393 7.63172 45.2662 7.84831L42.7769 9.82262C42.5498 10.0028 42.5715 10.3541 42.819 10.5049L45.3084 12.0214C45.586 12.1906 45.9418 11.9907 45.9418 11.6656Z"
-        fill="#00C6A2"
-      />
-      <path
-        d="M36.6475 8.08264V10.341C36.6475 10.4835 36.7203 10.6161 36.8406 10.6926L45.3302 16.0896C45.6076 16.2659 45.9704 16.0666 45.9704 15.7379V13.6317C45.9704 13.491 45.8994 13.3599 45.7817 13.2829L37.2921 7.73387C37.015 7.55273 36.6475 7.75156 36.6475 8.08264Z"
-        fill="white"
-      />
-      <path
-        opacity={hover ? '1' : '0.3'}
-        d="M28.9567 11.2074H21.5997C21.2681 11.2074 20.9998 10.9391 20.9998 10.6075C20.9998 10.2759 21.2681 10.0076 21.5997 10.0076H27.5003L26.5171 9.02443C26.2821 8.78946 26.2821 8.40952 26.5171 8.17622C26.7521 7.94126 27.132 7.94126 27.3653 8.17622L29.3183 10.1276C29.4633 10.2376 29.5566 10.4109 29.5566 10.6075C29.5566 10.9391 29.2883 11.2074 28.9567 11.2074Z"
-        fill="#00C6A2"
-      />
-      <path
-        opacity={hover ? '1' : '0.3'}
-        d="M21.5999 13L28.9569 13C29.2885 13 29.5568 13.2683 29.5568 13.5999C29.5568 13.9315 29.2885 14.1998 28.9569 14.1998L23.0564 14.1998L24.0395 15.183C24.2745 15.4179 24.2745 15.7979 24.0395 16.0312C23.8046 16.2661 23.4246 16.2661 23.1913 16.0312L21.2383 14.0798C21.0933 13.9698 21 13.7965 21 13.5999C21 13.2683 21.2683 13 21.5999 13Z"
-        fill="#00C6A2"
-      />
-    </svg>
+      <span className={!isMobile ? 'hidden' : ''}>
+        <WrapNearMobile />
+      </span>
+      {isMobile ? null : hover ? <WrapNearDefault /> : <WrapNearHover />}
+    </div>
   );
 };
 

@@ -648,7 +648,7 @@ const ja = {
   boost: 'Boost',
   near: 'NEAR',
   eth: 'ETH',
-  others: 'others',
+  others: 'Others',
   stakeLove: 'Stake LOVE',
   unstakeLove: 'Unstake LOVE',
   get_love: 'Get LOVE',
@@ -867,5 +867,8 @@ const ja = {
   your_history_orders_will_appear_here: 'Your history orders will appear here',
   liquidity_capital: 'LIQUIDITY',
   limit_order: 'Limit Order',
+  newText: '新着',
+  farm_stop_tip: 'This farm has been stopped.',
+  pool_stop_tip: 'This pool has been stopped.',
 };
 export default Object.assign(ja, ja_in_risks_page);

@@ -29,6 +29,8 @@ import {
   BoostFarmNoDataIcon,
   BoostDotIcon,
   NewTag,
+  NewIcon,
+  ForbiddonIcon,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -119,7 +121,7 @@ import { MoreButtonIcon } from '../../components/icon/Common';
 
 import _ from 'lodash';
 
-const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
+const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID, FARM_BLACK_LIST_V2 } = getConfig();
 export default function FarmsHome(props: any) {
   const {
     getDetailData,
@@ -204,7 +206,11 @@ export default function FarmsHome(props: any) {
     tvl: intl.formatMessage({ id: 'tvl' }),
     apr: intl.formatMessage({ id: 'apr' }),
   };
-
+  const status_fronts = {
+    live: {
+      txt: intl.formatMessage({ id: 'all' }),
+    },
+  };
   const statusList = {
     live: {
       txt: intl.formatMessage({ id: 'all' }),
@@ -221,6 +227,10 @@ export default function FarmsHome(props: any) {
     eth: {
       txt: intl.formatMessage({ id: 'eth' }),
       icon: <EthOptIcon></EthOptIcon>,
+    },
+    new: {
+      txt: intl.formatMessage({ id: 'newText' }),
+      icon: <NewIcon></NewIcon>,
     },
     others: {
       txt: intl.formatMessage({ id: 'others' }),
@@ -667,6 +677,14 @@ export default function FarmsHome(props: any) {
         } else {
           condition1 = false;
         }
+      } else if (status == 'new') {
+        // todo
+        const m = isInMonth(seed);
+        if (m) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
       }
       if (keyWords) {
         for (let i = 0; i < token_symbols.length; i++) {
@@ -815,6 +833,31 @@ export default function FarmsHome(props: any) {
         localStorage.getItem('endedfarmShow') == '1' ? true : false
       );
     }
+  }
+  function isEnded(seed: Seed) {
+    const farms = seed.farmList;
+    return farms[0].status == 'Ended';
+  }
+
+  function isInMonth(seed: Seed) {
+    const endedStatus = isEnded(seed);
+    if (endedStatus) return false;
+    const farmList = seed.farmList;
+    const result = farmList.find((farm: FarmBoost) => {
+      const start_at = farm?.terms?.start_at;
+      if (start_at == 0) return true;
+      const one_month_seconds = 30 * 24 * 60 * 60;
+      const currentA = new Date().getTime();
+      const compareB = new BigNumber(start_at)
+        .plus(one_month_seconds)
+        .multipliedBy(1000);
+      const compareResult = compareB.minus(currentA);
+      if (compareResult.isGreaterThan(0)) {
+        return true;
+      }
+    });
+    if (result) return true;
+    return false;
   }
   function getTotalAprForSeed(seed: Seed) {
     const farms = seed.farmList;
@@ -2695,8 +2738,15 @@ function FarmView(props: {
     }
     return '';
   }
+  function getForbiddenTip() {
+    const tip = intl.formatMessage({ id: 'farm_stop_tip' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
   const isHaveUnclaimedReward = haveUnclaimedReward();
   const aprUpLimit = getAprUpperLimit();
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
   return (
     <>
       <div
@@ -2704,7 +2754,7 @@ function FarmView(props: {
           goFarmDetailPage(seed);
         }}
         className={`relative rounded-2xl cursor-pointer bg-cardBg hover:shadow-blue ${
-          isEnded() ? 'farmEnded' : ''
+          isEnded() || needForbidden ? 'farmEnded' : ''
         }
       `}
       >
@@ -2788,6 +2838,29 @@ function FarmView(props: {
               ) : null}
               {isInMonth() ? <NewTag></NewTag> : null}
             </div>
+            {needForbidden ? (
+              <div className="flex flex-col absolute left-3.5 top-3">
+                <div
+                  className="text-xl text-white"
+                  data-type="info"
+                  data-place="top"
+                  data-multiline={true}
+                  data-tip={getForbiddenTip()}
+                  data-html={true}
+                  data-for={'forbiddenTip' + seed.farmList[0].farm_id}
+                  data-class="reactTip"
+                >
+                  <ForbiddonIcon></ForbiddonIcon>
+                  <ReactTooltip
+                    id={'forbiddenTip' + seed.farmList[0].farm_id}
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
+                </div>
+              </div>
+            ) : null}
           </div>
           <div className="flex items-center justify-between px-5 py-4 h-24">
             <div className="flex flex-col items-center flex-shrink-0">

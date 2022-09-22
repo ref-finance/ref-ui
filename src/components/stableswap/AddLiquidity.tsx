@@ -425,6 +425,7 @@ export default function AddLiquidityComponent(props: {
           onChange={changeAction}
           radios={DEFAULT_ACTIONS}
           currentChoose={'add_liquidity'}
+          poolId={pool.id}
         />
 
         <StableTokenList
