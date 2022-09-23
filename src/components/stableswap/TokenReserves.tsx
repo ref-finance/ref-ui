@@ -269,7 +269,7 @@ const calculateTokenValueAndShare = (
     result[key].display2 = `${toInternationalCurrencySystem(
       result[key].value,
       2
-    )} (${finalPercents[index]}%)`;
+    )} / (${finalPercents[index]}%)`;
   });
 
   return result;
