@@ -383,13 +383,13 @@ export default function YourLiquidityDetail(props: any) {
             {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
             {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
           </span>
-          <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5 mx-2.5">
+          <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5 mx-2.5">
             <span className="text-xs text-v3SwapGray mr-1.5 whitespace-nowrap">
               Fee Tiers
             </span>
             <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
           </div>
-          <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
+          <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5">
             <span
               className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
                 isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'

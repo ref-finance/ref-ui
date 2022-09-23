@@ -525,294 +525,311 @@ export default function AddYourLiquidityPageV3() {
   }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
   return (
-    <div className="relative flex flex-col lg:w-2/3 xl:w-3/5 md:w-11/12 xs:w-11/12 m-auto text-white rounded-2xl">
-      <div
-        className="absolute w-full top-0 bottom-0 rounded-2xl"
-        style={{
-          background:
-            'linear-gradient(146.59deg, rgba(0, 255, 209, 0.6) 1.14%, rgba(70, 163, 231, 0) 47.93%, rgba(147, 62, 255, 0.6) 99.25%)',
-          filter: 'blur(50px)',
-        }}
-      ></div>
-      <div className="relative rounded-2xl z-10 border-4 gradientBorderWrapper overflow-hidden">
+    <>
+      <div className="m-auto xs:w-full md:w-full xs:px-3 md:px-3 flex items-center mb-5 lg:hidden">
         <div
-          className="relative z-10 py-5 px-7"
-          style={{
-            background: 'linear-gradient(180deg, #26343E 0%, #1D2932 100%)',
-          }}
+          className="cursor-pointer flex items-center justify-center w-6 h-6"
+          onClick={goYourLiquidityPage}
         >
-          <div className="relative flex items-center justify-center">
-            <div
-              className="absolute -left-1 cursor-pointer flex items-center justify-center w-6 h-6"
-              onClick={goYourLiquidityPage}
-            >
-              <ReturnIcon></ReturnIcon>
-            </div>
-            <span className="text-v3LightGreyColor text-xl">
-              <FormattedMessage id="add_liquidity"></FormattedMessage>
-            </span>
-          </div>
-          <div className="flex items-start justify-between mt-7">
-            {/* left area */}
-            <div className="w-1/2 mr-7 flex-shrink-0">
-              <div className="text-white font-bold text-base">
-                Select Tokens
-              </div>
-              <div className="flex items-center justify-between mt-3">
-                <div className="flex flex-grow w-1">
-                  <SelectToken
-                    tokenPriceList={tokenPriceList}
-                    tokens={nearSwapTokens}
-                    standalone
-                    selected={
-                      <div
-                        className={`flex items-center justify-between flex-grow h-12 text-base text-white rounded-xl px-4 cursor-pointer ${
-                          tokenX
-                            ? 'bg-black bg-opacity-20'
-                            : 'bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover'
-                        }`}
-                      >
-                        {tokenX ? (
-                          <div className="flex items-center">
-                            <img
-                              src={tokenX.icon}
-                              className="w-8 h-8 rounded-full border border-greenColor"
-                            ></img>
-                            <span className="text-white text-base font-bold ml-2.5">
-                              {toRealSymbol(tokenX.symbol)}
-                            </span>
-                          </div>
-                        ) : (
-                          <>Select Token</>
-                        )}
-                        <SelectIcon></SelectIcon>
-                      </div>
-                    }
-                    onSelect={(token) => {
-                      if (tokenY && tokenY.id == token.id) return;
-                      setTokenX(token);
-                      setTokenXBalanceFromNear(token?.near?.toString());
-                    }}
-                    balances={balances}
-                  />
-                </div>
-                <div
-                  onMouseEnter={() => setButtonHover(true)}
-                  onMouseLeave={() => setButtonHover(false)}
-                  onClick={switchButtonSort}
-                  className="flex flex-col items-center justify-center border border-v3SwapGray w-6 h-6 rounded-full mx-2 cursor-pointer box-content"
-                >
-                  <SwitchArrowR
-                    className={`transition-transform transform ${
-                      buttonHover
-                        ? 'translate-x-0.5 text-greenColor'
-                        : 'text-v3SwapGray'
-                    }`}
-                  ></SwitchArrowR>
-                  <SwitchArrowL
-                    style={{ marginTop: '3px' }}
-                    className={`transition-transform transform ${
-                      buttonHover
-                        ? '-translate-x-0.5 text-greenColor'
-                        : 'text-v3SwapGray'
-                    }`}
-                  ></SwitchArrowL>
-                </div>
-                <div className="flex flex-grow w-1">
-                  <SelectToken
-                    tokenPriceList={tokenPriceList}
-                    tokens={nearSwapTokens}
-                    standalone
-                    selected={
-                      <div
-                        className={`flex items-center justify-between flex-grow h-12 text-base text-white rounded-xl px-4 cursor-pointer ${
-                          tokenY
-                            ? 'bg-black bg-opacity-20'
-                            : 'bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover'
-                        }`}
-                      >
-                        {tokenY ? (
-                          <div className="flex items-center">
-                            <img
-                              src={tokenY.icon}
-                              className="w-8 h-8 rounded-full border border-greenColor"
-                            ></img>
-                            <span className="text-white text-base font-bold ml-2.5">
-                              {toRealSymbol(tokenY.symbol)}
-                            </span>
-                          </div>
-                        ) : (
-                          <>Select Token</>
-                        )}
-                        <SelectIcon></SelectIcon>
-                      </div>
-                    }
-                    onSelect={(token: TokenMetadata) => {
-                      if (tokenX && tokenX.id == token.id) return;
-                      setTokenY(token);
-                      setTokenYBalanceFromNear(token?.near?.toString());
-                    }}
-                    balances={balances}
-                  />
-                </div>
-              </div>
+          <ReturnIcon></ReturnIcon>
+        </div>
+        <span className="text-white text-sm">
+          <FormattedMessage id="add_liquidity"></FormattedMessage>
+        </span>
+      </div>
+      <div className="relative flex flex-col lg:w-2/3 xl:w-3/5 xs:w-full md:w-full xs:px-3 md:px-3 m-auto text-white rounded-2xl">
+        <div
+          className="absolute w-full top-0 bottom-0 rounded-2xl"
+          style={{
+            background:
+              'linear-gradient(146.59deg, rgba(0, 255, 209, 0.6) 1.14%, rgba(70, 163, 231, 0) 47.93%, rgba(147, 62, 255, 0.6) 99.25%)',
+            filter: 'blur(50px)',
+          }}
+        ></div>
+        <div className="relative rounded-2xl z-10 border-4 gradientBorderWrapper overflow-hidden">
+          <div
+            className="relative z-10 py-5 px-7 xs:px-3 md:px-3"
+            style={{
+              background: 'linear-gradient(180deg, #26343E 0%, #1D2932 100%)',
+            }}
+          >
+            <div className="relative flex items-center justify-center mb-7 xs:hidden md:hidden">
               <div
-                className="rounded-xl px-4 py-3 mt-5"
-                style={{ border: '1.2px solid rgba(145, 162, 174, 0.2)' }}
+                className="absolute -left-1 cursor-pointer flex items-center justify-center w-6 h-6"
+                onClick={goYourLiquidityPage}
               >
-                <div className="flex justify-between items-center">
-                  <div className="text-white text-base mt-1">Fee Tiers</div>
-                  <div
-                    onClick={switchFeeBoxStatus}
-                    className="p-1.5 rounded-lg cursor-pointer"
-                    style={{ border: '1.2px solid rgba(145, 162, 174, 0.2)' }}
-                  >
-                    <SwitchIcon
-                      className={`hover:text-senderHot ${
-                        feeBoxStatus ? 'text-senderHot' : 'text-v3feeTextColor'
-                      }`}
-                    ></SwitchIcon>
-                  </div>
-                </div>
-                <div
-                  className={`items-stretch justify-between mt-5 ${
-                    feeBoxStatus ? 'flex' : 'hidden'
-                  }`}
-                >
-                  {FEELIST.map((feeItem, index) => {
-                    const { fee, text } = feeItem;
-                    return (
-                      <div
-                        onClick={() => {
-                          switchSelectedFee(fee);
-                        }}
-                        key={fee + index}
-                        className={`rounded-xl w-1 flex-grow ${
-                          tokenX && tokenY ? 'cursor-pointer' : ''
-                        } ${index == 3 ? '' : 'mr-2.5'} ${
-                          currentSelectedPool?.fee == fee
-                            ? 'gradientBorderWrapperNoShadow'
-                            : 'border border-v3feeBorderColor p-px'
-                        }`}
-                      >
-                        <div className="flex flex-col items-center  px-1 py-3">
-                          <span className="text-sm text-white">
-                            {fee / 10000}%
-                          </span>
-                          <div className="text-v3feeTextColor text-xs text-center mt-2">
-                            {text}
-                          </div>
-                          {tokenX && tokenY && currentPools ? (
-                            <div
-                              className={`flex items-center justify-center w-full py-1 rounded-xl bg-black bg-opacity-20 text-xs text-v3LightGreyColor mt-2`}
-                            >
-                              {!currentPools[fee]
-                                ? 'No Pool'
-                                : Object.keys(tokenPriceList).length > 0
-                                ? (currentPools[fee].percent || '0') +
-                                  '%' +
-                                  ' select'
-                                : 'Loading...'}
-                            </div>
-                          ) : null}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div
-                  className={` items-center mt-3 ${
-                    feeBoxStatus || !currentSelectedPool ? 'hidden' : 'flex'
-                  }`}
-                >
-                  <span className="text-base text-white mr-3">
-                    {currentSelectedPool
-                      ? currentSelectedPool.fee / 10000 + '%'
-                      : ''}
-                  </span>
-                  <div className="text-sm text-v3SwapGray px-2.5 py-0.5 bg-black bg-opacity-20 rounded-2xl">
-                    {currentSelectedPool?.pool_id
-                      ? `${(currentSelectedPool.percent || 0) + '%'} select`
-                      : 'No Pool'}
-                  </div>
-                </div>
+                <ReturnIcon></ReturnIcon>
               </div>
-              <div className="mt-4">
-                <span className="text-base text-white">Input Amount</span>
-                <OneSide
-                  show={onlyAddYToken || onlyAddXToken ? true : false}
-                ></OneSide>
-                <InvalidRange show={invalidRange ? true : false}></InvalidRange>
-                <InputAmount
-                  token={tokenX}
-                  balance={tokenXBalanceFromNear}
-                  tokenPriceList={tokenPriceList}
-                  amount={tokenXAmount}
-                  changeAmount={changeTokenXAmount}
-                  currentSelectedPool={currentSelectedPool}
-                  hidden={
-                    tokenSort
-                      ? onlyAddYToken || invalidRange
-                        ? true
-                        : false
-                      : onlyAddXToken || invalidRange
-                      ? true
-                      : false
-                  }
-                ></InputAmount>
-                <InputAmount
-                  token={tokenY}
-                  balance={tokenYBalanceFromNear}
-                  tokenPriceList={tokenPriceList}
-                  amount={tokenYAmount}
-                  changeAmount={changeTokenYAmount}
-                  currentSelectedPool={currentSelectedPool}
-                  hidden={
-                    tokenSort
-                      ? onlyAddXToken || invalidRange
-                        ? true
-                        : false
-                      : onlyAddYToken || invalidRange
-                      ? true
-                      : false
-                  }
-                ></InputAmount>
-              </div>
+              <span className="text-v3LightGreyColor text-xl">
+                <FormattedMessage id="add_liquidity"></FormattedMessage>
+              </span>
             </div>
-            {/* right area */}
-            {/* no Data */}
-            {currentSelectedPool ? null : <NoDataComponent></NoDataComponent>}
-            {/* add pool part */}
-            {currentSelectedPool && !currentSelectedPool.pool_id ? (
-              <CreatePoolComponent
-                currentSelectedPool={currentSelectedPool}
-                tokenX={tokenX}
-                tokenY={tokenY}
-                tokenPriceList={tokenPriceList}
-                buttonSort={buttonSort}
-              ></CreatePoolComponent>
-            ) : null}
-            {/* add Liquidity part */}
-            {currentSelectedPool && currentSelectedPool.pool_id ? (
-              <AddLiquidityComponent
-                currentSelectedPool={currentSelectedPool}
-                tokenX={tokenX}
-                tokenY={tokenY}
-                tokenXAmount={tokenXAmount}
-                tokenYAmount={tokenYAmount}
-                tokenXBalanceFromNear={tokenXBalanceFromNear}
-                tokenYBalanceFromNear={tokenYBalanceFromNear}
-                tokenPriceList={tokenPriceList}
-                onlyAddXToken={onlyAddXToken}
-                onlyAddYToken={onlyAddYToken}
-                invalidRange={invalidRange}
-                pointChange={pointChange}
-              ></AddLiquidityComponent>
-            ) : null}
+            <div className="flex items-start justify-between xs:flex-col md:flex-col">
+              {/* left area */}
+              <div className="w-1/2 mr-7 flex-shrink-0 xs:w-full md:w-full">
+                <div className="text-white font-bold text-base">
+                  Select Tokens
+                </div>
+                <div className="flex items-center justify-between mt-3">
+                  <div className="flex flex-grow w-1">
+                    <SelectToken
+                      tokenPriceList={tokenPriceList}
+                      tokens={nearSwapTokens}
+                      standalone
+                      selected={
+                        <div
+                          className={`flex items-center justify-between flex-grow h-12 text-base text-white rounded-xl px-4 cursor-pointer ${
+                            tokenX
+                              ? 'bg-black bg-opacity-20'
+                              : 'bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover'
+                          }`}
+                        >
+                          {tokenX ? (
+                            <div className="flex items-center">
+                              <img
+                                src={tokenX.icon}
+                                className="w-8 h-8 rounded-full border border-greenColor"
+                              ></img>
+                              <span className="text-white text-base font-bold ml-2.5">
+                                {toRealSymbol(tokenX.symbol)}
+                              </span>
+                            </div>
+                          ) : (
+                            <>Select Token</>
+                          )}
+                          <SelectIcon></SelectIcon>
+                        </div>
+                      }
+                      onSelect={(token) => {
+                        if (tokenY && tokenY.id == token.id) return;
+                        setTokenX(token);
+                        setTokenXBalanceFromNear(token?.near?.toString());
+                      }}
+                      balances={balances}
+                    />
+                  </div>
+                  <div
+                    onMouseEnter={() => setButtonHover(true)}
+                    onMouseLeave={() => setButtonHover(false)}
+                    onClick={switchButtonSort}
+                    className="flex flex-col items-center justify-center border border-v3SwapGray w-6 h-6 rounded-full mx-2 cursor-pointer box-content"
+                  >
+                    <SwitchArrowR
+                      className={`transition-transform transform ${
+                        buttonHover
+                          ? 'translate-x-0.5 text-greenColor'
+                          : 'text-v3SwapGray'
+                      }`}
+                    ></SwitchArrowR>
+                    <SwitchArrowL
+                      style={{ marginTop: '3px' }}
+                      className={`transition-transform transform ${
+                        buttonHover
+                          ? '-translate-x-0.5 text-greenColor'
+                          : 'text-v3SwapGray'
+                      }`}
+                    ></SwitchArrowL>
+                  </div>
+                  <div className="flex flex-grow w-1">
+                    <SelectToken
+                      tokenPriceList={tokenPriceList}
+                      tokens={nearSwapTokens}
+                      standalone
+                      selected={
+                        <div
+                          className={`flex items-center justify-between flex-grow h-12 text-base text-white rounded-xl px-4 cursor-pointer ${
+                            tokenY
+                              ? 'bg-black bg-opacity-20'
+                              : 'bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover'
+                          }`}
+                        >
+                          {tokenY ? (
+                            <div className="flex items-center">
+                              <img
+                                src={tokenY.icon}
+                                className="w-8 h-8 rounded-full border border-greenColor"
+                              ></img>
+                              <span className="text-white text-base font-bold ml-2.5">
+                                {toRealSymbol(tokenY.symbol)}
+                              </span>
+                            </div>
+                          ) : (
+                            <>Select Token</>
+                          )}
+                          <SelectIcon></SelectIcon>
+                        </div>
+                      }
+                      onSelect={(token: TokenMetadata) => {
+                        if (tokenX && tokenX.id == token.id) return;
+                        setTokenY(token);
+                        setTokenYBalanceFromNear(token?.near?.toString());
+                      }}
+                      balances={balances}
+                    />
+                  </div>
+                </div>
+                <div
+                  className="rounded-xl px-4 py-3 mt-5 xs:px-2 md:px-2"
+                  style={{ border: '1.2px solid rgba(145, 162, 174, 0.2)' }}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="text-white text-base mt-1">Fee Tiers</div>
+                    <div
+                      onClick={switchFeeBoxStatus}
+                      className="p-1.5 rounded-lg cursor-pointer"
+                      style={{ border: '1.2px solid rgba(145, 162, 174, 0.2)' }}
+                    >
+                      <SwitchIcon
+                        className={`hover:text-senderHot ${
+                          feeBoxStatus
+                            ? 'text-senderHot'
+                            : 'text-v3feeTextColor'
+                        }`}
+                      ></SwitchIcon>
+                    </div>
+                  </div>
+                  <div
+                    className={`items-stretch justify-between mt-5 ${
+                      feeBoxStatus ? 'flex' : 'hidden'
+                    }`}
+                  >
+                    {FEELIST.map((feeItem, index) => {
+                      const { fee, text } = feeItem;
+                      return (
+                        <div
+                          onClick={() => {
+                            switchSelectedFee(fee);
+                          }}
+                          key={fee + index}
+                          className={`rounded-xl w-1 flex-grow ${
+                            tokenX && tokenY ? 'cursor-pointer' : ''
+                          } ${index == 3 ? '' : 'mr-2.5 xs:mr-1 md:mr-1'} ${
+                            currentSelectedPool?.fee == fee
+                              ? 'gradientBorderWrapperNoShadow'
+                              : 'border border-v3feeBorderColor p-px'
+                          }`}
+                        >
+                          <div className="flex flex-col items-center  px-1 py-3 xs:px-px md:px-px">
+                            <span className="text-sm text-white">
+                              {fee / 10000}%
+                            </span>
+                            <div className="text-v3feeTextColor text-xs text-center mt-2">
+                              {text}
+                            </div>
+                            {tokenX && tokenY && currentPools ? (
+                              <div
+                                className={`flex items-center justify-center w-full py-1 rounded-xl bg-black bg-opacity-20 text-xs text-v3LightGreyColor mt-2 whitespace-nowrap`}
+                              >
+                                {!currentPools[fee]
+                                  ? 'No Pool'
+                                  : Object.keys(tokenPriceList).length > 0
+                                  ? (currentPools[fee].percent || '0') +
+                                    '%' +
+                                    ' select'
+                                  : 'Loading...'}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div
+                    className={` items-center mt-3 ${
+                      feeBoxStatus || !currentSelectedPool ? 'hidden' : 'flex'
+                    }`}
+                  >
+                    <span className="text-base text-white mr-3">
+                      {currentSelectedPool
+                        ? currentSelectedPool.fee / 10000 + '%'
+                        : ''}
+                    </span>
+                    <div className="text-sm text-v3SwapGray px-2.5 py-0.5 bg-black bg-opacity-20 rounded-2xl">
+                      {currentSelectedPool?.pool_id
+                        ? `${(currentSelectedPool.percent || 0) + '%'} select`
+                        : 'No Pool'}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <span className="text-base text-white">Input Amount</span>
+                  <OneSide
+                    show={onlyAddYToken || onlyAddXToken ? true : false}
+                  ></OneSide>
+                  <InvalidRange
+                    show={invalidRange ? true : false}
+                  ></InvalidRange>
+                  <InputAmount
+                    token={tokenX}
+                    balance={tokenXBalanceFromNear}
+                    tokenPriceList={tokenPriceList}
+                    amount={tokenXAmount}
+                    changeAmount={changeTokenXAmount}
+                    currentSelectedPool={currentSelectedPool}
+                    hidden={
+                      tokenSort
+                        ? onlyAddYToken || invalidRange
+                          ? true
+                          : false
+                        : onlyAddXToken || invalidRange
+                        ? true
+                        : false
+                    }
+                  ></InputAmount>
+                  <InputAmount
+                    token={tokenY}
+                    balance={tokenYBalanceFromNear}
+                    tokenPriceList={tokenPriceList}
+                    amount={tokenYAmount}
+                    changeAmount={changeTokenYAmount}
+                    currentSelectedPool={currentSelectedPool}
+                    hidden={
+                      tokenSort
+                        ? onlyAddXToken || invalidRange
+                          ? true
+                          : false
+                        : onlyAddYToken || invalidRange
+                        ? true
+                        : false
+                    }
+                  ></InputAmount>
+                </div>
+              </div>
+              {/* right area */}
+              {/* no Data */}
+              {currentSelectedPool ? null : <NoDataComponent></NoDataComponent>}
+              {/* add pool part */}
+              {currentSelectedPool && !currentSelectedPool.pool_id ? (
+                <CreatePoolComponent
+                  currentSelectedPool={currentSelectedPool}
+                  tokenX={tokenX}
+                  tokenY={tokenY}
+                  tokenPriceList={tokenPriceList}
+                  buttonSort={buttonSort}
+                ></CreatePoolComponent>
+              ) : null}
+              {/* add Liquidity part */}
+              {currentSelectedPool && currentSelectedPool.pool_id ? (
+                <AddLiquidityComponent
+                  currentSelectedPool={currentSelectedPool}
+                  tokenX={tokenX}
+                  tokenY={tokenY}
+                  tokenXAmount={tokenXAmount}
+                  tokenYAmount={tokenYAmount}
+                  tokenXBalanceFromNear={tokenXBalanceFromNear}
+                  tokenYBalanceFromNear={tokenYBalanceFromNear}
+                  tokenPriceList={tokenPriceList}
+                  onlyAddXToken={onlyAddXToken}
+                  onlyAddYToken={onlyAddYToken}
+                  invalidRange={invalidRange}
+                  pointChange={pointChange}
+                ></AddLiquidityComponent>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 function CreatePoolComponent({
@@ -897,10 +914,10 @@ function CreatePoolComponent({
   }
   return (
     <div
-      className={`w-1/2 flex flex-col justify-between flex-grow self-stretch`}
+      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-4 md:mt-4`}
     >
       <div className="text-white font-bold text-base">Initialize the pool:</div>
-      <div className="relative flex-grow bg-black bg-opacity-10 rounded-xl px-4 py-7 mt-3">
+      <div className="relative flex-grow bg-black bg-opacity-10 rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2">
         <BgIcon className="absolute right-0 top-0"></BgIcon>
         <div className="relative z-10 flex flex-col justify-between h-full">
           <div>
@@ -1166,7 +1183,14 @@ function AddLiquidityComponent({
       const myScaleX = d3.scaleLinear().domain([l, r]).range([0, width]);
       const myScaleY = d3.scaleLinear().domain([0, l_r]).range([0, 200]);
       const axis: any = d3.axisBottom(myScaleX);
-      // axis.ticks(5);
+      axis.ticks(5).tickFormat(function (d: any) {
+        const dBig = new BigNumber(d);
+        if (dBig.isGreaterThanOrEqualTo(10000)) {
+          return dBig.toExponential(1);
+        } else {
+          return d;
+        }
+      });
       axis.tickSize(0).tickPadding(15);
       d3.select('.g').call(axis).selectAll('text').style('fill', '#7E8A93');
       // chart
@@ -1278,12 +1302,19 @@ function AddLiquidityComponent({
           return 15;
         })
         .text(function (d, i) {
+          let result;
           const diff = new BigNumber(price_c).minus(d).abs();
-          const p = diff.dividedBy(price_c).multipliedBy(100).toFixed(0);
-          if (price_c > d) {
-            return `-${p}%`;
+          let p = diff.dividedBy(price_c).multipliedBy(100);
+          if (new BigNumber(10000).isLessThanOrEqualTo(p)) {
+            result = p.toExponential(1);
           } else {
-            return `+${p}%`;
+            result = p.toFixed(0);
+          }
+
+          if (price_c > result) {
+            return `-${result}%`;
+          } else {
+            return `+${result}%`;
           }
         })
         .style('fill', '#fff')
@@ -1655,10 +1686,10 @@ function AddLiquidityComponent({
   const isAddLiquidityDisabled = getButtonStatus();
   return (
     <div
-      className={`w-1/2 flex flex-col justify-between flex-grow self-stretch`}
+      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-4 md:mt-4`}
     >
       <div className="text-white font-bold text-base">Set Price Range</div>
-      <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3">
+      <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2">
         <div className="flex items-center flex-wrap justify-between mt-3.5">
           <span className="text-xs text-v3LightGreyColor mb-2">
             Current Price
@@ -1699,7 +1730,7 @@ function AddLiquidityComponent({
         {/* input range area */}
         <div>
           <div className="flex items-center justify-between">
-            <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-3 mr-5">
+            <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-3 mr-5 xs:mr-2 md:mr-2">
               <span className="text-sm text-primaryText">Min Price</span>
               {tokenSort ? (
                 <PointInputComponent
@@ -1863,62 +1894,23 @@ function AddLiquidityComponent({
     </div>
   );
 }
-function PointInputComponent({
-  reduceOneSlot,
-  addOneSlot,
-  handlePriceToAppropriatePoint,
-  customPrice,
-  getPrice,
-  setCustomPrice,
-}: any) {
-  return (
-    <div className="flex items-center justify-between mt-3.5">
-      <div
-        className="flex w-6 h-6  flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor cursor-pointer"
-        onClick={() => {
-          reduceOneSlot('r');
-        }}
-      >
-        <ReduceButton className="cursor-pointer"></ReduceButton>
-      </div>
-      <input
-        type="number"
-        placeholder="0.0"
-        className="text-base mx-2 text-center"
-        onBlur={handlePriceToAppropriatePoint}
-        value={customPrice || getPrice()}
-        onChange={({ target }) => {
-          const inputPrice = target.value || '0';
-          setCustomPrice(inputPrice);
-        }}
-      />
-      <div
-        className="flex w-6 h-6 flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor cursor-pointer"
-        onClick={() => {
-          addOneSlot('r');
-        }}
-      >
-        <AddButton className="cursor-pointer"></AddButton>
-      </div>
-    </div>
-  );
-}
+
 function NoDataComponent() {
   const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
   return (
     <div
-      className={`w-1/2 flex flex-col justify-between flex-grow self-stretch`}
+      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-4 md:mt-4`}
     >
       <div className="text-white font-bold text-base">Set Price Range</div>
-      <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 opacity-50">
+      <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2 opacity-50">
         {/* range chart area */}
-        <div className="flex flex-col items-center justify-center mt-24">
+        <div className="flex flex-col items-center justify-center mt-20 xs:my-12 md:my-20">
           <EmptyIcon></EmptyIcon>
         </div>
         {/* input range area */}
         <div>
           <div className="flex items-center justify-between">
-            <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-3 mr-5">
+            <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-3 mr-5 xs:mr-2 md:mr-2">
               <span className="text-sm text-primaryText">Min Price</span>
               <div className="flex items-center justify-between mt-3.5">
                 <div className="flex w-6 h-6  flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor">
@@ -1983,6 +1975,46 @@ function NoDataComponent() {
       >
         <ButtonTextWrapper loading={false} Text={() => <>Select Tokens</>} />
       </GradientButton>
+    </div>
+  );
+}
+function PointInputComponent({
+  reduceOneSlot,
+  addOneSlot,
+  handlePriceToAppropriatePoint,
+  customPrice,
+  getPrice,
+  setCustomPrice,
+}: any) {
+  return (
+    <div className="flex items-center justify-between mt-3.5">
+      <div
+        className="flex w-6 h-6  flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor cursor-pointer"
+        onClick={() => {
+          reduceOneSlot('r');
+        }}
+      >
+        <ReduceButton className="cursor-pointer"></ReduceButton>
+      </div>
+      <input
+        type="number"
+        placeholder="0.0"
+        className="text-base mx-2 text-center"
+        onBlur={handlePriceToAppropriatePoint}
+        value={customPrice || getPrice()}
+        onChange={({ target }) => {
+          const inputPrice = target.value || '0';
+          setCustomPrice(inputPrice);
+        }}
+      />
+      <div
+        className="flex w-6 h-6 flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor cursor-pointer"
+        onClick={() => {
+          addOneSlot('r');
+        }}
+      >
+        <AddButton className="cursor-pointer"></AddButton>
+      </div>
     </div>
   );
 }
