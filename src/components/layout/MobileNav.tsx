@@ -254,7 +254,8 @@ export function AccountModel(props: any) {
   const { wallet } = getCurrentWallet();
 
   const { hasBalanceOnRefAccount } = props;
-
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
   const accountList = [
     {
       icon: <AccountIcon />,
@@ -282,12 +283,16 @@ export function AccountModel(props: any) {
       textId: 'go_to_near_wallet',
       subIcon: <HiOutlineExternalLink />,
       click: () => {
-        window.open(config.walletUrl, '_blank');
+        window.open(
+          selector.store.getState().selectedWalletId === 'my-near-wallet'
+            ? config.myNearWalletUrl
+            : config.walletUrl,
+          '_blank'
+        );
       },
     },
   ];
-  const { selector, modal, accounts, accountId, setAccountId } =
-    useWalletSelector();
+
   const [currentWalletName, setCurrentWalletName] = useState<string>();
 
   const [currentWalletIcon, setCurrentWalletIcon] = useState<string>();
