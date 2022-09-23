@@ -2839,7 +2839,7 @@ function FarmView(props: {
               {isInMonth() ? <NewTag></NewTag> : null}
             </div>
             {needForbidden ? (
-              <div className="flex flex-col absolute left-3.5 top-3">
+              <div className="flex flex-col absolute left-3.5 top-3 z-50">
                 <div
                   className="text-xl text-white"
                   data-type="info"
