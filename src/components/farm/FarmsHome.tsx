@@ -2740,7 +2740,7 @@ function FarmView(props: {
   }
   function getForbiddenTip() {
     const tip = intl.formatMessage({ id: 'farm_stop_tip' });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    let result: string = `<div class="text-navHighLightText text-xs text-left">${tip}</div>`;
     return result;
   }
   const isHaveUnclaimedReward = haveUnclaimedReward();
