@@ -12,7 +12,7 @@ import { toRealSymbol } from '../../utils/token';
 import { RefIcon } from '../../components/icon/Common';
 import { SmallWallet } from '../icon/SmallWallet';
 import { getMax } from '../../utils/numbers';
-import { NEARXIDS } from '~services/near';
+import { NEARXIDS } from '../../services/near';
 
 export function Icon(props: {
   icon?: string;
