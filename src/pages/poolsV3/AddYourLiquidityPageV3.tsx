@@ -1023,8 +1023,8 @@ function AddLiquidityComponent({
 }) {
   let [leftCustomPrice, setLeftCustomPrice] = useState('');
   let [rightCustomPrice, setRightCustomPrice] = useState('');
-  const [leftPoint, setLeftPoint] = useState<number>(0);
-  const [rightPoint, setRightPoint] = useState<number>(0);
+  let [leftPoint, setLeftPoint] = useState<number>(0);
+  let [rightPoint, setRightPoint] = useState<number>(0);
   const [currentPoint, setCurrentPoint] = useState<number>();
   const [chartLoading, setChartLoading] = useState<boolean>(false);
   const [noDataForChart, setNoDataForChart] = useState(false);
@@ -1039,6 +1039,7 @@ function AddLiquidityComponent({
   >({});
   const { globalState } = useContext(WalletContext);
   const [timer, setTimer] = useState(null);
+  const [depthData, setDepthData] = useState(null);
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
   const chartDom = useRef(null);
@@ -1056,6 +1057,8 @@ function AddLiquidityComponent({
       const { left_p, right_p } = getPointByCondition(p);
       optionsMapPoints_temp[p] = { left_p, right_p };
       if (p == 10) {
+        leftPoint = left_p;
+        rightPoint = right_p;
         setLeftPoint(left_p);
         setRightPoint(right_p);
       }
@@ -1095,9 +1098,21 @@ function AddLiquidityComponent({
     } else {
       setCurrentCheckedQuickOption(undefined);
     }
+    if (depthData) {
+      drawChartData(depthData);
+    }
   }, [leftPoint, rightPoint]);
   async function getChartData() {
     const depthData = await get_pool_marketdepth(currentSelectedPool.pool_id);
+    const length = drawChartData(depthData);
+    if (length == 0) {
+      setNoDataForChart(true);
+    } else {
+      setDepthData(depthData);
+    }
+    setChartLoading(false);
+  }
+  function drawChartData(depthData: any) {
     const { current_point, liquidities } = depthData;
     const list = Object.values(liquidities);
     if (list.length > 0) {
@@ -1107,6 +1122,8 @@ function AddLiquidityComponent({
       const decimalRate =
         Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
       const price_c: any = getPriceByPoint(current_point, decimalRate);
+      const price_left: any = getPriceByPoint(leftPoint, decimalRate);
+      const price_right: any = getPriceByPoint(rightPoint, decimalRate);
       list.forEach((item: any, index: number) => {
         const { left_point, right_point, amount_l } = item;
         const price_l = getPriceByPoint(left_point, decimalRate);
@@ -1132,6 +1149,8 @@ function AddLiquidityComponent({
         }
       });
       priceList.push(price_c);
+      priceList.push(price_left);
+      priceList.push(price_right);
       priceList.sort((a: string, b: string) => {
         return new BigNumber(a).minus(new BigNumber(b)).toNumber();
       });
@@ -1142,13 +1161,12 @@ function AddLiquidityComponent({
       const right_p: any = priceList[priceList.length - 1];
       const l_r: any = L_list[L_list.length - 1];
       const width = chartDom.current.clientWidth - 30;
-      const myScaleX = d3
-        .scaleLinear()
-        .domain([left_p, right_p])
-        .range([0, width]);
+      const l: any = new BigNumber(left_p).multipliedBy(0.95).toFixed();
+      const r: any = new BigNumber(right_p).multipliedBy(1.05).toFixed();
+      const myScaleX = d3.scaleLinear().domain([l, r]).range([0, width]);
       const myScaleY = d3.scaleLinear().domain([0, l_r]).range([0, 200]);
       const axis: any = d3.axisBottom(myScaleX);
-      axis.ticks(5);
+      // axis.ticks(5);
       axis.tickSize(0).tickPadding(15);
       d3.select('.g').call(axis).selectAll('text').style('fill', '#7E8A93');
       // chart
@@ -1187,10 +1205,105 @@ function AddLiquidityComponent({
         .attr('y2', 200)
         .style('stroke-width', 1)
         .style('stroke', '#fff');
-    } else {
-      setNoDataForChart(true);
+
+      d3.select('.gLeftLine')
+        .selectAll('line')
+        .data([price_left])
+        .join('line')
+        .attr('x1', function (d) {
+          return myScaleX(d) + 15;
+        })
+        .attr('x2', function (d) {
+          return myScaleX(d) + 15;
+        })
+        .attr('y1', 0)
+        .attr('y2', 200)
+        .style('stroke-width', 1)
+        .style('stroke', '#00FFD1');
+
+      d3.select('.gLeftLine')
+        .selectAll('text')
+        .data([price_left])
+        .join('text')
+        .attr('class', 'textLeft')
+        .text(function (d, i) {
+          const diff: any = new BigNumber(price_c).minus(d).abs();
+          const p: any = diff.dividedBy(price_c).multipliedBy(100).toFixed(0);
+          if (price_c > d) {
+            return `-${p}%`;
+          } else {
+            return `+${p}%`;
+          }
+        })
+        .style('fill', '#fff')
+        .style('font-size', '14px')
+        .attr('x', function (d, i) {
+          const textWidth = d3
+            .select('.textLeft')
+            .node()
+            .getComputedTextLength();
+          const normalPosition = myScaleX(d) + 15 - textWidth - 5;
+          const oppositePosition = myScaleX(d) + 15 + 5;
+          if (normalPosition <= 0) {
+            return oppositePosition;
+          } else {
+            return normalPosition;
+          }
+        })
+        .attr('y', function (d, i) {
+          return 15;
+        });
+
+      d3.select('.gRightLine')
+        .selectAll('line')
+        .data([price_right])
+        .join('line')
+        .attr('x1', function (d) {
+          return myScaleX(d) + 15;
+        })
+        .attr('x2', function (d) {
+          return myScaleX(d) + 15;
+        })
+        .attr('y1', 0)
+        .attr('y2', 200)
+        .style('stroke-width', 1)
+        .style('stroke', '#00FFD1');
+
+      d3.select('.gRightLine')
+        .selectAll('text')
+        .data([price_right])
+        .join('text')
+        .attr('class', 'textRight')
+        .attr('y', function (d, i) {
+          return 15;
+        })
+        .text(function (d, i) {
+          const diff = new BigNumber(price_c).minus(d).abs();
+          const p = diff.dividedBy(price_c).multipliedBy(100).toFixed(0);
+          if (price_c > d) {
+            return `-${p}%`;
+          } else {
+            return `+${p}%`;
+          }
+        })
+        .style('fill', '#fff')
+        .style('font-size', '14px')
+        .attr('x', function (d, i) {
+          const textWidth = d3
+            .select('.textRight')
+            .node()
+            .getComputedTextLength();
+          const maxPosition = myScaleX(d) + 15 + textWidth + 5;
+          const oppositePosition = myScaleX(d) + 15 - textWidth - 5;
+          const normalposition = myScaleX(d) + 15 + 5;
+          if (maxPosition >= width) {
+            return oppositePosition;
+          } else {
+            return normalposition;
+          }
+        });
     }
-    setChartLoading(false);
+    return list.length;
   }
   function getPointByCondition(p: number) {
     const { point_delta, token_x } = currentSelectedPool;
@@ -1566,14 +1679,17 @@ function AddLiquidityComponent({
           <svg
             width="100%"
             height="230"
-            className={`chart ${
+            className={`${
               chartLoading || noDataForChart ? 'invisible' : 'visible'
             }`}
             ref={chartDom}
             style={{ color: 'rgba(91, 64, 255, 0.5)' }}
           >
+            <g className="chart"></g>
             <g className="g" transform="translate(15,200)"></g>
             <g className="g2"></g>
+            <g className="gLeftLine"></g>
+            <g className="gRightLine"></g>
           </svg>
           {chartLoading ? (
             <BlueCircleLoading className="absolute"></BlueCircleLoading>
