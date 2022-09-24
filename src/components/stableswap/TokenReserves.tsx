@@ -247,10 +247,15 @@ const calculateTokenValueAndShare = (
     });
 
   const percents = Object.values(result).map((o) =>
-    new Big(o.value || '0')
-      .div(totalShares || 1)
-      .times(100)
-      .toFixed(2)
+    toPrecision(
+      scientificNotationToString(
+        new Big(o.value || '0')
+          .div(totalShares || 1)
+          .times(100)
+          .toString()
+      ),
+      2
+    )
   );
 
   const finalPercents = checkAllocations('100', percents);
@@ -261,6 +266,10 @@ const calculateTokenValueAndShare = (
       result[key].value,
       2
     )} (${finalPercents[index]}%)`;
+    result[key].display2 = `${toInternationalCurrencySystem(
+      result[key].value,
+      2
+    )} / ${finalPercents[index]}%`;
   });
 
   return result;
