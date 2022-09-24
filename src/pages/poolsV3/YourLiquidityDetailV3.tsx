@@ -368,43 +368,49 @@ export default function YourLiquidityDetail(props: any) {
         </div>
       </div>
       <div className="flex items-center justify-between mt-6">
-        <div className="flex items-center">
-          <div className="flex items-center mr-2 flex-shrink-0">
-            <img
-              src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-              className="w-8 h-8 border border-greenColor rounded-full"
-            ></img>
-            <img
-              src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-              className="relative w-8 h-8 border border-greenColor rounded-full -ml-1.5"
-            ></img>
-          </div>
-          <span className="text-lg text-white">
-            {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
-            {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
-          </span>
-          <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5 mx-2.5">
-            <span className="text-xs text-v3SwapGray mr-1.5 whitespace-nowrap">
-              Fee Tiers
+        <div className="flex items-center xs:flex-col md:flex-col xs:items-start md:items-start">
+          <div className="flex items-center">
+            <div className="flex items-center mr-2 flex-shrink-0">
+              <img
+                src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                className="w-8 h-8 border border-greenColor rounded-full"
+              ></img>
+              <img
+                src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                className="relative w-8 h-8 border border-greenColor rounded-full -ml-1.5"
+              ></img>
+            </div>
+            <span className="text-lg text-white">
+              {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
+              {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
             </span>
-            <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
           </div>
-          <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5">
-            <span
-              className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
-                isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
-              }`}
-            ></span>
-            <span
-              className={`text-xs whitespace-nowrap ${
-                isInrange ? 'text-gradientFromHover' : 'text-v3GarkWarningColor'
-              }`}
-            >
-              {isInrange ? 'In range' : 'Out of range'}
-            </span>
+          <div className="flex items-center xs:mt-4 md:mt-4">
+            <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5 mx-2.5 xs:ml-0 md:ml-0">
+              <span className="text-xs text-v3SwapGray mr-1.5 whitespace-nowrap">
+                Fee Tiers
+              </span>
+              <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
+            </div>
+            <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5">
+              <span
+                className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
+                  isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
+                }`}
+              ></span>
+              <span
+                className={`text-xs whitespace-nowrap ${
+                  isInrange
+                    ? 'text-gradientFromHover'
+                    : 'text-v3GarkWarningColor'
+                }`}
+              >
+                {isInrange ? 'In range' : 'Out of range'}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center xs:hidden md:hidden">
           <GradientButton
             onClick={(e) => {
               e.stopPropagation();
@@ -429,14 +435,16 @@ export default function YourLiquidityDetail(props: any) {
           </BorderButton>
         </div>
       </div>
-      <div className="flex justify-between mt-8 items-stretch">
-        <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow mr-3">
-          <div className="text-white text-base">Your Liquidity</div>
-          <div className="flex items-center justify-between mt-3.5">
-            <span className="text-white text-xl">{getLiquidityAmount()}</span>
-            <span className="text-v3SwapGray text-sm">
-              ~{getLiquidityPrice()}
-            </span>
+      <div className="flex justify-between mt-8 items-stretch xs:flex-col md:flex-col xs:mt-5 md:mt-5">
+        <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow mr-3 xs:w-full md:w-full xs:mr-0 md:mr-0 xs:p-3 md:p-3">
+          <div className="flex flex-col xs:flex-row md:flex-row xs:w-full md:w-full xs:justify-between md:justify-between">
+            <div className="text-white text-base">Your Liquidity</div>
+            <div className="flex items-center justify-between mt-3.5 xs:flex-col md:flex-col xs:mt-0 md:mt-0 xs:items-end md:items-end">
+              <span className="text-white text-xl">{getLiquidityAmount()}</span>
+              <span className="text-v3SwapGray text-sm">
+                ~{getLiquidityPrice()}
+              </span>
+            </div>
           </div>
           <div
             className={`flex items-center justify-between mt-5 ${
@@ -479,24 +487,29 @@ export default function YourLiquidityDetail(props: any) {
             </div>
           </div>
         </div>
-        <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow">
-          <div className="flex items-center justify-between text-white text-base">
+        <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow xs:w-full md:w-full xs:mt-3 md:mt-3 xs:p-3 md:p-3">
+          <div className="flex items-center justify-between text-white text-base flex-wrap">
             <span>Unclaimed Fees</span>
-            <div
-              className={`flex items-center justify-center  rounded-lg text-sm h-8 w-20 ${
-                !canClaim()
-                  ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                  : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-              }`}
-              onClick={claimRewards}
-            >
-              <ButtonTextWrapper
-                loading={claimLoading}
-                Text={() => <FormattedMessage id="claim" />}
-              />
+            <div className="flex items-center">
+              <span className="text-white text-xl mr-2 lg:hidden">
+                {getTokenFeeAmount('p') || '$-'}
+              </span>
+              <div
+                className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
+                  !canClaim()
+                    ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                    : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                }`}
+                onClick={claimRewards}
+              >
+                <ButtonTextWrapper
+                  loading={claimLoading}
+                  Text={() => <FormattedMessage id="claim" />}
+                />
+              </div>
             </div>
           </div>
-          <div className="flex items-center mt-3.5">
+          <div className="flex items-center mt-3.5 xs:hidden md:hidden">
             <span className="text-white text-xl">
               {getTokenFeeAmount('p') || '$-'}
             </span>
@@ -535,12 +548,12 @@ export default function YourLiquidityDetail(props: any) {
           </div>
         </div>
       </div>
-      <div className="mt-2.5 bg-cardBg rounded-xl p-5">
+      <div className="mt-3 bg-cardBg rounded-xl p-5 xs:p-3 md:p-3">
         <div className="flex items-center">
           <span className="text-sm text-white">Price Range</span>
         </div>
         <div className="flex items-stretch justify-between mt-4">
-          <div className="flex flex-col items-center  w-1 flex-grow bg-black bg-opacity-20 rounded-xl mr-3.5 px-3.5 py-5">
+          <div className="flex flex-col items-center  w-1 flex-grow bg-black bg-opacity-20 rounded-xl mr-3.5 px-3.5 py-5 xs:mr-1.5 md:mr-1.5">
             <span className="text-xs text-primaryText">Min Price</span>
             <span className="text-white text-xl my-2 break-all">
               {getRate('left')}
@@ -567,9 +580,11 @@ export default function YourLiquidityDetail(props: any) {
             </p>
           </div>
         </div>
-        <div className="flex items-center justify-between bg-black bg-opacity-20 mt-2 rounded-xl px-3.5 py-3">
+        <div className="flex items-center justify-between flex-wrap bg-black bg-opacity-20 mt-2 rounded-xl px-3.5 py-3">
           <span className="text-xs text-primaryText">Current Price</span>
-          <span className="text-xl text-white">{getRate('current')}</span>
+          <span className="text-xl text-white break-all">
+            {getRate('current')}
+          </span>
           <div className="flex items-center">
             {rateSort ? (
               <span className="text-xs text-primaryText">
@@ -589,6 +604,30 @@ export default function YourLiquidityDetail(props: any) {
             ></SwitchButton>
           </div>
         </div>
+      </div>
+      <div className="flex items-center lg:hidden mt-3">
+        <GradientButton
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowAddBox(true);
+          }}
+          color="#fff"
+          className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-2.5`}
+        >
+          Add
+        </GradientButton>
+        <BorderButton
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowRemoveBox(true);
+          }}
+          rounded="rounded-md"
+          px="px-0"
+          py="py-1"
+          className="flex-grow  w-1 text-sm text-greenColor"
+        >
+          Remove
+        </BorderButton>
       </div>
       <RemovePoolV3
         isOpen={showRemoveBox}

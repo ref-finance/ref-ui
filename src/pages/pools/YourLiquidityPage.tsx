@@ -324,7 +324,9 @@ export function YourLiquidityPage(props: any) {
   )
     return (
       <div>
-        <div className="text-white text-base my-2.5">V1 (0)</div>
+        <div className="text-white text-base my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+          V1 (0)
+        </div>
         <div className="flex items-center justify-center">
           <BlueCircleLoading />
         </div>
@@ -431,7 +433,9 @@ export function YourLiquidityPage(props: any) {
             {error && <Alert level="warn" message={error.message} />}
           </div>
           {/* PC */}
-          <div className="text-white text-base my-2.5">V1 ({count})</div>
+          <div className="text-white text-base my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+            V1 ({count})
+          </div>
           <Card
             width="w-full"
             padding="px-0 py-6"
@@ -611,8 +615,8 @@ export function YourLiquidityPage(props: any) {
               <Empty />
             </Card>
           )}
-          <GradientButton
-            className="px-4 py-1.5 text-sm text-white lg:hidden"
+          {/* <GradientButton
+            className="px-4 py-1.5 text-sm text-white hidden"
             onClick={() => {
               setGeneralAddLiquidity(true);
             }}
@@ -621,7 +625,7 @@ export function YourLiquidityPage(props: any) {
               id="add_liquidity"
               defaultMessage={'Add Liquidity'}
             />
-          </GradientButton>
+          </GradientButton> */}
         </div>
       </StakeListContext.Provider>
       <YourLiquidityAddLiquidityModal

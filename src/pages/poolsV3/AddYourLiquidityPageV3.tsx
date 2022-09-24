@@ -673,7 +673,29 @@ export default function AddYourLiquidityPageV3() {
                   style={{ border: '1.2px solid rgba(145, 162, 174, 0.2)' }}
                 >
                   <div className="flex justify-between items-center">
-                    <div className="text-white text-base mt-1">Fee Tiers</div>
+                    <div className="flex items-center pl-2">
+                      <span
+                        className={`text-sm text-white mr-1.5 lg:hidden ${
+                          feeBoxStatus || !currentSelectedPool ? 'hidden' : ''
+                        }`}
+                      >
+                        {currentSelectedPool
+                          ? currentSelectedPool.fee / 10000 + '%'
+                          : ''}
+                      </span>
+                      <div className="text-white text-base xs:text-sm md:text-sm">
+                        Fee Tiers
+                      </div>
+                      <div
+                        className={`text-xs text-v3SwapGray px-2.5 py-0.5 bg-black bg-opacity-20 rounded-2xl ml-2 lg:hidden ${
+                          feeBoxStatus || !currentSelectedPool ? 'hidden' : ''
+                        }`}
+                      >
+                        {currentSelectedPool?.pool_id
+                          ? `${(currentSelectedPool.percent || 0) + '%'} select`
+                          : 'No Pool'}
+                      </div>
+                    </div>
                     <div
                       onClick={switchFeeBoxStatus}
                       className="p-1.5 rounded-lg cursor-pointer"
@@ -720,13 +742,15 @@ export default function AddYourLiquidityPageV3() {
                               <div
                                 className={`flex items-center justify-center w-full py-1 rounded-xl bg-black bg-opacity-20 text-xs text-v3LightGreyColor mt-2 whitespace-nowrap`}
                               >
-                                {!currentPools[fee]
-                                  ? 'No Pool'
-                                  : Object.keys(tokenPriceList).length > 0
-                                  ? (currentPools[fee].percent || '0') +
-                                    '%' +
-                                    ' select'
-                                  : 'Loading...'}
+                                <span className="transform xs:scale-90 md:scale-90">
+                                  {!currentPools[fee]
+                                    ? 'No Pool'
+                                    : Object.keys(tokenPriceList).length > 0
+                                    ? (currentPools[fee].percent || '0') +
+                                      '%' +
+                                      ' select'
+                                    : 'Loading...'}
+                                </span>
                               </div>
                             ) : null}
                           </div>
@@ -735,7 +759,7 @@ export default function AddYourLiquidityPageV3() {
                     })}
                   </div>
                   <div
-                    className={` items-center mt-3 ${
+                    className={` items-center mt-3 xs:hidden md:hidden pl-2 ${
                       feeBoxStatus || !currentSelectedPool ? 'hidden' : 'flex'
                     }`}
                   >
@@ -751,8 +775,10 @@ export default function AddYourLiquidityPageV3() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-4">
-                  <span className="text-base text-white">Input Amount</span>
+                <div className="mt-5">
+                  <span className="text-base text-white font-bold">
+                    Input Amount
+                  </span>
                   <OneSide
                     show={onlyAddYToken || onlyAddXToken ? true : false}
                   ></OneSide>
@@ -914,11 +940,11 @@ function CreatePoolComponent({
   }
   return (
     <div
-      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-4 md:mt-4`}
+      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
     >
       <div className="text-white font-bold text-base">Initialize the pool:</div>
       <div className="relative flex-grow bg-black bg-opacity-10 rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2">
-        <BgIcon className="absolute right-0 top-0"></BgIcon>
+        <BgIcon className="absolute right-0 top-0 xs:hidden md:hidden"></BgIcon>
         <div className="relative z-10 flex flex-col justify-between h-full">
           <div>
             <p className="text-sm text-white">
@@ -930,7 +956,7 @@ function CreatePoolComponent({
               Gas fees will be higher than usual!
             </p>
           </div>
-          <div>
+          <div className="xs:mt-20 md:mt-20">
             <p className="text-base text-white">Starting Price</p>
             <div className="flex items-center justify-between mt-3">
               <span className="whitespace-nowrap mr-2">
@@ -1686,11 +1712,11 @@ function AddLiquidityComponent({
   const isAddLiquidityDisabled = getButtonStatus();
   return (
     <div
-      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-4 md:mt-4`}
+      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
     >
       <div className="text-white font-bold text-base">Set Price Range</div>
-      <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2">
-        <div className="flex items-center flex-wrap justify-between mt-3.5">
+      <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 xs:py-5 md:py-5 mt-3 xs:px-2 md:px-2">
+        <div className="flex items-center flex-wrap justify-between mt-3.5 xs:mt-0 md:mt-0">
           <span className="text-xs text-v3LightGreyColor mb-2">
             Current Price
           </span>
@@ -1731,7 +1757,9 @@ function AddLiquidityComponent({
         <div>
           <div className="flex items-center justify-between">
             <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-3 mr-5 xs:mr-2 md:mr-2">
-              <span className="text-sm text-primaryText">Min Price</span>
+              <span className="text-sm text-primaryText xs:text-xs md:text-xs">
+                Min Price
+              </span>
               {tokenSort ? (
                 <PointInputComponent
                   reduceOneSlot={() => {
@@ -1761,7 +1789,9 @@ function AddLiquidityComponent({
               )}
             </div>
             <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-2.5">
-              <span className="text-sm text-primaryText">Max Price</span>
+              <span className="text-sm text-primaryText xs:text-xs md:text-xs">
+                Max Price
+              </span>
               {tokenSort ? (
                 <PointInputComponent
                   reduceOneSlot={() => {
@@ -1845,22 +1875,22 @@ function AddLiquidityComponent({
         </div>
       </div>
       <div
-        className={`items-center justify-center bg-black bg-opacity-20 rounded-lg mt-2.5 px-4 py-3 ${
+        className={`items-start justify-center bg-black bg-opacity-20 rounded-lg mt-2.5 px-4 py-3 ${
           onlyAddXToken || onlyAddYToken ? 'flex' : 'hidden'
         }`}
       >
-        <WarningIcon className="flex-shrink-0"></WarningIcon>
+        <WarningIcon className="relative top-1 flex-shrink-0"></WarningIcon>
         <div className="text-sm text-v3WarningColor ml-3">
           Your position will not earn fees or be used in trades until the market
           price moves into your range.
         </div>
       </div>
       <div
-        className={`items-center justify-center bg-black bg-opacity-20 rounded-lg mt-2.5 px-4 py-3 ${
+        className={`items-start justify-center bg-black bg-opacity-20 rounded-lg mt-2.5 px-4 py-3 ${
           invalidRange ? 'flex' : 'hidden'
         }`}
       >
-        <WarningIcon className="flex-shrink-0"></WarningIcon>
+        <WarningIcon className="relative top-1 flex-shrink-0"></WarningIcon>
         <div className="text-sm text-v3WarningColor ml-3">
           Invalid range selected. The min price must be lower than the max
           price.
@@ -1899,7 +1929,7 @@ function NoDataComponent() {
   const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
   return (
     <div
-      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-4 md:mt-4`}
+      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
     >
       <div className="text-white font-bold text-base">Set Price Range</div>
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2 opacity-50">
@@ -2103,7 +2133,7 @@ function InputAmount({
         <input
           type="number"
           placeholder="0.0"
-          className="text-2xl"
+          className="text-2xl xs:text-xl md:text-xl"
           disabled={currentSelectedPool?.pool_id ? false : true}
           value={amount}
           onChange={({ target }) => {
@@ -2124,7 +2154,7 @@ function InputAmount({
         }`}
       >
         <span className="text-xs text-primaryText">{showCurrentPrice()}</span>
-        <div className="flex items-center text-xs text-primaryText">
+        <div className="flex items-center text-xs text-primaryText text-right">
           <span title={balance}>
             <FormattedMessage id="balance" />: {getBalance()}
           </span>

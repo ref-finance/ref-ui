@@ -538,11 +538,11 @@ export const ColorsBox = (props: any) => {
     >
       <path
         d="M0 0H76L71.6126 13.1623C70.2514 17.2457 66.43 20 62.1257 20H13.8743C9.56996 20 5.74857 17.2457 4.38743 13.1623L0 0Z"
-        fill="url(#paint0_linear_124_7159)"
+        fill={`url(#${props.svgId || 'paint0_linear_124_7159'})`}
       />
       <defs>
         <linearGradient
-          id="paint0_linear_124_7159"
+          id={`${props.svgId || 'paint0_linear_124_7159'}`}
           x1="67.2058"
           y1="5.99998"
           x2="9.18108"

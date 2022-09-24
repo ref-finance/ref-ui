@@ -318,7 +318,9 @@ export const AddPoolV3 = (props: any) => {
                   />
                 </GradientButton>
               ) : (
-                <ConnectToNearBtn></ConnectToNearBtn>
+                <div className="mt-4">
+                  <ConnectToNearBtn></ConnectToNearBtn>
+                </div>
               )}
             </>
           ) : null}
