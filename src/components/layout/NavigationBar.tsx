@@ -34,7 +34,7 @@ import {
   WNEARExchngeIcon,
 } from '~components/icon/Common';
 import { Link, useLocation, useHistory } from 'react-router-dom';
-import { wallet } from '~services/near';
+import { NEARXIDS, wallet } from '~services/near';
 import { Card } from '~components/card/Card';
 
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -260,7 +260,12 @@ function AccountEntry({
       textId: 'go_to_near_wallet',
       // subIcon: <HiOutlineExternalLink />,
       click: () => {
-        window.open(config.walletUrl, '_blank');
+        window.open(
+          selector.store.getState().selectedWalletId === 'my-near-wallet'
+            ? config.myNearWalletUrl
+            : config.walletUrl,
+          '_blank'
+        );
       },
     },
   ];
@@ -1139,6 +1144,7 @@ function NavigationBar() {
     }
     const hasRefBalanceOver = Object.entries(refAccountBalances).some(
       ([id, balance]) => {
+        if (id === NEARXIDS[0]) return false;
         return (
           Number(
             toReadableNumber(tokensMeta?.[id]?.decimals || 24, balance) || '0'

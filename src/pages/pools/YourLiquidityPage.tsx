@@ -480,7 +480,7 @@ export function YourLiquidityPage() {
                       <FormattedMessage id="value" defaultMessage="Value" />
                     </div>
                   </div>
-                  <div className="max-h-96 overflow-y-auto">
+                  <div className=" overflow-y-auto">
                     {!vePool || !getConfig().REF_VE_CONTRACT_ID
                       ? null
                       : [vePool].map((p) => {
