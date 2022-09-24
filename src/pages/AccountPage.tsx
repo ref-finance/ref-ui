@@ -15,7 +15,7 @@ import {
   useUserRegisteredTokensAllAndNearBalance,
 } from '../state/token';
 import Loading from '../components/layout/Loading';
-import { wallet as webWallet } from '../services/near';
+import { NEARXIDS, wallet as webWallet } from '../services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   NearIcon,
@@ -2061,7 +2061,10 @@ export function AccountPage() {
 
   userTokens.forEach((token: TokenMetadata) => {
     const { decimals, id, nearNonVisible, symbol } = token;
-    token.ref = toReadableNumber(decimals, balances[id] || '0');
+    token.ref =
+      id === NEARXIDS[0]
+        ? '0'
+        : toReadableNumber(decimals, balances[id] || '0');
     token.near = toReadableNumber(decimals, (nearNonVisible || '0').toString());
     token.dcl = toReadableNumber(decimals, DCLAccountBalance[id] || '0');
     token.aurora = toReadableNumber(

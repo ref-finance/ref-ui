@@ -2739,7 +2739,7 @@ function FarmView(props: {
   }
   function getForbiddenTip() {
     const tip = intl.formatMessage({ id: 'farm_stop_tip' });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    let result: string = `<div class="text-navHighLightText text-xs text-left">${tip}</div>`;
     return result;
   }
   const isHaveUnclaimedReward = haveUnclaimedReward();
@@ -2838,7 +2838,7 @@ function FarmView(props: {
               {isInMonth() ? <NewTag></NewTag> : null}
             </div>
             {needForbidden ? (
-              <div className="flex flex-col absolute left-3.5 top-3">
+              <div className="flex flex-col absolute left-3.5 top-3 z-50">
                 <div
                   className="text-xl text-white"
                   data-type="info"
