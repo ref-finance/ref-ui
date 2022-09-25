@@ -780,7 +780,12 @@ export default function AddYourLiquidityPageV3() {
                     Input Amount
                   </span>
                   <OneSide
-                    show={onlyAddYToken || onlyAddXToken ? true : false}
+                    show={
+                      (onlyAddYToken && currentPoint != rightPoint - 1) ||
+                      onlyAddXToken
+                        ? true
+                        : false
+                    }
                   ></OneSide>
                   <InvalidRange
                     show={invalidRange ? true : false}
@@ -1278,8 +1283,16 @@ function AddLiquidityComponent({
         .attr('class', 'textLeft')
         .text(function (d, i) {
           const diff: any = new BigNumber(price_c).minus(d).abs();
-          const p: any = diff.dividedBy(price_c).multipliedBy(100).toFixed(0);
-          if (price_c > d) {
+          const percent = diff.dividedBy(price_c).multipliedBy(100);
+          let p: any;
+          if (percent.isGreaterThanOrEqualTo(10)) {
+            p = percent.toFixed(0);
+          } else {
+            p = percent.toFixed(1);
+          }
+          if (percent.isEqualTo(0)) {
+            return '0%';
+          } else if (price_c > d) {
             return `-${p}%`;
           } else {
             return `+${p}%`;
@@ -1334,10 +1347,15 @@ function AddLiquidityComponent({
           if (new BigNumber(10000).isLessThanOrEqualTo(p)) {
             result = p.toExponential(1);
           } else {
-            result = p.toFixed(0);
+            if (p.isGreaterThanOrEqualTo(10)) {
+              result = p.toFixed(0);
+            } else {
+              result = p.toFixed(1);
+            }
           }
-
-          if (price_c > result) {
+          if (p.isEqualTo(0)) {
+            return '0%';
+          } else if (price_c > result) {
             return `-${result}%`;
           } else {
             return `+${result}%`;
@@ -1876,7 +1894,9 @@ function AddLiquidityComponent({
       </div>
       <div
         className={`items-start justify-center bg-black bg-opacity-20 rounded-lg mt-2.5 px-4 py-3 ${
-          onlyAddXToken || onlyAddYToken ? 'flex' : 'hidden'
+          onlyAddXToken || (onlyAddYToken && currentPoint != rightPoint - 1)
+            ? 'flex'
+            : 'hidden'
         }`}
       >
         <WarningIcon className="relative top-1 flex-shrink-0"></WarningIcon>
@@ -2136,6 +2156,7 @@ function InputAmount({
           className="text-2xl xs:text-xl md:text-xl"
           disabled={currentSelectedPool?.pool_id ? false : true}
           value={amount}
+          step="any"
           onChange={({ target }) => {
             changeAmount(target.value);
           }}

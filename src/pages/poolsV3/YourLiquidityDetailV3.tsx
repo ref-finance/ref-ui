@@ -446,11 +446,7 @@ export default function YourLiquidityDetail(props: any) {
               </span>
             </div>
           </div>
-          <div
-            className={`flex items-center justify-between mt-5 ${
-              tokenXAmount ? '' : 'hidden'
-            }`}
-          >
+          <div className={`flex items-center justify-between mt-5`}>
             <div className="flex items-center">
               <img
                 src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
@@ -466,11 +462,7 @@ export default function YourLiquidityDetail(props: any) {
               </span>
             </div>
           </div>
-          <div
-            className={`flex items-center justify-between mt-5 ${
-              tokenYAmount ? '' : 'hidden'
-            }`}
-          >
+          <div className={`flex items-center justify-between mt-5`}>
             <div className="flex items-center">
               <img
                 src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}

@@ -280,7 +280,13 @@ export const AddPoolV3 = (props: any) => {
             </div>
           </div>
           <OneSide
-            show={onlyAddYToken || onlyAddXToken ? true : false}
+            show={
+              (onlyAddYToken &&
+                poolDetail?.current_point >= userLiquidity?.right_point) ||
+              onlyAddXToken
+                ? true
+                : false
+            }
           ></OneSide>
           {tokenMetadata_x_y && poolDetail && userLiquidity ? (
             <>
@@ -389,6 +395,7 @@ function InputAmount({
           placeholder="0.0"
           className="text-2xl text-white"
           value={amount}
+          step="any"
           onChange={({ target }) => {
             changeAmount(target.value);
           }}
