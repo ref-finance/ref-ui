@@ -836,9 +836,11 @@ export function MobileNavBar(props: any) {
                   if (
                     location.pathname.startsWith('/pools') ||
                     location.pathname.startsWith('/pool') ||
-                    location.pathname.startsWith('/more_pools')
+                    location.pathname.startsWith('/more_pools') ||
+                    location.pathname.startsWith('/yourliquidity') ||
+                    location.pathname.startsWith('/addLiquidityV2')
                   ) {
-                    if (id === 'POOL') {
+                    if (id == 'liquidity_capital') {
                       isSelected = true;
                     }
                   }
@@ -850,9 +852,6 @@ export function MobileNavBar(props: any) {
                   }
 
                   let targetUrl = url;
-                  if (url.startsWith('/pools') && isSignedIn) {
-                    targetUrl = '/pools/yours';
-                  }
                   return (
                     <div key={id}>
                       <div
@@ -919,11 +918,21 @@ export function MobileNavBar(props: any) {
                                 strict: false,
                               }
                             );
+
                             if (
-                              location.pathname.startsWith('/pool/') ||
-                              location.pathname.startsWith('/more_pools/')
+                              location.pathname.startsWith('/pools') ||
+                              location.pathname.startsWith('/pool') ||
+                              location.pathname.startsWith('/more_pools')
                             ) {
-                              if (link.id === 'view_pools') {
+                              if (link.id === 'pools') {
+                                isSubMenuSelected = true;
+                              }
+                            }
+                            if (
+                              location.pathname.startsWith('/yourliquidity') ||
+                              location.pathname.startsWith('/addLiquidityV2')
+                            ) {
+                              if (link.id === 'your_liquidity') {
                                 isSubMenuSelected = true;
                               }
                             }

@@ -1253,7 +1253,7 @@ function AddLiquidityComponent({
         })
         .attr('y1', 0)
         .attr('y2', 200)
-        .style('stroke-width', 1)
+        .style('strokeWidth', 1)
         .style('stroke', '#fff');
 
       d3.select('.gLeftLine')
@@ -1268,7 +1268,7 @@ function AddLiquidityComponent({
         })
         .attr('y1', 0)
         .attr('y2', 200)
-        .style('stroke-width', 1)
+        .style('strokeWidth', 1)
         .style('stroke', '#00FFD1');
 
       d3.select('.gLeftLine')
@@ -1316,7 +1316,7 @@ function AddLiquidityComponent({
         })
         .attr('y1', 0)
         .attr('y2', 200)
-        .style('stroke-width', 1)
+        .style('strokeWidth', 1)
         .style('stroke', '#00FFD1');
 
       d3.select('.gRightLine')

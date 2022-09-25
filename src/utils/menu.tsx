@@ -27,6 +27,8 @@ import {
   KoIcon,
   IconRisk,
   AuroraIconSwapNav,
+  MobileYourLiqudityIcon,
+  MobilePoolsIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
@@ -286,17 +288,38 @@ export const moreLinks: MobileMenuItem[] = [
     ],
   },
   {
+    id: 'liquidity_capital',
+    label: 'LIQUIDITY',
+    url: '',
+    isExternal: false,
+    children: [
+      {
+        id: 'your_liquidity',
+        label: 'Your Liquidity',
+        url: '/yourliquidity',
+        isExternal: false,
+        logo: <MobileYourLiqudityIcon />,
+        defaultClick: () => {
+          window.open('/yourliquidity', '_self');
+        },
+      },
+      {
+        id: 'pools',
+        label: 'Pools',
+        url: '/pools',
+        isExternal: false,
+        logo: <MobilePoolsIcon />,
+        defaultClick: () => {
+          window.open('/pools', '_self');
+        },
+      },
+    ],
+  },
+  {
     id: 'sauce_capital',
     label: 'Sauce',
     pattern: '/sauce',
     url: '/sauce',
-    isExternal: false,
-  },
-  {
-    id: 'POOL',
-    label: 'POOL',
-    pattern: '/pools',
-    url: '/pools',
     isExternal: false,
   },
   {

@@ -440,7 +440,7 @@ export const NO_RESULT_CHART = ({ expand }: { expand?: string }) => {
         cy="62.5"
         r="54.5"
         stroke="url(#paint0_linear_508_37)"
-        stroke-width="16"
+        strokeWidth="16"
       />
       <defs>
         <linearGradient
@@ -549,7 +549,7 @@ export const RewardCheck = () => {
       <path
         d="M1 3.5L3.66667 6L9 1"
         stroke="currentColor"
-        stroke-width="2"
+        strokeWidth="2"
         strokeLinecap="round"
       />
     </svg>
@@ -630,7 +630,7 @@ export const FilterIconVE = () => {
         x2="15.25"
         y2="1.25"
         stroke="currentColor"
-        stroke-width="1.5"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
       <line
@@ -639,7 +639,7 @@ export const FilterIconVE = () => {
         x2="12.9642"
         y2="5.82129"
         stroke="currentColor"
-        stroke-width="1.5"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
       <line
@@ -648,7 +648,7 @@ export const FilterIconVE = () => {
         x2="10.6784"
         y2="10.3926"
         stroke="currentColor"
-        stroke-width="1.5"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
     </svg>
@@ -696,8 +696,8 @@ export const YouVotedAngleMatrix = () => {
           y2="11"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7F43FF" />
-          <stop offset="1" stop-color="#00C6A2" />
+          <stop stopColor="#7F43FF" />
+          <stop offset="1" stopColor="#00C6A2" />
         </linearGradient>
       </defs>
     </svg>
@@ -735,13 +735,7 @@ export const NoResultListFilterIcon = () => {
           fill="#23313C"
           fill-opacity="0.7"
         />
-        <circle
-          cx="31.5"
-          cy="39.5"
-          r="26.5"
-          stroke="#444D53"
-          stroke-width="6"
-        />
+        <circle cx="31.5" cy="39.5" r="26.5" stroke="#444D53" strokeWidth="6" />
       </g>
       <rect
         x="53.8618"
@@ -861,7 +855,7 @@ export const RightArrowUnlockingVE = () => {
       <path
         d="M3.75696 7.69982H11.6427M9.35696 5.25537L11.757 7.69982L9.35696 10.1443"
         stroke="#7E8A93"
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
     </svg>
   );

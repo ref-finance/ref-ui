@@ -2081,9 +2081,9 @@ const FarmChart = ({
       >
         <defs>
           <linearGradient id="votedIndex" x1="0" x2="100%" y1="0" y2="0%">
-            <stop stop-color="#00C6A2" offset="0%" stopOpacity={'1'} />
+            <stop stopColor="#00C6A2" offset="0%" stopOpacity={'1'} />
 
-            <stop stop-color="#7F43FF" offset="100%" stopOpacity={'1'} />
+            <stop stopColor="#7F43FF" offset="100%" stopOpacity={'1'} />
           </linearGradient>
         </defs>
         <text

@@ -40,8 +40,8 @@ const SelectedIcon = () => {
         <path
           d="M6 10.5L8.66667 13L14 8"
           stroke="white"
-          stroke-width="2"
-          stroke-linecap="round"
+          strokeWidth="2"
+          strokeLinecap="round"
         />
       </svg>
     </div>

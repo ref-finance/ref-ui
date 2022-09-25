@@ -405,7 +405,7 @@ export const RouterArrowLeft = () => {
       <path
         d="M5.31152 1L0.999633 5.85088L5.31152 10.7018"
         stroke="white"
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
     </svg>
   );
@@ -423,7 +423,7 @@ export const RouterArrowRight = () => {
       <path
         d="M1 1L5.31189 5.85088L1 10.7018"
         stroke="currentColor"
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
     </svg>
   );
