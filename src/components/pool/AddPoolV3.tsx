@@ -249,8 +249,8 @@ export const AddPoolV3 = (props: any) => {
   return (
     <Modal {...restProps}>
       <Card
-        style={{ width: cardWidth, maxHeight: '95vh' }}
-        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4"
+        style={{ maxHeight: '95vh' }}
+        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4 xs:w-90vw md:w-90vw lg:w-40vw xl:w-30vw"
       >
         <div className="flex items-center justify-between">
           <span className="text-xl text-white">
@@ -430,9 +430,10 @@ function InputAmount({
 function OneSide({ show }: { show: boolean }) {
   return (
     <div
-      className={`items-center relative rounded-xl bg-black bg-opacity-20 h-20 py-2.5 px-6 mt-3 ${
+      className={`items-center relative rounded-xl bg-black bg-opacity-20 py-2.5 px-6 mt-3 ${
         show ? 'flex' : 'hidden'
       }`}
+      style={{ minHeight: '5rem' }}
     >
       <BoxDarkBg className="absolute top-0 right-0"></BoxDarkBg>
       <SideIcon className="mr-5 flex-shrink-0"></SideIcon>

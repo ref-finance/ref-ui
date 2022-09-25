@@ -537,7 +537,7 @@ export default function AddYourLiquidityPageV3() {
           <FormattedMessage id="add_liquidity"></FormattedMessage>
         </span>
       </div>
-      <div className="relative flex flex-col lg:w-2/3 xl:w-3/5 xs:w-full md:w-full xs:px-3 md:px-3 m-auto text-white rounded-2xl">
+      <div className="relative flex flex-col lg:w-4/5 2xl:w-3/5 xs:w-full md:w-full xs:px-3 md:px-3 m-auto text-white rounded-2xl">
         <div
           className="absolute w-full top-0 bottom-0 rounded-2xl"
           style={{
