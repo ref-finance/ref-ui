@@ -66,7 +66,7 @@ export default function YourLiquidityDetail(props: any) {
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
   const [rateSort, setRateSort] = useState<boolean>(true);
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
-  const [chartLoading, setChartLoading] = useState<boolean>(false);
+  const [chartLoading, setChartLoading] = useState<boolean>(true);
   const history = useHistory();
   // callBack handle
   useAddAndRemoveUrlHandle();
@@ -632,7 +632,7 @@ export default function YourLiquidityDetail(props: any) {
             style={{ color: 'rgba(91, 64, 255, 0.5)' }}
           >
             <g className="chart"></g>
-            <g className="g" transform="translate(15,200)"></g>
+            <g className="g" transform="translate(50,200)"></g>
             <g className="g2"></g>
             <g className="gLeftLine"></g>
             <g className="gRightLine"></g>

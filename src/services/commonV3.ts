@@ -164,6 +164,7 @@ export function drawChartData({
 }) {
   const { current_point, liquidities } = depthData;
   const list = Object.values(liquidities);
+  const space = 50;
   if (list.length > 0) {
     const priceList: string[] = [];
     const L_list: string[] = [];
@@ -220,7 +221,7 @@ export function drawChartData({
     const left_p: any = priceList[0];
     const right_p: any = priceList[priceList.length - 1];
     const l_r: any = L_list[L_list.length - 1];
-    const width = chartDom.current.clientWidth - 30;
+    const width = chartDom.current.clientWidth - space * 2;
     const l: any = new BigNumber(left_p).multipliedBy(0.95).toFixed();
     const r: any = new BigNumber(right_p).multipliedBy(1.05).toFixed();
     const myScaleX = d3.scaleLinear().domain([l, r]).range([0, width]);
@@ -251,7 +252,7 @@ export function drawChartData({
       })
       .attr('x', function (d, i) {
         const { left, right, l } = d;
-        return myScaleX(left) + 15;
+        return myScaleX(left) + space;
       })
       .attr('y', function (d, i) {
         const { left, right, l } = d;
@@ -263,10 +264,10 @@ export function drawChartData({
       .data([price_c])
       .join('line')
       .attr('x1', function (d) {
-        return myScaleX(d) + 15;
+        return myScaleX(d) + space;
       })
       .attr('x2', function (d) {
-        return myScaleX(d) + 15;
+        return myScaleX(d) + space;
       })
       .attr('y1', 0)
       .attr('y2', 200)
@@ -278,10 +279,10 @@ export function drawChartData({
       .data([price_left])
       .join('line')
       .attr('x1', function (d) {
-        return myScaleX(d) + 15;
+        return myScaleX(d) + space;
       })
       .attr('x2', function (d) {
-        return myScaleX(d) + 15;
+        return myScaleX(d) + space;
       })
       .attr('y1', 0)
       .attr('y2', 200)
@@ -322,13 +323,14 @@ export function drawChartData({
       .style('font-size', '14px')
       .attr('x', function (d, i) {
         const textWidth = d3.select('.textLeft').node().getComputedTextLength();
-        const normalPosition = myScaleX(d) + 15 - textWidth - 5;
-        const oppositePosition = myScaleX(d) + 15 + 5;
-        if (normalPosition <= 0) {
-          return oppositePosition;
-        } else {
-          return normalPosition;
-        }
+        const normalPosition = myScaleX(d) + space - textWidth - 5;
+        // const oppositePosition = myScaleX(d) + space + 5;
+        // if (normalPosition <= 0) {
+        //   return oppositePosition;
+        // } else {
+        //   return normalPosition;
+        // }
+        return normalPosition;
       })
       .attr('y', function (d, i) {
         return 15;
@@ -339,10 +341,10 @@ export function drawChartData({
       .data([price_right])
       .join('line')
       .attr('x1', function (d) {
-        return myScaleX(d) + 15;
+        return myScaleX(d) + space;
       })
       .attr('x2', function (d) {
-        return myScaleX(d) + 15;
+        return myScaleX(d) + space;
       })
       .attr('y1', 0)
       .attr('y2', 200)
@@ -361,17 +363,15 @@ export function drawChartData({
         let result;
         const diff = new BigNumber(price_c).minus(d).abs();
         let p = diff.dividedBy(price_c).multipliedBy(100);
-        if (new BigNumber(10000).isLessThanOrEqualTo(p)) {
-          result = p.toExponential(1);
+        if (p.isGreaterThanOrEqualTo(10)) {
+          result = p.toFixed(0);
         } else {
-          if (p.isGreaterThanOrEqualTo(10)) {
-            result = p.toFixed(0);
-          } else {
-            result = p.toFixed(1);
-          }
+          result = p.toFixed(1);
         }
         if (p.isEqualTo(0)) {
           return '0%';
+        } else if (p.isGreaterThan(1000)) {
+          return '>1000%';
         } else if (price_c > d) {
           if (p.isLessThanOrEqualTo(0.1)) {
             return '>-0.1%';
@@ -393,14 +393,15 @@ export function drawChartData({
           .select('.textRight')
           .node()
           .getComputedTextLength();
-        const maxPosition = myScaleX(d) + 15 + textWidth + 5;
-        const oppositePosition = myScaleX(d) + 15 - textWidth - 5;
-        const normalposition = myScaleX(d) + 15 + 5;
-        if (maxPosition >= width) {
-          return oppositePosition;
-        } else {
-          return normalposition;
-        }
+        // const maxPosition = myScaleX(d) + space + textWidth + 5;
+        // const oppositePosition = myScaleX(d) + space - textWidth - 5;
+        const normalposition = myScaleX(d) + space + 5;
+        return normalposition;
+        // if (maxPosition >= width) {
+        //   return oppositePosition;
+        // } else {
+        //   return normalposition;
+        // }
       });
   }
   return list.length;

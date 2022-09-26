@@ -1558,7 +1558,7 @@ function AddLiquidityComponent({
             style={{ color: 'rgba(91, 64, 255, 0.5)' }}
           >
             <g className="chart"></g>
-            <g className="g" transform="translate(15,200)"></g>
+            <g className="g" transform="translate(50,200)"></g>
             <g className="g2"></g>
             <g className="gLeftLine"></g>
             <g className="gRightLine"></g>
