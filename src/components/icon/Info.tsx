@@ -16,8 +16,13 @@ export function Info() {
     </svg>
   );
 }
-
-export function Slider({ showSlip }: { showSlip: boolean }) {
+export function Slider({
+  showSlip,
+  shrink,
+}: {
+  showSlip: boolean;
+  shrink?: boolean;
+}) {
   return (
     <svg
       width="17"
@@ -25,6 +30,7 @@ export function Slider({ showSlip }: { showSlip: boolean }) {
       viewBox="0 0 17 17"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={`${shrink ? 'transform scale-75' : ''}`}
     >
       <path
         fillRule="evenodd"

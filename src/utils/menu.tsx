@@ -26,9 +26,25 @@ import {
   JaIcon,
   KoIcon,
   IconRisk,
+  AuroraIconSwapNav,
+  MobileYourLiqudityIcon,
+  MobilePoolsIcon,
+  BridgeIcon,
+  RisksIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
+import { MobileNavLimitOrder } from '../components/icon/Nav';
+import {
+  SWAP_MODE_KEY,
+  SWAP_MODE,
+  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+} from '../pages/SwapPage';
+import {
+  MobileNavSwap,
+  MobileNavStable,
+  MobileNavSwapPro,
+} from '../components/icon/Nav';
 
 export type MenuItem = {
   id: number;
@@ -56,7 +72,7 @@ export const useMenuItems = () => {
       url: '',
       id: 2,
       isExternal: false,
-      logo: <IconBridge />,
+      logo: <BridgeIcon />,
       children: [
         {
           label: intl.formatMessage({ id: 'from_ethereum' }),
@@ -107,6 +123,13 @@ export const useMenuItems = () => {
       isExternal: true,
       id: 3,
       logo: <IconDocs />,
+    },
+    {
+      label: intl.formatMessage({ id: 'risks' }),
+      url: '/risks',
+      isExternal: false,
+      id: 4,
+      logo: <RisksIcon />,
     },
     {
       label: <FormattedMessage id="language" defaultMessage="Language" />,
@@ -193,27 +216,119 @@ export type MobileMenuItem = {
   showIcon?: boolean;
   iconElement?: ReactNode;
   hidden?: boolean;
+  idElement?: JSX.Element | string;
+  subMenuDefaultChosen?: boolean;
+  defaultClick?: (e?: any) => void;
 };
 export const moreLinks: MobileMenuItem[] = [
   {
-    id: 'swap_capital',
-    label: 'Swap',
-    pattern: '/',
-    url: '/',
+    id: 'trade_capital',
+    label: 'Trade',
+    url: '',
     isExternal: false,
+    children: [
+      {
+        id: 'swap',
+        label: 'swap',
+        url: '/',
+        isExternal: false,
+        logo: <MobileNavSwap />,
+        subMenuDefaultChosen:
+          localStorage.getItem(SWAP_MODE_KEY) === SWAP_MODE.NORMAL &&
+          localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'normal',
+
+        defaultClick: () => {
+          window.open('swap', '_self');
+          localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+        },
+      },
+      {
+        id: 'stable',
+        label: 'stable',
+        url: '/',
+        isExternal: false,
+        logo: <MobileNavStable />,
+        subMenuDefaultChosen:
+          localStorage.getItem(SWAP_MODE_KEY) === SWAP_MODE.STABLE &&
+          localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'normal',
+        defaultClick: () => {
+          window.open('swap', '_self');
+          localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+        },
+      },
+      {
+        id: 'swapPro',
+        label: 'pro',
+        url: '/',
+
+        isExternal: false,
+        logo: <MobileNavSwapPro />,
+        idElement: (
+          <span className="flex items-center whitespace-nowrap">
+            {' '}
+            <span className="mr-2">Swap with</span> <AuroraIconSwapNav />{' '}
+          </span>
+        ),
+        subMenuDefaultChosen:
+          localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'cross',
+        defaultClick: () => {
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'cross');
+
+          window.open('/swap', '_self');
+        },
+      },
+      {
+        id: 'limit_order',
+        label: 'limit',
+        url: '/',
+        isExternal: false,
+        logo: <MobileNavLimitOrder />,
+        subMenuDefaultChosen:
+          localStorage.getItem(SWAP_MODE_KEY) === SWAP_MODE.LIMIT &&
+          localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'normal',
+        defaultClick: () => {
+          window.open('/swap', '_self');
+          localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+        },
+      },
+    ],
+  },
+  {
+    id: 'liquidity_capital',
+    label: 'LIQUIDITY',
+    url: '',
+    isExternal: false,
+    children: [
+      {
+        id: 'your_liquidity',
+        label: 'Your Liquidity',
+        url: '/yourliquidity',
+        isExternal: false,
+        logo: <MobileYourLiqudityIcon />,
+        defaultClick: () => {
+          window.open('/yourliquidity', '_self');
+        },
+      },
+      {
+        id: 'pools',
+        label: 'Pools',
+        url: '/pools',
+        isExternal: false,
+        logo: <MobilePoolsIcon />,
+        defaultClick: () => {
+          window.open('/pools', '_self');
+        },
+      },
+    ],
   },
   {
     id: 'sauce_capital',
     label: 'Sauce',
     pattern: '/sauce',
     url: '/sauce',
-    isExternal: false,
-  },
-  {
-    id: 'POOL',
-    label: 'POOL',
-    pattern: '/pools',
-    url: '/pools',
     isExternal: false,
   },
   {
@@ -240,13 +355,6 @@ export const moreLinks: MobileMenuItem[] = [
     url: '/referendum',
     isExternal: false,
     hidden: !getConfig().REF_VE_CONTRACT_ID,
-  },
-  {
-    id: 'risks_capital',
-    label: 'RISKS',
-    pattern: '/risks',
-    url: '/risks',
-    isExternal: false,
   },
   {
     id: 'bridge',
@@ -296,7 +404,7 @@ export const moreLinks: MobileMenuItem[] = [
     label: 'More',
     url: '',
     isExternal: false,
-    subRoute: ['/airdrop'],
+    subRoute: ['/airdrop', '/risks'],
     children: [
       {
         id: 'airdrop',
@@ -313,13 +421,14 @@ export const moreLinks: MobileMenuItem[] = [
         isExternal: true,
         logo: <IconDocs />,
       },
-      // {
-      //   label: 'Forum',
-      //   id: 'Forum',
-      //   url: 'https://gov.ref.finance',
-      //   isExternal: true,
-      //   logo: <IconForum />,
-      // },
+      {
+        label: 'Risks',
+        id: 'risks',
+        pattern: '/risks',
+        url: '/risks',
+        isExternal: false,
+        logo: <RisksIcon />,
+      },
     ],
   },
   // {

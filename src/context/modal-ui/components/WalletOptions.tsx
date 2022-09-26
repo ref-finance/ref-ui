@@ -13,6 +13,7 @@ import { useClientMobile } from '../../../utils/device';
 import { ACCOUNT_ID_KEY } from '../../WalletSelectorContext';
 import { walletIcons } from '../../walletIcons';
 import { walletsRejectError } from '../../../utils/wallets-integration';
+import { Checkbox, CheckboxSelected } from '~components/icon';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',
@@ -40,8 +41,8 @@ const SelectedIcon = () => {
         <path
           d="M6 10.5L8.66667 13L14 8"
           stroke="white"
-          stroke-width="2"
-          stroke-linecap="round"
+          strokeWidth="2"
+          strokeLinecap="round"
         />
       </svg>
     </div>
@@ -132,7 +133,11 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
   onConnecting,
   onConnected,
 }) => {
+  const { selectedWalletId } = selector.store.getState();
   const [modules, setModules] = useState<Array<ModuleState>>([]);
+  const [checkedStatus, setCheckedStatus] = useState<boolean>(
+    selectedWalletId ? true : false
+  );
 
   useEffect(() => {
     const subscription = selector.store.observable.subscribe((state) => {
@@ -195,14 +200,15 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
   const isMobile = useClientMobile();
 
   const [hoverOption, setHoverOption] = useState<number>(-1);
-
   return (
     <Fragment>
-      <div className="wallet-options-wrapper">
+      <div
+        className={`wallet-options-wrapper ${!checkedStatus ? 'hidden' : ''}`}
+      >
         <ul className={'options-list'}>
           {modules.reduce<Array<JSX.Element>>(
             (result, module, currentIndex) => {
-              const { selectedWalletId } = selector.store.getState();
+              // const { selectedWalletId } = selector.store.getState();
               const { name, description, iconUrl, deprecated } =
                 module.metadata;
               const selected = module.id === selectedWalletId;
@@ -276,7 +282,11 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       </div>
 
       {isMobile && (
-        <div className="flex flex-col items-center mt-7">
+        <div
+          className={`flex flex-col items-center mt-7 ${
+            !checkedStatus ? 'hidden' : ''
+          }`}
+        >
           <div className="text-xs mb-4">
             <FormattedMessage
               id="wallets_below_supports_on_PC"
@@ -291,8 +301,49 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
           </div>
         </div>
       )}
+      {selectedWalletId ? null : (
+        <CheckBoxForRisk setCheckedStatus={setCheckedStatus} />
+      )}
 
       <WalletSelectorFooter />
     </Fragment>
+  );
+};
+
+export const CheckBoxForRisk = (props: any) => {
+  const { setCheckedStatus } = props;
+  const [checkBoxStatus, setCheckBoxStatus] = useState(false);
+  function goRisks() {
+    window.open('/risks');
+  }
+  function switchCheckBox() {
+    const newStatus = !checkBoxStatus;
+    setCheckBoxStatus(newStatus);
+    setCheckedStatus(newStatus);
+  }
+  return (
+    <div className="flex items-start mt-5">
+      {checkBoxStatus ? (
+        <CheckboxSelected
+          className="relative flex-shrink-0 mr-3 top-1 cursor-pointer"
+          onClick={switchCheckBox}
+        ></CheckboxSelected>
+      ) : (
+        <Checkbox
+          className="relative flex-shrink-0 mr-3 top-1 cursor-pointer"
+          onClick={switchCheckBox}
+        ></Checkbox>
+      )}
+      <span className="text-sm text-v3SwapGray">
+        By checking this box and moving forward, you expressly confirm that you
+        fully understand the{' '}
+        <a
+          className="text-greenColor text-sm font-bold cursor-pointer"
+          onClick={goRisks}
+        >
+          Risks of Using Ref. finance
+        </a>
+      </span>
+    </div>
   );
 };

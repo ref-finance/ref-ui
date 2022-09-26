@@ -115,6 +115,7 @@ export const StableSelectToken = ({
   preSelected,
   postSelected,
   onSelectPost,
+  customWidth,
 }: {
   tokens: TokenMetadata[];
   onSelect?: (token: TokenMetadata) => void;
@@ -122,6 +123,7 @@ export const StableSelectToken = ({
   preSelected?: TokenMetadata;
   postSelected?: TokenMetadata;
   onSelectPost?: (t: TokenMetadata) => void;
+  customWidth?: boolean;
 }) => {
   const USDTokenList = USD_CLASS_STABLE_TOKEN_IDS;
   const BTCTokenList = BTC_CLASS_STABLE_TOKEN_IDS;
@@ -209,7 +211,11 @@ export const StableSelectToken = ({
   const displayList = getDisplayList(stableCoinType);
 
   return (
-    <div className="w-2/5 outline-none my-auto relative overflow-visible">
+    <div
+      className={`${
+        customWidth ? '' : 'w-2/5'
+      }  outline-none my-auto relative overflow-visible`}
+    >
       <div
         className={`w-full relative `}
         onClick={(e) => {
@@ -239,7 +245,6 @@ export const StableSelectToken = ({
           WebkitBackdropFilter: 'blur(15px)',
           border: '1px solid #415462',
           zIndex: 999,
-          right: 0,
         }}
       >
         <div
@@ -360,6 +365,7 @@ export default function SelectToken({
   balances,
   tokenPriceList,
   forCross,
+  customWidth,
 }: {
   tokens: TokenMetadata[];
   selected: string | React.ReactElement;
@@ -371,6 +377,7 @@ export default function SelectToken({
   balances?: TokenBalancesView;
   tokenPriceList?: Record<string, any>;
   forCross?: boolean;
+  customWidth?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
@@ -469,7 +476,7 @@ export default function SelectToken({
       trigger={() => (
         <div
           className={`focus:outline-none my-auto  ${
-            standalone ? 'w-full' : 'w-2/5'
+            !customWidth ? (standalone ? 'w-full' : 'w-2/5') : ''
           }`}
           onClick={() => setVisible(true)}
         >

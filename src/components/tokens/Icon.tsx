@@ -79,3 +79,42 @@ export function IconLeft({
     </div>
   );
 }
+
+export function IconLeftV3({
+  className = '',
+  token,
+  label = true,
+  size = 11,
+  showArrow = true,
+  hover,
+}: {
+  className?: string;
+  token: TokenMetadata;
+  label?: boolean;
+  size?: number | string;
+  showArrow?: boolean;
+  hover?: boolean;
+}) {
+  return (
+    <div
+      className={`flex items-center text-lg text-white   rounded-full flex-shrink-0 ${
+        hover ? 'pr-4 bg-primaryText bg-opacity-30 cursor-pointer' : ''
+      }`}
+      style={{ lineHeight: 'unset' }}
+    >
+      <img
+        key={token.id}
+        className={`mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 h-${size} w-${size} xs:h-7 xs:w-7 border rounded-full border-greenLight`}
+        src={token.icon}
+      />
+      {label && (
+        <p className="block text-sm font-bold">{toRealSymbol(token.symbol)}</p>
+      )}
+      {showArrow && (
+        <div className="pl-2 xs:pl-1 text-xs">
+          <ArrowDownWhite />
+        </div>
+      )}
+    </div>
+  );
+}

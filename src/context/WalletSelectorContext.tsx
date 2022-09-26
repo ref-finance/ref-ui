@@ -101,9 +101,9 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         setupSender({
           iconUrl: walletIcons['sender'],
         }),
-        // setupMeteorWallet({
-        //   iconUrl: walletIcons['meteor-wallet'],
-        // }),
+        setupMeteorWallet({
+          iconUrl: walletIcons['meteor-wallet'],
+        }),
         // setupMathWallet({
         //   iconUrl: walletIcons['math-wallet'],
         // }),

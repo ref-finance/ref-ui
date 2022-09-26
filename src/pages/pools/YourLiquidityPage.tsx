@@ -121,6 +121,7 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 import { checkTransactionStatus } from '../../services/swap';
 import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
+import { BlueCircleLoading } from '../../components/layout/Loading';
 import ReactTooltip from 'react-tooltip';
 const StakeListContext = createContext(null);
 
@@ -203,7 +204,8 @@ function AddLiquidityButton() {
   );
 }
 
-export function YourLiquidityPage() {
+export function YourLiquidityPage(props: any) {
+  const { setNoOldLiquidity } = props;
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
 
@@ -310,6 +312,8 @@ export function YourLiquidityPage() {
     });
   }, [isSignedIn]);
 
+  // if (!pools || !tokensMeta || !v1Farm || !v2Farm) return <Loading />;
+  // todo
   if (
     !pools ||
     !tokensMeta ||
@@ -318,7 +322,16 @@ export function YourLiquidityPage() {
     !batchTotalShares ||
     !batchTotalSharesSimplePools
   )
-    return <Loading />;
+    return (
+      <div>
+        <div className="text-white text-base my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+          V1 (0)
+        </div>
+        <div className="flex items-center justify-center">
+          <BlueCircleLoading />
+        </div>
+      </div>
+    );
 
   const RowRender = ({
     p,
@@ -401,6 +414,11 @@ export function YourLiquidityPage() {
       }, 0) +
     batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
 
+  if (+count == 0) {
+    setNoOldLiquidity(true);
+  } else {
+    setNoOldLiquidity(false);
+  }
   return (
     <>
       <StakeListContext.Provider
@@ -410,39 +428,40 @@ export function YourLiquidityPage() {
           v2StakeList,
         }}
       >
-        <PoolTab count={count}></PoolTab>
-        <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
+        <div className="flex items flex-col">
           <div className="w-full flex justify-center self-center">
             {error && <Alert level="warn" message={error.message} />}
           </div>
           {/* PC */}
-
+          <div className="text-white text-base my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+            V1 ({count})
+          </div>
           <Card
             width="w-full"
             padding="px-0 py-6"
             className="xs:hidden md:hidden"
           >
-            <div className="text-white text-xl pr-6 pl-6 lg:pl-10 lg:pr-8 pt-3 pb-6 flex items-center justify-between">
-              <span>
-                <FormattedMessage
-                  id="your_liquidity"
-                  defaultMessage="Your Liquidity"
-                />
-                ({count})
-              </span>
+            {/* <div className="text-white text-xl pr-6 pl-6 lg:pl-10 lg:pr-8 pt-3 pb-6 flex items-center justify-between">
+            <span>
+              <FormattedMessage
+                id="your_liquidity"
+                defaultMessage="Your Liquidity"
+              />
+              ({count})
+            </span>
 
-              <GradientButton
-                className="px-4 py-1.5 text-sm"
-                onClick={() => {
-                  setGeneralAddLiquidity(true);
-                }}
-              >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage={'Add Liquidity'}
-                />
-              </GradientButton>
-            </div>
+            <GradientButton
+              className="px-4 py-1.5 text-sm"
+              onClick={() => {
+                setGeneralAddLiquidity(true);
+              }}
+            >
+              <FormattedMessage
+                id="add_liquidity"
+                defaultMessage={'Add Liquidity'}
+              />
+            </GradientButton>
+          </div> */}
 
             {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
               batchTotalShares?.some((s) => s > 0)) &&
@@ -596,8 +615,8 @@ export function YourLiquidityPage() {
               <Empty />
             </Card>
           )}
-          <GradientButton
-            className="px-4 py-1.5 text-sm text-white lg:hidden"
+          {/* <GradientButton
+            className="px-4 py-1.5 text-sm text-white hidden"
             onClick={() => {
               setGeneralAddLiquidity(true);
             }}
@@ -606,7 +625,7 @@ export function YourLiquidityPage() {
               id="add_liquidity"
               defaultMessage={'Add Liquidity'}
             />
-          </GradientButton>
+          </GradientButton> */}
         </div>
       </StakeListContext.Provider>
       <YourLiquidityAddLiquidityModal
@@ -1442,7 +1461,7 @@ function MorePoolRow({
   );
 }
 
-function YourLiquidityAddLiquidityModal(
+export function YourLiquidityAddLiquidityModal(
   props: ReactModal.Props & {
     stablePools: PoolRPCView[];
   }
@@ -1909,7 +1928,8 @@ function YourLiquidityAddLiquidityModal(
     );
   };
 
-  if (!selectTokens) return <Loading />;
+  // if (!selectTokens) return <Loading />;
+  if (!selectTokens) return null;
 
   return (
     <>
@@ -2105,7 +2125,9 @@ function YourLiquidityAddLiquidityModal(
                 </div>
               ) : null}
 
-              {candPools?.length < 1 && tokens?.[0].id !== tokens?.[1].id ? (
+              {isSignedIn &&
+              candPools?.length < 1 &&
+              tokens?.[0].id !== tokens?.[1].id ? (
                 <div className="flex bg-black bg-opacity-20 items-center justify-between rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
                   <label className="text-warnColor text-base flex items-center">
                     <span className="mr-2">
@@ -2207,17 +2229,19 @@ function YourLiquidityAddLiquidityModal(
           )}
         </div>
       </Modal>
-      <AddPoolModal
-        isOpen={addPoolOpen}
-        onRequestClose={(e) => {
-          setAddPoolOpen(false);
-          props.onRequestClose(e);
-        }}
-        tokens={selectTokens}
-        balances={selectBalances}
-        token1Pre={tokens[0]}
-        token2Pre={tokens[1]}
-      />
+      {isSignedIn ? (
+        <AddPoolModal
+          isOpen={addPoolOpen}
+          onRequestClose={(e) => {
+            setAddPoolOpen(false);
+            props.onRequestClose(e);
+          }}
+          tokens={selectTokens}
+          balances={selectBalances}
+          token1Pre={tokens[0]}
+          token2Pre={tokens[1]}
+        />
+      ) : null}
     </>
   );
 }

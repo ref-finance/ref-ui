@@ -24,6 +24,7 @@ import {
   MoreMenuIcon,
   NavLogo,
   NavLogoSimple,
+  AuroraIconSwapNav,
 } from '~components/icon';
 import { SmallWallet } from '~components/icon/SmallWallet';
 import {
@@ -92,7 +93,10 @@ import {
 import { getURLInfo } from './transactionTipPopUp';
 import USNBuyComponent from '~components/forms/USNBuyComponent';
 import USNPage, { BorrowLinkCard } from '~components/usn/USNPage';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
+import {
+  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+  SWAP_MODE_KEY,
+} from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
 import {
   REF_FARM_CONTRACT_ID,
@@ -105,6 +109,9 @@ import {
 } from '~context/WalletSelectorContext';
 
 import { Modal } from '~context/modal-ui/components/Modal';
+import { SWAP_MODE } from '../../pages/SwapPage';
+import { Item } from '../airdrop/Item';
+import { useDCLAccountBalance } from '../../services/aurora/aurora';
 import { openTransak } from '../alert/Transak';
 import { BuyNearButton } from '../button/Button';
 
@@ -130,20 +137,87 @@ function Anchor({
   name,
   className,
   newFuntion,
+  subMenu,
 }: {
-  to: string;
+  to?: string;
   pattern: string;
   name: string;
   className?: string;
   newFuntion?: boolean;
+  subMenu?: {
+    name: string;
+    display?: string | JSX.Element;
+    path?: string;
+    click: (e?: any) => void;
+    chosen?: boolean;
+  }[];
 }) {
   const location = useLocation();
   let isSelected;
+
+  const [hover, setHover] = useState<boolean>(false);
+
+  const defaultChosed = subMenu?.find((m) => !!m.chosen)?.name;
+
+  const { pathname } = useLocation();
+
+  const isSwap = pathname === '/' || pathname === '/swap';
+
+  const [chosenSub, setChosenSub] = useState<string>(
+    isSwap ? defaultChosed : null
+  );
+
+  useEffect(() => {
+    if (!isSwap) {
+      setChosenSub(null);
+    }
+  }, [isSwap, pathname]);
+
+  useEffect(() => {
+    if (!isSwap) return;
+    window.addEventListener('setItemEvent', (e: any) => {
+      const storageSwapTab = localStorage
+        .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
+        .toString();
+
+      const storageSwapMode = localStorage.getItem(SWAP_MODE_KEY).toString();
+      if (typeof e?.[SWAP_MODE_KEY] === 'string') {
+        const curMode = e?.[SWAP_MODE_KEY];
+
+        if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {
+          setChosenSub('swap');
+        } else if (
+          e[SWAP_MODE_KEY] == SWAP_MODE.STABLE &&
+          storageSwapTab === 'normal'
+        ) {
+          setChosenSub('stable');
+        } else if (
+          e[SWAP_MODE_KEY] == SWAP_MODE.LIMIT &&
+          storageSwapTab === 'normal'
+        ) {
+          setChosenSub('limit');
+        }
+      }
+      if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
+        const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
+        if (curTab === 'normal') {
+          setChosenSub(storageSwapMode);
+        } else {
+          setChosenSub('pro');
+        }
+      }
+    });
+  }, [isSwap]);
+
   if (pattern == '/pools') {
     isSelected =
       location.pathname.startsWith('/pools') ||
       location.pathname.startsWith('/pool') ||
-      location.pathname.startsWith('/more_pools');
+      location.pathname.startsWith('/more_pools') ||
+      location.pathname.startsWith('/yourliquidity') ||
+      location.pathname.startsWith('/addLiquidityV2');
+  } else if (pattern == '/') {
+    isSelected = location.pathname === '/' || location.pathname === '/swap';
   } else {
     isSelected = matchPath(location.pathname, {
       path: pattern,
@@ -152,25 +226,72 @@ function Anchor({
     });
   }
   return (
-    <Link
-      to={to}
-      className={`relative flex items-center justify-center h-full border-t-4 mx-4 border-greenColor ${
-        isSelected ? 'border-opacity-100' : 'border-opacity-0'
-      }`}
-    >
-      <h2
-        className={`link hover:text-white text-base font-normal py-4 cursor-pointer relative z-10 ${className} ${
-          isSelected ? 'text-greenColor' : 'text-gray-400'
-        }`}
+    <>
+      <Link
+        to={to}
+        className={`relative flex items-center justify-center h-full  mx-4 `}
+        onClick={(e) => {
+          (name === 'trade_capital' || name == 'liquidity_capital') &&
+            e.preventDefault();
+        }}
+        onMouseLeave={() => setHover(false)}
+        onMouseEnter={() => setHover(true)}
       >
-        <FormattedMessage id={name} defaultMessage={name} />
-        {newFuntion ? (
-          <span className="absolute top-5 right-2">
-            <IconAirDropGreenTip />
+        <h2
+          className={`link hover:text-white text-base font-normal py-4 cursor-pointer relative z-10 ${className} ${
+            isSelected ? 'text-greenColor' : 'text-gray-400'
+          }`}
+        >
+          <FormattedMessage id={name} defaultMessage={name} />
+          {newFuntion ? (
+            <span className="absolute top-5 right-2">
+              <IconAirDropGreenTip />
+            </span>
+          ) : null}
+        </h2>
+
+        {!!subMenu && hover && (
+          <span
+            className="top-10 pt-2 absolute"
+            style={{
+              zIndex: 9999,
+            }}
+          >
+            <div
+              className="py-2  px-1.5 rounded-xl min-w-28 flex flex-col"
+              style={{
+                background: 'rgba(23,32,38)',
+                border: '1px solid #415462',
+              }}
+            >
+              {subMenu.map((m) => {
+                return (
+                  <span
+                    className={`${
+                      (chosenSub === m.name && isSwap) ||
+                      pathname.indexOf(m.path) > -1
+                        ? 'bg-primaryText bg-opacity-30 text-white'
+                        : 'text-primaryText'
+                    } hover:bg-primaryText hover:bg-opacity-30 items-center
+                    flex justify-center py-0.5 h-11 mb-0.5 hover:text-white rounded-lg 
+                   text-center text-base cursor-pointer my-auto whitespace-nowrap px-2`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      m.click();
+                      setChosenSub(m.name);
+                      setHover(false);
+                    }}
+                  >
+                    {m.display || <FormattedMessage id={m.name} />}
+                  </span>
+                );
+              })}
+            </div>
           </span>
-        ) : null}
-      </h2>
-    </Link>
+        )}
+      </Link>
+    </>
   );
 }
 
@@ -241,7 +362,7 @@ function AccountEntry({
       click: () => {
         if (location.pathname == '/account') {
           localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-          window.location.reload();
+          window.location.href = '/account?tab=ref';
         } else {
           history.push('/account?tab=ref');
         }
@@ -651,14 +772,12 @@ function Xref() {
   };
   return (
     <div
-      className={`h-full flex items-center justify-center relative py-4 mx-4 cursor-pointer hover:opacity-100 border-t-4 border-greenColor ${
-        location.pathname == '/xref'
-          ? 'opacity-100 border-opacity-100'
-          : 'opacity-60 border-opacity-0'
+      className={`h-full flex items-center justify-center relative py-4 mx-4 cursor-pointer hover:opacity-100 ${
+        location.pathname == '/xref' ? 'opacity-100' : 'opacity-60'
       }`}
       onClick={goXrefPage}
     >
-      <XrefIcon className="cursor-pointer"></XrefIcon>
+      <XrefIcon className="relative -top-px cursor-pointer"></XrefIcon>
       {/* <GreenArrow hover={hover}></GreenArrow> */}
     </div>
   );
@@ -1125,20 +1244,27 @@ function NavigationBar() {
 
   const refAccountBalances = useTokenBalances();
 
-  useEffect(() => {
-    if (!refAccountBalances) return;
+  const dclAccountBalances = useDCLAccountBalance(isSignedIn);
 
-    const ids = Object.keys(refAccountBalances);
+  const historyInit = useHistory();
+
+  useEffect(() => {
+    if (!refAccountBalances || !dclAccountBalances) return;
+
+    const ids = Object.keys(refAccountBalances).concat(
+      Object.keys(dclAccountBalances)
+    );
 
     ftGetTokensMetadata(ids).then(setTokensMeta);
   }, [
     Object.values(refAccountBalances || {}).join('-'),
+    Object.values(dclAccountBalances || {}).join('-'),
     refAccountBalances,
     isSignedIn,
   ]);
 
   useEffect(() => {
-    if (!refAccountBalances || !tokensMeta) {
+    if (!refAccountBalances || !tokensMeta || !dclAccountBalances) {
       setHasBalanceOnRefAccount(false);
       return;
     }
@@ -1153,13 +1279,29 @@ function NavigationBar() {
       }
     );
 
-    setHasBalanceOnRefAccount(hasRefBalanceOver);
+    const hasDCLBalanceOver = Object.entries(dclAccountBalances).some(
+      ([id, balance]) => {
+        return (
+          Number(
+            toReadableNumber(
+              tokensMeta?.[id]?.decimals || 24,
+              balance as string
+            ) || '0'
+          ) > 0
+        );
+      }
+    );
+
+    setHasBalanceOnRefAccount(hasRefBalanceOver || hasDCLBalanceOver);
   }, [
     refAccountBalances,
+    dclAccountBalances,
     Object.values(refAccountBalances || {}).join('-'),
+    Object.values(dclAccountBalances || {}).join('-'),
     tokensMeta,
     isSignedIn,
   ]);
+
   return (
     <>
       <div className="nav-wrap md:hidden xs:hidden text-center relative">
@@ -1168,7 +1310,7 @@ function NavigationBar() {
             hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
           } text-xs py-1.5`}
           style={{
-            backgroundColor: '#CFCEFE',
+            backgroundColor: '#FFC940',
           }}
         >
           👀 &nbsp;
@@ -1214,14 +1356,110 @@ function NavigationBar() {
                 }}
               />
             </div>
-            <div className="flex items-center h-full">
-              <Anchor to="/" pattern="/" name="swap_capital" />
+            <div className="flex items-center h-full relative">
+              <Anchor
+                to="/"
+                pattern="/"
+                name="trade_capital"
+                subMenu={[
+                  {
+                    name: 'swap',
+                    display: <FormattedMessage id="swap"></FormattedMessage>,
+                    click: () => {
+                      historyInit.push('/swap');
+                      localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
+                      localStorage.setItem(
+                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+                        'normal'
+                      );
+                    },
+                    chosen:
+                      localStorage.getItem(SWAP_MODE_KEY) ===
+                        SWAP_MODE.NORMAL &&
+                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
+                        'normal',
+                  },
+                  {
+                    name: 'stable',
+                    display: <FormattedMessage id="stable"></FormattedMessage>,
+
+                    click: () => {
+                      historyInit.push('/swap');
+                      localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
+                      localStorage.setItem(
+                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+                        'normal'
+                      );
+                    },
+                    chosen:
+                      localStorage.getItem(SWAP_MODE_KEY) ===
+                        SWAP_MODE.STABLE &&
+                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
+                        'normal',
+                  },
+                  {
+                    name: 'pro',
+                    display: (
+                      <span className="flex items-center whitespace-nowrap">
+                        {' '}
+                        <span className="mr-2">Swap with</span>{' '}
+                        <AuroraIconSwapNav />{' '}
+                      </span>
+                    ),
+                    click: () => {
+                      localStorage.setItem(
+                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+                        'cross'
+                      );
+
+                      historyInit.push('/swap');
+                    },
+                    chosen:
+                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
+                      'cross',
+                  },
+                  {
+                    name: 'limit',
+                    display: (
+                      <FormattedMessage id="limit_order"></FormattedMessage>
+                    ),
+                    click: () => {
+                      historyInit.push('/swap');
+                      localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+                      localStorage.setItem(
+                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+                        'normal'
+                      );
+                    },
+                    chosen:
+                      localStorage.getItem(SWAP_MODE_KEY) === SWAP_MODE.LIMIT &&
+                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
+                        'normal',
+                  },
+                ]}
+              />
+              <Anchor
+                to="/pools"
+                pattern="/pools"
+                name="liquidity_capital"
+                subMenu={[
+                  {
+                    name: 'your_liquidity',
+                    path: 'Liquidity',
+                    click: () => {
+                      historyInit.push('/yourliquidity');
+                    },
+                  },
+                  {
+                    name: 'pools',
+                    path: 'pool',
+                    click: () => {
+                      historyInit.push('/pools');
+                    },
+                  },
+                ]}
+              />
               <Anchor to="/sauce" pattern="/sauce" name="sauce_capital" />
-              {isSignedIn ? (
-                <Anchor to="/pools/yours" pattern="/pools" name="POOL" />
-              ) : (
-                <Anchor to="/pools" pattern="/pools" name="POOL" />
-              )}
               <Anchor to="/v2farms" pattern="/v2farms" name="farm_capital" />
               <Xref></Xref>
               {!!getConfig().REF_VE_CONTRACT_ID ? (

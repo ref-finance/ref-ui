@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { wallet } from '../../services/near';
 import {
   toRoundedReadableNumber,
@@ -10,20 +10,33 @@ import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
 import { tokenPrice } from './SelectToken';
-import { toInternationalCurrencySystem } from '../../utils/numbers';
+import {
+  toInternationalCurrencySystem,
+  toInternationalCurrencySystemLongString,
+} from '../../utils/numbers';
 import SelectToken, { StableSelectToken } from './SelectToken';
-import { toPrecision, multiply, ONLY_ZEROS } from '../../utils/numbers';
+import {
+  toPrecision,
+  multiply,
+  ONLY_ZEROS,
+  scientificNotationToString,
+} from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '../../components/icon/SmallWallet';
 import { RefIcon } from '../../components/icon/Common';
 import { currentTokensPrice } from '../../services/api';
-import { IconLeft } from '../tokens/Icon';
+import { IconLeft, IconLeftV3 } from '../tokens/Icon';
 import { toRealSymbol } from '../../utils/token';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon/Arrows';
 import { percentLess } from '../../utils/numbers';
-import { isMobile } from '../../utils/device';
+import { isMobile, useClientMobile } from '../../utils/device';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { InputAmountV3 } from './InputAmount';
+import Big from 'big.js';
+import { QuestionTip } from '../layout/TipWrapper';
+import { regularizedPrice } from '../../services/swapV3';
+import { LimitOrderTriggerContext } from '../swap/SwapCard';
 
 interface TokenAmountProps {
   amount?: string;
@@ -49,6 +62,33 @@ interface TokenAmountProps {
   onSelectPost?: (token: TokenMetadata) => void;
   forWrap?: boolean;
   showQuickButton?: Boolean;
+  ExtraElement?: JSX.Element;
+  forLimitOrder?: boolean;
+  marketPriceLimitOrder?: string;
+  limitOrderDisable?: boolean;
+  curRate?: string;
+  onChangeRate?: (rate: string) => void;
+  tokenIn?: TokenMetadata;
+  tokenOut?: TokenMetadata;
+  onBlur?: (e?: any) => void;
+  limitFee?: number;
+  setDiff?: (d: string) => void;
+}
+
+export function getTextWidth(str: string, fontSize: string) {
+  let result = 10;
+
+  let ele = document.createElement('span');
+
+  ele.innerText = str;
+  ele.style.fontSize = fontSize;
+
+  document.documentElement.append(ele);
+
+  result = ele.offsetWidth;
+
+  document.documentElement.removeChild(ele);
+  return result + 25;
 }
 
 export function HalfAndMaxAmount({
@@ -94,6 +134,203 @@ export function HalfAndMaxAmount({
         }}
       >
         <FormattedMessage id="max" defaultMessage="Max" />
+      </span>
+    </div>
+  );
+}
+
+export function HalfAndMaxAmountV3({
+  max,
+  onChangeAmount,
+  token,
+  forCrossSwap,
+  amount,
+}: {
+  max: string;
+  token: TokenMetadata;
+  onChangeAmount: (amount: string) => void;
+  forCrossSwap?: boolean;
+  amount?: string;
+}) {
+  const halfValue = percentOfBigNumber(50, max, token?.decimals);
+
+  return (
+    <div className="flex items-center">
+      <span
+        className={`px-2 py-1 mr-2 cursor-pointer rounded-lg text-primaryText hover:text-gradientFrom ${
+          amount === halfValue && !ONLY_ZEROS.test(halfValue)
+            ? ' bg-black bg-opacity-20 border border-transparent'
+            : ' border border-primaryText border-opacity-20 hover:border-gradientFrom '
+        } text-xs`}
+        onClick={() => {
+          const half = percentOfBigNumber(50, max, token.decimals);
+
+          onChangeAmount(half);
+        }}
+      >
+        <FormattedMessage id="half" defaultMessage="Half" />
+      </span>
+
+      <span
+        className={`px-2 py-1 cursor-pointer rounded-lg text-primaryText hover:text-gradientFrom ${
+          amount === max && !ONLY_ZEROS.test(max)
+            ? ' bg-black bg-opacity-20 border border-transparent'
+            : 'border border-primaryText border-opacity-20 hover:border-gradientFrom '
+        } text-xs`}
+        onClick={() => {
+          onChangeAmount(max);
+        }}
+      >
+        <FormattedMessage id="max" defaultMessage="Max" />
+      </span>
+    </div>
+  );
+}
+
+export function QuickAmountLimitOrder({
+  max,
+  onChangeAmount,
+  marketPrice,
+  amount,
+  plus10,
+  plus5,
+  plus1,
+  minus1,
+}: {
+  max: string;
+  amount?: string;
+  onChangeAmount: (amount: string) => void;
+  marketPrice: string;
+  plus5: string;
+  plus10: string;
+  plus1: string;
+  minus1: string;
+}) {
+  const { triggerFetch } = useContext(LimitOrderTriggerContext);
+
+  return (
+    <div className="flex items-center">
+      <span
+        className={`px-2 py-1 xs:hidden mr-1 w-5 h-5 flex items-center justify-center cursor-pointer rounded-md  ${
+          Number(amount) === Number(minus1)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+        } text-lg`}
+        onClick={() => {
+          onChangeAmount(minus1);
+        }}
+      >
+        -
+      </span>
+      <span className="mr-2 md:hidden lg:hidden">
+        <QuestionTip
+          id="the_price_should_be_in_one_slot_nearby"
+          defaultMessage="The price should be in one slot nearby"
+          dataPlace="bottom"
+        />
+      </span>
+      <span
+        className={`px-2 py-1 mr-2 xs:hidden flex items-center justify-center w-5 h-5 cursor-pointer rounded-md  ${
+          Number(amount) === Number(plus1)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+        } text-lg`}
+        onClick={() => {
+          onChangeAmount(plus1);
+        }}
+      >
+        +
+      </span>
+
+      <span
+        className={`px-2 py-1 mr-2 cursor-pointer flex items-center h-5 rounded-xl  ${
+          Number(amount) === Number(plus5)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+        } text-xs`}
+        onClick={() => {
+          onChangeAmount(plus5);
+        }}
+      >
+        +5%
+      </span>
+
+      <span
+        className={`px-2 py-1 cursor-pointer rounded-xl h-5 mr-1 flex items-center ${
+          Number(amount) === Number(plus10)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+        } text-xs`}
+        onClick={() => {
+          onChangeAmount(plus10);
+        }}
+      >
+        +10%
+      </span>
+      <span className="mr-2 xs:hidden">
+        <QuestionTip
+          id="the_price_should_be_in_one_slot_nearby"
+          defaultMessage="The price should be in one slot nearby"
+          dataPlace="bottom"
+        />
+      </span>
+      <span
+        className={`text-xs px-2 py-1 rounded-xl whitespace-nowrap h-5 cursor-pointer flex items-center
+        ${
+          Number(amount) === Number(max)
+            ? 'text-v3Blue bg-v3Blue bg-opacity-10 border border-transparent'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-v3Blue hover:bg-v3Blue hover:bg-opacity-10'
+        }
+        
+        `}
+        onClick={() => {
+          onChangeAmount(marketPrice);
+          triggerFetch && triggerFetch();
+        }}
+      >
+        <FormattedMessage id="market_price" defaultMessage={'Market Price'} />
+      </span>
+    </div>
+  );
+}
+
+export function QuickAmountLimitOrderMobile({
+  onChangeAmount,
+  amount,
+  plus1,
+  minus1,
+}: {
+  amount?: string;
+  onChangeAmount: (amount: string) => void;
+  plus1: string;
+  minus1: string;
+}) {
+  return (
+    <div className="flex items-center">
+      <span
+        className={`px-2 py-1 mr-1 w-5 h-5 flex items-center justify-center cursor-pointer rounded-md  ${
+          Number(amount) === Number(minus1)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+        } text-lg`}
+        onClick={() => {
+          onChangeAmount(minus1);
+        }}
+      >
+        -
+      </span>
+
+      <span
+        className={`px-2 py-1 mr-2 flex items-center justify-center w-5 h-5 cursor-pointer rounded-md  ${
+          Number(amount) === Number(plus1)
+            ? 'text-gradientFrom  border border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+        } text-lg`}
+        onClick={() => {
+          onChangeAmount(plus1);
+        }}
+      >
+        +
       </span>
     </div>
   );
@@ -226,6 +463,297 @@ export default function TokenAmount({
   );
 }
 
+export function TokenAmountV3({
+  amount,
+  max,
+  total,
+  tokens,
+  selectedToken,
+  balances,
+  onSelectToken,
+  onSearchToken,
+  onChangeAmount,
+  text,
+  showSelectToken = true,
+  disabled = false,
+  useNearBalance,
+  forSwap,
+  isError,
+  tokenPriceList,
+  forLimitOrder,
+  tokenIn,
+  tokenOut,
+  onBlur,
+  swapMode,
+  preSelected,
+  postSelected,
+  onSelectPost,
+  forWrap,
+  ExtraElement,
+  marketPriceLimitOrder,
+  limitOrderDisable,
+  onChangeRate,
+  curRate,
+  limitFee,
+  setDiff,
+}: TokenAmountProps) {
+  const render = (token: TokenMetadata) =>
+    toRoundedReadableNumber({
+      decimals: token.decimals,
+      number: balances ? balances[token.id] : '0',
+    });
+
+  const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
+
+  const isMobile = useClientMobile();
+
+  const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
+
+  const curMax =
+    selectedToken?.id === WRAP_NEAR_CONTRACT_ID && !forWrap
+      ? Number(max) <= 0.5
+        ? '0'
+        : String(Number(max) - 0.5)
+      : max;
+
+  const plus1 =
+    tokenIn &&
+    tokenOut &&
+    limitFee &&
+    toPrecision(regularizedPrice(curRate, tokenIn, tokenOut, limitFee, 1), 8);
+
+  const minus1 =
+    tokenIn &&
+    tokenOut &&
+    limitFee &&
+    toPrecision(regularizedPrice(curRate, tokenIn, tokenOut, limitFee, -1), 8);
+
+  const plus5 =
+    tokenIn &&
+    tokenOut &&
+    limitFee &&
+    toPrecision(
+      regularizedPrice(
+        percentOfBigNumber(105, marketPriceLimitOrder || 0, 8),
+        tokenIn,
+        tokenOut,
+        limitFee
+      ),
+      8
+    );
+  const plus10 =
+    tokenIn &&
+    tokenOut &&
+    limitFee &&
+    toPrecision(
+      regularizedPrice(
+        percentOfBigNumber(110, marketPriceLimitOrder || 0, 8),
+        tokenIn,
+        tokenOut,
+        limitFee
+      ),
+      8
+    );
+
+  const rateDiff = new Big(curRate || '0')
+    .minus(marketPriceLimitOrder || '0')
+    .div(marketPriceLimitOrder || '1')
+    .times(100);
+
+  const displayRateDiff =
+    (Number(rateDiff) < 0 ? '-' : Number(rateDiff) > 0 ? '+' : '') +
+    (Number(curRate) === Number(plus5)
+      ? 5
+      : Number(curRate) === Number(plus10)
+      ? 10
+      : Math.abs(Number(rateDiff)) < 1
+      ? toPrecision(
+          scientificNotationToString(
+            rateDiff.times(rateDiff.lt(0) ? -1 : 1).toString()
+          ),
+          1
+        )
+      : rateDiff.times(rateDiff.lt(0) ? -1 : 1).toFixed(0));
+
+  useEffect(() => {
+    if (setDiff) {
+      setDiff(displayRateDiff);
+    }
+  }, [displayRateDiff]);
+
+  return (
+    <div
+      className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-xl px-4 pb-2 pt-4`}
+    >
+      <div className="flex items-center justify-between">
+        {showSelectToken &&
+          (!swapMode || swapMode !== SWAP_MODE.STABLE ? (
+            <SelectToken
+              tokenPriceList={tokenPriceList}
+              tokens={tokens}
+              render={render}
+              customWidth
+              selected={
+                selectedToken && (
+                  <div
+                    className="flex items-center justify-end font-semibold "
+                    onMouseEnter={() => setHoverSelectToken(true)}
+                    onMouseLeave={() => setHoverSelectToken(false)}
+                  >
+                    <IconLeftV3
+                      size={'8'}
+                      token={selectedToken}
+                      hover={hoverSelectToken}
+                    />
+                  </div>
+                )
+              }
+              onSelect={onSelectToken}
+              balances={balances}
+            />
+          ) : (
+            <StableSelectToken
+              selected={
+                selectedToken && (
+                  <div
+                    className="flex items-center justify-end font-semibold "
+                    onMouseEnter={() => setHoverSelectToken(true)}
+                    onMouseLeave={() => setHoverSelectToken(false)}
+                  >
+                    <IconLeftV3
+                      size={'8'}
+                      token={selectedToken}
+                      hover={hoverSelectToken}
+                    />
+                    <span className="ml-2">{isMobile && ExtraElement}</span>
+                  </div>
+                )
+              }
+              customWidth
+              tokens={tokens}
+              onSelect={onSelectToken}
+              preSelected={preSelected}
+              postSelected={postSelected}
+              onSelectPost={onSelectPost}
+            />
+          ))}
+        <span className="text-primaryText">
+          <FormattedMessage id="balance" defaultMessage="Balance" />
+          :&nbsp;
+          <span title={total}>{toPrecision(total, 3, true)}</span>
+        </span>
+      </div>
+
+      <fieldset className="relative flex  align-center items-center my-1.5">
+        <InputAmountV3
+          className="border border-transparent rounded w-full mr-2"
+          id="inputAmount"
+          name={selectedToken?.id}
+          max={onChangeAmount ? curMax : null}
+          value={limitOrderDisable ? '' : amount}
+          onChangeAmount={onChangeAmount}
+          forLimitOrder={limitOrderDisable}
+          disabled={disabled || limitOrderDisable}
+          forSwap={!!forSwap}
+          onBlur={(e) => {
+            if (!!onBlur) {
+              const newPrice = regularizedPrice(
+                curRate,
+                tokenIn,
+                tokenOut,
+                limitFee
+              );
+
+              if (ONLY_ZEROS.test(toPrecision(newPrice, 8, false, false)))
+                return;
+
+              onBlur(newPrice);
+            }
+          }}
+          openClear={
+            !!onChangeAmount && !forLimitOrder && !ONLY_ZEROS.test(amount)
+          }
+          rateDiff={
+            forLimitOrder &&
+            !ONLY_ZEROS.test(amount) &&
+            Number(rateDiff) !== 0 &&
+            !ONLY_ZEROS.test(curRate) &&
+            marketPriceLimitOrder &&
+            swapMode === SWAP_MODE.LIMIT ? (
+              <span
+                className={`rounded-xl ${
+                  Number(displayRateDiff) > 0
+                    ? 'text-gradientFrom bg-gradientFrom '
+                    : Number(displayRateDiff) <= -10
+                    ? 'text-error bg-error'
+                    : 'text-warn bg-warn'
+                }  py-0.5  absolute px-2 bg-opacity-20`}
+                style={{
+                  left: getTextWidth(amount, '20px') + 'px',
+                }}
+              >
+                {displayRateDiff}%
+              </span>
+            ) : null
+          }
+        />
+        {isMobile ? (
+          forLimitOrder &&
+          marketPriceLimitOrder &&
+          swapMode === SWAP_MODE.LIMIT ? (
+            <QuickAmountLimitOrderMobile
+              onChangeAmount={onChangeRate}
+              amount={curRate}
+              plus1={plus1}
+              minus1={minus1}
+            />
+          ) : null
+        ) : (
+          ExtraElement
+        )}
+      </fieldset>
+
+      <div className="flex items-center justify-between h-6">
+        <span className="mr-3 text-primaryText">
+          {!!tokenPrice &&
+          !ONLY_ZEROS.test(amount) &&
+          !isError &&
+          !limitOrderDisable
+            ? '$' +
+              toInternationalCurrencySystemLongString(
+                multiply(tokenPrice || '0', amount || '0'),
+                2
+              )
+            : '$-'}
+        </span>
+
+        {forSwap && !forLimitOrder && onChangeAmount ? (
+          <HalfAndMaxAmountV3
+            token={selectedToken}
+            max={curMax}
+            onChangeAmount={onChangeAmount}
+            amount={amount}
+          />
+        ) : null}
+        {forLimitOrder &&
+        marketPriceLimitOrder &&
+        swapMode === SWAP_MODE.LIMIT ? (
+          <QuickAmountLimitOrder
+            max={marketPriceLimitOrder}
+            onChangeAmount={onChangeRate}
+            marketPrice={marketPriceLimitOrder}
+            amount={curRate}
+            plus10={plus10}
+            plus5={plus5}
+            plus1={plus1}
+            minus1={minus1}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export function TokenCardIn({
   tokenIn,
   max,
@@ -236,6 +764,7 @@ export function TokenCardIn({
   balances,
   amount,
   hidden,
+  ExtraElement,
 }: {
   tokenIn: TokenMetadata;
   max: string;
@@ -246,6 +775,7 @@ export function TokenCardIn({
   balances: TokenBalancesView;
   amount: string;
   hidden: boolean;
+  ExtraElement?: JSX.Element;
 }) {
   const [hoverSelectToken, setHoverSelectToken] = useState(false);
 
@@ -261,27 +791,11 @@ export function TokenCardIn({
 
   return (
     <div
-      className="bg-black bg-opacity-20 p-5 xs:px-4 py-5 flex flex-col"
+      className="bg-black bg-opacity-20  p-5 xs:px-4 py-5 flex flex-col"
       style={{
         borderRadius: '20px',
       }}
     >
-      <div className="flex items-center justify-between pb-4">
-        <span className="text-sm text-primaryText">
-          <FormattedMessage id="from" defaultMessage="From" />
-        </span>
-        <div className="text-xs text-primaryText flex items-center">
-          <HalfAndMaxAmount
-            token={tokenIn}
-            max={curMax}
-            onChangeAmount={onChangeAmount}
-            forCrossSwap
-            amount={amount}
-          />
-          <span className="ml-2">{toPrecision(max, 3, true)}</span>
-        </div>
-      </div>
-
       <div className="flex items-center justify-between">
         <SelectToken
           tokenPriceList={tokenPriceList}
@@ -294,37 +808,46 @@ export function TokenCardIn({
               onMouseLeave={() => setHoverSelectToken(false)}
             >
               {tokenIn ? (
-                <IconLeft token={tokenIn} hover={hoverSelectToken} />
+                <IconLeftV3 token={tokenIn} hover={hoverSelectToken} />
               ) : null}
             </div>
           }
           onSelect={onSelectToken}
           balances={balances}
         />
-
-        <div
-          className="flex flex-col items-end"
+        <span
+          className="ml-2 text-xs"
           style={{
-            width: !isMobile() ? '100%' : '55%',
+            color: '#91A2AE',
           }}
         >
-          <input
-            className="text-right text-white text-xl xs:text-lg"
-            value={amount}
-            type="number"
-            min="0"
-            placeholder="0.0"
-            onChange={(e) => onChangeAmount(e.target.value)}
-            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
-            step="any"
-          />
+          <FormattedMessage id="balance" />: &nbsp; {toPrecision(max, 3, true)}
+        </span>
+      </div>
 
-          <div>
-            {tokenPrice(
-              price && !ONLY_ZEROS.test(amount) ? multiply(price, amount) : null
-            )}
-          </div>
-        </div>
+      <fieldset className="relative flex  align-center items-center my-2">
+        <InputAmountV3
+          className="border border-transparent rounded w-full mr-2"
+          id="inputAmount"
+          name={tokenIn?.id}
+          value={amount}
+          onChangeAmount={onChangeAmount}
+          openClear
+        />
+        {ExtraElement}
+      </fieldset>
+
+      <div className="flex items-center justify-between">
+        {tokenPrice(
+          price && !ONLY_ZEROS.test(amount) ? multiply(price, amount) : null
+        )}
+
+        <HalfAndMaxAmountV3
+          token={tokenIn}
+          max={curMax}
+          onChangeAmount={onChangeAmount}
+          amount={amount}
+        />
       </div>
     </div>
   );
@@ -351,23 +874,16 @@ export function TokenCardOut({
   if (hidden) return null;
   return (
     <div
-      className="bg-black bg-opacity-20 py-5"
+      className="bg-black flex items-center justify-between bg-opacity-20 py-5 pr-5 xs:pr-4"
       style={{
         borderRadius: '20px',
       }}
     >
-      <div className="text-sm text-primaryText pb-4 flex items-center justify-between px-5">
-        <span>
-          <FormattedMessage id="to" defaultMessage="To" />
-        </span>
-
-        <span className="ml-2 text-xs">{toPrecision(max, 3, true)}</span>
-      </div>
       <SelectToken
         tokenPriceList={tokenPriceList}
         tokens={tokens}
         forCross
-        standalone
+        customWidth
         selected={
           <div
             className="flex font-semibold w-full cursor-pointer pl-4 xs:pl-3 pr-3"
@@ -375,33 +891,22 @@ export function TokenCardOut({
             onMouseLeave={() => setHoverSelectToken(false)}
           >
             {tokenOut ? (
-              <div
-                className={`flex items-center text-lg text-white justify-between w-full rounded-full flex-shrink-0  ${
-                  hoverSelectToken ? 'bg-black bg-opacity-20 ' : ''
-                }`}
-                style={{ lineHeight: 'unset' }}
-              >
-                <div className="flex items-center">
-                  <img
-                    key={tokenOut.id}
-                    className="mr-2 xs:ml-0 xs:mr-1  h-11 w-11 xs:h-7 xs:w-7 border rounded-full border-greenLight"
-                    src={tokenOut.icon}
-                  />
-                  <p className="block text-lg xs:text-sm">
-                    {toRealSymbol(tokenOut.symbol)}
-                  </p>
-                </div>
-
-                <div className="pl-2 xs:pl-1 text-xs pr-4">
-                  {hoverSelectToken ? <ArrowDownGreen /> : <ArrowDownWhite />}
-                </div>
-              </div>
+              <IconLeftV3 token={tokenOut} hover={hoverSelectToken} />
             ) : null}
           </div>
         }
         onSelect={onSelectToken}
         balances={balances}
       />
+
+      <span
+        className="ml-2 text-xs"
+        style={{
+          color: '#91A2AE',
+        }}
+      >
+        <FormattedMessage id="balance" />: &nbsp; {toPrecision(max, 3, true)}
+      </span>
     </div>
   );
 }

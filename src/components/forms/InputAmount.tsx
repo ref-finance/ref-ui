@@ -9,6 +9,7 @@ import {
 } from '../../utils/numbers';
 import { FormattedMessage } from 'react-intl';
 import { toPrecision } from '../../utils/numbers';
+import { InputClear } from '../icon/swapV3';
 
 interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   max?: string;
@@ -22,6 +23,9 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   decimalLimit?: number;
   value?: string;
   curAmount?: string;
+  openClear?: boolean;
+  forLimitOrder?: boolean;
+  rateDiff?: JSX.Element | string;
 }
 
 export default function InputAmount({
@@ -72,7 +76,7 @@ export default function InputAmount({
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
             }`}
             type="number"
-            placeholder="0.0"
+            placeholder={'0.0'}
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
@@ -304,5 +308,73 @@ export function BoostInputAmount({
         </div>
       </div>
     </fieldset>
+  );
+}
+
+export function InputAmountV3({
+  max,
+  className,
+  onChangeAmount,
+  disabled = false,
+  maxBorder = true,
+  forSwap = false,
+  decimalLimit,
+  price,
+  forLimitOrder,
+  openClear,
+  rateDiff,
+  onBlur,
+  ...rest
+}: InputAmountProps) {
+  const ref = useRef<HTMLInputElement>();
+  const field = useRef<HTMLFieldSetElement>();
+  const [symbolsArr] = useState(['e', 'E', '+', '-']);
+
+  const handleChange = (amount: string) => {
+    if (onChangeAmount) {
+      onChangeAmount(amount);
+    }
+    ref.current.value = amount;
+  };
+
+  return (
+    <>
+      <fieldset className={`${className} `} ref={field}>
+        <div className={`relative flex align-center items-center `}>
+          <input
+            ref={ref}
+            max={max}
+            min="0"
+            onWheel={() => ref.current.blur()}
+            {...rest}
+            step="any"
+            className={`xs:text-lg text-xl font-bold w-full p-1 ${
+              disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
+            }`}
+            type="number"
+            placeholder={forLimitOrder ? '-' : '0.0'}
+            onChange={({ target }) => handleChange(target.value)}
+            disabled={disabled}
+            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
+            onBlur={onBlur}
+          />
+
+          {rateDiff}
+
+          <button
+            className="cursor-pointer text-primaryText hover:text-warn"
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleChange('');
+              ref.current.value = '';
+            }}
+          >
+            {!openClear ? null : <InputClear />}
+          </button>
+        </div>
+      </fieldset>
+    </>
   );
 }

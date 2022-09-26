@@ -378,6 +378,7 @@ export const useTokensData = (
             if (currentFetchId !== fetchIdRef.current) {
               throw new Error();
             }
+
             return max;
           })
           .then((max: string) => {
