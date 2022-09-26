@@ -1292,6 +1292,8 @@ function AddLiquidityComponent({
           }
           if (percent.isEqualTo(0)) {
             return '0%';
+          } else if (percent.isLessThanOrEqualTo(0.1)) {
+            return '<0.1%';
           } else if (price_c > d) {
             return `-${p}%`;
           } else {
@@ -1355,6 +1357,8 @@ function AddLiquidityComponent({
           }
           if (p.isEqualTo(0)) {
             return '0%';
+          } else if (p.isLessThanOrEqualTo(0.1)) {
+            return '<0.1%';
           } else if (price_c > result) {
             return `-${result}%`;
           } else {
