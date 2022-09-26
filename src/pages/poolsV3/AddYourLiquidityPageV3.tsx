@@ -1300,7 +1300,7 @@ function AddLiquidityComponent({
             return `+${p}%`;
           }
         })
-        .style('fill', '#fff')
+        .style('fill', '#00FFD1')
         .style('font-size', '14px')
         .attr('x', function (d, i) {
           const textWidth = d3
@@ -1365,7 +1365,7 @@ function AddLiquidityComponent({
             return `+${result}%`;
           }
         })
-        .style('fill', '#fff')
+        .style('fill', '#00FFD1')
         .style('font-size', '14px')
         .attr('x', function (d, i) {
           const textWidth = d3
