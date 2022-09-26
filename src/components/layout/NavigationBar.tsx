@@ -1469,8 +1469,6 @@ function NavigationBar() {
                   name="vote_capital"
                 />
               ) : null}
-
-              <Anchor to="/risks" pattern="/risks" name="risks_capital" />
             </div>
           </div>
           <div className="flex items-center justify-end flex-1">
