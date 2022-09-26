@@ -1147,12 +1147,12 @@ function AddLiquidityComponent({
       setCurrentCheckedQuickOption(undefined);
     }
     if (depthData) {
-      drawChartData(depthData);
+      drawChartData(depthData, leftPoint, rightPoint);
     }
   }, [leftPoint, rightPoint]);
   async function getChartData() {
     const depthData = await get_pool_marketdepth(currentSelectedPool.pool_id);
-    const length = drawChartData(depthData);
+    const length = drawChartData(depthData, leftPoint, rightPoint);
     if (length == 0) {
       setNoDataForChart(true);
     } else {
@@ -1160,7 +1160,11 @@ function AddLiquidityComponent({
     }
     setChartLoading(false);
   }
-  function drawChartData(depthData: any) {
+  function drawChartData(
+    depthData: any,
+    left_point: number,
+    right_point: number
+  ) {
     const { current_point, liquidities } = depthData;
     const list = Object.values(liquidities);
     if (list.length > 0) {
@@ -1170,8 +1174,8 @@ function AddLiquidityComponent({
       const decimalRate =
         Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
       const price_c: any = getPriceByPoint(current_point, decimalRate);
-      const price_left: any = getPriceByPoint(leftPoint, decimalRate);
-      const price_right: any = getPriceByPoint(rightPoint, decimalRate);
+      const price_left: any = getPriceByPoint(left_point, decimalRate);
+      const price_right: any = getPriceByPoint(right_point, decimalRate);
       list.forEach((item: any, index: number) => {
         const { left_point, right_point, amount_l } = item;
         const price_l = getPriceByPoint(left_point, decimalRate);
@@ -1363,7 +1367,7 @@ function AddLiquidityComponent({
           }
           if (p.isEqualTo(0)) {
             return '0%';
-          } else if (price_c > result) {
+          } else if (price_c > d) {
             if (p.isLessThanOrEqualTo(0.1)) {
               return '>-0.1%';
             } else {
