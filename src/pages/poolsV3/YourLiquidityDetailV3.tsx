@@ -14,6 +14,7 @@ import {
   PoolInfo,
   remove_liquidity,
   get_liquidity,
+  get_pool_marketdepth,
 } from '../../services/swapV3';
 import { ReturnIcon, SwitchButton } from '~components/icon/V3';
 import {
@@ -45,6 +46,7 @@ import {
   useAddAndRemoveUrlHandle,
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
+  drawChartData,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getTokenPriceList } from '../../services/indexer';
@@ -52,6 +54,7 @@ import { getBoostTokenPrices } from '../../services/farm';
 import { getLiquidity } from '~utils/pool';
 import _ from 'lodash';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { BlueCircleLoading } from '../../components/layout/Loading';
 export default function YourLiquidityDetail(props: any) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
@@ -63,6 +66,7 @@ export default function YourLiquidityDetail(props: any) {
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
   const [rateSort, setRateSort] = useState<boolean>(true);
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
+  const [chartLoading, setChartLoading] = useState<boolean>(false);
   const history = useHistory();
   // callBack handle
   useAddAndRemoveUrlHandle();
@@ -72,6 +76,8 @@ export default function YourLiquidityDetail(props: any) {
   const poolId = `${tokenXId}|${tokenYId}|${feeV}`;
   const [token_x, token_y, fee] = poolId.split('|');
   const tokenMetadata_x_y = useTokens([token_x, token_y]);
+  const [depthData, setDepthData] = useState(null);
+  const chartDom = useRef(null);
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
     if (poolId && hashId) {
@@ -89,8 +95,28 @@ export default function YourLiquidityDetail(props: any) {
         setIsInrange(false);
       }
       get_liquidity_x_y();
+      getChartData();
     }
   }, [userLiquidity, poolDetail, tokenMetadata_x_y]);
+  useEffect(() => {
+    getChartData();
+  }, [rateSort]);
+  async function getChartData() {
+    const depthData = await get_pool_marketdepth(poolDetail.pool_id);
+    const { left_point, right_point } = userLiquidity;
+    const [tokenX, tokenY] = tokenMetadata_x_y;
+    drawChartData({
+      depthData,
+      left_point,
+      right_point,
+      token_x_decimals: tokenX.decimals,
+      token_y_decimals: tokenY.decimals,
+      chartDom,
+      sort: rateSort,
+    });
+    setDepthData(depthData);
+    setChartLoading(false);
+  }
   async function get_pool_detail() {
     const token_x = poolId.split('|')[0];
     const detail = await get_pool(poolId, token_x);
@@ -596,6 +622,26 @@ export default function YourLiquidityDetail(props: any) {
             ></SwitchButton>
           </div>
         </div>
+        {/* range chart area */}
+        <div className="relative flex flex-col items-center justify-center my-10">
+          <svg
+            width="100%"
+            height="230"
+            className={`${chartLoading ? 'invisible' : 'visible'}`}
+            ref={chartDom}
+            style={{ color: 'rgba(91, 64, 255, 0.5)' }}
+          >
+            <g className="chart"></g>
+            <g className="g" transform="translate(15,200)"></g>
+            <g className="g2"></g>
+            <g className="gLeftLine"></g>
+            <g className="gRightLine"></g>
+          </svg>
+          {chartLoading ? (
+            <BlueCircleLoading className="absolute"></BlueCircleLoading>
+          ) : null}
+        </div>
+        {/* input range area */}
       </div>
       <div className="flex items-center lg:hidden mt-3">
         <GradientButton
