@@ -29,6 +29,8 @@ import {
   AuroraIconSwapNav,
   MobileYourLiqudityIcon,
   MobilePoolsIcon,
+  BridgeIcon,
+  RisksIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
@@ -70,7 +72,7 @@ export const useMenuItems = () => {
       url: '',
       id: 2,
       isExternal: false,
-      logo: <IconBridge />,
+      logo: <BridgeIcon />,
       children: [
         {
           label: intl.formatMessage({ id: 'from_ethereum' }),
@@ -121,6 +123,13 @@ export const useMenuItems = () => {
       isExternal: true,
       id: 3,
       logo: <IconDocs />,
+    },
+    {
+      label: intl.formatMessage({ id: 'risks' }),
+      url: '/risks',
+      isExternal: false,
+      id: 4,
+      logo: <RisksIcon />,
     },
     {
       label: <FormattedMessage id="language" defaultMessage="Language" />,
@@ -348,13 +357,6 @@ export const moreLinks: MobileMenuItem[] = [
     hidden: !getConfig().REF_VE_CONTRACT_ID,
   },
   {
-    id: 'risks_capital',
-    label: 'RISKS',
-    pattern: '/risks',
-    url: '/risks',
-    isExternal: false,
-  },
-  {
     id: 'bridge',
     label: 'bridge',
     url: '',
@@ -402,7 +404,7 @@ export const moreLinks: MobileMenuItem[] = [
     label: 'More',
     url: '',
     isExternal: false,
-    subRoute: ['/airdrop'],
+    subRoute: ['/airdrop', '/risks'],
     children: [
       {
         id: 'airdrop',
@@ -419,13 +421,14 @@ export const moreLinks: MobileMenuItem[] = [
         isExternal: true,
         logo: <IconDocs />,
       },
-      // {
-      //   label: 'Forum',
-      //   id: 'Forum',
-      //   url: 'https://gov.ref.finance',
-      //   isExternal: true,
-      //   logo: <IconForum />,
-      // },
+      {
+        label: 'Risks',
+        id: 'risks',
+        pattern: '/risks',
+        url: '/risks',
+        isExternal: false,
+        logo: <RisksIcon />,
+      },
     ],
   },
   // {

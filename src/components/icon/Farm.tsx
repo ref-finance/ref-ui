@@ -2643,9 +2643,10 @@ const ArrowDownHollow = () => {
     </svg>
   );
 };
-const Checkbox = () => {
+const Checkbox = (props: any) => {
   return (
     <svg
+      {...props}
       width="15"
       height="15"
       viewBox="0 0 15 15"
@@ -2656,9 +2657,10 @@ const Checkbox = () => {
     </svg>
   );
 };
-const CheckboxSelected = () => {
+const CheckboxSelected = (props: any) => {
   return (
     <svg
+      {...props}
       width="15"
       height="15"
       viewBox="0 0 15 15"
