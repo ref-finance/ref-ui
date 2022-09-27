@@ -335,8 +335,8 @@ export const CheckBoxForRisk = (props: any) => {
         ></Checkbox>
       )}
       <span className="text-sm text-v3SwapGray">
-        By checking this box and moving forward, you expressly confirm that you
-        fully understand the{' '}
+        By checking this box and moving forward, you confirm that you fully
+        understand the{' '}
         <a
           className="text-greenColor text-sm font-bold cursor-pointer"
           onClick={goRisks}
