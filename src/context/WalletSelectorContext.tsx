@@ -123,18 +123,18 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         //   },
         //   iconUrl: walletIcons['nightly-connect'],
         // }),
-        setupWalletConnect({
-          projectId: '423baa464ffaeca9d7165ab4222d534f',
-          relayUrl: 'wss://relay.walletconnect.com',
-          metadata: {
-            name: 'ref_finance',
-            description: 'Example dApp used by NEAR Wallet Selector',
-            url: 'https://github.com/near/wallet-selector',
-            icons: walletIcons['wallet-connect'],
-          },
-          chainId: `near:${getConfig().networkId}}`,
-          iconUrl: walletIcons['wallet-connect'],
-        }),
+        // setupWalletConnect({
+        //   projectId: '423baa464ffaeca9d7165ab4222d534f',
+        //   relayUrl: 'wss://relay.walletconnect.com',
+        //   metadata: {
+        //     name: 'ref_finance',
+        //     description: 'Example dApp used by NEAR Wallet Selector',
+        //     url: 'https://github.com/near/wallet-selector',
+        //     icons: walletIcons['wallet-connect'],
+        //   },
+        //   chainId: `near:${getConfig().networkId}}`,
+        //   iconUrl: walletIcons['wallet-connect'],
+        // }),
       ],
     });
     const _modal = setupModal(_selector, {

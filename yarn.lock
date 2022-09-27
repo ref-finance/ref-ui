@@ -2035,14 +2035,16 @@
     "@near-wallet-selector/core" "6.0.0"
     is-mobile "^3.1.1"
 
-"@near-wallet-selector/wallet-connect@6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-connect/-/wallet-connect-6.0.0.tgz#8ef22adea89d6bf26451e02f1eabd60cb1632b1e"
-  integrity sha512-bF7oGWGmi9vX1saveuIjJdVZBevx6Ko4DzGqiP0D9kwO3smoSp3VoO4jqXxdyM+89wOseDoqQEW0d7sF1C77/A==
+"@near-wallet-selector/wallet-connect@5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-connect/-/wallet-connect-5.0.2.tgz#c89e8ff3ee3a771c116785145b230d0f847e28cb"
+  integrity sha512-Dd2pypz80VS/THxrU6V90E/RfE2YtdAiuXiKRb1ZR6ZmKbOh2EUw0X0KaGpvcIdEYAUUw8maDcSIeS0gF+vd3A==
   dependencies:
-    "@near-wallet-selector/core" "6.0.0"
+    "@near-wallet-selector/core" "5.0.2"
     "@walletconnect/qrcode-modal" "2.0.0-alpha.20"
     "@walletconnect/sign-client" "^2.0.0-beta.102"
+    near-api-js "0.44.2"
+    rxjs "~7.4.0"
 
 "@near-wallet-selector/wallet-utils@5.0.2":
   version "5.0.2"
