@@ -12,6 +12,7 @@ import { WalletConnecting } from './WalletConnecting';
 import { WalletNotInstalled } from './WalletNotInstalled';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Context } from '../../../components/wrapper';
+import { RouterArrowLeft } from '../../../components/icon/Arrows';
 
 interface ModalProps {
   selector: WalletSelector;
@@ -126,7 +127,7 @@ export const Modal: React.FC<ModalProps> = ({
                 });
               }}
             >
-              {'<'}
+              <RouterArrowLeft color="#7E8A93" />
             </button>
           )}
 
