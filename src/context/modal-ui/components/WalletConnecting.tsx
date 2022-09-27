@@ -4,6 +4,7 @@ import { BeatLoader } from 'react-spinners';
 import { FormattedMessage } from 'react-intl';
 import { GradientWrapper } from './BorderWrapper';
 import { useClientMobile } from '../../../utils/device';
+import { BeatLoading } from 'respinner';
 
 interface WalletConnectingProps {
   wallet: Wallet | undefined;
@@ -65,7 +66,7 @@ export const WalletConnecting: React.FC<WalletConnectingProps> = ({
         </div>
 
         <span className="mx-4">
-          <BeatLoader margin={6} size={5} color="#00C6A2" />
+          <BeatLoading count={6} size={5} fill="#00C6A2" />
         </span>
         <div className="rounded-2xl w-14 h-14 bg-black bg-opacity-20 items-center justify-center flex ">
           <img
