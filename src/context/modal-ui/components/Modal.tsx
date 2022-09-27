@@ -6,7 +6,7 @@ import type { ModalRoute } from './Modal.types';
 import { WalletNetworkChanged } from './WalletNetworkChanged';
 import { WalletOptions } from './WalletOptions';
 import { AlertMessage } from './AlertMessage';
-import { CloseButton } from './CloseButton';
+import { CloseButton, CloseButtonWallet } from './CloseButton';
 import { DerivationPath, HardwareRoutes } from './DerivationPath';
 import { WalletConnecting } from './WalletConnecting';
 import { WalletNotInstalled } from './WalletNotInstalled';
@@ -130,8 +130,12 @@ export const Modal: React.FC<ModalProps> = ({
               <RouterArrowLeft color="#7E8A93" />
             </button>
           )}
-
-          <CloseButton onClick={handleDismissClick} />
+          <div
+            onClick={handleDismissClick}
+            className="cursor-pointer pl-1 pb-1"
+          >
+            <CloseButtonWallet />
+          </div>
         </div>
         <div className="modal-body">
           {route.name === 'WalletOptions' && (
