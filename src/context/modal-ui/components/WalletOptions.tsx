@@ -322,7 +322,9 @@ export const CheckBoxForRisk = (props: any) => {
     setCheckedStatus(newStatus);
   }
   return (
-    <div className="flex items-start mt-5">
+    <div
+      className={`flex items-start ${checkBoxStatus ? 'my-4' : 'mb-4 mt-1'}`}
+    >
       {checkBoxStatus ? (
         <CheckboxSelected
           className="relative flex-shrink-0 mr-3 top-1 cursor-pointer"
@@ -338,7 +340,7 @@ export const CheckBoxForRisk = (props: any) => {
         By checking this box and moving forward, you confirm that you fully
         understand the{' '}
         <a
-          className="text-greenColor text-sm font-bold cursor-pointer"
+          className="text-greenColor text-sm font-bold cursor-pointer hover:underline"
           onClick={goRisks}
         >
           Risks of Using Ref. finance

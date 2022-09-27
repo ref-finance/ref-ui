@@ -850,6 +850,7 @@ const en_US = {
   no_support_testnet_rpc_tip: 'Testnet does not support adding custom RPC',
   stable: 'Stable',
   trade_capital: 'TRADE',
+  trade_capital_hump: 'Trade',
   pro: 'Pro',
   limit: 'Limit',
   make_an_order: 'Make an order',

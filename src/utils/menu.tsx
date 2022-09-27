@@ -222,7 +222,7 @@ export type MobileMenuItem = {
 };
 export const moreLinks: MobileMenuItem[] = [
   {
-    id: 'trade_capital',
+    id: 'trade_capital_hump',
     label: 'Trade',
     url: '',
     isExternal: false,
@@ -297,8 +297,8 @@ export const moreLinks: MobileMenuItem[] = [
     ],
   },
   {
-    id: 'liquidity_capital',
-    label: 'LIQUIDITY',
+    id: 'liquidity',
+    label: 'Liquidity',
     url: '',
     isExternal: false,
     children: [
@@ -332,7 +332,7 @@ export const moreLinks: MobileMenuItem[] = [
     isExternal: false,
   },
   {
-    id: 'farm_capital',
+    id: 'Farms',
     label: 'Farms',
     pattern: '/v2farms',
     url: '/v2farms',

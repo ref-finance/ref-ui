@@ -871,5 +871,6 @@ const vi = {
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
   newText: 'Mới',
+  trade_capital_hump: 'Trade',
 };
 export default Object.assign(vi, vi_in_risks_page);

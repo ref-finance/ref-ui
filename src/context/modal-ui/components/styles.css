@@ -93,6 +93,7 @@
   width: 100%;
   position: absolute;
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 /**
  * Modal

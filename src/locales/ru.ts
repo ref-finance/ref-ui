@@ -870,5 +870,6 @@ const ru = {
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
   newText: 'новый',
+  trade_capital_hump: 'Trade',
 };
 export default Object.assign(ru, ru_in_risks_page);

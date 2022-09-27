@@ -861,5 +861,6 @@ const ko = {
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
   newText: '새로운',
+  trade_capital_hump: 'Trade',
 };
 export default Object.assign(ko, ko_in_risks_page);

@@ -115,7 +115,7 @@ export function MobileAnchor({
   );
 }
 const openMenuContext = createContext(null);
-export function MobileSwitchLanguage() {
+export function MobileSwitchLanguage(props: any) {
   const context = useContext(Context);
   const currentLocal = localStorage.getItem('local');
   const [show, setShow] = useState(false);
@@ -127,6 +127,7 @@ export function MobileSwitchLanguage() {
     } else {
       setShow(false);
     }
+    props.setInitStatus(false);
   };
 
   return (
@@ -476,6 +477,7 @@ export function MobileNavBar(props: any) {
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [openMenu, setOpenMenu] = useState('');
   const [closeMenu, setCloseMenu] = useState(false);
+  const [initStatus, setInitStatus] = useState(true);
   // const history = useHistory();
   const [mobileWrapNear, setMobileWrapNear] = useState(false);
   // const [showWalletSelector, setShowWalletSelector] = useState(false);
@@ -628,16 +630,25 @@ export function MobileNavBar(props: any) {
   function close() {
     setShow(false);
   }
-  function handleMenuClick(url: string, label: string, isExternal: boolean) {
+  function handleMenuClick(
+    url: string,
+    label: string,
+    isExternal: boolean,
+    needOpenMenu: boolean
+  ) {
     if (url) {
       isExternal ? window.open(url) : window.open(url, '_self');
       close();
+    } else if (needOpenMenu) {
+      setOpenMenu(label);
+      false;
     } else if (openMenu === label) {
       setCloseMenu(!closeMenu);
     } else {
       setOpenMenu(label);
       setCloseMenu(true);
     }
+    setInitStatus(false);
   }
   return (
     <>
@@ -852,6 +863,11 @@ export function MobileNavBar(props: any) {
                   }
 
                   let targetUrl = url;
+                  let needOpenMenu = false;
+                  if (isSelected && children && initStatus) {
+                    needOpenMenu = true;
+                  }
+
                   return (
                     <div key={id}>
                       <div
@@ -863,7 +879,12 @@ export function MobileNavBar(props: any) {
                             : 'text-primaryText'
                         }`}
                         onClick={() =>
-                          handleMenuClick(targetUrl, label, isExternal)
+                          handleMenuClick(
+                            targetUrl,
+                            label,
+                            isExternal,
+                            needOpenMenu
+                          )
                         }
                       >
                         {showIcon ? (
@@ -888,14 +909,16 @@ export function MobileNavBar(props: any) {
                           <span>
                             <FiChevronUp
                               className={`${
-                                openMenu === label && closeMenu
+                                (openMenu === label && closeMenu) ||
+                                needOpenMenu
                                   ? 'inline-block'
                                   : 'hidden'
                               } text-xl`}
                             />
                             <FiChevronDown
                               className={`${
-                                openMenu !== label || !closeMenu
+                                (openMenu !== label || !closeMenu) &&
+                                !needOpenMenu
                                   ? 'inline-block'
                                   : 'hidden'
                               } text-xl`}
@@ -906,7 +929,9 @@ export function MobileNavBar(props: any) {
                       {children && (
                         <div
                           className={`${
-                            openMenu === label && closeMenu ? 'block' : 'hidden'
+                            (openMenu === label && closeMenu) || needOpenMenu
+                              ? 'block'
+                              : 'hidden'
                           }`}
                         >
                           {children?.map((link) => {
@@ -994,7 +1019,7 @@ export function MobileNavBar(props: any) {
                 }
               )}
               <openMenuContext.Provider value={{ openMenu, setOpenMenu }}>
-                <MobileSwitchLanguage />
+                <MobileSwitchLanguage setInitStatus={setInitStatus} />
               </openMenuContext.Provider>
             </div>
             <div

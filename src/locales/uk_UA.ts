@@ -837,5 +837,6 @@ const uk_UA = {
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
   newText: 'новий',
+  trade_capital_hump: 'Trade',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

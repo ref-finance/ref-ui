@@ -818,5 +818,6 @@ const zh_CN = {
   farm_stop_tip: '这个农场已经停止。',
   pool_stop_tip: '这个流动池已经停止。',
   newText: '最新',
+  trade_capital_hump: 'Trade',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
