@@ -851,13 +851,13 @@ export function MobileNavBar(props: any) {
                     location.pathname.startsWith('/yourliquidity') ||
                     location.pathname.startsWith('/addLiquidityV2')
                   ) {
-                    if (id == 'liquidity_capital') {
+                    if (id == 'liquidity') {
                       isSelected = true;
                     }
                   }
 
                   if (isSwap) {
-                    if (id === 'trade_capital') {
+                    if (id === 'trade_capital_hump') {
                       isSelected = true;
                     }
                   }
