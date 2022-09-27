@@ -306,13 +306,17 @@ export function drawChartData({
         if (percent.isEqualTo(0)) {
           return '0%';
         } else if (price_c > d) {
-          if (percent.isLessThanOrEqualTo(0.1)) {
+          if (percent.isGreaterThan(1000)) {
+            return '<-1000%';
+          } else if (percent.isLessThanOrEqualTo(0.1)) {
             return '>-0.1%';
           } else {
             return `-${p}%`;
           }
         } else {
-          if (percent.isLessThanOrEqualTo(0.1)) {
+          if (percent.isGreaterThan(1000)) {
+            return '>1000%';
+          } else if (percent.isLessThanOrEqualTo(0.1)) {
             return '<0.1%';
           } else {
             return `${p}%`;
@@ -370,16 +374,18 @@ export function drawChartData({
         }
         if (p.isEqualTo(0)) {
           return '0%';
-        } else if (p.isGreaterThan(1000)) {
-          return '>1000%';
         } else if (price_c > d) {
-          if (p.isLessThanOrEqualTo(0.1)) {
+          if (p.isGreaterThan(1000)) {
+            return '<-1000%';
+          } else if (p.isLessThanOrEqualTo(0.1)) {
             return '>-0.1%';
           } else {
             return `-${result}%`;
           }
         } else {
-          if (p.isLessThanOrEqualTo(0.1)) {
+          if (p.isGreaterThan(1000)) {
+            return '>1000%';
+          } else if (p.isLessThanOrEqualTo(0.1)) {
             return '<0.1%';
           } else {
             return `${result}%`;
