@@ -71,6 +71,9 @@ export const {
   NEW_NEARXIDS,
   NEW_NEARX_POOL_ID,
   NEW_NEARX_POOL_INDEX,
+  USN_USDT_POOL_ID,
+  USN_USDT_POOL_INDEX,
+  USN_USDT_IDS,
   // USDTIDS,
   // USDT_POOL_ID,
   // USDT_POOL_INDEX,
@@ -81,6 +84,7 @@ export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
   .concat(NEARXIDS)
   .concat(CUSDIDS)
   .concat(NEW_NEARXIDS)
+  .concat(USN_USDT_IDS)
   // .concat(USDTIDS)
   .filter((_) => !!_);
 
@@ -107,6 +111,7 @@ export const ALL_STABLE_POOL_IDS = [
   LINEAR_POOL_ID,
   NEARX_POOL_ID,
   NEW_NEARX_POOL_ID,
+  USN_USDT_POOL_ID,
   // USDT_POOL_ID,
 ]
   .filter((_) => _)
@@ -142,6 +147,8 @@ export const getStableTokenIndex = (stable_pool_id: string | number) => {
       return NEARX_POOL_INDEX;
     case NEW_NEARX_POOL_ID:
       return NEW_NEARX_POOL_INDEX;
+    case USN_USDT_POOL_ID:
+      return USN_USDT_POOL_INDEX;
     // case USDT_POOL_ID:
     //   return USDT_POOL_INDEX;
   }
@@ -170,6 +177,7 @@ export const USD_CLASS_STABLE_POOL_IDS = [
   STABLE_POOL_ID.toString(),
   STABLE_POOL_USN_ID.toString(),
   CUSD_STABLE_POOL_ID,
+  USN_USDT_POOL_ID,
   // USDT_POOL_ID,
 ];
 
@@ -181,7 +189,9 @@ export const NEAR_CLASS_STABLE_TOKEN_IDS = new Array(
 
 export const USD_CLASS_STABLE_TOKEN_IDS = new Array(
   ...new Set(
-    STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS)
+    STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS)
+      .concat(CUSDIDS)
+      .concat(USN_USDT_IDS)
     // .concat(USDTIDS)
   )
 );

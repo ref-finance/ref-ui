@@ -415,7 +415,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 0,
           'usdt.tether-token.near': 1,
         },
-        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
+        USN_USDT_POOL_ID: '3699',
+        USN_USDT_IDS: ['usn', 'usdt.tether-token.near'],
+        USN_USDT_POOL_INDEX: {
+          usn: 0,
+          'usdt.tether-token.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689', '3699'],
       };
     case 'development':
     case 'pub-testnet':
@@ -462,7 +468,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.fakes.testnet': 0,
           'usdtt.fakes.testnet': 1,
         },
-        RATED_POOLS_IDS: ['568', '571', '1044', '1752', '1751'],
+        USN_USDT_POOL_ID: '1760',
+        USN_USDT_IDS: ['usdn.testnet', 'usdtt.fakes.testnet'],
+        USN_USDT_POOL_INDEX: {
+          'usdn.testnet': 0,
+          'usdtt.fakes.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['568', '571', '1044', '1752', '1751', '1760'],
       };
     case 'testnet':
       return {
@@ -508,7 +520,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.fakes.testnet': 0,
           'usdtt.fakes.testnet': 1,
         },
-        RATED_POOLS_IDS: ['621', '622', '666', '686', '685'],
+        USN_USDT_POOL_ID: '690',
+        USN_USDT_IDS: ['usdn.testnet', 'usdtt.fakes.testnet'],
+        USN_USDT_POOL_INDEX: {
+          'usdn.testnet': 0,
+          'usdtt.fakes.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['621', '622', '666', '686', '685', '690'],
       };
     default:
       return {
@@ -560,7 +578,13 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 0,
           'usdt.tether-token.near': 1,
         },
-        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
+        USN_USDT_POOL_ID: '3699',
+        USN_USDT_IDS: ['usn', 'usdt.tether-token.near'],
+        USN_USDT_POOL_INDEX: {
+          usn: 0,
+          'usdt.tether-token.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689', '3699'],
       };
   }
 }

@@ -303,7 +303,7 @@ export const StableSelectToken = ({
         <div
           className={`flex flex-col`}
           style={{
-            height: '270px',
+            height: '320px',
           }}
         >
           {displayList.map((token) => {
