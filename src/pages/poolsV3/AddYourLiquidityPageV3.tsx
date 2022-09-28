@@ -1491,9 +1491,15 @@ function AddLiquidityComponent({
     let txt = 'Add Liquidity';
     if (invalidRange) {
       txt = 'Update Range';
-    } else if (onlyAddXToken && +tokenXAmount == 0) {
+    } else if (
+      (onlyAddXToken && +tokenXAmount == 0 && tokenSort) ||
+      (onlyAddXToken && +tokenYAmount == 0 && !tokenSort)
+    ) {
       txt = 'Input Amount';
-    } else if (onlyAddYToken && +tokenYAmount == 0) {
+    } else if (
+      (onlyAddYToken && +tokenYAmount == 0 && tokenSort) ||
+      (onlyAddYToken && +tokenXAmount == 0 && !tokenSort)
+    ) {
       txt = 'Input Amount';
     } else if (
       !onlyAddXToken &&
@@ -1726,13 +1732,7 @@ function AddLiquidityComponent({
         >
           <ButtonTextWrapper
             loading={addLiquidityButtonLoading}
-            Text={() => (
-              // <FormattedMessage
-              //   id="add_liquidity"
-              //   defaultMessage="Add Liquidity"
-              // />
-              <>{getButtonText()}</>
-            )}
+            Text={() => <>{getButtonText()}</>}
           />
         </GradientButton>
       ) : (
@@ -1846,6 +1846,7 @@ function PointInputComponent({
       <input
         type="number"
         placeholder="0.0"
+        step="any"
         className="text-base mx-2 text-center"
         onBlur={handlePriceToAppropriatePoint}
         value={customPrice || getPrice()}
