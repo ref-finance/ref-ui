@@ -571,7 +571,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
               rounded="rounded-md"
               px="px-0"
               py="py-1"
-              className="flex-grow  w-20 text-sm text-greenColor"
+              className="flex-grow  w-20 text-sm text-greenColor h-8"
             >
               Remove
             </BorderButton>
@@ -742,7 +742,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
               rounded="rounded-md"
               px="px-0"
               py="py-1"
-              className="w-1 flex-grow  text-sm text-greenColor"
+              className="w-1 flex-grow  text-sm text-greenColor h-8"
             >
               Remove
             </BorderButton>

@@ -238,7 +238,7 @@ export const moreLinks: MobileMenuItem[] = [
           localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'normal',
 
         defaultClick: () => {
-          window.open('swap', '_self');
+          window.open('/swap', '_self');
           localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
           localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
         },
@@ -253,7 +253,7 @@ export const moreLinks: MobileMenuItem[] = [
           localStorage.getItem(SWAP_MODE_KEY) === SWAP_MODE.STABLE &&
           localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'normal',
         defaultClick: () => {
-          window.open('swap', '_self');
+          window.open('/swap', '_self');
           localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
           localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
         },

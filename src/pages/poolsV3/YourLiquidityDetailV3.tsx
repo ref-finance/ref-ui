@@ -455,7 +455,7 @@ export default function YourLiquidityDetail(props: any) {
             rounded="rounded-md"
             px="px-0"
             py="py-1"
-            className="flex-grow  w-20 text-sm text-greenColor"
+            className="flex-grow  w-20 text-sm text-greenColor h-8"
           >
             Remove
           </BorderButton>
@@ -662,7 +662,7 @@ export default function YourLiquidityDetail(props: any) {
           rounded="rounded-md"
           px="px-0"
           py="py-1"
-          className="flex-grow  w-1 text-sm text-greenColor"
+          className="flex-grow  w-1 text-sm text-greenColor h-8"
         >
           Remove
         </BorderButton>

@@ -1092,7 +1092,7 @@ function PoolRow(props: {
         to={{ pathname: `/pool/${pool.id}` }}
       >
         <Card width="w-full" padding="py-4 px-0">
-          <div className="flex flex-col items-start pb-4 border-b border-gray-700 border-opacity-70 px-6">
+          <div className="flex flex-col items-start pb-4 border-b border-gray-700 border-opacity-70 px-6 bg-orderMobileTop">
             <div className="flex items-center">
               <div className="ml-1 mr-4 flex items-center">{Images}</div>
               <div className="text-xs font-semibold">

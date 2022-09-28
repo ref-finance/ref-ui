@@ -73,9 +73,9 @@ import { toRealSymbol } from '../../utils/token';
 import ReactTooltip from 'react-tooltip';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { BlueCircleLoading } from '../../components/layout/Loading';
+import { isMobile } from '../../utils/device';
 
 import Big from 'big.js';
-import * as d3 from 'd3';
 
 export default function AddYourLiquidityPageV3() {
   const [tokenX, setTokenX] = useState<TokenMetadata>(null);
@@ -525,6 +525,7 @@ export default function AddYourLiquidityPageV3() {
     setButtonSort(!buttonSort);
   }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
+  const mobileDevice = isMobile();
   return (
     <>
       <div className="m-auto xs:w-full md:w-full xs:px-3 md:px-3 flex items-center mb-5 lg:hidden">
@@ -610,8 +611,26 @@ export default function AddYourLiquidityPageV3() {
                     />
                   </div>
                   <div
-                    onMouseEnter={() => setButtonHover(true)}
-                    onMouseLeave={() => setButtonHover(false)}
+                    onMouseEnter={() => {
+                      if (!mobileDevice) {
+                        setButtonHover(true);
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      if (!mobileDevice) {
+                        setButtonHover(false);
+                      }
+                    }}
+                    onTouchStart={() => {
+                      if (mobileDevice) {
+                        setButtonHover(true);
+                      }
+                    }}
+                    onTouchEnd={() => {
+                      if (mobileDevice) {
+                        setButtonHover(false);
+                      }
+                    }}
                     onClick={switchButtonSort}
                     className="flex flex-col items-center justify-center border border-v3SwapGray w-6 h-6 rounded-full mx-2 cursor-pointer box-content"
                   >
