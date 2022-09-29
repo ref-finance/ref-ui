@@ -998,6 +998,47 @@ export const swap = async ({
   }
 };
 
+export const swapValidation = async ({
+  amountIn,
+  tokenIn,
+  tokenOut,
+  swapsToDo,
+}: {
+  amountIn: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  swapsToDo: EstimateSwapView[];
+}) => {
+  const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+
+  const isSmartRouteV1Swap = swapsToDo.every(
+    (estimate) => estimate.status === PoolMode.SMART
+  );
+
+  if (isSmartRouteV1Swap) {
+    let amountInInt = new Big(amountIn)
+      .times(new Big(10).pow(tokenIn.decimals))
+      .toString();
+    let swap1 = swapsToDo[0];
+
+    if (amountInInt !== parsedAmountIn || swap1.inputToken !== tokenIn.id) {
+      return window.location.reload();
+    }
+  } else {
+    if (
+      !BigNumber.sum(
+        ...swapsToDo.map((st) => st.pool.partialAmountIn)
+      ).isEqualTo(new BigNumber(parsedAmountIn))
+    ) {
+      return window.location.reload();
+    }
+  }
+
+  if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
+    return window.location.reload();
+  }
+};
+
 export const instantSwap = async ({
   tokenIn,
   tokenOut,
@@ -1075,14 +1116,6 @@ SwapOptions) => {
 
   if (wallet.isSignedIn()) {
     if (isParallelSwap) {
-      if (
-        !BigNumber.sum(
-          ...swapsToDo.map((st) => st.pool.partialAmountIn)
-        ).isEqualTo(new BigNumber(parsedAmountIn))
-      ) {
-        window.location.reload();
-      }
-
       const swapActions = swapsToDo.map((s2d) => {
         let minTokenOutAmount = s2d.estimate
           ? percentLess(slippageTolerance, s2d.estimate)
@@ -1138,9 +1171,6 @@ SwapOptions) => {
         .toString();
       let swap1 = swapsToDo[0];
 
-      if (amountInInt !== parsedAmountIn || swap1.inputToken !== tokenIn.id)
-        window.location.reload();
-
       actionsList.push({
         pool_id: swap1.pool.id,
         token_in: swap1.inputToken,
@@ -1185,14 +1215,6 @@ SwapOptions) => {
       await registerToken(tokenOut);
       var actionsList = [];
       let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
-
-      if (
-        !BigNumber.sum(
-          ...swapsToDo.map((st) => st.pool.partialAmountIn)
-        ).isEqualTo(new BigNumber(parsedAmountIn))
-      ) {
-        window.location.reload();
-      }
 
       for (var i in allSwapsTokens) {
         let swapTokens = allSwapsTokens[i];
@@ -1259,9 +1281,6 @@ SwapOptions) => {
       });
     }
 
-    if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
-      return window.location.reload();
-    }
     if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
       transactions.unshift(nearDepositTransaction(amountIn));
     }
