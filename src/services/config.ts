@@ -227,7 +227,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         kitWalletOn: true,
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [
           '1760#0',
-          // '1760#1',
+          '1760#1',
         ],
       };
     case 'testnet':
