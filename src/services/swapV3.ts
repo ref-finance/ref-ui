@@ -506,7 +506,7 @@ export const cancel_order = ({
   return executeMultipleTransactions(transactions);
 };
 
-export const get_pool = async (pool_id: string, token0: string) => {
+export const get_pool = async (pool_id: string, token0?: string) => {
   const [token_x, token_y, fee] = pool_id.split('|');
 
   const token_seq = [token_x, token_y].sort().join('|');
