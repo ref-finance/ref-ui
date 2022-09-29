@@ -900,6 +900,8 @@ export async function getHybridStableSmart(
         Pool: bestPool,
       });
 
+      estimate.pool.partialAmountIn = parsedAmountIn;
+
       return {
         actions: [
           {
@@ -939,6 +941,8 @@ export async function getHybridStableSmart(
       inputToken: tokenIn.id,
       outputToken: tokenMidMeta.id,
     };
+
+    estimate1.pool.partialAmountIn = parsedAmountIn;
 
     const estimate2 = {
       ...(isStablePool(pool2.id)
