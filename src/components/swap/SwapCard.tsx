@@ -10,7 +10,7 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useTokenBalances, useDepositableBalance } from '../../state/token';
-import { useSwap } from '../../state/swap';
+import { useSwap, estimateValidator } from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -77,7 +77,11 @@ import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { senderWallet, WalletContext } from '../../utils/wallets-integration';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
-import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
+import {
+  getPoolAllocationPercents,
+  percentLess,
+  toNonDivisibleNumber,
+} from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
@@ -837,7 +841,18 @@ export default function SwapCard(props: {
     ? tokenOutBalanceFromNear || '0'
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
-  const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
+  const canSubmit =
+    tokenIn &&
+    tokenOut &&
+    swapsToDo &&
+    estimateValidator(
+      swapsToDo,
+      tokenIn,
+      toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+      tokenOut
+    ) &&
+    canSwap &&
+    (tokenInMax != '0' || !useNearBalance);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
