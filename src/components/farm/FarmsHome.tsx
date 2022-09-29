@@ -363,7 +363,6 @@ export default function FarmsHome(props: any) {
       temp_list_farm.push(temp_farmList);
     });
     list_farm = temp_list_farm;
-    console.log('999999', list_farm);
     // filter no farm seed
     const new_list_seeds: any[] = [];
     list_farm.forEach((farmList: FarmBoost[], index: number) => {
