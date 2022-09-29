@@ -209,16 +209,21 @@ export const useSwap = ({
           );
 
           if (!estimates) throw '';
-          if (
-            tokenInAmount &&
-            !ONLY_ZEROS.test(tokenInAmount) &&
-            tagValidator(
-              tag,
-              tokenIn,
-              toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
-              tokenOut
-            )
-          ) {
+
+          const valRes = tagValidator(
+            tag,
+            tokenIn,
+            toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+            tokenOut
+          );
+
+          if (valRes) {
+            console.log('validate pass');
+          } else {
+            console.log('validate fail');
+          }
+
+          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount) && valRes) {
             setAverageFee(estimates);
 
             if (!loadingTrigger) {

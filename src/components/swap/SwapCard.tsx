@@ -777,8 +777,6 @@ export default function SwapCard(props: {
     supportLedger,
   });
 
-  console.log(swapsToDo, 'swap todos');
-
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
       if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
