@@ -99,7 +99,9 @@ export default function YourLiquidityDetail(props: any) {
     }
   }, [userLiquidity, poolDetail, tokenMetadata_x_y]);
   useEffect(() => {
-    getChartData();
+    if (userLiquidity && poolDetail && tokenMetadata_x_y) {
+      getChartData();
+    }
   }, [rateSort]);
   async function getChartData() {
     const depthData = await get_pool_marketdepth(poolDetail.pool_id);

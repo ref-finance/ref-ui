@@ -215,7 +215,8 @@ function Anchor({
       location.pathname.startsWith('/pool') ||
       location.pathname.startsWith('/more_pools') ||
       location.pathname.startsWith('/yourliquidity') ||
-      location.pathname.startsWith('/addLiquidityV2');
+      location.pathname.startsWith('/addLiquidityV2') ||
+      location.pathname.startsWith('/yoursLiquidityDetailV2');
   } else if (pattern == '/') {
     isSelected = location.pathname === '/' || location.pathname === '/swap';
   } else {
@@ -269,7 +270,7 @@ function Anchor({
                   <span
                     className={`${
                       (chosenSub === m.name && isSwap) ||
-                      pathname.indexOf(m.path) > -1
+                      pathname.toLocaleLowerCase().indexOf(m.path) > -1
                         ? 'bg-primaryText bg-opacity-30 text-white'
                         : 'text-primaryText'
                     } hover:bg-primaryText hover:bg-opacity-30 items-center
@@ -1445,7 +1446,7 @@ function NavigationBar() {
                 subMenu={[
                   {
                     name: 'your_liquidity',
-                    path: 'Liquidity',
+                    path: 'liquidity',
                     click: () => {
                       historyInit.push('/yourliquidity');
                     },

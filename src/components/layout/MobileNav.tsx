@@ -849,7 +849,8 @@ export function MobileNavBar(props: any) {
                     location.pathname.startsWith('/pool') ||
                     location.pathname.startsWith('/more_pools') ||
                     location.pathname.startsWith('/yourliquidity') ||
-                    location.pathname.startsWith('/addLiquidityV2')
+                    location.pathname.startsWith('/addLiquidityV2') ||
+                    location.pathname.startsWith('/yoursLiquidityDetailV2')
                   ) {
                     if (id == 'liquidity') {
                       isSelected = true;
@@ -955,7 +956,10 @@ export function MobileNavBar(props: any) {
                             }
                             if (
                               location.pathname.startsWith('/yourliquidity') ||
-                              location.pathname.startsWith('/addLiquidityV2')
+                              location.pathname.startsWith('/addLiquidityV2') ||
+                              location.pathname.startsWith(
+                                '/yoursLiquidityDetailV2'
+                              )
                             ) {
                               if (link.id === 'your_liquidity') {
                                 isSubMenuSelected = true;
