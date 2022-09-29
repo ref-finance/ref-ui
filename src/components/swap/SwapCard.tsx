@@ -73,12 +73,7 @@ import {
   SmartRouteV2,
 } from '../../components/layout/SwapRoutes';
 
-import {
-  EstimateSwapView,
-  PoolMode,
-  swap,
-  swapValidation,
-} from '../../services/swap';
+import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { senderWallet, WalletContext } from '../../utils/wallets-integration';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
@@ -782,6 +777,8 @@ export default function SwapCard(props: {
     supportLedger,
   });
 
+  console.log(swapsToDo, 'swap todos');
+
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
       if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
@@ -847,12 +844,6 @@ export default function SwapCard(props: {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    await swapValidation({
-      amountIn: tokenInAmount,
-      tokenIn,
-      tokenOut,
-      swapsToDo,
-    });
     const ifDoubleCheck =
       new BigNumber(tokenInAmount).isLessThanOrEqualTo(
         new BigNumber(tokenInMax)

@@ -323,8 +323,13 @@ export const estimateSwap = async ({
   swapPro,
   setSwapsToDoRef,
   setSwapsToDoTri,
-}: EstimateSwapOptions): Promise<EstimateSwapView[]> => {
+}: EstimateSwapOptions): Promise<{
+  estimates: EstimateSwapView[];
+  tag: string;
+}> => {
   const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+
+  const tag = `${tokenIn.id}-${parsedAmountIn}-${tokenOut.id}`;
 
   if (ONLY_ZEROS.test(parsedAmountIn))
     throw new Error(
@@ -376,7 +381,7 @@ export const estimateSwap = async ({
       setSwapsToDoTri(triTodos);
     }
 
-    return supportLedgerRes;
+    return { estimates: supportLedgerRes, tag };
   }
 
   const orpools = await getRefPoolsByToken1ORToken2(tokenIn.id, tokenOut.id);
@@ -441,13 +446,13 @@ export const estimateSwap = async ({
     const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);
 
     if (new Big(refSmartRes || '0').gt(new Big(triRes || '0'))) {
-      return res;
+      return { estimates: res, tag };
     } else {
-      return triTodos;
+      return { estimates: triTodos, tag };
     }
   }
 
-  return res;
+  return { estimates: res, tag };
 };
 
 export const getOneSwapActionResult = async (
@@ -1002,51 +1007,6 @@ export const swap = async ({
   }
 };
 
-export const swapValidation = async ({
-  amountIn,
-  tokenIn,
-  tokenOut,
-  swapsToDo,
-}: {
-  amountIn: string;
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-  swapsToDo: EstimateSwapView[];
-}) => {
-  const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
-
-  const isSmartRouteV1Swap = swapsToDo.every(
-    (estimate) => estimate.status === PoolMode.SMART
-  );
-
-  if (isSmartRouteV1Swap) {
-    let amountInInt = new Big(amountIn)
-      .times(new Big(10).pow(tokenIn.decimals))
-      .toString();
-    let swap1 = swapsToDo[0];
-
-    if (amountInInt !== parsedAmountIn || swap1.inputToken !== tokenIn.id) {
-      return window.location.reload();
-    }
-  } else {
-    if (
-      !BigNumber.sum(
-        ...swapsToDo.map((st) => st.pool.partialAmountIn)
-      ).isEqualTo(new BigNumber(parsedAmountIn))
-    ) {
-      return window.location.reload();
-    }
-  }
-
-  if (tokenIn.id !== swapsToDo[0].inputToken) {
-    return window.location.reload();
-  }
-
-  if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
-    return window.location.reload();
-  }
-};
-
 export const instantSwap = async ({
   tokenIn,
   tokenOut,
@@ -1090,8 +1050,6 @@ SwapOptions) => {
 
   const { wallet } = getCurrentWallet();
 
-  const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
-
   const registerToken = async (token: TokenMetadata) => {
     const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
       throw new Error(`${token.id} doesn't exist.`);
@@ -1114,6 +1072,10 @@ SwapOptions) => {
       });
     }
   };
+
+  if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
+    return window.location.reload();
+  }
 
   const isParallelSwap = swapsToDo.every(
     (estimate) => estimate.status === PoolMode.PARALLEL
