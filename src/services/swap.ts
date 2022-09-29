@@ -1041,6 +1041,8 @@ SwapOptions) => {
 
   const { wallet } = getCurrentWallet();
 
+  const parsedAmountIn = toNonDivisibleNumber(tokenIn.decimals, amountIn);
+
   const registerToken = async (token: TokenMetadata) => {
     const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
       throw new Error(`${token.id} doesn't exist.`);
@@ -1073,6 +1075,14 @@ SwapOptions) => {
 
   if (wallet.isSignedIn()) {
     if (isParallelSwap) {
+      if (
+        !BigNumber.sum(
+          ...swapsToDo.map((st) => st.pool.partialAmountIn)
+        ).isEqualTo(new BigNumber(parsedAmountIn))
+      ) {
+        window.location.reload();
+      }
+
       const swapActions = swapsToDo.map((s2d) => {
         let minTokenOutAmount = s2d.estimate
           ? percentLess(slippageTolerance, s2d.estimate)
@@ -1127,6 +1137,10 @@ SwapOptions) => {
         .times(new Big(10).pow(tokenIn.decimals))
         .toString();
       let swap1 = swapsToDo[0];
+
+      if (amountInInt !== parsedAmountIn || swap1.inputToken !== tokenIn.id)
+        window.location.reload();
+
       actionsList.push({
         pool_id: swap1.pool.id,
         token_in: swap1.inputToken,
@@ -1171,6 +1185,15 @@ SwapOptions) => {
       await registerToken(tokenOut);
       var actionsList = [];
       let allSwapsTokens = swapsToDo.map((s) => [s.inputToken, s.outputToken]); // to get the hop tokens
+
+      if (
+        !BigNumber.sum(
+          ...swapsToDo.map((st) => st.pool.partialAmountIn)
+        ).isEqualTo(new BigNumber(parsedAmountIn))
+      ) {
+        window.location.reload();
+      }
+
       for (var i in allSwapsTokens) {
         let swapTokens = allSwapsTokens[i];
         if (swapTokens[0] == tokenIn.id && swapTokens[1] == tokenOut.id) {
