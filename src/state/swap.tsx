@@ -2,10 +2,7 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getPool, Pool, StablePool, getStablePool } from '../services/pool';
 import BigNumber from 'bignumber.js';
-import {
-  estimateSwap as estimateStableSwap,
-  EstimateSwapView,
-} from '../services/stable-swap';
+import { estimateSwap as estimateStableSwap } from '../services/stable-swap';
 
 import { TokenMetadata } from '../services/ft-contract';
 import {
@@ -47,13 +44,33 @@ import {
 } from '../components/layout/transactionTipPopUp';
 import { SWAP_MODE } from '../pages/SwapPage';
 import { getErrorMessage } from '../components/layout/transactionTipPopUp';
-import { checkTransactionStatus } from '../services/swap';
+import { checkTransactionStatus, EstimateSwapView } from '../services/swap';
 import {
   parsedTransactionSuccessValue,
   checkCrossSwapTransactions,
 } from '../components/layout/transactionTipPopUp';
+import Big from 'big.js';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
+
+const tagValidator = (
+  tag: string,
+  tokenIn: TokenMetadata,
+  parsedAmountIn: string,
+  tokenOut: TokenMetadata
+) => {
+  const [tokenInId, cParsedAmountIn, tokenOutId] = tag.split('-');
+
+  if (
+    tokenInId !== tokenIn.id ||
+    parsedAmountIn !== cParsedAmountIn ||
+    tokenOut.id !== tokenOutId
+  ) {
+    return false;
+  }
+
+  return true;
+};
 
 interface SwapOptions {
   tokenIn: TokenMetadata;
@@ -182,9 +199,26 @@ export const useSwap = ({
         swapMode,
         supportLedger,
       })
-        .then(async (estimates) => {
+        .then(async ({ estimates, tag }) => {
+          console.log(
+            estimates,
+            tag,
+            tokenIn.id,
+            toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+            tokenOut.id
+          );
+
           if (!estimates) throw '';
-          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+          if (
+            tokenInAmount &&
+            !ONLY_ZEROS.test(tokenInAmount) &&
+            tagValidator(
+              tag,
+              tokenIn,
+              toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+              tokenOut
+            )
+          ) {
             setAverageFee(estimates);
 
             if (!loadingTrigger) {
@@ -507,7 +541,7 @@ export const useCrossSwap = ({
       setSwapsToDoRef,
       setSwapsToDoTri,
     })
-      .then(async (estimates) => {
+      .then(async ({ estimates }) => {
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
           setAverageFee(estimates);
 
