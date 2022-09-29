@@ -102,6 +102,8 @@ export const isStableToken = (id: string) => {
   return AllStableTokenIds.includes(id);
 };
 
+export const TOKEN_BLACK_LIST = [NEARXIDS[0]];
+
 export const ALL_STABLE_POOL_IDS = [
   STABLE_POOL_ID,
   STABLE_POOL_USN_ID,

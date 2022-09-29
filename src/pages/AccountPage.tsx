@@ -15,7 +15,11 @@ import {
   useUserRegisteredTokensAllAndNearBalance,
 } from '../state/token';
 import Loading from '../components/layout/Loading';
-import { NEARXIDS, wallet as webWallet } from '../services/near';
+import {
+  NEARXIDS,
+  wallet as webWallet,
+  TOKEN_BLACK_LIST,
+} from '../services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   NearIcon,
@@ -1734,8 +1738,16 @@ export function AccountPage() {
 
   return (
     <>
-      <Account userTokens={userTokens} />
-      <MobileAccount userTokens={userTokens} />
+      <Account
+        userTokens={userTokens.filter(
+          (t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1
+        )}
+      />
+      <MobileAccount
+        userTokens={userTokens.filter(
+          (t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1
+        )}
+      />
     </>
   );
 }
