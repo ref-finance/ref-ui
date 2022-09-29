@@ -218,7 +218,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
-        BLACKLIST_POOL_IDS: ['1752'],
+        BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
           'boostfarm.ref-finance.testnet',
@@ -227,7 +227,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         kitWalletOn: true,
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [
           '1760#0',
-          '1760#1',
+          // '1760#1',
         ],
       };
     case 'testnet':
