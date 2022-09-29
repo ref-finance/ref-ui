@@ -1034,6 +1034,10 @@ export const swapValidation = async ({
     }
   }
 
+  if (tokenIn.id !== swapsToDo[0].inputToken) {
+    return window.location.reload();
+  }
+
   if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
     return window.location.reload();
   }
