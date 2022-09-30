@@ -930,7 +930,7 @@ const createPool = async (params: any) => {
     TokenA: tokenA.symbol,
     TokenB: tokenB.symbol,
     Fee: fee / 10000 + '%',
-    'Init Price': `1${tokenA.symbol}=${init_price}${tokenB.symbol}`,
+    'Init Price': `1 ${tokenA.symbol}=${init_price} ${tokenB.symbol}`,
   };
 };
 const cancelOrder = async (params: any) => {
