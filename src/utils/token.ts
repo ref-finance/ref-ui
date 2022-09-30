@@ -1,6 +1,8 @@
 export const toRealSymbol = (symbol: string) => {
   const blackList = ['nUSDO'];
 
+  if (!symbol) return symbol;
+
   if (symbol === 'nWETH' || symbol === 'WETH') return 'wETH';
   if (blackList.includes(symbol)) return symbol;
   return symbol.charAt(0) === 'n' &&

@@ -252,12 +252,12 @@ export const _search = (args: any, pools: PoolRPCView[]) => {
   return _.filter(pools, (pool: PoolRPCView) => {
     return (
       _.includes(
-        pool.token_symbols[0].toLowerCase(),
-        args.tokenName.toLowerCase()
+        pool?.token_symbols[0]?.toLowerCase(),
+        args?.tokenName?.toLowerCase()
       ) ||
       _.includes(
-        pool.token_symbols[1].toLowerCase(),
-        args.tokenName.toLowerCase()
+        pool?.token_symbols[1]?.toLowerCase(),
+        args?.tokenName?.toLowerCase()
       )
     );
   });
