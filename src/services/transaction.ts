@@ -8,7 +8,7 @@ import {
   LP_STABLE_TOKEN_DECIMALS,
 } from '../services/m-token';
 import { XREF_TOKEN_DECIMALS } from '../services/xref';
-import { get_pool } from '../services/swapV3';
+import { get_pool, list_history_orders } from '../services/swapV3';
 import { getPriceByPoint } from '../services/commonV3';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
@@ -243,24 +243,22 @@ const parseAddLiquidity = async (params: any, tokenId: string) => {
     let left_price = getPriceByPoint(left_point, decimalRate);
     let right_price = getPriceByPoint(right_point, decimalRate);
     if (new BigNumber('0.00000001').isGreaterThan(left_price)) {
-      left_price = '<$0.00000001';
+      left_price = '<0.00000001';
     } else {
-      left_price = '$' + toPrecision(left_price.toString(), 8);
+      left_price = toPrecision(left_price.toString(), 8);
     }
     if (new BigNumber('0.00000001').isGreaterThan(right_price)) {
-      right_price = '<$0.00000001';
+      right_price = '<0.00000001';
     } else {
-      right_price = '$' + toPrecision(right_price.toString(), 8);
+      right_price = toPrecision(right_price.toString(), 8);
     }
     return {
       Action: 'Add Liquidity',
       'Pool Id': pool_id,
-      'Left Price': left_price,
-      'Right Price': right_price,
-      'Amount X': toReadableNumber(token_x_decimals, amount_x),
-      'Amount Y': toReadableNumber(token_y_decimals, amount_y),
-      'Min Amount X': toReadableNumber(token_x_decimals, min_amount_x),
-      'Min Amount Y': toReadableNumber(token_y_decimals, min_amount_y),
+      'Min Price': left_price,
+      'Max Price': right_price,
+      'Amount One': toReadableNumber(token_x_decimals, amount_x),
+      'Amount Two': toReadableNumber(token_y_decimals, amount_y),
     };
   } else {
     const pool = await getPoolDetails(params.pool_id);
@@ -292,13 +290,20 @@ const parseRemoveLiquidity = async (params: any, tokenId: string) => {
     const tokenX: TokenMetadata = tokens[0];
     const tokenY: TokenMetadata = tokens[1];
     const min_decimals = _.min([tokenX.decimals, tokenY.decimals]);
-    return {
-      Action: amount == 0 ? 'Claim Rewards' : 'Remove Liquidity',
-      'LPT Id': lpt_id,
-      Amount: toReadableNumber(min_decimals, amount),
-      'Min Amount X': toReadableNumber(tokenX.decimals, min_amount_x),
-      'Min Amount Y': toReadableNumber(tokenY.decimals, min_amount_y),
-    };
+    if (amount == 0) {
+      return {
+        Action: 'Claim Fees',
+        'LPT Id': lpt_id,
+      };
+    } else {
+      return {
+        Action: 'Remove Liquidity',
+        'LPT Id': lpt_id,
+        Amount: toReadableNumber(min_decimals, amount),
+        'Amount One': toReadableNumber(tokenX.decimals, min_amount_x),
+        'Amount Two': toReadableNumber(tokenY.decimals, min_amount_y),
+      };
+    }
   } else {
     const pool = await getPoolDetails(params.pool_id);
     const tokens = await Promise.all<TokenMetadata>(
@@ -506,24 +511,30 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       const { pool_id, buy_token, point } = LimitOrderWithSwap || {};
       Amount = toReadableNumber(token.decimals, amount);
       const buyToken = await ftGetTokenMetadata(buy_token);
+      const sellToken = await ftGetTokenMetadata(tokenId);
       const [token_x_id, token_y_id] = pool_id.split('|');
       const tokenX = await ftGetTokenMetadata(token_x_id);
       const tokenY = await ftGetTokenMetadata(token_y_id);
       const decimalRate =
         Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
-      let price = getPriceByPoint(point, decimalRate);
-      if (new BigNumber('0.00000001').isGreaterThan(price)) {
-        price = '<$0.00000001';
+      let price: any = getPriceByPoint(point, decimalRate);
+      if (token_x_id != tokenId) {
+        price = 1 / price;
+      }
+      let buyTokenAmount: any = new BigNumber(price).multipliedBy(Amount);
+      if (new BigNumber('0.00000001').isGreaterThan(buyTokenAmount)) {
+        buyTokenAmount = '<0.00000001';
       } else {
-        price = '$' + toPrecision(price.toString(), 8);
+        buyTokenAmount = toPrecision(buyTokenAmount.toString(), 8);
       }
       return {
         Action: 'Make An Order',
-        Amount,
+        'Sell Token': sellToken.symbol,
+        'Sell Amount': Amount,
+        'Buy Token': buyToken.symbol,
+        'Buy Amount': buyTokenAmount,
         'Receiver ID': receiver_id,
         'Pool Id': pool_id,
-        'Buy Token': buyToken.symbol,
-        Price: price,
       };
     } else if (msgObj.Swap) {
       const { Swap } = msgObj;
@@ -533,14 +544,14 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       const token_out = await ftGetTokenMetadata(output_token);
       return {
         Action: 'Swap',
-        Amount,
-        'Receiver ID': receiver_id,
-        // 'Pool Ids': '',
-        'Output Token': token_out.symbol,
-        'Min Output Amount': toReadableNumber(
+        'Token In': token.symbol,
+        'Amount In': Amount,
+        'Token Out': token_out.symbol,
+        'Min Amount Out': toReadableNumber(
           token_out.decimals,
           min_output_amount
         ),
+        'Receiver ID': receiver_id,
       };
     }
   } else if (msg && receiver_id !== 'aurora') {
@@ -910,16 +921,16 @@ const createPool = async (params: any) => {
     Math.pow(10, tokenA.decimals) / Math.pow(10, tokenB.decimals);
   let init_price = getPriceByPoint(init_point, decimalRate);
   if (new BigNumber('0.00000001').isGreaterThan(init_price)) {
-    init_price = '<$0.00000001';
+    init_price = '<0.00000001';
   } else {
-    init_price = '$' + toPrecision(init_price.toString(), 8);
+    init_price = toPrecision(init_price.toString(), 8);
   }
   return {
     Action: 'Create Pool',
     TokenA: tokenA.symbol,
     TokenB: tokenB.symbol,
-    Fee: fee,
-    'Init Price': init_price,
+    Fee: fee / 10000 + '%',
+    'Init Price': `1${tokenA.symbol}=${init_price}${tokenB.symbol}`,
   };
 };
 const cancelOrder = async (params: any) => {
@@ -929,19 +940,26 @@ const cancelOrder = async (params: any) => {
     params = {};
   }
   const { order_id, amount } = params;
-  const [token_x, token_y] = order_id.split('#')[0].split('|');
-  const tokens = await Promise.all<TokenMetadata>(
-    [token_x, token_y].map((id) => ftGetTokenMetadata(id))
-  );
-  const tokenX: TokenMetadata = tokens[0];
-  const tokenY: TokenMetadata = tokens[1];
-  const min_decimals = _.min([tokenX.decimals, tokenY.decimals]);
-
-  return {
-    Action: +amount == 0 ? 'Claim Rewards' : 'Cancel Order',
-    'Order Id': order_id,
-    Amount: toReadableNumber(min_decimals, amount),
-  };
+  // const [token_x, token_y] = order_id.split('#')[0].split('|');
+  // const tokens = await Promise.all<TokenMetadata>(
+  //   [token_x, token_y].map((id) => ftGetTokenMetadata(id))
+  // );
+  // const tokenX: TokenMetadata = tokens[0];
+  // const tokenY: TokenMetadata = tokens[1];
+  // const orderDetail = await list_history_orders();
+  // const min_decimals = _.min([tokenX.decimals, tokenY.decimals]);
+  if (+amount == 0) {
+    return {
+      Action: 'Claim Order',
+      'Order Id': order_id,
+    };
+  } else {
+    return {
+      Action: 'Cancel Order',
+      'Order Id': order_id,
+      // Amount: toReadableNumber(min_decimals, amount),
+    };
+  }
 };
 const withdrawAsset = async (params: any) => {
   try {

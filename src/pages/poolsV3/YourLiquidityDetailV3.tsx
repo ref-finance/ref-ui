@@ -84,6 +84,7 @@ export default function YourLiquidityDetail(props: any) {
       get_user_liquidity();
       get_pool_detail();
     }
+    document.body.scrollTop = document.documentElement.scrollTop = 0;
   }, []);
   useEffect(() => {
     if (userLiquidity && poolDetail && tokenMetadata_x_y) {
