@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getPool, Pool, StablePool, getStablePool } from '../services/pool';
 import BigNumber from 'bignumber.js';
@@ -114,6 +114,8 @@ export const useSwap = ({
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
+
+  const [forceEstimate, setForceEstimate] = useState<boolean>(false);
 
   const [avgFee, setAvgFee] = useState<number>(0);
 
@@ -233,6 +235,7 @@ export const useSwap = ({
           }
         })
         .finally(() => {
+          setForceEstimate(false);
           setLoadingTrigger(false);
           setEstimating(false);
         });
@@ -259,10 +262,10 @@ export const useSwap = ({
         tokenOut
       );
 
-    console.log(valRes, valRes ? 'pass' : 'fail', swapsToDo);
+    console.log(valRes, estimating, 'valRes');
+    if (estimating && swapsToDo && !forceEstimate) return;
+    if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
 
-    if (estimating && swapsToDo) return;
-    if (valRes && !loadingTrigger) return;
     getEstimate();
   }, [
     loadingTrigger,
@@ -273,7 +276,15 @@ export const useSwap = ({
     reEstimateTrigger,
     supportLedger,
     estimating,
+    forceEstimate,
   ]);
+
+  useEffect(() => {
+    // setEstimating(false);
+    console.log('goto force estimating');
+
+    setForceEstimate(true);
+  }, [tokenIn?.id, tokenOut?.id, supportLedger]);
 
   useEffect(() => {
     let id: any = null;
