@@ -86,9 +86,9 @@ export const estimateValidator = (
   if (
     tokenInId !== tokenIn.id ||
     tokenOutId !== tokenOut.id ||
-    !BigNumber.sum(...swapTodos.map((st) => st.pool.partialAmountIn)).isEqualTo(
-      parsedAmountIn
-    )
+    !BigNumber.sum(
+      ...swapTodos.map((st) => st.pool.partialAmountIn || 0)
+    ).isEqualTo(parsedAmountIn)
   ) {
     return false;
   }
