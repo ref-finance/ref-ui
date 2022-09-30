@@ -259,6 +259,8 @@ export const useSwap = ({
         tokenOut
       );
 
+    console.log(valRes, valRes ? 'pass' : 'fail', swapsToDo);
+
     if (estimating && swapsToDo) return;
     if (valRes && !loadingTrigger) return;
     getEstimate();
