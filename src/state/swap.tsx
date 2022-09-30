@@ -284,7 +284,7 @@ export const useSwap = ({
     console.log('goto force estimating');
 
     setForceEstimate(true);
-  }, [tokenIn?.id, tokenOut?.id, supportLedger]);
+  }, [tokenIn?.id, tokenOut?.id, supportLedger, swapMode]);
 
   useEffect(() => {
     let id: any = null;
