@@ -317,6 +317,8 @@ export const executeMultipleTransactions = async (
       transactions: wstransactions,
     })
     .then((res) => {
+      console.log(res);
+
       if (!res) return;
 
       const transactionHashes = res?.map((r) => r.transaction.hash);
