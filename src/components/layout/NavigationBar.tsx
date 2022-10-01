@@ -200,7 +200,7 @@ function AccountEntry({
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
 
-  const isSignedIn = globalState.isSignedIn;
+  const isSignedIn = !!accountId;
 
   useEffect(() => {
     wallet.wallet().then((res) => {
@@ -1022,8 +1022,6 @@ function NavigationBar() {
   const [showWrapNear, setShowWrapNear] = useState(false);
   const { globalState } = useContext(WalletContext);
 
-  const isSignedIn = globalState.isSignedIn;
-
   const [showWalletSelector, setShowWalletSelector] = useState(false);
 
   const [hoverClick, setHoverClick] = useState<boolean>(false);
@@ -1031,6 +1029,7 @@ function NavigationBar() {
   const auroraTokens = useAuroraTokens();
 
   const { accountId } = useWalletSelector();
+  const isSignedIn = !!accountId;
 
   const auroraAddress = auroraAddr(accountId || '');
 

@@ -488,7 +488,7 @@ export function MobileNavBar(props: any) {
     hasAuroraBalance,
   } = props;
   const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+  const isSignedIn = !!accountId;
 
   const [showTip, setShowTip] = useState<boolean>(false);
   const [USNButtonHover, setUSNButtonHover] = useState<boolean>(false);
