@@ -130,7 +130,7 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
             name: 'ref_finance',
             description: 'Example dApp used by NEAR Wallet Selector',
             url: 'https://github.com/near/wallet-selector',
-            icons: walletIcons['wallet-connect'],
+            icons: [walletIcons['wallet-connect']],
           },
           chainId: `near:${getConfig().networkId}}`,
           iconUrl: walletIcons['wallet-connect'],
