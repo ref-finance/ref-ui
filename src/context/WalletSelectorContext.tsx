@@ -132,7 +132,7 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
             url: 'https://github.com/near/wallet-selector',
             icons: [walletIcons['wallet-connect']],
           },
-          chainId: `near:${getConfig().networkId}}`,
+          chainId: `near:${getConfig().networkId}`,
           iconUrl: walletIcons['wallet-connect'],
         }),
       ],
