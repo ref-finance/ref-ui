@@ -628,3 +628,42 @@ export function getTransakConfig(
       };
   }
 }
+
+export function getWSNetworkConfig(env: string = process.env.NEAR_ENV) {
+  switch (env) {
+    case 'production':
+    case 'mainnet':
+      return {
+        networkId: 'mainnet',
+        nodeUrl: getConfig().nodeUrl,
+        helperUrl: 'https://helper.mainnet.near.org',
+        explorerUrl: 'https://explorer.near.org',
+        indexerUrl: 'https://api.kitwallet.app',
+      };
+    case 'development':
+    case 'pub-testnet':
+      return {
+        networkId: 'testnet',
+        nodeUrl: getConfig().nodeUrl,
+        helperUrl: 'https://helper.testnet.near.org',
+        explorerUrl: 'https://explorer.testnet.near.org',
+        indexerUrl: 'https://testnet-api.kitwallet.app',
+      };
+    case 'testnet':
+      return {
+        networkId: 'testnet',
+        nodeUrl: getConfig().nodeUrl,
+        helperUrl: 'https://helper.testnet.near.org',
+        explorerUrl: 'https://explorer.testnet.near.org',
+        indexerUrl: 'https://testnet-api.kitwallet.app',
+      };
+    default:
+      return {
+        networkId: 'mainnet',
+        nodeUrl: getConfig().nodeUrl,
+        helperUrl: 'https://helper.mainnet.near.org',
+        explorerUrl: 'https://explorer.near.org',
+        indexerUrl: 'https://api.kitwallet.app',
+      };
+  }
+}

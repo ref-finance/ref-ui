@@ -5,6 +5,7 @@ import {
   NetworkId,
   setupWalletSelector,
   waitFor,
+  Network,
 } from '@near-wallet-selector/core';
 import type { WalletSelector, AccountState } from '@near-wallet-selector/core';
 import { setupModal } from './modal-ui';
@@ -26,14 +27,9 @@ import { InjectedWallet } from '@near-wallet-selector/core';
 import getConfig from '../services/config';
 
 import './modal-ui/components/styles.css';
-import {
-  REF_FARM_CONTRACT_ID,
-  wallet,
-  REF_FARM_BOOST_CONTRACT_ID,
-} from '../services/near';
+import { REF_FARM_BOOST_CONTRACT_ID } from '../services/near';
 import { walletIcons } from './walletIcons';
-
-const CONTRACT_ID = getConfig().REF_FARM_BOOST_CONTRACT_ID;
+import { getWSNetworkConfig } from '../services/config';
 
 export const ACCOUNT_ID_KEY = 'REF_FI_STATE_SYNC_ACCOUNT_ID';
 
@@ -89,7 +85,7 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
 
   const init = useCallback(async () => {
     const _selector = await setupWalletSelector({
-      network: getConfig().networkId as NetworkId,
+      network: getWSNetworkConfig() as Network,
       debug: false,
       modules: [
         setupNearWallet({
@@ -101,6 +97,22 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         setupSender({
           iconUrl: walletIcons['sender'],
         }),
+        setupLedger({
+          iconUrl: walletIcons['ledger'],
+        }),
+
+        setupWalletConnect({
+          projectId: '423baa464ffaeca9d7165ab4222d53f',
+
+          metadata: {
+            name: 'ref_finance',
+            description: 'Example dApp used by NEAR Wallet Selector',
+            url: 'https://github.com/near/wallet-selector',
+            icons: [walletIcons['wallet-connect']],
+          },
+          chainId: `near:${getConfig().networkId}`,
+          iconUrl: walletIcons['wallet-connect'],
+        }),
         // setupMeteorWallet({
         //   iconUrl: walletIcons['meteor-wallet'],
         // }),
@@ -110,9 +122,6 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         // setupNightly({
         //   iconUrl: walletIcons['nightly'],
         // }),
-        setupLedger({
-          iconUrl: walletIcons['ledger'],
-        }),
         // setupNightlyConnect({
         //   url: 'wss://ncproxy.nightly.app/app',
         //   appMetadata: {
@@ -123,23 +132,12 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         //   },
         //   iconUrl: walletIcons['nightly-connect'],
         // }),
-        setupWalletConnect({
-          projectId: '423baa464ffaeca9d7165ab4222d534f',
-          relayUrl: 'wss://relay.walletconnect.com',
-          metadata: {
-            name: 'ref_finance',
-            description: 'Example dApp used by NEAR Wallet Selector',
-            url: 'https://github.com/near/wallet-selector',
-            icons: [walletIcons['wallet-connect']],
-          },
-          chainId: `near:${getConfig().networkId}`,
-          iconUrl: walletIcons['wallet-connect'],
-        }),
       ],
     });
     const _modal = setupModal(_selector, {
       contractId: REF_FARM_BOOST_CONTRACT_ID,
     });
+
     const state = _selector.store.getState();
     syncAccountState(localStorage.getItem(ACCOUNT_ID_KEY), state.accounts);
 
