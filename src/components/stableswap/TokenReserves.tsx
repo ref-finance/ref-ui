@@ -28,6 +28,7 @@ import {
   ALL_STABLE_POOL_IDS,
   BTC_CLASS_STABLE_TOKEN_IDS,
   BTC_STABLE_POOL_ID,
+  NEARXIDS,
   NEAR_CLASS_STABLE_TOKEN_IDS,
   STABLE_POOL_TYPE,
   USD_CLASS_STABLE_TOKEN_IDS,
@@ -368,7 +369,10 @@ export default function ({
     ? inputTokens.filter((t) => USD_CLASS_STABLE_TOKEN_IDS.includes(t.id))
     : type === STABLE_POOL_TYPE.BTC
     ? inputTokens.filter((t) => BTC_CLASS_STABLE_TOKEN_IDS.includes(t.id))
-    : inputTokens.filter((t) => NEAR_CLASS_STABLE_TOKEN_IDS.includes(t.id));
+    : inputTokens.filter(
+        (t) =>
+          NEAR_CLASS_STABLE_TOKEN_IDS.includes(t.id) && t.id !== NEARXIDS[0]
+      );
 
   const ids = pools.map((p) => p.id);
   const [volume, setVolume] = useState<string>(null);
