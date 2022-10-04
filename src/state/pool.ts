@@ -9,7 +9,6 @@ import {
 import { getStakedListByAccountId } from '../services/farm';
 import {
   DEFAULT_PAGE_LIMIT,
-  getAllPoolsFromDb,
   getAllWatchListFromDb,
   getCachedPoolsByTokenId,
   getPoolDetails,

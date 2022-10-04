@@ -157,10 +157,6 @@ export const getPoolsFromCache = async ({
   }));
 };
 
-export const getAllPoolsFromDb = async () => {
-  return await db.allPools().toArray();
-};
-
 export const getAllWatchListFromDb = async ({
   account = getCurrentWallet()?.wallet?.getAccountId(),
 }: {
