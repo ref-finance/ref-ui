@@ -156,12 +156,13 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
-        BLACKLIST_POOL_IDS: ['3689'],
+        BLACKLIST_POOL_IDS: ['3689', '3699'],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['3612'],
+        boostBlackList: process.env.FARM__BOOST_BLACK_LIST || ['3699#0'],
       };
     case 'pub-testnet':
       return {
@@ -217,7 +218,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
-        BLACKLIST_POOL_IDS: ['1752'],
+        BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
           'boostfarm.ref-finance.testnet',
@@ -226,6 +227,10 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         kitWalletOn: true,
         REF_UNI_V3_SWAP_CONTRACT_ID:
           process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dcl.ref-dev.testnet',
+        boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [
+          '1760#0',
+          '1760#1',
+        ],
       };
     case 'testnet':
       return {
@@ -291,6 +296,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'mock-dcl.ref-dev.testnet',
         kitWalletOn: true,
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
+        boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
       };
     default:
       return {
@@ -356,12 +362,13 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
-        BLACKLIST_POOL_IDS: ['3689'],
+        BLACKLIST_POOL_IDS: ['3689', '3699'],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['3612'],
+        boostBlackList: process.env.FARM__BOOST_BLACK_LIST || ['3699#0'],
       };
   }
 }

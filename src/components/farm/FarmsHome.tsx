@@ -121,7 +121,12 @@ import { MoreButtonIcon } from '../../components/icon/Common';
 
 import _ from 'lodash';
 
-const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID, FARM_BLACK_LIST_V2 } = getConfig();
+const {
+  STABLE_POOL_IDS,
+  REF_VE_CONTRACT_ID,
+  FARM_BLACK_LIST_V2,
+  boostBlackList,
+} = getConfig();
 export default function FarmsHome(props: any) {
   const {
     getDetailData,
@@ -344,6 +349,19 @@ export default function FarmsHome(props: any) {
     list_seeds.filter((seed: Seed) => {
       if (seed.seed_id.indexOf('@') > -1) return true;
     });
+    // filter black farms
+    const temp_list_farm: FarmBoost[][] = [];
+    list_farm.forEach((farmList: FarmBoost[]) => {
+      let temp_farmList: FarmBoost[] = [];
+      temp_farmList = farmList.filter((farm: FarmBoost) => {
+        const id = farm?.farm_id?.split('@')[1];
+        if (boostBlackList.indexOf(id) == -1) {
+          return true;
+        }
+      });
+      temp_list_farm.push(temp_farmList);
+    });
+    list_farm = temp_list_farm;
     // filter no farm seed
     const new_list_seeds: any[] = [];
     list_farm.forEach((farmList: FarmBoost[], index: number) => {
