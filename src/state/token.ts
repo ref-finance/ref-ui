@@ -361,50 +361,53 @@ export const useTokensData = (
   const triggerBalances = balances || {};
 
   const trigger = useCallback(() => {
-    if (!!triggerBalances) {
-      setCount(0);
-      setResult([]);
-      const currentFetchId = fetchIdRef.current;
-      for (let i = 0; i < tokens.length; i++) {
-        const index = i;
-        const item = tokens[index];
-        getDepositableBalance(
-          item.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : item.id,
-          item.decimals
-        )
-          .then((max: string) => {
-            if (currentFetchId !== fetchIdRef.current) {
-              throw new Error();
-            }
-            return max;
-          })
-          .then((max: string) => {
-            const nearCount = !!accountId ? toPrecision(max, 3) || '0' : '0';
-            const refCount = toRoundedReadableNumber({
-              decimals: item.decimals,
-              number: balances ? balances[item.id] : '0',
-            });
-            return {
-              ...item,
-              asset: toRealSymbol(item.symbol),
-              near: Number(nearCount.replace(/[\,]+/g, '')),
-              ref: Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
-              total:
-                Number(nearCount.replace(/[\,]+/g, '')) +
-                Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
-            };
-          })
-          .then((d: TokenMetadata) => setResultAtIndex(d, index))
-          .catch((err) => {
-            console.log(err);
+    // if (!!triggerBalances) {
+    setCount(0);
+    setResult([]);
+    const currentFetchId = fetchIdRef.current;
+    for (let i = 0; i < tokens.length; i++) {
+      const index = i;
+      const item = tokens[index];
+      getDepositableBalance(
+        item.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : item.id,
+        item.decimals
+      )
+        .then((max: string) => {
+          if (currentFetchId !== fetchIdRef.current) {
+            throw new Error();
+          }
+          return max;
+        })
+        .then((max: string) => {
+          const nearCount = !!accountId ? toPrecision(max, 3) || '0' : '0';
+          const refCount = toRoundedReadableNumber({
+            decimals: item.decimals,
+            number: balances ? balances[item.id] : '0',
           });
-      }
+          return {
+            ...item,
+            asset: toRealSymbol(item.symbol),
+            near: Number(nearCount.replace(/[\,]+/g, '')),
+            ref: Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
+            total:
+              Number(nearCount.replace(/[\,]+/g, '')) +
+              Number(toPrecision(refCount, 3).replace(/[\,]+/g, '')),
+          };
+        })
+        .then((d: TokenMetadata) => setResultAtIndex(d, index))
+        .catch((err) => {
+          console.log(err);
+        });
     }
-  }, [balances, tokens?.length]);
+    // }
+    // }, [balances, tokens?.length]);
+  }, [tokens?.length]);
 
   useEffect(() => {
-    if (!visible) return;
-    trigger();
+    // if (!visible) return;
+    if (visible && count < tokens?.length) {
+      trigger();
+    }
   }, [tokens?.map((t) => t.id).join('-'), visible]);
 
   return {

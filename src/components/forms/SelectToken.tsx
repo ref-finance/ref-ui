@@ -409,10 +409,10 @@ export default function SelectToken({
     balances,
     visible
   );
-  useEffect(() => {
-    if (!visible) return;
-    trigger();
-  }, [trigger]);
+  // useEffect(() => {
+  //   if (!visible) return;
+  //   trigger();
+  // }, [trigger]);
 
   useEffect(() => {
     if (!loadingTokensData) {
@@ -472,7 +472,9 @@ export default function SelectToken({
 
   const handleClose = () => {
     const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-    setListData(sortedData);
+    if (tokensData.length > 0) {
+      setListData(sortedData);
+    }
     setVisible(false);
     setShowCommonBasses(true);
   };
