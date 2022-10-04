@@ -273,7 +273,7 @@ export function YourLiquidityPage() {
     const ids = ALL_STABLE_POOL_IDS;
 
     getPoolsByIds({ pool_ids: ids }).then((res) => {
-      setStablePools(res);
+      setStablePools(res.filter((p) => p.id.toString() !== NEARX_POOL_ID));
     });
   }, []);
 
