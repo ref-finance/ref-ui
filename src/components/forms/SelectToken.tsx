@@ -406,9 +406,11 @@ export default function SelectToken({
     trigger,
   } = useTokensData(
     tokens.filter((t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1),
-    balances
+    balances,
+    visible
   );
   useEffect(() => {
+    if (!visible) return;
     trigger();
   }, [trigger]);
 

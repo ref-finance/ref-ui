@@ -103,7 +103,7 @@ export const useTokens = (ids: string[] = [], curTokens?: TokenMetadata[]) => {
   return tokens;
 };
 
-export const useTriTokens = () => {
+export const useTriTokens = (stopOn?: boolean) => {
   const [triTokens, setTriTokens] = useState<TokenMetadata[]>();
   const auroraTokens = defaultTokenList.tokens;
   const allSupportPairs = getAuroraConfig().Pairs;
@@ -124,6 +124,7 @@ export const useTriTokens = () => {
     })
     .flat();
   useEffect(() => {
+    if (stopOn) return;
     getBatchTokenNearAcounts(tokenIds).then((res) => {
       const allIds = res.concat(['aurora']);
 
@@ -136,8 +137,8 @@ export const useTriTokens = () => {
         )
       ).then(setTriTokens);
     });
-  }, []);
-  return triTokens?.filter((token) => token.id);
+  }, [stopOn]);
+  return !!stopOn ? [] : triTokens?.filter((token) => token.id);
 };
 
 export const useRainbowWhitelistTokens = () => {
@@ -308,8 +309,6 @@ export const getDepositableBalance = async (
   tokenId: string,
   decimals?: number
 ) => {
-  const { wallet } = getCurrentWallet();
-
   if (tokenId === 'NEAR') {
     if (getCurrentWallet()?.wallet?.isSignedIn()) {
       return getAccountNearBalance(
@@ -342,7 +341,8 @@ export const useTokenPriceList = () => {
 
 export const useTokensData = (
   tokens: TokenMetadata[],
-  balances?: TokenBalancesView
+  balances?: TokenBalancesView,
+  visible?: boolean
 ) => {
   const [count, setCount] = useState(0);
   const [result, setResult] = useState<TokenMetadata[]>([]);
@@ -356,9 +356,7 @@ export const useTokensData = (
     setCount((c) => c + 1);
   };
 
-  const { globalState } = useContext(WalletContext);
-
-  const isSignedIn = globalState.isSignedIn;
+  const { accountId } = useWalletSelector();
 
   const triggerBalances = balances || {};
 
@@ -381,7 +379,7 @@ export const useTokensData = (
             return max;
           })
           .then((max: string) => {
-            const nearCount = isSignedIn ? toPrecision(max, 3) || '0' : '0';
+            const nearCount = !!accountId ? toPrecision(max, 3) || '0' : '0';
             const refCount = toRoundedReadableNumber({
               decimals: item.decimals,
               number: balances ? balances[item.id] : '0',
@@ -402,11 +400,12 @@ export const useTokensData = (
           });
       }
     }
-  }, [balances, tokens?.length, isSignedIn]);
+  }, [balances, tokens?.length]);
 
   useEffect(() => {
+    if (!visible) return;
     trigger();
-  }, [tokens?.map((t) => t.id).join('-')]);
+  }, [tokens?.map((t) => t.id).join('-'), visible]);
 
   return {
     trigger,

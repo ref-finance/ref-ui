@@ -151,15 +151,15 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
 function SwapPage() {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
 
-  const triTokenIds = useTriTokenIdsOnRef();
-
-  const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
-
-  const triTokens = useTriTokens();
-
   const [swapTab, setSwapTab] = useState(
     localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)?.toString() || 'normal'
   );
+
+  const triTokenIds = useTriTokenIdsOnRef(swapTab === 'normal');
+
+  const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
+
+  const triTokens = useTriTokens(swapTab === 'normal');
 
   const storedMode =
     localStorage.getItem(SWAP_MODE_KEY) === 'normal'

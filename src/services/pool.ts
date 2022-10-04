@@ -49,7 +49,7 @@ import {
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 const explorerType = getExplorer();
-export const DEFAULT_PAGE_LIMIT = 100;
+export const DEFAULT_PAGE_LIMIT = 500;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
 
 export const getStablePoolInfoKey = (id: string) =>
