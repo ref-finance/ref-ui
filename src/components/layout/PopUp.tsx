@@ -62,7 +62,8 @@ export default function PopUpSwiper() {
                 <SweatFarm
                   className="cursor-pointer"
                   onClick={() => {
-                    history.push('/v2farms/3667-r');
+                    // history.push('/v2farms/3667-r');
+                    location.href = '/v2farms/3667-r';
                   }}
                 ></SweatFarm>
               </div>
@@ -89,7 +90,8 @@ export default function PopUpSwiper() {
                 <NEARxFarm
                   className="cursor-pointer"
                   onClick={() => {
-                    history.push('/v2farms/3688-r');
+                    location.href = '/v2farms/3688-r';
+                    // history.push('/v2farms/3688-r');
                   }}
                 ></NEARxFarm>
               </div>
