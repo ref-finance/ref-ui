@@ -3829,3 +3829,26 @@ export const ForbiddonIcon = (props: any) => {
     </svg>
   );
 };
+
+export const StableOption = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="16"
+      height="11"
+      viewBox="0 0 16 11"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="10.5" cy="5.5" r="5.5" fill="#00C6A2" />
+      <circle cx="10.5" cy="5.5" r="5.5" fill="#A076FF" />
+      <circle cx="5.5" cy="5.5" r="5.5" fill="#00C6A2" />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 10.4002C9.78084 9.48983 11 7.63724 11 5.4999C11 3.36256 9.78084 1.50996 8 0.599609C6.21916 1.50996 5 3.36256 5 5.4999C5 7.63724 6.21916 9.48983 8 10.4002Z"
+        fill="#025CAF"
+      />
+    </svg>
+  );
+};
