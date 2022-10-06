@@ -161,7 +161,6 @@ export const BTC_CLASS_STABLE_POOL_IDS = [BTC_STABLE_POOL_ID];
 
 export const NEAR_CLASS_STABLE_POOL_IDS = [
   LINEAR_POOL_ID,
-  NEARX_POOL_ID,
   STNEAR_POOL_ID,
   NEW_NEARX_POOL_ID,
 ];
@@ -176,7 +175,7 @@ export const USD_CLASS_STABLE_POOL_IDS = [
 export const BTC_CLASS_STABLE_TOKEN_IDS = BTCIDS;
 
 export const NEAR_CLASS_STABLE_TOKEN_IDS = new Array(
-  ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).concat(NEW_NEARXIDS))
+  ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEW_NEARXIDS))
 ).map((id) => id);
 
 export const USD_CLASS_STABLE_TOKEN_IDS = new Array(

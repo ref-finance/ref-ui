@@ -2075,8 +2075,10 @@ export function AccountPage() {
 
   return (
     <>
-      <Account userTokens={userTokens} />
-      <MobileAccount userTokens={userTokens} />
+      <Account userTokens={userTokens.filter((t) => t.id !== NEARXIDS[0])} />
+      <MobileAccount
+        userTokens={userTokens.filter((t) => t.id !== NEARXIDS[0])}
+      />
     </>
   );
 }

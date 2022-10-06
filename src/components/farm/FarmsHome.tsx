@@ -31,6 +31,7 @@ import {
   NewTag,
   NewIcon,
   ForbiddonIcon,
+  StableOption,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -231,6 +232,10 @@ export default function FarmsHome(props: any) {
     eth: {
       txt: intl.formatMessage({ id: 'eth' }),
       icon: <EthOptIcon></EthOptIcon>,
+    },
+    stable: {
+      txt: intl.formatMessage({ id: 'stablecoin' }),
+      icon: <StableOption></StableOption>,
     },
     new: {
       txt: intl.formatMessage({ id: 'newText' }),
@@ -677,6 +682,16 @@ export default function FarmsHome(props: any) {
       } else if (status == 'eth') {
         if (
           farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) > -1 &&
+          !isEnd
+        ) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
+      } else if (status == 'stable') {
+        if (
+          farmClassification['stable'].indexOf(+getPoolIdBySeedId(seed_id)) >
+            -1 &&
           !isEnd
         ) {
           condition1 = true;
