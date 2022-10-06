@@ -163,7 +163,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['3612'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [
-          '3699#0',
           '3612#0',
           '3612#1',
         ],
@@ -369,7 +368,6 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['3612'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [
-          '3699#0',
           '3612#0',
           '3612#1',
         ],
