@@ -1261,7 +1261,11 @@ function OrderCard({
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
             <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
-              <RouterArrowRight />
+              {isClientMobie() ? (
+                <MyOrderInstantSwapArrowRight />
+              ) : (
+                <RouterArrowRight />
+              )}
             </span>
             <span
               title={toPrecision(totalOut, buyToken.decimals)}
@@ -1313,7 +1317,11 @@ function OrderCard({
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
             <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
-              <RouterArrowRight />
+              {isClientMobie() ? (
+                <MyOrderInstantSwapArrowRight />
+              ) : (
+                <RouterArrowRight />
+              )}
             </span>
             <span title={swapOut} className="text-white xs:text-v3SwapGray">
               {Number(swapOut) > 0 && Number(swapOut) < 0.01
