@@ -405,6 +405,7 @@ export default function SelectToken({
     loading: loadingTokensData,
     trigger,
   } = useTokensData(
+<<<<<<< HEAD
     tokens.filter((t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1),
     balances,
     visible
@@ -413,6 +414,14 @@ export default function SelectToken({
   //   if (!visible) return;
   //   trigger();
   // }, [trigger]);
+=======
+    tokens.filter((t) => t.id !== NEARXIDS[0]),
+    balances
+  );
+  useEffect(() => {
+    trigger();
+  }, [trigger]);
+>>>>>>> main
 
   useEffect(() => {
     if (!loadingTokensData) {

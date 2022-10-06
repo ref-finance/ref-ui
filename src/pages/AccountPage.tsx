@@ -1738,6 +1738,7 @@ export function AccountPage() {
 
   return (
     <>
+<<<<<<< HEAD
       <Account
         userTokens={userTokens.filter(
           (t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1
@@ -1747,6 +1748,11 @@ export function AccountPage() {
         userTokens={userTokens.filter(
           (t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1
         )}
+=======
+      <Account userTokens={userTokens.filter((t) => t.id !== NEARXIDS[0])} />
+      <MobileAccount
+        userTokens={userTokens.filter((t) => t.id !== NEARXIDS[0])}
+>>>>>>> main
       />
     </>
   );
