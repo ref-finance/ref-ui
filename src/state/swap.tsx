@@ -731,7 +731,7 @@ export const useLimitOrder = ({
         setMostPoolDetail(res);
       })
       .catch((e) => {
-        console.log('fetch pool error', e);
+        console.error('fetch pool error', e);
 
         setMostPoolDetail(null);
       })
@@ -822,8 +822,6 @@ export const useLimitOrder = ({
         )
           return;
 
-        console.log(toCounts, 'to set counts');
-
         setPoolToOrderCounts(toCounts);
       })
       .catch((e) => {
@@ -834,7 +832,7 @@ export const useLimitOrder = ({
         );
         setSelectedV3LimitPool(allPoolsForThisPair[2]);
       });
-  }, [tokenIn, tokenOut, tokenPriceList]);
+  }, [tokenIn?.id, tokenOut?.id, tokenPriceList]);
 
   useEffect(() => {
     if (!poolToOrderCounts) return null;

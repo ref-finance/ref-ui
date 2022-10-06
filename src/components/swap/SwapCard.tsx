@@ -1464,7 +1464,7 @@ export default function SwapCard(props: {
           ? tokenOutAmountV3
           : tokenOutAmount;
 
-      setDisplayTokenOutAmount(displayTokenOutAmount);
+      setDisplayTokenOutAmount(toPrecision(displayTokenOutAmount, 8));
     }
   }, [
     quoteDone,
@@ -1575,7 +1575,10 @@ export default function SwapCard(props: {
   }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
 
   const LimitChangeAmountOut = (amount: string) => {
-    const curAmount = toPrecision(amount, 8, false, false);
+    const curAmount =
+      !limitAmountOut || limitAmountOut.indexOf('.') === -1
+        ? amount
+        : toPrecision(amount, 8, false, false);
 
     setLimitAmountOut(curAmount);
     if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
@@ -1591,8 +1594,12 @@ export default function SwapCard(props: {
   };
 
   const onChangeLimitRate = (r: string) => {
-    // if (!r) return;
-    const curR = toPrecision(r, 8, false, false);
+    console.log(r);
+
+    const curR =
+      !LimitAmountOutRate || LimitAmountOutRate.indexOf('.') === -1
+        ? r
+        : toPrecision(r, 8, false, false);
 
     const displayCurR = curR;
 
@@ -1911,14 +1918,11 @@ export default function SwapCard(props: {
           <TokenAmountV3
             forSwap
             swapMode={swapMode}
-            amount={toPrecision(
+            amount={
               swapMode === SWAP_MODE.LIMIT
                 ? limitAmountOut
-                : displayTokenOutAmount,
-              8,
-              false,
-              swapMode === SWAP_MODE.LIMIT ? false : true
-            )}
+                : displayTokenOutAmount
+            }
             total={tokenOutTotal}
             tokens={allTokens}
             selectedToken={tokenOut}
@@ -1962,7 +1966,6 @@ export default function SwapCard(props: {
                 );
               setTokenOut(token);
               setCanSwap(false);
-              setTokenOutBalanceFromNear(token?.near?.toString());
             }}
             isError={tokenIn?.id === tokenOut?.id}
             tokenPriceList={tokenPriceList}

@@ -6,7 +6,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useIntl } from 'react-intl';
 import { PieChart, Cell, Pie } from 'recharts';
-import { isMobile } from '../../utils/device';
+import { isMobile, isClientMobie } from '../../utils/device';
 import { getPool, getPoolsByIds } from '../../services/indexer';
 import {
   toReadableNumber,
@@ -117,6 +117,7 @@ function TokenChart({
           fill="white"
           textAnchor={x > cx ? 'start' : 'end'}
           dominantBaseline="central"
+          fontSize={isClientMobie() ? '10px' : '12px'}
         >
           {displayV}
         </text>
@@ -141,7 +142,6 @@ function TokenChart({
             }}
           />
         </foreignObject>
-        {/* <image width="30" height="30" x={x1} y={y1} xlinkHref={token.icon} /> */}
       </g>
     );
   }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, createContext } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
-import { useClientMobile } from '~utils/device';
+import { isClientMobie, useClientMobile } from '~utils/device';
 import { SolidButton, ButtonTextWrapper } from '../components/button/Button';
 import { useMyOrders } from '../state/swapV3';
 import {
@@ -43,6 +43,7 @@ import QuestionMark from '../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '../utils/token';
 import { QuestionTip } from '../components/layout/TipWrapper';
+import { MyOrderInstantSwapArrowRight } from '../components/icon/swapV3';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -485,7 +486,7 @@ function OrderCard({
         </span>
 
         <span className="text-white text-sm lg:hidden md:hidden">
-          {`${toRealSymbol(sellToken.symbol)}`}
+          {`${toRealSymbol(buyToken.symbol)}`}
         </span>
       </span>
     );
@@ -677,7 +678,11 @@ function OrderCard({
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
             <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
-              <RouterArrowRight />
+              {isClientMobie() ? (
+                <MyOrderInstantSwapArrowRight />
+              ) : (
+                <RouterArrowRight />
+              )}
             </span>
             <span
               title={toPrecision(totalOut, buyToken.decimals)}
@@ -729,7 +734,11 @@ function OrderCard({
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
             <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
-              <RouterArrowRight />
+              {isClientMobie() ? (
+                <MyOrderInstantSwapArrowRight />
+              ) : (
+                <RouterArrowRight />
+              )}
             </span>
             <span title={swapOut} className="text-white xs:text-v3SwapGray">
               {Number(swapOut) > 0 && Number(swapOut) < 0.01
@@ -1121,7 +1130,7 @@ function OrderCard({
         </span>
 
         <span className="text-white text-sm lg:hidden md:hidden">
-          {`${toRealSymbol(sellToken.symbol)}`}
+          {`${toRealSymbol(buyToken.symbol)}`}
         </span>
       </span>
     );

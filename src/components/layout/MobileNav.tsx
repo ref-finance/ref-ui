@@ -596,9 +596,9 @@ export function MobileNavBar(props: any) {
     window.addEventListener('setItemEvent', (e: any) => {
       const storageSwapTab = localStorage
         .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
-        .toString();
+        ?.toString();
 
-      const storageSwapMode = localStorage.getItem(SWAP_MODE_KEY).toString();
+      const storageSwapMode = localStorage.getItem(SWAP_MODE_KEY)?.toString();
       if (typeof e?.[SWAP_MODE_KEY] === 'string') {
         const curMode = e?.[SWAP_MODE_KEY];
 
@@ -657,7 +657,7 @@ export function MobileNavBar(props: any) {
           hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
         } text-xs py-1.5 px-2 lg:hidden text-center`}
         style={{
-          backgroundColor: '#CFCEFE',
+          backgroundColor: 'rgb(255, 201, 64)',
           zIndex: 100,
         }}
       >

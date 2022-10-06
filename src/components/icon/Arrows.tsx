@@ -480,7 +480,7 @@ export function SwapExchangeV3({
 
   return (
     <>
-      <div className="flex items-center">
+      <div className="flex items-center xs:relative xs:bottom-4">
         <div
           className="relative flex items-center justify-center  w-6 h-6 border border-primaryText border-opacity-30 rounded-full cursor-pointer bg-dark"
           onClick={() => {
@@ -536,7 +536,7 @@ export function SwapExchangeV3({
       </div>
 
       <div className="flex items-center text-v3SwapGray text-xs whitespace-nowrap xs:w-9/12">
-        <span>{`1 ${tokenIn.symbol} = `}</span>
+        <span className="xs:relative xs:bottom-4">{`1 ${tokenIn.symbol} = `}</span>
         <div className="ml-1  items-center bg-black bg-opacity-20 rounded-xl px-4 py-3">
           <div className="flex items-center">
             <input

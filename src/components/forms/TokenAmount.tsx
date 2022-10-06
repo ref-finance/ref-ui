@@ -211,11 +211,7 @@ export function QuickAmountLimitOrder({
   return (
     <div className="flex items-center">
       <span
-        className={`px-2 py-1 xs:hidden mr-1 w-5 h-5 flex items-center justify-center cursor-pointer rounded-md  ${
-          Number(amount) === Number(minus1)
-            ? 'text-gradientFrom  border border-gradientFrom'
-            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
-        } text-lg`}
+        className={`px-2 py-1 xs:hidden mr-1 w-5 h-5 flex items-center justify-center cursor-pointer rounded-md  ${'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'} text-lg`}
         onClick={() => {
           onChangeAmount(minus1);
         }}
@@ -230,11 +226,7 @@ export function QuickAmountLimitOrder({
         />
       </span>
       <span
-        className={`px-2 py-1 mr-2 xs:hidden flex items-center justify-center w-5 h-5 cursor-pointer rounded-md  ${
-          Number(amount) === Number(plus1)
-            ? 'text-gradientFrom  border border-gradientFrom'
-            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
-        } text-lg`}
+        className={`px-2 py-1 mr-2 xs:hidden flex items-center justify-center w-5 h-5 cursor-pointer rounded-md  ${'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'} text-lg`}
         onClick={() => {
           onChangeAmount(plus1);
         }}
@@ -256,7 +248,7 @@ export function QuickAmountLimitOrder({
       </span>
 
       <span
-        className={`px-2 py-1 cursor-pointer rounded-xl h-5 mr-1 flex items-center ${
+        className={`px-2 py-1 cursor-pointer rounded-xl h-5 mr-2 flex items-center ${
           Number(amount) === Number(plus10)
             ? 'text-gradientFrom  border border-gradientFrom'
             : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
@@ -305,29 +297,45 @@ export function QuickAmountLimitOrderMobile({
   plus1: string;
   minus1: string;
 }) {
+  const [hoverMinus, setHoverMinus] = useState<boolean>(false);
+
+  const [hoverPlus, setHoverPlus] = useState<boolean>(false);
+
   return (
     <div className="flex items-center">
       <span
         className={`px-2 py-1 mr-1 w-5 h-5 flex items-center justify-center cursor-pointer rounded-md  ${
-          Number(amount) === Number(minus1)
-            ? 'text-gradientFrom  border border-gradientFrom'
-            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+          hoverMinus
+            ? 'border border-transparent text-gradientFrom border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20  '
         } text-lg`}
         onClick={() => {
           onChangeAmount(minus1);
+        }}
+        onTouchStart={() => {
+          setHoverMinus(true);
+        }}
+        onTouchEnd={() => {
+          setHoverMinus(false);
         }}
       >
         -
       </span>
 
       <span
-        className={`px-2 py-1 mr-2 flex items-center justify-center w-5 h-5 cursor-pointer rounded-md  ${
-          Number(amount) === Number(plus1)
-            ? 'text-gradientFrom  border border-gradientFrom'
-            : 'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'
+        className={`px-2 py-1 mr-2 flex items-center justify-center w-5 h-5 cursor-pointer rounded-md ${
+          hoverPlus
+            ? 'border border-transparent text-gradientFrom border-gradientFrom'
+            : 'text-primaryText border border-primaryText border-opacity-20  '
         } text-lg`}
         onClick={() => {
           onChangeAmount(plus1);
+        }}
+        onTouchStart={() => {
+          setHoverPlus(true);
+        }}
+        onTouchEnd={() => {
+          setHoverPlus(false);
         }}
       >
         +
@@ -625,7 +633,6 @@ export function TokenAmountV3({
                       token={selectedToken}
                       hover={hoverSelectToken}
                     />
-                    <span className="ml-2">{isMobile && ExtraElement}</span>
                   </div>
                 )
               }
@@ -697,17 +704,16 @@ export function TokenAmountV3({
             ) : null
           }
         />
-        {isMobile ? (
-          forLimitOrder &&
-          marketPriceLimitOrder &&
-          swapMode === SWAP_MODE.LIMIT ? (
-            <QuickAmountLimitOrderMobile
-              onChangeAmount={onChangeRate}
-              amount={curRate}
-              plus1={plus1}
-              minus1={minus1}
-            />
-          ) : null
+        {forLimitOrder &&
+        isMobile &&
+        marketPriceLimitOrder &&
+        swapMode === SWAP_MODE.LIMIT ? (
+          <QuickAmountLimitOrderMobile
+            onChangeAmount={onChangeRate}
+            amount={curRate}
+            plus1={plus1}
+            minus1={minus1}
+          />
         ) : (
           ExtraElement
         )}

@@ -353,7 +353,10 @@ export function InputAmountV3({
             }`}
             type="number"
             placeholder={forLimitOrder ? '-' : '0.0'}
-            onChange={({ target }) => handleChange(target.value)}
+            onChange={({ target }) => {
+              console.log(target.value);
+              handleChange(target.value);
+            }}
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
             onBlur={onBlur}
