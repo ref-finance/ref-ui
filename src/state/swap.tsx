@@ -262,7 +262,6 @@ export const useSwap = ({
         tokenOut
       );
 
-    console.log(valRes, estimating, 'valRes');
     if (estimating && swapsToDo && !forceEstimate) return;
     if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
 
@@ -281,7 +280,6 @@ export const useSwap = ({
 
   useEffect(() => {
     // setEstimating(false);
-    console.log('goto force estimating');
 
     setForceEstimate(true);
   }, [tokenIn?.id, tokenOut?.id, supportLedger, swapMode]);
