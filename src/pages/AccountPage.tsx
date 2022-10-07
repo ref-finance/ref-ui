@@ -72,7 +72,12 @@ import {
 } from '../services/aurora/aurora';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from './SwapPage';
 import { useWalletSelector } from '../context/WalletSelectorContext';
-import { NewProIcon } from '../components/icon/swapV3';
+import {
+  NewProIcon,
+  NewPro,
+  ProIconClick,
+  ProIconHover,
+} from '../components/icon/swapV3';
 import { useTokenPriceList } from '../state/token';
 import {
   useDCLAccountBalance,
@@ -350,6 +355,12 @@ function AccountTable(props: any) {
   const [accountTab, setAccountTab] = useState<
     'near' | 'ref' | 'dcl' | 'aurora'
   >(defaultTab || storageTab || 'near');
+
+  useEffect(() => {
+    if (showCrossBalance) return;
+    setCheckALl(false);
+    setCheckedMap({});
+  }, [accountTab, showCrossBalance]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -1016,8 +1027,14 @@ function AccountTable(props: any) {
   );
 }
 function MobileAccountTable(props: any) {
-  const { userTokens, type, refAccountTokenNumber, mapAccountTokenNumber } =
-    props;
+  const {
+    userTokens,
+    type,
+    refAccountTokenNumber,
+    mapAccountTokenNumber,
+    DCLAccountTokenNumber,
+    showCrossBalance,
+  } = props;
   const [tokensSort, setTokensSort] = useState(userTokens);
   const [currentSort, setCurrentSort] = useState('');
   const [checkedMap, setCheckedMap] = useState({});
@@ -1037,30 +1054,58 @@ function MobileAccountTable(props: any) {
     setTokensSort(Array.from(sortUserTokens));
     setCurrentSort(curSort);
   };
+
+  useEffect(() => {
+    if (showCrossBalance) return;
+    setCheckALl(false);
+    setCheckedMap({});
+  }, [type, showCrossBalance]);
+
   function clickAllCheckbox() {
-    const newStatus = type == 'ref' ? !checkAll : !checkAuroraAll;
+    const newStatus = !showCrossBalance ? !checkAll : !checkAuroraAll;
     let newCheckedMap = {};
     let count = 0;
     if (newStatus) {
       for (let i = 0; i < tokensSort.length; i++) {
-        const { id, ref, decimals, aurora } = tokensSort[i];
+        const { id, ref, decimals, aurora, dcl } = tokensSort[i];
+
+        if (
+          (type === 'ref' && Number(ref) == 0) ||
+          (type === 'dcl' && Number(dcl) == 0) ||
+          (type === 'aurora' && Number(aurora) == 0)
+        ) {
+          continue;
+        }
+
         if (count >= withdraw_number_at_once) {
           break;
-        }
-        const amount = type == 'ref' ? ref : aurora;
-        if (amount > 0) {
+        } else if (type === 'ref') {
           ++count;
           newCheckedMap[id] = {
             id,
             decimals,
-            amount,
+            amount: ref,
+          };
+        } else if (type === 'dcl') {
+          ++count;
+          newCheckedMap[id] = {
+            id,
+            decimals,
+            amount: dcl,
+          };
+        } else if (type === 'aurora') {
+          ++count;
+          newCheckedMap[id] = {
+            id,
+            decimals,
+            amount: aurora,
           };
         }
       }
     } else {
       newCheckedMap = {};
     }
-    if (type == 'ref') {
+    if (!showCrossBalance) {
       setCheckALl(newStatus);
       setCheckedMap(newCheckedMap);
     } else {
@@ -1068,28 +1113,54 @@ function MobileAccountTable(props: any) {
       setCheckedAuroraMap(newCheckedMap);
     }
   }
-  function clickCheckbox(token: TokenMetadata & { aurora: string }) {
-    const { id, ref, aurora, decimals } = token;
-    if (type == 'ref') {
-      if (checkedMap[id] || Number(ref) == 0) {
-        delete checkedMap[id];
-      } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
-        checkedMap[id] = {
-          id,
-          decimals,
-          amount: ref,
-        };
+  function clickCheckbox(token: TokenMetadata) {
+    if (!showCrossBalance) {
+      const { id, ref, dcl, decimals } = token;
+      if (type === 'ref') {
+        if (checkedMap[id] || Number(ref) == 0) {
+          delete checkedMap[id];
+        } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
+          checkedMap[id] = {
+            id,
+            decimals,
+            amount: ref,
+          };
+        }
+
+        if (
+          Object.keys(checkedMap).length ==
+          Math.min(withdraw_number_at_once, refAccountTokenNumber)
+        ) {
+          setCheckALl(true);
+        } else {
+          setCheckALl(false);
+        }
       }
-      if (
-        Object.keys(checkedMap).length ==
-        Math.min(withdraw_number_at_once, refAccountTokenNumber)
-      ) {
-        setCheckALl(true);
-      } else {
-        setCheckALl(false);
+
+      if (type === 'dcl') {
+        if (checkedMap[id] || Number(dcl) == 0) {
+          delete checkedMap[id];
+        } else if (Object.keys(checkedMap).length < withdraw_number_at_once) {
+          checkedMap[id] = {
+            id,
+            decimals,
+            amount: dcl,
+          };
+        }
+
+        if (
+          Object.keys(checkedMap).length ==
+          Math.min(withdraw_number_at_once, DCLAccountTokenNumber)
+        ) {
+          setCheckALl(true);
+        } else {
+          setCheckALl(false);
+        }
       }
-      setCheckedMap(JSON.parse(JSON.stringify(checkedMap)));
-    } else if (type == 'map') {
+
+      setCheckedMap(Object.assign({}, checkedMap));
+    } else {
+      const { id, aurora, decimals } = token;
       if (checkedAuroraMap[id] || Number(aurora) == 0) {
         delete checkedAuroraMap[id];
       } else if (
@@ -1109,17 +1180,18 @@ function MobileAccountTable(props: any) {
       } else {
         setCheckAuroraALl(false);
       }
-      setCheckedAuroraMap(JSON.parse(JSON.stringify(checkedAuroraMap)));
+      setCheckedAuroraMap(Object.assign({}, checkedAuroraMap));
     }
   }
   function doWithDraw() {
     setWithdrawLoading(true);
-    if (type == 'ref') {
-      batchWithdraw(checkedMap);
-    } else if (type == 'map') {
-      batchWithdrawFromAurora(checkedAuroraMap);
+    if (showCrossBalance) batchWithdrawFromAurora(checkedAuroraMap);
+    else if (type === 'ref') batchWithdraw(checkedMap);
+    else if (type === 'dcl') {
+      batchWithdrawDCL(checkedMap);
     }
   }
+
   return (
     <table className="text-left w-full text-sm text-gray-400 mt-8 table-auto">
       <thead>
@@ -1153,10 +1225,28 @@ function MobileAccountTable(props: any) {
               className={`flex items-center w-full justify-end`}
             >
               <RefIcon />
-              <label className="mx-1 cursor-pointer">REF</label>
+              <label className="mx-1 cursor-pointer">REF(V1)</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
                   currentSort == 'ref-down' ? 'transform rotate-180' : ''
+                }`}
+              />
+            </span>
+          </th>
+
+          <th className={`pr-4 ${type == 'dcl' ? '' : 'hidden'}`}>
+            <span
+              onClick={() => {
+                sort();
+              }}
+              data-sort="dcl"
+              className={`flex items-center w-full justify-end`}
+            >
+              <RefIcon />
+              <label className="mx-1 cursor-pointer">REF(V2)</label>
+              <TiArrowSortedUp
+                className={`cursor-pointer ${
+                  currentSort == 'dcl-down' ? 'transform rotate-180' : ''
                 }`}
               />
             </span>
@@ -1180,7 +1270,7 @@ function MobileAccountTable(props: any) {
           </th>
           <th className={`pr-2 ${type == 'near' ? 'hidden' : ''}`}>
             <label className="cursor-pointer" onClick={clickAllCheckbox}>
-              {type == 'ref' ? (
+              {!showCrossBalance ? (
                 <>
                   {checkAll ? (
                     <CheckboxSelected></CheckboxSelected>
@@ -1206,7 +1296,8 @@ function MobileAccountTable(props: any) {
           if (
             (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
             (type == 'near' && new BigNumber(item.near).isEqualTo(0)) ||
-            (type == 'map' && new BigNumber(item.aurora).isEqualTo(0))
+            (type == 'map' && new BigNumber(item.aurora).isEqualTo(0)) ||
+            (type == 'dcl' && new BigNumber(item.dcl).isEqualTo(0))
           ) {
             return null;
           } else
@@ -1241,6 +1332,15 @@ function MobileAccountTable(props: any) {
                     </label>
                   </div>
                 </td>
+
+                <td className={`pr-4 ${type == 'dcl' ? '' : 'hidden'}`}>
+                  <div className="flex flex-col items-end py-4">
+                    <label className="text-white font-semibold text-lg mb-1">
+                      {getDCLBalance(item)}
+                    </label>
+                  </div>
+                </td>
+
                 <td className={`pr-4 ${type == 'ref' ? '' : 'hidden'}`}>
                   <div className="flex flex-col items-end py-4">
                     <label className="text-white font-semibold text-lg mb-1">
@@ -1262,7 +1362,7 @@ function MobileAccountTable(props: any) {
                       clickCheckbox(item);
                     }}
                   >
-                    {type == 'ref' ? (
+                    {!showCrossBalance ? (
                       <>
                         {checkedMap[item.id]?.amount ? (
                           <CheckboxSelected></CheckboxSelected>
@@ -1290,7 +1390,7 @@ function MobileAccountTable(props: any) {
           }`}
         >
           <td colSpan={5}>
-            {type == 'ref' ? (
+            {!showCrossBalance ? (
               <div className="flex flex-col justify-center items-center">
                 <div
                   className={`border border-primaryText p-2.5 text-xs text-navHighLightText text-left rounded-md m-3 mt-4 ${
@@ -1636,8 +1736,7 @@ function Account(props: any) {
 }
 function MobileAccount(props: any) {
   const { userTokens } = props;
-  const [modal, setModal] = useState(null);
-  const [visible, setVisible] = useState(false);
+
   const [activeTab, setActiveTab] = useState('');
   const [showTip, setShowTip] = useState(false);
   const { globalState } = useContext(WalletContext);
@@ -1649,6 +1748,9 @@ function MobileAccount(props: any) {
   const [mapAccountTokenNumber, setMapAccountTokenNumber] = useState();
   const [hasRefBalanceOver, setHasRefBalanceOver] = useState(false);
   const [hasMapBalanceOver, setHasMapBalanceOver] = useState(false);
+
+  const [DCLAccountTokenNumber, setDCLAccountTokenNumber] = useState();
+  const [hasDCLBalanceOver, setHasDCLBalanceOver] = useState<boolean>(false);
 
   const displayAddr = `${auroraAddress?.substring(
     0,
@@ -1664,7 +1766,6 @@ function MobileAccount(props: any) {
       ? `${nearAddress.substring(0, 10)}...`
       : nearAddress;
 
-  const { wallet } = getCurrentWallet();
   const tab = new URLSearchParams(window.location.search).get('tab');
 
   const crossStatus = localStorage.getItem(ACCOUNT_PAGE_AURORA_SHOW);
@@ -1691,6 +1792,14 @@ function MobileAccount(props: any) {
         if (Number(aurora) > 0) return true;
       }
     );
+
+    const DCLAccountHasToken = userTokens.filter(
+      (token: TokenMetadata & { dcl: string }) => {
+        const { dcl } = token;
+        return Number(dcl) > 0;
+      }
+    );
+
     const hasRefBalanceOver = userTokens.some((token: TokenMetadata) => {
       return Number(token.ref) > 0.001;
     });
@@ -1699,11 +1808,26 @@ function MobileAccount(props: any) {
         return Number(token.aurora) > 0;
       }
     );
+
+    const hasDCLBalanceOver = userTokens.some(
+      (token: TokenMetadata & { dcl: string }) => {
+        return Number(token.dcl) > 0;
+      }
+    );
+
     setHasRefBalanceOver(hasRefBalanceOver);
     setHasMapBalanceOver(hasMapBalanceOver);
     setRefAccountTokenNumber(refAccountHasToken.length);
     setMapAccountTokenNumber(mapAccountHasToken.length);
-    switchCross({ refOver: hasRefBalanceOver, mapOver: hasMapBalanceOver });
+
+    setHasDCLBalanceOver(hasDCLBalanceOver);
+    setDCLAccountTokenNumber(DCLAccountHasToken.length);
+
+    switchCross({
+      refOver: hasRefBalanceOver,
+      dclOver: hasDCLBalanceOver,
+      mapOver: hasMapBalanceOver,
+    });
   }, []);
 
   const [copyIconHover, setCopyIconHover] = useState<boolean>(false);
@@ -1744,10 +1868,13 @@ function MobileAccount(props: any) {
     let newCross = !showCrossBalance;
     let refOver = hasRefBalanceOver;
     let mapOver = hasMapBalanceOver;
+
+    let dclOver = hasDCLBalanceOver;
     if (initData) {
       newCross = showCrossBalance;
       refOver = initData.refOver;
       mapOver = initData.mapOver;
+      dclOver = initData.dclOver;
     } else {
       // new cross
       setShowCrossBalance(newCross);
@@ -1764,6 +1891,10 @@ function MobileAccount(props: any) {
     if (!newCross && refOver) {
       setActiveTab('ref');
     }
+
+    if (!newCross && dclOver) {
+      setActiveTab('dcl');
+    }
     // show tip
     const ref_account_withdraw_tip = localStorage.getItem(
       REF_ACCOUNT_WITHDRAW_TIP
@@ -1773,7 +1904,8 @@ function MobileAccount(props: any) {
     );
     const showWithDrawTipBox =
       (newCross && mapOver && aurora_account_withdraw_tip != '1') ||
-      (!newCross && refOver && ref_account_withdraw_tip != '1');
+      (!newCross && refOver && ref_account_withdraw_tip != '1') ||
+      (!newCross && dclOver && ref_account_withdraw_tip != '1');
     setShowTip(showWithDrawTipBox);
   };
   const closeAccountWithdrawTip = () => {
@@ -1792,10 +1924,10 @@ function MobileAccount(props: any) {
       >
         <div className="flex items-center justify-between">
           <div
-            className="relative flex items-center  justify-center font-semibold bg-cardBg rounded-t-2xl text-white w-full"
+            className="relative flex items-center  justify-center font-semibold bg-cardBg rounded-t-xl text-white w-full"
             style={{
-              height: '66px',
-              width: 'calc(100% - 8.25rem)',
+              height: '50px',
+              width: 'calc(100% - 1rem)',
             }}
           >
             <div className="flex items-center justify-center w-full">
@@ -1806,32 +1938,50 @@ function MobileAccount(props: any) {
             </div>
           </div>
           <div
-            className="pb-4 pl-5 accountPage-pc-top-right relative cursor-pointer"
+            className="pb-1 relative bottom-1 pl-3 accountPage-pc-top-right  cursor-pointer"
             onClick={() => {
               switchCross();
             }}
           >
-            <SwapCross ifCross={showCrossBalance} />
+            {showCrossBalance ? <ProIconClick /> : <ProIconHover />}
           </div>
         </div>
         <div className="bg-cardBg rounded-lg rounded-tl-none pt-3">
           <div className="px-3">
-            <div className="flex items-center bg-acccountTab rounded-lg p-1">
+            <div
+              className={`flex items-center bg-acccountTab
+              ${
+                (
+                  showCrossBalance
+                    ? !mapAccountTokenNumber
+                    : !refAccountTokenNumber && !DCLAccountTokenNumber
+                )
+                  ? 'hidden'
+                  : ''
+              }
+            
+            rounded-lg p-1`}
+            >
               <label
                 onClick={() => {
                   switchTab('near');
                 }}
                 className={`flex items-center justify-center ${
-                  mapAccountTokenNumber || refAccountTokenNumber
+                  mapAccountTokenNumber ||
+                  refAccountTokenNumber ||
+                  DCLAccountTokenNumber
                     ? 'w-1/2'
                     : 'w-full'
                 } h-10 flex-grow text-base rounded-md  ${
                   activeTab == 'near'
                     ? 'text-white bg-acccountBlock'
                     : 'text-primaryText'
-                }`}
+                }
+             
+                
+                `}
               >
-                <FormattedMessage id="near_wallet"></FormattedMessage>
+                NEAR
               </label>
               {showCrossBalance ? (
                 <label
@@ -1844,21 +1994,60 @@ function MobileAccount(props: any) {
                       : 'text-primaryText'
                   } ${mapAccountTokenNumber ? '' : 'hidden'}`}
                 >
-                  <FormattedMessage id="mapping_account"></FormattedMessage>
+                  Aurora
+                  {hasMapBalanceOver ? (
+                    <div
+                      className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+                      style={{
+                        background: '#ff3e83',
+                      }}
+                    ></div>
+                  ) : null}
                 </label>
               ) : (
-                <label
-                  onClick={() => {
-                    switchTab('ref');
-                  }}
-                  className={`flex w-1/2 items-center justify-center text-center h-10 flex-grow text-base rounded-md ${
-                    activeTab == 'ref'
-                      ? 'text-white bg-acccountBlock'
-                      : 'text-primaryText'
-                  } ${refAccountTokenNumber ? '' : 'hidden'}`}
-                >
-                  <FormattedMessage id="ref_account"></FormattedMessage>
-                </label>
+                <>
+                  <label
+                    onClick={() => {
+                      switchTab('ref');
+                    }}
+                    className={`flex w-1/2 items-center justify-center text-center h-10 flex-grow text-base rounded-md ${
+                      activeTab == 'ref'
+                        ? 'text-white bg-acccountBlock'
+                        : 'text-primaryText'
+                    } ${refAccountTokenNumber ? '' : 'hidden'}`}
+                  >
+                    REF(V1)
+                    {hasRefBalanceOver ? (
+                      <div
+                        className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+                        style={{
+                          background: '#ff3e83',
+                        }}
+                      ></div>
+                    ) : null}
+                  </label>
+
+                  <label
+                    onClick={() => {
+                      switchTab('dcl');
+                    }}
+                    className={`flex w-1/2 items-center justify-center text-center h-10 flex-grow text-base rounded-md ${
+                      activeTab == 'dcl'
+                        ? 'text-white bg-acccountBlock'
+                        : 'text-primaryText'
+                    } ${DCLAccountTokenNumber ? '' : 'hidden'}`}
+                  >
+                    REF(V2)
+                    {hasDCLBalanceOver ? (
+                      <div
+                        className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
+                        style={{
+                          background: '#ff3e83',
+                        }}
+                      ></div>
+                    ) : null}
+                  </label>
+                </>
               )}
             </div>
           </div>
@@ -1867,7 +2056,9 @@ function MobileAccount(props: any) {
             userTokens={userTokens}
             refAccountTokenNumber={refAccountTokenNumber}
             mapAccountTokenNumber={mapAccountTokenNumber}
-          ></MobileAccountTable>
+            showCrossBalance={showCrossBalance}
+            DCLAccountTokenNumber={DCLAccountTokenNumber}
+          />
           {showTip ? (
             <div
               style={{

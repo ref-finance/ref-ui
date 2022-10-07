@@ -19,16 +19,6 @@ import TokenReserves from '../components/stableswap/TokenReserves';
 import {
   AllStableTokenIds,
   isStableToken,
-  STABLE_TOKEN_USN_IDS,
-  STABLE_TOKEN_IDS,
-  CUSDIDS,
-  BTCIDS,
-  BTC_STABLE_POOL_ID,
-  STNEAR_POOL_ID,
-  LINEAR_POOL_ID,
-  NEARXIDS,
-  LINEARIDS,
-  STNEARIDS,
   STABLE_POOL_TYPE,
 } from '../services/near';
 import ReactTooltip from 'react-tooltip';
