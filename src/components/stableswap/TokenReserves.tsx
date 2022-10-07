@@ -28,6 +28,8 @@ import {
   ALL_STABLE_POOL_IDS,
   BTC_CLASS_STABLE_TOKEN_IDS,
   BTC_STABLE_POOL_ID,
+  NEARXIDS,
+  NEARX_POOL_ID,
   NEAR_CLASS_STABLE_TOKEN_IDS,
   STABLE_POOL_TYPE,
   USD_CLASS_STABLE_TOKEN_IDS,
@@ -355,7 +357,7 @@ export default function ({
       ? USD_CLASS_STABLE_POOL_IDS
       : type === STABLE_POOL_TYPE.BTC
       ? BTC_CLASS_STABLE_POOL_IDS
-      : NEAR_CLASS_STABLE_POOL_IDS;
+      : NEAR_CLASS_STABLE_POOL_IDS.filter((p) => p !== NEARX_POOL_ID);
 
   const pools =
     !type || forPool

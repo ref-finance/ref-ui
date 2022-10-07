@@ -394,7 +394,10 @@ export default function SelectToken({
     tokensData,
     loading: loadingTokensData,
     trigger,
-  } = useTokensData(tokens, balances);
+  } = useTokensData(
+    tokens.filter((t) => t.id !== NEARXIDS[0]),
+    balances
+  );
   useEffect(() => {
     trigger();
   }, [trigger]);
