@@ -337,6 +337,9 @@ export const useTokenPriceList = () => {
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
   }, []);
+
+  tokenPriceList['NEAR'] = tokenPriceList?.[WRAP_NEAR_CONTRACT_ID];
+
   return tokenPriceList;
 };
 
