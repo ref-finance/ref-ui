@@ -677,9 +677,7 @@ function AccountTable(props: any) {
               <span
                 onClick={(e) => sort(e)}
                 data-sort="near"
-                className={`flex items-center w-full justify-end ${
-                  currentSort.indexOf('near') > -1 ? 'text-greenColor' : ''
-                } `}
+                className={`flex items-center w-full justify-end  `}
               >
                 <WalletIcon />
                 <label className="mx-1 cursor-pointer">NEAR</label>
@@ -699,9 +697,7 @@ function AccountTable(props: any) {
               <span
                 onClick={(e) => sort(e)}
                 data-sort="ref"
-                className={`flex items-center w-full justify-end ${
-                  currentSort.indexOf('ref') > -1 ? 'text-greenColor' : ''
-                }`}
+                className={`flex items-center w-full justify-end `}
               >
                 <RefIcon />
                 <label className="mx-1 cursor-pointer">REF(V1)</label>
@@ -722,9 +718,7 @@ function AccountTable(props: any) {
               <span
                 onClick={(e) => sort(e)}
                 data-sort="dcl"
-                className={`flex items-center w-full justify-end ${
-                  currentSort.indexOf('dcl') > -1 ? 'text-greenColor' : ''
-                }`}
+                className={`flex items-center w-full justify-end `}
               >
                 <RefIcon />
                 <label className="mx-1 cursor-pointer">REF(V2)</label>
@@ -745,9 +739,7 @@ function AccountTable(props: any) {
               <span
                 onClick={(e) => sort(e)}
                 data-sort="aurora"
-                className={`flex items-center w-full justify-end ${
-                  currentSort.indexOf('aurora') > -1 ? 'text-greenColor' : ''
-                }`}
+                className={`flex items-center w-full justify-end `}
               >
                 <MappingAccountIcon />
                 <label className="mx-1 cursor-pointer">Mapping</label>
@@ -1042,6 +1034,9 @@ function MobileAccountTable(props: any) {
   const [checkAll, setCheckALl] = useState(false);
   const [checkAuroraAll, setCheckAuroraALl] = useState(false);
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
+
+  const tokenPriceList = useTokenPriceList();
+
   useEffect(() => {
     sort(`${type} + '-up'`);
   }, [type]);
@@ -1065,6 +1060,7 @@ function MobileAccountTable(props: any) {
     const newStatus = !showCrossBalance ? !checkAll : !checkAuroraAll;
     let newCheckedMap = {};
     let count = 0;
+
     if (newStatus) {
       for (let i = 0; i < tokensSort.length; i++) {
         const { id, ref, decimals, aurora, dcl } = tokensSort[i];
@@ -1105,6 +1101,7 @@ function MobileAccountTable(props: any) {
     } else {
       newCheckedMap = {};
     }
+
     if (!showCrossBalance) {
       setCheckALl(newStatus);
       setCheckedMap(newCheckedMap);
@@ -1251,19 +1248,19 @@ function MobileAccountTable(props: any) {
               />
             </span>
           </th>
-          <th className={`pr-4 ${type == 'map' ? '' : 'hidden'}`}>
+          <th className={`pr-4 ${type == 'aurora' ? '' : 'hidden'}`}>
             <span
               onClick={() => {
                 sort();
               }}
-              data-sort="map"
+              data-sort="aurora"
               className={`flex items-center w-full justify-end`}
             >
               <MappingAccountIcon />
               <label className="mx-1 cursor-pointer">Mapping</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
-                  currentSort == 'map-down' ? 'transform rotate-180' : ''
+                  currentSort == 'aurora-down' ? 'transform rotate-180' : ''
                 }`}
               />
             </span>
@@ -1296,7 +1293,7 @@ function MobileAccountTable(props: any) {
           if (
             (type == 'ref' && new BigNumber(item.ref).isEqualTo(0)) ||
             (type == 'near' && new BigNumber(item.near).isEqualTo(0)) ||
-            (type == 'map' && new BigNumber(item.aurora).isEqualTo(0)) ||
+            (type == 'aurora' && new BigNumber(item.aurora).isEqualTo(0)) ||
             (type == 'dcl' && new BigNumber(item.dcl).isEqualTo(0))
           ) {
             return null;
@@ -1330,6 +1327,18 @@ function MobileAccountTable(props: any) {
                     <label className="text-white font-semibold text-lg mb-1">
                       {getWalletBalance(item)}
                     </label>
+                    <div className="text-xs text-primaryText">
+                      {!tokenPriceList?.[item.id]?.price
+                        ? '$-'
+                        : `~$${toInternationalCurrencySystemLongString(
+                            scientificNotationToString(
+                              new Big(tokenPriceList?.[item.id]?.price || '0')
+                                .times(new Big(item.near || '0'))
+                                .toString()
+                            ),
+                            3
+                          )}`}
+                    </div>
                   </div>
                 </td>
 
@@ -1338,6 +1347,19 @@ function MobileAccountTable(props: any) {
                     <label className="text-white font-semibold text-lg mb-1">
                       {getDCLBalance(item)}
                     </label>
+
+                    <div className="text-xs text-primaryText">
+                      {!tokenPriceList?.[item.id]?.price
+                        ? '$-'
+                        : `~$${toInternationalCurrencySystemLongString(
+                            scientificNotationToString(
+                              new Big(tokenPriceList?.[item.id]?.price || '0')
+                                .times(new Big(item.dcl || '0'))
+                                .toString()
+                            ),
+                            3
+                          )}`}
+                    </div>
                   </div>
                 </td>
 
@@ -1346,13 +1368,39 @@ function MobileAccountTable(props: any) {
                     <label className="text-white font-semibold text-lg mb-1">
                       {getRefBalance(item)}
                     </label>
+
+                    <div className="text-xs text-primaryText">
+                      {!tokenPriceList?.[item.id]?.price
+                        ? '$-'
+                        : `~$${toInternationalCurrencySystemLongString(
+                            scientificNotationToString(
+                              new Big(tokenPriceList?.[item.id]?.price || '0')
+                                .times(new Big(item.ref || '0'))
+                                .toString()
+                            ),
+                            3
+                          )}`}
+                    </div>
                   </div>
                 </td>
-                <td className={`pr-4 ${type == 'map' ? '' : 'hidden'}`}>
+                <td className={`pr-4 ${type == 'aurora' ? '' : 'hidden'}`}>
                   <div className="flex flex-col items-end py-4">
                     <label className="text-white font-semibold text-lg mb-1">
                       {getAuroraBalance(item)}
                     </label>
+
+                    <div className="text-xs text-primaryText">
+                      {!tokenPriceList?.[item.id]?.price
+                        ? '$-'
+                        : `~$${toInternationalCurrencySystemLongString(
+                            scientificNotationToString(
+                              new Big(tokenPriceList?.[item.id]?.price || '0')
+                                .times(new Big(item.aurora || '0'))
+                                .toString()
+                            ),
+                            3
+                          )}`}
+                    </div>
                   </div>
                 </td>
                 <td className={`pr-2 ${type == 'near' ? 'hidden' : ''}`}>
@@ -1391,7 +1439,7 @@ function MobileAccountTable(props: any) {
         >
           <td colSpan={5}>
             {!showCrossBalance ? (
-              <div className="flex flex-col justify-center items-center">
+              <div className="flex flex-col justify-center items-center mb-4">
                 <div
                   className={`border border-primaryText p-2.5 text-xs text-navHighLightText text-left rounded-md m-3 mt-4 ${
                     Object.keys(checkedMap).length >= withdraw_number_at_once
@@ -1431,7 +1479,7 @@ function MobileAccountTable(props: any) {
                 </GradientButton>
               </div>
             ) : (
-              <div className="flex flex-col justify-center items-center">
+              <div className="flex flex-col justify-center items-center mb-4">
                 <div
                   className={`border border-primaryText p-2.5 text-xs text-navHighLightText text-left rounded-md m-3 mt-4 ${
                     Object.keys(checkedAuroraMap).length >=
@@ -1886,7 +1934,7 @@ function MobileAccount(props: any) {
     // seleced tab
     setActiveTab('near');
     if (newCross && mapOver) {
-      setActiveTab('map');
+      setActiveTab('aurora');
     }
     if (!newCross && refOver) {
       setActiveTab('ref');
@@ -1986,10 +2034,10 @@ function MobileAccount(props: any) {
               {showCrossBalance ? (
                 <label
                   onClick={() => {
-                    switchTab('map');
+                    switchTab('aurora');
                   }}
                   className={`flex w-1/2 items-center justify-center h-10 text-center flex-grow text-base rounded-md ${
-                    activeTab == 'map'
+                    activeTab == 'aurora'
                       ? 'text-white bg-acccountBlock'
                       : 'text-primaryText'
                   } ${mapAccountTokenNumber ? '' : 'hidden'}`}
