@@ -105,7 +105,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
-        myNearWalletUrl: 'https://mynearwallet.com/',
+        myNearWalletUrl: 'https://app.mynearwallet.com/',
 
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
@@ -303,7 +303,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
-        myNearWalletUrl: 'https://mynearwallet.com/',
+        myNearWalletUrl: 'https://app.mynearwallet.com/',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
         indexerUrl: 'https://indexer.ref.finance',
