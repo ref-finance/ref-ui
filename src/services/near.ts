@@ -335,6 +335,8 @@ export const executeMultipleTransactions = async (
     .catch((e: Error) => {
       console.log(e);
 
+      alert(e.message);
+
       if (extraWalletsError.includes(e.message)) {
         return;
       }
@@ -346,7 +348,7 @@ export const executeMultipleTransactions = async (
         sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
       }
 
-      window.location.reload();
+      // window.location.reload();
     });
 };
 
