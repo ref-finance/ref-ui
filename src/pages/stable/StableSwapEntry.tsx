@@ -75,7 +75,7 @@ const RenderDisplayTokensAmounts = ({
           <span className="flex" key={token.id}>
             {i ? <span className="mx-3 text-white">+</span> : null}
             <span className="flex items-center">
-              <span className="mr-1.5">
+              <span className="mr-1.5 flex-shrink-0">
                 <img
                   src={token.icon}
                   alt=""
@@ -241,7 +241,7 @@ function StablePoolCard({
     >
       <Card
         width="w-full"
-        padding="px-6 pt-8 pb-4"
+        padding="px-6 pt-8 pb-4 xs:px-4 md:px-4"
         rounded="rounded-2xl"
         className={`flex flex-col`}
         onMouseEnter={() => setChosesState(index)}

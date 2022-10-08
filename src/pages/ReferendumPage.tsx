@@ -330,8 +330,8 @@ export const RewardCard = ({
 
                 <span className="text-sm">
                   {Object.keys(rewardList).length > length_at_once ? (
-                    <div className="flex items-center ">
-                      <label className="mr-1 ">
+                    <div className="flex items-center">
+                      <label className="mr-1 whitespace-nowrap">
                         <FormattedMessage id="all_4_v2" />
                       </label>
                       <QuestionTip id="over_tip" color="bright" />
@@ -528,13 +528,13 @@ export const LockPopUp = ({
   if (!config) return null;
 
   const Durations = () => (
-    <div className="w-full flex items-center pt-1.5 ">
+    <div className="w-full flex items-center pt-1.5 xsm:justify-between ">
       {candidateDurations.map((d) => {
         const base = 2592000;
         return (
           <button
             key={d}
-            className={`rounded-lg text-center xsm:mr-7  mr-2.5 hover:bg-gradientFrom  ${
+            className={`rounded-lg text-center  mr-2.5 hover:bg-gradientFrom  ${
               duration === d
                 ? 'text-chartBg bg-gradientFrom'
                 : 'text-farmText bg-black bg-opacity-20'
@@ -2006,7 +2006,7 @@ const UserReferendumCard = ({
             <ConnectToNearBtnVotingMobile />
           ) : (
             <button
-              className={`flex items-center cursor-pointer border w-40 border-white px-2 justify-center rounded-full text-center bg-opacity-50 py-1  text-sm`}
+              className={`flex items-center cursor-pointer border w-auto border-white px-2 justify-center rounded-full text-center bg-opacity-50 py-1  text-sm`}
               onClick={() => {
                 setShowMobileLocker(!showMobileLocker);
               }}
@@ -2194,7 +2194,7 @@ const UserReferendumCard = ({
                     </span>
                   </span>
                 }
-                className="rounded-lg w-full h-full"
+                className="rounded-lg w-full h-full xsm:text-xs"
                 padding="p-0"
                 width="w-1/2 ml-2 h-11 xsm:h-8"
               />

@@ -1310,7 +1310,7 @@ function SelectUI({
             onMouseDown={() => {
               onChange(item);
             }}
-            className={`${dropDownItemClassName} flex rounded-lg items-center p-4 h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-black hover:bg-opacity-20 hover:text-opacity-100
+            className={`${dropDownItemClassName} flex rounded-lg items-center p-4 h-5 text-white text-opacity-40 my-2 cursor-pointer whitespace-nowrap hover:bg-black hover:bg-opacity-20 hover:text-opacity-100
             ${item == curvalue ? 'bg-black bg-opacity-20 text-opacity-100' : ''}
             `}
           >
@@ -3684,7 +3684,7 @@ export const ProposalTab = ({
       }}
     >
       <NewGradientButton
-        className={`lg:text-lg lg:h-12  lg:min-w-72  xsm:w-1/2 mr-2 xsm:mr-0 ${
+        className={`lg:text-lg lg:h-12  lg:min-w-72  xsm:whitespace-nowrap xsm:flex-grow mr-2 xsm:mr-0 ${
           curTab === PROPOSAL_TAB.FARM ? 'opacity-100' : ''
         }`}
         grayDisable={curTab !== PROPOSAL_TAB.FARM}
@@ -4665,7 +4665,7 @@ export const FarmProposal = ({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="text-center text-2xl xsm:font-bold xsm:text-base text-white">
+      <div className="text-center text-2xl xsm:font-bold xsm:text-base text-white lg:mr-4">
         <FormattedMessage id="proposed" defaultMessage={'Proposed'} />{' '}
         <span>{endtimeMoment.add(1, 'month').format('MMM yyyy')}</span>{' '}
         <FormattedMessage id="farm_reward" defaultMessage={'Farm reward'} />

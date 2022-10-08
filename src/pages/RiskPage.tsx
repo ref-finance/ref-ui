@@ -49,14 +49,14 @@ export default function RiskPage() {
       <div className="text-riskTextColor text-sm mt-3">
         <FormattedMessage id="introduction" />
       </div>
-      <div className="flex justify-center items-center mt-5">
+      <div className="flex justify-center items-center mt-5 flex-wrap">
         <div
           onClick={() => {
             window.open(
               'https://form.typeform.com/to/EPmUetxU?typeform-source=mzko2gfnij6.typeform.com'
             );
           }}
-          className="flex justify-between items-center w-48 bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white mr-2.5"
+          className="flex justify-between items-center whitespace-nowrap bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white mx-1 mb-2"
         >
           <FormattedMessage id="general_risks_quiz" />
           <ExternalLinkIcon className="flex-shrink-0 ml-2"></ExternalLinkIcon>
@@ -65,7 +65,7 @@ export default function RiskPage() {
           onClick={() => {
             window.open('https://uniswap.org/whitepaper.pdf');
           }}
-          className="flex justify-between items-center w-48 bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white"
+          className="flex justify-between items-center whitespace-nowrap bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white mx-1 mb-2"
         >
           <FormattedMessage id="amm_core_design" />
           <ExternalLinkIcon className="flex-shrink-0 ml-2"></ExternalLinkIcon>
