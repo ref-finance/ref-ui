@@ -59,7 +59,7 @@ export default function RiskPage() {
           className="flex justify-between items-center w-48 bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white mr-2.5"
         >
           <FormattedMessage id="general_risks_quiz" />
-          <ExternalLinkIcon></ExternalLinkIcon>
+          <ExternalLinkIcon className="flex-shrink-0 ml-2"></ExternalLinkIcon>
         </div>
         <div
           onClick={() => {
@@ -68,7 +68,7 @@ export default function RiskPage() {
           className="flex justify-between items-center w-48 bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white"
         >
           <FormattedMessage id="amm_core_design" />
-          <ExternalLinkIcon></ExternalLinkIcon>
+          <ExternalLinkIcon className="flex-shrink-0 ml-2"></ExternalLinkIcon>
         </div>
       </div>
       <div className="mt-7">
