@@ -3182,8 +3182,8 @@ export const BG_RECTANGLE = () => {
           y2="78.4072"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#1D2932" />
-          <stop offset="1" stop-color="#00C6A2" />
+          <stop stopColor="#1D2932" />
+          <stop offset="1" stopColor="#00C6A2" />
         </linearGradient>
       </defs>
     </svg>

@@ -198,7 +198,7 @@ export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
 export const keyStore = new keyStores.BrowserLocalStorageKeyStore();
 //@ts-ignore
-keyStore?.reKey = () => {};
+keyStore.reKey = () => {};
 
 export const near = new Near({
   keyStore,
@@ -347,7 +347,7 @@ export const executeMultipleTransactions = async (
         sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
       }
 
-      // window.location.reload();
+      window.location.reload();
     });
 };
 

@@ -809,8 +809,8 @@ export const BuyNearDefault = () => {
           y2="10"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#00C6A2" />
-          <stop offset="1" stop-color="#0E57D7" />
+          <stop stopColor="#00C6A2" />
+          <stop offset="1" stopColor="#0E57D7" />
         </linearGradient>
       </defs>
     </svg>
@@ -887,8 +887,8 @@ export const GetUSNDefault = () => {
           y2="20"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#00C6A2" />
-          <stop offset="1" stop-color="#008B72" />
+          <stop stopColor="#00C6A2" />
+          <stop offset="1" stopColor="#008B72" />
         </linearGradient>
       </defs>
     </svg>
@@ -928,8 +928,8 @@ export const GetUSNHover = () => {
           y2="20"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#00FFD1" />
-          <stop offset="1" stop-color="#008B72" />
+          <stop stopColor="#00FFD1" />
+          <stop offset="1" stopColor="#008B72" />
         </linearGradient>
       </defs>
     </svg>
@@ -1051,8 +1051,8 @@ export const WrapNearHover = () => {
           y2="20"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#00C6A2" />
-          <stop offset="1" stop-color="#008B72" />
+          <stop stopColor="#00C6A2" />
+          <stop offset="1" stopColor="#008B72" />
         </linearGradient>
       </defs>
     </svg>

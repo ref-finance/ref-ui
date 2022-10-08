@@ -10,4 +10,4 @@ ReactDOM.render(
   document.querySelector('#root')
 );
 
-new Worker('./worker.ts');
+new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });

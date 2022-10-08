@@ -696,8 +696,8 @@ export const YouVotedAngleMatrix = () => {
           y2="11"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7F43FF" />
-          <stop offset="1" stop-color="#00C6A2" />
+          <stop stopColor="#7F43FF" />
+          <stop offset="1" stopColor="#00C6A2" />
         </linearGradient>
       </defs>
     </svg>

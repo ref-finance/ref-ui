@@ -102,7 +102,7 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         }),
 
         setupWalletConnect({
-          projectId: '423baa464ffaeca9d7165ab4222d534f',
+          projectId: '87e549918631f833447b56c15354e450',
 
           metadata: {
             name: 'ref_finance',
