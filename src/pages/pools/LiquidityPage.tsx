@@ -71,7 +71,7 @@ import { FilterIcon } from '../../components/icon/PoolFilter';
 import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
 import { scientificNotationToString } from '../../utils/numbers';
 import { useMobile, useClientMobile } from '../../utils/device';
-import { usePoolsMorePoolIds } from '../../state/pool';
+import { usePoolsMorePoolIds, useDayVolumesPools } from '../../state/pool';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import { SearchIcon } from '~components/icon/FarmBoost';
 import {
@@ -393,6 +393,7 @@ function MobileLiquidityPage({
   farmCounts,
   farmOnly,
   setFarmOnly,
+  volumes,
 }: {
   pools: Pool[];
   poolTokenMetas: any;
@@ -412,6 +413,7 @@ function MobileLiquidityPage({
   nextPage: (...args: []) => void;
   poolsMorePoolsIds: Record<string, string[]>;
   farmCounts: Record<string, number>;
+  volumes: Record<string, string>;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -683,6 +685,7 @@ function PoolRow({
   morePoolIds,
   supportFarm,
   farmCount,
+  h24volume,
 }: {
   pool: Pool;
   index: number;
@@ -691,22 +694,26 @@ function PoolRow({
   morePoolIds: string[];
   supportFarm: boolean;
   farmCount: number;
+  h24volume: string;
 }) {
-  // const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  // const [farmCount, setFarmCount] = useState<Number>(1);
-
   const curRowTokens = useTokens(pool.tokenIds, tokens);
   const history = useHistory();
   const [showLinkArrow, setShowLinkArrow] = useState(false);
 
-  // useEffect(() => {
-  //   canFarm(pool.id).then(({ count }) => {
-  //     setSupportFarm(!!count);
-  //     setFarmCount(count);
-  //   });
-  // }, [pool]);
-
   if (!curRowTokens) return <></>;
+
+  function getPoolFeeApr(dayVolume: string, pool: Pool) {
+    let result = '0';
+    if (dayVolume) {
+      const { fee, tvl } = pool;
+      const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
+      if (tvl > 0 && revenu24h > 0) {
+        const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+        result = toPrecision(annualisedFeesPrct.toString(), 2);
+      }
+    }
+    return Number(result);
+  }
 
   tokens = curRowTokens.sort((a, b) => {
     if (a.symbol === 'NEAR') return 1;
@@ -724,7 +731,7 @@ function PoolRow({
           state: { tvl: pool.tvl, backToFarms: supportFarm },
         }}
       >
-        <div className="col-span-5 md:col-span-4 flex items-center">
+        <div className="col-span-3 md:col-span-4 flex items-center">
           <div className="mr-6 w-2">{index}</div>
           <div className="flex items-center">
             <Images tokens={tokens} size="9" />
@@ -737,6 +744,18 @@ function PoolRow({
         </div>
         <div className="col-span-1 py-1 md:hidden ">
           {calculateFeePercent(pool.fee)}%
+        </div>
+
+        <div className="col-span-1 py-1" title={h24volume}>
+          {!h24volume ? '-' : `${getPoolFeeApr(h24volume, pool)}%`}
+        </div>
+
+        <div className="col-span-1 py-1" title={h24volume}>
+          {!h24volume
+            ? '-'
+            : Number(h24volume) == 0
+            ? '$0'
+            : `$${toInternationalCurrencySystem(h24volume)}`}
         </div>
 
         <div
@@ -773,10 +792,12 @@ function WatchListCard({
   watchPools,
   poolTokenMetas,
   farmCounts,
+  volumes,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
   farmCounts: Record<string, number>;
+  volumes: Record<string, string>;
 }) {
   const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: watchPools });
 
@@ -828,6 +849,7 @@ function WatchListCard({
                   morePoolIds={poolsMorePoolsIds[pool.id]}
                   farmCount={farmCounts[pool.id]}
                   supportFarm={!!farmCounts[pool.id]}
+                  h24volume={volumes[pool.id]}
                 />
               </div>
             ))}
@@ -857,6 +879,7 @@ function LiquidityPage_({
   farmCounts,
   farmOnly,
   setFarmOnly,
+  volumes,
 }: {
   pools: Pool[];
   poolTokenMetas: any;
@@ -876,12 +899,10 @@ function LiquidityPage_({
   nextPage: (...args: []) => void;
   poolsMorePoolsIds: Record<string, string[]>;
   farmCounts: Record<string, number>;
+  volumes: Record<string, string>;
 }) {
   const intl = useIntl();
   const inputRef = useRef(null);
-  const history = useHistory();
-
-  const isMobile = useClientMobile();
 
   const selectTokens = useRainbowWhitelistTokens();
 
@@ -933,6 +954,7 @@ function LiquidityPage_({
           poolTokenMetas={poolTokenMetas}
           watchPools={watchPools}
           farmCounts={farmCounts}
+          volumes={volumes}
         />
         {/* start pool card */}
         {!!getConfig().REF_VE_CONTRACT_ID ? (
@@ -1119,7 +1141,7 @@ function LiquidityPage_({
 
           <section className="">
             <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
-              <div className="col-span-5 md:col-span-4 flex">
+              <div className="col-span-3 md:col-span-4 flex">
                 <div className="mr-6 w-2">#</div>
                 <FormattedMessage id="pair" defaultMessage="Pair" />
               </div>
@@ -1154,6 +1176,21 @@ function LiquidityPage_({
                     <UpArrowDeep />
                   )}
                 </span>
+              </div>
+
+              <div className="col-span-1 relative right-1 md:hidden flex items-center">
+                <div className="pr-1 ">
+                  <FormattedMessage id="apr" defaultMessage="APR" />
+                </div>
+              </div>
+
+              <div className="col-span-1 relative right-3 md:hidden flex items-center">
+                <div className="pr-1 ">
+                  <FormattedMessage
+                    id="volume_24h"
+                    defaultMessage="Volume (24h)"
+                  />
+                </div>
               </div>
 
               <div className="col-span-1 flex items-center">
@@ -1204,6 +1241,7 @@ function LiquidityPage_({
                   morePoolIds={poolsMorePoolsIds[pool.id]}
                   supportFarm={!!farmCounts[pool.id]}
                   farmCount={farmCounts[pool.id]}
+                  h24volume={volumes[pool.id]}
                 />
               ))}
             </div>
@@ -1232,7 +1270,7 @@ export function LiquidityPage() {
   const watchPools = useWatchPools();
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
-  const { pools, hasMore, nextPage, loading } = usePools({
+  const { pools, hasMore, nextPage, loading, volumes } = usePools({
     tokenName,
     sortBy,
     order,
@@ -1320,6 +1358,7 @@ export function LiquidityPage() {
             localStorage.setItem(REF_FI_FARM_ONLY, farmOnly ? '1' : '0');
           }}
           watchPools={watchPools}
+          volumes={volumes}
           order={order}
           sortBy={sortBy}
           allPools={AllPools}
@@ -1340,6 +1379,7 @@ export function LiquidityPage() {
           pools={displayPools}
           watchPools={watchPools}
           allPools={AllPools}
+          volumes={volumes}
           order={order}
           sortBy={sortBy}
           farmCounts={farmCounts}

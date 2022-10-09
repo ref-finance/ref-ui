@@ -81,6 +81,22 @@ export const get24hVolume = async (pool_id: string): Promise<string> => {
     });
 };
 
+export const get24hVolumes = async (
+  pool_ids: (string | number)[]
+): Promise<string[]> => {
+  return await fetch(
+    config.sodakiApiUrl +
+      `/poollist/${pool_ids.join('|')}/rolling24hvolume/sum`,
+    {
+      method: 'GET',
+    }
+  )
+    .then((res) => res.json())
+    .then((res) => {
+      return res.map((r: any) => r.toString());
+    });
+};
+
 const parseActionView = async (action: any) => {
   const data = await parseAction(action[3], action[4], action[2]);
   return {

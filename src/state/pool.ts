@@ -39,6 +39,7 @@ import {
   _search,
   getTopPools,
   getPool,
+  get24hVolumes,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import { TokenMetadata } from '../services/ft-contract';
@@ -223,6 +224,8 @@ export const usePools = (props: {
   const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const volumes = useDayVolumesPools(rawPools.map((pool) => pool.id));
+
   const nextPage = () => setPage((page) => page + 1);
 
   function _loadPools({
@@ -301,6 +304,7 @@ export const usePools = (props: {
     hasMore,
     nextPage,
     loading,
+    volumes,
   };
 };
 
@@ -655,6 +659,22 @@ export const useMonthTVL = (pool_id: string) => {
   }, []);
 
   return monthTVLById;
+};
+
+export const useDayVolumesPools = (pool_ids: (string | number)[]) => {
+  const [volumes, setVolumes] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    get24hVolumes(pool_ids).then((res) => {
+      const volumes = res.reduce((acc, cur, i) => {
+        return { ...acc, [pool_ids[i]]: cur };
+      }, {});
+
+      setVolumes(volumes);
+    });
+  }, [pool_ids.join('-')]);
+
+  return volumes;
 };
 
 export const useDayVolume = (pool_id: string) => {
