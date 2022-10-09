@@ -33,6 +33,7 @@ export const walletsRejectError = [
   'Ledger device: Condition of use not satisfied (denied by the user?) (0x6985)',
   'User cancelled the action',
   'User closed the window before completing the action',
+  'User rejected methods.',
 ];
 
 export const extraWalletsError = [
