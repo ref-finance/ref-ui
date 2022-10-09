@@ -151,13 +151,12 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
         currentWallet.type === 'browser' ||
         module.type === 'hardware' ||
         currentWallet.id === 'sender' ||
-        currentWallet.id === 'meteor-wallet'
+        currentWallet.id === 'meteor-wallet' ||
+        currentWallet.id === 'wallet-connect'
       ) {
         await currentWallet.signOut();
       }
     } catch (error) {
-      console.log(error.message);
-
       if (walletsRejectError.includes(error.message)) {
         // window.location.reload();
         onError(error.message);
