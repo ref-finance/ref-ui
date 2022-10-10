@@ -145,7 +145,7 @@ const es = {
   withdraw: 'Retiro',
   Withdraw: 'Retiro',
   withdraw_token: 'Retido de Token',
-  swap: 'Intercambio',
+  swap: 'Swap',
   Swap: 'Intercambio',
   exchange_tokens: ' Intercambio de Tokens',
   pool: 'Pool',
