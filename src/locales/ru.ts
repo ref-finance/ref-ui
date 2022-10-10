@@ -871,5 +871,6 @@ const ru = {
   pool_stop_tip: 'This pool has been stopped.',
   newText: 'новый',
   trade_capital_hump: 'Trade',
+  volume_24h: 'Volume (24h)',
 };
 export default Object.assign(ru, ru_in_risks_page);

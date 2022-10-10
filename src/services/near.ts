@@ -200,7 +200,7 @@ export const ONE_YOCTO_NEAR = '0.000000000000000000000001';
 
 export const keyStore = new keyStores.BrowserLocalStorageKeyStore();
 //@ts-ignore
-keyStore?.reKey = () => {};
+keyStore.reKey = () => {};
 
 export const near = new Near({
   keyStore,

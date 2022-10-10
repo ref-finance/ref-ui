@@ -865,5 +865,6 @@ const en_US = {
   newText: 'New',
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
+  volume_24h: 'Volume (24h)',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

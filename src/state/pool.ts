@@ -224,7 +224,9 @@ export const usePools = (props: {
   const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const volumes = useDayVolumesPools(rawPools.map((pool) => pool.id));
+  const volumes = useDayVolumesPools(
+    rawPools.map((pool) => pool.id.toString()).concat(ALL_STABLE_POOL_IDS)
+  );
 
   const nextPage = () => setPage((page) => page + 1);
 

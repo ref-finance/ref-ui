@@ -862,5 +862,6 @@ const ko = {
   pool_stop_tip: 'This pool has been stopped.',
   newText: '새로운',
   trade_capital_hump: 'Trade',
+  volume_24h: 'Volume (24h)',
 };
 export default Object.assign(ko, ko_in_risks_page);

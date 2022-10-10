@@ -871,5 +871,6 @@ const ja = {
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
   trade_capital_hump: 'Trade',
+  volume_24h: 'Volume (24h)',
 };
 export default Object.assign(ja, ja_in_risks_page);

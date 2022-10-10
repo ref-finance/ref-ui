@@ -819,5 +819,6 @@ const zh_CN = {
   pool_stop_tip: '这个流动池已经停止。',
   newText: '最新',
   trade_capital_hump: 'Trade',
+  volume_24h: '24小时交易量',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

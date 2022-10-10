@@ -838,5 +838,6 @@ const uk_UA = {
   pool_stop_tip: 'This pool has been stopped.',
   newText: 'новий',
   trade_capital_hump: 'Trade',
+  volume_24h: 'Volume (24h)',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

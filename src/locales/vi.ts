@@ -872,5 +872,6 @@ const vi = {
   pool_stop_tip: 'This pool has been stopped.',
   newText: 'Mới',
   trade_capital_hump: 'Trade',
+  volume_24h: 'Volume (24h)',
 };
 export default Object.assign(vi, vi_in_risks_page);

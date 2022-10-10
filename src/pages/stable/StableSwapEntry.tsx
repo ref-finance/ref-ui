@@ -61,7 +61,7 @@ export const getStablePoolDecimal = (id: string | number) => {
   else if (isStablePool(id)) return STABLE_LP_TOKEN_DECIMALS;
 };
 
-const RenderDisplayTokensAmounts = ({
+export const RenderDisplayTokensAmounts = ({
   tokens,
   coinsAmounts,
 }: {
