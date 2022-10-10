@@ -80,40 +80,6 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { openTransak } from '../alert/Transak';
 import { BuyNearButton } from '../button/Button';
 
-export function MobileAnchor({
-  to,
-  pattern,
-  name,
-  className,
-  onClick,
-}: {
-  to: string;
-  pattern: string;
-  name: string;
-  className?: string;
-  onClick: () => void;
-}) {
-  const location = useLocation();
-  const isSelected = matchPath(location.pathname, {
-    path: pattern,
-    exact: true,
-    strict: false,
-  });
-
-  return (
-    <div>
-      <Link onClick={onClick} to={to}>
-        <div
-          className={`p-4 text-lg link ${className} ${
-            isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
-          }`}
-        >
-          <FormattedMessage id={name} defaultMessage={name} />
-        </div>
-      </Link>
-    </div>
-  );
-}
 const openMenuContext = createContext(null);
 export function MobileSwitchLanguage(props: any) {
   const context = useContext(Context);
@@ -861,6 +827,14 @@ export function MobileNavBar(props: any) {
                     if (id === 'trade_capital_hump') {
                       isSelected = true;
                     }
+                  }
+
+                  if (pattern === '/sauce' || pattern === '/v2farms') {
+                    isSelected = matchPath(location.pathname, {
+                      path: pattern,
+                      exact: false,
+                      strict: false,
+                    });
                   }
 
                   let targetUrl = url;

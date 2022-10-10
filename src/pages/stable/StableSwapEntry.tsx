@@ -87,7 +87,7 @@ export const RenderDisplayTokensAmounts = ({
                 className="text-white text-sm"
                 title={toPrecision(
                   scientificNotationToString(coinsAmounts[token.id].toString()),
-                  2
+                  0
                 )}
               >
                 {toInternationalCurrencySystem(

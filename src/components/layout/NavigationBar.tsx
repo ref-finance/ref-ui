@@ -219,6 +219,12 @@ function Anchor({
       location.pathname.startsWith('/yoursLiquidityDetailV2');
   } else if (pattern == '/') {
     isSelected = location.pathname === '/' || location.pathname === '/swap';
+  } else if (pattern === '/sauce' || pattern === '/v2farms') {
+    isSelected = matchPath(location.pathname, {
+      path: pattern,
+      exact: false,
+      strict: false,
+    });
   } else {
     isSelected = matchPath(location.pathname, {
       path: pattern,

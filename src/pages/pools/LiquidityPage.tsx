@@ -90,7 +90,12 @@ import { unwrapedNear } from '../../services/wrap-near';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { getVEPoolId } from '../ReferendumPage';
 import { StartPoolIcon } from '../../components/icon/WatchListStar';
-import { PoolDaoBanner, PoolDaoBannerMobile } from '../../components/icon/Logo';
+import {
+  PoolDaoBanner,
+  PoolDaoBannerMobile,
+  NEAR_TEXT,
+  USD_TEXT,
+} from '../../components/icon/Logo';
 import { VEARROW } from '../../components/icon/Referendum';
 import getConfig from '../../services/config';
 import { AddPoolModal } from './AddPoolPage';
@@ -109,8 +114,9 @@ import {
 } from '../../services/near';
 import BigNumber from 'bignumber.js';
 import Big from 'big.js';
-import { Cell, Pie, PieChart } from 'recharts';
+import { Cell, Pie, PieChart, Sector } from 'recharts';
 import { OutlineButton } from '../../components/button/Button';
+import { BTC_TEXT } from '../../components/icon/Logo';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -124,6 +130,19 @@ function getPoolFeeApr(dayVolume: string, pool: Pool) {
     if (tvl > 0 && revenu24h > 0) {
       const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
       result = toPrecision(annualisedFeesPrct.toString(), 2);
+    }
+  }
+  return Number(result);
+}
+
+function getPoolFeeAprTitle(dayVolume: string, pool: Pool) {
+  let result = '0';
+  if (dayVolume) {
+    const { fee, tvl } = pool;
+    const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
+    if (tvl > 0 && revenu24h > 0) {
+      const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+      result = annualisedFeesPrct.toString();
     }
   }
   return Number(result);
@@ -309,7 +328,7 @@ function MobilePoolRow({
               </div>
             )}
 
-            {morePoolIds?.length && morePoolIds?.length > 1 ? (
+            {morePoolIds?.length && morePoolIds?.length > 1 && !watched ? (
               <div
                 onClick={(e) => {
                   e.preventDefault();
@@ -645,36 +664,6 @@ function MobileLiquidityPage({
                 />
                 <SearchIcon className="absolute right-2"></SearchIcon>
               </div>
-
-              {isSignedIn ? (
-                <div
-                  className="ml-1 text-xs"
-                  data-type="info"
-                  data-place="top"
-                  data-multiline={true}
-                  data-class="reactTip"
-                  data-html={true}
-                  data-tip={`
-              <div className="text-xs">
-                <div 
-                  style="max-width: 250px;font-weight:400",
-                >
-                ${intl.formatMessage({ id: 'create_new_pool' })}
-                </div>
-              </div>
-            `}
-                  data-for="add_pool_tip"
-                >
-                  <button
-                    className={`text-xl ml-2 px-3 text-primaryText w-8 h-8 bg-cardBg   hover:text-gradientFrom rounded-xl flex items-center justify-center`}
-                    onClick={() => {
-                      setShowAddPoolModal(true);
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-              ) : null}
             </div>
           )}
         </div>
@@ -748,23 +737,6 @@ function MobileLiquidityPage({
 
               <div className="flex flex-col">
                 <div
-                  className=" inline-flex items-center cursor-pointer mb-2"
-                  onClick={() => {
-                    hideLowTVL && onHide(false);
-                    !hideLowTVL && onHide(true);
-                  }}
-                >
-                  <div className="mr-2">
-                    {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
-                  </div>
-                  <div className="text-primaryText text-sm">
-                    <FormattedMessage
-                      id="hide_low_tvl_pools_mobile"
-                      defaultMessage="Hide low TVL pools"
-                    />
-                  </div>
-                </div>
-                <div
                   className=" inline-flex items-center cursor-pointer"
                   onClick={() => {
                     farmOnly && setFarmOnly(false);
@@ -778,6 +750,23 @@ function MobileLiquidityPage({
                     <FormattedMessage
                       id="farm_only"
                       defaultMessage="Farm only"
+                    />
+                  </div>
+                </div>
+                <div
+                  className=" inline-flex items-center cursor-pointer mt-2"
+                  onClick={() => {
+                    hideLowTVL && onHide(false);
+                    !hideLowTVL && onHide(true);
+                  }}
+                >
+                  <div className="mr-2">
+                    {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
+                  </div>
+                  <div className="text-primaryText text-sm">
+                    <FormattedMessage
+                      id="hide_low_tvl_pools_mobile"
+                      defaultMessage="Hide low TVL pools"
                     />
                   </div>
                 </div>
@@ -883,6 +872,7 @@ function PoolRow({
   supportFarm,
   farmCount,
   h24volume,
+  watched,
 }: {
   pool: Pool;
   index: number;
@@ -892,6 +882,7 @@ function PoolRow({
   supportFarm: boolean;
   farmCount: number;
   h24volume: string;
+  watched?: boolean;
 }) {
   const curRowTokens = useTokens(pool.tokenIds, tokens);
   const history = useHistory();
@@ -908,7 +899,9 @@ function PoolRow({
   return (
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
-        className="grid grid-cols-8 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80"
+        className={`grid grid-cols-${
+          !!watched ? 7 : 8
+        } py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
         onClick={() => localStorage.setItem('fromMorePools', 'n')}
         to={{
           pathname: `/pool/${pool.id}`,
@@ -926,15 +919,21 @@ function PoolRow({
 
           {supportFarm && <FarmButton farmCount={farmCount} />}
         </div>
-        <div className="col-span-1 py-1 md:hidden ">
+        <div className="col-span-1 justify-self-center py-1 md:hidden ">
           {calculateFeePercent(pool.fee)}%
         </div>
 
-        <div className="col-span-1 py-1" title={h24volume}>
+        <div
+          className="col-span-1 justify-self-center py-1"
+          title={`${getPoolFeeAprTitle(h24volume, pool)}%`}
+        >
           {!h24volume ? '-' : `${getPoolFeeApr(h24volume, pool)}%`}
         </div>
 
-        <div className="col-span-1 py-1" title={h24volume}>
+        <div
+          className="col-span-1 py-1 justify-self-center relative "
+          title={h24volume}
+        >
           {!h24volume
             ? '-'
             : Number(h24volume) == 0
@@ -945,7 +944,7 @@ function PoolRow({
         </div>
 
         <div
-          className="col-span-1 py-1"
+          className="col-span-1 py-1 justify-self-center relative left-4"
           title={toPrecision(
             scientificNotationToString(pool.tvl.toString()),
             0
@@ -955,7 +954,9 @@ function PoolRow({
         </div>
 
         <div
-          className="col-span-1 py-1 hover:text-green-500 hover:cursor-pointer"
+          className={`col-span-1 justify-self-center py-1 hover:text-green-500 hover:cursor-pointer ${
+            !!watched ? 'hidden' : ''
+          }`}
           onMouseEnter={() => setShowLinkArrow(true)}
           onMouseLeave={() => setShowLinkArrow(false)}
           onClick={(e) => {
@@ -966,8 +967,10 @@ function PoolRow({
             });
           }}
         >
-          {morePoolIds?.length ? `${morePoolIds?.length}` : '-'}
-          {showLinkArrow && ' >'}
+          <span className="relative left-8">
+            {morePoolIds?.length ? `${morePoolIds?.length}` : '-'}
+            {showLinkArrow && ' >'}
+          </span>
         </div>
       </Link>
     </div>
@@ -999,26 +1002,30 @@ function WatchListCard({
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
           </div>
           <QuestionTip id="my_watchlist_copy" />
+
+          <span className="text-sm text-primaryText ml-3">
+            {!watchPools || watchPools.length === 0 ? null : watchPools.length}
+          </span>
         </div>
         <section className="">
-          <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
+          <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
             <div className="col-span-3 md:col-span-4 flex">
               <div className="mr-6 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
-            <div className="col-span-1 md:hidden flex items-center">
+            <div className="col-span-1 justify-self-center md:hidden flex items-center">
               <div className="mr-1">
                 <FormattedMessage id="fee" defaultMessage="Fee" />
               </div>
             </div>
 
-            <div className="col-span-1 relative right-1 md:hidden flex items-center">
+            <div className="col-span-1 justify-self-center relative right-1 md:hidden flex items-center">
               <div className="pr-1 ">
                 <FormattedMessage id="apr" defaultMessage="APR" />
               </div>
             </div>
 
-            <div className="col-span-1 relative right-5 md:hidden flex items-center">
+            <div className="col-span-1 justify-self-center relative  md:hidden flex items-center">
               <div className="pr-1 ">
                 <FormattedMessage
                   id="volume_24h"
@@ -1027,14 +1034,9 @@ function WatchListCard({
               </div>
             </div>
 
-            <div className="col-span-1 flex items-center">
-              <span className="mr-1">
-                <FormattedMessage id="tvl" defaultMessage="TVL" />
-              </span>
+            <div className="col-span-1 justify-self-center flex items-center">
+              <FormattedMessage id="tvl" defaultMessage="TVL" />
             </div>
-            <p className="col-span-1">
-              <FormattedMessage id="pools" defaultMessage="Pools" />
-            </p>
           </header>
 
           <div className="max-h-96 overflow-y-auto">
@@ -1051,6 +1053,7 @@ function WatchListCard({
                   farmCount={farmCounts[pool.id]}
                   supportFarm={!!farmCounts[pool.id]}
                   h24volume={volumes[pool.id]}
+                  watched
                 />
               </div>
             ))}
@@ -1147,14 +1150,6 @@ function LiquidityPage_({
     <>
       <PoolTabV3></PoolTabV3>
       <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
-        <div className="mb-4 mx-8">
-          <div className="text-white text-xl">
-            <FormattedMessage
-              id="liquidity_pools"
-              defaultMessage="Liquidity Pools"
-            />
-          </div>
-        </div>
         <WatchListCard
           poolTokenMetas={poolTokenMetas}
           watchPools={watchPools}
@@ -1224,7 +1219,7 @@ function LiquidityPage_({
           </div>
         ) : null}
 
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 lg:mb-3 lg:mt-5">
           <div
             className="bg-cardBg flex items-center rounded-xl p-1"
             style={{
@@ -1307,7 +1302,7 @@ function LiquidityPage_({
               <SearchIcon className="absolute right-2"></SearchIcon>
             </div>
 
-            {isSignedIn ? (
+            {isSignedIn && activeTab === 'v1' ? (
               <div
                 className="ml-1 text-xs"
                 data-type="info"
@@ -1424,46 +1419,19 @@ function LiquidityPage_({
                   <div className="mr-6 w-2">#</div>
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
-                <div className="col-span-1 md:hidden flex items-center">
-                  <div
-                    className="pr-1 cursor-pointer"
-                    onClick={() => {
-                      onSortChange('fee');
-                      sortBy !== 'fee' && onOrderChange('asc');
-                      sortBy === 'fee' &&
-                        onOrderChange(order === 'desc' ? 'asc' : 'desc');
-                    }}
-                  >
+                <div className="col-span-1 justify-self-center md:hidden flex items-center">
+                  <div className="pr-1 ">
                     <FormattedMessage id="fee" defaultMessage="Fee" />
                   </div>
-                  <span
-                    className="cursor-pointer"
-                    onClick={() => {
-                      onSortChange('fee');
-                      sortBy !== 'fee' && onOrderChange('asc');
-                      sortBy === 'fee' &&
-                        onOrderChange(order === 'desc' ? 'asc' : 'desc');
-                    }}
-                  >
-                    {sortBy === 'fee' ? (
-                      order === 'desc' ? (
-                        <DownArrowLight />
-                      ) : (
-                        <UpArrowLight />
-                      )
-                    ) : (
-                      <UpArrowDeep />
-                    )}
-                  </span>
                 </div>
 
-                <div className="col-span-1 relative right-1 md:hidden flex items-center">
+                <div className="col-span-1 justify-self-center  relative right-1 md:hidden flex items-center">
                   <div className="pr-1 ">
                     <FormattedMessage id="apr" defaultMessage="APR" />
                   </div>
                 </div>
 
-                <div className="col-span-1 relative right-5 md:hidden flex items-center">
+                <div className="col-span-1 justify-self-center relative  md:hidden flex items-center">
                   <div className="pr-1 ">
                     <FormattedMessage
                       id="volume_24h"
@@ -1472,7 +1440,7 @@ function LiquidityPage_({
                   </div>
                 </div>
 
-                <div className="col-span-1 flex items-center">
+                <div className="col-span-1 justify-self-center relative left-4 flex items-center">
                   <span
                     className="pr-1 cursor-pointer"
                     onClick={() => {
@@ -1504,7 +1472,7 @@ function LiquidityPage_({
                     )}
                   </span>
                 </div>
-                <p className="col-span-1">
+                <p className="col-span-1 justify-self-end relative right-6">
                   <FormattedMessage id="pools" defaultMessage="Pools" />
                 </p>
               </header>
@@ -1825,9 +1793,68 @@ function TokenChart({
     USDt: '#0E8585',
   };
 
+  const colorLight = {
+    DAI: 'rgba(255, 199, 0, 1)',
+    'USDT.e': '#167356',
+    USDT: '#167356',
+    USDC: 'rgba(0, 163, 255, 1)',
+    USN: 'rgba(255, 255, 255, 1)',
+    cUSD: 'rgba(69, 205, 133, 1)',
+    HBTC: '#4D85F8',
+    WBTC: '#ED9234',
+    STNEAR: '#A0A0FF',
+    NEAR: '#A0B1AE',
+    LINEAR: '#4081FF',
+    NEARXC: '#4d5971',
+    NearXC: '#4d5971',
+    NearX: '#00676D',
+    USDt: '#0E8585',
+  };
+
   let innerRadius = 30;
   let outerRadius = 40;
   let width = 80;
+
+  const renderActiveShape = (props: any) => {
+    const RADIAN = Math.PI / 180;
+    const {
+      cx,
+      cy,
+      midAngle,
+      startAngle,
+      endAngle,
+      fill,
+      payload,
+      percent,
+      value,
+      index,
+      token,
+    } = props;
+    const sin = Math.sin(-RADIAN * midAngle);
+    const cos = Math.cos(-RADIAN * midAngle);
+    const sx = cx + (outerRadius - 2) * cos;
+    const sy = cy + (outerRadius - 2) * sin;
+    const mx = cx + (outerRadius + 30) * cos;
+    const my = cy + (outerRadius + 30) * sin;
+    const ex = mx + (cos >= 0 ? 1 : -1) * 30;
+    const ey = my;
+
+    return (
+      <g>
+        <Sector
+          cx={cx}
+          cy={cy}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          innerRadius={innerRadius - 5}
+          outerRadius={outerRadius}
+          fill={colorLight[token.symbol]}
+          stroke={null}
+          strokeWidth={2}
+        />
+      </g>
+    );
+  };
 
   const customLabel = activeToken && (
     <div className="text-white absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs">
@@ -1846,6 +1873,8 @@ function TokenChart({
           outerRadius={outerRadius}
           dataKey="value"
           labelLine={false}
+          activeShape={renderActiveShape}
+          activeIndex={data.findIndex((o) => o.token.id === activeToken)}
         >
           {data.map((entry, index) => {
             return (
@@ -1909,7 +1938,7 @@ const RenderDisplayTokensAmounts = ({
                 className=" text-sm"
                 title={toPrecision(
                   scientificNotationToString(coinsAmounts[token.id].toString()),
-                  2
+                  0
                 )}
               >
                 {toInternationalCurrencySystem(
@@ -1925,33 +1954,17 @@ const RenderDisplayTokensAmounts = ({
 };
 
 const StablePoolClassIcon = ({ id }: { id: string }) => {
-  const stableClass = NEAR_CLASS_STABLE_POOL_IDS.includes(id)
-    ? 'NEAR'
-    : USD_CLASS_STABLE_POOL_IDS.includes(id)
-    ? 'USD'
-    : 'BTC';
+  const stableClassIcon = NEAR_CLASS_STABLE_POOL_IDS.includes(id) ? (
+    <NEAR_TEXT />
+  ) : USD_CLASS_STABLE_POOL_IDS.includes(id) ? (
+    <USD_TEXT />
+  ) : (
+    <BTC_TEXT />
+  );
 
   const isMobile = useClientMobile();
 
-  return (
-    <div
-      className="absolute top-0 xs:-top-2 md:-top-2 left-5"
-      style={{
-        fontSize: isMobile ? '50px' : '60px',
-        lineHeight: isMobile ? '55px' : '66px',
-        opacity: '0.1',
-        zIndex: '5',
-        fontWeight: '700',
-        background:
-          'linear-gradient(180deg, #7E8A93 16.67%, rgba(126, 138, 147, 0.29) 100%)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-      }}
-    >
-      {stableClass}
-    </div>
-  );
+  return <div className="absolute top-0  left-5">{stableClassIcon}</div>;
 };
 
 function StablePoolCard({
@@ -1982,7 +1995,6 @@ function StablePoolCard({
 
   const haveFarm = countV2 > endedFarmCountV2;
 
-  const multiMining = countV2 - endedFarmCountV2 > 1;
   const onlyEndedFarmsV2 = endedFarmCountV2 === countV2;
   const history = useHistory();
 
@@ -1999,23 +2011,30 @@ function StablePoolCard({
         to={`/sauce/${poolData.pool.id}`}
         className={`${
           hover || isMobile ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-        } relative z-20 rounded-xl px-8 xs:px-5 md:px-5 w-full h-28 xs:h-20 md:h-20 flex items-center justify-between`}
+        } relative z-20 rounded-xl xs:rounded-t-xl md:rounded-t-xl xs:rounded-b-none md:rounded-b-none px-8 xs:px-5 md:px-5 w-full h-28 xs:h-20 md:h-20 flex items-center justify-between`}
         onMouseEnter={() => {
           setHover(true);
         }}
       >
         <StablePoolClassIcon id={poolData.pool.id.toString()} />
-        <div className="w-1/2 xs:w-full md:w-full flex items-center  xs:justify-between md:justify-between">
+        <div
+          className={`w-1/2 xs:w-full md:w-full ${
+            haveFarm
+              ? 'xs:relative xs:top-1 xs:items-start md:relative md:top-1 md:items-start'
+              : ''
+          }  flex items-center   xs:justify-between md:justify-between`}
+        >
           <Images tokens={poolData.tokens} size="8" className="mr-4" />
 
           <div className="flex xs:flex-col xs:items-end items-center">
             <Symbols
               fontSize="xs:text-sm md:text-sm "
               tokens={poolData.tokens}
+              seperator="-"
             />
 
             <span
-              className="ml-1 xs:mt-1 md:mt-1 cursor-pointer"
+              className="ml-1 xs:relative md:relative xs:top-1 md:top-1 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -2027,7 +2046,9 @@ function StablePoolCard({
                 );
               }}
             >
-              {haveFarm && <FarmButton farmCount={1} />}
+              {haveFarm && (
+                <FarmButton farmCount={countV2 - endedFarmCountV2} />
+              )}
             </span>
           </div>
         </div>
@@ -2135,7 +2156,7 @@ function StablePoolCard({
           </div>
 
           <div
-            className="cursor-pointer"
+            className={`cursor-pointer ${!haveFarm ? 'hidden' : ''}`}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -2155,7 +2176,7 @@ function StablePoolCard({
 
         <div className="flex xs:hidden md:hidden items-center">
           <SolidButton
-            className={`w-full rounded-lg text-center  flex items-center justify-center min-w-32 px-5 py-2.5 mr-2 text-sm`}
+            className={`w-full rounded-lg text-center  flex items-center justify-center h-9 min-w-40  py-1 mr-2 text-sm`}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -2172,7 +2193,7 @@ function StablePoolCard({
             />
           </SolidButton>
           <OutlineButton
-            className="w-full py-2.5 px-5 min-w-32 ml-2 text-sm h-11 rounded-lg"
+            className="w-full py-1  min-w-40 ml-2 text-sm  h-9 rounded-lg flex items-center justify-center"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
