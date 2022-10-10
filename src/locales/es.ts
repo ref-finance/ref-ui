@@ -626,7 +626,7 @@ const es = {
   all_4_v2: '4 tokens/tiempo',
 
   more_than_seed: 'La entrada debe ser mayor o igual que ',
-  how_to_earn_more: '¿Cómo combinar las recompensas?',
+  how_to_earn_more: 'Cómo combinar las recompensas?',
   you_shares: 'Tus Shares',
   lock_your_lp_tokens_with_booster:
     'Bloquea tus LP tokens para que puedas hacer un boost a tus recompensas',
@@ -806,7 +806,7 @@ const es = {
   you_staked: 'Ha hecho un stake',
   has_rewards_tip_in_v2:
     'Retire las recompensas heredadas de <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Farms</a>.',
-  how_to_get: '¿Cómo obtener?',
+  how_to_get: 'Cómo obtener?',
   get_booster: 'Obtener Booster',
   ended_farms: 'Farms finalizadas',
   boosted_farms: 'Boosted farms',

@@ -5621,7 +5621,7 @@ export const GovProposal = ({
               data-class="reactTip"
               data-html={true}
               data-tip={`
-              <div className="text-xs">
+              <div class="text-xs w-40">
 
                 <div 
                   style="font-weight:400",

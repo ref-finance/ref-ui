@@ -728,7 +728,7 @@ export const LockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
@@ -803,7 +803,7 @@ export const LockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
@@ -1178,7 +1178,7 @@ const UnLockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
  
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -1260,7 +1260,7 @@ const UnLockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
 
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -1491,7 +1491,7 @@ const VotingPowerCard = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
 
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -1601,7 +1601,7 @@ const FarmBoosterCard = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
   
                 <div 
                   style="max-width: ${
