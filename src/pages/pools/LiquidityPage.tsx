@@ -252,7 +252,13 @@ function MobilePoolRow({
       return toInternationalCurrencySystem(value.toString());
     else if (sortBy === 'fee') return `${calculateFeePercent(value)}%`;
     else if (sortBy === 'volume_24h')
-      return `$${toInternationalCurrencySystem(h24volume)}`;
+      return !h24volume
+        ? '-'
+        : Number(h24volume) == 0
+        ? '$0'
+        : Number(h24volume) < 0.01
+        ? '$ <0.01'
+        : `$${toInternationalCurrencySystem(h24volume)}`;
     else if (sortBy === 'apr') return `${getPoolFeeApr(h24volume, pool)}%`;
   };
 
@@ -933,6 +939,8 @@ function PoolRow({
             ? '-'
             : Number(h24volume) == 0
             ? '$0'
+            : Number(h24volume) < 0.01
+            ? '$ <0.01'
             : `$${toInternationalCurrencySystem(h24volume)}`}
         </div>
 
@@ -2033,10 +2041,12 @@ function StablePoolCard({
               ? '-'
               : Number(h24volume) == 0
               ? '$0'
+              : Number(h24volume) < 0.01
+              ? '$ <0.01'
               : `$${toInternationalCurrencySystem(h24volume)}`}
           </div>
 
-          <div className="flex flex-col   flex-shrink-0 relative lg:right-12 lg2:right-8   2xl:-right-4">
+          <div className="flex flex-col   flex-shrink-0 relative lg:right-12 lg2:right-8   2xl:-right-8">
             <div
               className="col-span-1 py-1 text-lg "
               title={toPrecision(
@@ -2106,6 +2116,8 @@ function StablePoolCard({
               ? '-'
               : Number(h24volume) == 0
               ? '$0'
+              : Number(h24volume) < 0.01
+              ? '$ <0.01'
               : `$${toInternationalCurrencySystem(h24volume)}`}
           </div>
         </div>
@@ -2254,7 +2266,7 @@ function StablePoolList({
           </div>
 
           <div
-            className={`relative lg:right-12 lg2:right-8   2xl:-right-4  text-gradientFrom  inline-flex items-center`}
+            className={`relative lg:right-12 lg2:right-8   2xl:-right-8  text-gradientFrom  inline-flex items-center`}
           >
             <span
               className="pr-1 cursor-pointer"
