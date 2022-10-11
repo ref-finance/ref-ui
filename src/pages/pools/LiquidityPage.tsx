@@ -122,26 +122,39 @@ const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
 
-export function getPoolFeeApr(dayVolume: string, pool: Pool) {
+export function getPoolFeeApr(
+  dayVolume: string,
+  pool: Pool,
+  tvlInput?: number
+) {
   let result = '0';
   if (dayVolume) {
     const { fee, tvl } = pool;
+
+    const newTvl = tvlInput || tvl;
+
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
-    if (tvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+    if (newTvl > 0 && revenu24h > 0) {
+      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
       result = toPrecision(annualisedFeesPrct.toString(), 2);
     }
   }
   return Number(result);
 }
 
-export function getPoolFeeAprTitle(dayVolume: string, pool: Pool) {
+export function getPoolFeeAprTitle(
+  dayVolume: string,
+  pool: Pool,
+  tvlInput?: number
+) {
   let result = '0';
   if (dayVolume) {
     const { fee, tvl } = pool;
+    const newTvl = tvlInput || tvl;
+
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
-    if (tvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+    if (newTvl > 0 && revenu24h > 0) {
+      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
       result = annualisedFeesPrct.toString();
     }
   }

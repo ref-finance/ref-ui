@@ -1813,11 +1813,13 @@ export function PoolDetailsPage() {
                     className="text-white"
                     title={
                       dayVolume
-                        ? `${getPoolFeeAprTitle(dayVolume, pool)}%`
+                        ? `${getPoolFeeAprTitle(dayVolume, pool, poolTVL)}%`
                         : '-'
                     }
                   >
-                    {dayVolume ? `${getPoolFeeApr(dayVolume, pool)}%` : '-'}
+                    {dayVolume
+                      ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
+                      : '-'}
                   </div>
                 </div>
 
