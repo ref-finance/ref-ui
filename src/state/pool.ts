@@ -60,7 +60,10 @@ import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import getConfig from '../services/config';
 import { useFarmStake } from './farm';
 import { ONLY_ZEROS } from '../utils/numbers';
-import { getPoolsByTokensIndexer } from '../services/indexer';
+import {
+  getPoolsByTokensIndexer,
+  getAllPoolsIndexer,
+} from '../services/indexer';
 import {
   getStablePoolFromCache,
   getRefPoolsByToken1ORToken2,
@@ -325,21 +328,19 @@ export const useMorePoolIds = ({
   return ids;
 };
 
-export const usePoolsMorePoolIds = ({ pools }: { pools: Pool[] }) => {
+export const usePoolsMorePoolIds = () => {
   // top pool id to more pool ids:Array
   const [poolsMorePoolIds, setMorePoolIds] = useState<Record<string, string[]>>(
     {}
   );
 
   const getAllPoolsTokens = async () => {
-    return await db.getAllPoolsTokens();
+    return await getAllPoolsIndexer();
   };
 
   useEffect(() => {
-    if (!pools) return;
-
     getAllPoolsTokens().then((res) => {
-      const poolsMorePoolIds = pools.map((p) => {
+      const poolsMorePoolIds = res.map((p) => {
         const id1 = p.tokenIds[0];
         const id2 = p.tokenIds[1];
 
@@ -353,13 +354,13 @@ export const usePoolsMorePoolIds = ({ pools }: { pools: Pool[] }) => {
       const parsedIds = poolsMorePoolIds.reduce((acc, cur, i) => {
         return {
           ...acc,
-          [pools[i].id.toString()]: cur,
+          [res[i].id.toString()]: cur,
         };
       }, {});
 
       setMorePoolIds(parsedIds);
     });
-  }, [pools]);
+  }, []);
 
   return poolsMorePoolIds;
 };

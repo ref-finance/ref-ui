@@ -48,6 +48,7 @@ import {
 } from './wrap-near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { getAllPoolsIndexer } from './indexer';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 100;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
@@ -289,11 +290,12 @@ export const getPoolsByTokens = async ({
   }
   if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
     setLoadingData && setLoadingData(true);
-    const totalPools = await getTotalPools();
-    const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-    const pools = (
-      await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
-    )
+
+    const tvlThresh = 100;
+
+    // const totalPools = await getTotalPools();
+    // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+    const pools = (await getAllPoolsIndexer(tvlThresh))
       .flat()
       .map((p) => ({ ...p, Dex: 'ref' }));
 

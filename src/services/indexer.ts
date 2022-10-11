@@ -14,7 +14,7 @@ import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
 import { getCurrentWallet } from '../utils/wallets-integration';
-import { getPoolsByTokens } from './pool';
+import { getPoolsByTokens, getAllPools, parsePool } from './pool';
 import {
   filterBlackListPools,
   ALL_STABLE_POOL_IDS,
@@ -173,6 +173,17 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
     console.log(error);
     return [];
   }
+};
+
+export const getAllPoolsIndexer = async (tvlThresh?: number) => {
+  const rawRes = await fetch(
+    config.indexerUrl + `/list-pools?tvl=${tvlThresh || 0}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+
+  return rawRes.map((r: any) => parsePool(r));
 };
 
 export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
