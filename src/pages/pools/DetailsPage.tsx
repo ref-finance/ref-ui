@@ -136,6 +136,7 @@ import { BoostInputAmount } from '../../components/forms/InputAmount';
 import { ExternalLinkIcon } from '~components/icon/Risk';
 import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
 import { useClientMobile } from '../../utils/device';
+import { getPoolFeeApr, getPoolFeeAprTitle } from './LiquidityPage';
 
 interface ParamTypes {
   id: string;
@@ -1803,6 +1804,23 @@ export function PoolDetailsPage() {
                       : '-'}
                   </div>
                 </div>
+
+                <div className="flex items-center justify-between py-2.5">
+                  <div>
+                    <FormattedMessage id="apr" defaultMessage="APR" />
+                  </div>
+                  <div
+                    className="text-white"
+                    title={
+                      dayVolume
+                        ? `${getPoolFeeAprTitle(dayVolume, pool)}%`
+                        : '-'
+                    }
+                  >
+                    {dayVolume ? `${getPoolFeeApr(dayVolume, pool)}%` : '-'}
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between py-2.5">
                   <div>
                     <FormattedMessage id="total_label" />
@@ -1893,7 +1911,7 @@ export function PoolDetailsPage() {
               padding="px-7 py-5"
               bgcolor="bg-cardBg"
               style={{
-                height: '397px',
+                height: '427px',
               }}
             >
               {chartDisplay === 'volume' ? (

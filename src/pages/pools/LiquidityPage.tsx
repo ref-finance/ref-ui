@@ -122,7 +122,7 @@ const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
 
-function getPoolFeeApr(dayVolume: string, pool: Pool) {
+export function getPoolFeeApr(dayVolume: string, pool: Pool) {
   let result = '0';
   if (dayVolume) {
     const { fee, tvl } = pool;
@@ -135,7 +135,7 @@ function getPoolFeeApr(dayVolume: string, pool: Pool) {
   return Number(result);
 }
 
-function getPoolFeeAprTitle(dayVolume: string, pool: Pool) {
+export function getPoolFeeAprTitle(dayVolume: string, pool: Pool) {
   let result = '0';
   if (dayVolume) {
     const { fee, tvl } = pool;
@@ -236,6 +236,7 @@ function MobilePoolRow({
   morePoolIds,
   supportFarm,
   h24volume,
+  watchPool,
 }: {
   pool: Pool;
   sortBy: string;
@@ -245,6 +246,7 @@ function MobilePoolRow({
   morePoolIds: string[];
   supportFarm: Boolean;
   h24volume: string;
+  watchPool?: boolean;
 }) {
   const { ref } = useInView();
 
@@ -328,7 +330,7 @@ function MobilePoolRow({
               </div>
             )}
 
-            {morePoolIds?.length && morePoolIds?.length > 1 && !watched ? (
+            {morePoolIds?.length && morePoolIds?.length > 1 && !watchPool ? (
               <div
                 onClick={(e) => {
                   e.preventDefault();
@@ -432,6 +434,7 @@ function MobileWatchListCard({
                 morePoolIds={poolsMorePoolsIds[pool.id]}
                 supportFarm={!!farmCounts[pool.id]}
                 h24volume={volumes[pool.id]}
+                watchPool
               />
             </div>
           ))}
@@ -1129,6 +1132,8 @@ function LiquidityPage_({
 
   const [showAddPoolModal, setShowAddPoolModal] = useState<boolean>(false);
 
+  const [reSortBy, setReSortBy] = useState<string>('');
+
   useEffect(() => {
     canFarm(getVEPoolId()).then(({ count }) => {
       setSupportFarmStar(!!count);
@@ -1137,6 +1142,30 @@ function LiquidityPage_({
   }, []);
 
   const tokensStar = [REF_META_DATA, unwrapedNear];
+
+  const poolReSortingFunc = (p1: Pool, p2: Pool) => {
+    const v1 = volumes[p1.id] ? parseFloat(volumes[p1.id]) : 0;
+
+    const v2 = volumes[p2.id] ? parseFloat(volumes[p2.id]) : 0;
+
+    const apr1 = getPoolFeeAprTitle(v1.toString(), p1);
+
+    const apr2 = getPoolFeeAprTitle(v2.toString(), p2);
+
+    if (order === 'desc') {
+      if (reSortBy === 'volume') {
+        return v2 - v1;
+      } else if (reSortBy === 'apr') {
+        return apr2 - apr1;
+      }
+    } else if (order === 'asc') {
+      if (reSortBy === 'volume') {
+        return v1 - v2;
+      } else if (reSortBy === 'apr') {
+        return apr1 - apr2;
+      }
+    }
+  };
 
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
@@ -1414,38 +1443,142 @@ function LiquidityPage_({
             </div>
 
             <section className="">
-              <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
+              <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
                 <div className="col-span-3 md:col-span-4 flex">
                   <div className="mr-6 w-2">#</div>
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
                 <div className="col-span-1 justify-self-center md:hidden flex items-center">
-                  <div className="pr-1 ">
+                  <span
+                    className={`pr-1  cursor-pointer ${
+                      sortBy !== 'fee' ? 'hover:text-white' : ''
+                    } ${sortBy === 'fee' ? 'text-gradientFrom' : ''}`}
+                    onClick={() => {
+                      onSortChange('fee');
+                      setReSortBy('');
+                      sortBy !== 'fee' && onOrderChange('desc');
+                      sortBy === 'fee' &&
+                        onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
                     <FormattedMessage id="fee" defaultMessage="Fee" />
-                  </div>
+                  </span>
+
+                  <span
+                    className={`cursor-pointer ${
+                      sortBy !== 'fee' ? 'hidden' : ''
+                    }`}
+                    onClick={() => {
+                      onSortChange('fee');
+                      setReSortBy('');
+                      sortBy !== 'fee' && onOrderChange('desc');
+                      sortBy === 'fee' &&
+                        onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    {sortBy === 'fee' ? (
+                      order === 'desc' ? (
+                        <DownArrowLight />
+                      ) : (
+                        <UpArrowLight />
+                      )
+                    ) : (
+                      <UpArrowDeep />
+                    )}
+                  </span>
                 </div>
 
                 <div className="col-span-1 justify-self-center  relative right-1 md:hidden flex items-center">
-                  <div className="pr-1 ">
+                  <span
+                    className={`pr-1  cursor-pointer ${
+                      reSortBy !== 'apr' ? 'hover:text-white' : ''
+                    } ${reSortBy === 'apr' ? 'text-gradientFrom' : ''}`}
+                    onClick={() => {
+                      onSortChange('');
+                      setReSortBy('apr');
+                      reSortBy !== 'apr' && onOrderChange('desc');
+                      reSortBy === 'apr' &&
+                        onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
                     <FormattedMessage id="apr" defaultMessage="APR" />
-                  </div>
+                  </span>
+
+                  <span
+                    className={reSortBy !== 'apr' ? 'hidden' : 'cursor-pointer'}
+                    onClick={() => {
+                      onSortChange('');
+                      setReSortBy('apr');
+                      reSortBy !== 'apr' && onOrderChange('desc');
+                      reSortBy === 'apr' &&
+                        onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    {reSortBy === 'apr' ? (
+                      order === 'desc' ? (
+                        <DownArrowLight />
+                      ) : (
+                        <UpArrowLight />
+                      )
+                    ) : (
+                      <UpArrowDeep />
+                    )}
+                  </span>
                 </div>
 
                 <div className="col-span-1 justify-self-center relative  md:hidden flex items-center">
-                  <div className="pr-1 ">
+                  <span
+                    className={`pr-1  cursor-pointer ${
+                      reSortBy !== 'volume' ? 'hover:text-white' : ''
+                    } ${reSortBy === 'volume' ? 'text-gradientFrom' : ''}`}
+                    onClick={() => {
+                      onSortChange('');
+                      setReSortBy('volume');
+                      reSortBy !== 'volume' && onOrderChange('desc');
+                      reSortBy === 'volume' &&
+                        onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
                     <FormattedMessage
                       id="volume_24h"
                       defaultMessage="Volume (24h)"
                     />
-                  </div>
+                  </span>
+
+                  <span
+                    className={
+                      reSortBy !== 'volume' ? 'hidden' : 'cursor-pointer'
+                    }
+                    onClick={() => {
+                      onSortChange('');
+                      setReSortBy('volume');
+                      reSortBy !== 'volume' && onOrderChange('desc');
+                      reSortBy === 'volume' &&
+                        onOrderChange(order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    {reSortBy === 'volume' ? (
+                      order === 'desc' ? (
+                        <DownArrowLight />
+                      ) : (
+                        <UpArrowLight />
+                      )
+                    ) : (
+                      <UpArrowDeep />
+                    )}
+                  </span>
                 </div>
 
                 <div className="col-span-1 justify-self-center relative left-4 flex items-center">
                   <span
-                    className="pr-1 cursor-pointer"
+                    className={`pr-1  cursor-pointer ${
+                      sortBy !== 'tvl' ? 'hover:text-white' : ''
+                    } ${sortBy === 'tvl' ? 'text-gradientFrom' : ''}`}
                     onClick={() => {
                       onSortChange('tvl');
-                      sortBy !== 'tvl' && onOrderChange('asc');
+                      setReSortBy('');
+
+                      sortBy !== 'tvl' && onOrderChange('desc');
                       sortBy === 'tvl' &&
                         onOrderChange(order === 'desc' ? 'asc' : 'desc');
                     }}
@@ -1453,10 +1586,11 @@ function LiquidityPage_({
                     <FormattedMessage id="tvl" defaultMessage="TVL" />
                   </span>
                   <span
-                    className="cursor-pointer"
+                    className={sortBy !== 'tvl' ? 'hidden' : 'cursor-pointer'}
                     onClick={() => {
                       onSortChange('tvl');
-                      sortBy !== 'tvl' && onOrderChange('asc');
+                      setReSortBy('');
+                      sortBy !== 'tvl' && onOrderChange('desc');
                       sortBy === 'tvl' &&
                         onOrderChange(order === 'desc' ? 'asc' : 'desc');
                     }}
@@ -1478,19 +1612,22 @@ function LiquidityPage_({
               </header>
 
               <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
-                {pools?.filter(poolFilterFunc).map((pool, i) => (
-                  <PoolRow
-                    tokens={poolTokenMetas[pool.id]}
-                    key={i}
-                    pool={pool}
-                    index={i + 1}
-                    selectCoinClass={selectCoinClass}
-                    morePoolIds={poolsMorePoolsIds[pool.id]}
-                    supportFarm={!!farmCounts[pool.id]}
-                    farmCount={farmCounts[pool.id]}
-                    h24volume={volumes[pool.id]}
-                  />
-                ))}
+                {pools
+                  ?.filter(poolFilterFunc)
+                  .sort(poolReSortingFunc)
+                  .map((pool, i) => (
+                    <PoolRow
+                      tokens={poolTokenMetas[pool.id]}
+                      key={i}
+                      pool={pool}
+                      index={i + 1}
+                      selectCoinClass={selectCoinClass}
+                      morePoolIds={poolsMorePoolsIds[pool.id]}
+                      supportFarm={!!farmCounts[pool.id]}
+                      farmCount={farmCounts[pool.id]}
+                      h24volume={volumes[pool.id]}
+                    />
+                  ))}
               </div>
             </section>
           </Card>
@@ -1599,6 +1736,10 @@ export function LiquidityPage() {
 
   const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: displayPools });
 
+  const watchPoolVolumes = useDayVolumesPools(watchPools.map((p) => p.id));
+
+  const allVolumes = { ...watchPoolVolumes, ...volumes };
+
   if (!displayPools || loading || !watchPools || !poolTokenMetas)
     return <Loading />;
 
@@ -1624,7 +1765,7 @@ export function LiquidityPage() {
             localStorage.setItem(REF_FI_FARM_ONLY, farmOnly ? '1' : '0');
           }}
           watchPools={watchPools}
-          volumes={volumes}
+          volumes={allVolumes}
           order={order}
           sortBy={sortBy}
           allPools={AllPools}
@@ -1647,7 +1788,7 @@ export function LiquidityPage() {
           pools={displayPools}
           watchPools={watchPools}
           allPools={AllPools}
-          volumes={volumes}
+          volumes={allVolumes}
           order={order}
           sortBy={sortBy}
           farmCounts={farmCounts}

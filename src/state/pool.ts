@@ -67,6 +67,8 @@ import {
   getRefPoolsByToken1ORToken2,
 } from '../services/pool';
 import Big from 'big.js';
+import { getPoolFeeAprTitle } from '../pages/pools/LiquidityPage';
+import { getPoolFeeAprTitleRPCView } from '../pages/pools/MorePoolsPage';
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
@@ -380,6 +382,7 @@ export const useMorePools = ({
   sortBy: string;
 }) => {
   const [morePools, setMorePools] = useState<PoolRPCView[]>();
+
   useEffect(() => {
     getPoolsByTokensIndexer({
       token0: tokenIds[0],
@@ -388,16 +391,36 @@ export const useMorePools = ({
       // const orderedPools = orderBy(res, [sortBy], [order]);
       setMorePools(res);
     });
-  }, [order, sortBy]);
+  }, [tokenIds.join('-')]);
 
-  return orderBy(
-    morePools?.map((p) => ({
-      ...p,
-      tvl: Number(p.tvl),
-    })),
-    [sortBy],
-    [order]
-  );
+  useEffect(() => {
+    if (!morePools || morePools.length === 0) return;
+
+    console.log(morePools);
+
+    get24hVolumes(morePools.map((pool) => pool.id.toString())).then((res) => {
+      const volumePools = morePools.map((p, i) => {
+        return {
+          ...p,
+          h24volume: res[i],
+          apr: getPoolFeeAprTitleRPCView(res[i], morePools[i]),
+        };
+      });
+
+      setMorePools(volumePools);
+    });
+  }, [(morePools || []).map((p) => p?.id).join('-')]);
+
+  return !morePools
+    ? null
+    : orderBy(
+        morePools?.map((p) => ({
+          ...p,
+          tvl: Number(p.tvl),
+        })),
+        [sortBy],
+        [order]
+      );
 };
 
 export const usePoolsFarmCount = ({
