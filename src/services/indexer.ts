@@ -178,7 +178,7 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
 export const getAllPoolsIndexer = async (amountThresh?: string) => {
   const rawRes = await fetch(
     config.indexerUrl +
-      `/list-pools?${amountThresh ? `amount=${amountThresh}` : ''}`,
+      `/list-pools?${amountThresh ? `amounts=${amountThresh}` : ''}`,
     {
       method: 'GET',
     }
