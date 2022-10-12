@@ -291,11 +291,11 @@ export const getPoolsByTokens = async ({
   if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
     setLoadingData && setLoadingData(true);
 
-    const tvlThresh = 100;
+    const amountThresh = '0';
 
     // const totalPools = await getTotalPools();
     // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-    const pools = (await getAllPoolsIndexer(tvlThresh)).map((p) => ({
+    const pools = (await getAllPoolsIndexer(amountThresh)).map((p) => ({
       ...p,
       Dex: 'ref',
     }));
