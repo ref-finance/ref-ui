@@ -387,7 +387,17 @@ export const v3Swap = async ({
     if (DCLRegistered === null) {
       transactions.push({
         receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-        functionCalls: [registerAccountOnToken()],
+        functionCalls: [
+          {
+            methodName: 'storage_deposit',
+            args: {
+              registration_only: true,
+              account_id: getCurrentWallet()?.wallet?.getAccountId(),
+            },
+            gas: '30000000000000',
+            amount: '0.5',
+          },
+        ],
       });
     }
 
