@@ -393,7 +393,7 @@ export function PoolSlippageSelectorV3({
 
   return (
     <>
-      <fieldset className="flex lg:items-center md:flex-col xs:flex-col justify-between mb-4 pt-2">
+      <fieldset className="flex lg:items-center flex-wrap justify-between mb-4 pt-2">
         <div className="flex items-center md:mb-4 xs:mb-4">
           <label className="text-sm text-center text-white">
             <FormattedMessage

@@ -21,6 +21,7 @@ import {
   GradientButton,
   BorderButton,
   ButtonTextWrapper,
+  OprationButton,
   ConnectToNearBtn,
 } from '~components/button/Button';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
@@ -439,41 +440,18 @@ export default function YourLiquidityDetail(props: any) {
             </div>
           </div>
         </div>
-        <div className="flex items-center xs:hidden md:hidden">
-          <GradientButton
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowAddBox(true);
-            }}
-            color="#fff"
-            className={`w-20 h-8 text-center text-sm text-white focus:outline-none mr-2.5`}
-          >
-            Add
-          </GradientButton>
-          <BorderButton
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowRemoveBox(true);
-            }}
-            rounded="rounded-md"
-            px="px-0"
-            py="py-1"
-            className="flex-grow  w-20 text-sm text-greenColor h-8"
-          >
-            Remove
-          </BorderButton>
-        </div>
       </div>
       <div className="flex justify-between mt-8 items-stretch xs:flex-col md:flex-col xs:mt-5 md:mt-5">
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow mr-3 xs:w-full md:w-full xs:mr-0 md:mr-0 xs:p-3 md:p-3">
-          <div className="flex flex-col xs:flex-row md:flex-row xs:w-full md:w-full xs:justify-between md:justify-between">
+          <div className="flex justify-between xs:w-full md:w-full">
             <div className="text-white text-base">Your Liquidity</div>
-            <div className="flex items-center justify-between mt-3.5 xs:flex-col md:flex-col xs:mt-0 md:mt-0 xs:items-end md:items-end">
+            <div className="text-white text-sm">~{getLiquidityPrice()}</div>
+            {/* <div className="flex items-center justify-between mt-3.5 xs:flex-col md:flex-col xs:mt-0 md:mt-0 xs:items-end md:items-end">
               <span className="text-white text-xl">{getLiquidityAmount()}</span>
               <span className="text-v3SwapGray text-sm">
                 ~{getLiquidityPrice()}
               </span>
-            </div>
+            </div> */}
           </div>
           <div className={`flex items-center justify-between mt-5`}>
             <div className="flex items-center">
@@ -507,11 +485,37 @@ export default function YourLiquidityDetail(props: any) {
               </span>
             </div>
           </div>
+          <div className="flex items-center justify-between mt-5">
+            <GradientButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowAddBox(true);
+              }}
+              color="#fff"
+              className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
+            >
+              Add
+            </GradientButton>
+            <OprationButton
+              onClick={(e: any) => {
+                e.stopPropagation();
+                setShowRemoveBox(true);
+              }}
+              color="#fff"
+              className={`flex flex-grow  w-1 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
+            >
+              Remove
+            </OprationButton>
+          </div>
         </div>
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow xs:w-full md:w-full xs:mt-3 md:mt-3 xs:p-3 md:p-3">
           <div className="flex items-center justify-between text-white text-base flex-wrap">
             <span>Unclaimed Fees</span>
-            <div className="flex items-center">
+            <span className="text-white text-base">
+              {getTokenFeeAmount('p') || '$-'}
+            </span>
+
+            {/* <div className="flex items-center">
               <span className="text-white text-xl mr-2 lg:hidden">
                 {getTokenFeeAmount('p') || '$-'}
               </span>
@@ -528,12 +532,7 @@ export default function YourLiquidityDetail(props: any) {
                   Text={() => <FormattedMessage id="claim" />}
                 />
               </div>
-            </div>
-          </div>
-          <div className="flex items-center mt-3.5 xs:hidden md:hidden">
-            <span className="text-white text-xl">
-              {getTokenFeeAmount('p') || '$-'}
-            </span>
+            </div> */}
           </div>
           <div className="flex items-center justify-between mt-5">
             <div className="flex items-center">
@@ -566,6 +565,19 @@ export default function YourLiquidityDetail(props: any) {
                 {getTokenFeeAmount('r') || '-'}
               </span>
             </div>
+          </div>
+          <div
+            className={`flex items-center justify-center h-9 rounded-lg text-sm px-2 py-1 mt-5 ${
+              !canClaim()
+                ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+            }`}
+            onClick={claimRewards}
+          >
+            <ButtonTextWrapper
+              loading={claimLoading}
+              Text={() => <FormattedMessage id="claim" />}
+            />
           </div>
         </div>
       </div>
@@ -646,50 +658,28 @@ export default function YourLiquidityDetail(props: any) {
         </div>
         {/* input range area */}
       </div>
-      <div className="flex items-center lg:hidden mt-3">
-        <GradientButton
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowAddBox(true);
+      {showRemoveBox ? (
+        <RemovePoolV3
+          isOpen={showRemoveBox}
+          onRequestClose={() => {
+            setShowRemoveBox(false);
           }}
-          color="#fff"
-          className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-2.5`}
-        >
-          Add
-        </GradientButton>
-        <BorderButton
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowRemoveBox(true);
+          tokenMetadata_x_y={tokenMetadata_x_y}
+          poolDetail={poolDetail}
+          tokenPriceList={tokenPriceList}
+          userLiquidity={userLiquidity}
+          style={{
+            overlay: {
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
+            },
+            content: {
+              outline: 'none',
+              transform: 'translate(-50%, -50%)',
+            },
           }}
-          rounded="rounded-md"
-          px="px-0"
-          py="py-1"
-          className="flex-grow  w-1 text-sm text-greenColor h-8"
-        >
-          Remove
-        </BorderButton>
-      </div>
-      <RemovePoolV3
-        isOpen={showRemoveBox}
-        onRequestClose={() => {
-          setShowRemoveBox(false);
-        }}
-        tokenMetadata_x_y={tokenMetadata_x_y}
-        poolDetail={poolDetail}
-        tokenPriceList={tokenPriceList}
-        userLiquidity={userLiquidity}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            transform: 'translate(-50%, -50%)',
-          },
-        }}
-      ></RemovePoolV3>
+        ></RemovePoolV3>
+      ) : null}
       <AddPoolV3
         isOpen={showAddBox}
         onRequestClose={() => {

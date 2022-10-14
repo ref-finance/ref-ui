@@ -749,26 +749,28 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
           </div>
         </div>
       </div>
-      <RemovePoolV3
-        isOpen={showRemoveBox}
-        onRequestClose={() => {
-          setShowRemoveBox(false);
-        }}
-        tokenMetadata_x_y={tokenMetadata_x_y}
-        poolDetail={poolDetail}
-        tokenPriceList={tokenPriceList}
-        userLiquidity={liquidityDetail}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            transform: 'translate(-50%, -50%)',
-          },
-        }}
-      ></RemovePoolV3>
+      {showRemoveBox ? (
+        <RemovePoolV3
+          isOpen={showRemoveBox}
+          onRequestClose={() => {
+            setShowRemoveBox(false);
+          }}
+          tokenMetadata_x_y={tokenMetadata_x_y}
+          poolDetail={poolDetail}
+          tokenPriceList={tokenPriceList}
+          userLiquidity={liquidityDetail}
+          style={{
+            overlay: {
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
+            },
+            content: {
+              outline: 'none',
+              transform: 'translate(-50%, -50%)',
+            },
+          }}
+        ></RemovePoolV3>
+      ) : null}
       <AddPoolV3
         isOpen={showAddBox}
         onRequestClose={() => {

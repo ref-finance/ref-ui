@@ -221,7 +221,9 @@ export function drawChartData({
     const left_p: any = priceList[0];
     const right_p: any = priceList[priceList.length - 1];
     const l_r: any = L_list[L_list.length - 1];
-    const width = chartDom.current.clientWidth - space * 2;
+    const width = chartDom.current.clientWidth
+      ? chartDom.current.clientWidth - space * 2
+      : 0;
     const l: any = new BigNumber(left_p).multipliedBy(0.95).toFixed();
     const r: any = new BigNumber(right_p).multipliedBy(1.05).toFixed();
     const myScaleX = d3.scaleLinear().domain([l, r]).range([0, width]);

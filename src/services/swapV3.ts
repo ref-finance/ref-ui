@@ -830,7 +830,7 @@ export const checkTokenNeedsStorageDeposit_v3 = async () => {
   );
 
   if (!balance) {
-    storageNeeded = '0.1';
+    storageNeeded = '0.5';
   }
   return storageNeeded;
 };

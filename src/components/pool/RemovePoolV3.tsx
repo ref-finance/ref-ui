@@ -1,5 +1,5 @@
 import { path } from 'animejs';
-import React, { useEffect, useMemo, useState, useContext } from 'react';
+import React, { useEffect, useMemo, useState, useContext, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { WalletContext } from '../../utils/wallets-integration';
 import { useHistory } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { Card } from '~components/card/Card';
 import { isMobile } from '~utils/device';
 import { ModalClose } from '~components/icon';
 import { TokenMetadata } from '../../services/ft-contract';
-import { SwitchButton } from '~components/icon/V3';
+import { SwitchButton, Slider } from '~components/icon/V3';
 import {
   GradientButton,
   ButtonTextWrapper,
@@ -54,9 +54,12 @@ export const RemovePoolV3 = (props: any) => {
   const [isInrange, setIsInrange] = useState<boolean>(true);
   const [removeLoading, setRemoveLoading] = useState<boolean>(false);
   const [rateDirection, setRateDirection] = useState<boolean>(true);
+  const [removePercentAmount, setRemovePercentAmount] = useState<string>('100');
+  const [removePercentList] = useState([0, 25, 50, 75, 100]);
   const { globalState } = useContext(WalletContext);
+  const v3PoolRemoveRef = useRef(null);
+  const sliderRef = useRef(null);
   const isSignedIn = globalState.isSignedIn;
-  // const cardWidth = isMobile() ? '90vw' : '30vw';
   useEffect(() => {
     if (tokenMetadata_x_y && userLiquidity && poolDetail) {
       const { current_point } = poolDetail;
@@ -70,6 +73,21 @@ export const RemovePoolV3 = (props: any) => {
       getLiquidityAmount();
     }
   }, [tokenMetadata_x_y, userLiquidity, poolDetail]);
+  useEffect(() => {
+    if (liquidityAmount) {
+      changeRemoveAmount('100');
+    }
+  }, [liquidityAmount]);
+  useEffect(() => {
+    if (v3PoolRemoveRef.current) {
+      v3PoolRemoveRef.current.style.backgroundSize = `${removePercentAmount}% 100%`;
+    }
+    if (sliderRef.current) {
+      sliderRef.current.style.left = `${+removePercentAmount}%`;
+      const marginLeft = -13 - (20 * +removePercentAmount) / 100;
+      sliderRef.current.style.marginLeft = `${marginLeft}px`;
+    }
+  }, [removePercentAmount]);
   function get_liquidity_x_y() {
     const [tokenX, tokenY] = tokenMetadata_x_y;
     const { left_point, right_point, amount: L } = userLiquidity;
@@ -104,7 +122,10 @@ export const RemovePoolV3 = (props: any) => {
       const tokenXTotalPrice = new BigNumber(tokenXAmount || 0).multipliedBy(
         priceX
       );
-      const total_price = tokenYTotalPrice.plus(tokenXTotalPrice);
+      let total_price = tokenYTotalPrice.plus(tokenXTotalPrice);
+      total_price = new BigNumber(removePercentAmount)
+        .multipliedBy(total_price)
+        .dividedBy(100);
       if (total_price.isEqualTo(0)) {
         return '$0';
       } else if (total_price.isLessThan('0.001')) {
@@ -115,10 +136,8 @@ export const RemovePoolV3 = (props: any) => {
     }
   }
   function getLiquidityAmount() {
-    const [tokenX, tokenY] = tokenMetadata_x_y;
     const { amount } = userLiquidity;
-    const decimals = _.min([tokenX.decimals, tokenY.decimals]);
-    setLiquidityAmount(toReadableNumber(decimals, amount));
+    setLiquidityAmount(amount);
   }
 
   function displayLiquidityAmount() {
@@ -191,7 +210,12 @@ export const RemovePoolV3 = (props: any) => {
     }
     return '';
   }
-  function changeRemoveAmount(amount: string) {
+  function changeRemoveAmount(value: string) {
+    setRemovePercentAmount(value);
+    const amount = new BigNumber(liquidityAmount)
+      .multipliedBy(value)
+      .dividedBy(100)
+      .toFixed();
     setRemoveAmount(amount);
     getMinimumInfo(amount);
   }
@@ -263,12 +287,11 @@ export const RemovePoolV3 = (props: any) => {
   function remove() {
     setRemoveLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
-    const decimals = _.min([tokenX.decimals, tokenY.decimals]);
     remove_liquidity({
       token_x: tokenX,
       token_y: tokenY,
       lpt_id: userLiquidity.lpt_id,
-      amount: toNonDivisibleNumber(decimals, removeAmount),
+      amount: removeAmount,
       min_amount_x: toNonDivisibleNumber(tokenX.decimals, MINDATA.minX),
       min_amount_y: toNonDivisibleNumber(tokenY.decimals, MINDATA.minY),
     });
@@ -322,7 +345,7 @@ export const RemovePoolV3 = (props: any) => {
     <Modal {...restProps}>
       <Card
         style={{ maxHeight: '95vh' }}
-        className={`outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4 xs:w-90vw md:w-90vw lg:w-40vw xl:w-30vw`}
+        className={`outline-none border border-gradientFrom border-opacity-50 overflow-auto xsm: p-5 xs:w-90vw md:w-90vw lg:w-40vw xl:w-30vw`}
       >
         <div className="flex items-center justify-between">
           <span className="text-xl text-white">
@@ -332,8 +355,8 @@ export const RemovePoolV3 = (props: any) => {
             <ModalClose />
           </div>
         </div>
-        <div className="flex items-center justify-between mt-6">
-          <div className="flex items-center">
+        <div className="flex items-center justify-between mt-6 flex-wrap">
+          <div className="flex items-center mb-2">
             <div className="flex items-center">
               <img
                 src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
@@ -349,9 +372,11 @@ export const RemovePoolV3 = (props: any) => {
               {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
             </span>
           </div>
-          <span className="text-white text-lg">{displayLiquidityAmount()}</span>
+          <span className="text-white text-lg mb-2">
+            ~{getLiquidityPrice()}
+          </span>
         </div>
-        <div className="flex items-center justify-between mt-3">
+        {/* <div className="flex items-center justify-between mt-3">
           <div className="flex items-center">
             <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
               <span className="text-xs text-v3SwapGray mr-1.5">Fee Tiers</span>
@@ -377,8 +402,8 @@ export const RemovePoolV3 = (props: any) => {
           <span className="text-sm text-v3SwapGray">
             ~{getLiquidityPrice()}
           </span>
-        </div>
-        <div className="flex items-center mt-4">
+        </div> */}
+        {/* <div className="flex items-center mt-4">
           <div
             onClick={switchRate}
             className="flex items-center justify-center rounded-full bg-black bg-opacity-25 w-4 h-4 cursor-pointer mr-1.5"
@@ -401,8 +426,8 @@ export const RemovePoolV3 = (props: any) => {
             {getCurrentPrice('l')}
             {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}
           </div>
-        </div>
-        <div className="flex justify-between items-center h-14 px-3 mt-5 bg-black bg-opacity-20 rounded-lg">
+        </div> */}
+        {/* <div className="flex justify-between items-center h-14 px-3 mt-5 bg-black bg-opacity-20 rounded-lg">
           <input
             type="number"
             placeholder="0.0"
@@ -424,8 +449,64 @@ export const RemovePoolV3 = (props: any) => {
               Max
             </span>
           </div>
+        </div> */}
+        <div
+          className={`mt-10 xsm:mt-6 mb-20 xsm:mb-16 ${
+            liquidityAmount ? '' : 'hidden'
+          }`}
+        >
+          <div className="flex justify-between items-center mb-3 -mx-3">
+            {removePercentList.map((p) => {
+              return (
+                <div
+                  key={p}
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => {
+                    changeRemoveAmount(p.toString());
+                  }}
+                >
+                  <span
+                    className={`flex items-center justify-center text-xs text-primaryText w-11 py-1 border border-transparent hover:border-v3LiquidityRemoveBarColor rounded-lg ${
+                      p == +removePercentAmount ? 'bg-black bg-opacity-20' : ''
+                    }`}
+                  >
+                    {p}%
+                  </span>
+                  <label
+                    style={{ height: '5px', width: '1px' }}
+                    className="bg-primaryText mt-1"
+                  ></label>
+                </div>
+              );
+            })}
+          </div>
+          <div className={`relative flex flex-col`}>
+            <input
+              ref={v3PoolRemoveRef}
+              onChange={(e) => {
+                changeRemoveAmount(e.target.value);
+              }}
+              value={removePercentAmount}
+              type="range"
+              className="w-full cursor-pointer"
+              style={{ backgroundSize: '100% 100%' }}
+              min="0"
+              max="100"
+              step="any"
+            />
+            <div
+              className="flex items-center justify-center absolute top-5"
+              style={{ marginLeft: '-33px', left: '100%' }}
+              ref={sliderRef}
+            >
+              <Slider></Slider>
+              <span className="absolute text-sm text-black top-2.5">
+                {toPrecision(removePercentAmount.toString(), 0)}%
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="mt-5">
+        <div>
           <PoolSlippageSelectorV3
             slippageTolerance={slippageTolerance}
             onChange={setSlippageTolerance}
