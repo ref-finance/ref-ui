@@ -520,9 +520,9 @@ export const RemovePoolV3 = (props: any) => {
           <span className="text-sm text-farmText">
             <FormattedMessage id="minimum_tokens_out"></FormattedMessage>
           </span>
-          <span className="text-sm text-v3SwapGray">
+          {/* <span className="text-sm text-v3SwapGray">
             ~{MINDATA.minPrice || '$-'}
-          </span>
+          </span> */}
         </div>
         <div className="flex items-center justify-between">
           <div className="flex flex-col justify-center items-center mt-6 w-1 flex-grow">
