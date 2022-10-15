@@ -108,6 +108,17 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
     });
 };
 
+export const getTopPoolsIndexer = async () => {
+  return await fetch(config.indexerUrl + '/list-top-pools', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((poolList) => {
+      return poolList.map((p) => parsePool(p));
+    });
+};
+
 export const getTopPools = async (): Promise<PoolRPCView[]> => {
   try {
     let pools: any;

@@ -18,7 +18,7 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools } from '../services/indexer';
+import { getTopPools, getTopPoolsIndexer } from '../services/indexer';
 import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
@@ -291,11 +291,10 @@ export const getPoolsByTokens = async ({
   if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
     setLoadingData && setLoadingData(true);
 
-    const amountThresh = '0';
 
     // const totalPools = await getTotalPools();
     // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-    const pools = (await getAllPoolsIndexer(amountThresh)).map((p) => ({
+    const pools = (await getTopPoolsIndexer()).map((p) => ({
       ...p,
       Dex: 'ref',
     }));
