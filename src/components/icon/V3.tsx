@@ -1,4 +1,5 @@
 import React from 'react';
+import { isClientMobie } from '../../utils/device';
 
 export const ReturnIcon = function (props: any) {
   return (
@@ -588,6 +589,103 @@ export const Slider = (props: any) => {
       <path
         d="M0 14C0 9.58172 3.58172 6 8 6H19.9224C20.2798 6 20.61 5.80928 20.7886 5.49972L23.3838 1.00139C23.7686 0.334352 24.7314 0.334352 25.1162 1.00139L27.7114 5.49972C27.89 5.80928 28.2202 6 28.5776 6H39C43.4183 6 47 9.58172 47 14V27C47 31.4183 43.4183 35 39 35H8C3.58172 35 0 31.4183 0 27V14Z"
         fill="#00D6AF"
+      />
+    </svg>
+  );
+};
+
+export const Fire = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="12"
+      height="14"
+      viewBox="0 0 12 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M4.57796 0.367675C4.35716 1.05452 3.75595 2.28874 2.12094 3.92562C-0.699681 6.75295 -1.07348 11.3076 3.26035 13.5473C3.61615 13.7311 3.91316 13.6179 4.13636 13.3909C4.87436 12.6416 5.19477 11.5422 5.09877 10.0938C5.07177 9.69465 5.25477 9.59078 5.61717 9.86388C6.64498 10.6377 7.31578 11.8299 7.31578 13.1114C7.31578 13.5473 7.49519 13.7778 7.91339 13.699C10.677 13.1779 14.0448 9.32409 10.4154 3.68111C10.1982 3.394 9.8772 3.394 9.8826 3.78848C9.88861 4.27283 9.8316 4.75602 9.7122 5.22636C9.63 5.55315 9.3138 5.54849 9.2394 5.22636C8.787 3.2662 7.52939 1.60015 5.46597 0.225287C4.90916 -0.145271 4.70696 -0.0314774 4.57796 0.368259V0.367675Z"
+        fill="url(#paint0_linear_2166_3579)"
+      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_2166_3579"
+          x1="0"
+          y1="13.7143"
+          x2="12"
+          y2="13.7143"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#FFD278" />
+          <stop offset="1" stop-color="#FF9900" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+export const FarmBoardInDetailPool = (props: any) => {
+  return (
+    <svg
+      width={isClientMobie() ? '100%' : '340'}
+      height="92"
+      viewBox="0 0 340 92"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <rect
+        x="1"
+        y="1"
+        width="338"
+        height="90"
+        rx="11"
+        fill="url(#paint0_radial_2166_3074)"
+        stroke="url(#paint1_linear_2166_3074)"
+        stroke-width="2"
+      />
+      <defs>
+        <radialGradient
+          id="paint0_radial_2166_3074"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(86.8785 26.5) rotate(33.0988) scale(137.342 152.301)"
+        >
+          <stop stop-color="#0E3E48" />
+          <stop offset="1" stop-color="#001320" />
+        </radialGradient>
+        <linearGradient
+          id="paint1_linear_2166_3074"
+          x1="0"
+          y1="92"
+          x2="340"
+          y2="92"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00C6A2" />
+          <stop offset="1" stop-color="#7F43FF" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+export const HintIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M4.3125 3.375H5.25V2.4375H4.3125V3.375ZM4.3125 7.125H5.25V3.9375H4.3125V7.125ZM4.78125 0C3.504 0 2.30325 0.497437 1.40044 1.40044C0.49725 2.30344 0 3.50419 0 4.78125C0 7.41769 2.14481 9.5625 4.78125 9.5625H4.782C6.05888 9.5625 7.25944 9.06506 8.16263 8.16206C9.06506 7.25906 9.5625 6.05831 9.5625 4.78125C9.5625 2.14481 7.41769 0 4.78125 0ZM7.52531 7.52512C7.16594 7.88651 6.73844 8.17302 6.26758 8.36806C5.79672 8.56309 5.29184 8.66279 4.78219 8.66138H4.78125C2.64188 8.66138 0.900938 6.92081 0.900938 4.78125C0.899546 4.27149 0.999252 3.76651 1.19429 3.29553C1.38932 2.82455 1.67581 2.39692 2.03719 2.03737C2.39674 1.67595 2.8244 1.38942 3.29541 1.19435C3.76642 0.999284 4.27144 0.899556 4.78125 0.900938C6.92062 0.900938 8.66156 2.64169 8.66156 4.78125C8.66294 5.29101 8.56323 5.79599 8.3682 6.26697C8.17316 6.73795 7.88668 7.16558 7.52531 7.52512Z"
+        fill="currentColor"
       />
     </svg>
   );

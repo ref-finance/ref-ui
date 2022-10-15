@@ -37,15 +37,21 @@ export const Images = ({
   size,
   className,
   noverlap,
+  borderStyle,
 }: {
   tokens: TokenMetadata[];
   size?: string;
   className?: string;
   noverlap?: boolean;
+  borderStyle?: string;
 }) => {
+  const displayTokens = [...new Set<string>(tokens.map((t) => t.id))].map(
+    (id) => tokens.find((t) => t.id === id)
+  );
+
   return (
     <div className={`${className} flex items-center flex-shrink-0`}>
-      {tokens?.map((token, index) => {
+      {displayTokens?.map((token, index) => {
         const icon = token?.icon;
         const id = token?.id;
         if (icon)
@@ -58,6 +64,9 @@ export const Images = ({
                 tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
               } bg-cardBg`}
               src={icon}
+              style={{
+                border: borderStyle || 'none',
+              }}
             />
           );
         return (
@@ -66,6 +75,9 @@ export const Images = ({
             className={`inline-block h-${size || 10} flex-shrink-0 w-${
               size || 10
             } rounded-full bg-cardBg border border-gradientFromHover -ml-1 `}
+            style={{
+              border: borderStyle || 'none',
+            }}
           ></div>
         );
       })}

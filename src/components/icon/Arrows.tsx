@@ -255,9 +255,9 @@ export function SwapArrowRight({ light }: { light?: boolean }) {
       }}
     >
       <path
-        opacity={light ? '1' : '0.3'}
+        opacity={'1'}
         d="M15.3448 5.86654H1.58829C0.968221 5.86654 0.466554 5.42042 0.466554 4.869C0.466554 4.31759 0.968221 3.87147 1.58829 3.87147H12.6215L10.7831 2.23663C10.3437 1.84593 10.3437 1.21416 10.7831 0.826228C11.2224 0.435528 11.9329 0.435528 12.3691 0.826228L16.021 4.07098C16.2921 4.25386 16.4666 4.54204 16.4666 4.869C16.4666 5.42042 15.9649 5.86654 15.3448 5.86654Z"
-        fill={light ? '#00C6A2' : 'white'}
+        fill={light ? '#00C6A2' : 'currentColor'}
       />
     </svg>
   );
@@ -276,9 +276,9 @@ export function SwapArrowLeft({ light }: { light?: boolean }) {
       }}
     >
       <path
-        opacity={light ? '1' : '0.3'}
+        opacity={'1'}
         d="M1.58829 0.133463H15.3448C15.9649 0.133463 16.4666 0.579582 16.4666 1.131C16.4666 1.68241 15.9649 2.12853 15.3448 2.12853H4.31163L6.15004 3.76337C6.58939 4.15407 6.58939 4.78584 6.15004 5.17377C5.71069 5.56447 5.00025 5.56447 4.56402 5.17377L0.912133 1.92902C0.641046 1.74614 0.466553 1.45796 0.466553 1.131C0.466553 0.579582 0.96822 0.133463 1.58829 0.133463Z"
-        fill={light ? '#00C6A2' : 'white'}
+        fill={light ? '#00C6A2' : 'currentColor'}
       />
     </svg>
   );
@@ -657,7 +657,7 @@ export function StableSwapExchangePC({
   );
 }
 
-export const ExchangeArrow = () => {
+export const ExchangeArrow = ({}: {}) => {
   return (
     <div className="flex flex-col items-center mx-1">
       <span>

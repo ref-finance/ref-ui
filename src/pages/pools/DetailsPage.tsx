@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
 import { Card } from '~components/card/Card';
@@ -29,7 +29,7 @@ import {
 } from '~state/token';
 import Loading from '~components/layout/Loading';
 import { FarmMiningIcon } from '~components/icon/FarmMining';
-import { FarmStamp } from '~components/icon/FarmStamp';
+import { FarmStamp, FarmStampNew } from '~components/icon/FarmStamp';
 import { ChartLoading } from '~components/icon/Loading';
 import {
   REF_FARM_CONTRACT_ID,
@@ -112,7 +112,10 @@ import {
   useDepositableBalance,
 } from '../../state/token';
 import { SmallWallet } from '../../components/icon/SmallWallet';
-import { scientificNotationToString } from '../../utils/numbers';
+import {
+  scientificNotationToString,
+  toInternationalCurrencySystemLongString,
+} from '../../utils/numbers';
 import { isNotStablePool } from '../../services/pool';
 import { isStablePool, BLACKLIST_POOL_IDS } from '../../services/near';
 import {
@@ -135,8 +138,21 @@ import getConfig from '../../services/config';
 import { BoostInputAmount } from '../../components/forms/InputAmount';
 import { ExternalLinkIcon } from '~components/icon/Risk';
 import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
-import { useClientMobile } from '../../utils/device';
+import { useClientMobile, isClientMobie } from '../../utils/device';
 import { getPoolFeeApr, getPoolFeeAprTitle } from './LiquidityPage';
+import { Images, Symbols } from '../../components/stableswap/CommonComp';
+import { useTokenPriceList } from '../../state/token';
+import { ExchangeArrow } from '../../components/icon/Arrows';
+import { multiply, divide, calculateFeeCharge } from '../../utils/numbers';
+
+import { BsArrowUpRight } from 'react-icons/bs';
+import { useSeedFarms, useSeedDetail } from '../../state/pool';
+import { FarmBoost } from '../../services/farm';
+import { FarmBoardInDetailPool, Fire } from '../../components/icon/V3';
+import {
+  ExclamationTip,
+  QuestionTip,
+} from '../../components/layout/TipWrapper';
 
 interface ParamTypes {
   id: string;
@@ -164,6 +180,46 @@ const formatDate = (rawDate: string) => {
   return moment(date).format('ll');
 };
 
+export function getPoolFee24h(
+  dayVolume: string,
+  pool: Pool,
+  tvlInput?: number
+) {
+  let result = '0';
+  if (dayVolume) {
+    const { fee, tvl } = pool;
+
+    const newTvl = tvlInput || tvl;
+
+    const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
+    if (newTvl > 0 && revenu24h > 0) {
+      const annualisedFeesPrct = revenu24h / newTvl / 2;
+      result = toPrecision(annualisedFeesPrct.toString(), 2);
+    }
+  }
+  return Number(result);
+}
+
+export function getPoolFee24hTitile(
+  dayVolume: string,
+  pool: Pool,
+  tvlInput?: number
+) {
+  let result = '0';
+  if (dayVolume) {
+    const { fee, tvl } = pool;
+
+    const newTvl = tvlInput || tvl;
+
+    const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
+    if (newTvl > 0 && revenu24h > 0) {
+      const annualisedFeesPrct = revenu24h / newTvl / 2;
+      result = annualisedFeesPrct.toString();
+    }
+  }
+  return Number(result);
+}
+
 function Icon(props: { icon?: string; className?: string; style?: any }) {
   const { icon, className, style } = props;
   return icon ? (
@@ -183,9 +239,11 @@ function Icon(props: { icon?: string; className?: string; style?: any }) {
 export const GetExchangeRate = ({
   tokens,
   pool,
+  token0Price,
 }: {
   tokens: any;
   pool: any;
+  token0Price?: string;
 }) => {
   const first_token_num = toReadableNumber(
     tokens[0].decimals || 24,
@@ -197,16 +255,22 @@ export const GetExchangeRate = ({
   );
   const rate = Number(second_token_num) / Number(first_token_num);
 
-  const showRate = rate < 0.01 ? '< 0.01' : rate.toFixed(2);
+  const showRate = rate < 0.001 ? '< 0.001' : rate.toFixed(3);
 
   return Number(first_token_num) === 0 ? (
     <div className="px-1 border border-transparent">&nbsp;</div>
   ) : (
-    <div className="text-white text-center px-1  rounded-sm border border-solid border-gray-400">
+    <div className="text-white text-center text-sm px-1  rounded-sm  whitespace-nowrap">
       <span>
-        1&nbsp;{toRealSymbol(tokens[0].symbol)}&nbsp;
+        1&nbsp;{toRealSymbol(tokens[0].symbol)}
+        {!token0Price ? null : (
+          <span className="text-primaryText">
+            (${toInternationalCurrencySystemLongString(token0Price, 2)})
+          </span>
+        )}
+        &nbsp;
         <span title={`${rate}`} className="font-sans">
-          {rate < 0.01 ? '' : '≈'} {showRate}
+          {rate < 0.01 ? '' : '='} {showRate}
         </span>
         &nbsp;{toRealSymbol(tokens[1].symbol)}
       </span>
@@ -1098,13 +1162,20 @@ function MyShares({
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
   return (
-    <div>{`${toRoundedReadableNumber({
-      decimals: LP_TOKEN_DECIMALS,
-      number: userTotalShare
-        .toNumber()
-        .toLocaleString('fullwide', { useGrouping: false }),
-      precision: decimal || 6,
-    })} (${displayPercent}%)`}</div>
+    <div className="whitespace-nowrap">
+      <span className="whitespace-nowrap font-bold">
+        {`${toInternationalCurrencySystem(
+          toReadableNumber(
+            LP_TOKEN_DECIMALS,
+            userTotalShare
+              .toNumber()
+              .toLocaleString('fullwide', { useGrouping: false })
+          ),
+          2
+        )}`}
+      </span>{' '}
+      {`(${displayPercent}%)`}
+    </div>
   );
 }
 
@@ -1121,14 +1192,14 @@ const ChartChangeButton = ({
 }) => {
   return (
     <div
-      className={`text-white text-xs rounded-2xl flex items-center bg-gray-700 ${className} ${
+      className={`text-white text-xs rounded-2xl flex items-center xs:bg-transparent md:bg-transparent bg-gray-700 ${className} ${
         noData ? 'z-20 opacity-70' : ''
       }`}
     >
       <button
-        className={`py-1 px-2 ${
+        className={`py-1 xs:py-2 md:py-2 px-2 ${
           chartDisplay === 'tvl'
-            ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
+            ? 'rounded-2xl xs:rounded-lg md:rounded-lg xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
             : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('tvl')}
@@ -1139,9 +1210,9 @@ const ChartChangeButton = ({
         <FormattedMessage id="tvl" defaultMessage="TVL" />
       </button>
       <button
-        className={`py-1 px-2 ${
+        className={`py-1 xs:py-2 md:py-2 px-2 ${
           chartDisplay === 'volume'
-            ? 'rounded-2xl bg-gradient-to-b from-gradientFrom to-gradientTo'
+            ? 'rounded-2xl xs:rounded-lg md:rounded-lg xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
             : 'text-gray-400'
         }`}
         onClick={() => setChartDisplay('volume')}
@@ -1200,7 +1271,7 @@ function EmptyChart({
         )}
       </div>
 
-      <div>
+      <div className="xs:hidden md:hidden">
         <div
           style={{
             width: '300px',
@@ -1339,12 +1410,15 @@ export function VolumeChart({
           data={data}
           onMouseMove={(item: any) => setHoverIndex(item.activeTooltipIndex)}
         >
-          <XAxis
-            dataKey="dateString"
-            tickLine={false}
-            axisLine={false}
-            tickFormatter={(value, index) => value.split('-').pop()}
-          />
+          {isClientMobie() ? null : (
+            <XAxis
+              dataKey="dateString"
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(value, index) => value.split('-').pop()}
+            />
+          )}
+
           <Tooltip
             wrapperStyle={{
               visibility: 'hidden',
@@ -1431,12 +1505,14 @@ export function TVLChart({
               <stop offset="95%" stopColor="#00c6a2" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis
-            dataKey="date"
-            tickLine={false}
-            axisLine={false}
-            tickFormatter={(value, index) => value.split('-').pop()}
-          />
+          {isClientMobie() ? null : (
+            <XAxis
+              dataKey="date"
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(value, index) => value.split('-').pop()}
+            />
+          )}
 
           <Tooltip
             wrapperStyle={{
@@ -1467,6 +1543,10 @@ export function PoolDetailsPage() {
 
   const dayVolume = useDayVolume(id);
   const tokens = useTokens(pool?.tokenIds);
+
+  const seedFarms = useSeedFarms(id);
+
+  const seedDetail = useSeedDetail(id);
 
   const history = useHistory();
 
@@ -1530,6 +1610,160 @@ export function PoolDetailsPage() {
     });
   }, []);
 
+  const tokenAmountShareRaw = (
+    pool: Pool,
+    token: TokenMetadata,
+    shares: string
+  ) => {
+    return toRoundedReadableNumber({
+      decimals: token.decimals,
+      number: calculateFairShare({
+        shareOf: pool.supplies[token.id],
+        contribution: shares,
+        totalContribution: pool.shareSupply,
+      }),
+      precision: 3,
+      withCommas: false,
+    });
+  };
+
+  const tokenAmountShare = (
+    pool: Pool,
+    token: TokenMetadata,
+    shares: string
+  ) => {
+    const value = toRoundedReadableNumber({
+      decimals: token.decimals,
+      number: calculateFairShare({
+        shareOf: pool.supplies[token.id],
+        contribution: shares,
+        totalContribution: pool.shareSupply,
+      }),
+      precision: 3,
+      withCommas: false,
+    });
+
+    return Number(value) < 0.001
+      ? '< 0.001'
+      : toInternationalCurrencySystem(value, 3);
+  };
+
+  const tokenInfoPC = ({ token }: { token: TokenMetadata }) => {
+    return tokenAmountShare(
+      pool,
+      token,
+      new BigNumber(shares)
+        .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
+        .toNumber()
+        .toFixed()
+    );
+  };
+
+  const [revertRate, setRevertRate] = useState<boolean>(false);
+  const tokenPriceList = useTokenPriceList();
+
+  function totalTvlPerWeekDisplay() {
+    const farms = seedFarms;
+    const rewardTokenIconMap = {};
+    let totalPrice = 0;
+    farms.forEach((farm: FarmBoost) => {
+      const { id, decimals, icon } = farm.token_meta_data;
+      const { daily_reward } = farm.terms;
+      rewardTokenIconMap[id] = icon;
+      const tokenPrice = tokenPriceList?.[id]?.price;
+      if (tokenPrice && tokenPrice != 'N/A') {
+        const tokenAmount = toReadableNumber(decimals, daily_reward);
+        totalPrice += +new BigNumber(tokenAmount)
+          .multipliedBy(tokenPrice)
+          .toFixed();
+      }
+    });
+    totalPrice = +new BigNumber(totalPrice).multipliedBy(7).toFixed();
+    const totalPriceDisplay =
+      totalPrice == 0
+        ? '-'
+        : '$' + toInternationalCurrencySystem(totalPrice.toString(), 2);
+    return totalPriceDisplay;
+  }
+
+  function BaseApr() {
+    const farms = seedFarms;
+
+    let totalReward = 0;
+
+    farms.forEach((farm: any) => {
+      const reward_token_price = Number(
+        tokenPriceList?.[farm.token_meta_data.id]?.price || 0
+      );
+
+      totalReward = totalReward + Number(farm.yearReward) * reward_token_price;
+    });
+
+    const poolShares = Number(toReadableNumber(24, pool.shareSupply));
+
+    const seedTvl = !poolShares
+      ? 0
+      : (Number(
+          toReadableNumber(
+            seedDetail.seed_decimal,
+            seedDetail.total_seed_amount
+          )
+        ) *
+          (poolTVL || 0)) /
+        poolShares;
+
+    const baseAprAll = !seedTvl ? 0 : totalReward / seedTvl;
+
+    return !poolTVL || !seedDetail || !seedFarms
+      ? '-'
+      : `${toPrecision((baseAprAll * 100).toString(), 2)}%`;
+  }
+
+  const InfoCard = ({
+    title,
+    value,
+    valueTitle,
+  }: {
+    title: JSX.Element;
+    value: JSX.Element | string;
+    valueTitle?: string;
+  }) => {
+    return (
+      <div
+        className="rounded-lg xs:w-full md:w-full xs:mr-0 md:mr-0 mr-3 py-3 w-32 px-4 flex flex-col"
+        style={{
+          background: 'rgba(29, 41, 50, 0.5)',
+        }}
+      >
+        <div className="text-primaryText mb-3 text-sm">{title}</div>
+
+        <div className="text-base text-white " title={valueTitle}>
+          {value}
+        </div>
+      </div>
+    );
+  };
+
+  const usdValue = useMemo(() => {
+    try {
+      if (!shares || typeof poolTVL !== 'number' || !pool) return '-';
+
+      const rawRes = multiply(
+        new BigNumber(shares)
+          .plus(
+            Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0'
+          )
+          .toNumber()
+          .toFixed(),
+        divide(poolTVL?.toString(), pool?.shareSupply)
+      );
+
+      return `$${toInternationalCurrencySystem(rawRes, 2)}`;
+    } catch (error) {
+      return '-';
+    }
+  }, [poolTVL, shares, pool]);
+
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
   if (BLACKLIST_POOL_IDS.includes(pool.id.toString())) history.push('/');
   if (isStablePool(pool.id)) {
@@ -1542,378 +1776,123 @@ export function PoolDetailsPage() {
   }
   return (
     <>
-      <PoolTabV3></PoolTabV3>
-      <div>
-        <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
-          <BreadCrumb
-            routes={[
-              { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
-              {
-                id: 'more_pools',
-                msg: 'More Pools',
-                pathname: `/more_pools/${tokens.map((tk) => tk.id)}`,
-                state: {
-                  fromMorePools,
-                  tokens,
-                  morePoolIds,
-                },
+      <PoolTabV3 />
+      <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1050px m-auto">
+        <BreadCrumb
+          routes={[
+            { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
+            {
+              id: 'more_pools',
+              msg: 'More Pools',
+              pathname: `/more_pools/${tokens.map((tk) => tk.id)}`,
+              state: {
+                fromMorePools,
+                tokens,
+                morePoolIds,
               },
-              {
-                id: 'detail',
-                msg: 'Detail',
-                pathname: `/pool`,
-              },
-            ]}
-          />
-        </div>
-        <div className="flex items-start flex-row md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 md:flex-col xs:flex-col m-auto">
-          <div className="md:w-full xs:w-full">
-            <Card
-              className="rounded-2xl mr-3 lg:w-96 md:w-full xs:w-full"
-              padding="p-0"
-              bgcolor="bg-cardBg"
-            >
-              <div className="flex flex-col text-center text-base mx-4 py-4">
-                <div className="flex items-center justify-end mb-4">
-                  {backToFarmsButton ? (
-                    <Link
-                      to={{
-                        pathname:
-                          farmVersion === 'V1' ? '/farms' : `/v2farms/${id}-r`,
-                      }}
-                      target="_blank"
-                    >
-                      <FarmButton farmCount={farmCount} />
-                    </Link>
-                  ) : (
-                    <div className="h-4"></div>
-                  )}
-                  <div className="lg:hidden ml-2">
-                    <div onClick={handleSaveWatchList}>
-                      {!showFullStart && <WatchListStartEmpty />}
-                    </div>
-                    <div onClick={handleRemoveFromWatchList}>
-                      {showFullStart && <WatchListStartFull />}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-end">
-                    <Icon icon={tokens[0].icon} className="h-10 w-10 mr-2" />
-                    <div className="flex items-start flex-col">
-                      <div className="flex items-center text-white text-base">
-                        {toRealSymbol(tokens[0].symbol)}
-                        {TokenLinks[tokens[0].symbol] ? (
-                          <div
-                            className="ml-2 text-sm"
-                            data-type="info"
-                            data-place="right"
-                            data-multiline={true}
-                            data-class="reactTip"
-                            data-html={true}
-                            data-tip={valueOfNearTokenTip()}
-                            data-for="nearVerifiedId0"
-                          >
-                            <a
-                              className=""
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                window.open(TokenLinks[tokens[0].symbol]);
-                              }}
-                            >
-                              <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
-                            </a>
-                            <ReactTooltip
-                              className="w-20"
-                              id="nearVerifiedId0"
-                              backgroundColor="#1D2932"
-                              border
-                              borderColor="#7e8a93"
-                              effect="solid"
-                            />
-                          </div>
-                        ) : null}
-                      </div>
-                      <a
-                        target="_blank"
-                        href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
-                        className="text-xs text-gray-400"
-                        title={tokens[0].id}
-                      >{`${tokens[0].id.substring(0, 24)}${
-                        tokens[0].id.length > 24 ? '...' : ''
-                      }`}</a>
-                    </div>
-                  </div>
-                  <div
-                    className="flex items-center text-white text-sm"
-                    title={toReadableNumber(
-                      tokens[0].decimals,
-                      pool.supplies[tokens[0].id]
-                    )}
-                  >
-                    {Number(
-                      toReadableNumber(
-                        tokens[0].decimals,
-                        pool.supplies[tokens[0].id]
-                      )
-                    ) < 0.01 &&
-                    Number(
-                      toReadableNumber(
-                        tokens[0].decimals,
-                        pool.supplies[tokens[0].id]
-                      )
-                    ) > 0
-                      ? '< 0.01'
-                      : toInternationalCurrencySystem(
-                          toReadableNumber(
-                            tokens[0].decimals,
-                            pool.supplies[tokens[0].id]
-                          )
-                        )}
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-end">
-                    <Icon icon={tokens[1].icon} className="h-10 w-10 mr-2" />
-                    <div className="flex items-start flex-col">
-                      <div className="flex items-center text-white text-base">
-                        {toRealSymbol(tokens[1].symbol)}
-                        {TokenLinks[tokens[1].symbol] ? (
-                          <div
-                            className="ml-2 text-sm"
-                            data-type="info"
-                            data-place="right"
-                            data-multiline={true}
-                            data-class="reactTip"
-                            data-html={true}
-                            data-tip={valueOfNearTokenTip()}
-                            data-for="nearVerifiedId1"
-                          >
-                            <a
-                              className=""
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                window.open(TokenLinks[tokens[1].symbol]);
-                              }}
-                            >
-                              <OutLinkIcon className="text-greenColor cursor-pointer"></OutLinkIcon>
-                            </a>
-                            <ReactTooltip
-                              id="nearVerifiedId1"
-                              backgroundColor="#1D2932"
-                              border
-                              borderColor="#7e8a93"
-                              effect="solid"
-                            />
-                          </div>
-                        ) : null}
-                      </div>
-                      <a
-                        target="_blank"
-                        href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
-                        className="text-xs text-gray-400"
-                        title={tokens[1].id}
-                      >{`${tokens[1].id.substring(0, 24)}${
-                        tokens[1].id.length > 24 ? '...' : ''
-                      }`}</a>
-                    </div>
-                  </div>
-                  <div
-                    className="flex items-center text-white text-sm
-                "
-                    title={toReadableNumber(
-                      tokens[1].decimals,
-                      pool.supplies[tokens[1].id]
-                    )}
-                  >
-                    {Number(
-                      toReadableNumber(
-                        tokens[1].decimals,
-                        pool.supplies[tokens[1].id]
-                      )
-                    ) < 0.01 &&
-                    Number(
-                      toReadableNumber(
-                        tokens[1].decimals,
-                        pool.supplies[tokens[1].id]
-                      )
-                    ) > 0
-                      ? '< 0.01'
-                      : toInternationalCurrencySystem(
-                          toReadableNumber(
-                            tokens[1].decimals,
-                            pool.supplies[tokens[1].id]
-                          )
-                        )}
-                  </div>
-                </div>
-                {/* rate */}
-                <div className="flex justify-between text-sm md:text-xs xs:text-xs">
+            },
+            {
+              id: 'detail',
+              msg: 'Detail',
+              pathname: `/pool`,
+            },
+          ]}
+        />
+
+        <div className="flex items-center w-full relative mb-4 ml-2">
+          <Images borderStyle="4px solid #3D4451" size="9" tokens={tokens} />
+
+          <div className="flex flex-col">
+            <div className="flex items-center">
+              <div className="mx-2">
+                <Symbols size="text-lg" tokens={tokens} />
+              </div>
+              {!backToFarmsButton ? null : (
+                <Link
+                  to={{
+                    pathname:
+                      farmVersion === 'V1' ? '/farms' : `/v2farms/${id}-r`,
+                  }}
+                  target="_blank"
+                >
+                  <FarmStampNew multi={farmCount > 1} />
+                </Link>
+              )}
+
+              <div
+                className="rounded-lg xs:absolute md:absolute xs:right-0 md:right-0 cursor-pointer flex items-center justify-center ml-2"
+                style={{
+                  background: '#172534',
+                  width: '30px',
+                  height: '24px',
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  showFullStart
+                    ? handleRemoveFromWatchList()
+                    : handleSaveWatchList();
+                }}
+              >
+                {showFullStart ? (
+                  <WatchListStartFull />
+                ) : (
+                  <WatchListStartEmpty />
+                )}
+              </div>
+
+              <div className="absolute right-0 xs:hidden md:hidden flex items-center">
+                {revertRate ? (
                   <GetExchangeRate
-                    tokens={[tokens[0], tokens[1]]}
-                    pool={pool}
-                  />
-                  <GetExchangeRate
+                    token0Price={tokenPriceList?.[tokens[1].id]?.price}
                     tokens={[tokens[1], tokens[0]]}
                     pool={pool}
                   />
-                </div>
-              </div>
-              <div className="border-b border-solid border-gray-600" />
-              <div className="text-sm text-gray-400 pt-4 mx-4">
-                {/* fee */}
-                <div className="flex items-center justify-between py-2.5">
-                  <div>
-                    <FormattedMessage id="fee" defaultMessage="Fee" />
-                  </div>
-                  <div className="text-xs text-white border-greenLight border px-2 rounded-sm">{`${calculateFeePercent(
-                    pool.fee
-                  )}%`}</div>
-                </div>
-                {/* TVL */}
-                <div className="flex items-center justify-between py-2.5">
-                  <div>
-                    <FormattedMessage id="tvl" defaultMessage="TVL" />
-                  </div>
-                  <div
-                    className="text-base text-white"
-                    title={toPrecision(
-                      scientificNotationToString(poolTVL?.toString() || '0'),
-                      0
-                    )}
-                  >
-                    {' '}
-                    $
-                    {Number(poolTVL) < 0.01 && Number(poolTVL) > 0
-                      ? '< 0.01'
-                      : toInternationalCurrencySystem(
-                          scientificNotationToString(poolTVL?.toString() || '0')
-                        )}
-                  </div>
-                </div>
-                <div className="flex items-center justify-between py-2.5">
-                  <div>
-                    <FormattedMessage
-                      id="h24_volume"
-                      defaultMessage="24h volume"
-                    />
-                  </div>
-                  <div className="text-white">
-                    {dayVolume
-                      ? '$' + toInternationalCurrencySystem(dayVolume)
-                      : '-'}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between py-2.5">
-                  <div>
-                    <FormattedMessage id="apr" defaultMessage="APR" />
-                  </div>
-                  <div
-                    className="text-white"
-                    title={
-                      dayVolume
-                        ? `${getPoolFeeAprTitle(dayVolume, pool, poolTVL)}%`
-                        : '-'
-                    }
-                  >
-                    {dayVolume
-                      ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
-                      : '-'}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between py-2.5">
-                  <div>
-                    <FormattedMessage id="total_label" />
-                    &nbsp;
-                    <FormattedMessage id="lp_token"></FormattedMessage>
-                  </div>
-                  <div className=" text-white">
-                    {toInternationalCurrencySystem(
-                      toReadableNumber(24, pool?.shareSupply)
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center justify-between pt-2.5 pb-5">
-                  <div>
-                    <FormattedMessage id="yours" />
-                  </div>
-                  <div className="text-white">
-                    <MyShares
-                      shares={shares}
-                      totalShares={pool.shareSupply}
-                      poolId={pool.id}
-                      stakeList={stakeList}
-                      lptAmount={lptAmount}
-                    />
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* chart */}
-          <div className="w-full flex flex-col h-full">
-            <div className="lg:flex items-center justify-end mb-4">
-              <div className="flex items-center xs:hidden md:hidden">
-                <div className="mr-2 cursor-pointer">
-                  <div onClick={handleSaveWatchList}>
-                    {!showFullStart && <WatchListStartEmpty />}
-                  </div>
-                  <div onClick={handleRemoveFromWatchList}>
-                    {showFullStart && <WatchListStartFull />}
-                  </div>
-                </div>
-                <div className="text-gray-400 text-xs whitespace-nowrap ">
-                  <FormattedMessage
-                    id={showFullStart ? 'remove_watchlist' : 'add_watchlist'}
-                    defaultMessage={
-                      showFullStart ? 'Remove Watchlist' : 'Add Watchlist'
-                    }
+                ) : (
+                  <GetExchangeRate
+                    token0Price={tokenPriceList?.[tokens[0].id]?.price}
+                    tokens={[tokens[0], tokens[1]]}
+                    pool={pool}
                   />
-                </div>
-              </div>
+                )}
 
-              <div className="lg:flex items-center justify-end xs:mt-4 md:mt-4 xs:grid xs:grid-cols-2 md:grid md:grid-cols-2 w-full">
-                <div className="pr-2">
-                  <SolidButton
-                    padding="px-0"
-                    className="w-48 h-10 xs:w-full  md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm"
-                    onClick={() => {
-                      setShowFunding(true);
-                    }}
-                  >
-                    <FormattedMessage
-                      id="add_liquidity"
-                      defaultMessage="Add Liquidity"
-                    />
-                  </SolidButton>
-                </div>
-                <div className="pl-2">
-                  <OutlineButton
-                    padding="px-0"
-                    onClick={() => {
-                      setShowWithdraw(true);
-                    }}
-                    className="w-48 h-10 xs:w-full md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm bg-poolRowHover"
-                  >
-                    <FormattedMessage
-                      id="remove_liquidity"
-                      defaultMessage="Remove Liquidity"
-                    />
-                  </OutlineButton>
+                <div
+                  className="rounded-lg cursor-pointer text-v3SwapGray hover:text-gradientFromHover  flex items-center justify-center ml-2"
+                  style={{
+                    background: '#172534',
+                    width: '30px',
+                    height: '24px',
+                  }}
+                  onClick={() => {
+                    setRevertRate(!revertRate);
+                  }}
+                >
+                  <ExchangeArrow />
                 </div>
               </div>
             </div>
 
+            <div className="ml-2 text-primaryText text-sm">
+              <FormattedMessage id="fee" defaultMessage={'Fee'} />: &nbsp;
+              {calculateFeePercent(pool.fee)}%
+            </div>
+          </div>
+        </div>
+
+        <div className="flex  items-start flex-row w-full m-auto xs:flex-col-reverse md:flex-col-reverse">
+          <div
+            className="mr-4"
+            style={{
+              width: isClientMobie() ? '100%' : 'calc(100% - 373px)',
+            }}
+          >
             <Card
               width="w-full"
-              className="relative rounded-2xl h-full flex flex-col justify-center md:hidden xs:hidden items-center"
+              className="relative rounded-2xl mr-4 mb-4 h-full flex flex-col justify-center  items-center"
               padding="px-7 py-5"
-              bgcolor="bg-cardBg"
+              bgcolor={isClientMobie() ? 'bg-transparent' : 'bg-cardBg'}
               style={{
-                height: '427px',
+                height: isClientMobie() ? '370px' : '470px',
               }}
             >
               {chartDisplay === 'volume' ? (
@@ -1930,46 +1909,394 @@ export function PoolDetailsPage() {
                 />
               )}
             </Card>
+
+            <div className="flex items-center xs:gap-2 md:gap-2 xs:grid md:grid xs:grid-rows-2 xs:grid-cols-2 md:grid-cols-2 md:grid-rows-2 mb-8 w-full">
+              <InfoCard
+                title={
+                  <FormattedMessage
+                    id="TVL"
+                    defaultMessage={'TVL'}
+                  ></FormattedMessage>
+                }
+                value={`$${
+                  Number(poolTVL) < 0.01 && Number(poolTVL) > 0
+                    ? '< 0.01'
+                    : toInternationalCurrencySystem(
+                        poolTVL?.toString() || '0',
+                        2
+                      )
+                }`}
+                valueTitle={poolTVL?.toString()}
+              />
+
+              <InfoCard
+                title={
+                  <FormattedMessage
+                    id="h24_volume_bracket"
+                    defaultMessage="Volume(24h)"
+                  />
+                }
+                value={
+                  dayVolume
+                    ? '$' + toInternationalCurrencySystem(dayVolume)
+                    : '-'
+                }
+                valueTitle={dayVolume}
+              />
+
+              <InfoCard
+                title={
+                  <FormattedMessage id="fee_24h" defaultMessage="Fee(24h)" />
+                }
+                value={
+                  dayVolume
+                    ? `${getPoolFee24h(dayVolume, pool, poolTVL)}%`
+                    : '-'
+                }
+                valueTitle={
+                  dayVolume
+                    ? `${getPoolFee24hTitile(dayVolume, pool, poolTVL)}%`
+                    : '-'
+                }
+              />
+
+              <InfoCard
+                title={<FormattedMessage id="apr" defaultMessage="APR" />}
+                value={
+                  dayVolume
+                    ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
+                    : '-'
+                }
+                valueTitle={`${getPoolFeeAprTitle(dayVolume, pool)}%`}
+              />
+            </div>
+
+            <div className="text-white text-base mb-3 w-full">
+              <FormattedMessage
+                id="pool_composition"
+                defaultMessage={'Pool Composition'}
+              />
+            </div>
+
+            <div
+              className="rounded-lg  pt-4 pb-1 w-full"
+              style={{
+                background: 'rgba(29, 41, 50, 0.5)',
+              }}
+            >
+              <div className="grid px-5 grid-cols-10  justify-items-start text-sm text-primaryText">
+                <div className="col-span-5 xs:col-span-4 md:col-span-4">
+                  <FormattedMessage id="token" defaultMessage="Token" />
+                </div>
+
+                <div className="col-span-3 xs:justify-self-center md:justify-self-center">
+                  <FormattedMessage id="amount" defaultMessage="Amount" />
+                </div>
+
+                <div className="col-span-3 lg:col-span-2 xs:justify-self-center md:justify-self-center">
+                  <FormattedMessage id="value" defaultMessage="Value" />
+                </div>
+              </div>
+
+              {tokens.map((token) => {
+                const price = tokenPriceList?.[token.id]?.price;
+
+                const tokenAmount = toReadableNumber(
+                  token.decimals,
+                  pool.supplies[token.id]
+                );
+
+                return (
+                  <div
+                    key={token.id + '-pool-composition'}
+                    className="grid grid-cols-10 px-5 py-3 items-center hover:bg-chartBg hover:bg-opacity-30 justify-items-start text-base text-white"
+                  >
+                    <div className="flex items-center col-span-5 xs:col-span-4 md:col-span-4">
+                      <Icon icon={token.icon} className="h-7 w-7 mr-2" />
+                      <div className="flex items-start flex-col">
+                        <div className="flex items-center text-white text-base">
+                          {toRealSymbol(token.symbol)}
+                          {TokenLinks[token.symbol] ? (
+                            <div
+                              className="ml-2 text-sm xs:hidden md:hidden"
+                              data-type="info"
+                              data-place="right"
+                              data-multiline={true}
+                              data-class="reactTip"
+                              data-html={true}
+                              data-tip={valueOfNearTokenTip()}
+                              data-for="nearVerifiedId1"
+                            >
+                              <a
+                                className=""
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(TokenLinks[token.symbol]);
+                                }}
+                              >
+                                <BsArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
+                              </a>
+                              <ReactTooltip
+                                id="nearVerifiedId1"
+                                backgroundColor="#1D2932"
+                                border
+                                borderColor="#7e8a93"
+                                effect="solid"
+                              />
+                            </div>
+                          ) : null}
+                          {
+                            <span className="lg:hidden">
+                              <ExclamationTip
+                                id={token.id}
+                                defaultMessage={token.id}
+                                colorHex="#7E8A93"
+                              />
+                            </span>
+                          }
+                        </div>
+                        <a
+                          target="_blank"
+                          href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
+                          className="text-xs text-gray-400 xs:hidden md:hidden"
+                          title={token.id}
+                        >{`${token.id.substring(0, 24)}${
+                          token.id.length > 24 ? '...' : ''
+                        }`}</a>
+                      </div>
+                    </div>
+
+                    <div
+                      className="col-span-3 xs:justify-self-center md:justify-self-center"
+                      title={
+                        Number(tokenAmount) > 0 && Number(tokenAmount) < 0.01
+                          ? '< 0.01'
+                          : tokenAmount
+                      }
+                    >
+                      {Number(tokenAmount) > 0 && Number(tokenAmount) < 0.01
+                        ? '< 0.01'
+                        : toInternationalCurrencySystemLongString(
+                            tokenAmount,
+                            2
+                          )}
+                    </div>
+
+                    <div
+                      className="col-span-3 lg:col-span-2 xs:justify-self-center md:justify-self-center"
+                      title={
+                        !!price ? `$${multiply(price, tokenAmount)}` : null
+                      }
+                    >
+                      {!!price
+                        ? `$${toInternationalCurrencySystemLongString(
+                            multiply(price, tokenAmount),
+                            2
+                          )}`
+                        : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          <RemoveLiquidityModal
-            pool={pool}
-            shares={shares}
-            tokens={tokens}
-            isOpen={showWithdraw}
-            onRequestClose={() => setShowWithdraw(false)}
+          <div
+            className="xs:mb-4 md:mb-4"
             style={{
-              overlay: {
-                backdropFilter: 'blur(15px)',
-                WebkitBackdropFilter: 'blur(15px)',
-              },
-              content: {
-                outline: 'none',
-                position: 'fixed',
-                bottom: '50%',
-              },
+              width: isClientMobie() ? '100%' : '357px',
             }}
-          />
-          <AddLiquidityModal
-            pool={pool}
-            tokens={tokens}
-            isOpen={showFunding}
-            onRequestClose={() => setShowFunding(false)}
-            overlayClassName=""
-            style={{
-              overlay: {
-                backdropFilter: 'blur(15px)',
-                WebkitBackdropFilter: 'blur(15px)',
-              },
-              content: {
-                outline: 'none',
-                position: 'fixed',
-                bottom: '50%',
-              },
-            }}
-          />
+          >
+            <Card
+              className="rounded-2xl  w-full text-base text-white"
+              bgcolor="bg-cardBg"
+            >
+              <div className="flex items-center justify-between">
+                <span className="whitespace-nowrap">
+                  <FormattedMessage
+                    id="your_liquidity"
+                    defaultMessage={'Your Liquidity'}
+                  />
+                </span>
+
+                <MyShares
+                  shares={shares}
+                  totalShares={pool.shareSupply}
+                  poolId={pool.id}
+                  stakeList={stakeList}
+                  lptAmount={lptAmount}
+                />
+              </div>
+
+              <div className="w-full text-right text-sm text-v3SwapGray">
+                {!isSignedIn ? '-' : usdValue === '-' ? '-' : `~${usdValue}`}
+              </div>
+
+              <div className="flex flex-col text-center text-base  pt-4">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center">
+                    <Icon icon={tokens[0].icon} className="h-7 w-7 mr-2" />
+                    <div className="flex items-start flex-col">
+                      <div className="flex items-center text-white text-base">
+                        {toRealSymbol(tokens[0].symbol)}
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className="flex items-center text-white text-sm"
+                    title={tokenAmountShareRaw(pool, tokens[0], shares)}
+                  >
+                    {tokenInfoPC({
+                      token: tokens[0],
+                    })}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center">
+                    <Icon icon={tokens[1].icon} className="h-7 w-7 mr-2" />
+                    <div className="flex items-start flex-col">
+                      <div className="flex items-center text-white text-base">
+                        {toRealSymbol(tokens[1].symbol)}
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className="flex items-center text-white text-sm"
+                    title={tokenAmountShareRaw(pool, tokens[1], shares)}
+                  >
+                    {tokenInfoPC({
+                      token: tokens[1],
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center  w-full">
+                <div className="pr-2 w-1/2">
+                  <SolidButton
+                    padding="px-0"
+                    className=" w-full h-11 xs:w-full text-base rounded-lg  md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm"
+                    onClick={() => {
+                      setShowFunding(true);
+                    }}
+                  >
+                    <FormattedMessage id="add" defaultMessage="Add" />
+                  </SolidButton>
+                </div>
+                <div className="pl-2 w-1/2">
+                  <SolidButton
+                    padding="px-0"
+                    onClick={() => {
+                      setShowWithdraw(true);
+                    }}
+                    className="w-full bg-bgGreyDefault hover:bg-bgGreyHover h-11 xs:w-full text-base rounded-lg md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm bg-poolRowHover"
+                  >
+                    <FormattedMessage id="remove" defaultMessage="Remove" />
+                  </SolidButton>
+                </div>
+              </div>
+            </Card>
+
+            {!seedFarms ? null : (
+              <div className="flex flex-col mt-4 relative z-30">
+                <FarmBoardInDetailPool
+                  style={{
+                    position: 'absolute',
+                    transform: isClientMobie()
+                      ? 'scale(1,1.05)'
+                      : 'scale(1.05)',
+                    zIndex: -1,
+                    left: isClientMobie() ? '' : '8px',
+                  }}
+                />
+                <div className="flex items-center mx-4 mt-4 justify-between">
+                  <div className="text-white">
+                    <FormattedMessage
+                      id="farm_apr"
+                      defaultMessage={'Farm APR'}
+                    />
+                  </div>
+
+                  <div
+                    className="rounded-lg flex items-center px-2 py-0.5"
+                    style={{
+                      background: '#17252E',
+                    }}
+                  >
+                    <Images
+                      className="mr-1"
+                      tokens={seedFarms.map(
+                        (farm: any) => farm.token_meta_data
+                      )}
+                      size="4"
+                    />
+                    <span className="text-sm text-v3SwapGray">
+                      {totalTvlPerWeekDisplay()}
+                      /week
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center mx-4 mt-3 justify-between">
+                  <div className="valueStyleYellow flex items-center text-lg">
+                    <span className="mr-2">{BaseApr()}</span>
+                    <Fire />
+                  </div>
+
+                  <SolidButton
+                    className="py-1.5 pb-1.5 px-4 flex rounded-lg items-center justify-center"
+                    onClick={() => {
+                      window.open(`/v2farms/${id}-r`, '_blank');
+                    }}
+                  >
+                    <FormattedMessage
+                      id="farm_now"
+                      defaultMessage={'Farm Now!'}
+                    />
+                  </SolidButton>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      <RemoveLiquidityModal
+        pool={pool}
+        shares={shares}
+        tokens={tokens}
+        isOpen={showWithdraw}
+        onRequestClose={() => setShowWithdraw(false)}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            bottom: '50%',
+          },
+        }}
+      />
+      <AddLiquidityModal
+        pool={pool}
+        tokens={tokens}
+        isOpen={showFunding}
+        onRequestClose={() => setShowFunding(false)}
+        overlayClassName=""
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            position: 'fixed',
+            bottom: '50%',
+          },
+        }}
+      />
     </>
   );
 }

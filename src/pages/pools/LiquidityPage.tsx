@@ -135,7 +135,7 @@ export function getPoolFeeApr(
 
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
+      const annualisedFeesPrct = ((revenu24h * 365) / newTvl / 2) * 100;
       result = toPrecision(annualisedFeesPrct.toString(), 2);
     }
   }
@@ -154,7 +154,7 @@ export function getPoolFeeAprTitle(
 
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / newTvl) * 100;
+      const annualisedFeesPrct = ((revenu24h * 365) / newTvl / 2) * 100;
       result = annualisedFeesPrct.toString();
     }
   }
@@ -925,7 +925,7 @@ function PoolRow({
         }}
       >
         <div className="col-span-3 md:col-span-4 flex items-center">
-          <div className="mr-6 w-2">{index}</div>
+          <div className="mr-8 w-2">{index}</div>
           <div className="flex items-center">
             <Images tokens={tokens} size="9" />
             <div className="text-sm ml-7">
@@ -1026,7 +1026,7 @@ function WatchListCard({
         <section className="">
           <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
             <div className="col-span-3 md:col-span-4 flex">
-              <div className="mr-6 w-2">#</div>
+              <div className="mr-8 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
             <div className="col-span-1 justify-self-center md:hidden flex items-center">
@@ -1458,7 +1458,7 @@ function LiquidityPage_({
             <section className="">
               <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
                 <div className="col-span-3 md:col-span-4 flex">
-                  <div className="mr-6 w-2">#</div>
+                  <div className="mr-8 w-2">#</div>
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
                 <div className="col-span-1 justify-self-center md:hidden flex items-center">

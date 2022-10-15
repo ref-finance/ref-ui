@@ -6,7 +6,11 @@ import {
   toNonDivisibleNumber,
   toReadableNumber,
 } from '../utils/numbers';
-import { getStakedListByAccountId } from '../services/farm';
+import {
+  getStakedListByAccountId,
+  get_seed,
+  list_seed_farms,
+} from '../services/farm';
 import {
   DEFAULT_PAGE_LIMIT,
   getAllPoolsFromDb,
@@ -42,7 +46,7 @@ import {
   get24hVolumes,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
-import { TokenMetadata } from '../services/ft-contract';
+import { ftGetTokenMetadata, TokenMetadata } from '../services/ft-contract';
 import { TokenBalancesView } from '../services/token';
 import {
   shareToAmount,
@@ -708,6 +712,57 @@ export const useDayVolume = (pool_id: string) => {
     get24hVolume(pool_id).then(setDayVolume);
   }, [pool_id]);
   return dayVolume;
+};
+
+export const useSeedDetail = (pool_id: string | number) => {
+  const seed_id = getConfig().REF_FI_CONTRACT_ID + '@' + pool_id.toString();
+
+  const [seedDetail, setSeedDetail] = useState<any>();
+
+  useEffect(() => {
+    get_seed(seed_id).then((res) => {
+      setSeedDetail(res);
+    });
+  }, []);
+
+  return seedDetail;
+};
+
+export const useSeedFarms = (pool_id: string | number) => {
+  const [seedFarms, setSeedFarms] = useState<any>();
+
+  const seed_id = getConfig().REF_FI_CONTRACT_ID + '@' + pool_id.toString();
+
+  useEffect(() => {
+    list_seed_farms(seed_id)
+      .then(async (res) => {
+        return Promise.all(
+          res.map(async (farm: any) => {
+            const token_meta_data = await ftGetTokenMetadata(
+              farm.terms.reward_token
+            );
+
+            const daily_reward = farm.terms.daily_reward;
+
+            const readableNumber = toReadableNumber(
+              token_meta_data.decimals,
+              daily_reward
+            );
+
+            const yearReward = Number(readableNumber) * 360;
+
+            return {
+              ...farm,
+              token_meta_data,
+              yearReward,
+            };
+          })
+        );
+      })
+      .then(setSeedFarms);
+  }, [pool_id]);
+
+  return seedFarms;
 };
 
 export const usePredictShares = ({

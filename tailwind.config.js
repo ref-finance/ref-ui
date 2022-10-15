@@ -110,6 +110,7 @@ module.exports = {
         farmDark: '#2B3A44',
         framBorder: '#00C6A2',
         farmSbg: '#2F3D47',
+        detailCardBg: 'rgba(29, 41, 50, 0.5)',
         farmRound: '#B3C2CC',
         transakBlue: '#2F8FFF',
         farmTopRight: '#008870',
@@ -192,7 +193,7 @@ module.exports = {
         v3HoverDarkBgColor: '#26343E',
         v3GarkWarningColor: '#FFA149',
         v3LiquidityTabBgColor: 'rgba(34, 45, 53, 0.8)',
-        v3LiquidityRemoveBarColor:'rgba(126, 138, 147, 0.5)'
+        v3LiquidityRemoveBarColor: 'rgba(126, 138, 147, 0.5)',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -212,6 +213,8 @@ module.exports = {
         '480px': '480px',
         smartRoute: '292px',
         '1000px': '1000px',
+        '1024px': '1024px',
+        '1050px': '1050px',
         54: '13.5rem',
         34: '8.5rem',
       },

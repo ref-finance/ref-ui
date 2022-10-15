@@ -280,7 +280,7 @@ export function getPoolFeeAprTitleRPCView(
     const { total_fee: fee, tvl } = pool;
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (tvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+      const annualisedFeesPrct = ((revenu24h * 365) / tvl / 2) * 100;
       result = annualisedFeesPrct.toString();
     }
   }
