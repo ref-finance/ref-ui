@@ -117,6 +117,9 @@ import Big from 'big.js';
 import { Cell, Pie, PieChart, Sector } from 'recharts';
 import { OutlineButton } from '../../components/button/Button';
 import { BTC_TEXT } from '../../components/icon/Logo';
+import { useAllPoolsV2 } from '../../state/swapV3';
+import { PoolInfo } from '~services/swapV3';
+import { SelectModalV2 } from '../../components/layout/SelectModal';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -365,6 +368,77 @@ function MobilePoolRow({
   );
 }
 
+function MobilePoolRowV2({
+  pool,
+  sortBy,
+  tokens,
+}: {
+  pool: PoolInfo;
+  sortBy: string;
+  tokens?: TokenMetadata[];
+}) {
+  const { ref } = useInView();
+
+  const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
+
+  const history = useHistory();
+
+  if (!curRowTokens) return <></>;
+
+  tokens = curRowTokens.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return a.symbol > b.symbol ? 1 : -1;
+  });
+
+  const showSortedValue = ({
+    sortBy,
+    value,
+  }: {
+    sortBy: string;
+    value?: number;
+  }) => {
+    if (sortBy === 'tvl')
+      return toInternationalCurrencySystem(value.toString());
+    else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
+  };
+
+  return (
+    <div className="w-full hover:bg-poolRowHover">
+      <div
+        ref={ref}
+        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-4 py-6 text-white"
+      >
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-start">
+            <div className="flex items-center">
+              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+                <img
+                  key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                  className="rounded-full w-full"
+                  src={tokens[0].icon}
+                />
+              </div>
+
+              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+                <img
+                  key={tokens[1].id}
+                  className="w-full rounded-full"
+                  src={tokens[1].icon}
+                />
+              </div>
+            </div>
+            <div className="text-sm ml-2 font-semibold">
+              {tokens[0].symbol + '-' + tokens[1].symbol}
+            </div>
+          </div>
+          <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MobileWatchListCard({
   watchPools,
   poolTokenMetas,
@@ -507,11 +581,54 @@ function MobileLiquidityPage({
   const history = useHistory();
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>();
+  const [showSelectModalV2, setShowSelectModalV2] = useState<Boolean>();
+
   const inputRef = useRef(null);
   const selectTokens = useRainbowWhitelistTokens();
 
   const selectBalances = useTokenBalances();
 
+  const allPoolsV2 = useAllPoolsV2();
+  const [v2SortBy, setV2SortBy] = useState<string>('tvl');
+
+  const [v2Order, setV2Order] = useState<string>('desc');
+
+  const poolv2ReSortingFunc = (p1: PoolInfo, p2: PoolInfo) => {
+    const f1 = p1.fee;
+
+    const f2 = p2.fee;
+
+    const tvl1 = p1.tvl;
+
+    const tvl2 = p2.tvl;
+
+    if (v2Order === 'desc') {
+      if (v2SortBy === 'tvl') {
+        return tvl2 - tvl1;
+      } else if (v2SortBy === 'fee') {
+        return f2 - f1;
+      }
+    } else if (v2Order === 'asc') {
+      if (v2SortBy === 'tvl') {
+        return tvl1 - tvl2;
+      } else if (v2SortBy === 'fee') {
+        return f1 - f2;
+      }
+    }
+  };
+
+  const poolv2FilterFunc = (p: PoolInfo) => {
+    return (
+      _.includes(
+        p.token_x_metadata.symbol.toLowerCase(),
+        tokenName.toLowerCase()
+      ) ||
+      _.includes(
+        p.token_y_metadata.symbol.toLowerCase(),
+        tokenName.toLowerCase()
+      )
+    );
+  };
   const tokensStar = [REF_META_DATA, unwrapedNear];
 
   const filterList = { all: intl.formatMessage({ id: 'allOption' }) };
@@ -548,6 +665,7 @@ function MobileLiquidityPage({
       }
     }
   };
+  if (activeTab === 'v2' && !allPoolsV2) return <Loading />;
 
   return (
     <>
@@ -861,6 +979,96 @@ function MobileLiquidityPage({
             </section>
           </Card>
         )}
+
+        {activeTab === 'v2' && (
+          <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4">
+            <div className="rounded my-4 text-gray-400 flex items-center pr-2 mx-4 mb-5">
+              <div className="relative flex items-center flex-grow">
+                <input
+                  ref={inputRef}
+                  className={`text-sm outline-none rounded py-2 pl-3 pr-7 flex-grow bg-inputDarkBg`}
+                  placeholder={intl.formatMessage({
+                    id: 'search_by_token',
+                  })}
+                  value={tokenName}
+                  onChange={(evt) => {
+                    onSearch(evt.target.value);
+                  }}
+                />
+                <SearchIcon className="absolute right-1.5"></SearchIcon>
+              </div>
+            </div>
+            <section className="w-full">
+              <header className="p-4 text-gray-400 flex items-center justify-between text-sm">
+                <div>
+                  <FormattedMessage id="pair" defaultMessage="Pair" />
+                </div>
+                <div className="flex items-center">
+                  <div
+                    className="mr-2"
+                    onClick={() => {
+                      setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    {v2Order === 'desc' ? (
+                      <DownArrowLightMobile />
+                    ) : (
+                      <UpArrowDeep />
+                    )}
+                  </div>
+                  <div
+                    className={`relative rounded-full flex items-center border    ${
+                      showSelectModalV2
+                        ? 'border-greenColor text-white'
+                        : 'border-farmText text-farmText'
+                    } w-32`}
+                  >
+                    <span
+                      className={`px-3 w-full text-xs h-5
+                      flex items-center justify-between
+                    `}
+                      onClick={() => {
+                        setShowSelectModalV2(true);
+                      }}
+                    >
+                      <label>
+                        <FormattedMessage
+                          id={v2SortBy}
+                          defaultMessage={v2SortBy}
+                        />
+                      </label>
+                      <ArrowDownLarge />
+                    </span>
+
+                    {showSelectModalV2 && (
+                      <SelectModalV2
+                        sortMode={v2SortBy}
+                        onSortChange={setV2SortBy}
+                        setShowModal={setShowSelectModalV2}
+                        className="top-8"
+                      />
+                    )}
+                  </div>
+                </div>
+              </header>
+              <div className="border-b border-gray-700 border-opacity-70" />
+              <div className="max-h-96 overflow-y-auto pool-list-container-mobile">
+                {allPoolsV2
+                  ?.filter(poolv2FilterFunc)
+                  .sort(poolv2ReSortingFunc)
+                  .map((pool, i) => (
+                    <MobilePoolRowV2
+                      tokens={[pool.token_x_metadata, pool.token_y_metadata]}
+                      pool={pool}
+                      sortBy={v2SortBy}
+                      key={i + '-mobile-pool-row-v2'}
+                    />
+                  ))}
+              </div>
+            </section>
+          </Card>
+        )}
+
         {activeTab === 'stable' && (
           <StablePoolList searchBy={tokenName} volumes={volumes} />
         )}
@@ -989,6 +1197,58 @@ function PoolRow({
           </span>
         </div>
       </Link>
+    </div>
+  );
+}
+
+function PoolRowV2({
+  pool,
+  index,
+  tokens,
+}: {
+  pool: PoolInfo;
+  index: number;
+  tokens?: TokenMetadata[];
+}) {
+  const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
+  const history = useHistory();
+
+  if (!curRowTokens) return <></>;
+
+  tokens = curRowTokens.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return a.symbol > b.symbol ? 1 : -1;
+  });
+
+  return (
+    <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
+      <div
+        className={`grid grid-cols-8 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
+      >
+        <div className="col-span-5 md:col-span-4 flex items-center">
+          <div className="mr-8 w-2">{index}</div>
+          <div className="flex items-center">
+            <Images tokens={tokens} size="9" />
+            <div className="text-sm ml-7">
+              {tokens[0].symbol + '-' + tokens[1].symbol}
+            </div>
+          </div>
+        </div>
+        <div className="col-span-2 justify-self-center py-1 md:hidden ">
+          {calculateFeePercent(pool.fee / 100)}%
+        </div>
+
+        <div
+          className="col-span-1 py-1 justify-self-center relative left-4"
+          title={toPrecision(
+            scientificNotationToString(pool.tvl.toString()),
+            0
+          )}
+        >
+          ${toInternationalCurrencySystem(pool.tvl.toString())}
+        </div>
+      </div>
     </div>
   );
 }
@@ -1128,6 +1388,8 @@ function LiquidityPage_({
   const intl = useIntl();
   const inputRef = useRef(null);
 
+  const allPoolsV2 = useAllPoolsV2();
+
   const selectTokens = useRainbowWhitelistTokens();
 
   const selectBalances = useTokenBalances();
@@ -1146,6 +1408,10 @@ function LiquidityPage_({
   const [showAddPoolModal, setShowAddPoolModal] = useState<boolean>(false);
 
   const [reSortBy, setReSortBy] = useState<string>('');
+
+  const [v2SortBy, setV2SortBy] = useState<string>('tvl');
+
+  const [v2Order, setV2Order] = useState<string>('desc');
 
   useEffect(() => {
     canFarm(getVEPoolId()).then(({ count }) => {
@@ -1180,6 +1446,43 @@ function LiquidityPage_({
     }
   };
 
+  const poolv2ReSortingFunc = (p1: PoolInfo, p2: PoolInfo) => {
+    const f1 = p1.fee;
+
+    const f2 = p2.fee;
+
+    const tvl1 = p1.tvl;
+
+    const tvl2 = p2.tvl;
+
+    if (v2Order === 'desc') {
+      if (v2SortBy === 'tvl') {
+        return tvl2 - tvl1;
+      } else if (v2SortBy === 'fee') {
+        return f2 - f1;
+      }
+    } else if (v2Order === 'asc') {
+      if (v2SortBy === 'tvl') {
+        return tvl1 - tvl2;
+      } else if (v2SortBy === 'fee') {
+        return f1 - f2;
+      }
+    }
+  };
+
+  const poolv2FilterFunc = (p: PoolInfo) => {
+    return (
+      _.includes(
+        p.token_x_metadata.symbol.toLowerCase(),
+        tokenName.toLowerCase()
+      ) ||
+      _.includes(
+        p.token_y_metadata.symbol.toLowerCase(),
+        tokenName.toLowerCase()
+      )
+    );
+  };
+
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
 
@@ -1187,6 +1490,8 @@ function LiquidityPage_({
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
   };
+
+  if (activeTab === 'v2' && !allPoolsV2) return <Loading />;
 
   return (
     <>
@@ -1639,6 +1944,108 @@ function LiquidityPage_({
                       supportFarm={!!farmCounts[pool.id]}
                       farmCount={farmCounts[pool.id]}
                       h24volume={volumes[pool.id]}
+                    />
+                  ))}
+              </div>
+            </section>
+          </Card>
+        )}
+
+        {activeTab === 'v2' && (
+          <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
+            <section className="">
+              <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
+                <div className="col-span-5 md:col-span-4 flex">
+                  <div className="mr-8 w-2">#</div>
+                  <FormattedMessage id="pair" defaultMessage="Pair" />
+                </div>
+                <div className="col-span-2 justify-self-center md:hidden flex items-center">
+                  <span
+                    className={`pr-1  cursor-pointer ${
+                      v2SortBy !== 'fee' ? 'hover:text-white' : ''
+                    } ${v2SortBy === 'fee' ? 'text-gradientFrom' : ''}`}
+                    onClick={() => {
+                      setV2SortBy('fee');
+                      v2SortBy !== 'fee' && setV2Order('desc');
+                      v2SortBy === 'fee' &&
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    <FormattedMessage id="fee" defaultMessage="Fee" />
+                  </span>
+
+                  <span
+                    className={`cursor-pointer ${
+                      v2SortBy !== 'fee' ? 'hidden' : ''
+                    }`}
+                    onClick={() => {
+                      setV2SortBy('fee');
+                      v2SortBy !== 'fee' && setV2Order('desc');
+                      v2SortBy === 'fee' &&
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    {v2SortBy === 'fee' ? (
+                      v2Order === 'desc' ? (
+                        <DownArrowLight />
+                      ) : (
+                        <UpArrowLight />
+                      )
+                    ) : (
+                      <UpArrowDeep />
+                    )}
+                  </span>
+                </div>
+
+                <div className="col-span-1 justify-self-center relative left-4 flex items-center">
+                  <span
+                    className={`pr-1  cursor-pointer ${
+                      v2SortBy !== 'tvl' ? 'hover:text-white' : ''
+                    } ${v2SortBy === 'tvl' ? 'text-gradientFrom' : ''}`}
+                    onClick={() => {
+                      setV2SortBy('tvl');
+                      setReSortBy('');
+
+                      v2SortBy !== 'tvl' && setV2Order('desc');
+                      v2SortBy === 'tvl' &&
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    <FormattedMessage id="tvl" defaultMessage="TVL" />
+                  </span>
+                  <span
+                    className={v2SortBy !== 'tvl' ? 'hidden' : 'cursor-pointer'}
+                    onClick={() => {
+                      setV2SortBy('tvl');
+                      setReSortBy('');
+                      v2SortBy !== 'tvl' && setV2Order('desc');
+                      v2SortBy === 'tvl' &&
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    {v2SortBy === 'tvl' ? (
+                      v2Order === 'desc' ? (
+                        <DownArrowLight />
+                      ) : (
+                        <UpArrowLight />
+                      )
+                    ) : (
+                      <UpArrowDeep />
+                    )}
+                  </span>
+                </div>
+              </header>
+
+              <div className="max-h-96 overflow-y-auto  pool-list-container-pc">
+                {allPoolsV2
+                  .sort(poolv2ReSortingFunc)
+                  .filter(poolv2FilterFunc)
+                  .map((pool, i) => (
+                    <PoolRowV2
+                      tokens={[pool.token_x_metadata, pool.token_y_metadata]}
+                      key={i}
+                      pool={pool}
+                      index={i + 1}
                     />
                   ))}
               </div>

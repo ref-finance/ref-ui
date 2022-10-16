@@ -77,3 +77,53 @@ export const SelectModal = ({
     </Card>
   );
 };
+
+export const SelectModalV2 = ({
+  className,
+  setShowModal,
+  onSortChange,
+  sortMode,
+}: {
+  className?: string;
+  setShowModal: (mode: boolean) => void;
+  onSortChange: (sortMode: string) => void;
+  sortMode: string;
+}) => {
+  return (
+    <Card
+      className={`rounded border border-farmText flex text-xs  text-opacity-40 flex-col items-start absolute min-w-32 ${className}`}
+      padding="py-1 px-0"
+    >
+      <div
+        className="fixed top-0 left-0 w-screen h-screen opacity-0 z-0"
+        onClick={() => {
+          setShowModal(false);
+        }}
+      />
+      <div
+        className={`py-2 px-2 w-full hover:bg-white hover:bg-opacity-10 z-30 text-white text-opacity-40
+        
+        ${sortMode === 'tvl' ? 'bg-white bg-opacity-10 text-opacity-100' : ''}
+        
+        `}
+        onClick={() => {
+          onSortChange('tvl');
+          setShowModal(false);
+        }}
+      >
+        <FormattedMessage id="tvl" defaultMessage="TVL" />
+      </div>
+      <div
+        className={`py-2 px-2   w-full hover:bg-white hover:bg-opacity-10 text-white text-opacity-40 ${
+          sortMode === 'fee' ? 'bg-white bg-opacity-10 text-opacity-100' : ''
+        } z-30`}
+        onClick={() => {
+          onSortChange('fee');
+          setShowModal(false);
+        }}
+      >
+        <FormattedMessage id="fee" defaultMessage="Fee" />
+      </div>
+    </Card>
+  );
+};

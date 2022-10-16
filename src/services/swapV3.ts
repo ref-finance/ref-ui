@@ -872,6 +872,16 @@ export const get_pool_marketdepth = async (pool_id: string) => {
   });
 };
 
+export const listPools = () => {
+  return refSwapV3ViewFunction({
+    methodName: 'list_pools',
+    args: {
+      from_index: 1,
+      limit: 500,
+    },
+  });
+};
+
 export interface PoolInfo {
   pool_id?: string;
   token_x?: string;
@@ -887,4 +897,6 @@ export interface PoolInfo {
   total_x?: string;
   total_y?: string;
   tvl?: number;
+  token_x_metadata?: TokenMetadata;
+  token_y_metadata?: TokenMetadata;
 }
