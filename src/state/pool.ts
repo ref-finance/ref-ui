@@ -736,32 +736,39 @@ export const useSeedFarms = (pool_id: string | number) => {
   useEffect(() => {
     list_seed_farms(seed_id)
       .then(async (res) => {
+        console.log(res, 'res');
+
         const parsedRes = res.filter((f: any) => f.status !== 'Ended');
+
+        const onlyPending = res.every((f: any) => f.status === 'Pending');
+
         if (!parsedRes || parsedRes.length === 0) {
           return;
         }
 
         return Promise.all(
-          parsedRes.map(async (farm: any) => {
-            const token_meta_data = await ftGetTokenMetadata(
-              farm.terms.reward_token
-            );
+          parsedRes
+            .filter((f: any) => onlyPending || f.status === 'Running')
+            .map(async (farm: any) => {
+              const token_meta_data = await ftGetTokenMetadata(
+                farm.terms.reward_token
+              );
 
-            const daily_reward = farm.terms.daily_reward;
+              const daily_reward = farm.terms.daily_reward;
 
-            const readableNumber = toReadableNumber(
-              token_meta_data.decimals,
-              daily_reward
-            );
+              const readableNumber = toReadableNumber(
+                token_meta_data.decimals,
+                daily_reward
+              );
 
-            const yearReward = Number(readableNumber) * 360;
+              const yearReward = Number(readableNumber) * 360;
 
-            return {
-              ...farm,
-              token_meta_data,
-              yearReward,
-            };
-          })
+              return {
+                ...farm,
+                token_meta_data,
+                yearReward,
+              };
+            })
         );
       })
       .then(setSeedFarms);

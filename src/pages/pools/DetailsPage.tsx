@@ -1272,31 +1272,6 @@ function EmptyChart({
       </div>
 
       <div className="xs:hidden md:hidden">
-        <div
-          style={{
-            width: '300px',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '1px',
-            transform: 'rotate(90deg)',
-            position: 'relative',
-            bottom: '140px',
-            left: '150px',
-          }}
-        />
-        <div
-          style={{
-            borderBottom: '1px solid #ffffff',
-            boxSizing: 'border-box',
-            width: '13px',
-            height: '13px',
-            position: 'relative',
-            left: '295px',
-            top: '4px',
-            backgroundColor: '#00d6af',
-            opacity: 0.4,
-          }}
-          className="rounded-full"
-        />
         <div className="border border-gradientFrom w-full mb-2" />
         <div className="flex text-xs text-gray-500 justify-between">
           {[
@@ -1883,7 +1858,7 @@ export function PoolDetailsPage() {
                   </div>
                 ) : (
                   <div
-                    className="text-sm xs:hidden md:hidden"
+                    className="text-sm "
                     data-type="info"
                     data-place="right"
                     data-multiline={true}

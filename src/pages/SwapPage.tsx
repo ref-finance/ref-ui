@@ -178,7 +178,7 @@ const MobileSwapTab = ({
         }}
       >
         <span
-          className={`py-1 px-4 whitespace-nowrap text-center cursor-pointer ${
+          className={`py-1 w-1/2 px-4 whitespace-nowrap text-center cursor-pointer ${
             swapMode === SWAP_MODE.NORMAL ? ' text-white' : ''
           }`}
           style={{
@@ -192,24 +192,9 @@ const MobileSwapTab = ({
         >
           <FormattedMessage id="swap" defaultMessage="Swap" />
         </span>
-        <span
-          className={`py-1 px-4 whitespace-nowrap text-center cursor-pointer  ${
-            swapMode === SWAP_MODE.STABLE ? ' text-white ' : ''
-          }`}
-          style={{
-            borderRadius: swapMode === SWAP_MODE.STABLE ? '10px' : '',
-            backgroundColor: swapMode === SWAP_MODE.STABLE ? '#33424E' : '',
-          }}
-          onClick={() => {
-            setSwapMode(SWAP_MODE.STABLE);
-            localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
-          }}
-        >
-          <FormattedMessage id="stable" defaultMessage="Stable" />
-        </span>
 
         <span
-          className={`py-1 px-3 whitespace-nowrap  text-center cursor-pointer ${
+          className={`py-1 w-1/2 px-3 whitespace-nowrap  text-center cursor-pointer ${
             swapMode === SWAP_MODE.LIMIT ? ' text-white ' : ''
           }`}
           style={{

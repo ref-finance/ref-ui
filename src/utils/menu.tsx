@@ -243,21 +243,7 @@ export const moreLinks: MobileMenuItem[] = [
           localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
         },
       },
-      {
-        id: 'stable',
-        label: 'stable',
-        url: '/',
-        isExternal: false,
-        logo: <MobileNavStable />,
-        subMenuDefaultChosen:
-          localStorage.getItem(SWAP_MODE_KEY) === SWAP_MODE.STABLE &&
-          localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'normal',
-        defaultClick: () => {
-          window.open('/swap', '_self');
-          localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
-          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-        },
-      },
+
       {
         id: 'swapPro',
         label: 'pro',
@@ -266,10 +252,10 @@ export const moreLinks: MobileMenuItem[] = [
         isExternal: false,
         logo: <MobileNavSwapPro />,
         idElement: (
-          <span className="flex items-center whitespace-nowrap">
-            {' '}
-            <span className="mr-2">Swap with</span> <AuroraIconSwapNav />{' '}
-          </span>
+          <FormattedMessage
+            id="cross_chain_swap"
+            defaultMessage={'Cross-chain Swap'}
+          />
         ),
         subMenuDefaultChosen:
           localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) === 'cross',

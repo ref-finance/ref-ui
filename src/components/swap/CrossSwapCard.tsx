@@ -729,9 +729,9 @@ export default function CrossSwapCard(props: {
               <div className="flex items-center">
                 <span className=" whitespace-nowrap xs:hidden">
                   <FormattedMessage
-                    id="swap_with_aurora_liquidity"
-                    defaultMessage={'SWAP with Aurora Liquidity'}
-                  ></FormattedMessage>
+                    id="cross_chain_swap"
+                    defaultMessage={'Cross-chain Swap'}
+                  />
                 </span>
 
                 <span
