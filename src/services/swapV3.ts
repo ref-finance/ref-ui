@@ -875,10 +875,6 @@ export const get_pool_marketdepth = async (pool_id: string) => {
 export const listPools = () => {
   return refSwapV3ViewFunction({
     methodName: 'list_pools',
-    args: {
-      from_index: 1,
-      limit: 500,
-    },
   });
 };
 
