@@ -617,8 +617,8 @@ export const Fire = (props: any) => {
           y2="13.7143"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFD278" />
-          <stop offset="1" stop-color="#FF9900" />
+          <stop stopColor="#FFD278" />
+          <stop offset="1" stopColor="#FF9900" />
         </linearGradient>
       </defs>
     </svg>
@@ -643,7 +643,7 @@ export const FarmBoardInDetailPool = (props: any) => {
         rx="11"
         fill="url(#paint0_radial_2166_3074)"
         stroke="url(#paint1_linear_2166_3074)"
-        stroke-width="2"
+        strokeWidth="2"
       />
       <defs>
         <radialGradient
@@ -654,8 +654,8 @@ export const FarmBoardInDetailPool = (props: any) => {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(86.8785 26.5) rotate(33.0988) scale(137.342 152.301)"
         >
-          <stop stop-color="#0E3E48" />
-          <stop offset="1" stop-color="#001320" />
+          <stop stopColor="#0E3E48" />
+          <stop offset="1" stopColor="#001320" />
         </radialGradient>
         <linearGradient
           id="paint1_linear_2166_3074"
@@ -665,8 +665,8 @@ export const FarmBoardInDetailPool = (props: any) => {
           y2="92"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#00C6A2" />
-          <stop offset="1" stop-color="#7F43FF" />
+          <stop stopColor="#00C6A2" />
+          <stop offset="1" stopColor="#7F43FF" />
         </linearGradient>
       </defs>
     </svg>
@@ -702,8 +702,8 @@ export const OrderIcon = (props: any) => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M6.15905 2.28451H9.72909C10.2712 2.28451 10.7292 1.76141 10.7292 1.14223C10.7292 0.512393 10.2707 0 9.70727 0H6.15905C5.59558 0 5.13721 0.512373 5.13721 1.14223C5.13721 1.77208 5.5956 2.28451 6.15905 2.28451ZM12.5353 8.24999C12.5051 7.82162 12.169 7.49866 11.7535 7.49866H4.09089C3.67869 7.49866 3.33032 7.8506 3.33032 8.26712C3.33032 8.68355 3.67869 9.03542 4.09089 9.03542H11.7752C12.1876 9.03542 12.5359 8.68355 12.5359 8.26712L12.5353 8.24999ZM4.09089 4.63977H11.7752C12.1876 4.63977 12.5359 4.99163 12.5359 5.40823C12.5359 5.82475 12.1876 6.17661 11.7752 6.17661H4.09089C3.67869 6.17661 3.33032 5.82475 3.33032 5.40823C3.33032 4.99163 3.67869 4.63977 4.09089 4.63977ZM11.7535 10.5991H4.09089C3.67869 10.5991 3.33032 10.9511 3.33032 11.3676C3.33032 11.784 3.67869 12.1359 4.09089 12.1359H11.7752C12.1876 12.1359 12.5359 11.784 12.5359 11.3676L12.5353 11.3505C12.5051 10.9221 12.169 10.5991 11.7535 10.5991ZM13.5604 0.505737C14.2609 0.505737 14.8471 0.739379 15.2556 1.18138C15.6411 1.59842 15.8449 2.17039 15.8449 2.83546V14.6002C15.8449 16.1592 14.9949 17.0179 13.4515 17.0179H2.39326C0.939403 17.0179 0 16.0688 0 14.6002V2.83548C0 1.37671 0.853961 0.505757 2.28443 0.505757H3.56876C3.96323 0.505757 4.19875 0.768319 4.19875 1.20814C4.19875 1.69407 3.94559 2.02061 3.56876 2.02061H2.28443C1.80759 2.02061 1.49952 2.3318 1.49952 2.81349V14.7101C1.49952 15.164 2.05181 15.503 2.54557 15.503H13.5604C14.0372 15.503 14.3453 15.1918 14.3453 14.7101V2.81347C14.3453 2.33178 14.0372 2.02059 13.5604 2.02059H12.5373C12.1095 2.02059 11.6896 1.61816 11.6896 1.20812C11.6896 0.774335 12.1296 0.505737 12.5373 0.505737H13.5604Z"
         fill="currentColor"
       />

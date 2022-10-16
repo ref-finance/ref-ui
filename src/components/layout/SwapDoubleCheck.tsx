@@ -215,8 +215,8 @@ export function DoubleCheckModalLimit(
         <div className=" text-base pt-4 text-center mb-10">
           <span>
             <FormattedMessage
-              id="your_limit_price_is"
-              defaultMessage="Your limited price is"
+              id="limit_order_price_is"
+              defaultMessage="Limit order price is"
             />
           </span>
 
@@ -225,13 +225,13 @@ export function DoubleCheckModalLimit(
           </span>
 
           <span className="mr-1 text-error font-bold">
-            <FormattedMessage id={'lower'} defaultMessage="lower" />
+            <FormattedMessage id={'below'} defaultMessage="below" />
           </span>
 
           <span>
             <FormattedMessage
-              id="than_market_price"
-              defaultMessage={'than market price'}
+              id="the_market_price"
+              defaultMessage={'the market price'}
             />
           </span>
         </div>
@@ -259,8 +259,8 @@ export function DoubleCheckModalLimit(
               Text={() => (
                 <span>
                   <FormattedMessage
-                    id="yes_make_order"
-                    defaultMessage="Yes, Make order"
+                    id="yes_create_order"
+                    defaultMessage="Yes, create order"
                   />
                   !
                 </span>

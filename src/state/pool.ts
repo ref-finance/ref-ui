@@ -736,11 +736,9 @@ export const useSeedFarms = (pool_id: string | number) => {
   useEffect(() => {
     list_seed_farms(seed_id)
       .then(async (res) => {
-        console.log(res, 'res');
-
         const parsedRes = res.filter((f: any) => f.status !== 'Ended');
 
-        const onlyPending = res.every((f: any) => f.status === 'Pending');
+        const noRunning = res.every((f: any) => f.status !== 'Running');
 
         if (!parsedRes || parsedRes.length === 0) {
           return;
@@ -748,7 +746,7 @@ export const useSeedFarms = (pool_id: string | number) => {
 
         return Promise.all(
           parsedRes
-            .filter((f: any) => onlyPending || f.status === 'Running')
+            .filter((f: any) => noRunning || f.status === 'Running')
             .map(async (farm: any) => {
               const token_meta_data = await ftGetTokenMetadata(
                 farm.terms.reward_token

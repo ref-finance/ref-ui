@@ -22,6 +22,9 @@ import {
   MyOrderMask2,
 } from '../components/icon/swapV3';
 import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
+
+import { BsCheckCircle } from 'react-icons/bs';
+
 import {
   toReadableNumber,
   scientificNotationToString,
@@ -38,7 +41,7 @@ import { RouterArrowLeft, MyOrderMobileArrow } from '../components/icon/Arrows';
 import QuestionMark from '../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '../utils/token';
-import { QuestionTip } from '../components/layout/TipWrapper';
+import { QuestionTip, ExclamationTip } from '../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../components/icon/swapV3';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
@@ -363,8 +366,8 @@ function OrderCard({
                 </div>
 
                 ${intl.formatMessage({
-                  id: 'unclaimed_upper',
-                  defaultMessage: 'Unclaimed',
+                  id: 'filled',
+                  defaultMessage: 'Filled',
                 })}
 
             </span>
@@ -389,8 +392,8 @@ function OrderCard({
                 </div>
 
                 ${intl.formatMessage({
-                  id: 'pending_upper',
-                  defaultMessage: 'Pending',
+                  id: 'open_my_order',
+                  defaultMessage: 'Open',
                 })}
 
             </span>
@@ -658,10 +661,11 @@ function OrderCard({
               id="initial_order"
               defaultMessage={'Initial Order'}
             />
-            <QuestionTip
-              id="this_order_has_been_partially_instant_swapped "
-              defaultMessage="This order has been partially instant swapped "
+            <ExclamationTip
+              id="this_order_has_been_partially_filled"
+              defaultMessage="This order has been partially filled "
               dataPlace="right"
+              colorHex="#7E8A93"
             />
           </span>
 
@@ -696,47 +700,46 @@ function OrderCard({
         <div className="flex items-center justify-between ">
           <span className="flex items-center ">
             <FormattedMessage
-              id="instant_swap"
-              defaultMessage={'Instant Swap'}
+              id="filled_via_swap"
+              defaultMessage={'Filled via Swap'}
             />
-            <span className="flex xs:hidden items-center text-white ml-4">
-              {`1 ${toRealSymbol(sellToken.symbol)} `}&nbsp;
-              {!!sellTokenPrice ? (
-                <span className=" text-v3SwapGray mr-1">
-                  {`($${toPrecision(sellTokenPrice, 2)})`}
-                </span>
-              ) : null}
-              {` = `}
-              <span
-                className="mx-1"
-                title={new Big(swapOut)
+
+            <ExclamationTip
+              colorHex="#7E8A93"
+              id={`1 ${toRealSymbol(sellToken.symbol)} ${
+                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
+              } = 
+                ${new Big(swapOut)
                   .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(buyToken.decimals)}
-              >
-                {`${new Big(swapOut)
+                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
+                `}
+              defaultMessage={`1 ${toRealSymbol(sellToken.symbol)} ${
+                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
+              } = 
+                ${new Big(swapOut)
                   .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(3)}`}
-              </span>
-              {` ${toRealSymbol(buyToken.symbol)}`}
-            </span>
+                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
+                `}
+            />
           </span>
 
           <span className="flex items-center">
-            <span title={swapIn} className="text-white xs:text-v3SwapGray">
+            <BsCheckCircle className="mr-1.5" fill="#42bb17" stroke="#42BB17" />
+            <span title={swapIn} className="text-v3SwapGray">
               {Number(swapIn) > 0 && Number(swapIn) < 0.01
                 ? '< 0.01'
                 : toPrecision(swapIn, 2)}
             </span>
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-            <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
+            <span className="mx-6 xs:mx-2 text-v3SwapGray">
               {isClientMobie() ? (
                 <MyOrderInstantSwapArrowRight />
               ) : (
                 <MyOrderInstantSwapArrowRight />
               )}
             </span>
-            <span title={swapOut} className="text-white xs:text-v3SwapGray">
+            <span title={swapOut} className="text-v3SwapGray">
               {Number(swapOut) > 0 && Number(swapOut) < 0.01
                 ? '< 0.01'
                 : toPrecision(swapOut, 2)}
@@ -849,7 +852,7 @@ function OrderCard({
 
             <MobileInfoBanner
               text={
-                <FormattedMessage defaultMessage={'Unclaimed'} id="unclaimed" />
+                <FormattedMessage defaultMessage={'Executed'} id="executed" />
               }
               value={unclaim}
             />
@@ -1248,10 +1251,11 @@ function OrderCard({
               id="initial_order"
               defaultMessage={'Initial Order'}
             />
-            <QuestionTip
-              id="this_order_has_been_partially_instant_swapped "
-              defaultMessage="This order has been partially instant swapped "
+            <ExclamationTip
+              id="this_order_has_been_partially_filled"
+              defaultMessage="This order has been partially filled "
               dataPlace="right"
+              colorHex="#7E8A93"
             />
           </span>
 
@@ -1286,47 +1290,46 @@ function OrderCard({
         <div className="flex items-center justify-between ">
           <span className="flex items-center ">
             <FormattedMessage
-              id="instant_swap"
-              defaultMessage={'Instant Swap'}
+              id="filled_via_swap"
+              defaultMessage={'Filled via Swap'}
             />
-            <span className="flex xs:hidden items-center text-white ml-4">
-              {`1 ${toRealSymbol(sellToken.symbol)} `}&nbsp;
-              {!!sellTokenPrice ? (
-                <span className=" text-v3SwapGray mr-1">
-                  {`($${toPrecision(sellTokenPrice, 2)})`}
-                </span>
-              ) : null}
-              {` = `}
-              <span
-                className="mx-1"
-                title={new Big(swapOut)
+
+            <ExclamationTip
+              colorHex="#7E8A93"
+              id={`1 ${toRealSymbol(sellToken.symbol)} ${
+                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
+              } = 
+                ${new Big(swapOut)
                   .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(buyToken.decimals)}
-              >
-                {`${new Big(swapOut)
+                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
+                `}
+              defaultMessage={`1 ${toRealSymbol(sellToken.symbol)} ${
+                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
+              } = 
+                ${new Big(swapOut)
                   .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(3)}`}
-              </span>
-              {` ${toRealSymbol(buyToken.symbol)}`}
-            </span>
+                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
+                `}
+            />
           </span>
 
           <span className="flex items-center">
-            <span title={swapIn} className="text-white xs:text-v3SwapGray">
+            <BsCheckCircle className="mr-1.5" fill="#42bb17" stroke="#42BB17" />
+            <span title={swapIn} className="text-v3SwapGray">
               {Number(swapIn) > 0 && Number(swapIn) < 0.01
                 ? '< 0.01'
                 : toPrecision(swapIn, 2)}
             </span>
 
             <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
-            <span className="mx-6 xs:mx-2 text-white xs:text-v3SwapGray">
+            <span className="mx-6 xs:mx-2 text-v3SwapGray">
               {isClientMobie() ? (
                 <MyOrderInstantSwapArrowRight />
               ) : (
                 <MyOrderInstantSwapArrowRight />
               )}
             </span>
-            <span title={swapOut} className="text-white xs:text-v3SwapGray">
+            <span title={swapOut} className="text-v3SwapGray">
               {Number(swapOut) > 0 && Number(swapOut) < 0.01
                 ? '< 0.01'
                 : toPrecision(swapOut, 2)}
@@ -1546,7 +1549,7 @@ function OrderCard({
               }
             }}
           >
-            <FormattedMessage id="unclaimed" defaultMessage={'Unclaimed'} />
+            <FormattedMessage id="executed" defaultMessage={'Executed'} />
             <span
               className={`ml-0.5 ${
                 activeSortBy === 'unclaim' ? 'text-gradientFrom' : ''

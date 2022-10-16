@@ -3740,8 +3740,8 @@ export const NEAR_TEXT = () => {
           y2="53"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7E8A93" />
-          <stop offset="1" stop-color="#7E8A93" stop-opacity="0.29" />
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_1536_322"
@@ -3751,8 +3751,8 @@ export const NEAR_TEXT = () => {
           y2="53"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7E8A93" />
-          <stop offset="1" stop-color="#7E8A93" stop-opacity="0.29" />
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
         </linearGradient>
         <linearGradient
           id="paint2_linear_1536_322"
@@ -3762,8 +3762,8 @@ export const NEAR_TEXT = () => {
           y2="53"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7E8A93" />
-          <stop offset="1" stop-color="#7E8A93" stop-opacity="0.29" />
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
         </linearGradient>
         <linearGradient
           id="paint3_linear_1536_322"
@@ -3773,8 +3773,8 @@ export const NEAR_TEXT = () => {
           y2="53"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7E8A93" />
-          <stop offset="1" stop-color="#7E8A93" stop-opacity="0.29" />
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
         </linearGradient>
       </defs>
     </svg>
@@ -3813,8 +3813,8 @@ export const BTC_TEXT = () => {
           y2="52.7197"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7E8A93" />
-          <stop offset="1" stop-color="#7E8A93" stop-opacity="0.29" />
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_1536_247"
@@ -3824,8 +3824,8 @@ export const BTC_TEXT = () => {
           y2="52.7197"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7E8A93" />
-          <stop offset="1" stop-color="#7E8A93" stop-opacity="0.29" />
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
         </linearGradient>
         <linearGradient
           id="paint2_linear_1536_247"
@@ -3835,8 +3835,8 @@ export const BTC_TEXT = () => {
           y2="52.7197"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7E8A93" />
-          <stop offset="1" stop-color="#7E8A93" stop-opacity="0.29" />
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
         </linearGradient>
       </defs>
     </svg>
@@ -3875,8 +3875,8 @@ export const USD_TEXT = () => {
           y2="52.6001"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7E8A93" />
-          <stop offset="1" stop-color="#7E8A93" stop-opacity="0.29" />
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_1536_104"
@@ -3886,8 +3886,8 @@ export const USD_TEXT = () => {
           y2="52.6001"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7E8A93" />
-          <stop offset="1" stop-color="#7E8A93" stop-opacity="0.29" />
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
         </linearGradient>
         <linearGradient
           id="paint2_linear_1536_104"
@@ -3897,8 +3897,8 @@ export const USD_TEXT = () => {
           y2="52.6001"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7E8A93" />
-          <stop offset="1" stop-color="#7E8A93" stop-opacity="0.29" />
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
         </linearGradient>
       </defs>
     </svg>
