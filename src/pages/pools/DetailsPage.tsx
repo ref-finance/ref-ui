@@ -2011,9 +2011,11 @@ export function PoolDetailsPage() {
                 title={<FormattedMessage id="apr" defaultMessage="APR" />}
                 id="apr"
                 value={
-                  dayVolume ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}` : '-'
+                  dayVolume
+                    ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
+                    : '-'
                 }
-                valueTitle={`${getPoolFeeAprTitle(dayVolume, pool, poolTVL)}`}
+                valueTitle={`${getPoolFeeAprTitle(dayVolume, pool, poolTVL)}%`}
               />
             </div>
 
