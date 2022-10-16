@@ -736,8 +736,13 @@ export const useSeedFarms = (pool_id: string | number) => {
   useEffect(() => {
     list_seed_farms(seed_id)
       .then(async (res) => {
+        const parsedRes = res.filter((f) => f.status !== 'Ended');
+        if (!parsedRes || parsedRes.length === 0) {
+          return;
+        }
+
         return Promise.all(
-          res.map(async (farm: any) => {
+          parsedRes.map(async (farm: any) => {
             const token_meta_data = await ftGetTokenMetadata(
               farm.terms.reward_token
             );

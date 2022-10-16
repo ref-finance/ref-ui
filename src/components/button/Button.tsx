@@ -311,9 +311,18 @@ export function SolidButton(
     padding?: string;
     className?: string;
     loading?: boolean;
+    disabledColor?: string;
   }
 ) {
-  const { disabled, padding, className, onClick, loading, style } = props;
+  const {
+    disabledColor,
+    disabled,
+    padding,
+    className,
+    onClick,
+    loading,
+    style,
+  } = props;
   return (
     <button
       onClick={onClick}
@@ -321,7 +330,13 @@ export function SolidButton(
       className={`${disabled ? 'cursor-not-allowed opacity-40' : ''}  ${
         loading ? 'opacity-40' : ''
       }
-        text-white rounded  bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover
+        text-white rounded
+        ${
+          disabled && disabledColor
+            ? disabledColor
+            : ' bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover'
+        }
+       
          ${padding ? padding : 'py-2'}
         ${className ? className : ''}
       `}

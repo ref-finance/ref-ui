@@ -872,5 +872,7 @@ const ja = {
   pool_stop_tip: 'This pool has been stopped.',
   trade_capital_hump: 'Trade',
   volume_24h: 'Volume (24h)',
+  add_to_watchlist: 'Add to watchlist',
+  remove_from_watchlist: 'Remove from watchlist',
 };
 export default Object.assign(ja, ja_in_risks_page);

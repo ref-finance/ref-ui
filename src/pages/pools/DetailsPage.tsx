@@ -67,10 +67,7 @@ import { useHistory } from 'react-router';
 import { getPool } from '~services/indexer';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
-import {
-  WatchListStartEmpty,
-  WatchListStartFull,
-} from '~components/icon/WatchListStar';
+import { WatchListStartFull } from '~components/icon/WatchListStar';
 import {
   OutlineButton,
   SolidButton,
@@ -149,6 +146,7 @@ import { BsArrowUpRight } from 'react-icons/bs';
 import { useSeedFarms, useSeedDetail } from '../../state/pool';
 import { FarmBoost } from '../../services/farm';
 import { FarmBoardInDetailPool, Fire } from '../../components/icon/V3';
+import { WatchListStartEmpty } from '../../components/icon/WatchListStar';
 import {
   ExclamationTip,
   QuestionTip,
@@ -180,22 +178,14 @@ const formatDate = (rawDate: string) => {
   return moment(date).format('ll');
 };
 
-export function getPoolFee24h(
-  dayVolume: string,
-  pool: Pool,
-  tvlInput?: number
-) {
-  let result = '0';
+export function getPoolFee24h(dayVolume: string, pool: Pool) {
+  let result = 0;
   if (dayVolume) {
-    const { fee, tvl } = pool;
+    const { fee } = pool;
 
-    const newTvl = tvlInput || tvl;
+    const revenu24h = (fee / 10000) * 0.5 * Number(dayVolume);
 
-    const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
-    if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = revenu24h / newTvl / 2;
-      result = toPrecision(annualisedFeesPrct.toString(), 2);
-    }
+    result = revenu24h;
   }
   return Number(result);
 }
@@ -1161,7 +1151,9 @@ function MyShares({
     }`;
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
-  return (
+  return Number(shares) == 0 ? (
+    <span className="font-bold whitespace-nowrap">0</span>
+  ) : (
     <div className="whitespace-nowrap">
       <span className="whitespace-nowrap font-bold">
         {`${toInternationalCurrencySystem(
@@ -1643,7 +1635,9 @@ export function PoolDetailsPage() {
       withCommas: false,
     });
 
-    return Number(value) < 0.001
+    return Number(value) == 0
+      ? '0'
+      : Number(value) < 0.001 && Number(value) > 0
       ? '< 0.001'
       : toInternationalCurrencySystem(value, 3);
   };
@@ -1723,14 +1717,18 @@ export function PoolDetailsPage() {
     title,
     value,
     valueTitle,
+    id,
   }: {
     title: JSX.Element;
     value: JSX.Element | string;
     valueTitle?: string;
+    id: string;
   }) => {
     return (
       <div
-        className="rounded-lg xs:w-full md:w-full xs:mr-0 md:mr-0 mr-3 py-3 w-32 px-4 flex flex-col"
+        className={`rounded-lg xs:w-full md:w-full xs:mr-0 md:mr-0 ${
+          id !== 'apr' ? 'mr-3' : ''
+        }  py-3 w-full px-4 flex flex-col`}
         style={{
           background: 'rgba(29, 41, 50, 0.5)',
         }}
@@ -1758,7 +1756,9 @@ export function PoolDetailsPage() {
         divide(poolTVL?.toString(), pool?.shareSupply)
       );
 
-      return `$${toInternationalCurrencySystem(rawRes, 2)}`;
+      return `$${
+        Number(rawRes) == 0 ? '0' : toInternationalCurrencySystem(rawRes, 2)
+      }`;
     } catch (error) {
       return '-';
     }
@@ -1774,6 +1774,19 @@ export function PoolDetailsPage() {
     let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
     return result;
   }
+
+  function add_to_watchlist_tip() {
+    const tip = intl.formatMessage({ id: 'add_to_watchlist' });
+    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    return result;
+  }
+
+  function remove_from_watchlist_tip() {
+    const tip = intl.formatMessage({ id: 'remove_from_watchlist' });
+    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    return result;
+  }
+
   return (
     <>
       <PoolTabV3 />
@@ -1835,9 +1848,45 @@ export function PoolDetailsPage() {
                 }}
               >
                 {showFullStart ? (
-                  <WatchListStartFull />
+                  <div
+                    className="text-sm xs:hidden md:hidden"
+                    data-type="info"
+                    data-place="right"
+                    data-multiline={true}
+                    data-class="reactTip"
+                    data-html={true}
+                    data-tip={remove_from_watchlist_tip()}
+                    data-for="fullstar-tip"
+                  >
+                    <WatchListStartFull />
+                    <ReactTooltip
+                      id="fullstar-tip"
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
                 ) : (
-                  <WatchListStartEmpty />
+                  <div
+                    className="text-sm xs:hidden md:hidden"
+                    data-type="info"
+                    data-place="right"
+                    data-multiline={true}
+                    data-class="reactTip"
+                    data-html={true}
+                    data-tip={add_to_watchlist_tip()}
+                    data-for="emptystar-tip"
+                  >
+                    <WatchListStartEmpty />
+                    <ReactTooltip
+                      id="emptystar-tip"
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
                 )}
               </div>
 
@@ -1910,7 +1959,7 @@ export function PoolDetailsPage() {
               )}
             </Card>
 
-            <div className="flex items-center xs:gap-2 md:gap-2 xs:grid md:grid xs:grid-rows-2 xs:grid-cols-2 md:grid-cols-2 md:grid-rows-2 mb-8 w-full">
+            <div className="flex items-center justify-between xs:gap-2 md:gap-2 xs:grid md:grid xs:grid-rows-2 xs:grid-cols-2 md:grid-cols-2 md:grid-rows-2 mb-8 w-full ">
               <InfoCard
                 title={
                   <FormattedMessage
@@ -1918,6 +1967,7 @@ export function PoolDetailsPage() {
                     defaultMessage={'TVL'}
                   ></FormattedMessage>
                 }
+                id="tvl"
                 value={`$${
                   Number(poolTVL) < 0.01 && Number(poolTVL) > 0
                     ? '< 0.01'
@@ -1936,6 +1986,7 @@ export function PoolDetailsPage() {
                     defaultMessage="Volume(24h)"
                   />
                 }
+                id="volume"
                 value={
                   dayVolume
                     ? '$' + toInternationalCurrencySystem(dayVolume)
@@ -1948,26 +1999,27 @@ export function PoolDetailsPage() {
                 title={
                   <FormattedMessage id="fee_24h" defaultMessage="Fee(24h)" />
                 }
+                id="fee_24h"
                 value={
                   dayVolume
-                    ? `${getPoolFee24h(dayVolume, pool, poolTVL)}%`
+                    ? `$${toInternationalCurrencySystemLongString(
+                        getPoolFee24h(dayVolume, pool).toString(),
+                        2
+                      )}`
                     : '-'
                 }
                 valueTitle={
-                  dayVolume
-                    ? `${getPoolFee24hTitile(dayVolume, pool, poolTVL)}%`
-                    : '-'
+                  dayVolume ? `$${getPoolFee24h(dayVolume, pool)}` : '-'
                 }
               />
 
               <InfoCard
                 title={<FormattedMessage id="apr" defaultMessage="APR" />}
+                id="apr"
                 value={
-                  dayVolume
-                    ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
-                    : '-'
+                  dayVolume ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}` : '-'
                 }
-                valueTitle={`${getPoolFeeAprTitle(dayVolume, pool)}%`}
+                valueTitle={`${getPoolFeeAprTitle(dayVolume, pool, poolTVL)}`}
               />
             </div>
 
@@ -2189,7 +2241,13 @@ export function PoolDetailsPage() {
                     onClick={() => {
                       setShowWithdraw(true);
                     }}
-                    className="w-full bg-bgGreyDefault hover:bg-bgGreyHover h-11 xs:w-full text-base rounded-lg md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm bg-poolRowHover"
+                    disabled={Number(shares) == 0}
+                    disabledColor={'bg-lockedBg'}
+                    className={`w-full ${
+                      Number(shares) == 0
+                        ? 'bg-lockedBg text-opacity-30'
+                        : 'bg-bgGreyDefault hover:bg-bgGreyHover '
+                    }   h-11 xs:w-full text-base rounded-lg md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm bg-poolRowHover`}
                   >
                     <FormattedMessage id="remove" defaultMessage="Remove" />
                   </SolidButton>

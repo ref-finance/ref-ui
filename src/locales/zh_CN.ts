@@ -820,5 +820,7 @@ const zh_CN = {
   newText: '最新',
   trade_capital_hump: 'Trade',
   volume_24h: '24小时交易量',
+  add_to_watchlist: '添加到收藏',
+  remove_from_watchlist: '从收藏中移除',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
