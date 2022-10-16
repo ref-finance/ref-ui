@@ -551,14 +551,16 @@ export function MobileNavBar(props: any) {
 
   const { pathname } = useLocation();
 
-  const isSwap = pathname === '/' || pathname === '/swap';
+  const isSwap =
+    pathname === '/' || pathname === '/swap' || pathname === '/myOrder';
 
   const [chosenSubSwap, setChosenSubSwap] = useState<string>(null);
 
-  console.log(chosenSubSwap, 'sun sawp', isSwap);
-
   useEffect(() => {
     if (!isSwap) return;
+
+    if (pathname === '/myOrder') setChosenSubSwap('limit');
+
     window.addEventListener('setItemEvent', (e: any) => {
       const storageSwapTab = localStorage
         .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)

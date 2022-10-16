@@ -161,7 +161,8 @@ function Anchor({
 
   const { pathname } = useLocation();
 
-  const isSwap = pathname === '/' || pathname === '/swap';
+  const isSwap =
+    pathname === '/' || pathname === '/swap' || pathname === '/myOrder';
 
   const [chosenSub, setChosenSub] = useState<string>(
     isSwap ? defaultChosed : null
@@ -175,6 +176,11 @@ function Anchor({
 
   useEffect(() => {
     if (!isSwap) return;
+
+    if (pathname === '/myOrder') {
+      setChosenSub('limit');
+    }
+
     window.addEventListener('setItemEvent', (e: any) => {
       const storageSwapTab = localStorage
         .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
@@ -232,6 +238,7 @@ function Anchor({
       strict: false,
     });
   }
+
   return (
     <>
       <Link

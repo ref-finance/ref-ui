@@ -233,6 +233,7 @@ export function DoubleCheckModalLimit(
               id="the_market_price"
               defaultMessage={'the market price'}
             />
+            .
           </span>
         </div>
 

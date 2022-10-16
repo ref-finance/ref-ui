@@ -338,8 +338,8 @@ function OrderCard({
                 </div>
 
                 ${intl.formatMessage({
-                  id: 'claimed_upper',
-                  defaultMessage: 'Claimed',
+                  id: 'executed',
+                  defaultMessage: 'Executed',
                 })}
 
             </span>
@@ -748,26 +748,6 @@ function OrderCard({
             <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
           </span>
         </div>
-        <div className="flex md:hidden lg:hidden float-right items-center text-primaryText opacity-50 px-1 rounded-lg bg-black bg-opacity-20 self-end mt-4">
-          {`1 ${toRealSymbol(sellToken.symbol)} `}&nbsp;
-          {!!sellTokenPrice ? (
-            <span className=" text-v3SwapGray mr-1">
-              {`($${toPrecision(sellTokenPrice, 2)})`}
-            </span>
-          ) : null}
-          {` = `}
-          <span
-            className="mx-1"
-            title={new Big(swapOut)
-              .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-              .toFixed(buyToken.decimals)}
-          >
-            {`${new Big(swapOut)
-              .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-              .toFixed(3)}`}
-          </span>
-          {` ${toRealSymbol(buyToken.symbol)}`}
-        </div>
       </div>
     );
 
@@ -1006,8 +986,8 @@ function OrderCard({
                 </div>
 
                 ${intl.formatMessage({
-                  id: 'claimed_upper',
-                  defaultMessage: 'Claimed',
+                  id: 'executed',
+                  defaultMessage: 'Executed',
                 })}
 
             </span>
@@ -1226,10 +1206,12 @@ function OrderCard({
       <div className=" col-span-1  text-primaryText  text-xs justify-self-end p-1.5">
         {ONLY_ZEROS.test(order.cancel_amount) ? (
           <FormattedMessage id="filled" defaultMessage={'Filled'} />
+        ) : new Big(order.cancel_amount).eq(order.original_amount) ? (
+          <FormattedMessage id="canceled" defaultMessage={'Canceled'} />
         ) : (
           <div className="flex flex-col items-end">
             <span className="whitespace-nowrap mb-0.5">
-              <FormattedMessage id="partrially" defaultMessage={'Partrially'} />
+              <FormattedMessage id="partially" defaultMessage={'Partially'} />
             </span>
             <span className="whitespace-nowrap">
               <FormattedMessage id="filled" defaultMessage={'Filled'} />
@@ -1338,26 +1320,6 @@ function OrderCard({
             <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
           </span>
         </div>
-        <div className="flex md:hidden lg:hidden float-right items-center text-primaryText opacity-50 px-1 rounded-lg bg-black bg-opacity-20 self-end mt-4">
-          {`1 ${toRealSymbol(sellToken.symbol)} `}&nbsp;
-          {!!sellTokenPrice ? (
-            <span className=" text-v3SwapGray mr-1">
-              {`($${toPrecision(sellTokenPrice, 2)})`}
-            </span>
-          ) : null}
-          {` = `}
-          <span
-            className="mx-1"
-            title={new Big(swapOut)
-              .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-              .toFixed(buyToken.decimals)}
-          >
-            {`${new Big(swapOut)
-              .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-              .toFixed(3)}`}
-          </span>
-          {` ${toRealSymbol(buyToken.symbol)}`}
-        </div>
       </div>
     );
     const MobileInfoBanner = ({
@@ -1413,7 +1375,13 @@ function OrderCard({
           }}
         >
           <MobileHistoryOrderStamp
-            state={ONLY_ZEROS.test(order.cancel_amount) ? 'finish' : 'cancel'}
+            state={
+              ONLY_ZEROS.test(order.cancel_amount)
+                ? 'filled'
+                : new Big(order.original_amount).eq(order.cancel_amount)
+                ? 'cancel'
+                : 'partially_filled'
+            }
           />
           {/* title */}
           <div className="rounded-t-xl bg-orderMobileTop px-3 pt-3">
@@ -1443,7 +1411,7 @@ function OrderCard({
 
             <MobileInfoBanner
               text={
-                <FormattedMessage defaultMessage={'Claimed'} id="claimed" />
+                <FormattedMessage defaultMessage={'Executed'} id="executed" />
               }
               value={claimed}
             />
@@ -1636,7 +1604,7 @@ function OrderCard({
               }
             }}
           >
-            <FormattedMessage id="claimed" defaultMessage={'Claimed'} />
+            <FormattedMessage id="executed" defaultMessage={'Executed'} />
             <span
               className={`ml-0.5 ${
                 historySortBy === 'claimed' ? 'text-gradientFrom' : ''

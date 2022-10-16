@@ -116,7 +116,7 @@ import {
   scientificNotationToString,
   toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
-import { isNotStablePool } from '../../services/pool';
+import { isNotStablePool, canFarmV2 } from '../../services/pool';
 import { isStablePool, BLACKLIST_POOL_IDS } from '../../services/near';
 import {
   getURLInfo,
@@ -1574,7 +1574,7 @@ export function PoolDetailsPage() {
         setPoolTVL(pool?.tvl);
       });
     }
-    canFarm(Number(id)).then(({ count, version }) => {
+    canFarmV2(Number(id)).then(({ count, version }) => {
       setBackToFarmsButton(!!count);
       setFarmVersion(version);
       setFarmCount(count);

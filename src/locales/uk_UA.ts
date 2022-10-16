@@ -842,5 +842,8 @@ const uk_UA = {
   add_to_watchlist: 'Add to watchlist',
   remove_from_watchlist: 'Remove from watchlist',
   create_order: 'Create Order',
+  filled: 'Filled',
+  canceled: 'Canceled',
+  partially_filled: 'Partially Filled',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

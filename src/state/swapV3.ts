@@ -53,8 +53,6 @@ export const useAllPoolsV2 = () => {
             const pricex = tokenPriceList[token_x]?.price || 0;
             const pricey = tokenPriceList[token_y]?.price || 0;
 
-            console.log(pricex, pricey);
-
             const tvlx =
               Number(toReadableNumber(p.token_x_metadata.decimals, p.total_x)) *
               Number(pricex);

@@ -9,6 +9,8 @@ import { getCurrentWallet } from '../../utils/wallets-integration';
 import { ErrorTriangle } from '../icon/SwapRefresh';
 import { ONLY_ZEROS } from '../../utils/numbers';
 
+import { BsArrowUpRight } from 'react-icons/bs';
+
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',
   SENDER_WALLET = 'transactionHashesSender',
@@ -568,52 +570,63 @@ export const LimitOrderPopUp = ({
   swapAmount,
   limitOrderAmount,
   txHash,
+  swapAmountOut,
+  tokenOutSymbol,
 }: {
   tokenSymbol: string;
   swapAmount: string;
   limitOrderAmount: string;
   txHash: string;
+  swapAmountOut?: string;
+  tokenOutSymbol?: string;
 }) => {
   toast(
     <a
-      className="text-white w-full h-full pl-1.5 text-sm flex flex-wrap items-center"
+      className="text-white w-full h-full pl-1.5 text-sm flex flex-col "
       href={`${getConfig().explorerUrl}/txns/${txHash}`}
       target="_blank"
       style={{
-        lineHeight: '30px',
+        lineHeight: '25px',
       }}
     >
-      <span className="mr-2.5 ">
-        <SwapCheckIcon />
-      </span>
-      {ONLY_ZEROS.test(swapAmount || '0') ? null : (
-        <span className="mr-1 ">
-          {swapAmount}
-          {<span className="mx-1">{tokenSymbol}</span>}
-          <FormattedMessage
-            id="swap_successful_lower"
-            defaultMessage="swap successfully. "
-          />
+      {!ONLY_ZEROS.test(swapAmount || '0') && (
+        <span className="mr-1 flex flex-col whitespace-nowrap">
+          <span>
+            {ONLY_ZEROS.test(limitOrderAmount || '0') ? (
+              <FormattedMessage
+                id="limit_order_filled"
+                defaultMessage="Limit order filled."
+              />
+            ) : (
+              <FormattedMessage
+                id="limit_order_partially_filled"
+                defaultMessage={'Limit order partially filled.'}
+              />
+            )}
+          </span>
+
+          {
+            <span className="">{`Sold ${swapAmount} ${tokenSymbol} for ${swapAmountOut} ${tokenOutSymbol}`}</span>
+          }
         </span>
       )}
-      {ONLY_ZEROS.test(limitOrderAmount || '0') ? null : (
+      {ONLY_ZEROS.test(swapAmount || '0') && (
         <span className="mr-6 ">
-          {limitOrderAmount}
-          {<span className="mx-1">{tokenSymbol}</span>}
           <FormattedMessage
-            id="goes_to_limit_order"
-            defaultMessage="goes to limit order. "
+            id="limit_order_created"
+            defaultMessage="Limit order created."
           />
         </span>
       )}
 
       <span
-        className="underline"
+        className="text-v3SwapGray hover:text-gradientFrom flex items-center hover:underline"
         style={{
           textDecorationThickness: '1px',
         }}
       >
-        <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
+        <FormattedMessage id="click_to_view" defaultMessage="Click to view" />{' '}
+        <BsArrowUpRight size={10} />
       </span>
     </a>,
     {

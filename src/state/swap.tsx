@@ -134,6 +134,8 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
   const history = useHistory();
 
   const parseLimitOrderPopUp = async (res: any) => {
+    console.log(res, 'res');
+
     const ft_resolved_id = res?.receipts?.findIndex((r: any) =>
       r?.receipt?.Action?.actions?.some(
         (a: any) => a?.FunctionCall?.method_name === 'ft_resolve_transfer'
@@ -202,7 +204,17 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
 
     const sellToken = await ftGetTokenMetadata(sell_token_id);
 
+    const ft_on_transfer_log_swap = ft_on_transfer_logs?.[0];
+
+    const idx_swap = ft_on_transfer_log?.indexOf('{');
+
+    const parsed_ft_on_transfer_log_swap = JSON.parse(
+      ft_on_transfer_log_swap.slice(idx_swap) || ''
+    );
+
     if (!!order_id) {
+      // const buyAmount = parsed_ft_on_transfer_log_swap?.['data']?.[0]?.['amount_out'];
+
       const limitOrderAmount =
         Number(toReadableNumber(sellToken.decimals, original_amount || '0')) <
         0.01
@@ -221,24 +233,62 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
         )
       );
 
+      let swapAmountOut =
+        Number(swapAmount) == 0
+          ? '0'
+          : parsed_ft_on_transfer_log_swap?.['data']?.[0]?.['amount_out'];
+
+      console.log(swapAmountOut);
+
+      const buyToken = await ftGetTokenMetadata(buy_token);
+
+      swapAmountOut = toReadableNumber(buyToken.decimals, swapAmountOut);
+
+      console.log(swapAmountOut);
+
       LimitOrderPopUp({
         tokenSymbol: toRealSymbol(sellToken.symbol),
         swapAmount:
           Number(swapAmount) > 0 && Number(swapAmount) < 0.01
             ? '< 0.01'
-            : toPrecision(swapAmount, 2),
+            : toPrecision(swapAmount, 2, false, false),
         limitOrderAmount,
+        tokenOutSymbol: toRealSymbol(buyToken.symbol),
+
         txHash,
+        swapAmountOut:
+          Number(swapAmountOut) > 0 && Number(swapAmountOut) < 0.01
+            ? '< 0.01'
+            : toPrecision(swapAmountOut, 2, false, false),
       });
     } else {
+      const swapAmount = toReadableNumber(sellToken.decimals, parsedValue);
+
+      let swapAmountOut =
+        Number(swapAmount) == 0
+          ? '0'
+          : parsed_ft_on_transfer_log_swap?.['data']?.[0]?.['amount_out'];
+      console.log(swapAmountOut);
+
+      const buyToken = await ftGetTokenMetadata(buy_token);
+
+      swapAmountOut = toReadableNumber(buyToken.decimals, swapAmountOut);
+      console.log(swapAmountOut);
+
+      // all swap
       LimitOrderPopUp({
         tokenSymbol: toRealSymbol(sellToken.symbol),
         swapAmount:
-          Number(toReadableNumber(sellToken.decimals, parsedValue)) < 0.01
+          Number(swapAmount) < 0.01
             ? '< 0.01'
-            : toPrecision(toReadableNumber(sellToken.decimals, parsedValue), 2),
+            : toPrecision(swapAmount, 2, false, false),
         limitOrderAmount: null,
         txHash,
+        tokenOutSymbol: toRealSymbol(buyToken.symbol),
+        swapAmountOut:
+          Number(swapAmountOut) > 0 && Number(swapAmountOut) < 0.01
+            ? '< 0.01'
+            : toPrecision(swapAmountOut, 2, false, false),
       });
     }
 

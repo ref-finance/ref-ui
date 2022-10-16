@@ -823,5 +823,8 @@ const zh_CN = {
   add_to_watchlist: '添加到收藏',
   remove_from_watchlist: '从收藏中移除',
   create_order: '创建限价单',
+  filled: '已成交',
+  canceled: '已取消',
+  partially_filled: '部分成交',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

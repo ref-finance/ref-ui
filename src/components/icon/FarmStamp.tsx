@@ -16,8 +16,7 @@ export const FarmStampNew = ({ multi }: { multi: boolean }) => {
       <span className="whitespace-nowrap mr-1">
         <FormattedMessage id="farms" defaultMessage="Farms" />
       </span>
-
-      <FarmMiningIcon w={14} h={14} />
+      {multi && <FarmMiningIcon w={14} h={14} />}
     </div>
   );
 };

@@ -337,7 +337,6 @@ function SwapPage() {
                   ifCross={swapTab === 'cross'}
                   setSwapTab={setSwapTab}
                 />
-                {swapMode === SWAP_MODE.LIMIT && <MyOrderTab />}
               </>
             }
             stableReserves={
