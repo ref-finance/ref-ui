@@ -12,6 +12,9 @@ import {
 import { RequestingSmile } from '../icon/CrossSwapIcons';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import SlippageSelectorForStable from './SlippageSelector';
+import { useMyOrders } from '~state/swapV3';
+import { useHistory } from 'react-router-dom';
+import { OrderIcon } from '../icon/V3';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -69,6 +72,28 @@ export default function SwapFormWrap({
   reserves,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
+
+  const { activeOrder, historyOrder } = useMyOrders();
+
+  const history = useHistory();
+
+  const OrderButton = swapMode === SWAP_MODE.LIMIT &&
+    activeOrder &&
+    activeOrder.length > 0 && (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          history.push('/myOrder');
+        }}
+        className="w-3/5 h-11 flex mr-4 xs:mr-2 md:mr-2 items-center justify-center bg-orderGradient hover:bg-orderGraidentHover mt-6 rounded-lg text-white text-base"
+      >
+        <OrderIcon />
+        <span className="mx-2 xs:mx-1 md:mx-1">{activeOrder.length}</span>
+
+        {<FormattedMessage id="orders" defaultMessage={'Order(s)'} />}
+      </button>
+    );
 
   const {
     loadingTrigger,
@@ -129,21 +154,25 @@ export default function SwapFormWrap({
       {showElseView && elseView ? (
         elseView
       ) : (
-        <SubmitButton
-          disabled={
-            !canSubmit ||
-            (swapMode === SWAP_MODE.LIMIT
-              ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-              : showSwapLoading)
-          }
-          label={buttonText || title}
-          info={info}
-          loading={
-            swapMode !== SWAP_MODE.LIMIT
-              ? showSwapLoading
-              : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-          }
-        />
+        <div className="flex items-center">
+          {OrderButton}
+          <SubmitButton
+            className="w-3/5"
+            disabled={
+              !canSubmit ||
+              (swapMode === SWAP_MODE.LIMIT
+                ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+                : showSwapLoading)
+            }
+            label={buttonText || title}
+            info={info}
+            loading={
+              swapMode !== SWAP_MODE.LIMIT
+                ? showSwapLoading
+                : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+            }
+          />
+        </div>
       )}
       {reserves}
     </form>

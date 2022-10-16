@@ -822,5 +822,6 @@ const zh_CN = {
   volume_24h: '24小时交易量',
   add_to_watchlist: '添加到收藏',
   remove_from_watchlist: '从收藏中移除',
+  create_order: '创建限价单',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

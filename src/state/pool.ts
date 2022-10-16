@@ -736,7 +736,7 @@ export const useSeedFarms = (pool_id: string | number) => {
   useEffect(() => {
     list_seed_farms(seed_id)
       .then(async (res) => {
-        const parsedRes = res.filter((f) => f.status !== 'Ended');
+        const parsedRes = res.filter((f: any) => f.status !== 'Ended');
         if (!parsedRes || parsedRes.length === 0) {
           return;
         }

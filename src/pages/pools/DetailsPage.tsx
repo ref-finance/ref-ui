@@ -67,7 +67,10 @@ import { useHistory } from 'react-router';
 import { getPool } from '~services/indexer';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { WatchListStartFull } from '~components/icon/WatchListStar';
+import {
+  WatchListStartFull,
+  WatchListStartFullMobile,
+} from '~components/icon/WatchListStar';
 import {
   OutlineButton,
   SolidButton,
@@ -146,11 +149,16 @@ import { BsArrowUpRight } from 'react-icons/bs';
 import { useSeedFarms, useSeedDetail } from '../../state/pool';
 import { FarmBoost } from '../../services/farm';
 import { FarmBoardInDetailPool, Fire } from '../../components/icon/V3';
-import { WatchListStartEmpty } from '../../components/icon/WatchListStar';
+import {
+  WatchListStartEmpty,
+  WatchListStartEmptyMobile,
+} from '../../components/icon/WatchListStar';
 import {
   ExclamationTip,
   QuestionTip,
 } from '../../components/layout/TipWrapper';
+
+import { FiArrowUpRight } from 'react-icons/fi';
 
 interface ParamTypes {
   id: string;
@@ -1695,16 +1703,17 @@ export function PoolDetailsPage() {
 
     const poolShares = Number(toReadableNumber(24, pool.shareSupply));
 
-    const seedTvl = !poolShares
-      ? 0
-      : (Number(
-          toReadableNumber(
-            seedDetail.seed_decimal,
-            seedDetail.total_seed_amount
-          )
-        ) *
-          (poolTVL || 0)) /
-        poolShares;
+    const seedTvl =
+      !poolShares || !seedDetail
+        ? 0
+        : (Number(
+            toReadableNumber(
+              seedDetail.seed_decimal,
+              seedDetail.total_seed_amount
+            )
+          ) *
+            (poolTVL || 0)) /
+          poolShares;
 
     const baseAprAll = !seedTvl ? 0 : totalReward / seedTvl;
 
@@ -1833,7 +1842,7 @@ export function PoolDetailsPage() {
               )}
 
               <div
-                className="rounded-lg xs:absolute md:absolute xs:right-0 md:right-0 cursor-pointer flex items-center justify-center ml-2"
+                className="rounded-lg xs:absolute md:absolute xs:right-4 md:right-4 cursor-pointer flex items-center justify-center ml-2"
                 style={{
                   background: '#172534',
                   width: '30px',
@@ -1849,7 +1858,7 @@ export function PoolDetailsPage() {
               >
                 {showFullStart ? (
                   <div
-                    className="text-sm xs:hidden md:hidden"
+                    className="text-sm "
                     data-type="info"
                     data-place="right"
                     data-multiline={true}
@@ -1858,7 +1867,12 @@ export function PoolDetailsPage() {
                     data-tip={remove_from_watchlist_tip()}
                     data-for="fullstar-tip"
                   >
-                    <WatchListStartFull />
+                    {isClientMobie() ? (
+                      <WatchListStartFullMobile />
+                    ) : (
+                      <WatchListStartFull />
+                    )}
+
                     <ReactTooltip
                       id="fullstar-tip"
                       backgroundColor="#1D2932"
@@ -1878,7 +1892,12 @@ export function PoolDetailsPage() {
                     data-tip={add_to_watchlist_tip()}
                     data-for="emptystar-tip"
                   >
-                    <WatchListStartEmpty />
+                    {isClientMobie() ? (
+                      <WatchListStartEmptyMobile />
+                    ) : (
+                      <WatchListStartEmpty />
+                    )}
+
                     <ReactTooltip
                       id="emptystar-tip"
                       backgroundColor="#1D2932"
@@ -2068,9 +2087,19 @@ export function PoolDetailsPage() {
                       <div className="flex items-start flex-col">
                         <div className="flex items-center text-white text-base">
                           {toRealSymbol(token.symbol)}
+
+                          {
+                            <span className="lg:hidden">
+                              <ExclamationTip
+                                id={token.id}
+                                defaultMessage={token.id}
+                                colorHex="#7E8A93"
+                              />
+                            </span>
+                          }
                           {TokenLinks[token.symbol] ? (
                             <div
-                              className="ml-2 text-sm xs:hidden md:hidden"
+                              className="ml-0.5 text-sm"
                               data-type="info"
                               data-place="right"
                               data-multiline={true}
@@ -2086,7 +2115,7 @@ export function PoolDetailsPage() {
                                   window.open(TokenLinks[token.symbol]);
                                 }}
                               >
-                                <BsArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
+                                <FiArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
                               </a>
                               <ReactTooltip
                                 id="nearVerifiedId1"
@@ -2097,15 +2126,6 @@ export function PoolDetailsPage() {
                               />
                             </div>
                           ) : null}
-                          {
-                            <span className="lg:hidden">
-                              <ExclamationTip
-                                id={token.id}
-                                defaultMessage={token.id}
-                                colorHex="#7E8A93"
-                              />
-                            </span>
-                          }
                         </div>
                         <a
                           target="_blank"
@@ -2128,10 +2148,7 @@ export function PoolDetailsPage() {
                     >
                       {Number(tokenAmount) > 0 && Number(tokenAmount) < 0.01
                         ? '< 0.01'
-                        : toInternationalCurrencySystemLongString(
-                            tokenAmount,
-                            2
-                          )}
+                        : toInternationalCurrencySystem(tokenAmount, 2)}
                     </div>
 
                     <div
@@ -2141,7 +2158,7 @@ export function PoolDetailsPage() {
                       }
                     >
                       {!!price
-                        ? `$${toInternationalCurrencySystemLongString(
+                        ? `$${toInternationalCurrencySystem(
                             multiply(price, tokenAmount),
                             2
                           )}`
@@ -2267,8 +2284,8 @@ export function PoolDetailsPage() {
                     left: isClientMobie() ? '' : '8px',
                   }}
                 />
-                <div className="flex items-center mx-4 mt-4 justify-between">
-                  <div className="text-white">
+                <div className="flex items-center mx-4 xs:mx-7 md:mx-7 mt-4 justify-between">
+                  <div className="text-white whitespace-nowrap">
                     <FormattedMessage
                       id="farm_apr"
                       defaultMessage={'Farm APR'}
@@ -2287,6 +2304,7 @@ export function PoolDetailsPage() {
                         (farm: any) => farm.token_meta_data
                       )}
                       size="4"
+                      isRewardDisplay
                     />
                     <span className="text-sm text-v3SwapGray">
                       {totalTvlPerWeekDisplay()}
@@ -2295,7 +2313,7 @@ export function PoolDetailsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center mx-4 mt-3 justify-between">
+                <div className="flex items-center mx-4 xs:mx-7 md:mx-7 mt-3 justify-between">
                   <div className="valueStyleYellow flex items-center text-lg">
                     <span className="mr-2">{BaseApr()}</span>
                     <Fire />

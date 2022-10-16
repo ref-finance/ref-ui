@@ -38,7 +38,7 @@ import { Link, useLocation, useHistory } from 'react-router-dom';
 import { NEARXIDS, wallet } from '~services/near';
 import { Card } from '~components/card/Card';
 
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { IoChevronBack, IoClose } from 'react-icons/io5';
 
@@ -1387,31 +1387,12 @@ function NavigationBar() {
                         'normal',
                   },
                   {
-                    name: 'stable',
-                    display: <FormattedMessage id="stable"></FormattedMessage>,
-
-                    click: () => {
-                      historyInit.push('/swap');
-                      localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
-                      localStorage.setItem(
-                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-                        'normal'
-                      );
-                    },
-                    chosen:
-                      localStorage.getItem(SWAP_MODE_KEY) ===
-                        SWAP_MODE.STABLE &&
-                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
-                        'normal',
-                  },
-                  {
                     name: 'pro',
                     display: (
-                      <span className="flex items-center whitespace-nowrap">
-                        {' '}
-                        <span className="mr-2">Swap with</span>{' '}
-                        <AuroraIconSwapNav />{' '}
-                      </span>
+                      <FormattedMessage
+                        id="cross_chain_swap"
+                        defaultMessage={'Cross-chain Swap'}
+                      />
                     ),
                     click: () => {
                       localStorage.setItem(

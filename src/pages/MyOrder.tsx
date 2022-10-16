@@ -34,11 +34,7 @@ import { TIMESTAMP_DIVISOR } from '../components/layout/Proposal';
 import moment from 'moment';
 import { DownArrowVE, UpArrowVE } from '../components/icon/Referendum';
 import { Loading } from '~components/icon/Loading';
-import {
-  RouterArrowLeft,
-  RouterArrowRight,
-  MyOrderMobileArrow,
-} from '../components/icon/Arrows';
+import { RouterArrowLeft, MyOrderMobileArrow } from '../components/icon/Arrows';
 import QuestionMark from '../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '../utils/token';
@@ -438,7 +434,7 @@ function OrderCard({
         </span>
 
         <span className="text-white text-lg xs:hidden pl-2  pr-1">
-          <RouterArrowRight />
+          <MyOrderInstantSwapArrowRight />
         </span>
       </div>
     );
@@ -681,7 +677,7 @@ function OrderCard({
               {isClientMobie() ? (
                 <MyOrderInstantSwapArrowRight />
               ) : (
-                <RouterArrowRight />
+                <MyOrderInstantSwapArrowRight />
               )}
             </span>
             <span
@@ -737,7 +733,7 @@ function OrderCard({
               {isClientMobie() ? (
                 <MyOrderInstantSwapArrowRight />
               ) : (
-                <RouterArrowRight />
+                <MyOrderInstantSwapArrowRight />
               )}
             </span>
             <span title={swapOut} className="text-white xs:text-v3SwapGray">
@@ -1082,7 +1078,7 @@ function OrderCard({
         </span>
 
         <span className="text-white text-lg xs:hidden pl-2  pr-1">
-          <RouterArrowRight />
+          <MyOrderInstantSwapArrowRight />
         </span>
       </div>
     );
@@ -1226,9 +1222,16 @@ function OrderCard({
     const actions = (
       <div className=" col-span-1  text-primaryText  text-xs justify-self-end p-1.5">
         {ONLY_ZEROS.test(order.cancel_amount) ? (
-          <FormattedMessage id="finish" defaultMessage={'Finish'} />
+          <FormattedMessage id="filled" defaultMessage={'Filled'} />
         ) : (
-          <FormattedMessage id="canceled" defaultMessage={'Canceled'} />
+          <div className="flex flex-col items-end">
+            <span className="whitespace-nowrap mb-0.5">
+              <FormattedMessage id="partrially" defaultMessage={'Partrially'} />
+            </span>
+            <span className="whitespace-nowrap">
+              <FormattedMessage id="filled" defaultMessage={'Filled'} />
+            </span>
+          </div>
         )}
       </div>
     );
@@ -1264,7 +1267,7 @@ function OrderCard({
               {isClientMobie() ? (
                 <MyOrderInstantSwapArrowRight />
               ) : (
-                <RouterArrowRight />
+                <MyOrderInstantSwapArrowRight />
               )}
             </span>
             <span
@@ -1320,7 +1323,7 @@ function OrderCard({
               {isClientMobie() ? (
                 <MyOrderInstantSwapArrowRight />
               ) : (
-                <RouterArrowRight />
+                <MyOrderInstantSwapArrowRight />
               )}
             </span>
             <span title={swapOut} className="text-white xs:text-v3SwapGray">
@@ -1729,7 +1732,7 @@ function MyOrderPage() {
           <span className="text-xl font-bold mr-3">
             <RouterArrowLeft />
           </span>
-          <FormattedMessage id="my_orders" defaultMessage={'My Orders'} />
+          <FormattedMessage id="your_orders" defaultMessage={'Your Order(s)'} />
         </button>
         <SolidButton
           padding="px-4 py-2"
@@ -1742,10 +1745,7 @@ function MyOrderPage() {
             localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
           }}
         >
-          <FormattedMessage
-            id="make_an_order"
-            defaultMessage={'Make an Order'}
-          />
+          <FormattedMessage id="create_order" defaultMessage={'Create Order'} />
         </SolidButton>
       </div>
       <PriceContext.Provider value={tokenPriceList}>

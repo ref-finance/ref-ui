@@ -841,5 +841,6 @@ const uk_UA = {
   volume_24h: 'Volume (24h)',
   add_to_watchlist: 'Add to watchlist',
   remove_from_watchlist: 'Remove from watchlist',
+  create_order: 'Create Order',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

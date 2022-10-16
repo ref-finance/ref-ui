@@ -50,8 +50,8 @@ const ChangeSwapModeV3 = ({
   return (
     <div className="rounded-2xl  xs:hidden w-full text-primaryText text-lg flex items-center mx-auto  font-normal">
       <span
-        className={`py-2 mr-10 text-center cursor-pointer ${
-          swapMode === SWAP_MODE.NORMAL ? ' text-white' : ''
+        className={`py-2 mr-10 text-center flex flex-col cursor-pointer ${
+          swapMode === SWAP_MODE.NORMAL ? ' text-white ' : ''
         }`}
         onClick={() => {
           setSwapMode(SWAP_MODE.NORMAL);
@@ -59,21 +59,15 @@ const ChangeSwapModeV3 = ({
         }}
       >
         <FormattedMessage id="swap" defaultMessage="Swap" />
-      </span>
-      <span
-        className={`py-2  text-center cursor-pointer mr-10 ${
-          swapMode === SWAP_MODE.STABLE ? ' text-white ' : ''
-        }`}
-        onClick={() => {
-          setSwapMode(SWAP_MODE.STABLE);
-          localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.STABLE);
-        }}
-      >
-        <FormattedMessage id="stable" defaultMessage="Stable" />
+        {swapMode === SWAP_MODE.NORMAL ? (
+          <div className="h-1 rounded-lg mt-1 bg-gradientFromHover"></div>
+        ) : (
+          <div className="h-1 rounded-lg mt-1 bg-transparent"></div>
+        )}
       </span>
 
       <span
-        className={`py-2  text-center cursor-pointer ${
+        className={`py-2  flex flex-col text-center cursor-pointer ${
           swapMode === SWAP_MODE.LIMIT ? ' text-white ' : ''
         }`}
         onClick={() => {
@@ -82,6 +76,12 @@ const ChangeSwapModeV3 = ({
         }}
       >
         <FormattedMessage id="limit_order" defaultMessage="Limit Order" />
+
+        {swapMode === SWAP_MODE.LIMIT ? (
+          <div className="h-1 rounded-lg mt-1 bg-gradientFromHover"></div>
+        ) : (
+          <div className="h-1 rounded-lg mt-1 bg-transparent"></div>
+        )}
       </span>
     </div>
   );

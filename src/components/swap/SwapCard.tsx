@@ -1808,7 +1808,7 @@ export default function SwapCard(props: {
         swapMode={swapMode}
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
-        title={swapMode === SWAP_MODE.LIMIT ? 'make_an_order' : 'swap'}
+        title={swapMode === SWAP_MODE.LIMIT ? 'create_order' : 'swap'}
         loading={{
           loadingData,
           setLoadingData,
