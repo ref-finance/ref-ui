@@ -346,8 +346,10 @@ export function InputAmountV3({
       ref.current.setCustomValidity(
         intl.formatMessage({ id: 'near_validation_error' })
       );
+    } else {
+      ref.current.setCustomValidity('');
     }
-  }, [ref, max, nearValidation, rest.curAmount]);
+  }, [ref, max, nearValidation]);
 
   return (
     <>
