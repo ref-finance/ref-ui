@@ -440,6 +440,7 @@ function MobileLiquidityPage({
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
   };
+  const outOfText = intl.formatMessage({ id: 'out_of' });
 
   return (
     <>
@@ -503,7 +504,7 @@ function MobileLiquidityPage({
 
             <div className="text-gray-400 text-xs">
               {(pools?.length ? pools?.filter(poolFilterFunc).length : '-') +
-                ' out of ' +
+                ` ${outOfText} ` +
                 (allPools ? allPools : '-')}
             </div>
           </div>
@@ -908,7 +909,7 @@ function LiquidityPage_({
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
   };
-
+  const outOfText = intl.formatMessage({ id: 'out_of' });
   return (
     <>
       <PoolTab></PoolTab>
@@ -1004,7 +1005,7 @@ function LiquidityPage_({
                   {(pools?.length
                     ? pools?.filter(poolFilterFunc).length
                     : '-') +
-                    ' out of ' +
+                    ` ${outOfText} ` +
                     (allPools ? allPools : '-')}
                 </div>
               </div>
