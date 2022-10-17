@@ -130,19 +130,21 @@ const MobileSwapTab = ({
       <div
         className={`${
           ifCross ? '' : 'hidden'
-        } text-lg whitespace-nowrap w-full p-1 rounded-xl text-white flex items-center justify-center`}
-        style={{
-          backgroundColor: '#1C2A34',
-        }}
+        } text-lg whitespace-nowrap w-full p-1 rounded-xl text-white flex items-center `}
       >
         <span>
-          <FormattedMessage id="swap" defaultMessage={'Swap'} />
-        </span>{' '}
-        <span className="whitespace-nowrap ml-1 text-sm">
           <FormattedMessage
-            id="with_aurora_liquidity"
-            defaultMessage={'with Aurora Liquidity'}
-          ></FormattedMessage>
+            id="cross_chain_swap"
+            defaultMessage={'Cross-chain Swap'}
+          />
+        </span>{' '}
+        <span
+          className=" ml-3 xs:mr-2  xs:relative   h-3 flex items-center text-black bg-farmText rounded-md px-0.5 py-px"
+          style={{
+            fontSize: '10px',
+          }}
+        >
+          <FormattedMessage id="beta" defaultMessage={'beta'} />
         </span>
       </div>
       <div

@@ -735,7 +735,7 @@ export default function CrossSwapCard(props: {
                 </span>
 
                 <span
-                  className=" ml-3 xs:mr-2 xs:relative xs:top-1 h-3 flex items-center text-black bg-farmText rounded-md px-0.5 py-px"
+                  className=" ml-3 xs:mr-2 xs:hidden md:hidden xs:relative  xs:top-1 h-3 flex items-center text-black bg-farmText rounded-md px-0.5 py-px"
                   style={{
                     fontSize: '10px',
                   }}
