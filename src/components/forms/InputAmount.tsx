@@ -7,7 +7,7 @@ import {
   ONLY_ZEROS,
   toNonDivisibleNumber,
 } from '../../utils/numbers';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { toPrecision } from '../../utils/numbers';
 import { InputClear } from '../icon/swapV3';
 
@@ -26,6 +26,7 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   openClear?: boolean;
   forLimitOrder?: boolean;
   rateDiff?: JSX.Element | string;
+  nearValidation?: boolean;
 }
 
 export default function InputAmount({
@@ -323,6 +324,7 @@ export function InputAmountV3({
   forLimitOrder,
   openClear,
   rateDiff,
+  nearValidation,
   onBlur,
   ...rest
 }: InputAmountProps) {
@@ -336,6 +338,16 @@ export function InputAmountV3({
     }
     ref.current.value = amount;
   };
+
+  const intl = useIntl();
+
+  useEffect(() => {
+    if (ONLY_ZEROS.test(max) && nearValidation) {
+      ref.current.setCustomValidity(
+        intl.formatMessage({ id: 'near_validation_error' })
+      );
+    }
+  }, [ref, max, nearValidation, rest.curAmount]);
 
   return (
     <>

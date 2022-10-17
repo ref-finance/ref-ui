@@ -662,6 +662,7 @@ export function TokenAmountV3({
           forLimitOrder={limitOrderDisable}
           disabled={disabled || limitOrderDisable}
           forSwap={!!forSwap}
+          nearValidation={tokenIn && tokenIn.id === WRAP_NEAR_CONTRACT_ID}
           onBlur={(e) => {
             if (!!onBlur) {
               const newPrice = regularizedPrice(

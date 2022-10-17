@@ -849,5 +849,6 @@ const zh_CN = {
   filled_via_swap: '通过即时交易成交',
   state: '状态',
   partially: '部分',
+  near_validation_error: '需要预留至少0.5NEAR来支付gas费用',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

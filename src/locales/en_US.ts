@@ -895,5 +895,6 @@ const en_US = {
   filled_via_swap: 'Filled via swap',
   state: 'State',
   partially: 'Partially',
+  near_validation_error: 'Must have 0.5N or more left in wallet for gas fee.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

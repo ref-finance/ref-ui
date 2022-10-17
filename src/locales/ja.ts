@@ -878,5 +878,6 @@ const ja = {
   filled: 'Filled',
   canceled: 'Canceled',
   partially_filled: 'Partially Filled',
+  near_validation_error: 'Must have 0.5N or more left in wallet for gas fee.',
 };
 export default Object.assign(ja, ja_in_risks_page);

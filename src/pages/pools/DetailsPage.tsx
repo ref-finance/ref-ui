@@ -577,6 +577,27 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
       secondAmount: secondTokenAmount,
     });
   }, [balances]);
+  const getMax = function (id: string, amount: string) {
+    return id !== WRAP_NEAR_CONTRACT_ID
+      ? amount
+      : Number(amount) <= 0.5
+      ? '0'
+      : String(Number(amount) - 0.5);
+  };
+
+  const firstTokenBalanceBN = new BigNumber(
+    getMax(
+      tokens[0].id,
+      toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id] || '0')
+    )
+  );
+
+  const secondTokenBalanceBN = new BigNumber(
+    getMax(
+      tokens[1].id,
+      toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id] || '0')
+    )
+  );
 
   function validate({
     firstAmount,
@@ -586,19 +607,8 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
     secondAmount: string;
   }) {
     const firstTokenAmountBN = new BigNumber(firstAmount.toString());
-    const firstTokenBalanceBN = new BigNumber(
-      getMax(
-        tokens[0].id,
-        toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id] || '0')
-      )
-    );
+
     const secondTokenAmountBN = new BigNumber(secondAmount.toString());
-    const secondTokenBalanceBN = new BigNumber(
-      getMax(
-        tokens[1].id,
-        toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id] || '0')
-      )
-    );
 
     setCanSubmit(false);
     setCanDeposit(false);
@@ -754,14 +764,6 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
     };
   };
 
-  const getMax = function (id: string, amount: string) {
-    return id !== WRAP_NEAR_CONTRACT_ID
-      ? amount
-      : Number(amount) <= 0.5
-      ? '0'
-      : String(Number(amount) - 0.5);
-  };
-
   return (
     <div className="text-white outline-none ">
       <div className="mt-8">
@@ -857,8 +859,17 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
             <FormattedMessage id="oops" defaultMessage="Oops" />!
           </label>
           <label className="ml-2.5 text-warnColor ">
-            <FormattedMessage id="you_do_not_have_enough" />{' '}
-            {toRealSymbol(modal?.token?.symbol)}.
+            {modal?.token?.id === WRAP_NEAR_CONTRACT_ID &&
+            (tokens[0].id === WRAP_NEAR_CONTRACT_ID
+              ? Number(firstTokenBalanceBN) < 0.5
+              : Number(secondTokenBalanceBN) < 0.5) ? (
+              <FormattedMessage id="near_validation_error" />
+            ) : (
+              <>
+                <FormattedMessage id="you_do_not_have_enough" />{' '}
+                {toRealSymbol(modal?.token?.symbol)}.
+              </>
+            )}
           </label>
         </div>
       ) : null}
