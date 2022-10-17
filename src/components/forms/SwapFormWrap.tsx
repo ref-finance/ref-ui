@@ -102,7 +102,7 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 ${
+      className={`relative z-50 overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 ${
         swapMode === SWAP_MODE.STABLE ? 'pb-16' : ''
       } bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
       onSubmit={handleSubmit}
