@@ -606,7 +606,7 @@ export const LimitOrderPopUp = ({
           </span>
 
           {
-            <span className="">{`Sold ${swapAmount} ${tokenSymbol} for ${swapAmountOut} ${tokenOutSymbol}`}</span>
+            <span className="">{`Sold ${swapAmount} ${tokenSymbol} for ${swapAmountOut} ${tokenOutSymbol}.`}</span>
           }
         </span>
       )}

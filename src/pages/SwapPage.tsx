@@ -114,30 +114,6 @@ function SwapTab({
   );
 }
 
-const MyOrderTab = () => {
-  const history = useHistory();
-
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
-
-  return (
-    <button
-      className={`rounded-xl ${
-        !isSignedIn ? 'cursor-not-allowed opacity-30' : ''
-      } whitespace-nowrap hover:text-gradientFrom hover:bg-black hover:bg-opacity-20 text-white text-sm border border-primaryText border-opacity-20 h-8 px-2 `}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!isSignedIn) return;
-
-        history.push('/myOrder');
-      }}
-    >
-      <FormattedMessage id="my_orders" defaultMessage={'My Orders'} />
-    </button>
-  );
-};
-
 const MobileSwapTab = ({
   ifCross,
   swapMode,

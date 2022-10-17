@@ -88,6 +88,114 @@ export const NewProIcon = ({ colorLight }: { colorLight?: string }) => {
   );
 };
 
+export const NewProIconDefaultSwap = () => {
+  return (
+    <svg
+      width="54"
+      height="34"
+      viewBox="0 0 54 34"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        x="1"
+        y="1"
+        width="52"
+        height="32"
+        rx="12"
+        fill="#374955"
+        stroke="url(#paint0_linear_2432_2771)"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M19.1393 15.0414C16.7908 16.2072 15.1541 17.5571 14.5212 18.2985C13.804 19.1386 12.5416 19.2383 11.7015 18.5211C10.8614 17.804 10.7618 16.5416 11.4789 15.7015C12.5533 14.4429 14.6727 12.7928 17.3608 11.4586C20.08 10.1088 23.5439 9 27.3415 9C34.953 9 40.3342 13.4354 42.4374 15.6094C43.2055 16.4032 43.1845 17.6694 42.3907 18.4374C41.5968 19.2054 40.3307 19.1845 39.5626 18.3906C37.796 16.5646 33.3885 13 27.3415 13C24.3098 13 21.4566 13.8912 19.1393 15.0414Z"
+        fill="#202E38"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M19.1393 17.0414C16.7908 18.2072 15.1541 19.5571 14.5212 20.2985C13.804 21.1386 12.5416 21.2383 11.7015 20.5211C10.8614 19.804 10.7618 18.5416 11.4789 17.7015C12.5533 16.4429 14.6727 14.7928 17.3608 13.4586C20.08 12.1088 23.5439 11 27.3415 11C34.953 11 40.3342 15.4354 42.4374 17.6094C43.2055 18.4032 43.1845 19.6694 42.3907 20.4374C41.5968 21.2054 40.3307 21.1845 39.5626 20.3906C37.796 18.5646 33.3885 15 27.3415 15C24.3098 15 21.4566 15.8912 19.1393 17.0414Z"
+        fill="#4A5B69"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M19.1393 16.0414C16.7908 17.2072 15.1541 18.5571 14.5212 19.2985C13.804 20.1386 12.5416 20.2383 11.7015 19.5211C10.8614 18.804 10.7618 17.5416 11.4789 16.7015C12.5533 15.4429 14.6727 13.7928 17.3608 12.4586C20.08 11.1088 23.5439 10 27.3415 10C34.953 10 40.3342 14.4354 42.4374 16.6094C43.2055 17.4032 43.1845 18.6694 42.3907 19.4374C41.5968 20.2054 40.3307 20.1845 39.5626 19.3906C37.796 17.5646 33.3885 14 27.3415 14C24.3098 14 21.4566 14.8912 19.1393 16.0414Z"
+        fill="#293945"
+      />
+      <g filter="url(#filter0_d_2432_2771)">
+        <circle cx="12" cy="19" r="4" fill="#506979" />
+        <circle
+          cx="12"
+          cy="19"
+          r="4.5"
+          stroke="url(#paint1_linear_2432_2771)"
+        />
+      </g>
+      <defs>
+        <filter
+          id="filter0_d_2432_2771"
+          x="1"
+          y="8"
+          width="22"
+          height="22"
+          filterUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB"
+        >
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset />
+          <feGaussianBlur stdDeviation="3" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.65 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow_2432_2771"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_2432_2771"
+            result="shape"
+          />
+        </filter>
+        <linearGradient
+          id="paint0_linear_2432_2771"
+          x1="27"
+          y1="1"
+          x2="27"
+          y2="33"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#4A5B69" />
+          <stop offset="1" stop-color="#202E38" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_2432_2771"
+          x1="12"
+          y1="15"
+          x2="12"
+          y2="23"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#81919E" />
+          <stop offset="1" stop-color="#394E5B" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
 export const ProIconHover = () => {
   return (
     <svg
@@ -398,6 +506,151 @@ export const ProIconClick = () => {
   );
 };
 
+export const ProIconClickSwap = () => {
+  return (
+    <svg
+      width="53"
+      height="32"
+      viewBox="0 0 53 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        width="52"
+        height="32"
+        rx="12"
+        fill="url(#paint0_linear_2432_2773)"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M18.1393 14.0414C15.7908 15.2072 14.1541 16.5571 13.5212 17.2985C12.804 18.1386 11.5416 18.2383 10.7015 17.5211C9.86142 16.804 9.76175 15.5416 10.4789 14.7015C11.5533 13.4429 13.6727 11.7928 16.3608 10.4586C19.08 9.10882 22.5439 8 26.3415 8C33.953 8 39.3342 12.4354 41.4374 14.6094C42.2055 15.4032 42.1845 16.6694 41.3907 17.4374C40.5968 18.2054 39.3307 18.1845 38.5626 17.3906C36.796 15.5646 32.3885 12 26.3415 12C23.3098 12 20.4566 12.8912 18.1393 14.0414Z"
+        fill="#157192"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M18.1393 16.0414C15.7908 17.2072 14.1541 18.5571 13.5212 19.2985C12.804 20.1386 11.5416 20.2383 10.7015 19.5211C9.86142 18.804 9.76175 17.5416 10.4789 16.7015C11.5533 15.4429 13.6727 13.7928 16.3608 12.4586C19.08 11.1088 22.5439 10 26.3415 10C33.953 10 39.3342 14.4354 41.4374 16.6094C42.2055 17.4032 42.1845 18.6694 41.3907 19.4374C40.5968 20.2054 39.3307 20.1845 38.5626 19.3906C36.796 17.5646 32.3885 14 26.3415 14C23.3098 14 20.4566 14.8912 18.1393 16.0414Z"
+        fill="#6AAAF8"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M18.1393 15.0414C15.7908 16.2072 14.1541 17.5571 13.5212 18.2985C12.804 19.1386 11.5416 19.2383 10.7015 18.5211C9.86142 17.804 9.76175 16.5416 10.4789 15.7015C11.5533 14.4429 13.6727 12.7928 16.3608 11.4586C19.08 10.1088 22.5439 9 26.3415 9C33.953 9 39.3342 13.4354 41.4374 15.6094C42.2055 16.4032 42.1845 17.6694 41.3907 18.4374C40.5968 19.2054 39.3307 19.1845 38.5626 18.3906C36.796 16.5646 32.3885 13 26.3415 13C23.3098 13 20.4566 13.8912 18.1393 15.0414Z"
+        fill="#00FFD1"
+      />
+      <g filter="url(#filter0_d_2432_2773)">
+        <circle cx="42" cy="18" r="4" fill="#00FFD1" />
+        <circle
+          cx="42"
+          cy="18"
+          r="4.5"
+          stroke="url(#paint1_linear_2432_2773)"
+        />
+      </g>
+      <defs>
+        <filter
+          id="filter0_d_2432_2773"
+          x="31"
+          y="7"
+          width="22"
+          height="22"
+          filterUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB"
+        >
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset />
+          <feGaussianBlur stdDeviation="3" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.65 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow_2432_2773"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_2432_2773"
+            result="shape"
+          />
+        </filter>
+        <linearGradient
+          id="paint0_linear_2432_2773"
+          x1="26"
+          y1="0"
+          x2="26"
+          y2="32"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#09C7B8" />
+          <stop offset="1" stop-color="#544CFA" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_2432_2773"
+          x1="42"
+          y1="14"
+          x2="42"
+          y2="22"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00D6AF" />
+          <stop offset="1" stop-color="#00705B" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+export const CrossChainPop = () => {
+  return (
+    <svg
+      width="156"
+      height="40"
+      viewBox="0 0 156 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="absolute z-10 top-0"
+      style={{
+        left: '-14px',
+      }}
+    >
+      <rect
+        width="156"
+        height="32"
+        rx="8"
+        fill="url(#paint0_radial_2223_878)"
+      />
+      <path
+        d="M77.2 38.9333C77.6 39.4667 78.4 39.4667 78.8 38.9333L84 32H72L77.2 38.9333Z"
+        fill="#4663ED"
+      />
+      <defs>
+        <radialGradient
+          id="paint0_radial_2223_878"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(1.41404e-06 7.5) rotate(10.3566) scale(136.283 76.058)"
+        >
+          <stop stop-color="#00D6AF" />
+          <stop offset="1" stop-color="#5B40FF" />
+        </radialGradient>
+      </defs>
+    </svg>
+  );
+};
+
 export const NewPro = ({
   ifCross,
   onClick,
@@ -422,39 +675,31 @@ export const NewPro = ({
       onClick={onClick}
     >
       {ifCross ? (
-        <ProIconClick />
+        <ProIconClickSwap />
       ) : !hover || isMobile ? (
         <>
-          <NewProIcon />
+          <NewProIconDefaultSwap />
         </>
       ) : (
+        <NewProIconDefaultSwap />
+      )}
+      {hover && (
         <div
-          className="flex items-center justify-center"
-          data-class="reactTip"
-          data-for={'swap_pro_tip'}
-          data-place="top"
-          data-html={true}
-          data-tip={`
-    
-  <div class="text-xs min-w-32 text-farmText">
-
-  ${intl.formatMessage({
-    id: 'swap_with_aurora_liquidity',
-    defaultMessage: 'SWAP with Aurora Liquidity',
-  })}
-</div>
-  `}
+          className="absolute z-50"
+          style={{
+            bottom: '48px',
+            right: '-32px',
+          }}
         >
-          <ProIconHover />
-          {hover ? (
-            <ReactTooltip
-              id={'swap_pro_tip'}
-              backgroundColor="#1D2932"
-              border
-              borderColor="#7e8a93"
-              effect="solid"
-            />
-          ) : null}
+          <div className="relative z-30">
+            <span className="text-sm whitespace-nowrap relative z-40">
+              <FormattedMessage
+                id="cross_chain_swap"
+                defaultMessage={'Cross-chain Swap'}
+              />
+            </span>
+            <CrossChainPop />
+          </div>
         </div>
       )}
     </button>
@@ -749,11 +994,13 @@ export const MobileHistoryOrderStampText = ({
 }) => {
   return (
     <div
-      className={'opacity-20 text-center text-lg rounded-xl min-w-24 p-2'}
+      className={
+        'opacity-20 text-center text-base rounded-xl min-w-24 px-2 py-1.5'
+      }
       style={{
         color,
         border: `1px solid ${color}`,
-        transform: 'rotate(20deg)',
+        transform: 'rotate(-20deg)',
       }}
     >
       <FormattedMessage id={text} />
@@ -775,7 +1022,7 @@ export const MobileHistoryOrderStamp = ({
         <MobileHistoryOrderStampText text="filled" color="#00c6a2" />
       )}
       {state === 'partially_filled' && (
-        <MobileHistoryOrderStampText text="partially_filled" color="#00c6a2" />
+        <MobileHistoryOrderStampText text="partially_filled" color="#DEA550" />
       )}
     </div>
   );

@@ -1684,7 +1684,7 @@ export function PoolDetailsPage() {
         : (Number(
             toReadableNumber(
               seedDetail.seed_decimal,
-              seedDetail.total_seed_amount
+              seedDetail.total_seed_power
             )
           ) *
             (poolTVL || 0)) /

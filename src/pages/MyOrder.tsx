@@ -338,8 +338,8 @@ function OrderCard({
                 </div>
 
                 ${intl.formatMessage({
-                  id: 'executed',
-                  defaultMessage: 'Executed',
+                  id: 'claimed_upper',
+                  defaultMessage: 'Claimed',
                 })}
 
             </span>
@@ -832,7 +832,10 @@ function OrderCard({
 
             <MobileInfoBanner
               text={
-                <FormattedMessage defaultMessage={'Executed'} id="executed" />
+                <FormattedMessage
+                  defaultMessage={'Claimed'}
+                  id="claimed_upper"
+                />
               }
               value={unclaim}
             />
@@ -986,8 +989,8 @@ function OrderCard({
                 </div>
 
                 ${intl.formatMessage({
-                  id: 'executed',
-                  defaultMessage: 'Executed',
+                  id: 'claimed_upper',
+                  defaultMessage: 'Claimed',
                 })}
 
             </span>
@@ -1206,7 +1209,7 @@ function OrderCard({
       <div className=" col-span-1  text-primaryText  text-xs justify-self-end p-1.5">
         {ONLY_ZEROS.test(order.cancel_amount) ? (
           <FormattedMessage id="filled" defaultMessage={'Filled'} />
-        ) : new Big(order.cancel_amount).eq(order.original_amount) ? (
+        ) : new Big(order.cancel_amount).eq(order.original_deposit_amount) ? (
           <FormattedMessage id="canceled" defaultMessage={'Canceled'} />
         ) : (
           <div className="flex flex-col items-end">
@@ -1378,7 +1381,7 @@ function OrderCard({
             state={
               ONLY_ZEROS.test(order.cancel_amount)
                 ? 'filled'
-                : new Big(order.original_amount).eq(order.cancel_amount)
+                : new Big(order.original_deposit_amount).eq(order.cancel_amount)
                 ? 'cancel'
                 : 'partially_filled'
             }
@@ -1411,7 +1414,10 @@ function OrderCard({
 
             <MobileInfoBanner
               text={
-                <FormattedMessage defaultMessage={'Executed'} id="executed" />
+                <FormattedMessage
+                  defaultMessage={'Claimed'}
+                  id="claimed_upper"
+                />
               }
               value={claimed}
             />

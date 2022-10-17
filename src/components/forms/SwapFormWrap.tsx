@@ -132,7 +132,7 @@ export default function SwapFormWrap({
     >
       {title && (
         <>
-          <h2 className="formTitle flex items-center xs:justify-end justify-between font-bold text-xl text-white text-left pb-4 xs:pb-2">
+          <h2 className="formTitle relative bottom-1 flex items-center xs:justify-end justify-between font-bold text-xl text-white text-left pb-4 xs:pb-2">
             {swapTab}
             {swapMode !== SWAP_MODE.LIMIT && (
               <SlippageSelector
