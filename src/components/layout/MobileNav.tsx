@@ -22,6 +22,7 @@ import {
   RuIcon,
   JaIcon,
   KoIcon,
+  EsIcon,
   NavLogoSimple,
 } from '~components/icon';
 import { WNEARExchngeIcon } from '~components/icon/Common';
@@ -189,6 +190,17 @@ export function MobileSwitchLanguage(props: any) {
             <KoIcon />
           </span>
           한국어
+        </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'es' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('es')}
+        >
+          <span className="text-2xl mr-5">
+            <EsIcon />
+          </span>
+          Español
         </div>
       </div>
     </div>

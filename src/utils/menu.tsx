@@ -31,6 +31,7 @@ import {
   MobilePoolsIcon,
   BridgeIcon,
   RisksIcon,
+  EsIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
@@ -193,6 +194,14 @@ export const useMenuItems = () => {
           url: '',
           id: 17,
           logo: <KoIcon />,
+        },
+        {
+          label: 'Español',
+          isExternal: false,
+          language: 'es',
+          url: '',
+          id: 18,
+          logo: <EsIcon />,
         },
       ],
     },

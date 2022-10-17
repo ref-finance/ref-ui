@@ -127,7 +127,13 @@ export default function SwapFormWrap({
 
   return (
     <form
+<<<<<<< HEAD
       className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xs:py-4 xs:px-3  bg-dark  overflow-x-visible`}
+=======
+      className={`relative z-50 overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 ${
+        swapMode === SWAP_MODE.STABLE ? 'pb-16' : ''
+      } bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
+>>>>>>> main
       onSubmit={handleSubmit}
     >
       {title && (

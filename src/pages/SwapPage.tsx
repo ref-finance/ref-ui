@@ -50,8 +50,15 @@ const ChangeSwapModeV3 = ({
   return (
     <div className="rounded-2xl  xs:hidden w-full text-primaryText text-lg flex items-center mx-auto  font-normal">
       <span
+<<<<<<< HEAD
         className={`py-2 mr-10 text-center flex flex-col cursor-pointer ${
           swapMode === SWAP_MODE.NORMAL ? ' text-white ' : ''
+=======
+        className={`py-2 w-1/2 text-center cursor-pointer xs:text-base md:text-base ${
+          swapMode === SWAP_MODE.NORMAL
+            ? 'bg-tabChosen text-white rounded-xl'
+            : ''
+>>>>>>> main
         }`}
         onClick={() => {
           setSwapMode(SWAP_MODE.NORMAL);
@@ -67,8 +74,15 @@ const ChangeSwapModeV3 = ({
       </span>
 
       <span
+<<<<<<< HEAD
         className={`py-2  flex flex-col text-center cursor-pointer ${
           swapMode === SWAP_MODE.LIMIT ? ' text-white ' : ''
+=======
+        className={`py-2 w-1/2 text-center cursor-pointer xs:text-base md:text-base ${
+          swapMode === SWAP_MODE.STABLE
+            ? 'bg-tabChosen text-white rounded-xl'
+            : ''
+>>>>>>> main
         }`}
         onClick={() => {
           setSwapMode(SWAP_MODE.LIMIT);
