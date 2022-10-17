@@ -129,7 +129,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
         <FormattedMessage id="my_shares" defaultMessage="Shares" />
         <QuestionTip id="shares_tip" />
       </span>
-      <div className="flex items-center  mr-1">
+      <div className="flex items-center  mr-1 xs:ml-1.5 md:ml-1.5">
         {shareToUserTotal({
           shares,
           userTotalShare,
