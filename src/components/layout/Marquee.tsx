@@ -113,7 +113,7 @@ export default function Marquee() {
         onClick={switchStatus}
         className={`flex items-center absolute right-0 w-28 xs:w-auto md:w-auto h-8 bg-priceBoardColor rounded-l-full px-1.5 cursor-pointer text-primaryText hover:text-greenColor z-10`}
       >
-        <span className="flex items-center justify-center w-6 h-6 bg-black bg-opacity-30 rounded-full">
+        <span className="flex items-center justify-center w-6 h-6 bg-black bg-opacity-30 rounded-full flex-shrink-0">
           {showMarquee ? (
             <CloseRadiusIcon></CloseRadiusIcon>
           ) : (

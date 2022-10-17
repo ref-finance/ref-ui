@@ -44,7 +44,7 @@ const ChangeSwapMode = ({
       }}
     >
       <span
-        className={`py-2 w-1/2 text-center cursor-pointer ${
+        className={`py-2 w-1/2 text-center cursor-pointer xs:text-base md:text-base ${
           swapMode === SWAP_MODE.NORMAL
             ? 'bg-tabChosen text-white rounded-xl'
             : ''
@@ -57,7 +57,7 @@ const ChangeSwapMode = ({
         <FormattedMessage id="swap" defaultMessage="Swap" />
       </span>
       <span
-        className={`py-2 w-1/2 text-center cursor-pointer ${
+        className={`py-2 w-1/2 text-center cursor-pointer xs:text-base md:text-base ${
           swapMode === SWAP_MODE.STABLE
             ? 'bg-tabChosen text-white rounded-xl'
             : ''
