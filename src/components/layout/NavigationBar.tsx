@@ -1416,7 +1416,10 @@ function NavigationBar() {
                   {
                     name: 'limit',
                     display: (
-                      <FormattedMessage id="limit_order"></FormattedMessage>
+                      <FormattedMessage
+                        id="limit_order"
+                        defaultMessage={'Limit Order'}
+                      ></FormattedMessage>
                     ),
                     click: () => {
                       historyInit.push('/swap');

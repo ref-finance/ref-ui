@@ -1019,7 +1019,7 @@ function OrderCard({
                 </div>
 
                 ${intl.formatMessage({
-                  id: 'cancelled',
+                  id: 'canceled',
                   defaultMessage: 'Canceled',
                 })}
 

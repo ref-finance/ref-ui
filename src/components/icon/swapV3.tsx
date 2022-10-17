@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import ReactTooltip from 'react-tooltip';
-import { useClientMobile } from '../../utils/device';
+import { useClientMobile, isClientMobie } from '../../utils/device';
 
 export const SwapMinReceiveCheck = () => {
   return (
@@ -619,7 +619,7 @@ export const CrossChainPop = () => {
       viewBox="0 0 156 40"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="absolute z-10 top-0"
+      className="relative z-10 top-0"
       style={{
         left: '-14px',
       }}
@@ -665,34 +665,34 @@ export const NewPro = ({
   const intl = useIntl();
 
   return (
-    <button
-      className="relative h-8"
-      style={{
-        minWidth: '32px',
-      }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onClick={onClick}
-    >
-      {ifCross ? (
-        <ProIconClickSwap />
-      ) : !hover || isMobile ? (
-        <>
+    <>
+      <button
+        className="relative h-8"
+        style={{
+          minWidth: '32px',
+        }}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onClick={onClick}
+      >
+        {ifCross ? (
+          <ProIconClickSwap />
+        ) : !hover || isMobile ? (
+          <>
+            <NewProIconDefaultSwap />
+          </>
+        ) : (
           <NewProIconDefaultSwap />
-        </>
-      ) : (
-        <NewProIconDefaultSwap />
-      )}
-      {hover && (
-        <div
-          className="absolute z-50"
-          style={{
-            bottom: '48px',
-            right: '-32px',
-          }}
-        >
-          <div className="relative z-30">
-            <span className="text-sm whitespace-nowrap relative z-40">
+        )}
+        {hover && !isMobile && (
+          <div
+            className="absolute z-50"
+            style={{
+              bottom: '40px',
+              right: isClientMobie() ? '-36px' : '-62px',
+            }}
+          >
+            <span className="text-sm whitespace-nowrap text-white right-4 top-1.5 w-36 absolute z-40">
               <FormattedMessage
                 id="cross_chain_swap"
                 defaultMessage={'Cross-chain Swap'}
@@ -700,9 +700,9 @@ export const NewPro = ({
             </span>
             <CrossChainPop />
           </div>
-        </div>
-      )}
-    </button>
+        )}
+      </button>
+    </>
   );
 };
 
