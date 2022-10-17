@@ -334,8 +334,6 @@ export const executeMultipleTransactions = async (
     .catch((e: Error) => {
       console.log(e);
 
-      alert(e.message);
-
       if (extraWalletsError.includes(e.message)) {
         return;
       }
