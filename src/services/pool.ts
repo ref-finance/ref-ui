@@ -293,8 +293,8 @@ export const getPoolsByTokens = async ({
     setLoadingData && setLoadingData(true);
 
     const isCacheFromIndexer =
-      getExtendConfig().POOL_CACHE &&
-      getExtendConfig().POOL_CACHE === 'indexer';
+      getExtendConfig().pool_protocol &&
+      getExtendConfig().pool_protocol === 'indexer';
 
     const isCacheFromRPC = !isCacheFromIndexer;
 
