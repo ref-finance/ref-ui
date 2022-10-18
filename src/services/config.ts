@@ -21,7 +21,7 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             simpleName: 'ankr rpc',
           },
         },
-        POOL_CACHE: 'indexer',
+        pool_protocol: 'indexer',
       };
     case 'development':
     case 'pub-testnet':
@@ -36,7 +36,7 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             simpleName: 'blockpi rpc',
           },
         },
-        POOL_CACHE: 'indexer',
+        pool_protocol: 'indexer',
       };
     case 'testnet':
       return {
@@ -50,7 +50,7 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             simpleName: 'blockpi rpc',
           },
         },
-        POOL_CACHE: 'indexer',
+        pool_protocol: 'indexer',
       };
     default:
       return {
@@ -72,7 +72,7 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             simpleName: 'ankr rpc',
           },
         },
-        POOL_CACHE: 'indexer',
+        pool_protocol: 'indexer',
       };
   }
 }
