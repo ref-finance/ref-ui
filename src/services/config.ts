@@ -36,7 +36,7 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             simpleName: 'blockpi rpc',
           },
         },
-        poolCache: 'indexer',
+        POOL_CACHE: 'indexer',
       };
     case 'testnet':
       return {
@@ -72,7 +72,7 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             simpleName: 'ankr rpc',
           },
         },
-        poolCache: 'indexer',
+        POOL_CACHE: 'indexer',
       };
   }
 }
