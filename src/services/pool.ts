@@ -301,7 +301,7 @@ export const getPoolsByTokens = async ({
     let pools;
 
     if (isCacheFromIndexer) {
-      pools = (await getTopPoolsIndexer()).map((p) => ({
+      pools = (await getTopPoolsIndexer()).map((p: any) => ({
         ...p,
         Dex: 'ref',
       }));
@@ -319,8 +319,6 @@ export const getPoolsByTokens = async ({
     // const totalPools = await getTotalPools();
     // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
 
-    console.log(pools);
-
     let triPools;
     if (crossSwap) {
       triPools = await getAllTriPools();
@@ -333,7 +331,7 @@ export const getPoolsByTokens = async ({
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
-      (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
+      (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
     await getAllStablePoolsFromCache();
   }

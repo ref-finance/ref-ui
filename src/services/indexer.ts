@@ -115,7 +115,7 @@ export const getTopPoolsIndexer = async () => {
   })
     .then((res) => res.json())
     .then((poolList) => {
-      return poolList.map((p) => parsePool(p));
+      return poolList.map((p: any) => parsePool(p));
     });
 };
 
@@ -148,7 +148,7 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
                 token0: ids[0],
                 token1: ids[1],
               })
-            ).map((p) => p.id.toString());
+            ).map((p: any) => p.id.toString());
 
             const twoTokenStablePools = await getPoolsByIds({
               pool_ids: twoTokenStablePoolIds,

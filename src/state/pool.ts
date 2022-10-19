@@ -340,23 +340,27 @@ export const usePoolsMorePoolIds = () => {
 
   useEffect(() => {
     getAllPoolsTokens().then((res) => {
-      const poolsMorePoolIds = res.map((p) => {
+      const poolsMorePoolIds = res.map((p: any) => {
         const id1 = p.tokenIds[0];
         const id2 = p.tokenIds[1];
 
         return res
           .filter(
-            (resP) => resP.tokenIds.includes(id1) && resP.tokenIds.includes(id2)
+            (resP: any) =>
+              resP.tokenIds.includes(id1) && resP.tokenIds.includes(id2)
           )
-          .map((a) => a.id.toString());
+          .map((a: any) => a.id.toString());
       });
 
-      const parsedIds = poolsMorePoolIds.reduce((acc, cur, i) => {
-        return {
-          ...acc,
-          [res[i].id.toString()]: cur,
-        };
-      }, {});
+      const parsedIds = poolsMorePoolIds.reduce(
+        (acc: any, cur: any, i: number) => {
+          return {
+            ...acc,
+            [res[i].id.toString()]: cur,
+          };
+        },
+        {}
+      );
 
       setMorePoolIds(parsedIds);
     });
