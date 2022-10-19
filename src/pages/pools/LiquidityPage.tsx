@@ -340,7 +340,7 @@ function MobilePoolRow({
             <div className="text-sm ml-2 font-semibold">
               {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
-            {watched && (
+            {watched && !watchPool && (
               <div className="ml-2">
                 <WatchListStartFull />
               </div>

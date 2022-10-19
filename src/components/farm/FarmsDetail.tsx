@@ -1135,6 +1135,7 @@ function AddLiquidityEntryBar(props: {
   const poolId = poolA.id;
   const { pool } = usePool(poolId);
   const tokens = useTokens(pool?.tokenIds);
+
   const history = useHistory();
   let addLiquidityButtonLoading;
   function openAddLiquidityModal() {
@@ -1202,6 +1203,7 @@ function AddLiquidityEntryBar(props: {
 }
 function AddLiquidityModal(props: any) {
   const { pool, tokens } = props;
+
   return (
     <CommonModal {...props}>
       <AddLiquidity pool={pool} tokens={tokens} />
@@ -1558,19 +1560,25 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
       : String(Number(amount) - 0.5);
   };
 
-  const firstTokenBalanceBN = new BigNumber(
-    getMax(
-      tokens[0].id,
-      toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
-    )
-  );
+  const firstTokenBalanceBN =
+    tokens[0] && balances
+      ? new BigNumber(
+          getMax(
+            tokens[0].id,
+            toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+          )
+        )
+      : new BigNumber(0);
 
-  const secondTokenBalanceBN = new BigNumber(
-    getMax(
-      tokens[1].id,
-      toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
-    )
-  );
+  const secondTokenBalanceBN =
+    tokens[1] && balances
+      ? new BigNumber(
+          getMax(
+            tokens[1].id,
+            toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+          )
+        )
+      : new BigNumber(0);
   function validate({
     firstAmount,
     secondAmount,
@@ -1835,9 +1843,10 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
             </label>
             <label className="ml-2.5 text-warnColor ">
               {modal?.token?.id === WRAP_NEAR_CONTRACT_ID &&
-              (tokens[0].id === WRAP_NEAR_CONTRACT_ID
-                ? Number(firstTokenBalanceBN) < 0.5
-                : Number(secondTokenBalanceBN) < 0.5) ? (
+              (tokens?.[0].id === WRAP_NEAR_CONTRACT_ID
+                ? Number(firstTokenBalanceBN) - Number(firstTokenAmount) < 0.5
+                : Number(secondTokenBalanceBN) - Number(secondTokenAmount) <
+                  0.5) ? (
                 <FormattedMessage id="near_validation_error" />
               ) : (
                 <>

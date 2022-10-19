@@ -342,7 +342,7 @@ export function InputAmountV3({
   const intl = useIntl();
 
   useEffect(() => {
-    if (ONLY_ZEROS.test(max) && nearValidation) {
+    if (nearValidation && Number(max) - Number(rest.value) < 0.5) {
       ref.current.setCustomValidity(
         intl.formatMessage({ id: 'near_validation_error' })
       );
