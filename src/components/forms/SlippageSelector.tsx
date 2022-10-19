@@ -6,17 +6,19 @@ import { IoCloseOutline, IoWarning } from 'react-icons/io5';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { SUPPORT_LEDGER_KEY } from '../swap/SwapCard';
 
-function SupportLedgerSwitch({
-  supportLedger,
-  setSupportLedger,
+export function CustomSwitch({
+  isOpen,
+  setIsOpen,
+  storageKey,
 }: {
-  supportLedger: boolean;
-  setSupportLedger: (e?: any) => void;
+  isOpen: boolean;
+  setIsOpen: (e?: any) => void;
+  storageKey?: string;
 }) {
   return (
     <div
-      className={`ml-4 cursor-pointer ${
-        supportLedger ? 'bg-gradientFrom' : 'bg-farmSbg'
+      className={`ml-3 cursor-pointer ${
+        isOpen ? 'bg-gradientFrom' : 'bg-farmSbg'
       }  p-0.5 flex items-center`}
       style={{
         height: '16px',
@@ -24,18 +26,18 @@ function SupportLedgerSwitch({
         borderRadius: '20px',
       }}
       onClick={() => {
-        if (supportLedger) {
-          setSupportLedger(false);
-          localStorage.removeItem(SUPPORT_LEDGER_KEY);
+        if (isOpen) {
+          setIsOpen(false);
+          localStorage.removeItem(storageKey || SUPPORT_LEDGER_KEY);
         } else {
-          setSupportLedger(true);
-          localStorage.setItem(SUPPORT_LEDGER_KEY, '1');
+          setIsOpen(true);
+          localStorage.setItem(storageKey || SUPPORT_LEDGER_KEY, '1');
         }
       }}
     >
       <div
         className={`rounded-full bg-white transition-all ${
-          supportLedger ? 'transform translate-x-3 relative left-px' : ''
+          isOpen ? 'transform translate-x-3 relative left-px' : ''
         }`}
         style={{
           width: '12px',
@@ -46,24 +48,24 @@ function SupportLedgerSwitch({
   );
 }
 
-export default function SlippageSelector({
+export default function SlippageSelectorForStable({
   slippageTolerance,
   onChange,
   bindUseBalance,
   useNearBalance,
   validSlippageList,
-  normalSwap,
   supportLedger,
   setSupportLedger,
+  hideLedger,
 }: {
   slippageTolerance: number;
   onChange: (slippage: number) => void;
   bindUseBalance: (useNearBalance: boolean) => void;
   useNearBalance: string;
   validSlippageList?: number[];
-  normalSwap?: boolean;
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
+  hideLedger?: boolean;
 }) {
   const ref = useRef<HTMLInputElement>();
   const field = useRef<HTMLFieldSetElement>();
@@ -169,7 +171,11 @@ export default function SlippageSelector({
                   defaultMessage="Slippage tolerance"
                 />
               </label>
-              <QuestionTip id={slippageCopyId} />
+              <QuestionTip
+                id={slippageCopyId}
+                width="w-60"
+                uniquenessId="slippageId3Id"
+              />
             </div>
 
             <div className="flex text-white items-center">
@@ -219,29 +225,28 @@ export default function SlippageSelector({
               />
               %
             </div>
+            {hideLedger ? null : (
+              <div className={'flex items-center mt-6 text-sm'}>
+                <label>
+                  <FormattedMessage
+                    id="support_ledger"
+                    defaultMessage={'Support Ledger'}
+                  />
+                </label>
 
-            <div
-              className={
-                normalSwap ? 'flex items-center mt-6 text-sm' : 'hidden'
-              }
-            >
-              <label>
-                <FormattedMessage
-                  id="support_ledger"
-                  defaultMessage={'Support Ledger'}
+                <QuestionTip
+                  id="support_ledger_tip"
+                  defaultMessage="By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of better prices), so transactions of a reasonable size can be signed."
+                  dataPlace="bottom"
+                  uniquenessId="supportId"
+                  width="w-60"
                 />
-              </label>
-
-              <QuestionTip
-                id="support_ledger_tip"
-                defaultMessage="By design, Ledger cannot handle large transactions (i.e. Auto Router: trade across multiple pools at once) because of its memory limitation. When activated, the 'Support Ledger' option will limit transactions to their simplest form (to the detriment of better prices), so transactions of a reasonable size can be signed."
-                dataPlace="bottom"
-              />
-              <SupportLedgerSwitch
-                supportLedger={supportLedger}
-                setSupportLedger={setSupportLedger}
-              />
-            </div>
+                <CustomSwitch
+                  isOpen={supportLedger}
+                  setIsOpen={setSupportLedger}
+                />
+              </div>
+            )}
 
             <div className={`${invalid || warn ? 'block' : 'hidden'}`}>
               {invalid ? (
@@ -297,7 +302,11 @@ export function PoolSlippageSelector({
             />
           </label>
           <div className="text-gray-400">
-            <QuestionTip id={slippageCopyId} />
+            <QuestionTip
+              id={slippageCopyId}
+              width="w-60"
+              uniquenessId="slippageId"
+            />
           </div>
         </div>
 
@@ -394,7 +403,11 @@ export function StableSlipSelecter({
             />
           </label>
           <div className="">
-            <QuestionTip id={slippageCopyId} />
+            <QuestionTip
+              id={slippageCopyId}
+              width="w-60"
+              uniquenessId="slippageId2Id"
+            />
           </div>
         </div>
         <div className="flex text-white items-center">

@@ -9,7 +9,7 @@ import {
   wallet,
 } from '../services/near';
 import { ftGetStorageBalance, TokenMetadata } from '../services/ft-contract';
-import { toNonDivisibleNumber } from '../utils/numbers';
+import { toNonDivisibleNumber, toReadableNumber } from '../utils/numbers';
 import {
   ACCOUNT_MIN_STORAGE_AMOUNT,
   currentStorageBalanceOfFarm,
@@ -24,9 +24,10 @@ import {
 import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { utils } from 'near-api-js';
 import getConfig from '../services/config';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
+import { nearWithdrawTransaction, nearMetadata } from './wrap-near';
 const config = getConfig();
-const STABLE_POOL_ID = config.STABLE_POOL_ID;
+const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 
 export const LP_TOKEN_DECIMALS = 24;
 export const LP_STABLE_TOKEN_DECIMALS = 18;
@@ -35,7 +36,7 @@ export const FARM_STORAGE_BALANCE = '0.045';
 export const checkTokenNeedsStorageDeposit = async (page?: string) => {
   let storageNeeded: math.MathType = 0;
   const balance = await currentStorageBalanceOfFarm(
-    getCurrentWallet().wallet.getAccountId()
+    getCurrentWallet()?.wallet?.getAccountId()
   );
 
   if (!balance) {
@@ -75,10 +76,9 @@ export const stake = async ({
           args: {
             receiver_id: REF_FARM_CONTRACT_ID,
             token_id: token_id,
-            amount:
-              STABLE_POOL_ID == poolId
-                ? toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount)
-                : toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
+            amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+              ? toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+              : toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
             msg,
           },
           amount: ONE_YOCTO_NEAR,
@@ -119,10 +119,9 @@ export const unstake = async ({
           methodName: 'withdraw_seed',
           args: {
             seed_id: seed_id,
-            amount:
-              STABLE_POOL_ID == poolId
-                ? toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount)
-                : toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
+            amount: new Set(STABLE_POOL_IDS || []).has(poolId?.toString())
+              ? toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount)
+              : toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount),
             msg,
           },
           amount: ONE_YOCTO_NEAR,
@@ -225,7 +224,7 @@ export const withdrawAllReward = async (
   });
   const resolvedBalanceList = await Promise.all(ftBalancePromiseList);
   resolvedBalanceList.forEach((ftBalance, index) => {
-    if (!ftBalance || ftBalance.total === '0') {
+    if (!ftBalance) {
       transactions.unshift({
         receiverId: token_id_list[index],
         functionCalls: [
@@ -242,5 +241,17 @@ export const withdrawAllReward = async (
     receiverId: REF_FARM_CONTRACT_ID,
     functionCalls,
   });
+
+  if (Object.keys(checkedList).includes(WRAP_NEAR_CONTRACT_ID)) {
+    transactions.push(
+      nearWithdrawTransaction(
+        toReadableNumber(
+          nearMetadata.decimals,
+          checkedList[WRAP_NEAR_CONTRACT_ID].value
+        )
+      )
+    );
+  }
+
   return executeFarmMultipleTransactions(transactions);
 };

@@ -15,6 +15,7 @@ interface TokenListProps {
   onClick?: (token: TokenMetadata) => void;
   balances?: TokenBalancesView;
   tokenPriceList: Record<string, any>;
+  forCross?: boolean;
 }
 
 export default function Table({
@@ -25,11 +26,12 @@ export default function Table({
   onClick,
   balances,
   tokenPriceList,
+  forCross,
 }: TokenListProps) {
   return (
     tokens.length > 0 && (
       <table className="text-left w-full text-sm text-gray-400 mt-10 table-auto">
-        <thead
+        <div
           className="sticky -top-6 z-30 text-primaryText"
           style={{ background: 'rgb(29, 41, 50)' }}
         >
@@ -40,17 +42,30 @@ export default function Table({
               }`}
             >
               <span className="">
-                <FormattedMessage id="asset_label" defaultMessage="Asset" />
+                {forCross ? (
+                  <FormattedMessage id="Token" defaultMessage="Token" />
+                ) : (
+                  <FormattedMessage id="asset_label" defaultMessage="Asset" />
+                )}
               </span>
             </th>
+            <th
+              className={
+                !forCross
+                  ? 'hidden'
+                  : 'pb-2 w-1/5 font-normal relative lg:right-4'
+              }
+            >
+              <span>
+                <FormattedMessage id="support" defaultMessage="Support" />
+              </span>
+            </th>
+
             <th className={`font-normal pb-2 pr-9 w-1/5 `}>
               <span
                 className="cursor-pointer flex justify-end items-center whitespace-nowrap"
                 onClick={() => onSortChange('near')}
               >
-                <span className="self-start">
-                  <SmallWallet forSelectToken />
-                </span>
                 <span className="ml-1">
                   <FormattedMessage id="balance" />
                 </span>
@@ -64,25 +79,27 @@ export default function Table({
               </span>
             </th>
           </tr>
-        </thead>
-        <tbody>
-          {tokens.filter(Boolean).map((token, index) => (
-            <Token
-              index={index}
-              key={token.id}
-              token={token}
-              onClick={onClick}
-              price={tokenPriceList[token.id]?.price}
-              // render={render}
-              sortBy={sortBy}
-              totalAmount={
-                balances
-                  ? toReadableNumber(token.decimals, balances[token.id])
-                  : ''
-              }
-            />
-          ))}
-        </tbody>
+        </div>
+        <div>
+          {tokens
+            .filter((token) => !!token)
+            .map((token, index) => (
+              <Token
+                index={index}
+                key={token.id}
+                onClick={onClick}
+                token={token}
+                price={tokenPriceList?.[token.id]?.price}
+                sortBy={sortBy}
+                forCross={forCross}
+                totalAmount={
+                  balances
+                    ? toReadableNumber(token.decimals, balances[token.id])
+                    : ''
+                }
+              />
+            ))}
+        </div>
       </table>
     )
   );

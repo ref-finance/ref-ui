@@ -4,21 +4,21 @@ import ReactTooltip from 'react-tooltip';
 import { wallet } from '~services/near';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import { FormattedMessage, useIntl } from 'react-intl';
-import Alert from '~components/alert/Alert';
+import Alert from '../../components/alert/Alert';
 import {
   ButtonTextWrapper,
   ConnectToNearBtn,
   SolidButton,
-} from '~components/button/Button';
-import { Card } from '~components/card/Card';
-import InputAmount from '~components/forms/InputAmount';
+} from '../../components/button/Button';
+import { Card } from '../../components/card/Card';
+import InputAmount from '../../components/forms/InputAmount';
 import QuestionMark from '~components/farm/QuestionMark';
 
 import {
   PoolSlippageSelector,
   StableSlipSelecter,
-} from '~components/forms/SlippageSelector';
-import { TokenMetadata } from '~services/ft-contract';
+} from '../../components/forms/SlippageSelector';
+import { TokenMetadata } from '../../services/ft-contract';
 import {
   Pool,
   predictRemoveLiquidity,
@@ -26,14 +26,13 @@ import {
   removeLiquidityByTokensFromStablePool,
   removeLiquidityFromPool,
   StablePool,
-} from '~services/pool';
+} from '../../services/pool';
 import {
   GetAmountToBalances,
   getRemoveLiquidityByShare,
-} from '~services/stable-swap';
-import { TokenBalancesView } from '~services/token';
-import { usePredictRemoveShares, useRemoveLiquidity } from '~state/pool';
-import { useCanFarm, useFarmStake } from '~state/farm';
+} from '../../services/stable-swap';
+import { TokenBalancesView } from '../../services/token';
+import { usePredictRemoveShares, useRemoveLiquidity } from '../../state/pool';
 import {
   percent,
   percentLess,
@@ -46,7 +45,7 @@ import {
   toRoundedReadableNumber,
   percentIncrese,
   scientificNotationToString,
-} from '~utils/numbers';
+} from '../../utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 import { InfoLine } from './LiquidityComponents';
@@ -56,35 +55,59 @@ import StableTokenList, {
 } from './StableTokenList';
 import { ShareInFarm } from '~components/layout/ShareInFarm';
 import { Link } from 'react-router-dom';
-import { LP_STABLE_TOKEN_DECIMALS, LP_TOKEN_DECIMALS } from '~services/m-token';
-import { QuestionTip } from '~components/layout/TipWrapper';
-import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
+import {
+  LP_STABLE_TOKEN_DECIMALS,
+  LP_TOKEN_DECIMALS,
+} from '../../services/m-token';
+import { QuestionTip } from '../../components/layout/TipWrapper';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { percentOfBigNumber } from '../../utils/numbers';
+import SquareRadio from '../radio/SquareRadio';
+import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
+import { useTokenBalances } from '../../state/token';
+import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
+import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_REMOVE_LIQUIDITY_SLIPPAGE_VALUE';
 
 export function shareToUserTotal({
   shares,
   userTotalShare,
+  pool,
+  haveFarm,
 }: {
   shares: string;
   userTotalShare: BigNumber;
+  stakeList?: Record<string, string>;
+  pool?: Pool;
+  haveFarm: boolean;
 }) {
   return (
     <div className="text-xs">
       <span className="text-white">
-        {toRoundedReadableNumber({
-          decimals: STABLE_LP_TOKEN_DECIMALS,
-          number: shares,
-          precision: 3,
-        })}
+        {getCurrentWallet()?.wallet?.isSignedIn()
+          ? toRoundedReadableNumber({
+              decimals: getStablePoolDecimal(pool?.id),
+              number: shares,
+              precision: 3,
+            })
+          : '- '}
       </span>
 
-      <span className="text-primaryText">{` / ${toRoundedReadableNumber({
-        decimals: STABLE_LP_TOKEN_DECIMALS,
-        number: scientificNotationToString(userTotalShare.toExponential()),
-        precision: 3,
-      })}`}</span>
+      <span className={`text-primaryText ${!haveFarm ? 'hidden' : ''}`}>
+        {getCurrentWallet()?.wallet?.isSignedIn()
+          ? ` / ${toRoundedReadableNumber({
+              decimals: getStablePoolDecimal(pool?.id),
+              number: scientificNotationToString(
+                userTotalShare.toExponential()
+              ),
+              precision: 3,
+            })}`
+          : '/ -'}
+      </span>
     </div>
   );
 }
@@ -94,12 +117,12 @@ export function RemoveLiquidityComponent(props: {
   balances: TokenBalancesView;
   tokens: TokenMetadata[];
   pool: Pool;
-  stakeList: Record<string, string>;
   stablePool: StablePool;
+  changeAction?: (actionName: string) => void;
 }) {
   const [slippageInvalid, setSlippageInvalid] = useState(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-  const { shares, tokens, pool, stakeList, stablePool } = props;
+  const { shares, tokens, pool, stablePool, changeAction } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -116,15 +139,8 @@ export function RemoveLiquidityComponent(props: {
   const [receiveAmounts, setReceiveAmounts] = useState<string[]>(['', '', '']);
   const intl = useIntl();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
-
-  const canFarm = useCanFarm(pool.id);
-
-  const farmStake = useFarmStake({
-    poolId: pool.id,
-    stakeList,
-  });
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const byShareRangeRef = useRef(null);
 
@@ -135,9 +151,7 @@ export function RemoveLiquidityComponent(props: {
   ];
 
   const { predictedRemoveShares, canSubmitByToken } = usePredictRemoveShares({
-    pool_id: pool.id,
     amounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
-    tokens,
     setError,
     shares,
     stablePool,
@@ -250,8 +264,6 @@ export function RemoveLiquidityComponent(props: {
     byShareRangeRef.current.style.backgroundSize = `${sharePercentage}% 100%`;
   }, [sharePercentage]);
 
-  const userTotalShare = BigNumber.sum(shares, farmStake);
-
   const canSubmit =
     ((isPercentage && canSubmitByShare) ||
       (!isPercentage && canSubmitByToken)) &&
@@ -271,51 +283,21 @@ export function RemoveLiquidityComponent(props: {
 
   return (
     <Card
-      padding="py-6 px-0"
+      padding="pt-6 px-0 pb-16"
       bgcolor="bg-cardBg"
       className="text-white outline-none w-full "
     >
-      <div className="text-xl pb-4 px-8">
-        <FormattedMessage
-          id="remove_liquidity"
-          defaultMessage="Remove Liquidity"
-        />
-      </div>
-
-      <div className=" text-white flex items-center justify-between text-xs px-8 pb-6 xs:items-start md:items-start">
-        <span className="text-primaryText flex items-center">
-          <FormattedMessage id="my_shares" defaultMessage="Shares" />
-          <QuestionTip id="shares_tip" />
-        </span>
-        <div className="flex items-center xs:flex-col md:flex-col xs:items-end md:items-end">
-          <span>
-            {shareToUserTotal({
-              shares,
-              userTotalShare,
-            })}{' '}
-          </span>
-          {canFarm > 0 && (
-            <Link
-              className="ml-2 xs:mt-2 md:mt-2"
-              to={{
-                pathname: '/farms',
-              }}
-              target="_blank"
-            >
-              <ShareInFarm
-                userTotalShare={userTotalShare}
-                farmStake={farmStake}
-                forStable
-              />
-            </Link>
-          )}
-        </div>
-      </div>
+      <SquareRadio
+        onChange={changeAction}
+        radios={DEFAULT_ACTIONS}
+        currentChoose={'remove_liquidity'}
+        poolId={pool.id}
+      />
 
       <div className="flex bg-inputDarkBg rounded text-white mx-8 xs:mx-5 md:mx-5 p-1.5 mb-8">
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
-            isPercentage ? 'bg-framBorder' : ''
+            isPercentage ? 'bg-stableTab' : ''
           }  h-9 xs:h-7 md:h-7`}
           onClick={() => setIsPercentage(true)}
         >
@@ -325,7 +307,7 @@ export function RemoveLiquidityComponent(props: {
 
         <div
           className={`flex justify-center items-center w-2/4 rounded cursor-pointer ${
-            !isPercentage ? 'bg-framBorder' : ''
+            !isPercentage ? 'bg-stableTab' : ''
           }  h-9 xs:h-7 md:h-7`}
           onClick={() => setIsPercentage(false)}
         >
@@ -468,7 +450,7 @@ export function RemoveLiquidityComponent(props: {
 
         {isSignedIn ? (
           <SolidButton
-            disabled={!canSubmit}
+            disabled={!canSubmit || buttonLoading}
             className={`focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
               if (canSubmit) {

@@ -18,6 +18,12 @@ import {
   WrapNearEnter,
   IconAirDropGreenTip,
   WrapNearIconDark,
+  UkIcon,
+  RuIcon,
+  JaIcon,
+  KoIcon,
+  EsIcon,
+  NavLogoSimple,
 } from '~components/icon';
 import { WNEARExchngeIcon } from '~components/icon/Common';
 import { Link, useLocation } from 'react-router-dom';
@@ -44,11 +50,32 @@ import {
   SignoutIcon,
 } from '~components/icon/Common';
 
-import { WalletContext } from '~utils/sender-wallet';
+import { WalletContext } from '../../utils/wallets-integration';
 
 const config = getConfig();
 import { isMobile } from '~utils/device';
-import { getCurrentWallet, getAccountName } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  getAccountName,
+} from '../../utils/wallets-integration';
+import { FarmDot } from '../icon/FarmStamp';
+import {
+  AccountTipDownByAccountID,
+  AuroraEntry,
+  USNCard,
+} from './NavigationBar';
+import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
+import USNBuyComponent from '~components/forms/USNBuyComponent';
+import USNPage from '~components/usn/USNPage';
+import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
+import Marquee from '~components/layout/Marquee';
+import {
+  useWalletSelector,
+  ACCOUNT_ID_KEY,
+} from '../../context/WalletSelectorContext';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { openTransak } from '../alert/Transak';
+import { BuyNearButton } from '../button/Button';
 
 export function MobileAnchor({
   to,
@@ -149,6 +176,61 @@ export function MobileSwitchLanguage() {
           </span>
           Việt
         </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'uk' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('uk')}
+        >
+          <span className="text-2xl mr-5">
+            <UkIcon />
+          </span>
+          Українська
+        </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'ru' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('ru')}
+        >
+          <span className="text-2xl mr-5">
+            <RuIcon />
+          </span>
+          Pусский
+        </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'ja' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('ja')}
+        >
+          <span className="text-2xl mr-5">
+            <JaIcon />
+          </span>
+          日本語
+        </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'ko' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('ko')}
+        >
+          <span className="text-2xl mr-5">
+            <KoIcon />
+          </span>
+          한국어
+        </div>
+        <div
+          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
+            currentLocal === 'es' ? 'text-white' : 'text-primaryText '
+          }`}
+          onClick={() => context.selectLanguage('es')}
+        >
+          <span className="text-2xl mr-5">
+            <EsIcon />
+          </span>
+          Español
+        </div>
       </div>
     </div>
   );
@@ -163,8 +245,10 @@ export function Logout() {
         className={
           'whitespace-nowrap flex text-lg text-left p-4 text-primaryText bg-cardBg'
         }
-        onClick={() => {
-          wallet.signOut();
+        onClick={async () => {
+          (await wallet.wallet()).signOut();
+          localStorage.removeItem(ACCOUNT_ID_KEY);
+
           window.location.assign('/');
         }}
       >
@@ -181,13 +265,21 @@ export function AccountModel(props: any) {
 
   const { wallet } = getCurrentWallet();
 
+  const { hasBalanceOnRefAccount } = props;
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
   const accountList = [
     {
       icon: <AccountIcon />,
-      textId: 'view_account',
+      textId: 'your_assets',
       selected: location.pathname == '/account',
       click: () => {
-        history.push('/account');
+        if (location.pathname == '/account') {
+          localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+          window.location.reload();
+        } else {
+          history.push('/account?tab=ref');
+        }
       },
     },
     {
@@ -203,18 +295,38 @@ export function AccountModel(props: any) {
       textId: 'go_to_near_wallet',
       subIcon: <HiOutlineExternalLink />,
       click: () => {
-        window.open(config.walletUrl, '_blank');
-      },
-    },
-    {
-      icon: <SignoutIcon />,
-      textId: 'sign_out',
-      click: () => {
-        wallet.signOut();
-        window.location.assign('/');
+        window.open(
+          selector.store.getState().selectedWalletId === 'my-near-wallet'
+            ? config.myNearWalletUrl
+            : config.walletUrl,
+          '_blank'
+        );
       },
     },
   ];
+
+  const [currentWalletName, setCurrentWalletName] = useState<string>();
+
+  const [currentWalletIcon, setCurrentWalletIcon] = useState<string>();
+  const signOut = async () => {
+    const curWallet = await wallet.wallet();
+
+    await curWallet.signOut();
+
+    localStorage.removeItem(ACCOUNT_ID_KEY);
+
+    window.location.assign('/');
+  };
+
+  useEffect(() => {
+    wallet.wallet().then((res) => {
+      setCurrentWalletName(res.metadata.name);
+      setCurrentWalletIcon(res.metadata.iconUrl);
+    });
+  }, [accountId]);
+
+  const [copyIconHover, setCopyIconHover] = useState<boolean>(false);
+
   const handleClick = (e: any) => {
     if (!accountWrapRef.current.contains(e.target)) {
       props.closeAccount();
@@ -234,34 +346,130 @@ export function AccountModel(props: any) {
       style={{
         backdropFilter: 'blur(15px)',
         WebkitBackdropFilter: 'blur(15px)',
-        top: '4.2rem',
+        top:
+          hasBalanceOnRefAccount && window.location.pathname !== '/account'
+            ? '6.3rem'
+            : '4.2rem',
       }}
     >
       <div className="w-full bg-cardBg" ref={accountWrapRef}>
+        <div className="mx-7 pt-4 flex justify-between items-start">
+          <div className="text-white text-lg text-left flex-col flex">
+            <span>{getAccountName(wallet.getAccountId())}</span>
+
+            <span className="flex items-center ">
+              <span className="mr-1">
+                {!currentWalletIcon ? (
+                  <div className="w-3 h-3"></div>
+                ) : (
+                  <img src={currentWalletIcon} className="w-3 h-3" alt="" />
+                )}
+              </span>
+              <span className="text-xs text-primaryText">
+                {currentWalletName || '-'}
+              </span>
+            </span>
+          </div>
+
+          <div className="flex items-center">
+            <CopyToClipboard text={wallet.getAccountId()}>
+              <div
+                className={`bg-black bg-opacity-30  rounded-xl flex items-center justify-center p-1 cursor-pointer`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                onTouchStart={() => {
+                  setCopyIconHover(true);
+                }}
+                onTouchEnd={() => {
+                  setCopyIconHover(false);
+                }}
+              >
+                <CopyIcon fillColor={copyIconHover ? '#4075FF' : '#7E8A93'} />
+              </div>
+            </CopyToClipboard>
+
+            <button
+              className="hover:text-gradientFrom text-primaryText w-6 h-6 flex items-center justify-center ml-2 p-0.5 rounded-xl bg-black bg-opacity-30"
+              onClick={() => {
+                window.open(
+                  `https://${
+                    getConfig().networkId === 'testnet' ? 'testnet.' : ''
+                  }nearblocks.io/address/${wallet.getAccountId()}#transaction`
+                );
+              }}
+            >
+              <HiOutlineExternalLink size={18} />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex mx-7 my-3 items-center text-xs justify-center">
+          <button
+            className="text-BTCColor mr-2 w-1/2 py-2.5 border rounded-lg hover:border-transparent hover:bg-BTCColor hover:bg-opacity-20 border-BTCColor border-opacity-30"
+            onClick={() => {
+              signOut();
+            }}
+          >
+            <FormattedMessage id="disconnect" defaultMessage={'Disconnect'} />
+          </button>
+
+          <button
+            className="text-gradientFrom ml-2 w-1/2 py-2.5 border rounded-lg hover:border-transparent hover:bg-gradientFrom hover:bg-opacity-20 border-gradientFrom border-opacity-30"
+            onClick={async () => {
+              modal.show();
+            }}
+          >
+            <FormattedMessage id="change" defaultMessage={'Change'} />
+          </button>
+        </div>
+
         {accountList.map((item, index) => {
           return (
-            <div
-              onClick={() => {
-                item.click();
-                props.closeAccount();
-              }}
-              key={item.textId + index}
-              className={`flex items-center text-base cursor-pointer font-semibold py-4 pl-20 hover:text-white hover:bg-navHighLightBg ${
-                item.selected
-                  ? 'text-white bg-navHighLightBg'
-                  : 'text-primaryText'
-              }`}
-            >
-              <label className="w-9 text-left cursor-pointer">
-                {item.icon}
-              </label>
-              <label className="cursor-pointer">
-                <FormattedMessage id={item.textId}></FormattedMessage>
-              </label>
-              {item.subIcon ? (
-                <label className="text-lg ml-2">{item.subIcon}</label>
+            <>
+              <div
+                onClick={() => {
+                  item.click();
+                  props.closeAccount();
+                }}
+                key={item.textId + index}
+                className={`flex items-center text-base cursor-pointer font-semibold py-4 pl-20 hover:text-white hover:bg-navHighLightBg ${
+                  item.selected
+                    ? 'text-white bg-navHighLightBg'
+                    : 'text-primaryText'
+                }`}
+              >
+                <label className="w-9 text-left cursor-pointer">
+                  {item.icon}
+                </label>
+                <label className="cursor-pointer">
+                  <FormattedMessage id={item.textId}></FormattedMessage>
+                </label>
+                <label htmlFor="" className="ml-1.5">
+                  {item.textId === 'your_assets' && hasBalanceOnRefAccount ? (
+                    <FarmDot inFarm={hasBalanceOnRefAccount} />
+                  ) : null}
+                </label>
+
+                {item.subIcon ? (
+                  <label className="text-lg ml-2">{item.subIcon}</label>
+                ) : null}
+              </div>
+              {hasBalanceOnRefAccount && item.textId === 'your_assets' ? (
+                <div
+                  className="text-center py-0.5 font-normal bg-gradientFrom w-full cursor-pointer text-xs"
+                  onClick={item.click}
+                  style={{
+                    color: '#001320',
+                  }}
+                >
+                  <FormattedMessage
+                    id="ref_account_tip_2"
+                    defaultMessage="You have token(s) in your REF Account"
+                  />
+                </div>
               ) : null}
-            </div>
+            </>
           );
         })}
       </div>
@@ -276,13 +484,41 @@ export function MobileNavBar(props: any) {
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [openMenu, setOpenMenu] = useState('');
   const [closeMenu, setCloseMenu] = useState(false);
-  const history = useHistory();
+  // const history = useHistory();
   const [mobileWrapNear, setMobileWrapNear] = useState(false);
   // const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const [pathnameState, setPathnameState] = useState<boolean>(
+    window.location.pathname !== '/account'
+  );
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
 
-  const { setShowWalletSelector, showWalletSelector } = props;
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const {
+    setShowWalletSelector,
+    showWalletSelector,
+    hasBalanceOnRefAccount,
+    hasAuroraBalance,
+  } = props;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+
+  const [showTip, setShowTip] = useState<boolean>(false);
+  const [USNButtonHover, setUSNButtonHover] = useState<boolean>(false);
+  const [showUSN, setShowUSN] = useState<boolean>(false);
+
+  const [showeBorrowCard, setShowBorrowCard] = useState(false);
+
+  useEffect(() => {
+    setShowTip(hasBalanceOnRefAccount);
+  }, [hasBalanceOnRefAccount]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTip(false);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [showTip]);
 
   const { wallet } = getCurrentWallet();
 
@@ -296,9 +532,37 @@ export function MobileNavBar(props: any) {
     document.addEventListener('click', handleClick, false);
 
     return () => {
-      document.addEventListener('click', handleClick, false);
+      document.removeEventListener('click', () => {}, false);
     };
   }, []);
+  const setPatheState = () =>
+    setPathnameState(window.location.pathname !== '/account');
+
+  useEffect(() => {
+    const _historyWrap = function (type: any) {
+      const orig = history[type];
+      const e = new Event(type);
+      return function () {
+        const rv = orig.apply(this, arguments);
+        //@ts-ignore
+        e.arguments = arguments;
+        window.dispatchEvent(e);
+        return rv;
+      };
+    };
+    history.pushState = _historyWrap('pushState');
+    history.replaceState = _historyWrap('replaceState');
+    window.addEventListener('popstate', (e) => {
+      setPatheState();
+    });
+    window.addEventListener('pushState', function (e) {
+      setPatheState();
+    });
+    window.addEventListener('replaceState', function (e) {
+      setPatheState();
+    });
+  }, []);
+
   useEffect(() => {
     if (mobileWrapNear) {
       document.body.style.overflow = 'hidden';
@@ -325,23 +589,23 @@ export function MobileNavBar(props: any) {
     }
   }, [show]);
 
-  if (isSignedIn) {
-    moreLinks[2].children[2] = {
-      id: 'Your_Liquidity',
-      label: 'Your Liquidity',
-      url: '/pools/yours',
-      pattern: '/pools/yours',
-      isExternal: false,
-      logo: <IconMyLiquidity />,
-    };
-  }
+  // if (isSignedIn) {
+  //   moreLinks[2].children[2] = {
+  //     id: 'Your_Liquidity',
+  //     label: 'Your Liquidity',
+  //     url: '/pools/yours',
+  //     pattern: '/pools/yours',
+  //     isExternal: false,
+  //     logo: <IconMyLiquidity />,
+  //   };
+  // }
 
   function close() {
     setShow(false);
   }
   function handleMenuClick(url: string, label: string, isExternal: boolean) {
     if (url) {
-      isExternal ? window.open(url) : history.push(url);
+      isExternal ? window.open(url) : window.open(url, '_self');
       close();
     } else if (openMenu === label) {
       setCloseMenu(!closeMenu);
@@ -351,90 +615,150 @@ export function MobileNavBar(props: any) {
     }
   }
   return (
-    <div
-      className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
-      style={{
-        zIndex: show ? 200 : 51,
-      }}
-    >
-      <div className="flex items-center text-2xl text-white justify-between p-4">
-        <NavLogo />
-        <div className="flex">
-          <div
-            className={`inline-flex px-1 mr-2 items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
-              isSignedIn
-                ? 'bg-gray-700 text-white'
-                : 'border border-gradientFrom text-gradientFrom'
-            } pl-3 pr-3`}
-          >
-            <div className="pr-1">
-              <Near color={isSignedIn ? 'white' : '#00c6a2'} />
-            </div>
-            <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name">
-              {isSignedIn ? (
-                <div
-                  className="flex items-center"
-                  onClick={() => {
-                    setAccountVisible(!accountVisible);
-                  }}
-                >
-                  <div>{getAccountName(wallet.getAccountId())}</div>
-                  {accountVisible ? (
-                    <FiChevronUp className="text-base ml-1" />
-                  ) : (
-                    <FiChevronDown className="text-base ml-1" />
-                  )}
-                </div>
-              ) : (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowWalletSelector(true);
-                  }}
-                  type="button"
-                >
-                  <span className="ml-2 text-xs">
-                    <FormattedMessage
-                      id="connect_to_near"
-                      defaultMessage="Connect to NEAR"
-                    />
-                  </span>
-                </button>
-              )}
-            </div>
-          </div>
-          <span ref={iconRef} onClick={() => setShow(true)}>
-            <HiMenu />
-          </span>
-        </div>
+    <>
+      <div
+        className={`${
+          hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
+        } text-xs py-1.5 px-2 lg:hidden text-center`}
+        style={{
+          backgroundColor: '#CFCEFE',
+          zIndex: 100,
+        }}
+      >
+        👀 &nbsp;
+        <FormattedMessage
+          id="ref_account_balance_tip_mobile"
+          defaultMessage="You have tokens in your ref account."
+        />
+        {` `}
+        <span
+          className={`font-bold underline cursor-pointer mx-1`}
+          onClick={() => window.open('/account?tab=ref', '_blank')}
+        >
+          <FormattedMessage id="click" defaultMessage="Click" />
+        </span>
+        <FormattedMessage id="to_recover" defaultMessage="to recover." />
       </div>
       <div
-        className={`fixed top-0 bottom-0 left-0 z-20 w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
-          show ? 'block' : 'hidden'
-        }`}
+        className="nav-wrap lg:hidden md:show relative xs:mb-6 md:mb-6"
+        style={{
+          zIndex: show ? 200 : 51,
+        }}
       >
-        <div
-          ref={popupRef}
-          className="block h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl"
-        >
-          <div className="p-4 flex text-white items-center justify-start">
-            <NavLogoLarge />
-            <span className="inline-block ml-2 mt-1 text-white">
-              ${data && data !== '-' ? toPrecision(data, 2) : '-'}
+        {showTip ? <AccountTipDownByAccountID show={showTip} /> : null}
+        <div className="flex items-center text-2xl text-white justify-between p-4">
+          <NavLogoSimple
+            onClick={() => {
+              window.open('https://www.ref.finance/');
+            }}
+          />
+          <div className="flex">
+            <div
+              className={`flex px-1 mr-px items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
+                isSignedIn
+                  ? 'bg-gray-700 text-white'
+                  : 'border border-gradientFrom text-gradientFrom'
+              } pl-3 pr-3`}
+            >
+              <div className="pr-1">
+                <Near color={isSignedIn ? 'white' : '#00c6a2'} />
+              </div>
+              <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name relative">
+                {isSignedIn ? (
+                  <div
+                    className="flex items-center"
+                    onClick={() => {
+                      setAccountVisible(!accountVisible);
+                      setShowTip(false);
+                    }}
+                  >
+                    <div>{getAccountName(wallet.getAccountId())}</div>
+
+                    {hasBalanceOnRefAccount ? (
+                      <span className="ml-1.5">
+                        <FarmDot inFarm={hasBalanceOnRefAccount} />
+                      </span>
+                    ) : null}
+
+                    {accountVisible ? (
+                      <FiChevronUp className="text-base ml-1" />
+                    ) : (
+                      <FiChevronDown className="text-base ml-1" />
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      // setShowWalletSelector(true);
+                      modal.show();
+                    }}
+                    type="button"
+                  >
+                    <span className="ml-2 text-xs">
+                      <FormattedMessage
+                        id="connect_to_near"
+                        defaultMessage="Connect to NEAR"
+                      />
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className={!isSignedIn ? 'hidden' : ' flex items-center mr-2'}>
+              <ConnectDot />
+              <ConnectDot />
+
+              <AuroraEntry
+                hasBalanceOnAurora={hasAuroraBalance}
+                extraClick={() => setAccountVisible(false)}
+              />
+            </div>
+            <span ref={iconRef} onClick={() => setShow(true)}>
+              <HiMenu />
             </span>
           </div>
-          <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
-            {isSignedIn && (
+        </div>
+        <div
+          className={`fixed top-0 bottom-0 left-0 z-20 w-full bg-black bg-opacity-30 backdrop-blur-lg filter-blur backdrop-filter overflow-auto ${
+            show ? 'block' : 'hidden'
+          }`}
+          style={{
+            zIndex: '80',
+          }}
+        >
+          <div
+            ref={popupRef}
+            className="block h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl z-30"
+          >
+            <div className="p-4 flex text-white items-center justify-start">
+              <NavLogoLarge />
+              <span className="inline-block ml-2 mt-1 text-white">
+                ${data && data !== '-' ? toPrecision(data, 2) : '-'}
+              </span>
+            </div>
+            <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
               <div className="text-primaryText" onClick={() => setShow(false)}>
                 <div
-                  className="flex p-4 justify-between items-center"
-                  onClick={() => setMobileWrapNear(true)}
+                  className={`flex flex-col p-4 `}
+                  onClick={() => {
+                    setMobileWrapNear(true);
+                    setShowUSN(false);
+                    setShowBorrowCard(false);
+                  }}
                 >
-                  <WNEARExchngeIcon width="75" height="32" />
-                  <span className="text-sm">
-                    NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
-                  </span>
+                  {!isSignedIn ? null : (
+                    <span className="text-sm mb-2">
+                      NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
+                    </span>
+                  )}
+
+                  <div className={`flex items-center ${isSignedIn ? '' : ''}`}>
+                    <BuyNearButton />
+                    {isSignedIn && <WNEARExchngeIcon width="75" height="32" />}
+                  </div>
                 </div>
                 <WrapNear
                   isOpen={mobileWrapNear}
@@ -453,169 +777,260 @@ export function MobileNavBar(props: any) {
                   }}
                 />
               </div>
-            )}
-            {moreLinks.map(
-              ({
-                id,
-                label,
-                subRoute,
-                pattern,
-                url,
-                isExternal,
-                children,
-                newFunction,
-                showIcon,
-                iconElement,
-              }) => {
-                let location = useLocation();
-                let isSelected = subRoute
-                  ? subRoute.includes(location.pathname)
-                  : matchPath(location.pathname, {
-                      path: pattern,
-                      exact: true,
-                      strict: false,
-                    });
-                if (
-                  location.pathname.startsWith('/pool/') ||
-                  location.pathname.startsWith('/more_pools/')
-                ) {
-                  if (id === 'pools') {
-                    isSelected = true;
+              <MobileUSNButton
+                setShow={setShow}
+                setMobileWrapNear={setMobileWrapNear}
+                showUSN={showUSN}
+                setShowBorrowCard={setShowBorrowCard}
+                showeBorrowCard={showeBorrowCard}
+                setShowUSN={setShowUSN}
+              />
+              {moreLinks.map(
+                ({
+                  id,
+                  label,
+                  subRoute,
+                  pattern,
+                  url,
+                  isExternal,
+                  children,
+                  newFunction,
+                  showIcon,
+                  iconElement,
+                  hidden,
+                }) => {
+                  if (hidden) return null;
+                  let location = useLocation();
+                  let isSelected = subRoute
+                    ? subRoute.includes(location.pathname)
+                    : matchPath(location.pathname, {
+                        path: pattern,
+                        exact: true,
+                        strict: false,
+                      });
+                  if (
+                    location.pathname.startsWith('/pools') ||
+                    location.pathname.startsWith('/pool') ||
+                    location.pathname.startsWith('/more_pools')
+                  ) {
+                    if (id === 'POOL') {
+                      isSelected = true;
+                    }
                   }
-                }
-                return (
-                  <div key={id}>
-                    <div
-                      className={`flex p-4 items-center text-lg justify-between ${
-                        isSelected
-                          ? !children
-                            ? 'bg-navHighLightBg text-white'
-                            : 'text-white'
-                          : 'text-primaryText'
-                      }`}
-                      onClick={() => handleMenuClick(url, label, isExternal)}
-                    >
-                      {showIcon ? (
-                        <span
-                          className={`py-2 ${
-                            isSelected ? 'opacity-100' : 'opacity-50'
+                  let targetUrl = url;
+                  if (url.startsWith('/pools') && isSignedIn) {
+                    targetUrl = '/pools/yours';
+                  }
+                  return (
+                    <div key={id}>
+                      <div
+                        className={`flex p-4 items-center text-lg justify-between ${
+                          isSelected
+                            ? !children
+                              ? 'bg-navHighLightBg text-white'
+                              : 'text-white'
+                            : 'text-primaryText'
+                        }`}
+                        onClick={() =>
+                          handleMenuClick(targetUrl, label, isExternal)
+                        }
+                      >
+                        {showIcon ? (
+                          <span
+                            className={`py-2 ${
+                              isSelected ? 'opacity-100' : 'opacity-50'
+                            }`}
+                          >
+                            {iconElement}
+                          </span>
+                        ) : (
+                          <div className={`link relative`}>
+                            <FormattedMessage id={id} defaultMessage={label} />
+                            {newFunction ? (
+                              <span className="absolute top-1 -right-2">
+                                <IconAirDropGreenTip />
+                              </span>
+                            ) : null}
+                          </div>
+                        )}
+                        {children && (
+                          <span>
+                            <FiChevronUp
+                              className={`${
+                                openMenu === label && closeMenu
+                                  ? 'inline-block'
+                                  : 'hidden'
+                              } text-xl`}
+                            />
+                            <FiChevronDown
+                              className={`${
+                                openMenu !== label || !closeMenu
+                                  ? 'inline-block'
+                                  : 'hidden'
+                              } text-xl`}
+                            />
+                          </span>
+                        )}
+                      </div>
+                      {children && (
+                        <div
+                          className={`${
+                            openMenu === label && closeMenu ? 'block' : 'hidden'
                           }`}
                         >
-                          {iconElement}
-                        </span>
-                      ) : (
-                        <div className={`link relative`}>
-                          <FormattedMessage id={id} defaultMessage={label} />
-                          {newFunction ? (
-                            <span className="absolute top-1 -right-2">
-                              <IconAirDropGreenTip />
-                            </span>
-                          ) : null}
+                          {children?.map((link) => {
+                            let isSubMenuSelected: any = matchPath(
+                              location.pathname,
+                              {
+                                path: link.pattern,
+                                exact: true,
+                                strict: false,
+                              }
+                            );
+                            if (
+                              location.pathname.startsWith('/pool/') ||
+                              location.pathname.startsWith('/more_pools/')
+                            ) {
+                              if (link.id === 'view_pools') {
+                                isSubMenuSelected = true;
+                              }
+                            }
+                            return (
+                              <div
+                                key={link.id}
+                                className={`whitespace-nowrap text-left items-center p-4 pl-2 flex justify-start ${
+                                  !link.isExternal && isSubMenuSelected
+                                    ? 'text-white bg-navHighLightBg'
+                                    : 'text-primaryText'
+                                }`}
+                                onClick={() => {
+                                  link.url && link.isExternal
+                                    ? window.open(link.url)
+                                    : window.open(link.url, '_self');
+                                  close();
+                                }}
+                              >
+                                {link.logo && (
+                                  <span className="text-xl text-left w-8 flex justify-center mr-2">
+                                    {link.logo}
+                                  </span>
+                                )}
+                                <FormattedMessage
+                                  id={link.id}
+                                  defaultMessage={link.label}
+                                />
+                                {link.tip && (
+                                  <span className="ml-2 bg-gradientFrom px-2 flex justify-center items-center text-white text-xs rounded-full">
+                                    {link.tip}
+                                  </span>
+                                )}
+
+                                {link.url && link.isExternal && (
+                                  <HiOutlineExternalLink className="float-right ml-2 text-xl opacity-60" />
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
-                      {children && (
-                        <span>
-                          <FiChevronUp
-                            className={`${
-                              openMenu === label && closeMenu
-                                ? 'inline-block'
-                                : 'hidden'
-                            } text-xl`}
-                          />
-                          <FiChevronDown
-                            className={`${
-                              openMenu !== label || !closeMenu
-                                ? 'inline-block'
-                                : 'hidden'
-                            } text-xl`}
-                          />
-                        </span>
-                      )}
                     </div>
-                    {children && (
-                      <div
-                        className={`${
-                          openMenu === label && closeMenu ? 'block' : 'hidden'
-                        }`}
-                      >
-                        {children?.map((link) => {
-                          let isSubMenuSelected: any = matchPath(
-                            location.pathname,
-                            {
-                              path: link.pattern,
-                              exact: true,
-                              strict: false,
-                            }
-                          );
-                          if (
-                            location.pathname.startsWith('/pool/') ||
-                            location.pathname.startsWith('/more_pools/')
-                          ) {
-                            if (link.id === 'view_pools') {
-                              isSubMenuSelected = true;
-                            }
-                          }
-                          return (
-                            <div
-                              key={link.id}
-                              className={`whitespace-nowrap text-left items-center p-4 pl-2 flex justify-start ${
-                                !link.isExternal && isSubMenuSelected
-                                  ? 'text-white bg-navHighLightBg'
-                                  : 'text-primaryText'
-                              }`}
-                              onClick={() => {
-                                link.url && link.isExternal
-                                  ? window.open(link.url)
-                                  : history.push(link.url);
-                                close();
-                              }}
-                            >
-                              {link.logo && (
-                                <span className="text-xl text-left w-8 flex justify-center mr-2">
-                                  {link.logo}
-                                </span>
-                              )}
-                              <FormattedMessage
-                                id={link.id}
-                                defaultMessage={link.label}
-                              />
-                              {link.tip && (
-                                <span className="ml-2 bg-gradientFrom px-2 flex justify-center items-center text-white text-xs rounded-full">
-                                  {link.tip}
-                                </span>
-                              )}
-
-                              {link.url && link.isExternal && (
-                                <HiOutlineExternalLink className="float-right ml-2 text-xl opacity-60" />
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-            )}
-            <openMenuContext.Provider value={{ openMenu, setOpenMenu }}>
-              <MobileSwitchLanguage />
-            </openMenuContext.Provider>
-          </div>
-          <div
-            className="p-4 bg-cardBg pb-16"
-            onClick={() => window.open('https://stats.ref.finance/')}
-          >
-            <RefAnalytics />
+                  );
+                }
+              )}
+              <openMenuContext.Provider value={{ openMenu, setOpenMenu }}>
+                <MobileSwitchLanguage />
+              </openMenuContext.Provider>
+            </div>
+            <div
+              className="p-4 bg-cardBg pb-16"
+              onClick={() => window.open('https://stats.ref.finance/')}
+            >
+              <RefAnalytics />
+            </div>
           </div>
         </div>
+        {accountVisible ? (
+          <AccountModel
+            hasBalanceOnRefAccount={hasBalanceOnRefAccount}
+            closeAccount={() => {
+              setAccountVisible(false);
+            }}
+          />
+        ) : null}
       </div>
-      {accountVisible ? (
-        <AccountModel
-          closeAccount={() => {
-            setAccountVisible(false);
-          }}
-        />
-      ) : null}
+      {isMobile ? <Marquee></Marquee> : null}
+    </>
+  );
+}
+
+function MobileUSNButton({
+  setShow,
+  setMobileWrapNear,
+  showUSN,
+  setShowBorrowCard,
+  showeBorrowCard,
+  setShowUSN,
+}: any) {
+  const [btnTouched, setBtcTouched] = useState<string>('');
+
+  return (
+    <div className="text-primaryText">
+      <div className="flex p-5 justify-between items-center text-sm">
+        <USNBuyComponent></USNBuyComponent>
+
+        <div className="ml-3 w-full flex items-center">
+          <button className="pr-2.5 border-r-2 border-white border-opacity-10">
+            <div
+              className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-3 py-1 ${
+                btnTouched === 'buy'
+                  ? 'border border-gradientFrom text-white'
+                  : ''
+              }`}
+              onTouchStart={(e) => {
+                setBtcTouched('buy');
+
+                setShowUSN(true);
+                setShowBorrowCard(false);
+              }}
+              onTouchEnd={(e) => {
+                setBtcTouched('');
+                setShow(false);
+                setMobileWrapNear(false);
+              }}
+            >
+              <FormattedMessage id="buy" defaultMessage="Buy" />
+            </div>
+          </button>
+
+          <button className="pl-2.5">
+            <div
+              className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-3 py-1 ${
+                btnTouched === 'borrow'
+                  ? 'border border-gradientFrom text-white'
+                  : ''
+              }`}
+              onTouchStart={(e) => {
+                setBtcTouched('borrow');
+                setShowUSN(false);
+                setShowBorrowCard(true);
+              }}
+              onTouchEnd={(e) => {
+                setBtcTouched('');
+                setShow(false);
+                setMobileWrapNear(false);
+              }}
+            >
+              <FormattedMessage id="borrow" defaultMessage="Borrow" />
+            </div>
+          </button>
+        </div>
+      </div>
+      <USNCard
+        showUSN={showUSN}
+        setShowBorrowCard={setShowBorrowCard}
+        showeBorrowCard={showeBorrowCard}
+        setShowUSN={setShowUSN}
+      />
     </div>
   );
 }

@@ -16,7 +16,6 @@ import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useTokens } from '../../state/token';
 import { TokenMetadata } from '~services/ft-contract';
-import { canFarm, Pool } from '../../services/pool';
 import { FarmButton } from '~components/button/Button';
 
 import {
@@ -31,6 +30,14 @@ import { FarmStamp } from '~components/icon/FarmStamp';
 import { divide, find } from 'lodash';
 import { WatchListStartFull } from '~components/icon/WatchListStar';
 import { scientificNotationToString } from '../../utils/numbers';
+import { usePoolsFarmCount } from '../../state/pool';
+import { useClientMobile } from '../../utils/device';
+import { PoolTab } from '../../components/pool/PoolTab';
+import Loading from '~components/layout/Loading';
+
+interface ParamTypes {
+  tokenIds: string;
+}
 
 interface LocationTypes {
   morePoolIds: string[];
@@ -39,29 +46,23 @@ interface LocationTypes {
 function PoolRow({
   pool,
   index,
-  tokens,
+  tokens: curTokens,
   watched,
   morePoolIds,
+  farmCount,
 }: {
   pool: PoolRPCView;
   index: number;
   tokens: TokenMetadata[];
   watched: Boolean;
   morePoolIds: string[];
+  farmCount: number;
 }) {
-  const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const [farmCount, setFarmCount] = useState<Number>(1);
+  const supportFarm = !!farmCount;
 
-  useEffect(() => {
-    canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(!!canFarm);
-      setFarmCount(canFarm);
-    });
-  }, [pool]);
-
-  tokens.sort((a, b) => {
-    if (a.symbol === 'wNEAR') return 1;
-    if (b.symbol === 'wNEAR') return -1;
+  const tokens = curTokens.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
 
@@ -133,24 +134,24 @@ function PoolRow({
 }
 const MobileRow = ({
   pool,
-  tokens,
+  tokens: curTokens,
   watched,
   morePoolIds,
+  farmCount,
 }: {
   pool: PoolRPCView;
   tokens: TokenMetadata[];
   watched: Boolean;
   morePoolIds: string[];
+  farmCount: number;
 }) => {
-  const [supportFarm, setSupportFarm] = useState<Boolean>(false);
-  const [farmCount, setFarmCount] = useState<Number>(1);
+  const supportFarm = !!farmCount;
 
-  useEffect(() => {
-    canFarm(pool.id).then((canFarm) => {
-      setSupportFarm(!!canFarm);
-      setFarmCount(canFarm);
-    });
-  }, [pool]);
+  const tokens = curTokens.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return a.symbol > b.symbol ? 1 : -1;
+  });
 
   return (
     <Card
@@ -243,14 +244,27 @@ export const MorePoolsPage = () => {
   const { state } = useLocation<LocationTypes>();
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState<boolean | 'desc' | 'asc'>('desc');
-  const morePoolIds = state?.morePoolIds;
-  const tokens = state?.tokens;
-  const morePools = useMorePools({ morePoolIds, order, sortBy });
+
+  const { tokenIds } = useParams<ParamTypes>();
+
+  const tokenIdsArray = tokenIds.split(',');
+
+  const tokens = state?.tokens || useTokens(tokenIdsArray);
+  const morePools = useMorePools({ tokenIds: tokenIdsArray, order, sortBy });
+  const morePoolIds = morePools?.map((p) => p.id.toString());
 
   const watchList = useAllWatchList();
 
+  const poolsFarmCount = usePoolsFarmCount({
+    morePoolIds,
+  });
+  const clientMobileDevice = useClientMobile();
+
+  if (!tokens) return <Loading />;
+
   return (
     <>
+      <PoolTab></PoolTab>
       {/* PC */}
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
         <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">
@@ -356,6 +370,7 @@ export const MorePoolsPage = () => {
                     tokens={tokens}
                     watched={!!find(watchList, { pool_id: pool.id.toString() })}
                     morePoolIds={morePoolIds}
+                    farmCount={poolsFarmCount[pool.id]}
                   />
                 </div>
               ))}
@@ -364,55 +379,60 @@ export const MorePoolsPage = () => {
         </Card>
       </div>
       {/* Mobile */}
-      <div className="w-11/12 lg:hidden m-auto text-white">
-        <BreadCrumb
-          routes={[
-            {
-              id: 'top_pools',
-              msg: 'Top Pools',
-              pathname: '/pools',
-            },
-            {
-              id: 'more_pools',
-              msg: 'More Pools',
-              pathname: `/more_pools`,
-            },
-          ]}
-        />
-        <div className="flex flex-col items-center my-4 justify-center">
-          <div className="flex items-center">
-            <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
-              <img
-                key={tokens[0].id.substring(0, 12).substring(0, 12)}
-                className="rounded-full w-full mr-2"
-                src={tokens[0].icon}
-              />
-            </div>
+      {clientMobileDevice && (
+        <div className="w-11/12 lg:hidden m-auto text-white">
+          <BreadCrumb
+            routes={[
+              {
+                id: 'top_pools',
+                msg: 'Top Pools',
+                pathname: '/pools',
+              },
+              {
+                id: 'more_pools',
+                msg: 'More Pools',
+                pathname: `/more_pools`,
+              },
+            ]}
+          />
+          <div className="flex flex-col items-center my-4 justify-center">
+            <div className="flex items-center">
+              <div className="h-9 w-9 border border-gradientFromHover rounded-full mr-2">
+                <img
+                  key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                  className="rounded-full w-full mr-2"
+                  src={tokens[0].icon}
+                />
+              </div>
 
-            <div className="h-9 w-9 border border-gradientFromHover rounded-full">
-              <img
-                key={tokens[1].id}
-                className="w-full rounded-full"
-                src={tokens[1].icon}
-              />
+              <div className="h-9 w-9 border border-gradientFromHover rounded-full">
+                <img
+                  key={tokens[1].id}
+                  className="w-full rounded-full"
+                  src={tokens[1].icon}
+                />
+              </div>
+            </div>
+            <div className="text-2xl">
+              {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
           </div>
-          <div className="text-2xl">
-            {tokens[0].symbol + '-' + tokens[1].symbol}
-          </div>
+          {morePools?.map((pool, i) => {
+            return (
+              <MobileRow
+                tokens={tokens}
+                key={i}
+                pool={pool}
+                watched={
+                  !!watchList.map((p) => p.id).includes(pool.id.toString())
+                }
+                morePoolIds={morePoolIds}
+                farmCount={poolsFarmCount[pool.id]}
+              />
+            );
+          })}
         </div>
-        {morePools?.map((pool, i) => {
-          return (
-            <MobileRow
-              tokens={tokens}
-              key={i}
-              pool={pool}
-              watched={!!find(watchList, { pool_id: pool.id.toString() })}
-              morePoolIds={morePoolIds}
-            />
-          );
-        })}
-      </div>
+      )}
     </>
   );
 };

@@ -35,8 +35,13 @@ import {
   senderWallet,
   WalletContext,
   getCurrentWallet,
-} from '../../utils/sender-wallet';
-const { XREF_TOKEN_ID, REF_TOKEN_ID, TOTAL_PLATFORM_FEE_REVENUE } = getConfig();
+} from '../../utils/wallets-integration';
+const {
+  XREF_TOKEN_ID,
+  REF_TOKEN_ID,
+  TOTAL_PLATFORM_FEE_REVENUE,
+  CUMULATIVE_REF_BUYBACK,
+} = getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 
 const displayBalance = (max: string) => {
@@ -56,8 +61,8 @@ function XrefPage() {
   const [totalDataArray, setTotalDataArray] = useState([]);
   const intl = useIntl();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
     ftGetBalance(XREF_TOKEN_ID).then(async (data: any) => {
@@ -91,6 +96,11 @@ function XrefPage() {
         0,
         true
       );
+      const totalFee = `${toPrecision(
+        TOTAL_PLATFORM_FEE_REVENUE.toString(),
+        2,
+        true
+      )}`;
       const refAmount = toPrecision(
         toReadableNumber(XREF_TOKEN_DECIMALS, cur_locked_token_amount || '0'),
         2,
@@ -101,12 +111,20 @@ function XrefPage() {
         2,
         true
       );
-      const totalFee = `$${toPrecision(
-        TOTAL_PLATFORM_FEE_REVENUE.toString(),
+      const totalBuyBack = `${toPrecision(
+        CUMULATIVE_REF_BUYBACK.toString(),
         2,
         true
       )}`;
-      setTotalDataArray([joinAmount, totalFee, refAmount, xrefAmount]);
+      const revenueBooster = 'x2';
+      setTotalDataArray([
+        joinAmount,
+        totalFee,
+        refAmount,
+        xrefAmount,
+        totalBuyBack,
+        revenueBooster,
+      ]);
     });
     getPrice().then((data) => {
       const rate = toReadableNumber(DECIMALS_XREF_REF_TRANSTER, data);
@@ -139,6 +157,7 @@ function XrefPage() {
       tipContent: `<p class="text-left lg:w-72 xs:w-48 md:w-48 text-xs">${intl.formatMessage(
         { id: 'protocol_projected_revenue_tip' }
       )}</p>`,
+      unit: 'REF',
     },
     third: {
       title: intl.formatMessage({ id: 'total_ref_staked' }),
@@ -147,6 +166,13 @@ function XrefPage() {
     fourth: {
       title: intl.formatMessage({ id: 'total_xref_minted' }),
       unit: 'xREF',
+    },
+    fifth: {
+      title: intl.formatMessage({ id: 'cumulative_ref_buyback' }),
+      unit: 'REF',
+    },
+    sixth: {
+      title: intl.formatMessage({ id: 'yearly_revenue_booster' }),
     },
   };
   const displayTotalREF = () => {
@@ -158,7 +184,6 @@ function XrefPage() {
     } else if (receive.isLessThan(0.001)) {
       return '<0.001';
     } else {
-      // return `≈ ${receive.toFixed(3, 1)}`;
       return `≈ ${toPrecision(receive.valueOf(), 3, true)}`;
     }
   };
@@ -214,7 +239,7 @@ function XrefPage() {
                     </p>
                   </div>
                 </div>
-                <div className="whitespace-nowrap ml-8 text-white text-sm text-right">
+                <div className="whitespace-nowrap ml-8 text-white text-sm text-right font-sans">
                   {displayTotalREF()}{' '}
                   <FormattedMessage id="ref"></FormattedMessage>
                 </div>
@@ -235,7 +260,7 @@ function XrefPage() {
               </div>
               <div className="flex flex-col items-end text-xl xs:text-base md:text-base text-white relative top-3">
                 <label>{displayBalance(xrefBalance)}</label>
-                <div className="whitespace-nowrap text-white text-sm">
+                <div className="whitespace-nowrap text-white text-sm font-sans">
                   {displayTotalREF()}{' '}
                   <FormattedMessage id="ref"></FormattedMessage>
                 </div>
@@ -308,9 +333,9 @@ function InputView(props: any) {
     setForward(true);
   }, [tab]);
 
-  const { signedInState } = useContext(WalletContext);
+  const { globalState } = useContext(WalletContext);
 
-  const isSignedIn = signedInState.isSignedIn;
+  const isSignedIn = globalState.isSignedIn;
 
   const onSubmit = () => {
     setLoading(true);
@@ -406,7 +431,6 @@ function InputView(props: any) {
               {rateDisplay(tab)}
             </div>
             <div className="flex items-center text-primaryText text-xs ">
-              <SmallWallet></SmallWallet>
               <span className="ml-2">
                 <FormattedMessage id="balance"></FormattedMessage>:{' '}
                 <span title={max}>{displayBalance(max)}</span>
@@ -447,17 +471,20 @@ function InputView(props: any) {
           </label>
         )}
 
-        <label className="text-sm text-white"> {exchangeDisplay()}</label>
+        <label className="text-sm text-white font-sans">
+          {' '}
+          {exchangeDisplay()}
+        </label>
       </div>
       {isSignedIn ? (
         <GradientButton
           color="#fff"
           className={`w-full h-11 text-center text-base text-white focus:outline-none font-semibold ${
-            buttonStatus ? 'opacity-40' : ''
+            buttonStatus || loading ? 'opacity-40' : ''
           }`}
           onClick={onSubmit}
-          disabled={buttonStatus}
-          btnClassName={buttonStatus ? 'cursor-not-allowed' : ''}
+          disabled={buttonStatus || loading}
+          btnClassName={buttonStatus || loading ? 'cursor-not-allowed' : ''}
         >
           {tab == 0 ? (
             <ButtonTextWrapper
@@ -482,7 +509,7 @@ function InfoBox(props: any) {
   const [hover, setHover] = useState(false);
   return (
     <div
-      className="lg:h-16 xs:h-20 md:h-20 rounded-lg bg-darkGradientBg shadow-dark p-2.5 hover:bg-darkGradientHoverBg"
+      className="lg:h-16 xs:h-24 md:h-24 rounded-lg bg-darkGradientBg shadow-dark p-2.5 hover:bg-darkGradientHoverBg"
       onMouseEnter={() => {
         setHover(true);
       }}
@@ -490,7 +517,7 @@ function InfoBox(props: any) {
         setHover(false);
       }}
     >
-      <div className="text-primaryText text-xs mb-1 xs:h-8 md:h-8 lg:text-center">
+      <div className="text-primaryText text-xs mb-1 lg:text-center">
         {title}
         {tip ? (
           <>

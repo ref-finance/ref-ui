@@ -35,7 +35,10 @@ import {
 import { CountdownTimer } from '~components/icon';
 import { StablePool } from '~services/pool';
 import { BeatLoading } from '~components/layout/Loading';
-import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { getAccount } from '../../services/airdrop';
 import { DoubleCheckModal } from '../layout/SwapDoubleCheck';
 import BigNumber from 'bignumber.js';
@@ -82,8 +85,8 @@ export default function StableSwap({
 
   const [doubleCheckOpen, setDoubleCheckOpen] = useState(false);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
 
@@ -190,7 +193,7 @@ export default function StableSwap({
   return (
     <>
       <form
-        className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg"
+        className="overflow-y-auto bg-secondary shadow-2xl rounded-2xl py-6 bg-dark xs:rounded-lg md:rounded-lg pb-16"
         onSubmit={handleSubmit}
       >
         <div className="formTitle flex justify-between text-xl text-white text-left px-8">
@@ -232,15 +235,6 @@ export default function StableSwap({
           <div className="flex mt-6 px-8">
             <div className="flex-1 flex flex-col">
               <div className="text-primaryText text-xs pb-2 self-end flex items-center">
-                {useNearBalance ? (
-                  <span className="mr-2">
-                    <SmallWallet />
-                  </span>
-                ) : (
-                  <span className="mr-2 text-primaryText">
-                    <RefIcon></RefIcon>
-                  </span>
-                )}
                 <FormattedMessage id="balance" defaultMessage="Balance" />:
                 &nbsp;
                 <span title={tokenInMax}>
@@ -270,15 +264,6 @@ export default function StableSwap({
 
             <div className="flex-1 flex flex-col">
               <div className="text-primaryText text-xs pb-2 self-end flex items-center">
-                {useNearBalance ? (
-                  <span className="mr-2 float-left">
-                    <SmallWallet />
-                  </span>
-                ) : (
-                  <span className="mr-2 text-primaryText float-left">
-                    <RefIcon></RefIcon>
-                  </span>
-                )}
                 <FormattedMessage id="balance" defaultMessage="Balance" />:
                 &nbsp;
                 <span title={tokenOutTotal}>
@@ -306,15 +291,6 @@ export default function StableSwap({
         <div className="flex flex-col mt-6 px-8 lg:hidden">
           <div className="flex-1 flex flex-col">
             <div className="text-primaryText text-xs pb-2 self-end flex items-center">
-              {useNearBalance ? (
-                <span className="mr-2">
-                  <SmallWallet />
-                </span>
-              ) : (
-                <span className="mr-2 text-primaryText">
-                  <RefIcon></RefIcon>
-                </span>
-              )}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
               <span title={tokenInMax}>{toPrecision(tokenInMax, 3, true)}</span>
             </div>
@@ -344,15 +320,6 @@ export default function StableSwap({
           />
           <div className="flex-1 flex flex-col">
             <div className="text-primaryText text-xs pb-2 self-end flex items-center">
-              {useNearBalance ? (
-                <span className="mr-2 float-left">
-                  <SmallWallet />
-                </span>
-              ) : (
-                <span className="mr-2 float-left text-primaryText">
-                  <RefIcon></RefIcon>
-                </span>
-              )}
               <FormattedMessage id="balance" defaultMessage="Balance" />: &nbsp;
               <span title={tokenOutTotal}>
                 {toPrecision(tokenOutTotal, 3, true)}
@@ -399,7 +366,11 @@ export default function StableSwap({
           {isSignedIn ? (
             <SolidButton
               className="w-full text-lg"
-              disabled={!canSubmit}
+              disabled={
+                !canSubmit ||
+                showSwapLoading ||
+                (loadingTrigger && !loadingPause)
+              }
               loading={showSwapLoading || (loadingTrigger && !loadingPause)}
             >
               <ButtonTextWrapper

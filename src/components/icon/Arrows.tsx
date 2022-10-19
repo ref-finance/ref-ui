@@ -60,6 +60,26 @@ export function ArrowDownWhite() {
   );
 }
 
+export function ArrowDownCur() {
+  return (
+    <svg
+      width="10"
+      height="7"
+      viewBox="0 0 10 7"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 1L5 6L9 1"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function BackArrowWhite() {
   return (
     <svg
@@ -114,7 +134,7 @@ export function DownArrowLight() {
   );
 }
 
-export function DownArrowLightMobile() {
+export function DownArrowLightMobile({ color }: { color?: string }) {
   return (
     <svg
       width="8"
@@ -125,7 +145,7 @@ export function DownArrowLightMobile() {
     >
       <path
         d="M1.11372e-08 7.38265C-3.27892e-05 7.54503 0.0723861 7.70172 0.203402 7.82274L3.40758 10.781C3.70106 11.052 4.20422 11.0746 4.53142 10.8315C4.55284 10.8156 4.57321 10.7987 4.59242 10.781L7.79658 7.82274C8.09007 7.55179 8.06274 7.13509 7.73556 6.89203C7.58966 6.7836 7.40038 6.7236 7.20415 6.72358L5.75927 6.72357C5.48313 6.72357 5.25927 6.49971 5.25927 6.22357V0.997837C5.25927 0.446742 4.71866 0 4.05175 0C3.38485 0 2.84423 0.446742 2.84423 0.997825V6.22356C2.84423 6.49971 2.62037 6.72356 2.34423 6.72356H0.795846C0.360713 6.72356 0.00711989 7.01278 0.000104992 7.37175L1.11372e-08 7.38265Z"
-        fill="#c4c4c4"
+        fill={color || '#c4c4c4'}
       />
     </svg>
   );
@@ -416,3 +436,16 @@ export function StableSwapExchangePC({
     </div>
   );
 }
+
+export const ExchangeArrow = () => {
+  return (
+    <div className="flex flex-col items-center mx-1">
+      <span>
+        <SwapArrowRight />
+      </span>
+      <span>
+        <SwapArrowLeft />
+      </span>
+    </div>
+  );
+};

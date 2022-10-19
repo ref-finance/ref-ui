@@ -1,9 +1,10 @@
 import getConfig from './config';
 import { wallet, refFiViewFunction } from './near';
-import { toPrecision } from '../utils/numbers';
+import { toPrecision, scientificNotationToString } from '../utils/numbers';
 import { BigNumber } from 'bignumber.js';
 import moment from 'moment';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
+import { TokenMetadata } from './ft-contract';
 
 const config = getConfig();
 
@@ -16,12 +17,14 @@ export interface PoolRPCView {
   token_account_ids: string[];
   token_symbols: string[];
   amounts: string[];
+  pool_kind?: string;
   total_fee: number;
   shares_total_supply: string;
   tvl: number;
   token0_ref_price: string;
   share: string;
   decimalsHandled?: boolean;
+  tokens_meta_data?: TokenMetadata[];
 }
 
 export const parsePoolView = (pool: any): PoolRPCView => ({
@@ -31,7 +34,14 @@ export const parsePoolView = (pool: any): PoolRPCView => ({
   amounts: pool.amounts,
   total_fee: pool.total_fee,
   shares_total_supply: pool.shares_total_supply,
-  tvl: Number(toPrecision(pool?.tvl.toString() || '0', 2)),
+  tvl: Number(
+    toPrecision(
+      scientificNotationToString(pool?.tvl?.toString() || '0'),
+      2,
+      false,
+      false
+    )
+  ),
   token0_ref_price: pool.token0_ref_price,
   share: pool.share,
 });
@@ -41,7 +51,7 @@ export const getPoolBalance = async (pool_id: number) => {
     methodName: 'get_pool_shares',
     args: {
       pool_id: pool_id,
-      account_id: getCurrentWallet().wallet.getAccountId(),
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
     },
   }).then((balance) => {
     return new BigNumber(balance.toString()).toFixed();
@@ -74,7 +84,7 @@ export const getUserWalletTokens = async (): Promise<any> => {
   return await fetch(
     config.helperUrl +
       '/account/' +
-      getCurrentWallet().wallet.getAccountId() +
+      getCurrentWallet()?.wallet?.getAccountId() +
       '/likelyTokens',
     {
       method: 'GET',
@@ -103,7 +113,8 @@ export const getCurrentUnixTime = async (): Promise<any> => {
 
 export const currentRefPrice = async (): Promise<any> => {
   return await fetch(
-    config.indexerUrl + '/get-token-price?token_id=token.v2.ref-finance.near',
+    getConfig().indexerUrl +
+      '/get-token-price?token_id=token.v2.ref-finance.near',
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },

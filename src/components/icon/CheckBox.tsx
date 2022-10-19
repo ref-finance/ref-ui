@@ -45,6 +45,65 @@ const Tick = () => {
     </svg>
   );
 };
+export const UnCheckedBoxVE = () => {
+  return (
+    <svg
+      width="37"
+      height="37"
+      viewBox="0 0 37 37"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g filter="url(#filter0_bd_106_2650)">
+        <rect x="11" y="11" width="15" height="15" rx="4" fill="#304452" />
+        <rect x="11" y="11" width="15" height="15" rx="4" stroke="#00C6A2" />
+      </g>
+      <defs>
+        <filter
+          id="filter0_bd_106_2650"
+          x="-39.5"
+          y="-39.5"
+          width="116"
+          height="116"
+          filterUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB"
+        >
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feGaussianBlur in="BackgroundImage" stdDeviation="25" />
+          <feComposite
+            in2="SourceAlpha"
+            operator="in"
+            result="effect1_backgroundBlur_106_2650"
+          />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset />
+          <feGaussianBlur stdDeviation="5" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.15 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="effect1_backgroundBlur_106_2650"
+            result="effect2_dropShadow_106_2650"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect2_dropShadow_106_2650"
+            result="shape"
+          />
+        </filter>
+      </defs>
+    </svg>
+  );
+};
 
 export const CheckedTick = () => {
   return (
@@ -121,3 +180,58 @@ export function Radio({
     </div>
   );
 }
+
+export const LedgerAccountChecked = () => {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="10" cy="10" r="9.5" fill="#00C6A2" stroke="#00C6A2" />
+      <path
+        d="M6 10.5L8.66667 13L14 8"
+        stroke="white"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+};
+
+export const LedgerAccountNotChecked = () => {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="10" cy="10" r="9.5" fill="#19232A" stroke="#00C6A2" />
+    </svg>
+  );
+};
+
+export const LedgerCheckbox = ({
+  checked,
+  setChecked,
+  index,
+}: {
+  checked: boolean;
+  setChecked: (index: number, c: boolean) => void;
+  index: number;
+}) => {
+  return (
+    <div
+      onClick={() => {
+        setChecked(index, !checked);
+      }}
+      className="absolute cursor-pointer top-4 -right-8"
+    >
+      {checked ? <LedgerAccountChecked /> : <LedgerAccountNotChecked />}
+    </div>
+  );
+};

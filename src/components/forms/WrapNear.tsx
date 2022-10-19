@@ -23,8 +23,14 @@ import { useDepositableBalance, useToken } from '../../state/token';
 import { ONLY_ZEROS, toReadableNumber } from '../../utils/numbers';
 import SubmitButton from './SubmitButton';
 import TokenAmount from './TokenAmount';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import { SwapExchange } from '../icon/Arrows';
+import SelectToken from './SelectToken';
+
+export const NEAR_WITHDRAW_KEY = 'REF_FI_NEAR_WITHDRAW_VALUE';
 
 function WrapNear(props: ReactModal.Props) {
   const [showError, setShowError] = useState(false);
@@ -41,8 +47,8 @@ function WrapNear(props: ReactModal.Props) {
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
     if (tokenIn && tokenIn.id !== 'NEAR') {
@@ -75,7 +81,7 @@ function WrapNear(props: ReactModal.Props) {
     if (tokenInAmount && tokenInAmount !== '0') {
       if (
         tokenIn.id === 'NEAR' &&
-        Number(tokenInAmount) > Number(tokenInMax) - 1
+        Number(tokenInAmount) > Number(tokenInMax) - 0.5
       ) {
         setShowError(true);
       } else if (Number(tokenInAmount) > Number(tokenInMax)) {
@@ -109,6 +115,7 @@ function WrapNear(props: ReactModal.Props) {
       return nearDeposit(tokenInAmount);
     } else {
       setButtonLoading(true);
+      sessionStorage.setItem(NEAR_WITHDRAW_KEY, '1');
       return nearWithdraw(tokenInAmount);
     }
   };
@@ -116,9 +123,9 @@ function WrapNear(props: ReactModal.Props) {
   const getMax = function () {
     return tokenIn.id !== 'NEAR'
       ? tokenInMax
-      : Number(tokenInMax) <= 1
+      : Number(tokenInMax) <= 0.5
       ? '0'
-      : String(Number(tokenInMax) - 1);
+      : String(Number(tokenInMax) - 0.5);
   };
 
   return (
@@ -143,7 +150,7 @@ function WrapNear(props: ReactModal.Props) {
 
             <FormattedMessage
               id="wrapnear_tip_three"
-              defaultMessage=" for gas fees to unwrap your NEAR."
+              defaultMessage=" for gas fees."
             />
           </div>
           <TokenAmount
@@ -157,6 +164,7 @@ function WrapNear(props: ReactModal.Props) {
             onChangeAmount={(amount) => {
               setTokenInAmount(amount);
             }}
+            forWrap
           />
           <div
             className="flex items-center justify-center border-t mt-12 mb-3"

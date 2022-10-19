@@ -26,11 +26,13 @@ import {
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
 import { registerTokenAction } from './creators/token';
 import { getUserWalletTokens } from './api';
+import { extraStableTokenIds } from './near';
+import getConfig from './config';
 import {
   getCurrentWallet,
   WALLET_TYPE,
   senderWallet,
-} from '../utils/sender-wallet';
+} from '../utils/wallets-integration';
 
 const specialToken = 'pixeltoken.near';
 
@@ -42,7 +44,7 @@ export const checkTokenNeedsStorageDeposit = async () => {
     storageNeeded = Number(ONE_MORE_DEPOSIT_AMOUNT);
   } else {
     const balance = await Promise.resolve(
-      currentStorageBalance(getCurrentWallet().wallet.getAccountId())
+      currentStorageBalance(getCurrentWallet()?.wallet?.getAccountId())
     );
 
     if (!balance) {
@@ -348,7 +350,7 @@ export const batchWithdraw = async (tokenMap: any) => {
   });
   const ftBalanceList = await Promise.all(ftBalancePromiseList);
   ftBalanceList.forEach((ftBalance, index) => {
-    if (!ftBalance || ftBalance.total === '0') {
+    if (!ftBalance) {
       transactions.push({
         receiverId: tokenIdList[index],
         functionCalls: [
@@ -404,7 +406,7 @@ export interface TokenBalancesView {
 export const getTokenBalances = (): Promise<TokenBalancesView> => {
   return refFiViewFunction({
     methodName: 'get_deposits',
-    args: { account_id: getCurrentWallet().wallet.getAccountId() },
+    args: { account_id: getCurrentWallet()?.wallet?.getAccountId() },
   });
 };
 
@@ -412,14 +414,14 @@ export const getTokenBalance = (tokenId: string): Promise<number> => {
   return refFiViewFunction({
     methodName: 'get_deposit',
     args: {
-      account_id: getCurrentWallet().wallet.getAccountId(),
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
       token_id: tokenId,
     },
   });
 };
 
 export const getUserRegisteredTokens = (
-  accountId: string = getCurrentWallet().wallet.getAccountId()
+  accountId: string = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<string[]> => {
   return refFiViewFunction({
     methodName: 'get_user_whitelisted_tokens',
@@ -432,14 +434,27 @@ export const getWhitelistedTokens = async (): Promise<string[]> => {
   const globalWhitelist = await refFiViewFunction({
     methodName: 'get_whitelisted_tokens',
   });
-  if (getCurrentWallet().wallet.isSignedIn()) {
+  if (getCurrentWallet()?.wallet?.isSignedIn()) {
     userWhitelist = await refFiViewFunction({
       methodName: 'get_user_whitelisted_tokens',
-      args: { account_id: getCurrentWallet().wallet.getAccountId() },
+      args: { account_id: getCurrentWallet()?.wallet?.getAccountId() },
     });
   }
 
-  return [...new Set<string>([...globalWhitelist, ...userWhitelist])];
+  return [
+    ...new Set<string>([
+      ...globalWhitelist,
+      ...userWhitelist,
+      ...extraStableTokenIds,
+    ]),
+  ];
+};
+
+export const getGlobalWhitelist = async (): Promise<string[]> => {
+  const globalWhitelist = await refFiViewFunction({
+    methodName: 'get_whitelisted_tokens',
+  });
+  return [...new Set<string>([...globalWhitelist])];
 };
 
 export const getWhitelistedTokensAndNearTokens = async (): Promise<
@@ -450,19 +465,23 @@ export const getWhitelistedTokensAndNearTokens = async (): Promise<
     methodName: 'get_whitelisted_tokens',
   });
   requestAll.push(request1);
-  if (getCurrentWallet().wallet.isSignedIn()) {
+  if (getCurrentWallet()?.wallet?.isSignedIn()) {
     const request2 = refFiViewFunction({
       methodName: 'get_user_whitelisted_tokens',
-      args: { account_id: getCurrentWallet().wallet.getAccountId() },
+      args: { account_id: getCurrentWallet()?.wallet?.getAccountId() },
     });
-    const request3 = getUserWalletTokens();
-    requestAll.push(request2, request3);
+    requestAll.push(request2);
   }
-  const [globalWhitelist = [], userWhitelist = [], walletTokens = []] =
-    await Promise.all(requestAll);
+  const [globalWhitelist = [], userWhitelist = []] = await Promise.all(
+    requestAll
+  );
 
   return [
-    ...new Set<string>([...globalWhitelist, ...userWhitelist, ...walletTokens]),
+    ...new Set<string>([
+      ...globalWhitelist,
+      ...userWhitelist,
+      getConfig().REF_VE_CONTRACT_ID,
+    ]),
   ];
 };
 

@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { ArrowDown } from '~components/icon';
 
 export default function SelectUi(props: any) {
   const { id, onChange, list, className, shrink, Icon } = props;
   const [showSelectBox, setShowSelectBox] = useState(false);
+  const boxList = useRef(null);
+  const [domWidth, setDomWidth] = useState(0);
   const switchSelectBoxStatus = () => {
     setShowSelectBox(!showSelectBox);
   };
   const hideSelectBox = () => {
     setShowSelectBox(false);
   };
+  useEffect(() => {
+    setDomWidth(Math.max(boxList.current.clientWidth, 135));
+  });
   return (
     <div className="flex items-center">
       {Icon ? (
@@ -22,16 +27,16 @@ export default function SelectUi(props: any) {
       ) : null}
       <div
         className={
-          `relative flex flex-col ${
-            shrink ? 'items-end' : 'items-center w-32'
-          } ` + className
+          `relative flex flex-col ${shrink ? 'items-end' : 'items-center'} ` +
+          className
         }
       >
         <span
           onClick={switchSelectBoxStatus}
           tabIndex={-1}
           onBlur={hideSelectBox}
-          className={`flex items-center justify-between w-full h-5 rounded-full px-3 box-border border cursor-pointer text-xs outline-none ${
+          style={{ width: domWidth ? domWidth + 'px' : '' }}
+          className={`flex items-center justify-between w-full h-5 rounded-full px-2 box-border border cursor-pointer text-xs outline-none ${
             shrink
               ? 'xs:w-8 md:w-8 xs:px-0 md:px-0 xs:justify-center md:justify-center'
               : ''
@@ -51,9 +56,13 @@ export default function SelectUi(props: any) {
           <ArrowDown></ArrowDown>
         </span>
         <div
+          ref={boxList}
           className={`absolute z-50 top-8 xs:right-0 md:right-0 border border-farmText bg-cardBg rounded-md ${
-            shrink ? 'w-32' : 'w-full'
-          } ${showSelectBox ? '' : 'hidden'}`}
+            shrink ? 'w-32' : 'w-auto'
+          } ${showSelectBox ? '' : 'invisible'}`}
+          style={{
+            minWidth: '135px',
+          }}
         >
           {Object.entries(list).map((item: any, index) => (
             <p
@@ -61,7 +70,7 @@ export default function SelectUi(props: any) {
               onMouseDown={() => {
                 onChange(item);
               }}
-              className={`flex items-center p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
+              className={`flex items-center whitespace-nowrap p-4 text-xs h-5 text-white text-opacity-40 my-2 cursor-pointer hover:bg-white hover:bg-opacity-10 hover:text-opacity-100 ${
                 item[0] == id ? 'bg-white bg-opacity-10 text-opacity-100' : ''
               }`}
             >

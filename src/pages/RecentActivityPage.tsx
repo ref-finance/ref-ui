@@ -13,34 +13,34 @@ import Modal from 'react-modal';
 import { isMobile } from '~utils/device';
 const config = getConfig();
 import { useHistory } from 'react-router';
-import { getCurrentWallet, WalletContext } from '~utils/sender-wallet';
-import { getSenderLoginRes } from '../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
+import { getSenderLoginRes } from '../utils/wallets-integration';
 
 function useLastActions() {
   const [actions, setActions] = useState<ActionData[]>(null);
 
   useEffect(() => {
-    const isSignedIn = getCurrentWallet().wallet.isSignedIn();
+    const isSignedIn = getCurrentWallet()?.wallet?.isSignedIn();
 
     if (!isSignedIn) return;
     else
       getLatestActions().then((resp) => {
         setActions(resp);
       });
-  }, [getCurrentWallet().wallet.isSignedIn()]);
+  }, [getCurrentWallet()?.wallet?.isSignedIn()]);
 
   return actions;
 }
 export function RecentActivityPage() {
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
   const history = useHistory();
 
   const senderLoginRes = getSenderLoginRes();
 
-  if (!senderLoginRes && !webWallet.isSignedIn()) {
+  if (!isSignedIn) {
     history.push('/');
     return null;
   }
@@ -58,8 +58,8 @@ export function RecentActivityPage() {
         >
           <div className="font-semibold text-white text-2xl">
             <FormattedMessage
-              id="recent_activity"
-              defaultMessage="Recent Activity"
+              id="recent_one_mounth_activity"
+              // defaultMessage="Recent Activity"
             />
           </div>
           <div></div>
@@ -101,8 +101,8 @@ export function RecentActivityPage() {
             onClick={() => {
               const url =
                 config.explorerUrl +
-                '/accounts/' +
-                getCurrentWallet().wallet.getAccountId();
+                '/address/' +
+                getCurrentWallet()?.wallet?.getAccountId();
               window.open(url, '_blank');
             }}
           >
@@ -112,7 +112,7 @@ export function RecentActivityPage() {
         {isMobile() ? (
           <ActionSheet ref={ref}>
             {detail ? (
-              <div className="text-black px-4 py-6">
+              <div className="text-black px-4 py-6 pb-10">
                 <div className="text-center pb-6 font-semibold">
                   {detail.data.Action}
                 </div>

@@ -2484,11 +2484,12 @@ const Light = () => {
   );
 };
 
-const UnLoginIcon = () => {
+const UnLoginIcon = (props: any) => {
+  const { width, height, color } = props;
   return (
     <svg
-      width="27"
-      height="23"
+      width={width || '27'}
+      height={height || '23'}
       viewBox="0 0 27 23"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -2497,7 +2498,7 @@ const UnLoginIcon = () => {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M4.26316 4.74654V18.4045L11.3684 13.1863L12.0789 13.7988L6.12071 22.0476C3.9069 24.0438 0 22.6932 0 19.9315V3.06842C0 0.212095 4.13563 -1.08895 6.27008 1.09588L22.7368 17.9513V4.85377L16.3421 9.51153L15.6316 8.89907L20.6994 1.19909C22.8146 -1.02619 27 0.263066 27 3.13991V19.6294C27 22.4857 22.8644 23.7868 20.7299 21.602L4.26316 4.74654Z"
-        fill="white"
+        fill={color || 'white'}
       />
     </svg>
   );
@@ -2637,7 +2638,7 @@ const ArrowDownHollow = () => {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M9.79995 0.267158C9.51417 -0.0663732 9.02768 -0.0909533 8.71332 0.212257L5 3.79397L1.28668 0.212256C0.972323 -0.090954 0.485825 -0.066374 0.200051 0.267157C-0.085723 0.600689 -0.0625573 1.11687 0.251795 1.42008L5 6L9.7482 1.42008C10.0626 1.11687 10.0857 0.60069 9.79995 0.267158Z"
-        fill="white"
+        fill="currentColor"
       />
     </svg>
   );
@@ -3129,6 +3130,11 @@ export function CloseButton(props: any) {
         fillOpacity="0.5"
       />
     </svg>
+  );
+}
+export function LightSmall() {
+  return (
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAbCAYAAAB836/YAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAHBSURBVHgBxVWLccIwDJU5BqATkA0gG7BB0w1ggrIBYQM2gE5AmSBskIQO0HQCYIDi6uMWx8Qm9Ljj3SmJ7adn2ZIdgIdA5xHoYo3v3jVqB9ohAlAJvof3EmyNuwt2cV/GqNsHNZgHeAXaBq3yMnQ+PX/oUqPN4L/QHzPRyKddUPECG5S9FDuO3D7POgJOhBqYjhIfW+QUNTE4pWhz8lX1kDvku+AyAbVEI8EDDn7hN76BhHFyvUWboEBltqzHfp69SDCQPVpuInTHRzj2KZyGcYccGbHV1SJmDotGAdIu49nbgCbkSIsMAtFp2ZOWkOVrO0q7sBN+qngF7UHZPvz5OoI9Q2gPFVMFHI3vhSDYAwydD3FJr1Y7YQvAFqyAbpV6dul2WfApkjpdg33jMFf1ofFIStYuk6LL1BxNGksdn7GbFEfUlI1bg1zk5bsjFgl3twTPkhHfE9Od1WelY6f3tdXI8sln7hekswmnF+Dk/Do0oZMJB7ns4xMUUSyd0xu4Ga9BPzHHvnW8goIK+D9yO7oBQeAMygeaovb4TNFVk6MCHyQpI++EKt7CDRGCuTypcJ+dmTY+sbCgwNzWNsI/yh/8OfNzkcjgCQAAAABJRU5ErkJggg=="></img>
   );
 }
 export {

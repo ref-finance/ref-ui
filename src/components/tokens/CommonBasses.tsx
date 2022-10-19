@@ -6,7 +6,10 @@ import { WNEARExchngeIcon } from '../../components/icon/Common';
 import WrapNear from '../../components/forms/WrapNear';
 import { wallet } from '~services/near';
 import { isMobile } from '../../utils/device';
-import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { tokenPrice, SingleToken } from '../forms/SelectToken';
 interface CommonBassesProps {
   tokens: TokenMetadata[];
@@ -14,18 +17,20 @@ interface CommonBassesProps {
   tokenPriceList: Record<string, any>;
 }
 const COMMON_BASSES = [
-  'wNEAR',
+  'USN',
+  'NEAR',
   'REF',
   'SKYWARD',
   'OCT',
   'STNEAR',
-  'USDT',
+  'USDT.e',
+  'USDt',
   'USDC',
-  'AURORA',
   'ETH',
   'DAI',
   'WBTC',
-  // 'FLX',
+  'AURORA',
+  'SWEAT',
 ];
 
 export default function CommonBasses({
@@ -33,14 +38,19 @@ export default function CommonBasses({
   onClick,
   tokenPriceList,
 }: CommonBassesProps) {
-  const commonBassesTokens = tokens.filter((item) => {
-    return COMMON_BASSES.indexOf(item?.symbol) > -1;
-  });
+  const commonBassesTokens = tokens
+    .filter((item) => {
+      return COMMON_BASSES.indexOf(item?.symbol) > -1;
+    })
+    .sort((a, b) => (a.symbol === 'USDt' ? -1 : 1))
+    .sort((a, b) => (a.symbol === 'NEAR' ? -1 : 1))
+    .sort((a, b) => (a.symbol === 'USN' ? -1 : 1))
+    .sort((a, b) => (a.symbol === 'REF' ? -1 : 1));
 
   return (
     <section className="px-6">
       <div className="text-sm font-bold py-2 pl-2">
-        <FormattedMessage id="popular_tokens" defaultMessage="Popular Tokens" />
+        <FormattedMessage id="popular_tokens" defaultMessage="Common Tokens" />
       </div>
       <div className="w-full flex flex-wrap items-center text-sm xs:text-xs text-left">
         <Wnear />
@@ -49,7 +59,7 @@ export default function CommonBasses({
 
           return (
             <div
-              className="mt-3 hover:bg-black hover:bg-opacity-10 rounded-full pr-3 pl-1 py-1 cursor-pointer flex items-center"
+              className="w-1/3 mt-3 hover:bg-black hover:bg-opacity-10 rounded-full pr-3 pl-1 py-1 cursor-pointer flex items-center"
               key={token.id}
               onClick={() => onClick && onClick(token)}
               style={{
@@ -68,13 +78,13 @@ export default function CommonBasses({
 const Wnear = () => {
   const [showWrapNear, setShowWrapNear] = useState(false);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   return (
     <>
       {isSignedIn && (
-        <div className="text-white pt-2 cursor-pointer xs:mr-5 md:mr-5 mr-6">
+        <div className="w-1/3 text-white pt-2 cursor-pointer">
           <div
             className="cursor-pointer items-center flex"
             onClick={() => setShowWrapNear(true)}

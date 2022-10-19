@@ -1,14 +1,50 @@
 import getConfig from './config';
-import { wallet, filterBlackListPools, POOLS_BLACK_LIST } from './near';
+import {
+  wallet,
+  isStablePool,
+  STABLE_TOKEN_USN_IDS,
+  AllStableTokenIds,
+  CUSDIDS,
+  BTCIDS,
+} from './near';
 import _ from 'lodash';
 import { parsePoolView, PoolRPCView, getCurrentUnixTime } from './api';
 import moment from 'moment/moment';
 import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
-import { getCurrentWallet } from '../utils/sender-wallet';
-import { getPoolsByTokens } from './pool';
+import { getCurrentWallet } from '../utils/wallets-integration';
+import { getPoolsByTokens, getAllPools, parsePool } from './pool';
+import {
+  filterBlackListPools,
+  ALL_STABLE_POOL_IDS,
+  STABLE_POOL_ID,
+} from './near';
+
+import { getPool as getPoolRPC } from '../services/pool';
+import { BLACKLIST_POOL_IDS } from './near';
+
 const config = getConfig();
+
+export const getPoolsByTokensIndexer = async ({
+  token0,
+  token1,
+}: {
+  token0: string;
+  token1: string;
+}) => {
+  const res1 = await fetch(
+    config.indexerUrl +
+      `/list-pools-by-tokens?token0=${token0}&token1=${token1}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+
+  return res1.filter(
+    (p: any) => !isStablePool(p.id) && !BLACKLIST_POOL_IDS.includes(p.id)
+  );
+};
 
 export const getPoolMonthVolume = async (
   pool_id: string
@@ -49,7 +85,7 @@ const parseActionView = async (action: any) => {
   const data = await parseAction(action[3], action[4], action[2]);
   return {
     datetime: moment.unix(action[0] / 1000000000),
-    txUrl: config.explorerUrl + '/transactions/' + action[1],
+    txUrl: config.explorerUrl + '/txns/' + action[1],
     data: data,
     // status: action[5] === 'SUCCESS_VALUE',
     status: action[6] && action[6].indexOf('SUCCESS') > -1,
@@ -60,7 +96,7 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
   return await fetch(
     config.indexerUrl +
       '/liquidity-pools/' +
-      getCurrentWallet().wallet.getAccountId(),
+      getCurrentWallet()?.wallet?.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
@@ -72,9 +108,20 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
     });
 };
 
+export const getTopPoolsIndexer = async () => {
+  return await fetch(config.indexerUrl + '/list-top-pools', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((poolList) => {
+      return poolList.map((p: any) => parsePool(p));
+    });
+};
+
 export const getTopPools = async (): Promise<PoolRPCView[]> => {
   try {
-    let pools;
+    let pools: any;
 
     if (await db.checkTopPools()) {
       pools = await db.queryTopPools();
@@ -84,37 +131,70 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
         headers: { 'Content-type': 'application/json; charset=UTF-8' },
       }).then((res) => res.json());
 
-      const blackListPools = await getPool(POOLS_BLACK_LIST[0].toString());
+      // include non-stable pools on top pool list
+      // TODO:
 
-      const blacklistTokenIn = blackListPools.token_account_ids[0];
+      await Promise.all(
+        ALL_STABLE_POOL_IDS.concat(BLACKLIST_POOL_IDS)
+          .filter((id) => Number(id) !== Number(STABLE_POOL_ID))
+          .filter((_) => _)
+          .map(async (id) => {
+            const pool = await getPoolRPC(Number(id));
 
-      const blacklistTokenOut = blackListPools.token_account_ids[1];
+            const ids = pool.tokenIds;
 
-      const twoTokenStablePoolIds = (
-        await db.getPoolsByTokens(blacklistTokenIn, blacklistTokenOut)
-      ).map((p) => p.id.toString());
+            const twoTokenStablePoolIds = (
+              await getPoolsByTokensIndexer({
+                token0: ids[0],
+                token1: ids[1],
+              })
+            ).map((p: any) => p.id.toString());
 
-      const twoTokenStablePools = await getPoolsByIds({
-        pool_ids: twoTokenStablePoolIds,
-      });
+            const twoTokenStablePools = await getPoolsByIds({
+              pool_ids: twoTokenStablePoolIds,
+            });
 
-      if (twoTokenStablePools?.length > 0) {
-        pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
-      }
+            if (twoTokenStablePools.length > 0) {
+              const maxTVLPool = _.maxBy(twoTokenStablePools, (p) => p.tvl);
+
+              if (
+                pools.find(
+                  (pool: any) => Number(pool.id) === Number(maxTVLPool.id)
+                )
+              )
+                return;
+
+              pools.push(_.maxBy(twoTokenStablePools, (p) => p.tvl));
+            }
+          })
+      );
 
       await db.cacheTopPools(pools);
     }
 
     pools = pools.map((pool: any) => parsePoolView(pool));
+
     return pools
-      .filter((pool: { token_account_ids: string | any[] }) => {
-        return pool.token_account_ids.length < 3;
+      .filter((pool: { token_account_ids: string | any[]; id: any }) => {
+        return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
       })
       .filter(filterBlackListPools);
   } catch (error) {
     console.log(error);
     return [];
   }
+};
+
+export const getAllPoolsIndexer = async (amountThresh?: string) => {
+  const rawRes = await fetch(
+    config.indexerUrl +
+      `/list-pools?${amountThresh ? `amounts=${amountThresh}` : ''}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+
+  return rawRes.map((r: any) => parsePool(r));
 };
 
 export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
@@ -128,12 +208,42 @@ export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
     });
 };
 
+// https://testnet-indexer.ref-finance.com/get-proposal-hash-by-id?proposal_id=11|12
+
+export interface ProposalHash {
+  proposal_id: string;
+  receipt_id: string;
+  transaction_hash: string;
+}
+
+export const getProposalHashes = async ({
+  proposal_ids,
+}: {
+  proposal_ids: number[];
+}) => {
+  return fetch(
+    config.indexerUrl +
+      '/get-proposal-hash-by-id?proposal_id=' +
+      proposal_ids.join('|'),
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+
+    .catch(() => {
+      return [];
+    });
+};
+
 export const getPoolsByIds = async ({
   pool_ids,
 }: {
   pool_ids: string[];
 }): Promise<PoolRPCView[]> => {
   const ids = pool_ids.join('|');
+  if (!ids) return [];
   return fetch(config.indexerUrl + '/list-pools-by-ids?ids=' + ids, {
     method: 'GET',
     headers: { 'Content-type': 'application/json; charset=UTF-8' },
@@ -198,7 +308,7 @@ export const getLatestActions = async (): Promise<Array<ActionData>> => {
   return await fetch(
     config.indexerUrl +
       '/latest-actions/' +
-      getCurrentWallet().wallet.getAccountId(),
+      getCurrentWallet()?.wallet?.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
@@ -209,5 +319,24 @@ export const getLatestActions = async (): Promise<Array<ActionData>> => {
       const tasks = items.map(async (item: any) => await parseActionView(item));
 
       return Promise.all(tasks);
+    });
+};
+
+export const getListHistoryTokenPriceByIds = async (
+  tokenIds: string
+): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl + '/list-history-token-price-by-ids?ids=' + tokenIds,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
+    })
+    .catch(() => {
+      return [];
     });
 };

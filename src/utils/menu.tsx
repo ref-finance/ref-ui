@@ -21,8 +21,15 @@ import {
   IconSolana,
   IconTerra,
   IconCelo,
+  UkIcon,
+  RuIcon,
+  JaIcon,
+  KoIcon,
+  IconRisk,
+  EsIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
+import getConfig from '../services/config';
 
 export type MenuItem = {
   id: number;
@@ -36,6 +43,7 @@ export type MenuItem = {
 };
 export const useMenuItems = () => {
   const intl = useIntl();
+
   const menuData: any[] = [
     {
       label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
@@ -101,56 +109,6 @@ export const useMenuItems = () => {
       id: 3,
       logo: <IconDocs />,
     },
-    // {
-    //   label: intl.formatMessage({ id: 'Forum' }),
-    //   url: 'https://gov.ref.finance',
-    //   icon: <HiOutlineExternalLink />,
-    //   isExternal: true,
-    //   id: 4,
-    //   logo: <IconForum />,
-    // },
-
-    // {
-    //   label: intl.formatMessage({ id: 'Community' }),
-    //   url: '',
-    //   id: 5,
-    //   isExternal: false,
-    //   logo: <IconCommunity />,
-    //   children: [
-    //     {
-    //       logo: <FaTwitter />,
-    //       label: 'Twitter',
-    //       icon: <HiOutlineExternalLink />,
-    //       url: 'https://twitter.com/finance_ref',
-    //       isExternal: true,
-    //       id: 6,
-    //     },
-    //     {
-    //       logo: <FaTelegramPlane />,
-    //       icon: <HiOutlineExternalLink />,
-    //       label: 'Telegram',
-    //       url: 'https://t.me/ref_finance',
-    //       isExternal: true,
-    //       id: 7,
-    //     },
-    //     {
-    //       logo: <FaDiscord />,
-    //       icon: <HiOutlineExternalLink />,
-    //       label: 'Discord',
-    //       url: 'https://discord.gg/SJBGcfMxJz',
-    //       isExternal: true,
-    //       id: 8,
-    //     },
-    //     {
-    //       logo: <AiOutlineMedium />,
-    //       icon: <HiOutlineExternalLink />,
-    //       label: 'Medium',
-    //       url: 'https://ref-finance.medium.com/',
-    //       isExternal: true,
-    //       id: 9,
-    //     },
-    //   ],
-    // },
     {
       label: <FormattedMessage id="language" defaultMessage="Language" />,
       url: '',
@@ -182,6 +140,46 @@ export const useMenuItems = () => {
           id: 13,
           logo: <IconVi />,
         },
+        {
+          label: 'Українська',
+          isExternal: false,
+          language: 'uk',
+          url: '',
+          id: 14,
+          logo: <UkIcon />,
+        },
+        {
+          label: 'Pусский',
+          isExternal: false,
+          language: 'ru',
+          url: '',
+          id: 15,
+          logo: <RuIcon />,
+        },
+        {
+          label: '日本語',
+          isExternal: false,
+          language: 'ja',
+          url: '',
+          id: 16,
+          logo: <JaIcon />,
+        },
+        {
+          label: '한국어',
+          isExternal: false,
+          language: 'ko',
+          url: '',
+          id: 17,
+          logo: <KoIcon />,
+        },
+        {
+          label: 'Español',
+          isExternal: false,
+          language: 'es',
+          url: '',
+          id: 18,
+          logo: <EsIcon />,
+        },
       ],
     },
   ];
@@ -203,52 +201,35 @@ export type MobileMenuItem = {
   newFunction?: boolean;
   showIcon?: boolean;
   iconElement?: ReactNode;
+  hidden?: boolean;
 };
 export const moreLinks: MobileMenuItem[] = [
   {
-    id: 'Swap',
+    id: 'swap_capital',
     label: 'Swap',
     pattern: '/',
     url: '/',
     isExternal: false,
   },
   {
-    id: 'StableSwap',
-    label: 'StableSwap',
-    pattern: '/stableswap',
-    url: '/stableswap',
+    id: 'sauce_capital',
+    label: 'Sauce',
+    pattern: '/sauce',
+    url: '/sauce',
     isExternal: false,
   },
   {
-    id: 'pools',
-    label: 'Pools',
-    url: '',
-    subRoute: ['/pools', '/pools/add', '/pools/yours'],
+    id: 'POOL',
+    label: 'POOL',
+    pattern: '/pools',
+    url: '/pools',
     isExternal: false,
-    children: [
-      {
-        id: 'view_pools',
-        label: 'View Pools',
-        url: '/pools',
-        pattern: '/pools',
-        isExternal: false,
-        logo: <IconPools />,
-      },
-      {
-        id: 'Create_New_Pool',
-        label: 'Create New Pool',
-        url: '/pools/add',
-        pattern: '/pools/add',
-        isExternal: false,
-        logo: <IconCreateNew />,
-      },
-    ],
   },
   {
-    id: 'Farms',
+    id: 'farm_capital',
     label: 'Farms',
-    pattern: '/farms',
-    url: '/farms',
+    pattern: '/v2farms',
+    url: '/v2farms',
     isExternal: false,
   },
   {
@@ -262,8 +243,16 @@ export const moreLinks: MobileMenuItem[] = [
     iconElement: <XrefIcon></XrefIcon>,
   },
   {
-    id: 'Risks',
-    label: 'Risks',
+    id: 'vote_capital',
+    label: 'VOTE!',
+    pattern: '/referendum',
+    url: '/referendum',
+    isExternal: false,
+    hidden: !getConfig().REF_VE_CONTRACT_ID,
+  },
+  {
+    id: 'risks_capital',
+    label: 'RISKS',
     pattern: '/risks',
     url: '/risks',
     isExternal: false,

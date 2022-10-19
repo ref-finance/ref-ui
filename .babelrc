@@ -5,6 +5,7 @@
     "@babel/preset-typescript"
   ],
   "plugins": [
-    "@emotion"
+    "@emotion",
+    "@babel/plugin-proposal-optional-chaining"
   ]
 }

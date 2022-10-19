@@ -1,62 +1,87 @@
-import React, { useState } from 'react';
-import Loading from '~components/layout/Loading';
+import React, { useEffect, useState } from 'react';
+import Loading from '../../components/layout/Loading';
 import {
   useTokenBalances,
   useWhitelistStableTokens,
   useWhitelistTokens,
 } from '../../state/token';
-import SquareRadio from '~components/radio/SquareRadio';
-import StableSwap from '~components/stableswap/StableSwap';
-import AddLiquidityComponent from '~components/stableswap/AddLiquidity';
-import { usePool, useStablePool } from '~state/pool';
+import AddLiquidityComponent from '../../components/stableswap/AddLiquidity';
+import { usePool, useStablePool } from '../../state/pool';
 import { isMobile } from '~utils/device';
-import { RemoveLiquidityComponent } from '~components/stableswap/RemoveLiquidity';
-import TokenReserves from '~components/stableswap/TokenReserves';
+import { RemoveLiquidityComponent } from '../../components/stableswap/RemoveLiquidity';
+import TokenReserves from '../../components/stableswap/TokenReserves';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
-import getConfig from '~services/config';
+import getConfig from '../../services/config';
 import { StableSwapLogo } from '~components/icon/StableSwap';
 import { useWalletTokenBalances } from '../../state/token';
-import { useLocation } from 'react-router-dom';
-const DEFAULT_ACTIONS = ['stable_swap', 'add_liquidity', 'remove_liquidity'];
-const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
-const STABLE_POOL_ID = getConfig().STABLE_POOL_ID;
-export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
+import { useLocation, useParams } from 'react-router-dom';
+import {
+  SharesCard,
+  StableTokens,
+} from '../../components/stableswap/CommonComp';
+import { TokenMetadata } from '../../services/ft-contract';
+import { useFarmStake } from '../../state/farm';
+import {
+  BackToStablePoolList,
+  Images,
+} from '../../components/stableswap/CommonComp';
+import BigNumber from 'bignumber.js';
+import { getStablePoolFromCache, Pool, StablePool } from '../../services/pool';
+import { getStableSwapTabKey } from './StableSwapPageUSN';
+import { STABLE_TOKEN_IDS } from '../../services/near';
+export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
+const STABLE_TOKENS = ['USDT.e', 'USDC', 'DAI'];
 
 interface LocationTypes {
   stableTab?: string;
+  shares?: string;
+  stakeList?: Record<string, string>;
+  farmStake?: string | number;
+  pool?: Pool;
 }
 
-function StableSwapPage() {
-  const { pool, shares, stakeList } = usePool(STABLE_POOL_ID);
+interface ParamTypes {
+  id: string;
+}
+
+function StableSwapPage({ pool }: { pool: Pool }) {
   const { state } = useLocation<LocationTypes>();
+  const { id } = useParams<ParamTypes>();
 
-  const [actionName, setAction] = useState<string>(
-    state?.stableTab ||
-      localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) ||
-      DEFAULT_ACTIONS[0]
-  );
+  const REF_STABLE_SWAP_TAB_KEY = getStableSwapTabKey(pool.id);
 
-  const [loadingTrigger, setLoadingTrigger] = useState<boolean>(false);
-  const [loadingPause, setLoadingPause] = useState<boolean>(false);
+  const stableTab = state?.stableTab;
+
+  const storageTab =
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) === 'add_liquidity' ||
+    localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) === 'remove_liquidity'
+      ? localStorage.getItem(REF_STABLE_SWAP_TAB_KEY)
+      : DEFAULT_ACTIONS[0];
+
+  const [actionName, setAction] = useState<string>(stableTab || storageTab);
+
+  const { shares } = state?.pool ? state : usePool(id);
+
+  const [stablePool, setStablePool] = useState<StablePool>();
+
+  useEffect(() => {
+    getStablePoolFromCache(id.toString()).then((res) => {
+      setStablePool(res[1]);
+    });
+  }, []);
 
   const allTokens = useWhitelistStableTokens();
   const tokens =
     allTokens &&
     allTokens.length > 0 &&
-    allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
+    allTokens.filter((item) => STABLE_TOKEN_IDS.indexOf(item.id) > -1);
 
   const nearBalances = useWalletTokenBalances(
     tokens?.map((token) => token.id) || []
   );
 
-  const stablePool = useStablePool({
-    loadingTrigger,
-    setLoadingTrigger,
-    loadingPause,
-    setLoadingPause,
-  });
-
   const changeAction = (actionName: string) => {
+    localStorage.setItem(REF_STABLE_SWAP_TAB_KEY, actionName);
     setAction(actionName);
   };
 
@@ -73,36 +98,23 @@ function StableSwapPage() {
     switch (tab) {
       case DEFAULT_ACTIONS[0]:
         return (
-          <StableSwap
+          <AddLiquidityComponent
+            changeAction={changeAction}
+            stablePool={stablePool}
+            pool={pool}
             tokens={tokens}
             balances={nearBalances}
-            stablePool={stablePool}
-            loadingTrigger={loadingTrigger}
-            setLoadingTrigger={setLoadingTrigger}
-            loadingPause={loadingPause}
-            setLoadingPause={setLoadingPause}
           />
         );
       case DEFAULT_ACTIONS[1]:
         return (
-          <AddLiquidityComponent
-            stablePool={stablePool}
-            pool={pool}
-            tokens={tokens}
-            totalShares={shares}
-            stakeList={stakeList}
-            balances={nearBalances}
-          />
-        );
-      case DEFAULT_ACTIONS[2]:
-        return (
           <RemoveLiquidityComponent
+            changeAction={changeAction}
             stablePool={stablePool}
             tokens={tokens}
             shares={shares}
             balances={nearBalances}
             pool={pool}
-            stakeList={stakeList}
           />
         );
     }
@@ -110,26 +122,11 @@ function StableSwapPage() {
 
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">
-      <div className="flex justify-center -mt-10 mb-2 xs:hidden md:hidden">
-        <StableSwapLogo></StableSwapLogo>
-      </div>
-      <div className="flex justify-center -mt-10 mb-2 lg:hidden">
-        <StableSwapLogo width="100" height="76"></StableSwapLogo>
-      </div>
-      <SquareRadio
-        onChange={changeAction}
-        radios={DEFAULT_ACTIONS}
-        currentChoose={actionName}
-      />
+      {<BackToStablePoolList />}
+      {<StableTokens tokens={tokens} />}
+      {<SharesCard shares={shares} pool={pool} />}
       {renderModule(actionName)}
-      {
-        <TokenReserves
-          totalStableCoins="100"
-          tokens={tokens}
-          pool={pool}
-          inSwapPage={actionName === DEFAULT_ACTIONS[0]}
-        />
-      }
+      {<TokenReserves tokens={tokens} pools={[pool]} forPool hiddenChart />}
     </div>
   );
 }

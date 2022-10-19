@@ -19,12 +19,14 @@ import {
   CoinPropertyIcon,
   SortIcon,
   NoDataIcon,
+  LightSmall,
 } from '~components/icon';
 import {
   GreenLButton,
   BorderButton,
   GradientButton,
   ButtonTextWrapper,
+  BlacklightConnectToNearBtn,
 } from '~components/button/Button';
 import {
   getFarms,
@@ -42,6 +44,8 @@ import {
   incentiveLpTokenConfig,
   defaultConfig,
   frontConfig,
+  get_seed_info,
+  useMigrate_user_data,
 } from '~services/farm';
 import {
   stake,
@@ -75,17 +79,31 @@ import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { getTokenPriceList } from '~services/indexer';
 import Countdown, { zeroPad } from 'react-countdown';
 import moment from 'moment';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
 import getConfig from '~services/config';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import { scientificNotationToString } from '../../utils/numbers';
-const config = getConfig();
-const STABLE_POOL_ID = config.STABLE_POOL_ID;
+import { getPrice } from '~services/xref';
+import { get24hVolume } from '~services/indexer';
+import { PoolRPCView } from '~services/api';
+import { checkTransaction } from '../../services/swap';
+import {
+  getURLInfo,
+  usnBuyAndSellToast,
+  swapToast,
+} from '../../components/layout/transactionTipPopUp';
+import { MigrateIconSmall } from '../../components/icon/FarmBoost';
+const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID, XREF_TOKEN_ID, REF_TOKEN_ID } =
+  getConfig();
+const DECIMALS_XREF_REF_TRANSTER = 8;
 interface SearchData {
   status: number;
   sort: string;
@@ -98,7 +116,7 @@ export function FarmsPage() {
   const location = useLocation();
   const sortList = {
     default: intl.formatMessage({ id: 'default' }),
-    multiple: intl.formatMessage({ id: 'multiple' }),
+    // multiple: intl.formatMessage({ id: 'multiple' }),
     apr: intl.formatMessage({ id: 'apr' }),
     new: intl.formatMessage({ id: 'new' }),
     total_staked: intl.formatMessage({ id: 'total_staked' }),
@@ -136,15 +154,62 @@ export function FarmsPage() {
 
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
-  const withdrawNumber = 5;
+  const withdrawNumber = 4;
   const refreshTime = 120000;
   const [count, setCount] = useState(0);
   const [commonSeedFarms, setCommonSeedFarms] = useState({});
+  const [dayVolumeMap, setDayVolumeMap] = useState({});
 
   const { wallet } = getCurrentWallet();
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  const history = useHistory();
+
+  const [popUp, setPopUp] = useState(false);
+
+  const { txHash, pathname, errorType } = getURLInfo();
+
+  useEffect(() => {
+    if (txHash && isSignedIn && pathname === '/farms' && popUp) {
+      checkTransaction(txHash)
+        .then((res: any) => {
+          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
+
+          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
+            return slippageErrorPattern.test(
+              outcome?.outcome?.status?.Failure?.ActionError?.kind
+                ?.FunctionCallError?.ExecutionError
+            );
+          });
+          const transaction = res.transaction;
+          const methodName =
+            transaction?.actions[0]?.['FunctionCall']?.method_name;
+          return {
+            isUSN: methodName == 'buy' || methodName == 'sell',
+            isSlippageError,
+            isNearWithdraw: methodName == 'near_withdraw',
+            isNearDeposit: methodName == 'near_deposit',
+          };
+        })
+        .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
+          if (isUSN || isNearWithdraw || isNearDeposit) {
+            isUSN &&
+              !isSlippageError &&
+              !errorType &&
+              usnBuyAndSellToast(txHash);
+            (isNearWithdraw || isNearDeposit) &&
+              !errorType &&
+              swapToast(txHash);
+            window.history.replaceState(
+              {},
+              '',
+              window.location.origin + pathname
+            );
+          }
+        });
+    }
+  }, [txHash, isSignedIn, popUp]);
 
   useEffect(() => {
     loadFarmInfoList(false, isSignedIn).then();
@@ -174,6 +239,7 @@ export function FarmsPage() {
       searchByCondition();
     }
   }, [location.search]);
+  const { user_migrate_seeds, seed_loading } = useMigrate_user_data();
   async function loadFarmInfoList(isUpload?: boolean, isSignedIn?: boolean) {
     if (isUpload) {
       setUnclaimedFarmsIsLoading(false);
@@ -185,10 +251,11 @@ export function FarmsPage() {
       return {};
     };
     let Params: [
-      Promise<Record<string, string>>,
+      any,
       Promise<Record<string, string>>,
       Promise<any>,
-      Promise<Record<string, string>>
+      Promise<Record<string, string>>,
+      Promise<any>
     ];
 
     if (isSignedIn) {
@@ -197,21 +264,31 @@ export function FarmsPage() {
         getRewards({}),
         getTokenPriceList(),
         getSeeds({}),
+        getPrice(),
       ];
     } else {
-      Params = [emptyObj(), emptyObj(), getTokenPriceList(), getSeeds({})];
+      Params = [
+        emptyObj(),
+        emptyObj(),
+        getTokenPriceList(),
+        getSeeds({}),
+        getPrice(),
+      ];
     }
 
     const resolvedParams: [
-      Record<string, string>,
+      any,
       Record<string, string>,
       any,
-      Record<string, string>
+      Record<string, string>,
+      any
     ] = await Promise.all(Params);
 
-    const stakedList: Record<string, string> = resolvedParams[0];
+    const stakedList: Record<string, string> =
+      resolvedParams[0].stakedList || {};
     const tokenPriceList: any = resolvedParams[2];
     const seeds: Record<string, string> = resolvedParams[3];
+    getAllPoolsDayVolume(seeds);
 
     Object.entries(resolvedParams[1]).forEach((item) => {
       const [key, v] = item;
@@ -219,6 +296,27 @@ export function FarmsPage() {
         rewardList[key] = v;
       }
     });
+    /** get xref price start */
+    const xrefToRefRate = toReadableNumber(
+      DECIMALS_XREF_REF_TRANSTER,
+      resolvedParams[4]
+    );
+    const keyList: any = Object.keys(tokenPriceList);
+    for (let i = 0; i < keyList.length; i++) {
+      const tokenPrice = tokenPriceList[keyList[i]];
+      if (keyList[i] == REF_TOKEN_ID) {
+        const price = new BigNumber(xrefToRefRate)
+          .multipliedBy(tokenPrice.price || 0)
+          .toFixed();
+        tokenPriceList[XREF_TOKEN_ID] = {
+          price,
+          symbol: 'xREF',
+          decimal: tokenPrice.decimal,
+        };
+        break;
+      }
+    }
+    /** get xref price end */
     const stakedList_being = Object.keys(stakedList).length > 0;
     searchData.status = sortList[sort_from_url]
       ? 1
@@ -257,8 +355,8 @@ export function FarmsPage() {
         return ele;
       });
       tempFarms.forEach((arr: any) => {
-        const totalApr = getTotalApr(arr);
-        arr.totalApr = totalApr;
+        const allfarmApr = getTotalApr(arr);
+        arr.totalApr = +allfarmApr;
       });
 
       tempFarms.forEach((farm) => {
@@ -295,6 +393,7 @@ export function FarmsPage() {
       }
     }
     setUnclaimedFarmsIsLoading(false);
+    setPopUp(true);
     getTokenSinglePrice(farms, rewardList, tokenPriceList);
     const [mergeFarms, commonSeedFarms] = composeFarms(farms);
     searchByCondition(mergeFarms, commonSeedFarms);
@@ -438,7 +537,11 @@ export function FarmsPage() {
         if (item1.front || item2.front) {
           return Number(item2.front || 0) - Number(item1.front || 0);
         }
-        return Number(item2.totalApr) - Number(item1.totalApr);
+        const item2APR =
+          Number(item2.totalApr) + Number(getPoolAprValue(item2));
+        const item1APR =
+          Number(item1.totalApr) + Number(getPoolAprValue(item1));
+        return Number(item2APR) - Number(item1APR);
       });
     } else if (sort == 'total_staked') {
       listAll.sort((item1: any, item2: any) => {
@@ -466,16 +569,39 @@ export function FarmsPage() {
     setNoData(noData);
     setCommonSeedFarms(tempCommonSeedFarms || commonSeedFarms);
   }
+  function getPoolAprValue(arr: any) {
+    const poolId = arr[0]?.pool?.id || '';
+    let poolApr = 0;
+    if (dayVolumeMap[poolId]) {
+      poolApr = getPoolFeeApr(dayVolumeMap[poolId], arr[0].pool);
+    }
+    return poolApr;
+  }
   function getTotalApr(farmsData: FarmInfo[]) {
     let apr = 0;
-    if (farmsData.length > 1) {
-      farmsData.forEach(function (item) {
+    const allPendingFarms = isPending(farmsData);
+    farmsData.forEach(function (item) {
+      const pendingFarm =
+        moment.unix(item.start_at).valueOf() > moment().valueOf();
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
         apr += Number(item.apr);
-      });
-    } else {
-      apr = Number(farmsData[0].apr);
-    }
+      }
+    });
     return toPrecision(apr.toString(), 2);
+  }
+  function isPending(farmsData: FarmInfo[]) {
+    let pending: boolean = true;
+    for (let i = 0; i < farmsData.length; i++) {
+      if (moment.unix(farmsData[i].start_at).valueOf() > moment().valueOf()) {
+        pending = true;
+      } else {
+        if (farmsData[i].farm_status != 'Pending') {
+          pending = false;
+          break;
+        }
+      }
+    }
+    return pending;
   }
   function isEnded(farmsData: FarmInfo[]) {
     let ended: boolean = true;
@@ -561,6 +687,42 @@ export function FarmsPage() {
     setSearchData(Object.assign({}, searchData));
     searchByCondition();
   };
+  async function getAllPoolsDayVolume(seed: any) {
+    const tempMap = {};
+    const poolIds: string[] = [];
+    const seedIds = Object.keys(seed);
+    seedIds.forEach((seedId: string) => {
+      poolIds.push(seedId.split('@')[1]);
+    });
+    // get24hVolume
+    const promisePoolIds = poolIds.map((poolId: string) => {
+      return get24hVolume(poolId);
+    });
+    try {
+      const resolvedResult = await Promise.all(promisePoolIds);
+      poolIds.forEach((poolId: string, index: number) => {
+        tempMap[poolId] = resolvedResult[index];
+      });
+      setDayVolumeMap(tempMap);
+    } catch (error) {}
+  }
+  function getPoolFeeApr(dayVolume: string, pool: PoolRPCView) {
+    let result = '0';
+    if (dayVolume) {
+      const { total_fee, tvl } = pool;
+      const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
+      if (tvl > 0 && revenu24h > 0) {
+        const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+        result = toPrecision(annualisedFeesPrct.toString(), 2);
+      }
+    }
+    return Number(result);
+  }
+  function goMigrate() {
+    history.push('/farmsMigrate');
+  }
+  const showMigrateEntry = !seed_loading && user_migrate_seeds.length > 0;
+
   return (
     <div className="xs:w-full md:w-full xs:mt-4 md:mt-4">
       <div className="w-1/3 xs:w-full md:w-full flex m-auto justify-center">
@@ -568,10 +730,54 @@ export function FarmsPage() {
       </div>
       <div className="grid grid-cols-farmContainerOther 2xl:grid-cols-farmContainer grid-flow-col xs:grid-cols-1 xs:grid-flow-row md:grid-cols-1 md:grid-flow-row">
         <div className="text-white pl-12 xs:px-5 md:px-5">
-          <div className="text-white text-3xl h-12">
-            <FormattedMessage id="farms" defaultMessage="Farms" />
+          <div className="flex items-center justify-between -mt-3">
+            <div className="flex items-center text-white text-2xl h-12">
+              <FormattedMessage id="farms" defaultMessage="Farms" />
+            </div>
+            <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
+              <span className="flex items-center justify-center text-sm  text-chartBg cursor-pointer px-2 h-full  rounded-2xl bg-farmSearch">
+                <FormattedMessage id="v1Legacy" />
+              </span>
+              <span
+                onClick={() => {
+                  history.push('/v2farms');
+                }}
+                className="flex items-center justify-center rounded-2xl text-sm  text-farmText cursor-pointer px-3 h-full"
+              >
+                <FormattedMessage id="v2New" />
+              </span>
+            </div>
           </div>
-          <div className="rounded-2xl bg-cardBg pt-5 pb-8 relative overflow-hidden">
+          {showMigrateEntry ? (
+            <div className="relative bg-veGradient rounded-2xl p-4 mt-2">
+              <span className="flex items-center justify-start text-white text-lg font-black my-2">
+                <FormattedMessage id="v2_new_farms" />
+              </span>
+              <p
+                className="text-white text-sm"
+                dangerouslySetInnerHTML={{
+                  __html: intl.formatMessage({
+                    id: REF_VE_CONTRACT_ID ? 'v2_boost_tip' : 'v2_boost_no_tip',
+                  }),
+                }}
+              ></p>
+              <MigrateIconSmall className="absolute -bottom-3 -left-3.5"></MigrateIconSmall>
+              <div className="flex justify-end">
+                {isSignedIn ? (
+                  <div
+                    onClick={goMigrate}
+                    className="flex items-center h-8 w-2/3 justify-center bg-otherGreenColor hover:bg-black hover:text-greenColor rounded-lg text-black text-sm cursor-pointer mt-6 mb-3"
+                  >
+                    <FormattedMessage id="migrate_now" />
+                  </div>
+                ) : (
+                  <BlacklightConnectToNearBtn className="h-8 w-3/4 mt-6 mb-5" />
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          <div className="rounded-2xl bg-cardBg pt-5 pb-8 relative overflow-hidden mt-4 ">
             <div className="flex justify-between px-5 pb-12 relative">
               <div className="flex flex-col items-center">
                 <div className="flex items-center text-white text-sm text-center mb-1.5">
@@ -671,7 +877,9 @@ export function FarmsPage() {
                         Object.keys(checkedList).length == 0 ? 'opacity-40' : ''
                       }`}
                       onClick={doWithDraw}
-                      disabled={Object.keys(checkedList).length == 0}
+                      disabled={
+                        Object.keys(checkedList).length == 0 || withdrawLoading
+                      }
                       btnClassName={
                         Object.keys(checkedList).length == 0
                           ? 'cursor-not-allowed'
@@ -713,7 +921,7 @@ export function FarmsPage() {
                 <div className="flex items-center text-farmText rounded-full h-6 bg-farmSbg lg:mr-4">
                   <label
                     onClick={() => changeStatus(1)}
-                    className={`flex justify-center w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
+                    className={`flex justify-center w-32 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
                       +searchData.status == 1
                         ? 'text-chartBg bg-farmSearch'
                         : ''
@@ -723,7 +931,7 @@ export function FarmsPage() {
                   </label>
                   <label
                     onClick={() => changeStatus(0)}
-                    className={`flex justify-center w-28 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
+                    className={`flex justify-center w-32 xs:w-24 md:w-24 items-center rounded-full h-full text-sm cursor-pointer ${
                       searchData.status != null && +searchData.status == 0
                         ? 'text-chartBg bg-farmSearch'
                         : ''
@@ -737,7 +945,7 @@ export function FarmsPage() {
                   {isSignedIn ? (
                     <label
                       onClick={() => changeStatus(2)}
-                      className={`flex justify-center  w-28  items-center rounded-full h-full text-sm cursor-pointer ${
+                      className={`flex justify-center  w-32  items-center rounded-full h-full text-sm cursor-pointer ${
                         +searchData.status == 2
                           ? 'text-chartBg bg-farmSearch'
                           : ''
@@ -750,8 +958,8 @@ export function FarmsPage() {
                     </label>
                   ) : null}
                 </div>
-                <div className="flex justify-between xs:w-full md:w-full xs:mt-4 md:mt-4">
-                  <div className="flex items-center relative mr-4 xs:mr-0 md:mr-0">
+                <div className="flex justify-between flex-wrap xs:w-full md:w-full xs:mt-4 md:mt-4">
+                  <div className="flex items-center relative mr-4 xs:mr-0 md:mr-0 xs:mb-2 md:mb-2">
                     <label className="text-farmText text-xs mr-2 whitespace-nowrap xs:hidden">
                       <FormattedMessage
                         id="filter_by"
@@ -762,11 +970,10 @@ export function FarmsPage() {
                       id={searchData.coin}
                       list={filterList}
                       onChange={changeCoinOption}
-                      className="w-34"
                       Icon={isMobile() ? CoinPropertyIcon : ''}
-                    ></SelectUi>
+                    />
                   </div>
-                  <div className="flex items-center relative">
+                  <div className="flex items-center relative xs:mb-2 md:mb-2">
                     <label className="text-farmText text-xs mr-2 xs:hidden md:hidden">
                       <FormattedMessage id="sort_by" defaultMessage="Sort by" />
                     </label>
@@ -775,8 +982,7 @@ export function FarmsPage() {
                       list={sortList}
                       onChange={changeSortOption}
                       Icon={isMobile() ? SortIcon : ''}
-                      className="w-34"
-                    ></SelectUi>
+                    />
                   </div>
                 </div>
               </div>
@@ -811,6 +1017,7 @@ export function FarmsPage() {
                         seeds={seeds}
                         tokenPriceMap={tokenPriceMap}
                         lps={lps}
+                        dayVolumeMap={dayVolumeMap}
                       />
                     </div>
                   ))}
@@ -933,6 +1140,7 @@ function FarmView({
   seeds,
   tokenPriceMap,
   lps,
+  dayVolumeMap,
 }: {
   farmsData: FarmInfo[];
   farmData: FarmInfo;
@@ -942,6 +1150,7 @@ function FarmView({
   seeds: Record<string, string>;
   tokenPriceMap: Record<string | number, string | number>;
   lps: Record<string, FarmInfo[]>;
+  dayVolumeMap: Record<string, string>;
 }) {
   const [farmsIsLoading, setFarmsIsLoading] = useState(false);
   const [unstakeVisible, setUnstakeVisible] = useState(false);
@@ -960,8 +1169,8 @@ function FarmView({
     Record<string | number, string | number>
   >({});
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   const { wallet } = getCurrentWallet();
 
@@ -1064,6 +1273,21 @@ function FarmView({
   function getAllRewardsPerWeek() {
     let result: string = '';
     let totalPrice = 0;
+    // get total price  start
+    const allPendingFarms = isPending(farmData);
+    farmsData.forEach((farm: FarmInfo) => {
+      const { rewardsPerWeek, rewardToken } = farm;
+      const { id } = rewardToken;
+      const pendingFarm =
+        moment.unix(farm.start_at).valueOf() > moment().valueOf();
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+        if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
+          const price = +rewardsPerWeek * +tokenPriceMap[id];
+          totalPrice += price;
+        }
+      }
+    });
+    // get total price  end
     mergeCommonRewardFarms.forEach(
       (
         item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
@@ -1075,11 +1299,11 @@ function FarmView({
           no_pending,
         } = item;
         const { id, icon } = rewardToken;
-        let price = 0;
-        if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
-          price = +rewardsPerWeek * +tokenPriceMap[id];
-          totalPrice += price;
-        }
+        // let price = 0;
+        // if (tokenPriceMap[id] && tokenPriceMap[id] != 'N/A') {
+        //   price = +rewardsPerWeek * +tokenPriceMap[id];
+        //   totalPrice += price;
+        // }
         let itemHtml = '';
         if (diff_start_time_pending) {
           diff_start_time_pending.forEach((farm: FarmInfo) => {
@@ -1185,7 +1409,7 @@ function FarmView({
   async function showStakeModal() {
     const { lpTokenId } = data;
     const b = await mftGetBalance(getMftTokenId(lpTokenId));
-    if (STABLE_POOL_ID == lpTokenId) {
+    if (new Set(STABLE_POOL_IDS || []).has(lpTokenId?.toString())) {
       setStakeBalance(toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b));
     } else {
       setStakeBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
@@ -1199,7 +1423,7 @@ function FarmView({
     if (farmsData.length > 1) {
       claimRewardBySeed(data.seed_id)
         .then(() => {
-          window.location.reload();
+          // window.location.reload();
         })
         .catch((error) => {
           setDisableClaim(false);
@@ -1208,7 +1432,7 @@ function FarmView({
     } else {
       claimRewardByFarm(data.farm_id)
         .then(() => {
-          window.location.reload();
+          // window.location.reload();
         })
         .catch((error) => {
           setDisableClaim(false);
@@ -1354,18 +1578,59 @@ function FarmView({
 
   function getTotalApr() {
     let apr = 0;
-    if (farmsData.length > 1) {
-      farmsData.forEach(function (item) {
+    const allPendingFarms = isPending(farmData);
+    farmsData.forEach(function (item) {
+      const pendingFarm =
+        moment.unix(item.start_at).valueOf() > moment().valueOf();
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
         apr += Number(item.apr);
-      });
-    } else {
-      apr = Number(data.apr);
+      }
+    });
+    const dayVolume = getPoolFeeApr(dayVolumeMap[farmData.pool.id]);
+    if (+dayVolume > 0) {
+      apr += Number(dayVolume);
     }
     return toPrecision(apr.toString(), 2);
   }
+  function plusAllFarmApr() {
+    let apr = 0;
+    const allPendingFarms = isPending(farmData);
+    farmsData.forEach(function (item) {
+      const pendingFarm =
+        moment.unix(item.start_at).valueOf() > moment().valueOf();
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+        apr += Number(item.apr);
+      }
+    });
+    if (apr == 0) {
+      return '-';
+    } else {
+      return toPrecision(apr.toString(), 2) + '%';
+    }
+  }
   function getAprList() {
     let result: string = '';
-    mergeCommonRewardFarms.forEach(
+    const newMergeCommonRewardFarms = JSON.parse(
+      JSON.stringify(mergeCommonRewardFarms)
+    );
+    const dayVolume = getPoolFeeApr(dayVolumeMap[farmData.pool.id]);
+    const totalApr = plusAllFarmApr();
+    const txt1 = intl.formatMessage({ id: 'pool_fee_apr' });
+    const txt2 = intl.formatMessage({ id: 'reward_apr' });
+    result = `
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-navHighLightText mr-3">${txt1}</span>
+      <span class="text-sm text-white font-bold">${
+        +dayVolume > 0 ? dayVolume + '%' : '-'
+      }</span>
+    </div>
+    <div class="flex justify-end text-white text-sm font-bold ">+</div>
+    <div class="flex items-center justify-between ">
+      <span class="text-xs text-navHighLightText mr-3">${txt2}</span>
+      <span class="text-sm text-white font-bold">${totalApr}</span>
+    </div>
+    `;
+    newMergeCommonRewardFarms.forEach(
       (
         item: FarmInfo & { diff_start_time_pending: any[]; no_pending: any[] }
       ) => {
@@ -1497,7 +1762,7 @@ function FarmView({
         <img
           key={id + index}
           className={
-            'h-11 w-11 rounded-full border border-gradientFromHover ' +
+            'h-11 w-11 rounded-full border border-gradientFromHover bg-cardBg ' +
             (index != 0 ? '-ml-1.5' : '')
           }
           src={icon}
@@ -1526,9 +1791,16 @@ function FarmView({
   function showCalcModel() {
     setCalcVisible(true);
   }
-  function tipOfApr() {
-    const tip = intl.formatMessage({ id: 'aprTip' });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+  function getPoolFeeApr(dayVolume: string) {
+    let result = '0';
+    if (dayVolume) {
+      const { total_fee, tvl } = farmData.pool;
+      const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
+      if (tvl > 0 && revenu24h > 0) {
+        const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
+        result = toPrecision(annualisedFeesPrct.toString(), 2);
+      }
+    }
     return result;
   }
   return (
@@ -1554,17 +1826,10 @@ function FarmView({
             <div className="order-2 lg:ml-auto xl:m-0">
               <div>
                 <Link
-                  to={
-                    PoolId == STABLE_POOL_ID
-                      ? {
-                          pathname: '/stableswap',
-                          state: { backToFarms: true },
-                        }
-                      : {
-                          pathname: `/pool/${PoolId}`,
-                          state: { backToFarms: true },
-                        }
-                  }
+                  to={{
+                    pathname: `/pool/${PoolId}`,
+                    state: { backToFarms: true },
+                  }}
                   target="_blank"
                   className="text-lg xs:text-sm text-white"
                 >
@@ -1580,11 +1845,7 @@ function FarmView({
           </div>
           <Link
             title={intl.formatMessage({ id: 'view_pool' })}
-            to={
-              PoolId == STABLE_POOL_ID
-                ? { pathname: '/stableswap', state: { backToFarms: true } }
-                : { pathname: `/pool/${PoolId}`, state: { backToFarms: true } }
-            }
+            to={{ pathname: `/pool/${PoolId}`, state: { backToFarms: true } }}
             target="_blank"
           >
             <span
@@ -1651,7 +1912,6 @@ function FarmView({
               <div
                 className="text-xl text-white"
                 data-type="info"
-                data-place="top"
                 data-multiline={true}
                 data-tip={getAprList()}
                 data-html={true}
@@ -1661,26 +1921,6 @@ function FarmView({
                 {`${getTotalApr() === '0' ? '-' : `${getTotalApr()}%`}`}
                 <ReactTooltip
                   id={'aprId' + data.farm_id}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
-              </div>
-              <div
-                className="ml-2 text-sm"
-                data-type="info"
-                data-place="right"
-                data-multiline={true}
-                data-class="reactTip"
-                data-html={true}
-                data-tip={tipOfApr()}
-                data-for="aprValueId"
-              >
-                <QuestionMark />
-                <ReactTooltip
-                  className="w-20"
-                  id="aprValueId"
                   backgroundColor="#1D2932"
                   border
                   borderColor="#7e8a93"
@@ -1836,7 +2076,7 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenColor"
+                  className="flex-grow  w-20 text-sm text-greenColor"
                 >
                   <FormattedMessage id="unstake" defaultMessage="Unstake" />
                 </BorderButton>
@@ -1849,14 +2089,14 @@ function FarmView({
                   rounded="rounded-md"
                   px="px-0"
                   py="py-1"
-                  className="flex-grow  w-20 text-base text-greenColor"
+                  className="flex-grow  w-20 text-sm text-greenColor"
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
                 </BorderButton>
               ) : (
                 <GradientButton
                   color="#fff"
-                  className={`w-full h-10 text-center text-base text-white mt-4 focus:outline-none font-semibold `}
+                  className={`w-full h-10 text-center text-sm text-white mt-4 focus:outline-none font-semibold `}
                   onClick={() => showStakeModal()}
                 >
                   <FormattedMessage id="stake" defaultMessage="Stake" />
@@ -1866,8 +2106,8 @@ function FarmView({
                 <GradientButton
                   color="#fff"
                   onClick={() => claimReward()}
-                  disabled={disableClaim}
-                  className="text-white text-base flex-grow  w-20"
+                  disabled={disableClaim || claimLoading}
+                  className="text-white text-sm flex-grow  w-20"
                   loading={claimLoading}
                 >
                   <div>
@@ -2023,6 +2263,7 @@ function ActionModal(
   const [amount, setAmount] = useState<string>('');
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showCalc, setShowCalc] = useState(false);
+  const [min_deposit, set_min_deposit] = useState('0');
   const cardWidth = isMobile() ? '90vw' : '30vw';
   const tokens = useTokens(farm?.tokenIds) || [];
   const [displayTokenData, setDisplayTokenData] = useState<Record<string, any>>(
@@ -2071,6 +2312,12 @@ function ActionModal(
       symbols: symbols.join('-'),
     });
   }, [tokens.length > 0 && tokens]);
+  useEffect(() => {
+    get_seed_info(farm.seed_id).then((result) => {
+      const { min_deposit } = result;
+      set_min_deposit(min_deposit);
+    });
+  }, []);
   function isEnded(farmsData: FarmInfo[]) {
     let ended: boolean = true;
     for (let i = 0; i < farmsData.length; i++) {
@@ -2120,9 +2367,10 @@ function ActionModal(
   }
   function stakeCheckFun(amount: string) {
     if (type == 'stake') {
-      const LIMITAOMUNT = '1000000000000000000';
+      const LIMITAOMUNT =
+        Number(min_deposit) > 0 ? min_deposit : '1000000000000000000';
       let value;
-      if (STABLE_POOL_ID == farm.lpTokenId) {
+      if (new Set(STABLE_POOL_IDS || []).has(farm.lpTokenId?.toString())) {
         value = toNonDivisibleNumber(LP_STABLE_TOKEN_DECIMALS, amount);
       } else {
         value = toNonDivisibleNumber(LP_TOKEN_DECIMALS, amount);
@@ -2134,6 +2382,17 @@ function ActionModal(
       }
     }
     setAmount(amount);
+  }
+  function getMinDepositAmount() {
+    const LIMITAOMUNT =
+      Number(min_deposit) > 0 ? min_deposit : '1000000000000000000';
+    let value;
+    if (new Set(STABLE_POOL_IDS || []).has(farm.lpTokenId?.toString())) {
+      value = toReadableNumber(LP_STABLE_TOKEN_DECIMALS, LIMITAOMUNT);
+    } else {
+      value = toReadableNumber(LP_TOKEN_DECIMALS, LIMITAOMUNT);
+    }
+    return value;
   }
   return (
     <Modal {...props}>
@@ -2158,7 +2417,6 @@ function ActionModal(
               <div className="flex items-center">
                 {displayTokenData.imgs}
                 <label className="ml-3 text-base text-white">
-                  {/* {displayTokenData.symbols}{' '} */}
                   <FormattedMessage id="my_shares"></FormattedMessage>
                 </label>
               </div>
@@ -2190,7 +2448,7 @@ function ActionModal(
                       </label>
                       <label
                         className={
-                          'cursor-pointer ' +
+                          'text-white cursor-pointer ' +
                           (showCalc ? 'transform rotate-180' : '')
                         }
                       >
@@ -2218,9 +2476,8 @@ function ActionModal(
                   <Alert
                     level="warn"
                     message={
-                      STABLE_POOL_ID == farm.lpTokenId
-                        ? intl.formatMessage({ id: 'more_than_stable_seed' })
-                        : intl.formatMessage({ id: 'more_than_general_seed' })
+                      intl.formatMessage({ id: 'stake_min_deposit' }) +
+                      getMinDepositAmount()
                     }
                   />
                 ) : null}
@@ -2235,7 +2492,8 @@ function ActionModal(
                   !amount ||
                   new BigNumber(amount).isEqualTo(0) ||
                   new BigNumber(amount).isGreaterThan(maxToFormat) ||
-                  stakeCheck
+                  stakeCheck ||
+                  buttonLoading
                 }
                 loading={buttonLoading}
               >

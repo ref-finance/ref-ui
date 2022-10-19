@@ -3,7 +3,9 @@ import _ from 'lodash';
 import moment from 'moment';
 import { isNotStablePool, PoolDetails } from '~services/pool';
 import getConfig from '../services/config';
-
+import { PoolRPCView } from '~services/api';
+import { Seed, FarmBoost } from '~services/farm';
+const checkCacheSeconds = 300;
 interface Pool {
   id: number;
   token1Id: string;
@@ -33,6 +35,7 @@ interface PoolsTokens {
   shares: string;
   update_time: string;
   token0_price: string;
+  Dex?: string;
 }
 
 export interface PoolDb extends Pool {
@@ -69,6 +72,22 @@ export interface TopPool {
   update_time: number;
 }
 
+export interface TokenPrice {
+  id?: string;
+  decimal: number;
+  price: string;
+  symbol: string;
+  update_time?: number;
+}
+
+export interface BoostSeeds {
+  id?: string;
+  seed: Seed;
+  farmList: FarmBoost[];
+  pool: PoolRPCView;
+  update_time?: number;
+}
+
 class RefDatabase extends Dexie {
   public pools: Dexie.Table<Pool>;
   public tokens: Dexie.Table<TokenMetadata>;
@@ -76,11 +95,14 @@ class RefDatabase extends Dexie {
   public poolsTokens: Dexie.Table<PoolsTokens>;
   public watchList: Dexie.Table<WatchList>;
   public topPools: Dexie.Table<TopPool>;
+  public boostFarms: Dexie.Table<FarmDexie>;
+  public tokenPrices: Dexie.Table<TokenPrice>;
+  public boostSeeds: Dexie.Table<BoostSeeds>;
 
   public constructor() {
     super('RefDatabase');
 
-    this.version(5.4).stores({
+    this.version(5.5).stores({
       pools: 'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares',
       tokens: 'id, name, symbol, decimals, icon',
       farms: 'id, pool_id, status',
@@ -88,6 +110,9 @@ class RefDatabase extends Dexie {
         'id, token1Id, token2Id, token1Supply, token2Supply, fee, shares, update_time, token0_price',
       watchList: 'id, account, pool_id, update_time',
       topPools: 'id, pool_kind, update_time',
+      boostFarms: 'id, pool_id, status',
+      tokenPrices: 'id, symbol, update_time',
+      boostSeeds: 'id, update_time',
     });
 
     this.pools = this.table('pools');
@@ -96,6 +121,9 @@ class RefDatabase extends Dexie {
     this.poolsTokens = this.table('pools_tokens');
     this.watchList = this.table('watchList');
     this.topPools = this.table('topPools');
+    this.boostFarms = this.table('boostFarms');
+    this.tokenPrices = this.table('tokenPrices');
+    this.boostSeeds = this.table('boostSeeds');
   }
 
   public allWatchList() {
@@ -120,6 +148,12 @@ class RefDatabase extends Dexie {
 
   public allTopPools() {
     return this.topPools;
+  }
+  public allBoostFarms() {
+    return this.boostFarms;
+  }
+  public allBoostSeeds() {
+    return this.boostSeeds;
   }
 
   public searchPools(args: any, pools: Pool[]): Pool[] {
@@ -184,7 +218,6 @@ class RefDatabase extends Dexie {
     let farms = await this.allFarms().toArray();
     return farms;
   }
-
   public async cachePoolsByTokens(pools: any) {
     await this.poolsTokens.clear();
     const filtered_pools = pools.filter(function (pool: PoolDetails) {
@@ -199,6 +232,7 @@ class RefDatabase extends Dexie {
           fee: number;
           shareSupply: string;
           token0_ref_price: string;
+          Dex: string;
         }) => ({
           id: pool.id,
           token1Id: pool.tokenIds[0],
@@ -209,6 +243,7 @@ class RefDatabase extends Dexie {
           shares: pool.shareSupply,
           update_time: moment().unix(),
           token0_price: pool.token0_ref_price || '0',
+          Dex: pool.Dex,
         })
       )
     );
@@ -223,6 +258,22 @@ class RefDatabase extends Dexie {
     return [items.length > 0, itemsTimeLimit.length > 0];
   }
 
+  public async getAllPoolsTokens() {
+    const items = await this.allPoolsTokens().toArray();
+
+    return items.map((item) => ({
+      id: item.id,
+      fee: item.fee,
+      tokenIds: [item.token1Id, item.token2Id],
+      supplies: {
+        [item.token1Id]: item.token1Supply,
+        [item.token2Id]: item.token2Supply,
+      },
+      token0_ref_price: item.token0_price,
+      Dex: item.Dex,
+    }));
+  }
+
   public async getPoolsByTokens(tokenInId: string, tokenOutId: string) {
     let items = await this.queryPoolsByTokens(tokenInId, tokenOutId);
 
@@ -235,6 +286,7 @@ class RefDatabase extends Dexie {
         [item.token2Id]: item.token2Supply,
       },
       token0_ref_price: item.token0_price,
+      Dex: item.Dex,
     }));
   }
 
@@ -433,6 +485,62 @@ class RefDatabase extends Dexie {
       token0_ref_price: item.token0_price,
     }));
   }
+  /***boost start****/
+  public async queryBoostFarms() {
+    let farms = await this.allBoostFarms().toArray();
+    return farms;
+  }
+  public async queryTokenPrices() {
+    return await this.tokenPrices.toArray();
+  }
+  public async queryBoostSeeds() {
+    return await this.boostSeeds.toArray();
+  }
+  public async checkTokenPrices() {
+    const priceList = await this.tokenPrices.limit(2).toArray();
+    return (
+      priceList.length > 0 &&
+      priceList.every(
+        (price) =>
+          Number(price.update_time) >=
+          Number(moment().unix()) - checkCacheSeconds
+      )
+    );
+  }
+  public async checkBoostSeeds() {
+    const boostSeeds = await this.boostSeeds.limit(2).toArray();
+    return (
+      boostSeeds.length > 0 &&
+      boostSeeds.every(
+        (boostSeed) =>
+          Number(boostSeed.update_time) >=
+          Number(moment().unix()) - checkCacheSeconds
+      )
+    );
+  }
+  public async cacheTokenPrices(tokenPriceMap: Record<string, TokenPrice>) {
+    // await this.tokenPrices.clear();
+    const cacheData: TokenPrice[] = [];
+    const tokenIds = Object.keys(tokenPriceMap);
+    tokenIds.forEach((tokenId: string) => {
+      cacheData.push({
+        ...tokenPriceMap[tokenId],
+        id: tokenId,
+        update_time: moment().unix(),
+      });
+    });
+    this.tokenPrices.bulkPut(cacheData);
+  }
+  public async cacheBoostSeeds(boostSeeds: BoostSeeds[]) {
+    // await this.boostSeeds.clear();
+    await this.boostSeeds.bulkPut(
+      boostSeeds.map((boostSeed: BoostSeeds) => ({
+        ...boostSeed,
+        update_time: moment().unix(),
+      }))
+    );
+  }
+  /***boost end****/
 
   // public async queryPoolsByToken1ORToken2(token1Id: string, token2Id: string) {
   //   let res1 = await this.queryPoolsBytoken(token1Id);

@@ -91,11 +91,7 @@ export default function StableTokenList(props: {
 
   return (
     <div className="mt-4 px-8">
-      <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
-        <span className="mr-2 text-primaryText">
-          {/* <RefIcon></RefIcon> */}
-          <SmallWallet />
-        </span>
+      <div className="flex justify-end items-center text-xs text-right mb-1 text-farmText">
         <FormattedMessage id="balance" defaultMessage="Balance" />
         :&nbsp;
         <span
@@ -128,11 +124,7 @@ export default function StableTokenList(props: {
         />
       </div>
       <div className=" my-4">
-        <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
-          <span className="mr-2 text-primaryText">
-            {/* <RefIcon></RefIcon> */}
-            <SmallWallet />
-          </span>
+        <div className="flex justify-end items-center text-xs text-right mb-1 text-farmText">
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           <span
@@ -164,11 +156,7 @@ export default function StableTokenList(props: {
         </div>
       </div>
       <div className="my-4">
-        <div className="flex justify-end items-center text-xs text-right mb-1 text-gray-400">
-          <span className="mr-2 text-primaryText">
-            {/* <RefIcon></RefIcon> */}
-            <SmallWallet />
-          </span>
+        <div className="flex justify-end items-center text-xs text-right mb-1 text-farmText">
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
           <span

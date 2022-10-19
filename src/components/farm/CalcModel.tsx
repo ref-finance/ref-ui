@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { ModalClose, SwitchBtn, HandIcon, LinkIcon } from '~components/icon';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useState, useEffect, useRef } from 'react';
 import { BigNumber } from 'bignumber.js';
-import { wallet } from '~services/near';
 import { mftGetBalance } from '~services/mft-contract';
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
@@ -19,8 +18,12 @@ import {
 import { isMobile } from '~utils/device';
 import { useTokens } from '~state/token';
 import getConfig from '~services/config';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 const config = getConfig();
-const STABLE_POOL_ID = config.STABLE_POOL_ID;
+const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 
 export default function CalcModel(
   props: ReactModal.Props & {
@@ -38,6 +41,7 @@ export default function CalcModel(
   const [inputType, setInputType] = useState(true);
   const tokens = useTokens(farms[0].tokenIds) || [];
   const [symbols, setSymbols] = useState('');
+  const { globalState } = useContext(WalletContext);
   useEffect(() => {
     getUserLpTokenInPool();
   }, []);
@@ -58,11 +62,12 @@ export default function CalcModel(
   }, [props.isOpen]);
   const cardWidth = isMobile() ? '90vw' : '30vw';
   async function getUserLpTokenInPool() {
-    if (wallet.isSignedIn()) {
+    const isSignedIn = globalState.isSignedIn;
+    if (isSignedIn) {
       const lpTokenId = farms[0].lpTokenId;
       const b = await mftGetBalance(getMftTokenId(lpTokenId));
       let num;
-      if (STABLE_POOL_ID == lpTokenId) {
+      if (new Set(STABLE_POOL_IDS || []).has(lpTokenId?.toString())) {
         num = toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b);
       } else {
         num = toReadableNumber(LP_TOKEN_DECIMALS, b);
@@ -473,17 +478,10 @@ export function LinkPool(props: { pooId: number }) {
     <div className="flex justify-center items-center">
       <Link
         title={intl.formatMessage({ id: 'view_pool' })}
-        to={
-          pooId == STABLE_POOL_ID
-            ? {
-                pathname: `/stableswap`,
-                state: { backToFarms: true },
-              }
-            : {
-                pathname: `/pool/${pooId}`,
-                state: { backToFarms: true },
-              }
-        }
+        to={{
+          pathname: `/pool/${pooId}`,
+          state: { backToFarms: true },
+        }}
         target="_blank"
         className="flex items-center"
       >

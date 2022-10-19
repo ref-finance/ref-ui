@@ -163,11 +163,17 @@ export function RemoveLiquidity() {
   );
 }
 
-export function CloseIcon() {
+export function CloseIcon({
+  width,
+  height,
+}: {
+  width?: string;
+  height?: string;
+}) {
   return (
     <svg
-      width="10"
-      height="10"
+      width={width || '10'}
+      height={height || '10'}
       viewBox="0 0 10 10"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -713,6 +719,21 @@ const viewMap = {
   'Remove Stable Liquidity': RemoveLiquidity,
   'xREF Unstake': RemoveLiquidity,
   'xREF Stake': AddLiquidity,
+  'Sell USN': Swap,
+  'Buy USN': Swap,
+  'Aurora Call': Withdraw,
+  Unlock: RemoveLiquidity,
+  'Lock Free Seed': AddLiquidity,
+  'Lock LPt': AddLiquidity,
+  'Create Proposal': AddLiquidity,
+  'Extend Whitelisted Accounts': AddLiquidity,
+  'Claim Bonus': Withdraw,
+  'Action Proposal': AddLiquidity,
+  'Remove Proposal': RemoveLiquidity,
+  'Action Cancel': RemoveLiquidity,
+  'Unlock LPt': Withdraw,
+  'Withdraw Bonus': Withdraw,
+  'Deposit Bonus': Deposit,
 };
 
 const blackViewMap = {
@@ -737,6 +758,21 @@ const blackViewMap = {
   'Remove Stable Liquidity': RemoveLiquidityBlack,
   'xREF Unstake': RemoveLiquidityBlack,
   'xREF Stake': AddLiquidityBlack,
+  'Sell USN': SwapBlack,
+  'Buy USN': SwapBlack,
+  'Aurora Call': WithdrawBlack,
+  Unlock: RemoveLiquidityBlack,
+  'Lock Free Seed': AddLiquidityBlack,
+  'Lock LPt': AddLiquidityBlack,
+  'Create Proposal': AddLiquidityBlack,
+  'Extend Whitelisted Accounts': AddLiquidityBlack,
+  'Claim Bonus': WithdrawBlack,
+  'Action Proposal': AddLiquidityBlack,
+  'Remove Proposal': RemoveLiquidityBlack,
+  'Action Cancel': RemoveLiquidityBlack,
+  'Unlock LPt': WithdrawBlack,
+  'Withdraw Bonus': WithdrawBlack,
+  'Deposit Bonus': DepositBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

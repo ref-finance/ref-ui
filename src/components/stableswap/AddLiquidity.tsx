@@ -32,10 +32,19 @@ import { ChooseAddType } from './LiquidityComponents';
 import StableTokenList from './StableTokenList';
 import { WarnTriangle } from '../icon/SwapRefresh';
 import { ActionModel } from '../../pages/AccountPage';
-import { getDepositableBalance } from '../../state/token';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import { getDepositableBalance, useTokenBalances } from '../../state/token';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
+import SquareRadio from '../radio/SquareRadio';
+import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
+import { checkAccountTip, getURLInfo } from '../layout/transactionTipPopUp';
+import { checkTransaction } from '../../services/swap';
 
 export const STABLE_LP_TOKEN_DECIMALS = 18;
+export const RATED_POOL_LP_TOKEN_DECIMALS = 24;
+
 const SWAP_SLIPPAGE_KEY = 'REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -75,11 +84,10 @@ export default function AddLiquidityComponent(props: {
   pool: Pool;
   tokens: TokenMetadata[];
   balances: TokenBalancesView;
-  totalShares: string;
-  stakeList: Record<string, string>;
   stablePool: StablePool;
+  changeAction?: (actionName: string) => void;
 }) {
-  const { pool, tokens, balances, totalShares, stakeList, stablePool } = props;
+  const { pool, tokens, balances, stablePool, changeAction } = props;
   const [firstTokenAmount, setFirstTokenAmount] = useState<string>('');
   const [secondTokenAmount, setSecondTokenAmount] = useState<string>('');
   const [thirdTokenAmount, setThirdTokenAmount] = useState<string>('');
@@ -96,21 +104,16 @@ export default function AddLiquidityComponent(props: {
   const history = useHistory();
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const predicedShares = usePredictShares({
-    tokens,
     poolId: pool.id,
-    firstTokenAmount,
-    secondTokenAmount,
-    thirdTokenAmount,
+    tokenAmounts: [firstTokenAmount, secondTokenAmount, thirdTokenAmount],
     stablePool,
   });
   const [slippageInvalid, setSlippageInvalid] = useState(false);
   const [modal, setModal] = useState(null);
   const [visible, setVisible] = useState(false);
 
-  const { signedInState } = useContext(WalletContext);
-  const isSignedIn = signedInState.isSignedIn;
-
-  const { wallet } = getCurrentWallet();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   useEffect(() => {
     const firstAmount = toReadableNumber(
@@ -414,13 +417,16 @@ export default function AddLiquidityComponent(props: {
   return (
     <>
       <Card
-        padding="py-6"
+        padding="pt-6 pb-16"
         bgcolor="bg-cardBg"
         className="text-white w-full outline-none "
       >
-        <div className="text-xl pb-4 px-8">
-          <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
-        </div>
+        <SquareRadio
+          onChange={changeAction}
+          radios={DEFAULT_ACTIONS}
+          currentChoose={'add_liquidity'}
+          poolId={pool.id}
+        />
 
         <StableTokenList
           changeFirstTokenAmount={changeFirstTokenAmount}
@@ -490,7 +496,7 @@ export default function AddLiquidityComponent(props: {
           ) : null}
           {isSignedIn ? (
             <SolidButton
-              disabled={!canSubmit}
+              disabled={!canSubmit || buttonLoading}
               className="focus:outline-none px-4 w-full text-lg"
               loading={buttonLoading}
               onClick={() => {

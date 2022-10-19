@@ -1,20 +1,17 @@
 import BigNumber from 'bignumber.js';
 import BN from 'bn.js';
 import * as math from 'mathjs';
-import getConfig from '../services/config';
-import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { TokenMetadata } from '../services/ft-contract';
-import { STABLE_POOL_ID, STABLE_TOKEN_IDS } from '../services/near';
-import { Pool } from '../services/pool';
+import { isStablePool } from '../services/near';
+import { Pool, getStablePoolInfoKey } from '../services/pool';
 import { getSwappedAmount, estimateSwap } from '../services/stable-swap';
 import { EstimateSwapView } from '../services/swap';
 import Big from 'big.js';
-import { sortBy } from 'lodash';
+import _, { sortBy } from 'lodash';
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 
 const BPS_CONVERSION = 10000;
-const REF_FI_STABLE_Pool_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
-  getConfig().STABLE_POOL_ID
-}`;
 
 const ROUNDING_OFFSETS: BN[] = [];
 const BN10 = new BN(10);
@@ -163,16 +160,23 @@ export const calculateSmartRoutingPriceImpact = (
   tokenMid: TokenMetadata,
   tokenOut: TokenMetadata
 ) => {
-  const isPool1StablePool = Number(STABLE_POOL_ID) === swapTodos[0].pool.id;
-  const isPool2StablePool = Number(STABLE_POOL_ID) === swapTodos[1].pool.id;
+  const isPool1StablePool = isStablePool(swapTodos[0].pool.id);
+  const isPool2StablePool = isStablePool(swapTodos[1].pool.id);
 
   const marketPrice1 = isPool1StablePool
-    ? '1'
+    ? (
+        Number(swapTodos[0].pool.rates[tokenMid.id]) /
+        Number(swapTodos[0].pool.rates[tokenIn.id])
+      ).toString()
     : calculateMarketPrice(swapTodos[0].pool, tokenIn, tokenMid);
 
   const marketPrice2 = isPool2StablePool
-    ? '1'
+    ? (
+        Number(swapTodos[1].pool.rates[tokenOut.id]) /
+        Number(swapTodos[1].pool.rates[tokenMid.id])
+      ).toString()
     : calculateMarketPrice(swapTodos[1].pool, tokenMid, tokenOut);
+
   const generalMarketPrice = math.evaluate(`${marketPrice1} * ${marketPrice2}`);
 
   const tokenMidReceived = isPool1StablePool
@@ -194,13 +198,20 @@ export const calculateSmartRoutingPriceImpact = (
       tokenMid.id,
       tokenOut.id,
       formattedTokenMidReceived,
-      JSON.parse(localStorage.getItem(REF_FI_STABLE_Pool_INFO_KEY))
+      JSON.parse(
+        localStorage.getItem(
+          getStablePoolInfoKey(swapTodos[1].pool.id.toString())
+        )
+      )
     );
     stableOutPool2 =
       stableOut[0] < 0
         ? '0'
         : toPrecision(scientificNotationToString(stableOut[2].toString()), 0);
-    stableOutPool2 = toReadableNumber(STABLE_LP_TOKEN_DECIMALS, stableOutPool2);
+    stableOutPool2 = toReadableNumber(
+      getStablePoolDecimal(swapTodos[1].pool.id),
+      stableOutPool2
+    );
   }
 
   const tokenOutReceived = isPool2StablePool
@@ -275,9 +286,10 @@ export const calculatePriceImpact = (
 export const calculateExchangeRate = (
   fee: number,
   from: string,
-  to: string
+  to: string,
+  precision?: number
 ) => {
-  return math.floor(math.evaluate(`${to} / ${from}`), 4);
+  return math.floor(math.evaluate(`${to} / ${from}`), precision || 4);
 };
 
 export const subtraction = (initialValue: string, toBeSubtract: string) => {
@@ -370,6 +382,18 @@ export const toInternationalCurrencySystem = (
     ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(percent || 2) + 'K'
     : Math.abs(Number(labelValue)).toFixed(percent || 2);
 };
+
+export const toInternationalCurrencySystemLongString = (
+  labelValue: string,
+  percent?: number
+) => {
+  return Math.abs(Number(labelValue)) >= 1.0e9
+    ? (Math.abs(Number(labelValue)) / 1.0e9).toFixed(percent || 2) + 'B'
+    : Math.abs(Number(labelValue)) >= 1.0e6
+    ? (Math.abs(Number(labelValue)) / 1.0e6).toFixed(percent || 2) + 'M'
+    : Math.abs(Number(labelValue)).toFixed(percent || 2);
+};
+
 export const toInternationalCurrencySystemNature = (
   labelValue: string,
   percent?: number
@@ -452,10 +476,22 @@ export function scientificNotationToString(strParam: string) {
   }
 }
 
-export const calcStableSwapPriceImpact = (from: string, to: string) => {
-  return math.format(percent(math.evaluate(`1 - (${to} / ${from})`), '1'), {
-    notation: 'fixed',
-  });
+export const calcStableSwapPriceImpact = (
+  from: string,
+  to: string,
+  marketPrice: string = '1'
+) => {
+  const newMarketPrice = math.evaluate(`${from} / ${to}`);
+
+  return math.format(
+    percent(
+      math.evaluate(`${newMarketPrice} - ${marketPrice}`),
+      newMarketPrice
+    ),
+    {
+      notation: 'fixed',
+    }
+  );
 };
 
 export const niceDecimals = (number: string | number, precision = 2) => {
@@ -467,8 +503,28 @@ export const niceDecimals = (number: string | number, precision = 2) => {
     return new BigNumber(number).toFixed(precision, 1);
   }
 };
+export const niceDecimalsExtreme = (number: string | number, precision = 2) => {
+  const str = number.toString();
+  const [whole, decimals] = str.split('.');
+  if (!decimals || Number(decimals) == 0) {
+    return whole;
+  } else if (decimals.length > precision) {
+    const temp = new BigNumber(number).toFixed(precision, 1);
+    const [tempWhole, tempDecimals] = temp.split('.');
+    if (!tempDecimals || Number(tempDecimals) == 0) {
+      return tempWhole;
+    } else {
+      return temp;
+    }
+  } else {
+    return str;
+  }
+};
 
-export function separateRoutes(actions: any, outputToken: string) {
+export function separateRoutes(
+  actions: EstimateSwapView[],
+  outputToken: string
+) {
   const res = [];
   let curRoute = [];
 
@@ -511,10 +567,14 @@ export function calculateSmartRoutesV2PriceImpact(
         tokenOut
       );
     } else {
-      return Number(r[0].pool.id) === Number(STABLE_POOL_ID)
+      return isStablePool(r[0].pool.id)
         ? calcStableSwapPriceImpact(
             readablePartialAmountIn,
-            r[0].noFeeAmountOut
+            r[0].noFeeAmountOut,
+            (
+              Number(r[0].pool.rates[outputToken]) /
+              Number(r[0].pool.rates[tokenIn.id])
+            ).toString()
           )
         : calculatePriceImpact(
             [r[0].pool],
@@ -541,6 +601,8 @@ export function calculateSmartRoutesV2PriceImpact(
 }
 
 export function getPoolAllocationPercents(pools: Pool[]) {
+  if (pools.length === 1) return ['100'];
+
   if (pools) {
     const partialAmounts = pools.map((pool) => {
       return math.bignumber(pool.partialAmountIn);
@@ -590,3 +652,38 @@ export function getPoolAllocationPercents(pools: Pool[]) {
     return [];
   }
 }
+
+export const checkAllocations = (sum: string, allocations: string[]) => {
+  if (!allocations || allocations?.length === 0) return [];
+
+  const sumNumber = new Big(sum);
+  const sumAllocations = allocations.reduce((acc, cur, i) => {
+    return acc.plus(new Big(cur));
+  }, new Big(0));
+
+  if (!sumAllocations.eq(sumNumber)) {
+    const maxNum = _.maxBy(allocations, (o) => Number(o));
+
+    const maxIndex = allocations.indexOf(maxNum);
+
+    const leftSum = sumAllocations.minus(maxNum);
+    const newMaxNum = sumNumber.minus(leftSum);
+
+    return [
+      ...allocations.slice(0, maxIndex),
+      newMaxNum.toString(),
+      ...allocations.slice(maxIndex + 1),
+    ];
+  } else return allocations;
+};
+
+export const getMax = function (id: string, max: string) {
+  return id !== WRAP_NEAR_CONTRACT_ID
+    ? max
+    : Number(max) <= 0.5
+    ? '0'
+    : toPrecision(
+        scientificNotationToString(new Big(max).minus(0.5).toString()),
+        24
+      );
+};
