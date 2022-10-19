@@ -694,6 +694,8 @@ export const useDayVolumesPools = (pool_ids: (string | number)[]) => {
   const [volumes, setVolumes] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    if (!pool_ids || pool_ids.length === 0) return;
+
     get24hVolumes(pool_ids).then((res) => {
       const volumes = res.reduce((acc, cur, i) => {
         return { ...acc, [pool_ids[i]]: cur };

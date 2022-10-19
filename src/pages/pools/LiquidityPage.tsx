@@ -120,6 +120,7 @@ import { BTC_TEXT } from '../../components/icon/Logo';
 import { useAllPoolsV2 } from '../../state/swapV3';
 import { PoolInfo } from '~services/swapV3';
 import { SelectModalV2 } from '../../components/layout/SelectModal';
+import { FarmStampNew } from '../../components/icon/FarmStamp';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -1141,7 +1142,7 @@ function PoolRow({
             </div>
           </div>
 
-          {supportFarm && <FarmButton farmCount={farmCount} />}
+          {supportFarm && <FarmStampNew multi={farmCount > 1} />}
         </div>
         <div className="col-span-1 justify-self-center py-1 md:hidden ">
           {calculateFeePercent(pool.fee)}%
@@ -1538,7 +1539,7 @@ function LiquidityPage_({
                   </div>
                 </div>
 
-                {supportFarmStar && <FarmButton farmCount={farmCountStar} />}
+                {supportFarmStar && <FarmStampNew multi={farmCountStar > 1} />}
               </div>
               <div className="absolute flex items-center right-0 bottom-0">
                 <button
@@ -2608,7 +2609,7 @@ function StablePoolCard({
               }}
             >
               {haveFarm && (
-                <FarmButton farmCount={countV2 - endedFarmCountV2} />
+                <FarmStampNew multi={countV2 - endedFarmCountV2 > 1} />
               )}
             </span>
           </div>

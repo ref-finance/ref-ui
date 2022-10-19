@@ -12,11 +12,16 @@ export const FarmStamp = () => {
 
 export const FarmStampNew = ({ multi }: { multi: boolean }) => {
   return (
-    <div className="px-1.5 py-0.5 rounded-lg border flex items-center border-gradientFrom text-gradientFrom text-xs">
-      <span className="whitespace-nowrap mr-1">
+    <div className="px-1.5 py-0.5 ml-2 rounded-lg border flex items-center border-gradientFrom text-gradientFrom text-xs">
+      <span className="whitespace-nowrap">
         <FormattedMessage id="farms" defaultMessage="Farms" />
       </span>
-      {multi && <FarmMiningIcon w={14} h={14} />}
+
+      {multi && (
+        <span className="ml-1">
+          <FarmMiningIcon w={14} h={14} />
+        </span>
+      )}
     </div>
   );
 };

@@ -66,7 +66,7 @@ import {
 import { useHistory } from 'react-router';
 import { getPool } from '~services/indexer';
 import { BigNumber } from 'bignumber.js';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage, useIntl, FormattedRelativeTime } from 'react-intl';
 import {
   WatchListStartFull,
   WatchListStartFullMobile,
@@ -159,6 +159,7 @@ import {
 } from '../../components/layout/TipWrapper';
 
 import { FiArrowUpRight } from 'react-icons/fi';
+import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 
 interface ParamTypes {
   id: string;
@@ -1789,6 +1790,10 @@ export function PoolDetailsPage() {
     return result;
   }
 
+  console.log(pool);
+
+  const haveLiquidity = Number(pool.shareSupply) > 0;
+
   return (
     <>
       <PoolTabV3 />
@@ -1819,7 +1824,7 @@ export function PoolDetailsPage() {
 
           <div className="flex flex-col">
             <div className="flex items-center">
-              <div className="mx-2">
+              <div className="ml-2">
                 <Symbols size="text-lg" tokens={tokens} />
               </div>
               {!backToFarmsButton ? null : (
@@ -1872,6 +1877,7 @@ export function PoolDetailsPage() {
                       border
                       borderColor="#7e8a93"
                       effect="solid"
+                      disable={!!isClientMobie()}
                     />
                   </div>
                 ) : (
@@ -1892,6 +1898,7 @@ export function PoolDetailsPage() {
                     )}
 
                     <ReactTooltip
+                      disable={!!isClientMobie()}
                       id="emptystar-tip"
                       backgroundColor="#1D2932"
                       border
@@ -1901,36 +1908,37 @@ export function PoolDetailsPage() {
                   </div>
                 )}
               </div>
+              {haveLiquidity && (
+                <div className="absolute right-0 xs:hidden md:hidden flex items-center">
+                  {revertRate ? (
+                    <GetExchangeRate
+                      token0Price={tokenPriceList?.[tokens[1].id]?.price}
+                      tokens={[tokens[1], tokens[0]]}
+                      pool={pool}
+                    />
+                  ) : (
+                    <GetExchangeRate
+                      token0Price={tokenPriceList?.[tokens[0].id]?.price}
+                      tokens={[tokens[0], tokens[1]]}
+                      pool={pool}
+                    />
+                  )}
 
-              <div className="absolute right-0 xs:hidden md:hidden flex items-center">
-                {revertRate ? (
-                  <GetExchangeRate
-                    token0Price={tokenPriceList?.[tokens[1].id]?.price}
-                    tokens={[tokens[1], tokens[0]]}
-                    pool={pool}
-                  />
-                ) : (
-                  <GetExchangeRate
-                    token0Price={tokenPriceList?.[tokens[0].id]?.price}
-                    tokens={[tokens[0], tokens[1]]}
-                    pool={pool}
-                  />
-                )}
-
-                <div
-                  className="rounded-lg cursor-pointer text-v3SwapGray hover:text-gradientFromHover  flex items-center justify-center ml-2"
-                  style={{
-                    background: '#172534',
-                    width: '30px',
-                    height: '24px',
-                  }}
-                  onClick={() => {
-                    setRevertRate(!revertRate);
-                  }}
-                >
-                  <ExchangeArrow />
+                  <div
+                    className="rounded-lg cursor-pointer text-v3SwapGray hover:text-gradientFromHover  flex items-center justify-center ml-2"
+                    style={{
+                      background: '#172534',
+                      width: '30px',
+                      height: '24px',
+                    }}
+                    onClick={() => {
+                      setRevertRate(!revertRate);
+                    }}
+                  >
+                    <ExchangeArrow />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <div className="ml-2 text-primaryText text-sm">
@@ -2088,7 +2096,7 @@ export function PoolDetailsPage() {
                               <ExclamationTip
                                 id={token.id}
                                 defaultMessage={token.id}
-                                colorHex="#7E8A93"
+                                colorhex="#7E8A93"
                               />
                             </span>
                           }
@@ -2175,68 +2183,91 @@ export function PoolDetailsPage() {
               className="rounded-2xl  w-full text-base text-white"
               bgcolor="bg-cardBg"
             >
-              <div className="flex items-center justify-between">
-                <span className="whitespace-nowrap">
-                  <FormattedMessage
-                    id="your_liquidity"
-                    defaultMessage={'Your Liquidity'}
-                  />
-                </span>
+              {haveLiquidity && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="whitespace-nowrap">
+                      <FormattedMessage
+                        id="your_liquidity"
+                        defaultMessage={'Your Liquidity'}
+                      />
+                    </span>
 
-                <MyShares
-                  shares={shares}
-                  totalShares={pool.shareSupply}
-                  poolId={pool.id}
-                  stakeList={stakeList}
-                  lptAmount={lptAmount}
-                />
-              </div>
+                    <MyShares
+                      shares={shares}
+                      totalShares={pool.shareSupply}
+                      poolId={pool.id}
+                      stakeList={stakeList}
+                      lptAmount={lptAmount}
+                    />
+                  </div>
 
-              <div className="w-full text-right text-sm text-v3SwapGray">
-                {!isSignedIn ? '-' : usdValue === '-' ? '-' : `~${usdValue}`}
-              </div>
+                  <div className="w-full text-right text-sm text-v3SwapGray">
+                    {!isSignedIn
+                      ? '-'
+                      : usdValue === '-'
+                      ? '-'
+                      : `~${usdValue}`}
+                  </div>
 
-              <div className="flex flex-col text-center text-base  pt-4">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center">
-                    <Icon icon={tokens[0].icon} className="h-7 w-7 mr-2" />
-                    <div className="flex items-start flex-col">
-                      <div className="flex items-center text-white text-base">
-                        {toRealSymbol(tokens[0].symbol)}
+                  <div className="flex flex-col text-center text-base  pt-4">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center">
+                        <Icon icon={tokens[0].icon} className="h-7 w-7 mr-2" />
+                        <div className="flex items-start flex-col">
+                          <div className="flex items-center text-white text-base">
+                            {toRealSymbol(tokens[0].symbol)}
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        className="flex items-center text-white text-sm"
+                        title={tokenAmountShareRaw(pool, tokens[0], shares)}
+                      >
+                        {tokenInfoPC({
+                          token: tokens[0],
+                        })}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center">
+                        <Icon icon={tokens[1].icon} className="h-7 w-7 mr-2" />
+                        <div className="flex items-start flex-col">
+                          <div className="flex items-center text-white text-base">
+                            {toRealSymbol(tokens[1].symbol)}
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        className="flex items-center text-white text-sm"
+                        title={tokenAmountShareRaw(pool, tokens[1], shares)}
+                      >
+                        {tokenInfoPC({
+                          token: tokens[1],
+                        })}
                       </div>
                     </div>
                   </div>
-                  <div
-                    className="flex items-center text-white text-sm"
-                    title={tokenAmountShareRaw(pool, tokens[0], shares)}
-                  >
-                    {tokenInfoPC({
-                      token: tokens[0],
-                    })}
+                </>
+              )}
+
+              {!haveLiquidity && (
+                <div className="flex items-center flex-col">
+                  <div className="mt-6">
+                    <NoLiquidityDetailPageIcon />
+                  </div>
+
+                  <div className="text-v3SwapGray my-5 text-sm">
+                    <FormattedMessage
+                      id="no_positons_in_this_pool_yet"
+                      defaultMessage={'No positons in this pool yet'}
+                    />
                   </div>
                 </div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center">
-                    <Icon icon={tokens[1].icon} className="h-7 w-7 mr-2" />
-                    <div className="flex items-start flex-col">
-                      <div className="flex items-center text-white text-base">
-                        {toRealSymbol(tokens[1].symbol)}
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className="flex items-center text-white text-sm"
-                    title={tokenAmountShareRaw(pool, tokens[1], shares)}
-                  >
-                    {tokenInfoPC({
-                      token: tokens[1],
-                    })}
-                  </div>
-                </div>
-              </div>
+              )}
 
               <div className="flex items-center  w-full">
-                <div className="pr-2 w-1/2">
+                <div className={`pr-2 ${haveLiquidity ? 'w-1/2' : 'w-full'} `}>
                   <SolidButton
                     padding="px-0"
                     className=" w-full h-11 xs:w-full text-base rounded-lg  md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm"
@@ -2244,26 +2275,35 @@ export function PoolDetailsPage() {
                       setShowFunding(true);
                     }}
                   >
-                    <FormattedMessage id="add" defaultMessage="Add" />
+                    {!haveLiquidity ? (
+                      <FormattedMessage
+                        id="add_liquidity"
+                        defaultMessage={'Add Liquidity'}
+                      />
+                    ) : (
+                      <FormattedMessage id="add" defaultMessage="Add" />
+                    )}
                   </SolidButton>
                 </div>
-                <div className="pl-2 w-1/2">
-                  <SolidButton
-                    padding="px-0"
-                    onClick={() => {
-                      setShowWithdraw(true);
-                    }}
-                    disabled={Number(shares) == 0}
-                    disabledColor={'bg-lockedBg'}
-                    className={`w-full ${
-                      Number(shares) == 0
-                        ? 'bg-lockedBg text-opacity-30'
-                        : 'bg-bgGreyDefault hover:bg-bgGreyHover '
-                    }   h-11 xs:w-full text-base rounded-lg md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm bg-poolRowHover`}
-                  >
-                    <FormattedMessage id="remove" defaultMessage="Remove" />
-                  </SolidButton>
-                </div>
+                {haveLiquidity && (
+                  <div className="pl-2 w-1/2">
+                    <SolidButton
+                      padding="px-0"
+                      onClick={() => {
+                        setShowWithdraw(true);
+                      }}
+                      disabled={Number(shares) == 0}
+                      disabledColor={'bg-lockedBg'}
+                      className={`w-full ${
+                        Number(shares) == 0
+                          ? 'bg-lockedBg text-opacity-30'
+                          : 'bg-bgGreyDefault hover:bg-bgGreyHover '
+                      }   h-11 xs:w-full text-base rounded-lg md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm bg-poolRowHover`}
+                    >
+                      <FormattedMessage id="remove" defaultMessage="Remove" />
+                    </SolidButton>
+                  </div>
+                )}
               </div>
             </Card>
 

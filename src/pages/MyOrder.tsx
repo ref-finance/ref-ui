@@ -665,7 +665,7 @@ function OrderCard({
               id="this_order_has_been_partially_filled"
               defaultMessage="This order has been partially filled "
               dataPlace="right"
-              colorHex="#7E8A93"
+              colorhex="#7E8A93"
             />
           </span>
 
@@ -705,7 +705,7 @@ function OrderCard({
             />
 
             <ExclamationTip
-              colorHex="#7E8A93"
+              colorhex="#7E8A93"
               id={`1 ${toRealSymbol(sellToken.symbol)} ${
                 sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
               } = 
@@ -1240,7 +1240,7 @@ function OrderCard({
               id="this_order_has_been_partially_filled"
               defaultMessage="This order has been partially filled "
               dataPlace="right"
-              colorHex="#7E8A93"
+              colorhex="#7E8A93"
             />
           </span>
 
@@ -1280,7 +1280,7 @@ function OrderCard({
             />
 
             <ExclamationTip
-              colorHex="#7E8A93"
+              colorhex="#7E8A93"
               id={`1 ${toRealSymbol(sellToken.symbol)} ${
                 sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
               } = 

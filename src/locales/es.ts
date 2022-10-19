@@ -892,5 +892,6 @@ const es = {
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
   near_validation_error: 'Must have 0.5N or more left in wallet for gas fee.',
+  no_positons_in_this_pool_yet: 'No positons in this pool yet',
 };
 export default Object.assign(es, es_in_risks_page);
