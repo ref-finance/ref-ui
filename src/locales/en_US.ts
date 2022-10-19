@@ -854,5 +854,7 @@ const en_US = {
   newText: 'New',
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
+  no_claimed_rewards_yet: 'No claimed rewards yet',
+  out_of: 'out of',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

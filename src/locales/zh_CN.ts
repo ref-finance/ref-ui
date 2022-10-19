@@ -810,5 +810,7 @@ const zh_CN = {
   farm_stop_tip: '这个农场已经停止。',
   pool_stop_tip: '这个流动池已经停止。',
   newText: '最新',
+  no_claimed_rewards_yet: '还没有领取的奖励',
+  out_of: 'out of',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
