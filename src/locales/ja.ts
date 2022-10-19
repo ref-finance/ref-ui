@@ -328,6 +328,7 @@ const ja = {
   h24_volume: '24時間取引量',
   volume: '取引量',
   hide_low_tvl_pools: '低ロックアッププールを隠す',
+  hide_low_tvl_pools_mobile: '低ロックアッププールを隠す',
   watchlist_title: '私のトップウォッチリスト',
   add_watchlist: 'ウォッチリストに追加',
   remove_watchlist: 'ウォッチリストから除外する',
@@ -377,7 +378,7 @@ const ja = {
   value_rewards: 'リワード',
   stake_unstake_tip:
     'ステーキングやステーキングをキャンセルすると、自動的にリワードが回収されます',
-  over_tip: 'ガスフィーの最適化のため、一度に5トークンまで引き出しが可能です',
+  over_tip: 'ガスフィーの最適化のため、一度に4トークンまで引き出しが可能です',
   no_token_tip: '出金可能なトークンはありません',
   getToken_tip:
     '今すぐリワードやステーキングトークンを請求することができます。',
@@ -400,7 +401,7 @@ const ja = {
   rewards_claimed: '受領可能なリワードあり',
   value_rewards_token: 'リワードトークンの価値',
   all: 'すべて選択',
-  all_5: '一度に5種類までのトークン',
+  all_5: '一度に4種類までのトークン',
   your_positions_will_be_displayed_here: '参加したプールはここに表示されます。',
   price_impact: '価格への影響',
   shares_left: '残額',
@@ -605,6 +606,7 @@ const ja = {
   cd_limit: 'more than 16 cd account limit',
   expired: 'Expired',
   all_5_v2: '5 tokens/time',
+  all_4_v2: '4 tokens/time',
 
   more_than_seed: 'Input must be greater than or equal to ',
   how_to_earn_more: 'How to earn more?',
@@ -646,7 +648,7 @@ const ja = {
   boost: 'Boost',
   near: 'NEAR',
   eth: 'ETH',
-  others: 'others',
+  others: 'Others',
   stakeLove: 'Stake LOVE',
   unstakeLove: 'Unstake LOVE',
   get_love: 'Get LOVE',
@@ -666,6 +668,14 @@ const ja = {
   dao_capital: 'DAO',
   available_to_stake: 'available to stake',
   recent_one_mounth_activity: '1ヶ月の活動',
+  your_assets: 'あなたの資産',
+  connect_wallet: 'ウォレットを接続する',
+  disconnect: '切断する',
+  change: '変化する',
+  wallets_below_supports_on_PC: '以下のウォレットはPCでサポートされています',
+  connect: '接続',
+  make_sure_device_plugged_in: 'デバイスが接続されていることを確認してください',
+  then_enter_an_account_id_to_connect: '次に、接続するアカウントIDを入力します',
   veTip: 'veLP tokens are not transferable, veLPT represent your voting power ',
 
   loveTip:
@@ -749,9 +759,7 @@ const ja = {
   add_option: 'Add Option',
   lock_lp_terms:
     "I understand that I won't be able to remove my LP Tokens for the entire duration of the agreed locking period",
-  connect_wallet: 'Connect Wallet',
   connect_to_near_wallet: 'Connect to NEAR Wallet',
-  connect: 'Connect',
   more_lock_ve_popup: 'more ',
   more_in: 'more in',
   more_lock_ve_popup2: 'more ',
@@ -782,12 +790,13 @@ const ja = {
   migrate_now: 'Migrate Now!',
   v2_boost_tip:
     'V2 farms will support boosted farms. The V1 farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',
+  v2_boost_tip2: 'V2 ファームはブースト ファームをサポートします。',
   v2_boost_no_tip:
     'The V1 farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',
   no_farm_need_to_migrate: 'No Farm need to Migrate',
   v1_farms: 'V1 Farms',
   has_rewards_tip:
-    'You still have claimed rewards to be withdraw in <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >V1 Farms</a>. The rewards are not going anywhere, you can withdraw anytime.</div>',
+    'You have claimed rewards in <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >V1 Farms</a>. You can withdraw them at any time.</div>',
   love: 'LOVE',
   Available_to_stake: 'Available to stake',
   you_staked: 'You staked',
@@ -815,5 +824,45 @@ const ja = {
   love_staked: 'Staked LOVE',
   your_apr: 'Your APR',
   range_apr: 'Range or reference APR',
+  no_pair_found: 'ペアが見つかりません',
+  found_stable_pool_in_sauce: 'SAUCE に安定したプールが見つかりました',
+  lp_tokens_locking: 'LP Tokens',
+  you_currently_have: '現在持っている',
+  scheduled_to_be_unlocked: '解禁予定',
+  locking_more_lp_tokens: 'もっとロックする LP Tokens',
+  will_mean_these: 'これらを意味します',
+  lp_tokens_will_not_be_unlocked_until: 'LP Tokens までロック解除されません',
+  "I_understand_that_I_won't_be_able_to_remove_my":
+    '削除できないことを理解しています',
+  until: 'それまで',
+  continue: '継続する',
+  then_enter_a_derivation_path_to_connect: '次に、派生パスを入力して接続します',
+  account_identification_failed:
+    'アカウントの識別に失敗しました! 手動で入力してください',
+  input_account_id: 'アカウントIDを入力',
+  we_found: '見つけた',
+  accounts_on_your_device: 'デバイス上のアカウント',
+  select_the_accounts_you_wish_to_connect: '接続したいアカウントを選択',
+  can_not_find_any_accounts:
+    "Can't found any account associated with this Ledger. Please create a new NEAR account on",
+  or_connect_another_ledger: 'or connect an another Ledger',
+  add: '追加',
+  finish: '終了',
+  add_custom_network: 'カスタム ネットワークを追加',
+  network_name: 'ネットワークネーム',
+  rpc_name_taken_tip: 'ネットワークネームは既に使用されています',
+  network_invalid: 'ネットワークが無効でした',
+  fobidden_testnet_rpc_tip:
+    'RPC サーバーのネットワーク (テストネット) は、このネットワーク (メインネット) とは異なります',
+  no_support_testnet_rpc_tip:
+    'Testnet はカスタム RPC の追加をサポートしていません',
+  farm_only: '農場のみ',
+  please_confirm_this_transaction_on_ledger:
+    'この取引をLedgerで確認してください',
+  newText: '新着',
+  farm_stop_tip: 'This farm has been stopped.',
+  pool_stop_tip: 'This pool has been stopped.',
+  no_claimed_rewards_yet: 'No claimed rewards yet',
+  out_of: 'out of',
 };
 export default Object.assign(ja, ja_in_risks_page);

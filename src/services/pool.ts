@@ -18,7 +18,7 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools } from '../services/indexer';
+import { getTopPools, getTopPoolsIndexer } from '../services/indexer';
 import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
@@ -27,7 +27,7 @@ import {
 } from '../services/token';
 import getConfig from '../services/config';
 import { registerTokensAction } from '../services/creators/token';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 import { STORAGE_TO_REGISTER_WITH_FT } from './creators/storage';
 import { withdrawAction, registerAccountOnToken } from './creators/token';
 import { getExplorer, ExplorerType } from '../utils/device';
@@ -48,6 +48,8 @@ import {
 } from './wrap-near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { getAllPoolsIndexer } from './indexer';
+import { getExtendConfig } from './config';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 100;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
@@ -162,7 +164,7 @@ export const getAllPoolsFromDb = async () => {
 };
 
 export const getAllWatchListFromDb = async ({
-  account = getCurrentWallet().wallet.getAccountId(),
+  account = getCurrentWallet()?.wallet?.getAccountId(),
 }: {
   account?: string;
 }) => {
@@ -176,7 +178,7 @@ export const getAllWatchListFromDb = async ({
 
 export const getWatchListFromDb = async ({
   pool_id,
-  account = getCurrentWallet().wallet.getAccountId(),
+  account = getCurrentWallet()?.wallet?.getAccountId(),
 }: {
   pool_id: string;
   account?: string;
@@ -192,7 +194,7 @@ export const getWatchListFromDb = async ({
 
 export const addPoolToWatchList = async ({
   pool_id,
-  account = getCurrentWallet().wallet.getAccountId(),
+  account = getCurrentWallet()?.wallet?.getAccountId(),
 }: {
   pool_id: string;
   account?: string;
@@ -206,7 +208,7 @@ export const addPoolToWatchList = async ({
 };
 export const removePoolFromWatchList = async ({
   pool_id,
-  account = getCurrentWallet().wallet.getAccountId(),
+  account = getCurrentWallet()?.wallet?.getAccountId(),
 }: {
   pool_id: string;
   account?: string;
@@ -289,13 +291,33 @@ export const getPoolsByTokens = async ({
   }
   if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
     setLoadingData && setLoadingData(true);
-    const totalPools = await getTotalPools();
-    const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-    const pools = (
-      await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
-    )
-      .flat()
-      .map((p) => ({ ...p, Dex: 'ref' }));
+
+    const isCacheFromIndexer =
+      getExtendConfig().pool_protocol &&
+      getExtendConfig().pool_protocol === 'indexer';
+
+    const isCacheFromRPC = !isCacheFromIndexer;
+
+    let pools;
+
+    if (isCacheFromIndexer) {
+      pools = (await getTopPoolsIndexer()).map((p: any) => ({
+        ...p,
+        Dex: 'ref',
+      }));
+    } else if (isCacheFromRPC) {
+      const totalPools = await getTotalPools();
+      const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+
+      pools = (
+        await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
+      )
+        .flat()
+        .map((p) => ({ ...p, Dex: 'ref' }));
+    }
+
+    // const totalPools = await getTotalPools();
+    // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
 
     let triPools;
     if (crossSwap) {
@@ -309,7 +331,7 @@ export const getPoolsByTokens = async ({
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
-      (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
+      (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
     await getAllStablePoolsFromCache();
   }
@@ -365,7 +387,10 @@ export const getPoolVolumes = async (id: number): Promise<PoolVolumes> => {
 export const getSharesInPool = (id: number): Promise<string> => {
   return refFiViewFunction({
     methodName: 'get_pool_shares',
-    args: { pool_id: id, account_id: getCurrentWallet().wallet.getAccountId() },
+    args: {
+      pool_id: id,
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
+    },
   });
 };
 
@@ -380,7 +405,10 @@ export const getFarmsCount = (poolId: string | number, farms: any) => {
 
 export const getEndedFarmsCount = (poolId: string | number, farms: any) => {
   const count = farms.reduce((pre: number, cur: any) => {
-    if (Number(cur.pool_id) === Number(poolId) && cur.status === 'Ended')
+    if (
+      Number(cur.pool_id) === Number(poolId) &&
+      (cur.status === 'Ended' || cur.status === 'Created')
+    )
       return pre + 1;
     return pre;
   }, 0);
@@ -420,6 +448,54 @@ export const canFarm = async (
     version: countV2 > 0 ? 'V2' : 'V1',
   };
 };
+
+export const canFarms = async ({
+  pool_ids,
+  withEnded,
+}: {
+  pool_ids: number[];
+  withEnded?: boolean;
+}) => {
+  let farms: any;
+  let boostFarms: any;
+
+  if (!withEnded) {
+    farms = (await db.queryFarms()).filter((farm) => farm.status !== 'Ended');
+    boostFarms = (await db.queryBoostFarms()).filter(
+      (farm) => farm.status !== 'Ended'
+    );
+  } else {
+    farms = await db.queryFarms();
+    boostFarms = await db.queryBoostFarms();
+  }
+
+  const getCounts = (pool_id: number) => {
+    const countV1 = farms.reduce((pre: any, cur: any) => {
+      if (Number(cur.pool_id) === pool_id) return pre + 1;
+      return pre;
+    }, 0);
+
+    const countV2 = boostFarms.reduce((pre: any, cur: any) => {
+      if (Number(cur.pool_id) === pool_id) return pre + 1;
+      return pre;
+    }, 0);
+
+    return {
+      count: countV2 > 0 ? countV2 : countV1,
+      version: countV2 > 0 ? 'V2' : 'V1',
+    };
+  };
+
+  return pool_ids
+    .map((pool_id) => getCounts(pool_id).count)
+    .reduce((acc, cur, i) => {
+      return {
+        ...acc,
+        [pool_ids[i]]: cur,
+      };
+    }, {}) as Record<string, number>;
+};
+
 export const canFarmV1 = async (
   pool_id: number,
   withEnded?: boolean

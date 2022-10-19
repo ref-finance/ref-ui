@@ -50,7 +50,7 @@ import {
   LINEARIDS,
   LINEAR_POOL_ID,
   NEARXIDS,
-  NEAX_POOL_ID,
+  NEARX_POOL_ID,
   STABLE_POOL_TYPE,
   STABLE_TOKEN_IDS,
   STNEARIDS,
@@ -75,15 +75,24 @@ import {
 
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
-import { senderWallet, WalletContext } from '../../utils/sender-wallet';
+import { senderWallet, WalletContext } from '../../utils/wallets-integration';
 import { SwapArrow, SwapExchange } from '../icon/Arrows';
 import { getPoolAllocationPercents, percentLess } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
 import { SWAP_MODE } from '../../pages/SwapPage';
-import { isStableToken, STABLE_TOKEN_USN_IDS } from '../../services/near';
+import {
+  isStableToken,
+  STABLE_TOKEN_USN_IDS,
+  USD_CLASS_STABLE_TOKEN_IDS,
+} from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import getConfig, { getExtraStablePoolConfig } from '../../services/config';
+import {
+  NEAR_CLASS_STABLE_TOKEN_IDS,
+  BTC_CLASS_STABLE_TOKEN_IDS,
+} from '../../services/near';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -95,16 +104,12 @@ const SWAP_SLIPPAGE_KEY_STABLE = 'REF_FI_SLIPPAGE_VALUE_STABLE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
 
-const isSameClass = (token1: string, token2: string) => {
-  const USDTokenList = new Array(
-    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
-  );
+export const isSameStableClass = (token1: string, token2: string) => {
+  const USDTokenList = USD_CLASS_STABLE_TOKEN_IDS;
 
-  const BTCTokenList = BTCIDS.map((id) => id);
+  const BTCTokenList = BTC_CLASS_STABLE_TOKEN_IDS;
 
-  const NEARTokenList = new Array(
-    ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEARXIDS))
-  ).map((id) => id);
+  const NEARTokenList = NEAR_CLASS_STABLE_TOKEN_IDS;
   return (
     (USDTokenList.includes(token1) && USDTokenList.includes(token2)) ||
     (BTCTokenList.includes(token1) && BTCTokenList.includes(token2)) ||
@@ -552,6 +557,9 @@ export default function SwapCard(props: {
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
 }) {
+  const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
+  const { REF_TOKEN_ID } = getConfig();
+  getConfig();
   const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
 
   const { allTokens, swapMode, stablePools, tokenInAmount, setTokenInAmount } =
@@ -616,12 +624,15 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
-    if (BTCIDS.includes(tokenIn.id) && BTCIDS.includes(tokenOut.id)) {
+    if (
+      BTC_CLASS_STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+      BTC_CLASS_STABLE_TOKEN_IDS.includes(tokenOut.id)
+    ) {
       setReservesType(STABLE_POOL_TYPE.BTC);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.BTC);
     } else if (
-      STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).includes(tokenIn.id) &&
-      STNEARIDS.concat(LINEARIDS).concat(NEARXIDS).includes(tokenOut.id)
+      NEAR_CLASS_STABLE_TOKEN_IDS.includes(tokenIn.id) &&
+      NEAR_CLASS_STABLE_TOKEN_IDS.includes(tokenOut.id)
     ) {
       setReservesType(STABLE_POOL_TYPE.NEAR);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.NEAR);
@@ -629,7 +640,7 @@ export default function SwapCard(props: {
       setReservesType(STABLE_POOL_TYPE.USD);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.USD);
     }
-
+    // todo
     history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
 
     localStorage.setItem(SWAP_IN_KEY, tokenIn.id);
@@ -638,17 +649,23 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (allTokens) {
-      const rememberedIn =
+      // todo
+      let rememberedIn =
         wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
-      const rememberedOut =
+      let rememberedOut =
         wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
       if (swapMode === SWAP_MODE.NORMAL) {
+        if (rememberedIn == NEARXIDS[0]) {
+          rememberedIn = REF_TOKEN_ID;
+        }
+        if (rememberedOut == NEARXIDS[0]) {
+          rememberedOut = REF_TOKEN_ID;
+        }
         const candTokenIn =
           allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
 
         const candTokenOut =
           allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
-
         setTokenIn(candTokenIn);
         setTokenOut(candTokenOut);
 
@@ -660,11 +677,16 @@ export default function SwapCard(props: {
       } else if (swapMode === SWAP_MODE.STABLE) {
         let candTokenIn: TokenMetadata;
         let candTokenOut: TokenMetadata;
-
+        if (rememberedIn == NEARXIDS[0]) {
+          rememberedIn = STNEARIDS[0];
+        }
+        if (rememberedOut == NEARXIDS[0]) {
+          rememberedOut = STNEARIDS[0];
+        }
         if (
           rememberedIn &&
           rememberedOut &&
-          isSameClass(rememberedIn, rememberedOut)
+          isSameStableClass(rememberedIn, rememberedOut)
         ) {
           candTokenIn = allTokens.find((token) => token.id === rememberedIn);
           candTokenOut = allTokens.find((token) => token.id === rememberedOut);
@@ -822,6 +844,7 @@ export default function SwapCard(props: {
   const tokenOutTotal = useNearBalance
     ? tokenOutBalanceFromNear || '0'
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
+
   const canSubmit = canSwap && (tokenInMax != '0' || !useNearBalance);
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -909,7 +932,6 @@ export default function SwapCard(props: {
               );
             setTokenIn(token);
             setCanSwap(false);
-            setTokenInBalanceFromNear(token?.near?.toString());
           }}
           text={intl.formatMessage({ id: 'from' })}
           useNearBalance={useNearBalance}
@@ -966,7 +988,6 @@ export default function SwapCard(props: {
               );
             setTokenOut(token);
             setCanSwap(false);
-            setTokenOutBalanceFromNear(token?.near?.toString());
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
@@ -1003,46 +1024,13 @@ export default function SwapCard(props: {
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
       />
+
       {swapMode === SWAP_MODE.STABLE ? (
         <TokenReserves
           tokens={AllStableTokenIds.map((id) =>
             allTokens.find((token) => token.id === id)
-          )
-            .filter((token) => isStableToken(token.id))
-            .filter((token) => {
-              switch (reservesType) {
-                case 'BTC':
-                  return BTCIDS.includes(token.id);
-                case 'USD':
-                  return STABLE_TOKEN_IDS.concat(STABLE_TOKEN_USN_IDS)
-                    .concat(CUSDIDS)
-                    .map((id) => id.toString())
-                    .includes(token.id);
-                case 'NEAR':
-                  return LINEARIDS.concat(STNEARIDS)
-                    .concat(NEARXIDS)
-                    .includes(token.id);
-              }
-            })}
-          pools={stablePools.filter((p) => {
-            switch (reservesType) {
-              case 'BTC':
-                return p.id.toString() === BTC_STABLE_POOL_ID;
-              case 'NEAR':
-                return (
-                  p.id.toString() === STNEAR_POOL_ID ||
-                  p.id.toString() === LINEAR_POOL_ID ||
-                  p.id.toString() === NEAX_POOL_ID
-                );
-              case 'USD':
-                return (
-                  p.id.toString() !== BTC_STABLE_POOL_ID &&
-                  p.id.toString() !== STNEAR_POOL_ID &&
-                  p.id.toString() !== LINEAR_POOL_ID &&
-                  p.id.toString() !== NEAX_POOL_ID
-                );
-            }
-          })}
+          ).filter((token) => isStableToken(token.id))}
+          pools={stablePools}
           type={reservesType}
           setType={setReservesType}
           swapPage

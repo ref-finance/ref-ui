@@ -82,7 +82,7 @@ import {
   getExpectedOutputFromActions,
   //@ts-ignore
 } from './smartRouteLogic';
-import { getCurrentWallet } from '../utils/sender-wallet';
+import { getCurrentWallet } from '../utils/wallets-integration';
 import {
   multiply,
   separateRoutes,
@@ -1045,7 +1045,7 @@ SwapOptions) => {
   const tokenInActions: RefFiFunctionCallOptions[] = [];
   const tokenOutActions: RefFiFunctionCallOptions[] = [];
 
-  const { wallet, wallet_type } = getCurrentWallet();
+  const { wallet } = getCurrentWallet();
 
   const registerToken = async (token: TokenMetadata) => {
     const tokenRegistered = await ftGetStorageBalance(token.id).catch(() => {
@@ -1057,7 +1057,7 @@ SwapOptions) => {
         methodName: 'storage_deposit',
         args: {
           registration_only: true,
-          account_id: getCurrentWallet().wallet.getAccountId(),
+          account_id: getCurrentWallet()?.wallet?.getAccountId(),
         },
         gas: '30000000000000',
         amount: STORAGE_TO_REGISTER_WITH_MFT,
@@ -1242,6 +1242,9 @@ SwapOptions) => {
       });
     }
 
+    if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
+      return window.location.reload();
+    }
     if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
       transactions.unshift(nearDepositTransaction(amountIn));
     }
@@ -1301,7 +1304,7 @@ export const crossInstantSwap = async ({
         methodName: 'storage_deposit',
         args: {
           registration_only: true,
-          account_id: getCurrentWallet().wallet.getAccountId(),
+          account_id: getCurrentWallet()?.wallet?.getAccountId(),
         },
         gas: '30000000000000',
         amount: STORAGE_TO_REGISTER_WITH_MFT,
@@ -1337,11 +1340,13 @@ export const crossInstantSwap = async ({
   }
 
   // force register
-  new Array(...new Set(forceRegisterTokens)).map((id) =>
-    transactions.push({
-      receiverId: id,
-      functionCalls: [registerAccountOnToken()],
-    })
+  new Array(...new Set(forceRegisterTokens)).map(
+    (id) =>
+      id !== 'usn' &&
+      transactions.push({
+        receiverId: id,
+        functionCalls: [registerAccountOnToken()],
+      })
   );
 
   const validateRegisterTokens: string[] = [];
@@ -1364,7 +1369,7 @@ export const crossInstantSwap = async ({
 
   await Promise.all(
     new Array(...new Set(validateRegisterTokens))
-      .filter((id) => !forceRegisterTokens.includes(id))
+      .filter((id) => !forceRegisterTokens.includes(id) && id !== 'usn')
       .map((token) => registerToken(token))
   );
 
@@ -1590,14 +1595,14 @@ SwapOptions) => {
 export const checkTransaction = (txHash: string) => {
   return (near.connection.provider as JsonRpcProvider).sendJsonRpc(
     'EXPERIMENTAL_tx_status',
-    [txHash, getCurrentWallet().wallet.getAccountId()]
+    [txHash, getCurrentWallet()?.wallet?.getAccountId()]
   );
 };
 
 export const checkTransactionStatus = (txHash: string) => {
   return near.connection.provider.txStatus(
     txHash,
-    getCurrentWallet().wallet.getAccountId()
+    getCurrentWallet()?.wallet?.getAccountId()
   );
 };
 

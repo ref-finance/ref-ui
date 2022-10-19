@@ -49,28 +49,28 @@ export default function RiskPage() {
       <div className="text-riskTextColor text-sm mt-3">
         <FormattedMessage id="introduction" />
       </div>
-      {/* <div className="flex justify-center items-center mt-5">
+      <div className="flex justify-center items-center mt-5 flex-wrap">
         <div
           onClick={() => {
             window.open(
               'https://form.typeform.com/to/EPmUetxU?typeform-source=mzko2gfnij6.typeform.com'
             );
           }}
-          className="flex justify-between items-center w-48 bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white mr-2.5"
+          className="flex justify-between items-center whitespace-nowrap bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white mx-1 mb-2"
         >
           <FormattedMessage id="general_risks_quiz" />
-          <ExternalLinkIcon></ExternalLinkIcon>
+          <ExternalLinkIcon className="flex-shrink-0 ml-2"></ExternalLinkIcon>
         </div>
         <div
           onClick={() => {
             window.open('https://uniswap.org/whitepaper.pdf');
           }}
-          className="flex justify-between items-center w-48 bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white"
+          className="flex justify-between items-center whitespace-nowrap bg-cardBg rounded-lg px-2.5 py-1.5 text-sm text-riskTextColor cursor-pointer hover:text-white mx-1 mb-2"
         >
           <FormattedMessage id="amm_core_design" />
-          <ExternalLinkIcon></ExternalLinkIcon>
+          <ExternalLinkIcon className="flex-shrink-0 ml-2"></ExternalLinkIcon>
         </div>
-      </div> */}
+      </div>
       <div className="mt-7">
         <ModuleTemplate title={intl.formatMessage({ id: 'audits' })}>
           <p className="text-sm text-riskTextColor mb-4">
@@ -238,7 +238,7 @@ const ModuleTemplate = (props: any) => {
     <div className="mb-5">
       <div className="relative">
         <ShapeTitleIcon></ShapeTitleIcon>
-        <label className="text-chartBg text-lg font-medium absolute left-7 top-1.5 xs:text-base md:text-base">
+        <label className="text-chartBg text-lg font-medium absolute left-7 top-1.5 xs:text-base md:text-base whitespace-nowrap  xsm:w-3/4 lg:w-72 overflow-hidden overflow-ellipsis">
           {title}
         </label>
       </div>

@@ -1,0 +1,756 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap'); */
+
+#near-wallet-selector-modal {
+  --backdrop-bg: #26262630;
+  --heading-color: #ffffff;
+  --text-color: #ffffff;
+  --selected-wallet-bg: #a7a7a730;
+  --selected-wallet-bg-hover: transparent;
+  --wallet-option-border-color: #a7a7a730;
+  --content-bg: #1d2932;
+  --input-border-color-focus: rgba(126, 138, 147, 0.2);
+  --box-shadow-color: #26262630;
+  --dismiss-button-bg-hover: #a7a7a730;
+  --dismiss-button-border-color-hover: inherit;
+  --confirm-button-color: #ffffff;
+  --confirm-button-bg: #5f8afa;
+  --confirm-button-bg-hover: #5aa6ff;
+  --confirm-button-border-color: #5f8afa;
+  --error: #db5555;
+  --close-button-color: #262626;
+  --spinner-color: #676767;
+}
+
+#near-wallet-selector-modal .dark-theme {
+  --backdrop-bg: #26262630;
+  --heading-color: #ffffff;
+  --text-color: #ffffff;
+  --selected-wallet-bg: #262626cc;
+  --selected-wallet-bg-hover: #262626cc;
+  --wallet-option-border-color: #a7a7a730;
+  --content-bg: #3f4246;
+  --input-border-color-focus: #5f8afa;
+  --box-shadow-color: #26262630;
+  --dismiss-button-bg-hover: #262626cc;
+  --dismiss-button-border-color-hover: #262626;
+  --confirm-button-color: #ffffff;
+  --confirm-button-bg: #5f8afa;
+  --confirm-button-bg-hover: #5aa6ff;
+  --confirm-button-border-color: #5f8afa;
+  --error: #db5555;
+  --close-button-color: #a7a7a7;
+  --spinner-color: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  #near-wallet-selector-modal {
+    --backdrop-bg: #26262630;
+    --heading-color: #ffffff;
+    --text-color: #ffffff;
+    --selected-wallet-bg: #262626cc;
+    --selected-wallet-bg-hover: #262626cc;
+    --wallet-option-border-color: #a7a7a730;
+    --content-bg: #3f4246;
+    --input-border-color-focus: #5f8afa;
+    --box-shadow-color: #26262630;
+    --dismiss-button-bg-hover: #262626cc;
+    --dismiss-button-border-color-hover: #262626;
+    --confirm-button-color: #ffffff;
+    --confirm-button-bg: #5f8afa;
+    --confirm-button-bg-hover: #5aa6ff;
+    --confirm-button-border-color: #5f8afa;
+    --error: #db5555;
+    --close-button-color: #a7a7a7;
+    --spinner-color: #ffffff;
+  }
+}
+/**
+ * Modal Wrapper
+ */
+
+.nws-modal-wrapper {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  visibility: hidden;
+  /*transition: visibility 0s linear 0.25s, opacity 0.25s 0s;*/
+  color: var(--wallet-selector-text-color, var(--text-color));
+  font-family: inherit;
+  font-weight: 500;
+  z-index: 101;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nws-modal-wrapper .modal-overlay {
+  /* background: var(--wallet-selector-backdrop-bg, var(--backdrop-bg)); */
+  background-color: rgba(0, 0, 0, 0.5);
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  backdrop-filter: blur(20px);
+}
+/**
+ * Modal
+ */
+
+.nws-modal-wrapper .modal:before {
+  content: '';
+  z-index: -1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(135deg, #00ffd1 0%, #933eff 100%);
+  filter: blur(30px);
+  opacity: 0.5;
+  transition: opacity 0.3s;
+  border-radius: inherit;
+}
+
+.nws-modal-wrapper .modal::after {
+  content: '';
+  z-index: -1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: inherit;
+  border-radius: inherit;
+}
+
+.nws-modal-wrapper .modal {
+  /* background: var(--wallet-selector-content-bg, var(--content-bg)); */
+  /* width: 470px; */
+  max-width: 470px;
+  height: auto;
+  max-height: 90vh;
+  border-radius: 16px;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0px);
+  transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+  background-color: var(--wallet-selector-content-bg, var(--content-bg));
+  padding-bottom: 24px;
+  padding-top: 30px;
+  padding-left: 28px;
+  padding-right: 28px;
+  font-size: 16px;
+  line-height: 1.6;
+  border: solid 1px transparent;
+  background-image: linear-gradient(var(--content-bg), var(--content-bg)),
+    linear-gradient(
+      135deg,
+      rgba(0, 255, 209, 0.2) 0%,
+      rgba(147, 62, 255, 0.2) 100%
+    );
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+}
+
+.nws-modal-wrapper .modal {
+  box-sizing: content-box;
+}
+
+/**
+ * Modal Header
+ */
+
+.nws-modal-wrapper .modal .modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.nws-modal-wrapper .modal .modal-header .close-button {
+  border: 0;
+  cursor: pointer;
+  height: 24px;
+  padding: 4px;
+  background-color: transparent;
+}
+
+.nws-modal-wrapper .modal .modal-header .close-button svg {
+  pointer-events: none;
+}
+
+.nws-modal-wrapper .modal .modal-header h2 {
+  color: var(--wallet-selector-heading-color, var(--heading-color));
+  font-size: 22px;
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+/**
+ * Modal buttons and inputs
+ */
+
+.nws-modal-wrapper .modal .modal-body input,
+.nws-modal-wrapper .modal .action-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nws-modal-wrapper .modal .action-buttons .left-button:hover {
+  background-color: var(
+    --wallet-selector-dismiss-button-bg-hover,
+    var(--dismiss-button-bg-hover)
+  );
+  border-color: var(
+    --wallet-selector-dismiss-button-border-color-hover,
+    var(--dismiss-button-border-color-hover)
+  );
+}
+
+/**
+ * Modal Switch Network Message Section/Wrapper
+ */
+
+.nws-modal-wrapper .modal .switch-network-message-wrapper .header h2 {
+  font-size: 18px;
+  margin-top: 0;
+  color: var(--wallet-selector-heading-color, var(--heading-color));
+}
+
+.nws-modal-wrapper .modal .switch-network-message-wrapper .content p {
+  font-size: 14.25px;
+}
+
+/**
+ * Modal Ledger Derivation Path Section/Wrapper
+ */
+.nws-modal-wrapper .modal .derivation-path-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 300px;
+  max-width: 400px;
+}
+.nws-modal-wrapper .modal .derivation-path-wrapper .derivation-path-list {
+  display: flex;
+  /* justify-content: center; */
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.nws-modal-wrapper .modal .derivation-path-wrapper input {
+  width: 200px;
+}
+
+.nws-modal-wrapper .modal .derivation-path-wrapper .input-error {
+  border-color: var(--wallet-selector-error, var(--error)) !important;
+}
+
+.nws-modal-wrapper .modal .derivation-path-wrapper .error {
+  font-family: inherit;
+  color: var(--wallet-selector-error, var(--error));
+}
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .no-accounts-found-wrapper
+  a {
+  color: #5f8afa;
+  text-decoration: none;
+}
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .no-accounts-found-wrapper
+  .action-buttons {
+  justify-content: flex-start;
+}
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .enter-derivation-path
+  .view-account {
+  font-size: 15px;
+  color: #5f8afa;
+  cursor: pointer;
+}
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .enter-derivation-path
+  .view-account:hover {
+  text-decoration: underline;
+}
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .enter-derivation-path
+  .view-account:hover {
+  text-decoration: underline;
+}
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .enter-derivation-path
+  .error {
+  font-size: 12px;
+}
+
+.nws-modal-wrapper .modal .derivation-path-wrapper .action-buttons {
+  margin-top: 20px;
+}
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .action-buttons
+  .right-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .overview-wrapper
+  .overview-header {
+  padding: 10px;
+  border-bottom: 1px solid rgb(216, 216, 216);
+  margin-bottom: 10px;
+}
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .overview-wrapper
+  .overview-header
+  h4 {
+  margin: 0;
+}
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .overview-wrapper
+  .overview-header
+  span {
+  color: rgb(95, 138, 250);
+  cursor: pointer;
+}
+
+.nws-modal-wrapper .modal .derivation-path-wrapper .overview-wrapper .account {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .overview-wrapper
+  .action-buttons {
+  justify-content: flex-end;
+}
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .enter-custom-account
+  .input-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+/* .nws-modal-wrapper .modal .derivation-path-wrapper input {
+  max-width: 250px;
+} */
+
+.nws-modal-wrapper
+  .modal
+  .derivation-path-wrapper
+  .enter-custom-account
+  .action-buttons {
+  justify-content: flex-end;
+}
+
+/**
+ * Modal Wallet ChooseLedgerAccountForm/Wrapper
+ */
+.nws-modal-wrapper .modal .choose-ledger-account-form-wrapper .form-control {
+  /* display: flex; */
+  margin-bottom: 16px;
+  padding: 10px;
+  box-shadow: rgb(0 0 0 / 16%) 0 1px 4px;
+  /* justify-content: space-between; */
+  /* align-items: center; */
+  color: var(--text-color);
+}
+.nws-modal-wrapper
+  .modal
+  .choose-ledger-account-form-wrapper
+  .form-control
+  label {
+  color: inherit;
+}
+.nws-modal-wrapper
+  .modal
+  .choose-ledger-account-form-wrapper
+  .form-control
+  select {
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 10px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  text-align: right;
+  color: inherit;
+}
+
+.nws-modal-wrapper
+  .modal
+  .choose-ledger-account-form-wrapper
+  .form-control
+  select
+  option {
+  background-color: var(--content-bg);
+}
+
+.nws-modal-wrapper .modal .choose-ledger-account-form-wrapper .action-buttons {
+  justify-content: flex-end;
+}
+
+/**
+ * Modal Wallet Options Section/Wrapper
+ */
+
+.nws-modal-wrapper .modal .wallet-options-wrapper .description {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.nws-modal-wrapper .modal .wallet-options-wrapper .options-list {
+  margin: 0;
+  list-style-type: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.nws-modal-wrapper .modal .wallet-options-wrapper .options-list li {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 8px;
+  max-height: 55px;
+  background: rgba(0, 0, 0, 0.2);
+  /* transition: background-color 0.2s ease-in-out; */
+}
+
+.nws-modal-wrapper
+  .modal
+  .wallet-options-wrapper
+  .options-list
+  li
+  .wallet-content {
+  display: flex;
+  align-items: center;
+}
+
+.nws-modal-wrapper
+  .modal
+  .wallet-options-wrapper
+  .options-list
+  li
+  .wallet-content
+  .wallet-img-box {
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  padding-right: 10px;
+  min-width: 40px;
+}
+
+.nws-modal-wrapper
+  .modal
+  .wallet-options-wrapper
+  .options-list
+  li
+  .wallet-content
+  .wallet-img-box
+  img {
+  text-align: left;
+  /* width: 100%; */
+}
+
+.nws-modal-wrapper .modal .wallet-options-wrapper .options-list li:hover {
+  background-color: rgba(1, 1, 1, 0.4);
+}
+
+.nws-modal-wrapper
+  .modal
+  .wallet-options-wrapper
+  .options-list
+  li.selected-wallet {
+  background-color: var(
+    --wallet-selector-selected-wallet-bg,
+    var(--selected-wallet-bg)
+  );
+}
+
+.nws-modal-wrapper
+  .modal
+  .wallet-options-wrapper
+  .options-list
+  li.deprecated-wallet
+  div {
+  opacity: 50%;
+}
+
+.nws-modal-wrapper
+  .modal
+  .wallet-options-wrapper
+  .options-list
+  li
+  .selected-wallet-text {
+  text-align: center;
+}
+
+.nws-modal-wrapper
+  .modal
+  .wallet-options-wrapper
+  .options-list
+  li
+  .selected-wallet-text
+  span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nws-modal-wrapper .modal .wallet-options-wrapper .options-list li:hover {
+  box-shadow: 0 2px 10px 0
+    var(--wallet-selector-box-shadow-color, var(--box-shadow-color));
+}
+
+/**
+ * Modal Wallet Options Info Section/Wrapper
+ */
+
+.nws-modal-wrapper .modal .info {
+  margin-top: 20px;
+}
+
+.nws-modal-wrapper .modal .info span {
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease-out;
+}
+
+.nws-modal-wrapper .modal .info .info-description {
+  max-height: 0;
+  transition: all 300ms ease-out;
+  overflow: hidden;
+}
+
+.nws-modal-wrapper .modal .info .info-description p {
+  font-size: 14px;
+  margin-bottom: 0;
+}
+
+.nws-modal-wrapper .modal .info .info-description.show-explanation {
+  animation: inAnimation 350ms ease-in;
+  max-height: 300px;
+}
+
+.nws-modal-wrapper .modal .info .info-description.hide-explanation {
+  animation: outAnimation 200ms ease-out;
+  animation-fill-mode: forwards;
+}
+
+/**
+ * Modal Wallet Not Installed Section/Wrapper
+ */
+
+.nws-modal-wrapper .wallet-not-installed-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 350px;
+}
+
+.nws-modal-wrapper .wallet-not-installed-wrapper .wallet-data {
+  display: flex;
+  align-items: center;
+  padding-top: 30px;
+  padding-bottom: 25px;
+}
+
+.nws-modal-wrapper .wallet-not-installed-wrapper .refresh-link {
+  color: #5f8afa;
+  cursor: pointer;
+}
+
+.nws-modal-wrapper .wallet-not-installed-wrapper .wallet-data p {
+  margin: 0 0 0 10px;
+}
+
+.nws-modal-wrapper .wallet-not-installed-wrapper .wallet-data .wallet-icon-box {
+  width: 50px;
+  height: 50px;
+}
+
+.nws-modal-wrapper
+  .wallet-not-installed-wrapper
+  .wallet-data
+  .wallet-icon-box
+  img {
+  width: 100%;
+  height: auto;
+}
+
+.open {
+  opacity: 1;
+  visibility: visible;
+  transition: visibility 0s linear 0s, opacity 0.25s 0s;
+}
+
+/**
+ * Modal Wallet Connecting Section/Wrapper
+ */
+
+.nws-modal-wrapper .modal .connecting-wrapper {
+  width: 300px;
+}
+
+.nws-modal-wrapper .modal .connecting-wrapper .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.nws-modal-wrapper .spinner {
+  margin-top: 20px;
+  --size: 160px;
+  --border: 6px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nws-modal-wrapper .spinner:before {
+  content: '';
+  border-radius: 50%;
+  position: absolute;
+  inset: 0;
+  border: var(--border) solid transparent;
+  border-right: var(--border) solid
+    var(--wallet-selector-spinner-color, var(--spinner-color));
+  /*animation: spin 1.4s linear infinite;*/
+  animation: spin 1.3s ease infinite;
+}
+.nws-modal-wrapper .spinner .icon {
+  width: calc(var(--size) / 1.2);
+  height: calc(var(--size) / 1.2);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+  box-shadow: rgb(0 0 0 / 5%) 0 10px 20px 0;
+}
+.nws-modal-wrapper .spinner img {
+  width: 100%;
+  height: auto;
+  padding: 20px;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .nws-modal-wrapper .modal {
+    width: 250px;
+  }
+
+  .nws-modal-wrapper
+    .modal
+    .derivation-path-wrapper
+    .derivation-path-list
+    input {
+    width: 140px;
+  }
+
+  .nws-modal-wrapper .modal .choose-ledger-account-form-wrapper .form-control {
+    flex-direction: column;
+  }
+
+  .nws-modal-wrapper
+    .modal
+    .choose-ledger-account-form-wrapper
+    .form-control
+    select {
+    text-align: center;
+  }
+}
+
+.nws-modal-wrapper.dark-theme .modal #near-wallet img,
+.nws-modal-wrapper.dark-theme .modal #math-wallet img,
+.nws-modal-wrapper.dark-theme .modal #ledger img,
+.nws-modal-wrapper.dark-theme
+  .modal
+  .wallet-not-installed-wrapper
+  .math-wallet
+  img {
+  filter: invert(1);
+}
+
+.nws-modal-wrapper.dark-theme .spinner .icon {
+  box-shadow: 0 10px 20px 0 rgb(255 255 255 / 5%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .nws-modal-wrapper .modal #near-wallet img,
+  .nws-modal-wrapper .modal #math-wallet img,
+  .nws-modal-wrapper .modal #ledger img,
+  .nws-modal-wrapper .modal .wallet-not-installed-wrapper .math-wallet img {
+    filter: invert(1);
+  }
+
+  .nws-modal-wrapper .spinner .icon {
+    box-shadow: 0 10px 20px 0 rgb(255 255 255 / 5%);
+  }
+}
+
+@keyframes outAnimation {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media screen and (min-width: 300px) and (max-width: 1023px) {
+  .nws-modal-wrapper .modal .wallet-options-wrapper .options-list {
+    margin: 0;
+    list-style-type: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(1, minmax(200px, 1fr));
+    gap: 10px;
+  }
+}

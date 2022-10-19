@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
-import { REF_STABLE_SWAP_TAB_KEY } from '../../pages/stable/StableSwapPage';
+import { NEARX_POOL_ID } from '../../services/near';
 
 export default function SquareRadio({
   radios,
   onChange,
   currentChoose,
+  poolId,
 }: {
   radios: string[];
   onChange: (chooseModule: string) => void;
   currentChoose: string;
+  poolId: string | number;
 }) {
-  const [choose, setChoose] = useState(
-    currentChoose || localStorage.getItem(REF_STABLE_SWAP_TAB_KEY) || radios[0]
-  );
+  const [choose, setChoose] = useState(currentChoose || radios[0]);
   const intl = useIntl();
   return (
     <>
@@ -21,11 +21,20 @@ export default function SquareRadio({
         {radios.map((radio) => {
           return (
             <span
-              className={`py-2 text-center text-base cursor-pointer w-full ${
-                choose === radio ? ' text-white' : 'text-farmText'
-              }`}
+              className={`py-2 text-center text-base cursor-pointer ${
+                Number(poolId) === Number(NEARX_POOL_ID) &&
+                radio === 'add_liquidity'
+                  ? 'cursor-not-allowed'
+                  : ''
+              } w-full ${choose === radio ? ' text-white' : 'text-farmText'}`}
               key={radio}
               onClick={() => {
+                if (
+                  Number(poolId) === Number(NEARX_POOL_ID) &&
+                  radio === 'add_liquidity'
+                ) {
+                  return;
+                }
                 setChoose(radio);
                 onChange(radio);
               }}

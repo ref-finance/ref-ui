@@ -37,7 +37,7 @@ import {
   UserSeedInfo,
   getVeSeedShare,
 } from '~services/farm';
-import { WalletContext } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/wallets-integration';
 import {
   toPrecision,
   toReadableNumber,
@@ -90,7 +90,12 @@ import { VEARROW } from '../icon/Referendum';
 import { isStablePool } from '../../services/near';
 import moment from 'moment';
 const ONLY_ZEROS = /^0*\.?0*$/;
-const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = getConfig();
+const {
+  STABLE_POOL_IDS,
+  FARM_LOCK_SWITCH,
+  REF_VE_CONTRACT_ID,
+  FARM_BLACK_LIST_V2,
+} = getConfig();
 export default function FarmsDetail(props: {
   detailData: Seed;
   emptyDetailData: Function;
@@ -99,6 +104,7 @@ export default function FarmsDetail(props: {
   boostConfig: BoostConfig;
   user_data: Record<string, any>;
   user_data_loading: Boolean;
+  dayVolumeMap: Record<string, string>;
 }) {
   const {
     detailData,
@@ -108,6 +114,7 @@ export default function FarmsDetail(props: {
     boostConfig,
     user_data,
     user_data_loading,
+    dayVolumeMap,
   } = props;
   const {
     user_seeds_map = {},
@@ -219,6 +226,8 @@ export default function FarmsDetail(props: {
     }
   }
   const radio = getBoostMutil();
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
   return (
     <div className={`m-auto lg:w-580px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
@@ -229,7 +238,7 @@ export default function FarmsDetail(props: {
       </div>
       <div
         className={`flex justify-between items-center mt-7 flex-wrap ${
-          isEnded() ? 'farmEnded' : ''
+          isEnded() || needForbidden ? 'farmEnded' : ''
         }`}
       >
         <div className="left flex items-center h-11 ml-3">
@@ -287,6 +296,7 @@ export default function FarmsDetail(props: {
         user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
         user_data_loading={user_data_loading}
         radio={radio}
+        dayVolumeMap={dayVolumeMap}
       ></StakeContainer>
     </div>
   );
@@ -301,6 +311,7 @@ function StakeContainer(props: {
   user_unclaimed_map: Record<string, any>;
   radio: string | number;
   user_data_loading: Boolean;
+  dayVolumeMap: Record<string, string>;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -321,6 +332,7 @@ function StakeContainer(props: {
     user_unclaimed_token_meta_map,
     radio,
     user_data_loading,
+    dayVolumeMap,
   } = props;
   const pool = detailData.pool;
   const intl = useIntl();
@@ -507,8 +519,13 @@ function StakeContainer(props: {
     }
   }, [boostConfig, user_seeds_map]);
   async function getPoolFee() {
-    const fee = await get24hVolume(pool.id.toString());
-    setDayVolume(fee);
+    const feeCache = dayVolumeMap && dayVolumeMap[pool.id];
+    if (feeCache) {
+      setDayVolume(feeCache);
+    } else {
+      const fee = await get24hVolume(pool.id.toString());
+      setDayVolume(fee);
+    }
   }
   const getStakeBalance = async () => {
     if (!isSignedIn) {
@@ -574,7 +591,8 @@ function StakeContainer(props: {
       const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
       if (tvl > 0 && revenu24h > 0) {
         const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
-        result = toPrecision(annualisedFeesPrct.toString(), 2);
+        const half_annualisedFeesPrct = annualisedFeesPrct / 2;
+        result = toPrecision(half_annualisedFeesPrct.toString(), 2);
       }
     }
     return result;
@@ -814,11 +832,14 @@ function StakeContainer(props: {
   }
   const aprUpLimit = getAprUpperLimit();
   const mobile = isMobile();
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
+
   return (
     <div className="mt-5">
       <div
         className={`poolbaseInfo flex items-center xs:flex-col md:flex-col justify-between ${
-          isEnded() ? 'farmEnded' : ''
+          isEnded() || needForbidden ? 'farmEnded' : ''
         }`}
       >
         <div
@@ -1134,7 +1155,9 @@ function AddLiquidityEntryBar(props: {
   } else {
     addLiquidityButtonLoading = false;
   }
-  if (!showAddLiquidityEntry) return null;
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(poolId.toString()) > -1;
+  if (!showAddLiquidityEntry || needForbidden) return null;
   return (
     <div
       className="rounded-lg overflow-hidden mt-8"
@@ -1710,6 +1733,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
       ? '0'
       : String(Number(amount) - 0.5);
   };
+  const shareMessage = shareDisplay();
 
   return (
     <>
@@ -1782,13 +1806,13 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
             <Alert level="warn" message={error.message} />
           </div>
         ) : null}
-        <div className="flex justify-between flex-col bg-black bg-opacity-20 text-farmText text-sm mt-6 mb-4 border border-gradientFrom p-5 rounded-lg">
+        <div className=" text-farmText text-sm mt-6 mb-4  px-2 rounded-lg">
           <div className="flex items-center justify-between">
             <label>
               <FormattedMessage id="lp_tokens" defaultMessage={'LP tokens'} />
             </label>
             <span className="text-white text-sm">
-              {canDeposit ? '-' : shareDisplay().lpTokens}
+              {shareMessage?.lpTokens || '-'}
             </span>
           </div>
           <div className="flex items-center justify-between pt-4">
@@ -1796,15 +1820,13 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               <FormattedMessage id="Share" defaultMessage="Share" />
             </label>
             <span className="text-white text-sm">
-              {!shareDisplay().shareDisplay || canDeposit
-                ? '-'
-                : shareDisplay().shareDisplay}
+              {shareMessage?.shareDisplay || '-'}
             </span>
           </div>
         </div>
 
         {canDeposit ? (
-          <div className="flex items-center rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
+          <div className=" rounded-md mb-6 px-4 text-center xs:px-2  text-base">
             <label className="text-warnColor ">
               <FormattedMessage id="oops" defaultMessage="Oops" />!
             </label>
@@ -1856,7 +1878,7 @@ function UserTotalUnClaimBlock(props: {
     setClaimLoading(true);
     claimRewardBySeed_boost(detailData.seed_id)
       .then(() => {
-        // window.location.reload();
+        window.location.reload();
       })
       .catch((error) => {
         setClaimLoading(false);
@@ -2116,9 +2138,11 @@ function UserStakeBlock(props: {
   const [stakeType, setStakeType] = useState('');
   const [unStakeType, setUnStakeType] = useState('');
   const [serverTime, setServerTime] = useState<number>();
+  const [yourTvl, setYourTvl] = useState('');
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const { pool, min_locking_duration_sec, slash_rate, seed_id } = detailData;
+  const { pool, min_locking_duration_sec, slash_rate, seed_id, seed_decimal } =
+    detailData;
   const {
     free_amount = '0',
     locked_amount = '0',
@@ -2150,6 +2174,28 @@ function UserStakeBlock(props: {
   useEffect(() => {
     get_server_time();
   }, []);
+  useEffect(() => {
+    const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
+    const yourLp = toReadableNumber(
+      seed_decimal,
+      new BigNumber(free_amount || 0).plus(locked_amount || 0).toFixed()
+    );
+    const { tvl, id, shares_total_supply } = pool;
+    const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
+      ? LP_STABLE_TOKEN_DECIMALS
+      : LP_TOKEN_DECIMALS;
+    const poolShares = Number(toReadableNumber(DECIMALS, shares_total_supply));
+    const yourTvl =
+      poolShares == 0
+        ? 0
+        : Number(
+            toPrecision(((Number(yourLp) * tvl) / poolShares).toString(), 2)
+          );
+    if (yourTvl) {
+      setYourTvl(yourTvl.toString());
+    }
+  }, [Object.keys(user_seeds_map || {})]);
+
   const get_server_time = async () => {
     const timestamp = await getServerTime();
     setServerTime(timestamp);
@@ -2429,6 +2475,8 @@ function UserStakeBlock(props: {
     return '';
   }
   const isEnded = detailData.farmList[0].status == 'Ended';
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
   return (
     <div className="bg-cardBg rounded-2xl p-5 mt-5">
       <div className="flex justify-between items-center text-sm text-primaryText">
@@ -2460,7 +2508,13 @@ function UserStakeBlock(props: {
             data-html={true}
             data-tip={getPowerDetail()}
           >
-            {showLpPower()}
+            <div className="flex items-center">
+              <span>{showLpPower()}</span>
+              <span className="text-sm text-primaryText ml-1.5">
+                {getUserLpPercent()}
+              </span>
+            </div>
+
             <ReactTooltip
               id="powerDetailId"
               backgroundColor="#1D2932"
@@ -2471,8 +2525,15 @@ function UserStakeBlock(props: {
           </div>
         </div>
       </div>
-      <div className="flex justify-end items-center">
-        <span className="text-sm text-primaryText">{getUserLpPercent()}</span>
+      <div className="flex justify-between items-center mt-4">
+        <span className="text-sm text-primaryText">
+          <FormattedMessage id="value"></FormattedMessage>
+        </span>
+        <span className="text-base text-white">
+          {Number(yourTvl) == 0
+            ? '-'
+            : '$' + toInternationalCurrencySystem(yourTvl, 2)}
+        </span>
       </div>
       <div
         className={`stakeEntryArea ${
@@ -2496,9 +2557,11 @@ function UserStakeBlock(props: {
                     openStakeModalVisible('free');
                   }}
                   color="#fff"
+                  disabled={needForbidden ? true : false}
+                  btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
                   className={`w-36 h-8 text-center text-sm text-white focus:outline-none mr-3 ${
-                    isEnded ? 'hidden' : ''
-                  }`}
+                    needForbidden ? 'opacity-40' : ''
+                  } ${isEnded ? 'hidden' : ''}`}
                 >
                   <FormattedMessage id="stake"></FormattedMessage>
                 </GradientButton>
@@ -3507,6 +3570,7 @@ function StakeModal(props: {
     </CommonModal>
   );
 }
+
 function UnStakeModal(props: {
   title: string;
   isOpen: boolean;

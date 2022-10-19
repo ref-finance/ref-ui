@@ -66,6 +66,7 @@ import {
 
 import moment, { duration } from 'moment';
 import { CheckedTick, ErrorTriangle, TipTriangle } from '../components/icon';
+
 import { UnCheckedBoxVE } from '../components/icon/CheckBox';
 import {
   toReadableNumber,
@@ -83,7 +84,9 @@ import {
   ProposalCard,
   TIMESTAMP_DIVISOR,
 } from '../components/layout/Proposal';
-import { WalletContext } from '../utils/sender-wallet';
+
+import { WalletContext } from '../utils/wallets-integration';
+
 import { scientificNotationToString, toPrecision } from '../utils/numbers';
 import { WarnTriangle } from '../components/icon/SwapRefresh';
 import { useTokens, useTokenPriceList } from '../state/token';
@@ -154,6 +157,7 @@ export const RewardCard = ({
 }: {
   rewardList: { tokenId: string; amount: string }[];
 }) => {
+  const length_at_once = 4;
   const tokenIds = rewardList.map(({ tokenId }) => tokenId);
 
   const tokens = useTokens(tokenIds);
@@ -282,11 +286,11 @@ export const RewardCard = ({
                 onClick={() => {
                   if (
                     checkList?.length === tokenIds?.length ||
-                    checkList.length === 5
+                    checkList.length === length_at_once
                   ) {
                     setCheckList([]);
                   } else {
-                    if (tokenIds.length <= 5) {
+                    if (tokenIds.length <= length_at_once) {
                       setCheckList(tokenIds);
                     } else {
                       const candidateList = [];
@@ -295,7 +299,10 @@ export const RewardCard = ({
                         const id = tokenIds[i];
                         if (!checkList.includes(id)) {
                           candidateList.push(id);
-                          if (candidateList.length === 5 - checkList.length) {
+                          if (
+                            candidateList.length ===
+                            length_at_once - checkList.length
+                          ) {
                             break;
                           }
                         }
@@ -309,23 +316,23 @@ export const RewardCard = ({
                   className={`mr-2 h-4 w-4 rounded bg-opacity-30 flex items-center justify-center ${
                     (tokens?.length > 0 &&
                       tokens?.every((token) => checkList.includes(token.id))) ||
-                    checkList.length === 5
+                    checkList.length === length_at_once
                       ? 'bg-black'
                       : 'bg-white'
                   }`}
                 >
                   {(tokens?.length > 0 &&
                     tokens?.every((token) => checkList.includes(token.id))) ||
-                  checkList.length === 5 ? (
+                  checkList.length === length_at_once ? (
                     <RewardCheck />
                   ) : null}
                 </button>
 
                 <span className="text-sm">
-                  {Object.keys(rewardList).length > 5 ? (
-                    <div className="flex items-center ">
-                      <label className="mr-1 ">
-                        <FormattedMessage id="all_5_v2" />
+                  {Object.keys(rewardList).length > length_at_once ? (
+                    <div className="flex items-center">
+                      <label className="mr-1 whitespace-nowrap">
+                        <FormattedMessage id="all_4_v2" />
                       </label>
                       <QuestionTip id="over_tip" color="bright" />
                     </div>
@@ -521,13 +528,13 @@ export const LockPopUp = ({
   if (!config) return null;
 
   const Durations = () => (
-    <div className="w-full flex items-center pt-1.5 ">
+    <div className="w-full flex items-center pt-1.5 xsm:justify-between ">
       {candidateDurations.map((d) => {
         const base = 2592000;
         return (
           <button
             key={d}
-            className={`rounded-lg text-center xsm:mr-7  mr-2.5 hover:bg-gradientFrom  ${
+            className={`rounded-lg text-center  mr-2.5 hover:bg-gradientFrom  ${
               duration === d
                 ? 'text-chartBg bg-gradientFrom'
                 : 'text-farmText bg-black bg-opacity-20'
@@ -721,7 +728,7 @@ export const LockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
@@ -796,7 +803,7 @@ export const LockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
                 <div 
                   style="max-width: 250px;font-weight:400",
                 >
@@ -823,8 +830,6 @@ export const LockPopUp = ({
           </div>
         </div>
 
-        {/* Locking 50 LP Tokens in addition to the 100 already locked. Unlocking is Dec 1, 2022 */}
-
         {!showVeAmount || !preLocked ? null : (
           <div
             className="rounded-lg border text-sm flex items-center border-gradientFrom px-3 py-2.5 mt-4 text-left"
@@ -833,34 +838,58 @@ export const LockPopUp = ({
             }}
           >
             {' '}
-            <span className="mr-4">
+            <span className="mr-4 self-start">
               <TipTriangle h="16" w="17" c="#00C6A2" />
             </span>
             <span>
-              <FormattedMessage id="locking_ve" defaultMessage={'Locking'} />{' '}
-              <span className="text-gradientFrom">
-                {toPrecision(inputValue, 2)}
-              </span>{' '}
-              <FormattedMessage id="lp_tokens" defaultMessage={'LP Tokens'} />{' '}
-              <FormattedMessage
-                id="in_addition_to_the"
-                defaultMessage={'in addition to the'}
-              />{' '}
-              <span className="text-gradientFrom">
-                {toPrecision(toReadableNumber(24, accountInfo.lpt_amount), 2)}
-              </span>{' '}
-              <FormattedMessage
-                id="already_locked"
-                defaultMessage={'already locked'}
-              />
-              {'. '}
-              <FormattedMessage
-                id="unlocking_is"
-                defaultMessage={'Unlocking is'}
-              />{' '}
-              <span className="text-gradientFrom">
-                {moment(moment().unix() * 1000 + duration * 1000).format('ll')}
-              </span>
+              <div className="text-lightBg">
+                <FormattedMessage
+                  id="you_currently_have"
+                  defaultMessage={'You currently have '}
+                />
+                <span>
+                  {toPrecision(toReadableNumber(24, accountInfo.lpt_amount), 2)}
+                </span>
+                <FormattedMessage
+                  id="lp_tokens_locking"
+                  defaultMessage={'LP Tokens'}
+                />
+                <FormattedMessage
+                  id="scheduled_to_be_unlocked"
+                  defaultMessage={'scheduled to be unlocked'}
+                />{' '}
+                <span>{moment(unlockTime * 1000).format('MMM D YYYY')}</span>
+                {'. '}
+              </div>
+
+              <div className="text-white font-bold">
+                <span className="text-lightBg font-normal">
+                  <FormattedMessage
+                    id="locking_more_lp_tokens"
+                    defaultMessage={'Locking more LP Tokens'}
+                  />
+                </span>
+                <span>
+                  <FormattedMessage
+                    id="will_mean_these"
+                    defaultMessage={'will mean these'}
+                  />
+                </span>
+                <span>
+                  {toPrecision(toReadableNumber(24, accountInfo.lpt_amount), 2)}
+                </span>
+                <span>
+                  <FormattedMessage
+                    id="lp_tokens_will_not_be_unlocked_until"
+                    defaultMessage={'LP Tokens will not be unlocked until'}
+                  />{' '}
+                </span>
+                <span>
+                  {moment(moment().unix() * 1000 + duration * 1000).format(
+                    'MMM D YYYY'
+                  )}
+                </span>
+              </div>
             </span>
           </div>
         )}
@@ -874,14 +903,31 @@ export const LockPopUp = ({
           >
             {!termsCheck ? null : <RewardCheck />}
           </button>
-
-          <span>
+          <span className="text-lightBg">
             <FormattedMessage
-              id="lock_lp_terms"
-              defaultMessage={
-                "I understand that I won't be able to remove my LP Tokens for the entire duration of the agreed locking period"
-              }
+              id="I_understand_that_I_won't_be_able_to_remove_my"
+              defaultMessage={"I understand that I won't be able to remove my"}
             />
+            <span className="text-white font-bold">
+              {toPrecision(
+                scientificNotationToString(
+                  new Big(toReadableNumber(24, accountInfo?.lpt_amount || '0'))
+                    .plus(new Big(inputValue || '0'))
+                    .toString()
+                ),
+                2
+              )}
+            </span>
+            <FormattedMessage
+              id="lp_tokens_locking"
+              defaultMessage={'LP Tokens'}
+            />
+            <FormattedMessage id="until" defaultMessage={'until'} />{' '}
+            <span className="text-white font-bold">
+              {moment(moment().unix() * 1000 + duration * 1000).format(
+                'MMM D YYYY'
+              )}
+            </span>
           </span>
         </div>
 
@@ -1132,7 +1178,7 @@ const UnLockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
  
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -1214,7 +1260,7 @@ const UnLockPopUp = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
 
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -1445,7 +1491,7 @@ const VotingPowerCard = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
 
                 <div 
                   style="max-width: 250px;font-weight:400",
@@ -1555,7 +1601,7 @@ const FarmBoosterCard = ({
                   data-class="reactTip"
                   data-html={true}
                   data-tip={`
-              <div className="text-xs">
+              <div class="text-xs">
   
                 <div 
                   style="max-width: ${
@@ -1960,7 +2006,7 @@ const UserReferendumCard = ({
             <ConnectToNearBtnVotingMobile />
           ) : (
             <button
-              className={`flex items-center cursor-pointer border w-40 border-white px-2 justify-center rounded-full text-center bg-opacity-50 py-1  text-sm`}
+              className={`flex items-center cursor-pointer border w-auto border-white px-2 justify-center rounded-full text-center bg-opacity-50 py-1  text-sm`}
               onClick={() => {
                 setShowMobileLocker(!showMobileLocker);
               }}
@@ -2148,7 +2194,7 @@ const UserReferendumCard = ({
                     </span>
                   </span>
                 }
-                className="rounded-lg w-full h-full"
+                className="rounded-lg w-full h-full xsm:text-xs"
                 padding="p-0"
                 width="w-1/2 ml-2 h-11 xsm:h-8"
               />

@@ -21,13 +21,20 @@ import {
 } from '../../utils/numbers';
 import {
   BTCIDS,
+  BTC_CLASS_STABLE_TOKEN_IDS,
   CUSDIDS,
   LINEARIDS,
   NEARXIDS,
+  NEAR_CLASS_STABLE_TOKEN_IDS,
   STABLE_TOKEN_USN_IDS,
   STNEARIDS,
+  USD_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
-import { STABLE_TOKEN_IDS, STABLE_POOL_TYPE } from '../../services/near';
+import {
+  STABLE_TOKEN_IDS,
+  STABLE_POOL_TYPE,
+  USD_CLASS_STABLE_POOL_IDS,
+} from '../../services/near';
 import _ from 'lodash';
 
 function sort(a: any, b: any) {
@@ -116,15 +123,10 @@ export const StableSelectToken = ({
   postSelected?: TokenMetadata;
   onSelectPost?: (t: TokenMetadata) => void;
 }) => {
-  const USDTokenList = new Array(
-    ...new Set(STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS))
-  );
+  const USDTokenList = USD_CLASS_STABLE_TOKEN_IDS;
+  const BTCTokenList = BTC_CLASS_STABLE_TOKEN_IDS;
 
-  const BTCTokenList = BTCIDS.map((id) => id);
-
-  const NEARTokenList = new Array(
-    ...new Set(STNEARIDS.concat(LINEARIDS).concat(NEARXIDS))
-  ).map((id) => id);
+  const NEARTokenList = NEAR_CLASS_STABLE_TOKEN_IDS;
 
   const [stableCoinType, setStableCoinType] = useState<STABLE_POOL_TYPE>(
     STABLE_POOL_TYPE.USD
@@ -150,7 +152,9 @@ export const StableSelectToken = ({
     preSelected && !NEARtokens.find((token) => token.id === preSelected.id);
 
   const handleSelect = (token: TokenMetadata) => {
-    onSelect(token);
+    if (token.id != NEARXIDS[0]) {
+      onSelect(token);
+    }
 
     if (!postSelected || !onSelectPost) {
       return;
@@ -382,7 +386,7 @@ export default function SelectToken({
       </button>
     );
   }
-  const dialogWidth = isMobile() ? '75%' : forCross ? '25%' : '20%';
+  const dialogWidth = isMobile() ? '95%' : forCross ? '25%' : '420px';
   const dialogMinwidth = isMobile() ? 340 : 380;
   const dialogHidth = isMobile() ? '95%' : '57%';
   const intl = useIntl();
@@ -390,7 +394,10 @@ export default function SelectToken({
     tokensData,
     loading: loadingTokensData,
     trigger,
-  } = useTokensData(tokens, balances);
+  } = useTokensData(
+    tokens.filter((t) => t.id !== NEARXIDS[0]),
+    balances
+  );
   useEffect(() => {
     trigger();
   }, [trigger]);
@@ -553,7 +560,9 @@ export default function SelectToken({
             onSortChange={onSortChange}
             tokens={listData}
             onClick={(token) => {
-              onSelect && onSelect(token);
+              if (token.id != NEARXIDS[0]) {
+                onSelect && onSelect(token);
+              }
               handleClose();
             }}
             balances={balances}

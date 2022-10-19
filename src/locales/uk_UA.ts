@@ -313,6 +313,7 @@ const uk_UA = {
   h24_volume: 'Обсяг за добу',
   volume: 'Volume',
   hide_low_tvl_pools: 'Приховати низький TVL',
+  hide_low_tvl_pools_mobile: 'Приховати низький TVL',
   watchlist_title: 'Мій список спостережень вгорі',
   add_watchlist: 'Додати список спостережень',
   remove_watchlist: 'Видалити список спостережень',
@@ -364,7 +365,7 @@ const uk_UA = {
   stake_unstake_tip:
     'Стейкінг або анстейкінг автоматично отримає ваші винагороди.',
   over_tip:
-    'Через обмеження комісії gas, одночасно можна вибрати не більше 5 позицій.',
+    'Через обмеження комісії gas, одночасно можна вибрати не більше 4 позицій.',
   no_token_tip: 'Винагорода у токенах відсутня',
   getToken_tip:
     'Ви можете отримати свої винагороди або здійснити стейкінг своїх токенів LP прямо зараз!',
@@ -397,7 +398,7 @@ const uk_UA = {
   rewards_claimed: 'Винагороди отримано',
   value_rewards_token: 'Вартість винагород',
   all: 'Всі',
-  all_5: '5 токенів за раз',
+  all_5: '4 токенів за раз',
   insufficient_shares: 'Часток недостатньо',
   shares_removed: 'Частки',
   shares_avaliable: 'Доступні частки',
@@ -593,6 +594,7 @@ const uk_UA = {
   trading_successfull: 'Торгівля успішна. ',
   total_near_amount: 'Загальна сума NEAR',
   recent_one_mounth_activity: 'Заходи за один місяць',
+
   applying_period: 'Applying Period',
   community_gauge_share: 'Community Gauge Share',
   qualified_pools: 'Qualified Pools',
@@ -633,6 +635,7 @@ const uk_UA = {
   available_to_stake: 'є можливість стейкінгу',
   claimed_Rewards: 'Отримані нагороди',
   all_5_v2: '5 токенів/час',
+  all_4_v2: '4 токенів/час',
   search_farms: 'пошук ферм',
   ended_Farms: 'закінчені ферми',
   your_power: 'Ваша сила',
@@ -699,6 +702,15 @@ const uk_UA = {
   forum_discussion: 'обговорення на форумі',
   voted_veLPT: 'Проголосовано veLPT',
   your_contribution: 'Ваш вклад',
+  your_assets: 'Ваші активи',
+  connect_wallet: 'Підключіть гаманець',
+  disconnect: 'Відключити',
+  change: 'Змінити',
+  wallets_below_supports_on_PC: 'Зазначені гаманці підтримуються на ПК',
+  connect: 'Підключити',
+  make_sure_device_plugged_in: 'Впевніться, що ваш пристрій підключено',
+  then_enter_an_account_id_to_connect:
+    'та введіть ваш ідентифікатор облікового запису для підключення',
   delete: 'Видалити',
   not_start: 'Не починати',
   no_veLPT: 'Ні veLPT',
@@ -729,9 +741,7 @@ const uk_UA = {
   add_option: 'додати опцію',
   lock_lp_terms:
     'Я розумію, що не зможу забрати свої токени LP протягом усього узгодженого періоду блокування',
-  connect_wallet: 'Підключити гаманець',
   connect_to_near_wallet: 'Підключитись до NEAR Wallet',
-  connect: 'Підключити',
   only_for_whitelist_address: 'Лише для адрес білого списку',
   v1Legacy: 'V1-Спадок',
   v2New: 'V2-Новий',
@@ -740,6 +750,7 @@ const uk_UA = {
   migrate_now: 'міграцію зараз ! ',
   v2_boost_tip:
     'Ферми V2 підтримуватимуть посилені ферми. На фермах V1 закінчаться нагороди <span class="font-bold">1st. August, 2022.</span>',
+  v2_boost_tip2: 'Ферми V2 підтримуватимуть посилені ферми.',
   v2_boost_no_tip:
     'На фермах V1 закінчаться нагороди <span class="font-bold">1st. August, 2022.</span>',
   no_farm_need_to_migrate: 'Немає ферм для переносу',
@@ -777,5 +788,48 @@ const uk_UA = {
   your_apr: 'Ваш APR',
   range_apr: 'Діапазон чи стандартний APR',
   how_to_earn_more: 'Як поєднати винагороду?',
+  no_pair_found: 'Пари не знайдено',
+  found_stable_pool_in_sauce: 'Знайдено стабільний пул у SAUCE',
+  lp_tokens_locking: ' LP токени ',
+  you_currently_have: 'Ви зараз маєте ',
+  scheduled_to_be_unlocked: 'заплановано для розблокування',
+  locking_more_lp_tokens: 'Блокування більше токенів LP ',
+  will_mean_these: 'буде означати ці ',
+  lp_tokens_will_not_be_unlocked_until: ' Токени LP не буде розблоковано до',
+  "I_understand_that_I_won't_be_able_to_remove_my":
+    'Я розумію, що не зможу видалити свій ',
+  until: 'поки',
+  learn_more: 'Вивчайте більше',
+  continue: 'Продовжити',
+  then_enter_a_derivation_path_to_connect:
+    'потім введіть шлях похідного підключення',
+  account_identification_failed:
+    'Помилка ідентифікації облікового запису! Будь ласка, надайте вручну',
+  input_account_id: 'Введіть ідентифікатор облікового запису',
+  we_found: 'Ми виявили',
+  accounts_on_your_device: 'облікові записи на вашому пристрої',
+  select_the_accounts_you_wish_to_connect:
+    'Виберіть обліковий запис, який потрібно підключити',
+  can_not_find_any_accounts:
+    "Can't found any account associated with this Ledger. Please create a new NEAR account on",
+  or_connect_another_ledger: 'or connect an another Ledger',
+  add: 'додати',
+  finish: 'Закінчити',
+  add_custom_network: 'Додати спеціальну мережу',
+  network_name: 'Назва мережі',
+  rpc_name_taken_tip: 'Назва мережі вже зайнята',
+  network_invalid: 'Мережа була недійсною',
+  fobidden_testnet_rpc_tip:
+    'Мережа сервера RPC (testnet) відрізняється від цієї мережі (mainnet)',
+  no_support_testnet_rpc_tip: 'Testnet не підтримує додавання власного RPC',
+  farm_only: 'Тільки ферма',
+  value: 'значення',
+  please_confirm_this_transaction_on_ledger:
+    'Підтвердьте цю транзакцію в Ledger',
+  farm_stop_tip: 'This farm has been stopped.',
+  pool_stop_tip: 'This pool has been stopped.',
+  newText: 'новий',
+  no_claimed_rewards_yet: 'No claimed rewards yet',
+  out_of: 'out of',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

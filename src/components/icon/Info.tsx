@@ -16,6 +16,7 @@ export function Info() {
     </svg>
   );
 }
+
 export function Slider({ showSlip }: { showSlip: boolean }) {
   return (
     <svg

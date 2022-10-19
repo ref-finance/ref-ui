@@ -86,7 +86,10 @@ import { FaArrowCircleRight, FaRegQuestionCircle } from 'react-icons/fa';
 import OldInputAmount from '~components/forms/OldInputAmount';
 import { BigNumber } from 'bignumber.js';
 import getConfig from '~services/config';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import { scientificNotationToString } from '../../utils/numbers';
 import { getPrice } from '~services/xref';
 import { get24hVolume } from '~services/indexer';
@@ -151,7 +154,7 @@ export function FarmsPage() {
 
   const page = 1;
   const perPage = DEFAULT_PAGE_LIMIT;
-  const withdrawNumber = 5;
+  const withdrawNumber = 4;
   const refreshTime = 120000;
   const [count, setCount] = useState(0);
   const [commonSeedFarms, setCommonSeedFarms] = useState({});
@@ -874,7 +877,9 @@ export function FarmsPage() {
                         Object.keys(checkedList).length == 0 ? 'opacity-40' : ''
                       }`}
                       onClick={doWithDraw}
-                      disabled={Object.keys(checkedList).length == 0}
+                      disabled={
+                        Object.keys(checkedList).length == 0 || withdrawLoading
+                      }
                       btnClassName={
                         Object.keys(checkedList).length == 0
                           ? 'cursor-not-allowed'
@@ -1418,7 +1423,7 @@ function FarmView({
     if (farmsData.length > 1) {
       claimRewardBySeed(data.seed_id)
         .then(() => {
-          window.location.reload();
+          // window.location.reload();
         })
         .catch((error) => {
           setDisableClaim(false);
@@ -1427,7 +1432,7 @@ function FarmView({
     } else {
       claimRewardByFarm(data.farm_id)
         .then(() => {
-          window.location.reload();
+          // window.location.reload();
         })
         .catch((error) => {
           setDisableClaim(false);
@@ -2101,7 +2106,7 @@ function FarmView({
                 <GradientButton
                   color="#fff"
                   onClick={() => claimReward()}
-                  disabled={disableClaim}
+                  disabled={disableClaim || claimLoading}
                   className="text-white text-sm flex-grow  w-20"
                   loading={claimLoading}
                 >
@@ -2487,7 +2492,8 @@ function ActionModal(
                   !amount ||
                   new BigNumber(amount).isEqualTo(0) ||
                   new BigNumber(amount).isGreaterThan(maxToFormat) ||
-                  stakeCheck
+                  stakeCheck ||
+                  buttonLoading
                 }
                 loading={buttonLoading}
               >

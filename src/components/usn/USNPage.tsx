@@ -15,7 +15,7 @@ import Alert from '../alert/Alert';
 import { TokenAmountV2 } from '../forms/TokenAmount';
 import { SwapExchange } from '../icon/Arrows';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
-import { WalletContext } from '../../utils/sender-wallet';
+import { WalletContext } from '../../utils/wallets-integration';
 import {
   toNonDivisibleNumber,
   toPrecision,
@@ -118,7 +118,7 @@ function USNPage(props: ReactModal.Props) {
               height: isMobile() ? '510px' : '',
               overflow: isMobile() ? 'auto' : '',
             }}
-            className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible border-gradientFrom border border-opacity-50`}
+            className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 xs:px-3.5 md:px-3.5 bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible border-gradientFrom border border-opacity-50`}
           >
             <h2 className="formTitle flex justify-between items-center font-bold text-xl text-white text-left pb-8">
               <div className="flex items-center text-2xl text-white">
@@ -200,7 +200,7 @@ function USNPage(props: ReactModal.Props) {
                   !canSubmit ? 'opacity-40' : ''
                 }`}
                 onClick={handleSubmit}
-                disabled={!canSubmit}
+                disabled={!canSubmit || showBuyLoading}
                 btnClassName={!canSubmit ? 'cursor-not-allowed' : ''}
                 loading={showBuyLoading}
               >

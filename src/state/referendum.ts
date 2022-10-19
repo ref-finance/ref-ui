@@ -14,7 +14,7 @@ import {
   getUnclaimedRewards,
 } from '../services/referendum';
 import { AccountInfo } from '../pages/ReferendumPage';
-import { WalletContext } from '../utils/sender-wallet';
+import { WalletContext } from '../utils/wallets-integration';
 import {
   getUnclaimedProposal,
   VEConfig,

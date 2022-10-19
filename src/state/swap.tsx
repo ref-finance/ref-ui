@@ -28,7 +28,7 @@ import { useHistory, useLocation } from 'react-router';
 import getConfig from '~services/config';
 import { FormattedMessage, useIntl } from 'react-intl';
 
-import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import {
   POOL_TOKEN_REFRESH_INTERVAL,
   STABLE_TOKEN_IDS,
@@ -132,7 +132,7 @@ export const useSwap = ({
   };
 
   useEffect(() => {
-    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
+    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransaction(txHash)
         .then((res: any) => {
           const transactionErrorType = getErrorMessage(res);
@@ -347,7 +347,7 @@ export const useStableSwap = ({
   };
 
   useEffect(() => {
-    if (txHash && getCurrentWallet().wallet.isSignedIn()) {
+    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransaction(txHash)
         .then((res: any) => {
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;

@@ -12,7 +12,16 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             url: 'https://public-rpc.blockpi.io/http/near',
             simpleName: 'blockpi rpc',
           },
+          // infuraRpc: {
+          //   url: 'https://near-mainnet.infura.io/v3/391d915322284599936f0ee962399dc1',
+          //   simpleName: 'infura rpc',
+          // },
+          ankrRpc: {
+            url: 'https://rpc.ankr.com/near',
+            simpleName: 'ankr rpc',
+          },
         },
+        pool_protocol: 'indexer',
       };
     case 'development':
     case 'pub-testnet':
@@ -27,6 +36,7 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             simpleName: 'blockpi rpc',
           },
         },
+        pool_protocol: 'indexer',
       };
     case 'testnet':
       return {
@@ -40,6 +50,7 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             simpleName: 'blockpi rpc',
           },
         },
+        pool_protocol: 'indexer',
       };
     default:
       return {
@@ -52,15 +63,44 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             url: 'https://public-rpc.blockpi.io/http/near',
             simpleName: 'blockpi rpc',
           },
+          // infuraRpc: {
+          //   url: 'https://near-mainnet.infura.io/v3/391d915322284599936f0ee962399dc1',
+          //   simpleName: 'infura rpc',
+          // },
+          ankrRpc: {
+            url: 'https://rpc.ankr.com/near',
+            simpleName: 'ankr rpc',
+          },
         },
+        pool_protocol: 'indexer',
       };
   }
 }
+export function getCustomConfig() {
+  let customRpcMapStr;
+  try {
+    customRpcMapStr = window.localStorage.getItem('customRpcList');
+  } catch (error) {}
+
+  let customRpcMap = {};
+  if (customRpcMapStr) {
+    try {
+      customRpcMap = JSON.parse(customRpcMapStr);
+    } catch (error) {}
+  }
+  return customRpcMap;
+}
 export default function getConfig(env: string = process.env.NEAR_ENV) {
-  const RPC_LIST = getExtendConfig().RPC_LIST;
+  const RPC_LIST_system = getExtendConfig().RPC_LIST;
+  const RPC_LIST_custom = getCustomConfig();
+  const RPC_LIST = Object.assign(RPC_LIST_system, RPC_LIST_custom);
   let endPoint = 'defaultRpc';
   try {
     endPoint = window.localStorage.getItem('endPoint') || endPoint;
+    if (!RPC_LIST[endPoint]) {
+      endPoint = 'defaultRpc';
+      localStorage.removeItem('endPoint');
+    }
   } catch (error) {}
   switch (env) {
     case 'production':
@@ -69,9 +109,11 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
+        myNearWalletUrl: 'https://app.mynearwallet.com/',
+
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
-        indexerUrl: 'https://indexer.ref.finance',
+        indexerUrl: 'https://mainnet-indexer.ref-finance.com',
         sodakiApiUrl: 'https://api.stats.ref.finance/api',
         blackList: process.env.FARM_BLACK_LIST || ['1371#3', '2769#2'],
         REF_FI_CONTRACT_ID:
@@ -118,17 +160,24 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
-        BLACKLIST_POOL_IDS: [''],
+        BLACKLIST_POOL_IDS: ['3689', '3699'],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
+        FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['3612'],
+        boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [
+          '3699#0',
+          '3612#0',
+          '3612#1',
+        ],
       };
     case 'pub-testnet':
       return {
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
+        myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
         indexerUrl: 'https://testnet-indexer.ref-finance.com',
@@ -177,18 +226,24 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
-        BLACKLIST_POOL_IDS: [''],
+        BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
           'boostfarm.ref-finance.testnet',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
+        kitWalletOn: true,
+        boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [
+          '1760#0',
+          '1760#1',
+        ],
       };
     case 'testnet':
       return {
         networkId: 'testnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.testnet.near.org',
+        myNearWalletUrl: 'https://testnet.mynearwallet.com/',
         helperUrl: 'https://testnet-api.kitwallet.app',
         explorerUrl: 'https://testnet.nearblocks.io',
         indexerUrl: 'https://testnet-indexer.ref-finance.com/',
@@ -236,18 +291,22 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
             process.env.TOTAL_PLATFORM_FEE_REVENUE || '105561.75',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
-        BLACKLIST_POOL_IDS: [''],
+        BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
           'boostfarm024.ref-dev.testnet',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['5%', '10%'],
+        kitWalletOn: true,
+        FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
+        boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
       };
     default:
       return {
         networkId: 'mainnet',
         nodeUrl: RPC_LIST[endPoint].url,
         walletUrl: 'https://wallet.near.org',
+        myNearWalletUrl: 'https://app.mynearwallet.com/',
         helperUrl: 'https://api.kitwallet.app',
         explorerUrl: 'https://nearblocks.io',
         indexerUrl: 'https://indexer.ref.finance',
@@ -306,11 +365,17 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
-        BLACKLIST_POOL_IDS: [''],
+        BLACKLIST_POOL_IDS: ['3689', '3699'],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID || 'boostfarm.ref-labs.near',
+        FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['3612'],
+        boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [
+          '3699#0',
+          '3612#0',
+          '3612#1',
+        ],
       };
   }
 }
@@ -347,13 +412,28 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.near': 0,
           'wrap.near': 1,
         },
-        NEAX_POOL_ID: '3612',
+        NEARX_POOL_ID: '3612',
         NEARXIDS: ['nearx.stader-labs.near', 'wrap.near'],
-        NEAX_POOL_INDEX: {
+        NEARX_POOL_INDEX: {
           'nearx.stader-labs.near': 0,
           'wrap.near': 1,
         },
-        RATED_POOLS_IDS: ['3514', '3515', '3612'],
+        NEW_NEARX_POOL_ID: '3688',
+        NEW_NEARXIDS: ['v2-nearx.stader-labs.near', 'wrap.near'],
+        NEW_NEARX_POOL_INDEX: {
+          'v2-nearx.stader-labs.near': 0,
+          'wrap.near': 1,
+        },
+        USDT_POOL_ID: '3689',
+        USDTIDS: [
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+          'usdt.tether-token.near',
+        ],
+        USDT_POOL_INDEX: {
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 0,
+          'usdt.tether-token.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
       };
     case 'development':
     case 'pub-testnet':
@@ -382,13 +462,25 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.testnet': 0,
           'wrap.testnet': 1,
         },
-        NEARXIDS: ['dev-1656877137694-34571929023079', 'wrap.testnet'],
-        NEAX_POOL_ID: '990',
-        NEAX_POOL_INDEX: {
-          'dev-1656877137694-34571929023079': 0,
+        NEARXIDS: ['nearx.staderlabs.testnet', 'wrap.testnet'],
+        NEARX_POOL_ID: '1044',
+        NEARX_POOL_INDEX: {
+          'nearx.staderlabs.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['568', '571', '990'],
+        NEW_NEARX_POOL_ID: '1751',
+        NEW_NEARXIDS: ['v2-nearx.staderlabs.testnet', 'wrap.testnet'],
+        NEW_NEARX_POOL_INDEX: {
+          'v2-nearx.staderlabs.testnet': 0,
+          'wrap.testnet': 1,
+        },
+        USDT_POOL_ID: '1752',
+        USDTIDS: ['usdt.fakes.testnet', 'usdtt.fakes.testnet'],
+        USDT_POOL_INDEX: {
+          'usdt.fakes.testnet': 0,
+          'usdtt.fakes.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['568', '571', '1044', '1752', '1751'],
       };
     case 'testnet':
       return {
@@ -406,10 +498,10 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
         CUSD_STABLE_POOL_ID: '608',
         STNEAR_POOL_ID: '621',
         LINEAR_POOL_ID: '622',
-        NEAX_POOL_ID: '661',
+        NEARX_POOL_ID: '666',
         STNEARIDS: ['meta-v2.pool.testnet', 'wrap.testnet'],
         LINEARIDS: ['linear-protocol.testnet', 'wrap.testnet'],
-        NEARXIDS: ['dev-1656877137694-34571929023079', 'wrap.testnet'],
+        NEARXIDS: ['nearx.staderlabs.testnet', 'wrap.testnet'],
         STNEAR_POOL_INDEX: {
           'meta-v2.pool.testnet': 0,
           'wrap.testnet': 1,
@@ -418,11 +510,23 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.testnet': 0,
           'wrap.testnet': 1,
         },
-        NEAX_POOL_INDEX: {
-          'dev-1656877137694-34571929023079': 0,
+        NEARX_POOL_INDEX: {
+          'nearx.staderlabs.testnet': 0,
           'wrap.testnet': 1,
         },
-        RATED_POOLS_IDS: ['621', '622', '661'],
+        NEW_NEARX_POOL_ID: '685',
+        NEW_NEARXIDS: ['v2-nearx.staderlabs.testnet', 'wrap.testnet'],
+        NEW_NEARX_POOL_INDEX: {
+          'v2-nearx.staderlabs.testnet': 0,
+          'wrap.testnet': 1,
+        },
+        USDT_POOL_ID: '686',
+        USDTIDS: ['usdt.fakes.testnet', 'usdtt.fakes.testnet'],
+        USDT_POOL_INDEX: {
+          'usdt.fakes.testnet': 0,
+          'usdtt.fakes.testnet': 1,
+        },
+        RATED_POOLS_IDS: ['621', '622', '666', '686', '685'],
       };
     default:
       return {
@@ -453,13 +557,85 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'linear-protocol.near': 0,
           'wrap.near': 1,
         },
-        NEAX_POOL_ID: '3612',
+        NEARX_POOL_ID: '3612',
         NEARXIDS: ['nearx.stader-labs.near', 'wrap.near'],
-        NEAX_POOL_INDEX: {
+        NEARX_POOL_INDEX: {
           'nearx.stader-labs.near': 0,
           'wrap.near': 1,
         },
-        RATED_POOLS_IDS: ['3514', '3515', '3612'],
+        NEW_NEARX_POOL_ID: '3688',
+        NEW_NEARXIDS: ['v2-nearx.stader-labs.near', 'wrap.near'],
+        NEW_NEARX_POOL_INDEX: {
+          'v2-nearx.stader-labs.near': 0,
+          'wrap.near': 1,
+        },
+        USDT_POOL_ID: '3689',
+        USDTIDS: [
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near',
+          'usdt.tether-token.near',
+        ],
+        USDT_POOL_INDEX: {
+          'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 0,
+          'usdt.tether-token.near': 1,
+        },
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
+      };
+  }
+}
+export function getTransakConfig(
+  accountId: string,
+  env: string = process.env.NEAR_ENV
+) {
+  switch (env) {
+    case 'production':
+    case 'mainnet':
+      return {
+        apiKey: 'bf2238a1-ff5d-4a8f-9e1b-af7892ed0123',
+        environment: 'PRODUCTION',
+        widgetWidth: `500px`,
+        widgetHeight: `600px`,
+        themeColor: `#00C6A2`,
+        hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
+        defaultCryptoCurrency: 'NEAR',
+        cryptoCurrencyCode: 'NEAR',
+        walletAddress: accountId || '',
+      };
+    case 'development':
+    case 'pub-testnet':
+      return {
+        apiKey: '538c522e-474e-4d3b-a7a2-38a736cea747',
+        environment: 'STAGING',
+        widgetWidth: `500px`,
+        widgetHeight: `600px`,
+        themeColor: `#00C6A2`,
+        hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
+        defaultCryptoCurrency: 'NEAR',
+        cryptoCurrencyCode: 'NEAR',
+        walletAddress: accountId || '',
+      };
+    case 'testnet':
+      return {
+        apiKey: '538c522e-474e-4d3b-a7a2-38a736cea747',
+        environment: 'STAGING',
+        widgetWidth: `500px`,
+        widgetHeight: `600px`,
+        themeColor: `#00C6A2`,
+        cryptoCurrencyCode: 'NEAR',
+        hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
+        defaultCryptoCurrency: 'NEAR',
+        walletAddress: accountId || '',
+      };
+    default:
+      return {
+        apiKey: 'bf2238a1-ff5d-4a8f-9e1b-af7892ed0123',
+        environment: 'PRODUCTION',
+        widgetWidth: `500px`,
+        widgetHeight: `600px`,
+        themeColor: `#00C6A2`,
+        hostURL: typeof window !== 'undefined' ? window.location.origin : ``,
+        defaultCryptoCurrency: 'NEAR',
+        cryptoCurrencyCode: 'NEAR',
+        walletAddress: accountId || '',
       };
   }
 }

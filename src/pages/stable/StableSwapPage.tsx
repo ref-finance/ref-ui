@@ -27,9 +27,10 @@ import {
 } from '../../components/stableswap/CommonComp';
 import BigNumber from 'bignumber.js';
 import { getStablePoolFromCache, Pool, StablePool } from '../../services/pool';
+import { getStableSwapTabKey } from './StableSwapPageUSN';
+import { STABLE_TOKEN_IDS } from '../../services/near';
 export const DEFAULT_ACTIONS = ['add_liquidity', 'remove_liquidity'];
-const STABLE_TOKENS = ['USDT', 'USDC', 'DAI'];
-export const REF_STABLE_SWAP_TAB_KEY = 'REF_STABLE_SWAP_TAB_VALUE';
+const STABLE_TOKENS = ['USDT.e', 'USDC', 'DAI'];
 
 interface LocationTypes {
   stableTab?: string;
@@ -46,6 +47,8 @@ interface ParamTypes {
 function StableSwapPage({ pool }: { pool: Pool }) {
   const { state } = useLocation<LocationTypes>();
   const { id } = useParams<ParamTypes>();
+
+  const REF_STABLE_SWAP_TAB_KEY = getStableSwapTabKey(pool.id);
 
   const stableTab = state?.stableTab;
 
@@ -71,7 +74,7 @@ function StableSwapPage({ pool }: { pool: Pool }) {
   const tokens =
     allTokens &&
     allTokens.length > 0 &&
-    allTokens.filter((item) => STABLE_TOKENS.indexOf(item.symbol) > -1);
+    allTokens.filter((item) => STABLE_TOKEN_IDS.indexOf(item.id) > -1);
 
   const nearBalances = useWalletTokenBalances(
     tokens?.map((token) => token.id) || []

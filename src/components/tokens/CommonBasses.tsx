@@ -6,7 +6,10 @@ import { WNEARExchngeIcon } from '../../components/icon/Common';
 import WrapNear from '../../components/forms/WrapNear';
 import { wallet } from '~services/near';
 import { isMobile } from '../../utils/device';
-import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { tokenPrice, SingleToken } from '../forms/SelectToken';
 interface CommonBassesProps {
   tokens: TokenMetadata[];
@@ -20,12 +23,14 @@ const COMMON_BASSES = [
   'SKYWARD',
   'OCT',
   'STNEAR',
-  'USDT',
+  'USDT.e',
+  'USDt',
   'USDC',
   'ETH',
   'DAI',
   'WBTC',
-  // 'FLX',
+  'AURORA',
+  'SWEAT',
 ];
 
 export default function CommonBasses({
@@ -37,8 +42,9 @@ export default function CommonBasses({
     .filter((item) => {
       return COMMON_BASSES.indexOf(item?.symbol) > -1;
     })
+    .sort((a, b) => (a.symbol === 'USDt' ? -1 : 1))
+    .sort((a, b) => (a.symbol === 'NEAR' ? -1 : 1))
     .sort((a, b) => (a.symbol === 'USN' ? -1 : 1))
-    .sort((a, b) => (a.symbol === 'wNEAR' ? -1 : 1))
     .sort((a, b) => (a.symbol === 'REF' ? -1 : 1));
 
   return (

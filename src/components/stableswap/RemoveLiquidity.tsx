@@ -60,7 +60,10 @@ import {
   LP_TOKEN_DECIMALS,
 } from '../../services/m-token';
 import { QuestionTip } from '../../components/layout/TipWrapper';
-import { WalletContext, getCurrentWallet } from '../../utils/sender-wallet';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { percentOfBigNumber } from '../../utils/numbers';
 import SquareRadio from '../radio/SquareRadio';
 import { DEFAULT_ACTIONS } from '../../pages/stable/StableSwapPage';
@@ -85,7 +88,7 @@ export function shareToUserTotal({
   return (
     <div className="text-xs">
       <span className="text-white">
-        {getCurrentWallet().wallet.isSignedIn()
+        {getCurrentWallet()?.wallet?.isSignedIn()
           ? toRoundedReadableNumber({
               decimals: getStablePoolDecimal(pool?.id),
               number: shares,
@@ -95,7 +98,7 @@ export function shareToUserTotal({
       </span>
 
       <span className={`text-primaryText ${!haveFarm ? 'hidden' : ''}`}>
-        {getCurrentWallet().wallet.isSignedIn()
+        {getCurrentWallet()?.wallet?.isSignedIn()
           ? ` / ${toRoundedReadableNumber({
               decimals: getStablePoolDecimal(pool?.id),
               number: scientificNotationToString(
@@ -288,6 +291,7 @@ export function RemoveLiquidityComponent(props: {
         onChange={changeAction}
         radios={DEFAULT_ACTIONS}
         currentChoose={'remove_liquidity'}
+        poolId={pool.id}
       />
 
       <div className="flex bg-inputDarkBg rounded text-white mx-8 xs:mx-5 md:mx-5 p-1.5 mb-8">
@@ -446,7 +450,7 @@ export function RemoveLiquidityComponent(props: {
 
         {isSignedIn ? (
           <SolidButton
-            disabled={!canSubmit}
+            disabled={!canSubmit || buttonLoading}
             className={`focus:outline-none px-4 w-full text-lg`}
             onClick={async () => {
               if (canSubmit) {

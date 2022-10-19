@@ -56,11 +56,14 @@ import {
   STABLE_POOL_ID,
   ALL_STABLE_POOL_IDS,
 } from '../services/near';
-import { getCurrentWallet, WalletContext } from '../utils/sender-wallet';
+import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import getConfig from '../services/config';
 import { useFarmStake } from './farm';
 import { ONLY_ZEROS } from '../utils/numbers';
-import { getPoolsByTokensIndexer } from '../services/indexer';
+import {
+  getPoolsByTokensIndexer,
+  getAllPoolsIndexer,
+} from '../services/indexer';
 import {
   getStablePoolFromCache,
   getRefPoolsByToken1ORToken2,
@@ -125,13 +128,15 @@ export const useBatchTotalShares = (
     );
   }, [ids?.join('-'), finalStakeList, isSignedIn]);
 
-  return (
-    ids?.map((id, index) => {
-      return new Big(batchShares?.[index] || '0')
-        .plus(new Big(batchFarmStake?.[index] || '0'))
-        .toNumber();
-    }) || undefined
-  );
+  return {
+    shares: batchShares,
+    batchTotalShares:
+      ids?.map((id, index) => {
+        return new Big(batchShares?.[index] || '0')
+          .plus(new Big(batchFarmStake?.[index] || '0'))
+          .toNumber();
+      }) || undefined,
+  };
 };
 
 export const useStakeListByAccountId = () => {
@@ -323,41 +328,43 @@ export const useMorePoolIds = ({
   return ids;
 };
 
-export const usePoolsMorePoolIds = ({ pools }: { pools: Pool[] }) => {
+export const usePoolsMorePoolIds = () => {
   // top pool id to more pool ids:Array
   const [poolsMorePoolIds, setMorePoolIds] = useState<Record<string, string[]>>(
     {}
   );
 
   const getAllPoolsTokens = async () => {
-    return await db.getAllPoolsTokens();
+    return await getAllPoolsIndexer();
   };
 
   useEffect(() => {
-    if (!pools) return;
-
     getAllPoolsTokens().then((res) => {
-      const poolsMorePoolIds = pools.map((p) => {
+      const poolsMorePoolIds = res.map((p: any) => {
         const id1 = p.tokenIds[0];
         const id2 = p.tokenIds[1];
 
         return res
           .filter(
-            (resP) => resP.tokenIds.includes(id1) && resP.tokenIds.includes(id2)
+            (resP: any) =>
+              resP.tokenIds.includes(id1) && resP.tokenIds.includes(id2)
           )
-          .map((a) => a.id.toString());
+          .map((a: any) => a.id.toString());
       });
 
-      const parsedIds = poolsMorePoolIds.reduce((acc, cur, i) => {
-        return {
-          ...acc,
-          [pools[i].id.toString()]: cur,
-        };
-      }, {});
+      const parsedIds = poolsMorePoolIds.reduce(
+        (acc: any, cur: any, i: number) => {
+          return {
+            ...acc,
+            [res[i].id.toString()]: cur,
+          };
+        },
+        {}
+      );
 
       setMorePoolIds(parsedIds);
     });
-  }, [pools]);
+  }, []);
 
   return poolsMorePoolIds;
 };

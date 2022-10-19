@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router';
-import { REF_FARM_CONTRACT_ID, wallet } from '../../services/near';
+import {
+  REF_FARM_CONTRACT_ID,
+  wallet,
+  REF_FARM_BOOST_CONTRACT_ID,
+} from '../../services/near';
 
 function AuthButton() {
   const [accountId, setAccountId] = useState(wallet.getAccountId());
@@ -27,7 +31,7 @@ function AuthButton() {
         </>
       ) : (
         <button
-          onClick={() => wallet.requestSignIn(REF_FARM_CONTRACT_ID)}
+          onClick={() => wallet.requestSignIn(REF_FARM_BOOST_CONTRACT_ID)}
           type="button"
           className="bg-blue-500 hover:bg-white hover:text-blue-500 hover:border-2 hover:border-blue-500 text-white my-4 h-10 w-40 border-2 flex-row-centered shadow-lg hover:bg-disabled rounded-lg transition-colors focus:outline-none"
         >

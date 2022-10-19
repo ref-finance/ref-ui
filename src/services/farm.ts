@@ -11,6 +11,7 @@ import {
   near,
   refVeViewFunction,
   REF_FARM_CONTRACT_ID,
+  refFarmBoostFunctionCall,
 } from './near';
 import {
   toPrecision,
@@ -41,7 +42,8 @@ import {
   getCurrentWallet,
   SENDER_WALLET_SIGNEDIN_STATE_KEY,
   WalletContext,
-} from '../utils/sender-wallet';
+} from '../utils/wallets-integration';
+
 import { currentStorageBalanceOfFarm_boost } from '../services/account';
 import { WRAP_NEAR_CONTRACT_ID, nearMetadata } from '../services/wrap-near';
 import { utils } from 'near-api-js';
@@ -111,7 +113,7 @@ export const getSeeds = async ({
 };
 
 export const getStakedListByAccountId = async ({
-  accountId = getCurrentWallet().wallet.getAccountId(),
+  accountId = getCurrentWallet()?.wallet?.getAccountId(),
 }) => {
   const [stakedList, v2StakedList] = await Promise.all([
     refFarmViewFunction({
@@ -243,7 +245,7 @@ export const getFarmInfo = async (
   seed: string,
   lpTokenId: string
 ): Promise<FarmInfo> => {
-  const isSignedIn: boolean = getCurrentWallet().wallet.isSignedIn();
+  const isSignedIn: boolean = getCurrentWallet()?.wallet?.isSignedIn();
   const { tvl, token_account_ids, id } = pool;
   if (new Set(STABLE_POOL_IDS || []).has(id?.toString())) {
     staked = toNonDivisibleNumber(expand, staked ?? '0');
@@ -398,7 +400,7 @@ export const getFarm = async (id: number): Promise<Farm> => {
 };
 
 export const getRewards = async ({
-  accountId = getCurrentWallet().wallet.getAccountId(),
+  accountId = getCurrentWallet()?.wallet?.getAccountId(),
 }): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'list_rewards',
@@ -408,7 +410,7 @@ export const getRewards = async ({
 
 export const getRewardByTokenId = async (
   token_id: string,
-  accountId = getCurrentWallet().wallet.getAccountId()
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'get_reward',
@@ -418,7 +420,7 @@ export const getRewardByTokenId = async (
 
 export const getUnclaimedReward = async (
   farm_id: string,
-  accountId = getCurrentWallet().wallet.getAccountId()
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'get_unclaimed_reward',
@@ -427,26 +429,48 @@ export const getUnclaimedReward = async (
 };
 
 export const listRewards = async (
-  accountId = getCurrentWallet().wallet.getAccountId()
+  accountId = getCurrentWallet()?.wallet?.getAccountId()
 ): Promise<any> => {
   return refFarmViewFunction({
     methodName: 'list_rewards',
     args: { account_id: accountId },
   });
 };
-
+// todo1
 export const claimRewardByFarm = async (farm_id: string): Promise<any> => {
-  return refFarmFunctionCall({
-    methodName: 'claim_reward_by_farm',
-    args: { farm_id: farm_id },
+  // return refFarmFunctionCall({
+  //   methodName: 'claim_reward_by_farm',
+  //   args: { farm_id: farm_id },
+  // });
+  const transactions: Transaction[] = [];
+  transactions.push({
+    receiverId: config.REF_FARM_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'claim_reward_by_farm',
+        args: { farm_id: farm_id },
+      },
+    ],
   });
+  executeFarmMultipleTransactions(transactions);
 };
-
+// todo2
 export const claimRewardBySeed = async (seed_id: string): Promise<any> => {
-  return refFarmFunctionCall({
-    methodName: 'claim_reward_by_seed',
-    args: { seed_id: seed_id },
+  // return refFarmFunctionCall({
+  //   methodName: 'claim_reward_by_seed',
+  //   args: { seed_id: seed_id },
+  // });
+  const transactions: Transaction[] = [];
+  transactions.push({
+    receiverId: config.REF_FARM_CONTRACT_ID,
+    functionCalls: [
+      {
+        methodName: 'claim_reward_by_seed',
+        args: { seed_id: seed_id },
+      },
+    ],
   });
+  executeFarmMultipleTransactions(transactions);
 };
 
 export const getAllSinglePriceByTokenIds = async (
@@ -651,14 +675,13 @@ export const withdrawAllReward_boost = async (
       methodName: 'withdraw_reward',
       args: {
         token_id: token_id,
-        // amount: checkedList[token_id].value,
       },
       gas: '50000000000000',
     });
   });
   const resolvedBalanceList = await Promise.all(ftBalancePromiseList);
   resolvedBalanceList.forEach((ftBalance, index) => {
-    if (!ftBalance || ftBalance.total === '0') {
+    if (!ftBalance) {
       transactions.unshift({
         receiverId: token_id_list[index],
         functionCalls: [
@@ -676,6 +699,7 @@ export const withdrawAllReward_boost = async (
     functionCalls,
   });
   if (Object.keys(checkedList).includes(WRAP_NEAR_CONTRACT_ID)) {
+    sessionStorage.setItem('near_with_draw_source', 'farm_token');
     transactions.push(
       nearWithdrawTransaction(
         toReadableNumber(
@@ -687,20 +711,33 @@ export const withdrawAllReward_boost = async (
   }
   return executeFarmMultipleTransactions(transactions);
 };
+// todo
+// export const claimRewardBySeed_boost = async (
+//   seed_id: string
+// ): Promise<any> => {
+//   // const transactions: Transaction[] = [];
+//   // transactions.push({
+//   //   receiverId: REF_FARM_BOOST_CONTRACT_ID,
+//   //   functionCalls: [
+//   //     {
+//   //       methodName: 'claim_reward_by_seed',
+//   //       args: { seed_id: seed_id },
+//   //     },
+//   //   ],
+//   // });
+//   // return executeFarmMultipleTransactions(transactions);
+//   refFarmBoostFunctionCall({
+//     methodName: 'claim_reward_by_seed',
+//     args: { seed_id: seed_id },
+//   });
+// };
 export const claimRewardBySeed_boost = async (
   seed_id: string
 ): Promise<any> => {
-  const transactions: Transaction[] = [];
-  transactions.push({
-    receiverId: REF_FARM_BOOST_CONTRACT_ID,
-    functionCalls: [
-      {
-        methodName: 'claim_reward_by_seed',
-        args: { seed_id: seed_id },
-      },
-    ],
+  return refFarmBoostFunctionCall({
+    methodName: 'claim_reward_by_seed',
+    args: { seed_id: seed_id },
   });
-  return executeFarmMultipleTransactions(transactions);
 };
 export const lock_free_seed = async ({
   seed_id,
@@ -1125,7 +1162,7 @@ export const get_seed_info = async (seed_id: string): Promise<any> => {
   });
 };
 export const classificationOfCoins = {
-  stablecoin: ['USDT', 'USDC', 'DAI', 'nUSDO', 'cUSD', 'USN'],
+  stablecoin: ['USDT.e', 'USDC', 'DAI', 'nUSDO', 'cUSD', 'USN'],
   near_ecosystem: [
     'REF',
     'STNEAR',
@@ -1154,7 +1191,7 @@ export const classificationOfCoins = {
   bridged_tokens: [
     'ETH',
     'WETH',
-    'USDT',
+    'USDT.e',
     'USDC',
     'DAI',
     'OCT',
@@ -1215,12 +1252,14 @@ export const frontConfig = {
 export const farmClassification = {
   near: [
     0, 1207, 1371, 1395, 2330, 2448, 2799, 3, 3019, 3097, 3474, 3514, 3515,
-    3519, 377, 4, 974, 1195, 1923, 3448, 553, 79, 2691, 2800, 3020, 3433,
+    3519, 377, 4, 974, 1195, 1923, 3448, 553, 79, 2691, 2800, 3020, 3433, 3612,
+    2769, 2973, 3667, 3688,
   ],
   eth: [
     605, 1207, 2734, 1395, 1910, 2330, 2657, 2691, 2799, 2800, 3, 3020, 3433, 4,
     974, 3097,
   ],
+  stable: [1910, 3020, 3433, 3514, 3515, 3688, 3689, 3699],
 };
 export const frontConfigBoost = {
   '79': '100',

@@ -34,7 +34,10 @@ import { isMobile } from '../../utils/device';
 import { useTokens } from '../../state/token';
 import getConfig from '../../services/config';
 import { TokenMetadata, unWrapToken } from '../../services/ft-contract';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import {
   LightningIcon,
   ForbiddenIcon,

@@ -7,7 +7,7 @@ import { SingleToken } from '../forms/SelectToken';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { RefIcon } from '../../components/icon/DexIcon';
 import { TriIcon } from '../icon/DexIcon';
-import { getCurrentWallet } from '../../utils/sender-wallet';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 
 interface TokenProps {
   token: TokenMetadata;
@@ -133,4 +133,8 @@ export const TokenLinks = {
   BRRR: 'https://awesomenear.com/burrow',
   XNL: 'https://awesomenear.com/chronicle',
   KSW: 'https://awesomenear.com/killswitch-finance',
+  STNEAR: 'https://awesomenear.com/meta-pool',
+  NearX: 'https://awesomenear.com/stader',
+  SD: 'https://awesomenear.com/stader',
+  DISC: 'https://awesomenear.com/discovol',
 };

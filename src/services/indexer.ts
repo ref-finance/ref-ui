@@ -13,8 +13,8 @@ import moment from 'moment/moment';
 import { parseAction } from '../services/transaction';
 import { volumeType, TVLType } from '~state/pool';
 import db from '../store/RefDatabase';
-import { getCurrentWallet } from '../utils/sender-wallet';
-import { getPoolsByTokens } from './pool';
+import { getCurrentWallet } from '../utils/wallets-integration';
+import { getPoolsByTokens, getAllPools, parsePool } from './pool';
 import {
   filterBlackListPools,
   ALL_STABLE_POOL_IDS,
@@ -96,7 +96,7 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
   return await fetch(
     config.indexerUrl +
       '/liquidity-pools/' +
-      getCurrentWallet().wallet.getAccountId(),
+      getCurrentWallet()?.wallet?.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },
@@ -105,6 +105,17 @@ export const getYourPools = async (): Promise<PoolRPCView[]> => {
     .then((res) => res.json())
     .then((pools) => {
       return pools;
+    });
+};
+
+export const getTopPoolsIndexer = async () => {
+  return await fetch(config.indexerUrl + '/list-top-pools', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((poolList) => {
+      return poolList.map((p: any) => parsePool(p));
     });
 };
 
@@ -133,12 +144,11 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
             const ids = pool.tokenIds;
 
             const twoTokenStablePoolIds = (
-              await getPoolsByTokens({
-                tokenInId: ids[0],
-                tokenOutId: ids[1],
-                loadingTrigger: false,
+              await getPoolsByTokensIndexer({
+                token0: ids[0],
+                token1: ids[1],
               })
-            ).map((p) => p.id.toString());
+            ).map((p: any) => p.id.toString());
 
             const twoTokenStablePools = await getPoolsByIds({
               pool_ids: twoTokenStablePoolIds,
@@ -173,6 +183,18 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
     console.log(error);
     return [];
   }
+};
+
+export const getAllPoolsIndexer = async (amountThresh?: string) => {
+  const rawRes = await fetch(
+    config.indexerUrl +
+      `/list-pools?${amountThresh ? `amounts=${amountThresh}` : ''}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+
+  return rawRes.map((r: any) => parsePool(r));
 };
 
 export const getPool = async (pool_id: string): Promise<PoolRPCView> => {
@@ -286,7 +308,7 @@ export const getLatestActions = async (): Promise<Array<ActionData>> => {
   return await fetch(
     config.indexerUrl +
       '/latest-actions/' +
-      getCurrentWallet().wallet.getAccountId(),
+      getCurrentWallet()?.wallet?.getAccountId(),
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },

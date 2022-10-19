@@ -26,6 +26,12 @@ import {
   LightningBase64,
   LightningBase64Grey,
   BoostFarmBannerImg,
+  BoostFarmNoDataIcon,
+  BoostDotIcon,
+  NewTag,
+  NewIcon,
+  ForbiddonIcon,
+  StableOption,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -65,7 +71,10 @@ import {
   getVeSeedShare,
 } from '../../services/farm';
 import { getLoveAmount } from '../../services/referendum';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import getConfig from '../../services/config';
 import { PoolRPCView } from '../../services/api';
 import {
@@ -108,12 +117,24 @@ import { wnearMetadata, unwrapedNear } from '../../services/wrap-near';
 import { usePoolShare, useYourliquidity } from '../../state/pool';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
-import { constant } from 'lodash';
+import Countdown, { zeroPad } from 'react-countdown';
+import { MoreButtonIcon } from '../../components/icon/Common';
 
-const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
+import _ from 'lodash';
+
+const {
+  STABLE_POOL_IDS,
+  REF_VE_CONTRACT_ID,
+  FARM_BLACK_LIST_V2,
+  boostBlackList,
+} = getConfig();
 export default function FarmsHome(props: any) {
-  const { getDetailData, getDetailData_user_data, getDetailData_boost_config } =
-    props;
+  const {
+    getDetailData,
+    getDetailData_user_data,
+    getDetailData_boost_config,
+    getDayVolumeMap,
+  } = props;
   let [user_unWithdraw_rewards, set_user_unWithdraw_rewards] = useState<
     Record<string, string>
   >({});
@@ -132,6 +153,7 @@ export default function FarmsHome(props: any) {
     if (txHash && isSignedIn && popUp) {
       checkTransaction(txHash)
         .then((res: any) => {
+          debugger;
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
 
           const isSlippageError = res.receipts_outcome.some((outcome: any) => {
@@ -143,8 +165,12 @@ export default function FarmsHome(props: any) {
           const transaction = res.transaction;
           const methodName =
             transaction?.actions[0]?.['FunctionCall']?.method_name;
+          const isUsn =
+            sessionStorage.getItem('usn') == '1' &&
+            (methodName == 'ft_transfer_call' || methodName == 'withdraw');
+          sessionStorage.removeItem('usn');
           return {
-            isUSN: methodName == 'buy' || methodName == 'sell',
+            isUSN: isUsn,
             isSlippageError,
             isNearWithdraw: methodName == 'near_withdraw',
             isNearDeposit: methodName == 'near_deposit',
@@ -152,13 +178,15 @@ export default function FarmsHome(props: any) {
         })
         .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
           if (isUSN || isNearWithdraw || isNearDeposit) {
+            const source = sessionStorage.getItem('near_with_draw_source');
             isUSN &&
               !isSlippageError &&
               !errorType &&
               usnBuyAndSellToast(txHash);
-            (isNearWithdraw || isNearDeposit) &&
+            ((isNearWithdraw && source != 'farm_token') || isNearDeposit) &&
               !errorType &&
               swapToast(txHash);
+            sessionStorage.removeItem('near_with_draw_source');
             window.history.replaceState(
               {},
               '',
@@ -184,7 +212,11 @@ export default function FarmsHome(props: any) {
     tvl: intl.formatMessage({ id: 'tvl' }),
     apr: intl.formatMessage({ id: 'apr' }),
   };
-
+  const status_fronts = {
+    live: {
+      txt: intl.formatMessage({ id: 'all' }),
+    },
+  };
   const statusList = {
     live: {
       txt: intl.formatMessage({ id: 'all' }),
@@ -201,6 +233,14 @@ export default function FarmsHome(props: any) {
     eth: {
       txt: intl.formatMessage({ id: 'eth' }),
       icon: <EthOptIcon></EthOptIcon>,
+    },
+    stable: {
+      txt: intl.formatMessage({ id: 'stablecoin' }),
+      icon: <StableOption></StableOption>,
+    },
+    new: {
+      txt: intl.formatMessage({ id: 'newText' }),
+      icon: <NewIcon></NewIcon>,
     },
     others: {
       txt: intl.formatMessage({ id: 'others' }),
@@ -315,6 +355,19 @@ export default function FarmsHome(props: any) {
     list_seeds.filter((seed: Seed) => {
       if (seed.seed_id.indexOf('@') > -1) return true;
     });
+    // filter black farms
+    const temp_list_farm: FarmBoost[][] = [];
+    list_farm.forEach((farmList: FarmBoost[]) => {
+      let temp_farmList: FarmBoost[] = [];
+      temp_farmList = farmList.filter((farm: FarmBoost) => {
+        const id = farm?.farm_id?.split('@')[1];
+        if (boostBlackList.indexOf(id) == -1) {
+          return true;
+        }
+      });
+      temp_list_farm.push(temp_farmList);
+    });
+    list_farm = temp_list_farm;
     // filter no farm seed
     const new_list_seeds: any[] = [];
     list_farm.forEach((farmList: FarmBoost[], index: number) => {
@@ -518,6 +571,8 @@ export default function FarmsHome(props: any) {
         tempMap[poolId] = resolvedResult[index];
       });
       setDayVolumeMap(tempMap);
+      // for detail page
+      getDayVolumeMap(tempMap);
     } catch (error) {}
   }
   function getSpecialSeed({
@@ -634,6 +689,16 @@ export default function FarmsHome(props: any) {
         } else {
           condition1 = false;
         }
+      } else if (status == 'stable') {
+        if (
+          farmClassification['stable'].indexOf(+getPoolIdBySeedId(seed_id)) >
+            -1 &&
+          !isEnd
+        ) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
       } else if (status == 'others') {
         // others
         const isNotNear =
@@ -641,6 +706,14 @@ export default function FarmsHome(props: any) {
         const isNotEth =
           farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
         if (isNotNear && isNotEth && !isEnd) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
+      } else if (status == 'new') {
+        // todo
+        const m = isInMonth(seed);
+        if (m) {
           condition1 = true;
         } else {
           condition1 = false;
@@ -794,6 +867,31 @@ export default function FarmsHome(props: any) {
       );
     }
   }
+  function isEnded(seed: Seed) {
+    const farms = seed.farmList;
+    return farms[0].status == 'Ended';
+  }
+
+  function isInMonth(seed: Seed) {
+    const endedStatus = isEnded(seed);
+    if (endedStatus) return false;
+    const farmList = seed.farmList;
+    const result = farmList.find((farm: FarmBoost) => {
+      const start_at = farm?.terms?.start_at;
+      if (start_at == 0) return true;
+      const one_month_seconds = 30 * 24 * 60 * 60;
+      const currentA = new Date().getTime();
+      const compareB = new BigNumber(start_at)
+        .plus(one_month_seconds)
+        .multipliedBy(1000);
+      const compareResult = compareB.minus(currentA);
+      if (compareResult.isGreaterThan(0)) {
+        return true;
+      }
+    });
+    if (result) return true;
+    return false;
+  }
   function getTotalAprForSeed(seed: Seed) {
     const farms = seed.farmList;
     let apr = 0;
@@ -820,7 +918,8 @@ export default function FarmsHome(props: any) {
       const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
       if (tvl > 0 && revenu24h > 0) {
         const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
-        result = toPrecision(annualisedFeesPrct.toString(), 2);
+        const half_annualisedFeesPrct = annualisedFeesPrct / 2;
+        result = toPrecision(half_annualisedFeesPrct.toString(), 2);
       }
     }
     return result;
@@ -998,6 +1097,11 @@ export default function FarmsHome(props: any) {
       </div>
     );
   }
+  function goLearMore() {
+    window.open(
+      'https://ref-finance.medium.com/ref-tokenomics-2-0-vetokenomics-on-testnet-c2b6ea0e4f96'
+    );
+  }
   const endFarmLength = useMemo(() => {
     return getFarmVisibleLength();
   }, [farm_display_ended_List]);
@@ -1006,9 +1110,9 @@ export default function FarmsHome(props: any) {
   return (
     <div className={`lg:-mt-6 ${getUrlParams() ? 'hidden' : ''}`}>
       <div
-        className="relative flex items-center justify-center mb-5 xs:mb-3 md:mb-3 xs:flex-col md:flex-col xs:bg-cardBg md:bg-cardBg xs:overflow-hidden md:overflow-hidden"
+        className="relative flex items-center justify-center mb-5 xs:mb-3 md:mb-3 xs:flex-col md:flex-col xs:bg-cardBg md:bg-cardBg"
         style={{
-          height: isMobileSite ? '' : '230px',
+          height: isMobileSite ? '' : '240px',
           backgroundImage: isMobileSite
             ? ''
             : 'linear-gradient(180deg, #001320 0%, #0C2427 100%)',
@@ -1043,9 +1147,9 @@ export default function FarmsHome(props: any) {
           </div>
         ) : null}
 
-        <div className="relative h-full  flex justify-between items-center lg:w-5/6 xl:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0 overflow-hidden">
+        <div className="relative h-full  flex justify-between items-start lg:w-5/6 xl:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0">
           <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-3 md:px-3 xs:pt-2 md:pt-2">
-            <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4">
+            <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4 pl-2">
               <FormattedMessage id="farms"></FormattedMessage>
               <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
                 <span
@@ -1060,6 +1164,15 @@ export default function FarmsHome(props: any) {
                   <FormattedMessage id="v2New" />
                 </span>
               </div>
+            </div>
+            <div className="text-sm text-farmText my-4 pl-2">
+              <FormattedMessage id="v2_boost_tip2" />{' '}
+              <a
+                className="hover:text-white underline cursor-pointer"
+                onClick={goLearMore}
+              >
+                <FormattedMessage id="learn_more" />
+              </a>
             </div>
             <WithDrawBox
               userRewardList={user_unWithdraw_rewards}
@@ -1077,16 +1190,15 @@ export default function FarmsHome(props: any) {
               </div>
             ) : null}
           </div>
-          <div className="absolute right-0 -bottom-3 xs:hidden md:hidden">
+          <div className="absolute right-0 -bottom-2 xs:hidden md:hidden">
             <BoostFarmBannerImg style={{ width: '517px' }}></BoostFarmBannerImg>
           </div>
         </div>
         <div className="flex items-center justify-between w-full mt-2 lg:hidden px-3 mb-3">
           <div
-            className="flex items-center justify-between px-4 h-9 py-1 bg-farmSbg rounded-lg bg-opacity-50"
-            style={{
-              border: keyWords ? '1px solid rgba(115, 129, 139, 0.5)' : '',
-            }}
+            className={`flex items-center justify-between px-4 h-9 py-1 bg-farmSbg rounded-lg bg-opacity-50 ${
+              keyWords ? 'border border-borderLightBlueColor' : ''
+            }`}
           >
             <input
               ref={searchRef}
@@ -1189,10 +1301,9 @@ export default function FarmsHome(props: any) {
           </div>
           <div className="flex items-center  justify-between mb-5 xs:hidden md:hidden">
             <div
-              className="flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5"
-              style={{
-                border: keyWords ? '1px solid rgba(115, 129, 139, 0.5)' : '',
-              }}
+              className={`flex items-center justify-between px-4 h-9 py-1 bg-searchBgColor rounded-lg mr-5 ${
+                keyWords ? 'border border-borderLightBlueColor' : ''
+              }`}
             >
               <input
                 ref={searchRef}
@@ -2019,13 +2130,15 @@ function FarmView(props: {
     user_unclaimed_token_meta_map,
     maxLoveShareAmount,
   } = props;
-  const { pool, seedTvl, total_seed_amount, seed_id } = seed;
+  const { pool, seedTvl, total_seed_amount, seed_id, farmList, seed_decimal } =
+    seed;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const [claimLoading, setClaimLoading] = useState(false);
   const [calcVisible, setCalcVisible] = useState(false);
   const [error, setError] = useState<Error>();
   const [aprSwitchStatus, setAprSwitchStatus] = useState('1');
+  const [lpSwitchStatus, setLpSwitchStatus] = useState('1');
   const [yourApr, setYourApr] = useState('');
   const [yourActualAprRate, setYourActualAprRate] = useState('1');
   const tokens = seed.pool.tokens_meta_data;
@@ -2248,7 +2361,8 @@ function FarmView(props: {
       const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
       if (tvl > 0 && revenu24h > 0) {
         const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
-        result = toPrecision(annualisedFeesPrct.toString(), 2);
+        const half_annualisedFeesPrct = annualisedFeesPrct / 2;
+        result = toPrecision(half_annualisedFeesPrct.toString(), 2);
       }
     }
     return result;
@@ -2431,7 +2545,7 @@ function FarmView(props: {
     setClaimLoading(true);
     claimRewardBySeed_boost(seed.seed_id)
       .then(() => {
-        // window.location.reload();
+        window.location.reload();
       })
       .catch((error) => {
         setClaimLoading(false);
@@ -2574,8 +2688,100 @@ function FarmView(props: {
       setAprSwitchStatus('1');
     }
   }
+  const renderer = (countdown: any) => {
+    if (countdown.completed) {
+      return null;
+    } else {
+      return (
+        <div style={{ width: '85px' }} className="whitespace-nowrap">
+          {countdown.days ? countdown.days + 'd: ' : ''}
+          {zeroPad(countdown.hours)}
+          {'h'}: {zeroPad(countdown.minutes)}
+          {'m'}
+          {countdown.days ? '' : ': ' + zeroPad(countdown.seconds) + 's'}
+        </div>
+      );
+    }
+  };
+  function getStartTime() {
+    let start_at: any[] = [];
+    const farmList = seed.farmList;
+    farmList.forEach(function (item) {
+      start_at.push(item.terms.start_at);
+    });
+    start_at = _.sortBy(start_at);
+    start_at = start_at.filter(function (val) {
+      return val != '0';
+    });
+    return start_at[0];
+  }
+  function isInMonth() {
+    const endedStatus = isEnded();
+    if (endedStatus) return false;
+    const result = farmList.find((farm: FarmBoost) => {
+      const start_at = farm?.terms?.start_at;
+      if (start_at == 0) return true;
+      const one_month_seconds = 30 * 24 * 60 * 60;
+      const currentA = new Date().getTime();
+      const compareB = new BigNumber(start_at)
+        .plus(one_month_seconds)
+        .multipliedBy(1000);
+      const compareResult = compareB.minus(currentA);
+      if (compareResult.isGreaterThan(0)) {
+        return true;
+      }
+    });
+    if (result) return true;
+    return false;
+  }
+  function switchLp(e: any) {
+    e.stopPropagation();
+    if (+lpSwitchStatus == 1) {
+      setLpSwitchStatus('2');
+    } else {
+      setLpSwitchStatus('1');
+    }
+  }
+  function getBoostValue() {
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
+    const { affected_seeds = {} } = boostConfig || {};
+    const { seed_id } = seed;
+    const user_seed = user_seeds_map[seed_id] || {};
+    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
+    const base = affected_seeds[seed_id];
+    const hasUserStaked = Object.keys(user_seed).length;
+    if (base && loveSeed) {
+      const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
+      const totalStakeLoveAmount = toReadableNumber(
+        LOVE_TOKEN_DECIMAL,
+        new BigNumber(free_amount).plus(locked_amount).toFixed()
+      );
+      if (+totalStakeLoveAmount > 0) {
+        let result;
+        if (+totalStakeLoveAmount < 1) {
+          result = 1;
+        } else {
+          result = new BigNumber(1)
+            .plus(Math.log(+totalStakeLoveAmount) / Math.log(base))
+            .toFixed(2);
+        }
+        if (hasUserStaked) return toPrecision(result.toString(), 2);
+        return 1;
+      } else {
+        return 1;
+      }
+    }
+    return '';
+  }
+  function getForbiddenTip() {
+    const tip = intl.formatMessage({ id: 'farm_stop_tip' });
+    let result: string = `<div class="text-navHighLightText text-xs text-left">${tip}</div>`;
+    return result;
+  }
   const isHaveUnclaimedReward = haveUnclaimedReward();
   const aprUpLimit = getAprUpperLimit();
+  const needForbidden =
+    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
   return (
     <>
       <div
@@ -2583,7 +2789,7 @@ function FarmView(props: {
           goFarmDetailPage(seed);
         }}
         className={`relative rounded-2xl cursor-pointer bg-cardBg hover:shadow-blue ${
-          isEnded() ? 'farmEnded' : ''
+          isEnded() || needForbidden ? 'farmEnded' : ''
         }
       `}
       >
@@ -2607,7 +2813,7 @@ function FarmView(props: {
         {getBoostMutil()}
         <div className="boxInfo">
           <div className="relative flex flex-col items-center  px-5 rounded-t-2xl overflow-hidden bg-boostUpBoxBg">
-            <div className="flex items-center cursor-pointer text-white font-bold text-xl mt-8">
+            <div className="flex items-center cursor-pointer text-white font-bold text-xl mt-12">
               {/* link for looking into */}
               <a href={`javascript:void(${'/pool/' + pool.id})`}>
                 {tokens.map((token, index) => {
@@ -2655,9 +2861,39 @@ function FarmView(props: {
             <div className="flex items-center justify-between">
               {error ? <Alert level="warn" message={error.message} /> : null}
             </div>
-            {isPending() ? (
-              <div className="absolute left-2.5 top-2 text-purpleColor text-xs bg-lightPurpleColor rounded-3xl px-2 py-0.5">
-                <FormattedMessage id="comimg" defaultMessage="COMING" />
+            <div className="flex flex-col absolute left-2.5 top-2">
+              {isPending() ? (
+                <div className="flex flex-col text-purpleColor text-xs bg-lightPurpleColor rounded-lg px-2 py-0.5">
+                  <FormattedMessage id="comimg" defaultMessage="COMING" />
+                  <Countdown
+                    date={moment.unix(getStartTime()).valueOf()}
+                    renderer={renderer}
+                  />
+                </div>
+              ) : null}
+              {isInMonth() ? <NewTag></NewTag> : null}
+            </div>
+            {needForbidden ? (
+              <div className="flex flex-col absolute left-3.5 top-3 z-50">
+                <div
+                  className="text-xl text-white"
+                  data-type="info"
+                  data-place="top"
+                  data-multiline={true}
+                  data-tip={getForbiddenTip()}
+                  data-html={true}
+                  data-for={'forbiddenTip' + seed.farmList[0].farm_id}
+                  data-class="reactTip"
+                >
+                  <ForbiddonIcon></ForbiddonIcon>
+                  <ReactTooltip
+                    id={'forbiddenTip' + seed.farmList[0].farm_id}
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
+                </div>
               </div>
             ) : null}
           </div>
@@ -2669,12 +2905,11 @@ function FarmView(props: {
               >
                 <FormattedMessage id="total_staked"></FormattedMessage>
               </label>
+
               <label className="text-white text-base mt-1.5">
-                {`${
-                  Number(seed.seedTvl) == 0
-                    ? '-'
-                    : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`
-                }`}
+                {Number(seed.seedTvl) == 0
+                  ? '-'
+                  : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`}
               </label>
             </div>
             <div
@@ -2840,6 +3075,7 @@ function WithDrawBox(props: {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const actualRewardList = {};
+  const maxLength = 10;
   Object.entries(userRewardList).forEach(([key, value]) => {
     if (Number(value) > 0) {
       actualRewardList[key] = value;
@@ -2847,7 +3083,7 @@ function WithDrawBox(props: {
   });
   const [rewardList, setRewardList] = useState([]);
   const [yourReward, setYourReward] = useState('-');
-  const [withdrawModalVisible, setWithdrawModalVisible] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   useEffect(() => {
     const tempList = Object.keys(actualRewardList).map(async (key: string) => {
       const rewardToken = await ftGetTokenMetadata(key);
@@ -2876,9 +3112,6 @@ function WithDrawBox(props: {
     }
   }, [actualRewardList, tokenPriceList, farmDisplayList]);
 
-  function switchDetailStatus() {
-    setWithdrawModalVisible(true);
-  }
   function getTotalUnWithdrawRewardsPrice() {
     const rewardTokenList = {};
     farmDisplayList.forEach((seed: Seed, index: number) => {
@@ -2915,14 +3148,26 @@ function WithDrawBox(props: {
       isSignedIn ? setYourReward('$0.00') : '';
     }
   }
-  function closeWithDrawBox() {
-    setWithdrawModalVisible(false);
-  }
   return (
-    <div className="rounded-xl overflow-hidden mb-3.5 mt-12 xs:mt-5 md:mt-5">
+    <div
+      className={`relative rounded-2xl mb-3.5 z-50 ${
+        isOpen ? 'shadow-withDrawColor' : ''
+      }`}
+      // style={{ height: Object.values(rewardList).length > 0 ? '92px' : '72px' }}
+      onMouseOver={() => {
+        if (isMobile()) return;
+        setIsOpen(true);
+      }}
+      onMouseLeave={() => setIsOpen(false)}
+    >
       <div
-        className="relative bg-veGradient px-5 overflow-hidden"
-        style={{ height: '68px' }}
+        className={`relative bg-veGradient px-5 overflow-hidden pb-2.5 ${
+          isOpen ? 'rounded-t-xl' : 'rounded-xl'
+        }`}
+        style={{ minHeight: '72px' }}
+        onClick={() => {
+          setIsOpen(!isOpen);
+        }}
       >
         <span
           className="absolute top-0 left-5 text-white text-xs bg-senderHot rounded-b-lg px-3 py-0.5 whitespace-nowrap"
@@ -2932,29 +3177,394 @@ function WithDrawBox(props: {
             <FormattedMessage id="claimed_Rewards"></FormattedMessage>
           </label>
         </span>
-        <div className="flex items-center justify-between mt-7">
-          <label className="text-white text-xl font-bold">{yourReward}</label>
-          {Object.keys(userRewardList).length > 0 ? (
-            <div
-              onClick={switchDetailStatus}
-              className="flex items-center text-white text-xs cursor-pointer"
-            >
-              <FormattedMessage id="details" />
-              <UpArrowIcon className={`ml-2 transform rotate-180 text-white`} />
-            </div>
-          ) : null}
+        <div className={`relative z-10 flex mt-7 justify-between items-end`}>
+          <div className="flex flex-col">
+            <label className="text-white text-xl font-bold">{yourReward}</label>
+            {Object.values(rewardList).length > 0 ? (
+              <div className="flex items-center mt-1.5">
+                {Object.values(rewardList)
+                  .slice(0, maxLength)
+                  .map((reward: any, index: number) => {
+                    return (
+                      <img
+                        key={index}
+                        src={reward.rewardToken.icon}
+                        className={`w-5 h-5 rounded-full  bg-cardBg border border-greenColor ${
+                          index > 0 ? '-ml-1' : ''
+                        }`}
+                      ></img>
+                    );
+                  })}
+                {Object.values(rewardList).length > maxLength ? (
+                  <div className="flex items-center justify-center w-5 h-5 rounded-full  bg-cardBg border border-greenColor -ml-1">
+                    <MoreButtonIcon
+                      className="text-greenColor"
+                      style={{ zoom: 0.8 }}
+                    ></MoreButtonIcon>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
           {!isSignedIn ? (
             <GreenConnectToNearBtn className="w-52"></GreenConnectToNearBtn>
-          ) : null}
+          ) : (
+            <div className="flex justify-between items-center">
+              <div
+                className={`text-sm border rounded-md cursor-pointer py-1.5 px-4 ${
+                  isOpen ? 'invisible' : ''
+                } ${
+                  Object.values(rewardList).length > 0
+                    ? 'bg-otherGreenColor border-otherGreenColor text-black'
+                    : 'bg-purpleColorF border-white text-white'
+                }`}
+              >
+                <FormattedMessage id="withdraw"></FormattedMessage>
+              </div>
+            </div>
+          )}
         </div>
+        <BoostDotIcon
+          className={`absolute right-5 ${
+            Object.values(rewardList).length > 0 ? 'top-1.5' : 'top-0'
+          }`}
+        ></BoostDotIcon>
       </div>
-      <WithDrawModal
+      <WithDrawb
+        isOpen={isOpen}
         userRewardList={userRewardList}
         tokenPriceList={tokenPriceList}
         farmDisplayList={farmDisplayList}
-        isOpen={withdrawModalVisible}
-        onRequestClose={closeWithDrawBox}
-      ></WithDrawModal>
+      ></WithDrawb>
+    </div>
+  );
+}
+function WithDrawb(props: {
+  userRewardList: any;
+  tokenPriceList: any;
+  farmDisplayList: Seed[];
+  isOpen: Boolean;
+}) {
+  const { userRewardList, tokenPriceList, farmDisplayList, isOpen } = props;
+  const actualRewardList = {};
+  Object.entries(userRewardList).forEach(([key, value]) => {
+    if (Number(value) > 0) {
+      actualRewardList[key] = value;
+    }
+  });
+  const [rewardList, setRewardList] = useState([]);
+  const [checkedList, setCheckedList] = useState<Record<string, any>>({});
+  const [selectAll, setSelectAll] = useState(false);
+  const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
+  const [yourReward, setYourReward] = useState('$0');
+  const rewardRef = useRef(null);
+  const intl = useIntl();
+  const withdrawNumber = 4;
+  useEffect(() => {
+    const tempList = Object.keys(actualRewardList).map(async (key: string) => {
+      const rewardToken = await ftGetTokenMetadata(key);
+      const price = tokenPriceList[key]?.price;
+      return {
+        tokenId: key,
+        rewardToken,
+        price,
+        number: actualRewardList[key],
+      };
+    });
+    Promise.all(tempList).then((list) => {
+      list.forEach((item: any) => {
+        rewardList[item.tokenId] = item;
+      });
+      setRewardList(rewardList);
+    });
+    if (
+      actualRewardList &&
+      tokenPriceList &&
+      Object.keys(tokenPriceList).length > 0 &&
+      farmDisplayList &&
+      farmDisplayList.length > 0
+    ) {
+      getTotalUnWithdrawRewardsPrice();
+    }
+  }, [actualRewardList, tokenPriceList, farmDisplayList]);
+  function valueOfWithDrawLimitTip() {
+    const tip = intl.formatMessage({ id: 'over_tip' });
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
+  }
+  function displaySinglePrice(price: string) {
+    let displayPrice = '$-';
+    if (price && price != 'N/A') {
+      if (new BigNumber('0.01').isGreaterThan(price)) {
+        displayPrice = '<$0.01';
+      } else {
+        displayPrice = `$${toInternationalCurrencySystem(price.toString(), 2)}`;
+      }
+    }
+    return displayPrice;
+  }
+  function displayTotalPrice(item: any) {
+    const { rewardToken, number, price } = item;
+    let resultTotalPrice = '0';
+    if (price && price != 'N/A') {
+      const totalPrice = new BigNumber(price).multipliedBy(
+        toReadableNumber(rewardToken.decimals, number)
+      );
+      if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
+        resultTotalPrice = '<$0.01';
+      } else {
+        resultTotalPrice = `$${toInternationalCurrencySystem(
+          totalPrice.toString(),
+          2
+        )}`;
+      }
+    }
+    return resultTotalPrice;
+  }
+  function displayWithDrawTokenNumber(item: any) {
+    const { rewardToken, number } = item;
+    const tokenNumber = toReadableNumber(rewardToken.decimals, number);
+    let resultDisplay = '';
+    if (new BigNumber('0.001').isGreaterThan(tokenNumber)) {
+      resultDisplay = '<0.001';
+    } else {
+      resultDisplay = formatWithCommas(
+        new BigNumber(tokenNumber).toFixed(3, 1).toString()
+      );
+    }
+    return resultDisplay;
+  }
+  function clickCheckBox(tokenId: string) {
+    if (checkedList[tokenId]) {
+      delete checkedList[tokenId];
+      if (selectAll) {
+        setSelectAll(false);
+      }
+    } else if (Object.keys(checkedList).length < withdrawNumber) {
+      checkedList[tokenId] = { value: rewardList[tokenId].number };
+      if (
+        Object.keys(checkedList).length ==
+        Math.min(withdrawNumber, Object.keys(rewardList).length)
+      ) {
+        setSelectAll(true);
+      }
+    }
+    setCheckedList(JSON.parse(JSON.stringify(checkedList)));
+  }
+  function clickAllCheckBox() {
+    const status = !selectAll;
+    const checkedList = {};
+    if (status) {
+      const allAtOneTime = Object.entries(rewardList).slice(0, withdrawNumber);
+      allAtOneTime.forEach(([key, value]) => {
+        checkedList[key] = { value: value.number };
+      });
+    }
+    setCheckedList(checkedList);
+    setSelectAll(status);
+    rewardRef.current.scrollTop = 0;
+  }
+  async function doWithDraw() {
+    setWithdrawLoading(true);
+    withdrawAllReward_boost(checkedList);
+  }
+  function getTotalUnWithdrawRewardsPrice() {
+    const rewardTokenList = {};
+    farmDisplayList.forEach((seed: Seed, index: number) => {
+      seed.farmList.forEach((farm: FarmBoost) => {
+        const { token_meta_data } = farm;
+        rewardTokenList[token_meta_data.id] = token_meta_data;
+      });
+    });
+    let totalUnWithDraw = 0;
+    Object.entries(actualRewardList).forEach((arr: [string, string]) => {
+      const [key, v] = arr;
+      const singlePrice = tokenPriceList[key]?.price;
+      const token = rewardTokenList[key];
+      const number: any = toReadableNumber(token.decimals, v);
+      if (singlePrice && singlePrice != 'N/A') {
+        totalUnWithDraw = BigNumber.sum(
+          singlePrice * number,
+          totalUnWithDraw
+        ).toNumber();
+      }
+    });
+    if (totalUnWithDraw > 0) {
+      let totalUnWithDrawV = toInternationalCurrencySystem(
+        totalUnWithDraw.toString(),
+        2
+      );
+      if (Number(totalUnWithDrawV) == 0) {
+        totalUnWithDrawV = '<$0.01';
+      } else {
+        totalUnWithDrawV = `$${totalUnWithDrawV}`;
+      }
+      setYourReward(totalUnWithDrawV);
+    }
+  }
+  const cardHeight = isMobile() ? '90vh' : '80vh';
+  return (
+    <div
+      // xs:absolute md:absolute xs:shadow-withDrawColor md:shadow-withDrawColor
+      className={`rounded-b-2xl bg-darkBlackColor overflow-auto w-full ${
+        isOpen ? '' : 'hidden'
+      }`}
+      style={{
+        maxHeight: cardHeight,
+        border: '1px solid rgba(0, 198, 162, 0.5)',
+      }}
+    >
+      <div
+        className={`pl-3 pr-6 max-h-96 overflow-auto pt-5 px-5 xs:px-3 md:px-3`}
+        ref={rewardRef}
+      >
+        {Object.values(rewardList).map((item) => {
+          return (
+            <div
+              className="flex justify-between py-3.5 select-none"
+              key={item.tokenId}
+            >
+              <div className="flex items-center text-sm text-white">
+                <div
+                  className="mr-3 cursor-pointer"
+                  onClick={() => {
+                    clickCheckBox(item.tokenId);
+                  }}
+                >
+                  {checkedList[item.tokenId] ? (
+                    <CheckboxSelected></CheckboxSelected>
+                  ) : (
+                    <Checkbox></Checkbox>
+                  )}
+                </div>
+                <img
+                  src={item.rewardToken.icon}
+                  className="w-8 h-8 rounded-full mr-2"
+                />
+                <div className="flex flex-col">
+                  <label className="text-sm text-white">
+                    {toRealSymbol(item.rewardToken.symbol)}
+                  </label>
+                  <label className="text-primaryText text-xs">
+                    {displaySinglePrice(item.price)}
+                  </label>
+                </div>
+              </div>
+              <div className="flex flex-col text-right">
+                <label className="text-sm text-white">
+                  {displayWithDrawTokenNumber(item)}
+                </label>
+                <label className="text-primaryText text-xs">
+                  {displayTotalPrice(item)}
+                </label>
+              </div>
+            </div>
+          );
+        })}
+        {Object.values(rewardList).length == 0 ? (
+          <div className="flex flex-col items-center justify-center py-6">
+            <BoostFarmNoDataIcon></BoostFarmNoDataIcon>
+            <p className="text-sm text-white opacity-50 mt-3">
+              <FormattedMessage
+                id="no_claimed_rewards_yet"
+                defaultMessage="No claimed rewards yet"
+              ></FormattedMessage>
+            </p>
+          </div>
+        ) : null}
+      </div>
+      <div
+        className={`flex justify-between items-center pt-4 pb-3 pl-3 pr-6 select-none ${
+          Object.values(rewardList).length == 0 ? 'hidden' : ''
+        }`}
+      >
+        <div className="flex items-center text-primaryText">
+          <label className="mr-3 cursor-pointer" onClick={clickAllCheckBox}>
+            {selectAll ? (
+              <CheckboxSelected></CheckboxSelected>
+            ) : (
+              <Checkbox></Checkbox>
+            )}
+          </label>
+          {Object.keys(rewardList).length > withdrawNumber ? (
+            <div className="flex items-center ">
+              <label className="mr-1 text-xs">
+                <FormattedMessage id="all_4_v2" />
+              </label>
+              <div
+                className="text-white text-right ml-1"
+                data-class="reactTip"
+                data-for="selectAllId"
+                data-place="top"
+                data-html={true}
+                data-tip={valueOfWithDrawLimitTip()}
+              >
+                <QuestionMark></QuestionMark>
+                <ReactTooltip
+                  id="selectAllId"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+            </div>
+          ) : (
+            <label className="text-xs">
+              <FormattedMessage id="all" />
+            </label>
+          )}
+        </div>
+        <div className="flex justify-center items-center">
+          <GradientButton
+            color="#fff"
+            className={`w-36 h-9 text-center text-base text-white focus:outline-none font-semibold ${
+              Object.keys(checkedList).length == 0 ? 'opacity-40' : ''
+            }`}
+            onClick={doWithDraw}
+            disabled={Object.keys(checkedList).length == 0}
+            btnClassName={
+              Object.keys(checkedList).length == 0 ? 'cursor-not-allowed' : ''
+            }
+            loading={withdrawLoading}
+            backgroundImage="linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)"
+          >
+            <div>
+              <ButtonTextWrapper
+                loading={withdrawLoading}
+                Text={() => (
+                  <FormattedMessage id="withdraw" defaultMessage="Withdraw" />
+                )}
+              />
+            </div>
+          </GradientButton>
+        </div>
+      </div>
+      <div className="flex flex-col items-start bg-cardBg justify-between rounded-b-lg mt-3 px-3.5 py-3">
+        <span className="text-white text-sm">
+          <FormattedMessage id="how_to_earn_more"></FormattedMessage>
+        </span>
+        <div className="flex items-center flex-wrap mt-2">
+          <span className="flex items-center text-xs text-primaryText mr-2 mb-1">
+            <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
+              1
+            </label>{' '}
+            <FormattedMessage id="withdraw" /> {'>>'}
+          </span>
+          <span className="flex items-center text-xs text-primaryText mr-2 mb-1">
+            <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
+              2
+            </label>{' '}
+            <FormattedMessage id="add_liquidity" /> {'>>'}
+          </span>
+          <span className="flex items-center text-xs text-primaryText mb-1">
+            <label className="flex items-center justify-center w-4 h-4 rounded-full text-white bg-greenColor mr-1.5">
+              3
+            </label>
+            <FormattedMessage id="stake" />
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -2982,7 +3592,7 @@ function WithDrawModal(props: {
   const [checkedList, setCheckedList] = useState<Record<string, any>>({});
   const [selectAll, setSelectAll] = useState(false);
   const [withdrawLoading, setWithdrawLoading] = useState<boolean>(false);
-  const [yourReward, setYourReward] = useState('-');
+  const [yourReward, setYourReward] = useState('$0');
   const rewardRef = useRef(null);
   const intl = useIntl();
   const withdrawNumber = 5;
@@ -3156,20 +3766,27 @@ function WithDrawModal(props: {
               border: '1px solid rgba(0, 198, 162, 0.5)',
             }}
           >
-            <div className="bg-veGradient" style={{ height: '68px' }}>
-              <div className="relative px-5 pt-3">
-                <div className="flex justify-end">
-                  <ModalClose
-                    className="cursor-pointer"
-                    fillColor="#fff"
-                    onClick={onRequestClose}
-                  />
-                </div>
-                <div className="flex items-center justify-between mt-2 px-2">
-                  <span className="text-white text-lg font-bold">
-                    <FormattedMessage id="claimed_Rewards"></FormattedMessage>
-                  </span>
-                  <span className="text-white text-xl font-bold">
+            <div
+              className="relative"
+              style={{
+                background:
+                  'linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)',
+              }}
+            >
+              <BoostDotIcon className="absolute right-5"></BoostDotIcon>
+              <div className="relative z-10 px-5 py-3">
+                <div className="flex flex-col items-start px-2">
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-white text-lg">
+                      <FormattedMessage id="claimed_Rewards"></FormattedMessage>
+                    </span>
+                    <ModalClose
+                      className="cursor-pointer"
+                      fillColor="#fff"
+                      onClick={onRequestClose}
+                    />
+                  </div>
+                  <span className="text-white text-xl font-bold mt-1">
                     {yourReward}
                   </span>
                 </div>
@@ -3223,6 +3840,17 @@ function WithDrawModal(props: {
                     </div>
                   );
                 })}
+                {Object.values(rewardList).length == 0 ? (
+                  <div className="flex flex-col items-center justify-center py-6">
+                    <BoostFarmNoDataIcon></BoostFarmNoDataIcon>
+                    <p className="text-sm text-white opacity-50 mt-3">
+                      <FormattedMessage
+                        id="no_claimed_rewards_yet"
+                        defaultMessage="No claimed rewards yet"
+                      ></FormattedMessage>
+                    </p>
+                  </div>
+                ) : null}
               </div>
               <div className="flex justify-between items-center pt-4 pb-3 bg-farmV2WithDrawBg pl-3 pr-6 select-none">
                 <div className="flex items-center text-primaryText">
@@ -3239,7 +3867,7 @@ function WithDrawModal(props: {
                   {Object.keys(rewardList).length > withdrawNumber ? (
                     <div className="flex items-center ">
                       <label className="mr-1 text-xs">
-                        <FormattedMessage id="all_5_v2" />
+                        <FormattedMessage id="all_4_v2" />
                       </label>
                       <div
                         className="text-white text-right ml-1"

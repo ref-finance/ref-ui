@@ -5,7 +5,10 @@ import { FormattedMessage } from 'react-intl';
 import SlippageSelector, { StableSlipSelecter } from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '../../components/icon';
 import { wallet } from '~services/near';
-import { getCurrentWallet, WalletContext } from '../../utils/sender-wallet';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import { RequestingSmile } from '../icon/CrossSwapIcons';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import SlippageSelectorForStable from './SlippageSelector';
@@ -99,7 +102,7 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className={`overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 ${
+      className={`relative z-50 overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 ${
         swapMode === SWAP_MODE.STABLE ? 'pb-16' : ''
       } bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
       onSubmit={handleSubmit}

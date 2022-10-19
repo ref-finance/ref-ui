@@ -15,7 +15,7 @@ import {
   useUserRegisteredTokensAllAndNearBalance,
 } from '../state/token';
 import Loading from '../components/layout/Loading';
-import { wallet as webWallet } from '../services/near';
+import { NEARXIDS, wallet as webWallet } from '../services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   NearIcon,
@@ -39,13 +39,9 @@ import { IoCloseOutline } from 'react-icons/io5';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '../components/farm/QuestionMark';
 import { useHistory, useLocation, useParams } from 'react-router';
-import {
-  WalletContext,
-  getCurrentWallet,
-  getAccountName,
-} from '../utils/sender-wallet';
+import { WalletContext, getCurrentWallet } from '../utils/wallets-integration';
 
-import { getSenderLoginRes } from '../utils/sender-wallet';
+import { getSenderLoginRes } from '../utils/wallets-integration';
 import { Checkbox, CheckboxSelected, Near } from '../components/icon';
 import { GradientButton, ButtonTextWrapper } from '../components/button/Button';
 import { CloseIcon } from '../components/icon/Actions';
@@ -68,6 +64,7 @@ import {
   useAuroraTokens,
 } from '../services/aurora/aurora';
 import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from './SwapPage';
+import { useWalletSelector } from '../context/WalletSelectorContext';
 
 const ACCOUNT_PAGE_AURORA_SHOW = REF_FI_SWAP_SWAPPAGE_TAB_KEY;
 const REF_ACCOUNT_WITHDRAW_TIP = 'REF_ACCOUNT_WITHDRAW_TIP';
@@ -139,7 +136,7 @@ function RefAccountTipMan({
   );
 }
 
-const withdraw_number_at_once = 5;
+const withdraw_number_at_once = 4;
 const accountSortFun = (
   by: string,
   currentSort: string,
@@ -650,7 +647,9 @@ function AccountTable(props: any) {
                       : ''
                   }`}
                   onClick={doWithDraw}
-                  disabled={Object.keys(checkedAuroraMap).length == 0}
+                  disabled={
+                    Object.keys(checkedAuroraMap).length == 0 || withdrawLoading
+                  }
                   btnClassName={
                     Object.keys(checkedAuroraMap).length == 0
                       ? 'cursor-not-allowed'
@@ -677,7 +676,9 @@ function AccountTable(props: any) {
                     Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
                   }`}
                   onClick={doWithDraw}
-                  disabled={Object.keys(checkedMap).length == 0}
+                  disabled={
+                    Object.keys(checkedMap).length == 0 || withdrawLoading
+                  }
                   btnClassName={
                     Object.keys(checkedMap).length == 0
                       ? 'cursor-not-allowed'
@@ -997,7 +998,9 @@ function MobileAccountTable(props: any) {
                     Object.keys(checkedMap).length == 0 ? 'opacity-40' : ''
                   }`}
                   onClick={doWithDraw}
-                  disabled={Object.keys(checkedMap).length == 0}
+                  disabled={
+                    Object.keys(checkedMap).length == 0 || withdrawLoading
+                  }
                   btnClassName={
                     Object.keys(checkedMap).length == 0
                       ? 'cursor-not-allowed'
@@ -1038,7 +1041,9 @@ function MobileAccountTable(props: any) {
                       : ''
                   }`}
                   onClick={doWithDraw}
-                  disabled={Object.keys(checkedAuroraMap).length == 0}
+                  disabled={
+                    Object.keys(checkedAuroraMap).length == 0 || withdrawLoading
+                  }
                   btnClassName={
                     Object.keys(checkedAuroraMap).length == 0
                       ? 'cursor-not-allowed'
@@ -1113,7 +1118,9 @@ function Account(props: any) {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
+  const auroraAddress = auroraAddr(
+    getCurrentWallet()?.wallet?.getAccountId() || ''
+  );
   const displayAddr = `${auroraAddress?.substring(
     0,
     6
@@ -1122,7 +1129,7 @@ function Account(props: any) {
     auroraAddress.length
   )}`;
 
-  const nearAddress: string = getCurrentWallet().wallet.getAccountId();
+  const nearAddress: string = getCurrentWallet()?.wallet?.getAccountId() || '';
 
   const displayAddrNear =
     nearAddress.indexOf('.') === -1
@@ -1155,21 +1162,26 @@ function Account(props: any) {
   const accountTitle = !showCrossBalance ? (
     <>
       <NearIcon />
-      <label className="ml-3 text-xl">{isSignedIn && displayAddrNear}</label>
+      <label className="ml-3 text-xl w-3/5 overflow-hidden whitespace-nowrap overflow-ellipsis">
+        {isSignedIn && displayAddrNear}
+      </label>
     </>
   ) : (
-    <div className="flex items-center">
+    <div className="flex items-center w-full">
       <div
         className="rounded-2xl flex items-center text-sm text-white py-0.5 px-3 mr-px"
         style={{
           background: 'rgba(255, 255, 255, 0.15)',
+          maxWidth: '40%',
         }}
       >
         <div className="mr-2">
           <Near color="white" />
         </div>
 
-        <div>{displayAddrNear}</div>
+        <div className="w-full whitespace-nowrap overflow-hidden overflow-ellipsis">
+          {displayAddrNear}
+        </div>
       </div>
 
       <ConnectDot />
@@ -1238,12 +1250,13 @@ function Account(props: any) {
 
       <div className="flex items-center justify-between ">
         <div
-          className="relative flex items-center font-semibold bg-cardBg rounded-t-lg text-white w-full"
+          className="relative flex items-center font-semibold bg-cardBg rounded-t-lg text-white"
           style={{
             height: '66px',
+            width: 'calc(100% - 8.25rem)',
           }}
         >
-          <div className="relative top-2 left-8 flex items-center">
+          <div className="relative top-2 left-8 flex items-center w-full">
             {accountTitle}
           </div>
           <div className="absolute bottom-0 -right-4">
@@ -1287,7 +1300,9 @@ function MobileAccount(props: any) {
   const [showTip, setShowTip] = useState(false);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
+  const auroraAddress = auroraAddr(
+    getCurrentWallet()?.wallet?.getAccountId() || ''
+  );
   const [refAccountTokenNumber, setRefAccountTokenNumber] = useState();
   const [mapAccountTokenNumber, setMapAccountTokenNumber] = useState();
   const [hasRefBalanceOver, setHasRefBalanceOver] = useState(false);
@@ -1300,7 +1315,7 @@ function MobileAccount(props: any) {
     auroraAddress.length - 6,
     auroraAddress.length
   )}`;
-  const nearAddress: string = getCurrentWallet().wallet.getAccountId();
+  const nearAddress: string = getCurrentWallet()?.wallet?.getAccountId() || '';
 
   const displayAddrNear =
     nearAddress.indexOf('.') === -1
@@ -1360,7 +1375,7 @@ function MobileAccount(props: any) {
   const accountTitle = !showCrossBalance ? (
     <>
       <NearIcon />
-      <label className="text-lg text-white ml-3">
+      <label className="text-lg text-white ml-3 overflow-hidden whitespace-nowrap overflow-ellipsis w-2/3">
         {isSignedIn && displayAddrNear}
       </label>
     </>
@@ -1443,9 +1458,12 @@ function MobileAccount(props: any) {
             className="relative flex items-center  justify-center font-semibold bg-cardBg rounded-t-2xl text-white w-full"
             style={{
               height: '66px',
+              width: 'calc(100% - 8.25rem)',
             }}
           >
-            <div className="flex items-center">{accountTitle}</div>
+            <div className="flex items-center justify-center w-full">
+              {accountTitle}
+            </div>
             <div className="absolute bottom-0 -right-4">
               <ArcIcon></ArcIcon>
             </div>
@@ -1681,16 +1699,19 @@ export function AccountPage() {
   const isSignedIn = globalState.isSignedIn;
   const history = useHistory();
 
-  const senderLoginRes = getSenderLoginRes();
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
 
-  if (!senderLoginRes && !webWallet.isSignedIn()) {
+  if (!accountId) {
     history.push('/');
     return null;
   }
 
-  const auroraAddress = auroraAddr(getCurrentWallet().wallet.getAccountId());
+  const auroraAddress = auroraAddr(
+    getCurrentWallet()?.wallet?.getAccountId() || ''
+  );
 
-  const userTokens = useUserRegisteredTokensAllAndNearBalance(isSignedIn);
+  const userTokens = useUserRegisteredTokensAllAndNearBalance();
 
   const balances = useTokenBalances(); // inner account balance
 
@@ -1700,17 +1721,23 @@ export function AccountPage() {
 
   userTokens.forEach((token: TokenMetadata) => {
     const { decimals, id, nearNonVisible, symbol } = token;
-    token.ref = toReadableNumber(decimals, balances[id] || '0');
+    token.ref =
+      id === NEARXIDS[0]
+        ? '0'
+        : toReadableNumber(decimals, balances[id] || '0');
     token.near = toReadableNumber(decimals, (nearNonVisible || '0').toString());
     token.aurora = toReadableNumber(
       decimals,
       auroaBalances[id] || '0'
     ).toString();
   });
+
   return (
     <>
-      <Account userTokens={userTokens} />
-      <MobileAccount userTokens={userTokens} />
+      <Account userTokens={userTokens.filter((t) => t.id !== NEARXIDS[0])} />
+      <MobileAccount
+        userTokens={userTokens.filter((t) => t.id !== NEARXIDS[0])}
+      />
     </>
   );
 }
