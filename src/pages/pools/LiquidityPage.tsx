@@ -445,16 +445,17 @@ function MobileWatchListCard({
   poolTokenMetas,
   farmCounts,
   volumes,
+  poolsMorePoolsIds,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
+  poolsMorePoolsIds: Record<string, string[]>;
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
   const [sortBy, onSortChange] = useState<string>('tvl');
-  const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: watchPools });
 
   return (
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4 mt-2">
@@ -646,6 +647,7 @@ function MobileLiquidityPage({
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
   };
+  const outOfText = intl.formatMessage({ id: 'out_of' });
 
   const poolSortingFunc = (p1: Pool, p2: Pool) => {
     if (order === 'asc') {
@@ -677,6 +679,7 @@ function MobileLiquidityPage({
           watchPools={watchPools}
           farmCounts={farmCounts}
           volumes={volumes}
+          poolsMorePoolsIds={poolsMorePoolsIds}
         />
 
         {/* start pool card */}
@@ -1259,14 +1262,14 @@ function WatchListCard({
   poolTokenMetas,
   farmCounts,
   volumes,
+  poolsMorePoolsIds,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
+  poolsMorePoolsIds: Record<string, string[]>;
 }) {
-  const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: watchPools });
-
   return (
     <>
       <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">
@@ -1494,6 +1497,7 @@ function LiquidityPage_({
 
   if (activeTab === 'v2' && !allPoolsV2) return <Loading />;
 
+  const outOfText = intl.formatMessage({ id: 'out_of' });
   return (
     <>
       <PoolTabV3></PoolTabV3>
@@ -1503,6 +1507,7 @@ function LiquidityPage_({
           watchPools={watchPools}
           farmCounts={farmCounts}
           volumes={volumes}
+          poolsMorePoolsIds={poolsMorePoolsIds}
         />
         {/* start pool card */}
         {!!getConfig().REF_VE_CONTRACT_ID ? (
@@ -2155,7 +2160,7 @@ export function LiquidityPage() {
     }
   }, [txHash]);
 
-  const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: displayPools });
+  const poolsMorePoolsIds = usePoolsMorePoolIds();
 
   const watchPoolVolumes = useDayVolumesPools(watchPools.map((p) => p.id));
 

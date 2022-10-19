@@ -897,5 +897,7 @@ const en_US = {
   partially: 'Partially',
   near_validation_error: 'Must have 0.5N or more left in wallet for gas fee.',
   no_positons_in_this_pool_yet: 'No positons in this pool yet',
+  no_claimed_rewards_yet: 'No claimed rewards yet',
+  out_of: 'out of',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
