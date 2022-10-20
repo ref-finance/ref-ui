@@ -16,6 +16,7 @@ export const PoolTabV3 = ({ count }: { count?: number }) => {
     const pathname = location.pathname;
     if (
       pathname.startsWith('/pool/') ||
+      pathname.startsWith('/poolV2') ||
       pathname.startsWith('/more_pools/') ||
       pathname == '/pools' ||
       pathname == '/pools/add'

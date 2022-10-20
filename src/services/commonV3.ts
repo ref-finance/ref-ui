@@ -147,24 +147,31 @@ export function getYAmount_per_point_by_Ly(L: string, point: number) {
 
 export function drawChartData({
   depthData,
-  left_point,
-  right_point,
   chartDom,
   token_x_decimals,
   token_y_decimals,
   sort,
+  sizey,
+  ticks,
+  left_point = 1,
+  right_point = 1,
+  onlyCurrent = false,
 }: {
   depthData: any;
-  left_point: number;
-  right_point: number;
   chartDom: any;
   token_x_decimals: number;
   token_y_decimals: number;
   sort: boolean;
+  ticks?: number;
+  sizey?: number;
+  left_point?: number;
+  right_point?: number;
+  onlyCurrent?: boolean;
 }) {
   const { current_point, liquidities } = depthData;
   const list = Object.values(liquidities);
   const space = 50;
+  const axis_y = sizey || 200;
   if (list.length > 0) {
     const priceList: string[] = [];
     const L_list: string[] = [];
@@ -210,8 +217,10 @@ export function drawChartData({
       }
     });
     priceList.push(price_c);
-    priceList.push(price_left);
-    priceList.push(price_right);
+    if (!onlyCurrent) {
+      priceList.push(price_left);
+      priceList.push(price_right);
+    }
     priceList.sort((a: string, b: string) => {
       return new BigNumber(a).minus(new BigNumber(b)).toNumber();
     });
@@ -227,9 +236,9 @@ export function drawChartData({
     const l: any = new BigNumber(left_p).multipliedBy(0.95).toFixed();
     const r: any = new BigNumber(right_p).multipliedBy(1.05).toFixed();
     const myScaleX = d3.scaleLinear().domain([l, r]).range([0, width]);
-    const myScaleY = d3.scaleLinear().domain([0, l_r]).range([0, 200]);
+    const myScaleY = d3.scaleLinear().domain([0, l_r]).range([0, axis_y]);
     const axis: any = d3.axisBottom(myScaleX);
-    axis.ticks(5).tickFormat(function (d: any) {
+    axis.ticks(ticks || 5).tickFormat(function (d: any) {
       const dBig = new BigNumber(d);
       if (dBig.isGreaterThanOrEqualTo(10000)) {
         return dBig.toExponential(1);
@@ -258,7 +267,7 @@ export function drawChartData({
       })
       .attr('y', function (d, i) {
         const { left, right, l } = d;
-        return 200 - myScaleY(l);
+        return axis_y - myScaleY(l);
       })
       .style('fill', 'rgba(91, 64, 255, 0.5)');
     d3.select('.g2')
@@ -272,7 +281,7 @@ export function drawChartData({
         return myScaleX(d) + space;
       })
       .attr('y1', 0)
-      .attr('y2', 200)
+      .attr('y2', axis_y)
       .style('strokeWidth', 1)
       .style('stroke', '#fff');
 
@@ -287,7 +296,7 @@ export function drawChartData({
         return myScaleX(d) + space;
       })
       .attr('y1', 0)
-      .attr('y2', 200)
+      .attr('y2', axis_y)
       .style('strokeWidth', 1)
       .style('stroke', '#00FFD1');
 
@@ -353,7 +362,7 @@ export function drawChartData({
         return myScaleX(d) + space;
       })
       .attr('y1', 0)
-      .attr('y2', 200)
+      .attr('y2', axis_y)
       .style('strokeWidth', 1)
       .style('stroke', '#00FFD1');
 

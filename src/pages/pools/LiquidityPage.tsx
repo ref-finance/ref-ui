@@ -402,6 +402,9 @@ function MobilePoolRowV2({
     if (sortBy === 'tvl')
       return toInternationalCurrencySystem(value.toString());
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
+    else {
+      return '/';
+    }
   };
 
   return (
@@ -445,18 +448,19 @@ function MobileWatchListCard({
   poolTokenMetas,
   farmCounts,
   volumes,
+  watchV2Pools,
   poolsMorePoolsIds,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
+  watchV2Pools: PoolInfo[];
   poolsMorePoolsIds: Record<string, string[]>;
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
   const [sortBy, onSortChange] = useState<string>('tvl');
-
   return (
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4 mt-2">
       <div className="mx-4 flex items-center justify-between mt-4">
@@ -527,6 +531,14 @@ function MobileWatchListCard({
               />
             </div>
           ))}
+          {watchV2Pools.map((pool: PoolInfo, i: number) => (
+            <MobilePoolRowV2
+              tokens={[pool.token_x_metadata, pool.token_y_metadata]}
+              pool={pool}
+              sortBy={sortBy}
+              key={i + '-mobile-pool-row-v2'}
+            />
+          ))}
         </div>
       </section>
     </Card>
@@ -555,6 +567,7 @@ function MobileLiquidityPage({
   volumes,
   activeTab,
   switchActiveTab,
+  watchV2Pools,
 }: {
   pools: Pool[];
   poolTokenMetas: any;
@@ -577,6 +590,7 @@ function MobileLiquidityPage({
   volumes: Record<string, string>;
   switchActiveTab: (tab: string) => void;
   activeTab: string;
+  watchV2Pools: PoolInfo[];
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -677,6 +691,7 @@ function MobileLiquidityPage({
         <MobileWatchListCard
           poolTokenMetas={poolTokenMetas}
           watchPools={watchPools}
+          watchV2Pools={watchV2Pools}
           farmCounts={farmCounts}
           volumes={volumes}
           poolsMorePoolsIds={poolsMorePoolsIds}
@@ -1209,10 +1224,12 @@ function PoolRowV2({
   pool,
   index,
   tokens,
+  showCol,
 }: {
   pool: PoolInfo;
   index: number;
   tokens?: TokenMetadata[];
+  showCol?: boolean;
 }) {
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
   const history = useHistory();
@@ -1224,13 +1241,25 @@ function PoolRowV2({
     if (b.symbol === 'NEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
-
+  function goDetailV2() {
+    const url_pool_id = pool.pool_id.replace(/\|/g, '@');
+    history.push(`/poolV2/${url_pool_id}`);
+  }
   return (
-    <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
+    <div
+      className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20"
+      onClick={goDetailV2}
+    >
       <div
-        className={`grid grid-cols-8 py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
+        className={`grid ${
+          showCol ? 'grid-cols-7' : 'grid-cols-8'
+        } py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
       >
-        <div className="col-span-5 md:col-span-4 flex items-center">
+        <div
+          className={`md:col-span-4 flex items-center ${
+            showCol ? 'col-span-3' : 'col-span-5'
+          }`}
+        >
           <div className="mr-8 w-2">{index}</div>
           <div className="flex items-center">
             <Images tokens={tokens} size="9" />
@@ -1239,10 +1268,27 @@ function PoolRowV2({
             </div>
           </div>
         </div>
-        <div className="col-span-2 justify-self-center py-1 md:hidden ">
+        <div
+          className={`justify-self-center py-1 md:hidden ${
+            showCol ? 'col-span-1' : 'col-span-2'
+          }`}
+        >
           {calculateFeePercent(pool.fee / 100)}%
         </div>
-
+        <div
+          className={`col-span-1 justify-self-center py-1 md:hidden ${
+            showCol ? '' : 'hidden'
+          }`}
+        >
+          /
+        </div>
+        <div
+          className={`col-span-1 justify-self-center py-1 md:hidden ${
+            showCol ? '' : 'hidden'
+          }`}
+        >
+          /
+        </div>
         <div
           className="col-span-1 py-1 justify-self-center relative left-4"
           title={toPrecision(
@@ -1262,14 +1308,17 @@ function WatchListCard({
   poolTokenMetas,
   farmCounts,
   volumes,
+  watchV2Pools,
   poolsMorePoolsIds,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
+  watchV2Pools: PoolInfo[];
   poolsMorePoolsIds: Record<string, string[]>;
 }) {
+  const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
   return (
     <>
       <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">
@@ -1284,7 +1333,8 @@ function WatchListCard({
           <QuestionTip id="my_watchlist_copy" />
 
           <span className="text-sm text-primaryText ml-3">
-            {!watchPools || watchPools.length === 0 ? null : watchPools.length}
+            {/* {!watchPools || watchPools.length === 0 ? null : watchPools.length} */}
+            {totalWatchList_length || '0'}
           </span>
         </div>
         <section className="">
@@ -1337,6 +1387,17 @@ function WatchListCard({
                 />
               </div>
             ))}
+            {watchV2Pools.map((pool: PoolInfo, i: number) => {
+              return (
+                <PoolRowV2
+                  tokens={[pool.token_x_metadata, pool.token_y_metadata]}
+                  key={i}
+                  pool={pool}
+                  index={i + 1}
+                  showCol={true}
+                />
+              );
+            })}
           </div>
         </section>
       </Card>
@@ -1366,6 +1427,7 @@ function LiquidityPage_({
   volumes,
   activeTab,
   switchActiveTab,
+  watchV2Pools,
 }: {
   pools: Pool[];
   switchActiveTab: (tab: string) => void;
@@ -1388,6 +1450,7 @@ function LiquidityPage_({
   poolsMorePoolsIds: Record<string, string[]>;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
+  watchV2Pools: PoolInfo[];
 }) {
   const intl = useIntl();
   const inputRef = useRef(null);
@@ -1507,6 +1570,7 @@ function LiquidityPage_({
           watchPools={watchPools}
           farmCounts={farmCounts}
           volumes={volumes}
+          watchV2Pools={watchV2Pools}
           poolsMorePoolsIds={poolsMorePoolsIds}
         />
         {/* start pool card */}
@@ -2082,7 +2146,7 @@ export function LiquidityPage() {
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
   const AllPools = useAllPools();
-  const watchPools = useWatchPools();
+  const { watchPools, watchV2PoolsFinal: watchV2Pools } = useWatchPools();
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading, volumes } = usePools({
@@ -2191,6 +2255,7 @@ export function LiquidityPage() {
             localStorage.setItem(REF_FI_FARM_ONLY, farmOnly ? '1' : '0');
           }}
           watchPools={watchPools}
+          watchV2Pools={watchV2Pools}
           volumes={allVolumes}
           order={order}
           sortBy={sortBy}
@@ -2213,6 +2278,7 @@ export function LiquidityPage() {
           tokenName={tokenName}
           pools={displayPools}
           watchPools={watchPools}
+          watchV2Pools={watchV2Pools}
           allPools={AllPools}
           volumes={allVolumes}
           order={order}

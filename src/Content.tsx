@@ -14,6 +14,7 @@ import FarmsBoosterPage from '~pages/farms/FarmsBoostPage';
 import YourLiquidityPageV3 from './pages/poolsV3/YourLiquidityPageV3';
 import AddYourLiquidityPageV3 from './pages/poolsV3/AddYourLiquidityPageV3';
 import YourLiquidityDetailV3 from './pages/poolsV3/YourLiquidityDetailV3';
+import PoolDetailV3 from './pages/poolsV3/PoolDetailV3';
 import MyOrderPage from '~pages/MyOrder';
 
 import {
@@ -231,6 +232,7 @@ export function Content() {
 
         <Route path="/v2farms/:id?" component={AutoHeight(FarmsBoosterPage)} />
         <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
+        <Route path="/poolV2/:id" component={AutoHeight(PoolDetailV3)} />
         <Route path="/" component={AutoHeight(SwapPage)} />
       </Switch>
     </WalletContext.Provider>
