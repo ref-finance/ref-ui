@@ -206,6 +206,9 @@ function Anchor({
       }
       if (typeof e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY] === 'string') {
         const curTab = e?.[REF_FI_SWAP_SWAPPAGE_TAB_KEY];
+
+        console.log(e);
+
         if (curTab === 'normal') {
           setChosenSub(storageSwapMode);
         } else {
@@ -1377,7 +1380,7 @@ function NavigationBar() {
                 name="trade_capital"
                 subMenu={[
                   {
-                    name: 'swap',
+                    name: 'normal',
                     display: <FormattedMessage id="swap"></FormattedMessage>,
                     click: () => {
                       historyInit.push('/swap');
@@ -1416,7 +1419,10 @@ function NavigationBar() {
                   {
                     name: 'limit',
                     display: (
-                      <FormattedMessage id="limit_order"></FormattedMessage>
+                      <FormattedMessage
+                        id="limit_order"
+                        defaultMessage={'Limit Order'}
+                      ></FormattedMessage>
                     ),
                     click: () => {
                       historyInit.push('/swap');

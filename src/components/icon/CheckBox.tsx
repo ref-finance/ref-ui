@@ -66,9 +66,9 @@ export const UnCheckedBoxVE = () => {
           width="116"
           height="116"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feGaussianBlur in="BackgroundImage" stdDeviation="25" />
           <feComposite
             in2="SourceAlpha"

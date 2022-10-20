@@ -238,7 +238,7 @@ export const moreLinks: MobileMenuItem[] = [
     children: [
       {
         id: 'swap',
-        label: 'swap',
+        label: 'normal',
         url: '/',
         isExternal: false,
         logo: <MobileNavSwap />,

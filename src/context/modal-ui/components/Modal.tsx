@@ -102,11 +102,7 @@ export const Modal: React.FC<ModalProps> = ({
   }
 
   return (
-    <div
-      className={` nws-modal-wrapper ${getThemeClass(options?.theme)} ${
-        visible ? 'open' : ''
-      }`}
-    >
+    <div className={` nws-modal-wrapper  ${visible ? 'open' : ''}`}>
       <div className="modal-overlay" onClick={handleDismissClick} />
       <div className="modal">
         <div className="modal-header">

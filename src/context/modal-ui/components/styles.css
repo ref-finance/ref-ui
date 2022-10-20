@@ -42,28 +42,6 @@
   --spinner-color: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-  #near-wallet-selector-modal {
-    --backdrop-bg: #26262630;
-    --heading-color: #ffffff;
-    --text-color: #ffffff;
-    --selected-wallet-bg: #262626cc;
-    --selected-wallet-bg-hover: #262626cc;
-    --wallet-option-border-color: #a7a7a730;
-    --content-bg: #3f4246;
-    --input-border-color-focus: #5f8afa;
-    --box-shadow-color: #26262630;
-    --dismiss-button-bg-hover: #262626cc;
-    --dismiss-button-border-color-hover: #262626;
-    --confirm-button-color: #ffffff;
-    --confirm-button-bg: #5f8afa;
-    --confirm-button-bg-hover: #5aa6ff;
-    --confirm-button-border-color: #5f8afa;
-    --error: #db5555;
-    --close-button-color: #a7a7a7;
-    --spinner-color: #ffffff;
-  }
-}
 /**
  * Modal Wrapper
  */

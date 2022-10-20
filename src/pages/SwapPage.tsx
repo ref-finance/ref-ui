@@ -114,30 +114,6 @@ function SwapTab({
   );
 }
 
-const MyOrderTab = () => {
-  const history = useHistory();
-
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
-
-  return (
-    <button
-      className={`rounded-xl ${
-        !isSignedIn ? 'cursor-not-allowed opacity-30' : ''
-      } whitespace-nowrap hover:text-gradientFrom hover:bg-black hover:bg-opacity-20 text-white text-sm border border-primaryText border-opacity-20 h-8 px-2 `}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!isSignedIn) return;
-
-        history.push('/myOrder');
-      }}
-    >
-      <FormattedMessage id="my_orders" defaultMessage={'My Orders'} />
-    </button>
-  );
-};
-
 const MobileSwapTab = ({
   ifCross,
   swapMode,
@@ -154,19 +130,21 @@ const MobileSwapTab = ({
       <div
         className={`${
           ifCross ? '' : 'hidden'
-        } text-lg whitespace-nowrap w-full p-1 rounded-xl text-white flex items-center justify-center`}
-        style={{
-          backgroundColor: '#1C2A34',
-        }}
+        } text-lg whitespace-nowrap w-full p-1 rounded-xl text-white flex items-center `}
       >
         <span>
-          <FormattedMessage id="swap" defaultMessage={'Swap'} />
-        </span>{' '}
-        <span className="whitespace-nowrap ml-1 text-sm">
           <FormattedMessage
-            id="with_aurora_liquidity"
-            defaultMessage={'with Aurora Liquidity'}
-          ></FormattedMessage>
+            id="cross_chain_swap"
+            defaultMessage={'Cross-chain Swap'}
+          />
+        </span>{' '}
+        <span
+          className=" ml-3 xs:mr-2  xs:relative   h-3 flex items-center text-black bg-farmText rounded-md px-0.5 py-px"
+          style={{
+            fontSize: '10px',
+          }}
+        >
+          <FormattedMessage id="beta" defaultMessage={'beta'} />
         </span>
       </div>
       <div

@@ -57,7 +57,7 @@ const es_in_risks_page = {
   staking_risks: 'Riesgos en el Staking',
   staking_risks_paragraph_1:
     'Al hacer Staking, se utilizan múltiples productos de contratos inteligentes, cada uno de los cuales tiene sus propios riesgos.',
-  permanent_loss_of_a_peg: 'Péridida permanente de PEG (PER)',
+  permanent_loss_of_a_peg: 'Pérdida permanente de PEG (PER)',
   permanent_loss_of_a_peg_paragraph_1:
     'Si uno de los stablecoins en el pool cae significativamente por debajo del PEG (PER) de 1.0 y nunca regresa al PEG (PER), siignificará que los proveedores de liquidez mantienen casi toda su liquidez en esa moneda.',
   systemic_issues: 'Problemas sistémicos',
@@ -128,7 +128,7 @@ const es_in_risks_page = {
     "window.open('https://gov.ref.finance/t/introducing-the-guardians/253')" +
     '>Guardians</label>, son las direcciones específicas de NEAR specific NEAR, que son capaces de pausar el contrato. Solo el DAO puede reanudar el contrato, en cualquier momento.',
   risks_of_using_ref_finance:
-    '<label class="text-greenColor">Risks</label> de Using Ref. finance',
+    '<label class="text-greenColor">Riesgos</label> de Usar Ref.finance',
   admin_sentence_1:
     'Ref Finance es gestionado por la etiqueta  <label class="underline cursor-pointer text-riskTextColor hover:text-white" onclick=' +
     "window.open('https://app.astrodao.com/dao/ref-finance.sputnik-dao.near')" +
@@ -217,13 +217,13 @@ const es = {
   detail: 'Detalle',
   liquidity_pools: 'Pools de Liquidez',
   minimum_tokens_out: 'Mínimo recibido',
-  pair: 'Pair',
+  pair: 'Par',
   tvl: 'TVL',
   search_pools: 'Search Pool',
   add_liquidity: 'Añadir Liquidez',
   remove_liquidity: 'Remover Liquidez',
   total_liquidity: 'Total de  liquidez',
-  coming_soon: 'Proximamente',
+  coming_soon: 'Próximamente',
   accumulated_volume: 'Volumen Acumulado',
   underlying_liquidity: 'Liquidez subyacente',
   total_shares: 'Acciones Totales',
@@ -664,7 +664,7 @@ const es = {
     'Hacer Staking o unstaking automáticamente reclamará sus recompensas.',
   endedFarmsUnstakeTip:
     'Hacer Unstaking eliminará la participación de todas las farms activas y pendientes del mismo par. ',
-  comimg: 'Proximamente',
+  comimg: 'Próximamente',
   appendTip: 'No puede ser anterior a la hora de bloqueo actual',
   week: 'semana',
   yours: 'Suyos',
@@ -891,5 +891,9 @@ const es = {
   newText: 'Nuevo',
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
+  near_validation_error: 'Must have 0.5N or more left in wallet for gas fee.',
+  no_positons_in_this_pool_yet: 'No positons in this pool yet',
+  no_claimed_rewards_yet: 'Recompensas por reclamar',
+  out_of: 'de',
 };
 export default Object.assign(es, es_in_risks_page);

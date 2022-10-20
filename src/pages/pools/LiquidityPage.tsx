@@ -120,6 +120,7 @@ import { BTC_TEXT } from '../../components/icon/Logo';
 import { useAllPoolsV2 } from '../../state/swapV3';
 import { PoolInfo } from '~services/swapV3';
 import { SelectModalV2 } from '../../components/layout/SelectModal';
+import { FarmStampNew } from '../../components/icon/FarmStamp';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -340,7 +341,7 @@ function MobilePoolRow({
             <div className="text-sm ml-2 font-semibold">
               {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
-            {watched && (
+            {watched && !watchPool && (
               <div className="ml-2">
                 <WatchListStartFull />
               </div>
@@ -448,17 +449,18 @@ function MobileWatchListCard({
   farmCounts,
   volumes,
   watchV2Pools,
+  poolsMorePoolsIds,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
+  poolsMorePoolsIds: Record<string, string[]>;
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
   const [sortBy, onSortChange] = useState<string>('tvl');
-  const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: watchPools });
   return (
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4 mt-2">
       <div className="mx-4 flex items-center justify-between mt-4">
@@ -659,6 +661,7 @@ function MobileLiquidityPage({
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
   };
+  const outOfText = intl.formatMessage({ id: 'out_of' });
 
   const poolSortingFunc = (p1: Pool, p2: Pool) => {
     if (order === 'asc') {
@@ -691,6 +694,7 @@ function MobileLiquidityPage({
           watchV2Pools={watchV2Pools}
           farmCounts={farmCounts}
           volumes={volumes}
+          poolsMorePoolsIds={poolsMorePoolsIds}
         />
 
         {/* start pool card */}
@@ -1156,7 +1160,7 @@ function PoolRow({
             </div>
           </div>
 
-          {supportFarm && <FarmButton farmCount={farmCount} />}
+          {supportFarm && <FarmStampNew multi={farmCount > 1} />}
         </div>
         <div className="col-span-1 justify-self-center py-1 md:hidden ">
           {calculateFeePercent(pool.fee)}%
@@ -1305,14 +1309,15 @@ function WatchListCard({
   farmCounts,
   volumes,
   watchV2Pools,
+  poolsMorePoolsIds,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
+  poolsMorePoolsIds: Record<string, string[]>;
 }) {
-  const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: watchPools });
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
   return (
     <>
@@ -1555,6 +1560,7 @@ function LiquidityPage_({
 
   if (activeTab === 'v2' && !allPoolsV2) return <Loading />;
 
+  const outOfText = intl.formatMessage({ id: 'out_of' });
   return (
     <>
       <PoolTabV3></PoolTabV3>
@@ -1565,6 +1571,7 @@ function LiquidityPage_({
           farmCounts={farmCounts}
           volumes={volumes}
           watchV2Pools={watchV2Pools}
+          poolsMorePoolsIds={poolsMorePoolsIds}
         />
         {/* start pool card */}
         {!!getConfig().REF_VE_CONTRACT_ID ? (
@@ -1601,7 +1608,7 @@ function LiquidityPage_({
                   </div>
                 </div>
 
-                {supportFarmStar && <FarmButton farmCount={farmCountStar} />}
+                {supportFarmStar && <FarmStampNew multi={farmCountStar > 1} />}
               </div>
               <div className="absolute flex items-center right-0 bottom-0">
                 <button
@@ -2217,7 +2224,7 @@ export function LiquidityPage() {
     }
   }, [txHash]);
 
-  const poolsMorePoolsIds = usePoolsMorePoolIds({ pools: displayPools });
+  const poolsMorePoolsIds = usePoolsMorePoolIds();
 
   const watchPoolVolumes = useDayVolumesPools(watchPools.map((p) => p.id));
 
@@ -2673,7 +2680,7 @@ function StablePoolCard({
               }}
             >
               {haveFarm && (
-                <FarmButton farmCount={countV2 - endedFarmCountV2} />
+                <FarmStampNew multi={countV2 - endedFarmCountV2 > 1} />
               )}
             </span>
           </div>

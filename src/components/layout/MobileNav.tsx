@@ -583,7 +583,7 @@ export function MobileNavBar(props: any) {
         const curMode = e?.[SWAP_MODE_KEY];
 
         if (curMode == SWAP_MODE.NORMAL && storageSwapTab === 'normal') {
-          setChosenSubSwap('swap');
+          setChosenSubSwap('normal');
         } else if (
           e[SWAP_MODE_KEY] == SWAP_MODE.STABLE &&
           storageSwapTab === 'normal'

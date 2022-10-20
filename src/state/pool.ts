@@ -65,7 +65,10 @@ import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import getConfig from '../services/config';
 import { useFarmStake } from './farm';
 import { ONLY_ZEROS } from '../utils/numbers';
-import { getPoolsByTokensIndexer } from '../services/indexer';
+import {
+  getPoolsByTokensIndexer,
+  getAllPoolsIndexer,
+} from '../services/indexer';
 import {
   getStablePoolFromCache,
   getRefPoolsByToken1ORToken2,
@@ -339,41 +342,43 @@ export const useMorePoolIds = ({
   return ids;
 };
 
-export const usePoolsMorePoolIds = ({ pools }: { pools: Pool[] }) => {
+export const usePoolsMorePoolIds = () => {
   // top pool id to more pool ids:Array
   const [poolsMorePoolIds, setMorePoolIds] = useState<Record<string, string[]>>(
     {}
   );
 
   const getAllPoolsTokens = async () => {
-    return await db.getAllPoolsTokens();
+    return await getAllPoolsIndexer();
   };
 
   useEffect(() => {
-    if (!pools) return;
-
     getAllPoolsTokens().then((res) => {
-      const poolsMorePoolIds = pools.map((p) => {
+      const poolsMorePoolIds = res.map((p: any) => {
         const id1 = p.tokenIds[0];
         const id2 = p.tokenIds[1];
 
         return res
           .filter(
-            (resP) => resP.tokenIds.includes(id1) && resP.tokenIds.includes(id2)
+            (resP: any) =>
+              resP.tokenIds.includes(id1) && resP.tokenIds.includes(id2)
           )
-          .map((a) => a.id.toString());
+          .map((a: any) => a.id.toString());
       });
 
-      const parsedIds = poolsMorePoolIds.reduce((acc, cur, i) => {
-        return {
-          ...acc,
-          [pools[i].id.toString()]: cur,
-        };
-      }, {});
+      const parsedIds = poolsMorePoolIds.reduce(
+        (acc: any, cur: any, i: number) => {
+          return {
+            ...acc,
+            [res[i].id.toString()]: cur,
+          };
+        },
+        {}
+      );
 
       setMorePoolIds(parsedIds);
     });
-  }, [pools]);
+  }, []);
 
   return poolsMorePoolIds;
 };
@@ -753,6 +758,8 @@ export const useDayVolumesPools = (pool_ids: (string | number)[]) => {
   const [volumes, setVolumes] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    if (!pool_ids || pool_ids.length === 0) return;
+
     get24hVolumes(pool_ids).then((res) => {
       const volumes = res.reduce((acc, cur, i) => {
         return { ...acc, [pool_ids[i]]: cur };
@@ -795,6 +802,8 @@ export const useSeedFarms = (pool_id: string | number) => {
   useEffect(() => {
     list_seed_farms(seed_id)
       .then(async (res) => {
+        if (!res) return null;
+
         const parsedRes = res.filter((f: any) => f.status !== 'Ended');
 
         const noRunning = res.every((f: any) => f.status !== 'Running');

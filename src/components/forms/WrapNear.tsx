@@ -192,7 +192,12 @@ function WrapNear(props: ReactModal.Props) {
             {showError && (
               <Alert
                 level="warn"
-                message={intl.formatMessage({ id: 'wrap_error_msg' })}
+                message={intl.formatMessage({
+                  id:
+                    Number(tokenInMax) - 0.5 < 0
+                      ? 'near_validation_error'
+                      : 'wrap_error_msg',
+                })}
               />
             )}
           </div>

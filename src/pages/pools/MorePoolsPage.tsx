@@ -34,6 +34,7 @@ import { usePoolsFarmCount, useDayVolumesPools } from '../../state/pool';
 import { useClientMobile } from '../../utils/device';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import Loading from '~components/layout/Loading';
+import { FarmStampNew } from '../../components/icon/FarmStamp';
 
 interface ParamTypes {
   tokenIds: string;
@@ -108,7 +109,7 @@ function PoolRow({
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
         </div>
-        {supportFarm && <FarmButton farmCount={farmCount} />}
+        {supportFarm && <FarmStampNew multi={farmCount > 1} />}
         {watched && (
           <div className="mx-2">
             <WatchListStartFull />
@@ -221,7 +222,7 @@ const MobileRow = ({
               </div>
             )}
           </div>
-          {supportFarm && <FarmButton farmCount={farmCount} />}
+          {supportFarm && <FarmStampNew multi={farmCount > 1} />}
         </div>
 
         <div className="flex flex-col text-base">
@@ -286,19 +287,6 @@ export function getPoolFeeAprTitleRPCView(
   }
   return Number(result);
 }
-
-export const FarmMining = () => {
-  return (
-    <div className="flex items-center">
-      <div>
-        <FarmStamp />
-      </div>
-      <div className="hidden">
-        <FarmMiningIcon />
-      </div>
-    </div>
-  );
-};
 
 export const MorePoolsPage = () => {
   const { state } = useLocation<LocationTypes>();

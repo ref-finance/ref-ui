@@ -869,5 +869,9 @@ const ko = {
   filled: 'Filled',
   canceled: 'Canceled',
   partially_filled: 'Partially Filled',
+  near_validation_error: 'Must have 0.5N or more left in wallet for gas fee.',
+  no_positons_in_this_pool_yet: 'No positons in this pool yet',
+  no_claimed_rewards_yet: 'No claimed rewards yet',
+  out_of: 'out of',
 };
 export default Object.assign(ko, ko_in_risks_page);
