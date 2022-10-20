@@ -345,13 +345,13 @@ export function PoolSlippageSelector({
     <>
       <fieldset className="flex lg:items-center md:flex-col xs:flex-col justify-between mb-4 pt-2">
         <div className="flex items-center md:mb-4 xs:mb-4">
-          <label className="text-sm text-center text-white">
+          <label className="text-sm text-center text-primaryText">
             <FormattedMessage
               id="slippage"
               defaultMessage="Slippage tolerance"
             />
           </label>
-          <div className="text-gray-400">
+          <div className="text-primaryText">
             <QuestionTip
               id={slippageCopyId}
               width="w-60"
@@ -395,13 +395,13 @@ export function PoolSlippageSelectorV3({
     <>
       <fieldset className="flex lg:items-center flex-wrap justify-between mb-4 pt-2">
         <div className="flex items-center md:mb-4 xs:mb-4">
-          <label className="text-sm text-center text-white">
+          <label className="text-sm text-center text-primaryText">
             <FormattedMessage
               id="slippage"
               defaultMessage="Slippage tolerance"
             />
           </label>
-          <div className="text-gray-400">
+          <div className="text-primaryText">
             <QuestionTip
               id={slippageCopyId}
               width="w-60"
@@ -517,7 +517,7 @@ export function StableSlipSelecter({
                 className={` w-12 h-6 text-center focus:outline-none text-xs hover:bg-gradientFrom rounded ${
                   slippage === slippageTolerance
                     ? 'text-chartBg bg-gradientFrom'
-                    : 'text-gray-400'
+                    : 'text-primaryText'
                 }`}
                 type="button"
                 onClick={() => handleBtnChange(slippage)}

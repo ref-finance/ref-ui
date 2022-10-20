@@ -49,6 +49,7 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
   toRoundedReadableNumber,
+  percentOf,
 } from '../../utils/numbers';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import Alert from '~components/alert/Alert';
@@ -116,7 +117,7 @@ import {
   scientificNotationToString,
   toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
-import { isNotStablePool, canFarmV2 } from '../../services/pool';
+import { isNotStablePool, canFarmV2, canFarmV1 } from '../../services/pool';
 import { isStablePool, BLACKLIST_POOL_IDS } from '../../services/near';
 import {
   getURLInfo,
@@ -165,6 +166,7 @@ import {
 import { FiArrowUpRight } from 'react-icons/fi';
 import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
+import { VEARROW } from '../../components/icon/Referendum';
 
 interface ParamTypes {
   id: string;
@@ -977,7 +979,22 @@ export function RemoveLiquidityModal(
 
   const poolId = Number(pool.id);
 
-  const { stakeList, v2StakeList, finalStakeList } = usePool(poolId);
+  const [farmCountV1, setFarmCountV1] = useState<number>(0);
+  const [farmCountV2, setFarmCountV2] = useState<number>(0);
+
+  const [endedFarmCountV1, setEndedFarmCountV1] = useState<number>(0);
+  const [endedFarmCountV2, setEndedFarmCountV2] = useState<number>(0);
+  canFarmV1(poolId).then(({ count, version, endedCount }) => {
+    setFarmCountV1(count);
+    setEndedFarmCountV1(endedCount);
+  });
+
+  canFarmV2(poolId).then(({ count, version, endedCount }) => {
+    setFarmCountV2(count);
+    setEndedFarmCountV2(endedCount);
+  });
+
+  const { stakeList, v2StakeList, finalStakeList } = useYourliquidity(poolId);
 
   const farmStakeV1 = useFarmStake({ poolId, stakeList });
   const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
@@ -1026,6 +1043,9 @@ export function RemoveLiquidityModal(
     }
     setCanSubmit(true);
   }
+
+  const sharePercent = percent(shares || '0', pool.shareSupply || '1');
+
   return (
     <Modal {...props}>
       <Card
@@ -1052,11 +1072,99 @@ export function RemoveLiquidityModal(
           </div>
         </div>
 
+        <div
+          className={`flex items-center mb-4  text-xs text-primaryText  ${
+            Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0 ? '' : 'hidden'
+          }`}
+        >
+          {Number(farmStakeV1) > 0 && (
+            <Link
+              to={{
+                pathname: '/farms',
+              }}
+              target="_blank"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="hover:text-gradientFrom rounded-lg py-1.5 px-2 bg-black bg-opacity-20 mb-1.5 flex mr-2"
+            >
+              <span>
+                {toPrecision(
+                  toReadableNumber(
+                    24,
+                    scientificNotationToString(farmStakeV1.toString())
+                  ),
+                  2
+                )}
+              </span>
+              <span className="mx-1">
+                <FormattedMessage id="in" defaultMessage={'in'} />
+              </span>
+              <div className=" flex items-center flex-shrink-0">
+                <span className="">
+                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                  &nbsp; V1
+                </span>
+
+                <span className="ml-0.5">
+                  <VEARROW />
+                </span>
+              </div>
+            </Link>
+          )}
+
+          {Number(farmStakeV2) > 0 && (
+            <Link
+              to={{
+                pathname: `/v2farms/${pool.id}-${
+                  endedFarmCountV2 === farmCountV2 ? 'e' : 'r'
+                }`,
+              }}
+              target="_blank"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              className="hover:text-gradientFrom mb-1.5 flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20"
+            >
+              <span>
+                {toPrecision(
+                  toReadableNumber(
+                    24,
+                    scientificNotationToString(farmStakeV2.toString())
+                  ),
+                  4
+                )}
+              </span>
+              <span className="mx-1">
+                <FormattedMessage id="in" defaultMessage={'in'} />
+              </span>
+              <div className=" flex items-center  flex-shrink-0">
+                <span className="">
+                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
+                  &nbsp; V2
+                </span>
+
+                <span className="ml-0.5">
+                  <VEARROW />
+                </span>
+              </div>
+            </Link>
+          )}
+        </div>
+
         <div>
-          <div className="text-xs text-right mb-1 text-gray-400">
-            <FormattedMessage id="lp_token" defaultMessage="LP Tokens" />
-            :&nbsp;
-            {toPrecision(toReadableNumber(24, shares), 2)}
+          <div className="text-sm text-right mb-2 text-primaryText flex items-center justify-between">
+            <FormattedMessage
+              id="available_lp_tokens"
+              defaultMessage="Available LP Tokens"
+            />
+            <span className="text-white whitespace-nowrap">
+              {`${toPrecision(toReadableNumber(24, shares), 2)} (${
+                Number(sharePercent) > 0 && Number(sharePercent) < 0.01
+                  ? '<0.01'
+                  : toPrecision(sharePercent?.toString() || '0', 2)
+              }%)`}
+            </span>
           </div>
           <div className=" overflow-hidden ">
             <InputAmount
@@ -1082,7 +1190,7 @@ export function RemoveLiquidityModal(
         </div>
         {amount && Number(pool.shareSupply) != 0 ? (
           <>
-            <p className="my-3 text-left text-sm">
+            <p className="my-3 text-left text-sm text-primaryText">
               <FormattedMessage
                 id="minimum_tokens_out"
                 defaultMessage="Minimum shares"
@@ -1098,7 +1206,9 @@ export function RemoveLiquidityModal(
                       className="flex flex-col items-center col-span-1"
                     >
                       <Icon icon={token.icon} className="h-9 w-9" />
-                      <span className="m-1 mb-2 text-sm">{token.symbol} </span>
+                      <span className="m-1 mb-2 text-sm text-primaryText">
+                        {token.symbol}{' '}
+                      </span>
                       <span className="ml-2 text-base font-bold">
                         {toInternationalCurrencySystem(
                           toPrecision(
@@ -1195,7 +1305,7 @@ function MyShares({
   return (
     <div className="whitespace-nowrap">
       <span className="whitespace-nowrap font-bold">
-        {`${toInternationalCurrencySystem(
+        {`${toPrecision(
           toReadableNumber(
             LP_TOKEN_DECIMALS,
             userTotalShare
@@ -1233,7 +1343,7 @@ export const ChartChangeButton = ({
         className={`py-1 xs:py-2 md:py-2 px-2 ${
           chartDisplay === 'tvl'
             ? 'rounded-2xl xs:rounded-lg md:rounded-lg xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
-            : 'text-gray-400'
+            : 'text-primaryText'
         }`}
         onClick={() => setChartDisplay('tvl')}
         style={{
@@ -1246,7 +1356,7 @@ export const ChartChangeButton = ({
         className={`py-1 xs:py-2 md:py-2 px-2 ${
           chartDisplay === 'volume'
             ? 'rounded-2xl xs:rounded-lg md:rounded-lg xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
-            : 'text-gray-400'
+            : 'text-primaryText'
         }`}
         onClick={() => setChartDisplay('volume')}
         style={{
@@ -1260,7 +1370,7 @@ export const ChartChangeButton = ({
           className={`py-1 xs:py-2 md:py-2 px-2 ${
             chartDisplay === 'liquidity'
               ? 'rounded-2xl xs:rounded-lg md:rounded-lg xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
-              : 'text-gray-400'
+              : 'text-primaryText'
           }`}
           onClick={() => setChartDisplay('liquidity')}
           style={{
@@ -1289,7 +1399,7 @@ export function EmptyChart({
     <div className="w-full h-full flex flex-col justify-between">
       <div className="pb-7">
         <div className="flex items-center justify-between">
-          <div className="text-gray-400 text-base float-left">$&nbsp;-</div>
+          <div className="text-primaryText text-base float-left">$&nbsp;-</div>
           <ChartChangeButton
             className="self-start"
             noData={true}
@@ -1423,7 +1533,7 @@ export function VolumeChart({
                 : data[data.length - 1].volume_dollar.toString()
             )}`}
           </div>
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-primaryText">
             {typeof hoverIndex === 'number'
               ? formatDate(data[hoverIndex].dateString)
               : formatDate(data[data.length - 1].dateString)}
@@ -1515,7 +1625,7 @@ export function TVLChart({
                 : data[data.length - 1].total_tvl.toString()
             )}`}
           </div>
-          <div className="text-xs text-gray-400">
+          <div className="text-xs text-primaryText">
             {typeof hoverIndex === 'number'
               ? formatDate(data[hoverIndex].date)
               : formatDate(data[data.length - 1].date)}
@@ -1843,6 +1953,8 @@ export function PoolDetailsPage() {
   const haveLiquidity = Number(pool.shareSupply) > 0;
 
   const haveShare = Number(userTotalShareToString) > 0;
+
+  console.log(farmStakeTotal, userTotalShareToString, shares);
 
   return (
     <>
@@ -2193,7 +2305,7 @@ export function PoolDetailsPage() {
                         <a
                           target="_blank"
                           href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
-                          className="text-xs text-gray-400 xs:hidden md:hidden"
+                          className="text-xs text-primaryText xs:hidden md:hidden"
                           title={token.id}
                         >{`${token.id.substring(0, 24)}${
                           token.id.length > 24 ? '...' : ''
