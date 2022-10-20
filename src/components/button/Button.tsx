@@ -379,6 +379,7 @@ export function GradientButton(
     loading?: boolean;
     backgroundImage?: string;
     minWidth?: string;
+    borderRadius?: string;
   }
 ) {
   const {
@@ -389,6 +390,7 @@ export function GradientButton(
     btnClassName,
     backgroundImage,
     minWidth,
+    borderRadius,
     onClick,
   } = props;
   return (
@@ -397,7 +399,7 @@ export function GradientButton(
         loading ? 'opacity-40' : ''
       } bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover`}
       style={{
-        borderRadius: '5px',
+        borderRadius: borderRadius || '5px',
         color: color || '',
         backgroundImage: backgroundImage || '',
         minWidth: minWidth || '',

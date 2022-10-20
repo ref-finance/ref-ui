@@ -419,9 +419,13 @@ function MobilePoolRowV2({
       return '/';
     }
   };
+  function goDetailV2() {
+    const url_pool_id = pool.pool_id.replace(/\|/g, '@');
+    history.push(`/poolV2/${url_pool_id}`);
+  }
 
   return (
-    <div className="w-full hover:bg-poolRowHover">
+    <div className="w-full hover:bg-poolRowHover" onClick={goDetailV2}>
       <div
         ref={ref}
         className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-4 py-6 text-white"
@@ -498,7 +502,7 @@ function MobileWatchListCard({
           >
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
             {/* {watchPools.length > 0 ? ` (${watchPools.length})` : ''} */}
-            &nbsp;({totalWatchList_length || '0'})
+            &nbsp;{totalWatchList_length > 0 ? { totalWatchList_length } : ''}
           </div>
           {/* my_watchlist_copy */}
           <QuestionTip id="my_watchlist_copy" />
@@ -1295,7 +1299,7 @@ function PoolRowV2({
   }
   return (
     <div
-      className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20"
+      className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20 cursor-pointer"
       onClick={goDetailV2}
     >
       <div
@@ -1392,7 +1396,7 @@ function WatchListCard({
 
           <span className="text-sm text-primaryText ml-3">
             {/* {!watchPools || watchPools.length === 0 ? null : watchPools.length} */}
-            {totalWatchList_length || '0'}
+            {totalWatchList_length || ''}
           </span>
         </div>
         <section className="">
@@ -1451,7 +1455,7 @@ function WatchListCard({
                   tokens={[pool.token_x_metadata, pool.token_y_metadata]}
                   key={i}
                   pool={pool}
-                  index={i + 1}
+                  index={1 + watchPools?.length}
                   showCol={true}
                   mark={true}
                 />

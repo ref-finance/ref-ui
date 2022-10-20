@@ -156,6 +156,7 @@ export function drawChartData({
   left_point = 1,
   right_point = 1,
   onlyCurrent = false,
+  space_x,
 }: {
   depthData: any;
   chartDom: any;
@@ -167,10 +168,11 @@ export function drawChartData({
   left_point?: number;
   right_point?: number;
   onlyCurrent?: boolean;
+  space_x?: number;
 }) {
   const { current_point, liquidities } = depthData;
   const list = Object.values(liquidities);
-  const space = 50;
+  const space = space_x || 20;
   const axis_y = sizey || 200;
   if (list.length > 0) {
     const priceList: string[] = [];
