@@ -419,9 +419,13 @@ function MobilePoolRowV2({
       return '/';
     }
   };
+  function goDetailV2() {
+    const url_pool_id = pool.pool_id.replace(/\|/g, '@');
+    history.push(`/poolV2/${url_pool_id}`);
+  }
 
   return (
-    <div className="w-full hover:bg-poolRowHover">
+    <div className="w-full hover:bg-poolRowHover" onClick={goDetailV2}>
       <div
         ref={ref}
         className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-4 py-6 text-white"
@@ -1295,7 +1299,7 @@ function PoolRowV2({
   }
   return (
     <div
-      className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20"
+      className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20 cursor-pointer"
       onClick={goDetailV2}
     >
       <div
