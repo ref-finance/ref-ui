@@ -880,7 +880,9 @@ export const claim_all_liquidity_fee = async ({
   if (neededStorage) {
     transactions.unshift({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
+      functionCalls: [
+        storageDepositAction({ amount: neededStorage, registrationOnly: true }),
+      ],
     });
   }
   return executeMultipleTransactions(transactions);

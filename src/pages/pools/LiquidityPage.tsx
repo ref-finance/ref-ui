@@ -502,7 +502,7 @@ function MobileWatchListCard({
           >
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
             {/* {watchPools.length > 0 ? ` (${watchPools.length})` : ''} */}
-            &nbsp;({totalWatchList_length || '0'})
+            &nbsp;{totalWatchList_length > 0 ? { totalWatchList_length } : ''}
           </div>
           {/* my_watchlist_copy */}
           <QuestionTip id="my_watchlist_copy" />
@@ -1396,7 +1396,7 @@ function WatchListCard({
 
           <span className="text-sm text-primaryText ml-3">
             {/* {!watchPools || watchPools.length === 0 ? null : watchPools.length} */}
-            {totalWatchList_length || '0'}
+            {totalWatchList_length || ''}
           </span>
         </div>
         <section className="">
@@ -1455,7 +1455,7 @@ function WatchListCard({
                   tokens={[pool.token_x_metadata, pool.token_y_metadata]}
                   key={i}
                   pool={pool}
-                  index={i + 1}
+                  index={1 + watchPools?.length}
                   showCol={true}
                   mark={true}
                 />

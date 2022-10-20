@@ -212,6 +212,7 @@ export default function PoolDetailV3() {
     return result;
   }
   if (!poolDetail) return <Loading></Loading>;
+  const isMobile = isClientMobie();
   return (
     <>
       <PoolTabV3 />
@@ -262,6 +263,11 @@ export default function PoolDetailV3() {
                   }}
                 >
                   {showFullStart ? (
+                    <WatchListStartFull />
+                  ) : (
+                    <WatchListStartEmpty />
+                  )}
+                  {/* {showFullStart ? (
                     <div
                       className="text-sm "
                       data-type="info"
@@ -302,7 +308,7 @@ export default function PoolDetailV3() {
                         effect="solid"
                       />
                     </div>
-                  )}
+                  )} */}
                 </span>
               </div>
               <span className="text-sm text-primaryText">
@@ -347,22 +353,100 @@ export default function PoolDetailV3() {
               ></NoYourLiquditiesBox>
             ) : (
               <>
-                <YourLiquidityBox
-                  poolDetail={poolDetail}
-                  tokenPriceList={tokenPriceList}
-                  liquidities={user_liquidities}
-                ></YourLiquidityBox>
-                <UnclaimedFeesBox
-                  poolDetail={poolDetail}
-                  tokenPriceList={tokenPriceList}
-                  liquidities={user_liquidities}
-                ></UnclaimedFeesBox>
+                {isMobile ? (
+                  <UserTabBox
+                    poolDetail={poolDetail}
+                    tokenPriceList={tokenPriceList}
+                    liquidities={user_liquidities}
+                  ></UserTabBox>
+                ) : (
+                  <>
+                    <YourLiquidityBox
+                      poolDetail={poolDetail}
+                      tokenPriceList={tokenPriceList}
+                      liquidities={user_liquidities}
+                    ></YourLiquidityBox>
+                    <UnclaimedFeesBox
+                      poolDetail={poolDetail}
+                      tokenPriceList={tokenPriceList}
+                      liquidities={user_liquidities}
+                    ></UnclaimedFeesBox>
+                  </>
+                )}
               </>
             )}
           </div>
         </div>
       </div>
     </>
+  );
+}
+function UserTabBox(props: {
+  poolDetail: PoolInfo;
+  liquidities: UserLiquidityInfo[];
+  tokenPriceList: any;
+}) {
+  const { poolDetail, liquidities, tokenPriceList } = props;
+  const [tabActive, setTabActive] = useState(1);
+  function switchTab(tabIndex: number) {
+    setTabActive(tabIndex);
+  }
+  return (
+    <div className="p-5 bg-cardBg rounded-xl">
+      <div className="flex items-center justify-between">
+        <div
+          className="flex flex-col items-center w-1 flex-grow mr-3"
+          onClick={() => {
+            switchTab(1);
+          }}
+        >
+          <span
+            className={`text-base ${
+              tabActive == 1 ? 'text-white' : 'text-primaryText'
+            }`}
+          >
+            Your Liquidity
+          </span>
+          <label
+            className={`bg-senderHot w-full rounded-full h-1 mt-3 ${
+              tabActive == 1 ? 'bg-opacity-100' : 'bg-opacity-0'
+            }`}
+          ></label>
+        </div>
+        <div
+          className="flex flex-col items-center w-1 flex-grow"
+          onClick={() => {
+            switchTab(2);
+          }}
+        >
+          <span
+            className={`text-base ${
+              tabActive == 2 ? 'text-white' : 'text-primaryText'
+            }`}
+          >
+            Unclaimed Fees
+          </span>
+          <label
+            className={`bg-senderHot w-full rounded-full h-1 mt-3 ${
+              tabActive == 2 ? 'bg-opacity-100' : 'bg-opacity-0'
+            }`}
+          ></label>
+        </div>
+      </div>
+      {tabActive == 1 ? (
+        <YourLiquidityBox
+          poolDetail={poolDetail}
+          tokenPriceList={tokenPriceList}
+          liquidities={liquidities}
+        ></YourLiquidityBox>
+      ) : (
+        <UnclaimedFeesBox
+          poolDetail={poolDetail}
+          tokenPriceList={tokenPriceList}
+          liquidities={liquidities}
+        ></UnclaimedFeesBox>
+      )}
+    </div>
   );
 }
 function YourLiquidityBox(props: {
@@ -554,14 +638,14 @@ function YourLiquidityBox(props: {
     } else if (total_x < 0.01) {
       display_total_x = '<0.01';
     } else {
-      display_total_x = toInternationalCurrencySystem(total_x.toString(), 3);
+      display_total_x = toPrecision(total_x.toString(), 3);
     }
     if (total_y == 0) {
       display_total_y = '0';
     } else if (total_y < 0.01) {
       display_total_y = '<0.01';
     } else {
-      display_total_y = toInternationalCurrencySystem(total_y.toString(), 3);
+      display_total_y = toPrecision(total_y.toString(), 3);
     }
     return {
       total_x: display_total_x,
@@ -577,8 +661,8 @@ function YourLiquidityBox(props: {
     setShowSelectLiquidityBox(true);
   }
   return (
-    <div className="p-5 bg-cardBg rounded-xl">
-      <div className="flex items-center justify-between">
+    <div className="p-5 bg-cardBg rounded-xl xsm:p-0">
+      <div className="flex items-center justify-between xsm:hidden">
         <span className="text-white text-base">
           <FormattedMessage id="your_liquidity"></FormattedMessage>
         </span>
@@ -588,8 +672,13 @@ function YourLiquidityBox(props: {
           </span>
         ) : null}
       </div>
-      <div className="flex items-center justify-center text-xl text-white my-4">
+      <div className="flex items-center justify-center text-xl text-white my-4 xsm:flex-col">
         {getTotalLiquditiesTvl()}
+        {liquidities?.length > 1 ? (
+          <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2 mt-0.5 lg:hidden">
+            {liquidities.length} Positions
+          </span>
+        ) : null}
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center">
@@ -620,6 +709,7 @@ function YourLiquidityBox(props: {
             addLiquidity();
           }}
           color="#fff"
+          borderRadius={'8px'}
           className={`flex-grow w-1 h-11 text-center text-sm text-white focus:outline-none mr-2.5`}
         >
           Add
@@ -703,7 +793,7 @@ function UnclaimedFeesBox(props: any) {
     } else if (total_tvl < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + toInternationalCurrencySystem(total_tvl.toString(), 2);
+      return '~$' + toPrecision(total_tvl.toString(), 2);
     }
   }
   function getTotalFeeAmount() {
@@ -717,20 +807,14 @@ function UnclaimedFeesBox(props: any) {
     } else if (total_amount_x < 0.001) {
       display_amount_x = '<0.001';
     } else {
-      display_amount_x = toInternationalCurrencySystem(
-        total_amount_x.toString(),
-        3
-      );
+      display_amount_x = toPrecision(total_amount_x.toString(), 3);
     }
     if (total_amount_y == 0) {
       display_amount_y = '0';
     } else if (total_amount_y < 0.001) {
       display_amount_y = '<0.001';
     } else {
-      display_amount_y = toInternationalCurrencySystem(
-        total_amount_x.toString(),
-        3
-      );
+      display_amount_y = toPrecision(total_amount_y.toString(), 3);
     }
 
     return {
@@ -744,7 +828,10 @@ function UnclaimedFeesBox(props: any) {
     set_cliam_loading(true);
     const lpt_ids: string[] = [];
     liquidities.forEach((liquidity: UserLiquidityInfo) => {
-      lpt_ids.push(liquidity.lpt_id);
+      const { unclaimed_fee_x, unclaimed_fee_y } = liquidity;
+      if (+unclaimed_fee_x > 0 || +unclaimed_fee_y > 0) {
+        lpt_ids.push(liquidity.lpt_id);
+      }
     });
     claim_all_liquidity_fee({
       token_x: token_x_metadata,
@@ -755,8 +842,8 @@ function UnclaimedFeesBox(props: any) {
   const { display_amount_x, display_amount_y, total_amount_x_y } =
     getTotalFeeAmount();
   return (
-    <div className="p-5 bg-cardBg rounded-xl mt-3.5">
-      <div className="flex items-center justify-between">
+    <div className="p-5 bg-cardBg rounded-xl mt-3.5 xsm:p-0">
+      <div className="flex items-center justify-between xsm:hidden">
         <span className="text-white text-base">Unclaimed Fees</span>
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
@@ -764,8 +851,13 @@ function UnclaimedFeesBox(props: any) {
           </span>
         ) : null}
       </div>
-      <div className="flex items-center justify-center text-xl text-white my-4">
+      <div className="flex items-center justify-center text-xl text-white my-4 xsm:flex-col">
         {getTotalLiquditiesFee()}
+        {liquidities?.length > 1 ? (
+          <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2 mt-0.5 lg:hidden">
+            {liquidities.length} Positions
+          </span>
+        ) : null}
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center">
@@ -895,6 +987,7 @@ function SelectLiquidityBox(props: any) {
   function goAddLiqudityPage() {
     history.push(`/addLiquidityV2#${poolDetail.pool_id}`);
   }
+  const isMobile = isClientMobie();
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={style}>
       <Card
@@ -913,51 +1006,46 @@ function SelectLiquidityBox(props: any) {
             <ModalClose />
           </div>
         </div>
-        <div className="wrap" style={{ maxHeight: '500px', overflow: 'auto' }}>
-          <div className="grid grid-cols-9 gap-x-3 text-farmText  text-sm h-10 justify-center items-center px-6">
-            <span className="col-span-1 pl-2">ID</span>
-            <span className="col-span-2">Liquidity</span>
-            <span className="col-span-3">Range</span>
-            <span className="col-span-3">Unclaimed Fee</span>
-          </div>
-          <div>
+        {isMobile ? (
+          <div className="px-3">
             {user_liquidities_detail.map(
               (liquidityDetail: UserLiquidityDetail) => {
                 return (
-                  <div
-                    onMouseOver={() => {
-                      hoverLine(liquidityDetail.hashId);
-                    }}
-                    // onMouseLeave={() => setHoverHashId('')}
-                    className={`grid grid-cols-9 gap-x-3 text-white text-base h-14 justify-center items-center px-6 ${
-                      hoverHashId == liquidityDetail.hashId
-                        ? 'bg-chartBg bg-opacity-20'
-                        : ''
-                    }`}
-                  >
-                    <span className="col-span-1 pl-2">
+                  <div className="bg-chartBg bg-opacity-30 rounded-2xl mb-2.5 p-3">
+                    <span className="text-white text-base">
                       #{liquidityDetail.hashId}
                     </span>
-                    <span className="col-span-2">
-                      {displayLiqudityTvl(liquidityDetail)}
-                    </span>
-                    <span className="col-span-3">
-                      {displayRange(liquidityDetail)}
-                    </span>
-                    <div className="flex items-center justify-between col-span-3">
-                      {displayLiqudityFee(liquidityDetail)}
+                    <div className="flex items-center justify-between my-1.5">
+                      <span className="text-sm text-farmText">Liquidity</span>
+                      <span className="text-sm text-white">
+                        {displayLiqudityTvl(liquidityDetail)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between my-1.5">
+                      <span className="text-sm text-farmText">Range</span>
+                      <span className="text-sm text-white">
+                        {displayRange(liquidityDetail)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between my-1.5">
+                      <span className="text-sm text-farmText">
+                        Unclaimed Fee
+                      </span>
+                      <span className="text-sm text-white">
+                        {displayLiqudityFee(liquidityDetail)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-end mt-2">
                       {operation == 'add' ? (
                         <GradientButton
                           onClick={(e) => {
                             e.stopPropagation();
+                            hoverLine(liquidityDetail.hashId);
                             setShowAddBox(true);
                           }}
                           color="#fff"
-                          className={`w-24 h-9 text-center text-sm text-white focus:outline-none ${
-                            hoverHashId == liquidityDetail.hashId
-                              ? ''
-                              : 'hidden'
-                          }`}
+                          borderRadius={'8px'}
+                          className={`w-24 h-9 text-center text-sm text-white focus:outline-none`}
                         >
                           Add
                         </GradientButton>
@@ -965,14 +1053,11 @@ function SelectLiquidityBox(props: any) {
                         <OprationButton
                           onClick={(e: any) => {
                             e.stopPropagation();
+                            hoverLine(liquidityDetail.hashId);
                             setShowRemoveBox(true);
                           }}
                           color="#fff"
-                          className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-                            hoverHashId == liquidityDetail.hashId
-                              ? ''
-                              : 'hidden'
-                          }`}
+                          className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
                         >
                           Remove
                         </OprationButton>
@@ -983,21 +1068,98 @@ function SelectLiquidityBox(props: any) {
               }
             )}
           </div>
-          {operation == 'add' ? (
-            <div className="flex justify-center">
-              <GradientButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goAddLiqudityPage();
-                }}
-                color="#fff"
-                className={`w-44 h-10 text-center text-base text-white focus:outline-none mt-7`}
-              >
-                Add New Position
-              </GradientButton>
+        ) : (
+          <div
+            className="wrap"
+            style={{ maxHeight: '500px', overflow: 'auto' }}
+          >
+            <div className="grid grid-cols-9 gap-x-3 text-farmText  text-sm h-10 justify-center items-center px-6">
+              <span className="col-span-1 pl-2">ID</span>
+              <span className="col-span-2">Liquidity</span>
+              <span className="col-span-3">Range</span>
+              <span className="col-span-3">Unclaimed Fee</span>
             </div>
-          ) : null}
-        </div>
+            <div>
+              {user_liquidities_detail.map(
+                (liquidityDetail: UserLiquidityDetail) => {
+                  return (
+                    <div
+                      onMouseOver={() => {
+                        hoverLine(liquidityDetail.hashId);
+                      }}
+                      // onMouseLeave={() => setHoverHashId('')}
+                      className={`grid grid-cols-9 gap-x-3 text-white text-base h-14 justify-center items-center px-6 ${
+                        hoverHashId == liquidityDetail.hashId
+                          ? 'bg-chartBg bg-opacity-20'
+                          : ''
+                      }`}
+                    >
+                      <span className="col-span-1 pl-2">
+                        #{liquidityDetail.hashId}
+                      </span>
+                      <span className="col-span-2">
+                        {displayLiqudityTvl(liquidityDetail)}
+                      </span>
+                      <span className="col-span-3">
+                        {displayRange(liquidityDetail)}
+                      </span>
+                      <div className="flex items-center justify-between col-span-3">
+                        {displayLiqudityFee(liquidityDetail)}
+                        {operation == 'add' ? (
+                          <GradientButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowAddBox(true);
+                            }}
+                            color="#fff"
+                            borderRadius={'8px'}
+                            className={`w-24 h-9 text-center text-sm text-white focus:outline-none ${
+                              hoverHashId == liquidityDetail.hashId
+                                ? ''
+                                : 'hidden'
+                            }`}
+                          >
+                            Add
+                          </GradientButton>
+                        ) : (
+                          <OprationButton
+                            onClick={(e: any) => {
+                              e.stopPropagation();
+                              setShowRemoveBox(true);
+                            }}
+                            color="#fff"
+                            className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                              hoverHashId == liquidityDetail.hashId
+                                ? ''
+                                : 'hidden'
+                            }`}
+                          >
+                            Remove
+                          </OprationButton>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+              )}
+            </div>
+          </div>
+        )}
+
+        {operation == 'add' ? (
+          <div className="flex justify-center xsm:px-3">
+            <GradientButton
+              onClick={(e) => {
+                e.stopPropagation();
+                goAddLiqudityPage();
+              }}
+              color="#fff"
+              className={`w-44 xsm:w-full h-10 text-center text-base text-white focus:outline-none mt-7 xsm:mt-4`}
+            >
+              Add New Position
+            </GradientButton>
+          </div>
+        ) : null}
         {operation == 'add' && showAddBox ? (
           <AddPoolV3
             isOpen={showAddBox}
@@ -1064,7 +1226,7 @@ function Chart(props: any) {
     <Card
       width="w-full"
       className="relative rounded-2xl mr-4 mb-4 h-full flex flex-col items-center"
-      padding="px-7 py-5"
+      padding="px-7 py-5 xsm:px-4"
       bgcolor={isClientMobie() ? 'bg-transparent' : 'bg-cardBg'}
       style={{
         height: isClientMobie() ? '370px' : '470px',
@@ -1124,16 +1286,14 @@ function BaseData(props: any) {
     }
   }
   return (
-    <div className="flex items-center justify-between mt-4">
+    <div className="grid grid-cols-3 gap-3 xsm:grid-cols-2 mt-4">
       <DataBox
-        className="mr-3"
         title={
           <FormattedMessage id="TVL" defaultMessage="TVL"></FormattedMessage>
         }
         value={getTvl()}
       ></DataBox>
       <DataBox
-        className="mr-3"
         title={
           <FormattedMessage
             id="h24_volume_bracket"
@@ -1336,6 +1496,7 @@ function LiquidityChart(props: any) {
   const [chartLoading, setChartLoading] = useState<boolean>(true);
   const [noData, setNoData] = useState<boolean>(true);
   const chartDom = useRef(null);
+  const isMobile = isClientMobie();
   useEffect(() => {
     if (depthData) {
       drawChartData({
@@ -1344,9 +1505,10 @@ function LiquidityChart(props: any) {
         token_y_decimals: poolDetail.token_y_metadata.decimals,
         chartDom,
         sort: true,
-        sizey: 330,
+        sizey: isMobile ? 220 : 330,
         onlyCurrent: true,
-        ticks: 10,
+        ticks: isMobile ? 5 : 10,
+        space_x: 20,
       });
       const { liquidities } = depthData;
       const list = Object.values(liquidities);
@@ -1373,9 +1535,11 @@ function LiquidityChart(props: any) {
       displayRate = ` = ${toPrecision(price.toString(), 3)}`;
     }
     return (
-      <span>
-        1 {token_x_metadata.symbol}
-        {displayRate} {token_y_metadata.symbol}
+      <span className="flex items-center flex-wrap xsm:text-sm">
+        1 {token_x_metadata.symbol}&nbsp;
+        <label>
+          {displayRate} {token_y_metadata.symbol}
+        </label>
       </span>
     );
   }
@@ -1388,7 +1552,9 @@ function LiquidityChart(props: any) {
       >
         <div className="flex flex-col">
           <span className="text-base text-white">{displayCurrentPrice()}</span>
-          <span className="text-sm text-primaryText">Current Price</span>
+          <span className="text-sm text-primaryText xsm:text-xs">
+            Current Price
+          </span>
         </div>
         <ChartChangeButton
           className="self-start"
@@ -1405,13 +1571,18 @@ function LiquidityChart(props: any) {
       ) : (
         <svg
           width="100%"
-          height="450"
+          height={isMobile ? '350' : '450'}
           className={`${chartLoading ? 'invisible' : 'visible'}`}
           ref={chartDom}
           style={{ color: 'rgba(91, 64, 255, 0.5)' }}
         >
           <g className="chart"></g>
-          <g className="g" transform="translate(50,330)"></g>
+          <g
+            className="g"
+            transform={`translate(${isMobile ? 20 : 50},${
+              isMobile ? 220 : 330
+            })`}
+          ></g>
           <g className="g2"></g>
         </svg>
       )}
