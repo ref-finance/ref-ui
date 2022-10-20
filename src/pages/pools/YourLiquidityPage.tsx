@@ -441,28 +441,6 @@ export function YourLiquidityPage(props: any) {
             padding="px-0 py-6"
             className="xs:hidden md:hidden"
           >
-            {/* <div className="text-white text-xl pr-6 pl-6 lg:pl-10 lg:pr-8 pt-3 pb-6 flex items-center justify-between">
-            <span>
-              <FormattedMessage
-                id="your_liquidity"
-                defaultMessage="Your Liquidity"
-              />
-              ({count})
-            </span>
-
-            <GradientButton
-              className="px-4 py-1.5 text-sm"
-              onClick={() => {
-                setGeneralAddLiquidity(true);
-              }}
-            >
-              <FormattedMessage
-                id="add_liquidity"
-                defaultMessage={'Add Liquidity'}
-              />
-            </GradientButton>
-          </div> */}
-
             {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
               batchTotalShares?.some((s) => s > 0)) &&
             !isClientMobile ? (

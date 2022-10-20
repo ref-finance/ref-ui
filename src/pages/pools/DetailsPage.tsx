@@ -146,7 +146,11 @@ import { ExchangeArrow } from '../../components/icon/Arrows';
 import { multiply, divide, calculateFeeCharge } from '../../utils/numbers';
 
 import { BsArrowUpRight } from 'react-icons/bs';
-import { useSeedFarms, useSeedDetail } from '../../state/pool';
+import {
+  useSeedFarms,
+  useSeedDetail,
+  useYourliquidity,
+} from '../../state/pool';
 import { FarmBoost } from '../../services/farm';
 import { FarmBoardInDetailPool, Fire } from '../../components/icon/V3';
 import {
@@ -160,6 +164,7 @@ import {
 
 import { FiArrowUpRight } from 'react-icons/fi';
 import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
+import { useFarmStake } from '../../state/farm';
 
 interface ParamTypes {
   id: string;
@@ -967,8 +972,16 @@ export function RemoveLiquidityModal(
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
   const [canSubmit, setCanSubmit] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
-  const cardWidth = isMobile() ? '95vw' : '40vw';
+  const cardWidth = isMobile() ? '95vw' : '30vw';
   const intl = useIntl();
+
+  const poolId = Number(pool.id);
+
+  const { stakeList, v2StakeList, finalStakeList } = usePool(poolId);
+
+  const farmStakeV1 = useFarmStake({ poolId, stakeList });
+  const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
+  const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -1179,9 +1192,7 @@ function MyShares({
     }`;
   else displayPercent = toPrecision(String(sharePercent), decimal || 4);
 
-  return Number(shares) == 0 ? (
-    <span className="font-bold whitespace-nowrap">0</span>
-  ) : (
+  return (
     <div className="whitespace-nowrap">
       <span className="whitespace-nowrap font-bold">
         {`${toInternationalCurrencySystem(
@@ -1605,6 +1616,13 @@ export function PoolDetailsPage() {
       });
     }
   };
+  const farmStakeTotal = useFarmStake({ poolId: Number(id), stakeList });
+
+  const userTotalShare = BigNumber.sum(shares, farmStakeTotal);
+
+  const userTotalShareToString = userTotalShare
+    .toNumber()
+    .toLocaleString('fullwide', { useGrouping: false });
 
   const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
     ? useAccountInfo()
@@ -1679,7 +1697,7 @@ export function PoolDetailsPage() {
     return tokenAmountShare(
       pool,
       token,
-      new BigNumber(shares)
+      new BigNumber(userTotalShareToString)
         .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount : '0')
         .toNumber()
         .toFixed()
@@ -1778,10 +1796,11 @@ export function PoolDetailsPage() {
 
   const usdValue = useMemo(() => {
     try {
-      if (!shares || typeof poolTVL !== 'number' || !pool) return '-';
+      if (!userTotalShareToString || typeof poolTVL !== 'number' || !pool)
+        return '-';
 
       const rawRes = multiply(
-        new BigNumber(shares)
+        new BigNumber(userTotalShareToString)
           .plus(
             Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0'
           )
@@ -1796,7 +1815,7 @@ export function PoolDetailsPage() {
     } catch (error) {
       return '-';
     }
-  }, [poolTVL, shares, pool]);
+  }, [poolTVL, userTotalShareToString, pool]);
 
   if (!pool || !tokens || tokens.length < 2) return <Loading />;
   if (BLACKLIST_POOL_IDS.includes(pool.id.toString())) history.push('/');
@@ -1821,15 +1840,12 @@ export function PoolDetailsPage() {
     return result;
   }
 
-  console.log(pool);
-
   const haveLiquidity = Number(pool.shareSupply) > 0;
 
-  const haveShare = Number(shares) > 0;
+  const haveShare = Number(userTotalShareToString) > 0;
 
   return (
     <>
-      <PoolTabV3 />
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1050px m-auto">
         <BreadCrumb
           routes={[
@@ -1860,7 +1876,7 @@ export function PoolDetailsPage() {
               <div className="ml-2">
                 <Symbols size="text-lg" tokens={tokens} />
               </div>
-              {!backToFarmsButton ? null : (
+              {!backToFarmsButton || isClientMobie() ? null : (
                 <Link
                   to={{
                     pathname:
@@ -1974,9 +1990,20 @@ export function PoolDetailsPage() {
               )}
             </div>
 
-            <div className="ml-2 text-primaryText text-sm">
+            <div className="ml-2 text-primaryText flex items-center text-sm">
               <FormattedMessage id="fee" defaultMessage={'Fee'} />: &nbsp;
               {calculateFeePercent(pool.fee)}%
+              {!backToFarmsButton || !isClientMobie() ? null : (
+                <Link
+                  to={{
+                    pathname:
+                      farmVersion === 'V1' ? '/farms' : `/v2farms/${id}-r`,
+                  }}
+                  target="_blank"
+                >
+                  <FarmStampNew multi={farmCount > 1} />
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -2255,7 +2282,18 @@ export function PoolDetailsPage() {
                       </div>
                       <div
                         className="flex items-center text-white text-sm"
-                        title={tokenAmountShareRaw(pool, tokens[0], shares)}
+                        title={tokenAmountShareRaw(
+                          pool,
+                          tokens[0],
+                          new BigNumber(userTotalShareToString)
+                            .plus(
+                              Number(getVEPoolId()) === Number(pool.id)
+                                ? lptAmount
+                                : '0'
+                            )
+                            .toNumber()
+                            .toFixed()
+                        )}
                       >
                         {tokenInfoPC({
                           token: tokens[0],
@@ -2273,7 +2311,18 @@ export function PoolDetailsPage() {
                       </div>
                       <div
                         className="flex items-center text-white text-sm"
-                        title={tokenAmountShareRaw(pool, tokens[1], shares)}
+                        title={tokenAmountShareRaw(
+                          pool,
+                          tokens[1],
+                          new BigNumber(userTotalShareToString)
+                            .plus(
+                              Number(getVEPoolId()) === Number(pool.id)
+                                ? lptAmount
+                                : '0'
+                            )
+                            .toNumber()
+                            .toFixed()
+                        )}
                       >
                         {tokenInfoPC({
                           token: tokens[1],
@@ -2325,10 +2374,10 @@ export function PoolDetailsPage() {
                       onClick={() => {
                         setShowWithdraw(true);
                       }}
-                      disabled={Number(shares) == 0}
+                      disabled={Number(userTotalShareToString) == 0}
                       disabledColor={'bg-lockedBg'}
                       className={`w-full ${
-                        Number(shares) == 0
+                        Number(userTotalShareToString) == 0
                           ? 'bg-lockedBg text-opacity-30'
                           : 'bg-bgGreyDefault hover:bg-bgGreyHover '
                       }   h-11 xs:w-full text-base rounded-lg md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm bg-poolRowHover`}

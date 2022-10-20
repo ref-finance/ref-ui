@@ -2918,7 +2918,9 @@ function StablePoolList({
 }) {
   const [option, setOption] = useState<string>('ALL');
 
-  const [orderTvl, setOrderTvl] = useState<string>('desc');
+  const [orderStable, setorderStable] = useState<string>('desc');
+
+  const [sortBy, setSortBy] = useState<string>('tvl');
 
   const allStablePoolData = useAllStablePoolData();
 
@@ -2945,10 +2947,21 @@ function StablePoolList({
     const v1 = Number(p1.poolTVL.toString());
     const v2 = Number(p2.poolTVL.toString());
 
-    if (orderTvl === 'desc') {
-      return v2 - v1;
+    const vol1 = Number(volumes[p1.pool.id.toString()] || '0');
+    const vol2 = Number(volumes[p2.pool.id.toString()] || '0');
+
+    if (orderStable === 'desc') {
+      if (sortBy === 'tvl') {
+        return v2 - v1;
+      } else {
+        return vol2 - vol1;
+      }
     } else {
-      return v1 - v2;
+      if (sortBy === 'tvl') {
+        return v1 - v2;
+      } else {
+        return vol1 - vol2;
+      }
     }
   };
 
@@ -2975,29 +2988,83 @@ function StablePoolList({
           })}
         </div>
 
-        <div className="w-1/2 xs:hidden md:hidden flex items-center text-primaryText">
-          <div className="w-32 relative xl:right-8 lg:right-12">
-            <FormattedMessage id="volume_24h" defaultMessage="Volume (24h)" />
+        <div className="w-1/2 xs:hidden md:hidden flex items-center text-primaryText ">
+          <div className="w-32 relative xl:right-8 lg:right-12 flex items-center">
+            <span
+              className={`pr-1 cursor-pointer
+              
+              ${
+                sortBy !== 'volume_24h'
+                  ? 'hover:text-white'
+                  : 'text-gradientFrom'
+              }
+    
+              `}
+              onClick={() => {
+                setSortBy('volume_24h');
+
+                setorderStable(
+                  orderStable === 'desc' && sortBy === 'volume_24h'
+                    ? 'asc'
+                    : 'desc'
+                );
+              }}
+            >
+              <FormattedMessage id="volume_24h" defaultMessage="Volume (24h)" />
+            </span>
+            <span
+              className={`cursor-pointer ${
+                sortBy !== 'volume_24h' ? 'hidden' : ''
+              } `}
+              onClick={() => {
+                setSortBy('volume_24h');
+                setorderStable(
+                  orderStable === 'desc' && sortBy === 'volume_24h'
+                    ? 'asc'
+                    : 'desc'
+                );
+              }}
+            >
+              {orderStable === 'desc' && sortBy === 'volume_24h' ? (
+                <DownArrowLight />
+              ) : (
+                <UpArrowLight />
+              )}
+            </span>
           </div>
 
           <div
-            className={`relative lg:right-12 lg2:right-8   2xl:-right-8  text-gradientFrom  inline-flex items-center`}
+            className={`relative lg:right-12 lg2:right-8   2xl:-right-8    inline-flex items-center`}
           >
             <span
-              className="pr-1 cursor-pointer"
+              className={`pr-1 cursor-pointer
+              ${sortBy !== 'tvl' ? 'hover:text-white' : 'text-gradientFrom'}
+              `}
               onClick={() => {
-                setOrderTvl(orderTvl === 'desc' ? 'asc' : 'desc');
+                setSortBy('tvl');
+
+                setorderStable(
+                  orderStable === 'desc' && sortBy === 'tvl' ? 'asc' : 'desc'
+                );
               }}
             >
               <FormattedMessage id="tvl" defaultMessage="TVL" />
             </span>
             <span
-              className="cursor-pointer"
+              className={`cursor-pointer ${sortBy !== 'tvl' ? 'hidden' : ''}`}
               onClick={() => {
-                setOrderTvl(orderTvl === 'desc' ? 'asc' : 'desc');
+                setSortBy('tvl');
+
+                setorderStable(
+                  orderStable === 'desc' && sortBy === 'tvl' ? 'asc' : 'desc'
+                );
               }}
             >
-              {orderTvl === 'desc' ? <DownArrowLight /> : <UpArrowLight />}
+              {orderStable === 'desc' && sortBy === 'tvl' ? (
+                <DownArrowLight />
+              ) : (
+                <UpArrowLight />
+              )}
             </span>
           </div>
         </div>
