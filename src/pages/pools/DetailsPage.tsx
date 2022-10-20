@@ -1204,11 +1204,13 @@ export const ChartChangeButton = ({
   setChartDisplay,
   className,
   noData,
+  showLiqudityButton,
 }: {
   chartDisplay: ChartType;
   setChartDisplay: (display: ChartType) => void;
   className?: string;
   noData?: boolean;
+  showLiqudityButton?: boolean;
 }) => {
   return (
     <div
@@ -1242,19 +1244,21 @@ export const ChartChangeButton = ({
       >
         <FormattedMessage id="volume" defaultMessage="Volume" />
       </button>
-      <button
-        className={`py-1 xs:py-2 md:py-2 px-2 ${
-          chartDisplay === 'liquidity'
-            ? 'rounded-2xl xs:rounded-lg md:rounded-lg xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
-            : 'text-gray-400'
-        }`}
-        onClick={() => setChartDisplay('liquidity')}
-        style={{
-          minWidth: '64px',
-        }}
-      >
-        <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
-      </button>
+      {showLiqudityButton ? (
+        <button
+          className={`py-1 xs:py-2 md:py-2 px-2 ${
+            chartDisplay === 'liquidity'
+              ? 'rounded-2xl xs:rounded-lg md:rounded-lg xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
+              : 'text-gray-400'
+          }`}
+          onClick={() => setChartDisplay('liquidity')}
+          style={{
+            minWidth: '64px',
+          }}
+        >
+          <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
+        </button>
+      ) : null}
     </div>
   );
 };
@@ -1263,10 +1267,12 @@ export function EmptyChart({
   chartDisplay,
   setChartDisplay,
   loading,
+  showLiqudityButton,
 }: {
   chartDisplay: ChartType;
   setChartDisplay: (display: ChartType) => void;
   loading?: boolean;
+  showLiqudityButton?: boolean;
 }) {
   return (
     <div className="w-full h-full flex flex-col justify-between">
@@ -1278,6 +1284,7 @@ export function EmptyChart({
             noData={true}
             chartDisplay={chartDisplay}
             setChartDisplay={setChartDisplay}
+            showLiqudityButton={showLiqudityButton}
           />
         </div>
         <div className="text-xs text-gray-500">-</div>
@@ -1333,10 +1340,12 @@ export function VolumeChart({
   data,
   chartDisplay,
   setChartDisplay,
+  showLiqudityButton,
 }: {
   data: volumeDataType[];
   chartDisplay: 'volume' | 'tvl';
   setChartDisplay: (display: 'volume' | 'tvl') => void;
+  showLiqudityButton?: boolean;
 }) {
   const [hoverIndex, setHoverIndex] = useState<number>(null);
 
@@ -1380,6 +1389,7 @@ export function VolumeChart({
         chartDisplay={chartDisplay}
         setChartDisplay={setChartDisplay}
         loading={true}
+        showLiqudityButton={showLiqudityButton}
       />
     );
   if (data.length === 0)
@@ -1387,6 +1397,7 @@ export function VolumeChart({
       <EmptyChart
         chartDisplay={chartDisplay}
         setChartDisplay={setChartDisplay}
+        showLiqudityButton={showLiqudityButton}
       />
     );
 
@@ -1411,6 +1422,7 @@ export function VolumeChart({
           className="self-start"
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
+          showLiqudityButton={showLiqudityButton}
         />
       </div>
       <ResponsiveContainer height="100%" width="100%">
@@ -1454,10 +1466,12 @@ export function TVLChart({
   data,
   chartDisplay,
   setChartDisplay,
+  showLiqudityButton,
 }: {
   data: TVLDataType[];
   chartDisplay: 'volume' | 'tvl';
   setChartDisplay: (display: 'volume' | 'tvl') => void;
+  showLiqudityButton?: boolean;
 }) {
   const [hoverIndex, setHoverIndex] = useState<number>(null);
   if (!data)
@@ -1466,6 +1480,7 @@ export function TVLChart({
         setChartDisplay={setChartDisplay}
         chartDisplay={chartDisplay}
         loading={true}
+        showLiqudityButton={showLiqudityButton}
       />
     );
 
@@ -1474,6 +1489,7 @@ export function TVLChart({
       <EmptyChart
         setChartDisplay={setChartDisplay}
         chartDisplay={chartDisplay}
+        showLiqudityButton={showLiqudityButton}
       />
     );
 
@@ -1498,6 +1514,7 @@ export function TVLChart({
           className="self-start"
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
+          showLiqudityButton={showLiqudityButton}
         />
       </div>
       <ResponsiveContainer width="100%" height="100%">

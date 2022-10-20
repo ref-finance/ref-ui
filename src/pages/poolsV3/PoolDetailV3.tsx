@@ -1075,12 +1075,14 @@ function Chart(props: any) {
           data={monthVolume}
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
+          showLiqudityButton={true}
         />
       ) : chartDisplay === 'tvl' ? (
         <TVLChart
           data={monthTVL}
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
+          showLiqudityButton={true}
         />
       ) : (
         <LiquidityChart
@@ -1392,6 +1394,7 @@ function LiquidityChart(props: any) {
           className="self-start"
           chartDisplay={chartDisplay}
           setChartDisplay={setChartDisplay}
+          showLiqudityButton={true}
         />
       </div>
       {chartLoading ? (
