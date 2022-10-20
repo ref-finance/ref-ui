@@ -136,6 +136,10 @@ import {
   BTC_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 
+import { TiRefresh } from 'react-icons/ti';
+
+import { MdOutlineRefresh } from 'react-icons/md';
+
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
 
@@ -1973,7 +1977,7 @@ export default function SwapCard(props: {
             onChangeRate={onChangeLimitRate}
             marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
             ExtraElement={
-              swapMode !== SWAP_MODE.LIMIT && (
+              swapMode !== SWAP_MODE.LIMIT ? (
                 <div
                   onClick={(e) => {
                     e.preventDefault();
@@ -1995,6 +1999,16 @@ export default function SwapCard(props: {
                     loadingPause={loadingPause}
                   />
                 </div>
+              ) : (
+                <MdOutlineRefresh
+                  size={22}
+                  className={`text-primaryText cursor-pointer  ${
+                    !quoteDoneLimit ? 'rotateInfinite' : ''
+                  } `}
+                  onClick={() => {
+                    setLimiSwapTrigger(!limitSwapTrigger);
+                  }}
+                />
               )
             }
           />

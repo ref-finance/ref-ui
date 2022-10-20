@@ -304,7 +304,7 @@ export function QuickAmountLimitOrderMobile({
   return (
     <div className="flex items-center">
       <span
-        className={`px-2 py-1 mr-1 w-5 h-5 flex items-center justify-center cursor-pointer rounded-md  ${
+        className={`px-2 py-1 mr-1 ml-2 w-5 h-5 flex items-center justify-center cursor-pointer rounded-md  ${
           hoverMinus
             ? 'border border-transparent text-gradientFrom border-gradientFrom'
             : 'text-primaryText border border-primaryText border-opacity-20  '
@@ -705,19 +705,18 @@ export function TokenAmountV3({
             ) : null
           }
         />
+        {ExtraElement}
         {forLimitOrder &&
-        isMobile &&
-        marketPriceLimitOrder &&
-        swapMode === SWAP_MODE.LIMIT ? (
-          <QuickAmountLimitOrderMobile
-            onChangeAmount={onChangeRate}
-            amount={curRate}
-            plus1={plus1}
-            minus1={minus1}
-          />
-        ) : (
-          ExtraElement
-        )}
+          isMobile &&
+          marketPriceLimitOrder &&
+          swapMode === SWAP_MODE.LIMIT && (
+            <QuickAmountLimitOrderMobile
+              onChangeAmount={onChangeRate}
+              amount={curRate}
+              plus1={plus1}
+              minus1={minus1}
+            />
+          )}
       </fieldset>
 
       <div className="flex items-center justify-between h-6">

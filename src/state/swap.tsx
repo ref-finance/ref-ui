@@ -788,7 +788,7 @@ export const useLimitOrder = ({
       .finally(() => {
         setQuoteDone(true);
       });
-  }, [selectedV3LimitPool, loadingTrigger]);
+  }, [selectedV3LimitPool, loadingTrigger, swapMode]);
 
   useEffect(() => {
     if (notLimitMode || !tokenIn || !tokenOut) {
@@ -882,7 +882,7 @@ export const useLimitOrder = ({
         );
         setSelectedV3LimitPool(allPoolsForThisPair[2]);
       });
-  }, [tokenIn?.id, tokenOut?.id, tokenPriceList]);
+  }, [tokenIn?.id, tokenOut?.id, tokenPriceList, swapMode]);
 
   useEffect(() => {
     if (!poolToOrderCounts) return null;
@@ -910,6 +910,7 @@ export const useLimitOrder = ({
     tokenIn?.id,
     tokenPriceList,
     pools,
+    swapMode,
   ]);
 
   return {
@@ -920,6 +921,7 @@ export const useLimitOrder = ({
     mostPoolDetail,
     quoteDone,
     idToPools: pools,
+    setQuoteDone,
   };
 };
 

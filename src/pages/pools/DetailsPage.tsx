@@ -1794,6 +1794,8 @@ export function PoolDetailsPage() {
 
   const haveLiquidity = Number(pool.shareSupply) > 0;
 
+  const haveShare = Number(shares) > 0;
+
   return (
     <>
       <PoolTabV3 />
@@ -2183,7 +2185,7 @@ export function PoolDetailsPage() {
               className="rounded-2xl  w-full text-base text-white"
               bgcolor="bg-cardBg"
             >
-              {haveLiquidity && (
+              {haveShare && (
                 <>
                   <div className="flex items-center justify-between">
                     <span className="whitespace-nowrap">
@@ -2251,7 +2253,7 @@ export function PoolDetailsPage() {
                 </>
               )}
 
-              {!haveLiquidity && (
+              {!haveShare && (
                 <div className="flex items-center flex-col">
                   <div className="mt-6">
                     <NoLiquidityDetailPageIcon />
@@ -2267,7 +2269,7 @@ export function PoolDetailsPage() {
               )}
 
               <div className="flex items-center  w-full">
-                <div className={`pr-2 ${haveLiquidity ? 'w-1/2' : 'w-full'} `}>
+                <div className={`pr-2 ${haveShare ? 'w-1/2' : 'w-full'} `}>
                   <SolidButton
                     padding="px-0"
                     className=" w-full h-11 xs:w-full text-base rounded-lg  md:w-full xs:col-span-1 md:col-span-1 md:text-sm xs:text-sm"
@@ -2275,7 +2277,7 @@ export function PoolDetailsPage() {
                       setShowFunding(true);
                     }}
                   >
-                    {!haveLiquidity ? (
+                    {!haveShare ? (
                       <FormattedMessage
                         id="add_liquidity"
                         defaultMessage={'Add Liquidity'}
@@ -2285,7 +2287,7 @@ export function PoolDetailsPage() {
                     )}
                   </SolidButton>
                 </div>
-                {haveLiquidity && (
+                {haveShare && (
                   <div className="pl-2 w-1/2">
                     <SolidButton
                       padding="px-0"
