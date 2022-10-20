@@ -196,6 +196,7 @@ module.exports = {
         v3GarkWarningColor: '#FFA149',
         v3LiquidityTabBgColor: 'rgba(34, 45, 53, 0.8)',
         v3LiquidityRemoveBarColor: 'rgba(126, 138, 147, 0.5)',
+        watchMarkBackgroundColor: '#303E49',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

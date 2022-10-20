@@ -254,6 +254,7 @@ function MobilePoolRow({
   supportFarm,
   h24volume,
   watchPool,
+  mark,
 }: {
   pool: Pool;
   sortBy: string;
@@ -264,6 +265,7 @@ function MobilePoolRow({
   supportFarm: Boolean;
   h24volume: string;
   watchPool?: boolean;
+  mark?: boolean;
 }) {
   const { ref } = useInView();
 
@@ -338,8 +340,15 @@ function MobilePoolRow({
                 />
               </div>
             </div>
-            <div className="text-sm ml-2 font-semibold">
-              {tokens[0].symbol + '-' + tokens[1].symbol}
+            <div className="flex items-center">
+              <div className="text-sm ml-2 font-semibold">
+                {tokens[0].symbol + '-' + tokens[1].symbol}
+              </div>
+              {mark ? (
+                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
+                  V1
+                </span>
+              ) : null}
             </div>
             {watched && !watchPool && (
               <div className="ml-2">
@@ -373,10 +382,14 @@ function MobilePoolRowV2({
   pool,
   sortBy,
   tokens,
+  mark,
+  watched,
 }: {
   pool: PoolInfo;
   sortBy: string;
   tokens?: TokenMetadata[];
+  mark?: boolean;
+  watched?: boolean;
 }) {
   const { ref } = useInView();
 
@@ -432,9 +445,21 @@ function MobilePoolRowV2({
                 />
               </div>
             </div>
-            <div className="text-sm ml-2 font-semibold">
-              {tokens[0].symbol + '-' + tokens[1].symbol}
+            <div className="flex items-center">
+              <div className="text-sm ml-2 font-semibold">
+                {tokens[0].symbol + '-' + tokens[1].symbol}
+              </div>
+              {mark ? (
+                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
+                  V2
+                </span>
+              ) : null}
             </div>
+            {watched && (
+              <div className="ml-2">
+                <WatchListStartFull />
+              </div>
+            )}
           </div>
           <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
         </div>
@@ -461,6 +486,7 @@ function MobileWatchListCard({
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
   const [sortBy, onSortChange] = useState<string>('tvl');
+  const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
   return (
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4 mt-2">
       <div className="mx-4 flex items-center justify-between mt-4">
@@ -471,7 +497,8 @@ function MobileWatchListCard({
             }  text-base`}
           >
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
-            {watchPools.length > 0 ? ` (${watchPools.length})` : ''}
+            {/* {watchPools.length > 0 ? ` (${watchPools.length})` : ''} */}
+            &nbsp;({totalWatchList_length || '0'})
           </div>
           {/* my_watchlist_copy */}
           <QuestionTip id="my_watchlist_copy" />
@@ -528,6 +555,7 @@ function MobileWatchListCard({
                 supportFarm={!!farmCounts[pool.id]}
                 h24volume={volumes[pool.id]}
                 watchPool
+                mark={true}
               />
             </div>
           ))}
@@ -536,6 +564,7 @@ function MobileWatchListCard({
               tokens={[pool.token_x_metadata, pool.token_y_metadata]}
               pool={pool}
               sortBy={sortBy}
+              mark={true}
               key={i + '-mobile-pool-row-v2'}
             />
           ))}
@@ -1080,6 +1109,7 @@ function MobileLiquidityPage({
                       tokens={[pool.token_x_metadata, pool.token_y_metadata]}
                       pool={pool}
                       sortBy={v2SortBy}
+                      watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
                       key={i + '-mobile-pool-row-v2'}
                     />
                   ))}
@@ -1116,6 +1146,7 @@ function PoolRow({
   farmCount,
   h24volume,
   watched,
+  mark,
 }: {
   pool: Pool;
   index: number;
@@ -1126,6 +1157,7 @@ function PoolRow({
   farmCount: number;
   h24volume: string;
   watched?: boolean;
+  mark?: boolean;
 }) {
   const curRowTokens = useTokens(pool.tokenIds, tokens);
   const history = useHistory();
@@ -1143,7 +1175,7 @@ function PoolRow({
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
         className={`grid grid-cols-${
-          !!watched ? 7 : 8
+          mark ? 7 : 8
         } py-3.5 text-white content-center text-sm text-left mx-8 border-b border-gray-700 border-opacity-70 hover:opacity-80`}
         onClick={() => localStorage.setItem('fromMorePools', 'n')}
         to={{
@@ -1155,8 +1187,20 @@ function PoolRow({
           <div className="mr-8 w-2">{index}</div>
           <div className="flex items-center">
             <Images tokens={tokens} size="9" />
-            <div className="text-sm ml-7">
-              {tokens[0].symbol + '-' + tokens[1].symbol}
+            <div className="flex items-center">
+              <div className="text-sm ml-7">
+                {tokens[0].symbol + '-' + tokens[1].symbol}
+              </div>
+              {mark ? (
+                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
+                  V1
+                </span>
+              ) : null}
+              {watched && (
+                <div className="ml-2">
+                  <WatchListStartFull />
+                </div>
+              )}
             </div>
           </div>
 
@@ -1198,7 +1242,7 @@ function PoolRow({
 
         <div
           className={`col-span-1 justify-self-center py-1 hover:text-green-500 hover:cursor-pointer ${
-            !!watched ? 'hidden' : ''
+            mark ? 'hidden' : ''
           }`}
           onMouseEnter={() => setShowLinkArrow(true)}
           onMouseLeave={() => setShowLinkArrow(false)}
@@ -1225,11 +1269,15 @@ function PoolRowV2({
   index,
   tokens,
   showCol,
+  mark,
+  watched,
 }: {
   pool: PoolInfo;
   index: number;
   tokens?: TokenMetadata[];
   showCol?: boolean;
+  mark?: boolean;
+  watched?: boolean;
 }) {
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
   const history = useHistory();
@@ -1267,6 +1315,16 @@ function PoolRowV2({
               {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
           </div>
+          {mark ? (
+            <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
+              V2
+            </span>
+          ) : null}
+          {watched && (
+            <div className="ml-2">
+              <WatchListStartFull />
+            </div>
+          )}
         </div>
         <div
           className={`justify-self-center py-1 md:hidden ${
@@ -1383,7 +1441,7 @@ function WatchListCard({
                   farmCount={farmCounts[pool.id]}
                   supportFarm={!!farmCounts[pool.id]}
                   h24volume={volumes[pool.id]}
-                  watched
+                  mark={true}
                 />
               </div>
             ))}
@@ -1395,6 +1453,7 @@ function WatchListCard({
                   pool={pool}
                   index={i + 1}
                   showCol={true}
+                  mark={true}
                 />
               );
             })}
@@ -2014,6 +2073,7 @@ function LiquidityPage_({
                       supportFarm={!!farmCounts[pool.id]}
                       farmCount={farmCounts[pool.id]}
                       h24volume={volumes[pool.id]}
+                      watched={!!find(watchPools, { id: pool.id })}
                     />
                   ))}
               </div>
@@ -2115,6 +2175,7 @@ function LiquidityPage_({
                       tokens={[pool.token_x_metadata, pool.token_y_metadata]}
                       key={i}
                       pool={pool}
+                      watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
                       index={i + 1}
                     />
                   ))}
