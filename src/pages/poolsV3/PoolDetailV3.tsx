@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useMemo } from 'react';
+import React, { useEffect, useState, useContext, useMemo, useRef } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Card } from '~components/card/Card';
 import { Link } from 'react-router-dom';
@@ -12,6 +12,7 @@ import {
   toInternationalCurrencySystem,
   toRoundedReadableNumber,
 } from '../../utils/numbers';
+import { useClientMobile, isClientMobie } from '../../utils/device';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { isMobile } from '~utils/device';
 import { toRealSymbol } from '~utils/token';
@@ -19,33 +20,1446 @@ import { useHistory } from 'react-router';
 import { BigNumber } from 'bignumber.js';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
+import { BreadCrumb } from '~components/layout/BreadCrumb';
+import {
+  get_pool,
+  PoolInfo,
+  list_liquidities,
+  get_liquidity,
+  get_pool_marketdepth,
+  claim_all_liquidity_fee,
+} from '~services/swapV3';
+import {
+  UserLiquidityInfo,
+  getPriceByPoint,
+  drawChartData,
+  CONSTANT_D,
+  getXAmount_per_point_by_Lx,
+  getYAmount_per_point_by_Ly,
+} from '~services/commonV3';
+import { ftGetTokensMetadata } from '../../services/ft-contract';
+import {
+  WatchListStartEmpty,
+  WatchListStartEmptyMobile,
+  WatchListStartFull,
+  WatchListStartFullMobile,
+} from '../../components/icon/WatchListStar';
+import { SwitchInDetailIcon, NoLiquidityIcon } from '~components/icon/V3';
+import Loading from '~components/layout/Loading';
+import { useTokenPriceList } from '../../state/token';
+import { getBoostTokenPrices } from '../../services/farm';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { WalletContext } from '../../utils/wallets-integration';
+import {
+  addLiquidityToPool,
+  addPoolToWatchList,
+  getWatchListFromDb,
+  Pool,
+  PoolDetails,
+  removePoolFromWatchList,
+} from '~services/pool';
+import ReactTooltip from 'react-tooltip';
+import { TokenLinks } from '~components/tokens/Token';
+import { FiArrowUpRight } from 'react-icons/fi';
+import {
+  VolumeChart,
+  TVLChart,
+  ChartType,
+  ChartChangeButton,
+} from '../pools/DetailsPage';
+import { BlueCircleLoading } from '../../components/layout/Loading';
+import { ChartNoData } from '~components/icon/ChartNoData';
+import {
+  GradientButton,
+  OprationButton,
+  ButtonTextWrapper,
+} from '~components/button/Button';
+import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
+import { AddPoolV3 } from '~components/pool/AddPoolV3';
+import Modal from 'react-modal';
+import { ModalClose } from '~components/icon';
 
-export function PoolDetailV3() {
+export default function PoolDetailV3() {
+  const { id } = useParams<ParamTypes>();
+  const pool_id_from_url = id.replace(/@/g, '|');
+  const [poolDetail, setPoolDetail] = useState<PoolInfo>(null);
+  const [user_liquidities, set_user_liquidities] =
+    useState<UserLiquidityInfo[]>();
+  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+  const [currentRateDirection, setCurrentRateDirection] = useState(true);
+  const [showFullStart, setShowFullStar] = useState<Boolean>(false);
+  const { modal } = useWalletSelector();
+  const intl = useIntl();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+
+  useEffect(() => {
+    get_pool_detail();
+    get_user_list_liquidities();
+    getBoostTokenPrices().then(setTokenPriceList);
+    getWatchListFromDb({ pool_id: pool_id_from_url }).then((watchlist) => {
+      setShowFullStar(watchlist.length > 0);
+    });
+  }, []);
+  async function get_pool_detail() {
+    const detail: PoolInfo = await get_pool(pool_id_from_url);
+    if (detail) {
+      const { token_x, token_y } = detail;
+      const metaData: Record<string, any> = await ftGetTokensMetadata([
+        token_x,
+        token_y,
+      ]);
+      detail.token_x_metadata = metaData[token_x];
+      detail.token_y_metadata = metaData[token_y];
+      setPoolDetail(detail);
+    }
+  }
+  async function get_user_list_liquidities() {
+    if (!isSignedIn) return;
+    let user_liquiditys_in_pool: UserLiquidityInfo[] = [];
+    const liquidities = await list_liquidities();
+    user_liquiditys_in_pool = liquidities.filter(
+      (liquidity: UserLiquidityInfo) => {
+        const { lpt_id } = liquidity;
+        const pool_id = lpt_id.split('#')[0];
+        if (pool_id == pool_id_from_url) return true;
+      }
+    );
+    const liquiditiesPromise = user_liquiditys_in_pool.map(
+      (liquidity: UserLiquidityInfo) => {
+        return get_liquidity(liquidity.lpt_id);
+      }
+    );
+    const user_liqudities_final = await Promise.all(liquiditiesPromise);
+    set_user_liquidities(user_liqudities_final);
+  }
+  function displayRateDom() {
+    const {
+      current_point,
+      token_x_metadata,
+      token_y_metadata,
+      token_x,
+      token_y,
+    } = poolDetail;
+    const rate =
+      Math.pow(10, token_x_metadata.decimals) /
+      Math.pow(10, token_y_metadata.decimals);
+    let price = getPriceByPoint(current_point, rate);
+    let tokenPrice = tokenPriceList[token_x]?.price;
+    if (!currentRateDirection) {
+      price = new BigNumber(1).dividedBy(price).toFixed();
+      tokenPrice = tokenPriceList[token_y]?.price;
+    }
+    let displayTokenPrice;
+    let displayRate;
+    if (!tokenPrice) {
+      displayTokenPrice = '-';
+    } else if (new BigNumber(tokenPrice).isLessThan('0.001')) {
+      displayTokenPrice = '<$0.001';
+    } else {
+      displayTokenPrice = `$${toPrecision(tokenPrice.toString(), 3)}`;
+    }
+    if (new BigNumber(price).isLessThan('0.001')) {
+      displayRate = ' < 0.001';
+    } else {
+      displayRate = ` = ${toPrecision(price.toString(), 3)}`;
+    }
+    if (currentRateDirection) {
+      return (
+        <span>
+          1 {token_x_metadata.symbol}
+          <label className="text-primaryText">({displayTokenPrice})</label>
+          {displayRate} {token_y_metadata.symbol}
+        </span>
+      );
+    } else {
+      return (
+        <span>
+          1 {token_y_metadata.symbol}
+          <label className="text-primaryText">({displayTokenPrice})</label>
+          {displayRate} {token_x_metadata.symbol}
+        </span>
+      );
+    }
+  }
+  function switchRateButton() {
+    const now_direction = !currentRateDirection;
+    setCurrentRateDirection(now_direction);
+  }
+  const handleSaveWatchList = () => {
+    if (!isSignedIn) {
+      modal.show();
+    } else {
+      addPoolToWatchList({ pool_id: pool_id_from_url }).then(() => {
+        setShowFullStar(true);
+      });
+    }
+  };
+  const handleRemoveFromWatchList = () => {
+    removePoolFromWatchList({ pool_id: pool_id_from_url }).then(() => {
+      setShowFullStar(false);
+    });
+  };
+  function add_to_watchlist_tip() {
+    const tip = intl.formatMessage({ id: 'add_to_watchlist' });
+    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    return result;
+  }
+
+  function remove_from_watchlist_tip() {
+    const tip = intl.formatMessage({ id: 'remove_from_watchlist' });
+    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    return result;
+  }
+  if (!poolDetail) return <Loading></Loading>;
   return (
     <>
       <PoolTabV3 />
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1050px m-auto">
-        {/* <BreadCrumb
+        <BreadCrumb
           routes={[
             { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
-            {
-              id: 'more_pools',
-              msg: 'More Pools',
-              pathname: `/more_pools/${tokens.map((tk) => tk.id)}`,
-              state: {
-                fromMorePools,
-                tokens,
-                morePoolIds,
-              },
-            },
             {
               id: 'detail',
               msg: 'Detail',
               pathname: `/pool`,
             },
           ]}
-        /> */}
+        />
+        <div className="flex items-center justify-between mt-4 mb-3">
+          <div className="flex items-center">
+            <div className="flex items-center mr-2.5">
+              <img
+                src={poolDetail.token_x_metadata.icon}
+                className="w-10 h-10 rounded-full bg-cardBg"
+                style={{ border: '4px solid rgb(61, 68, 81)' }}
+              ></img>
+              <img
+                src={poolDetail.token_y_metadata.icon}
+                className="w-10 h-10 rounded-full bg-cardBg -ml-1"
+                style={{ border: '4px solid rgb(61, 68, 81)' }}
+              ></img>
+            </div>
+            <div className="flex flex-col justify-between">
+              <div className="flex items-center">
+                <span className="text-lg text-white mr-3.5">
+                  {poolDetail.token_x_metadata.symbol}/
+                  {poolDetail.token_y_metadata.symbol}
+                </span>
+                <span
+                  className="flex items-center justify-center rounded-lg cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showFullStart
+                      ? handleRemoveFromWatchList()
+                      : handleSaveWatchList();
+                  }}
+                  style={{
+                    background: '#172534',
+                    width: '30px',
+                    height: '24px',
+                  }}
+                >
+                  {showFullStart ? (
+                    <div
+                      className="text-sm "
+                      data-type="info"
+                      data-place="right"
+                      data-multiline={true}
+                      data-class="reactTip"
+                      data-html={true}
+                      data-tip={remove_from_watchlist_tip()}
+                      data-for="fullstar-tip"
+                    >
+                      <WatchListStartFull />
+
+                      <ReactTooltip
+                        id="fullstar-tip"
+                        backgroundColor="#1D2932"
+                        border
+                        borderColor="#7e8a93"
+                        effect="solid"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className="text-sm "
+                      data-type="info"
+                      data-place="right"
+                      data-multiline={true}
+                      data-class="reactTip"
+                      data-html={true}
+                      data-tip={add_to_watchlist_tip()}
+                      data-for="emptystar-tip"
+                    >
+                      <WatchListStartEmpty />
+                      <ReactTooltip
+                        id="emptystar-tip"
+                        backgroundColor="#1D2932"
+                        border
+                        borderColor="#7e8a93"
+                        effect="solid"
+                      />
+                    </div>
+                  )}
+                </span>
+              </div>
+              <span className="text-sm text-primaryText">
+                Fee: {poolDetail.fee / 10000}%
+              </span>
+            </div>
+          </div>
+          {/* <div className='flex items-center text-sm text-white' onClick={switchRateButton}>
+            {displayRateDom()}
+            <span className='flex items-center justify-center rounded-lg cursor-pointer text-v3SwapGray hover:text-gradientFromHover ml-2' style={{
+              background: '#172534',
+              width: '30px',
+              height: '24px',
+            }}>
+              <SwitchInDetailIcon></SwitchInDetailIcon>
+            </span>
+          </div> */}
+        </div>
+        <div className="flex  items-start flex-row w-full m-auto xs:flex-col-reverse md:flex-col-reverse">
+          <div className="mr-4 xsm:w-full lg:flex-grow">
+            <Chart
+              poolDetail={poolDetail}
+              tokenPriceList={tokenPriceList}
+            ></Chart>
+            <BaseData
+              poolDetail={poolDetail}
+              tokenPriceList={tokenPriceList}
+            ></BaseData>
+            <TablePool
+              poolDetail={poolDetail}
+              tokenPriceList={tokenPriceList}
+            ></TablePool>
+          </div>
+          <div
+            className="xsm:mb-4"
+            style={{ width: isClientMobie() ? '100%' : '357px' }}
+          >
+            {!isSignedIn ||
+            (user_liquidities && user_liquidities.length == 0) ? (
+              <NoYourLiquditiesBox
+                poolDetail={poolDetail}
+              ></NoYourLiquditiesBox>
+            ) : (
+              <>
+                <YourLiquidityBox
+                  poolDetail={poolDetail}
+                  tokenPriceList={tokenPriceList}
+                  liquidities={user_liquidities}
+                ></YourLiquidityBox>
+                <UnclaimedFeesBox
+                  poolDetail={poolDetail}
+                  tokenPriceList={tokenPriceList}
+                  liquidities={user_liquidities}
+                ></UnclaimedFeesBox>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </>
   );
+}
+function YourLiquidityBox(props: {
+  poolDetail: PoolInfo;
+  liquidities: UserLiquidityInfo[];
+  tokenPriceList: any;
+}) {
+  const { poolDetail, liquidities, tokenPriceList } = props;
+  const [user_liquidities_detail, set_user_liquidities_detail] = useState<
+    UserLiquidityDetail[]
+  >([]);
+  const [showSelectLiquidityBox, setShowSelectLiquidityBox] = useState(false);
+  const [operationType, setOperationType] = useState('add');
+  const { token_x_metadata, token_y_metadata } = poolDetail;
+  useEffect(() => {
+    if (liquidities) {
+      const temp_list: UserLiquidityDetail[] = [];
+      liquidities.forEach((liquidity: UserLiquidityInfo) => {
+        const {
+          left_point,
+          right_point,
+          lpt_id,
+          amount,
+          unclaimed_fee_x,
+          unclaimed_fee_y,
+        } = liquidity;
+        const { amount_x, amount_y } = get_amount_x_y(liquidity);
+        const unclaimed_fee_x_amount = toReadableNumber(
+          token_x_metadata.decimals,
+          unclaimed_fee_x
+        );
+        const unclaimed_fee_y_amount = toReadableNumber(
+          token_y_metadata.decimals,
+          unclaimed_fee_y
+        );
+        const token_x_price = tokenPriceList[token_x_metadata.id]?.price || 0;
+        const token_y_price = tokenPriceList[token_y_metadata.id]?.price || 0;
+        const total_liqudities_price =
+          Number(amount_x) * Number(token_x_price) +
+          Number(amount_y) * Number(token_y_price);
+        const total_fees_price =
+          Number(unclaimed_fee_x_amount) * Number(token_x_price) +
+          Number(unclaimed_fee_y_amount) * Number(token_y_price);
+        const decimalRate =
+          Math.pow(10, token_x_metadata.decimals) /
+          Math.pow(10, token_y_metadata.decimals);
+        const l_price = getPriceByPoint(left_point, decimalRate);
+        const r_price = getPriceByPoint(right_point, decimalRate);
+        const temp: UserLiquidityDetail = {
+          total_liqudities_price: total_liqudities_price.toString(),
+          total_fees_price: total_fees_price.toString(),
+          amount_x,
+          amount_y,
+          hashId: lpt_id.split('#')[1],
+          l_price,
+          r_price,
+        };
+        temp_list.push(temp);
+      });
+      set_user_liquidities_detail(temp_list);
+    }
+  }, [liquidities, Object.keys(tokenPriceList).length]);
+  function get_amount_x_y(liquidity: UserLiquidityInfo) {
+    const [tokenX, tokenY] = [token_x_metadata, token_y_metadata];
+    const { left_point, right_point, amount: L } = liquidity;
+    const { current_point } = poolDetail;
+    let amount_x = '0';
+    let amount_y = '0';
+    //  in range
+    if (current_point >= left_point && right_point > current_point) {
+      const tokenYAmount = getY(
+        left_point,
+        current_point,
+        current_point,
+        L,
+        tokenY
+      );
+      const tokenXAmount = getX(current_point + 1, right_point, L, tokenX);
+      const { amountx, amounty } = get_X_Y_In_CurrentPoint(tokenX, tokenY, L);
+      amount_x = new BigNumber(tokenXAmount).plus(amountx).toFixed();
+      amount_y = new BigNumber(tokenYAmount).plus(amounty).toFixed();
+    }
+    // only y token
+    if (current_point >= right_point) {
+      const tokenYAmount = getY(
+        left_point,
+        right_point,
+        current_point,
+        L,
+        tokenY
+      );
+      amount_y = tokenYAmount;
+    }
+    // only x token
+    if (left_point > current_point) {
+      const tokenXAmount = getX(left_point, right_point, L, tokenX);
+      amount_x = tokenXAmount;
+    }
+    return {
+      amount_x,
+      amount_y,
+    };
+  }
+  function getX(
+    leftPoint: number,
+    rightPoint: number,
+    L: string,
+    token: TokenMetadata
+  ) {
+    const x = new BigNumber(L)
+      .multipliedBy(
+        (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - leftPoint) - 1) /
+          (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+            Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1))
+      )
+      .toFixed();
+    return toReadableNumber(token.decimals, toPrecision(x, 0));
+  }
+  function getY(
+    leftPoint: number,
+    rightPoint: number,
+    currentPoint: number,
+    L: string,
+    token: TokenMetadata
+  ) {
+    const y = new BigNumber(L).multipliedBy(
+      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+        Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
+        (Math.sqrt(CONSTANT_D) - 1)
+    );
+    const y_result = y.toFixed();
+    return toReadableNumber(token.decimals, toPrecision(y_result, 0));
+  }
+  function get_X_Y_In_CurrentPoint(
+    tokenX: TokenMetadata,
+    tokenY: TokenMetadata,
+    L: string
+  ) {
+    const { liquidity, liquidity_x, current_point } = poolDetail;
+    const liquidity_y_big = new BigNumber(liquidity).minus(liquidity_x);
+    let Ly = '0';
+    let Lx = '0';
+    // only remove y
+    if (liquidity_y_big.isGreaterThanOrEqualTo(L)) {
+      Ly = L;
+    } else {
+      // have x and y
+      Ly = liquidity_y_big.toFixed();
+      Lx = new BigNumber(L).minus(Ly).toFixed();
+    }
+    const amountX = getXAmount_per_point_by_Lx(Lx, current_point);
+    const amountY = getYAmount_per_point_by_Ly(Ly, current_point);
+    const amountX_read = toReadableNumber(
+      tokenX.decimals,
+      toPrecision(amountX, 0)
+    );
+    const amountY_read = toReadableNumber(
+      tokenY.decimals,
+      toPrecision(amountY, 0)
+    );
+    return { amountx: amountX_read, amounty: amountY_read };
+  }
+  function getTotalLiquditiesTvl() {
+    let total = 0;
+    user_liquidities_detail.forEach((liquidityDetail: UserLiquidityDetail) => {
+      const { total_liqudities_price } = liquidityDetail;
+      total += +total_liqudities_price;
+    });
+    if (total == 0) {
+      return '$0';
+    } else if (total < 0.01) {
+      return '<$0.01';
+    } else {
+      return '~$' + toInternationalCurrencySystem(total.toString(), 2);
+    }
+  }
+  function getTotalTokenAmount() {
+    let total_x = 0;
+    let total_y = 0;
+    user_liquidities_detail.forEach((liquidityDetail: UserLiquidityDetail) => {
+      const { amount_x, amount_y } = liquidityDetail;
+      total_x += +amount_x;
+      total_y += +amount_y;
+    });
+    let display_total_x = '0';
+    let display_total_y = '0';
+    if (total_x == 0) {
+      display_total_x = '0';
+    } else if (total_x < 0.01) {
+      display_total_x = '<0.01';
+    } else {
+      display_total_x = toInternationalCurrencySystem(total_x.toString(), 3);
+    }
+    if (total_y == 0) {
+      display_total_y = '0';
+    } else if (total_y < 0.01) {
+      display_total_y = '<0.01';
+    } else {
+      display_total_y = toInternationalCurrencySystem(total_y.toString(), 3);
+    }
+    return {
+      total_x: display_total_x,
+      total_y: display_total_y,
+    };
+  }
+  function addLiquidity() {
+    setOperationType('add');
+    setShowSelectLiquidityBox(true);
+  }
+  function removeLiquidity() {
+    setOperationType('remove');
+    setShowSelectLiquidityBox(true);
+  }
+  return (
+    <div className="p-5 bg-cardBg rounded-xl">
+      <div className="flex items-center justify-between">
+        <span className="text-white text-base">
+          <FormattedMessage id="your_liquidity"></FormattedMessage>
+        </span>
+        {liquidities?.length > 1 ? (
+          <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
+            {liquidities.length} Positions
+          </span>
+        ) : null}
+      </div>
+      <div className="flex items-center justify-center text-xl text-white my-4">
+        {getTotalLiquditiesTvl()}
+      </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
+          <span className="text-white text-base">
+            {token_x_metadata.symbol}
+          </span>
+        </div>
+        <span className="text-white text-base">
+          {getTotalTokenAmount().total_x}
+        </span>
+      </div>
+      <div className="flex items-center justify-between mt-5">
+        <div className="flex items-center">
+          <Icon icon={token_y_metadata.icon} className="h-7 w-7 mr-2"></Icon>
+          <span className="text-white text-base">
+            {token_y_metadata.symbol}
+          </span>
+        </div>
+        <span className="text-white text-base">
+          {getTotalTokenAmount().total_y}
+        </span>
+      </div>
+      <div className="flex items-center justify-between mt-7">
+        <GradientButton
+          onClick={(e) => {
+            e.stopPropagation();
+            addLiquidity();
+          }}
+          color="#fff"
+          className={`flex-grow w-1 h-11 text-center text-sm text-white focus:outline-none mr-2.5`}
+        >
+          Add
+        </GradientButton>
+        <OprationButton
+          onClick={(e: any) => {
+            e.stopPropagation();
+            removeLiquidity();
+          }}
+          color="#fff"
+          className={`flex flex-grow  w-1 h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
+        >
+          Remove
+        </OprationButton>
+      </div>
+      <SelectLiquidityBox
+        isOpen={showSelectLiquidityBox}
+        onRequestClose={() => {
+          setShowSelectLiquidityBox(false);
+        }}
+        poolDetail={poolDetail}
+        user_liquidities_detail={user_liquidities_detail}
+        user_liquidities={liquidities}
+        operation={operationType}
+        tokenPriceList={tokenPriceList}
+        style={{
+          overlay: {
+            backdropFilter: 'blur(15px)',
+            WebkitBackdropFilter: 'blur(15px)',
+          },
+          content: {
+            outline: 'none',
+            transform: 'translate(-50%, -50%)',
+          },
+        }}
+      ></SelectLiquidityBox>
+    </div>
+  );
+}
+function UnclaimedFeesBox(props: any) {
+  const { poolDetail, liquidities, tokenPriceList } = props;
+  const { token_x_metadata, token_y_metadata } = poolDetail;
+  const [user_liquidities_total, set_user_liquidities_total] =
+    useState<Record<string, any>>();
+  const [cliam_loading, set_cliam_loading] = useState(false);
+  useEffect(() => {
+    if (liquidities) {
+      let total_amount_x_fee = 0;
+      let total_amount_y_fee = 0;
+      let total_tvl_fee = 0;
+      liquidities.forEach((liquidity: UserLiquidityInfo) => {
+        const { unclaimed_fee_x, unclaimed_fee_y } = liquidity;
+        const unclaimed_fee_x_amount = toReadableNumber(
+          token_x_metadata.decimals,
+          unclaimed_fee_x
+        );
+        const unclaimed_fee_y_amount = toReadableNumber(
+          token_y_metadata.decimals,
+          unclaimed_fee_y
+        );
+        const token_x_price = tokenPriceList[token_x_metadata.id]?.price || 0;
+        const token_y_price = tokenPriceList[token_y_metadata.id]?.price || 0;
+        const total_fees_price =
+          Number(unclaimed_fee_x_amount) * Number(token_x_price) +
+          Number(unclaimed_fee_y_amount) * Number(token_y_price);
+        total_amount_x_fee += Number(unclaimed_fee_x_amount);
+        total_amount_y_fee += Number(unclaimed_fee_y_amount);
+        total_tvl_fee += Number(total_fees_price);
+      });
+      set_user_liquidities_total({
+        total_amount_x_fee,
+        total_amount_y_fee,
+        total_tvl_fee,
+      });
+    }
+  }, [liquidities, Object.keys(tokenPriceList).length]);
+  function getTotalLiquditiesFee() {
+    const total_tvl = user_liquidities_total?.total_tvl_fee || 0;
+    if (total_tvl == 0) {
+      return '$0';
+    } else if (total_tvl < 0.01) {
+      return '<$0.01';
+    } else {
+      return '~$' + toInternationalCurrencySystem(total_tvl.toString(), 2);
+    }
+  }
+  function getTotalFeeAmount() {
+    const total_amount_x = user_liquidities_total?.total_amount_x_fee || 0;
+    const total_amount_y = user_liquidities_total?.total_amount_y_fee || 0;
+    let display_amount_x;
+    let display_amount_y;
+    const total_amount_x_y = total_amount_x + total_amount_y;
+    if (total_amount_x == 0) {
+      display_amount_x = '0';
+    } else if (total_amount_x < 0.001) {
+      display_amount_x = '<0.001';
+    } else {
+      display_amount_x = toInternationalCurrencySystem(
+        total_amount_x.toString(),
+        3
+      );
+    }
+    if (total_amount_y == 0) {
+      display_amount_y = '0';
+    } else if (total_amount_y < 0.001) {
+      display_amount_y = '<0.001';
+    } else {
+      display_amount_y = toInternationalCurrencySystem(
+        total_amount_x.toString(),
+        3
+      );
+    }
+
+    return {
+      display_amount_x,
+      display_amount_y,
+      total_amount_x_y,
+    };
+  }
+  function claimRewards() {
+    if (total_amount_x_y == 0) return;
+    set_cliam_loading(true);
+    const lpt_ids: string[] = [];
+    liquidities.forEach((liquidity: UserLiquidityInfo) => {
+      lpt_ids.push(liquidity.lpt_id);
+    });
+    claim_all_liquidity_fee({
+      token_x: token_x_metadata,
+      token_y: token_y_metadata,
+      lpt_ids,
+    });
+  }
+  const { display_amount_x, display_amount_y, total_amount_x_y } =
+    getTotalFeeAmount();
+  return (
+    <div className="p-5 bg-cardBg rounded-xl mt-3.5">
+      <div className="flex items-center justify-between">
+        <span className="text-white text-base">Unclaimed Fees</span>
+        {liquidities?.length > 1 ? (
+          <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
+            {liquidities.length} Positions
+          </span>
+        ) : null}
+      </div>
+      <div className="flex items-center justify-center text-xl text-white my-4">
+        {getTotalLiquditiesFee()}
+      </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
+          <span className="text-white text-base">
+            {token_x_metadata.symbol}
+          </span>
+        </div>
+        <span className="text-white text-base">{display_amount_x}</span>
+      </div>
+      <div className="flex items-center justify-between mt-5">
+        <div className="flex items-center">
+          <Icon icon={token_y_metadata.icon} className="h-7 w-7 mr-2"></Icon>
+          <span className="text-white text-base">
+            {token_y_metadata.symbol}
+          </span>
+        </div>
+        <span className="text-white text-base">{display_amount_y}</span>
+      </div>
+      <div
+        className={`flex items-center justify-center h-11 rounded-lg text-sm px-2 py-1 mt-7 ${
+          total_amount_x_y == 0
+            ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+            : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+        }`}
+        onClick={claimRewards}
+      >
+        <ButtonTextWrapper
+          loading={cliam_loading}
+          Text={() => (
+            <FormattedMessage
+              id={liquidities?.length > 1 ? 'claim_all' : 'claim'}
+            />
+          )}
+        />
+      </div>
+    </div>
+  );
+}
+function NoYourLiquditiesBox(props: any) {
+  const { poolDetail } = props;
+  const history = useHistory();
+  function goAddLiqudityPage() {
+    history.push(`/addLiquidityV2#${poolDetail.pool_id}`);
+  }
+  return (
+    <div className="flex flex-col items-center px-10 py-6 bg-cardBg rounded-xl">
+      <NoLiquidityIcon className="mt-6"></NoLiquidityIcon>
+      <span className="text-sm text-v3SwapGray mt-5 mb-8">
+        No positons in this pool yet
+      </span>
+      <div className="flex justify-center w-full">
+        <GradientButton
+          onClick={(e) => {
+            e.stopPropagation();
+            goAddLiqudityPage();
+          }}
+          color="#fff"
+          className={`w-full h-11 text-center text-base text-white focus:outline-none`}
+        >
+          <FormattedMessage id="add_liquidity"></FormattedMessage>
+        </GradientButton>
+      </div>
+    </div>
+  );
+}
+function SelectLiquidityBox(props: any) {
+  const {
+    isOpen,
+    onRequestClose,
+    style,
+    user_liquidities_detail,
+    poolDetail,
+    operation,
+    tokenPriceList,
+    user_liquidities,
+  } = props;
+  const [hoverHashId, setHoverHashId] = useState('');
+  const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
+  const [showAddBox, setShowAddBox] = useState<boolean>(false);
+  const history = useHistory();
+  const { token_x_metadata, token_y_metadata } = poolDetail;
+  function displayLiqudityTvl(liquidityDetail: UserLiquidityDetail) {
+    const total = +liquidityDetail.total_liqudities_price;
+    if (total == 0) {
+      return '$0';
+    } else if (total < 0.01) {
+      return '<$0.01';
+    } else {
+      return '~$' + toInternationalCurrencySystem(total.toString(), 2);
+    }
+  }
+  function displayLiqudityFee(liquidityDetail: UserLiquidityDetail) {
+    const total = +liquidityDetail.total_fees_price;
+    if (total == 0) {
+      return '$0';
+    } else if (total < 0.01) {
+      return '<$0.01';
+    } else {
+      return '~$' + toInternationalCurrencySystem(total.toString(), 2);
+    }
+  }
+  function displayRange(liquidityDetail: UserLiquidityDetail) {
+    const { l_price, r_price } = liquidityDetail;
+    let display_l = toPrecision(l_price, 6);
+    let display_r = toPrecision(r_price, 6);
+
+    const valueBig_l = new BigNumber(display_l);
+    if (valueBig_l.isGreaterThan('100000')) {
+      display_l = new BigNumber(display_l).toExponential(3);
+    }
+    const valueBig_r = new BigNumber(display_r);
+    if (valueBig_r.isGreaterThan('100000')) {
+      display_r = new BigNumber(display_r).toExponential(3);
+    }
+    return `${display_l} - ${display_r}`;
+  }
+  function hoverLine(hashId: string) {
+    setHoverHashId(hashId);
+  }
+  function getCurrentLiqudity(hashId: string) {
+    const c_l = user_liquidities.find((liquidity: UserLiquidityInfo) => {
+      if (liquidity.lpt_id.split('#')[1] == hashId) return true;
+    });
+    return c_l;
+  }
+  function goAddLiqudityPage() {
+    history.push(`/addLiquidityV2#${poolDetail.pool_id}`);
+  }
+  return (
+    <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={style}>
+      <Card
+        style={{ maxHeight: '95vh' }}
+        padding="px-0 py-6"
+        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:w-90vw md:w-90vw lg:w-40vw"
+      >
+        <div className="header flex items-center justify-between mb-5 px-6">
+          <div className="flex items-center justify-center">
+            <span className="text-white text-xl mr-2">Positions</span>
+            <span className="flex-shrink-0 border border-greenColor rounded-2xl bg-black bg-opacity-25 text-xs text-gradientFromHover px-2">
+              {user_liquidities_detail.length}
+            </span>
+          </div>
+          <div className="cursor-pointer" onClick={onRequestClose}>
+            <ModalClose />
+          </div>
+        </div>
+        <div className="wrap" style={{ maxHeight: '500px', overflow: 'auto' }}>
+          <div className="grid grid-cols-9 gap-x-3 text-farmText  text-sm h-10 justify-center items-center px-6">
+            <span className="col-span-1 pl-2">ID</span>
+            <span className="col-span-2">Liquidity</span>
+            <span className="col-span-3">Range</span>
+            <span className="col-span-3">Unclaimed Fee</span>
+          </div>
+          <div>
+            {user_liquidities_detail.map(
+              (liquidityDetail: UserLiquidityDetail) => {
+                return (
+                  <div
+                    onMouseOver={() => {
+                      hoverLine(liquidityDetail.hashId);
+                    }}
+                    // onMouseLeave={() => setHoverHashId('')}
+                    className={`grid grid-cols-9 gap-x-3 text-white text-base h-14 justify-center items-center px-6 ${
+                      hoverHashId == liquidityDetail.hashId
+                        ? 'bg-chartBg bg-opacity-20'
+                        : ''
+                    }`}
+                  >
+                    <span className="col-span-1 pl-2">
+                      #{liquidityDetail.hashId}
+                    </span>
+                    <span className="col-span-2">
+                      {displayLiqudityTvl(liquidityDetail)}
+                    </span>
+                    <span className="col-span-3">
+                      {displayRange(liquidityDetail)}
+                    </span>
+                    <div className="flex items-center justify-between col-span-3">
+                      {displayLiqudityFee(liquidityDetail)}
+                      {operation == 'add' ? (
+                        <GradientButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowAddBox(true);
+                          }}
+                          color="#fff"
+                          className={`w-24 h-9 text-center text-sm text-white focus:outline-none ${
+                            hoverHashId == liquidityDetail.hashId
+                              ? ''
+                              : 'hidden'
+                          }`}
+                        >
+                          Add
+                        </GradientButton>
+                      ) : (
+                        <OprationButton
+                          onClick={(e: any) => {
+                            e.stopPropagation();
+                            setShowRemoveBox(true);
+                          }}
+                          color="#fff"
+                          className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                            hoverHashId == liquidityDetail.hashId
+                              ? ''
+                              : 'hidden'
+                          }`}
+                        >
+                          Remove
+                        </OprationButton>
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+            )}
+          </div>
+          {operation == 'add' ? (
+            <div className="flex justify-center">
+              <GradientButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goAddLiqudityPage();
+                }}
+                color="#fff"
+                className={`w-44 h-10 text-center text-base text-white focus:outline-none mt-7`}
+              >
+                Add New Position
+              </GradientButton>
+            </div>
+          ) : null}
+        </div>
+        {operation == 'add' && showAddBox ? (
+          <AddPoolV3
+            isOpen={showAddBox}
+            onRequestClose={() => {
+              setShowAddBox(false);
+            }}
+            tokenMetadata_x_y={[token_x_metadata, token_y_metadata]}
+            poolDetail={poolDetail}
+            tokenPriceList={tokenPriceList}
+            userLiquidity={getCurrentLiqudity(hoverHashId)}
+            style={{
+              overlay: {
+                backdropFilter: 'blur(15px)',
+                WebkitBackdropFilter: 'blur(15px)',
+              },
+              content: {
+                outline: 'none',
+                transform: 'translate(-50%, -50%)',
+              },
+            }}
+          ></AddPoolV3>
+        ) : null}
+        {operation == 'remove' && showRemoveBox ? (
+          <RemovePoolV3
+            isOpen={showRemoveBox}
+            onRequestClose={() => {
+              setShowRemoveBox(false);
+            }}
+            tokenMetadata_x_y={[token_x_metadata, token_y_metadata]}
+            poolDetail={poolDetail}
+            tokenPriceList={tokenPriceList}
+            userLiquidity={getCurrentLiqudity(hoverHashId)}
+            style={{
+              overlay: {
+                backdropFilter: 'blur(15px)',
+                WebkitBackdropFilter: 'blur(15px)',
+              },
+              content: {
+                outline: 'none',
+                transform: 'translate(-50%, -50%)',
+              },
+            }}
+          ></RemovePoolV3>
+        ) : null}
+      </Card>
+    </Modal>
+  );
+}
+
+function Chart(props: any) {
+  const { poolDetail, tokenPriceList } = props;
+  const [depthData, setDepthData] = useState();
+  const [chartDisplay, setChartDisplay] = useState<ChartType>('liquidity');
+  useEffect(() => {
+    getChartData();
+  }, []);
+  async function getChartData() {
+    const depthData = await get_pool_marketdepth(poolDetail.pool_id);
+    setDepthData(depthData);
+  }
+  const monthVolume: any[] = [];
+  const monthTVL: any[] = [];
+  return (
+    <Card
+      width="w-full"
+      className="relative rounded-2xl mr-4 mb-4 h-full flex flex-col items-center"
+      padding="px-7 py-5"
+      bgcolor={isClientMobie() ? 'bg-transparent' : 'bg-cardBg'}
+      style={{
+        height: isClientMobie() ? '370px' : '470px',
+      }}
+    >
+      {chartDisplay === 'volume' ? (
+        <VolumeChart
+          data={monthVolume}
+          chartDisplay={chartDisplay}
+          setChartDisplay={setChartDisplay}
+        />
+      ) : chartDisplay === 'tvl' ? (
+        <TVLChart
+          data={monthTVL}
+          chartDisplay={chartDisplay}
+          setChartDisplay={setChartDisplay}
+        />
+      ) : (
+        <LiquidityChart
+          data={{ poolDetail, depthData }}
+          chartDisplay={chartDisplay}
+          setChartDisplay={setChartDisplay}
+        ></LiquidityChart>
+      )}
+    </Card>
+  );
+}
+function BaseData(props: any) {
+  const { poolDetail, tokenPriceList } = props;
+  function getTvl() {
+    const { token_x, token_y } = poolDetail;
+    const pricex = tokenPriceList[token_x]?.price || 0;
+    const pricey = tokenPriceList[token_y]?.price || 0;
+    const tvlx =
+      Number(
+        toReadableNumber(
+          poolDetail.token_x_metadata.decimals,
+          poolDetail.total_x
+        )
+      ) * Number(pricex);
+    const tvly =
+      Number(
+        toReadableNumber(
+          poolDetail.token_y_metadata.decimals,
+          poolDetail.total_y
+        )
+      ) * Number(pricey);
+    const tvl = tvlx + tvly;
+    if (tvl == 0) {
+      return '$0';
+    } else if (tvl < 0.01) {
+      return '<$0.01';
+    } else {
+      return '$' + toInternationalCurrencySystem(tvl.toString(), 2);
+    }
+  }
+  return (
+    <div className="flex items-center justify-between mt-4">
+      <DataBox
+        className="mr-3"
+        title={
+          <FormattedMessage id="TVL" defaultMessage="TVL"></FormattedMessage>
+        }
+        value={getTvl()}
+      ></DataBox>
+      <DataBox
+        className="mr-3"
+        title={
+          <FormattedMessage
+            id="h24_volume_bracket"
+            defaultMessage="Volume(24h)"
+          ></FormattedMessage>
+        }
+        value={'-'}
+      ></DataBox>
+      <DataBox
+        title={
+          <FormattedMessage
+            id="fee_24h"
+            defaultMessage="Fee(24h)"
+          ></FormattedMessage>
+        }
+        value={'-'}
+      ></DataBox>
+    </div>
+  );
+}
+function DataBox(props: any) {
+  const { title, value, className } = props;
+  return (
+    <div
+      className={`flex flex-col flex-grow bg-detailCardBg rounded-lg px-4 py-3.5 ${className}`}
+    >
+      <span className="text-sm text-farmText">{title}</span>
+      <span className="text-base text-white mt-3">{value}</span>
+    </div>
+  );
+}
+
+function TablePool(props: any) {
+  const { poolDetail, tokenPriceList } = props;
+  const [tokens, setTokens] = useState([]);
+  const intl = useIntl();
+  useEffect(() => {
+    const {
+      token_x,
+      token_y,
+      total_x,
+      total_y,
+      token_x_metadata,
+      token_y_metadata,
+    } = poolDetail;
+    const pricex = tokenPriceList[token_x]?.price || 0;
+    const pricey = tokenPriceList[token_y]?.price || 0;
+    const amountx = toReadableNumber(token_x_metadata.decimals, total_x);
+    const amounty = toReadableNumber(token_y_metadata.decimals, total_y);
+    const tvlx = Number(amountx) * Number(pricex);
+    const tvly = Number(amounty) * Number(pricey);
+    const temp_list = [];
+    const temp_tokenx = {
+      meta: token_x_metadata,
+      amount: amountx,
+      tvl: tvlx,
+    };
+    const temp_tokeny = {
+      meta: token_y_metadata,
+      amount: amounty,
+      tvl: tvly,
+    };
+    temp_list.push(temp_tokenx, temp_tokeny);
+    setTokens(temp_list);
+  }, [Object.keys(tokenPriceList).length]);
+  function valueOfNearTokenTip() {
+    const tip = intl.formatMessage({ id: 'awesomeNear_verified_token' });
+    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    return result;
+  }
+  function displayAmount(amount: string) {
+    if (+amount == 0) {
+      return '0';
+    } else if (+amount < 0.01) {
+      return '< 0.01';
+    } else {
+      return toInternationalCurrencySystem(amount.toString(), 2);
+    }
+  }
+  function displayTvl(token: any) {
+    const { tvl } = token;
+    if (+tvl == 0 && !tokenPriceList[token.meta.id]?.price) {
+      return '$ -';
+    } else if (+tvl == 0) {
+      return '$0';
+    } else if (+tvl < 0.01) {
+      return '< $0.01';
+    } else {
+      return '$' + toInternationalCurrencySystem(tvl.toString(), 2);
+    }
+  }
+  return (
+    <div className="mt-8">
+      <div className="text-white text-base mb-3 w-full">
+        <FormattedMessage
+          id="pool_composition"
+          defaultMessage={'Pool Composition'}
+        />
+      </div>
+      <div className="rounded-lg w-full bg-detailCardBg pt-4 pb-1">
+        <div className="grid grid-cols-10  px-5">
+          <div className="col-span-5 text-sm text-farmText">
+            <FormattedMessage id="token" defaultMessage="Token" />
+          </div>
+
+          <div className="col-span-3 text-sm text-farmText">
+            <FormattedMessage id="amount" defaultMessage="Amount" />
+          </div>
+
+          <div className="col-span-2 text-sm text-farmText">
+            <FormattedMessage id="value" defaultMessage="Value" />
+          </div>
+        </div>
+        {tokens.map((token: any, i: number) => (
+          <div className="grid grid-cols-10 items-center px-5 py-3 hover:bg-chartBg hover:bg-opacity-30">
+            <div className="col-span-5 flex items-center">
+              <Icon icon={token.meta.icon} className="h-7 w-7 mr-2" />
+              <div className="flex flex-col">
+                <div className="flex items-center">
+                  <span className="text-white text-base">
+                    {toRealSymbol(token.meta.symbol)}
+                  </span>
+                  {TokenLinks[token.meta.symbol] ? (
+                    <div
+                      className="ml-0.5 text-sm"
+                      data-type="info"
+                      data-place="right"
+                      data-multiline={true}
+                      data-class="reactTip"
+                      data-html={true}
+                      data-tip={valueOfNearTokenTip()}
+                      data-for={'nearVerifiedId1' + i}
+                    >
+                      <a
+                        className=""
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(TokenLinks[token.meta.symbol]);
+                        }}
+                      >
+                        <FiArrowUpRight className="text-primaryText hover:text-greenColor cursor-pointer" />
+                      </a>
+                      <ReactTooltip
+                        id={'nearVerifiedId1' + i}
+                        backgroundColor="#1D2932"
+                        border
+                        borderColor="#7e8a93"
+                        effect="solid"
+                      />
+                    </div>
+                  ) : null}
+                </div>
+                <a
+                  target="_blank"
+                  href={`/swap/#${tokens[0].meta.id}|${tokens[1].meta.id}`}
+                  className="text-xs text-primaryText xsm:hidden"
+                  title={token.meta.id}
+                >{`${token.meta.id.substring(0, 24)}${
+                  token.meta.id.length > 24 ? '...' : ''
+                }`}</a>
+              </div>
+            </div>
+            <div
+              className="col-span-3 text-base text-white"
+              title={token.amount}
+            >
+              {displayAmount(token.amount)}
+            </div>
+            <div
+              className="col-span-2 text-base text-white"
+              title={`$${token.tvl}`}
+            >
+              {displayTvl(token)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Icon(props: { icon?: string; className?: string; style?: any }) {
+  const { icon, className, style } = props;
+  return icon ? (
+    <img
+      className={`block ${className} rounded-full border border-gradientFromHover border-solid`}
+      src={icon}
+      style={style}
+    />
+  ) : (
+    <div
+      className={`rounded-full ${className} border border-gradientFromHover  border-solid`}
+      style={style}
+    />
+  );
+}
+function LiquidityChart(props: any) {
+  const { data, chartDisplay, setChartDisplay } = props;
+  const { poolDetail, depthData } = data;
+  const [chartLoading, setChartLoading] = useState<boolean>(true);
+  const [noData, setNoData] = useState<boolean>(true);
+  const chartDom = useRef(null);
+  useEffect(() => {
+    if (depthData) {
+      drawChartData({
+        depthData,
+        token_x_decimals: poolDetail.token_x_metadata.decimals,
+        token_y_decimals: poolDetail.token_y_metadata.decimals,
+        chartDom,
+        sort: true,
+        sizey: 330,
+        onlyCurrent: true,
+        ticks: 10,
+      });
+      const { liquidities } = depthData;
+      const list = Object.values(liquidities);
+      if (list.length == 0) {
+        setNoData(true);
+      } else {
+        setNoData(false);
+      }
+      setChartLoading(false);
+    } else {
+      setChartLoading(true);
+    }
+  }, [depthData]);
+  function displayCurrentPrice() {
+    const { current_point, token_x_metadata, token_y_metadata } = poolDetail;
+    const rate =
+      Math.pow(10, token_x_metadata.decimals) /
+      Math.pow(10, token_y_metadata.decimals);
+    let price = getPriceByPoint(current_point, rate);
+    let displayRate;
+    if (new BigNumber(price).isLessThan('0.001')) {
+      displayRate = ' < 0.001';
+    } else {
+      displayRate = ` = ${toPrecision(price.toString(), 3)}`;
+    }
+    return (
+      <span>
+        1 {token_x_metadata.symbol}
+        {displayRate} {token_y_metadata.symbol}
+      </span>
+    );
+  }
+  return (
+    <>
+      <div
+        className={`relative z-50 flex items-center justify-between w-full mb-4 ${
+          noData ? 'opacity-70' : ''
+        }`}
+      >
+        <div className="flex flex-col">
+          <span className="text-base text-white">{displayCurrentPrice()}</span>
+          <span className="text-sm text-primaryText">Current Price</span>
+        </div>
+        <ChartChangeButton
+          className="self-start"
+          chartDisplay={chartDisplay}
+          setChartDisplay={setChartDisplay}
+        />
+      </div>
+      {chartLoading ? (
+        <BlueCircleLoading className="absolute top-1/3"></BlueCircleLoading>
+      ) : null}
+      {!chartLoading && noData ? (
+        <EmptyLiquidityChart></EmptyLiquidityChart>
+      ) : (
+        <svg
+          width="100%"
+          height="450"
+          className={`${chartLoading ? 'invisible' : 'visible'}`}
+          ref={chartDom}
+          style={{ color: 'rgba(91, 64, 255, 0.5)' }}
+        >
+          <g className="chart"></g>
+          <g className="g" transform="translate(50,330)"></g>
+          <g className="g2"></g>
+        </svg>
+      )}
+    </>
+  );
+}
+
+function EmptyLiquidityChart() {
+  return (
+    <div className="absolute w-full h-full left-0 right-0 top-0 bottom-0">
+      <div className="flex items-center justify-center absolute w-full h-full left-0 right-0 top-0 bottom-0  bg-chartBg opacity-70 z-10">
+        <div className="relative flex flex-col">
+          <ChartNoData />
+          <span className="text-base text-gray-500">
+            <FormattedMessage id="no_data" defaultMessage="No Data" />
+          </span>
+        </div>
+      </div>
+      <div className="absolute bottom-5 left-7 right-7 xs:hidden md:hidden">
+        <div className="border border-gradientFrom w-full mb-2" />
+        <div className="flex text-xs text-gray-500 justify-between">
+          {[
+            '24',
+            '31',
+            '07',
+            '14',
+            '21',
+            '28',
+            '04',
+            '11',
+            '18',
+            '25',
+            '02',
+            '09',
+          ].map((d, i) => {
+            return <div key={i}>{d}</div>;
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+interface ParamTypes {
+  id: string;
+}
+interface UserLiquidityDetail {
+  total_liqudities_price: string;
+  total_fees_price: string;
+  amount_x: string;
+  amount_y: string;
+  hashId: string;
+  l_price: string;
+  r_price: string;
 }

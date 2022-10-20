@@ -73,6 +73,8 @@ import {
 import Big from 'big.js';
 import { getPoolFeeAprTitle } from '../pages/pools/LiquidityPage';
 import { getPoolFeeAprTitleRPCView } from '../pages/pools/MorePoolsPage';
+import { PoolInfo, get_pool } from '~services/swapV3';
+import { useTokenPriceList } from './token';
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
@@ -534,6 +536,9 @@ export const useWatchPools = () => {
   const [watchList, setWatchList] = useState<WatchList[]>([]);
 
   const [watchPools, setWatchPools] = useState<Pool[]>([]);
+  const [watchV2Pools, setWatchV2Pools] = useState<PoolInfo[]>([]);
+  const [watchV2PoolsFinal, setWatchV2PoolsFinal] = useState<PoolInfo[]>([]);
+  const tokenPriceList = useTokenPriceList();
   useEffect(() => {
     getAllWatchListFromDb({}).then((watchlist) => {
       setWatchList(_.orderBy(watchlist, 'update_time', 'desc'));
@@ -541,15 +546,69 @@ export const useWatchPools = () => {
   }, []);
 
   useEffect(() => {
+    if (watchList.length == 0) return;
     const ids = watchList.map((watchedPool) => watchedPool.pool_id);
     if (ids.length === 0) return;
-    getPoolsByIds({ pool_ids: ids }).then((res) => {
-      const resPools = res.map((pool) => parsePool(pool));
-      setWatchPools(resPools);
+    const ids_v1: string[] = [];
+    const ids_v2: string[] = [];
+    ids.forEach((id) => {
+      if (id.split('|').length == 3) {
+        ids_v2.push(id);
+      } else {
+        ids_v1.push(id);
+      }
     });
+    if (ids_v1.length > 0) {
+      getPoolsByIds({ pool_ids: ids_v1 }).then((res) => {
+        const resPools = res.map((pool) => parsePool(pool));
+        setWatchPools(resPools);
+      });
+    }
+    if (ids_v2.length > 0) {
+      getV2PoolsByIds(ids_v2).then((res: PoolInfo[]) => {
+        setWatchV2Pools(res);
+      });
+    }
   }, [watchList]);
+  useEffect(() => {
+    if (watchV2Pools.length > 0 && Object.keys(tokenPriceList).length > 1) {
+      getV2Poolsfinal();
+    }
+  }, [watchV2Pools, Object.keys(tokenPriceList).length]);
 
-  return watchPools;
+  async function getV2PoolsByIds(ids: string[]): Promise<PoolInfo[]> {
+    const poolDetailPromise = ids.map((id) => {
+      return get_pool(id);
+    });
+    const poolList = await Promise.all(poolDetailPromise);
+    const poolListPromise = poolList.map(async (pool: PoolInfo) => {
+      const { token_x, token_y } = pool;
+      const token_x_meta = await ftGetTokenMetadata(token_x);
+      const token_y_meta = await ftGetTokenMetadata(token_y);
+      pool.token_x_metadata = token_x_meta;
+      pool.token_y_metadata = token_y_meta;
+      return pool;
+    });
+    const poolListDealt = await Promise.all(poolListPromise);
+    return poolListDealt;
+  }
+
+  function getV2Poolsfinal() {
+    watchV2Pools.forEach((pool: PoolInfo) => {
+      const { token_x, token_y } = pool;
+      const pricex = tokenPriceList[token_x]?.price || 0;
+      const pricey = tokenPriceList[token_y]?.price || 0;
+      const tvlx =
+        Number(toReadableNumber(pool.token_x_metadata.decimals, pool.total_x)) *
+        Number(pricex);
+      const tvly =
+        Number(toReadableNumber(pool.token_y_metadata.decimals, pool.total_y)) *
+        Number(pricey);
+      pool.tvl = tvlx + tvly;
+    });
+    setWatchV2PoolsFinal(watchV2Pools);
+  }
+  return { watchPools, watchV2PoolsFinal };
 };
 
 export const useAllPools = () => {

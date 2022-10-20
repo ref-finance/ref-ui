@@ -204,6 +204,7 @@ module.exports = {
         '25vw': '25vw',
         '35vw': '35vw',
         '40vw': '40vw',
+        '60vw': '60vw',
         '95vw': '95vw',
         '580px': '580px',
         '560px': '560px',

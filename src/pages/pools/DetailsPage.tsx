@@ -168,6 +168,7 @@ interface LocationTypes {
   tvl: number;
   backToFarms: boolean;
 }
+export type ChartType = 'volume' | 'tvl' | 'liquidity';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 const getMax = function (id: string, max: string) {
@@ -1179,14 +1180,14 @@ function MyShares({
   );
 }
 
-const ChartChangeButton = ({
+export const ChartChangeButton = ({
   chartDisplay,
   setChartDisplay,
   className,
   noData,
 }: {
-  chartDisplay: 'volume' | 'tvl';
-  setChartDisplay: (display: 'volume' | 'tvl') => void;
+  chartDisplay: ChartType;
+  setChartDisplay: (display: ChartType) => void;
   className?: string;
   noData?: boolean;
 }) => {
@@ -1222,17 +1223,30 @@ const ChartChangeButton = ({
       >
         <FormattedMessage id="volume" defaultMessage="Volume" />
       </button>
+      <button
+        className={`py-1 xs:py-2 md:py-2 px-2 ${
+          chartDisplay === 'liquidity'
+            ? 'rounded-2xl xs:rounded-lg md:rounded-lg xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
+            : 'text-gray-400'
+        }`}
+        onClick={() => setChartDisplay('liquidity')}
+        style={{
+          minWidth: '64px',
+        }}
+      >
+        <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
+      </button>
     </div>
   );
 };
 
-function EmptyChart({
+export function EmptyChart({
   chartDisplay,
   setChartDisplay,
   loading,
 }: {
-  chartDisplay: 'volume' | 'tvl';
-  setChartDisplay: (display: 'volume' | 'tvl') => void;
+  chartDisplay: ChartType;
+  setChartDisplay: (display: ChartType) => void;
   loading?: boolean;
 }) {
   return (

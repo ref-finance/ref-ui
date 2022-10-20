@@ -823,6 +823,69 @@ export const remove_liquidity = async ({
   return executeMultipleTransactions(transactions);
 };
 
+export const claim_all_liquidity_fee = async ({
+  token_x,
+  token_y,
+  lpt_ids,
+}: {
+  token_x: TokenMetadata;
+  token_y: TokenMetadata;
+  lpt_ids: string[];
+}) => {
+  const transactions: Transaction[] = [];
+  lpt_ids.forEach((lpt_id: string) => {
+    transactions.push({
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'remove_liquidity',
+          args: {
+            lpt_id,
+            amount: '0',
+            min_amount_x: '0',
+            min_amount_y: '0',
+          },
+          gas: '150000000000000',
+        },
+      ],
+    });
+  });
+
+  const ftBalance_x = await ftGetStorageBalance(token_x.id);
+  if (!ftBalance_x) {
+    transactions.unshift({
+      receiverId: token_x.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+  const ftBalance_y = await ftGetStorageBalance(token_y.id);
+  if (!ftBalance_y) {
+    transactions.unshift({
+      receiverId: token_y.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+
+  const neededStorage = await checkTokenNeedsStorageDeposit_v3();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [storageDepositAction({ amount: neededStorage })],
+    });
+  }
+  return executeMultipleTransactions(transactions);
+};
+
 export const checkTokenNeedsStorageDeposit_v3 = async () => {
   let storageNeeded;
   const balance = await currentStorageBalanceOfV3(
