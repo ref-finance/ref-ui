@@ -502,7 +502,7 @@ function MobileWatchListCard({
           >
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
             {/* {watchPools.length > 0 ? ` (${watchPools.length})` : ''} */}
-            &nbsp;{totalWatchList_length > 0 ? { totalWatchList_length } : ''}
+            &nbsp;{totalWatchList_length > 0 ? totalWatchList_length : ''}
           </div>
           {/* my_watchlist_copy */}
           <QuestionTip id="my_watchlist_copy" />
