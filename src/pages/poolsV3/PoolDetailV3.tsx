@@ -92,7 +92,6 @@ export default function PoolDetailV3() {
   const intl = useIntl();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-
   useEffect(() => {
     get_pool_detail();
     get_user_list_liquidities();
@@ -344,7 +343,10 @@ export default function PoolDetailV3() {
           </div>
           <div
             className="xsm:mb-4"
-            style={{ width: isClientMobie() ? '100%' : '357px' }}
+            style={{
+              width: isClientMobie() ? '100%' : '28%',
+              minWidth: '287px',
+            }}
           >
             {!isSignedIn ||
             (user_liquidities && user_liquidities.length == 0) ? (
@@ -638,14 +640,14 @@ function YourLiquidityBox(props: {
     } else if (total_x < 0.01) {
       display_total_x = '<0.01';
     } else {
-      display_total_x = toPrecision(total_x.toString(), 3);
+      display_total_x = toInternationalCurrencySystem(total_x.toString(), 3);
     }
     if (total_y == 0) {
       display_total_y = '0';
     } else if (total_y < 0.01) {
       display_total_y = '<0.01';
     } else {
-      display_total_y = toPrecision(total_y.toString(), 3);
+      display_total_y = toInternationalCurrencySystem(total_y.toString(), 3);
     }
     return {
       total_x: display_total_x,
@@ -993,7 +995,7 @@ function SelectLiquidityBox(props: any) {
       <Card
         style={{ maxHeight: '95vh' }}
         padding="px-0 py-6"
-        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:w-90vw md:w-90vw lg:w-40vw"
+        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:w-90vw md:w-90vw lg:w-50vw xl:w-40vw"
       >
         <div className="header flex items-center justify-between mb-5 px-6">
           <div className="flex items-center justify-center">
