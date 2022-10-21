@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenMetadata } from '../../services/ft-contract';
 import { toRealSymbol } from '../../utils/token';
 import { shareToUserTotal } from './RemoveLiquidity';
@@ -24,6 +24,8 @@ import {
   removePoolFromWatchList,
   getWatchListFromDb,
 } from '~services/pool';
+import { isClientMobie } from '../../utils/device';
+import ReactTooltip from 'react-tooltip';
 
 export function BackToStablePoolList() {
   const history = useHistory();
@@ -205,37 +207,56 @@ export const StableTokens = ({
   pool,
 }: {
   tokens: TokenMetadata[];
-  pool: Pool;
+  pool?: Pool;
 }) => {
   const [showFullStart, setShowFullStar] = useState<Boolean>(false);
   const { globalState } = useContext(WalletContext);
   const { modal } = useWalletSelector();
   const isSignedIn = globalState.isSignedIn;
+  const intl = useIntl();
   useEffect(() => {
-    getWatchListFromDb({ pool_id: pool.id.toString() }).then((watchlist) => {
-      setShowFullStar(watchlist.length > 0);
-    });
-  }, []);
+    if (pool?.id) {
+      getWatchListFromDb({ pool_id: pool.id.toString() }).then((watchlist) => {
+        setShowFullStar(watchlist.length > 0);
+      });
+    }
+  }, [pool]);
   const handleSaveWatchList = () => {
     if (!isSignedIn) {
       modal.show();
     } else {
-      addPoolToWatchList({ pool_id: pool.id.toString() }).then(() => {
-        setShowFullStar(true);
-      });
+      if (pool?.id) {
+        addPoolToWatchList({ pool_id: pool.id.toString() }).then(() => {
+          setShowFullStar(true);
+        });
+      }
     }
   };
   const handleRemoveFromWatchList = () => {
-    removePoolFromWatchList({ pool_id: pool.id.toString() }).then(() => {
-      setShowFullStar(false);
-    });
+    if (pool?.id) {
+      removePoolFromWatchList({ pool_id: pool.id.toString() }).then(() => {
+        setShowFullStar(false);
+      });
+    }
   };
+  function add_to_watchlist_tip() {
+    const tip = intl.formatMessage({ id: 'add_to_watchlist' });
+    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    return result;
+  }
+
+  function remove_from_watchlist_tip() {
+    const tip = intl.formatMessage({ id: 'remove_from_watchlist' });
+    let result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
+    return result;
+  }
+  const isMobile = isClientMobie();
   return (
     <div className="flex items-center justify-between pt-6 pb-5 ml-4">
       <div className="flex items-center">
         <Images tokens={tokens} />
         <span className="ml-4">
-          <Symbols tokens={tokens} size="text-2xl" />
+          <Symbols tokens={tokens} size="text-2xl xsm:text-xl" />
         </span>
       </div>
       <div
@@ -251,7 +272,48 @@ export const StableTokens = ({
           height: '24px',
         }}
       >
-        {showFullStart ? <WatchListStartFull /> : <WatchListStartEmpty />}
+        {showFullStart ? (
+          <div
+            className="text-sm "
+            data-type="info"
+            data-place="right"
+            data-multiline={true}
+            data-class="reactTip"
+            data-html={true}
+            data-tip={isMobile ? '' : remove_from_watchlist_tip()}
+            data-for="fullstar-tip"
+          >
+            <WatchListStartFull />
+
+            <ReactTooltip
+              id="fullstar-tip"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        ) : (
+          <div
+            className="text-sm "
+            data-type="info"
+            data-place="right"
+            data-multiline={true}
+            data-class="reactTip"
+            data-html={true}
+            data-tip={isMobile ? '' : add_to_watchlist_tip()}
+            data-for="emptystar-tip"
+          >
+            <WatchListStartEmpty />
+            <ReactTooltip
+              id="emptystar-tip"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

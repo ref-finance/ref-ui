@@ -12,7 +12,7 @@ export const FarmStamp = () => {
 
 export const FarmStampNew = ({ multi }: { multi: boolean }) => {
   return (
-    <div className="px-1.5 py-0.5 ml-2 rounded-lg border flex items-center border-gradientFrom text-gradientFrom text-xs">
+    <div className="px-1.5 ml-2 rounded-lg border flex items-center border-gradientFrom text-gradientFrom text-xs">
       <span className="whitespace-nowrap">
         <FormattedMessage id="farms" defaultMessage="Farms" />
       </span>

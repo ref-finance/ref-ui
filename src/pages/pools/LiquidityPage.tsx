@@ -17,7 +17,7 @@ import {
 import { ArrowDown, ArrowDownLarge } from '~components/icon';
 import { useHistory } from 'react-router';
 import { Card } from '~components/card/Card';
-import { find, values } from 'lodash';
+import { find, runInContext, values } from 'lodash';
 import { SelectModal } from '~components/layout/SelectModal';
 import {
   useAllPools,
@@ -44,7 +44,6 @@ import {
 import { CheckedTick, CheckedEmpty } from '~components/icon/CheckBox';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { PoolDb, WatchList } from '~store/RefDatabase';
 import {
   DownArrowLight,
   DownArrowLightMobile,
@@ -121,6 +120,8 @@ import { useAllPoolsV2 } from '../../state/swapV3';
 import { PoolInfo } from '~services/swapV3';
 import { SelectModalV2 } from '../../components/layout/SelectModal';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
+import { ALL_STABLE_POOL_IDS } from '~services/near';
+import { WatchList } from '../../store/RefDatabase';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -346,7 +347,11 @@ function MobilePoolRow({
               </div>
               {mark ? (
                 <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
-                  V1
+                  {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
+                    <FormattedMessage id="stablecoin"></FormattedMessage>
+                  ) : (
+                    'v1'
+                  )}
                 </span>
               ) : null}
             </div>
@@ -479,6 +484,7 @@ function MobileWatchListCard({
   volumes,
   watchV2Pools,
   poolsMorePoolsIds,
+  watchList,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
@@ -486,11 +492,30 @@ function MobileWatchListCard({
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
   poolsMorePoolsIds: Record<string, string[]>;
+  watchList: WatchList[];
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
   const [sortBy, onSortChange] = useState<string>('tvl');
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
+  function getAllWatchPools() {
+    const watchAllPools: any = [];
+    watchList.forEach((d: WatchList) => {
+      const { pool_id } = d;
+      const targetV1 = watchPools.find((p: Pool) => {
+        if (p.id.toString() == pool_id) return true;
+      });
+      const targetV2 = watchV2Pools.find((p: PoolInfo) => {
+        if (p.pool_id == pool_id) return true;
+      });
+      const target = targetV1 || targetV2;
+      if (target) {
+        watchAllPools.push(target);
+      }
+    });
+    return watchAllPools;
+  }
+  const watchAllPools = getAllWatchPools();
   return (
     <Card className="w-full" bgcolor="bg-cardBg" padding="p-0 pb-4 mb-4 mt-2">
       <div className="mx-4 flex items-center justify-between mt-4">
@@ -502,7 +527,8 @@ function MobileWatchListCard({
           >
             <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
             {/* {watchPools.length > 0 ? ` (${watchPools.length})` : ''} */}
-            &nbsp;{totalWatchList_length > 0 ? totalWatchList_length : ''}
+            &nbsp;
+            {totalWatchList_length > 0 ? <>({totalWatchList_length})</> : ''}
           </div>
           {/* my_watchlist_copy */}
           <QuestionTip id="my_watchlist_copy" />
@@ -548,7 +574,36 @@ function MobileWatchListCard({
         </header>
         <div className="border-b border-gray-700 border-opacity-70" />
         <div className="max-h-96 overflow-y-auto">
-          {watchPools?.map((pool, i) => (
+          {watchAllPools.map((pool: any, i: number) => {
+            if (pool.id) {
+              return (
+                <div className="w-full hover:bg-poolRowHover" key={i}>
+                  <MobilePoolRow
+                    tokens={poolTokenMetas[pool.id]}
+                    sortBy={sortBy}
+                    pool={pool}
+                    watched={!!find(watchPools, { id: pool.id })}
+                    morePoolIds={poolsMorePoolsIds[pool.id]}
+                    supportFarm={!!farmCounts[pool.id]}
+                    h24volume={volumes[pool.id]}
+                    watchPool
+                    mark={true}
+                  />
+                </div>
+              );
+            } else if (pool.pool_id) {
+              return (
+                <MobilePoolRowV2
+                  tokens={[pool.token_x_metadata, pool.token_y_metadata]}
+                  pool={pool}
+                  sortBy={sortBy}
+                  mark={true}
+                  key={i + '-mobile-pool-row-v2'}
+                />
+              );
+            }
+          })}
+          {/* {watchPools?.map((pool, i) => (
             <div className="w-full hover:bg-poolRowHover" key={i}>
               <MobilePoolRow
                 tokens={poolTokenMetas[pool.id]}
@@ -571,7 +626,7 @@ function MobileWatchListCard({
               mark={true}
               key={i + '-mobile-pool-row-v2'}
             />
-          ))}
+          ))} */}
         </div>
       </section>
     </Card>
@@ -601,6 +656,7 @@ function MobileLiquidityPage({
   activeTab,
   switchActiveTab,
   watchV2Pools,
+  watchList,
 }: {
   pools: Pool[];
   poolTokenMetas: any;
@@ -624,6 +680,7 @@ function MobileLiquidityPage({
   switchActiveTab: (tab: string) => void;
   activeTab: string;
   watchV2Pools: PoolInfo[];
+  watchList: WatchList[];
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -728,6 +785,7 @@ function MobileLiquidityPage({
           farmCounts={farmCounts}
           volumes={volumes}
           poolsMorePoolsIds={poolsMorePoolsIds}
+          watchList={watchList}
         />
 
         {/* start pool card */}
@@ -1123,7 +1181,11 @@ function MobileLiquidityPage({
         )}
 
         {activeTab === 'stable' && (
-          <StablePoolList searchBy={tokenName} volumes={volumes} />
+          <StablePoolList
+            searchBy={tokenName}
+            volumes={volumes}
+            watchPools={watchPools}
+          />
         )}
       </div>
       {isSignedIn && (
@@ -1174,7 +1236,6 @@ function PoolRow({
     if (b.symbol === 'NEAR') return -1;
     return a.symbol > b.symbol ? 1 : -1;
   });
-
   return (
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
@@ -1193,12 +1254,18 @@ function PoolRow({
             <Images tokens={tokens} size="9" />
             <div className="flex items-center">
               <div className="text-sm ml-7">
-                {tokens[0].symbol + '-' + tokens[1].symbol}
+                {tokens[0].symbol +
+                  '-' +
+                  tokens[1].symbol +
+                  `${tokens[2] ? '-' + tokens[2]?.symbol : ''}`}
               </div>
-              {/* todo */}
               {mark ? (
                 <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
-                  V1
+                  {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
+                    <FormattedMessage id="stablecoin"></FormattedMessage>
+                  ) : (
+                    'v1'
+                  )}
                 </span>
               ) : null}
               {watched && (
@@ -1373,6 +1440,7 @@ function WatchListCard({
   volumes,
   watchV2Pools,
   poolsMorePoolsIds,
+  watchList,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
@@ -1380,8 +1448,27 @@ function WatchListCard({
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
   poolsMorePoolsIds: Record<string, string[]>;
+  watchList: WatchList[];
 }) {
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
+  function getAllWatchPools() {
+    const watchAllPools: any = [];
+    watchList.forEach((d: WatchList) => {
+      const { pool_id } = d;
+      const targetV1 = watchPools.find((p: Pool) => {
+        if (p.id.toString() == pool_id) return true;
+      });
+      const targetV2 = watchV2Pools.find((p: PoolInfo) => {
+        if (p.pool_id == pool_id) return true;
+      });
+      const target = targetV1 || targetV2;
+      if (target) {
+        watchAllPools.push(target);
+      }
+    });
+    return watchAllPools;
+  }
+  const watchAllPools = getAllWatchPools();
   return (
     <>
       <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">
@@ -1396,7 +1483,6 @@ function WatchListCard({
           <QuestionTip id="my_watchlist_copy" />
 
           <span className="text-sm text-primaryText ml-3">
-            {/* {!watchPools || watchPools.length === 0 ? null : watchPools.length} */}
             {totalWatchList_length || ''}
           </span>
         </div>
@@ -1433,7 +1519,39 @@ function WatchListCard({
           </header>
 
           <div className="max-h-96 overflow-y-auto">
-            {watchPools?.map((pool, i) => (
+            {watchAllPools.map((pool: any, i: number) => {
+              if (pool.id) {
+                return (
+                  <div
+                    className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
+                    key={i}
+                  >
+                    <PoolRow
+                      pool={pool}
+                      index={i + 1}
+                      tokens={poolTokenMetas[pool.id]}
+                      morePoolIds={poolsMorePoolsIds[pool.id]}
+                      farmCount={farmCounts[pool.id]}
+                      supportFarm={!!farmCounts[pool.id]}
+                      h24volume={volumes[pool.id]}
+                      mark={true}
+                    />
+                  </div>
+                );
+              } else if (pool.pool_id) {
+                return (
+                  <PoolRowV2
+                    tokens={[pool.token_x_metadata, pool.token_y_metadata]}
+                    key={i}
+                    pool={pool}
+                    index={1 + i}
+                    showCol={true}
+                    mark={true}
+                  />
+                );
+              }
+            })}
+            {/* {watchPools?.map((pool, i) => (
               <div
                 className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
                 key={i}
@@ -1461,7 +1579,7 @@ function WatchListCard({
                   mark={true}
                 />
               );
-            })}
+            })} */}
           </div>
         </section>
       </Card>
@@ -1492,6 +1610,7 @@ function LiquidityPage_({
   activeTab,
   switchActiveTab,
   watchV2Pools,
+  watchList,
 }: {
   pools: Pool[];
   switchActiveTab: (tab: string) => void;
@@ -1515,6 +1634,7 @@ function LiquidityPage_({
   farmCounts: Record<string, number>;
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
+  watchList: WatchList[];
 }) {
   const intl = useIntl();
   const inputRef = useRef(null);
@@ -1635,6 +1755,7 @@ function LiquidityPage_({
           farmCounts={farmCounts}
           volumes={volumes}
           watchV2Pools={watchV2Pools}
+          watchList={watchList}
           poolsMorePoolsIds={poolsMorePoolsIds}
         />
         {/* start pool card */}
@@ -2190,7 +2311,11 @@ function LiquidityPage_({
         )}
 
         {activeTab === 'stable' && (
-          <StablePoolList searchBy={tokenName} volumes={volumes} />
+          <StablePoolList
+            searchBy={tokenName}
+            volumes={volumes}
+            watchPools={watchPools}
+          />
         )}
       </div>
       {isSignedIn && (
@@ -2212,7 +2337,11 @@ export function LiquidityPage() {
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
   const AllPools = useAllPools();
-  const { watchPools, watchV2PoolsFinal: watchV2Pools } = useWatchPools();
+  const {
+    watchPools,
+    watchV2PoolsFinal: watchV2Pools,
+    watchList,
+  } = useWatchPools();
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
   const { pools, hasMore, nextPage, loading, volumes } = usePools({
@@ -2322,6 +2451,7 @@ export function LiquidityPage() {
           }}
           watchPools={watchPools}
           watchV2Pools={watchV2Pools}
+          watchList={watchList}
           volumes={allVolumes}
           order={order}
           sortBy={sortBy}
@@ -2345,6 +2475,7 @@ export function LiquidityPage() {
           pools={displayPools}
           watchPools={watchPools}
           watchV2Pools={watchV2Pools}
+          watchList={watchList}
           allPools={AllPools}
           volumes={allVolumes}
           order={order}
@@ -2669,9 +2800,11 @@ const StablePoolClassIcon = ({ id }: { id: string }) => {
 function StablePoolCard({
   poolData,
   h24volume,
+  watched,
 }: {
   poolData: PoolData;
   h24volume: string;
+  watched?: boolean;
 }) {
   const formattedPool = formatePoolData(poolData);
 
@@ -2726,11 +2859,18 @@ function StablePoolCard({
           <Images tokens={poolData.tokens} size="8" className="mr-4" />
 
           <div className="flex xs:flex-col xs:items-end items-center">
-            <Symbols
-              fontSize="xs:text-sm md:text-sm "
-              tokens={poolData.tokens}
-              seperator="-"
-            />
+            <div className="flex items-center">
+              <Symbols
+                fontSize="xs:text-sm md:text-sm "
+                tokens={poolData.tokens}
+                seperator="-"
+              />
+              {watched && (
+                <div className="ml-2">
+                  <WatchListStartFull />
+                </div>
+              )}
+            </div>
 
             <span
               className="ml-1 xs:relative md:relative xs:top-1 md:top-1 cursor-pointer"
@@ -2917,9 +3057,11 @@ function StablePoolCard({
 function StablePoolList({
   searchBy,
   volumes,
+  watchPools,
 }: {
   searchBy: string;
   volumes: Record<string, string>;
+  watchPools: Pool[];
 }) {
   const [option, setOption] = useState<string>('ALL');
 
@@ -3085,6 +3227,7 @@ function StablePoolList({
                 key={pd.pool.id.toString() + i + '-list-render'}
                 poolData={pd}
                 h24volume={volumes[pd.pool.id.toString()]}
+                watched={!!find(watchPools, { id: pd.pool.id })}
               />
             );
           })}

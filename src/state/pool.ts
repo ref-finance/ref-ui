@@ -613,7 +613,7 @@ export const useWatchPools = () => {
     });
     setWatchV2PoolsFinal(watchV2Pools);
   }
-  return { watchPools, watchV2PoolsFinal };
+  return { watchPools, watchV2PoolsFinal, watchList };
 };
 
 export const useAllPools = () => {
