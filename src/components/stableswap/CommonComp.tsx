@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { TokenMetadata } from '../../services/ft-contract';
 import { toRealSymbol } from '../../utils/token';
@@ -13,6 +13,17 @@ import { Link, useHistory } from 'react-router-dom';
 import { FarmDot } from '~components/icon';
 import { ShareInFarmV2 } from '../layout/ShareInFarm';
 import { useYourliquidity } from '../../state/pool';
+import {
+  WatchListStartEmpty,
+  WatchListStartFull,
+} from '../../components/icon/WatchListStar';
+import { WalletContext } from '../../utils/wallets-integration';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import {
+  addPoolToWatchList,
+  removePoolFromWatchList,
+  getWatchListFromDb,
+} from '~services/pool';
 
 export function BackToStablePoolList() {
   const history = useHistory();
@@ -189,13 +200,59 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
   );
 }
 
-export const StableTokens = ({ tokens }: { tokens: TokenMetadata[] }) => {
+export const StableTokens = ({
+  tokens,
+  pool,
+}: {
+  tokens: TokenMetadata[];
+  pool: Pool;
+}) => {
+  const [showFullStart, setShowFullStar] = useState<Boolean>(false);
+  const { globalState } = useContext(WalletContext);
+  const { modal } = useWalletSelector();
+  const isSignedIn = globalState.isSignedIn;
+  useEffect(() => {
+    getWatchListFromDb({ pool_id: pool.id.toString() }).then((watchlist) => {
+      setShowFullStar(watchlist.length > 0);
+    });
+  }, []);
+  const handleSaveWatchList = () => {
+    if (!isSignedIn) {
+      modal.show();
+    } else {
+      addPoolToWatchList({ pool_id: pool.id.toString() }).then(() => {
+        setShowFullStar(true);
+      });
+    }
+  };
+  const handleRemoveFromWatchList = () => {
+    removePoolFromWatchList({ pool_id: pool.id.toString() }).then(() => {
+      setShowFullStar(false);
+    });
+  };
   return (
-    <div className="flex items-center pt-6 pb-5 ml-4">
-      <Images tokens={tokens} />
-      <span className="ml-4">
-        <Symbols tokens={tokens} size="text-2xl" />
-      </span>
+    <div className="flex items-center justify-between pt-6 pb-5 ml-4">
+      <div className="flex items-center">
+        <Images tokens={tokens} />
+        <span className="ml-4">
+          <Symbols tokens={tokens} size="text-2xl" />
+        </span>
+      </div>
+      <div
+        className="flex items-center justify-center rounded-lg cursor-pointer"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          showFullStart ? handleRemoveFromWatchList() : handleSaveWatchList();
+        }}
+        style={{
+          background: '#172534',
+          width: '30px',
+          height: '24px',
+        }}
+      >
+        {showFullStart ? <WatchListStartFull /> : <WatchListStartEmpty />}
+      </div>
     </div>
   );
 };

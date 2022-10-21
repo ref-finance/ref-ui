@@ -40,9 +40,7 @@ import {
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
   WatchListStartEmpty,
-  WatchListStartEmptyMobile,
   WatchListStartFull,
-  WatchListStartFullMobile,
 } from '../../components/icon/WatchListStar';
 import { SwitchInDetailIcon, NoLiquidityIcon } from '~components/icon/V3';
 import Loading from '~components/layout/Loading';
