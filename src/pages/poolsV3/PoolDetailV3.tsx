@@ -212,7 +212,6 @@ export default function PoolDetailV3() {
   const isMobile = isClientMobie();
   return (
     <>
-      <PoolTabV3 />
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1050px m-auto">
         <BreadCrumb
           routes={[
@@ -260,11 +259,6 @@ export default function PoolDetailV3() {
                   }}
                 >
                   {showFullStart ? (
-                    <WatchListStartFull />
-                  ) : (
-                    <WatchListStartEmpty />
-                  )}
-                  {/* {showFullStart ? (
                     <div
                       className="text-sm "
                       data-type="info"
@@ -272,7 +266,7 @@ export default function PoolDetailV3() {
                       data-multiline={true}
                       data-class="reactTip"
                       data-html={true}
-                      data-tip={remove_from_watchlist_tip()}
+                      data-tip={isMobile ? '' : remove_from_watchlist_tip()}
                       data-for="fullstar-tip"
                     >
                       <WatchListStartFull />
@@ -293,7 +287,7 @@ export default function PoolDetailV3() {
                       data-multiline={true}
                       data-class="reactTip"
                       data-html={true}
-                      data-tip={add_to_watchlist_tip()}
+                      data-tip={isMobile ? '' : add_to_watchlist_tip()}
                       data-for="emptystar-tip"
                     >
                       <WatchListStartEmpty />
@@ -305,7 +299,7 @@ export default function PoolDetailV3() {
                         effect="solid"
                       />
                     </div>
-                  )} */}
+                  )}
                 </span>
               </div>
               <span className="text-sm text-primaryText">
