@@ -750,7 +750,9 @@ export const add_liquidity = async ({
   if (neededStorage) {
     transactions.unshift({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
+      functionCalls: [
+        storageDepositAction({ amount: neededStorage, registrationOnly: true }),
+      ],
     });
   }
   return executeMultipleTransactions(transactions);
@@ -817,7 +819,9 @@ export const remove_liquidity = async ({
   if (neededStorage) {
     transactions.unshift({
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [storageDepositAction({ amount: neededStorage })],
+      functionCalls: [
+        storageDepositAction({ amount: neededStorage, registrationOnly: true }),
+      ],
     });
   }
   return executeMultipleTransactions(transactions);
