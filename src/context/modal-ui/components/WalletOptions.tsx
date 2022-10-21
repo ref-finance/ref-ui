@@ -343,8 +343,9 @@ export const CheckBoxForRisk = (props: any) => {
           className="text-greenColor text-sm font-bold cursor-pointer hover:underline"
           onClick={goRisks}
         >
-          Risks of Using Ref. finance
-        </a>
+          risks
+        </a>{' '}
+        of using Ref Finance.
       </span>
     </div>
   );

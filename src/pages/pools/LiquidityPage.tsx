@@ -1275,7 +1275,6 @@ function PoolRow({
               )}
             </div>
           </div>
-
           {supportFarm && <FarmStampNew multi={farmCount > 1} />}
         </div>
         <div className="col-span-1 justify-self-center py-1 md:hidden ">
@@ -2367,9 +2366,10 @@ export function LiquidityPage() {
   };
 
   const [farmCounts, setFarmCounts] = useState<Record<string, number>>({});
-
   useEffect(() => {
-    const pool_ids = pools.map((p) => p.id);
+    const pool_ids_v1 = pools.map((p) => p.id);
+    const pool_ids_watchPools = watchPools.map((p: Pool) => p.id);
+    const pool_ids = pool_ids_v1.concat(pool_ids_watchPools);
     canFarms({
       pool_ids,
     }).then(setFarmCounts);
@@ -2819,7 +2819,6 @@ function StablePoolCard({
   const { accountId } = useWalletSelector();
 
   const isSignedIn = !!accountId;
-
   const { farmCount: countV2, endedFarmCount: endedFarmCountV2 } = useCanFarmV2(
     poolData.pool.id,
     true

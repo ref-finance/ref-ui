@@ -210,33 +210,50 @@ export const AddPoolV3 = (props: any) => {
     }
   }
   function getButtonStatus() {
-    if (!tokenMetadata_x_y) return;
+    if (!tokenMetadata_x_y) return {};
     const [tokenX, tokenY] = tokenMetadata_x_y;
     let condition;
+    let not_enough_token;
     if (onlyAddXToken) {
       condition =
         +tokenXAmount > 0 &&
         new BigNumber(
           getMax(tokenX, tokenXBalanceFromNear)
         ).isGreaterThanOrEqualTo(tokenXAmount);
+      if (+tokenXAmount > 0 && !condition) {
+        not_enough_token = tokenX;
+      }
     } else if (onlyAddYToken) {
       condition =
         +tokenYAmount > 0 &&
         new BigNumber(
           getMax(tokenY, tokenYBalanceFromNear)
         ).isGreaterThanOrEqualTo(+tokenYAmount);
+      if (+tokenYAmount > 0 && !condition) {
+        not_enough_token = tokenY;
+      }
     } else {
-      condition =
+      const condition_x =
         +tokenXAmount > 0 &&
         new BigNumber(
           getMax(tokenX, tokenXBalanceFromNear)
-        ).isGreaterThanOrEqualTo(tokenXAmount) &&
+        ).isGreaterThanOrEqualTo(tokenXAmount);
+      const condition_y =
         +tokenYAmount > 0 &&
         new BigNumber(
           getMax(tokenY, tokenYBalanceFromNear)
         ).isGreaterThanOrEqualTo(+tokenYAmount);
+      condition = condition_x && condition_y;
+      if (+tokenXAmount > 0 && !condition_x) {
+        not_enough_token = tokenX;
+      } else if (+tokenYAmount > 0 && !condition_y) {
+        not_enough_token = tokenY;
+      }
     }
-    return !condition;
+    return {
+      status: !condition,
+      not_enough_token,
+    };
   }
   function getMax(token: TokenMetadata, balance: string) {
     return token.id !== WRAP_NEAR_CONTRACT_ID
@@ -245,7 +262,8 @@ export const AddPoolV3 = (props: any) => {
       ? '0'
       : String(Number(balance) - 0.5);
   }
-  const isAddLiquidityDisabled = getButtonStatus();
+  const { status: isAddLiquidityDisabled, not_enough_token } =
+    getButtonStatus();
   return (
     <Modal {...restProps}>
       <Card
@@ -306,6 +324,24 @@ export const AddPoolV3 = (props: any) => {
                 changeAmount={changeTokenYAmount}
                 hidden={onlyAddXToken ? true : false}
               ></InputAmount>
+              {not_enough_token ? (
+                <div className=" rounded-md mb-6 px-2 text-center text-sm mt-4">
+                  <label className="text-warnColor ">
+                    <FormattedMessage id="oops" defaultMessage="Oops" />!
+                  </label>
+                  <label className="ml-2.5 text-warnColor ">
+                    {not_enough_token.id == WRAP_NEAR_CONTRACT_ID ? (
+                      <FormattedMessage id="near_validation_error" />
+                    ) : (
+                      <>
+                        <FormattedMessage id="you_do_not_have_enough" />{' '}
+                        {not_enough_token.symbol}
+                      </>
+                    )}
+                  </label>
+                </div>
+              ) : null}
+
               {isSignedIn ? (
                 <GradientButton
                   onClick={append}

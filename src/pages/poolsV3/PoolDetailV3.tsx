@@ -224,7 +224,7 @@ export default function PoolDetailV3() {
           ]}
         />
         <div className="flex items-center justify-between mt-4 mb-3">
-          <div className="flex items-center">
+          <div className="relative flex items-center xsm:w-full">
             <div className="flex items-center mr-2.5">
               <img
                 src={poolDetail.token_x_metadata.icon}
@@ -244,7 +244,7 @@ export default function PoolDetailV3() {
                   {poolDetail.token_y_metadata.symbol}
                 </span>
                 <span
-                  className="flex items-center justify-center rounded-lg cursor-pointer"
+                  className="flex items-center justify-center rounded-lg cursor-pointer  xsm:absolute xsm:right-0"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -459,6 +459,7 @@ function YourLiquidityBox(props: {
     if (liquidities) {
       const temp_list: UserLiquidityDetail[] = [];
       liquidities.forEach((liquidity: UserLiquidityInfo) => {
+        if (!liquidity) return;
         const {
           left_point,
           right_point,

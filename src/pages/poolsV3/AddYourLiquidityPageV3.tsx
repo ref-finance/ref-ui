@@ -1933,12 +1933,25 @@ function InputAmount({
   hidden: Boolean;
 }) {
   const [inputPrice, setInputPrice] = useState('');
+  const [showNearTip, setShowNearTip] = useState(false);
   useEffect(() => {
     const price = token ? tokenPriceList[token.id]?.price : '';
     if (price && amount) {
       setInputPrice(new BigNumber(price).multipliedBy(amount).toFixed());
     } else {
       setInputPrice('');
+    }
+    if (token?.id == WRAP_NEAR_CONTRACT_ID && amount) {
+      const difference = new BigNumber(maxBalance).minus(amount);
+      const b = difference.toFixed();
+      const r = difference.isLessThan(0);
+      if (r) {
+        setShowNearTip(true);
+      } else {
+        setShowNearTip(false);
+      }
+    } else {
+      setShowNearTip(false);
     }
   }, [amount, token, tokenPriceList.length]);
   function getBalance() {
@@ -1961,55 +1974,65 @@ function InputAmount({
       ? '0'
       : String(Number(balance) - 0.5);
   return (
-    <div
-      className={`bg-black bg-opacity-20 rounded-xl p-3 mt-3 ${
-        hidden ? 'hidden' : ''
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <input
-          type="number"
-          placeholder="0.0"
-          className="text-2xl xs:text-xl md:text-xl"
-          disabled={currentSelectedPool?.pool_id ? false : true}
-          value={amount}
-          step="any"
-          onChange={({ target }) => {
-            changeAmount(target.value);
-          }}
-        />
-        <span
-          className={`text-base font-bold ml-5 whitespace-nowrap ${
-            currentSelectedPool?.pool_id ? 'text-white' : 'text-v3feeTextColor'
-          }`}
-        >
-          {token ? toRealSymbol(token.symbol) : 'Selet Token'}
-        </span>
-      </div>
+    <div>
       <div
-        className={`flex items-center justify-between mt-2.5 ${
-          token ? 'visible' : 'invisible'
+        className={`bg-black bg-opacity-20 rounded-xl p-3 mt-3 ${
+          hidden ? 'hidden' : ''
         }`}
       >
-        <span className="text-xs text-primaryText">{showCurrentPrice()}</span>
-        <div className="flex items-center text-xs text-primaryText text-right">
-          <span title={balance}>
-            <FormattedMessage id="balance" />: {getBalance()}
-          </span>
-          <span
-            onClick={() => {
-              changeAmount(maxBalance);
+        <div className="flex items-center justify-between">
+          <input
+            type="number"
+            placeholder="0.0"
+            className="text-2xl xs:text-xl md:text-xl"
+            disabled={currentSelectedPool?.pool_id ? false : true}
+            value={amount}
+            step="any"
+            onChange={({ target }) => {
+              changeAmount(target.value);
             }}
-            className={`ml-2.5 text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
-              amount == maxBalance
-                ? 'bg-black bg-opacity-20 border-black border-opacity-20'
-                : 'border-maxBorderColor'
+          />
+          <span
+            className={`text-base font-bold ml-5 whitespace-nowrap ${
+              currentSelectedPool?.pool_id
+                ? 'text-white'
+                : 'text-v3feeTextColor'
             }`}
           >
-            Max
+            {token ? toRealSymbol(token.symbol) : 'Selet Token'}
           </span>
         </div>
+        <div
+          className={`flex items-center justify-between mt-2.5 ${
+            token ? 'visible' : 'invisible'
+          }`}
+        >
+          <span className="text-xs text-primaryText">{showCurrentPrice()}</span>
+          <div className="flex items-center text-xs text-primaryText text-right">
+            <span title={balance}>
+              <FormattedMessage id="balance" />: {getBalance()}
+            </span>
+            <span
+              onClick={() => {
+                changeAmount(maxBalance);
+              }}
+              className={`ml-2.5 text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
+                amount == maxBalance
+                  ? 'bg-black bg-opacity-20 border-black border-opacity-20'
+                  : 'border-maxBorderColor'
+              }`}
+            >
+              Max
+            </span>
+          </div>
+        </div>
       </div>
+      {showNearTip ? (
+        <div className="flex items-center text-sm text-warnColor mt-2.5">
+          <WarningIcon className="ml-2.5 mr-2"></WarningIcon>Must have 0.5N or
+          more left in wallet for gas fee
+        </div>
+      ) : null}
     </div>
   );
 }
