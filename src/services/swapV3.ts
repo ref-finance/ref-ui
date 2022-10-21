@@ -923,6 +923,8 @@ export const get_liquidity = async (lpt_id: string) => {
 export const list_user_assets = async () => {
   const account_id = getCurrentWallet().wallet.getAccountId();
 
+  if (!account_id) return;
+
   return refSwapV3ViewFunction({
     methodName: 'list_user_assets',
     args: {
