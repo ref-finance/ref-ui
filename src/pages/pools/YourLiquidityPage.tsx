@@ -946,7 +946,7 @@ function PoolRow(props: {
               </span>
               <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
                 <span className="underline">
-                  <FormattedMessage id="dao" defaultMessage={'DAO'} />
+                  <FormattedMessage id="vote_capital" defaultMessage={'VOTE'} />
                 </span>
                 <span className="ml-0.5">
                   <VEARROW />
@@ -1214,7 +1214,10 @@ function PoolRow(props: {
                     <FormattedMessage id="in" defaultMessage={'in'} />
                   </span>
                   <span className="border-b border-primaryText">
-                    <FormattedMessage id="dao" defaultMessage={'DAO'} />
+                    <FormattedMessage
+                      id="vote_capital"
+                      defaultMessage={'VOTE'}
+                    />
                   </span>
                   <span className="text-gradientFrom ml-0.5">
                     <VEARROW />

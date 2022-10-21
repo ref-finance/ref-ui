@@ -243,6 +243,7 @@ export const useAccountInfo = () => {
     veShare,
     veShareRaw: accountInfo?.ve_lpt_amount || '0',
     lptAmount: accountInfo?.lpt_amount || '0',
+    fetchDoneVOTEAccountInfo: !!accountInfo,
   };
 };
 

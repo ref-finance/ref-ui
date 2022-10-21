@@ -132,7 +132,7 @@ import { OutLinkIcon } from '~components/icon/Common';
 import ReactTooltip from 'react-tooltip';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
-import { useAccountInfo } from '../../state/referendum';
+import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { getVEPoolId } from '../ReferendumPage';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import getConfig from '../../services/config';
@@ -1001,6 +1001,11 @@ export function RemoveLiquidityModal(
   const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
   const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
 
+  const { lptAmount, fetchDoneVOTEAccountInfo } =
+    !!getConfig().REF_VE_CONTRACT_ID && poolId === Number(getVEPoolId())
+      ? useAccountInfo()
+      : { lptAmount: '0', fetchDoneVOTEAccountInfo: true };
+
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
 
@@ -1074,7 +1079,7 @@ export function RemoveLiquidityModal(
         </div>
 
         <div
-          className={`flex items-center mb-4  text-xs text-primaryText  ${
+          className={`flex items-center flex-wrap mb-4  text-xs text-primaryText  ${
             Number(farmStakeV1) > 0 || Number(farmStakeV2) > 0 ? '' : 'hidden'
           }`}
         >
@@ -1125,7 +1130,7 @@ export function RemoveLiquidityModal(
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              className="hover:text-gradientFrom mb-1.5 flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20"
+              className="hover:text-gradientFrom mb-1.5 mr-2 flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20"
             >
               <span>
                 {toPrecision(
@@ -1151,6 +1156,47 @@ export function RemoveLiquidityModal(
               </div>
             </Link>
           )}
+
+          {Number(getVEPoolId()) === Number(pool.id) &&
+          fetchDoneVOTEAccountInfo &&
+          !!getConfig().REF_VE_CONTRACT_ID ? (
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                window.open('/referendum');
+              }}
+              className="hover:text-gradientFrom mb-1.5 cursor-pointer flex rounded-lg py-1.5 px-2 bg-black bg-opacity-20"
+            >
+              <span>
+                {toPrecision(
+                  ONLY_ZEROS.test(
+                    toNonDivisibleNumber(
+                      LOVE_TOKEN_DECIMAL,
+                      toReadableNumber(24, lptAmount || '0')
+                    )
+                  )
+                    ? '0'
+                    : toReadableNumber(24, lptAmount || '0'),
+                  2
+                )}
+              </span>
+              <span className="mx-1">
+                <FormattedMessage id="locked" defaultMessage={'locked'} />
+              </span>
+              <span className="mr-1">
+                <FormattedMessage id="in" defaultMessage={'in'} />
+              </span>
+              <div className="flex items-center flex-shrink-0">
+                <span className="">
+                  <FormattedMessage id="vote_capital" defaultMessage={'VOTE'} />
+                </span>
+                <span className="ml-0.5">
+                  <VEARROW />
+                </span>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <div>
