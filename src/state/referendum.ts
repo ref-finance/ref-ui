@@ -241,8 +241,8 @@ export const useAccountInfo = () => {
   return {
     accountInfo,
     veShare,
-    veShareRaw: accountInfo?.ve_lpt_amount,
-    lptAmount: accountInfo?.lpt_amount,
+    veShareRaw: accountInfo?.ve_lpt_amount || '0',
+    lptAmount: accountInfo?.lpt_amount || '0',
   };
 };
 

@@ -167,6 +167,7 @@ import { FiArrowUpRight } from 'react-icons/fi';
 import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
+import Big from 'big.js';
 
 interface ParamTypes {
   id: string;
@@ -1728,15 +1729,15 @@ export function PoolDetailsPage() {
   };
   const farmStakeTotal = useFarmStake({ poolId: Number(id), stakeList });
 
+  const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
+    ? useAccountInfo()
+    : { lptAmount: '0' };
+
   const userTotalShare = BigNumber.sum(shares, farmStakeTotal);
 
   const userTotalShareToString = userTotalShare
     .toNumber()
     .toLocaleString('fullwide', { useGrouping: false });
-
-  const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
-    ? useAccountInfo()
-    : { lptAmount: '0' };
 
   const handleRemoveFromWatchList = () => {
     removePoolFromWatchList({ pool_id: id }).then(() => {
@@ -1953,8 +1954,6 @@ export function PoolDetailsPage() {
   const haveLiquidity = Number(pool.shareSupply) > 0;
 
   const haveShare = Number(userTotalShareToString) > 0;
-
-  console.log(farmStakeTotal, userTotalShareToString, shares);
 
   return (
     <>
