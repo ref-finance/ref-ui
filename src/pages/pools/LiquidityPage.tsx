@@ -340,10 +340,22 @@ function MobilePoolRow({
                   src={tokens[1].icon}
                 />
               </div>
+              {tokens[2] ? (
+                <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+                  <img
+                    key={tokens[2].id}
+                    className="w-full rounded-full"
+                    src={tokens[2].icon}
+                  />
+                </div>
+              ) : null}
             </div>
             <div className="flex items-center">
               <div className="text-sm ml-2 font-semibold">
-                {tokens[0].symbol + '-' + tokens[1].symbol}
+                {tokens[0].symbol +
+                  '-' +
+                  tokens[1].symbol +
+                  `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
               </div>
               {mark ? (
                 <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
