@@ -215,7 +215,7 @@ export const RemovePoolV3 = (props: any) => {
     const amount = new BigNumber(liquidityAmount)
       .multipliedBy(value)
       .dividedBy(100)
-      .toFixed();
+      .toFixed(0, 1);
     setRemoveAmount(amount);
     getMinimumInfo(amount);
   }
