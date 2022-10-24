@@ -1052,3 +1052,5 @@ export const usePoolShare = (id: string | number, decimalLimit?: number) => {
       : myPoolShare;
   }
 };
+
+export const useV3VolumeChart = () => {};

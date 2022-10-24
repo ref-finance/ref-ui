@@ -356,3 +356,52 @@ export const getListHistoryTokenPriceByIds = async (
       return [];
     });
 };
+
+export const getV3poolVolumeById = async (pool_id: string): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl + '/get-dcl-pools-volume?pool_id=' + pool_id,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getV3Pool24VolumeById = async (
+  pool_id: string
+): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl + '/get-24h-volume-by-id?pool_id=' + pool_id,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((value) => {
+      return value;
+    })
+    .catch(() => {
+      return 0;
+    });
+};
+export const getAllV3Pool24Volume = async (): Promise<any[]> => {
+  return await fetch(config.indexerUrl + '/get-24h-volume-list', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
+    })
+    .catch(() => {
+      return [];
+    });
+};
