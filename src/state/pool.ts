@@ -349,7 +349,9 @@ export const usePoolsMorePoolIds = () => {
   );
 
   const getAllPoolsTokens = async () => {
-    return await getAllPoolsIndexer();
+    return (await getAllPoolsIndexer()).filter(
+      (p: Pool) => p.pool_kind && p.pool_kind === 'SIMPLE_POOL'
+    );
   };
 
   useEffect(() => {

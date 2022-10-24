@@ -70,6 +70,7 @@ export interface Pool {
   rates?: {
     [id: string]: string;
   };
+  pool_kind?: string;
 }
 
 export interface StablePool {
@@ -102,6 +103,7 @@ export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   shareSupply: pool.shares_total_supply,
   tvl: pool.tvl,
   token0_ref_price: pool.token0_ref_price,
+  pool_kind: pool?.pool_kind,
 });
 
 export const getPools = async ({
