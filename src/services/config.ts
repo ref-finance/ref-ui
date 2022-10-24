@@ -157,9 +157,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '987635.62',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
+          process.env.CUMULATIVE_REF_BUYBACK || '1308109.404',
         BLACKLIST_POOL_IDS: ['3689', '3699'],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
@@ -223,9 +223,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '987635.62',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
+          process.env.CUMULATIVE_REF_BUYBACK || '1308109.404',
         BLACKLIST_POOL_IDS: ['1752', '1760'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -289,9 +289,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'dai.fakes.testnet': 2,
         },
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '987635.62',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
+          process.env.CUMULATIVE_REF_BUYBACK || '1308109.404',
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
@@ -363,9 +363,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         },
         USN_ID: 'usn',
         TOTAL_PLATFORM_FEE_REVENUE:
-          process.env.TOTAL_PLATFORM_FEE_REVENUE || '717058.623',
+          process.env.TOTAL_PLATFORM_FEE_REVENUE || '987635.62',
         CUMULATIVE_REF_BUYBACK:
-          process.env.CUMULATIVE_REF_BUYBACK || '947340.47447',
+          process.env.CUMULATIVE_REF_BUYBACK || '1308109.404',
         BLACKLIST_POOL_IDS: ['3689', '3699'],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
