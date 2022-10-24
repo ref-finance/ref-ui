@@ -105,6 +105,7 @@ function USNPage(props: ReactModal.Props) {
     .minus(cutAmount)
     .toFixed();
   const canSubmit =
+    tokenIn?.id === tokens[1].id &&
     +tokenInAmount > 0 &&
     new BigNumber(tokenInAmount).isLessThanOrEqualTo(tokenInMax) &&
     tokenIn &&
