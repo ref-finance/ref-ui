@@ -44,8 +44,9 @@ import {
   getTopPools,
   getPool,
   get24hVolumes,
-  getV3poolVolumeById,
+  getV3PoolVolumeById,
   getAllV3Pool24Volume,
+  getV3poolTvlById,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import { ftGetTokenMetadata, TokenMetadata } from '../services/ft-contract';
@@ -1060,7 +1061,7 @@ export const usePoolShare = (id: string | number, decimalLimit?: number) => {
 export const useV3VolumeChart = (pool_id: string) => {
   const [volumes, setVolumes] = useState<any[]>();
   useEffect(() => {
-    getV3poolVolumeById(pool_id)
+    getV3PoolVolumeById(pool_id)
       .then((res) => {
         res.forEach((p) => {
           p.volume_dollar = p.volume;
@@ -1072,6 +1073,24 @@ export const useV3VolumeChart = (pool_id: string) => {
       });
   }, []);
   return volumes;
+};
+export const useV3TvlChart = (pool_id: string) => {
+  const [tvls, setTvls] = useState<any[]>();
+  useEffect(() => {
+    getV3poolTvlById(pool_id)
+      .then((res) => {
+        res.forEach((p) => {
+          (p.total_tvl = p.tvl || 0),
+            (p.scaled_tvl = p.tvl || 0),
+            (p.date = p.dateString);
+        });
+        setTvls(res);
+      })
+      .catch(() => {
+        setTvls([]);
+      });
+  }, []);
+  return tvls;
 };
 
 export const useV3VolumesPools = () => {

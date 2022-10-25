@@ -357,9 +357,25 @@ export const getListHistoryTokenPriceByIds = async (
     });
 };
 
-export const getV3poolVolumeById = async (pool_id: string): Promise<any[]> => {
+export const getV3PoolVolumeById = async (pool_id: string): Promise<any[]> => {
   return await fetch(
     config.indexerUrl + '/get-dcl-pools-volume?pool_id=' + pool_id,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list.slice(0, 60);
+    })
+    .catch(() => {
+      return [];
+    });
+};
+export const getV3poolTvlById = async (pool_id: string): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl + '/get-dcl-pools-tvl-list?pool_id=' + pool_id,
     {
       method: 'GET',
       headers: { 'Content-type': 'application/json; charset=UTF-8' },

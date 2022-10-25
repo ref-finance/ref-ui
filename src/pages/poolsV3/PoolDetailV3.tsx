@@ -76,7 +76,7 @@ import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import Modal from 'react-modal';
 import { ModalClose } from '~components/icon';
-import { useV3VolumeChart } from '~state/pool';
+import { useV3VolumeChart, useV3TvlChart } from '~state/pool';
 import { getV3Pool24VolumeById } from '~services/indexer';
 
 export default function PoolDetailV3() {
@@ -1208,7 +1208,7 @@ function Chart(props: any) {
     setDepthData(depthData);
   }
   const monthVolume = useV3VolumeChart(poolDetail.pool_id);
-  const monthTVL: any[] = [];
+  const monthTVL = useV3TvlChart(poolDetail.pool_id);
   return (
     <Card
       width="w-full"
