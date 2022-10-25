@@ -172,7 +172,7 @@ export function drawChartData({
 }) {
   const { current_point, liquidities } = depthData;
   const list = Object.values(liquidities);
-  const space = space_x || 20;
+  const space = space_x || 50;
   const axis_y = sizey || 200;
   if (list.length > 0) {
     const priceList: string[] = [];

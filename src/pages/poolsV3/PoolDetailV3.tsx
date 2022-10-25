@@ -1525,10 +1525,10 @@ function LiquidityChart(props: any) {
         token_y_decimals: poolDetail.token_y_metadata.decimals,
         chartDom,
         sort: true,
-        sizey: isMobile ? 220 : 330,
         onlyCurrent: true,
+        sizey: isMobile ? 220 : 330,
         ticks: isMobile ? 5 : 10,
-        space_x: 20,
+        space_x: isMobile ? 20 : 50,
       });
       const { liquidities } = depthData;
       const list = Object.values(liquidities);
