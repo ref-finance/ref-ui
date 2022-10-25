@@ -1275,9 +1275,9 @@ function PoolRow({
         <div className="col-span-3 md:col-span-4 flex items-center">
           <div className="mr-8 w-2">{index}</div>
           <div className="flex items-center">
-            <Images tokens={tokens} size="9" />
+            <Images tokens={tokens} size="8" />
             <div className="flex items-center">
-              <div className="text-sm ml-7">
+              <div className="text-sm ml-3">
                 {tokens[0].symbol +
                   '-' +
                   tokens[1].symbol +
@@ -1417,8 +1417,8 @@ function PoolRowV2({
         >
           <div className="mr-8 w-2">{index}</div>
           <div className="flex items-center">
-            <Images tokens={tokens} size="9" />
-            <div className="text-sm ml-7">
+            <Images tokens={tokens} size="8" />
+            <div className="text-sm ml-3">
               {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
           </div>
@@ -1784,7 +1784,8 @@ function LiquidityPage_({
   return (
     <>
       <PoolTabV3></PoolTabV3>
-      <div className="flex flex-col whitespace-nowrap w-4/6 lg:w-5/6 xl:w-3/4 md:hidden m-auto xs:hidden">
+      {/* w-4/6 lg:w-5/6 xl:w-3/4 */}
+      <div className="flex flex-col whitespace-nowrap pool_width_adaptive  md:hidden m-auto xs:hidden">
         <WatchListCard
           poolTokenMetas={poolTokenMetas}
           watchPools={watchPools}
@@ -1820,7 +1821,7 @@ function LiquidityPage_({
               <div className="w-full cursor-pointer flex items-center px-8 py-3 hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
                 <div className="flex items-center">
                   <div className="flex items-center">
-                    <Images tokens={tokensStar} size="9" className="mr-7" />
+                    <Images tokens={tokensStar} size="8" className="mr-7" />
                     <Symbols
                       tokens={tokensStar}
                       seperator="-"

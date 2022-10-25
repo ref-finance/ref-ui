@@ -588,7 +588,10 @@ export const useWatchPools = () => {
     const poolDetailPromise = ids.map((id) => {
       return get_pool(id);
     });
-    const poolList = await Promise.all(poolDetailPromise);
+    const poolList_init = await Promise.all(poolDetailPromise);
+    const poolList = poolList_init.filter((p: PoolInfo) => {
+      if (p) return true;
+    });
     const poolListPromise = poolList.map(async (pool: PoolInfo) => {
       const { token_x, token_y } = pool;
       const token_x_meta = await ftGetTokenMetadata(token_x);

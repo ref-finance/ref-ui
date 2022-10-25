@@ -1111,3 +1111,23 @@ input[type='range']::-webkit-slider-runnable-track {
 .transak_modal {
   z-index: 99999 !important;
 }
+@media screen and (min-width: 1024px) and (max-width: 1100px) {
+  .pool_width_adaptive {
+    width: 98%;
+  }
+}
+@media screen and (min-width: 1101px) and (max-width: 1280px) {
+  .pool_width_adaptive {
+    width: 90%;
+  }
+}
+@media screen and (min-width: 1281px) and (max-width: 1480px) {
+  .pool_width_adaptive {
+    width: 83%;
+  }
+}
+@media screen and (min-width: 1481px) {
+  .pool_width_adaptive {
+    width: 75%;
+  }
+}
