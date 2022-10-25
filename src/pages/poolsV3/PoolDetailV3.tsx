@@ -76,6 +76,8 @@ import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import Modal from 'react-modal';
 import { ModalClose } from '~components/icon';
+import { useV3VolumeChart } from '~state/pool';
+import { getV3Pool24VolumeById } from '~services/indexer';
 
 export default function PoolDetailV3() {
   const { id } = useParams<ParamTypes>();
@@ -307,19 +309,9 @@ export default function PoolDetailV3() {
               </span>
             </div>
           </div>
-          {/* <div className='flex items-center text-sm text-white' onClick={switchRateButton}>
-            {displayRateDom()}
-            <span className='flex items-center justify-center rounded-lg cursor-pointer text-v3SwapGray hover:text-gradientFromHover ml-2' style={{
-              background: '#172534',
-              width: '30px',
-              height: '24px',
-            }}>
-              <SwitchInDetailIcon></SwitchInDetailIcon>
-            </span>
-          </div> */}
         </div>
         <div className="flex  items-start flex-row w-full m-auto xs:flex-col-reverse md:flex-col-reverse">
-          <div className="mr-4 xsm:w-full lg:flex-grow">
+          <div className="mr-4 xsm:w-full lg:flex-grow lg:w-1/2">
             <Chart
               poolDetail={poolDetail}
               tokenPriceList={tokenPriceList}
@@ -1215,7 +1207,7 @@ function Chart(props: any) {
     const depthData = await get_pool_marketdepth(poolDetail.pool_id);
     setDepthData(depthData);
   }
-  const monthVolume: any[] = [];
+  const monthVolume = useV3VolumeChart(poolDetail.pool_id);
   const monthTVL: any[] = [];
   return (
     <Card
@@ -1253,6 +1245,15 @@ function Chart(props: any) {
 }
 function BaseData(props: any) {
   const { poolDetail, tokenPriceList } = props;
+  const [volume24, setVolume24] = useState('0');
+  useEffect(() => {
+    getV3Pool24VolumeById(poolDetail.pool_id)
+      .then((res) => {
+        setVolume24(res);
+      })
+      .catch(() => {});
+  }, []);
+
   function getTvl() {
     const { token_x, token_y } = poolDetail;
     const pricex = tokenPriceList[token_x]?.price || 0;
@@ -1280,6 +1281,30 @@ function BaseData(props: any) {
       return '$' + toInternationalCurrencySystem(tvl.toString(), 2);
     }
   }
+  function get24Volume() {
+    if (+volume24 == 0) {
+      return '$0';
+    } else if (+volume24 < 0.01) {
+      return '<$0.01';
+    } else {
+      return '$' + toInternationalCurrencySystem(volume24.toString(), 2);
+    }
+  }
+
+  function get24Fee() {
+    const fee = poolDetail.fee;
+    const f = new BigNumber(fee)
+      .dividedBy(10000)
+      .multipliedBy(volume24)
+      .toFixed();
+    if (+f == 0) {
+      return '$0';
+    } else if (+f < 0.01) {
+      return '<$0.01';
+    } else {
+      return '$' + toInternationalCurrencySystem(f.toString(), 2);
+    }
+  }
   return (
     <div className="grid grid-cols-3 gap-3 xsm:grid-cols-2 mt-4">
       <DataBox
@@ -1295,7 +1320,7 @@ function BaseData(props: any) {
             defaultMessage="Volume(24h)"
           ></FormattedMessage>
         }
-        value={'-'}
+        value={get24Volume()}
       ></DataBox>
       <DataBox
         title={
@@ -1304,7 +1329,7 @@ function BaseData(props: any) {
             defaultMessage="Fee(24h)"
           ></FormattedMessage>
         }
-        value={'-'}
+        value={get24Fee()}
       ></DataBox>
     </div>
   );

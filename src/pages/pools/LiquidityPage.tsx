@@ -25,6 +25,7 @@ import {
   useMorePoolIds,
   useAllWatchList,
   useWatchPools,
+  useV3VolumesPools,
 } from '../../state/pool';
 import Loading from '~components/layout/Loading';
 import {
@@ -401,12 +402,14 @@ function MobilePoolRowV2({
   tokens,
   mark,
   watched,
+  h24volume,
 }: {
   pool: PoolInfo;
   sortBy: string;
   tokens?: TokenMetadata[];
   mark?: boolean;
   watched?: boolean;
+  h24volume?: string;
 }) {
   const { ref } = useInView();
 
@@ -415,7 +418,6 @@ function MobilePoolRowV2({
   const history = useHistory();
 
   if (!curRowTokens) return <></>;
-
   tokens = curRowTokens.sort((a, b) => {
     if (a.symbol === 'NEAR') return 1;
     if (b.symbol === 'NEAR') return -1;
@@ -432,15 +434,24 @@ function MobilePoolRowV2({
     if (sortBy === 'tvl')
       return toInternationalCurrencySystem(value.toString());
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
-    else {
-      return '/';
+    else if (sortBy === 'volume_24h') {
+      return geth24volume();
     }
   };
   function goDetailV2() {
     const url_pool_id = pool.pool_id.replace(/\|/g, '@');
     history.push(`/poolV2/${url_pool_id}`);
   }
-
+  function geth24volume() {
+    const v = +(h24volume || '0');
+    if (v == 0) {
+      return '$0';
+    } else if (v < 0.01) {
+      return '<$0.01';
+    } else {
+      return '$' + toInternationalCurrencySystem(v.toString(), 2);
+    }
+  }
   return (
     <div className="w-full hover:bg-poolRowHover" onClick={goDetailV2}>
       <div
@@ -611,6 +622,7 @@ function MobileWatchListCard({
                   sortBy={sortBy}
                   mark={true}
                   key={i + '-mobile-pool-row-v2'}
+                  h24volume={volumes[pool.pool_id]}
                 />
               );
             }
@@ -1354,6 +1366,7 @@ function PoolRowV2({
   showCol,
   mark,
   watched,
+  h24volume,
 }: {
   pool: PoolInfo;
   index: number;
@@ -1361,6 +1374,7 @@ function PoolRowV2({
   showCol?: boolean;
   mark?: boolean;
   watched?: boolean;
+  h24volume?: string;
 }) {
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
   const history = useHistory();
@@ -1375,6 +1389,16 @@ function PoolRowV2({
   function goDetailV2() {
     const url_pool_id = pool.pool_id.replace(/\|/g, '@');
     history.push(`/poolV2/${url_pool_id}`);
+  }
+  function geth24volume() {
+    const v = +(h24volume || '0');
+    if (v == 0) {
+      return '$0';
+    } else if (v < 0.01) {
+      return '<$0.01';
+    } else {
+      return '$' + toInternationalCurrencySystem(v.toString(), 2);
+    }
   }
   return (
     <div
@@ -1428,7 +1452,7 @@ function PoolRowV2({
             showCol ? '' : 'hidden'
           }`}
         >
-          /
+          {geth24volume()}
         </div>
         <div
           className="col-span-1 py-1 justify-self-center relative left-4"
@@ -1558,6 +1582,7 @@ function WatchListCard({
                     index={1 + i}
                     showCol={true}
                     mark={true}
+                    h24volume={volumes[pool.pool_id]}
                   />
                 );
               }
@@ -2434,8 +2459,9 @@ export function LiquidityPage() {
   const poolsMorePoolsIds = usePoolsMorePoolIds();
 
   const watchPoolVolumes = useDayVolumesPools(watchPools.map((p) => p.id));
+  const v3PoolVolumes = useV3VolumesPools();
 
-  const allVolumes = { ...watchPoolVolumes, ...volumes };
+  const allVolumes = { ...watchPoolVolumes, ...volumes, ...v3PoolVolumes };
 
   if (!displayPools || loading || !watchPools || !poolTokenMetas)
     return <Loading />;

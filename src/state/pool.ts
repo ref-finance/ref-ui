@@ -44,6 +44,8 @@ import {
   getTopPools,
   getPool,
   get24hVolumes,
+  getV3poolVolumeById,
+  getAllV3Pool24Volume,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
 import { ftGetTokenMetadata, TokenMetadata } from '../services/ft-contract';
@@ -551,7 +553,6 @@ export const useWatchPools = () => {
       setWatchList(_.orderBy(watchlist, 'update_time', 'desc'));
     });
   }, []);
-
   useEffect(() => {
     if (watchList.length == 0) return;
     const ids = watchList.map((watchedPool) => watchedPool.pool_id);
@@ -1053,4 +1054,40 @@ export const usePoolShare = (id: string | number, decimalLimit?: number) => {
   }
 };
 
-export const useV3VolumeChart = () => {};
+export const useV3VolumeChart = (pool_id: string) => {
+  const [volumes, setVolumes] = useState<any[]>();
+  useEffect(() => {
+    getV3poolVolumeById(pool_id)
+      .then((res) => {
+        res.forEach((p) => {
+          p.volume_dollar = p.volume;
+        });
+        setVolumes(res);
+      })
+      .catch(() => {
+        setVolumes([]);
+      });
+  }, []);
+  return volumes;
+};
+
+export const useV3VolumesPools = () => {
+  const [volumes, setVolumes] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    getAllV3Pool24Volume()
+      .then((res) => {
+        const result = {};
+        res.forEach((v) => {
+          const { pool_id, volume } = v;
+          result[pool_id] = volume;
+        });
+        setVolumes(result);
+      })
+      .catch(() => {
+        return {};
+      });
+  }, []);
+
+  return volumes;
+};
