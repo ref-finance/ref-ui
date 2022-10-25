@@ -316,7 +316,7 @@ function MobilePoolRow({
     <div className="w-full hover:bg-poolRowHover">
       <Link
         ref={ref}
-        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-4 py-6 text-white"
+        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-2.5 py-6 text-white"
         onClick={() => localStorage.setItem('fromMorePools', 'n')}
         to={{
           pathname: `/pool/${pool.id}`,
@@ -334,7 +334,7 @@ function MobilePoolRow({
                 />
               </div>
 
-              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+              <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
                 <img
                   key={tokens[1].id}
                   className="w-full rounded-full"
@@ -342,7 +342,7 @@ function MobilePoolRow({
                 />
               </div>
               {tokens[2] ? (
-                <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+                <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
                   <img
                     key={tokens[2].id}
                     className="w-full rounded-full"
@@ -352,7 +352,7 @@ function MobilePoolRow({
               ) : null}
             </div>
             <div className="flex items-center">
-              <div className="text-sm ml-2 font-semibold">
+              <div className="text-sm ml-2 font-semibold whitespace-nowrap">
                 {tokens[0].symbol +
                   '-' +
                   tokens[1].symbol +
@@ -436,7 +436,7 @@ function MobilePoolRowV2({
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
     else if (sortBy === 'volume_24h') {
       return geth24volume();
-    }
+    } else return '/';
   };
   function goDetailV2() {
     const url_pool_id = pool.pool_id.replace(/\|/g, '@');
@@ -456,7 +456,7 @@ function MobilePoolRowV2({
     <div className="w-full hover:bg-poolRowHover" onClick={goDetailV2}>
       <div
         ref={ref}
-        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-4 py-6 text-white"
+        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-2.5 py-6 text-white"
       >
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center justify-start">
@@ -469,17 +469,29 @@ function MobilePoolRowV2({
                 />
               </div>
 
-              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+              <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
                 <img
                   key={tokens[1].id}
                   className="w-full rounded-full"
                   src={tokens[1].icon}
                 />
               </div>
+              {tokens[2] ? (
+                <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
+                  <img
+                    key={tokens[2].id}
+                    className="w-full rounded-full"
+                    src={tokens[2].icon}
+                  />
+                </div>
+              ) : null}
             </div>
             <div className="flex items-center">
-              <div className="text-sm ml-2 font-semibold">
-                {tokens[0].symbol + '-' + tokens[1].symbol}
+              <div className="text-sm ml-2 font-semibold whitespace-nowrap">
+                {tokens[0].symbol +
+                  '-' +
+                  tokens[1].symbol +
+                  `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
               </div>
               {mark ? (
                 <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
@@ -1419,7 +1431,10 @@ function PoolRowV2({
           <div className="flex items-center">
             <Images tokens={tokens} size="8" />
             <div className="text-sm ml-3">
-              {tokens[0].symbol + '-' + tokens[1].symbol}
+              {tokens[0].symbol +
+                '-' +
+                tokens[1].symbol +
+                `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
             </div>
           </div>
           {mark ? (
