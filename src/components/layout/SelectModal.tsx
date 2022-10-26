@@ -124,6 +124,20 @@ export const SelectModalV2 = ({
       >
         <FormattedMessage id="fee" defaultMessage="Fee" />
       </div>
+
+      <div
+        className={`py-2 px-2   w-full hover:bg-white hover:bg-opacity-10 text-white text-opacity-40 ${
+          sortMode === 'volume_24h'
+            ? 'bg-white bg-opacity-10 text-opacity-100'
+            : ''
+        } z-30`}
+        onClick={() => {
+          onSortChange('volume_24h');
+          setShowModal(false);
+        }}
+      >
+        <FormattedMessage id="volume_24h" defaultMessage="Volume (24h)" />
+      </div>
     </Card>
   );
 };

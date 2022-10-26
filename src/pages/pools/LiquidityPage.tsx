@@ -744,17 +744,25 @@ function MobileLiquidityPage({
 
     const tvl2 = p2.tvl;
 
+    const v1 = volumes[p1.pool_id] ? parseFloat(volumes[p1.pool_id]) : 0;
+
+    const v2 = volumes[p2.pool_id] ? parseFloat(volumes[p2.pool_id]) : 0;
+
     if (v2Order === 'desc') {
       if (v2SortBy === 'tvl') {
         return tvl2 - tvl1;
       } else if (v2SortBy === 'fee') {
         return f2 - f1;
+      } else if (v2SortBy === 'volume_24h') {
+        return v2 - v1;
       }
     } else if (v2Order === 'asc') {
       if (v2SortBy === 'tvl') {
         return tvl1 - tvl2;
       } else if (v2SortBy === 'fee') {
         return f1 - f2;
+      } else if (v2SortBy === 'volume_24h') {
+        return v1 - v2;
       }
     }
   };
@@ -1209,6 +1217,7 @@ function MobileLiquidityPage({
                       sortBy={v2SortBy}
                       watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
                       key={i + '-mobile-pool-row-v2'}
+                      h24volume={volumes[pool.pool_id]}
                     />
                   ))}
               </div>
@@ -1424,7 +1433,7 @@ function PoolRowV2({
       >
         <div
           className={`md:col-span-4 flex items-center ${
-            showCol ? 'col-span-3' : 'col-span-5'
+            showCol && mark ? 'col-span-3' : 'col-span-4'
           }`}
         >
           <div className="mr-8 w-2">{index}</div>
@@ -1455,13 +1464,17 @@ function PoolRowV2({
         >
           {calculateFeePercent(pool.fee / 100)}%
         </div>
-        <div
-          className={`col-span-1 justify-self-center py-1 md:hidden ${
-            showCol ? '' : 'hidden'
-          }`}
-        >
-          /
-        </div>
+
+        {mark && (
+          <div
+            className={`col-span-1 justify-self-center py-1 md:hidden ${
+              showCol ? '' : 'hidden'
+            }`}
+          >
+            /
+          </div>
+        )}
+
         <div
           className={`col-span-1 justify-self-center py-1 md:hidden ${
             showCol ? '' : 'hidden'
@@ -1757,17 +1770,25 @@ function LiquidityPage_({
 
     const tvl2 = p2.tvl;
 
+    const v1 = volumes[p1.pool_id] ? parseFloat(volumes[p1.pool_id]) : 0;
+
+    const v2 = volumes[p2.pool_id] ? parseFloat(volumes[p2.pool_id]) : 0;
+
     if (v2Order === 'desc') {
       if (v2SortBy === 'tvl') {
         return tvl2 - tvl1;
       } else if (v2SortBy === 'fee') {
         return f2 - f1;
+      } else if (v2SortBy === 'volume_24h') {
+        return v2 - v1;
       }
     } else if (v2Order === 'asc') {
       if (v2SortBy === 'tvl') {
         return tvl1 - tvl2;
       } else if (v2SortBy === 'fee') {
         return f1 - f2;
+      } else if (v2SortBy === 'volume_24h') {
+        return v1 - v2;
       }
     }
   };
@@ -1795,7 +1816,6 @@ function LiquidityPage_({
 
   if (activeTab === 'v2' && !allPoolsV2) return <Loading />;
 
-  const outOfText = intl.formatMessage({ id: 'out_of' });
   return (
     <>
       <PoolTabV3></PoolTabV3>
@@ -2262,12 +2282,12 @@ function LiquidityPage_({
         {activeTab === 'v2' && (
           <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
             <section className="">
-              <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
-                <div className="col-span-5 md:col-span-4 flex">
+              <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
+                <div className="col-span-4 flex">
                   <div className="mr-8 w-2">#</div>
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
-                <div className="col-span-2 justify-self-center md:hidden flex items-center">
+                <div className="col-span-1 justify-self-center md:hidden flex items-center">
                   <span
                     className={`pr-1  cursor-pointer ${
                       v2SortBy !== 'fee' ? 'hover:text-white' : ''
@@ -2294,6 +2314,47 @@ function LiquidityPage_({
                     }}
                   >
                     {v2SortBy === 'fee' ? (
+                      v2Order === 'desc' ? (
+                        <DownArrowLight />
+                      ) : (
+                        <UpArrowLight />
+                      )
+                    ) : (
+                      <UpArrowDeep />
+                    )}
+                  </span>
+                </div>
+
+                <div className="col-span-1 justify-self-center md:hidden flex items-center">
+                  <span
+                    className={`pr-1  cursor-pointer ${
+                      v2SortBy !== 'volume_24h' ? 'hover:text-white' : ''
+                    } ${v2SortBy === 'volume_24h' ? 'text-gradientFrom' : ''}`}
+                    onClick={() => {
+                      setV2SortBy('volume_24h');
+                      v2SortBy !== 'volume_24h' && setV2Order('desc');
+                      v2SortBy === 'volume_24h' &&
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    <FormattedMessage
+                      id="volume_24h"
+                      defaultMessage="Volume (24h)"
+                    />
+                  </span>
+
+                  <span
+                    className={`cursor-pointer ${
+                      v2SortBy !== 'volume_24h' ? 'hidden' : ''
+                    }`}
+                    onClick={() => {
+                      setV2SortBy('volume_24h');
+                      v2SortBy !== 'volume_24h' && setV2Order('desc');
+                      v2SortBy === 'volume_24h' &&
+                        setV2Order(v2Order === 'desc' ? 'asc' : 'desc');
+                    }}
+                  >
+                    {v2SortBy === 'volume_24h' ? (
                       v2Order === 'desc' ? (
                         <DownArrowLight />
                       ) : (
@@ -2355,6 +2416,8 @@ function LiquidityPage_({
                       pool={pool}
                       watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
                       index={i + 1}
+                      showCol={true}
+                      h24volume={volumes[pool.pool_id]}
                     />
                   ))}
               </div>
