@@ -160,7 +160,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '987635.62',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '1308109.404',
-        BLACKLIST_POOL_IDS: ['3689'],
+        BLACKLIST_POOL_IDS: ['3689', '3699'],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
@@ -365,7 +365,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '987635.62',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '1308109.404',
-        BLACKLIST_POOL_IDS: ['3689'],
+        BLACKLIST_POOL_IDS: ['3689', '3699'],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
@@ -432,13 +432,8 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 0,
           'usdt.tether-token.near': 1,
         },
-        USN_USDT_POOL_ID: '3699',
-        USN_USDT_IDS: ['usn', 'usdt.tether-token.near'],
-        USN_USDT_POOL_INDEX: {
-          usn: 0,
-          'usdt.tether-token.near': 1,
-        },
-        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689', '3699'],
+
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
       };
     case 'development':
     case 'pub-testnet':
@@ -485,13 +480,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.fakes.testnet': 0,
           'usdtt.fakes.testnet': 1,
         },
-        USN_USDT_POOL_ID: '1760',
-        USN_USDT_IDS: ['usdn.testnet', 'usdtt.fakes.testnet'],
-        USN_USDT_POOL_INDEX: {
-          'usdn.testnet': 0,
-          'usdtt.fakes.testnet': 1,
-        },
-        RATED_POOLS_IDS: ['568', '571', '1044', '1752', '1751', '1760'],
+        RATED_POOLS_IDS: ['568', '571', '1044', '1752', '1751'],
       };
     case 'testnet':
       return {
@@ -537,13 +526,7 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'usdt.fakes.testnet': 0,
           'usdtt.fakes.testnet': 1,
         },
-        USN_USDT_POOL_ID: '690',
-        USN_USDT_IDS: ['usdn.testnet', 'usdtt.fakes.testnet'],
-        USN_USDT_POOL_INDEX: {
-          'usdn.testnet': 0,
-          'usdtt.fakes.testnet': 1,
-        },
-        RATED_POOLS_IDS: ['621', '622', '666', '686', '685', '690'],
+        RATED_POOLS_IDS: ['621', '622', '666', '686', '685'],
       };
     default:
       return {
@@ -595,13 +578,8 @@ export function getExtraStablePoolConfig(env: string = process.env.NEAR_ENV) {
           'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near': 0,
           'usdt.tether-token.near': 1,
         },
-        USN_USDT_POOL_ID: '3699',
-        USN_USDT_IDS: ['usn', 'usdt.tether-token.near'],
-        USN_USDT_POOL_INDEX: {
-          usn: 0,
-          'usdt.tether-token.near': 1,
-        },
-        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689', '3699'],
+
+        RATED_POOLS_IDS: ['3514', '3515', '3612', '3688', '3689'],
       };
   }
 }
