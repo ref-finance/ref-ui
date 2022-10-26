@@ -829,5 +829,7 @@ const uk_UA = {
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
   newText: 'новий',
+  no_claimed_rewards_yet: 'No claimed rewards yet',
+  out_of: 'out of',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

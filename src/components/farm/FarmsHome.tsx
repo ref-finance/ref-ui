@@ -3465,7 +3465,10 @@ function WithDrawb(props: {
           <div className="flex flex-col items-center justify-center py-6">
             <BoostFarmNoDataIcon></BoostFarmNoDataIcon>
             <p className="text-sm text-white opacity-50 mt-3">
-              No claimed rewards yet
+              <FormattedMessage
+                id="no_claimed_rewards_yet"
+                defaultMessage="No claimed rewards yet"
+              ></FormattedMessage>
             </p>
           </div>
         ) : null}
@@ -3841,7 +3844,10 @@ function WithDrawModal(props: {
                   <div className="flex flex-col items-center justify-center py-6">
                     <BoostFarmNoDataIcon></BoostFarmNoDataIcon>
                     <p className="text-sm text-white opacity-50 mt-3">
-                      No claimed rewards yet
+                      <FormattedMessage
+                        id="no_claimed_rewards_yet"
+                        defaultMessage="No claimed rewards yet"
+                      ></FormattedMessage>
                     </p>
                   </div>
                 ) : null}
