@@ -77,23 +77,23 @@ export default function SwapFormWrap({
 
   const history = useHistory();
 
-  const OrderButton = swapMode === SWAP_MODE.LIMIT &&
-    activeOrder &&
-    activeOrder.length > 0 && (
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          history.push('/myOrder');
-        }}
-        className="w-3/5 h-11 flex mr-4 xs:mr-2 md:mr-2 items-center justify-center bg-orderGradient hover:bg-orderGraidentHover mt-6 rounded-lg text-white text-base"
-      >
-        <OrderIcon />
-        <span className="mx-2 xs:mx-1 md:mx-1">{activeOrder.length}</span>
+  const OrderButton = swapMode === SWAP_MODE.LIMIT && activeOrder && (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        history.push('/myOrder');
+      }}
+      className="w-3/5 h-11 flex mr-4 xs:mr-2 md:mr-2 items-center justify-center bg-orderGradient hover:bg-orderGraidentHover mt-6 rounded-lg text-white text-base"
+    >
+      <OrderIcon />
+      <span className="mx-2 xs:mx-1 md:mx-1">
+        {activeOrder.length > 0 ? activeOrder.length : null}
+      </span>
 
-        {<FormattedMessage id="orders" defaultMessage={'Order(s)'} />}
-      </button>
-    );
+      {<FormattedMessage id="orders" defaultMessage={'Order(s)'} />}
+    </button>
+  );
 
   const {
     loadingTrigger,
