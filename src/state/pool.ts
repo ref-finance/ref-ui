@@ -1066,7 +1066,12 @@ export const useV3VolumeChart = (pool_id: string) => {
         res.forEach((p) => {
           p.volume_dollar = p.volume;
         });
-        res.reverse();
+        res.sort((v1, v2) => {
+          const b =
+            new Date(v1.dateString).getTime() -
+            new Date(v2.dateString).getTime();
+          return b;
+        });
         setVolumes(res);
       })
       .catch(() => {
@@ -1085,7 +1090,9 @@ export const useV3TvlChart = (pool_id: string) => {
             (p.scaled_tvl = p.tvl || 0),
             (p.date = p.dateString);
         });
-        res.reverse();
+        res.sort((t1, t2) => {
+          return new Date(t1.date).getTime() - new Date(t2.date).getTime();
+        });
         setTvls(res);
       })
       .catch(() => {
