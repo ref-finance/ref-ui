@@ -9389,6 +9389,11 @@ resolve@^1.1.5, resolve@^1.10.0, resolve@^1.12.0, resolve@^1.14.2, resolve@^1.18
     path-parse "^1.0.7"
     supports-preserve-symlinks-flag "^1.0.0"
 
+respinner@^3.0.8:
+  version "3.0.8"
+  resolved "https://registry.yarnpkg.com/respinner/-/respinner-3.0.8.tgz#344425cd27517e43c2fe5983178d904339d5d7b5"
+  integrity sha512-xK3s+Ua0aQROmHV1K3ve26BnRdPc2JbNOhpdvtGb3Gph0cGpWmv8KIE3/u+Q9PK+qCRPVqWnFE+7+GwA6GsAcQ==
+
 restore-cursor@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/restore-cursor/-/restore-cursor-2.0.0.tgz#9f7ee287f82fd326d4fd162923d62129eee0dfaf"
