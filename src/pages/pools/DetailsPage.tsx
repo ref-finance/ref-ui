@@ -201,29 +201,9 @@ export function getPoolFee24h(dayVolume: string, pool: Pool) {
   if (dayVolume) {
     const { fee } = pool;
 
-    const revenu24h = (fee / 10000) * 0.5 * Number(dayVolume);
+    const revenu24h = (fee / 10000) * 0.5 * Number(dayVolume) * 0.8;
 
     result = revenu24h;
-  }
-  return Number(result);
-}
-
-export function getPoolFee24hTitile(
-  dayVolume: string,
-  pool: Pool,
-  tvlInput?: number
-) {
-  let result = '0';
-  if (dayVolume) {
-    const { fee, tvl } = pool;
-
-    const newTvl = tvlInput || tvl;
-
-    const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
-    if (newTvl > 0 && revenu24h > 0) {
-      const annualisedFeesPrct = revenu24h / newTvl / 2;
-      result = annualisedFeesPrct.toString();
-    }
   }
   return Number(result);
 }
