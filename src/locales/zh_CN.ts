@@ -853,5 +853,6 @@ const zh_CN = {
   no_positons_in_this_pool_yet: '目前在该流动池没有份额',
   no_claimed_rewards_yet: '还没有领取的奖励',
   out_of: 'out of',
+  value_must_be_less_than_or_equal_to: '你的输入必须小于或等于',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

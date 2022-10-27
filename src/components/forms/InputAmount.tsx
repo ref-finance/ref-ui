@@ -341,18 +341,6 @@ export function InputAmountV3({
 
   const intl = useIntl();
 
-  useEffect(() => {
-    console.log(max, rest.value, 'max');
-
-    if (nearValidation && max && Number(max) - Number(rest.value) < 0) {
-      ref.current.setCustomValidity(
-        intl.formatMessage({ id: 'near_validation_error' })
-      );
-    } else {
-      ref.current.setCustomValidity('');
-    }
-  }, [ref, max, nearValidation, rest.value]);
-
   return (
     <>
       <fieldset className={`${className} `} ref={field}>
@@ -371,8 +359,11 @@ export function InputAmountV3({
             placeholder={forLimitOrder ? '-' : '0.0'}
             onChange={({ target }) => {
               console.log(target.value);
+              ref.current.setCustomValidity('');
+
               handleChange(target.value);
             }}
+            title={''}
             disabled={disabled}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
             onBlur={onBlur}

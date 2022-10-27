@@ -96,6 +96,7 @@ import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import Big from 'big.js';
 import { PoolInfoV3 } from '../../services/swapV3';
+import { getMax } from '../../utils/numbers';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -790,6 +791,7 @@ export default function CrossSwapCard(props: {
           amount={tokenInAmount}
           hidden={requested}
         />
+
         <div
           className={`flex items-center justify-center border-t mt-12 xs:mt-12 ${
             requested ? 'hidden' : 'block'
@@ -839,14 +841,35 @@ export default function CrossSwapCard(props: {
           </div>
 
           {!requested ? null : (
-            <CrossSwapTokens
-              tokenIn={tokenIn}
-              tokenOut={tokenOut}
-              tokenPriceList={tokenPriceList}
-              amountIn={tokenInAmount}
-              amountOut={displayTokenOutAmount}
-              slippageTolerance={slippageTolerance}
-            />
+            <>
+              <CrossSwapTokens
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                tokenPriceList={tokenPriceList}
+                amountIn={tokenInAmount}
+                amountOut={displayTokenOutAmount}
+                slippageTolerance={slippageTolerance}
+              />
+              {tokenIn &&
+                requested &&
+                Number(getMax(tokenIn.id, tokenInMax || '0')) -
+                  Number(tokenInAmount || '0') <
+                  0 &&
+                !ONLY_ZEROS.test(tokenInMax || '0') &&
+                !ONLY_ZEROS.test(tokenInAmount || '0') && (
+                  <Alert
+                    level="warn"
+                    message={`${intl.formatMessage({
+                      id:
+                        tokenIn.id === WRAP_NEAR_CONTRACT_ID
+                          ? 'near_validation_error'
+                          : 'value_must_be_less_than_or_equal_to',
+                    })} ${
+                      tokenIn.id === WRAP_NEAR_CONTRACT_ID ? '' : tokenInMax
+                    }`}
+                  />
+                )}
+            </>
           )}
         </div>
         {!requested ? null : (

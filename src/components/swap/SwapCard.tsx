@@ -139,6 +139,7 @@ import {
 import { TiRefresh } from 'react-icons/ti';
 
 import { MdOutlineRefresh } from 'react-icons/md';
+import { getMax } from '../../utils/numbers';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -1741,12 +1742,14 @@ export default function SwapCard(props: {
     : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
 
   const canSubmit =
-    swapMode !== SWAP_MODE.LIMIT
+    (swapMode !== SWAP_MODE.LIMIT
       ? (canSwap || canSwapV3) &&
         (tokenInMax != '0' || !useNearBalance) &&
         quoteDone &&
         quoteDoneV3
-      : !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut);
+      : !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut)) &&
+    new Big(tokenInAmount || '0').lte(tokenInMax || '0') &&
+    !ONLY_ZEROS.test(tokenInMax || '0');
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -1859,6 +1862,23 @@ export default function SwapCard(props: {
             setTokenOut(token);
           }}
         />
+        {(swapMode === SWAP_MODE.LIMIT ? !!curOrderPrice : true) &&
+          tokenIn &&
+          Number(getMax(tokenIn.id, tokenInMax || '0')) -
+            Number(tokenInAmount || '0') <
+            0 &&
+          !ONLY_ZEROS.test(tokenInMax || '0') &&
+          !ONLY_ZEROS.test(tokenInAmount || '0') && (
+            <Alert
+              level="warn"
+              message={`${intl.formatMessage({
+                id:
+                  tokenIn.id === WRAP_NEAR_CONTRACT_ID
+                    ? 'near_validation_error'
+                    : 'value_must_be_less_than_or_equal_to',
+              })} ${tokenIn.id === WRAP_NEAR_CONTRACT_ID ? '' : tokenInMax}`}
+            />
+          )}
         <div
           className={`flex items-center  ${
             swapMode === SWAP_MODE.LIMIT

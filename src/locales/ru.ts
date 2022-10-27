@@ -882,5 +882,6 @@ const ru = {
   no_positons_in_this_pool_yet: 'No positons in this pool yet',
   no_claimed_rewards_yet: 'No claimed rewards yet',
   out_of: 'out of',
+  value_must_be_less_than_or_equal_to: 'Value must be less than or equal to',
 };
 export default Object.assign(ru, ru_in_risks_page);
