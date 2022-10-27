@@ -28,6 +28,7 @@ import {
   get_liquidity,
   get_pool_marketdepth,
   claim_all_liquidity_fee,
+  get_metadata,
 } from '~services/swapV3';
 import {
   UserLiquidityInfo,
@@ -1246,12 +1247,19 @@ function Chart(props: any) {
 function BaseData(props: any) {
   const { poolDetail, tokenPriceList } = props;
   const [volume24, setVolume24] = useState('0');
+  const [user_liquidity_fee, set_user_liquidity_fee] = useState<number>();
   useEffect(() => {
     getV3Pool24VolumeById(poolDetail.pool_id)
       .then((res) => {
         setVolume24(res);
       })
       .catch(() => {});
+    get_metadata().then((res) => {
+      if (res) {
+        const { protocol_fee_rate } = res;
+        set_user_liquidity_fee((10000 - protocol_fee_rate) / 10000);
+      }
+    });
   }, []);
 
   function getTvl() {
@@ -1294,7 +1302,8 @@ function BaseData(props: any) {
   function get24Fee() {
     const fee = poolDetail.fee;
     const f = new BigNumber(fee)
-      .dividedBy(10000)
+      .dividedBy(1000000)
+      .multipliedBy(user_liquidity_fee || 1)
       .multipliedBy(volume24)
       .toFixed();
     if (+f == 0) {

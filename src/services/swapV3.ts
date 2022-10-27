@@ -948,6 +948,11 @@ export const listPools = () => {
     methodName: 'list_pools',
   });
 };
+export const get_metadata = () => {
+  return refSwapV3ViewFunction({
+    methodName: 'get_metadata',
+  });
+};
 
 export interface PoolInfo {
   pool_id?: string;
