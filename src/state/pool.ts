@@ -1064,7 +1064,7 @@ export const useV3VolumeChart = (pool_id: string) => {
     getV3PoolVolumeById(pool_id)
       .then((res) => {
         res.forEach((p) => {
-          p.volume_dollar = p.volume;
+          p.volume_dollar = +p.volume;
         });
         res.sort((v1, v2) => {
           const b =
@@ -1086,8 +1086,8 @@ export const useV3TvlChart = (pool_id: string) => {
     getV3poolTvlById(pool_id)
       .then((res) => {
         res.forEach((p) => {
-          (p.total_tvl = p.tvl || 0),
-            (p.scaled_tvl = p.tvl || 0),
+          (p.total_tvl = +p.tvl || 0),
+            (p.scaled_tvl = +p.tvl || 0),
             (p.date = p.dateString);
         });
         res.sort((t1, t2) => {
