@@ -610,7 +610,7 @@ function MobileWatchListCard({
         <div className="border-b border-gray-700 border-opacity-70" />
         <div className="max-h-96 overflow-y-auto">
           {watchAllPools.map((pool: any, i: number) => {
-            if (pool.id) {
+            if (pool.id?.toString()) {
               return (
                 <div className="w-full hover:bg-poolRowHover" key={i}>
                   <MobilePoolRow
@@ -1583,7 +1583,7 @@ function WatchListCard({
 
           <div className="max-h-96 overflow-y-auto">
             {watchAllPools.map((pool: any, i: number) => {
-              if (pool.id) {
+              if (pool.id?.toString()) {
                 return (
                   <div
                     className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
