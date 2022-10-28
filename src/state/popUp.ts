@@ -57,6 +57,8 @@ export const useGlobalPopUp = (globalState: any) => {
     ) {
       checkTransaction(txHash)
         .then((res: any) => {
+          console.log(res, txHashes);
+
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
 
           const isSlippageError = res.receipts_outcome.some((outcome: any) => {

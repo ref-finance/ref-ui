@@ -188,6 +188,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
         onConnected();
       }
     } catch (err) {
+      console.log(err);
+
       onError(err);
     }
   };
