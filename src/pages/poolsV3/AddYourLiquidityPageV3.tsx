@@ -967,18 +967,15 @@ function CreatePoolComponent({
     <div
       className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
     >
-      <div className="text-white font-bold text-base">Initialize the pool:</div>
+      <div className="text-white font-bold text-base">Pool creation:</div>
       <div className="relative flex-grow bg-black bg-opacity-10 rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2">
         <BgIcon className="absolute right-0 top-0 xs:hidden md:hidden"></BgIcon>
         <div className="relative z-10 flex flex-col justify-between h-full">
           <div>
             <p className="text-sm text-white">
-              This pool is not initialized before. To initialize, select a
-              starting price for the pool and the enter your liquidity price
-              range and deposit amount.
-            </p>
-            <p className="text-sm text-v3WarningColor mt-1">
-              Gas fees will be higher than usual!
+              There is no existing pool for the selected tokens. To create the
+              pool, you must set the pool rate, by providing corresponding
+              amounts.
             </p>
           </div>
           <div className="xs:mt-20 md:mt-20">
