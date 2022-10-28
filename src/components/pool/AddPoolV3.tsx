@@ -481,7 +481,7 @@ function OneSide({ show }: { show: boolean }) {
       <BoxDarkBg className="absolute top-0 right-0"></BoxDarkBg>
       <SideIcon className="mr-5 flex-shrink-0"></SideIcon>
       <div className="relative z-10 text-white text-sm">
-        The maket price is outside your price range.Single asset deposit only.
+        <FormattedMessage id="maket_price_outside_single_only_tip" />
       </div>
     </div>
   );

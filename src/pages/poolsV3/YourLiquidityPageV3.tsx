@@ -50,11 +50,12 @@ import {
 export default function YourLiquidityPageV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const intl = useIntl();
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
   const [liquidityStatusList, setLiquidityStatusList] = useState<string[]>([
-    'All',
+    intl.formatMessage({ id: 'all' }),
     'V2',
     'V1',
   ]);
@@ -127,7 +128,7 @@ export default function YourLiquidityPageV3() {
                     onClick={() => {
                       switchButton(item);
                     }}
-                    className={`flex items-center justify-center h-6 py-px box-content w-9 rounded-md cursor-pointer ${
+                    className={`flex items-center justify-center h-6 py-px px-2 box-content w-auto rounded-md cursor-pointer ${
                       checkedStatus == item
                         ? 'bg-primaryGradient text-white'
                         : 'text-primaryText'
@@ -505,18 +506,28 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
               </span>
               <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
                 <span className="text-xs text-v3SwapGray whitespace-nowrap mr-1.5">
-                  Fee Tiers
+                  <FormattedMessage id="fee_Tiers" />
                 </span>
                 <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
               </div>
             </div>
             <div className="flex items-center">
-              <span className="text-v3SwapGray text-xs mr-1.5">Min</span>
+              <span className="text-v3SwapGray text-xs mr-1.5">
+                <FormattedMessage
+                  id="min"
+                  defaultMessage="Min"
+                ></FormattedMessage>
+              </span>
               <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis">
                 {getRate('left')}
               </span>
               <label className="text-v3SwapGray text-xs mx-2">-</label>
-              <span className="text-v3SwapGray text-xs mr-1.5">Max</span>
+              <span className="text-v3SwapGray text-xs mr-1.5">
+                <FormattedMessage
+                  id="max"
+                  defaultMessage="Max"
+                ></FormattedMessage>
+              </span>
               <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis">
                 {getRate('right')}
               </span>
@@ -537,7 +548,11 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
                       : 'text-v3GarkWarningColor'
                   }`}
                 >
-                  {isInrange ? 'In range' : 'Out of range'}
+                  {isInrange ? (
+                    <FormattedMessage id="in_range"></FormattedMessage>
+                  ) : (
+                    <FormattedMessage id="out_of_range"></FormattedMessage>
+                  )}
                 </span>
               </div>
             </div>
@@ -549,7 +564,9 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
           }`}
         >
           <div className="flex items-center justify-center">
-            <span className="text-xs text-v3SwapGray">Your Liquidity</span>
+            <span className="text-xs text-v3SwapGray">
+              <FormattedMessage id="your_liquidity" />
+            </span>
             <span className="text-sm text-white mx-2.5">
               ${your_liquidity || '-'}
             </span>
@@ -561,7 +578,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
               color="#fff"
               className={`w-20 h-8 text-center text-sm text-white focus:outline-none mr-2.5`}
             >
-              Add
+              <FormattedMessage id="add" />
             </GradientButton>
             <BorderButton
               onClick={(e) => {
@@ -573,12 +590,12 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
               py="py-1"
               className="flex-grow  w-20 text-sm text-greenColor h-8"
             >
-              Remove
+              <FormattedMessage id="remove" />
             </BorderButton>
           </div>
           <div className="flex items-center justify-center">
             <span className="text-xs text-v3SwapGray mr-2.5">
-              Unclaimed Fees
+              <FormattedMessage id="unclaimed_fees" />
             </span>
             <img
               src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
@@ -653,19 +670,25 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
                       : 'text-v3GarkWarningColor'
                   }`}
                 >
-                  {isInrange ? 'In range' : 'Out of range'}
+                  {isInrange ? (
+                    <FormattedMessage id="in_range"></FormattedMessage>
+                  ) : (
+                    <FormattedMessage id="out_of_range"></FormattedMessage>
+                  )}
                 </span>
               </div>
             </div>
           </div>
           <div className="flex flex-col p-3">
             <div className="flex items-center justify-between mt-1">
-              <span className="text-xs text-v3SwapGray">Fee Tiers</span>
+              <span className="text-xs text-v3SwapGray">
+                <FormattedMessage id="fee_Tiers" />
+              </span>
               <span className="text-sm text-white">{+fee / 10000}%</span>
             </div>
             <div className="flex items-center justify-between mt-4">
               <span className="text-v3SwapGray text-xs">
-                Min Price (1{' '}
+                <FormattedMessage id="min_price" /> (1{' '}
                 {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']})
               </span>
               <span className="text-white text-sm">
@@ -675,7 +698,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
             </div>
             <div className="flex items-center justify-between mt-4">
               <span className="text-v3SwapGray text-xs">
-                Max Price (1{' '}
+                <FormattedMessage id="max_price" /> (1{' '}
                 {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']})
               </span>
               <span className="text-white text-sm">
@@ -684,7 +707,9 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
               </span>
             </div>
             <div className="flex items-center justify-between mt-4">
-              <span className="text-v3SwapGray text-xs">Unclaimed Fees</span>
+              <span className="text-v3SwapGray text-xs">
+                <FormattedMessage id="unclaimed_fees" />
+              </span>
               <span className="text-white text-sm"></span>
               <div className="flex items-center text-white text-sm">
                 <img
@@ -720,7 +745,9 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
         </div>
         <div className="bg-searchBgColor rounded-lg p-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-v3SwapGray">Your Liquidity</span>
+            <span className="text-xs text-v3SwapGray">
+              <FormattedMessage id="your_liquidity" />
+            </span>
             <span className="text-sm text-white">${your_liquidity || '-'}</span>
           </div>
           <div className="flex items-center justify-between mt-3.5">
@@ -732,7 +759,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
               color="#fff"
               className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3`}
             >
-              Add
+              <FormattedMessage id="add" />
             </GradientButton>
             <BorderButton
               onClick={(e) => {
@@ -744,7 +771,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
               py="py-1"
               className="w-1 flex-grow  text-sm text-greenColor h-8"
             >
-              Remove
+              <FormattedMessage id="remove" />
             </BorderButton>
           </div>
         </div>
