@@ -20,7 +20,7 @@ export default function PopUpSwiper() {
   const [closeStatus, setCloseStatus] = useState(true);
   const history = useHistory();
   useEffect(() => {
-    const popupSwiper = localStorage.getItem('popup-announcement6');
+    const popupSwiper = localStorage.getItem('popup-announcement7');
     if (popupSwiper == '1') {
       setCloseStatus(true);
     } else {
