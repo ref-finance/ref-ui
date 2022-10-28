@@ -111,6 +111,7 @@ export default function AddYourLiquidityPageV3() {
   const nearBalance = useDepositableBalance('NEAR');
   const intl = useIntl();
   const intl_select = intl.formatMessage({ id: 'select_s' });
+  const OPEN_CREATE_POOL_ENTRY = true;
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
     get_list_pools();
@@ -887,7 +888,9 @@ export default function AddYourLiquidityPageV3() {
               {/* no Data */}
               {currentSelectedPool ? null : <NoDataComponent></NoDataComponent>}
               {/* add pool part */}
-              {currentSelectedPool && !currentSelectedPool.pool_id ? (
+              {currentSelectedPool &&
+              !currentSelectedPool.pool_id &&
+              OPEN_CREATE_POOL_ENTRY ? (
                 <CreatePoolComponent
                   currentSelectedPool={currentSelectedPool}
                   tokenX={tokenX}
@@ -895,6 +898,11 @@ export default function AddYourLiquidityPageV3() {
                   tokenPriceList={tokenPriceList}
                   buttonSort={buttonSort}
                 ></CreatePoolComponent>
+              ) : null}
+              {currentSelectedPool &&
+              !currentSelectedPool.pool_id &&
+              !OPEN_CREATE_POOL_ENTRY ? (
+                <NoDataComponent isNoPool={true}></NoDataComponent>
               ) : null}
               {/* add Liquidity part */}
               {currentSelectedPool && currentSelectedPool.pool_id ? (
@@ -1864,7 +1872,8 @@ function AddLiquidityComponent({
   );
 }
 
-function NoDataComponent() {
+function NoDataComponent(props: any) {
+  const { isNoPool } = props;
   const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
   return (
     <div
@@ -1879,6 +1888,11 @@ function NoDataComponent() {
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2 opacity-50">
         {/* range chart area */}
         <div className="flex flex-col items-center justify-center mt-20 xs:my-12 md:my-20">
+          {isNoPool ? (
+            <div className="text-sm text-v3poolWarningColor mb-9">
+              Oops! The pool does not exist.
+            </div>
+          ) : null}
           <EmptyIcon></EmptyIcon>
         </div>
         {/* input range area */}
