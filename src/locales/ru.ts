@@ -617,7 +617,7 @@ const ru = {
   boosted_farms: 'Фермы с бустом',
   your_farm: 'Ваша ферма',
   your_boosted_farms: 'Ваши фермы с бустом',
-  search_farms_by_token: 'Найти фермы по токену...',
+  search_farms_by_token: 'Найти фермы по токену',
   more_lock_ve_popup: 'больше',
   more_lock_ve_popup2: 'больше',
   more_in: 'больше в',

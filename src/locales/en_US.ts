@@ -776,7 +776,7 @@ const en_US = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Your farm',
   your_boosted_farms: 'Your boosted farms',
-  search_farms_by_token: 'Search farms by token...',
+  search_farms_by_token: 'Search farms by token',
   search_farms: 'Search farms',
   more_lock_ve_popup: 'more ',
   more_lock_ve_popup2: 'more',

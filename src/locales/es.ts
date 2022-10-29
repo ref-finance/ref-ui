@@ -812,7 +812,7 @@ const es = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Tus farm',
   your_boosted_farms: 'Tus boosted farms',
-  search_farms_by_token: 'Buscar farms por token...',
+  search_farms_by_token: 'Buscar farms por token',
   search_farms: 'Buscar farms',
   more_lock_ve_popup: 'más ',
   more_lock_ve_popup2: 'más',

@@ -808,7 +808,7 @@ const ja = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Your farm',
   your_boosted_farms: 'Your boosted farms',
-  search_farms_by_token: 'Search farms by token...',
+  search_farms_by_token: 'Search farms by token',
   search_farms: 'Search farms',
   create_pool: 'Create Pool',
   search_by_token: 'Search by token',

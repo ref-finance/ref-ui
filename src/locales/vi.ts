@@ -795,7 +795,7 @@ const vi = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Farm của bạn',
   your_boosted_farms: 'Boosted farms của bạn',
-  search_farms_by_token: 'Tìm farms bằng token...',
+  search_farms_by_token: 'Tìm farms bằng token',
   more_lock_ve_popup: 'thêm ',
   more_lock_ve_popup2: 'thêm',
   more_in: 'thêm vào',

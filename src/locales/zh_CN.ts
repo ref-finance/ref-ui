@@ -742,7 +742,7 @@ const zh_CN = {
   boosted_farms: '被加速的农场',
   your_farm: '你的农场',
   your_boosted_farms: '你的加速农场',
-  search_farms_by_token: '通过代币搜索农场...',
+  search_farms_by_token: '通过代币搜索农场',
   search_farms: '搜索农场',
   more_lock_ve_popup: '质押',
   more_lock_ve_popup2: ' ',

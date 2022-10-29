@@ -768,7 +768,7 @@ const uk_UA = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Ваші ферми',
   your_boosted_farms: 'Your boosted farms',
-  search_farms_by_token: 'Шукати ферму за токеном...',
+  search_farms_by_token: 'Шукати ферму за токеном',
   more_lock_ve_popup: 'більше ',
   more_lock_ve_popup2: 'більше',
   more_in: 'більше в',
