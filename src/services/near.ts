@@ -316,6 +316,8 @@ export const executeMultipleTransactions = async (
       transactions: wstransactions,
     })
     .then((res) => {
+      console.log(res);
+
       if (!res) return;
 
       console.log(res);

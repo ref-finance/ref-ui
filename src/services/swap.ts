@@ -100,6 +100,7 @@ import {
   nearWithdrawTransaction,
 } from './wrap-near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import getConfig from './config';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
 // Big.strict = false;
@@ -1147,6 +1148,7 @@ SwapOptions) => {
           )
         ),
       });
+      console.log({ REF_FI_CONTRACT_ID });
 
       transactions.push({
         receiverId: tokenIn.id,
@@ -1166,6 +1168,8 @@ SwapOptions) => {
           },
         ],
       });
+
+      console.log({ transactions });
     } else {
       //making sure all actions get included.
       await registerToken(tokenOut);
@@ -1234,6 +1238,8 @@ SwapOptions) => {
           },
         ],
       });
+
+      console.log({ transactions });
     }
 
     if (tokenOut.id !== swapsToDo[swapsToDo.length - 1].outputToken) {
@@ -1269,6 +1275,10 @@ SwapOptions) => {
         });
       }
     }
+
+    console.log({ transactionsSwap: transactions });
+
+    console.log({ REF_FI_CONTRACT_ID });
 
     return executeMultipleTransactions(transactions);
   }
