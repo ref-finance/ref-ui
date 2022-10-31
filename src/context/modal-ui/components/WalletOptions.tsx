@@ -312,10 +312,10 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
 
 export const CheckBoxForRisk = (props: any) => {
   const { setCheckedStatus } = props;
+  // <FormattedMessage id="login_risk_tip"></FormattedMessage>
+  const intl = useIntl();
+  const login_tip = intl.formatMessage({ id: 'login_risk_tip' });
   const [checkBoxStatus, setCheckBoxStatus] = useState(false);
-  function goRisks() {
-    window.open('/risks');
-  }
   function switchCheckBox() {
     const newStatus = !checkBoxStatus;
     setCheckBoxStatus(newStatus);
@@ -336,17 +336,10 @@ export const CheckBoxForRisk = (props: any) => {
           onClick={switchCheckBox}
         ></Checkbox>
       )}
-      <span className="text-sm text-v3SwapGray">
-        By checking this box and moving forward, you confirm that you fully
-        understand the{' '}
-        <a
-          className="text-greenColor text-sm font-bold cursor-pointer hover:underline"
-          onClick={goRisks}
-        >
-          risks
-        </a>{' '}
-        of using Ref Finance.
-      </span>
+      <span
+        className="text-sm text-v3SwapGray"
+        dangerouslySetInnerHTML={{ __html: login_tip }}
+      ></span>
     </div>
   );
 };

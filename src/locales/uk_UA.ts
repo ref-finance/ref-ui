@@ -884,5 +884,9 @@ const uk_UA = {
   add_new_position: 'Add New Position',
   range: 'Range',
   unclaimed_fee: 'Unclaimed Fee',
+  login_risk_tip:
+    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
+    "'/risks'" +
+    ')">risks</a> of using Ref Finance.',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

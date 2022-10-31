@@ -887,5 +887,9 @@ const zh_CN = {
   add_new_position: '添加新的位置',
   range: '范围',
   unclaimed_fee: '未领取的费',
+  login_risk_tip:
+    '通过勾选这个框并继续前进，您确认您完全了解使用Ref Finance的 <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
+    "'/risks'" +
+    ')">风险</a>。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -1877,7 +1877,7 @@ function NoDataComponent(props: any) {
   const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
   return (
     <div
-      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
+      className={`relative w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
     >
       <div className="text-white font-bold text-base">
         <FormattedMessage
@@ -1885,14 +1885,14 @@ function NoDataComponent(props: any) {
           defaultMessage="Set Price Range"
         ></FormattedMessage>
       </div>
+      {isNoPool ? (
+        <div className="flex justify-center items-center absolute w-full text-sm text-v3poolWarningColor top-28 xsm:top-16 z-10">
+          Oops! The pool does not exist.
+        </div>
+      ) : null}
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2 opacity-50">
         {/* range chart area */}
-        <div className="flex flex-col items-center justify-center mt-20 xs:my-12 md:my-20">
-          {isNoPool ? (
-            <div className="text-sm text-v3poolWarningColor mb-9">
-              Oops! The pool does not exist.
-            </div>
-          ) : null}
+        <div className="flex flex-col items-center justify-center mt-28 xsm:my-12">
           <EmptyIcon></EmptyIcon>
         </div>
         {/* input range area */}
