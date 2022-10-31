@@ -153,7 +153,6 @@ export default function FarmsHome(props: any) {
     if (txHash && isSignedIn && popUp) {
       checkTransaction(txHash)
         .then((res: any) => {
-          debugger;
           const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
 
           const isSlippageError = res.receipts_outcome.some((outcome: any) => {

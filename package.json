@@ -13,7 +13,7 @@
     "start:pub-testnet": "NEAR_ENV=pub-testnet parcel src/index.html",
     "prettier": "prettier --check src",
     "prettier:fix": "prettier --write src",
-    "test": "jest test --runInBand",
+    "test": " jest test --runInBand",
     "test:watch": "yarn test --watch"
   },
   "devDependencies": {
@@ -23,6 +23,7 @@
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.18.6",
     "@emotion/babel-plugin": "^11.3.0",
+    "@parcel/babel-preset-env": "^2.7.0",
     "@parcel/diagnostic": "^2.7.0",
     "@tailwindcss/postcss7-compat": "npm:@tailwindcss/postcss7-compat@^2.2.17",
     "@testing-library/react": "^11.2.6",
@@ -55,6 +56,7 @@
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17",
+    "ts-babel": "^6.1.7",
     "ts-jest": "^26.5.4",
     "typescript": "^4.2",
     "url": "^0.11.0"
@@ -66,23 +68,24 @@
     "@babel/plugin-syntax-nullish-coalescing-operator": "^7.8.3",
     "@babel/plugin-transform-modules-commonjs": "^7.17.9",
     "@ledgerhq/devices": "^7.0.0",
-    "@near-wallet-selector/core": "7.0.3",
-    "@near-wallet-selector/ledger": "7.0.3",
-    "@near-wallet-selector/math-wallet": "7.0.3",
-    "@near-wallet-selector/meteor-wallet": "7.0.3",
-    "@near-wallet-selector/modal-ui": "7.0.3",
-    "@near-wallet-selector/my-near-wallet": "7.0.3",
-    "@near-wallet-selector/near-wallet": "7.0.3",
-    "@near-wallet-selector/nightly": "7.0.3",
-    "@near-wallet-selector/nightly-connect": "7.0.3",
-    "@near-wallet-selector/sender": "7.0.3",
-    "@near-wallet-selector/wallet-connect": "7.0.3",
+    "@near-wallet-selector/core": "7.1.0",
+    "@near-wallet-selector/ledger": "7.1.0",
+    "@near-wallet-selector/math-wallet": "7.1.0",
+    "@near-wallet-selector/meteor-wallet": "7.1.0",
+    "@near-wallet-selector/modal-ui": "7.1.0",
+    "@near-wallet-selector/my-near-wallet": "7.1.0",
+    "@near-wallet-selector/near-wallet": "7.1.0",
+    "@near-wallet-selector/nightly": "7.1.0",
+    "@near-wallet-selector/nightly-connect": "7.1.0",
+    "@near-wallet-selector/sender": "7.1.0",
+    "@near-wallet-selector/wallet-connect": "7.1.0",
     "@parcel/runtime-react-refresh": "^2.7.0",
     "@react-icons/all-files": "^4.1.0",
     "@svgr/parcel-plugin-svgr": "^5.5.0",
     "@transak/transak-sdk": "1.2.2",
     "@types/animejs": "^3.1.4",
     "@types/big.js": "^6.1.2",
+    "@types/node": "^18.11.8",
     "@types/react-copy-to-clipboard": "^5.0.2",
     "@types/react-datepicker": "^4.4.2",
     "@types/web3-eth-abi": "^1.2.2",
@@ -90,6 +93,7 @@
     "animejs": "^3.2.1",
     "axios": "^0.21.1",
     "babel-polyfill": "^6.26.0",
+    "better-sqlite3": "^7.6.2",
     "big-integer": "^1.6.51",
     "big.js": "^6.1.1",
     "bigint-buffer": "^1.1.5",
@@ -97,6 +101,7 @@
     "bn.js": "^5.2.0",
     "borsh": "^0.3.1",
     "buffer": "^6.0.3",
+    "caniuse-lite": "^1.0.30001427",
     "dexie": "^3.0.3",
     "html-react-parser": "^1.3.0",
     "locales": "^0.0.2",
@@ -130,8 +135,6 @@
     "@ledgerhq/devices": "6.27.1",
     "@ledgerhq/hw-transport": "6.27.1",
     "@ledgerhq/hw-transport-webhid": "6.27.1",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
     "react-refresh": "0.14.0"
   },
   "alias": {
@@ -140,7 +143,8 @@
   },
   "eslintConfig": {
     "parserOptions": {
-      "ecmaVersion": 2020
+      "ecmaVersion": 2020,
+      "sourceType": "module"
     }
   }
 }

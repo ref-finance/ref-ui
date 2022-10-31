@@ -3,9 +3,5 @@
   "resolvers": [
     "parcel-resolver-tspaths",
     "..."
-  ],
-  "runtimes": [
-    "@parcel/runtime-react-refresh",
-    "..."
   ]
 }
