@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { PoolDb } from '~store/RefDatabase';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { Card } from '~components/card/Card';
+import { Card } from '../../components/card/Card';
 import {
   BackArrowWhite,
   BackArrowGray,
   DownArrowLight,
   UpArrowDeep,
   UpArrowLight,
-} from '~components/icon';
-import { FarmMiningIcon } from '~components/icon/FarmMining';
-import { BreadCrumb } from '~components/layout/BreadCrumb';
+} from '../../components/icon';
+import { FarmMiningIcon } from '../../components/icon/FarmMining';
+import { BreadCrumb } from '../../components/layout/BreadCrumb';
 
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useTokens } from '../../state/token';
-import { TokenMetadata } from '~services/ft-contract';
-import { FarmButton } from '~components/button/Button';
+import { TokenMetadata } from '../../services/ft-contract';
+import { FarmButton } from '../../components/button/Button';
 
 import {
   calculateFeePercent,
@@ -24,16 +24,16 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
-import { useAllWatchList, useMorePools } from '~state/pool';
-import { PoolRPCView } from '~services/api';
-import { FarmStamp } from '~components/icon/FarmStamp';
+import { useAllWatchList, useMorePools } from '../../state/pool';
+import { PoolRPCView } from '../../services/api';
+import { FarmStamp } from '../../components/icon/FarmStamp';
 import { divide, find } from 'lodash';
-import { WatchListStartFull } from '~components/icon/WatchListStar';
+import { WatchListStartFull } from '../../components/icon/WatchListStar';
 import { scientificNotationToString } from '../../utils/numbers';
 import { usePoolsFarmCount, useDayVolumesPools } from '../../state/pool';
 import { useClientMobile } from '../../utils/device';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
-import Loading from '~components/layout/Loading';
+import Loading from '../../components/layout/Loading';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
 
 interface ParamTypes {

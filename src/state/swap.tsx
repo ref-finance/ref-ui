@@ -70,7 +70,7 @@ import {
   v3Swap,
   V3_POOL_FEE_LIST,
   V3_POOL_SPLITER,
-} from '~services/swapV3';
+} from '../services/swapV3';
 import {
   pointToPrice,
   get_pointorder_range,

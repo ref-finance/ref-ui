@@ -13,7 +13,7 @@ import { useClientMobile } from '../../../utils/device';
 import { ACCOUNT_ID_KEY } from '../../WalletSelectorContext';
 import { walletIcons } from '../../walletIcons';
 import { walletsRejectError } from '../../../utils/wallets-integration';
-import { Checkbox, CheckboxSelected } from '~components/icon';
+import { Checkbox, CheckboxSelected } from '../../../components/icon';
 
 const walletOfficialUrl = {
   'NEAR Wallet': 'wallet.near.org',

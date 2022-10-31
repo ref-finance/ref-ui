@@ -6,7 +6,7 @@ import { useHistory } from 'react-router';
 import BigNumber from 'bignumber.js';
 import * as d3 from 'd3';
 import _ from 'lodash';
-import { toReadableNumber } from '~utils/numbers';
+import { toReadableNumber } from '../utils/numbers';
 
 /**
  * caculate price by point
@@ -339,7 +339,8 @@ export function drawChartData({
       .style('fill', '#00FFD1')
       .style('font-size', '14px')
       .attr('x', function (d, i) {
-        const textWidth = d3.select('.textLeft').node().getComputedTextLength();
+        const nodeDOM: any = d3.select('.textLeft').node();
+        const textWidth = nodeDOM.getComputedTextLength();
         const normalPosition = myScaleX(d) + space - textWidth - 5;
         // const oppositePosition = myScaleX(d) + space + 5;
         // if (normalPosition <= 0) {
@@ -408,10 +409,10 @@ export function drawChartData({
       .style('fill', '#00FFD1')
       .style('font-size', '14px')
       .attr('x', function (d, i) {
-        const textWidth = d3
-          .select('.textRight')
-          .node()
-          .getComputedTextLength();
+        // const textWidth = d3
+        //   .select('.textRight')
+        //   .node()
+        //   .getComputedTextLength();
         // const maxPosition = myScaleX(d) + space + textWidth + 5;
         // const oppositePosition = myScaleX(d) + space - textWidth - 5;
         const normalposition = myScaleX(d) + space + 5;

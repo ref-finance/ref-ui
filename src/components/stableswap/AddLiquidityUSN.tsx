@@ -44,8 +44,8 @@ import { getURLInfo, checkAccountTip } from '../layout/transactionTipPopUp';
 import { getStablePoolDecimal } from '../../pages/stable/StableSwapEntry';
 import { STABLE_LP_TOKEN_DECIMALS } from './AddLiquidity';
 import { getMax } from '../../utils/numbers';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
-import { toRealSymbol } from '~utils/token';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { toRealSymbol } from '../../utils/token';
 
 const getSwapSlippageKey = (id: string | number) =>
   `REF_FI_STABLE_SWAP_ADD_LIQUIDITY_SLIPPAGE_VALUE_${id}`;
