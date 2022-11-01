@@ -200,7 +200,7 @@ function XrefPage() {
     } else {
       return (
         <>
-          <label className="font-sans">≈</label> $
+          <label className="font-sans mr-0.5">≈</label>
           {toPrecision(receive.valueOf(), 3, true)}
         </>
       );
@@ -292,10 +292,7 @@ function XrefPage() {
                 data-html={true}
                 data-tip={getXrefAprTip()}
               >
-                <span
-                  className="text-2xl text-white"
-                  title={apr.toString() + '%'}
-                >
+                <span className="text-2xl text-white">
                   {displayApr() + '%'}
                 </span>
                 <ReactTooltip
@@ -490,7 +487,8 @@ function InputView(props: any) {
     } else {
       return (
         <>
-          <label className="font-sans">≈</label> ${receive.toFixed(3, 1)}
+          <label className="font-sans mr-0.5">≈</label>
+          {receive.toFixed(3, 1)}
         </>
       );
     }
