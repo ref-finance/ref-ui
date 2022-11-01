@@ -376,80 +376,6 @@ export const RemovePoolV3 = (props: any) => {
             ~{getLiquidityPrice()}
           </span>
         </div>
-        {/* <div className="flex items-center justify-between mt-3">
-          <div className="flex items-center">
-            <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
-              <span className="text-xs text-v3SwapGray mr-1.5">Fee Tiers</span>
-              <span className="text-sm text-v3Blue">{getPoolFee()}%</span>
-            </div>
-            <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5 ml-2.5">
-              <span
-                className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
-                  isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
-                }`}
-              ></span>
-              <span
-                className={`text-xs ${
-                  isInrange
-                    ? 'text-gradientFromHover'
-                    : 'text-v3GarkWarningColor'
-                }`}
-              >
-                {isInrange ? 'In range' : 'Out of range'}
-              </span>
-            </div>
-          </div>
-          <span className="text-sm text-v3SwapGray">
-            ~{getLiquidityPrice()}
-          </span>
-        </div> */}
-        {/* <div className="flex items-center mt-4">
-          <div
-            onClick={switchRate}
-            className="flex items-center justify-center rounded-full bg-black bg-opacity-25 w-4 h-4 cursor-pointer mr-1.5"
-          >
-            <SwitchButton></SwitchButton>
-          </div>
-          <div
-            className={`text-white text-sm ${rateDirection ? '' : 'hidden'}`}
-          >
-            1 {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}{' '}
-            <span style={{ color: '#91a2ae' }}>(${getTokenPrice('l')})</span> ={' '}
-            {getCurrentPrice('r')}
-            {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
-          </div>
-          <div
-            className={`text-white text-sm ${rateDirection ? 'hidden' : ''}`}
-          >
-            1 {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}{' '}
-            <span style={{ color: '#91a2ae' }}>(${getTokenPrice('r')})</span> ={' '}
-            {getCurrentPrice('l')}
-            {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}
-          </div>
-        </div> */}
-        {/* <div className="flex justify-between items-center h-14 px-3 mt-5 bg-black bg-opacity-20 rounded-lg">
-          <input
-            type="number"
-            placeholder="0.0"
-            value={removeAmount}
-            onChange={({ target }) => changeRemoveAmount(target.value)}
-            className="text-white text-lg focus:outline-non appearance-none leading-tight"
-          ></input>
-          <div className="flex items-center ml-2">
-            <span
-              onClick={() => {
-                changeRemoveAmount(liquidityAmount);
-              }}
-              className={`text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
-                removeAmount == liquidityAmount
-                  ? 'bg-black bg-opacity-20 border-black border-opacity-20'
-                  : 'border-maxBorderColor'
-              }`}
-            >
-              Max
-            </span>
-          </div>
-        </div> */}
         <div
           className={`mt-10 xsm:mt-6 mb-20 xsm:mb-16 ${
             liquidityAmount ? '' : 'hidden'
@@ -520,9 +446,6 @@ export const RemovePoolV3 = (props: any) => {
           <span className="text-sm text-farmText">
             <FormattedMessage id="minimum_tokens_out"></FormattedMessage>
           </span>
-          {/* <span className="text-sm text-v3SwapGray">
-            ~{MINDATA.minPrice || '$-'}
-          </span> */}
         </div>
         <div className="flex items-center justify-between">
           <div className="flex flex-col justify-center items-center mt-6 w-1 flex-grow">

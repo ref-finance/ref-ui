@@ -12,7 +12,7 @@ import {
 import { RequestingSmile } from '../icon/CrossSwapIcons';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import SlippageSelectorForStable from './SlippageSelector';
-import { useMyOrders } from '~state/swapV3';
+import { useMyOrders } from '../../state/swapV3';
 import { useHistory } from 'react-router-dom';
 import { OrderIcon } from '../icon/V3';
 

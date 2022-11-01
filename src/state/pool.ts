@@ -79,7 +79,7 @@ import {
 import Big from 'big.js';
 import { getPoolFeeAprTitle } from '../pages/pools/LiquidityPage';
 import { getPoolFeeAprTitleRPCView } from '../pages/pools/MorePoolsPage';
-import { PoolInfo, get_pool } from '~services/swapV3';
+import { PoolInfo, get_pool } from '../services/swapV3';
 import { useTokenPriceList } from './token';
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID

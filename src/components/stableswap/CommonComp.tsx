@@ -23,7 +23,7 @@ import {
   addPoolToWatchList,
   removePoolFromWatchList,
   getWatchListFromDb,
-} from '~services/pool';
+} from '../../services/pool';
 import { isClientMobie } from '../../utils/device';
 import ReactTooltip from 'react-tooltip';
 

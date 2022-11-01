@@ -394,7 +394,9 @@ export default function YourLiquidityDetail(props: any) {
           onClick={goYourLiquidityPage}
         >
           <ReturnIcon></ReturnIcon>
-          <span className="text-sm ml-2.5">Back</span>
+          <span className="text-sm ml-2.5">
+            <FormattedMessage id="back" />
+          </span>
         </div>
       </div>
       <div className="flex items-center justify-between mt-6">
@@ -418,7 +420,7 @@ export default function YourLiquidityDetail(props: any) {
           <div className="flex items-center xs:mt-4 md:mt-4">
             <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5 mx-2.5 xs:ml-0 md:ml-0">
               <span className="text-xs text-v3SwapGray mr-1.5 whitespace-nowrap">
-                Fee Tiers
+                <FormattedMessage id="fee_Tiers" />
               </span>
               <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
             </div>
@@ -435,7 +437,11 @@ export default function YourLiquidityDetail(props: any) {
                     : 'text-v3GarkWarningColor'
                 }`}
               >
-                {isInrange ? 'In range' : 'Out of range'}
+                {isInrange ? (
+                  <FormattedMessage id="in_range" />
+                ) : (
+                  <FormattedMessage id="out_of_range" />
+                )}
               </span>
             </div>
           </div>
@@ -444,14 +450,10 @@ export default function YourLiquidityDetail(props: any) {
       <div className="flex justify-between mt-8 items-stretch xs:flex-col md:flex-col xs:mt-5 md:mt-5">
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow mr-3 xs:w-full md:w-full xs:mr-0 md:mr-0 xs:p-3 md:p-3">
           <div className="flex justify-between xs:w-full md:w-full">
-            <div className="text-white text-base">Your Liquidity</div>
+            <div className="text-white text-base">
+              <FormattedMessage id="your_liquidity" />
+            </div>
             <div className="text-white text-sm">~{getLiquidityPrice()}</div>
-            {/* <div className="flex items-center justify-between mt-3.5 xs:flex-col md:flex-col xs:mt-0 md:mt-0 xs:items-end md:items-end">
-              <span className="text-white text-xl">{getLiquidityAmount()}</span>
-              <span className="text-v3SwapGray text-sm">
-                ~{getLiquidityPrice()}
-              </span>
-            </div> */}
           </div>
           <div className={`flex items-center justify-between mt-5`}>
             <div className="flex items-center">
@@ -494,7 +496,7 @@ export default function YourLiquidityDetail(props: any) {
               color="#fff"
               className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
             >
-              Add
+              <FormattedMessage id="add"></FormattedMessage>
             </GradientButton>
             <OprationButton
               onClick={(e: any) => {
@@ -504,35 +506,18 @@ export default function YourLiquidityDetail(props: any) {
               color="#fff"
               className={`flex flex-grow  w-1 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
             >
-              Remove
+              <FormattedMessage id="remove"></FormattedMessage>
             </OprationButton>
           </div>
         </div>
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow xs:w-full md:w-full xs:mt-3 md:mt-3 xs:p-3 md:p-3">
           <div className="flex items-center justify-between text-white text-base flex-wrap">
-            <span>Unclaimed Fees</span>
+            <span>
+              <FormattedMessage id="unclaimed_fees" />
+            </span>
             <span className="text-white text-base">
               {getTokenFeeAmount('p') || '$-'}
             </span>
-
-            {/* <div className="flex items-center">
-              <span className="text-white text-xl mr-2 lg:hidden">
-                {getTokenFeeAmount('p') || '$-'}
-              </span>
-              <div
-                className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
-                  !canClaim()
-                    ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                    : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-                }`}
-                onClick={claimRewards}
-              >
-                <ButtonTextWrapper
-                  loading={claimLoading}
-                  Text={() => <FormattedMessage id="claim" />}
-                />
-              </div>
-            </div> */}
           </div>
           <div className="flex items-center justify-between mt-5">
             <div className="flex items-center">
@@ -583,38 +568,46 @@ export default function YourLiquidityDetail(props: any) {
       </div>
       <div className="mt-3 bg-cardBg rounded-xl p-5 xs:p-3 md:p-3">
         <div className="flex items-center">
-          <span className="text-sm text-white">Price Range</span>
+          <span className="text-sm text-white">
+            <FormattedMessage id="price_range" />
+          </span>
         </div>
         <div className="flex items-stretch justify-between mt-4">
           <div className="flex flex-col items-center  w-1 flex-grow bg-black bg-opacity-20 rounded-xl mr-3.5 px-3.5 py-5 xs:mr-1.5 md:mr-1.5">
-            <span className="text-xs text-primaryText">Min Price</span>
+            <span className="text-xs text-primaryText">
+              <FormattedMessage id="min_price" />
+            </span>
             <span className="text-white text-xl my-2 break-all">
               {getRate('left')}
             </span>
             <p className="text-xs text-primaryText text-center">
-              Your position will be 100%{' '}
+              <FormattedMessage id="your_position_will_be" /> 100%{' '}
               {rateSort
                 ? tokenMetadata_x_y && tokenMetadata_x_y[0].symbol
                 : tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}{' '}
-              at this price
+              <FormattedMessage id="at_this_price" />
             </p>
           </div>
           <div className="flex flex-col items-center  w-1 flex-grow  bg-black bg-opacity-20 rounded-xl  px-3.5 py-5">
-            <span className="text-xs text-primaryText">Max Price</span>
+            <span className="text-xs text-primaryText">
+              <FormattedMessage id="max_price"></FormattedMessage>
+            </span>
             <span className="text-white text-xl my-2 break-all">
               {getRate('right')}
             </span>
             <p className="text-xs text-primaryText text-center">
-              Your position will be 100%{' '}
+              <FormattedMessage id="your_position_will_be" /> 100%{' '}
               {rateSort
                 ? tokenMetadata_x_y && tokenMetadata_x_y[1].symbol
                 : tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}{' '}
-              at this price
+              <FormattedMessage id="at_this_price" />
             </p>
           </div>
         </div>
         <div className="flex items-center justify-between flex-wrap bg-black bg-opacity-20 mt-2 rounded-xl px-3.5 py-3">
-          <span className="text-xs text-primaryText">Current Price</span>
+          <span className="text-xs text-primaryText">
+            <FormattedMessage id="current_price"></FormattedMessage>
+          </span>
           <span className="text-xl text-white break-all">
             {getRate('current')}
           </span>

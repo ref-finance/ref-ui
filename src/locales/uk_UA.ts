@@ -850,5 +850,43 @@ const uk_UA = {
   no_claimed_rewards_yet: 'No claimed rewards yet',
   out_of: 'out of',
   value_must_be_less_than_or_equal_to: 'Value must be less than or equal to',
+  select_tokens: 'Select Tokens',
+  fee_Tiers: 'Fee Tiers',
+  select_s: 'select',
+  no_pool: 'No Pool',
+  input_amount: 'Input Amount',
+  update_range: 'Update Range',
+  not_enough_balance: 'Not Enough Balance',
+  set_price_range: 'Set Price Range',
+  current_price: 'Current Price',
+  pool_creation: 'Pool creation',
+  pool_creation_tip:
+    'There is no existing pool for the selected tokens. To create the pool, you must set the pool rate, by providing corresponding amounts.',
+  starting_price: 'Starting Price',
+  create_a_pool: 'Create a Pool',
+  add_single_price_tip:
+    'Your position will not earn fees or be used in trades until the market price moves into your range.',
+  invalid_range_tip:
+    'Invalid range selected. The min price must be lower than the max price.',
+  maket_price_outside_tip: 'The maket price is outside your price range.',
+  maket_price_outside_single_only_tip:
+    'The maket price is outside your price range.Single asset deposit only.',
+  min_price: 'Min Price',
+  max_price: 'Max Price',
+  min: 'Min',
+  out_of_range: 'Out of range',
+  in_range: 'In range',
+  unclaimed_fees: 'Unclaimed Fees',
+  your_position_will_be: 'Your position will be',
+  at_this_price: 'at this price',
+  price_range: 'Price Range',
+  positions: 'Positions',
+  add_new_position: 'Add New Position',
+  range: 'Range',
+  unclaimed_fee: 'Unclaimed Fee',
+  login_risk_tip:
+    'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
+    "'/risks'" +
+    ')">risks</a> of using Ref Finance.',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

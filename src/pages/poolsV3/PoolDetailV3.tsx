@@ -306,7 +306,7 @@ export default function PoolDetailV3() {
                 </span>
               </div>
               <span className="text-sm text-primaryText">
-                Fee: {poolDetail.fee / 10000}%
+                <FormattedMessage id="fee" />: {poolDetail.fee / 10000}%
               </span>
             </div>
           </div>
@@ -392,7 +392,7 @@ function UserTabBox(props: {
               tabActive == 1 ? 'text-white' : 'text-primaryText'
             }`}
           >
-            Your Liquidity
+            <FormattedMessage id="your_liquidity" />
           </span>
           <label
             className={`bg-senderHot w-full rounded-full h-1 mt-3 ${
@@ -411,7 +411,7 @@ function UserTabBox(props: {
               tabActive == 2 ? 'text-white' : 'text-primaryText'
             }`}
           >
-            Unclaimed Fees
+            <FormattedMessage id="unclaimed_fees" />
           </span>
           <label
             className={`bg-senderHot w-full rounded-full h-1 mt-3 ${
@@ -656,7 +656,7 @@ function YourLiquidityBox(props: {
         </span>
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
-            {liquidities.length} Positions
+            {liquidities.length} <FormattedMessage id="positions" />
           </span>
         ) : null}
       </div>
@@ -664,7 +664,7 @@ function YourLiquidityBox(props: {
         {getTotalLiquditiesTvl()}
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2 mt-0.5 lg:hidden">
-            {liquidities.length} Positions
+            {liquidities.length} <FormattedMessage id="positions" />
           </span>
         ) : null}
       </div>
@@ -700,7 +700,7 @@ function YourLiquidityBox(props: {
           borderRadius={'8px'}
           className={`flex-grow w-1 h-11 text-center text-sm text-white focus:outline-none mr-2.5`}
         >
-          Add
+          <FormattedMessage id="add" />
         </GradientButton>
         <OprationButton
           onClick={(e: any) => {
@@ -710,7 +710,7 @@ function YourLiquidityBox(props: {
           color="#fff"
           className={`flex flex-grow  w-1 h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
         >
-          Remove
+          <FormattedMessage id="remove" />
         </OprationButton>
       </div>
       <SelectLiquidityBox
@@ -832,10 +832,12 @@ function UnclaimedFeesBox(props: any) {
   return (
     <div className="p-5 bg-cardBg rounded-xl mt-3.5 xsm:p-0">
       <div className="flex items-center justify-between xsm:hidden">
-        <span className="text-white text-base">Unclaimed Fees</span>
+        <span className="text-white text-base">
+          <FormattedMessage id="unclaimed_fees" />
+        </span>
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
-            {liquidities.length} Positions
+            {liquidities.length} <FormattedMessage id="positions" />
           </span>
         ) : null}
       </div>
@@ -843,7 +845,7 @@ function UnclaimedFeesBox(props: any) {
         {getTotalLiquditiesFee()}
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2 mt-0.5 lg:hidden">
-            {liquidities.length} Positions
+            {liquidities.length} <FormattedMessage id="positions" />
           </span>
         ) : null}
       </div>
@@ -895,7 +897,7 @@ function NoYourLiquditiesBox(props: any) {
     <div className="flex flex-col items-center px-10 py-6 bg-cardBg rounded-xl">
       <NoLiquidityIcon className="mt-6"></NoLiquidityIcon>
       <span className="text-sm text-v3SwapGray mt-5 mb-8">
-        No positons in this pool yet
+        <FormattedMessage id="no_positons_in_this_pool_yet" />
       </span>
       <div className="flex justify-center w-full">
         <GradientButton
@@ -985,7 +987,9 @@ function SelectLiquidityBox(props: any) {
       >
         <div className="header flex items-center justify-between mb-5 px-6">
           <div className="flex items-center justify-center">
-            <span className="text-white text-xl mr-2">Positions</span>
+            <span className="text-white text-xl mr-2">
+              <FormattedMessage id="positions" />
+            </span>
             <span className="flex-shrink-0 border border-greenColor rounded-2xl bg-black bg-opacity-25 text-xs text-gradientFromHover px-2">
               {user_liquidities_detail.length}
             </span>
@@ -1017,7 +1021,7 @@ function SelectLiquidityBox(props: any) {
                     </div>
                     <div className="flex items-center justify-between my-1.5">
                       <span className="text-sm text-farmText">
-                        Unclaimed Fee
+                        <FormattedMessage id="unclaimed_fee" />
                       </span>
                       <span className="text-sm text-white">
                         {displayLiqudityFee(liquidityDetail)}
@@ -1035,7 +1039,7 @@ function SelectLiquidityBox(props: any) {
                           borderRadius={'8px'}
                           className={`w-24 h-9 text-center text-sm text-white focus:outline-none`}
                         >
-                          Add
+                          <FormattedMessage id="add" />
                         </GradientButton>
                       ) : (
                         <OprationButton
@@ -1047,7 +1051,7 @@ function SelectLiquidityBox(props: any) {
                           color="#fff"
                           className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
                         >
-                          Remove
+                          <FormattedMessage id="remove" />
                         </OprationButton>
                       )}
                     </div>
@@ -1063,9 +1067,15 @@ function SelectLiquidityBox(props: any) {
           >
             <div className="grid grid-cols-9 gap-x-3 text-farmText  text-sm h-10 justify-center items-center px-6">
               <span className="col-span-1 pl-2">ID</span>
-              <span className="col-span-2">Liquidity</span>
-              <span className="col-span-3">Range</span>
-              <span className="col-span-3">Unclaimed Fee</span>
+              <span className="col-span-2">
+                <FormattedMessage id="liquidity" />
+              </span>
+              <span className="col-span-3">
+                <FormattedMessage id="range" />
+              </span>
+              <span className="col-span-3">
+                <FormattedMessage id="unclaimed_fee" />
+              </span>
             </div>
             <div>
               {user_liquidities_detail.map(
@@ -1107,7 +1117,7 @@ function SelectLiquidityBox(props: any) {
                                 : 'hidden'
                             }`}
                           >
-                            Add
+                            <FormattedMessage id="add" />
                           </GradientButton>
                         ) : (
                           <OprationButton
@@ -1122,7 +1132,7 @@ function SelectLiquidityBox(props: any) {
                                 : 'hidden'
                             }`}
                           >
-                            Remove
+                            <FormattedMessage id="remove" />
                           </OprationButton>
                         )}
                       </div>
@@ -1144,7 +1154,7 @@ function SelectLiquidityBox(props: any) {
               color="#fff"
               className={`w-44 xsm:w-full h-10 text-center text-base text-white focus:outline-none mt-7 xsm:mt-4`}
             >
-              Add New Position
+              <FormattedMessage id="add_new_position" />
             </GradientButton>
           </div>
         ) : null}
@@ -1582,7 +1592,7 @@ function LiquidityChart(props: any) {
         <div className="flex flex-col">
           <span className="text-base text-white">{displayCurrentPrice()}</span>
           <span className="text-sm text-primaryText xsm:text-xs">
-            Current Price
+            <FormattedMessage id="current_price" />
           </span>
         </div>
         <ChartChangeButton

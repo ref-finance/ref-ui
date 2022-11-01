@@ -109,6 +109,9 @@ export default function AddYourLiquidityPageV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const nearBalance = useDepositableBalance('NEAR');
+  const intl = useIntl();
+  const intl_select = intl.formatMessage({ id: 'select_s' });
+  const OPEN_CREATE_POOL_ENTRY = true;
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
     get_list_pools();
@@ -570,7 +573,10 @@ export default function AddYourLiquidityPageV3() {
               {/* left area */}
               <div className="w-1/2 mr-7 flex-shrink-0 xs:w-full md:w-full">
                 <div className="text-white font-bold text-base">
-                  Select Tokens
+                  <FormattedMessage
+                    id="select_tokens"
+                    defaultMessage="Select Tokens"
+                  />
                 </div>
                 <div className="flex items-center justify-between mt-3">
                   <div className="flex flex-grow w-1">
@@ -597,7 +603,12 @@ export default function AddYourLiquidityPageV3() {
                               </span>
                             </div>
                           ) : (
-                            <>Select Token</>
+                            <>
+                              <FormattedMessage
+                                id="select_token"
+                                defaultMessage="Select Token"
+                              ></FormattedMessage>
+                            </>
                           )}
                           <SelectIcon></SelectIcon>
                         </div>
@@ -674,7 +685,12 @@ export default function AddYourLiquidityPageV3() {
                               </span>
                             </div>
                           ) : (
-                            <>Select Token</>
+                            <>
+                              <FormattedMessage
+                                id="select_token"
+                                defaultMessage="Select Token"
+                              ></FormattedMessage>
+                            </>
                           )}
                           <SelectIcon></SelectIcon>
                         </div>
@@ -704,16 +720,29 @@ export default function AddYourLiquidityPageV3() {
                           : ''}
                       </span>
                       <div className="text-white text-base xs:text-sm md:text-sm">
-                        Fee Tiers
+                        <FormattedMessage
+                          id="fee_Tiers"
+                          defaultMessage="Fee Tiers"
+                        />
                       </div>
                       <div
                         className={`text-xs text-v3SwapGray px-2.5 py-0.5 bg-black bg-opacity-20 rounded-2xl ml-2 lg:hidden ${
                           feeBoxStatus || !currentSelectedPool ? 'hidden' : ''
                         }`}
                       >
-                        {currentSelectedPool?.pool_id
-                          ? `${(currentSelectedPool.percent || 0) + '%'} select`
-                          : 'No Pool'}
+                        {currentSelectedPool?.pool_id ? (
+                          `${(currentSelectedPool.percent || 0) + '%'} ${(
+                            <FormattedMessage
+                              id="select_s"
+                              defaultMessage="select"
+                            ></FormattedMessage>
+                          )}`
+                        ) : (
+                          <FormattedMessage
+                            id="no_pool"
+                            defaultMessage="No Pool"
+                          ></FormattedMessage>
+                        )}
                       </div>
                     </div>
                     <div
@@ -763,13 +792,15 @@ export default function AddYourLiquidityPageV3() {
                                 className={`flex items-center justify-center w-full py-1 rounded-xl bg-black bg-opacity-20 text-xs text-v3LightGreyColor mt-2 whitespace-nowrap`}
                               >
                                 <span className="transform xs:scale-90 md:scale-90">
-                                  {!currentPools[fee]
-                                    ? 'No Pool'
-                                    : Object.keys(tokenPriceList).length > 0
-                                    ? (currentPools[fee].percent || '0') +
-                                      '%' +
-                                      ' select'
-                                    : 'Loading...'}
+                                  {!currentPools[fee] ? (
+                                    <FormattedMessage id="no_pool" />
+                                  ) : Object.keys(tokenPriceList).length > 0 ? (
+                                    (currentPools[fee].percent || '0') +
+                                    '%' +
+                                    ` ${intl_select}`
+                                  ) : (
+                                    'Loading...'
+                                  )}
                                 </span>
                               </div>
                             ) : null}
@@ -789,15 +820,22 @@ export default function AddYourLiquidityPageV3() {
                         : ''}
                     </span>
                     <div className="text-sm text-v3SwapGray px-2.5 py-0.5 bg-black bg-opacity-20 rounded-2xl">
-                      {currentSelectedPool?.pool_id
-                        ? `${(currentSelectedPool.percent || 0) + '%'} select`
-                        : 'No Pool'}
+                      {currentSelectedPool?.pool_id ? (
+                        `${
+                          (currentSelectedPool.percent || 0) + '%'
+                        } ${intl_select}`
+                      ) : (
+                        <FormattedMessage id="no_pool" />
+                      )}
                     </div>
                   </div>
                 </div>
                 <div className="mt-5">
                   <span className="text-base text-white font-bold">
-                    Input Amount
+                    <FormattedMessage
+                      id="input_amount"
+                      defaultMessage="Input Amount"
+                    />
                   </span>
                   <OneSide
                     show={
@@ -850,7 +888,9 @@ export default function AddYourLiquidityPageV3() {
               {/* no Data */}
               {currentSelectedPool ? null : <NoDataComponent></NoDataComponent>}
               {/* add pool part */}
-              {currentSelectedPool && !currentSelectedPool.pool_id ? (
+              {currentSelectedPool &&
+              !currentSelectedPool.pool_id &&
+              OPEN_CREATE_POOL_ENTRY ? (
                 <CreatePoolComponent
                   currentSelectedPool={currentSelectedPool}
                   tokenX={tokenX}
@@ -858,6 +898,11 @@ export default function AddYourLiquidityPageV3() {
                   tokenPriceList={tokenPriceList}
                   buttonSort={buttonSort}
                 ></CreatePoolComponent>
+              ) : null}
+              {currentSelectedPool &&
+              !currentSelectedPool.pool_id &&
+              !OPEN_CREATE_POOL_ENTRY ? (
+                <NoDataComponent isNoPool={true}></NoDataComponent>
               ) : null}
               {/* add Liquidity part */}
               {currentSelectedPool && currentSelectedPool.pool_id ? (
@@ -967,22 +1012,31 @@ function CreatePoolComponent({
     <div
       className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
     >
-      <div className="text-white font-bold text-base">Initialize the pool:</div>
+      <div className="text-white font-bold text-base">
+        <FormattedMessage
+          id="pool_creation"
+          defaultMessage="Pool creation"
+        ></FormattedMessage>
+        :
+      </div>
       <div className="relative flex-grow bg-black bg-opacity-10 rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2">
         <BgIcon className="absolute right-0 top-0 xs:hidden md:hidden"></BgIcon>
         <div className="relative z-10 flex flex-col justify-between h-full">
           <div>
             <p className="text-sm text-white">
-              This pool is not initialized before. To initialize, select a
-              starting price for the pool and the enter your liquidity price
-              range and deposit amount.
-            </p>
-            <p className="text-sm text-v3WarningColor mt-1">
-              Gas fees will be higher than usual!
+              <FormattedMessage
+                id="pool_creation_tip"
+                defaultMessage="There is no existing pool for the selected tokens. To create the pool, you must set the pool rate, by providing corresponding amounts."
+              ></FormattedMessage>
             </p>
           </div>
           <div className="xs:mt-20 md:mt-20">
-            <p className="text-base text-white">Starting Price</p>
+            <p className="text-base text-white">
+              <FormattedMessage
+                id="starting_price"
+                defaultMessage="Starting Price"
+              ></FormattedMessage>
+            </p>
             <div className="flex items-center justify-between mt-3">
               <span className="whitespace-nowrap mr-2">
                 1 {toRealSymbol(tokenX?.symbol)} =
@@ -1004,7 +1058,10 @@ function CreatePoolComponent({
             </div>
             <div className="flex items-center flex-wrap justify-between mt-3.5">
               <span className="text-xs text-v3LightGreyColor mr-2 mb-2">
-                Current Price
+                <FormattedMessage
+                  id="current_price"
+                  defaultMessage="Current Price"
+                ></FormattedMessage>
               </span>
               <div className="flex items-center text-xs text-white mb-2">
                 {rateStatus ? (
@@ -1053,7 +1110,14 @@ function CreatePoolComponent({
         >
           <ButtonTextWrapper
             loading={createPoolButtonLoading}
-            Text={() => <>Create a Pool</>}
+            Text={() => (
+              <>
+                <FormattedMessage
+                  id="create_a_pool"
+                  defaultMessage="Create a Pool"
+                ></FormattedMessage>
+              </>
+            )}
           />
         </GradientButton>
       ) : (
@@ -1507,39 +1571,68 @@ function AddLiquidityComponent({
     }
   }
   function getButtonText() {
-    let txt = 'Add Liquidity';
+    let txt: any = (
+      <FormattedMessage id="add_liquidity" defaultMessage="Add Liquidity" />
+    );
     if (invalidRange) {
-      txt = 'Update Range';
+      txt = (
+        <FormattedMessage id="update_range" defaultMessage="Update Range" />
+      );
     } else if (
       (onlyAddXToken && +tokenXAmount == 0 && tokenSort) ||
       (onlyAddXToken && +tokenYAmount == 0 && !tokenSort)
     ) {
-      txt = 'Input Amount';
+      txt = (
+        <FormattedMessage
+          id="input_amount"
+          defaultMessage="Input Amount"
+        ></FormattedMessage>
+      );
     } else if (
       (onlyAddYToken && +tokenYAmount == 0 && tokenSort) ||
       (onlyAddYToken && +tokenXAmount == 0 && !tokenSort)
     ) {
-      txt = 'Input Amount';
+      txt = (
+        <FormattedMessage
+          id="input_amount"
+          defaultMessage="Input Amount"
+        ></FormattedMessage>
+      );
     } else if (
       !onlyAddXToken &&
       !onlyAddYToken &&
       (+tokenXAmount == 0 || +tokenYAmount == 0)
     ) {
-      txt = 'Input Amount';
+      txt = (
+        <FormattedMessage
+          id="input_amount"
+          defaultMessage="Input Amount"
+        ></FormattedMessage>
+      );
     } else if (
       +tokenXAmount > 0 &&
       new BigNumber(tokenXAmount).isGreaterThan(
         getMax(tokenX, tokenXBalanceFromNear)
       )
     ) {
-      txt = 'Not Enough Balance';
+      txt = (
+        <FormattedMessage
+          id="not_enough_balance"
+          defaultMessage="Not Enough Balance"
+        />
+      );
     } else if (
       +tokenYAmount > 0 &&
       new BigNumber(tokenYAmount).isGreaterThan(
         getMax(tokenY, tokenYBalanceFromNear)
       )
     ) {
-      txt = 'Not Enough Balance';
+      txt = (
+        <FormattedMessage
+          id="not_enough_balance"
+          defaultMessage="Not Enough Balance"
+        />
+      );
     }
     return txt;
   }
@@ -1554,11 +1647,19 @@ function AddLiquidityComponent({
     <div
       className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
     >
-      <div className="text-white font-bold text-base">Set Price Range</div>
+      <div className="text-white font-bold text-base">
+        <FormattedMessage
+          id="set_price_range"
+          defaultMessage="Set Price Range"
+        ></FormattedMessage>
+      </div>
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 xs:py-5 md:py-5 mt-3 xs:px-2 md:px-2">
         <div className="flex items-center flex-wrap justify-between mt-3.5 xs:mt-0 md:mt-0">
           <span className="text-xs text-v3LightGreyColor mb-2">
-            Current Price
+            <FormattedMessage
+              id="current_price"
+              defaultMessage="Current Price"
+            ></FormattedMessage>
           </span>
           <div className="flex items-center text-xs text-white mb-2">
             1 {toRealSymbol(tokenX?.symbol)}
@@ -1598,7 +1699,10 @@ function AddLiquidityComponent({
           <div className="flex items-center justify-between">
             <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-3 mr-5 xs:mr-2 md:mr-2">
               <span className="text-sm text-primaryText xs:text-xs md:text-xs">
-                Min Price
+                <FormattedMessage
+                  id="min_price"
+                  defaultMessage="Min Price"
+                ></FormattedMessage>
               </span>
               {tokenSort ? (
                 <PointInputComponent
@@ -1630,7 +1734,10 @@ function AddLiquidityComponent({
             </div>
             <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-2.5">
               <span className="text-sm text-primaryText xs:text-xs md:text-xs">
-                Max Price
+                <FormattedMessage
+                  id="max_price"
+                  defaultMessage="Max Price"
+                ></FormattedMessage>
               </span>
               {tokenSort ? (
                 <PointInputComponent
@@ -1689,7 +1796,7 @@ function AddLiquidityComponent({
                     quickChangePoint(item);
                   }}
                   key={index}
-                  className={`flex items-center justify-center rounded-lg h-6 py-0.5 lg:px-1.5  xs:px-1 md:px-1  lg:px-1.5  2xl:px-3.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
+                  className={`flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5  2xl:px-3.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
                     currentCheckedQuickOption == item
                       ? 'bg-v3PurpleColor border-v3PurpleColor text-white'
                       : 'border-v3GreyColor text-v3LightGreyColor'
@@ -1723,8 +1830,10 @@ function AddLiquidityComponent({
       >
         <WarningIcon className="relative top-1 flex-shrink-0"></WarningIcon>
         <div className="text-sm text-v3WarningColor ml-3">
-          Your position will not earn fees or be used in trades until the market
-          price moves into your range.
+          <FormattedMessage
+            id="add_single_price_tip"
+            defaultMessage="Your position will not earn fees or be used in trades until the market price moves into your range. "
+          ></FormattedMessage>
         </div>
       </div>
       <div
@@ -1734,8 +1843,10 @@ function AddLiquidityComponent({
       >
         <WarningIcon className="relative top-1 flex-shrink-0"></WarningIcon>
         <div className="text-sm text-v3WarningColor ml-3">
-          Invalid range selected. The min price must be lower than the max
-          price.
+          <FormattedMessage
+            id="invalid_range_tip"
+            defaultMessage="Invalid range selected. The min price must be lower than the max price."
+          />
         </div>
       </div>
       {isSignedIn ? (
@@ -1761,23 +1872,39 @@ function AddLiquidityComponent({
   );
 }
 
-function NoDataComponent() {
+function NoDataComponent(props: any) {
+  const { isNoPool } = props;
   const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
   return (
     <div
-      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
+      className={`relative w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
     >
-      <div className="text-white font-bold text-base">Set Price Range</div>
+      <div className="text-white font-bold text-base">
+        <FormattedMessage
+          id="set_price_range"
+          defaultMessage="Set Price Range"
+        ></FormattedMessage>
+      </div>
+      {isNoPool ? (
+        <div className="flex justify-center items-center absolute w-full text-sm text-v3poolWarningColor top-28 xsm:top-16 z-10">
+          Oops! The pool does not exist.
+        </div>
+      ) : null}
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2 opacity-50">
         {/* range chart area */}
-        <div className="flex flex-col items-center justify-center mt-20 xs:my-12 md:my-20">
+        <div className="flex flex-col items-center justify-center mt-28 xsm:my-12">
           <EmptyIcon></EmptyIcon>
         </div>
         {/* input range area */}
         <div>
           <div className="flex items-center justify-between">
             <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-3 mr-5 xs:mr-2 md:mr-2">
-              <span className="text-sm text-primaryText">Min Price</span>
+              <span className="text-sm text-primaryText">
+                <FormattedMessage
+                  id="min_price"
+                  defaultMessage="Min Price"
+                ></FormattedMessage>
+              </span>
               <div className="flex items-center justify-between mt-3.5">
                 <div className="flex w-6 h-6  flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor">
                   <ReduceButton></ReduceButton>
@@ -1794,7 +1921,12 @@ function NoDataComponent() {
               </div>
             </div>
             <div className="w-1 flex-grow flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-2.5">
-              <span className="text-sm text-primaryText">Max Price</span>
+              <span className="text-sm text-primaryText">
+                <FormattedMessage
+                  id="max_price"
+                  defaultMessage="Max Price"
+                ></FormattedMessage>
+              </span>
               <div className="flex items-center justify-between mt-3.5">
                 <div className="flex w-6 h-6  flex-shrink-0 items-center justify-center rounded-md bg-v3BlackColor">
                   <ReduceButton></ReduceButton>
@@ -1839,7 +1971,17 @@ function NoDataComponent() {
         className={`w-full h-10 mt-5 text-center text-base text-white focus:outline-none opacity-30`}
         disabled={true}
       >
-        <ButtonTextWrapper loading={false} Text={() => <>Select Tokens</>} />
+        <ButtonTextWrapper
+          loading={false}
+          Text={() => (
+            <>
+              <FormattedMessage
+                id="select_tokens"
+                defaultMessage="Select Tokens"
+              />
+            </>
+          )}
+        />
       </GradientButton>
     </div>
   );
@@ -1895,7 +2037,10 @@ function OneSide({ show }: { show: boolean }) {
       <BoxDarkBg className="absolute top-0 right-0"></BoxDarkBg>
       <SideIcon className="mr-5 flex-shrink-0"></SideIcon>
       <div className="relative z-10 text-white text-sm">
-        The maket price is outside your price range.Single asset deposit only.
+        <FormattedMessage
+          id="maket_price_outside_single_only_tip"
+          defaultMessage="The maket price is outside your price range.Single asset deposit only."
+        ></FormattedMessage>
       </div>
     </div>
   );
@@ -1910,7 +2055,10 @@ function InvalidRange({ show }: { show: boolean }) {
       <BoxDarkBg className="absolute top-0 right-0"></BoxDarkBg>
       <InvalidIcon className="mr-5"></InvalidIcon>
       <div className="relative z-10 text-white text-sm">
-        The maket price is outside your price range.
+        <FormattedMessage
+          id="maket_price_outside_tip"
+          defaultMessage="The maket price is outside your price range."
+        ></FormattedMessage>
       </div>
     </div>
   );
@@ -2029,8 +2177,11 @@ function InputAmount({
       </div>
       {showNearTip ? (
         <div className="flex items-center text-sm text-warnColor mt-2.5">
-          <WarningIcon className="ml-2.5 mr-2"></WarningIcon>Must have 0.5N or
-          more left in wallet for gas fee
+          <WarningIcon className="ml-2.5 mr-2"></WarningIcon>
+          <FormattedMessage
+            id="near_validation_error"
+            defaultMessage="Must have 0.5N or more left in wallet for gas fee."
+          />
         </div>
       ) : null}
     </div>
