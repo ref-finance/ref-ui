@@ -812,5 +812,7 @@ const zh_CN = {
   newText: '最新',
   no_claimed_rewards_yet: '还没有领取的奖励',
   out_of: 'out of',
+  total_ref_week: 'REF/周',
+  ref_week_you_will_get: '你将获得的REF/周',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

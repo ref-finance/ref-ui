@@ -864,5 +864,7 @@ const ja = {
   pool_stop_tip: 'This pool has been stopped.',
   no_claimed_rewards_yet: 'No claimed rewards yet',
   out_of: 'out of',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
 };
 export default Object.assign(ja, ja_in_risks_page);
