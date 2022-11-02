@@ -111,7 +111,7 @@ export default function AddYourLiquidityPageV3() {
   const nearBalance = useDepositableBalance('NEAR');
   const intl = useIntl();
   const intl_select = intl.formatMessage({ id: 'select_s' });
-  const OPEN_CREATE_POOL_ENTRY = true;
+  const OPEN_CREATE_POOL_ENTRY = false;
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
     get_list_pools();
