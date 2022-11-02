@@ -2114,7 +2114,9 @@ function InputAmount({
     return r;
   }
   function showCurrentPrice() {
-    if (inputPrice) {
+    if (isNoPool) {
+      return '$-';
+    } else if (inputPrice) {
       return '$' + formatWithCommas(toPrecision(inputPrice.toString(), 3));
     }
     return '$-';
@@ -2125,6 +2127,7 @@ function InputAmount({
       : Number(balance) <= 0.5
       ? '0'
       : String(Number(balance) - 0.5);
+  const isNoPool = !currentSelectedPool?.pool_id;
   return (
     <div>
       <div
@@ -2138,7 +2141,7 @@ function InputAmount({
             placeholder="0.0"
             className="text-2xl xs:text-xl md:text-xl"
             disabled={currentSelectedPool?.pool_id ? false : true}
-            value={amount}
+            value={isNoPool ? '' : amount}
             step="any"
             onChange={({ target }) => {
               changeAmount(target.value);
@@ -2179,7 +2182,7 @@ function InputAmount({
           </div>
         </div>
       </div>
-      {showNearTip ? (
+      {showNearTip && !isNoPool ? (
         <div className="flex items-center text-sm text-warnColor mt-2.5">
           <WarningIcon className="ml-2.5 mr-2"></WarningIcon>
           <FormattedMessage
