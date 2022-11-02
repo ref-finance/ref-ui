@@ -934,5 +934,6 @@ const es = {
     'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
     "'/risks'" +
     ')">risks</a> of using Ref Finance.',
+  no_pool_tip: 'Oops! The pool does not exist.',
 };
 export default Object.assign(es, es_in_risks_page);

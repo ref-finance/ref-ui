@@ -891,5 +891,6 @@ const zh_CN = {
     '通过勾选这个框并继续前进，您确认您完全了解使用Ref Finance的 <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
     "'/risks'" +
     ')">风险</a>。',
+  no_pool_tip: '哦!池子不存在。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

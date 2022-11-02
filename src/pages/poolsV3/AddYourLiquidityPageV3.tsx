@@ -1887,7 +1887,7 @@ function NoDataComponent(props: any) {
       </div>
       {isNoPool ? (
         <div className="flex justify-center items-center absolute w-full text-sm text-v3poolWarningColor top-28 xsm:top-16 z-10">
-          Oops! The pool does not exist.
+          <FormattedMessage id="no_pool_tip"></FormattedMessage>
         </div>
       ) : null}
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2 opacity-50">
@@ -1975,10 +1975,14 @@ function NoDataComponent(props: any) {
           loading={false}
           Text={() => (
             <>
-              <FormattedMessage
-                id="select_tokens"
-                defaultMessage="Select Tokens"
-              />
+              {isNoPool ? (
+                <FormattedMessage id="no_pool" defaultMessage="No Pool" />
+              ) : (
+                <FormattedMessage
+                  id="select_tokens"
+                  defaultMessage="Select Tokens"
+                />
+              )}
             </>
           )}
         />
