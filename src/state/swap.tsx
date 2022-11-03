@@ -72,7 +72,6 @@ import {
   find_order,
 } from '../services/swapV3';
 import _, { toArray } from 'lodash';
-import Big from 'big.js';
 import { getV3PoolId } from '../services/swapV3';
 import {
   checkAllocations,
@@ -87,7 +86,7 @@ import {
 import { toRealSymbol } from '../utils/token';
 import { useTokenPriceList } from './token';
 import Big from 'big.js';
-
+import BigNumber from 'bignumber.js';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 interface SwapOptions {
@@ -357,6 +356,7 @@ export const useCrossSwapPopUp = (bestSwap: 'v2' | 'v3') => {
       history.replace(pathname);
     }
   }, [txHashes, bestSwap]);
+};
 export const estimateValidator = (
   swapTodos: EstimateSwapView[],
   tokenIn: TokenMetadata,
