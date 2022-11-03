@@ -93,6 +93,7 @@ import {
 import TokenReserves from '../stableswap/TokenReserves';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
+import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import {
   NEAR_CLASS_STABLE_TOKEN_IDS,
   BTC_CLASS_STABLE_TOKEN_IDS,
@@ -590,6 +591,8 @@ export default function SwapCard(props: {
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
+  const [showSkywardTip, setShowSkywardTip] = useState<boolean>(false);
+
   const intl = useIntl();
   const location = useLocation();
   const history = useHistory();
@@ -617,6 +620,10 @@ export default function SwapCard(props: {
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
   }, []);
+  const skywardId =
+    getConfig().networkId === 'mainnet'
+      ? 'token.skyward.near'
+      : 'skyward.fakes.testnet';
 
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
@@ -672,6 +679,11 @@ export default function SwapCard(props: {
 
         const candTokenOut =
           allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
+
+        if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
+          setShowSkywardTip(true);
+        }
+
         setTokenIn(candTokenIn);
         setTokenOut(candTokenOut);
 
@@ -713,6 +725,9 @@ export default function SwapCard(props: {
         setTokenIn(candTokenIn);
 
         setTokenOut(candTokenOut);
+        if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
+          setShowSkywardTip(true);
+        }
 
         if (
           tokenOut?.id === candTokenOut?.id &&
@@ -721,7 +736,7 @@ export default function SwapCard(props: {
           setReEstimateTrigger(!reEstimateTrigger);
       }
     }
-  }, [allTokens, swapMode]);
+  }, [allTokens?.map((t) => t.id).join('-'), swapMode]);
 
   useEffect(() => {
     if (useNearBalance) {
@@ -947,6 +962,10 @@ export default function SwapCard(props: {
               );
             setTokenIn(token);
             setCanSwap(false);
+
+            if (token.id === skywardId) {
+              setShowSkywardTip(true);
+            }
           }}
           text={intl.formatMessage({ id: 'from' })}
           useNearBalance={useNearBalance}
@@ -999,6 +1018,10 @@ export default function SwapCard(props: {
               );
             setTokenOut(token);
             setCanSwap(false);
+
+            if (token.id === skywardId) {
+              setShowSkywardTip(true);
+            }
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
@@ -1047,6 +1070,13 @@ export default function SwapCard(props: {
           swapPage
         />
       ) : null}
+
+      <SkyWardModal
+        onRequestClose={() => {
+          setShowSkywardTip(false);
+        }}
+        isOpen={showSkywardTip}
+      />
     </>
   );
 }
