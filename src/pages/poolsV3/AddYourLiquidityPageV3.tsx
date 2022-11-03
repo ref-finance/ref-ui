@@ -1887,7 +1887,7 @@ function NoDataComponent(props: any) {
       </div>
       {isNoPool ? (
         <div className="flex justify-center items-center absolute w-full text-sm text-v3poolWarningColor top-28 xsm:top-16 z-10">
-          Oops! The pool does not exist.
+          <FormattedMessage id="no_pool_tip"></FormattedMessage>
         </div>
       ) : null}
       <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2 opacity-50">
@@ -1975,10 +1975,14 @@ function NoDataComponent(props: any) {
           loading={false}
           Text={() => (
             <>
-              <FormattedMessage
-                id="select_tokens"
-                defaultMessage="Select Tokens"
-              />
+              {isNoPool ? (
+                <FormattedMessage id="no_pool" defaultMessage="No Pool" />
+              ) : (
+                <FormattedMessage
+                  id="select_tokens"
+                  defaultMessage="Select Tokens"
+                />
+              )}
             </>
           )}
         />
@@ -2110,7 +2114,9 @@ function InputAmount({
     return r;
   }
   function showCurrentPrice() {
-    if (inputPrice) {
+    if (isNoPool) {
+      return '$-';
+    } else if (inputPrice) {
       return '$' + formatWithCommas(toPrecision(inputPrice.toString(), 3));
     }
     return '$-';
@@ -2121,6 +2127,7 @@ function InputAmount({
       : Number(balance) <= 0.5
       ? '0'
       : String(Number(balance) - 0.5);
+  const isNoPool = !currentSelectedPool?.pool_id;
   return (
     <div>
       <div
@@ -2134,7 +2141,7 @@ function InputAmount({
             placeholder="0.0"
             className="text-2xl xs:text-xl md:text-xl"
             disabled={currentSelectedPool?.pool_id ? false : true}
-            value={amount}
+            value={isNoPool ? '' : amount}
             step="any"
             onChange={({ target }) => {
               changeAmount(target.value);
@@ -2175,7 +2182,7 @@ function InputAmount({
           </div>
         </div>
       </div>
-      {showNearTip ? (
+      {showNearTip && !isNoPool ? (
         <div className="flex items-center text-sm text-warnColor mt-2.5">
           <WarningIcon className="ml-2.5 mr-2"></WarningIcon>
           <FormattedMessage
