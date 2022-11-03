@@ -393,7 +393,7 @@ export function SwapExchange({ onChange }: { onChange: (e?: any) => void }) {
   );
 }
 
-export const RouterArrowLeft = () => {
+export const RouterArrowLeft = ({ color }: { color?: string }) => {
   return (
     <svg
       width="6"
@@ -404,7 +404,7 @@ export const RouterArrowLeft = () => {
     >
       <path
         d="M5.31152 1L0.999633 5.85088L5.31152 10.7018"
-        stroke="white"
+        stroke={color || 'white'}
         strokeLinecap="round"
       />
     </svg>

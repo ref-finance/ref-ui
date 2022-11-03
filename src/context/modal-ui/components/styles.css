@@ -700,19 +700,6 @@
   box-shadow: 0 10px 20px 0 rgb(255 255 255 / 5%);
 }
 
-@media (prefers-color-scheme: dark) {
-  .nws-modal-wrapper .modal #near-wallet img,
-  .nws-modal-wrapper .modal #math-wallet img,
-  .nws-modal-wrapper .modal #ledger img,
-  .nws-modal-wrapper .modal .wallet-not-installed-wrapper .math-wallet img {
-    filter: invert(1);
-  }
-
-  .nws-modal-wrapper .spinner .icon {
-    box-shadow: 0 10px 20px 0 rgb(255 255 255 / 5%);
-  }
-}
-
 @keyframes outAnimation {
   0% {
     opacity: 1;

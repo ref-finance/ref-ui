@@ -812,7 +812,7 @@ const es = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Tus farm',
   your_boosted_farms: 'Tus boosted farms',
-  search_farms_by_token: 'Buscar farms por token...',
+  search_farms_by_token: 'Buscar farms por token',
   search_farms: 'Buscar farms',
   more_lock_ve_popup: 'más ',
   more_lock_ve_popup2: 'más',
@@ -935,5 +935,7 @@ const es = {
     "'/risks'" +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
 };
 export default Object.assign(es, es_in_risks_page);

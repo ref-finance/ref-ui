@@ -768,7 +768,7 @@ const uk_UA = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Ваші ферми',
   your_boosted_farms: 'Your boosted farms',
-  search_farms_by_token: 'Шукати ферму за токеном...',
+  search_farms_by_token: 'Шукати ферму за токеном',
   more_lock_ve_popup: 'більше ',
   more_lock_ve_popup2: 'більше',
   more_in: 'більше в',
@@ -889,5 +889,7 @@ const uk_UA = {
     "'/risks'" +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

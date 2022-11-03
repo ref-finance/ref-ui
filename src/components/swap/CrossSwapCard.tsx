@@ -446,10 +446,16 @@ export default function CrossSwapCard(props: {
   }, []);
 
   useEffect(() => {
+    const urlTokenInId = allTokens.find(
+      (t) => t.symbol && t.symbol === urlTokenIn
+    )?.id;
+    const urlTokenOutId = allTokens.find(
+      (t) => t.symbol && t.symbol === urlTokenOut
+    )?.id;
     let rememberedIn =
-      wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
+      wrapTokenId(urlTokenInId) || localStorage.getItem(SWAP_IN_KEY);
     let rememberedOut =
-      wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
+      wrapTokenId(urlTokenOutId) || localStorage.getItem(SWAP_OUT_KEY);
     if (rememberedIn == NEARXIDS[0]) {
       rememberedIn = REF_TOKEN_ID;
     }
@@ -489,7 +495,9 @@ export default function CrossSwapCard(props: {
   }, [tokenIn, tokenOut, isSignedIn, nearBalance]);
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
-    history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
+    history.replace(
+      `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
+    );
   }, [tokenIn?.id, tokenOut?.id]);
 
   const {
@@ -783,9 +791,7 @@ export default function CrossSwapCard(props: {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             setTokenIn(token);
             history.replace(
-              `#${unWrapTokenId(token.id)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
-                tokenOut.id
-              )}`
+              `#${token.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
             );
           }}
           amount={tokenInAmount}
@@ -806,9 +812,7 @@ export default function CrossSwapCard(props: {
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
               history.replace(
-                `#${unWrapTokenId(
-                  tokenOut.id
-                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenIn.id)}`
+                `#${tokenOut.symbol}${TOKEN_URL_SEPARATOR}${tokenIn.symbol}`
               );
             }}
           />
@@ -821,9 +825,7 @@ export default function CrossSwapCard(props: {
             setTokenOut(token);
             localStorage.setItem(SWAP_OUT_KEY, token.id);
             history.replace(
-              `#${unWrapTokenId(
-                tokenIn.id
-              )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(token.id)}`
+              `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${token.symbol}`
             );
           }}
           balances={balances}

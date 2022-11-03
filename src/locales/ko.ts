@@ -786,7 +786,7 @@ const ko = {
   boosted_farms: '부스팅된 농장',
   your_farm: '당신의 농장',
   your_boosted_farms: '당신의 부스팅된 농장',
-  search_farms_by_token: '토큰에 의해 농장 검색하기...',
+  search_farms_by_token: '토큰에 의해 농장 검색하기',
   more_lock_ve_popup: 'more',
   more_lock_ve_popup2: 'more',
   more_in: 'more in',
@@ -913,5 +913,7 @@ const ko = {
     "'/risks'" +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
 };
 export default Object.assign(ko, ko_in_risks_page);

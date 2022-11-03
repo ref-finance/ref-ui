@@ -21,8 +21,11 @@ import {
   isStableToken,
   STABLE_POOL_TYPE,
 } from '../services/near';
-import ReactTooltip from 'react-tooltip';
 import { useClientMobile } from '../utils/device';
+import { Pool, getStablePoolFromCache } from '../services/pool';
+import getConfig from '../services/config';
+import { extraStableTokenIds } from '../services/near';
+import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -260,6 +263,13 @@ function SwapPage() {
 
   if (!refTokens || !triTokens || !triTokenIds || !stablePools)
     return <Loading />;
+
+  refTokens.forEach((token) => {
+    if (token.id === WRAP_NEAR_CONTRACT_ID) {
+      token.icon = nearMetadata.icon;
+      token.symbol = 'NEAR';
+    }
+  });
 
   const allTokens = getAllTokens(refTokens, triTokens);
 

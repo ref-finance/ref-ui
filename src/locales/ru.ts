@@ -617,7 +617,7 @@ const ru = {
   boosted_farms: 'Фермы с бустом',
   your_farm: 'Ваша ферма',
   your_boosted_farms: 'Ваши фермы с бустом',
-  search_farms_by_token: 'Найти фермы по токену...',
+  search_farms_by_token: 'Найти фермы по токену',
   more_lock_ve_popup: 'больше',
   more_lock_ve_popup2: 'больше',
   more_in: 'больше в',
@@ -922,5 +922,7 @@ const ru = {
     "'/risks'" +
     ')">risks</a> of using Ref Finance.',
   no_pool_tip: 'Oops! The pool does not exist.',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
 };
 export default Object.assign(ru, ru_in_risks_page);

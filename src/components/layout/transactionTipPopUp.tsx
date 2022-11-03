@@ -24,6 +24,7 @@ export enum TRANSACTION_ERROR_TYPE {
   INTEGEROVERFLOW = 'Integer Overflow',
   SHARESUPPLYOVERFLOW = 'Share Supply Overflow',
   TOKEN_FROZEN = 'Token Frozen',
+  POOL_BALANCE_LESS = 'Pool Balance Less Than MIN_RESERVE',
 }
 
 const ERROR_PATTERN = {
@@ -33,6 +34,7 @@ const ERROR_PATTERN = {
   integerOverflowErrorPattern: /Integer overflow/i,
   ShareSupplyOverflowErrorPattern: /shares_total_supply overflow/i,
   tokenFrozenErrorPattern: /token frozen/i,
+  poolBalanceLessPattern: /pool reserved token balance less than MIN_RESERVE/i,
 };
 
 export enum TRANSACTION_STATE {
@@ -160,7 +162,7 @@ export const failToast = (txHash: string, errorType?: string) => {
 
       <span>
         <FormattedMessage id="Type" defaultMessage="Type" />: {` `}
-        {errorType}
+        <span className="whitespace-nowrap">{errorType}</span>
         {'. '}
         <span
           className="underline decoration-1"
@@ -486,6 +488,13 @@ export const getErrorMessage = (res: any) => {
     );
   });
 
+  const isPoolBalanceLess = res.receipts_outcome.some((outcome: any) => {
+    return ERROR_PATTERN.poolBalanceLessPattern.test(
+      outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+        ?.ExecutionError
+    );
+  });
+
   if (isSlippageError) {
     return TRANSACTION_ERROR_TYPE.SLIPPAGE_VIOLATION;
   } else if (isInvalidAmountError) {
@@ -498,6 +507,8 @@ export const getErrorMessage = (res: any) => {
     return TRANSACTION_ERROR_TYPE.SHARESUPPLYOVERFLOW;
   } else if (isTokenFrozen) {
     return TRANSACTION_ERROR_TYPE.TOKEN_FROZEN;
+  } else if (isPoolBalanceLess) {
+    return TRANSACTION_ERROR_TYPE.POOL_BALANCE_LESS;
   } else {
     return null;
   }

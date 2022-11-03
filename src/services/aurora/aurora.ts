@@ -750,7 +750,7 @@ export const useDCLAccountBalance = (isSignedIn: boolean) => {
   return assets;
 };
 
-export const useTriTokenIdsOnRef = () => {
+export const useTriTokenIdsOnRef = (stopOn?: boolean) => {
   const auroraTokens = defaultTokenList.tokens;
   const allSupportPairs = getAuroraConfig().Pairs;
   const symbolToAddress = auroraTokens.reduce((pre, cur, i) => {
@@ -773,10 +773,11 @@ export const useTriTokenIdsOnRef = () => {
   const [triTokenIds, setTriTokenIds] = useState(null);
 
   useEffect(() => {
+    if (stopOn) return;
     getBatchTokenNearAcounts(idsOnPair).then(setTriTokenIds);
-  }, []);
+  }, [stopOn]);
 
-  return triTokenIds?.filter((id: string) => id);
+  return !!stopOn ? [] : triTokenIds?.filter((id: string) => id);
 };
 
 export const getTriTokenIdsOnRef = async () => {

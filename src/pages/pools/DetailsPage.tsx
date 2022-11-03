@@ -134,7 +134,6 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useAccountInfo, LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { getVEPoolId } from '../ReferendumPage';
-import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import getConfig from '../../services/config';
 import { BoostInputAmount } from '../../components/forms/InputAmount';
 import { ExternalLinkIcon } from '~components/icon/Risk';

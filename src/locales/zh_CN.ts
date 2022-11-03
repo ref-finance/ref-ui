@@ -742,7 +742,7 @@ const zh_CN = {
   boosted_farms: '被加速的农场',
   your_farm: '你的农场',
   your_boosted_farms: '你的加速农场',
-  search_farms_by_token: '通过代币搜索农场...',
+  search_farms_by_token: '通过代币搜索农场',
   search_farms: '搜索农场',
   more_lock_ve_popup: '质押',
   more_lock_ve_popup2: ' ',
@@ -892,5 +892,7 @@ const zh_CN = {
     "'/risks'" +
     ')">风险</a>。',
   no_pool_tip: '哦!池子不存在。',
+  total_ref_week: 'REF/周',
+  ref_week_you_will_get: '你将获得的REF/周',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
