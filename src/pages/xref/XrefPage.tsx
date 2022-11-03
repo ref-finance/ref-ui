@@ -200,11 +200,7 @@ function XrefPage() {
     } else {
       return (
         <>
-<<<<<<< HEAD
-          <label className="font-sans">≈</label> $
-=======
           <label className="font-sans mr-0.5">≈</label>
->>>>>>> origin/main
           {toPrecision(receive.valueOf(), 3, true)}
         </>
       );
@@ -333,10 +329,6 @@ function XrefPage() {
                   </div>
                 </div>
                 <div className="whitespace-nowrap ml-8 text-white text-sm text-right">
-<<<<<<< HEAD
-                  {displayTotalREF()}{' '}
-                  <FormattedMessage id="ref"></FormattedMessage>
-=======
                   <div
                     className="text-white text-left"
                     data-class="reactTip"
@@ -355,7 +347,6 @@ function XrefPage() {
                       effect="solid"
                     />
                   </div>
->>>>>>> origin/main
                 </div>
               </div>
             </div>
@@ -375,10 +366,6 @@ function XrefPage() {
               <div className="flex flex-col items-end text-xl xs:text-base md:text-base text-white relative top-3">
                 <label>{displayBalance(xrefBalance)}</label>
                 <div className="whitespace-nowrap text-white text-sm">
-<<<<<<< HEAD
-                  {displayTotalREF()}{' '}
-                  <FormattedMessage id="ref"></FormattedMessage>
-=======
                   <div
                     className="text-white text-left"
                     data-class="reactTip"
@@ -397,7 +384,6 @@ function XrefPage() {
                       effect="solid"
                     />
                   </div>
->>>>>>> origin/main
                 </div>
               </div>
             </div>
@@ -501,12 +487,8 @@ function InputView(props: any) {
     } else {
       return (
         <>
-<<<<<<< HEAD
-          <label className="font-sans">≈</label> ${receive.toFixed(3, 1)}
-=======
           <label className="font-sans mr-0.5">≈</label>
           {receive.toFixed(3, 1)}
->>>>>>> origin/main
         </>
       );
     }
