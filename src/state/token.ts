@@ -36,6 +36,7 @@ import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { Pool } from '../services/pool';
 import {
   getBatchTokenNearAcounts,
+  getTriTokenIdsOnRef,
   useTriTokenIdsOnRef,
 } from '../services/aurora/aurora';
 import { AllStableTokenIds, getAccountNearBalance } from '../services/near';
@@ -233,13 +234,13 @@ export const useUserRegisteredTokens = () => {
 export const useUserRegisteredTokensAllAndNearBalance = () => {
   const [tokens, setTokens] = useState<any[]>();
 
-  const triTokenIds = useTriTokenIdsOnRef() as string[];
-
-  const triTokenIdsMemo = [...new Set(triTokenIds || [])];
+  console.log({ tokens });
 
   useEffect(() => {
     getWhitelistedTokensAndNearTokens()
-      .then((tokenList) => {
+      .then(async (tokenList) => {
+        const triTokenIds = await getTriTokenIdsOnRef();
+
         const newList = [...new Set((triTokenIds || []).concat(tokenList))];
 
         const walletBalancePromise = Promise.all(
@@ -261,7 +262,7 @@ export const useUserRegisteredTokensAllAndNearBalance = () => {
         });
         setTokens(arr);
       });
-  }, [triTokenIdsMemo.join('-')]);
+  }, []);
 
   return tokens;
 };

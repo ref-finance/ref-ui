@@ -779,6 +779,31 @@ export const useTriTokenIdsOnRef = () => {
   return triTokenIds?.filter((id: string) => id);
 };
 
+export const getTriTokenIdsOnRef = async () => {
+  const auroraTokens = defaultTokenList.tokens;
+  const allSupportPairs = getAuroraConfig().Pairs;
+  const symbolToAddress = auroraTokens.reduce((pre, cur, i) => {
+    return {
+      ...pre,
+      [cur.symbol]: cur.address,
+    };
+  }, {});
+
+  const idsOnPair = Object.keys(allSupportPairs)
+    .map((pairName: string) => {
+      const names = pairName.split('-');
+      return names.map((n) => {
+        if (n === 'ETH') return getAuroraConfig().WETH;
+        else return symbolToAddress[n];
+      });
+    })
+    .flat();
+
+  const ids = await getBatchTokenNearAcounts(idsOnPair);
+
+  return ids?.filter((id: string) => !!id) || [];
+};
+
 // fetch eth balance
 export const fetchBalance = async (address: string) => {
   return scientificNotationToString(
