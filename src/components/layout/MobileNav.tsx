@@ -655,7 +655,9 @@ export function MobileNavBar(props: any) {
           />
           <div className="flex">
             <div
-              className={`flex px-1 mr-px items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
+              className={`flex px-1 ${
+                isSignedIn ? 'mr-px' : 'mr-4'
+              }  items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
                 isSignedIn
                   ? 'bg-gray-700 text-white'
                   : 'border border-gradientFrom text-gradientFrom'
