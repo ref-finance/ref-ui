@@ -43,6 +43,7 @@ import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
 import { wallet as webWallet } from '~services/near';
 import { getTokenPriceList } from '../services/indexer';
 import { useWalletSelector } from '../context/WalletSelectorContext';
+import { getTriTokenIdsOnRef } from '../services/aurora/aurora';
 import {
   WalletContext,
   getCurrentWallet,
@@ -234,13 +235,11 @@ export const useUserRegisteredTokens = () => {
 export const useUserRegisteredTokensAllAndNearBalance = () => {
   const [tokens, setTokens] = useState<any[]>();
 
-  const triTokenIds = useTriTokenIdsOnRef() as string[];
-
-  const triTokenIdsMemo = [...new Set(triTokenIds || [])];
-
   useEffect(() => {
     getWhitelistedTokensAndNearTokens()
-      .then((tokenList) => {
+      .then(async (tokenList) => {
+        const triTokenIds = await getTriTokenIdsOnRef();
+
         const newList = [...new Set((triTokenIds || []).concat(tokenList))];
 
         const walletBalancePromise = Promise.all(
@@ -262,7 +261,7 @@ export const useUserRegisteredTokensAllAndNearBalance = () => {
         });
         setTokens(arr);
       });
-  }, [triTokenIdsMemo.join('-')]);
+  }, []);
 
   return tokens;
 };
