@@ -21,6 +21,7 @@ import { Pool, getStablePoolFromCache } from '../services/pool';
 import getConfig from '../services/config';
 import { extraStableTokenIds } from '../services/near';
 import { useAllStablePools } from '../state/pool';
+import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 
 const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -151,15 +152,15 @@ function getAllTokens(refTokens: TokenMetadata[], triTokens: TokenMetadata[]) {
 function SwapPage() {
   const [tokenInAmount, setTokenInAmount] = useState<string>('1');
 
-  const triTokenIds = useTriTokenIdsOnRef();
-
-  const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
-
-  const triTokens = useTriTokens();
-
   const [swapTab, setSwapTab] = useState(
     localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)?.toString() || 'normal'
   );
+
+  const triTokenIds = useTriTokenIdsOnRef(swapTab === 'normal');
+
+  const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
+
+  const triTokens = useTriTokens(swapTab === 'normal');
 
   const storedMode =
     localStorage.getItem(SWAP_MODE_KEY) === 'normal'
@@ -175,6 +176,13 @@ function SwapPage() {
 
   if (!refTokens || !triTokens || !triTokenIds || !stablePools)
     return <Loading />;
+
+  refTokens.forEach((token) => {
+    if (token.id === WRAP_NEAR_CONTRACT_ID) {
+      token.icon = nearMetadata.icon;
+      token.symbol = 'NEAR';
+    }
+  });
 
   const allTokens = getAllTokens(refTokens, triTokens);
 

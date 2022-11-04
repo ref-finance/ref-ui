@@ -18,7 +18,7 @@ import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '../../components/card/Card';
-import { ModalClose } from '../../components/icon';
+import { HeavyWarning, ModalClose } from '../../components/icon';
 
 import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 
@@ -154,6 +154,88 @@ export function DoubleCheckModal(
                 </span>
               )}
             />
+          </SolidButton>
+        </div>
+      </Card>
+    </Modal>
+  );
+}
+
+export function SkyWardModal(props: ReactModal.Props) {
+  const [hover, setHover] = useState<boolean>(false);
+
+  return (
+    <Modal
+      {...props}
+      style={{
+        overlay: {
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
+        },
+        content: {
+          outline: 'none',
+          position: 'fixed',
+          top: '50%',
+        },
+      }}
+    >
+      <Card
+        padding="p-6"
+        bgcolor="bg-cardBg"
+        className="text-white border border-gradientFromHover outline-none flex flex-col items-center"
+        style={{
+          width: '356px',
+        }}
+      >
+        <div
+          className="ml-2 cursor-pointer p-1 self-end"
+          onClick={props.onRequestClose}
+        >
+          <ModalClose />
+        </div>
+
+        <div>
+          <HeavyWarning />
+        </div>
+
+        <div className="text-primaryText text-sm px-1 py-7">
+          Note: the Skyward contract suffered a contract exploit, rendering the
+          Skyward treasury worthless. More details about the{' '}
+          <a
+            className={`cursor-pointer  text-gradientFrom ${
+              hover ? 'font-bold underline' : 'font-normal'
+            } `}
+            href="https://twitter.com/skywardfinance/status/1587947957789331457?s=20&t=Of-CxqeTS162x11y0JRR_w"
+            target={'_blank'}
+            onMouseEnter={() => {
+              setHover(true);
+            }}
+            onMouseLeave={() => {
+              setHover(false);
+            }}
+          >
+            exploit
+          </a>
+          . You should be aware of the risks and prepared to potentially lose
+          all of the money invested for trading such a token.
+        </div>
+
+        <div className="flex items-center w-full pb-2">
+          <SolidButton
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              props.onRequestClose(e);
+            }}
+            className="text-sm w-full font-bold text-center"
+            padding="px-4 py-2"
+          >
+            <span>
+              <FormattedMessage
+                id="I_understand"
+                defaultMessage="I understand"
+              />
+            </span>
           </SolidButton>
         </div>
       </Card>
