@@ -103,7 +103,7 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         }),
         setupNeth({
           iconUrl: walletIcons['near-wallet'],
-          gas: '200000000000000',
+          gas: '220000000000000',
           bundle: false,
         }),
         // setupMeteorWallet({
