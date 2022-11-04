@@ -162,6 +162,8 @@ export function DoubleCheckModal(
 }
 
 export function SkyWardModal(props: ReactModal.Props) {
+  const [hover, setHover] = useState<boolean>(false);
+
   return (
     <Modal
       {...props}
@@ -199,17 +201,21 @@ export function SkyWardModal(props: ReactModal.Props) {
         <div className="text-primaryText text-sm px-1 py-7">
           Note: the Skyward contract suffered a contract exploit, rendering the
           Skyward treasury worthless. More details about the{' '}
-          <span
-            className="cursor-pointer hover:font-bold text-gradientFrom"
-            onClick={() => {
-              window.open(
-                'https://twitter.com/skywardfinance/status/1587947957789331457?s=20&t=Of-CxqeTS162x11y0JRR_w',
-                '_blank'
-              );
+          <a
+            className={`cursor-pointer  text-gradientFrom ${
+              hover ? 'font-bold' : 'font-normal'
+            } `}
+            href="https://twitter.com/skywardfinance/status/1587947957789331457?s=20&t=Of-CxqeTS162x11y0JRR_w"
+            target={'_blank'}
+            onMouseEnter={() => {
+              setHover(true);
+            }}
+            onMouseLeave={() => {
+              setHover(false);
             }}
           >
             exploit
-          </span>
+          </a>
           . You should be aware of the risks and prepared to potentially lose
           all of the money invested for trading such a token.
         </div>
