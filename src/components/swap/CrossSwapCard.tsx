@@ -442,27 +442,21 @@ export default function CrossSwapCard(props: {
       rememberedOut = REF_TOKEN_ID;
     }
     if (allTokens) {
+      const candTokenIn =
+        allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
 
-      const candTokenIn =       allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
+      setTokenIn(candTokenIn);
 
-      setTokenIn(
-        candTokenIn
-      );
+      const candTokenOut =
+        allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
 
-
-      const candTokenOut =  allTokens.find((token) => token.id === rememberedOut) || allTokens[1]
-
-      setTokenOut(
-        candTokenOut
-      );
-
+      setTokenOut(candTokenOut);
 
       if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
         setShowSkywardTip(true);
       }
-
     }
-  }, [allTokens?.map(t=>t.id).join('-')]);
+  }, [allTokens?.map((t) => t.id).join('-')]);
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !isSignedIn) return;
@@ -810,7 +804,7 @@ export default function CrossSwapCard(props: {
         />
       )}
 
-<SkyWardModal
+      <SkyWardModal
         onRequestClose={() => {
           setShowSkywardTip(false);
         }}

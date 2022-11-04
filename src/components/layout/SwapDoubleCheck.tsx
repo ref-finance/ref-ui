@@ -197,10 +197,10 @@ export function SkyWardModal(props: ReactModal.Props) {
         </div>
 
         <div className="text-primaryText text-sm px-1 py-7">
-          &nbsp; &nbsp; Note: the Skyward contract suffered a contract exploit,
-          rendering the Skyward treasury worthless. More details about the{' '}
+          Note: the Skyward contract suffered a contract exploit, rendering the
+          Skyward treasury worthless. More details about the{' '}
           <span
-            className="cursor-pointer font-bold text-gradientFrom"
+            className="cursor-pointer hover:font-bold text-gradientFrom"
             onClick={() => {
               window.open(
                 'https://twitter.com/skywardfinance/status/1587947957789331457?s=20&t=Of-CxqeTS162x11y0JRR_w',
