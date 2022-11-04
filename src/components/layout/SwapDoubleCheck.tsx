@@ -203,7 +203,7 @@ export function SkyWardModal(props: ReactModal.Props) {
           Skyward treasury worthless. More details about the{' '}
           <a
             className={`cursor-pointer  text-gradientFrom ${
-              hover ? 'font-bold' : 'font-normal'
+              hover ? 'font-bold underline' : 'font-normal'
             } `}
             href="https://twitter.com/skywardfinance/status/1587947957789331457?s=20&t=Of-CxqeTS162x11y0JRR_w"
             target={'_blank'}
