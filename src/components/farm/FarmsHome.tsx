@@ -31,6 +31,7 @@ import {
   NewTag,
   NewIcon,
   ForbiddonIcon,
+  StableOption,
 } from '../../components/icon/FarmBoost';
 import {
   GradientButton,
@@ -232,6 +233,10 @@ export default function FarmsHome(props: any) {
     eth: {
       txt: intl.formatMessage({ id: 'eth' }),
       icon: <EthOptIcon></EthOptIcon>,
+    },
+    stable: {
+      txt: intl.formatMessage({ id: 'stablecoin' }),
+      icon: <StableOption></StableOption>,
     },
     new: {
       txt: intl.formatMessage({ id: 'newText' }),
@@ -684,6 +689,16 @@ export default function FarmsHome(props: any) {
         } else {
           condition1 = false;
         }
+      } else if (status == 'stable') {
+        if (
+          farmClassification['stable'].indexOf(+getPoolIdBySeedId(seed_id)) >
+            -1 &&
+          !isEnd
+        ) {
+          condition1 = true;
+        } else {
+          condition1 = false;
+        }
       } else if (status == 'others') {
         // others
         const isNotNear =
@@ -903,7 +918,8 @@ export default function FarmsHome(props: any) {
       const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
       if (tvl > 0 && revenu24h > 0) {
         const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
-        result = toPrecision(annualisedFeesPrct.toString(), 2);
+        const half_annualisedFeesPrct = annualisedFeesPrct / 2;
+        result = toPrecision(half_annualisedFeesPrct.toString(), 2);
       }
     }
     return result;
@@ -2345,7 +2361,8 @@ function FarmView(props: {
       const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
       if (tvl > 0 && revenu24h > 0) {
         const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
-        result = toPrecision(annualisedFeesPrct.toString(), 2);
+        const half_annualisedFeesPrct = annualisedFeesPrct / 2;
+        result = toPrecision(half_annualisedFeesPrct.toString(), 2);
       }
     }
     return result;
@@ -3448,7 +3465,10 @@ function WithDrawb(props: {
           <div className="flex flex-col items-center justify-center py-6">
             <BoostFarmNoDataIcon></BoostFarmNoDataIcon>
             <p className="text-sm text-white opacity-50 mt-3">
-              No claimed rewards yet
+              <FormattedMessage
+                id="no_claimed_rewards_yet"
+                defaultMessage="No claimed rewards yet"
+              ></FormattedMessage>
             </p>
           </div>
         ) : null}
@@ -3824,7 +3844,10 @@ function WithDrawModal(props: {
                   <div className="flex flex-col items-center justify-center py-6">
                     <BoostFarmNoDataIcon></BoostFarmNoDataIcon>
                     <p className="text-sm text-white opacity-50 mt-3">
-                      No claimed rewards yet
+                      <FormattedMessage
+                        id="no_claimed_rewards_yet"
+                        defaultMessage="No claimed rewards yet"
+                      ></FormattedMessage>
                     </p>
                   </div>
                 ) : null}

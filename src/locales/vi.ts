@@ -795,7 +795,7 @@ const vi = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Farm của bạn',
   your_boosted_farms: 'Boosted farms của bạn',
-  search_farms_by_token: 'Tìm farms bằng token...',
+  search_farms_by_token: 'Tìm farms bằng token',
   more_lock_ve_popup: 'thêm ',
   more_lock_ve_popup2: 'thêm',
   more_in: 'thêm vào',
@@ -863,5 +863,9 @@ const vi = {
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
   newText: 'Mới',
+  no_claimed_rewards_yet: 'No claimed rewards yet',
+  out_of: 'out of',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
 };
 export default Object.assign(vi, vi_in_risks_page);

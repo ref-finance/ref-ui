@@ -776,7 +776,7 @@ const en_US = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Your farm',
   your_boosted_farms: 'Your boosted farms',
-  search_farms_by_token: 'Search farms by token...',
+  search_farms_by_token: 'Search farms by token',
   search_farms: 'Search farms',
   more_lock_ve_popup: 'more ',
   more_lock_ve_popup2: 'more',
@@ -854,5 +854,9 @@ const en_US = {
   newText: 'New',
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
+  no_claimed_rewards_yet: 'No claimed rewards yet',
+  out_of: 'out of',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -18,7 +18,7 @@ import {
   storageDepositAction,
   storageDepositForFTAction,
 } from './creators/storage';
-import { getTopPools } from '../services/indexer';
+import { getTopPools, getTopPoolsIndexer } from '../services/indexer';
 import { PoolRPCView } from './api';
 import {
   checkTokenNeedsStorageDeposit,
@@ -48,8 +48,10 @@ import {
 } from './wrap-near';
 import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { getAllPoolsIndexer } from './indexer';
+import { getExtendConfig } from './config';
 const explorerType = getExplorer();
-export const DEFAULT_PAGE_LIMIT = 100;
+export const DEFAULT_PAGE_LIMIT = 500;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
 
 export const getStablePoolInfoKey = (id: string) =>
@@ -68,6 +70,7 @@ export interface Pool {
   rates?: {
     [id: string]: string;
   };
+  pool_kind?: string;
 }
 
 export interface StablePool {
@@ -100,6 +103,7 @@ export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   shareSupply: pool.shares_total_supply,
   tvl: pool.tvl,
   token0_ref_price: pool.token0_ref_price,
+  pool_kind: pool?.pool_kind,
 });
 
 export const getPools = async ({
@@ -155,10 +159,6 @@ export const getPoolsFromCache = async ({
     tvl: 0,
     token0_ref_price: '0',
   }));
-};
-
-export const getAllPoolsFromDb = async () => {
-  return await db.allPools().toArray();
 };
 
 export const getAllWatchListFromDb = async ({
@@ -289,13 +289,33 @@ export const getPoolsByTokens = async ({
   }
   if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
     setLoadingData && setLoadingData(true);
-    const totalPools = await getTotalPools();
-    const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-    const pools = (
-      await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
-    )
-      .flat()
-      .map((p) => ({ ...p, Dex: 'ref' }));
+
+    const isCacheFromIndexer =
+      getExtendConfig().pool_protocol &&
+      getExtendConfig().pool_protocol === 'indexer';
+
+    const isCacheFromRPC = !isCacheFromIndexer;
+
+    let pools;
+
+    if (isCacheFromIndexer) {
+      pools = (await getTopPoolsIndexer()).map((p: any) => ({
+        ...p,
+        Dex: 'ref',
+      }));
+    } else if (isCacheFromRPC) {
+      const totalPools = await getTotalPools();
+      const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+
+      pools = (
+        await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
+      )
+        .flat()
+        .map((p) => ({ ...p, Dex: 'ref' }));
+    }
+
+    // const totalPools = await getTotalPools();
+    // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
 
     let triPools;
     if (crossSwap) {
@@ -309,7 +329,7 @@ export const getPoolsByTokens = async ({
 
     await db.cachePoolsByTokens(filtered_pools);
     filtered_pools = filtered_pools.filter(
-      (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
+      (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
     await getAllStablePoolsFromCache();
   }

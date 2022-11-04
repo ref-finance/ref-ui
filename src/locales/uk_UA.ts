@@ -768,7 +768,7 @@ const uk_UA = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Ваші ферми',
   your_boosted_farms: 'Your boosted farms',
-  search_farms_by_token: 'Шукати ферму за токеном...',
+  search_farms_by_token: 'Шукати ферму за токеном',
   more_lock_ve_popup: 'більше ',
   more_lock_ve_popup2: 'більше',
   more_in: 'більше в',
@@ -829,5 +829,9 @@ const uk_UA = {
   farm_stop_tip: 'This farm has been stopped.',
   pool_stop_tip: 'This pool has been stopped.',
   newText: 'новий',
+  no_claimed_rewards_yet: 'No claimed rewards yet',
+  out_of: 'out of',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

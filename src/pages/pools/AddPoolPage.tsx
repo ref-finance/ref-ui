@@ -86,7 +86,7 @@ export function AddPoolModal(
   };
 
   const isMobile = useClientMobile();
-  const cardWidth = isMobile ? '90vw' : '450px';
+  const cardWidth = isMobile ? '98vw' : '450px';
 
   if (!tokens || !balances) return <Loading />;
   if (!props.isOpen) return null;
@@ -179,7 +179,7 @@ export function AddPoolModal(
           width: cardWidth,
         }}
       >
-        <Card width="w-full" bgcolor="bg-cardBg">
+        <Card width="w-full" bgcolor="bg-cardBg" padding="xs:p-4 md:p-4 p-6">
           <div className="text-white flex items-center justify-between text-xl pb-6">
             <FormattedMessage
               id="Create_New_Pool"
