@@ -235,8 +235,6 @@ export const useUserRegisteredTokens = () => {
 export const useUserRegisteredTokensAllAndNearBalance = () => {
   const [tokens, setTokens] = useState<any[]>();
 
-  console.log({ tokens });
-
   useEffect(() => {
     getWhitelistedTokensAndNearTokens()
       .then(async (tokenList) => {
