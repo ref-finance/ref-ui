@@ -1056,6 +1056,11 @@ SwapOptions) => {
       throw new Error(`${token.id} doesn't exist.`);
     });
 
+    console.log({
+      tokenRegistered,
+      token: token.id,
+    });
+
     if (tokenRegistered === null) {
       tokenOutActions.push({
         methodName: 'storage_deposit',

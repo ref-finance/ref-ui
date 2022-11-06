@@ -211,7 +211,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
               if (
                 isMobile &&
                 module.type !== 'browser' &&
-                module.id !== 'meteor-wallet'
+                module.id !== 'meteor-wallet' &&
+                module.id !== 'neth'
               ) {
                 return result;
               }
