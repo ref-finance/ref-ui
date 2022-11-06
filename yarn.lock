@@ -8499,10 +8499,10 @@ near-seed-phrase@^0.2.0:
     near-hd-key "^1.2.1"
     tweetnacl "^1.0.2"
 
-neth@^0.5.13:
-  version "0.5.13"
-  resolved "https://registry.yarnpkg.com/neth/-/neth-0.5.13.tgz#4c0fa21f85dfa72e0567e325011154a1bc5ff70e"
-  integrity sha512-AhgXj6+ZwlSMjQKREahiQDXPvr+WUpVXqSoEip1m/F7944EvcMGfxOfEhXga6Ech2JU8wVwBa1RW9w+KmP4Pyw==
+neth@7.1.2:
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/neth/-/neth-7.1.2.tgz#51da6c68e4eb1b7f3e0bfd9cbc77788bcf335429"
+  integrity sha512-tyzjQeLfrwB0peI1PY5JqTUw0m/gHL0dAc4C2oCxXTISr2RVbst0Rvj/hFwDJzgWVVSelc9fq1eDjF4sebOGQQ==
   dependencies:
     "@near-wallet-selector/core" "^7.1.0"
     ava "^4.3.3"

@@ -15,7 +15,7 @@ import { setupSender } from '@near-wallet-selector/sender';
 import { setupMathWallet } from '@near-wallet-selector/math-wallet';
 import { setupLedger } from '@near-wallet-selector/ledger';
 
-import { setupNeth } from '../neth/src';
+import { setupNeth } from 'neth';
 
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 
@@ -103,7 +103,7 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         }),
         setupNeth({
           iconUrl: walletIcons['near-wallet'],
-          gas: '220000000000000',
+          gas: '300000000000000',
           bundle: false,
         }),
         // setupMeteorWallet({
