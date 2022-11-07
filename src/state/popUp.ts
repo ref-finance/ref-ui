@@ -24,6 +24,7 @@ export const useGlobalPopUp = (globalState: any) => {
     if (txHash && isSignedIn) {
       checkTransaction(txHash).then((res) => {
         let displayErrorMessage = errorType;
+
         const errorMessasge = getErrorMessage(res);
 
         if (errorMessasge) displayErrorMessage = errorMessasge;
@@ -55,8 +56,6 @@ export const useGlobalPopUp = (globalState: any) => {
     ) {
       checkTransaction(txHash)
         .then((res: any) => {
-          console.log(res, txHashes);
-
           const transaction = res.transaction;
           const methodName =
             transaction?.actions[0]?.['FunctionCall']?.method_name;

@@ -162,16 +162,21 @@ export const useSwap = ({
 
           const transaction = res.transaction;
 
+          console.log({
+            res,
+          });
+
+          const isSwapNeth =
+            res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+              ?.method_name === 'ft_transfer_call';
+
           return {
             isSwap:
               transaction?.actions[1]?.['FunctionCall']?.method_name ===
                 'ft_transfer_call' ||
               transaction?.actions[0]?.['FunctionCall']?.method_name ===
                 'ft_transfer_call' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'swap' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'near_withdraw',
+              isSwapNeth,
             transactionErrorType,
           };
         })

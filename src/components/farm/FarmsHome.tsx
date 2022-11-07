@@ -121,6 +121,7 @@ import Countdown, { zeroPad } from 'react-countdown';
 import { MoreButtonIcon } from '../../components/icon/Common';
 
 import _ from 'lodash';
+import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
 
 const {
   STABLE_POOL_IDS,
@@ -146,47 +147,45 @@ export default function FarmsHome(props: any) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const [popUp, setPopUp] = useState(false);
-  const { txHash, pathname, errorType } = getURLInfo();
+  const { txHash, pathname, txHashes, errorType } = getURLInfo();
   const { user_migrate_seeds, seed_loading, user_claimed_rewards } =
     useMigrate_user_data();
   useEffect(() => {
     if (txHash && isSignedIn && popUp) {
       checkTransaction(txHash)
         .then((res: any) => {
-          debugger;
-          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
-
-          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
-            return slippageErrorPattern.test(
-              outcome?.outcome?.status?.Failure?.ActionError?.kind
-                ?.FunctionCallError?.ExecutionError
-            );
-          });
           const transaction = res.transaction;
           const methodName =
             transaction?.actions[0]?.['FunctionCall']?.method_name;
-          const isUsn =
-            sessionStorage.getItem('usn') == '1' &&
-            (methodName == 'ft_transfer_call' || methodName == 'withdraw');
-          sessionStorage.removeItem('usn');
+
+          const isWrapNearNeth = res?.receipts?.some((r: any) => {
+            const method_name =
+              r?.receipt?.Action?.actions?.[0]?.FunctionCall?.method_name;
+
+            return (
+              method_name === 'near_deposit' || method_name === 'near_withdraw'
+            );
+          });
+
+          const fromWrapNear =
+            sessionStorage.getItem(NEAR_WITHDRAW_KEY) === '1';
+
+          const isWrapNear =
+            fromWrapNear &&
+            (methodName === 'wrap_near' ||
+              methodName === 'near_deposit' ||
+              isWrapNearNeth) &&
+            txHashes?.length === 1;
+
+          sessionStorage.removeItem(NEAR_WITHDRAW_KEY);
+
           return {
-            isUSN: isUsn,
-            isSlippageError,
-            isNearWithdraw: methodName == 'near_withdraw',
-            isNearDeposit: methodName == 'near_deposit',
+            isWrapNear,
           };
         })
-        .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
-          if (isUSN || isNearWithdraw || isNearDeposit) {
-            const source = sessionStorage.getItem('near_with_draw_source');
-            isUSN &&
-              !isSlippageError &&
-              !errorType &&
-              usnBuyAndSellToast(txHash);
-            ((isNearWithdraw && source != 'farm_token') || isNearDeposit) &&
-              !errorType &&
-              swapToast(txHash);
-            sessionStorage.removeItem('near_with_draw_source');
+        .then(({ isWrapNear }) => {
+          if (isWrapNear) {
+            !errorType && swapToast(txHash);
             window.history.replaceState(
               {},
               '',
