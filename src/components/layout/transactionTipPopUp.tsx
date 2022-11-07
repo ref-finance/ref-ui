@@ -280,19 +280,54 @@ export const checkAccountTip = () => {
 };
 
 export const checkCrossSwapTransactions = async (txHashes: string[]) => {
-  const lastTx = txHashes.pop();
-  const txDetail: any = await checkTransaction(lastTx);
+  let templastTx = txHashes.pop();
+
+  let lastTx = templastTx;
+
+  let txDetail: any = await checkTransaction(lastTx);
+
+  if (
+    txDetail?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+      ?.method_name === 'near_withdraw'
+  ) {
+    lastTx = txHashes.pop();
+    txDetail = await checkTransaction(lastTx);
+  }
+
+  const byNeth =
+    txDetail?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+    'execute';
 
   if (txHashes.length > 0) {
     // judge if aurora call
-    const isAurora = txDetail.transaction?.receiver_id === 'aurora';
 
-    const ifCall =
-      txDetail.transaction?.actions?.length === 1 &&
-      txDetail.transaction?.actions?.[0]?.FunctionCall?.method_name === 'call';
+    console.log({
+      lasttxdetail: txDetail,
+    });
+
+    const isAurora = byNeth
+      ? txDetail?.receipts?.[0]?.receiver_id === 'aurora'
+      : txDetail.transaction?.receiver_id === 'aurora';
+
+    console.log({
+      isAurora,
+    });
+
+    const ifCall = byNeth
+      ? txDetail?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+          ?.method_name === 'call'
+      : txDetail.transaction?.actions?.length === 1 &&
+        txDetail.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+          'call';
+
+    console.log({
+      ifCall,
+    });
 
     if (isAurora && ifCall) {
-      const parsedOut = parsedTransactionSuccessValue(txDetail);
+      let parsedOut = byNeth
+        ? parsedTransactionSuccessValueNeth(txDetail)
+        : parsedTransactionSuccessValue(txDetail);
 
       const erc20FailPattern = /burn amount exceeds balance/i;
 
@@ -302,7 +337,7 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
           parsedOut.toString().trim().indexOf('|R') !== -1)
       ) {
         return {
-          hash: lastTx,
+          hash: templastTx,
           status: false,
           errorType: 'Withdraw Failed',
         };
@@ -313,7 +348,9 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
         const slippageErrprReg = /INSUFFICIENT_OUTPUT_AMOUNT/i;
         const expiredErrorReg = /EXPIRED/i;
 
-        const parsedOutput = parsedTransactionSuccessValue(secondDetail);
+        const parsedOutput = byNeth
+          ? parsedTransactionSuccessValueNeth(secondDetail)
+          : parsedTransactionSuccessValue(secondDetail);
 
         if (slippageErrprReg.test(parsedOutput)) {
           return {
@@ -329,7 +366,7 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
           };
         } else {
           return {
-            hash: lastTx,
+            hash: templastTx,
             status: true,
           };
         }
@@ -342,13 +379,13 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
       if (errorMessasge)
         return {
           status: false,
-          hash: lastTx,
+          hash: templastTx,
           errorType: errorMessasge,
         };
       else {
         return {
           status: true,
-          hash: lastTx,
+          hash: templastTx,
         };
       }
     }
@@ -360,13 +397,13 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
     if (errorMessasge)
       return {
         status: false,
-        hash: lastTx,
+        hash: templastTx,
         errorType: errorMessasge,
       };
     else {
       return {
         status: true,
-        hash: lastTx,
+        hash: templastTx,
       };
     }
   }
@@ -374,6 +411,18 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
 
 export const parsedTransactionSuccessValue = (res: any) => {
   const status: any = res.status;
+
+  const data: string | undefined = status.SuccessValue;
+
+  if (data) {
+    const buff = Buffer.from(data, 'base64');
+    const parsedData = buff.toString('ascii');
+    return parsedData;
+  }
+};
+
+export const parsedTransactionSuccessValueNeth = (res: any) => {
+  const status: any = res?.receipts_outcome?.[1]?.outcome?.status;
 
   const data: string | undefined = status.SuccessValue;
 
