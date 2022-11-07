@@ -80,13 +80,6 @@ export const useGlobalPopUp = (globalState: any) => {
               isWrapNearNeth) &&
             txHashes?.length === 1;
 
-          console.log({
-            isWrapNear,
-            fromWrapNear: sessionStorage.getItem(NEAR_WITHDRAW_KEY),
-            txHashesLength: txHashes?.length,
-            isWrapNearNeth,
-          });
-
           sessionStorage.removeItem(NEAR_WITHDRAW_KEY);
 
           return {
