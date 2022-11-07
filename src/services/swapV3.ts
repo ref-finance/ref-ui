@@ -757,6 +757,132 @@ export const add_liquidity = async ({
   }
   return executeMultipleTransactions(transactions);
 };
+export const append_liquidity = async ({
+  lpt_id,
+  amount_x,
+  amount_y,
+  token_x,
+  token_y,
+}: {
+  lpt_id: string;
+  amount_x: string;
+  amount_y: string;
+  token_x: TokenMetadata;
+  token_y: TokenMetadata;
+}) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'append_liquidity',
+          args: {
+            lpt_id,
+            amount_x,
+            amount_y,
+            min_amount_x: '0',
+            min_amount_y: '0',
+          },
+          gas: '150000000000000',
+        },
+      ],
+    },
+  ];
+  if (+amount_x > 0) {
+    transactions.unshift({
+      receiverId: token_x.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
+            amount: amount_x,
+            msg: '"Deposit"',
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '150000000000000',
+        },
+      ],
+    });
+  }
+  if (+amount_y > 0) {
+    transactions.unshift({
+      receiverId: token_y.id,
+      functionCalls: [
+        {
+          methodName: 'ft_transfer_call',
+          args: {
+            receiver_id: REF_UNI_V3_SWAP_CONTRACT_ID,
+            amount: amount_y,
+            msg: '"Deposit"',
+          },
+          amount: ONE_YOCTO_NEAR,
+          gas: '150000000000000',
+        },
+      ],
+    });
+  }
+  if (+amount_x > 0 && token_x.id == WRAP_NEAR_CONTRACT_ID) {
+    transactions.unshift({
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_deposit',
+          args: {},
+          gas: '50000000000000',
+          amount: toReadableNumber(token_x.decimals, amount_x),
+        },
+      ],
+    });
+  }
+  if (+amount_y > 0 && token_y.id == WRAP_NEAR_CONTRACT_ID) {
+    transactions.unshift({
+      receiverId: WRAP_NEAR_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'near_deposit',
+          args: {},
+          gas: '50000000000000',
+          amount: toReadableNumber(token_y.decimals, amount_y),
+        },
+      ],
+    });
+  }
+  const ftBalance_x = await ftGetStorageBalance(token_x.id);
+  if (!ftBalance_x) {
+    transactions.unshift({
+      receiverId: token_x.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+  const ftBalance_y = await ftGetStorageBalance(token_y.id);
+  if (!ftBalance_y) {
+    transactions.unshift({
+      receiverId: token_y.id,
+      functionCalls: [
+        storageDepositAction({
+          registrationOnly: true,
+          amount: STORAGE_TO_REGISTER_WITH_MFT,
+        }),
+      ],
+    });
+  }
+  const neededStorage = await checkTokenNeedsStorageDeposit_v3();
+  if (neededStorage) {
+    transactions.unshift({
+      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [
+        storageDepositAction({ amount: neededStorage, registrationOnly: true }),
+      ],
+    });
+  }
+  return executeMultipleTransactions(transactions);
+};
 export const remove_liquidity = async ({
   token_x,
   token_y,

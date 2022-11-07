@@ -23,7 +23,11 @@ import {
   toNonDivisibleNumber,
 } from '~utils/numbers';
 import { CONSTANT_D, UserLiquidityInfo } from '../../services/commonV3';
-import { PoolInfo, add_liquidity } from '../../services/swapV3';
+import {
+  PoolInfo,
+  add_liquidity,
+  append_liquidity,
+} from '../../services/swapV3';
 import { toRealSymbol } from '../../utils/token';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { TokenMetadata, ftGetBalance } from '../../services/ft-contract';
@@ -171,12 +175,9 @@ export const AddPoolV3 = (props: any) => {
   function append() {
     setAddLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
-    const { pool_id } = poolDetail;
-    const { left_point, right_point } = userLiquidity;
-    add_liquidity({
-      pool_id,
-      left_point,
-      right_point,
+    const { lpt_id } = userLiquidity;
+    append_liquidity({
+      lpt_id,
       amount_x: toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0'),
       amount_y: toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0'),
       token_x: tokenX,
@@ -356,7 +357,7 @@ export const AddPoolV3 = (props: any) => {
                 >
                   <ButtonTextWrapper
                     loading={addLoading}
-                    Text={() => <FormattedMessage id="add" />}
+                    Text={() => <FormattedMessage id="append" />}
                   />
                 </GradientButton>
               ) : (

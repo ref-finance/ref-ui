@@ -578,7 +578,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
               color="#fff"
               className={`w-20 h-8 text-center text-sm text-white focus:outline-none mr-2.5`}
             >
-              <FormattedMessage id="add" />
+              <FormattedMessage id="append" />
             </GradientButton>
             <BorderButton
               onClick={(e) => {
@@ -759,7 +759,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
               color="#fff"
               className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3`}
             >
-              <FormattedMessage id="add" />
+              <FormattedMessage id="append" />
             </GradientButton>
             <BorderButton
               onClick={(e) => {

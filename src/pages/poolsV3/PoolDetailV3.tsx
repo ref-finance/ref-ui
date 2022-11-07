@@ -1039,7 +1039,7 @@ function SelectLiquidityBox(props: any) {
                           borderRadius={'8px'}
                           className={`w-24 h-9 text-center text-sm text-white focus:outline-none`}
                         >
-                          <FormattedMessage id="add" />
+                          <FormattedMessage id="append" />
                         </GradientButton>
                       ) : (
                         <OprationButton
@@ -1117,7 +1117,7 @@ function SelectLiquidityBox(props: any) {
                                 : 'hidden'
                             }`}
                           >
-                            <FormattedMessage id="add" />
+                            <FormattedMessage id="append" />
                           </GradientButton>
                         ) : (
                           <OprationButton
