@@ -28,6 +28,7 @@ import {
   NEAR_CLASS_STABLE_TOKEN_IDS,
   STABLE_TOKEN_USN_IDS,
   STNEARIDS,
+  TOKEN_BLACK_LIST,
   USD_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 import {
@@ -206,7 +207,16 @@ export const StableSelectToken = ({
     }
   };
 
-  const displayList = getDisplayList(stableCoinType);
+  const displayList = getDisplayList(stableCoinType).filter(
+    (t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1
+  );
+
+  const maxList =
+    NEARtokens > (USDtokens.length > BTCtokens.length ? USDtokens : BTCtokens)
+      ? NEARtokens
+      : USDtokens.length > BTCtokens.length
+      ? USDtokens
+      : BTCtokens;
 
   return (
     <div className="w-2/5 outline-none my-auto relative overflow-visible">
@@ -303,7 +313,7 @@ export const StableSelectToken = ({
         <div
           className={`flex flex-col`}
           style={{
-            height: '270px',
+            height: `${maxList.length * 50 + 20}px`,
           }}
         >
           {displayList.map((token) => {
@@ -395,12 +405,10 @@ export default function SelectToken({
     loading: loadingTokensData,
     trigger,
   } = useTokensData(
-    tokens.filter((t) => t.id !== NEARXIDS[0]),
-    balances
+    tokens.filter((t) => TOKEN_BLACK_LIST.indexOf(t.id) === -1),
+    balances,
+    visible
   );
-  useEffect(() => {
-    trigger();
-  }, [trigger]);
 
   useEffect(() => {
     if (!loadingTokensData) {
@@ -460,7 +468,9 @@ export default function SelectToken({
 
   const handleClose = () => {
     const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
-    setListData(sortedData);
+    if (tokensData.length > 0) {
+      setListData(sortedData);
+    }
     setVisible(false);
     setShowCommonBasses(true);
   };

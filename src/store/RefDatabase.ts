@@ -115,7 +115,6 @@ class RefDatabase extends Dexie {
       boostSeeds: 'id, update_time',
     });
 
-    this.pools = this.table('pools');
     this.tokens = this.table('tokens');
     this.farms = this.table('farms');
     this.poolsTokens = this.table('pools_tokens');
@@ -128,10 +127,6 @@ class RefDatabase extends Dexie {
 
   public allWatchList() {
     return this.watchList;
-  }
-
-  public allPools() {
-    return this.pools;
   }
 
   public allTokens() {

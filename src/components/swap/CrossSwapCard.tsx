@@ -71,6 +71,7 @@ import { TriIcon, RefIcon, WannaIconDark } from '../icon/DexIcon';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { unWrapTokenId, wrapTokenId } from './SwapCard';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
+import { SkyWardModal } from '../layout/SwapDoubleCheck';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -376,6 +377,7 @@ export default function CrossSwapCard(props: {
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
+  const [showSkywardTip, setShowSkywardTip] = useState<boolean>(false);
 
   const [requested, setRequested] = useState<boolean>(false);
 
@@ -414,16 +416,25 @@ export default function CrossSwapCard(props: {
       0.5
   );
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
-
+  const skywardId =
+    getConfig().networkId === 'mainnet'
+      ? 'token.skyward.near'
+      : 'skyward.fakes.testnet';
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
   }, []);
 
   useEffect(() => {
+    const urlTokenInId = allTokens.find(
+      (t) => t.symbol && t.symbol === urlTokenIn
+    )?.id;
+    const urlTokenOutId = allTokens.find(
+      (t) => t.symbol && t.symbol === urlTokenOut
+    )?.id;
     let rememberedIn =
-      wrapTokenId(urlTokenIn) || localStorage.getItem(SWAP_IN_KEY);
+      wrapTokenId(urlTokenInId) || localStorage.getItem(SWAP_IN_KEY);
     let rememberedOut =
-      wrapTokenId(urlTokenOut) || localStorage.getItem(SWAP_OUT_KEY);
+      wrapTokenId(urlTokenOutId) || localStorage.getItem(SWAP_OUT_KEY);
     if (rememberedIn == NEARXIDS[0]) {
       rememberedIn = REF_TOKEN_ID;
     }
@@ -431,14 +442,21 @@ export default function CrossSwapCard(props: {
       rememberedOut = REF_TOKEN_ID;
     }
     if (allTokens) {
-      setTokenIn(
-        allTokens.find((token) => token.id === rememberedIn) || allTokens[0]
-      );
-      setTokenOut(
-        allTokens.find((token) => token.id === rememberedOut) || allTokens[1]
-      );
+      const candTokenIn =
+        allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
+
+      setTokenIn(candTokenIn);
+
+      const candTokenOut =
+        allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
+
+      setTokenOut(candTokenOut);
+
+      if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
+        setShowSkywardTip(true);
+      }
     }
-  }, [allTokens]);
+  }, [allTokens?.map((t) => t.id).join('-')]);
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !isSignedIn) return;
@@ -463,7 +481,9 @@ export default function CrossSwapCard(props: {
   }, [tokenIn, tokenOut, isSignedIn, nearBalance]);
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
-    history.replace(`#${tokenIn.id}${TOKEN_URL_SEPARATOR}${tokenOut.id}`);
+    history.replace(
+      `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
+    );
   }, [tokenIn?.id, tokenOut?.id]);
 
   const {
@@ -667,10 +687,12 @@ export default function CrossSwapCard(props: {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             setTokenIn(token);
             history.replace(
-              `#${unWrapTokenId(token.id)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
-                tokenOut.id
-              )}`
+              `#${token.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
             );
+
+            if (token.id === skywardId) {
+              setShowSkywardTip(true);
+            }
           }}
           amount={tokenInAmount}
           hidden={requested}
@@ -689,9 +711,7 @@ export default function CrossSwapCard(props: {
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
               history.replace(
-                `#${unWrapTokenId(
-                  tokenOut.id
-                )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(tokenIn.id)}`
+                `#${tokenOut.symbol}${TOKEN_URL_SEPARATOR}${tokenIn.symbol}`
               );
             }}
           />
@@ -704,10 +724,12 @@ export default function CrossSwapCard(props: {
             setTokenOut(token);
             localStorage.setItem(SWAP_OUT_KEY, token.id);
             history.replace(
-              `#${unWrapTokenId(
-                tokenIn.id
-              )}${TOKEN_URL_SEPARATOR}${unWrapTokenId(token.id)}`
+              `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${token.symbol}`
             );
+
+            if (token.id === skywardId) {
+              setShowSkywardTip(true);
+            }
           }}
           balances={balances}
           tokenPriceList={tokenPriceList}
@@ -781,6 +803,13 @@ export default function CrossSwapCard(props: {
           show={showAllResults}
         />
       )}
+
+      <SkyWardModal
+        onRequestClose={() => {
+          setShowSkywardTip(false);
+        }}
+        isOpen={showSkywardTip}
+      />
     </>
   );
 }

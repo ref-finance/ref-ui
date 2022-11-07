@@ -812,7 +812,7 @@ const es = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Tus farm',
   your_boosted_farms: 'Tus boosted farms',
-  search_farms_by_token: 'Buscar farms por token...',
+  search_farms_by_token: 'Buscar farms por token',
   search_farms: 'Buscar farms',
   more_lock_ve_popup: 'más ',
   more_lock_ve_popup2: 'más',
@@ -893,5 +893,7 @@ const es = {
   pool_stop_tip: 'This pool has been stopped.',
   no_claimed_rewards_yet: 'Recompensas por reclamar',
   out_of: 'de',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
 };
 export default Object.assign(es, es_in_risks_page);

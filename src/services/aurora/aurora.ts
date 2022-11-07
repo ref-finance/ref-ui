@@ -737,7 +737,7 @@ export const useAuroraBalancesNearMapping = (address: string) => {
   return nearMapping;
 };
 
-export const useTriTokenIdsOnRef = () => {
+export const useTriTokenIdsOnRef = (stopOn?: boolean) => {
   const auroraTokens = defaultTokenList.tokens;
   const allSupportPairs = getAuroraConfig().Pairs;
   const symbolToAddress = auroraTokens.reduce((pre, cur, i) => {
@@ -760,10 +760,36 @@ export const useTriTokenIdsOnRef = () => {
   const [triTokenIds, setTriTokenIds] = useState(null);
 
   useEffect(() => {
+    if (stopOn) return;
     getBatchTokenNearAcounts(idsOnPair).then(setTriTokenIds);
-  }, []);
+  }, [stopOn]);
 
-  return triTokenIds?.filter((id: string) => id);
+  return !!stopOn ? [] : triTokenIds?.filter((id: string) => id);
+};
+
+export const getTriTokenIdsOnRef = async () => {
+  const auroraTokens = defaultTokenList.tokens;
+  const allSupportPairs = getAuroraConfig().Pairs;
+  const symbolToAddress = auroraTokens.reduce((pre, cur, i) => {
+    return {
+      ...pre,
+      [cur.symbol]: cur.address,
+    };
+  }, {});
+
+  const idsOnPair = Object.keys(allSupportPairs)
+    .map((pairName: string) => {
+      const names = pairName.split('-');
+      return names.map((n) => {
+        if (n === 'ETH') return getAuroraConfig().WETH;
+        else return symbolToAddress[n];
+      });
+    })
+    .flat();
+
+  const ids = await getBatchTokenNearAcounts(idsOnPair);
+
+  return ids?.filter((id: string) => !!id) || [];
 };
 
 // fetch eth balance

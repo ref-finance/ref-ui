@@ -9016,6 +9016,19 @@ resolve@^1.10.0, resolve@^1.14.2, resolve@^1.18.1, resolve@^1.19.0, resolve@^1.2
     path-parse "^1.0.7"
     supports-preserve-symlinks-flag "^1.0.0"
 
+respinner@^3.0.8:
+  version "3.0.8"
+  resolved "https://registry.yarnpkg.com/respinner/-/respinner-3.0.8.tgz#344425cd27517e43c2fe5983178d904339d5d7b5"
+  integrity sha512-xK3s+Ua0aQROmHV1K3ve26BnRdPc2JbNOhpdvtGb3Gph0cGpWmv8KIE3/u+Q9PK+qCRPVqWnFE+7+GwA6GsAcQ==
+
+restore-cursor@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/restore-cursor/-/restore-cursor-2.0.0.tgz#9f7ee287f82fd326d4fd162923d62129eee0dfaf"
+  integrity sha512-6IzJLuGi4+R14vwagDHX+JrXmPVtPpn4mffDJ1UdR7/Edm87fl6yi8mMBIVvFtJaNTUvjughmW4hwLhRG7gC1Q==
+  dependencies:
+    onetime "^2.0.0"
+    signal-exit "^3.0.2"
+
 ret@~0.1.10:
   version "0.1.15"
   resolved "https://registry.yarnpkg.com/ret/-/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
