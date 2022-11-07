@@ -329,6 +329,10 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
         ? parsedTransactionSuccessValueNeth(txDetail)
         : parsedTransactionSuccessValue(txDetail);
 
+      console.log({
+        parsedOut,
+      });
+
       const erc20FailPattern = /burn amount exceeds balance/i;
 
       if (
@@ -351,6 +355,8 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
         const parsedOutput = byNeth
           ? parsedTransactionSuccessValueNeth(secondDetail)
           : parsedTransactionSuccessValue(secondDetail);
+
+        console.log({ parsedOutput });
 
         if (slippageErrprReg.test(parsedOutput)) {
           return {

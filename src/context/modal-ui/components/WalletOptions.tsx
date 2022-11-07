@@ -168,6 +168,19 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
     try {
       const { available } = module.metadata;
 
+      if (module.id === 'neth' && isMobile && !available) {
+        const meta_website =
+          process.env.NEAR_ENV === 'testnet'
+            ? 'https://metamask.app.link/dapp/dev.ref-finance.com/'
+            : process.env.NEAR_ENV === 'pub-testnet'
+            ? 'https://metamask.app.link/dapp/testnet.ref-finance.com/'
+            : 'https://metamask.app.link/dapp/app.ref.finance/';
+
+        window.location.replace(meta_website);
+
+        return;
+      }
+
       if (module.type === 'injected' && !available) {
         return onWalletNotInstalled(module);
       }
