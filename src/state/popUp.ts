@@ -48,12 +48,7 @@ export const useGlobalPopUp = (globalState: any) => {
     }
   }, [signInErrorType, txHash, isSignedIn]);
   useEffect(() => {
-    if (
-      txHash &&
-      isSignedIn &&
-      pathname !== '/farms' &&
-      pathname.indexOf('v2farms') === -1
-    ) {
+    if (txHash && isSignedIn) {
       checkTransaction(txHash)
         .then((res: any) => {
           const transaction = res.transaction;

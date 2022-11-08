@@ -146,55 +146,8 @@ export default function FarmsHome(props: any) {
   );
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const [popUp, setPopUp] = useState(false);
-  const { txHash, pathname, txHashes, errorType } = getURLInfo();
   const { user_migrate_seeds, seed_loading, user_claimed_rewards } =
     useMigrate_user_data();
-  useEffect(() => {
-    if (txHash && isSignedIn && popUp) {
-      checkTransaction(txHash)
-        .then((res: any) => {
-          const transaction = res.transaction;
-          const methodName =
-            transaction?.actions[0]?.['FunctionCall']?.method_name;
-
-          const isWrapNearNeth = res?.receipts?.some((r: any) => {
-            const method_name =
-              r?.receipt?.Action?.actions?.[0]?.FunctionCall?.method_name;
-
-            return (
-              method_name === 'near_deposit' || method_name === 'near_withdraw'
-            );
-          });
-
-          const fromWrapNear =
-            sessionStorage.getItem(NEAR_WITHDRAW_KEY) === '1';
-
-          const isWrapNear =
-            fromWrapNear &&
-            (methodName === 'wrap_near' ||
-              methodName === 'near_deposit' ||
-              isWrapNearNeth) &&
-            txHashes?.length === 1;
-
-          sessionStorage.removeItem(NEAR_WITHDRAW_KEY);
-
-          return {
-            isWrapNear,
-          };
-        })
-        .then(({ isWrapNear }) => {
-          if (isWrapNear) {
-            !errorType && swapToast(txHash);
-            window.history.replaceState(
-              {},
-              '',
-              window.location.origin + pathname
-            );
-          }
-        });
-    }
-  }, [txHash, isSignedIn, popUp]);
 
   const [showEndedFarmList, setShowEndedFarmList] = useState(
     localStorage.getItem('endedfarmShow') == '1' ? true : false
@@ -855,7 +808,6 @@ export default function FarmsHome(props: any) {
     if (from == 'main') {
       setHomePageLoading(false);
     }
-    setPopUp(true);
     set_farm_display_List(farm_display_List);
     set_farm_display_ended_List(Array.from(farm_display_ended_List));
     if (keyWords) {
