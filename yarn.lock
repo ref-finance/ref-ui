@@ -2046,6 +2046,13 @@
   dependencies:
     rxjs "^7.5.5"
 
+"@near-wallet-selector/core@7.2.0":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-7.2.0.tgz#18317b1c3fdf622df07d8d4302c8def15c1c4c35"
+  integrity sha512-AfJOoTeQwzF+qNsvwq4MnB2ChJReKhRpf5w5zF5W9f1kl0S0nZB2hbHQr8WZRD2t2dmjHJ96tNvtt3/BpkXp6Q==
+  dependencies:
+    rxjs "^7.5.7"
+
 "@near-wallet-selector/ledger@^7.0.0":
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/ledger/-/ledger-7.1.0.tgz#745178afeaa59fea1ee8ee98ce40ea08bbe2a26a"
@@ -2102,6 +2109,17 @@
   dependencies:
     "@near-wallet-selector/core" "7.1.0"
     "@near-wallet-selector/my-near-wallet" "7.1.0"
+
+"@near-wallet-selector/neth@^7.0.2":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/neth/-/neth-7.2.0.tgz#68fe59357d3ff14cd0bf3d32eb52b4d0a8690fb8"
+  integrity sha512-s+ZxJURgScSS/tMVXcjmu5lm98hENNKstLbWBSpL74ClLjtLpZNF0l7hs9fNAebeWgdZ/wVwn2uW/ASiGgLrXQ==
+  dependencies:
+    "@metamask/detect-provider" "^2.0.0"
+    "@near-wallet-selector/core" "7.2.0"
+    bn.js "^5.2.0"
+    ethers "^5.7.2"
+    near-seed-phrase "^0.2.0"
 
 "@near-wallet-selector/sender@^7.0.0":
   version "7.1.0"
@@ -10379,7 +10397,7 @@ rxjs@6:
   dependencies:
     tslib "^1.9.0"
 
-rxjs@^7.5.5:
+rxjs@^7.5.5, rxjs@^7.5.7:
   version "7.5.7"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.5.7.tgz#2ec0d57fdc89ece220d2e702730ae8f1e49def39"
   integrity sha512-z9MzKh/UcOqB3i20H6rtrlaE/CgjLOvheWK/9ILrbhROGTweAi1BaFsTT9FbwZi5Trr1qNRs+MXkhmR06awzQA==

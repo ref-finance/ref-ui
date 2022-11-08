@@ -15,7 +15,7 @@ import { setupSender } from '@near-wallet-selector/sender';
 import { setupMathWallet } from '@near-wallet-selector/math-wallet';
 import { setupLedger } from '@near-wallet-selector/ledger';
 
-import { setupNeth } from 'neth';
+import { setupNeth } from '@near-wallet-selector/neth';
 
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 
