@@ -53,14 +53,9 @@ export const MetaMaskTip = ({ inMeta }: { inMeta?: boolean }) => {
               marginBottom: '5px',
             }}
             onClick={() => {
-              const meta_website =
-                process.env.NEAR_ENV === 'testnet'
-                  ? 'dev.ref-finance.com'
-                  : process.env.NEAR_ENV === 'pub-testnet'
-                  ? 'testnet.ref-finance.com'
-                  : 'app.ref.finance';
-
-              window.open(`https://metamask.app.link/dapp/${meta_website}`);
+              window.open(
+                `https://metamask.app.link/dapp/${window.location.host}`
+              );
 
               return;
             }}
