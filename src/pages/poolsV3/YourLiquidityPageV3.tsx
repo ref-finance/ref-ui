@@ -355,6 +355,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
+      setYour_liquidity(toPrecision(total_price, 3));
     }
     // only y token
     if (current_point >= right_point) {
