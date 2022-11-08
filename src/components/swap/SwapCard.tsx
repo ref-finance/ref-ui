@@ -645,7 +645,9 @@ export default function SwapCard(props: {
     }
     // todo
     history.replace(
-      `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
+      `#${unWrapTokenId(tokenIn.id)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
+        tokenOut.id
+      )}`
     );
 
     localStorage.setItem(SWAP_IN_KEY, tokenIn.id);
@@ -657,10 +659,12 @@ export default function SwapCard(props: {
       // todo
 
       const urlTokenInId = allTokens.find(
-        (t) => t.symbol && t.symbol === urlTokenIn
+        (t) =>
+          t.symbol && t.id && (t.symbol === urlTokenIn || t.id === urlTokenIn)
       )?.id;
       const urlTokenOutId = allTokens.find(
-        (t) => t.symbol && t.symbol === urlTokenOut
+        (t) =>
+          t.symbol && t.id && (t.symbol === urlTokenOut || t.id === urlTokenOut)
       )?.id;
 
       let rememberedIn =
@@ -956,10 +960,7 @@ export default function SwapCard(props: {
           balances={balances}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
-            swapMode === SWAP_MODE.NORMAL &&
-              history.replace(
-                `#${token.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
-              );
+
             setTokenIn(token);
             setCanSwap(false);
 
@@ -993,9 +994,6 @@ export default function SwapCard(props: {
               setTokenInAmount(toPrecision('1', 6));
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-              history.replace(
-                `#${tokenOut.symbol}${TOKEN_URL_SEPARATOR}${tokenIn.symbol}`
-              );
             }}
           />
         </div>
@@ -1012,10 +1010,7 @@ export default function SwapCard(props: {
           useNearBalance={useNearBalance}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_OUT_KEY, token.id);
-            swapMode === SWAP_MODE.NORMAL &&
-              history.replace(
-                `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${token.symbol}`
-              );
+
             setTokenOut(token);
             setCanSwap(false);
 

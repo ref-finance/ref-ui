@@ -426,11 +426,14 @@ export default function CrossSwapCard(props: {
 
   useEffect(() => {
     const urlTokenInId = allTokens.find(
-      (t) => t.symbol && t.symbol === urlTokenIn
+      (t) =>
+        t.symbol && t.id && (t.symbol === urlTokenIn || t.id === urlTokenIn)
     )?.id;
     const urlTokenOutId = allTokens.find(
-      (t) => t.symbol && t.symbol === urlTokenOut
+      (t) =>
+        t.symbol && t.id && (t.symbol === urlTokenOut || t.id === urlTokenOut)
     )?.id;
+
     let rememberedIn =
       wrapTokenId(urlTokenInId) || localStorage.getItem(SWAP_IN_KEY);
     let rememberedOut =
@@ -482,7 +485,9 @@ export default function CrossSwapCard(props: {
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
     history.replace(
-      `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
+      `#${wrapTokenId(tokenIn.id)}${TOKEN_URL_SEPARATOR}${wrapTokenId(
+        tokenOut.id
+      )}`
     );
   }, [tokenIn?.id, tokenOut?.id]);
 
@@ -686,9 +691,6 @@ export default function CrossSwapCard(props: {
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             setTokenIn(token);
-            history.replace(
-              `#${token.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
-            );
 
             if (token.id === skywardId) {
               setShowSkywardTip(true);
@@ -710,9 +712,6 @@ export default function CrossSwapCard(props: {
               setTokenInAmount(toPrecision('1', 6));
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-              history.replace(
-                `#${tokenOut.symbol}${TOKEN_URL_SEPARATOR}${tokenIn.symbol}`
-              );
             }}
           />
         </div>
@@ -723,9 +722,6 @@ export default function CrossSwapCard(props: {
           onSelectToken={(token) => {
             setTokenOut(token);
             localStorage.setItem(SWAP_OUT_KEY, token.id);
-            history.replace(
-              `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${token.symbol}`
-            );
 
             if (token.id === skywardId) {
               setShowSkywardTip(true);
