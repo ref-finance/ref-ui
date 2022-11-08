@@ -13,6 +13,8 @@ import { WalletNotInstalled } from './WalletNotInstalled';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Context } from '../../../components/wrapper';
 import { RouterArrowLeft } from '../../../components/icon/Arrows';
+import { MetaMaskTip } from './MetaMaskTip';
+import { isClientMobie } from '~utils/device';
 
 interface ModalProps {
   selector: WalletSelector;
@@ -38,7 +40,9 @@ export const Modal: React.FC<ModalProps> = ({
   visible,
   hide,
 }) => {
-  const [route, setRoute] = useState<ModalRoute>({
+  const [route, setRoute] = useState<
+    ModalRoute | { name: 'MetaMaskTip'; inMeta?: boolean }
+  >({
     name: 'WalletOptions',
   });
 
@@ -158,6 +162,15 @@ export const Modal: React.FC<ModalProps> = ({
                 });
               }}
               onConnecting={(wallet) => {
+                if (!wallet && isClientMobie()) {
+                  setRoute({
+                    name: 'MetaMaskTip',
+                    inMeta: !!window.ethereum,
+                  });
+
+                  return;
+                }
+
                 setRoute({
                   name: 'WalletConnecting',
                   params: { wallet: wallet },
@@ -223,6 +236,9 @@ export const Modal: React.FC<ModalProps> = ({
                 setRoute({ name: 'WalletOptions' });
               }}
             />
+          )}
+          {route.name === 'MetaMaskTip' && (
+            <MetaMaskTip inMeta={route.inMeta} />
           )}
         </div>
       </div>

@@ -102,7 +102,7 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
           iconUrl: walletIcons['sender'],
         }),
         setupNeth({
-          iconUrl: walletIcons['near-wallet'],
+          iconUrl: walletIcons['neth'],
           gas: '300000000000000',
           bundle: false,
         }),

@@ -24,6 +24,7 @@ const walletOfficialUrl = {
   WalletConnect: 'walletconnect.com',
   MyNearWallet: 'mynearwallet.com',
   'Meteor Wallet': 'wallet.meteorwallet.app',
+  'NETH Account': 'neth.app',
 };
 
 const SelectedIcon = () => {
@@ -90,7 +91,7 @@ interface WalletOptionsProps {
   onWalletNotInstalled: (module: ModuleState) => void;
   onConnectHardwareWallet: () => void;
   onConnected: () => void;
-  onConnecting: (wallet: Wallet) => void;
+  onConnecting: (wallet?: Wallet) => void;
   onError: (error: Error) => void;
 }
 export const WalletSelectorFooter = () => {
@@ -169,14 +170,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       const { available } = module.metadata;
 
       if (module.id === 'neth' && isMobile && !available) {
-        const meta_website =
-          process.env.NEAR_ENV === 'testnet'
-            ? 'https://metamask.app.link/dapp/dev.ref-finance.com/'
-            : process.env.NEAR_ENV === 'pub-testnet'
-            ? 'https://metamask.app.link/dapp/testnet.ref-finance.com/'
-            : 'https://metamask.app.link/dapp/app.ref.finance/';
-
-        window.location.replace(meta_website);
+        // open neth tip
+        onConnecting();
 
         return;
       }
@@ -184,6 +179,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
       if (module.type === 'injected' && !available) {
         return onWalletNotInstalled(module);
       }
+
       const wallet = await module.wallet();
 
       onConnecting(wallet);
@@ -201,6 +197,13 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
         onConnected();
       }
     } catch (err) {
+      if (module.id === 'neth' && isMobile && module.metadata.available) {
+        // open neth tip
+        onConnecting();
+
+        return;
+      }
+
       console.log(err);
 
       onError(err);
