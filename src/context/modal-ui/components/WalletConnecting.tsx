@@ -4,6 +4,7 @@ import { BeatLoader } from 'react-spinners';
 import { FormattedMessage } from 'react-intl';
 import { GradientWrapper } from './BorderWrapper';
 import { useClientMobile } from '../../../utils/device';
+import { BeatLoading } from 'respinner';
 
 interface WalletConnectingProps {
   wallet: Wallet | undefined;
@@ -59,46 +60,25 @@ export const WalletConnecting: React.FC<WalletConnectingProps> = ({
         minWidth: !clientMobie ? '300px' : '',
       }}
     >
-      <GradientWrapper className="rounded-full p-2  inline-flex">
-        <div
-          className=" rounded-full flex items-center justify-center"
-          style={{
-            backgroundColor: '#1D2932',
-          }}
-        >
-          <GradientWrapper className="rounded-full" reverse>
-            <div
-              className="rounded-full  w-14 h-14 flex items-center justify-center"
-              style={{
-                backgroundColor: '#212734',
-              }}
-            >
-              <REF_ICON />
-            </div>
-          </GradientWrapper>
-
-          <span className="mx-4">
-            <BeatLoader margin={6} size={5} color="#00C6A2" />
-          </span>
-          <GradientWrapper className="rounded-full" reverse>
-            <div
-              className="rounded-full w-14 h-14 items-center justify-center flex "
-              style={{
-                backgroundColor: '#212734',
-              }}
-            >
-              <img
-                // className="rounded-full"
-                src={wallet?.metadata.iconUrl}
-                alt=""
-                style={{
-                  maxWidth: '36px',
-                }}
-              />
-            </div>
-          </GradientWrapper>
+      <div className=" rounded-full flex items-center justify-center">
+        <div className="rounded-2xl  w-14 bg-black bg-opacity-20 h-14 flex items-center justify-center">
+          <REF_ICON />
         </div>
-      </GradientWrapper>
+
+        <span className="mx-4">
+          <BeatLoading count={6} size={5} fill="#00C6A2" />
+        </span>
+        <div className="rounded-2xl w-14 h-14 bg-black bg-opacity-20 items-center justify-center flex ">
+          <img
+            // className="rounded-full"
+            src={wallet?.metadata.iconUrl}
+            alt=""
+            style={{
+              width: '32px',
+            }}
+          />
+        </div>
+      </div>
 
       <div className="text-center pt-5 pb-10 text-xl font-bold">
         <FormattedMessage id="connecting" defaultMessage={'Connecting'} />

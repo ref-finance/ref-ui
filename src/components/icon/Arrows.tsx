@@ -377,6 +377,24 @@ export function SwapExchange({ onChange }: { onChange: (e?: any) => void }) {
   );
 }
 
+export const RouterArrowLeft = ({ color }: { color?: string }) => {
+  return (
+    <svg
+      width="6"
+      height="12"
+      viewBox="0 0 6 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M5.31152 1L0.999633 5.85088L5.31152 10.7018"
+        stroke={color || 'white'}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};
+
 export function StableSwapExchangePC({
   onChange,
 }: {

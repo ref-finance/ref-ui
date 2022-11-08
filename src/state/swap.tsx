@@ -1,11 +1,8 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getPool, Pool, StablePool, getStablePool } from '../services/pool';
 import BigNumber from 'bignumber.js';
-import {
-  estimateSwap as estimateStableSwap,
-  EstimateSwapView,
-} from '../services/stable-swap';
+import { estimateSwap as estimateStableSwap } from '../services/stable-swap';
 
 import { TokenMetadata } from '../services/ft-contract';
 import {
@@ -47,11 +44,12 @@ import {
 } from '../components/layout/transactionTipPopUp';
 import { SWAP_MODE } from '../pages/SwapPage';
 import { getErrorMessage } from '../components/layout/transactionTipPopUp';
-import { checkTransactionStatus } from '../services/swap';
+import { checkTransactionStatus, EstimateSwapView } from '../services/swap';
 import {
   parsedTransactionSuccessValue,
   checkCrossSwapTransactions,
 } from '../components/layout/transactionTipPopUp';
+import Big from 'big.js';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 
@@ -76,6 +74,27 @@ interface SwapOptions {
   setRequestingTrigger?: (requestingTrigger?: boolean) => void;
 }
 
+export const estimateValidator = (
+  swapTodos: EstimateSwapView[],
+  tokenIn: TokenMetadata,
+  parsedAmountIn: string,
+  tokenOut: TokenMetadata
+) => {
+  const tokenInId = swapTodos[0]?.inputToken;
+  const tokenOutId = swapTodos[swapTodos.length - 1]?.outputToken;
+
+  if (
+    tokenInId !== tokenIn.id ||
+    tokenOutId !== tokenOut.id ||
+    !BigNumber.sum(
+      ...swapTodos.map((st) => st.pool.partialAmountIn || 0)
+    ).isEqualTo(parsedAmountIn)
+  ) {
+    return false;
+  }
+  return true;
+};
+
 export const useSwap = ({
   tokenIn,
   tokenInAmount,
@@ -96,7 +115,11 @@ export const useSwap = ({
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
 
+  const [forceEstimate, setForceEstimate] = useState<boolean>(false);
+
   const [avgFee, setAvgFee] = useState<number>(0);
+
+  const [estimating, setEstimating] = useState<boolean>(false);
 
   const history = useHistory();
   const [count, setCount] = useState<number>(0);
@@ -171,7 +194,7 @@ export const useSwap = ({
         setTokenOutAmount('0');
         return;
       }
-
+      setEstimating(true);
       estimateSwap({
         tokenIn,
         tokenOut,
@@ -182,25 +205,24 @@ export const useSwap = ({
         swapMode,
         supportLedger,
       })
-        .then(async (estimates) => {
+        .then(async ({ estimates, tag }) => {
           if (!estimates) throw '';
+
           if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
             setAverageFee(estimates);
 
-            if (!loadingTrigger) {
-              setSwapError(null);
-              const expectedOut = (
-                await getExpectedOutputFromActions(
-                  estimates,
-                  tokenOut.id,
-                  slippageTolerance
-                )
-              ).toString();
+            setSwapError(null);
+            const expectedOut = (
+              await getExpectedOutputFromActions(
+                estimates,
+                tokenOut.id,
+                slippageTolerance
+              )
+            ).toString();
 
-              setTokenOutAmount(expectedOut);
-              setSwapsToDo(estimates);
-              setCanSwap(true);
-            }
+            setTokenOutAmount(expectedOut);
+            setSwapsToDo(estimates);
+            setCanSwap(true);
           }
 
           setPool(estimates[0].pool);
@@ -212,7 +234,11 @@ export const useSwap = ({
             setSwapError(err);
           }
         })
-        .finally(() => setLoadingTrigger(false));
+        .finally(() => {
+          setForceEstimate(false);
+          setLoadingTrigger(false);
+          setEstimating(false);
+        });
     } else if (
       tokenIn &&
       tokenOut &&
@@ -225,6 +251,20 @@ export const useSwap = ({
   };
 
   useEffect(() => {
+    const valRes =
+      swapsToDo &&
+      tokenIn &&
+      tokenOut &&
+      estimateValidator(
+        swapsToDo,
+        tokenIn,
+        toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+        tokenOut
+      );
+
+    if (estimating && swapsToDo && !forceEstimate) return;
+    if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
+
     getEstimate();
   }, [
     loadingTrigger,
@@ -234,7 +274,15 @@ export const useSwap = ({
     tokenInAmount,
     reEstimateTrigger,
     supportLedger,
+    estimating,
+    forceEstimate,
   ]);
+
+  useEffect(() => {
+    // setEstimating(false);
+
+    setForceEstimate(true);
+  }, [tokenIn?.id, tokenOut?.id, supportLedger, swapMode]);
 
   useEffect(() => {
     let id: any = null;
@@ -507,7 +555,7 @@ export const useCrossSwap = ({
       setSwapsToDoRef,
       setSwapsToDoTri,
     })
-      .then(async (estimates) => {
+      .then(async ({ estimates }) => {
         if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
           setAverageFee(estimates);
 

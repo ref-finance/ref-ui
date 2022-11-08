@@ -51,7 +51,7 @@ import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { getAllPoolsIndexer } from './indexer';
 import { getExtendConfig } from './config';
 const explorerType = getExplorer();
-export const DEFAULT_PAGE_LIMIT = 100;
+export const DEFAULT_PAGE_LIMIT = 500;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
 
 export const getStablePoolInfoKey = (id: string) =>
@@ -70,6 +70,7 @@ export interface Pool {
   rates?: {
     [id: string]: string;
   };
+  pool_kind?: string;
 }
 
 export interface StablePool {
@@ -102,6 +103,7 @@ export const parsePool = (pool: PoolRPCView, id?: number): Pool => ({
   shareSupply: pool.shares_total_supply,
   tvl: pool.tvl,
   token0_ref_price: pool.token0_ref_price,
+  pool_kind: pool?.pool_kind,
 });
 
 export const getPools = async ({
@@ -157,10 +159,6 @@ export const getPoolsFromCache = async ({
     tvl: 0,
     token0_ref_price: '0',
   }));
-};
-
-export const getAllPoolsFromDb = async () => {
-  return await db.allPools().toArray();
 };
 
 export const getAllWatchListFromDb = async ({

@@ -130,7 +130,6 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useAccountInfo } from '../../state/referendum';
 import { getVEPoolId } from '../ReferendumPage';
-import { PoolTab } from '../../components/pool/PoolTab';
 import getConfig from '../../services/config';
 import { BoostInputAmount } from '../../components/forms/InputAmount';
 import { ExternalLinkIcon } from '~components/icon/Risk';
@@ -1541,7 +1540,6 @@ export function PoolDetailsPage() {
   }
   return (
     <>
-      <PoolTab></PoolTab>
       <div>
         <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
           <BreadCrumb
