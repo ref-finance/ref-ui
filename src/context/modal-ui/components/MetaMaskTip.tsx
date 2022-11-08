@@ -83,8 +83,13 @@ export const MetaMaskTip = ({ inMeta }: { inMeta?: boolean }) => {
             />
           </div>
 
-          <div className="py-4 w-full font-bold px-5 rounded-3xl bg-black bg-opacity-20 flex items-center">
-            <span className="mr-5 text-gradientFrom">
+          <div
+            className="py-4 w-full  font-bold px-4 rounded-3xl bg-black bg-opacity-20 flex items-center"
+            style={{
+              width: '105%',
+            }}
+          >
+            <span className="mr-3 text-gradientFrom">
               <FormattedMessage id="Step" defaultMessage={'Step'} />
               1.
             </span>
@@ -97,15 +102,20 @@ export const MetaMaskTip = ({ inMeta }: { inMeta?: boolean }) => {
             </span>
           </div>
 
-          <a className="text-center mt-2 mb-5 text-sm text-blueTip">
+          <a className="text-center ml-8 mt-2 mb-5 text-sm text-blueTip">
             <FormattedMessage
               id="how_to_add_aurora_chain"
               defaultMessage={'How to add Aurora Chain?'}
             />
           </a>
 
-          <div className="py-4 w-full font-bold px-5 rounded-3xl bg-black bg-opacity-20 flex items-center">
-            <span className="mr-5 text-gradientFrom">
+          <div
+            className="py-4 w-full font-bold px-4 rounded-3xl bg-black bg-opacity-20 flex items-center"
+            style={{
+              width: '105%',
+            }}
+          >
+            <span className="mr-3 text-gradientFrom">
               <FormattedMessage id="Step" defaultMessage={'Step'} />
               2.
             </span>
