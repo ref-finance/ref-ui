@@ -141,13 +141,7 @@ export default function YourLiquidityDetail(props: any) {
     const { current_point } = poolDetail;
     //  in range
     if (current_point >= left_point && right_point > current_point) {
-      const tokenYAmount = getY(
-        left_point,
-        current_point,
-        current_point,
-        L,
-        tokenY
-      );
+      const tokenYAmount = getY(left_point, current_point, L, tokenY);
       const tokenXAmount = getX(current_point + 1, right_point, L, tokenX);
       const { amountx, amounty } = get_X_Y_In_CurrentPoint(tokenX, tokenY, L);
       setTokenXAmount(new BigNumber(tokenXAmount).plus(amountx).toFixed());
@@ -155,13 +149,7 @@ export default function YourLiquidityDetail(props: any) {
     }
     // only y token
     if (current_point >= right_point) {
-      const tokenYAmount = getY(
-        left_point,
-        right_point,
-        current_point,
-        L,
-        tokenY
-      );
+      const tokenYAmount = getY(left_point, right_point, L, tokenY);
       setTokenYAmount(tokenYAmount);
     }
     // only x token
@@ -197,11 +185,9 @@ export default function YourLiquidityDetail(props: any) {
   function getY(
     leftPoint: number,
     rightPoint: number,
-    currentPoint: number,
     L: string,
     token: TokenMetadata
   ) {
-    const { right_point } = userLiquidity;
     const y = new BigNumber(L).multipliedBy(
       (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
         Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /

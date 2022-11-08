@@ -341,12 +341,12 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
   }
   function get_your_liquidity(current_point: number) {
     const [tokenX, tokenY] = tokenMetadata_x_y;
-    const tokenYAmount = getY(left_point, current_point, L, tokenY) || 0;
-    const tokenXAmount = getX(current_point, right_point, L, tokenX) || 0;
     const priceX = tokenPriceList[tokenX.id]?.price || 0;
     const priceY = tokenPriceList[tokenY.id]?.price || 0;
     //  in range
     if (current_point >= left_point && right_point > current_point) {
+      const tokenYAmount = getY(left_point, current_point, L, tokenY) || 0;
+      const tokenXAmount = getX(current_point + 1, right_point, L, tokenX) || 0;
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
@@ -354,12 +354,14 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
     }
     // only y token
     if (current_point >= right_point) {
+      const tokenYAmount = getY(left_point, right_point, L, tokenY);
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const total_price = tokenYTotalPrice.toFixed();
       setYour_liquidity(toPrecision(total_price, 3));
     }
     // only x token
     if (left_point > current_point) {
+      const tokenXAmount = getX(left_point, right_point, L, tokenX);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenXTotalPrice.toFixed();
       setYour_liquidity(toPrecision(total_price, 3));
