@@ -483,7 +483,7 @@ export function RouteDCLDetail({
 }) {
   return (
     <section
-      className=" px-4 py-3 flex  text-xs items-center justify-between rounded-xl"
+      className=" px-4 py-2 flex  text-xs items-center justify-between rounded-xl"
       style={{
         border: '1.2px solid rgba(145, 162, 174, 0.2)',
       }}
