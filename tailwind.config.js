@@ -198,6 +198,9 @@ module.exports = {
         v3LiquidityRemoveBarColor: 'rgba(126, 138, 147, 0.5)',
         watchMarkBackgroundColor: '#303E49',
         v3poolWarningColor: '#FF9E44',
+        menuMoreBgColor: 'rgba(126, 138, 147, 0.15)',
+        menuMoreBoxBorderColor:'#304352',
+        laguageBorderColor:'#42525C',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

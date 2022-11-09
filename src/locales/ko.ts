@@ -939,5 +939,6 @@ const ko = {
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
   ref_week_you_will_get: 'REF/week you will get',
+  stable_pool: 'Stable Pool',
 };
 export default Object.assign(ko, ko_in_risks_page);

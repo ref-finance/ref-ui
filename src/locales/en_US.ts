@@ -567,7 +567,7 @@ const en_US = {
   rewards_week: 'Rewards/week',
   rewards: 'Rewards',
   claimed_Rewards: 'Claimed Rewards',
-  POOL: 'POOLS',
+  POOL: 'POOL',
   STAKE: 'STAKE',
   lp_Token: 'LP Tokens',
   booster: 'Booster',
@@ -654,7 +654,7 @@ const en_US = {
   voting_gauge_share_tip:
     'The proportion of the REF used for voting allocation to the total REF reward in this period',
   swap_capital: 'SWAP',
-  farm_capital: 'FARMS',
+  farm_capital: 'FARM',
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
   available_to_stake: 'available to stake',
@@ -941,5 +941,6 @@ const en_US = {
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
   ref_week_you_will_get: 'REF/week you will get',
+  stable_pool: 'Stable Pool',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

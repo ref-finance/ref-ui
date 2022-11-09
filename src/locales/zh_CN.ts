@@ -894,5 +894,6 @@ const zh_CN = {
   no_pool_tip: '哦!池子不存在。',
   total_ref_week: 'REF/周',
   ref_week_you_will_get: '你将获得的REF/周',
+  stable_pool: '稳定池',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
