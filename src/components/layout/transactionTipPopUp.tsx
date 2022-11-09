@@ -22,6 +22,7 @@ export enum TRANSACTION_ERROR_TYPE {
   SHARESUPPLYOVERFLOW = 'Share Supply Overflow',
   TOKEN_FROZEN = 'Token Frozen',
   POOL_BALANCE_LESS = 'Pool Balance Less Than MIN_RESERVE',
+  NETH_ERROR = 'Smart contract panicked',
 }
 
 const ERROR_PATTERN = {
@@ -32,6 +33,7 @@ const ERROR_PATTERN = {
   ShareSupplyOverflowErrorPattern: /shares_total_supply overflow/i,
   tokenFrozenErrorPattern: /token frozen/i,
   poolBalanceLessPattern: /pool reserved token balance less than MIN_RESERVE/i,
+  nethErrorPattern: /Smart contract panicked: explicit guest panic/i,
 };
 
 export enum TRANSACTION_STATE {
@@ -538,6 +540,13 @@ export const getErrorMessage = (res: any) => {
     );
   });
 
+  const isNETHErrpr = res.receipts_outcome.some((outcome: any) => {
+    return ERROR_PATTERN.nethErrorPattern.test(
+      outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+        ?.ExecutionError
+    );
+  });
+
   if (isSlippageError) {
     return TRANSACTION_ERROR_TYPE.SLIPPAGE_VIOLATION;
   } else if (isInvalidAmountError) {
@@ -552,6 +561,8 @@ export const getErrorMessage = (res: any) => {
     return TRANSACTION_ERROR_TYPE.TOKEN_FROZEN;
   } else if (isPoolBalanceLess) {
     return TRANSACTION_ERROR_TYPE.POOL_BALANCE_LESS;
+  } else if (isNETHErrpr) {
+    return TRANSACTION_ERROR_TYPE.NETH_ERROR;
   } else {
     return null;
   }
