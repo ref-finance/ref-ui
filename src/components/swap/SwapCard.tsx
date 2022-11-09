@@ -141,6 +141,8 @@ import { TiRefresh } from 'react-icons/ti';
 
 import { MdOutlineRefresh } from 'react-icons/md';
 import { getMax } from '../../utils/numbers';
+import { useWalletTokenBalances } from '../../state/token';
+import { TokenBalancesView } from '../../services/token';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -1188,6 +1190,9 @@ export default function SwapCard(props: {
   const [limitSwapTrigger, setLimiSwapTrigger] = useState<boolean>(false);
   const [showSkywardTip, setShowSkywardTip] = useState<boolean>(false);
 
+  const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
+  const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
+
   const intl = useIntl();
   const location = useLocation();
   const history = useHistory();
@@ -1199,7 +1204,6 @@ export default function SwapCard(props: {
 
   const [displayDetailView, setDisplayDetailView] = useState<JSX.Element>();
 
-  const balances = useTokenBalances();
   const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
     location.hash.slice(1)
   ).split(TOKEN_URL_SEPARATOR);
@@ -1342,33 +1346,41 @@ export default function SwapCard(props: {
   }, [allTokens?.map((t) => t.id).join('-'), swapMode]);
 
   useEffect(() => {
-    if (useNearBalance) {
-      if (tokenIn) {
-        const tokenInId = tokenIn.id;
-        if (tokenInId) {
-          if (isSignedIn) {
-            ftGetBalance(
-              tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : tokenIn.id
-            ).then((available: string) =>
+    if (tokenIn) {
+      const tokenInId = tokenIn.id;
+      if (tokenInId) {
+        if (isSignedIn) {
+          setBalanceInDone(false);
+          ftGetBalance(
+            tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : tokenIn.id
+          )
+            .then((available: string) =>
               setTokenInBalanceFromNear(
                 toReadableNumber(tokenIn?.decimals, available)
               )
-            );
-          }
+            )
+            .finally(() => {
+              setBalanceInDone(true);
+            });
         }
       }
-      if (tokenOut) {
-        const tokenOutId = tokenOut.id;
-        if (tokenOutId) {
-          if (isSignedIn) {
-            ftGetBalance(
-              tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : tokenOut.id
-            ).then((available: string) =>
+    }
+    if (tokenOut) {
+      const tokenOutId = tokenOut.id;
+      if (tokenOutId) {
+        if (isSignedIn) {
+          setBalanceOutDone(false);
+          ftGetBalance(
+            tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : tokenOut.id
+          )
+            .then((available: string) =>
               setTokenOutBalanceFromNear(
                 toReadableNumber(tokenOut?.decimals, available)
               )
-            );
-          }
+            )
+            .finally(() => {
+              setBalanceOutDone(true);
+            });
         }
       }
     }
@@ -1760,12 +1772,9 @@ export default function SwapCard(props: {
     }
   }, [quoteDone, quoteDoneV3, quoteDoneLimit, DetailView]);
 
-  const tokenInMax = useNearBalance
-    ? tokenInBalanceFromNear || '0'
-    : toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
-  const tokenOutTotal = useNearBalance
-    ? tokenOutBalanceFromNear || '0'
-    : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
+  const tokenInMax = tokenInBalanceFromNear || '0';
+
+  const tokenOutTotal = tokenOutBalanceFromNear || '0';
 
   const canSubmit =
     (swapMode !== SWAP_MODE.LIMIT
@@ -1866,7 +1875,6 @@ export default function SwapCard(props: {
           limitOrderDisable={
             swapMode === SWAP_MODE.LIMIT && (!mostPoolDetail || !quoteDoneLimit)
           }
-          balances={balances}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             swapMode === SWAP_MODE.NORMAL &&
@@ -1890,7 +1898,11 @@ export default function SwapCard(props: {
             setTokenOut(token);
           }}
         />
-        {(swapMode === SWAP_MODE.LIMIT ? !!curOrderPrice : true) &&
+        {(swapMode === SWAP_MODE.LIMIT
+          ? !!curOrderPrice && quoteDoneLimit
+          : true) &&
+          balanceInDone &&
+          balanceOutDone &&
           tokenIn &&
           Number(getMax(tokenIn.id, tokenInMax || '0')) -
             Number(tokenInAmount || '0') <
@@ -1978,7 +1990,6 @@ export default function SwapCard(props: {
             total={tokenOutTotal}
             tokens={allTokens}
             selectedToken={tokenOut}
-            balances={balances}
             preSelected={tokenIn}
             onChangeAmount={
               swapMode === SWAP_MODE.LIMIT && mostPoolDetail
