@@ -143,6 +143,8 @@ import { MdOutlineRefresh } from 'react-icons/md';
 import { getMax } from '../../utils/numbers';
 import { useWalletTokenBalances } from '../../state/token';
 import { TokenBalancesView } from '../../services/token';
+import { Images } from '../stableswap/CommonComp';
+import { ArrowRight } from '../layout/SwapRoutes';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -465,6 +467,51 @@ export function SmartRoutesV2Detail({
             </div>
           </div>
         ))}
+      </div>
+    </section>
+  );
+}
+
+export function RouteDCLDetail({
+  bestFee,
+  tokenIn,
+  tokenOut,
+}: {
+  bestFee: number;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
+  return (
+    <section
+      className=" px-2flex py-1 text-xs items-center justify-between rounded-xl"
+      style={{
+        border: '1.2px solid rgba(145, 162, 174, 0.2)',
+      }}
+    >
+      <div className="text-primaryText  ">
+        <div className="inline-flex items-center">
+          <FormattedMessage id="route" defaultMessage={'Route'} />
+        </div>
+      </div>
+
+      <div className=" text-white flex items-center ">
+        <span className="flex items-center">
+          <span>100%</span>
+
+          <Images tokens={[tokenIn]} size={'4'} />
+        </span>
+
+        <div className="px-3">
+          <ArrowRight />
+        </div>
+
+        <div className="flex items-center">
+          <span>{`${toRealSymbol(tokenOut.symbol)}/${tokenIn.symbol} V2`}</span>
+
+          <span>{bestFee / 100}%</span>
+
+          <Images tokens={[tokenOut]} size="4" />
+        </div>
       </div>
     </section>
   );
@@ -953,6 +1000,8 @@ function DetailViewV3({
           title={intl.formatMessage({ id: 'pool_fee' })}
           value={poolFeeDisplay}
         />
+
+        <RouteDCLDetail bestFee={fee} tokenIn={tokenIn} tokenOut={tokenOut} />
       </div>
     </div>
   );
