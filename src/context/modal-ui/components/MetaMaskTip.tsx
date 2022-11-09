@@ -97,7 +97,11 @@ export const MetaMaskTip = ({ inMeta }: { inMeta?: boolean }) => {
             </span>
           </div>
 
-          <a className="text-center ml-8 mt-2 mb-5 text-sm text-blueTip">
+          <a
+            className="text-center ml-8 mt-2 mb-5 text-sm text-blueTip"
+            href="https://aurora.dev/start"
+            target={'_blank'}
+          >
             <FormattedMessage
               id="how_to_add_aurora_chain"
               defaultMessage={'How to add Aurora Chain?'}
