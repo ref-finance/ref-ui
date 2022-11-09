@@ -1903,8 +1903,12 @@ export default function SwapCard(props: {
                 id:
                   tokenIn.id === WRAP_NEAR_CONTRACT_ID
                     ? 'near_validation_error'
-                    : 'value_must_be_less_than_or_equal_to',
-              })} ${tokenIn.id === WRAP_NEAR_CONTRACT_ID ? '' : tokenInMax}`}
+                    : 'you_do_not_have_enough',
+              })} ${
+                tokenIn.id === WRAP_NEAR_CONTRACT_ID
+                  ? ''
+                  : toRealSymbol(tokenIn.symbol)
+              }`}
             />
           )}
         <div

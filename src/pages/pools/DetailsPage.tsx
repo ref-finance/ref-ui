@@ -1322,16 +1322,27 @@ function MyShares({
 
   let displayPercent;
   if (Number.isNaN(sharePercent) || sharePercent === 0) displayPercent = '0';
-  else if (sharePercent < 0.0001)
+  else if (sharePercent < 0.01)
     displayPercent = `< ${
-      decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.0001'
+      decimal ? '0.'.padEnd(decimal + 1, '0') + '1' : '0.01'
     }`;
-  else displayPercent = toPrecision(String(sharePercent), decimal || 4);
+  else displayPercent = toPrecision(String(sharePercent), decimal || 2);
 
   return (
     <div className="whitespace-nowrap">
-      <span className="whitespace-nowrap font-bold">
-        {`${toPrecision(
+      <span
+        className="whitespace-nowrap font-bold"
+        title={`${toPrecision(
+          toReadableNumber(
+            LP_TOKEN_DECIMALS,
+            userTotalShare
+              .toNumber()
+              .toLocaleString('fullwide', { useGrouping: false })
+          ),
+          2
+        )}`}
+      >
+        {`${toInternationalCurrencySystemLongString(
           toReadableNumber(
             LP_TOKEN_DECIMALS,
             userTotalShare
@@ -1361,19 +1372,19 @@ export const ChartChangeButton = ({
 }) => {
   return (
     <div
-      className={`text-white text-xs rounded-2xl flex items-center xs:bg-transparent md:bg-transparent bg-gray-700 ${className} ${
+      className={`text-white text-xs rounded-md p-0.5 flex items-center xs:bg-transparent md:bg-transparent bg-navHighLightBg ${className} ${
         noData ? 'z-20 opacity-70' : ''
       }`}
     >
       <button
         className={`py-1 xs:py-2 md:py-2 px-2 ${
           chartDisplay === 'tvl'
-            ? 'rounded-2xl xs:rounded-lg md:rounded-lg xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
+            ? 'rounded-md bg-gradient-to-b from-gradientFrom to-gradientTo'
             : 'text-primaryText'
         }`}
         onClick={() => setChartDisplay('tvl')}
         style={{
-          minWidth: '64px',
+          minWidth: '80px',
         }}
       >
         <FormattedMessage id="tvl" defaultMessage="TVL" />
@@ -1381,12 +1392,12 @@ export const ChartChangeButton = ({
       <button
         className={`py-1 xs:py-2 md:py-2 px-2 ${
           chartDisplay === 'volume'
-            ? 'rounded-2xl xs:rounded-lg md:rounded-lg xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
+            ? 'rounded-md  bg-gradient-to-b from-gradientFrom to-gradientTo'
             : 'text-primaryText'
         }`}
         onClick={() => setChartDisplay('volume')}
         style={{
-          minWidth: '64px',
+          minWidth: '80px',
         }}
       >
         <FormattedMessage id="volume" defaultMessage="Volume" />
@@ -1395,12 +1406,12 @@ export const ChartChangeButton = ({
         <button
           className={`py-1 xs:py-2 md:py-2 px-2 ${
             chartDisplay === 'liquidity'
-              ? 'rounded-2xl xs:rounded-lg md:rounded-lg xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
+              ? 'rounded-2xl  xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
               : 'text-primaryText'
           }`}
           onClick={() => setChartDisplay('liquidity')}
           style={{
-            minWidth: '64px',
+            minWidth: '80px',
           }}
         >
           <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
@@ -2148,7 +2159,7 @@ export function PoolDetailsPage() {
           <div
             className="mr-4"
             style={{
-              width: isClientMobie() ? '100%' : 'calc(100% - 373px)',
+              width: isClientMobie() ? '100%' : 'calc(100% - 333px)',
             }}
           >
             <Card
@@ -2372,7 +2383,7 @@ export function PoolDetailsPage() {
           <div
             className="xs:mb-4 md:mb-4"
             style={{
-              width: isClientMobie() ? '100%' : '357px',
+              width: isClientMobie() ? '100%' : '317px',
             }}
           >
             <Card
@@ -2411,13 +2422,13 @@ export function PoolDetailsPage() {
                       <div className="flex items-center">
                         <Icon icon={tokens[0].icon} className="h-7 w-7 mr-2" />
                         <div className="flex items-start flex-col">
-                          <div className="flex items-center text-white text-base">
+                          <div className="flex items-center text-farmText text-sm">
                             {toRealSymbol(tokens[0].symbol)}
                           </div>
                         </div>
                       </div>
                       <div
-                        className="flex items-center text-white text-sm"
+                        className="flex items-center text-farmText text-sm"
                         title={tokenAmountShareRaw(
                           pool,
                           tokens[0],
@@ -2440,13 +2451,13 @@ export function PoolDetailsPage() {
                       <div className="flex items-center">
                         <Icon icon={tokens[1].icon} className="h-7 w-7 mr-2" />
                         <div className="flex items-start flex-col">
-                          <div className="flex items-center text-white text-base">
+                          <div className="flex items-center text-farmText text-sm ">
                             {toRealSymbol(tokens[1].symbol)}
                           </div>
                         </div>
                       </div>
                       <div
-                        className="flex items-center text-white text-sm"
+                        className="flex items-center text-farmText text-sm"
                         title={tokenAmountShareRaw(
                           pool,
                           tokens[1],
@@ -2537,7 +2548,7 @@ export function PoolDetailsPage() {
                     left: isClientMobie() ? '' : '8px',
                   }}
                 />
-                <div className="flex items-center mx-4 xs:mx-7 md:mx-7 mt-4 justify-between">
+                <div className="flex items-center mx-4 xs:mx-7 md:mx-7 mt-4 lg:mt-5 justify-between">
                   <div className="text-white whitespace-nowrap">
                     <FormattedMessage
                       id="farm_apr"
