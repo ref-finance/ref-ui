@@ -483,7 +483,7 @@ export function RouteDCLDetail({
 }) {
   return (
     <section
-      className=" px-2flex py-1 text-xs items-center justify-between rounded-xl"
+      className=" px-4 py-3 flex  text-xs items-center justify-between rounded-xl"
       style={{
         border: '1.2px solid rgba(145, 162, 174, 0.2)',
       }}
@@ -496,19 +496,26 @@ export function RouteDCLDetail({
 
       <div className=" text-white flex items-center ">
         <span className="flex items-center">
-          <span>100%</span>
+          <span className="mr-1">100%</span>
 
           <Images tokens={[tokenIn]} size={'4'} />
         </span>
 
-        <div className="px-3">
+        <div className="px-5">
           <ArrowRight />
         </div>
 
-        <div className="flex items-center">
+        <div className="flex items-center px-1 pl-3 py-1  rounded-xl bg-black bg-opacity-20">
           <span>{`${toRealSymbol(tokenOut.symbol)}/${tokenIn.symbol} V2`}</span>
 
-          <span>{bestFee / 100}%</span>
+          <span
+            className="px-2 text-primaryText"
+            style={{
+              fontSize: '10px',
+            }}
+          >
+            {bestFee / 100}%
+          </span>
 
           <Images tokens={[tokenOut]} size="4" />
         </div>
