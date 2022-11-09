@@ -148,14 +148,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
     try {
       const currentWallet = await window.selector.wallet();
 
-      if (
-        currentWallet.type === 'browser' ||
-        module.type === 'hardware' ||
-        currentWallet.id === 'sender' ||
-        currentWallet.id === 'meteor-wallet'
-      ) {
-        await currentWallet.signOut();
-      }
+      await currentWallet.signOut();
     } catch (error) {
       console.log(error.message);
 
@@ -192,6 +185,14 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
         contractId: options.contractId,
         methodNames: options.methodNames,
       });
+
+      if (
+        wallet.id === 'neth' &&
+        !(await wallet.getAccounts())[0].accountId &&
+        available
+      ) {
+        return onConnecting();
+      }
 
       if (wallet.type !== 'browser') {
         onConnected();
