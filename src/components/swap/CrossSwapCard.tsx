@@ -370,10 +370,12 @@ export default function CrossSwapCard(props: {
   allTokens: TokenMetadata[];
   tokenInAmount: string;
   setTokenInAmount: (amount: string) => void;
+  globalWhiteListTokens: TokenMetadata[];
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
-  const { allTokens, tokenInAmount, setTokenInAmount } = props;
+  const { allTokens, tokenInAmount, setTokenInAmount, globalWhiteListTokens } =
+    props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
@@ -425,14 +427,21 @@ export default function CrossSwapCard(props: {
   }, []);
 
   useEffect(() => {
-    const urlTokenInId = allTokens.find(
-      (t) =>
-        t.symbol && t.id && (t.symbol === urlTokenIn || t.id === urlTokenIn)
-    )?.id;
-    const urlTokenOutId = allTokens.find(
-      (t) =>
-        t.symbol && t.id && (t.symbol === urlTokenOut || t.id === urlTokenOut)
-    )?.id;
+    let urlTokenInId = allTokens.find((t) => t.id && t.id === urlTokenIn)?.id;
+
+    let urlTokenOutId = allTokens.find((t) => t.id && t.id === urlTokenOut)?.id;
+
+    if (!urlTokenInId) {
+      urlTokenInId = globalWhiteListTokens.find(
+        (t) => t.symbol && t.symbol === urlTokenIn
+      )?.id;
+    }
+
+    if (!urlTokenOutId) {
+      urlTokenOutId = globalWhiteListTokens.find(
+        (t) => t.symbol && t.symbol === urlTokenOut
+      )?.id;
+    }
 
     let rememberedIn =
       wrapTokenId(urlTokenInId) || localStorage.getItem(SWAP_IN_KEY);
@@ -459,7 +468,7 @@ export default function CrossSwapCard(props: {
         setShowSkywardTip(true);
       }
     }
-  }, [allTokens?.map((t) => t.id).join('-')]);
+  }, [allTokens?.map((t) => t.id).join('-'), urlTokenIn, urlTokenOut]);
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !isSignedIn) return;
