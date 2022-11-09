@@ -740,7 +740,12 @@ export default function SwapCard(props: {
           setReEstimateTrigger(!reEstimateTrigger);
       }
     }
-  }, [allTokens?.map((t) => t.id).join('-'), swapMode]);
+  }, [
+    allTokens?.map((t) => t.id).join('-'),
+    swapMode,
+    urlTokenIn,
+    urlTokenOut,
+  ]);
 
   useEffect(() => {
     if (useNearBalance) {
