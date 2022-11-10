@@ -1412,7 +1412,7 @@ function MorePoolRow({
         {canFarm && (
           <a
             href={`/v2farms/${pool.id}-r`}
-            className="bg-gradientFrom ml-2 xs:ml-1 text-black whitespace-nowrap text-sm px-1 py-0.5 flex items-center hover:bg-senderHot rounded-md"
+            className="bg-gradientFrom ml-2 xs:ml-1 text-black whitespace-nowrap text-xs px-2 py-0.5 flex items-center hover:bg-senderHot rounded-md"
           >
             <FormattedMessage id="farm" />
             <span className="ml-1">
@@ -1423,7 +1423,6 @@ function MorePoolRow({
       </span>
 
       <span className="flex items-center col-span-4">
-        <FormattedMessage id="tvl" />
         <span className={`ml-2 ${checked ? 'text-white' : ''}`}>
           $
           {Number(pool.tvl) > 0 && Number(pool.tvl) < 0.01
@@ -1432,8 +1431,7 @@ function MorePoolRow({
         </span>
       </span>
 
-      <span className="flex items-center justify-self-end col-span-2">
-        <FormattedMessage id="fee" defaultMessage={'Fee'} />
+      <span className="flex items-center col-span-2 pl-5">
         <span className={`ml-2 ${checked ? 'text-white' : ''}`}>
           {`${toPrecision(calculateFeePercent(pool.fee).toString(), 2)}`}%
         </span>
@@ -2199,6 +2197,19 @@ export function YourLiquidityAddLiquidityModal(
           {/* for candidate list */}
           {candPools?.length > 0 && (
             <div style={{ width: cardWidth }} className="xs:pb-10 xs:mb-10">
+              {displayCandPools?.length > 0 ? (
+                <div className="grid grid-cols-10 justify-center mt-2.5">
+                  <span className="text-addV1PoolTableColor text-sm col-span-4 pl-8">
+                    <FormattedMessage id="pool"></FormattedMessage>
+                  </span>
+                  <span className="text-addV1PoolTableColor text-sm col-span-4 pl-2">
+                    <FormattedMessage id="tvl"></FormattedMessage>
+                  </span>
+                  <span className="text-addV1PoolTableColor text-sm col-span-2 pl-5">
+                    <FormattedMessage id="fee"></FormattedMessage>
+                  </span>
+                </div>
+              ) : null}
               {displayCandPools?.slice(0, 3)?.map((p) => {
                 return (
                   <MorePoolRow
