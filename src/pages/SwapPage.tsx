@@ -3,7 +3,11 @@ import SwapCard from '../components/swap/SwapCard';
 import CrossSwapCard from '../components/swap/CrossSwapCard';
 
 import Loading from '../components/layout/Loading';
-import { useTriTokens, useWhitelistTokens } from '../state/token';
+import {
+  useTriTokens,
+  useWhitelistTokens,
+  useGlobalWhitelistTokens,
+} from '../state/token';
 import { WalletContext } from '../utils/wallets-integration';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { SwapCross } from '../components/icon/CrossSwapIcons';
@@ -240,6 +244,8 @@ function SwapPage() {
 
   const storageMode = localStorage.getItem(SWAP_MODE_KEY) as SWAP_MODE | null;
 
+  const globalWhiteListTokens = useGlobalWhitelistTokens();
+
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
     storageMode || SWAP_MODE.NORMAL
   );
@@ -261,7 +267,13 @@ function SwapPage() {
       STABLE_POOL_TYPE.USD
   );
 
-  if (!refTokens || !triTokens || !triTokenIds || !stablePools)
+  if (
+    !refTokens ||
+    !triTokens ||
+    !triTokenIds ||
+    !stablePools ||
+    !globalWhiteListTokens
+  )
     return <Loading />;
 
   refTokens.forEach((token) => {
@@ -305,6 +317,7 @@ function SwapPage() {
                 />
               </>
             }
+            globalWhiteListTokens={globalWhiteListTokens}
           />
         ) : (
           <SwapCard
@@ -340,6 +353,7 @@ function SwapPage() {
                 />
               ) : null
             }
+            globalWhiteListTokens={globalWhiteListTokens}
           />
         )}
       </section>
