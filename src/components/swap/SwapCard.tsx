@@ -7,7 +7,11 @@ import React, {
   useContext,
 } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
+import {
+  ftGetBalance,
+  TokenMetadata,
+  REF_META_DATA,
+} from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useTokenBalances, useDepositableBalance } from '../../state/token';
 import { useSwap, estimateValidator } from '../../state/swap';
@@ -91,7 +95,7 @@ import {
   USD_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
-import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { WRAP_NEAR_CONTRACT_ID, unwrapedNear } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import {
@@ -553,14 +557,20 @@ export default function SwapCard(props: {
   stablePools: Pool[];
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
+  globalWhiteListTokens: TokenMetadata[];
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
-  getConfig();
   const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
 
-  const { allTokens, swapMode, stablePools, tokenInAmount, setTokenInAmount } =
-    props;
+  const {
+    allTokens,
+    swapMode,
+    stablePools,
+    tokenInAmount,
+    setTokenInAmount,
+    globalWhiteListTokens,
+  } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
@@ -645,7 +655,9 @@ export default function SwapCard(props: {
     }
     // todo
     history.replace(
-      `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
+      `#${unWrapTokenId(tokenIn.id)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
+        tokenOut.id
+      )}`
     );
 
     localStorage.setItem(SWAP_IN_KEY, tokenIn.id);
@@ -656,17 +668,29 @@ export default function SwapCard(props: {
     if (allTokens) {
       // todo
 
-      const urlTokenInId = allTokens.find(
-        (t) => t.symbol && t.symbol === urlTokenIn
+      let urlTokenInId = allTokens.find((t) => t.id && t.id === urlTokenIn)?.id;
+
+      let urlTokenOutId = allTokens.find(
+        (t) => t.id && t.id === urlTokenOut
       )?.id;
-      const urlTokenOutId = allTokens.find(
-        (t) => t.symbol && t.symbol === urlTokenOut
-      )?.id;
+
+      if (!urlTokenInId) {
+        urlTokenInId = globalWhiteListTokens.find(
+          (t) => t.symbol && t.symbol === urlTokenIn
+        )?.id;
+      }
+
+      if (!urlTokenOutId) {
+        urlTokenOutId = globalWhiteListTokens.find(
+          (t) => t.symbol && t.symbol === urlTokenOut
+        )?.id;
+      }
 
       let rememberedIn =
         wrapTokenId(urlTokenInId) || localStorage.getItem(SWAP_IN_KEY);
       let rememberedOut =
         wrapTokenId(urlTokenOutId) || localStorage.getItem(SWAP_OUT_KEY);
+
       if (swapMode === SWAP_MODE.NORMAL) {
         if (rememberedIn == NEARXIDS[0]) {
           rememberedIn = REF_TOKEN_ID;
@@ -675,10 +699,11 @@ export default function SwapCard(props: {
           rememberedOut = REF_TOKEN_ID;
         }
         const candTokenIn =
-          allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
+          allTokens.find((token) => token.id === rememberedIn) || unwrapedNear;
 
         const candTokenOut =
-          allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
+          allTokens.find((token) => token.id === rememberedOut) ||
+          REF_META_DATA;
 
         if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
           setShowSkywardTip(true);
@@ -736,7 +761,12 @@ export default function SwapCard(props: {
           setReEstimateTrigger(!reEstimateTrigger);
       }
     }
-  }, [allTokens?.map((t) => t.id).join('-'), swapMode]);
+  }, [
+    allTokens?.map((t) => t.id).join('-'),
+    swapMode,
+    urlTokenIn,
+    urlTokenOut,
+  ]);
 
   useEffect(() => {
     if (useNearBalance) {
@@ -956,10 +986,7 @@ export default function SwapCard(props: {
           balances={balances}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
-            swapMode === SWAP_MODE.NORMAL &&
-              history.replace(
-                `#${token.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
-              );
+
             setTokenIn(token);
             setCanSwap(false);
 
@@ -993,9 +1020,6 @@ export default function SwapCard(props: {
               setTokenInAmount(toPrecision('1', 6));
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-              history.replace(
-                `#${tokenOut.symbol}${TOKEN_URL_SEPARATOR}${tokenIn.symbol}`
-              );
             }}
           />
         </div>
@@ -1012,10 +1036,7 @@ export default function SwapCard(props: {
           useNearBalance={useNearBalance}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_OUT_KEY, token.id);
-            swapMode === SWAP_MODE.NORMAL &&
-              history.replace(
-                `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${token.symbol}`
-              );
+
             setTokenOut(token);
             setCanSwap(false);
 
