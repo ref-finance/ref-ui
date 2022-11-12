@@ -833,5 +833,8 @@ const uk_UA = {
   out_of: 'out of',
   total_ref_week: 'Total REF/week',
   ref_week_you_will_get: 'REF/week you will get',
+  no_token_found: 'No token found',
+  search_name_or_address: 'Search name or paste address...',
+  token_address_invalid: 'The token address was invalid',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

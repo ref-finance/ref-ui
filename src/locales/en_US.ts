@@ -222,7 +222,7 @@ const en_US = {
     'You aren’t providing liquidity to any pools',
   remove: 'Remove',
   select: 'Select',
-  select_token: 'Select Token',
+  select_token: 'Select a Token',
   basis_points: 'Basis points',
   total_fee: 'Total fee % ',
   protocol_fee_is: 'protocol fee is ',
@@ -858,5 +858,8 @@ const en_US = {
   out_of: 'out of',
   total_ref_week: 'Total REF/week',
   ref_week_you_will_get: 'REF/week you will get',
+  no_token_found: 'No token found',
+  search_name_or_address: 'Search name or paste address...',
+  token_address_invalid: 'The token address was invalid',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

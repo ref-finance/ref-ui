@@ -6,6 +6,7 @@ import { toReadableNumber } from '../../utils/numbers';
 import Token from '../../components/tokens/Token';
 import { FormattedMessage } from 'react-intl';
 import { SmallWallet } from '../icon/SmallWallet';
+import { PinEmpty, PinSolid } from '../icon/Common';
 
 interface TokenListProps {
   tokens: TokenMetadata[];
@@ -30,7 +31,7 @@ export default function Table({
 }: TokenListProps) {
   return (
     tokens.length > 0 && (
-      <table className="text-left w-full text-sm text-gray-400 mt-10 table-auto">
+      <table className="text-left w-full text-sm text-gray-400 mt-5 table-auto">
         <div
           className="sticky -top-6 z-30 text-primaryText"
           style={{ background: 'rgb(29, 41, 50)' }}

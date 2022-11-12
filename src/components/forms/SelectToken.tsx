@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  createContext,
+  useContext,
+} from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon';
@@ -36,7 +42,14 @@ import {
   STABLE_POOL_TYPE,
   USD_CLASS_STABLE_POOL_IDS,
 } from '../../services/near';
+import { TokenLinks } from '../../components/tokens/Token';
+import { OutLinkIcon } from '../../components/icon/Common';
 import _ from 'lodash';
+import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
+import { registerTokenAndExchange } from '../../services/token';
+import { WalletContext } from '../../utils/wallets-integration';
+
+export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
 
 function sort(a: any, b: any) {
   if (typeof a === 'string' && typeof b === 'string') {
@@ -72,39 +85,32 @@ export function SingleToken({
         <img
           src={token.icon}
           alt={toRealSymbol(token.symbol)}
-          style={{
-            width: '25px',
-            height: '25px',
-          }}
-          className="inline-block mr-2 border rounded-full border-greenLight"
+          className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight"
         />
       ) : (
-        <div
-          className="inline-block mr-2 border rounded-full border-greenLight"
-          style={{
-            width: '25px',
-            height: '25px',
-          }}
-        ></div>
+        <div className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight"></div>
       )}
-      <span className="text-white">
-        <div
-          style={{
-            position: 'relative',
-            top: `${price ? '2px' : ''}`,
-          }}
-        >
-          {toRealSymbol(token.symbol)}
+      <div className="flex flex-col justify-between">
+        <div className={`flex items-center`}>
+          <span className="text-sm text-white">
+            {toRealSymbol(token.symbol)}
+          </span>
+          {TokenLinks[token.symbol] ? (
+            <a
+              className="ml-1.5"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(TokenLinks[token.symbol]);
+              }}
+            >
+              <OutLinkIcon className="text-primaryText hover:text-white cursor-pointer"></OutLinkIcon>
+            </a>
+          ) : null}
         </div>
-        <span
-          style={{
-            position: 'relative',
-            bottom: `${price ? '2px' : ''}`,
-          }}
-        >
+        <span className="text-xs text-primaryText">
           {price ? tokenPrice(price) : null}
         </span>
-      </span>
+      </div>
     </>
   );
 }
@@ -359,7 +365,7 @@ export const StableSelectToken = ({
     </div>
   );
 };
-
+export const localTokens = createContext(null);
 export default function SelectToken({
   tokens,
   selected,
@@ -387,7 +393,14 @@ export default function SelectToken({
   const [currentSort, setSort] = useState<string>('down');
   const [sortBy, setSortBy] = useState<string>('near');
   const [showCommonBasses, setShowCommonBasses] = useState<boolean>(true);
+  const [commonBassesTokens, setCommonBassesTokens] = useState([]);
+  const [searchNoData, setSearchNoData] = useState(false);
+  const [addTokenLoading, setAddTokenLoading] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [addTokenError, setAddTokenError] = useState(false);
   const addToken = () => <AddToken />;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
 
   if (!onSelect) {
     return (
@@ -423,6 +436,9 @@ export default function SelectToken({
       setListData(sortedData);
     }
   }, [currentSort, sortBy]);
+  useEffect(() => {
+    getLatestCommonBassesTokens();
+  }, [tokensData]);
 
   const sortTypes: { [key: string]: any } = {
     up: {
@@ -452,8 +468,10 @@ export default function SelectToken({
   };
 
   const onSearch = (value: string) => {
+    setAddTokenError(false);
+    setAddTokenLoading(false);
+    setSearchValue(value);
     setShowCommonBasses(value.length === 0);
-
     const result = tokensData.filter((token) => {
       const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
       if (!symbol) return false;
@@ -462,6 +480,11 @@ export default function SelectToken({
         .includes(value.toLocaleUpperCase());
     });
     setListData(result);
+    if (!loadingTokensData && value.length > 0 && result.length == 0) {
+      setSearchNoData(true);
+    } else {
+      setSearchNoData(false);
+    }
   };
 
   const debounceSearch = _.debounce(onSearch, 300);
@@ -474,6 +497,35 @@ export default function SelectToken({
     setVisible(false);
     setShowCommonBasses(true);
   };
+  function getLatestCommonBassesTokens() {
+    const local_user_list = getLatestCommonBassesTokenIds();
+    const temp_tokens: TokenMetadata[] = [];
+    local_user_list.forEach((id: string) => {
+      const t = tokens.find((token: TokenMetadata) => {
+        if (token.id == id) return true;
+      });
+      if (t) {
+        temp_tokens.push(t);
+      }
+    });
+    setCommonBassesTokens(temp_tokens);
+  }
+  function getLatestCommonBassesTokenIds() {
+    const local_user_list_str =
+      localStorage.getItem(USER_COMMON_TOKEN_LIST) || '[]';
+    const local_user_list = JSON.parse(local_user_list_str);
+    return local_user_list;
+  }
+  function addTokenSubmit() {
+    setAddTokenError(false);
+    setAddTokenLoading(true);
+    registerTokenAndExchange(searchValue)
+      .then()
+      .catch((error) => {
+        setAddTokenError(true);
+        setAddTokenLoading(false);
+      });
+  }
 
   return (
     <MicroModal
@@ -531,7 +583,7 @@ export default function SelectToken({
       {() => (
         <section className="text-white">
           <div className="flex items-center justify-between pb-5 px-8 relative">
-            <h2 className="text-sm font-bold text-center">
+            <h2 className="text-center gotham_bold text-lg">
               <FormattedMessage
                 id="select_token"
                 defaultMessage="Select Token"
@@ -542,42 +594,80 @@ export default function SelectToken({
               className="absolute text-gray-400 text-2xl right-6 cursor-pointer"
             />
           </div>
-          <div className="flex justify-between items-center mb-5 mx-8">
-            <div className="flex-auto rounded text-gray-400 flex items-center pr-2 mr-4 bg-inputDarkBg">
+          <div className="flex flex-col  mb-5 mx-6">
+            <div className="flex items-center h-11 rounded-lg text-gray-400 searchBoxGradientBorder">
+              <FaSearch className="text-farmText ml-3 mr-2" />
               <input
                 className={`text-sm outline-none rounded w-full py-2 px-1`}
-                placeholder={intl.formatMessage({ id: 'search_token' })}
+                placeholder={intl.formatMessage({
+                  id: 'search_name_or_address',
+                })}
                 onChange={(evt) => debounceSearch(evt.target.value)}
               />
-              <FaSearch />
             </div>
-            {!forCross && addToken()}
+            {addTokenError ? (
+              <div className="text-redwarningColor text-sm mt-2">
+                <FormattedMessage id="token_address_invalid"></FormattedMessage>
+              </div>
+            ) : null}
           </div>
-          {showCommonBasses && !forCross && (
-            <CommonBasses
-              tokens={tokensData}
+          <localTokens.Provider
+            value={{
+              commonBassesTokens,
+              getLatestCommonBassesTokens,
+              getLatestCommonBassesTokenIds,
+            }}
+          >
+            {showCommonBasses && !forCross && (
+              <CommonBasses
+                onClick={(token) => {
+                  onSelect && onSelect(token);
+                  handleClose();
+                }}
+                tokenPriceList={tokenPriceList}
+              />
+            )}
+            <Table
+              sortBy={sortBy}
+              tokenPriceList={tokenPriceList}
+              currentSort={currentSort}
+              onSortChange={onSortChange}
+              tokens={listData}
               onClick={(token) => {
-                onSelect && onSelect(token);
+                if (token.id != NEARXIDS[0]) {
+                  onSelect && onSelect(token);
+                }
                 handleClose();
               }}
-              tokenPriceList={tokenPriceList}
+              balances={balances}
+              forCross={forCross}
             />
-          )}
-          <Table
-            sortBy={sortBy}
-            tokenPriceList={tokenPriceList}
-            currentSort={currentSort}
-            onSortChange={onSortChange}
-            tokens={listData}
-            onClick={(token) => {
-              if (token.id != NEARXIDS[0]) {
-                onSelect && onSelect(token);
-              }
-              handleClose();
-            }}
-            balances={balances}
-            forCross={forCross}
-          />
+          </localTokens.Provider>
+          {searchNoData ? (
+            <div className="flex flex-col  items-center justify-center mt-12">
+              <div className="text-sm text-farmText">
+                <FormattedMessage id="no_token_found"></FormattedMessage>
+              </div>
+              {isSignedIn && !forCross ? (
+                <GradientButton
+                  onClick={addTokenSubmit}
+                  color="#fff"
+                  loading={addTokenLoading}
+                  className={`h-9 mt-5 px-6 text-center text-sm text-white focus:outline-none`}
+                >
+                  <ButtonTextWrapper
+                    loading={addTokenLoading}
+                    Text={() => (
+                      <FormattedMessage
+                        id="add_token"
+                        defaultMessage="Add token"
+                      />
+                    )}
+                  />
+                </GradientButton>
+              ) : null}
+            </div>
+          ) : null}
         </section>
       )}
     </MicroModal>
