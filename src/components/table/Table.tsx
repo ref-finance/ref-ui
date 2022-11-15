@@ -87,7 +87,7 @@ export default function Table({
             .map((token, index) => (
               <Token
                 index={index}
-                key={token.id}
+                key={token.id + token.symbol}
                 onClick={onClick}
                 token={token}
                 price={tokenPriceList?.[token.id]?.price}

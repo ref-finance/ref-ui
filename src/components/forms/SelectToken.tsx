@@ -43,11 +43,12 @@ import {
   USD_CLASS_STABLE_POOL_IDS,
 } from '../../services/near';
 import { TokenLinks } from '../../components/tokens/Token';
-import { OutLinkIcon } from '../../components/icon/Common';
-import _ from 'lodash';
+import { OutLinkIcon, DefaultTokenImg } from '../../components/icon/Common';
+import _, { trimEnd } from 'lodash';
 import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
 import { registerTokenAndExchange } from '../../services/token';
 import { WalletContext } from '../../utils/wallets-integration';
+import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
 
@@ -89,6 +90,7 @@ export function SingleToken({
         />
       ) : (
         <div className="w-9 h-9 inline-block mr-2 border rounded-full border-greenLight"></div>
+        // <DefaultTokenImg className="mr-2"></DefaultTokenImg>
       )}
       <div className="flex flex-col justify-between">
         <div className={`flex items-center`}>
@@ -376,6 +378,7 @@ export default function SelectToken({
   balances,
   tokenPriceList,
   forCross,
+  allowWNEAR,
 }: {
   tokens: TokenMetadata[];
   selected: string | React.ReactElement;
@@ -387,6 +390,7 @@ export default function SelectToken({
   balances?: TokenBalancesView;
   tokenPriceList?: Record<string, any>;
   forCross?: boolean;
+  allowWNEAR?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
@@ -475,9 +479,12 @@ export default function SelectToken({
     const result = tokensData.filter((token) => {
       const symbol = token?.symbol === 'NEAR' ? 'wNEAR' : token?.symbol;
       if (!symbol) return false;
-      return toRealSymbol(symbol)
+      const condition1 = toRealSymbol(symbol)
         .toLocaleUpperCase()
         .includes(value.toLocaleUpperCase());
+      const condition2 =
+        token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
+      return condition1 || condition2;
     });
     setListData(result);
     if (!loadingTokensData && value.length > 0 && result.length == 0) {
@@ -502,7 +509,15 @@ export default function SelectToken({
     const temp_tokens: TokenMetadata[] = [];
     local_user_list.forEach((id: string) => {
       const t = tokens.find((token: TokenMetadata) => {
-        if (token.id == id) return true;
+        if (id == 'near') {
+          if (token.id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR')
+            return true;
+        } else if (id == WRAP_NEAR_CONTRACT_ID) {
+          if (token.id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'wNEAR')
+            return true;
+        } else {
+          if (token.id == id) return true;
+        }
       });
       if (t) {
         temp_tokens.push(t);
@@ -635,7 +650,15 @@ export default function SelectToken({
               tokens={listData}
               onClick={(token) => {
                 if (token.id != NEARXIDS[0]) {
-                  onSelect && onSelect(token);
+                  if (
+                    !(
+                      token.id == WRAP_NEAR_CONTRACT_ID &&
+                      token.symbol == 'wNEAR' &&
+                      !allowWNEAR
+                    )
+                  ) {
+                    onSelect && onSelect(token);
+                  }
                 }
                 handleClose();
               }}

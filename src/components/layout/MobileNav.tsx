@@ -760,7 +760,6 @@ export function MobileNavBar(props: any) {
 
                   <div className={`flex items-center ${isSignedIn ? '' : ''}`}>
                     <BuyNearButton />
-                    {isSignedIn && <WNEARExchngeIcon width="75" height="32" />}
                   </div>
                 </div>
                 <WrapNear

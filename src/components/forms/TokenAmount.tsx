@@ -49,6 +49,7 @@ interface TokenAmountProps {
   onSelectPost?: (token: TokenMetadata) => void;
   forWrap?: boolean;
   showQuickButton?: Boolean;
+  allowWNEAR?: boolean;
 }
 
 export function HalfAndMaxAmount({
@@ -121,6 +122,7 @@ export default function TokenAmount({
   postSelected,
   onSelectPost,
   forWrap,
+  allowWNEAR,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -133,7 +135,9 @@ export default function TokenAmount({
   const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
 
   const curMax =
-    selectedToken?.id === WRAP_NEAR_CONTRACT_ID && !forWrap
+    selectedToken?.id === WRAP_NEAR_CONTRACT_ID &&
+    selectedToken?.symbol == 'NEAR' &&
+    !forWrap
       ? Number(max) <= 0.5
         ? '0'
         : String(Number(max) - 0.5)
@@ -195,6 +199,7 @@ export default function TokenAmount({
               }
               onSelect={onSelectToken}
               balances={balances}
+              allowWNEAR={allowWNEAR}
             />
           ) : (
             <StableSelectToken

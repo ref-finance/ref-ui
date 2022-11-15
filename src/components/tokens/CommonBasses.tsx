@@ -16,6 +16,7 @@ import {
   localTokens,
   USER_COMMON_TOKEN_LIST,
 } from '../../components/forms/SelectToken';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 interface CommonBassesProps {
   onClick: (token: TokenMetadata) => void;
   tokenPriceList: Record<string, any>;
@@ -49,7 +50,10 @@ export default function CommonBasses({
           const price = tokenPriceList[token.id]?.price;
 
           return (
-            <div key={token.id} onClick={() => onClick && onClick(token)}>
+            <div
+              key={token.id + token.symbol}
+              onClick={() => onClick && onClick(token)}
+            >
               <Token token={token} price={price} />
             </div>
           );
@@ -65,7 +69,11 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
   const arr = new Set(local_user_list);
   const [hover, setHover] = useState(false);
   function removeToken(token: TokenMetadata) {
-    arr.delete(token.id);
+    if (token.id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR') {
+      arr.delete('near');
+    } else {
+      arr.delete(token.id);
+    }
     localStorage.setItem(
       USER_COMMON_TOKEN_LIST,
       JSON.stringify(Array.from(arr))
@@ -79,6 +87,7 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
       className={`relative flex cursor-pointer items-center border border-commonTokenBorderColor rounded-lg p-2 mr-1.5 mb-2.5 ${
         hover ? 'bg-commonTokenBorderColor' : ''
       }`}
+      style={{ minWidth: '110px' }}
     >
       {token.icon ? (
         <img
@@ -100,9 +109,7 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
       ></CommonCloseButton>
       <div className="flex flex-col justify-between">
         <span className="text-sm text-white">{toRealSymbol(token.symbol)}</span>
-        <span className="text-xs text-primaryText">
-          {price ? tokenPrice(price) : null}
-        </span>
+        <span className="text-xs text-primaryText">{tokenPrice(price)}</span>
       </div>
     </div>
   );

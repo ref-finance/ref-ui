@@ -12,6 +12,7 @@ import {
   localTokens,
   USER_COMMON_TOKEN_LIST,
 } from '../../components/forms/SelectToken';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 interface TokenProps {
   token: TokenMetadata;
   onClick: (token: TokenMetadata) => void;
@@ -38,10 +39,10 @@ export default function Token({
   } = useContext(localTokens);
   const local_user_list = getLatestCommonBassesTokenIds();
   const arr = new Set(local_user_list);
-  const [hasPin, setHasPin] = useState<boolean>(arr.has(id));
+  const [hasPin, setHasPin] = useState<boolean>();
   useEffect(() => {
     const t = commonBassesTokens.find((token: TokenMetadata) => {
-      if (token.id == id) return true;
+      if (token.id == id && token.symbol == symbol) return true;
     });
     if (t) {
       setHasPin(true);
@@ -56,7 +57,11 @@ export default function Token({
 
   const [hover, setHover] = useState(false);
   function pinToken(token: TokenMetadata) {
-    arr.add(token.id);
+    if (token.id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR') {
+      arr.add('near');
+    } else {
+      arr.add(token.id);
+    }
     localStorage.setItem(
       USER_COMMON_TOKEN_LIST,
       JSON.stringify(Array.from(arr))
@@ -64,7 +69,11 @@ export default function Token({
     getLatestCommonBassesTokens();
   }
   function removeToken(token: TokenMetadata) {
-    arr.delete(token.id);
+    if (token.id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR') {
+      arr.delete('near');
+    } else {
+      arr.delete(token.id);
+    }
     localStorage.setItem(
       USER_COMMON_TOKEN_LIST,
       JSON.stringify(Array.from(arr))
@@ -73,7 +82,7 @@ export default function Token({
   }
   return (
     <div
-      key={id}
+      key={id + symbol}
       className="flex items-center justify-between w-full  hover:bg-black hover:bg-opacity-10 relative"
       onClick={() => onClick && onClick(token)}
       style={{

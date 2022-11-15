@@ -126,11 +126,10 @@ export const useSwap = ({
 
   const { txHash, pathname, errorType, txHashes } = getURLInfo();
 
-  const minAmountOut = tokenOutAmount
+  let minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
   const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
-
   const intl = useIntl();
 
   const setAverageFee = (estimates: EstimateSwapView[]) => {
@@ -180,14 +179,13 @@ export const useSwap = ({
             !transactionErrorType && !errorType && swapToast(txHash);
             transactionErrorType && failToast(txHash, transactionErrorType);
           }
-          history.replace(pathname);
+          // history.replace(pathname);
         });
     }
   }, [txHash]);
 
   const getEstimate = () => {
     setCanSwap(false);
-
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
       setSwapError(null);
       if (!tokenInAmount || ONLY_ZEROS.test(tokenInAmount)) {
@@ -247,6 +245,13 @@ export const useSwap = ({
       tokenIn.id !== tokenOut.id
     ) {
       setTokenOutAmount('0');
+    } else if (tokenIn && tokenOut && tokenIn.id == tokenOut.id) {
+      if (
+        (tokenIn.symbol == 'NEAR' && tokenOut.symbol == 'wNEAR') ||
+        (tokenIn.symbol == 'wNEAR' && tokenOut.symbol == 'NEAR')
+      ) {
+        setTokenOutAmount(tokenInAmount);
+      }
     }
   };
 
@@ -282,7 +287,14 @@ export const useSwap = ({
     // setEstimating(false);
 
     setForceEstimate(true);
-  }, [tokenIn?.id, tokenOut?.id, supportLedger, swapMode]);
+  }, [
+    tokenIn?.id,
+    tokenOut?.id,
+    tokenIn?.symbol,
+    tokenOut?.symbol,
+    supportLedger,
+    swapMode,
+  ]);
 
   useEffect(() => {
     let id: any = null;
@@ -309,7 +321,6 @@ export const useSwap = ({
       useNearBalance,
     }).catch(setSwapError);
   };
-
   return {
     canSwap,
     tokenOutAmount,

@@ -1251,7 +1251,7 @@ SwapOptions) => {
       });
     }
 
-    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR') {
       transactions.unshift(nearDepositTransaction(amountIn));
     }
     if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
@@ -1268,8 +1268,9 @@ SwapOptions) => {
 
         scientificNotationToString(bigEstimate.toString())
       );
-
-      transactions.push(nearWithdrawTransaction(minAmountOut));
+      if (tokenOut.symbol == 'NEAR') {
+        transactions.push(nearWithdrawTransaction(minAmountOut));
+      }
     }
 
     if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
