@@ -53,6 +53,7 @@ import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
 import { registerTokenAndExchange } from '../../services/token';
 import { WalletContext } from '../../utils/wallets-integration';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { REF_TOKEN_ID } from '~services/near';
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
 
@@ -531,6 +532,11 @@ export default function SelectToken({
     setCommonBassesTokens(temp_tokens);
   }
   function getLatestCommonBassesTokenIds() {
+    const cur_status = localStorage.getItem(USER_COMMON_TOKEN_LIST);
+    if (!cur_status) {
+      const init = ['near', REF_TOKEN_ID];
+      localStorage.setItem(USER_COMMON_TOKEN_LIST, JSON.stringify(init));
+    }
     const local_user_list_str =
       localStorage.getItem(USER_COMMON_TOKEN_LIST) || '[]';
     const local_user_list = JSON.parse(local_user_list_str);
@@ -549,6 +555,7 @@ export default function SelectToken({
   function clear() {
     setSearchValue('');
     searchRef.current.value = '';
+    onSearch('');
   }
 
   return (
@@ -627,7 +634,7 @@ export default function SelectToken({
               />
               <input
                 ref={searchRef}
-                className={`text-sm outline-none rounded w-full py-2 pl-1 mr-6`}
+                className={`text-base text-white outline-none rounded w-full py-2 pl-1 mr-6`}
                 placeholder={intl.formatMessage({
                   id: 'search_name_or_address',
                 })}
