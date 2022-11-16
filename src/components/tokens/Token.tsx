@@ -92,7 +92,7 @@ export default function Token({
       onMouseLeave={() => setHover(false)}
     >
       <div
-        className={`flex items-center cursor-pointer pl-8 xs:text-xs text-sm  ${
+        className={`flex items-center cursor-pointer pl-8 xsm:pl-5 xs:text-xs text-sm  ${
           index === 0 ? 'pt-4 pb-2' : 'py-2'
         }`}
       >

@@ -597,7 +597,7 @@ export default function SelectToken({
     >
       {() => (
         <section className="text-white">
-          <div className="flex items-center justify-between pb-5 px-8 relative">
+          <div className="flex items-center justify-between pb-5 px-8 xsm:px-5 relative">
             <h2 className="text-center gotham_bold text-lg">
               <FormattedMessage
                 id="select_token"
@@ -609,7 +609,7 @@ export default function SelectToken({
               className="absolute text-gray-400 text-2xl right-6 cursor-pointer"
             />
           </div>
-          <div className="flex flex-col  mb-5 mx-6">
+          <div className="flex flex-col  mb-5 mx-6 xsm:mx-3">
             <div className="flex items-center h-11 rounded-lg text-gray-400 searchBoxGradientBorder">
               <FaSearch className="text-farmText ml-3 mr-2" />
               <input
@@ -676,7 +676,7 @@ export default function SelectToken({
                   onClick={addTokenSubmit}
                   color="#fff"
                   loading={addTokenLoading}
-                  className={`h-9 mt-5 px-6 text-center text-sm text-white focus:outline-none`}
+                  className={`h-9 mt-5 px-6 xsm:px-3.5 text-center text-sm text-white focus:outline-none`}
                 >
                   <ButtonTextWrapper
                     loading={addTokenLoading}

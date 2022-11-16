@@ -44,7 +44,7 @@ export default function CommonBasses({
 }: CommonBassesProps) {
   const { commonBassesTokens } = useContext(localTokens);
   return (
-    <section className="px-6">
+    <section className="px-6 xsm:px-3">
       <div className="w-full flex flex-wrap items-center text-sm xs:text-xs text-left">
         {commonBassesTokens.map((token: TokenMetadata) => {
           const price = tokenPriceList[token.id]?.price;
@@ -84,10 +84,10 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
     <div
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className={`relative flex cursor-pointer items-center border border-commonTokenBorderColor rounded-lg p-2 mr-1.5 mb-2.5 ${
+      className={`relative flex cursor-pointer items-center border border-commonTokenBorderColor rounded-lg px-2 py-1 mr-1.5 mb-2.5 ${
         hover ? 'bg-commonTokenBorderColor' : ''
       }`}
-      style={{ minWidth: '110px' }}
+      style={{ minWidth: '90px' }}
     >
       {token.icon ? (
         <img
