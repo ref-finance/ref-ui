@@ -230,8 +230,12 @@ export function SwapRateDetail({
 
 export function SmartRoutesV2Detail({
   swapsTodo,
+  tokenIn,
+  tokenOut,
 }: {
   swapsTodo: EstimateSwapView[];
+  tokenIn?: TokenMetadata;
+  tokenOut?: TokenMetadata;
 }) {
   const tokensPerRoute = swapsTodo
     .filter((swap) => swap.inputToken == swap.routeInputToken)
@@ -264,6 +268,8 @@ export function SmartRoutesV2Detail({
             <div className="text-right text-white col-span-6 xs:mt-2 md:mt-2">
               {
                 <SmartRouteV2
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
                   tokens={tokens}
                   p={percents[index]}
                   pools={identicalRoutes[index].map((hub) => hub.pool)}
@@ -321,8 +327,12 @@ export function ParallelSwapRoutesDetail({
 
 export function SmartRoutesDetail({
   swapsTodo,
+  tokenIn,
+  tokenOut,
 }: {
   swapsTodo: EstimateSwapView[];
+  tokenIn?: TokenMetadata;
+  tokenOut?: TokenMetadata;
 }) {
   return (
     <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
@@ -340,6 +350,8 @@ export function SmartRoutesDetail({
             tokens={swapsTodo[0].tokens}
             p="100"
             pools={swapsTodo.map((swapTodo) => swapTodo.pool)}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
           />
         }
       </div>
@@ -507,7 +519,6 @@ function DetailView({
   }
   if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
     return null;
-
   return (
     <div className="mt-8">
       <div className="flex justify-center">
@@ -565,11 +576,21 @@ function DetailView({
         )}
 
         {swapsTodo[0].status === PoolMode.SMART && (
-          <SmartRoutesDetail swapsTodo={swapsTodo} />
+          <SmartRoutesDetail
+            swapsTodo={swapsTodo}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+          />
         )}
         {!isParallelSwap &&
           swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
-          pools.length > 1 && <SmartRoutesV2Detail swapsTodo={swapsTodo} />}
+          pools.length > 1 && (
+            <SmartRoutesV2Detail
+              swapsTodo={swapsTodo}
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+            />
+          )}
       </div>
     </div>
   );

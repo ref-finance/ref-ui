@@ -218,10 +218,14 @@ export const SmartRouteV2 = ({
   tokens,
   p,
   pools,
+  tokenIn,
+  tokenOut,
 }: {
   tokens: TokenMetadata[];
   p: string;
   pools: Pool[];
+  tokenIn?: TokenMetadata;
+  tokenOut?: TokenMetadata;
 }) => {
   const Hub = ({
     token,
@@ -261,7 +265,7 @@ export const SmartRouteV2 = ({
       <div className="text-white flex items-center justify-between">
         {/* <Hub token={tokens[0]} /> */}
 
-        <ParaTokenFrom tokenIn={tokens[0]} p={p} />
+        <ParaTokenFrom tokenIn={tokenIn || tokens[0]} p={p} />
         <div className="px-3">
           <ArrowRight />
         </div>
@@ -271,17 +275,25 @@ export const SmartRouteV2 = ({
           <ArrowRight />
         </div>
 
-        <Hub token={tokens[2]} poolId={pools?.[1]?.id} Dex={pools?.[0]?.Dex} />
+        <Hub
+          token={tokenOut || tokens[2]}
+          poolId={pools?.[1]?.id}
+          Dex={pools?.[0]?.Dex}
+        />
       </div>
     );
   } else if (tokens.length == 2) {
     return (
       <div className="text-white flex items-center justify-between">
-        <ParaTokenFrom tokenIn={tokens[0]} p={p} />
+        <ParaTokenFrom tokenIn={tokenIn || tokens[0]} p={p} />
         <div className="px-3">
           <ArrowRight />
         </div>
-        <Hub token={tokens[1]} poolId={pools?.[0]?.id} Dex={pools?.[0]?.Dex} />
+        <Hub
+          token={tokenOut || tokens[1]}
+          poolId={pools?.[0]?.id}
+          Dex={pools?.[0]?.Dex}
+        />
       </div>
     );
   } else {

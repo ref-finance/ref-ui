@@ -245,7 +245,11 @@ export const useSwap = ({
       tokenIn.id !== tokenOut.id
     ) {
       setTokenOutAmount('0');
-    } else if (tokenIn && tokenOut && tokenIn.id == tokenOut.id) {
+    }
+  };
+
+  useEffect(() => {
+    if (tokenIn && tokenOut && tokenIn.id == tokenOut.id) {
       if (
         (tokenIn.symbol == 'NEAR' && tokenOut.symbol == 'wNEAR') ||
         (tokenIn.symbol == 'wNEAR' && tokenOut.symbol == 'NEAR')
@@ -253,9 +257,6 @@ export const useSwap = ({
         setTokenOutAmount(tokenInAmount);
       }
     }
-  };
-
-  useEffect(() => {
     const valRes =
       swapsToDo &&
       tokenIn &&
