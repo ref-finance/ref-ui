@@ -43,7 +43,11 @@ import {
   USD_CLASS_STABLE_POOL_IDS,
 } from '../../services/near';
 import { TokenLinks } from '../../components/tokens/Token';
-import { OutLinkIcon, DefaultTokenImg } from '../../components/icon/Common';
+import {
+  OutLinkIcon,
+  DefaultTokenImg,
+  SelectTokenCloseButton,
+} from '../../components/icon/Common';
 import _, { trimEnd } from 'lodash';
 import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
 import { registerTokenAndExchange } from '../../services/token';
@@ -417,6 +421,7 @@ export default function SelectToken({
   const dialogMinwidth = isMobile() ? 340 : 380;
   const dialogHidth = isMobile() ? '95%' : '57%';
   const intl = useIntl();
+  const searchRef = useRef(null);
   const {
     tokensData,
     loading: loadingTokensData,
@@ -541,6 +546,10 @@ export default function SelectToken({
         setAddTokenLoading(false);
       });
   }
+  function clear() {
+    setSearchValue('');
+    searchRef.current.value = '';
+  }
 
   return (
     <MicroModal
@@ -610,15 +619,26 @@ export default function SelectToken({
             />
           </div>
           <div className="flex flex-col  mb-5 mx-6 xsm:mx-3">
-            <div className="flex items-center h-11 rounded-lg text-gray-400 searchBoxGradientBorder">
-              <FaSearch className="text-farmText ml-3 mr-2" />
+            <div className="relative flex items-center h-11 rounded-lg text-gray-400 searchBoxGradientBorder px-3">
+              <FaSearch
+                className={`mr-2 ${
+                  searchValue ? 'text-greenColor' : 'text-farmText'
+                }`}
+              />
               <input
-                className={`text-sm outline-none rounded w-full py-2 px-1`}
+                ref={searchRef}
+                className={`text-sm outline-none rounded w-full py-2 pl-1 mr-6`}
                 placeholder={intl.formatMessage({
                   id: 'search_name_or_address',
                 })}
                 onChange={(evt) => debounceSearch(evt.target.value)}
               />
+              <SelectTokenCloseButton
+                onClick={clear}
+                className={`absolute right-3 cursor-pointer ${
+                  searchValue ? '' : 'hidden'
+                }`}
+              ></SelectTokenCloseButton>
             </div>
             {addTokenError ? (
               <div className="text-redwarningColor text-sm mt-2">

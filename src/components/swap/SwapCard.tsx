@@ -111,8 +111,6 @@ import {
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
-const SWAP_IN_KEY_SYMBOL = 'REF_FI_SWAP_IN_SYMBOL';
-const SWAP_OUT_KEY_SYMBOL = 'REF_FI_SWAP_OUT_SYMBOL';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 
@@ -750,8 +748,6 @@ export default function SwapCard(props: {
 
     localStorage.setItem(SWAP_IN_KEY, tokenIn.id);
     localStorage.setItem(SWAP_OUT_KEY, tokenOut.id);
-    localStorage.setItem(SWAP_IN_KEY_SYMBOL, tokenIn.symbol);
-    localStorage.setItem(SWAP_OUT_KEY_SYMBOL, tokenOut.symbol);
   }, [tokenIn?.id, tokenOut?.id, tokenIn?.symbol, tokenOut?.symbol]);
 
   useEffect(() => {
@@ -786,27 +782,31 @@ export default function SwapCard(props: {
           rememberedOut = REF_TOKEN_ID;
         }
         let candTokenIn;
-        if (urlTokenIn == WRAP_NEAR_CONTRACT_ID) {
+        if (urlTokenIn == 'near' || urlTokenIn == 'NEAR') {
+          candTokenIn = unwrapedNear;
+        } else if (
+          urlTokenIn == WRAP_NEAR_CONTRACT_ID ||
+          urlTokenIn == 'wNEAR'
+        ) {
           candTokenIn = wnearMetadata;
         } else {
           candTokenIn =
             allTokens.find((token) => {
-              return (
-                token.id === rememberedIn &&
-                token.symbol == localStorage.getItem(SWAP_IN_KEY_SYMBOL)
-              );
+              return token.id === rememberedIn;
             }) || unwrapedNear;
         }
         let candTokenOut;
-        if (urlTokenOut == WRAP_NEAR_CONTRACT_ID) {
+        if (urlTokenOut == 'near' || urlTokenOut == 'NEAR') {
+          candTokenOut = unwrapedNear;
+        } else if (
+          urlTokenOut == WRAP_NEAR_CONTRACT_ID ||
+          urlTokenOut == 'wNEAR'
+        ) {
           candTokenOut = wnearMetadata;
         } else {
           candTokenOut =
             allTokens.find((token) => {
-              return (
-                token.id === rememberedOut &&
-                token.symbol == localStorage.getItem(SWAP_OUT_KEY_SYMBOL)
-              );
+              return token.id === rememberedOut;
             }) || REF_META_DATA;
         }
         if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
@@ -1137,7 +1137,6 @@ export default function SwapCard(props: {
           balances={balances}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
-            localStorage.setItem(SWAP_IN_KEY_SYMBOL, token.symbol);
             setTokenIn(token);
             setCanSwap(false);
 
@@ -1190,7 +1189,6 @@ export default function SwapCard(props: {
           useNearBalance={useNearBalance}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_OUT_KEY, token.id);
-            localStorage.setItem(SWAP_OUT_KEY_SYMBOL, token.symbol);
             setTokenOut(token);
             setCanSwap(false);
 
