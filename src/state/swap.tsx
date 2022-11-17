@@ -187,7 +187,6 @@ export const useSwap = ({
   const getEstimate = () => {
     setCanSwap(false);
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
-      console.log(`1111111111111-切换成普通操作了`);
       setSwapError(null);
       if (!tokenInAmount || ONLY_ZEROS.test(tokenInAmount)) {
         setTokenOutAmount('0');
@@ -218,9 +217,6 @@ export const useSwap = ({
                 slippageTolerance
               )
             ).toString();
-            console.log(
-              `222222222222-普通操作了返回tokenOutAmount:${expectedOut}`
-            );
             setTokenOutAmount(expectedOut);
             setSwapsToDo(estimates);
             setCanSwap(true);
@@ -252,18 +248,6 @@ export const useSwap = ({
   };
 
   useEffect(() => {
-    if (tokenIn && tokenOut && tokenIn.id == tokenOut.id) {
-      if (
-        (tokenIn.symbol == 'NEAR' && tokenOut.symbol == 'wNEAR') ||
-        (tokenIn.symbol == 'wNEAR' && tokenOut.symbol == 'NEAR')
-      ) {
-        console.log(
-          `0000000000-切换成wrap操作了，返回tokenOutAmount${tokenInAmount}`
-        );
-        setTokenOutAmount(tokenInAmount);
-        return;
-      }
-    }
     const valRes =
       swapsToDo &&
       tokenIn &&
