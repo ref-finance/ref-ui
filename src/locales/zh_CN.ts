@@ -815,7 +815,7 @@ const zh_CN = {
   total_ref_week: 'REF/周',
   ref_week_you_will_get: '你将获得的REF/周',
   no_token_found: '没有找到代币',
-  search_name_or_address: '搜索名字粘贴地址...',
+  search_name_or_address: '搜索名字或粘贴地址...',
   token_address_invalid: '代币地址是无效的',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

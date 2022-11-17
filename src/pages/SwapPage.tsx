@@ -196,6 +196,8 @@ function SwapPage() {
   let wnearToken;
   refTokens.forEach((token) => {
     if (token.id === WRAP_NEAR_CONTRACT_ID) {
+      token.icon = nearMetadata.icon;
+      token.symbol = 'NEAR';
       wnearToken = JSON.parse(JSON.stringify(token));
       wnearToken.icon = wnearMetadata.icon;
       wnearToken.symbol = wnearMetadata.symbol;

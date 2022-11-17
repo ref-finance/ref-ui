@@ -494,11 +494,11 @@ export default function CrossSwapCard(props: {
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
     history.replace(
-      `#${wrapTokenId(tokenIn.id)}${TOKEN_URL_SEPARATOR}${wrapTokenId(
-        tokenOut.id
+      `#${unWrapTokenId(tokenIn)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
+        tokenOut
       )}`
     );
-  }, [tokenIn?.id, tokenOut?.id]);
+  }, [tokenIn?.id, tokenOut?.id, tokenIn?.symbol, tokenOut?.symbol]);
 
   const {
     tokenOutAmount,
