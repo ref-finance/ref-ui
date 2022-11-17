@@ -101,10 +101,12 @@ function Token({ token, price }: { token: TokenMetadata; price: string }) {
       <CommonCloseButton
         onClick={(e: any) => {
           e.stopPropagation();
-          removeToken(token);
+          if (!isMobile()) {
+            removeToken(token);
+          }
         }}
         className={`cursor-pointer absolute -top-1.5 -right-1.5 text-commonCloseColor hover:text-black ${
-          hover ? '' : 'hidden'
+          hover ? 'xsm:hidden' : 'hidden'
         }`}
       ></CommonCloseButton>
       <div className="flex flex-col justify-between">
