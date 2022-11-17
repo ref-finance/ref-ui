@@ -1199,7 +1199,7 @@ export default function SwapCard(props: {
           forSwap
           swapMode={swapMode}
           amount={
-            wrapOperation ? tokenOutAmount : toPrecision(tokenOutAmount, 8)
+            wrapOperation ? tokenInAmount : toPrecision(tokenOutAmount, 8)
           }
           total={tokenOutTotal}
           tokens={allTokens}

@@ -218,7 +218,9 @@ export const useSwap = ({
                 slippageTolerance
               )
             ).toString();
-            console.log(`222222222222-普通操作了返回tokenOutAmount:${expectedOut}`);
+            console.log(
+              `222222222222-普通操作了返回tokenOutAmount:${expectedOut}`
+            );
             setTokenOutAmount(expectedOut);
             setSwapsToDo(estimates);
             setCanSwap(true);
@@ -255,7 +257,9 @@ export const useSwap = ({
         (tokenIn.symbol == 'NEAR' && tokenOut.symbol == 'wNEAR') ||
         (tokenIn.symbol == 'wNEAR' && tokenOut.symbol == 'NEAR')
       ) {
-        console.log(`0000000000-切换成wrap操作了，返回tokenOutAmount${tokenInAmount}`);
+        console.log(
+          `0000000000-切换成wrap操作了，返回tokenOutAmount${tokenInAmount}`
+        );
         setTokenOutAmount(tokenInAmount);
         return;
       }
