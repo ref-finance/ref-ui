@@ -257,7 +257,7 @@ export function TokenCardIn({
   const price = tokenPriceList?.[tokenIn?.id]?.price || null;
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
   const curMax =
-    tokenIn?.id === WRAP_NEAR_CONTRACT_ID
+    tokenIn?.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR'
       ? Number(max) <= 0.5
         ? '0'
         : String(Number(max) - 0.5)
@@ -294,7 +294,7 @@ export function TokenCardIn({
           forCross
           selected={
             <div
-              className="flex font-semibold "
+              className="flex font-semibold"
               onMouseEnter={() => setHoverSelectToken(true)}
               onMouseLeave={() => setHoverSelectToken(false)}
             >
@@ -303,6 +303,7 @@ export function TokenCardIn({
               ) : null}
             </div>
           }
+          className={'flex-shrink-0 mr-4'}
           onSelect={onSelectToken}
           balances={balances}
           allowWNEAR={true}

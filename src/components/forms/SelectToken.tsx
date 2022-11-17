@@ -384,6 +384,7 @@ export default function SelectToken({
   tokenPriceList,
   forCross,
   allowWNEAR,
+  className,
 }: {
   tokens: TokenMetadata[];
   selected: string | React.ReactElement;
@@ -396,6 +397,7 @@ export default function SelectToken({
   tokenPriceList?: Record<string, any>;
   forCross?: boolean;
   allowWNEAR?: boolean;
+  className?: string;
 }) {
   const [visible, setVisible] = useState(false);
   const [listData, setListData] = useState<TokenMetadata[]>([]);
@@ -565,7 +567,7 @@ export default function SelectToken({
       trigger={() => (
         <div
           className={`focus:outline-none my-auto  ${
-            standalone ? 'w-full' : 'w-2/5'
+            standalone ? 'w-full' : className || 'w-2/5'
           }`}
           onClick={() => setVisible(true)}
         >

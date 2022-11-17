@@ -1416,7 +1416,7 @@ export const crossInstantSwap = async ({
         curTransactions.forEach((t) => transactions.push(t));
       }
     }
-    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR') {
       transactions.unshift(nearDepositTransaction(amountIn));
     }
     if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
@@ -1433,8 +1433,9 @@ export const crossInstantSwap = async ({
 
         scientificNotationToString(bigEstimate.toString())
       );
-
-      transactions.push(nearWithdrawTransaction(minAmountOut));
+      if (tokenOut.symbol == 'NEAR') {
+        transactions.push(nearWithdrawTransaction(minAmountOut));
+      }
     }
     if (tokenIn.id === WRAP_NEAR_CONTRACT_ID) {
       const registered = await ftGetStorageBalance(WRAP_NEAR_CONTRACT_ID);

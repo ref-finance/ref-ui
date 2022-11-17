@@ -68,7 +68,14 @@ import { getTokenPriceList } from '../../services/indexer';
 import { TokenCardOut, CrossSwapTokens } from '../forms/TokenAmount';
 import { CrossSwapFormWrap } from '../forms/SwapFormWrap';
 import { TriIcon, RefIcon, WannaIconDark } from '../icon/DexIcon';
-import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import {
+  unwrapNear,
+  WRAP_NEAR_CONTRACT_ID,
+  unwrapedNear,
+  wnearMetadata,
+  nearDeposit,
+  nearWithdraw,
+} from '../../services/wrap-near';
 import { unWrapTokenId, wrapTokenId } from './SwapCard';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
@@ -418,6 +425,7 @@ export default function CrossSwapCard(props: {
       0.5
   );
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+  const [wrapOperation, setWrapOperation] = useState<boolean>(false);
   const skywardId =
     getConfig().networkId === 'mainnet'
       ? 'token.skyward.near'
@@ -454,14 +462,28 @@ export default function CrossSwapCard(props: {
       rememberedOut = REF_TOKEN_ID;
     }
     if (allTokens) {
-      const candTokenIn =
-        allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
-
+      let candTokenIn;
+      if (urlTokenIn == 'near' || urlTokenIn == 'NEAR') {
+        candTokenIn = unwrapedNear;
+      } else if (urlTokenIn == WRAP_NEAR_CONTRACT_ID || urlTokenIn == 'wNEAR') {
+        candTokenIn = wnearMetadata;
+      } else {
+        candTokenIn =
+          allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
+      }
       setTokenIn(candTokenIn);
-
-      const candTokenOut =
-        allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
-
+      let candTokenOut;
+      if (urlTokenOut == 'near' || urlTokenOut == 'NEAR') {
+        candTokenOut = unwrapedNear;
+      } else if (
+        urlTokenOut == WRAP_NEAR_CONTRACT_ID ||
+        urlTokenOut == 'wNEAR'
+      ) {
+        candTokenOut = wnearMetadata;
+      } else {
+        candTokenOut =
+          allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
+      }
       setTokenOut(candTokenOut);
 
       if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
@@ -478,7 +500,9 @@ export default function CrossSwapCard(props: {
       setTokenInBalanceFromNear(
         toReadableNumber(
           tokenIn?.decimals,
-          tokenInId === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
+          tokenInId === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR'
+            ? nearBalance
+            : available
         )
       )
     );
@@ -486,10 +510,22 @@ export default function CrossSwapCard(props: {
       setTokenOutBalanceFromNear(
         toReadableNumber(
           tokenOut?.decimals,
-          tokenOutId === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
+          tokenOutId === WRAP_NEAR_CONTRACT_ID && tokenOut.symbol == 'NEAR'
+            ? nearBalance
+            : available
         )
       )
     );
+    if (
+      tokenIn &&
+      tokenOut &&
+      ((tokenIn.symbol == 'NEAR' && tokenOut.symbol == 'wNEAR') ||
+        (tokenIn.symbol == 'wNEAR' && tokenOut.symbol == 'NEAR'))
+    ) {
+      setWrapOperation(true);
+    } else {
+      setWrapOperation(false);
+    }
   }, [tokenIn, tokenOut, isSignedIn, nearBalance]);
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
@@ -523,6 +559,7 @@ export default function CrossSwapCard(props: {
     loadingTrigger,
     setLoadingTrigger,
     loadingPause,
+    wrapOperation,
   });
 
   const priceImpactValueSmartRouting = useMemo(() => {
@@ -583,22 +620,20 @@ export default function CrossSwapCard(props: {
   const tokenOutMax = tokenOutBalanceFromNear || '0';
 
   const curMax =
-    tokenIn?.id === WRAP_NEAR_CONTRACT_ID
+    tokenIn?.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR'
       ? Number(tokenInMax) <= 0.5
         ? '0'
         : String(Number(tokenInMax) - 0.5)
       : tokenInMax;
-
   const canSubmit = requested
     ? canSwap &&
       getCurrentWallet()?.wallet?.isSignedIn() &&
       !ONLY_ZEROS.test(curMax) &&
       !ONLY_ZEROS.test(tokenInAmount) &&
       new BigNumber(tokenInAmount).lte(new BigNumber(curMax))
-    : tokenIn?.id !== tokenOut?.id &&
+    : (tokenIn?.id !== tokenOut?.id || wrapOperation) &&
       !loadingTrigger &&
       !ONLY_ZEROS.test(tokenInAmount);
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -607,12 +642,26 @@ export default function CrossSwapCard(props: {
       setLoadingPause(false);
       return;
     }
+    if (wrapOperation) {
+      handleSubmit_wrap(event);
+      return;
+    }
     const ifDoubleCheck =
       new BigNumber(tokenInAmount).isLessThanOrEqualTo(
         new BigNumber(tokenInMax)
       ) && Number(PriceImpactValue) > 2;
     if (ifDoubleCheck) setDoubleCheckOpen(true);
     else makeSwap(useNearBalance);
+  };
+  const handleSubmit_wrap = (e: any) => {
+    e.preventDefault();
+    if (tokenIn?.symbol === 'NEAR') {
+      setShowSwapLoading(true);
+      return nearDeposit(tokenInAmount);
+    } else {
+      setShowSwapLoading(true);
+      return nearWithdraw(tokenInAmount);
+    }
   };
 
   const showAllResults =
@@ -756,8 +805,8 @@ export default function CrossSwapCard(props: {
               tokenOut={tokenOut}
               tokenPriceList={tokenPriceList}
               amountIn={tokenInAmount}
-              amountOut={tokenOutAmount}
-              slippageTolerance={slippageTolerance}
+              amountOut={wrapOperation ? tokenInAmount : tokenOutAmount}
+              slippageTolerance={wrapOperation ? 0 : slippageTolerance}
             />
           )}
         </div>

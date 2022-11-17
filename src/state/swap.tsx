@@ -72,6 +72,7 @@ interface SwapOptions {
   requested?: boolean;
   setRequested?: (requested?: boolean) => void;
   setRequestingTrigger?: (requestingTrigger?: boolean) => void;
+  wrapOperation?: boolean;
 }
 
 export const estimateValidator = (
@@ -179,7 +180,7 @@ export const useSwap = ({
             !transactionErrorType && !errorType && swapToast(txHash);
             transactionErrorType && failToast(txHash, transactionErrorType);
           }
-          // history.replace(pathname);
+          history.replace(pathname);
         });
     }
   }, [txHash]);
@@ -475,6 +476,7 @@ export const useCrossSwap = ({
   setLoadingTrigger,
   loadingPause,
   requested,
+  wrapOperation,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -544,6 +546,12 @@ export const useCrossSwap = ({
   }, [txHashes]);
 
   const getEstimateCrossSwap = () => {
+    if (wrapOperation) {
+      setRequested(true);
+      setLoadingTrigger(false);
+      setCanSwap(true);
+      return;
+    }
     setCanSwap(false);
     setSwapError(null);
 
