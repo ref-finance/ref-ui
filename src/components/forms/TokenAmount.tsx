@@ -305,6 +305,7 @@ export function TokenCardIn({
           }
           onSelect={onSelectToken}
           balances={balances}
+          allowWNEAR={true}
         />
 
         <div
@@ -406,6 +407,7 @@ export function TokenCardOut({
         }
         onSelect={onSelectToken}
         balances={balances}
+        allowWNEAR={true}
       />
     </div>
   );
