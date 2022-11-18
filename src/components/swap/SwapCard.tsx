@@ -642,7 +642,7 @@ function DetailView_near_wnear({
           to={to}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          fee={1}
+          fee={0}
         />
         <SwapDetail
           title={intl.formatMessage({ id: 'price_impact' })}
@@ -1226,7 +1226,7 @@ export default function SwapCard(props: {
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           from={tokenInAmount}
-          to={tokenOutAmount}
+          to={wrapOperation ? tokenInAmount : tokenOutAmount}
           minAmountOut={minAmountOut}
           isParallelSwap={isParallelSwap}
           fee={avgFee}

@@ -516,6 +516,14 @@ export default function CrossSwapCard(props: {
         )
       )
     );
+  }, [tokenIn, tokenOut, isSignedIn, nearBalance]);
+  useEffect(() => {
+    if (!tokenIn || !tokenOut) return;
+    history.replace(
+      `#${unWrapTokenId(tokenIn)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
+        tokenOut
+      )}`
+    );
     if (
       tokenIn &&
       tokenOut &&
@@ -526,14 +534,6 @@ export default function CrossSwapCard(props: {
     } else {
       setWrapOperation(false);
     }
-  }, [tokenIn, tokenOut, isSignedIn, nearBalance]);
-  useEffect(() => {
-    if (!tokenIn || !tokenOut) return;
-    history.replace(
-      `#${unWrapTokenId(tokenIn)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
-        tokenOut
-      )}`
-    );
   }, [tokenIn?.id, tokenOut?.id, tokenIn?.symbol, tokenOut?.symbol]);
 
   const {
