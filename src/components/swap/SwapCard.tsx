@@ -89,7 +89,7 @@ import {
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { senderWallet, WalletContext } from '../../utils/wallets-integration';
-import { SwapArrow, SwapExchange, SwapExchangeV3 } from '../icon/Arrows';
+import { SwapArrow, SwapExchangeV1, SwapExchangeV3 } from '../icon/Arrows';
 import {
   getPoolAllocationPercents,
   percentLess,
@@ -107,7 +107,11 @@ import TokenReserves from '../stableswap/TokenReserves';
 import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SwapMinReceiveCheck, LimitOrderMask } from '../icon/swapV3';
-import { TokenAmountV3, TokenCardIn } from '../forms/TokenAmount';
+import {
+  TokenAmountV3,
+  TokenCardIn,
+  LimitOrderRateSetBox,
+} from '../forms/TokenAmount';
 import Big from 'big.js';
 import { Slider } from '../icon/Info';
 import {
@@ -141,6 +145,7 @@ import { TiRefresh } from 'react-icons/ti';
 
 import { MdOutlineRefresh } from 'react-icons/md';
 import { getMax } from '../../utils/numbers';
+import { RefreshIcon } from '../icon/swapV3';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -963,6 +968,7 @@ function DetailViewLimit({
   tokenIn,
   tokneOut,
   tokenPriceList,
+  setFeeTiersShowFull,
 }: {
   v3Pool: string;
   setV3Pool: (p: string) => void;
@@ -972,6 +978,7 @@ function DetailViewLimit({
   tokenIn: TokenMetadata;
   tokneOut: TokenMetadata;
   tokenPriceList: Record<string, any>;
+  setFeeTiersShowFull: (v: boolean) => void;
 }) {
   const [showDetail, setShowDetail] = useState<boolean>(false);
 
@@ -1009,12 +1016,39 @@ function DetailViewLimit({
       </span>
     );
   }
-
   return (
-    <div className="border border-primaryText flex-col border-opacity-20 rounded-xl mt-4 p-4 xs:p-2 xs:px-1 flex text-white">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center xs:relative xs:left-3">
-          <span className="whitespace-nowrap text-base mr-2.5">
+    <div
+      className={`border border-limitOrderFeeTiersBorderColor flex flex-col rounded-xl p-2.5 xs:p-2 xs:px-1 ${
+        showDetail ? 'w-full' : ''
+      }`}
+    >
+      <div className="felx items-center">
+        <div className="flex items-center justify-between ">
+          <span className="text-xs text-primaryText">
+            <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
+          </span>
+          <button
+            className=" justify-center bg-opacity-20 border p-0.5 border-opacity-20 border-primaryText rounded-lg"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowDetail(!showDetail);
+              setFeeTiersShowFull(!showDetail);
+            }}
+            onMouseEnter={() => {
+              setHoverSlider(true);
+            }}
+            onMouseLeave={() => {
+              setHoverSlider(false);
+            }}
+          >
+            <Slider shrink showSlip={showDetail || hoverSlider} />
+          </button>
+        </div>
+        <div
+          className={`flex items-center mt-2.5 ${showDetail ? 'hidden' : ''}`}
+        >
+          <span className="whitespace-nowrap text-sm mr-2.5 text-primaryText">
             {toPrecision(
               calculateFeePercent(
                 Number(v3Pool?.split(V3_POOL_SPLITER)[2] || 2000) / 100
@@ -1022,32 +1056,13 @@ function DetailViewLimit({
               2
             )}
             % &nbsp;
-            <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
           </span>
-
           <SelectPercent poolId={v3Pool} />
         </div>
-
-        <button
-          className=" justify-center bg-opacity-20 border p-0.5 border-opacity-20 border-primaryText rounded-lg"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setShowDetail(!showDetail);
-          }}
-          onMouseEnter={() => {
-            setHoverSlider(true);
-          }}
-          onMouseLeave={() => {
-            setHoverSlider(false);
-          }}
-        >
-          <Slider shrink showSlip={showDetail || hoverSlider} />
-        </button>
       </div>
 
       {!showDetail ? null : (
-        <div className="w-full flex items-center justify-between mt-4">
+        <div className="w-full flex items-center justify-between mt-4 text-white">
           {V3_POOL_FEE_LIST.map((fee, i) => {
             const pool_id = getV3PoolId(tokenIn.id, tokneOut.id, fee);
             const tip = poolTips[i];
@@ -1220,6 +1235,7 @@ export default function SwapCard(props: {
   const [slippageToleranceLimit, setSlippageToleranceLimit] = useState<number>(
     Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_LIMIT)) || 0.5
   );
+  const [feeTiersShowFull, setFeeTiersShowFull] = useState<boolean>(false);
 
   const tokenPriceList = useTokenPriceList();
 
@@ -1701,6 +1717,7 @@ export default function SwapCard(props: {
           v3Pool={selectedV3LimitPool}
           setV3Pool={setSelectedV3LimitPool}
           tokenPriceList={tokenPriceList}
+          setFeeTiersShowFull={setFeeTiersShowFull}
         />
       );
     } else if (swapMode !== SWAP_MODE.LIMIT) {
@@ -1880,7 +1897,11 @@ export default function SwapCard(props: {
               setShowSkywardTip(true);
             }
           }}
-          text={intl.formatMessage({ id: 'from' })}
+          text={
+            swapMode === SWAP_MODE.LIMIT
+              ? intl.formatMessage({ id: 'from' })
+              : ''
+          }
           useNearBalance={useNearBalance}
           onChangeAmount={setTokenInAmount}
           tokenPriceList={tokenPriceList}
@@ -1890,8 +1911,7 @@ export default function SwapCard(props: {
             setTokenOut(token);
           }}
         />
-        {(swapMode === SWAP_MODE.LIMIT ? !!curOrderPrice : true) &&
-          tokenIn &&
+        {tokenIn &&
           Number(getMax(tokenIn.id, tokenInMax || '0')) -
             Number(tokenInAmount || '0') <
             0 &&
@@ -1907,14 +1927,7 @@ export default function SwapCard(props: {
               })} ${tokenIn.id === WRAP_NEAR_CONTRACT_ID ? '' : tokenInMax}`}
             />
           )}
-        <div
-          className={`flex items-center  ${
-            swapMode === SWAP_MODE.LIMIT
-              ? 'my-3 justify-between'
-              : 'border-t mt-10 justify-center'
-          } `}
-          style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
-        >
+        <div className={`flex items-center -my-2 justify-center`}>
           {swapMode === SWAP_MODE.LIMIT ? (
             <SwapExchangeV3
               tokenIn={tokenIn}
@@ -1939,7 +1952,7 @@ export default function SwapCard(props: {
               setRate={onChangeLimitRate}
             />
           ) : (
-            <SwapExchange
+            <SwapExchangeV1
               onChange={() => {
                 setTokenIn(tokenOut);
                 localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
@@ -2002,7 +2015,11 @@ export default function SwapCard(props: {
             }
             setDiff={setDiff}
             forLimitOrder
-            text={intl.formatMessage({ id: 'to' })}
+            text={
+              swapMode === SWAP_MODE.LIMIT
+                ? intl.formatMessage({ id: 'to' })
+                : ''
+            }
             useNearBalance={useNearBalance}
             onSelectToken={(token) => {
               localStorage.setItem(SWAP_OUT_KEY, token.id);
@@ -2058,9 +2075,66 @@ export default function SwapCard(props: {
               )
             }
           />
-        </LimitOrderTriggerContext.Provider>
+          <div className="flex items-stretch justify-between mt-2.5">
+            <LimitOrderRateSetBox
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+              limitFee={mostPoolDetail?.fee}
+              setDiff={setDiff}
+              curRate={LimitAmountOutRate}
+              onChangeRate={onChangeLimitRate}
+              marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
+              ExtraElement={
+                swapMode !== SWAP_MODE.LIMIT ? (
+                  <div
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
 
-        {poolError && swapMode !== SWAP_MODE.LIMIT ? null : displayDetailView}
+                      if (loadingPause) {
+                        setLoadingPause(false);
+                        setLoadingTrigger(true);
+                        setLoadingData(true);
+                      } else {
+                        setLoadingPause(true);
+                        setLoadingTrigger(false);
+                      }
+                    }}
+                    className="mr-2 cursor-pointer"
+                  >
+                    <CountdownTimer
+                      loadingTrigger={loadingTrigger}
+                      loadingPause={loadingPause}
+                    />
+                  </div>
+                ) : (
+                  <RefreshIcon
+                    className={`text-primaryText cursor-pointer  ${
+                      !quoteDoneLimit ? 'rotateInfinite' : ''
+                    } `}
+                    onClick={() => {
+                      setLimiSwapTrigger(!limitSwapTrigger);
+                    }}
+                  />
+                )
+              }
+              rate={LimitAmountOutRate}
+              fee={mostPoolDetail?.fee}
+              triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
+              curPrice={curOrderPrice}
+              setRate={onChangeLimitRate}
+              hidden={feeTiersShowFull ? true : false}
+            />
+            {poolError && swapMode !== SWAP_MODE.LIMIT
+              ? null
+              : displayDetailView}
+          </div>
+        </LimitOrderTriggerContext.Provider>
+        {swapMode === SWAP_MODE.LIMIT ? (
+          <div className="text-xs text-limitOrderInputColor mt-2.5">
+            <FormattedMessage id="limit_price_tip"></FormattedMessage>
+          </div>
+        ) : null}
 
         {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail && (
           <NoLimitPoolCard />

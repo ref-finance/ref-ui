@@ -895,5 +895,8 @@ const zh_CN = {
   total_ref_week: 'REF/周',
   ref_week_you_will_get: '你将获得的REF/周',
   stable_pool: '稳定池',
+  market_rate: '市场价',
+  limit_price_tip:
+    'To improve deal the efficiency, your price should be in one slot nearby automatically',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

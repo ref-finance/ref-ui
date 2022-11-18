@@ -1052,7 +1052,7 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 
 .gradientBorderWrapper {
-  border: solid 3px transparent;
+  border: solid 1px transparent;
   background-image: linear-gradient(#1d2932, #1d2932),
     linear-gradient(135deg, rgba(0, 255, 209, 1) 0%, rgba(91, 62, 255, 1) 100%);
   background-origin: border-box;

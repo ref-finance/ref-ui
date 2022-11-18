@@ -297,14 +297,7 @@ function SwapPage() {
             allTokens={crossSwapTokens}
             tokenInAmount={tokenInAmount}
             setTokenInAmount={setTokenInAmount}
-            swapTab={
-              <>
-                <SwapTab
-                  ifCross={swapTab === 'cross'}
-                  setSwapTab={setSwapTab}
-                />
-              </>
-            }
+            swapTab={<></>}
           />
         ) : (
           <SwapCard
@@ -320,10 +313,6 @@ function SwapPage() {
                 <ChangeSwapModeV3
                   swapMode={swapMode}
                   setSwapMode={setSwapMode}
-                />
-                <SwapTab
-                  ifCross={swapTab === 'cross'}
-                  setSwapTab={setSwapTab}
                 />
               </>
             }
@@ -343,6 +332,17 @@ function SwapPage() {
           />
         )}
       </section>
+      <div className="flex items-center justify-center mt-4">
+        <span className="text-sm text-primaryText mr-1.5">Try out by</span>
+        <div
+          onClick={() => {
+            setSwapTab('cross');
+          }}
+          className="rounded-md border border-laguageBorderColor text-sm text-primaryText px-1.5 py-1 cursor-pointer"
+        >
+          Cross-chain Swap
+        </div>
+      </div>
     </div>
   );
 }

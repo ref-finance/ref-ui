@@ -62,6 +62,7 @@ module.exports = {
         bgGreyHover: 'linear-gradient(180deg, #E6D6C7 0%, #92877D 100%)',
         swapCardGradient: 'linear-gradient(180deg, #26343E 0%, #1D2932 100%)',
         orderMobileTop: 'linear-gradient(180deg, #1D2933 0%, #283A46 100%)',
+        switchIconBgColor:'linear-gradient(180deg, #222F37 0%, #192229 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -201,6 +202,11 @@ module.exports = {
         menuMoreBgColor: 'rgba(126, 138, 147, 0.15)',
         menuMoreBoxBorderColor:'#304352',
         laguageBorderColor:'#42525C',
+        switchIconBorderColor:'#304351',
+        limitOrderInputColor:'#566069',
+        inputV3BorderColor:'#25323C',
+        selectTokenV3BgColor:'rgba(126, 138, 147, 0.1)',
+        limitOrderFeeTiersBorderColor:'rgba(145, 162, 174, 0.2)',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -97,8 +97,8 @@ export function IconLeftV3({
 }) {
   return (
     <div
-      className={`flex items-center text-lg text-white   rounded-full flex-shrink-0 ${
-        hover ? 'pr-4 bg-primaryText bg-opacity-30 cursor-pointer' : ''
+      className={`${className} flex items-center text-lg text-white   rounded-full flex-shrink-0 ${
+        hover ? 'pr-4 bg-selectTokenV3BgColor bg-opacity-30 cursor-pointer' : ''
       }`}
       style={{ lineHeight: 'unset' }}
     >
@@ -108,7 +108,9 @@ export function IconLeftV3({
         src={token.icon}
       />
       {label && (
-        <p className="block text-sm font-bold">{toRealSymbol(token.symbol)}</p>
+        <p className="block text-base font-bold">
+          {toRealSymbol(token.symbol)}
+        </p>
       )}
       {showArrow && (
         <div className="pl-2 xs:pl-1 text-xs">

@@ -925,5 +925,8 @@ const ru = {
   total_ref_week: 'Total REF/week',
   ref_week_you_will_get: 'REF/week you will get',
   stable_pool: 'Stable Pool',
+  market_rate: 'Market Rate',
+  limit_price_tip:
+    'To improve deal the efficiency, your price should be in one slot nearby automatically',
 };
 export default Object.assign(ru, ru_in_risks_page);

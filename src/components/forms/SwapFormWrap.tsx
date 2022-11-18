@@ -84,7 +84,7 @@ export default function SwapFormWrap({
         e.preventDefault();
         history.push('/myOrder');
       }}
-      className="w-3/5 h-11 flex mr-4 xs:mr-2 md:mr-2 items-center justify-center bg-orderGradient hover:bg-orderGraidentHover mt-6 rounded-lg text-white text-base"
+      className="w-full h-11 flex items-center justify-center bg-orderGradient hover:bg-orderGraidentHover mt-4 rounded-lg text-white text-base"
     >
       <OrderIcon />
       <span className="mx-2 xs:mx-1 md:mx-1">
@@ -155,10 +155,8 @@ export default function SwapFormWrap({
       {showElseView && elseView ? (
         elseView
       ) : (
-        <div className="flex items-center">
-          {OrderButton}
+        <div className="flex flex-col items-center">
           <SubmitButton
-            className="w-3/5"
             disabled={
               !canSubmit ||
               (swapMode === SWAP_MODE.LIMIT
@@ -173,6 +171,7 @@ export default function SwapFormWrap({
                 : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
             }
           />
+          {OrderButton}
         </div>
       )}
       {reserves}
