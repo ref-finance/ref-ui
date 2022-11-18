@@ -2140,7 +2140,7 @@ function FarmView(props: {
   const [lpSwitchStatus, setLpSwitchStatus] = useState('1');
   const [yourApr, setYourApr] = useState('');
   const [yourActualAprRate, setYourActualAprRate] = useState('1');
-  const tokens = seed.pool.tokens_meta_data;
+  const tokens = sortTokens(seed.pool.tokens_meta_data);
   const unClaimedTokens = useTokens(
     Object.keys(user_unclaimed_map[seed_id] || {})
   );
@@ -2152,6 +2152,16 @@ function FarmView(props: {
       setYourApr(yourApr);
     }
   }, [boostConfig, user_seeds_map]);
+  function sortTokens(tokens: TokenMetadata[]) {
+    tokens.sort((token: TokenMetadata) => {
+      if (token.symbol == 'NEAR' || token.symbol == 'wNEAR') {
+        return -1;
+      } else {
+        return 1;
+      }
+    });
+    return tokens;
+  }
   function getTotalApr(containPoolFee: boolean = true) {
     let dayVolume = 0;
     if (containPoolFee) {

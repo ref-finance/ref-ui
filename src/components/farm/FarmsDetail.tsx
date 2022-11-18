@@ -125,7 +125,17 @@ export default function FarmsDetail(props: {
   const intl = useIntl();
   const pool = detailData.pool;
   const { token_account_ids } = pool;
-  const tokens = useTokens(token_account_ids) || [];
+  const tokens = sortTokens(useTokens(token_account_ids) || []);
+  function sortTokens(tokens: TokenMetadata[]) {
+    tokens.sort((token: TokenMetadata) => {
+      if (token.symbol == 'NEAR' || token.symbol == 'wNEAR') {
+        return -1;
+      } else {
+        return 1;
+      }
+    });
+    return tokens;
+  }
   const goBacktoFarms = () => {
     history.replace('/v2farms');
     emptyDetailData();
