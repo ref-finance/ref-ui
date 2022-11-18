@@ -111,6 +111,8 @@ import {
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
+const SWAP_IN_KEY_SYMBOL = 'REF_FI_SWAP_IN_SYMBOL';
+const SWAP_OUT_KEY_SYMBOL = 'REF_FI_SWAP_OUT_SYMBOL';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 
@@ -769,10 +771,13 @@ export default function SwapCard(props: {
 
     localStorage.setItem(SWAP_IN_KEY, tokenIn.id);
     localStorage.setItem(SWAP_OUT_KEY, tokenOut.id);
+    localStorage.setItem(SWAP_IN_KEY_SYMBOL, tokenIn.symbol);
+    localStorage.setItem(SWAP_OUT_KEY_SYMBOL, tokenOut.symbol);
   }, [tokenIn?.id, tokenOut?.id, tokenIn?.symbol, tokenOut?.symbol]);
 
   useEffect(() => {
     if (allTokens) {
+      const [in_id, out_id] = getStorageTokenId();
       let urlTokenInId = allTokens.find((t) => t.id && t.id === urlTokenIn)?.id;
 
       let urlTokenOutId = allTokens.find(
@@ -790,10 +795,8 @@ export default function SwapCard(props: {
           (t) => t.symbol && t.symbol === urlTokenOut
         )?.id;
       }
-      let rememberedIn =
-        wrapTokenId(urlTokenInId) || localStorage.getItem(SWAP_IN_KEY);
-      let rememberedOut =
-        wrapTokenId(urlTokenOutId) || localStorage.getItem(SWAP_OUT_KEY);
+      let rememberedIn = wrapTokenId(urlTokenInId) || in_id;
+      let rememberedOut = wrapTokenId(urlTokenOutId) || out_id;
 
       if (swapMode === SWAP_MODE.NORMAL) {
         if (rememberedIn == NEARXIDS[0]) {
@@ -803,11 +806,16 @@ export default function SwapCard(props: {
           rememberedOut = REF_TOKEN_ID;
         }
         let candTokenIn;
-        if (urlTokenIn == 'near' || urlTokenIn == 'NEAR') {
+        if (
+          urlTokenIn == 'near' ||
+          urlTokenIn == 'NEAR' ||
+          rememberedIn == 'near'
+        ) {
           candTokenIn = unwrapedNear;
         } else if (
           urlTokenIn == WRAP_NEAR_CONTRACT_ID ||
-          urlTokenIn == 'wNEAR'
+          urlTokenIn == 'wNEAR' ||
+          rememberedIn == WRAP_NEAR_CONTRACT_ID
         ) {
           candTokenIn = wnearMetadata;
         } else {
@@ -817,11 +825,16 @@ export default function SwapCard(props: {
             }) || unwrapedNear;
         }
         let candTokenOut;
-        if (urlTokenOut == 'near' || urlTokenOut == 'NEAR') {
+        if (
+          urlTokenOut == 'near' ||
+          urlTokenOut == 'NEAR' ||
+          rememberedOut == 'near'
+        ) {
           candTokenOut = unwrapedNear;
         } else if (
           urlTokenOut == WRAP_NEAR_CONTRACT_ID ||
-          urlTokenOut == 'wNEAR'
+          urlTokenOut == 'wNEAR' ||
+          rememberedOut == WRAP_NEAR_CONTRACT_ID
         ) {
           candTokenOut = wnearMetadata;
         } else {
@@ -943,7 +956,32 @@ export default function SwapCard(props: {
       setWrapOperation(false);
     }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
-
+  function getStorageTokenId() {
+    const in_key = localStorage.getItem(SWAP_IN_KEY);
+    const in_key_symbol = localStorage.getItem(SWAP_IN_KEY_SYMBOL);
+    const out_key = localStorage.getItem(SWAP_OUT_KEY);
+    const out_key_symbol = localStorage.getItem(SWAP_OUT_KEY_SYMBOL);
+    const result = [];
+    if (in_key == WRAP_NEAR_CONTRACT_ID) {
+      if (in_key_symbol == 'NEAR') {
+        result.push('near');
+      } else {
+        result.push(WRAP_NEAR_CONTRACT_ID);
+      }
+    } else {
+      result.push(in_key);
+    }
+    if (out_key == WRAP_NEAR_CONTRACT_ID) {
+      if (out_key_symbol == 'NEAR') {
+        result.push('near');
+      } else {
+        result.push(WRAP_NEAR_CONTRACT_ID);
+      }
+    } else {
+      result.push(out_key);
+    }
+    return result;
+  }
   const slippageTolerance =
     swapMode === SWAP_MODE.NORMAL
       ? slippageToleranceNormal

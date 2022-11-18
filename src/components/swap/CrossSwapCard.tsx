@@ -82,6 +82,8 @@ import { SkyWardModal } from '../layout/SwapDoubleCheck';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
+const SWAP_IN_KEY_SYMBOL = 'REF_FI_SWAP_IN_SYMBOL';
+const SWAP_OUT_KEY_SYMBOL = 'REF_FI_SWAP_OUT_SYMBOL';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
@@ -438,7 +440,6 @@ export default function CrossSwapCard(props: {
     let urlTokenInId = allTokens.find((t) => t.id && t.id === urlTokenIn)?.id;
 
     let urlTokenOutId = allTokens.find((t) => t.id && t.id === urlTokenOut)?.id;
-
     if (!urlTokenInId) {
       urlTokenInId = globalWhiteListTokens.find(
         (t) => t.symbol && t.symbol === urlTokenIn
@@ -451,10 +452,9 @@ export default function CrossSwapCard(props: {
       )?.id;
     }
 
-    let rememberedIn =
-      wrapTokenId(urlTokenInId) || localStorage.getItem(SWAP_IN_KEY);
-    let rememberedOut =
-      wrapTokenId(urlTokenOutId) || localStorage.getItem(SWAP_OUT_KEY);
+    const [in_id, out_id] = getStorageTokenId();
+    let rememberedIn = wrapTokenId(urlTokenInId) || in_id;
+    let rememberedOut = wrapTokenId(urlTokenOutId) || out_id;
     if (rememberedIn == NEARXIDS[0]) {
       rememberedIn = REF_TOKEN_ID;
     }
@@ -463,9 +463,17 @@ export default function CrossSwapCard(props: {
     }
     if (allTokens) {
       let candTokenIn;
-      if (urlTokenIn == 'near' || urlTokenIn == 'NEAR') {
+      if (
+        urlTokenIn == 'near' ||
+        urlTokenIn == 'NEAR' ||
+        rememberedIn == 'near'
+      ) {
         candTokenIn = unwrapedNear;
-      } else if (urlTokenIn == WRAP_NEAR_CONTRACT_ID || urlTokenIn == 'wNEAR') {
+      } else if (
+        urlTokenIn == WRAP_NEAR_CONTRACT_ID ||
+        urlTokenIn == 'wNEAR' ||
+        rememberedIn == WRAP_NEAR_CONTRACT_ID
+      ) {
         candTokenIn = wnearMetadata;
       } else {
         candTokenIn =
@@ -473,11 +481,16 @@ export default function CrossSwapCard(props: {
       }
       setTokenIn(candTokenIn);
       let candTokenOut;
-      if (urlTokenOut == 'near' || urlTokenOut == 'NEAR') {
+      if (
+        urlTokenOut == 'near' ||
+        urlTokenOut == 'NEAR' ||
+        rememberedOut == 'near'
+      ) {
         candTokenOut = unwrapedNear;
       } else if (
         urlTokenOut == WRAP_NEAR_CONTRACT_ID ||
-        urlTokenOut == 'wNEAR'
+        urlTokenOut == 'wNEAR' ||
+        rememberedOut == WRAP_NEAR_CONTRACT_ID
       ) {
         candTokenOut = wnearMetadata;
       } else {
@@ -491,6 +504,33 @@ export default function CrossSwapCard(props: {
       }
     }
   }, [allTokens?.map((t) => t.id).join('-'), urlTokenIn, urlTokenOut]);
+
+  function getStorageTokenId() {
+    const in_key = localStorage.getItem(SWAP_IN_KEY);
+    const in_key_symbol = localStorage.getItem(SWAP_IN_KEY_SYMBOL);
+    const out_key = localStorage.getItem(SWAP_OUT_KEY);
+    const out_key_symbol = localStorage.getItem(SWAP_OUT_KEY_SYMBOL);
+    const result = [];
+    if (in_key == WRAP_NEAR_CONTRACT_ID) {
+      if (in_key_symbol == 'NEAR') {
+        result.push('near');
+      } else {
+        result.push(WRAP_NEAR_CONTRACT_ID);
+      }
+    } else {
+      result.push(in_key);
+    }
+    if (out_key == WRAP_NEAR_CONTRACT_ID) {
+      if (out_key_symbol == 'NEAR') {
+        result.push('near');
+      } else {
+        result.push(WRAP_NEAR_CONTRACT_ID);
+      }
+    } else {
+      result.push(out_key);
+    }
+    return result;
+  }
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !isSignedIn) return;
@@ -524,6 +564,8 @@ export default function CrossSwapCard(props: {
         tokenOut
       )}`
     );
+    localStorage.setItem(SWAP_IN_KEY_SYMBOL, tokenIn.symbol);
+    localStorage.setItem(SWAP_OUT_KEY_SYMBOL, tokenOut.symbol);
     if (
       tokenIn &&
       tokenOut &&
@@ -844,7 +886,7 @@ export default function CrossSwapCard(props: {
         onSwap={() => makeSwap(useNearBalance)}
         priceImpactValue={PriceImpactValue}
       />
-      {!requested || swapError ? null : (
+      {!requested || swapError || wrapOperation ? null : (
         <CrossSwapAllResult
           refTodos={swapsToDoRef}
           triTodos={swapsToDoTri}
