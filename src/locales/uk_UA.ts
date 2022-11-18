@@ -411,6 +411,7 @@ const uk_UA = {
   lp_fee: 'LP комісія',
   protocol_fee: 'Комісія протокола',
   referral_fee: 'Реферальна комісія',
+  protocol_fee_referral_fee: 'Комісія за протокол і реферальна плата',
   total_fee_create: 'Загальна комісія',
   xref_title: 'ЗАРОБІТЬ БІЛЬШЕ ЗА',
   xref_title1: 'Заробіть більше',

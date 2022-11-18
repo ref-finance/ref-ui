@@ -414,6 +414,7 @@ const en_US = {
   lp_fee: 'LP fee',
   protocol_fee: 'Protocol fee',
   referral_fee: 'Referral fee',
+  protocol_fee_referral_fee: 'Protocol fee and Referral fee',
   total_fee_create: 'Total fee',
   xref_title: 'EARN MORE BY',
   xref_title1: 'Earn more',

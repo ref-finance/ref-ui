@@ -433,6 +433,7 @@ const es = {
   lp_fee: 'Tarifa del LP',
   protocol_fee: 'Tarifa del Protocol',
   referral_fee: 'Tarifa de referencia',
+  protocol_fee_referral_fee: 'Tarifa de protocolo y tarifa de referencia',
   total_fee_create: 'Total de las tarifas',
   xref_title: 'GANE MÁS POR',
   xref_title1: 'Gane más',

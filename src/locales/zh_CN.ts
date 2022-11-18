@@ -381,6 +381,7 @@ const zh_CN = {
   lp_fee: '流动性提供者',
   protocol_fee: '协议费',
   referral_fee: '中介费',
+  protocol_fee_referral_fee: '协议费和中介费',
   total_fee_create: '总费用',
   xref_title: '赚取更多收益通过',
   xref_introdution:

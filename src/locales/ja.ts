@@ -421,6 +421,7 @@ const ja = {
   lp_fee: '流動性供給者',
   protocol_fee: 'プロトコルフィー',
   referral_fee: 'リファラルフィー',
+  protocol_fee_referral_fee: 'プロトコル料金と紹介料',
   total_fee_create: 'トータルコスト',
   xref_title: 'より多くの収益を得るため',
   xref_introdution:

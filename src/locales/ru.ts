@@ -426,6 +426,7 @@ const ru = {
   lp_fee: 'Комиссия LP',
   protocol_fee: 'Комиссия протокола',
   referral_fee: 'Реферальная комиссия',
+  protocol_fee_referral_fee: 'Плата за протокол и реферальная плата',
   total_fee_create: 'Общая комиссия',
   xref_title: 'ЗАРАБАТЫВАЙТЕ БОЛЬШЕ С ПОМОЩЬЮ',
   xref_title1: 'Зарабатывайте больше',

@@ -413,6 +413,7 @@ const vi = {
   lp_fee: 'Phí cho LP',
   protocol_fee: 'Phí giao thức',
   referral_fee: 'Phí giới thiệu',
+  protocol_fee_referral_fee: 'Phí giao thức và phí giới thiệu',
   total_fee_create: 'Tổng phí',
   xref_title: 'Kiếm thêm bằng',
   xref_title1: 'Kiếm thêm',

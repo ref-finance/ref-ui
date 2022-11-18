@@ -413,6 +413,7 @@ const ko = {
   lp_fee: 'LP 수수료',
   protocol_fee: '프로토콜 수수료',
   referral_fee: '추천 수수료 ',
+  protocol_fee_referral_fee: '의정서 수수료 및 추천 수수료',
   total_fee_create: '총 수수료',
   xref_title: '로 더 많은 수익 벌기',
   xref_title1: '더 많은 수익',
