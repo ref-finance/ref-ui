@@ -858,6 +858,12 @@ export default function SwapCard(props: {
       } else if (swapMode === SWAP_MODE.STABLE) {
         let candTokenIn: TokenMetadata;
         let candTokenOut: TokenMetadata;
+        if (rememberedIn == 'near') {
+          rememberedIn = WRAP_NEAR_CONTRACT_ID;
+        }
+        if (rememberedOut == 'near') {
+          rememberedOut = WRAP_NEAR_CONTRACT_ID;
+        }
         if (rememberedIn == NEARXIDS[0]) {
           rememberedIn = STNEARIDS[0];
         }
