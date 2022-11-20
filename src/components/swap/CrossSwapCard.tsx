@@ -174,9 +174,11 @@ export function SwapRateDetail({
 function CrossSwapRoutesDetail({
   swapsTodo,
   tokenOut,
+  tokenIn,
 }: {
   swapsTodo: EstimateSwapView[];
   tokenOut: TokenMetadata;
+  tokenIn: TokenMetadata;
 }) {
   const routes = separateRoutes(swapsTodo, tokenOut.id);
   const pools = routes?.map((todo) => todo[0].pool);
@@ -207,7 +209,12 @@ function CrossSwapRoutesDetail({
               className="mb-5 md:w-smartRoute lg:w-smartRoute flex items-center relative"
             >
               <div className="text-right text-white w-full col-span-6 xs:mt-2 md:mt-2">
-                <CrossSwapRoute route={route} p={percents[i]} />
+                <CrossSwapRoute
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
+                  route={route}
+                  p={percents[i]}
+                />
               </div>
             </div>
           );
@@ -369,7 +376,11 @@ function DetailView({
           value={poolFeeDisplay}
         />
 
-        <CrossSwapRoutesDetail swapsTodo={swapsTodo} tokenOut={tokenOut} />
+        <CrossSwapRoutesDetail
+          swapsTodo={swapsTodo}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+        />
       </div>
     </div>
   );
