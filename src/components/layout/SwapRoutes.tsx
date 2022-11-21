@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { TokenMetadata, ftGetTokenMetadata } from '~services/ft-contract';
 import {
@@ -16,16 +16,24 @@ import {
   convertToPercentDecimal,
 } from '../../utils/numbers';
 import { Pool } from '../../services/pool';
-import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
+import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import { Card } from '../card/Card';
 import { ArrowDownWhite } from '../icon/Arrows';
 import { RefSwapPro } from '../icon/CrossSwapIcons';
 import _, { result } from 'lodash';
 //@ts-ignore
 import { getExpectedOutputFromActionsORIG } from '../../services/smartRouteLogic';
-import { RefIcon, TriIcon } from '../icon/DexIcon';
-import { percentLess, separateRoutes } from '../../utils/numbers';
+import {
+  RefIcon,
+  RefIconLarge,
+  TriIcon,
+  NEARICONDEX,
+  TriIconLarge,
+  AURORAICONDEX,
+} from '../icon/DexIcon';
+import { percentLess, separateRoutes, ONLY_ZEROS } from '../../utils/numbers';
 import Big from 'big.js';
+import { useTokenPriceList } from '~state/token';
 
 export const RouterIcon = () => {
   return (
@@ -310,6 +318,113 @@ export const PoolName = ({
   );
 };
 
+const ExchangeIcon = () => {
+  return (
+    <svg
+      width="10"
+      height="8"
+      viewBox="0 0 10 8"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M4.28537 7.33333V8L2.85339 6.66667L4.28537 5.33333V6H6.42799C6.87702 6.0001 7.31474 5.86851 7.67931 5.62382C8.04389 5.37914 8.31689 5.03372 8.45976 4.63636C8.60263 4.239 8.60815 3.80978 8.47554 3.40933C8.34293 3.00889 8.07888 2.65745 7.7207 2.40467L7.72856 2.39533L8.73559 1.45533C9.29415 1.89649 9.69406 2.48715 9.88121 3.1474C10.0684 3.80766 10.0337 4.50565 9.78196 5.14692C9.5302 5.7882 9.0735 6.34181 8.47362 6.73286C7.87375 7.12391 7.15967 7.33352 6.42799 7.33333L4.28466 7.334L4.28537 7.33333ZM5.71378 0.666667V0L7.17576 1.33333L5.71378 2.66667V2H3.57117C3.12207 2 2.68433 2.13171 2.31979 2.37654C1.95525 2.62136 1.68234 2.96692 1.53961 3.36438C1.39689 3.76185 1.39157 4.19112 1.5244 4.59157C1.65723 4.99201 1.92151 5.34337 2.27988 5.596L1.26357 6.544C0.705275 6.10279 0.305614 5.51218 0.118631 4.85204C-0.0683515 4.1919 -0.0336347 3.49409 0.218087 2.85296C0.469808 2.21184 0.926389 1.65835 1.52608 1.26733C2.12578 0.876314 2.83965 0.666641 3.57117 0.666667H5.71378Z"
+        fill="#7E8A93"
+      />
+    </svg>
+  );
+};
+
+const BestIcon = () => {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="9" cy="9" r="9" fill="#00C6A2" />
+      <path
+        d="M3.91844 7.81449L3.91309 12.7226C3.91309 13.0199 4.18742 13.3041 4.68869 13.3041H6.25366H6.32856H6.39426H6.45769V7.04346H4.691C4.20195 7.05339 3.91844 7.52105 3.91844 7.81449Z"
+        fill="#1C272E"
+      />
+      <path
+        d="M13.4936 6.26174L11.7315 6.26097C12.9755 2.14678 10.6434 2.34928 10.6434 2.34928C9.80356 2.34928 9.38404 3.06834 9.38404 3.91273C9.38099 3.88752 9.38176 3.91349 9.38328 3.92266C9.33819 5.27825 7.65707 6.73779 6.89062 6.99835V13.3041H12.7111C13.6036 13.3041 13.897 12.5216 13.897 12.5216C14.4052 11.3074 15.0356 8.52513 15.0501 8.36697C15.2374 6.34807 13.4936 6.26174 13.4936 6.26174Z"
+        fill="#1C272E"
+      />
+    </svg>
+  );
+};
+
+export function SwapRateDetail({
+  value,
+  from,
+  to,
+  tokenIn,
+  tokenOut,
+  isRevert,
+  setIsRevert,
+  tokenPriceList,
+}: {
+  value: string | JSX.Element;
+  from: string;
+  to: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  tokenPriceList: any;
+  isRevert?: boolean;
+  setIsRevert?: any;
+}) {
+  const [newValue, setNewValue] = useState<string | JSX.Element>(value);
+
+  const exchangeRageValue = useMemo(() => {
+    const fromNow = isRevert ? to : from;
+    const toNow = isRevert ? from : to;
+    if (ONLY_ZEROS.test(fromNow)) return '-';
+
+    return calculateExchangeRate(0, fromNow, toNow);
+  }, [isRevert, to]);
+
+  useEffect(() => {
+    const curPrice = isRevert
+      ? tokenPriceList?.[tokenOut?.id]?.price
+      : tokenPriceList?.[tokenIn?.id]?.price;
+
+    setNewValue(
+      <span>
+        {`1 ${toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)} `}{' '}
+        {!!curPrice ? (
+          <span className="text-primaryText">
+            (${toPrecision(curPrice, 2)})
+          </span>
+        ) : null}{' '}
+        ={' '}
+        {`${exchangeRageValue} ${toRealSymbol(
+          isRevert ? tokenIn.symbol : tokenOut.symbol
+        )}`}
+      </span>
+    );
+  }, [isRevert.toString()]);
+
+  function switchSwapRate() {
+    setIsRevert(!isRevert);
+  }
+
+  return (
+    <div
+      className="flex items-center cursor-pointer justify-end text-white "
+      onClick={switchSwapRate}
+    >
+      <span className="font-sans text-xs">{newValue}</span>
+
+      <span className="ml-2" style={{ marginTop: '0.1rem' }}>
+        <ExchangeIcon />
+      </span>
+    </div>
+  );
+}
+
 export const CrossSwapRoute = ({
   route,
   p,
@@ -393,6 +508,8 @@ export const CrossSwapRoute = ({
   );
 };
 
+const REF_FI_SHOW_ALL_RESULTS = 'REF_FI_SHOW_ALL_RESULTS_VALUE';
+
 export const CrossSwapAllResult = ({
   refTodos,
   triTodos,
@@ -400,7 +517,10 @@ export const CrossSwapAllResult = ({
   tokenOutId,
   slippageTolerance,
   tokenOut,
-  show,
+  LoadingRefresh,
+  selectTodos,
+  setSelectTodos,
+  tokenIn,
 }: {
   refTodos: EstimateSwapView[];
   triTodos: EstimateSwapView[];
@@ -408,45 +528,56 @@ export const CrossSwapAllResult = ({
   tokenOutId: string;
   slippageTolerance: number;
   tokenOut: TokenMetadata;
-  show: boolean;
+  LoadingRefresh: JSX.Element;
+  selectTodos: EstimateSwapView[];
+  setSelectTodos: (todos: EstimateSwapView[]) => void;
+  tokenIn: TokenMetadata;
 }) => {
-  if (!show) return null;
+  const results = [refTodos, triTodos].filter(
+    (r) => !!r && !!r[0] && !!r[0].estimate
+  );
 
-  const results = [refTodos, triTodos];
+  const [isRevert, setIsRevert] = useState<boolean>(true);
 
-  const [showAllResult, setShowAllResult] = useState<boolean>(true);
+  if (!results || results.length === 0) return null;
+
+  const [showAllResult, setShowAllResult] = useState<boolean>(
+    sessionStorage.getItem(REF_FI_SHOW_ALL_RESULTS) === 'true' || false
+  );
+
+  useEffect(() => {
+    sessionStorage.setItem(REF_FI_SHOW_ALL_RESULTS, showAllResult.toString());
+  }, [showAllResult]);
 
   const OneResult = ({
     Type,
     rate,
     Diff,
+    rawRate,
     rateTitle,
   }: {
     Type: JSX.Element;
     rate: string;
+    rawRate: string;
     Diff: JSX.Element | string;
     rateTitle?: string;
   }) => {
     return (
-      <div className="w-full grid grid-cols-3 justify-between pt-5 relative">
-        <div>{Type}</div>
+      <div className="w-full grid items-center grid-cols-10 justify-between pt-5 relative">
+        <span className="col-span-1">{Type}</span>
 
-        <div className="justify-self-center relative left-2" title={rateTitle}>
+        <span className="col-span-4  relative left-3">{rawRate}</span>
+
+        <div
+          className="justify-self-center col-span-4 relative px-4"
+          title={rateTitle}
+        >
           {rate}
         </div>
 
-        <span className=" text-right justify-self-end">{Diff}</span>
-      </div>
-    );
-  };
-  const TodoType = ({ Icon, title }: { Icon: JSX.Element; title: string }) => {
-    return (
-      <div className="flex items-center xs:flex-col xs:items-start">
-        <div className="mr-1.5">{Icon}</div>
-
-        <div className="xs:text-xs whitespace-nowrap xs:ml-1 xs:mt-0.5">
-          {title}
-        </div>
+        <span className=" text-right relative right-3 justify-self-end col-span-1">
+          {Diff}
+        </span>
       </div>
     );
   };
@@ -476,9 +607,17 @@ export const CrossSwapAllResult = ({
     ).toString();
   });
 
+  const tokenPriceList = useTokenPriceList();
+
   const Icons = [
-    <TodoType Icon={<RefIcon lightTrigger={true} />} title="Ref Finance" />,
-    <TodoType Icon={<TriIcon lightTrigger={true} />} title="Trisolaris" />,
+    <div className="relative mr-2">
+      <RefIconLarge />
+      <NEARICONDEX />
+    </div>,
+    <div className="relative mr-2">
+      <TriIconLarge />
+      <AURORAICONDEX />
+    </div>,
   ];
 
   const displayResults = results
@@ -486,6 +625,9 @@ export const CrossSwapAllResult = ({
       return {
         type: Icons[i],
         rate: percentLess(slippageTolerance, receives[i]),
+        rawRate:
+          new Big(receives[i] || '0').div(tokenInAmount || '1').toFixed(3) +
+          ` ${toRealSymbol(tokenOut.symbol)}/${toRealSymbol(tokenIn.symbol)}`,
         diff: diffs[i],
         rateTitle: toPrecision(
           percentLess(slippageTolerance, receives[i]),
@@ -499,53 +641,113 @@ export const CrossSwapAllResult = ({
       return 1;
     });
 
-  return (
-    <section
-      className={`w-full relative top-8 ${showAllResult ? '' : 'mb-4'} `}
-    >
-      <span
-        className={` ${
-          showAllResult ? 'gradientBorderWrapperNoShadow' : ''
-        } z-50  rounded-2xl text-sm text-farmText mx-auto relative bottom-1 flex items-center justify-center cursor-pointer bg-cardBg `}
-        style={{
-          width: '120px',
+  const SelectRate = () => {
+    const from = tokenInAmount;
+    let to: string = '0';
 
-          border: `solid 1px ${
-            showAllResult ? 'transparent' : 'rgba(145, 162, 174, 0.2)'
-          }`,
-        }}
-        onClick={() => {
-          setShowAllResult(!showAllResult);
-        }}
-      >
-        <span className="my-2">
-          <FormattedMessage id="all_results" defaultMessage="All Results" />
-        </span>
-        <span className="ml-2">
-          {showAllResult ? <FaAngleUp /> : <FaAngleDown />}
-        </span>
-      </span>
-      <Card
-        padding="pr-8  pl-7 xs:px-3 pt-8 pb-5"
-        className={
-          showAllResult ? 'text-sm text-white relative bottom-6' : 'hidden'
-        }
-        width="w-full"
-        style={{
-          border: '1px solid #283945',
-        }}
-      >
-        <div className="text-primaryText flex items-center justify-between ml-1">
+    if (!selectTodos) return null;
+
+    if (
+      selectTodos?.every((r) => r.pool?.Dex === 'tri') ||
+      (selectTodos?.every((r) => r.pool?.Dex === 'ref' || !r?.pool) &&
+        selectTodos.length === 1)
+    ) {
+      to = selectTodos[selectTodos.length - 1].estimate;
+    } else {
+      to = getExpectedOutputFromActionsORIG(
+        selectTodos,
+        tokenOut.id
+      ).toString();
+    }
+
+    const exchangeRateValue = useMemo(() => {
+      if (!from || ONLY_ZEROS.test(to)) return '-';
+      else return calculateExchangeRate(0, to, from);
+    }, [to]);
+
+    const curPrice = tokenPriceList?.[tokenOut?.id]?.price;
+
+    return (
+      <SwapRateDetail
+        value={
           <span>
-            <FormattedMessage id="name" defaultMessage="Name" />
+            {`1 ${toRealSymbol(tokenOut.symbol)} `}{' '}
+            {!!curPrice ? (
+              <span className="text-primaryText">
+                (${toPrecision(curPrice, 2)})
+              </span>
+            ) : null}{' '}
+            = {`${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
           </span>
-          <span>
+        }
+        isRevert={isRevert}
+        setIsRevert={setIsRevert}
+        from={from}
+        to={to}
+        tokenPriceList={tokenPriceList}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+      />
+    );
+  };
+
+  return (
+    <section className={`w-full relative my-4 `}>
+      <div
+        className={`z-50 px-4 justify-between rounded-lg text-sm text-white mx-auto relative bottom-1 flex items-center  bg-cardBg `}
+        style={{
+          border: `1.2px solid #304352`,
+        }}
+      >
+        <div className="items-center flex bg-transparent">
+          {LoadingRefresh}
+
+          <SelectRate />
+        </div>
+
+        <span
+          className="flex items-center cursor-pointer justify-center"
+          onClick={() => {
+            setShowAllResult(!showAllResult);
+          }}
+        >
+          <span className="my-2">
+            <FormattedMessage id="all_results" defaultMessage="All Results" />
+          </span>
+          <span className="ml-1">
+            {showAllResult ? (
+              <FaAngleUp size={18} />
+            ) : (
+              <FaAngleDown size={18} />
+            )}
+          </span>
+        </span>
+      </div>
+      <Card
+        padding="p-4 px-4"
+        className={
+          showAllResult ? 'z-50 text-sm text-white absolute top-10' : 'hidden'
+        }
+        style={{
+          border: `1.2px solid #304352`,
+        }}
+        width="w-full"
+      >
+        <div className="text-primaryText grid grid-cols-10 ml-1">
+          <span className="col-span-1 ">
+            <FormattedMessage id="dex" defaultMessage="DEX" />
+          </span>
+
+          <span className="col-span-4 relative left-3">
+            <FormattedMessage id="rate" defaultMessage="Rate" />
+          </span>
+          <span className="col-span-4">
             <FormattedMessage
               id="minimum_received"
               defaultMessage="Minimum Received"
             />
           </span>
-          <span className="relative right-2">
+          <span className="relative right-2 text-right col-span-1">
             <FormattedMessage id="diff" defaultMessage="Diff" />
           </span>
         </div>
@@ -556,11 +758,10 @@ export const CrossSwapAllResult = ({
               Type={result.type}
               rate={toPrecision(result.rate, 6)}
               rateTitle={result.rateTitle}
+              rawRate={result.rawRate}
               Diff={
                 Number(result.diff) === 0 ? (
-                  <div className="bg-black bg-opacity-20 border border-gradientFrom rounded-xl text-gradientFrom px-1.5 flex items-center justify-center">
-                    <FormattedMessage id="best" defaultMessage="Best" />
-                  </div>
+                  <BestIcon />
                 ) : (
                   `-${toPrecision(result.diff, 2)}%`
                 )

@@ -191,13 +191,11 @@ export function CrossSwapFormWrap({
   showElseView,
   elseView,
   swapTab,
-  showAllResults,
   onChange,
   loading,
   useNearBalance,
   requestingTrigger,
   supportLedger,
-  requested,
   tokensTitle,
   setSupportLedger,
   reserves,
@@ -226,7 +224,7 @@ export function CrossSwapFormWrap({
     event.preventDefault();
     setError(null);
 
-    if (isSignedIn || !requested) {
+    if (isSignedIn) {
       try {
         setShowSwapLoading && setShowSwapLoading(true);
         setShowSwapLoading && setLoadingPause(true);
@@ -242,66 +240,26 @@ export function CrossSwapFormWrap({
       className={`overflow-visible relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xs:py-4 xs:px-3 bg-dark  `}
       onSubmit={handleSubmit}
     >
-      {!requestingTrigger ? null : (
-        <div className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0 rounded-2xl z-30">
-          <div className="flex flex-col items-center">
-            <RequestingSmile />
-            <span
-              className="pt-6"
-              style={{
-                color: '#c4c4c4',
-              }}
-            >
-              <span className="crossSwap-requesting-loading">
-                <FormattedMessage id="requesting" defaultMessage="Requesting" />
-              </span>
-            </span>
-          </div>
-        </div>
-      )}
       {title && (
-        <h2 className="formTitle flex xs:relative xs:bottom-2 items-center justify-between  font-bold text-xl text-white text-left xs:py-0 pb-4 pt-1.5 xs:h-11">
-          {tokensTitle}
-          <div className="flex self-start xs:self-center items-center">
-            {requested ? null : swapTab}
-            {!requested ? null : (
-              <div
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+        <>
+          <h2 className="formTitle relative bottom-1 flex items-center xs:justify-end justify-between font-bold text-xl text-white text-left pb-4 xs:pb-2">
+            {swapTab}
 
-                  if (loadingPause) {
-                    setLoadingPause(false);
-                    setLoadingTrigger(true);
-                    setLoadingData(true);
-                  } else {
-                    setLoadingPause(true);
-                    setLoadingTrigger(false);
-                  }
-                }}
-                className="mx-4 cursor-pointer"
-              >
-                <CountdownTimer
-                  loadingTrigger={loadingTrigger}
-                  loadingPause={loadingPause}
-                />
-              </div>
-            )}
             <SlippageSelector
               slippageTolerance={slippageTolerance}
               onChange={onChange}
               supportLedger={supportLedger}
               setSupportLedger={setSupportLedger}
             />
-          </div>
-        </h2>
+          </h2>
+          {tokensTitle}
+        </>
       )}
       {error && <Alert level="warn" message={error.message} />}
       {children}
 
       <div>
         <SubmitButton
-          signedInConfig={!requested}
           disabled={
             !canSubmit ||
             (typeof loadingTrigger !== 'undefined' && loadingTrigger)

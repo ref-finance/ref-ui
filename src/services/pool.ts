@@ -314,9 +314,6 @@ export const getPoolsByTokens = async ({
         .map((p) => ({ ...p, Dex: 'ref' }));
     }
 
-    // const totalPools = await getTotalPools();
-    // const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
-
     let triPools;
     if (crossSwap) {
       triPools = await getAllTriPools();

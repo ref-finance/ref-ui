@@ -816,13 +816,19 @@ export function TokenAmountV3({
     tokenIn &&
     tokenOut &&
     limitFee &&
-    toPrecision(regularizedPrice(curRate, tokenIn, tokenOut, limitFee, 1), 8);
+    toPrecision(
+      regularizedPrice(curRate, tokenIn, tokenOut, limitFee, 1) || '0',
+      8
+    );
 
   const minus1 =
     tokenIn &&
     tokenOut &&
     limitFee &&
-    toPrecision(regularizedPrice(curRate, tokenIn, tokenOut, limitFee, -1), 8);
+    toPrecision(
+      regularizedPrice(curRate, tokenIn, tokenOut, limitFee, -1) || '0',
+      8
+    );
 
   const plus5 =
     tokenIn &&

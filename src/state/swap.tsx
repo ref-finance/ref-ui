@@ -105,8 +105,6 @@ interface SwapOptions {
   reEstimateTrigger?: boolean;
   supportLedger?: boolean;
   requestingTrigger?: boolean;
-  requested?: boolean;
-  setRequested?: (requested?: boolean) => void;
   setRequestingTrigger?: (requestingTrigger?: boolean) => void;
 }
 
@@ -1110,11 +1108,9 @@ export const useCrossSwap = ({
   tokenOut,
   slippageTolerance,
   supportLedger,
-  setRequested,
   loadingTrigger,
   setLoadingTrigger,
   loadingPause,
-  requested,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -1122,26 +1118,20 @@ export const useCrossSwap = ({
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
 
+  const [crossQuoteDone, setCrossQuoteDone] = useState<boolean>(true);
+
   const [swapsToDoRef, setSwapsToDoRef] = useState<EstimateSwapView[]>();
 
   const [swapsToDoTri, setSwapsToDoTri] = useState<EstimateSwapView[]>();
 
   const [avgFee, setAvgFee] = useState<number>(0);
 
-  const history = useHistory();
-
   const [count, setCount] = useState<number>(0);
   const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
-
-  const { txHash, pathname, errorType, txHashes } = getURLInfo();
 
   const minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
-
-  const { globalState } = useContext(WalletContext);
-
-  const isSignedIn = globalState.isSignedIn;
 
   const intl = useIntl();
 
@@ -1170,6 +1160,8 @@ export const useCrossSwap = ({
     setCanSwap(false);
     setSwapError(null);
 
+    setCrossQuoteDone(false);
+
     estimateSwap({
       tokenIn,
       tokenOut,
@@ -1197,8 +1189,8 @@ export const useCrossSwap = ({
         setSwapError(err);
       })
       .finally(() => {
-        loadingTrigger && !requested && setRequested(true);
         setLoadingTrigger(false);
+        setCrossQuoteDone(true);
       });
   };
 
@@ -1212,11 +1204,15 @@ export const useCrossSwap = ({
   }, [swapsToDo, slippageTolerance]);
 
   useEffect(() => {
-    if (loadingTrigger || requested) getEstimateCrossSwap();
-  }, [loadingTrigger, supportLedger]);
+    if (ONLY_ZEROS.test(tokenInAmount)) {
+      setCrossQuoteDone(false);
+      return;
+    }
+
+    getEstimateCrossSwap();
+  }, [loadingTrigger, supportLedger, tokenInAmount, tokenIn?.id, tokenOut?.id]);
 
   useEffect(() => {
-    if (!requested) return;
     let id: any = null;
     if (!loadingTrigger && !loadingPause) {
       id = setInterval(() => {
@@ -1229,18 +1225,7 @@ export const useCrossSwap = ({
     return () => {
       clearInterval(id);
     };
-  }, [count, loadingTrigger, loadingPause, requested]);
-
-  const makeSwap = (useNearBalance: boolean) => {
-    swap({
-      slippageTolerance,
-      swapsToDo,
-      tokenIn,
-      amountIn: tokenInAmount,
-      tokenOut,
-      useNearBalance,
-    }).catch(setSwapError);
-  };
+  }, [count, loadingTrigger, loadingPause]);
 
   return {
     canSwap,
@@ -1249,12 +1234,13 @@ export const useCrossSwap = ({
     pool,
     setCanSwap,
     swapError,
-    makeSwap,
+
     avgFee,
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
     setSwapError,
     swapsToDoRef,
     swapsToDoTri,
+    crossQuoteDone,
   };
 };

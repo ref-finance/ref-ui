@@ -728,13 +728,7 @@ export const NoResultListFilterIcon = () => {
     >
       <circle cx="56.5" cy="57.5" r="37.5" fill="#172027" />
       <g filter="url(#filter0_b_1484_1509)">
-        <circle
-          cx="31.5"
-          cy="39.5"
-          r="29.5"
-          fill="#23313C"
-          fill-opacity="0.7"
-        />
+        <circle cx="31.5" cy="39.5" r="29.5" fill="#23313C" fillOpacity="0.7" />
         <circle cx="31.5" cy="39.5" r="26.5" stroke="#444D53" strokeWidth="6" />
       </g>
       <rect

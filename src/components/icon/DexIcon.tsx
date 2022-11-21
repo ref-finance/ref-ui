@@ -270,7 +270,7 @@ export const WannaIconDark = ({
   );
 };
 
-const RefIconLarge = () => {
+export const RefIconLarge = () => {
   return (
     <svg
       width="32"
@@ -279,7 +279,7 @@ const RefIconLarge = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect width="32" height="32" rx="8" fill="black" fill-opacity="0.2" />
+      <rect width="32" height="32" rx="8" fill="black" fillOpacity="0.2" />
       <path
         d="M19.0183 25.2045H26.0001L19.0183 18.2227V25.2045Z"
         fill="white"
@@ -307,7 +307,7 @@ const RefIconLarge = () => {
   );
 };
 
-const TriIconLarge = () => {
+export const TriIconLarge = () => {
   return (
     <svg
       width="32"
@@ -317,7 +317,7 @@ const TriIconLarge = () => {
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
-      <rect width="32" height="32" rx="8" fill="black" fill-opacity="0.2" />
+      <rect width="32" height="32" rx="8" fill="black" fillOpacity="0.2" />
       <rect x="4" y="5" width="23" height="22" fill="url(#pattern0_tri)" />
       <defs>
         <pattern
@@ -352,7 +352,7 @@ const InchIconLarge = () => {
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
     >
-      <rect width="32" height="32" rx="8" fill="black" fill-opacity="0.2" />
+      <rect width="32" height="32" rx="8" fill="black" fillOpacity="0.2" />
       <rect
         opacity="0.2"
         width="32"
@@ -380,7 +380,7 @@ const InchIconLarge = () => {
   );
 };
 
-const NEARICONDEX = () => {
+export const NEARICONDEX = () => {
   return (
     <svg
       width="21"
@@ -393,16 +393,16 @@ const NEARICONDEX = () => {
       <circle cx="10.5" cy="10.5" r="8.5" fill="white" />
       <path
         fillRule="evenodd"
-        clip-rule="evenodd"
+        clipRule="evenodd"
         d="M7.34313 8.07549V12.9788L9.7717 11.1054L10.0146 11.3253L7.97804 14.2867C7.22136 15.0033 5.88599 14.5184 5.88599 13.527V7.47303C5.88599 6.4476 7.29954 5.98051 8.02909 6.76488L13.6574 12.8161V8.11399L11.4717 9.78615L11.2288 9.56627L12.961 6.80193C13.684 6.00304 15.1146 6.46589 15.1146 7.4987V13.4185C15.1146 14.444 13.701 14.9111 12.9715 14.1267L7.34313 8.07549Z"
         fill="black"
       />
-      <circle cx="10.5" cy="10.5" r="9.5" stroke="#25333C" stroke-width="2" />
+      <circle cx="10.5" cy="10.5" r="9.5" stroke="#25333C" strokeWidth="2" />
     </svg>
   );
 };
 
-const AURORAICONDEX = () => {
+export const AURORAICONDEX = () => {
   return (
     <svg
       width="21"
@@ -418,11 +418,11 @@ const AURORAICONDEX = () => {
         r="9.5"
         fill="#8FD460"
         stroke="#25323C"
-        stroke-width="2"
+        strokeWidth="2"
       />
       <path
         fillRule="evenodd"
-        clip-rule="evenodd"
+        clipRule="evenodd"
         d="M8.69599 6.99408C9.44998 5.66864 11.55 5.66864 12.304 6.99408L14.7736 11.3354C15.4661 12.5528 14.4863 14 12.9696 14H8.03039C6.51371 14 5.5339 12.5528 6.22639 11.3354L8.69599 6.99408ZM11.1013 7.5509C10.85 7.10909 10.15 7.10909 9.89866 7.55091L7.42906 11.8923C7.19823 12.2981 7.52483 12.7805 8.03039 12.7805H12.9696C13.4752 12.7805 13.8018 12.298 13.5709 11.8923L11.1013 7.5509Z"
         fill="white"
       />
@@ -446,12 +446,12 @@ const AURORAICONDEXLIGHT = () => {
         r="9.5"
         fill="#597D40"
         stroke="#25323C"
-        stroke-width="2"
+        strokeWidth="2"
       />
       <path
         opacity="0.3"
         fillRule="evenodd"
-        clip-rule="evenodd"
+        clipRule="evenodd"
         d="M8.69599 6.99408C9.44998 5.66864 11.55 5.66864 12.304 6.99408L14.7736 11.3354C15.4661 12.5528 14.4863 14 12.9696 14H8.03039C6.51371 14 5.5339 12.5528 6.22639 11.3354L8.69599 6.99408ZM11.1013 7.5509C10.85 7.10909 10.15 7.10909 9.89866 7.55091L7.42906 11.8923C7.19823 12.2981 7.52483 12.7805 8.03039 12.7805H12.9696C13.4752 12.7805 13.8018 12.298 13.5709 11.8923L11.1013 7.5509Z"
         fill="white"
       />

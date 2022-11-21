@@ -42,7 +42,7 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
       return {
         RPC_LIST: {
           defaultRpc: {
-            url: 'https://rpc.testnet.near.org',
+            url: 'https://near-testnet.infura.io/v3/388c72223585424086eea3872bb0ba2c',
             simpleName: 'official rpc',
           },
           publicRpc: {
