@@ -7,7 +7,7 @@ import { SingleToken } from '../forms/SelectToken';
 import { RefIcon } from '../../components/icon/DexIcon';
 import { TriIcon } from '../icon/DexIcon';
 import { getCurrentWallet } from '../../utils/wallets-integration';
-import { PinEmpty, PinSolid } from '~components/icon/Common';
+import { PinEmpty, PinSolid } from '../../components/icon/Common';
 import {
   localTokens,
   USER_COMMON_TOKEN_LIST,

@@ -49,11 +49,14 @@ import {
   SelectTokenCloseButton,
 } from '../../components/icon/Common';
 import _, { trimEnd } from 'lodash';
-import { GradientButton, ButtonTextWrapper } from '~components/button/Button';
+import {
+  GradientButton,
+  ButtonTextWrapper,
+} from '../../components/button/Button';
 import { registerTokenAndExchange } from '../../services/token';
 import { WalletContext } from '../../utils/wallets-integration';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
-import { REF_TOKEN_ID } from '~services/near';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { REF_TOKEN_ID } from '../../services/near';
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
 
