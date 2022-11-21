@@ -266,6 +266,11 @@ function PoolDetailCard({
   tokens: TokenMetadata[];
   pool: Pool;
 }) {
+  tokens?.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return a.symbol > b.symbol ? 1 : -1;
+  });
   const [showDetail, setShowDetail] = useState(false);
 
   const [poolTVL, setPoolTVl] = useState<string>('');
