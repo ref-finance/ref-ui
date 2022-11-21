@@ -474,17 +474,13 @@ export default function CrossSwapCard(props: {
     }
     if (allTokens) {
       let candTokenIn;
-      if (
-        urlTokenIn == 'near' ||
-        urlTokenIn == 'NEAR' ||
-        rememberedIn == 'near'
-      ) {
+      if (urlTokenIn == 'near' || urlTokenIn == 'NEAR') {
         candTokenIn = unwrapedNear;
-      } else if (
-        urlTokenIn == WRAP_NEAR_CONTRACT_ID ||
-        urlTokenIn == 'wNEAR' ||
-        rememberedIn == WRAP_NEAR_CONTRACT_ID
-      ) {
+      } else if (urlTokenIn == WRAP_NEAR_CONTRACT_ID || urlTokenIn == 'wNEAR') {
+        candTokenIn = wnearMetadata;
+      } else if (rememberedIn == 'near') {
+        candTokenIn = unwrapedNear;
+      } else if (rememberedIn == WRAP_NEAR_CONTRACT_ID) {
         candTokenIn = wnearMetadata;
       } else {
         candTokenIn =
@@ -492,17 +488,16 @@ export default function CrossSwapCard(props: {
       }
       setTokenIn(candTokenIn);
       let candTokenOut;
-      if (
-        urlTokenOut == 'near' ||
-        urlTokenOut == 'NEAR' ||
-        rememberedOut == 'near'
-      ) {
+      if (urlTokenOut == 'near' || urlTokenOut == 'NEAR') {
         candTokenOut = unwrapedNear;
       } else if (
         urlTokenOut == WRAP_NEAR_CONTRACT_ID ||
-        urlTokenOut == 'wNEAR' ||
-        rememberedOut == WRAP_NEAR_CONTRACT_ID
+        urlTokenOut == 'wNEAR'
       ) {
+        candTokenOut = wnearMetadata;
+      } else if (rememberedOut == 'near') {
+        candTokenOut = unwrapedNear;
+      } else if (rememberedOut == WRAP_NEAR_CONTRACT_ID) {
         candTokenOut = wnearMetadata;
       } else {
         candTokenOut =
