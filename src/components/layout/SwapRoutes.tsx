@@ -31,7 +31,12 @@ import {
   TriIconLarge,
   AURORAICONDEX,
 } from '../icon/DexIcon';
-import { percentLess, separateRoutes, ONLY_ZEROS } from '../../utils/numbers';
+import {
+  percentLess,
+  separateRoutes,
+  ONLY_ZEROS,
+  scientificNotationToString,
+} from '../../utils/numbers';
 import Big from 'big.js';
 import { useTokenPriceList } from '~state/token';
 
@@ -383,7 +388,9 @@ export function SwapRateDetail({
     const toNow = isRevert ? from : to;
     if (ONLY_ZEROS.test(fromNow)) return '-';
 
-    return calculateExchangeRate(0, fromNow, toNow);
+    const value = calculateExchangeRate(0, fromNow, toNow);
+
+    return Number(value) < 0.001 ? '< 0.0001' : value;
   }, [isRevert, to]);
 
   useEffect(() => {
@@ -521,6 +528,8 @@ export const CrossSwapAllResult = ({
   selectTodos,
   setSelectTodos,
   tokenIn,
+  setSelectReceive,
+  tokenPriceList,
 }: {
   refTodos: EstimateSwapView[];
   triTodos: EstimateSwapView[];
@@ -532,6 +541,8 @@ export const CrossSwapAllResult = ({
   selectTodos: EstimateSwapView[];
   setSelectTodos: (todos: EstimateSwapView[]) => void;
   tokenIn: TokenMetadata;
+  tokenPriceList: any;
+  setSelectReceive?: any;
 }) => {
   const results = [refTodos, triTodos].filter(
     (r) => !!r && !!r[0] && !!r[0].estimate
@@ -539,11 +550,23 @@ export const CrossSwapAllResult = ({
 
   const [isRevert, setIsRevert] = useState<boolean>(true);
 
-  if (!results || results.length === 0) return null;
-
+  const [bestReceiveIndex, setBestReceiveIndex] = useState(-1);
   const [showAllResult, setShowAllResult] = useState<boolean>(
     sessionStorage.getItem(REF_FI_SHOW_ALL_RESULTS) === 'true' || false
   );
+
+  const receives = results.map((result) => {
+    if (
+      result?.every((r) => r.pool?.Dex === 'tri') ||
+      (result?.every((r) => r.pool?.Dex === 'ref' || !r?.pool) &&
+        result.length === 1)
+    ) {
+      return result[result.length - 1].estimate;
+    } else {
+      return getExpectedOutputFromActionsORIG(result, tokenOut.id).toString();
+    }
+  });
+  const bestReceived = _.maxBy(receives, (o) => Number(o));
 
   useEffect(() => {
     sessionStorage.setItem(REF_FI_SHOW_ALL_RESULTS, showAllResult.toString());
@@ -555,15 +578,26 @@ export const CrossSwapAllResult = ({
     Diff,
     rawRate,
     rateTitle,
+    index,
   }: {
     Type: JSX.Element;
     rate: string;
     rawRate: string;
     Diff: JSX.Element | string;
     rateTitle?: string;
+    index: number;
   }) => {
     return (
-      <div className="w-full grid items-center grid-cols-10 justify-between pt-5 relative">
+      <div
+        className={`w-full hover:bg-black cursor-pointer mb-2 hover:bg-opacity-10 grid items-center grid-cols-10 px-4 justify-between py-2.5 relative ${
+          bestReceiveIndex === index
+            ? 'border border-gradientFrom rounded-md'
+            : 'border border-transparent'
+        }`}
+        onClick={() => {
+          setBestReceiveIndex(index);
+        }}
+      >
         <span className="col-span-1">{Type}</span>
 
         <span className="col-span-4  relative left-3">{rawRate}</span>
@@ -582,21 +616,6 @@ export const CrossSwapAllResult = ({
     );
   };
 
-  // const receives = expectedOuts.map((receive) => toPrecision(receive, 6));
-  const receives = results.map((result) => {
-    if (
-      result?.every((r) => r.pool?.Dex === 'tri') ||
-      (result?.every((r) => r.pool?.Dex === 'ref' || !r?.pool) &&
-        result.length === 1)
-    ) {
-      return result[result.length - 1].estimate;
-    } else {
-      return getExpectedOutputFromActionsORIG(result, tokenOut.id).toString();
-    }
-  });
-
-  const bestReceived = _.maxBy(receives, (o) => Number(o));
-
   const diffs = receives.map((r) => {
     if (r === bestReceived) {
       return '0';
@@ -606,8 +625,6 @@ export const CrossSwapAllResult = ({
       bestReceived
     ).toString();
   });
-
-  const tokenPriceList = useTokenPriceList();
 
   const Icons = [
     <div className="relative mr-2">
@@ -619,27 +636,6 @@ export const CrossSwapAllResult = ({
       <AURORAICONDEX />
     </div>,
   ];
-
-  const displayResults = results
-    .map((result, i) => {
-      return {
-        type: Icons[i],
-        rate: percentLess(slippageTolerance, receives[i]),
-        rawRate:
-          new Big(receives[i] || '0').div(tokenInAmount || '1').toFixed(3) +
-          ` ${toRealSymbol(tokenOut.symbol)}/${toRealSymbol(tokenIn.symbol)}`,
-        diff: diffs[i],
-        rateTitle: toPrecision(
-          percentLess(slippageTolerance, receives[i]),
-          tokenOut.decimals
-        ),
-      };
-    })
-    .filter((_) => _)
-    .sort((a, b) => {
-      if (new Big(a.rate).gt(new Big(b.rate))) return -1;
-      return 1;
-    });
 
   const SelectRate = () => {
     const from = tokenInAmount;
@@ -662,7 +658,10 @@ export const CrossSwapAllResult = ({
 
     const exchangeRateValue = useMemo(() => {
       if (!from || ONLY_ZEROS.test(to)) return '-';
-      else return calculateExchangeRate(0, to, from);
+      else {
+        const value = calculateExchangeRate(0, to, from);
+        return Number(value) < 0.001 ? '< 0.001' : value;
+      }
     }, [to]);
 
     const curPrice = tokenPriceList?.[tokenOut?.id]?.price;
@@ -690,15 +689,70 @@ export const CrossSwapAllResult = ({
       />
     );
   };
+  const displayResults = results
+    .map((result, i) => {
+      const calRawRate = new Big(receives[i] || '0').div(tokenInAmount || '1');
+
+      return {
+        type: Icons[i],
+        rate: percentLess(slippageTolerance, receives[i]),
+        receive: receives[i],
+        result,
+        rawRate:
+          (Number(calRawRate) < 0.001
+            ? '< 0.001'
+            : toPrecision(
+                scientificNotationToString(calRawRate.toString()),
+                3
+              )) +
+          ` ${toRealSymbol(tokenOut.symbol)}/${toRealSymbol(tokenIn.symbol)}`,
+        diff: diffs[i],
+        rateTitle: toPrecision(
+          percentLess(slippageTolerance, receives[i]),
+          tokenOut.decimals
+        ),
+      };
+    })
+    .filter((_) => !!_)
+    .sort((a, b) => {
+      if (new Big(a.rate).gt(new Big(b.rate))) return -1;
+      return 1;
+    });
+
+  useEffect(() => {
+    if (bestReceiveIndex >= 0) {
+      setSelectTodos(displayResults[bestReceiveIndex].result);
+      setSelectReceive(displayResults[bestReceiveIndex].receive);
+    }
+  }, [bestReceiveIndex, bestReceived]);
+
+  useEffect(() => {
+    console.log({
+      bestReceived,
+    });
+
+    const bestReceiveIndex = displayResults
+      .map((_) => _.receive)
+      .findIndex((r) => r === bestReceived);
+    setBestReceiveIndex(bestReceiveIndex);
+  }, [bestReceived]);
+
+  if (!results || results.length === 0) return null;
 
   return (
-    <section className={`w-full relative my-4 `}>
+    <section className={`w-full relative my-4 mt-6`}>
       <div
-        className={`z-50 px-4 justify-between rounded-lg text-sm text-white mx-auto relative bottom-1 flex items-center  bg-cardBg `}
+        className={`z-50 px-4 pb-1 pt-3 justify-between rounded-lg text-sm text-white mx-auto relative bottom-1 flex items-center  bg-cardBg `}
         style={{
           border: `1.2px solid #304352`,
         }}
       >
+        {bestReceiveIndex === 0 && (
+          <div className="absolute left-4 -top-3 bg-gradientFrom rounded-md px-2 py-0.5 text-black">
+            <FormattedMessage id="optimal" defaultMessage={'Optimal'} />
+          </div>
+        )}
+
         <div className="items-center flex bg-transparent">
           {LoadingRefresh}
 
@@ -724,16 +778,17 @@ export const CrossSwapAllResult = ({
         </span>
       </div>
       <Card
-        padding="p-4 px-4"
+        padding="pt-4 "
         className={
-          showAllResult ? 'z-50 text-sm text-white absolute top-10' : 'hidden'
+          showAllResult ? 'z-50 text-sm text-white absolute top-14 ' : 'hidden'
         }
         style={{
           border: `1.2px solid #304352`,
         }}
         width="w-full"
+        rounded="rounded-lg"
       >
-        <div className="text-primaryText grid grid-cols-10 ml-1">
+        <div className="text-primaryText px-4 grid grid-cols-10 mb-2">
           <span className="col-span-1 ">
             <FormattedMessage id="dex" defaultMessage="DEX" />
           </span>
@@ -754,7 +809,8 @@ export const CrossSwapAllResult = ({
         {displayResults?.map((result, i) => {
           return (
             <OneResult
-              key={i}
+              key={i + result.rate}
+              index={i}
               Type={result.type}
               rate={toPrecision(result.rate, 6)}
               rateTitle={result.rateTitle}

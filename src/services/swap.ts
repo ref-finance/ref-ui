@@ -125,6 +125,7 @@ interface EstimateSwapOptions {
   swapPro?: boolean;
   setSwapsToDoTri?: (todos: EstimateSwapView[]) => void;
   setSwapsToDoRef?: (todos: EstimateSwapView[]) => void;
+  proGetCachePool?: boolean;
 }
 
 export interface ReservesMap {
@@ -323,6 +324,7 @@ export const estimateSwap = async ({
   swapPro,
   setSwapsToDoRef,
   setSwapsToDoTri,
+  proGetCachePool,
 }: EstimateSwapOptions): Promise<{
   estimates: EstimateSwapView[];
   tag: string;
@@ -356,9 +358,16 @@ export const estimateSwap = async ({
       setLoadingData,
       loadingTrigger,
       crossSwap: swapPro,
+      tokenIn,
+      tokenOut,
+      proGetCachePool,
     })
   ).filter((p) => {
     return getLiquidity(p, tokenIn, tokenOut) > 0;
+  });
+
+  console.log({
+    pools,
   });
 
   let { supportLedgerRes, triTodos, refTodos } = await getOneSwapActionResult(

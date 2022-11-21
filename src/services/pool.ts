@@ -265,11 +265,16 @@ interface GetPoolOptions {
   setLoadingData?: (loading: boolean) => void;
   loadingTrigger: boolean;
   crossSwap?: boolean;
+  tokenIn?: TokenMetadata;
+  tokenOut?: TokenMetadata;
+  proGetCachePool?: boolean;
 }
 
 export const isNotStablePool = (pool: Pool) => {
   return !isStablePool(pool.id);
 };
+
+const REF_FI_ACTIVE_TRI_POOL = 'REF_FI_ACTIVE_TRI_POOL_VALUE';
 
 export const getPoolsByTokens = async ({
   tokenInId,
@@ -277,15 +282,20 @@ export const getPoolsByTokens = async ({
   setLoadingData,
   loadingTrigger,
   crossSwap,
+  tokenIn,
+  tokenOut,
+  proGetCachePool,
 }: GetPoolOptions): Promise<Pool[]> => {
   let filtered_pools;
+  let pools;
+
   const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
     tokenInId,
     tokenOutId
   );
 
   if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
-    filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+    pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
   }
   if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
     setLoadingData && setLoadingData(true);
@@ -295,8 +305,6 @@ export const getPoolsByTokens = async ({
       getExtendConfig().pool_protocol === 'indexer';
 
     const isCacheFromRPC = !isCacheFromIndexer;
-
-    let pools;
 
     if (isCacheFromIndexer) {
       pools = (await getTopPoolsIndexer()).map((p: any) => ({
@@ -314,22 +322,49 @@ export const getPoolsByTokens = async ({
         .map((p) => ({ ...p, Dex: 'ref' }));
     }
 
-    let triPools;
-    if (crossSwap) {
-      triPools = await getAllTriPools();
-    }
-
-    filtered_pools = pools
-      .concat(triPools || [])
-      .filter(isNotStablePool)
-      .filter(filterBlackListPools);
-
-    await db.cachePoolsByTokens(filtered_pools);
-    filtered_pools = filtered_pools.filter(
-      (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
+    await db.cachePoolsByTokens(
+      pools.filter(isNotStablePool).filter(filterBlackListPools)
     );
+
     await getAllStablePoolsFromCache();
+    let triPools;
+    triPools = await getAllTriPools([
+      tokenIn.symbol === 'NEAR' ? 'wNEAR' : tokenIn.symbol,
+      tokenOut.symbol === 'NEAR' ? 'wNEAR' : tokenOut.symbol,
+    ]);
+    sessionStorage.setItem(REF_FI_ACTIVE_TRI_POOL, JSON.stringify(triPools));
   }
+
+  let triPools;
+  if (crossSwap && proGetCachePool) {
+    triPools = await getAllTriPools([
+      tokenIn.symbol === 'NEAR' ? 'wNEAR' : tokenIn.symbol,
+      tokenOut.symbol === 'NEAR' ? 'wNEAR' : tokenOut.symbol,
+    ]);
+    console.log({
+      triPools,
+    });
+
+    sessionStorage.setItem(REF_FI_ACTIVE_TRI_POOL, JSON.stringify(triPools));
+  }
+
+  filtered_pools = pools
+    .concat(
+      triPools ||
+        JSON.parse(sessionStorage.getItem(REF_FI_ACTIVE_TRI_POOL)) ||
+        (await getAllTriPools([
+          tokenIn.symbol === 'NEAR' ? 'wNEAR' : tokenIn.symbol,
+          tokenOut.symbol === 'NEAR' ? 'wNEAR' : tokenOut.symbol,
+        ])) ||
+        []
+    )
+    .filter(isNotStablePool)
+    .filter(filterBlackListPools);
+
+  filtered_pools = filtered_pools.filter(
+    (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
+  );
+
   setLoadingData && setLoadingData(false);
 
   // @ts-ignore

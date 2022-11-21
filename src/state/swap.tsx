@@ -1118,7 +1118,7 @@ export const useCrossSwap = ({
   const [swapError, setSwapError] = useState<Error>();
   const [swapsToDo, setSwapsToDo] = useState<EstimateSwapView[]>();
 
-  const [crossQuoteDone, setCrossQuoteDone] = useState<boolean>(true);
+  const [crossQuoteDone, setCrossQuoteDone] = useState<boolean>(false);
 
   const [swapsToDoRef, setSwapsToDoRef] = useState<EstimateSwapView[]>();
 
@@ -1156,7 +1156,7 @@ export const useCrossSwap = ({
     setAvgFee(avgFee);
   };
 
-  const getEstimateCrossSwap = () => {
+  const getEstimateCrossSwap = (proGetCachePool?: boolean) => {
     setCanSwap(false);
     setSwapError(null);
 
@@ -1168,6 +1168,7 @@ export const useCrossSwap = ({
       amountIn: tokenInAmount,
       intl,
       loadingTrigger: loadingTrigger && !loadingPause,
+      proGetCachePool,
       supportLedger,
       swapPro: true,
       setSwapsToDoRef,
@@ -1182,15 +1183,16 @@ export const useCrossSwap = ({
         }
 
         setPool(estimates[0].pool);
+        setCrossQuoteDone(true);
       })
       .catch((err) => {
         setCanSwap(false);
         setTokenOutAmount('');
         setSwapError(err);
+        setCrossQuoteDone(true);
       })
       .finally(() => {
         setLoadingTrigger(false);
-        setCrossQuoteDone(true);
       });
   };
 
@@ -1209,8 +1211,17 @@ export const useCrossSwap = ({
       return;
     }
 
-    getEstimateCrossSwap();
-  }, [loadingTrigger, supportLedger, tokenInAmount, tokenIn?.id, tokenOut?.id]);
+    getEstimateCrossSwap(true);
+  }, [loadingTrigger, tokenIn?.id, tokenOut?.id]);
+
+  useEffect(() => {
+    if (ONLY_ZEROS.test(tokenInAmount)) {
+      setCrossQuoteDone(false);
+      return;
+    }
+
+    getEstimateCrossSwap(false);
+  }, [supportLedger, tokenInAmount]);
 
   useEffect(() => {
     let id: any = null;

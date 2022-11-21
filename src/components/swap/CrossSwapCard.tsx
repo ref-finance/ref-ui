@@ -427,8 +427,7 @@ export default function CrossSwapCard(props: {
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
   const [selectTodos, setSelectTodos] = useState<EstimateSwapView[]>();
-
-  const [displayAmountOut, setDisplayAmountOut] = useState<string>('');
+  const [selectReceive, setSelectReceive] = useState<string>('');
 
   const intl = useIntl();
   const location = useLocation();
@@ -628,20 +627,6 @@ export default function CrossSwapCard(props: {
     }
   };
 
-  const displayTokenOutAmount = new Big(tokenOutAmountV3 || '0').gt(
-    tokenOutAmount || '0'
-  )
-    ? tokenOutAmountV3
-    : tokenOutAmount;
-
-  useEffect(() => {
-    if (crossQuoteDone && quoteDoneV3) {
-      setDisplayAmountOut(displayTokenOutAmount);
-    } else if (ONLY_ZEROS.test(tokenInAmount)) {
-      setDisplayAmountOut('');
-    }
-  }, [crossQuoteDone, quoteDoneV3, tokenInAmount]);
-
   const tokenInMax = tokenInBalanceFromNear || '0';
 
   const tokenOutMax = tokenOutBalanceFromNear || '0';
@@ -698,7 +683,7 @@ export default function CrossSwapCard(props: {
     if (quoteDoneV3 && crossQuoteDone) {
       setSelectTodos(swapsToDoRefV3);
     }
-  }, [swapsToDoRef, swapsToDoV3, quoteDoneV3, crossQuoteDone]);
+  }, [quoteDoneV3, crossQuoteDone]);
 
   const LoadingRefresh = (
     <div
@@ -725,28 +710,39 @@ export default function CrossSwapCard(props: {
   );
 
   useEffect(() => {
-    if (!quoteDoneV3 || !crossQuoteDone) return;
-    setCrossAllResults(
-      <CrossSwapAllResult
-        refTodos={swapsToDoRefV3}
-        triTodos={swapsToDoTri}
-        tokenInAmount={tokenInAmount}
-        tokenOutId={tokenOut?.id}
-        slippageTolerance={slippageTolerance}
-        tokenOut={tokenOut}
-        LoadingRefresh={LoadingRefresh}
-        selectTodos={selectTodos}
-        setSelectTodos={setSelectTodos}
-        tokenIn={tokenIn}
-      />
-    );
+    if (quoteDoneV3 && crossQuoteDone) {
+      console.log({
+        swapsToDoRefV3,
+        swapsToDoTri,
+      });
+
+      setCrossAllResults(
+        <CrossSwapAllResult
+          refTodos={swapsToDoRefV3}
+          triTodos={swapsToDoTri}
+          tokenInAmount={tokenInAmount}
+          tokenOutId={tokenOut?.id}
+          slippageTolerance={slippageTolerance}
+          tokenOut={tokenOut}
+          LoadingRefresh={LoadingRefresh}
+          selectTodos={selectTodos}
+          setSelectTodos={setSelectTodos}
+          tokenIn={tokenIn}
+          tokenPriceList={tokenPriceList}
+          setSelectReceive={setSelectReceive}
+        />
+      );
+    }
   }, [
     selectTodos,
     quoteDoneV3,
     crossQuoteDone,
     loadingTrigger,
-    loadingPause,
     slippageTolerance,
+    loadingPause,
+    loadingData,
+    swapsToDoRef,
+    swapsToDoTri,
   ]);
 
   const swapErrorCrossV3 = swapError && swapErrorV3;
@@ -846,12 +842,18 @@ export default function CrossSwapCard(props: {
             }
           }}
           total={tokenOutMax}
-          amount={!!displayAmountOut ? toPrecision(displayAmountOut, 8) : ''}
+          amount={
+            !!selectReceive && tokenIn && tokenOut && tokenIn.id !== tokenOut.id
+              ? toPrecision(selectReceive, 8)
+              : ''
+          }
           balances={balances}
           tokenPriceList={tokenPriceList}
           max={tokenOutMax}
         />
-        {swapErrorCrossV3 || !displayAmountOut ? null : crossAllResults}
+        {swapErrorCrossV3 || !tokenIn || !tokenOut || tokenIn.id === tokenOut.id
+          ? null
+          : crossAllResults}
 
         {/* 
         <DetailView

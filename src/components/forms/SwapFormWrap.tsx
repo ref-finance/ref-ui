@@ -258,17 +258,16 @@ export function CrossSwapFormWrap({
       {error && <Alert level="warn" message={error.message} />}
       {children}
 
-      <div>
-        <SubmitButton
-          disabled={
-            !canSubmit ||
-            (typeof loadingTrigger !== 'undefined' && loadingTrigger)
-          }
-          label={buttonText || title}
-          info={info}
-          loading={showSwapLoading}
-        />
-      </div>
+      <SubmitButton
+        disabled={
+          !canSubmit ||
+          (typeof loadingTrigger !== 'undefined' && loadingTrigger)
+        }
+        label={buttonText || title}
+        info={info}
+        loading={showSwapLoading}
+        className="py-3"
+      />
       {reserves}
     </form>
   );

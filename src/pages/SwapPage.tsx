@@ -66,12 +66,9 @@ const ChangeSwapMode = ({
       </span>
 
       <span
-        className={`pr-5   text-center flex flex-col cursor-pointer ${
+        className={`mr-5   text-center flex flex-col cursor-pointer ${
           swapMode === SWAP_MODE.X_SWAP ? ' text-white ' : ''
         }`}
-        style={{
-          borderRight: '1.2px solid rgba(145, 162, 174, 0.2)',
-        }}
         onClick={() => {
           setSwapMode(SWAP_MODE.X_SWAP);
           localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.X_SWAP);
@@ -80,8 +77,16 @@ const ChangeSwapMode = ({
         <FormattedMessage id="xSwap" defaultMessage="XSwap" />
       </span>
 
+      <div
+        className="w-0.5"
+        style={{
+          borderRight: '1.2px solid rgba(145, 162, 174, 0.2)',
+          height: '20px',
+        }}
+      ></div>
+
       <span
-        className={`pl-5 flex flex-col text-center cursor-pointer ${
+        className={`ml-5 flex flex-col text-center cursor-pointer ${
           swapMode === SWAP_MODE.LIMIT ? ' text-white ' : ''
         }`}
         onClick={() => {
