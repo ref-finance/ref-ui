@@ -438,6 +438,7 @@ export default function SelectToken({
   useEffect(() => {
     if (!loadingTokensData) {
       const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
+      sortedData.sort(sortBySymbol);
       setListData(sortedData);
     }
   }, [loadingTokensData, tokensData]);
@@ -445,6 +446,7 @@ export default function SelectToken({
   useEffect(() => {
     if (!!tokensData) {
       const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
+      sortedData.sort(sortBySymbol);
       setListData(sortedData);
     }
   }, [currentSort, sortBy]);
@@ -465,6 +467,13 @@ export default function SelectToken({
       class: 'sort',
       fn: (a: any, b: any) => a,
     },
+  };
+  const sortBySymbol = (a: TokenMetadata, b: TokenMetadata) => {
+    if (+a.near == 0 && +b.near == 0) {
+      const a_symbol = toRealSymbol(a.symbol).toLocaleLowerCase();
+      const b_symbol = toRealSymbol(b.symbol).toLocaleLowerCase();
+      return a_symbol.localeCompare(b_symbol);
+    }
   };
 
   const onSortChange = (params: string) => {
@@ -494,6 +503,7 @@ export default function SelectToken({
         token.id.toLocaleLowerCase() == value.toLocaleLowerCase();
       return condition1 || condition2;
     });
+    result.sort(sortBySymbol);
     setListData(result);
     if (!loadingTokensData && value.length > 0 && result.length == 0) {
       setSearchNoData(true);
@@ -507,6 +517,7 @@ export default function SelectToken({
   const handleClose = () => {
     const sortedData = [...tokensData].sort(sortTypes[currentSort].fn);
     if (tokensData.length > 0) {
+      sortedData.sort(sortBySymbol);
       setListData(sortedData);
     }
     setVisible(false);
