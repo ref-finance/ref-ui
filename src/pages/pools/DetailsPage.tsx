@@ -1633,7 +1633,15 @@ export function PoolDetailsPage() {
                       </div>
                       <a
                         target="_blank"
-                        href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
+                        href={`/swap/#${
+                          tokens[0].id == WRAP_NEAR_CONTRACT_ID
+                            ? 'near'
+                            : tokens[0].id
+                        }|${
+                          tokens[1].id == WRAP_NEAR_CONTRACT_ID
+                            ? 'near'
+                            : tokens[1].id
+                        }`}
                         className="text-xs text-gray-400"
                         title={tokens[0].id}
                       >{`${tokens[0].id.substring(0, 24)}${
@@ -1707,7 +1715,15 @@ export function PoolDetailsPage() {
                       </div>
                       <a
                         target="_blank"
-                        href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
+                        href={`/swap/#${
+                          tokens[0].id == WRAP_NEAR_CONTRACT_ID
+                            ? 'near'
+                            : tokens[0].id
+                        }|${
+                          tokens[1].id == WRAP_NEAR_CONTRACT_ID
+                            ? 'near'
+                            : tokens[1].id
+                        }`}
                         className="text-xs text-gray-400"
                         title={tokens[1].id}
                       >{`${tokens[1].id.substring(0, 24)}${
