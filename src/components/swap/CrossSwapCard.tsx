@@ -887,7 +887,7 @@ export default function CrossSwapCard(props: {
           )
         }
         reserves={
-          !requested || swapErrorCrossV3 ? null : (
+          !requested || swapErrorCrossV3 || wrapOperation ? null : (
             <CrossSwapAllResult
               refTodos={swapsToDoRefV3}
               triTodos={swapsToDoTri}
@@ -983,7 +983,7 @@ export default function CrossSwapCard(props: {
               />
               {tokenIn &&
                 requested &&
-                Number(getMax(tokenIn.id, tokenInMax || '0')) -
+                Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
                   Number(tokenInAmount || '0') <
                   0 &&
                 !ONLY_ZEROS.test(tokenInMax || '0') &&

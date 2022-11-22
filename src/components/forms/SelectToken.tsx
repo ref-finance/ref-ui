@@ -687,9 +687,10 @@ export default function SelectToken({
               <CommonBasses
                 onClick={(token) => {
                   onSelect && onSelect(token);
-                  handleClose();
                 }}
                 tokenPriceList={tokenPriceList}
+                allowWNEAR={allowWNEAR}
+                handleClose={handleClose}
               />
             )}
             <Table

@@ -732,8 +732,18 @@ export const checkAllocations = (sum: string, allocations: string[]) => {
   } else return allocations;
 };
 
-export const getMax = function (id: string, max: string) {
-  return id !== WRAP_NEAR_CONTRACT_ID
+export const getMax = function (
+  id: string,
+  max: string,
+  token?: TokenMetadata
+) {
+  let condition;
+  if (token) {
+    condition = id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR';
+  } else {
+    condition = id == WRAP_NEAR_CONTRACT_ID;
+  }
+  return !condition
     ? max
     : Number(max) <= 0.5
     ? '0'

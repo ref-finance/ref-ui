@@ -509,6 +509,7 @@ export function TokenAmountV3({
   curRate,
   limitFee,
   setDiff,
+  allowWNEAR,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -523,7 +524,9 @@ export function TokenAmountV3({
   const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
 
   const curMax =
-    selectedToken?.id === WRAP_NEAR_CONTRACT_ID && !forWrap
+    selectedToken?.id === WRAP_NEAR_CONTRACT_ID &&
+    !forWrap &&
+    selectedToken?.symbol !== 'wNEAR'
       ? Number(max) <= 0.5
         ? '0'
         : String(Number(max) - 0.5)
@@ -623,6 +626,7 @@ export function TokenAmountV3({
               }
               onSelect={onSelectToken}
               balances={balances}
+              allowWNEAR={allowWNEAR}
             />
           ) : (
             <StableSelectToken

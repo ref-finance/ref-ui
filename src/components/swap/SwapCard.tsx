@@ -1471,11 +1471,19 @@ export default function SwapCard(props: {
           urlTokenIn == WRAP_NEAR_CONTRACT_ID ||
           urlTokenIn == 'wNEAR'
         ) {
-          candTokenIn = wnearMetadata;
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenIn = unwrapedNear;
+          } else {
+            candTokenIn = wnearMetadata;
+          }
         } else if (rememberedIn == 'near') {
           candTokenIn = unwrapedNear;
         } else if (rememberedIn == WRAP_NEAR_CONTRACT_ID) {
-          candTokenIn = wnearMetadata;
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenIn = unwrapedNear;
+          } else {
+            candTokenIn = wnearMetadata;
+          }
         } else {
           candTokenIn =
             allTokens.find((token) => {
@@ -1489,11 +1497,19 @@ export default function SwapCard(props: {
           urlTokenOut == WRAP_NEAR_CONTRACT_ID ||
           urlTokenOut == 'wNEAR'
         ) {
-          candTokenOut = wnearMetadata;
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenOut = unwrapedNear;
+          } else {
+            candTokenOut = wnearMetadata;
+          }
         } else if (rememberedOut == 'near') {
           candTokenOut = unwrapedNear;
         } else if (rememberedOut == WRAP_NEAR_CONTRACT_ID) {
-          candTokenOut = wnearMetadata;
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenOut = unwrapedNear;
+          } else {
+            candTokenOut = wnearMetadata;
+          }
         } else {
           candTokenOut =
             allTokens.find((token) => {
@@ -2120,7 +2136,6 @@ export default function SwapCard(props: {
 
     setPoolError(!!swapError?.message && !!swapErrorV3?.message);
   }, [quoteDone, quoteDoneV3, swapError, swapErrorV3]);
-
   return (
     <>
       <SwapFormWrap
@@ -2195,7 +2210,7 @@ export default function SwapCard(props: {
           onSelectPost={(token) => {
             setTokenOut(token);
           }}
-          allowWNEAR={true}
+          allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
         />
         {(swapMode === SWAP_MODE.LIMIT
           ? !!curOrderPrice && quoteDoneLimit
@@ -2203,7 +2218,7 @@ export default function SwapCard(props: {
           balanceInDone &&
           balanceOutDone &&
           tokenIn &&
-          Number(getMax(tokenIn.id, tokenInMax || '0')) -
+          Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
             Number(tokenInAmount || '0') <
             0 &&
           !ONLY_ZEROS.test(tokenInMax || '0') &&
@@ -2212,11 +2227,12 @@ export default function SwapCard(props: {
               level="warn"
               message={`${intl.formatMessage({
                 id:
-                  tokenIn.id === WRAP_NEAR_CONTRACT_ID
+                  tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
+                  tokenIn.symbol == 'NEAR'
                     ? 'near_validation_error'
                     : 'you_do_not_have_enough',
               })} ${
-                tokenIn.id === WRAP_NEAR_CONTRACT_ID
+                tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR'
                   ? ''
                   : toRealSymbol(tokenIn.symbol)
               }`}
@@ -2278,6 +2294,8 @@ export default function SwapCard(props: {
             amount={
               swapMode === SWAP_MODE.LIMIT
                 ? limitAmountOut
+                : wrapOperation
+                ? tokenInAmount
                 : displayTokenOutAmount
             }
             total={tokenOutTotal}
@@ -2362,7 +2380,7 @@ export default function SwapCard(props: {
                 />
               )
             }
-            allowWNEAR={true}
+            allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
           />
         </LimitOrderTriggerContext.Provider>
 
