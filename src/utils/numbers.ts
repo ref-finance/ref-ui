@@ -744,3 +744,5 @@ export const getMax = function (id: string, max: string) {
         24
       );
 };
+
+export const getPriceImpact = () => {};

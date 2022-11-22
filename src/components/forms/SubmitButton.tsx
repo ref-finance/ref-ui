@@ -9,6 +9,8 @@ import {
 } from '../../components/button/Button';
 
 import { BeatLoading } from '~components/layout/Loading';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { ConnectToNearBtnSwap } from '../button/Button';
 import {
   getCurrentWallet,
   WalletContext,
@@ -33,8 +35,9 @@ function SubmitButton({
   loading,
   signedInConfig,
 }: SubmitButtonProps) {
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+  const isSignedIn = !!accountId;
 
   return (
     <>
@@ -74,7 +77,7 @@ function SubmitButton({
         </button>
       ) : (
         <div className="mt-4 w-full">
-          <ConnectToNearBtn />
+          <ConnectToNearBtnSwap />
         </div>
       )}
     </>

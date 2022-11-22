@@ -11,6 +11,7 @@ import { estimateSwap as estimateStableSwap } from '../services/stable-swap';
 
 import { TokenMetadata, ftGetTokenMetadata } from '../services/ft-contract';
 import {
+  calculateSmartRoutingPriceImpact,
   percentLess,
   scientificNotationToString,
   toNonDivisibleNumber,
@@ -40,6 +41,7 @@ import {
 import {
   getExpectedOutputFromActions,
   getAverageFeeForRoutes,
+  getExpectedOutputFromActionsORIG,
   //@ts-ignore
 } from '../services/smartRouteLogic';
 import {
@@ -87,6 +89,10 @@ import { toRealSymbol } from '../utils/token';
 import { useTokenPriceList } from './token';
 import Big from 'big.js';
 import BigNumber from 'bignumber.js';
+import {
+  calcStableSwapPriceImpact,
+  calculateSmartRoutesV2PriceImpact,
+} from '../utils/numbers';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
 interface SwapOptions {
@@ -1135,10 +1141,10 @@ export const useCrossSwap = ({
 
   const intl = useIntl();
 
-  const setAverageFee = (estimates: EstimateSwapView[]) => {
-    const estimate = estimates[0];
-
+  const getAvgFee = (estimates: EstimateSwapView[]) => {
     let avgFee: number = 0;
+
+    const estimate = estimates[0];
     if (estimates.length === 1) {
       avgFee = estimates[0].pool.fee;
     } else if (
@@ -1153,6 +1159,14 @@ export const useCrossSwap = ({
         estimate.totalInputAmount
       );
     }
+
+    return avgFee;
+  };
+
+  const setAverageFee = (estimates: EstimateSwapView[]) => {
+    if (!estimates || estimates.length === 0) return;
+
+    const avgFee = getAvgFee(estimates);
     setAvgFee(avgFee);
   };
 
@@ -1245,7 +1259,6 @@ export const useCrossSwap = ({
     pool,
     setCanSwap,
     swapError,
-
     avgFee,
     pools: swapsToDo?.map((estimate) => estimate.pool),
     swapsToDo,
@@ -1253,5 +1266,80 @@ export const useCrossSwap = ({
     swapsToDoRef,
     swapsToDoTri,
     crossQuoteDone,
+    refAmountOut:
+      tokenOut && swapsToDoRef
+        ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut.id)
+        : '',
+    refAvgFee: swapsToDoRef ? getAvgFee(swapsToDoRef) : 0,
+    triAvgFee: swapsToDoTri ? getAvgFee(swapsToDoTri) : 0,
   };
+};
+
+export const usePriceImpact = ({
+  swapsToDo,
+  tokenIn,
+  tokenOut,
+  tokenInAmount,
+  tokenOutAmount,
+}: {
+  swapsToDo: EstimateSwapView[];
+  tokenInAmount: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  tokenOutAmount: string;
+}) => {
+  let PriceImpactValue: string = '0';
+
+  const priceImpactValueSmartRouting = useMemo(() => {
+    try {
+      if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
+        return calculateSmartRoutingPriceImpact(
+          tokenInAmount,
+          swapsToDo,
+          tokenIn,
+          swapsToDo[1].token,
+          tokenOut
+        );
+      } else if (
+        swapsToDo?.length === 1 &&
+        swapsToDo[0].status === PoolMode.STABLE
+      ) {
+        return calcStableSwapPriceImpact(
+          toReadableNumber(tokenIn.decimals, swapsToDo[0].totalInputAmount),
+          swapsToDo[0].noFeeAmountOut,
+          (
+            Number(swapsToDo[0].pool.rates[tokenOut.id]) /
+            Number(swapsToDo[0].pool.rates[tokenIn.id])
+          ).toString()
+        );
+      } else return '0';
+    } catch {
+      return '0';
+    }
+  }, [tokenOutAmount, swapsToDo]);
+
+  const priceImpactValueSmartRoutingV2 = useMemo(() => {
+    try {
+      const pi = calculateSmartRoutesV2PriceImpact(swapsToDo, tokenOut.id);
+
+      return pi;
+    } catch {
+      return '0';
+    }
+  }, [tokenOutAmount, swapsToDo]);
+
+  try {
+    if (
+      swapsToDo[0].status === PoolMode.SMART ||
+      swapsToDo[0].status === PoolMode.STABLE
+    ) {
+      PriceImpactValue = priceImpactValueSmartRouting;
+    } else {
+      PriceImpactValue = priceImpactValueSmartRoutingV2;
+    }
+  } catch (error) {
+    PriceImpactValue = '0';
+  }
+
+  return PriceImpactValue;
 };

@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { TokenMetadata, ftGetTokenMetadata } from '~services/ft-contract';
 import {
   calculateFeePercent,
   toPrecision,
   divide,
   calculateExchangeRate,
+  calculateFeeCharge,
 } from '../../utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { EstimateSwapView } from '../../services/stable-swap';
@@ -32,13 +33,15 @@ import {
   AURORAICONDEX,
 } from '../icon/DexIcon';
 import {
-  percentLess,
   separateRoutes,
   ONLY_ZEROS,
   scientificNotationToString,
 } from '../../utils/numbers';
 import Big from 'big.js';
 import { useTokenPriceList } from '~state/token';
+import { GetPriceImpact } from '../swap/CrossSwapCard';
+import { PopUpContainer } from '../icon/Info';
+import { percentLess } from '../../utils/numbers';
 
 export const RouterIcon = () => {
   return (
@@ -530,6 +533,11 @@ export const CrossSwapAllResult = ({
   tokenIn,
   setSelectReceive,
   tokenPriceList,
+  feeRef,
+  feeTri,
+  priceImpactRef,
+  priceImpactTri,
+  selectReceive,
 }: {
   refTodos: EstimateSwapView[];
   triTodos: EstimateSwapView[];
@@ -539,14 +547,93 @@ export const CrossSwapAllResult = ({
   tokenOut: TokenMetadata;
   LoadingRefresh: JSX.Element;
   selectTodos: EstimateSwapView[];
+
   setSelectTodos: (todos: EstimateSwapView[]) => void;
   tokenIn: TokenMetadata;
   tokenPriceList: any;
   setSelectReceive?: any;
+  feeRef: number;
+  feeTri: number;
+  priceImpactRef: string;
+  priceImpactTri: string;
+  selectReceive: string;
 }) => {
   const results = [refTodos, triTodos].filter(
     (r) => !!r && !!r[0] && !!r[0].estimate
   );
+
+  const [hoverOptimal, setHoverOptimal] = useState(false);
+
+  const SelectPopOver = ({
+    curSwapTodos,
+    fee,
+    minAmount,
+    priceImpact,
+    receive,
+  }: {
+    curSwapTodos: EstimateSwapView[];
+    fee: number;
+    minAmount: string;
+    priceImpact: string;
+    receive: string;
+  }) => {
+    const intl = useIntl();
+    const priceImpactDisplay = useMemo(() => {
+      if (!priceImpact || !tokenIn || !tokenInAmount) return null;
+      return GetPriceImpact(priceImpact, tokenIn, receive);
+    }, [receive, priceImpact]);
+
+    const poolFeeDisplay = useMemo(() => {
+      if (!fee || !tokenInAmount || !tokenIn) return null;
+
+      return `${toPrecision(
+        calculateFeePercent(fee).toString(),
+        2
+      )}% / ${calculateFeeCharge(fee, tokenInAmount)} ${toRealSymbol(
+        tokenIn.symbol
+      )}`;
+    }, [receive]);
+
+    return (
+      <div
+        className="absolute   p-4 text-xs cursor-default text-white whitespace-nowrap"
+        style={{
+          width: '293px',
+          height: '124px',
+          zIndex: 60,
+          left: '-280px',
+        }}
+      >
+        <PopUpContainer />
+
+        <div className="flex items-center mt-2.5 justify-between">
+          <span className="">{intl.formatMessage({ id: 'price_impact' })}</span>
+          <span>{priceImpactDisplay}</span>
+        </div>
+
+        <div className="flex items-center mt-2.5 justify-between">
+          <span>
+            {intl.formatMessage({
+              id: 'pool_fee_cross_swap',
+              defaultMessage: 'Pool/Cross-chain fee',
+            })}
+          </span>
+
+          <span>{poolFeeDisplay}</span>
+        </div>
+
+        <div className="flex items-center mt-2.5  justify-between">
+          <span>{intl.formatMessage({ id: 'minimum_received' })}</span>
+
+          <span>
+            {Number(minAmount) < 0.001
+              ? '< 0.001'
+              : toPrecision(minAmount || '0', 3)}
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   const [isRevert, setIsRevert] = useState<boolean>(true);
 
@@ -572,6 +659,9 @@ export const CrossSwapAllResult = ({
     sessionStorage.setItem(REF_FI_SHOW_ALL_RESULTS, showAllResult.toString());
   }, [showAllResult]);
 
+  const selectIsTri =
+    !selectTodos?.[0]?.pool?.Dex || selectTodos?.[0]?.pool?.Dex !== 'ref';
+
   const OneResult = ({
     Type,
     rate,
@@ -579,6 +669,8 @@ export const CrossSwapAllResult = ({
     rawRate,
     rateTitle,
     index,
+    receive,
+    result,
   }: {
     Type: JSX.Element;
     rate: string;
@@ -586,16 +678,28 @@ export const CrossSwapAllResult = ({
     Diff: JSX.Element | string;
     rateTitle?: string;
     index: number;
+    receive: string;
+    result: EstimateSwapView[];
   }) => {
+    const [hover, setHover] = useState(false);
+
+    const isTri = !result?.[0]?.pool?.Dex || result?.[0]?.pool?.Dex !== 'ref';
+
     return (
       <div
-        className={`w-full hover:bg-black cursor-pointer mb-2 hover:bg-opacity-10 grid items-center grid-cols-10 px-4 justify-between py-2.5 relative ${
+        className={`w-full  hover:bg-black cursor-pointer mb-2 hover:bg-opacity-10 grid items-center grid-cols-10 px-4 justify-between py-2.5 relative ${
           bestReceiveIndex === index
             ? 'border border-gradientFrom rounded-md'
             : 'border border-transparent'
         }`}
         onClick={() => {
           setBestReceiveIndex(index);
+        }}
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
         }}
       >
         <span className="col-span-1">{Type}</span>
@@ -612,6 +716,15 @@ export const CrossSwapAllResult = ({
         <span className=" text-right relative right-3 justify-self-end col-span-1">
           {Diff}
         </span>
+        {hover && (
+          <SelectPopOver
+            curSwapTodos={result}
+            fee={isTri ? feeTri : feeRef}
+            minAmount={rate}
+            priceImpact={isTri ? priceImpactTri : priceImpactRef}
+            receive={receive}
+          />
+        )}
       </div>
     );
   };
@@ -727,10 +840,6 @@ export const CrossSwapAllResult = ({
   }, [bestReceiveIndex, bestReceived]);
 
   useEffect(() => {
-    console.log({
-      bestReceived,
-    });
-
     const bestReceiveIndex = displayResults
       .map((_) => _.receive)
       .findIndex((r) => r === bestReceived);
@@ -746,11 +855,30 @@ export const CrossSwapAllResult = ({
         style={{
           border: `1.2px solid #304352`,
         }}
+        onMouseEnter={() => {
+          setHoverOptimal(true);
+        }}
+        onMouseLeave={() => {
+          setHoverOptimal(false);
+        }}
       >
         {bestReceiveIndex === 0 && (
           <div className="absolute left-4 -top-3 bg-gradientFrom rounded-md px-2 py-0.5 text-black">
             <FormattedMessage id="optimal" defaultMessage={'Optimal'} />
           </div>
+        )}
+        {hoverOptimal && (
+          <SelectPopOver
+            curSwapTodos={selectTodos}
+            fee={selectIsTri ? feeTri : feeRef}
+            minAmount={
+              selectReceive
+                ? percentLess(slippageTolerance, selectReceive)
+                : '0'
+            }
+            priceImpact={selectIsTri ? priceImpactTri : priceImpactRef}
+            receive={selectReceive}
+          />
         )}
 
         <div className="items-center flex bg-transparent">
@@ -780,10 +908,11 @@ export const CrossSwapAllResult = ({
       <Card
         padding="pt-4 "
         className={
-          showAllResult ? 'z-50 text-sm text-white absolute top-14 ' : 'hidden'
+          showAllResult ? ' text-sm text-white absolute top-14 ' : 'hidden'
         }
         style={{
           border: `1.2px solid #304352`,
+          zIndex: 40,
         }}
         width="w-full"
         rounded="rounded-lg"
@@ -815,6 +944,8 @@ export const CrossSwapAllResult = ({
               rate={toPrecision(result.rate, 6)}
               rateTitle={result.rateTitle}
               rawRate={result.rawRate}
+              receive={result.receive}
+              result={result.result}
               Diff={
                 Number(result.diff) === 0 ? (
                   <BestIcon />

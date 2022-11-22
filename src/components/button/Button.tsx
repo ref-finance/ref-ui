@@ -1034,3 +1034,57 @@ export const BuyNearButton = () => {
     </button>
   );
 };
+
+export function ConnectToNearBtnSwap() {
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
+
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
+  return (
+    <>
+      <div
+        className={`flex items-center text-gradientFrom font-bold cursor-pointer justify-center bg-opacity-30 rounded-lg py-3 text-base `}
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(0,198,162,0.3) 0%, rgba(0,139,114,0.3) 100%)',
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setButtonLoading(true);
+          // setShowWalletSelector(true);
+          modal.show();
+        }}
+      >
+        {!buttonLoading && (
+          <div className="mr-3.5 transform scale-75">
+            <UnLoginIcon color="#00C6A2" />
+          </div>
+        )}
+
+        <button disabled={buttonLoading}>
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <FormattedMessage
+                id="connect_wallet"
+                defaultMessage="Connect Wallet"
+              />
+            )}
+          />
+        </button>
+      </div>
+      <WalletSelectorModal
+        isOpen={showWalletSelector}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowWalletSelector(false);
+        }}
+        setShowWalletSelector={setShowWalletSelector}
+      />
+    </>
+  );
+}

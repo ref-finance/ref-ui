@@ -110,6 +110,8 @@ import { getMax } from '../../utils/numbers';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { CountdownTimer } from '../icon/SwapRefresh';
+import { PopUpContainer } from '../icon/Info';
+import { usePriceImpact } from '../../state/swap';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -521,6 +523,9 @@ export default function CrossSwapCard(props: {
     swapsToDoRef,
     swapsToDoTri,
     crossQuoteDone,
+    refAmountOut,
+    refAvgFee,
+    triAvgFee,
   } = useCrossSwap({
     tokenIn: tokenIn,
     tokenInAmount,
@@ -556,61 +561,24 @@ export default function CrossSwapCard(props: {
     : 'v2';
   useCrossSwapPopUp(bestSwap);
 
-  const priceImpactValueSmartRouting = useMemo(() => {
-    try {
-      if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
-        return calculateSmartRoutingPriceImpact(
-          tokenInAmount,
-          swapsToDo,
-          tokenIn,
-          swapsToDo[1].token,
-          tokenOut
-        );
-      } else if (
-        swapsToDo?.length === 1 &&
-        swapsToDo[0].status === PoolMode.STABLE
-      ) {
-        return calcStableSwapPriceImpact(
-          toReadableNumber(tokenIn.decimals, swapsToDo[0].totalInputAmount),
-          swapsToDo[0].noFeeAmountOut,
-          (
-            Number(swapsToDo[0].pool.rates[tokenOut.id]) /
-            Number(swapsToDo[0].pool.rates[tokenIn.id])
-          ).toString()
-        );
-      } else return '0';
-    } catch {
-      return '0';
-    }
-  }, [tokenOutAmount, swapsToDo]);
+  const priceImpactValueRefV1 = usePriceImpact({
+    swapsToDo: swapsToDoRef,
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    tokenOutAmount: refAmountOut,
+  });
 
-  const priceImpactValueSmartRoutingV2 = useMemo(() => {
-    try {
-      const pi = calculateSmartRoutesV2PriceImpact(swapsToDo, tokenOut.id);
-
-      return pi;
-    } catch {
-      return '0';
-    }
-  }, [tokenOutAmount, swapsToDo]);
-
-  let PriceImpactValue: string = '0';
-
-  try {
-    if (
-      swapsToDo[0].status === PoolMode.SMART ||
-      swapsToDo[0].status === PoolMode.STABLE
-    ) {
-      PriceImpactValue = priceImpactValueSmartRouting;
-    } else {
-      PriceImpactValue = priceImpactValueSmartRoutingV2;
-    }
-  } catch (error) {
-    PriceImpactValue = '0';
-  }
+  const priceImpactValueTri = usePriceImpact({
+    swapsToDo: swapsToDoTri,
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    tokenOutAmount: swapsToDoTri?.[0]?.estimate || '0',
+  });
 
   const bestSwapPriceImpact =
-    bestSwap === 'v3' ? priceImpactV3 : PriceImpactValue;
+    bestSwap === 'v3' ? priceImpactV3 : priceImpactValueRefV1;
 
   const makeBestSwap = () => {
     if (bestSwap === 'v3') {
@@ -711,11 +679,6 @@ export default function CrossSwapCard(props: {
 
   useEffect(() => {
     if (quoteDoneV3 && crossQuoteDone) {
-      console.log({
-        swapsToDoRefV3,
-        swapsToDoTri,
-      });
-
       setCrossAllResults(
         <CrossSwapAllResult
           refTodos={swapsToDoRefV3}
@@ -730,6 +693,11 @@ export default function CrossSwapCard(props: {
           tokenIn={tokenIn}
           tokenPriceList={tokenPriceList}
           setSelectReceive={setSelectReceive}
+          priceImpactRef={bestSwapPriceImpact}
+          priceImpactTri={priceImpactValueTri}
+          feeRef={bestSwap === 'v3' ? bestFee / 100 : refAvgFee}
+          feeTri={triAvgFee}
+          selectReceive={selectReceive}
         />
       );
     }

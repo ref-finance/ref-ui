@@ -41,3 +41,25 @@ export function Slider({
     </svg>
   );
 }
+
+export const PopUpContainer = () => {
+  return (
+    <svg
+      width="293"
+      height="124"
+      viewBox="0 0 293 124"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="absolute top-0 left-0"
+      style={{
+        zIndex: -1,
+      }}
+    >
+      <path
+        d="M1 9C1 4.58172 4.58172 1 9 1H280C284.418 1 288 4.58172 288 9V57.0858C288 57.351 288.105 57.6054 288.293 57.7929L291.293 60.7929C291.683 61.1834 291.683 61.8166 291.293 62.2071L288.293 65.2071C288.105 65.3946 288 65.649 288 65.9142V115C288 119.418 284.418 123 280 123H9.00001C4.58173 123 1 119.418 1 115V9Z"
+        fill="#1D2932"
+        stroke="#7E8A93"
+      />
+    </svg>
+  );
+};
