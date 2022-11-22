@@ -421,6 +421,7 @@ const ja = {
   lp_fee: '流動性供給者',
   protocol_fee: 'プロトコルフィー',
   referral_fee: 'リファラルフィー',
+  protocol_fee_referral_fee: 'プロトコル料金と紹介料',
   total_fee_create: 'トータルコスト',
   xref_title: 'より多くの収益を得るため',
   xref_introdution:
@@ -866,5 +867,8 @@ const ja = {
   out_of: 'out of',
   total_ref_week: 'Total REF/week',
   ref_week_you_will_get: 'REF/week you will get',
+  no_token_found: 'No token found',
+  search_name_or_address: 'Search name or paste address...',
+  token_address_invalid: 'The token address was invalid',
 };
 export default Object.assign(ja, ja_in_risks_page);

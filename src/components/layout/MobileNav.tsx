@@ -743,11 +743,10 @@ export function MobileNavBar(props: any) {
               </span>
             </div>
             <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
-              <div className="text-primaryText" onClick={() => setShow(false)}>
+              <div className="text-primaryText">
                 <div
                   className={`flex flex-col p-4 `}
                   onClick={() => {
-                    setMobileWrapNear(true);
                     setShowUSN(false);
                     setShowBorrowCard(false);
                   }}
@@ -758,27 +757,10 @@ export function MobileNavBar(props: any) {
                     </span>
                   )}
 
-                  <div className={`flex items-center ${isSignedIn ? '' : ''}`}>
+                  <div className={`flex items-center`}>
                     <BuyNearButton />
-                    {isSignedIn && <WNEARExchngeIcon width="75" height="32" />}
                   </div>
                 </div>
-                <WrapNear
-                  isOpen={mobileWrapNear}
-                  onRequestClose={() => setMobileWrapNear(false)}
-                  style={{
-                    overlay: {
-                      backdropFilter: 'blur(15px)',
-                      WebkitBackdropFilter: 'blur(15px)',
-                    },
-                    content: {
-                      outline: 'none',
-                      position: 'fixed',
-                      width: '90%',
-                      bottom: '50%',
-                    },
-                  }}
-                />
               </div>
               <MobileUSNButton
                 setShow={setShow}

@@ -125,7 +125,17 @@ export default function FarmsDetail(props: {
   const intl = useIntl();
   const pool = detailData.pool;
   const { token_account_ids } = pool;
-  const tokens = useTokens(token_account_ids) || [];
+  const tokens = sortTokens(useTokens(token_account_ids) || []);
+  function sortTokens(tokens: TokenMetadata[]) {
+    tokens.sort((token: TokenMetadata) => {
+      if (token.symbol == 'NEAR' || token.symbol == 'wNEAR') {
+        return 1;
+      } else {
+        return -1;
+      }
+    });
+    return tokens;
+  }
   const goBacktoFarms = () => {
     history.replace('/v2farms');
     emptyDetailData();
@@ -1311,6 +1321,11 @@ function PoolDetailCard({
   tokens: TokenMetadata[];
   pool: Pool;
 }) {
+  tokens.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return a.symbol > b.symbol ? 1 : -1;
+  });
   const [showDetail, setShowDetail] = useState(false);
 
   const [poolTVL, setPoolTVl] = useState<string>('');
