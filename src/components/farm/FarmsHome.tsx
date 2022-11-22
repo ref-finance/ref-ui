@@ -2153,12 +2153,10 @@ function FarmView(props: {
     }
   }, [boostConfig, user_seeds_map]);
   function sortTokens(tokens: TokenMetadata[]) {
-    tokens.sort((token: TokenMetadata) => {
-      if (token.symbol == 'NEAR' || token.symbol == 'wNEAR') {
-        return 1;
-      } else {
-        return -1;
-      }
+    tokens.sort((a: TokenMetadata, b: TokenMetadata) => {
+      if (a.symbol === 'NEAR') return 1;
+      if (b.symbol === 'NEAR') return -1;
+      return 0;
     });
     return tokens;
   }
