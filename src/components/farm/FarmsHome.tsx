@@ -2156,9 +2156,8 @@ function FarmView(props: {
     tokens.sort((token: TokenMetadata) => {
       if (token.symbol == 'NEAR' || token.symbol == 'wNEAR') {
         return 1;
-      } else {
-        return -1;
       }
+      return 0;
     });
     return tokens;
   }
