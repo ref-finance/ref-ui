@@ -72,6 +72,7 @@ interface SwapOptions {
   requested?: boolean;
   setRequested?: (requested?: boolean) => void;
   setRequestingTrigger?: (requestingTrigger?: boolean) => void;
+  wrapOperation?: boolean;
 }
 
 export const estimateValidator = (
@@ -126,11 +127,10 @@ export const useSwap = ({
 
   const { txHash, pathname, errorType, txHashes } = getURLInfo();
 
-  const minAmountOut = tokenOutAmount
+  let minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
   const refreshTime = Number(POOL_TOKEN_REFRESH_INTERVAL) * 1000;
-
   const intl = useIntl();
 
   const setAverageFee = (estimates: EstimateSwapView[]) => {
@@ -187,7 +187,6 @@ export const useSwap = ({
 
   const getEstimate = () => {
     setCanSwap(false);
-
     if (tokenIn && tokenOut && tokenIn.id !== tokenOut.id) {
       setSwapError(null);
       if (!tokenInAmount || ONLY_ZEROS.test(tokenInAmount)) {
@@ -219,7 +218,6 @@ export const useSwap = ({
                 slippageTolerance
               )
             ).toString();
-
             setTokenOutAmount(expectedOut);
             setSwapsToDo(estimates);
             setCanSwap(true);
@@ -282,7 +280,14 @@ export const useSwap = ({
     // setEstimating(false);
 
     setForceEstimate(true);
-  }, [tokenIn?.id, tokenOut?.id, supportLedger, swapMode]);
+  }, [
+    tokenIn?.id,
+    tokenOut?.id,
+    tokenIn?.symbol,
+    tokenOut?.symbol,
+    supportLedger,
+    swapMode,
+  ]);
 
   useEffect(() => {
     let id: any = null;
@@ -309,7 +314,6 @@ export const useSwap = ({
       useNearBalance,
     }).catch(setSwapError);
   };
-
   return {
     canSwap,
     tokenOutAmount,
@@ -472,6 +476,7 @@ export const useCrossSwap = ({
   setLoadingTrigger,
   loadingPause,
   requested,
+  wrapOperation,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -541,6 +546,12 @@ export const useCrossSwap = ({
   }, [txHashes]);
 
   const getEstimateCrossSwap = () => {
+    if (wrapOperation) {
+      setRequested(true);
+      setLoadingTrigger(false);
+      setCanSwap(true);
+      return;
+    }
     setCanSwap(false);
     setSwapError(null);
 

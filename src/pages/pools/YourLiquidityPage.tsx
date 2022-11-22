@@ -639,7 +639,11 @@ function PoolRow(props: {
 
   const poolId = pool.id;
 
-  const tokens = props.tokens;
+  const tokens = props.tokens?.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return a.symbol > b.symbol ? 1 : -1;
+  });
   const lptAmount = props.lptAmount || '0';
   const poolTVL = pool.tvl || props.tvl;
 

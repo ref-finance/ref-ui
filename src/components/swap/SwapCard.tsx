@@ -95,7 +95,13 @@ import {
   USD_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
 import TokenReserves from '../stableswap/TokenReserves';
-import { WRAP_NEAR_CONTRACT_ID, unwrapedNear } from '../../services/wrap-near';
+import {
+  WRAP_NEAR_CONTRACT_ID,
+  unwrapedNear,
+  nearDeposit,
+  nearWithdraw,
+  wnearMetadata,
+} from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import {
@@ -105,6 +111,8 @@ import {
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
+const SWAP_IN_KEY_SYMBOL = 'REF_FI_SWAP_IN_SYMBOL';
+const SWAP_OUT_KEY_SYMBOL = 'REF_FI_SWAP_OUT_SYMBOL';
 
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 
@@ -128,10 +136,10 @@ export const isSameStableClass = (token1: string, token2: string) => {
 
 export const SUPPORT_LEDGER_KEY = 'REF_FI_SUPPORT_LEDGER';
 
-export const unWrapTokenId = (id: string) => {
-  if (id === WRAP_NEAR_CONTRACT_ID) {
+export const unWrapTokenId = (token: TokenMetadata) => {
+  if (token.id === WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR') {
     return 'near';
-  } else return id;
+  } else return token.id;
 };
 
 export const wrapTokenId = (id: string) => {
@@ -224,8 +232,12 @@ export function SwapRateDetail({
 
 export function SmartRoutesV2Detail({
   swapsTodo,
+  tokenIn,
+  tokenOut,
 }: {
   swapsTodo: EstimateSwapView[];
+  tokenIn?: TokenMetadata;
+  tokenOut?: TokenMetadata;
 }) {
   const tokensPerRoute = swapsTodo
     .filter((swap) => swap.inputToken == swap.routeInputToken)
@@ -258,6 +270,8 @@ export function SmartRoutesV2Detail({
             <div className="text-right text-white col-span-6 xs:mt-2 md:mt-2">
               {
                 <SmartRouteV2
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
                   tokens={tokens}
                   p={percents[index]}
                   pools={identicalRoutes[index].map((hub) => hub.pool)}
@@ -315,8 +329,12 @@ export function ParallelSwapRoutesDetail({
 
 export function SmartRoutesDetail({
   swapsTodo,
+  tokenIn,
+  tokenOut,
 }: {
   swapsTodo: EstimateSwapView[];
+  tokenIn?: TokenMetadata;
+  tokenOut?: TokenMetadata;
 }) {
   return (
     <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
@@ -334,6 +352,8 @@ export function SmartRoutesDetail({
             tokens={swapsTodo[0].tokens}
             p="100"
             pools={swapsTodo.map((swapTodo) => swapTodo.pool)}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
           />
         }
       </div>
@@ -429,6 +449,7 @@ function DetailView({
   swapsTodo,
   priceImpact,
   swapMode,
+  tokenInAmount,
 }: {
   pools: Pool[];
   tokenIn: TokenMetadata;
@@ -441,6 +462,7 @@ function DetailView({
   swapsTodo?: EstimateSwapView[];
   priceImpact?: string;
   swapMode?: SWAP_MODE;
+  tokenInAmount?: string;
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -480,10 +502,25 @@ function DetailView({
       2
     )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
   }, [to]);
-
+  if (
+    tokenIn &&
+    tokenOut &&
+    tokenIn.id === tokenOut?.id &&
+    ((tokenIn.symbol == 'NEAR' && tokenOut.symbol == 'wNEAR') ||
+      (tokenIn.symbol == 'wNEAR' && tokenOut.symbol == 'NEAR'))
+  ) {
+    return (
+      <DetailView_near_wnear
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        minAmountOut={tokenInAmount}
+        from={from}
+        to={to}
+      ></DetailView_near_wnear>
+    );
+  }
   if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
     return null;
-
   return (
     <div className="mt-8">
       <div className="flex justify-center">
@@ -541,11 +578,82 @@ function DetailView({
         )}
 
         {swapsTodo[0].status === PoolMode.SMART && (
-          <SmartRoutesDetail swapsTodo={swapsTodo} />
+          <SmartRoutesDetail
+            swapsTodo={swapsTodo}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+          />
         )}
         {!isParallelSwap &&
           swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
-          pools.length > 1 && <SmartRoutesV2Detail swapsTodo={swapsTodo} />}
+          pools.length > 1 && (
+            <SmartRoutesV2Detail
+              swapsTodo={swapsTodo}
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+            />
+          )}
+      </div>
+    </div>
+  );
+}
+
+function DetailView_near_wnear({
+  tokenIn,
+  tokenOut,
+  minAmountOut,
+  from,
+  to,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  minAmountOut: string;
+  from: string;
+  to: string;
+}) {
+  const intl = useIntl();
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+  return (
+    <div className="mt-8">
+      <div className="flex justify-center">
+        <div
+          className="flex items-center text-white cursor-pointer"
+          onClick={() => {
+            setShowDetails(!showDetails);
+          }}
+        >
+          <p className="block text-xs">
+            <FormattedMessage id="details" defaultMessage="Details" />
+          </p>
+          <div className="pl-1 text-sm">
+            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
+          </div>
+        </div>
+      </div>
+      <div className={showDetails ? '' : 'hidden'}>
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={<span>{toPrecision((minAmountOut || 0).toString(), 8)}</span>}
+        />
+        <SwapRateDetail
+          title={intl.formatMessage({ id: 'swap_rate' })}
+          value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${1} ${toRealSymbol(
+            tokenIn.symbol
+          )}`}
+          from={from}
+          to={to}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          fee={0}
+        />
+        <SwapDetail
+          title={intl.formatMessage({ id: 'price_impact' })}
+          value={'-'}
+        />
+        <SwapDetail
+          title={intl.formatMessage({ id: 'pool_fee' })}
+          value={'-'}
+        />
       </div>
     </div>
   );
@@ -602,6 +710,8 @@ export default function SwapCard(props: {
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
   const [showSkywardTip, setShowSkywardTip] = useState<boolean>(false);
+  const [wrapOperation, setWrapOperation] = useState<boolean>(false);
+  const [wrapLoading, setWrapLoading] = useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -653,21 +763,21 @@ export default function SwapCard(props: {
       setReservesType(STABLE_POOL_TYPE.USD);
       localStorage.setItem(reserveTypeStorageKey, STABLE_POOL_TYPE.USD);
     }
-    // todo
     history.replace(
-      `#${unWrapTokenId(tokenIn.id)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
-        tokenOut.id
+      `#${unWrapTokenId(tokenIn)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
+        tokenOut
       )}`
     );
 
     localStorage.setItem(SWAP_IN_KEY, tokenIn.id);
     localStorage.setItem(SWAP_OUT_KEY, tokenOut.id);
-  }, [tokenIn?.id, tokenOut?.id]);
+    localStorage.setItem(SWAP_IN_KEY_SYMBOL, tokenIn.symbol);
+    localStorage.setItem(SWAP_OUT_KEY_SYMBOL, tokenOut.symbol);
+  }, [tokenIn?.id, tokenOut?.id, tokenIn?.symbol, tokenOut?.symbol]);
 
   useEffect(() => {
     if (allTokens) {
-      // todo
-
+      const [in_id, out_id] = getStorageTokenId();
       let urlTokenInId = allTokens.find((t) => t.id && t.id === urlTokenIn)?.id;
 
       let urlTokenOutId = allTokens.find(
@@ -685,11 +795,8 @@ export default function SwapCard(props: {
           (t) => t.symbol && t.symbol === urlTokenOut
         )?.id;
       }
-
-      let rememberedIn =
-        wrapTokenId(urlTokenInId) || localStorage.getItem(SWAP_IN_KEY);
-      let rememberedOut =
-        wrapTokenId(urlTokenOutId) || localStorage.getItem(SWAP_OUT_KEY);
+      let rememberedIn = wrapTokenId(urlTokenInId) || in_id;
+      let rememberedOut = wrapTokenId(urlTokenOutId) || out_id;
 
       if (swapMode === SWAP_MODE.NORMAL) {
         if (rememberedIn == NEARXIDS[0]) {
@@ -698,13 +805,42 @@ export default function SwapCard(props: {
         if (rememberedOut == NEARXIDS[0]) {
           rememberedOut = REF_TOKEN_ID;
         }
-        const candTokenIn =
-          allTokens.find((token) => token.id === rememberedIn) || unwrapedNear;
-
-        const candTokenOut =
-          allTokens.find((token) => token.id === rememberedOut) ||
-          REF_META_DATA;
-
+        let candTokenIn;
+        if (urlTokenIn == 'near' || urlTokenIn == 'NEAR') {
+          candTokenIn = unwrapedNear;
+        } else if (
+          urlTokenIn == WRAP_NEAR_CONTRACT_ID ||
+          urlTokenIn == 'wNEAR'
+        ) {
+          candTokenIn = wnearMetadata;
+        } else if (rememberedIn == 'near') {
+          candTokenIn = unwrapedNear;
+        } else if (rememberedIn == WRAP_NEAR_CONTRACT_ID) {
+          candTokenIn = wnearMetadata;
+        } else {
+          candTokenIn =
+            allTokens.find((token) => {
+              return token.id === rememberedIn;
+            }) || unwrapedNear;
+        }
+        let candTokenOut;
+        if (urlTokenOut == 'near' || urlTokenOut == 'NEAR') {
+          candTokenOut = unwrapedNear;
+        } else if (
+          urlTokenOut == WRAP_NEAR_CONTRACT_ID ||
+          urlTokenOut == 'wNEAR'
+        ) {
+          candTokenOut = wnearMetadata;
+        } else if (rememberedOut == 'near') {
+          candTokenOut = unwrapedNear;
+        } else if (rememberedOut == WRAP_NEAR_CONTRACT_ID) {
+          candTokenOut = wnearMetadata;
+        } else {
+          candTokenOut =
+            allTokens.find((token) => {
+              return token.id === rememberedOut;
+            }) || REF_META_DATA;
+        }
         if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
           setShowSkywardTip(true);
         }
@@ -720,6 +856,12 @@ export default function SwapCard(props: {
       } else if (swapMode === SWAP_MODE.STABLE) {
         let candTokenIn: TokenMetadata;
         let candTokenOut: TokenMetadata;
+        if (rememberedIn == 'near') {
+          rememberedIn = WRAP_NEAR_CONTRACT_ID;
+        }
+        if (rememberedOut == 'near') {
+          rememberedOut = WRAP_NEAR_CONTRACT_ID;
+        }
         if (rememberedIn == NEARXIDS[0]) {
           rememberedIn = STNEARIDS[0];
         }
@@ -778,7 +920,10 @@ export default function SwapCard(props: {
               setTokenInBalanceFromNear(
                 toReadableNumber(
                   tokenIn?.decimals,
-                  tokenIn.id === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
+                  tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
+                    tokenIn.symbol == 'NEAR'
+                    ? nearBalance
+                    : available
                 )
               )
             );
@@ -793,7 +938,8 @@ export default function SwapCard(props: {
               setTokenOutBalanceFromNear(
                 toReadableNumber(
                   tokenOut?.decimals,
-                  tokenOut.id === WRAP_NEAR_CONTRACT_ID
+                  tokenOut.id === WRAP_NEAR_CONTRACT_ID &&
+                    tokenOut.symbol == 'NEAR'
                     ? nearBalance
                     : available
                 )
@@ -803,13 +949,47 @@ export default function SwapCard(props: {
         }
       }
     }
+    if (
+      tokenIn &&
+      tokenOut &&
+      ((tokenIn.symbol == 'NEAR' && tokenOut.symbol == 'wNEAR') ||
+        (tokenIn.symbol == 'wNEAR' && tokenOut.symbol == 'NEAR'))
+    ) {
+      setWrapOperation(true);
+    } else {
+      setWrapOperation(false);
+    }
   }, [tokenIn, tokenOut, useNearBalance, isSignedIn, nearBalance]);
-
+  function getStorageTokenId() {
+    const in_key = localStorage.getItem(SWAP_IN_KEY);
+    const in_key_symbol = localStorage.getItem(SWAP_IN_KEY_SYMBOL);
+    const out_key = localStorage.getItem(SWAP_OUT_KEY);
+    const out_key_symbol = localStorage.getItem(SWAP_OUT_KEY_SYMBOL);
+    const result = [];
+    if (in_key == WRAP_NEAR_CONTRACT_ID) {
+      if (in_key_symbol == 'NEAR') {
+        result.push('near');
+      } else {
+        result.push(WRAP_NEAR_CONTRACT_ID);
+      }
+    } else {
+      result.push(in_key);
+    }
+    if (out_key == WRAP_NEAR_CONTRACT_ID) {
+      if (out_key_symbol == 'NEAR') {
+        result.push('near');
+      } else {
+        result.push(WRAP_NEAR_CONTRACT_ID);
+      }
+    } else {
+      result.push(out_key);
+    }
+    return result;
+  }
   const slippageTolerance =
     swapMode === SWAP_MODE.NORMAL
       ? slippageToleranceNormal
       : slippageToleranceStable;
-
   const {
     canSwap,
     tokenOutAmount,
@@ -888,6 +1068,23 @@ export default function SwapCard(props: {
   } catch (error) {
     PriceImpactValue = '0';
   }
+  function wrapButtonCheck() {
+    if (!wrapOperation) return false;
+    if (
+      !(
+        +tokenInAmount > 0 &&
+        new BigNumber(tokenInAmount).isLessThanOrEqualTo(tokenInMax)
+      )
+    )
+      return false;
+    if (tokenIn?.symbol == 'NEAR') {
+      if (
+        !new BigNumber(tokenInAmount).plus(0.5).isLessThanOrEqualTo(tokenInMax)
+      )
+        return false;
+    }
+    return true;
+  }
 
   const tokenInMax = useNearBalance
     ? tokenInBalanceFromNear || '0'
@@ -909,6 +1106,8 @@ export default function SwapCard(props: {
     canSwap &&
     (tokenInMax != '0' || !useNearBalance);
 
+  const canWrap = wrapButtonCheck();
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -919,6 +1118,16 @@ export default function SwapCard(props: {
 
     if (ifDoubleCheck) setDoubleCheckOpen(true);
     else makeSwap(useNearBalance);
+  };
+  const handleSubmit_wrap = (e: any) => {
+    e.preventDefault();
+    if (tokenIn?.symbol === 'NEAR') {
+      setWrapLoading(true);
+      return nearDeposit(tokenInAmount);
+    } else {
+      setWrapLoading(true);
+      return nearWithdraw(tokenInAmount);
+    }
   };
 
   return (
@@ -948,11 +1157,16 @@ export default function SwapCard(props: {
             useNearBalance.toString()
           );
         }}
-        showElseView={tokenInMax === '0' && !useNearBalance}
+        // showElseView={tokenInMax === '0' && !useNearBalance}
+        showElseView={wrapOperation}
         elseView={
           <div className="flex justify-center">
             {isSignedIn ? (
-              <SubmitButton disabled={true} loading={showSwapLoading} />
+              <SubmitButton
+                onClick={handleSubmit_wrap}
+                disabled={!canWrap || wrapLoading}
+                loading={wrapLoading}
+              />
             ) : (
               <div className="mt-4 w-full">
                 <ConnectToNearBtn />
@@ -986,7 +1200,6 @@ export default function SwapCard(props: {
           balances={balances}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
-
             setTokenIn(token);
             setCanSwap(false);
 
@@ -1005,6 +1218,7 @@ export default function SwapCard(props: {
           onSelectPost={(token) => {
             setTokenOut(token);
           }}
+          allowWNEAR={true}
         />
         <div
           className="flex items-center justify-center border-t mt-12"
@@ -1026,7 +1240,9 @@ export default function SwapCard(props: {
         <TokenAmount
           forSwap
           swapMode={swapMode}
-          amount={toPrecision(tokenOutAmount, 8)}
+          amount={
+            wrapOperation ? tokenInAmount : toPrecision(tokenOutAmount, 8)
+          }
           total={tokenOutTotal}
           tokens={allTokens}
           selectedToken={tokenOut}
@@ -1036,7 +1252,6 @@ export default function SwapCard(props: {
           useNearBalance={useNearBalance}
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_OUT_KEY, token.id);
-
             setTokenOut(token);
             setCanSwap(false);
 
@@ -1046,19 +1261,21 @@ export default function SwapCard(props: {
           }}
           isError={tokenIn?.id === tokenOut?.id}
           tokenPriceList={tokenPriceList}
+          allowWNEAR={true}
         />
         <DetailView
           pools={pools}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           from={tokenInAmount}
-          to={tokenOutAmount}
+          to={wrapOperation ? tokenInAmount : tokenOutAmount}
           minAmountOut={minAmountOut}
           isParallelSwap={isParallelSwap}
           fee={avgFee}
           swapsTodo={swapsToDo}
           priceImpact={PriceImpactValue}
           swapMode={swapMode}
+          tokenInAmount={tokenInAmount}
         />
         {swapError ? (
           <div className="pb-2 relative -mb-5">

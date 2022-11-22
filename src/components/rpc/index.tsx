@@ -406,7 +406,6 @@ const ModalAddCustomNetWork = (props: any) => {
     setCustomShow(false);
   }
   function checkContain(url: string) {
-    debugger;
     const res = specialRpcs.find((rpc: string) => {
       if (url.indexOf(rpc) > -1) return true;
     });
