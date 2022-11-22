@@ -705,7 +705,7 @@ function DetailViewV2({
     return null;
 
   return (
-    <div className=" mt-8 xs:my-4">
+    <div className="mt-8 xs:my-4 w-full">
       <div className="flex items-center mb-1 justify-between text-white ">
         {isMobile ? (
           <span
@@ -1707,6 +1707,7 @@ export default function SwapCard(props: {
       },
     });
 
+  // todo 1
   const DetailView = useMemo(() => {
     if (swapMode === SWAP_MODE.LIMIT && tokenIn && tokenOut) {
       return (
@@ -2076,55 +2077,58 @@ export default function SwapCard(props: {
             }
           />
           <div className="flex items-stretch justify-between mt-2.5">
-            <LimitOrderRateSetBox
-              tokenIn={tokenIn}
-              tokenOut={tokenOut}
-              limitFee={mostPoolDetail?.fee}
-              setDiff={setDiff}
-              curRate={LimitAmountOutRate}
-              onChangeRate={onChangeLimitRate}
-              marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
-              ExtraElement={
-                swapMode !== SWAP_MODE.LIMIT ? (
-                  <div
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
+            {swapMode === SWAP_MODE.LIMIT ? (
+              <LimitOrderRateSetBox
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                limitFee={mostPoolDetail?.fee}
+                setDiff={setDiff}
+                curRate={LimitAmountOutRate}
+                onChangeRate={onChangeLimitRate}
+                marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
+                ExtraElement={
+                  swapMode !== SWAP_MODE.LIMIT ? (
+                    <div
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
 
-                      if (loadingPause) {
-                        setLoadingPause(false);
-                        setLoadingTrigger(true);
-                        setLoadingData(true);
-                      } else {
-                        setLoadingPause(true);
-                        setLoadingTrigger(false);
-                      }
-                    }}
-                    className="mr-2 cursor-pointer"
-                  >
-                    <CountdownTimer
-                      loadingTrigger={loadingTrigger}
-                      loadingPause={loadingPause}
+                        if (loadingPause) {
+                          setLoadingPause(false);
+                          setLoadingTrigger(true);
+                          setLoadingData(true);
+                        } else {
+                          setLoadingPause(true);
+                          setLoadingTrigger(false);
+                        }
+                      }}
+                      className="mr-2 cursor-pointer"
+                    >
+                      <CountdownTimer
+                        loadingTrigger={loadingTrigger}
+                        loadingPause={loadingPause}
+                      />
+                    </div>
+                  ) : (
+                    <RefreshIcon
+                      className={`text-primaryText cursor-pointer  ${
+                        !quoteDoneLimit ? 'rotateInfinite' : ''
+                      } `}
+                      onClick={() => {
+                        setLimiSwapTrigger(!limitSwapTrigger);
+                      }}
                     />
-                  </div>
-                ) : (
-                  <RefreshIcon
-                    className={`text-primaryText cursor-pointer  ${
-                      !quoteDoneLimit ? 'rotateInfinite' : ''
-                    } `}
-                    onClick={() => {
-                      setLimiSwapTrigger(!limitSwapTrigger);
-                    }}
-                  />
-                )
-              }
-              rate={LimitAmountOutRate}
-              fee={mostPoolDetail?.fee}
-              triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
-              curPrice={curOrderPrice}
-              setRate={onChangeLimitRate}
-              hidden={feeTiersShowFull ? true : false}
-            />
+                  )
+                }
+                rate={LimitAmountOutRate}
+                fee={mostPoolDetail?.fee}
+                triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
+                curPrice={curOrderPrice}
+                setRate={onChangeLimitRate}
+                hidden={feeTiersShowFull ? true : false}
+              />
+            ) : null}
+
             {poolError && swapMode !== SWAP_MODE.LIMIT
               ? null
               : displayDetailView}
