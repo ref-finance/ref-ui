@@ -53,10 +53,10 @@ export default function PopUpSwiper() {
             loop={true}
           >
             <SwiperSlide>
-              <div className="relative pt-9 pr-3">
+              <div className="relative pt-12 pr-3">
                 <div
                   onClick={closePop}
-                  className="flex justify-end items-center absolute top-5 -right-0 cursor-pointer"
+                  className="flex justify-end items-center absolute top-8 -right-0 cursor-pointer"
                 >
                   <PopupCloseButton className="cursor-pointer"></PopupCloseButton>
                 </div>
