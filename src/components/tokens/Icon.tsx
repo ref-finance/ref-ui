@@ -58,8 +58,8 @@ export function IconLeft({
 }) {
   return (
     <div
-      className={`flex items-center text-lg text-white   rounded-full flex-shrink-0 ${
-        hover ? 'pr-4 bg-black bg-opacity-20 cursor-pointer' : ''
+      className={`flex items-center text-lg text-white pr-4 rounded-full flex-shrink-0 ${
+        hover ? 'bg-black bg-opacity-20 cursor-pointer' : ''
       }`}
       style={{ lineHeight: 'unset' }}
     >

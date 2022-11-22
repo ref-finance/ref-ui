@@ -413,6 +413,7 @@ const vi = {
   lp_fee: 'Phí cho LP',
   protocol_fee: 'Phí giao thức',
   referral_fee: 'Phí giới thiệu',
+  protocol_fee_referral_fee: 'Phí giao thức và phí giới thiệu',
   total_fee_create: 'Tổng phí',
   xref_title: 'Kiếm thêm bằng',
   xref_title1: 'Kiếm thêm',
@@ -951,5 +952,8 @@ const vi = {
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
   ref_week_you_will_get: 'REF/week you will get',
+  no_token_found: 'No token found',
+  search_name_or_address: 'Search name or paste address...',
+  token_address_invalid: 'The token address was invalid',
 };
 export default Object.assign(vi, vi_in_risks_page);

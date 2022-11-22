@@ -29,7 +29,11 @@ import { useClientMobile } from '../utils/device';
 import { Pool, getStablePoolFromCache } from '../services/pool';
 import getConfig from '../services/config';
 import { extraStableTokenIds } from '../services/near';
-import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import {
+  nearMetadata,
+  WRAP_NEAR_CONTRACT_ID,
+  wnearMetadata,
+} from '../services/wrap-near';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -276,14 +280,19 @@ function SwapPage() {
   )
     return <Loading />;
 
+  let wnearToken;
   refTokens.forEach((token) => {
     if (token.id === WRAP_NEAR_CONTRACT_ID) {
       token.icon = nearMetadata.icon;
       token.symbol = 'NEAR';
+      wnearToken = JSON.parse(JSON.stringify(token));
+      wnearToken.icon = wnearMetadata.icon;
+      wnearToken.symbol = wnearMetadata.symbol;
     }
   });
 
   const allTokens = getAllTokens(refTokens, triTokens);
+  allTokens.push(wnearToken);
 
   const nearSwapTokens = allTokens.filter((token) => token.onRef);
 

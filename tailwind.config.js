@@ -199,6 +199,9 @@ module.exports = {
         watchMarkBackgroundColor: '#303E49',
         v3poolWarningColor: '#FF9E44',
         addV1PoolTableColor:'#55616A',
+        pinEmptyHoverColor: '#B7C9D6',
+        commonTokenBorderColor:'rgba(126, 138, 147, 0.2)',
+        commonCloseColor:'#454D52',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
