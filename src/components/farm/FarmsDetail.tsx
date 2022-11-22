@@ -127,10 +127,9 @@ export default function FarmsDetail(props: {
   const { token_account_ids } = pool;
   const tokens = sortTokens(useTokens(token_account_ids) || []);
   function sortTokens(tokens: TokenMetadata[]) {
-    tokens.sort((token: TokenMetadata) => {
-      if (token.symbol == 'NEAR' || token.symbol == 'wNEAR') {
-        return 1;
-      }
+    tokens.sort((a: TokenMetadata, b: TokenMetadata) => {
+      if (a.symbol === 'NEAR') return 1;
+      if (b.symbol === 'NEAR') return -1;
       return 0;
     });
     return tokens;
