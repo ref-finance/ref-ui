@@ -491,9 +491,11 @@ export default function CrossSwapCard(props: {
     bestSwap === 'v3' ? priceImpactV3 : priceImpactValueRefV1;
 
   const makeBestSwap = () => {
-    if (bestSwap === 'v3') {
+    if (!selectTodos) return;
+
+    if (selectTodos?.[0].pool.id === null) {
       makeSwapV3();
-    } else if (!!selectTodos) {
+    } else
       swap({
         slippageTolerance,
         swapsToDo: selectTodos,
@@ -502,7 +504,6 @@ export default function CrossSwapCard(props: {
         tokenOut,
         useNearBalance,
       }).catch(setSwapError);
-    }
   };
 
   const tokenInMax = tokenInBalanceFromNear || '0';
