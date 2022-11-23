@@ -127,12 +127,10 @@ export default function FarmsDetail(props: {
   const { token_account_ids } = pool;
   const tokens = sortTokens(useTokens(token_account_ids) || []);
   function sortTokens(tokens: TokenMetadata[]) {
-    tokens.sort((token: TokenMetadata) => {
-      if (token.symbol == 'NEAR' || token.symbol == 'wNEAR') {
-        return 1;
-      } else {
-        return -1;
-      }
+    tokens.sort((a: TokenMetadata, b: TokenMetadata) => {
+      if (a.symbol === 'NEAR') return 1;
+      if (b.symbol === 'NEAR') return -1;
+      return 0;
     });
     return tokens;
   }
@@ -1317,16 +1315,19 @@ function DetailSymbol({
 }
 
 function PoolDetailCard({
-  tokens,
+  tokens_o,
   pool,
 }: {
-  tokens: TokenMetadata[];
+  tokens_o: TokenMetadata[];
   pool: Pool;
 }) {
-  tokens.sort((a, b) => {
+  const tokens: TokenMetadata[] = tokens_o
+    ? JSON.parse(JSON.stringify(tokens_o))
+    : [];
+  tokens?.sort((a, b) => {
     if (a.symbol === 'NEAR') return 1;
     if (b.symbol === 'NEAR') return -1;
-    return a.symbol > b.symbol ? 1 : -1;
+    return 0;
   });
   const [showDetail, setShowDetail] = useState(false);
 
@@ -1882,7 +1883,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           height: '300px',
         }}
       >
-        <PoolDetailCard tokens={tokens} pool={pool} />
+        <PoolDetailCard tokens_o={tokens} pool={pool} />
       </div>
     </>
   );

@@ -313,16 +313,19 @@ function DetailSymbol({
 }
 
 function PoolDetailCard({
-  tokens,
+  tokens_o,
   pool,
 }: {
-  tokens: TokenMetadata[];
+  tokens_o: TokenMetadata[];
   pool: Pool;
 }) {
+  const tokens: TokenMetadata[] = tokens_o
+    ? JSON.parse(JSON.stringify(tokens_o))
+    : [];
   tokens?.sort((a, b) => {
     if (a.symbol === 'NEAR') return 1;
     if (b.symbol === 'NEAR') return -1;
-    return a.symbol > b.symbol ? 1 : -1;
+    return 0;
   });
   const [showDetail, setShowDetail] = useState(false);
 
@@ -934,7 +937,7 @@ function CommonModal(props: any) {
         {props.subChildren ? (
           <div style={{ width: cardWidth }}>{props.subChildren}</div>
         ) : (
-          <PoolDetailCard tokens={tokens} pool={pool} />
+          <PoolDetailCard tokens_o={tokens} pool={pool} />
         )}
       </div>
     </Modal>

@@ -636,10 +636,14 @@ function PoolRow(props: {
 
   const poolId = pool.id;
 
-  const tokens = props.tokens?.sort((a, b) => {
+  const tokens: TokenMetadata[] = props.tokens;
+  const tokensSort: TokenMetadata[] = props.tokens
+    ? JSON.parse(JSON.stringify(props.tokens))
+    : [];
+  tokensSort.sort((a, b) => {
     if (a.symbol === 'NEAR') return 1;
     if (b.symbol === 'NEAR') return -1;
-    return a.symbol > b.symbol ? 1 : -1;
+    return 0;
   });
   const lptAmount = props.lptAmount || '0';
   const poolTVL = pool.tvl || props.tvl;
@@ -692,7 +696,7 @@ function PoolRow(props: {
   )
     return null;
 
-  const Images = tokens.map((token, index) => {
+  const Images = tokensSort.map((token, index) => {
     const { icon, id } = token;
     if (icon)
       return (
@@ -823,7 +827,7 @@ function PoolRow(props: {
         </div>
 
         <div className="col-span-2 inline-flex flex-col text-xs">
-          {tokens.map((token, i) => (
+          {tokensSort.map((token, i) => (
             <TokenInfoPC key={i} token={token} />
           ))}
         </div>
@@ -1078,7 +1082,7 @@ function PoolRow(props: {
             <div className="flex items-center">
               <div className="ml-1 mr-4 flex items-center">{Images}</div>
               <div className="text-xs font-semibold">
-                <TokensSymbolsMobile tokens={tokens} />
+                <TokensSymbolsMobile tokens={tokensSort} />
               </div>
             </div>
             <div
@@ -1090,7 +1094,7 @@ function PoolRow(props: {
             </div>
           </div>
           <div className="flex flex-col text-sm border-b border-gray-700 border-opacity-70 px-6">
-            {tokens.map((token, i) => (
+            {tokensSort.map((token, i) => (
               <TokenInfoMobile key={i} token={token} />
             ))}
           </div>
