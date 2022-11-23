@@ -777,23 +777,6 @@ function DetailViewV2({
       2
     )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
   }, [to]);
-  if (
-    tokenIn &&
-    tokenOut &&
-    tokenIn.id === tokenOut?.id &&
-    ((tokenIn.symbol == 'NEAR' && tokenOut.symbol == 'wNEAR') ||
-      (tokenIn.symbol == 'wNEAR' && tokenOut.symbol == 'NEAR'))
-  ) {
-    return (
-      <DetailView_near_wnear
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-        minAmountOut={tokenInAmount}
-        from={from}
-        to={to}
-      ></DetailView_near_wnear>
-    );
-  }
   if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
     return null;
   return (
@@ -1591,9 +1574,7 @@ export default function SwapCard(props: {
       if (tokenInId) {
         if (isSignedIn) {
           setBalanceInDone(false);
-          ftGetBalance(
-            tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : tokenIn.id
-          )
+          ftGetBalance(tokenIn.id)
             .then((available: string) =>
               setTokenInBalanceFromNear(
                 toReadableNumber(
@@ -1616,9 +1597,7 @@ export default function SwapCard(props: {
       if (tokenOutId) {
         if (isSignedIn) {
           setBalanceOutDone(false);
-          ftGetBalance(
-            tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : tokenOut.id
-          )
+          ftGetBalance(tokenOut.id)
             .then((available: string) =>
               setTokenOutBalanceFromNear(
                 toReadableNumber(
@@ -2037,7 +2016,7 @@ export default function SwapCard(props: {
             tokenPriceList={tokenPriceList}
           />
         );
-      } else
+      } else {
         return (
           <DetailViewV3
             tokenIn={tokenIn}
@@ -2050,6 +2029,7 @@ export default function SwapCard(props: {
             tokenPriceList={tokenPriceList}
           />
         );
+      }
     }
   }, [
     displayTokenOutAmount,
@@ -2384,7 +2364,18 @@ export default function SwapCard(props: {
           />
         </LimitOrderTriggerContext.Provider>
 
-        {poolError && swapMode !== SWAP_MODE.LIMIT ? null : displayDetailView}
+        {(poolError && swapMode !== SWAP_MODE.LIMIT) || wrapOperation
+          ? null
+          : displayDetailView}
+        {wrapOperation ? (
+          <DetailView_near_wnear
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            minAmountOut={tokenInAmount}
+            from={tokenInAmount}
+            to={tokenInAmount}
+          ></DetailView_near_wnear>
+        ) : null}
 
         {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail && (
           <NoLimitPoolCard />
