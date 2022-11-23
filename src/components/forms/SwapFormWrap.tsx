@@ -15,6 +15,7 @@ import SlippageSelectorForStable from './SlippageSelector';
 import { useMyOrders } from '../../state/swapV3';
 import { useHistory } from 'react-router-dom';
 import { OrderIcon } from '../icon/V3';
+import { EstimateSwapView } from '../../services/swap';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -30,8 +31,8 @@ interface SwapFormWrapProps {
   requested?: boolean;
   tokensTitle?: JSX.Element;
   onChange: (slippage: number) => void;
-  requestingTrigger?: boolean;
   quoteDoneLimit?: boolean;
+  selectTodos?: EstimateSwapView[];
   loading?: {
     loadingData: boolean;
     setLoadingData: (loading: boolean) => void;
@@ -194,11 +195,11 @@ export function CrossSwapFormWrap({
   onChange,
   loading,
   useNearBalance,
-  requestingTrigger,
   supportLedger,
   tokensTitle,
   setSupportLedger,
   reserves,
+  selectTodos,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const {
@@ -265,7 +266,7 @@ export function CrossSwapFormWrap({
         }
         label={buttonText || title}
         info={info}
-        loading={showSwapLoading}
+        loading={showSwapLoading || loadingTrigger || !selectTodos}
         className="py-3"
       />
       {reserves}

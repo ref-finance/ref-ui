@@ -206,30 +206,18 @@ function CrossSwapRoutesDetail({
   }, [pools]);
 
   return (
-    <section className="md:grid lg:grid grid-cols-12 py-2 text-xs">
-      <div className="text-primaryText text-left col-span-5">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
-        </div>
-      </div>
-
-      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2">
-        {routes?.map((route, i) => {
-          return (
-            <div
-              key={i}
-              className="mb-5 md:w-smartRoute lg:w-smartRoute flex items-center relative"
-            >
-              <div className="text-right text-white w-full col-span-6 xs:mt-2 md:mt-2">
-                <CrossSwapRoute route={route} p={percents[i]} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
+    <div className="w-full text-white">
+      {routes?.map((route, i) => {
+        return (
+          <div
+            key={i}
+            className="mb-5 md:w-smartRoute lg:w-smartRoute flex items-center relative"
+          >
+            <CrossSwapRoute route={route} p={percents[i]} />
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -273,7 +261,7 @@ export const GetPriceImpact = (
 
   return (
     <span className={`${textColor} font-sans`}>
-      {`≈ -${toPrecision(value, 2)}%`}
+      {`≈ -${toPrecision(value || '0', 2)}%`}
       {tokenInInfo}
     </span>
   );
@@ -307,84 +295,6 @@ export const PriceImpactWarning = ({ value }: { value: string }) => {
     </span>
   );
 };
-
-function DetailView({
-  pools,
-  tokenIn,
-  tokenOut,
-  from,
-  to,
-  fee,
-  swapsTodo,
-  priceImpact,
-  showDetails = true,
-}: {
-  pools: Pool[];
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-  from: string;
-  to: string;
-  minAmountOut: string;
-  fee?: number;
-  swapsTodo?: EstimateSwapView[];
-  priceImpact?: string;
-  showDetails?: boolean;
-}) {
-  const intl = useIntl();
-
-  const exchangeRateValue = useMemo(() => {
-    if (!from || ONLY_ZEROS.test(to)) return '-';
-    else return calculateExchangeRate(0, to, from);
-  }, [to]);
-
-  const priceImpactDisplay = useMemo(() => {
-    if (!priceImpact || !tokenIn || !from) return null;
-    return GetPriceImpact(priceImpact, tokenIn, from);
-  }, [to, priceImpact]);
-
-  const poolFeeDisplay = useMemo(() => {
-    if (!fee || !from || !tokenIn) return null;
-
-    return `${toPrecision(
-      calculateFeePercent(fee).toString(),
-      2
-    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
-  }, [to]);
-
-  if (ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id) return null;
-
-  return (
-    <div className={showDetails ? '' : 'hidden'}>
-      <SwapRateDetail
-        value={`1 ${toRealSymbol(
-          tokenOut.symbol
-        )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
-        from={from}
-        to={to}
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-      />
-      {Number(priceImpact) > 2 && (
-        <div className="py-1 text-xs text-right">
-          <PriceImpactWarning value={priceImpact} />
-        </div>
-      )}
-      <SwapDetail
-        title={intl.formatMessage({ id: 'price_impact' })}
-        value={!to || to === '0' ? '-' : priceImpactDisplay}
-      />
-      <SwapDetail
-        title={intl.formatMessage({
-          id: 'pool_fee_cross_swap',
-          defaultMessage: 'Pool/Cross-chain fee',
-        })}
-        value={poolFeeDisplay}
-      />
-
-      <CrossSwapRoutesDetail swapsTodo={swapsTodo} tokenOut={tokenOut} />
-    </div>
-  );
-}
 
 export default function CrossSwapCard(props: {
   allTokens: TokenMetadata[];
@@ -730,7 +640,6 @@ export default function CrossSwapCard(props: {
         }}
         swapTab={swapTab}
         requested={requested}
-        requestingTrigger={loadingTrigger && !requested}
         loading={{
           loadingData,
           setLoadingData,
@@ -751,6 +660,7 @@ export default function CrossSwapCard(props: {
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
         title={'swap'}
+        selectTodos={selectTodos}
       >
         <TokenAmountV3
           tokenIn={tokenIn}
@@ -822,19 +732,6 @@ export default function CrossSwapCard(props: {
         {swapErrorCrossV3 || !tokenIn || !tokenOut || tokenIn.id === tokenOut.id
           ? null
           : crossAllResults}
-
-        {/* 
-        <DetailView
-          pools={pools}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          from={tokenInAmount}
-          to={displayTokenOutAmount}
-          minAmountOut={bestSwap === 'v2' ? minAmountOut : minAmountOutV3}
-          fee={bestSwap === 'v2' ? avgFee : bestFee / 100}
-          swapsTodo={bestSwap === 'v2' ? swapsToDo : swapsToDoV3}
-          priceImpact={bestSwapPriceImpact}
-        /> */}
 
         {swapErrorCrossV3 ? (
           <div className="pb-2 relative -mb-5">

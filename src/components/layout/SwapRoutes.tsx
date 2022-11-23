@@ -40,8 +40,12 @@ import {
 import Big from 'big.js';
 import { useTokenPriceList } from '~state/token';
 import { GetPriceImpact } from '../swap/CrossSwapCard';
-import { PopUpContainer } from '../icon/Info';
+import { PopUpContainer, PopUpContainerMulti } from '../icon/Info';
 import { percentLess } from '../../utils/numbers';
+import { QuestionTip } from './TipWrapper';
+import { HiOutlineExternalLink } from 'react-icons/hi';
+import { Images } from '../stableswap/CommonComp';
+import { getAuroraConfig } from '~services/aurora/config';
 
 export const RouterIcon = () => {
   return (
@@ -443,74 +447,138 @@ export const CrossSwapRoute = ({
   p: string;
 }) => {
   return (
-    <div className="flex items-center text-xs text-white">
-      <span className="text-right mr-2 w-8">{p}%</span>
-
+    <div className="flex items-center text-xs text-white w-full">
       {route.length === 1 ? (
         <div
-          className={`w-full h-4 flex items-center rounded-xl justify-between relative ${
-            route[0].pool?.Dex === 'tri'
-              ? 'bg-triPool bg-opacity-20'
-              : 'bg-refPool bg-opacity-20'
-          }`}
+          className={`w-full flex-shrink-0 h-4 flex items-center rounded-xl  justify-between relative `}
         >
-          <Icon token={route[0].tokens[0]} size={'5'} />
-          <div
+          <span
+            className="flex items-center  rounded-md p-1 py-0.5"
             style={{
-              fontSize: '10px',
-              opacity: '0.5',
+              background: '#24333D',
             }}
           >
-            {route[0].pool?.Dex === 'tri' ? 'Trisolaris' : 'Ref'}
+            <Icon token={route[0].tokens[0]} size={'5'} />
+            <span className="text-right mx-0.5">{p}%</span>
+          </span>
+
+          <div
+            className="w-full absolute bottom-2"
+            style={{
+              border: '1px dashed #304352',
+              zIndex: -1,
+            }}
+          ></div>
+
+          <div
+            style={{
+              background: '#24333D',
+            }}
+            className="py-1 px-1 flex items-center rounded-md"
+          >
+            <span
+              style={{
+                color: route[0].pool?.Dex === 'tri' ? '#277CF7' : '#00C6A2',
+              }}
+              className="font-bold mr-1"
+            >
+              {route[0].pool?.Dex === 'tri' ? 'Tri' : 'Ref'}
+            </span>
+
+            {route[0].pool?.Dex === 'ref' && (
+              <span className="flex items-center mx-1">
+                <Images size="4" tokens={route[0].tokens} />
+
+                <span className="text-primaryText ml-1">{`#${route[0].pool.id}`}</span>
+              </span>
+            )}
+
+            <span
+              className="flex items-center cursor-pointer justify-center text-primaryText hover:text-gray-400"
+              onClick={() => {
+                if (route[0].pool?.Dex === 'ref') {
+                  window.open(`/pool/${route[0].pool.id}`);
+                } else
+                  window.open(
+                    `${getAuroraConfig().explorer}/address/${
+                      route[0].pool?.pairAdd
+                    }`
+                  );
+              }}
+            >
+              <HiOutlineExternalLink />
+            </span>
           </div>
 
-          <CrossIcon
-            Icon={<Icon token={route[0].tokens[1]} size={'5'} />}
-            poolId={route[0]?.pool?.id}
-          />
+          <div className="flex-shrink-0">
+            <Icon token={route[0].tokens[1]} size={'5'} />
+          </div>
         </div>
       ) : (
-        <div className="flex w-full items-center justify-between relative">
-          <div className="absolute">
-            <Icon token={route[0].tokens[0]} size="5" />
-          </div>
-          <div
-            className={`w-full flex items-center justify-center rounded-l-xl ${
-              route[0].pool?.Dex === 'tri'
-                ? 'bg-triPool bg-opacity-20'
-                : 'bg-refPool bg-opacity-20'
-            }`}
-          >
-            <PoolName dex={route[0].pool?.Dex} translate="0" />
-          </div>
-
-          <div
-            className="absolute"
+        <div
+          className={`w-full flex-shrink-0 h-4 flex items-center rounded-xl  justify-between relative `}
+        >
+          <span
+            className="flex items-center w-14  rounded-md p-1 py-0.5"
             style={{
-              right: '120px',
+              background: '#24333D',
             }}
           >
-            <CrossIcon
-              Icon={<Icon token={route[0].tokens[1]} size="5" />}
-              poolId={route[0]?.pool?.id}
-            />
+            <Icon token={route[0].tokens[0]} size={'5'} />
+            <span className="text-right mx-0.5">{p}%</span>
+          </span>
+
+          <div
+            className="w-full absolute bottom-2"
+            style={{
+              border: '1px dashed #304352',
+              zIndex: -1,
+            }}
+          ></div>
+
+          <div
+            style={{
+              background: '#24333D',
+              left: '30%',
+            }}
+            className="py-1 absolute  px-1 flex items-center rounded-md"
+          >
+            <span className="flex items-center mx-1">
+              <Images size="4" tokens={route[0].tokens.slice(0, 2)} />
+
+              <span className="text-primaryText ml-1">{`#${route[0].pool.id}`}</span>
+            </span>
+
+            <span
+              className="flex items-center cursor-pointer justify-center text-primaryText hover:text-gray-400"
+              onClick={() => {
+                window.open(`/pool/${route[0].pool.id}`);
+              }}
+            >
+              <HiOutlineExternalLink />
+            </span>
           </div>
 
           <div
-            className={`w-full flex items-center justify-center rounded-r-xl ${
-              route[1].pool?.Dex === 'tri'
-                ? 'bg-triPool bg-opacity-20'
-                : 'bg-refPool bg-opacity-20'
-            }`}
+            style={{
+              background: '#24333D',
+            }}
+            className="py-1  px-1 flex items-center rounded-md"
           >
-            <PoolName dex={route[1].pool?.Dex} translate="15" />
-          </div>
+            <span className="flex items-center mx-1">
+              <Images size="4" tokens={route[1].tokens.slice(1, 3)} />
 
-          <div className="absolute right-0">
-            <CrossIcon
-              Icon={<Icon token={route[0].tokens[2]} size="5" />}
-              poolId={route[1]?.pool?.id}
-            />
+              <span className="text-primaryText ml-1">{`#${route[1].pool.id}`}</span>
+            </span>
+
+            <span
+              className="flex items-center cursor-pointer justify-center text-primaryText hover:text-gray-400"
+              onClick={() => {
+                window.open(`/pool/${route[1].pool.id}`);
+              }}
+            >
+              <HiOutlineExternalLink />
+            </span>
           </div>
         </div>
       )}
@@ -519,6 +587,42 @@ export const CrossSwapRoute = ({
 };
 
 const REF_FI_SHOW_ALL_RESULTS = 'REF_FI_SHOW_ALL_RESULTS_VALUE';
+
+function CrossSwapRoutesDetail({
+  swapsTodo,
+  tokenOut,
+}: {
+  swapsTodo: EstimateSwapView[];
+  tokenOut: TokenMetadata;
+}) {
+  const routes = separateRoutes(swapsTodo, tokenOut.id);
+  const pools = routes?.map((todo) => todo[0].pool);
+
+  const percents = useMemo(() => {
+    try {
+      return getPoolAllocationPercents(pools);
+    } catch (error) {
+      return [];
+    }
+  }, [pools]);
+
+  return (
+    <section className="text-xs text-white w-full">
+      {routes?.map((route, i) => {
+        return (
+          <div
+            key={i}
+            className={`flex ${
+              i > 0 ? 'mt-3' : ''
+            } items-center w-full relative`}
+          >
+            <CrossSwapRoute route={route} p={percents[i]} />
+          </div>
+        );
+      })}
+    </section>
+  );
+}
 
 export const CrossSwapAllResult = ({
   refTodos,
@@ -578,33 +682,47 @@ export const CrossSwapAllResult = ({
     receive: string;
   }) => {
     const intl = useIntl();
+
     const priceImpactDisplay = useMemo(() => {
       if (!priceImpact || !tokenIn || !tokenInAmount) return null;
-      return GetPriceImpact(priceImpact, tokenIn, receive);
+
+      try {
+        return GetPriceImpact(priceImpact, tokenIn, receive);
+      } catch (error) {
+        return '-';
+      }
     }, [receive, priceImpact]);
 
     const poolFeeDisplay = useMemo(() => {
       if (!fee || !tokenInAmount || !tokenIn) return null;
 
-      return `${toPrecision(
-        calculateFeePercent(fee).toString(),
-        2
-      )}% / ${calculateFeeCharge(fee, tokenInAmount)} ${toRealSymbol(
-        tokenIn.symbol
-      )}`;
+      try {
+        return `${toPrecision(
+          calculateFeePercent(fee || 0).toString(),
+          2
+        )}% / ${calculateFeeCharge(fee, tokenInAmount)} ${toRealSymbol(
+          tokenIn.symbol
+        )}`;
+      } catch (error) {
+        return '-';
+      }
     }, [receive]);
+
+    const isMulti = curSwapTodos && curSwapTodos.length > 2;
 
     return (
       <div
         className="absolute   p-4 text-xs cursor-default text-white whitespace-nowrap"
         style={{
           width: '293px',
-          height: '124px',
+          height: isMulti ? '150px' : '124px',
           zIndex: 60,
           left: '-280px',
         }}
       >
-        <PopUpContainer />
+        {isMulti ? <PopUpContainerMulti /> : <PopUpContainer />}
+
+        <CrossSwapRoutesDetail swapsTodo={curSwapTodos} tokenOut={tokenOut} />
 
         <div className="flex items-center mt-2.5 justify-between">
           <span className="">{intl.formatMessage({ id: 'price_impact' })}</span>

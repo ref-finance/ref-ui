@@ -71,6 +71,7 @@ export interface Pool {
     [id: string]: string;
   };
   pool_kind?: string;
+  pairAdd?: string;
 }
 
 export interface StablePool {

@@ -63,3 +63,25 @@ export const PopUpContainer = () => {
     </svg>
   );
 };
+
+export const PopUpContainerMulti = () => {
+  return (
+    <svg
+      width="293"
+      height="152"
+      viewBox="0 0 293 152"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="absolute top-0 left-0"
+      style={{
+        zIndex: -1,
+      }}
+    >
+      <path
+        d="M1 9C1 4.58172 4.58172 1 9 1H280C284.418 1 288 4.58172 288 9V71.0858C288 71.351 288.105 71.6054 288.293 71.7929L291.293 74.7929C291.683 75.1834 291.683 75.8166 291.293 76.2071L288.293 79.2071C288.105 79.3946 288 79.649 288 79.9142V143C288 147.418 284.418 151 280 151H9.00001C4.58173 151 1 147.418 1 143V9Z"
+        fill="#1D2932"
+        stroke="#7E8A93"
+      />
+    </svg>
+  );
+};

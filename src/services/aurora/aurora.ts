@@ -198,6 +198,7 @@ export function parseAuroraPool({
   shares,
   id, // from aurora pool id
   decodedRes,
+  pairAdd,
 }: {
   tokenA: string;
   tokenB: string;
@@ -206,6 +207,7 @@ export function parseAuroraPool({
   auroraAddrB: string;
   id: number;
   decodedRes: any;
+  pairAdd: string;
 }): Pool & { Dex: string } {
   const Afirst =
     Number(auroraAddrA.toString()) < Number(auroraAddrB.toString());
@@ -226,6 +228,7 @@ export function parseAuroraPool({
       [tokenA]: Afirst ? token1Supply : token2Supply,
       [tokenB]: Afirst ? token2Supply : token1Supply,
     },
+    pairAdd,
   };
 }
 
@@ -274,6 +277,7 @@ export async function getAuroraPool(
     auroraAddrB,
     id, // TODO: encode tri pool id
     decodedRes,
+    pairAdd,
   });
 }
 
