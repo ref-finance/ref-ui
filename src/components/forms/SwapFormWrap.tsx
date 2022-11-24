@@ -236,7 +236,6 @@ export function CrossSwapFormWrap({
       }
     }
   };
-
   return (
     <form
       className={`overflow-visible relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xs:py-4 xs:px-3 bg-dark  `}

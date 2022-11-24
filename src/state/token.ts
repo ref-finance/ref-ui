@@ -288,6 +288,8 @@ export const useWalletTokenBalances = (tokenIds: string[] = []) => {
   const near = useDepositableBalance('NEAR');
 
   useEffect(() => {
+    if (tokenIds.some((id) => !id)) return;
+
     Promise.all<string>(tokenIds.map((id) => ftGetBalance(id))).then((res) => {
       let balances = {};
       res.map((item, index) => {
@@ -360,8 +362,6 @@ export const useTokensData = (
 
   const { accountId } = useWalletSelector();
 
-  const triggerBalances = balances || {};
-
   const trigger = useCallback(() => {
     // if (!!triggerBalances) {
     setCount(0);
@@ -371,7 +371,9 @@ export const useTokensData = (
       const index = i;
       const item = tokens[index];
       getDepositableBalance(
-        item.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : item.id,
+        item.id === WRAP_NEAR_CONTRACT_ID && item.symbol == 'NEAR'
+          ? 'NEAR'
+          : item.id,
         item.decimals
       )
         .then((max: string) => {
@@ -401,8 +403,6 @@ export const useTokensData = (
           console.log(err);
         });
     }
-    // }
-    // }, [balances, tokens?.length]);
   }, [tokens?.length]);
 
   useEffect(() => {

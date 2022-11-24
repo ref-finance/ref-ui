@@ -74,6 +74,7 @@ interface TokenAmountProps {
   onBlur?: (e?: any) => void;
   limitFee?: number;
   setDiff?: (d: string) => void;
+  allowWNEAR?: boolean;
 }
 
 export function getTextWidth(str: string, fontSize: string) {
@@ -367,6 +368,7 @@ export default function TokenAmount({
   postSelected,
   onSelectPost,
   forWrap,
+  allowWNEAR,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -379,7 +381,9 @@ export default function TokenAmount({
   const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
 
   const curMax =
-    selectedToken?.id === WRAP_NEAR_CONTRACT_ID && !forWrap
+    selectedToken?.id === WRAP_NEAR_CONTRACT_ID &&
+    selectedToken?.symbol == 'NEAR' &&
+    !forWrap
       ? Number(max) <= 0.5
         ? '0'
         : String(Number(max) - 0.5)
@@ -441,6 +445,7 @@ export default function TokenAmount({
               }
               onSelect={onSelectToken}
               balances={balances}
+              allowWNEAR={allowWNEAR}
             />
           ) : (
             <StableSelectToken
@@ -505,6 +510,7 @@ export function TokenAmountV3Old({
   curRate,
   limitFee,
   setDiff,
+  allowWNEAR,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -519,7 +525,9 @@ export function TokenAmountV3Old({
   const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
 
   const curMax =
-    selectedToken?.id === WRAP_NEAR_CONTRACT_ID && !forWrap
+    selectedToken?.id === WRAP_NEAR_CONTRACT_ID &&
+    !forWrap &&
+    selectedToken?.symbol !== 'wNEAR'
       ? Number(max) <= 0.5
         ? '0'
         : String(Number(max) - 0.5)
@@ -618,6 +626,7 @@ export function TokenAmountV3Old({
               }
               onSelect={onSelectToken}
               balances={balances}
+              allowWNEAR={allowWNEAR}
             />
           ) : (
             <StableSelectToken
@@ -792,6 +801,7 @@ export function TokenAmountV3({
   curRate,
   limitFee,
   setDiff,
+  allowWNEAR,
 }: TokenAmountProps) {
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
@@ -958,6 +968,7 @@ export function TokenAmountV3({
               }
               onSelect={onSelectToken}
               balances={balances}
+              allowWNEAR={allowWNEAR}
             />
           ) : (
             <StableSelectToken
@@ -1037,7 +1048,7 @@ export function TokenCardIn({
   const price = tokenPriceList?.[tokenIn?.id]?.price || null;
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
   const curMax =
-    tokenIn?.id === WRAP_NEAR_CONTRACT_ID
+    tokenIn?.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR'
       ? Number(max) <= 0.5
         ? '0'
         : String(Number(max) - 0.5)
@@ -1058,7 +1069,7 @@ export function TokenCardIn({
           forCross
           selected={
             <div
-              className="flex font-semibold "
+              className="flex font-semibold"
               onMouseEnter={() => setHoverSelectToken(true)}
               onMouseLeave={() => setHoverSelectToken(false)}
             >
@@ -1067,8 +1078,10 @@ export function TokenCardIn({
               ) : null}
             </div>
           }
+          className={'flex-shrink-0 mr-4'}
           onSelect={onSelectToken}
           balances={balances}
+          allowWNEAR={true}
         />
         <span
           className="ml-2 text-xs"
@@ -1152,6 +1165,7 @@ export function TokenCardOut({
         }
         onSelect={onSelectToken}
         balances={balances}
+        allowWNEAR={true}
       />
 
       <span

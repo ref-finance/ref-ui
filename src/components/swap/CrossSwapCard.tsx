@@ -90,7 +90,14 @@ import {
   WannaIconDark,
   SwapProIconLarge,
 } from '../icon/DexIcon';
-import { unwrapNear, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import {
+  unwrapNear,
+  WRAP_NEAR_CONTRACT_ID,
+  unwrapedNear,
+  wnearMetadata,
+  nearDeposit,
+  nearWithdraw,
+} from '../../services/wrap-near';
 import { unWrapTokenId, wrapTokenId } from './SwapCard';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SWAP_MODE } from '../../pages/SwapPage';
@@ -101,6 +108,8 @@ import { SkyWardModal } from '../layout/SwapDoubleCheck';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
+const SWAP_IN_KEY_SYMBOL = 'REF_FI_SWAP_IN_SYMBOL';
+const SWAP_OUT_KEY_SYMBOL = 'REF_FI_SWAP_OUT_SYMBOL';
 const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
@@ -191,9 +200,11 @@ export function SwapRateDetail({
 function CrossSwapRoutesDetail({
   swapsTodo,
   tokenOut,
+  tokenIn,
 }: {
   swapsTodo: EstimateSwapView[];
   tokenOut: TokenMetadata;
+  tokenIn: TokenMetadata;
 }) {
   const routes = separateRoutes(swapsTodo, tokenOut.id);
   const pools = routes?.map((todo) => todo[0].pool);
@@ -224,7 +235,12 @@ function CrossSwapRoutesDetail({
               className="mb-5 md:w-smartRoute lg:w-smartRoute flex items-center relative"
             >
               <div className="text-right text-white w-full col-span-6 xs:mt-2 md:mt-2">
-                <CrossSwapRoute route={route} p={percents[i]} />
+                <CrossSwapRoute
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
+                  route={route}
+                  p={percents[i]}
+                />
               </div>
             </div>
           );
@@ -385,7 +401,11 @@ function DetailView({
           value={poolFeeDisplay}
         />
 
-        <CrossSwapRoutesDetail swapsTodo={swapsTodo} tokenOut={tokenOut} />
+        <CrossSwapRoutesDetail
+          swapsTodo={swapsTodo}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+        />
       </div>
     </div>
   );
@@ -395,11 +415,18 @@ export default function CrossSwapCard(props: {
   allTokens: TokenMetadata[];
   tokenInAmount: string;
   setTokenInAmount: (amount: string) => void;
+  globalWhiteListTokens: TokenMetadata[];
   swapTab?: JSX.Element;
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
-  const { allTokens, tokenInAmount, setTokenInAmount, swapTab } = props;
+  const {
+    allTokens,
+    tokenInAmount,
+    swapTab,
+    setTokenInAmount,
+    globalWhiteListTokens,
+  } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
@@ -442,6 +469,7 @@ export default function CrossSwapCard(props: {
       0.5
   );
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+  const [wrapOperation, setWrapOperation] = useState<boolean>(false);
   const skywardId =
     getConfig().networkId === 'mainnet'
       ? 'token.skyward.near'
@@ -451,16 +479,24 @@ export default function CrossSwapCard(props: {
   }, []);
 
   useEffect(() => {
-    const urlTokenInId = allTokens.find(
-      (t) => t.symbol && t.symbol === urlTokenIn
-    )?.id;
-    const urlTokenOutId = allTokens.find(
-      (t) => t.symbol && t.symbol === urlTokenOut
-    )?.id;
-    let rememberedIn =
-      wrapTokenId(urlTokenInId) || localStorage.getItem(SWAP_IN_KEY);
-    let rememberedOut =
-      wrapTokenId(urlTokenOutId) || localStorage.getItem(SWAP_OUT_KEY);
+    let urlTokenInId = allTokens.find((t) => t.id && t.id === urlTokenIn)?.id;
+
+    let urlTokenOutId = allTokens.find((t) => t.id && t.id === urlTokenOut)?.id;
+    if (!urlTokenInId) {
+      urlTokenInId = globalWhiteListTokens.find(
+        (t) => t.symbol && t.symbol === urlTokenIn
+      )?.id;
+    }
+
+    if (!urlTokenOutId) {
+      urlTokenOutId = globalWhiteListTokens.find(
+        (t) => t.symbol && t.symbol === urlTokenOut
+      )?.id;
+    }
+
+    const [in_id, out_id] = getStorageTokenId();
+    let rememberedIn = wrapTokenId(urlTokenInId) || in_id;
+    let rememberedOut = wrapTokenId(urlTokenOutId) || out_id;
     if (rememberedIn == NEARXIDS[0]) {
       rememberedIn = REF_TOKEN_ID;
     }
@@ -468,21 +504,70 @@ export default function CrossSwapCard(props: {
       rememberedOut = REF_TOKEN_ID;
     }
     if (allTokens) {
-      const candTokenIn =
-        allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
-
+      let candTokenIn;
+      if (urlTokenIn == 'near' || urlTokenIn == 'NEAR') {
+        candTokenIn = unwrapedNear;
+      } else if (urlTokenIn == WRAP_NEAR_CONTRACT_ID || urlTokenIn == 'wNEAR') {
+        candTokenIn = wnearMetadata;
+      } else if (rememberedIn == 'near') {
+        candTokenIn = unwrapedNear;
+      } else if (rememberedIn == WRAP_NEAR_CONTRACT_ID) {
+        candTokenIn = wnearMetadata;
+      } else {
+        candTokenIn =
+          allTokens.find((token) => token.id === rememberedIn) || allTokens[0];
+      }
       setTokenIn(candTokenIn);
-
-      const candTokenOut =
-        allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
-
+      let candTokenOut;
+      if (urlTokenOut == 'near' || urlTokenOut == 'NEAR') {
+        candTokenOut = unwrapedNear;
+      } else if (
+        urlTokenOut == WRAP_NEAR_CONTRACT_ID ||
+        urlTokenOut == 'wNEAR'
+      ) {
+        candTokenOut = wnearMetadata;
+      } else if (rememberedOut == 'near') {
+        candTokenOut = unwrapedNear;
+      } else if (rememberedOut == WRAP_NEAR_CONTRACT_ID) {
+        candTokenOut = wnearMetadata;
+      } else {
+        candTokenOut =
+          allTokens.find((token) => token.id === rememberedOut) || allTokens[1];
+      }
       setTokenOut(candTokenOut);
 
       if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
         setShowSkywardTip(true);
       }
     }
-  }, [allTokens?.map((t) => t.id).join('-')]);
+  }, [allTokens?.map((t) => t.id).join('-'), urlTokenIn, urlTokenOut]);
+
+  function getStorageTokenId() {
+    const in_key = localStorage.getItem(SWAP_IN_KEY);
+    const in_key_symbol = localStorage.getItem(SWAP_IN_KEY_SYMBOL);
+    const out_key = localStorage.getItem(SWAP_OUT_KEY);
+    const out_key_symbol = localStorage.getItem(SWAP_OUT_KEY_SYMBOL);
+    const result = [];
+    if (in_key == WRAP_NEAR_CONTRACT_ID) {
+      if (in_key_symbol == 'NEAR') {
+        result.push('near');
+      } else {
+        result.push(WRAP_NEAR_CONTRACT_ID);
+      }
+    } else {
+      result.push(in_key);
+    }
+    if (out_key == WRAP_NEAR_CONTRACT_ID) {
+      if (out_key_symbol == 'NEAR') {
+        result.push('near');
+      } else {
+        result.push(WRAP_NEAR_CONTRACT_ID);
+      }
+    } else {
+      result.push(out_key);
+    }
+    return result;
+  }
 
   useEffect(() => {
     if (!tokenIn || !tokenOut || !isSignedIn) return;
@@ -492,7 +577,9 @@ export default function CrossSwapCard(props: {
       setTokenInBalanceFromNear(
         toReadableNumber(
           tokenIn?.decimals,
-          tokenInId === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
+          tokenInId === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR'
+            ? nearBalance
+            : available
         )
       )
     );
@@ -500,7 +587,9 @@ export default function CrossSwapCard(props: {
       setTokenOutBalanceFromNear(
         toReadableNumber(
           tokenOut?.decimals,
-          tokenOutId === WRAP_NEAR_CONTRACT_ID ? nearBalance : available
+          tokenOutId === WRAP_NEAR_CONTRACT_ID && tokenOut.symbol == 'NEAR'
+            ? nearBalance
+            : available
         )
       )
     );
@@ -508,9 +597,23 @@ export default function CrossSwapCard(props: {
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
     history.replace(
-      `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
+      `#${unWrapTokenId(tokenIn)}${TOKEN_URL_SEPARATOR}${unWrapTokenId(
+        tokenOut
+      )}`
     );
-  }, [tokenIn?.id, tokenOut?.id]);
+    localStorage.setItem(SWAP_IN_KEY_SYMBOL, tokenIn.symbol);
+    localStorage.setItem(SWAP_OUT_KEY_SYMBOL, tokenOut.symbol);
+    if (
+      tokenIn &&
+      tokenOut &&
+      ((tokenIn.symbol == 'NEAR' && tokenOut.symbol == 'wNEAR') ||
+        (tokenIn.symbol == 'wNEAR' && tokenOut.symbol == 'NEAR'))
+    ) {
+      setWrapOperation(true);
+    } else {
+      setWrapOperation(false);
+    }
+  }, [tokenIn?.id, tokenOut?.id, tokenIn?.symbol, tokenOut?.symbol]);
 
   const {
     tokenOutAmount,
@@ -535,6 +638,7 @@ export default function CrossSwapCard(props: {
     loadingTrigger,
     setLoadingTrigger,
     loadingPause,
+    wrapOperation,
   });
 
   const {
@@ -636,22 +740,20 @@ export default function CrossSwapCard(props: {
   const tokenOutMax = tokenOutBalanceFromNear || '0';
 
   const curMax =
-    tokenIn?.id === WRAP_NEAR_CONTRACT_ID
+    tokenIn?.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR'
       ? Number(tokenInMax) <= 0.5
         ? '0'
         : String(Number(tokenInMax) - 0.5)
       : tokenInMax;
-
   const canSubmit = requested
     ? (canSwap || (!ONLY_ZEROS.test(tokenOutAmountV3) && canSwapV3)) &&
       getCurrentWallet().wallet.isSignedIn() &&
       !ONLY_ZEROS.test(curMax) &&
       !ONLY_ZEROS.test(tokenInAmount) &&
       new BigNumber(tokenInAmount).lte(new BigNumber(curMax))
-    : tokenIn?.id !== tokenOut?.id &&
+    : (tokenIn?.id !== tokenOut?.id || wrapOperation) &&
       !loadingTrigger &&
       !ONLY_ZEROS.test(tokenInAmount);
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -660,12 +762,26 @@ export default function CrossSwapCard(props: {
       setLoadingPause(false);
       return;
     }
+    if (wrapOperation) {
+      handleSubmit_wrap(event);
+      return;
+    }
     const ifDoubleCheck =
       new BigNumber(tokenInAmount).isLessThanOrEqualTo(
         new BigNumber(tokenInMax)
       ) && Number(bestSwapPriceImpact) > 2;
     if (ifDoubleCheck) setDoubleCheckOpen(true);
     else makeBestSwap();
+  };
+  const handleSubmit_wrap = (e: any) => {
+    e.preventDefault();
+    if (tokenIn?.symbol === 'NEAR') {
+      setShowSwapLoading(true);
+      return nearDeposit(tokenInAmount);
+    } else {
+      setShowSwapLoading(true);
+      return nearWithdraw(tokenInAmount);
+    }
   };
 
   const swapsToDoV3: EstimateSwapView[] = [
@@ -771,7 +887,7 @@ export default function CrossSwapCard(props: {
           )
         }
         reserves={
-          !requested || swapErrorCrossV3 ? null : (
+          !requested || swapErrorCrossV3 || wrapOperation ? null : (
             <CrossSwapAllResult
               refTodos={swapsToDoRefV3}
               triTodos={swapsToDoTri}
@@ -802,9 +918,6 @@ export default function CrossSwapCard(props: {
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             setTokenIn(token);
-            history.replace(
-              `#${token.symbol}${TOKEN_URL_SEPARATOR}${tokenOut.symbol}`
-            );
 
             if (token.id === skywardId) {
               setShowSkywardTip(true);
@@ -827,9 +940,6 @@ export default function CrossSwapCard(props: {
               setTokenInAmount(toPrecision('1', 6));
               localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
               localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-              history.replace(
-                `#${tokenOut.symbol}${TOKEN_URL_SEPARATOR}${tokenIn.symbol}`
-              );
             }}
           />
         </div>
@@ -840,9 +950,6 @@ export default function CrossSwapCard(props: {
           onSelectToken={(token) => {
             setTokenOut(token);
             localStorage.setItem(SWAP_OUT_KEY, token.id);
-            history.replace(
-              `#${tokenIn.symbol}${TOKEN_URL_SEPARATOR}${token.symbol}`
-            );
 
             if (token.id === skywardId) {
               setShowSkywardTip(true);
@@ -869,12 +976,14 @@ export default function CrossSwapCard(props: {
                 tokenOut={tokenOut}
                 tokenPriceList={tokenPriceList}
                 amountIn={tokenInAmount}
-                amountOut={displayTokenOutAmount}
-                slippageTolerance={slippageTolerance}
+                amountOut={
+                  wrapOperation ? tokenInAmount : displayTokenOutAmount
+                }
+                slippageTolerance={wrapOperation ? 0 : slippageTolerance}
               />
               {tokenIn &&
                 requested &&
-                Number(getMax(tokenIn.id, tokenInMax || '0')) -
+                Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
                   Number(tokenInAmount || '0') <
                   0 &&
                 !ONLY_ZEROS.test(tokenInMax || '0') &&
