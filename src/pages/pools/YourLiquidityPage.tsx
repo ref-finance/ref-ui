@@ -636,7 +636,15 @@ function PoolRow(props: {
 
   const poolId = pool.id;
 
-  const tokens = props.tokens;
+  const tokens: TokenMetadata[] = props.tokens;
+  const tokensSort: TokenMetadata[] = props.tokens
+    ? JSON.parse(JSON.stringify(props.tokens))
+    : [];
+  tokensSort.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return 0;
+  });
   const lptAmount = props.lptAmount || '0';
   const poolTVL = pool.tvl || props.tvl;
 
@@ -688,7 +696,7 @@ function PoolRow(props: {
   )
     return null;
 
-  const Images = tokens.map((token, index) => {
+  const Images = tokensSort.map((token, index) => {
     const { icon, id } = token;
     if (icon)
       return (
@@ -819,7 +827,7 @@ function PoolRow(props: {
         </div>
 
         <div className="col-span-2 inline-flex flex-col text-xs">
-          {tokens.map((token, i) => (
+          {tokensSort.map((token, i) => (
             <TokenInfoPC key={i} token={token} />
           ))}
         </div>
@@ -1074,7 +1082,7 @@ function PoolRow(props: {
             <div className="flex items-center">
               <div className="ml-1 mr-4 flex items-center">{Images}</div>
               <div className="text-xs font-semibold">
-                <TokensSymbolsMobile tokens={tokens} />
+                <TokensSymbolsMobile tokens={tokensSort} />
               </div>
             </div>
             <div
@@ -1086,7 +1094,7 @@ function PoolRow(props: {
             </div>
           </div>
           <div className="flex flex-col text-sm border-b border-gray-700 border-opacity-70 px-6">
-            {tokens.map((token, i) => (
+            {tokensSort.map((token, i) => (
               <TokenInfoMobile key={i} token={token} />
             ))}
           </div>
@@ -1412,7 +1420,7 @@ function MorePoolRow({
         {canFarm && (
           <a
             href={`/v2farms/${pool.id}-r`}
-            className="bg-gradientFrom ml-2 xs:ml-1 text-black whitespace-nowrap text-sm px-1 py-0.5 flex items-center hover:bg-senderHot rounded-md"
+            className="bg-gradientFrom ml-2 xs:ml-1 text-black whitespace-nowrap text-xs px-2 py-0.5 flex items-center hover:bg-senderHot rounded-md"
           >
             <FormattedMessage id="farm" />
             <span className="ml-1">
@@ -1423,7 +1431,6 @@ function MorePoolRow({
       </span>
 
       <span className="flex items-center col-span-4">
-        <FormattedMessage id="tvl" />
         <span className={`ml-2 ${checked ? 'text-white' : ''}`}>
           $
           {Number(pool.tvl) > 0 && Number(pool.tvl) < 0.01
@@ -1432,8 +1439,7 @@ function MorePoolRow({
         </span>
       </span>
 
-      <span className="flex items-center justify-self-end col-span-2">
-        <FormattedMessage id="fee" defaultMessage={'Fee'} />
+      <span className="flex items-center col-span-2 pl-5">
         <span className={`ml-2 ${checked ? 'text-white' : ''}`}>
           {`${toPrecision(calculateFeePercent(pool.fee).toString(), 2)}`}%
         </span>
@@ -2199,6 +2205,19 @@ export function YourLiquidityAddLiquidityModal(
           {/* for candidate list */}
           {candPools?.length > 0 && (
             <div style={{ width: cardWidth }} className="xs:pb-10 xs:mb-10">
+              {displayCandPools?.length > 0 ? (
+                <div className="grid grid-cols-10 justify-center mt-2.5">
+                  <span className="text-addV1PoolTableColor text-sm col-span-4 pl-8">
+                    <FormattedMessage id="pool"></FormattedMessage>
+                  </span>
+                  <span className="text-addV1PoolTableColor text-sm col-span-4 pl-2">
+                    <FormattedMessage id="tvl"></FormattedMessage>
+                  </span>
+                  <span className="text-addV1PoolTableColor text-sm col-span-2 pl-5">
+                    <FormattedMessage id="fee"></FormattedMessage>
+                  </span>
+                </div>
+              ) : null}
               {displayCandPools?.slice(0, 3)?.map((p) => {
                 return (
                   <MorePoolRow

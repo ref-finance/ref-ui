@@ -173,14 +173,8 @@ export default function YourLiquidityDetail(props: any) {
         tokenYTotalPrice.plus(tokenXTotalPrice).toFixed() || '0';
       return `$` + toPrecision(total_price, 3);
     }
+
     return '$-';
-  }
-  function getLiquidityAmount() {
-    if (!(tokenMetadata_x_y && userLiquidity)) return '';
-    const [tokenX, tokenY] = tokenMetadata_x_y;
-    const { amount } = userLiquidity;
-    const decimals = _.min([tokenX.decimals, tokenY.decimals]);
-    return toPrecision(toReadableNumber(decimals, amount), 3);
   }
   function getY(
     leftPoint: number,

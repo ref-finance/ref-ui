@@ -239,10 +239,14 @@ export const SmartRouteV2 = ({
   tokens,
   p,
   pools,
+  tokenIn,
+  tokenOut,
 }: {
   tokens: TokenMetadata[];
   p: string;
   pools: Pool[];
+  tokenIn?: TokenMetadata;
+  tokenOut?: TokenMetadata;
 }) => {
   const Hub = ({
     token,
@@ -282,7 +286,7 @@ export const SmartRouteV2 = ({
       <div className="text-white flex items-center justify-between">
         {/* <Hub token={tokens[0]} /> */}
 
-        <ParaTokenFrom tokenIn={tokens[0]} p={p} />
+        <ParaTokenFrom tokenIn={tokenIn || tokens[0]} p={p} />
         <div className="px-3">
           <ArrowRight />
         </div>
@@ -292,17 +296,25 @@ export const SmartRouteV2 = ({
           <ArrowRight />
         </div>
 
-        <Hub token={tokens[2]} poolId={pools?.[1]?.id} Dex={pools?.[0]?.Dex} />
+        <Hub
+          token={tokenOut || tokens[2]}
+          poolId={pools?.[1]?.id}
+          Dex={pools?.[0]?.Dex}
+        />
       </div>
     );
   } else if (tokens.length == 2) {
     return (
       <div className="text-white flex items-center justify-between">
-        <ParaTokenFrom tokenIn={tokens[0]} p={p} />
+        <ParaTokenFrom tokenIn={tokenIn || tokens[0]} p={p} />
         <div className="px-3">
           <ArrowRight />
         </div>
-        <Hub token={tokens[1]} poolId={pools?.[0]?.id} Dex={pools?.[0]?.Dex} />
+        <Hub
+          token={tokenOut || tokens[1]}
+          poolId={pools?.[0]?.id}
+          Dex={pools?.[0]?.Dex}
+        />
       </div>
     );
   } else {
@@ -443,9 +455,13 @@ export function SwapRateDetail({
 export const CrossSwapRoute = ({
   route,
   p,
+  tokenIn,
+  tokenOut,
 }: {
   route: EstimateSwapView[];
   p: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
 }) => {
   return (
     <div className="flex items-center text-xs text-white w-full">
@@ -459,7 +475,7 @@ export const CrossSwapRoute = ({
               background: '#24333D',
             }}
           >
-            <Icon token={route[0].tokens[0]} size={'5'} />
+            <Icon token={tokenIn || route[0].tokens[0]} size={'5'} />
             <span className="text-right mx-0.5">{p}%</span>
           </span>
 
@@ -512,7 +528,7 @@ export const CrossSwapRoute = ({
           </div>
 
           <div className="flex-shrink-0">
-            <Icon token={route[0].tokens[1]} size={'5'} />
+            <Icon token={tokenOut || route[0].tokens[1]} size={'5'} />
           </div>
         </div>
       ) : (
@@ -525,7 +541,7 @@ export const CrossSwapRoute = ({
               background: '#24333D',
             }}
           >
-            <Icon token={route[0].tokens[0]} size={'5'} />
+            <Icon token={tokenIn || route[0].tokens[0]} size={'5'} />
             <span className="text-right mx-0.5">{p}%</span>
           </span>
 
@@ -592,9 +608,11 @@ const REF_FI_SHOW_ALL_RESULTS = 'REF_FI_SHOW_ALL_RESULTS_VALUE';
 function CrossSwapRoutesDetail({
   swapsTodo,
   tokenOut,
+  tokenIn,
 }: {
   swapsTodo: EstimateSwapView[];
   tokenOut: TokenMetadata;
+  tokenIn: TokenMetadata;
 }) {
   const routes = separateRoutes(swapsTodo, tokenOut.id);
   const pools = routes?.map((todo) => todo[0].pool);
@@ -617,7 +635,12 @@ function CrossSwapRoutesDetail({
               i > 0 ? 'mt-3' : ''
             } items-center w-full relative`}
           >
-            <CrossSwapRoute route={route} p={percents[i]} />
+            <CrossSwapRoute
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+              route={route}
+              p={percents[i]}
+            />
           </div>
         );
       })}
@@ -720,7 +743,7 @@ export const CrossSwapAllResult = ({
 
     return (
       <div
-        className="absolute xs:relative xs:rounded-xl xs:px-2.5 xs:mt-2  p-4 xs:px-2.5 text-xs cursor-default text-white whitespace-nowrap"
+        className="absolute xs:relative xs:rounded-xl xs:px-2.5 xs:mt-2  p-4  text-xs cursor-default text-white whitespace-nowrap"
         style={{
           width: isMobile ? '100%' : '293px',
           height: isMulti ? '150px' : '124px',
@@ -735,7 +758,11 @@ export const CrossSwapAllResult = ({
           <PopUpContainer />
         )}
 
-        <CrossSwapRoutesDetail swapsTodo={curSwapTodos} tokenOut={tokenOut} />
+        <CrossSwapRoutesDetail
+          swapsTodo={curSwapTodos}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+        />
 
         <div className="flex items-center mt-2.5 justify-between">
           <span className="">{intl.formatMessage({ id: 'price_impact' })}</span>

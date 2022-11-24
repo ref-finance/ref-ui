@@ -629,8 +629,8 @@ export const FarmBoardInDetailPool = (props: any) => {
   return (
     <svg
       width={isClientMobie() ? '100%' : '340'}
-      height="92"
-      viewBox="0 0 340 92"
+      height={isClientMobie() ? '92' : '105'}
+      viewBox={`0 0 340 ${isClientMobie() ? '92' : '100'}`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       {...props}
@@ -638,8 +638,8 @@ export const FarmBoardInDetailPool = (props: any) => {
       <rect
         x="1"
         y="1"
-        width="338"
-        height="90"
+        width={isClientMobie() ? '338' : '300'}
+        height={isClientMobie() ? '90' : '100'}
         rx="11"
         fill="url(#paint0_radial_2166_3074)"
         stroke="url(#paint1_linear_2166_3074)"

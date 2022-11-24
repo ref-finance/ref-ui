@@ -413,6 +413,7 @@ const ko = {
   lp_fee: 'LP 수수료',
   protocol_fee: '프로토콜 수수료',
   referral_fee: '추천 수수료 ',
+  protocol_fee_referral_fee: '의정서 수수료 및 추천 수수료',
   total_fee_create: '총 수수료',
   xref_title: '로 더 많은 수익 벌기',
   xref_title1: '더 많은 수익',
@@ -943,5 +944,9 @@ const ko = {
   market_rate: 'Market Rate',
   limit_price_tip:
     'To improve deal the efficiency, your price should be in one slot nearby automatically',
+  no_token_found: 'No token found',
+  search_name_or_address: 'Search name or paste address...',
+  token_address_invalid: 'The token address was invalid',
+  price_impact_warning: 'Price Impact Warning',
 };
 export default Object.assign(ko, ko_in_risks_page);

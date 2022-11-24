@@ -3,7 +3,11 @@ import SwapCard from '../components/swap/SwapCard';
 import CrossSwapCard from '../components/swap/CrossSwapCard';
 
 import Loading from '../components/layout/Loading';
-import { useTriTokens, useWhitelistTokens } from '../state/token';
+import {
+  useTriTokens,
+  useWhitelistTokens,
+  useGlobalWhitelistTokens,
+} from '../state/token';
 import { WalletContext } from '../utils/wallets-integration';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { SwapCross } from '../components/icon/CrossSwapIcons';
@@ -25,8 +29,12 @@ import { useClientMobile, isMobileExplorer } from '../utils/device';
 import { Pool, getStablePoolFromCache } from '../services/pool';
 import getConfig from '../services/config';
 import { extraStableTokenIds } from '../services/near';
-import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { CrossChainPop } from '../components/icon/swapV3';
+import {
+  nearMetadata,
+  WRAP_NEAR_CONTRACT_ID,
+  wnearMetadata,
+} from '../services/wrap-near';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -172,6 +180,8 @@ function SwapPage() {
 
   const storageMode = localStorage.getItem(SWAP_MODE_KEY) as SWAP_MODE | null;
 
+  const globalWhiteListTokens = useGlobalWhitelistTokens();
+
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(
     storageMode || SWAP_MODE.NORMAL
   );
@@ -193,17 +203,28 @@ function SwapPage() {
       STABLE_POOL_TYPE.USD
   );
 
-  if (!refTokens || !triTokens || !triTokenIds || !stablePools)
+  if (
+    !refTokens ||
+    !triTokens ||
+    !triTokenIds ||
+    !stablePools ||
+    !globalWhiteListTokens
+  )
     return <Loading />;
 
+  let wnearToken;
   refTokens.forEach((token) => {
     if (token.id === WRAP_NEAR_CONTRACT_ID) {
       token.icon = nearMetadata.icon;
       token.symbol = 'NEAR';
+      wnearToken = JSON.parse(JSON.stringify(token));
+      wnearToken.icon = wnearMetadata.icon;
+      wnearToken.symbol = wnearMetadata.symbol;
     }
   });
 
   const allTokens = getAllTokens(refTokens, triTokens);
+  allTokens.push(wnearToken);
 
   const nearSwapTokens = allTokens.filter((token) => token.onRef);
 
@@ -227,6 +248,7 @@ function SwapPage() {
             swapTab={
               <ChangeSwapMode swapMode={swapMode} setSwapMode={setSwapMode} />
             }
+            globalWhiteListTokens={globalWhiteListTokens}
           />
         ) : (
           <SwapCard
@@ -253,6 +275,7 @@ function SwapPage() {
                 />
               ) : null
             }
+            globalWhiteListTokens={globalWhiteListTokens}
           />
         )}
       </section>

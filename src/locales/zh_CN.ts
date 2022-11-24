@@ -381,6 +381,7 @@ const zh_CN = {
   lp_fee: '流动性提供者',
   protocol_fee: '协议费',
   referral_fee: '中介费',
+  protocol_fee_referral_fee: '协议费和中介费',
   total_fee_create: '总费用',
   xref_title: '赚取更多收益通过',
   xref_introdution:
@@ -898,5 +899,9 @@ const zh_CN = {
   market_rate: '市场价',
   limit_price_tip:
     'To improve deal the efficiency, your price should be in one slot nearby automatically',
+  no_token_found: '没有找到代币',
+  search_name_or_address: '搜索名字或粘贴地址...',
+  token_address_invalid: '代币地址是无效的',
+  price_impact_warning: '价格影响警告',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

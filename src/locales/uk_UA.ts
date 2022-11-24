@@ -411,6 +411,7 @@ const uk_UA = {
   lp_fee: 'LP комісія',
   protocol_fee: 'Комісія протокола',
   referral_fee: 'Реферальна комісія',
+  protocol_fee_referral_fee: 'Комісія за протокол і реферальна плата',
   total_fee_create: 'Загальна комісія',
   xref_title: 'ЗАРОБІТЬ БІЛЬШЕ ЗА',
   xref_title1: 'Заробіть більше',
@@ -925,5 +926,9 @@ const uk_UA = {
   market_rate: 'Market Rate',
   limit_price_tip:
     'To improve deal the efficiency, your price should be in one slot nearby automatically',
+  no_token_found: 'No token found',
+  search_name_or_address: 'Search name or paste address...',
+  token_address_invalid: 'The token address was invalid',
+  price_impact_warning: 'Price Impact Warning',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

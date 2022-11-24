@@ -147,7 +147,7 @@ const en_US = {
   no_tokens_deposited: 'No Tokens Deposited',
   view_pools: 'View Pools',
   view_pool: 'View Pool',
-  add_token: 'Add Token',
+  add_token: 'Add token',
   Add_Token: 'Add Token',
   create_new_pool: 'Create new pool',
   Create_New_Pool: 'Create New Pool',
@@ -222,7 +222,7 @@ const en_US = {
     'You aren’t providing liquidity to any pools',
   remove: 'Remove',
   select: 'Select',
-  select_token: 'Select Token',
+  select_token: 'Select a token',
   basis_points: 'Basis points',
   total_fee: 'Total fee % ',
   protocol_fee_is: 'protocol fee is ',
@@ -414,6 +414,7 @@ const en_US = {
   lp_fee: 'LP fee',
   protocol_fee: 'Protocol fee',
   referral_fee: 'Referral fee',
+  protocol_fee_referral_fee: 'Protocol fee and Referral fee',
   total_fee_create: 'Total fee',
   xref_title: 'EARN MORE BY',
   xref_title1: 'Earn more',
@@ -945,5 +946,9 @@ const en_US = {
   market_rate: 'Market Rate',
   limit_price_tip:
     'To improve deal the efficiency, your price should be in one slot nearby automatically',
+  no_token_found: 'No token found',
+  search_name_or_address: 'Search name or paste address...',
+  token_address_invalid: 'The token address was invalid',
+  price_impact_warning: 'Price Impact Warning',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

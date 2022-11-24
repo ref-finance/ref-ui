@@ -671,22 +671,22 @@ function YourLiquidityBox(props: {
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
-          <span className="text-white text-base">
+          <span className="text-farmText text-sm">
             {token_x_metadata.symbol}
           </span>
         </div>
-        <span className="text-white text-base">
+        <span className="text-farmText text-sm">
           {getTotalTokenAmount().total_x}
         </span>
       </div>
       <div className="flex items-center justify-between mt-5">
         <div className="flex items-center">
           <Icon icon={token_y_metadata.icon} className="h-7 w-7 mr-2"></Icon>
-          <span className="text-white text-base">
+          <span className="text-farmText text-sm">
             {token_y_metadata.symbol}
           </span>
         </div>
-        <span className="text-white text-base">
+        <span className="text-farmText text-sm">
           {getTotalTokenAmount().total_y}
         </span>
       </div>
@@ -852,20 +852,20 @@ function UnclaimedFeesBox(props: any) {
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <Icon icon={token_x_metadata.icon} className="h-7 w-7 mr-2"></Icon>
-          <span className="text-white text-base">
+          <span className="text-farmText text-sm">
             {token_x_metadata.symbol}
           </span>
         </div>
-        <span className="text-white text-base">{display_amount_x}</span>
+        <span className="text-farmText text-s,">{display_amount_x}</span>
       </div>
       <div className="flex items-center justify-between mt-5">
         <div className="flex items-center">
           <Icon icon={token_y_metadata.icon} className="h-7 w-7 mr-2"></Icon>
-          <span className="text-white text-base">
+          <span className="text-farmText text-sm">
             {token_y_metadata.symbol}
           </span>
         </div>
-        <span className="text-white text-base">{display_amount_y}</span>
+        <span className="text-farmText text-sm">{display_amount_y}</span>
       </div>
       <div
         className={`flex items-center justify-center h-11 rounded-lg text-sm px-2 py-1 mt-7 ${
