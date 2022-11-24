@@ -359,15 +359,16 @@ export function SwapRate({
   }
 
   return (
+    // todo 2
     <section className=" py-1 text-xs flex items-center">
       <p
-        className="flex justify-end text-white cursor-pointer text-right mr-1"
+        className="flex items-center text-white cursor-pointer text-right mr-1"
         onClick={switchSwapRate}
       >
-        <span className="mr-2" style={{ marginTop: '0.1rem' }}>
-          <FaExchangeAlt color="#00C6A2" />
-        </span>
         <span className="font-sans whitespace-nowrap">{newValue}</span>
+        <span className="ml-2">
+          <RefreshIcon></RefreshIcon>
+        </span>
       </p>
     </section>
   );
@@ -1235,6 +1236,7 @@ function DetailViewLimit({
       </span>
     );
   }
+  if (!(tokenIn && tokneOut)) return null;
   return (
     <div
       className={`border border-limitOrderFeeTiersBorderColor flex flex-col rounded-xl p-2.5 xs:p-2 xs:px-1 ${
@@ -2070,50 +2072,36 @@ export default function SwapCard(props: {
 
   // todo 1
   const DetailView = useMemo(() => {
-    if (swapMode === SWAP_MODE.LIMIT && tokenIn && tokenOut) {
+    if (bestSwap === 'v2') {
       return (
-        <DetailViewLimit
+        <DetailViewV2
+          pools={pools}
           tokenIn={tokenIn}
-          tokneOut={tokenOut}
-          poolPercents={poolPercents}
-          v3Pool={selectedV3LimitPool}
-          setV3Pool={setSelectedV3LimitPool}
+          tokenOut={tokenOut}
+          from={tokenInAmount}
+          to={tokenOutAmount}
+          minAmountOut={minAmountOut}
+          isParallelSwap={isParallelSwap}
+          fee={avgFee}
+          swapsTodo={swapsToDo}
+          priceImpact={displayPriceImpact}
+          swapMode={swapMode}
           tokenPriceList={tokenPriceList}
-          setFeeTiersShowFull={setFeeTiersShowFull}
         />
       );
-    } else if (swapMode !== SWAP_MODE.LIMIT) {
-      if (bestSwap === 'v2') {
-        return (
-          <DetailViewV2
-            pools={pools}
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            from={tokenInAmount}
-            to={tokenOutAmount}
-            minAmountOut={minAmountOut}
-            isParallelSwap={isParallelSwap}
-            fee={avgFee}
-            swapsTodo={swapsToDo}
-            priceImpact={displayPriceImpact}
-            swapMode={swapMode}
-            tokenPriceList={tokenPriceList}
-          />
-        );
-      } else {
-        return (
-          <DetailViewV3
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            from={tokenInAmount}
-            to={tokenOutAmountV3}
-            minAmountOut={minAmountOutV3}
-            fee={bestFee / 100}
-            priceImpact={displayPriceImpact}
-            tokenPriceList={tokenPriceList}
-          />
-        );
-      }
+    } else {
+      return (
+        <DetailViewV3
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          from={tokenInAmount}
+          to={tokenOutAmountV3}
+          minAmountOut={minAmountOutV3}
+          fee={bestFee / 100}
+          priceImpact={displayPriceImpact}
+          tokenPriceList={tokenPriceList}
+        />
+      );
     }
   }, [
     displayTokenOutAmount,
@@ -2455,7 +2443,72 @@ export default function SwapCard(props: {
             }
             allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
           />
-          {(poolError && swapMode !== SWAP_MODE.LIMIT) || wrapOperation
+          {swapMode === SWAP_MODE.LIMIT ? (
+            <div className="flex items-stretch justify-between mt-2.5">
+              <LimitOrderRateSetBox
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                limitFee={mostPoolDetail?.fee}
+                setDiff={setDiff}
+                curRate={LimitAmountOutRate}
+                onChangeRate={onChangeLimitRate}
+                marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
+                ExtraElement={
+                  swapMode !== SWAP_MODE.LIMIT ? (
+                    <div
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        if (loadingPause) {
+                          setLoadingPause(false);
+                          setLoadingTrigger(true);
+                          setLoadingData(true);
+                        } else {
+                          setLoadingPause(true);
+                          setLoadingTrigger(false);
+                        }
+                      }}
+                      className="mr-2 cursor-pointer"
+                    >
+                      <CountdownTimer
+                        loadingTrigger={loadingTrigger}
+                        loadingPause={loadingPause}
+                      />
+                    </div>
+                  ) : (
+                    <RefreshIcon
+                      className={`text-primaryText cursor-pointer  ${
+                        !quoteDoneLimit ? 'rotateInfinite' : ''
+                      } `}
+                      onClick={() => {
+                        setLimiSwapTrigger(!limitSwapTrigger);
+                      }}
+                    />
+                  )
+                }
+                rate={LimitAmountOutRate}
+                fee={mostPoolDetail?.fee}
+                triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
+                curPrice={curOrderPrice}
+                setRate={onChangeLimitRate}
+                hidden={feeTiersShowFull ? true : false}
+              />
+              <DetailViewLimit
+                tokenIn={tokenIn}
+                tokneOut={tokenOut}
+                poolPercents={poolPercents}
+                v3Pool={selectedV3LimitPool}
+                setV3Pool={setSelectedV3LimitPool}
+                tokenPriceList={tokenPriceList}
+                setFeeTiersShowFull={setFeeTiersShowFull}
+              />
+            </div>
+          ) : null}
+
+          {(poolError && swapMode !== SWAP_MODE.LIMIT) ||
+          wrapOperation ||
+          swapMode == SWAP_MODE.LIMIT
             ? null
             : displayDetailView}
         </LimitOrderTriggerContext.Provider>

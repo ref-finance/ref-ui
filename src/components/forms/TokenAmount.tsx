@@ -898,7 +898,7 @@ export function TokenAmountV3({
       className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-2xl px-3 py-1 border xs:bg-cardBg border-inputV3BorderColor`}
     >
       {text ? (
-        <div className="text-limitOrderInputColor text-xs">{text}</div>
+        <div className="text-limitOrderInputColor text-xs pt-1.5">{text}</div>
       ) : null}
 
       <fieldset className="relative flex  align-center items-center my-1.5">
