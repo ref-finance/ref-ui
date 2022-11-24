@@ -939,7 +939,7 @@ function DetailViewV2({
           color="text-white"
         />
 
-        {isParallelSwap && swapsTodo && swapsTodo.length > 1 && (
+        {/* {isParallelSwap && swapsTodo && swapsTodo.length > 1 && (
           <ParallelSwapRoutesDetail
             tokenIn={tokenIn}
             tokenOut={tokenOut}
@@ -953,16 +953,19 @@ function DetailViewV2({
             tokenIn={tokenIn}
             tokenOut={tokenOut}
           />
-        )}
-        {!isParallelSwap &&
-          swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
-          pools.length > 1 && (
+        )} */}
+        {
+          // !isParallelSwap &&
+          //   swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
+
+          swapsTodo.length > 1 && (
             <SmartRoutesV2Detail
               swapsTodo={swapsTodo}
               tokenIn={tokenIn}
               tokenOut={tokenOut}
             />
-          )}
+          )
+        }
       </div>
       {Number(priceImpact) > 2 ? (
         <div className="flex items-center justify-between border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
