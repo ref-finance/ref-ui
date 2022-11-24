@@ -108,7 +108,7 @@ import {
   nearDeposit,
   nearWithdraw,
 } from '../../services/wrap-near';
-import { unWrapTokenId, wrapTokenId } from './SwapCard';
+import { unWrapTokenId, wrapTokenId, DetailView_near_wnear } from './SwapCard';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import Big from 'big.js';
@@ -498,7 +498,7 @@ export default function CrossSwapCard(props: {
         )
       )
     );
-  }, [tokenIn?.id, tokenOut?.id, isSignedIn, nearBalance]);
+  }, [tokenIn, tokenOut, isSignedIn, nearBalance]);
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
     history.replace(
@@ -564,6 +564,7 @@ export default function CrossSwapCard(props: {
     slippageTolerance,
     swapMode: SWAP_MODE.NORMAL,
     loadingTrigger,
+    wrapOperation,
   });
 
   const bestSwap = new Big(tokenOutAmountV3 || '0').gt(tokenOutAmount || '0')
@@ -705,7 +706,7 @@ export default function CrossSwapCard(props: {
   );
 
   useEffect(() => {
-    if (quoteDoneV3 && crossQuoteDone) {
+    if (quoteDoneV3 && crossQuoteDone && !wrapOperation) {
       setCrossAllResults(
         <CrossSwapAllResult
           refTodos={swapsToDoRefV3}
@@ -738,9 +739,15 @@ export default function CrossSwapCard(props: {
     loadingData,
     swapsToDoRef,
     swapsToDoTri,
+    wrapOperation,
   ]);
 
   const swapErrorCrossV3 = swapError && swapErrorV3;
+
+  console.log({
+    swapError,
+    swapErrorV3,
+  });
 
   return (
     <>
@@ -750,6 +757,7 @@ export default function CrossSwapCard(props: {
         setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
+        wrapOperation={wrapOperation}
         slippageTolerance={slippageTolerance}
         onChange={(slippage) => {
           setSlippageTolerance(slippage);
@@ -790,6 +798,7 @@ export default function CrossSwapCard(props: {
           balances={balances}
           tokenPriceList={tokenPriceList}
           tokens={allTokens}
+          allowWNEAR
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             setTokenIn(token);
@@ -829,10 +838,16 @@ export default function CrossSwapCard(props: {
           }}
           total={tokenOutMax}
           amount={
-            !!selectReceive && tokenIn && tokenOut && tokenIn.id !== tokenOut.id
+            wrapOperation
+              ? tokenInAmount
+              : !!selectReceive &&
+                tokenIn &&
+                tokenOut &&
+                tokenIn.id !== tokenOut.id
               ? toPrecision(selectReceive, 8)
               : ''
           }
+          allowWNEAR
           balances={balances}
           tokenPriceList={tokenPriceList}
           max={tokenOutMax}
@@ -845,7 +860,17 @@ export default function CrossSwapCard(props: {
           ? null
           : crossAllResults}
 
-        {swapErrorCrossV3 ? (
+        {/* {wrapOperation ? (
+          <DetailView_near_wnear
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            minAmountOut={tokenInAmount}
+            from={tokenInAmount}
+            to={tokenInAmount}
+          ></DetailView_near_wnear>
+        ) : null} */}
+
+        {swapErrorCrossV3 && tokenIn?.id !== tokenOut?.id ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />
           </div>

@@ -463,6 +463,8 @@ export const CrossSwapRoute = ({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) => {
+  console.log({ route });
+
   return (
     <div className="flex items-center text-xs text-white w-full">
       {route.length === 1 ? (
@@ -504,7 +506,12 @@ export const CrossSwapRoute = ({
 
             {route[0].pool?.Dex === 'ref' && (
               <span className="flex items-center mx-1">
-                <Images size="4" tokens={route[0].tokens} />
+                <Images
+                  border
+                  borderStyle="1px solid #00C6A2"
+                  size="4"
+                  tokens={[tokenIn, route[0].tokens[1]]}
+                />
 
                 <span className="text-primaryText ml-1">{`#${route[0].pool.id}`}</span>
               </span>
@@ -561,7 +568,12 @@ export const CrossSwapRoute = ({
             className="py-1 absolute  px-1 flex items-center rounded-md"
           >
             <span className="flex items-center mx-1">
-              <Images size="4" tokens={route[0].tokens.slice(0, 2)} />
+              <Images
+                border
+                borderStyle="1px solid #00C6A2"
+                size="4"
+                tokens={[tokenIn, route[0].tokens[1]]}
+              />
 
               <span className="text-primaryText ml-1">{`#${route[0].pool.id}`}</span>
             </span>
@@ -583,7 +595,12 @@ export const CrossSwapRoute = ({
             className="py-1  px-1 flex items-center rounded-md"
           >
             <span className="flex items-center mx-1">
-              <Images size="4" tokens={route[1].tokens.slice(1, 3)} />
+              <Images
+                border
+                borderStyle="1px solid #00C6A2"
+                size="4"
+                tokens={[route[1].tokens[1], tokenOut]}
+              />
 
               <span className="text-primaryText ml-1">{`#${route[1].pool.id}`}</span>
             </span>

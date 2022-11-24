@@ -984,7 +984,7 @@ function DetailViewV2({
   );
 }
 
-function DetailView_near_wnear({
+export function DetailView_near_wnear({
   tokenIn,
   tokenOut,
   minAmountOut,

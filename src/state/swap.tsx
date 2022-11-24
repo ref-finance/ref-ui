@@ -127,6 +127,7 @@ interface SwapV3Options {
   loadingPause?: boolean;
   setLoadingPause?: (pause: boolean) => void;
   swapMode?: SWAP_MODE;
+  wrapOperation?: boolean;
 }
 
 export const useSwapPopUp = (stopOnCross?: boolean) => {
@@ -599,6 +600,7 @@ export const useSwapV3 = ({
   slippageTolerance,
   swapMode,
   loadingTrigger,
+  wrapOperation,
 }: SwapV3Options) => {
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
 
@@ -668,7 +670,7 @@ export const useSwapV3 = ({
   const bestFee = Number(bestEstimate?.tag?.split('-')?.[1]);
 
   useEffect(() => {
-    if (!bestFee) return;
+    if (!bestFee || wrapOperation) return;
 
     get_pool(getV3PoolId(tokenIn.id, tokenOut.id, bestFee), tokenIn.id).then(
       setBestPool
@@ -676,7 +678,7 @@ export const useSwapV3 = ({
   }, [bestFee, tokenIn, tokenOut, poolReFetch]);
 
   useEffect(() => {
-    if (!tokenIn || !tokenOut || !tokenInAmount) return;
+    if (!tokenIn || !tokenOut || !tokenInAmount || wrapOperation) return;
 
     setQuoteDone(false);
 
@@ -1265,6 +1267,11 @@ export const useCrossSwap = ({
     };
   }, [count, loadingTrigger, loadingPause]);
 
+  console.log({
+    swapsToDoRef,
+    swapsToDoTri,
+  });
+
   return {
     canSwap,
     tokenOutAmount,
@@ -1280,11 +1287,11 @@ export const useCrossSwap = ({
     swapsToDoTri,
     crossQuoteDone,
     refAmountOut:
-      tokenOut && swapsToDoRef
+      tokenOut && swapsToDoRef && !wrapOperation
         ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut.id)
         : '',
-    refAvgFee: swapsToDoRef ? getAvgFee(swapsToDoRef) : 0,
-    triAvgFee: swapsToDoTri ? getAvgFee(swapsToDoTri) : 0,
+    refAvgFee: swapsToDoRef && !wrapOperation ? getAvgFee(swapsToDoRef) : 0,
+    triAvgFee: swapsToDoTri && !wrapOperation ? getAvgFee(swapsToDoTri) : 0,
   };
 };
 

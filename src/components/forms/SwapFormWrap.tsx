@@ -49,6 +49,7 @@ interface SwapFormWrapProps {
   setSupportLedger?: (e?: any) => void;
   showAllResults?: boolean;
   reserves?: JSX.Element;
+  wrapOperation?: boolean;
 }
 
 export default function SwapFormWrap({
@@ -200,6 +201,7 @@ export function CrossSwapFormWrap({
   setSupportLedger,
   reserves,
   selectTodos,
+  wrapOperation,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const {
@@ -242,7 +244,7 @@ export function CrossSwapFormWrap({
     >
       {title && (
         <>
-          <h2 className="formTitle relative bottom-1 flex items-center xs:justify-end justify-between font-bold text-xl text-white text-left pb-4 xs:pb-2">
+          <h2 className="formTitle relative bottom-1 flex items-center xs:justify-end justify-between font-bold text-xl text-white text-left pb-2">
             {swapTab}
 
             <SlippageSelector
@@ -265,7 +267,11 @@ export function CrossSwapFormWrap({
         }
         label={buttonText || title}
         info={info}
-        loading={showSwapLoading || loadingTrigger || !selectTodos}
+        loading={
+          wrapOperation
+            ? false
+            : showSwapLoading || loadingTrigger || !selectTodos
+        }
         className="py-3"
       />
       {reserves}
