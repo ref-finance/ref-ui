@@ -238,7 +238,7 @@ export function CrossSwapFormWrap({
 
   return (
     <form
-      className={`overflow-visible relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xs:py-4 xs:px-3 bg-dark  `}
+      className={`overflow-visible relative md:bg-swapCardGradient lg:bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xs:py-4 xs:px-3 md:bg-dark  lg:bg-dark `}
       onSubmit={handleSubmit}
     >
       {title && (

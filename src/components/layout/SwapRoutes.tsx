@@ -46,6 +46,7 @@ import { QuestionTip } from './TipWrapper';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { Images } from '../stableswap/CommonComp';
 import { getAuroraConfig } from '~services/aurora/config';
+import { useClientMobile } from '../../utils/device';
 
 export const RouterIcon = () => {
   return (
@@ -666,7 +667,14 @@ export const CrossSwapAllResult = ({
     (r) => !!r && !!r[0] && !!r[0].estimate
   );
 
+  const isMobile = useClientMobile();
+
   const [hoverOptimal, setHoverOptimal] = useState(false);
+
+  const handleHoverOptimal = (hover: boolean) => {
+    if (isMobile) return;
+    setHoverOptimal(hover);
+  };
 
   const SelectPopOver = ({
     curSwapTodos,
@@ -712,15 +720,20 @@ export const CrossSwapAllResult = ({
 
     return (
       <div
-        className="absolute   p-4 text-xs cursor-default text-white whitespace-nowrap"
+        className="absolute xs:relative xs:rounded-xl xs:px-2.5 xs:mt-2  p-4 xs:px-2.5 text-xs cursor-default text-white whitespace-nowrap"
         style={{
-          width: '293px',
+          width: isMobile ? '100%' : '293px',
           height: isMulti ? '150px' : '124px',
           zIndex: 60,
-          left: '-280px',
+          left: isMobile ? '' : '-280px',
+          border: isMobile ? '1.2px solid #304352' : '',
         }}
       >
-        {isMulti ? <PopUpContainerMulti /> : <PopUpContainer />}
+        {isMobile ? null : isMulti ? (
+          <PopUpContainerMulti />
+        ) : (
+          <PopUpContainer />
+        )}
 
         <CrossSwapRoutesDetail swapsTodo={curSwapTodos} tokenOut={tokenOut} />
 
@@ -801,11 +814,16 @@ export const CrossSwapAllResult = ({
   }) => {
     const [hover, setHover] = useState(false);
 
+    const handleHover = (isHover: boolean) => {
+      if (isMobile) return;
+      setHover(isHover);
+    };
+
     const isTri = !result?.[0]?.pool?.Dex || result?.[0]?.pool?.Dex !== 'ref';
 
     return (
       <div
-        className={`w-full  hover:bg-black cursor-pointer mb-2 hover:bg-opacity-10 grid items-center grid-cols-10 px-4 justify-between py-2.5 relative ${
+        className={`w-full  whitespace-nowrap xs:text-xs hover:bg-black cursor-pointer mb-2 hover:bg-opacity-10 grid items-center grid-cols-10 px-4 xs:px-2 justify-between py-2.5 relative ${
           bestReceiveIndex === index
             ? 'border border-gradientFrom rounded-md'
             : 'border border-transparent'
@@ -814,10 +832,10 @@ export const CrossSwapAllResult = ({
           setBestReceiveIndex(index);
         }}
         onMouseEnter={() => {
-          setHover(true);
+          handleHover(true);
         }}
         onMouseLeave={() => {
-          setHover(false);
+          handleHover(false);
         }}
       >
         <span className="col-span-1">{Type}</span>
@@ -825,7 +843,7 @@ export const CrossSwapAllResult = ({
         <span className="col-span-4  relative left-3">{rawRate}</span>
 
         <div
-          className="justify-self-center col-span-4 relative px-4"
+          className="justify-self-center col-span-4 relative px-4 xs:px-2 xs:justify-self-end"
           title={rateTitle}
         >
           {rate}
@@ -969,73 +987,85 @@ export const CrossSwapAllResult = ({
   return (
     <section className={`w-full relative my-4 mt-6`}>
       <div
-        className={`z-50 px-4 pb-1 pt-3 justify-between rounded-lg text-sm text-white mx-auto relative bottom-1 flex items-center  bg-cardBg `}
+        className={`z-50  justify-between rounded-lg xs:rounded-xl text-sm text-white mx-auto relative bottom-1 flex items-center  bg-cardBg  ${
+          showAllResult
+            ? isMobile
+              ? 'gradientBorderWrapperNoShadow'
+              : ''
+            : 'xs:border xs:border-primaryText'
+        }  `}
         style={{
-          border: `1.2px solid #304352`,
+          border: isMobile ? '' : `1.2px solid #304352`,
+          padding: isMobile && showAllResult ? '0.1px' : '',
         }}
         onMouseEnter={() => {
-          setHoverOptimal(true);
+          handleHoverOptimal(true);
         }}
         onMouseLeave={() => {
-          setHoverOptimal(false);
+          handleHoverOptimal(false);
         }}
       >
-        {bestReceiveIndex === 0 && (
-          <div className="absolute left-4 -top-3 bg-gradientFrom rounded-md px-2 py-0.5 text-black">
-            <FormattedMessage id="optimal" defaultMessage={'Optimal'} />
+        <div className="flex items-center w-full justify-between pt-3 pb-1 px-4 xs:py-3 rounded-lg ">
+          {bestReceiveIndex === 0 && (
+            <div className="absolute text-xs left-4 -top-3 bg-gradientFrom rounded-md px-2 py-0.5 text-black">
+              <FormattedMessage id="optimal" defaultMessage={'Optimal'} />
+            </div>
+          )}
+          {!isMobile && hoverOptimal && (
+            <SelectPopOver
+              curSwapTodos={selectTodos}
+              fee={selectIsTri ? feeTri : feeRef}
+              minAmount={
+                selectReceive
+                  ? percentLess(slippageTolerance, selectReceive)
+                  : '0'
+              }
+              priceImpact={selectIsTri ? priceImpactTri : priceImpactRef}
+              receive={selectReceive}
+            />
+          )}
+
+          <div className="items-center flex bg-transparent">
+            {LoadingRefresh}
+
+            <SelectRate />
           </div>
-        )}
-        {hoverOptimal && (
-          <SelectPopOver
-            curSwapTodos={selectTodos}
-            fee={selectIsTri ? feeTri : feeRef}
-            minAmount={
-              selectReceive
-                ? percentLess(slippageTolerance, selectReceive)
-                : '0'
-            }
-            priceImpact={selectIsTri ? priceImpactTri : priceImpactRef}
-            receive={selectReceive}
-          />
-        )}
 
-        <div className="items-center flex bg-transparent">
-          {LoadingRefresh}
-
-          <SelectRate />
+          <span
+            className="flex items-center cursor-pointer justify-center"
+            onClick={() => {
+              setShowAllResult(!showAllResult);
+            }}
+          >
+            <span className={' xs:hidden my-2'}>
+              <FormattedMessage id="all_results" defaultMessage="All Results" />
+            </span>
+            <span className="ml-1">
+              {showAllResult ? (
+                <FaAngleUp size={18} />
+              ) : (
+                <FaAngleDown size={18} />
+              )}
+            </span>
+          </span>
         </div>
-
-        <span
-          className="flex items-center cursor-pointer justify-center"
-          onClick={() => {
-            setShowAllResult(!showAllResult);
-          }}
-        >
-          <span className="my-2">
-            <FormattedMessage id="all_results" defaultMessage="All Results" />
-          </span>
-          <span className="ml-1">
-            {showAllResult ? (
-              <FaAngleUp size={18} />
-            ) : (
-              <FaAngleDown size={18} />
-            )}
-          </span>
-        </span>
       </div>
+
       <Card
-        padding="pt-4 "
+        padding="pt-4 xs:pt-2"
         className={
-          showAllResult ? ' text-sm text-white absolute top-14 ' : 'hidden'
+          showAllResult
+            ? ' text-sm xs:text-xs text-white absolute xs:relative  top-14 xs:top-0 xs:mt-2'
+            : 'hidden'
         }
         style={{
           border: `1.2px solid #304352`,
           zIndex: 40,
         }}
         width="w-full"
-        rounded="rounded-lg"
+        rounded="rounded-lg xs:rounded-xl"
       >
-        <div className="text-primaryText px-4 grid grid-cols-10 mb-2">
+        <div className="text-primaryText px-4 xs:px-2 grid grid-cols-10 mb-2">
           <span className="col-span-1 ">
             <FormattedMessage id="dex" defaultMessage="DEX" />
           </span>
@@ -1043,7 +1073,7 @@ export const CrossSwapAllResult = ({
           <span className="col-span-4 relative left-3">
             <FormattedMessage id="rate" defaultMessage="Rate" />
           </span>
-          <span className="col-span-4">
+          <span className="col-span-4 ">
             <FormattedMessage
               id="minimum_received"
               defaultMessage="Minimum Received"
@@ -1075,6 +1105,17 @@ export const CrossSwapAllResult = ({
           );
         })}
       </Card>
+      {isMobile && !showAllResult && (
+        <SelectPopOver
+          curSwapTodos={selectTodos}
+          fee={selectIsTri ? feeTri : feeRef}
+          minAmount={
+            selectReceive ? percentLess(slippageTolerance, selectReceive) : '0'
+          }
+          priceImpact={selectIsTri ? priceImpactTri : priceImpactRef}
+          receive={selectReceive}
+        />
+      )}
     </section>
   );
 };

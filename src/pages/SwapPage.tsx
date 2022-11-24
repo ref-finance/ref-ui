@@ -21,11 +21,12 @@ import {
   isStableToken,
   STABLE_POOL_TYPE,
 } from '../services/near';
-import { useClientMobile } from '../utils/device';
+import { useClientMobile, isMobileExplorer } from '../utils/device';
 import { Pool, getStablePoolFromCache } from '../services/pool';
 import getConfig from '../services/config';
 import { extraStableTokenIds } from '../services/near';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
+import { CrossChainPop } from '../components/icon/swapV3';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';
 
@@ -51,10 +52,14 @@ const ChangeSwapMode = ({
   swapMode: SWAP_MODE;
   setSwapMode: (e?: any) => void;
 }) => {
+  const [hoverXswap, setHoverXswap] = useState(false);
+
+  const isMobile = useClientMobile();
+
   return (
-    <div className="rounded-2xl font-bold xs:hidden w-full text-limitOrderInputColor text-lg flex py-2 items-center mx-auto  ">
+    <div className="rounded-2xl font-bold  w-full text-limitOrderInputColor text-sm flex py-2 xs:pt-0 xs:pb-2 items-start mx-auto  ">
       <span
-        className={`mr-10 text-center flex flex-col cursor-pointer ${
+        className={`mr-6 text-center px-2 py-1 rounded-xl hover:bg-primaryText hover:bg-opacity-10  flex flex-col cursor-pointer ${
           swapMode === SWAP_MODE.NORMAL ? ' text-white ' : ''
         }`}
         onClick={() => {
@@ -63,22 +68,53 @@ const ChangeSwapMode = ({
         }}
       >
         <FormattedMessage id="swap" defaultMessage="Swap" />
+        {swapMode === SWAP_MODE.NORMAL && (
+          <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
+        )}
       </span>
 
       <span
-        className={`mr-5   text-center flex flex-col cursor-pointer ${
+        className={`mr-3  relative text-center px-2 py-1  rounded-xl hover:bg-primaryText hover:bg-opacity-10 flex flex-col cursor-pointer ${
           swapMode === SWAP_MODE.X_SWAP ? ' text-white ' : ''
         }`}
         onClick={() => {
           setSwapMode(SWAP_MODE.X_SWAP);
           localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.X_SWAP);
         }}
+        onMouseEnter={() => {
+          setHoverXswap(true);
+        }}
+        onMouseLeave={() => {
+          setHoverXswap(false);
+        }}
       >
         <FormattedMessage id="xSwap" defaultMessage="XSwap" />
+
+        {swapMode === SWAP_MODE.X_SWAP && (
+          <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
+        )}
+
+        {(isMobile ? false : hoverXswap) && (
+          <div
+            className="absolute z-50"
+            style={{
+              bottom: '40px',
+              right: isMobile ? '-36px' : '-53px',
+            }}
+          >
+            <span className="text-sm whitespace-nowrap text-white right-4 top-1.5 w-36 absolute z-40">
+              <FormattedMessage
+                id="cross_chain_swap"
+                defaultMessage={'Cross-chain Swap'}
+              />
+            </span>
+            <CrossChainPop />
+          </div>
+        )}
       </span>
 
       <div
-        className="w-0.5"
+        className="w-0.5 xs:relative xs:mt-2"
         style={{
           borderRight: '1.2px solid rgba(145, 162, 174, 0.2)',
           height: '20px',
@@ -86,7 +122,7 @@ const ChangeSwapMode = ({
       ></div>
 
       <span
-        className={`ml-5 flex flex-col text-center cursor-pointer ${
+        className={`ml-3 flex flex-col px-2 py-1  rounded-xl hover:bg-primaryText hover:bg-opacity-10 text-center cursor-pointer ${
           swapMode === SWAP_MODE.LIMIT ? ' text-white ' : ''
         }`}
         onClick={() => {
@@ -95,6 +131,10 @@ const ChangeSwapMode = ({
         }}
       >
         <FormattedMessage id="limit_order" defaultMessage="Limit Order" />
+
+        {swapMode === SWAP_MODE.LIMIT && (
+          <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
+        )}
       </span>
     </div>
   );
@@ -174,7 +214,11 @@ function SwapPage() {
 
   return (
     <div className="swap">
-      <section className="lg:w-560px md:w-5/6 xs:w-11/12  m-auto relative gradientBorderWrapper">
+      <section
+        className={`lg:w-560px md:w-5/6 xs:w-11/12  m-auto relative  ${
+          isMobile ? '' : 'gradientBorderWrapper'
+        } `}
+      >
         {swapMode === SWAP_MODE.X_SWAP ? (
           <CrossSwapCard
             allTokens={crossSwapTokens}
