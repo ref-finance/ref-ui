@@ -165,6 +165,7 @@ import { useWalletTokenBalances } from '../../state/token';
 import { TokenBalancesView } from '../../services/token';
 import { Images } from '../stableswap/CommonComp';
 import { ArrowRight } from '../layout/SwapRoutes';
+import { YellowTipIcon, RedTipIcon } from '../icon/swapV3';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -214,14 +215,20 @@ export const wrapTokenId = (id: string) => {
 export function SwapDetail({
   title,
   value,
+  color,
 }: {
   title: string;
   value: string | JSX.Element;
+  color?: string;
 }) {
   return (
-    <section className="flex items-center justify-between pt-1 pb-2 text-xs">
-      <p className="text-primaryText text-left ">{title}</p>
-      <p className="text-right text-white ">{value}</p>
+    <section
+      className={`flex items-center justify-between pt-1 pb-2 text-xs ${
+        color || 'text-primaryText'
+      }`}
+    >
+      <p className="text-left">{title}</p>
+      <p className="text-right">{value}</p>
     </section>
   );
 }
@@ -657,9 +664,7 @@ export const GetPriceImpact = (
   const tokenInInfo =
     Number(displayValue) <= 0
       ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
-      : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)} ${
-          tokenIn.symbol
-        }`;
+      : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)}`;
 
   if (Number(value) < 0.01)
     return (
@@ -679,7 +684,7 @@ export const GetPriceImpact = (
 
   return (
     <span className={`${textColor} font-sans`}>
-      {`≈ -${toPrecision(value, 2)}%`}
+      {`-${toPrecision(value, 2)}%`}
       {tokenInInfo}
     </span>
   );
@@ -688,9 +693,9 @@ export const GetPriceImpact = (
 export const getPriceImpactTipType = (value: string) => {
   const reault =
     1 < Number(value) && Number(value) <= 2 ? (
-      <WarnTriangle></WarnTriangle>
+      <YellowTipIcon></YellowTipIcon>
     ) : Number(value) > 2 && Number(value) != Infinity ? (
-      <ErrorTriangle></ErrorTriangle>
+      <RedTipIcon></RedTipIcon>
     ) : null;
   return reault;
 };
@@ -749,6 +754,14 @@ function DetailViewV2({
   );
 
   const isMobile = useMobile();
+  const { refresh } = useContext(LimitOrderTriggerContext);
+  const {
+    setLoadingPause,
+    setLoadingTrigger,
+    setLoadingData,
+    loadingTrigger,
+    loadingPause,
+  } = refresh;
 
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
@@ -791,17 +804,29 @@ function DetailViewV2({
     return null;
   return (
     <div className="mt-8 xs:my-4 w-full">
-      <div className="flex items-center mb-1 justify-between text-white ">
-        {isMobile ? (
-          <span
-            className="text-primaryText"
-            style={{
-              fontSize: '13px',
+      <div className="flex items-center mb-3 justify-between text-white ">
+        <div className="flex items-center">
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+
+              if (loadingPause) {
+                setLoadingPause(false);
+                setLoadingTrigger(true);
+                setLoadingData(true);
+              } else {
+                setLoadingPause(true);
+                setLoadingTrigger(false);
+              }
             }}
+            className="mr-2 cursor-pointer"
           >
-            {intl.formatMessage({ id: 'minimum_received' })}
-          </span>
-        ) : (
+            <CountdownTimer
+              loadingTrigger={loadingTrigger}
+              loadingPause={loadingPause}
+            />
+          </div>
           <SwapRate
             value={`1 ${toRealSymbol(
               tokenOut.symbol
@@ -813,7 +838,7 @@ function DetailViewV2({
             fee={fee}
             tokenPriceList={tokenPriceList}
           />
-        )}
+        </div>
 
         <div
           className="pl-1 text-sm flex items-center cursor-pointer"
@@ -827,7 +852,7 @@ function DetailViewV2({
             setShowDetails(!showDetails);
           }}
         >
-          {showDetails && !isMobile ? null : (
+          {/* {showDetails && !isMobile ? null : (
             <span className="py-1 pl-1 pr-1.5 rounded-md flex items-center bg-opacity-20 xs:bg-opacity-100 xs:bg-transparent bg-black mr-1.5">
               {isMobile ? null : <SwapMinReceiveCheck />}
 
@@ -840,8 +865,11 @@ function DetailViewV2({
                 {toPrecision(minAmountOutValue, 8)}
               </span>
             </span>
-          )}
-
+          )} */}
+          {getPriceImpactTipType(priceImpact)}
+          <span className="text-xs text-primaryText mx-1.5">
+            <FormattedMessage id="detail"></FormattedMessage>
+          </span>
           <span>
             {showDetails ? (
               <FaAngleUp color="#91A2AE" />
@@ -851,15 +879,12 @@ function DetailViewV2({
           </span>
         </div>
       </div>
-      <div className={showDetails ? '' : 'hidden'}>
-        {isMobile ? null : (
-          <SwapDetail
-            title={intl.formatMessage({ id: 'minimum_received' })}
-            value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
-          />
-        )}
-
-        {isMobile ? (
+      <div
+        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 ${
+          showDetails ? '' : 'hidden'
+        }`}
+      >
+        {/* {isMobile ? (
           <SwapDetail
             title={intl.formatMessage({ id: 'swap_rate' })}
             value={
@@ -876,23 +901,43 @@ function DetailViewV2({
               />
             }
           />
-        ) : null}
+        ) : null} */}
 
-        {Number(priceImpact) > 2 && (
+        {/* {Number(priceImpact) > 2 && (
           <div className="py-1 text-xs text-right">
             <PriceImpactWarning value={priceImpact} />
           </div>
-        )}
-        <SwapDetail
-          title={intl.formatMessage({ id: 'price_impact' })}
-          value={!to || to === '0' ? '-' : priceImpactDisplay}
-        />
+        )} */}
+        <div className="">
+          <SwapDetail
+            title={intl.formatMessage({ id: 'price_impact' })}
+            value={
+              !to || to === '0' ? (
+                '-'
+              ) : (
+                <>
+                  {priceImpactDisplay}
+                  <span
+                    className="text-primaryText"
+                    style={{ marginLeft: '3px' }}
+                  >
+                    {tokenIn.symbol}
+                  </span>
+                </>
+              )
+            }
+          />
+        </div>
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
           value={poolFeeDisplay}
         />
 
-        {}
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
+          color="text-white"
+        />
 
         {isParallelSwap && swapsTodo && swapsTodo.length > 1 && (
           <ParallelSwapRoutesDetail
@@ -919,6 +964,19 @@ function DetailViewV2({
             />
           )}
       </div>
+      {Number(priceImpact) > 2 ? (
+        <div className="flex items-center justify-between border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+          <span>
+            <FormattedMessage id="price_impact_warning"></FormattedMessage>
+          </span>
+          <div className="flex items-center">
+            <span className="gotham_bold">
+              {!to || to === '0' ? '-' : priceImpactDisplay}
+            </span>
+            <span className="ml-1">{tokenIn.symbol}</span>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -2204,7 +2262,11 @@ export default function SwapCard(props: {
               setShowSkywardTip(true);
             }
           }}
-          text={intl.formatMessage({ id: 'from' })}
+          text={
+            swapMode === SWAP_MODE.LIMIT
+              ? intl.formatMessage({ id: 'sell' })
+              : ''
+          }
           useNearBalance={useNearBalance}
           onChangeAmount={setTokenInAmount}
           tokenPriceList={tokenPriceList}
@@ -2282,6 +2344,13 @@ export default function SwapCard(props: {
             triggerFetch: () => {
               setLimiSwapTrigger(!limitSwapTrigger);
             },
+            refresh: {
+              setLoadingPause,
+              setLoadingTrigger,
+              setLoadingData,
+              loadingTrigger,
+              loadingPause,
+            },
           }}
         >
           <TokenAmountV3
@@ -2324,7 +2393,11 @@ export default function SwapCard(props: {
             }
             setDiff={setDiff}
             forLimitOrder
-            text={intl.formatMessage({ id: 'to' })}
+            text={
+              swapMode === SWAP_MODE.LIMIT
+                ? intl.formatMessage({ id: 'buy' })
+                : ''
+            }
             useNearBalance={useNearBalance}
             onSelectToken={(token) => {
               localStorage.setItem(SWAP_OUT_KEY, token.id);
@@ -2341,6 +2414,7 @@ export default function SwapCard(props: {
             curRate={LimitAmountOutRate}
             onChangeRate={onChangeLimitRate}
             marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
+            // todo 可删除
             ExtraElement={
               swapMode !== SWAP_MODE.LIMIT ? (
                 <div
@@ -2378,11 +2452,11 @@ export default function SwapCard(props: {
             }
             allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
           />
+          {(poolError && swapMode !== SWAP_MODE.LIMIT) || wrapOperation
+            ? null
+            : displayDetailView}
         </LimitOrderTriggerContext.Provider>
 
-        {(poolError && swapMode !== SWAP_MODE.LIMIT) || wrapOperation
-          ? null
-          : displayDetailView}
         {wrapOperation ? (
           <DetailView_near_wnear
             tokenIn={tokenIn}

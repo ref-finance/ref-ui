@@ -929,5 +929,6 @@ const uk_UA = {
   no_token_found: 'No token found',
   search_name_or_address: 'Search name or paste address...',
   token_address_invalid: 'The token address was invalid',
+  price_impact_warning: 'Price Impact Warning',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
