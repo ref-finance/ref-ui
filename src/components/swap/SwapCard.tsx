@@ -2201,7 +2201,6 @@ export default function SwapCard(props: {
           Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
             Number(tokenInAmount || '0') <
             0 &&
-          !ONLY_ZEROS.test(tokenInMax || '0') &&
           !ONLY_ZEROS.test(tokenInAmount || '0') && (
             <Alert
               level="warn"
