@@ -417,13 +417,11 @@ function AccountTable(props: any) {
 
   useEffect(() => {
     if (showCrossBalance) {
-      setAccountTab('aurora');
-    } else {
-      setAccountTab(
-        (localStorage.getItem(ACCOUNTTAB_KEY)?.toString() as any) || 'near'
-      );
+      if (mapAccountTokenNumber > 0) {
+        setAccountTab('aurora');
+      } else setAccountTab('near');
     }
-  }, [showCrossBalance, hasMapBalanceOver]);
+  }, [showCrossBalance, mapAccountTokenNumber]);
 
   const sort = (e?: any, by?: string) => {
     const sortBy = by || e?.currentTarget.dataset.sort || 'near';
