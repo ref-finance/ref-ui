@@ -1435,34 +1435,6 @@ function NavigationBar() {
           </div>
           <div className="flex items-center justify-end flex-1">
             <BuyNearButton />
-
-            {isSignedIn && (
-              <div className="flex ml-2 items-center text-white">
-                <div
-                  className=" py-1 cursor-pointer items-center flex"
-                  onClick={() => setShowWrapNear(true)}
-                >
-                  <WNEARExchngeIcon />
-                </div>
-                <WrapNear
-                  isOpen={showWrapNear}
-                  onRequestClose={() => setShowWrapNear(false)}
-                  style={{
-                    overlay: {
-                      backdropFilter: 'blur(15px)',
-                      WebkitBackdropFilter: 'blur(15px)',
-                    },
-                    content: {
-                      outline: 'none',
-                      position: 'fixed',
-                      width: 550,
-                      bottom: '50%',
-                    },
-                  }}
-                />
-              </div>
-            )}
-
             <USNButton />
             <AccountEntry
               hasBalanceOnRefAccount={hasBalanceOnRefAccount}

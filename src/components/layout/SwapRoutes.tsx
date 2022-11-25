@@ -218,10 +218,14 @@ export const SmartRouteV2 = ({
   tokens,
   p,
   pools,
+  tokenIn,
+  tokenOut,
 }: {
   tokens: TokenMetadata[];
   p: string;
   pools: Pool[];
+  tokenIn?: TokenMetadata;
+  tokenOut?: TokenMetadata;
 }) => {
   const Hub = ({
     token,
@@ -261,7 +265,7 @@ export const SmartRouteV2 = ({
       <div className="text-white flex items-center justify-between">
         {/* <Hub token={tokens[0]} /> */}
 
-        <ParaTokenFrom tokenIn={tokens[0]} p={p} />
+        <ParaTokenFrom tokenIn={tokenIn || tokens[0]} p={p} />
         <div className="px-3">
           <ArrowRight />
         </div>
@@ -271,17 +275,25 @@ export const SmartRouteV2 = ({
           <ArrowRight />
         </div>
 
-        <Hub token={tokens[2]} poolId={pools?.[1]?.id} Dex={pools?.[0]?.Dex} />
+        <Hub
+          token={tokenOut || tokens[2]}
+          poolId={pools?.[1]?.id}
+          Dex={pools?.[0]?.Dex}
+        />
       </div>
     );
   } else if (tokens.length == 2) {
     return (
       <div className="text-white flex items-center justify-between">
-        <ParaTokenFrom tokenIn={tokens[0]} p={p} />
+        <ParaTokenFrom tokenIn={tokenIn || tokens[0]} p={p} />
         <div className="px-3">
           <ArrowRight />
         </div>
-        <Hub token={tokens[1]} poolId={pools?.[0]?.id} Dex={pools?.[0]?.Dex} />
+        <Hub
+          token={tokenOut || tokens[1]}
+          poolId={pools?.[0]?.id}
+          Dex={pools?.[0]?.Dex}
+        />
       </div>
     );
   } else {
@@ -313,9 +325,13 @@ export const PoolName = ({
 export const CrossSwapRoute = ({
   route,
   p,
+  tokenIn,
+  tokenOut,
 }: {
   route: EstimateSwapView[];
   p: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
 }) => {
   return (
     <div className="flex items-center text-xs text-white">
@@ -329,7 +345,7 @@ export const CrossSwapRoute = ({
               : 'bg-refPool bg-opacity-20'
           }`}
         >
-          <Icon token={route[0].tokens[0]} size={'5'} />
+          <Icon token={tokenIn || route[0].tokens[0]} size={'5'} />
           <div
             style={{
               fontSize: '10px',
@@ -340,14 +356,14 @@ export const CrossSwapRoute = ({
           </div>
 
           <CrossIcon
-            Icon={<Icon token={route[0].tokens[1]} size={'5'} />}
+            Icon={<Icon token={tokenOut || route[0].tokens[1]} size={'5'} />}
             poolId={route[0]?.pool?.id}
           />
         </div>
       ) : (
         <div className="flex w-full items-center justify-between relative">
           <div className="absolute">
-            <Icon token={route[0].tokens[0]} size="5" />
+            <Icon token={tokenIn || route[0].tokens[0]} size="5" />
           </div>
           <div
             className={`w-full flex items-center justify-center rounded-l-xl ${
@@ -383,7 +399,7 @@ export const CrossSwapRoute = ({
 
           <div className="absolute right-0">
             <CrossIcon
-              Icon={<Icon token={route[0].tokens[2]} size="5" />}
+              Icon={<Icon token={tokenOut || route[0].tokens[2]} size="5" />}
               poolId={route[1]?.pool?.id}
             />
           </div>
