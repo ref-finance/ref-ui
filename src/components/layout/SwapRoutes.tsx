@@ -47,6 +47,7 @@ import { HiOutlineExternalLink } from 'react-icons/hi';
 import { Images } from '../stableswap/CommonComp';
 import { getAuroraConfig } from '~services/aurora/config';
 import { useClientMobile } from '../../utils/device';
+import { getV3PoolId } from '../../services/swapV3';
 
 export const RouterIcon = () => {
   return (
@@ -619,6 +620,256 @@ export const CrossSwapRoute = ({
     </div>
   );
 };
+export const NormalSwapRoute = ({
+  route,
+  p,
+  tokenIn,
+  tokenOut,
+}: {
+  route: EstimateSwapView[];
+  p: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) => {
+  console.log({ route });
+
+  return (
+    <div className="flex items-center text-xs text-white w-full">
+      {route.length === 1 ? (
+        <div
+          className={`w-full flex-shrink-0 h-4 flex items-center rounded-xl  justify-between relative `}
+        >
+          <span
+            className="flex items-center  rounded-md p-1 py-0.5"
+            style={{
+              background: '#24333D',
+            }}
+          >
+            <Icon token={tokenIn || route[0].tokens[0]} size={'5'} />
+            <span className="text-right mx-0.5">{p}%</span>
+          </span>
+
+          <div
+            className="w-full absolute bottom-2"
+            style={{
+              border: '1px dashed #304352',
+              zIndex: -1,
+            }}
+          ></div>
+
+          <div
+            style={{
+              background: '#24333D',
+            }}
+            className="py-1 px-1 flex items-center rounded-md"
+          >
+            <span className="flex items-center mx-1">
+              <Images
+                border
+                borderStyle="1px solid #00C6A2"
+                size="4"
+                tokens={[tokenIn, route[0].tokens[1]]}
+              />
+              <span className="text-farmText ml-1">{`#${route[0].pool.id}`}</span>
+            </span>
+
+            <span
+              className="flex items-center cursor-pointer justify-center text-farmText hover:text-senderHot"
+              onClick={() => {
+                window.open(`/pool/${route[0].pool.id}`);
+              }}
+            >
+              <HiOutlineExternalLink />
+            </span>
+          </div>
+
+          <div className="flex-shrink-0">
+            <Icon token={tokenOut || route[0].tokens[1]} size={'5'} />
+          </div>
+        </div>
+      ) : (
+        <div
+          className={`w-full flex-shrink-0 h-4 flex items-center rounded-xl  justify-between relative `}
+        >
+          <span
+            className="flex items-center w-14  rounded-md p-1 py-0.5"
+            style={{
+              background: '#24333D',
+            }}
+          >
+            <Icon token={tokenIn || route[0].tokens[0]} size={'5'} />
+            <span className="text-right mx-0.5">{p}%</span>
+          </span>
+
+          <div
+            className="w-full absolute bottom-2"
+            style={{
+              border: '1px dashed #304352',
+              zIndex: -1,
+            }}
+          ></div>
+
+          <div
+            style={{
+              background: '#24333D',
+            }}
+            className="py-1 px-1 flex items-center rounded-md"
+          >
+            <span className="flex items-center mx-1">
+              <Images
+                border
+                borderStyle="1px solid #00C6A2"
+                size="4"
+                tokens={[tokenIn, route[0].tokens[1]]}
+              />
+
+              <span className="text-farmText ml-1">{`#${route[0].pool.id}`}</span>
+            </span>
+
+            <span
+              className="flex items-center cursor-pointer justify-center text-farmText hover:text-senderHot"
+              onClick={() => {
+                window.open(`/pool/${route[0].pool.id}`);
+              }}
+            >
+              <HiOutlineExternalLink />
+            </span>
+          </div>
+
+          <div
+            style={{
+              background: '#24333D',
+            }}
+            className="py-1  px-1 flex items-center rounded-md"
+          >
+            <span className="flex items-center mx-1">
+              <Images
+                border
+                borderStyle="1px solid #00C6A2"
+                size="4"
+                tokens={[route[1].tokens[1], tokenOut]}
+              />
+
+              <span className="text-farmText ml-1">{`#${route[1].pool.id}`}</span>
+            </span>
+
+            <span
+              className="flex items-center cursor-pointer justify-center text-farmText hover:text-senderHot"
+              onClick={() => {
+                window.open(`/pool/${route[1].pool.id}`);
+              }}
+            >
+              <HiOutlineExternalLink />
+            </span>
+          </div>
+          <div className="flex-shrink-0">
+            <Icon token={tokenOut} size={'5'} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+export function RouteDCLDetail({
+  bestFee,
+  tokenIn,
+  tokenOut,
+}: {
+  bestFee: number;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+}) {
+  const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, bestFee * 100);
+  const pool_id_url_params = pool_id.replace(/\|/g, '@');
+  return (
+    <section className="py-2 flex  text-xs items-center justify-between rounded-xl">
+      <div className="text-farmText">
+        <div className="inline-flex items-center">
+          <FormattedMessage id="route" defaultMessage={'Route'} />
+        </div>
+      </div>
+      {/* todo 待删除 */}
+      {/* <div className=" text-white flex items-center ">
+        <span className="flex items-center">
+          <span className="mr-1">100%</span>
+
+          <Images tokens={[tokenIn]} size={'4'} />
+        </span>
+
+        <div className="px-5">
+          <ArrowRight />
+        </div>
+
+        <div className="flex items-center px-1 pl-3 py-1  rounded-xl bg-black bg-opacity-20">
+          <span>{`${toRealSymbol(tokenOut.symbol)}/${tokenIn.symbol} V2`}</span>
+
+          <span
+            className="px-2 text-primaryText"
+            style={{
+              fontSize: '10px',
+            }}
+          >
+            {bestFee / 100}%
+          </span>
+
+          <Images tokens={[tokenOut]} size="4" />
+        </div>
+      </div> */}
+      <div
+        className={`flex-shrink-0 h-4 flex items-center rounded-xl  justify-between relative z-0`}
+      >
+        <span
+          className="flex items-center  rounded-md p-1 py-0.5"
+          style={{
+            background: '#24333D',
+          }}
+        >
+          <Icon token={tokenIn} size={'5'} />
+          <span className="text-right mx-0.5 text-farmText">100%</span>
+        </span>
+
+        <div
+          className="w-full absolute bottom-2"
+          style={{
+            border: '1px dashed #304352',
+            zIndex: -1,
+          }}
+        ></div>
+
+        <div
+          style={{
+            background: '#24333D',
+          }}
+          className="py-1 px-1 flex items-center rounded-md mx-5"
+        >
+          <span className="font-bold mr-1 text-farmText">V2</span>
+
+          <span className="flex items-center mx-1">
+            <Images
+              border
+              borderStyle="1px solid #00C6A2"
+              size="4"
+              tokens={[tokenIn, tokenOut]}
+            />
+          </span>
+          <span className="text-farmText mr-1">{bestFee / 100}%</span>
+          <span
+            className="flex items-center cursor-pointer justify-center text-farmText hover:text-senderHot"
+            onClick={() => {
+              window.open(`/poolV2/${pool_id_url_params}`);
+            }}
+          >
+            <HiOutlineExternalLink />
+          </span>
+        </div>
+
+        <div className="flex-shrink-0">
+          <Icon token={tokenOut} size={'5'} />
+        </div>
+      </div>
+    </section>
+  );
+}
 
 const REF_FI_SHOW_ALL_RESULTS = 'REF_FI_SHOW_ALL_RESULTS_VALUE';
 

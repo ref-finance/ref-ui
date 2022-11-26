@@ -88,6 +88,8 @@ import {
   OneParallelRoute,
   RouterIcon,
   SmartRouteV2,
+  NormalSwapRoute,
+  RouteDCLDetail,
 } from '../../components/layout/SwapRoutes';
 
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
@@ -473,13 +475,8 @@ export function SmartRoutesV2Detail({
   }, [identicalRoutes, pools]);
 
   return (
-    <section
-      className="md:flex px-2 lg:flex py-1 text-xs items-center md:justify-between lg:justify-between rounded-xl"
-      style={{
-        border: '1.2px solid rgba(145, 162, 174, 0.2)',
-      }}
-    >
-      <div className="text-primaryText relative top-1 text-left self-start">
+    <section className="flex justify-between px-2 py-1 text-xs items-center rounded-xl">
+      <div className="text-primaryText relative text-left self-start mr-10">
         <div className="inline-flex items-center">
           <RouterIcon />
           <AutoRouterText />
@@ -487,11 +484,16 @@ export function SmartRoutesV2Detail({
         </div>
       </div>
 
-      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2 self-start">
-        {tokensPerRoute.map((tokens, index) => (
-          <div key={index} className=" md:w-smartRoute lg:w-smartRoute">
-            <div className="text-right text-white col-span-6 xs:mt-2 md:mt-2">
-              {
+      <div className="text-right text-white flex-grow">
+        {identicalRoutes.map((route, index) => (
+          <div key={index}>
+            <div
+              key={index}
+              className={`flex z-0 ${
+                index > 0 ? 'mt-3' : ''
+              } items-center w-full relative`}
+            >
+              {/* {
                 <SmartRouteV2
                   tokenIn={tokenIn}
                   tokenOut={tokenOut}
@@ -499,62 +501,18 @@ export function SmartRoutesV2Detail({
                   p={percents[index]}
                   pools={identicalRoutes[index].map((hub) => hub.pool)}
                 />
+              } */}
+              {
+                <NormalSwapRoute
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
+                  route={route}
+                  p={percents[index]}
+                />
               }
             </div>
           </div>
         ))}
-      </div>
-    </section>
-  );
-}
-
-export function RouteDCLDetail({
-  bestFee,
-  tokenIn,
-  tokenOut,
-}: {
-  bestFee: number;
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-}) {
-  return (
-    <section
-      className=" px-4 py-2 flex  text-xs items-center justify-between rounded-xl"
-      style={{
-        border: '1.2px solid rgba(145, 162, 174, 0.2)',
-      }}
-    >
-      <div className="text-primaryText  ">
-        <div className="inline-flex items-center">
-          <FormattedMessage id="route" defaultMessage={'Route'} />
-        </div>
-      </div>
-
-      <div className=" text-white flex items-center ">
-        <span className="flex items-center">
-          <span className="mr-1">100%</span>
-
-          <Images tokens={[tokenIn]} size={'4'} />
-        </span>
-
-        <div className="px-5">
-          <ArrowRight />
-        </div>
-
-        <div className="flex items-center px-1 pl-3 py-1  rounded-xl bg-black bg-opacity-20">
-          <span>{`${toRealSymbol(tokenOut.symbol)}/${tokenIn.symbol} V2`}</span>
-
-          <span
-            className="px-2 text-primaryText"
-            style={{
-              fontSize: '10px',
-            }}
-          >
-            {bestFee / 100}%
-          </span>
-
-          <Images tokens={[tokenOut]} size="4" />
-        </div>
       </div>
     </section>
   );
@@ -873,9 +831,9 @@ function DetailViewV2({
           </span>
           <span>
             {showDetails ? (
-              <FaAngleUp color="#91A2AE" />
+              <FaAngleUp color="#ffffff" size={16} />
             ) : (
-              <FaAngleDown color="#91A2AE" />
+              <FaAngleDown color="#7E8A93" size={16} />
             )}
           </span>
         </div>
@@ -959,13 +917,13 @@ function DetailViewV2({
           // !isParallelSwap &&
           //   swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
 
-          swapsTodo.length > 1 && (
-            <SmartRoutesV2Detail
-              swapsTodo={swapsTodo}
-              tokenIn={tokenIn}
-              tokenOut={tokenOut}
-            />
-          )
+          // swapsTodo.length > 1 && (
+          <SmartRoutesV2Detail
+            swapsTodo={swapsTodo}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+          />
+          // )
         }
       </div>
       {Number(priceImpact) > 2 ? (
@@ -1822,7 +1780,6 @@ export default function SwapCard(props: {
     swapMode,
     loadingTrigger,
   });
-
   const {
     poolPercents,
     fee: mostPoolFeeLimit,
