@@ -903,5 +903,6 @@ const zh_CN = {
   search_name_or_address: '搜索名字或粘贴地址...',
   token_address_invalid: '代币地址是无效的',
   price_impact_warning: '价格影响警告',
+  insufficient_balance: '余额不足',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

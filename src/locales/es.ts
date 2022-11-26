@@ -988,5 +988,6 @@ const es = {
   search_name_or_address: 'Search name or paste address...',
   token_address_invalid: 'The token address was invalid',
   price_impact_warning: 'Price Impact Warning',
+  insufficient_balance: 'Insufficient Balance',
 };
 export default Object.assign(es, es_in_risks_page);

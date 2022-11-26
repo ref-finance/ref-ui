@@ -347,6 +347,9 @@ export default function CrossSwapCard(props: {
 
   const { accountId } = useWalletSelector();
 
+  const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
+  const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
+
   const [crossAllResults, setCrossAllResults] = useState(null);
 
   const isSignedIn = !!accountId;
@@ -478,26 +481,34 @@ export default function CrossSwapCard(props: {
     if (!tokenIn || !tokenOut || !isSignedIn) return;
     const tokenInId = tokenIn.id;
     const tokenOutId = tokenOut.id;
-    ftGetBalance(tokenInId).then((available: string) =>
-      setTokenInBalanceFromNear(
-        toReadableNumber(
-          tokenIn?.decimals,
-          tokenInId === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR'
-            ? nearBalance
-            : available
+
+    setBalanceInDone(false);
+    setBalanceOutDone(false);
+
+    ftGetBalance(tokenInId)
+      .then((available: string) =>
+        setTokenInBalanceFromNear(
+          toReadableNumber(
+            tokenIn?.decimals,
+            tokenInId === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR'
+              ? nearBalance
+              : available
+          )
         )
       )
-    );
-    ftGetBalance(tokenOutId).then((available: string) =>
-      setTokenOutBalanceFromNear(
-        toReadableNumber(
-          tokenOut?.decimals,
-          tokenOutId === WRAP_NEAR_CONTRACT_ID && tokenOut.symbol == 'NEAR'
-            ? nearBalance
-            : available
+      .finally(() => setBalanceInDone(true));
+    ftGetBalance(tokenOutId)
+      .then((available: string) =>
+        setTokenOutBalanceFromNear(
+          toReadableNumber(
+            tokenOut?.decimals,
+            tokenOutId === WRAP_NEAR_CONTRACT_ID && tokenOut.symbol == 'NEAR'
+              ? nearBalance
+              : available
+          )
         )
       )
-    );
+      .finally(() => setBalanceOutDone(true));
   }, [tokenIn, tokenOut, isSignedIn, nearBalance]);
   useEffect(() => {
     if (!tokenIn || !tokenOut) return;
@@ -745,8 +756,11 @@ export default function CrossSwapCard(props: {
   const swapErrorCrossV3 = swapError && swapErrorV3;
 
   console.log({
-    swapError,
-    swapErrorV3,
+    tokenIn,
+    t:
+      tokenIn &&
+      tokenIn.id == WRAP_NEAR_CONTRACT_ID &&
+      tokenIn.symbol === 'NEAR',
   });
 
   return (
@@ -784,7 +798,16 @@ export default function CrossSwapCard(props: {
         elseView={<SubmitButton disabled={true} loading={showSwapLoading} />}
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
-        title={'swap'}
+        title={
+          balanceInDone &&
+          balanceOutDone &&
+          (new Big(tokenInAmount || '0').gt(tokenInMax || '0') ||
+            ONLY_ZEROS.test(tokenInMax)) &&
+          tokenIn &&
+          !(tokenIn.id == WRAP_NEAR_CONTRACT_ID && tokenIn.symbol === 'NEAR')
+            ? 'insufficient_balance'
+            : 'swap'
+        }
         selectTodos={selectTodos}
       >
         <TokenAmountV3
@@ -809,6 +832,26 @@ export default function CrossSwapCard(props: {
           }}
           amount={tokenInAmount}
         />
+        {balanceInDone &&
+          balanceOutDone &&
+          tokenIn &&
+          Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+            Number(tokenInAmount || '0') <
+            0 &&
+          !ONLY_ZEROS.test(tokenInMax || '0') &&
+          !ONLY_ZEROS.test(tokenInAmount || '0') &&
+          tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
+          tokenIn.symbol === 'NEAR' && (
+            <div className="mb-2">
+              <Alert
+                level="warn"
+                message={`${intl.formatMessage({
+                  id: 'near_validation_error',
+                })} `}
+              />
+            </div>
+          )}
+
         <div className={`flex items-center -my-2 justify-center`}>
           <SwapExchangeV1
             onChange={() => {
@@ -859,16 +902,6 @@ export default function CrossSwapCard(props: {
         wrapOperation
           ? null
           : crossAllResults}
-
-        {/* {wrapOperation ? (
-          <DetailView_near_wnear
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            minAmountOut={tokenInAmount}
-            from={tokenInAmount}
-            to={tokenInAmount}
-          ></DetailView_near_wnear>
-        ) : null} */}
 
         {swapErrorCrossV3 && tokenIn?.id !== tokenOut?.id ? (
           <div className="pb-2 relative -mb-5">

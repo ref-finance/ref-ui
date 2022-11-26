@@ -1160,6 +1160,21 @@ export const CrossSwapAllResult = ({
     );
   };
 
+  const priceImpactDisplay = useMemo(() => {
+    if (
+      (!selectIsTri ? !priceImpactTri : !priceImpactRef) ||
+      !tokenIn ||
+      !tokenInAmount
+    )
+      return null;
+
+    return GetPriceImpact(
+      selectIsTri ? priceImpactTri : priceImpactRef,
+      tokenIn,
+      tokenInAmount
+    );
+  }, [selectReceive, priceImpactTri, priceImpactRef, selectIsTri]);
+
   const diffs = receives.map((r) => {
     if (r === bestReceived) {
       return '0';
@@ -1411,6 +1426,19 @@ export const CrossSwapAllResult = ({
           receive={selectReceive}
         />
       )}
+
+      {Number(selectIsTri ? priceImpactTri : priceImpactRef) > 2 &&
+      priceImpactDisplay ? (
+        <div className="flex items-center justify-between border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+          <span>
+            <FormattedMessage id="price_impact_warning"></FormattedMessage>
+          </span>
+          <div className="flex items-center">
+            <span className="gotham_bold">{priceImpactDisplay}</span>
+            <span className="ml-1">{tokenIn.symbol}</span>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 };
