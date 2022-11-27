@@ -362,7 +362,6 @@ export function SwapRate({
   }
 
   return (
-    // todo 2
     <section className=" py-1 text-xs flex items-center">
       <p
         className="flex items-center text-white cursor-pointer text-right mr-1"
@@ -679,6 +678,66 @@ export const PriceImpactWarning = ({ value }: { value: string }) => {
   );
 };
 
+export function DetailView_near_wnear({
+  tokenIn,
+  tokenOut,
+  minAmountOut,
+  from,
+  to,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  minAmountOut: string;
+  from: string;
+  to: string;
+}) {
+  const intl = useIntl();
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+  return (
+    <div className="mt-8">
+      <div className="flex justify-center">
+        <div
+          className="flex items-center text-white cursor-pointer"
+          onClick={() => {
+            setShowDetails(!showDetails);
+          }}
+        >
+          <p className="block text-xs">
+            <FormattedMessage id="details" defaultMessage="Details" />
+          </p>
+          <div className="pl-1 text-sm">
+            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
+          </div>
+        </div>
+      </div>
+      <div className={showDetails ? '' : 'hidden'}>
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={<span>{toPrecision((minAmountOut || 0).toString(), 8)}</span>}
+        />
+        <SwapRateDetail
+          title={intl.formatMessage({ id: 'swap_rate' })}
+          value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${1} ${toRealSymbol(
+            tokenIn.symbol
+          )}`}
+          from={from}
+          to={to}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          fee={0}
+        />
+        <SwapDetail
+          title={intl.formatMessage({ id: 'price_impact' })}
+          value={'-'}
+        />
+        <SwapDetail
+          title={intl.formatMessage({ id: 'pool_fee' })}
+          value={'-'}
+        />
+      </div>
+    </div>
+  );
+}
 function DetailViewV2({
   pools,
   tokenIn,
@@ -944,67 +1003,6 @@ function DetailViewV2({
   );
 }
 
-export function DetailView_near_wnear({
-  tokenIn,
-  tokenOut,
-  minAmountOut,
-  from,
-  to,
-}: {
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-  minAmountOut: string;
-  from: string;
-  to: string;
-}) {
-  const intl = useIntl();
-  const [showDetails, setShowDetails] = useState<boolean>(false);
-  return (
-    <div className="mt-8">
-      <div className="flex justify-center">
-        <div
-          className="flex items-center text-white cursor-pointer"
-          onClick={() => {
-            setShowDetails(!showDetails);
-          }}
-        >
-          <p className="block text-xs">
-            <FormattedMessage id="details" defaultMessage="Details" />
-          </p>
-          <div className="pl-1 text-sm">
-            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
-          </div>
-        </div>
-      </div>
-      <div className={showDetails ? '' : 'hidden'}>
-        <SwapDetail
-          title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision((minAmountOut || 0).toString(), 8)}</span>}
-        />
-        <SwapRateDetail
-          title={intl.formatMessage({ id: 'swap_rate' })}
-          value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${1} ${toRealSymbol(
-            tokenIn.symbol
-          )}`}
-          from={from}
-          to={to}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          fee={0}
-        />
-        <SwapDetail
-          title={intl.formatMessage({ id: 'price_impact' })}
-          value={'-'}
-        />
-        <SwapDetail
-          title={intl.formatMessage({ id: 'pool_fee' })}
-          value={'-'}
-        />
-      </div>
-    </div>
-  );
-}
-
 function DetailViewV3({
   tokenIn,
   tokenOut,
@@ -1025,7 +1023,14 @@ function DetailViewV3({
   tokenPriceList?: any;
 }) {
   const intl = useIntl();
-
+  const { refresh } = useContext(LimitOrderTriggerContext);
+  const {
+    setLoadingPause,
+    setLoadingTrigger,
+    setLoadingData,
+    loadingTrigger,
+    loadingPause,
+  } = refresh;
   const [showDetails, setShowDetails] = useState<boolean>(
     !!sessionStorage.getItem(storageShoDetail) || false
   );
@@ -1065,18 +1070,41 @@ function DetailViewV3({
 
   return (
     <div className="mt-8">
-      <div className="flex items-center mb-1 justify-between text-white ">
-        <SwapRate
-          value={`1 ${toRealSymbol(
-            tokenOut.symbol
-          )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
-          from={from}
-          to={to}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          fee={fee}
-          tokenPriceList={tokenPriceList}
-        />
+      <div className="flex items-center mb-3 justify-between text-white ">
+        <div className="flex items-center">
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+
+              if (loadingPause) {
+                setLoadingPause(false);
+                setLoadingTrigger(true);
+                setLoadingData(true);
+              } else {
+                setLoadingPause(true);
+                setLoadingTrigger(false);
+              }
+            }}
+            className="mr-2 cursor-pointer"
+          >
+            <CountdownTimer
+              loadingTrigger={loadingTrigger}
+              loadingPause={loadingPause}
+            />
+          </div>
+          <SwapRate
+            value={`1 ${toRealSymbol(
+              tokenOut.symbol
+            )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
+            from={from}
+            to={to}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            fee={fee}
+            tokenPriceList={tokenPriceList}
+          />
+        </div>
 
         <div
           className="pl-1 text-sm flex items-center cursor-pointer"
@@ -1090,52 +1118,69 @@ function DetailViewV3({
             setShowDetails(!showDetails);
           }}
         >
-          {showDetails ? null : (
-            <span className="py-1 pl-1 pr-1.5 rounded-md flex items-center bg-opacity-20 bg-black mr-1.5">
-              <SwapMinReceiveCheck />
-
-              <span
-                className=" text-white ml-1 relative top-0.5"
-                style={{
-                  fontSize: '13px',
-                }}
-              >
-                {toPrecision(minAmountOutValue, 8)}
-              </span>
-            </span>
-          )}
-
+          {getPriceImpactTipType(priceImpact)}
+          <span className="text-xs text-primaryText mx-1.5">
+            <FormattedMessage id="detail"></FormattedMessage>
+          </span>
           <span>
             {showDetails ? (
-              <FaAngleUp color="#91A2AE" />
+              <FaAngleUp color="#ffffff" size={16} />
             ) : (
-              <FaAngleDown color="#91A2AE" />
+              <FaAngleDown color="#7E8A93" size={16} />
             )}
           </span>
         </div>
       </div>
-      <div className={showDetails ? '' : 'hidden'}>
-        <SwapDetail
-          title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
-        />
-
-        {Number(priceImpact) > 2 && (
-          <div className="py-1 text-xs text-right">
-            <PriceImpactWarning value={priceImpact} />
-          </div>
-        )}
-        <SwapDetail
-          title={intl.formatMessage({ id: 'price_impact' })}
-          value={!to || to === '0' ? '-' : priceImpactDisplay}
-        />
+      <div
+        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 ${
+          showDetails ? '' : 'hidden'
+        }`}
+      >
+        <div className="">
+          <SwapDetail
+            title={intl.formatMessage({ id: 'price_impact' })}
+            value={
+              !to || to === '0' ? (
+                '-'
+              ) : (
+                <>
+                  {priceImpactDisplay}
+                  <span
+                    className="text-primaryText"
+                    style={{ marginLeft: '3px' }}
+                  >
+                    {tokenIn.symbol}
+                  </span>
+                </>
+              )
+            }
+          />
+        </div>
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
           value={poolFeeDisplay}
         />
 
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
+          color="text-white"
+        />
         <RouteDCLDetail bestFee={fee} tokenIn={tokenIn} tokenOut={tokenOut} />
       </div>
+      {Number(priceImpact) > 2 ? (
+        <div className="flex items-center justify-between border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+          <span>
+            <FormattedMessage id="price_impact_warning"></FormattedMessage>
+          </span>
+          <div className="flex items-center">
+            <span className="gotham_bold">
+              {!to || to === '0' ? '-' : priceImpactDisplay}
+            </span>
+            <span className="ml-1">{tokenIn.symbol}</span>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -2046,7 +2091,6 @@ export default function SwapCard(props: {
       },
     });
 
-  // todo 1
   const DetailView = useMemo(() => {
     if (bestSwap === 'v2') {
       return (
@@ -2118,7 +2162,6 @@ export default function SwapCard(props: {
     new Big(tokenInAmount || '0').lte(tokenInMax || '0') &&
     !ONLY_ZEROS.test(tokenInMax || '0');
   const canWrap = wrapButtonCheck();
-  // todo x
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -2382,7 +2425,7 @@ export default function SwapCard(props: {
             onChangeRate={onChangeLimitRate}
             marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
             ExtraElement={
-              swapMode == SWAP_MODE.LIMIT ? (
+              swapMode == SWAP_MODE.LIMIT && limitAmountOut ? (
                 <MdOutlineRefresh
                   size={18}
                   className={`text-primaryText cursor-pointer  ${
@@ -2397,34 +2440,40 @@ export default function SwapCard(props: {
             allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
           />
           {swapMode === SWAP_MODE.LIMIT ? (
-            <div className="flex items-stretch justify-between mt-2.5">
-              <LimitOrderRateSetBox
-                tokenIn={tokenIn}
-                tokenOut={tokenOut}
-                limitFee={mostPoolDetail?.fee}
-                setDiff={setDiff}
-                curRate={LimitAmountOutRate}
-                onChangeRate={onChangeLimitRate}
-                marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
-                fee={mostPoolDetail?.fee}
-                triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
-                curPrice={curOrderPrice}
-                setRate={onChangeLimitRate}
-                hidden={feeTiersShowFull ? true : false}
-                hasLockedRate={hasLockedRate}
-                setHasLockedRate={setHasLockedRate}
-              />
-              <DetailViewLimit
-                tokenIn={tokenIn}
-                tokneOut={tokenOut}
-                poolPercents={poolPercents}
-                everyPoolTvl={everyPoolTvl}
-                v3Pool={selectedV3LimitPool}
-                setV3Pool={setSelectedV3LimitPool}
-                tokenPriceList={tokenPriceList}
-                setFeeTiersShowFull={setFeeTiersShowFull}
-              />
-            </div>
+            <>
+              <div className="flex items-stretch justify-between mt-2.5">
+                <LimitOrderRateSetBox
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
+                  limitFee={mostPoolDetail?.fee}
+                  setDiff={setDiff}
+                  curRate={LimitAmountOutRate}
+                  onChangeRate={onChangeLimitRate}
+                  marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
+                  fee={mostPoolDetail?.fee}
+                  triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
+                  curPrice={curOrderPrice}
+                  setRate={onChangeLimitRate}
+                  hidden={feeTiersShowFull ? true : false}
+                  hasLockedRate={hasLockedRate}
+                  setHasLockedRate={setHasLockedRate}
+                />
+                <DetailViewLimit
+                  tokenIn={tokenIn}
+                  tokneOut={tokenOut}
+                  poolPercents={poolPercents}
+                  everyPoolTvl={everyPoolTvl}
+                  v3Pool={selectedV3LimitPool}
+                  setV3Pool={setSelectedV3LimitPool}
+                  tokenPriceList={tokenPriceList}
+                  setFeeTiersShowFull={setFeeTiersShowFull}
+                />
+              </div>
+              <div className="text-xs text-limitOrderInputColor mt-2.5 px-3">
+                To improve deal the efficiency, your price should be in one slot
+                nearby automatically
+              </div>
+            </>
           ) : null}
 
           {(poolError && swapMode !== SWAP_MODE.LIMIT) ||

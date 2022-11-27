@@ -116,13 +116,6 @@ export const useMenuItems = () => {
       ],
     },
     {
-      label: intl.formatMessage({ id: 'wrapnear' }),
-      url: '',
-      isExternal: false,
-      logo: <WrapNearIcon />,
-      specialMenuKey: 'wrapnear',
-    },
-    {
       label: intl.formatMessage({ id: 'docs' }),
       url: 'https://guide.ref.finance',
       // icon: <HiOutlineExternalLink />,

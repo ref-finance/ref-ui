@@ -86,7 +86,7 @@ export default function SwapFormWrap({
         e.preventDefault();
         history.push('/myOrder');
       }}
-      className="w-full h-11 flex items-center justify-center bg-orderGradient hover:bg-orderGraidentHover mt-4 rounded-lg text-white text-base"
+      className="w-full h-11 flex items-center justify-center bg-switchIconBgColor border border-limitOrderBorderColor mt-4 rounded-lg text-greenColor text-base gotham_bold"
     >
       <OrderIcon />
       <span className="mx-2 xs:mx-1 md:mx-1">

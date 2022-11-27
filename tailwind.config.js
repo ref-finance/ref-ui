@@ -213,6 +213,7 @@ module.exports = {
         commonCloseColor:'#454D52',
         lightReBgColor:'rgba(255, 117, 117, 0.1)',
         feeBoxSelectedBg: '#182127',
+        limitOrderBorderColor:'#344049',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

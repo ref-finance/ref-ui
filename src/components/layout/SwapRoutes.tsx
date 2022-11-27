@@ -48,6 +48,7 @@ import { Images } from '../stableswap/CommonComp';
 import { getAuroraConfig } from '~services/aurora/config';
 import { useClientMobile } from '../../utils/device';
 import { getV3PoolId } from '../../services/swapV3';
+import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 
 export const RouterIcon = () => {
   return (
@@ -788,33 +789,6 @@ export function RouteDCLDetail({
           <FormattedMessage id="route" defaultMessage={'Route'} />
         </div>
       </div>
-      {/* todo 待删除 */}
-      {/* <div className=" text-white flex items-center ">
-        <span className="flex items-center">
-          <span className="mr-1">100%</span>
-
-          <Images tokens={[tokenIn]} size={'4'} />
-        </span>
-
-        <div className="px-5">
-          <ArrowRight />
-        </div>
-
-        <div className="flex items-center px-1 pl-3 py-1  rounded-xl bg-black bg-opacity-20">
-          <span>{`${toRealSymbol(tokenOut.symbol)}/${tokenIn.symbol} V2`}</span>
-
-          <span
-            className="px-2 text-primaryText"
-            style={{
-              fontSize: '10px',
-            }}
-          >
-            {bestFee / 100}%
-          </span>
-
-          <Images tokens={[tokenOut]} size="4" />
-        </div>
-      </div> */}
       <div
         className={`flex-shrink-0 h-4 flex items-center rounded-xl  justify-between relative z-0`}
       >
@@ -849,7 +823,10 @@ export function RouteDCLDetail({
               border
               borderStyle="1px solid #00C6A2"
               size="4"
-              tokens={[tokenIn, tokenOut]}
+              tokens={[
+                tokenIn,
+                tokenOut?.id == WRAP_NEAR_CONTRACT_ID ? nearMetadata : tokenOut,
+              ]}
             />
           </span>
           <span className="text-farmText mr-1">{bestFee / 100}%</span>

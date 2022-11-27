@@ -1379,12 +1379,14 @@ export function LimitOrderRateSetBox({
       if (rateSort) {
         return curRate;
       } else {
-        const rate_reverse = new BigNumber(1).dividedBy(curRate).toFixed();
-        const rate_reverse_regularized = toPrecision(
-          regularizedPrice(rate_reverse, tokenIn, tokenOut, limitFee),
-          8
-        );
-        return rate_reverse_regularized;
+        try {
+          const rate_reverse = new BigNumber(1).dividedBy(curRate).toFixed();
+          const rate_reverse_regularized = toPrecision(
+            regularizedPrice(rate_reverse, tokenIn, tokenOut, limitFee),
+            8
+          );
+          return rate_reverse_regularized;
+        } catch (error) {}
       }
     }
   }

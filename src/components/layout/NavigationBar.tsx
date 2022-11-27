@@ -813,12 +813,9 @@ function MoreMenu() {
     url: string,
     isExternal: boolean,
     label: string,
-    children?: any,
-    specialMenuKey?: string
+    children?: any
   ) => {
-    if (specialMenuKey == 'wrapnear') {
-      setShowWrapNear(true);
-    } else if (url) {
+    if (url) {
       if (isExternal) {
         window.open(url);
       } else {
@@ -840,8 +837,8 @@ function MoreMenu() {
         }}
       >
         <div
-          className={`rounded-xl p-3 mx-4 cursor-pointer xsm:bg-transparent bg-menuMoreBgColor ${
-            hover ? 'text-white' : 'text-primaryText'
+          className={`rounded-xl p-3 mx-4 cursor-pointer xsm:bg-transparent ${
+            hover ? 'text-white bg-menuMoreBgColor' : 'text-primaryText'
           }`}
         >
           <MoreIcon></MoreIcon>
@@ -885,7 +882,6 @@ function MoreMenu() {
                     exact: true,
                     strict: false,
                   });
-                if (specialMenuKey == 'wrapnear' && !isSignedIn) return null;
                 if (specialMenuKey == 'sauce')
                   return (
                     <div
@@ -965,22 +961,6 @@ function MoreMenu() {
           </Card>
         </div>
       </div>
-      <WrapNear
-        isOpen={showWrapNear}
-        onRequestClose={() => setShowWrapNear(false)}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            position: 'fixed',
-            width: 550,
-            bottom: '50%',
-          },
-        }}
-      />
     </>
   );
 }
