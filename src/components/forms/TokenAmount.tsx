@@ -37,7 +37,14 @@ import Big from 'big.js';
 import { QuestionTip } from '../layout/TipWrapper';
 import { regularizedPrice } from '../../services/swapV3';
 import { LimitOrderTriggerContext } from '../swap/SwapCard';
-import { RefreshIcon, LockIcon, ReduceIcon, PlusIcon } from '../icon/swapV3';
+import {
+  RefreshIcon,
+  LockIcon,
+  ReduceIcon,
+  PlusIcon,
+  LockInIcon,
+} from '../icon/swapV3';
+import BigNumber from 'bignumber.js';
 
 interface TokenAmountProps {
   amount?: string;
@@ -936,21 +943,35 @@ export function TokenAmountV3({
             !ONLY_ZEROS.test(curRate) &&
             marketPriceLimitOrder &&
             swapMode === SWAP_MODE.LIMIT ? (
-              <span
-                className={`rounded-xl ${
-                  Number(displayRateDiff) > 0
-                    ? 'text-gradientFrom bg-gradientFrom '
-                    : Number(displayRateDiff) <= -10
-                    ? 'text-error bg-error'
-                    : 'text-warn bg-warn'
-                }  py-0.5  absolute px-2 bg-opacity-20`}
+              <div
+                className="flex items-center absolute"
                 style={{
                   left: getTextWidth(amount, '20px') + 'px',
                 }}
               >
-                {displayRateDiff}%
-              </span>
-            ) : null
+                <span
+                  className={`rounded-xl ${
+                    Number(displayRateDiff) > 0
+                      ? 'text-gradientFrom bg-gradientFrom '
+                      : Number(displayRateDiff) <= -10
+                      ? 'text-error bg-error'
+                      : 'text-warn bg-warn'
+                  }  py-0.5 px-2 bg-opacity-20 mr-1.5`}
+                >
+                  {displayRateDiff}%
+                </span>
+                {ExtraElement}
+              </div>
+            ) : (
+              <div
+                className="absolute"
+                style={{
+                  left: getTextWidth(amount, '20px') + 'px',
+                }}
+              >
+                {ExtraElement}
+              </div>
+            )
           }
         />
         {showSelectToken &&
@@ -1315,17 +1336,18 @@ export function LimitOrderRateSetBox({
   onChangeRate,
   curRate,
   limitFee,
-  ExtraElement,
   setDiff,
-  rate,
   setRate,
   curPrice,
   fee,
   triggerFetch,
   hidden,
+  hasLockedRate,
+  setHasLockedRate,
 }: any) {
   // TokenAmountProps
   const inputRef = useRef<HTMLInputElement>(null);
+  const [rateSort, setRateSort] = useState(true);
   const plus1 =
     tokenIn &&
     tokenOut &&
@@ -1338,59 +1360,34 @@ export function LimitOrderRateSetBox({
     limitFee &&
     toPrecision(regularizedPrice(curRate, tokenIn, tokenOut, limitFee, -1), 8);
 
-  const plus5 =
-    tokenIn &&
-    tokenOut &&
-    limitFee &&
-    toPrecision(
-      regularizedPrice(
-        percentOfBigNumber(105, marketPriceLimitOrder || 0, 8),
-        tokenIn,
-        tokenOut,
-        limitFee
-      ),
-      8
-    );
-  const plus10 =
-    tokenIn &&
-    tokenOut &&
-    limitFee &&
-    toPrecision(
-      regularizedPrice(
-        percentOfBigNumber(110, marketPriceLimitOrder || 0, 8),
-        tokenIn,
-        tokenOut,
-        limitFee
-      ),
-      8
-    );
-
-  const rateDiff = new Big(curRate || '0')
-    .minus(marketPriceLimitOrder || '0')
-    .div(marketPriceLimitOrder || '1')
-    .times(100);
-
-  const displayRateDiff =
-    (Number(rateDiff) < 0 ? '-' : Number(rateDiff) > 0 ? '+' : '') +
-    (Number(curRate) === Number(plus5)
-      ? 5
-      : Number(curRate) === Number(plus10)
-      ? 10
-      : Math.abs(Number(rateDiff)) < 1
-      ? toPrecision(
-          scientificNotationToString(
-            rateDiff.times(rateDiff.lt(0) ? -1 : 1).toString()
-          ),
-          1
-        )
-      : rateDiff.times(rateDiff.lt(0) ? -1 : 1).toFixed(0));
   const [symbolsArr] = useState(['e', 'E', '+', '-']);
-  useEffect(() => {
-    if (setDiff) {
-      setDiff(displayRateDiff);
+  function switchLockStatus() {
+    setHasLockedRate(!hasLockedRate);
+  }
+  function getTokenASymbol() {
+    if (rateSort) return tokenIn?.symbol;
+    else return tokenOut?.symbol;
+  }
+  function getTokenBSymbol() {
+    if (rateSort) return tokenOut?.symbol;
+    else return tokenIn?.symbol;
+  }
+  function getInputValue() {
+    if (!curPrice) {
+      return '-';
+    } else {
+      if (rateSort) {
+        return curRate;
+      } else {
+        const rate_reverse = new BigNumber(1).dividedBy(curRate).toFixed();
+        const rate_reverse_regularized = toPrecision(
+          regularizedPrice(rate_reverse, tokenIn, tokenOut, limitFee),
+          8
+        );
+        return rate_reverse_regularized;
+      }
     }
-  }, [displayRateDiff]);
-
+  }
   return (
     <>
       <div
@@ -1400,8 +1397,15 @@ export function LimitOrderRateSetBox({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            {ExtraElement}
-            <span className="text-xs text-primaryText ml-2">1 NEAR = </span>
+            <RefreshIcon
+              className={`text-primaryText cursor-pointer`}
+              onClick={() => {
+                setRateSort(!rateSort);
+              }}
+            />
+            <span className="text-xs text-primaryText ml-2">
+              1 {getTokenASymbol()} ={' '}
+            </span>
           </div>
           <div className="flex items-center text-xs text-greenColor">
             <span
@@ -1413,19 +1417,22 @@ export function LimitOrderRateSetBox({
             >
               <FormattedMessage id="market_rate"></FormattedMessage>
             </span>
-            <LockIcon className="ml-1.5"></LockIcon>
           </div>
         </div>
         <div className="flex items-center justify-between">
           <span
             onClick={() => {
-              onChangeRate(minus1);
+              if (rateSort) {
+                onChangeRate(minus1);
+              } else {
+                onChangeRate(plus1);
+              }
             }}
             className="flex items-center justify-center cursor-pointer w-5 h-5 rounded-md hover:bg-selectTokenV3BgColor"
           >
             <ReduceIcon></ReduceIcon>
           </span>
-          <div className="flex items-center">
+          <div className="flex items-center relative">
             <input
               onWheel={() => inputRef.current.blur()}
               min="0"
@@ -1433,9 +1440,9 @@ export function LimitOrderRateSetBox({
               step="any"
               type="number"
               placeholder={!curPrice ? '-' : '0.0'}
-              value={!curPrice ? '-' : rate}
+              value={getInputValue()}
               onBlur={(e) => {
-                const newR = regularizedPrice(rate, tokenIn, tokenOut, fee);
+                const newR = regularizedPrice(curRate, tokenIn, tokenOut, fee);
 
                 if (ONLY_ZEROS.test(toPrecision(newR, 8, false, false))) {
                   return;
@@ -1448,22 +1455,40 @@ export function LimitOrderRateSetBox({
                   return null;
                 } else setRate(e.target.value);
               }}
-              className="text-sm text-white"
+              className="text-sm text-white text-center"
               disabled={!curPrice}
               onKeyDown={(e) =>
                 symbolsArr.includes(e.key) && e.preventDefault()
               }
             />
-            <span className="text-xs text-primaryText">REF</span>
+            <span className="text-xs text-primaryText">
+              {getTokenBSymbol()}
+            </span>
           </div>
-          <span
-            onClick={() => {
-              onChangeRate(plus1);
-            }}
-            className="flex items-center justify-center cursor-pointer w-5 h-5 rounded-md hover:bg-selectTokenV3BgColor"
-          >
-            <PlusIcon></PlusIcon>
-          </span>
+          <div className="flex items-center">
+            <span
+              onClick={() => {
+                if (rateSort) {
+                  onChangeRate(plus1);
+                } else {
+                  onChangeRate(minus1);
+                }
+              }}
+              className="flex items-center justify-center cursor-pointer w-5 h-5 rounded-md hover:bg-selectTokenV3BgColor"
+            >
+              <PlusIcon></PlusIcon>
+            </span>
+            <div
+              onClick={switchLockStatus}
+              className="flex items-center justify-center w-5 h-5 rounded-md ml-0.5 cursor-pointer hover:bg-selectTokenV3BgColor"
+            >
+              {hasLockedRate ? (
+                <LockInIcon></LockInIcon>
+              ) : (
+                <LockIcon></LockIcon>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>

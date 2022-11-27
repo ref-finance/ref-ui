@@ -827,7 +827,8 @@ export const useLimitOrder = ({
   const [poolToOrderCounts, setPoolToOrderCounts] = useState<{
     [key: string]: string | null;
   }>();
-
+  const [everyPoolTvl, setEveryPoolTvl] =
+    useState<{ [key: string]: string | null }>();
   useEffect(() => {
     if (!selectedV3LimitPool) return;
     setQuoteDone(false);
@@ -927,7 +928,11 @@ export const useLimitOrder = ({
           percents.every((p) => Number(p) === 0)
         )
           return;
-
+        const temp = {};
+        Object.keys(toCounts).forEach((pool_id: string, index) => {
+          temp[pool_id] = counts[index];
+        });
+        setEveryPoolTvl(temp);
         setPoolToOrderCounts(toCounts);
       })
       .catch((e) => {
@@ -978,6 +983,7 @@ export const useLimitOrder = ({
     quoteDone,
     idToPools: pools,
     setQuoteDone,
+    everyPoolTvl,
   };
 };
 

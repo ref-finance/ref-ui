@@ -212,6 +212,7 @@ module.exports = {
         commonTokenBorderColor:'rgba(126, 138, 147, 0.2)',
         commonCloseColor:'#454D52',
         lightReBgColor:'rgba(255, 117, 117, 0.1)',
+        feeBoxSelectedBg: '#182127',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

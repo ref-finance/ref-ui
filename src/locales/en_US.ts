@@ -950,5 +950,9 @@ const en_US = {
   search_name_or_address: 'Search name or paste address...',
   token_address_invalid: 'The token address was invalid',
   price_impact_warning: 'Price Impact Warning',
+  confirm_order: 'Confirm Order',
+  you_Sell: 'You Sell',
+  to_Buy: 'to Buy',
+  at_Price: 'at Price',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -11,6 +11,7 @@ import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   ButtonTextWrapper,
+  GradientButton,
   OutlineButton,
   SolidButton,
 } from '../../components/button/Button';
@@ -19,8 +20,11 @@ import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '../../components/card/Card';
 import { HeavyWarning, ModalClose } from '../../components/icon';
+import { Icon } from './SwapRoutes';
+import { ArrowRight } from '../icon/swapV3';
 
 import { EstimateSwapView, PoolMode, swap } from '~services/swap';
+import BigNumber from 'bignumber.js';
 
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 
@@ -160,7 +164,8 @@ export function DoubleCheckModal(
     </Modal>
   );
 }
-export function DoubleCheckModalLimit(
+
+export function DoubleCheckModalLimitOld(
   props: ReactModal.Props & {
     tokenIn: TokenMetadata;
     tokenOut: TokenMetadata;
@@ -267,6 +272,164 @@ export function DoubleCheckModalLimit(
               )}
             />
           </SolidButton>
+        </div>
+      </Card>
+    </Modal>
+  );
+}
+export function DoubleCheckModalLimit(
+  props: ReactModal.Props & {
+    tokenIn: TokenMetadata;
+    tokenOut: TokenMetadata;
+    from: string;
+    onSwap: (e?: any) => void;
+    rateDiff: string;
+    tokenInAmount: string;
+    tokenOutAmount: string;
+    rate: string;
+  }
+) {
+  const {
+    tokenIn,
+    tokenOut,
+    from,
+    onSwap,
+    rateDiff,
+    tokenInAmount,
+    tokenOutAmount,
+    rate,
+  } = props;
+
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+  if (!from || !tokenIn || !tokenOut) return null;
+  function displayAmount(amount: string) {
+    const amountBig = new BigNumber(amount || '0');
+    if (amountBig.isEqualTo(0)) {
+      return '0';
+    } else if (amountBig.isLessThan('0.00000001')) {
+      return '<0.00000001';
+    } else {
+      return toPrecision(amount, 8);
+    }
+  }
+  return (
+    <Modal
+      {...props}
+      style={{
+        overlay: {
+          backdropFilter: 'blur(15px)',
+          WebkitBackdropFilter: 'blur(15px)',
+        },
+        content: {
+          outline: 'none',
+          position: 'fixed',
+          top: '50%',
+        },
+      }}
+    >
+      <Card
+        padding="p-6"
+        bgcolor="bg-cardBg"
+        className="text-white border border-gradientFromHover outline-none flex flex-col items-center"
+        width="xsm:w-90vw lg:w-25vw"
+      >
+        <div
+          className="w-full flex items-center justify-between cursor-pointer"
+          onClick={props.onRequestClose}
+        >
+          <span className="text-lg text-white gotham_bold">
+            <FormattedMessage id="confirm_order"></FormattedMessage>
+          </span>
+          <ModalClose />
+        </div>
+        <div className="flex items-center mt-9">
+          <Icon token={tokenIn} size={'8'}></Icon>
+          <ArrowRight className="mx-4"></ArrowRight>
+          <Icon token={tokenOut} size={'8'}></Icon>
+        </div>
+        <div className="w-full flex items-center justify-between mt-5">
+          <span className="text-v3SwapGray text-sm">
+            <FormattedMessage id="you_Sell"></FormattedMessage>
+          </span>
+          <div className="flex items-center">
+            <span className="text-sm text-white mr-1.5">
+              {displayAmount(tokenInAmount)}
+            </span>
+            <span className="bg-menuMoreBgColor p-1 rounded">
+              {tokenIn.symbol}
+            </span>
+          </div>
+        </div>
+        <div className="w-full flex items-center justify-between mt-3">
+          <span className="text-v3SwapGray text-sm">
+            <FormattedMessage id="to_Buy"></FormattedMessage>
+          </span>
+          <div className="flex items-center">
+            <span className="text-sm text-white mr-1.5">
+              {displayAmount(tokenOutAmount)}
+            </span>
+            <span className="bg-menuMoreBgColor p-1 rounded">
+              {tokenOut.symbol}
+            </span>
+          </div>
+        </div>
+        <div className="w-full flex items-center justify-between mt-3">
+          <span className="text-v3SwapGray text-sm">
+            <FormattedMessage id="at_Price"></FormattedMessage>
+          </span>
+          <div className="flex items-center">
+            <span className="text-sm text-white mr-1.5">
+              {displayAmount(rate)}
+            </span>
+            <span className="bg-menuMoreBgColor p-1 rounded">
+              {tokenOut.symbol}/{tokenIn.symbol}
+            </span>
+          </div>
+        </div>
+        {Number(rateDiff) <= -10 ? (
+          <div className="flex items-center justify-center border border-warnRedColor p-3 rounded-lg text-sm text-redwarningColor mt-5 w-full">
+            <span>
+              <FormattedMessage
+                id="limit_order_price_is"
+                defaultMessage="Limit order price is"
+              />
+            </span>
+
+            <span className="text-error mx-1 gotham_bold">
+              {Math.abs(Number(rateDiff))}%
+            </span>
+
+            <span className="mr-1 text-error gotham_bold">
+              <FormattedMessage id={'below'} defaultMessage="below" />
+            </span>
+
+            <span>
+              <FormattedMessage
+                id="the_market_price"
+                defaultMessage={'the market price'}
+              />
+            </span>
+          </div>
+        ) : null}
+        <div className="flex items-center w-full mt-5">
+          <GradientButton
+            onClick={(e) => {
+              setButtonLoading(true);
+              onSwap();
+            }}
+            className="text-sm text-center rounded-lg h-10 w-full"
+            loading={buttonLoading}
+            disabled={buttonLoading}
+          >
+            <ButtonTextWrapper
+              loading={buttonLoading}
+              Text={() => (
+                <span>
+                  <FormattedMessage id="confirm" />
+                </span>
+              )}
+            />
+          </GradientButton>
         </div>
       </Card>
     </Modal>
