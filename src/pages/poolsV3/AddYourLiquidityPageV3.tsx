@@ -160,7 +160,7 @@ export default function AddYourLiquidityPageV3() {
     }
   }, [currentSelectedPool, tokenX, tokenY]);
   useEffect(() => {
-    if (tokenX && tokenY && listPool.length > 0) {
+    if (tokenX && tokenY) {
       searchPools();
     }
   }, [tokenX, tokenY, tokenPriceList, listPool]);
