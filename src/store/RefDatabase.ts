@@ -89,7 +89,6 @@ export interface BoostSeeds {
 }
 
 class RefDatabase extends Dexie {
-  public pools: Dexie.Table<Pool>;
   public tokens: Dexie.Table<TokenMetadata>;
   public farms: Dexie.Table<FarmDexie>;
   public poolsTokens: Dexie.Table<PoolsTokens>;

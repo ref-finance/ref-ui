@@ -125,6 +125,7 @@ interface EstimateSwapOptions {
   swapPro?: boolean;
   setSwapsToDoTri?: (todos: EstimateSwapView[]) => void;
   setSwapsToDoRef?: (todos: EstimateSwapView[]) => void;
+  proGetCachePool?: boolean;
 }
 
 export interface ReservesMap {
@@ -323,6 +324,7 @@ export const estimateSwap = async ({
   swapPro,
   setSwapsToDoRef,
   setSwapsToDoTri,
+  proGetCachePool,
 }: EstimateSwapOptions): Promise<{
   estimates: EstimateSwapView[];
   tag: string;
@@ -356,9 +358,16 @@ export const estimateSwap = async ({
       setLoadingData,
       loadingTrigger,
       crossSwap: swapPro,
+      tokenIn,
+      tokenOut,
+      proGetCachePool,
     })
   ).filter((p) => {
     return getLiquidity(p, tokenIn, tokenOut) > 0;
+  });
+
+  console.log({
+    pools,
   });
 
   let { supportLedgerRes, triTodos, refTodos } = await getOneSwapActionResult(
@@ -377,8 +386,8 @@ export const estimateSwap = async ({
 
   if (supportLedger) {
     if (swapPro) {
-      setSwapsToDoRef(refTodos);
       setSwapsToDoTri(triTodos);
+      setSwapsToDoRef(refTodos);
     }
 
     return { estimates: supportLedgerRes, tag };
@@ -439,8 +448,8 @@ export const estimateSwap = async ({
     if (!supportLedgerRes && !res.length) throwNoPoolError();
 
     // if not both none, we could return res
-    setSwapsToDoRef(res);
     setSwapsToDoTri(triTodos);
+    setSwapsToDoRef(res);
 
     const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
     const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);
@@ -590,53 +599,53 @@ export const getOneSwapActionResult = async (
             outputToken: tokenOut.id,
           },
         ];
-        const refPools = pools.filter((p) => p.Dex !== 'tri');
+      }
+      const refPools = pools.filter((p) => p.Dex !== 'tri');
 
-        const refPoolThisPair =
-          refPools.length === 1
-            ? refPools[0]
-            : _.maxBy(refPools, (p) => {
-                if (isStablePool(p.id)) {
-                  return Number(
-                    getStablePoolEstimate({
-                      tokenIn,
-                      tokenOut,
-                      stablePoolInfo: allStablePoolsById[p.id][1],
-                      stablePool: allStablePoolsById[p.id][0],
-                      amountIn,
-                    }).estimate
-                  );
-                } else
-                  return Number(
-                    getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
-                      .estimate
-                  );
-              });
+      const refPoolThisPair =
+        refPools.length === 1
+          ? refPools[0]
+          : _.maxBy(refPools, (p) => {
+              if (isStablePool(p.id)) {
+                return Number(
+                  getStablePoolEstimate({
+                    tokenIn,
+                    tokenOut,
+                    stablePoolInfo: allStablePoolsById[p.id][1],
+                    stablePool: allStablePoolsById[p.id][0],
+                    amountIn,
+                  }).estimate
+                );
+              } else
+                return Number(
+                  getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
+                    .estimate
+                );
+            });
 
-        if (refPoolThisPair) {
-          const refPoolEstimateRes = await getPoolEstimate({
-            tokenIn,
-            tokenOut,
-            amountIn: parsedAmountIn,
-            Pool: refPoolThisPair,
-          });
+      if (refPoolThisPair) {
+        const refPoolEstimateRes = await getPoolEstimate({
+          tokenIn,
+          tokenOut,
+          amountIn: parsedAmountIn,
+          Pool: refPoolThisPair,
+        });
 
-          refTodos = [
-            {
-              ...refPoolEstimateRes,
-              status: PoolMode.PARALLEL,
-              routeInputToken: tokenIn.id,
-              totalInputAmount: parsedAmountIn,
-              pool: {
-                ...refPoolThisPair,
-                partialAmountIn: parsedAmountIn,
-              },
-              tokens: [tokenIn, tokenOut],
-              inputToken: tokenIn.id,
-              outputToken: tokenOut.id,
+        refTodos = [
+          {
+            ...refPoolEstimateRes,
+            status: PoolMode.PARALLEL,
+            routeInputToken: tokenIn.id,
+            totalInputAmount: parsedAmountIn,
+            pool: {
+              ...refPoolThisPair,
+              partialAmountIn: parsedAmountIn,
             },
-          ];
-        }
+            tokens: [tokenIn, tokenOut],
+            inputToken: tokenIn.id,
+            outputToken: tokenOut.id,
+          },
+        ];
       }
     }
   }

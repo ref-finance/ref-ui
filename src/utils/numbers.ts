@@ -61,6 +61,8 @@ export const toPrecision = (
   withCommas: boolean = false,
   atLeastOne: boolean = true
 ): string => {
+  if (typeof number === 'undefined') return '0';
+
   const [whole, decimal = ''] = number.split('.');
 
   let str = `${withCommas ? formatWithCommas(whole) : whole}.${decimal.slice(
@@ -752,3 +754,5 @@ export const getMax = function (
         24
       );
 };
+
+export const getPriceImpact = () => {};

@@ -271,9 +271,7 @@ export const v3Swap = async ({
   swapInfo,
 }: V3Swap) => {
   const transactions: Transaction[] = [];
-
   const { tokenA, tokenB, amountA, amountB } = swapInfo;
-
   if (Swap) {
     const pool_ids = Swap.pool_ids;
 
@@ -314,6 +312,13 @@ export const v3Swap = async ({
         },
       ],
     });
+    if (tokenB.id === WRAP_NEAR_CONTRACT_ID && tokenB.symbol == 'wNEAR') {
+      transactions.push(
+        nearDepositTransaction(
+          toReadableNumber(nearMetadata.decimals, min_output_amount)
+        )
+      );
+    }
   }
 
   if (SwapByOutput) {
@@ -429,7 +434,7 @@ export const v3Swap = async ({
     });
   }
 
-  if (tokenA.id === WRAP_NEAR_CONTRACT_ID) {
+  if (tokenA.id === WRAP_NEAR_CONTRACT_ID && tokenA.symbol == 'NEAR') {
     transactions.unshift(nearDepositTransaction(amountA));
   }
 

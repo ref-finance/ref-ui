@@ -25,10 +25,11 @@ import {
   isStableToken,
   STABLE_POOL_TYPE,
 } from '../services/near';
-import { useClientMobile } from '../utils/device';
+import { useClientMobile, isMobileExplorer } from '../utils/device';
 import { Pool, getStablePoolFromCache } from '../services/pool';
 import getConfig from '../services/config';
 import { extraStableTokenIds } from '../services/near';
+import { CrossChainPop } from '../components/icon/swapV3';
 import {
   nearMetadata,
   WRAP_NEAR_CONTRACT_ID,
@@ -49,19 +50,24 @@ export enum SWAP_MODE {
   NORMAL = 'normal',
   STABLE = 'stable',
   LIMIT = 'limit',
+  X_SWAP = 'xSwap',
 }
 
-const ChangeSwapModeV3 = ({
+const ChangeSwapMode = ({
   swapMode,
   setSwapMode,
 }: {
   swapMode: SWAP_MODE;
   setSwapMode: (e?: any) => void;
 }) => {
+  const [hoverXswap, setHoverXswap] = useState(false);
+
+  const isMobile = useClientMobile();
+
   return (
-    <div className="rounded-2xl  xs:hidden w-full text-primaryText text-lg flex items-center mx-auto  font-normal">
+    <div className="rounded-2xl font-bold  w-full text-limitOrderInputColor text-sm flex py-2 xs:pt-0 xs:pb-2 items-start mx-auto  ">
       <span
-        className={`py-2 mr-10 text-center flex flex-col cursor-pointer ${
+        className={`mr-6 text-center px-2 py-1 rounded-xl hover:bg-primaryText hover:bg-opacity-10  flex flex-col cursor-pointer ${
           swapMode === SWAP_MODE.NORMAL ? ' text-white ' : ''
         }`}
         onClick={() => {
@@ -70,15 +76,61 @@ const ChangeSwapModeV3 = ({
         }}
       >
         <FormattedMessage id="swap" defaultMessage="Swap" />
-        {swapMode === SWAP_MODE.NORMAL ? (
-          <div className="h-1 rounded-lg mt-1 bg-gradientFromHover"></div>
-        ) : (
-          <div className="h-1 rounded-lg mt-1 bg-transparent"></div>
+        {swapMode === SWAP_MODE.NORMAL && (
+          <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
         )}
       </span>
 
       <span
-        className={`py-2  flex flex-col text-center cursor-pointer ${
+        className={`mr-3  relative text-center px-2 py-1  rounded-xl hover:bg-primaryText hover:bg-opacity-10 flex flex-col cursor-pointer ${
+          swapMode === SWAP_MODE.X_SWAP ? ' text-white ' : ''
+        }`}
+        onClick={() => {
+          setSwapMode(SWAP_MODE.X_SWAP);
+          localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.X_SWAP);
+        }}
+        onMouseEnter={() => {
+          setHoverXswap(true);
+        }}
+        onMouseLeave={() => {
+          setHoverXswap(false);
+        }}
+      >
+        <FormattedMessage id="xSwap" defaultMessage="XSwap" />
+
+        {swapMode === SWAP_MODE.X_SWAP && (
+          <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
+        )}
+
+        {(isMobile ? false : hoverXswap) && (
+          <div
+            className="absolute z-50"
+            style={{
+              bottom: '40px',
+              right: isMobile ? '-36px' : '-60px',
+            }}
+          >
+            <span className="text-sm whitespace-nowrap text-white right-4 top-1.5 w-36 absolute z-40">
+              <FormattedMessage
+                id="cross_chain_swap"
+                defaultMessage={'Cross-chain Swap'}
+              />
+            </span>
+            <CrossChainPop />
+          </div>
+        )}
+      </span>
+
+      <div
+        className="w-0.5 xs:relative xs:mt-2"
+        style={{
+          borderRight: '1.2px solid rgba(145, 162, 174, 0.2)',
+          height: '20px',
+        }}
+      ></div>
+
+      <span
+        className={`ml-3 flex flex-col px-2 py-1  rounded-xl hover:bg-primaryText hover:bg-opacity-10 text-center cursor-pointer ${
           swapMode === SWAP_MODE.LIMIT ? ' text-white ' : ''
         }`}
         onClick={() => {
@@ -88,130 +140,10 @@ const ChangeSwapModeV3 = ({
       >
         <FormattedMessage id="limit_order" defaultMessage="Limit Order" />
 
-        {swapMode === SWAP_MODE.LIMIT ? (
-          <div className="h-1 rounded-lg mt-1 bg-gradientFromHover"></div>
-        ) : (
-          <div className="h-1 rounded-lg mt-1 bg-transparent"></div>
+        {swapMode === SWAP_MODE.LIMIT && (
+          <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
         )}
       </span>
-    </div>
-  );
-};
-
-function SwapTab({
-  ifCross,
-  setSwapTab,
-}: {
-  ifCross: boolean;
-  setSwapTab: (tab: string) => void;
-}) {
-  const intl = useIntl();
-
-  return (
-    <div className=" flex mr-4 xs:hidden items-center justify-between">
-      <NewPro
-        ifCross={ifCross}
-        onClick={() => {
-          if (ifCross) {
-            setSwapTab('normal');
-            localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-          } else {
-            setSwapTab('cross');
-            localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'cross');
-          }
-        }}
-      />
-    </div>
-  );
-}
-
-const MobileSwapTab = ({
-  ifCross,
-  swapMode,
-  setSwapMode,
-  setSwapTab,
-}: {
-  ifCross: boolean;
-  swapMode: SWAP_MODE;
-  setSwapMode: (e?: any) => void;
-  setSwapTab: (tab: string) => void;
-}) => {
-  return (
-    <div className="flex items-center p-0.5 w-11/12 pb-4 mx-auto justify-between">
-      <div
-        className={`${
-          ifCross ? '' : 'hidden'
-        } text-lg whitespace-nowrap w-full p-1 rounded-xl text-white flex items-center `}
-      >
-        <span>
-          <FormattedMessage
-            id="cross_chain_swap"
-            defaultMessage={'Cross-chain Swap'}
-          />
-        </span>{' '}
-        <span
-          className=" ml-3 xs:mr-2  xs:relative   h-3 flex items-center text-black bg-farmText rounded-md px-0.5 py-px"
-          style={{
-            fontSize: '10px',
-          }}
-        >
-          <FormattedMessage id="beta" defaultMessage={'beta'} />
-        </span>
-      </div>
-      <div
-        className={`rounded-xl ${
-          ifCross ? 'hidden' : ''
-        } p-1 w-full text-primaryText text-base flex items-center mx-auto justify-between font-normal`}
-        style={{
-          backgroundColor: '#1C2A34',
-        }}
-      >
-        <span
-          className={`py-1 w-1/2 px-4 whitespace-nowrap text-center cursor-pointer ${
-            swapMode === SWAP_MODE.NORMAL ? ' text-white' : ''
-          }`}
-          style={{
-            borderRadius: swapMode === SWAP_MODE.NORMAL ? '10px' : '',
-            backgroundColor: swapMode === SWAP_MODE.NORMAL ? '#33424E' : '',
-          }}
-          onClick={() => {
-            setSwapMode(SWAP_MODE.NORMAL);
-            localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
-          }}
-        >
-          <FormattedMessage id="swap" defaultMessage="Swap" />
-        </span>
-
-        <span
-          className={`py-1 w-1/2 px-3 whitespace-nowrap  text-center cursor-pointer ${
-            swapMode === SWAP_MODE.LIMIT ? ' text-white ' : ''
-          }`}
-          style={{
-            borderRadius: swapMode === SWAP_MODE.LIMIT ? '10px' : '',
-            backgroundColor: swapMode === SWAP_MODE.LIMIT ? '#33424E' : '',
-          }}
-          onClick={() => {
-            setSwapMode(SWAP_MODE.LIMIT);
-            localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
-          }}
-        >
-          <FormattedMessage id="limit_order" defaultMessage="Limit Order" />
-        </span>
-      </div>
-      <div className=" flex ml-3 items-center justify-between">
-        <NewPro
-          ifCross={ifCross}
-          onClick={() => {
-            if (ifCross) {
-              setSwapTab('normal');
-              localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-            } else {
-              setSwapTab('cross');
-              localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'cross');
-            }
-          }}
-        />
-      </div>
     </div>
   );
 };
@@ -303,28 +235,18 @@ function SwapPage() {
 
   return (
     <div className="swap">
-      {!isMobile ? null : (
-        <MobileSwapTab
-          ifCross={swapTab === 'cross'}
-          setSwapTab={setSwapTab}
-          swapMode={swapMode}
-          setSwapMode={setSwapMode}
-        />
-      )}
-
-      <section className="lg:w-560px md:w-5/6 xs:w-11/12  m-auto relative gradientBorderWrapper">
-        {swapTab === 'cross' ? (
+      <section
+        className={`lg:w-560px md:w-5/6 xs:w-11/12  m-auto relative  ${
+          isMobile ? '' : 'gradientBorderWrapper'
+        } `}
+      >
+        {swapMode === SWAP_MODE.X_SWAP ? (
           <CrossSwapCard
             allTokens={crossSwapTokens}
             tokenInAmount={tokenInAmount}
             setTokenInAmount={setTokenInAmount}
             swapTab={
-              <>
-                <SwapTab
-                  ifCross={swapTab === 'cross'}
-                  setSwapTab={setSwapTab}
-                />
-              </>
+              <ChangeSwapMode swapMode={swapMode} setSwapMode={setSwapMode} />
             }
             globalWhiteListTokens={globalWhiteListTokens}
           />
@@ -338,16 +260,7 @@ function SwapPage() {
             reservesType={reservesType}
             setReservesType={setReservesType}
             swapTab={
-              <>
-                <ChangeSwapModeV3
-                  swapMode={swapMode}
-                  setSwapMode={setSwapMode}
-                />
-                <SwapTab
-                  ifCross={swapTab === 'cross'}
-                  setSwapTab={setSwapTab}
-                />
-              </>
+              <ChangeSwapMode swapMode={swapMode} setSwapMode={setSwapMode} />
             }
             stableReserves={
               swapMode === SWAP_MODE.STABLE ? (

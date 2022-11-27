@@ -43,7 +43,7 @@ import { HiOutlineExternalLink } from 'react-icons/hi';
 import { IoChevronBack, IoClose } from 'react-icons/io5';
 
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
-import { useMenuItems } from '~utils/menu';
+import { useMenuItems, useLanguageItems } from '~utils/menu';
 import { MobileNavBar } from './MobileNav';
 import WrapNear from '~components/forms/WrapNear';
 import { WrapNearIcon } from './WrapNear';
@@ -54,10 +54,7 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import { WalletSelectorModal } from './WalletSelector';
-import {
-  WalletContext,
-  getSenderWallet,
-} from '../../utils/wallets-integration';
+import { WalletContext } from '../../utils/wallets-integration';
 import {
   getAccountName,
   saveSenderLoginRes,
@@ -114,6 +111,7 @@ import { Item } from '../airdrop/Item';
 import { useDCLAccountBalance } from '../../services/aurora/aurora';
 import { openTransak } from '../alert/Transak';
 import { BuyNearButton } from '../button/Button';
+import { MoreIcon, SauceIcon, SauceText } from '~components/icon/Nav';
 
 const config = getConfig();
 
@@ -247,16 +245,12 @@ function Anchor({
       <Link
         to={to}
         className={`relative flex items-center justify-center h-full  mx-4 `}
-        onClick={(e) => {
-          (name === 'trade_capital' || name == 'liquidity_capital') &&
-            e.preventDefault();
-        }}
         onMouseLeave={() => setHover(false)}
         onMouseEnter={() => setHover(true)}
       >
-        <h2
-          className={`link hover:text-white text-base font-normal py-4 cursor-pointer relative z-10 ${className} ${
-            isSelected ? 'text-greenColor' : 'text-gray-400'
+        <span
+          className={`link hover:text-white text-base font-bold py-4 cursor-pointer relative z-10 ${className} ${
+            isSelected ? 'text-white' : 'text-gray-400'
           }`}
         >
           <FormattedMessage id={name} defaultMessage={name} />
@@ -265,7 +259,7 @@ function Anchor({
               <IconAirDropGreenTip />
             </span>
           ) : null}
-        </h2>
+        </span>
 
         {!!subMenu && hover && (
           <span
@@ -411,7 +405,7 @@ function AccountEntry({
   const isMobile = useClientMobile();
 
   return (
-    <div className="bubble-box relative user text-xs text-center justify-end z-40 mr-3.5">
+    <div className="bubble-box relative user text-xs text-center justify-end z-40">
       {showAccountTip ? (
         <AccountTipDownByAccountID show={showAccountTip} />
       ) : null}
@@ -799,154 +793,27 @@ function Xref() {
     </div>
   );
 }
-function GreenArrow(props: any) {
-  const { hover } = props;
-  return (
-    <div
-      className={`flex absolute w-full h-full left-0 top-0 justify-between items-center ${
-        hover ? 'opacity-100' : 'opacity-0'
-      }`}
-    >
-      <span>
-        <GreenArrowIcon></GreenArrowIcon>
-      </span>
-      <span style={{ transform: 'rotateY(180deg)' }}>
-        <GreenArrowIcon></GreenArrowIcon>
-      </span>
-    </div>
-  );
-}
-function PoolsMenu() {
-  const location = useLocation();
-  const isSelected =
-    location.pathname.startsWith('/pools') ||
-    location.pathname.startsWith('/pool') ||
-    location.pathname.startsWith('/more_pools');
-  const [hover, setHover] = useState(false);
-  const history = useHistory();
-
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
-
-  const links = [
-    {
-      label: <FormattedMessage id="view_pools" defaultMessage="View Pools" />,
-      path: '/pools',
-      logo: <IconPools />,
-    },
-    {
-      label: (
-        <FormattedMessage
-          id="Create_New_Pool"
-          defaultMessage="Create New Pool"
-        />
-      ),
-      path: '/pools/add',
-      logo: <IconCreateNew />,
-    },
-  ];
-
-  if (isSignedIn) {
-    links.push({
-      label: (
-        <FormattedMessage id="Your_Liquidity" defaultMessage="Your Liquidity" />
-      ),
-      path: '/pools/yours',
-      logo: <IconMyLiquidity />,
-    });
-  }
-
-  return (
-    <div
-      className="relative"
-      onMouseOver={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <div
-        className={`flex items-center justify-center ${
-          isSelected || hover ? 'text-greenColor' : 'text-gray-400'
-        }`}
-      >
-        <div className="relative">
-          <h2
-            className={`flex items-center link hover:text-greenColor text-lg font-bold p-4 cursor-pointer`}
-          >
-            <FormattedMessage id="pools" defaultMessage="Pools" />
-            <label className="text-xl ml-1">
-              <FiChevronDown />
-            </label>
-          </h2>
-          <GreenArrow hover={hover}></GreenArrow>
-        </div>
-      </div>
-      <div
-        className={`${
-          hover ? 'block' : 'hidden'
-        } absolute top-12 -left-20 rounded-md`}
-        style={{
-          zIndex: 999,
-        }}
-      >
-        <Card
-          width="w-64"
-          padding="py-4"
-          rounded="rounded-md"
-          className="border border-primaryText shadow-4xl z-40"
-        >
-          {links.map((link) => {
-            let isSelected = link.path === location.pathname;
-            if (
-              location.pathname.startsWith('/pool/') ||
-              location.pathname.startsWith('/more_pools/')
-            ) {
-              if (link.path === '/pools') {
-                isSelected = true;
-              }
-            }
-
-            return (
-              <div
-                key={link.path}
-                className={`flex justify-start items-center hover:bg-navHighLightBg text-sm font-semibold z-40  hover:text-white cursor-pointer py-4 pl-7 ${
-                  isSelected
-                    ? 'text-white bg-navHighLightBg'
-                    : 'text-primaryText'
-                }`}
-                onClick={() => history.push(link.path)}
-              >
-                <span className="inline-block mr-3">{link.logo}</span>
-                {link.label}
-              </div>
-            );
-          })}
-        </Card>
-      </div>
-    </div>
-  );
-}
 
 function MoreMenu() {
+  const [showWrapNear, setShowWrapNear] = useState(false);
   const [hover, setHover] = useState(false);
+  const [sauceHover, setSauceHover] = useState(false);
   const [parentLabel, setParentLabel] = useState('');
   const { menuData } = useMenuItems();
   const [curMenuItems, setCurMenuItems] = useState(menuData);
-  const context = useContext(Context);
-  const currentLocal = localStorage.getItem('local');
   const location = useLocation();
   const history = useHistory();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const onClickMenuItem = (items: any[], label: string) => {
     setCurMenuItems(items);
     setParentLabel(label);
-  };
-  const switchLanuage = (label: string) => {
-    context.selectLanguage(label);
   };
   const handleMoreMenuClick = (
     url: string,
     isExternal: boolean,
     label: string,
-    children?: any,
-    language?: string
+    children?: any
   ) => {
     if (url) {
       if (isExternal) {
@@ -956,104 +823,145 @@ function MoreMenu() {
       }
     } else if (children) {
       onClickMenuItem?.(children, label);
-    } else {
-      switchLanuage(language);
     }
   };
   const hasSubMenu = curMenuItems.some(({ children }) => !!children?.length);
   return (
-    <div
-      className="relative z-30"
-      onMouseOver={() => setHover(true)}
-      onMouseLeave={() => {
-        setHover(false);
-        onClickMenuItem?.(menuData, '');
-      }}
-    >
-      <div className="text-primaryText hover:text-greenColor cursor-pointer py-5">
-        <MoreMenuIcon></MoreMenuIcon>
-      </div>
+    <>
       <div
-        className={`${
-          hover ? 'block' : 'hidden'
-        } absolute top-14 pt-2 -right-4 rounded-md`}
+        className="relative z-30"
+        onMouseOver={() => setHover(true)}
+        onMouseLeave={() => {
+          setHover(false);
+          onClickMenuItem?.(menuData, '');
+        }}
       >
-        <Card
-          width="w-64"
-          padding="py-4"
-          rounded="rounded-md"
-          className="shadow-4xl border border-primaryText"
+        <div
+          className={`rounded-xl p-3 mx-4 cursor-pointer xsm:bg-transparent ${
+            hover ? 'text-white bg-menuMoreBgColor' : 'text-primaryText'
+          }`}
         >
-          {!hasSubMenu && parentLabel && (
-            <div
-              className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm font-semibold text-primaryText cursor-pointer py-4 pl-4"
-              onClick={() => onClickMenuItem?.(menuData, '')}
-            >
-              <IoChevronBack className="text-xl " />
-              <span className=" ml-8">{parentLabel}</span>
-            </div>
-          )}
-          {curMenuItems.map(
-            ({
-              id,
-              url,
-              children,
-              label,
-              icon,
-              logo,
-              isExternal,
-              language,
-            }) => {
-              const isSelected =
-                url &&
-                !isExternal &&
-                matchPath(location.pathname, {
-                  path: url,
-                  exact: true,
-                  strict: false,
-                });
-
-              return (
-                <div
-                  key={id}
-                  className={`whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
-                 ${
-                   (language && currentLocal === language) || isSelected
-                     ? 'bg-navHighLightBg text-white'
-                     : 'text-primaryText'
-                 }
-                 cursor-pointer py-4 pl-7 ${parentLabel ? 'pl-14' : ''}`}
-                  onClick={() =>
-                    handleMoreMenuClick(
-                      url,
-                      isExternal,
-                      label,
-                      children,
-                      language
-                    )
-                  }
-                >
-                  {logo && (
-                    <span
-                      className={`text-xl w-8 text-left flex justify-center mr-2`}
+          <MoreIcon></MoreIcon>
+        </div>
+        <div
+          className={`${
+            hover ? 'block' : 'hidden'
+          } absolute top-7 pt-3 -right-20 rounded-md`}
+        >
+          <Card
+            rounded="rounded-md"
+            className="p-2.5 w-full rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor"
+          >
+            {!hasSubMenu && parentLabel && (
+              <div
+                className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm font-semibold text-primaryText cursor-pointer pt-4 pb-2"
+                onClick={() => onClickMenuItem?.(menuData, '')}
+              >
+                <IoChevronBack className="text-xl " />
+                <span className="ml-3">{parentLabel}</span>
+              </div>
+            )}
+            {curMenuItems.map(
+              (
+                {
+                  url,
+                  children,
+                  label,
+                  icon,
+                  logo,
+                  isExternal,
+                  specialMenuKey,
+                },
+                index
+              ) => {
+                const isSelected =
+                  url &&
+                  !isExternal &&
+                  matchPath(location.pathname, {
+                    path: url,
+                    exact: true,
+                    strict: false,
+                  });
+                if (specialMenuKey == 'sauce')
+                  return (
+                    <div
+                      onMouseOver={() => setSauceHover(true)}
+                      onMouseLeave={() => {
+                        setSauceHover(false);
+                      }}
+                      key={index}
+                      className={`flex items-end rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm font-semibold py-3 my-1.5 cursor-pointer px-2
+                    ${
+                      isSelected
+                        ? 'bg-menuMoreBgColor text-white'
+                        : 'text-primaryText'
+                    }`}
+                      onClick={() =>
+                        handleMoreMenuClick(
+                          url,
+                          isExternal,
+                          label,
+                          children,
+                          specialMenuKey
+                        )
+                      }
                     >
-                      {logo}
-                    </span>
-                  )}
-                  {label}
-                  <span className="ml-4 text-xl">{icon}</span>
-                  {children && (
-                    <span className="text-xl absolute right-4">
-                      <FiChevronRight />
-                    </span>
-                  )}
-                </div>
-              );
-            }
-          )}
-        </Card>
+                      <div className="flex items-center mr-1.5">
+                        <SauceIcon
+                          className={`${
+                            isSelected || sauceHover
+                              ? 'text-greenColor'
+                              : 'text-primaryText'
+                          }`}
+                        ></SauceIcon>
+                        <SauceText className="ml-2.5"></SauceText>
+                      </div>
+                      <span className="text-xs">{label}</span>
+                    </div>
+                  );
+                return (
+                  <div
+                    key={index}
+                    className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm font-semibold py-3 my-1.5 cursor-pointer ${
+                      !hasSubMenu && parentLabel ? 'px-5' : 'px-2'
+                    }
+                    ${
+                      isSelected
+                        ? 'bg-menuMoreBgColor text-white'
+                        : 'text-primaryText'
+                    }`}
+                    onClick={() =>
+                      handleMoreMenuClick(
+                        url,
+                        isExternal,
+                        label,
+                        children,
+                        specialMenuKey
+                      )
+                    }
+                  >
+                    {logo && (
+                      <span
+                        className={`text-xl w-8 text-left flex justify-center mr-2`}
+                      >
+                        {logo}
+                      </span>
+                    )}
+                    {label}
+                    <span className="ml-4 text-xl">{icon}</span>
+                    {children && (
+                      <span className="text-xl">
+                        <FiChevronRight />
+                      </span>
+                    )}
+                  </div>
+                );
+              }
+            )}
+          </Card>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -1071,11 +979,7 @@ function USNButton() {
         onMouseEnter={() => setUSNButtonHover(true)}
         onMouseLeave={() => setUSNButtonHover(false)}
         className="relative lg:py-4 top-0.5 z-50"
-      >
-        <div className="mx-2">
-          <USNBuyComponent onClick={goLink} />
-        </div>
-      </div>
+      ></div>
       <USNPage
         isOpen={showUSN}
         onRequestClose={(e) => {
@@ -1319,140 +1223,48 @@ function NavigationBar() {
           .
         </div>
         <nav
-          className="flex items-center justify-between px-9 col-span-8"
+          className="flex items-center justify-between px-9"
           style={{
-            borderBottom: '2px solid rgba(8, 97, 81, 0.39)',
             height: '70px',
           }}
         >
-          <div className="flex items-center h-full">
-            <div className="relative -top-0.5 flex-1 xs:hidden md:hidden">
-              <NavLogoSimple
-                className="mr-12 cursor-pointer"
-                onClick={() => {
-                  window.open('https://www.ref.finance/');
-                }}
-              />
-            </div>
-            <div className="flex items-center h-full relative">
-              <Anchor
-                to="/"
-                pattern="/"
-                name="trade_capital"
-                subMenu={[
-                  {
-                    name: 'normal',
-                    display: <FormattedMessage id="swap"></FormattedMessage>,
-                    click: () => {
-                      historyInit.push('/swap');
-                      localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
-                      localStorage.setItem(
-                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-                        'normal'
-                      );
-                    },
-                    chosen:
-                      localStorage.getItem(SWAP_MODE_KEY) ===
-                        SWAP_MODE.NORMAL &&
-                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
-                        'normal',
-                  },
-                  {
-                    name: 'pro',
-                    display: (
-                      <FormattedMessage
-                        id="cross_chain_swap"
-                        defaultMessage={'Cross-chain Swap'}
-                      />
-                    ),
-                    click: () => {
-                      localStorage.setItem(
-                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-                        'cross'
-                      );
-
-                      historyInit.push('/swap');
-                    },
-                    chosen:
-                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
-                      'cross',
-                  },
-                  {
-                    name: 'limit',
-                    display: (
-                      <FormattedMessage
-                        id="limit_order"
-                        defaultMessage={'Limit Order'}
-                      ></FormattedMessage>
-                    ),
-                    click: () => {
-                      historyInit.push('/swap');
-                      localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
-                      localStorage.setItem(
-                        REF_FI_SWAP_SWAPPAGE_TAB_KEY,
-                        'normal'
-                      );
-                    },
-                    chosen:
-                      localStorage.getItem(SWAP_MODE_KEY) === SWAP_MODE.LIMIT &&
-                      localStorage.getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY) ===
-                        'normal',
-                  },
-                ]}
-              />
-              <Anchor
-                to="/pools"
-                pattern="/pools"
-                name="liquidity_capital"
-                subMenu={[
-                  {
-                    name: 'your_liquidity',
-                    path: 'liquidity',
-                    click: () => {
-                      historyInit.push('/yourliquidity');
-                    },
-                  },
-                  {
-                    name: 'pools',
-                    path: 'pool',
-                    click: () => {
-                      historyInit.push('/pools');
-                    },
-                  },
-                ]}
-              />
-              <Anchor to="/sauce" pattern="/sauce" name="sauce_capital" />
-              <Anchor to="/v2farms" pattern="/v2farms" name="farm_capital" />
-              <Xref></Xref>
-              {!!getConfig().REF_VE_CONTRACT_ID ? (
-                <Anchor
-                  to="/referendum"
-                  pattern="/referendum"
-                  name="vote_capital"
-                />
-              ) : null}
-            </div>
-          </div>
-          <div className="flex items-center justify-end flex-1">
-            <BuyNearButton />
-            <USNButton />
-            <AccountEntry
-              hasBalanceOnRefAccount={hasBalanceOnRefAccount}
-              setShowWalletSelector={setShowWalletSelector}
-              showWalletSelector={showWalletSelector}
+          <div className="flex-1 xs:hidden md:hidden transform">
+            <NavLogoSimple
+              className="cursor-pointer"
+              onClick={() => {
+                window.open('https://www.ref.finance/');
+              }}
             />
-            <div
-              className={
-                isSignedIn ? ' relative right-3 flex items-center' : 'hidden'
-              }
-            >
-              <ConnectDot />
-              <ConnectDot />
-
-              <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />
+          </div>
+          <div className="flex items-center h-full relative">
+            <Anchor to="/" pattern="/" name="trade_capital" />
+            <Anchor to="/yourliquidity" pattern="/pools" name="POOL" />
+            <Anchor to="/v2farms" pattern="/v2farms" name="farm_capital" />
+            <Xref></Xref>
+            {!!getConfig().REF_VE_CONTRACT_ID ? (
+              <Anchor
+                to="/referendum"
+                pattern="/referendum"
+                name="vote_capital"
+              />
+            ) : null}
+            <MoreMenu></MoreMenu>
+          </div>
+          <div className="flex-1 flex items-center justify-end">
+            <BuyNearButton />
+            <div className="flex items-center mx-3">
+              <AccountEntry
+                hasBalanceOnRefAccount={hasBalanceOnRefAccount}
+                setShowWalletSelector={setShowWalletSelector}
+                showWalletSelector={showWalletSelector}
+              />
+              <div className={isSignedIn ? 'flex items-center' : 'hidden'}>
+                <ConnectDot />
+                <ConnectDot />
+                <AuroraEntry hasBalanceOnAurora={hasAuroraBalance} />
+              </div>
             </div>
-
-            <MoreMenu />
+            <Language></Language>
           </div>
         </nav>
         {isMobile ? null : <Marquee></Marquee>}
@@ -1473,6 +1285,77 @@ function NavigationBar() {
         }}
       />
     </>
+  );
+}
+function Language() {
+  const context = useContext(Context);
+  const [hover, setHover] = useState(false);
+  const lans = useLanguageItems();
+  const currentLocal = localStorage.getItem('local');
+  const switchLanuage = (language: string) => {
+    context.selectLanguage(language);
+  };
+  const displayLanguage = () => {
+    if (currentLocal == 'zh-CN') {
+      return '中';
+    } else {
+      return currentLocal?.toUpperCase();
+    }
+  };
+  return (
+    <div
+      className="relative z-30"
+      onMouseOver={() => setHover(true)}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
+    >
+      <span
+        className={`flex items-center justify-center w-7 h-7 text-xs rounded-md text-primaryText cursor-pointer ${
+          hover
+            ? 'border border-laguageBorderColor bg-transparent'
+            : 'border border-transparent bg-menuMoreBgColor'
+        }`}
+      >
+        {displayLanguage()}
+      </span>
+      <div
+        className={`${
+          hover ? 'block' : 'hidden'
+        } absolute top-5 pt-5 right-0 rounded-md`}
+        style={{ minWidth: '180px' }}
+      >
+        <Card
+          rounded="rounded-md"
+          className="p-2.5 w-full rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor"
+        >
+          {lans.map(({ label, language, logo }, index) => {
+            return (
+              <div
+                key={index}
+                className={`rounded-xl whitespace-nowrap text-left items-center flex justify-start hover:bg-menuMoreBgColor hover:text-white text-sm font-semibold py-3 my-1.5 cursor-pointer px-2 ${
+                  currentLocal === language
+                    ? 'bg-navHighLightBg text-white'
+                    : 'text-primaryText'
+                }`}
+                onClick={() => {
+                  switchLanuage(language);
+                }}
+              >
+                {logo && (
+                  <span
+                    className={`text-xl w-8 text-left flex justify-center mr-2`}
+                  >
+                    {logo}
+                  </span>
+                )}
+                {label}
+              </div>
+            );
+          })}
+        </Card>
+      </div>
+    </div>
   );
 }
 export default NavigationBar;

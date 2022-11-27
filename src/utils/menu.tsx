@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import { AiOutlineMedium } from 'react-icons/ai';
 import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
 import { HiOutlineExternalLink } from 'react-icons/hi';
@@ -32,6 +32,7 @@ import {
   BridgeIcon,
   RisksIcon,
   EsIcon,
+  WrapNearIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
@@ -46,6 +47,7 @@ import {
   MobileNavStable,
   MobileNavSwapPro,
 } from '../components/icon/Nav';
+import { WalletContext } from '../utils/wallets-integration';
 
 export type MenuItem = {
   id: number;
@@ -59,19 +61,15 @@ export type MenuItem = {
 };
 export const useMenuItems = () => {
   const intl = useIntl();
-
   const menuData: any[] = [
     {
-      label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
-      url: '/airdrop',
-      isExternal: false,
-      id: 1,
-      logo: <IconAirDrop />,
+      label: intl.formatMessage({ id: 'stable_pool' }),
+      specialMenuKey: 'sauce',
+      url: '/sauce',
     },
     {
       label: intl.formatMessage({ id: 'bridge' }),
       url: '',
-      id: 2,
       isExternal: false,
       logo: <BridgeIcon />,
       children: [
@@ -120,94 +118,70 @@ export const useMenuItems = () => {
     {
       label: intl.formatMessage({ id: 'docs' }),
       url: 'https://guide.ref.finance',
-      icon: <HiOutlineExternalLink />,
+      // icon: <HiOutlineExternalLink />,
       isExternal: true,
-      id: 3,
       logo: <IconDocs />,
     },
     {
       label: intl.formatMessage({ id: 'risks' }),
       url: '/risks',
       isExternal: false,
-      id: 4,
       logo: <RisksIcon />,
     },
     {
-      label: <FormattedMessage id="language" defaultMessage="Language" />,
-      url: '',
+      label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
+      url: '/airdrop',
       isExternal: false,
-      id: 10,
-      logo: <IconLanguage />,
-      children: [
-        {
-          label: 'English',
-          isExternal: false,
-          language: 'en',
-          url: '',
-          id: 11,
-          logo: <IconEn />,
-        },
-        {
-          label: '中文',
-          isExternal: false,
-          language: 'zh-CN',
-          url: '',
-          id: 12,
-          logo: <IconZh />,
-        },
-        {
-          label: 'Việt',
-          isExternal: false,
-          language: 'vi',
-          url: '',
-          id: 13,
-          logo: <IconVi />,
-        },
-        {
-          label: 'Українська',
-          isExternal: false,
-          language: 'uk',
-          url: '',
-          id: 14,
-          logo: <UkIcon />,
-        },
-        {
-          label: 'Pусский',
-          isExternal: false,
-          language: 'ru',
-          url: '',
-          id: 15,
-          logo: <RuIcon />,
-        },
-        {
-          label: '日本語',
-          isExternal: false,
-          language: 'ja',
-          url: '',
-          id: 16,
-          logo: <JaIcon />,
-        },
-        {
-          label: '한국어',
-          isExternal: false,
-          language: 'ko',
-          url: '',
-          id: 17,
-          logo: <KoIcon />,
-        },
-        {
-          label: 'Español',
-          isExternal: false,
-          language: 'es',
-          url: '',
-          id: 18,
-          logo: <EsIcon />,
-        },
-      ],
+      logo: <IconAirDrop />,
     },
   ];
-
   return { menuData };
+};
+
+export const useLanguageItems = () => {
+  const lan = [
+    {
+      label: 'English',
+      language: 'en',
+      logo: <IconEn />,
+    },
+    {
+      label: '中文',
+      language: 'zh-CN',
+      logo: <IconZh />,
+    },
+    {
+      label: 'Việt',
+      language: 'vi',
+      logo: <IconVi />,
+    },
+    {
+      label: 'Українська',
+      language: 'uk',
+      logo: <UkIcon />,
+    },
+    {
+      label: 'Pусский',
+      language: 'ru',
+      logo: <RuIcon />,
+    },
+    {
+      label: '日本語',
+      language: 'ja',
+      logo: <JaIcon />,
+    },
+    {
+      label: '한국어',
+      language: 'ko',
+      logo: <KoIcon />,
+    },
+    {
+      label: 'Español',
+      language: 'es',
+      logo: <EsIcon />,
+    },
+  ];
+  return lan;
 };
 
 export type MobileMenuItem = {

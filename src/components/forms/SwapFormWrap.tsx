@@ -15,6 +15,7 @@ import SlippageSelectorForStable from './SlippageSelector';
 import { useMyOrders } from '../../state/swapV3';
 import { useHistory } from 'react-router-dom';
 import { OrderIcon } from '../icon/V3';
+import { EstimateSwapView } from '../../services/swap';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -30,8 +31,8 @@ interface SwapFormWrapProps {
   requested?: boolean;
   tokensTitle?: JSX.Element;
   onChange: (slippage: number) => void;
-  requestingTrigger?: boolean;
   quoteDoneLimit?: boolean;
+  selectTodos?: EstimateSwapView[];
   loading?: {
     loadingData: boolean;
     setLoadingData: (loading: boolean) => void;
@@ -48,6 +49,7 @@ interface SwapFormWrapProps {
   setSupportLedger?: (e?: any) => void;
   showAllResults?: boolean;
   reserves?: JSX.Element;
+  wrapOperation?: boolean;
 }
 
 export default function SwapFormWrap({
@@ -84,7 +86,7 @@ export default function SwapFormWrap({
         e.preventDefault();
         history.push('/myOrder');
       }}
-      className="w-3/5 h-11 flex mr-4 xs:mr-2 md:mr-2 items-center justify-center bg-orderGradient hover:bg-orderGraidentHover mt-6 rounded-lg text-white text-base"
+      className="w-full h-11 flex items-center justify-center bg-switchIconBgColor border border-limitOrderBorderColor mt-4 rounded-lg text-greenColor text-base gotham_bold"
     >
       <OrderIcon />
       <span className="mx-2 xs:mx-1 md:mx-1">
@@ -155,10 +157,8 @@ export default function SwapFormWrap({
       {showElseView && elseView ? (
         elseView
       ) : (
-        <div className="flex items-center">
-          {OrderButton}
+        <div className="flex flex-col items-center">
           <SubmitButton
-            className="w-3/5"
             disabled={
               !canSubmit ||
               (swapMode === SWAP_MODE.LIMIT
@@ -173,6 +173,7 @@ export default function SwapFormWrap({
                 : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
             }
           />
+          {OrderButton}
         </div>
       )}
       {reserves}
@@ -192,16 +193,15 @@ export function CrossSwapFormWrap({
   showElseView,
   elseView,
   swapTab,
-  showAllResults,
   onChange,
   loading,
   useNearBalance,
-  requestingTrigger,
   supportLedger,
-  requested,
   tokensTitle,
   setSupportLedger,
   reserves,
+  selectTodos,
+  wrapOperation,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const {
@@ -227,7 +227,7 @@ export function CrossSwapFormWrap({
     event.preventDefault();
     setError(null);
 
-    if (isSignedIn || !requested) {
+    if (isSignedIn) {
       try {
         setShowSwapLoading && setShowSwapLoading(true);
         setShowSwapLoading && setLoadingPause(true);
@@ -239,78 +239,41 @@ export function CrossSwapFormWrap({
   };
   return (
     <form
-      className={`overflow-visible relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xs:py-4 xs:px-3 bg-dark  `}
+      className={`overflow-visible relative md:bg-swapCardGradient lg:bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xs:py-4 xs:px-3 md:bg-dark  lg:bg-dark `}
       onSubmit={handleSubmit}
     >
-      {!requestingTrigger ? null : (
-        <div className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0 rounded-2xl z-30">
-          <div className="flex flex-col items-center">
-            <RequestingSmile />
-            <span
-              className="pt-6"
-              style={{
-                color: '#c4c4c4',
-              }}
-            >
-              <span className="crossSwap-requesting-loading">
-                <FormattedMessage id="requesting" defaultMessage="Requesting" />
-              </span>
-            </span>
-          </div>
-        </div>
-      )}
       {title && (
-        <h2 className="formTitle flex xs:relative xs:bottom-2 items-center justify-between  font-bold text-xl text-white text-left xs:py-0 pb-4 pt-1.5 xs:h-11">
-          {tokensTitle}
-          <div className="flex self-start xs:self-center items-center">
-            {requested ? null : swapTab}
-            {!requested ? null : (
-              <div
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+        <>
+          <h2 className="formTitle relative bottom-1 flex items-center xs:justify-end justify-between font-bold text-xl text-white text-left pb-2">
+            {swapTab}
 
-                  if (loadingPause) {
-                    setLoadingPause(false);
-                    setLoadingTrigger(true);
-                    setLoadingData(true);
-                  } else {
-                    setLoadingPause(true);
-                    setLoadingTrigger(false);
-                  }
-                }}
-                className="mx-4 cursor-pointer"
-              >
-                <CountdownTimer
-                  loadingTrigger={loadingTrigger}
-                  loadingPause={loadingPause}
-                />
-              </div>
-            )}
             <SlippageSelector
               slippageTolerance={slippageTolerance}
               onChange={onChange}
               supportLedger={supportLedger}
               setSupportLedger={setSupportLedger}
             />
-          </div>
-        </h2>
+          </h2>
+          {tokensTitle}
+        </>
       )}
       {error && <Alert level="warn" message={error.message} />}
       {children}
 
-      <div>
-        <SubmitButton
-          signedInConfig={!requested}
-          disabled={
-            !canSubmit ||
-            (typeof loadingTrigger !== 'undefined' && loadingTrigger)
-          }
-          label={buttonText || title}
-          info={info}
-          loading={showSwapLoading}
-        />
-      </div>
+      <SubmitButton
+        disabled={
+          !canSubmit ||
+          (typeof loadingTrigger !== 'undefined' && loadingTrigger)
+        }
+        label={buttonText || title}
+        info={info}
+        loading={
+          wrapOperation
+            ? false
+            : showSwapLoading || loadingTrigger || !selectTodos
+        }
+        className="py-3"
+      />
       {reserves}
     </form>
   );

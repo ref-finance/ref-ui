@@ -52,6 +52,7 @@ export const Images = ({
   noverlap,
   borderStyle,
   isRewardDisplay,
+  border,
 }: {
   tokens: TokenMetadata[];
   size?: string;
@@ -59,6 +60,7 @@ export const Images = ({
   noverlap?: boolean;
   borderStyle?: string;
   isRewardDisplay?: boolean;
+  border?: boolean;
 }) => {
   const displayTokens = [...new Set<string>(tokens?.map((t) => t?.id))].map(
     (id) => tokens.find((t) => t?.id === id)
@@ -78,7 +80,9 @@ export const Images = ({
                   key={id || 0 + index}
                   className={`inline-block flex-shrink-0 h-${size || 10} w-${
                     size || 10
-                  } rounded-full border border-gradientFromHover ${
+                  } rounded-full border ${
+                    border ? 'border' : ''
+                  } border-gradientFromHover ${
                     tokens?.length > 1 ? (noverlap ? 'ml-0' : '-ml-1') : ''
                   } bg-cardBg`}
                   src={icon}

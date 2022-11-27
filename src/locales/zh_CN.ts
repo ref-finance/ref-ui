@@ -895,8 +895,18 @@ const zh_CN = {
   no_pool_tip: '哦!池子不存在。',
   total_ref_week: 'REF/周',
   ref_week_you_will_get: '你将获得的REF/周',
+  stable_pool: '稳定池',
+  market_rate: '市场价',
+  limit_price_tip:
+    'To improve deal the efficiency, your price should be in one slot nearby automatically',
   no_token_found: '没有找到代币',
   search_name_or_address: '搜索名字或粘贴地址...',
   token_address_invalid: '代币地址是无效的',
+  price_impact_warning: '价格影响警告',
+  confirm_order: '确认订单',
+  you_Sell: '卖',
+  to_Buy: '买',
+  at_Price: '价格',
+  insufficient_balance: '余额不足',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

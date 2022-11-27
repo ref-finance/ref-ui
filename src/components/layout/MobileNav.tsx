@@ -778,14 +778,6 @@ export function MobileNavBar(props: any) {
                   </div>
                 </div>
               </div>
-              <MobileUSNButton
-                setShow={setShow}
-                setMobileWrapNear={setMobileWrapNear}
-                showUSN={showUSN}
-                setShowBorrowCard={setShowBorrowCard}
-                showeBorrowCard={showeBorrowCard}
-                setShowUSN={setShowUSN}
-              />
               {moreLinks.map(
                 ({
                   id,

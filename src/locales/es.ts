@@ -594,7 +594,7 @@ const es = {
   rewards_week: 'Recompensas/semana',
   rewards: 'Recompensas',
   claimed_Rewards: 'Recompensas reclamadas',
-  POOL: 'POOLS',
+  POOL: 'POOL',
   STAKE: 'STAKE',
   lp_Token: 'LP Tokens',
   booster: 'Booster',
@@ -687,7 +687,7 @@ const es = {
   voting_gauge_share_tip:
     'La proporción del REF utilizado para la asignación de votos a la recompensa total del REF en este período.',
   swap_capital: 'SWAP',
-  farm_capital: 'FARMS',
+  farm_capital: 'FARM',
   sauce_capital: 'SAUCE',
   dao_capital: 'DAO',
   available_to_stake: 'disponible para hacer  stake',
@@ -980,8 +980,18 @@ const es = {
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
   ref_week_you_will_get: 'REF/week you will get',
+  stable_pool: 'Stable Pool',
+  market_rate: 'Market Rate',
+  limit_price_tip:
+    'To improve deal the efficiency, your price should be in one slot nearby automatically',
   no_token_found: 'No token found',
   search_name_or_address: 'Search name or paste address...',
   token_address_invalid: 'The token address was invalid',
+  price_impact_warning: 'Price Impact Warning',
+  confirm_order: 'Confirm Order',
+  you_Sell: 'You Sell',
+  to_Buy: 'to Buy',
+  at_Price: 'at Price',
+  insufficient_balance: 'Insufficient Balance',
 };
 export default Object.assign(es, es_in_risks_page);

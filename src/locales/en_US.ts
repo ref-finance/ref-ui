@@ -942,8 +942,18 @@ const en_US = {
   no_pool_tip: 'Oops! The pool does not exist.',
   total_ref_week: 'Total REF/week',
   ref_week_you_will_get: 'REF/week you will get',
+  stable_pool: 'Stable Pool',
+  market_rate: 'Market Rate',
+  limit_price_tip:
+    'To improve deal the efficiency, your price should be in one slot nearby automatically',
   no_token_found: 'No token found',
   search_name_or_address: 'Search name or paste address...',
   token_address_invalid: 'The token address was invalid',
+  price_impact_warning: 'Price Impact Warning',
+  confirm_order: 'Confirm Order',
+  you_Sell: 'You Sell',
+  to_Buy: 'to Buy',
+  at_Price: 'at Price',
+  insufficient_balance: 'Insufficient Balance',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

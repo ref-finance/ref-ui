@@ -14,6 +14,7 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
           'ETH-LINEAR': '0xF6E611DE9584A95Df64e587E0C67de94f299C717',
         },
         networkId: 'testnet',
+        explorer: 'https://testnet.aurorascan.dev',
       };
     case 'testnet':
       return {
@@ -28,6 +29,7 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
           'ETH-LINEAR': '0xF6E611DE9584A95Df64e587E0C67de94f299C717',
         },
         networkId: 'testnet',
+        explorer: 'https://testnet.aurorascan.dev',
       };
     case 'development':
     case 'mainnet':
@@ -74,6 +76,7 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
           'USN-wNEAR': '0xa36df7c571beba7b3fb89f25dfc990eac75f525a',
         },
         networkId: 'mainnet',
+        explorer: 'https://aurorascan.dev',
       };
     default:
       return {
@@ -119,6 +122,7 @@ export function getAuroraConfig(env: string = process.env.NEAR_ENV) {
           'USN-wNEAR': '0xa36df7c571beba7b3fb89f25dfc990eac75f525a',
         },
         networkId: 'mainnet',
+        explorer: 'https://aurorascan.dev',
       };
   }
 }
