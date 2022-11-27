@@ -107,7 +107,7 @@ const ChangeSwapMode = ({
             className="absolute z-50"
             style={{
               bottom: '40px',
-              right: isMobile ? '-36px' : '-45px',
+              right: isMobile ? '-36px' : '-60px',
             }}
           >
             <span className="text-sm whitespace-nowrap text-white right-4 top-1.5 w-36 absolute z-40">

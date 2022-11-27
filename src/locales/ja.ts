@@ -936,5 +936,6 @@ const ja = {
   you_Sell: 'You Sell',
   to_Buy: 'to Buy',
   at_Price: 'at Price',
+  insufficient_balance: 'Insufficient Balance',
 };
 export default Object.assign(ja, ja_in_risks_page);

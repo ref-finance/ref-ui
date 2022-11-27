@@ -48,16 +48,22 @@ function SubmitButton({
           onClick={onClick}
           className={`flex flex-row w-full items-center justify-center px-5 py-2 mt-6 text-white mx-auto ${
             disabled ? 'disabled:cursor-not-allowed opacity-40' : ''
-          } ${loading ? 'opacity-40' : ''} ${className}`}
+          } ${loading ? 'opacity-40' : ''} ${
+            label === 'insufficient_balance' ? 'font-bold' : ''
+          } ${className}`}
           style={{
-            background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+            background:
+              label === 'insufficient_balance'
+                ? '#304352'
+                : 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
             borderRadius: '5px',
+            color: label === 'insufficient_balance' ? '#7E8A93' : '',
           }}
         >
           {!label && (
             <h1 className="text-lg font-inter font-semibold">
               <ButtonTextWrapper
-                loading={loading}
+                loading={label !== 'insufficient_balance' && loading}
                 Text={() => (
                   <FormattedMessage id="swap" defaultMessage="Swap" />
                 )}
@@ -65,9 +71,13 @@ function SubmitButton({
             </h1>
           )}
           {label && (
-            <h1 className="text-lg font-inter font-semibold">
+            <h1
+              className={`text-lg font-inter ${
+                label !== 'insufficient_balance' ? 'font-bold' : 'font-semibold'
+              } `}
+            >
               <ButtonTextWrapper
-                loading={loading}
+                loading={label !== 'insufficient_balance' && loading}
                 Text={() => (
                   <FormattedMessage id={label} defaultMessage={label} />
                 )}

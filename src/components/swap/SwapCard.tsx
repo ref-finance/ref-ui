@@ -2259,20 +2259,14 @@ export default function SwapCard(props: {
             Number(tokenInAmount || '0') <
             0 &&
           !ONLY_ZEROS.test(tokenInMax || '0') &&
-          !ONLY_ZEROS.test(tokenInAmount || '0') && (
+          !ONLY_ZEROS.test(tokenInAmount || '0') &&
+          tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
+          tokenIn.symbol === 'NEAR' && (
             <Alert
               level="warn"
               message={`${intl.formatMessage({
-                id:
-                  tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
-                  tokenIn.symbol == 'NEAR'
-                    ? 'near_validation_error'
-                    : 'you_do_not_have_enough',
-              })} ${
-                tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR'
-                  ? ''
-                  : toRealSymbol(tokenIn.symbol)
-              }`}
+                id: 'near_validation_error',
+              })} `}
             />
           )}
         <div className={`flex items-center -my-2 justify-center`}>
