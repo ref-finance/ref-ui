@@ -1193,6 +1193,7 @@ function DetailViewLimit({
   tokneOut,
   tokenPriceList,
   setFeeTiersShowFull,
+  feeTiersShowFull,
   everyPoolTvl,
 }: {
   v3Pool: string;
@@ -1204,12 +1205,11 @@ function DetailViewLimit({
   tokneOut: TokenMetadata;
   tokenPriceList: Record<string, any>;
   setFeeTiersShowFull: (v: boolean) => void;
+  feeTiersShowFull: boolean;
   everyPoolTvl: {
     [key: string]: string;
   };
 }) {
-  const [showDetail, setShowDetail] = useState<boolean>(false);
-
   const poolTips = [
     'Best for very stable pairs',
     'Best for stable pairs',
@@ -1267,7 +1267,7 @@ function DetailViewLimit({
   return (
     <div
       className={`border border-limitOrderFeeTiersBorderColor flex flex-col rounded-xl p-2.5 xs:p-2 xs:px-1 ${
-        showDetail ? 'w-full' : ''
+        feeTiersShowFull ? 'w-full' : ''
       }`}
     >
       <div className="">
@@ -1280,8 +1280,7 @@ function DetailViewLimit({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              setShowDetail(!showDetail);
-              setFeeTiersShowFull(!showDetail);
+              setFeeTiersShowFull(!feeTiersShowFull);
             }}
             onMouseEnter={() => {
               setHoverSlider(true);
@@ -1290,10 +1289,14 @@ function DetailViewLimit({
               setHoverSlider(false);
             }}
           >
-            <Slider shrink showSlip={showDetail || hoverSlider} />
+            <Slider shrink showSlip={feeTiersShowFull || hoverSlider} />
           </button>
         </div>
-        <div className={`flex items-center mt-2 ${showDetail ? 'hidden' : ''}`}>
+        <div
+          className={`flex items-center mt-2 ${
+            feeTiersShowFull ? 'hidden' : ''
+          }`}
+        >
           <span className="whitespace-nowrap text-sm text-primaryText mr-0.5">
             {toPrecision(
               calculateFeePercent(
@@ -1307,7 +1310,7 @@ function DetailViewLimit({
         </div>
       </div>
 
-      {!showDetail ? null : (
+      {!feeTiersShowFull ? null : (
         <div className="w-full grid grid-cols-4 gap-x-1  text-white mt-1.5">
           {V3_POOL_FEE_LIST.map((fee, i) => {
             const pool_id = getV3PoolId(tokenIn.id, tokneOut.id, fee);
@@ -1443,7 +1446,8 @@ export default function SwapCard(props: {
 
   const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
   const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
-  const [limitLockedTokenInAmount, setLimitLockedTokenInAmount] = useState('');
+  const [limitLockedTokenOutTrigger, setLimitLockedTokenOutTrigger] =
+    useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
@@ -1977,11 +1981,12 @@ export default function SwapCard(props: {
       false,
       false
     );
-    setLimitAmountOut(ONLY_ZEROS.test(amountOut) ? '' : amountOut);
+    if (!limitLockedTokenOutTrigger) {
+      setLimitAmountOut(ONLY_ZEROS.test(amountOut) ? '' : amountOut);
+    }
   }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
 
   const LimitChangeAmountOut = (amount: string) => {
-    setLimitLockedTokenInAmount('');
     const curAmount =
       !limitAmountOut || limitAmountOut.indexOf('.') === -1
         ? amount
@@ -1991,7 +1996,8 @@ export default function SwapCard(props: {
         const inValue = new Big(curAmount || '0')
           .div(LimitAmountOutRate)
           .toString();
-        setLimitLockedTokenInAmount(toPrecision(inValue, 8, false, false));
+        setTokenInAmount(toPrecision(inValue, 8, false, false));
+        setLimitLockedTokenOutTrigger(true);
       }
     } else {
       if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
@@ -2255,7 +2261,7 @@ export default function SwapCard(props: {
         <TokenAmountV3
           forSwap
           swapMode={swapMode}
-          amount={limitLockedTokenInAmount || tokenInAmount}
+          amount={tokenInAmount}
           total={tokenInMax}
           max={tokenInMax}
           tokens={allTokens}
@@ -2281,7 +2287,7 @@ export default function SwapCard(props: {
           }
           useNearBalance={useNearBalance}
           onChangeAmount={(v) => {
-            setLimitLockedTokenInAmount('');
+            setLimitLockedTokenOutTrigger(false);
             setTokenInAmount(v);
           }}
           tokenPriceList={tokenPriceList}
@@ -2467,6 +2473,7 @@ export default function SwapCard(props: {
                   setV3Pool={setSelectedV3LimitPool}
                   tokenPriceList={tokenPriceList}
                   setFeeTiersShowFull={setFeeTiersShowFull}
+                  feeTiersShowFull={feeTiersShowFull}
                 />
               </div>
               <div className="text-xs text-limitOrderInputColor mt-2.5 px-3">
@@ -2523,7 +2530,7 @@ export default function SwapCard(props: {
         isOpen={doubleCheckOpenLimit}
         onRequestClose={() => {
           setDoubleCheckOpenLimit(false);
-          window.location.reload();
+          window.location.reload(); // todo x
         }}
         tokenIn={tokenIn}
         tokenOut={tokenOut}
