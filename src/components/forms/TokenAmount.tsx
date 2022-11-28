@@ -873,7 +873,6 @@ export function TokenAmountV3({
       ),
       8
     );
-
   const rateDiff = new Big(curRate || '0')
     .minus(marketPriceLimitOrder || '0')
     .div(marketPriceLimitOrder || '1')
@@ -1345,7 +1344,7 @@ export function LimitOrderRateSetBox({
   hasLockedRate,
   setHasLockedRate,
 }: any) {
-  // TokenAmountProps
+  // TokenAmountProps todo
   const inputRef = useRef<HTMLInputElement>(null);
   const [rateSort, setRateSort] = useState(true);
   const plus1 =

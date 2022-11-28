@@ -1986,12 +1986,15 @@ export default function SwapCard(props: {
     }
   }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
 
-  const LimitChangeAmountOut = (amount: string) => {
-    const curAmount =
-      !limitAmountOut || limitAmountOut.indexOf('.') === -1
-        ? amount
-        : toPrecision(amount, 8, false, false);
-    if (hasLockedRate) {
+  const LimitChangeAmountOut = (
+    amount: string,
+    noNeedChangeInputAmount?: boolean
+  ) => {
+    const curAmount = toPrecision(amount, 8, false, false);
+    // !limitAmountOut || limitAmountOut.indexOf('.') === -1
+    //   ? amount
+    //   : toPrecision(amount, 8, false, false);
+    if (hasLockedRate && !noNeedChangeInputAmount) {
       if (LimitAmountOutRate) {
         const inValue = new Big(curAmount || '0')
           .div(LimitAmountOutRate)
@@ -2013,13 +2016,11 @@ export default function SwapCard(props: {
     }
     setLimitAmountOut(curAmount);
   };
-
   const onChangeLimitRate = (r: string) => {
-    console.log(r);
-    const curR =
-      !LimitAmountOutRate || LimitAmountOutRate.indexOf('.') === -1
-        ? r
-        : toPrecision(r, 8, false, false);
+    const curR = toPrecision(r, 8, false, false);
+    // !LimitAmountOutRate || LimitAmountOutRate.indexOf('.') === -1
+    //   ? r
+    //   : toPrecision(r, 8, false, false);
 
     const displayCurR = curR;
 
@@ -2390,12 +2391,12 @@ export default function SwapCard(props: {
             onBlur={
               swapMode === SWAP_MODE.LIMIT
                 ? (newRate: string) => {
-                    if (hasLockedRate) return;
                     const newAmountOut = new Big(newRate)
                       .times(tokenInAmount || 0)
                       .toString();
                     LimitChangeAmountOut(
-                      scientificNotationToString(newAmountOut)
+                      scientificNotationToString(newAmountOut),
+                      true
                     );
                   }
                 : null
