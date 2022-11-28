@@ -2179,8 +2179,6 @@ export default function SwapCard(props: {
   });
   const canWrap = wrapButtonCheck();
 
-  console.log(canWrap);
-
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 

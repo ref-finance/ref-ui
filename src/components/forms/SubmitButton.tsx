@@ -50,18 +50,17 @@ function SubmitButton({
             disabled ? 'disabled:cursor-not-allowed opacity-40' : ''
           } ${loading ? 'opacity-40' : ''} ${
             label === 'insufficient_balance' ? 'font-bold' : ''
-          } ${className}`}
+          } ${className} bg-buttonGradientBgOpacity  ${
+            loading || disabled ? '' : 'hover:bg-buttonGradientBg'
+          } `}
           style={{
-            background:
-              label === 'insufficient_balance'
-                ? '#304352'
-                : 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+            background: label === 'insufficient_balance' ? '#304352' : '',
             borderRadius: '5px',
             color: label === 'insufficient_balance' ? '#7E8A93' : '',
           }}
         >
           {!label && (
-            <h1 className="text-lg font-inter font-semibold">
+            <h1 className="text-base font-inter font-semibold">
               <ButtonTextWrapper
                 loading={label !== 'insufficient_balance' && loading}
                 Text={() => (
@@ -72,7 +71,7 @@ function SubmitButton({
           )}
           {label && (
             <h1
-              className={`text-lg font-inter ${
+              className={`text-base font-inter ${
                 label !== 'insufficient_balance' ? 'font-bold' : 'font-semibold'
               } `}
             >

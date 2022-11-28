@@ -429,7 +429,7 @@ export function SwapRateDetail({
             (${toPrecision(curPrice, 2)})
           </span>
         ) : null}{' '}
-        ={' '}
+        ≈{' '}
         {`${exchangeRageValue} ${toRealSymbol(
           isRevert ? tokenIn.symbol : tokenOut.symbol
         )}`}
@@ -447,10 +447,6 @@ export function SwapRateDetail({
       onClick={switchSwapRate}
     >
       <span className="font-sans text-xs">{newValue}</span>
-
-      <span className="ml-2" style={{ marginTop: '0.1rem' }}>
-        <ExchangeIcon />
-      </span>
     </div>
   );
 }
@@ -466,8 +462,6 @@ export const CrossSwapRoute = ({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) => {
-  console.log({ route });
-
   return (
     <div className="flex items-center text-xs text-white w-full">
       {route.length === 1 ? (
@@ -496,7 +490,17 @@ export const CrossSwapRoute = ({
             style={{
               background: '#24333D',
             }}
-            className="py-1 px-1 flex items-center rounded-md"
+            className="py-1 px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
+            onClick={() => {
+              if (route[0].pool?.Dex === 'ref') {
+                window.open(`/pool/${route[0].pool.id}`);
+              } else
+                window.open(
+                  `${getAuroraConfig().explorer}/address/${
+                    route[0].pool?.pairAdd
+                  }`
+                );
+            }}
           >
             <span
               style={{
@@ -513,26 +517,14 @@ export const CrossSwapRoute = ({
                   border
                   borderStyle="1px solid #00C6A2"
                   size="4"
-                  tokens={[tokenIn, route[0].tokens[1]]}
+                  tokens={route[0].tokens}
                 />
 
-                <span className="text-primaryText ml-1">{`#${route[0].pool.id}`}</span>
+                <span className=" ml-1">{`#${route[0].pool.id}`}</span>
               </span>
             )}
 
-            <span
-              className="flex items-center cursor-pointer justify-center text-primaryText hover:text-gray-400"
-              onClick={() => {
-                if (route[0].pool?.Dex === 'ref') {
-                  window.open(`/pool/${route[0].pool.id}`);
-                } else
-                  window.open(
-                    `${getAuroraConfig().explorer}/address/${
-                      route[0].pool?.pairAdd
-                    }`
-                  );
-              }}
-            >
+            <span className="flex items-center cursor-pointer justify-center  ">
               <HiOutlineExternalLink />
             </span>
           </div>
@@ -568,25 +560,23 @@ export const CrossSwapRoute = ({
               background: '#24333D',
               left: '30%',
             }}
-            className="py-1 absolute  px-1 flex items-center rounded-md"
+            className="py-1 absolute  px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
+            onClick={() => {
+              window.open(`/pool/${route[0].pool.id}`);
+            }}
           >
             <span className="flex items-center mx-1">
               <Images
                 border
                 borderStyle="1px solid #00C6A2"
                 size="4"
-                tokens={[tokenIn, route[0].tokens[1]]}
+                tokens={route[0].tokens.slice(0, 2)}
               />
 
-              <span className="text-primaryText ml-1">{`#${route[0].pool.id}`}</span>
+              <span className=" ml-1">{`#${route[0].pool.id}`}</span>
             </span>
 
-            <span
-              className="flex items-center cursor-pointer justify-center text-primaryText hover:text-gray-400"
-              onClick={() => {
-                window.open(`/pool/${route[0].pool.id}`);
-              }}
-            >
+            <span className="flex items-center cursor-pointer justify-center ">
               <HiOutlineExternalLink />
             </span>
           </div>
@@ -595,7 +585,10 @@ export const CrossSwapRoute = ({
             style={{
               background: '#24333D',
             }}
-            className="py-1  px-1 flex items-center rounded-md"
+            className="py-1  px-1 flex items-center rounded-md hover:text-gray-400 cursor-pointer text-primaryText"
+            onClick={() => {
+              window.open(`/pool/${route[1].pool.id}`);
+            }}
           >
             <span className="flex items-center mx-1">
               <Images
@@ -605,15 +598,10 @@ export const CrossSwapRoute = ({
                 tokens={[route[1].tokens[1], tokenOut]}
               />
 
-              <span className="text-primaryText ml-1">{`#${route[1].pool.id}`}</span>
+              <span className=" ml-1">{`#${route[1].pool.id}`}</span>
             </span>
 
-            <span
-              className="flex items-center cursor-pointer justify-center text-primaryText hover:text-gray-400"
-              onClick={() => {
-                window.open(`/pool/${route[1].pool.id}`);
-              }}
-            >
+            <span className="flex items-center cursor-pointer justify-center  ">
               <HiOutlineExternalLink />
             </span>
           </div>
@@ -1048,10 +1036,10 @@ export const CrossSwapAllResult = ({
       <div
         className="absolute xs:relative xs:rounded-xl xs:px-2.5 xs:mt-2  p-4  text-xs cursor-default text-white whitespace-nowrap"
         style={{
-          width: isMobile ? '100%' : '293px',
+          width: isMobile ? '100%' : '307px',
           height: isMulti ? '150px' : '124px',
           zIndex: 60,
-          left: isMobile ? '' : '-280px',
+          left: isMobile ? '' : '-295px',
           border: isMobile ? '1.2px solid #304352' : '',
         }}
       >
@@ -1089,7 +1077,7 @@ export const CrossSwapAllResult = ({
           <span>
             {Number(minAmount) < 0.001
               ? '< 0.001'
-              : toPrecision(minAmount || '0', 3)}
+              : toPrecision(minAmount || '0', 6)}
           </span>
         </div>
       </div>
@@ -1102,6 +1090,13 @@ export const CrossSwapAllResult = ({
   const [showAllResult, setShowAllResult] = useState<boolean>(
     sessionStorage.getItem(REF_FI_SHOW_ALL_RESULTS) === 'true' || false
   );
+
+  useEffect(() => {
+    if (showAllResult)
+      document.addEventListener('click', () => {
+        setShowAllResult(false);
+      });
+  }, [showAllResult]);
 
   const receives = results.map((result) => {
     if (
@@ -1195,21 +1190,6 @@ export const CrossSwapAllResult = ({
     );
   };
 
-  const priceImpactDisplay = useMemo(() => {
-    if (
-      (!selectIsTri ? !priceImpactTri : !priceImpactRef) ||
-      !tokenIn ||
-      !tokenInAmount
-    )
-      return null;
-
-    return GetPriceImpact(
-      selectIsTri ? priceImpactTri : priceImpactRef,
-      tokenIn,
-      tokenInAmount
-    );
-  }, [selectReceive, priceImpactTri, priceImpactRef, selectIsTri]);
-
   const priceImpactDisplayWarning = useMemo(() => {
     if (
       (!selectIsTri ? !priceImpactTri : !priceImpactRef) ||
@@ -1285,7 +1265,7 @@ export const CrossSwapAllResult = ({
                 (${toPrecision(curPrice, 2)})
               </span>
             ) : null}{' '}
-            = {`${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
+            ≈ {`${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
           </span>
         }
         isRevert={isRevert}
@@ -1354,6 +1334,10 @@ export const CrossSwapAllResult = ({
               : ''
             : 'xs:border xs:border-primaryText'
         }  `}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
         style={{
           border: isMobile ? '' : `1.2px solid #304352`,
           padding: isMobile && showAllResult ? '0.1px' : '',
@@ -1392,12 +1376,16 @@ export const CrossSwapAllResult = ({
           </div>
 
           <span
-            className="flex items-center cursor-pointer justify-center"
-            onClick={() => {
+            className={`flex items-center cursor-pointer justify-center ${
+              !showAllResult ? 'text-primaryText' : ''
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               setShowAllResult(!showAllResult);
             }}
           >
-            <span className={' xs:hidden my-2'}>
+            <span className={` xs:hidden  my-2`}>
               <FormattedMessage id="all_results" defaultMessage="All Results" />
             </span>
             <span className="ml-1">

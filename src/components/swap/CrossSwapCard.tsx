@@ -688,7 +688,7 @@ export default function CrossSwapCard(props: {
 
   useEffect(() => {
     if (quoteDoneV3 && crossQuoteDone) {
-      setSelectTodos(swapsToDoRefV3);
+      setSelectTodos(selectTodos || swapsToDoRefV3);
     }
   }, [quoteDoneV3, crossQuoteDone]);
 

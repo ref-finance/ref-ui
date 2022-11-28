@@ -50,9 +50,10 @@ export const PopUpContainer = () => {
       viewBox="0 0 293 124"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="absolute top-0 left-0"
+      className="absolute top-0 left-2"
       style={{
         zIndex: -1,
+        transform: 'scale(1.05,1)',
       }}
     >
       <path
@@ -72,9 +73,10 @@ export const PopUpContainerMulti = () => {
       viewBox="0 0 293 152"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="absolute top-0 left-0"
+      className="absolute top-0 left-2"
       style={{
         zIndex: -1,
+        transform: 'scale(1.05,1)',
       }}
     >
       <path
