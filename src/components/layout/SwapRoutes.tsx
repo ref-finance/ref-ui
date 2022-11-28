@@ -7,6 +7,7 @@ import {
   divide,
   calculateExchangeRate,
   calculateFeeCharge,
+  toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import { toRealSymbol } from '~utils/token';
 import { EstimateSwapView } from '../../services/stable-swap';
@@ -41,7 +42,7 @@ import Big from 'big.js';
 import { useTokenPriceList } from '~state/token';
 import { GetPriceImpact } from '../swap/CrossSwapCard';
 import { PopUpContainer, PopUpContainerMulti } from '../icon/Info';
-import { percentLess } from '../../utils/numbers';
+import { percentLess, multiply } from '../../utils/numbers';
 import { QuestionTip } from './TipWrapper';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { Images } from '../stableswap/CommonComp';
@@ -871,7 +872,7 @@ function CrossSwapRoutesDetail({
   }, [pools]);
 
   return (
-    <section className="text-xs text-white w-full">
+    <section className="text-xs pb-2 text-white w-full">
       {routes?.map((route, i) => {
         return (
           <div
@@ -892,6 +893,63 @@ function CrossSwapRoutesDetail({
     </section>
   );
 }
+
+const GetPriceImpactWarning = (
+  value: string,
+  tokenIn?: TokenMetadata,
+  tokenInAmount?: string
+) => {
+  const textColor =
+    Number(value) <= 1
+      ? 'text-greenLight'
+      : 1 < Number(value) && Number(value) <= 2
+      ? 'text-warn'
+      : 'text-redwarningColor';
+
+  const displayValue = scientificNotationToString(
+    multiply(tokenInAmount, divide(value, '100'))
+  );
+  const tokenInInfo = (
+    <span className="whitespace-nowrap ">
+      <span className="gotham_bold">
+        {Number(displayValue) <= 0
+          ? ` / 0 `
+          : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)} `}
+      </span>
+
+      <span className="gotham">{toRealSymbol(tokenIn.symbol)}</span>
+    </span>
+  );
+
+  Number(displayValue) <= 0
+    ? ` / 0 `
+    : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)} `;
+
+  if (Number(value) < 0.01)
+    return (
+      <span className="text-greenLight">
+        {`< -0.01%`}
+        {tokenInInfo}
+      </span>
+    );
+
+  if (Number(value) > 1000)
+    return (
+      <span className="">
+        {`< -1000%`}
+        {tokenInInfo}
+      </span>
+    );
+
+  return (
+    <span className={`${textColor} `}>
+      <span className="gotham_bold">
+        {` -${toPrecision(value || '0', 2)}%`}
+      </span>
+      {tokenInInfo}
+    </span>
+  );
+};
 
 export const CrossSwapAllResult = ({
   refTodos,
@@ -1014,7 +1072,7 @@ export const CrossSwapAllResult = ({
           <span>{priceImpactDisplay}</span>
         </div>
 
-        <div className="flex items-center mt-2.5 justify-between">
+        <div className="flex items-center mt-2 justify-between">
           <span>
             {intl.formatMessage({
               id: 'pool_fee_cross_swap',
@@ -1025,7 +1083,7 @@ export const CrossSwapAllResult = ({
           <span>{poolFeeDisplay}</span>
         </div>
 
-        <div className="flex items-center mt-2.5  justify-between">
+        <div className="flex items-center mt-2  justify-between">
           <span>{intl.formatMessage({ id: 'minimum_received' })}</span>
 
           <span>
@@ -1146,6 +1204,21 @@ export const CrossSwapAllResult = ({
       return null;
 
     return GetPriceImpact(
+      selectIsTri ? priceImpactTri : priceImpactRef,
+      tokenIn,
+      tokenInAmount
+    );
+  }, [selectReceive, priceImpactTri, priceImpactRef, selectIsTri]);
+
+  const priceImpactDisplayWarning = useMemo(() => {
+    if (
+      (!selectIsTri ? !priceImpactTri : !priceImpactRef) ||
+      !tokenIn ||
+      !tokenInAmount
+    )
+      return null;
+
+    return GetPriceImpactWarning(
       selectIsTri ? priceImpactTri : priceImpactRef,
       tokenIn,
       tokenInAmount
@@ -1406,14 +1479,13 @@ export const CrossSwapAllResult = ({
       )}
 
       {Number(selectIsTri ? priceImpactTri : priceImpactRef) > 2 &&
-      priceImpactDisplay ? (
+      priceImpactDisplayWarning ? (
         <div className="flex items-center justify-between border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
           <span>
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
           <div className="flex items-center">
-            <span className="gotham_bold">{priceImpactDisplay}</span>
-            <span className="ml-1">{tokenIn.symbol}</span>
+            <span className="">{priceImpactDisplayWarning}</span>
           </div>
         </div>
       ) : null}
