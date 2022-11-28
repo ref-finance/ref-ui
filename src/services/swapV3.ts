@@ -411,6 +411,7 @@ export const v3Swap = async ({
 
     const msg = JSON.stringify({
       LimitOrderWithSwap: {
+        client_id: '',
         pool_id,
         buy_token,
         point: new_point,
