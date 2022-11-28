@@ -516,7 +516,6 @@ function MobileLiquidityPage({
                 placeholder={intl.formatMessage({
                   id: 'search_by_token',
                 })}
-                inputMode="decimal"
                 value={tokenName}
                 onChange={(evt) => {
                   onSearch(evt.target.value);
@@ -1022,7 +1021,6 @@ function LiquidityPage_({
                   onChange={(evt) => {
                     onSearch(evt.target.value);
                   }}
-                  inputMode="decimal"
                 />
                 <SearchIcon className="absolute right-2"></SearchIcon>
               </div>
