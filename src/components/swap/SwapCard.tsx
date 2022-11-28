@@ -2160,7 +2160,9 @@ export default function SwapCard(props: {
   const tokenOutTotal = tokenOutBalanceFromNear || '0';
 
   const canSubmit =
-    (swapMode !== SWAP_MODE.LIMIT
+    (wrapOperation
+      ? true
+      : swapMode !== SWAP_MODE.LIMIT
       ? (canSwap || canSwapV3) &&
         (tokenInMax != '0' || !useNearBalance) &&
         quoteDone &&
@@ -2168,7 +2170,17 @@ export default function SwapCard(props: {
       : !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut)) &&
     new Big(tokenInAmount || '0').lte(tokenInMax || '0') &&
     !ONLY_ZEROS.test(tokenInMax || '0');
+
+  console.log({
+    tokenInAmount,
+    tokenInMax,
+    canSubmit,
+    showSwapLoading,
+  });
   const canWrap = wrapButtonCheck();
+
+  console.log(canWrap);
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 

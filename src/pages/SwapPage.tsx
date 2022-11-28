@@ -67,7 +67,7 @@ const ChangeSwapMode = ({
   return (
     <div className="rounded-2xl font-bold  w-full text-limitOrderInputColor text-sm flex py-2 xs:pt-0 xs:pb-2 items-start mx-auto  ">
       <span
-        className={`mr-6 text-center px-2 py-1 rounded-xl hover:bg-primaryText hover:bg-opacity-10  flex flex-col cursor-pointer ${
+        className={`mr-6 text-center px-2.5 py-1.5 rounded-xl hover:bg-primaryText hover:bg-opacity-10  flex flex-col cursor-pointer ${
           swapMode === SWAP_MODE.NORMAL ? ' text-white ' : ''
         }`}
         onClick={() => {
@@ -76,13 +76,13 @@ const ChangeSwapMode = ({
         }}
       >
         <FormattedMessage id="swap" defaultMessage="Swap" />
-        {swapMode === SWAP_MODE.NORMAL && (
+        {swapMode === SWAP_MODE.NORMAL && isMobile && (
           <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
         )}
       </span>
 
       <span
-        className={`mr-3  relative text-center px-2 py-1  rounded-xl hover:bg-primaryText hover:bg-opacity-10 flex flex-col cursor-pointer ${
+        className={`mr-3  relative text-center px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 flex flex-col cursor-pointer ${
           swapMode === SWAP_MODE.X_SWAP ? ' text-white ' : ''
         }`}
         onClick={() => {
@@ -98,7 +98,7 @@ const ChangeSwapMode = ({
       >
         <FormattedMessage id="xSwap" defaultMessage="XSwap" />
 
-        {swapMode === SWAP_MODE.X_SWAP && (
+        {swapMode === SWAP_MODE.X_SWAP && isMobile && (
           <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
         )}
 
@@ -122,7 +122,7 @@ const ChangeSwapMode = ({
       </span>
 
       <div
-        className="w-0.5 xs:relative xs:mt-2"
+        className="w-0.5 xs:relative mt-1.5 xs:mt-2"
         style={{
           borderRight: '1.2px solid rgba(145, 162, 174, 0.2)',
           height: '20px',
@@ -130,7 +130,7 @@ const ChangeSwapMode = ({
       ></div>
 
       <span
-        className={`ml-3 flex flex-col px-2 py-1  rounded-xl hover:bg-primaryText hover:bg-opacity-10 text-center cursor-pointer ${
+        className={`ml-3 flex flex-col px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 text-center cursor-pointer ${
           swapMode === SWAP_MODE.LIMIT ? ' text-white ' : ''
         }`}
         onClick={() => {
@@ -140,7 +140,7 @@ const ChangeSwapMode = ({
       >
         <FormattedMessage id="limit_order" defaultMessage="Limit Order" />
 
-        {swapMode === SWAP_MODE.LIMIT && (
+        {swapMode === SWAP_MODE.LIMIT && isMobile && (
           <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
         )}
       </span>

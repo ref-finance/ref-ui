@@ -1348,6 +1348,7 @@ export const CrossSwapAllResult = ({
         style={{
           border: `1.2px solid #304352`,
           zIndex: 40,
+          background: '#2E3D47',
         }}
         width="w-full"
         rounded="rounded-lg xs:rounded-xl"

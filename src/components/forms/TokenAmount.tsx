@@ -823,10 +823,12 @@ export function TokenAmountV3({
   const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
 
   const curMax =
-    selectedToken?.id === WRAP_NEAR_CONTRACT_ID && !forWrap
+    selectedToken?.id === WRAP_NEAR_CONTRACT_ID &&
+    selectedToken.symbol === 'NEAR' &&
+    !forWrap
       ? Number(max) <= 0.5
         ? '0'
-        : String(Number(max) - 0.5)
+        : new BigNumber(max).minus(0.5).toFixed(12)
       : max;
 
   const plus1 =
@@ -1041,10 +1043,12 @@ export function TokenAmountV3({
           :&nbsp;
           <span
             className={`${
-              !!onChangeAmount ? 'hover:text-white' : ''
-            } cursor-pointer`}
+              !!onChangeAmount && !forLimitOrder
+                ? 'hover:text-white cursor-pointer'
+                : ''
+            } `}
             onClick={() => {
-              if (onChangeAmount) {
+              if (onChangeAmount && !forLimitOrder) {
                 onChangeAmount(curMax);
               }
             }}
