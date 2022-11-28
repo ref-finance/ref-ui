@@ -1024,7 +1024,7 @@ export function TokenAmountV3({
       </fieldset>
 
       <div className="flex items-center justify-between h-6">
-        <span className="mr-3 text-primaryText">
+        <span className="mr-3 text-limitOrderInputColor">
           {!!tokenPrice &&
           !ONLY_ZEROS.test(amount) &&
           !isError &&
@@ -1036,10 +1036,22 @@ export function TokenAmountV3({
               )
             : '$-'}
         </span>
-        <span className="text-primaryText">
+        <span className="text-limitOrderInputColor">
           <FormattedMessage id="balance" defaultMessage="Balance" />
           :&nbsp;
-          <span title={total}>{toPrecision(total, 3, true)}</span>
+          <span
+            className={`${
+              !!onChangeAmount ? 'hover:text-white' : ''
+            } cursor-pointer`}
+            onClick={() => {
+              if (onChangeAmount) {
+                onChangeAmount(curMax);
+              }
+            }}
+            title={total}
+          >
+            {toPrecision(total, 3, true)}
+          </span>
         </span>
       </div>
     </div>
