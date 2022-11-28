@@ -764,22 +764,30 @@ export function RouteDCLDetail({
   bestFee,
   tokenIn,
   tokenOut,
+  isXSwap,
 }: {
   bestFee: number;
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
+  isXSwap?: boolean;
 }) {
   const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, bestFee * 100);
   const pool_id_url_params = pool_id.replace(/\|/g, '@');
   return (
-    <section className="py-2 flex  text-xs items-center justify-between rounded-xl">
-      <div className="text-farmText">
+    <section
+      className={`${
+        isXSwap ? 'py-0 w-full' : 'py-2'
+      }  flex  text-xs items-center justify-between rounded-xl`}
+    >
+      <div className={`text-farmText ${isXSwap ? 'hidden' : ''}`}>
         <div className="inline-flex items-center">
           <FormattedMessage id="route" defaultMessage={'Route'} />
         </div>
       </div>
       <div
-        className={`flex-shrink-0 h-4 flex items-center rounded-xl  justify-between relative z-0`}
+        className={`flex-shrink-0 h-4  ${
+          isXSwap ? 'w-full' : ''
+        }  flex items-center rounded-xl  justify-between relative z-0`}
       >
         <span
           className="flex items-center  rounded-md p-1 py-0.5"
@@ -788,7 +796,13 @@ export function RouteDCLDetail({
           }}
         >
           <Icon token={tokenIn} size={'5'} />
-          <span className="text-right mx-0.5 text-farmText">100%</span>
+          <span
+            className={`text-right mx-0.5 ${
+              isXSwap ? 'text-white' : 'text-farmText'
+            } `}
+          >
+            100%
+          </span>
         </span>
 
         <div
@@ -818,15 +832,31 @@ export function RouteDCLDetail({
               ]}
             />
           </span>
-          <span className="text-farmText mr-1">{bestFee / 100}%</span>
-          <span
-            className="flex items-center cursor-pointer justify-center text-farmText hover:text-senderHot"
-            onClick={() => {
-              window.open(`/poolV2/${pool_id_url_params}`);
+
+          <div
+            className={`flex items-center text-farmText ${
+              isXSwap ? 'hover:text-gray-400 cursor-pointer' : ''
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              isXSwap ? window.open(`/pool/${pool_id_url_params}`) : null;
             }}
           >
-            <HiOutlineExternalLink />
-          </span>
+            <span className=" mr-1">{bestFee / 100}%</span>
+            <span
+              className={`flex items-center cursor-pointer  justify-center ${
+                isXSwap ? '' : 'hover:text-senderHot'
+              }  `}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(`/poolV2/${pool_id_url_params}`);
+              }}
+            >
+              <HiOutlineExternalLink />
+            </span>
+          </div>
         </div>
 
         <div className="flex-shrink-0">
@@ -843,10 +873,12 @@ function CrossSwapRoutesDetail({
   swapsTodo,
   tokenOut,
   tokenIn,
+  fee,
 }: {
   swapsTodo: EstimateSwapView[];
   tokenOut: TokenMetadata;
   tokenIn: TokenMetadata;
+  fee: number;
 }) {
   const routes = separateRoutes(swapsTodo, tokenOut.id);
   const pools = routes?.map((todo) => todo[0].pool);
@@ -869,12 +901,21 @@ function CrossSwapRoutesDetail({
               i > 0 ? 'mt-3' : ''
             } items-center w-full relative`}
           >
-            <CrossSwapRoute
-              tokenIn={tokenIn}
-              tokenOut={tokenOut}
-              route={route}
-              p={percents[i]}
-            />
+            {route[0].pool === null ? (
+              <RouteDCLDetail
+                bestFee={fee}
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                isXSwap
+              />
+            ) : (
+              <CrossSwapRoute
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                route={route}
+                p={percents[i]}
+              />
+            )}
           </div>
         );
       })}
@@ -981,6 +1022,10 @@ export const CrossSwapAllResult = ({
     (r) => !!r && !!r[0] && !!r[0].estimate
   );
 
+  console.log({
+    priceImpactRef,
+  });
+
   const isMobile = useClientMobile();
 
   const [hoverOptimal, setHoverOptimal] = useState(false);
@@ -1009,7 +1054,7 @@ export const CrossSwapAllResult = ({
       if (!priceImpact || !tokenIn || !tokenInAmount) return null;
 
       try {
-        return GetPriceImpact(priceImpact, tokenIn, receive);
+        return GetPriceImpact(priceImpact, tokenIn, tokenInAmount);
       } catch (error) {
         return '-';
       }
@@ -1053,6 +1098,7 @@ export const CrossSwapAllResult = ({
           swapsTodo={curSwapTodos}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
+          fee={fee}
         />
 
         <div className="flex items-center mt-2.5 justify-between">
@@ -1116,7 +1162,8 @@ export const CrossSwapAllResult = ({
   }, [showAllResult]);
 
   const selectIsTri =
-    !selectTodos?.[0]?.pool?.Dex || selectTodos?.[0]?.pool?.Dex !== 'ref';
+    selectTodos?.[0]?.pool !== null &&
+    (!selectTodos?.[0]?.pool?.Dex || selectTodos?.[0]?.pool?.Dex !== 'ref');
 
   const OneResult = ({
     Type,
@@ -1144,7 +1191,9 @@ export const CrossSwapAllResult = ({
       setHover(isHover);
     };
 
-    const isTri = !result?.[0]?.pool?.Dex || result?.[0]?.pool?.Dex !== 'ref';
+    const isTri =
+      result?.[0]?.pool !== null &&
+      (!result?.[0]?.pool?.Dex || result?.[0]?.pool?.Dex !== 'ref');
 
     return (
       <div
@@ -1153,7 +1202,9 @@ export const CrossSwapAllResult = ({
             ? 'border border-gradientFrom rounded-md'
             : 'border border-transparent'
         }`}
-        onClick={() => {
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
           setBestReceiveIndex(index);
         }}
         onMouseEnter={() => {

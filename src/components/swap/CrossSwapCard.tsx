@@ -196,47 +196,6 @@ export function SwapRateDetail({
   );
 }
 
-function CrossSwapRoutesDetail({
-  swapsTodo,
-  tokenOut,
-  tokenIn,
-}: {
-  swapsTodo: EstimateSwapView[];
-  tokenOut: TokenMetadata;
-  tokenIn: TokenMetadata;
-}) {
-  const routes = separateRoutes(swapsTodo, tokenOut.id);
-  const pools = routes?.map((todo) => todo[0].pool);
-
-  const percents = useMemo(() => {
-    try {
-      return getPoolAllocationPercents(pools);
-    } catch (error) {
-      return [];
-    }
-  }, [pools]);
-
-  return (
-    <div className="w-full text-white">
-      {routes?.map((route, i) => {
-        return (
-          <div
-            key={i}
-            className="mb-5 md:w-smartRoute lg:w-smartRoute flex items-center relative"
-          >
-            <CrossSwapRoute
-              tokenIn={tokenIn}
-              tokenOut={tokenOut}
-              route={route}
-              p={percents[i]}
-            />
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 export const GetPriceImpact = (
   value: string,
   tokenIn?: TokenMetadata,
@@ -718,6 +677,15 @@ export default function CrossSwapCard(props: {
 
   useEffect(() => {
     if (quoteDoneV3 && crossQuoteDone && !wrapOperation) {
+      const swapsToDoRefV3 =
+        !swapErrorV3 &&
+        new Big(tokenOutAmountV3 || '0').gte(
+          tokenOut?.id && swapsToDoRef && swapsToDoRef.length > 0
+            ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut?.id)
+            : 0
+        )
+          ? swapsToDoV3
+          : swapsToDoRef;
       setCrossAllResults(
         <CrossSwapAllResult
           refTodos={swapsToDoRefV3}
@@ -750,7 +718,8 @@ export default function CrossSwapCard(props: {
     loadingData,
     swapsToDoRef,
     swapsToDoTri,
-    wrapOperation,
+    // wrapOperation,
+    priceImpactV3,
   ]);
 
   const swapErrorCrossV3 = swapError && swapErrorV3;
