@@ -84,6 +84,7 @@ export default function InputAmount({
             onBlur={() => {
               setIsFocus(false);
             }}
+            inputMode="decimal"
           />
           {max && !forSwap ? (
             <a
@@ -178,6 +179,7 @@ export function NewFarmInputAmount({
             onFocus={() => {
               setIsFocus(true);
             }}
+            inputMode="decimal"
             onBlur={() => {
               setIsFocus(false);
             }}
@@ -271,6 +273,7 @@ export function BoostInputAmount({
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
             }`}
             type="number"
+            inputMode="decimal"
             placeholder="0.0"
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}

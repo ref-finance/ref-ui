@@ -196,6 +196,7 @@ export default function SlippageSelectorForStable({
                 ))}
               </div>
               <input
+                inputMode="decimal"
                 ref={ref}
                 max={99.99999}
                 min={0.000001}

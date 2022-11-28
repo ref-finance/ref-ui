@@ -46,6 +46,7 @@ export default function OldInputAmount({
             value={inputValue}
             onChange={({ target }) => handleChange(target.value)}
             disabled={disabled}
+            inputMode="decimal"
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
           />
           {max ? (
