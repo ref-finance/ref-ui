@@ -129,7 +129,9 @@ export function NewFarmInputAmount({
   const handleChange = (amount: string) => {
     onChangeAmount(amount);
 
-    ref.current.value = amount;
+    if (!onChangeAmount) {
+      ref.current.value = amount;
+    }
   };
 
   return (
@@ -167,6 +169,7 @@ export function NewFarmInputAmount({
             min="0"
             onWheel={() => ref.current.blur()}
             // {...rest}
+            value={rest.value}
             step="any"
             className={`xs:text-sm text-lg font-bold w-full px-5 py-4 ${
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
@@ -230,7 +233,7 @@ export function BoostInputAmount({
   const handleChange = (amount: string) => {
     if (onChangeAmount) onChangeAmount(amount);
 
-    ref.current.value = amount;
+    // ref.current.value = amount;
   };
 
   return (
