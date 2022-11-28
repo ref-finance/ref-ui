@@ -45,7 +45,9 @@ export default function InputAmount({
     if (onChangeAmount) {
       onChangeAmount(amount);
     }
-    ref.current.value = amount;
+    if (!onChangeAmount) {
+      ref.current.value = amount;
+    }
   };
 
   return (
