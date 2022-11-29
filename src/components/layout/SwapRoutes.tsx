@@ -602,7 +602,7 @@ export const CrossSwapRoute = ({
                 border
                 borderStyle="1px solid #00C6A2"
                 size="4"
-                tokens={[route[1].tokens[1], tokenOut]}
+                tokens={route[1].tokens.slice(1, 3)}
               />
 
               <span className=" ml-1">{`#${route[1].pool.id}`}</span>

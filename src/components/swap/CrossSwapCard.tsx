@@ -720,6 +720,7 @@ export default function CrossSwapCard(props: {
     swapsToDoTri,
     // wrapOperation,
     priceImpactV3,
+    supportLedger
   ]);
 
   const swapErrorCrossV3 = swapError && swapErrorV3;
