@@ -635,22 +635,6 @@ export default function CrossSwapCard(props: {
     },
   ];
 
-  const swapsToDoRefV3 =
-    !swapErrorV3 &&
-    new Big(tokenOutAmountV3 || '0').gte(
-      tokenOut?.id && swapsToDoRef && swapsToDoRef.length > 0
-        ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut?.id)
-        : 0
-    )
-      ? swapsToDoV3
-      : swapsToDoRef;
-
-  useEffect(() => {
-    if (quoteDoneV3 && crossQuoteDone) {
-      setSelectTodos(selectTodos || swapsToDoRefV3);
-    }
-  }, [quoteDoneV3, crossQuoteDone]);
-
   const LoadingRefresh = (
     <div
       onClick={(e) => {
@@ -675,17 +659,21 @@ export default function CrossSwapCard(props: {
     </div>
   );
 
+  const swapErrorCrossV3 = swapError && swapErrorV3;
+
   useEffect(() => {
     if (quoteDoneV3 && crossQuoteDone && !wrapOperation) {
-      const swapsToDoRefV3 =
-        !swapErrorV3 &&
-        new Big(tokenOutAmountV3 || '0').gte(
-          tokenOut?.id && swapsToDoRef && swapsToDoRef.length > 0
-            ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut?.id)
-            : 0
-        )
-          ? swapsToDoV3
-          : swapsToDoRef;
+      const swapsToDoRefV3 = swapError
+        ? swapsToDoV3
+        : !swapErrorV3 &&
+          new Big(tokenOutAmountV3 || '0').gte(
+            tokenOut?.id && swapsToDoRef && swapsToDoRef.length > 0
+              ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut?.id)
+              : 0
+          )
+        ? swapsToDoV3
+        : swapsToDoRef;
+
       setCrossAllResults(
         <CrossSwapAllResult
           refTodos={swapsToDoRefV3}
@@ -718,12 +706,9 @@ export default function CrossSwapCard(props: {
     loadingData,
     swapsToDoRef,
     swapsToDoTri,
-    // wrapOperation,
     priceImpactV3,
-    supportLedger
+    swapErrorCrossV3,
   ]);
-
-  const swapErrorCrossV3 = swapError && swapErrorV3;
 
   return (
     <>

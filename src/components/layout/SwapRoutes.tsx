@@ -462,10 +462,6 @@ export const CrossSwapRoute = ({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) => {
-  console.log({
-    toknes: route[0].tokens,
-  });
-
   return (
     <div className="flex items-center text-xs text-white w-full">
       {route.length === 1 ? (
@@ -628,8 +624,6 @@ export const NormalSwapRoute = ({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) => {
-  console.log({ route });
-
   return (
     <div className="flex items-center text-xs text-white w-full">
       {route.length === 1 ? (
@@ -1026,10 +1020,6 @@ export const CrossSwapAllResult = ({
   const results = [refTodos, triTodos].filter(
     (r) => !!r && !!r[0] && !!r[0].estimate
   );
-
-  console.log({
-    priceImpactRef,
-  });
 
   const isMobile = useClientMobile();
 

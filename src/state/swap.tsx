@@ -1224,6 +1224,8 @@ export const useCrossSwap = ({
         setTokenOutAmount('');
         setSwapError(err);
         setCrossQuoteDone(true);
+        // setSwapsToDoRef([]);
+        // setSwapsToDoTri([])
       })
       .finally(() => {
         setLoadingTrigger(false);
@@ -1271,11 +1273,6 @@ export const useCrossSwap = ({
       clearInterval(id);
     };
   }, [count, loadingTrigger, loadingPause]);
-
-  console.log({
-    swapsToDoRef,
-    swapsToDoTri,
-  });
 
   return {
     canSwap,

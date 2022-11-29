@@ -2171,12 +2171,6 @@ export default function SwapCard(props: {
     new Big(tokenInAmount || '0').lte(tokenInMax || '0') &&
     !ONLY_ZEROS.test(tokenInMax || '0');
 
-  console.log({
-    tokenInAmount,
-    tokenInMax,
-    canSubmit,
-    showSwapLoading,
-  });
   const canWrap = wrapButtonCheck();
 
   const handleSubmit = (event: React.FormEvent) => {
