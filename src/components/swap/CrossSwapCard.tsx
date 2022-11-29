@@ -564,7 +564,7 @@ export default function CrossSwapCard(props: {
   const makeBestSwap = () => {
     if (!selectTodos) return;
 
-    if (selectTodos?.[0].pool.id === null) {
+    if (selectTodos?.[0].pool === null) {
       makeSwapV3();
     } else
       swap({
@@ -723,14 +723,6 @@ export default function CrossSwapCard(props: {
   ]);
 
   const swapErrorCrossV3 = swapError && swapErrorV3;
-
-  console.log({
-    tokenIn,
-    t:
-      tokenIn &&
-      tokenIn.id == WRAP_NEAR_CONTRACT_ID &&
-      tokenIn.symbol === 'NEAR',
-  });
 
   return (
     <>
