@@ -381,6 +381,7 @@ const zh_CN = {
   lp_fee: '流动性提供者',
   protocol_fee: '协议费',
   referral_fee: '中介费',
+  protocol_fee_referral_fee: '协议费和中介费',
   total_fee_create: '总费用',
   xref_title: '赚取更多收益通过',
   xref_introdution:
@@ -742,7 +743,7 @@ const zh_CN = {
   boosted_farms: '被加速的农场',
   your_farm: '你的农场',
   your_boosted_farms: '你的加速农场',
-  search_farms_by_token: '通过代币搜索农场...',
+  search_farms_by_token: '通过代币搜索农场',
   search_farms: '搜索农场',
   more_lock_ve_popup: '质押',
   more_lock_ve_popup2: ' ',
@@ -812,5 +813,10 @@ const zh_CN = {
   newText: '最新',
   no_claimed_rewards_yet: '还没有领取的奖励',
   out_of: 'out of',
+  total_ref_week: 'REF/周',
+  ref_week_you_will_get: '你将获得的REF/周',
+  no_token_found: '没有找到代币',
+  search_name_or_address: '搜索名字或粘贴地址...',
+  token_address_invalid: '代币地址是无效的',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

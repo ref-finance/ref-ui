@@ -433,6 +433,7 @@ const es = {
   lp_fee: 'Tarifa del LP',
   protocol_fee: 'Tarifa del Protocol',
   referral_fee: 'Tarifa de referencia',
+  protocol_fee_referral_fee: 'Tarifa de protocolo y tarifa de referencia',
   total_fee_create: 'Total de las tarifas',
   xref_title: 'GANE MÁS POR',
   xref_title1: 'Gane más',
@@ -812,7 +813,7 @@ const es = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Tus farm',
   your_boosted_farms: 'Tus boosted farms',
-  search_farms_by_token: 'Buscar farms por token...',
+  search_farms_by_token: 'Buscar farms por token',
   search_farms: 'Buscar farms',
   more_lock_ve_popup: 'más ',
   more_lock_ve_popup2: 'más',
@@ -893,5 +894,10 @@ const es = {
   pool_stop_tip: 'This pool has been stopped.',
   no_claimed_rewards_yet: 'Recompensas por reclamar',
   out_of: 'de',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
+  no_token_found: 'No token found',
+  search_name_or_address: 'Search name or paste address...',
+  token_address_invalid: 'The token address was invalid',
 };
 export default Object.assign(es, es_in_risks_page);

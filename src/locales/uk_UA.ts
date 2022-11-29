@@ -411,6 +411,7 @@ const uk_UA = {
   lp_fee: 'LP комісія',
   protocol_fee: 'Комісія протокола',
   referral_fee: 'Реферальна комісія',
+  protocol_fee_referral_fee: 'Комісія за протокол і реферальна плата',
   total_fee_create: 'Загальна комісія',
   xref_title: 'ЗАРОБІТЬ БІЛЬШЕ ЗА',
   xref_title1: 'Заробіть більше',
@@ -768,7 +769,7 @@ const uk_UA = {
   boosted_farms: 'Boosted farms',
   your_farm: 'Ваші ферми',
   your_boosted_farms: 'Your boosted farms',
-  search_farms_by_token: 'Шукати ферму за токеном...',
+  search_farms_by_token: 'Шукати ферму за токеном',
   more_lock_ve_popup: 'більше ',
   more_lock_ve_popup2: 'більше',
   more_in: 'більше в',
@@ -831,5 +832,10 @@ const uk_UA = {
   newText: 'новий',
   no_claimed_rewards_yet: 'No claimed rewards yet',
   out_of: 'out of',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
+  no_token_found: 'No token found',
+  search_name_or_address: 'Search name or paste address...',
+  token_address_invalid: 'The token address was invalid',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

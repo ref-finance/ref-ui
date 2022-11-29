@@ -413,6 +413,7 @@ const ko = {
   lp_fee: 'LP 수수료',
   protocol_fee: '프로토콜 수수료',
   referral_fee: '추천 수수료 ',
+  protocol_fee_referral_fee: '의정서 수수료 및 추천 수수료',
   total_fee_create: '총 수수료',
   xref_title: '로 더 많은 수익 벌기',
   xref_title1: '더 많은 수익',
@@ -786,7 +787,7 @@ const ko = {
   boosted_farms: '부스팅된 농장',
   your_farm: '당신의 농장',
   your_boosted_farms: '당신의 부스팅된 농장',
-  search_farms_by_token: '토큰에 의해 농장 검색하기...',
+  search_farms_by_token: '토큰에 의해 농장 검색하기',
   more_lock_ve_popup: 'more',
   more_lock_ve_popup2: 'more',
   more_in: 'more in',
@@ -855,5 +856,10 @@ const ko = {
   newText: '새로운',
   no_claimed_rewards_yet: 'No claimed rewards yet',
   out_of: 'out of',
+  total_ref_week: 'Total REF/week',
+  ref_week_you_will_get: 'REF/week you will get',
+  no_token_found: 'No token found',
+  search_name_or_address: 'Search name or paste address...',
+  token_address_invalid: 'The token address was invalid',
 };
 export default Object.assign(ko, ko_in_risks_page);

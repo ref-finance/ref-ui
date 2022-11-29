@@ -176,6 +176,9 @@ module.exports = {
         bgDarkColor: 'rgba(0, 19, 32, 0.5)',
         warnRedColor: 'rgba(255, 117, 117, 0.5)',
         darkBlackColor: '#111C24',
+        pinEmptyHoverColor: '#B7C9D6',
+        commonTokenBorderColor:'rgba(126, 138, 147, 0.2)',
+        commonCloseColor:'#454D52',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -14,8 +14,11 @@ export default function USNBuyComponent({
   const isMobie = useClientMobile();
 
   return (
-    <button onClick={onClick}>
-      {isMobie ? <GetUSNMobile /> : hover ? <GetUSNHover /> : <GetUSNDefault />}
+    <button
+      onClick={onClick}
+      style={{ transform: isMobie ? '' : 'scale(0.9)' }}
+    >
+      <GetUSNMobile />
     </button>
   );
 }

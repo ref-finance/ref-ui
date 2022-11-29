@@ -926,7 +926,9 @@ function USNButton() {
   const [showUSN, setShowUSN] = useState<boolean>(false);
 
   const [showeBorrowCard, setShowBorrowCard] = useState(false);
-
+  function goLink() {
+    window.open('https://usnpp.auroralabs.dev/');
+  }
   return (
     <>
       <div
@@ -935,49 +937,8 @@ function USNButton() {
         className="relative lg:py-4 top-0.5 z-50"
       >
         <div className="mx-2">
-          <USNBuyComponent hover={USNButtonHover} />
+          <USNBuyComponent onClick={goLink} />
         </div>
-
-        {USNButtonHover ? (
-          <div className=" absolute pt-2 right-0 lg:top-14 xs:top-8 md:top-8 ">
-            <div
-              style={{
-                border: '1px solid #415462',
-                backdropFilter: 'blur(25px)',
-                WebkitBackdropFilter: 'blur(25px)',
-                background: '#323E46',
-              }}
-              className="py-2.5 px-1.5 text-sm  flex flex-col items-center rounded-xl z-50 text-primaryText "
-            >
-              <div
-                className="whitespace-nowrap px-4 py-2 hover:bg-black hover:bg-opacity-20 rounded-lg hover:text-white w-full cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowUSN(true);
-                  setUSNButtonHover(false);
-                }}
-              >
-                <FormattedMessage id="buy" defaultMessage="Buy" />
-              </div>
-
-              <div
-                className="whitespace-nowrap flex items-center px-4 py-2 hover:bg-black hover:bg-opacity-20 rounded-lg hover:text-white w-full cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowBorrowCard(true);
-                  setUSNButtonHover(false);
-                }}
-              >
-                <span className="mr-1">
-                  <FormattedMessage id="borrow" defaultMessage="Borrow" />
-                </span>
-                <span>
-                  <HiOutlineExternalLink />
-                </span>
-              </div>
-            </div>
-          </div>
-        ) : null}
       </div>
       <USNPage
         isOpen={showUSN}
@@ -1237,34 +1198,6 @@ function NavigationBar() {
           </div>
           <div className="flex items-center justify-end flex-1">
             <BuyNearButton />
-
-            {isSignedIn && (
-              <div className="flex ml-2 items-center text-white">
-                <div
-                  className=" py-1 cursor-pointer items-center flex"
-                  onClick={() => setShowWrapNear(true)}
-                >
-                  <WNEARExchngeIcon />
-                </div>
-                <WrapNear
-                  isOpen={showWrapNear}
-                  onRequestClose={() => setShowWrapNear(false)}
-                  style={{
-                    overlay: {
-                      backdropFilter: 'blur(15px)',
-                      WebkitBackdropFilter: 'blur(15px)',
-                    },
-                    content: {
-                      outline: 'none',
-                      position: 'fixed',
-                      width: 550,
-                      bottom: '50%',
-                    },
-                  }}
-                />
-              </div>
-            )}
-
             <USNButton />
             <AccountEntry
               hasBalanceOnRefAccount={hasBalanceOnRefAccount}

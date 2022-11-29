@@ -130,7 +130,6 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 import { useAccountInfo } from '../../state/referendum';
 import { getVEPoolId } from '../ReferendumPage';
-import { PoolTab } from '../../components/pool/PoolTab';
 import getConfig from '../../services/config';
 import { BoostInputAmount } from '../../components/forms/InputAmount';
 import { ExternalLinkIcon } from '~components/icon/Risk';
@@ -261,12 +260,20 @@ function DetailSymbol({
 }
 
 function PoolDetailCard({
-  tokens,
+  tokens_o,
   pool,
 }: {
-  tokens: TokenMetadata[];
+  tokens_o: TokenMetadata[];
   pool: Pool;
 }) {
+  const tokens: TokenMetadata[] = tokens_o
+    ? JSON.parse(JSON.stringify(tokens_o))
+    : [];
+  tokens?.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return 0;
+  });
   const [showDetail, setShowDetail] = useState(false);
 
   const [poolTVL, setPoolTVl] = useState<string>('');
@@ -859,7 +866,7 @@ function CommonModal(props: any) {
         {props.subChildren ? (
           <div style={{ width: cardWidth }}>{props.subChildren}</div>
         ) : (
-          <PoolDetailCard tokens={tokens} pool={pool} />
+          <PoolDetailCard tokens_o={tokens} pool={pool} />
         )}
       </div>
     </Modal>
@@ -1541,7 +1548,6 @@ export function PoolDetailsPage() {
   }
   return (
     <>
-      <PoolTab></PoolTab>
       <div>
         <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-4/5 m-auto">
           <BreadCrumb
@@ -1635,7 +1641,15 @@ export function PoolDetailsPage() {
                       </div>
                       <a
                         target="_blank"
-                        href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
+                        href={`/swap/#${
+                          tokens[0].id == WRAP_NEAR_CONTRACT_ID
+                            ? 'near'
+                            : tokens[0].id
+                        }|${
+                          tokens[1].id == WRAP_NEAR_CONTRACT_ID
+                            ? 'near'
+                            : tokens[1].id
+                        }`}
                         className="text-xs text-gray-400"
                         title={tokens[0].id}
                       >{`${tokens[0].id.substring(0, 24)}${
@@ -1709,7 +1723,15 @@ export function PoolDetailsPage() {
                       </div>
                       <a
                         target="_blank"
-                        href={`/swap/#${tokens[0].id}|${tokens[1].id}`}
+                        href={`/swap/#${
+                          tokens[0].id == WRAP_NEAR_CONTRACT_ID
+                            ? 'near'
+                            : tokens[0].id
+                        }|${
+                          tokens[1].id == WRAP_NEAR_CONTRACT_ID
+                            ? 'near'
+                            : tokens[1].id
+                        }`}
                         className="text-xs text-gray-400"
                         title={tokens[1].id}
                       >{`${tokens[1].id.substring(0, 24)}${

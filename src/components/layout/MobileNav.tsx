@@ -51,6 +51,7 @@ import {
 } from '~components/icon/Common';
 
 import { WalletContext } from '../../utils/wallets-integration';
+import { OutLinkIcon } from '~components/icon/Common';
 
 const config = getConfig();
 import { isMobile } from '~utils/device';
@@ -654,7 +655,9 @@ export function MobileNavBar(props: any) {
           />
           <div className="flex">
             <div
-              className={`flex px-1 mr-px items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
+              className={`flex px-1 ${
+                isSignedIn ? 'mr-px' : 'mr-4'
+              }  items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
                 isSignedIn
                   ? 'bg-gray-700 text-white'
                   : 'border border-gradientFrom text-gradientFrom'
@@ -740,11 +743,10 @@ export function MobileNavBar(props: any) {
               </span>
             </div>
             <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
-              <div className="text-primaryText" onClick={() => setShow(false)}>
+              <div className="text-primaryText">
                 <div
                   className={`flex flex-col p-4 `}
                   onClick={() => {
-                    setMobileWrapNear(true);
                     setShowUSN(false);
                     setShowBorrowCard(false);
                   }}
@@ -755,27 +757,10 @@ export function MobileNavBar(props: any) {
                     </span>
                   )}
 
-                  <div className={`flex items-center ${isSignedIn ? '' : ''}`}>
+                  <div className={`flex items-center`}>
                     <BuyNearButton />
-                    {isSignedIn && <WNEARExchngeIcon width="75" height="32" />}
                   </div>
                 </div>
-                <WrapNear
-                  isOpen={mobileWrapNear}
-                  onRequestClose={() => setMobileWrapNear(false)}
-                  style={{
-                    overlay: {
-                      backdropFilter: 'blur(15px)',
-                      WebkitBackdropFilter: 'blur(15px)',
-                    },
-                    content: {
-                      outline: 'none',
-                      position: 'fixed',
-                      width: '90%',
-                      bottom: '50%',
-                    },
-                  }}
-                />
               </div>
               <MobileUSNButton
                 setShow={setShow}
@@ -972,13 +957,20 @@ function MobileUSNButton({
   setShowUSN,
 }: any) {
   const [btnTouched, setBtcTouched] = useState<string>('');
-
+  function goLink() {
+    window.open('https://usnpp.auroralabs.dev/');
+  }
   return (
     <div className="text-primaryText">
       <div className="flex p-5 justify-between items-center text-sm">
         <USNBuyComponent></USNBuyComponent>
-
-        <div className="ml-3 w-full flex items-center">
+        <div className="flex items-center" onClick={goLink}>
+          <span className="text-sm text-primaryText mx-1.5 whitespace-nowrap">
+            Protection Programme
+          </span>
+          <OutLinkIcon></OutLinkIcon>
+        </div>
+        {/* <div className="ml-3 w-full flex items-center">
           <button className="pr-2.5 border-r-2 border-white border-opacity-10">
             <div
               className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-3 py-1 ${
@@ -1023,14 +1015,14 @@ function MobileUSNButton({
               <FormattedMessage id="borrow" defaultMessage="Borrow" />
             </div>
           </button>
-        </div>
+        </div> */}
       </div>
-      <USNCard
+      {/* <USNCard
         showUSN={showUSN}
         setShowBorrowCard={setShowBorrowCard}
         showeBorrowCard={showeBorrowCard}
         setShowUSN={setShowUSN}
-      />
+      /> */}
     </div>
   );
 }
