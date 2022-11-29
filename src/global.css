@@ -2,6 +2,10 @@
   font-family: 'gotham';
   src: url('./assets/Gotham-Book.ttf');
 }
+@font-face {
+  font-family: 'gothamBold';
+  src: url('./assets/Gotham-Bold.otf');
+}
 * {
   box-sizing: border-box;
 }
@@ -25,7 +29,9 @@ html {
 .gotham_font {
   font-family: 'gotham';
 }
-
+.gotham_bold {
+  font-family: 'gothamBold';
+}
 body {
   margin: 0;
   background: #001220;
@@ -1016,4 +1022,12 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 .transak_modal {
   z-index: 99999 !important;
+}
+
+.searchBoxGradientBorder {
+  border: 1px solid transparent;
+  background-image: linear-gradient(0deg, #192127, #192127),
+    linear-gradient(180deg, #172327 0%, #304352 100%);
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
 }

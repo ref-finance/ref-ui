@@ -75,14 +75,14 @@ export function AddPoolModal(
       v: intl.formatMessage({ id: 'lp_fee' }),
       percent: '80',
     },
-    protocol_fee: {
-      v: intl.formatMessage({ id: 'protocol_fee' }),
-      percent: '16',
+    protocol_fee_and_referral_fee: {
+      v: intl.formatMessage({ id: 'protocol_fee_referral_fee' }),
+      percent: '20',
     },
-    referral_fee: {
-      v: intl.formatMessage({ id: 'referral_fee' }),
-      percent: '4',
-    },
+    // referral_fee: {
+    //   v: intl.formatMessage({ id: 'referral_fee' }),
+    //   percent: '4',
+    // },
   };
 
   const isMobile = useClientMobile();
@@ -292,7 +292,7 @@ export function AddPoolModal(
                   key={item.v + 1}
                 >
                   <label className="text-sm text-primaryText">{item.v}</label>
-                  <label className="text-sm text-white">
+                  <label className="text-sm text-white whitespace-nowrap ml-3">
                     {getCurFee(item)}
                   </label>
                 </div>
