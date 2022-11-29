@@ -935,5 +935,6 @@ const uk_UA = {
   to_Buy: 'to Buy',
   at_Price: 'at Price',
   insufficient_balance: 'Insufficient Balance',
+  MORE: 'MORE',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

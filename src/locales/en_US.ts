@@ -955,5 +955,6 @@ const en_US = {
   to_Buy: 'to Buy',
   at_Price: 'at Price',
   insufficient_balance: 'Insufficient Balance',
+  MORE: 'MORE',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

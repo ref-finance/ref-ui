@@ -177,8 +177,8 @@ export const NewProIconDefaultSwap = () => {
           y2="33"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#4A5B69" />
-          <stop offset="1" stop-color="#202E38" />
+          <stop stopColor="#4A5B69" />
+          <stop offset="1" stopColor="#202E38" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_2432_2771"
@@ -188,8 +188,8 @@ export const NewProIconDefaultSwap = () => {
           y2="23"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#81919E" />
-          <stop offset="1" stop-color="#394E5B" />
+          <stop stopColor="#81919E" />
+          <stop offset="1" stopColor="#394E5B" />
         </linearGradient>
       </defs>
     </svg>
@@ -592,8 +592,8 @@ export const ProIconClickSwap = () => {
           y2="32"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#09C7B8" />
-          <stop offset="1" stop-color="#544CFA" />
+          <stop stopColor="#09C7B8" />
+          <stop offset="1" stopColor="#544CFA" />
         </linearGradient>
         <linearGradient
           id="paint1_linear_2432_2773"
@@ -603,8 +603,8 @@ export const ProIconClickSwap = () => {
           y2="22"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#00D6AF" />
-          <stop offset="1" stop-color="#00705B" />
+          <stop stopColor="#00D6AF" />
+          <stop offset="1" stopColor="#00705B" />
         </linearGradient>
       </defs>
     </svg>
@@ -643,8 +643,8 @@ export const CrossChainPop = () => {
           gradientUnits="userSpaceOnUse"
           gradientTransform="translate(1.41404e-06 7.5) rotate(10.3566) scale(136.283 76.058)"
         >
-          <stop stop-color="#00D6AF" />
-          <stop offset="1" stop-color="#5B40FF" />
+          <stop stopColor="#00D6AF" />
+          <stop offset="1" stopColor="#5B40FF" />
         </radialGradient>
       </defs>
     </svg>
@@ -1199,8 +1199,8 @@ export const SelectedIcon = (props: any) => {
       <path
         d="M3.81738 6.72767L6.13143 8.90949L10.181 5.09131"
         stroke="white"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
       <defs>
         <linearGradient
@@ -1211,8 +1211,8 @@ export const SelectedIcon = (props: any) => {
           y2="14"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#00C6A2" />
-          <stop offset="1" stop-color="#008B72" />
+          <stop stopColor="#00C6A2" />
+          <stop offset="1" stopColor="#008B72" />
         </linearGradient>
       </defs>
     </svg>

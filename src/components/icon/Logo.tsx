@@ -3932,8 +3932,8 @@ export const HeavyWarning = () => {
           y2="63"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFDC49" />
-          <stop offset="1" stop-color="#00A88A" />
+          <stop stopColor="#FFDC49" />
+          <stop offset="1" stopColor="#00A88A" />
         </linearGradient>
       </defs>
     </svg>

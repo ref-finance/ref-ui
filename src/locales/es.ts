@@ -993,5 +993,6 @@ const es = {
   to_Buy: 'to Buy',
   at_Price: 'at Price',
   insufficient_balance: 'Insufficient Balance',
+  MORE: 'MORE',
 };
 export default Object.assign(es, es_in_risks_page);
