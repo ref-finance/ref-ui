@@ -47,7 +47,7 @@ import { QuestionTip } from './TipWrapper';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { Images } from '../stableswap/CommonComp';
 import { getAuroraConfig } from '~services/aurora/config';
-import { useClientMobile } from '../../utils/device';
+import { isMobile, useClientMobile } from '../../utils/device';
 import { getV3PoolId } from '../../services/swapV3';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
 
@@ -84,7 +84,7 @@ export const RouterIcon = () => {
 
 export const AutoRouterText = () => {
   return (
-    <span className="from-greenColor to-purple bg-gradient-to-r valueStyle">
+    <span className="from-greenColor to-purple bg-gradient-to-r valueStyle xsm:w-10">
       <FormattedMessage id="auto_router" defaultMessage="Auto Router" />
     </span>
   );
@@ -624,11 +624,12 @@ export const NormalSwapRoute = ({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) => {
+  const isMobile = useClientMobile();
   return (
-    <div className="flex items-center text-xs text-white w-full">
+    <>
       {route.length === 1 ? (
         <div
-          className={`w-full flex-shrink-0 h-4 flex items-center rounded-xl  justify-between relative `}
+          className={`relative z-0 ml-20 xsm:ml-5  mb-1.5 flex items-center justify-between`}
         >
           <span
             className="flex items-center  rounded-md p-1 py-0.5"
@@ -636,12 +637,15 @@ export const NormalSwapRoute = ({
               background: '#24333D',
             }}
           >
-            <Icon token={tokenIn || route[0].tokens[0]} size={'5'} />
+            <Icon
+              token={tokenIn || route[0].tokens[0]}
+              size={isMobile ? '3' : '3.5'}
+            />
             <span className="text-right mx-0.5">{p}%</span>
           </span>
 
           <div
-            className="w-full absolute bottom-2"
+            className="w-full absolute bottom-3"
             style={{
               border: '1px dashed #304352',
               zIndex: -1,
@@ -658,7 +662,7 @@ export const NormalSwapRoute = ({
               <Images
                 border
                 borderStyle="1px solid #00C6A2"
-                size="4"
+                size={isMobile ? '3' : '3.5'}
                 tokens={[tokenIn, route[0].tokens[1]]}
               />
               <span className="text-farmText ml-1">{`#${route[0].pool.id}`}</span>
@@ -675,25 +679,31 @@ export const NormalSwapRoute = ({
           </div>
 
           <div className="flex-shrink-0">
-            <Icon token={tokenOut || route[0].tokens[1]} size={'5'} />
+            <Icon
+              token={tokenOut || route[0].tokens[1]}
+              size={isMobile ? '3' : '3.5'}
+            />
           </div>
         </div>
       ) : (
         <div
-          className={`w-full flex-shrink-0 h-4 flex items-center rounded-xl  justify-between relative `}
+          className={`relative z-0 ml-10 xsm:ml-5 mb-1.5 flex items-center justify-between`}
         >
           <span
-            className="flex items-center w-14  rounded-md p-1 py-0.5"
+            className="flex items-center rounded-md p-1 py-0.5"
             style={{
               background: '#24333D',
             }}
           >
-            <Icon token={tokenIn || route[0].tokens[0]} size={'5'} />
+            <Icon
+              token={tokenIn || route[0].tokens[0]}
+              size={isMobile ? '3' : '3.5'}
+            />
             <span className="text-right mx-0.5">{p}%</span>
           </span>
 
           <div
-            className="w-full absolute bottom-2"
+            className="w-full absolute bottom-3"
             style={{
               border: '1px dashed #304352',
               zIndex: -1,
@@ -710,7 +720,7 @@ export const NormalSwapRoute = ({
               <Images
                 border
                 borderStyle="1px solid #00C6A2"
-                size="4"
+                size={isMobile ? '3' : '3.5'}
                 tokens={[tokenIn, route[0].tokens[1]]}
               />
 
@@ -737,7 +747,7 @@ export const NormalSwapRoute = ({
               <Images
                 border
                 borderStyle="1px solid #00C6A2"
-                size="4"
+                size={isMobile ? '3' : '3.5'}
                 tokens={[route[1].tokens[1], tokenOut]}
               />
 
@@ -753,12 +763,12 @@ export const NormalSwapRoute = ({
               <HiOutlineExternalLink />
             </span>
           </div>
-          <div className="flex-shrink-0">
+          {/* <div className="flex-shrink-0">
             <Icon token={tokenOut} size={'5'} />
-          </div>
+          </div> */}
         </div>
       )}
-    </div>
+    </>
   );
 };
 export function RouteDCLDetail({
@@ -772,6 +782,8 @@ export function RouteDCLDetail({
   tokenOut: TokenMetadata;
   isXSwap?: boolean;
 }) {
+  // todo x
+  const isMobile = useClientMobile();
   const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, bestFee * 100);
   const pool_id_url_params = pool_id.replace(/\|/g, '@');
   return (
@@ -796,14 +808,8 @@ export function RouteDCLDetail({
             background: '#24333D',
           }}
         >
-          <Icon token={tokenIn} size={'5'} />
-          <span
-            className={`text-right mx-0.5 ${
-              isXSwap ? 'text-white' : 'text-farmText'
-            } `}
-          >
-            100%
-          </span>
+          <Icon token={tokenIn} size={isMobile ? '3' : '3.5'} />
+          <span className="text-right mx-0.5 text-farmText">100%</span>
         </span>
 
         <div
@@ -833,7 +839,7 @@ export function RouteDCLDetail({
             <Images
               border
               borderStyle="1px solid #00C6A2"
-              size="4"
+              size={isMobile ? '3' : '3.5'}
               tokens={[
                 tokenIn,
                 tokenOut?.id == WRAP_NEAR_CONTRACT_ID ? nearMetadata : tokenOut,
@@ -859,7 +865,7 @@ export function RouteDCLDetail({
         </div>
 
         <div className="flex-shrink-0">
-          <Icon token={tokenOut} size={'5'} />
+          <Icon token={tokenOut} size={isMobile ? '3' : '3.5'} />
         </div>
       </div>
     </section>

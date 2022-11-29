@@ -708,7 +708,7 @@ export function SwapExchangeV3({
 
   return (
     <>
-      <div className="flex items-center xs:relative xs:bottom-4">
+      <div className="flex items-center">
         <div
           className="relative flex items-center justify-center  w-7 h-7 border-2 border-switchIconBorderColor rounded-lg cursor-pointer bg-switchIconBgColor"
           onClick={() => {

@@ -908,5 +908,6 @@ const zh_CN = {
   to_Buy: '买',
   at_Price: '价格',
   insufficient_balance: '余额不足',
+  MORE: '更多',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

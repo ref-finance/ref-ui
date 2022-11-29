@@ -86,7 +86,7 @@ interface TokenAmountProps {
 
 export function getTextWidth(str: string, fontSize: string) {
   let result = 10;
-
+  const mobile = isMobile();
   let ele = document.createElement('span');
 
   ele.innerText = str;
@@ -97,7 +97,8 @@ export function getTextWidth(str: string, fontSize: string) {
   result = ele.offsetWidth;
 
   document.documentElement.removeChild(ele);
-  return result + 25;
+
+  return mobile ? result + 5 : result + 18;
 }
 
 export function HalfAndMaxAmount({
@@ -957,7 +958,7 @@ export function TokenAmountV3({
                       : Number(displayRateDiff) <= -10
                       ? 'text-error bg-error'
                       : 'text-warn bg-warn'
-                  }  py-0.5 px-2 bg-opacity-20 mr-1.5`}
+                  }  py-0.5 px-2 bg-opacity-20 mr-1`}
                 >
                   {displayRateDiff}%
                 </span>
@@ -1134,17 +1135,17 @@ export function TokenCardIn({
           <FormattedMessage id="balance" />: &nbsp; {toPrecision(max, 3, true)}
         </span>
       </div>
-          <input
-            className="text-right text-white text-xl xs:text-lg"
-            value={amount}
-            type="number"
-            min="0"
-            placeholder="0.0"
-            onChange={(e) => onChangeAmount(e.target.value)}
-            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
-            step="any"
-            inputMode="decimal"
-          />
+      <input
+        className="text-right text-white text-xl xs:text-lg"
+        value={amount}
+        type="number"
+        min="0"
+        placeholder="0.0"
+        onChange={(e) => onChangeAmount(e.target.value)}
+        onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
+        step="any"
+        inputMode="decimal"
+      />
 
       <fieldset className="relative flex  align-center items-center my-2">
         <InputAmountV3
@@ -1371,7 +1372,6 @@ export function LimitOrderRateSetBox({
   hasLockedRate,
   setHasLockedRate,
 }: any) {
-  // TokenAmountProps todo
   const inputRef = useRef<HTMLInputElement>(null);
   const [rateSort, setRateSort] = useState(true);
   const plus1 =
@@ -1489,7 +1489,7 @@ export function LimitOrderRateSetBox({
                 symbolsArr.includes(e.key) && e.preventDefault()
               }
             />
-            <span className="text-xs text-primaryText">
+            <span className="text-xs text-primaryText mx-0.5">
               {getTokenBSymbol()}
             </span>
           </div>

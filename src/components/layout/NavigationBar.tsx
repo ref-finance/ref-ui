@@ -674,16 +674,14 @@ export function AuroraEntry({
         }
       }}
     >
-      <div className="flex items-center">
-        <div
-          className={`flex items-center rounded-2xl  ${
-            hover ? 'bg-auroraGreen' : 'bg-gray-700'
-          } px-2 py-1 ml-px relative `}
-        >
-          <AuroraIcon hover={hover} />
+      <div
+        className={`flex items-center rounded-lg px-2 py-2 ml-px relative ${
+          hover ? 'bg-auroraGreen' : 'bg-white bg-opacity-20'
+        }`}
+      >
+        <AuroraIcon hover={hover} />
 
-          {hasBalanceOnAurora ? <HasBalance hover={hover} /> : null}
-        </div>
+        {hasBalanceOnAurora ? <HasBalance hover={hover} /> : null}
       </div>
       {hover ? (
         <div
@@ -897,13 +895,7 @@ function MoreMenu() {
                         : 'text-primaryText'
                     }`}
                       onClick={() =>
-                        handleMoreMenuClick(
-                          url,
-                          isExternal,
-                          label,
-                          children,
-                          specialMenuKey
-                        )
+                        handleMoreMenuClick(url, isExternal, label, children)
                       }
                     >
                       <div className="flex items-center mr-1.5">
@@ -931,13 +923,7 @@ function MoreMenu() {
                         : 'text-primaryText'
                     }`}
                     onClick={() =>
-                      handleMoreMenuClick(
-                        url,
-                        isExternal,
-                        label,
-                        children,
-                        specialMenuKey
-                      )
+                      handleMoreMenuClick(url, isExternal, label, children)
                     }
                   >
                     {logo && (
@@ -1251,7 +1237,8 @@ function NavigationBar() {
             <MoreMenu></MoreMenu>
           </div>
           <div className="flex-1 flex items-center justify-end">
-            <BuyNearButton />
+            {isMobile() ? null : <BuyNearButton />}
+
             <div className="flex items-center mx-3">
               <AccountEntry
                 hasBalanceOnRefAccount={hasBalanceOnRefAccount}

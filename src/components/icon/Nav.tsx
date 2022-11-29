@@ -86,6 +86,56 @@ export const BuyNearHover = () => {
   );
 };
 
+export const BuyNearIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="56"
+      height="26"
+      viewBox="0 0 56 26"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        width="56"
+        height="26"
+        rx="13"
+        fill="url(#paint0_linear_3684_9672)"
+      />
+      <path
+        opacity="0.1"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M36.259 2.00008C36.8689 1.99491 37.4541 2.24127 37.8774 2.68142L45.3774 10.4789C46.2293 11.3646 46.2038 12.775 45.3203 13.629C44.4368 14.4831 43.03 14.4574 42.1781 13.5717L38.5 9.74774V21.7722C38.5 23.0026 37.5051 24 36.2778 24C35.0505 24 34.0556 23.0026 34.0556 21.7722V9.88495L22.6255 22.1773C22.2098 22.6244 21.6291 22.8806 21.0195 22.886C20.4098 22.8913 19.8248 22.6454 19.4013 22.2057L11.6236 14.1297C10.7711 13.2446 10.7958 11.8342 11.6787 10.9796C12.5616 10.1249 13.9684 10.1497 14.8209 11.0348L18.7778 15.1434V5.06329C18.7778 3.83288 19.7727 2.83544 21 2.83544C22.2273 2.83544 23.2222 3.83288 23.2222 5.06329V15.0011L34.6523 2.70873C35.0682 2.26148 35.6491 2.00524 36.259 2.00008Z"
+        fill="white"
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M38.7368 9.85734V15.2017L41.6316 13.1599L41.9211 13.3995L39.4936 16.6273C38.5917 17.4085 37 16.8799 37 15.7993V9.20068C37 8.08299 38.6849 7.57389 39.5545 8.42882L46.2632 15.0244V9.8993L43.6579 11.7219L43.3684 11.4822L45.4331 8.46921C46.2948 7.59845 48 8.10294 48 9.22866V15.6811C48 16.7988 46.3151 17.3079 45.4455 16.4529L38.7368 9.85734Z"
+        fill="white"
+      />
+      <path
+        d="M15.148 14.696V14.672C15.148 14.112 15.008 13.676 14.728 13.364C14.448 13.044 14.064 12.792 13.576 12.608C13.728 12.528 13.868 12.432 13.996 12.32C14.132 12.208 14.248 12.08 14.344 11.936C14.448 11.784 14.528 11.616 14.584 11.432C14.648 11.248 14.68 11.036 14.68 10.796V10.772C14.68 10.108 14.432 9.58 13.936 9.188C13.448 8.796 12.772 8.6 11.908 8.6H8.008V17H12.004C12.476 17 12.904 16.952 13.288 16.856C13.68 16.76 14.012 16.616 14.284 16.424C14.564 16.232 14.776 15.992 14.92 15.704C15.072 15.416 15.148 15.08 15.148 14.696ZM12.844 11.108C12.844 11.42 12.724 11.648 12.484 11.792C12.244 11.928 11.92 11.996 11.512 11.996H9.808V10.22H11.632C12.024 10.22 12.324 10.296 12.532 10.448C12.74 10.592 12.844 10.804 12.844 11.084V11.108ZM13.312 14.468C13.312 14.78 13.196 15.012 12.964 15.164C12.732 15.308 12.412 15.38 12.004 15.38H9.808V13.532H11.944C12.424 13.532 12.772 13.616 12.988 13.784C13.204 13.944 13.312 14.164 13.312 14.444V14.468ZM23.8562 13.34V8.6H22.0082V13.412C22.0082 14.084 21.8482 14.588 21.5282 14.924C21.2082 15.26 20.7642 15.428 20.1962 15.428C19.6282 15.428 19.1842 15.256 18.8642 14.912C18.5442 14.56 18.3842 14.04 18.3842 13.352V8.6H16.5362V13.4C16.5362 14.64 16.8602 15.572 17.5082 16.196C18.1562 16.82 19.0442 17.132 20.1722 17.132C20.7322 17.132 21.2402 17.056 21.6962 16.904C22.1522 16.744 22.5402 16.508 22.8602 16.196C23.1802 15.876 23.4242 15.48 23.5922 15.008C23.7682 14.536 23.8562 13.98 23.8562 13.34ZM33.1785 8.6H31.0785L29.0385 11.972L27.0345 8.6H24.8745L28.1025 13.688V17H29.9505V13.652L33.1785 8.6Z"
+        fill="white"
+      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_3684_9672"
+          x1="53.5294"
+          y1="13"
+          x2="1.72685e-07"
+          y2="13"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#00C6A2" />
+          <stop offset="1" stopColor="#0E57D7" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
 export const GetUSNDefault = () => {
   return (
     <svg
@@ -1273,6 +1323,27 @@ export const BridgeIcon = () => {
   );
 };
 
+export const MobileBridgeIcon = () => {
+  return (
+    <svg
+      width="19"
+      height="10"
+      viewBox="0 0 19 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M6 9.5H0C0 4.5 3.61905 0 9.04762 0C13.3905 0 15.9841 1.96032 16.7381 3.16667C16.7381 3.16667 14 0.5 10 2C6 3.5 6 8.45238 6 9.5Z"
+        fill="#7E8A93"
+      />
+      <path
+        d="M14 9.50018H19C19 6.08111 16.1315 2.64007 12.8158 2.32012C9.5 2.00018 8.01535 4.08844 7.5 5.00019C8.11843 4.54432 9.2522 3.60107 11.5 4.50019C13.7478 5.39932 14 8.50018 14 9.50018Z"
+        fill="#7E8A93"
+      />
+    </svg>
+  );
+};
+
 export const RisksIcon = () => {
   return (
     <svg
@@ -1396,6 +1467,142 @@ export const WrapNearIcon = (props: any) => {
         d="M11.5 4.83479V7.23292C11.5 7.38427 11.5774 7.52512 11.7051 7.60632L20.7202 13.3373C21.0147 13.5246 21.4 13.313 21.4 12.9639V10.7273C21.4 10.578 21.3246 10.4387 21.1996 10.357L12.1845 4.46443C11.8903 4.27208 11.5 4.48322 11.5 4.83479Z"
         fill="currentColor"
       />
+    </svg>
+  );
+};
+
+export const RefIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+    >
+      <rect
+        x="0.5"
+        y="0.5"
+        width="19"
+        height="19"
+        rx="9.5"
+        fill="url(#pattern0)"
+        stroke="black"
+      />
+      <defs>
+        <pattern
+          id="pattern0"
+          patternContentUnits="objectBoundingBox"
+          width="1"
+          height="1"
+        >
+          <use xlinkHref="#image0_3684_9445" transform="scale(0.00666667)" />
+        </pattern>
+        <image
+          id="image0_3684_9445"
+          width="150"
+          height="150"
+          xlinkHref="data:image/png;base64,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"
+        />
+      </defs>
+    </svg>
+  );
+};
+
+export const OutLinkIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8.9685 12H3.03338C1.36255 12 0.00195312 10.6394 0.00195312 8.96857V3.03143C0.00195312 1.36059 1.36255 0 3.03338 0H5.6106C5.97357 0 6.26758 0.294018 6.26758 0.656979C6.26758 1.01994 5.97357 1.31396 5.6106 1.31396H3.03338C2.57512 1.31396 2.14322 1.4924 1.81878 1.81683C1.49435 2.14126 1.31591 2.57317 1.31591 3.03143V8.96654C1.31591 9.42481 1.49435 9.85671 1.81878 10.1811C2.14322 10.5056 2.57512 10.684 3.03338 10.684H8.9685C9.91544 10.684 10.686 9.91348 10.686 8.96654V6.19466C10.686 5.96147 10.8117 5.74248 11.0145 5.62487C11.1138 5.5681 11.2274 5.53768 11.3429 5.53768C11.4585 5.53768 11.5721 5.5681 11.6714 5.62487C11.8742 5.74248 11.9999 5.95945 11.9999 6.19466V8.96654C11.9999 10.6394 10.6414 12 8.9685 12ZM11.0288 4.17117C11.1241 4.22592 11.2336 4.25431 11.3431 4.25431C11.4526 4.25431 11.5621 4.22389 11.6594 4.16915C11.854 4.05762 11.9737 3.84877 11.9737 3.62572V0.65715C11.9737 0.310412 11.6918 0.0285596 11.3451 0.0285596H8.37652C8.02978 0.0285596 7.74793 0.310412 7.74793 0.65715C7.74793 1.00389 8.02978 1.28574 8.37652 1.28574H9.82618L5.5559 5.55602L5.55185 5.56007C5.44087 5.6791 5.38051 5.83661 5.38354 5.99931C5.38656 6.16202 5.45274 6.31718 5.56807 6.43199C5.68771 6.55162 5.84384 6.61651 6.01214 6.61651C6.17233 6.61651 6.32441 6.55568 6.43999 6.44821L6.44201 6.44618L10.7145 2.17373V3.62775C10.7145 3.8508 10.8361 4.05965 11.0288 4.17117Z"
+        fill="#7E8A93"
+      />
+    </svg>
+  );
+};
+
+export const ArrowLeftIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="8"
+      height="16"
+      viewBox="0 0 8 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M6 2L2 8L6 14"
+        stroke="white"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};
+
+export const ArrowDownIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="12"
+      height="6"
+      viewBox="0 0 12 6"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 1L6 5L11 1"
+        stroke="white"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};
+export const ArrowDownLargeIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="16"
+      height="8"
+      viewBox="0 0 16 8"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M2 2L8 6L14 2"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};
+
+export const HiMenuIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect width="16" height="2" rx="1" fill="#7E8A93" />
+      <rect y="7" width="16" height="2" rx="1" fill="#7E8A93" />
+      <rect y="14" width="16" height="2" rx="1" fill="#7E8A93" />
     </svg>
   );
 };

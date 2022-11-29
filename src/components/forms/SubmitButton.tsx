@@ -60,7 +60,7 @@ function SubmitButton({
           }}
         >
           {!label && (
-            <h1 className="text-base font-inter font-semibold">
+            <h1 className="text-base font-inter gotham_bold">
               <ButtonTextWrapper
                 loading={label !== 'insufficient_balance' && loading}
                 Text={() => (

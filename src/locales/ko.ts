@@ -953,5 +953,6 @@ const ko = {
   to_Buy: 'to Buy',
   at_Price: 'at Price',
   insufficient_balance: 'Insufficient Balance',
+  MORE: 'MORE',
 };
 export default Object.assign(ko, ko_in_risks_page);

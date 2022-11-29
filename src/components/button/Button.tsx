@@ -16,7 +16,12 @@ import { WalletSelectorModal } from '../layout/WalletSelector';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { CheckedTick, UnCheckedBoxVE } from '../icon/CheckBox';
 import { isClientMobie, useClientMobile } from '../../utils/device';
-import { BuyNearHover, BuyNearDefault, BuyNearMobile } from '../icon/Nav';
+import {
+  BuyNearHover,
+  BuyNearDefault,
+  BuyNearMobile,
+  BuyNearIcon,
+} from '../icon/Nav';
 import { openTransak } from '../alert/Transak';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 
@@ -1024,13 +1029,14 @@ export const BuyNearButton = () => {
         setHover(false);
       }}
     >
-      {isMobile ? (
+      {/* {isMobile ? (
         <BuyNearMobile />
       ) : hover ? (
         <BuyNearHover />
       ) : (
         <BuyNearDefault />
-      )}
+      )} */}
+      <BuyNearIcon></BuyNearIcon>
     </button>
   );
 };

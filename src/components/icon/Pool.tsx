@@ -36,8 +36,8 @@ export const NoLiquidityDetailPageIcon = () => {
           y2="44.7057"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7E8A93" />
-          <stop offset="1" stop-color="#485158" />
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#485158" />
         </linearGradient>
       </defs>
     </svg>

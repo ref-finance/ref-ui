@@ -80,7 +80,12 @@ import {
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '../../components/card/Card';
-import { isMobile, useMobile, isClientMobie } from '../../utils/device';
+import {
+  isMobile,
+  useClientMobile,
+  useMobile,
+  isClientMobie,
+} from '../../utils/device';
 import { ModalClose } from '../../components/icon';
 import BigNumber from 'bignumber.js';
 import {
@@ -475,43 +480,32 @@ export function SmartRoutesV2Detail({
   }, [identicalRoutes, pools]);
 
   return (
-    <section className="flex justify-between px-2 py-1 text-xs items-center rounded-xl">
-      <div className="text-primaryText relative text-left self-start mr-10">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
+    <section className="flex justify-between py-1 text-xs items-center rounded-xl">
+      <div className="text-primaryText relative text-left self-start">
+        <div className="flex items-center">
+          <span className="xsm:hidden">
+            <RouterIcon />
+          </span>
+          <div className="flex items-center xsm:items-end">
+            <AutoRouterText />
+            <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
+          </div>
         </div>
       </div>
 
       <div className="text-right text-white flex-grow">
         {identicalRoutes.map((route, index) => (
-          <div key={index}>
-            <div
-              key={index}
-              className={`flex z-0 ${
-                index > 0 ? 'mt-3' : ''
-              } items-center w-full relative`}
-            >
-              {/* {
-                <SmartRouteV2
-                  tokenIn={tokenIn}
-                  tokenOut={tokenOut}
-                  tokens={tokens}
-                  p={percents[index]}
-                  pools={identicalRoutes[index].map((hub) => hub.pool)}
-                />
-              } */}
-              {
-                <NormalSwapRoute
-                  tokenIn={tokenIn}
-                  tokenOut={tokenOut}
-                  route={route}
-                  p={percents[index]}
-                />
-              }
-            </div>
-          </div>
+          <>
+            {
+              <NormalSwapRoute
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                route={route}
+                p={percents[index]}
+                key={index}
+              />
+            }
+          </>
         ))}
       </div>
     </section>
@@ -822,9 +816,9 @@ function DetailViewV2({
   if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
     return null;
   return (
-    <div className="mt-8 xs:my-4 w-full">
-      <div className="flex items-center mb-3 justify-between text-white ">
-        <div className="flex items-center">
+    <div className="mt-8 xsm:mt-3">
+      <div className="flex flex-wrap items-center justify-between text-white ">
+        <div className="flex items-center mb-1">
           <div
             onClick={(e) => {
               e.preventDefault();
@@ -860,7 +854,7 @@ function DetailViewV2({
         </div>
 
         <div
-          className="pl-1 text-sm flex items-center cursor-pointer"
+          className="text-sm flex items-center cursor-pointer mb-1"
           onClick={() => {
             if (showDetails) {
               sessionStorage.removeItem(storageShoDetail);
@@ -871,20 +865,6 @@ function DetailViewV2({
             setShowDetails(!showDetails);
           }}
         >
-          {/* {showDetails && !isMobile ? null : (
-            <span className="py-1 pl-1 pr-1.5 rounded-md flex items-center bg-opacity-20 xs:bg-opacity-100 xs:bg-transparent bg-black mr-1.5">
-              {isMobile ? null : <SwapMinReceiveCheck />}
-
-              <span
-                className=" text-white ml-1 relative top-0.5"
-                style={{
-                  fontSize: '13px',
-                }}
-              >
-                {toPrecision(minAmountOutValue, 8)}
-              </span>
-            </span>
-          )} */}
           {getPriceImpactTipType(priceImpact)}
           <span className="text-xs text-primaryText mx-1.5">
             <FormattedMessage id="detail"></FormattedMessage>
@@ -899,34 +879,10 @@ function DetailViewV2({
         </div>
       </div>
       <div
-        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 ${
+        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mt-3 ${
           showDetails ? '' : 'hidden'
         }`}
       >
-        {/* {isMobile ? (
-          <SwapDetail
-            title={intl.formatMessage({ id: 'swap_rate' })}
-            value={
-              <SwapRate
-                value={`1 ${toRealSymbol(
-                  tokenOut.symbol
-                )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
-                from={from}
-                to={to}
-                tokenIn={tokenIn}
-                tokenOut={tokenOut}
-                fee={fee}
-                tokenPriceList={tokenPriceList}
-              />
-            }
-          />
-        ) : null} */}
-
-        {/* {Number(priceImpact) > 2 && (
-          <div className="py-1 text-xs text-right">
-            <PriceImpactWarning value={priceImpact} />
-          </div>
-        )} */}
         <div className="">
           <SwapDetail
             title={intl.formatMessage({ id: 'price_impact' })}
@@ -958,37 +914,17 @@ function DetailViewV2({
           color="text-white"
         />
 
-        {/* {isParallelSwap && swapsTodo && swapsTodo.length > 1 && (
-          <ParallelSwapRoutesDetail
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            pools={pools}
-          />
-        )}
-
-        {swapsTodo[0].status === PoolMode.SMART && (
-          <SmartRoutesDetail
-            swapsTodo={swapsTodo}
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-          />
-        )} */}
         {
-          // !isParallelSwap &&
-          //   swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
-
-          // swapsTodo.length > 1 && (
           <SmartRoutesV2Detail
             swapsTodo={swapsTodo}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
           />
-          // )
         }
       </div>
       {Number(priceImpact) > 2 ? (
-        <div className="flex items-center justify-between border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
-          <span>
+        <div className="flex items-center justify-between xsm:flex-col border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+          <span className="xsm:mb-0.5">
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
           <div className="flex items-center">
@@ -1069,8 +1005,8 @@ function DetailViewV3({
   if (ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id) return null;
 
   return (
-    <div className="mt-8">
-      <div className="flex items-center mb-3 justify-between text-white ">
+    <div className="mt-8 xsm:mt-3">
+      <div className="flex items-center justify-between text-white ">
         <div className="flex items-center">
           <div
             onClick={(e) => {
@@ -1132,7 +1068,7 @@ function DetailViewV3({
         </div>
       </div>
       <div
-        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 ${
+        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mt-3 ${
           showDetails ? '' : 'hidden'
         }`}
       >
@@ -1169,8 +1105,8 @@ function DetailViewV3({
         <RouteDCLDetail bestFee={fee} tokenIn={tokenIn} tokenOut={tokenOut} />
       </div>
       {Number(priceImpact) > 2 ? (
-        <div className="flex items-center justify-between border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
-          <span>
+        <div className="flex items-center xsm:flex-col justify-between border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+          <span className="mb-0.5">
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
           <div className="flex items-center">
@@ -1210,14 +1146,9 @@ function DetailViewLimit({
     [key: string]: string;
   };
 }) {
-  const poolTips = [
-    'Best for very stable pairs',
-    'Best for stable pairs',
-    'Best for most pairs',
-    'Best for rare pairs',
-  ];
-
+  const isMobile = useClientMobile();
   const [hoverSlider, setHoverSlider] = useState(false);
+  const [mobileShowFees, setMobileShowFees] = useState(false);
 
   function SelectPercent({ fee, poolId }: { fee?: number; poolId?: string }) {
     const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokneOut.id, fee);
@@ -1258,100 +1189,157 @@ function DetailViewLimit({
     }
     return (
       <div className="transform scale-90 inline-flex items-center text-limitOrderInputColor text-xs whitespace-nowrap">
-        <span className="mr-1.5">TVL</span>
+        <span className="mr-1.5 xsm:mr-0">TVL</span>
         {displayTvl()}
       </div>
     );
   }
   if (!(tokenIn && tokneOut)) return null;
+  // todo x
   return (
-    <div
-      className={`border border-limitOrderFeeTiersBorderColor flex flex-col rounded-xl p-2.5 xs:p-2 xs:px-1 ${
-        feeTiersShowFull ? 'w-full' : ''
-      }`}
-    >
-      <div className="">
-        <div className="flex items-center justify-between ">
-          <span className="text-xs text-primaryText">
-            <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
-          </span>
-          <button
-            className=" justify-center bg-opacity-20 border p-0.5 border-opacity-20 border-primaryText rounded-lg"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setFeeTiersShowFull(!feeTiersShowFull);
-            }}
-            onMouseEnter={() => {
-              setHoverSlider(true);
-            }}
-            onMouseLeave={() => {
-              setHoverSlider(false);
-            }}
+    <>
+      <div
+        className={`relative border border-limitOrderFeeTiersBorderColor flex flex-col rounded-xl p-2.5 xs:p-2 xs:px-1 ${
+          feeTiersShowFull ? 'w-full' : ''
+        }`}
+      >
+        <div className="">
+          <div className="flex items-center justify-between ">
+            <span className="text-xs text-primaryText whitespace-nowrap mr-1.5">
+              <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
+            </span>
+            <button
+              className=" justify-center bg-opacity-20 border p-0.5 border-opacity-20 border-primaryText rounded-lg"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isMobile) {
+                  setMobileShowFees(!mobileShowFees);
+                } else {
+                  setFeeTiersShowFull(!feeTiersShowFull);
+                }
+              }}
+              onMouseEnter={() => {
+                setHoverSlider(true);
+              }}
+              onMouseLeave={() => {
+                setHoverSlider(false);
+              }}
+            >
+              <Slider shrink showSlip={feeTiersShowFull || hoverSlider} />
+            </button>
+          </div>
+          <div
+            className={`flex items-center mt-2 ${
+              feeTiersShowFull ? 'hidden' : ''
+            }`}
           >
-            <Slider shrink showSlip={feeTiersShowFull || hoverSlider} />
-          </button>
+            <span className="whitespace-nowrap text-sm text-primaryText mr-0.5">
+              {toPrecision(
+                calculateFeePercent(
+                  Number(v3Pool?.split(V3_POOL_SPLITER)[2] || 2000) / 100
+                ).toString(),
+                2
+              )}
+              %
+            </span>
+            <SelectTvl poolId={v3Pool} />
+          </div>
         </div>
-        <div
-          className={`flex items-center mt-2 ${
-            feeTiersShowFull ? 'hidden' : ''
-          }`}
-        >
-          <span className="whitespace-nowrap text-sm text-primaryText mr-0.5">
-            {toPrecision(
-              calculateFeePercent(
-                Number(v3Pool?.split(V3_POOL_SPLITER)[2] || 2000) / 100
-              ).toString(),
-              2
-            )}
-            %
-          </span>
-          <SelectTvl poolId={v3Pool} />
-        </div>
-      </div>
 
-      {!feeTiersShowFull ? null : (
-        <div className="w-full grid grid-cols-4 gap-x-1  text-white mt-1.5">
-          {V3_POOL_FEE_LIST.map((fee, i) => {
-            const pool_id = getV3PoolId(tokenIn.id, tokneOut.id, fee);
-            const feePercent = toPrecision(
-              calculateFeePercent(fee / 100).toString(),
-              2
-            );
+        {!feeTiersShowFull ? null : (
+          <div className="w-full grid grid-cols-4 gap-x-1  text-white mt-1.5">
+            {V3_POOL_FEE_LIST.map((fee, i) => {
+              const pool_id = getV3PoolId(tokenIn.id, tokneOut.id, fee);
+              const feePercent = toPrecision(
+                calculateFeePercent(fee / 100).toString(),
+                2
+              );
 
-            return (
-              <button
-                className={`relative bg-selectTokenV3BgColor rounded-xl ${
-                  v3Pool === pool_id ? 'bg-feeBoxSelectedBg' : ''
-                }`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setV3Pool(pool_id);
-                }}
-              >
-                <div
-                  key={i + '-' + pool_id}
-                  className={`flex-col flex items-start p-2 xs:px-0`}
+              return (
+                <button
+                  className={`relative bg-selectTokenV3BgColor rounded-xl ${
+                    v3Pool === pool_id ? 'bg-feeBoxSelectedBg' : ''
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setV3Pool(pool_id);
+                  }}
                 >
-                  <span className="text-sm">{feePercent}%</span>
-                  <SelectTvl fee={fee} />
-                </div>
-                {v3Pool === pool_id ? (
-                  <SelectedIcon className="absolute right-0 top-0"></SelectedIcon>
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
+                  <div
+                    key={i + '-' + pool_id}
+                    className={`flex-col flex items-start p-2`}
+                  >
+                    <span className="text-sm">{feePercent}%</span>
+                    <SelectTvl fee={fee} />
+                  </div>
+                  {v3Pool === pool_id ? (
+                    <SelectedIcon className="absolute right-0 top-0"></SelectedIcon>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      <div
+        className={`absolute z-10 w-full grid grid-cols-4 gap-x-1  rounded-lg text-white mt-1.5 p-1.5 border border-v3GreyColor  bg-feeBoxBgColor lg:hidden ${
+          mobileShowFees ? '' : 'hidden'
+        }`}
+        style={{ boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.25)', top: '71px' }}
+      >
+        <ArrowToIcon
+          className="absolute right-12"
+          style={{ top: '-7px' }}
+        ></ArrowToIcon>
+        {V3_POOL_FEE_LIST.map((fee, i) => {
+          const pool_id = getV3PoolId(tokenIn.id, tokneOut.id, fee);
+          const feePercent = toPrecision(
+            calculateFeePercent(fee / 100).toString(),
+            2
+          );
+
+          return (
+            <button
+              className={`relative bg-feeSubBoxBgColor rounded-xl ${
+                v3Pool === pool_id ? 'bg-opacity-100' : 'bg-opacity-30'
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setV3Pool(pool_id);
+              }}
+            >
+              <div
+                key={i + '-' + pool_id}
+                className={`flex-col flex items-start p-1`}
+              >
+                <span className="text-sm">{feePercent}%</span>
+                <SelectTvl fee={fee} />
+              </div>
+              {v3Pool === pool_id ? (
+                <SelectedIcon className="absolute right-0 top-0"></SelectedIcon>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+    </>
   );
 }
 
+function ArrowToIcon(props: any) {
+  return (
+    <img
+      {...props}
+      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAHCAYAAAA8sqwkAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyVpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ4IDc5LjE2NDAzNiwgMjAxOS8wOC8xMy0wMTowNjo1NyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIxLjAgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OTg4MkE0RkQ2ODI5MTFFREE3MkJEQzEyMDI5MUE2OEUiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OTg4MkE0RkU2ODI5MTFFREE3MkJEQzEyMDI5MUE2OEUiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo5ODgyQTRGQjY4MjkxMUVEQTcyQkRDMTIwMjkxQTY4RSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo5ODgyQTRGQzY4MjkxMUVEQTcyQkRDMTIwMjkxQTY4RSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PmhvIccAAAD+SURBVHjaYmRgYOAGYkYRERHGN2/eMIAAkM3w9+9fpvfv3/9ngIB/QAxmMwExi4CAAAtQMQuIDcSsXIKCory8IsIgNhAzg2igGjCbEUiAJBh5eHiYvnz5wmDp4V/CwsJWCjLtz59fPcd3bOyGmg7GIN38IJ2/fv1isXD3KwUqLvny5SsDkM/AwcFhJaWkwvzk7s1TUJuYQIQQyCnmbr5FrKzshSDF//79Y/j//z/D799/gJo4LSXllZme3rt1GmgAM7OoqLSinq1TOSsrWyZMMQzANHFycVpIKigx/fn67SajrU/of2CIMHz79h1FMTJgYmIC2sTOwMbGxgAQYADlWluUPx6KyQAAAABJRU5ErkJggg=="
+    ></img>
+  );
+}
 function NoLimitPoolCard() {
   return (
-    <div className="relative  text-sm mt-6 text-center text-warn z-50">
+    <div className="relative  text-sm mt-6 xsm:mt-8 text-center text-warn z-50">
       <span className="self-center">
         <label className="">
           <FormattedMessage id="oops" defaultMessage="Oops" />!
@@ -1383,8 +1371,6 @@ export default function SwapCard(props: {
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
-  // getConfig();
-
   const [poolError, setPoolError] = useState<boolean>(false);
 
   const [diff, setDiff] = useState<string>('');
@@ -2178,20 +2164,6 @@ export default function SwapCard(props: {
 
     if (swapMode === SWAP_MODE.LIMIT) {
       setDoubleCheckOpenLimit(true);
-      // if (Number(diff) <= -10) {
-      //   setDoubleCheckOpenLimit(true);
-      // } else
-      //   v3Swap({
-      //     swapInfo: {
-      //       tokenA: tokenIn,
-      //       tokenB: tokenOut,
-      //       amountA: tokenInAmount,
-      //       amountB: limitAmountOut,
-      //     },
-      //     LimitOrderWithSwap: {
-      //       pool_id: selectedV3LimitPool,
-      //     },
-      //   });
     } else {
       const ifDoubleCheck =
         new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
@@ -2323,7 +2295,7 @@ export default function SwapCard(props: {
               })} `}
             />
           )}
-        <div className={`flex items-center -my-2 justify-center`}>
+        <div className={`flex items-center -my-2.5 justify-center`}>
           {swapMode === SWAP_MODE.LIMIT ? (
             <SwapExchangeV3
               tokenIn={tokenIn}
@@ -2452,7 +2424,7 @@ export default function SwapCard(props: {
           />
           {swapMode === SWAP_MODE.LIMIT ? (
             <>
-              <div className="flex items-stretch justify-between mt-2.5">
+              <div className="relative flex items-stretch justify-between mt-2.5">
                 <LimitOrderRateSetBox
                   tokenIn={tokenIn}
                   tokenOut={tokenOut}
@@ -2469,6 +2441,7 @@ export default function SwapCard(props: {
                   hasLockedRate={hasLockedRate}
                   setHasLockedRate={setHasLockedRate}
                 />
+                {/* todo x */}
                 <DetailViewLimit
                   tokenIn={tokenIn}
                   tokneOut={tokenOut}
