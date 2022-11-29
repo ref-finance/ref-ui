@@ -3239,6 +3239,7 @@ function StakeModal(props: {
       <div className="flex justify-between items-center h-14 px-3 mt-4 bg-black bg-opacity-20 rounded-lg">
         <input
           type="number"
+          inputMode="decimal"
           placeholder="0.0"
           value={amount}
           onChange={({ target }) => changeAmount(target.value)}
@@ -3737,6 +3738,7 @@ function UnStakeModal(props: {
           <input
             type="number"
             placeholder="0.0"
+            inputMode="decimal"
             value={amount}
             onChange={({ target }) => changeAmount(target.value)}
             className="text-white text-lg focus:outline-non appearance-none leading-tight"

@@ -324,6 +324,7 @@ export function TokenCardIn({
             onChange={(e) => onChangeAmount(e.target.value)}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
             step="any"
+            inputMode="decimal"
           />
 
           <div>

@@ -377,6 +377,7 @@ export function RemoveLiquidityComponent(props: {
                 min="0"
                 max="100"
                 step="any"
+                inputMode="decimal"
               />
             </div>
           </div>
