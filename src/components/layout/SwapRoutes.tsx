@@ -462,6 +462,10 @@ export const CrossSwapRoute = ({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) => {
+  console.log({
+    toknes: route[0].tokens,
+  });
+
   return (
     <div className="flex items-center text-xs text-white w-full">
       {route.length === 1 ? (
@@ -517,7 +521,10 @@ export const CrossSwapRoute = ({
                   border
                   borderStyle="1px solid #00C6A2"
                   size="4"
-                  tokens={route[0].tokens}
+                  tokens={[
+                    tokenIn.symbol === 'wNEAR' ? nearMetadata : tokenIn,
+                    route[0].tokens[1],
+                  ]}
                 />
 
                 <span className=" ml-1">{`#${route[0].pool.id}`}</span>
@@ -817,9 +824,16 @@ export function RouteDCLDetail({
           style={{
             background: '#24333D',
           }}
-          className="py-1 px-1 flex items-center rounded-md mx-5"
+          className={`py-1 px-1 flex items-center rounded-md mx-5  text-farmText ${
+            isXSwap ? 'hover:text-gray-400 cursor-pointer' : ''
+          }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            isXSwap ? window.open(`/poolV2/${pool_id_url_params}`) : null;
+          }}
         >
-          <span className="font-bold mr-1 text-farmText">V2</span>
+          <span className="font-bold mr-1 ">V2</span>
 
           <span className="flex items-center mx-1">
             <Images
@@ -833,16 +847,7 @@ export function RouteDCLDetail({
             />
           </span>
 
-          <div
-            className={`flex items-center text-farmText ${
-              isXSwap ? 'hover:text-gray-400 cursor-pointer' : ''
-            }`}
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              isXSwap ? window.open(`/pool/${pool_id_url_params}`) : null;
-            }}
-          >
+          <div className={`flex items-center`}>
             <span className=" mr-1">{bestFee / 100}%</span>
             <span
               className={`flex items-center cursor-pointer  justify-center ${
@@ -1081,10 +1086,10 @@ export const CrossSwapAllResult = ({
       <div
         className="absolute xs:relative xs:rounded-xl xs:px-2.5 xs:mt-2  p-4  text-xs cursor-default text-white whitespace-nowrap"
         style={{
-          width: isMobile ? '100%' : '307px',
+          width: isMobile ? '100%' : '316px',
           height: isMulti ? '150px' : '124px',
           zIndex: 60,
-          left: isMobile ? '' : '-295px',
+          left: isMobile ? '' : '-300px',
           border: isMobile ? '1.2px solid #304352' : '',
         }}
       >
@@ -1133,9 +1138,7 @@ export const CrossSwapAllResult = ({
   const [isRevert, setIsRevert] = useState<boolean>(true);
 
   const [bestReceiveIndex, setBestReceiveIndex] = useState(-1);
-  const [showAllResult, setShowAllResult] = useState<boolean>(
-    sessionStorage.getItem(REF_FI_SHOW_ALL_RESULTS) === 'true' || false
-  );
+  const [showAllResult, setShowAllResult] = useState<boolean>(false);
 
   useEffect(() => {
     if (showAllResult)
@@ -1156,10 +1159,6 @@ export const CrossSwapAllResult = ({
     }
   });
   const bestReceived = _.maxBy(receives, (o) => Number(o));
-
-  useEffect(() => {
-    sessionStorage.setItem(REF_FI_SHOW_ALL_RESULTS, showAllResult.toString());
-  }, [showAllResult]);
 
   const selectIsTri =
     selectTodos?.[0]?.pool !== null &&
@@ -1361,8 +1360,10 @@ export const CrossSwapAllResult = ({
 
   useEffect(() => {
     if (bestReceiveIndex >= 0) {
-      setSelectTodos(displayResults[bestReceiveIndex].result);
-      setSelectReceive(displayResults[bestReceiveIndex].receive);
+      !!displayResults?.[bestReceiveIndex]?.result &&
+        setSelectTodos(displayResults[bestReceiveIndex].result);
+      !!displayResults?.[bestReceiveIndex]?.receive &&
+        setSelectReceive(displayResults[bestReceiveIndex].receive);
     }
   }, [bestReceiveIndex, bestReceived]);
 
