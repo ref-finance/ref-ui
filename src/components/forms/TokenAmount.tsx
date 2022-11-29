@@ -1134,6 +1134,17 @@ export function TokenCardIn({
           <FormattedMessage id="balance" />: &nbsp; {toPrecision(max, 3, true)}
         </span>
       </div>
+          <input
+            className="text-right text-white text-xl xs:text-lg"
+            value={amount}
+            type="number"
+            min="0"
+            placeholder="0.0"
+            onChange={(e) => onChangeAmount(e.target.value)}
+            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
+            step="any"
+            inputMode="decimal"
+          />
 
       <fieldset className="relative flex  align-center items-center my-2">
         <InputAmountV3

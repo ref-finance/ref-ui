@@ -1756,6 +1756,7 @@ function LoveStakeModal(props: {
           type="number"
           placeholder="0.0"
           value={amount}
+          inputMode="decimal"
           onChange={({ target }) => changeAmount(target.value)}
           className="text-white text-lg focus:outline-non appearance-none leading-tight"
         ></input>
@@ -1999,6 +2000,7 @@ function LoveUnStakeModal(props: {
           type="number"
           placeholder="0.0"
           value={amount}
+          inputMode="decimal"
           onChange={({ target }) => changeAmount(target.value)}
           className="text-white text-lg focus:outline-non appearance-none leading-tight"
         ></input>

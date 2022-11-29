@@ -133,7 +133,7 @@ export default function SlippageSelector({
       setInvalid(true);
       setWarn(false);
     }
-    ref.current.value = amount;
+    // ref.current.value = amount;
   };
 
   const closeToolTip = (e: any) => {
@@ -144,7 +144,7 @@ export default function SlippageSelector({
     setInvalid(false);
     setWarn(false);
     onChange(slippage);
-    ref.current.value = slippage.toString();
+    // ref.current.value = slippage.toString();
   };
 
   useEffect(() => {
@@ -258,7 +258,8 @@ export default function SlippageSelector({
                 <input
                   ref={ref}
                   max={99.99999}
-                  min={0.000001}
+                  min={0}
+                  inputMode="decimal"
                   defaultValue={slippageTolerance ? slippageTolerance : 0.5}
                   onWheel={() => ref.current.blur()}
                   step="any"
@@ -462,7 +463,7 @@ export function StableSlipSelecter({
       setInvalid(true);
       setWarn(false);
     }
-    ref.current.value = amount;
+    // ref.current.value = amount;
   };
 
   const closeToolTip = (e: any) => {
@@ -473,7 +474,7 @@ export function StableSlipSelecter({
     setInvalid(false);
     setWarn(false);
     onChange(slippage);
-    ref.current.value = slippage.toString();
+    // ref.current.value = slippage.toString();
   };
 
   useEffect(() => {
@@ -529,7 +530,7 @@ export function StableSlipSelecter({
           <input
             ref={ref}
             max={99.99999}
-            min={0.000001}
+            min={0}
             defaultValue={slippageTolerance ? slippageTolerance : 0.1}
             onWheel={() => ref.current.blur()}
             step="any"
@@ -545,6 +546,7 @@ export function StableSlipSelecter({
               warn ? 'border border-warn text-warn bg-opacity-0 warn-input' : ''
             }`}
             type="number"
+            inputMode="decimal"
             required={true}
             placeholder=""
             onChange={({ target }) => handleChange(target.value)}
