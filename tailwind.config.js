@@ -216,7 +216,9 @@ module.exports = {
         limitOrderBorderColor:'#344049',
         priceBgColor:'#324857',
         mobileMenuFooterColor: '#243440',
-        dotColor:'#36414C'
+        dotColor:'#36414C',
+        feeBoxBgColor:'#2E3D47',
+        feeSubBoxBgColor:'#111A20',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

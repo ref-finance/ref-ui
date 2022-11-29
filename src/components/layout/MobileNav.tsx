@@ -419,24 +419,6 @@ export function MobileNavBar(props: any) {
   }
   function handleMenuClick(linkInfo: MobileMenuItem) {
     const { url, children, id, isExternal } = linkInfo;
-    // url: string,
-    // children: any,
-    // isExternal: boolean,
-    // needOpenMenu?: boolean,
-    // label?: string,
-    // if (url) {
-    //   isExternal ? window.open(url) : window.open(url, '_self');
-    //   close();
-    // } else if (needOpenMenu) {
-    //   setOpenMenu(label);
-    //   false;
-    // } else if (openMenu === label) {
-    //   setCloseMenu(!closeMenu);
-    // } else {
-    //   setOpenMenu(label);
-    //   setCloseMenu(true);
-    // }
-    // setInitStatus(false);
     if (url) {
       isExternal ? window.open(url) : window.open(url, '_self');
       close();

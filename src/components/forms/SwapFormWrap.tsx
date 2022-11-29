@@ -86,7 +86,7 @@ export default function SwapFormWrap({
         e.preventDefault();
         history.push('/myOrder');
       }}
-      className="w-full h-11 flex items-center justify-center bg-switchIconBgColor border border-limitOrderBorderColor mt-4 rounded-lg text-greenColor text-base gotham_bold"
+      className="w-full h-11 flex items-center justify-center bg-switchIconBgColor border border-limitOrderBorderColor mt-4 rounded-lg text-greenColor text-base gotham_bold xsm:mr-1.5 xsm:mt-6"
     >
       <OrderIcon />
       <span className="mx-2 xs:mx-1 md:mx-1">
@@ -129,7 +129,7 @@ export default function SwapFormWrap({
 
   return (
     <form
-      className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xs:py-4 xs:px-3  bg-dark  overflow-x-visible`}
+      className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xsm:py-4 xsm:px-2.5 bg-dark  overflow-x-visible`}
       onSubmit={handleSubmit}
       noValidate
     >
@@ -157,7 +157,7 @@ export default function SwapFormWrap({
       {showElseView && elseView ? (
         elseView
       ) : (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center xsm:flex-row-reverse">
           <SubmitButton
             disabled={
               !canSubmit ||
@@ -167,6 +167,7 @@ export default function SwapFormWrap({
             }
             label={buttonText || title}
             info={info}
+            className="h-11"
             loading={
               swapMode !== SWAP_MODE.LIMIT
                 ? showSwapLoading
@@ -239,7 +240,7 @@ export function CrossSwapFormWrap({
   };
   return (
     <form
-      className={`overflow-visible relative md:bg-swapCardGradient lg:bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xs:py-4 xs:px-3 md:bg-dark  lg:bg-dark `}
+      className={`overflow-visible relative md:bg-swapCardGradient lg:bg-swapCardGradient shadow-2xl rounded-2xl px-7 pt-6 pb-7 xsm:py-4 xsm:px-2.5 md:bg-dark  lg:bg-dark `}
       onSubmit={handleSubmit}
     >
       {title && (
