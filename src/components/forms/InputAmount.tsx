@@ -344,7 +344,9 @@ export function InputAmountV3({
     if (onChangeAmount) {
       onChangeAmount(amount);
     }
-    ref.current.value = amount;
+    if (!onChangeAmount) {
+      ref.current.value = amount;
+    }
   };
 
   const intl = useIntl();
@@ -360,6 +362,7 @@ export function InputAmountV3({
             onWheel={() => ref.current.blur()}
             {...rest}
             step="any"
+            inputMode="decimal"
             className={`xs:text-lg text-xl font-bold w-full p-1 ${
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
             }`}
