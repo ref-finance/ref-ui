@@ -985,7 +985,7 @@ export function TokenAmountV3({
               tokens={tokens}
               render={render}
               customWidth
-              forCross
+              forCross={forCross}
               selected={
                 selectedToken && (
                   <div className="flex items-center justify-end font-semibold">
