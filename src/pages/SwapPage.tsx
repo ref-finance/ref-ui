@@ -76,9 +76,6 @@ const ChangeSwapMode = ({
         }}
       >
         <FormattedMessage id="swap" defaultMessage="Swap" />
-        {swapMode === SWAP_MODE.NORMAL && isMobile && (
-          <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
-        )}
       </span>
 
       <span
@@ -97,10 +94,6 @@ const ChangeSwapMode = ({
         }}
       >
         <FormattedMessage id="xSwap" defaultMessage="XSwap" />
-
-        {swapMode === SWAP_MODE.X_SWAP && isMobile && (
-          <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
-        )}
 
         {(isMobile ? false : hoverXswap) && (
           <div
@@ -122,7 +115,7 @@ const ChangeSwapMode = ({
       </span>
 
       <div
-        className="w-0.5 xs:relative mt-1.5 xs:mt-2"
+        className="w-0.5 xs:relative mt-1.5 "
         style={{
           borderRight: '1.2px solid rgba(145, 162, 174, 0.2)',
           height: '20px',
@@ -139,10 +132,6 @@ const ChangeSwapMode = ({
         }}
       >
         <FormattedMessage id="limit_order" defaultMessage="Limit Order" />
-
-        {swapMode === SWAP_MODE.LIMIT && isMobile && (
-          <div className="w-full mt-1 rounded-full h-1 bg-gradientFrom"></div>
-        )}
       </span>
     </div>
   );
