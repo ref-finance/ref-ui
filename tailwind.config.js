@@ -224,6 +224,7 @@ module.exports = {
         dotColor:'#36414C',
         feeBoxBgColor:'#2E3D47',
         feeSubBoxBgColor:'#111A20',
+        accountBgColor:'#232e36',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

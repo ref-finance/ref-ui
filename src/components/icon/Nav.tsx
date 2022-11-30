@@ -1563,7 +1563,7 @@ export const ArrowDownIcon = (props: any) => {
     >
       <path
         d="M1 1L6 5L11 1"
-        stroke="white"
+        stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
       />

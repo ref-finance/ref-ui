@@ -111,7 +111,12 @@ import { Item } from '../airdrop/Item';
 import { useDCLAccountBalance } from '../../services/aurora/aurora';
 import { openTransak } from '../alert/Transak';
 import { BuyNearButton } from '../button/Button';
-import { MoreIcon, SauceIcon, SauceText } from '~components/icon/Nav';
+import {
+  MoreIcon,
+  SauceIcon,
+  SauceText,
+  ArrowDownIcon,
+} from '~components/icon/Nav';
 
 const config = getConfig();
 
@@ -420,34 +425,34 @@ function AccountEntry({
         }}
       >
         <div
-          className={`inline-flex px-1 py-0.5 items-center justify-center rounded-full border border-gray-700 ${
-            hover ? 'border-gradientFrom bg-opacity-0' : ''
-          } ${
+          className={`flex items-center justify-center rounded-xl pl-3 pr-3 ${
             isSignedIn
-              ? 'bg-gray-700 text-white'
-              : 'border border-gradientFrom text-gradientFrom'
-          } pl-3 pr-3`}
+              ? 'py-1.5 bg-accountBgColor border border-white border-opacity-0 text-white text-opacity-50'
+              : 'py-2 border border-gradientFrom text-gradientFrom'
+          } ${
+            hover ? 'bg-opacity-0 border-gradientFrom border-opacity-100' : ''
+          }`}
         >
+          {/* todo x */}
           <div className="pr-1">
-            <Near color={isSignedIn ? 'white' : '#00c6a2'} />
+            <Near color={isSignedIn ? 'rgba(255,255,255,0.5)' : '#00c6a2'} />
           </div>
           <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
             {isSignedIn ? (
-              <span className="flex ml-1 items-center">
+              <span className="flex ml-1 items-center text-sm">
                 {getAccountName(wallet.getAccountId())}
                 {hasBalanceOnRefAccount ? (
                   <span className="ml-1.5">
                     <FarmDot inFarm={hasBalanceOnRefAccount} />
                   </span>
                 ) : null}
-                <FiChevronDown className="text-base ml-1" />
+                <ArrowDownIcon className="ml-2 text-white text-opacity-50" />
               </span>
             ) : (
               <button
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  // setShowWalletSelector(true);
                   modal.show();
 
                   setHover(false);
@@ -1298,10 +1303,10 @@ function Language() {
       }}
     >
       <span
-        className={`flex items-center justify-center w-7 h-7 text-xs rounded-md text-primaryText cursor-pointer ${
+        className={`flex items-center justify-center w-7 h-7 text-xs rounded-xl text-primaryText cursor-pointer ${
           hover
-            ? 'border border-laguageBorderColor bg-transparent'
-            : 'border border-transparent bg-menuMoreBgColor'
+            ? 'border border-transparent bg-menuMoreBgColor'
+            : 'border border-laguageBorderColor bg-transparent'
         }`}
       >
         {displayLanguage()}
