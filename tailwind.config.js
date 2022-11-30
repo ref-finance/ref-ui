@@ -67,6 +67,7 @@ module.exports = {
         swapCardGradient: 'linear-gradient(180deg, #26343E 0%, #1D2932 100%)',
         orderMobileTop: 'linear-gradient(180deg, #1D2933 0%, #283A46 100%)',
         switchIconBgColor: 'linear-gradient(180deg, #222F37 0%, #192229 100%)',
+        unLoginButtonBgColor:'linear-gradient(rgba(0, 198, 162, 0.3) 0%, rgba(0, 139, 114, 0.3) 100%)'
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',

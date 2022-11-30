@@ -763,6 +763,7 @@ function DetailViewV2({
 }) {
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [count, setCount] = useState(0);
   const isMobile = useMobile();
   const { refresh } = useContext(LimitOrderTriggerContext);
   const {
@@ -773,8 +774,11 @@ function DetailViewV2({
     loadingPause,
   } = refresh;
   useEffect(() => {
-    if (from && tokenIn && tokenOut) {
+    if (from && tokenIn && tokenOut && count == 1) {
       setShowDetails(true);
+    }
+    if (count == 0) {
+      setCount(1);
     }
   }, [from, tokenIn, tokenOut]);
   const minAmountOutValue = useMemo(() => {
@@ -948,9 +952,13 @@ function DetailViewV3({
     loadingPause,
   } = refresh;
   const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [count, setCount] = useState(0);
   useEffect(() => {
-    if (from && tokenIn && tokenOut) {
+    if (from && tokenIn && tokenOut && count == 1) {
       setShowDetails(true);
+    }
+    if (count == 0) {
+      setCount(1);
     }
   }, [from, tokenIn, tokenOut]);
   const minAmountOutValue = useMemo(() => {
