@@ -707,7 +707,7 @@ export function DetailView_near_wnear({
       <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision((minAmountOut || 0).toString(), 8)}</span>}
+          value={<span>{toPrecision((minAmountOut || 0).toString(), 6)}</span>}
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
@@ -762,10 +762,7 @@ function DetailViewV2({
   tokenInAmount?: string;
 }) {
   const intl = useIntl();
-  const [showDetails, setShowDetails] = useState<boolean>(
-    !!sessionStorage.getItem(storageShoDetail) || false
-  );
-
+  const [showDetails, setShowDetails] = useState<boolean>(false);
   const isMobile = useMobile();
   const { refresh } = useContext(LimitOrderTriggerContext);
   const {
@@ -785,21 +782,6 @@ function DetailViewV2({
     if (!from || ONLY_ZEROS.test(to)) return '-';
     else return calculateExchangeRate(fee, to, from);
   }, [to]);
-
-  useEffect(() => {
-    if (Number(priceImpact) > 1) {
-      setShowDetails(true);
-      sessionStorage.setItem(storageShoDetail, 'open');
-    }
-  }, [priceImpact]);
-
-  useEffect(() => {
-    if (swapsTodo?.length > 1) {
-      setShowDetails(true);
-      sessionStorage.setItem(storageShoDetail, 'open');
-    }
-  }, [swapsTodo]);
-
   const priceImpactDisplay = useMemo(() => {
     if (!priceImpact || !tokenIn || !from) return null;
     return GetPriceImpact(priceImpact, tokenIn, from);
@@ -910,7 +892,7 @@ function DetailViewV2({
 
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
+          value={<span>{toPrecision(minAmountOutValue, 6)}</span>}
           color="text-white"
         />
 
@@ -967,10 +949,7 @@ function DetailViewV3({
     loadingTrigger,
     loadingPause,
   } = refresh;
-  const [showDetails, setShowDetails] = useState<boolean>(
-    !!sessionStorage.getItem(storageShoDetail) || false
-  );
-
+  const [showDetails, setShowDetails] = useState<boolean>(false);
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
@@ -980,14 +959,6 @@ function DetailViewV3({
     if (!from || ONLY_ZEROS.test(to)) return '-';
     else return calculateExchangeRate(fee, to, from);
   }, [to]);
-
-  useEffect(() => {
-    if (Number(priceImpact) > 1) {
-      setShowDetails(true);
-      sessionStorage.setItem(storageShoDetail, 'open');
-    }
-  }, [priceImpact]);
-
   const priceImpactDisplay = useMemo(() => {
     if (!priceImpact || !tokenIn || !from) return null;
     return GetPriceImpact(priceImpact, tokenIn, from);
@@ -1099,7 +1070,7 @@ function DetailViewV3({
 
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
+          value={<span>{toPrecision(minAmountOutValue, 6)}</span>}
           color="text-white"
         />
         <RouteDCLDetail bestFee={fee} tokenIn={tokenIn} tokenOut={tokenOut} />
@@ -1195,7 +1166,6 @@ function DetailViewLimit({
     );
   }
   if (!(tokenIn && tokneOut)) return null;
-  // todo x
   return (
     <>
       <div
@@ -1209,7 +1179,7 @@ function DetailViewLimit({
               <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
             </span>
             <button
-              className=" justify-center bg-opacity-20 border p-0.5 border-opacity-20 border-primaryText rounded-lg"
+              className="p-0.5 rounded-md hover:bg-selectTokenV3BgColor"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2441,7 +2411,6 @@ export default function SwapCard(props: {
                   hasLockedRate={hasLockedRate}
                   setHasLockedRate={setHasLockedRate}
                 />
-                {/* todo x */}
                 <DetailViewLimit
                   tokenIn={tokenIn}
                   tokneOut={tokenOut}

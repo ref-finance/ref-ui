@@ -624,6 +624,8 @@ export const NormalSwapRoute = ({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) => {
+  const [hover, setHover] = useState(false);
+  const [hove2, setHover2] = useState(false);
   const isMobile = useClientMobile();
   return (
     <>
@@ -656,7 +658,16 @@ export const NormalSwapRoute = ({
             style={{
               background: '#24333D',
             }}
-            className="py-1 px-1 flex items-center rounded-md"
+            onMouseEnter={() => {
+              setHover(true);
+            }}
+            onMouseLeave={() => {
+              setHover(false);
+            }}
+            onClick={() => {
+              window.open(`/pool/${route[0].pool.id}`);
+            }}
+            className="py-1 px-1 flex items-center rounded-md cursor-pointer"
           >
             <span className="flex items-center mx-1">
               <Images
@@ -669,10 +680,9 @@ export const NormalSwapRoute = ({
             </span>
 
             <span
-              className="flex items-center cursor-pointer justify-center text-farmText hover:text-senderHot"
-              onClick={() => {
-                window.open(`/pool/${route[0].pool.id}`);
-              }}
+              className={`flex items-center cursor-pointer justify-center text-farmText ${
+                hover ? 'text-senderHot' : ''
+              }`}
             >
               <HiOutlineExternalLink />
             </span>
@@ -714,7 +724,16 @@ export const NormalSwapRoute = ({
             style={{
               background: '#24333D',
             }}
-            className="py-1 px-1 flex items-center rounded-md"
+            onMouseEnter={() => {
+              setHover(true);
+            }}
+            onMouseLeave={() => {
+              setHover(false);
+            }}
+            onClick={() => {
+              window.open(`/pool/${route[0].pool.id}`);
+            }}
+            className="py-1 px-1 flex items-center rounded-md cursor-pointer"
           >
             <span className="flex items-center mx-1">
               <Images
@@ -728,10 +747,9 @@ export const NormalSwapRoute = ({
             </span>
 
             <span
-              className="flex items-center cursor-pointer justify-center text-farmText hover:text-senderHot"
-              onClick={() => {
-                window.open(`/pool/${route[0].pool.id}`);
-              }}
+              className={`flex items-center cursor-pointer justify-center text-farmText ${
+                hover ? 'text-senderHot' : ''
+              }`}
             >
               <HiOutlineExternalLink />
             </span>
@@ -741,7 +759,16 @@ export const NormalSwapRoute = ({
             style={{
               background: '#24333D',
             }}
-            className="py-1  px-1 flex items-center rounded-md"
+            onMouseEnter={() => {
+              setHover2(true);
+            }}
+            onMouseLeave={() => {
+              setHover2(false);
+            }}
+            onClick={() => {
+              window.open(`/pool/${route[1].pool.id}`);
+            }}
+            className="py-1  px-1 flex items-center rounded-md cursor-pointer"
           >
             <span className="flex items-center mx-1">
               <Images
@@ -755,10 +782,9 @@ export const NormalSwapRoute = ({
             </span>
 
             <span
-              className="flex items-center cursor-pointer justify-center text-farmText hover:text-senderHot"
-              onClick={() => {
-                window.open(`/pool/${route[1].pool.id}`);
-              }}
+              className={`flex items-center cursor-pointer justify-center text-farmText ${
+                hove2 ? 'text-senderHot' : ''
+              }`}
             >
               <HiOutlineExternalLink />
             </span>
@@ -782,7 +808,7 @@ export function RouteDCLDetail({
   tokenOut: TokenMetadata;
   isXSwap?: boolean;
 }) {
-  // todo x
+  const [hover, setHover] = useState(false);
   const isMobile = useClientMobile();
   const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, bestFee * 100);
   const pool_id_url_params = pool_id.replace(/\|/g, '@');
@@ -824,13 +850,19 @@ export function RouteDCLDetail({
           style={{
             background: '#24333D',
           }}
-          className={`py-1 px-1 flex items-center rounded-md mx-5  text-farmText ${
-            isXSwap ? 'hover:text-gray-400 cursor-pointer' : ''
+          className={`py-1 px-1 flex items-center rounded-md mx-5 cursor-pointer text-farmText ${
+            isXSwap ? 'hover:text-gray-400' : ''
           }`}
+          onMouseEnter={() => {
+            setHover(true);
+          }}
+          onMouseLeave={() => {
+            setHover(false);
+          }}
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            isXSwap ? window.open(`/poolV2/${pool_id_url_params}`) : null;
+            window.open(`/poolV2/${pool_id_url_params}`);
           }}
         >
           <span className="font-bold mr-1 ">V2</span>
@@ -851,13 +883,8 @@ export function RouteDCLDetail({
             <span className=" mr-1">{bestFee / 100}%</span>
             <span
               className={`flex items-center cursor-pointer  justify-center ${
-                isXSwap ? '' : 'hover:text-senderHot'
-              }  `}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                window.open(`/poolV2/${pool_id_url_params}`);
-              }}
+                hover && !isXSwap ? 'text-senderHot' : ''
+              }`}
             >
               <HiOutlineExternalLink />
             </span>

@@ -1435,7 +1435,7 @@ export function LimitOrderRateSetBox({
               1 {getTokenASymbol()} ={' '}
             </span>
           </div>
-          <div className="flex items-center text-xs text-greenColor">
+          <div className="flex items-center text-xs text-greenColor hover:text-senderHot">
             <span
               className="cursor-pointer"
               onClick={() => {
