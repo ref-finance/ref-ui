@@ -517,7 +517,7 @@ export const CrossSwapRoute = ({
               {route[0].pool?.Dex === 'tri' ? 'Tri' : 'Ref'}
             </span>
 
-            {route[0].pool?.Dex === 'ref' && (
+            {route[0].pool?.Dex !== 'tri' && (
               <span className="flex items-center mx-1">
                 <Images
                   border
@@ -1418,7 +1418,7 @@ export const CrossSwapAllResult = ({
           `${
             isMobile
               ? ''
-              : `${toRealSymbol(tokenOut?.symbol)}/${toRealSymbol(
+              : ` ${toRealSymbol(tokenOut?.symbol)}/${toRealSymbol(
                   tokenIn?.symbol
                 )}`
           } `,

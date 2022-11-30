@@ -668,7 +668,7 @@ export default function CrossSwapCard(props: {
       quoteDoneV3 &&
       crossQuoteDone &&
       !wrapOperation &&
-      (swapsToDoRef || swapsToDoTri) &&
+      // (swapsToDoRef || swapsToDoTri) &&
       !loadingTrigger
     ) {
       const swapsToDoRefV3 = swapError
@@ -711,7 +711,7 @@ export default function CrossSwapCard(props: {
       }
     }
   }, [
-    selectTodos,
+    selectTodos?.[0]?.pool,
     quoteDoneV3,
     crossQuoteDone,
     loadingTrigger,
