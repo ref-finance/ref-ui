@@ -45,6 +45,7 @@ import {
   LockInIcon,
 } from '../icon/swapV3';
 import BigNumber from 'bignumber.js';
+import { WalletContext } from '../../utils/wallets-integration';
 
 interface TokenAmountProps {
   amount?: string;
@@ -813,6 +814,8 @@ export function TokenAmountV3({
   setDiff,
   allowWNEAR,
 }: TokenAmountProps) {
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
       decimals: token.decimals,
@@ -988,11 +991,15 @@ export function TokenAmountV3({
               forCross={forCross}
               selected={
                 selectedToken && (
-                  <div className="flex items-center justify-end font-semibold">
+                  <div
+                    className="flex items-center justify-end font-semibold"
+                    onMouseEnter={() => setHoverSelectToken(true)}
+                    onMouseLeave={() => setHoverSelectToken(false)}
+                  >
                     <IconLeftV3
                       size={'7'}
                       token={selectedToken}
-                      hover={true}
+                      hover={hoverSelectToken}
                       className={'p-1'}
                     />
                   </div>
@@ -1058,7 +1065,7 @@ export function TokenAmountV3({
             }}
             title={total}
           >
-            {toPrecision(total, 3, true)}
+            {isSignedIn ? toPrecision(total, 3, true) : '-'}
           </span>
         </span>
       </div>

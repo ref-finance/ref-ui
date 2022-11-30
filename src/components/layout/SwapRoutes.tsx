@@ -916,7 +916,7 @@ export function RouteDCLDetail({
               borderStyle="1px solid #00C6A2"
               size={isMobile ? '3' : '3.5'}
               tokens={[
-                tokenIn,
+                tokenIn?.id == WRAP_NEAR_CONTRACT_ID ? nearMetadata : tokenIn,
                 tokenOut?.id == WRAP_NEAR_CONTRACT_ID ? nearMetadata : tokenOut,
               ]}
             />
