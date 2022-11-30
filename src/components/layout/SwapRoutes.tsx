@@ -942,8 +942,6 @@ export function RouteDCLDetail({
   );
 }
 
-const REF_FI_SHOW_ALL_RESULTS = 'REF_FI_SHOW_ALL_RESULTS_VALUE';
-
 function CrossSwapRoutesDetail({
   swapsTodo,
   tokenOut,
@@ -1438,6 +1436,10 @@ export const CrossSwapAllResult = ({
     });
 
   useEffect(() => {
+
+    
+    if(!results || results.length === 0) return null
+
     const bestReceiveIndex = displayResults
       .map((_) => _.receive)
       .findIndex((r) => r === bestReceived);
@@ -1447,7 +1449,7 @@ export const CrossSwapAllResult = ({
       !!displayResults?.[bestReceiveIndex]?.receive &&
         setSelectReceive(displayResults[bestReceiveIndex].receive);
     }
-  }, [bestReceived]);
+  }, [bestReceived, results]);
 
   if (!results || results.length === 0) return null;
 
@@ -1608,7 +1610,7 @@ export const CrossSwapAllResult = ({
 
       {Number(selectIsTri ? priceImpactTri : priceImpactRef) > 2 &&
       priceImpactDisplayWarning ? (
-        <div className="flex items-center xs:flex-col justify-between border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+        <div className="flex items-center xs:flex-col justify-between border border-warnRedColor xs:bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
           <span>
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
