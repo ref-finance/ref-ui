@@ -1215,7 +1215,7 @@ export const CrossSwapAllResult = ({
       });
   }, [showAllResult]);
 
-  const receives = results.map((result) => {
+  const receives = results?.map((result) => {
     if (
       result?.every((r) => r.pool?.Dex === 'tri') ||
       (result?.every((r) => r.pool?.Dex === 'ref' || !r?.pool) &&
@@ -1226,7 +1226,7 @@ export const CrossSwapAllResult = ({
       return getExpectedOutputFromActionsORIG(result, tokenOut.id).toString();
     }
   });
-  const bestReceived = _.maxBy(receives, (o) => Number(o));
+  const bestReceived = _.maxBy(receives || [0], (o) => Number(o));
 
   const selectIsTri =
     selectTodos?.[0]?.pool !== null && selectTodos?.[0]?.pool?.Dex === 'tri';
@@ -1436,9 +1436,7 @@ export const CrossSwapAllResult = ({
     });
 
   useEffect(() => {
-
-    
-    if(!results || results.length === 0) return null
+    if (!results || results.length === 0) return null;
 
     const bestReceiveIndex = displayResults
       .map((_) => _.receive)
