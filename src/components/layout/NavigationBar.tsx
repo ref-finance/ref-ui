@@ -110,7 +110,7 @@ import { SWAP_MODE } from '../../pages/SwapPage';
 import { Item } from '../airdrop/Item';
 import { useDCLAccountBalance } from '../../services/aurora/aurora';
 import { openTransak } from '../alert/Transak';
-import { BuyNearButton } from '../button/Button';
+import { BuyNearButton, ConnectToNearBtn } from '../button/Button';
 import {
   MoreIcon,
   SauceIcon,
@@ -424,29 +424,43 @@ function AccountEntry({
           setHover(false);
         }}
       >
+        {/* todo x */}
         <div
-          className={`flex items-center justify-center rounded-xl pl-3 pr-3 ${
+          className={`flex items-center justify-center rounded-xl ${
             isSignedIn
-              ? 'py-1.5 bg-accountBgColor border border-white border-opacity-0 text-white text-opacity-50'
-              : 'py-2 border border-gradientFrom text-gradientFrom'
-          } ${
-            hover ? 'bg-opacity-0 border-gradientFrom border-opacity-100' : ''
+              ? hover
+                ? 'py-1.5 bg-accountHoverBgColor text-white text-opacity-50 px-3'
+                : 'py-1.5 bg-accountBgColor text-white text-opacity-50 px-3'
+              : hover
+              ? 'py-2 bg-buttonGradientBg text-white px-5'
+              : 'py-2 bg-buttonGradientBg text-white px-5'
           }`}
         >
-          {/* todo x */}
           <div className="pr-1">
-            <Near color={isSignedIn ? 'rgba(255,255,255,0.5)' : '#00c6a2'} />
+            <Near
+              color={
+                isSignedIn ? (hover ? '#fff' : 'rgba(255,255,255,0.5)') : '#fff'
+              }
+            />
           </div>
           <div className="overflow-ellipsis overflow-hidden whitespace-nowrap account-name">
             {isSignedIn ? (
-              <span className="flex ml-1 items-center text-sm">
+              <span
+                className={`flex ml-1 items-center text-sm ${
+                  hover ? 'text-white text-opacity-100' : ''
+                }`}
+              >
                 {getAccountName(wallet.getAccountId())}
                 {hasBalanceOnRefAccount ? (
                   <span className="ml-1.5">
                     <FarmDot inFarm={hasBalanceOnRefAccount} />
                   </span>
                 ) : null}
-                <ArrowDownIcon className="ml-2 text-white text-opacity-50" />
+                <ArrowDownIcon
+                  className={`ml-2 text-white ${
+                    hover ? '' : 'text-opacity-50'
+                  }`}
+                />
               </span>
             ) : (
               <button
@@ -459,10 +473,10 @@ function AccountEntry({
                 }}
                 type="button"
               >
-                <span className="ml-1 text-xs">
+                <span className="ml-1 text-xs gotham_bold">
                   <FormattedMessage
-                    id="connect_to_near"
-                    defaultMessage="Connect to NEAR"
+                    id="connect_to_wallet"
+                    defaultMessage="Connect Wallet"
                   />
                 </span>
               </button>
