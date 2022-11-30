@@ -683,7 +683,7 @@ export default function SelectToken({
               getLatestCommonBassesTokenIds,
             }}
           >
-            {showCommonBasses && !forCross && (
+            {showCommonBasses && (
               <CommonBasses
                 onClick={(token) => {
                   onSelect && onSelect(token);

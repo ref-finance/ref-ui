@@ -118,7 +118,7 @@ export default function Token({
       >
         <div className="flex items-center justify-end pr-6">
           <span className="text-sm text-white mr-3">{displayBalance}</span>
-          {!forCross ? (
+          {
             <>
               {hasPin ? (
                 <PinSolid
@@ -138,7 +138,7 @@ export default function Token({
                 ></PinEmpty>
               )}
             </>
-          ) : null}
+          }
         </div>
       </div>
     </div>

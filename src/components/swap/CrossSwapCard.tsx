@@ -682,27 +682,33 @@ export default function CrossSwapCard(props: {
         ? swapsToDoV3
         : swapsToDoRef;
 
-      setCrossAllResults(
-        <CrossSwapAllResult
-          refTodos={swapsToDoRefV3}
-          triTodos={swapError ? [] : swapsToDoTri}
-          tokenInAmount={tokenInAmount}
-          tokenOutId={tokenOut?.id}
-          slippageTolerance={slippageTolerance}
-          tokenOut={tokenOut}
-          LoadingRefresh={LoadingRefresh}
-          selectTodos={selectTodos}
-          setSelectTodos={setSelectTodos}
-          tokenIn={tokenIn}
-          tokenPriceList={tokenPriceList}
-          setSelectReceive={setSelectReceive}
-          priceImpactRef={bestSwapPriceImpact}
-          priceImpactTri={priceImpactValueTri}
-          feeRef={bestSwap === 'v3' ? bestFee / 100 : refAvgFee}
-          feeTri={triAvgFee}
-          selectReceive={selectReceive}
-        />
-      );
+      try {
+        setCrossAllResults(
+          <CrossSwapAllResult
+            refTodos={swapsToDoRefV3}
+            triTodos={swapError ? [] : swapsToDoTri}
+            tokenInAmount={tokenInAmount}
+            tokenOutId={tokenOut?.id}
+            slippageTolerance={slippageTolerance}
+            tokenOut={tokenOut}
+            LoadingRefresh={LoadingRefresh}
+            selectTodos={selectTodos}
+            setSelectTodos={setSelectTodos}
+            tokenIn={tokenIn}
+            tokenPriceList={tokenPriceList}
+            setSelectReceive={setSelectReceive}
+            priceImpactRef={bestSwapPriceImpact}
+            priceImpactTri={priceImpactValueTri}
+            feeRef={bestSwap === 'v3' ? bestFee / 100 : refAvgFee}
+            feeTri={triAvgFee}
+            selectReceive={selectReceive}
+          />
+        );
+      } catch (error) {
+        // alert(error.message)
+
+        return null;
+      }
     }
   }, [
     selectTodos,
