@@ -1159,21 +1159,23 @@ export const useCrossSwap = ({
   const getAvgFee = (estimates: EstimateSwapView[]) => {
     let avgFee: number = 0;
 
-    const estimate = estimates[0];
-    if (estimates.length === 1) {
-      avgFee = estimates[0].pool.fee;
-    } else if (
-      estimate.status === PoolMode.SMART ||
-      estimate.status === PoolMode.STABLE
-    ) {
-      avgFee = estimates.reduce((pre, cur) => pre + cur.pool.fee, 0);
-    } else {
-      avgFee = getAverageFeeForRoutes(
-        estimate.allRoutes,
-        estimate.allNodeRoutes,
-        estimate.totalInputAmount
-      );
-    }
+    try {
+      const estimate = estimates[0];
+      if (estimates.length === 1) {
+        avgFee = estimates[0].pool.fee;
+      } else if (
+        estimate.status === PoolMode.SMART ||
+        estimate.status === PoolMode.STABLE
+      ) {
+        avgFee = estimates.reduce((pre, cur) => pre + cur.pool.fee, 0);
+      } else {
+        avgFee = getAverageFeeForRoutes(
+          estimate.allRoutes,
+          estimate.allNodeRoutes,
+          estimate.totalInputAmount
+        );
+      }
+    } catch (error) {}
 
     return avgFee;
   };
