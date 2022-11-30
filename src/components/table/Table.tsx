@@ -52,9 +52,7 @@ export default function Table({
             </th>
             <th
               className={
-                !forCross
-                  ? 'hidden'
-                  : 'pb-2 w-1/5 font-normal relative lg:right-4'
+                !forCross ? 'hidden' : 'pb-2 w-1/5 font-normal relative right-6'
               }
             >
               <span>
@@ -62,7 +60,7 @@ export default function Table({
               </span>
             </th>
 
-            <th className={`font-normal pb-2 pr-9 w-1/5 `}>
+            <th className={`font-normal pb-2 pr-6 w-1/5 `}>
               <span
                 className="cursor-pointer flex justify-end items-center whitespace-nowrap"
                 onClick={() => onSortChange('near')}

@@ -462,6 +462,10 @@ export const CrossSwapRoute = ({
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) => {
+  const [hoverRouter1, setHoverRouter1] = useState(false);
+
+  const [hoverRouter2, setHoverRouter2] = useState(false);
+
   return (
     <div className="flex items-center text-xs text-white w-full">
       {route.length === 1 ? (
@@ -501,6 +505,8 @@ export const CrossSwapRoute = ({
                   }`
                 );
             }}
+            onMouseEnter={() => setHoverRouter1(true)}
+            onMouseLeave={() => setHoverRouter1(false)}
           >
             <span
               style={{
@@ -526,7 +532,11 @@ export const CrossSwapRoute = ({
               </span>
             )}
 
-            <span className="flex items-center cursor-pointer justify-center  ">
+            <span
+              className={`flex items-center cursor-pointer justify-center ${
+                hoverRouter1 ? 'text-gradientFrom' : ''
+              } `}
+            >
               <HiOutlineExternalLink />
             </span>
           </div>
@@ -566,6 +576,8 @@ export const CrossSwapRoute = ({
             onClick={() => {
               window.open(`/pool/${route[0].pool.id}`);
             }}
+            onMouseEnter={() => setHoverRouter1(true)}
+            onMouseLeave={() => setHoverRouter1(false)}
           >
             <span className="flex items-center mx-1">
               <Images
@@ -580,7 +592,11 @@ export const CrossSwapRoute = ({
               <span className=" ml-1">{`#${route[0].pool.id}`}</span>
             </span>
 
-            <span className="flex items-center cursor-pointer justify-center ">
+            <span
+              className={`flex items-center cursor-pointer justify-center ${
+                hoverRouter1 ? 'text-gradientFrom' : ''
+              } `}
+            >
               <HiOutlineExternalLink />
             </span>
           </div>
@@ -593,6 +609,8 @@ export const CrossSwapRoute = ({
             onClick={() => {
               window.open(`/pool/${route[1].pool.id}`);
             }}
+            onMouseEnter={() => setHoverRouter2(true)}
+            onMouseLeave={() => setHoverRouter2(false)}
           >
             <span className="flex items-center mx-1">
               <Images
@@ -607,7 +625,11 @@ export const CrossSwapRoute = ({
               <span className=" ml-1">{`#${route[1].pool.id}`}</span>
             </span>
 
-            <span className="flex items-center cursor-pointer justify-center  ">
+            <span
+              className={`flex items-center cursor-pointer justify-center  ${
+                hoverRouter2 ? 'text-gradientFrom' : ''
+              } `}
+            >
               <HiOutlineExternalLink />
             </span>
           </div>
@@ -815,6 +837,7 @@ export function RouteDCLDetail({
   const isMobile = useClientMobile();
   const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, bestFee * 100);
   const pool_id_url_params = pool_id.replace(/\|/g, '@');
+
   return (
     <section
       className={`${
@@ -886,7 +909,7 @@ export function RouteDCLDetail({
             <span className=" mr-1">{bestFee / 100}%</span>
             <span
               className={`flex items-center cursor-pointer  justify-center ${
-                hover && !isXSwap ? 'text-senderHot' : ''
+                hover ? 'text-senderHot' : ''
               }`}
             >
               <HiOutlineExternalLink />

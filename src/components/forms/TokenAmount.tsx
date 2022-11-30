@@ -82,6 +82,7 @@ interface TokenAmountProps {
   limitFee?: number;
   setDiff?: (d: string) => void;
   allowWNEAR?: boolean;
+  forCross?: boolean;
 }
 
 export function getTextWidth(str: string, fontSize: string) {
@@ -786,6 +787,7 @@ export function TokenAmountV3({
   onSelectToken,
   onSearchToken,
   onChangeAmount,
+  forCross,
   text,
   showSelectToken = true,
   disabled = false,
@@ -983,6 +985,7 @@ export function TokenAmountV3({
               tokens={tokens}
               render={render}
               customWidth
+              forCross
               selected={
                 selectedToken && (
                   <div className="flex items-center justify-end font-semibold">

@@ -682,10 +682,6 @@ export default function CrossSwapCard(props: {
         ? swapsToDoV3
         : swapsToDoRef;
 
-      console.log({
-        swapsToDoRefV3,
-      });
-
       setCrossAllResults(
         <CrossSwapAllResult
           refTodos={swapsToDoRefV3}
@@ -776,6 +772,7 @@ export default function CrossSwapCard(props: {
           onChangeAmount={(amount) => {
             setTokenInAmount(amount);
           }}
+          forCross
           total={tokenInMax}
           balances={balances}
           tokenPriceList={tokenPriceList}
@@ -830,6 +827,7 @@ export default function CrossSwapCard(props: {
           tokens={allTokens}
           tokenOut={tokenOut}
           selectedToken={tokenOut}
+          forCross
           onSelectToken={(token) => {
             setTokenOut(token);
             localStorage.setItem(SWAP_OUT_KEY, token.id);

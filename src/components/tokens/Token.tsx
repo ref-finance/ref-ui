@@ -13,6 +13,7 @@ import {
   USER_COMMON_TOKEN_LIST,
 } from '../../components/forms/SelectToken';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { isClientMobie } from '../../utils/device';
 interface TokenProps {
   token: TokenMetadata;
   onClick: (token: TokenMetadata) => void;
@@ -101,7 +102,7 @@ export default function Token({
       <div
         className={!forCross ? 'hidden' : 'w-12 flex justify-start  absolute '}
         style={{
-          left: '45%',
+          left: '43%',
         }}
       >
         {onRef || onTri ? <RefIcon lightTrigger={hover} /> : null}
@@ -115,7 +116,7 @@ export default function Token({
           sortBy === 'near' ? 'text-white' : ''
         }`}
       >
-        <div className="flex items-center justify-end pr-9">
+        <div className="flex items-center justify-end pr-6">
           <span className="text-sm text-white mr-3">{displayBalance}</span>
           {!forCross ? (
             <>
