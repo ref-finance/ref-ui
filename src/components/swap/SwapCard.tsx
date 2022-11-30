@@ -772,7 +772,11 @@ function DetailViewV2({
     loadingTrigger,
     loadingPause,
   } = refresh;
-
+  useEffect(() => {
+    if (from && tokenIn && tokenOut) {
+      setShowDetails(true);
+    }
+  }, [from, tokenIn, tokenOut]);
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
@@ -838,12 +842,6 @@ function DetailViewV2({
         <div
           className="text-sm flex items-center cursor-pointer mb-1"
           onClick={() => {
-            if (showDetails) {
-              sessionStorage.removeItem(storageShoDetail);
-            } else {
-              sessionStorage.setItem(storageShoDetail, 'open');
-            }
-
             setShowDetails(!showDetails);
           }}
         >
@@ -905,7 +903,7 @@ function DetailViewV2({
         }
       </div>
       {Number(priceImpact) > 2 ? (
-        <div className="flex items-center justify-between xsm:flex-col border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+        <div className="flex items-center justify-between xsm:flex-col border border-warnRedColor  rounded-xl p-3 mt-4 text-sm text-redwarningColor">
           <span className="xsm:mb-0.5">
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
@@ -950,6 +948,11 @@ function DetailViewV3({
     loadingPause,
   } = refresh;
   const [showDetails, setShowDetails] = useState<boolean>(false);
+  useEffect(() => {
+    if (from && tokenIn && tokenOut) {
+      setShowDetails(true);
+    }
+  }, [from, tokenIn, tokenOut]);
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
@@ -1016,12 +1019,6 @@ function DetailViewV3({
         <div
           className="pl-1 text-sm flex items-center cursor-pointer"
           onClick={() => {
-            if (showDetails) {
-              sessionStorage.removeItem(storageShoDetail);
-            } else {
-              sessionStorage.setItem(storageShoDetail, 'open');
-            }
-
             setShowDetails(!showDetails);
           }}
         >
@@ -1076,7 +1073,7 @@ function DetailViewV3({
         <RouteDCLDetail bestFee={fee} tokenIn={tokenIn} tokenOut={tokenOut} />
       </div>
       {Number(priceImpact) > 2 ? (
-        <div className="flex items-center xsm:flex-col justify-between border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+        <div className="flex items-center xsm:flex-col justify-between border border-warnRedColor  rounded-xl p-3 mt-4 text-sm text-redwarningColor">
           <span className="mb-0.5">
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
@@ -1179,7 +1176,11 @@ function DetailViewLimit({
               <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
             </span>
             <button
-              className="p-0.5 rounded-md hover:bg-selectTokenV3BgColor"
+              className={`p-0.5 rounded-md ${
+                feeTiersShowFull || hoverSlider || mobileShowFees
+                  ? 'bg-selectTokenV3BgColor'
+                  : ''
+              }`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

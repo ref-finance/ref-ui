@@ -699,7 +699,12 @@ export const NormalSwapRoute = ({
                 border
                 borderStyle="1px solid #00C6A2"
                 size={isMobile ? '3' : '3.5'}
-                tokens={[tokenIn, route[0].tokens[1]]}
+                tokens={[
+                  tokenIn?.id == WRAP_NEAR_CONTRACT_ID ? nearMetadata : tokenIn,
+                  route[0]?.tokens[1]?.id == WRAP_NEAR_CONTRACT_ID
+                    ? nearMetadata
+                    : route[0].tokens[1],
+                ]}
               />
               <span className="text-farmText ml-1">{`#${route[0].pool.id}`}</span>
             </span>
@@ -765,7 +770,12 @@ export const NormalSwapRoute = ({
                 border
                 borderStyle="1px solid #00C6A2"
                 size={isMobile ? '3' : '3.5'}
-                tokens={[tokenIn, route[0].tokens[1]]}
+                tokens={[
+                  tokenIn?.id == WRAP_NEAR_CONTRACT_ID ? nearMetadata : tokenIn,
+                  route[0]?.tokens[1]?.id == WRAP_NEAR_CONTRACT_ID
+                    ? nearMetadata
+                    : route[0]?.tokens[1],
+                ]}
               />
 
               <span className="text-farmText ml-1">{`#${route[0].pool.id}`}</span>
@@ -800,7 +810,14 @@ export const NormalSwapRoute = ({
                 border
                 borderStyle="1px solid #00C6A2"
                 size={isMobile ? '3' : '3.5'}
-                tokens={[route[1].tokens[1], tokenOut]}
+                tokens={[
+                  route[1]?.tokens[1]?.id == WRAP_NEAR_CONTRACT_ID
+                    ? nearMetadata
+                    : route[1]?.tokens[1],
+                  tokenOut.id == WRAP_NEAR_CONTRACT_ID
+                    ? nearMetadata
+                    : tokenOut,
+                ]}
               />
 
               <span className="text-farmText ml-1">{`#${route[1].pool.id}`}</span>
