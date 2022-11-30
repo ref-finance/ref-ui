@@ -429,17 +429,23 @@ function AccountEntry({
           className={`flex items-center justify-center rounded-xl ${
             isSignedIn
               ? hover
-                ? 'py-1.5 bg-accountHoverBgColor text-white text-opacity-50 px-3'
-                : 'py-1.5 bg-accountBgColor text-white text-opacity-50 px-3'
+                ? 'py-1.5 text-white text-opacity-50 px-3 bg-accountHoverBgColor'
+                : 'py-1.5 text-white text-opacity-50 px-3 bg-accountBgColor'
               : hover
-              ? 'py-2 bg-buttonGradientBg text-white px-5'
-              : 'py-2 bg-buttonGradientBg text-white px-5'
+              ? 'py-2 text-white px-5 bg-buttonGradientBg'
+              : 'py-2 text-white px-5 bg-unLoginButtonBgColor'
           }`}
         >
           <div className="pr-1">
             <Near
               color={
-                isSignedIn ? (hover ? '#fff' : 'rgba(255,255,255,0.5)') : '#fff'
+                isSignedIn
+                  ? hover
+                    ? '#fff'
+                    : 'rgba(255,255,255,0.5)'
+                  : hover
+                  ? '#fff'
+                  : '#00C6A2'
               }
             />
           </div>
@@ -473,7 +479,11 @@ function AccountEntry({
                 }}
                 type="button"
               >
-                <span className="ml-1 text-xs gotham_bold">
+                <span
+                  className={`ml-1 text-xs gotham_bold ${
+                    hover ? 'text-white' : 'text-greenColor'
+                  }`}
+                >
                   <FormattedMessage
                     id="connect_to_wallet"
                     defaultMessage="Connect Wallet"
