@@ -176,9 +176,9 @@ export default function SlippageSelector({
   const [hoverSlider, setHoverSlider] = useState(false);
 
   return (
-    <div className="relative z-10 font-normal">
+    <div className="relative z-50 font-normal">
       <div
-        className="p-1 w-8 h-8 bg-black flex items-center justify-center bg-opacity-20 border border-opacity-20 border-primaryText rounded-xl text-2xl text-white cursor-pointer"
+        className="p-1 w-8 h-8 hover:bg-black flex items-center justify-center hover:bg-opacity-20 border border-opacity-20 border-primaryText rounded-xl text-2xl text-white cursor-pointer"
         onClick={(e) => openToolTip(e)}
         onMouseEnter={() => setHoverSlider(true)}
         onMouseLeave={() => setHoverSlider(false)}
@@ -187,7 +187,7 @@ export default function SlippageSelector({
       </div>
       {showSlip && (
         <div
-          className={`xs:fixed xs:z-10 xs:top-0 xs:left-0 xs:backdrop-filter xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-60`}
+          className={`xs:fixed xs:z-50 xs:top-0 xs:left-0 xs:backdrop-filter xs:right-0 xs:bottom-0 xs:bg-black xs:bg-opacity-60`}
         >
           <fieldset
             className="absolute top-10 text-newSlippageColor -right-32 xs:relative xs:mx-5 xs:top-40 xs:right-0 px-4 py-6 bg-cardBg rounded-lg flex flex-col mb-4"
@@ -493,7 +493,7 @@ export function StableSlipSelecter({
   }, []);
 
   return (
-    <div className="relative z-10">
+    <div className="relative z-50">
       <div className="flex justify-between xs:flex-col md:flex-col lg:flex-row">
         <div className="flex items-center text-primaryText">
           <label className="text-xs text-center xs:py-2 md:py-2 lg:py-5">

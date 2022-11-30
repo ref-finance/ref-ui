@@ -112,7 +112,7 @@ import { unWrapTokenId, wrapTokenId, DetailView_near_wnear } from './SwapCard';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import Big from 'big.js';
-import { PoolInfoV3 } from '../../services/swapV3';
+import { PoolInfoV3, quote } from '../../services/swapV3';
 import { getMax } from '../../utils/numbers';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
@@ -594,7 +594,9 @@ export default function CrossSwapCard(props: {
       isSignedIn &&
       !ONLY_ZEROS.test(curMax) &&
       !ONLY_ZEROS.test(tokenInAmount) &&
-      new BigNumber(tokenInAmount).lte(new BigNumber(curMax)));
+      new BigNumber(tokenInAmount).lte(new BigNumber(curMax)) &&
+      quoteDoneV3 &&
+      crossQuoteDone);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -662,7 +664,13 @@ export default function CrossSwapCard(props: {
   const swapErrorCrossV3 = swapError && swapErrorV3;
 
   useEffect(() => {
-    if (quoteDoneV3 && crossQuoteDone && !wrapOperation) {
+    if (
+      quoteDoneV3 &&
+      crossQuoteDone &&
+      !wrapOperation &&
+      (swapsToDoRef || swapsToDoTri) &&
+      !loadingTrigger
+    ) {
       const swapsToDoRefV3 = swapError
         ? swapsToDoV3
         : !swapErrorV3 &&
@@ -674,10 +682,14 @@ export default function CrossSwapCard(props: {
         ? swapsToDoV3
         : swapsToDoRef;
 
+      console.log({
+        swapsToDoRefV3,
+      });
+
       setCrossAllResults(
         <CrossSwapAllResult
           refTodos={swapsToDoRefV3}
-          triTodos={swapsToDoTri}
+          triTodos={swapError ? [] : swapsToDoTri}
           tokenInAmount={tokenInAmount}
           tokenOutId={tokenOut?.id}
           slippageTolerance={slippageTolerance}
@@ -850,7 +862,10 @@ export default function CrossSwapCard(props: {
           ? null
           : crossAllResults}
 
-        {swapErrorCrossV3 && tokenIn?.id !== tokenOut?.id ? (
+        {swapErrorCrossV3 &&
+        tokenIn?.id !== tokenOut?.id &&
+        quoteDoneV3 &&
+        crossQuoteDone ? (
           <div className="pb-2 relative -mb-5">
             <Alert level="warn" message={swapError.message} />
           </div>

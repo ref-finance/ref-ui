@@ -366,10 +366,6 @@ export const estimateSwap = async ({
     return getLiquidity(p, tokenIn, tokenOut) > 0;
   });
 
-  console.log({
-    pools,
-  });
-
   let { supportLedgerRes, triTodos, refTodos } = await getOneSwapActionResult(
     swapPro,
     pools,

@@ -388,7 +388,7 @@ export const NEARICONDEX = () => {
       viewBox="0 0 21 21"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="absolute -bottom-1 -right-1"
+      className="absolute -bottom-1 -right-1 "
     >
       <circle cx="10.5" cy="10.5" r="8.5" fill="white" />
       <path
@@ -410,7 +410,7 @@ export const AURORAICONDEX = () => {
       viewBox="0 0 21 21"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="absolute -bottom-1 -right-1"
+      className="absolute -bottom-1 -right-1 "
     >
       <circle
         cx="10.5"

@@ -342,9 +342,6 @@ export const getPoolsByTokens = async ({
       tokenIn.symbol === 'NEAR' ? 'wNEAR' : tokenIn.symbol,
       tokenOut.symbol === 'NEAR' ? 'wNEAR' : tokenOut.symbol,
     ]);
-    console.log({
-      triPools,
-    });
 
     sessionStorage.setItem(REF_FI_ACTIVE_TRI_POOL, JSON.stringify(triPools));
   }
