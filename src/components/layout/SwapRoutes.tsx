@@ -1483,7 +1483,7 @@ export const CrossSwapAllResult = ({
         }}
       >
         <div className="flex items-center w-full justify-between pt-3 pb-1 px-4 xs:py-3 rounded-lg ">
-          {selectReceive === receives[0] && (
+          {selectReceive === displayResults[0].receive && (
             <div className="absolute text-xs left-4 -top-3 bg-gradientFrom rounded-md px-2 py-0.5 text-black">
               <FormattedMessage id="optimal" defaultMessage={'Optimal'} />
             </div>
