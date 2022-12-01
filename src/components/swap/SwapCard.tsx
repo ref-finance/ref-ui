@@ -302,7 +302,7 @@ export function SwapRateDetail({
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
           <FaExchangeAlt color="#00C6A2" />
         </span>
-        <span className="font-sans">{newValue}</span>
+        <span>{newValue}</span>
       </p>
     </section>
   );
@@ -347,13 +347,12 @@ export function SwapRate({
   useEffect(() => {
     setNewValue(value);
   }, [value]);
-
   useEffect(() => {
     setNewValue(
-      <span>
+      <span className="text-white text-opacity-60 hover:text-opacity-100">
         {`1 ${toRealSymbol(isRevert ? tokenIn.symbol : tokenOut.symbol)}`}
         {displayPrice}
-        {`≈ ${exchangeRageValue} ${toRealSymbol(
+        {`= ${exchangeRageValue} ${toRealSymbol(
           isRevert ? tokenOut.symbol : tokenIn.symbol
         )}`}
       </span>
@@ -372,10 +371,7 @@ export function SwapRate({
         className="flex items-center text-white cursor-pointer text-right mr-1"
         onClick={switchSwapRate}
       >
-        <span className="font-sans whitespace-nowrap">{newValue}</span>
-        <span className="ml-2">
-          <RefreshIcon></RefreshIcon>
-        </span>
+        <span className="whitespace-nowrap">{newValue}</span>
       </p>
     </section>
   );
@@ -445,7 +441,7 @@ export function SwapRateLimit({
         className="flex justify-end text-white cursor-pointer text-right mr-1"
         onClick={switchSwapRate}
       >
-        <span className="font-sans">{newValue}</span>
+        <span>{newValue}</span>
         {displayPrice}
       </p>
       <span className="" style={{ marginTop: '0.1rem' }}>
@@ -601,14 +597,15 @@ export function SmartRoutesDetail({
 export const GetPriceImpact = (
   value: string,
   tokenIn?: TokenMetadata,
-  tokenInAmount?: string
+  tokenInAmount?: string,
+  infoStyle?: string
 ) => {
   const textColor =
     Number(value) <= 1
       ? 'text-greenLight'
       : 1 < Number(value) && Number(value) <= 2
       ? 'text-warn'
-      : 'text-error';
+      : 'text-redwarningColor';
 
   const displayValue = scientificNotationToString(
     multiply(tokenInAmount, divide(value, '100'))
@@ -629,14 +626,14 @@ export const GetPriceImpact = (
 
   if (Number(value) > 1000)
     return (
-      <span className="text-error">
+      <span className="text-redwarningColor">
         {`< -1000%`}
         {tokenInInfo}
       </span>
     );
 
   return (
-    <span className={`${textColor} font-sans`}>
+    <span className={`${textColor} ${infoStyle}`}>
       {`-${toPrecision(value, 2)}%`}
       {tokenInInfo}
     </span>
@@ -762,10 +759,8 @@ function DetailViewV2({
   tokenInAmount?: string;
 }) {
   const intl = useIntl();
-  const [showDetails, setShowDetails] = useState<boolean>(false);
-  const [count, setCount] = useState(0);
   const isMobile = useMobile();
-  const { refresh } = useContext(LimitOrderTriggerContext);
+  const { refresh, detail } = useContext(LimitOrderTriggerContext);
   const {
     setLoadingPause,
     setLoadingTrigger,
@@ -773,6 +768,7 @@ function DetailViewV2({
     loadingTrigger,
     loadingPause,
   } = refresh;
+  const { showDetails, setShowDetails, count, setCount } = detail;
   useEffect(() => {
     if (from && tokenIn && tokenOut && count == 1) {
       setShowDetails(true);
@@ -794,6 +790,14 @@ function DetailViewV2({
     if (!priceImpact || !tokenIn || !from) return null;
     return GetPriceImpact(priceImpact, tokenIn, from);
   }, [to, priceImpact]);
+
+  const priceImpactDisplayFun = useCallback(
+    (infoStyle?: string) => {
+      if (!priceImpact || !tokenIn || !from) return null;
+      return GetPriceImpact(priceImpact, tokenIn, from, infoStyle);
+    },
+    [[to, priceImpact]]
+  );
 
   const poolFeeDisplay = useMemo(() => {
     if (!fee || !from || !tokenIn) return null;
@@ -912,8 +916,8 @@ function DetailViewV2({
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
           <div className="flex items-center">
-            <span className="gotham_bold">
-              {!to || to === '0' ? '-' : priceImpactDisplay}
+            <span>
+              {!to || to === '0' ? '-' : priceImpactDisplayFun('gotham_bold')}
             </span>
             <span className="ml-1">{tokenIn.symbol}</span>
           </div>
@@ -943,7 +947,7 @@ function DetailViewV3({
   tokenPriceList?: any;
 }) {
   const intl = useIntl();
-  const { refresh } = useContext(LimitOrderTriggerContext);
+  const { refresh, detail } = useContext(LimitOrderTriggerContext);
   const {
     setLoadingPause,
     setLoadingTrigger,
@@ -951,8 +955,7 @@ function DetailViewV3({
     loadingTrigger,
     loadingPause,
   } = refresh;
-  const [showDetails, setShowDetails] = useState<boolean>(false);
-  const [count, setCount] = useState(0);
+  const { showDetails, setShowDetails, count, setCount } = detail;
   useEffect(() => {
     if (from && tokenIn && tokenOut && count == 1) {
       setShowDetails(true);
@@ -974,6 +977,13 @@ function DetailViewV3({
     if (!priceImpact || !tokenIn || !from) return null;
     return GetPriceImpact(priceImpact, tokenIn, from);
   }, [priceImpact]);
+  const priceImpactDisplayFun = useCallback(
+    (infoStyle?: string) => {
+      if (!priceImpact || !tokenIn || !from) return null;
+      return GetPriceImpact(priceImpact, tokenIn, from, infoStyle);
+    },
+    [[priceImpact]]
+  );
 
   const poolFeeDisplay = useMemo(() => {
     if (!fee || !from || !tokenIn) return null;
@@ -1086,8 +1096,8 @@ function DetailViewV3({
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
           <div className="flex items-center">
-            <span className="gotham_bold">
-              {!to || to === '0' ? '-' : priceImpactDisplay}
+            <span>
+              {!to || to === '0' ? '-' : priceImpactDisplayFun('gotham_bold')}
             </span>
             <span className="ml-1">{tokenIn.symbol}</span>
           </div>
@@ -1447,6 +1457,8 @@ export default function SwapCard(props: {
   );
   const [feeTiersShowFull, setFeeTiersShowFull] = useState<boolean>(false);
   const [hasLockedRate, setHasLockedRate] = useState(false);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [count, setCount] = useState(0);
 
   const tokenPriceList = useTokenPriceList();
 
@@ -2168,7 +2180,6 @@ export default function SwapCard(props: {
     if (!quoteDone || !quoteDoneV3) {
       return;
     }
-
     setPoolError(!!swapError?.message && !!swapErrorV3?.message);
   }, [quoteDone, quoteDoneV3, swapError, swapErrorV3]);
   return (
@@ -2321,6 +2332,12 @@ export default function SwapCard(props: {
               setLoadingData,
               loadingTrigger,
               loadingPause,
+            },
+            detail: {
+              showDetails,
+              setShowDetails,
+              count,
+              setCount,
             },
           }}
         >

@@ -97,8 +97,8 @@ export function IconLeftV3({
 }) {
   return (
     <div
-      className={`${className} flex items-center text-lg text-white   rounded-full flex-shrink-0 ${
-        hover ? 'pr-4 bg-selectTokenV3BgColor bg-opacity-30 cursor-pointer' : ''
+      className={`${className} flex items-center bg-primaryText text-white text-lg  rounded-full flex-shrink-0 pr-4 cursor-pointer  ${
+        hover ? 'bg-opacity-30' : 'bg-opacity-10'
       }`}
       style={{ lineHeight: 'unset' }}
     >
@@ -114,9 +114,31 @@ export function IconLeftV3({
       )}
       {showArrow && (
         <div className="pl-2 xs:pl-1 text-xs">
-          <ArrowDownWhite />
+          <SelectArrowIcon
+            className={`${hover ? 'text-white' : 'text-primaryText'}`}
+          />
         </div>
       )}
     </div>
+  );
+}
+
+function SelectArrowIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      width="11"
+      height="7"
+      viewBox="0 0 11 7"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 1L5.401 5L9.57143 1"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+    </svg>
   );
 }

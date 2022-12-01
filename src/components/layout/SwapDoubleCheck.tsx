@@ -417,7 +417,7 @@ export function DoubleCheckModalLimit(
               setButtonLoading(true);
               onSwap();
             }}
-            className="text-sm text-center rounded-lg h-10 w-full"
+            className="text-base text-center rounded-lg h-10 gotham_bold w-full"
             loading={buttonLoading}
             disabled={buttonLoading}
           >
