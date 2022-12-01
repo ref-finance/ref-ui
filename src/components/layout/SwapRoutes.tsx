@@ -429,9 +429,9 @@ export function SwapRateDetail({
             (${toPrecision(curPrice, 2)})
           </span>
         ) : null}{' '}
-        ≈{' '}
+        <label className="arial_font">≈</label>{' '}
         {`${exchangeRageValue} ${toRealSymbol(
-          isRevert ? tokenIn.symbol : tokenOut.symbol
+          isRevert ? tokenIn?.symbol : tokenOut?.symbol
         )}`}
       </span>
     );
@@ -446,7 +446,7 @@ export function SwapRateDetail({
       className="flex items-center cursor-pointer justify-end opacity-60 hover:opacity-100 text-white "
       onClick={switchSwapRate}
     >
-      <span className="font-sans text-xs">{newValue}</span>
+      <span className=" text-xs">{newValue}</span>
     </div>
   );
 }
@@ -524,7 +524,7 @@ export const CrossSwapRoute = ({
                   borderStyle="1px solid #00C6A2"
                   size="4"
                   tokens={route[0].tokens.map((t) =>
-                    t.symbol === 'wNEAR' ? nearMetadata : t
+                    t?.symbol === 'wNEAR' ? nearMetadata : t
                   )}
                 />
 
@@ -586,7 +586,7 @@ export const CrossSwapRoute = ({
                 size="4"
                 tokens={route[0].tokens
                   .slice(0, 2)
-                  .map((t) => (t.symbol === 'wNEAR' ? nearMetadata : t))}
+                  .map((t) => (t?.symbol === 'wNEAR' ? nearMetadata : t))}
               />
 
               <span className=" ml-1">{`#${route[0].pool.id}`}</span>
@@ -619,7 +619,7 @@ export const CrossSwapRoute = ({
                 size="4"
                 tokens={route[1].tokens
                   .slice(1, 3)
-                  .map((t) => (t.symbol === 'wNEAR' ? nearMetadata : t))}
+                  .map((t) => (t?.symbol === 'wNEAR' ? nearMetadata : t))}
               />
 
               <span className=" ml-1">{`#${route[1].pool.id}`}</span>
@@ -1019,7 +1019,7 @@ const GetPriceImpactWarning = (
           : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)} `}
       </span>
 
-      <span className="gotham">{toRealSymbol(tokenIn.symbol)}</span>
+      <span className="gotham">{toRealSymbol(tokenIn?.symbol)}</span>
     </span>
   );
 
@@ -1071,6 +1071,7 @@ export const CrossSwapAllResult = ({
   priceImpactRef,
   priceImpactTri,
   selectReceive,
+  supportLedger,
 }: {
   refTodos: EstimateSwapView[];
   triTodos: EstimateSwapView[];
@@ -1080,7 +1081,7 @@ export const CrossSwapAllResult = ({
   tokenOut: TokenMetadata;
   LoadingRefresh: JSX.Element;
   selectTodos: EstimateSwapView[];
-
+  supportLedger: boolean;
   setSelectTodos: (todos: EstimateSwapView[]) => void;
   tokenIn: TokenMetadata;
   tokenPriceList: any;
@@ -1137,7 +1138,7 @@ export const CrossSwapAllResult = ({
           calculateFeePercent(fee || 0).toString(),
           2
         )}% / ${calculateFeeCharge(fee, tokenInAmount)} ${toRealSymbol(
-          tokenIn.symbol
+          tokenIn?.symbol
         )}`;
       } catch (error) {
         return '-';
@@ -1277,13 +1278,13 @@ export const CrossSwapAllResult = ({
       >
         <span className="col-span-1">{Type}</span>
 
-        <span className="col-span-4  relative left-3 xs:left-5">{rawRate}</span>
+        <span className="col-span-4  relative left-8 xs:left-5">{rawRate}</span>
 
         <div
           className="justify-self-center xs:justify-self-end  xs:right-10 col-span-4 relative px-4 xs:px-2 "
           title={rateTitle}
         >
-          {isMobile ? toPrecision(rate, 3) : rate}
+          {toPrecision(rate, 3)}
         </div>
 
         <span className=" text-right relative right-3 justify-self-end col-span-1">
@@ -1403,28 +1404,18 @@ export const CrossSwapAllResult = ({
       const calRawRate = new Big(receives[i] || '0').div(tokenInAmount || '1');
 
       return {
-        type: Icons[i],
+        type: Icons[result?.[0]?.pool?.Dex === 'tri' ? 1 : 0],
         rate: percentLess(slippageTolerance, receives[i]),
         receive: receives[i],
         result,
         rawRate:
-          (Number(calRawRate) < 0.001
+          Number(calRawRate) < 0.001
             ? '< 0.001'
-            : toPrecision(
-                scientificNotationToString(calRawRate.toString()),
-                3
-              )) +
-          `${
-            isMobile
-              ? ''
-              : ` ${toRealSymbol(tokenOut?.symbol)}/${toRealSymbol(
-                  tokenIn?.symbol
-                )}`
-          } `,
+            : toPrecision(scientificNotationToString(calRawRate.toString()), 3),
         diff: diffs[i],
         rateTitle: toPrecision(
           percentLess(slippageTolerance, receives[i]),
-          tokenOut.decimals
+          tokenOut?.decimals || 24
         ),
       };
     })
@@ -1442,16 +1433,36 @@ export const CrossSwapAllResult = ({
       return receives[i] === bestReceived;
     });
 
-    console.log({
-      selectTodosBest,
-      bestReceived,
-      results,
-      receives,
+    // console.log({
+    //   selectTodosBest,
+    //   bestReceived,
+    //   results,
+    //   receives,
+    // });
+
+    const validator = results.every((todos) => {
+      return todos?.[todos?.length - 1].outputToken === tokenOut?.id;
     });
+
+    console.log({
+      validator,
+      receives,
+      bestReceived,
+      selectTodosBest,
+    });
+
+    if (!validator) return null;
 
     setSelectTodos(selectTodosBest || null);
     setSelectReceive(bestReceived || null);
-  }, [bestReceived]);
+  }, [bestReceived, supportLedger]);
+
+  console.log({
+    receives,
+    bestReceived,
+    selectTodos,
+    results,
+  });
 
   if (!results || results.length === 0 || !selectTodos) return null;
 
@@ -1486,19 +1497,24 @@ export const CrossSwapAllResult = ({
               <FormattedMessage id="optimal" defaultMessage={'Optimal'} />
             </div>
           )}
-          {!isMobile && hoverOptimal && (
-            <SelectPopOver
-              curSwapTodos={selectTodos}
-              fee={selectIsTri ? feeTri : feeRef}
-              minAmount={
-                selectReceive
-                  ? percentLess(slippageTolerance, selectReceive)
-                  : '0'
-              }
-              priceImpact={selectIsTri ? priceImpactTri : priceImpactRef}
-              receive={selectReceive}
-            />
-          )}
+          {!isMobile &&
+            hoverOptimal &&
+            selectTodos &&
+            selectTodos.length > 0 &&
+            selectTodos[selectTodos.length - 1].outputToken ===
+              tokenOut?.id && (
+              <SelectPopOver
+                curSwapTodos={selectTodos}
+                fee={selectIsTri ? feeTri : feeRef}
+                minAmount={
+                  selectReceive
+                    ? percentLess(slippageTolerance, selectReceive)
+                    : '0'
+                }
+                priceImpact={selectIsTri ? priceImpactTri : priceImpactRef}
+                receive={selectReceive}
+              />
+            )}
 
           <div className="items-center flex bg-transparent">
             {LoadingRefresh}
@@ -1550,27 +1566,18 @@ export const CrossSwapAllResult = ({
             <FormattedMessage id="dex" defaultMessage="DEX" />
           </span>
 
-          <span className="col-span-4 relative left-3 xs:left-4">
-            {isMobile ? (
-              `${toRealSymbol(tokenOut?.symbol)}/${toRealSymbol(
-                tokenIn?.symbol
-              )} `
-            ) : (
-              <FormattedMessage id="rate" defaultMessage="Rate" />
-            )}
+          <span className="col-span-4 relative left-6 xs:left-4">
+            {`${toRealSymbol(tokenOut?.symbol)}/${toRealSymbol(
+              tokenIn?.symbol
+            )} `}
           </span>
           <span className="col-span-4 xs:justify-self-center relative right-6 xs:right-0 justify-self-end">
-            {isMobile ? (
+            {
               <FormattedMessage
                 id="minimum_received_dot"
                 defaultMessage="Min. Received"
               />
-            ) : (
-              <FormattedMessage
-                id="minimum_received"
-                defaultMessage="Minimum Received"
-              />
-            )}
+            }
           </span>
           <span className="relative right-2 text-right  col-span-1">
             <FormattedMessage id="diff" defaultMessage="Diff" />

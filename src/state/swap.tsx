@@ -239,8 +239,6 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
           ? '0'
           : parsed_ft_on_transfer_log_swap?.['data']?.[0]?.['amount_out'];
 
-      console.log(swapAmountOut);
-
       const buyToken = await ftGetTokenMetadata(buy_token);
 
       swapAmountOut = toReadableNumber(buyToken.decimals, swapAmountOut);
@@ -701,7 +699,7 @@ export const useSwapV3 = ({
               res?.every((e) => e.tag === null))
           ) {
             setTokenOutAmount(
-              toReadableNumber(tokenOut.decimals, bestEstimate.amount)
+              toReadableNumber(tokenOut?.decimals || 24, bestEstimate.amount)
             );
           }
         }
@@ -788,6 +786,7 @@ export const useSwapV3 = ({
         estimates?.every((e) => e.tag === null)),
     bestFee,
     bestPool,
+    setQuoteDone,
     swapErrorV3:
       bestEstimate && ONLY_ZEROS.test(bestEstimate.amount)
         ? NoPoolError()
@@ -1193,6 +1192,7 @@ export const useCrossSwap = ({
       setCanSwap(true);
       return;
     }
+    if (!tokenIn || !tokenOut) return;
     setCanSwap(false);
     setSwapError(null);
 
@@ -1210,24 +1210,24 @@ export const useCrossSwap = ({
       setSwapsToDoRef,
       setSwapsToDoTri,
     })
-      .then(async ({ estimates }) => {
-        if (!loadingTrigger) {
-          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-            setAverageFee(estimates);
+      .then(({ estimates }) => {
+        if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+          setAverageFee(estimates);
 
-            setSwapsToDo(estimates);
-            setCanSwap(true);
-          }
-
-          setPool(estimates[0].pool);
-          setCrossQuoteDone(true);
+          setSwapsToDo(estimates);
+          setCanSwap(true);
         }
+
+        setPool(estimates[0].pool);
+        setCrossQuoteDone(true);
+        setLoadingTrigger(false);
       })
       .catch((err) => {
         setCanSwap(false);
         setTokenOutAmount('');
         setSwapError(err);
         setCrossQuoteDone(true);
+        setLoadingTrigger(false);
         // setSwapsToDoRef([]);
         // setSwapsToDoTri([])
       })
@@ -1252,7 +1252,7 @@ export const useCrossSwap = ({
     }
 
     getEstimateCrossSwap(true);
-  }, [loadingTrigger, tokenIn?.id, tokenOut?.id]);
+  }, [loadingTrigger, [tokenIn?.id, tokenOut?.id].sort().join('-')]);
 
   useEffect(() => {
     if (ONLY_ZEROS.test(tokenInAmount)) {
@@ -1261,7 +1261,7 @@ export const useCrossSwap = ({
     }
 
     getEstimateCrossSwap(false);
-  }, [supportLedger, tokenInAmount]);
+  }, [supportLedger, tokenInAmount, tokenIn?.id, tokenOut?.id]);
 
   useEffect(() => {
     let id: any = null;
@@ -1298,6 +1298,7 @@ export const useCrossSwap = ({
         : '',
     refAvgFee: swapsToDoRef && !wrapOperation ? getAvgFee(swapsToDoRef) : 0,
     triAvgFee: swapsToDoTri && !wrapOperation ? getAvgFee(swapsToDoTri) : 0,
+    setCrossQuoteDone,
   };
 };
 
