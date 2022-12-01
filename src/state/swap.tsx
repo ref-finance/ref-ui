@@ -516,7 +516,7 @@ export const useSwap = ({
       estimateValidator(
         swapsToDo,
         tokenIn,
-        toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+        toNonDivisibleNumber(tokenIn?.decimals || 24, tokenInAmount),
         tokenOut
       );
 
@@ -622,7 +622,7 @@ export const useSwapV3 = ({
     return new Error(
       `${intl.formatMessage({
         id: 'no_pool_available_to_make_a_swap_from',
-      })} ${tokenIn.symbol} -> ${tokenOut.symbol} ${intl.formatMessage({
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
         id: 'for_the_amount',
       })} ${tokenInAmount} ${intl.formatMessage({
         id: 'no_pool_eng_for_chinese',
@@ -789,7 +789,7 @@ export const useSwapV3 = ({
     setQuoteDone,
     swapErrorV3:
       bestEstimate && ONLY_ZEROS.test(bestEstimate.amount)
-        ? NoPoolError()
+        ? tokenIn && tokenOut && NoPoolError()
         : null,
   };
 };
@@ -1193,10 +1193,6 @@ export const useCrossSwap = ({
       return;
     }
     if (!tokenIn || !tokenOut) return;
-    setCanSwap(false);
-    setSwapError(null);
-
-    setCrossQuoteDone(false);
 
     estimateSwap({
       tokenIn,
@@ -1250,18 +1246,30 @@ export const useCrossSwap = ({
       setCrossQuoteDone(false);
       return;
     }
+    setCanSwap(false);
+    setSwapError(null);
+
+    setCrossQuoteDone(false);
 
     getEstimateCrossSwap(true);
-  }, [loadingTrigger, [tokenIn?.id, tokenOut?.id].sort().join('-')]);
+  }, [
+    loadingTrigger,
+    [tokenIn?.id, tokenOut?.id].sort().join('-'),
+    tokenIn,
+    tokenOut,
+  ]);
 
   useEffect(() => {
     if (ONLY_ZEROS.test(tokenInAmount)) {
       setCrossQuoteDone(false);
       return;
     }
+    setCanSwap(false);
+    setSwapError(null);
 
+    setCrossQuoteDone(false);
     getEstimateCrossSwap(false);
-  }, [supportLedger, tokenInAmount, tokenIn?.id, tokenOut?.id]);
+  }, [supportLedger, tokenInAmount]);
 
   useEffect(() => {
     let id: any = null;

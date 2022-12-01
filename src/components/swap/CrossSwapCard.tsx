@@ -670,6 +670,11 @@ export default function CrossSwapCard(props: {
 
   const swapErrorCrossV3 = swapError && swapErrorV3;
 
+  console.log({
+    swapError,
+    swapErrorV3,
+  });
+
   useEffect(() => {
     const swapsToDoRefV3 = swapError
       ? swapsToDoV3
