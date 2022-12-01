@@ -353,12 +353,8 @@ export function SwapRate({
           <span className={`mx-1 ${hover ? 'text-white' : 'text-primaryText'}`}>
             {displayPrice}
           </span>
-          {
-            <>
-              <label className="arial_font">≈</label> ${exchangeRageValue} $
-              {toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}
-            </>
-          }
+          <label className="arial_font">≈</label> {exchangeRageValue}&nbsp;
+          {toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}
         </span>
       </p>
     </section>
