@@ -688,13 +688,19 @@ export default function CrossSwapCard(props: {
       : swapsToDoRef;
 
     const todosValidator =
-      (!swapsToDoRefV3 ||
-        swapsToDoRefV3?.length === 0 ||
-        swapsToDoRefV3?.[swapsToDoRefV3?.length - 1]?.outputToken ===
-          tokenOut?.id) &&
-      (!swapsToDoTri ||
-        swapsToDoTri?.length === 0 ||
-        swapsToDoTri?.[0]?.outputToken === tokenOut?.id);
+      !swapsToDoRefV3 ||
+      swapsToDoRefV3?.length === 0 ||
+      swapsToDoRefV3?.[swapsToDoRefV3?.length - 1]?.outputToken ===
+        tokenOut?.id ||
+      !swapsToDoTri ||
+      swapsToDoTri?.length === 0 ||
+      swapsToDoTri?.[0]?.outputToken === tokenOut?.id;
+
+    console.log({
+      todosValidator,
+      swapsToDoRefV3,
+      swapsToDoTri,
+    });
 
     if (
       quoteDoneV3 &&
@@ -706,8 +712,23 @@ export default function CrossSwapCard(props: {
       try {
         setCrossAllResults(
           <CrossSwapAllResult
-            refTodos={swapsToDoRefV3}
-            triTodos={swapError ? [] : swapsToDoTri}
+            refTodos={
+              swapsToDoRefV3 &&
+              swapsToDoRefV3.length > 0 &&
+              swapsToDoRefV3?.[swapsToDoRefV3?.length - 1]?.outputToken ===
+                tokenOut?.id
+                ? swapsToDoRefV3
+                : []
+            }
+            triTodos={
+              swapError
+                ? []
+                : swapsToDoTri &&
+                  swapsToDoTri.length > 0 &&
+                  swapsToDoTri?.[0]?.outputToken === tokenOut?.id
+                ? swapsToDoTri
+                : []
+            }
             tokenInAmount={tokenInAmount}
             tokenOutId={tokenOut?.id}
             slippageTolerance={slippageTolerance}
