@@ -466,6 +466,10 @@ export const CrossSwapRoute = ({
 
   const [hoverRouter2, setHoverRouter2] = useState(false);
 
+  console.log({
+    tokenOut,
+  });
+
   return (
     <div className="flex items-center text-xs text-white w-full">
       {route.length === 1 ? (
@@ -514,7 +518,7 @@ export const CrossSwapRoute = ({
               }}
               className="font-bold mr-1"
             >
-              {route[0].pool?.Dex === 'tri' ? 'Tri' : 'Ref'}
+              {route[0].pool?.Dex === 'tri' ? 'Tri' : ''}
             </span>
 
             {route[0].pool?.Dex !== 'tri' && (
@@ -915,10 +919,9 @@ export function RouteDCLDetail({
               border
               borderStyle="1px solid #00C6A2"
               size={isMobile ? '3' : '3.5'}
-              tokens={[
-                tokenIn,
-                tokenOut?.id == WRAP_NEAR_CONTRACT_ID ? nearMetadata : tokenOut,
-              ]}
+              tokens={[tokenIn, tokenOut].map((t) =>
+                t.symbol === 'wNEAR' ? nearMetadata : t
+              )}
             />
           </span>
 
@@ -977,8 +980,8 @@ function CrossSwapRoutesDetail({
             {route[0].pool === null ? (
               <RouteDCLDetail
                 bestFee={fee}
-                tokenIn={tokenIn.symbol === 'wNEAR' ? nearMetadata : tokenIn}
-                tokenOut={tokenOut.symbol === 'wNEAR' ? nearMetadata : tokenOut}
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
                 isXSwap
               />
             ) : (
@@ -1226,7 +1229,7 @@ export const CrossSwapAllResult = ({
       return getExpectedOutputFromActionsORIG(result, tokenOut.id).toString();
     }
   });
-  const bestReceived = _.maxBy(receives || [0], (o) => Number(o));
+  const bestReceived = _.maxBy(receives || ['0'], (o) => Number(o));
 
   const selectIsTri =
     selectTodos?.[0]?.pool !== null && selectTodos?.[0]?.pool?.Dex === 'tri';
@@ -1308,18 +1311,22 @@ export const CrossSwapAllResult = ({
   };
 
   const priceImpactDisplayWarning = useMemo(() => {
-    if (
-      (!selectIsTri ? !priceImpactTri : !priceImpactRef) ||
-      !tokenIn ||
-      !tokenInAmount
-    )
-      return null;
+    try {
+      if (
+        (!selectIsTri ? !priceImpactTri : !priceImpactRef) ||
+        !tokenIn ||
+        !tokenInAmount
+      )
+        return null;
 
-    return GetPriceImpactWarning(
-      selectIsTri ? priceImpactTri : priceImpactRef,
-      tokenIn,
-      tokenInAmount
-    );
+      return GetPriceImpactWarning(
+        selectIsTri ? priceImpactTri : priceImpactRef,
+        tokenIn,
+        tokenInAmount
+      );
+    } catch (error) {
+      return null;
+    }
   }, [selectReceive, priceImpactTri, priceImpactRef, selectIsTri]);
 
   const diffs = receives.map((r) => {
@@ -1335,13 +1342,13 @@ export const CrossSwapAllResult = ({
   const Icons = [
     <div className="relative mr-2">
       <RefIconLarge />
-      <div className="absolute -right-4">
+      <div className="absolute xs:-right-4 -right-1">
         <NEARICONDEX />
       </div>
     </div>,
     <div className="relative mr-2">
       <TriIconLarge />
-      <div className="absolute -right-4">
+      <div className="absolute xs:-right-4 -right-1">
         <AURORAICONDEX />
       </div>
     </div>,
@@ -1436,18 +1443,16 @@ export const CrossSwapAllResult = ({
     });
 
   useEffect(() => {
-    if (!results || results.length === 0) return null;
+    if (!results || results.length === 0 || !bestReceived || !receives)
+      return null;
 
-    const bestReceiveIndex = displayResults
-      .map((_) => _.receive)
-      .findIndex((r) => r === bestReceived);
-    if (bestReceiveIndex >= 0) {
-      !!displayResults?.[bestReceiveIndex]?.result &&
-        setSelectTodos(displayResults[bestReceiveIndex].result);
-      !!displayResults?.[bestReceiveIndex]?.receive &&
-        setSelectReceive(displayResults[bestReceiveIndex].receive);
-    }
-  }, [bestReceived, results]);
+    const selectTodosBest = results.find((r, i) => {
+      return receives[i] === bestReceived;
+    });
+
+    setSelectTodos(selectTodosBest || null);
+    setSelectReceive(bestReceived || null);
+  }, [bestReceived]);
 
   if (!results || results.length === 0) return null;
 
@@ -1608,7 +1613,7 @@ export const CrossSwapAllResult = ({
 
       {Number(selectIsTri ? priceImpactTri : priceImpactRef) > 2 &&
       priceImpactDisplayWarning ? (
-        <div className="flex items-center xs:flex-col justify-between border border-warnRedColor xs:bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+        <div className="flex items-center xs:flex-col justify-between border border-warnRedColor bg-lightReBgColor rounded-xl p-3 mt-4 text-sm text-redwarningColor">
           <span>
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>

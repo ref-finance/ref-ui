@@ -119,6 +119,7 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { CountdownTimer } from '../icon/SwapRefresh';
 import { PopUpContainer } from '../icon/Info';
 import { usePriceImpact } from '../../state/swap';
+import _ from 'lodash';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -309,7 +310,7 @@ export default function CrossSwapCard(props: {
   const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
   const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
 
-  const [crossAllResults, setCrossAllResults] = useState(null);
+  const [crossAllResults, setCrossAllResults] = useState<JSX.Element>(null);
 
   const isSignedIn = !!accountId;
 
@@ -664,24 +665,24 @@ export default function CrossSwapCard(props: {
   const swapErrorCrossV3 = swapError && swapErrorV3;
 
   useEffect(() => {
+    const swapsToDoRefV3 = swapError
+      ? swapsToDoV3
+      : !swapErrorV3 &&
+        new Big(tokenOutAmountV3 || '0').gte(
+          tokenOut?.id && swapsToDoRef && swapsToDoRef.length > 0
+            ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut?.id)
+            : 0
+        )
+      ? swapsToDoV3
+      : swapsToDoRef;
+
     if (
       quoteDoneV3 &&
       crossQuoteDone &&
       !wrapOperation &&
-      // (swapsToDoRef || swapsToDoTri) &&
+      (swapsToDoRefV3 || swapsToDoTri) &&
       !loadingTrigger
     ) {
-      const swapsToDoRefV3 = swapError
-        ? swapsToDoV3
-        : !swapErrorV3 &&
-          new Big(tokenOutAmountV3 || '0').gte(
-            tokenOut?.id && swapsToDoRef && swapsToDoRef.length > 0
-              ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut?.id)
-              : 0
-          )
-        ? swapsToDoV3
-        : swapsToDoRef;
-
       try {
         setCrossAllResults(
           <CrossSwapAllResult
@@ -711,7 +712,9 @@ export default function CrossSwapCard(props: {
       }
     }
   }, [
-    selectTodos?.[0]?.pool,
+    // selectTodos,
+    selectReceive,
+    bestSwap,
     quoteDoneV3,
     crossQuoteDone,
     loadingTrigger,
