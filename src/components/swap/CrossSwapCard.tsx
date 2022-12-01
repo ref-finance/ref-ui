@@ -597,7 +597,9 @@ export default function CrossSwapCard(props: {
       !ONLY_ZEROS.test(tokenInAmount) &&
       new BigNumber(tokenInAmount).lte(new BigNumber(curMax)) &&
       quoteDoneV3 &&
-      crossQuoteDone);
+      crossQuoteDone &&
+      selectTodos &&
+      !!selectReceive);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -680,9 +682,44 @@ export default function CrossSwapCard(props: {
       quoteDoneV3 &&
       crossQuoteDone &&
       !wrapOperation &&
-      (swapsToDoRefV3 || swapsToDoTri) &&
-      !loadingTrigger
+      (swapsToDoRefV3 || swapsToDoTri)
     ) {
+      const results = [swapsToDoRefV3, swapError ? [] : swapsToDoTri].filter(
+        (r) => !!r && !!r[0] && !!r[0].estimate
+      );
+      const receives = results?.map((result) => {
+        if (
+          result?.every((r) => r.pool?.Dex === 'tri') ||
+          (result?.every((r) => r.pool?.Dex === 'ref' || !r?.pool) &&
+            result.length === 1)
+        ) {
+          return result[result.length - 1].estimate;
+        } else {
+          return getExpectedOutputFromActionsORIG(
+            result,
+            tokenOut.id
+          ).toString();
+        }
+      });
+
+      const bestReceived = _.maxBy(receives || ['0'], (o) => Number(o));
+
+      if (
+        results &&
+        results.length > 0 &&
+        bestReceived &&
+        receives &&
+        !selectTodos &&
+        !selectReceive
+      ) {
+        const selectTodosBest = results.find((r, i) => {
+          return receives[i] === bestReceived;
+        });
+
+        setSelectTodos(selectTodosBest || null);
+        setSelectReceive(bestReceived || null);
+      }
+
       try {
         setCrossAllResults(
           <CrossSwapAllResult
@@ -712,7 +749,6 @@ export default function CrossSwapCard(props: {
       }
     }
   }, [
-    // selectTodos,
     selectReceive,
     bestSwap,
     quoteDoneV3,
@@ -721,10 +757,10 @@ export default function CrossSwapCard(props: {
     slippageTolerance,
     loadingPause,
     loadingData,
+    showSwapLoading,
     swapsToDoRef,
     swapsToDoTri,
     priceImpactV3,
-    swapErrorCrossV3,
   ]);
 
   return (

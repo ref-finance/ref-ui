@@ -466,10 +466,6 @@ export const CrossSwapRoute = ({
 
   const [hoverRouter2, setHoverRouter2] = useState(false);
 
-  console.log({
-    tokenOut,
-  });
-
   return (
     <div className="flex items-center text-xs text-white w-full">
       {route.length === 1 ? (
@@ -1096,13 +1092,8 @@ export const CrossSwapAllResult = ({
   selectReceive: string;
 }) => {
   const results = [refTodos, triTodos].filter(
-    (r) => !!r && !!r[0] && !!r[0].estimate
+    (r) => !!r && !!r?.[0] && !!r?.[0].estimate
   );
-
-  console.log({
-    results,
-    selectTodos,
-  });
 
   const isMobile = useClientMobile();
 
@@ -1225,7 +1216,7 @@ export const CrossSwapAllResult = ({
       (result?.every((r) => r.pool?.Dex === 'ref' || !r?.pool) &&
         result.length === 1)
     ) {
-      return result[result.length - 1].estimate;
+      return result[0].estimate;
     } else {
       return getExpectedOutputFromActionsORIG(result, tokenOut.id).toString();
     }
@@ -1451,11 +1442,18 @@ export const CrossSwapAllResult = ({
       return receives[i] === bestReceived;
     });
 
+    console.log({
+      selectTodosBest,
+      bestReceived,
+      results,
+      receives,
+    });
+
     setSelectTodos(selectTodosBest || null);
     setSelectReceive(bestReceived || null);
   }, [bestReceived]);
 
-  if (!results || results.length === 0) return null;
+  if (!results || results.length === 0 || !selectTodos) return null;
 
   return (
     <section className={`w-full xs:z-30 relative my-4 mt-6`}>

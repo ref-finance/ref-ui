@@ -672,9 +672,9 @@ export const useSwapV3 = ({
   useEffect(() => {
     if (!bestFee || wrapOperation) return;
 
-    get_pool(getV3PoolId(tokenIn.id, tokenOut.id, bestFee), tokenIn.id).then(
-      setBestPool
-    );
+    get_pool(getV3PoolId(tokenIn.id, tokenOut.id, bestFee), tokenIn.id)
+      .then(setBestPool)
+      .finally(() => {});
   }, [bestFee, tokenIn, tokenOut, poolReFetch]);
 
   useEffect(() => {
@@ -1211,15 +1211,17 @@ export const useCrossSwap = ({
       setSwapsToDoTri,
     })
       .then(async ({ estimates }) => {
-        if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
-          setAverageFee(estimates);
+        if (!loadingTrigger) {
+          if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+            setAverageFee(estimates);
 
-          setSwapsToDo(estimates);
-          setCanSwap(true);
+            setSwapsToDo(estimates);
+            setCanSwap(true);
+          }
+
+          setPool(estimates[0].pool);
+          setCrossQuoteDone(true);
         }
-
-        setPool(estimates[0].pool);
-        setCrossQuoteDone(true);
       })
       .catch((err) => {
         setCanSwap(false);
