@@ -286,8 +286,8 @@ export function SwapRateDetail({
           <FaExchangeAlt color="#00C6A2" />
         </span>
         <span>
-          1 ${toRealSymbol(isRevert ? tokenIn.symbol : tokenOut.symbol)}{' '}
-          <label className="arial_font">≈</label> ${exchangeRageValue} $
+          1 {toRealSymbol(isRevert ? tokenIn.symbol : tokenOut.symbol)}{' '}
+          <label className="arial_font">≈</label> {exchangeRageValue}{' '}
           {toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}
         </span>
       </p>
