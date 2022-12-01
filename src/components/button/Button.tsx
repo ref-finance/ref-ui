@@ -21,6 +21,7 @@ import {
   BuyNearDefault,
   BuyNearMobile,
   BuyNearIcon,
+  BuyNearHoverIcon,
 } from '../icon/Nav';
 import { openTransak } from '../alert/Transak';
 import { getCurrentWallet } from '../../utils/wallets-integration';
@@ -1014,7 +1015,6 @@ export const BuyNearButton = () => {
   const wallet = getCurrentWallet().wallet;
 
   const isMobile = useClientMobile();
-
   return (
     <button
       onClick={(e) => {
@@ -1029,19 +1029,19 @@ export const BuyNearButton = () => {
         setHover(false);
       }}
     >
-      {/* {isMobile ? (
-        <BuyNearMobile />
+      {isMobile ? (
+        <BuyNearIcon />
       ) : hover ? (
-        <BuyNearHover />
+        <BuyNearHoverIcon />
       ) : (
-        <BuyNearDefault />
-      )} */}
-      <BuyNearIcon></BuyNearIcon>
+        <BuyNearIcon />
+      )}
     </button>
   );
 };
 
 export function ConnectToNearBtnSwap() {
+  const [hover, setHover] = useState(false);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   const [showWalletSelector, setShowWalletSelector] = useState(false);
@@ -1052,22 +1052,27 @@ export function ConnectToNearBtnSwap() {
   return (
     <>
       <div
-        className={`flex items-center text-gradientFrom font-bold cursor-pointer justify-center bg-opacity-30 rounded-lg py-3 text-base `}
-        style={{
-          background:
-            'linear-gradient(180deg, rgba(0,198,162,0.3) 0%, rgba(0,139,114,0.3) 100%)',
-        }}
+        className={`flex items-center gotham_bold cursor-pointer justify-center rounded-lg py-3 text-base ${
+          hover
+            ? 'bg-buttonGradientBg text-white'
+            : 'bg-unLoginButtonBgColor text-gradientFrom'
+        }`}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           setButtonLoading(true);
-          // setShowWalletSelector(true);
           modal.show();
+        }}
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
         }}
       >
         {!buttonLoading && (
           <div className="mr-3.5 transform scale-75">
-            <UnLoginIcon color="#00C6A2" />
+            <UnLoginIcon color={`${hover ? '#fff' : '#00C6A2'}`} />
           </div>
         )}
 

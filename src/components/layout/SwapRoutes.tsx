@@ -84,7 +84,7 @@ export const RouterIcon = () => {
 
 export const AutoRouterText = () => {
   return (
-    <span className="from-greenColor to-purple bg-gradient-to-r valueStyle xsm:w-10">
+    <span className="from-greenColor to-purple bg-gradient-to-r valueStyle">
       <FormattedMessage id="auto_router" defaultMessage="Auto Router" />
     </span>
   );
@@ -656,7 +656,7 @@ export const NormalSwapRoute = ({
     <>
       {route.length === 1 ? (
         <div
-          className={`relative z-0 ml-20 xsm:ml-5  mb-1.5 flex items-center justify-between`}
+          className={`relative z-0 ml-20 xsm:ml-0  mb-1.5 flex items-center justify-between`}
         >
           <span
             className="flex items-center  rounded-md p-1 py-0.5"
@@ -727,7 +727,7 @@ export const NormalSwapRoute = ({
         </div>
       ) : (
         <div
-          className={`relative z-0 ml-10 xsm:ml-5 mb-1.5 flex items-center justify-between`}
+          className={`relative z-0 ml-10 xsm:ml-0 mb-1.5 flex items-center justify-between`}
         >
           <span
             className="flex items-center rounded-md p-1 py-0.5"

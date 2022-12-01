@@ -6,6 +6,10 @@
   font-family: 'gothamBold';
   src: url('./assets/Gotham-Bold.otf');
 }
+@font-face {
+  font-family: 'arial';
+  src: url('./assets/Arial.ttf');
+}
 * {
   box-sizing: border-box;
 }
@@ -31,6 +35,9 @@ html {
 }
 .gotham_bold {
   font-family: 'gothamBold';
+}
+.arial_font {
+  font-family: 'arial';
 }
 body {
   margin: 0;
@@ -1142,6 +1149,13 @@ input[type='range']::-webkit-slider-runnable-track {
   border: 1px solid transparent;
   background-image: linear-gradient(0deg, #192127, #192127),
     linear-gradient(180deg, #172327 0%, #304352 100%);
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+}
+.feeBoxGradientBorder {
+  border: 1px solid transparent;
+  background-image: linear-gradient(180deg, #222f37 0%, #192229 100%),
+    linear-gradient(139.75deg, #00ffd1 1.14%, #5b40ff 98.02%);
   background-clip: padding-box, border-box;
   background-origin: padding-box, border-box;
 }

@@ -243,7 +243,6 @@ export function SwapDetail({
 
 export function SwapRateDetail({
   title,
-  value,
   subTitle,
   from,
   to,
@@ -253,14 +252,12 @@ export function SwapRateDetail({
 }: {
   fee: number;
   title: string;
-  value: string;
   from: string;
   to: string;
   subTitle?: string;
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) {
-  const [newValue, setNewValue] = useState<string>('');
   const [isRevert, setIsRevert] = useState<boolean>(false);
 
   const exchangeRageValue = useMemo(() => {
@@ -270,20 +267,6 @@ export function SwapRateDetail({
 
     return calculateExchangeRate(fee, fromNow, toNow);
   }, [isRevert, to]);
-
-  useEffect(() => {
-    setNewValue(value);
-  }, [value]);
-
-  useEffect(() => {
-    setNewValue(
-      `1 ${toRealSymbol(
-        isRevert ? tokenIn.symbol : tokenOut.symbol
-      )} ≈ ${exchangeRageValue} ${toRealSymbol(
-        isRevert ? tokenOut.symbol : tokenIn.symbol
-      )}`
-    );
-  }, [isRevert, exchangeRageValue]);
 
   function switchSwapRate() {
     setIsRevert(!isRevert);
@@ -302,14 +285,17 @@ export function SwapRateDetail({
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
           <FaExchangeAlt color="#00C6A2" />
         </span>
-        <span>{newValue}</span>
+        <span>
+          1 ${toRealSymbol(isRevert ? tokenIn.symbol : tokenOut.symbol)}{' '}
+          <label className="arial_font">≈</label> ${exchangeRageValue} $
+          {toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}
+        </span>
       </p>
     </section>
   );
 }
 
 export function SwapRate({
-  value,
   from,
   to,
   tokenIn,
@@ -318,24 +304,20 @@ export function SwapRate({
   tokenPriceList,
 }: {
   fee: number;
-  value: JSX.Element | string;
   from: string;
   to: string;
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
   tokenPriceList?: any;
 }) {
-  const [newValue, setNewValue] = useState<string | JSX.Element>('');
   const [isRevert, setIsRevert] = useState<boolean>(false);
+  const [hover, setHover] = useState(false);
   const price =
     tokenPriceList?.[isRevert ? tokenIn.id : tokenOut.id]?.price || null;
 
   const displayPrice = !price ? null : (
-    <span className="text-primaryText mx-1">
-      (${toInternationalCurrencySystemLongString(price, 2)})
-    </span>
+    <>(${toInternationalCurrencySystemLongString(price, 2)})</>
   );
-
   const exchangeRageValue = useMemo(() => {
     const fromNow = isRevert ? from : to;
     const toNow = isRevert ? to : from;
@@ -343,21 +325,6 @@ export function SwapRate({
 
     return calculateExchangeRate(fee, fromNow, toNow, 6);
   }, [isRevert, to]);
-
-  useEffect(() => {
-    setNewValue(value);
-  }, [value]);
-  useEffect(() => {
-    setNewValue(
-      <span className="text-white text-opacity-60 hover:text-opacity-100">
-        {`1 ${toRealSymbol(isRevert ? tokenIn.symbol : tokenOut.symbol)}`}
-        {displayPrice}
-        {`= ${exchangeRageValue} ${toRealSymbol(
-          isRevert ? tokenOut.symbol : tokenIn.symbol
-        )}`}
-      </span>
-    );
-  }, [isRevert, exchangeRageValue]);
 
   function switchSwapRate(e: React.MouseEvent<HTMLDivElement>) {
     e.stopPropagation();
@@ -370,83 +337,30 @@ export function SwapRate({
       <p
         className="flex items-center text-white cursor-pointer text-right mr-1"
         onClick={switchSwapRate}
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
       >
-        <span className="whitespace-nowrap">{newValue}</span>
+        <span
+          className={`text-white ${
+            hover ? 'text-opacity-100' : 'text-opacity-60'
+          }`}
+        >
+          {`1 ${toRealSymbol(isRevert ? tokenIn.symbol : tokenOut.symbol)}`}
+          <span className={`mx-1 ${hover ? 'text-white' : 'text-primaryText'}`}>
+            {displayPrice}
+          </span>
+          {
+            <>
+              <label className="arial_font">≈</label> ${exchangeRageValue} $
+              {toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}
+            </>
+          }
+        </span>
       </p>
-    </section>
-  );
-}
-
-export function SwapRateLimit({
-  value,
-  from,
-  to,
-  tokenIn,
-  tokenOut,
-  fee,
-  tokenPriceList,
-}: {
-  fee: number;
-  value: string;
-  from: string;
-  to: string;
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-  tokenPriceList?: any;
-}) {
-  const [newValue, setNewValue] = useState<string>('');
-  const [isRevert, setIsRevert] = useState<boolean>(false);
-
-  const exchangeRageValue = useMemo(() => {
-    const fromNow = isRevert ? from : to;
-    const toNow = isRevert ? to : from;
-    if (ONLY_ZEROS.test(fromNow)) return '-';
-
-    return calculateExchangeRate(fee, fromNow, toNow);
-  }, [isRevert, to]);
-
-  useEffect(() => {
-    setNewValue(value);
-  }, [value]);
-
-  useEffect(() => {
-    setNewValue(
-      `1 ${toRealSymbol(
-        isRevert ? tokenIn.symbol : tokenOut.symbol
-      )} ≈ ${exchangeRageValue} ${toRealSymbol(
-        isRevert ? tokenOut.symbol : tokenIn.symbol
-      )}`
-    );
-  }, [isRevert, exchangeRageValue]);
-
-  const price =
-    tokenPriceList?.[isRevert ? tokenIn.id : tokenOut.id]?.price || null;
-
-  const displayPrice = !price ? null : (
-    <span className="text-primaryText">{`($${toInternationalCurrencySystemLongString(
-      price,
-      2
-    )})`}</span>
-  );
-
-  function switchSwapRate(e: React.MouseEvent<HTMLDivElement>) {
-    e.stopPropagation();
-    e.preventDefault();
-    setIsRevert(!isRevert);
-  }
-
-  return (
-    <section className=" py-1 text-xs flex items-center">
-      <p
-        className="flex justify-end text-white cursor-pointer text-right mr-1"
-        onClick={switchSwapRate}
-      >
-        <span>{newValue}</span>
-        {displayPrice}
-      </p>
-      <span className="" style={{ marginTop: '0.1rem' }}>
-        <FaExchangeAlt color="#00C6A2" />
-      </span>
     </section>
   );
 }
@@ -476,20 +390,20 @@ export function SmartRoutesV2Detail({
   }, [identicalRoutes, pools]);
 
   return (
-    <section className="flex justify-between py-1 text-xs items-center rounded-xl">
-      <div className="text-primaryText relative text-left self-start">
+    <section className="flex justify-between py-1 text-xs items-center rounded-xl xsm:flex-col xsm:items-start">
+      <div className="text-primaryText relative lg:top-1 text-left self-start">
         <div className="flex items-center">
           <span className="xsm:hidden">
             <RouterIcon />
           </span>
-          <div className="flex items-center xsm:items-end">
+          <div className="flex items-center">
             <AutoRouterText />
             <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
           </div>
         </div>
       </div>
 
-      <div className="text-right text-white flex-grow">
+      <div className="text-right text-white flex-grow xsm:mt-2.5 xsm:w-full">
         {identicalRoutes.map((route, index) => (
           <>
             {
@@ -508,92 +422,6 @@ export function SmartRoutesV2Detail({
   );
 }
 
-export function ParallelSwapRoutesDetail({
-  pools,
-  tokenIn,
-  tokenOut,
-}: {
-  pools: Pool[];
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-}) {
-  const percents = useMemo(() => {
-    return getPoolAllocationPercents(pools);
-  }, [pools]);
-
-  return (
-    <section
-      className="md:grid lg:grid grid-cols-12 py-1 text-xs rounded-xl"
-      style={{
-        border: '1.2px solid rgba(145, 162, 174, 0.2)',
-      }}
-    >
-      <div className="text-primaryText text-left col-span-5">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
-        </div>
-      </div>
-
-      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2">
-        {pools.map((pool, i) => {
-          return (
-            <div className="mb-2" key={pool.id}>
-              <OneParallelRoute
-                tokenIn={tokenIn}
-                tokenOut={tokenOut}
-                poolId={pool.id}
-                p={percents[i]}
-                fee={pool.fee}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-export function SmartRoutesDetail({
-  swapsTodo,
-  tokenIn,
-  tokenOut,
-}: {
-  swapsTodo: EstimateSwapView[];
-  tokenIn?: TokenMetadata;
-  tokenOut?: TokenMetadata;
-}) {
-  return (
-    <section
-      className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between px-2 rounded-xl"
-      style={{
-        border: '1.2px solid rgba(145, 162, 174, 0.2)',
-      }}
-    >
-      <div className="text-primaryText text-left ">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
-        </div>
-      </div>
-
-      <div className="text-right text-white col-span-6 xs:mt-2">
-        {
-          <SmartRouteV2
-            tokens={swapsTodo[0].tokens}
-            p="100"
-            pools={swapsTodo.map((swapTodo) => swapTodo.pool)}
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-          />
-        }
-      </div>
-    </section>
-  );
-}
-
 export const GetPriceImpact = (
   value: string,
   tokenIn?: TokenMetadata,
@@ -602,7 +430,7 @@ export const GetPriceImpact = (
 ) => {
   const textColor =
     Number(value) <= 1
-      ? 'text-greenLight'
+      ? 'text-primaryText'
       : 1 < Number(value) && Number(value) <= 2
       ? 'text-warn'
       : 'text-redwarningColor';
@@ -613,12 +441,12 @@ export const GetPriceImpact = (
 
   const tokenInInfo =
     Number(displayValue) <= 0
-      ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
+      ? ` / 0`
       : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)}`;
 
   if (Number(value) < 0.01)
     return (
-      <span className="text-greenLight">
+      <span className="text-primaryText">
         {`< -0.01%`}
         {tokenInInfo}
       </span>
@@ -708,9 +536,6 @@ export function DetailView_near_wnear({
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
-          value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${1} ${toRealSymbol(
-            tokenIn.symbol
-          )}`}
           from={from}
           to={to}
           tokenIn={tokenIn}
@@ -768,15 +593,7 @@ function DetailViewV2({
     loadingTrigger,
     loadingPause,
   } = refresh;
-  const { showDetails, setShowDetails, count, setCount } = detail;
-  useEffect(() => {
-    if (from && tokenIn && tokenOut && count == 1) {
-      setShowDetails(true);
-    }
-    if (count == 0) {
-      setCount(1);
-    }
-  }, [from, tokenIn, tokenOut]);
+  const { showDetails, setShowDetails } = detail;
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
@@ -835,9 +652,6 @@ function DetailViewV2({
             />
           </div>
           <SwapRate
-            value={`1 ${toRealSymbol(
-              tokenOut.symbol
-            )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
             from={from}
             to={to}
             tokenIn={tokenIn}
@@ -911,7 +725,7 @@ function DetailViewV2({
         }
       </div>
       {Number(priceImpact) > 2 ? (
-        <div className="flex items-center justify-between xsm:flex-col border border-warnRedColor  rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+        <div className="flex items-center justify-between xsm:flex-col bg-lightReBgColor border border-warnRedColor  rounded-xl p-3 mt-4 text-sm text-redwarningColor">
           <span className="xsm:mb-0.5">
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
@@ -955,15 +769,7 @@ function DetailViewV3({
     loadingTrigger,
     loadingPause,
   } = refresh;
-  const { showDetails, setShowDetails, count, setCount } = detail;
-  useEffect(() => {
-    if (from && tokenIn && tokenOut && count == 1) {
-      setShowDetails(true);
-    }
-    if (count == 0) {
-      setCount(1);
-    }
-  }, [from, tokenIn, tokenOut]);
+  const { showDetails, setShowDetails } = detail;
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
@@ -1022,9 +828,6 @@ function DetailViewV3({
             />
           </div>
           <SwapRate
-            value={`1 ${toRealSymbol(
-              tokenOut.symbol
-            )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
             from={from}
             to={to}
             tokenIn={tokenIn}
@@ -1091,7 +894,7 @@ function DetailViewV3({
         <RouteDCLDetail bestFee={fee} tokenIn={tokenIn} tokenOut={tokenOut} />
       </div>
       {Number(priceImpact) > 2 ? (
-        <div className="flex items-center xsm:flex-col justify-between border border-warnRedColor  rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+        <div className="flex items-center xsm:flex-col justify-between border bg-bg-lightReBgColor border-warnRedColor  rounded-xl p-3 mt-4 text-sm text-redwarningColor">
           <span className="mb-0.5">
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
@@ -1186,7 +989,7 @@ function DetailViewLimit({
       <div
         className={`relative border border-limitOrderFeeTiersBorderColor flex flex-col rounded-xl p-2.5 xs:p-2 xs:px-1 ${
           feeTiersShowFull ? 'w-full' : ''
-        }`}
+        } ${mobileShowFees ? 'feeBoxGradientBorder' : ''}`}
       >
         <div className="">
           <div className="flex items-center justify-between ">
@@ -1458,7 +1261,6 @@ export default function SwapCard(props: {
   const [feeTiersShowFull, setFeeTiersShowFull] = useState<boolean>(false);
   const [hasLockedRate, setHasLockedRate] = useState(false);
   const [showDetails, setShowDetails] = useState<boolean>(false);
-  const [count, setCount] = useState(0);
 
   const tokenPriceList = useTokenPriceList();
 
@@ -2336,8 +2138,6 @@ export default function SwapCard(props: {
             detail: {
               showDetails,
               setShowDetails,
-              count,
-              setCount,
             },
           }}
         >

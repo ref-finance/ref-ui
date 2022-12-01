@@ -137,7 +137,7 @@ function SelectArrowIcon(props: any) {
         d="M1 1L5.401 5L9.57143 1"
         stroke="currentColor"
         stroke-width="2"
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
     </svg>
   );
