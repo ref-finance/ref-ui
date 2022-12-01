@@ -67,9 +67,12 @@ const ChangeSwapMode = ({
   return (
     <div className="rounded-2xl font-bold  w-full text-limitOrderInputColor text-sm flex py-2 xs:pt-0 xs:pb-2 items-start mx-auto  ">
       <span
-        className={`mr-6 text-center px-2.5 py-1.5 rounded-xl hover:bg-primaryText hover:bg-opacity-10  flex flex-col cursor-pointer ${
+        className={`mr-6 gotham_bold text-center px-2.5 py-1.5 rounded-xl hover:bg-primaryText hover:bg-opacity-10  flex flex-col cursor-pointer ${
           swapMode === SWAP_MODE.NORMAL ? ' text-white ' : ''
         }`}
+        style={{
+          fontSize: '15px',
+        }}
         onClick={() => {
           setSwapMode(SWAP_MODE.NORMAL);
           localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
@@ -79,7 +82,7 @@ const ChangeSwapMode = ({
       </span>
 
       <span
-        className={`mr-3  relative text-center px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 flex flex-col cursor-pointer ${
+        className={`mr-3 gotham_bold  relative text-center px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 flex flex-col cursor-pointer ${
           swapMode === SWAP_MODE.X_SWAP ? ' text-white ' : ''
         }`}
         onClick={() => {
@@ -91,6 +94,9 @@ const ChangeSwapMode = ({
         }}
         onMouseLeave={() => {
           setHoverXswap(false);
+        }}
+        style={{
+          fontSize: '15px',
         }}
       >
         <FormattedMessage id="xSwap" defaultMessage="XSwap" />
@@ -123,12 +129,15 @@ const ChangeSwapMode = ({
       ></div>
 
       <span
-        className={`ml-3 flex flex-col px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 text-center cursor-pointer ${
+        className={`ml-3 gotham_bold flex flex-col px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 text-center cursor-pointer ${
           swapMode === SWAP_MODE.LIMIT ? ' text-white ' : ''
         }`}
         onClick={() => {
           setSwapMode(SWAP_MODE.LIMIT);
           localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+        }}
+        style={{
+          fontSize: '15px',
         }}
       >
         <FormattedMessage id="limit_order" defaultMessage="Limit Order" />

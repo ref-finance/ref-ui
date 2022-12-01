@@ -237,7 +237,7 @@ export const GetPriceImpact = (
 
   return (
     <span className={`${textColor} font-sans`}>
-      {`≈ -${toPrecision(value || '0', 2)}%`}
+      {`-${toPrecision(value || '0', 2)}%`}
       {tokenInInfo}
     </span>
   );

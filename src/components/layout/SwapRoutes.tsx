@@ -1149,7 +1149,7 @@ export const CrossSwapAllResult = ({
 
     return (
       <div
-        className="absolute xs:relative xs:text-limitOrderInputColor xs:rounded-xl xs:px-2.5 xs:mt-2  p-4  text-xs cursor-default text-white whitespace-nowrap"
+        className="absolute gotham_font xs:relative xs:text-limitOrderInputColor xs:rounded-xl xs:px-2.5 xs:mt-2  p-4  text-xs cursor-default text-white whitespace-nowrap"
         style={{
           width: isMobile ? '100%' : '316px',
           height: isMulti ? '150px' : '124px',
