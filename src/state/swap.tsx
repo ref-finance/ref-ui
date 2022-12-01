@@ -1192,7 +1192,7 @@ export const useCrossSwap = ({
       setCanSwap(true);
       return;
     }
-    if (!tokenIn || !tokenOut) return;
+    if (!tokenIn || !tokenOut || tokenIn?.id === tokenOut?.id) return;
 
     estimateSwap({
       tokenIn,

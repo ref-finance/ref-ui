@@ -342,7 +342,7 @@ export const estimateSwap = async ({
     throw new Error(
       `${intl.formatMessage({
         id: 'no_pool_available_to_make_a_swap_from',
-      })} ${tokenIn.symbol} -> ${tokenOut.symbol} ${intl.formatMessage({
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
         id: 'for_the_amount',
       })} ${amountIn} ${intl.formatMessage({
         id: 'no_pool_eng_for_chinese',
@@ -1256,7 +1256,7 @@ SwapOptions) => {
       });
     }
 
-    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR') {
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR') {
       transactions.unshift(nearDepositTransaction(amountIn));
     }
     if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {

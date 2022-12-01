@@ -830,7 +830,7 @@ export function TokenAmountV3({
 
   const curMax =
     selectedToken?.id === WRAP_NEAR_CONTRACT_ID &&
-    selectedToken.symbol === 'NEAR' &&
+    selectedToken?.symbol === 'NEAR' &&
     !forWrap
       ? Number(max) <= 0.5
         ? '0'
@@ -1324,7 +1324,7 @@ export function TokenAmountV2({
               src={selectedToken.icon}
             ></img>
             <span className="text-sm text-white font-bold ml-2">
-              {selectedToken.symbol}
+              {selectedToken?.symbol}
             </span>
           </div>
         )}
