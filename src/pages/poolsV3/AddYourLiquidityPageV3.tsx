@@ -65,6 +65,7 @@ import {
   checkAllocations,
   scientificNotationToString,
   getAllocationsLeastOne,
+  toInternationalCurrencySystem,
 } from '~utils/numbers';
 import { WalletContext } from '../../utils/wallets-integration';
 import _ from 'lodash';
@@ -261,6 +262,7 @@ export default function AddYourLiquidityPageV3() {
           const temp: PoolInfo = {
             ...pool,
             percent: finalPercents[index],
+            tvl: tvlList[index],
           };
           currentPoolsMap[f] = temp;
           if (finalPercents[index] == maxPercent) {
@@ -527,6 +529,15 @@ export default function AddYourLiquidityPageV3() {
     }
     setButtonSort(!buttonSort);
   }
+  function displayTvl(tvl: any) {
+    if (!tokenPriceList) {
+      return '-';
+    } else if (!tvl || +tvl == 0) {
+      return '$0';
+    } else {
+      return `$${toInternationalCurrencySystem(tvl.toString(), 2)}`;
+    }
+  }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
   const mobileDevice = isMobile();
   return (
@@ -708,6 +719,7 @@ export default function AddYourLiquidityPageV3() {
                   className="rounded-xl px-4 py-3 mt-5 xs:px-2 md:px-2"
                   style={{ border: '1.2px solid rgba(145, 162, 174, 0.2)' }}
                 >
+                  {/* 移动端头部 */}
                   <div className="flex justify-between items-center">
                     <div className="flex items-center pl-2">
                       <span
@@ -731,12 +743,9 @@ export default function AddYourLiquidityPageV3() {
                         }`}
                       >
                         {currentSelectedPool?.pool_id ? (
-                          `${(currentSelectedPool.percent || 0) + '%'} ${(
-                            <FormattedMessage
-                              id="select_s"
-                              defaultMessage="select"
-                            ></FormattedMessage>
-                          )}`
+                          <span>
+                            TVL&nbsp;{displayTvl(currentSelectedPool.tvl)}
+                          </span>
                         ) : (
                           <FormattedMessage
                             id="no_pool"
@@ -759,6 +768,7 @@ export default function AddYourLiquidityPageV3() {
                       ></SwitchIcon>
                     </div>
                   </div>
+                  {/* 身体部分 */}
                   <div
                     className={`items-stretch justify-between mt-5 ${
                       feeBoxStatus ? 'flex' : 'hidden'
@@ -784,9 +794,6 @@ export default function AddYourLiquidityPageV3() {
                             <span className="text-sm text-white">
                               {fee / 10000}%
                             </span>
-                            <div className="text-v3feeTextColor text-xs text-center mt-2">
-                              {text}
-                            </div>
                             {tokenX && tokenY && currentPools ? (
                               <div
                                 className={`flex items-center justify-center w-full py-1 rounded-xl bg-black bg-opacity-20 text-xs text-v3LightGreyColor mt-2 whitespace-nowrap`}
@@ -795,9 +802,10 @@ export default function AddYourLiquidityPageV3() {
                                   {!currentPools[fee] ? (
                                     <FormattedMessage id="no_pool" />
                                   ) : Object.keys(tokenPriceList).length > 0 ? (
-                                    (currentPools[fee].percent || '0') +
-                                    '%' +
-                                    ` ${intl_select}`
+                                    <span>
+                                      TVL&nbsp;
+                                      {displayTvl(currentPools[fee].tvl)}
+                                    </span>
                                   ) : (
                                     'Loading...'
                                   )}
@@ -809,6 +817,7 @@ export default function AddYourLiquidityPageV3() {
                       );
                     })}
                   </div>
+                  {/* pc端头部 */}
                   <div
                     className={` items-center mt-3 xs:hidden md:hidden pl-2 ${
                       feeBoxStatus || !currentSelectedPool ? 'hidden' : 'flex'
@@ -821,9 +830,9 @@ export default function AddYourLiquidityPageV3() {
                     </span>
                     <div className="text-sm text-v3SwapGray px-2.5 py-0.5 bg-black bg-opacity-20 rounded-2xl">
                       {currentSelectedPool?.pool_id ? (
-                        `${
-                          (currentSelectedPool.percent || 0) + '%'
-                        } ${intl_select}`
+                        <span>
+                          TVL&nbsp;{displayTvl(currentSelectedPool.tvl)}
+                        </span>
                       ) : (
                         <FormattedMessage id="no_pool" />
                       )}

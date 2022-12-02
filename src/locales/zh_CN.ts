@@ -909,5 +909,6 @@ const zh_CN = {
   at_Price: '价格',
   insufficient_balance: '余额不足',
   MORE: '更多',
+  limitTip: '为了提高交易效率，你的价格应该自动在一个插槽里',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

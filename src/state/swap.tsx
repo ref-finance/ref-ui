@@ -113,6 +113,7 @@ interface SwapOptions {
   requestingTrigger?: boolean;
   setRequestingTrigger?: (requestingTrigger?: boolean) => void;
   wrapOperation?: boolean;
+  forceEs?: boolean;
 }
 
 interface SwapV3Options {
@@ -395,6 +396,7 @@ export const useSwap = ({
   swapMode,
   reEstimateTrigger,
   supportLedger,
+  forceEs,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -519,7 +521,6 @@ export const useSwap = ({
         toNonDivisibleNumber(tokenIn?.decimals || 24, tokenInAmount),
         tokenOut
       );
-
     if (estimating && swapsToDo && !forceEstimate) return;
     if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
 
@@ -538,7 +539,6 @@ export const useSwap = ({
 
   useEffect(() => {
     // setEstimating(false);
-
     setForceEstimate(true);
   }, [
     tokenIn?.id,
@@ -547,6 +547,7 @@ export const useSwap = ({
     tokenOut?.symbol,
     supportLedger,
     swapMode,
+    forceEs,
   ]);
 
   useEffect(() => {
@@ -929,7 +930,7 @@ export const useLimitOrder = ({
           return;
         const temp = {};
         Object.keys(toCounts).forEach((pool_id: string, index) => {
-          temp[pool_id] = counts[index];
+          temp[pool_id] = toCounts[pool_id] ? counts[index] : null;
         });
         setEveryPoolTvl(temp);
         setPoolToOrderCounts(toCounts);
