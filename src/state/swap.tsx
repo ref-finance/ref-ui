@@ -660,13 +660,13 @@ export const useSwapV3 = ({
   ) => {
     const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
 
-    console.log(
-      'pool_id',
-      pool_id,
-      allDCLPools.find((p) => p.pool_id === pool_id)
-    );
+    const foundPool = allDCLPools.find((p) => p.pool_id === pool_id);
 
-    if (!allDCLPools.find((p) => p.pool_id === pool_id)) return null;
+    const validator =
+      foundPool &&
+      Number(foundPool?.token_x || 0) + Number(foundPool?.token_y || 0) > 0;
+
+    if (!validator) return null;
 
     return quote({
       pool_ids: [pool_id],

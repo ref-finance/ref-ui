@@ -1439,22 +1439,8 @@ export const CrossSwapAllResult = ({
       return receives[i] === bestReceived;
     });
 
-    // console.log({
-    //   selectTodosBest,
-    //   bestReceived,
-    //   results,
-    //   receives,
-    // });
-
     const validator = results.every((todos) => {
       return todos?.[todos?.length - 1].outputToken === tokenOut?.id;
-    });
-
-    console.log({
-      validator,
-      receives,
-      bestReceived,
-      selectTodosBest,
     });
 
     if (!validator) return null;
@@ -1464,10 +1450,7 @@ export const CrossSwapAllResult = ({
   }, [bestReceived, supportLedger]);
 
   console.log({
-    receives,
-    bestReceived,
     selectTodos,
-    results,
   });
 
   if (!results || results.length === 0 || !selectTodos) return null;
