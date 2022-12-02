@@ -136,7 +136,7 @@ function SelectArrowIcon(props: any) {
       <path
         d="M1 1L5.401 5L9.57143 1"
         stroke="currentColor"
-        stroke-width="2"
+        strokeWidth="2"
         strokeLinecap="round"
       />
     </svg>

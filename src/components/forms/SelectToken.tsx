@@ -587,7 +587,7 @@ export default function SelectToken({
       handleClose={handleClose}
       trigger={() => (
         <div
-          className={`focus:outline-none my-auto  ${
+          className={`focus:outline-none my-auto flex-shrink-0  ${
             !customWidth ? (standalone ? 'w-full' : className || 'w-2/5') : ''
           }`}
           onClick={() => setVisible(true)}

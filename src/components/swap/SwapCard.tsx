@@ -551,13 +551,9 @@ function DetailViewV2({
   from,
   to,
   minAmountOut,
-  isParallelSwap,
   fee,
   swapsTodo,
   priceImpact,
-  swapMode,
-  tokenPriceList,
-  tokenInAmount,
 }: {
   pools: Pool[];
   tokenIn: TokenMetadata;
@@ -569,30 +565,16 @@ function DetailViewV2({
   fee?: number;
   swapsTodo?: EstimateSwapView[];
   priceImpact?: string;
-  swapMode?: SWAP_MODE;
-  tokenPriceList?: any;
   tokenInAmount?: string;
 }) {
   const intl = useIntl();
   const isMobile = useMobile();
-  const { refresh, detail } = useContext(LimitOrderTriggerContext);
-  const {
-    setLoadingPause,
-    setLoadingTrigger,
-    setLoadingData,
-    loadingTrigger,
-    loadingPause,
-  } = refresh;
-  const { showDetails, setShowDetails } = detail;
+  const { detail } = useContext(LimitOrderTriggerContext);
+  const { showDetails } = detail;
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
   }, [minAmountOut]);
-
-  const exchangeRateValue = useMemo(() => {
-    if (!from || ONLY_ZEROS.test(to)) return '-';
-    else return calculateExchangeRate(fee, to, from);
-  }, [to]);
   const priceImpactDisplay = useMemo(() => {
     if (!priceImpact || !tokenIn || !from) return null;
     return GetPriceImpact(priceImpact, tokenIn, from);
@@ -617,59 +599,7 @@ function DetailViewV2({
   if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
     return null;
   return (
-    <div className="mt-8 xsm:mt-3">
-      <div className="flex flex-wrap items-center justify-between text-white ">
-        <div className="flex items-center mb-1">
-          <div
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-
-              if (loadingPause) {
-                setLoadingPause(false);
-                setLoadingTrigger(true);
-                setLoadingData(true);
-              } else {
-                setLoadingPause(true);
-                setLoadingTrigger(false);
-              }
-            }}
-            className="mr-2 cursor-pointer"
-          >
-            <CountdownTimer
-              loadingTrigger={loadingTrigger}
-              loadingPause={loadingPause}
-            />
-          </div>
-          <SwapRate
-            from={from}
-            to={to}
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            fee={fee}
-            tokenPriceList={tokenPriceList}
-          />
-        </div>
-
-        <div
-          className="text-sm flex items-center cursor-pointer mb-1"
-          onClick={() => {
-            setShowDetails(!showDetails);
-          }}
-        >
-          {getPriceImpactTipType(priceImpact)}
-          <span className="text-xs text-primaryText mx-1.5">
-            <FormattedMessage id="detail"></FormattedMessage>
-          </span>
-          <span>
-            {showDetails ? (
-              <FaAngleUp color="#ffffff" size={16} />
-            ) : (
-              <FaAngleDown color="#7E8A93" size={16} />
-            )}
-          </span>
-        </div>
-      </div>
+    <div>
       <div
         className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mt-3 ${
           showDetails ? '' : 'hidden'
@@ -739,7 +669,6 @@ function DetailViewV3({
   minAmountOut,
   fee,
   priceImpact,
-  tokenPriceList,
 }: {
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
@@ -748,27 +677,14 @@ function DetailViewV3({
   minAmountOut: string;
   fee?: number;
   priceImpact?: string;
-  tokenPriceList?: any;
 }) {
   const intl = useIntl();
-  const { refresh, detail } = useContext(LimitOrderTriggerContext);
-  const {
-    setLoadingPause,
-    setLoadingTrigger,
-    setLoadingData,
-    loadingTrigger,
-    loadingPause,
-  } = refresh;
-  const { showDetails, setShowDetails } = detail;
+  const { detail } = useContext(LimitOrderTriggerContext);
+  const { showDetails } = detail;
   const minAmountOutValue = useMemo(() => {
     if (!minAmountOut) return '0';
     else return toPrecision(minAmountOut, 8, true);
   }, [minAmountOut]);
-
-  const exchangeRateValue = useMemo(() => {
-    if (!from || ONLY_ZEROS.test(to)) return '-';
-    else return calculateExchangeRate(fee, to, from);
-  }, [to]);
   const priceImpactDisplay = useMemo(() => {
     if (!priceImpact || !tokenIn || !from) return null;
     return GetPriceImpact(priceImpact, tokenIn, from);
@@ -793,59 +709,7 @@ function DetailViewV3({
   if (ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id) return null;
 
   return (
-    <div className="mt-8 xsm:mt-3">
-      <div className="flex items-center justify-between text-white ">
-        <div className="flex items-center">
-          <div
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-
-              if (loadingPause) {
-                setLoadingPause(false);
-                setLoadingTrigger(true);
-                setLoadingData(true);
-              } else {
-                setLoadingPause(true);
-                setLoadingTrigger(false);
-              }
-            }}
-            className="mr-2 cursor-pointer"
-          >
-            <CountdownTimer
-              loadingTrigger={loadingTrigger}
-              loadingPause={loadingPause}
-            />
-          </div>
-          <SwapRate
-            from={from}
-            to={to}
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            fee={fee}
-            tokenPriceList={tokenPriceList}
-          />
-        </div>
-
-        <div
-          className="pl-1 text-sm flex items-center cursor-pointer"
-          onClick={() => {
-            setShowDetails(!showDetails);
-          }}
-        >
-          {getPriceImpactTipType(priceImpact)}
-          <span className="text-xs text-primaryText mx-1.5">
-            <FormattedMessage id="detail"></FormattedMessage>
-          </span>
-          <span>
-            {showDetails ? (
-              <FaAngleUp color="#ffffff" size={16} />
-            ) : (
-              <FaAngleDown color="#7E8A93" size={16} />
-            )}
-          </span>
-        </div>
-      </div>
+    <div>
       <div
         className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mt-3 ${
           showDetails ? '' : 'hidden'
@@ -928,7 +792,6 @@ function DetailViewLimit({
   const isMobile = useClientMobile();
   const [hoverSlider, setHoverSlider] = useState(false);
   const [mobileShowFees, setMobileShowFees] = useState(false);
-
   function SelectPercent({ fee, poolId }: { fee?: number; poolId?: string }) {
     const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokneOut.id, fee);
     const count = poolPercents?.[id];
@@ -966,12 +829,34 @@ function DetailViewLimit({
         return `$${toInternationalCurrencySystem(tvl.toString(), 2)}`;
       }
     }
+    function displayTvlAndNoPool() {
+      if (everyPoolTvl?.[id] == null) {
+        return <span>No pool</span>;
+      } else {
+        return (
+          <>
+            <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span>
+            {displayTvl()}
+          </>
+        );
+      }
+    }
     return (
       <div className="transform scale-90 inline-flex items-center text-limitOrderInputColor text-xs whitespace-nowrap">
-        <span className="mr-1.5 xsm:mr-0">TVL</span>
-        {displayTvl()}
+        {displayTvlAndNoPool()}
       </div>
     );
+  }
+  function isAllFeesNoPools() {
+    const target = V3_POOL_FEE_LIST.find((fee) => {
+      const pool_id = getV3PoolId(tokenIn.id, tokneOut.id, fee);
+      if (everyPoolTvl?.[pool_id] !== null) return true;
+    });
+    if (target) {
+      return false;
+    } else {
+      return true;
+    }
   }
   if (!(tokenIn && tokneOut)) return null;
   return (
@@ -1016,16 +901,24 @@ function DetailViewLimit({
               feeTiersShowFull ? 'hidden' : ''
             }`}
           >
-            <span className="whitespace-nowrap text-sm text-primaryText mr-0.5">
-              {toPrecision(
-                calculateFeePercent(
-                  Number(v3Pool?.split(V3_POOL_SPLITER)[2] || 2000) / 100
-                ).toString(),
-                2
-              )}
-              %
-            </span>
-            <SelectTvl poolId={v3Pool} />
+            {isAllFeesNoPools() ? (
+              <span className="text-sm text-limitOrderInputColor">
+                Unavailable
+              </span>
+            ) : (
+              <>
+                <span className="whitespace-nowrap text-sm text-primaryText mr-0.5">
+                  {toPrecision(
+                    calculateFeePercent(
+                      Number(v3Pool?.split(V3_POOL_SPLITER)[2] || 2000) / 100
+                    ).toString(),
+                    2
+                  )}
+                  %
+                </span>
+                <SelectTvl poolId={v3Pool} />
+              </>
+            )}
           </div>
         </div>
 
@@ -1037,16 +930,22 @@ function DetailViewLimit({
                 calculateFeePercent(fee / 100).toString(),
                 2
               );
-
+              const isNoPool = everyPoolTvl?.[pool_id] == null;
               return (
                 <button
                   className={`relative bg-selectTokenV3BgColor rounded-xl ${
-                    v3Pool === pool_id ? 'bg-feeBoxSelectedBg' : ''
+                    v3Pool === pool_id && !isNoPool ? 'bg-feeBoxSelectedBg' : ''
+                  } ${
+                    isNoPool
+                      ? 'border border-commonTokenBorderColor cursor-not-allowed'
+                      : ''
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    setV3Pool(pool_id);
+                    if (!isNoPool) {
+                      setV3Pool(pool_id);
+                    }
                   }}
                 >
                   <div
@@ -1056,7 +955,7 @@ function DetailViewLimit({
                     <span className="text-sm">{feePercent}%</span>
                     <SelectTvl fee={fee} />
                   </div>
-                  {v3Pool === pool_id ? (
+                  {v3Pool === pool_id && !isNoPool ? (
                     <SelectedIcon className="absolute right-0 top-0"></SelectedIcon>
                   ) : null}
                 </button>
@@ -1081,16 +980,24 @@ function DetailViewLimit({
             calculateFeePercent(fee / 100).toString(),
             2
           );
-
+          const isNoPool = everyPoolTvl?.[pool_id] == null;
           return (
             <button
               className={`relative bg-feeSubBoxBgColor rounded-xl ${
-                v3Pool === pool_id ? 'bg-opacity-100' : 'bg-opacity-30'
+                v3Pool === pool_id && !isNoPool
+                  ? 'bg-opacity-100'
+                  : 'bg-opacity-30'
+              } ${
+                isNoPool
+                  ? 'border border-commonTokenBorderColor cursor-not-allowed'
+                  : ''
               }`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                setV3Pool(pool_id);
+                if (!isNoPool) {
+                  setV3Pool(pool_id);
+                }
               }}
             >
               <div
@@ -1100,7 +1007,7 @@ function DetailViewLimit({
                 <span className="text-sm">{feePercent}%</span>
                 <SelectTvl fee={fee} />
               </div>
-              {v3Pool === pool_id ? (
+              {v3Pool === pool_id && !isNoPool ? (
                 <SelectedIcon className="absolute right-0 top-0"></SelectedIcon>
               ) : null}
             </button>
@@ -1251,6 +1158,7 @@ export default function SwapCard(props: {
   const [feeTiersShowFull, setFeeTiersShowFull] = useState<boolean>(false);
   const [hasLockedRate, setHasLockedRate] = useState(false);
   const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [forceEs, setForceEs] = useState<boolean>(false);
 
   const tokenPriceList = useTokenPriceList();
 
@@ -1591,6 +1499,7 @@ export default function SwapCard(props: {
     swapMode,
     reEstimateTrigger,
     supportLedger,
+    forceEs,
   });
 
   const {
@@ -1625,6 +1534,19 @@ export default function SwapCard(props: {
     loadingTrigger: limitSwapTrigger,
     tokenPriceList,
   });
+  useEffect(() => {
+    if (
+      quoteDone &&
+      quoteDoneV3 &&
+      loadingTrigger &&
+      swapError?.message &&
+      !swapErrorV3?.message
+    ) {
+      setForceEs(true);
+    } else {
+      setForceEs(false);
+    }
+  }, [quoteDone, quoteDoneV3, loadingTrigger, swapError, swapErrorV3]);
 
   const bestSwap =
     swapMode === SWAP_MODE.NORMAL &&
@@ -1655,7 +1577,11 @@ export default function SwapCard(props: {
     poolError,
     swapMode,
   ]);
-
+  useEffect(() => {
+    if (swapMode == 'normal') {
+      setLoadingTrigger(true);
+    }
+  }, [swapMode]);
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
       if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
@@ -1868,37 +1794,88 @@ export default function SwapCard(props: {
     });
 
   const DetailView = useMemo(() => {
-    if (bestSwap === 'v2') {
-      return (
-        <DetailViewV2
-          pools={pools}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          from={tokenInAmount}
-          to={tokenOutAmount}
-          minAmountOut={minAmountOut}
-          isParallelSwap={isParallelSwap}
-          fee={avgFee}
-          swapsTodo={swapsToDo}
-          priceImpact={displayPriceImpact}
-          swapMode={swapMode}
-          tokenPriceList={tokenPriceList}
-        />
-      );
-    } else {
-      return (
-        <DetailViewV3
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          from={tokenInAmount}
-          to={tokenOutAmountV3}
-          minAmountOut={minAmountOutV3}
-          fee={bestFee / 100}
-          priceImpact={displayPriceImpact}
-          tokenPriceList={tokenPriceList}
-        />
-      );
-    }
+    return (
+      <>
+        <div className="mt-8 xsm:mt-3">
+          <div className="flex flex-wrap items-center justify-between text-white ">
+            <div className="flex items-center mb-1">
+              <div
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  if (loadingPause) {
+                    setLoadingPause(false);
+                    setLoadingTrigger(true);
+                    setLoadingData(true);
+                  } else {
+                    setLoadingPause(true);
+                    setLoadingTrigger(false);
+                  }
+                }}
+                className="mr-2 cursor-pointer"
+              >
+                <CountdownTimer
+                  loadingTrigger={loadingTrigger}
+                  loadingPause={loadingPause}
+                />
+              </div>
+              <SwapRate
+                from={tokenInAmount}
+                to={bestSwap === 'v2' ? tokenOutAmount : tokenOutAmountV3}
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                fee={bestSwap === 'v2' ? avgFee : bestFee / 100}
+                tokenPriceList={tokenPriceList}
+              />
+            </div>
+
+            <div
+              className="text-sm flex items-center cursor-pointer mb-1"
+              onClick={() => {
+                setShowDetails(!showDetails);
+              }}
+            >
+              {getPriceImpactTipType(displayPriceImpact)}
+              <span className="text-xs text-primaryText mx-1.5">
+                <FormattedMessage id="detail"></FormattedMessage>
+              </span>
+              <span>
+                {showDetails ? (
+                  <FaAngleUp color="#ffffff" size={16} />
+                ) : (
+                  <FaAngleDown color="#7E8A93" size={16} />
+                )}
+              </span>
+            </div>
+          </div>
+        </div>
+        {bestSwap === 'v2' ? (
+          <DetailViewV2
+            pools={pools}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            from={tokenInAmount}
+            to={tokenOutAmount}
+            minAmountOut={minAmountOut}
+            isParallelSwap={isParallelSwap}
+            fee={avgFee}
+            swapsTodo={swapsToDo}
+            priceImpact={displayPriceImpact}
+          />
+        ) : (
+          <DetailViewV3
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            from={tokenInAmount}
+            to={tokenOutAmountV3}
+            minAmountOut={minAmountOutV3}
+            fee={bestFee / 100}
+            priceImpact={displayPriceImpact}
+          />
+        )}
+      </>
+    );
   }, [
     displayTokenOutAmount,
     swapMode,
@@ -1916,6 +1893,9 @@ export default function SwapCard(props: {
     tokenOutAmount,
     tokenOutAmountV3,
     tokenPriceList,
+    loadingTrigger,
+    loadingPause,
+    showDetails,
   ]);
 
   useEffect(() => {
@@ -2118,16 +2098,8 @@ export default function SwapCard(props: {
             triggerFetch: () => {
               setLimiSwapTrigger(!limitSwapTrigger);
             },
-            refresh: {
-              setLoadingPause,
-              setLoadingTrigger,
-              setLoadingData,
-              loadingTrigger,
-              loadingPause,
-            },
             detail: {
               showDetails,
-              setShowDetails,
             },
           }}
         >
@@ -2240,8 +2212,7 @@ export default function SwapCard(props: {
                 />
               </div>
               <div className="text-xs text-limitOrderInputColor mt-2.5 px-3">
-                To improve deal the efficiency, your price should be in one slot
-                nearby automatically
+                <FormattedMessage id="limitTip"></FormattedMessage>
               </div>
             </>
           ) : null}
