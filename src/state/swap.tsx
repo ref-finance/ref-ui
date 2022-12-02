@@ -664,8 +664,12 @@ export const useSwapV3 = ({
 
     const validator =
       foundPool &&
-      Number(foundPool?.token_x || 0) + Number(foundPool?.token_y || 0) > 0;
-
+      Number(foundPool?.total_x || 0) + Number(foundPool?.total_y || 0) > 0;
+    console.log({
+      foundPool,
+      number:
+        Number(foundPool?.total_x || 0) + Number(foundPool?.total_y || 0) > 0,
+    });
     if (!validator) return null;
 
     return quote({
