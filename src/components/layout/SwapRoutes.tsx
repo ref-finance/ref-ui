@@ -1405,7 +1405,9 @@ export const CrossSwapAllResult = ({
   };
   const displayResults = results
     .map((result, i) => {
-      const calRawRate = new Big(receives[i] || '0').div(tokenInAmount || '1');
+      const calRawRate = new Big(receives[i] || '0').div(
+        ONLY_ZEROS.test(tokenInAmount) ? '1' : tokenInAmount
+      );
 
       return {
         type: Icons[result?.[0]?.pool?.Dex === 'tri' ? 1 : 0],
