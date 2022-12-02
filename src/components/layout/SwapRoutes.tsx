@@ -407,13 +407,17 @@ export function SwapRateDetail({
   const [newValue, setNewValue] = useState<string | JSX.Element>(value);
 
   const exchangeRageValue = useMemo(() => {
-    const fromNow = isRevert ? to : from;
-    const toNow = isRevert ? from : to;
-    if (ONLY_ZEROS.test(fromNow)) return '-';
+    try {
+      const fromNow = isRevert ? to : from;
+      const toNow = isRevert ? from : to;
+      if (ONLY_ZEROS.test(fromNow)) return '-';
 
-    const value = calculateExchangeRate(0, fromNow, toNow);
+      const value = calculateExchangeRate(0, fromNow, toNow);
 
-    return Number(value) < 0.001 ? '< 0.0001' : value;
+      return Number(value) < 0.001 ? '< 0.0001' : value;
+    } catch (error) {
+      return '-';
+    }
   }, [isRevert, to]);
 
   useEffect(() => {

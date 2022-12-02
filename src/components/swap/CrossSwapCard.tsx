@@ -670,8 +670,6 @@ export default function CrossSwapCard(props: {
 
   const swapErrorCrossV3 = swapError && swapErrorV3;
 
-
-
   useEffect(() => {
     const swapsToDoRefV3 = swapError
       ? swapsToDoV3
@@ -907,7 +905,8 @@ export default function CrossSwapCard(props: {
         !tokenIn ||
         !tokenOut ||
         tokenIn.id === tokenOut.id ||
-        wrapOperation
+        wrapOperation ||
+        ONLY_ZEROS.test(tokenInAmount)
           ? null
           : crossAllResults}
 
