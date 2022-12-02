@@ -95,6 +95,8 @@ import {
 } from '../utils/numbers';
 const ONLY_ZEROS = /^0*\.?0*$/;
 
+export const REF_DCL_POOL_CACHE_KEY = 'REF_DCL_POOL_CACHE_VALUE';
+
 interface SwapOptions {
   tokenIn: TokenMetadata;
   tokenInAmount: string;
@@ -653,9 +655,18 @@ export const useSwapV3 = ({
   const getQuote = async (
     fee: number,
     tokenIn: TokenMetadata,
-    tokenOut: TokenMetadata
+    tokenOut: TokenMetadata,
+    allDCLPools: PoolInfoV3[]
   ) => {
     const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
+
+    console.log(
+      'pool_id',
+      pool_id,
+      allDCLPools.find((p) => p.pool_id === pool_id)
+    );
+
+    if (!allDCLPools.find((p) => p.pool_id === pool_id)) return null;
 
     return quote({
       pool_ids: [pool_id],
@@ -681,14 +692,24 @@ export const useSwapV3 = ({
 
     setQuoteDone(false);
 
-    Promise.all(fees.map((fee) => getQuote(fee, tokenIn, tokenOut)))
+    const storedPools = localStorage.getItem(REF_DCL_POOL_CACHE_KEY);
+
+    if (!storedPools) return null;
+
+    const allDCLPools = JSON.parse(
+      localStorage.getItem(REF_DCL_POOL_CACHE_KEY)
+    );
+
+    Promise.all(
+      fees.map((fee) => getQuote(fee, tokenIn, tokenOut, allDCLPools))
+    )
       .then((res) => {
         if (!loadingTrigger) {
           setEstimates(res);
 
           const bestEstimate =
             res && res?.some((e) => !!e)
-              ? _.maxBy(res, (e) => Number(!e.tag ? -1 : e.amount))
+              ? _.maxBy(res, (e) => Number(!e?.tag ? -1 : e.amount))
               : null;
 
           setBestEstimate(bestEstimate);
@@ -697,7 +718,7 @@ export const useSwapV3 = ({
             bestEstimate &&
             !loadingTrigger &&
             (tagValidator(bestEstimate, tokenIn, tokenInAmount) ||
-              res?.every((e) => e.tag === null))
+              res?.every((e) => !e || e?.tag === null))
           ) {
             setTokenOutAmount(
               toReadableNumber(tokenOut?.decimals || 24, bestEstimate.amount)
@@ -784,7 +805,7 @@ export const useSwapV3 = ({
     quoteDone:
       quoteDone &&
       (tagValidator(bestEstimate, tokenIn, tokenInAmount) ||
-        estimates?.every((e) => e.tag === null)),
+        estimates?.every((e) => !e || e?.tag === null)),
     bestFee,
     bestPool,
     setQuoteDone,

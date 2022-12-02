@@ -50,6 +50,7 @@ import { STABLE_LP_TOKEN_DECIMALS } from '../components/stableswap/AddLiquidity'
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 import { getAllPoolsIndexer } from './indexer';
 import { getExtendConfig } from './config';
+import { cacheAllDCLPools } from './swapV3';
 const explorerType = getExplorer();
 export const DEFAULT_PAGE_LIMIT = 500;
 const getStablePoolKey = (id: string) => `STABLE_POOL_VALUE_${id}`;
@@ -352,6 +353,7 @@ export const getPoolsByTokens = async ({
       (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
     await getAllStablePoolsFromCache();
+    await cacheAllDCLPools();
   }
 
   setLoadingData && setLoadingData(false);

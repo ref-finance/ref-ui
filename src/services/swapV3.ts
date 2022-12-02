@@ -28,6 +28,7 @@ import { registerAccountOnToken } from './creators/token';
 import { nearDepositTransaction, nearWithdrawTransaction } from './wrap-near';
 import { getPointByPrice } from './commonV3';
 import { toPrecision } from '../utils/numbers';
+import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
 const LOG_BASE = 1.0001;
 
 export const V3_POOL_FEE_LIST = [100, 400, 2000, 10000];
@@ -1080,6 +1081,13 @@ export const listPools = () => {
     methodName: 'list_pools',
   });
 };
+
+export const cacheAllDCLPools = async () => {
+  const pools = await listPools();
+
+  localStorage.setItem(REF_DCL_POOL_CACHE_KEY, JSON.stringify(pools));
+};
+
 export const get_metadata = () => {
   return refSwapV3ViewFunction({
     methodName: 'get_metadata',
