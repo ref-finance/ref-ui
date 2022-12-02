@@ -836,7 +836,7 @@ export const getBatchTokenNearAcounts = async (ids: string[]) => {
   );
 };
 
-export const getAllTriPools = async () => {
+export const getAllTriPools = async (pair?: [string, string]) => {
   const allSupportPairs = getAuroraConfig().Pairs;
   const auroraTokens = defaultTokenList.tokens;
   const address = auroraAddr(getCurrentWallet()?.wallet?.getAccountId());
@@ -846,17 +846,27 @@ export const getAllTriPools = async () => {
       [cur.symbol]: cur.address,
     };
   }, {});
-  const pairAddresses = Object.keys(allSupportPairs).map((pairName: string) => {
-    const names = pairName.split('-');
-    return {
-      ids: names.map((n) => {
-        if (n === 'ETH') return getAuroraConfig().WETH;
-        else return symbolToAddress[n];
-      }),
-      pairName,
-      pairAdd: allSupportPairs[pairName],
-      names,
-    };
+  const pairAddresses = Object.keys(allSupportPairs)
+    .map((pairName: string) => {
+      const names = pairName.split('-');
+      return {
+        ids: names.map((n) => {
+          if (n === 'ETH') return getAuroraConfig().WETH;
+          else return symbolToAddress[n];
+        }),
+        pairName,
+        pairAdd: allSupportPairs[pairName],
+        names,
+      };
+    })
+    .filter((p) => {
+      return (
+        !pair || (p.names.includes(pair?.[0]) && p.names.includes(pair?.[1]))
+      );
+    });
+
+  console.log({
+    pairAddresses,
   });
 
   const allPools = await Promise.all(

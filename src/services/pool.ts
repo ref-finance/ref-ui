@@ -283,6 +283,9 @@ export const getPoolsByTokens = async ({
   setLoadingData,
   loadingTrigger,
   crossSwap,
+  proGetCachePool,
+  tokenIn,
+  tokenOut,
 }: GetPoolOptions): Promise<Pool[]> => {
   let filtered_pools;
   const [cacheForPair, cacheTimeLimit] = await db.checkPoolsByTokens(
@@ -293,7 +296,11 @@ export const getPoolsByTokens = async ({
   if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
     filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
   }
-  if (loadingTrigger || (!cacheTimeLimit && cacheForPair)) {
+  if (
+    (crossSwap && proGetCachePool) ||
+    loadingTrigger ||
+    (!cacheTimeLimit && cacheForPair)
+  ) {
     setLoadingData && setLoadingData(true);
 
     const isCacheFromIndexer =
@@ -325,7 +332,14 @@ export const getPoolsByTokens = async ({
 
     let triPools;
     if (crossSwap) {
-      triPools = await getAllTriPools();
+      triPools = await getAllTriPools(
+        tokenIn && tokenOut
+          ? [
+              tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+              tokenOut.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenOut.symbol,
+            ]
+          : null
+      );
     }
 
     filtered_pools = pools
@@ -339,6 +353,7 @@ export const getPoolsByTokens = async ({
     );
     await getAllStablePoolsFromCache();
   }
+
   setLoadingData && setLoadingData(false);
 
   // @ts-ignore

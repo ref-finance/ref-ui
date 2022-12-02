@@ -1255,8 +1255,8 @@ export const useCrossSwap = ({
   }, [
     loadingTrigger,
     [tokenIn?.id, tokenOut?.id].sort().join('-'),
-    tokenIn,
-    tokenOut,
+    // tokenIn,
+    // tokenOut,
   ]);
 
   useEffect(() => {
@@ -1269,7 +1269,7 @@ export const useCrossSwap = ({
 
     setCrossQuoteDone(false);
     getEstimateCrossSwap(false);
-  }, [supportLedger, tokenInAmount]);
+  }, [supportLedger, tokenInAmount, [tokenIn?.id, tokenOut?.id].join('-')]);
 
   useEffect(() => {
     let id: any = null;
