@@ -708,6 +708,10 @@ export const useSwapV3 = ({
       fees.map((fee) => getQuote(fee, tokenIn, tokenOut, allDCLPools))
     )
       .then((res) => {
+        console.log({
+          pairQuoteRes: res,
+        });
+
         if (!loadingTrigger) {
           setEstimates(res);
 
