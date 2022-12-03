@@ -683,6 +683,10 @@ export const useSwapV3 = ({
 
   const bestFee = Number(bestEstimate?.tag?.split('-')?.[1]);
 
+  console.log({
+    bestFee,
+  });
+
   useEffect(() => {
     if (!bestFee || wrapOperation) return;
 
@@ -708,10 +712,6 @@ export const useSwapV3 = ({
       fees.map((fee) => getQuote(fee, tokenIn, tokenOut, allDCLPools))
     )
       .then((res) => {
-        console.log({
-          pairQuoteRes: res,
-        });
-
         if (!loadingTrigger) {
           setEstimates(res);
 

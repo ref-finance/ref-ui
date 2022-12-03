@@ -294,8 +294,35 @@ export const getPoolsByTokens = async ({
     tokenOutId
   );
 
+  const PAIR_NAME = [
+    !tokenIn || tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+    !tokenOut || tokenOut.id === WRAP_NEAR_CONTRACT_ID
+      ? 'wNEAR'
+      : tokenOut.symbol,
+  ].join('-');
+
   if ((!loadingTrigger && cacheTimeLimit) || !cacheForPair) {
     filtered_pools = await db.getPoolsByTokens(tokenInId, tokenOutId);
+
+    let triPools;
+    if (crossSwap) {
+      triPools = sessionStorage.getItem(`REF_FI_TRI_POOL_` + PAIR_NAME);
+      if (triPools) {
+        triPools = JSON.parse(triPools);
+      } else {
+        triPools = await getAllTriPools(
+          tokenIn && tokenOut
+            ? [
+                tokenIn.id === WRAP_NEAR_CONTRACT_ID ? 'wNEAR' : tokenIn.symbol,
+                tokenOut.id === WRAP_NEAR_CONTRACT_ID
+                  ? 'wNEAR'
+                  : tokenOut.symbol,
+              ]
+            : null
+        );
+      }
+      filtered_pools = filtered_pools.concat(triPools || []);
+    }
   }
   if (
     (crossSwap && proGetCachePool) ||
@@ -343,15 +370,26 @@ export const getPoolsByTokens = async ({
       );
     }
 
+    console.log({
+      triPools,
+    });
+
+    if (triPools && triPools.length > 0) {
+      sessionStorage.setItem(
+        `REF_FI_TRI_POOL_` + PAIR_NAME,
+        JSON.stringify(triPools)
+      );
+    }
+
     filtered_pools = pools
-      .concat(triPools || [])
+      // .concat(triPools || [])
       .filter(isNotStablePool)
       .filter(filterBlackListPools);
 
     await db.cachePoolsByTokens(filtered_pools);
-    filtered_pools = filtered_pools.filter(
-      (p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]
-    );
+    filtered_pools = filtered_pools
+      .concat(triPools || [])
+      .filter((p: any) => p.supplies[tokenInId] && p.supplies[tokenOutId]);
     await getAllStablePoolsFromCache();
     await cacheAllDCLPools();
   }

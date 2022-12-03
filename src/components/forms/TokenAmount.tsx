@@ -834,7 +834,12 @@ export function TokenAmountV3({
     !forWrap
       ? Number(max) <= 0.5
         ? '0'
-        : new BigNumber(max).minus(0.5).toFixed(12)
+        : toPrecision(
+            scientificNotationToString(
+              new BigNumber(max).minus(0.5).toString()
+            ),
+            12
+          )
       : max;
 
   const plus1 =
