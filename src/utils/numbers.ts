@@ -291,7 +291,9 @@ export const calculateExchangeRate = (
   to: string,
   precision?: number
 ) => {
-  return math.floor(math.evaluate(`${to} / ${from}`), precision || 4);
+  try {
+    return math.floor(math.evaluate(`${to} / ${from}`), precision || 4);
+  } catch (error) {}
 };
 
 export const subtraction = (initialValue: string, toBeSubtract: string) => {
