@@ -118,7 +118,7 @@ import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { CountdownTimer } from '../icon/SwapRefresh';
 import { PopUpContainer } from '../icon/Info';
-import { usePriceImpact } from '../../state/swap';
+import { usePriceImpact, estimateValidator } from '../../state/swap';
 import _ from 'lodash';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
@@ -602,7 +602,13 @@ export default function CrossSwapCard(props: {
         selectTodos &&
         !!selectReceive &&
         selectTodos.length > 0 &&
-        selectTodos[selectTodos?.length - 1].outputToken === tokenOut?.id)) &&
+        selectTodos[selectTodos?.length - 1].outputToken === tokenOut?.id &&
+        estimateValidator(
+          selectTodos,
+          tokenIn,
+          toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+          tokenOut
+        ))) &&
     new BigNumber(tokenInAmount).lte(new BigNumber(curMax));
 
   const handleSubmit = (event: React.FormEvent) => {
