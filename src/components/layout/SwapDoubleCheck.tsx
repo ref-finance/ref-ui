@@ -6,6 +6,7 @@ import {
   multiply,
   divide,
   scientificNotationToString,
+  toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -114,7 +115,7 @@ export function DoubleCheckModal(
                 Number(priceImpactValue) < 0
                   ? '0'
                   : '-' +
-                    toPrecision(
+                    toInternationalCurrencySystemLongString(
                       scientificNotationToString(
                         multiply(from, divide(priceImpactValue, '100'))
                       ),

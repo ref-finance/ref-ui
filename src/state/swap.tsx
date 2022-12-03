@@ -373,6 +373,8 @@ export const estimateValidator = (
   const tokenInId = swapTodos[0]?.inputToken;
   const tokenOutId = swapTodos[swapTodos.length - 1]?.outputToken;
 
+  if (swapTodos && swapTodos?.[0]?.pool === null) return true;
+
   if (
     tokenInId !== tokenIn.id ||
     tokenOutId !== tokenOut.id ||
@@ -680,6 +682,10 @@ export const useSwapV3 = ({
   };
 
   const bestFee = Number(bestEstimate?.tag?.split('-')?.[1]);
+
+  console.log({
+    bestFee,
+  });
 
   useEffect(() => {
     if (!bestFee || wrapOperation) return;

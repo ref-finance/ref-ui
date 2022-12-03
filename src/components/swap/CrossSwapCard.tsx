@@ -118,7 +118,7 @@ import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { CountdownTimer } from '../icon/SwapRefresh';
 import { PopUpContainer } from '../icon/Info';
-import { usePriceImpact } from '../../state/swap';
+import { usePriceImpact, estimateValidator } from '../../state/swap';
 import _ from 'lodash';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
@@ -562,7 +562,7 @@ export default function CrossSwapCard(props: {
   });
 
   const bestSwapPriceImpact =
-    bestSwap === 'v3' ? priceImpactV3 : priceImpactValueRefV1;
+    bestSwap === 'v3' && canSwapV3 ? priceImpactV3 : priceImpactValueRefV1;
 
   const makeBestSwap = () => {
     if (!selectTodos) return;
@@ -592,18 +592,24 @@ export default function CrossSwapCard(props: {
       : tokenInMax;
 
   const canSubmit =
-    wrapOperation ||
-    ((canSwap || (!ONLY_ZEROS.test(tokenOutAmountV3) && canSwapV3)) &&
-      isSignedIn &&
-      !ONLY_ZEROS.test(curMax) &&
-      !ONLY_ZEROS.test(tokenInAmount) &&
-      new BigNumber(tokenInAmount).lte(new BigNumber(curMax)) &&
-      quoteDoneV3 &&
-      crossQuoteDone &&
-      selectTodos &&
-      !!selectReceive &&
-      selectTodos.length > 0 &&
-      selectTodos[selectTodos?.length - 1].outputToken === tokenOut?.id);
+    (wrapOperation ||
+      ((canSwap || (!ONLY_ZEROS.test(tokenOutAmountV3) && canSwapV3)) &&
+        isSignedIn &&
+        !ONLY_ZEROS.test(curMax) &&
+        !ONLY_ZEROS.test(tokenInAmount) &&
+        quoteDoneV3 &&
+        crossQuoteDone &&
+        selectTodos &&
+        !!selectReceive &&
+        selectTodos.length > 0 &&
+        selectTodos[selectTodos?.length - 1].outputToken === tokenOut?.id &&
+        estimateValidator(
+          selectTodos,
+          tokenIn,
+          toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
+          tokenOut
+        ))) &&
+    new BigNumber(tokenInAmount).lte(new BigNumber(curMax));
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -616,7 +622,12 @@ export default function CrossSwapCard(props: {
     const ifDoubleCheck =
       new BigNumber(tokenInAmount).isLessThanOrEqualTo(
         new BigNumber(tokenInMax)
-      ) && Number(bestSwapPriceImpact) > 2;
+      ) &&
+      Number(
+        selectTodos?.[0]?.pool?.Dex === 'tri'
+          ? priceImpactValueTri
+          : bestSwapPriceImpact
+      ) > 2;
     if (ifDoubleCheck) setDoubleCheckOpen(true);
     else makeBestSwap();
   };
@@ -670,17 +681,29 @@ export default function CrossSwapCard(props: {
 
   const swapErrorCrossV3 = swapError && swapErrorV3;
 
+  console.log({
+    tokenOutAmountV3,
+    canSwapV3,
+    quoteDoneV3,
+    swapsToDoTri,
+    swapsToDoRef,
+    swapsToDoV3,
+    bestFee,
+  });
+
   useEffect(() => {
-    const swapsToDoRefV3 = swapError
-      ? swapsToDoV3
-      : !swapErrorV3 &&
-        new Big(tokenOutAmountV3 || '0').gte(
-          tokenOut?.id && swapsToDoRef && swapsToDoRef.length > 0
-            ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut?.id)
-            : 0
-        )
-      ? swapsToDoV3
-      : swapsToDoRef;
+    const swapsToDoRefV3 =
+      swapError && canSwapV3
+        ? swapsToDoV3
+        : !swapErrorV3 &&
+          canSwapV3 &&
+          new Big(tokenOutAmountV3 || '0').gte(
+            tokenOut?.id && swapsToDoRef && swapsToDoRef.length > 0
+              ? getExpectedOutputFromActionsORIG(swapsToDoRef, tokenOut?.id)
+              : 0
+          )
+        ? swapsToDoV3
+        : swapsToDoRef;
 
     const todosValidator =
       !swapsToDoRefV3 ||
@@ -730,7 +753,11 @@ export default function CrossSwapCard(props: {
             setSelectReceive={setSelectReceive}
             priceImpactRef={bestSwapPriceImpact}
             priceImpactTri={priceImpactValueTri}
-            feeRef={bestSwap === 'v3' ? bestFee / 100 : refAvgFee}
+            feeRef={
+              swapsToDoRefV3 && swapsToDoRefV3?.[0]?.pool === null
+                ? bestFee / 100
+                : refAvgFee
+            }
             feeTri={triAvgFee}
             selectReceive={selectReceive}
             supportLedger={supportLedger}
@@ -758,6 +785,7 @@ export default function CrossSwapCard(props: {
     supportLedger,
     tokenOutAmount,
     tokenOutAmountV3,
+    canSwapV3,
   ]);
 
   return (
@@ -798,10 +826,11 @@ export default function CrossSwapCard(props: {
         title={
           balanceInDone &&
           balanceOutDone &&
-          (new Big(tokenInAmount || '0').gt(tokenInMax || '0') ||
+          (Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+            Number(tokenInAmount || '0') <
+            0 ||
             ONLY_ZEROS.test(tokenInMax)) &&
-          tokenIn &&
-          !(tokenIn.id == WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol === 'NEAR')
+          tokenIn
             ? 'insufficient_balance'
             : 'swap'
         }
@@ -930,7 +959,11 @@ export default function CrossSwapCard(props: {
         tokenOut={tokenOut}
         from={tokenInAmount}
         onSwap={() => makeBestSwap()}
-        priceImpactValue={bestSwapPriceImpact || '0'}
+        priceImpactValue={
+          selectTodos?.[0]?.pool?.Dex === 'tri'
+            ? priceImpactValueTri
+            : bestSwapPriceImpact || '0'
+        }
       />
 
       <SkyWardModal

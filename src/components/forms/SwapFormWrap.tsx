@@ -264,7 +264,9 @@ export function CrossSwapFormWrap({
       <SubmitButton
         disabled={
           !canSubmit ||
-          (typeof loadingTrigger !== 'undefined' && loadingTrigger)
+          (wrapOperation
+            ? false
+            : typeof loadingTrigger !== 'undefined' && loadingTrigger)
         }
         label={buttonText || title}
         info={info}
