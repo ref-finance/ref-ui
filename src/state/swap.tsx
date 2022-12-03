@@ -115,7 +115,6 @@ interface SwapOptions {
   requestingTrigger?: boolean;
   setRequestingTrigger?: (requestingTrigger?: boolean) => void;
   wrapOperation?: boolean;
-  forceEs?: boolean;
 }
 
 interface SwapV3Options {
@@ -131,6 +130,7 @@ interface SwapV3Options {
   setLoadingPause?: (pause: boolean) => void;
   swapMode?: SWAP_MODE;
   wrapOperation?: boolean;
+  swapError?: Error;
 }
 
 export const useSwapPopUp = (stopOnCross?: boolean) => {
@@ -384,7 +384,6 @@ export const estimateValidator = (
   }
   return true;
 };
-
 export const useSwap = ({
   tokenIn,
   tokenInAmount,
@@ -398,7 +397,6 @@ export const useSwap = ({
   swapMode,
   reEstimateTrigger,
   supportLedger,
-  forceEs,
 }: SwapOptions) => {
   const [pool, setPool] = useState<Pool>();
   const [canSwap, setCanSwap] = useState<boolean>();
@@ -549,7 +547,6 @@ export const useSwap = ({
     tokenOut?.symbol,
     supportLedger,
     swapMode,
-    forceEs,
   ]);
 
   useEffect(() => {
@@ -593,7 +590,6 @@ export const useSwap = ({
     quoteDone,
   };
 };
-
 export const useSwapV3 = ({
   tokenIn,
   tokenInAmount,
@@ -602,6 +598,8 @@ export const useSwapV3 = ({
   swapMode,
   loadingTrigger,
   wrapOperation,
+  swapError,
+  setLoadingTrigger,
 }: SwapV3Options) => {
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
 
@@ -712,7 +710,7 @@ export const useSwapV3 = ({
           pairQuoteRes: res,
         });
 
-        if (!loadingTrigger) {
+        if (!loadingTrigger || swapError?.message) {
           setEstimates(res);
 
           const bestEstimate =
@@ -738,6 +736,7 @@ export const useSwapV3 = ({
       .finally(() => {
         setQuoteDone(true);
         setPoolReFetch(!poolReFetch);
+        setLoadingTrigger(false);
       });
   }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
 
@@ -798,12 +797,21 @@ export const useSwapV3 = ({
     quoteDone,
     priceImpact,
   ]);
-
+  function getCanSwapCondition() {
+    const condition1 =
+      quoteDone &&
+      bestEstimate &&
+      !ONLY_ZEROS.test(bestEstimate.amount) &&
+      tagValidator(bestEstimate, tokenIn, tokenInAmount);
+    const condition2 = swapMode !== SWAP_MODE.NORMAL;
+    return condition1 || condition2;
+  }
   return {
     makeSwap,
-    canSwap:
-      (quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount)) ||
-      swapMode !== SWAP_MODE.NORMAL,
+    // canSwap:
+    //   (quoteDone &&  tagValidator(bestEstimate, tokenIn, tokenInAmount)) ||
+    //   swapMode !== SWAP_MODE.NORMAL,
+    canSwap: getCanSwapCondition(),
     tokenOutAmount,
     canSwapPro: quoteDone && tagValidator(bestEstimate, tokenIn, tokenInAmount),
     priceImpact: displayPriceImpact,

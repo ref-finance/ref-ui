@@ -322,7 +322,6 @@ export function SwapRate({
     const fromNow = isRevert ? from : to;
     const toNow = isRevert ? to : from;
     if (ONLY_ZEROS.test(fromNow)) return '-';
-
     return calculateExchangeRate(fee, fromNow, toNow, 6);
   }, [isRevert, to]);
 
@@ -1158,7 +1157,6 @@ export default function SwapCard(props: {
   const [feeTiersShowFull, setFeeTiersShowFull] = useState<boolean>(false);
   const [hasLockedRate, setHasLockedRate] = useState(false);
   const [showDetails, setShowDetails] = useState<boolean>(false);
-  const [forceEs, setForceEs] = useState<boolean>(false);
 
   const tokenPriceList = useTokenPriceList();
 
@@ -1499,7 +1497,6 @@ export default function SwapCard(props: {
     swapMode,
     reEstimateTrigger,
     supportLedger,
-    forceEs,
   });
 
   const {
@@ -1518,6 +1515,8 @@ export default function SwapCard(props: {
     slippageTolerance,
     swapMode,
     loadingTrigger,
+    swapError,
+    setLoadingTrigger,
   });
   const {
     poolPercents,
@@ -1534,20 +1533,6 @@ export default function SwapCard(props: {
     loadingTrigger: limitSwapTrigger,
     tokenPriceList,
   });
-  useEffect(() => {
-    if (
-      quoteDone &&
-      quoteDoneV3 &&
-      loadingTrigger &&
-      swapError?.message &&
-      !swapErrorV3?.message
-    ) {
-      setForceEs(true);
-    } else {
-      setForceEs(false);
-    }
-  }, [quoteDone, quoteDoneV3, loadingTrigger, swapError, swapErrorV3]);
-
   const bestSwap =
     swapMode === SWAP_MODE.NORMAL &&
     new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0')
@@ -1908,19 +1893,38 @@ export default function SwapCard(props: {
 
   const tokenOutTotal = tokenOutBalanceFromNear || '0';
 
-  const canSubmit =
-    (wrapOperation
-      ? true
-      : swapMode !== SWAP_MODE.LIMIT
-      ? (canSwap || canSwapV3) &&
-        (tokenInMax != '0' || !useNearBalance) &&
-        quoteDone &&
-        quoteDoneV3
-      : !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut)) &&
-    new Big(tokenInAmount || '0').lte(tokenInMax || '0') &&
-    !ONLY_ZEROS.test(tokenInMax || '0');
+  function satisfyCondition1() {
+    if (swapMode == SWAP_MODE.LIMIT) {
+      return !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut);
+    } else {
+      return quoteDone && quoteDoneV3 && (canSwap || canSwapV3);
+    }
+  }
+  function satisfyCondition2() {
+    return (
+      new Big(tokenInAmount || '0').gt('0') &&
+      new Big(tokenInMax || '0').gt('0') &&
+      new Big(tokenInAmount || '0').lte(tokenInMax || '0')
+    );
+  }
+
+  function satisfyShowDetailViewCondition() {
+    const hideCondition1 = swapMode == SWAP_MODE.LIMIT;
+    // const hideCondition2 = swapMode !== SWAP_MODE.LIMIT && !(canSwap || canSwapV3);
+    const hideCondition2 = swapMode !== SWAP_MODE.LIMIT && poolError;
+    const hideCondition3 = wrapOperation;
+    const hideCondition4 = new Big(tokenInAmount || '0').lte('0');
+    const hideConditionFinall =
+      hideCondition1 || hideCondition2 || hideCondition3 || hideCondition4;
+    return !hideConditionFinall;
+  }
+  // const canSubmit = (swapMode !== SWAP_MODE.LIMIT ? (canSwap || canSwapV3) && (tokenInMax != '0' || !useNearBalance) && quoteDone && quoteDoneV3 : !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut)) && new Big(tokenInAmount || '0').lte(tokenInMax || '0') && !ONLY_ZEROS.test(tokenInMax || '0');
+
+  const canSubmit = satisfyCondition1() && satisfyCondition2();
 
   const canWrap = wrapButtonCheck();
+
+  const canShowDetailView = satisfyShowDetailViewCondition();
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -1946,6 +1950,17 @@ export default function SwapCard(props: {
       setWrapLoading(true);
       return nearWithdraw(tokenInAmount);
     }
+  };
+  const NoPoolError = () => {
+    return new Error(
+      `${intl.formatMessage({
+        id: 'no_pool_available_to_make_a_swap_from',
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${tokenInAmount} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
+    );
   };
 
   useEffect(() => {
@@ -2216,12 +2231,7 @@ export default function SwapCard(props: {
               </div>
             </>
           ) : null}
-
-          {(poolError && swapMode !== SWAP_MODE.LIMIT) ||
-          wrapOperation ||
-          swapMode == SWAP_MODE.LIMIT
-            ? null
-            : displayDetailView}
+          {canShowDetailView ? displayDetailView : null}
         </LimitOrderTriggerContext.Provider>
 
         {wrapOperation ? (
@@ -2239,11 +2249,10 @@ export default function SwapCard(props: {
         )}
 
         {poolError &&
-        !!swapError?.message &&
-        !!swapErrorV3?.message &&
-        swapMode !== SWAP_MODE.LIMIT ? (
+        swapMode !== SWAP_MODE.LIMIT &&
+        Number(tokenInAmount || '0') > 0 ? (
           <div className="pb-2 relative -mb-5">
-            <Alert level="warn" message={swapError.message} />
+            <Alert level="warn" message={NoPoolError().message} />
           </div>
         ) : null}
       </SwapFormWrap>
