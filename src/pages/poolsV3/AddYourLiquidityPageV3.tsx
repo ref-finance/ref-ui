@@ -785,16 +785,14 @@ export default function AddYourLiquidityPageV3() {
                       return (
                         <div
                           onClick={() => {
-                            if (!isNoPool) {
-                              switchSelectedFee(fee);
-                            }
+                            switchSelectedFee(fee);
                           }}
                           key={fee + index}
                           className={`relative flex flex-col px-2 py-1.5 xsm:py-0.5 xsm:px-1 rounded-lg w-1 flex-grow ${
                             tokenX && tokenY ? 'cursor-pointer' : ''
                           } ${index == 3 ? '' : 'mr-2.5 xsm:mr-1'} ${
                             isNoPool
-                              ? 'border border-v3GreyColor cursor-not-allowed'
+                              ? 'border border-v3GreyColor'
                               : currentSelectedPool?.fee == fee
                               ? 'bg-feeBoxBgLiqudityColor'
                               : 'bg-v3GreyColor'
@@ -829,7 +827,7 @@ export default function AddYourLiquidityPageV3() {
                               )}
                             </span>
                           ) : null}
-                          {currentSelectedPool?.fee == fee && !isNoPool ? (
+                          {currentSelectedPool?.fee == fee ? (
                             <SelectedIcon className="absolute top-0 right-0"></SelectedIcon>
                           ) : null}
                         </div>
@@ -1128,11 +1126,11 @@ function CreatePoolComponent({
         <GradientButton
           color="#fff"
           className={`relative z-50 w-full h-10 mt-5 text-center text-base text-white focus:outline-none ${
-            !createPoolRate ? 'opacity-40' : ''
+            +createPoolRate <= 0 ? 'opacity-40' : ''
           }`}
           loading={createPoolButtonLoading}
-          disabled={createPoolButtonLoading || !createPoolRate}
-          btnClassName={`${!createPoolRate ? 'cursor-not-allowed' : ''}`}
+          disabled={createPoolButtonLoading || +createPoolRate <= 0}
+          btnClassName={`${+createPoolRate <= 0 ? 'cursor-not-allowed' : ''}`}
           onClick={createPool}
         >
           <ButtonTextWrapper
