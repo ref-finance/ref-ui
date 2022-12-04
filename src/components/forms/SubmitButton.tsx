@@ -92,5 +92,19 @@ function SubmitButton({
     </>
   );
 }
+export function InsufficientButton(props: any) {
+  const { divClassName, spanClassName } = props;
+  return (
+    <div
+      className={`flex items-center justify-center bg-menuMoreBoxBorderColor rounded-lg cursor-not-allowed ${divClassName}`}
+    >
+      <span
+        className={`gotham_bold text-primaryText text-base ${spanClassName}`}
+      >
+        <FormattedMessage id="insufficient_balance"></FormattedMessage>
+      </span>
+    </div>
+  );
+}
 
 export default SubmitButton;

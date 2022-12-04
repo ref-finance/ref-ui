@@ -42,19 +42,14 @@ import {
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
-import SubmitButton from '../forms/SubmitButton';
+import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '../../store/RefDatabase';
-import {
-  ButtonTextWrapper,
-  GradientButton,
-  OutlineButton,
-  SolidButton,
-  ConnectToNearBtn,
-} from '../../components/button/Button';
+import { ConnectToNearBtnSwap } from '../../components/button/Button';
+
 import {
   AllStableTokenIds,
   BTCIDS,
@@ -1962,7 +1957,17 @@ export default function SwapCard(props: {
       })}`
     );
   };
-
+  function judgeBalance() {
+    const condition1 = tokenIn && balanceInDone && balanceOutDone;
+    return (
+      condition1 &&
+      (Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+        Number(tokenInAmount || '0') <
+        0 ||
+        ONLY_ZEROS.test(tokenInMax))
+    );
+  }
+  const isInsufficientBalance = judgeBalance();
   useEffect(() => {
     if (!quoteDone || !quoteDoneV3) {
       return;
@@ -1985,14 +1990,18 @@ export default function SwapCard(props: {
         elseView={
           <div className="flex justify-center">
             {isSignedIn ? (
-              <SubmitButton
-                onClick={handleSubmit_wrap}
-                disabled={!canWrap || wrapLoading}
-                loading={wrapLoading}
-              />
+              !isInsufficientBalance ? (
+                <SubmitButton
+                  onClick={handleSubmit_wrap}
+                  disabled={!canWrap || wrapLoading}
+                  loading={wrapLoading}
+                />
+              ) : (
+                <InsufficientButton divClassName="h-12 mt-6 w-full"></InsufficientButton>
+              )
             ) : (
               <div className="mt-4 w-full">
-                <ConnectToNearBtn />
+                <ConnectToNearBtnSwap />
               </div>
             )}
           </div>
@@ -2011,6 +2020,7 @@ export default function SwapCard(props: {
           showSwapLoading,
           setShowSwapLoading,
         }}
+        isInsufficient={isInsufficientBalance}
       >
         <TokenAmountV3
           forSwap

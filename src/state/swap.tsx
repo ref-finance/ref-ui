@@ -742,7 +742,7 @@ export const useSwapV3 = ({
       .finally(() => {
         setQuoteDone(true);
         setPoolReFetch(!poolReFetch);
-        setLoadingTrigger(false);
+        setLoadingTrigger && setLoadingTrigger(false);
       });
   }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
 

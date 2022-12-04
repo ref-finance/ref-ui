@@ -226,6 +226,7 @@ module.exports = {
         feeSubBoxBgColor:'#111A20',
         accountBgColor:'rgba(255, 255, 255, 0.06)',
         accountHoverBgColor:'rgba(255, 255, 255, 0.1)',
+        feeBoxBgLiqudityColor:'#141B21',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -75,6 +75,7 @@ import ReactTooltip from 'react-tooltip';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { isMobile } from '../../utils/device';
+import { SelectedIcon } from '../../components/icon/swapV3';
 
 import Big from 'big.js';
 
@@ -719,8 +720,7 @@ export default function AddYourLiquidityPageV3() {
                   className="rounded-xl px-4 py-3 mt-5 xs:px-2 md:px-2"
                   style={{ border: '1.2px solid rgba(145, 162, 174, 0.2)' }}
                 >
-                  {/* 移动端头部 */}
-                  <div className="flex justify-between items-center">
+                  {/* <div className="flex justify-between items-center">
                     <div className="flex items-center pl-2">
                       <span
                         className={`text-sm text-white mr-1.5 lg:hidden ${
@@ -731,7 +731,7 @@ export default function AddYourLiquidityPageV3() {
                           ? currentSelectedPool.fee / 10000 + '%'
                           : ''}
                       </span>
-                      <div className="text-white text-base xs:text-sm md:text-sm">
+                      <div className="text-white text-base gotham_bold xs:text-sm md:text-sm">
                         <FormattedMessage
                           id="fee_Tiers"
                           defaultMessage="Fee Tiers"
@@ -767,8 +767,13 @@ export default function AddYourLiquidityPageV3() {
                         }`}
                       ></SwitchIcon>
                     </div>
+                  </div> */}
+                  <div className="text-white text-base gotham_bold xs:text-sm md:text-sm">
+                    <FormattedMessage
+                      id="fee_Tiers"
+                      defaultMessage="Fee Tiers"
+                    />
                   </div>
-                  {/* 身体部分 */}
                   <div
                     className={`items-stretch justify-between mt-5 ${
                       feeBoxStatus ? 'flex' : 'hidden'
@@ -776,49 +781,62 @@ export default function AddYourLiquidityPageV3() {
                   >
                     {FEELIST.map((feeItem, index) => {
                       const { fee, text } = feeItem;
+                      const isNoPool = currentPools && !currentPools[fee];
                       return (
                         <div
                           onClick={() => {
-                            switchSelectedFee(fee);
+                            if (!isNoPool) {
+                              switchSelectedFee(fee);
+                            }
                           }}
                           key={fee + index}
-                          className={`rounded-xl w-1 flex-grow ${
+                          className={`relative flex flex-col px-2 py-1.5 xsm:py-0.5 xsm:px-1 rounded-lg w-1 flex-grow ${
                             tokenX && tokenY ? 'cursor-pointer' : ''
-                          } ${index == 3 ? '' : 'mr-2.5 xs:mr-1 md:mr-1'} ${
-                            currentSelectedPool?.fee == fee
-                              ? 'gradientBorderWrapperNoShadow'
-                              : 'border border-v3feeBorderColor p-px'
+                          } ${index == 3 ? '' : 'mr-2.5 xsm:mr-1'} ${
+                            isNoPool
+                              ? 'border border-v3GreyColor cursor-not-allowed'
+                              : currentSelectedPool?.fee == fee
+                              ? 'bg-feeBoxBgLiqudityColor'
+                              : 'bg-v3GreyColor'
                           }`}
                         >
-                          <div className="flex flex-col items-center  px-1 py-3 xs:px-px md:px-px">
-                            <span className="text-sm text-white">
-                              {fee / 10000}%
-                            </span>
-                            {tokenX && tokenY && currentPools ? (
-                              <div
-                                className={`flex items-center justify-center w-full py-1 rounded-xl bg-black bg-opacity-20 text-xs text-v3LightGreyColor mt-2 whitespace-nowrap`}
-                              >
-                                <span className="transform xs:scale-90 md:scale-90">
-                                  {!currentPools[fee] ? (
-                                    <FormattedMessage id="no_pool" />
-                                  ) : Object.keys(tokenPriceList).length > 0 ? (
-                                    <span>
-                                      TVL&nbsp;
-                                      {displayTvl(currentPools[fee].tvl)}
-                                    </span>
-                                  ) : (
-                                    'Loading...'
-                                  )}
+                          <span
+                            className={`text-sm ${
+                              isNoPool
+                                ? 'text-primaryText text-opacity-60'
+                                : 'text-white'
+                            }`}
+                          >
+                            {fee / 10000}%
+                          </span>
+                          {tokenX && tokenY && currentPools ? (
+                            <span
+                              className={`transform scale-90 origin-left text-xs text-primaryText whitespace-nowrap ${
+                                isNoPool ? 'text-opacity-60' : ''
+                              }`}
+                            >
+                              {isNoPool ? (
+                                <FormattedMessage id="no_pool" />
+                              ) : Object.keys(tokenPriceList).length > 0 ? (
+                                <span>
+                                  <label className="xsm:hidden">
+                                    TVL&nbsp;
+                                  </label>
+                                  {displayTvl(currentPools[fee].tvl)}
                                 </span>
-                              </div>
-                            ) : null}
-                          </div>
+                              ) : (
+                                'Loading...'
+                              )}
+                            </span>
+                          ) : null}
+                          {currentSelectedPool?.fee == fee && !isNoPool ? (
+                            <SelectedIcon className="absolute top-0 right-0"></SelectedIcon>
+                          ) : null}
                         </div>
                       );
                     })}
                   </div>
-                  {/* pc端头部 */}
-                  <div
+                  {/* <div
                     className={` items-center mt-3 xs:hidden md:hidden pl-2 ${
                       feeBoxStatus || !currentSelectedPool ? 'hidden' : 'flex'
                     }`}
@@ -837,7 +855,7 @@ export default function AddYourLiquidityPageV3() {
                         <FormattedMessage id="no_pool" />
                       )}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="mt-5">
                   <span className="text-base text-white font-bold">

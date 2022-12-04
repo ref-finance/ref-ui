@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
-import SubmitButton from './SubmitButton';
+import SubmitButton, { InsufficientButton } from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 import SlippageSelector, { StableSlipSelecter } from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '../../components/icon';
@@ -50,6 +50,7 @@ interface SwapFormWrapProps {
   showAllResults?: boolean;
   reserves?: JSX.Element;
   wrapOperation?: boolean;
+  isInsufficient?: boolean;
 }
 
 export default function SwapFormWrap({
@@ -72,6 +73,7 @@ export default function SwapFormWrap({
   setSupportLedger,
   quoteDoneLimit,
   reserves,
+  isInsufficient,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
@@ -158,22 +160,26 @@ export default function SwapFormWrap({
         elseView
       ) : (
         <div className="flex flex-col items-center xsm:flex-row-reverse">
-          <SubmitButton
-            disabled={
-              !canSubmit ||
-              (swapMode === SWAP_MODE.LIMIT
-                ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-                : showSwapLoading)
-            }
-            label={buttonText || title}
-            info={info}
-            className="h-12"
-            loading={
-              swapMode !== SWAP_MODE.LIMIT
-                ? showSwapLoading
-                : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-            }
-          />
+          {!isInsufficient ? (
+            <SubmitButton
+              disabled={
+                !canSubmit ||
+                (swapMode === SWAP_MODE.LIMIT
+                  ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+                  : showSwapLoading)
+              }
+              label={buttonText || title}
+              info={info}
+              className="h-12"
+              loading={
+                swapMode !== SWAP_MODE.LIMIT
+                  ? showSwapLoading
+                  : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+              }
+            />
+          ) : (
+            <InsufficientButton divClassName="h-12 mt-6 w-full"></InsufficientButton>
+          )}
           {OrderButton}
         </div>
       )}
