@@ -276,11 +276,7 @@ export function CrossSwapFormWrap({
         }
         label={buttonText || title}
         info={info}
-        loading={
-          wrapOperation
-            ? false
-            : showSwapLoading || loadingTrigger || !selectTodos
-        }
+        loading={wrapOperation ? false : showSwapLoading || loadingTrigger}
         className="py-3"
       />
       {reserves}

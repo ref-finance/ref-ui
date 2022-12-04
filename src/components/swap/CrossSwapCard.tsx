@@ -294,7 +294,7 @@ export default function CrossSwapCard(props: {
   const [showSkywardTip, setShowSkywardTip] = useState<boolean>(false);
 
   const [requested, setRequested] = useState<boolean>(false);
-
+  const [poolError, setPoolError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
@@ -445,27 +445,25 @@ export default function CrossSwapCard(props: {
     setBalanceInDone(false);
     setBalanceOutDone(false);
 
-    ftGetBalance(tokenInId)
+    ftGetBalance(
+      tokenInId === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR'
+        ? 'NEAR'
+        : tokenInId
+    )
       .then((available: string) =>
         setTokenInBalanceFromNear(
-          toReadableNumber(
-            tokenIn?.decimals,
-            tokenInId === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR'
-              ? nearBalance
-              : available
-          )
+          toReadableNumber(tokenIn?.decimals, available)
         )
       )
       .finally(() => setBalanceInDone(true));
-    ftGetBalance(tokenOutId)
+    ftGetBalance(
+      tokenOutId === WRAP_NEAR_CONTRACT_ID && tokenOut?.symbol == 'NEAR'
+        ? 'NEAR'
+        : tokenOutId
+    )
       .then((available: string) =>
         setTokenOutBalanceFromNear(
-          toReadableNumber(
-            tokenOut?.decimals,
-            tokenOutId === WRAP_NEAR_CONTRACT_ID && tokenOut?.symbol == 'NEAR'
-              ? nearBalance
-              : available
-          )
+          toReadableNumber(tokenOut?.decimals, available)
         )
       )
       .finally(() => setBalanceOutDone(true));
@@ -679,16 +677,16 @@ export default function CrossSwapCard(props: {
     </div>
   );
 
-  const swapErrorCrossV3 = swapError && swapErrorV3;
-
   console.log({
-    tokenOutAmountV3,
-    canSwapV3,
+    canSubmit,
+    loadingTrigger,
     quoteDoneV3,
-    swapsToDoTri,
-    swapsToDoRef,
-    swapsToDoV3,
-    bestFee,
+    crossQuoteDone,
+    balanceInDone,
+    tokenInMax,
+    tokenInBalanceFromNear,
+    swapError,
+    swapErrorV3,
   });
 
   useEffect(() => {
@@ -721,6 +719,10 @@ export default function CrossSwapCard(props: {
       // !loadingTrigger &&
       todosValidator
     ) {
+      if (!canSwap && !canSwapV3) {
+        setCrossAllResults(null);
+        return;
+      }
       try {
         setCrossAllResults(
           <CrossSwapAllResult
@@ -786,8 +788,26 @@ export default function CrossSwapCard(props: {
     tokenOutAmount,
     tokenOutAmountV3,
     canSwapV3,
+    canSwap,
   ]);
 
+  useEffect(() => {
+    if (!crossQuoteDone || !quoteDoneV3) {
+      return;
+    }
+    setPoolError(!!swapError?.message && !!swapErrorV3?.message);
+  }, [crossQuoteDone, quoteDoneV3, swapError, swapErrorV3]);
+  const NoPoolError = () => {
+    return new Error(
+      `${intl.formatMessage({
+        id: 'no_pool_available_to_make_a_swap_from',
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${tokenInAmount} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
+    );
+  };
   return (
     <>
       <CrossSwapFormWrap
@@ -825,12 +845,12 @@ export default function CrossSwapCard(props: {
         info={intl.formatMessage({ id: 'swapCopy' })}
         title={
           balanceInDone &&
-          balanceOutDone &&
-          (Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+          tokenIn &&
+          typeof tokenInBalanceFromNear !== 'undefined' &&
+          (Number(getMax(tokenIn.id, tokenInBalanceFromNear || '0', tokenIn)) -
             Number(tokenInAmount || '0') <
             0 ||
-            ONLY_ZEROS.test(tokenInMax)) &&
-          tokenIn
+            ONLY_ZEROS.test(tokenInBalanceFromNear))
             ? 'insufficient_balance'
             : 'swap'
         }
@@ -930,7 +950,7 @@ export default function CrossSwapCard(props: {
           tokenPriceList={tokenPriceList}
           max={tokenOutMax}
         />
-        {swapErrorCrossV3 ||
+        {poolError ||
         !tokenIn ||
         !tokenOut ||
         tokenIn.id === tokenOut.id ||
@@ -939,12 +959,9 @@ export default function CrossSwapCard(props: {
           ? null
           : crossAllResults}
 
-        {swapErrorCrossV3 &&
-        tokenIn?.id !== tokenOut?.id &&
-        quoteDoneV3 &&
-        crossQuoteDone ? (
+        {poolError && tokenIn?.id !== tokenOut?.id ? (
           <div className="pb-2 relative -mb-5">
-            <Alert level="warn" message={swapError.message} />
+            <Alert level="warn" message={NoPoolError().message} />
           </div>
         ) : null}
       </CrossSwapFormWrap>

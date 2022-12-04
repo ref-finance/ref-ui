@@ -1264,15 +1264,18 @@ SwapOptions) => {
       const routes = separateRoutes(swapsToDo, tokenOut.id);
 
       const bigEstimate = routes.reduce((acc, cur) => {
-        const curEstimate = cur[cur.length - 1].estimate;
+        const curEstimate = percentLess(
+          slippageTolerance,
+          round(24, toNonDivisibleNumber(24, cur[cur.length - 1].estimate))
+        );
         return acc.plus(curEstimate);
       }, outEstimate);
 
-      const minAmountOut = percentLess(
-        slippageTolerance,
-
+      const minAmountOut = toReadableNumber(
+        24,
         scientificNotationToString(bigEstimate.toString())
       );
+
       if (tokenOut.symbol == 'NEAR') {
         transactions.push(nearWithdrawTransaction(minAmountOut));
       }

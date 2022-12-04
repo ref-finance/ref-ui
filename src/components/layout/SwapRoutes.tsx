@@ -1288,7 +1288,7 @@ export const CrossSwapAllResult = ({
           className="justify-self-center xs:justify-self-end  xs:right-10 col-span-4 relative px-4 xs:px-2 "
           title={rateTitle}
         >
-          {toPrecision(rate, 3)}
+          {(Number(rate) < 0.001 ? '< ' : '') + toPrecision(rate, 3)}
         </div>
 
         <span className=" text-right relative right-3 justify-self-end col-span-1">

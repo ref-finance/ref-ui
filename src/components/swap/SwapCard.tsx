@@ -1356,16 +1356,14 @@ export default function SwapCard(props: {
       if (tokenInId) {
         if (isSignedIn) {
           setBalanceInDone(false);
-          ftGetBalance(tokenIn.id)
+          ftGetBalance(
+            tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR'
+              ? 'NEAR'
+              : tokenIn.id
+          )
             .then((available: string) =>
               setTokenInBalanceFromNear(
-                toReadableNumber(
-                  tokenIn?.decimals,
-                  tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
-                    tokenIn.symbol == 'NEAR'
-                    ? nearBalance
-                    : available
-                )
+                toReadableNumber(tokenIn?.decimals, available)
               )
             )
             .finally(() => {
@@ -1379,16 +1377,14 @@ export default function SwapCard(props: {
       if (tokenOutId) {
         if (isSignedIn) {
           setBalanceOutDone(false);
-          ftGetBalance(tokenOut.id)
+          ftGetBalance(
+            tokenOut.id === WRAP_NEAR_CONTRACT_ID && tokenOut.symbol == 'NEAR'
+              ? 'NEAR'
+              : tokenOut.id
+          )
             .then((available: string) =>
               setTokenOutBalanceFromNear(
-                toReadableNumber(
-                  tokenOut?.decimals,
-                  tokenOut.id === WRAP_NEAR_CONTRACT_ID &&
-                    tokenOut.symbol == 'NEAR'
-                    ? nearBalance
-                    : available
-                )
+                toReadableNumber(tokenOut?.decimals, available)
               )
             )
             .finally(() => {
@@ -1539,7 +1535,8 @@ export default function SwapCard(props: {
   });
   const bestSwap =
     swapMode === SWAP_MODE.NORMAL &&
-    new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0')
+    new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0') &&
+    canSwapV3
       ? 'v3'
       : 'v2';
 
@@ -1552,7 +1549,8 @@ export default function SwapCard(props: {
 
       const displayTokenOutAmount =
         swapMode === SWAP_MODE.NORMAL &&
-        new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0')
+        new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0') &&
+        canSwapV3
           ? tokenOutAmountV3
           : tokenOutAmount;
 
@@ -1756,11 +1754,18 @@ export default function SwapCard(props: {
   useEffect(() => {
     if (quoteDone && quoteDoneV3) {
       const bestSwapPriceImpact =
-        bestSwap === 'v3' ? priceImpactV3 : PriceImpactValue;
+        bestSwap === 'v3' && canSwapV3 ? priceImpactV3 : PriceImpactValue;
 
       setDisplayPriceImpact(bestSwapPriceImpact);
     }
-  }, [priceImpactV3, PriceImpactValue, quoteDone, quoteDoneV3, bestSwap]);
+  }, [
+    priceImpactV3,
+    PriceImpactValue,
+    quoteDone,
+    quoteDoneV3,
+    bestSwap,
+    canSwapV3,
+  ]);
 
   const makeBestSwap = () => {
     if (bestSwap === 'v3') {

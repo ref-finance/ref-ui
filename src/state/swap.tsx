@@ -713,7 +713,7 @@ export const useSwapV3 = ({
     )
       .then((res) => {
         console.log({
-          pairQuoteRes: res,
+          res,
         });
 
         if (!loadingTrigger || swapError?.message) {
@@ -738,13 +738,17 @@ export const useSwapV3 = ({
           }
         }
       })
-      .catch((e) => {})
+      .catch((e) => {
+        console.log({
+          e_quot: e,
+        });
+      })
       .finally(() => {
         setQuoteDone(true);
         setPoolReFetch(!poolReFetch);
         setLoadingTrigger && setLoadingTrigger(false);
       });
-  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger]);
+  }, [tokenIn, tokenOut, tokenInAmount, loadingTrigger, swapError?.message]);
 
   const makeSwap = () => {
     if (!tagValidator(bestEstimate, tokenIn, tokenInAmount)) return;
@@ -831,10 +835,13 @@ export const useSwapV3 = ({
     bestFee,
     bestPool,
     setQuoteDone,
-    swapErrorV3:
-      bestEstimate && ONLY_ZEROS.test(bestEstimate.amount)
-        ? tokenIn && tokenOut && NoPoolError()
-        : null,
+    swapErrorV3: (
+      quoteDone && !bestEstimate
+        ? true
+        : bestEstimate && ONLY_ZEROS.test(bestEstimate.amount)
+    )
+      ? tokenIn && tokenOut && NoPoolError()
+      : null,
   };
 };
 
@@ -1297,8 +1304,24 @@ export const useCrossSwap = ({
 
     getEstimateCrossSwap(true);
   }, [
-    loadingTrigger,
     [tokenIn?.id, tokenOut?.id].sort().join('-'),
+    // tokenIn,
+    // tokenOut,
+  ]);
+
+  useEffect(() => {
+    if (ONLY_ZEROS.test(tokenInAmount)) {
+      setCrossQuoteDone(false);
+      return;
+    }
+    setCanSwap(false);
+    setSwapError(null);
+
+    setCrossQuoteDone(false);
+
+    getEstimateCrossSwap(loadingTrigger);
+  }, [
+    loadingTrigger,
     // tokenIn,
     // tokenOut,
   ]);
