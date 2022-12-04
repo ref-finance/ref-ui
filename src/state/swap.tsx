@@ -159,7 +159,7 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
     const parsedInputArgs = JSON.parse(ft_transfer_call_args || '');
 
     const LimitOrderWithSwap = JSON.parse(
-      parsedInputArgs?.msg || {}
+      parsedInputArgs?.msg || '{}'
     )?.LimitOrderWithSwap;
 
     if (!LimitOrderWithSwap) {

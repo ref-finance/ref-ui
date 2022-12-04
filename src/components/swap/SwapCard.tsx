@@ -169,6 +169,7 @@ import { TokenBalancesView } from '../../services/token';
 import { Images } from '../stableswap/CommonComp';
 import { ArrowRight } from '../layout/SwapRoutes';
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
+import * as math from 'mathjs';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -317,7 +318,15 @@ export function SwapRate({
     const fromNow = isRevert ? from : to;
     const toNow = isRevert ? to : from;
     if (ONLY_ZEROS.test(fromNow)) return '-';
-    return calculateExchangeRate(fee, fromNow, toNow, 6);
+    try {
+      const result = math.evaluate(`${toNow} / ${fromNow}`);
+      if (new BigNumber(result).isLessThan('0.0001')) {
+        return '<0.0001';
+      } else {
+        return math.floor(result, 4);
+      }
+    } catch (error) {}
+    // return calculateExchangeRate(fee, fromNow, toNow, 6);
   }, [isRevert, to]);
 
   function switchSwapRate(e: React.MouseEvent<HTMLDivElement>) {
