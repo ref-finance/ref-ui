@@ -321,6 +321,8 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
                 transaction?.actions[0]?.['FunctionCall']?.method_name ===
                   'swap' ||
                 transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                  'near_deposit' ||
+                transaction?.actions[0]?.['FunctionCall']?.method_name ===
                   'near_withdraw') &&
               !isLimitOrder,
             transactionErrorType,
