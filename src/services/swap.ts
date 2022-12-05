@@ -5,7 +5,6 @@ import { getLiquidity } from '../utils/pool';
 
 import {
   ONLY_ZEROS,
-  percentLess,
   scientificNotationToString,
   toNonDivisibleNumber,
   toPrecision,
@@ -100,6 +99,7 @@ import {
   nearWithdrawTransaction,
 } from './wrap-near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { percentLess } from '../utils/numbers';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
 // Big.strict = false;
@@ -1264,9 +1264,12 @@ SwapOptions) => {
       const routes = separateRoutes(swapsToDo, tokenOut.id);
 
       const bigEstimate = routes.reduce((acc, cur) => {
-        const curEstimate = percentLess(
-          slippageTolerance,
-          round(24, toNonDivisibleNumber(24, cur[cur.length - 1].estimate))
+        const curEstimate = round(
+          24,
+          toNonDivisibleNumber(
+            24,
+            percentLess(slippageTolerance, cur[cur.length - 1].estimate)
+          )
         );
         return acc.plus(curEstimate);
       }, outEstimate);
