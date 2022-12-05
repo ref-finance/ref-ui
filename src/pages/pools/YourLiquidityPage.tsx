@@ -1971,14 +1971,16 @@ export function YourLiquidityAddLiquidityModal(
                       balances?.[tokens[0].id]
                     )}
                   >
-                    {toPrecision(
-                      toReadableNumber(
-                        tokens[0].decimals,
-                        balances?.[tokens[0].id]
-                      ),
-                      2,
-                      true
-                    )}
+                    {isSignedIn
+                      ? toPrecision(
+                          toReadableNumber(
+                            tokens[0].decimals,
+                            balances?.[tokens[0].id]
+                          ),
+                          2,
+                          true
+                        )
+                      : '-'}
                   </span>
                 </div>
                 <div className="flex items-center">
@@ -2031,14 +2033,16 @@ export function YourLiquidityAddLiquidityModal(
                       balances?.[tokens[1].id]
                     )}
                   >
-                    {toPrecision(
-                      toReadableNumber(
-                        tokens[1].decimals,
-                        balances?.[tokens[1].id]
-                      ),
-                      2,
-                      true
-                    )}
+                    {isSignedIn
+                      ? toPrecision(
+                          toReadableNumber(
+                            tokens[1].decimals,
+                            balances?.[tokens[1].id]
+                          ),
+                          2,
+                          true
+                        )
+                      : '-'}
                   </span>
                 </div>
                 <div className="flex items-center ">

@@ -862,7 +862,7 @@ function MoreMenu() {
           setHover(false);
           onClickMenuItem?.(menuData, '');
         }}
-        style={{ zIndex: '999' }}
+        style={{ zIndex: '99' }}
       >
         <div
           className={`rounded-xl p-3 mx-4 cursor-pointer xsm:bg-transparent ${
@@ -1326,10 +1326,10 @@ function Language() {
       onMouseLeave={() => {
         setHover(false);
       }}
-      style={{ zIndex: '999' }}
+      style={{ zIndex: '99' }}
     >
       <span
-        className={`flex items-center justify-center w-7 h-7 text-xs rounded-xl text-primaryText cursor-pointer ${
+        className={`flex items-center justify-center w-7 h-7 text-xs rounded-lg text-primaryText cursor-pointer ${
           hover
             ? 'border border-transparent bg-menuMoreBgColor'
             : 'border border-laguageBorderColor bg-transparent'

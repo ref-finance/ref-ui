@@ -6,7 +6,10 @@ import { toPrecision } from '../../utils/numbers';
 import { SingleToken } from '../forms/SelectToken';
 import { RefIcon } from '../../components/icon/DexIcon';
 import { TriIcon } from '../icon/DexIcon';
-import { getCurrentWallet } from '../../utils/wallets-integration';
+import {
+  getCurrentWallet,
+  WalletContext,
+} from '../../utils/wallets-integration';
 import { PinEmpty, PinSolid } from '../../components/icon/Common';
 import {
   localTokens,
@@ -41,6 +44,8 @@ export default function Token({
   const local_user_list = getLatestCommonBassesTokenIds();
   const arr = new Set(local_user_list);
   const [hasPin, setHasPin] = useState<boolean>();
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     const t = commonBassesTokens.find((token: TokenMetadata) => {
       if (token.id == id && token.symbol == symbol) return true;
@@ -51,10 +56,11 @@ export default function Token({
       setHasPin(false);
     }
   }, [commonBassesTokens]);
-  const displayBalance =
-    0 < Number(near) && Number(near) < 0.001
+  const displayBalance = isSignedIn
+    ? 0 < Number(near) && Number(near) < 0.001
       ? '< 0.001'
-      : toPrecision(String(near), 3);
+      : toPrecision(String(near), 3)
+    : '-';
 
   const [hover, setHover] = useState(false);
   function pinToken(token: TokenMetadata) {
