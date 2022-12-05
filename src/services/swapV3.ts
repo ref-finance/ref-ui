@@ -530,6 +530,21 @@ export const get_pool = async (pool_id: string, token0?: string) => {
 
   const new_pool_id = `${token_seq}|${fee}`;
 
+  return refSwapV3ViewFunction({
+    methodName: 'get_pool',
+    args: {
+      pool_id: new_pool_id,
+    },
+  }) as Promise<PoolInfoV3>;
+};
+
+export const get_pool_from_cache = async (pool_id: string, token0?: string) => {
+  const [token_x, token_y, fee] = pool_id.split('|');
+
+  const token_seq = [token_x, token_y].sort().join('|');
+
+  const new_pool_id = `${token_seq}|${fee}`;
+
   const cachedPools = localStorage.getItem(REF_DCL_POOL_CACHE_KEY);
 
   const foundPool =

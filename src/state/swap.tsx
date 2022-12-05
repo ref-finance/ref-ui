@@ -74,7 +74,7 @@ import {
   find_order,
 } from '../services/swapV3';
 import _, { toArray } from 'lodash';
-import { getV3PoolId } from '../services/swapV3';
+import { getV3PoolId, get_pool_from_cache } from '../services/swapV3';
 import {
   checkAllocations,
   toPrecision,
@@ -690,7 +690,10 @@ export const useSwapV3 = ({
   useEffect(() => {
     if (!bestFee || wrapOperation) return;
 
-    get_pool(getV3PoolId(tokenIn.id, tokenOut.id, bestFee), tokenIn.id)
+    get_pool_from_cache(
+      getV3PoolId(tokenIn.id, tokenOut.id, bestFee),
+      tokenIn.id
+    )
       .then(setBestPool)
       .finally(() => {});
   }, [bestFee, tokenIn, tokenOut, poolReFetch]);
