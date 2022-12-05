@@ -68,7 +68,9 @@ const ChangeSwapMode = ({
     <div className="rounded-2xl font-bold  w-full text-limitOrderInputColor text-sm flex py-2 xs:pt-0 xs:pb-2 items-start mx-auto  ">
       <span
         className={`mr-6 gotham_bold text-center px-2.5 py-1.5 rounded-xl hover:bg-primaryText hover:bg-opacity-10  flex flex-col cursor-pointer ${
-          swapMode === SWAP_MODE.NORMAL ? ' text-white ' : ''
+          swapMode === SWAP_MODE.NORMAL
+            ? ' text-white  hover:text-gradientFrom'
+            : ''
         }`}
         style={{
           fontSize: '15px',
@@ -83,7 +85,9 @@ const ChangeSwapMode = ({
 
       <span
         className={`mr-3 gotham_bold  relative text-center px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 flex flex-col cursor-pointer ${
-          swapMode === SWAP_MODE.X_SWAP ? ' text-white ' : ''
+          swapMode === SWAP_MODE.X_SWAP
+            ? ' text-white hover:text-gradientFrom'
+            : ''
         }`}
         onClick={() => {
           setSwapMode(SWAP_MODE.X_SWAP);
@@ -130,7 +134,9 @@ const ChangeSwapMode = ({
 
       <span
         className={`ml-3 gotham_bold flex flex-col px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 text-center cursor-pointer ${
-          swapMode === SWAP_MODE.LIMIT ? ' text-white ' : ''
+          swapMode === SWAP_MODE.LIMIT
+            ? ' text-white hover:text-gradientFrom '
+            : ''
         }`}
         onClick={() => {
           setSwapMode(SWAP_MODE.LIMIT);

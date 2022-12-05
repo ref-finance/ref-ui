@@ -1270,8 +1270,13 @@ export const CrossSwapAllResult = ({
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
+
           setSelectTodos(result);
           setSelectReceive(receive);
+
+          if (isMobile) {
+            setShowAllResult(false);
+          }
         }}
         onMouseEnter={() => {
           handleHover(true);
