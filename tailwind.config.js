@@ -210,6 +210,7 @@ module.exports = {
         switchIconBorderColor: '#304351',
         limitOrderInputColor: '#566069',
         inputV3BorderColor: '#25323C',
+        inputV3BorderHoverColor: '#334653',
         selectTokenV3BgColor: 'rgba(126, 138, 147, 0.1)',
         limitOrderFeeTiersBorderColor: 'rgba(145, 162, 174, 0.2)',
         addV1PoolTableColor: '#55616A',

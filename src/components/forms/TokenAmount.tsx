@@ -916,7 +916,7 @@ export function TokenAmountV3({
 
   return (
     <div
-      className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-2xl px-3 py-1 border xs:bg-cardBg border-inputV3BorderColor`}
+      className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-2xl px-3 py-1 border border-inputV3BorderColor hover:border-inputV3BorderHoverColor`}
     >
       {text ? (
         <div className="text-limitOrderInputColor text-xs pt-1.5">{text}</div>
