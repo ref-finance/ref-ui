@@ -881,27 +881,29 @@ export default function CrossSwapCard(props: {
             }
           }}
           amount={tokenInAmount}
+          nearErrorTip={
+            balanceInDone &&
+            balanceOutDone &&
+            tokenIn &&
+            Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+              Number(tokenInAmount || '0') <
+              0 &&
+            !ONLY_ZEROS.test(tokenInMax || '0') &&
+            !ONLY_ZEROS.test(tokenInAmount || '0') &&
+            tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
+            tokenIn?.symbol === 'NEAR' && (
+              <div className="mb-2">
+                <Alert
+                  level="warn"
+                  message={`${intl.formatMessage({
+                    id: 'near_validation_error',
+                  })} `}
+                  extraClass="px-0 pb-3"
+                />
+              </div>
+            )
+          }
         />
-        {balanceInDone &&
-          balanceOutDone &&
-          tokenIn &&
-          Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
-            Number(tokenInAmount || '0') <
-            0 &&
-          !ONLY_ZEROS.test(tokenInMax || '0') &&
-          !ONLY_ZEROS.test(tokenInAmount || '0') &&
-          tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
-          tokenIn?.symbol === 'NEAR' && (
-            <div className="mb-2">
-              <Alert
-                level="warn"
-                message={`${intl.formatMessage({
-                  id: 'near_validation_error',
-                })} `}
-              />
-            </div>
-          )}
-
         <div className={`flex items-center -my-2 justify-center`}>
           <SwapExchangeV1
             onChange={() => {

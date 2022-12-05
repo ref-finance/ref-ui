@@ -84,6 +84,7 @@ interface TokenAmountProps {
   setDiff?: (d: string) => void;
   allowWNEAR?: boolean;
   forCross?: boolean;
+  nearErrorTip?: JSX.Element;
 }
 
 export function getTextWidth(str: string, fontSize: string) {
@@ -813,6 +814,7 @@ export function TokenAmountV3({
   limitFee,
   setDiff,
   allowWNEAR,
+  nearErrorTip,
 }: TokenAmountProps) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -1074,6 +1076,7 @@ export function TokenAmountV3({
           </span>
         </span>
       </div>
+      {nearErrorTip}
     </div>
   );
 }

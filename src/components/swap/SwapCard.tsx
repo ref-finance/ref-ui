@@ -2075,27 +2075,30 @@ export default function SwapCard(props: {
             setTokenOut(token);
           }}
           allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
+          nearErrorTip={
+            (swapMode === SWAP_MODE.LIMIT
+              ? !!curOrderPrice && quoteDoneLimit
+              : true) &&
+            balanceInDone &&
+            balanceOutDone &&
+            tokenIn &&
+            Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+              Number(tokenInAmount || '0') <
+              0 &&
+            !ONLY_ZEROS.test(tokenInMax || '0') &&
+            !ONLY_ZEROS.test(tokenInAmount || '0') &&
+            tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
+            tokenIn.symbol === 'NEAR' && (
+              <Alert
+                level="warn"
+                message={`${intl.formatMessage({
+                  id: 'near_validation_error',
+                })} `}
+                extraClass="px-0 pb-3"
+              />
+            )
+          }
         />
-        {(swapMode === SWAP_MODE.LIMIT
-          ? !!curOrderPrice && quoteDoneLimit
-          : true) &&
-          balanceInDone &&
-          balanceOutDone &&
-          tokenIn &&
-          Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
-            Number(tokenInAmount || '0') <
-            0 &&
-          !ONLY_ZEROS.test(tokenInMax || '0') &&
-          !ONLY_ZEROS.test(tokenInAmount || '0') &&
-          tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
-          tokenIn.symbol === 'NEAR' && (
-            <Alert
-              level="warn"
-              message={`${intl.formatMessage({
-                id: 'near_validation_error',
-              })} `}
-            />
-          )}
         <div className={`flex items-center -my-2.5 justify-center`}>
           {swapMode === SWAP_MODE.LIMIT ? (
             <SwapExchangeV3
