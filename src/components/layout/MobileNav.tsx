@@ -491,16 +491,8 @@ export function MobileNavBar(props: any) {
             }}
           />
           <div className="flex items-center">
-            <div className={!isSignedIn ? 'hidden' : ' flex items-center'}>
-              <AuroraEntry
-                hasBalanceOnAurora={hasAuroraBalance}
-                extraClick={() => setAccountVisible(false)}
-              />
-              <ConnectDot />
-              <ConnectDot />
-            </div>
             <div
-              className={`flex px-1 py-1 items-center justify-center rounded-lg border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 pl-3 pr-3 mr-4 ${
+              className={`flex px-1 py-1 items-center justify-center rounded-lg border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 pl-3 pr-3 ${
                 isSignedIn
                   ? 'bg-white bg-opacity-20 text-white'
                   : 'border border-gradientFrom text-gradientFrom'
@@ -551,7 +543,15 @@ export function MobileNavBar(props: any) {
                 )}
               </div>
             </div>
-            <span ref={iconRef} onClick={() => setShow(true)}>
+            <div className={!isSignedIn ? 'hidden' : ' flex items-center'}>
+              <ConnectDot />
+              <ConnectDot />
+              <AuroraEntry
+                hasBalanceOnAurora={hasAuroraBalance}
+                extraClick={() => setAccountVisible(false)}
+              />
+            </div>
+            <span className="ml-4" ref={iconRef} onClick={() => setShow(true)}>
               <HiMenuIcon />
             </span>
           </div>

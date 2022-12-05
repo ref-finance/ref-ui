@@ -780,11 +780,16 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               balances?.[tokens[0].id]
             )}
           >
-            {toPrecision(
-              toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id]),
-              2,
-              true
-            )}
+            {isSignedIn
+              ? toPrecision(
+                  toReadableNumber(
+                    tokens[0].decimals,
+                    balances?.[tokens[0].id]
+                  ),
+                  2,
+                  true
+                )
+              : '-'}
           </span>
         </div>
         <div className="flex items-center">
@@ -812,11 +817,16 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
               balances?.[tokens[1].id]
             )}
           >
-            {toPrecision(
-              toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id]),
-              2,
-              true
-            )}
+            {isSignedIn
+              ? toPrecision(
+                  toReadableNumber(
+                    tokens[1].decimals,
+                    balances?.[tokens[1].id]
+                  ),
+                  2,
+                  true
+                )
+              : '-'}
           </span>
         </div>
         <div className="flex items-center ">

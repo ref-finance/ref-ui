@@ -2111,6 +2111,8 @@ function InputAmount({
 }) {
   const [inputPrice, setInputPrice] = useState('');
   const [showNearTip, setShowNearTip] = useState(false);
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     const price = token ? tokenPriceList[token.id]?.price : '';
     if (price && amount) {
@@ -2136,7 +2138,7 @@ function InputAmount({
     if (token && balance) {
       r = formatWithCommas(toPrecision(balance.toString(), 3));
     }
-    return r;
+    return isSignedIn ? r : '-';
   }
   function showCurrentPrice() {
     if (isNoPool) {
