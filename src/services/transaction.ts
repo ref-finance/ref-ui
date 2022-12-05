@@ -553,6 +553,11 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
         ),
         'Receiver ID': receiver_id,
       };
+    } else {
+      return {
+        Action: 'Swap',
+        'Receiver ID': receiver_id,
+      };
     }
   } else if (msg && receiver_id !== 'aurora') {
     Action = 'Instant swap';
