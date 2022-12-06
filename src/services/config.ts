@@ -302,7 +302,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['5%', '10%'],
         REF_UNI_V3_SWAP_CONTRACT_ID:
-          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'mock-dcl.ref-dev.testnet',
+          process.env.REF_UNI_V3_SWAP_CONTRACT_ID ||
+          'dclv1-dev.ref-dev.testnet',
         kitWalletOn: true,
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
