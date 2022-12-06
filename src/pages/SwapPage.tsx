@@ -65,9 +65,9 @@ const ChangeSwapMode = ({
   const isMobile = useClientMobile();
 
   return (
-    <div className="rounded-2xl font-bold  w-full text-limitOrderInputColor text-sm flex py-2 xs:pt-0 xs:pb-2 items-start mx-auto  ">
+    <div className="rounded-2xl font-bold xs:relative xs:top-1  w-full text-limitOrderInputColor text-sm flex py-2 xs:pt-0 xs:pb-2 items-start mx-auto  ">
       <span
-        className={`mr-6 gotham_bold text-center px-2.5 py-1.5 rounded-xl hover:bg-primaryText hover:bg-opacity-10  flex flex-col cursor-pointer ${
+        className={`mr-6 xs:mr-2 gotham_bold text-center px-2.5 py-1.5 rounded-xl hover:bg-primaryText hover:bg-opacity-10  flex flex-col cursor-pointer ${
           swapMode === SWAP_MODE.NORMAL
             ? ' text-white  hover:text-gradientFrom'
             : ''
@@ -84,7 +84,7 @@ const ChangeSwapMode = ({
       </span>
 
       <span
-        className={`mr-3 gotham_bold  relative text-center px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 flex flex-col cursor-pointer ${
+        className={`mr-3 xs:mr-1.5 gotham_bold  relative text-center px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 flex flex-col cursor-pointer ${
           swapMode === SWAP_MODE.X_SWAP
             ? ' text-white hover:text-gradientFrom'
             : ''
@@ -133,7 +133,7 @@ const ChangeSwapMode = ({
       ></div>
 
       <span
-        className={`ml-3 gotham_bold flex flex-col px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 text-center cursor-pointer ${
+        className={`ml-3 xs:ml-1.5 gotham_bold flex flex-col px-2.5 py-1.5  rounded-xl hover:bg-primaryText hover:bg-opacity-10 text-center cursor-pointer ${
           swapMode === SWAP_MODE.LIMIT
             ? ' text-white hover:text-gradientFrom '
             : ''
