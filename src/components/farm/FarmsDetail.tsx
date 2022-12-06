@@ -125,7 +125,15 @@ export default function FarmsDetail(props: {
   const intl = useIntl();
   const pool = detailData.pool;
   const { token_account_ids } = pool;
-  const tokens = useTokens(token_account_ids) || [];
+  const tokens = sortTokens(useTokens(token_account_ids) || []);
+  function sortTokens(tokens: TokenMetadata[]) {
+    tokens.sort((a: TokenMetadata, b: TokenMetadata) => {
+      if (a.symbol === 'NEAR') return 1;
+      if (b.symbol === 'NEAR') return -1;
+      return 0;
+    });
+    return tokens;
+  }
   const goBacktoFarms = () => {
     history.replace('/v2farms');
     emptyDetailData();
@@ -1305,12 +1313,20 @@ function DetailSymbol({
 }
 
 function PoolDetailCard({
-  tokens,
+  tokens_o,
   pool,
 }: {
-  tokens: TokenMetadata[];
+  tokens_o: TokenMetadata[];
   pool: Pool;
 }) {
+  const tokens: TokenMetadata[] = tokens_o
+    ? JSON.parse(JSON.stringify(tokens_o))
+    : [];
+  tokens?.sort((a, b) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return 0;
+  });
   const [showDetail, setShowDetail] = useState(false);
 
   const [poolTVL, setPoolTVl] = useState<string>('');
@@ -1846,7 +1862,7 @@ function AddLiquidity(props: { pool: Pool; tokens: TokenMetadata[] }) {
           height: '300px',
         }}
       >
-        <PoolDetailCard tokens={tokens} pool={pool} />
+        <PoolDetailCard tokens_o={tokens} pool={pool} />
       </div>
     </>
   );
@@ -3223,6 +3239,7 @@ function StakeModal(props: {
       <div className="flex justify-between items-center h-14 px-3 mt-4 bg-black bg-opacity-20 rounded-lg">
         <input
           type="number"
+          inputMode="decimal"
           placeholder="0.0"
           value={amount}
           onChange={({ target }) => changeAmount(target.value)}
@@ -3721,6 +3738,7 @@ function UnStakeModal(props: {
           <input
             type="number"
             placeholder="0.0"
+            inputMode="decimal"
             value={amount}
             onChange={({ target }) => changeAmount(target.value)}
             className="text-white text-lg focus:outline-non appearance-none leading-tight"

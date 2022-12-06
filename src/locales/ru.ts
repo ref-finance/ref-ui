@@ -426,6 +426,7 @@ const ru = {
   lp_fee: 'Комиссия LP',
   protocol_fee: 'Комиссия протокола',
   referral_fee: 'Реферальная комиссия',
+  protocol_fee_referral_fee: 'Плата за протокол и реферальная плата',
   total_fee_create: 'Общая комиссия',
   xref_title: 'ЗАРАБАТЫВАЙТЕ БОЛЬШЕ С ПОМОЩЬЮ',
   xref_title1: 'Зарабатывайте больше',
@@ -866,5 +867,8 @@ const ru = {
   out_of: 'out of',
   total_ref_week: 'Total REF/week',
   ref_week_you_will_get: 'REF/week you will get',
+  no_token_found: 'No token found',
+  search_name_or_address: 'Search name or paste address...',
+  token_address_invalid: 'The token address was invalid',
 };
 export default Object.assign(ru, ru_in_risks_page);

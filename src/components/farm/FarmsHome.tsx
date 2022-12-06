@@ -1706,6 +1706,7 @@ function LoveStakeModal(props: {
           type="number"
           placeholder="0.0"
           value={amount}
+          inputMode="decimal"
           onChange={({ target }) => changeAmount(target.value)}
           className="text-white text-lg focus:outline-non appearance-none leading-tight"
         ></input>
@@ -1949,6 +1950,7 @@ function LoveUnStakeModal(props: {
           type="number"
           placeholder="0.0"
           value={amount}
+          inputMode="decimal"
           onChange={({ target }) => changeAmount(target.value)}
           className="text-white text-lg focus:outline-non appearance-none leading-tight"
         ></input>
@@ -2092,7 +2094,7 @@ function FarmView(props: {
   const [lpSwitchStatus, setLpSwitchStatus] = useState('1');
   const [yourApr, setYourApr] = useState('');
   const [yourActualAprRate, setYourActualAprRate] = useState('1');
-  const tokens = seed.pool.tokens_meta_data;
+  const tokens = sortTokens(seed.pool.tokens_meta_data);
   const unClaimedTokens = useTokens(
     Object.keys(user_unclaimed_map[seed_id] || {})
   );
@@ -2104,6 +2106,14 @@ function FarmView(props: {
       setYourApr(yourApr);
     }
   }, [boostConfig, user_seeds_map]);
+  function sortTokens(tokens: TokenMetadata[]) {
+    tokens.sort((a: TokenMetadata, b: TokenMetadata) => {
+      if (a.symbol === 'NEAR') return 1;
+      if (b.symbol === 'NEAR') return -1;
+      return 0;
+    });
+    return tokens;
+  }
   function getTotalApr(containPoolFee: boolean = true) {
     let dayVolume = 0;
     if (containPoolFee) {

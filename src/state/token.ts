@@ -368,7 +368,9 @@ export const useTokensData = (
       const index = i;
       const item = tokens[index];
       getDepositableBalance(
-        item.id === WRAP_NEAR_CONTRACT_ID ? 'NEAR' : item.id,
+        item.id === WRAP_NEAR_CONTRACT_ID && item.symbol == 'NEAR'
+          ? 'NEAR'
+          : item.id,
         item.decimals
       )
         .then((max: string) => {
