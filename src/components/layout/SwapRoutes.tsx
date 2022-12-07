@@ -1274,9 +1274,7 @@ export const CrossSwapAllResult = ({
           setSelectTodos(result);
           setSelectReceive(receive);
 
-          if (isMobile) {
-            setShowAllResult(false);
-          }
+          setShowAllResult(false);
         }}
         onMouseEnter={() => {
           handleHover(true);
@@ -1527,7 +1525,17 @@ export const CrossSwapAllResult = ({
             }}
           >
             <span className={` xs:hidden  my-2`}>
-              <FormattedMessage id="all_results" defaultMessage="All Results" />
+              {showAllResult ? (
+                <FormattedMessage
+                  id="hide_routes"
+                  defaultMessage="Hide Routes"
+                />
+              ) : (
+                <FormattedMessage
+                  id="show_routes"
+                  defaultMessage="Show Routes"
+                />
+              )}
             </span>
             <span className="ml-1">
               {showAllResult ? (
