@@ -535,8 +535,10 @@ export default function AddYourLiquidityPageV3() {
       return '-';
     } else if (!tvl || +tvl == 0) {
       return '$0';
+    } else if (+tvl < 1) {
+      return '<$1';
     } else {
-      return `$${toInternationalCurrencySystem(tvl.toString(), 2)}`;
+      return `$${toInternationalCurrencySystem(tvl.toString(), 0)}`;
     }
   }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;

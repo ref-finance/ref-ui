@@ -37,7 +37,7 @@ export function getPointByPrice(
   const point_int = Math.round(point);
   let point_int_slot = point_int;
   if (!noNeedSlot) {
-    point_int_slot = Math.floor(point_int / pointDelta) * pointDelta;
+    point_int_slot = Math.round(point_int / pointDelta) * pointDelta;
   }
   if (point_int_slot < POINTLEFTRANGE) {
     return POINTLEFTRANGE;

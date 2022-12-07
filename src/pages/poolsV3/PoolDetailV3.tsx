@@ -1037,9 +1037,9 @@ function SelectLiquidityBox(props: any) {
                           }}
                           color="#fff"
                           borderRadius={'8px'}
-                          className={`w-24 h-9 text-center text-sm text-white focus:outline-none`}
+                          className={`px-2 h-9 text-center text-sm text-white focus:outline-none`}
                         >
-                          <FormattedMessage id="append" />
+                          <FormattedMessage id="add_liquidity" />
                         </GradientButton>
                       ) : (
                         <OprationButton
@@ -1111,13 +1111,13 @@ function SelectLiquidityBox(props: any) {
                             }}
                             color="#fff"
                             borderRadius={'8px'}
-                            className={`w-24 h-9 text-center text-sm text-white focus:outline-none ${
+                            className={`px-2 h-9 text-center text-sm text-white focus:outline-none ${
                               hoverHashId == liquidityDetail.hashId
                                 ? ''
                                 : 'hidden'
                             }`}
                           >
-                            <FormattedMessage id="append" />
+                            <FormattedMessage id="add_liquidity" />
                           </GradientButton>
                         ) : (
                           <OprationButton

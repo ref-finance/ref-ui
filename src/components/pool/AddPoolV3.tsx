@@ -357,7 +357,7 @@ export const AddPoolV3 = (props: any) => {
                 >
                   <ButtonTextWrapper
                     loading={addLoading}
-                    Text={() => <FormattedMessage id="append" />}
+                    Text={() => <FormattedMessage id="add_liquidity" />}
                   />
                 </GradientButton>
               ) : (

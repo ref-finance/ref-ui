@@ -828,8 +828,10 @@ function DetailViewLimit({
         return '-';
       } else if (!tvl || +tvl == 0) {
         return '$0';
+      } else if (+tvl < 1) {
+        return '<$1';
       } else {
-        return `$${toInternationalCurrencySystem(tvl.toString(), 2)}`;
+        return `$${toInternationalCurrencySystem(tvl.toString(), 0)}`;
       }
     }
     function displayTvlAndNoPool() {
@@ -1832,7 +1834,7 @@ export default function SwapCard(props: {
             >
               {getPriceImpactTipType(displayPriceImpact)}
               <span className="text-xs text-primaryText mx-1.5">
-                <FormattedMessage id="detail"></FormattedMessage>
+                <FormattedMessage id="details"></FormattedMessage>
               </span>
               <span>
                 {showDetails ? (

@@ -962,7 +962,6 @@ const ja = {
   at_Price: 'at Price',
   insufficient_balance: 'Insufficient Balance',
   MORE: 'MORE',
-  limitTip:
-    'To improve deal efficiency, your price should be in a slot automatically',
+  limitTip: 'Your price is automatically set to the closest price slot',
 };
 export default Object.assign(ja, ja_in_risks_page);
