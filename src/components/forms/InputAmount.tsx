@@ -363,7 +363,7 @@ export function InputAmountV3({
             {...rest}
             step="any"
             inputMode="decimal"
-            className={`xs:text-lg text-xl font-bold w-full p-1 ${
+            className={`text-xl font-bold w-full p-1 ${
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
             }`}
             type="number"

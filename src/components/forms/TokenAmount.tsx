@@ -95,13 +95,13 @@ export function getTextWidth(str: string, fontSize: string) {
   ele.innerText = str;
   ele.style.fontSize = fontSize;
 
-  document.documentElement.append(ele);
+  (document.body || document.documentElement).append(ele);
 
   result = ele.offsetWidth;
 
-  document.documentElement.removeChild(ele);
+  (document.body || document.documentElement).removeChild(ele);
 
-  return mobile ? result + 5 : result + 18;
+  return result + 10;
 }
 
 export function HalfAndMaxAmount({
