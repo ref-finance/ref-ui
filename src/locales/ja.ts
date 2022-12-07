@@ -963,5 +963,6 @@ const ja = {
   insufficient_balance: 'Insufficient Balance',
   MORE: 'MORE',
   limitTip: 'Your price is automatically set to the closest price slot',
+  v2PoolTip: 'You can have up to 16 active limit orders',
 };
 export default Object.assign(ja, ja_in_risks_page);

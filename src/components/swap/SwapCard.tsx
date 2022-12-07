@@ -840,7 +840,7 @@ function DetailViewLimit({
       } else {
         return (
           <>
-            <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span>
+            {/* <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span> */}
             {displayTvl()}
           </>
         );
@@ -870,6 +870,12 @@ function DetailViewLimit({
         className={`relative border border-limitOrderFeeTiersBorderColor flex flex-col rounded-xl p-2.5 xs:p-2 xs:px-1 ${
           feeTiersShowFull ? 'w-full' : ''
         } ${mobileShowFees ? 'feeBoxGradientBorder' : ''}`}
+        onMouseLeave={() => {
+          if (!isMobile) {
+            setHoverSlider(false);
+            setFeeTiersShowFull(false);
+          }
+        }}
       >
         <div className="">
           <div className="flex items-center justify-between ">
@@ -877,6 +883,12 @@ function DetailViewLimit({
               <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
             </span>
             <button
+              onMouseEnter={(e) => {
+                if (!isMobile) {
+                  setHoverSlider(true);
+                  setFeeTiersShowFull(true);
+                }
+              }}
               className={`p-0.5 rounded-md ${
                 feeTiersShowFull || hoverSlider || mobileShowFees
                   ? 'bg-selectTokenV3BgColor'
@@ -887,15 +899,7 @@ function DetailViewLimit({
                 e.stopPropagation();
                 if (isMobile) {
                   setMobileShowFees(!mobileShowFees);
-                } else {
-                  setFeeTiersShowFull(!feeTiersShowFull);
                 }
-              }}
-              onMouseEnter={() => {
-                setHoverSlider(true);
-              }}
-              onMouseLeave={() => {
-                setHoverSlider(false);
               }}
             >
               <Slider shrink showSlip={feeTiersShowFull || hoverSlider} />
@@ -912,7 +916,7 @@ function DetailViewLimit({
               </span>
             ) : (
               <>
-                <span className="whitespace-nowrap text-sm text-primaryText mr-0.5">
+                <span className="whitespace-nowrap text-sm text-primaryText mr-1">
                   {toPrecision(
                     calculateFeePercent(
                       Number(v3Pool?.split(V3_POOL_SPLITER)[2] || 2000) / 100
@@ -950,6 +954,8 @@ function DetailViewLimit({
                     e.stopPropagation();
                     if (!isNoPool) {
                       setV3Pool(pool_id);
+                      setHoverSlider(false);
+                      setFeeTiersShowFull(false);
                     }
                   }}
                 >
@@ -1002,6 +1008,7 @@ function DetailViewLimit({
                 e.stopPropagation();
                 if (!isNoPool) {
                   setV3Pool(pool_id);
+                  setMobileShowFees(false);
                 }
               }}
             >
