@@ -1116,6 +1116,7 @@ export function LimitOrderRateSetBox({
   const [rateSort, setRateSort] = useState(true);
   const [amount, setAmount] = useState('');
   const [inputStatus, setInputStatus] = useState(false);
+  const isMobile = useClientMobile();
   const plus1 =
     tokenIn &&
     tokenOut &&
@@ -1198,7 +1199,9 @@ export function LimitOrderRateSetBox({
                 onChangeRate(plus1);
               }
             }}
-            className="flex items-center justify-center cursor-pointer w-5 h-5 rounded-md hover:bg-selectTokenV3BgColor"
+            className={`flex items-center justify-center cursor-pointer w-5 h-5 rounded-md ${
+              isMobile ? '' : 'hover:bg-selectTokenV3BgColor'
+            } `}
           >
             <ReduceIcon></ReduceIcon>
           </span>
@@ -1253,7 +1256,9 @@ export function LimitOrderRateSetBox({
                   onChangeRate(minus1);
                 }
               }}
-              className="flex items-center justify-center cursor-pointer w-5 h-5 rounded-md hover:bg-selectTokenV3BgColor"
+              className={`flex items-center justify-center cursor-pointer w-5 h-5 rounded-md ${
+                isMobile ? '' : 'hover:bg-selectTokenV3BgColor'
+              }`}
             >
               <PlusIcon></PlusIcon>
             </span>
