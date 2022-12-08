@@ -58,7 +58,7 @@ export default function YourLiquidityPageV3() {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
-  const liquidityStatusList = [intl.formatMessage({ id: 'all' }), 'V2', 'V1'];
+  const liquidityStatusList = ['all', 'V2', 'V1'];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
       text: 'V2 Liquidity',
@@ -76,7 +76,7 @@ export default function YourLiquidityPageV3() {
     useState(true);
   const [generalAddLiquidity, setGeneralAddLiquidity] =
     useState<boolean>(false);
-  const [checkedStatus, setCheckedStatus] = useState('All');
+  const [checkedStatus, setCheckedStatus] = useState('all');
   const [oldLiquidityHasNoData, setOldLiquidityHasNoData] = useState(false);
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
   // callBack handle
@@ -139,7 +139,14 @@ export default function YourLiquidityPageV3() {
                         : 'text-primaryText'
                     }`}
                   >
-                    {item}
+                    {item == 'all' ? (
+                      <FormattedMessage
+                        id={item}
+                        defaultMessage={item}
+                      ></FormattedMessage>
+                    ) : (
+                      item
+                    )}
                   </span>
                 );
               })}
