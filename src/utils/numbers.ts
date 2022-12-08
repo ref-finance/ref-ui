@@ -380,14 +380,11 @@ export const toInternationalCurrencySystem = (
 ) => {
   const hasPercent = !(percent == undefined || percent == null);
   return Math.abs(Number(labelValue)) >= 1.0e9
-    ? (Math.abs(Number(labelValue)) / 1.0e9).toFixed(hasPercent ? percent : 2) +
-        'B'
+    ? (Math.abs(Number(labelValue)) / 1.0e9).toFixed(percent || 2) + 'B'
     : Math.abs(Number(labelValue)) >= 1.0e6
-    ? (Math.abs(Number(labelValue)) / 1.0e6).toFixed(hasPercent ? percent : 2) +
-      'M'
+    ? (Math.abs(Number(labelValue)) / 1.0e6).toFixed(percent || 2) + 'M'
     : Math.abs(Number(labelValue)) >= 1.0e3
-    ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(hasPercent ? percent : 2) +
-      'K'
+    ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(percent || 2) + 'K'
     : Math.abs(Number(labelValue)).toFixed(hasPercent ? percent : 2);
 };
 

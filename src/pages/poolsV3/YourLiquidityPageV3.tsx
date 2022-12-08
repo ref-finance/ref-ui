@@ -49,6 +49,8 @@ import {
   ClipLoadering,
   BlueCircleLoading,
 } from '../../components/layout/Loading';
+import QuestionMark from '~components/farm/QuestionMark';
+import ReactTooltip from 'react-tooltip';
 export default function YourLiquidityPageV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -56,11 +58,7 @@ export default function YourLiquidityPageV3() {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
-  const [liquidityStatusList, setLiquidityStatusList] = useState<string[]>([
-    intl.formatMessage({ id: 'all' }),
-    'V2',
-    'V1',
-  ]);
+  const liquidityStatusList = ['all', 'V2', 'V1'];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
       text: 'V2 Liquidity',
@@ -78,7 +76,7 @@ export default function YourLiquidityPageV3() {
     useState(true);
   const [generalAddLiquidity, setGeneralAddLiquidity] =
     useState<boolean>(false);
-  const [checkedStatus, setCheckedStatus] = useState('All');
+  const [checkedStatus, setCheckedStatus] = useState('all');
   const [oldLiquidityHasNoData, setOldLiquidityHasNoData] = useState(false);
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
   // callBack handle
@@ -116,6 +114,11 @@ export default function YourLiquidityPageV3() {
   function setNoOldLiquidity(status: boolean) {
     setOldLiquidityHasNoData(status);
   }
+  function getTipForV2Pool() {
+    const n = intl.formatMessage({ id: 'v2PoolTip' });
+    const result: string = `<div class="text-navHighLightText text-xs text-left">${n}</div>`;
+    return result;
+  }
   return (
     <>
       <PoolTabV3></PoolTabV3>
@@ -136,7 +139,14 @@ export default function YourLiquidityPageV3() {
                         : 'text-primaryText'
                     }`}
                   >
-                    {item}
+                    {item == 'all' ? (
+                      <FormattedMessage
+                        id={item}
+                        defaultMessage={item}
+                      ></FormattedMessage>
+                    ) : (
+                      item
+                    )}
                   </span>
                 );
               })}
@@ -220,8 +230,25 @@ export default function YourLiquidityPageV3() {
                   <div
                     className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
                   >
-                    <div className="text-white text-base mb-3">
-                      V2 ({listLiquidities.length})
+                    <div className="flex items-center text-white text-base mb-3">
+                      <span>V2 ({listLiquidities.length})</span>
+                      <div
+                        className="text-white text-right ml-1"
+                        data-class="reactTip"
+                        data-for={'v2PoolNumberTip'}
+                        data-place="top"
+                        data-html={true}
+                        data-tip={getTipForV2Pool()}
+                      >
+                        <QuestionMark></QuestionMark>
+                        <ReactTooltip
+                          id={'v2PoolNumberTip'}
+                          backgroundColor="#1D2932"
+                          border
+                          borderColor="#7e8a93"
+                          effect="solid"
+                        />
+                      </div>
                     </div>
                     <div>
                       {listLiquidities.map(

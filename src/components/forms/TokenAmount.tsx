@@ -1392,6 +1392,8 @@ export function LimitOrderRateSetBox({
 }: any) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [rateSort, setRateSort] = useState(true);
+  const [amount, setAmount] = useState('');
+  const [inputStatus, setInputStatus] = useState(false);
   const plus1 =
     tokenIn &&
     tokenOut &&
@@ -1416,7 +1418,7 @@ export function LimitOrderRateSetBox({
     if (rateSort) return tokenOut?.symbol;
     else return tokenIn?.symbol;
   }
-  function getInputValue() {
+  const displayInputValue = useMemo(() => {
     if (!curPrice) {
       return '-';
     } else {
@@ -1424,16 +1426,16 @@ export function LimitOrderRateSetBox({
         return curRate;
       } else {
         try {
-          const rate_reverse = new BigNumber(1).dividedBy(curRate).toFixed();
-          const rate_reverse_regularized = toPrecision(
-            regularizedPrice(rate_reverse, tokenIn, tokenOut, limitFee),
-            8
-          );
-          return rate_reverse_regularized;
+          if (inputStatus) {
+            return amount;
+          } else {
+            const rate_reverse = new BigNumber(1).dividedBy(curRate).toFixed();
+            return toPrecision(rate_reverse, 8);
+          }
         } catch (error) {}
       }
     }
-  }
+  }, [curPrice, curRate, rateSort, inputStatus, amount]);
   return (
     <>
       <div
@@ -1486,20 +1488,29 @@ export function LimitOrderRateSetBox({
               step="any"
               type="number"
               placeholder={!curPrice ? '-' : '0.0'}
-              value={getInputValue()}
+              value={displayInputValue}
               onBlur={(e) => {
                 const newR = regularizedPrice(curRate, tokenIn, tokenOut, fee);
 
                 if (ONLY_ZEROS.test(toPrecision(newR, 8, false, false))) {
                   return;
                 }
-
                 setRate(newR);
+                setInputStatus(false);
               }}
               onChange={(e) => {
+                const v = e.target.value;
+                setAmount(v);
+                setInputStatus(true);
                 if (!curPrice) {
                   return null;
-                } else setRate(e.target.value);
+                } else {
+                  if (!rateSort && +v > 0) {
+                    setRate(new BigNumber(1).dividedBy(v).toFixed());
+                  } else {
+                    setRate(v);
+                  }
+                }
               }}
               className="text-sm text-white text-center"
               disabled={!curPrice}

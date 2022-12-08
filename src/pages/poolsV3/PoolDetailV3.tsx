@@ -1273,23 +1273,26 @@ function BaseData(props: any) {
   }, []);
 
   function getTvl() {
-    const { token_x, token_y } = poolDetail;
+    const {
+      token_x_metadata,
+      token_y_metadata,
+      token_x,
+      token_y,
+      total_x,
+      total_y,
+      total_fee_x_charged,
+      total_fee_y_charged,
+    } = poolDetail;
     const pricex = tokenPriceList[token_x]?.price || 0;
     const pricey = tokenPriceList[token_y]?.price || 0;
+    const totalX = new BigNumber(total_x).minus(total_fee_x_charged).toFixed();
+    const totalY = new BigNumber(total_y).minus(total_fee_y_charged).toFixed();
     const tvlx =
-      Number(
-        toReadableNumber(
-          poolDetail.token_x_metadata.decimals,
-          poolDetail.total_x
-        )
-      ) * Number(pricex);
+      Number(toReadableNumber(token_x_metadata.decimals, totalX)) *
+      Number(pricex);
     const tvly =
-      Number(
-        toReadableNumber(
-          poolDetail.token_y_metadata.decimals,
-          poolDetail.total_y
-        )
-      ) * Number(pricey);
+      Number(toReadableNumber(token_y_metadata.decimals, totalY)) *
+      Number(pricey);
     const tvl = tvlx + tvly;
     if (tvl == 0) {
       return '$0';
@@ -1377,11 +1380,15 @@ function TablePool(props: any) {
       total_y,
       token_x_metadata,
       token_y_metadata,
+      total_fee_x_charged,
+      total_fee_y_charged,
     } = poolDetail;
     const pricex = tokenPriceList[token_x]?.price || 0;
     const pricey = tokenPriceList[token_y]?.price || 0;
-    const amountx = toReadableNumber(token_x_metadata.decimals, total_x);
-    const amounty = toReadableNumber(token_y_metadata.decimals, total_y);
+    const totalX = new BigNumber(total_x).minus(total_fee_x_charged).toFixed();
+    const totalY = new BigNumber(total_y).minus(total_fee_y_charged).toFixed();
+    const amountx = toReadableNumber(token_x_metadata.decimals, totalX);
+    const amounty = toReadableNumber(token_y_metadata.decimals, totalY);
     const tvlx = Number(amountx) * Number(pricex);
     const tvly = Number(amounty) * Number(pricey);
     const temp_list = [];

@@ -208,7 +208,14 @@ export default function AddYourLiquidityPageV3() {
         /*** percent start */
         const tvlList: number[] = [];
         availablePools.map((p: PoolInfo) => {
-          const { total_x, total_y, token_x, token_y } = p;
+          const {
+            total_x,
+            total_y,
+            token_x,
+            token_y,
+            total_fee_x_charged,
+            total_fee_y_charged,
+          } = p;
           const firstToken = tokenX.id == token_x ? tokenX : tokenY;
           const secondToken = tokenY.id == token_y ? tokenY : tokenX;
           const firstTokenPrice =
@@ -221,10 +228,16 @@ export default function AddYourLiquidityPageV3() {
               tokenPriceList[secondToken.id] &&
               tokenPriceList[secondToken.id].price) ||
             '0';
-          const tvlx = new Big(toReadableNumber(firstToken.decimals, total_x))
+          const totalX = new BigNumber(total_x)
+            .minus(total_fee_x_charged || 0)
+            .toFixed();
+          const totalY = new BigNumber(total_y)
+            .minus(total_fee_y_charged || 0)
+            .toFixed();
+          const tvlx = new Big(toReadableNumber(firstToken.decimals, totalX))
             .times(firstTokenPrice)
             .toNumber();
-          const tvly = new Big(toReadableNumber(secondToken.decimals, total_y))
+          const tvly = new Big(toReadableNumber(secondToken.decimals, totalY))
             .times(secondTokenPrice)
             .toNumber();
           const totalTvl = tvlx + tvly;
@@ -790,7 +803,7 @@ export default function AddYourLiquidityPageV3() {
                             switchSelectedFee(fee);
                           }}
                           key={fee + index}
-                          className={`relative flex flex-col px-2 py-1.5 xsm:py-0.5 xsm:px-1 rounded-lg w-1 flex-grow ${
+                          className={`relative flex flex-col px-2 py-1.5 xsm:py-1 rounded-lg w-1 flex-grow ${
                             tokenX && tokenY ? 'cursor-pointer' : ''
                           } ${index == 3 ? '' : 'mr-2.5 xsm:mr-1'} ${
                             isNoPool
@@ -819,9 +832,9 @@ export default function AddYourLiquidityPageV3() {
                                 <FormattedMessage id="no_pool" />
                               ) : Object.keys(tokenPriceList).length > 0 ? (
                                 <span>
-                                  <label className="xsm:hidden">
+                                  {/* <label className="xsm:hidden">
                                     TVL&nbsp;
-                                  </label>
+                                  </label> */}
                                   {displayTvl(currentPools[fee].tvl)}
                                 </span>
                               ) : (

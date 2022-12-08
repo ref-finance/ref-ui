@@ -967,5 +967,7 @@ const vi = {
   insufficient_balance: 'Insufficient Balance',
   MORE: 'MORE',
   limitTip: 'Your price is automatically set to the closest price slot',
+  v2PoolTip: 'You can have up to 16 positions in V2 pools',
+  orderTip: 'You can have up to 16 active/history limit orders',
 };
 export default Object.assign(vi, vi_in_risks_page);

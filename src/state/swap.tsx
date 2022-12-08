@@ -915,19 +915,26 @@ export const useLimitOrder = ({
       .then((res) => {
         setPools(res);
 
-        const counts = res?.map((r) => {
+        const counts = res?.map((r: PoolInfoV3) => {
           if (!r) return 0;
           const tokenX = r.token_x === tokenIn.id ? tokenIn : tokenOut;
           const tokenY = r.token_y === tokenOut.id ? tokenOut : tokenIn;
 
           const priceX = r.token_x === tokenIn.id ? price_x : price_y;
           const priceY = r.token_y === tokenOut.id ? price_y : price_x;
-
-          const tvlx = new Big(toReadableNumber(tokenX.decimals, r.total_x))
+          const { total_x, total_y, total_fee_x_charged, total_fee_y_charged } =
+            r;
+          const totalX = new BigNumber(total_x)
+            .minus(total_fee_x_charged)
+            .toFixed();
+          const totalY = new BigNumber(total_y)
+            .minus(total_fee_y_charged)
+            .toFixed();
+          const tvlx = new Big(toReadableNumber(tokenX.decimals, totalX))
             .times(priceX || '0')
             .toNumber();
 
-          const tvly = new Big(toReadableNumber(tokenY.decimals, r.total_y))
+          const tvly = new Big(toReadableNumber(tokenY.decimals, totalY))
             .times(priceY || '0')
             .toNumber();
 
