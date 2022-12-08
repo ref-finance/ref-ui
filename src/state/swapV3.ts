@@ -11,6 +11,7 @@ import { WalletContext } from '../utils/wallets-integration';
 import { useTokenPriceList } from './token';
 import { ftGetTokenMetadata } from '../services/ft-contract';
 import { toReadableNumber } from '../utils/numbers';
+import BigNumber from 'bignumber.js';
 
 export const useMyOrders = () => {
   const [activeOrder, setActiveOrder] = useState<UserOrderInfo[]>();
@@ -49,15 +50,25 @@ export const useAllPoolsV2 = () => {
 
             p.token_x_metadata = await ftGetTokenMetadata(token_x);
             p.token_y_metadata = await ftGetTokenMetadata(token_y);
-
             const pricex = tokenPriceList[token_x]?.price || 0;
             const pricey = tokenPriceList[token_y]?.price || 0;
-
+            const {
+              total_x,
+              total_y,
+              total_fee_x_charged,
+              total_fee_y_charged,
+            } = p;
+            const totalX = new BigNumber(total_x)
+              .minus(total_fee_x_charged)
+              .toFixed();
+            const totalY = new BigNumber(total_y)
+              .minus(total_fee_y_charged)
+              .toFixed();
             const tvlx =
-              Number(toReadableNumber(p.token_x_metadata.decimals, p.total_x)) *
+              Number(toReadableNumber(p.token_x_metadata.decimals, totalX)) *
               Number(pricex);
             const tvly =
-              Number(toReadableNumber(p.token_y_metadata.decimals, p.total_y)) *
+              Number(toReadableNumber(p.token_y_metadata.decimals, totalY)) *
               Number(pricey);
 
             p.tvl = tvlx + tvly;

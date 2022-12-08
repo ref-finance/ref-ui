@@ -58,11 +58,7 @@ export default function YourLiquidityPageV3() {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
-  const [liquidityStatusList, setLiquidityStatusList] = useState<string[]>([
-    intl.formatMessage({ id: 'all' }),
-    'V2',
-    'V1',
-  ]);
+  const liquidityStatusList = [intl.formatMessage({ id: 'all' }), 'V2', 'V1'];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
       text: 'V2 Liquidity',

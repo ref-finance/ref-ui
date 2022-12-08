@@ -1677,6 +1677,7 @@ function MyOrderPage() {
       : [...new Set([...ActiveTokenIds, ...HistoryTokenIds])];
 
   const tokens = useTokens(tokenIds || []);
+  const intl = useIntl();
 
   if (
     !tokenIds ||
@@ -1693,6 +1694,11 @@ function MyOrderPage() {
       [cur.id]: cur,
     };
   }, {});
+  function getTipForOrders() {
+    const n = intl.formatMessage({ id: 'orderTip' });
+    const result: string = `<div class="text-navHighLightText text-xs text-left">${n}</div>`;
+    return result;
+  }
 
   return (
     <div className="max-w-7xl mx-auto flex flex-col xs:w-11/12 md:5/6 lg:w-1000px">
@@ -1710,7 +1716,33 @@ function MyOrderPage() {
           <span className="text-xl font-bold mr-3">
             <RouterArrowLeft />
           </span>
-          <FormattedMessage id="your_orders" defaultMessage={'Your Order(s)'} />
+          <div className="flex items-center">
+            <FormattedMessage
+              id="your_orders"
+              defaultMessage={'Your Order(s)'}
+            />
+            <div
+              className="text-white text-right ml-1"
+              data-class="reactTip"
+              data-for={'orderNumberTip'}
+              data-place="top"
+              data-html={true}
+              data-tip={getTipForOrders()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
+              <QuestionMark></QuestionMark>
+              <ReactTooltip
+                id={'orderNumberTip'}
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
+          </div>
         </button>
         <SolidButton
           padding="px-4 py-2"
