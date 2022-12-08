@@ -101,7 +101,12 @@ export function getTextWidth(str: string, fontSize: string) {
 
   (document.body || document.documentElement).removeChild(ele);
 
-  return result + 10;
+  const inputWidth = document.getElementById('rateDiffInput')?.offsetWidth || 0;
+  if (result >= inputWidth) {
+    return mobile ? inputWidth + 5 : inputWidth + 10;
+  } else {
+    return result + 10;
+  }
 }
 
 export function HalfAndMaxAmount({
@@ -488,297 +493,6 @@ export default function TokenAmount({
   );
 }
 
-export function TokenAmountV3Old({
-  amount,
-  max,
-  total,
-  tokens,
-  selectedToken,
-  balances,
-  onSelectToken,
-  onSearchToken,
-  onChangeAmount,
-  text,
-  showSelectToken = true,
-  disabled = false,
-  useNearBalance,
-  forSwap,
-  isError,
-  tokenPriceList,
-  forLimitOrder,
-  tokenIn,
-  tokenOut,
-  onBlur,
-  swapMode,
-  preSelected,
-  postSelected,
-  onSelectPost,
-  forWrap,
-  ExtraElement,
-  marketPriceLimitOrder,
-  limitOrderDisable,
-  onChangeRate,
-  curRate,
-  limitFee,
-  setDiff,
-  allowWNEAR,
-}: TokenAmountProps) {
-  const render = (token: TokenMetadata) =>
-    toRoundedReadableNumber({
-      decimals: token.decimals,
-      number: balances ? balances[token.id] : '0',
-    });
-
-  const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
-
-  const isMobile = useClientMobile();
-
-  const tokenPrice = tokenPriceList?.[selectedToken?.id]?.price || null;
-
-  const curMax =
-    selectedToken?.id === WRAP_NEAR_CONTRACT_ID &&
-    !forWrap &&
-    selectedToken?.symbol !== 'wNEAR'
-      ? Number(max) <= 0.5
-        ? '0'
-        : String(Number(max) - 0.5)
-      : max;
-  const plus1 =
-    tokenIn &&
-    tokenOut &&
-    limitFee &&
-    toPrecision(regularizedPrice(curRate, tokenIn, tokenOut, limitFee, 1), 8);
-
-  const minus1 =
-    tokenIn &&
-    tokenOut &&
-    limitFee &&
-    toPrecision(regularizedPrice(curRate, tokenIn, tokenOut, limitFee, -1), 8);
-
-  const plus5 =
-    tokenIn &&
-    tokenOut &&
-    limitFee &&
-    toPrecision(
-      regularizedPrice(
-        percentOfBigNumber(105, marketPriceLimitOrder || 0, 8),
-        tokenIn,
-        tokenOut,
-        limitFee
-      ),
-      8
-    );
-  const plus10 =
-    tokenIn &&
-    tokenOut &&
-    limitFee &&
-    toPrecision(
-      regularizedPrice(
-        percentOfBigNumber(110, marketPriceLimitOrder || 0, 8),
-        tokenIn,
-        tokenOut,
-        limitFee
-      ),
-      8
-    );
-
-  const rateDiff = new Big(curRate || '0')
-    .minus(marketPriceLimitOrder || '0')
-    .div(marketPriceLimitOrder || '1')
-    .times(100);
-
-  const displayRateDiff =
-    (Number(rateDiff) < 0 ? '-' : Number(rateDiff) > 0 ? '+' : '') +
-    (Number(curRate) === Number(plus5)
-      ? 5
-      : Number(curRate) === Number(plus10)
-      ? 10
-      : Math.abs(Number(rateDiff)) < 1
-      ? toPrecision(
-          scientificNotationToString(
-            rateDiff.times(rateDiff.lt(0) ? -1 : 1).toString()
-          ),
-          1
-        )
-      : rateDiff.times(rateDiff.lt(0) ? -1 : 1).toFixed(0));
-
-  useEffect(() => {
-    if (setDiff) {
-      setDiff(displayRateDiff);
-    }
-  }, [displayRateDiff]);
-
-  return (
-    <div
-      className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-xl px-4 pb-2 pt-4`}
-    >
-      <div className="flex items-center justify-between">
-        {showSelectToken &&
-          (!swapMode || swapMode !== SWAP_MODE.STABLE ? (
-            <SelectToken
-              tokenPriceList={tokenPriceList}
-              tokens={tokens}
-              render={render}
-              customWidth
-              selected={
-                selectedToken && (
-                  <div
-                    className="flex items-center justify-end font-semibold "
-                    onMouseEnter={() => setHoverSelectToken(true)}
-                    onMouseLeave={() => setHoverSelectToken(false)}
-                  >
-                    <IconLeftV3
-                      size={'8'}
-                      token={selectedToken}
-                      hover={hoverSelectToken}
-                    />
-                  </div>
-                )
-              }
-              onSelect={onSelectToken}
-              balances={balances}
-              allowWNEAR={allowWNEAR}
-            />
-          ) : (
-            <StableSelectToken
-              selected={
-                selectedToken && (
-                  <div
-                    className="flex items-center justify-end font-semibold "
-                    onMouseEnter={() => setHoverSelectToken(true)}
-                    onMouseLeave={() => setHoverSelectToken(false)}
-                  >
-                    <IconLeftV3
-                      size={'8'}
-                      token={selectedToken}
-                      hover={hoverSelectToken}
-                    />
-                  </div>
-                )
-              }
-              customWidth
-              tokens={tokens}
-              onSelect={onSelectToken}
-              preSelected={preSelected}
-              postSelected={postSelected}
-              onSelectPost={onSelectPost}
-            />
-          ))}
-        <span className="text-primaryText">
-          <FormattedMessage id="balance" defaultMessage="Balance" />
-          :&nbsp;
-          <span title={total}>{toPrecision(total, 3, true)}</span>
-        </span>
-      </div>
-
-      <fieldset className="relative flex  align-center items-center my-1.5">
-        <InputAmountV3
-          className="border border-transparent rounded w-full mr-2"
-          id="inputAmount"
-          name={selectedToken?.id}
-          max={onChangeAmount ? curMax : null}
-          value={limitOrderDisable ? '' : amount}
-          onChangeAmount={onChangeAmount}
-          forLimitOrder={limitOrderDisable}
-          disabled={disabled || limitOrderDisable}
-          forSwap={!!forSwap}
-          nearValidation={tokenIn && tokenIn.id === WRAP_NEAR_CONTRACT_ID}
-          onBlur={(e) => {
-            if (!!onBlur) {
-              const newPrice = regularizedPrice(
-                curRate,
-                tokenIn,
-                tokenOut,
-                limitFee
-              );
-
-              if (ONLY_ZEROS.test(toPrecision(newPrice, 8, false, false)))
-                return;
-
-              onBlur(newPrice);
-            }
-          }}
-          openClear={
-            !!onChangeAmount && !forLimitOrder && !ONLY_ZEROS.test(amount)
-          }
-          rateDiff={
-            forLimitOrder &&
-            !ONLY_ZEROS.test(amount) &&
-            Number(rateDiff) !== 0 &&
-            !ONLY_ZEROS.test(curRate) &&
-            marketPriceLimitOrder &&
-            swapMode === SWAP_MODE.LIMIT ? (
-              <span
-                className={`rounded-xl ${
-                  Number(displayRateDiff) > 0
-                    ? 'text-gradientFrom bg-gradientFrom '
-                    : Number(displayRateDiff) <= -10
-                    ? 'text-error bg-error'
-                    : 'text-warn bg-warn'
-                }  py-0.5  absolute px-2 bg-opacity-20`}
-                style={{
-                  left: getTextWidth(amount, '20px') + 'px',
-                }}
-              >
-                {displayRateDiff}%
-              </span>
-            ) : null
-          }
-        />
-        {ExtraElement}
-        {forLimitOrder &&
-          isMobile &&
-          marketPriceLimitOrder &&
-          swapMode === SWAP_MODE.LIMIT && (
-            <QuickAmountLimitOrderMobile
-              onChangeAmount={onChangeRate}
-              amount={curRate}
-              plus1={plus1}
-              minus1={minus1}
-            />
-          )}
-      </fieldset>
-
-      <div className="flex items-center justify-between h-6">
-        <span className="mr-3 text-primaryText">
-          {!!tokenPrice &&
-          !ONLY_ZEROS.test(amount) &&
-          !isError &&
-          !limitOrderDisable
-            ? '$' +
-              toInternationalCurrencySystemLongString(
-                multiply(tokenPrice || '0', amount || '0'),
-                2
-              )
-            : '$-'}
-        </span>
-
-        {forSwap && !forLimitOrder && onChangeAmount ? (
-          <HalfAndMaxAmountV3
-            token={selectedToken}
-            max={curMax}
-            onChangeAmount={onChangeAmount}
-            amount={amount}
-          />
-        ) : null}
-        {forLimitOrder &&
-        marketPriceLimitOrder &&
-        swapMode === SWAP_MODE.LIMIT ? (
-          <QuickAmountLimitOrder
-            max={marketPriceLimitOrder}
-            onChangeAmount={onChangeRate}
-            marketPrice={marketPriceLimitOrder}
-            amount={curRate}
-            plus10={plus10}
-            plus5={plus5}
-            plus1={plus1}
-            minus1={minus1}
-          />
-        ) : null}
-      </div>
-    </div>
-  );
-}
 export function TokenAmountV3({
   amount,
   max,
@@ -907,16 +621,22 @@ export function TokenAmountV3({
           1
         )
       : rateDiff.times(rateDiff.lt(0) ? -1 : 1).toFixed(0));
-
   useEffect(() => {
     if (setDiff) {
       setDiff(displayRateDiff);
     }
   }, [displayRateDiff]);
-
+  const showRateDiff =
+    forLimitOrder &&
+    !ONLY_ZEROS.test(amount) &&
+    Number(rateDiff) !== 0 &&
+    !ONLY_ZEROS.test(curRate) &&
+    marketPriceLimitOrder &&
+    swapMode === SWAP_MODE.LIMIT;
+  const hasExtraElement = !!ExtraElement;
   return (
     <div
-      className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-2xl px-3 pt-1 pb-2.5 border border-inputV3BorderColor hover:border-inputV3BorderHoverColor`}
+      className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-2xl px-3 xsm:px-2 pt-1 pb-2.5 border border-inputV3BorderColor hover:border-inputV3BorderHoverColor`}
     >
       {text ? (
         <div className="text-limitOrderInputColor text-xs pt-1.5">{text}</div>
@@ -950,13 +670,10 @@ export function TokenAmountV3({
             }
           }}
           openClear={false}
+          showRateDiff={showRateDiff}
+          hasExtraElement={hasExtraElement}
           rateDiff={
-            forLimitOrder &&
-            !ONLY_ZEROS.test(amount) &&
-            Number(rateDiff) !== 0 &&
-            !ONLY_ZEROS.test(curRate) &&
-            marketPriceLimitOrder &&
-            swapMode === SWAP_MODE.LIMIT ? (
+            showRateDiff ? (
               <div
                 className="flex items-center absolute"
                 style={{
@@ -970,9 +687,14 @@ export function TokenAmountV3({
                       : Number(displayRateDiff) <= -10
                       ? 'text-error bg-error'
                       : 'text-warn bg-warn'
-                  }  py-0.5 px-2 bg-opacity-20 mr-1`}
+                  }  py-0.5 px-2 xsm:px-1 bg-opacity-20 mr-1 xsm:mr-0.5`}
                 >
-                  {displayRateDiff}%
+                  {Number(displayRateDiff) > 1000
+                    ? '>1000'
+                    : Number(displayRateDiff) < -1000
+                    ? '<-1000'
+                    : displayRateDiff}
+                  %
                 </span>
                 {ExtraElement}
               </div>

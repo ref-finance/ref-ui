@@ -96,7 +96,7 @@ export function InsufficientButton(props: any) {
   const { divClassName, spanClassName } = props;
   return (
     <div
-      className={`flex items-center justify-center bg-menuMoreBoxBorderColor rounded-lg cursor-not-allowed ${divClassName}`}
+      className={`flex items-center justify-center bg-menuMoreBoxBorderColor rounded-lg cursor-not-allowed px-2 whitespace-nowrap ${divClassName}`}
     >
       <span
         className={`gotham_bold text-primaryText text-base ${spanClassName}`}

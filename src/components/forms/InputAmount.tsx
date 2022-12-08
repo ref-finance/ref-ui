@@ -27,6 +27,8 @@ interface InputAmountProps extends React.InputHTMLAttributes<HTMLInputElement> {
   forLimitOrder?: boolean;
   rateDiff?: JSX.Element | string;
   nearValidation?: boolean;
+  showRateDiff?: boolean;
+  hasExtraElement?: boolean;
 }
 
 export default function InputAmount({
@@ -334,6 +336,8 @@ export function InputAmountV3({
   rateDiff,
   nearValidation,
   onBlur,
+  showRateDiff,
+  hasExtraElement,
   ...rest
 }: InputAmountProps) {
   const ref = useRef<HTMLInputElement>();
@@ -363,9 +367,16 @@ export function InputAmountV3({
             {...rest}
             step="any"
             inputMode="decimal"
-            className={`text-xl font-bold w-full p-1 ${
+            className={`text-xl font-bold p-1 ${
               disabled ? 'text-gray-200 placeholder-gray-200' : 'text-white'
+            } ${
+              showRateDiff
+                ? 'w-2/3 xsm:w-3/5'
+                : hasExtraElement
+                ? 'w-5/6'
+                : 'w-full'
             }`}
+            id={hasExtraElement ? 'rateDiffInput' : ''}
             type="number"
             placeholder={forLimitOrder ? '-' : '0.0'}
             onChange={({ target }) => {
