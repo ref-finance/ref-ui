@@ -1392,6 +1392,8 @@ export function LimitOrderRateSetBox({
 }: any) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [rateSort, setRateSort] = useState(true);
+  const [amount, setAmount] = useState('');
+  const [inputStatus, setInputStatus] = useState(false);
   const plus1 =
     tokenIn &&
     tokenOut &&
@@ -1424,12 +1426,16 @@ export function LimitOrderRateSetBox({
         return curRate;
       } else {
         try {
-          const rate_reverse = new BigNumber(1).dividedBy(curRate).toFixed();
-          return toPrecision(rate_reverse, 8);
+          if (inputStatus) {
+            return amount;
+          } else {
+            const rate_reverse = new BigNumber(1).dividedBy(curRate).toFixed();
+            return toPrecision(rate_reverse, 8);
+          }
         } catch (error) {}
       }
     }
-  }, [curPrice, curRate, rateSort]);
+  }, [curPrice, curRate, rateSort, inputStatus, amount]);
   return (
     <>
       <div
@@ -1490,12 +1496,15 @@ export function LimitOrderRateSetBox({
                   return;
                 }
                 setRate(newR);
+                setInputStatus(false);
               }}
               onChange={(e) => {
+                const v = e.target.value;
+                setAmount(v);
+                setInputStatus(true);
                 if (!curPrice) {
                   return null;
                 } else {
-                  const v = e.target.value;
                   if (!rateSort && +v > 0) {
                     setRate(new BigNumber(1).dividedBy(v).toFixed());
                   } else {
