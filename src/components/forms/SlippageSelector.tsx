@@ -144,7 +144,7 @@ export default function SlippageSelector({
     setInvalid(false);
     setWarn(false);
     onChange(slippage);
-    // ref.current.value = slippage.toString();
+    ref.current.value = slippage.toString();
   };
 
   useEffect(() => {
@@ -474,7 +474,7 @@ export function StableSlipSelecter({
     setInvalid(false);
     setWarn(false);
     onChange(slippage);
-    // ref.current.value = slippage.toString();
+    ref.current.value = slippage.toString();
   };
 
   useEffect(() => {
