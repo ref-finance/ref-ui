@@ -103,7 +103,7 @@ export function getTextWidth(str: string, fontSize: string) {
 
   const inputWidth = document.getElementById('rateDiffInput')?.offsetWidth || 0;
   if (result >= inputWidth) {
-    return mobile ? inputWidth + 5 : inputWidth + 10;
+    return mobile ? inputWidth + 8 : inputWidth + 10;
   } else {
     return result + 10;
   }
