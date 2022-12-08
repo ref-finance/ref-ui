@@ -313,7 +313,7 @@ function MobilePoolRow({
   };
 
   return (
-    <div className="w-full hover:bg-poolRowHover">
+    <div className="w-full hover:bg-poolRowHover overflow-x-hidden">
       <Link
         ref={ref}
         className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-2.5 py-6 text-white"
@@ -1112,7 +1112,7 @@ function MobileLiquidityPage({
                 </div>
               </header>
               <div className="border-b border-gray-700 border-opacity-70" />
-              <div className="max-h-96 overflow-y-auto pool-list-container-mobile">
+              <div className="max-h-96 overflow-y-auto overflow-x-visible pool-list-container-mobile">
                 {pools
                   ?.filter(poolFilterFunc)
                   .sort(poolSortingFunc)
