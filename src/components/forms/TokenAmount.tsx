@@ -100,13 +100,7 @@ export function getTextWidth(str: string, fontSize: string) {
   result = ele.offsetWidth;
 
   (document.body || document.documentElement).removeChild(ele);
-
-  const inputWidth = document.getElementById('rateDiffInput')?.offsetWidth || 0;
-  if (result >= inputWidth) {
-    return mobile ? inputWidth + 8 : inputWidth + 10;
-  } else {
-    return result + 10;
-  }
+  return result;
 }
 
 export function HalfAndMaxAmount({
@@ -532,6 +526,7 @@ export function TokenAmountV3({
 }: TokenAmountProps) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const [isOverOneLine, setIsOverOneLine] = useState(false);
   const render = (token: TokenMetadata) =>
     toRoundedReadableNumber({
       decimals: token.decimals,
@@ -633,7 +628,88 @@ export function TokenAmountV3({
     !ONLY_ZEROS.test(curRate) &&
     marketPriceLimitOrder &&
     swapMode === SWAP_MODE.LIMIT;
-  const hasExtraElement = !!ExtraElement;
+  function RateDiffDOM_newline(props: any) {
+    const { over } = props;
+    return (
+      <div
+        className={`relative -top-2 px-1 flex items-center ${
+          over ? '' : 'hidden'
+        }`}
+      >
+        <span
+          className={`rounded-xl ${
+            Number(displayRateDiff) > 0
+              ? 'text-gradientFrom bg-gradientFrom '
+              : Number(displayRateDiff) <= -10
+              ? 'text-error bg-error'
+              : 'text-warn bg-warn'
+          }  py-0.5 px-2 bg-opacity-20 mr-1 ${showRateDiff ? '' : 'hidden'}`}
+        >
+          {Number(displayRateDiff) > 1000
+            ? '>1000'
+            : Number(displayRateDiff) < -1000
+            ? '<-1000'
+            : displayRateDiff}
+          %
+        </span>
+        {ExtraElement}
+      </div>
+    );
+  }
+  function RateDiffDOM(props: any) {
+    const [left, setLeft] = useState(0);
+    const { over, setOver } = props;
+    useEffect(() => {
+      const w = getTextWidth(amount, '20px') + 10;
+      const inputWidth =
+        document.getElementById('rateDiffInput')?.offsetWidth || 0;
+      const spanWidth =
+        document.getElementById('rateDiffSpan')?.offsetWidth || 0;
+      const divWidth = document.getElementById('rateDiffDiv')?.offsetWidth || 0;
+      const inputAreaWidth = Math.min(w, inputWidth);
+      const isOver = inputAreaWidth + spanWidth > divWidth;
+      console.log(
+        '7777777777 w, inputWidth, spanWidth, divWidth, isOver',
+        w,
+        inputWidth,
+        spanWidth,
+        divWidth,
+        isOver
+      );
+      setLeft(inputAreaWidth);
+      setOver(isOver);
+    }, [amount, showRateDiff]);
+
+    return (
+      <div
+        id="rateDiffSpan"
+        className={`flex items-center absolute ${
+          over ? 'invisible' : 'visible'
+        }`}
+        style={{
+          left: left + 'px',
+        }}
+      >
+        <span
+          className={`rounded-xl ${
+            Number(displayRateDiff) > 0
+              ? 'text-gradientFrom bg-gradientFrom '
+              : Number(displayRateDiff) <= -10
+              ? 'text-error bg-error'
+              : 'text-warn bg-warn'
+          }  py-0.5 px-2 bg-opacity-20 mr-1 ${showRateDiff ? '' : 'hidden'}`}
+        >
+          {Number(displayRateDiff) > 1000
+            ? '>1000'
+            : Number(displayRateDiff) < -1000
+            ? '<-1000'
+            : displayRateDiff}
+          %
+        </span>
+        {ExtraElement}
+      </div>
+    );
+  }
   return (
     <div
       className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-2xl px-3 xsm:px-2 pt-1 pb-2.5 border border-inputV3BorderColor hover:border-inputV3BorderHoverColor`}
@@ -670,44 +746,10 @@ export function TokenAmountV3({
             }
           }}
           openClear={false}
-          showRateDiff={showRateDiff}
-          hasExtraElement={hasExtraElement}
           rateDiff={
-            showRateDiff ? (
-              <div
-                className="flex items-center absolute"
-                style={{
-                  left: getTextWidth(amount, '20px') + 'px',
-                }}
-              >
-                <span
-                  className={`rounded-xl ${
-                    Number(displayRateDiff) > 0
-                      ? 'text-gradientFrom bg-gradientFrom '
-                      : Number(displayRateDiff) <= -10
-                      ? 'text-error bg-error'
-                      : 'text-warn bg-warn'
-                  }  py-0.5 px-2 xsm:px-1 bg-opacity-20 mr-1 xsm:mr-0.5`}
-                >
-                  {Number(displayRateDiff) > 1000
-                    ? '>1000'
-                    : Number(displayRateDiff) < -1000
-                    ? '<-1000'
-                    : displayRateDiff}
-                  %
-                </span>
-                {ExtraElement}
-              </div>
-            ) : (
-              <div
-                className="absolute"
-                style={{
-                  left: getTextWidth(amount, '20px') + 'px',
-                }}
-              >
-                {ExtraElement}
-              </div>
-            )
+            ExtraElement ? (
+              <RateDiffDOM over={isOverOneLine} setOver={setIsOverOneLine} />
+            ) : null
           }
         />
         {showSelectToken &&
@@ -764,7 +806,7 @@ export function TokenAmountV3({
             />
           ))}
       </fieldset>
-
+      {ExtraElement ? <RateDiffDOM_newline over={isOverOneLine} /> : null}
       <div className="flex items-center justify-between h-6">
         <span className="mr-3 text-limitOrderInputColor">
           {!!tokenPrice &&
