@@ -26,6 +26,7 @@ import {
 } from '../../services/pool';
 import { isClientMobie } from '../../utils/device';
 import ReactTooltip from 'react-tooltip';
+import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
 
 export function BackToStablePoolList() {
   const history = useHistory();
@@ -33,12 +34,16 @@ export function BackToStablePoolList() {
   return (
     <div className="flex items-center text-base text-farmText ">
       <span
-        onClick={() => history.push('/sauce')}
+        onClick={() => {
+          localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'stable');
+
+          history.push('/pools');
+        }}
         className="hover:text-white  cursor-pointer"
       >
         <span className="pr-1.5">{'<'}</span>
         <span>
-          <FormattedMessage id="sauce" defaultMessage="Sauce" />
+          <FormattedMessage id="pools" defaultMessage="Pools" />
         </span>
       </span>
     </div>

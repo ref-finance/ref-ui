@@ -1072,7 +1072,7 @@ export default function SwapCard(props: {
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
-  const [poolError, setPoolError] = useState<boolean>(false);
+  const [poolError, setPoolError] = useState<string>(null);
 
   const [diff, setDiff] = useState<string>('');
 
@@ -1995,7 +1995,13 @@ export default function SwapCard(props: {
     if (!quoteDone || !quoteDoneV3) {
       return;
     }
-    setPoolError(!!swapError?.message && !!swapErrorV3?.message);
+    if (swapError && swapErrorV3) {
+      setPoolError(
+        swapError?.message ? swapError?.message : swapErrorV3?.message
+      );
+    } else {
+      setPoolError(null);
+    }
   }, [quoteDone, quoteDoneV3, swapError, swapErrorV3]);
   return (
     <>
@@ -2288,7 +2294,7 @@ export default function SwapCard(props: {
         swapMode !== SWAP_MODE.LIMIT &&
         Number(tokenInAmount || '0') > 0 ? (
           <div className="pb-2 relative -mb-5">
-            <Alert level="warn" message={NoPoolError().message} />
+            <Alert level="warn" message={poolError} />
           </div>
         ) : null}
       </SwapFormWrap>

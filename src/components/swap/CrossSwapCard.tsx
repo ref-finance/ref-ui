@@ -294,7 +294,7 @@ export default function CrossSwapCard(props: {
   const [showSkywardTip, setShowSkywardTip] = useState<boolean>(false);
 
   const [requested, setRequested] = useState<boolean>(false);
-  const [poolError, setPoolError] = useState<boolean>(false);
+  const [poolError, setPoolError] = useState<string>('');
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [loadingTrigger, setLoadingTrigger] = useState<boolean>(true);
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
@@ -687,6 +687,7 @@ export default function CrossSwapCard(props: {
     tokenInBalanceFromNear,
     swapError,
     swapErrorV3,
+    canSwapV3,
   });
 
   useEffect(() => {
@@ -795,7 +796,13 @@ export default function CrossSwapCard(props: {
     if (!crossQuoteDone || !quoteDoneV3) {
       return;
     }
-    setPoolError(!!swapError?.message && !!swapErrorV3?.message);
+    if (swapError && swapErrorV3) {
+      setPoolError(
+        swapError?.message ? swapError?.message : swapErrorV3?.message
+      );
+    } else {
+      setPoolError(null);
+    }
   }, [crossQuoteDone, quoteDoneV3, swapError, swapErrorV3]);
   const NoPoolError = () => {
     return new Error(
@@ -963,7 +970,7 @@ export default function CrossSwapCard(props: {
 
         {poolError && tokenIn?.id !== tokenOut?.id ? (
           <div className="pb-2 relative -mb-5">
-            <Alert level="warn" message={NoPoolError().message} />
+            <Alert level="warn" message={poolError} />
           </div>
         ) : null}
       </CrossSwapFormWrap>

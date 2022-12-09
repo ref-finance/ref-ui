@@ -418,8 +418,6 @@ export const useSwap = ({
   const history = useHistory();
   const [count, setCount] = useState<number>(0);
 
-  const { txHash, pathname, errorType, txHashes } = getURLInfo();
-
   let minAmountOut = tokenOutAmount
     ? percentLess(slippageTolerance, tokenOutAmount)
     : null;
@@ -516,6 +514,7 @@ export const useSwap = ({
 
   useEffect(() => {
     const valRes =
+      !swapError &&
       swapsToDo &&
       tokenIn &&
       tokenOut &&
@@ -526,7 +525,8 @@ export const useSwap = ({
         tokenOut
       );
     if (estimating && swapsToDo && !forceEstimate) return;
-    if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
+
+    if (valRes && !loadingTrigger && !forceEstimate) return;
 
     getEstimate();
   }, [
@@ -537,9 +537,26 @@ export const useSwap = ({
     tokenInAmount,
     reEstimateTrigger,
     supportLedger,
-    estimating,
     forceEstimate,
   ]);
+
+  useEffect(() => {
+    const valRes =
+      swapsToDo &&
+      tokenIn &&
+      tokenOut &&
+      estimateValidator(
+        swapsToDo,
+        tokenIn,
+        toNonDivisibleNumber(tokenIn?.decimals || 24, tokenInAmount),
+        tokenOut
+      );
+
+    if (estimating && swapsToDo && !forceEstimate) return;
+
+    if (((valRes && !loadingTrigger) || swapError) && !forceEstimate) return;
+    getEstimate();
+  }, [estimating]);
 
   useEffect(() => {
     // setEstimating(false);
@@ -644,7 +661,7 @@ export const useSwapV3 = ({
   ) => {
     if (!bestEstimate) return false;
 
-    const tagInfo = bestEstimate?.tag?.split('-');
+    const tagInfo = bestEstimate?.tag?.split('|');
 
     return (
       !!bestEstimate &&
@@ -667,11 +684,7 @@ export const useSwapV3 = ({
     const validator =
       foundPool &&
       Number(foundPool?.total_x || 0) + Number(foundPool?.total_y || 0) > 0;
-    console.log({
-      foundPool,
-      number:
-        Number(foundPool?.total_x || 0) + Number(foundPool?.total_y || 0) > 0,
-    });
+
     if (!validator) return null;
 
     return quote({
@@ -679,15 +692,13 @@ export const useSwapV3 = ({
       input_token: tokenIn,
       output_token: tokenOut,
       input_amount: tokenInAmount,
-      tag: `${tokenIn.id}-${fee}-${tokenInAmount}`,
+      tag: `${tokenIn.id}|${fee}|${tokenInAmount}`,
     }).catch((e) => null);
   };
 
-  const bestFee = Number(bestEstimate?.tag?.split('-')?.[1]);
-
-  console.log({
-    bestFee,
-  });
+  const bestFee = bestEstimate?.tag?.split('|')?.[1]
+    ? Number(bestEstimate?.tag?.split('|')?.[1])
+    : null;
 
   useEffect(() => {
     if (!bestFee || wrapOperation) return;

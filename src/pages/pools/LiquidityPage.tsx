@@ -2447,6 +2447,8 @@ function LiquidityPage_({
   );
 }
 
+export const REF_FI_POOL_ACTIVE_TAB = 'REF_FI_POOL_ACTIVE_TAB_VALUE';
+
 export function LiquidityPage() {
   const [tokenName, setTokenName] = useState('');
   const [sortBy, setSortBy] = useState('tvl');
@@ -2468,8 +2470,6 @@ export function LiquidityPage() {
   const [farmOnly, setFarmOnly] = useState<boolean>(
     localStorage.getItem(REF_FI_FARM_ONLY) === '1' || false
   );
-
-  const REF_FI_POOL_ACTIVE_TAB = 'REF_FI_POOL_ACTIVE_TAB_VALUE';
 
   const [activeTab, setActiveTab] = useState<string>(
     localStorage.getItem(REF_FI_POOL_ACTIVE_TAB) || 'v1'

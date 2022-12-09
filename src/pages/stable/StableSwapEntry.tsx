@@ -51,6 +51,7 @@ import {
 } from '../../services/near';
 import { useClientMobile } from '~utils/device';
 import ReactTooltip from 'react-tooltip';
+import { REF_FI_POOL_ACTIVE_TAB } from '../pools/LiquidityPage';
 import {
   ForbiddenIcon,
   ForbiddenIconLarge,
@@ -486,6 +487,11 @@ export function StableSwapPageEntry() {
       localStorage.getItem(REF_SAUCE_PAGE_STABLE_CLASS_KEY)?.toString()
     ] || STABLE_POOL_TYPE.USD
   );
+
+  const history = useHistory();
+
+  localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'stable');
+  history.push('/pools');
 
   const allStablePoolData = useAllStablePoolData();
 
