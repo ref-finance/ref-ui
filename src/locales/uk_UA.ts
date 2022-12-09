@@ -914,7 +914,7 @@ const uk_UA = {
   value_must_be_less_than_or_equal_to: 'Value must be less than or equal to',
   maket_price_outside_tip: 'The maket price is outside your price range.',
   maket_price_outside_single_only_tip:
-    'The maket price is outside your price range.Single asset deposit only.',
+    'The market price is outside the price range. Add liquidity for the corresponding token.',
   login_risk_tip:
     'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
     "'/risks'" +

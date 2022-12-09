@@ -171,7 +171,7 @@ export default function YourLiquidityDetail(props: any) {
       );
       const total_price =
         tokenYTotalPrice.plus(tokenXTotalPrice).toFixed() || '0';
-      return `$` + toPrecision(total_price, 3);
+      return `$` + formatWithCommas(toPrecision(total_price, 3));
     }
 
     return '$-';

@@ -11,6 +11,7 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
   toRoundedReadableNumber,
+  formatWithCommas,
 } from '../../utils/numbers';
 import { useClientMobile, isClientMobie } from '../../utils/device';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
@@ -43,7 +44,7 @@ import {
   WatchListStartEmpty,
   WatchListStartFull,
 } from '../../components/icon/WatchListStar';
-import { SwitchInDetailIcon, NoLiquidityIcon } from '~components/icon/V3';
+import { SwitchButtonIcon, NoLiquidityIcon } from '~components/icon/V3';
 import Loading from '~components/layout/Loading';
 import { useTokenPriceList } from '../../state/token';
 import { getBoostTokenPrices } from '../../services/farm';
@@ -608,7 +609,7 @@ function YourLiquidityBox(props: {
     } else if (total < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + toInternationalCurrencySystem(total.toString(), 2);
+      return '~$' + formatWithCommas(toPrecision(total.toString(), 2));
     }
   }
   function getTotalTokenAmount() {
@@ -781,7 +782,7 @@ function UnclaimedFeesBox(props: any) {
     } else if (total_tvl < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + toPrecision(total_tvl.toString(), 2);
+      return '~$' + formatWithCommas(toPrecision(total_tvl.toString(), 2));
     }
   }
   function getTotalFeeAmount() {
@@ -937,7 +938,7 @@ function SelectLiquidityBox(props: any) {
     } else if (total < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + toInternationalCurrencySystem(total.toString(), 2);
+      return '~$' + formatWithCommas(toPrecision(total.toString(), 2));
     }
   }
   function displayLiqudityFee(liquidityDetail: UserLiquidityDetail) {
@@ -947,7 +948,7 @@ function SelectLiquidityBox(props: any) {
     } else if (total < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + toInternationalCurrencySystem(total.toString(), 2);
+      return '~$' + formatWithCommas(toPrecision(total.toString(), 2));
     }
   }
   function displayRange(liquidityDetail: UserLiquidityDetail) {
@@ -1541,6 +1542,7 @@ function LiquidityChart(props: any) {
   const { poolDetail, depthData } = data;
   const [chartLoading, setChartLoading] = useState<boolean>(true);
   const [noData, setNoData] = useState<boolean>(true);
+  const [rateDirection, setRateDirection] = useState(true);
   const chartDom = useRef(null);
   const isMobile = isClientMobie();
   useEffect(() => {
@@ -1568,12 +1570,15 @@ function LiquidityChart(props: any) {
       setChartLoading(true);
     }
   }, [depthData]);
-  function displayCurrentPrice() {
+  const rateDOM = useMemo(() => {
     const { current_point, token_x_metadata, token_y_metadata } = poolDetail;
     const rate =
       Math.pow(10, token_x_metadata.decimals) /
       Math.pow(10, token_y_metadata.decimals);
     let price = getPriceByPoint(current_point, rate);
+    if (!rateDirection) {
+      price = new BigNumber(1).dividedBy(price).toFixed();
+    }
     let displayRate;
     if (new BigNumber(price).isLessThan('0.001')) {
       displayRate = ' < 0.001';
@@ -1581,13 +1586,18 @@ function LiquidityChart(props: any) {
       displayRate = ` = ${toPrecision(price.toString(), 3)}`;
     }
     return (
-      <span className="flex items-center flex-wrap xsm:text-sm">
-        1 {token_x_metadata.symbol}&nbsp;
-        <label>
-          {displayRate} {token_y_metadata.symbol}
-        </label>
+      <span title={price} className="flex items-center flex-wrap xsm:text-sm">
+        1 {rateDirection ? token_x_metadata.symbol : token_y_metadata.symbol}
+        &nbsp;
+        <span>
+          {displayRate}{' '}
+          {rateDirection ? token_y_metadata.symbol : token_x_metadata.symbol}
+        </span>
       </span>
     );
+  }, [poolDetail, rateDirection]);
+  function switchRate() {
+    setRateDirection(!rateDirection);
   }
   return (
     <>
@@ -1597,7 +1607,13 @@ function LiquidityChart(props: any) {
         }`}
       >
         <div className="flex flex-col">
-          <span className="text-base text-white">{displayCurrentPrice()}</span>
+          <div className="flex items-center">
+            <span className="text-base text-white">{rateDOM}</span>
+            <SwitchButtonIcon
+              onClick={switchRate}
+              className="cursor-pointer ml-2 flex-shrink-0"
+            ></SwitchButtonIcon>
+          </div>
           <span className="text-sm text-primaryText xsm:text-xs">
             <FormattedMessage id="current_price" />
           </span>

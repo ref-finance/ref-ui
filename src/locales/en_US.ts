@@ -916,12 +916,12 @@ const en_US = {
   starting_price: 'Starting Price',
   create_a_pool: 'Create a Pool',
   add_single_price_tip:
-    'Your position will not earn fees or be used in trades until the market price moves into your range.',
+    'As long as the market is trading between these prices, you will receive trading fees proportional to your provided liquidity.',
   invalid_range_tip:
     'Invalid range selected. The min price must be lower than the max price.',
   maket_price_outside_tip: 'The maket price is outside your price range.',
   maket_price_outside_single_only_tip:
-    'The maket price is outside your price range.Single asset deposit only.',
+    'The market price is outside the price range. Add liquidity for the corresponding token.',
   min_price: 'Min Price',
   max_price: 'Max Price',
   min: 'Min',
