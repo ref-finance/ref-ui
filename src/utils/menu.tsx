@@ -63,11 +63,11 @@ export type MenuItem = {
 export const useMenuItems = () => {
   const intl = useIntl();
   const menuData: any[] = [
-    {
-      label: intl.formatMessage({ id: 'stable_pool' }),
-      specialMenuKey: 'sauce',
-      url: '/sauce',
-    },
+    // {
+    //   label: intl.formatMessage({ id: 'stable_pool' }),
+    //   specialMenuKey: 'sauce',
+    //   url: '/sauce',
+    // },
     {
       label: intl.formatMessage({ id: 'bridge' }),
       url: '',
@@ -250,13 +250,13 @@ export const moreLinks: MobileMenuItem[] = [
     isExternal: false,
     subRoute: ['/airdrop', '/risks', '/sauce'],
     children: [
-      {
-        id: 'stable_pool',
-        label: 'Stable Pool',
-        pattern: '/sauce',
-        specialMenuKey: 'sauce',
-        url: '/sauce',
-      },
+      // {
+      //   id: 'stable_pool',
+      //   label: 'Stable Pool',
+      //   pattern: '/sauce',
+      //   specialMenuKey: 'sauce',
+      //   url: '/sauce',
+      // },
       {
         id: 'bridge',
         label: 'bridge',
@@ -383,7 +383,6 @@ export const moreLinksOld: MobileMenuItem[] = [
     pattern: '/xref',
     url: '/xref',
     isExternal: false,
-    newFunction: true,
     showIcon: true,
     iconElement: <XrefIcon></XrefIcon>,
   },
