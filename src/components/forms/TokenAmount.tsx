@@ -668,14 +668,14 @@ export function TokenAmountV3({
       const divWidth = document.getElementById('rateDiffDiv')?.offsetWidth || 0;
       const inputAreaWidth = Math.min(w, inputWidth);
       const isOver = inputAreaWidth + spanWidth > divWidth;
-      console.log(
-        '7777777777 w, inputWidth, spanWidth, divWidth, isOver',
-        w,
-        inputWidth,
-        spanWidth,
-        divWidth,
-        isOver
-      );
+      // console.log(
+      //   '7777777777 w, inputWidth, spanWidth, divWidth, isOver',
+      //   w,
+      //   inputWidth,
+      //   spanWidth,
+      //   divWidth,
+      //   isOver
+      // );
       setLeft(inputAreaWidth);
       setOver(isOver);
     }, [amount, showRateDiff]);
@@ -1279,7 +1279,7 @@ export function LimitOrderRateSetBox({
                   }
                 }
               }}
-              className="text-sm text-white text-center"
+              className="text-sm text-white text-center px-2"
               disabled={!curPrice}
               onKeyDown={(e) =>
                 symbolsArr.includes(e.key) && e.preventDefault()
@@ -1306,7 +1306,9 @@ export function LimitOrderRateSetBox({
             </span>
             <div
               onClick={switchLockStatus}
-              className="flex items-center justify-center w-5 h-5 rounded-md ml-0.5 cursor-pointer hover:bg-selectTokenV3BgColor"
+              className={`flex items-center justify-center w-5 h-5 rounded-md ml-0.5 cursor-pointer ${
+                isMobile ? '' : 'hover:bg-selectTokenV3BgColor'
+              }`}
             >
               {hasLockedRate ? (
                 <LockInIcon></LockInIcon>
