@@ -866,15 +866,15 @@ const zh_CN = {
   current_price: '当前价格',
   pool_creation: '池子的创建',
   pool_creation_tip:
-    '没有用于所选令牌的现有池。要创建池，必须通过提供相应的金额来设置池速率。',
+    '没有用于所选令牌的现有池。要创建池，必须通过提供相应的池子汇率。',
   starting_price: '初始价格',
   create_a_pool: '创建池子',
   add_single_price_tip:
-    '你的价格区间将不会获得费用或用于交易，直到市场价格进入你的范围。',
+    '只要市场在这些价格之间交易，您就会收到与您提供的流动性成比例的交易费用。',
   invalid_range_tip: '无效的选择范围。最小价格必须小于最大价格。',
   maket_price_outside_tip: '市场价超出了你的价格范围。',
   maket_price_outside_single_only_tip:
-    '市场价超出了你的价格范围。只能添加单个资产。',
+    '市场价格超出了价格范围。为相应的代币添加流动性。',
   min_price: '最小价格',
   max_price: '最大价格',
   min: '最小',

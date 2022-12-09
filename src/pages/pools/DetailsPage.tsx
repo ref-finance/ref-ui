@@ -1424,7 +1424,7 @@ export const ChartChangeButton = ({
         <button
           className={`py-1 xs:py-2 md:py-2 px-2 ${
             chartDisplay === 'liquidity'
-              ? 'rounded-2xl  xs:bg-cardBg md:bg-cardBg lg:bg-gradient-to-b lg:from-gradientFrom lg:to-gradientTo'
+              ? 'rounded-md bg-gradient-to-b from-gradientFrom to-gradientTo'
               : 'text-primaryText'
           }`}
           onClick={() => setChartDisplay('liquidity')}

@@ -182,7 +182,11 @@ export default function AddYourLiquidityPageV3() {
     }
   }
   function goYourLiquidityPage() {
-    history.push('/yourliquidity');
+    if (history.length == 2) {
+      history.push('/yourliquidity');
+    } else {
+      history.goBack();
+    }
   }
   async function get_list_pools() {
     const list: PoolInfo[] = await list_pools();
@@ -1872,7 +1876,7 @@ function AddLiquidityComponent({
         <div className="text-sm text-v3WarningColor ml-3">
           <FormattedMessage
             id="add_single_price_tip"
-            defaultMessage="Your position will not earn fees or be used in trades until the market price moves into your range. "
+            defaultMessage="As long as the market is trading between these prices, you will receive trading fees proportional to your provided liquidity. "
           ></FormattedMessage>
         </div>
       </div>
@@ -2083,7 +2087,7 @@ function OneSide({ show }: { show: boolean }) {
       <div className="relative z-10 text-white text-sm">
         <FormattedMessage
           id="maket_price_outside_single_only_tip"
-          defaultMessage="The maket price is outside your price range.Single asset deposit only."
+          defaultMessage="The market price is outside the price range. Add liquidity for the corresponding token."
         ></FormattedMessage>
       </div>
     </div>

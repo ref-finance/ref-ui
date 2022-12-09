@@ -684,7 +684,6 @@ export const useSwapV3 = ({
     const validator =
       foundPool &&
       Number(foundPool?.total_x || 0) + Number(foundPool?.total_y || 0) > 0;
-
     if (!validator) return null;
 
     return quote({
@@ -898,7 +897,6 @@ export const useLimitOrder = ({
   useEffect(() => {
     if (!selectedV3LimitPool) return;
     setQuoteDone(false);
-
     get_pool(selectedV3LimitPool, tokenIn.id)
       .then((res) => {
         setMostPoolDetail(res);
@@ -917,7 +915,6 @@ export const useLimitOrder = ({
     if (notLimitMode || !tokenIn || !tokenOut) {
       return null;
     }
-
     Promise.all(
       V3_POOL_FEE_LIST.map((fee) =>
         get_pool(getV3PoolId(tokenIn.id, tokenOut.id, fee), tokenIn.id)
@@ -1040,10 +1037,7 @@ export const useLimitOrder = ({
   }, [
     Object.keys(poolToOrderCounts || {}).join('-'),
     Object.values(poolToOrderCounts || {}).join('-'),
-    tokenOut?.id,
-    tokenIn?.id,
     tokenPriceList,
-    pools,
     swapMode,
   ]);
 

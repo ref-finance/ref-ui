@@ -20,6 +20,7 @@ import {
   toPrecision,
   toReadableNumber,
   toNonDivisibleNumber,
+  formatWithCommas,
 } from '~utils/numbers';
 import {
   getPriceByPoint,
@@ -131,7 +132,7 @@ export const RemovePoolV3 = (props: any) => {
       } else if (total_price.isLessThan('0.001')) {
         return '$<0.001';
       } else {
-        return `$` + toPrecision(total_price.toFixed(), 3);
+        return `$` + formatWithCommas(toPrecision(total_price.toFixed(), 3));
       }
     }
   }

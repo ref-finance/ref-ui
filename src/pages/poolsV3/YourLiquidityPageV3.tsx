@@ -15,7 +15,11 @@ import {
   ButtonTextWrapper,
   ConnectToNearBtn,
 } from '~components/button/Button';
-import { toPrecision, toReadableNumber } from '~utils/numbers';
+import {
+  toPrecision,
+  toReadableNumber,
+  formatWithCommas,
+} from '~utils/numbers';
 import { TokenMetadata } from '../../services/ft-contract';
 import { useTokens } from '../../state/token';
 import {
@@ -382,21 +386,21 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
-      setYour_liquidity(toPrecision(total_price, 3));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
     }
     // only y token
     if (current_point >= right_point) {
       const tokenYAmount = getY(left_point, right_point, L, tokenY);
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const total_price = tokenYTotalPrice.toFixed();
-      setYour_liquidity(toPrecision(total_price, 3));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
     }
     // only x token
     if (left_point > current_point) {
       const tokenXAmount = getX(left_point, right_point, L, tokenX);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenXTotalPrice.toFixed();
-      setYour_liquidity(toPrecision(total_price, 3));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
     }
   }
   function getY(

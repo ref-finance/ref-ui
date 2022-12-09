@@ -1618,8 +1618,14 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (!mostPoolDetail) setCurOrderPrice(null);
-
     if (!mostPoolDetail || !tokenIn || !tokenOut || !quoteDoneLimit) {
+      return;
+    }
+    const { token_x, token_y } = mostPoolDetail;
+    if (
+      (token_x !== tokenIn.id && token_x !== tokenOut.id) ||
+      (token_y !== tokenIn.id && token_y !== tokenOut.id)
+    ) {
       return;
     }
     const curPoint =
@@ -1637,7 +1643,6 @@ export default function SwapCard(props: {
           ? reguPoint
           : reguPoint + feeToPointDelta(mostPoolDetail.fee),
     });
-
     const priceKeep = toPrecision(price, 8) === curOrderPrice;
 
     const regularizedRate = toPrecision(
@@ -1662,16 +1667,28 @@ export default function SwapCard(props: {
       priceKeep ? curOrderPrice || toPrecision(price, 8) : toPrecision(price, 8)
     );
 
-    const amountOut = toPrecision(
-      scientificNotationToString(
-        new Big(priceKeep ? displayRate || price || 0 : price)
-          .times(tokenInAmount || 0)
-          .toString()
-      ),
-      8,
-      false,
-      false
+    const amountOut_original = scientificNotationToString(
+      new Big(priceKeep ? displayRate || price || 0 : price)
+        .times(tokenInAmount || 0)
+        .toString()
     );
+    let amountOut;
+    const minValue = '0.00000001';
+    if (new BigNumber(amountOut_original).isGreaterThanOrEqualTo(minValue)) {
+      amountOut = toPrecision(amountOut_original, 8, false, false);
+    } else {
+      amountOut = amountOut_original;
+    }
+    // let amountOut = toPrecision(
+    //   scientificNotationToString(
+    //     new Big(priceKeep ? displayRate || price || 0 : price)
+    //       .times(tokenInAmount || 0)
+    //       .toString()
+    //   ),
+    //   18,
+    //   false,
+    //   false
+    // );
     if (!limitLockedTokenOutTrigger) {
       setLimitAmountOut(ONLY_ZEROS.test(amountOut) ? '' : amountOut);
     }
