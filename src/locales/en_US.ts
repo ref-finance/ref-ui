@@ -912,7 +912,7 @@ const en_US = {
   current_price: 'Current Price',
   pool_creation: 'Pool creation',
   pool_creation_tip:
-    'There is no existing pool for the selected tokens. To create the pool, you must set the pool rate, by providing corresponding amounts.',
+    'There is no existing pool for the selected tokens. To create the pool, you must set the pool rate, by providing the corresponding amount for each token.',
   starting_price: 'Starting Price',
   create_a_pool: 'Create a Pool',
   add_single_price_tip:

@@ -866,7 +866,7 @@ const zh_CN = {
   current_price: '当前价格',
   pool_creation: '池子的创建',
   pool_creation_tip:
-    '没有用于所选令牌的现有池。要创建池，必须通过提供相应的金额来设置池速率。',
+    '没有用于所选令牌的现有池。要创建池，必须通过提供相应的池子汇率。',
   starting_price: '初始价格',
   create_a_pool: '创建池子',
   add_single_price_tip:

@@ -1618,8 +1618,14 @@ export default function SwapCard(props: {
 
   useEffect(() => {
     if (!mostPoolDetail) setCurOrderPrice(null);
-
     if (!mostPoolDetail || !tokenIn || !tokenOut || !quoteDoneLimit) {
+      return;
+    }
+    const { token_x, token_y } = mostPoolDetail;
+    if (
+      (token_x !== tokenIn.id && token_x !== tokenOut.id) ||
+      (token_y !== tokenIn.id && token_y !== tokenOut.id)
+    ) {
       return;
     }
     const curPoint =
