@@ -1430,7 +1430,7 @@ function MorePoolRow({
         )}
       </span>
 
-      <span className="flex items-center col-span-4">
+      <span className="flex items-center col-span-3">
         <span className={`ml-2 ${checked ? 'text-white' : ''}`}>
           $
           {Number(pool.tvl) > 0 && Number(pool.tvl) < 0.01
@@ -1439,7 +1439,7 @@ function MorePoolRow({
         </span>
       </span>
 
-      <span className="flex items-center col-span-2 pl-5">
+      <span className="flex items-center col-span-3 pl-4">
         <span className={`ml-2 ${checked ? 'text-white' : ''}`}>
           {`${toPrecision(calculateFeePercent(pool.fee).toString(), 2)}`}%
         </span>
@@ -2211,13 +2211,13 @@ export function YourLiquidityAddLiquidityModal(
             <div style={{ width: cardWidth }} className="xs:pb-10 xs:mb-10">
               {displayCandPools?.length > 0 ? (
                 <div className="grid grid-cols-10 justify-center mt-2.5">
-                  <span className="text-addV1PoolTableColor text-sm col-span-4 pl-8">
+                  <span className="text-addV1PoolTableColor text-sm col-span-4 pl-6">
                     <FormattedMessage id="pool"></FormattedMessage>
                   </span>
-                  <span className="text-addV1PoolTableColor text-sm col-span-4 pl-2">
+                  <span className="text-addV1PoolTableColor text-sm col-span-3 pl-2">
                     <FormattedMessage id="tvl"></FormattedMessage>
                   </span>
-                  <span className="text-addV1PoolTableColor text-sm col-span-2 pl-5">
+                  <span className="text-addV1PoolTableColor text-sm col-span-3 pl-4">
                     <FormattedMessage id="fee"></FormattedMessage>
                   </span>
                 </div>

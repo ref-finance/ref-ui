@@ -175,7 +175,7 @@ export default function YourLiquidityPageV3() {
               />
             </GradientButton>
             <span
-              className={`top-10 pt-2 absolute z-50 ${
+              className={`top-10 pt-2 absolute z-50 xsm:right-0 ${
                 addLiqudityHover ? '' : 'hidden'
               }`}
             >
