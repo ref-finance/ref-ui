@@ -2307,6 +2307,21 @@ export default function SwapCard(props: {
           <NoLimitPoolCard />
         )}
 
+        {tokenIn &&
+          swapMode === SWAP_MODE.LIMIT &&
+          ONLY_ZEROS.test(
+            toNonDivisibleNumber(tokenIn.decimals, tokenInAmount)
+          ) && (
+            <div className="pb-2 relative -mb-5">
+              <Alert
+                level="warn"
+                message={`${tokenInAmount} ${intl.formatMessage({
+                  id: 'is_not_a_valid_swap_amount',
+                })}`}
+              />
+            </div>
+          )}
+
         {poolError &&
         swapMode !== SWAP_MODE.LIMIT &&
         Number(tokenInAmount || '0') > 0 ? (
