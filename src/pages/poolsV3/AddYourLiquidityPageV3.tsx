@@ -697,7 +697,8 @@ export default function AddYourLiquidityPageV3() {
                             onClick={() => {
                               changePairs(item);
                             }}
-                            className="flex items-center h-8 w-32 rounded-lg hover:bg-selectBoxEleColor hover:text-white px-3 my-1 cursor-pointer"
+                            style={{ minWidth: '128px' }}
+                            className="flex items-center h-8 rounded-lg hover:bg-selectBoxEleColor hover:text-white px-3 my-1 cursor-pointer"
                           >
                             {item.token_x_metadata.symbol}/
                             {item.token_y_metadata.symbol}

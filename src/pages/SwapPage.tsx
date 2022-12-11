@@ -234,7 +234,7 @@ function SwapPage() {
   return (
     <div className="swap">
       <section
-        className={`lg:w-480px md:w-5/6 xs:w-11/12  m-auto relative  ${
+        className={`lg:w-480px xsm:mx-3  m-auto relative  ${
           isMobile ? '' : 'gradientBorderWrapper'
         } `}
       >

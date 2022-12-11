@@ -604,7 +604,7 @@ function DetailViewV2({
   return (
     <div>
       <div
-        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mt-3 ${
+        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3 ${
           showDetails ? '' : 'hidden'
         }`}
       >
@@ -648,7 +648,7 @@ function DetailViewV2({
         }
       </div>
       {Number(priceImpact) > 2 ? (
-        <div className="flex items-center justify-between xsm:flex-col bg-lightReBgColor border border-warnRedColor  rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+        <div className="flex items-center justify-between xsm:flex-col bg-lightReBgColor border border-warnRedColor  mb-4 rounded-xl p-3  text-sm text-redwarningColor">
           <span className="xsm:mb-0.5">
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
@@ -714,7 +714,7 @@ function DetailViewV3({
   return (
     <div>
       <div
-        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mt-3 ${
+        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3 ${
           showDetails ? '' : 'hidden'
         }`}
       >
@@ -751,7 +751,7 @@ function DetailViewV3({
         <RouteDCLDetail bestFee={fee} tokenIn={tokenIn} tokenOut={tokenOut} />
       </div>
       {Number(priceImpact) > 2 ? (
-        <div className="flex items-center xsm:flex-col justify-between border bg-bg-lightReBgColor border-warnRedColor  rounded-xl p-3 mt-4 text-sm text-redwarningColor">
+        <div className="flex items-center xsm:flex-col justify-between border bg-bg-lightReBgColor border-warnRedColor mb-4  rounded-xl p-3 text-sm text-redwarningColor">
           <span className="mb-0.5">
             <FormattedMessage id="price_impact_warning"></FormattedMessage>
           </span>
@@ -1816,7 +1816,7 @@ export default function SwapCard(props: {
   const DetailView = useMemo(() => {
     return (
       <>
-        <div className="mt-8 xsm:mt-3">
+        <div className="mt-3 mb-2">
           <div className="flex flex-wrap items-center justify-between text-white ">
             <div className="flex items-center mb-1">
               <div
@@ -2300,7 +2300,7 @@ export default function SwapCard(props: {
               </div>
             </>
           ) : null}
-          {canShowDetailView ? displayDetailView : null}
+          {canShowDetailView ? displayDetailView : <div className="mt-4"></div>}
         </LimitOrderTriggerContext.Provider>
 
         {wrapOperation ? (

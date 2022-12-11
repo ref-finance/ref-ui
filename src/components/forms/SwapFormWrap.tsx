@@ -170,7 +170,7 @@ export default function SwapFormWrap({
               }
               label={buttonText || title}
               info={info}
-              className="h-12"
+              className={`h-12 ${swapMode == SWAP_MODE.NORMAL ? '-mt-0' : ''}`}
               loading={
                 swapMode !== SWAP_MODE.LIMIT
                   ? showSwapLoading
