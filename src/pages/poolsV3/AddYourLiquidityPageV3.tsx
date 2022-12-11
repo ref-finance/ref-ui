@@ -595,7 +595,7 @@ export default function AddYourLiquidityPageV3() {
   }
   function goPoolsPage() {
     localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
-    history.push('/pools');
+    window.open('/pools');
   }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
   const mobileDevice = isMobile();
@@ -612,7 +612,11 @@ export default function AddYourLiquidityPageV3() {
           <FormattedMessage id="add_liquidity"></FormattedMessage>
         </span>
       </div>
-      <div className="relative flex flex-col lg:w-4/5 2xl:w-3/5 xs:w-full md:w-full xs:px-3 md:px-3 m-auto text-white rounded-2xl">
+      {/* todo */}
+      <div
+        style={{ width: mobileDevice ? '' : '850px' }}
+        className="relative flex flex-col lg:w-4/5 2xl:w-3/5 xs:w-full md:w-full xs:px-3 md:px-3 m-auto text-white rounded-2xl"
+      >
         <div
           className="absolute w-full top-0 bottom-0 rounded-2xl"
           style={{
@@ -635,13 +639,16 @@ export default function AddYourLiquidityPageV3() {
               >
                 <ReturnIcon></ReturnIcon>
               </div>
-              <span className="text-v3LightGreyColor text-xl">
+              <span className="text-white text-base gotham_bold">
                 <FormattedMessage id="add_liquidity"></FormattedMessage>
               </span>
             </div>
             <div className="flex items-start justify-between xs:flex-col md:flex-col">
               {/* left area */}
-              <div className="w-1/2 mr-7 flex-shrink-0 xs:w-full md:w-full">
+              <div
+                style={{ width: mobileDevice ? '' : '400px' }}
+                className="flex-shrink-0 xs:w-full md:w-full"
+              >
                 <div className="flex items-center justify-between">
                   <div
                     className="relative ml-3"
@@ -766,13 +773,13 @@ export default function AddYourLiquidityPageV3() {
                       }
                     }}
                     onClick={switchButtonSort}
-                    className="flex flex-col items-center justify-center border border-v3SwapGray w-6 h-6 rounded-full mx-2 cursor-pointer box-content"
+                    className="flex flex-col items-center justify-center border-2 border-switchIconBorderColor w-6 h-6 rounded-lg mx-2 cursor-pointer box-content bg-switchIconBgColor"
                   >
                     <SwitchArrowR
                       className={`transition-transform transform ${
                         buttonHover
                           ? 'translate-x-0.5 text-greenColor'
-                          : 'text-v3SwapGray'
+                          : 'text-primaryText'
                       }`}
                     ></SwitchArrowR>
                     <SwitchArrowL
@@ -780,7 +787,7 @@ export default function AddYourLiquidityPageV3() {
                       className={`transition-transform transform ${
                         buttonHover
                           ? '-translate-x-0.5 text-greenColor'
-                          : 'text-v3SwapGray'
+                          : 'text-primaryText'
                       }`}
                     ></SwitchArrowL>
                   </div>
@@ -1096,9 +1103,11 @@ function CreatePoolComponent({
     }
     return '';
   }
+  const mobileDevice = isMobile();
   return (
     <div
-      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
+      style={{ width: mobileDevice ? '' : '372px' }}
+      className={`w-full xs:w-full md:w-full flex flex-col justify-between  self-stretch xs:mt-5 md:mt-5`}
     >
       <div className="text-white font-bold text-base">
         <FormattedMessage
@@ -1188,7 +1197,7 @@ function CreatePoolComponent({
       {isSignedIn ? (
         <GradientButton
           color="#fff"
-          className={`relative z-50 w-full h-10 mt-5 text-center text-base text-white focus:outline-none ${
+          className={`relative z-50 w-full h-12 mt-5 text-center text-base text-white focus:outline-none ${
             +createPoolRate <= 0 ? 'opacity-40' : ''
           }`}
           loading={createPoolButtonLoading}
@@ -1327,6 +1336,7 @@ function AddLiquidityComponent({
         token_y_decimals,
         chartDom,
         sort: tokenX.id == token_x,
+        space_x: 5,
       });
     }
   }, [leftPoint, rightPoint]);
@@ -1340,6 +1350,7 @@ function AddLiquidityComponent({
       token_y_decimals,
       chartDom,
       sort: tokenX.id == token_x,
+      space_x: 5,
     });
     if (length == 0) {
       setNoDataForChart(true);
@@ -1731,18 +1742,20 @@ function AddLiquidityComponent({
   }
   const tokenSort = tokenX.id == currentSelectedPool.token_x;
   const isAddLiquidityDisabled = getButtonStatus();
+  const mobileDevice = isMobile();
   return (
     <div
-      className={`w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
+      style={{ width: mobileDevice ? '' : '372px' }}
+      className={`w-full xs:w-full md:w-full flex flex-col justify-between self-stretch xs:mt-5 md:mt-5`}
     >
-      <div className="text-white font-bold text-base">
+      <div className="text-primaryText text-sm ml-2">
         <FormattedMessage
           id="set_price_range"
           defaultMessage="Set Price Range"
         ></FormattedMessage>
       </div>
-      <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 xs:py-5 md:py-5 mt-3 xs:px-2 md:px-2">
-        <div className="flex items-center flex-wrap justify-between mt-3.5 xs:mt-0 md:mt-0">
+      <div className="flex flex-col justify-between relative flex-grow bg-black bg-opacity-10 rounded-xl px-2.5 py-4 mt-3  xsm:px-2">
+        <div className="flex items-center flex-wrap justify-between">
           <span className="text-xs text-v3LightGreyColor mb-2">
             <FormattedMessage
               id="current_price"
@@ -1761,7 +1774,7 @@ function AddLiquidityComponent({
           </div>
         </div>
         {/* range chart area */}
-        <div className="relative flex flex-col items-center justify-center my-10">
+        <div className="relative flex flex-col items-center justify-center mt-5 mb-4">
           <svg
             width="100%"
             height="230"
@@ -1772,7 +1785,7 @@ function AddLiquidityComponent({
             style={{ color: 'rgba(91, 64, 255, 0.5)' }}
           >
             <g className="chart"></g>
-            <g className="g" transform="translate(50,200)"></g>
+            <g className="g" transform="translate(5,200)"></g>
             <g className="g2"></g>
             <g className="gLeftLine"></g>
             <g className="gRightLine"></g>
@@ -1884,7 +1897,7 @@ function AddLiquidityComponent({
                     quickChangePoint(item);
                   }}
                   key={index}
-                  className={`flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5  2xl:px-3.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
+                  className={`flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
                     currentCheckedQuickOption == item
                       ? 'bg-v3PurpleColor border-v3PurpleColor text-white'
                       : 'border-v3GreyColor text-v3LightGreyColor'
@@ -1898,7 +1911,7 @@ function AddLiquidityComponent({
               onClick={() => {
                 quickChangePoint('full');
               }}
-              className={`flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5  2xl:px-3.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
+              className={`flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5 box-content cursor-pointer font-sans text-sm border whitespace-nowrap ${
                 currentCheckedQuickOption == 'full'
                   ? 'bg-v3PurpleColor border-v3PurpleColor text-white'
                   : 'border-v3GreyColor text-v3LightGreyColor'
@@ -1940,7 +1953,7 @@ function AddLiquidityComponent({
       {isSignedIn ? (
         <GradientButton
           color="#fff"
-          className={`w-full h-10 mt-5 text-center text-base text-white focus:outline-none ${
+          className={`w-full h-12 mt-5 text-center text-base text-white focus:outline-none ${
             isAddLiquidityDisabled ? 'opacity-40' : ''
           }`}
           loading={addLiquidityButtonLoading}
@@ -1963,11 +1976,13 @@ function AddLiquidityComponent({
 function NoDataComponent(props: any) {
   const { isNoPool } = props;
   const [quickOptions, setQuickOptions] = useState([5, 10, 20, 50]);
+  const mobileDevice = isMobile();
   return (
     <div
-      className={`relative w-1/2 xs:w-full md:w-full flex flex-col justify-between flex-grow self-stretch xs:mt-5 md:mt-5`}
+      style={{ width: mobileDevice ? '' : '372px' }}
+      className={`relative w-full xs:w-full md:w-full flex flex-col justify-between  self-stretch xs:mt-5 md:mt-5`}
     >
-      <div className="text-white font-bold text-base">
+      <div className="text-primaryText text-sm ml-2">
         <FormattedMessage
           id="set_price_range"
           defaultMessage="Set Price Range"
@@ -1978,9 +1993,9 @@ function NoDataComponent(props: any) {
           <FormattedMessage id="no_pool_tip"></FormattedMessage>
         </div>
       ) : null}
-      <div className="flex flex-col justify-between relative flex-grow bg-v3BlackColor rounded-xl px-4 py-7 mt-3 xs:px-2 md:px-2 opacity-50">
+      <div className="flex flex-col justify-between relative flex-grow bg-black bg-opacity-10 rounded-xl px-2.5 py-4 mt-3  xsm:px-2">
         {/* range chart area */}
-        <div className="flex flex-col items-center justify-center mt-28 xsm:my-12">
+        <div className="flex flex-col items-center justify-center my-16 xsm:my-12">
           <EmptyIcon></EmptyIcon>
         </div>
         {/* input range area */}
@@ -2037,7 +2052,7 @@ function NoDataComponent(props: any) {
               return (
                 <div
                   key={index}
-                  className="flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5  2xl:px-3.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
+                  className="flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
                   style={{ border: '1px solid rgba(126, 138, 147, 0.2)' }}
                 >
                   ± {item}%
@@ -2045,7 +2060,7 @@ function NoDataComponent(props: any) {
               );
             })}
             <div
-              className="flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5  2xl:px-3.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
+              className="flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
               style={{ border: '1px solid rgba(126, 138, 147, 0.2)' }}
             >
               Full Range
@@ -2056,7 +2071,7 @@ function NoDataComponent(props: any) {
 
       <GradientButton
         color="#fff"
-        className={`w-full h-10 mt-5 text-center text-base text-white focus:outline-none opacity-30`}
+        className={`w-full h-12 mt-5 text-center text-base text-white focus:outline-none opacity-30`}
         disabled={true}
       >
         <ButtonTextWrapper
@@ -2221,7 +2236,7 @@ function InputAmount({
   return (
     <div>
       <div
-        className={`bg-black bg-opacity-20 rounded-xl p-3 mt-3 ${
+        className={`bg-black bg-opacity-20 rounded-xl p-3 mt-3 border border-inputV3BorderColor hover:border-inputV3BorderHoverColor ${
           hidden ? 'hidden' : ''
         }`}
       >
@@ -2238,7 +2253,7 @@ function InputAmount({
             }}
           />
           <span
-            className={`text-base font-bold ml-5 whitespace-nowrap ${
+            className={`text-base gotham_bold ml-5 whitespace-nowrap ${
               currentSelectedPool?.pool_id
                 ? 'text-white'
                 : 'text-v3feeTextColor'
@@ -2255,9 +2270,17 @@ function InputAmount({
           <span className="text-xs text-primaryText">{showCurrentPrice()}</span>
           <div className="flex items-center text-xs text-primaryText text-right">
             <span title={balance}>
-              <FormattedMessage id="balance" />: {getBalance()}
+              <FormattedMessage id="balance" />:{' '}
+              <span
+                className="cursor-pointer hover:text-white"
+                onClick={() => {
+                  changeAmount(maxBalance);
+                }}
+              >
+                {getBalance()}
+              </span>
             </span>
-            <span
+            {/* <span
               onClick={() => {
                 changeAmount(maxBalance);
               }}
@@ -2268,7 +2291,7 @@ function InputAmount({
               }`}
             >
               Max
-            </span>
+            </span> */}
           </div>
         </div>
       </div>
