@@ -1927,10 +1927,19 @@ export default function SwapCard(props: {
   const tokenInMax = tokenInBalanceFromNear || '0';
 
   const tokenOutTotal = tokenOutBalanceFromNear || '0';
+  const isInValidLimitIn =
+    tokenIn &&
+    Number(tokenInAmount) > 0 &&
+    swapMode === SWAP_MODE.LIMIT &&
+    ONLY_ZEROS.test(toNonDivisibleNumber(tokenIn.decimals, tokenInAmount));
 
   function satisfyCondition1() {
     if (swapMode == SWAP_MODE.LIMIT) {
-      return !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut);
+      return (
+        !!mostPoolDetail &&
+        !ONLY_ZEROS.test(limitAmountOut) &&
+        !isInValidLimitIn
+      );
     } else {
       return quoteDone && quoteDoneV3 && (canSwap || canSwapV3);
     }
@@ -2020,6 +2029,7 @@ export default function SwapCard(props: {
       setPoolError(null);
     }
   }, [quoteDone, quoteDoneV3, swapError, swapErrorV3]);
+
   return (
     <>
       <SwapFormWrap
@@ -2214,7 +2224,7 @@ export default function SwapCard(props: {
             limitFee={mostPoolDetail?.fee}
             limitOrderDisable={
               swapMode === SWAP_MODE.LIMIT &&
-              (!mostPoolDetail || !quoteDoneLimit)
+              (!mostPoolDetail || !quoteDoneLimit || isInValidLimitIn)
             }
             setDiff={setDiff}
             forLimitOrder
@@ -2267,7 +2277,7 @@ export default function SwapCard(props: {
                   marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
                   fee={mostPoolDetail?.fee}
                   triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
-                  curPrice={curOrderPrice}
+                  curPrice={isInValidLimitIn ? '' : curOrderPrice}
                   setRate={onChangeLimitRate}
                   hidden={feeTiersShowFull ? true : false}
                   hasLockedRate={hasLockedRate}
@@ -2307,20 +2317,18 @@ export default function SwapCard(props: {
           <NoLimitPoolCard />
         )}
 
-        {tokenIn &&
-          swapMode === SWAP_MODE.LIMIT &&
-          ONLY_ZEROS.test(
-            toNonDivisibleNumber(tokenIn.decimals, tokenInAmount)
-          ) && (
-            <div className="pb-2 relative -mb-5">
-              <Alert
-                level="warn"
-                message={`${tokenInAmount} ${intl.formatMessage({
-                  id: 'is_not_a_valid_swap_amount',
-                })}`}
-              />
-            </div>
-          )}
+        {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail
+          ? null
+          : isInValidLimitIn && (
+              <div className="pb-2 relative -mb-5">
+                <Alert
+                  level="warn"
+                  message={`${tokenInAmount} ${intl.formatMessage({
+                    id: 'is_not_a_valid_swap_amount',
+                  })}`}
+                />
+              </div>
+            )}
 
         {poolError &&
         swapMode !== SWAP_MODE.LIMIT &&
