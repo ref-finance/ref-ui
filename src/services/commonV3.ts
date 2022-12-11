@@ -341,14 +341,13 @@ export function drawChartData({
       .attr('x', function (d, i) {
         const nodeDOM: any = d3.select('.textLeft').node();
         const textWidth = nodeDOM.getComputedTextLength();
-        const normalPosition = myScaleX(d) + space - textWidth - 5;
-        // const oppositePosition = myScaleX(d) + space + 5;
-        // if (normalPosition <= 0) {
-        //   return oppositePosition;
-        // } else {
-        //   return normalPosition;
-        // }
-        return normalPosition;
+        const normalPosition: any = myScaleX(d) + space - textWidth - 5;
+        const oppositePosition = myScaleX(d) + space + 5;
+        if (normalPosition < 0) {
+          return oppositePosition;
+        } else {
+          return normalPosition;
+        }
       })
       .attr('y', function (d, i) {
         return 15;
@@ -409,19 +408,16 @@ export function drawChartData({
       .style('fill', '#00FFD1')
       .style('font-size', '14px')
       .attr('x', function (d, i) {
-        // const textWidth = d3
-        //   .select('.textRight')
-        //   .node()
-        //   .getComputedTextLength();
-        // const maxPosition = myScaleX(d) + space + textWidth + 5;
-        // const oppositePosition = myScaleX(d) + space - textWidth - 5;
+        const nodeDOM: any = d3.select('.textRight').node();
+        const textWidth = nodeDOM.getComputedTextLength();
+        const maxPosition = myScaleX(d) + textWidth;
+        const oppositePosition = myScaleX(d) + space - textWidth - 5;
         const normalposition = myScaleX(d) + space + 5;
-        return normalposition;
-        // if (maxPosition >= width) {
-        //   return oppositePosition;
-        // } else {
-        //   return normalposition;
-        // }
+        if (maxPosition > width) {
+          return oppositePosition;
+        } else {
+          return normalposition;
+        }
       });
   }
   return list.length;

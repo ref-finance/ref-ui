@@ -1138,6 +1138,6 @@ export interface PoolInfo {
   tvl?: number;
   token_x_metadata?: TokenMetadata;
   token_y_metadata?: TokenMetadata;
-  total_fee_x_charged: string;
-  total_fee_y_charged: string;
+  total_fee_x_charged?: string;
+  total_fee_y_charged?: string;
 }
