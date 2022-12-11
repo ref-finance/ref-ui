@@ -228,6 +228,9 @@ module.exports = {
         accountBgColor:'rgba(255, 255, 255, 0.06)',
         accountHoverBgColor:'rgba(255, 255, 255, 0.1)',
         feeBoxBgLiqudityColor:'#141B21',
+        selectBoxBgColor:'#222D35',
+        selectBoxEleColor:'rgba(74, 88, 98, 0.3)',
+        viewPoolBgColor:'#24333D',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
