@@ -75,7 +75,9 @@ import ReactTooltip from 'react-tooltip';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { isMobile } from '../../utils/device';
-import { SelectedIcon } from '../../components/icon/swapV3';
+import { SelectedIcon, ArrowDown } from '../../components/icon/swapV3';
+import { OutLinkIcon } from '../../components/icon/Common';
+import { REF_FI_POOL_ACTIVE_TAB } from '../pools/LiquidityPage';
 
 import Big from 'big.js';
 
@@ -101,6 +103,8 @@ export default function AddYourLiquidityPageV3() {
     useState<PoolInfo>(null); // real
   const [feeBoxStatus, setFeeBoxStatus] = useState(true);
   const [buttonSort, setButtonSort] = useState(false);
+  const [selectHover, setSelectHover] = useState(false);
+  const [viewPoolHover, setViewPoolHover] = useState(false);
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
@@ -169,6 +173,28 @@ export default function AddYourLiquidityPageV3() {
   if (!refTokens || !triTokens || !triTokenIds) return <Loading />;
   const allTokens = getAllTokens(refTokens, triTokens);
   const nearSwapTokens = allTokens.filter((token) => token.onRef);
+  const topPairsSymbol = ['NEAR', 'REF', 'USDC'];
+  const topPairsTokenMetadata: TokenMetadata[] = [];
+  topPairsSymbol.forEach((symbol: string) => {
+    const target = nearSwapTokens.find((item: TokenMetadata) => {
+      if (item.symbol == symbol) return true;
+    });
+    topPairsTokenMetadata.push(target);
+  });
+  const topPairs = [
+    {
+      token_x: topPairsTokenMetadata[1],
+      token_y: topPairsTokenMetadata[0],
+    },
+    {
+      token_x: topPairsTokenMetadata[1],
+      token_y: topPairsTokenMetadata[2],
+    },
+    {
+      token_x: topPairsTokenMetadata[0],
+      token_y: topPairsTokenMetadata[2],
+    },
+  ];
   async function get_init_pool() {
     const hash = location.hash;
     const [tokenx_id, tokeny_id, pool_fee] = decodeURIComponent(
@@ -558,6 +584,19 @@ export default function AddYourLiquidityPageV3() {
       return `$${toInternationalCurrencySystem(tvl.toString(), 0)}`;
     }
   }
+  function changePairs(item: any) {
+    setSelectHover(false);
+    const x: TokenMetadata = item.token_x;
+    const y: TokenMetadata = item.token_y;
+    const url =
+      '/addLiquidityV2' + '#' + x.id + '|' + y.id + '|' + DEFAULTSELECTEDFEE;
+    location.href = url;
+    window.location.reload();
+  }
+  function goPoolsPage() {
+    localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
+    history.push('/pools');
+  }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
   const mobileDevice = isMobile();
   return (
@@ -586,7 +625,7 @@ export default function AddYourLiquidityPageV3() {
           <div
             className="relative z-10 py-5 px-7 xs:px-3 md:px-3"
             style={{
-              background: 'linear-gradient(180deg, #26343E 0%, #1D2932 100%)',
+              background: 'linear-gradient(180deg, #222F37 0%, #192229 100%)',
             }}
           >
             <div className="relative flex items-center justify-center mb-7 xs:hidden md:hidden">
@@ -603,13 +642,66 @@ export default function AddYourLiquidityPageV3() {
             <div className="flex items-start justify-between xs:flex-col md:flex-col">
               {/* left area */}
               <div className="w-1/2 mr-7 flex-shrink-0 xs:w-full md:w-full">
-                <div className="text-white font-bold text-base">
-                  <FormattedMessage
-                    id="select_tokens"
-                    defaultMessage="Select Tokens"
-                  />
+                <div className="flex items-center justify-between">
+                  <div
+                    className="relative ml-3"
+                    onMouseEnter={() => {
+                      setSelectHover(true);
+                    }}
+                    onMouseLeave={() => {
+                      setSelectHover(false);
+                    }}
+                  >
+                    <div
+                      className={`flex items-center text-sm cursor-pointer pb-3 ${
+                        selectHover ? 'text-white' : 'text-primaryText'
+                      }`}
+                    >
+                      <FormattedMessage
+                        id="select_tokens"
+                        defaultMessage="Select Tokens"
+                      />
+                      <ArrowDown className="ml-3"></ArrowDown>
+                    </div>
+                    <div
+                      className={`absolute top-7 -left-3 bg-selectBoxBgColor border border-selectBorder rounded-xl p-1.5 text-sm text-primaryText z-50 ${
+                        selectHover ? '' : 'hidden'
+                      }`}
+                    >
+                      {topPairs.map((item: any, i: number) => {
+                        return (
+                          <div
+                            key={i}
+                            onClick={() => {
+                              changePairs(item);
+                            }}
+                            className="flex items-center h-8 w-32 rounded-lg hover:bg-selectBoxEleColor hover:text-white px-3 my-1 cursor-pointer"
+                          >
+                            {item.token_x.symbol}/{item.token_y.symbol}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div
+                    onMouseEnter={() => {
+                      setViewPoolHover(true);
+                    }}
+                    onMouseLeave={() => {
+                      setViewPoolHover(false);
+                    }}
+                    onClick={goPoolsPage}
+                    className={`flex items-center justify-center bg-viewPoolBgColor rounded-md px-3.5 py-1 mb-3 cursor-pointer ${
+                      viewPoolHover ? 'text-white' : 'text-primaryText'
+                    }`}
+                  >
+                    <span className="text-xs">
+                      <FormattedMessage id="view_pool"></FormattedMessage>
+                    </span>
+                    <OutLinkIcon className="ml-2"></OutLinkIcon>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between mt-3">
+                <div className="flex items-center justify-between">
                   <div className="flex flex-grow w-1">
                     <SelectToken
                       tokenPriceList={tokenPriceList}
@@ -739,54 +831,6 @@ export default function AddYourLiquidityPageV3() {
                   className="rounded-xl px-4 py-3 mt-5 xs:px-2 md:px-2"
                   style={{ border: '1.2px solid rgba(145, 162, 174, 0.2)' }}
                 >
-                  {/* <div className="flex justify-between items-center">
-                    <div className="flex items-center pl-2">
-                      <span
-                        className={`text-sm text-white mr-1.5 lg:hidden ${
-                          feeBoxStatus || !currentSelectedPool ? 'hidden' : ''
-                        }`}
-                      >
-                        {currentSelectedPool
-                          ? currentSelectedPool.fee / 10000 + '%'
-                          : ''}
-                      </span>
-                      <div className="text-white text-base gotham_bold xs:text-sm md:text-sm">
-                        <FormattedMessage
-                          id="fee_Tiers"
-                          defaultMessage="Fee Tiers"
-                        />
-                      </div>
-                      <div
-                        className={`text-xs text-v3SwapGray px-2.5 py-0.5 bg-black bg-opacity-20 rounded-2xl ml-2 lg:hidden ${
-                          feeBoxStatus || !currentSelectedPool ? 'hidden' : ''
-                        }`}
-                      >
-                        {currentSelectedPool?.pool_id ? (
-                          <span>
-                            TVL&nbsp;{displayTvl(currentSelectedPool.tvl)}
-                          </span>
-                        ) : (
-                          <FormattedMessage
-                            id="no_pool"
-                            defaultMessage="No Pool"
-                          ></FormattedMessage>
-                        )}
-                      </div>
-                    </div>
-                    <div
-                      onClick={switchFeeBoxStatus}
-                      className="p-1.5 rounded-lg cursor-pointer"
-                      style={{ border: '1.2px solid rgba(145, 162, 174, 0.2)' }}
-                    >
-                      <SwitchIcon
-                        className={`hover:text-senderHot ${
-                          feeBoxStatus
-                            ? 'text-senderHot'
-                            : 'text-v3feeTextColor'
-                        }`}
-                      ></SwitchIcon>
-                    </div>
-                  </div> */}
                   <div className="text-white text-base gotham_bold xs:text-sm md:text-sm">
                     <FormattedMessage
                       id="fee_Tiers"
