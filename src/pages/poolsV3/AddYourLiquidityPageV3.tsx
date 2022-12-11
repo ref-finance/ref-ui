@@ -105,6 +105,7 @@ export default function AddYourLiquidityPageV3() {
   const [buttonSort, setButtonSort] = useState(false);
   const [selectHover, setSelectHover] = useState(false);
   const [viewPoolHover, setViewPoolHover] = useState(false);
+  const [topPairs, setTopPairs] = useState([]);
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
@@ -170,31 +171,49 @@ export default function AddYourLiquidityPageV3() {
       searchPools();
     }
   }, [tokenX, tokenY, tokenPriceList, listPool]);
+  useEffect(() => {
+    if (listPool.length > 0 && Object.keys(tokenPriceList).length > 0) {
+      getTopPairs();
+    }
+  }, [listPool, tokenPriceList]);
+  async function getTopPairs() {
+    const listPromise = listPool.map(async (p: PoolInfo) => {
+      const token_x = p.token_x;
+      const token_y = p.token_y;
+
+      p.token_x_metadata = await ftGetTokenMetadata(token_x);
+      p.token_y_metadata = await ftGetTokenMetadata(token_y);
+      const pricex = tokenPriceList[token_x]?.price || 0;
+      const pricey = tokenPriceList[token_y]?.price || 0;
+      const { total_x, total_y, total_fee_x_charged, total_fee_y_charged } = p;
+      const totalX = new BigNumber(total_x)
+        .minus(total_fee_x_charged)
+        .toFixed();
+      const totalY = new BigNumber(total_y)
+        .minus(total_fee_y_charged)
+        .toFixed();
+      const tvlx =
+        Number(toReadableNumber(p.token_x_metadata.decimals, totalX)) *
+        Number(pricex);
+      const tvly =
+        Number(toReadableNumber(p.token_y_metadata.decimals, totalY)) *
+        Number(pricey);
+
+      p.tvl = tvlx + tvly;
+
+      return p;
+    });
+    const list: PoolInfo[] = await Promise.all(listPromise);
+    list.sort((b: PoolInfo, a: PoolInfo) => {
+      return a.tvl - b.tvl;
+    });
+    const top3 = list.slice(0, 3);
+    setTopPairs(top3);
+  }
+
   if (!refTokens || !triTokens || !triTokenIds) return <Loading />;
   const allTokens = getAllTokens(refTokens, triTokens);
   const nearSwapTokens = allTokens.filter((token) => token.onRef);
-  const topPairsSymbol = ['NEAR', 'REF', 'USDC'];
-  const topPairsTokenMetadata: TokenMetadata[] = [];
-  topPairsSymbol.forEach((symbol: string) => {
-    const target = nearSwapTokens.find((item: TokenMetadata) => {
-      if (item.symbol == symbol) return true;
-    });
-    topPairsTokenMetadata.push(target);
-  });
-  const topPairs = [
-    {
-      token_x: topPairsTokenMetadata[1],
-      token_y: topPairsTokenMetadata[0],
-    },
-    {
-      token_x: topPairsTokenMetadata[1],
-      token_y: topPairsTokenMetadata[2],
-    },
-    {
-      token_x: topPairsTokenMetadata[0],
-      token_y: topPairsTokenMetadata[2],
-    },
-  ];
   async function get_init_pool() {
     const hash = location.hash;
     const [tokenx_id, tokeny_id, pool_fee] = decodeURIComponent(
@@ -584,12 +603,9 @@ export default function AddYourLiquidityPageV3() {
       return `$${toInternationalCurrencySystem(tvl.toString(), 0)}`;
     }
   }
-  function changePairs(item: any) {
+  function changePairs(item: PoolInfo) {
     setSelectHover(false);
-    const x: TokenMetadata = item.token_x;
-    const y: TokenMetadata = item.token_y;
-    const url =
-      '/addLiquidityV2' + '#' + x.id + '|' + y.id + '|' + DEFAULTSELECTEDFEE;
+    const url = '/addLiquidityV2' + '#' + item.pool_id;
     location.href = url;
     window.location.reload();
   }
@@ -612,7 +628,6 @@ export default function AddYourLiquidityPageV3() {
           <FormattedMessage id="add_liquidity"></FormattedMessage>
         </span>
       </div>
-      {/* todo */}
       <div
         style={{ width: mobileDevice ? '' : '850px' }}
         className="relative flex flex-col lg:w-4/5 2xl:w-3/5 xs:w-full md:w-full xs:px-3 md:px-3 m-auto text-white rounded-2xl"
@@ -675,7 +690,7 @@ export default function AddYourLiquidityPageV3() {
                         selectHover ? '' : 'hidden'
                       }`}
                     >
-                      {topPairs.map((item: any, i: number) => {
+                      {topPairs.map((item: PoolInfo, i: number) => {
                         return (
                           <div
                             key={i}
@@ -684,7 +699,8 @@ export default function AddYourLiquidityPageV3() {
                             }}
                             className="flex items-center h-8 w-32 rounded-lg hover:bg-selectBoxEleColor hover:text-white px-3 my-1 cursor-pointer"
                           >
-                            {item.token_x.symbol}/{item.token_y.symbol}
+                            {item.token_x_metadata.symbol}/
+                            {item.token_y_metadata.symbol}
                           </div>
                         );
                       })}
@@ -716,7 +732,7 @@ export default function AddYourLiquidityPageV3() {
                       standalone
                       selected={
                         <div
-                          className={`flex items-center justify-between flex-grow h-12 text-base text-white rounded-xl px-4 cursor-pointer ${
+                          className={`flex items-center justify-between flex-grow h-12 text-base text-white rounded-xl px-4 xsm:px-2 cursor-pointer ${
                             tokenX
                               ? 'bg-black bg-opacity-20'
                               : 'bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover'
@@ -726,16 +742,17 @@ export default function AddYourLiquidityPageV3() {
                             <div className="flex items-center">
                               <img
                                 src={tokenX.icon}
-                                className="w-8 h-8 rounded-full border border-greenColor"
+                                className="w-8 h-8 xsm:w-6 xsm:h-6 rounded-full border border-greenColor"
                               ></img>
-                              <span className="text-white text-base font-bold ml-2.5">
+                              <span className="text-white text-base xsm:text-sm xsm:ml-1 font-bold ml-2.5">
                                 {toRealSymbol(tokenX.symbol)}
                               </span>
                             </div>
                           ) : (
                             <>
+                              {}
                               <FormattedMessage
-                                id="select_token"
+                                id={mobileDevice ? 'select' : 'select_token'}
                                 defaultMessage="Select Token"
                               ></FormattedMessage>
                             </>
@@ -798,7 +815,7 @@ export default function AddYourLiquidityPageV3() {
                       standalone
                       selected={
                         <div
-                          className={`flex items-center justify-between flex-grow h-12 text-base text-white rounded-xl px-4 cursor-pointer ${
+                          className={`flex items-center justify-between flex-grow h-12 text-base text-white rounded-xl px-4 xsm:px-2 cursor-pointer ${
                             tokenY
                               ? 'bg-black bg-opacity-20'
                               : 'bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover'
@@ -808,16 +825,16 @@ export default function AddYourLiquidityPageV3() {
                             <div className="flex items-center">
                               <img
                                 src={tokenY.icon}
-                                className="w-8 h-8 rounded-full border border-greenColor"
+                                className="w-8 h-8 xsm:w-6 xsm:h-6 rounded-full border border-greenColor"
                               ></img>
-                              <span className="text-white text-base font-bold ml-2.5">
+                              <span className="text-white text-base xsm:text-sm font-bold ml-2.5 xsm:ml-1">
                                 {toRealSymbol(tokenY.symbol)}
                               </span>
                             </div>
                           ) : (
                             <>
                               <FormattedMessage
-                                id="select_token"
+                                id={mobileDevice ? 'select' : 'select_token'}
                                 defaultMessage="Select Token"
                               ></FormattedMessage>
                             </>
