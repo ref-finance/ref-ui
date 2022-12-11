@@ -332,7 +332,7 @@ export function DoubleCheckModalLimit(
         padding="p-6"
         bgcolor="bg-cardBg"
         className="text-white border border-gradientFromHover outline-none flex flex-col items-center"
-        width="xsm:w-90vw lg:w-25vw"
+        width="xsm:w-90vw lg:w-25vw lg:min-w-420px"
       >
         <div
           className="w-full flex items-center justify-between cursor-pointer"

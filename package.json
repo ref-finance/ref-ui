@@ -14,7 +14,8 @@
     "prettier": "prettier --check src",
     "prettier:fix": "prettier --write src",
     "test": "jest test --runInBand",
-    "test:watch": "yarn test --watch"
+    "test:watch": "yarn test --watch",
+    "clean": "rm -rf .cache && rm -rf .parcel-cache"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
