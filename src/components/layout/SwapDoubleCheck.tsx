@@ -388,7 +388,7 @@ export function DoubleCheckModalLimit(
           </div>
         </div>
         {Number(rateDiff) <= -10 ? (
-          <div className="flex items-center justify-center border border-warnRedColor p-3 rounded-lg text-sm text-redwarningColor mt-5 w-full">
+          <div className="flex items-center justify-center whitespace-nowrap flex-wrap border border-warnRedColor p-3 rounded-lg text-sm text-redwarningColor mt-5 w-full">
             <span>
               <FormattedMessage
                 id="limit_order_price_is"
