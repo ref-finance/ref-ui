@@ -605,9 +605,11 @@ export default function AddYourLiquidityPageV3() {
   }
   function changePairs(item: PoolInfo) {
     setSelectHover(false);
-    const url = '/addLiquidityV2' + '#' + item.pool_id;
-    location.href = url;
-    window.location.reload();
+    if (listPool.length > 0) {
+      history.replace(`#${item.pool_id}`);
+      get_init_pool();
+      setCurrentSelectedPool(null);
+    }
   }
   function goPoolsPage() {
     localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
@@ -705,6 +707,9 @@ export default function AddYourLiquidityPageV3() {
                           </div>
                         );
                       })}
+                      <div className="flex items-center justify-center text-sm text-primaryText relative -top-1">
+                        ...
+                      </div>
                     </div>
                   </div>
                   <div
@@ -856,7 +861,7 @@ export default function AddYourLiquidityPageV3() {
                   className="rounded-xl px-4 py-3 mt-5 xs:px-2 md:px-2"
                   style={{ border: '1.2px solid rgba(145, 162, 174, 0.2)' }}
                 >
-                  <div className="text-white text-base gotham_bold xs:text-sm md:text-sm">
+                  <div className="text-sm text-primaryText">
                     <FormattedMessage
                       id="fee_Tiers"
                       defaultMessage="Fee Tiers"
@@ -922,29 +927,9 @@ export default function AddYourLiquidityPageV3() {
                       );
                     })}
                   </div>
-                  {/* <div
-                    className={` items-center mt-3 xs:hidden md:hidden pl-2 ${
-                      feeBoxStatus || !currentSelectedPool ? 'hidden' : 'flex'
-                    }`}
-                  >
-                    <span className="text-base text-white mr-3">
-                      {currentSelectedPool
-                        ? currentSelectedPool.fee / 10000 + '%'
-                        : ''}
-                    </span>
-                    <div className="text-sm text-v3SwapGray px-2.5 py-0.5 bg-black bg-opacity-20 rounded-2xl">
-                      {currentSelectedPool?.pool_id ? (
-                        <span>
-                          TVL&nbsp;{displayTvl(currentSelectedPool.tvl)}
-                        </span>
-                      ) : (
-                        <FormattedMessage id="no_pool" />
-                      )}
-                    </div>
-                  </div> */}
                 </div>
                 <div className="mt-5">
-                  <span className="text-base text-white font-bold">
+                  <span className="text-sm text-primaryText">
                     <FormattedMessage
                       id="input_amount"
                       defaultMessage="Input Amount"
