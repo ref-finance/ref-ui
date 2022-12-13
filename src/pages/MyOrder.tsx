@@ -114,7 +114,9 @@ function OrderCard({
     return (
       <div className="flex whitespace-nowrap xs:justify-center text-white mb-4">
         <button
-          className="mr-7 xs:mr-10 flex flex-col items-center"
+          className={`mr-7 ${
+            orderType === 'active' ? 'text-white' : 'text-primaryText'
+          } xs:mr-10 flex flex-col items-center`}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -124,6 +126,9 @@ function OrderCard({
         >
           <span>
             <FormattedMessage id="active" defaultMessage={'Active'} />
+            {activeOrder && activeOrder.length > 0
+              ? ` (${activeOrder.length})`
+              : null}
           </span>
 
           {orderType === 'active' && (
@@ -139,7 +144,9 @@ function OrderCard({
         </button>
 
         <button
-          className="flex flex-col items-center"
+          className={`${
+            orderType === 'history' ? 'text-white' : 'text-primaryText'
+          } flex flex-col items-center`}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -149,6 +156,9 @@ function OrderCard({
         >
           <span>
             <FormattedMessage id="history" defaultMessage={'History'} />
+            {historyOrder && historyOrder.length > 0
+              ? ` (${historyOrder.length})`
+              : null}
           </span>
 
           {orderType === 'history' && (
