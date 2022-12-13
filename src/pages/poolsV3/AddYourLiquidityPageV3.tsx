@@ -734,8 +734,8 @@ export default function AddYourLiquidityPageV3() {
                       <FormattedMessage
                         id={`${
                           currentSelectedPool?.pool_id
-                            ? 'v2_pools'
-                            : 'view_pool'
+                            ? 'view_pool'
+                            : 'v2_pools'
                         }`}
                       ></FormattedMessage>
                     </span>
