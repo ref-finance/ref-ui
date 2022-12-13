@@ -2320,7 +2320,7 @@ export default function SwapCard(props: {
         {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail
           ? null
           : isInValidLimitIn && (
-              <div className="pb-2 relative -mb-5">
+              <div className="pb-2 relative ">
                 <Alert
                   level="warn"
                   message={`${tokenInAmount} ${intl.formatMessage({
@@ -2333,7 +2333,7 @@ export default function SwapCard(props: {
         {poolError &&
         swapMode !== SWAP_MODE.LIMIT &&
         Number(tokenInAmount || '0') > 0 ? (
-          <div className="pb-2 relative -mb-5">
+          <div className="pb-2 relative ">
             <Alert level="warn" message={poolError} />
           </div>
         ) : null}
