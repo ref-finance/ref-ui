@@ -64,7 +64,7 @@ module.exports = {
         boostUpBoxBg: 'linear-gradient(0deg, #273A46 0%, #15232D 100%)',
         bgGreyDefault: 'linear-gradient(180deg, #C0B1A3 0%, #92877D 100%)',
         bgGreyHover: 'linear-gradient(180deg, #E6D6C7 0%, #92877D 100%)',
-        swapCardGradient: 'linear-gradient(180deg, #26343E 0%, #1D2932 100%)',
+        swapCardGradient: 'linear-gradient(180deg, #222F37 0%, #192229 100%)',
         orderMobileTop: 'linear-gradient(180deg, #1D2933 0%, #283A46 100%)',
         switchIconBgColor: 'linear-gradient(180deg, #222F37 0%, #192229 100%)',
         unLoginButtonBgColor:

@@ -16,6 +16,9 @@ import { useMyOrders } from '../../state/swapV3';
 import { useHistory } from 'react-router-dom';
 import { OrderIcon } from '../icon/V3';
 import { EstimateSwapView } from '../../services/swap';
+import { PoolInfo } from '~services/swapV3';
+import { OutLinkIcon } from '../../components/icon/Common';
+import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -51,6 +54,7 @@ interface SwapFormWrapProps {
   reserves?: JSX.Element;
   wrapOperation?: boolean;
   isInsufficient?: boolean;
+  mostPoolDetail?: PoolInfo;
 }
 
 export default function SwapFormWrap({
@@ -74,10 +78,12 @@ export default function SwapFormWrap({
   quoteDoneLimit,
   reserves,
   isInsufficient,
+  mostPoolDetail,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
   const { activeOrder, historyOrder } = useMyOrders();
+  const [viewPoolHover, setViewPoolHover] = useState(false);
 
   const history = useHistory();
 
@@ -128,6 +134,16 @@ export default function SwapFormWrap({
       }
     }
   };
+  function goPoolsPage() {
+    const poolId = mostPoolDetail?.pool_id;
+    if (poolId) {
+      const newPoolId = poolId.replace(/\|/g, '@');
+      window.open(`/poolV2/${newPoolId}`);
+    } else {
+      localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
+      window.open('/pools');
+    }
+  }
 
   return (
     <form
@@ -150,6 +166,27 @@ export default function SwapFormWrap({
                 }
                 swapMode={swapMode}
               />
+            )}
+            {swapMode == SWAP_MODE.LIMIT && (
+              <div
+                onMouseEnter={() => {
+                  setViewPoolHover(true);
+                }}
+                onMouseLeave={() => {
+                  setViewPoolHover(false);
+                }}
+                onClick={goPoolsPage}
+                className={`flex items-center justify-center bg-viewPoolBgColor rounded-md px-3.5 py-1 cursor-pointer ${
+                  viewPoolHover ? 'text-white' : 'text-primaryText'
+                }`}
+              >
+                <span className="text-xs whitespace-nowrap">
+                  <FormattedMessage
+                    id={`${mostPoolDetail?.pool_id ? 'view_pool' : 'v2_pools'}`}
+                  ></FormattedMessage>
+                </span>
+                <OutLinkIcon className="ml-2"></OutLinkIcon>
+              </div>
             )}
           </h2>
         </>
