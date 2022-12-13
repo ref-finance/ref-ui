@@ -176,16 +176,19 @@ export default function SwapFormWrap({
                   setViewPoolHover(false);
                 }}
                 onClick={goPoolsPage}
-                className={`flex items-center justify-center bg-viewPoolBgColor rounded-md px-3.5 py-1 cursor-pointer ${
+                className={`flex items-center justify-center bg-viewPoolBgColor rounded-md px-3.5 xsm:px-2 py-1 cursor-pointer ${
                   viewPoolHover ? 'text-white' : 'text-primaryText'
                 }`}
               >
-                <span className="text-xs whitespace-nowrap">
+                <span className="text-xs whitespace-nowrap xsm:hidden">
                   <FormattedMessage
                     id={`${mostPoolDetail?.pool_id ? 'view_pool' : 'v2_pools'}`}
                   ></FormattedMessage>
                 </span>
-                <OutLinkIcon className="ml-2"></OutLinkIcon>
+                <span className="text-xs whitespace-nowrap lg:hidden">
+                  {mostPoolDetail?.pool_id ? 'Detail' : 'Pools'}
+                </span>
+                <OutLinkIcon className="ml-2 xsm:ml-1.5"></OutLinkIcon>
               </div>
             )}
           </h2>

@@ -66,6 +66,7 @@ import {
   TVLChart,
   ChartType,
   ChartChangeButton,
+  MobileChartChangeButton,
 } from '../pools/DetailsPage';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { ChartNoData } from '~components/icon/ChartNoData';
@@ -1228,7 +1229,7 @@ function Chart(props: any) {
       padding="px-7 py-5 xsm:px-4"
       bgcolor={isClientMobie() ? 'bg-transparent' : 'bg-cardBg'}
       style={{
-        height: isClientMobie() ? '370px' : '470px',
+        height: isClientMobie() ? '390px' : '470px',
       }}
     >
       {chartDisplay === 'volume' ? (
@@ -1602,7 +1603,7 @@ function LiquidityChart(props: any) {
   return (
     <>
       <div
-        className={`relative z-50 flex items-center justify-between w-full mb-4 ${
+        className={`relative z-50 flex items-center xsm:flex-col-reverse xsm:items-start justify-between w-full mb-4 ${
           noData ? 'opacity-70' : ''
         }`}
       >
@@ -1618,12 +1619,20 @@ function LiquidityChart(props: any) {
             <FormattedMessage id="current_price" />
           </span>
         </div>
-        <ChartChangeButton
-          className="self-start"
-          chartDisplay={chartDisplay}
-          setChartDisplay={setChartDisplay}
-          showLiqudityButton={true}
-        />
+        {isMobile ? (
+          <MobileChartChangeButton
+            chartDisplay={chartDisplay}
+            setChartDisplay={setChartDisplay}
+            showLiqudityButton={true}
+          ></MobileChartChangeButton>
+        ) : (
+          <ChartChangeButton
+            className="self-start"
+            chartDisplay={chartDisplay}
+            setChartDisplay={setChartDisplay}
+            showLiqudityButton={true}
+          />
+        )}
       </div>
       {chartLoading ? (
         <BlueCircleLoading className="absolute top-1/3"></BlueCircleLoading>

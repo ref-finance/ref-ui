@@ -675,11 +675,26 @@ export default function AddYourLiquidityPageV3() {
                 <div className="flex items-center justify-between">
                   <div
                     className="relative ml-3"
+                    tabIndex={-1}
                     onMouseEnter={() => {
-                      setSelectHover(true);
+                      if (!mobileDevice) {
+                        setSelectHover(true);
+                      }
                     }}
                     onMouseLeave={() => {
-                      setSelectHover(false);
+                      if (!mobileDevice) {
+                        setSelectHover(false);
+                      }
+                    }}
+                    onClick={() => {
+                      if (mobileDevice) {
+                        setSelectHover(!selectHover);
+                      }
+                    }}
+                    onBlur={() => {
+                      if (mobileDevice) {
+                        setSelectHover(false);
+                      }
                     }}
                   >
                     <div

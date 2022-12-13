@@ -1438,6 +1438,57 @@ export const ChartChangeButton = ({
     </div>
   );
 };
+export const MobileChartChangeButton = ({
+  chartDisplay,
+  setChartDisplay,
+  noData,
+  showLiqudityButton,
+}: {
+  chartDisplay: ChartType;
+  setChartDisplay: (display: ChartType) => void;
+  className?: string;
+  noData?: boolean;
+  showLiqudityButton?: boolean;
+}) => {
+  return (
+    <div className="relative mb-4">
+      <div className="flex items-center relative z-10">
+        <span
+          onClick={() => setChartDisplay('tvl')}
+          className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 pr-2.5 ${
+            chartDisplay === 'tvl' ? 'border-senderHot' : 'border-transparent'
+          }`}
+        >
+          <FormattedMessage id="tvl" defaultMessage="TVL" />
+        </span>
+        <span
+          onClick={() => setChartDisplay('volume')}
+          className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 px-2.5 ml-3 ${
+            chartDisplay === 'volume'
+              ? 'border-senderHot'
+              : 'border-transparent'
+          }`}
+        >
+          <FormattedMessage id="volume" defaultMessage="Volume" />
+        </span>
+        {showLiqudityButton ? (
+          <span
+            onClick={() => setChartDisplay('liquidity')}
+            className={`text-sm text-white text-opacity-60 pb-2.5 border-b-4 border-transparent px-2.5 ml-3 ${
+              chartDisplay === 'liquidity'
+                ? 'border-senderHot'
+                : 'border-transparent'
+            }`}
+          >
+            <FormattedMessage id="liquidity" defaultMessage="Liquidity" />
+          </span>
+        ) : null}
+        <div className="border-b border-menuMoreBoxBorderColor"></div>
+      </div>
+      <div className="h-px w-full absolute bottom-px left-0 bg-menuMoreBoxBorderColor"></div>
+    </div>
+  );
+};
 
 export function EmptyChart({
   chartDisplay,
@@ -1450,18 +1501,28 @@ export function EmptyChart({
   loading?: boolean;
   showLiqudityButton?: boolean;
 }) {
+  const mobile = isMobile();
   return (
-    <div className="w-full h-full flex flex-col justify-between">
-      <div className="pb-7">
-        <div className="flex items-center justify-between">
+    <div className="w-full h-full flex flex-col xsm:items-start justify-between">
+      <div className="pb-7 relative z-20">
+        <div className="flex items-center justify-between xsm:flex-col-reverse xsm:items-start">
           <div className="text-primaryText text-base float-left">$&nbsp;-</div>
-          <ChartChangeButton
-            className="self-start"
-            noData={true}
-            chartDisplay={chartDisplay}
-            setChartDisplay={setChartDisplay}
-            showLiqudityButton={showLiqudityButton}
-          />
+          {mobile ? (
+            <MobileChartChangeButton
+              noData={true}
+              chartDisplay={chartDisplay}
+              setChartDisplay={setChartDisplay}
+              showLiqudityButton={showLiqudityButton}
+            />
+          ) : (
+            <ChartChangeButton
+              className="self-start"
+              noData={true}
+              chartDisplay={chartDisplay}
+              setChartDisplay={setChartDisplay}
+              showLiqudityButton={showLiqudityButton}
+            />
+          )}
         </div>
         <div className="text-xs text-gray-500">-</div>
       </div>
@@ -1576,10 +1637,10 @@ export function VolumeChart({
         showLiqudityButton={showLiqudityButton}
       />
     );
-
+  const mobile = isMobile();
   return (
     <>
-      <div className="flex items-center justify-between self-start w-full">
+      <div className="flex items-center justify-between xsm:flex-col-reverse xsm:items-start self-start w-full">
         <div className="flex flex-col">
           <div className="text-white text-2xl">
             {`$${toInternationalCurrencySystem(
@@ -1594,12 +1655,20 @@ export function VolumeChart({
               : formatDate(data[data.length - 1].dateString)}
           </div>
         </div>
-        <ChartChangeButton
-          className="self-start"
-          chartDisplay={chartDisplay}
-          setChartDisplay={setChartDisplay}
-          showLiqudityButton={showLiqudityButton}
-        />
+        {mobile ? (
+          <MobileChartChangeButton
+            chartDisplay={chartDisplay}
+            setChartDisplay={setChartDisplay}
+            showLiqudityButton={showLiqudityButton}
+          />
+        ) : (
+          <ChartChangeButton
+            className="self-start"
+            chartDisplay={chartDisplay}
+            setChartDisplay={setChartDisplay}
+            showLiqudityButton={showLiqudityButton}
+          />
+        )}
       </div>
       <ResponsiveContainer height="100%" width="100%">
         <BarChart
@@ -1668,10 +1737,10 @@ export function TVLChart({
         showLiqudityButton={showLiqudityButton}
       />
     );
-
+  const mobile = isMobile();
   return (
     <>
-      <div className="flex items-center justify-between self-start w-full">
+      <div className="flex items-center justify-between xsm:flex-col-reverse xsm:items-start self-start w-full">
         <div className="flex flex-col">
           <div className="text-white text-2xl">
             {`$${toInternationalCurrencySystem(
@@ -1686,12 +1755,20 @@ export function TVLChart({
               : formatDate(data[data.length - 1].date)}
           </div>
         </div>
-        <ChartChangeButton
-          className="self-start"
-          chartDisplay={chartDisplay}
-          setChartDisplay={setChartDisplay}
-          showLiqudityButton={showLiqudityButton}
-        />
+        {mobile ? (
+          <MobileChartChangeButton
+            chartDisplay={chartDisplay}
+            setChartDisplay={setChartDisplay}
+            showLiqudityButton={showLiqudityButton}
+          />
+        ) : (
+          <ChartChangeButton
+            className="self-start"
+            chartDisplay={chartDisplay}
+            setChartDisplay={setChartDisplay}
+            showLiqudityButton={showLiqudityButton}
+          />
+        )}
       </div>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
