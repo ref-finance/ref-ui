@@ -912,5 +912,6 @@ const zh_CN = {
   limitTip: '您的价格将自动设置为最近的价格槽',
   v2PoolTip: '在V2池中最多可以有16个位置',
   orderTip: '您最多可以拥有16个活动/历史限价单',
+  v2_pools: 'V2池子',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

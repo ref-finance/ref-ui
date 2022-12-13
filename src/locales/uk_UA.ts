@@ -939,5 +939,6 @@ const uk_UA = {
   limitTip: 'Your price is automatically set to the closest price slot',
   v2PoolTip: 'You can have up to 16 positions in V2 pools',
   orderTip: 'You can have up to 16 active/history limit orders',
+  v2_pools: 'V2 Pools',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

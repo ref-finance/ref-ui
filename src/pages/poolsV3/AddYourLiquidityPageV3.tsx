@@ -612,8 +612,14 @@ export default function AddYourLiquidityPageV3() {
     }
   }
   function goPoolsPage() {
-    localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
-    window.open('/pools');
+    const poolId = currentSelectedPool?.pool_id;
+    if (poolId) {
+      const newPoolId = poolId.replace(/\|/g, '@');
+      window.open(`/poolV2/${newPoolId}`);
+    } else {
+      localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
+      window.open('/pools');
+    }
   }
   const tokenSort = tokenX?.id == currentSelectedPool?.token_x;
   const mobileDevice = isMobile();
@@ -725,7 +731,13 @@ export default function AddYourLiquidityPageV3() {
                     }`}
                   >
                     <span className="text-xs">
-                      <FormattedMessage id="view_pool"></FormattedMessage>
+                      <FormattedMessage
+                        id={`${
+                          currentSelectedPool?.pool_id
+                            ? 'v2_pools'
+                            : 'view_pool'
+                        }`}
+                      ></FormattedMessage>
                     </span>
                     <OutLinkIcon className="ml-2"></OutLinkIcon>
                   </div>
