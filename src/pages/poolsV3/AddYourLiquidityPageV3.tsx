@@ -2010,7 +2010,7 @@ function NoDataComponent(props: any) {
       ) : null}
       <div className="flex flex-col justify-between relative flex-grow bg-black bg-opacity-10 rounded-xl px-2.5 py-4 mt-3  xsm:px-2">
         {/* range chart area */}
-        <div className="flex flex-col items-center justify-center my-16 xsm:my-12">
+        <div className="flex flex-col items-center justify-center my-24 xsm:my-12">
           <EmptyIcon></EmptyIcon>
         </div>
         {/* input range area */}
