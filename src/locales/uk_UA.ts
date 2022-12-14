@@ -912,9 +912,10 @@ const uk_UA = {
   no_claimed_rewards_yet: 'No claimed rewards yet',
   out_of: 'out of',
   value_must_be_less_than_or_equal_to: 'Value must be less than or equal to',
-  maket_price_outside_tip: 'The maket price is outside your price range.',
+  maket_price_outside_tip:
+    'Ринкова ціна знаходиться за межами вашого цінового діапазону.',
   maket_price_outside_single_only_tip:
-    'The market price is outside the price range. Add liquidity for the corresponding token.',
+    'Ринкова ціна знаходиться за межами вашого цінового діапазону. Внесіть тільки один актив.',
   login_risk_tip:
     'By checking this box and moving forward, you confirm that you fully understand the <a class="text-greenColor text-sm font-bold cursor-pointer hover:underline" onclick="window.open(' +
     "'/risks'" +
