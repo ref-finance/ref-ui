@@ -913,5 +913,6 @@ const zh_CN = {
   v2PoolTip: '在V2池中最多可以有16个位置',
   orderTip: '您最多可以拥有16个活动/历史限价单',
   v2_pools: 'V2池子',
+  minimum_received_dot: '最少获得',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

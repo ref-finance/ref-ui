@@ -111,11 +111,13 @@ const ChangeSwapMode = ({
             }}
           >
             <span className="text-sm whitespace-nowrap text-white right-4 top-1.5 w-36 absolute z-40">
-              <FormattedMessage
+              {/* <FormattedMessage
                 id="cross_chain_swap"
                 defaultMessage={'Cross-chain Swap'}
-              />
+              /> */}
+              Cross-chain Swap
             </span>
+
             <CrossChainPop />
           </div>
         )}

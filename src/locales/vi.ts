@@ -970,5 +970,6 @@ const vi = {
   v2PoolTip: 'You can have up to 16 positions in V2 pools',
   orderTip: 'You can have up to 16 active/history limit orders',
   v2_pools: 'V2 Pools',
+  minimum_received_dot: 'Tối thiểu nhận',
 };
 export default Object.assign(vi, vi_in_risks_page);

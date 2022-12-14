@@ -863,8 +863,8 @@ const ja = {
   pro: 'プロ',
   limit: '指値',
   make_an_order: '注文する',
-  your_active_orders_will_appear_here: 'アクティブな注文はここに表示されます.',
-  your_history_orders_will_appear_here: '注文履歴はここに表示されます.',
+  your_active_orders_will_appear_here: 'アクティブな注文はここに表示されます',
+  your_history_orders_will_appear_here: '注文履歴はここに表示されます',
   liquidity_capital: '流動性',
   goes_to_limit_order: '指値注文に行く.',
   please_confirm_this_transaction_on_ledger:
@@ -966,5 +966,6 @@ const ja = {
   v2PoolTip: 'You can have up to 16 positions in V2 pools',
   orderTip: 'You can have up to 16 active/history limit orders',
   v2_pools: 'V2 Pools',
+  minimum_received_dot: '受け取り可能な最低金額',
 };
 export default Object.assign(ja, ja_in_risks_page);

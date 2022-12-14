@@ -1153,13 +1153,14 @@ export const CrossSwapAllResult = ({
 
     return (
       <div
-        className="absolute gotham_font xs:relative xs:text-limitOrderInputColor xs:rounded-xl xs:px-2.5 xs:mt-2  p-4  text-xs cursor-default text-white whitespace-nowrap"
+        className="absolute gotham_font xs:relative xs:text-primaryText xs:rounded-xl xs:px-2.5 xs:mt-2  p-4  text-xs  cursor-default text-white whitespace-nowrap"
         style={{
           width: isMobile ? '100%' : '316px',
-          height: isMulti ? '150px' : '124px',
+          height: isMobile ? null : isMulti ? '150px' : '124px',
           zIndex: 60,
           left: isMobile ? '' : '-300px',
           border: isMobile ? '1.2px solid #304352' : '',
+          fontSize: isMobile ? '13px' : '',
         }}
       >
         {isMobile ? null : isMulti ? (
@@ -1181,7 +1182,7 @@ export const CrossSwapAllResult = ({
         </div>
 
         <div className="flex items-center mt-2 justify-between">
-          <span>
+          <span className="break-all whitespace-pre-wrap">
             {intl.formatMessage({
               id: 'pool_fee_cross_swap',
               defaultMessage: 'Pool/Cross-chain fee',
@@ -1191,10 +1192,12 @@ export const CrossSwapAllResult = ({
           <span>{poolFeeDisplay}</span>
         </div>
 
-        <div className="flex items-center mt-2  justify-between">
-          <span>{intl.formatMessage({ id: 'minimum_received' })}</span>
+        <div className="flex items-center mt-2   justify-between">
+          <span className="break-all whitespace-pre-wrap">
+            {intl.formatMessage({ id: 'minimum_received' })}
+          </span>
 
-          <span className="text-white">
+          <span className="">
             {Number(minAmount) < 0.001
               ? '< 0.001'
               : toPrecision(minAmount || '0', 6)}
@@ -1573,7 +1576,7 @@ export const CrossSwapAllResult = ({
               tokenIn?.symbol
             )} `}
           </span>
-          <span className="col-span-4 xs:justify-self-center relative right-6 xs:right-0 justify-self-end">
+          <span className="col-span-4 xs:justify-self-center relative right-6 xs:right-4 justify-self-end">
             {
               <FormattedMessage
                 id="minimum_received_dot"
@@ -1581,7 +1584,7 @@ export const CrossSwapAllResult = ({
               />
             }
           </span>
-          <span className="relative right-2 text-right  col-span-1">
+          <span className="relative right-2 xs:right-4 whitespace-nowrap text-right  col-span-1">
             <FormattedMessage id="diff" defaultMessage="Diff" />
           </span>
         </div>

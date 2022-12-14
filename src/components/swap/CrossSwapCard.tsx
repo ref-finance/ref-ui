@@ -204,7 +204,7 @@ export const GetPriceImpact = (
 ) => {
   const textColor =
     Number(value) <= 1
-      ? 'text-white'
+      ? 'text-white xs:text-primaryText'
       : 1 < Number(value) && Number(value) <= 2
       ? 'text-warn'
       : 'text-error';
@@ -221,7 +221,7 @@ export const GetPriceImpact = (
 
   if (Number(value) < 0.01)
     return (
-      <span className="text-white">
+      <span className="text-white xs:text-primaryText">
         {`< -0.01%`}
         {tokenInInfo}
       </span>

@@ -941,5 +941,6 @@ const uk_UA = {
   v2PoolTip: 'You can have up to 16 positions in V2 pools',
   orderTip: 'You can have up to 16 active/history limit orders',
   v2_pools: 'V2 Pools',
+  minimum_received_dot: 'Мінімум отриманий',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);
