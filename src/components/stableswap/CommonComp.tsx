@@ -176,7 +176,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
       className="text-sm flex items-center justify-between"
       width="w-full"
     >
-      <span className="text-primaryText flex items-center">
+      <span className="text-primaryText flex whitespace-nowrap items-center">
         <FormattedMessage id="my_shares" defaultMessage="Shares" />
         <QuestionTip id="shares_tip" />
       </span>
