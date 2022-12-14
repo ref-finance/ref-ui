@@ -78,7 +78,8 @@ const ChangeSwapMode = ({
           localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.NORMAL);
         }}
       >
-        <FormattedMessage id="swap" defaultMessage="Swap" />
+        {/* <FormattedMessage id="swap" defaultMessage="Swap" /> */}
+        Swap
       </span>
 
       <span
@@ -99,8 +100,8 @@ const ChangeSwapMode = ({
           fontSize: '15px',
         }}
       >
-        <FormattedMessage id="xSwap" defaultMessage="XSwap" />
-
+        {/* <FormattedMessage id="xSwap" defaultMessage="XSwap" /> */}
+        XSwap
         {(isMobile ? false : hoverXswap) && (
           <div
             className="absolute z-50"
@@ -140,7 +141,8 @@ const ChangeSwapMode = ({
           fontSize: '15px',
         }}
       >
-        <FormattedMessage id="limit_order" defaultMessage="Limit Order" />
+        {/* <FormattedMessage id="limit_order" defaultMessage="Limit Order" /> */}
+        Limit Order
       </span>
     </div>
   );

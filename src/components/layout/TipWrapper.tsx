@@ -15,6 +15,7 @@ export function QuestionTip({
   uniquenessId,
   colorhex,
   opacity,
+  style,
 }: {
   id: string;
   color?: 'bright' | 'dark';
@@ -24,6 +25,7 @@ export function QuestionTip({
   uniquenessId?: string;
   colorhex?: string;
   opacity?: string;
+  style?: any;
 }) {
   const intl = useIntl();
 
@@ -48,6 +50,7 @@ export function QuestionTip({
       data-html={true}
       data-tip={getValue()}
       data-multiline={true}
+      style={style}
     >
       <span className={`${opacity}`}>
         <QuestionMark colorhex={colorhex} color={color}></QuestionMark>

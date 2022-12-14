@@ -934,7 +934,8 @@ export default function AddYourLiquidityPageV3() {
                               }`}
                             >
                               {isNoPool ? (
-                                <FormattedMessage id="no_pool" />
+                                // <FormattedMessage id="no_pool" />
+                                'No Pool'
                               ) : Object.keys(tokenPriceList).length > 0 ? (
                                 <span>
                                   {/* <label className="xsm:hidden">

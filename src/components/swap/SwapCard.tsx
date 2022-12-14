@@ -391,7 +391,10 @@ export function SmartRoutesV2Detail({
           </span>
           <div className="flex items-center">
             <AutoRouterText />
-            <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
+            <QuestionTip
+              style={{ maxWidth: '14rem' }}
+              id="optimal_path_found_by_our_solution"
+            />
           </div>
         </div>
       </div>
@@ -2266,7 +2269,10 @@ export default function SwapCard(props: {
           />
           {swapMode === SWAP_MODE.LIMIT ? (
             <>
-              <div className="relative flex items-stretch justify-between mt-2.5">
+              <div
+                className="relative flex items-stretch justify-between mt-2.5"
+                style={{ zIndex: '60' }}
+              >
                 <LimitOrderRateSetBox
                   tokenIn={tokenIn}
                   tokenOut={tokenOut}
