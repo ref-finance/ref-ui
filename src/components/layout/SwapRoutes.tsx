@@ -1182,7 +1182,7 @@ export const CrossSwapAllResult = ({
         </div>
 
         <div className="flex items-center mt-2 justify-between">
-          <span className="break-all whitespace-pre-wrap">
+          <span className="whitespace-pre-wrap">
             {intl.formatMessage({
               id: 'pool_fee_cross_swap',
               defaultMessage: 'Pool/Cross-chain fee',
@@ -1193,7 +1193,7 @@ export const CrossSwapAllResult = ({
         </div>
 
         <div className="flex items-center mt-2   justify-between">
-          <span className="break-all whitespace-pre-wrap">
+          <span className="whitespace-pre-wrap">
             {intl.formatMessage({ id: 'minimum_received' })}
           </span>
 
