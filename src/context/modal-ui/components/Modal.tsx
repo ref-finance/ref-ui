@@ -14,7 +14,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { Context } from '../../../components/wrapper';
 import { RouterArrowLeft } from '../../../components/icon/Arrows';
 import { MetaMaskTip } from './MetaMaskTip';
-import { isClientMobie } from '~utils/device';
+import { isClientMobie } from '../../../utils/device';
 
 interface ModalProps {
   selector: WalletSelector;
