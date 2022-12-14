@@ -432,6 +432,12 @@ export const parsedTransactionSuccessValue = (res: any) => {
   }
 };
 
+export const parsedArgs = (res: any) => {
+  const buff = Buffer.from(res, 'base64');
+  const parsedData = buff.toString('ascii');
+  return parsedData;
+};
+
 export const parsedTransactionSuccessValueNeth = (res: any) => {
   const status: any = res?.receipts_outcome?.[1]?.outcome?.status;
 

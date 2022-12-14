@@ -50,7 +50,10 @@ import {
   swapToast,
 } from '../components/layout/transactionTipPopUp';
 import { SWAP_MODE } from '../pages/SwapPage';
-import { getErrorMessage } from '../components/layout/transactionTipPopUp';
+import {
+  getErrorMessage,
+  parsedArgs,
+} from '../components/layout/transactionTipPopUp';
 import { checkTransactionStatus, EstimateSwapView } from '../services/swap';
 import { checkCrossSwapTransactions } from '../components/layout/transactionTipPopUp';
 import {
@@ -135,20 +138,27 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
   const parseLimitOrderPopUp = async (res: any) => {
     console.log(res, 'res');
 
-    const ft_resolved_id = res?.receipts?.findIndex((r: any) =>
-      r?.receipt?.Action?.actions?.some(
-        (a: any) => a?.FunctionCall?.method_name === 'ft_resolve_transfer'
-      )
-    );
+    const byNeth =
+      res?.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
 
-    const ft_on_transfer_id = res?.receipts?.findIndex((r: any) =>
-      r?.receipt?.Action?.actions?.some(
-        (a: any) => a?.FunctionCall?.method_name === 'ft_on_transfer'
-      )
-    );
+    const ft_resolved_id =
+      res?.receipts?.findIndex((r: any) =>
+        r?.receipt?.Action?.actions?.some(
+          (a: any) => a?.FunctionCall?.method_name === 'ft_resolve_transfer'
+        )
+      ) + (byNeth ? 1 : 0);
 
-    const ft_transfer_call_args = parsedTransactionSuccessValue(
-      res?.transaction?.actions?.[0]?.FunctionCall?.args || ''
+    const ft_on_transfer_id =
+      res?.receipts?.findIndex((r: any) =>
+        r?.receipt?.Action?.actions?.some(
+          (a: any) => a?.FunctionCall?.method_name === 'ft_on_transfer'
+        )
+      ) + (byNeth ? 1 : 0);
+
+    const ft_transfer_call_args = parsedArgs(
+      byNeth
+        ? res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall?.args
+        : res?.transaction?.actions?.[0]?.FunctionCall?.args || ''
     );
 
     const parsedInputArgs = JSON.parse(ft_transfer_call_args || '');
@@ -304,9 +314,16 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
           const isLimitOrder = await parseLimitOrderPopUp(res);
 
           const transactionErrorType = getErrorMessage(res);
+          const byNeth =
+            res?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+            'execute';
 
           const transaction = res.transaction;
-
+          const isSwapNeth =
+            res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+              ?.method_name === 'ft_transfer_call' ||
+            res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+              ?.method_name === 'near_withdraw';
           return {
             isSwap:
               (transaction?.actions[1]?.['FunctionCall']?.method_name ===
@@ -318,7 +335,8 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
                 transaction?.actions[0]?.['FunctionCall']?.method_name ===
                   'near_deposit' ||
                 transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                  'near_withdraw') &&
+                  'near_withdraw' ||
+                (isSwapNeth && byNeth)) &&
               !isLimitOrder,
             transactionErrorType,
           };
@@ -441,42 +459,6 @@ export const useSwap = ({
     }
     setAvgFee(avgFee);
   };
-
-  useEffect(() => {
-    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
-      checkTransaction(txHash)
-        .then((res: any) => {
-          const transactionErrorType = getErrorMessage(res);
-
-          const transaction = res.transaction;
-
-          console.log({
-            res,
-          });
-
-          const isSwapNeth =
-            res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
-              ?.method_name === 'ft_transfer_call';
-
-          return {
-            isSwap:
-              transaction?.actions[1]?.['FunctionCall']?.method_name ===
-                'ft_transfer_call' ||
-              transaction?.actions[0]?.['FunctionCall']?.method_name ===
-                'ft_transfer_call' ||
-              isSwapNeth,
-            transactionErrorType,
-          };
-        })
-        .then(({ isSwap, transactionErrorType }) => {
-          if (isSwap) {
-            !transactionErrorType && !errorType && swapToast(txHash);
-            transactionErrorType && failToast(txHash, transactionErrorType);
-          }
-          history.replace(pathname);
-        });
-    }
-  }, [txHash]);
 
   const getEstimate = () => {
     setCanSwap(false);
@@ -760,10 +742,6 @@ export const useSwapV3 = ({
       fees.map((fee) => getQuote(fee, tokenIn, tokenOut, allDCLPools))
     )
       .then((res) => {
-        console.log({
-          res,
-        });
-
         if (!loadingTrigger || swapError?.message) {
           setEstimates(res);
 
