@@ -1154,7 +1154,7 @@ function SelectLiquidityBox(props: any) {
                 goAddLiqudityPage();
               }}
               color="#fff"
-              className={`w-44 xsm:w-full h-10 text-center text-base text-white focus:outline-none mt-7 xsm:mt-4`}
+              className={`px-3 xsm:w-full h-10 text-center text-base text-white focus:outline-none mt-7 xsm:mt-4`}
             >
               <FormattedMessage id="add_new_position" />
             </GradientButton>
