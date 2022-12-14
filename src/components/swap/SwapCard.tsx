@@ -170,6 +170,7 @@ import { Images } from '../stableswap/CommonComp';
 import { ArrowRight } from '../layout/SwapRoutes';
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
+import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -1991,6 +1992,9 @@ export default function SwapCard(props: {
   };
   const handleSubmit_wrap = (e: any) => {
     e.preventDefault();
+
+    sessionStorage.setItem(NEAR_WITHDRAW_KEY, '1');
+
     if (tokenIn?.symbol === 'NEAR') {
       setWrapLoading(true);
       return nearDeposit(tokenInAmount);

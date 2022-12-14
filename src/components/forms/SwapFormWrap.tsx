@@ -262,6 +262,8 @@ export function CrossSwapFormWrap({
     setShowSwapLoading,
   } = loading || {};
 
+  const [wrapLoading, setWrapLoading] = useState(false);
+
   useEffect(() => {
     loadingTrigger && setShowSwapLoading && setShowSwapLoading(true);
     !loadingTrigger && setShowSwapLoading && setShowSwapLoading(false);
@@ -278,6 +280,9 @@ export function CrossSwapFormWrap({
       try {
         setShowSwapLoading && setShowSwapLoading(true);
         setShowSwapLoading && setLoadingPause(true);
+
+        setWrapLoading(true);
+
         onSubmit(event);
       } catch (err) {
         setError(err);
@@ -311,12 +316,14 @@ export function CrossSwapFormWrap({
         disabled={
           !canSubmit ||
           (wrapOperation
-            ? false
+            ? wrapLoading
             : typeof loadingTrigger !== 'undefined' && loadingTrigger)
         }
         label={buttonText || title}
         info={info}
-        loading={wrapOperation ? false : showSwapLoading || loadingTrigger}
+        loading={
+          wrapOperation ? wrapLoading : showSwapLoading || loadingTrigger
+        }
         className="py-3"
       />
       {reserves}

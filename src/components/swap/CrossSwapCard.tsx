@@ -120,6 +120,7 @@ import { CountdownTimer } from '../icon/SwapRefresh';
 import { PopUpContainer } from '../icon/Info';
 import { usePriceImpact, estimateValidator } from '../../state/swap';
 import _ from 'lodash';
+import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -631,6 +632,9 @@ export default function CrossSwapCard(props: {
   };
   const handleSubmit_wrap = (e: any) => {
     e.preventDefault();
+
+    sessionStorage.setItem(NEAR_WITHDRAW_KEY, '1');
+
     if (tokenIn?.symbol === 'NEAR') {
       setShowSwapLoading(true);
       return nearDeposit(tokenInAmount);
