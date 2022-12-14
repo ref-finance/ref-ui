@@ -1238,7 +1238,7 @@ export const ArrowRight = (props: any) => {
   );
 };
 
-export const ArrowDown = (props: any) => {
+export const ArrowDownV3 = (props: any) => {
   return (
     <svg
       {...props}

@@ -152,7 +152,8 @@ function senderWalletFunc(window: Window) {
 
   this.signOut = function () {
     // removeSenderLoginRes();
-    const signedInContractSize = window?.near?.authData?.allKeys;
+    const n: any = window?.near;
+    const signedInContractSize = n?.authData?.allKeys;
 
     if (
       signedInContractSize &&
@@ -165,11 +166,11 @@ function senderWalletFunc(window: Window) {
       signedInContractSize &&
       Object.keys(signedInContractSize).includes('aurora')
     ) {
-      return window.near.signOut({
+      return n.signOut({
         contractId: 'aurora',
       });
     } else {
-      return window.near.signOut({
+      return n.signOut({
         contractId: REF_FARM_BOOST_CONTRACT_ID,
       });
     }
@@ -207,11 +208,12 @@ function senderWalletFunc(window: Window) {
     receiverId: string,
     functionCalls: RefFiFunctionCallOptions[]
   ) {
+    const n: any = window?.near;
     if (!window.near.isSignedIn()) {
       await this.requestSignIn(REF_FARM_BOOST_CONTRACT_ID);
     }
 
-    return window.near
+    return n
       .signAndSendTransaction({
         receiverId,
         actions: functionCalls.map((fc) => {

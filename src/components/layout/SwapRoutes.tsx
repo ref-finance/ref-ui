@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { TokenMetadata, ftGetTokenMetadata } from '~services/ft-contract';
+import { TokenMetadata, ftGetTokenMetadata } from '../../services/ft-contract';
 import {
   calculateFeePercent,
   toPrecision,
@@ -9,7 +9,7 @@ import {
   calculateFeeCharge,
   toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from '../../utils/token';
 import { EstimateSwapView } from '../../services/stable-swap';
 import {
   getPoolAllocationPercents,
@@ -39,17 +39,17 @@ import {
   scientificNotationToString,
 } from '../../utils/numbers';
 import Big from 'big.js';
-import { useTokenPriceList } from '~state/token';
+import { useTokenPriceList } from '../../state/token';
 import { GetPriceImpact } from '../swap/CrossSwapCard';
 import { PopUpContainer, PopUpContainerMulti } from '../icon/Info';
 import { percentLess, multiply } from '../../utils/numbers';
 import { QuestionTip } from './TipWrapper';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import { Images } from '../stableswap/CommonComp';
-import { getAuroraConfig } from '~services/aurora/config';
+import { getAuroraConfig } from '../../services/aurora/config';
 import { isMobile, useClientMobile } from '../../utils/device';
 import { getV3PoolId } from '../../services/swapV3';
-import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
+import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 
 export const RouterIcon = () => {
   return (

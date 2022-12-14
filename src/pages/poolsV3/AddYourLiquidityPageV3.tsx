@@ -75,7 +75,7 @@ import ReactTooltip from 'react-tooltip';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { isMobile } from '../../utils/device';
-import { SelectedIcon, ArrowDown } from '../../components/icon/swapV3';
+import { SelectedIcon, ArrowDownV3 } from '../../components/icon/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { REF_FI_POOL_ACTIVE_TAB } from '../pools/LiquidityPage';
 
@@ -706,7 +706,7 @@ export default function AddYourLiquidityPageV3() {
                         id="select_tokens"
                         defaultMessage="Select Tokens"
                       />
-                      <ArrowDown className="ml-3"></ArrowDown>
+                      <ArrowDownV3 className="ml-3"></ArrowDownV3>
                     </div>
                     <div
                       className={`absolute top-7 -left-3 bg-selectBoxBgColor border border-selectBorder rounded-xl p-1.5 text-sm text-primaryText z-50 ${

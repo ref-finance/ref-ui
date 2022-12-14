@@ -9,16 +9,16 @@ import React, {
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { ShareInFarm } from '~components/layout/ShareInFarm';
+import { ShareInFarm } from '../../components/layout/ShareInFarm';
 import {
   classificationOfCoins_key,
   classificationOfCoins,
-} from '~services/farm';
-import { ArrowDown, ArrowDownLarge } from '~components/icon';
+} from '../../services/farm';
+import { ArrowDown, ArrowDownLarge } from '../../components/icon';
 import { useHistory } from 'react-router';
-import { Card } from '~components/card/Card';
+import { Card } from '../../components/card/Card';
 import { find, runInContext, values } from 'lodash';
-import { SelectModal } from '~components/layout/SelectModal';
+import { SelectModal } from '../../components/layout/SelectModal';
 import {
   useAllPools,
   usePools,
@@ -27,7 +27,7 @@ import {
   useWatchPools,
   useV3VolumesPools,
 } from '../../state/pool';
-import Loading from '~components/layout/Loading';
+import Loading from '../../components/layout/Loading';
 import {
   useTokens,
   usePoolTokens,
@@ -42,31 +42,31 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
-import { CheckedTick, CheckedEmpty } from '~components/icon/CheckBox';
-import { toRealSymbol } from '~utils/token';
+import { CheckedTick, CheckedEmpty } from '../../components/icon/CheckBox';
+import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   DownArrowLight,
   DownArrowLightMobile,
   UpArrowDeep,
   UpArrowLight,
-} from '~components/icon';
-import { FarmStamp } from '~components/icon/FarmStamp';
+} from '../../components/icon';
+import { FarmStamp } from '../../components/icon/FarmStamp';
 import {
   SolidButton,
   FarmButton,
   GradientButton,
-} from '~components/button/Button';
-import { NEAR_CLASS_STABLE_POOL_IDS, wallet } from '~services/near';
+} from '../../components/button/Button';
+import { NEAR_CLASS_STABLE_POOL_IDS, wallet } from '../../services/near';
 import {
   WatchListStartEmpty,
   WatchListStartFull,
-} from '~components/icon/WatchListStar';
-import { PolygonGrayDown } from '~components/icon/Polygon';
+} from '../../components/icon/WatchListStar';
+import { PolygonGrayDown } from '../../components/icon/Polygon';
 import _, { orderBy, sortBy, filter } from 'lodash';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from '../../components/farm/QuestionMark';
 import { useInView } from 'react-intersection-observer';
-import { QuestionTip } from '~components/layout/TipWrapper';
+import { QuestionTip } from '../../components/layout/TipWrapper';
 import { FilterIcon } from '../../components/icon/PoolFilter';
 import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
 import {
@@ -81,7 +81,7 @@ import {
   useYourliquidity,
 } from '../../state/pool';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
-import { SearchIcon } from '~components/icon/FarmBoost';
+import { SearchIcon } from '../../components/icon/FarmBoost';
 import {
   WalletContext,
   getCurrentWallet,
@@ -121,7 +121,7 @@ import { useAllPoolsV2 } from '../../state/swapV3';
 import { PoolInfo } from '~services/swapV3';
 import { SelectModalV2 } from '../../components/layout/SelectModal';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
-import { ALL_STABLE_POOL_IDS } from '~services/near';
+import { ALL_STABLE_POOL_IDS } from '../../services/near';
 import { WatchList } from '../../store/RefDatabase';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
