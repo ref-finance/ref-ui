@@ -401,17 +401,14 @@ export function SmartRoutesV2Detail({
 
       <div className="text-right text-white flex-grow xsm:mt-2.5 xsm:w-full">
         {identicalRoutes.map((route, index) => (
-          <>
-            {
-              <NormalSwapRoute
-                tokenIn={tokenIn}
-                tokenOut={tokenOut}
-                route={route}
-                p={percents[index]}
-                key={index}
-              />
-            }
-          </>
+          <div key={index}>
+            <NormalSwapRoute
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+              route={route}
+              p={percents[index]}
+            />
+          </div>
         ))}
       </div>
     </section>
@@ -1960,8 +1957,13 @@ export default function SwapCard(props: {
     const hideCondition2 = swapMode !== SWAP_MODE.LIMIT && poolError;
     const hideCondition3 = wrapOperation;
     const hideCondition4 = new Big(tokenInAmount || '0').lte('0');
+    const hideCondition5 = tokenIn?.id == tokenOut?.id;
     const hideConditionFinall =
-      hideCondition1 || hideCondition2 || hideCondition3 || hideCondition4;
+      hideCondition1 ||
+      hideCondition2 ||
+      hideCondition3 ||
+      hideCondition4 ||
+      hideCondition5;
     return !hideConditionFinall;
   }
   // const canSubmit = (swapMode !== SWAP_MODE.LIMIT ? (canSwap || canSwapV3) && (tokenInMax != '0' || !useNearBalance) && quoteDone && quoteDoneV3 : !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut)) && new Big(tokenInAmount || '0').lte(tokenInMax || '0') && !ONLY_ZEROS.test(tokenInMax || '0');
@@ -2031,7 +2033,6 @@ export default function SwapCard(props: {
       setPoolError(null);
     }
   }, [quoteDone, quoteDoneV3, swapError, swapErrorV3]);
-
   return (
     <>
       <SwapFormWrap
@@ -2306,7 +2307,11 @@ export default function SwapCard(props: {
               </div>
             </>
           ) : null}
-          {canShowDetailView ? displayDetailView : <div className="mt-4"></div>}
+          {canShowDetailView ? (
+            <div className="mt-4">{displayDetailView}</div>
+          ) : (
+            <div className="mt-4"></div>
+          )}
         </LimitOrderTriggerContext.Provider>
 
         {wrapOperation ? (

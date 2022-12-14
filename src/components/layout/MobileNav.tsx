@@ -690,9 +690,8 @@ export function MobileNavBar(props: any) {
                               }
                             );
                             return (
-                              <div className="my-2">
+                              <div className="my-2" key={id}>
                                 <div
-                                  key={id}
                                   className={`flex justify-between text-left items-center pl-3 pr-2 py-3   ${
                                     isSubMenuSelected
                                       ? 'text-white bg-menuMoreBgColor rounded-xl'
