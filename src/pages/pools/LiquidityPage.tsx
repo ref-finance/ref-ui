@@ -17,7 +17,7 @@ import {
 import { ArrowDown, ArrowDownLarge } from '../../components/icon';
 import { useHistory } from 'react-router';
 import { Card } from '../../components/card/Card';
-import { find, runInContext, values } from 'lodash';
+import { find, isNumber, runInContext, values } from 'lodash';
 import { SelectModal } from '../../components/layout/SelectModal';
 import {
   useAllPools,
@@ -105,7 +105,7 @@ import {
   getURLInfo,
 } from '../../components/layout/transactionTipPopUp';
 import { checkTransactionStatus } from '../../services/swap';
-import { useAllFarms, useCanFarmV2 } from '../../state/farm';
+import { useCanFarmV2 } from '../../state/farm';
 import { PoolData, useAllStablePoolData } from '../../state/sauce';
 import { formatePoolData } from '../stable/StableSwapEntry';
 import {
@@ -123,6 +123,8 @@ import { SelectModalV2 } from '../../components/layout/SelectModal';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
 import { ALL_STABLE_POOL_IDS } from '../../services/near';
 import { WatchList } from '../../store/RefDatabase';
+import { useAllFarms } from '../../state/farm';
+import { REF_FI_CONTRACT_ID } from '../../services/near';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -2519,15 +2521,26 @@ export function LiquidityPage() {
   useEffect(() => {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
-        const status: any = res.status;
-        const transaction: any = res.transaction;
-        const methodName =
-          transaction?.actions[0]?.['FunctionCall']?.method_name;
+        let status: any = res.status;
+
+        if (
+          res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
+        ) {
+          let receipt = res?.receipts_outcome?.find(
+            (o: any) => o?.outcome?.executor_id === REF_FI_CONTRACT_ID
+          );
+
+          if (receipt) {
+            status = receipt?.outcome?.status;
+          }
+        }
+
         const data: string | undefined = status.SuccessValue;
-        if (data && methodName == 'add_simple_pool') {
+        if (data) {
           const buff = Buffer.from(data, 'base64');
           const pool_id = buff.toString('ascii');
-          history.push(`/pool/${pool_id}`);
+
+          if (isNumber(pool_id)) history.push(`/pool/${pool_id}`);
         } else {
           history.replace(`/pools`);
         }

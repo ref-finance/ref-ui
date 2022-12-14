@@ -50,15 +50,9 @@ import {
   swapToast,
 } from '../components/layout/transactionTipPopUp';
 import { SWAP_MODE } from '../pages/SwapPage';
-import {
-  getErrorMessage,
-  parseArgs,
-} from '../components/layout/transactionTipPopUp';
+import { getErrorMessage } from '../components/layout/transactionTipPopUp';
 import { checkTransactionStatus, EstimateSwapView } from '../services/swap';
-import {
-  parsedTransactionSuccessValue,
-  checkCrossSwapTransactions,
-} from '../components/layout/transactionTipPopUp';
+import { checkCrossSwapTransactions } from '../components/layout/transactionTipPopUp';
 import {
   getLimitOrderRangeCountAndPool,
   get_pool,
@@ -89,6 +83,7 @@ import { toRealSymbol } from '../utils/token';
 import { useTokenPriceList } from './token';
 import Big from 'big.js';
 import BigNumber from 'bignumber.js';
+import { parsedTransactionSuccessValue } from '../components/layout/transactionTipPopUp';
 import {
   calcStableSwapPriceImpact,
   calculateSmartRoutesV2PriceImpact,
@@ -152,7 +147,7 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
       )
     );
 
-    const ft_transfer_call_args = parseArgs(
+    const ft_transfer_call_args = parsedTransactionSuccessValue(
       res?.transaction?.actions?.[0]?.FunctionCall?.args || ''
     );
 
@@ -415,6 +410,8 @@ export const useSwap = ({
 
   const [estimating, setEstimating] = useState<boolean>(false);
 
+  const { pathname, txHash, errorType } = getURLInfo();
+
   const history = useHistory();
   const [count, setCount] = useState<number>(0);
 
@@ -444,6 +441,42 @@ export const useSwap = ({
     }
     setAvgFee(avgFee);
   };
+
+  useEffect(() => {
+    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
+      checkTransaction(txHash)
+        .then((res: any) => {
+          const transactionErrorType = getErrorMessage(res);
+
+          const transaction = res.transaction;
+
+          console.log({
+            res,
+          });
+
+          const isSwapNeth =
+            res?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+              ?.method_name === 'ft_transfer_call';
+
+          return {
+            isSwap:
+              transaction?.actions[1]?.['FunctionCall']?.method_name ===
+                'ft_transfer_call' ||
+              transaction?.actions[0]?.['FunctionCall']?.method_name ===
+                'ft_transfer_call' ||
+              isSwapNeth,
+            transactionErrorType,
+          };
+        })
+        .then(({ isSwap, transactionErrorType }) => {
+          if (isSwap) {
+            !transactionErrorType && !errorType && swapToast(txHash);
+            transactionErrorType && failToast(txHash, transactionErrorType);
+          }
+          history.replace(pathname);
+        });
+    }
+  }, [txHash]);
 
   const getEstimate = () => {
     setCanSwap(false);

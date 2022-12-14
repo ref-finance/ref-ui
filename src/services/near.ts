@@ -322,9 +322,15 @@ export const executeMultipleTransactions = async (
       callbackUrl,
     })
     .then((res) => {
+      console.log(res);
+
       if (!res) return;
 
-      const transactionHashes = res?.map((r) => r.transaction.hash);
+      console.log(res);
+
+      const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
+        (r) => r.transaction.hash
+      );
       const parsedTransactionHashes = transactionHashes?.join(',');
       const newHref = addQueryParams(
         window.location.origin + window.location.pathname,
