@@ -942,12 +942,12 @@ function DetailViewLimit({
               const isNoPool = everyPoolTvl?.[pool_id] == null;
               return (
                 <button
-                  className={`relative bg-selectTokenV3BgColor rounded-xl ${
-                    v3Pool === pool_id && !isNoPool ? 'bg-feeBoxSelectedBg' : ''
-                  } ${
-                    isNoPool
+                  className={`relative rounded-xl ${
+                    v3Pool === pool_id && !isNoPool
+                      ? 'bg-feeBoxSelectedBg'
+                      : isNoPool
                       ? 'border border-commonTokenBorderColor cursor-not-allowed'
-                      : ''
+                      : 'bg-selectTokenV3BgColor'
                   }`}
                   onClick={(e) => {
                     e.preventDefault();
@@ -2302,7 +2302,7 @@ export default function SwapCard(props: {
                   feeTiersShowFull={feeTiersShowFull}
                 />
               </div>
-              <div className="text-xs text-limitOrderInputColor mt-2.5 px-3">
+              <div className="text-sm text-limitOrderInputColor mt-2.5 px-3">
                 <FormattedMessage id="limitTip"></FormattedMessage>
               </div>
             </>

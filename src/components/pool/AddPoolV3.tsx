@@ -449,21 +449,17 @@ function InputAmount({
         }`}
       >
         <span className="text-xs text-primaryText">{showCurrentPrice()}</span>
-        <div className="flex items-center text-xs text-primaryText">
+        <div className="flex items-center text-xs text-primaryText ml-1.5">
           <span title={balance}>
-            <FormattedMessage id="balance" />: {getBalance()}
-          </span>
-          <span
-            onClick={() => {
-              changeAmount(maxBalance);
-            }}
-            className={`ml-2.5 text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
-              amount == maxBalance
-                ? 'bg-black bg-opacity-20 border-black border-opacity-20'
-                : 'border-maxBorderColor'
-            }`}
-          >
-            Max
+            <FormattedMessage id="balance" />:{' '}
+            <span
+              className="hover:text-white cursor-pointer"
+              onClick={() => {
+                changeAmount(maxBalance);
+              }}
+            >
+              {getBalance()}
+            </span>
           </span>
         </div>
       </div>

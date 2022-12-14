@@ -1204,7 +1204,7 @@ export function LimitOrderRateSetBox({
   return (
     <>
       <div
-        className={`flex flex-col  justify-between flex-grow bg-black bg-opacity-20 rounded-xl p-2.5 border border-inputV3BorderColor mr-2 ${
+        className={`flex flex-col  justify-between flex-grow bg-black bg-opacity-20 rounded-xl p-2.5 border border-inputV3BorderColor hover:border-inputV3BorderHoverColor mr-2 ${
           hidden ? 'hidden' : ''
         }`}
       >
