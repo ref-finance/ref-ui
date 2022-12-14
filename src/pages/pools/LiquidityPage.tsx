@@ -2523,6 +2523,10 @@ export function LiquidityPage() {
       checkTransactionStatus(txHash).then((res) => {
         let status: any = res.status;
 
+        console.log({
+          res,
+        });
+
         if (
           res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
         ) {
@@ -2536,11 +2540,12 @@ export function LiquidityPage() {
         }
 
         const data: string | undefined = status.SuccessValue;
+
         if (data) {
           const buff = Buffer.from(data, 'base64');
           const pool_id = buff.toString('ascii');
 
-          if (isNumber(pool_id)) history.push(`/pool/${pool_id}`);
+          history.push(`/pool/${pool_id}`);
         } else {
           history.replace(`/pools`);
         }
