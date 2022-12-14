@@ -6,7 +6,7 @@ import { GradientWrapper } from './BorderWrapper';
 import { useClientMobile } from '../../../utils/device';
 import { BeatLoading } from 'respinner';
 import { walletIcons } from '../../walletIcons';
-import getConfig from '~services/config';
+import getConfig from '../../../services/config';
 
 export const MetaMaskTip = ({ inMeta }: { inMeta?: boolean }) => {
   const clientMobie = useClientMobile();
