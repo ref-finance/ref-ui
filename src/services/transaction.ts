@@ -473,7 +473,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       Amount,
       'Receiver ID': receiver_id,
     };
-  } else if (receiver_id == config.REF_VE_CONTRACT_ID) {
+  } else if (receiver_id && receiver_id == config.REF_VE_CONTRACT_ID) {
     Action = 'Deposit Bonus';
     const token = await ftGetTokenMetadata(tokenId);
     Amount = toReadableNumber(token.decimals, amount);
