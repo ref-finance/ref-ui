@@ -920,7 +920,7 @@ export default function AddYourLiquidityPageV3() {
                         >
                           <span
                             className={`text-sm ${
-                              isNoPool
+                              isNoPool || !(tokenX && tokenY && currentPools)
                                 ? 'text-primaryText text-opacity-60'
                                 : 'text-white'
                             }`}

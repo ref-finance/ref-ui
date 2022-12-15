@@ -1024,11 +1024,9 @@ function DetailViewLimit({
               className={`relative bg-feeSubBoxBgColor rounded-xl ${
                 v3Pool === pool_id && !isNoPool
                   ? 'bg-opacity-100'
+                  : isNoPool
+                  ? 'border border-commonTokenBorderColor cursor-not-allowed bg-opacity-0'
                   : 'bg-opacity-30'
-              } ${
-                isNoPool
-                  ? 'border border-commonTokenBorderColor cursor-not-allowed'
-                  : ''
               }`}
               onClick={(e) => {
                 e.preventDefault();
@@ -1043,7 +1041,13 @@ function DetailViewLimit({
                 key={i + '-' + pool_id}
                 className={`flex-col flex items-start p-1`}
               >
-                <span className="text-sm">{feePercent}%</span>
+                <span
+                  className={`text-sm ${
+                    isNoPool ? 'text-primaryText text-opacity-60' : 'text-white'
+                  }`}
+                >
+                  {feePercent}%
+                </span>
                 <SelectTvl
                   fee={fee}
                   className={`text-primaryText ${
