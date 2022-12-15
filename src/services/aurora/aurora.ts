@@ -860,13 +860,22 @@ export const getAllTriPools = async (pair?: [string, string]) => {
       };
     })
     .filter((p) => {
+      let showPair = pair.map((p) => {
+        if (p === 'USDT.e') return 'USDT';
+        if (p === 'USDC.e') return 'USDC';
+
+        return p;
+      });
+
       return (
-        !pair || (p.names.includes(pair?.[0]) && p.names.includes(pair?.[1]))
+        !showPair ||
+        (p.names.includes(showPair?.[0]) && p.names.includes(showPair?.[1]))
       );
     });
 
   console.log({
     pairAddresses,
+    pair,
   });
 
   const allPools = await Promise.all(
