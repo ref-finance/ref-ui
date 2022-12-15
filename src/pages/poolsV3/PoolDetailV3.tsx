@@ -38,6 +38,7 @@ import {
   CONSTANT_D,
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
+  useAddAndRemoveUrlHandle,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -95,6 +96,8 @@ export default function PoolDetailV3() {
   const intl = useIntl();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  // callBack handle
+  useAddAndRemoveUrlHandle();
   useEffect(() => {
     get_pool_detail();
     get_user_list_liquidities();

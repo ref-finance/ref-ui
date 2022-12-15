@@ -110,8 +110,10 @@ export function useAddAndRemoveUrlHandle() {
           const v = buff.toString('ascii');
           argsValue = v;
         }
-        if (methodName == 'add_liquidity' && returnValue) {
-          const [tokenX, tokenY, id] = returnValue.split('|');
+        if (methodName == 'append_liquidity' && argsValue) {
+          const parmas = JSON.parse(argsValue);
+          const { lpt_id } = parmas;
+          const [tokenX, tokenY, id] = lpt_id.split('|');
           const [fee, hashId] = id.split('#');
           const paramsId = `${tokenX}@${tokenY}@${fee}@${hashId}`;
           history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);
