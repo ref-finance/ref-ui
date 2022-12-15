@@ -93,10 +93,23 @@ export function useAddAndRemoveUrlHandle() {
   useEffect(() => {
     if (txHash && isSignedIn) {
       checkTransaction(txHash).then((res: any) => {
-        const { transaction, status } = res;
-        const successValue: string | undefined = status?.SuccessValue;
-        const methodName =
+        const { transaction, status, receipts, receipts_outcome } = res;
+        const successValueNormal: string | undefined = status?.SuccessValue;
+        const successValueNeth: string | undefined =
+          receipts_outcome?.[1]?.outcome?.status?.SuccessValue;
+        const isNeth =
+          transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
+        const methodNameNeth =
+          receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+            ?.method_name;
+        const methodNameNormal =
           transaction?.actions[0]?.['FunctionCall']?.method_name;
+        const argsNormal = transaction?.actions[0]?.['FunctionCall']?.args;
+        const argsNeth =
+          receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall?.args;
+        const args = isNeth ? argsNeth : argsNormal;
+        const methodName = isNeth ? methodNameNeth : methodNameNormal;
+        const successValue = isNeth ? successValueNeth : successValueNormal;
         let returnValue;
         let argsValue;
         if (successValue) {
@@ -104,7 +117,6 @@ export function useAddAndRemoveUrlHandle() {
           const v = buff.toString('ascii');
           returnValue = v.substring(1, v.length - 1);
         }
-        const args = transaction?.actions[0]?.['FunctionCall']?.args;
         if (args) {
           const buff = Buffer.from(args, 'base64');
           const v = buff.toString('ascii');
@@ -114,6 +126,11 @@ export function useAddAndRemoveUrlHandle() {
           const parmas = JSON.parse(argsValue);
           const { lpt_id } = parmas;
           const [tokenX, tokenY, id] = lpt_id.split('|');
+          const [fee, hashId] = id.split('#');
+          const paramsId = `${tokenX}@${tokenY}@${fee}@${hashId}`;
+          history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);
+        } else if (methodName == 'add_liquidity' && returnValue) {
+          const [tokenX, tokenY, id] = returnValue.split('|');
           const [fee, hashId] = id.split('#');
           const paramsId = `${tokenX}@${tokenY}@${fee}@${hashId}`;
           history.replace('/yoursLiquidityDetailV2/' + `${paramsId}`);

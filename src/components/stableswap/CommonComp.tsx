@@ -261,7 +261,7 @@ export const StableTokens = ({
   }
   const isMobile = isClientMobie();
   return (
-    <div className="flex items-center justify-between pt-6 pb-5 ml-4">
+    <div className="relative flex items-center justify-between pt-6 pb-5 ml-4">
       <div className="flex items-center">
         <Images tokens={tokens} />
         <span className="ml-4">
@@ -269,7 +269,7 @@ export const StableTokens = ({
         </span>
       </div>
       <div
-        className="flex items-center justify-center rounded-lg cursor-pointer"
+        className="flex items-center justify-center rounded-lg cursor-pointer xsm:absolute xsm:right-1 xsm:-top-6"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();

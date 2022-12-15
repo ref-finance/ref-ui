@@ -821,7 +821,15 @@ function DetailViewLimit({
       </span>
     );
   }
-  function SelectTvl({ fee, poolId }: { fee?: number; poolId?: string }) {
+  function SelectTvl({
+    fee,
+    poolId,
+    className,
+  }: {
+    fee?: number;
+    poolId?: string;
+    className?: string;
+  }) {
     const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokneOut.id, fee);
     function displayTvl() {
       const tvl = everyPoolTvl?.[id] || '0';
@@ -848,7 +856,9 @@ function DetailViewLimit({
       }
     }
     return (
-      <div className="transform scale-90 inline-flex items-center text-limitOrderInputColor text-xs whitespace-nowrap">
+      <div
+        className={`transform scale-90 inline-flex items-center text-xs whitespace-nowrap ${className}`}
+      >
         {displayTvlAndNoPool()}
       </div>
     );
@@ -926,14 +936,17 @@ function DetailViewLimit({
                   )}
                   %
                 </span>
-                <SelectTvl poolId={v3Pool} />
+                <SelectTvl
+                  poolId={v3Pool}
+                  className="text-limitOrderInputColor"
+                />
               </>
             )}
           </div>
         </div>
 
         {!feeTiersShowFull ? null : (
-          <div className="w-full grid grid-cols-4 gap-x-1  text-white mt-1.5">
+          <div className="w-full grid grid-cols-4 gap-x-1 mt-1.5">
             {V3_POOL_FEE_LIST.map((fee, i) => {
               const pool_id = getV3PoolId(tokenIn.id, tokneOut.id, fee);
               const feePercent = toPrecision(
@@ -964,8 +977,21 @@ function DetailViewLimit({
                     key={i + '-' + pool_id}
                     className={`flex-col flex items-start p-2`}
                   >
-                    <span className="text-sm">{feePercent}%</span>
-                    <SelectTvl fee={fee} />
+                    <span
+                      className={`text-sm ${
+                        isNoPool
+                          ? 'text-primaryText text-opacity-60'
+                          : 'text-white'
+                      }`}
+                    >
+                      {feePercent}%
+                    </span>
+                    <SelectTvl
+                      fee={fee}
+                      className={`text-primaryText ${
+                        isNoPool ? 'text-opacity-60' : ''
+                      } `}
+                    />
                   </div>
                   {v3Pool === pool_id && !isNoPool ? (
                     <SelectedIcon className="absolute right-0 top-0"></SelectedIcon>
@@ -1018,7 +1044,12 @@ function DetailViewLimit({
                 className={`flex-col flex items-start p-1`}
               >
                 <span className="text-sm">{feePercent}%</span>
-                <SelectTvl fee={fee} />
+                <SelectTvl
+                  fee={fee}
+                  className={`text-primaryText ${
+                    isNoPool ? 'text-opacity-60' : ''
+                  } `}
+                />
               </div>
               {v3Pool === pool_id && !isNoPool ? (
                 <SelectedIcon className="absolute right-0 top-0"></SelectedIcon>
