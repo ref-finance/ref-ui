@@ -1559,6 +1559,12 @@ export default function SwapCard(props: {
     swapError,
     setLoadingTrigger,
   });
+
+  console.log({
+    tokenOutAmount,
+    tokenOutAmountV3,
+  });
+
   const {
     poolPercents,
     fee: mostPoolFeeLimit,
@@ -1574,6 +1580,7 @@ export default function SwapCard(props: {
     loadingTrigger: limitSwapTrigger,
     tokenPriceList,
   });
+
   const bestSwap =
     swapMode === SWAP_MODE.NORMAL &&
     new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0') &&
@@ -1845,6 +1852,8 @@ export default function SwapCard(props: {
     });
 
   const DetailView = useMemo(() => {
+    if (!quoteDone || !quoteDoneV3) return null;
+
     return (
       <>
         <div className="mt-3 mb-2">
@@ -1947,6 +1956,8 @@ export default function SwapCard(props: {
     loadingTrigger,
     loadingPause,
     showDetails,
+    quoteDone,
+    quoteDoneV3,
   ]);
 
   useEffect(() => {
