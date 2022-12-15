@@ -171,6 +171,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '3612#0',
           '3612#1',
         ],
+        REF_UNI_V3_SWAP_CONTRACT_ID:
+          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv1.ref-labs.near',
       };
     case 'pub-testnet':
       return {
@@ -383,6 +385,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '3612#0',
           '3612#1',
         ],
+        REF_UNI_V3_SWAP_CONTRACT_ID:
+          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv1.ref-labs.near',
       };
   }
 }
