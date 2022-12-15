@@ -365,7 +365,7 @@ function MobilePoolRow({
                   {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
                     <FormattedMessage id="stablecoin"></FormattedMessage>
                   ) : (
-                    'v1'
+                    'V1'
                   )}
                 </span>
               ) : null}
@@ -1310,7 +1310,7 @@ function PoolRow({
                   {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
                     <FormattedMessage id="stablecoin"></FormattedMessage>
                   ) : (
-                    'v1'
+                    'V1'
                   )}
                 </span>
               ) : null}
