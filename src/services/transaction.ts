@@ -125,6 +125,9 @@ export const parseAction = async (
     case 'withdraw_asset': {
       return await withdrawAsset(params);
     }
+    case 'append_liquidity': {
+      return await parseAppendLiquidity(params, tokenId);
+    }
     default: {
       return await parseDefault();
     }
@@ -274,6 +277,27 @@ const parseAddLiquidity = async (params: any, tokenId: string) => {
     };
   }
 };
+const parseAppendLiquidity = async (params: any, tokenId: string) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { lpt_id, amount_x, amount_y } = params;
+  const [token_x, token_y] = lpt_id.split('|');
+  const tokens = await Promise.all<TokenMetadata>(
+    [token_x, token_y].map((id) => ftGetTokenMetadata(id))
+  );
+  const token_x_decimals = tokens[0].decimals;
+  const token_y_decimals = tokens[1].decimals;
+
+  return {
+    Action: 'Append Liquidity',
+    'LPT Id': lpt_id,
+    'Amount One': toReadableNumber(token_x_decimals, amount_x),
+    'Amount Two': toReadableNumber(token_y_decimals, amount_y),
+  };
+};
 
 const parseRemoveLiquidity = async (params: any, tokenId: string) => {
   try {
@@ -299,9 +323,9 @@ const parseRemoveLiquidity = async (params: any, tokenId: string) => {
       return {
         Action: 'Remove Liquidity',
         'LPT Id': lpt_id,
-        Amount: toReadableNumber(min_decimals, amount),
-        'Amount One': toReadableNumber(tokenX.decimals, min_amount_x),
-        'Amount Two': toReadableNumber(tokenY.decimals, min_amount_y),
+        Amount: amount,
+        'Amount One': min_amount_x,
+        'Amount Two': min_amount_y,
       };
     }
   } else {

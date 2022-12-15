@@ -916,7 +916,7 @@ const en_US = {
   starting_price: 'Starting Price',
   create_a_pool: 'Create a Pool',
   add_single_price_tip:
-    'As long as the market is trading between these prices, you will receive trading fees proportional to your provided liquidity.',
+    'As long as the market is trading into your range of prices, you will receive trading fees proportional to your liquidity.',
   invalid_range_tip:
     'Invalid range selected. The min price must be lower than the max price.',
   maket_price_outside_tip: 'The maket price is outside your price range.',

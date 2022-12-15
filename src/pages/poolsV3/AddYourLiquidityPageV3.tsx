@@ -1964,7 +1964,7 @@ function AddLiquidityComponent({
         <div className="text-sm text-v3WarningColor ml-3">
           <FormattedMessage
             id="add_single_price_tip"
-            defaultMessage="As long as the market is trading between these prices, you will receive trading fees proportional to your provided liquidity. "
+            defaultMessage="As long as the market is trading into your range of prices, you will receive trading fees proportional to your liquidity. "
           ></FormattedMessage>
         </div>
       </div>
