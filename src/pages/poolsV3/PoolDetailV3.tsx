@@ -225,8 +225,8 @@ export default function PoolDetailV3() {
           routes={[
             { id: 'top_pools', msg: 'Top Pools', pathname: '/pools' },
             {
-              id: 'detail',
-              msg: 'Detail',
+              id: 'details',
+              msg: 'Details',
               pathname: `/pool`,
             },
           ]}
