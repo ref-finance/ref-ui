@@ -324,8 +324,8 @@ const parseRemoveLiquidity = async (params: any, tokenId: string) => {
         Action: 'Remove Liquidity',
         'LPT Id': lpt_id,
         Amount: amount,
-        'Amount One': min_amount_x,
-        'Amount Two': min_amount_y,
+        'Amount One': toReadableNumber(tokenX.decimals, min_amount_x),
+        'Amount Two': toReadableNumber(tokenY.decimals, min_amount_y),
       };
     }
   } else {
