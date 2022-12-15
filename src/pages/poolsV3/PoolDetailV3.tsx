@@ -1559,7 +1559,7 @@ function LiquidityChart(props: any) {
         sort: true,
         onlyCurrent: true,
         sizey: isMobile ? 220 : 330,
-        ticks: isMobile ? 5 : 10,
+        ticks: isMobile ? 5 : 8,
         space_x: isMobile ? 20 : 50,
       });
       const { liquidities } = depthData;

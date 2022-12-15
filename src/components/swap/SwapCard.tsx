@@ -507,7 +507,7 @@ export function DetailView_near_wnear({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
   return (
-    <div className="mt-8">
+    <div className="mt-4">
       <div className="flex justify-center">
         <div
           className="flex items-center text-white cursor-pointer"
@@ -1024,11 +1024,9 @@ function DetailViewLimit({
               className={`relative bg-feeSubBoxBgColor rounded-xl ${
                 v3Pool === pool_id && !isNoPool
                   ? 'bg-opacity-100'
+                  : isNoPool
+                  ? 'border border-commonTokenBorderColor cursor-not-allowed bg-opacity-0'
                   : 'bg-opacity-30'
-              } ${
-                isNoPool
-                  ? 'border border-commonTokenBorderColor cursor-not-allowed'
-                  : ''
               }`}
               onClick={(e) => {
                 e.preventDefault();
@@ -1043,7 +1041,13 @@ function DetailViewLimit({
                 key={i + '-' + pool_id}
                 className={`flex-col flex items-start p-1`}
               >
-                <span className="text-sm">{feePercent}%</span>
+                <span
+                  className={`text-sm ${
+                    isNoPool ? 'text-primaryText text-opacity-60' : 'text-white'
+                  }`}
+                >
+                  {feePercent}%
+                </span>
                 <SelectTvl
                   fee={fee}
                   className={`text-primaryText ${
@@ -1856,7 +1860,7 @@ export default function SwapCard(props: {
 
     return (
       <>
-        <div className="mt-3 mb-2">
+        <div className="mt-3 mb-3">
           <div className="flex flex-wrap items-center justify-between text-white ">
             <div className="flex items-center mb-1">
               <div
