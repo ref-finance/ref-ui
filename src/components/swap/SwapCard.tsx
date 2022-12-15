@@ -507,7 +507,7 @@ export function DetailView_near_wnear({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
   return (
-    <div className="mt-8">
+    <div className="mt-4">
       <div className="flex justify-center">
         <div
           className="flex items-center text-white cursor-pointer"
@@ -1847,7 +1847,7 @@ export default function SwapCard(props: {
   const DetailView = useMemo(() => {
     return (
       <>
-        <div className="mt-3 mb-2">
+        <div className="mt-3 mb-3">
           <div className="flex flex-wrap items-center justify-between text-white ">
             <div className="flex items-center mb-1">
               <div

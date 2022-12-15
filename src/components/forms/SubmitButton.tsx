@@ -85,7 +85,7 @@ function SubmitButton({
           )}
         </button>
       ) : (
-        <div className="mt-4 w-full">
+        <div className={`mt-4 w-full ${className}`}>
           <ConnectToNearBtnSwap />
         </div>
       )}
