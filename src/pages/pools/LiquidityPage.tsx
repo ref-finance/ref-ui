@@ -353,15 +353,15 @@ function MobilePoolRow({
                 </div>
               ) : null}
             </div>
-            <div className="flex items-center">
-              <div className="text-sm ml-2 font-semibold whitespace-nowrap">
+            <div className="flex items-center flex-wrap">
+              <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
                 {tokens[0].symbol +
                   '-' +
                   tokens[1].symbol +
                   `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
               </div>
               {mark ? (
-                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
+                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
                   {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
                     <FormattedMessage id="stablecoin"></FormattedMessage>
                   ) : (
@@ -488,15 +488,15 @@ function MobilePoolRowV2({
                 </div>
               ) : null}
             </div>
-            <div className="flex items-center">
-              <div className="text-sm ml-2 font-semibold whitespace-nowrap">
+            <div className="flex items-center flex-wrap">
+              <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
                 {tokens[0].symbol +
                   '-' +
                   tokens[1].symbol +
                   `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
               </div>
               {mark ? (
-                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
+                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
                   V2
                 </span>
               ) : null}
@@ -513,7 +513,6 @@ function MobilePoolRowV2({
     </div>
   );
 }
-
 function MobileWatchListCard({
   watchPools,
   poolTokenMetas,
