@@ -1285,6 +1285,8 @@ function AddLiquidityComponent({
   let [rightCustomPrice, setRightCustomPrice] = useState('');
   let [leftPoint, setLeftPoint] = useState<number>(0);
   let [rightPoint, setRightPoint] = useState<number>(0);
+  const [leftInputStatus, setLeftInputStatus] = useState(false);
+  const [rightInputStatus, setRightInputStatus] = useState(false);
   const [currentPoint, setCurrentPoint] = useState<number>();
   const [chartLoading, setChartLoading] = useState<boolean>(false);
   const [noDataForChart, setNoDataForChart] = useState(false);
@@ -1494,6 +1496,7 @@ function AddLiquidityComponent({
       setRightPoint(Math.max(Math.min(POINTRIGHTRANGE, r_p), POINTLEFTRANGE));
     }
   }
+  // todo
   function handlePriceToAppropriatePoint() {
     const { point_delta, token_x, token_y } = currentSelectedPool;
     const decimalRate =
@@ -1848,6 +1851,8 @@ function AddLiquidityComponent({
                   customPrice={leftCustomPrice}
                   getPrice={getLeftPrice}
                   setCustomPrice={setLeftCustomPrice}
+                  inputStatus={leftInputStatus}
+                  setInputStatus={setLeftInputStatus}
                 ></PointInputComponent>
               ) : (
                 <PointInputComponent
@@ -1861,6 +1866,8 @@ function AddLiquidityComponent({
                   customPrice={rightCustomPrice}
                   getPrice={getRightPrice}
                   setCustomPrice={setRightCustomPrice}
+                  inputStatus={rightInputStatus}
+                  setInputStatus={setRightInputStatus}
                 ></PointInputComponent>
               )}
             </div>
@@ -1883,6 +1890,8 @@ function AddLiquidityComponent({
                   customPrice={rightCustomPrice}
                   getPrice={getRightPrice}
                   setCustomPrice={setRightCustomPrice}
+                  inputStatus={rightInputStatus}
+                  setInputStatus={setRightInputStatus}
                 ></PointInputComponent>
               ) : (
                 <PointInputComponent
@@ -1896,6 +1905,8 @@ function AddLiquidityComponent({
                   customPrice={leftCustomPrice}
                   getPrice={getLeftPrice}
                   setCustomPrice={setLeftCustomPrice}
+                  inputStatus={leftInputStatus}
+                  setInputStatus={setLeftInputStatus}
                 ></PointInputComponent>
               )}
             </div>
@@ -2131,7 +2142,10 @@ function PointInputComponent({
   customPrice,
   getPrice,
   setCustomPrice,
+  inputStatus,
+  setInputStatus,
 }: any) {
+  // todo
   return (
     <div className="flex items-center justify-between mt-3.5">
       <div
@@ -2147,10 +2161,14 @@ function PointInputComponent({
         placeholder="0.0"
         step="any"
         className="text-base mx-2 text-center"
-        onBlur={handlePriceToAppropriatePoint}
-        value={customPrice || getPrice()}
+        onBlur={() => {
+          handlePriceToAppropriatePoint();
+          setInputStatus(false);
+        }}
+        value={inputStatus ? customPrice : getPrice()}
         onChange={({ target }) => {
-          const inputPrice = target.value || '0';
+          setInputStatus(true);
+          const inputPrice = target.value;
           setCustomPrice(inputPrice);
         }}
       />
