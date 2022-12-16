@@ -123,6 +123,7 @@ import { checkTransactionStatus } from '../../services/swap';
 import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import ReactTooltip from 'react-tooltip';
+import Big from 'big.js';
 const StakeListContext = createContext(null);
 
 function MyShares({
@@ -205,7 +206,7 @@ function AddLiquidityButton() {
 }
 
 export function YourLiquidityPage(props: any) {
-  const { setNoOldLiquidity } = props;
+  const { setNoOldLiquidity, setYourLpValueV1, setLpValueV1Done } = props;
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
 
@@ -337,10 +338,16 @@ export function YourLiquidityPage(props: any) {
     p,
     ids,
     shares,
+    setLpValueV1Done,
+    setYourLpValueV1,
+    count,
   }: {
     p: PoolRPCView;
     ids: string[];
     shares: string;
+    setLpValueV1Done: (done: boolean) => void;
+    setYourLpValueV1: (value: string) => void;
+    count: number;
   }) => {
     const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
 
@@ -365,6 +372,9 @@ export function YourLiquidityPage(props: any) {
           endedFarmV1={endedFarmV1}
           lptAmount={lptAmount}
           shares={shares}
+          setLpValueV1Done={setLpValueV1Done}
+          setYourLpValueV1={setYourLpValueV1}
+          count={count}
         />
       </div>
     );
@@ -396,6 +406,9 @@ export function YourLiquidityPage(props: any) {
         endedFarmV2={endedFarmV2}
         endedFarmV1={endedFarmV1}
         shares={shares}
+        setLpValueV1Done={setLpValueV1Done}
+        setYourLpValueV1={setYourLpValueV1}
+        count={count}
       />
     );
   };
@@ -416,6 +429,8 @@ export function YourLiquidityPage(props: any) {
 
   if (+count == 0) {
     setNoOldLiquidity(true);
+    setLpValueV1Done(true);
+    setYourLpValueV1('0');
   } else {
     setNoOldLiquidity(false);
   }
@@ -483,6 +498,9 @@ export function YourLiquidityPage(props: any) {
                       : [vePool].map((p) => {
                           return (
                             <RowRender
+                              count={count}
+                              setLpValueV1Done={setLpValueV1Done}
+                              setYourLpValueV1={setYourLpValueV1}
                               p={p}
                               ids={p.token_account_ids}
                               shares={
@@ -499,9 +517,12 @@ export function YourLiquidityPage(props: any) {
                       stablePools?.map((p, i) => {
                         return (
                           <RowRender
+                            count={count}
                             p={p}
                             ids={p.token_account_ids}
                             shares={batchStableShares?.[i] || ''}
+                            setLpValueV1Done={setLpValueV1Done}
+                            setYourLpValueV1={setYourLpValueV1}
                           />
                         );
                       })}
@@ -516,6 +537,9 @@ export function YourLiquidityPage(props: any) {
                       .map((p, i) => {
                         return (
                           <RowRender
+                            count={count}
+                            setLpValueV1Done={setLpValueV1Done}
+                            setYourLpValueV1={setYourLpValueV1}
                             shares={
                               batchShares?.[
                                 pools.findIndex((p2) => p2.id === p.id)
@@ -617,6 +641,10 @@ export function YourLiquidityPage(props: any) {
   );
 }
 
+export const REF_FI_YOUR_LP_VALUE = 'REF_FI_YOUR_LP_VALUE';
+
+export const REF_FI_YOUR_LP_VALUE_V1_COUNT = 'REF_FI_YOUR_LP_VALUE_V1_COUNT';
+
 function PoolRow(props: {
   pool: PoolRPCView;
   tokens: TokenMetadata[];
@@ -628,8 +656,19 @@ function PoolRow(props: {
   endedFarmV2?: number;
   shares: string;
   tvl: number;
+  setLpValueV1Done: (done: boolean) => void;
+  setYourLpValueV1: (value: string) => void;
+  count: number;
 }) {
-  const { pool: poolRPC, endedFarmV1, endedFarmV2, shares } = props;
+  const {
+    pool: poolRPC,
+    endedFarmV1,
+    endedFarmV2,
+    shares,
+    setLpValueV1Done,
+    setYourLpValueV1,
+    count,
+  } = props;
   const pool = parsePool(poolRPC);
 
   const needForbidden = Number(pool.id) === Number(NEARX_POOL_ID);
@@ -682,6 +721,35 @@ function PoolRow(props: {
           .toFixed(),
         divide(poolTVL.toString(), pool?.shareSupply)
       );
+
+      const storagedCount = sessionStorage.getItem(
+        REF_FI_YOUR_LP_VALUE_V1_COUNT
+      );
+
+      const newCount = Number(storagedCount || '0') + 1;
+
+      sessionStorage.setItem(
+        REF_FI_YOUR_LP_VALUE_V1_COUNT,
+        newCount.toString()
+      );
+
+      const storagedValue = sessionStorage.getItem(REF_FI_YOUR_LP_VALUE);
+
+      sessionStorage.setItem(
+        REF_FI_YOUR_LP_VALUE,
+        scientificNotationToString(
+          new Big(storagedValue || '0').plus(rawRes).toString()
+        )
+      );
+
+      const newValue = scientificNotationToString(
+        new Big(storagedValue || '0').plus(rawRes).toString()
+      );
+
+      if (newCount === count) {
+        setYourLpValueV1(newValue);
+        setLpValueV1Done(true);
+      }
 
       return `$${toInternationalCurrencySystem(rawRes, 2)}`;
     } catch (error) {

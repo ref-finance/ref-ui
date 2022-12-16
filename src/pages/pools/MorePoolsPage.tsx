@@ -318,7 +318,12 @@ export const MorePoolsPage = () => {
       <PoolTabV3></PoolTabV3>
       {/* PC */}
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
-        <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">
+        <Card
+          className="mt-4"
+          width="w-full"
+          bgcolor="bg-cardBg"
+          padding="py-7 px-0"
+        >
           <div className="mx-8 text-gray-400">
             <BreadCrumb
               routes={[

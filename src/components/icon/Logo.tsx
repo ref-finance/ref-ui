@@ -3099,20 +3099,29 @@ export const POOL_LOVE_PC = () => {
 export const DASH = () => {
   return (
     <svg
-      width="208"
-      height="27"
-      viewBox="0 0 208 27"
+      width="137"
+      height="25"
+      viewBox="0 0 137 25"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M0.5 16.1269H19.2818L23.2599 8.07107L28.9931 25L36.7154 2L40.3425 16.1269H207.5"
-        stroke="#00FFD1"
+        d="M0 15.0594H16.8764L20.4509 7.70404L25.6025 23.1609L32.5414 2.16089L35.8005 15.0594H136.5"
+        stroke="url(#paint0_linear_4728_7507)"
       />
-      <path
-        d="M0.5 16.1269H19.2818L23.2599 8.07107L28.9931 25L36.7154 2L40.3425 16.1269H207.5"
-        stroke="#00FFD1"
-      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_4728_7507"
+          x1="0.449275"
+          y1="16.3131"
+          x2="82.6667"
+          y2="16.7552"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00FFD1" />
+          <stop offset="1" stop-color="#00FFD1" stop-opacity="0" />
+        </linearGradient>
+      </defs>
     </svg>
   );
 };
@@ -3120,29 +3129,29 @@ export const DASH = () => {
 export const BG_RECTANGLE = () => {
   return (
     <svg
-      width="650"
-      height="124"
-      viewBox="0 0 650 124"
+      width="591"
+      height="106"
+      viewBox="0 0 591 106"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g filter="url(#filter0_d_17152_1054)">
+      <g filter="url(#filter0_d_4728_7506)">
         <path
-          d="M630 36C630 27.1634 622.837 20 614 20H96.0659C72.8911 20 51.8624 33.5673 42.3105 54.6821L20 104H614C622.837 104 630 96.8366 630 88V36Z"
-          fill="url(#paint0_linear_17152_1054)"
+          d="M571 32C571 25.3726 565.627 20 559 20H89.464C67.1164 20 46.687 32.6261 36.6928 52.6144L20 86H559C565.627 86 571 80.6274 571 74V32Z"
+          fill="url(#paint0_linear_4728_7506)"
         />
       </g>
       <defs>
         <filter
-          id="filter0_d_17152_1054"
+          id="filter0_d_4728_7506"
           x="0"
           y="0"
-          width="650"
-          height="124"
+          width="591"
+          height="106"
           filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
+          color-interpolation-filters="sRGB"
         >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -3153,7 +3162,7 @@ export const BG_RECTANGLE = () => {
             radius="10"
             operator="dilate"
             in="SourceAlpha"
-            result="effect1_dropShadow_17152_1054"
+            result="effect1_dropShadow_4728_7506"
           />
           <feOffset />
           <feGaussianBlur stdDeviation="5" />
@@ -3165,25 +3174,25 @@ export const BG_RECTANGLE = () => {
           <feBlend
             mode="normal"
             in2="BackgroundImageFix"
-            result="effect1_dropShadow_17152_1054"
+            result="effect1_dropShadow_4728_7506"
           />
           <feBlend
             mode="normal"
             in="SourceGraphic"
-            in2="effect1_dropShadow_17152_1054"
+            in2="effect1_dropShadow_4728_7506"
             result="shape"
           />
         </filter>
         <linearGradient
-          id="paint0_linear_17152_1054"
-          x1="347.061"
-          y1="78.4072"
-          x2="-41.0192"
-          y2="78.4072"
+          id="paint0_linear_4728_7506"
+          x1="311.168"
+          y1="65.8913"
+          x2="-45.2193"
+          y2="65.8914"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#1D2932" />
-          <stop offset="1" stopColor="#00C6A2" />
+          <stop stop-color="#031826" />
+          <stop offset="1" stop-color="#00C6A2" />
         </linearGradient>
       </defs>
     </svg>
@@ -3193,27 +3202,32 @@ export const BG_RECTANGLE = () => {
 export const PoolDaoBanner = () => {
   return (
     <div className="relative">
-      <div className="z-10 absolute right-2 transform scale-110">
+      <div
+        className="z-10 absolute -right-5 "
+        style={{
+          top: '18px',
+        }}
+      >
         <BG_RECTANGLE />
       </div>
 
       <div className="relative z-20 top-2.5 flex items-center">
-        <span className="right-5 z-30">
+        <span className="left-2 top-2 relative z-30">
           <POOL_REF_PC />
         </span>
-        <span className="relative right-5 z-20">
+        <span className="relative right-3 top-1 z-20">
           <POOL_NEAR_PC />
         </span>
 
-        <span className="left-5 relative z-20">
+        <span className="left-7 relative z-20">
           <POOL_VE_PC />
         </span>
 
-        <span className="z-20">
+        <span className="z-20 relative left-4">
           <POOL_LOVE_PC />
         </span>
 
-        <span className="absolute left-20 z-10">
+        <span className="absolute left-24 z-10">
           <DASH />
         </span>
       </div>

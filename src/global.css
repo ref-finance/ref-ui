@@ -193,7 +193,9 @@ input[type='number'] {
 .hide-scrollbar::-webkit-scrollbar-thum {
   background: transparent;
 }
-
+.search-pool-pc::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
 .status-bar {
   font-size: 14px;
   line-height: 32px;

@@ -55,7 +55,29 @@ import {
 } from '../../components/layout/Loading';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
+import Big from 'big.js';
+import {
+  REF_FI_YOUR_LP_VALUE,
+  REF_FI_YOUR_LP_VALUE_V1_COUNT,
+} from '../pools/YourLiquidityPage';
 export default function YourLiquidityPageV3() {
+  const clearState = () => {
+    sessionStorage.removeItem(REF_FI_LP_VALUE_COUNT);
+    sessionStorage.removeItem(REF_FI_LP_V2_VALUE);
+
+    sessionStorage.removeItem(REF_FI_YOUR_LP_VALUE);
+
+    sessionStorage.removeItem(REF_FI_YOUR_LP_VALUE_V1_COUNT);
+  };
+
+  window.onbeforeunload = clearState;
+
+  const historyYourLP = useHistory();
+
+  useEffect(() => {
+    clearState();
+  }, [historyYourLP.location.pathname]);
+
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
@@ -78,6 +100,19 @@ export default function YourLiquidityPageV3() {
   const [listLiquiditiesLoading, setListLiquiditiesLoading] = useState(true);
   const [oldListLiquiditiesLoading, setOldListLiquiditiesLoading] =
     useState(true);
+
+  const [YourLpValueV2, setYourLpValueV2] = useState('0');
+  console.log('YourLpValueV2: ', YourLpValueV2);
+
+  const [YourLpValueV1, setYourLpValueV1] = useState('0');
+  console.log('YourLpValueV1: ', YourLpValueV1);
+
+  const [lpValueV1Done, setLpValueV1Done] = useState(false);
+  console.log('lpValueV1Done: ', lpValueV1Done);
+
+  const [lpValueV2Done, setLpValueV2Done] = useState(false);
+  console.log('lpValueV2Done: ', lpValueV2Done);
+
   const [generalAddLiquidity, setGeneralAddLiquidity] =
     useState<boolean>(false);
   const [checkedStatus, setCheckedStatus] = useState('all');
@@ -125,9 +160,15 @@ export default function YourLiquidityPageV3() {
   }
   return (
     <>
-      <PoolTabV3></PoolTabV3>
+      <PoolTabV3
+        yourLPpage
+        lpValueV1Done={lpValueV1Done}
+        lpValueV2Done={lpValueV2Done}
+        YourLpValueV1={YourLpValueV1}
+        YourLpValueV2={YourLpValueV2}
+      ></PoolTabV3>
       <div className="flex items flex-col lg:w-4/5 xl:w-3/5 xs:w-11/12 md:w-11/12 m-auto">
-        <div className="flex items-start justify-between xs:mb-5 md:mb-5">
+        <div className="flex items-start justify-between lg:mt-4 xs:mb-5 md:mb-5">
           <div className="flex items-center">
             <div className="flex items-center text-sm text-primaryText border border-selectBorder p-0.5 rounded-lg bg-v3LiquidityTabBgColor">
               {liquidityStatusList.map((item: string, index: number) => {
@@ -260,7 +301,10 @@ export default function YourLiquidityPageV3() {
                           return (
                             <div key={index}>
                               <UserLiquidityLine
+                                setLpValueV2Done={setLpValueV2Done}
                                 liquidity={liquidity}
+                                lpSize={listLiquidities.length}
+                                setYourLpValueV2={setYourLpValueV2}
                               ></UserLiquidityLine>
                             </div>
                           );
@@ -280,6 +324,8 @@ export default function YourLiquidityPageV3() {
               <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
                 <YourLiquidityPage
                   setNoOldLiquidity={setNoOldLiquidity}
+                  setLpValueV1Done={setLpValueV1Done}
+                  setYourLpValueV1={setYourLpValueV1}
                 ></YourLiquidityPage>
               </div>
             )}
@@ -297,7 +343,21 @@ export default function YourLiquidityPageV3() {
   );
 }
 
-function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
+export const REF_FI_LP_VALUE_COUNT = 'REF_FI_LP_VALUE_COUNT';
+
+export const REF_FI_LP_V2_VALUE = 'REF_FI_LP_V2_VALUE';
+
+function UserLiquidityLine({
+  liquidity,
+  setLpValueV2Done,
+  lpSize,
+  setYourLpValueV2,
+}: {
+  liquidity: UserLiquidityInfo;
+  lpSize: number;
+  setLpValueV2Done: (value: boolean) => void;
+  setYourLpValueV2: (value: string) => void;
+}) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [liquidityDetail, setLiquidityDetail] = useState<UserLiquidityInfo>();
   const [hover, setHover] = useState<boolean>(false);
@@ -387,6 +447,32 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
       setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+
+      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
+
+      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
+
+      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
+
+      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
+
+      sessionStorage.setItem(
+        REF_FI_LP_V2_VALUE,
+        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
+          .plus(new Big(storagedValue || '0'))
+          .toFixed(2)
+      );
+
+      const newLPValue = new Big(
+        !!total_price ? toPrecision(total_price, 3) : '0'
+      )
+        .plus(new Big(storagedValue || '0'))
+        .toFixed(2);
+
+      if (Number(newSize) == lpSize) {
+        setLpValueV2Done(true);
+        setYourLpValueV2(newLPValue);
+      }
     }
     // only y token
     if (current_point >= right_point) {
@@ -394,6 +480,31 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const total_price = tokenYTotalPrice.toFixed();
       setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
+
+      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
+
+      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
+
+      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
+
+      sessionStorage.setItem(
+        REF_FI_LP_V2_VALUE,
+        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
+          .plus(new Big(storagedValue || '0'))
+          .toFixed(2)
+      );
+
+      const newLPValue = new Big(
+        !!total_price ? toPrecision(total_price, 3) : '0'
+      )
+        .plus(new Big(storagedValue || '0'))
+        .toFixed(2);
+
+      if (Number(newSize) == lpSize) {
+        setLpValueV2Done(true);
+        setYourLpValueV2(newLPValue);
+      }
     }
     // only x token
     if (left_point > current_point) {
@@ -401,6 +512,30 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenXTotalPrice.toFixed();
       setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
+
+      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
+
+      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
+
+      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
+
+      sessionStorage.setItem(
+        REF_FI_LP_V2_VALUE,
+        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
+          .plus(new Big(storagedValue || '0'))
+          .toFixed(2)
+      );
+      const newLPValue = new Big(
+        !!total_price ? toPrecision(total_price, 3) : '0'
+      )
+        .plus(new Big(storagedValue || '0'))
+        .toFixed(2);
+
+      if (Number(newSize) == lpSize) {
+        setLpValueV2Done(true);
+        setYourLpValueV2(newLPValue);
+      }
     }
   }
   function getY(
@@ -891,6 +1026,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
     </div>
   );
 }
+
 function NoLiquidity({ text }: { text?: string }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
