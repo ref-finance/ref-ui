@@ -110,12 +110,13 @@ function WrapNear(props: ReactModal.Props) {
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    sessionStorage.setItem(NEAR_WITHDRAW_KEY, '1');
+
     if (tokenIn?.id === 'NEAR') {
       setButtonLoading(true);
       return nearDeposit(tokenInAmount);
     } else {
       setButtonLoading(true);
-      sessionStorage.setItem(NEAR_WITHDRAW_KEY, '1');
       return nearWithdraw(tokenInAmount);
     }
   };
@@ -192,7 +193,13 @@ function WrapNear(props: ReactModal.Props) {
             {showError && (
               <Alert
                 level="warn"
-                message={intl.formatMessage({ id: 'wrap_error_msg' })}
+                message={intl.formatMessage({
+                  id:
+                    Number(tokenInMax) - Number(tokenInAmount) < 0.5 &&
+                    tokenIn.id === 'NEAR'
+                      ? 'near_validation_error'
+                      : 'wrap_error_msg',
+                })}
               />
             )}
           </div>

@@ -21,7 +21,7 @@ export const BreadCrumb = ({ routes }: BreadCrumbProps) => {
   };
 
   return (
-    <div className="text-xs inline-flex items-center mb-4">
+    <div className="text-sm inline-flex items-center mb-4">
       {routes.map((route, index) => {
         const { pathname, id, msg, state } = route;
         if (state && !state?.fromMorePools) return <div key={index}></div>;

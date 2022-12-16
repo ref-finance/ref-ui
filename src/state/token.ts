@@ -5,6 +5,7 @@ import {
   useState,
   useMemo,
   useContext,
+  createContext,
 } from 'react';
 
 import {
@@ -36,6 +37,7 @@ import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import { Pool } from '../services/pool';
 import {
   getBatchTokenNearAcounts,
+  getTriTokenIdsOnRef,
   useTriTokenIdsOnRef,
 } from '../services/aurora/aurora';
 import { AllStableTokenIds, getAccountNearBalance } from '../services/near';
@@ -43,7 +45,6 @@ import { defaultTokenList, getAuroraConfig } from '../services/aurora/config';
 import { wallet as webWallet } from '~services/near';
 import { getTokenPriceList } from '../services/indexer';
 import { useWalletSelector } from '../context/WalletSelectorContext';
-import { getTriTokenIdsOnRef } from '../services/aurora/aurora';
 import {
   WalletContext,
   getCurrentWallet,
@@ -288,6 +289,8 @@ export const useWalletTokenBalances = (tokenIds: string[] = []) => {
   const near = useDepositableBalance('NEAR');
 
   useEffect(() => {
+    if (tokenIds.some((id) => !id)) return;
+
     Promise.all<string>(tokenIds.map((id) => ftGetBalance(id))).then((res) => {
       let balances = {};
       res.map((item, index) => {
@@ -335,6 +338,9 @@ export const useTokenPriceList = () => {
   useEffect(() => {
     getTokenPriceList().then(setTokenPriceList);
   }, []);
+
+  tokenPriceList['NEAR'] = tokenPriceList?.[WRAP_NEAR_CONTRACT_ID];
+
   return tokenPriceList;
 };
 
@@ -356,8 +362,6 @@ export const useTokensData = (
   };
 
   const { accountId } = useWalletSelector();
-
-  const triggerBalances = balances || {};
 
   const trigger = useCallback(() => {
     // if (!!triggerBalances) {
@@ -400,8 +404,6 @@ export const useTokensData = (
           console.log(err);
         });
     }
-    // }
-    // }, [balances, tokens?.length]);
   }, [tokens?.length]);
 
   useEffect(() => {

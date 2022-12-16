@@ -9,3 +9,4 @@ export * from './Farm';
 export * from './SwapRefresh';
 export * from './FarmStamp';
 export * from './CheckBox';
+export * from './swapV3';

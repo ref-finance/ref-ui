@@ -24,7 +24,7 @@ export const AuroraIcon = (props: { hover?: boolean }) => {
 export const ConnectDot = () => {
   return (
     <div
-      className="rounded-full bg-gradientFrom block mx-px z-20"
+      className="rounded-full bg-dotColor block mx-px z-20"
       style={{
         height: '3px',
         width: '3px',
@@ -629,7 +629,7 @@ export const RefSwapPro = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect width="55" height="25" rx="6" fill="black" fill-opacity="0.2" />
+      <rect width="55" height="25" rx="6" fill="black" fillOpacity="0.2" />
       <path
         d="M18 13.5C19.1585 12.1667 23.0976 9.50003 27.7317 9.50003C32.3659 9.50003 35.687 12.1667 37 13.5"
         stroke="#00C6A2"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import InputAmount from '../../components/forms/InputAmount';
 import { TokenMetadata } from '../../services/ft-contract';
@@ -13,6 +13,7 @@ import { RefIcon } from '../../components/icon/Common';
 import { SmallWallet } from '../icon/SmallWallet';
 import { getMax } from '../../utils/numbers';
 import { NEARXIDS } from '../../services/near';
+import { WalletContext } from '../../utils/wallets-integration';
 
 export function Icon(props: {
   icon?: string;
@@ -52,7 +53,8 @@ export default function StableTokenListUSN(props: {
   } = props;
 
   if (tokens.length < 1) return null;
-
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   return (
     <div className="mt-4 px-8">
       <div className="flex justify-end items-center text-xs text-right mb-1 text-farmText">
@@ -61,11 +63,13 @@ export default function StableTokenListUSN(props: {
         <span
           title={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
         >
-          {toPrecision(
-            toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-            3,
-            true
-          )}
+          {isSignedIn
+            ? toPrecision(
+                toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+                3,
+                true
+              )
+            : '-'}
         </span>
       </div>
       <div className="flex items-center ">
@@ -97,11 +101,13 @@ export default function StableTokenListUSN(props: {
           <span
             title={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
           >
-            {toPrecision(
-              toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-              3,
-              true
-            )}
+            {isSignedIn
+              ? toPrecision(
+                  toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+                  3,
+                  true
+                )
+              : '-'}
           </span>
         </div>
         <div className="flex items-center">

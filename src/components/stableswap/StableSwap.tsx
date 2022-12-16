@@ -218,15 +218,7 @@ export default function StableSwap({
             <SlippageSelector
               slippageTolerance={slippageTolerance}
               onChange={onChangeSlip}
-              useNearBalance={useNearBalance.toString()}
               validSlippageList={[0.05, 0.1, 0.2]}
-              bindUseBalance={(useNearBalance) => {
-                setUseNearBalance(useNearBalance);
-                localStorage.setItem(
-                  STABLE_SWAP_USE_NEAR_BALANCE_KEY,
-                  useNearBalance.toString()
-                );
-              }}
             />
           </div>
         </div>

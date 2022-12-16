@@ -66,9 +66,9 @@ export const UnCheckedBoxVE = () => {
           width="116"
           height="116"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feGaussianBlur in="BackgroundImage" stdDeviation="25" />
           <feComposite
             in2="SourceAlpha"
@@ -194,8 +194,8 @@ export const LedgerAccountChecked = () => {
       <path
         d="M6 10.5L8.66667 13L14 8"
         stroke="white"
-        stroke-width="2"
-        stroke-linecap="round"
+        strokeWidth="2"
+        strokeLinecap="round"
       />
     </svg>
   );

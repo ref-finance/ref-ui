@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import InputAmount from '../../components/forms/InputAmount';
 import { TokenMetadata } from '../../services/ft-contract';
@@ -11,6 +11,7 @@ import {
 import { toRealSymbol } from '../../utils/token';
 import { RefIcon } from '../../components/icon/Common';
 import { SmallWallet } from '../icon/SmallWallet';
+import { WalletContext } from '../../utils/wallets-integration';
 
 export function Icon(props: {
   icon?: string;
@@ -87,6 +88,8 @@ export default function StableTokenList(props: {
     changeSecondTokenAmount,
     changeThirdTokenAmount,
   } = props;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   if (tokens.length < 1) return null;
 
   return (
@@ -97,11 +100,13 @@ export default function StableTokenList(props: {
         <span
           title={toReadableNumber(tokens[0].decimals, balances[tokens[0].id])}
         >
-          {toPrecision(
-            toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
-            3,
-            true
-          )}
+          {isSignedIn
+            ? toPrecision(
+                toReadableNumber(tokens[0].decimals, balances[tokens[0].id]),
+                3,
+                true
+              )
+            : '-'}
         </span>
       </div>
       <div className="flex items-center ">
@@ -130,11 +135,13 @@ export default function StableTokenList(props: {
           <span
             title={toReadableNumber(tokens[1].decimals, balances[tokens[1].id])}
           >
-            {toPrecision(
-              toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
-              3,
-              true
-            )}
+            {isSignedIn
+              ? toPrecision(
+                  toReadableNumber(tokens[1].decimals, balances[tokens[1].id]),
+                  3,
+                  true
+                )
+              : '-'}
           </span>
         </div>
         <div className="flex items-center">
@@ -162,11 +169,13 @@ export default function StableTokenList(props: {
           <span
             title={toReadableNumber(tokens[2].decimals, balances[tokens[2].id])}
           >
-            {toPrecision(
-              toReadableNumber(tokens[2].decimals, balances[tokens[2].id]),
-              3,
-              true
-            )}{' '}
+            {isSignedIn
+              ? toPrecision(
+                  toReadableNumber(tokens[2].decimals, balances[tokens[2].id]),
+                  3,
+                  true
+                )
+              : '-'}{' '}
           </span>
         </div>
         <div className="flex items-center">

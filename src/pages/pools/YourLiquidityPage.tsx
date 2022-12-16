@@ -121,6 +121,7 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 import { checkTransactionStatus } from '../../services/swap';
 import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
+import { BlueCircleLoading } from '../../components/layout/Loading';
 import ReactTooltip from 'react-tooltip';
 const StakeListContext = createContext(null);
 
@@ -203,7 +204,8 @@ function AddLiquidityButton() {
   );
 }
 
-export function YourLiquidityPage() {
+export function YourLiquidityPage(props: any) {
+  const { setNoOldLiquidity } = props;
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
 
@@ -310,6 +312,8 @@ export function YourLiquidityPage() {
     });
   }, [isSignedIn]);
 
+  // if (!pools || !tokensMeta || !v1Farm || !v2Farm) return <Loading />;
+  // todo
   if (
     !pools ||
     !tokensMeta ||
@@ -318,7 +322,16 @@ export function YourLiquidityPage() {
     !batchTotalShares ||
     !batchTotalSharesSimplePools
   )
-    return <Loading />;
+    return (
+      <div>
+        <div className="text-white text-base my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+          V1 (0)
+        </div>
+        <div className="flex items-center justify-center">
+          <BlueCircleLoading />
+        </div>
+      </div>
+    );
 
   const RowRender = ({
     p,
@@ -401,6 +414,11 @@ export function YourLiquidityPage() {
       }, 0) +
     batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
 
+  if (+count == 0) {
+    setNoOldLiquidity(true);
+  } else {
+    setNoOldLiquidity(false);
+  }
   return (
     <>
       <StakeListContext.Provider
@@ -410,40 +428,19 @@ export function YourLiquidityPage() {
           v2StakeList,
         }}
       >
-        <PoolTab count={count}></PoolTab>
-        <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
+        <div className="flex items flex-col">
           <div className="w-full flex justify-center self-center">
             {error && <Alert level="warn" message={error.message} />}
           </div>
           {/* PC */}
-
+          <div className="text-white text-base my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+            V1 ({count})
+          </div>
           <Card
             width="w-full"
             padding="px-0 py-6"
             className="xs:hidden md:hidden"
           >
-            <div className="text-white text-xl pr-6 pl-6 lg:pl-10 lg:pr-8 pt-3 pb-6 flex items-center justify-between">
-              <span>
-                <FormattedMessage
-                  id="your_liquidity"
-                  defaultMessage="Your Liquidity"
-                />
-                ({count})
-              </span>
-
-              <GradientButton
-                className="px-4 py-1.5 text-sm"
-                onClick={() => {
-                  setGeneralAddLiquidity(true);
-                }}
-              >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage={'Add Liquidity'}
-                />
-              </GradientButton>
-            </div>
-
             {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
               batchTotalShares?.some((s) => s > 0)) &&
             !isClientMobile ? (
@@ -596,8 +593,8 @@ export function YourLiquidityPage() {
               <Empty />
             </Card>
           )}
-          <GradientButton
-            className="px-4 py-1.5 text-sm text-white lg:hidden"
+          {/* <GradientButton
+            className="px-4 py-1.5 text-sm text-white hidden"
             onClick={() => {
               setGeneralAddLiquidity(true);
             }}
@@ -606,7 +603,7 @@ export function YourLiquidityPage() {
               id="add_liquidity"
               defaultMessage={'Add Liquidity'}
             />
-          </GradientButton>
+          </GradientButton> */}
         </div>
       </StakeListContext.Provider>
       <YourLiquidityAddLiquidityModal
@@ -957,7 +954,7 @@ function PoolRow(props: {
               </span>
               <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
                 <span className="underline">
-                  <FormattedMessage id="dao" defaultMessage={'DAO'} />
+                  <FormattedMessage id="vote_capital" defaultMessage={'VOTE'} />
                 </span>
                 <span className="ml-0.5">
                   <VEARROW />
@@ -1081,7 +1078,7 @@ function PoolRow(props: {
         to={{ pathname: `/pool/${pool.id}` }}
       >
         <Card width="w-full" padding="py-4 px-0">
-          <div className="flex flex-col items-start pb-4 border-b border-gray-700 border-opacity-70 px-6">
+          <div className="flex flex-col items-start pb-4 border-b border-gray-700 border-opacity-70 px-6 bg-orderMobileTop">
             <div className="flex items-center">
               <div className="ml-1 mr-4 flex items-center">{Images}</div>
               <div className="text-xs font-semibold">
@@ -1225,7 +1222,10 @@ function PoolRow(props: {
                     <FormattedMessage id="in" defaultMessage={'in'} />
                   </span>
                   <span className="border-b border-primaryText">
-                    <FormattedMessage id="dao" defaultMessage={'DAO'} />
+                    <FormattedMessage
+                      id="vote_capital"
+                      defaultMessage={'VOTE'}
+                    />
                   </span>
                   <span className="text-gradientFrom ml-0.5">
                     <VEARROW />
@@ -1420,7 +1420,7 @@ function MorePoolRow({
         {canFarm && (
           <a
             href={`/v2farms/${pool.id}-r`}
-            className="bg-gradientFrom ml-2 xs:ml-1 text-black whitespace-nowrap text-sm px-1 py-0.5 flex items-center hover:bg-senderHot rounded-md"
+            className="bg-gradientFrom ml-2 xs:ml-1 text-black whitespace-nowrap text-xs px-2 py-0.5 flex items-center hover:bg-senderHot rounded-md"
           >
             <FormattedMessage id="farm" />
             <span className="ml-1">
@@ -1430,8 +1430,7 @@ function MorePoolRow({
         )}
       </span>
 
-      <span className="flex items-center col-span-4">
-        <FormattedMessage id="tvl" />
+      <span className="flex items-center col-span-3">
         <span className={`ml-2 ${checked ? 'text-white' : ''}`}>
           $
           {Number(pool.tvl) > 0 && Number(pool.tvl) < 0.01
@@ -1440,8 +1439,7 @@ function MorePoolRow({
         </span>
       </span>
 
-      <span className="flex items-center justify-self-end col-span-2">
-        <FormattedMessage id="fee" defaultMessage={'Fee'} />
+      <span className="flex items-center col-span-3 pl-4">
         <span className={`ml-2 ${checked ? 'text-white' : ''}`}>
           {`${toPrecision(calculateFeePercent(pool.fee).toString(), 2)}`}%
         </span>
@@ -1450,7 +1448,7 @@ function MorePoolRow({
   );
 }
 
-function YourLiquidityAddLiquidityModal(
+export function YourLiquidityAddLiquidityModal(
   props: ReactModal.Props & {
     stablePools: PoolRPCView[];
   }
@@ -1575,6 +1573,14 @@ function YourLiquidityAddLiquidityModal(
   }, [tokens.map((t) => t.id).join('-'), pool]);
 
   balances && (balances[WRAP_NEAR_CONTRACT_ID] = nearBalance);
+
+  const getMax = function (id: string, amount: string) {
+    return id !== WRAP_NEAR_CONTRACT_ID
+      ? amount
+      : Number(amount) <= 0.5
+      ? '0'
+      : String(Number(amount) - 0.5);
+  };
 
   const changeFirstTokenAmount = (amount: string) => {
     setError(null);
@@ -1706,6 +1712,25 @@ function YourLiquidityAddLiquidityModal(
       });
   }, [balances, pool?.id, firstTokenAmount, secondTokenAmount]);
 
+  const firstTokenBalanceBN =
+    tokens[0] && balances
+      ? new BigNumber(
+          getMax(
+            tokens[0].id,
+            toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+          )
+        )
+      : new BigNumber(0);
+
+  const secondTokenBalanceBN =
+    tokens[1] && balances
+      ? new BigNumber(
+          getMax(
+            tokens[1].id,
+            toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+          )
+        )
+      : new BigNumber(0);
   function validate({
     firstAmount,
     secondAmount,
@@ -1714,19 +1739,8 @@ function YourLiquidityAddLiquidityModal(
     secondAmount: string;
   }) {
     const firstTokenAmountBN = new BigNumber(firstAmount.toString());
-    const firstTokenBalanceBN = new BigNumber(
-      getMax(
-        tokens[0].id,
-        toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id] || '0')
-      )
-    );
+
     const secondTokenAmountBN = new BigNumber(secondAmount.toString());
-    const secondTokenBalanceBN = new BigNumber(
-      getMax(
-        tokens[1].id,
-        toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id] || '0')
-      )
-    );
 
     setCanSubmit(false);
     setCanDeposit(false);
@@ -1891,14 +1905,6 @@ function YourLiquidityAddLiquidityModal(
     };
   };
 
-  const getMax = function (id: string, amount: string) {
-    return id !== WRAP_NEAR_CONTRACT_ID
-      ? amount
-      : Number(amount) <= 0.5
-      ? '0'
-      : String(Number(amount) - 0.5);
-  };
-
   const render = (token: TokenMetadata) => {
     return toRoundedReadableNumber({
       decimals: token.decimals,
@@ -1917,7 +1923,8 @@ function YourLiquidityAddLiquidityModal(
     );
   };
 
-  if (!selectTokens) return <Loading />;
+  // if (!selectTokens) return <Loading />;
+  if (!selectTokens) return null;
 
   return (
     <>
@@ -1964,14 +1971,16 @@ function YourLiquidityAddLiquidityModal(
                       balances?.[tokens[0].id]
                     )}
                   >
-                    {toPrecision(
-                      toReadableNumber(
-                        tokens[0].decimals,
-                        balances?.[tokens[0].id]
-                      ),
-                      2,
-                      true
-                    )}
+                    {isSignedIn
+                      ? toPrecision(
+                          toReadableNumber(
+                            tokens[0].decimals,
+                            balances?.[tokens[0].id]
+                          ),
+                          2,
+                          true
+                        )
+                      : '-'}
                   </span>
                 </div>
                 <div className="flex items-center">
@@ -2024,14 +2033,16 @@ function YourLiquidityAddLiquidityModal(
                       balances?.[tokens[1].id]
                     )}
                   >
-                    {toPrecision(
-                      toReadableNumber(
-                        tokens[1].decimals,
-                        balances?.[tokens[1].id]
-                      ),
-                      2,
-                      true
-                    )}
+                    {isSignedIn
+                      ? toPrecision(
+                          toReadableNumber(
+                            tokens[1].decimals,
+                            balances?.[tokens[1].id]
+                          ),
+                          2,
+                          true
+                        )
+                      : '-'}
                   </span>
                 </div>
                 <div className="flex items-center ">
@@ -2107,13 +2118,27 @@ function YourLiquidityAddLiquidityModal(
                     <FormattedMessage id="oops" defaultMessage="Oops" />!
                   </label>
                   <label className="ml-2.5 text-warnColor ">
-                    <FormattedMessage id="you_do_not_have_enough" />{' '}
-                    {toRealSymbol(modal?.token?.symbol)}.
+                    {modal?.token?.id === WRAP_NEAR_CONTRACT_ID &&
+                    (tokens[0].id === WRAP_NEAR_CONTRACT_ID
+                      ? Number(firstTokenBalanceBN) - Number(firstTokenAmount) <
+                        0.5
+                      : Number(secondTokenBalanceBN) -
+                          Number(secondTokenAmount) <
+                        0.5) ? (
+                      <FormattedMessage id="near_validation_error" />
+                    ) : (
+                      <>
+                        <FormattedMessage id="you_do_not_have_enough" />{' '}
+                        {toRealSymbol(modal?.token?.symbol)}.
+                      </>
+                    )}
                   </label>
                 </div>
               ) : null}
 
-              {candPools?.length < 1 && tokens?.[0].id !== tokens?.[1].id ? (
+              {isSignedIn &&
+              candPools?.length < 1 &&
+              tokens?.[0].id !== tokens?.[1].id ? (
                 <div className="flex bg-black bg-opacity-20 items-center justify-between rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
                   <label className="text-warnColor text-base flex items-center">
                     <span className="mr-2">
@@ -2184,6 +2209,19 @@ function YourLiquidityAddLiquidityModal(
           {/* for candidate list */}
           {candPools?.length > 0 && (
             <div style={{ width: cardWidth }} className="xs:pb-10 xs:mb-10">
+              {displayCandPools?.length > 0 ? (
+                <div className="grid grid-cols-10 justify-center mt-2.5">
+                  <span className="text-addV1PoolTableColor text-sm col-span-4 pl-6">
+                    <FormattedMessage id="pool"></FormattedMessage>
+                  </span>
+                  <span className="text-addV1PoolTableColor text-sm col-span-3 pl-2">
+                    <FormattedMessage id="tvl"></FormattedMessage>
+                  </span>
+                  <span className="text-addV1PoolTableColor text-sm col-span-3 pl-4">
+                    <FormattedMessage id="fee"></FormattedMessage>
+                  </span>
+                </div>
+              ) : null}
               {displayCandPools?.slice(0, 3)?.map((p) => {
                 return (
                   <MorePoolRow
@@ -2215,17 +2253,19 @@ function YourLiquidityAddLiquidityModal(
           )}
         </div>
       </Modal>
-      <AddPoolModal
-        isOpen={addPoolOpen}
-        onRequestClose={(e) => {
-          setAddPoolOpen(false);
-          props.onRequestClose(e);
-        }}
-        tokens={selectTokens}
-        balances={selectBalances}
-        token1Pre={tokens[0]}
-        token2Pre={tokens[1]}
-      />
+      {isSignedIn ? (
+        <AddPoolModal
+          isOpen={addPoolOpen}
+          onRequestClose={(e) => {
+            setAddPoolOpen(false);
+            props.onRequestClose(e);
+          }}
+          tokens={selectTokens}
+          balances={selectBalances}
+          token1Pre={tokens[0]}
+          token2Pre={tokens[1]}
+        />
+      ) : null}
     </>
   );
 }

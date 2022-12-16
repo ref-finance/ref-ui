@@ -537,11 +537,23 @@ export const list_seeds_info = async () => {
     methodName: 'list_seeds_info',
   });
 };
-export const list_seed_farms = async (seed_id: string) => {
+
+export const get_seed = async (seed_id: string) => {
   return await refFarmBoostViewFunction({
-    methodName: 'list_seed_farms',
+    methodName: 'get_seed',
     args: { seed_id },
   });
+};
+
+export const list_seed_farms = async (seed_id: string) => {
+  try {
+    return await refFarmBoostViewFunction({
+      methodName: 'list_seed_farms',
+      args: { seed_id },
+    });
+  } catch {
+    return null;
+  }
 };
 export const list_farmer_seeds = async () => {
   const accountId = getCurrentWallet().wallet.getAccountId();
