@@ -124,6 +124,7 @@ import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import ReactTooltip from 'react-tooltip';
 import Big from 'big.js';
+import { checkFarmStake } from '../../state/farm';
 const StakeListContext = createContext(null);
 
 function MyShares({
@@ -709,7 +710,13 @@ function PoolRow(props: {
 
   const usdValue = useMemo(() => {
     try {
-      if (!userTotalShareToString || typeof poolTVL !== 'number' || !pool)
+      if (
+        !userTotalShareToString ||
+        typeof poolTVL !== 'number' ||
+        !pool ||
+        (Number(checkFarmStake({ poolId, stakeList: finalStakeList })) > 0 &&
+          Number(farmStakeTotal) === 0)
+      )
         return '-';
 
       const rawRes = multiply(
@@ -722,40 +729,52 @@ function PoolRow(props: {
         divide(poolTVL.toString(), pool?.shareSupply)
       );
 
-      const storagedCount = sessionStorage.getItem(
-        REF_FI_YOUR_LP_VALUE_V1_COUNT
-      );
+      const storagedValueString = sessionStorage.getItem(REF_FI_YOUR_LP_VALUE);
 
-      const newCount = Number(storagedCount || '0') + 1;
+      const storagedValue = storagedValueString
+        ? JSON.parse(storagedValueString)
+        : {};
 
-      sessionStorage.setItem(
-        REF_FI_YOUR_LP_VALUE_V1_COUNT,
-        newCount.toString()
-      );
-
-      const storagedValue = sessionStorage.getItem(REF_FI_YOUR_LP_VALUE);
+      storagedValue[pool.id] = rawRes;
 
       sessionStorage.setItem(
         REF_FI_YOUR_LP_VALUE,
-        scientificNotationToString(
-          new Big(storagedValue || '0').plus(rawRes).toString()
-        )
+        JSON.stringify(storagedValue)
       );
 
-      const newValue = scientificNotationToString(
-        new Big(storagedValue || '0').plus(rawRes).toString()
-      );
+      if (storagedValueString && Object.keys(storagedValue).length === count) {
+        const values = Object.values(storagedValue) as string[];
 
-      if (newCount === count) {
-        setYourLpValueV1(newValue);
+        setYourLpValueV1(
+          values
+            .reduce(
+              (acc, cur, i) => {
+                return new Big(acc).plus(new Big(cur || '0'));
+              },
+
+              new Big(0)
+            )
+            .toFixed(3)
+        );
         setLpValueV1Done(true);
+
+        console.log('values', storagedValue);
       }
 
       return `$${toInternationalCurrencySystem(rawRes, 2)}`;
     } catch (error) {
       return '-';
     }
-  }, [poolTVL, userTotalShareToString, pool]);
+  }, [poolTVL, userTotalShareToString, pool, finalStakeList]);
+
+  console.log(
+    'pool',
+    pool.id,
+    usdValue,
+    shares,
+    farmStakeTotal,
+    finalStakeList
+  );
 
   if (
     userTotalShare
