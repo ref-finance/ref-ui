@@ -1174,7 +1174,7 @@ export const get_seed_info = async (seed_id: string): Promise<any> => {
   });
 };
 export const classificationOfCoins = {
-  stablecoin: ['USDT.e', 'USDC', 'DAI', 'nUSDO', 'cUSD', 'USN'],
+  stablecoin: ['USDT.e', 'DAI', 'nUSDO', 'cUSD', 'USN', 'USDC.e', 'USDt'],
   near_ecosystem: [
     'REF',
     'STNEAR',
