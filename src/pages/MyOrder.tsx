@@ -1706,7 +1706,7 @@ function MyOrderPage() {
   }, {});
   function getTipForOrders() {
     const n = intl.formatMessage({ id: 'orderTip' });
-    const result: string = `<div class="text-navHighLightText text-xs text-left">${n}</div>`;
+    const result: string = `<div class="text-navHighLightText text-xs text-left xsm:w-40 whitespace-normal" >${n}</div>`;
     return result;
   }
 

@@ -581,10 +581,10 @@ function MobileWatchListCard({
                 showSelectModal
                   ? 'border-greenColor text-white'
                   : 'border-farmText text-farmText'
-              } w-32`}
+              } w-36`}
             >
               <span
-                className={`px-3 w-full text-xs h-5
+                className={`px-2 w-full text-xs h-5
                     flex items-center justify-between
                   `}
                 onClick={() => {
@@ -1085,10 +1085,10 @@ function MobileLiquidityPage({
                       showSelectModal
                         ? 'border-greenColor text-white'
                         : 'border-farmText text-farmText'
-                    } w-32`}
+                    } w-36`}
                   >
                     <span
-                      className={`px-3 w-full text-xs h-5
+                      className={`px-2 w-full text-xs h-5
                       flex items-center justify-between
                     `}
                       onClick={() => {
@@ -1176,10 +1176,10 @@ function MobileLiquidityPage({
                       showSelectModalV2
                         ? 'border-greenColor text-white'
                         : 'border-farmText text-farmText'
-                    } w-32`}
+                    } w-36`}
                   >
                     <span
-                      className={`px-3 w-full text-xs h-5
+                      className={`px-2 w-full text-xs h-5
                       flex items-center justify-between
                     `}
                       onClick={() => {
