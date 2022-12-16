@@ -76,12 +76,9 @@ export default function YourLiquidityPageV3() {
 
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
   const [listLiquiditiesLoading, setListLiquiditiesLoading] = useState(true);
-  const [oldListLiquiditiesLoading, setOldListLiquiditiesLoading] =
-    useState(true);
   const [generalAddLiquidity, setGeneralAddLiquidity] =
     useState<boolean>(false);
   const [checkedStatus, setCheckedStatus] = useState('all');
-  const [oldLiquidityHasNoData, setOldLiquidityHasNoData] = useState(false);
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
   // callBack handle
   useAddAndRemoveUrlHandle();
@@ -114,9 +111,6 @@ export default function YourLiquidityPageV3() {
   }
   function switchButton(type: string) {
     setCheckedStatus(type);
-  }
-  function setNoOldLiquidity(status: boolean) {
-    setOldLiquidityHasNoData(status);
   }
   function getTipForV2Pool() {
     const n = intl.formatMessage({ id: 'v2PoolTip' });
@@ -207,10 +201,7 @@ export default function YourLiquidityPageV3() {
             </span>
           </div>
         </div>
-        {!isSignedIn ||
-        (oldLiquidityHasNoData &&
-          !listLiquiditiesLoading &&
-          listLiquidities.length == 0) ? (
+        {!isSignedIn ? (
           <NoLiquidity></NoLiquidity>
         ) : (
           <>
@@ -223,14 +214,7 @@ export default function YourLiquidityPageV3() {
               </div>
             ) : (
               <>
-                {listLiquidities.length == 0 ? (
-                  <div
-                    className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
-                  >
-                    <div className="text-white text-base mb-3">V2 (0)</div>
-                    <NoLiquidity text="V2"></NoLiquidity>
-                  </div>
-                ) : (
+                {listLiquidities.length > 0 ? (
                   <div
                     className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
                   >
@@ -268,21 +252,14 @@ export default function YourLiquidityPageV3() {
                       )}
                     </div>
                   </div>
-                )}
+                ) : null}
               </>
             )}
-            {oldLiquidityHasNoData ? (
-              <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
-                <div className="text-white text-base mb-3">V1 (0)</div>
-                <NoLiquidity text="V1"></NoLiquidity>
-              </div>
-            ) : (
-              <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
-                <YourLiquidityPage
-                  setNoOldLiquidity={setNoOldLiquidity}
-                ></YourLiquidityPage>
-              </div>
-            )}
+            <YourLiquidityPage
+              checkedStatus={checkedStatus}
+              listLiquidities={listLiquidities}
+              listLiquiditiesLoading={listLiquiditiesLoading}
+            ></YourLiquidityPage>
           </>
         )}
       </div>
@@ -891,7 +868,7 @@ function UserLiquidityLine({ liquidity }: { liquidity: UserLiquidityInfo }) {
     </div>
   );
 }
-function NoLiquidity({ text }: { text?: string }) {
+export function NoLiquidity({ text }: { text?: string }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   return (
