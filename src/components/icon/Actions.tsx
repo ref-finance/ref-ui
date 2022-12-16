@@ -740,6 +740,7 @@ const viewMap = {
   'Claim Order': Withdraw,
   'Claim Fees': Withdraw,
   'Make An Order': AddLiquidity,
+  'Append Liquidity': AddLiquidity,
 };
 
 const blackViewMap = {
@@ -785,6 +786,7 @@ const blackViewMap = {
   'Claim Order': WithdrawBlack,
   'Claim Fees': WithdrawBlack,
   'Make An Order': AddLiquidityBlack,
+  'Append Liquidity': AddLiquidityBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

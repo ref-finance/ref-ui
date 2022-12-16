@@ -2103,8 +2103,8 @@ export function PoolDetailsPage() {
               },
             },
             {
-              id: 'detail',
-              msg: 'Detail',
+              id: 'details',
+              msg: 'Details',
               pathname: `/pool`,
             },
           ]}
