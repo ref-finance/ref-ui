@@ -1551,7 +1551,7 @@ function AddLiquidityComponent({
           +tokenYAmount > 0 &&
           new BigNumber(
             getMax(tokenY, tokenYBalanceFromNear)
-          ).isGreaterThanOrEqualTo(+tokenYAmount);
+          ).isGreaterThanOrEqualTo(tokenYAmount);
       }
     } else if (onlyAddYToken) {
       if (tokenSort) {
@@ -1559,7 +1559,7 @@ function AddLiquidityComponent({
           +tokenYAmount > 0 &&
           new BigNumber(
             getMax(tokenY, tokenYBalanceFromNear)
-          ).isGreaterThanOrEqualTo(+tokenYAmount);
+          ).isGreaterThanOrEqualTo(tokenYAmount);
       } else {
         condition2 =
           +tokenXAmount > 0 &&
@@ -1576,7 +1576,7 @@ function AddLiquidityComponent({
         +tokenYAmount > 0 &&
         new BigNumber(
           getMax(tokenY, tokenYBalanceFromNear)
-        ).isGreaterThanOrEqualTo(+tokenYAmount);
+        ).isGreaterThanOrEqualTo(tokenYAmount);
     }
     return !(condition1 && condition2);
   }
