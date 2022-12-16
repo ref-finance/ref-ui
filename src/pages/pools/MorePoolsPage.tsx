@@ -317,7 +317,7 @@ export const MorePoolsPage = () => {
     <>
       <PoolTabV3></PoolTabV3>
       {/* PC */}
-      <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
+      <div className="xs:hidden md:hidden w-1000px  m-auto text-white">
         <Card
           className="mt-4"
           width="w-full"
