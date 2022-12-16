@@ -56,6 +56,7 @@ import {
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import Big from 'big.js';
+import { ConnectToNearBtnSwap } from '../../components/button/Button';
 import {
   REF_FI_YOUR_LP_VALUE,
   REF_FI_YOUR_LP_VALUE_V1_COUNT,
@@ -1047,7 +1048,7 @@ function NoLiquidity({ text }: { text?: string }) {
         </span>
         {isSignedIn ? null : (
           <div className="mt-5 w-72">
-            <ConnectToNearBtn></ConnectToNearBtn>
+            <ConnectToNearBtnSwap />
           </div>
         )}
       </div>
