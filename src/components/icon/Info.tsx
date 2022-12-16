@@ -53,7 +53,7 @@ export const PopUpContainer = () => {
       className="absolute top-0 left-3"
       style={{
         zIndex: -1,
-        transform: 'scale(1.08,1.06)',
+        transform: 'scale(1.08,1.08)',
       }}
     >
       <path
@@ -76,7 +76,7 @@ export const PopUpContainerMulti = () => {
       className="absolute top-0 left-3"
       style={{
         zIndex: -1,
-        transform: 'scale(1.08,1.06)',
+        transform: 'scale(1.08,1.08)',
       }}
     >
       <path
