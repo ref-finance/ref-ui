@@ -14,6 +14,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import getConfig from '../../services/config';
 import 'swiper/swiper.min.css';
 import SwiperCore, { Autoplay } from 'swiper';
+import { useXmasActivity } from '../../context/XmasActivity';
 const { REF_VE_CONTRACT_ID } = getConfig();
 SwiperCore.use([Autoplay]);
 
@@ -34,6 +35,9 @@ export default function PopUpSwiper() {
     setCloseStatus(true);
   };
   const mobile = isMobile();
+
+  const { setXmasModalOpen, xmasModalOpen } = useXmasActivity();
+
   return (
     <>
       {closeStatus ? null : (
@@ -56,18 +60,15 @@ export default function PopUpSwiper() {
               <div className="relative pt-9">
                 <div
                   onClick={closePop}
-                  className="flex justify-end items-center absolute top-8 right-0 cursor-pointer"
+                  className="flex justify-end items-center absolute top-8 right-0 cursor-pointer z-50"
                 >
-                  <PopupCloseButton className="cursor-pointer"></PopupCloseButton>
+                  <PopupCloseButton className=" cursor-pointer"></PopupCloseButton>
                 </div>
                 <XmasAd
                   className="cursor-pointer bottom-5 pl-4 right-3  relative "
-                  style={{
-                    zIndex: -1,
+                  onClick={() => {
+                    setXmasModalOpen(!xmasModalOpen);
                   }}
-                  // onClick={() => {
-                  //   location.href = '/v2farms/2448-r';
-                  // }}
                 ></XmasAd>
               </div>
             </SwiperSlide>
