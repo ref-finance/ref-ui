@@ -39,7 +39,10 @@ import {
   YourLiquidityAddLiquidityModal,
   YourLiquidityPage,
 } from '../pools/YourLiquidityPage';
-import { WalletContext } from '../../utils/wallets-integration';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 
 import {
   MyOrderCircle,
@@ -47,7 +50,7 @@ import {
   MyOrderMask2,
 } from '~components/icon/swapV3';
 import { PoolRPCView } from '../../services/api';
-import { ALL_STABLE_POOL_IDS } from '../../services/near';
+import { ALL_STABLE_POOL_IDS, REF_FI_CONTRACT_ID } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
 import {
   ClipLoadering,
@@ -55,6 +58,8 @@ import {
 } from '../../components/layout/Loading';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
+import { checkTransactionStatus } from '../../services/swap';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 export default function YourLiquidityPageV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -117,6 +122,40 @@ export default function YourLiquidityPageV3() {
     const result: string = `<div class="text-navHighLightText text-xs text-left">${n}</div>`;
     return result;
   }
+
+  const { txHash } = getURLInfo();
+
+  useEffect(() => {
+    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
+      checkTransactionStatus(txHash).then((res) => {
+        let status: any = res.status;
+
+        if (
+          res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
+        ) {
+          let receipt = res?.receipts_outcome?.find(
+            (o: any) => o?.outcome?.executor_id === REF_FI_CONTRACT_ID
+          );
+
+          if (receipt) {
+            status = receipt?.outcome?.status;
+          }
+        }
+
+        const data: string | undefined = status.SuccessValue;
+
+        if (data) {
+          const buff = Buffer.from(data, 'base64');
+          const pool_id = buff.toString('ascii');
+
+          history.push(`/pool/${pool_id}`);
+        } else {
+          history.replace(`/pools`);
+        }
+      });
+    }
+  }, [txHash]);
+
   return (
     <>
       <PoolTabV3></PoolTabV3>
