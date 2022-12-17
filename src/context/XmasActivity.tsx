@@ -7,9 +7,13 @@ function XmaxPopUP({
   xmasModalOpen: boolean;
   setXmasModalOpen: (xmasModalOpen: boolean) => void;
 }) {
-  if (xmasModalOpen) {
-    alert('open');
-  }
+  // if (xmasModalOpen) {
+  //   alert('open');
+  // }
+
+  console.log({
+    xmasModalOpen,
+  });
 
   return <div></div>;
 }

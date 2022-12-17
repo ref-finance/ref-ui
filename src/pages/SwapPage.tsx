@@ -255,7 +255,7 @@ function SwapPage() {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setXmasModalOpen(true);
+            setXmasModalOpen(!xmasModalOpen);
           }}
         >
           <XmasGift></XmasGift>
