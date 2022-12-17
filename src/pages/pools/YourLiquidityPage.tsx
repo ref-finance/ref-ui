@@ -64,7 +64,7 @@ import {
   isStablePool,
   ALL_STABLE_POOL_IDS,
 } from '../../services/near';
-import { STABLE_POOL_ID } from '../../services/near';
+import { STABLE_POOL_ID, REF_FI_CONTRACT_ID } from '../../services/near';
 import { isNotStablePool, canFarmV2 } from '../../services/pool';
 import {
   WalletContext,
@@ -220,17 +220,25 @@ export function YourLiquidityPage() {
   const isSignedIn = !!accountId;
 
   const { txHash } = getURLInfo();
-
   useEffect(() => {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
-        const transaction = res.transaction;
-        const methodName =
-          transaction?.actions[0]?.['FunctionCall']?.method_name;
+        let status: any = res.status;
 
-        const status: any = res.status;
+        if (
+          res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
+        ) {
+          let receipt = res?.receipts_outcome?.find(
+            (o: any) => o?.outcome?.executor_id === REF_FI_CONTRACT_ID
+          );
+
+          if (receipt) {
+            status = receipt?.outcome?.status;
+          }
+        }
+
         const data: string | undefined = status.SuccessValue;
-        if (data && methodName === 'add_simple_pool') {
+        if (data) {
           const buff = Buffer.from(data, 'base64');
           const pool_id = buff.toString('ascii');
           history.push(`/pool/${pool_id}`);
