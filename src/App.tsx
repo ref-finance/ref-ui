@@ -40,16 +40,16 @@ import { XmasActivityContextProvider } from './context/XmasActivity';
 function App() {
   return (
     <Router>
-      <XmasActivityContextProvider>
-        <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
-          <WalletSelectorContextProvider>
+      <WalletSelectorContextProvider>
+        <XmasActivityContextProvider>
+          <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
             <Content />
-          </WalletSelectorContextProvider>
 
-          <Footer />
-          <PopUpSwiper></PopUpSwiper>
-        </div>
-      </XmasActivityContextProvider>
+            <Footer />
+            <PopUpSwiper></PopUpSwiper>
+          </div>
+        </XmasActivityContextProvider>
+      </WalletSelectorContextProvider>
 
       <LedgerTransactionModal />
     </Router>
