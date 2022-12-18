@@ -2204,7 +2204,7 @@ function LiquidityBannerGift(props: any) {
 
 function AddV2liquidityBannerXmax(props: any) {
   return (
-    <div {...props} className="flex items-center relative ">
+    <div {...props} className="flex items-center relative cursor-pointer">
       <LiquidityBannerGift className="relative z-20 left-4"></LiquidityBannerGift>
 
       <AddV2LiquidityBanner className="relative " />
