@@ -22,7 +22,7 @@ export default function PopUpSwiper() {
   const [closeStatus, setCloseStatus] = useState(true);
   const history = useHistory();
   useEffect(() => {
-    const popupSwiper = localStorage.getItem('popup-announcement10');
+    const popupSwiper = localStorage.getItem('popup-announcement11');
     if (popupSwiper == '1') {
       setCloseStatus(true);
     } else {
@@ -30,7 +30,7 @@ export default function PopUpSwiper() {
     }
   }, []);
   const closePop = (e: any) => {
-    localStorage.setItem('popup-announcement10', '1');
+    localStorage.setItem('popup-announcement11', '1');
     e.stopPropagation();
     setCloseStatus(true);
   };
@@ -57,15 +57,16 @@ export default function PopUpSwiper() {
             loop={true}
           >
             <SwiperSlide>
-              <div className="relative pt-9">
+              <div className="absolute bottom-1 pr-3">
                 <div
                   onClick={closePop}
-                  className="flex justify-end items-center absolute top-8 right-0 cursor-pointer z-50"
+                  className="flex justify-end items-center absolute right-1 cursor-pointer z-50"
+                  style={{ bottom: '5.5rem' }}
                 >
                   <PopupCloseButton className=" cursor-pointer"></PopupCloseButton>
                 </div>
                 <XmasAd
-                  className="cursor-pointer bottom-5 pl-4 right-3  relative "
+                  className="cursor-pointer"
                   onClick={() => {
                     setXmasModalOpen(!xmasModalOpen);
                   }}
@@ -74,10 +75,11 @@ export default function PopUpSwiper() {
             </SwiperSlide>
 
             <SwiperSlide>
-              <div className="relative pt-9">
+              <div className="absolute bottom-1">
                 <div
                   onClick={closePop}
-                  className="flex justify-end items-center absolute top-8 right-0 cursor-pointer"
+                  className="flex justify-end items-center absolute right-2 cursor-pointer"
+                  style={{ bottom: '5.5rem' }}
                 >
                   <PopupCloseButton className="cursor-pointer"></PopupCloseButton>
                 </div>
@@ -91,10 +93,11 @@ export default function PopUpSwiper() {
             </SwiperSlide>
 
             <SwiperSlide>
-              <div className="relative pt-9">
+              <div className="absolute bottom-1">
                 <div
                   onClick={closePop}
-                  className="flex justify-end items-center absolute top-8 right-0 cursor-pointer"
+                  className="flex justify-end items-center absolute right-2 cursor-pointer"
+                  style={{ bottom: '5.5rem' }}
                 >
                   <PopupCloseButton className="cursor-pointer"></PopupCloseButton>
                 </div>
@@ -102,10 +105,11 @@ export default function PopUpSwiper() {
               </div>
             </SwiperSlide>
             <SwiperSlide>
-              <div className="relative pt-9">
+              <div className="absolute bottom-1">
                 <div
                   onClick={closePop}
-                  className="flex justify-end items-center absolute top-8 right-0 cursor-pointer"
+                  className="flex justify-end items-center absolute right-2 cursor-pointer"
+                  style={{ bottom: '5.5rem' }}
                 >
                   <PopupCloseButton className="cursor-pointer"></PopupCloseButton>
                 </div>
@@ -118,10 +122,11 @@ export default function PopUpSwiper() {
               </div>
             </SwiperSlide>
             <SwiperSlide>
-              <div className="relative pt-9">
+              <div className="absolute bottom-1">
                 <div
                   onClick={closePop}
-                  className="flex justify-end items-center absolute top-8 right-0 cursor-pointer"
+                  className="flex justify-end items-center absolute right-2 cursor-pointer"
+                  style={{ bottom: '5.5rem' }}
                 >
                   <PopupCloseButton className="cursor-pointer"></PopupCloseButton>
                 </div>

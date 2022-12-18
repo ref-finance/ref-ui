@@ -491,9 +491,10 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 .swiper-container {
   width: 292px;
-  /* height: 182px; */
+  height: 140px;
 }
 .swiper-wrapper {
+  position: relative;
   width: 100%;
   height: 100%;
 }
