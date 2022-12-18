@@ -223,7 +223,6 @@ export function YourLiquidityPage() {
   useEffect(() => {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
-        console.log('res: ', res);
         let status: any = res.status;
 
         if (
