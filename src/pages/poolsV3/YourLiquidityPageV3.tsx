@@ -153,6 +153,12 @@ export default function YourLiquidityPageV3() {
             ) {
               return;
             }
+
+
+            if(receipt?.outcome?.logs?.length > 0){
+              return 
+            }
+
           } else return;
         } else if (
           res.transaction?.actions?.[0]?.FunctionCall?.method_name !==
