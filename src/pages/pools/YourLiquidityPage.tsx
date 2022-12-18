@@ -223,7 +223,9 @@ export function YourLiquidityPage() {
   useEffect(() => {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
+        console.log('res: ', res);
         let status: any = res.status;
+
         if (
           res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
         ) {
@@ -234,7 +236,15 @@ export function YourLiquidityPage() {
           if (receipt) {
             status = receipt?.outcome?.status;
 
-            if (new RegExp('Liquidity added').test(receipt.outcome.logs[0])) {
+            // not create pool
+            if (
+              res?.receipts_outcome?.some((o: any) => {
+                return (
+                  o?.outcome?.executor_id !== REF_FI_CONTRACT_ID ||
+                  o?.outcome?.executor_id !== accountId
+                );
+              })
+            ) {
               return;
             }
           }
