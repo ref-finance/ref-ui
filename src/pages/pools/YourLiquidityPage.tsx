@@ -247,6 +247,9 @@ export function YourLiquidityPage() {
             ) {
               return;
             }
+            if (receipt?.outcome?.logs.length > 0) {
+              return;
+            }
           }
         } else if (
           res.transaction?.actions?.[0]?.FunctionCall?.method_name ===
