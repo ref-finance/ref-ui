@@ -63,16 +63,16 @@ function XmaxPopUP({
           backdropFilter: 'blur(5px)',
           WebkitBackdropFilter: 'blur(5px)',
           overflow: 'auto',
-          top: '70px',
+          top: isMobile() ? '60px' : '70px',
         },
         content: {
           outline: 'none',
-          transform: `translate(-50%,  ${isMobile() ? '-17vh' : '-40%'})`,
+          transform: `translate(-50%,  ${isMobile() ? '-18vh' : '-40%'})`,
         },
       }}
     >
       <div
-        className="w-480px relative text-white pt-16 pb-14 text-sm gotham flex flex-col items-center xs:w-95vw px-5 bg-black bg-opacity-30 rounded-3xl"
+        className="w-480px relative text-white pt-16 pb-14 xs:pb-10  text-sm gotham flex flex-col items-center xs:w-95vw px-5 bg-black bg-opacity-30 rounded-3xl"
         style={{
           border: '1px solid #68F694',
         }}
@@ -95,15 +95,30 @@ function XmaxPopUP({
           <XmasTreeWithText />
         </div>
 
-        <div className="absolute -bottom-5 cursor-pointer">
-          {!loadingLiquidityDone ? null : haveV2liquidity ? (
-            <XmasGiftReadyBanner />
+        <div className="absolute -bottom-5 ">
+          {haveV2liquidity ? (
+            <div className=" text-warn flex relative top-8 xs:top-10 flex-col items-center">
+              <div
+                className="cursor-pointer"
+                onClick={() => {
+                  setXmasModalOpen(false);
+                }}
+              >
+                <XmasGiftReadyBanner />
+              </div>
+
+              <div className="mt-2 text-center">
+                Make sure holding your V2 liquidity until 24:00(UTC) Dec 23,
+                2002
+              </div>
+            </div>
           ) : (
             <AddV2liquidityBannerXmax
               onClick={() => {
                 localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
                 window.open('/pools');
               }}
+              className="cursor-pointer"
             ></AddV2liquidityBannerXmax>
           )}
         </div>
@@ -118,10 +133,11 @@ function XmaxPopUP({
         </div>
 
         <div>
-          <span className="underline">10 lucky addresses</span>
-          will receive a special NFT. On Dec.31, 2022, we will reveal the
-          <span>10 lucky addresses</span>
-          lucky addresses and send each 1225 REF.
+          <span className="underline">10 lucky addresses</span>&nbsp; will
+          receive a special NFT.
+          <br /> On Dec.31, 2022, we will reveal the &nbsp;
+          <span className="underline">10 lucky addresses</span>&nbsp; and send
+          each 1225 REF.
         </div>
       </div>
     </Modal>
