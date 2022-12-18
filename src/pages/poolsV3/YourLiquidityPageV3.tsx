@@ -124,12 +124,10 @@ export default function YourLiquidityPageV3() {
   }
 
   const { txHash } = getURLInfo();
-
   useEffect(() => {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
         let status: any = res.status;
-
         if (
           res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
         ) {
@@ -139,18 +137,24 @@ export default function YourLiquidityPageV3() {
 
           if (receipt) {
             status = receipt?.outcome?.status;
+
+            if (new RegExp('Liquidity added').test(receipt.outcome.logs[0])) {
+              return;
+            }
           }
+        } else if (
+          res.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+          'add_liquidity'
+        ) {
+          return;
         }
 
         const data: string | undefined = status.SuccessValue;
-
-        if (data) {
+        if (data && data.indexOf('"') === -1) {
           const buff = Buffer.from(data, 'base64');
           const pool_id = buff.toString('ascii');
-
+          console.log('pool_id: ', pool_id, typeof pool_id);
           history.push(`/pool/${pool_id}`);
-        } else {
-          history.replace(`/pools`);
         }
       });
     }
