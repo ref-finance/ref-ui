@@ -60,6 +60,7 @@ import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { checkTransactionStatus } from '../../services/swap';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 export default function YourLiquidityPageV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -124,6 +125,9 @@ export default function YourLiquidityPageV3() {
   }
 
   const { txHash } = getURLInfo();
+
+  const { accountId } = useWalletSelector();
+
   useEffect(() => {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
@@ -138,7 +142,15 @@ export default function YourLiquidityPageV3() {
           if (receipt) {
             status = receipt?.outcome?.status;
 
-            if (receipt.outcome.logs.length > 0) {
+            // not create pool
+            if (
+              res?.receipts_outcome?.some((o: any) => {
+                return (
+                  o?.outcome?.executor_id !== REF_FI_CONTRACT_ID ||
+                  o?.outcome?.executor_id !== accountId
+                );
+              })
+            ) {
               return;
             }
           } else return;
