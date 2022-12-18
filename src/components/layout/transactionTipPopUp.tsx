@@ -303,17 +303,9 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
   if (txHashes.length > 0) {
     // judge if aurora call
 
-    console.log({
-      lasttxdetail: txDetail,
-    });
-
     const isAurora = byNeth
       ? txDetail?.receipts?.[0]?.receiver_id === 'aurora'
       : txDetail.transaction?.receiver_id === 'aurora';
-
-    console.log({
-      isAurora,
-    });
 
     const ifCall = byNeth
       ? txDetail?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
@@ -322,18 +314,10 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
         txDetail.transaction?.actions?.[0]?.FunctionCall?.method_name ===
           'call';
 
-    console.log({
-      ifCall,
-    });
-
     if (isAurora && ifCall) {
       let parsedOut = byNeth
         ? parsedTransactionSuccessValueNeth(txDetail)
         : parsedTransactionSuccessValue(txDetail);
-
-      console.log({
-        parsedOut,
-      });
 
       const erc20FailPattern = /burn amount exceeds balance/i;
 
@@ -357,8 +341,6 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
         const parsedOutput = byNeth
           ? parsedTransactionSuccessValueNeth(secondDetail)
           : parsedTransactionSuccessValue(secondDetail);
-
-        console.log({ parsedOutput });
 
         if (slippageErrprReg.test(parsedOutput)) {
           return {
