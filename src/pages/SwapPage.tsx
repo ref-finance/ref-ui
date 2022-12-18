@@ -246,7 +246,14 @@ function SwapPage() {
           isMobile ? '' : 'gradientBorderWrapper'
         } `}
       >
-        <div className="w-full absolute right-3 z-20 xs:right-2 -top-2">
+        <div
+          className="w-full absolute right-3 cursor-pointer z-20 xs:right-2 -top-2"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setXmasModalOpen(!xmasModalOpen);
+          }}
+        >
           <SnowBar></SnowBar>
         </div>
 

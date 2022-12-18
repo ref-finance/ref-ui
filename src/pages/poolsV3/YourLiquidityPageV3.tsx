@@ -138,19 +138,19 @@ export default function YourLiquidityPageV3() {
           if (receipt) {
             status = receipt?.outcome?.status;
 
-            if (new RegExp('Liquidity added').test(receipt.outcome.logs[0])) {
+            if (receipt.outcome.logs.length > 0) {
               return;
             }
-          }
+          } else return;
         } else if (
-          res.transaction?.actions?.[0]?.FunctionCall?.method_name ===
-          'add_liquidity'
+          res.transaction?.actions?.[0]?.FunctionCall?.method_name !==
+          'add_simple_pool'
         ) {
           return;
         }
 
         const data: string | undefined = status.SuccessValue;
-        if (data && data.indexOf('"') === -1) {
+        if (data) {
           const buff = Buffer.from(data, 'base64');
           const pool_id = buff.toString('ascii');
           console.log('pool_id: ', pool_id, typeof pool_id);
