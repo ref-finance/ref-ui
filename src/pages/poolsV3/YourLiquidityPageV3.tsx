@@ -146,7 +146,7 @@ export default function YourLiquidityPageV3() {
             if (
               res?.receipts_outcome?.some((o: any) => {
                 return (
-                  o?.outcome?.executor_id !== REF_FI_CONTRACT_ID ||
+                  o?.outcome?.executor_id !== REF_FI_CONTRACT_ID &&
                   o?.outcome?.executor_id !== accountId
                 );
               })
