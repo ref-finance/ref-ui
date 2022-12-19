@@ -24,10 +24,6 @@ function XmaxPopUP({
   //   alert('open');
   // }
 
-  console.log({
-    xmasModalOpen,
-  });
-
   const { accountId } = useWalletSelector();
 
   const isSignedIn = !!accountId;

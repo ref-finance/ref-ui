@@ -136,8 +136,6 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
   const history = useHistory();
 
   const parseLimitOrderPopUp = async (res: any) => {
-    console.log(res, 'res');
-
     const byNeth =
       res?.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute';
 
@@ -251,8 +249,6 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
 
       swapAmountOut = toReadableNumber(buyToken.decimals, swapAmountOut);
 
-      console.log(swapAmountOut);
-
       LimitOrderPopUp({
         tokenSymbol: toRealSymbol(sellToken.symbol),
         swapAmount:
@@ -275,12 +271,10 @@ export const useSwapPopUp = (stopOnCross?: boolean) => {
         Number(swapAmount) == 0
           ? '0'
           : parsed_ft_on_transfer_log_swap?.['data']?.[0]?.['amount_out'];
-      console.log(swapAmountOut);
 
       const buyToken = await ftGetTokenMetadata(buy_token);
 
       swapAmountOut = toReadableNumber(buyToken.decimals, swapAmountOut);
-      console.log(swapAmountOut);
 
       // all swap
       LimitOrderPopUp({
@@ -764,11 +758,7 @@ export const useSwapV3 = ({
           }
         }
       })
-      .catch((e) => {
-        console.log({
-          e_quot: e,
-        });
-      })
+      .catch((e) => {})
       .finally(() => {
         setQuoteDone(true);
         setPoolReFetch(!poolReFetch);
