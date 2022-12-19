@@ -104,8 +104,8 @@ function XmaxPopUP({
               </div>
 
               <div className="mt-2 text-center">
-                Make sure holding your V2 liquidity until 24:00(UTC) Dec 23,
-                2002
+                Make sure you keep the position until 00:01 UTC Dec 24 or you
+                won't get the gift.
               </div>
             </div>
           ) : (
@@ -119,21 +119,21 @@ function XmaxPopUP({
           )}
         </div>
         <div className="text-senderHot gotham_bold  flex items-center flex-col text-2xl xs:text-xl">
-          <div className=" text-center gotham_bold">Get your NFT gift</div>
-          <div className="text-center gotham_bold">chance to win 1225 REF</div>
+          <div className=" text-center gotham_bold">
+            Get your NFT gift and a chance to win 1,225 REF tokens
+          </div>
+          {/* <div className="text-center gotham_bold">chance to win 1225 REF</div> */}
         </div>
 
         <div className="my-5 xs:my-4">
-          Keep a position in V2 pool until 24:00(UTC) Dec. 23, 2002 and you will
-          receive an NFT as a holiday gift on Dec. 25, 2022 automatically.
+          To receive your NFT gift, you must be providing liquidity into (at
+          least) one V2 pool (pool of your choice) before 00:01 UTC, Dec 24,
+          2022.
         </div>
 
         <div>
           <span className="underline">10 lucky addresses</span>&nbsp; will
-          receive a special NFT.
-          <br /> On Dec.31, 2022, we will reveal the &nbsp;
-          <span className="underline">10 lucky addresses</span>&nbsp; and send
-          each 1225 REF.
+          receive a special NFT, along with 1,225 REF tokens, on Dec 31, 2022.
         </div>
       </div>
     </Modal>
