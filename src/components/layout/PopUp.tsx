@@ -66,10 +66,12 @@ export default function PopUpSwiper() {
                   <PopupCloseButton className="cursor-pointer"></PopupCloseButton>
                 </div>
                 <REFV2Ad
-                // className="cursor-pointer"
-                // onClick={() => {
-                //   // location.href = '/v2farms/2448-r';
-                // }}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    window.open(
+                      'https://ref-finance.medium.com/why-ref-v2-is-better-than-uni-v3-d24afb5c693c'
+                    );
+                  }}
                 ></REFV2Ad>
               </div>
             </SwiperSlide>
