@@ -13,7 +13,7 @@ export function QuestionTip({
   defaultMessage,
   dataPlace,
   uniquenessId,
-  colorHex,
+  colorhex,
   opacity,
 }: {
   id: string;
@@ -22,7 +22,7 @@ export function QuestionTip({
   defaultMessage?: string;
   dataPlace?: string;
   uniquenessId?: string;
-  colorHex?: string;
+  colorhex?: string;
   opacity?: string;
 }) {
   const intl = useIntl();
@@ -50,7 +50,7 @@ export function QuestionTip({
       data-multiline={true}
     >
       <span className={`${opacity}`}>
-        <QuestionMark colorHex={colorHex} color={color}></QuestionMark>
+        <QuestionMark colorhex={colorhex} color={color}></QuestionMark>
       </span>
       <ReactTooltip
         id={uniquenessId || 'auto_router'}
@@ -71,7 +71,7 @@ export function ExclamationTip({
   defaultMessage,
   dataPlace,
   uniquenessId,
-  colorHex,
+  colorhex,
   className,
 }: {
   id: string;
@@ -80,7 +80,7 @@ export function ExclamationTip({
   defaultMessage?: string;
   dataPlace?: string;
   uniquenessId?: string;
-  colorHex?: string;
+  colorhex?: string;
   className?: string;
 }) {
   const intl = useIntl();
@@ -108,7 +108,7 @@ export function ExclamationTip({
     >
       <div
         style={{
-          color: colorHex,
+          color: colorhex,
         }}
       >
         <VETip />

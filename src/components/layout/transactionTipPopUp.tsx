@@ -22,6 +22,7 @@ export enum TRANSACTION_ERROR_TYPE {
   SHARESUPPLYOVERFLOW = 'Share Supply Overflow',
   TOKEN_FROZEN = 'Token Frozen',
   POOL_BALANCE_LESS = 'Pool Balance Less Than MIN_RESERVE',
+  NETH_ERROR = 'Smart contract panicked',
 }
 
 const ERROR_PATTERN = {
@@ -32,6 +33,7 @@ const ERROR_PATTERN = {
   ShareSupplyOverflowErrorPattern: /shares_total_supply overflow/i,
   tokenFrozenErrorPattern: /token frozen/i,
   poolBalanceLessPattern: /pool reserved token balance less than MIN_RESERVE/i,
+  nethErrorPattern: /Smart contract panicked: explicit guest panic/i,
 };
 
 export enum TRANSACTION_STATE {
@@ -280,19 +282,42 @@ export const checkAccountTip = () => {
 };
 
 export const checkCrossSwapTransactions = async (txHashes: string[]) => {
-  const lastTx = txHashes.pop();
-  const txDetail: any = await checkTransaction(lastTx);
+  let templastTx = txHashes.pop();
+
+  let lastTx = templastTx;
+
+  let txDetail: any = await checkTransaction(lastTx);
+
+  if (
+    txDetail?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+      ?.method_name === 'near_withdraw'
+  ) {
+    lastTx = txHashes.pop();
+    txDetail = await checkTransaction(lastTx);
+  }
+
+  const byNeth =
+    txDetail?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+    'execute';
 
   if (txHashes.length > 0) {
     // judge if aurora call
-    const isAurora = txDetail.transaction?.receiver_id === 'aurora';
 
-    const ifCall =
-      txDetail.transaction?.actions?.length === 1 &&
-      txDetail.transaction?.actions?.[0]?.FunctionCall?.method_name === 'call';
+    const isAurora = byNeth
+      ? txDetail?.receipts?.[0]?.receiver_id === 'aurora'
+      : txDetail.transaction?.receiver_id === 'aurora';
+
+    const ifCall = byNeth
+      ? txDetail?.receipts?.[0]?.receipt?.Action?.actions?.[0]?.FunctionCall
+          ?.method_name === 'call'
+      : txDetail.transaction?.actions?.length === 1 &&
+        txDetail.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+          'call';
 
     if (isAurora && ifCall) {
-      const parsedOut = parsedTransactionSuccessValue(txDetail);
+      let parsedOut = byNeth
+        ? parsedTransactionSuccessValueNeth(txDetail)
+        : parsedTransactionSuccessValue(txDetail);
 
       const erc20FailPattern = /burn amount exceeds balance/i;
 
@@ -302,7 +327,7 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
           parsedOut.toString().trim().indexOf('|R') !== -1)
       ) {
         return {
-          hash: lastTx,
+          hash: templastTx,
           status: false,
           errorType: 'Withdraw Failed',
         };
@@ -313,7 +338,9 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
         const slippageErrprReg = /INSUFFICIENT_OUTPUT_AMOUNT/i;
         const expiredErrorReg = /EXPIRED/i;
 
-        const parsedOutput = parsedTransactionSuccessValue(secondDetail);
+        const parsedOutput = byNeth
+          ? parsedTransactionSuccessValueNeth(secondDetail)
+          : parsedTransactionSuccessValue(secondDetail);
 
         if (slippageErrprReg.test(parsedOutput)) {
           return {
@@ -329,7 +356,7 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
           };
         } else {
           return {
-            hash: lastTx,
+            hash: templastTx,
             status: true,
           };
         }
@@ -342,13 +369,13 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
       if (errorMessasge)
         return {
           status: false,
-          hash: lastTx,
+          hash: templastTx,
           errorType: errorMessasge,
         };
       else {
         return {
           status: true,
-          hash: lastTx,
+          hash: templastTx,
         };
       }
     }
@@ -360,13 +387,13 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
     if (errorMessasge)
       return {
         status: false,
-        hash: lastTx,
+        hash: templastTx,
         errorType: errorMessasge,
       };
     else {
       return {
         status: true,
-        hash: lastTx,
+        hash: templastTx,
       };
     }
   }
@@ -374,6 +401,18 @@ export const checkCrossSwapTransactions = async (txHashes: string[]) => {
 
 export const parsedTransactionSuccessValue = (res: any) => {
   const status: any = res.status;
+
+  const data: string | undefined = status.SuccessValue;
+
+  if (data) {
+    const buff = Buffer.from(data, 'base64');
+    const parsedData = buff.toString('ascii');
+    return parsedData;
+  }
+};
+
+export const parsedTransactionSuccessValueNeth = (res: any) => {
+  const status: any = res?.receipts_outcome?.[1]?.outcome?.status;
 
   const data: string | undefined = status.SuccessValue;
 
@@ -483,6 +522,13 @@ export const getErrorMessage = (res: any) => {
     );
   });
 
+  const isNETHErrpr = res.receipts_outcome.some((outcome: any) => {
+    return ERROR_PATTERN.nethErrorPattern.test(
+      outcome?.outcome?.status?.Failure?.ActionError?.kind?.FunctionCallError
+        ?.ExecutionError
+    );
+  });
+
   if (isSlippageError) {
     return TRANSACTION_ERROR_TYPE.SLIPPAGE_VIOLATION;
   } else if (isInvalidAmountError) {
@@ -497,6 +543,8 @@ export const getErrorMessage = (res: any) => {
     return TRANSACTION_ERROR_TYPE.TOKEN_FROZEN;
   } else if (isPoolBalanceLess) {
     return TRANSACTION_ERROR_TYPE.POOL_BALANCE_LESS;
+  } else if (isNETHErrpr) {
+    return TRANSACTION_ERROR_TYPE.NETH_ERROR;
   } else {
     return null;
   }

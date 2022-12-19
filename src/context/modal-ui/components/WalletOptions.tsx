@@ -24,6 +24,7 @@ const walletOfficialUrl = {
   WalletConnect: 'walletconnect.com',
   MyNearWallet: 'mynearwallet.com',
   'Meteor Wallet': 'wallet.meteorwallet.app',
+  'NETH Account': 'neth.app',
 };
 
 const SelectedIcon = () => {
@@ -90,7 +91,7 @@ interface WalletOptionsProps {
   onWalletNotInstalled: (module: ModuleState) => void;
   onConnectHardwareWallet: () => void;
   onConnected: () => void;
-  onConnecting: (wallet: Wallet) => void;
+  onConnecting: (wallet?: Wallet) => void;
   onError: (error: Error) => void;
 }
 export const WalletSelectorFooter = () => {
@@ -147,14 +148,7 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
     try {
       const currentWallet = await window.selector.wallet();
 
-      if (
-        currentWallet.type === 'browser' ||
-        module.type === 'hardware' ||
-        currentWallet.id === 'sender' ||
-        currentWallet.id === 'meteor-wallet'
-      ) {
-        await currentWallet.signOut();
-      }
+      await currentWallet.signOut();
     } catch (error) {
       console.log(error.message);
 
@@ -168,9 +162,17 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
     try {
       const { available } = module.metadata;
 
+      if (module.id === 'neth' && isMobile && !available) {
+        // open neth tip
+        onConnecting();
+
+        return;
+      }
+
       if (module.type === 'injected' && !available) {
         return onWalletNotInstalled(module);
       }
+
       const wallet = await module.wallet();
 
       onConnecting(wallet);
@@ -184,10 +186,27 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
         methodNames: options.methodNames,
       });
 
+      if (
+        wallet.id === 'neth' &&
+        !(await wallet.getAccounts())[0].accountId &&
+        available
+      ) {
+        return onConnecting();
+      }
+
       if (wallet.type !== 'browser') {
         onConnected();
       }
     } catch (err) {
+      if (module.id === 'neth' && isMobile && module.metadata.available) {
+        // open neth tip
+        onConnecting();
+
+        return;
+      }
+
+      console.log(err);
+
       onError(err);
     }
   };
@@ -209,7 +228,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
               if (
                 isMobile &&
                 module.type !== 'browser' &&
-                module.id !== 'meteor-wallet'
+                module.id !== 'meteor-wallet' &&
+                module.id !== 'neth'
               ) {
                 return result;
               }

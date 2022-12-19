@@ -757,7 +757,7 @@ function PoolsMenu() {
           rounded="rounded-md"
           className="border border-primaryText shadow-4xl z-40"
         >
-          {links.map((link) => {
+          {links.map((link, index) => {
             let isSelected = link.path === location.pathname;
             if (
               location.pathname.startsWith('/pool/') ||
@@ -770,7 +770,7 @@ function PoolsMenu() {
 
             return (
               <div
-                key={link.path}
+                key={link.path + index}
                 className={`flex justify-start items-center hover:bg-navHighLightBg text-sm font-semibold z-40  hover:text-white cursor-pointer py-4 pl-7 ${
                   isSelected
                     ? 'text-white bg-navHighLightBg'
@@ -858,16 +858,10 @@ function MoreMenu() {
             </div>
           )}
           {curMenuItems.map(
-            ({
-              id,
-              url,
-              children,
-              label,
-              icon,
-              logo,
-              isExternal,
-              language,
-            }) => {
+            (
+              { id, url, children, label, icon, logo, isExternal, language },
+              index
+            ) => {
               const isSelected =
                 url &&
                 !isExternal &&
@@ -879,7 +873,7 @@ function MoreMenu() {
 
               return (
                 <div
-                  key={id}
+                  key={id + index}
                   className={`whitespace-nowrap text-left items-center flex justify-start hover:bg-navHighLightBg text-sm font-semibold hover:text-white
                  ${
                    (language && currentLocal === language) || isSelected

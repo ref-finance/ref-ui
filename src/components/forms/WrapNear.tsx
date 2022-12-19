@@ -110,12 +110,13 @@ function WrapNear(props: ReactModal.Props) {
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    sessionStorage.setItem(NEAR_WITHDRAW_KEY, '1');
+
     if (tokenIn?.id === 'NEAR') {
       setButtonLoading(true);
       return nearDeposit(tokenInAmount);
     } else {
       setButtonLoading(true);
-      sessionStorage.setItem(NEAR_WITHDRAW_KEY, '1');
       return nearWithdraw(tokenInAmount);
     }
   };

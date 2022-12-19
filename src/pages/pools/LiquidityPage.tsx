@@ -90,6 +90,7 @@ import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { checkTransactionStatus } from '../../services/swap';
 import { useAllFarms } from '../../state/farm';
+import { REF_FI_CONTRACT_ID } from '../../services/near';
 
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
@@ -1273,7 +1274,20 @@ export function LiquidityPage() {
   useEffect(() => {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
-        const status: any = res.status;
+        let status: any = res.status;
+
+        if (
+          res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
+        ) {
+          let receipt = res?.receipts_outcome?.find(
+            (o: any) => o?.outcome?.executor_id === REF_FI_CONTRACT_ID
+          );
+
+          if (receipt) {
+            status = receipt?.outcome?.status;
+          }
+        }
+
         const data: string | undefined = status.SuccessValue;
         if (data) {
           const buff = Buffer.from(data, 'base64');

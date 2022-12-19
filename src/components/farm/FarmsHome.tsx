@@ -121,6 +121,7 @@ import Countdown, { zeroPad } from 'react-countdown';
 import { MoreButtonIcon } from '../../components/icon/Common';
 
 import _ from 'lodash';
+import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
 
 const {
   STABLE_POOL_IDS,
@@ -145,56 +146,8 @@ export default function FarmsHome(props: any) {
   );
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const [popUp, setPopUp] = useState(false);
-  const { txHash, pathname, errorType } = getURLInfo();
   const { user_migrate_seeds, seed_loading, user_claimed_rewards } =
     useMigrate_user_data();
-  useEffect(() => {
-    if (txHash && isSignedIn && popUp) {
-      checkTransaction(txHash)
-        .then((res: any) => {
-          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
-
-          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
-            return slippageErrorPattern.test(
-              outcome?.outcome?.status?.Failure?.ActionError?.kind
-                ?.FunctionCallError?.ExecutionError
-            );
-          });
-          const transaction = res.transaction;
-          const methodName =
-            transaction?.actions[0]?.['FunctionCall']?.method_name;
-          const isUsn =
-            sessionStorage.getItem('usn') == '1' &&
-            (methodName == 'ft_transfer_call' || methodName == 'withdraw');
-          sessionStorage.removeItem('usn');
-          return {
-            isUSN: isUsn,
-            isSlippageError,
-            isNearWithdraw: methodName == 'near_withdraw',
-            isNearDeposit: methodName == 'near_deposit',
-          };
-        })
-        .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
-          if (isUSN || isNearWithdraw || isNearDeposit) {
-            const source = sessionStorage.getItem('near_with_draw_source');
-            isUSN &&
-              !isSlippageError &&
-              !errorType &&
-              usnBuyAndSellToast(txHash);
-            ((isNearWithdraw && source != 'farm_token') || isNearDeposit) &&
-              !errorType &&
-              swapToast(txHash);
-            sessionStorage.removeItem('near_with_draw_source');
-            window.history.replaceState(
-              {},
-              '',
-              window.location.origin + pathname
-            );
-          }
-        });
-    }
-  }, [txHash, isSignedIn, popUp]);
 
   const [showEndedFarmList, setShowEndedFarmList] = useState(
     localStorage.getItem('endedfarmShow') == '1' ? true : false
@@ -855,7 +808,6 @@ export default function FarmsHome(props: any) {
     if (from == 'main') {
       setHomePageLoading(false);
     }
-    setPopUp(true);
     set_farm_display_List(farm_display_List);
     set_farm_display_ended_List(Array.from(farm_display_ended_List));
     if (keyWords) {
