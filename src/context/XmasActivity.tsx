@@ -68,7 +68,7 @@ function XmaxPopUP({
       }}
     >
       <div
-        className="w-480px relative text-white pt-16 pb-14 xs:pb-10  text-sm gotham flex flex-col items-center xs:w-95vw px-5 bg-black bg-opacity-30 rounded-3xl"
+        className="w-480px relative text-white pt-16 xs:pt-12 pb-14 xs:pb-10  text-sm gotham flex flex-col items-center xs:w-95vw px-5 bg-black bg-opacity-30 rounded-3xl"
         style={{
           border: '1px solid #68F694',
         }}
@@ -119,21 +119,31 @@ function XmaxPopUP({
           )}
         </div>
         <div className="text-senderHot gotham_bold  flex items-center flex-col text-2xl xs:text-xl">
-          <div className=" text-center gotham_bold">
-            Get your NFT gift and a chance to win 1,225 REF tokens
+          <div className=" text-center gotham_bold">Get your NFT gift</div>
+          <div className="text-center gotham_bold lg:whitespace-nowrap">
+            and a chance to win 1,225 REF tokens
           </div>
-          {/* <div className="text-center gotham_bold">chance to win 1225 REF</div> */}
         </div>
 
-        <div className="my-5 xs:my-4">
+        <div className="my-5 xs:my-2">
           To receive your NFT gift, you must be providing liquidity into (at
           least) one V2 pool (pool of your choice) before 00:01 UTC, Dec 24,
           2022.
         </div>
 
         <div>
-          <span className="underline">10 lucky addresses</span>&nbsp; will
-          receive a special NFT, along with 1,225 REF tokens, on Dec 31, 2022.
+          <span
+            className="underline cursor-pointer"
+            onClick={() => {
+              window.open(
+                'https://twitter.com/finance_ref/status/1604878692702113792'
+              );
+            }}
+          >
+            10 lucky addresses
+          </span>
+          &nbsp; will receive a special NFT, along with 1,225 REF tokens, on Dec
+          31, 2022.
         </div>
       </div>
     </Modal>
