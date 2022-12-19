@@ -858,16 +858,10 @@ function MoreMenu() {
             </div>
           )}
           {curMenuItems.map(
-            ({
-              id,
-              url,
-              children,
-              label,
-              icon,
-              logo,
-              isExternal,
-              language,
-            }, index) => {
+            (
+              { id, url, children, label, icon, logo, isExternal, language },
+              index
+            ) => {
               const isSelected =
                 url &&
                 !isExternal &&
