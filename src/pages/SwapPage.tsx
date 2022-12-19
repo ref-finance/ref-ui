@@ -35,7 +35,7 @@ import {
   WRAP_NEAR_CONTRACT_ID,
   wnearMetadata,
 } from '../services/wrap-near';
-import { SnowBar, XmasGift } from '~components/icon/Common';
+import { SnowBar, XmasGift } from '../components/icon/Common';
 import { useXmasActivity } from '../context/XmasActivity';
 
 export const SWAP_MODE_KEY = 'SWAP_MODE_VALUE';

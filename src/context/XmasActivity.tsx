@@ -10,8 +10,8 @@ import {
   XmasGiftReadyBanner,
   XmasTree,
   XmasTreeWithText,
-} from '~components/icon/Common';
-import { isMobile } from '~utils/device';
+} from '../components/icon/Common';
+import { isMobile } from '../utils/device';
 
 function XmaxPopUP({
   xmasModalOpen,
