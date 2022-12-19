@@ -2522,10 +2522,6 @@ export function LiquidityPage() {
       checkTransactionStatus(txHash).then((res) => {
         let status: any = res.status;
 
-        console.log({
-          res,
-        });
-
         if (
           res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
         ) {

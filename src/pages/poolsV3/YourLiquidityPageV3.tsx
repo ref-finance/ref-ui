@@ -132,6 +132,7 @@ export default function YourLiquidityPageV3() {
     if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
       checkTransactionStatus(txHash).then((res) => {
         let status: any = res.status;
+
         if (
           res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
         ) {
@@ -153,12 +154,9 @@ export default function YourLiquidityPageV3() {
             ) {
               return;
             }
-
-
-            if(receipt?.outcome?.logs?.length > 0){
-              return 
+            if (receipt?.outcome?.logs.length > 0) {
+              return;
             }
-
           } else return;
         } else if (
           res.transaction?.actions?.[0]?.FunctionCall?.method_name !==
@@ -171,13 +169,11 @@ export default function YourLiquidityPageV3() {
         if (data) {
           const buff = Buffer.from(data, 'base64');
           const pool_id = buff.toString('ascii');
-          console.log('pool_id: ', pool_id, typeof pool_id);
           history.push(`/pool/${pool_id}`);
         }
       });
     }
   }, [txHash]);
-
   return (
     <>
       <PoolTabV3></PoolTabV3>

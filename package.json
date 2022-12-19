@@ -99,7 +99,6 @@
     "moment": "^2.29.1",
     "near-api-js": "0.44.2",
     "near-seed-phrase": "^0.2.0",
-    "neth": "7.1.2",
     "react": "^16.0.0 || ^17.0.0",
     "react-burger-menu": "^3.0.6",
     "react-color": "^2.19.3",
