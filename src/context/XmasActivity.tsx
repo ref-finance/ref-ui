@@ -83,7 +83,7 @@ function XmaxPopUP({
         ></AiFillCloseCircle>
 
         <div
-          className="absolute xs:-top-40 -top-48"
+          className="absolute xs:-top-40 -top-44"
           style={{
             transform: isMobile() ? 'scale(0.75)' : '',
           }}
