@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
-import SubmitButton from './SubmitButton';
+import SubmitButton, { InsufficientButton } from './SubmitButton';
 import { FormattedMessage } from 'react-intl';
 import SlippageSelector, { StableSlipSelecter } from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '../../components/icon';
@@ -12,6 +12,13 @@ import {
 import { RequestingSmile } from '../icon/CrossSwapIcons';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import SlippageSelectorForStable from './SlippageSelector';
+import { useMyOrders } from '../../state/swapV3';
+import { useHistory } from 'react-router-dom';
+import { OrderIcon } from '../icon/V3';
+import { EstimateSwapView } from '../../services/swap';
+import { PoolInfo } from '~services/swapV3';
+import { OutLinkIcon } from '../../components/icon/Common';
+import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -21,13 +28,14 @@ interface SwapFormWrapProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   info?: string | JSX.Element;
   showElseView?: boolean;
+  swapTab?: JSX.Element;
   elseView?: JSX.Element;
   crossSwap?: boolean;
   requested?: boolean;
   tokensTitle?: JSX.Element;
   onChange: (slippage: number) => void;
-  bindUseBalance: (useNearBalance: boolean) => void;
-  requestingTrigger?: boolean;
+  quoteDoneLimit?: boolean;
+  selectTodos?: EstimateSwapView[];
   loading?: {
     loadingData: boolean;
     setLoadingData: (loading: boolean) => void;
@@ -43,6 +51,10 @@ interface SwapFormWrapProps {
   supportLedger?: boolean;
   setSupportLedger?: (e?: any) => void;
   showAllResults?: boolean;
+  reserves?: JSX.Element;
+  wrapOperation?: boolean;
+  isInsufficient?: boolean;
+  mostPoolDetail?: PoolInfo;
 }
 
 export default function SwapFormWrap({
@@ -57,21 +69,44 @@ export default function SwapFormWrap({
   showElseView,
   elseView,
   onChange,
-  bindUseBalance,
+  swapTab,
   loading,
   useNearBalance,
   swapMode,
   supportLedger,
   setSupportLedger,
+  quoteDoneLimit,
+  reserves,
+  isInsufficient,
+  mostPoolDetail,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
 
+  const { activeOrder, historyOrder } = useMyOrders();
+  const [viewPoolHover, setViewPoolHover] = useState(false);
+
+  const history = useHistory();
+
+  const OrderButton = swapMode === SWAP_MODE.LIMIT && activeOrder && (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        history.push('/myOrder');
+      }}
+      className="w-full h-12 flex items-center justify-center bg-switchIconBgColor hover:bg-limitOrderButtonHover border border-limitOrderBorderColor hover:border-0 mt-4 rounded-lg text-greenColor text-base gotham_bold xsm:mr-1.5 xsm:mt-6"
+    >
+      <OrderIcon />
+      <span className="mx-2 xs:mx-1 md:mx-1">
+        {activeOrder.length > 0 ? activeOrder.length : null}
+      </span>
+
+      {<FormattedMessage id="orders" defaultMessage={'Order(s)'} />}
+    </button>
+  );
+
   const {
-    loadingData,
-    setLoadingData,
     loadingTrigger,
-    setLoadingTrigger,
-    loadingPause,
     setLoadingPause,
     showSwapLoading,
     setShowSwapLoading,
@@ -99,64 +134,63 @@ export default function SwapFormWrap({
       }
     }
   };
+  function goPoolsPage() {
+    const poolId = mostPoolDetail?.pool_id;
+    if (poolId) {
+      const newPoolId = poolId.replace(/\|/g, '@');
+      window.open(`/poolV2/${newPoolId}`);
+    } else {
+      localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
+      window.open('/pools');
+    }
+  }
 
   return (
     <form
-      className={`relative z-50 overflow-y-visible bg-secondary shadow-2xl rounded-2xl p-7 ${
-        swapMode === SWAP_MODE.STABLE ? 'pb-16' : ''
-      } bg-dark xs:rounded-lg md:rounded-lg overflow-x-visible`}
+      className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-4 pt-6 pb-7 xsm:py-4 xsm:px-2.5 bg-dark  overflow-x-visible`}
       onSubmit={handleSubmit}
+      noValidate
     >
       {title && (
         <>
-          <h2 className="formTitle flex justify-end font-bold text-xl text-white text-left pb-4">
-            <div className="flex items-center">
-              {crossSwap ? null : (
-                <div
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    if (loadingPause) {
-                      setLoadingPause(false);
-                      setLoadingTrigger(true);
-                      setLoadingData(true);
-                    } else {
-                      setLoadingPause(true);
-                      setLoadingTrigger(false);
-                    }
-                  }}
-                  className="mx-4 cursor-pointer"
-                >
-                  <CountdownTimer
-                    loadingTrigger={loadingTrigger}
-                    loadingPause={loadingPause}
-                  />
-                </div>
-              )}
-
-              {swapMode === SWAP_MODE.NORMAL ? (
-                <SlippageSelector
-                  slippageTolerance={slippageTolerance}
-                  onChange={onChange}
-                  bindUseBalance={bindUseBalance}
-                  useNearBalance={useNearBalance}
-                  supportLedger={supportLedger}
-                  setSupportLedger={setSupportLedger}
-                />
-              ) : null}
-              {swapMode === SWAP_MODE.STABLE ? (
-                <SlippageSelectorForStable
-                  slippageTolerance={slippageTolerance}
-                  onChange={onChange}
-                  validSlippageList={[0.05, 0.1, 0.2]}
-                  useNearBalance={useNearBalance}
-                  bindUseBalance={bindUseBalance}
-                  supportLedger={supportLedger}
-                  setSupportLedger={setSupportLedger}
-                />
-              ) : null}
-            </div>
+          <h2 className="formTitle relative bottom-1 z-50 flex items-center xs:justify-end justify-between font-bold text-xl text-white text-left pb-4 xs:pb-2">
+            {swapTab}
+            {swapMode !== SWAP_MODE.LIMIT && (
+              <SlippageSelector
+                slippageTolerance={slippageTolerance}
+                onChange={onChange}
+                supportLedger={supportLedger}
+                setSupportLedger={setSupportLedger}
+                validSlippageList={
+                  swapMode === SWAP_MODE.NORMAL ? null : [0.05, 0.1, 0.2]
+                }
+                swapMode={swapMode}
+              />
+            )}
+            {swapMode == SWAP_MODE.LIMIT && (
+              <div
+                onMouseEnter={() => {
+                  setViewPoolHover(true);
+                }}
+                onMouseLeave={() => {
+                  setViewPoolHover(false);
+                }}
+                onClick={goPoolsPage}
+                className={`flex items-center justify-center bg-viewPoolBgColor rounded-md px-3.5 xsm:px-2 py-1 cursor-pointer ${
+                  viewPoolHover ? 'text-white' : 'text-primaryText'
+                }`}
+              >
+                <span className="text-xs whitespace-nowrap xsm:hidden">
+                  <FormattedMessage
+                    id={`${mostPoolDetail?.pool_id ? 'view_pool' : 'v2_pools'}`}
+                  ></FormattedMessage>
+                </span>
+                <span className="text-xs whitespace-nowrap lg:hidden">
+                  {mostPoolDetail?.pool_id ? 'Detail' : 'Pools'}
+                </span>
+                <OutLinkIcon className="ml-2 xsm:ml-1.5"></OutLinkIcon>
+              </div>
+            )}
           </h2>
         </>
       )}
@@ -165,16 +199,31 @@ export default function SwapFormWrap({
       {showElseView && elseView ? (
         elseView
       ) : (
-        <SubmitButton
-          disabled={
-            !canSubmit ||
-            (typeof loadingTrigger !== 'undefined' && loadingTrigger)
-          }
-          label={buttonText || title}
-          info={info}
-          loading={showSwapLoading}
-        />
+        <div className="flex flex-col items-center xsm:flex-row-reverse">
+          {!isInsufficient ? (
+            <SubmitButton
+              disabled={
+                !canSubmit ||
+                (swapMode === SWAP_MODE.LIMIT
+                  ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+                  : showSwapLoading)
+              }
+              label={buttonText || title}
+              info={info}
+              className={`h-12 ${swapMode == SWAP_MODE.NORMAL ? '-mt-0' : ''}`}
+              loading={
+                swapMode !== SWAP_MODE.LIMIT
+                  ? showSwapLoading
+                  : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+              }
+            />
+          ) : (
+            <InsufficientButton divClassName="h-12 mt-6 w-full"></InsufficientButton>
+          )}
+          {OrderButton}
+        </div>
       )}
+      {reserves}
     </form>
   );
 }
@@ -190,16 +239,16 @@ export function CrossSwapFormWrap({
   crossSwap,
   showElseView,
   elseView,
-  showAllResults,
+  swapTab,
   onChange,
-  bindUseBalance,
   loading,
   useNearBalance,
-  requestingTrigger,
   supportLedger,
-  requested,
   tokensTitle,
   setSupportLedger,
+  reserves,
+  selectTodos,
+  wrapOperation,
 }: React.PropsWithChildren<SwapFormWrapProps>) {
   const [error, setError] = useState<Error>();
   const {
@@ -213,6 +262,8 @@ export function CrossSwapFormWrap({
     setShowSwapLoading,
   } = loading || {};
 
+  const [wrapLoading, setWrapLoading] = useState(false);
+
   useEffect(() => {
     loadingTrigger && setShowSwapLoading && setShowSwapLoading(true);
     !loadingTrigger && setShowSwapLoading && setShowSwapLoading(false);
@@ -225,10 +276,13 @@ export function CrossSwapFormWrap({
     event.preventDefault();
     setError(null);
 
-    if (isSignedIn || !requested) {
+    if (isSignedIn) {
       try {
         setShowSwapLoading && setShowSwapLoading(true);
         setShowSwapLoading && setLoadingPause(true);
+
+        setWrapLoading(true);
+
         onSubmit(event);
       } catch (err) {
         setError(err);
@@ -237,83 +291,42 @@ export function CrossSwapFormWrap({
   };
   return (
     <form
-      className={`overflow-visible relative bg-secondary shadow-2xl rounded-2xl p-7 bg-dark xs:rounded-lg md:rounded-lg  ${
-        showAllResults && requested ? 'pb-14' : ''
-      }`}
+      className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-4 pt-6 pb-7 xsm:py-4 xsm:px-2.5 bg-dark  overflow-x-visible`}
       onSubmit={handleSubmit}
     >
-      {!requestingTrigger ? null : (
-        <div className="absolute w-full h-full flex items-center justify-center bg-cardBg right-0 top-0 rounded-2xl z-30">
-          <div className="flex flex-col items-center">
-            <RequestingSmile />
-            <span
-              className="pt-6"
-              style={{
-                color: '#c4c4c4',
-              }}
-            >
-              <span className="crossSwap-requesting-loading">
-                <FormattedMessage id="requesting" defaultMessage="Requesting" />
-              </span>
-            </span>
-          </div>
-        </div>
-      )}
       {title && (
         <>
-          <h2 className="formTitle flex justify-end  font-bold text-xl text-white text-left pb-4">
-            <div className="flex items-center">
-              {tokensTitle}
-              {!requested ? null : (
-                <div
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+          <h2 className="formTitle relative bottom-1 z-50 flex items-center xs:justify-end justify-between font-bold text-xl text-white text-left pb-2">
+            {swapTab}
 
-                    if (loadingPause) {
-                      setLoadingPause(false);
-                      setLoadingTrigger(true);
-                      setLoadingData(true);
-                    } else {
-                      setLoadingPause(true);
-                      setLoadingTrigger(false);
-                    }
-                  }}
-                  className="mx-4 cursor-pointer"
-                >
-                  <CountdownTimer
-                    loadingTrigger={loadingTrigger}
-                    loadingPause={loadingPause}
-                  />
-                </div>
-              )}
-              <SlippageSelector
-                slippageTolerance={slippageTolerance}
-                onChange={onChange}
-                bindUseBalance={bindUseBalance}
-                useNearBalance={useNearBalance}
-                supportLedger={supportLedger}
-                setSupportLedger={setSupportLedger}
-              />
-            </div>
+            <SlippageSelector
+              slippageTolerance={slippageTolerance}
+              onChange={onChange}
+              supportLedger={supportLedger}
+              setSupportLedger={setSupportLedger}
+            />
           </h2>
+          {tokensTitle}
         </>
       )}
       {error && <Alert level="warn" message={error.message} />}
       {children}
 
-      <div>
-        <SubmitButton
-          signedInConfig={!requested}
-          disabled={
-            !canSubmit ||
-            (typeof loadingTrigger !== 'undefined' && loadingTrigger)
-          }
-          label={buttonText || title}
-          info={info}
-          loading={showSwapLoading}
-        />
-      </div>
+      <SubmitButton
+        disabled={
+          !canSubmit ||
+          (wrapOperation
+            ? wrapLoading
+            : typeof loadingTrigger !== 'undefined' && loadingTrigger)
+        }
+        label={buttonText || title}
+        info={info}
+        loading={
+          wrapOperation ? wrapLoading : showSwapLoading || loadingTrigger
+        }
+        className="py-3"
+      />
+      {reserves}
     </form>
   );
 }

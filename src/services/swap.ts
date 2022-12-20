@@ -5,7 +5,6 @@ import { getLiquidity } from '../utils/pool';
 
 import {
   ONLY_ZEROS,
-  percentLess,
   scientificNotationToString,
   toNonDivisibleNumber,
   toPrecision,
@@ -100,6 +99,7 @@ import {
   nearWithdrawTransaction,
 } from './wrap-near';
 import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
+import { percentLess } from '../utils/numbers';
 import getConfig from './config';
 export const REF_FI_SWAP_SIGNAL = 'REF_FI_SWAP_SIGNAL_KEY';
 
@@ -126,6 +126,7 @@ interface EstimateSwapOptions {
   swapPro?: boolean;
   setSwapsToDoTri?: (todos: EstimateSwapView[]) => void;
   setSwapsToDoRef?: (todos: EstimateSwapView[]) => void;
+  proGetCachePool?: boolean;
 }
 
 export interface ReservesMap {
@@ -324,6 +325,7 @@ export const estimateSwap = async ({
   swapPro,
   setSwapsToDoRef,
   setSwapsToDoTri,
+  proGetCachePool,
 }: EstimateSwapOptions): Promise<{
   estimates: EstimateSwapView[];
   tag: string;
@@ -341,7 +343,7 @@ export const estimateSwap = async ({
     throw new Error(
       `${intl.formatMessage({
         id: 'no_pool_available_to_make_a_swap_from',
-      })} ${tokenIn.symbol} -> ${tokenOut.symbol} ${intl.formatMessage({
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
         id: 'for_the_amount',
       })} ${amountIn} ${intl.formatMessage({
         id: 'no_pool_eng_for_chinese',
@@ -357,6 +359,9 @@ export const estimateSwap = async ({
       setLoadingData,
       loadingTrigger,
       crossSwap: swapPro,
+      tokenIn,
+      tokenOut,
+      proGetCachePool,
     })
   ).filter((p) => {
     return getLiquidity(p, tokenIn, tokenOut) > 0;
@@ -378,8 +383,8 @@ export const estimateSwap = async ({
 
   if (supportLedger) {
     if (swapPro) {
-      setSwapsToDoRef(refTodos);
       setSwapsToDoTri(triTodos);
+      setSwapsToDoRef(refTodos);
     }
 
     return { estimates: supportLedgerRes, tag };
@@ -440,8 +445,8 @@ export const estimateSwap = async ({
     if (!supportLedgerRes && !res.length) throwNoPoolError();
 
     // if not both none, we could return res
-    setSwapsToDoRef(res);
     setSwapsToDoTri(triTodos);
+    setSwapsToDoRef(res);
 
     const refSmartRes = await getExpectedOutputFromActions(res, tokenOut.id, 0);
     const triRes = await getExpectedOutputFromActions(triTodos, tokenOut.id, 0);
@@ -591,53 +596,53 @@ export const getOneSwapActionResult = async (
             outputToken: tokenOut.id,
           },
         ];
-        const refPools = pools.filter((p) => p.Dex !== 'tri');
+      }
+      const refPools = pools.filter((p) => p.Dex !== 'tri');
 
-        const refPoolThisPair =
-          refPools.length === 1
-            ? refPools[0]
-            : _.maxBy(refPools, (p) => {
-                if (isStablePool(p.id)) {
-                  return Number(
-                    getStablePoolEstimate({
-                      tokenIn,
-                      tokenOut,
-                      stablePoolInfo: allStablePoolsById[p.id][1],
-                      stablePool: allStablePoolsById[p.id][0],
-                      amountIn,
-                    }).estimate
-                  );
-                } else
-                  return Number(
-                    getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
-                      .estimate
-                  );
-              });
+      const refPoolThisPair =
+        refPools.length === 1
+          ? refPools[0]
+          : _.maxBy(refPools, (p) => {
+              if (isStablePool(p.id)) {
+                return Number(
+                  getStablePoolEstimate({
+                    tokenIn,
+                    tokenOut,
+                    stablePoolInfo: allStablePoolsById[p.id][1],
+                    stablePool: allStablePoolsById[p.id][0],
+                    amountIn,
+                  }).estimate
+                );
+              } else
+                return Number(
+                  getSinglePoolEstimate(tokenIn, tokenOut, p, parsedAmountIn)
+                    .estimate
+                );
+            });
 
-        if (refPoolThisPair) {
-          const refPoolEstimateRes = await getPoolEstimate({
-            tokenIn,
-            tokenOut,
-            amountIn: parsedAmountIn,
-            Pool: refPoolThisPair,
-          });
+      if (refPoolThisPair) {
+        const refPoolEstimateRes = await getPoolEstimate({
+          tokenIn,
+          tokenOut,
+          amountIn: parsedAmountIn,
+          Pool: refPoolThisPair,
+        });
 
-          refTodos = [
-            {
-              ...refPoolEstimateRes,
-              status: PoolMode.PARALLEL,
-              routeInputToken: tokenIn.id,
-              totalInputAmount: parsedAmountIn,
-              pool: {
-                ...refPoolThisPair,
-                partialAmountIn: parsedAmountIn,
-              },
-              tokens: [tokenIn, tokenOut],
-              inputToken: tokenIn.id,
-              outputToken: tokenOut.id,
+        refTodos = [
+          {
+            ...refPoolEstimateRes,
+            status: PoolMode.PARALLEL,
+            routeInputToken: tokenIn.id,
+            totalInputAmount: parsedAmountIn,
+            pool: {
+              ...refPoolThisPair,
+              partialAmountIn: parsedAmountIn,
             },
-          ];
-        }
+            tokens: [tokenIn, tokenOut],
+            inputToken: tokenIn.id,
+            outputToken: tokenOut.id,
+          },
+        ];
       }
     }
   }
@@ -1056,11 +1061,6 @@ SwapOptions) => {
       throw new Error(`${token.id} doesn't exist.`);
     });
 
-    console.log({
-      tokenRegistered,
-      token: token.id,
-    });
-
     if (tokenRegistered === null) {
       tokenOutActions.push({
         methodName: 'storage_deposit',
@@ -1167,7 +1167,6 @@ SwapOptions) => {
           )
         ),
       });
-      console.log({ REF_FI_CONTRACT_ID });
 
       transactions.push({
         receiverId: tokenIn.id,
@@ -1187,8 +1186,6 @@ SwapOptions) => {
           },
         ],
       });
-
-      console.log({ transactions });
     } else {
       //making sure all actions get included.
       await registerToken(tokenOut);
@@ -1258,11 +1255,9 @@ SwapOptions) => {
           },
         ],
       });
-
-      console.log({ transactions });
     }
 
-    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR') {
+    if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR') {
       transactions.unshift(nearDepositTransaction(amountIn));
     }
     if (tokenOut.id === WRAP_NEAR_CONTRACT_ID) {
@@ -1270,15 +1265,21 @@ SwapOptions) => {
       const routes = separateRoutes(swapsToDo, tokenOut.id);
 
       const bigEstimate = routes.reduce((acc, cur) => {
-        const curEstimate = cur[cur.length - 1].estimate;
+        const curEstimate = round(
+          24,
+          toNonDivisibleNumber(
+            24,
+            percentLess(slippageTolerance, cur[cur.length - 1].estimate)
+          )
+        );
         return acc.plus(curEstimate);
       }, outEstimate);
 
-      const minAmountOut = percentLess(
-        slippageTolerance,
-
+      const minAmountOut = toReadableNumber(
+        24,
         scientificNotationToString(bigEstimate.toString())
       );
+
       if (tokenOut.symbol == 'NEAR') {
         transactions.push(nearWithdrawTransaction(minAmountOut));
       }
@@ -1293,10 +1294,6 @@ SwapOptions) => {
         });
       }
     }
-
-    console.log({ transactionsSwap: transactions });
-
-    console.log({ REF_FI_CONTRACT_ID });
 
     return executeMultipleTransactions(transactions);
   }

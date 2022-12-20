@@ -344,6 +344,7 @@ export default function FarmsHome(props: any) {
       pools,
     });
   }
+
   async function get_user_seeds_and_unClaimedRewards() {
     if (isSignedIn) {
       // get user seeds
@@ -465,6 +466,7 @@ export default function FarmsHome(props: any) {
           seedTvl == 0
             ? 0
             : (Number(readableNumber) * 360 * reward_token_price) / seedTvl;
+
         farm.apr = apr.toString();
         farm.baseApr = baseApr.toString();
       });

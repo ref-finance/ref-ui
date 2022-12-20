@@ -171,6 +171,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '3612#0',
           '3612#1',
         ],
+        REF_UNI_V3_SWAP_CONTRACT_ID:
+          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
       };
     case 'pub-testnet':
       return {
@@ -233,6 +235,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         kitWalletOn: true,
+        REF_UNI_V3_SWAP_CONTRACT_ID:
+          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv1.ref-dev.testnet',
+        FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['571'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [
           '1760#0',
           '1760#1',
@@ -298,6 +303,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           'boostfarm024.ref-dev.testnet',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['5%', '10%'],
+        REF_UNI_V3_SWAP_CONTRACT_ID:
+          process.env.REF_UNI_V3_SWAP_CONTRACT_ID ||
+          'dclv1-dev.ref-dev.testnet',
         kitWalletOn: true,
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
@@ -377,6 +385,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '3612#0',
           '3612#1',
         ],
+        REF_UNI_V3_SWAP_CONTRACT_ID:
+          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
       };
   }
 }

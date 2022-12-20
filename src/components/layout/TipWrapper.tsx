@@ -15,6 +15,7 @@ export function QuestionTip({
   uniquenessId,
   colorhex,
   opacity,
+  style,
 }: {
   id: string;
   color?: 'bright' | 'dark';
@@ -24,6 +25,7 @@ export function QuestionTip({
   uniquenessId?: string;
   colorhex?: string;
   opacity?: string;
+  style?: any;
 }) {
   const intl = useIntl();
 
@@ -32,7 +34,7 @@ export function QuestionTip({
       id,
       defaultMessage,
     });
-    let result: string = `<div class="text-navHighLightText whitespace-normal text-xs text-left ${
+    let result: string = `<div class="text-navHighLightText  whitespace-normal text-xs text-left ${
       width ? width : ''
     }"
       style="max-width: 200px; ">${tip}</div>`;
@@ -48,6 +50,7 @@ export function QuestionTip({
       data-html={true}
       data-tip={getValue()}
       data-multiline={true}
+      style={style}
     >
       <span className={`${opacity}`}>
         <QuestionMark colorhex={colorhex} color={color}></QuestionMark>
@@ -90,17 +93,19 @@ export function ExclamationTip({
       id,
       defaultMessage,
     });
-    let result: string = `<div class="text-navHighLightText whitespace-normal text-xs text-left ${
+    let result: string = `<div class="text-primaryText  border-black border-opacity-20 whitespace-normal text-sm text-left ${
       width ? width : ''
     }"
       style="max-width: 200px; ">${tip}</div>`;
     return result;
   };
 
+  const [light, setLight] = React.useState(false);
+
   return (
     <div
       className={`${className} pl-1 text-white text-base`}
-      data-for={uniquenessId || 'auto_router'}
+      data-for={uniquenessId || 'exclaimaton_tip' + 'id'}
       data-class="reactTip"
       data-html={true}
       data-tip={getValue()}
@@ -108,19 +113,25 @@ export function ExclamationTip({
     >
       <div
         style={{
-          color: colorhex,
+          color: light ? 'white' : colorhex,
+        }}
+        onMouseOver={() => {
+          setLight(true);
+        }}
+        onMouseLeave={() => {
+          setLight(false);
         }}
       >
         <VETip />
       </div>
       <ReactTooltip
-        id={uniquenessId || 'auto_router'}
+        id={uniquenessId || 'exclaimaton_tip' + 'id'}
         backgroundColor="#1D2932"
         border
-        place={'bottom'}
+        place={'right'}
         borderColor="#7e8a93"
         effect="solid"
-        textColor="#C6D1DA"
+        textColor="#1D2932"
       />
     </div>
   );

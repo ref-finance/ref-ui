@@ -282,7 +282,7 @@ export const SenderWalletLarge = () => {
       <g
         id="ding_gao_large"
         stroke="none"
-        stroke-width="1"
+        strokeWidth="1"
         fill="none"
         fillRule="evenodd"
       >

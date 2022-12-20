@@ -440,7 +440,7 @@ export const NO_RESULT_CHART = ({ expand }: { expand?: string }) => {
         cy="62.5"
         r="54.5"
         stroke="url(#paint0_linear_508_37)"
-        stroke-width="16"
+        strokeWidth="16"
       />
       <defs>
         <linearGradient
@@ -549,7 +549,7 @@ export const RewardCheck = () => {
       <path
         d="M1 3.5L3.66667 6L9 1"
         stroke="currentColor"
-        stroke-width="2"
+        strokeWidth="2"
         strokeLinecap="round"
       />
     </svg>
@@ -600,7 +600,7 @@ export const VETip = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clip-path="url(#clip0_1104_2248)">
+      <g clipPath="url(#clip0_1104_2248)">
         <path
           d="M0 7C0.00218939 5.14416 0.74039 3.36495 2.05267 2.05267C3.36495 0.74039 5.14416 0.00218939 7 0C8.85584 0.00218939 10.635 0.74039 11.9473 2.05267C13.2596 3.36495 13.9978 5.14416 14 7C13.998 8.8559 13.2598 10.6352 11.9475 11.9475C10.6352 13.2598 8.8559 13.998 7 14C5.14416 13.9978 3.36495 13.2596 2.05267 11.9473C0.74039 10.635 0.00218939 8.85584 0 7H0ZM1.27273 7C1.27458 8.5184 1.87858 9.97408 2.95225 11.0477C4.02592 12.1214 5.4816 12.7254 7 12.7273C8.5184 12.7254 9.97408 12.1214 11.0477 11.0477C12.1214 9.97408 12.7254 8.5184 12.7273 7C12.7253 5.48165 12.1212 4.02607 11.0476 2.95244C9.97393 1.8788 8.51835 1.27475 7 1.27273C5.48165 1.27475 4.02607 1.8788 2.95244 2.95244C1.8788 4.02607 1.27475 5.48165 1.27273 7ZM6.04545 10.1634C6.04545 9.9102 6.14602 9.66741 6.32503 9.4884C6.50405 9.30939 6.74684 9.20882 7 9.20882C7.25316 9.20882 7.49595 9.30939 7.67497 9.4884C7.85398 9.66741 7.95455 9.9102 7.95455 10.1634C7.95455 10.4165 7.85398 10.6593 7.67497 10.8383C7.49595 11.0173 7.25316 11.1179 7 11.1179C6.74695 11.1179 6.50425 11.0174 6.32526 10.8386C6.14627 10.6597 6.04562 10.4171 6.04545 10.164V10.1634ZM6.36364 7.95709V3.04373H7.63636V7.95709H6.36364Z"
           fill="currentColor"
@@ -630,7 +630,7 @@ export const FilterIconVE = () => {
         x2="15.25"
         y2="1.25"
         stroke="currentColor"
-        stroke-width="1.5"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
       <line
@@ -639,7 +639,7 @@ export const FilterIconVE = () => {
         x2="12.9642"
         y2="5.82129"
         stroke="currentColor"
-        stroke-width="1.5"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
       <line
@@ -648,7 +648,7 @@ export const FilterIconVE = () => {
         x2="10.6784"
         y2="10.3926"
         stroke="currentColor"
-        stroke-width="1.5"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
     </svg>
@@ -696,8 +696,8 @@ export const YouVotedAngleMatrix = () => {
           y2="11"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#7F43FF" />
-          <stop offset="1" stop-color="#00C6A2" />
+          <stop stopColor="#7F43FF" />
+          <stop offset="1" stopColor="#00C6A2" />
         </linearGradient>
       </defs>
     </svg>
@@ -728,20 +728,8 @@ export const NoResultListFilterIcon = () => {
     >
       <circle cx="56.5" cy="57.5" r="37.5" fill="#172027" />
       <g filter="url(#filter0_b_1484_1509)">
-        <circle
-          cx="31.5"
-          cy="39.5"
-          r="29.5"
-          fill="#23313C"
-          fill-opacity="0.7"
-        />
-        <circle
-          cx="31.5"
-          cy="39.5"
-          r="26.5"
-          stroke="#444D53"
-          stroke-width="6"
-        />
+        <circle cx="31.5" cy="39.5" r="29.5" fill="#23313C" fillOpacity="0.7" />
+        <circle cx="31.5" cy="39.5" r="26.5" stroke="#444D53" strokeWidth="6" />
       </g>
       <rect
         x="53.8618"
@@ -776,9 +764,9 @@ export const NoResultListFilterIcon = () => {
           width="67"
           height="67"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feGaussianBlur in="BackgroundImage" stdDeviation="2" />
           <feComposite
             in2="SourceAlpha"
@@ -830,6 +818,24 @@ export const DownArrowVE = () => {
   );
 };
 
+export const UpArrowVE = () => {
+  return (
+    <svg
+      width="8"
+      height="11"
+      viewBox="0 0 8 11"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="transform rotate-180"
+    >
+      <path
+        d="M1.11372e-08 7.38265C-3.27892e-05 7.54503 0.0723861 7.70172 0.203402 7.82274L3.40758 10.781C3.70106 11.052 4.20422 11.0746 4.53142 10.8315C4.55284 10.8156 4.57321 10.7987 4.59242 10.781L7.79658 7.82274C8.09007 7.55179 8.06274 7.13509 7.73556 6.89203C7.58966 6.7836 7.40038 6.7236 7.20415 6.72358L5.75927 6.72357C5.48313 6.72357 5.25927 6.49971 5.25927 6.22357V0.997837C5.25927 0.446742 4.71866 0 4.05175 0C3.38485 0 2.84423 0.446742 2.84423 0.997825V6.22356C2.84423 6.49971 2.62037 6.72356 2.34423 6.72356H0.795846C0.360713 6.72356 0.00711989 7.01278 0.000104992 7.37175L1.11372e-08 7.38265Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
 export const RightArrowUnlockingVE = () => {
   return (
     <svg
@@ -843,7 +849,7 @@ export const RightArrowUnlockingVE = () => {
       <path
         d="M3.75696 7.69982H11.6427M9.35696 5.25537L11.757 7.69982L9.35696 10.1443"
         stroke="#7E8A93"
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
     </svg>
   );

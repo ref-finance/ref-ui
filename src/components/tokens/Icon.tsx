@@ -79,3 +79,66 @@ export function IconLeft({
     </div>
   );
 }
+
+export function IconLeftV3({
+  className = '',
+  token,
+  label = true,
+  size = 11,
+  showArrow = true,
+  hover,
+}: {
+  className?: string;
+  token: TokenMetadata;
+  label?: boolean;
+  size?: number | string;
+  showArrow?: boolean;
+  hover?: boolean;
+}) {
+  return (
+    <div
+      className={`${className} flex items-center bg-primaryText text-white text-lg  rounded-full flex-shrink-0 pr-4 cursor-pointer  ${
+        hover ? 'bg-opacity-30' : 'bg-opacity-10'
+      }`}
+      style={{ lineHeight: 'unset' }}
+    >
+      <img
+        key={token.id}
+        className={`mr-2 xs:ml-0 xs:mr-1 xs:relative xs:right-1 h-${size} w-${size} xs:h-7 xs:w-7 border rounded-full border-greenLight`}
+        src={token.icon}
+      />
+      {label && (
+        <p className="block text-base font-bold">
+          {toRealSymbol(token.symbol)}
+        </p>
+      )}
+      {showArrow && (
+        <div className="pl-2 xs:pl-1 text-xs">
+          <SelectArrowIcon
+            className={`${hover ? 'text-white' : 'text-primaryText'}`}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SelectArrowIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      width="11"
+      height="7"
+      viewBox="0 0 11 7"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 1L5.401 5L9.57143 1"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}

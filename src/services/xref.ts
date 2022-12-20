@@ -27,6 +27,8 @@ export const metadata = async () => {
 export const getPrice = async () => {
   return await refContractViewFunction({
     methodName: 'get_virtual_price',
+  }).catch(() => {
+    return '0';
   });
 };
 

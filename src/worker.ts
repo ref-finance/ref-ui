@@ -125,6 +125,8 @@ const getPrice = async () => {
   return contractView({
     methodName: 'get_virtual_price',
     contract: XREF_TOKEN_ID,
+  }).catch(() => {
+    return '0';
   });
 };
 const get_list_seed_farms = async (seed_id: string) => {

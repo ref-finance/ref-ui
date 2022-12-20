@@ -10,6 +10,7 @@ module.exports = {
     'node_modules[/\\\\](?!@aurora-is-near[/\\\\]engine[/\\\\])',
   ],
   "moduleNameMapper": {
-    "\\.(css|less)$": "<rootDir>/src/__mocks__/styleMock.js"
+    "\\.(css|less)$": "<rootDir>/src/__mocks__/styleMock.js",
+    "d3": "<rootDir>/src/__mocks__/styleMock.js",
   }
 };

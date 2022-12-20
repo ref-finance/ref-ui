@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { PoolDb } from '~store/RefDatabase';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { Card } from '~components/card/Card';
+import { Card } from '../../components/card/Card';
 import {
   BackArrowWhite,
   BackArrowGray,
   DownArrowLight,
   UpArrowDeep,
   UpArrowLight,
-} from '~components/icon';
-import { FarmMiningIcon } from '~components/icon/FarmMining';
-import { BreadCrumb } from '~components/layout/BreadCrumb';
+} from '../../components/icon';
+import { FarmMiningIcon } from '../../components/icon/FarmMining';
+import { BreadCrumb } from '../../components/layout/BreadCrumb';
 
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useTokens } from '../../state/token';
-import { TokenMetadata } from '~services/ft-contract';
-import { FarmButton } from '~components/button/Button';
+import { TokenMetadata } from '../../services/ft-contract';
+import { FarmButton } from '../../components/button/Button';
 
 import {
   calculateFeePercent,
@@ -24,16 +24,17 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
-import { useAllWatchList, useMorePools } from '~state/pool';
-import { PoolRPCView } from '~services/api';
-import { FarmStamp } from '~components/icon/FarmStamp';
+import { useAllWatchList, useMorePools } from '../../state/pool';
+import { PoolRPCView } from '../../services/api';
+import { FarmStamp } from '../../components/icon/FarmStamp';
 import { divide, find } from 'lodash';
-import { WatchListStartFull } from '~components/icon/WatchListStar';
+import { WatchListStartFull } from '../../components/icon/WatchListStar';
 import { scientificNotationToString } from '../../utils/numbers';
-import { usePoolsFarmCount } from '../../state/pool';
+import { usePoolsFarmCount, useDayVolumesPools } from '../../state/pool';
 import { useClientMobile } from '../../utils/device';
-import { PoolTab } from '../../components/pool/PoolTab';
-import Loading from '~components/layout/Loading';
+import { PoolTabV3 } from '../../components/pool/PoolTabV3';
+import Loading from '../../components/layout/Loading';
+import { FarmStampNew } from '../../components/icon/FarmStamp';
 
 interface ParamTypes {
   tokenIds: string;
@@ -68,7 +69,7 @@ function PoolRow({
 
   return (
     <Link
-      className="grid grid-cols-10 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-700 border-opacity-70 hover:opacity-80"
+      className="grid grid-cols-8 py-3.5 text-white content-center text-sm text-left mx-8  border-b border-gray-700 border-opacity-70 hover:opacity-80"
       onClick={() => {
         localStorage.setItem('fromMorePools', 'y');
         localStorage.setItem('morePoolIds', JSON.stringify(morePoolIds));
@@ -83,7 +84,7 @@ function PoolRow({
         },
       }}
     >
-      <div className="col-span-7 flex items-center">
+      <div className="col-span-4 flex items-center">
         <div className="mr-12 w-2">{pool?.id}</div>
 
         <div className="flex items-center">
@@ -108,7 +109,7 @@ function PoolRow({
             {tokens[0].symbol + '-' + tokens[1].symbol}
           </div>
         </div>
-        {supportFarm && <FarmButton farmCount={farmCount} />}
+        {supportFarm && <FarmStampNew multi={farmCount > 1} />}
         {watched && (
           <div className="mx-2">
             <WatchListStartFull />
@@ -116,12 +117,29 @@ function PoolRow({
         )}
       </div>
 
-      <div className="col-span-2 py-1  ">
+      <div className="col-span-1 relative right-4 py-1  ">
         {calculateFeePercent(pool?.total_fee)}%
       </div>
 
       <div
-        className="col-span-1 py-1"
+        className="col-span-1 py-1  "
+        title={pool?.apr?.toString() || '0' + '%'}
+      >
+        {toPrecision(pool?.apr?.toString() || '0', 2)}%
+      </div>
+
+      <div className="col-span-1 py-1 relative left-6 " title={pool.h24volume}>
+        {!pool.h24volume
+          ? '-'
+          : Number(pool.h24volume) == 0
+          ? '$0'
+          : Number(pool.h24volume) < 0.01
+          ? '$ <0.01'
+          : `$${toInternationalCurrencySystem(pool.h24volume)}`}
+      </div>
+
+      <div
+        className="col-span-1 justify-self-end relative right-4 py-1"
         title={toPrecision(
           scientificNotationToString(pool?.tvl?.toString() || '0'),
           0
@@ -204,7 +222,7 @@ const MobileRow = ({
               </div>
             )}
           </div>
-          {supportFarm && <FarmButton farmCount={farmCount} />}
+          {supportFarm && <FarmStampNew multi={farmCount > 1} />}
         </div>
 
         <div className="flex flex-col text-base">
@@ -213,6 +231,33 @@ const MobileRow = ({
               <FormattedMessage id="fee" defaultMessage="Fee" />
             </div>
             <div>{calculateFeePercent(pool?.total_fee)}%</div>
+          </div>
+
+          <div className="flex items-center justify-between my-3">
+            <div className="text-gray-400">
+              <FormattedMessage id="apr" defaultMessage="APR" />
+            </div>
+            <div>
+              {!pool.h24volume
+                ? '-'
+                : `${toPrecision(pool?.apr?.toString() || '0', 2)}%`}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between my-3">
+            <div className="text-gray-400">
+              <FormattedMessage id="volume_24h" defaultMessage="Volume (24h)" />
+            </div>
+            <div>
+              {' '}
+              {!pool.h24volume
+                ? '-'
+                : Number(pool.h24volume) == 0
+                ? '$0'
+                : Number(pool.h24volume) < 0.01
+                ? '$ <0.01'
+                : `$${toInternationalCurrencySystem(pool.h24volume)}`}
+            </div>
           </div>
 
           <div className="flex items-center justify-between my-3">
@@ -227,18 +272,21 @@ const MobileRow = ({
   );
 };
 
-export const FarmMining = () => {
-  return (
-    <div className="flex items-center">
-      <div>
-        <FarmStamp />
-      </div>
-      <div className="hidden">
-        <FarmMiningIcon />
-      </div>
-    </div>
-  );
-};
+export function getPoolFeeAprTitleRPCView(
+  dayVolume: string,
+  pool: PoolRPCView
+) {
+  let result = '0';
+  if (dayVolume) {
+    const { total_fee: fee, tvl } = pool;
+    const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
+    if (tvl > 0 && revenu24h > 0) {
+      const annualisedFeesPrct = ((revenu24h * 365) / tvl / 2) * 100;
+      result = annualisedFeesPrct.toString();
+    }
+  }
+  return Number(result);
+}
 
 export const MorePoolsPage = () => {
   const { state } = useLocation<LocationTypes>();
@@ -251,6 +299,7 @@ export const MorePoolsPage = () => {
 
   const tokens = state?.tokens || useTokens(tokenIdsArray);
   const morePools = useMorePools({ tokenIds: tokenIdsArray, order, sortBy });
+
   const morePoolIds = morePools?.map((p) => p.id.toString());
 
   const watchList = useAllWatchList();
@@ -260,11 +309,11 @@ export const MorePoolsPage = () => {
   });
   const clientMobileDevice = useClientMobile();
 
-  if (!tokens) return <Loading />;
+  if (!tokens || !morePools) return <Loading />;
 
   return (
     <>
-      <PoolTab></PoolTab>
+      <PoolTabV3></PoolTabV3>
       {/* PC */}
       <div className="xs:hidden md:hidden lg:w-5/6 xl:w-3/4 m-auto text-white">
         <Card width="w-full" bgcolor="bg-cardBg" padding="py-7 px-0">
@@ -308,39 +357,152 @@ export const MorePoolsPage = () => {
           </div>
 
           <section className="">
-            <header className="grid grid-cols-10 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
-              <div className="col-span-7 flex items-center">
+            <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
+              <div className="col-span-4 flex items-center">
                 <div className="mr-3 ">
                   <FormattedMessage id="pool_id" defaultMessage="Pool ID" />
                 </div>
                 <FormattedMessage id="pair" defaultMessage="Pair" />
               </div>
               <div
-                className="col-span-2 md:hidden cursor-pointer flex items-center"
+                className={`col-span-1 relative right-4 md:hidden  flex items-center
+             
+                
+                `}
                 onClick={() => {
                   setSortBy('total_fee');
-                  setOrder(order === 'desc' ? 'asc' : 'desc');
+                  setOrder(
+                    sortBy === 'total_fee'
+                      ? order === 'desc'
+                        ? 'asc'
+                        : 'desc'
+                      : 'desc'
+                  );
                 }}
               >
-                <div className="mr-1">
+                <div
+                  className={`mr-1 cursor-pointer
+                ${sortBy !== 'total_fee' ? 'hover:text-white' : ''} ${
+                    sortBy === 'total_fee' ? 'text-gradientFrom' : ''
+                  }
+                
+                `}
+                >
                   <FormattedMessage id="fee" defaultMessage="Fee" />
                 </div>
-                {sortBy === 'total_fee' ? (
-                  order === 'desc' ? (
-                    <DownArrowLight />
+                <span
+                  className={`
+                  ${sortBy === 'total_fee' ? '' : 'hidden'}
+                  `}
+                >
+                  {sortBy === 'total_fee' ? (
+                    order === 'desc' ? (
+                      <DownArrowLight />
+                    ) : (
+                      <UpArrowLight />
+                    )
                   ) : (
-                    <UpArrowLight />
-                  )
-                ) : (
-                  <UpArrowDeep />
-                )}
+                    <UpArrowDeep />
+                  )}
+                </span>
+              </div>
+              <span
+                className={`col-span-1 md:hidden  flex items-center
+                
+       
+                `}
+                onClick={() => {
+                  setSortBy('apr');
+                  setOrder(
+                    sortBy === 'apr'
+                      ? order === 'desc'
+                        ? 'asc'
+                        : 'desc'
+                      : 'desc'
+                  );
+                }}
+              >
+                <span
+                  className={`mr-1 cursor-pointer
+                         ${sortBy !== 'apr' ? 'hover:text-white' : ''} ${
+                    sortBy === 'apr' ? 'text-gradientFrom' : ''
+                  }
+                `}
+                >
+                  <FormattedMessage id="apr" defaultMessage="APR" />
+                </span>
+                <span
+                  className={`
+                    ${sortBy === 'apr' ? '' : 'hidden'}
+                  `}
+                >
+                  {sortBy === 'apr' ? (
+                    order === 'desc' ? (
+                      <DownArrowLight />
+                    ) : (
+                      <UpArrowLight />
+                    )
+                  ) : (
+                    <UpArrowDeep />
+                  )}
+                </span>
+              </span>
+              <div
+                className={`col-span-1 md:hidden  flex items-center
+      
+                
+                `}
+                onClick={() => {
+                  setSortBy('h24volume');
+                  setOrder(
+                    sortBy === 'h24volume'
+                      ? order === 'desc'
+                        ? 'asc'
+                        : 'desc'
+                      : 'desc'
+                  );
+                }}
+              >
+                <div
+                  className={`mr-1 cursor-pointer whitespace-nowrap
+                
+                ${sortBy !== 'h24volume' ? 'hover:text-white' : ''} ${
+                    sortBy === 'h24volume' ? 'text-gradientFrom' : ''
+                  }
+                `}
+                >
+                  <FormattedMessage
+                    id="volume_24h"
+                    defaultMessage="Volume (24h)"
+                  />
+                </div>
+
+                <span>
+                  {sortBy === 'h24volume' ? (
+                    order === 'desc' ? (
+                      <DownArrowLight />
+                    ) : (
+                      <UpArrowLight />
+                    )
+                  ) : null}
+                </span>
               </div>
 
               <div
-                className="col-span-1 flex items-center cursor-pointer"
+                className={`col-span-1 flex justify-self-end relative right-6 items-center cursor-pointer
+                ${sortBy !== 'tvl' ? 'hover:text-white' : ''} ${
+                  sortBy === 'tvl' ? 'text-gradientFrom' : ''
+                }
+                `}
                 onClick={() => {
                   setSortBy('tvl');
-                  setOrder(order === 'desc' ? 'asc' : 'desc');
+                  setOrder(
+                    sortBy === 'tvl'
+                      ? order === 'desc'
+                        ? 'asc'
+                        : 'desc'
+                      : 'desc'
+                  );
                 }}
               >
                 <span className="mr-1 ">
@@ -352,9 +514,7 @@ export const MorePoolsPage = () => {
                   ) : (
                     <UpArrowLight />
                   )
-                ) : (
-                  <UpArrowDeep />
-                )}
+                ) : null}
               </div>
             </header>
             <div className="max-h-96 overflow-y-auto">
@@ -424,6 +584,7 @@ export const MorePoolsPage = () => {
                 key={i}
                 pool={pool}
                 watched={
+                  watchList &&
                   !!watchList.map((p) => p.id).includes(pool.id.toString())
                 }
                 morePoolIds={morePoolIds}

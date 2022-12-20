@@ -50,6 +50,9 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { STORAGE_TO_REGISTER_WITH_MFT } from '../creators/storage';
 import { ftGetStorageBalance } from '../ft-contract';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { list_user_assets } from '../swapV3';
+import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import { nearWithdrawTransaction } from '../wrap-near';
 
 const trisolaris = getAuroraConfig().trisolarisAddress;
 
@@ -195,6 +198,7 @@ export function parseAuroraPool({
   shares,
   id, // from aurora pool id
   decodedRes,
+  pairAdd,
 }: {
   tokenA: string;
   tokenB: string;
@@ -203,6 +207,7 @@ export function parseAuroraPool({
   auroraAddrB: string;
   id: number;
   decodedRes: any;
+  pairAdd: string;
 }): Pool & { Dex: string } {
   const Afirst =
     Number(auroraAddrA.toString()) < Number(auroraAddrB.toString());
@@ -223,6 +228,7 @@ export function parseAuroraPool({
       [tokenA]: Afirst ? token1Supply : token2Supply,
       [tokenB]: Afirst ? token2Supply : token1Supply,
     },
+    pairAdd,
   };
 }
 
@@ -271,6 +277,7 @@ export async function getAuroraPool(
     auroraAddrB,
     id, // TODO: encode tri pool id
     decodedRes,
+    pairAdd,
   });
 }
 
@@ -737,6 +744,16 @@ export const useAuroraBalancesNearMapping = (address: string) => {
   return nearMapping;
 };
 
+export const useDCLAccountBalance = (isSignedIn: boolean) => {
+  const [assets, setAssets] = useState<any>();
+
+  useEffect(() => {
+    list_user_assets().then(setAssets);
+  }, [isSignedIn]);
+
+  return assets;
+};
+
 export const useTriTokenIdsOnRef = (stopOn?: boolean) => {
   const auroraTokens = defaultTokenList.tokens;
   const allSupportPairs = getAuroraConfig().Pairs;
@@ -819,7 +836,7 @@ export const getBatchTokenNearAcounts = async (ids: string[]) => {
   );
 };
 
-export const getAllTriPools = async () => {
+export const getAllTriPools = async (pair?: [string, string]) => {
   const allSupportPairs = getAuroraConfig().Pairs;
   const auroraTokens = defaultTokenList.tokens;
   const address = auroraAddr(getCurrentWallet()?.wallet?.getAccountId());
@@ -829,17 +846,32 @@ export const getAllTriPools = async () => {
       [cur.symbol]: cur.address,
     };
   }, {});
-  const pairAddresses = Object.keys(allSupportPairs).map((pairName: string) => {
-    const names = pairName.split('-');
-    return {
-      ids: names.map((n) => {
-        if (n === 'ETH') return getAuroraConfig().WETH;
-        else return symbolToAddress[n];
-      }),
-      pairName,
-      pairAdd: allSupportPairs[pairName],
-    };
-  });
+  const pairAddresses = Object.keys(allSupportPairs)
+    .map((pairName: string) => {
+      const names = pairName.split('-');
+      return {
+        ids: names.map((n) => {
+          if (n === 'ETH') return getAuroraConfig().WETH;
+          else return symbolToAddress[n];
+        }),
+        pairName,
+        pairAdd: allSupportPairs[pairName],
+        names,
+      };
+    })
+    .filter((p) => {
+      let showPair = pair.map((p) => {
+        if (p === 'USDT.e') return 'USDT';
+        if (p === 'USDC.e') return 'USDC';
+
+        return p;
+      });
+
+      return (
+        !showPair ||
+        (p.names.includes(showPair?.[0]) && p.names.includes(showPair?.[1]))
+      );
+    });
 
   const allPools = await Promise.all(
     pairAddresses.map(async (pairInfo, i) => {
@@ -847,6 +879,7 @@ export const getAllTriPools = async () => {
       if (nep141s.some((nep) => !nep)) {
         return null;
       }
+
       const tokenMetas = await Promise.all(
         nep141s.map((id: string) => ftGetTokenMetadata(id))
       );
@@ -1043,6 +1076,12 @@ export const batchWithdrawFromAurora = async (
       functionCalls: [action],
     })
   );
+
+  if (!!tokenMap[WRAP_NEAR_CONTRACT_ID]) {
+    transactions.push(
+      nearWithdrawTransaction(tokenMap[WRAP_NEAR_CONTRACT_ID].amount)
+    );
+  }
 
   return executeMultipleTransactions(transactions);
 };

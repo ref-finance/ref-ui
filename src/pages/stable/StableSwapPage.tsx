@@ -123,7 +123,7 @@ function StableSwapPage({ pool }: { pool: Pool }) {
   return (
     <div className="m-auto lg:w-580px md:w-5/6 xs:w-full xs:p-2">
       {<BackToStablePoolList />}
-      {<StableTokens tokens={tokens} />}
+      {<StableTokens tokens={tokens} pool={pool} />}
       {<SharesCard shares={shares} pool={pool} />}
       {renderModule(actionName)}
       {<TokenReserves tokens={tokens} pools={[pool]} forPool hiddenChart />}

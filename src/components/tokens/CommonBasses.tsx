@@ -20,6 +20,8 @@ import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 interface CommonBassesProps {
   onClick: (token: TokenMetadata) => void;
   tokenPriceList: Record<string, any>;
+  allowWNEAR: boolean;
+  handleClose: any;
 }
 const COMMON_BASSES = [
   'USN',
@@ -41,6 +43,8 @@ const COMMON_BASSES = [
 export default function CommonBasses({
   onClick,
   tokenPriceList,
+  allowWNEAR,
+  handleClose,
 }: CommonBassesProps) {
   const { commonBassesTokens } = useContext(localTokens);
   return (
@@ -52,7 +56,18 @@ export default function CommonBasses({
           return (
             <div
               key={token.id + token.symbol}
-              onClick={() => onClick && onClick(token)}
+              onClick={() => {
+                if (
+                  !(
+                    token.id == WRAP_NEAR_CONTRACT_ID &&
+                    token.symbol == 'wNEAR' &&
+                    !allowWNEAR
+                  )
+                ) {
+                  onClick && onClick(token);
+                }
+                handleClose();
+              }}
             >
               <Token token={token} price={price} />
             </div>

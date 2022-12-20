@@ -7,6 +7,9 @@ import { isMobile, isClientMobie } from '../../utils/device';
 import { checkTransaction } from '../../services/swap';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 import { ErrorTriangle } from '../icon/SwapRefresh';
+import { ONLY_ZEROS } from '../../utils/numbers';
+
+import { BsArrowUpRight } from 'react-icons/bs';
 
 export enum TRANSACTION_WALLET_TYPE {
   NEAR_WALLET = 'transactionHashes',
@@ -411,6 +414,12 @@ export const parsedTransactionSuccessValue = (res: any) => {
   }
 };
 
+export const parsedArgs = (res: any) => {
+  const buff = Buffer.from(res, 'base64');
+  const parsedData = buff.toString('ascii');
+  return parsedData;
+};
+
 export const parsedTransactionSuccessValueNeth = (res: any) => {
   const status: any = res?.receipts_outcome?.[1]?.outcome?.status;
 
@@ -607,6 +616,147 @@ export const normalSuccessToast = (text: string) => {
         boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
         borderRadius: '8px',
         minHeight: '0px',
+      },
+    }
+  );
+};
+
+export const LimitOrderPopUp = ({
+  tokenSymbol,
+  swapAmount,
+  limitOrderAmount,
+  txHash,
+  swapAmountOut,
+  tokenOutSymbol,
+}: {
+  tokenSymbol: string;
+  swapAmount: string;
+  limitOrderAmount: string;
+  txHash: string;
+  swapAmountOut?: string;
+  tokenOutSymbol?: string;
+}) => {
+  toast(
+    <a
+      className="text-white w-full h-full pl-1.5 text-sm flex flex-col "
+      href={`${getConfig().explorerUrl}/txns/${txHash}`}
+      target="_blank"
+      style={{
+        lineHeight: '25px',
+      }}
+    >
+      {!ONLY_ZEROS.test(swapAmount || '0') && (
+        <span className="mr-1 flex flex-col whitespace-nowrap">
+          <span>
+            {ONLY_ZEROS.test(limitOrderAmount || '0') ? (
+              <FormattedMessage
+                id="limit_order_filled"
+                defaultMessage="Limit order filled."
+              />
+            ) : (
+              <FormattedMessage
+                id="limit_order_partially_filled"
+                defaultMessage={'Limit order partially filled.'}
+              />
+            )}
+          </span>
+
+          {
+            <span className="">{`Sold ${swapAmount} ${tokenSymbol} for ${swapAmountOut} ${tokenOutSymbol}.`}</span>
+          }
+        </span>
+      )}
+      {ONLY_ZEROS.test(swapAmount || '0') && (
+        <span className="mr-6 ">
+          <FormattedMessage
+            id="limit_order_created"
+            defaultMessage="Limit order created."
+          />
+        </span>
+      )}
+
+      <span
+        className="text-v3SwapGray hover:text-gradientFrom flex items-center hover:underline"
+        style={{
+          textDecorationThickness: '1px',
+        }}
+      >
+        <FormattedMessage id="click_to_view" defaultMessage="Click to view" />{' '}
+        <BsArrowUpRight size={10} />
+      </span>
+    </a>,
+    {
+      autoClose: 8000,
+      closeOnClick: true,
+      hideProgressBar: false,
+      closeButton: <CloseIcon />,
+      progressStyle: {
+        background: '#00FFD1',
+        borderRadius: '8px',
+      },
+      style: {
+        background: '#1D2932',
+        boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+        borderRadius: '8px',
+        minHeight: '0px',
+      },
+    }
+  );
+};
+
+export const LimitOrderFailPopUp = (txHash: string) => {
+  toast(
+    <a
+      className="text-error w-full h-full pl-1.5 py-1 flex flex-col text-sm"
+      href={`${getConfig().explorerUrl}/txns/${txHash}`}
+      target="_blank"
+      style={{
+        lineHeight: '20px',
+      }}
+    >
+      <span className=" flex items-center">
+        <span className="mr-2.5">
+          <ErrorTriangle />
+        </span>
+
+        <span>
+          {/* <FormattedMessage
+            id="transaction_failed"
+            defaultMessage="Transaction failed"
+          /> */}
+          <FormattedMessage
+            id="limit_order_creation_fails"
+            defaultMessage="Limit order creation fails"
+          />
+          {'. '}
+        </span>
+      </span>
+
+      <span>
+        <span
+          className="underline decoration-1"
+          style={{
+            textDecorationThickness: '1px',
+          }}
+        >
+          <FormattedMessage id="click_to_view" defaultMessage="Click to view" />
+        </span>
+      </span>
+    </a>,
+    {
+      autoClose: false,
+      closeOnClick: true,
+      hideProgressBar: false,
+      closeButton: <CloseIcon />,
+      progressStyle: {
+        background: '#FF7575',
+        borderRadius: '8px',
+      },
+      style: {
+        background: '#1D2932',
+        boxShadow: '0px 0px 10px 10px rgba(0, 0, 0, 0.15)',
+        border: '1px solid #FF7575',
+        borderRadius: '8px',
       },
     }
   );

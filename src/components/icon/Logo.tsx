@@ -3140,9 +3140,9 @@ export const BG_RECTANGLE = () => {
           width="650"
           height="124"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -3182,8 +3182,8 @@ export const BG_RECTANGLE = () => {
           y2="78.4072"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#1D2932" />
-          <stop offset="1" stop-color="#00C6A2" />
+          <stop stopColor="#1D2932" />
+          <stop offset="1" stopColor="#00C6A2" />
         </linearGradient>
       </defs>
     </svg>
@@ -3704,6 +3704,206 @@ export const PoolDaoBannerMobile = () => {
   );
 };
 
+export const NEAR_TEXT = () => {
+  return (
+    <svg
+      width="172"
+      height="43"
+      viewBox="0 0 172 43"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g opacity="0.1">
+        <path
+          d="M37.36 43.0002V1.0002H28.24V26.8602L8.56004 1.0002H0.0400391V43.0002H9.16004V16.3002L29.5 43.0002H37.36Z"
+          fill="url(#paint0_linear_1536_322)"
+        />
+        <path
+          d="M79.4224 43.0002V34.7802H56.6224V25.9602H76.4224V17.7402H56.6224V9.2202H79.1224V1.0002H47.4424V43.0002H79.4224Z"
+          fill="url(#paint1_linear_1536_322)"
+        />
+        <path
+          d="M128.558 43.0002L110.558 0.700195H102.038L84.0377 43.0002H93.4577L97.2977 33.5802H115.058L118.898 43.0002H128.558ZM111.758 25.4202H100.598L106.178 11.8002L111.758 25.4202Z"
+          fill="url(#paint2_linear_1536_322)"
+        />
+        <path
+          d="M171.34 43.0002L161.08 28.0002C166.42 26.0202 170.08 21.7602 170.08 14.9802V14.8602C170.08 6.2202 164.14 1.0002 154.24 1.0002H135.04V43.0002H144.28V29.5602H151.54L160.54 43.0002H171.34ZM160.72 15.4602C160.72 19.0002 158.14 21.4002 153.64 21.4002H144.28V9.34019H153.46C157.96 9.34019 160.72 11.3802 160.72 15.3402V15.4602Z"
+          fill="url(#paint3_linear_1536_322)"
+        />
+      </g>
+      <defs>
+        <linearGradient
+          id="paint0_linear_1536_322"
+          x1="84.5"
+          y1="-2"
+          x2="84.5"
+          y2="53"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_1536_322"
+          x1="84.5"
+          y1="-2"
+          x2="84.5"
+          y2="53"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
+        </linearGradient>
+        <linearGradient
+          id="paint2_linear_1536_322"
+          x1="84.5"
+          y1="-2"
+          x2="84.5"
+          y2="53"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
+        </linearGradient>
+        <linearGradient
+          id="paint3_linear_1536_322"
+          x1="84.5"
+          y1="-2"
+          x2="84.5"
+          y2="53"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+export const BTC_TEXT = () => {
+  return (
+    <svg
+      width="117"
+      height="44"
+      viewBox="0 0 117 44"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g opacity="0.1">
+        <path
+          d="M35.7 31.2V31.08C35.7 25.44 32.7 22.62 27.84 20.76C30.84 19.08 33.36 16.44 33.36 11.7V11.58C33.36 4.98 28.08 0.719998 19.5 0.719998H0V42.72H19.98C29.46 42.72 35.7 38.88 35.7 31.2ZM24.18 13.26C24.18 16.38 21.6 17.7 17.52 17.7H9V8.82H18.12C22.02 8.82 24.18 10.38 24.18 13.14V13.26ZM26.52 30.06C26.52 33.18 24.06 34.62 19.98 34.62H9V25.38H19.68C24.42 25.38 26.52 27.12 26.52 29.94V30.06Z"
+          fill="url(#paint0_linear_1536_247)"
+        />
+        <path
+          d="M74.5148 9.24V0.719998H39.7148V9.24H52.4948V42.72H61.7348V9.24H74.5148Z"
+          fill="url(#paint1_linear_1536_247)"
+        />
+        <path
+          d="M116.705 35.94L110.825 30C107.525 33 104.585 34.92 99.7847 34.92C92.5847 34.92 87.6047 28.92 87.6047 21.72V21.6C87.6047 14.4 92.7047 8.52 99.7847 8.52C103.985 8.52 107.285 10.32 110.525 13.26L116.405 6.48C112.505 2.64 107.765 0 99.8447 0C86.9447 0 77.9447 9.78 77.9447 21.72V21.84C77.9447 33.9 87.1247 43.44 99.4847 43.44C107.585 43.44 112.385 40.56 116.705 35.94Z"
+          fill="url(#paint2_linear_1536_247)"
+        />
+      </g>
+      <defs>
+        <linearGradient
+          id="paint0_linear_1536_247"
+          x1="56.5615"
+          y1="-2.28027"
+          x2="56.5615"
+          y2="52.7197"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_1536_247"
+          x1="56.5615"
+          y1="-2.28027"
+          x2="56.5615"
+          y2="52.7197"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
+        </linearGradient>
+        <linearGradient
+          id="paint2_linear_1536_247"
+          x1="56.5615"
+          y1="-2.28027"
+          x2="56.5615"
+          y2="52.7197"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+export const USD_TEXT = () => {
+  return (
+    <svg
+      width="124"
+      height="44"
+      viewBox="0 0 124 44"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g opacity="0.1">
+        <path
+          d="M37.3159 24.3V0.599999H28.0759V24.66C28.0759 31.32 24.6559 34.74 19.0159 34.74C13.3759 34.74 9.95594 31.2 9.95594 24.36V0.599999H0.715942V24.6C0.715942 36.96 7.61594 43.26 18.8959 43.26C30.1759 43.26 37.3159 37.02 37.3159 24.3Z"
+          fill="url(#paint0_linear_1536_104)"
+        />
+        <path
+          d="M77.0875 30.18V30.06C77.0875 22.74 72.2875 19.68 63.7675 17.46C56.5075 15.6 54.7075 14.7 54.7075 11.94V11.82C54.7075 9.78 56.5675 8.16 60.1075 8.16C63.6475 8.16 67.3075 9.72 71.0275 12.3L75.8275 5.34C71.5675 1.92 66.3475 0 60.2275 0C51.6475 0 45.5275 5.04 45.5275 12.66V12.78C45.5275 21.12 50.9875 23.46 59.4475 25.62C66.4675 27.42 67.9075 28.62 67.9075 30.96V31.08C67.9075 33.54 65.6275 35.04 61.8475 35.04C57.0475 35.04 53.0875 33.06 49.3075 29.94L43.8475 36.48C48.8875 40.98 55.3075 43.2 61.6675 43.2C70.7275 43.2 77.0875 38.52 77.0875 30.18Z"
+          fill="url(#paint1_linear_1536_104)"
+        />
+        <path
+          d="M123.806 21.6V21.48C123.806 9.66 114.686 0.599999 101.486 0.599999H85.1064V42.6H101.486C114.686 42.6 123.806 33.42 123.806 21.6ZM114.146 21.72C114.146 29.16 109.046 34.26 101.486 34.26H94.3464V8.94H101.486C109.046 8.94 114.146 14.16 114.146 21.6V21.72Z"
+          fill="url(#paint2_linear_1536_104)"
+        />
+      </g>
+      <defs>
+        <linearGradient
+          id="paint0_linear_1536_104"
+          x1="61.5"
+          y1="-2.3999"
+          x2="61.5"
+          y2="52.6001"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_1536_104"
+          x1="61.5"
+          y1="-2.3999"
+          x2="61.5"
+          y2="52.6001"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
+        </linearGradient>
+        <linearGradient
+          id="paint2_linear_1536_104"
+          x1="61.5"
+          y1="-2.3999"
+          x2="61.5"
+          y2="52.6001"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#7E8A93" />
+          <stop offset="1" stopColor="#7E8A93" stop-opacity="0.29" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
 export const HeavyWarning = () => {
   return (
     <svg
@@ -3732,8 +3932,8 @@ export const HeavyWarning = () => {
           y2="63"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FFDC49" />
-          <stop offset="1" stop-color="#00A88A" />
+          <stop stopColor="#FFDC49" />
+          <stop offset="1" stopColor="#00A88A" />
         </linearGradient>
       </defs>
     </svg>
