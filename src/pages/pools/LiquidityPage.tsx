@@ -1795,6 +1795,8 @@ function LiquidityPage_({
     }
   };
 
+  const [searchFocus, setSearchFocus] = useState(false);
+
   const poolv2FilterFunc = (p: PoolInfo) => {
     return (
       _.includes(
@@ -1821,20 +1823,10 @@ function LiquidityPage_({
   return (
     <>
       <PoolTabV3></PoolTabV3>
-      {/* w-4/6 lg:w-5/6 xl:w-3/4 */}
       <div className="flex flex-col whitespace-nowrap w-1000px m-auto ">
         {/* start pool card */}
         {!!getConfig().REF_VE_CONTRACT_ID ? (
           <div className={` mt-5 mb-3`}>
-            {/* <div className="flex items-center">
-              <span className="text-white text-lg ml-8 mr-2">
-                <FormattedMessage
-                  id="start_pool"
-                  defaultMessage={'Star Pool'}
-                />
-              </span>
-          
-            </div> */}
             <Card
               className="mt-2  relative flex items-center "
               width="w-full"
@@ -1990,9 +1982,10 @@ function LiquidityPage_({
 
           <div className="flex items-center justify-end relative ">
             <div
-              className="relative rounded-xl border border-navHighLightBg w-full my-2 text-white  flex items-center pr-2 "
+              className={`relative rounded-xl border w-full my-2 text-white  flex items-center pr-2 `}
               style={{
                 background: 'rgba(34, 46, 56, 0.2)',
+                border: searchFocus ? '1px solid #3A635B' : '1px solid #304452',
               }}
             >
               <input
@@ -2002,11 +1995,22 @@ function LiquidityPage_({
                   id: 'search_pool_by_token',
                   defaultMessage: 'Search pool by token...',
                 })}
+                onFocus={() => {
+                  setSearchFocus(true);
+                }}
+                onBlur={() => {
+                  setSearchFocus(false);
+                }}
                 onChange={(evt) => {
                   onSearch(evt.target.value);
                 }}
               />
-              <SearchIcon className="absolute right-2"></SearchIcon>
+              <SearchIcon
+                style={{
+                  opacity: searchFocus ? '1' : '0.5',
+                }}
+                className="absolute right-2"
+              ></SearchIcon>
             </div>
 
             {isSignedIn && (activeTab === 'v1' || activeTab === 'v2') ? (

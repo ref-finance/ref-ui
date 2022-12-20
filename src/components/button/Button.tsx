@@ -1022,6 +1022,7 @@ export const BuyNearButton = () => {
         e.stopPropagation();
         openTransak(wallet.getAccountId() || '');
       }}
+      className='relative z-50'
       onMouseEnter={() => {
         setHover(true);
       }}

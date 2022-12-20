@@ -224,7 +224,7 @@ export default function YourLiquidityPageV3() {
         YourLpValueV1={YourLpValueV1}
         YourLpValueV2={YourLpValueV2}
       ></PoolTabV3>
-      <div className="flex items flex-col lg:w-4/5 xl:w-3/5 xs:w-11/12 md:w-11/12 m-auto">
+      <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto">
         <div className="flex items-start justify-between lg:mt-4 xs:mb-5 md:mb-5">
           <div className="flex items-center">
             <div className="flex items-center text-sm text-primaryText border border-selectBorder p-0.5 rounded-lg bg-v3LiquidityTabBgColor">
@@ -255,7 +255,9 @@ export default function YourLiquidityPageV3() {
             </div>
           </div>
           <div
-            className="relative pb-10 xs:pb-0 md:pb-0"
+            className={`relative  ${
+              isSignedIn ? '' : 'hidden'
+            } pb-10 xs:pb-0 md:pb-0`}
             onMouseOver={() => {
               setAddLiqudityHover(true);
             }}
