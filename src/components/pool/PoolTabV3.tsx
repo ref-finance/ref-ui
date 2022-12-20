@@ -195,7 +195,7 @@ export const PoolTabV3 = ({
                         {!allTVL
                           ? '-'
                           : `$` +
-                            toInternationalCurrencySystemLongString(allTVL, 0)}
+                            toInternationalCurrencySystemLongString(allTVL, 2)}
                       </span>
 
                       <span className="text-sm text-primaryText gotham_font">
@@ -214,7 +214,7 @@ export const PoolTabV3 = ({
                           : `$` +
                             toInternationalCurrencySystemLongString(
                               allVolume24h,
-                              0
+                              2
                             )}
                       </span>
 

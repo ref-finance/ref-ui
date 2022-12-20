@@ -119,6 +119,15 @@ export default function YourLiquidityPageV3() {
   const [lpValueV2Done, setLpValueV2Done] = useState(false);
   console.log('lpValueV2Done: ', lpValueV2Done);
 
+  useEffect(() => {
+    if (!listLiquiditiesLoading) {
+      if (listLiquidities.length === 0) {
+        setLpValueV2Done(true);
+        setYourLpValueV2('0')
+      }
+    }
+  }, [listLiquiditiesLoading, listLiquidities]);
+
   const [generalAddLiquidity, setGeneralAddLiquidity] =
     useState<boolean>(false);
   const [checkedStatus, setCheckedStatus] = useState('all');

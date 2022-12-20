@@ -212,6 +212,7 @@ export function YourLiquidityPage(props: any) {
   const { checkedStatus, listLiquidities, listLiquiditiesLoading } = props;
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
+  console.log('pools: ', pools);
 
   const { v1Farm, v2Farm } = useAllFarms();
 
@@ -231,6 +232,7 @@ export function YourLiquidityPage(props: any) {
   }
 
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
+  console.log('stablePools: ', stablePools);
 
   const [tvls, setTvls] = useState<Record<string, number>>();
 
@@ -411,18 +413,28 @@ export function YourLiquidityPage(props: any) {
     batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
 
   if (+count == 0 && !listLiquiditiesLoading && listLiquidities.length == 0) {
-    setLpValueV1Done(true);
-    setYourLpValueV1('0');
     return <NoLiquidity></NoLiquidity>;
   } else if (listLiquidities.length > 0 && +count == 0) {
-    setLpValueV1Done(true);
-    setYourLpValueV1('0');
     return (
       <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
         <div className="text-white text-base mb-3">V1 (0)</div>
         <NoLiquidity text="V1"></NoLiquidity>
       </div>
     );
+  }
+
+  const lpCount =
+    (!vePool || !getConfig().REF_VE_CONTRACT_ID ? 0 : 1) +
+    (batchTotalShares && batchTotalShares?.some((s) => s > 0)
+      ? stablePools?.length || 0
+      : 0) +
+    pools.filter(
+      (p) => !getConfig().REF_VE_CONTRACT_ID || !vePool || p.id !== vePool.id
+    ).length;
+
+  if (lpCount === 0) {
+    setLpValueV1Done(true);
+    setYourLpValueV1('0');
   }
 
   return (
@@ -498,7 +510,7 @@ export function YourLiquidityPage(props: any) {
                               <RowRender
                                 p={p}
                                 ids={p.token_account_ids}
-                                count={count}
+                                count={lpCount}
                                 setLpValueV1Done={setLpValueV1Done}
                                 setYourLpValueV1={setYourLpValueV1}
                                 shares={
@@ -515,7 +527,7 @@ export function YourLiquidityPage(props: any) {
                         stablePools?.map((p, i) => {
                           return (
                             <RowRender
-                              count={count}
+                              count={lpCount}
                               p={p}
                               ids={p.token_account_ids}
                               shares={batchStableShares?.[i] || ''}
@@ -535,7 +547,7 @@ export function YourLiquidityPage(props: any) {
                         .map((p, i) => {
                           return (
                             <RowRender
-                              count={count}
+                              count={lpCount}
                               setLpValueV1Done={setLpValueV1Done}
                               setYourLpValueV1={setYourLpValueV1}
                               shares={
@@ -727,38 +739,6 @@ function PoolRow(props: {
         divide(poolTVL.toString(), pool?.shareSupply)
       );
 
-      // const storagedValueString = sessionStorage.getItem(REF_FI_YOUR_LP_VALUE);
-
-      // const storagedValue = storagedValueString
-      //   ? JSON.parse(storagedValueString)
-      //   : {};
-
-      // storagedValue[pool.id] = rawRes;
-
-      // sessionStorage.setItem(
-      //   REF_FI_YOUR_LP_VALUE,
-      //   JSON.stringify(storagedValue)
-      // );
-
-      // if (storagedValueString && Object.keys(storagedValue).length === count) {
-      //   const values = Object.values(storagedValue) as string[];
-
-      //   setYourLpValueV1(
-      //     values
-      //       .reduce(
-      //         (acc, cur, i) => {
-      //           return new Big(acc).plus(
-      //             new Big(cur === 'NAN' ? '0' : cur || '0')
-      //           );
-      //         },
-
-      //         new Big(0)
-      //       )
-      //       .toFixed(3)
-      //   );
-      //   setLpValueV1Done(true);
-      // }
-
       return `$${toInternationalCurrencySystem(rawRes, 2)}`;
     } catch (error) {
       return '-';
@@ -787,6 +767,7 @@ function PoolRow(props: {
 
     sessionStorage.setItem(REF_FI_YOUR_LP_VALUE, JSON.stringify(storagedValue));
 
+    console.log(count, 'count', pool.id, rawRes, storagedValue);
     if (storagedValueString && Object.keys(storagedValue).length === count) {
       const values = Object.values(storagedValue) as string[];
 
