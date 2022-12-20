@@ -39,7 +39,10 @@ import {
   YourLiquidityAddLiquidityModal,
   YourLiquidityPage,
 } from '../pools/YourLiquidityPage';
-import { WalletContext } from '../../utils/wallets-integration';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 
 import {
   MyOrderCircle,
@@ -47,7 +50,7 @@ import {
   MyOrderMask2,
 } from '~components/icon/swapV3';
 import { PoolRPCView } from '../../services/api';
-import { ALL_STABLE_POOL_IDS } from '../../services/near';
+import { ALL_STABLE_POOL_IDS, REF_FI_CONTRACT_ID } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
 import {
   ClipLoadering,
@@ -57,6 +60,9 @@ import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import Big from 'big.js';
 import { ConnectToNearBtnSwap } from '../../components/button/Button';
+import { getURLInfo } from '../../components/layout/transactionTipPopUp';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { checkTransactionStatus } from '../../services/swap';
 import {
   REF_FI_YOUR_LP_VALUE,
   REF_FI_YOUR_LP_VALUE_V1_COUNT,
@@ -103,7 +109,6 @@ export default function YourLiquidityPageV3() {
     useState(true);
 
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
-  console.log('YourLpValueV2: ', YourLpValueV2);
 
   const [YourLpValueV1, setYourLpValueV1] = useState('0');
   console.log('YourLpValueV1: ', YourLpValueV1);
@@ -159,6 +164,57 @@ export default function YourLiquidityPageV3() {
     const result: string = `<div class="text-navHighLightText text-xs text-left">${n}</div>`;
     return result;
   }
+
+  const { txHash } = getURLInfo();
+
+  const { accountId } = useWalletSelector();
+
+  useEffect(() => {
+    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
+      checkTransactionStatus(txHash).then((res) => {
+        let status: any = res.status;
+
+        if (
+          res.transaction?.actions?.[0]?.FunctionCall?.method_name === 'execute'
+        ) {
+          let receipt = res?.receipts_outcome?.find(
+            (o: any) => o?.outcome?.executor_id === REF_FI_CONTRACT_ID
+          );
+
+          if (receipt) {
+            status = receipt?.outcome?.status;
+
+            // not create pool
+            if (
+              res?.receipts_outcome?.some((o: any) => {
+                return (
+                  o?.outcome?.executor_id !== REF_FI_CONTRACT_ID &&
+                  o?.outcome?.executor_id !== accountId
+                );
+              })
+            ) {
+              return;
+            }
+            if (receipt?.outcome?.logs.length > 0) {
+              return;
+            }
+          } else return;
+        } else if (
+          res.transaction?.actions?.[0]?.FunctionCall?.method_name !==
+          'add_simple_pool'
+        ) {
+          return;
+        }
+
+        const data: string | undefined = status.SuccessValue;
+        if (data) {
+          const buff = Buffer.from(data, 'base64');
+          const pool_id = buff.toString('ascii');
+          history.push(`/pool/${pool_id}`);
+        }
+      });
+    }
+  }, [txHash]);
   return (
     <>
       <PoolTabV3
@@ -249,10 +305,7 @@ export default function YourLiquidityPageV3() {
             </span>
           </div>
         </div>
-        {!isSignedIn ||
-        (oldLiquidityHasNoData &&
-          !listLiquiditiesLoading &&
-          listLiquidities.length == 0) ? (
+        {!isSignedIn ? (
           <NoLiquidity></NoLiquidity>
         ) : (
           <>
@@ -265,14 +318,7 @@ export default function YourLiquidityPageV3() {
               </div>
             ) : (
               <>
-                {listLiquidities.length == 0 ? (
-                  <div
-                    className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
-                  >
-                    <div className="text-white text-base mb-3">V2 (0)</div>
-                    <NoLiquidity text="V2"></NoLiquidity>
-                  </div>
-                ) : (
+                {listLiquidities.length > 0 ? (
                   <div
                     className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
                   >
@@ -302,10 +348,10 @@ export default function YourLiquidityPageV3() {
                           return (
                             <div key={index}>
                               <UserLiquidityLine
-                                setLpValueV2Done={setLpValueV2Done}
-                                liquidity={liquidity}
                                 lpSize={listLiquidities.length}
+                                setLpValueV2Done={setLpValueV2Done}
                                 setYourLpValueV2={setYourLpValueV2}
+                                liquidity={liquidity}
                               ></UserLiquidityLine>
                             </div>
                           );
@@ -313,23 +359,17 @@ export default function YourLiquidityPageV3() {
                       )}
                     </div>
                   </div>
-                )}
+                ) : null}
               </>
             )}
-            {oldLiquidityHasNoData ? (
-              <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
-                <div className="text-white text-base mb-3">V1 (0)</div>
-                <NoLiquidity text="V1"></NoLiquidity>
-              </div>
-            ) : (
-              <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
-                <YourLiquidityPage
-                  setNoOldLiquidity={setNoOldLiquidity}
-                  setLpValueV1Done={setLpValueV1Done}
-                  setYourLpValueV1={setYourLpValueV1}
-                ></YourLiquidityPage>
-              </div>
-            )}
+            <YourLiquidityPage
+              setNoOldLiquidity={setNoOldLiquidity}
+              setLpValueV1Done={setLpValueV1Done}
+              setYourLpValueV1={setYourLpValueV1}
+              checkedStatus={checkedStatus}
+              listLiquidities={listLiquidities}
+              listLiquiditiesLoading={listLiquiditiesLoading}
+            ></YourLiquidityPage>
           </>
         )}
       </div>
@@ -1027,8 +1067,7 @@ function UserLiquidityLine({
     </div>
   );
 }
-
-function NoLiquidity({ text }: { text?: string }) {
+export function NoLiquidity({ text }: { text?: string }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   return (

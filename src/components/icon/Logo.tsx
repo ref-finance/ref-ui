@@ -3149,9 +3149,9 @@ export const BG_RECTANGLE = () => {
           width="591"
           height="106"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -3191,8 +3191,8 @@ export const BG_RECTANGLE = () => {
           y2="65.8914"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#031826" />
-          <stop offset="1" stop-color="#00C6A2" />
+          <stop stopColor="#1D2932" />
+          <stop offset="1" stopColor="#00C6A2" />
         </linearGradient>
       </defs>
     </svg>

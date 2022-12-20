@@ -370,10 +370,6 @@ export const getPoolsByTokens = async ({
       );
     }
 
-    console.log({
-      triPools,
-    });
-
     if (triPools && triPools.length > 0) {
       sessionStorage.setItem(
         `REF_FI_TRI_POOL_` + PAIR_NAME,

@@ -1455,10 +1455,6 @@ export const CrossSwapAllResult = ({
     setSelectReceive(bestReceived || null);
   }, [bestReceived, supportLedger]);
 
-  console.log({
-    selectTodos,
-  });
-
   if (!results || results.length === 0 || !selectTodos) return null;
 
   return (

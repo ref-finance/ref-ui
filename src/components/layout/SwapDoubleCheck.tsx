@@ -415,6 +415,11 @@ export function DoubleCheckModalLimit(
         <div className="flex items-center w-full mt-5">
           <GradientButton
             onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+
+              if (buttonLoading) return;
+
               setButtonLoading(true);
               onSwap();
             }}

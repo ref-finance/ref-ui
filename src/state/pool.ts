@@ -411,8 +411,6 @@ export const useMorePools = ({
   useEffect(() => {
     if (!morePools || morePools.length === 0) return;
 
-    console.log(morePools);
-
     get24hVolumes(morePools.map((pool) => pool.id.toString())).then((res) => {
       const volumePools = morePools.map((p, i) => {
         return {

@@ -1564,11 +1564,6 @@ export default function SwapCard(props: {
     setLoadingTrigger,
   });
 
-  console.log({
-    tokenOutAmount,
-    tokenOutAmountV3,
-  });
-
   const {
     poolPercents,
     fee: mostPoolFeeLimit,

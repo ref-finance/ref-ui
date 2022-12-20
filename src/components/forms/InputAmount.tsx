@@ -372,7 +372,6 @@ export function InputAmountV3({
             type="number"
             placeholder={forLimitOrder ? '-' : '0.0'}
             onChange={({ target }) => {
-              console.log(target.value);
               ref.current.setCustomValidity('');
 
               handleChange(target.value);
