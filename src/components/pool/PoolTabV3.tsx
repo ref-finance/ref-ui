@@ -270,7 +270,7 @@ export const PoolTabV3 = ({
                     goPage('/pools');
                   }}
                 >
-                  <FormattedMessage id={'POOL'} defaultMessage={'POOLS'} />
+                  <FormattedMessage id={'pools'} defaultMessage={'Pools'} />
                 </span>
                 <span
                   className={`flex items-center justify-center h-full  flex-grow text-center cursor-pointer ${
@@ -287,7 +287,11 @@ export const PoolTabV3 = ({
                   {!isNaN(countV1) &&
                     !isNaN(countV2) &&
                     !listLiquiditiesLoading && (
-                      <span className="bg-senderHot gotham_bold bg-opacity-30  py-0.5 px-2 ml-2 rounded-t-xl rounded-br-xl text-base text-black">
+                      <span
+                        className={`bg-senderHot gotham_bold ${
+                          !yourLPpage ? 'bg-opacity-30' : ''
+                        }   py-0.5 px-2 ml-2 rounded-t-xl rounded-br-xl text-base text-black`}
+                      >
                         {countV1 + countV2}
                       </span>
                     )}

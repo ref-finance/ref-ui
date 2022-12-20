@@ -1904,9 +1904,9 @@ function LiquidityPage_({
 
         <div className={`flex items-center justify-between mb-4 ${'mt-5'} `}>
           <div className=" flex text-base items-center rounded-xl p-1">
-            <div className="bg-cardBg flex items-center rounded-xl">
+            <div className="bg-cardBg p-1 h-10 flex items-center rounded-xl">
               <button
-                className={` h-10  hover:bg-viewPoolHoverBgColor border-primaryText px-4 flex items-center justify-center ${
+                className={` h-full  hover:bg-viewPoolHoverBgColor border-primaryText px-4 flex items-center justify-center ${
                   activeTab === 'v2' ? 'text-white' : 'text-primaryText'
                 } `}
                 style={{
@@ -1934,7 +1934,7 @@ function LiquidityPage_({
               )}
 
               <button
-                className={` h-10 flex  hover:bg-viewPoolHoverBgColor  px-4 items-center justify-center ${
+                className={` h-full flex  hover:bg-viewPoolHoverBgColor  px-4 items-center justify-center ${
                   activeTab === 'v1' ? 'text-white' : 'text-primaryText'
                 } `}
                 style={{
@@ -3120,7 +3120,7 @@ function StablePoolCard({
 
         <div className="w-7/12 flex  xs:hidden md:hidden items-center">
           <div
-            className="col-span-1 w-32 py-1 text-lg relative xl:right-8 lg:right-12"
+            className="col-span-1 w-32 py-1 text-lg relative right-3"
             title={h24volume}
           >
             {!h24volume
