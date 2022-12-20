@@ -1677,6 +1677,7 @@ function LiquidityPage_({
   switchActiveTab,
   watchV2Pools,
   watchList,
+  h24VolumeV2,
 }: {
   pools: Pool[];
   switchActiveTab: (tab: string) => void;
@@ -1689,6 +1690,7 @@ function LiquidityPage_({
   order: string;
   onHide: (mode: Boolean) => void;
   allPools: number;
+  h24VolumeV2: string;
   farmOnly: boolean;
   setFarmOnly: (farmOnly: boolean) => void;
   hasMore: boolean;
@@ -1706,6 +1708,25 @@ function LiquidityPage_({
   const inputRef = useRef(null);
 
   const allPoolsV2 = useAllPoolsV2();
+
+  const [tvlV2, setTvlV2] = useState<string>();
+  console.log('tvlV2: ', tvlV2, allPoolsV2);
+
+  useEffect(() => {
+    if (
+      typeof allPoolsV2 === 'undefined' ||
+      allPoolsV2.length === 0 ||
+      allPoolsV2.every((p) => !p?.tvl)
+    )
+      return;
+
+    const tvl = allPoolsV2.reduce(
+      (a, b) => new Big(a || '0').plus(new Big(b.tvl || '0')),
+      new Big(0)
+    );
+
+    setTvlV2(scientificNotationToString(tvl.toString()));
+  }, [allPoolsV2]);
 
   const selectTokens = useRainbowWhitelistTokens();
 
@@ -1822,7 +1843,7 @@ function LiquidityPage_({
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
   return (
     <>
-      <PoolTabV3></PoolTabV3>
+      <PoolTabV3 h24VolumeV2={h24VolumeV2} tvlV2={tvlV2}></PoolTabV3>
       <div className="flex flex-col whitespace-nowrap w-1000px m-auto ">
         {/* start pool card */}
         {!!getConfig().REF_VE_CONTRACT_ID ? (
@@ -2612,6 +2633,19 @@ export function LiquidityPage() {
 
   const watchPoolVolumes = useDayVolumesPools(watchPools.map((p) => p.id));
   const v3PoolVolumes = useV3VolumesPools();
+  console.log('v3PoolVolumes: ', v3PoolVolumes);
+  const [h24VolumeV2, setH24VolumeV2] = useState<string>();
+
+  useEffect(() => {
+    if (Object.keys(v3PoolVolumes).length > 0) {
+      const h24Volume = Object.values(v3PoolVolumes).reduce(
+        (a, b) => new Big(a || '0').plus(new Big(b || '0')),
+        new Big(0)
+      );
+
+      setH24VolumeV2(scientificNotationToString(h24Volume.toString()));
+    }
+  }, [v3PoolVolumes]);
 
   const allVolumes = { ...watchPoolVolumes, ...volumes, ...v3PoolVolumes };
 
@@ -2624,6 +2658,7 @@ export function LiquidityPage() {
         <LiquidityPage_
           poolTokenMetas={poolTokenMetas}
           activeTab={activeTab}
+          h24VolumeV2={h24VolumeV2}
           switchActiveTab={switchActiveTab}
           tokenName={tokenName}
           pools={displayPools}

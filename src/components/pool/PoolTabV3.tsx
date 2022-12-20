@@ -49,6 +49,8 @@ export const PoolTabV3 = ({
   YourLpValueV2,
   lpValueV1Done,
   lpValueV2Done,
+  h24VolumeV2,
+  tvlV2,
 }: {
   count?: number;
   yourLPpage?: boolean;
@@ -56,6 +58,8 @@ export const PoolTabV3 = ({
   YourLpValueV1?: string;
   lpValueV1Done?: boolean;
   lpValueV2Done?: boolean;
+  tvlV2?: string | undefined;
+  h24VolumeV2?: string | undefined;
 }) => {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -190,10 +194,13 @@ export const PoolTabV3 = ({
                   {!yourLPpage && (
                     <div className="flex flex-col ml-8 mr-12">
                       <span className="text-white text-xl  gotham_bold">
-                        {!allTVL
+                        {!allTVL || typeof tvlV2 === 'undefined'
                           ? '-'
                           : `$` +
-                            toInternationalCurrencySystemLongString(allTVL, 2)}
+                            toInternationalCurrencySystemLongString(
+                              new Big(allTVL || '0').plus(tvlV2).toFixed(3),
+                              2
+                            )}
                       </span>
 
                       <span className="text-sm text-primaryText gotham_font">
@@ -207,11 +214,13 @@ export const PoolTabV3 = ({
                   {!yourLPpage && (
                     <div className="flex flex-col">
                       <span className="text-white text-xl  gotham_bold">
-                        {!allVolume24h
+                        {!allVolume24h || typeof h24VolumeV2 === 'undefined'
                           ? '-'
                           : `$` +
                             toInternationalCurrencySystemLongString(
-                              allVolume24h,
+                              new Big(allVolume24h)
+                                .plus(h24VolumeV2)
+                                .toFixed(3),
                               2
                             )}
                       </span>
