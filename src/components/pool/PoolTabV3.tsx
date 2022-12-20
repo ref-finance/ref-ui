@@ -164,9 +164,7 @@ export const PoolTabV3 = ({
         return cur > 0 ? acc + 1 : acc;
       }, 0) +
     batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
-  console.log('countV1: ', countV1);
 
-  console.log('countV2: ', countV2);
   return (
     <>
       {!isMobile ? (
