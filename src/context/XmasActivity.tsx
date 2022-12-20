@@ -133,7 +133,7 @@ function XmaxPopUP({
 
         <div>
           <span
-            className="underline cursor-pointer"
+            className="underline relative cursor-pointer z-50"
             onClick={() => {
               window.open(
                 'https://twitter.com/finance_ref/status/1604878692702113792'
