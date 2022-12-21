@@ -288,9 +288,12 @@ export const PoolTabV3 = ({
                     !isNaN(countV2) &&
                     !listLiquiditiesLoading && (
                       <span
-                        className={`bg-senderHot gotham_bold ${
+                        className={`bg-senderHot flex items-center justify-center gotham_bold ${
                           !yourLPpage ? 'bg-opacity-30' : ''
-                        }   py-0.5 px-2 ml-2 rounded-t-xl rounded-br-xl text-base text-black`}
+                        }   px-2.5 ml-2 rounded-t-xl rounded-br-xl text-sm text-black`}
+                        style={{
+                          height: '18px',
+                        }}
                       >
                         {countV1 + countV2}
                       </span>

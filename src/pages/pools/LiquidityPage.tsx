@@ -1539,7 +1539,7 @@ function WatchListCard({
   const watchAllPools = getAllWatchPools();
 
   function v1PoolFilter(p: Pool) {
-    return poolTokenMetas[p.id].some((t: any) =>
+    return poolTokenMetas?.[p.id]?.some((t: any) =>
       _.includes(t.symbol.toLowerCase(), tokenName.toLowerCase())
     );
   }
@@ -1850,7 +1850,7 @@ function LiquidityPage_({
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
 
-    return poolTokenMetas[p.id].some((tk: TokenMetadata) =>
+    return poolTokenMetas?.[p.id]?.some((tk: TokenMetadata) =>
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
   };
