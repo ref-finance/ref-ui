@@ -229,7 +229,7 @@ export const AddPoolV3 = (props: any) => {
         +tokenYAmount > 0 &&
         new BigNumber(
           getMax(tokenY, tokenYBalanceFromNear)
-        ).isGreaterThanOrEqualTo(+tokenYAmount);
+        ).isGreaterThanOrEqualTo(tokenYAmount);
       if (+tokenYAmount > 0 && !condition) {
         not_enough_token = tokenY;
       }
@@ -243,7 +243,7 @@ export const AddPoolV3 = (props: any) => {
         +tokenYAmount > 0 &&
         new BigNumber(
           getMax(tokenY, tokenYBalanceFromNear)
-        ).isGreaterThanOrEqualTo(+tokenYAmount);
+        ).isGreaterThanOrEqualTo(tokenYAmount);
       condition = condition_x && condition_y;
       if (+tokenXAmount > 0 && !condition_x) {
         not_enough_token = tokenX;
