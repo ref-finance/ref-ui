@@ -71,7 +71,7 @@ export const PoolTabV3 = ({
 
   const [allVolume24h, setAllVolume24h] = useState<string>();
   console.log('allVolume24h: ', allVolume24h);
-
+  console.log(h24VolumeV2, 'h24bolume');
   useEffect(() => {
     getAllTvl().then(setAllTVL);
     getAllVolume24h().then(setAllVolume24h);
@@ -197,7 +197,7 @@ export const PoolTabV3 = ({
                         {!allTVL || typeof tvlV2 === 'undefined'
                           ? '-'
                           : `$` +
-                            toInternationalCurrencySystemLongString(
+                            toInternationalCurrencySystem(
                               new Big(allTVL || '0').plus(tvlV2).toFixed(3),
                               2
                             )}
@@ -217,7 +217,7 @@ export const PoolTabV3 = ({
                         {!allVolume24h || typeof h24VolumeV2 === 'undefined'
                           ? '-'
                           : `$` +
-                            toInternationalCurrencySystemLongString(
+                            toInternationalCurrencySystem(
                               new Big(allVolume24h)
                                 .plus(h24VolumeV2)
                                 .toFixed(3),
@@ -242,7 +242,7 @@ export const PoolTabV3 = ({
                       ) : (
                         <span className="text-white text-xl  gotham_bold">
                           $
-                          {toInternationalCurrencySystemLongString(
+                          {toInternationalCurrencySystem(
                             new Big(YourLpValueV1)
                               .plus(YourLpValueV2)
                               .toFixed(2),

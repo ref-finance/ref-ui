@@ -86,7 +86,7 @@ import {
   WalletContext,
   getCurrentWallet,
 } from '../../utils/wallets-integration';
-import { unwrapedNear } from '../../services/wrap-near';
+import { unwrapedNear, wnearMetadata } from '../../services/wrap-near';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { getVEPoolId } from '../ReferendumPage';
 import { StartPoolIcon } from '../../components/icon/WatchListStar';
@@ -1507,6 +1507,7 @@ function WatchListCard({
   watchV2Pools,
   poolsMorePoolsIds,
   watchList,
+  tokenName,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
@@ -1515,6 +1516,7 @@ function WatchListCard({
   watchV2Pools: PoolInfo[];
   poolsMorePoolsIds: Record<string, string[]>;
   watchList: WatchList[];
+  tokenName: string;
 }) {
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
   function getAllWatchPools() {
@@ -1535,23 +1537,29 @@ function WatchListCard({
     return watchAllPools;
   }
   const watchAllPools = getAllWatchPools();
+
+  function v1PoolFilter(p: Pool) {
+    return poolTokenMetas[p.id].some((t: any) =>
+      _.includes(t.symbol.toLowerCase(), tokenName.toLowerCase())
+    );
+  }
+
+  function v2PoolFilter(p: PoolInfo) {
+    return (
+      _.includes(
+        p.token_x_metadata.symbol.toLowerCase(),
+        tokenName.toLowerCase()
+      ) ||
+      _.includes(
+        p.token_y_metadata.symbol.toLowerCase(),
+        tokenName.toLowerCase()
+      )
+    );
+  }
+
   return (
     <>
       <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">
-        {/* <div className="mx-8 flex items-center">
-          <div
-            className={`text-${
-              watchPools?.length > 0 ? 'white' : 'gray-400'
-            } text-lg`}
-          >
-            <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
-          </div>
-          <QuestionTip id="my_watchlist_copy" />
-
-          <span className="text-sm text-primaryText ml-3">
-            {totalWatchList_length || ''}
-          </span>
-        </div> */}
         <section className="">
           <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
             <div className="col-span-3 md:col-span-4 flex">
@@ -1584,39 +1592,47 @@ function WatchListCard({
           </header>
 
           <div className="max-h-96 overflow-y-auto">
-            {watchAllPools.map((pool: any, i: number) => {
-              if (pool.id?.toString()) {
-                return (
-                  <div
-                    className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
-                    key={i}
-                  >
-                    <PoolRow
+            {watchAllPools
+              .filter((p: any) => {
+                if (p.id?.toString()) {
+                  return v1PoolFilter(p);
+                } else if (p.pool_id) {
+                  return v2PoolFilter(p);
+                }
+              })
+              .map((pool: any, i: number) => {
+                if (pool.id?.toString()) {
+                  return (
+                    <div
+                      className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
+                      key={i}
+                    >
+                      <PoolRow
+                        pool={pool}
+                        index={i + 1}
+                        tokens={poolTokenMetas[pool.id]}
+                        morePoolIds={poolsMorePoolsIds[pool.id]}
+                        farmCount={farmCounts[pool.id]}
+                        supportFarm={!!farmCounts[pool.id]}
+                        h24volume={volumes[pool.id]}
+                        mark={true}
+                      />
+                    </div>
+                  );
+                } else if (pool.pool_id) {
+                  return (
+                    <PoolRowV2
+                      tokens={[pool.token_x_metadata, pool.token_y_metadata]}
+                      key={i}
                       pool={pool}
-                      index={i + 1}
-                      tokens={poolTokenMetas[pool.id]}
-                      morePoolIds={poolsMorePoolsIds[pool.id]}
-                      farmCount={farmCounts[pool.id]}
-                      supportFarm={!!farmCounts[pool.id]}
-                      h24volume={volumes[pool.id]}
+                      index={1 + i}
+                      showCol={true}
                       mark={true}
+                      h24volume={volumes[pool.pool_id]}
                     />
-                  </div>
-                );
-              } else if (pool.pool_id) {
-                return (
-                  <PoolRowV2
-                    tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                    key={i}
-                    pool={pool}
-                    index={1 + i}
-                    showCol={true}
-                    mark={true}
-                    h24volume={volumes[pool.pool_id]}
-                  />
-                );
-              }
-            })}
+                  );
+                }
+              })}
             {/* {watchPools?.map((pool, i) => (
               <div
                 className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
@@ -2099,6 +2115,7 @@ function LiquidityPage_({
             watchV2Pools={watchV2Pools}
             watchList={watchList}
             poolsMorePoolsIds={poolsMorePoolsIds}
+            tokenName={tokenName}
           />
         )}
         {activeTab === 'v1' && (
