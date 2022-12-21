@@ -208,7 +208,7 @@ function AddLiquidityButton() {
 }
 
 export function YourLiquidityPage(props: any) {
-  const { setNoOldLiquidity, setYourLpValueV1, setLpValueV1Done } = props;
+  const { setYourLpValueV1, setLpValueV1Done } = props;
   const { checkedStatus, listLiquidities, listLiquiditiesLoading } = props;
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
@@ -417,7 +417,12 @@ export function YourLiquidityPage(props: any) {
   } else if (listLiquidities.length > 0 && +count == 0) {
     return (
       <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
-        <div className="text-white text-base mb-3">V1 (0)</div>
+        <div className="mb-3">
+          <span className="text-white text-base gotham_bold">V1 (0)</span>
+          <p className="text-sm text-farmText">
+            <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
+          </p>
+        </div>
         <NoLiquidity text="V1"></NoLiquidity>
       </div>
     );
@@ -441,7 +446,12 @@ export function YourLiquidityPage(props: any) {
     <>
       {!listLiquiditiesLoading && listLiquidities.length == 0 ? (
         <div className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}>
-          <div className="text-white text-base mb-3">V2 (0)</div>
+          <div className="mb-3">
+            <span className="text-white text-base">V2 (0)</span>
+            <p className="text-sm text-farmText">
+              <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
+            </p>
+          </div>
           <NoLiquidity text="V2"></NoLiquidity>
         </div>
       ) : null}
@@ -458,8 +468,11 @@ export function YourLiquidityPage(props: any) {
               {error && <Alert level="warn" message={error.message} />}
             </div>
             {/* PC */}
-            <div className="text-white text-base my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
-              V1 ({count})
+            <div className="my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+              <span className="text-white text-base">V1 ({count})</span>
+              <p className="text-sm text-farmText">
+                <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
+              </p>
             </div>
             <Card
               width="w-full"
@@ -485,7 +498,7 @@ export function YourLiquidityPage(props: any) {
                         <FormattedMessage id="token" defaultMessage="Token" />
                       </div>
 
-                      <div className="flex flex-col col-span-5 text-left ml-8">
+                      <div className="flex flex-row col-span-5 text-left ml-8">
                         <span>
                           <FormattedMessage id="lp_token"></FormattedMessage>
                         </span>
@@ -499,7 +512,10 @@ export function YourLiquidityPage(props: any) {
                         </span>
                       </div>
                       <div className="col-span-4 xl:ml-8 ml-4">
-                        <FormattedMessage id="value" defaultMessage="Value" />
+                        <FormattedMessage
+                          id="usd_value"
+                          defaultMessage="USD Value"
+                        />
                       </div>
                     </div>
                     <div className=" overflow-y-auto">
@@ -840,7 +856,7 @@ function PoolRow(props: {
   const TokenInfoPC = ({ token }: { token: TokenMetadata }) => {
     return (
       <div className="inline-flex items-center justify-between my-1 w-28">
-        <div className="font-semibold">{toRealSymbol(token.symbol)}</div>
+        <div className="gotham_bold">{toRealSymbol(token.symbol)}</div>
         <div className="font-normal relative left-2.5">
           {tokenAmountShare(
             pool,
@@ -923,7 +939,7 @@ function PoolRow(props: {
           </div>
         </div>
 
-        <div className="col-span-2 inline-flex flex-col text-xs">
+        <div className="col-span-2 inline-flex flex-col text-sm">
           {tokensSort.map((token, i) => (
             <TokenInfoPC key={i} token={token} />
           ))}
@@ -1117,19 +1133,16 @@ function PoolRow(props: {
                     });
                   }
                 }}
-                className={`text-xs col-span-2 ${
+                className={`text-sm col-span-2 ${
                   needForbidden ? 'text-opacity-20' : ''
-                } px-1.5 text-center whitespace-nowrap mb-3`}
+                } px-1.5 py-1.5 text-center whitespace-nowrap mb-3 gotham_bold rounded-lg`}
                 style={{
                   minWidth: '104px',
                   background: needForbidden ? '#314351' : '',
                   border: needForbidden ? 'none' : '',
                 }}
               >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage="Add Liquidity"
-                />
+                <FormattedMessage id="add" defaultMessage="Add" />
               </SolidButton>
               {needForbidden ? (
                 <ReactTooltip
@@ -1158,7 +1171,7 @@ function PoolRow(props: {
 
                 setShowWithdraw(true);
               }}
-              className="text-xs w-full px-4 col-span-2 text-center h-8 mb-1"
+              className="text-sm w-full px-4 col-span-2 text-center h-8 mb-1 gotham_bold rounded-lg"
               style={{
                 minWidth: '104px',
               }}
@@ -1403,10 +1416,7 @@ function PoolRow(props: {
                   border: needForbidden ? 'none' : '',
                 }}
               >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage="Add Liquidity"
-                />
+                <FormattedMessage id="add" defaultMessage="Add" />
               </SolidButton>
               {needForbidden ? (
                 <ReactTooltip

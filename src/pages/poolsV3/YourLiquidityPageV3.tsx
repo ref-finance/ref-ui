@@ -8,7 +8,7 @@ import {
   remove_liquidity,
   get_liquidity,
 } from '../../services/swapV3';
-import { ColorsBox } from '~components/icon/V3';
+import { ColorsBox, ColorsBoxCenter, AddButtonIcon } from '~components/icon/V3';
 import {
   GradientButton,
   BorderButton,
@@ -114,16 +114,16 @@ export default function YourLiquidityPageV3() {
   console.log('YourLpValueV1: ', YourLpValueV1);
 
   const [lpValueV1Done, setLpValueV1Done] = useState(false);
-  console.log('lpValueV1Done: ', lpValueV1Done);
+  // console.log('lpValueV1Done: ', lpValueV1Done);
 
   const [lpValueV2Done, setLpValueV2Done] = useState(false);
-  console.log('lpValueV2Done: ', lpValueV2Done);
+  // console.log('lpValueV2Done: ', lpValueV2Done);
 
   useEffect(() => {
     if (!listLiquiditiesLoading) {
       if (listLiquidities.length === 0) {
         setLpValueV2Done(true);
-        setYourLpValueV2('0')
+        setYourLpValueV2('0');
       }
     }
   }, [listLiquiditiesLoading, listLiquidities]);
@@ -164,9 +164,6 @@ export default function YourLiquidityPageV3() {
   }
   function switchButton(type: string) {
     setCheckedStatus(type);
-  }
-  function setNoOldLiquidity(status: boolean) {
-    setOldLiquidityHasNoData(status);
   }
   function getTipForV2Pool() {
     const n = intl.formatMessage({ id: 'v2PoolTip' });
@@ -244,7 +241,7 @@ export default function YourLiquidityPageV3() {
                     onClick={() => {
                       switchButton(item);
                     }}
-                    className={`flex items-center justify-center h-6 py-px px-2 box-content w-auto rounded-md cursor-pointer ${
+                    className={`flex items-center justify-center h-6 py-px px-3.5 box-content w-auto rounded-md cursor-pointer gotham_bold ${
                       checkedStatus == item
                         ? 'bg-primaryGradient text-white'
                         : 'text-primaryText'
@@ -276,12 +273,16 @@ export default function YourLiquidityPageV3() {
           >
             <GradientButton
               color="#fff"
-              className={`px-4 h-8 text-center text-base text-white focus:outline-none`}
+              className={`px-4 h-9 text-center text-sm text-white focus:outline-none`}
+              borderRadius={'8px'}
             >
-              <FormattedMessage
-                id="add_liquidity"
-                defaultMessage="Add Liquidity"
-              />
+              <div className="flex items-center">
+                <AddButtonIcon className="mr-1.5"></AddButtonIcon>
+                <FormattedMessage
+                  id="add_liquidity"
+                  defaultMessage="Add Liquidity"
+                />
+              </div>
             </GradientButton>
             <span
               className={`top-10 pt-2 absolute z-50 xsm:right-0 ${
@@ -317,12 +318,14 @@ export default function YourLiquidityPageV3() {
           </div>
         </div>
         {!isSignedIn ? (
-          <NoLiquidity></NoLiquidity>
+          <NoLiquidity className="mt-4"></NoLiquidity>
         ) : (
           <>
             {listLiquiditiesLoading ? (
               <div className={`${checkedStatus == 'V1' ? 'hidden' : ''}`}>
-                <div className="text-white text-base mb-3">V2 (0)</div>
+                <div className="text-white text-base gotham_bold mb-3">
+                  V2 (0)
+                </div>
                 <div className="flex justify-center items-center">
                   <BlueCircleLoading></BlueCircleLoading>
                 </div>
@@ -333,25 +336,32 @@ export default function YourLiquidityPageV3() {
                   <div
                     className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
                   >
-                    <div className="flex items-center text-white text-base mb-3">
-                      <span>V2 ({listLiquidities.length})</span>
-                      <div
-                        className="text-white text-right ml-1"
-                        data-class="reactTip"
-                        data-for={'v2PoolNumberTip'}
-                        data-place="top"
-                        data-html={true}
-                        data-tip={getTipForV2Pool()}
-                      >
-                        <QuestionMark></QuestionMark>
-                        <ReactTooltip
-                          id={'v2PoolNumberTip'}
-                          backgroundColor="#1D2932"
-                          border
-                          borderColor="#7e8a93"
-                          effect="solid"
-                        />
+                    <div className="mb-3">
+                      <div className="flex items-center text-white text-base">
+                        <span className="gotham_bold">
+                          V2 ({listLiquidities.length})
+                        </span>
+                        <div
+                          className="text-white text-right ml-1"
+                          data-class="reactTip"
+                          data-for={'v2PoolNumberTip'}
+                          data-place="top"
+                          data-html={true}
+                          data-tip={getTipForV2Pool()}
+                        >
+                          <QuestionMark></QuestionMark>
+                          <ReactTooltip
+                            id={'v2PoolNumberTip'}
+                            backgroundColor="#1D2932"
+                            border
+                            borderColor="#7e8a93"
+                            effect="solid"
+                          />
+                        </div>
                       </div>
+                      <p className="text-sm text-farmText">
+                        <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
+                      </p>
                     </div>
                     <div>
                       {listLiquidities.map(
@@ -374,7 +384,6 @@ export default function YourLiquidityPageV3() {
               </>
             )}
             <YourLiquidityPage
-              setNoOldLiquidity={setNoOldLiquidity}
               setLpValueV1Done={setLpValueV1Done}
               setYourLpValueV1={setYourLpValueV1}
               checkedStatus={checkedStatus}
@@ -728,154 +737,161 @@ function UserLiquidityLine({
       onMouseLeave={() => setHover(false)}
     >
       {/* for PC */}
-      <div className="rounded-xl overflow-hidden xs:hidden md:hidden">
-        <div
-          className={`relative p-4 pt-8 cursor-pointer ${
-            hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-          }`}
-          onClick={goYourLiquidityDetailPage}
-        >
-          <div className="absolute top-0 left-6 flex items-center justify-center">
-            <ColorsBox></ColorsBox>
-            <span className="absolute text-white text-xs">
-              ID #{getLpt_id()}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="flex items-center flex-shrink-0">
-                <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-                  className="w-7 h-7 border border-greenColor rounded-full"
-                ></img>
-                <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-                  className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
-                ></img>
-              </div>
-              <span className="text-white font-bold ml-9 mr-2.5">
-                {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
-                {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
-              </span>
-              <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
-                <span className="text-xs text-v3SwapGray whitespace-nowrap mr-1.5">
-                  <FormattedMessage id="fee_Tiers" />
-                </span>
-                <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <span className="text-v3SwapGray text-xs mr-1.5">
-                <FormattedMessage
-                  id="min"
-                  defaultMessage="Min"
-                ></FormattedMessage>
-              </span>
-              <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis">
-                {getRate('left')}
-              </span>
-              <label className="text-v3SwapGray text-xs mx-2">-</label>
-              <span className="text-v3SwapGray text-xs mr-1.5">
-                <FormattedMessage
-                  id="max"
-                  defaultMessage="Max"
-                ></FormattedMessage>
-              </span>
-              <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis">
-                {getRate('right')}
-              </span>
-              <span className="text-v3SwapGray text-xs ml-1.5 mr-3">
-                {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
-                {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
-              </span>
-              <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
-                <span
-                  className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
-                    isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
-                  }`}
-                ></span>
-                <span
-                  className={`whitespace-nowrap text-xs ${
-                    isInrange
-                      ? 'text-gradientFromHover'
-                      : 'text-v3GarkWarningColor'
-                  }`}
-                >
-                  {isInrange ? (
-                    <FormattedMessage id="in_range"></FormattedMessage>
-                  ) : (
-                    <FormattedMessage id="out_of_range"></FormattedMessage>
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
+      <div className="relative flex flex-col items-center xs:hidden md:hidden">
+        <div className="absolute -top-1.5 flex items-center justify-center z-10">
+          <ColorsBoxCenter></ColorsBoxCenter>
+          <span className="absolute text-white text-xs gotham_bold">
+            ID #{getLpt_id()}
+          </span>
         </div>
-        <div
-          className={`items-center justify-between p-4 border-t border-v3BlueBorderColor bg-cardBg ${
-            hover ? 'flex' : 'hidden'
-          }`}
-        >
-          <div className="flex items-center justify-center">
-            <span className="text-xs text-v3SwapGray">
-              <FormattedMessage id="your_liquidity" />
-            </span>
-            <span className="text-sm text-white mx-2.5">
-              ${your_liquidity || '-'}
-            </span>
-            <GradientButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowAddBox(true);
-              }}
-              color="#fff"
-              className={`px-3 h-8 text-center text-sm text-white focus:outline-none mr-2.5`}
-            >
-              <FormattedMessage id="add_liquidity" />
-            </GradientButton>
-            <BorderButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowRemoveBox(true);
-              }}
-              rounded="rounded-md"
-              px="px-0"
-              py="py-1"
-              className="flex-grow  w-20 text-sm text-greenColor h-8"
-            >
-              <FormattedMessage id="remove" />
-            </BorderButton>
+        <div className="w-full rounded-xl overflow-hidden">
+          <div
+            className={`relative p-4 pt-8 cursor-pointer ${
+              hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
+            }`}
+            onClick={goYourLiquidityDetailPage}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="flex items-center flex-shrink-0">
+                  <img
+                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                    className="w-7 h-7 border border-greenColor rounded-full"
+                  ></img>
+                  <img
+                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                    className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
+                  ></img>
+                </div>
+                <span className="text-white font-bold ml-9 mr-2.5 text-sm gotham_bold">
+                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
+                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                </span>
+                <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
+                  <span className="text-xs text-v3SwapGray whitespace-nowrap mr-1.5">
+                    <FormattedMessage id="fee_Tiers" />
+                  </span>
+                  <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <span className="text-v3SwapGray text-xs mr-1.5">
+                  <FormattedMessage
+                    id="min"
+                    defaultMessage="Min"
+                  ></FormattedMessage>
+                </span>
+                <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis gotham_bold">
+                  {getRate('left')}
+                </span>
+                <label className="text-v3SwapGray text-xs mx-2">-</label>
+                <span className="text-v3SwapGray text-xs mr-1.5">
+                  <FormattedMessage
+                    id="max"
+                    defaultMessage="Max"
+                  ></FormattedMessage>
+                </span>
+                <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis gotham_bold">
+                  {getRate('right')}
+                </span>
+                <span className="text-v3SwapGray text-xs ml-1.5 mr-3">
+                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
+                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                </span>
+                <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
+                  <span
+                    className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
+                      isInrange
+                        ? 'bg-gradientFromHover'
+                        : 'bg-v3GarkWarningColor'
+                    }`}
+                  ></span>
+                  <span
+                    className={`whitespace-nowrap text-xs ${
+                      isInrange
+                        ? 'text-gradientFromHover'
+                        : 'text-v3GarkWarningColor'
+                    }`}
+                  >
+                    {isInrange ? (
+                      <FormattedMessage id="in_range"></FormattedMessage>
+                    ) : (
+                      <FormattedMessage id="out_of_range"></FormattedMessage>
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-center">
-            <span className="text-xs text-v3SwapGray mr-2.5">
-              <FormattedMessage id="unclaimed_fees" />
-            </span>
-            <img
-              src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-              className="w-5 h-5 border border-greenColor rounded-full mr-1"
-            ></img>
-            <span className="text-sm text-white mr-3">
-              {getTokenFeeAmount('l') || '-'}
-            </span>
-            <img
-              src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-              className="w-5 h-5 border border-greenColor rounded-full mr-1"
-            ></img>
-            <span className="text-sm text-white">
-              {getTokenFeeAmount('r') || '-'}
-            </span>
-            <div
-              className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 ${
-                !canClaim()
-                  ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                  : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-              }`}
-              onClick={claimRewards}
-            >
-              <ButtonTextWrapper
-                loading={claimLoading}
-                Text={() => <FormattedMessage id="claim" />}
-              />
+          <div
+            className={`items-center justify-between p-4 border-t border-v3BlueBorderColor bg-cardBg ${
+              hover ? 'flex' : 'hidden'
+            }`}
+          >
+            <div className="flex items-center justify-center">
+              <span className="text-xs text-v3SwapGray">
+                <FormattedMessage id="your_liquidity" />
+              </span>
+              <span className="text-sm text-white mx-2.5 gotham_bold">
+                ${your_liquidity || '-'}
+              </span>
+              <GradientButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowAddBox(true);
+                }}
+                color="#fff"
+                minWidth="5rem"
+                borderRadius="8px"
+                className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
+              >
+                <FormattedMessage id="add" />
+              </GradientButton>
+              <BorderButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowRemoveBox(true);
+                }}
+                rounded="rounded-lg"
+                px="px-0"
+                py="py-1"
+                style={{ minWidth: '5rem' }}
+                className="flex-grow  gotham_bold text-sm text-greenColor h-8"
+              >
+                <FormattedMessage id="remove" />
+              </BorderButton>
+            </div>
+            <div className="flex items-center justify-center">
+              <span className="text-xs text-v3SwapGray mr-2.5">
+                <FormattedMessage id="unclaimed_fees" />
+              </span>
+              <img
+                src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                className="w-5 h-5 border border-greenColor rounded-full mr-1"
+              ></img>
+              <span className="text-sm text-white mr-3 gotham_bold">
+                {getTokenFeeAmount('l') || '-'}
+              </span>
+              <img
+                src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                className="w-5 h-5 border border-greenColor rounded-full mr-1"
+              ></img>
+              <span className="text-sm text-white gotham_bold">
+                {getTokenFeeAmount('r') || '-'}
+              </span>
+              <div
+                className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
+                  !canClaim()
+                    ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                    : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                }`}
+                onClick={claimRewards}
+              >
+                <ButtonTextWrapper
+                  loading={claimLoading}
+                  Text={() => <FormattedMessage id="claim" />}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -1016,7 +1032,7 @@ function UserLiquidityLine({
               color="#fff"
               className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3`}
             >
-              <FormattedMessage id="add_liquidity" />
+              <FormattedMessage id="add" />
             </GradientButton>
             <BorderButton
               onClick={(e) => {
@@ -1078,12 +1094,20 @@ function UserLiquidityLine({
     </div>
   );
 }
-export function NoLiquidity({ text }: { text?: string }) {
+export function NoLiquidity({
+  text,
+  className,
+}: {
+  text?: string;
+  className?: string;
+}) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   return (
     <div
-      className="w-full rounded-xl overflow-hidden h-48 relative text-white font-normal  flex items-center justify-center"
+      className={`w-full rounded-xl overflow-hidden h-48 relative text-white font-normal  flex items-center justify-center ${
+        className || ''
+      }`}
       style={{
         background: 'rgb(26,36,43)',
       }}
