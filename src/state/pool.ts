@@ -48,7 +48,11 @@ import {
   getV3poolTvlById,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
-import { ftGetTokenMetadata, TokenMetadata } from '../services/ft-contract';
+import {
+  ftGetTokenMetadata,
+  TokenMetadata,
+  ftGetTokensMetadata,
+} from '../services/ft-contract';
 import { TokenBalancesView } from '../services/token';
 import {
   shareToAmount,
@@ -565,10 +569,25 @@ export const useWatchPools = () => {
       }
     });
     if (ids_v1.length > 0) {
-      getPoolsByIds({ pool_ids: ids_v1 }).then((res) => {
-        const resPools = res.map((pool) => parsePool(pool));
-        setWatchPools(resPools);
-      });
+      getPoolsByIds({ pool_ids: ids_v1 })
+        .then((res) => {
+          const resPools = res.map((pool) => parsePool(pool));
+
+          return resPools;
+        })
+        .then((resPools) => {
+          return Promise.all(
+            resPools.map(async (p) => {
+              return {
+                ...p,
+                metas: await ftGetTokensMetadata(p.tokenIds),
+              };
+            })
+          );
+        })
+        .then((res) => {
+          setWatchPools(res);
+        });
     }
     if (ids_v2.length > 0) {
       getV2PoolsByIds(ids_v2).then((res: PoolInfo[]) => {

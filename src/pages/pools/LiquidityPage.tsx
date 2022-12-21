@@ -947,6 +947,7 @@ function MobileLiquidityPage({
               <div className="relative rounded-xl w-full my-2 text-primaryText flex items-center pr-2 bg-cardBg">
                 <input
                   ref={inputRef}
+                  value={tokenName}
                   className={`text-sm outline-none rounded-xl w-full py-1.5 pl-3 pr-6`}
                   placeholder={intl.formatMessage({
                     id: 'search_by_token',
@@ -1537,9 +1538,10 @@ function WatchListCard({
     return watchAllPools;
   }
   const watchAllPools = getAllWatchPools();
+  console.log('watchAllPools: ', watchAllPools);
 
   function v1PoolFilter(p: Pool) {
-    return poolTokenMetas?.[p.id]?.some((t: any) =>
+    return Object.values(p.metas)?.some((t: any) =>
       _.includes(t.symbol.toLowerCase(), tokenName.toLowerCase())
     );
   }
@@ -2548,8 +2550,12 @@ function LiquidityPage_({
 
 export const REF_FI_POOL_ACTIVE_TAB = 'REF_FI_POOL_ACTIVE_TAB_VALUE';
 
+export const REF_FI_POOL_SEARCH_BY = 'REF_FI_POOL_SEARCH_BY_VALUE';
+
 export function LiquidityPage() {
-  const [tokenName, setTokenName] = useState('');
+  const storeTokenName = sessionStorage.getItem(REF_FI_POOL_SEARCH_BY);
+
+  const [tokenName, setTokenName] = useState(storeTokenName || '');
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
   const AllPools = useAllPools();
@@ -2608,7 +2614,13 @@ export function LiquidityPage() {
   const poolTokenMetas = usePoolTokens(pools);
 
   const onSearch = useCallback(
-    _.debounce(setTokenName, clientMobileDevice ? 50 : 500),
+    _.debounce(
+      (name: string) => {
+        setTokenName(name);
+        sessionStorage.setItem(REF_FI_POOL_SEARCH_BY, name);
+      },
+      clientMobileDevice ? 50 : 500
+    ),
     [clientMobileDevice]
   );
 
