@@ -1730,6 +1730,10 @@ function LiquidityPage_({
   const [tvlV2, setTvlV2] = useState<string>();
   console.log('tvlV2: ', tvlV2, allPoolsV2);
 
+  window.onbeforeunload = () => {
+    sessionStorage.removeItem(REF_FI_POOL_SEARCH_BY);
+  };
+
   useEffect(() => {
     if (
       typeof allPoolsV2 === 'undefined' ||
@@ -1861,7 +1865,7 @@ function LiquidityPage_({
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
   return (
     <>
-      <PoolTabV3 h24VolumeV2={h24VolumeV2} tvlV2={tvlV2}></PoolTabV3>
+      <PoolTabV3></PoolTabV3>
       <div className="flex flex-col whitespace-nowrap w-1000px m-auto ">
         {/* start pool card */}
         {!!getConfig().REF_VE_CONTRACT_ID ? (
@@ -2566,6 +2570,7 @@ export function LiquidityPage() {
   } = useWatchPools();
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
+  console.log('displayPools: ', displayPools);
   const { pools, hasMore, nextPage, loading, volumes } = usePools({
     tokenName,
     sortBy,

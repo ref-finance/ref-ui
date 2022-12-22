@@ -18,7 +18,11 @@ import {
 } from '../../services/commonV3';
 import { get_pool, list_liquidities } from '../../services/swapV3';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-import { useBatchTotalShares, useStakeListByAccountId } from '../../state/pool';
+import {
+  useBatchTotalShares,
+  useStakeListByAccountId,
+  useV3VolumesPools,
+} from '../../state/pool';
 import { PoolRPCView } from '../../services/api';
 import { getVEPoolId } from '../../pages/ReferendumPage';
 import {
@@ -42,6 +46,7 @@ import {
   scientificNotationToString,
 } from '../../utils/numbers';
 import Big from 'big.js';
+import { useAllPoolsV2 } from '../../state/swapV3';
 export const PoolTabV3 = ({
   count,
   yourLPpage,
@@ -49,8 +54,6 @@ export const PoolTabV3 = ({
   YourLpValueV2,
   lpValueV1Done,
   lpValueV2Done,
-  h24VolumeV2,
-  tvlV2,
 }: {
   count?: number;
   yourLPpage?: boolean;
@@ -58,8 +61,6 @@ export const PoolTabV3 = ({
   YourLpValueV1?: string;
   lpValueV1Done?: boolean;
   lpValueV2Done?: boolean;
-  tvlV2?: string | undefined;
-  h24VolumeV2?: string | undefined;
 }) => {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -70,12 +71,44 @@ export const PoolTabV3 = ({
   console.log('allTVL: ', allTVL);
 
   const [allVolume24h, setAllVolume24h] = useState<string>();
-  console.log('allVolume24h: ', allVolume24h);
-  console.log(h24VolumeV2, 'h24bolume');
   useEffect(() => {
     getAllTvl().then(setAllTVL);
     getAllVolume24h().then(setAllVolume24h);
   }, []);
+  const allPoolsV2 = useAllPoolsV2();
+
+  const [tvlV2, setTvlV2] = useState<string>();
+  console.log('tvlV2: ', tvlV2, allPoolsV2);
+
+  useEffect(() => {
+    if (
+      typeof allPoolsV2 === 'undefined' ||
+      allPoolsV2.length === 0 ||
+      allPoolsV2.every((p) => !p?.tvl)
+    )
+      return;
+
+    const tvl = allPoolsV2.reduce(
+      (a, b) => new Big(a || '0').plus(new Big(b.tvl || '0')),
+      new Big(0)
+    );
+
+    setTvlV2(scientificNotationToString(tvl.toString()));
+  }, [allPoolsV2]);
+
+  const v3PoolVolumes = useV3VolumesPools();
+  const [h24VolumeV2, setH24VolumeV2] = useState<string>();
+
+  useEffect(() => {
+    if (Object.keys(v3PoolVolumes).length > 0) {
+      const h24Volume = Object.values(v3PoolVolumes).reduce(
+        (a, b) => new Big(a || '0').plus(new Big(b || '0')),
+        new Big(0)
+      );
+
+      setH24VolumeV2(scientificNotationToString(h24Volume.toString()));
+    }
+  }, [v3PoolVolumes]);
 
   const isMobile = useClientMobile();
 

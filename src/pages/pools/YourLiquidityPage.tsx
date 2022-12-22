@@ -244,6 +244,8 @@ export function YourLiquidityPage(props: any) {
     ? useAccountInfo()
     : { lptAmount: '0' };
 
+  console.log('lptAmount: ', lptAmount);
+
   const { batchTotalShares, shares: batchStableShares } = useBatchTotalShares(
     stablePools?.map((p) => p.id),
     finalStakeList
@@ -411,6 +413,19 @@ export function YourLiquidityPage(props: any) {
         return cur > 0 ? acc + 1 : acc;
       }, 0) +
     batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
+  const lpCount =
+    (!vePool || !getConfig().REF_VE_CONTRACT_ID ? 0 : 1) +
+    (batchTotalShares && batchTotalShares?.some((s) => s > 0)
+      ? stablePools?.length || 0
+      : 0) +
+    pools.filter(
+      (p) => !getConfig().REF_VE_CONTRACT_ID || !vePool || p.id !== vePool.id
+    ).length;
+
+  if (lpCount === 0 || +count === 0) {
+    setLpValueV1Done(true);
+    setYourLpValueV1('0');
+  }
 
   if (+count == 0 && !listLiquiditiesLoading && listLiquidities.length == 0) {
     return <NoLiquidity></NoLiquidity>;
@@ -426,20 +441,6 @@ export function YourLiquidityPage(props: any) {
         <NoLiquidity text="V1"></NoLiquidity>
       </div>
     );
-  }
-
-  const lpCount =
-    (!vePool || !getConfig().REF_VE_CONTRACT_ID ? 0 : 1) +
-    (batchTotalShares && batchTotalShares?.some((s) => s > 0)
-      ? stablePools?.length || 0
-      : 0) +
-    pools.filter(
-      (p) => !getConfig().REF_VE_CONTRACT_ID || !vePool || p.id !== vePool.id
-    ).length;
-
-  if (lpCount === 0) {
-    setLpValueV1Done(true);
-    setYourLpValueV1('0');
   }
 
   return (
@@ -479,7 +480,8 @@ export function YourLiquidityPage(props: any) {
               padding="px-0 py-6"
               className="xs:hidden md:hidden"
             >
-              {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
+              {(!(!vePool || !getConfig().REF_VE_CONTRACT_ID) ||
+                batchTotalSharesSimplePools?.some((s) => s > 0) ||
                 batchTotalShares?.some((s) => s > 0)) &&
               !isClientMobile ? (
                 <section>
@@ -522,6 +524,7 @@ export function YourLiquidityPage(props: any) {
                       {!vePool || !getConfig().REF_VE_CONTRACT_ID
                         ? null
                         : [vePool].map((p) => {
+                            console.log(p, 'vepool1');
                             return (
                               <RowRender
                                 p={p}
@@ -702,6 +705,8 @@ function PoolRow(props: {
 
   const poolId = pool.id;
 
+  console.log(poolId, 'poolId');
+
   const tokens: TokenMetadata[] = props.tokens;
   const tokensSort: TokenMetadata[] = props.tokens
     ? JSON.parse(JSON.stringify(props.tokens))
@@ -783,9 +788,18 @@ function PoolRow(props: {
 
     sessionStorage.setItem(REF_FI_YOUR_LP_VALUE, JSON.stringify(storagedValue));
 
-    console.log(count, 'count', pool.id, rawRes, storagedValue);
-    if (storagedValueString && Object.keys(storagedValue).length === count) {
+    console.log(
+      count,
+      'count',
+      pool.id,
+      rawRes,
+      storagedValue,
+      storagedValueString
+    );
+    if (Object.keys(storagedValue).length === count) {
       const values = Object.values(storagedValue) as string[];
+
+      console.log(values, 'values');
 
       setYourLpValueV1(
         values
@@ -801,7 +815,7 @@ function PoolRow(props: {
       setLpValueV1Done(true);
     }
   }, [usdValue]);
-
+  console.log(lptAmount, userTotalShare.toString(), 'lptamount');
   if (
     userTotalShare
       .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0')
