@@ -1749,6 +1749,11 @@ function LiquidityPage_({
 
     setTvlV2(scientificNotationToString(tvl.toString()));
   }, [allPoolsV2]);
+  useEffect(() => {
+    if (inputRef?.current) {
+      inputRef.current.value = tokenName;
+    }
+  }, [tokenName, inputRef?.current]);
 
   const selectTokens = useRainbowWhitelistTokens();
 
