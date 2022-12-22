@@ -1730,9 +1730,6 @@ function LiquidityPage_({
   const [tvlV2, setTvlV2] = useState<string>();
   console.log('tvlV2: ', tvlV2, allPoolsV2);
 
-  window.onbeforeunload = () => {
-    sessionStorage.removeItem(REF_FI_POOL_SEARCH_BY);
-  };
 
   useEffect(() => {
     if (
@@ -2562,6 +2559,11 @@ export const REF_FI_POOL_ACTIVE_TAB = 'REF_FI_POOL_ACTIVE_TAB_VALUE';
 export const REF_FI_POOL_SEARCH_BY = 'REF_FI_POOL_SEARCH_BY_VALUE';
 
 export function LiquidityPage() {
+
+
+  window.onbeforeunload = () => {
+    sessionStorage.removeItem(REF_FI_POOL_SEARCH_BY);
+  };
   const storeTokenName = sessionStorage.getItem(REF_FI_POOL_SEARCH_BY);
 
   const [tokenName, setTokenName] = useState(storeTokenName || '');
