@@ -1538,7 +1538,6 @@ function WatchListCard({
     return watchAllPools;
   }
   const watchAllPools = getAllWatchPools();
-  console.log('watchAllPools: ', watchAllPools);
 
   function v1PoolFilter(p: Pool) {
     return Object.values(p.metas)?.some((t: any) =>
@@ -1728,7 +1727,6 @@ function LiquidityPage_({
   const allPoolsV2 = useAllPoolsV2();
 
   const [tvlV2, setTvlV2] = useState<string>();
-  console.log('tvlV2: ', tvlV2, allPoolsV2);
 
   useEffect(() => {
     if (
@@ -2574,7 +2572,6 @@ export function LiquidityPage() {
   } = useWatchPools();
   const [hideLowTVL, setHideLowTVL] = useState<Boolean>(false);
   const [displayPools, setDisplayPools] = useState<Pool[]>();
-  console.log('displayPools: ', displayPools);
   const { pools, hasMore, nextPage, loading, volumes } = usePools({
     tokenName,
     sortBy,
@@ -2671,7 +2668,6 @@ export function LiquidityPage() {
 
   const watchPoolVolumes = useDayVolumesPools(watchPools.map((p) => p.id));
   const v3PoolVolumes = useV3VolumesPools();
-  console.log('v3PoolVolumes: ', v3PoolVolumes);
   const [h24VolumeV2, setH24VolumeV2] = useState<string>();
 
   useEffect(() => {

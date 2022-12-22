@@ -111,13 +111,10 @@ export default function YourLiquidityPageV3() {
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
 
   const [YourLpValueV1, setYourLpValueV1] = useState('0');
-  console.log('YourLpValueV1: ', YourLpValueV1);
 
   const [lpValueV1Done, setLpValueV1Done] = useState(false);
-  console.log('lpValueV1Done: ', lpValueV1Done);
 
   const [lpValueV2Done, setLpValueV2Done] = useState(false);
-  console.log('lpValueV2Done: ', lpValueV2Done);
 
   useEffect(() => {
     if (!listLiquiditiesLoading) {

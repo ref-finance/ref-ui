@@ -1061,11 +1061,6 @@ SwapOptions) => {
       throw new Error(`${token.id} doesn't exist.`);
     });
 
-    console.log({
-      tokenRegistered,
-      token: token.id,
-    });
-
     if (tokenRegistered === null) {
       tokenOutActions.push({
         methodName: 'storage_deposit',
@@ -1172,7 +1167,6 @@ SwapOptions) => {
           )
         ),
       });
-      console.log({ REF_FI_CONTRACT_ID });
 
       transactions.push({
         receiverId: tokenIn.id,
@@ -1192,8 +1186,6 @@ SwapOptions) => {
           },
         ],
       });
-
-      console.log({ transactions });
     } else {
       //making sure all actions get included.
       await registerToken(tokenOut);
@@ -1263,8 +1255,6 @@ SwapOptions) => {
           },
         ],
       });
-
-      console.log({ transactions });
     }
 
     if (tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn?.symbol == 'NEAR') {
@@ -1304,10 +1294,6 @@ SwapOptions) => {
         });
       }
     }
-
-    console.log({ transactionsSwap: transactions });
-
-    console.log({ REF_FI_CONTRACT_ID });
 
     return executeMultipleTransactions(transactions);
   }

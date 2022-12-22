@@ -212,8 +212,6 @@ export function YourLiquidityPage(props: any) {
   const { checkedStatus, listLiquidities, listLiquiditiesLoading } = props;
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
-  console.log('pools: ', pools);
-
   const { v1Farm, v2Farm } = useAllFarms();
 
   const [generalAddLiquidity, setGeneralAddLiquidity] =
@@ -232,7 +230,6 @@ export function YourLiquidityPage(props: any) {
   }
 
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
-  console.log('stablePools: ', stablePools);
 
   const [tvls, setTvls] = useState<Record<string, number>>();
 
@@ -243,8 +240,6 @@ export function YourLiquidityPage(props: any) {
   const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
     ? useAccountInfo()
     : { lptAmount: '0' };
-
-  console.log('lptAmount: ', lptAmount);
 
   const { batchTotalShares, shares: batchStableShares } = useBatchTotalShares(
     stablePools?.map((p) => p.id),
@@ -524,7 +519,6 @@ export function YourLiquidityPage(props: any) {
                       {!vePool || !getConfig().REF_VE_CONTRACT_ID
                         ? null
                         : [vePool].map((p) => {
-                            console.log(p, 'vepool1');
                             return (
                               <RowRender
                                 p={p}
@@ -705,8 +699,6 @@ function PoolRow(props: {
 
   const poolId = pool.id;
 
-  console.log(poolId, 'poolId');
-
   const tokens: TokenMetadata[] = props.tokens;
   const tokensSort: TokenMetadata[] = props.tokens
     ? JSON.parse(JSON.stringify(props.tokens))
@@ -788,18 +780,8 @@ function PoolRow(props: {
 
     sessionStorage.setItem(REF_FI_YOUR_LP_VALUE, JSON.stringify(storagedValue));
 
-    console.log(
-      count,
-      'count',
-      pool.id,
-      rawRes,
-      storagedValue,
-      storagedValueString
-    );
     if (Object.keys(storagedValue).length === count) {
       const values = Object.values(storagedValue) as string[];
-
-      console.log(values, 'values');
 
       setYourLpValueV1(
         values
@@ -815,7 +797,6 @@ function PoolRow(props: {
       setLpValueV1Done(true);
     }
   }, [usdValue]);
-  console.log(lptAmount, userTotalShare.toString(), 'lptamount');
   if (
     userTotalShare
       .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0')

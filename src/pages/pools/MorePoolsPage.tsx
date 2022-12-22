@@ -302,8 +302,6 @@ export const MorePoolsPage = () => {
 
   const morePoolIds = morePools?.map((p) => p.id.toString());
 
-  console.log(morePoolIds, morePools);
-
   const watchList = useAllWatchList();
 
   const poolsFarmCount = usePoolsFarmCount({

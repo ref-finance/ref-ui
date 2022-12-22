@@ -68,7 +68,6 @@ export const PoolTabV3 = ({
   const history = useHistory();
 
   const [allTVL, setAllTVL] = useState<string>();
-  console.log('allTVL: ', allTVL);
 
   const [allVolume24h, setAllVolume24h] = useState<string>();
   useEffect(() => {
@@ -78,7 +77,6 @@ export const PoolTabV3 = ({
   const allPoolsV2 = useAllPoolsV2();
 
   const [tvlV2, setTvlV2] = useState<string>();
-  console.log('tvlV2: ', tvlV2, allPoolsV2);
 
   useEffect(() => {
     if (
