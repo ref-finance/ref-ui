@@ -883,26 +883,6 @@ function MobileLiquidityPage({
           <div className="bg-cardBg flex items-center rounded-xl w-full p-1">
             <button
               className={`w-1/3 h-10 flex items-center justify-center ${
-                activeTab === 'v1' ? 'text-white' : 'text-primaryText'
-              } `}
-              style={{
-                background:
-                  activeTab === 'v1'
-                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
-                    : null,
-                borderRadius: '10px',
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                switchActiveTab('v1');
-              }}
-            >
-              V1 Pools
-            </button>
-
-            <button
-              className={`w-1/3 h-10 flex items-center justify-center ${
                 activeTab === 'v2' ? 'text-white' : 'text-primaryText'
               } `}
               style={{
@@ -919,6 +899,26 @@ function MobileLiquidityPage({
               }}
             >
               V2 Pools
+            </button>
+
+            <button
+              className={`w-1/3 h-10 flex items-center justify-center ${
+                activeTab === 'v1' ? 'text-white' : 'text-primaryText'
+              } `}
+              style={{
+                background:
+                  activeTab === 'v1'
+                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
+                    : null,
+                borderRadius: '10px',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                switchActiveTab('v1');
+              }}
+            >
+              V1 Pools
             </button>
 
             <button
@@ -1729,7 +1729,6 @@ function LiquidityPage_({
 
   const [tvlV2, setTvlV2] = useState<string>();
   console.log('tvlV2: ', tvlV2, allPoolsV2);
-
 
   useEffect(() => {
     if (
@@ -2559,8 +2558,6 @@ export const REF_FI_POOL_ACTIVE_TAB = 'REF_FI_POOL_ACTIVE_TAB_VALUE';
 export const REF_FI_POOL_SEARCH_BY = 'REF_FI_POOL_SEARCH_BY_VALUE';
 
 export function LiquidityPage() {
-
-
   window.onbeforeunload = () => {
     sessionStorage.removeItem(REF_FI_POOL_SEARCH_BY);
   };
