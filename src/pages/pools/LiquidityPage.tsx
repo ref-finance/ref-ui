@@ -2558,7 +2558,7 @@ export const REF_FI_POOL_ACTIVE_TAB = 'REF_FI_POOL_ACTIVE_TAB_VALUE';
 export const REF_FI_POOL_SEARCH_BY = 'REF_FI_POOL_SEARCH_BY_VALUE';
 
 export function LiquidityPage() {
-  window.onbeforeunload = () => {
+  window.onunload = () => {
     sessionStorage.removeItem(REF_FI_POOL_SEARCH_BY);
   };
   const storeTokenName = sessionStorage.getItem(REF_FI_POOL_SEARCH_BY);
