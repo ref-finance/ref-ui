@@ -463,7 +463,7 @@ function AccountEntry({
                   </span>
                 ) : null}
                 <ArrowDownIcon
-                  className={`ml-2 text-white ${
+                  className={`flex-shrink-0 ml-2 text-white ${
                     hover ? '' : 'text-opacity-50'
                   }`}
                 />
