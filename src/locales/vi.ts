@@ -971,5 +971,7 @@ const vi = {
   orderTip: 'You can have up to 16 active/history limit orders',
   v2_pools: 'V2 Pools',
   minimum_received_dot: 'Tối thiểu nhận',
+  v2_your_pool_introduction: 'Your discretized concentrated liquidity',
+  v1_your_pool_introduction: 'Your liquidity in classic pools',
 };
 export default Object.assign(vi, vi_in_risks_page);

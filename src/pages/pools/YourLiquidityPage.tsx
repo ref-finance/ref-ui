@@ -64,7 +64,7 @@ import {
   isStablePool,
   ALL_STABLE_POOL_IDS,
 } from '../../services/near';
-import { STABLE_POOL_ID } from '../../services/near';
+import { STABLE_POOL_ID, REF_FI_CONTRACT_ID } from '../../services/near';
 import { isNotStablePool, canFarmV2 } from '../../services/pool';
 import {
   WalletContext,
@@ -124,6 +124,8 @@ import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { NoLiquidity } from '../poolsV3/YourLiquidityPageV3';
 import ReactTooltip from 'react-tooltip';
+import Big from 'big.js';
+import { checkFarmStake } from '../../state/farm';
 const StakeListContext = createContext(null);
 
 function MyShares({
@@ -206,10 +208,10 @@ function AddLiquidityButton() {
 }
 
 export function YourLiquidityPage(props: any) {
+  const { setYourLpValueV1, setLpValueV1Done } = props;
   const { checkedStatus, listLiquidities, listLiquiditiesLoading } = props;
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
-
   const { v1Farm, v2Farm } = useAllFarms();
 
   const [generalAddLiquidity, setGeneralAddLiquidity] =
@@ -221,26 +223,6 @@ export function YourLiquidityPage(props: any) {
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
   const isSignedIn = !!accountId;
-
-  const { txHash } = getURLInfo();
-
-  useEffect(() => {
-    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
-      checkTransactionStatus(txHash).then((res) => {
-        const transaction = res.transaction;
-        const methodName =
-          transaction?.actions[0]?.['FunctionCall']?.method_name;
-
-        const status: any = res.status;
-        const data: string | undefined = status.SuccessValue;
-        if (data && methodName === 'add_simple_pool') {
-          const buff = Buffer.from(data, 'base64');
-          const pool_id = buff.toString('ascii');
-          history.push(`/pool/${pool_id}`);
-        }
-      });
-    }
-  }, [txHash]);
 
   if (!isSignedIn) {
     history.push('/');
@@ -338,10 +320,16 @@ export function YourLiquidityPage(props: any) {
     p,
     ids,
     shares,
+    setLpValueV1Done,
+    setYourLpValueV1,
+    count,
   }: {
     p: PoolRPCView;
     ids: string[];
     shares: string;
+    setLpValueV1Done: (done: boolean) => void;
+    setYourLpValueV1: (value: string) => void;
+    count: number;
   }) => {
     const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
 
@@ -366,6 +354,9 @@ export function YourLiquidityPage(props: any) {
           endedFarmV1={endedFarmV1}
           lptAmount={lptAmount}
           shares={shares}
+          setLpValueV1Done={setLpValueV1Done}
+          setYourLpValueV1={setYourLpValueV1}
+          count={count}
         />
       </div>
     );
@@ -397,6 +388,9 @@ export function YourLiquidityPage(props: any) {
         endedFarmV2={endedFarmV2}
         endedFarmV1={endedFarmV1}
         shares={shares}
+        setLpValueV1Done={setLpValueV1Done}
+        setYourLpValueV1={setYourLpValueV1}
+        count={count}
       />
     );
   };
@@ -414,22 +408,46 @@ export function YourLiquidityPage(props: any) {
         return cur > 0 ? acc + 1 : acc;
       }, 0) +
     batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
+  const lpCount =
+    (!vePool || !getConfig().REF_VE_CONTRACT_ID ? 0 : 1) +
+    (batchTotalShares && batchTotalShares?.some((s) => s > 0)
+      ? stablePools?.length || 0
+      : 0) +
+    pools.filter(
+      (p) => !getConfig().REF_VE_CONTRACT_ID || !vePool || p.id !== vePool.id
+    ).length;
+
+  if (lpCount === 0 || +count === 0) {
+    setLpValueV1Done(true);
+    setYourLpValueV1('0');
+  }
 
   if (+count == 0 && !listLiquiditiesLoading && listLiquidities.length == 0) {
     return <NoLiquidity></NoLiquidity>;
   } else if (listLiquidities.length > 0 && +count == 0) {
     return (
       <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
-        <div className="text-white text-base mb-3">V1 (0)</div>
+        <div className="mb-3">
+          <span className="text-white text-base gotham_bold">V1 (0)</span>
+          <p className="text-sm text-farmText">
+            <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
+          </p>
+        </div>
         <NoLiquidity text="V1"></NoLiquidity>
       </div>
     );
   }
+
   return (
     <>
       {!listLiquiditiesLoading && listLiquidities.length == 0 ? (
         <div className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}>
-          <div className="text-white text-base mb-3">V2 (0)</div>
+          <div className="mb-3">
+            <span className="text-white text-base">V2 (0)</span>
+            <p className="text-sm text-farmText">
+              <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
+            </p>
+          </div>
           <NoLiquidity text="V2"></NoLiquidity>
         </div>
       ) : null}
@@ -446,15 +464,19 @@ export function YourLiquidityPage(props: any) {
               {error && <Alert level="warn" message={error.message} />}
             </div>
             {/* PC */}
-            <div className="text-white text-base my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
-              V1 ({count})
+            <div className="my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+              <span className="text-white text-base">V1 ({count})</span>
+              <p className="text-sm text-farmText">
+                <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
+              </p>
             </div>
             <Card
               width="w-full"
               padding="px-0 py-6"
               className="xs:hidden md:hidden"
             >
-              {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
+              {(!(!vePool || !getConfig().REF_VE_CONTRACT_ID) ||
+                batchTotalSharesSimplePools?.some((s) => s > 0) ||
                 batchTotalShares?.some((s) => s > 0)) &&
               !isClientMobile ? (
                 <section>
@@ -473,7 +495,7 @@ export function YourLiquidityPage(props: any) {
                         <FormattedMessage id="token" defaultMessage="Token" />
                       </div>
 
-                      <div className="flex flex-col col-span-5 text-left ml-8">
+                      <div className="flex flex-row col-span-5 text-left ml-8">
                         <span>
                           <FormattedMessage id="lp_token"></FormattedMessage>
                         </span>
@@ -487,7 +509,10 @@ export function YourLiquidityPage(props: any) {
                         </span>
                       </div>
                       <div className="col-span-4 xl:ml-8 ml-4">
-                        <FormattedMessage id="value" defaultMessage="Value" />
+                        <FormattedMessage
+                          id="usd_value"
+                          defaultMessage="USD Value"
+                        />
                       </div>
                     </div>
                     <div className=" overflow-y-auto">
@@ -498,6 +523,9 @@ export function YourLiquidityPage(props: any) {
                               <RowRender
                                 p={p}
                                 ids={p.token_account_ids}
+                                count={lpCount}
+                                setLpValueV1Done={setLpValueV1Done}
+                                setYourLpValueV1={setYourLpValueV1}
                                 shares={
                                   batchShares?.[
                                     pools.findIndex((p2) => p2.id === vePool.id)
@@ -512,9 +540,12 @@ export function YourLiquidityPage(props: any) {
                         stablePools?.map((p, i) => {
                           return (
                             <RowRender
+                              count={lpCount}
                               p={p}
                               ids={p.token_account_ids}
                               shares={batchStableShares?.[i] || ''}
+                              setLpValueV1Done={setLpValueV1Done}
+                              setYourLpValueV1={setYourLpValueV1}
                             />
                           );
                         })}
@@ -529,6 +560,9 @@ export function YourLiquidityPage(props: any) {
                         .map((p, i) => {
                           return (
                             <RowRender
+                              count={lpCount}
+                              setLpValueV1Done={setLpValueV1Done}
+                              setYourLpValueV1={setYourLpValueV1}
                               shares={
                                 batchShares?.[
                                   pools.findIndex((p2) => p2.id === p.id)
@@ -631,6 +665,10 @@ export function YourLiquidityPage(props: any) {
   );
 }
 
+export const REF_FI_YOUR_LP_VALUE = 'REF_FI_YOUR_LP_VALUE';
+
+export const REF_FI_YOUR_LP_VALUE_V1_COUNT = 'REF_FI_YOUR_LP_VALUE_V1_COUNT';
+
 function PoolRow(props: {
   pool: PoolRPCView;
   tokens: TokenMetadata[];
@@ -642,8 +680,19 @@ function PoolRow(props: {
   endedFarmV2?: number;
   shares: string;
   tvl: number;
+  setLpValueV1Done: (done: boolean) => void;
+  setYourLpValueV1: (value: string) => void;
+  count: number;
 }) {
-  const { pool: poolRPC, endedFarmV1, endedFarmV2, shares } = props;
+  const {
+    pool: poolRPC,
+    endedFarmV1,
+    endedFarmV2,
+    shares,
+    setLpValueV1Done,
+    setYourLpValueV1,
+    count,
+  } = props;
   const pool = parsePool(poolRPC);
 
   const needForbidden = Number(pool.id) === Number(NEARX_POOL_ID);
@@ -684,7 +733,13 @@ function PoolRow(props: {
 
   const usdValue = useMemo(() => {
     try {
-      if (!userTotalShareToString || typeof poolTVL !== 'number' || !pool)
+      if (
+        !userTotalShareToString ||
+        typeof poolTVL !== 'number' ||
+        !pool ||
+        (Number(checkFarmStake({ poolId, stakeList: finalStakeList })) > 0 &&
+          Number(farmStakeTotal) === 0)
+      )
         return '-';
 
       const rawRes = multiply(
@@ -701,8 +756,47 @@ function PoolRow(props: {
     } catch (error) {
       return '-';
     }
-  }, [poolTVL, userTotalShareToString, pool]);
+  }, [poolTVL, userTotalShareToString, pool, finalStakeList]);
 
+  useEffect(() => {
+    if (usdValue === '-') return;
+    const rawRes = multiply(
+      new BigNumber(userTotalShareToString)
+        .plus(
+          Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0'
+        )
+        .toNumber()
+        .toFixed(),
+      divide(poolTVL.toString(), pool?.shareSupply)
+    );
+
+    const storagedValueString = sessionStorage.getItem(REF_FI_YOUR_LP_VALUE);
+
+    const storagedValue = storagedValueString
+      ? JSON.parse(storagedValueString)
+      : {};
+
+    storagedValue[pool.id] = rawRes;
+
+    sessionStorage.setItem(REF_FI_YOUR_LP_VALUE, JSON.stringify(storagedValue));
+
+    if (Object.keys(storagedValue).length === count) {
+      const values = Object.values(storagedValue) as string[];
+
+      setYourLpValueV1(
+        values
+          .reduce(
+            (acc, cur, i) => {
+              return new Big(acc).plus(new Big(isNaN(Number(cur)) ? '0' : cur));
+            },
+
+            new Big(0)
+          )
+          .toFixed(3)
+      );
+      setLpValueV1Done(true);
+    }
+  }, [usdValue]);
   if (
     userTotalShare
       .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0')
@@ -757,7 +851,7 @@ function PoolRow(props: {
   const TokenInfoPC = ({ token }: { token: TokenMetadata }) => {
     return (
       <div className="inline-flex items-center justify-between my-1 w-28">
-        <div className="font-semibold">{toRealSymbol(token.symbol)}</div>
+        <div className="gotham_bold">{toRealSymbol(token.symbol)}</div>
         <div className="font-normal relative left-2.5">
           {tokenAmountShare(
             pool,
@@ -840,7 +934,7 @@ function PoolRow(props: {
           </div>
         </div>
 
-        <div className="col-span-2 inline-flex flex-col text-xs">
+        <div className="col-span-2 inline-flex flex-col text-sm">
           {tokensSort.map((token, i) => (
             <TokenInfoPC key={i} token={token} />
           ))}
@@ -1034,19 +1128,16 @@ function PoolRow(props: {
                     });
                   }
                 }}
-                className={`text-xs col-span-2 ${
+                className={`text-sm col-span-2 ${
                   needForbidden ? 'text-opacity-20' : ''
-                } px-1.5 text-center whitespace-nowrap mb-3`}
+                } px-1.5 py-1.5 text-center whitespace-nowrap mb-3 gotham_bold rounded-lg`}
                 style={{
                   minWidth: '104px',
                   background: needForbidden ? '#314351' : '',
                   border: needForbidden ? 'none' : '',
                 }}
               >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage="Add Liquidity"
-                />
+                <FormattedMessage id="add" defaultMessage="Add" />
               </SolidButton>
               {needForbidden ? (
                 <ReactTooltip
@@ -1075,7 +1166,7 @@ function PoolRow(props: {
 
                 setShowWithdraw(true);
               }}
-              className="text-xs w-full px-4 col-span-2 text-center h-8 mb-1"
+              className="text-sm w-full px-4 col-span-2 text-center h-8 mb-1 gotham_bold rounded-lg"
               style={{
                 minWidth: '104px',
               }}
@@ -1320,10 +1411,7 @@ function PoolRow(props: {
                   border: needForbidden ? 'none' : '',
                 }}
               >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage="Add Liquidity"
-                />
+                <FormattedMessage id="add" defaultMessage="Add" />
               </SolidButton>
               {needForbidden ? (
                 <ReactTooltip

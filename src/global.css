@@ -110,7 +110,7 @@ input[type='number'] {
 }
 
 .user .account-name {
-  max-width: 150px;
+  max-width: 180px;
 }
 
 .balances .token:first-child {
@@ -193,7 +193,9 @@ input[type='number'] {
 .hide-scrollbar::-webkit-scrollbar-thum {
   background: transparent;
 }
-
+.search-pool-pc::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
 .status-bar {
   font-size: 14px;
   line-height: 32px;
@@ -491,9 +493,10 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 .swiper-container {
   width: 292px;
-  /* height: 182px; */
+  height: 140px;
 }
 .swiper-wrapper {
+  position: relative;
   width: 100%;
   height: 100%;
 }

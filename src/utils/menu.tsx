@@ -38,7 +38,11 @@ import {
 import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
 import { MobileNavLimitOrder } from '../components/icon/Nav';
-import { SWAP_MODE_KEY, SWAP_MODE } from '../pages/SwapPage';
+import {
+  SWAP_MODE_KEY,
+  SWAP_MODE,
+  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+} from '../pages/SwapPage';
 import {
   MobileNavSwap,
   MobileNavStable,

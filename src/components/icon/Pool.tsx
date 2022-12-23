@@ -43,3 +43,113 @@ export const NoLiquidityDetailPageIcon = () => {
     </svg>
   );
 };
+
+export const PoolTabBanner = () => {
+  return (
+    <svg
+      width="500"
+      height="75"
+      viewBox="0 0 500 75"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M28.7734 28.452C39.7063 10.7654 59.017 0 79.8099 0H484C492.837 0 500 7.16344 500 16V75H0L28.7734 28.452Z"
+        fill="url(#paint0_linear_4732_8001)"
+        fill-opacity="0.11"
+      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_4732_8001"
+          x1="32.4028"
+          y1="47.9999"
+          x2="494.018"
+          y2="47.9999"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="white" />
+          <stop offset="1" stop-color="white" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+export const PoolTabBannerMask = () => {
+  return (
+    <svg
+      width="1440"
+      height="193"
+      viewBox="0 0 1440 193"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <mask
+        id="mask0_4732_7828"
+        style={{
+          maskType: 'alpha',
+        }}
+        maskUnits="userSpaceOnUse"
+        x="0"
+        y="0"
+        width="1440"
+        height="193"
+      >
+        <rect width="1440" height="193" fill="url(#paint0_linear_4732_7828)" />
+      </mask>
+      <g mask="url(#mask0_4732_7828)">
+        <g filter="url(#filter0_f_4732_7828)">
+          <path
+            d="M1156.3 214.997C1156.3 299.075 1133.67 224.505 1028.69 224.505C923.7 224.505 599.376 290.302 488 214.997C747.517 191.171 870.567 143.235 985.763 154.761C1130.35 169.227 1166.87 243.133 1156.3 214.997Z"
+            fill="url(#paint1_linear_4732_7828)"
+          />
+        </g>
+      </g>
+      <defs>
+        <filter
+          id="filter0_f_4732_7828"
+          x="311"
+          y="-24"
+          width="1024"
+          height="456"
+          filterUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB"
+        >
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="BackgroundImageFix"
+            result="shape"
+          />
+          <feGaussianBlur
+            stdDeviation="88.5"
+            result="effect1_foregroundBlur_4732_7828"
+          />
+        </filter>
+        <linearGradient
+          id="paint0_linear_4732_7828"
+          x1="710.5"
+          y1="0"
+          x2="710.5"
+          y2="193"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#001320" />
+          <stop offset="1" stop-color="#142B38" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_4732_7828"
+          x1="900.838"
+          y1="390.655"
+          x2="943.291"
+          y2="76.866"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00C6A2" />
+          <stop offset="1" stop-color="#7000FF" stop-opacity="0.61" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};

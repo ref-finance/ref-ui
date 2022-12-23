@@ -514,7 +514,7 @@ const en_US = {
   transaction_failed: 'Transaction failed',
   wallet_vi: ' ',
   value: 'Value',
-  usd_value: 'USD value',
+  usd_value: 'USD Value',
   sauce_note:
     'SAUCE is designed for liquidity pools with pegged assets, delivering optimal prices.',
   support_ledger: 'Support Ledger',
@@ -961,5 +961,7 @@ const en_US = {
   orderTip: 'You can have up to 16 active/history limit orders',
   v2_pools: 'V2 Pools',
   minimum_received_dot: 'Minimum received',
+  v2_your_pool_introduction: 'Your discretized concentrated liquidity',
+  v1_your_pool_introduction: 'Your liquidity in classic pools',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

@@ -463,7 +463,7 @@ function AccountEntry({
                   </span>
                 ) : null}
                 <ArrowDownIcon
-                  className={`ml-2 text-white ${
+                  className={`flex-shrink-0 ml-2 text-white ${
                     hover ? '' : 'text-opacity-50'
                   }`}
                 />
@@ -810,7 +810,7 @@ function Xref() {
   };
   return (
     <div
-      className={`h-full flex items-center justify-center relative py-4 mx-4 cursor-pointer hover:opacity-100 ${
+      className={`h-full flex items-center justify-center z-20 relative py-4 mx-4 cursor-pointer hover:opacity-100 ${
         location.pathname == '/xref' ? 'opacity-100' : 'opacity-60'
       }`}
       onClick={goXrefPage}

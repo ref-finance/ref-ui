@@ -419,3 +419,23 @@ export const getAllV3Pool24Volume = async (): Promise<any[]> => {
       return [];
     });
 };
+
+export const getAllTvl = async () => {
+  return await fetch(config.sodakiApiUrl + '/historical-tvl?period=1', {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      return res?.historicalTVL?.at(-1)?.totalUsdTvl;
+    });
+};
+
+export const getAllVolume24h = async () => {
+  return await fetch(config.sodakiApiUrl + '/volume24h?period=1', {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      return res?.[0]?.volume;
+    });
+};

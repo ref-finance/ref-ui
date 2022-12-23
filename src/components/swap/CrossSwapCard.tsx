@@ -681,19 +681,6 @@ export default function CrossSwapCard(props: {
     </div>
   );
 
-  console.log({
-    canSubmit,
-    loadingTrigger,
-    quoteDoneV3,
-    crossQuoteDone,
-    balanceInDone,
-    tokenInMax,
-    tokenInBalanceFromNear,
-    swapError,
-    swapErrorV3,
-    canSwapV3,
-  });
-
   useEffect(() => {
     const swapsToDoRefV3 =
       swapError && canSwapV3

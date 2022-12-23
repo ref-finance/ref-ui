@@ -73,6 +73,9 @@ export interface Pool {
   };
   pool_kind?: string;
   pairAdd?: string;
+  metas?: {
+    [id: string]: TokenMetadata;
+  };
 }
 
 export interface StablePool {
@@ -369,10 +372,6 @@ export const getPoolsByTokens = async ({
           : null
       );
     }
-
-    console.log({
-      triPools,
-    });
 
     if (triPools && triPools.length > 0) {
       sessionStorage.setItem(

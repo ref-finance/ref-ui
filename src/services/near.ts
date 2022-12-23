@@ -82,6 +82,7 @@ export const extraStableTokenIds = BTCIDS.concat(LINEARIDS)
   .concat(NEARXIDS)
   .concat(CUSDIDS)
   .concat(NEW_NEARXIDS)
+  .concat(USDTIDS)
   .filter((_) => !!_);
 
 export const isRatedPool = (id: string | number) => {

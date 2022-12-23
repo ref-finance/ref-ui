@@ -967,5 +967,7 @@ const ja = {
   orderTip: 'You can have up to 16 active/history limit orders',
   v2_pools: 'V2 Pools',
   minimum_received_dot: '受け取り可能な最低金額',
+  v2_your_pool_introduction: 'Your discretized concentrated liquidity',
+  v1_your_pool_introduction: 'Your liquidity in classic pools',
 };
 export default Object.assign(ja, ja_in_risks_page);

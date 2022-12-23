@@ -914,5 +914,7 @@ const zh_CN = {
   orderTip: '您最多可以拥有16个活动/历史限价单',
   v2_pools: 'V2池子',
   minimum_received_dot: '最少获得',
+  v2_your_pool_introduction: 'Your discretized concentrated liquidity',
+  v1_your_pool_introduction: 'Your liquidity in classic pools',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
