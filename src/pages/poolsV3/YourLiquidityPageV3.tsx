@@ -792,8 +792,8 @@ function UserLiquidityLine({
                   {getRate('right')}
                 </span>
                 <span className="text-v3SwapGray text-xs ml-1.5 mr-3">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}/
+                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}
                 </span>
                 <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
                   <span
