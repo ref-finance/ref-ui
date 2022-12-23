@@ -797,3 +797,55 @@ export const SwitchButtonIcon = (props: any) => {
     </svg>
   );
 };
+
+export const ColorsBoxCenter = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="87"
+      height="20"
+      viewBox="0 0 87 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M6 0L1 6H87L82 0H6Z" fill="#1E564C" />
+      <path
+        d="M6 0H82L77.6126 13.1623C76.2514 17.2457 72.43 20 68.1257 20H19.8743C15.57 20 11.7486 17.2457 10.3874 13.1623L8 6L6 0Z"
+        fill="url(#paint0_linear_0_1)"
+      />
+      <defs>
+        <linearGradient
+          id="paint0_linear_0_1"
+          x1="73.2058"
+          y1="5.99998"
+          x2="15.1811"
+          y2="5.99998"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#5B40FF" />
+          <stop offset="1" stop-color="#00D6AF" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+export const AddButtonIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="9"
+      height="9"
+      viewBox="0 0 9 9"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M5.40054 0.9C5.40054 0.402944 4.9976 0 4.50054 0C4.00348 0 3.60054 0.402943 3.60054 0.9V3.59997H0.9C0.402944 3.59997 0 4.00291 0 4.49997C0 4.99702 0.402944 5.39997 0.9 5.39997H3.60054V8.1C3.60054 8.59706 4.00348 9 4.50054 9C4.9976 9 5.40054 8.59706 5.40054 8.1V5.39997H8.1C8.59706 5.39997 9 4.99702 9 4.49997C9 4.00291 8.59706 3.59997 8.1 3.59997H5.40054V0.9Z"
+        fill="white"
+      />
+    </svg>
+  );
+};

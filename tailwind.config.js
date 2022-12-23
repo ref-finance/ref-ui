@@ -69,6 +69,8 @@ module.exports = {
         switchIconBgColor: 'linear-gradient(180deg, #222F37 0%, #192229 100%)',
         unLoginButtonBgColor:
           'linear-gradient(rgba(0, 198, 162, 0.3) 0%, rgba(0, 139, 114, 0.3) 100%)',
+        starPoolBg: 'linear-gradient(180deg, #374F5E 0%, #1D2932 100%)',
+        poolBanner: 'linear-gradient(180deg, #001320 0%, #142B38 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -232,6 +234,7 @@ module.exports = {
         selectBoxBgColor: '#222D35',
         selectBoxEleColor: 'rgba(74, 88, 98, 0.3)',
         viewPoolBgColor: '#24333D',
+        viewPoolHoverBgColor: '#34404A',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

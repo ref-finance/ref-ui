@@ -86,7 +86,7 @@ import {
   WalletContext,
   getCurrentWallet,
 } from '../../utils/wallets-integration';
-import { unwrapedNear } from '../../services/wrap-near';
+import { unwrapedNear, wnearMetadata } from '../../services/wrap-near';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { getVEPoolId } from '../ReferendumPage';
 import { StartPoolIcon } from '../../components/icon/WatchListStar';
@@ -125,7 +125,9 @@ import { ALL_STABLE_POOL_IDS } from '../../services/near';
 import { WatchList } from '../../store/RefDatabase';
 import { useAllFarms } from '../../state/farm';
 import { REF_FI_CONTRACT_ID } from '../../services/near';
+import { AiOutlineStar } from 'react-icons/ai';
 
+import { AiFillStar } from 'react-icons/ai';
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
@@ -198,7 +200,7 @@ function SelectUi({
       <span className="lg:hidden mr-2">
         <FilterIcon onShow={showSelectBox} />
       </span>
-      <span className="text-farmText text-sm mr-2.5 xs:hidden md:hidden">
+      <span className="text-white text-sm mr-2.5 xs:hidden md:hidden">
         <FormattedMessage id="filter_by" defaultMessage="Filter by" />
       </span>
 
@@ -215,7 +217,9 @@ function SelectUi({
         }`}
       >
         <label
-          className={`whitespace-nowrap ${shrink ? 'xs:hidden md:hidden' : ''}`}
+          className={`whitespace-nowrap lg:text-white ${
+            shrink ? 'xs:hidden md:hidden' : ''
+          }`}
         >
           {curvalue ? list[curvalue] : null}
         </label>
@@ -879,26 +883,6 @@ function MobileLiquidityPage({
           <div className="bg-cardBg flex items-center rounded-xl w-full p-1">
             <button
               className={`w-1/3 h-10 flex items-center justify-center ${
-                activeTab === 'v1' ? 'text-white' : 'text-primaryText'
-              } `}
-              style={{
-                background:
-                  activeTab === 'v1'
-                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
-                    : null,
-                borderRadius: '10px',
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                switchActiveTab('v1');
-              }}
-            >
-              V1 Pools
-            </button>
-
-            <button
-              className={`w-1/3 h-10 flex items-center justify-center ${
                 activeTab === 'v2' ? 'text-white' : 'text-primaryText'
               } `}
               style={{
@@ -915,6 +899,26 @@ function MobileLiquidityPage({
               }}
             >
               V2 Pools
+            </button>
+
+            <button
+              className={`w-1/3 h-10 flex items-center justify-center ${
+                activeTab === 'v1' ? 'text-white' : 'text-primaryText'
+              } `}
+              style={{
+                background:
+                  activeTab === 'v1'
+                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
+                    : null,
+                borderRadius: '10px',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                switchActiveTab('v1');
+              }}
+            >
+              V1 Pools
             </button>
 
             <button
@@ -943,6 +947,7 @@ function MobileLiquidityPage({
               <div className="relative rounded-xl w-full my-2 text-primaryText flex items-center pr-2 bg-cardBg">
                 <input
                   ref={inputRef}
+                  value={tokenName}
                   className={`text-sm outline-none rounded-xl w-full py-1.5 pl-3 pr-6`}
                   placeholder={intl.formatMessage({
                     id: 'search_by_token',
@@ -1295,7 +1300,6 @@ function PoolRow({
         }}
       >
         <div className="col-span-3 md:col-span-4 flex items-center">
-          <div className="mr-8 w-2">{index}</div>
           <div className="flex items-center">
             <Images tokens={tokens} size="8" />
             <div className="flex items-center">
@@ -1437,7 +1441,6 @@ function PoolRowV2({
             showCol && mark ? 'col-span-3' : 'col-span-4'
           }`}
         >
-          <div className="mr-8 w-2">{index}</div>
           <div className="flex items-center">
             <Images tokens={tokens} size="8" />
             <div className="text-sm ml-3">
@@ -1505,6 +1508,7 @@ function WatchListCard({
   watchV2Pools,
   poolsMorePoolsIds,
   watchList,
+  tokenName,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
@@ -1513,6 +1517,7 @@ function WatchListCard({
   watchV2Pools: PoolInfo[];
   poolsMorePoolsIds: Record<string, string[]>;
   watchList: WatchList[];
+  tokenName: string;
 }) {
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
   function getAllWatchPools() {
@@ -1533,27 +1538,32 @@ function WatchListCard({
     return watchAllPools;
   }
   const watchAllPools = getAllWatchPools();
+
+  function v1PoolFilter(p: Pool) {
+    return Object.values(p.metas)?.some((t: any) =>
+      _.includes(t.symbol.toLowerCase(), tokenName.toLowerCase())
+    );
+  }
+
+  function v2PoolFilter(p: PoolInfo) {
+    return (
+      _.includes(
+        p.token_x_metadata.symbol.toLowerCase(),
+        tokenName.toLowerCase()
+      ) ||
+      _.includes(
+        p.token_y_metadata.symbol.toLowerCase(),
+        tokenName.toLowerCase()
+      )
+    );
+  }
+
   return (
     <>
       <Card className=" w-full mb-2" padding="p-0 py-6" bgcolor="bg-cardBg">
-        <div className="mx-8 flex items-center">
-          <div
-            className={`text-${
-              watchPools?.length > 0 ? 'white' : 'gray-400'
-            } text-lg`}
-          >
-            <FormattedMessage id="my_watchlist" defaultMessage="My Watchlist" />
-          </div>
-          <QuestionTip id="my_watchlist_copy" />
-
-          <span className="text-sm text-primaryText ml-3">
-            {totalWatchList_length || ''}
-          </span>
-        </div>
         <section className="">
           <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-gray-400 mx-8 border-b border-gray-700 border-opacity-70">
             <div className="col-span-3 md:col-span-4 flex">
-              <div className="mr-8 w-2">#</div>
               <FormattedMessage id="pair" defaultMessage="Pair" />
             </div>
             <div className="col-span-1 justify-self-center md:hidden flex items-center">
@@ -1583,39 +1593,47 @@ function WatchListCard({
           </header>
 
           <div className="max-h-96 overflow-y-auto">
-            {watchAllPools.map((pool: any, i: number) => {
-              if (pool.id?.toString()) {
-                return (
-                  <div
-                    className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
-                    key={i}
-                  >
-                    <PoolRow
+            {watchAllPools
+              .filter((p: any) => {
+                if (p.id?.toString()) {
+                  return v1PoolFilter(p);
+                } else if (p.pool_id) {
+                  return v2PoolFilter(p);
+                }
+              })
+              .map((pool: any, i: number) => {
+                if (pool.id?.toString()) {
+                  return (
+                    <div
+                      className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
+                      key={i}
+                    >
+                      <PoolRow
+                        pool={pool}
+                        index={i + 1}
+                        tokens={poolTokenMetas[pool.id]}
+                        morePoolIds={poolsMorePoolsIds[pool.id]}
+                        farmCount={farmCounts[pool.id]}
+                        supportFarm={!!farmCounts[pool.id]}
+                        h24volume={volumes[pool.id]}
+                        mark={true}
+                      />
+                    </div>
+                  );
+                } else if (pool.pool_id) {
+                  return (
+                    <PoolRowV2
+                      tokens={[pool.token_x_metadata, pool.token_y_metadata]}
+                      key={i}
                       pool={pool}
-                      index={i + 1}
-                      tokens={poolTokenMetas[pool.id]}
-                      morePoolIds={poolsMorePoolsIds[pool.id]}
-                      farmCount={farmCounts[pool.id]}
-                      supportFarm={!!farmCounts[pool.id]}
-                      h24volume={volumes[pool.id]}
+                      index={1 + i}
+                      showCol={true}
                       mark={true}
+                      h24volume={volumes[pool.pool_id]}
                     />
-                  </div>
-                );
-              } else if (pool.pool_id) {
-                return (
-                  <PoolRowV2
-                    tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                    key={i}
-                    pool={pool}
-                    index={1 + i}
-                    showCol={true}
-                    mark={true}
-                    h24volume={volumes[pool.pool_id]}
-                  />
-                );
-              }
-            })}
+                  );
+                }
+              })}
             {/* {watchPools?.map((pool, i) => (
               <div
                 className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
@@ -1676,6 +1694,7 @@ function LiquidityPage_({
   switchActiveTab,
   watchV2Pools,
   watchList,
+  h24VolumeV2,
 }: {
   pools: Pool[];
   switchActiveTab: (tab: string) => void;
@@ -1688,6 +1707,7 @@ function LiquidityPage_({
   order: string;
   onHide: (mode: Boolean) => void;
   allPools: number;
+  h24VolumeV2: string;
   farmOnly: boolean;
   setFarmOnly: (farmOnly: boolean) => void;
   hasMore: boolean;
@@ -1705,6 +1725,29 @@ function LiquidityPage_({
   const inputRef = useRef(null);
 
   const allPoolsV2 = useAllPoolsV2();
+
+  const [tvlV2, setTvlV2] = useState<string>();
+
+  useEffect(() => {
+    if (
+      typeof allPoolsV2 === 'undefined' ||
+      allPoolsV2.length === 0 ||
+      allPoolsV2.every((p) => !p?.tvl)
+    )
+      return;
+
+    const tvl = allPoolsV2.reduce(
+      (a, b) => new Big(a || '0').plus(new Big(b.tvl || '0')),
+      new Big(0)
+    );
+
+    setTvlV2(scientificNotationToString(tvl.toString()));
+  }, [allPoolsV2]);
+  useEffect(() => {
+    if (inputRef?.current) {
+      inputRef.current.value = tokenName;
+    }
+  }, [tokenName, inputRef?.current]);
 
   const selectTokens = useRainbowWhitelistTokens();
 
@@ -1794,6 +1837,8 @@ function LiquidityPage_({
     }
   };
 
+  const [searchFocus, setSearchFocus] = useState(false);
+
   const poolv2FilterFunc = (p: PoolInfo) => {
     return (
       _.includes(
@@ -1810,43 +1855,24 @@ function LiquidityPage_({
   const poolFilterFunc = (p: Pool) => {
     if (selectCoinClass === 'all') return true;
 
-    return poolTokenMetas[p.id].some((tk: TokenMetadata) =>
+    return poolTokenMetas?.[p.id]?.some((tk: TokenMetadata) =>
       classificationOfCoins[selectCoinClass].includes(tk.symbol)
     );
   };
 
   if (activeTab === 'v2' && !allPoolsV2) return <Loading />;
-
+  const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
   return (
     <>
       <PoolTabV3></PoolTabV3>
-      {/* w-4/6 lg:w-5/6 xl:w-3/4 */}
-      <div className="flex flex-col whitespace-nowrap pool_width_adaptive  md:hidden m-auto xs:hidden">
-        <WatchListCard
-          poolTokenMetas={poolTokenMetas}
-          watchPools={watchPools}
-          farmCounts={farmCounts}
-          volumes={volumes}
-          watchV2Pools={watchV2Pools}
-          watchList={watchList}
-          poolsMorePoolsIds={poolsMorePoolsIds}
-        />
+      <div className="flex flex-col whitespace-nowrap w-1000px m-auto ">
         {/* start pool card */}
         {!!getConfig().REF_VE_CONTRACT_ID ? (
-          <div className="mt-3 mb-5">
-            <div className="flex items-center">
-              <span className="text-white text-lg ml-8 mr-2">
-                <FormattedMessage
-                  id="start_pool"
-                  defaultMessage={'Star Pool'}
-                />
-              </span>
-              <StartPoolIcon />
-            </div>
+          <div className={` mt-5 mb-3`}>
             <Card
               className="mt-2  relative flex items-center "
               width="w-full"
-              bgcolor="bg-cardBg "
+              bgcolor="bg-starPoolBg "
               padding="px-0 "
               onClick={(e) => {
                 e.stopPropagation();
@@ -1854,6 +1880,9 @@ function LiquidityPage_({
                 window.open(`/pool/${getVEPoolId()}`);
               }}
             >
+              <div className="absolute left-3 top-0 ">
+                <StartPoolIcon />
+              </div>
               <div className="w-full cursor-pointer flex items-center px-8 py-3 hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
                 <div className="flex items-center">
                   <div className="flex items-center">
@@ -1870,7 +1899,7 @@ function LiquidityPage_({
               </div>
               <div className="absolute flex items-center right-0 bottom-0">
                 <button
-                  className="text-white hover:text-gradientFrom text-xl z-30 relative top-3 right-3 flex items-center"
+                  className="text-white hover:text-gradientFrom text-lg z-30 relative top-6 right-0 flex items-center"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -1894,55 +1923,60 @@ function LiquidityPage_({
           </div>
         ) : null}
 
-        <div className="flex items-center justify-between mb-4 lg:mb-3 lg:mt-5">
-          <div
-            className="bg-cardBg flex items-center rounded-xl p-1"
-            style={{
-              width: '420px',
-            }}
-          >
-            <button
-              className={`w-1/3 h-10 flex items-center justify-center ${
-                activeTab === 'v1' ? 'text-white' : 'text-primaryText'
-              } `}
-              style={{
-                background:
-                  activeTab === 'v1'
-                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
-                    : null,
-                borderRadius: '10px',
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                switchActiveTab('v1');
-              }}
-            >
-              V1 Pools
-            </button>
+        <div className={`flex items-center justify-between mb-4 ${'mt-5'} `}>
+          <div className=" flex text-base items-center rounded-xl p-1">
+            <div className="bg-cardBg p-1 h-10 flex items-center rounded-xl">
+              <button
+                className={` h-full  hover:bg-viewPoolHoverBgColor border-primaryText px-4 flex items-center justify-center ${
+                  activeTab === 'v2' ? 'text-white' : 'text-primaryText'
+                } `}
+                style={{
+                  background:
+                    activeTab === 'v2'
+                      ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
+                      : null,
+                  borderRadius: '10px',
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  switchActiveTab('v2');
+                }}
+              >
+                V2 Pools
+              </button>
+              {activeTab === 'v1' || activeTab === 'v2' ? null : (
+                <div
+                  className="w-px h-6"
+                  style={{
+                    background: '#566069',
+                  }}
+                ></div>
+              )}
+
+              <button
+                className={` h-full flex  hover:bg-viewPoolHoverBgColor  px-4 items-center justify-center ${
+                  activeTab === 'v1' ? 'text-white' : 'text-primaryText'
+                } `}
+                style={{
+                  background:
+                    activeTab === 'v1'
+                      ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
+                      : null,
+                  borderRadius: '10px',
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  switchActiveTab('v1');
+                }}
+              >
+                V1 Pools
+              </button>
+            </div>
 
             <button
-              className={`w-1/3 h-10 flex items-center justify-center ${
-                activeTab === 'v2' ? 'text-white' : 'text-primaryText'
-              } `}
-              style={{
-                background:
-                  activeTab === 'v2'
-                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
-                    : null,
-                borderRadius: '10px',
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                switchActiveTab('v2');
-              }}
-            >
-              V2 Pools
-            </button>
-
-            <button
-              className={`w-1/3 h-10 flex items-center justify-center ${
+              className={`ml-2.5 h-10 px-4  hover:bg-viewPoolHoverBgColor bg-cardBg flex items-center justify-center ${
                 activeTab === 'stable' ? 'text-white' : 'text-primaryText'
               } `}
               style={{
@@ -1960,24 +1994,68 @@ function LiquidityPage_({
             >
               Stable Pools
             </button>
+
+            <button
+              className={`ml-2.5 h-10 px-4  hover:bg-viewPoolHoverBgColor bg-cardBg flex items-center justify-center ${
+                activeTab === 'watchlist' ? 'text-white' : 'text-primaryText'
+              } `}
+              style={{
+                background:
+                  activeTab === 'watchlist'
+                    ? 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)'
+                    : null,
+                borderRadius: '10px',
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                switchActiveTab('watchlist');
+              }}
+            >
+              {activeTab === 'watchlist' ? (
+                <AiFillStar fill="white" />
+              ) : (
+                <AiFillStar fill="#91A2AE" />
+              )}
+              <FormattedMessage id="watchlist" defaultMessage={'Watchlist'} />
+              {totalWatchList_length > 0 ? ` (${totalWatchList_length})` : ''}
+            </button>
           </div>
 
-          <div className="flex items-center justify-end relative w-1/4">
-            <div className="relative rounded-xl w-full my-2 text-primaryText flex items-center pr-2 bg-cardBg">
+          <div className="flex items-center justify-end relative ">
+            <div
+              className={`relative rounded-xl border w-full my-2 text-white  flex items-center pr-2 `}
+              style={{
+                background: 'rgba(34, 46, 56, 0.2)',
+                border: searchFocus ? '1px solid #3A635B' : '1px solid #304452',
+              }}
+            >
               <input
                 ref={inputRef}
-                className={`text-sm outline-none rounded-xl w-full py-1.5 pl-3 pr-6`}
+                className={`text-sm search-pool-pc outline-none rounded-xl w-full py-2 pl-3 pr-6`}
                 placeholder={intl.formatMessage({
-                  id: 'search_by_token',
+                  id: 'search_pool_by_token',
+                  defaultMessage: 'Search pool by token...',
                 })}
+                onFocus={() => {
+                  setSearchFocus(true);
+                }}
+                onBlur={() => {
+                  setSearchFocus(false);
+                }}
                 onChange={(evt) => {
                   onSearch(evt.target.value);
                 }}
               />
-              <SearchIcon className="absolute right-2"></SearchIcon>
+              <SearchIcon
+                style={{
+                  opacity: searchFocus ? '1' : '0.5',
+                }}
+                className="absolute right-2"
+              ></SearchIcon>
             </div>
 
-            {isSignedIn && activeTab === 'v1' ? (
+            {isSignedIn && (activeTab === 'v1' || activeTab === 'v2') ? (
               <div
                 className="ml-1 text-xs"
                 data-type="info"
@@ -1986,51 +2064,82 @@ function LiquidityPage_({
                 data-class="reactTip"
                 data-html={true}
                 data-tip={`
-              <div className="text-xs">
+              <div class="text-xs opacity-50">
                 <div 
-                  style="max-width: 250px;font-weight:400",
+                  style="font-weight:400",
                 >
-                ${intl.formatMessage({ id: 'create_new_pool' })}
+                ${intl.formatMessage({
+                  id: 'v2_pool_are_not_available_to_be_created_yet',
+
+                  defaultMessage:
+                    'V2 Pools are not available to be created yet',
+                })}
                 </div>
               </div>
             `}
                 data-for="add_pool_tip"
               >
-                <button
-                  className={`text-xl ml-2 px-3 text-primaryText w-8 h-8 bg-cardBg   hover:text-gradientFrom rounded-xl flex items-center justify-center`}
+                <SolidButton
+                  className={`text-sm ml-2 px-3 text-white rounded-lg flex items-center justify-center`}
                   onClick={() => {
                     setShowAddPoolModal(true);
                   }}
+                  disabled={activeTab === 'v2'}
                 >
-                  +
-                </button>
+                  <span className="mr-1">+</span>
 
-                <ReactTooltip
-                  className="w-20"
-                  id="add_pool_tip"
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  textColor="#C6D1DA"
-                  effect="solid"
-                />
+                  <span>
+                    <FormattedMessage
+                      id="create_pool"
+                      defaultMessage={'Create Pool'}
+                    />
+                  </span>
+                </SolidButton>
+
+                {activeTab === 'v2' && (
+                  <ReactTooltip
+                    className="w-20"
+                    id="add_pool_tip"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    textColor="#C6D1DA"
+                    effect="solid"
+                  />
+                )}
               </div>
             ) : null}
           </div>
         </div>
-
+        {activeTab === 'watchlist' && (
+          <WatchListCard
+            poolTokenMetas={poolTokenMetas}
+            watchPools={watchPools}
+            farmCounts={farmCounts}
+            volumes={volumes}
+            watchV2Pools={watchV2Pools}
+            watchList={watchList}
+            poolsMorePoolsIds={poolsMorePoolsIds}
+            tokenName={tokenName}
+          />
+        )}
         {activeTab === 'v1' && (
-          <Card width="w-full" className="bg-cardBg" padding="py-7 px-0">
-            <div className="flex mx-8 justify-between pb-6">
+          <Card width="w-full" className="bg-cardBg" padding="pb-7 px-0">
+            <div
+              className="flex px-6 py-5 justify-between rounded-t-xl mb-2"
+              style={{
+                background: '#293742',
+              }}
+            >
               <div className="flex items-center">
-                <div className="text-white text-lg">Top Pools</div>
+                <div className="text-white text-lg font-bold">Top Pools</div>
 
                 <div className="flex items-center">
                   <span className="mr-1">
                     <QuestionTip id="topPoolsCopy" />
                   </span>
 
-                  <div className="text-primaryText text-sm">
+                  <div className="text-white text-sm">
                     {(pools?.length
                       ? pools?.filter(poolFilterFunc).length
                       : '-') +
@@ -2040,26 +2149,8 @@ function LiquidityPage_({
                 </div>
               </div>
 
-              <div className="ml-8 justify-between pb-4 flex">
+              <div className="ml-8 justify-between  flex">
                 <div className="flex items-center">
-                  <div
-                    className="flex items-center mr-5 cursor-pointer"
-                    onClick={() => {
-                      hideLowTVL && onHide(false);
-                      !hideLowTVL && onHide(true);
-                    }}
-                  >
-                    <div className="mr-2">
-                      {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
-                    </div>
-                    <div className="text-primaryText text-sm ">
-                      <FormattedMessage
-                        id="hide_low_tvl_pools"
-                        defaultMessage="Hide low TVL pools"
-                      />
-                    </div>
-                  </div>
-
                   <div
                     className="flex items-center mr-5 cursor-pointer"
                     onClick={() => {
@@ -2070,10 +2161,24 @@ function LiquidityPage_({
                     <div className="mr-2">
                       {farmOnly ? <CheckedTick /> : <CheckedEmpty />}
                     </div>
-                    <div className="text-primaryText text-sm ">
+                    <div className="text-white text-sm ">
+                      <FormattedMessage id="farm" defaultMessage="Farm" />
+                    </div>
+                  </div>
+                  <div
+                    className="flex items-center mr-5 cursor-pointer"
+                    onClick={() => {
+                      hideLowTVL && onHide(false);
+                      !hideLowTVL && onHide(true);
+                    }}
+                  >
+                    <div className="mr-2">
+                      {hideLowTVL ? <CheckedTick /> : <CheckedEmpty />}
+                    </div>
+                    <div className="text-white text-sm ">
                       <FormattedMessage
-                        id="farm_only"
-                        defaultMessage="Farm only"
+                        id="hide_low_tvl_pools"
+                        defaultMessage="Hide low TVL pools"
                       />
                     </div>
                   </div>
@@ -2091,7 +2196,6 @@ function LiquidityPage_({
             <section className="">
               <header className="grid grid-cols-8 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
                 <div className="col-span-3 md:col-span-4 flex">
-                  <div className="mr-8 w-2">#</div>
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
                 <div className="col-span-1 justify-self-center md:hidden flex items-center">
@@ -2285,7 +2389,6 @@ function LiquidityPage_({
             <section className="">
               <header className="grid grid-cols-7 py-2 pb-4 text-left text-sm text-primaryText mx-8 border-b border-gray-700 border-opacity-70">
                 <div className="col-span-4 flex">
-                  <div className="mr-8 w-2">#</div>
                   <FormattedMessage id="pair" defaultMessage="Pair" />
                 </div>
                 <div className="col-span-1 justify-self-center md:hidden flex items-center">
@@ -2450,8 +2553,15 @@ function LiquidityPage_({
 
 export const REF_FI_POOL_ACTIVE_TAB = 'REF_FI_POOL_ACTIVE_TAB_VALUE';
 
+export const REF_FI_POOL_SEARCH_BY = 'REF_FI_POOL_SEARCH_BY_VALUE';
+
 export function LiquidityPage() {
-  const [tokenName, setTokenName] = useState('');
+  window.onunload = () => {
+    sessionStorage.removeItem(REF_FI_POOL_SEARCH_BY);
+  };
+  const storeTokenName = sessionStorage.getItem(REF_FI_POOL_SEARCH_BY);
+
+  const [tokenName, setTokenName] = useState(storeTokenName || '');
   const [sortBy, setSortBy] = useState('tvl');
   const [order, setOrder] = useState('desc');
   const AllPools = useAllPools();
@@ -2510,7 +2620,13 @@ export function LiquidityPage() {
   const poolTokenMetas = usePoolTokens(pools);
 
   const onSearch = useCallback(
-    _.debounce(setTokenName, clientMobileDevice ? 50 : 500),
+    _.debounce(
+      (name: string) => {
+        setTokenName(name);
+        sessionStorage.setItem(REF_FI_POOL_SEARCH_BY, name);
+      },
+      clientMobileDevice ? 50 : 500
+    ),
     [clientMobileDevice]
   );
 
@@ -2552,6 +2668,18 @@ export function LiquidityPage() {
 
   const watchPoolVolumes = useDayVolumesPools(watchPools.map((p) => p.id));
   const v3PoolVolumes = useV3VolumesPools();
+  const [h24VolumeV2, setH24VolumeV2] = useState<string>();
+
+  useEffect(() => {
+    if (Object.keys(v3PoolVolumes).length > 0) {
+      const h24Volume = Object.values(v3PoolVolumes).reduce(
+        (a, b) => new Big(a || '0').plus(new Big(b || '0')),
+        new Big(0)
+      );
+
+      setH24VolumeV2(scientificNotationToString(h24Volume.toString()));
+    }
+  }, [v3PoolVolumes]);
 
   const allVolumes = { ...watchPoolVolumes, ...volumes, ...v3PoolVolumes };
 
@@ -2564,6 +2692,7 @@ export function LiquidityPage() {
         <LiquidityPage_
           poolTokenMetas={poolTokenMetas}
           activeTab={activeTab}
+          h24VolumeV2={h24VolumeV2}
           switchActiveTab={switchActiveTab}
           tokenName={tokenName}
           pools={displayPools}
@@ -2981,7 +3110,7 @@ function StablePoolCard({
       >
         <StablePoolClassIcon id={poolData.pool.id.toString()} />
         <div
-          className={`w-1/2 xs:w-full md:w-full ${
+          className={`w-5/12 xs:w-full md:w-full ${
             haveFarm
               ? 'xs:relative xs:top-1 xs:items-start md:relative md:top-1 md:items-start'
               : ''
@@ -2992,7 +3121,7 @@ function StablePoolCard({
           <div className="flex xs:flex-col xs:items-end items-center">
             <div className="flex items-center">
               <Symbols
-                fontSize="xs:text-sm md:text-sm "
+                fontSize="xs:text-sm md:text-sm lg:text-lg lg:font-bold "
                 tokens={poolData.tokens}
                 seperator="-"
               />
@@ -3023,9 +3152,9 @@ function StablePoolCard({
           </div>
         </div>
 
-        <div className="w-1/2 flex  xs:hidden md:hidden items-center">
+        <div className="w-7/12 flex  xs:hidden md:hidden items-center">
           <div
-            className="col-span-1 w-32 py-1 text-lg relative xl:right-8 lg:right-12"
+            className="col-span-1 w-32 py-1 text-lg relative right-3"
             title={h24volume}
           >
             {!h24volume
@@ -3037,7 +3166,7 @@ function StablePoolCard({
               : `$${toInternationalCurrencySystem(h24volume)}`}
           </div>
 
-          <div className="flex flex-col   flex-shrink-0 relative lg:right-12 lg2:right-8   2xl:-right-8">
+          <div className="flex flex-col   flex-shrink-0 relative lg:right-12 lg2:right-8   2xl:-right-4">
             <div
               className="col-span-1 py-1 text-lg "
               title={toPrecision(
@@ -3246,12 +3375,12 @@ function StablePoolList({
   return (
     <>
       <div className="flex relative mb-4 xs:mb-2 md:mb-2 items-center">
-        <div className="flex items-center w-1/2 xs:w-full md:w-full xs:justify-between md:justify-between">
+        <div className="flex items-center w-5/12 xs:w-full md:w-full xs:justify-between md:justify-between">
           {['ALL', 'USD', 'BTC', 'NEAR'].map((o) => {
             return (
               <button
                 key={o + '-stable-pool-type'}
-                className={`text-lg xs:text-base md:text-base flex px-3 mr-3 py-1 rounded-xl items-center justify-center  ${
+                className={`text-sm xs:text-base md:text-base flex px-3 mr-3 py-1 rounded-xl items-center justify-center  ${
                   option === o ? 'bg-cardBg text-white' : 'text-primaryText'
                 } `}
                 onClick={(e) => {
@@ -3266,7 +3395,7 @@ function StablePoolList({
           })}
         </div>
 
-        <div className="w-1/2 xs:hidden md:hidden flex items-center text-primaryText ">
+        <div className="w-7/12 xs:hidden md:hidden flex items-center text-primaryText ">
           <div className="w-32 relative xl:right-8 lg:right-12 flex items-center">
             <span
               className={`pr-1 cursor-pointer
@@ -3312,7 +3441,7 @@ function StablePoolList({
           </div>
 
           <div
-            className={`relative lg:right-12 lg2:right-8   2xl:-right-8    inline-flex items-center`}
+            className={`relative lg:right-12 lg2:right-8   2xl:-right-4    inline-flex items-center`}
           >
             <span
               className={`pr-1 cursor-pointer

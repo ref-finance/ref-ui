@@ -366,7 +366,9 @@ export function OutlineButton(
       style={style}
       onClick={onClick}
       disabled={disabled}
-      className={`rounded ${disabled ? 'cursor-not-allowed  opacity-40' : ''} ${
+      className={`flex items-center justify-center rounded ${
+        disabled ? 'cursor-not-allowed  opacity-40' : ''
+      } ${
         padding ? padding : 'py-2'
       } border border-gradientFromHover text-gradientFrom ${className}`}
     >
@@ -1022,6 +1024,7 @@ export const BuyNearButton = () => {
         e.stopPropagation();
         openTransak(wallet.getAccountId() || '');
       }}
+      className="relative z-50"
       onMouseEnter={() => {
         setHover(true);
       }}

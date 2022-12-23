@@ -73,6 +73,9 @@ export interface Pool {
   };
   pool_kind?: string;
   pairAdd?: string;
+  metas?: {
+    [id: string]: TokenMetadata;
+  };
 }
 
 export interface StablePool {
