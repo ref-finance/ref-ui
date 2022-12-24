@@ -39,6 +39,7 @@ import {
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   useAddAndRemoveUrlHandle,
+  TOKEN_LIST_FOR_RATE,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -957,9 +958,19 @@ function SelectLiquidityBox(props: any) {
   }
   function displayRange(liquidityDetail: UserLiquidityDetail) {
     const { l_price, r_price } = liquidityDetail;
-    let display_l = toPrecision(l_price, 6);
-    let display_r = toPrecision(r_price, 6);
-
+    let display_l;
+    let display_r;
+    if (
+      TOKEN_LIST_FOR_RATE.indexOf(token_x_metadata?.symbol) > -1 &&
+      +r_price !== 0 &&
+      +l_price !== 0
+    ) {
+      display_l = toPrecision(new BigNumber(1).dividedBy(r_price).toFixed(), 6);
+      display_r = toPrecision(new BigNumber(1).dividedBy(l_price).toFixed(), 6);
+    } else {
+      display_l = toPrecision(l_price, 6);
+      display_r = toPrecision(r_price, 6);
+    }
     const valueBig_l = new BigNumber(display_l);
     if (valueBig_l.isGreaterThan('100000')) {
       display_l = new BigNumber(display_l).toExponential(3);
@@ -1550,13 +1561,24 @@ function LiquidityChart(props: any) {
   const chartDom = useRef(null);
   const isMobile = isClientMobie();
   useEffect(() => {
+    if (poolDetail?.token_x_metadata) {
+      if (
+        TOKEN_LIST_FOR_RATE.indexOf(poolDetail?.token_x_metadata.symbol) > -1
+      ) {
+        setRateDirection(false);
+      } else {
+        setRateDirection(true);
+      }
+    }
+  }, [poolDetail]);
+  useEffect(() => {
     if (depthData) {
       drawChartData({
         depthData,
         token_x_decimals: poolDetail.token_x_metadata.decimals,
         token_y_decimals: poolDetail.token_y_metadata.decimals,
         chartDom,
-        sort: true,
+        sort: rateDirection,
         onlyCurrent: true,
         sizey: isMobile ? 220 : 330,
         ticks: isMobile ? 5 : 8,
@@ -1573,7 +1595,7 @@ function LiquidityChart(props: any) {
     } else {
       setChartLoading(true);
     }
-  }, [depthData]);
+  }, [depthData, rateDirection]);
   const rateDOM = useMemo(() => {
     const { current_point, token_x_metadata, token_y_metadata } = poolDetail;
     const rate =
