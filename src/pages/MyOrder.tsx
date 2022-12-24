@@ -525,6 +525,9 @@ function OrderCard({
               sort ? sellToken?.symbol : buyToken.symbol
             )}/${toRealSymbol(sort ? buyToken.symbol : sellToken.symbol)}`}
           </span>
+          <span className="text-white text-sm lg:hidden md:hidden">
+            {`${toRealSymbol(sort ? sellToken.symbol : buyToken.symbol)}`}
+          </span>
         </span>
       );
     }, [buyToken, sellToken, price]);
@@ -1171,6 +1174,9 @@ function OrderCard({
             {`${toRealSymbol(
               sort ? sellToken.symbol : buyToken.symbol
             )}/${toRealSymbol(sort ? buyToken.symbol : sellToken.symbol)}`}
+          </span>
+          <span className="text-white text-sm lg:hidden md:hidden">
+            {`${toRealSymbol(sort ? sellToken.symbol : buyToken.symbol)}`}
           </span>
         </span>
       );
