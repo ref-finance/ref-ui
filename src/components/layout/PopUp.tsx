@@ -76,7 +76,7 @@ export default function PopUpSwiper() {
               </div>
             </SwiperSlide>
 
-            <SwiperSlide>
+            {/* <SwiperSlide>
               <div className="absolute bottom-1 pr-3">
                 <div
                   onClick={closePop}
@@ -92,7 +92,7 @@ export default function PopUpSwiper() {
                   }}
                 ></XmasAd>
               </div>
-            </SwiperSlide>
+            </SwiperSlide> */}
 
             <SwiperSlide>
               <div className="absolute bottom-1">
