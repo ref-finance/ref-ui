@@ -1316,6 +1316,7 @@ export const NavLogoSimple = (props: any) => {
 
   return (
     <svg
+      {...props}
       width="26"
       height="26"
       viewBox="0 0 26 26"
