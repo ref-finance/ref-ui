@@ -250,10 +250,6 @@ function SwapPage() {
           <SnowBar></SnowBar>
         </div>
 
-        <div className="absolute right-2  -top-14 z-10">
-          <XmasSmallTree></XmasSmallTree>
-        </div>
-
         {swapMode === SWAP_MODE.X_SWAP ? (
           <CrossSwapCard
             allTokens={crossSwapTokens}
