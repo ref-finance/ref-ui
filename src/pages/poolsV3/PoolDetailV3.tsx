@@ -895,9 +895,15 @@ function UnclaimedFeesBox(props: any) {
 }
 function NoYourLiquditiesBox(props: any) {
   const { poolDetail } = props;
+  const { token_x_metadata, pool_id } = poolDetail;
   const history = useHistory();
   function goAddLiqudityPage() {
-    history.push(`/addLiquidityV2#${poolDetail.pool_id}`);
+    const [token_x, token_y, fee] = pool_id.split('|');
+    let url_hash = pool_id;
+    if (TOKEN_LIST_FOR_RATE.indexOf(token_x_metadata?.symbol) > -1) {
+      url_hash = `${token_y}|${token_x}|${fee}`;
+    }
+    history.push(`/addLiquidityV2#${url_hash}`);
   }
   return (
     <div className="flex flex-col items-center px-10 py-6 bg-cardBg rounded-xl">
@@ -991,7 +997,13 @@ function SelectLiquidityBox(props: any) {
     return c_l;
   }
   function goAddLiqudityPage() {
-    history.push(`/addLiquidityV2#${poolDetail.pool_id}`);
+    const pool_id = poolDetail.pool_id;
+    const [token_x, token_y, fee] = pool_id.split('|');
+    let url_hash = pool_id;
+    if (TOKEN_LIST_FOR_RATE.indexOf(token_x_metadata?.symbol) > -1) {
+      url_hash = `${token_y}|${token_x}|${fee}`;
+    }
+    history.push(`/addLiquidityV2#${url_hash}`);
   }
   const isMobile = isClientMobie();
   return (
