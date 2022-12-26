@@ -912,11 +912,16 @@ export const getBoostSeedsFromServer = async (): Promise<{
 }> => {
   try {
     // get all seeds
-    const list_seeds = await list_seeds_info();
+    let list_seeds = await list_seeds_info();
     // get all farms
     const farmsPromiseList: Promise<any>[] = [];
     const poolIds = new Set<string>();
     let pools: PoolRPCView[] = [];
+    // filter v2 pool seeds TODO
+    list_seeds = list_seeds.filter((seed: Seed) => {
+      if (seed.seed_id.indexOf(config.REF_UNI_V3_SWAP_CONTRACT_ID) == -1)
+        return true;
+    });
     list_seeds.forEach((seed: Seed) => {
       const { seed_id } = seed;
       if (seed_id.indexOf('@') > -1) {
