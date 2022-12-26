@@ -48,6 +48,7 @@ import {
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   drawChartData,
+  TOKEN_LIST_FOR_RATE,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getTokenPriceList } from '../../services/indexer';
@@ -79,6 +80,16 @@ export default function YourLiquidityDetail(props: any) {
   const tokenMetadata_x_y = useTokens([token_x, token_y]);
   const [depthData, setDepthData] = useState(null);
   const chartDom = useRef(null);
+  useEffect(() => {
+    if (tokenMetadata_x_y) {
+      const [tokenX] = tokenMetadata_x_y;
+      if (TOKEN_LIST_FOR_RATE.indexOf(tokenX.symbol) > -1) {
+        setRateSort(false);
+      } else {
+        setRateSort(true);
+      }
+    }
+  }, [tokenMetadata_x_y?.length]);
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
     if (poolId && hashId) {

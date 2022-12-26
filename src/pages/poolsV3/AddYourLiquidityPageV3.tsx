@@ -56,6 +56,7 @@ import {
   POINTRIGHTRANGE,
   useAddAndRemoveUrlHandle,
   drawChartData,
+  TOKEN_LIST_FOR_RATE,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -606,7 +607,13 @@ export default function AddYourLiquidityPageV3() {
   function changePairs(item: PoolInfo) {
     setSelectHover(false);
     if (listPool.length > 0) {
-      history.replace(`#${item.pool_id}`);
+      const { token_x_metadata, pool_id } = item;
+      const [token_x, token_y, fee] = pool_id.split('|');
+      let url_hash = item.pool_id;
+      if (TOKEN_LIST_FOR_RATE.indexOf(token_x_metadata.symbol) > -1) {
+        url_hash = `${token_y}|${token_x}|${fee}`;
+      }
+      history.replace(`#${url_hash}`);
       get_init_pool();
       setCurrentSelectedPool(null);
     }

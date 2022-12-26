@@ -246,14 +246,6 @@ function SwapPage() {
           isMobile ? '' : 'gradientBorderWrapper'
         } `}
       >
-        <div className="w-full absolute right-3  z-20 xs:right-2 -top-2">
-          <SnowBar></SnowBar>
-        </div>
-
-        <div className="absolute right-2  -top-14 z-10">
-          <XmasSmallTree></XmasSmallTree>
-        </div>
-
         {swapMode === SWAP_MODE.X_SWAP ? (
           <CrossSwapCard
             allTokens={crossSwapTokens}
