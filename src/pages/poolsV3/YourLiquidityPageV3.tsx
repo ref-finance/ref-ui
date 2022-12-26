@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
@@ -29,6 +29,7 @@ import {
   useAddAndRemoveUrlHandle,
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
+  TOKEN_LIST_FOR_RATE,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getBoostTokenPrices } from '../../services/farm';
@@ -438,6 +439,14 @@ function UserLiquidityLine({
   } = liquidity;
   const [token_x, token_y, fee] = pool_id.split('|');
   const tokenMetadata_x_y = useTokens([token_x, token_y]);
+  const rate_need_to_reverse_display = useMemo(() => {
+    if (tokenMetadata_x_y) {
+      const [tokenX] = tokenMetadata_x_y;
+      if (TOKEN_LIST_FOR_RATE.indexOf(tokenX.symbol) > -1) return true;
+      return false;
+    }
+  }, [tokenMetadata_x_y?.length]);
+
   const history = useHistory();
   useEffect(() => {
     get_pool_detail();
@@ -475,10 +484,14 @@ function UserLiquidityLine({
       const decimalRate =
         Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
       if (direction == 'left') {
-        value = toPrecision(getPriceByPoint(left_point, decimalRate), 6);
+        value = getPriceByPoint(left_point, decimalRate);
       } else if (direction == 'right') {
-        value = toPrecision(getPriceByPoint(right_point, decimalRate), 6);
+        value = getPriceByPoint(right_point, decimalRate);
       }
+      if (rate_need_to_reverse_display && +value !== 0) {
+        value = new BigNumber(1).dividedBy(value).toFixed();
+      }
+      value = toPrecision(value, 6);
     }
     const valueBig = new BigNumber(value);
     if (valueBig.isGreaterThan('100000')) {
@@ -727,6 +740,34 @@ function UserLiquidityLine({
     }
     return false;
   }
+  function getRateMapTokens() {
+    if (tokenMetadata_x_y) {
+      const [tokenX, tokenY] = tokenMetadata_x_y;
+      if (rate_need_to_reverse_display) {
+        return `${tokenX.symbol}/${tokenY.symbol}`;
+      } else {
+        return `${tokenY.symbol}/${tokenX.symbol}`;
+      }
+    }
+  }
+  function mobile_ReferenceToken(direction: string) {
+    if (tokenMetadata_x_y) {
+      const [tokenX, tokenY] = tokenMetadata_x_y;
+      if (direction == 'left') {
+        if (rate_need_to_reverse_display) {
+          return tokenY.symbol;
+        } else {
+          return tokenX.symbol;
+        }
+      } else if (direction == 'right') {
+        if (rate_need_to_reverse_display) {
+          return tokenX.symbol;
+        } else {
+          return tokenY.symbol;
+        }
+      }
+    }
+  }
   return (
     <div
       className="mt-3.5"
@@ -779,7 +820,7 @@ function UserLiquidityLine({
                   ></FormattedMessage>
                 </span>
                 <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis gotham_bold">
-                  {getRate('left')}
+                  {getRate(rate_need_to_reverse_display ? 'right' : 'left')}
                 </span>
                 <label className="text-v3SwapGray text-xs mx-2">-</label>
                 <span className="text-v3SwapGray text-xs mr-1.5">
@@ -789,11 +830,10 @@ function UserLiquidityLine({
                   ></FormattedMessage>
                 </span>
                 <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis gotham_bold">
-                  {getRate('right')}
+                  {getRate(rate_need_to_reverse_display ? 'left' : 'right')}
                 </span>
                 <span className="text-v3SwapGray text-xs ml-1.5 mr-3">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {getRateMapTokens()}
                 </span>
                 <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
                   <span
@@ -955,21 +995,21 @@ function UserLiquidityLine({
             <div className="flex items-center justify-between mt-4">
               <span className="text-v3SwapGray text-xs">
                 <FormattedMessage id="min_price" /> (1{' '}
-                {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']})
+                {mobile_ReferenceToken('left')})
               </span>
               <span className="text-white text-sm">
-                {getRate('left')}&nbsp;
-                {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                {getRate(rate_need_to_reverse_display ? 'right' : 'left')}&nbsp;
+                {mobile_ReferenceToken('right')}
               </span>
             </div>
             <div className="flex items-center justify-between mt-4">
               <span className="text-v3SwapGray text-xs">
                 <FormattedMessage id="max_price" /> (1{' '}
-                {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']})
+                {mobile_ReferenceToken('left')})
               </span>
               <span className="text-white text-sm">
-                {getRate('right')}&nbsp;
-                {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                {getRate(rate_need_to_reverse_display ? 'left' : 'right')}&nbsp;
+                {mobile_ReferenceToken('right')}
               </span>
             </div>
             <div className="flex items-start justify-between mt-4">

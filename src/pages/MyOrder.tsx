@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useContext, createContext } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  createContext,
+  useMemo,
+} from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import { isClientMobie, useClientMobile } from '~utils/device';
@@ -43,6 +49,8 @@ import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '../utils/token';
 import { QuestionTip, ExclamationTip } from '../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../components/icon/swapV3';
+import { TOKEN_LIST_FOR_RATE } from '../services/commonV3';
+import BigNumber from 'bignumber.js';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -486,20 +494,43 @@ function OrderCard({
       </span>
     );
 
-    const orderRate = (
-      <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
-        <span className="mr-1 text-white text-sm" title={price}>
-          {toPrecision(price, 2)}
-        </span>
-        <span className="text-v3SwapGray text-xs xs:hidden">
-          {`${toRealSymbol(buyToken.symbol)}/${toRealSymbol(sellToken.symbol)}`}
-        </span>
+    // const orderRate = (
+    //   <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
+    //     <span className="mr-1 text-white text-sm" title={price}>
+    //       {toPrecision(price, 2)}
+    //     </span>
+    //     <span className="text-v3SwapGray text-xs xs:hidden">
+    //       {`${toRealSymbol(buyToken.symbol)}/${toRealSymbol(sellToken.symbol)}`}
+    //     </span>
 
-        <span className="text-white text-sm lg:hidden md:hidden">
-          {`${toRealSymbol(buyToken.symbol)}`}
+    //     <span className="text-white text-sm lg:hidden md:hidden">
+    //       {`${toRealSymbol(buyToken.symbol)}`}
+    //     </span>
+    //   </span>
+    // );
+    const sort =
+      TOKEN_LIST_FOR_RATE.indexOf(sellToken?.symbol) > -1 && +price !== 0;
+    const orderRate = useMemo(() => {
+      let p = price;
+      if (sort) {
+        p = new BigNumber(1).dividedBy(price).toFixed();
+      }
+      return (
+        <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
+          <span className="mr-1 text-white text-sm" title={p}>
+            {toPrecision(p, 2)}
+          </span>
+          <span className="text-v3SwapGray text-xs xs:hidden">
+            {`${toRealSymbol(
+              sort ? sellToken?.symbol : buyToken.symbol
+            )}/${toRealSymbol(sort ? buyToken.symbol : sellToken.symbol)}`}
+          </span>
+          <span className="text-white text-sm lg:hidden md:hidden">
+            {`${toRealSymbol(sort ? sellToken.symbol : buyToken.symbol)}`}
+          </span>
         </span>
-      </span>
-    );
+      );
+    }, [buyToken, sellToken, price]);
 
     const unclaimTip = (
       <div
@@ -836,7 +867,7 @@ function OrderCard({
 
             <MobileInfoBanner
               text={`1 ${toRealSymbol(
-                tokensMap[order.sell_token].symbol
+                sort ? buyToken.symbol : tokensMap[order.sell_token].symbol
               )} Price`}
               value={orderRate}
             />
@@ -1113,20 +1144,43 @@ function OrderCard({
       </span>
     );
 
-    const orderRate = (
-      <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
-        <span className="mr-1 text-white text-sm" title={price}>
-          {toPrecision(price, 2)}
-        </span>
-        <span className="text-v3SwapGray text-xs xs:hidden">
-          {`${toRealSymbol(buyToken.symbol)}/${toRealSymbol(sellToken.symbol)}`}
-        </span>
+    // const orderRate = (
+    //   <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
+    //     <span className="mr-1 text-white text-sm" title={price}>
+    //       {toPrecision(price, 2)}
+    //     </span>
+    //     <span className="text-v3SwapGray text-xs xs:hidden">
+    //       {`${toRealSymbol(buyToken.symbol)}/${toRealSymbol(sellToken.symbol)}`}
+    //     </span>
 
-        <span className="text-white text-sm lg:hidden md:hidden">
-          {`${toRealSymbol(buyToken.symbol)}`}
+    //     <span className="text-white text-sm lg:hidden md:hidden">
+    //       {`${toRealSymbol(buyToken.symbol)}`}
+    //     </span>
+    //   </span>
+    // );
+    const sort =
+      TOKEN_LIST_FOR_RATE.indexOf(sellToken?.symbol) > -1 && +price !== 0;
+    const orderRate = useMemo(() => {
+      let p = price;
+      if (sort) {
+        p = new BigNumber(1).dividedBy(price).toFixed();
+      }
+      return (
+        <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
+          <span className="mr-1 text-white text-sm" title={p}>
+            {toPrecision(p, 2)}
+          </span>
+          <span className="text-v3SwapGray text-xs xs:hidden">
+            {`${toRealSymbol(
+              sort ? sellToken.symbol : buyToken.symbol
+            )}/${toRealSymbol(sort ? buyToken.symbol : sellToken.symbol)}`}
+          </span>
+          <span className="text-white text-sm lg:hidden md:hidden">
+            {`${toRealSymbol(sort ? sellToken.symbol : buyToken.symbol)}`}
+          </span>
         </span>
-      </span>
-    );
+      );
+    }, [price, buyToken, sellToken]);
 
     const claimTip = (
       <div
@@ -1418,7 +1472,7 @@ function OrderCard({
 
             <MobileInfoBanner
               text={`1 ${toRealSymbol(
-                tokensMap[order.sell_token].symbol
+                sort ? buyToken?.symbol : tokensMap[order.sell_token].symbol
               )} Price`}
               value={orderRate}
             />
