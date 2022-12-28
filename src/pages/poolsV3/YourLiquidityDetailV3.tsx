@@ -486,6 +486,7 @@ export default function YourLiquidityDetail(props: any) {
               }}
               color="#fff"
               className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
+              borderRadius={'8px'}
             >
               <FormattedMessage id="add"></FormattedMessage>
             </GradientButton>
