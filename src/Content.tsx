@@ -41,6 +41,7 @@ import StableSwapPage from './pages/stable/StableSwapPage';
 import XrefPage from './pages/xref/XrefPage';
 import RiskPage from './pages/RiskPage';
 import USNPage from './pages/USNPage';
+import Portfolio from './pages/Portfolio';
 import {
   auroraAddr,
   getAuroraPool,
@@ -233,6 +234,7 @@ export function Content() {
         <Route path="/v2farms/:id?" component={AutoHeight(FarmsBoosterPage)} />
         <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
         <Route path="/poolV2/:id" component={AutoHeight(PoolDetailV3)} />
+        <Route path="/portfolio" component={AutoHeight(Portfolio)} />
         <Route path="/" component={AutoHeight(SwapPage)} />
       </Switch>
     </WalletContext.Provider>
