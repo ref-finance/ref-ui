@@ -431,7 +431,7 @@ export const v3Swap = async ({
             amount: toNonDivisibleNumber(tokenA.decimals, amountA),
             msg,
           },
-          gas: '180000000000000',
+          gas: '250000000000000',
           amount: ONE_YOCTO_NEAR,
         },
       ],
