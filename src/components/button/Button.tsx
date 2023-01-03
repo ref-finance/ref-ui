@@ -515,6 +515,7 @@ export function OprationButton(props: any) {
     btnClassName,
     onClick,
     minWidth,
+    borderRadius,
     ...reset
   } = props;
   return (
@@ -522,7 +523,7 @@ export function OprationButton(props: any) {
       {...reset}
       className={`${className ? className : ''} ${loading ? 'opacity-40' : ''}`}
       style={{
-        borderRadius: '8px',
+        borderRadius: borderRadius || '8px',
         minWidth: minWidth || '',
         color: color || '',
       }}

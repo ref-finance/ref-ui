@@ -2870,7 +2870,7 @@ function UserStakeBlock(props: {
     </div>
   );
 }
-function StakeModal(props: {
+export function StakeModal(props: {
   title: string;
   isOpen: boolean;
   detailData: Seed;
@@ -3609,7 +3609,7 @@ function StakeModal(props: {
   );
 }
 
-function UnStakeModal(props: {
+export function UnStakeModal(props: {
   title: string;
   isOpen: boolean;
   detailData: Seed;

@@ -166,7 +166,7 @@ export default function Asset() {
       token_keys.forEach((key: string) => {
         const amount: string = your_unclaimed_rewards[key];
         const meta = your_unclaimed_rewards_tokenMeta[key];
-        const price = tokenPriceList[key].price || '0';
+        const price = tokenPriceList[key]?.price || '0';
         const a = toReadableNumber(meta.decimals, amount);
         total_price = new BigNumber(price)
           .multipliedBy(a)
@@ -491,10 +491,7 @@ export default function Asset() {
     return '0';
   }
   return (
-    <div
-      className="bg-black bg-opacity-10 border-r border-cardBg p-5"
-      style={{ minWidth: '298px' }}
-    >
+    <div className="border-r border-cardBg p-5" style={{ minWidth: '298px' }}>
       <div></div>
       <div className="grid grid-cols-2 gap-y-7">
         <DataTemplate

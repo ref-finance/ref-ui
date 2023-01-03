@@ -77,6 +77,7 @@ module.exports = {
         farmContainer: '1fr 4fr',
         farmContainerOther: '1.2fr 3fr',
         xrefColumn: '7fr 13fr',
+        positionContainer: '1fr 200px 80px 4fr 120px 1.5fr minmax(150px, 3fr)'
       },
       gridTemplateRows: {
         xrefContainer: '7fr 18fr',
@@ -235,6 +236,8 @@ module.exports = {
         selectBoxEleColor: 'rgba(74, 88, 98, 0.3)',
         viewPoolBgColor: '#24333D',
         viewPoolHoverBgColor: '#34404A',
+        positionLineBgColor:'#10202B',
+        positionLineHoverBgColor:'#0B1922',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
