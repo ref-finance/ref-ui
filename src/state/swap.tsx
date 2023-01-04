@@ -904,6 +904,10 @@ export const useLimitOrder = ({
     setQuoteDone(false);
     get_pool(selectedV3LimitPool, tokenIn.id)
       .then((res) => {
+        if (selectedV3LimitPool === BLACK_POOL) {
+          setMostPoolDetail(null);
+          return null;
+        }
         setMostPoolDetail(res);
       })
       .catch((e) => {

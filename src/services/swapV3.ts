@@ -535,10 +535,6 @@ export const get_pool = async (pool_id: string, token0?: string) => {
 
   const new_pool_id = `${token_seq}|${fee}`;
 
-  if (new_pool_id === BLACK_POOL) {
-    return null;
-  }
-
   return refSwapV3ViewFunction({
     methodName: 'get_pool',
     args: {
