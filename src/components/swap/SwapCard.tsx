@@ -1587,8 +1587,6 @@ export default function SwapCard(props: {
       ? 'v3'
       : 'v2';
 
-  console.log('tokenOutAmount: ', tokenOutAmount);
-  console.log('tokenOutAmountV3: ', tokenOutAmountV3);
   useEffect(() => {
     if (quoteDone && quoteDoneV3) {
       if (poolError) {
