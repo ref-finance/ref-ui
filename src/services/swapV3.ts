@@ -525,6 +525,9 @@ export const cancel_order = ({
   return executeMultipleTransactions(transactions);
 };
 
+export const BLACK_POOL =
+  'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near|wrap.near|2000';
+
 export const get_pool = async (pool_id: string, token0?: string) => {
   const [token_x, token_y, fee] = pool_id.split('|');
 

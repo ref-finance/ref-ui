@@ -1586,6 +1586,7 @@ export default function SwapCard(props: {
     canSwapV3
       ? 'v3'
       : 'v2';
+
   useEffect(() => {
     if (quoteDone && quoteDoneV3) {
       if (poolError) {
