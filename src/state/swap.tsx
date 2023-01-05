@@ -71,7 +71,11 @@ import {
   find_order,
 } from '../services/swapV3';
 import _, { toArray } from 'lodash';
-import { getV3PoolId, get_pool_from_cache } from '../services/swapV3';
+import {
+  getV3PoolId,
+  get_pool_from_cache,
+  BLACK_POOL,
+} from '../services/swapV3';
 import {
   checkAllocations,
   toPrecision,
@@ -693,7 +697,7 @@ export const useSwapV3 = ({
     const validator =
       foundPool &&
       Number(foundPool?.total_x || 0) + Number(foundPool?.total_y || 0) > 0;
-    if (!validator) return null;
+    if (!validator || pool_id === BLACK_POOL) return null;
 
     return quote({
       pool_ids: [pool_id],
@@ -900,6 +904,10 @@ export const useLimitOrder = ({
     setQuoteDone(false);
     get_pool(selectedV3LimitPool, tokenIn.id)
       .then((res) => {
+        if (selectedV3LimitPool === BLACK_POOL) {
+          setMostPoolDetail(null);
+          return null;
+        }
         setMostPoolDetail(res);
       })
       .catch((e) => {
