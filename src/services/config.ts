@@ -8,10 +8,10 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             url: 'https://rpc.mainnet.near.org',
             simpleName: 'official rpc',
           },
-          publicRpc: {
-            url: 'https://public-rpc.blockpi.io/http/near',
-            simpleName: 'blockpi rpc',
-          },
+          // publicRpc: {
+          //   url: 'https://public-rpc.blockpi.io/http/near',
+          //   simpleName: 'blockpi rpc',
+          // },
           // infuraRpc: {
           //   url: 'https://near-mainnet.infura.io/v3/391d915322284599936f0ee962399dc1',
           //   simpleName: 'infura rpc',
@@ -31,10 +31,10 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             url: 'https://rpc.testnet.near.org',
             simpleName: 'official rpc',
           },
-          publicRpc: {
-            url: 'https://public-rpc.blockpi.io/http/near-testnet',
-            simpleName: 'blockpi rpc',
-          },
+          // publicRpc: {
+          //   url: 'https://public-rpc.blockpi.io/http/near-testnet',
+          //   simpleName: 'blockpi rpc',
+          // },
         },
         pool_protocol: 'indexer',
       };
@@ -45,10 +45,10 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             url: 'https://rpc.testnet.near.org',
             simpleName: 'official rpc',
           },
-          publicRpc: {
-            url: 'https://public-rpc.blockpi.io/http/near-testnet',
-            simpleName: 'blockpi rpc',
-          },
+          // publicRpc: {
+          //   url: 'https://public-rpc.blockpi.io/http/near-testnet',
+          //   simpleName: 'blockpi rpc',
+          // },
         },
         pool_protocol: 'indexer',
       };
@@ -59,10 +59,10 @@ export function getExtendConfig(env: string = process.env.NEAR_ENV) {
             url: 'https://rpc.mainnet.near.org',
             simpleName: 'official rpc',
           },
-          publicRpc: {
-            url: 'https://public-rpc.blockpi.io/http/near',
-            simpleName: 'blockpi rpc',
-          },
+          // publicRpc: {
+          //   url: 'https://public-rpc.blockpi.io/http/near',
+          //   simpleName: 'blockpi rpc',
+          // },
           // infuraRpc: {
           //   url: 'https://near-mainnet.infura.io/v3/391d915322284599936f0ee962399dc1',
           //   simpleName: 'infura rpc',
