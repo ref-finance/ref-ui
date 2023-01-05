@@ -238,6 +238,9 @@ module.exports = {
         viewPoolHoverBgColor: '#34404A',
         positionLineBgColor:'#10202B',
         positionLineHoverBgColor:'#0B1922',
+        chartTabBgColor:'#172534',
+        toolTipBoxBorderColor:'#293844',
+        toolTipBoxBgColor:'rgba(29, 41, 50, 0.8)',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -38,7 +38,10 @@ import {
   LP_STABLE_TOKEN_DECIMALS,
 } from '../../services/m-token';
 import { getVEPoolId } from '../../pages/ReferendumPage';
-const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID } = getConfig();
+const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID, XREF_TOKEN_ID } = getConfig();
+import QuestionMark from '../../components/farm/QuestionMark';
+import ReactTooltip from 'react-tooltip';
+import { ftGetBalance } from '~services/ft-contract';
 
 export default function Asset() {
   const [tokenMetadatas, setTokenMetadatas] = useState<
@@ -69,6 +72,7 @@ export default function Asset() {
     useState<boolean>(true);
   const [all_pools_user_participate_in, set_all_pools_user_participate_in] =
     useState<Record<string, PoolRPCView>>({});
+  const [xrefBalance, setXrefBalance] = useState(null);
 
   useEffect(() => {
     // get all liquidities of user
@@ -86,6 +90,13 @@ export default function Asset() {
       delete res[REF_VE_CONTRACT_ID];
       set_stake_list_v2_farms(res);
       set_stake_list_v2_farms_loading(false);
+    });
+    // get xref balance
+    ftGetBalance(XREF_TOKEN_ID).then(async (data: any) => {
+      const token = await ftGetTokenMetadata(XREF_TOKEN_ID);
+      const { decimals } = token;
+      const balance = toReadableNumber(decimals, data);
+      setXrefBalance(balance);
     });
   }, []);
   // get lpt locked in vote
@@ -262,6 +273,29 @@ export default function Asset() {
     }
     return ['0', '0'];
   }, [all_pools_user_participate_in, locked_in_vote_amount]);
+
+  const totalXrefPrice = useMemo(() => {
+    if (tokenPriceList && xrefBalance) {
+      const price = tokenPriceList[XREF_TOKEN_ID]?.price || 0;
+      const totalPrice = new BigNumber(xrefBalance || '0').multipliedBy(price);
+      return totalPrice.toFixed();
+    }
+    return '0';
+  }, [tokenPriceList, xrefBalance]);
+  const totalAssets = useMemo(() => {
+    const total = new BigNumber(total_tokens_price)
+      .plus(total_unclaimed_fee_price)
+      .plus(total_lp_value)
+      .plus(unClaimed_rewrads)
+      .plus(totalXrefPrice);
+    return total.toFixed();
+  }, [
+    total_tokens_price,
+    total_unclaimed_fee_price,
+    total_lp_value,
+    unClaimed_rewrads,
+    totalXrefPrice,
+  ]);
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
     const promise_list_details = list.map((item: UserLiquidityInfo) => {
@@ -490,10 +524,72 @@ export default function Asset() {
     }
     return '0';
   }
+  function getXrefPrice() {
+    const n = new BigNumber(totalXrefPrice);
+    if (n.isEqualTo('0')) {
+      return '$0';
+    } else if (n.isLessThan('0.01')) {
+      return '<$0.01';
+    } else {
+      return `$${toPrecision(totalXrefPrice || '0', 2)}`;
+    }
+  }
+  function getTip() {
+    // const tip = intl.formatMessage({ id: 'over_tip' });
+    const tip =
+      'Value of my investment on Ref (in V1/V2 pools + V1 unclaimed Rewards + V2 unclaimed fees) in usd';
+    let result: string = `<div class="text-navHighLightText text-xs text-left w-64">${tip}</div>`;
+    return result;
+  }
+  function getCurrentDate() {
+    const date = new Date();
+    const dateStr = date.toDateString();
+    const dateArr = dateStr.split(' ');
+    const [week, month, day, year] = dateArr;
+    const result = `${month} ${day}, ${year}`;
+    return result;
+  }
+  function getUserTotalAsset() {
+    const n = new BigNumber(totalAssets);
+    if (n.isEqualTo('0')) {
+      return '$0';
+    } else if (n.isLessThan('0.01')) {
+      return '<$0.01';
+    } else {
+      return '$' + toInternationalCurrencySystem(totalAssets || '0', 2);
+    }
+  }
   return (
-    <div className="border-r border-cardBg p-5" style={{ minWidth: '298px' }}>
-      <div></div>
-      <div className="grid grid-cols-2 gap-y-7">
+    <div className="border-r border-cardBg" style={{ minWidth: '298px' }}>
+      <div className="p-4">
+        <div className="flex items-center">
+          <span className="text-sm text-primaryText">
+            Your investment(USD value)
+          </span>
+          <div
+            className="text-white text-right ml-1"
+            data-class="reactTip"
+            data-for="selectAllId"
+            data-place="top"
+            data-html={true}
+            data-tip={getTip()}
+          >
+            <QuestionMark></QuestionMark>
+            <ReactTooltip
+              id="selectAllId"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        </div>
+        <div className="text-2xl text-white gotham_bold mt-2.5 mb-1.5">
+          {getUserTotalAsset()}
+        </div>
+        <div className="text-primaryText text-sm">{getCurrentDate()}</div>
+      </div>
+      <div className="grid grid-cols-2 gap-3 border-t border-b border-cardBg p-4">
         <DataTemplate
           title="V2 Pools"
           value={getV2PoolUSDValue()}
@@ -505,11 +601,17 @@ export default function Asset() {
           </div>
         </DataTemplate>
         <DataTemplate
-          title="V2 fees"
+          title="xREF Staking"
+          value={getXrefPrice()}
+        ></DataTemplate>
+      </div>
+      <div className="p-4 grid grid-cols-2">
+        <DataTemplate
+          title="Earned Fees"
           value={getV2PoolUncliamedFeeUSDValue()}
         ></DataTemplate>
         <DataTemplate
-          title="Unclaimed Rewards"
+          title="Farm Rewards"
           value={getUnClaimed_rewrads()}
         ></DataTemplate>
       </div>
@@ -518,9 +620,9 @@ export default function Asset() {
 }
 
 function DataTemplate(props: any) {
-  const { title, value, children } = props;
+  const { title, value, children, className } = props;
   return (
-    <div className="flex flex-col items-start">
+    <div className={`flex flex-col items-start ${className}`}>
       <span className="text-sm text-primaryText">{title}</span>
       <span className="text-white text-lg">{value}</span>
       {children}

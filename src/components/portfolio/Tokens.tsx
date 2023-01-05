@@ -5,15 +5,21 @@ import { useUserRegisteredTokensAllAndNearBalance } from '../../state/token';
 import { TokenMetadata } from '../../services/ft-contract';
 import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
-import { toPrecision, toReadableNumber } from '~utils/numbers';
+import {
+  toInternationalCurrencySystem,
+  toPrecision,
+  toReadableNumber,
+} from '~utils/numbers';
 import { getBoostTokenPrices } from '../../services/farm';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
+import ReactECharts from 'echarts-for-react';
 export default function Tokens() {
   const [tokens, setTokens] = useState([]);
   const [totalPrice, setTotalPrice] = useState('0');
   const allTokens = useUserRegisteredTokensAllAndNearBalance();
   const total = useUserRegisteredTokensAllAndNearBalance();
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
+  const [pieOption, setPieOption] = useState(null);
   const intl = useIntl();
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
@@ -31,10 +37,137 @@ export default function Tokens() {
           '0';
         return new BigNumber(n).multipliedBy(price).plus(acc).toFixed();
       }, '0');
+      hasBlanceTokens.sort((b: TokenMetadata, a: TokenMetadata) => {
+        const b_num = toReadableNumber(b.decimals, b.nearNonVisible.toString());
+        const b_price =
+          tokenPriceList[b.id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : b.id]
+            ?.price || '0';
+        const b_total_price = new BigNumber(b_num).multipliedBy(b_price);
+        const a_num = toReadableNumber(a.decimals, a.nearNonVisible.toString());
+        const a_price =
+          tokenPriceList[a.id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : a.id]
+            ?.price || '0';
+        const a_total_price = new BigNumber(a_num).multipliedBy(a_price);
+        return +a_total_price.minus(b_total_price).toFixed();
+      });
       setTokens(hasBlanceTokens);
       setTotalPrice(totalPrice);
     }
   }, [tokenPriceList, allTokens]);
+  useEffect(() => {
+    if (tokens.length > 0) {
+      const pieData = getPieData();
+      const pieOption = {
+        tooltip: {
+          trigger: 'item',
+          show: false,
+        },
+        legend: {
+          top: '5%',
+          left: 'center',
+          show: false,
+        },
+        color: [
+          '#00D6AF',
+          '#455563',
+          '#354F53',
+          '#284251',
+          '#1F4247',
+          '#173C41',
+        ],
+        series: [
+          {
+            name: 'Access From',
+            type: 'pie',
+            radius: ['60%', '70%'],
+            avoidLabelOverlap: true,
+            itemStyle: {
+              borderRadius: 10,
+              borderWidth: 2,
+              borderColor: 'rgba(0, 0, 0, 0.1)',
+            },
+            label: {
+              show: false,
+              position: 'center',
+            },
+            emphasis: {
+              scaleSize: 5,
+              label: {
+                show: true,
+                formatter: (data: any) => {
+                  const { symbol, decimals, nearNonVisible, price } = data.data;
+                  const num = toReadableNumber(
+                    decimals,
+                    nearNonVisible.toString()
+                  );
+                  let display_num;
+                  if (new BigNumber(num).isLessThan('0.01')) {
+                    display_num = '<0.01';
+                  } else {
+                    display_num = toInternationalCurrencySystem(num, 2);
+                  }
+                  return `{a|${symbol}}\n{b|${display_num}}\n{a|${price}}`;
+                },
+                rich: {
+                  a: {
+                    fontSize: 12,
+                    color: '#7E8A93',
+                    lineHeight: 20,
+                  },
+                  b: {
+                    fontSize: 13,
+                    color: '#FFFFFF',
+                    lineHeight: 20,
+                  },
+                },
+              },
+            },
+            labelLine: {
+              show: false,
+            },
+            data: pieData,
+          },
+        ],
+      };
+      setPieOption(pieOption);
+    }
+  }, [tokens]);
+  function getPieData() {
+    const parseSerialization: TokenMetadata[] = JSON.parse(
+      JSON.stringify(tokens)
+    );
+    const target = parseSerialization.map((token: TokenMetadata) => {
+      if (+totalPrice > 0) {
+        const { decimals, nearNonVisible, id } = token;
+        const n = toReadableNumber(decimals, nearNonVisible.toString());
+        const price =
+          tokenPriceList[id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : id]?.price || 0;
+        const p = new BigNumber(price).multipliedBy(n);
+        const r = new BigNumber(p).dividedBy(totalPrice).multipliedBy(100);
+        let p_display;
+        if (p.isLessThan('0.01')) {
+          p_display = '<$0.01';
+        } else {
+          p_display = toInternationalCurrencySystem(p.toFixed(), 2);
+        }
+        if (r.isLessThan('0.5')) {
+          return {
+            ...token,
+            price: p_display,
+            value: 0.5,
+          };
+        } else {
+          return {
+            ...token,
+            price: p_display,
+            value: +r,
+          };
+        }
+      }
+    });
+    return target;
+  }
+
   function getTokenAllocationTip() {
     // const tip = intl.formatMessage({ id: 'over_tip' });
     const tip = 'Tokens in your wallet';
@@ -58,7 +191,7 @@ export default function Tokens() {
     return '-%';
   }
   return (
-    <div className="text-white w-64 py-3">
+    <div className="text-white w-60 py-3">
       <div className="flex items-center px-3">
         <span className="text-sm text-primaryText">Token Allocation</span>
         <div
@@ -79,7 +212,14 @@ export default function Tokens() {
           />
         </div>
       </div>
-      <div className="h-5"></div>
+      <div className="flex items-center justify-center">
+        {pieOption ? (
+          <ReactECharts
+            option={pieOption}
+            style={{ width: '200px', height: '200px' }}
+          />
+        ) : null}
+      </div>
       <div className="overflow-auto" style={{ maxHeight: '150px' }}>
         {tokens.map((token: TokenMetadata) => {
           return (

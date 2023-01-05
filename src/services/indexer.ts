@@ -439,3 +439,20 @@ export const getAllVolume24h = async () => {
       return res?.[0]?.volume;
     });
 };
+
+export const getAssets = async (dateType: 'M' | 'W' | 'H' = 'H') => {
+  // todo config.indexerUrl
+  // ${getCurrentWallet()?.wallet?.getAccountId()}
+  return await fetch(
+    'https://mainnet-indexer.ref-finance.com' +
+      '/get-assets-by-account?' +
+      `account_id=juaner.near&dimension=${dateType}`,
+    {
+      method: 'GET',
+    }
+  )
+    .then((res) => res.json())
+    .then((res) => {
+      return res;
+    });
+};
