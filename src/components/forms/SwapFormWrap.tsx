@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Alert from '../alert/Alert';
 import SubmitButton, { InsufficientButton } from './SubmitButton';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import SlippageSelector, { StableSlipSelecter } from './SlippageSelector';
 import { SwapRefresh, CountdownTimer } from '../../components/icon';
 import { wallet } from '~services/near';
@@ -19,6 +19,7 @@ import { EstimateSwapView } from '../../services/swap';
 import { PoolInfo } from '~services/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
+import ReactTooltip from 'react-tooltip';
 
 interface SwapFormWrapProps {
   title?: string;
@@ -145,6 +146,8 @@ export default function SwapFormWrap({
     }
   }
 
+  const intl = useIntl();
+
   return (
     <form
       className={`overflow-y-visible  relative bg-swapCardGradient shadow-2xl rounded-2xl px-4 pt-6 pb-7 xsm:py-4 xsm:px-2.5 bg-dark  overflow-x-visible`}
@@ -201,22 +204,64 @@ export default function SwapFormWrap({
       ) : (
         <div className="flex flex-col items-center xsm:flex-row-reverse">
           {!isInsufficient ? (
-            <SubmitButton
-              disabled={
-                !canSubmit ||
-                (swapMode === SWAP_MODE.LIMIT
-                  ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-                  : showSwapLoading)
-              }
-              label={buttonText || title}
-              info={info}
-              className={`h-12 ${swapMode == SWAP_MODE.NORMAL ? '-mt-0' : ''}`}
-              loading={
-                swapMode !== SWAP_MODE.LIMIT
-                  ? showSwapLoading
-                  : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-              }
-            />
+            <div
+              className={`ml-1 text-xs w-full ${
+                swapMode === SWAP_MODE.LIMIT ? 'mt-6' : ''
+              }  `}
+              data-type="info"
+              data-place="top"
+              data-multiline={true}
+              data-class="reactTip"
+              data-html={true}
+              data-tip={`
+              <div class="text-xs opacity-50">
+                <div 
+                  style="font-weight:400",
+                >
+                ${intl.formatMessage({
+                  id: 'v2_paused',
+
+                  defaultMessage: 'REF V2 has been paused for maintenance',
+                })}
+                </div>
+              </div>
+            `}
+              data-for="v2_paused_pool_tip"
+            >
+              <SubmitButton
+                // disabled={
+                //   !canSubmit ||
+                //   (swapMode === SWAP_MODE.LIMIT
+                //     ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+                //     : showSwapLoading)
+                // }
+                disabled={
+                  !canSubmit ||
+                  (swapMode === SWAP_MODE.LIMIT ? true : showSwapLoading)
+                }
+                label={buttonText || title}
+                info={info}
+                className={`h-12 ${
+                  swapMode == SWAP_MODE.NORMAL ? '-mt-0' : ''
+                }`}
+                loading={
+                  swapMode !== SWAP_MODE.LIMIT
+                    ? showSwapLoading
+                    : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+                }
+              />
+              {swapMode === SWAP_MODE.LIMIT && (
+                <ReactTooltip
+                  className="w-20"
+                  id="v2_paused_pool_tip"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  textColor="#C6D1DA"
+                  effect="solid"
+                />
+              )}
+            </div>
           ) : (
             <InsufficientButton divClassName="h-12 mt-6 w-full"></InsufficientButton>
           )}
@@ -324,7 +369,7 @@ export function CrossSwapFormWrap({
         loading={
           wrapOperation ? wrapLoading : showSwapLoading || loadingTrigger
         }
-        className="py-3"
+        className="py-3 mt-6"
       />
       {reserves}
     </form>
