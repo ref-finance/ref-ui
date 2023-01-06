@@ -30,6 +30,8 @@ import {
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   TOKEN_LIST_FOR_RATE,
+  PAUSE_DCL,
+  pause_v2_tip,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getBoostTokenPrices } from '../../services/farm';
@@ -669,7 +671,7 @@ function UserLiquidityLine({
   }
   function claimRewards(e: any) {
     e.stopPropagation();
-    if (!canClaim()) return;
+    if (!canClaim() || PAUSE_DCL) return;
     setClaimLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
     remove_liquidity({
@@ -872,31 +874,70 @@ function UserLiquidityLine({
               <span className="text-sm text-white mx-2.5 gotham_bold">
                 ${your_liquidity || '-'}
               </span>
-              <GradientButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowAddBox(true);
-                }}
-                color="#fff"
-                minWidth="5rem"
-                borderRadius="8px"
-                className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
+              <div
+                className="text-white text-right"
+                data-class="reactTip"
+                data-for={`pause_v2_tip_1_${lpt_id}`}
+                data-place="top"
+                data-html={true}
+                data-tip={pause_v2_tip()}
               >
-                <FormattedMessage id="add" />
-              </GradientButton>
-              <BorderButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowRemoveBox(true);
-                }}
-                rounded="rounded-lg"
-                px="px-0"
-                py="py-1"
-                style={{ minWidth: '5rem' }}
-                className="flex-grow  gotham_bold text-sm text-greenColor h-8"
+                <GradientButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAddBox(true);
+                  }}
+                  color="#fff"
+                  minWidth="5rem"
+                  borderRadius="8px"
+                  className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5 ${
+                    PAUSE_DCL ? 'opacity-40' : ''
+                  }`}
+                  disabled={PAUSE_DCL}
+                  btnClassName="cursor-not-allowed"
+                >
+                  <FormattedMessage id="add" />
+                </GradientButton>
+                <ReactTooltip
+                  id={`pause_v2_tip_1_${lpt_id}`}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+              <div
+                className="text-white text-right"
+                data-class="reactTip"
+                data-for={`pause_v2_tip_2_${lpt_id}`}
+                data-place="top"
+                data-html={true}
+                data-tip={pause_v2_tip()}
               >
-                <FormattedMessage id="remove" />
-              </BorderButton>
+                <BorderButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowRemoveBox(true);
+                  }}
+                  rounded="rounded-lg"
+                  px="px-0"
+                  py="py-1"
+                  style={{ minWidth: '5rem' }}
+                  className={`flex-grow  gotham_bold text-sm text-greenColor h-8 ${
+                    PAUSE_DCL ? 'cursor-not-allowed opacity-40' : ''
+                  }`}
+                  disabled={PAUSE_DCL}
+                >
+                  <FormattedMessage id="remove" />
+                </BorderButton>
+                <ReactTooltip
+                  id={`pause_v2_tip_2_${lpt_id}`}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
             </div>
             <div className="flex items-center justify-center">
               <span className="text-xs text-v3SwapGray mr-2.5">
@@ -917,16 +958,32 @@ function UserLiquidityLine({
                 {getTokenFeeAmount('r') || '-'}
               </span>
               <div
-                className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
-                  !canClaim()
-                    ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                    : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-                }`}
-                onClick={claimRewards}
+                className="text-white text-right"
+                data-class="reactTip"
+                data-for={`pause_v2_tip_3_${lpt_id}`}
+                data-place="top"
+                data-html={true}
+                data-tip={pause_v2_tip()}
               >
-                <ButtonTextWrapper
-                  loading={claimLoading}
-                  Text={() => <FormattedMessage id="claim" />}
+                <div
+                  className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
+                    !canClaim() || PAUSE_DCL
+                      ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                      : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                  }`}
+                  onClick={claimRewards}
+                >
+                  <ButtonTextWrapper
+                    loading={claimLoading}
+                    Text={() => <FormattedMessage id="claim" />}
+                  />
+                </div>
+                <ReactTooltip
+                  id={`pause_v2_tip_3_${lpt_id}`}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
                 />
               </div>
             </div>
@@ -1036,16 +1093,32 @@ function UserLiquidityLine({
                 </div>
                 <div className="flex items-center justify-end mt-2">
                   <div
-                    className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
-                      !canClaim()
-                        ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                        : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-                    }`}
-                    onClick={claimRewards}
+                    className="text-white text-right"
+                    data-class="reactTip"
+                    data-for={`pause_v2_tip_8_${lpt_id}`}
+                    data-place="top"
+                    data-html={true}
+                    data-tip={pause_v2_tip()}
                   >
-                    <ButtonTextWrapper
-                      loading={claimLoading}
-                      Text={() => <FormattedMessage id="claim" />}
+                    <div
+                      className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
+                        !canClaim() || PAUSE_DCL
+                          ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                          : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                      }`}
+                      onClick={claimRewards}
+                    >
+                      <ButtonTextWrapper
+                        loading={claimLoading}
+                        Text={() => <FormattedMessage id="claim" />}
+                      />
+                    </div>
+                    <ReactTooltip
+                      id={`pause_v2_tip_8_${lpt_id}`}
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
                     />
                   </div>
                 </div>
@@ -1061,28 +1134,69 @@ function UserLiquidityLine({
             <span className="text-sm text-white">${your_liquidity || '-'}</span>
           </div>
           <div className="flex items-center justify-between mt-3.5">
-            <GradientButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowAddBox(true);
-              }}
-              color="#fff"
-              className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3`}
+            <div
+              className="w-1 flex-grow text-white text-right"
+              data-class="reactTip"
+              data-for={`pause_v2_tip_5_${lpt_id}`}
+              data-place="top"
+              data-html={true}
+              data-tip={pause_v2_tip()}
             >
-              <FormattedMessage id="add" />
-            </GradientButton>
-            <BorderButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowRemoveBox(true);
-              }}
-              rounded="rounded-md"
-              px="px-0"
-              py="py-1"
-              className="w-1 flex-grow  text-sm text-greenColor h-8"
+              <GradientButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowAddBox(true);
+                }}
+                color="#fff"
+                disabled={PAUSE_DCL}
+                className={`h-8 text-center text-sm text-white focus:outline-none mr-3 ${
+                  PAUSE_DCL ? 'opacity-40' : 'w-1 flex-grow'
+                }`}
+                btnClassName={`${PAUSE_DCL ? 'cursor-not-allowed' : ''}`}
+              >
+                <FormattedMessage id="add" />
+              </GradientButton>
+              <ReactTooltip
+                id={`pause_v2_tip_5_${lpt_id}`}
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
+            <div
+              className="w-1 flex-grow text-white text-right"
+              data-class="reactTip"
+              data-for={`pause_v2_tip_6_${lpt_id}`}
+              data-place="top"
+              data-html={true}
+              data-tip={pause_v2_tip()}
             >
-              <FormattedMessage id="remove" />
-            </BorderButton>
+              <BorderButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowRemoveBox(true);
+                }}
+                rounded="rounded-md"
+                px="px-0"
+                py="py-1"
+                disabled={PAUSE_DCL}
+                className={`text-sm text-greenColor h-8 ${
+                  PAUSE_DCL
+                    ? 'opacity-40 cursor-not-allowed w-full'
+                    : 'w-1 flex-grow'
+                }`}
+              >
+                <FormattedMessage id="remove" />
+              </BorderButton>
+              <ReactTooltip
+                id={`pause_v2_tip_6_${lpt_id}`}
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
           </div>
         </div>
       </div>
