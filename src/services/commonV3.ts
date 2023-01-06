@@ -448,6 +448,6 @@ export const PAUSE_DCL = true;
 
 export function pause_v2_tip() {
   const tip = 'REF V2 has been paused for maintenance';
-  let result: string = `<div class="opacity-50 text-xs text-left">${tip}</div>`;
+  let result: string = `<div class="opacity-50 text-xs text-left xsm:w-40">${tip}</div>`;
   return result;
 }
