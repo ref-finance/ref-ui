@@ -410,7 +410,10 @@ function AccountEntry({
   const isMobile = useClientMobile();
 
   return (
-    <div className="bubble-box relative user text-xs text-center justify-end z-40">
+    <div
+      className="bubble-box relative user text-xs text-center justify-end z-40"
+      style={{ zIndex: '51' }}
+    >
       {showAccountTip ? (
         <AccountTipDownByAccountID show={showAccountTip} />
       ) : null}
