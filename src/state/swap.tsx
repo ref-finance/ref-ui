@@ -697,7 +697,9 @@ export const useSwapV3 = ({
     const validator =
       foundPool &&
       Number(foundPool?.total_x || 0) + Number(foundPool?.total_y || 0) > 0;
-    if (!validator || pool_id === BLACK_POOL) return null;
+    // if (!validator || pool_id === BLACK_POOL) return null;
+
+    return null;
 
     return quote({
       pool_ids: [pool_id],
