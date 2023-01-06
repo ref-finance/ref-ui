@@ -13,6 +13,9 @@ import {
 import { getBoostTokenPrices } from '../../services/farm';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import ReactECharts from 'echarts-for-react';
+import { ArrowJump } from './Asset';
+import { useWalletSelector } from '~context/WalletSelectorContext';
+import getConfig from '~services/config';
 export default function Tokens() {
   const [tokens, setTokens] = useState([]);
   const [totalPrice, setTotalPrice] = useState('0');
@@ -21,6 +24,7 @@ export default function Tokens() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
   const [pieOption, setPieOption] = useState(null);
   const intl = useIntl();
+  const config = getConfig();
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
   }, []);
@@ -132,6 +136,7 @@ export default function Tokens() {
       setPieOption(pieOption);
     }
   }, [tokens]);
+  const { selector } = useWalletSelector();
   function getPieData() {
     const parseSerialization: TokenMetadata[] = JSON.parse(
       JSON.stringify(tokens)
@@ -193,8 +198,20 @@ export default function Tokens() {
   return (
     <div className="text-white w-60 py-3">
       <div className="flex items-center px-3">
-        <span className="text-sm text-primaryText">Token Allocation</span>
-        <div
+        <div className="flex items-center">
+          <span className="text-sm text-primaryText mr-1">Wallet Tokens</span>
+          <ArrowJump
+            clickEvent={() => {
+              window.open(
+                selector.store.getState().selectedWalletId === 'my-near-wallet'
+                  ? config.myNearWalletUrl
+                  : config.walletUrl,
+                '_blank'
+              );
+            }}
+          ></ArrowJump>
+        </div>
+        {/* <div
           className="text-white text-right ml-1"
           data-class="reactTip"
           data-for="selectAllId"
@@ -210,7 +227,7 @@ export default function Tokens() {
             borderColor="#7e8a93"
             effect="solid"
           />
-        </div>
+        </div> */}
       </div>
       <div className="flex items-center justify-center">
         {pieOption ? (

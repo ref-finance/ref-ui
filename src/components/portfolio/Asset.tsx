@@ -40,8 +40,10 @@ import {
 import { getVEPoolId } from '../../pages/ReferendumPage';
 const { STABLE_POOL_IDS, REF_VE_CONTRACT_ID, XREF_TOKEN_ID } = getConfig();
 import QuestionMark from '../../components/farm/QuestionMark';
+import { ArrowRightIcon } from '../../components/icon/V3';
 import ReactTooltip from 'react-tooltip';
 import { ftGetBalance } from '~services/ft-contract';
+import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
 
 export default function Asset() {
   const [tokenMetadatas, setTokenMetadatas] = useState<
@@ -166,7 +168,7 @@ export default function Asset() {
       });
     }
   }, [your_shares_pools_v1_loading, stake_list_v2_farms_loading]);
-  const [total_tokens_price, total_unclaimed_fee_price] = useMemo(() => {
+  const [total_v2_lp_value, total_unclaimed_fee_price] = useMemo(() => {
     return getV2PoolData();
   }, [user_liquidities, dcl_pools, tokenPriceList]);
   const unClaimed_rewrads = useMemo(() => {
@@ -283,14 +285,12 @@ export default function Asset() {
     return '0';
   }, [tokenPriceList, xrefBalance]);
   const totalAssets = useMemo(() => {
-    const total = new BigNumber(total_tokens_price)
-      .plus(total_unclaimed_fee_price)
+    const total = new BigNumber(total_v2_lp_value)
       .plus(total_lp_value)
-      .plus(unClaimed_rewrads)
       .plus(totalXrefPrice);
     return total.toFixed();
   }, [
-    total_tokens_price,
+    total_v2_lp_value,
     total_unclaimed_fee_price,
     total_lp_value,
     unClaimed_rewrads,
@@ -365,13 +365,13 @@ export default function Asset() {
         .plus(total_price_unclaimed_fee_y)
         .toFixed();
     });
-    const total_tokens_price = new BigNumber(total_price_x)
+    const total_v2_lp_value = new BigNumber(total_price_x)
       .plus(total_price_y)
       .toFixed();
     const total_unclaimed_fee_price = new BigNumber(total_price_unclaimed_fee_x)
       .plus(total_price_unclaimed_fee_y)
       .toFixed();
-    return [total_tokens_price, total_unclaimed_fee_price];
+    return [total_v2_lp_value, total_unclaimed_fee_price];
   }
   function get_liquidity_x_y({
     liquidity,
@@ -470,13 +470,13 @@ export default function Asset() {
     return { amountx: amountX_read, amounty: amountY_read };
   }
   function getV2PoolUSDValue() {
-    const n = new BigNumber(total_tokens_price);
+    const n = new BigNumber(total_v2_lp_value);
     if (n.isEqualTo('0')) {
       return '$0';
     } else if (n.isLessThan('0.01')) {
       return '<$0.01';
     } else {
-      return `$${toInternationalCurrencySystem(total_tokens_price || '0', 2)}`;
+      return `$${toInternationalCurrencySystem(total_v2_lp_value || '0', 2)}`;
     }
   }
   function getV2PoolUncliamedFeeUSDValue() {
@@ -593,26 +593,55 @@ export default function Asset() {
         <DataTemplate
           title="V2 Pools"
           value={getV2PoolUSDValue()}
+          event={() => {
+            localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
+            window.open('/pools');
+          }}
         ></DataTemplate>
-        <DataTemplate title="V1 Pools" value={getV1PoolUSDValue()}>
-          <div className="flex items-center text-white text-sm mt-1">
+        <DataTemplate
+          title="V1 Pools"
+          value={getV1PoolUSDValue()}
+          event={() => {
+            localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
+            window.open('/pools');
+          }}
+        >
+          <div className="flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1">
             {getFarmPercent() + '%'}{' '}
-            <span className="ml-1.5 text-limitOrderInputColor">in farm</span>{' '}
+            <span
+              onClick={() => {
+                localStorage.setItem('farmV2Status', 'my');
+                window.open('/v2farms');
+              }}
+              className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
+            >
+              in farm
+            </span>{' '}
           </div>
         </DataTemplate>
         <DataTemplate
           title="xREF Staking"
           value={getXrefPrice()}
+          event={() => {
+            window.open('/xref');
+          }}
         ></DataTemplate>
       </div>
       <div className="p-4 grid grid-cols-2">
         <DataTemplate
           title="Earned Fees"
           value={getV2PoolUncliamedFeeUSDValue()}
+          event={() => {
+            window.open('/yourliquidity');
+          }}
         ></DataTemplate>
         <DataTemplate
           title="Farm Rewards"
           value={getUnClaimed_rewrads()}
+          event={() => {
+            localStorage.setItem('farmV2Status', 'my');
+            window.open('/v2farms');
+          }}
         ></DataTemplate>
       </div>
     </div>
@@ -620,12 +649,35 @@ export default function Asset() {
 }
 
 function DataTemplate(props: any) {
-  const { title, value, children, className } = props;
+  const { title, value, children, className, event } = props;
   return (
     <div className={`flex flex-col items-start ${className}`}>
-      <span className="text-sm text-primaryText">{title}</span>
+      <div className="flex items-center">
+        <span className="text-sm text-primaryText mr-1">{title}</span>
+        <ArrowJump clickEvent={event}></ArrowJump>
+      </div>
       <span className="text-white text-lg">{value}</span>
       {children}
+    </div>
+  );
+}
+export function ArrowJump(props: any) {
+  const [hover, setHover] = useState(false);
+  const { clickEvent } = props;
+  return (
+    <div
+      onMouseEnter={() => {
+        setHover(true);
+      }}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
+      onClick={clickEvent}
+      className="flex items-center justify-center w-3.5 h-3.5 rounded-full cursor-pointer bg-cardBg"
+    >
+      <ArrowRightIcon
+        className={`${hover ? 'text-white' : 'text-primaryText'}`}
+      ></ArrowRightIcon>
     </div>
   );
 }
