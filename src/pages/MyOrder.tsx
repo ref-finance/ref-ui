@@ -51,6 +51,7 @@ import { QuestionTip, ExclamationTip } from '../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../components/icon/swapV3';
 import { TOKEN_LIST_FOR_RATE } from '../services/commonV3';
 import BigNumber from 'bignumber.js';
+import { isMobile } from '../utils/device';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -702,7 +703,6 @@ function OrderCard({
       <div
         data-type="info"
         className="justify-self-end xs:w-1/2"
-        data-place="top"
         data-multiline={true}
         data-class="reactTip"
         data-html={true}
@@ -757,6 +757,7 @@ function OrderCard({
           borderColor="#7e8a93"
           textColor="#C6D1DA"
           effect="solid"
+          place={isMobile() ? 'right' : 'top'}
         />
       </div>
     );
