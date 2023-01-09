@@ -606,15 +606,15 @@ function OrderCard({
       >
         <button
           className={`rounded-lg    text-xs xs:text-sm xs:w-full ml-1.5 p-1.5 ${
-            ONLY_ZEROS.test(unClaimedAmount) || true
+            ONLY_ZEROS.test(unClaimedAmount)
               ? 'text-v3SwapGray cursor-not-allowe bg-black opacity-20 cursor-not-allowed'
               : `text-white bg-deepBlue hover:text-white hover:bg-deepBlueHover ${
                   claimLoading ? ' text-white bg-deepBlueHover ' : ''
                 }`
           }`}
           type="button"
-          // disabled={ONLY_ZEROS.test(unClaimedAmount)}
-          disabled
+          disabled={ONLY_ZEROS.test(unClaimedAmount)}
+          // disabled
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -635,7 +635,7 @@ function OrderCard({
           ></ButtonTextWrapper>
         </button>
 
-        <ReactTooltip
+        {/* <ReactTooltip
           className="w-20"
           id="v2_paused_pool_tip_claim"
           backgroundColor="#1D2932"
@@ -643,7 +643,7 @@ function OrderCard({
           borderColor="#7e8a93"
           textColor="#C6D1DA"
           effect="solid"
-        />
+        /> */}
       </div>
     );
 
@@ -725,7 +725,7 @@ function OrderCard({
           className={`border col-span-1 rounded-lg xs:text-sm xs:w-full text-xs justify-self-end p-1.5 ${
             cancelLoading ? 'border border-transparent text-black bg-warn ' : ''
           }  border-warn border-opacity-20 text-warn  ${
-            ONLY_ZEROS.test(order.remain_amount) || true
+            ONLY_ZEROS.test(order.remain_amount)
               ? 'opacity-30 cursor-not-allowed'
               : 'hover:border hover:border-transparent hover:text-black hover:bg-warn'
           }`}
@@ -738,8 +738,8 @@ function OrderCard({
               undecimal_amount: order.remain_amount || '0',
             });
           }}
-          // disabled={ONLY_ZEROS.test(order.remain_amount)}
-          disabled
+          disabled={ONLY_ZEROS.test(order.remain_amount)}
+          // disabled
         >
           <ButtonTextWrapper
             Text={() => (
@@ -749,7 +749,7 @@ function OrderCard({
           />
         </button>
 
-        <ReactTooltip
+        {/* <ReactTooltip
           className="w-20"
           id="v2_paused_pool_tip_cancel"
           backgroundColor="#1D2932"
@@ -758,7 +758,7 @@ function OrderCard({
           textColor="#C6D1DA"
           effect="solid"
           place={isMobile() ? 'right' : 'top'}
-        />
+        /> */}
       </div>
     );
 
