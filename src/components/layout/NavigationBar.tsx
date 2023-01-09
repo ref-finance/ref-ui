@@ -1257,7 +1257,7 @@ function NavigationBar() {
           </div>
           <div className="flex items-center h-full relative">
             <Anchor to="/" pattern="/" name="trade_capital" />
-            <Anchor to="/yourliquidity" pattern="/pools" name="POOL" />
+            <Anchor to={'/yourliquidity'} pattern="/pools" name="POOL" />
             <Anchor to="/v2farms" pattern="/v2farms" name="farm_capital" />
             <Xref></Xref>
             {!!getConfig().REF_VE_CONTRACT_ID ? (

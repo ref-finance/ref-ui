@@ -66,6 +66,7 @@ import { ConnectToNearBtnSwap } from '../../components/button/Button';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { checkTransactionStatus } from '../../services/swap';
+import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import {
   REF_FI_YOUR_LP_VALUE,
   REF_FI_YOUR_LP_VALUE_V1_COUNT,
@@ -94,6 +95,7 @@ export default function YourLiquidityPageV3() {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
+
   const liquidityStatusList = ['all', 'V2', 'V1'];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
@@ -136,6 +138,14 @@ export default function YourLiquidityPageV3() {
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
+
+  const pool_link = sessionStorage.getItem(REF_POOL_NAV_TAB_KEY);
+
+  if (pool_link === '/pools') {
+    history.push(pool_link);
+    return null;
+  }
+
   useEffect(() => {
     const ids = ALL_STABLE_POOL_IDS;
     getPoolsByIds({ pool_ids: ids }).then((res) => {
