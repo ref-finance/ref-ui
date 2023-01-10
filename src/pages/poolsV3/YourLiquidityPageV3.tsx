@@ -916,38 +916,19 @@ function UserLiquidityLine({
                   effect="solid"
                 />
               </div>
-              <div
-                className="text-white text-right"
-                data-class="reactTip"
-                data-for={`pause_v2_tip_2_${lpt_id}`}
-                data-place="top"
-                data-html={true}
-                data-tip={pause_v2_tip()}
+              <BorderButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowRemoveBox(true);
+                }}
+                rounded="rounded-lg"
+                px="px-0"
+                py="py-1"
+                style={{ minWidth: '5rem' }}
+                className={`flex-grow  gotham_bold text-sm text-greenColor h-8`}
               >
-                <BorderButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowRemoveBox(true);
-                  }}
-                  rounded="rounded-lg"
-                  px="px-0"
-                  py="py-1"
-                  style={{ minWidth: '5rem' }}
-                  className={`flex-grow  gotham_bold text-sm text-greenColor h-8 ${
-                    PAUSE_DCL ? 'cursor-not-allowed opacity-40' : ''
-                  }`}
-                  disabled={PAUSE_DCL}
-                >
-                  <FormattedMessage id="remove" />
-                </BorderButton>
-                <ReactTooltip
-                  id={`pause_v2_tip_2_${lpt_id}`}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
-              </div>
+                <FormattedMessage id="remove" />
+              </BorderButton>
             </div>
             <div className="flex items-center justify-center">
               <span className="text-xs text-v3SwapGray mr-2.5">
@@ -1174,39 +1155,18 @@ function UserLiquidityLine({
                 effect="solid"
               />
             </div>
-            <div
-              className="w-1 flex-grow text-white text-right"
-              data-class="reactTip"
-              data-for={`pause_v2_tip_6_${lpt_id}`}
-              data-place="top"
-              data-html={true}
-              data-tip={pause_v2_tip()}
+            <BorderButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowRemoveBox(true);
+              }}
+              rounded="rounded-md"
+              px="px-0"
+              py="py-1"
+              className={`w-1 flex-grow text-sm text-greenColor h-8`}
             >
-              <BorderButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowRemoveBox(true);
-                }}
-                rounded="rounded-md"
-                px="px-0"
-                py="py-1"
-                disabled={PAUSE_DCL}
-                className={`text-sm text-greenColor h-8 ${
-                  PAUSE_DCL
-                    ? 'opacity-40 cursor-not-allowed w-full'
-                    : 'w-1 flex-grow'
-                }`}
-              >
-                <FormattedMessage id="remove" />
-              </BorderButton>
-              <ReactTooltip
-                id={`pause_v2_tip_6_${lpt_id}`}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
-            </div>
+              <FormattedMessage id="remove" />
+            </BorderButton>
           </div>
         </div>
       </div>

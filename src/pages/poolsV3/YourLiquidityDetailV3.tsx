@@ -512,36 +512,16 @@ export default function YourLiquidityDetail(props: any) {
                 effect="solid"
               />
             </div>
-            <div
-              className="flex-grow w-1 text-white text-right"
-              data-class="reactTip"
-              data-for="pause_v2_tip_2"
-              data-place="top"
-              data-html={true}
-              data-tip={pause_v2_tip()}
+            <OprationButton
+              onClick={(e: any) => {
+                e.stopPropagation();
+                setShowRemoveBox(true);
+              }}
+              color="#fff"
+              className={`flex-grow  w-1 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover }`}
             >
-              <OprationButton
-                onClick={(e: any) => {
-                  e.stopPropagation();
-                  setShowRemoveBox(true);
-                }}
-                disabled={PAUSE_DCL}
-                btnClassName={PAUSE_DCL ? 'cursor-not-allowed' : ''}
-                color="#fff"
-                className={`flex h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-                  PAUSE_DCL ? 'opacity-40' : 'flex-grow  w-1 '
-                }`}
-              >
-                <FormattedMessage id="remove"></FormattedMessage>
-              </OprationButton>
-              <ReactTooltip
-                id="pause_v2_tip_2"
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
-            </div>
+              <FormattedMessage id="remove"></FormattedMessage>
+            </OprationButton>
           </div>
         </div>
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow xs:w-full md:w-full xs:mt-3 md:mt-3 xs:p-3 md:p-3">

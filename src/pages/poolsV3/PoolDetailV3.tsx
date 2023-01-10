@@ -730,36 +730,16 @@ function YourLiquidityBox(props: {
             effect="solid"
           />
         </div>
-        <div
-          className="flex-grow  w-1 text-white text-right"
-          data-class="reactTip"
-          data-for="pause_v2_tip_2"
-          data-place="top"
-          data-html={true}
-          data-tip={pause_v2_tip()}
+        <OprationButton
+          onClick={(e: any) => {
+            e.stopPropagation();
+            removeLiquidity();
+          }}
+          color="#fff"
+          className={`flex-grow  w-1 h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover }`}
         >
-          <OprationButton
-            onClick={(e: any) => {
-              e.stopPropagation();
-              removeLiquidity();
-            }}
-            color="#fff"
-            className={`flex h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-              PAUSE_DCL ? 'opacity-40' : 'flex-grow  w-1'
-            }`}
-            btnClassName={`${PAUSE_DCL ? 'cursor-not-allowed' : ''}`}
-            disabled={PAUSE_DCL}
-          >
-            <FormattedMessage id="remove" />
-          </OprationButton>
-          <ReactTooltip
-            id="pause_v2_tip_2"
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
-          />
-        </div>
+          <FormattedMessage id="remove" />
+        </OprationButton>
       </div>
       <SelectLiquidityBox
         isOpen={showSelectLiquidityBox}
