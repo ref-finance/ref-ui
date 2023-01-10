@@ -1419,7 +1419,7 @@ function BaseData(props: any) {
         title={
           <FormattedMessage id="TVL" defaultMessage="TVL"></FormattedMessage>
         }
-        value={getTvl()}
+        value={PAUSE_DCL ? '-' : getTvl()}
       ></DataBox>
       <DataBox
         title={
@@ -1590,15 +1590,15 @@ function TablePool(props: any) {
             </div>
             <div
               className="col-span-3 text-base text-white"
-              title={token.amount}
+              title={PAUSE_DCL ? '-' : token.amount}
             >
-              {displayAmount(token.amount)}
+              {PAUSE_DCL ? '-' : displayAmount(token.amount)}
             </div>
             <div
               className="col-span-2 text-base text-white"
-              title={`$${token.tvl}`}
+              title={`$${PAUSE_DCL ? '-' : token.tvl}`}
             >
-              {displayTvl(token)}
+              {PAUSE_DCL ? '-' : displayTvl(token)}
             </div>
           </div>
         ))}

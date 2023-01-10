@@ -950,7 +950,9 @@ export default function AddYourLiquidityPageV3() {
                                   {/* <label className="xsm:hidden">
                                     TVL&nbsp;
                                   </label> */}
-                                  {displayTvl(currentPools[fee].tvl)}
+                                  {PAUSE_DCL
+                                    ? '-'
+                                    : displayTvl(currentPools[fee].tvl)}
                                 </span>
                               ) : (
                                 'Loading...'
