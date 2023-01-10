@@ -725,9 +725,11 @@ function OrderCard({
           className={`border col-span-1 rounded-lg xs:text-sm xs:w-full text-xs justify-self-end p-1.5 ${
             cancelLoading ? 'border border-transparent text-black bg-warn ' : ''
           }  border-warn border-opacity-20 text-warn  ${
-            ONLY_ZEROS.test(order.remain_amount)
-              ? 'opacity-30 cursor-not-allowed'
-              : 'hover:border hover:border-transparent hover:text-black hover:bg-warn'
+            // ONLY_ZEROS.test(order.remain_amount)
+            //   ? 'opacity-30 cursor-not-allowed'
+            //   :
+
+            'hover:border hover:border-transparent hover:text-black hover:bg-warn'
           }`}
           onClick={(e) => {
             e.preventDefault();
@@ -738,7 +740,7 @@ function OrderCard({
               undecimal_amount: order.remain_amount || '0',
             });
           }}
-          disabled={ONLY_ZEROS.test(order.remain_amount)}
+          // disabled={ONLY_ZEROS.test(order.remain_amount)}
           // disabled
         >
           <ButtonTextWrapper

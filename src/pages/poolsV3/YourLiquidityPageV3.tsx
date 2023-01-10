@@ -146,6 +146,12 @@ export default function YourLiquidityPageV3() {
     return null;
   }
 
+  if (!pool_link) {
+    history.push('/pools');
+
+    return null;
+  }
+
   useEffect(() => {
     const ids = ALL_STABLE_POOL_IDS;
     getPoolsByIds({ pool_ids: ids }).then((res) => {

@@ -514,7 +514,7 @@ export const cancel_order = ({
           methodName: 'cancel_order',
           args: {
             order_id,
-            amount: undecimal_amount,
+            // amount: undecimal_amount,
           },
           gas: '180000000000000',
         },
