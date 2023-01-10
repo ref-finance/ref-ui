@@ -128,7 +128,7 @@ import { REF_FI_CONTRACT_ID } from '../../services/near';
 import { AiOutlineStar } from 'react-icons/ai';
 
 import { AiFillStar } from 'react-icons/ai';
-import { PAUSE_DCL } from '~services/commonV3';
+import { PAUSE_DCL } from '../../services/commonV3';
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
