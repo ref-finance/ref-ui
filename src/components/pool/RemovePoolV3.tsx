@@ -388,8 +388,11 @@ export const RemovePoolV3 = (props: any) => {
               return (
                 <div
                   key={p}
-                  className="flex flex-col items-center cursor-pointer"
+                  className={`flex flex-col items-center ${
+                    PAUSE_DCL ? 'cursor-not-allowed' : 'cursor-pointer'
+                  }`}
                   onClick={() => {
+                    if (PAUSE_DCL) return;
                     changeRemoveAmount(p.toString());
                   }}
                 >
@@ -417,7 +420,7 @@ export const RemovePoolV3 = (props: any) => {
               disabled={PAUSE_DCL ? true : false}
               value={removePercentAmount}
               type="range"
-              className={`w-full ${
+              className={`w-full pause ${
                 PAUSE_DCL ? 'cursor-not-allowed' : 'cursor-pointer'
               }`}
               style={{ backgroundSize: '100% 100%' }}
