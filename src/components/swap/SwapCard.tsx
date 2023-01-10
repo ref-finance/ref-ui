@@ -850,7 +850,7 @@ function DetailViewLimit({
         return (
           <>
             {/* <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span> */}
-            {displayTvl()}
+            {/* {displayTvl()} */}-
           </>
         );
       }
