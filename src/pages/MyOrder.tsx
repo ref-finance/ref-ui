@@ -725,9 +725,11 @@ function OrderCard({
           className={`border col-span-1 rounded-lg xs:text-sm xs:w-full text-xs justify-self-end p-1.5 ${
             cancelLoading ? 'border border-transparent text-black bg-warn ' : ''
           }  border-warn border-opacity-20 text-warn  ${
-            ONLY_ZEROS.test(order.remain_amount) || true
-              ? 'opacity-30 cursor-not-allowed'
-              : 'hover:border hover:border-transparent hover:text-black hover:bg-warn'
+            // ONLY_ZEROS.test(order.remain_amount)
+            //   ? 'opacity-30 cursor-not-allowed'
+            //   :
+
+            'hover:border hover:border-transparent hover:text-black hover:bg-warn'
           }`}
           onClick={(e) => {
             e.preventDefault();
@@ -739,7 +741,7 @@ function OrderCard({
             });
           }}
           // disabled={ONLY_ZEROS.test(order.remain_amount)}
-          disabled
+          // disabled
         >
           <ButtonTextWrapper
             Text={() => (
@@ -749,7 +751,7 @@ function OrderCard({
           />
         </button>
 
-        <ReactTooltip
+        {/* <ReactTooltip
           className="w-20"
           id="v2_paused_pool_tip_cancel"
           backgroundColor="#1D2932"
@@ -758,7 +760,7 @@ function OrderCard({
           textColor="#C6D1DA"
           effect="solid"
           place={isMobile() ? 'right' : 'top'}
-        />
+        /> */}
       </div>
     );
 

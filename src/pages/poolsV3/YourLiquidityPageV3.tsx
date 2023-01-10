@@ -66,6 +66,7 @@ import { ConnectToNearBtnSwap } from '../../components/button/Button';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { checkTransactionStatus } from '../../services/swap';
+import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import {
   REF_FI_YOUR_LP_VALUE,
   REF_FI_YOUR_LP_VALUE_V1_COUNT,
@@ -94,6 +95,7 @@ export default function YourLiquidityPageV3() {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
+
   const liquidityStatusList = ['all', 'V2', 'V1'];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
@@ -136,6 +138,20 @@ export default function YourLiquidityPageV3() {
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
+
+  const pool_link = sessionStorage.getItem(REF_POOL_NAV_TAB_KEY);
+
+  if (pool_link === '/pools') {
+    history.push(pool_link);
+    return null;
+  }
+
+  if (!pool_link) {
+    history.push('/pools');
+
+    return null;
+  }
+
   useEffect(() => {
     const ids = ALL_STABLE_POOL_IDS;
     getPoolsByIds({ pool_ids: ids }).then((res) => {
@@ -906,38 +922,19 @@ function UserLiquidityLine({
                   effect="solid"
                 />
               </div>
-              <div
-                className="text-white text-right"
-                data-class="reactTip"
-                data-for={`pause_v2_tip_2_${lpt_id}`}
-                data-place="top"
-                data-html={true}
-                data-tip={pause_v2_tip()}
+              <BorderButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowRemoveBox(true);
+                }}
+                rounded="rounded-lg"
+                px="px-0"
+                py="py-1"
+                style={{ minWidth: '5rem' }}
+                className={`flex-grow  gotham_bold text-sm text-greenColor h-8`}
               >
-                <BorderButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowRemoveBox(true);
-                  }}
-                  rounded="rounded-lg"
-                  px="px-0"
-                  py="py-1"
-                  style={{ minWidth: '5rem' }}
-                  className={`flex-grow  gotham_bold text-sm text-greenColor h-8 ${
-                    PAUSE_DCL ? 'cursor-not-allowed opacity-40' : ''
-                  }`}
-                  disabled={PAUSE_DCL}
-                >
-                  <FormattedMessage id="remove" />
-                </BorderButton>
-                <ReactTooltip
-                  id={`pause_v2_tip_2_${lpt_id}`}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
-              </div>
+                <FormattedMessage id="remove" />
+              </BorderButton>
             </div>
             <div className="flex items-center justify-center">
               <span className="text-xs text-v3SwapGray mr-2.5">
@@ -1164,39 +1161,18 @@ function UserLiquidityLine({
                 effect="solid"
               />
             </div>
-            <div
-              className="w-1 flex-grow text-white text-right"
-              data-class="reactTip"
-              data-for={`pause_v2_tip_6_${lpt_id}`}
-              data-place="top"
-              data-html={true}
-              data-tip={pause_v2_tip()}
+            <BorderButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowRemoveBox(true);
+              }}
+              rounded="rounded-md"
+              px="px-0"
+              py="py-1"
+              className={`w-1 flex-grow text-sm text-greenColor h-8`}
             >
-              <BorderButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowRemoveBox(true);
-                }}
-                rounded="rounded-md"
-                px="px-0"
-                py="py-1"
-                disabled={PAUSE_DCL}
-                className={`text-sm text-greenColor h-8 ${
-                  PAUSE_DCL
-                    ? 'opacity-40 cursor-not-allowed w-full'
-                    : 'w-1 flex-grow'
-                }`}
-              >
-                <FormattedMessage id="remove" />
-              </BorderButton>
-              <ReactTooltip
-                id={`pause_v2_tip_6_${lpt_id}`}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
-            </div>
+              <FormattedMessage id="remove" />
+            </BorderButton>
           </div>
         </div>
       </div>

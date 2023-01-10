@@ -56,7 +56,7 @@ const changeLocale = (local: string) => {
   };
 
   switchLanguage(local);
-  localStorage.setItem('local', local?.toLowerCase() == 'en-us' ? 'en' : local);
+  localStorage.setItem('local', local);
 };
 
 changeLocale(local);

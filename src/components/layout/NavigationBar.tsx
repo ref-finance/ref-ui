@@ -1257,7 +1257,7 @@ function NavigationBar() {
           </div>
           <div className="flex items-center h-full relative">
             <Anchor to="/" pattern="/" name="trade_capital" />
-            <Anchor to="/yourliquidity" pattern="/pools" name="POOL" />
+            <Anchor to={'/yourliquidity'} pattern="/pools" name="POOL" />
             <Anchor to="/v2farms" pattern="/v2farms" name="farm_capital" />
             <Xref></Xref>
             {!!getConfig().REF_VE_CONTRACT_ID ? (
@@ -1307,19 +1307,40 @@ function NavigationBar() {
     </>
   );
 }
+export const commonLangKey = [
+  'en',
+  'zh-CN',
+  'vi',
+  'uk',
+  'ru',
+  'ja',
+  'ko',
+  'es',
+];
+export function formatItem(local: string) {
+  if (commonLangKey.indexOf(local) > -1) {
+    return local;
+  } else {
+    return 'en';
+  }
+}
 function Language() {
   const context = useContext(Context);
   const [hover, setHover] = useState(false);
   const lans = useLanguageItems();
-  const currentLocal = localStorage.getItem('local');
+  const currentLocal = formatItem(localStorage.getItem('local'));
   const switchLanuage = (language: string) => {
     context.selectLanguage(language);
   };
   const displayLanguage = () => {
-    if (currentLocal == 'zh-CN') {
-      return '中';
+    if (commonLangKey.indexOf(currentLocal) > -1) {
+      if (currentLocal == 'zh-CN') {
+        return '中';
+      } else {
+        return currentLocal?.toUpperCase();
+      }
     } else {
-      return currentLocal?.toUpperCase();
+      return 'EN';
     }
   };
   return (

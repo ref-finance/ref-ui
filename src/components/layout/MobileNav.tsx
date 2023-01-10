@@ -64,6 +64,7 @@ import {
 } from '~components/icon/Nav';
 import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useLanguageItems } from '~utils/menu';
+import { commonLangKey, formatItem } from './NavigationBar';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -329,13 +330,16 @@ export function MobileNavBar(props: any) {
 
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showLanguage, setShowLanguage] = useState<boolean>(false);
-
   const displayLanguage = () => {
     const currentLocal = localStorage.getItem('local');
-    if (currentLocal == 'zh-CN') {
-      return '中';
+    if (commonLangKey.indexOf(currentLocal) > -1) {
+      if (currentLocal == 'zh-CN') {
+        return '中';
+      } else {
+        return currentLocal?.toUpperCase();
+      }
     } else {
-      return currentLocal?.toUpperCase();
+      return 'EN';
     }
   };
   useEffect(() => {
@@ -848,7 +852,7 @@ function SauceMenu(props: any) {
 function MobileLanguage(props: any) {
   const context = useContext(Context);
   const lans = useLanguageItems();
-  const currentLocal = localStorage.getItem('local');
+  const currentLocal = formatItem(localStorage.getItem('local'));
   const switchLanuage = (language: string) => {
     context.selectLanguage(language);
   };

@@ -47,6 +47,9 @@ import {
 } from '../../utils/numbers';
 import Big from 'big.js';
 import { useAllPoolsV2 } from '../../state/swapV3';
+
+export const REF_POOL_NAV_TAB_KEY = 'REF_POOL_NAV_TAB_VALUE';
+
 export const PoolTabV3 = ({
   count,
   yourLPpage,
@@ -112,6 +115,7 @@ export const PoolTabV3 = ({
 
   useEffect(() => {
     const pathname = location.pathname;
+
     if (
       pathname.startsWith('/pool/') ||
       pathname.startsWith('/poolV2') ||
@@ -298,6 +302,7 @@ export const PoolTabV3 = ({
                     choosedTab == '2' ? ' text-white rounded-xl' : ''
                   }`}
                   onClick={() => {
+                    sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/pools');
                     goPage('/pools');
                   }}
                 >
@@ -308,6 +313,11 @@ export const PoolTabV3 = ({
                     choosedTab == '1' ? ' text-white rounded-xl' : ''
                   }`}
                   onClick={() => {
+                    sessionStorage.setItem(
+                      REF_POOL_NAV_TAB_KEY,
+                      '/yourliquidity'
+                    );
+
                     goPage('/yourliquidity');
                   }}
                 >
@@ -347,6 +357,8 @@ export const PoolTabV3 = ({
               choosedTab == '1' ? 'bg-tabChosen text-white rounded-xl' : ''
             }`}
             onClick={() => {
+              sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
+
               goPage('/yourliquidity');
             }}
           >
@@ -361,6 +373,8 @@ export const PoolTabV3 = ({
               choosedTab == '2' ? 'bg-tabChosen text-white rounded-xl' : ''
             }`}
             onClick={() => {
+              sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/pools');
+
               goPage('/pools');
             }}
           >
