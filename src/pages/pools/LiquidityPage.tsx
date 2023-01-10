@@ -439,7 +439,7 @@ function MobilePoolRowV2({
     value?: number;
   }) => {
     if (sortBy === 'tvl')
-      return toInternationalCurrencySystem(value.toString());
+      return PAUSE_DCL ? '-' : toInternationalCurrencySystem(value.toString());
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
     else if (sortBy === 'volume_24h') {
       return geth24volume();
