@@ -49,6 +49,8 @@ import {
   getYAmount_per_point_by_Ly,
   drawChartData,
   TOKEN_LIST_FOR_RATE,
+  PAUSE_DCL,
+  pause_v2_tip,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getTokenPriceList } from '../../services/indexer';
@@ -57,6 +59,7 @@ import { getLiquidity } from '~utils/pool';
 import _ from 'lodash';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { BlueCircleLoading } from '../../components/layout/Loading';
+import ReactTooltip from 'react-tooltip';
 export default function YourLiquidityDetail(props: any) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
@@ -338,7 +341,7 @@ export default function YourLiquidityDetail(props: any) {
     setRateSort(!rateSort);
   }
   function claimRewards() {
-    if (!canClaim()) return;
+    if (!canClaim() || PAUSE_DCL) return;
     setClaimLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
     remove_liquidity({
@@ -479,24 +482,43 @@ export default function YourLiquidityDetail(props: any) {
             </div>
           </div>
           <div className="flex items-center justify-between mt-5">
-            <GradientButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowAddBox(true);
-              }}
-              color="#fff"
-              className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
-              borderRadius={'8px'}
+            <div
+              className="flex-grow w-1 text-white text-right"
+              data-class="reactTip"
+              data-for="pause_v2_tip_1"
+              data-place="top"
+              data-html={true}
+              data-tip={pause_v2_tip()}
             >
-              <FormattedMessage id="add"></FormattedMessage>
-            </GradientButton>
+              <GradientButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowAddBox(true);
+                }}
+                color="#fff"
+                disabled={PAUSE_DCL}
+                className={`h-9 text-center text-sm text-white focus:outline-none mr-2.5 ${
+                  PAUSE_DCL ? 'opacity-40' : 'flex-grow w-1'
+                }`}
+                btnClassName={`${PAUSE_DCL ? 'cursor-not-allowed' : ''}`}
+              >
+                <FormattedMessage id="add"></FormattedMessage>
+              </GradientButton>
+              <ReactTooltip
+                id="pause_v2_tip_1"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
             <OprationButton
               onClick={(e: any) => {
                 e.stopPropagation();
                 setShowRemoveBox(true);
               }}
               color="#fff"
-              className={`flex flex-grow  w-1 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
+              className={`flex-grow  w-1 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover }`}
             >
               <FormattedMessage id="remove"></FormattedMessage>
             </OprationButton>
@@ -544,16 +566,32 @@ export default function YourLiquidityDetail(props: any) {
             </div>
           </div>
           <div
-            className={`flex items-center justify-center h-9 rounded-lg text-sm px-2 py-1 mt-5 ${
-              !canClaim()
-                ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-            }`}
-            onClick={claimRewards}
+            className="text-white text-right"
+            data-class="reactTip"
+            data-for="pause_v2_tip_3"
+            data-place="top"
+            data-html={true}
+            data-tip={pause_v2_tip()}
           >
-            <ButtonTextWrapper
-              loading={claimLoading}
-              Text={() => <FormattedMessage id="claim" />}
+            <div
+              className={`flex items-center justify-center h-9 rounded-lg text-sm px-2 py-1 mt-5 ${
+                !canClaim() || PAUSE_DCL
+                  ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                  : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+              }`}
+              onClick={claimRewards}
+            >
+              <ButtonTextWrapper
+                loading={claimLoading}
+                Text={() => <FormattedMessage id="claim" />}
+              />
+            </div>
+            <ReactTooltip
+              id="pause_v2_tip_3"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
             />
           </div>
         </div>

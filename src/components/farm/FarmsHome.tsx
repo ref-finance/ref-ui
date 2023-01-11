@@ -460,12 +460,12 @@ export default function FarmsHome(props: any) {
         const apr =
           seedPowerTvl == 0
             ? 0
-            : (Number(readableNumber) * 360 * reward_token_price) /
+            : (Number(readableNumber) * 365 * reward_token_price) /
               seedPowerTvl;
         const baseApr =
           seedTvl == 0
             ? 0
-            : (Number(readableNumber) * 360 * reward_token_price) / seedTvl;
+            : (Number(readableNumber) * 365 * reward_token_price) / seedTvl;
 
         farm.apr = apr.toString();
         farm.baseApr = baseApr.toString();

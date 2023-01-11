@@ -40,6 +40,8 @@ import {
   getYAmount_per_point_by_Ly,
   useAddAndRemoveUrlHandle,
   TOKEN_LIST_FOR_RATE,
+  PAUSE_DCL,
+  pause_v2_tip,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -697,24 +699,44 @@ function YourLiquidityBox(props: {
         </span>
       </div>
       <div className="flex items-center justify-between mt-7">
-        <GradientButton
-          onClick={(e) => {
-            e.stopPropagation();
-            addLiquidity();
-          }}
-          color="#fff"
-          borderRadius={'8px'}
-          className={`flex-grow w-1 h-11 text-center text-sm text-white focus:outline-none mr-2.5`}
+        <div
+          className="flex-grow w-1 text-white text-right"
+          data-class="reactTip"
+          data-for="pause_v2_tip_1"
+          data-place="top"
+          data-html={true}
+          data-tip={pause_v2_tip()}
         >
-          <FormattedMessage id="add" />
-        </GradientButton>
+          <GradientButton
+            onClick={(e) => {
+              e.stopPropagation();
+              addLiquidity();
+            }}
+            color="#fff"
+            borderRadius={'8px'}
+            disabled={PAUSE_DCL}
+            className={`h-11 text-center text-sm text-white focus:outline-none mr-2.5 ${
+              PAUSE_DCL ? 'opacity-40' : 'flex-grow w-1'
+            }`}
+            btnClassName={`${PAUSE_DCL ? 'cursor-not-allowed' : ''}`}
+          >
+            <FormattedMessage id="add" />
+          </GradientButton>
+          <ReactTooltip
+            id="pause_v2_tip_1"
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+          />
+        </div>
         <OprationButton
           onClick={(e: any) => {
             e.stopPropagation();
             removeLiquidity();
           }}
           color="#fff"
-          className={`flex flex-grow  w-1 h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
+          className={`flex-grow  w-1 h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover }`}
         >
           <FormattedMessage id="remove" />
         </OprationButton>
@@ -818,7 +840,7 @@ function UnclaimedFeesBox(props: any) {
     };
   }
   function claimRewards() {
-    if (total_amount_x_y == 0) return;
+    if (total_amount_x_y == 0 || PAUSE_DCL) return;
     set_cliam_loading(true);
     const lpt_ids: string[] = [];
     liquidities.forEach((liquidity: UserLiquidityInfo) => {
@@ -874,20 +896,36 @@ function UnclaimedFeesBox(props: any) {
         <span className="text-farmText text-sm">{display_amount_y}</span>
       </div>
       <div
-        className={`flex items-center justify-center h-11 rounded-lg text-sm px-2 py-1 mt-7 ${
-          total_amount_x_y == 0
-            ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-            : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-        }`}
-        onClick={claimRewards}
+        className="text-white text-right"
+        data-class="reactTip"
+        data-for="pause_v2_tip_3"
+        data-place="top"
+        data-html={true}
+        data-tip={pause_v2_tip()}
       >
-        <ButtonTextWrapper
-          loading={cliam_loading}
-          Text={() => (
-            <FormattedMessage
-              id={liquidities?.length > 1 ? 'claim_all' : 'claim'}
-            />
-          )}
+        <div
+          className={`flex items-center justify-center h-11 rounded-lg text-sm px-2 py-1 mt-7 ${
+            total_amount_x_y == 0 || PAUSE_DCL
+              ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+              : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+          }`}
+          onClick={claimRewards}
+        >
+          <ButtonTextWrapper
+            loading={cliam_loading}
+            Text={() => (
+              <FormattedMessage
+                id={liquidities?.length > 1 ? 'claim_all' : 'claim'}
+              />
+            )}
+          />
+        </div>
+        <ReactTooltip
+          id="pause_v2_tip_3"
+          backgroundColor="#1D2932"
+          border
+          borderColor="#7e8a93"
+          effect="solid"
         />
       </div>
     </div>
@@ -912,16 +950,36 @@ function NoYourLiquditiesBox(props: any) {
         <FormattedMessage id="no_positons_in_this_pool_yet" />
       </span>
       <div className="flex justify-center w-full">
-        <GradientButton
-          onClick={(e) => {
-            e.stopPropagation();
-            goAddLiqudityPage();
-          }}
-          color="#fff"
-          className={`w-full h-11 text-center text-base text-white focus:outline-none`}
+        <div
+          className="w-full text-white text-right"
+          data-class="reactTip"
+          data-for="pause_v2_tip_4"
+          data-place="top"
+          data-html={true}
+          data-tip={pause_v2_tip()}
         >
-          <FormattedMessage id="add_liquidity"></FormattedMessage>
-        </GradientButton>
+          <GradientButton
+            onClick={(e) => {
+              e.stopPropagation();
+              goAddLiqudityPage();
+            }}
+            color="#fff"
+            disabled={PAUSE_DCL}
+            className={`w-full h-11 text-center text-base text-white focus:outline-none ${
+              PAUSE_DCL ? 'opacity-40' : ''
+            }`}
+            btnClassName={`${PAUSE_DCL ? 'cursor-not-allowed' : ''}`}
+          >
+            <FormattedMessage id="add_liquidity"></FormattedMessage>
+          </GradientButton>
+          <ReactTooltip
+            id="pause_v2_tip_4"
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+          />
+        </div>
       </div>
     </div>
   );
@@ -1361,7 +1419,7 @@ function BaseData(props: any) {
         title={
           <FormattedMessage id="TVL" defaultMessage="TVL"></FormattedMessage>
         }
-        value={getTvl()}
+        value={PAUSE_DCL ? '-' : getTvl()}
       ></DataBox>
       <DataBox
         title={
@@ -1532,15 +1590,15 @@ function TablePool(props: any) {
             </div>
             <div
               className="col-span-3 text-base text-white"
-              title={token.amount}
+              title={PAUSE_DCL ? '-' : token.amount}
             >
-              {displayAmount(token.amount)}
+              {PAUSE_DCL ? '-' : displayAmount(token.amount)}
             </div>
             <div
               className="col-span-2 text-base text-white"
-              title={`$${token.tvl}`}
+              title={`$${PAUSE_DCL ? '-' : token.tvl}`}
             >
-              {displayTvl(token)}
+              {PAUSE_DCL ? '-' : displayTvl(token)}
             </div>
           </div>
         ))}

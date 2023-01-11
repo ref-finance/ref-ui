@@ -128,6 +128,7 @@ import { REF_FI_CONTRACT_ID } from '../../services/near';
 import { AiOutlineStar } from 'react-icons/ai';
 
 import { AiFillStar } from 'react-icons/ai';
+import { PAUSE_DCL } from '../../services/commonV3';
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
@@ -438,7 +439,7 @@ function MobilePoolRowV2({
     value?: number;
   }) => {
     if (sortBy === 'tvl')
-      return toInternationalCurrencySystem(value.toString());
+      return PAUSE_DCL ? '-' : toInternationalCurrencySystem(value.toString());
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
     else if (sortBy === 'volume_24h') {
       return geth24volume();
@@ -1493,7 +1494,9 @@ function PoolRowV2({
             0
           )}
         >
-          ${toInternationalCurrencySystem(pool.tvl.toString())}
+          {PAUSE_DCL
+            ? '-'
+            : '$' + toInternationalCurrencySystem(pool.tvl.toString())}
         </div>
       </div>
     </div>

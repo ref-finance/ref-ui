@@ -850,7 +850,7 @@ export const useSeedFarms = (pool_id: string | number) => {
                 daily_reward
               );
 
-              const yearReward = Number(readableNumber) * 360;
+              const yearReward = Number(readableNumber) * 365;
 
               return {
                 ...farm,

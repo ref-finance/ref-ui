@@ -51,6 +51,7 @@ import { QuestionTip, ExclamationTip } from '../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../components/icon/swapV3';
 import { TOKEN_LIST_FOR_RATE } from '../services/commonV3';
 import BigNumber from 'bignumber.js';
+import { isMobile } from '../utils/device';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -581,33 +582,69 @@ function OrderCard({
     );
 
     const claimButton = (
-      <button
-        className={`rounded-lg    text-xs xs:text-sm xs:w-1/2 ml-1.5 p-1.5 ${
-          ONLY_ZEROS.test(unClaimedAmount)
-            ? 'text-v3SwapGray cursor-not-allowe bg-black opacity-20 cursor-not-allowed'
-            : `text-white bg-deepBlue hover:text-white hover:bg-deepBlueHover ${
-                claimLoading ? ' text-white bg-deepBlueHover ' : ''
-              }`
-        }`}
-        type="button"
-        disabled={ONLY_ZEROS.test(unClaimedAmount)}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
+      <div
+        data-type="info"
+        data-place="top"
+        data-multiline={true}
+        data-class="reactTip"
+        className="xs:w-1/2"
+        data-html={true}
+        data-tip={`
+              <div class="text-xs opacity-50">
+                <div 
+                  style="font-weight:400",
+                >
+                ${intl.formatMessage({
+                  id: 'v2_paused',
 
-          setClaimLoading(true);
-
-          cancel_order({
-            order_id: order.order_id,
-            undecimal_amount: '0',
-          });
-        }}
+                  defaultMessage: 'REF V2 has been paused for maintenance',
+                })}
+                </div>
+              </div>
+            `}
+        data-for="v2_paused_pool_tip_claim"
       >
-        <ButtonTextWrapper
-          Text={() => <FormattedMessage id="claim" defaultMessage={'Claim'} />}
-          loading={claimLoading}
-        ></ButtonTextWrapper>
-      </button>
+        <button
+          className={`rounded-lg    text-xs xs:text-sm xs:w-full ml-1.5 p-1.5 ${
+            ONLY_ZEROS.test(unClaimedAmount) || true
+              ? 'text-v3SwapGray cursor-not-allowe bg-black opacity-20 cursor-not-allowed'
+              : `text-white bg-deepBlue hover:text-white hover:bg-deepBlueHover ${
+                  claimLoading ? ' text-white bg-deepBlueHover ' : ''
+                }`
+          }`}
+          type="button"
+          // disabled={ONLY_ZEROS.test(unClaimedAmount)}
+          disabled
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            setClaimLoading(true);
+
+            cancel_order({
+              order_id: order.order_id,
+              undecimal_amount: '0',
+            });
+          }}
+        >
+          <ButtonTextWrapper
+            Text={() => (
+              <FormattedMessage id="claim" defaultMessage={'Claim'} />
+            )}
+            loading={claimLoading}
+          ></ButtonTextWrapper>
+        </button>
+
+        <ReactTooltip
+          className="w-20"
+          id="v2_paused_pool_tip_claim"
+          backgroundColor="#1D2932"
+          border
+          borderColor="#7e8a93"
+          textColor="#C6D1DA"
+          effect="solid"
+        />
+      </div>
     );
 
     const unclaim = (
@@ -663,32 +700,68 @@ function OrderCard({
     );
 
     const actions = (
-      <button
-        className={`border col-span-1 rounded-lg xs:text-sm xs:w-1/2 text-xs justify-self-end p-1.5 ${
-          cancelLoading ? 'border border-transparent text-black bg-warn ' : ''
-        }  border-warn border-opacity-20 text-warn  ${
-          ONLY_ZEROS.test(order.remain_amount)
-            ? 'opacity-30 cursor-not-allowed'
-            : 'hover:border hover:border-transparent hover:text-black hover:bg-warn'
-        }`}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setCancelLoading(true);
-          cancel_order({
-            order_id: order.order_id,
-            undecimal_amount: order.remain_amount || '0',
-          });
-        }}
-        disabled={ONLY_ZEROS.test(order.remain_amount)}
+      <div
+        data-type="info"
+        className="justify-self-end xs:w-1/2"
+        data-multiline={true}
+        data-class="reactTip"
+        data-html={true}
+        data-tip={`
+            <div class="text-xs opacity-50">
+              <div 
+                style="font-weight:400",
+              >
+              ${intl.formatMessage({
+                id: 'v2_paused',
+
+                defaultMessage: 'REF V2 has been paused for maintenance',
+              })}
+              </div>
+            </div>
+          `}
+        data-for="v2_paused_pool_tip_cancel"
       >
-        <ButtonTextWrapper
-          Text={() => (
-            <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
-          )}
-          loading={cancelLoading}
-        />
-      </button>
+        <button
+          className={`border col-span-1 rounded-lg xs:text-sm xs:w-full text-xs justify-self-end p-1.5 ${
+            cancelLoading ? 'border border-transparent text-black bg-warn ' : ''
+          }  border-warn border-opacity-20 text-warn  ${
+            // ONLY_ZEROS.test(order.remain_amount)
+            //   ? 'opacity-30 cursor-not-allowed'
+            //   :
+
+            'hover:border hover:border-transparent hover:text-black hover:bg-warn'
+          }`}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setCancelLoading(true);
+            cancel_order({
+              order_id: order.order_id,
+              undecimal_amount: order.remain_amount || '0',
+            });
+          }}
+          // disabled={ONLY_ZEROS.test(order.remain_amount)}
+          // disabled
+        >
+          <ButtonTextWrapper
+            Text={() => (
+              <FormattedMessage id="cancel" defaultMessage={'Cancel'} />
+            )}
+            loading={cancelLoading}
+          />
+        </button>
+
+        {/* <ReactTooltip
+          className="w-20"
+          id="v2_paused_pool_tip_cancel"
+          backgroundColor="#1D2932"
+          border
+          borderColor="#7e8a93"
+          textColor="#C6D1DA"
+          effect="solid"
+          place={isMobile() ? 'right' : 'top'}
+        /> */}
+      </div>
     );
 
     const tokenPrice = useContext(PriceContext);
@@ -1808,19 +1881,55 @@ function MyOrderPage() {
             </div>
           </div>
         </button>
-        <SolidButton
-          padding="px-4 py-2"
-          className="rounded-lg"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            history.push('/swap');
-            localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
-            localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
-          }}
+
+        <div
+          data-type="info"
+          data-place="top"
+          data-multiline={true}
+          data-class="reactTip"
+          data-html={true}
+          data-tip={`
+              <div class="text-xs opacity-50">
+                <div 
+                  style="font-weight:400",
+                >
+                ${intl.formatMessage({
+                  id: 'v2_paused',
+
+                  defaultMessage: 'REF V2 has been paused for maintenance',
+                })}
+                </div>
+              </div>
+            `}
+          data-for="v2_paused_pool_tip"
         >
-          <FormattedMessage id="create_order" defaultMessage={'Create Order'} />
-        </SolidButton>
+          <SolidButton
+            padding="px-4 py-2"
+            className="rounded-lg"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              history.push('/swap');
+              localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+              localStorage.setItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY, 'normal');
+            }}
+            disabled
+          >
+            <FormattedMessage
+              id="create_order"
+              defaultMessage={'Create Order'}
+            />
+          </SolidButton>
+          <ReactTooltip
+            className="w-20"
+            id="v2_paused_pool_tip"
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            textColor="#C6D1DA"
+            effect="solid"
+          />
+        </div>
       </div>
       <PriceContext.Provider value={tokenPriceList}>
         <OrderCard

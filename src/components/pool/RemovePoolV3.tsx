@@ -28,6 +28,7 @@ import {
   UserLiquidityInfo,
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
+  PAUSE_DCL,
 } from '../../services/commonV3';
 import { PoolInfo, remove_liquidity } from '../../services/swapV3';
 import _ from 'lodash';
@@ -387,8 +388,11 @@ export const RemovePoolV3 = (props: any) => {
               return (
                 <div
                   key={p}
-                  className="flex flex-col items-center cursor-pointer"
+                  className={`flex flex-col items-center ${
+                    PAUSE_DCL ? 'cursor-not-allowed' : 'cursor-pointer'
+                  }`}
                   onClick={() => {
+                    if (PAUSE_DCL) return;
                     changeRemoveAmount(p.toString());
                   }}
                 >
@@ -413,9 +417,12 @@ export const RemovePoolV3 = (props: any) => {
               onChange={(e) => {
                 changeRemoveAmount(e.target.value);
               }}
+              disabled={PAUSE_DCL ? true : false}
               value={removePercentAmount}
               type="range"
-              className="w-full cursor-pointer"
+              className={`w-full pause ${
+                PAUSE_DCL ? 'cursor-not-allowed' : 'cursor-pointer'
+              }`}
               style={{ backgroundSize: '100% 100%' }}
               min="0"
               max="100"
