@@ -79,7 +79,6 @@ function Footer() {
                   />
                 )}
               </div>
-              {/* todo */}
               <div
                 className={`text-white text-right`}
                 data-class="reactTip"

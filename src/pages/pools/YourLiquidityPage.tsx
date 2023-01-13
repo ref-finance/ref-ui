@@ -464,8 +464,10 @@ export function YourLiquidityPage(props: any) {
               {error && <Alert level="warn" message={error.message} />}
             </div>
             {/* PC */}
-            <div className="my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5 gotham_bold">
-              <span className="text-white text-base">V1 ({count})</span>
+            <div className="my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+              <span className="text-white text-base gotham_bold">
+                V1 ({count})
+              </span>
               <p className="text-sm text-farmText">
                 <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
               </p>
