@@ -307,7 +307,7 @@ export function YourLiquidityPage(props: any) {
   )
     return (
       <div>
-        <div className="text-white text-base my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+        <div className="text-white text-base gotham_bold my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
           V1 (0)
         </div>
         <div className="flex items-center justify-center">
@@ -443,7 +443,7 @@ export function YourLiquidityPage(props: any) {
       {!listLiquiditiesLoading && listLiquidities.length == 0 ? (
         <div className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}>
           <div className="mb-3">
-            <span className="text-white text-base">V2 (0)</span>
+            <span className="text-white text-base gotham_bold">V2 (0)</span>
             <p className="text-sm text-farmText">
               <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
             </p>
@@ -464,7 +464,7 @@ export function YourLiquidityPage(props: any) {
               {error && <Alert level="warn" message={error.message} />}
             </div>
             {/* PC */}
-            <div className="my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+            <div className="my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5 gotham_bold">
               <span className="text-white text-base">V1 ({count})</span>
               <p className="text-sm text-farmText">
                 <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
