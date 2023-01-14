@@ -6,7 +6,8 @@ import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
 import RpcList from '~components/rpc/index';
-import { IconForum } from '~components/icon/Nav';
+import { IconForum, MailBoxIcon } from '~components/icon/Nav';
+import ReactTooltip from 'react-tooltip';
 
 const CommunityLinks = [
   {
@@ -54,22 +55,52 @@ function Footer() {
                 ${data === '-' ? '-' : toPrecision(data, 2)}
               </span>
             </div>
-            <div
-              className="mt-5 cursor-pointer"
-              onMouseOver={() => setHoverLogo(true)}
-              onMouseLeave={() => setHoverLogo(false)}
-              onClick={() => window.open('https://stats.ref.finance/')}
-            >
-              {!hoverLogo && (
-                <RefAnalyticsGary
-                  style={{ transform: 'scale(0.9)', transformOrigin: '30% 0%' }}
+            <div className="flex items-center mt-5">
+              <div
+                className="cursor-pointer"
+                onMouseOver={() => setHoverLogo(true)}
+                onMouseLeave={() => setHoverLogo(false)}
+                onClick={() => window.open('https://stats.ref.finance/')}
+              >
+                {!hoverLogo && (
+                  <RefAnalyticsGary
+                    style={{
+                      transform: 'scale(0.9)',
+                      transformOrigin: '30% 0%',
+                    }}
+                  />
+                )}
+                {hoverLogo && (
+                  <RefAnalytics
+                    style={{
+                      transform: 'scale(0.9)',
+                      transformOrigin: '30% 0%',
+                    }}
+                  />
+                )}
+              </div>
+              <div
+                className={`text-white text-right`}
+                data-class="reactTip"
+                data-for={'mailBoxId'}
+                data-place="right"
+                data-html={true}
+                data-tip={`<div class="opacity-50 text-xs text-left">Business Inquiries</div>`}
+              >
+                <MailBoxIcon
+                  className="relative cursor-pointer ml-5 -mt-1"
+                  onClick={() => {
+                    window.open('https://form.typeform.com/to/onOPhJ6Y');
+                  }}
+                ></MailBoxIcon>
+                <ReactTooltip
+                  id={'mailBoxId'}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
                 />
-              )}
-              {hoverLogo && (
-                <RefAnalytics
-                  style={{ transform: 'scale(0.9)', transformOrigin: '30% 0%' }}
-                />
-              )}
+              </div>
             </div>
           </div>
           <div className="flex w-72 justify-between md:justify-around xs:justify-around">

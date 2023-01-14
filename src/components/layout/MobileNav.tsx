@@ -51,7 +51,7 @@ import {
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { openTransak } from '../alert/Transak';
 import { BuyNearButton } from '../button/Button';
-import { RefIcon } from '../icon/Nav';
+import { RefIcon, MailBoxIcon } from '../icon/Nav';
 import {
   MoreIcon,
   SauceIcon,
@@ -791,11 +791,19 @@ export function MobileNavBar(props: any) {
                 })}
               </div>
               <div className="w-4/6 fixed bottom-7 right-0 flex items-center justify-between bg-cardBg px-4 py-3">
-                <div
-                  className=" transform scale-75 origin-left"
-                  onClick={() => window.open('https://stats.ref.finance/')}
-                >
-                  <RefAnalyticsGary />
+                <div className="flex items-center">
+                  <div
+                    className=" transform scale-75 origin-left"
+                    onClick={() => window.open('https://stats.ref.finance/')}
+                  >
+                    <RefAnalyticsGary />
+                  </div>
+                  <MailBoxIcon
+                    className="relative cursor-pointer -ml-4 -mt-1"
+                    onClick={() => {
+                      window.open('https://form.typeform.com/to/onOPhJ6Y');
+                    }}
+                  ></MailBoxIcon>
                 </div>
                 <div
                   onClick={() => {
