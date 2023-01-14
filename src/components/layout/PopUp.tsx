@@ -56,7 +56,7 @@ export default function PopUpSwiper() {
             }}
             loop={false}
           >
-            <SwiperSlide>
+            {/* <SwiperSlide>
               <div className="absolute bottom-1">
                 <div
                   onClick={closePop}
@@ -67,7 +67,7 @@ export default function PopUpSwiper() {
                 </div>
                 <PauseV2Img></PauseV2Img>
               </div>
-            </SwiperSlide>
+            </SwiperSlide> */}
             {/* <SwiperSlide>
               <div className="absolute bottom-1">
                 <div
