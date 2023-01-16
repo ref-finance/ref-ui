@@ -334,7 +334,7 @@ export const moreLinks: MobileMenuItem[] = [
       {
         id: 'inquiries',
         label: 'Business Inquiries',
-        url: 'https://guide.ref.finance',
+        url: 'https://form.typeform.com/to/onOPhJ6Y',
         isExternal: true,
         logo: <InquiriesIcon />,
       },
