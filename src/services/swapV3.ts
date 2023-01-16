@@ -30,6 +30,7 @@ import { nearDepositTransaction, nearWithdrawTransaction } from './wrap-near';
 import { getPointByPrice } from './commonV3';
 import { toPrecision } from '../utils/numbers';
 import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
+import { REF_UNI_SWAP_CONTRACT_ID } from './near';
 const LOG_BASE = 1.0001;
 
 export const V3_POOL_FEE_LIST = [100, 400, 2000, 10000];
@@ -510,6 +511,31 @@ export const cancel_order = ({
   const transactions: Transaction[] = [
     {
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'cancel_order',
+          args: {
+            order_id,
+            // amount: undecimal_amount,
+          },
+          gas: '180000000000000',
+        },
+      ],
+    },
+  ];
+
+  return executeMultipleTransactions(transactions);
+};
+
+
+export const cancel_order_old = ({
+  order_id,
+}: {
+  order_id: string;
+}) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_UNI_SWAP_CONTRACT_ID,
       functionCalls: [
         {
           methodName: 'cancel_order',

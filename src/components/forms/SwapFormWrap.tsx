@@ -229,16 +229,16 @@ export default function SwapFormWrap({
               data-for="v2_paused_pool_tip"
             >
               <SubmitButton
-                // disabled={
-                //   !canSubmit ||
-                //   (swapMode === SWAP_MODE.LIMIT
-                //     ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
-                //     : showSwapLoading)
-                // }
                 disabled={
                   !canSubmit ||
-                  (swapMode === SWAP_MODE.LIMIT ? true : showSwapLoading)
+                  (swapMode === SWAP_MODE.LIMIT
+                    ? !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
+                    : showSwapLoading)
                 }
+                // disabled={
+                //   !canSubmit ||
+                //   (swapMode === SWAP_MODE.LIMIT ? true : showSwapLoading)
+                // }
                 label={buttonText || title}
                 info={info}
                 className={`h-12 ${
@@ -250,7 +250,7 @@ export default function SwapFormWrap({
                     : !quoteDoneLimit || (showSwapLoading && !loadingTrigger)
                 }
               />
-              {swapMode === SWAP_MODE.LIMIT && (
+              {/* {swapMode === SWAP_MODE.LIMIT && (
                 <ReactTooltip
                   className="w-20"
                   id="v2_paused_pool_tip"
@@ -260,7 +260,7 @@ export default function SwapFormWrap({
                   textColor="#C6D1DA"
                   effect="solid"
                 />
-              )}
+              )} */}
             </div>
           ) : (
             <InsufficientButton divClassName="h-12 mt-6 w-full"></InsufficientButton>
