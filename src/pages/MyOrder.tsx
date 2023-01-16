@@ -57,6 +57,7 @@ import {
   refSwapV3ViewFunction,
 } from '../services/near';
 import { useWalletSelector } from '../context/WalletSelectorContext';
+import { refSwapV3OldVersionViewFunction } from '../services/near';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -2754,8 +2755,7 @@ function MyOrderPage() {
   const { accountId } = useWalletSelector();
 
   useEffect(() => {
-    // TODO: change back to old api
-    refSwapV3ViewFunction({
+    refSwapV3OldVersionViewFunction({
       methodName: 'list_active_orders',
       args: {
         account_id: accountId,
