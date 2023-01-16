@@ -79,7 +79,7 @@ function Footer() {
                   />
                 )}
               </div>
-              <div
+              {/* <div
                 className={`text-white text-right`}
                 data-class="reactTip"
                 data-for={'mailBoxId'}
@@ -100,7 +100,7 @@ function Footer() {
                   borderColor="#7e8a93"
                   effect="solid"
                 />
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="flex w-72 justify-between md:justify-around xs:justify-around">
