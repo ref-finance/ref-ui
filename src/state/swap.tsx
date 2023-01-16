@@ -697,9 +697,9 @@ export const useSwapV3 = ({
     const validator =
       foundPool &&
       Number(foundPool?.total_x || 0) + Number(foundPool?.total_y || 0) > 0;
-    // if (!validator || pool_id === BLACK_POOL) return null;
+    if (!validator) return null;
 
-    return null;
+    // return null;
 
     return quote({
       pool_ids: [pool_id],
@@ -906,10 +906,10 @@ export const useLimitOrder = ({
     setQuoteDone(false);
     get_pool(selectedV3LimitPool, tokenIn.id)
       .then((res) => {
-        if (selectedV3LimitPool === BLACK_POOL) {
-          setMostPoolDetail(null);
-          return null;
-        }
+        // if (selectedV3LimitPool === BLACK_POOL) {
+        //   setMostPoolDetail(null);
+        //   return null;
+        // }
         setMostPoolDetail(res);
       })
       .catch((e) => {

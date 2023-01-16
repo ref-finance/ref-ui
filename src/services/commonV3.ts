@@ -442,7 +442,7 @@ export function drawChartData({
   return list.length;
 }
 
-export const TOKEN_LIST_FOR_RATE = ['USDC.e', 'USDC'];
+export const TOKEN_LIST_FOR_RATE = ['USDC.e', 'USDC', 'USDT.e', 'USDT'];
 
 export const PAUSE_DCL = true;
 

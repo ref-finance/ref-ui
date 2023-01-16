@@ -62,6 +62,26 @@ import { refSwapV3OldVersionViewFunction } from '../services/near';
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
 function WarningTip() {
+  if (isMobile()) {
+    return (
+      <svg
+        width="33"
+        height="30"
+        viewBox="0 0 17 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="mb-2"
+      >
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M10.8582 1.4C9.7805 -0.466667 7.0862 -0.466663 6.00847 1.4L0.379311 11.15C-0.698409 13.0167 0.648743 15.35 2.80418 15.35H14.0625C16.218 15.35 17.5651 13.0167 16.4874 11.15L10.8582 1.4ZM7.39412 2.2C7.856 1.4 9.0107 1.4 9.47258 2.2L15.1017 11.95C15.5636 12.75 14.9863 13.75 14.0625 13.75H2.80418C1.88042 13.75 1.30307 12.75 1.76495 11.95L7.39412 2.2ZM8.84235 3.84998C8.74443 3.81541 8.63956 3.79846 8.53399 3.80015C8.42842 3.79846 8.32354 3.81541 8.22563 3.84998C8.12772 3.88455 8.03877 3.93603 7.96411 4.00134C7.88945 4.06665 7.8306 4.14446 7.79109 4.23011C7.75157 4.31577 7.7322 4.40751 7.73412 4.49986V8.51391C7.7322 8.60626 7.75157 8.698 7.79109 8.78365C7.8306 8.86931 7.88945 8.94711 7.96411 9.01243C8.03877 9.07774 8.12772 9.12922 8.22563 9.16379C8.32354 9.19835 8.42842 9.2153 8.53399 9.21362C8.63947 9.2153 8.74425 9.19838 8.84209 9.16387C8.93993 9.12936 9.02882 9.07797 9.10347 9.01276C9.17812 8.94755 9.23699 8.86986 9.27657 8.78431C9.31615 8.69877 9.33563 8.60713 9.33386 8.51486V4.49986C9.33578 4.40751 9.31641 4.31577 9.27689 4.23011C9.23738 4.14446 9.17853 4.06665 9.10387 4.00134C9.02921 3.93603 8.94026 3.88455 8.84235 3.84998ZM8.84235 10.2906C8.74443 10.256 8.63956 10.2391 8.53399 10.2408C8.32203 10.2413 8.11891 10.3151 7.96903 10.4463C7.81915 10.5774 7.7347 10.7551 7.73412 10.9405V11.5944C7.7322 11.6867 7.75157 11.7785 7.79109 11.8641C7.8306 11.9498 7.88945 12.0276 7.96411 12.0929C8.03877 12.1582 8.12772 12.2097 8.22563 12.2442C8.32354 12.2788 8.42842 12.2958 8.53399 12.2941C8.63956 12.2958 8.74443 12.2788 8.84235 12.2442C8.94026 12.2097 9.02921 12.1582 9.10387 12.0929C9.17853 12.0276 9.23738 11.9498 9.27689 11.8641C9.31641 11.7785 9.33578 11.6867 9.33386 11.5944V10.9405C9.33578 10.8481 9.31641 10.7564 9.27689 10.6707C9.23738 10.5851 9.17853 10.5073 9.10387 10.4419C9.02921 10.3766 8.94026 10.3252 8.84235 10.2906Z"
+          fill="#FFA24D"
+        />
+      </svg>
+    );
+  }
+
   return (
     <svg
       width="17"
@@ -2638,18 +2658,28 @@ function OrderCardOld({
 
   return (
     <div
-      className="flex mb-6 flex-col border-legacyYellowColor rounded-2xl px-4 pb-0 pt-4 "
+      className="flex mb-6 flex-col border border-legacyYellowColor rounded-2xl px-4 pb-0 pt-4 xs:px-2 "
       style={{
         background: 'rgba(244, 159, 80, 0.12)',
       }}
     >
-      <div className="text-center flex items-center justify-center mb-7">
+      <div className="text-center flex items-center xs:border-legacyYellowColor lg:justify-center xs:flex-col xs:mb-2 mb-7">
         <WarningTip />
 
-        <span className="text-base ml-2 text-legacyYellowColor gotham_bold">
+        <span className="text-base xs:mb-2  lg:ml-2 text-legacyYellowColor gotham_bold">
           A new contract has been deployed! Please cancel your order from the
           old contract
         </span>
+        {isMobile() && (
+          <span
+            style={{
+              fontSize: '15px',
+            }}
+            className="text-v3SwapGray text-center"
+          >
+            *Canceling will automatically claim your executed tokens.
+          </span>
+        )}
       </div>
 
       <div
