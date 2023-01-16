@@ -798,12 +798,12 @@ export function MobileNavBar(props: any) {
                   >
                     <RefAnalyticsGary />
                   </div>
-                  <MailBoxIcon
+                  {/* <MailBoxIcon
                     className="relative cursor-pointer -ml-4 -mt-1"
                     onClick={() => {
                       window.open('https://form.typeform.com/to/onOPhJ6Y');
                     }}
-                  ></MailBoxIcon>
+                  ></MailBoxIcon> */}
                 </div>
                 <div
                   onClick={() => {
