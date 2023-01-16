@@ -591,7 +591,11 @@ export const useWatchPools = () => {
     }
     if (ids_v2.length > 0) {
       getV2PoolsByIds(ids_v2).then((res: PoolInfo[]) => {
-        setWatchV2Pools(res);
+        setWatchV2Pools(
+          res.filter((r) => {
+            if (r) return true;
+          })
+        );
       });
     }
   }, [watchList]);
