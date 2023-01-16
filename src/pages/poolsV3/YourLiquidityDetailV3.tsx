@@ -51,7 +51,6 @@ import {
   getYAmount_per_point_by_Ly,
   drawChartData,
   TOKEN_LIST_FOR_RATE,
-  PAUSE_DCL,
   pause_old_dcl_claim_tip,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';

@@ -11,7 +11,13 @@ import {
   PoolInfo,
   remove_liquidity,
 } from '../../services/swapV3';
-import { ColorsBox, ColorsBoxCenter, AddButtonIcon } from '~components/icon/V3';
+import {
+  ColorsBox,
+  ColorsBoxCenter,
+  AddButtonIcon,
+  WarningTip,
+  MobileWarningTip,
+} from '~components/icon/V3';
 import {
   GradientButton,
   BorderButton,
@@ -97,6 +103,8 @@ export default function YourLiquidityPageV3() {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
+  const [listLiquidities_old_version, setListLiquidities_old_version] =
+    useState<UserLiquidityInfo[]>([]);
   const liquidityStatusList = ['all', 'V2', 'V1'];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
@@ -111,6 +119,10 @@ export default function YourLiquidityPageV3() {
 
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
   const [listLiquiditiesLoading, setListLiquiditiesLoading] = useState(true);
+  const [
+    listLiquiditiesLoading_old_version,
+    setListLiquiditiesLoading_old_version,
+  ] = useState(true);
 
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
 
@@ -134,6 +146,7 @@ export default function YourLiquidityPageV3() {
   const [checkedStatus, setCheckedStatus] = useState('all');
   const [oldLiquidityHasNoData, setOldLiquidityHasNoData] = useState(false);
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
+  const [all_dcl_length, set_all_dcl_length] = useState(0);
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
@@ -159,9 +172,14 @@ export default function YourLiquidityPageV3() {
   }, []);
   useEffect(() => {
     if (isSignedIn) {
-      get_list_liquidities();
+      get_all_dcl_liquidities();
     }
   }, [isSignedIn]);
+  async function get_all_dcl_liquidities() {
+    const size_1 = await get_list_liquidities();
+    const size_2 = await get_list_liquidities_old_version();
+    set_all_dcl_length(size_1 + size_2);
+  }
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
     if (list.length > 0) {
@@ -173,6 +191,20 @@ export default function YourLiquidityPageV3() {
       setListLiquidities(list);
     }
     setListLiquiditiesLoading(false);
+    return list.length;
+  }
+  async function get_list_liquidities_old_version() {
+    const list: UserLiquidityInfo[] = await list_liquidities_old_version();
+    if (list.length > 0) {
+      list.sort((item1: UserLiquidityInfo, item2: UserLiquidityInfo) => {
+        const item1_hashId = +item1.lpt_id.split('#')[1];
+        const item2_hashId = +item2.lpt_id.split('#')[1];
+        return item1_hashId - item2_hashId;
+      });
+      setListLiquidities_old_version(list);
+    }
+    setListLiquiditiesLoading_old_version(false);
+    return list.length;
   }
   function goAddLiquidityPage(url: string) {
     history.push(url);
@@ -245,7 +277,18 @@ export default function YourLiquidityPageV3() {
         YourLpValueV1={YourLpValueV1}
         YourLpValueV2={YourLpValueV2}
       ></PoolTabV3>
-      <UserLegacyLiqudities></UserLegacyLiqudities>
+      {listLiquidities_old_version.length > 0 ? (
+        <UserLegacyLiqudities
+          listLiquidities_old_version={listLiquidities_old_version}
+          setLpValueV2Done={setLpValueV2Done}
+          setYourLpValueV2={setYourLpValueV2}
+          listLiquiditiesLoading_old_version={
+            listLiquiditiesLoading_old_version
+          }
+          all_dcl_length={all_dcl_length}
+        ></UserLegacyLiqudities>
+      ) : null}
+
       <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto">
         <div className="flex items-start justify-between lg:mt-4 xs:mb-5 md:mb-5">
           <div className="flex items-center">
@@ -348,7 +391,6 @@ export default function YourLiquidityPageV3() {
               </div>
             ) : (
               <>
-                {/* todo */}
                 {listLiquidities.length > 0 ? (
                   <div
                     className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
@@ -386,7 +428,7 @@ export default function YourLiquidityPageV3() {
                           return (
                             <div key={index}>
                               <UserLiquidityLine
-                                lpSize={listLiquidities.length}
+                                lpSize={all_dcl_length}
                                 setLpValueV2Done={setLpValueV2Done}
                                 setYourLpValueV2={setYourLpValueV2}
                                 liquidity={liquidity}
@@ -899,7 +941,7 @@ function UserLiquidityLine({
               </span>
               {isLegacy ? (
                 <div
-                  className="flex items-center justify-center bg-legacyButtonBgColor rounded-lg text-sm text-primaryText h-8 cursor-not-allowed mr-2.5"
+                  className="flex items-center justify-center bg-legacyButtonBgColor  rounded-lg text-sm text-primaryText h-8 cursor-not-allowed mr-2.5"
                   style={{ minWidth: '5rem' }}
                 >
                   <FormattedMessage id="add" />
@@ -1128,7 +1170,7 @@ function UserLiquidityLine({
           </div>
           <div className="flex items-center justify-between mt-3.5">
             {isLegacy ? (
-              <div className="flex w-1 flex-grow items-center justify-center bg-legacyButtonBgColor rounded-lg text-sm text-primaryText h-8 cursor-not-allowed mr-3">
+              <div className="flex w-1 flex-grow items-center justify-center bg-black bg-opacity-30 rounded-lg text-sm text-primaryText h-8 cursor-not-allowed mr-3">
                 <FormattedMessage id="add" />
               </div>
             ) : (
@@ -1242,44 +1284,35 @@ export function NoLiquidity({
     </div>
   );
 }
-function UserLegacyLiqudities() {
-  const [listLiquidities_old_version, setListLiquidities_old_version] =
-    useState<UserLiquidityInfo[]>([]);
-  const [lpValueV2Done, setLpValueV2Done] = useState(false);
-  const [YourLpValueV2, setYourLpValueV2] = useState('0');
-  const [
+function UserLegacyLiqudities(props: any) {
+  const {
+    listLiquidities_old_version,
+    setLpValueV2Done,
+    setYourLpValueV2,
+    all_dcl_length,
     listLiquiditiesLoading_old_version,
-    setListLiquiditiesLoading_old_version,
-  ] = useState(true);
-  useEffect(() => {
-    get_list_liquidities_old_version();
-  }, []);
-  async function get_list_liquidities_old_version() {
-    const list: UserLiquidityInfo[] = await list_liquidities_old_version();
-    if (list.length > 0) {
-      list.sort((item1: UserLiquidityInfo, item2: UserLiquidityInfo) => {
-        const item1_hashId = +item1.lpt_id.split('#')[1];
-        const item2_hashId = +item2.lpt_id.split('#')[1];
-        return item1_hashId - item2_hashId;
-      });
-      setListLiquidities_old_version(list);
-    }
-    setListLiquiditiesLoading_old_version(false);
-  }
+  } = props;
   return (
-    <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto border border-legacyYellowColor p-4 rounded-2xl bg-legacyBgColor mt-16 mb-9">
-      <div className="flex items-center justify-center text-base text-legacyYellowColor gotham_bold mb-5 px-5">
-        A new contract has been deployed! Please remove your liquidity from the
-        old contract
+    <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto border border-legacyYellowColor p-4 xsm:px-2.5 rounded-2xl bg-legacyBgColor mt-16 xsm:mt-0 mb-9">
+      <div className="flex xsm:flex-col items-center justify-center lg:mb-5 lg:px-5">
+        <WarningTip className="mr-1.5 xsm:hidden"></WarningTip>
+        <MobileWarningTip className="mb-1.5 lg:hidden"></MobileWarningTip>
+        <span className="text-base text-legacyYellowColor gotham_bold xsm:text-center">
+          A new contract has been deployed! Please remove your liquidity from
+          the old contract
+        </span>
+        <span className="text-sm text-v3LightGreyColor text-center lg:hidden my-1.5">
+          *Removing will automatically claim your unclaimed fees.
+        </span>
       </div>
       {listLiquidities_old_version.length > 0 ? (
         <div>
           {listLiquidities_old_version.map(
             (liquidity: UserLiquidityInfo, index: number) => {
               return (
-                <div key={index}>
+                <div key={index + liquidity.lpt_id}>
                   <UserLiquidityLine
-                    lpSize={listLiquidities_old_version.length}
+                    lpSize={all_dcl_length}
                     setLpValueV2Done={setLpValueV2Done}
                     setYourLpValueV2={setYourLpValueV2}
                     liquidity={liquidity}

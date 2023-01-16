@@ -531,12 +531,7 @@ export const cancel_order = ({
   return executeMultipleTransactions(transactions);
 };
 
-
-export const cancel_order_old = ({
-  order_id,
-}: {
-  order_id: string;
-}) => {
+export const cancel_order_old = ({ order_id }: { order_id: string }) => {
   const transactions: Transaction[] = [
     {
       receiverId: REF_UNI_SWAP_CONTRACT_ID,
