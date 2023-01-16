@@ -34,6 +34,7 @@ import {
   EsIcon,
   WrapNearIcon,
   MobileBridgeIcon,
+  InquiriesIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
@@ -134,6 +135,12 @@ export const useMenuItems = () => {
       url: '/airdrop',
       isExternal: false,
       logo: <IconAirDrop />,
+    },
+    {
+      label: 'Business Inquiries',
+      url: 'https://form.typeform.com/to/onOPhJ6Y',
+      isExternal: true,
+      logo: <InquiriesIcon />,
     },
   ];
   return { menuData };
@@ -323,6 +330,13 @@ export const moreLinks: MobileMenuItem[] = [
         pattern: '/airdrop',
         isExternal: false,
         logo: <IconAirDrop />,
+      },
+      {
+        id: 'inquiries',
+        label: 'Business Inquiries',
+        url: 'https://guide.ref.finance',
+        isExternal: true,
+        logo: <InquiriesIcon />,
       },
     ],
   },
