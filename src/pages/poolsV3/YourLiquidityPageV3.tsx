@@ -34,7 +34,6 @@ import {
   getYAmount_per_point_by_Ly,
   TOKEN_LIST_FOR_RATE,
   pause_old_dcl_claim_tip,
-  pause_old_dcl_add_tip,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getBoostTokenPrices } from '../../services/farm';
@@ -709,7 +708,7 @@ function UserLiquidityLine({
   }
   function goYourLiquidityDetailPage() {
     const id = lpt_id.replace(/\|/g, '@').replace('#', '@');
-    history.push(`/yoursLiquidityDetailV2/${id}`);
+    history.push(`/yoursLiquidityDetailV2/${id}${isLegacy ? '/1' : ''}`);
   }
   function getTokenFeeAmount(p: string) {
     if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {
@@ -1269,10 +1268,9 @@ function UserLegacyLiqudities() {
   }
   return (
     <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto border border-legacyYellowColor p-4 rounded-2xl bg-legacyBgColor mt-16 mb-9">
-      <div className="flex items-center justify-center">
-        <span className="text-base text-legacyYellowColor gotham_bold mb-5">
-          Please Remove Legacy Liquidity!
-        </span>
+      <div className="flex items-center justify-center text-base text-legacyYellowColor gotham_bold mb-5 px-5">
+        A new contract has been deployed! Please remove your liquidity from the
+        old contract
       </div>
       {listLiquidities_old_version.length > 0 ? (
         <div>

@@ -422,8 +422,8 @@ export const RemovePoolV3 = (props: any) => {
               disabled={isLegacy ? true : false}
               value={removePercentAmount}
               type="range"
-              className={`w-full pause ${
-                isLegacy ? 'cursor-not-allowed' : 'cursor-pointer'
+              className={`w-full ${
+                isLegacy ? 'pause cursor-not-allowed' : 'cursor-pointer'
               }`}
               style={{ backgroundSize: '100% 100%' }}
               min="0"
