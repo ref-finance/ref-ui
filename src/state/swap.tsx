@@ -697,7 +697,10 @@ export const useSwapV3 = ({
     const validator =
       foundPool &&
       Number(foundPool?.total_x || 0) + Number(foundPool?.total_y || 0) > 0;
+
     if (!validator) return null;
+
+    if (foundPool && foundPool.state === 'Paused') return null;
 
     // return null;
 
@@ -742,6 +745,8 @@ export const useSwapV3 = ({
       fees.map((fee) => getQuote(fee, tokenIn, tokenOut, allDCLPools))
     )
       .then((res) => {
+        console.log('dcl pool estimates', res);
+
         if (!loadingTrigger || swapError?.message) {
           setEstimates(res);
 
@@ -906,10 +911,10 @@ export const useLimitOrder = ({
     setQuoteDone(false);
     get_pool(selectedV3LimitPool, tokenIn.id)
       .then((res) => {
-        // if (selectedV3LimitPool === BLACK_POOL) {
-        //   setMostPoolDetail(null);
-        //   return null;
-        // }
+        if (res.state === 'Paused') {
+          setMostPoolDetail(null);
+          return null;
+        }
         setMostPoolDetail(res);
       })
       .catch((e) => {

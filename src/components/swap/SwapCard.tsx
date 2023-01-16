@@ -171,6 +171,7 @@ import { ArrowRight } from '../layout/SwapRoutes';
 import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
 import * as math from 'mathjs';
 import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
+import { PoolInfo, get_pool, get_pool_from_cache } from '../../services/swapV3';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -773,7 +774,7 @@ function DetailViewLimit({
   v3Pool,
   poolPercents,
   tokenIn,
-  tokneOut,
+  tokenOut,
   tokenPriceList,
   setFeeTiersShowFull,
   feeTiersShowFull,
@@ -785,7 +786,7 @@ function DetailViewLimit({
     [key: string]: string;
   };
   tokenIn: TokenMetadata;
-  tokneOut: TokenMetadata;
+  tokenOut: TokenMetadata;
   tokenPriceList: Record<string, any>;
   setFeeTiersShowFull: (v: boolean) => void;
   feeTiersShowFull: boolean;
@@ -797,7 +798,7 @@ function DetailViewLimit({
   const [hoverSlider, setHoverSlider] = useState(false);
   const [mobileShowFees, setMobileShowFees] = useState(false);
   function SelectPercent({ fee, poolId }: { fee?: number; poolId?: string }) {
-    const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokneOut.id, fee);
+    const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokenOut.id, fee);
     const count = poolPercents?.[id];
     return (
       <span
@@ -830,7 +831,14 @@ function DetailViewLimit({
     poolId?: string;
     className?: string;
   }) {
-    const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokneOut.id, fee);
+    const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokenOut.id, fee);
+
+    const [PoolDetails, setPoolDetails] = useState<PoolInfo>();
+
+    useEffect(() => {
+      get_pool_from_cache(id).then(setPoolDetails);
+    }, []);
+
     function displayTvl() {
       const tvl = everyPoolTvl?.[id] || '0';
       if (!tokenPriceList) {
@@ -847,11 +855,13 @@ function DetailViewLimit({
       if (everyPoolTvl?.[id] == null) {
         return <span>No pool</span>;
       } else {
-        return (
+        return PoolDetails && PoolDetails?.state !== 'Paused' ? (
           <>
-            {/* <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span> */}
-            {/* {displayTvl()} */}-
+            <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span>
+            {displayTvl()}
           </>
+        ) : (
+          <>-</>
         );
       }
     }
@@ -865,7 +875,7 @@ function DetailViewLimit({
   }
   function isAllFeesNoPools() {
     const target = V3_POOL_FEE_LIST.find((fee) => {
-      const pool_id = getV3PoolId(tokenIn.id, tokneOut.id, fee);
+      const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
       if (everyPoolTvl?.[pool_id] !== null) return true;
     });
     if (target) {
@@ -874,7 +884,7 @@ function DetailViewLimit({
       return true;
     }
   }
-  if (!(tokenIn && tokneOut)) return null;
+  if (!(tokenIn && tokenOut)) return null;
   return (
     <>
       <div
@@ -948,7 +958,7 @@ function DetailViewLimit({
         {!feeTiersShowFull ? null : (
           <div className="w-full grid grid-cols-4 gap-x-1 mt-1.5">
             {V3_POOL_FEE_LIST.map((fee, i) => {
-              const pool_id = getV3PoolId(tokenIn.id, tokneOut.id, fee);
+              const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
               const feePercent = toPrecision(
                 calculateFeePercent(fee / 100).toString(),
                 2
@@ -1013,7 +1023,7 @@ function DetailViewLimit({
           style={{ top: '-7px' }}
         ></ArrowToIcon>
         {V3_POOL_FEE_LIST.map((fee, i) => {
-          const pool_id = getV3PoolId(tokenIn.id, tokneOut.id, fee);
+          const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
           const feePercent = toPrecision(
             calculateFeePercent(fee / 100).toString(),
             2
@@ -1543,6 +1553,8 @@ export default function SwapCard(props: {
     reEstimateTrigger,
     supportLedger,
   });
+
+  console.log('v1 amount out ', tokenOutAmount);
 
   const {
     makeSwap: makeSwapV3,
@@ -2338,7 +2350,7 @@ export default function SwapCard(props: {
                 />
                 <DetailViewLimit
                   tokenIn={tokenIn}
-                  tokneOut={tokenOut}
+                  tokenOut={tokenOut}
                   poolPercents={poolPercents}
                   everyPoolTvl={everyPoolTvl}
                   v3Pool={selectedV3LimitPool}
