@@ -451,3 +451,8 @@ export function pause_v2_tip() {
   let result: string = `<div class="opacity-50 text-xs text-left xsm:w-40">${tip}</div>`;
   return result;
 }
+export function pause_old_dcl_claim_tip() {
+  const tip = 'Removing will automatically<br/> claim your unclaimed fees.';
+  let result: string = `<div class="opacity-50 text-xs text-left">${tip}</div>`;
+  return result;
+}

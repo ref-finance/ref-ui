@@ -5,9 +5,11 @@ import {
   list_liquidities,
   list_liquidities_old_version,
   get_pool,
+  get_pool_old_version,
+  get_liquidity,
+  get_liquidity_old_version,
   PoolInfo,
   remove_liquidity,
-  get_liquidity,
 } from '../../services/swapV3';
 import { ColorsBox, ColorsBoxCenter, AddButtonIcon } from '~components/icon/V3';
 import {
@@ -31,7 +33,7 @@ import {
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   TOKEN_LIST_FOR_RATE,
-  pause_v2_tip,
+  pause_old_dcl_claim_tip,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getBoostTokenPrices } from '../../services/farm';
@@ -428,11 +430,13 @@ function UserLiquidityLine({
   setLpValueV2Done,
   lpSize,
   setYourLpValueV2,
+  isLegacy,
 }: {
   liquidity: UserLiquidityInfo;
   lpSize: number;
   setLpValueV2Done: (value: boolean) => void;
   setYourLpValueV2: (value: string) => void;
+  isLegacy?: boolean;
 }) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [liquidityDetail, setLiquidityDetail] = useState<UserLiquidityInfo>();
@@ -477,7 +481,8 @@ function UserLiquidityLine({
     }
   }, [poolDetail, tokenMetadata_x_y, tokenPriceList]);
   async function get_pool_detail() {
-    const detail = await get_pool(pool_id, token_x);
+    const get_pool_fun = isLegacy ? get_pool_old_version : get_pool;
+    const detail = await get_pool_fun(pool_id, token_x);
     if (detail) {
       const { current_point } = detail;
       if (current_point >= left_point && right_point > current_point) {
@@ -489,7 +494,10 @@ function UserLiquidityLine({
     }
   }
   async function getLiquidityDetail() {
-    const l = await get_liquidity(lpt_id);
+    const get_liquidity_fun = isLegacy
+      ? get_liquidity_old_version
+      : get_liquidity;
+    const l = await get_liquidity_fun(lpt_id);
     if (l) {
       setLiquidityDetail(l);
     }
@@ -686,7 +694,7 @@ function UserLiquidityLine({
   }
   function claimRewards(e: any) {
     e.stopPropagation();
-    if (!canClaim()) return;
+    if (!canClaim() || isLegacy) return;
     setClaimLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
     remove_liquidity({
@@ -700,7 +708,7 @@ function UserLiquidityLine({
   }
   function goYourLiquidityDetailPage() {
     const id = lpt_id.replace(/\|/g, '@').replace('#', '@');
-    history.push(`/yoursLiquidityDetailV2/${id}`);
+    history.push(`/yoursLiquidityDetailV2/${id}${isLegacy ? '/1' : ''}`);
   }
   function getTokenFeeAmount(p: string) {
     if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {
@@ -889,19 +897,27 @@ function UserLiquidityLine({
               <span className="text-sm text-white mx-2.5 gotham_bold">
                 ${your_liquidity || '-'}
               </span>
-              <GradientButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowAddBox(true);
-                }}
-                color="#fff"
-                minWidth="5rem"
-                borderRadius="8px"
-                className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
-                btnClassName="cursor-not-allowed"
-              >
-                <FormattedMessage id="add" />
-              </GradientButton>
+              {isLegacy ? (
+                <div
+                  className="flex items-center justify-center bg-legacyButtonBgColor rounded-lg text-sm text-primaryText h-8 cursor-not-allowed mr-2.5"
+                  style={{ minWidth: '5rem' }}
+                >
+                  <FormattedMessage id="add" />
+                </div>
+              ) : (
+                <GradientButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAddBox(true);
+                  }}
+                  color="#fff"
+                  minWidth="5rem"
+                  borderRadius="8px"
+                  className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
+                >
+                  <FormattedMessage id="add" />
+                </GradientButton>
+              )}
               <BorderButton
                 onClick={(e) => {
                   e.stopPropagation();
@@ -935,16 +951,32 @@ function UserLiquidityLine({
                 {getTokenFeeAmount('r') || '-'}
               </span>
               <div
-                className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
-                  !canClaim()
-                    ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                    : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-                }`}
-                onClick={claimRewards}
+                className="text-white text-right"
+                data-class="reactTip"
+                data-for={`pause_dcl_tip_claim_${liquidity.lpt_id}`}
+                data-place="top"
+                data-html={true}
+                data-tip={isLegacy ? pause_old_dcl_claim_tip() : ''}
               >
-                <ButtonTextWrapper
-                  loading={claimLoading}
-                  Text={() => <FormattedMessage id="claim" />}
+                <div
+                  className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
+                    !canClaim() || isLegacy
+                      ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                      : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                  }`}
+                  onClick={claimRewards}
+                >
+                  <ButtonTextWrapper
+                    loading={claimLoading}
+                    Text={() => <FormattedMessage id="claim" />}
+                  />
+                </div>
+                <ReactTooltip
+                  id={`pause_dcl_tip_claim_${liquidity.lpt_id}`}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
                 />
               </div>
             </div>
@@ -1054,16 +1086,32 @@ function UserLiquidityLine({
                 </div>
                 <div className="flex items-center justify-end mt-2">
                   <div
-                    className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
-                      !canClaim()
-                        ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                        : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-                    }`}
-                    onClick={claimRewards}
+                    className="text-white text-right"
+                    data-class="reactTip"
+                    data-for={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
+                    data-place="top"
+                    data-html={true}
+                    data-tip={isLegacy ? pause_old_dcl_claim_tip() : ''}
                   >
-                    <ButtonTextWrapper
-                      loading={claimLoading}
-                      Text={() => <FormattedMessage id="claim" />}
+                    <div
+                      className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
+                        !canClaim() || isLegacy
+                          ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                          : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                      }`}
+                      onClick={claimRewards}
+                    >
+                      <ButtonTextWrapper
+                        loading={claimLoading}
+                        Text={() => <FormattedMessage id="claim" />}
+                      />
+                    </div>
+                    <ReactTooltip
+                      id={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
                     />
                   </div>
                 </div>
@@ -1079,16 +1127,22 @@ function UserLiquidityLine({
             <span className="text-sm text-white">${your_liquidity || '-'}</span>
           </div>
           <div className="flex items-center justify-between mt-3.5">
-            <GradientButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowAddBox(true);
-              }}
-              color="#fff"
-              className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3`}
-            >
-              <FormattedMessage id="add" />
-            </GradientButton>
+            {isLegacy ? (
+              <div className="flex w-1 flex-grow items-center justify-center bg-legacyButtonBgColor rounded-lg text-sm text-primaryText h-8 cursor-not-allowed mr-3">
+                <FormattedMessage id="add" />
+              </div>
+            ) : (
+              <GradientButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowAddBox(true);
+                }}
+                color="#fff"
+                className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3`}
+              >
+                <FormattedMessage id="add" />
+              </GradientButton>
+            )}
             <BorderButton
               onClick={(e) => {
                 e.stopPropagation();
@@ -1114,6 +1168,7 @@ function UserLiquidityLine({
           poolDetail={poolDetail}
           tokenPriceList={tokenPriceList}
           userLiquidity={liquidityDetail}
+          isLegacy={isLegacy}
           style={{
             overlay: {
               backdropFilter: 'blur(15px)',
@@ -1213,10 +1268,9 @@ function UserLegacyLiqudities() {
   }
   return (
     <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto border border-legacyYellowColor p-4 rounded-2xl bg-legacyBgColor mt-16 mb-9">
-      <div className="flex items-center justify-center">
-        <span className="text-base text-legacyYellowColor gotham_bold mb-5">
-          Please Remove Legacy Liquidity!
-        </span>
+      <div className="flex items-center justify-center text-base text-legacyYellowColor gotham_bold mb-5 px-5">
+        A new contract has been deployed! Please remove your liquidity from the
+        old contract
       </div>
       {listLiquidities_old_version.length > 0 ? (
         <div>
@@ -1229,6 +1283,7 @@ function UserLegacyLiqudities() {
                     setLpValueV2Done={setLpValueV2Done}
                     setYourLpValueV2={setYourLpValueV2}
                     liquidity={liquidity}
+                    isLegacy={true}
                   ></UserLiquidityLine>
                 </div>
               );

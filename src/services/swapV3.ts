@@ -4,6 +4,7 @@ import {
   REF_UNI_V3_SWAP_CONTRACT_ID,
   ONE_YOCTO_NEAR,
   refSwapV3OldVersionViewFunction,
+  REF_UNI_SWAP_CONTRACT_ID,
 } from './near';
 import {
   toNonDivisibleNumber,
@@ -23,7 +24,10 @@ import {
   STORAGE_TO_REGISTER_WITH_MFT,
   storageDepositForV3Action,
 } from '../services/creators/storage';
-import { currentStorageBalanceOfV3 } from './account';
+import {
+  currentStorageBalanceOfV3,
+  currentStorageBalanceOfV3_old_version,
+} from './account';
 import { WRAP_NEAR_CONTRACT_ID, nearMetadata } from '../services/wrap-near';
 import { registerAccountOnToken } from './creators/token';
 import { nearDepositTransaction, nearWithdrawTransaction } from './wrap-near';
@@ -569,6 +573,23 @@ export const get_pool = async (pool_id: string, token0?: string) => {
     },
   }) as Promise<PoolInfoV3>;
 };
+export const get_pool_old_version = async (
+  pool_id: string,
+  token0?: string
+) => {
+  const [token_x, token_y, fee] = pool_id.split('|');
+
+  const token_seq = [token_x, token_y].sort().join('|');
+
+  const new_pool_id = `${token_seq}|${fee}`;
+
+  return refSwapV3OldVersionViewFunction({
+    methodName: 'get_pool',
+    args: {
+      pool_id: new_pool_id,
+    },
+  }) as Promise<PoolInfoV3>;
+};
 
 export const get_pool_from_cache = async (pool_id: string, token0?: string) => {
   const [token_x, token_y, fee] = pool_id.split('|');
@@ -954,6 +975,7 @@ export const remove_liquidity = async ({
   amount,
   min_amount_x,
   min_amount_y,
+  isLegacy,
 }: {
   token_x: TokenMetadata;
   token_y: TokenMetadata;
@@ -961,10 +983,13 @@ export const remove_liquidity = async ({
   amount: string;
   min_amount_x: string;
   min_amount_y: string;
+  isLegacy?: boolean;
 }) => {
   const transactions: Transaction[] = [
     {
-      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      receiverId: isLegacy
+        ? REF_UNI_SWAP_CONTRACT_ID
+        : REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
         {
           methodName: 'remove_liquidity',
@@ -1004,11 +1029,15 @@ export const remove_liquidity = async ({
       ],
     });
   }
-
-  const neededStorage = await checkTokenNeedsStorageDeposit_v3();
+  const check_fun = isLegacy
+    ? checkTokenNeedsStorageDeposit_v3_old_version
+    : checkTokenNeedsStorageDeposit_v3;
+  const neededStorage = await check_fun();
   if (neededStorage) {
     transactions.unshift({
-      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      receiverId: isLegacy
+        ? REF_UNI_SWAP_CONTRACT_ID
+        : REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
         storageDepositAction({ amount: neededStorage, registrationOnly: true }),
       ],
@@ -1093,6 +1122,17 @@ export const checkTokenNeedsStorageDeposit_v3 = async () => {
   }
   return storageNeeded;
 };
+export const checkTokenNeedsStorageDeposit_v3_old_version = async () => {
+  let storageNeeded;
+  const balance = await currentStorageBalanceOfV3_old_version(
+    getCurrentWallet().wallet.getAccountId()
+  );
+
+  if (!balance) {
+    storageNeeded = '0.5';
+  }
+  return storageNeeded;
+};
 export const list_liquidities = async () => {
   return refSwapV3ViewFunction({
     methodName: 'list_liquidities',
@@ -1117,6 +1157,14 @@ export const get_liquidity = async (lpt_id: string) => {
     },
   });
 };
+export const get_liquidity_old_version = async (lpt_id: string) => {
+  return refSwapV3OldVersionViewFunction({
+    methodName: 'get_liquidity',
+    args: {
+      lpt_id,
+    },
+  });
+};
 
 export const list_user_assets = async () => {
   const account_id = getCurrentWallet().wallet.getAccountId();
@@ -1133,6 +1181,15 @@ export const list_user_assets = async () => {
 
 export const get_pool_marketdepth = async (pool_id: string) => {
   return refSwapV3ViewFunction({
+    methodName: 'get_marketdepth',
+    args: {
+      pool_id,
+      depth: 100,
+    },
+  });
+};
+export const get_pool_marketdepth_old_version = async (pool_id: string) => {
+  return refSwapV3OldVersionViewFunction({
     methodName: 'get_marketdepth',
     args: {
       pool_id,

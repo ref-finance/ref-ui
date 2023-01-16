@@ -28,7 +28,6 @@ import {
   UserLiquidityInfo,
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
-  PAUSE_DCL,
 } from '../../services/commonV3';
 import { PoolInfo, remove_liquidity } from '../../services/swapV3';
 import _ from 'lodash';
@@ -38,12 +37,14 @@ export const RemovePoolV3 = (props: any) => {
     poolDetail,
     userLiquidity,
     tokenPriceList,
+    isLegacy,
     ...restProps
   }: {
     tokenMetadata_x_y: TokenMetadata[];
     poolDetail: PoolInfo;
     userLiquidity: UserLiquidityInfo;
     tokenPriceList: any;
+    isLegacy?: boolean;
     restProps: any;
   } = props;
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
@@ -296,6 +297,7 @@ export const RemovePoolV3 = (props: any) => {
       amount: removeAmount,
       min_amount_x: toNonDivisibleNumber(tokenX.decimals, MINDATA.minX),
       min_amount_y: toNonDivisibleNumber(tokenY.decimals, MINDATA.minY),
+      isLegacy,
     });
   }
   function switchRate() {
@@ -389,10 +391,10 @@ export const RemovePoolV3 = (props: any) => {
                 <div
                   key={p}
                   className={`flex flex-col items-center ${
-                    PAUSE_DCL ? 'cursor-not-allowed' : 'cursor-pointer'
+                    isLegacy ? 'cursor-not-allowed' : 'cursor-pointer'
                   }`}
                   onClick={() => {
-                    if (PAUSE_DCL) return;
+                    if (isLegacy) return;
                     changeRemoveAmount(p.toString());
                   }}
                 >
@@ -417,11 +419,11 @@ export const RemovePoolV3 = (props: any) => {
               onChange={(e) => {
                 changeRemoveAmount(e.target.value);
               }}
-              disabled={PAUSE_DCL ? true : false}
+              disabled={isLegacy ? true : false}
               value={removePercentAmount}
               type="range"
-              className={`w-full pause ${
-                PAUSE_DCL ? 'cursor-not-allowed' : 'cursor-pointer'
+              className={`w-full ${
+                isLegacy ? 'pause cursor-not-allowed' : 'cursor-pointer'
               }`}
               style={{ backgroundSize: '100% 100%' }}
               min="0"
