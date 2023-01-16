@@ -9,12 +9,14 @@ import React, {
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
-  list_liquidities,
   get_pool,
+  get_pool_old_version,
+  get_liquidity,
+  get_liquidity_old_version,
+  get_pool_marketdepth,
+  get_pool_marketdepth_old_version,
   PoolInfo,
   remove_liquidity,
-  get_liquidity,
-  get_pool_marketdepth,
 } from '../../services/swapV3';
 import { ReturnIcon, SwitchButton } from '~components/icon/V3';
 import {

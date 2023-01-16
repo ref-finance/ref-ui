@@ -237,6 +237,7 @@ module.exports = {
         viewPoolHoverBgColor: '#34404A',
         legacyYellowColor:'#F49F50',
         legacyBgColor:'rgba(244, 159, 80, 0.1)',
+        legacyButtonBgColor:'#171F25',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
