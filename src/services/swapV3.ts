@@ -3,6 +3,7 @@ import {
   refSwapV3ViewFunction,
   REF_UNI_V3_SWAP_CONTRACT_ID,
   ONE_YOCTO_NEAR,
+  refSwapV3OldVersionViewFunction,
 } from './near';
 import {
   toNonDivisibleNumber,
@@ -1068,6 +1069,14 @@ export const checkTokenNeedsStorageDeposit_v3 = async () => {
 };
 export const list_liquidities = async () => {
   return refSwapV3ViewFunction({
+    methodName: 'list_liquidities',
+    args: {
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
+    },
+  });
+};
+export const list_liquidities_old_version = async () => {
+  return refSwapV3OldVersionViewFunction({
     methodName: 'list_liquidities',
     args: {
       account_id: getCurrentWallet()?.wallet?.getAccountId(),

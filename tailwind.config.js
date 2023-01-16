@@ -235,6 +235,8 @@ module.exports = {
         selectBoxEleColor: 'rgba(74, 88, 98, 0.3)',
         viewPoolBgColor: '#24333D',
         viewPoolHoverBgColor: '#34404A',
+        legacyYellowColor:'#F49F50',
+        legacyBgColor:'rgba(244, 159, 80, 0.1)',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

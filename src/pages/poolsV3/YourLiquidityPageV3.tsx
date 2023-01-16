@@ -3,6 +3,7 @@ import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   list_liquidities,
+  list_liquidities_old_version,
   get_pool,
   PoolInfo,
   remove_liquidity,
@@ -30,7 +31,6 @@ import {
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   TOKEN_LIST_FOR_RATE,
-  PAUSE_DCL,
   pause_v2_tip,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
@@ -95,7 +95,6 @@ export default function YourLiquidityPageV3() {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
-
   const liquidityStatusList = ['all', 'V2', 'V1'];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
@@ -110,8 +109,6 @@ export default function YourLiquidityPageV3() {
 
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
   const [listLiquiditiesLoading, setListLiquiditiesLoading] = useState(true);
-  const [oldListLiquiditiesLoading, setOldListLiquiditiesLoading] =
-    useState(true);
 
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
 
@@ -246,6 +243,7 @@ export default function YourLiquidityPageV3() {
         YourLpValueV1={YourLpValueV1}
         YourLpValueV2={YourLpValueV2}
       ></PoolTabV3>
+      <UserLegacyLiqudities></UserLegacyLiqudities>
       <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto">
         <div className="flex items-start justify-between lg:mt-4 xs:mb-5 md:mb-5">
           <div className="flex items-center">
@@ -348,6 +346,7 @@ export default function YourLiquidityPageV3() {
               </div>
             ) : (
               <>
+                {/* todo */}
                 {listLiquidities.length > 0 ? (
                   <div
                     className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
@@ -687,7 +686,7 @@ function UserLiquidityLine({
   }
   function claimRewards(e: any) {
     e.stopPropagation();
-    if (!canClaim() || PAUSE_DCL) return;
+    if (!canClaim()) return;
     setClaimLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
     remove_liquidity({
@@ -890,38 +889,19 @@ function UserLiquidityLine({
               <span className="text-sm text-white mx-2.5 gotham_bold">
                 ${your_liquidity || '-'}
               </span>
-              <div
-                className="text-white text-right"
-                data-class="reactTip"
-                data-for={`pause_v2_tip_1_${lpt_id}`}
-                data-place="top"
-                data-html={true}
-                data-tip={pause_v2_tip()}
+              <GradientButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowAddBox(true);
+                }}
+                color="#fff"
+                minWidth="5rem"
+                borderRadius="8px"
+                className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
+                btnClassName="cursor-not-allowed"
               >
-                <GradientButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowAddBox(true);
-                  }}
-                  color="#fff"
-                  minWidth="5rem"
-                  borderRadius="8px"
-                  className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5 ${
-                    PAUSE_DCL ? 'opacity-40' : ''
-                  }`}
-                  disabled={PAUSE_DCL}
-                  btnClassName="cursor-not-allowed"
-                >
-                  <FormattedMessage id="add" />
-                </GradientButton>
-                <ReactTooltip
-                  id={`pause_v2_tip_1_${lpt_id}`}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
-              </div>
+                <FormattedMessage id="add" />
+              </GradientButton>
               <BorderButton
                 onClick={(e) => {
                   e.stopPropagation();
@@ -955,32 +935,16 @@ function UserLiquidityLine({
                 {getTokenFeeAmount('r') || '-'}
               </span>
               <div
-                className="text-white text-right"
-                data-class="reactTip"
-                data-for={`pause_v2_tip_3_${lpt_id}`}
-                data-place="top"
-                data-html={true}
-                data-tip={pause_v2_tip()}
+                className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
+                  !canClaim()
+                    ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                    : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                }`}
+                onClick={claimRewards}
               >
-                <div
-                  className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
-                    !canClaim() || PAUSE_DCL
-                      ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                      : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-                  }`}
-                  onClick={claimRewards}
-                >
-                  <ButtonTextWrapper
-                    loading={claimLoading}
-                    Text={() => <FormattedMessage id="claim" />}
-                  />
-                </div>
-                <ReactTooltip
-                  id={`pause_v2_tip_3_${lpt_id}`}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
+                <ButtonTextWrapper
+                  loading={claimLoading}
+                  Text={() => <FormattedMessage id="claim" />}
                 />
               </div>
             </div>
@@ -1090,32 +1054,16 @@ function UserLiquidityLine({
                 </div>
                 <div className="flex items-center justify-end mt-2">
                   <div
-                    className="text-white text-right"
-                    data-class="reactTip"
-                    data-for={`pause_v2_tip_8_${lpt_id}`}
-                    data-place="top"
-                    data-html={true}
-                    data-tip={pause_v2_tip()}
+                    className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
+                      !canClaim()
+                        ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                        : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                    }`}
+                    onClick={claimRewards}
                   >
-                    <div
-                      className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
-                        !canClaim() || PAUSE_DCL
-                          ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                          : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-                      }`}
-                      onClick={claimRewards}
-                    >
-                      <ButtonTextWrapper
-                        loading={claimLoading}
-                        Text={() => <FormattedMessage id="claim" />}
-                      />
-                    </div>
-                    <ReactTooltip
-                      id={`pause_v2_tip_8_${lpt_id}`}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
+                    <ButtonTextWrapper
+                      loading={claimLoading}
+                      Text={() => <FormattedMessage id="claim" />}
                     />
                   </div>
                 </div>
@@ -1131,36 +1079,16 @@ function UserLiquidityLine({
             <span className="text-sm text-white">${your_liquidity || '-'}</span>
           </div>
           <div className="flex items-center justify-between mt-3.5">
-            <div
-              className="w-1 flex-grow text-white text-right"
-              data-class="reactTip"
-              data-for={`pause_v2_tip_5_${lpt_id}`}
-              data-place="top"
-              data-html={true}
-              data-tip={pause_v2_tip()}
+            <GradientButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowAddBox(true);
+              }}
+              color="#fff"
+              className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3`}
             >
-              <GradientButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowAddBox(true);
-                }}
-                color="#fff"
-                disabled={PAUSE_DCL}
-                className={`h-8 text-center text-sm text-white focus:outline-none mr-3 ${
-                  PAUSE_DCL ? 'opacity-40' : 'w-1 flex-grow'
-                }`}
-                btnClassName={`${PAUSE_DCL ? 'cursor-not-allowed' : ''}`}
-              >
-                <FormattedMessage id="add" />
-              </GradientButton>
-              <ReactTooltip
-                id={`pause_v2_tip_5_${lpt_id}`}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
-            </div>
+              <FormattedMessage id="add" />
+            </GradientButton>
             <BorderButton
               onClick={(e) => {
                 e.stopPropagation();
@@ -1256,6 +1184,58 @@ export function NoLiquidity({
 
       <MyOrderMask />
       <MyOrderMask2 />
+    </div>
+  );
+}
+function UserLegacyLiqudities() {
+  const [listLiquidities_old_version, setListLiquidities_old_version] =
+    useState<UserLiquidityInfo[]>([]);
+  const [lpValueV2Done, setLpValueV2Done] = useState(false);
+  const [YourLpValueV2, setYourLpValueV2] = useState('0');
+  const [
+    listLiquiditiesLoading_old_version,
+    setListLiquiditiesLoading_old_version,
+  ] = useState(true);
+  useEffect(() => {
+    get_list_liquidities_old_version();
+  }, []);
+  async function get_list_liquidities_old_version() {
+    const list: UserLiquidityInfo[] = await list_liquidities_old_version();
+    if (list.length > 0) {
+      list.sort((item1: UserLiquidityInfo, item2: UserLiquidityInfo) => {
+        const item1_hashId = +item1.lpt_id.split('#')[1];
+        const item2_hashId = +item2.lpt_id.split('#')[1];
+        return item1_hashId - item2_hashId;
+      });
+      setListLiquidities_old_version(list);
+    }
+    setListLiquiditiesLoading_old_version(false);
+  }
+  return (
+    <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto border border-legacyYellowColor p-4 rounded-2xl bg-legacyBgColor mt-16 mb-9">
+      <div className="flex items-center justify-center">
+        <span className="text-base text-legacyYellowColor gotham_bold mb-5">
+          Please Remove Legacy Liquidity!
+        </span>
+      </div>
+      {listLiquidities_old_version.length > 0 ? (
+        <div>
+          {listLiquidities_old_version.map(
+            (liquidity: UserLiquidityInfo, index: number) => {
+              return (
+                <div key={index}>
+                  <UserLiquidityLine
+                    lpSize={listLiquidities_old_version.length}
+                    setLpValueV2Done={setLpValueV2Done}
+                    setYourLpValueV2={setYourLpValueV2}
+                    liquidity={liquidity}
+                  ></UserLiquidityLine>
+                </div>
+              );
+            }
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }
