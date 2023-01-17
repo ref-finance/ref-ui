@@ -504,6 +504,7 @@ export default function YourLiquidityDetail(props: any) {
                   setShowAddBox(true);
                 }}
                 color="#fff"
+                borderRadius="8px"
                 className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
               >
                 <FormattedMessage id="add"></FormattedMessage>
