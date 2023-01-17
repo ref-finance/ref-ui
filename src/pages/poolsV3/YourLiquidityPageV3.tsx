@@ -868,7 +868,7 @@ function UserLiquidityLine({
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
-                <span className="text-white font-bold ml-9 mr-2.5 text-sm gotham_bold">
+                <span className="text-white font-bold mx-2.5 text-sm gotham_bold">
                   {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
                   {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
                 </span>
