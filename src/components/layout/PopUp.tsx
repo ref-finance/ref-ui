@@ -22,12 +22,12 @@ export default function PopUpSwiper() {
   const [closeStatus, setCloseStatus] = useState(true);
   const history = useHistory();
   useEffect(() => {
-    const popupSwiper = localStorage.getItem('popup-announcement12');
-    if (popupSwiper == '1') {
-      setCloseStatus(true);
-    } else {
-      setCloseStatus(false);
-    }
+    // const popupSwiper = localStorage.getItem('popup-announcement12');
+    // if (popupSwiper == '1') {
+    //   setCloseStatus(true);
+    // } else {
+    //   setCloseStatus(false);
+    // }
   }, []);
   const closePop = (e: any) => {
     localStorage.setItem('popup-announcement12', '1');
