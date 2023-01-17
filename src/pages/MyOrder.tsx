@@ -693,7 +693,7 @@ function OrderCard({
     );
 
     const unclaim = (
-      <span className="whitespace-nowrap col-span-2 flex xs:flex-col items-center ml-12">
+      <span className="whitespace-nowrap col-span-2 flex xs:flex-col items-center ml-16">
         <div>
           <div className="flex items-center xs:justify-end">
             <img
@@ -737,7 +737,7 @@ function OrderCard({
     );
 
     const created = (
-      <span className="col-span-2 relative xs:flex xs:items-center xs:justify-center whitespace-nowrap right-12 xs:right-0  text-white xs:text-xs xs:text-primaryText text-right xs:opacity-50">
+      <span className="col-span-2 relative xs:flex xs:items-center xs:justify-center whitespace-nowrap right-4 xs:right-0  text-white xs:text-xs xs:text-primaryText text-right xs:opacity-50">
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('YYYY-MM-DD HH:mm')}
@@ -1662,7 +1662,7 @@ function OrderCard({
           </span>
 
           <button
-            className="col-span-2 flex items-center ml-20"
+            className="col-span-2 flex items-center ml-28"
             onClick={() => {
               setActiveSortBy('created');
               if (activeSortBy === 'created') {
@@ -1692,7 +1692,7 @@ function OrderCard({
           </button>
 
           <button
-            className="col-span-2 flex items-center ml-12 text-right"
+            className="col-span-2 flex items-center ml-16 text-right"
             onClick={() => {
               setActiveSortBy('unclaim');
               if (activeSortBy === 'unclaim') {
@@ -2316,7 +2316,7 @@ function OrderCardOld({
     );
 
     const unclaim = (
-      <span className="whitespace-nowrap col-span-2 flex xs:flex-col items-center ml-12">
+      <span className="whitespace-nowrap col-span-2 flex xs:flex-col items-center ml-16">
         <div>
           <div className="flex items-center xs:justify-end">
             <img
@@ -2360,7 +2360,7 @@ function OrderCardOld({
     );
 
     const created = (
-      <span className="col-span-2 relative xs:flex xs:items-center xs:justify-center whitespace-nowrap right-12 xs:right-0  text-white xs:text-xs xs:text-primaryText text-right xs:opacity-50">
+      <span className="col-span-2 relative xs:flex xs:items-center xs:justify-center whitespace-nowrap right-2 xs:right-0  text-white xs:text-xs xs:text-primaryText text-right xs:opacity-50">
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('YYYY-MM-DD HH:mm')}
@@ -2704,7 +2704,7 @@ function OrderCardOld({
         </span>
 
         <button
-          className="col-span-2 flex items-center ml-20"
+          className="col-span-2 flex items-center ml-28"
           onClick={() => {
             setActiveSortBy('created');
             if (activeSortBy === 'created') {
@@ -2734,7 +2734,7 @@ function OrderCardOld({
         </button>
 
         <button
-          className="col-span-2 flex items-center ml-12 text-right"
+          className="col-span-2 flex items-center ml-16 text-right"
           onClick={() => {
             setActiveSortBy('unclaim');
             if (activeSortBy === 'unclaim') {
