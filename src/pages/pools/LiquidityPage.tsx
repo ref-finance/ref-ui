@@ -157,7 +157,10 @@ export function getPoolFeeApr(
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (newTvl > 0 && revenu24h > 0) {
       const annualisedFeesPrct = ((revenu24h * 365) / newTvl / 2) * 100;
-      result = toPrecision(annualisedFeesPrct.toString(), 2);
+      result = toPrecision(
+        scientificNotationToString(annualisedFeesPrct.toString()),
+        2
+      );
     }
   }
   return Number(result);
@@ -1386,8 +1389,6 @@ function PoolRow({
     return 0;
   });
 
-  console.log('farmapr', farmApr);
-
   return (
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
@@ -1434,11 +1435,6 @@ function PoolRow({
 
         <div
           className="col-span-1 flex flex-col items-center justify-self-center py-1"
-          title={
-            supportFarm && farmApr > 0
-              ? ''
-              : `${getPoolFeeAprTitle(h24volume, pool)}%`
-          }
           data-type="info"
           data-place="right"
           data-multiline={true}
