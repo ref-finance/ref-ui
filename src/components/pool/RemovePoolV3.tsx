@@ -31,6 +31,7 @@ import {
 } from '../../services/commonV3';
 import { PoolInfo, remove_liquidity } from '../../services/swapV3';
 import _ from 'lodash';
+import { REF_POOL_NAV_TAB_KEY } from './PoolTabV3';
 export const RemovePoolV3 = (props: any) => {
   const {
     tokenMetadata_x_y,
@@ -290,6 +291,9 @@ export const RemovePoolV3 = (props: any) => {
   function remove() {
     setRemoveLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
+
+    sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
+
     remove_liquidity({
       token_x: tokenX,
       token_y: tokenY,
