@@ -131,7 +131,9 @@ function PoolRow({
 
       <div
         className="col-span-1 py-1   "
-        title={pool?.apr?.toString() || '0' + '%'}
+        title={
+          supportFarm && farmApr > 0 ? '' : pool?.apr?.toString() || '0' + '%'
+        }
         data-type="info"
         data-place="left"
         data-multiline={true}
@@ -143,13 +145,16 @@ function PoolRow({
         <span className="ml-2">
           {toPrecision(pool?.apr?.toString() || '0', 2)}%
         </span>
-        {supportFarm && farmApr !== undefined && farmApr !== null && (
-          <div className="text-xs text-gradientFrom">
-            {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
-          </div>
-        )}
+        {supportFarm &&
+          farmApr !== undefined &&
+          farmApr !== null &&
+          farmApr > 0 && (
+            <div className="text-xs text-gradientFrom">
+              {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+            </div>
+          )}
 
-        {supportFarm && (
+        {supportFarm && farmApr > 0 && (
           <ReactTooltip
             className="w-20"
             id={'pool_list_pc_apr' + pool.id}
@@ -281,6 +286,7 @@ const MobileRow = ({
               {supportFarm &&
                 farmApr !== undefined &&
                 farmApr !== null &&
+                farmApr > 0 &&
                 pool.h24volume && (
                   <div>
                     <div className="text-xs text-gradientFrom">
@@ -361,6 +367,13 @@ export const MorePoolsPage = () => {
   console.log('farmAprById: ', farmAprById);
 
   if (!tokens || !morePools || !loadingSeedsDone) return <Loading />;
+
+  const displayMorePools = morePools.map((p) => {
+    return {
+      ...p,
+      apr: p.apr + (farmAprById[p.id] || 0) * 100,
+    };
+  });
 
   return (
     <>
@@ -574,7 +587,7 @@ export const MorePoolsPage = () => {
               </div>
             </header>
             <div className="max-h-96 overflow-y-auto">
-              {morePools?.map((pool, i) => (
+              {displayMorePools?.map((pool, i) => (
                 <div
                   className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
                   key={i}
@@ -634,7 +647,7 @@ export const MorePoolsPage = () => {
               {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
           </div>
-          {morePools?.map((pool, i) => {
+          {displayMorePools?.map((pool, i) => {
             return (
               <MobileRow
                 tokens={tokens}

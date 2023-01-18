@@ -1827,6 +1827,9 @@ export function PoolDetailsPage() {
   const tokens = useTokens(pool?.tokenIds);
 
   const seedFarms = useSeedFarms(id);
+  console.log('seedFarms: ', seedFarms);
+
+  console.log('pool: ', pool);
 
   const seedDetail = useSeedDetail(id);
 
@@ -2006,9 +2009,13 @@ export function PoolDetailsPage() {
 
     const baseAprAll = !seedTvl ? 0 : totalReward / seedTvl;
 
-    return !poolTVL || !seedDetail || !seedFarms
-      ? '-'
-      : `${toPrecision((baseAprAll * 100).toString(), 2)}%`;
+    return {
+      displayApr:
+        !poolTVL || !seedDetail || !seedFarms
+          ? '-'
+          : `${toPrecision((baseAprAll * 100).toString(), 2)}%`,
+      rawApr: !poolTVL || !seedDetail || !seedFarms ? 0 : baseAprAll,
+    };
   }
 
   const InfoCard = ({
@@ -2345,7 +2352,11 @@ export function PoolDetailsPage() {
                 id="apr"
                 value={
                   <div
-                    className={seedFarms ? 'relative bottom-2' : ''}
+                    className={
+                      seedFarms && seedFarms && BaseApr().rawApr > 0
+                        ? 'relative bottom-2'
+                        : ''
+                    }
                     data-type="info"
                     data-place="left"
                     data-multiline={true}
@@ -2357,24 +2368,27 @@ export function PoolDetailsPage() {
                     {dayVolume
                       ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
                       : '-'}
-                    {dayVolume && seedFarms && (
+                    {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
                       <div className="text-xs text-gradientFrom">
-                        {BaseApr()}
+                        {BaseApr().displayApr}
                       </div>
                     )}
 
-                    {!!seedFarms &&  !isMobile() &&(
-                      <ReactTooltip
-                        className="w-20"
-                        id={'pool_list_pc_apr' + pool.id}
-                        backgroundColor="#1D2932"
-                        place="right"
-                        border
-                        borderColor="#7e8a93"
-                        textColor="#C6D1DA"
-                        effect="solid"
-                      />
-                    )}
+                    {!!seedFarms &&
+                      !isMobile() &&
+                      seedFarms &&
+                      BaseApr().rawApr > 0 && (
+                        <ReactTooltip
+                          className="w-20"
+                          id={'pool_list_pc_apr' + pool.id}
+                          backgroundColor="#1D2932"
+                          place="right"
+                          border
+                          borderColor="#7e8a93"
+                          textColor="#C6D1DA"
+                          effect="solid"
+                        />
+                      )}
                   </div>
                 }
                 valueTitle={`${getPoolFeeAprTitle(dayVolume, pool, poolTVL)}%`}
@@ -2716,7 +2730,7 @@ export function PoolDetailsPage() {
 
                 <div className="flex items-center mx-4 xs:mx-7 md:mx-7 mt-3 justify-between">
                   <div className="valueStyleYellow flex items-center text-lg">
-                    <span className="mr-2">{BaseApr()}</span>
+                    <span className="mr-2">{BaseApr().displayApr}</span>
                     <Fire />
                   </div>
 

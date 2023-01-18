@@ -408,13 +408,16 @@ function MobilePoolRow({
           </div>
           <div className="flex flex-col items-end">
             {showSortedValue({ sortBy, value: pool[sortBy] })}
-            {sortBy === 'apr' && farmApr !== null && farmApr !== undefined && (
-              <div>
-                <span className="text-xs text-gradientFrom">
-                  {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
-                </span>
-              </div>
-            )}
+            {sortBy === 'apr' &&
+              farmApr !== null &&
+              farmApr !== undefined &&
+              farmApr > 0 && (
+                <div>
+                  <span className="text-xs text-gradientFrom">
+                    {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+                  </span>
+                </div>
+              )}
           </div>
         </div>
         {!(
@@ -865,8 +868,10 @@ function MobileLiquidityPage({
     if (order === 'asc') {
       if (sortBy === 'apr') {
         return (
-          (getPoolFeeApr(volumes[p1.id], p1) + farmAprById?.[p1.id] || 0) -
-          (getPoolFeeApr(volumes[p2.id], p2) + farmAprById?.[p2.id] || 0)
+          getPoolFeeApr(volumes[p1.id], p1) +
+          (farmAprById?.[p1.id] || 0) * 100 -
+          (getPoolFeeApr(volumes[p2.id], p2) +
+            (farmAprById?.[p2.id] || 0) * 100)
         );
       } else if (sortBy === 'volume_24h') {
         return parseFloat(volumes[p1.id]) - parseFloat(volumes[p2.id]);
@@ -874,8 +879,10 @@ function MobileLiquidityPage({
     } else if (order === 'desc') {
       if (sortBy === 'apr') {
         return (
-          (getPoolFeeApr(volumes[p2.id], p2) + farmAprById?.[p2.id] || 0) -
-          (getPoolFeeApr(volumes[p1.id], p1) + farmAprById?.[p1.id] || 0)
+          getPoolFeeApr(volumes[p2.id], p2) +
+          (farmAprById?.[p2.id] || 0) * 100 -
+          (getPoolFeeApr(volumes[p1.id], p1) +
+            (farmAprById?.[p1.id] || 0) * 100)
         );
       } else if (sortBy === 'volume_24h') {
         return parseFloat(volumes[p2.id]) - parseFloat(volumes[p1.id]);
@@ -1328,7 +1335,7 @@ export const getPoolListFarmAprTip = () => {
       class="flex flex-col text-xs min-w-36 text-farmText z-50"
     >
       <div>
-      Pool Fee APR
+      Pool Fee APY
       </div>
 
       <div>
@@ -1427,7 +1434,11 @@ function PoolRow({
 
         <div
           className="col-span-1 flex flex-col items-center justify-self-center py-1"
-          title={`${getPoolFeeAprTitle(h24volume, pool)}%`}
+          title={
+            supportFarm && farmApr > 0
+              ? ''
+              : `${getPoolFeeAprTitle(h24volume, pool)}%`
+          }
           data-type="info"
           data-place="right"
           data-multiline={true}
@@ -1441,12 +1452,13 @@ function PoolRow({
             !Number.isNaN(farmApr) &&
             farmApr !== null &&
             farmApr !== undefined &&
+            farmApr > 0 &&
             h24volume && (
               <span className="text-xs text-gradientFrom">
                 {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
               </span>
             )}
-          {supportFarm && (
+          {supportFarm && farmApr > 0 && (
             <ReactTooltip
               className="w-20"
               id={'pool_list_pc_apr' + pool.id}
@@ -1909,17 +1921,17 @@ function LiquidityPage_({
   }, []);
 
   const tokensStar = [REF_META_DATA, unwrapedNear];
-
+  console.log('farmAprById: ', farmAprById);
   const poolReSortingFunc = (p1: Pool, p2: Pool) => {
     const v1 = volumes[p1.id] ? parseFloat(volumes[p1.id]) : 0;
 
     const v2 = volumes[p2.id] ? parseFloat(volumes[p2.id]) : 0;
 
     const apr1 =
-      getPoolFeeAprTitle(v1.toString(), p1) + farmAprById?.[p1.id] || 0;
+      getPoolFeeAprTitle(v1.toString(), p1) + (farmAprById?.[p1.id] || 0) * 100;
 
     const apr2 =
-      getPoolFeeAprTitle(v2.toString(), p2) + farmAprById?.[p2.id] || 0;
+      getPoolFeeAprTitle(v2.toString(), p2) + (farmAprById?.[p2.id] || 0) * 100;
 
     if (order === 'desc') {
       if (reSortBy === 'volume') {
