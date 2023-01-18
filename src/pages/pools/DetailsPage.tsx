@@ -2398,7 +2398,6 @@ export function PoolDetailsPage() {
                       )}
                   </div>
                 }
-                valueTitle={`${getPoolFeeAprTitle(dayVolume, pool, poolTVL)}%`}
               />
             </div>
 
