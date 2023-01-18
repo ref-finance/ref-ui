@@ -585,7 +585,7 @@ function MobilePoolRowV2({
                   `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
               </div>
               {mark ? (
-                <span className="text-xs max-w-min text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
                   V2
                 </span>
               ) : null}
@@ -2845,6 +2845,8 @@ export function LiquidityPage() {
   const [h24VolumeV2, setH24VolumeV2] = useState<string>();
 
   const { farmAprById } = useSeedFarmsByPools([...pools, ...watchPools]);
+  console.log('farmAprById: ', farmAprById);
+  console.log('watchPools: ', watchPools);
 
   useEffect(() => {
     if (Object.keys(v3PoolVolumes).length > 0) {

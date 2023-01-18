@@ -70,7 +70,7 @@ import {
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import getConfig from '../services/config';
 import { useFarmStake } from './farm';
-import { ONLY_ZEROS } from '../utils/numbers';
+import { ONLY_ZEROS, scientificNotationToString } from '../utils/numbers';
 import {
   getPoolsByTokensIndexer,
   getAllPoolsIndexer,
@@ -84,6 +84,8 @@ import { getPoolFeeAprTitle } from '../pages/pools/LiquidityPage';
 import { getPoolFeeAprTitleRPCView } from '../pages/pools/MorePoolsPage';
 import { PoolInfo, get_pool } from '../services/swapV3';
 import { useTokenPriceList } from './token';
+import { isStablePool } from '../services/near';
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
@@ -441,7 +443,9 @@ export const useMorePools = ({
         return {
           ...p,
           h24volume: res[i],
-          baseApr: getPoolFeeAprTitleRPCView(res[i], morePools[i]),
+          baseApr: scientificNotationToString(
+            getPoolFeeAprTitleRPCView(res[i], morePools[i]).toString()
+          ),
           apr:
             getPoolFeeAprTitleRPCView(res[i], morePools[i]) +
             (farmAprById?.[p.id] || 0) * 100,
@@ -997,7 +1001,12 @@ export const useSeedFarmsByPools = (pools: Pool[]) => {
                   totalReward + Number(farm.yearReward) * reward_token_price;
               });
 
-              const poolShares = Number(toReadableNumber(24, pool.shareSupply));
+              const poolShares = Number(
+                toReadableNumber(
+                  isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
+                  pool.shareSupply
+                )
+              );
 
               const seedTvl =
                 !poolShares || !seedDetail
