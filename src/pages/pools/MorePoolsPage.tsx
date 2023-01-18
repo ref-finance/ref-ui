@@ -289,7 +289,7 @@ const MobileRow = ({
             <div className="flex flex-col items-end">
               {!pool.h24volume
                 ? '-'
-                : `${toPrecision(pool?.apr?.toString() || '0', 2)}%`}
+                : `${toPrecision(pool?.baseApr?.toString() || '0', 2)}%`}
               {supportFarm &&
                 farmApr !== undefined &&
                 farmApr !== null &&
