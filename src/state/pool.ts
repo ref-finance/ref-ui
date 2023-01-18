@@ -980,7 +980,6 @@ export const useSeedFarmsByPools = (pools: Pool[]) => {
           cacheSeeds: Record<string, any>;
         }) => {
           if (!seedFarmsById || !cacheSeeds) return;
-          console.log('cacheSeeds: ', cacheSeeds, ids, seedFarmsById);
 
           const ARPs = await Promise.all(
             Object.values(seedFarmsById).map((farms: any, i: number) => {
