@@ -82,6 +82,9 @@ function PoolRow({
         localStorage.setItem('fromMorePools', 'y');
         localStorage.setItem('morePoolIds', JSON.stringify(morePoolIds));
       }}
+      style={{
+        height: '70px',
+      }}
       to={{
         pathname: `/pool/${pool.id}`,
         state: {
@@ -131,9 +134,6 @@ function PoolRow({
 
       <div
         className="col-span-1 py-1   "
-        title={
-          supportFarm && farmApr > 0 ? '' : pool?.apr?.toString() || '0' + '%'
-        }
         data-type="info"
         data-place="left"
         data-multiline={true}
@@ -143,7 +143,7 @@ function PoolRow({
         data-for={'pool_list_pc_apr' + pool.id}
       >
         <span className="ml-2">
-          {toPrecision(pool?.apr?.toString() || '0', 2)}%
+          {toPrecision(pool?.baseApr?.toString() || '0', 2)}%
         </span>
         {supportFarm &&
           farmApr !== undefined &&
@@ -276,8 +276,15 @@ const MobileRow = ({
           </div>
 
           <div className="flex items-center justify-between my-3">
-            <div className="text-gray-400">
+            <div className="text-gray-400 ">
               <FormattedMessage id="apr" defaultMessage="APR" />
+              {supportFarm &&
+                farmApr !== undefined &&
+                farmApr !== null &&
+                farmApr > 0 &&
+                pool.h24volume && (
+                  <div className="text-xs">(Pool Fee + Farm Rewards)</div>
+                )}
             </div>
             <div className="flex flex-col items-end">
               {!pool.h24volume
@@ -335,7 +342,7 @@ export function getPoolFeeAprTitleRPCView(
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (tvl > 0 && revenu24h > 0) {
       const annualisedFeesPrct = ((revenu24h * 365) / tvl / 2) * 100;
-      result = annualisedFeesPrct.toString();
+      result = scientificNotationToString(annualisedFeesPrct.toString());
     }
   }
   return Number(result);
@@ -352,7 +359,6 @@ export const MorePoolsPage = () => {
 
   const tokens = state?.tokens || useTokens(tokenIdsArray);
   const morePools = useMorePools({ tokenIds: tokenIdsArray, order, sortBy });
-  console.log('morePools: ', morePools);
 
   const morePoolIds = morePools?.map((p) => p.id.toString());
 
@@ -363,17 +369,7 @@ export const MorePoolsPage = () => {
   });
   const clientMobileDevice = useClientMobile();
 
-  const { farmAprById, loadingSeedsDone } = useSeedFarmsByPools(morePools);
-  console.log('farmAprById: ', farmAprById);
-
-  if (!tokens || !morePools || !loadingSeedsDone) return <Loading />;
-
-  const displayMorePools = morePools.map((p) => {
-    return {
-      ...p,
-      apr: p.apr + (farmAprById[p.id] || 0) * 100,
-    };
-  });
+  if (!tokens || !morePools) return <Loading />;
 
   return (
     <>
@@ -587,7 +583,7 @@ export const MorePoolsPage = () => {
               </div>
             </header>
             <div className="max-h-96 overflow-y-auto">
-              {displayMorePools?.map((pool, i) => (
+              {morePools?.map((pool, i) => (
                 <div
                   className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
                   key={i}
@@ -600,7 +596,7 @@ export const MorePoolsPage = () => {
                     watched={!!find(watchList, { pool_id: pool.id.toString() })}
                     morePoolIds={morePoolIds}
                     farmCount={poolsFarmCount[pool.id]}
-                    farmApr={farmAprById[pool.id]}
+                    farmApr={pool.farmApr}
                   />
                 </div>
               ))}
@@ -647,7 +643,7 @@ export const MorePoolsPage = () => {
               {tokens[0].symbol + '-' + tokens[1].symbol}
             </div>
           </div>
-          {displayMorePools?.map((pool, i) => {
+          {morePools?.map((pool, i) => {
             return (
               <MobileRow
                 tokens={tokens}
@@ -659,7 +655,7 @@ export const MorePoolsPage = () => {
                 }
                 morePoolIds={morePoolIds}
                 farmCount={poolsFarmCount[pool.id]}
-                farmApr={farmAprById[pool.id]}
+                farmApr={pool.farmApr}
               />
             );
           })}

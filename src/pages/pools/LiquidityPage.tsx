@@ -62,10 +62,7 @@ import {
   GradientButton,
 } from '../../components/button/Button';
 import { NEAR_CLASS_STABLE_POOL_IDS, wallet } from '../../services/near';
-import {
-  WatchListStartEmpty,
-  WatchListStartFull,
-} from '../../components/icon/WatchListStar';
+import { WatchListStartFull } from '../../components/icon/WatchListStar';
 import { PolygonGrayDown } from '../../components/icon/Polygon';
 import _, { orderBy, sortBy, filter } from 'lodash';
 import QuestionMark from '../../components/farm/QuestionMark';
@@ -97,7 +94,10 @@ import {
 import { unwrapedNear, wnearMetadata } from '../../services/wrap-near';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { getVEPoolId } from '../ReferendumPage';
-import { StartPoolIcon } from '../../components/icon/WatchListStar';
+import {
+  StartPoolIcon,
+  WatchListStartEmpty,
+} from '../../components/icon/WatchListStar';
 import {
   PoolDaoBanner,
   PoolDaoBannerMobile,
@@ -139,6 +139,9 @@ import { AiFillStar } from 'react-icons/ai';
 import { PAUSE_DCL } from '../../services/commonV3';
 import { useTokenPriceList } from '../../state/token';
 import { useSeedFarmsByPools } from '../../state/pool';
+
+import { RiArrowRightSLine } from 'react-icons/ri';
+
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
@@ -328,13 +331,39 @@ function MobilePoolRow({
     else if (sortBy === 'apr') return `${getPoolFeeApr(h24volume, pool)}%`;
   };
 
-  const MobileMoreFarmStamp = ({ count }: { count: number }) => {
-    return (
-      <div className="px-1 rounded border border-greenLight text-greenLight">
-        {count}
-      </div>
-    );
-  };
+  const morePoolButton = !(
+    morePoolIds?.length &&
+    morePoolIds?.length > 1 &&
+    !watchPool
+  ) ? null : (
+    <button
+      className={
+        morePoolIds?.length && morePoolIds?.length > 1 && !watchPool
+          ? ' text-farmText bg-black flex items-center bg-opacity-20 rounded-lg text-xs w-20 px-2 justify-between ml-2 py-0.5'
+          : ''
+      }
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        history.push(`/more_pools/${pool.tokenIds}`, {
+          morePoolIds: morePoolIds,
+          tokens,
+        });
+      }}
+    >
+      <span>
+        {morePoolIds.length}
+        &nbsp;
+        <FormattedMessage
+          id="pools"
+          defaultMessage={'Pools'}
+        ></FormattedMessage>
+      </span>
+      <span>
+        <RiArrowRightSLine className="w-4 h-4 ml-1" />
+      </span>
+    </button>
+  );
 
   return (
     <div className="w-full hover:bg-poolRowHover overflow-x-hidden">
@@ -348,9 +377,19 @@ function MobilePoolRow({
         }}
       >
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center justify-start">
-            <div className="flex items-center">
-              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+          <div className="flex items-center">
+            <div
+              className={`flex items-center ${
+                !!morePoolButton ? 'relative bottom-1' : ''
+              }`}
+            >
+              <div
+                className="h-6 w-6  border-2 border-watchMarkBackgroundColor rounded-full"
+                style={{
+                  height: '26px',
+                  width: '26px',
+                }}
+              >
                 <img
                   key={tokens[0].id.substring(0, 12).substring(0, 12)}
                   className="rounded-full w-full"
@@ -358,7 +397,13 @@ function MobilePoolRow({
                 />
               </div>
 
-              <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
+              <div
+                className="h-6 w-6   border-watchMarkBackgroundColor border-2 rounded-full -ml-1.5"
+                style={{
+                  height: '26px',
+                  width: '26px',
+                }}
+              >
                 <img
                   key={tokens[1].id}
                   className="w-full rounded-full"
@@ -366,7 +411,13 @@ function MobilePoolRow({
                 />
               </div>
               {tokens[2] ? (
-                <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
+                <div
+                  className="h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full -ml-1.5 "
+                  style={{
+                    height: '26px',
+                    width: '26px',
+                  }}
+                >
                   <img
                     key={tokens[2].id}
                     className="w-full rounded-full"
@@ -375,40 +426,48 @@ function MobilePoolRow({
                 </div>
               ) : null}
             </div>
-            <div className="flex items-center flex-wrap">
-              <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
-                {tokens[0].symbol +
-                  '-' +
-                  tokens[1].symbol +
-                  `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-start">
+                <div className="flex items-center flex-wrap">
+                  <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
+                    {tokens[0].symbol +
+                      '-' +
+                      tokens[1].symbol +
+                      `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
+                  </div>
+                </div>
+                {watched && !watchPool && (
+                  <div className="ml-2">
+                    <WatchListStartFull />
+                  </div>
+                )}
               </div>
-              {mark ? (
-                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
-                  {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
-                    <FormattedMessage id="stablecoin"></FormattedMessage>
-                  ) : (
-                    'V1'
-                  )}
-                </span>
-              ) : null}
-            </div>
-            {watched && !watchPool && (
-              <div className="ml-2">
-                <WatchListStartFull />
-              </div>
-            )}
 
-            <div
-              className="mr-2 relative bottom-0 px"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                window.open(`/v2farms/${pool.id}-r`, '_blank');
-              }}
-            >
-              {supportFarm && <FarmStampNew multi={farmCount > 1} />}
+              <div className="flex items-center relative top-0.5">
+                {mark ? (
+                  <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                    {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
+                      <FormattedMessage id="stablecoin"></FormattedMessage>
+                    ) : (
+                      'V1'
+                    )}
+                  </span>
+                ) : null}
+                {morePoolButton}
+                <div
+                  className="mr-2 relative bottom-0 px"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open(`/v2farms/${pool.id}-r`, '_blank');
+                  }}
+                >
+                  {supportFarm && <FarmStampNew multi={farmCount > 1} />}
+                </div>
+              </div>
             </div>
           </div>
+
           <div className="flex flex-col items-end">
             {showSortedValue({ sortBy, value: pool[sortBy] })}
             {sortBy === 'apr' &&
@@ -423,39 +482,6 @@ function MobilePoolRow({
               )}
           </div>
         </div>
-        {!(
-          morePoolIds?.length &&
-          morePoolIds?.length > 1 &&
-          !watchPool
-        ) ? null : (
-          <button
-            className={
-              morePoolIds?.length && morePoolIds?.length > 1 && !watchPool
-                ? 'w-full text-farmText border border-farmText rounded-md text-xs relative top-2 py-1'
-                : ''
-            }
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              history.push(`/more_pools/${pool.tokenIds}`, {
-                morePoolIds: morePoolIds,
-                tokens,
-              });
-            }}
-          >
-            <FormattedMessage
-              id="total"
-              defaultMessage={'Total'}
-            ></FormattedMessage>
-            &nbsp;
-            {morePoolIds.length}
-            &nbsp;
-            <FormattedMessage
-              id="pools"
-              defaultMessage={'Pools'}
-            ></FormattedMessage>
-          </button>
-        )}
       </Link>
     </div>
   );
@@ -551,7 +577,7 @@ function MobilePoolRowV2({
                 </div>
               ) : null}
             </div>
-            <div className="flex items-center flex-wrap">
+            <div className="flex flex-col flex-wrap">
               <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
                 {tokens[0].symbol +
                   '-' +
@@ -559,7 +585,7 @@ function MobilePoolRowV2({
                   `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
               </div>
               {mark ? (
-                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                <span className="text-xs max-w-min text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
                   V2
                 </span>
               ) : null}
@@ -673,6 +699,11 @@ function MobileWatchListCard({
             </div>
           </div>
         </header>
+        {sortBy === 'apr' && (
+          <div className="text-right text-farmText text-xs mr-3 mb-0.5">
+            *Pool Fee APY + Farm Rewards APR
+          </div>
+        )}
         <div className="border-b border-gray-700 border-opacity-70" />
         <div className="max-h-96 overflow-y-auto">
           {watchAllPools.map((pool: any, i: number) => {
@@ -1400,6 +1431,9 @@ function PoolRow({
           pathname: `/pool/${pool.id}`,
           state: { tvl: pool.tvl, backToFarms: supportFarm },
         }}
+        style={{
+          height: '70px',
+        }}
       >
         <div className="col-span-3 md:col-span-4 flex items-center">
           <div className="flex items-center">
@@ -1427,7 +1461,6 @@ function PoolRow({
               )}
             </div>
           </div>
-          {supportFarm && <FarmStampNew multi={farmCount > 1} />}
         </div>
         <div className="col-span-1 flex items-center justify-center justify-self-center py-1 md:hidden ">
           {calculateFeePercent(pool.fee)}%
@@ -2811,7 +2844,7 @@ export function LiquidityPage() {
   const v3PoolVolumes = useV3VolumesPools();
   const [h24VolumeV2, setH24VolumeV2] = useState<string>();
 
-  const { farmAprById } = useSeedFarmsByPools(pools);
+  const { farmAprById } = useSeedFarmsByPools([...pools, ...watchPools]);
 
   useEffect(() => {
     if (Object.keys(v3PoolVolumes).length > 0) {

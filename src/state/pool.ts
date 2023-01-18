@@ -402,6 +402,8 @@ export const useMorePools = ({
 }) => {
   const [morePools, setMorePools] = useState<any[]>();
 
+  const { farmAprById, loadingSeedsDone } = useSeedFarmsByPools(morePools);
+
   useEffect(() => {
     getPoolsByTokensIndexer({
       token0: tokenIds[0],
@@ -432,20 +434,28 @@ export const useMorePools = ({
   }, [tokenIds.join('-')]);
 
   useEffect(() => {
-    if (!morePools || morePools.length === 0) return;
+    if (!morePools || morePools.length === 0 || !loadingSeedsDone) return;
 
     get24hVolumes(morePools.map((pool) => pool.id.toString())).then((res) => {
       const volumePools = morePools.map((p, i) => {
         return {
           ...p,
           h24volume: res[i],
-          apr: getPoolFeeAprTitleRPCView(res[i], morePools[i]),
+          baseApr: getPoolFeeAprTitleRPCView(res[i], morePools[i]),
+          apr:
+            getPoolFeeAprTitleRPCView(res[i], morePools[i]) +
+            (farmAprById?.[p.id] || 0) * 100,
+          farmApr: farmAprById?.[p.id] || 0,
         };
       });
 
       setMorePools(volumePools);
     });
-  }, [(morePools || []).map((p) => p?.id).join('-')]);
+  }, [
+    (morePools || []).map((p) => p?.id).join('-'),
+    loadingSeedsDone,
+    farmAprById,
+  ]);
 
   return !morePools
     ? null

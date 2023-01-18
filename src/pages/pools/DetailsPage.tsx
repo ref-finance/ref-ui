@@ -2348,15 +2348,22 @@ export function PoolDetailsPage() {
               />
 
               <InfoCard
-                title={<FormattedMessage id="apr" defaultMessage="APR" />}
+                title={
+                  <>
+                    <FormattedMessage id="apr" defaultMessage="APR" />
+                    &nbsp;
+                    {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
+                      <>
+                        (
+                        <FormattedMessage id="pool" defaultMessage={'Pool'} /> +
+                        <FormattedMessage id="farm" defaultMessage={'Farm'} />)
+                      </>
+                    )}
+                  </>
+                }
                 id="apr"
                 value={
                   <div
-                    className={
-                      seedFarms && seedFarms && BaseApr().rawApr > 0
-                        ? 'relative bottom-2'
-                        : ''
-                    }
                     data-type="info"
                     data-place="left"
                     data-multiline={true}
@@ -2369,9 +2376,9 @@ export function PoolDetailsPage() {
                       ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
                       : '-'}
                     {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
-                      <div className="text-xs text-gradientFrom">
-                        {BaseApr().displayApr}
-                      </div>
+                      <span className="text-xs text-gradientFrom">
+                        {` +` + BaseApr().displayApr}
+                      </span>
                     )}
 
                     {!!seedFarms &&
