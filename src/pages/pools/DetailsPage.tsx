@@ -1827,9 +1827,6 @@ export function PoolDetailsPage() {
   const tokens = useTokens(pool?.tokenIds);
 
   const seedFarms = useSeedFarms(id);
-  console.log('seedFarms: ', seedFarms);
-
-  console.log('pool: ', pool);
 
   const seedDetail = useSeedDetail(id);
 

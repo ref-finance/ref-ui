@@ -1951,7 +1951,6 @@ function LiquidityPage_({
   }, []);
 
   const tokensStar = [REF_META_DATA, unwrapedNear];
-  console.log('farmAprById: ', farmAprById);
   const poolReSortingFunc = (p1: Pool, p2: Pool) => {
     const v1 = volumes[p1.id] ? parseFloat(volumes[p1.id]) : 0;
 
@@ -2846,8 +2845,6 @@ export function LiquidityPage() {
   const [h24VolumeV2, setH24VolumeV2] = useState<string>();
 
   const { farmAprById } = useSeedFarmsByPools([...pools, ...watchPools]);
-
-  console.log('watchPools: ', watchPools);
 
   useEffect(() => {
     if (Object.keys(v3PoolVolumes).length > 0) {
