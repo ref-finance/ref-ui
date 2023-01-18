@@ -139,7 +139,11 @@ import { BoostInputAmount } from '../../components/forms/InputAmount';
 import { ExternalLinkIcon } from '~components/icon/Risk';
 import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
 import { useClientMobile, isClientMobie } from '../../utils/device';
-import { getPoolFeeApr, getPoolFeeAprTitle } from './LiquidityPage';
+import {
+  getPoolFeeApr,
+  getPoolFeeAprTitle,
+  getPoolListFarmAprTip,
+} from './LiquidityPage';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { useTokenPriceList } from '../../state/token';
 import { ExchangeArrow } from '../../components/icon/Arrows';
@@ -2025,6 +2029,7 @@ export function PoolDetailsPage() {
         }  py-3 w-full px-4 flex flex-col`}
         style={{
           background: 'rgba(29, 41, 50, 0.5)',
+          height: '80px',
         }}
       >
         <div className="text-primaryText mb-3 text-sm">{title}</div>
@@ -2339,9 +2344,38 @@ export function PoolDetailsPage() {
                 title={<FormattedMessage id="apr" defaultMessage="APR" />}
                 id="apr"
                 value={
-                  dayVolume
-                    ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
-                    : '-'
+                  <div
+                    className={seedFarms ? 'relative bottom-2' : ''}
+                    data-type="info"
+                    data-place="left"
+                    data-multiline={true}
+                    data-class={'reactTip'}
+                    data-html={true}
+                    data-tip={getPoolListFarmAprTip()}
+                    data-for={'pool_list_pc_apr' + pool.id}
+                  >
+                    {dayVolume
+                      ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
+                      : '-'}
+                    {dayVolume && seedFarms && (
+                      <div className="text-xs text-gradientFrom">
+                        {BaseApr()}
+                      </div>
+                    )}
+
+                    {!!seedFarms &&  !isMobile() &&(
+                      <ReactTooltip
+                        className="w-20"
+                        id={'pool_list_pc_apr' + pool.id}
+                        backgroundColor="#1D2932"
+                        place="right"
+                        border
+                        borderColor="#7e8a93"
+                        textColor="#C6D1DA"
+                        effect="solid"
+                      />
+                    )}
+                  </div>
                 }
                 valueTitle={`${getPoolFeeAprTitle(dayVolume, pool, poolTVL)}%`}
               />

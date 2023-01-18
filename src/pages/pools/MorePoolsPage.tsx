@@ -24,7 +24,11 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
-import { useAllWatchList, useMorePools } from '../../state/pool';
+import {
+  useAllWatchList,
+  useMorePools,
+  useSeedFarmsByPools,
+} from '../../state/pool';
 import { PoolRPCView } from '../../services/api';
 import { FarmStamp } from '../../components/icon/FarmStamp';
 import { divide, find } from 'lodash';
@@ -35,6 +39,8 @@ import { useClientMobile } from '../../utils/device';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import Loading from '../../components/layout/Loading';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
+import { getPoolListFarmAprTip } from './LiquidityPage';
+import ReactTooltip from 'react-tooltip';
 
 interface ParamTypes {
   tokenIds: string;
@@ -51,6 +57,7 @@ function PoolRow({
   watched,
   morePoolIds,
   farmCount,
+  farmApr,
 }: {
   pool: PoolRPCView;
   index: number;
@@ -58,6 +65,7 @@ function PoolRow({
   watched: Boolean;
   morePoolIds: string[];
   farmCount: number;
+  farmApr: number;
 }) {
   const supportFarm = !!farmCount;
 
@@ -122,10 +130,37 @@ function PoolRow({
       </div>
 
       <div
-        className="col-span-1 py-1  "
+        className="col-span-1 py-1   "
         title={pool?.apr?.toString() || '0' + '%'}
+        data-type="info"
+        data-place="left"
+        data-multiline={true}
+        data-class={'reactTip'}
+        data-html={true}
+        data-tip={getPoolListFarmAprTip()}
+        data-for={'pool_list_pc_apr' + pool.id}
       >
-        {toPrecision(pool?.apr?.toString() || '0', 2)}%
+        <span className="ml-2">
+          {toPrecision(pool?.apr?.toString() || '0', 2)}%
+        </span>
+        {supportFarm && farmApr !== undefined && farmApr !== null && (
+          <div className="text-xs text-gradientFrom">
+            {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+          </div>
+        )}
+
+        {supportFarm && (
+          <ReactTooltip
+            className="w-20"
+            id={'pool_list_pc_apr' + pool.id}
+            backgroundColor="#1D2932"
+            place="right"
+            border
+            borderColor="#7e8a93"
+            textColor="#C6D1DA"
+            effect="solid"
+          />
+        )}
       </div>
 
       <div className="col-span-1 py-1 relative left-6 " title={pool.h24volume}>
@@ -156,12 +191,14 @@ const MobileRow = ({
   watched,
   morePoolIds,
   farmCount,
+  farmApr,
 }: {
   pool: PoolRPCView;
   tokens: TokenMetadata[];
   watched: Boolean;
   morePoolIds: string[];
   farmCount: number;
+  farmApr: number;
 }) => {
   const supportFarm = !!farmCount;
 
@@ -237,10 +274,20 @@ const MobileRow = ({
             <div className="text-gray-400">
               <FormattedMessage id="apr" defaultMessage="APR" />
             </div>
-            <div>
+            <div className="flex flex-col items-end">
               {!pool.h24volume
                 ? '-'
                 : `${toPrecision(pool?.apr?.toString() || '0', 2)}%`}
+              {supportFarm &&
+                farmApr !== undefined &&
+                farmApr !== null &&
+                pool.h24volume && (
+                  <div>
+                    <div className="text-xs text-gradientFrom">
+                      {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+                    </div>
+                  </div>
+                )}
             </div>
           </div>
 
@@ -299,6 +346,7 @@ export const MorePoolsPage = () => {
 
   const tokens = state?.tokens || useTokens(tokenIdsArray);
   const morePools = useMorePools({ tokenIds: tokenIdsArray, order, sortBy });
+  console.log('morePools: ', morePools);
 
   const morePoolIds = morePools?.map((p) => p.id.toString());
 
@@ -309,7 +357,10 @@ export const MorePoolsPage = () => {
   });
   const clientMobileDevice = useClientMobile();
 
-  if (!tokens || !morePools) return <Loading />;
+  const { farmAprById, loadingSeedsDone } = useSeedFarmsByPools(morePools);
+  console.log('farmAprById: ', farmAprById);
+
+  if (!tokens || !morePools || !loadingSeedsDone) return <Loading />;
 
   return (
     <>
@@ -536,6 +587,7 @@ export const MorePoolsPage = () => {
                     watched={!!find(watchList, { pool_id: pool.id.toString() })}
                     morePoolIds={morePoolIds}
                     farmCount={poolsFarmCount[pool.id]}
+                    farmApr={farmAprById[pool.id]}
                   />
                 </div>
               ))}
@@ -594,6 +646,7 @@ export const MorePoolsPage = () => {
                 }
                 morePoolIds={morePoolIds}
                 farmCount={poolsFarmCount[pool.id]}
+                farmApr={farmAprById[pool.id]}
               />
             );
           })}
