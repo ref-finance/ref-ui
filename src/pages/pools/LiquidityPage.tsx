@@ -339,7 +339,7 @@ function MobilePoolRow({
     <button
       className={
         morePoolIds?.length && morePoolIds?.length > 1 && !watchPool
-          ? ' text-farmText bg-black flex items-center bg-opacity-20 rounded-lg text-xs max-w-min px-2 justify-between ml-2 py-0.5'
+          ? ' text-farmText bg-black flex items-center bg-opacity-20 rounded-lg text-xs max-w-min  whitespace-nowrap px-2 justify-between ml-2 py-0.5'
           : ''
       }
       onClick={(e) => {
@@ -445,7 +445,7 @@ function MobilePoolRow({
 
               <div className="flex items-center relative top-0.5">
                 {mark ? (
-                  <span className="max-w-min text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                  <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
                     {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
                       <FormattedMessage id="stablecoin"></FormattedMessage>
                     ) : (
@@ -585,7 +585,7 @@ function MobilePoolRowV2({
                   `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
               </div>
               {mark ? (
-                <span className="max-w-min text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
                   V2
                 </span>
               ) : null}
