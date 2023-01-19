@@ -24,7 +24,11 @@ import {
   toReadableNumber,
   toInternationalCurrencySystem,
 } from '../../utils/numbers';
-import { useAllWatchList, useMorePools } from '../../state/pool';
+import {
+  useAllWatchList,
+  useMorePools,
+  useSeedFarmsByPools,
+} from '../../state/pool';
 import { PoolRPCView } from '../../services/api';
 import { FarmStamp } from '../../components/icon/FarmStamp';
 import { divide, find } from 'lodash';
@@ -35,6 +39,8 @@ import { useClientMobile } from '../../utils/device';
 import { PoolTabV3 } from '../../components/pool/PoolTabV3';
 import Loading from '../../components/layout/Loading';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
+import { getPoolListFarmAprTip } from './LiquidityPage';
+import ReactTooltip from 'react-tooltip';
 
 interface ParamTypes {
   tokenIds: string;
@@ -51,6 +57,7 @@ function PoolRow({
   watched,
   morePoolIds,
   farmCount,
+  farmApr,
 }: {
   pool: PoolRPCView;
   index: number;
@@ -58,6 +65,7 @@ function PoolRow({
   watched: Boolean;
   morePoolIds: string[];
   farmCount: number;
+  farmApr: number;
 }) {
   const supportFarm = !!farmCount;
 
@@ -73,6 +81,9 @@ function PoolRow({
       onClick={() => {
         localStorage.setItem('fromMorePools', 'y');
         localStorage.setItem('morePoolIds', JSON.stringify(morePoolIds));
+      }}
+      style={{
+        height: '70px',
       }}
       to={{
         pathname: `/pool/${pool.id}`,
@@ -122,10 +133,39 @@ function PoolRow({
       </div>
 
       <div
-        className="col-span-1 py-1  "
-        title={pool?.apr?.toString() || '0' + '%'}
+        className="col-span-1 py-1   "
+        data-type="info"
+        data-place="left"
+        data-multiline={true}
+        data-class={'reactTip'}
+        data-html={true}
+        data-tip={getPoolListFarmAprTip()}
+        data-for={'pool_list_pc_apr' + pool.id}
       >
-        {toPrecision(pool?.apr?.toString() || '0', 2)}%
+        <span className="ml-2">
+          {toPrecision(pool?.baseApr?.toString() || '0', 2)}%
+        </span>
+        {supportFarm &&
+          farmApr !== undefined &&
+          farmApr !== null &&
+          farmApr > 0 && (
+            <div className="text-xs text-gradientFrom">
+              {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+            </div>
+          )}
+
+        {supportFarm && farmApr > 0 && (
+          <ReactTooltip
+            className="w-20"
+            id={'pool_list_pc_apr' + pool.id}
+            backgroundColor="#1D2932"
+            place="right"
+            border
+            borderColor="#7e8a93"
+            textColor="#C6D1DA"
+            effect="solid"
+          />
+        )}
       </div>
 
       <div className="col-span-1 py-1 relative left-6 " title={pool.h24volume}>
@@ -156,12 +196,14 @@ const MobileRow = ({
   watched,
   morePoolIds,
   farmCount,
+  farmApr,
 }: {
   pool: PoolRPCView;
   tokens: TokenMetadata[];
   watched: Boolean;
   morePoolIds: string[];
   farmCount: number;
+  farmApr: number;
 }) => {
   const supportFarm = !!farmCount;
 
@@ -234,13 +276,31 @@ const MobileRow = ({
           </div>
 
           <div className="flex items-center justify-between my-3">
-            <div className="text-gray-400">
+            <div className="text-gray-400 ">
               <FormattedMessage id="apr" defaultMessage="APR" />
+              {supportFarm &&
+                farmApr !== undefined &&
+                farmApr !== null &&
+                farmApr > 0 &&
+                pool.h24volume && (
+                  <div className="text-xs">(Pool Fee + Farm Rewards)</div>
+                )}
             </div>
-            <div>
+            <div className="flex flex-col items-end">
               {!pool.h24volume
                 ? '-'
-                : `${toPrecision(pool?.apr?.toString() || '0', 2)}%`}
+                : `${toPrecision(pool?.baseApr?.toString() || '0', 2)}%`}
+              {supportFarm &&
+                farmApr !== undefined &&
+                farmApr !== null &&
+                farmApr > 0 &&
+                pool.h24volume && (
+                  <div>
+                    <div className="text-xs text-gradientFrom">
+                      {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+                    </div>
+                  </div>
+                )}
             </div>
           </div>
 
@@ -282,7 +342,7 @@ export function getPoolFeeAprTitleRPCView(
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (tvl > 0 && revenu24h > 0) {
       const annualisedFeesPrct = ((revenu24h * 365) / tvl / 2) * 100;
-      result = annualisedFeesPrct.toString();
+      result = scientificNotationToString(annualisedFeesPrct.toString());
     }
   }
   return Number(result);
@@ -538,6 +598,7 @@ export const MorePoolsPage = () => {
                     watched={!!find(watchList, { pool_id: pool.id.toString() })}
                     morePoolIds={morePoolIds}
                     farmCount={poolsFarmCount[pool.id]}
+                    farmApr={pool.farmApr}
                   />
                 </div>
               ))}
@@ -596,6 +657,7 @@ export const MorePoolsPage = () => {
                 }
                 morePoolIds={morePoolIds}
                 farmCount={poolsFarmCount[pool.id]}
+                farmApr={pool.farmApr}
               />
             );
           })}
