@@ -7,6 +7,9 @@ import React, {
   useContext,
 } from 'react';
 import { FaRegQuestionCircle, FaSearch } from 'react-icons/fa';
+
+import db from '../../store/RefDatabase';
+
 import ReactTooltip from 'react-tooltip';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { ShareInFarm } from '../../components/layout/ShareInFarm';
@@ -28,6 +31,7 @@ import {
   useV3VolumesPools,
 } from '../../state/pool';
 import Loading from '../../components/layout/Loading';
+
 import {
   useTokens,
   usePoolTokens,
@@ -58,17 +62,18 @@ import {
   GradientButton,
 } from '../../components/button/Button';
 import { NEAR_CLASS_STABLE_POOL_IDS, wallet } from '../../services/near';
-import {
-  WatchListStartEmpty,
-  WatchListStartFull,
-} from '../../components/icon/WatchListStar';
+import { WatchListStartFull } from '../../components/icon/WatchListStar';
 import { PolygonGrayDown } from '../../components/icon/Polygon';
 import _, { orderBy, sortBy, filter } from 'lodash';
 import QuestionMark from '../../components/farm/QuestionMark';
 import { useInView } from 'react-intersection-observer';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { FilterIcon } from '../../components/icon/PoolFilter';
-import { TokenMetadata, REF_META_DATA } from '../../services/ft-contract';
+import {
+  TokenMetadata,
+  REF_META_DATA,
+  ftGetTokenMetadata,
+} from '../../services/ft-contract';
 import {
   scientificNotationToString,
   percent,
@@ -89,7 +94,10 @@ import {
 import { unwrapedNear, wnearMetadata } from '../../services/wrap-near';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { getVEPoolId } from '../ReferendumPage';
-import { StartPoolIcon } from '../../components/icon/WatchListStar';
+import {
+  StartPoolIcon,
+  WatchListStartEmpty,
+} from '../../components/icon/WatchListStar';
 import {
   PoolDaoBanner,
   PoolDaoBannerMobile,
@@ -129,6 +137,11 @@ import { AiOutlineStar } from 'react-icons/ai';
 
 import { AiFillStar } from 'react-icons/ai';
 import { PAUSE_DCL } from '../../services/commonV3';
+import { useTokenPriceList } from '../../state/token';
+import { useSeedFarmsByPools } from '../../state/pool';
+
+import { RiArrowRightSLine } from 'react-icons/ri';
+
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
@@ -147,7 +160,10 @@ export function getPoolFeeApr(
     const revenu24h = (fee / 10000) * 0.8 * Number(dayVolume);
     if (newTvl > 0 && revenu24h > 0) {
       const annualisedFeesPrct = ((revenu24h * 365) / newTvl / 2) * 100;
-      result = toPrecision(annualisedFeesPrct.toString(), 2);
+      result = toPrecision(
+        scientificNotationToString(annualisedFeesPrct.toString()),
+        2
+      );
     }
   }
   return Number(result);
@@ -264,6 +280,8 @@ function MobilePoolRow({
   h24volume,
   watchPool,
   mark,
+  farmApr,
+  farmCount,
 }: {
   pool: Pool;
   sortBy: string;
@@ -275,6 +293,8 @@ function MobilePoolRow({
   h24volume: string;
   watchPool?: boolean;
   mark?: boolean;
+  farmApr?: number;
+  farmCount?: number;
 }) {
   const { ref } = useInView();
 
@@ -311,19 +331,45 @@ function MobilePoolRow({
     else if (sortBy === 'apr') return `${getPoolFeeApr(h24volume, pool)}%`;
   };
 
-  const MobileMoreFarmStamp = ({ count }: { count: number }) => {
-    return (
-      <div className="px-1 rounded border border-greenLight text-greenLight">
-        {count}
-      </div>
-    );
-  };
+  const morePoolButton = !(
+    morePoolIds?.length &&
+    morePoolIds?.length > 1 &&
+    !watchPool
+  ) ? null : (
+    <button
+      className={
+        morePoolIds?.length && morePoolIds?.length > 1 && !watchPool
+          ? ' text-farmText bg-black flex items-center bg-opacity-20 rounded-lg text-xs max-w-min px-2 justify-between ml-2 py-0.5'
+          : ''
+      }
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        history.push(`/more_pools/${pool.tokenIds}`, {
+          morePoolIds: morePoolIds,
+          tokens,
+        });
+      }}
+    >
+      <span>
+        {morePoolIds.length}
+        &nbsp;
+        <FormattedMessage
+          id="pools"
+          defaultMessage={'Pools'}
+        ></FormattedMessage>
+      </span>
+      <span>
+        <RiArrowRightSLine className="w-4 h-4 ml-1" />
+      </span>
+    </button>
+  );
 
   return (
     <div className="w-full hover:bg-poolRowHover overflow-x-hidden">
       <Link
         ref={ref}
-        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-2.5 py-6 text-white"
+        className="flex flex-col border-b border-gray-700 border-opacity-70 bg-cardBg w-full px-2.5 py-5 text-white"
         onClick={() => localStorage.setItem('fromMorePools', 'n')}
         to={{
           pathname: `/pool/${pool.id}`,
@@ -331,9 +377,19 @@ function MobilePoolRow({
         }}
       >
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center justify-start">
-            <div className="flex items-center">
-              <div className="h-6 w-6 border border-gradientFromHover rounded-full">
+          <div className="flex items-center">
+            <div
+              className={`flex items-center ${
+                !!morePoolButton ? 'relative bottom-1' : ''
+              }`}
+            >
+              <div
+                className="h-6 w-6  border-2 border-watchMarkBackgroundColor rounded-full"
+                style={{
+                  height: '26px',
+                  width: '26px',
+                }}
+              >
                 <img
                   key={tokens[0].id.substring(0, 12).substring(0, 12)}
                   className="rounded-full w-full"
@@ -341,7 +397,13 @@ function MobilePoolRow({
                 />
               </div>
 
-              <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
+              <div
+                className="h-6 w-6   border-watchMarkBackgroundColor border-2 rounded-full -ml-1.5"
+                style={{
+                  height: '26px',
+                  width: '26px',
+                }}
+              >
                 <img
                   key={tokens[1].id}
                   className="w-full rounded-full"
@@ -349,7 +411,13 @@ function MobilePoolRow({
                 />
               </div>
               {tokens[2] ? (
-                <div className="h-6 w-6 border border-gradientFromHover rounded-full -ml-1.5">
+                <div
+                  className="h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full -ml-1.5 "
+                  style={{
+                    height: '26px',
+                    width: '26px',
+                  }}
+                >
                   <img
                     key={tokens[2].id}
                     className="w-full rounded-full"
@@ -358,45 +426,61 @@ function MobilePoolRow({
                 </div>
               ) : null}
             </div>
-            <div className="flex items-center flex-wrap">
-              <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
-                {tokens[0].symbol +
-                  '-' +
-                  tokens[1].symbol +
-                  `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-start">
+                <div className="flex items-center flex-wrap">
+                  <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
+                    {tokens[0].symbol +
+                      '-' +
+                      tokens[1].symbol +
+                      `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
+                  </div>
+                </div>
+                {watched && !watchPool && (
+                  <div className="ml-2">
+                    <WatchListStartFull />
+                  </div>
+                )}
               </div>
-              {mark ? (
-                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
-                  {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
-                    <FormattedMessage id="stablecoin"></FormattedMessage>
-                  ) : (
-                    'V1'
-                  )}
-                </span>
-              ) : null}
-            </div>
-            {watched && !watchPool && (
-              <div className="ml-2">
-                <WatchListStartFull />
-              </div>
-            )}
 
-            {morePoolIds?.length && morePoolIds?.length > 1 && !watchPool ? (
-              <div
-                onClick={(e) => {
-                  e.preventDefault();
-                  history.push(`/more_pools/${pool.tokenIds}`, {
-                    morePoolIds: morePoolIds,
-                    tokens,
-                  });
-                }}
-                className="mx-2"
-              >
-                <MobileMoreFarmStamp count={morePoolIds?.length} />
+              <div className="flex items-center relative top-0.5">
+                {mark ? (
+                  <span className="max-w-min text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                    {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
+                      <FormattedMessage id="stablecoin"></FormattedMessage>
+                    ) : (
+                      'V1'
+                    )}
+                  </span>
+                ) : null}
+                {morePoolButton}
+                <div
+                  className="mr-2 relative bottom-0 px"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open(`/v2farms/${pool.id}-r`, '_blank');
+                  }}
+                >
+                  {supportFarm && <FarmStampNew multi={farmCount > 1} />}
+                </div>
               </div>
-            ) : null}
+            </div>
           </div>
-          <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
+
+          <div className="flex flex-col items-end">
+            {showSortedValue({ sortBy, value: pool[sortBy] })}
+            {sortBy === 'apr' &&
+              farmApr !== null &&
+              farmApr !== undefined &&
+              farmApr > 0 && (
+                <div>
+                  <span className="text-xs text-gradientFrom">
+                    {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+                  </span>
+                </div>
+              )}
+          </div>
         </div>
       </Link>
     </div>
@@ -493,7 +577,7 @@ function MobilePoolRowV2({
                 </div>
               ) : null}
             </div>
-            <div className="flex items-center flex-wrap">
+            <div className="flex flex-col flex-wrap">
               <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
                 {tokens[0].symbol +
                   '-' +
@@ -501,7 +585,7 @@ function MobilePoolRowV2({
                   `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
               </div>
               {mark ? (
-                <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                <span className="max-w-min text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
                   V2
                 </span>
               ) : null}
@@ -526,6 +610,7 @@ function MobileWatchListCard({
   watchV2Pools,
   poolsMorePoolsIds,
   watchList,
+  farmAprById,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
@@ -534,6 +619,7 @@ function MobileWatchListCard({
   watchV2Pools: PoolInfo[];
   poolsMorePoolsIds: Record<string, string[]>;
   watchList: WatchList[];
+  farmAprById: Record<string, number>;
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
@@ -613,6 +699,11 @@ function MobileWatchListCard({
             </div>
           </div>
         </header>
+        {sortBy === 'apr' && (
+          <div className="text-right text-farmText text-xs mr-3 mb-0.5">
+            *Pool Fee APY + Farm Rewards APR
+          </div>
+        )}
         <div className="border-b border-gray-700 border-opacity-70" />
         <div className="max-h-96 overflow-y-auto">
           {watchAllPools.map((pool: any, i: number) => {
@@ -629,6 +720,8 @@ function MobileWatchListCard({
                     h24volume={volumes[pool.id]}
                     watchPool
                     mark={true}
+                    farmApr={farmAprById[pool.id]}
+                    farmCount={farmCounts[pool.id]}
                   />
                 </div>
               );
@@ -699,6 +792,7 @@ function MobileLiquidityPage({
   switchActiveTab,
   watchV2Pools,
   watchList,
+  farmAprById,
 }: {
   pools: Pool[];
   poolTokenMetas: any;
@@ -723,6 +817,7 @@ function MobileLiquidityPage({
   activeTab: string;
   watchV2Pools: PoolInfo[];
   watchList: WatchList[];
+  farmAprById: Record<string, number>;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -807,7 +902,10 @@ function MobileLiquidityPage({
     if (order === 'asc') {
       if (sortBy === 'apr') {
         return (
-          getPoolFeeApr(volumes[p1.id], p1) - getPoolFeeApr(volumes[p2.id], p2)
+          getPoolFeeApr(volumes[p1.id], p1) +
+          (farmAprById?.[p1.id] || 0) * 100 -
+          (getPoolFeeApr(volumes[p2.id], p2) +
+            (farmAprById?.[p2.id] || 0) * 100)
         );
       } else if (sortBy === 'volume_24h') {
         return parseFloat(volumes[p1.id]) - parseFloat(volumes[p2.id]);
@@ -815,7 +913,10 @@ function MobileLiquidityPage({
     } else if (order === 'desc') {
       if (sortBy === 'apr') {
         return (
-          getPoolFeeApr(volumes[p2.id], p2) - getPoolFeeApr(volumes[p1.id], p1)
+          getPoolFeeApr(volumes[p2.id], p2) +
+          (farmAprById?.[p2.id] || 0) * 100 -
+          (getPoolFeeApr(volumes[p1.id], p1) +
+            (farmAprById?.[p1.id] || 0) * 100)
         );
       } else if (sortBy === 'volume_24h') {
         return parseFloat(volumes[p2.id]) - parseFloat(volumes[p1.id]);
@@ -836,6 +937,7 @@ function MobileLiquidityPage({
           volumes={volumes}
           poolsMorePoolsIds={poolsMorePoolsIds}
           watchList={watchList}
+          farmAprById={farmAprById}
         />
 
         {/* start pool card */}
@@ -1118,6 +1220,11 @@ function MobileLiquidityPage({
                   </div>
                 </div>
               </header>
+              {sortBy === 'apr' && (
+                <div className="text-right text-farmText text-xs mr-3 mb-0.5">
+                  *Pool Fee APY + Farm Rewards APR
+                </div>
+              )}
               <div className="border-b border-gray-700 border-opacity-70" />
               <div className="max-h-96 overflow-y-auto overflow-x-visible pool-list-container-mobile">
                 {pools
@@ -1134,6 +1241,8 @@ function MobileLiquidityPage({
                       morePoolIds={poolsMorePoolsIds[pool.id]}
                       supportFarm={!!farmCounts[pool.id]}
                       h24volume={volumes[pool.id]}
+                      farmApr={farmAprById[pool.id]}
+                      farmCount={farmCounts[pool.id]}
                     />
                   ))}
               </div>
@@ -1254,6 +1363,26 @@ function MobileLiquidityPage({
   );
 }
 
+export const getPoolListFarmAprTip = () => {
+  return `
+    <div 
+      class="flex flex-col text-xs min-w-36 text-farmText z-50"
+    >
+      <div>
+      Pool Fee APY
+      </div>
+
+      <div>
+      
+      + Farm Rewards APR
+      </div>
+    
+   
+
+    </div>
+`;
+};
+
 function PoolRow({
   pool,
   index,
@@ -1265,6 +1394,7 @@ function PoolRow({
   h24volume,
   watched,
   mark,
+  farmApr,
 }: {
   pool: Pool;
   index: number;
@@ -1276,6 +1406,7 @@ function PoolRow({
   h24volume: string;
   watched?: boolean;
   mark?: boolean;
+  farmApr?: number;
 }) {
   const curRowTokens = useTokens(pool.tokenIds, tokens);
   const history = useHistory();
@@ -1288,6 +1419,7 @@ function PoolRow({
     if (b.symbol === 'NEAR') return -1;
     return 0;
   });
+
   return (
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
       <Link
@@ -1298,6 +1430,9 @@ function PoolRow({
         to={{
           pathname: `/pool/${pool.id}`,
           state: { tvl: pool.tvl, backToFarms: supportFarm },
+        }}
+        style={{
+          height: '70px',
         }}
       >
         <div className="col-span-3 md:col-span-4 flex items-center">
@@ -1324,23 +1459,51 @@ function PoolRow({
                   <WatchListStartFull />
                 </div>
               )}
+              {supportFarm && <FarmStampNew multi={farmCount > 1} />}
             </div>
           </div>
-          {supportFarm && <FarmStampNew multi={farmCount > 1} />}
         </div>
-        <div className="col-span-1 justify-self-center py-1 md:hidden ">
+        <div className="col-span-1 flex items-center justify-center justify-self-center py-1 md:hidden ">
           {calculateFeePercent(pool.fee)}%
         </div>
 
         <div
-          className="col-span-1 justify-self-center py-1"
-          title={`${getPoolFeeAprTitle(h24volume, pool)}%`}
+          className="col-span-1 flex flex-col items-center justify-self-center py-1"
+          data-type="info"
+          data-place="right"
+          data-multiline={true}
+          data-class={'reactTip'}
+          data-html={true}
+          data-tip={getPoolListFarmAprTip()}
+          data-for={'pool_list_pc_apr' + pool.id}
         >
           {!h24volume ? '-' : `${getPoolFeeApr(h24volume, pool)}%`}
+          {supportFarm &&
+            !Number.isNaN(farmApr) &&
+            farmApr !== null &&
+            farmApr !== undefined &&
+            farmApr > 0 &&
+            h24volume && (
+              <span className="text-xs text-gradientFrom">
+                {`+${toPrecision((farmApr * 100).toString(), 2)}%`}
+              </span>
+            )}
+          {supportFarm && farmApr > 0 && (
+            <ReactTooltip
+              className="w-20"
+              id={'pool_list_pc_apr' + pool.id}
+              backgroundColor="#1D2932"
+              place="right"
+              border
+              borderColor="#7e8a93"
+              textColor="#C6D1DA"
+              effect="solid"
+            />
+          )}
         </div>
 
         <div
-          className="col-span-1 py-1 justify-self-center relative "
+          className="col-span-1 flex items-center justify-center py-1 justify-self-center relative "
           title={h24volume}
         >
           {!h24volume
@@ -1353,7 +1516,7 @@ function PoolRow({
         </div>
 
         <div
-          className="col-span-1 py-1 justify-self-center relative left-4"
+          className="col-span-1 flex items-center justify-center py-1 justify-self-center relative left-4"
           title={toPrecision(
             scientificNotationToString(pool.tvl.toString()),
             0
@@ -1363,7 +1526,7 @@ function PoolRow({
         </div>
 
         <div
-          className={`col-span-1 justify-self-center py-1 hover:text-green-500 hover:cursor-pointer ${
+          className={`col-span-1 justify-self-center flex items-center justify-center py-1 hover:text-green-500 hover:cursor-pointer ${
             mark ? 'hidden' : ''
           }`}
           onMouseEnter={() => setShowLinkArrow(true)}
@@ -1512,6 +1675,7 @@ function WatchListCard({
   poolsMorePoolsIds,
   watchList,
   tokenName,
+  farmAprById,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
@@ -1521,6 +1685,7 @@ function WatchListCard({
   poolsMorePoolsIds: Record<string, string[]>;
   watchList: WatchList[];
   tokenName: string;
+  farmAprById: Record<string, number>;
 }) {
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
   function getAllWatchPools() {
@@ -1613,6 +1778,7 @@ function WatchListCard({
                     >
                       <PoolRow
                         pool={pool}
+                        farmApr={farmAprById ? farmAprById[pool.id] : null}
                         index={i + 1}
                         tokens={poolTokenMetas[pool.id]}
                         morePoolIds={poolsMorePoolsIds[pool.id]}
@@ -1698,6 +1864,7 @@ function LiquidityPage_({
   watchV2Pools,
   watchList,
   h24VolumeV2,
+  farmAprById,
 }: {
   pools: Pool[];
   switchActiveTab: (tab: string) => void;
@@ -1711,6 +1878,7 @@ function LiquidityPage_({
   onHide: (mode: Boolean) => void;
   allPools: number;
   h24VolumeV2: string;
+  farmAprById: Record<string, number>;
   farmOnly: boolean;
   setFarmOnly: (farmOnly: boolean) => void;
   hasMore: boolean;
@@ -1783,15 +1951,16 @@ function LiquidityPage_({
   }, []);
 
   const tokensStar = [REF_META_DATA, unwrapedNear];
-
   const poolReSortingFunc = (p1: Pool, p2: Pool) => {
     const v1 = volumes[p1.id] ? parseFloat(volumes[p1.id]) : 0;
 
     const v2 = volumes[p2.id] ? parseFloat(volumes[p2.id]) : 0;
 
-    const apr1 = getPoolFeeAprTitle(v1.toString(), p1);
+    const apr1 =
+      getPoolFeeAprTitle(v1.toString(), p1) + (farmAprById?.[p1.id] || 0) * 100;
 
-    const apr2 = getPoolFeeAprTitle(v2.toString(), p2);
+    const apr2 =
+      getPoolFeeAprTitle(v2.toString(), p2) + (farmAprById?.[p2.id] || 0) * 100;
 
     if (order === 'desc') {
       if (reSortBy === 'volume') {
@@ -2124,6 +2293,7 @@ function LiquidityPage_({
             watchList={watchList}
             poolsMorePoolsIds={poolsMorePoolsIds}
             tokenName={tokenName}
+            farmAprById={farmAprById}
           />
         )}
         {activeTab === 'v1' && (
@@ -2372,6 +2542,7 @@ function LiquidityPage_({
                     <PoolRow
                       tokens={poolTokenMetas[pool.id]}
                       key={i}
+                      farmApr={farmAprById ? farmAprById[pool.id] : null}
                       pool={pool}
                       index={i + 1}
                       selectCoinClass={selectCoinClass}
@@ -2673,6 +2844,8 @@ export function LiquidityPage() {
   const v3PoolVolumes = useV3VolumesPools();
   const [h24VolumeV2, setH24VolumeV2] = useState<string>();
 
+  const { farmAprById } = useSeedFarmsByPools([...pools, ...watchPools]);
+
   useEffect(() => {
     if (Object.keys(v3PoolVolumes).length > 0) {
       const h24Volume = Object.values(v3PoolVolumes).reduce(
@@ -2686,13 +2859,20 @@ export function LiquidityPage() {
 
   const allVolumes = { ...watchPoolVolumes, ...volumes, ...v3PoolVolumes };
 
-  if (!displayPools || loading || !watchPools || !poolTokenMetas)
+  if (
+    !displayPools ||
+    loading ||
+    !watchPools ||
+    !poolTokenMetas ||
+    !farmAprById
+  )
     return <Loading />;
 
   return (
     <>
       {!clientMobileDevice && (
         <LiquidityPage_
+          farmAprById={farmAprById}
           poolTokenMetas={poolTokenMetas}
           activeTab={activeTab}
           h24VolumeV2={h24VolumeV2}
@@ -2757,6 +2937,7 @@ export function LiquidityPage() {
           onSearch={onSearch}
           hasMore={hasMore}
           nextPage={nextPage}
+          farmAprById={farmAprById}
         />
       )}
     </>

@@ -17,6 +17,9 @@ export const SelectModal = ({
     <Card
       className={`rounded border border-farmText flex text-xs  text-opacity-40 flex-col items-start absolute min-w-32 ${className}`}
       padding="py-1 px-0"
+      style={{
+        zIndex: 30,
+      }}
     >
       <div
         className="fixed top-0 left-0 w-screen h-screen opacity-0 z-0"

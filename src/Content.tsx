@@ -82,6 +82,7 @@ import { AccountView } from 'near-api-js/lib/providers/provider';
 import { InjectedWallet } from '@near-wallet-selector/core';
 import { REF_FARM_BOOST_CONTRACT_ID, wallet } from './services/near';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
+import { list_seeds_info } from './services/farm';
 
 export type Account = AccountView & {
   account_id: string;
