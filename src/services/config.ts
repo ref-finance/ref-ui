@@ -236,7 +236,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         VotingGauge: ['10%', '10%'],
         kitWalletOn: true,
         REF_UNI_V3_SWAP_CONTRACT_ID:
-          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv1.ref-dev.testnet',
+          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv2.ref-dev.testnet',
+        REF_UNI_SWAP_CONTRACT_ID:
+          process.env.REF_UNI_SWAP_CONTRACT_ID || 'dclv1.ref-dev.testnet',
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['571'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [
           '1760#0',
