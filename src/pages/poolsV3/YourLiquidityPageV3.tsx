@@ -275,7 +275,7 @@ export default function YourLiquidityPageV3() {
               borderRadius={'8px'}
             >
               <div className="flex items-center">
-                <AddButtonIcon className="mr-1.5"></AddButtonIcon>
+                <AddButtonIcon className="mr-1.5 text-white"></AddButtonIcon>
                 <FormattedMessage
                   id="add_liquidity"
                   defaultMessage="Add Liquidity"

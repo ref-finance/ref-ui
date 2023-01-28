@@ -241,6 +241,9 @@ module.exports = {
         chartTabBgColor:'#172534',
         toolTipBoxBorderColor:'#293844',
         toolTipBoxBgColor:'rgba(29, 41, 50, 0.8)',
+        dclFarmGreenColor:'#4DCB70',
+        dclFarmBlueColor:'#4D9FFF',
+        dclFarmYellowColor:'#FFC56D',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
@@ -253,6 +256,7 @@ module.exports = {
         '60vw': '60vw',
         '95vw': '95vw',
         '580px': '580px',
+        '760px': '760px',
         '560px': '560px',
         '1024px': '1024px',
         '360px': '360px',

@@ -657,7 +657,7 @@ const ModalAddCustomNetWork = (props: any) => {
                   <div className={'flex items-center'}>
                     <AddButtonIcon
                       style={{ zoom: 1.35 }}
-                      className="mr-1"
+                      className="mr-1 text-white"
                     ></AddButtonIcon>
                     <FormattedMessage id="add" />
                   </div>

@@ -1124,6 +1124,16 @@ export const get_metadata = () => {
   });
 };
 
+export const dcl_mft_balance_of = (token_id:string) => {
+  return refSwapV3ViewFunction({
+    methodName: 'mft_balance_of',
+    args: {
+      token_id,
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
+    },
+  });
+}
+
 export interface PoolInfo {
   pool_id?: string;
   token_x?: string;

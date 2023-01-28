@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
 import FarmsHome from '~components/farm/FarmsHome';
 import FarmsDetail from '~components/farm/FarmsDetail';
+import FarmsDclDetail from '~components/farm/FarmsDclDetail';
 import Loading, { BeatLoading } from '~components/layout/Loading';
 import { Seed, BoostConfig, UserSeedInfo } from '~services/farm';
 export default function FarmsBoosterPage(props: any) {
@@ -11,7 +12,8 @@ export default function FarmsBoosterPage(props: any) {
   const [user_data, set_user_data] = useState({});
   const [user_data_loading, set_user_data_loading] = useState(true);
   const [dayVolumeMap, setDayVolumeMap] = useState({});
-  const paramId = props.match.params.id;
+  const paramId = decodeURIComponent(props.match.params.id || '');
+  const paramIdArr = paramId.split('|');
   const getDetailData_user_data = (data: {
     user_seeds_map: Record<string, UserSeedInfo>;
     user_unclaimed_token_meta_map: Record<string, any>;
@@ -48,12 +50,14 @@ export default function FarmsBoosterPage(props: any) {
   const emptyDetailData = () => {
     setDetailData(null);
   };
-  const showDetailPage =
+  const baseCondition =
     paramId &&
     detailData &&
     tokenPriceList &&
     Object.keys(tokenPriceList).length > 0;
-  const showLoading = paramId && !showDetailPage;
+  const showDetailPage = baseCondition && paramIdArr.length == 1;
+  const showDclDetailPage = baseCondition && paramIdArr.length == 3;
+  const showLoading = paramId && !showDetailPage && !showDclDetailPage;
   return (
     <>
       <FarmsHome
@@ -74,6 +78,18 @@ export default function FarmsBoosterPage(props: any) {
           user_data_loading={user_data_loading}
           dayVolumeMap={dayVolumeMap}
         ></FarmsDetail>
+      ) : null}
+      {showDclDetailPage ? (
+        <FarmsDclDetail
+          detailData={detailData}
+          tokenPriceList={tokenPriceList}
+          emptyDetailData={emptyDetailData}
+          loveSeed={loveSeed}
+          boostConfig={boostConfig}
+          user_data={user_data}
+          user_data_loading={user_data_loading}
+          dayVolumeMap={dayVolumeMap}
+        ></FarmsDclDetail>
       ) : null}
     </>
   );
