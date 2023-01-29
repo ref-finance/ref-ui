@@ -796,33 +796,44 @@ export const add_liquidity = async ({
 };
 export const append_liquidity = async ({
   lpt_id,
+  mft_id,
   amount_x,
   amount_y,
   token_x,
   token_y,
 }: {
   lpt_id: string;
+  mft_id: string;
   amount_x: string;
   amount_y: string;
   token_x: TokenMetadata;
   token_y: TokenMetadata;
 }) => {
+  const functionCallsV3: any = [];
+  if (mft_id) {
+    functionCallsV3.push({
+      methodName: 'burn_v_liquidity',
+      args: {
+        lpt_id,
+      },
+      gas: '100000000000000',
+    });
+  }
+  functionCallsV3.push({
+    methodName: 'append_liquidity',
+    args: {
+      lpt_id,
+      amount_x,
+      amount_y,
+      min_amount_x: '0',
+      min_amount_y: '0',
+    },
+    gas: '150000000000000',
+  });
   const transactions: Transaction[] = [
     {
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'append_liquidity',
-          args: {
-            lpt_id,
-            amount_x,
-            amount_y,
-            min_amount_x: '0',
-            min_amount_y: '0',
-          },
-          gas: '150000000000000',
-        },
-      ],
+      functionCalls: functionCallsV3,
     },
   ];
   if (+amount_x > 0) {
@@ -924,6 +935,7 @@ export const remove_liquidity = async ({
   token_x,
   token_y,
   lpt_id,
+  mft_id,
   amount,
   min_amount_x,
   min_amount_y,
@@ -931,25 +943,35 @@ export const remove_liquidity = async ({
   token_x: TokenMetadata;
   token_y: TokenMetadata;
   lpt_id: string;
+  mft_id: string;
   amount: string;
   min_amount_x: string;
   min_amount_y: string;
 }) => {
+  const functionCallsV3: any = [];
+  if (mft_id) {
+    functionCallsV3.push({
+      methodName: 'burn_v_liquidity',
+      args: {
+        lpt_id,
+      },
+      gas: '100000000000000',
+    });
+  }
+  functionCallsV3.push({
+    methodName: 'remove_liquidity',
+    args: {
+      lpt_id,
+      amount,
+      min_amount_x,
+      min_amount_y,
+    },
+    gas: '150000000000000',
+  });
   const transactions: Transaction[] = [
     {
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'remove_liquidity',
-          args: {
-            lpt_id,
-            amount,
-            min_amount_x,
-            min_amount_y,
-          },
-          gas: '150000000000000',
-        },
-      ],
+      functionCalls: functionCallsV3,
     },
   ];
 
@@ -1124,7 +1146,7 @@ export const get_metadata = () => {
   });
 };
 
-export const dcl_mft_balance_of = (token_id:string) => {
+export const dcl_mft_balance_of = (token_id: string) => {
   return refSwapV3ViewFunction({
     methodName: 'mft_balance_of',
     args: {
@@ -1132,7 +1154,7 @@ export const dcl_mft_balance_of = (token_id:string) => {
       account_id: getCurrentWallet()?.wallet?.getAccountId(),
     },
   });
-}
+};
 
 export interface PoolInfo {
   pool_id?: string;

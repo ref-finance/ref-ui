@@ -32,7 +32,7 @@ import {
   TOKEN_LIST_FOR_RATE,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
-import { getBoostTokenPrices } from '../../services/farm';
+import { FarmBoost, getBoostTokenPrices, Seed } from '../../services/farm';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import { PoolTabV3 } from '~components/pool/PoolTabV3';
@@ -68,6 +68,16 @@ import {
   REF_FI_YOUR_LP_VALUE,
   REF_FI_YOUR_LP_VALUE_V1_COUNT,
 } from '../pools/YourLiquidityPage';
+import {
+  list_farmer_seeds,
+  list_seed_farms,
+  UserSeedInfo,
+} from '../../services/farm';
+import getConfig from '../../services/config';
+import { allocation_rule_liquidities } from '~services/commonV3';
+
+const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
+
 export default function YourLiquidityPageV3() {
   const clearState = () => {
     sessionStorage.removeItem(REF_FI_LP_VALUE_COUNT);
@@ -131,6 +141,9 @@ export default function YourLiquidityPageV3() {
   const [checkedStatus, setCheckedStatus] = useState('all');
   const [oldLiquidityHasNoData, setOldLiquidityHasNoData] = useState(false);
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
+  const [user_seeds_map, set_user_seeds_map] = useState<
+    Record<string, UserSeedInfo>
+  >({});
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
@@ -148,11 +161,25 @@ export default function YourLiquidityPageV3() {
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
     if (list.length > 0) {
+      // get user seeds
+      const user_seeds_map = await list_farmer_seeds();
+      Object.keys(user_seeds_map).forEach((seed_id: string) => {
+        const [contractId, mft_id] = seed_id.split('@');
+        if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+          const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
+          const user_seed_amount = new BigNumber(free_amount)
+            .plus(locked_amount)
+            .toFixed();
+          allocation_rule_liquidities({ list, user_seed_amount, seed_id });
+        }
+      });
+      // sort
       list.sort((item1: UserLiquidityInfo, item2: UserLiquidityInfo) => {
         const item1_hashId = +item1.lpt_id.split('#')[1];
         const item2_hashId = +item2.lpt_id.split('#')[1];
         return item1_hashId - item2_hashId;
       });
+      set_user_seeds_map(user_seeds_map);
       setListLiquidities(list);
     }
     setListLiquiditiesLoading(false);
@@ -426,6 +453,8 @@ function UserLiquidityLine({
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
+  const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
+  const [is_in_farming, set_is_in_farming] = useState<boolean>(false);
 
   const {
     lpt_id,
@@ -452,6 +481,7 @@ function UserLiquidityLine({
     get_pool_detail();
     getBoostTokenPrices().then(setTokenPriceList);
     getLiquidityDetail();
+    get_pool_related_farms();
   }, []);
   useEffect(() => {
     if (tokenMetadata_x_y && poolDetail && tokenPriceList) {
@@ -459,6 +489,18 @@ function UserLiquidityLine({
       get_your_liquidity(current_point);
     }
   }, [poolDetail, tokenMetadata_x_y, tokenPriceList]);
+  useEffect(() => {}, []);
+  async function get_pool_related_farms() {
+    const is_in_farming =
+      liquidity.part_farm_ratio && +liquidity.part_farm_ratio > 0;
+    if (is_in_farming) {
+      const id = liquidity.mft_id.slice(1);
+      const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + id;
+      const farmList = await list_seed_farms(seed_id);
+      set_related_farms(farmList);
+    }
+    set_is_in_farming(is_in_farming);
+  }
   async function get_pool_detail() {
     const detail = await get_pool(pool_id, token_x);
     if (detail) {
@@ -768,6 +810,19 @@ function UserLiquidityLine({
       }
     }
   }
+  function go_farm() {
+    const [fixRange, pool_id, left_point, right_point] =
+      liquidity.mft_id.split('&');
+    const link_params = `${pool_id}&${left_point}&${right_point}`;
+    const actives = related_farms.filter((farm: FarmBoost) => {
+      return farm.status != 'Ended';
+    });
+    if (related_farms.length > 0 && actives.length == 0) {
+      history.push(`/v2farms/${link_params}-e`);
+    } else {
+      history.push(`/v2farms/${link_params}-r`);
+    }
+  }
   return (
     <div
       className="mt-3.5"
@@ -811,6 +866,11 @@ function UserLiquidityLine({
                   </span>
                   <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
                 </div>
+                {is_in_farming ? (
+                  <div className="text-sm text-dclFarmGreenColor ml-2">
+                    Farming
+                  </div>
+                ) : null}
               </div>
               <div className="flex items-center">
                 <span className="text-v3SwapGray text-xs mr-1.5">
@@ -872,31 +932,48 @@ function UserLiquidityLine({
               <span className="text-sm text-white mx-2.5 gotham_bold">
                 ${your_liquidity || '-'}
               </span>
-              <GradientButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowAddBox(true);
-                }}
-                color="#fff"
-                minWidth="5rem"
-                borderRadius="8px"
-                className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
-              >
-                <FormattedMessage id="add" />
-              </GradientButton>
-              <BorderButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowRemoveBox(true);
-                }}
-                rounded="rounded-lg"
-                px="px-0"
-                py="py-1"
-                style={{ minWidth: '5rem' }}
-                className="flex-grow  gotham_bold text-sm text-greenColor h-8"
-              >
-                <FormattedMessage id="remove" />
-              </BorderButton>
+              {is_in_farming ? (
+                <GradientButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    go_farm();
+                  }}
+                  color="#fff"
+                  minWidth="5rem"
+                  borderRadius="8px"
+                  className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
+                >
+                  Go Farm
+                </GradientButton>
+              ) : (
+                <>
+                  <GradientButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAddBox(true);
+                    }}
+                    color="#fff"
+                    minWidth="5rem"
+                    borderRadius="8px"
+                    className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
+                  >
+                    <FormattedMessage id="add" />
+                  </GradientButton>
+                  <BorderButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowRemoveBox(true);
+                    }}
+                    rounded="rounded-lg"
+                    px="px-0"
+                    py="py-1"
+                    style={{ minWidth: '5rem' }}
+                    className="flex-grow  gotham_bold text-sm text-greenColor h-8"
+                  >
+                    <FormattedMessage id="remove" />
+                  </BorderButton>
+                </>
+              )}
             </div>
             <div className="flex items-center justify-center">
               <span className="text-xs text-v3SwapGray mr-2.5">
@@ -962,6 +1039,11 @@ function UserLiquidityLine({
                   {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
                   {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
                 </span>
+                {is_in_farming ? (
+                  <div className="text-sm text-dclFarmGreenColor ml-2">
+                    Farming
+                  </div>
+                ) : null}
               </div>
               <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
                 <span
@@ -1061,28 +1143,45 @@ function UserLiquidityLine({
             <span className="text-sm text-white">${your_liquidity || '-'}</span>
           </div>
           <div className="flex items-center justify-between mt-3.5">
-            <GradientButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowAddBox(true);
-              }}
-              color="#fff"
-              className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3`}
-            >
-              <FormattedMessage id="add" />
-            </GradientButton>
-            <BorderButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowRemoveBox(true);
-              }}
-              rounded="rounded-md"
-              px="px-0"
-              py="py-1"
-              className="w-1 flex-grow  text-sm text-greenColor h-8"
-            >
-              <FormattedMessage id="remove" />
-            </BorderButton>
+            {is_in_farming ? (
+              <GradientButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  go_farm();
+                }}
+                color="#fff"
+                minWidth="5rem"
+                borderRadius="8px"
+                className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
+              >
+                Go Farm
+              </GradientButton>
+            ) : (
+              <>
+                <GradientButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAddBox(true);
+                  }}
+                  color="#fff"
+                  className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3`}
+                >
+                  <FormattedMessage id="add" />
+                </GradientButton>
+                <BorderButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowRemoveBox(true);
+                  }}
+                  rounded="rounded-md"
+                  px="px-0"
+                  py="py-1"
+                  className="w-1 flex-grow  text-sm text-greenColor h-8"
+                >
+                  <FormattedMessage id="remove" />
+                </BorderButton>
+              </>
+            )}
           </div>
         </div>
       </div>

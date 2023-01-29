@@ -593,7 +593,7 @@ export default function FarmsHome(props: any) {
       const mft_id = decodeURIComponent(idArr[0]);
       const farmsStatus = idArr[1];
       if (mft_id.split('|').length > 0) {
-        is_dcl_pool = true
+        is_dcl_pool = true;
       }
       const targetFarms = farm_display_List.find((seed: Seed) => {
         const { seed_id, farmList } = seed;
@@ -602,10 +602,11 @@ export default function FarmsHome(props: any) {
         if (is_dcl_pool) {
           const [contractId, temp_pool_id] = seed_id.split('@');
           if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
-            const [fixRange, pool_id, left_point, right_point] = temp_pool_id.split('&');
+            const [fixRange, pool_id, left_point, right_point] =
+              temp_pool_id.split('&');
             const temp = `${pool_id}&${left_point}&${right_point}`;
             if (farmsStatus == 'r' && status != 'Ended' && mft_id == temp)
-                return true;
+              return true;
             if (farmsStatus == 'e' && status == 'Ended' && mft_id == temp)
               return true;
           }
@@ -2572,7 +2573,8 @@ function FarmView(props: {
     let mft_id = poolId;
     if (is_dcl_pool) {
       const [contractId, temp_pool_id] = seed.seed_id.split('@');
-      const [fixRange, pool_id, left_point, right_point] = temp_pool_id.split('&');
+      const [fixRange, pool_id, left_point, right_point] =
+        temp_pool_id.split('&');
       mft_id = `${pool_id}&${left_point}&${right_point}`;
     }
     history.replace(`/v2farms/${mft_id}-${status}`);

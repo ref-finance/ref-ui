@@ -244,6 +244,7 @@ module.exports = {
         dclFarmGreenColor:'#4DCB70',
         dclFarmBlueColor:'#4D9FFF',
         dclFarmYellowColor:'#FFC56D',
+        dclFarmBlueColor:'rgba(91, 64, 255, 0.2)',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

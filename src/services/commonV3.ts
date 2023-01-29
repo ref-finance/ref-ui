@@ -88,7 +88,7 @@ export interface UserLiquidityInfo {
   mft_id: string;
   v_liquidity: string;
   part_farm_ratio?: string;
-  unfarm_part_amount?:string;
+  unfarm_part_amount?: string;
 }
 
 export function useAddAndRemoveUrlHandle() {
@@ -559,22 +559,20 @@ export function allocation_rule_liquidities({
   list,
   user_seed_amount,
   seed_id,
-}:{
-  list:UserLiquidityInfo[];
-  user_seed_amount:string;
-  seed_id:string;
+}: {
+  list: UserLiquidityInfo[];
+  user_seed_amount: string;
+  seed_id: string;
 }) {
   const [contractId, temp_pool_id] = seed_id.split('@');
   const [fixRange, pool_id, left_point, right_point] = temp_pool_id.split('&');
-  const matched_liquidities = list.filter(
-    (liquidity: UserLiquidityInfo) => {
-      if (liquidity.pool_id == pool_id) return true;
-    }
-  );
-  const temp_farming:UserLiquidityInfo[] = [];
-  let temp_free:UserLiquidityInfo[] = [];
-  const temp_unavailable:UserLiquidityInfo[] = [];
-  matched_liquidities.forEach((liquidity:UserLiquidityInfo) => {
+  const matched_liquidities = list.filter((liquidity: UserLiquidityInfo) => {
+    if (liquidity.pool_id == pool_id) return true;
+  });
+  const temp_farming: UserLiquidityInfo[] = [];
+  let temp_free: UserLiquidityInfo[] = [];
+  const temp_unavailable: UserLiquidityInfo[] = [];
+  matched_liquidities.forEach((liquidity: UserLiquidityInfo) => {
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
     const { mft_id } = liquidity;
     const inRange = right_point > left_point;
@@ -585,58 +583,70 @@ export function allocation_rule_liquidities({
     } else {
       temp_free.push(liquidity);
     }
-  })
+  });
   // sort by mft amount for temp_canFarming
-  temp_farming.sort((b:UserLiquidityInfo, a:UserLiquidityInfo) => {
+  temp_farming.sort((b: UserLiquidityInfo, a: UserLiquidityInfo) => {
     const mint_amount_b = b.v_liquidity;
     const mint_amount_a = a.v_liquidity;
-    return new BigNumber(mint_amount_a).minus(mint_amount_b).toNumber(); 
-  })
+    return new BigNumber(mint_amount_a).minus(mint_amount_b).toNumber();
+  });
   // allocation for temp_farming
   let user_seed_amount_remained = user_seed_amount;
-  temp_farming.forEach((liquidity:UserLiquidityInfo) => {
+  temp_farming.forEach((liquidity: UserLiquidityInfo) => {
     const v_liquidity = liquidity.v_liquidity;
     const v_liquidity_big = new BigNumber(v_liquidity);
-    const user_seed_amount_remained_big = new BigNumber(user_seed_amount_remained);
+    const user_seed_amount_remained_big = new BigNumber(
+      user_seed_amount_remained
+    );
     if (v_liquidity_big.isLessThanOrEqualTo(user_seed_amount_remained)) {
       liquidity.part_farm_ratio = '100';
-      user_seed_amount_remained = user_seed_amount_remained_big.minus(v_liquidity).toFixed();
+      user_seed_amount_remained = user_seed_amount_remained_big
+        .minus(v_liquidity)
+        .toFixed();
     } else if (user_seed_amount_remained_big.isEqualTo(0)) {
       liquidity.part_farm_ratio = '0';
     } else {
-      const percent = user_seed_amount_remained_big.dividedBy(v_liquidity).toFixed();
-      liquidity.part_farm_ratio =  percent;
-      liquidity.unfarm_part_amount = v_liquidity_big.minus(user_seed_amount_remained).toFixed();
+      const percent = user_seed_amount_remained_big
+        .dividedBy(v_liquidity)
+        .toFixed();
+      liquidity.part_farm_ratio = percent;
+      liquidity.unfarm_part_amount = v_liquidity_big
+        .minus(user_seed_amount_remained)
+        .toFixed();
       user_seed_amount_remained = '0';
     }
-  })
+  });
   // Group together those of unFarming nft
-  const temp_farming_final:UserLiquidityInfo[] = [];
-  const temp_unFarming = temp_farming.filter((liquidity:UserLiquidityInfo) => {
+  const temp_farming_final: UserLiquidityInfo[] = [];
+  const temp_unFarming = temp_farming.filter((liquidity: UserLiquidityInfo) => {
     if (liquidity.part_farm_ratio == '0') return true;
     temp_farming_final.push(liquidity);
-  })
+  });
   temp_free = temp_unFarming.concat(temp_free);
   return [temp_farming_final, temp_free, temp_unavailable];
 }
 
-export function mint_liquidity(liquidity: UserLiquidityInfo, seed_id:string) {
+export function mint_liquidity(liquidity: UserLiquidityInfo, seed_id: string) {
   const { amount } = liquidity;
   const [left_point, right_point] = get_valid_range(liquidity, seed_id);
   if (+right_point > +left_point) {
     const temp_valid = +right_point - +left_point;
-    const mint_amount =  (new BigNumber(Math.pow(temp_valid, 2)).multipliedBy(amount)).dividedBy(Math.pow(10, 6)).toFixed(0);
-    return  mint_amount;
+    const mint_amount = new BigNumber(Math.pow(temp_valid, 2))
+      .multipliedBy(amount)
+      .dividedBy(Math.pow(10, 6))
+      .toFixed(0);
+    return mint_amount;
   }
-  return '0'
+  return '0';
 }
-export function get_valid_range(liquidity: UserLiquidityInfo, seed_id:string) {
-  const {left_point, right_point } = liquidity;
-  const [fixRange, dcl_pool_id, seed_left_point, seed_right_point] =
-  seed_id.split('@')[1].split('&');
+export function get_valid_range(liquidity: UserLiquidityInfo, seed_id: string) {
+  const { left_point, right_point } = liquidity;
+  const [fixRange, dcl_pool_id, seed_left_point, seed_right_point] = seed_id
+    .split('@')[1]
+    .split('&');
   const max_left_point = Math.max(+left_point, +seed_left_point);
   const min_right_point = Math.min(+right_point, +seed_right_point);
-  return [max_left_point, min_right_point]
+  return [max_left_point, min_right_point];
 }
 
 export const TOKEN_LIST_FOR_RATE = ['USDC.e', 'USDC'];

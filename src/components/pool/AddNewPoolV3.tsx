@@ -5,7 +5,13 @@ import { useHistory } from 'react-router-dom';
 import { Card } from '~components/card/Card';
 import { isMobile } from '~utils/device';
 import { ModalClose } from '~components/icon';
-import { BoxDarkBg, SideIcon, AddButton, ReduceButton, InvalidIcon } from '~components/icon/V3';
+import {
+  BoxDarkBg,
+  SideIcon,
+  AddButton,
+  ReduceButton,
+  InvalidIcon,
+} from '~components/icon/V3';
 import { ArrowDownV3 } from '~components/icon/swapV3';
 import {
   GradientButton,
@@ -23,7 +29,7 @@ import {
   toReadableNumber,
   toNonDivisibleNumber,
 } from '~utils/numbers';
-import { 
+import {
   getPriceByPoint,
   getPointByPrice,
   CONSTANT_D,
@@ -34,7 +40,8 @@ import {
   POINTRIGHTRANGE,
   useAddAndRemoveUrlHandle,
   drawChartData,
-  TOKEN_LIST_FOR_RATE, } from '../../services/commonV3';
+  TOKEN_LIST_FOR_RATE,
+} from '../../services/commonV3';
 import {
   PoolInfo,
   add_liquidity,
@@ -52,22 +59,24 @@ export const AddNewPoolV3 = (props: any) => {
     seed,
     ...restProps
   }: {
-    seed:Seed,
+    seed: Seed;
     tokenPriceList: any;
     restProps: any;
   } = props;
-  const { pool:poolDetail, seed_id } = seed;
+  const { pool: poolDetail, seed_id } = seed;
   const [contractId, temp_pool_id] = seed_id.split('@');
-  const [fixRange, dcl_pool_id, temp_left_point, temp_right_point] = temp_pool_id.split('&');
+  const [fixRange, dcl_pool_id, temp_left_point, temp_right_point] =
+    temp_pool_id.split('&');
   const seed_left_point = +temp_left_point;
   const seed_right_point = +temp_right_point;
-  const tokenMetadata_x_y:TokenMetadata[] = poolDetail.tokens_meta_data;
+  const tokenMetadata_x_y: TokenMetadata[] = poolDetail.tokens_meta_data;
   const [tokenXAmount, setTokenXAmount] = useState('');
   const [tokenYAmount, setTokenYAmount] = useState('');
   const [tokenXBalanceFromNear, setTokenXBalanceFromNear] = useState<string>();
   const [tokenYBalanceFromNear, setTokenYBalanceFromNear] = useState<string>();
   const [custom_left_point, setCustom_left_point] = useState(seed_left_point);
-  const [custom_right_point, setCustom_right_point] = useState(seed_right_point);
+  const [custom_right_point, setCustom_right_point] =
+    useState(seed_right_point);
   let [custom_left_price, setCustom_left_price] = useState('');
   let [custom_right_price, setCustom_right_price] = useState('');
   const [addLoading, setAddLoading] = useState<boolean>(false);
@@ -104,11 +113,11 @@ export const AddNewPoolV3 = (props: any) => {
   }, [tokenMetadata_x_y, isSignedIn, nearBalance]);
   useEffect(() => {
     pointChange({
-      leftPoint:custom_left_point,
-      rightPoint:custom_right_point,
-      currentPoint: poolDetail.current_point
-    })
-  }, [custom_left_point, custom_right_point])
+      leftPoint: custom_left_point,
+      rightPoint: custom_right_point,
+      currentPoint: poolDetail.current_point,
+    });
+  }, [custom_left_point, custom_right_point]);
   function getTokenYAmountByCondition({
     amount,
     leftPoint,
@@ -280,7 +289,9 @@ export const AddNewPoolV3 = (props: any) => {
     const l_p = custom_left_point + point_delta;
     const r_p = custom_right_point + point_delta;
     if (direction == 'l') {
-      setCustom_left_point(Math.max(Math.min(POINTRIGHTRANGE, l_p), POINTLEFTRANGE));
+      setCustom_left_point(
+        Math.max(Math.min(POINTRIGHTRANGE, l_p), POINTLEFTRANGE)
+      );
     } else if (direction == 'r') {
       const target_slot_r = Math.max(
         Math.min(POINTRIGHTRANGE, r_p),
@@ -302,7 +313,9 @@ export const AddNewPoolV3 = (props: any) => {
       if (custom_right_point - target_slot_l >= POINTRIGHTRANGE) return;
       setCustom_left_point(target_slot_l);
     } else if (direction == 'r') {
-      setCustom_right_point(Math.max(Math.min(POINTRIGHTRANGE, r_p), POINTLEFTRANGE));
+      setCustom_right_point(
+        Math.max(Math.min(POINTRIGHTRANGE, r_p), POINTLEFTRANGE)
+      );
     }
   }
   function handlePriceToAppropriatePoint() {
@@ -338,7 +351,7 @@ export const AddNewPoolV3 = (props: any) => {
       }
     }
   }
-  function getPriceByCustomPoint(point:number) {
+  function getPriceByCustomPoint(point: number) {
     const token_x_decimals = tokenMetadata_x_y[0].decimals;
     const token_y_decimals = tokenMetadata_x_y[1].decimals;
     const decimalRate =
@@ -401,7 +414,7 @@ export const AddNewPoolV3 = (props: any) => {
     setCustom_left_point(seed_left_point);
     setCustom_right_point(seed_right_point);
   }
-  function getRange(displayType?:'seed'|'custom') {
+  function getRange(displayType?: 'seed' | 'custom') {
     const [contractId, temp_pool_id] = seed.seed_id.split('@');
     const [fixRange, dcl_pool_id, left_point, right_point] =
       temp_pool_id.split('&');
@@ -439,22 +452,26 @@ export const AddNewPoolV3 = (props: any) => {
       return (
         <div className="flex items-center whitespace-nowrap ml-1">
           1 {token_x_metadata.symbol}
-          <a className="underline mx-1 cursor-pointer" onClick={setSeedPointAsCustomPoint}>
+          <a
+            className="underline mx-1 cursor-pointer"
+            onClick={setSeedPointAsCustomPoint}
+          >
             {display_left_price} ~ {display_right_price}
           </a>
           {token_y_metadata.symbol}
         </div>
       );
     } else {
-      return <div className="flex items-center whitespace-nowrap ml-1 text-sm text-primaryText">
-        1 {token_x_metadata.symbol}
-        <span className="mx-1 text-base text-white gotham_bold">
-          {display_left_price} ~ {display_right_price}
-        </span>
-        {token_y_metadata.symbol}
-      </div>
+      return (
+        <div className="flex items-center whitespace-nowrap ml-1 text-sm text-primaryText">
+          1 {token_x_metadata.symbol}
+          <span className="mx-1 text-base text-white gotham_bold">
+            {display_left_price} ~ {display_right_price}
+          </span>
+          {token_y_metadata.symbol}
+        </div>
+      );
     }
-    
   }
   const { status: isAddLiquidityDisabled, not_enough_token } =
     getButtonStatus();
@@ -465,9 +482,7 @@ export const AddNewPoolV3 = (props: any) => {
         className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4 xs:w-90vw md:w-90vw lg:w-40vw xl:w-30vw"
       >
         <div className="flex items-center justify-between">
-          <span className="text-xl text-white gotham_bold">
-            Add Position
-          </span>
+          <span className="text-xl text-white gotham_bold">Add Position</span>
           <div className="cursor-pointer" onClick={props.onRequestClose}>
             <ModalClose />
           </div>
@@ -491,9 +506,17 @@ export const AddNewPoolV3 = (props: any) => {
               </span>
             </div>
           </div>
-          <OneSide show={(onlyAddYToken && (poolDetail.current_point != custom_right_point - 1))|| onlyAddXToken ? true: false}></OneSide>
-          <InvalidRange show={invalidRange ? true : false} ></InvalidRange>
-        {/*  input area */}
+          <OneSide
+            show={
+              (onlyAddYToken &&
+                poolDetail.current_point != custom_right_point - 1) ||
+              onlyAddXToken
+                ? true
+                : false
+            }
+          ></OneSide>
+          <InvalidRange show={invalidRange ? true : false}></InvalidRange>
+          {/*  input area */}
           <div>
             <InputAmount
               token={tokenMetadata_x_y && tokenMetadata_x_y[0]}
@@ -525,24 +548,29 @@ export const AddNewPoolV3 = (props: any) => {
                       {not_enough_token.symbol}
                     </>
                   )}
-                  </label>
-                </div>
+                </label>
+              </div>
             ) : null}
           </div>
           {/* set price rage area */}
-          <div className=''>
-            <div className='flex items-center justify-between mt-6 mb-3.5'>
-              <div className='flex items-center text-sm'>
-                <ArrowDownV3 onClick={() => {
-                  setShowCustomPointArea(!showCustomPointArea);
-                }} className={`text-primaryText cursor-pointer mr-2.5 hover:text-white ${showCustomPointArea ? 'transform rotate-180': ''}`}></ArrowDownV3>
-                <span className='text-primaryText'>Set Price Range</span>
+          <div className="">
+            <div className="flex items-center justify-between mt-6 mb-3.5">
+              <div className="flex items-center text-sm">
+                <ArrowDownV3
+                  onClick={() => {
+                    setShowCustomPointArea(!showCustomPointArea);
+                  }}
+                  className={`text-primaryText cursor-pointer mr-2.5 hover:text-white ${
+                    showCustomPointArea ? 'transform rotate-180' : ''
+                  }`}
+                ></ArrowDownV3>
+                <span className="text-primaryText">Set Price Range</span>
               </div>
               {getRange('custom')}
             </div>
-            <div className={showCustomPointArea ? '': 'hidden'}>
-              <div className='flex items-center justify-between'>
-                <div className='flex flex-col items-center bg-black bg-opacity-20 mr-6 rounded-xl p-2.5'>
+            <div className={showCustomPointArea ? '' : 'hidden'}>
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col items-center bg-black bg-opacity-20 mr-6 rounded-xl p-2.5">
                   <span className="text-sm text-primaryText xs:text-xs md:text-xs mb-4">
                     <FormattedMessage
                       id="min_price"
@@ -556,7 +584,9 @@ export const AddNewPoolV3 = (props: any) => {
                     addOneSlot={() => {
                       addOneSlot('l');
                     }}
-                    handlePriceToAppropriatePoint={handlePriceToAppropriatePoint}
+                    handlePriceToAppropriatePoint={
+                      handlePriceToAppropriatePoint
+                    }
                     customPrice={custom_left_price}
                     getPrice={() => getPriceByCustomPoint(custom_left_point)}
                     setCustomPrice={setCustom_left_price}
@@ -564,7 +594,7 @@ export const AddNewPoolV3 = (props: any) => {
                     setInputStatus={setLeftInputStatus}
                   ></PointInputComponent>
                 </div>
-                <div className='flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-2.5'>
+                <div className="flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-2.5">
                   <span className="text-sm text-primaryText xs:text-xs md:text-xs mb-4">
                     <FormattedMessage
                       id="max_price"
@@ -578,7 +608,9 @@ export const AddNewPoolV3 = (props: any) => {
                     addOneSlot={() => {
                       addOneSlot('r');
                     }}
-                    handlePriceToAppropriatePoint={handlePriceToAppropriatePoint}
+                    handlePriceToAppropriatePoint={
+                      handlePriceToAppropriatePoint
+                    }
                     customPrice={custom_right_price}
                     getPrice={() => getPriceByCustomPoint(custom_right_point)}
                     setCustomPrice={setCustom_right_price}
@@ -587,17 +619,19 @@ export const AddNewPoolV3 = (props: any) => {
                   ></PointInputComponent>
                 </div>
               </div>
-              <div className='flex items-center justify-center text-sm text-primaryText mt-4'>
-                  Fix Range:{getRange('seed')} 
+              <div className="flex items-center justify-center text-sm text-primaryText mt-4">
+                Fix Range:{getRange('seed')}
               </div>
             </div>
           </div>
           {/* Your Apr */}
-          <div className='flex items-center justify-between my-7'>
-            <span className='text-sm text-primaryText'><FormattedMessage id="your_apr"></FormattedMessage></span>
-            <span className='text-base text-white gotham_bold'>198.52%</span>
+          <div className="flex items-center justify-between my-7">
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="your_apr"></FormattedMessage>
+            </span>
+            <span className="text-base text-white gotham_bold">198.52%</span>
           </div>
-          
+
           {/* button area */}
           {isSignedIn ? (
             <GradientButton

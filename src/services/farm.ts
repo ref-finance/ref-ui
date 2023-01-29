@@ -857,12 +857,12 @@ export const getBoostTokenPricesFromServer = async (): Promise<
 export const getBoostSeeds = async (): Promise<{
   seeds: Seed[];
   farms: FarmBoost[][];
-  pools: PoolRPCView[];
+  pools: PoolRPCView[] & PoolInfo[];
 }> => {
   try {
     const seeds: Seed[] = [];
     const farms: FarmBoost[][] = [];
-    const pools: PoolRPCView[] = [];
+    const pools: PoolRPCView[] & PoolInfo[] = [];
     const cacheData = await db.checkBoostSeeds();
     if (cacheData) {
       const list: BoostSeeds[] = await db.queryBoostSeeds();
@@ -889,7 +889,7 @@ export const getBoostSeeds = async (): Promise<{
 export const getBoostSeedsFromServer = async (): Promise<{
   seeds: Seed[];
   farms: FarmBoost[][];
-  pools: PoolRPCView[];
+  pools: PoolRPCView[] & PoolInfo[];
 }> => {
   try {
     // get all seeds
@@ -1015,16 +1015,16 @@ interface UnStakeOptions {
   withdraw_amount: string;
 }
 interface NFTUnStakeOptions {
-  lpt_id:string;
+  lpt_id: string;
   seed_id: string;
   unlock_amount: string;
   withdraw_amount: string;
 }
 interface NFTStakeOptions {
-  lpt_id:string;
-  seed_id:string;
-  mint:boolean;
-  amount:string;
+  lpt_id: string;
+  seed_id: string;
+  mint: boolean;
+  amount: string;
 }
 interface NFTUnStakeOptions {
   seed_id: string;
@@ -1183,7 +1183,8 @@ export const stake_boost_nft = async ({
   amount = '',
 }: NFTStakeOptions) => {
   const [contractId, temp_pool_id] = seed_id.split('@');
-  const [fixRange, dcl_pool_id, left_point, right_point] =  temp_pool_id.split('&');
+  const [fixRange, dcl_pool_id, left_point, right_point] =
+    temp_pool_id.split('&');
   const functionCalls = [];
   if (mint) {
     functionCalls.push({
@@ -1193,15 +1194,15 @@ export const stake_boost_nft = async ({
         farming_type: JSON.parse(fixRange),
       },
       gas: '100000000000000',
-    },)
+    });
   }
   functionCalls.push({
     methodName: 'mft_transfer_call',
     args: {
       receiver_id: REF_FARM_BOOST_CONTRACT_ID,
-      token_id:`:${temp_pool_id}`,
+      token_id: `:${temp_pool_id}`,
       amount,
-      msg:JSON.stringify('Free')
+      msg: JSON.stringify('Free'),
     },
     amount: ONE_YOCTO_NEAR,
     gas: '180000000000000',
@@ -1245,7 +1246,7 @@ export const unStake_boost_nft = async ({
           gas: '200000000000000',
         },
       ],
-    })
+    });
   }
   transactions.push({
     receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
@@ -1258,7 +1259,7 @@ export const unStake_boost_nft = async ({
         gas: '200000000000000',
       },
     ],
-  })
+  });
   const neededStorage = await checkTokenNeedsStorageDeposit_boost();
   if (neededStorage) {
     transactions.unshift({

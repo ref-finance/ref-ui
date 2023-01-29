@@ -40,6 +40,7 @@ import {
   getYAmount_per_point_by_Ly,
   useAddAndRemoveUrlHandle,
   TOKEN_LIST_FOR_RATE,
+  get_total_value_by_liquidity_amount_dcl,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -49,7 +50,12 @@ import {
 import { SwitchButtonIcon, NoLiquidityIcon } from '~components/icon/V3';
 import Loading from '~components/layout/Loading';
 import { useTokenPriceList } from '../../state/token';
-import { getBoostTokenPrices } from '../../services/farm';
+import {
+  getBoostTokenPrices,
+  FarmBoost,
+  getBoostSeeds,
+  Seed,
+} from '../../services/farm';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
@@ -76,6 +82,8 @@ import {
   GradientButton,
   OprationButton,
   ButtonTextWrapper,
+  BorderButton,
+  SolidButton,
 } from '~components/button/Button';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
@@ -83,6 +91,18 @@ import Modal from 'react-modal';
 import { ModalClose } from '~components/icon';
 import { useV3VolumeChart, useV3TvlChart } from '~state/pool';
 import { getV3Pool24VolumeById } from '~services/indexer';
+import {
+  list_farmer_seeds,
+  list_seed_farms,
+  UserSeedInfo,
+} from '../../services/farm';
+import getConfig from '../../services/config';
+import { allocation_rule_liquidities } from '~services/commonV3';
+import { FarmBoardInDetailPool, Fire } from '../../components/icon/V3';
+import _ from 'lodash';
+import { PoolRPCView } from '../../services/api';
+
+const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 
 export default function PoolDetailV3() {
   const { id } = useParams<ParamTypes>();
@@ -137,6 +157,31 @@ export default function PoolDetailV3() {
       }
     );
     const user_liqudities_final = await Promise.all(liquiditiesPromise);
+    // get user seeds
+    if (user_liqudities_final.length > 0) {
+      const user_seeds_map = await list_farmer_seeds();
+      const target_seed_id = Object.keys(user_seeds_map).find(
+        (seed_id: string) => {
+          const [contractId, mft_id] = seed_id.split('@');
+          if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+            const [fixRange, pool_id, left_point, right_point] =
+              mft_id.split('&');
+            return pool_id == pool_id_from_url;
+          }
+        }
+      );
+      if (target_seed_id) {
+        const { free_amount, locked_amount } = user_seeds_map[target_seed_id];
+        const user_seed_amount = new BigNumber(free_amount)
+          .plus(locked_amount)
+          .toFixed();
+        allocation_rule_liquidities({
+          list: user_liqudities_final,
+          user_seed_amount,
+          seed_id: target_seed_id,
+        });
+      }
+    }
     set_user_liquidities(user_liqudities_final);
   }
   function displayRateDom() {
@@ -364,6 +409,11 @@ export default function PoolDetailV3() {
                       tokenPriceList={tokenPriceList}
                       liquidities={user_liquidities}
                     ></UnclaimedFeesBox>
+                    <RelatedFarmsBox
+                      poolDetail={poolDetail}
+                      tokenPriceList={tokenPriceList}
+                      pool_id={pool_id_from_url}
+                    ></RelatedFarmsBox>
                   </>
                 )}
               </>
@@ -893,6 +943,261 @@ function UnclaimedFeesBox(props: any) {
     </div>
   );
 }
+// todo
+function RelatedFarmsBox(props: any) {
+  const { poolDetail, tokenPriceList, pool_id } = props;
+  const [related_seed, set_related_seed] = useState<Seed>();
+  const [farm_loading, set_farm_loading] = useState<boolean>(true);
+  const history = useHistory();
+
+  useEffect(() => {
+    if (poolDetail && Object.keys(tokenPriceList).length > 0) {
+      get_farms_data();
+    }
+  }, []);
+  async function get_farms_data() {
+    const result = await getBoostSeeds();
+    const { seeds, farms, pools } = result;
+    const related_seeds: Seed[] = [];
+    const related_farms: FarmBoost[][] = [];
+    const related_pools: PoolInfo[] = [];
+    seeds.forEach((seed: Seed, index) => {
+      const [contractId, mft_id] = seed.seed_id.split('@');
+      if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+        const [fixRange, pool_id_from_seed, left_point, right_point] =
+          mft_id.split('&');
+        if (pool_id_from_seed == pool_id) {
+          related_seeds.push(seed);
+          related_farms.push(farms[index]);
+          related_pools.push(pools[index]);
+        }
+      }
+    });
+    // split ended farms
+    const related_seeds_final: Seed[] = [];
+    related_farms.forEach((farmList: FarmBoost[], index) => {
+      const endedList = farmList.filter((farm: FarmBoost) => {
+        if (farm.status == 'Ended') return true;
+      });
+      const noEndedList = farmList.filter((farm: FarmBoost) => {
+        if (farm.status != 'Ended') return true;
+      });
+      const seed = related_seeds[index];
+      if (noEndedList.length > 0) {
+        seed.farmList = noEndedList;
+        related_seeds_final.push(seed);
+      }
+      if (endedList.length > 0) {
+        const endedSeed = JSON.parse(JSON.stringify(seed));
+        endedSeed.farmList = endedList;
+        related_seeds_final.push(endedSeed);
+      }
+    });
+    get_matched_seed(related_seeds_final);
+    set_farm_loading(false);
+  }
+  async function get_matched_seed(seeds: Seed[]) {
+    // filter ended seed
+    const activeSeeds = seeds.filter((seed: Seed) => {
+      const farmList = seed.farmList;
+      return farmList[0].status != 'Ended';
+    });
+    // sort having benefit and the latest
+    activeSeeds.sort((b: Seed, a: Seed) => {
+      const b_pending = isPending(b);
+      const a_pending = isPending(a);
+      const b_latest = getLatestStartTime(b);
+      const a_latest = getLatestStartTime(a);
+      if (a_pending) return -1;
+      if (b_pending) return 1;
+      return a_latest - b_latest;
+    });
+    const targetSeed = activeSeeds[0];
+    if (!isPending(targetSeed)) {
+      await get_apr_seed(targetSeed);
+      set_related_seed(targetSeed);
+    }
+  }
+  async function get_apr_seed(seed: Seed) {
+    const { token_x_metadata, token_y_metadata } = poolDetail;
+    const {
+      seed_id,
+      farmList,
+      total_seed_amount,
+      total_seed_power,
+      seed_decimal,
+    } = seed;
+    const promise_farm_meta_data = farmList.map(async (farm: FarmBoost) => {
+      const tokenId = farm.terms.reward_token;
+      const tokenMetadata = await ftGetTokenMetadata(tokenId);
+      farm.token_meta_data = tokenMetadata;
+      return farm;
+    });
+    await Promise.all(promise_farm_meta_data);
+    const seedTotalStakedAmount = toReadableNumber(
+      seed_decimal,
+      total_seed_amount
+    );
+    const [contractId, temp_pool_id] = seed_id.split('@');
+    const [fixRange, dcl_pool_id, left_point, right_point] =
+      temp_pool_id.split('&');
+    const [token_x, token_y] = dcl_pool_id.split('|');
+    const price_x = tokenPriceList[token_x]?.price || '0';
+    const price_y = tokenPriceList[token_y]?.price || '0';
+    const single_lp_value = get_total_value_by_liquidity_amount_dcl({
+      left_point: +left_point,
+      right_point: +right_point,
+      amount: Math.pow(10, 6).toString(),
+      poolDetail,
+      price_x_y: { [token_x]: price_x, [token_y]: price_y },
+      metadata_x_y: {
+        [token_x]: token_x_metadata,
+        [token_y]: token_y_metadata,
+      },
+    });
+    const seedTotalStakedPower = toReadableNumber(
+      seed_decimal,
+      total_seed_power
+    );
+    const seedTvl = +toPrecision(
+      new BigNumber(seedTotalStakedAmount)
+        .multipliedBy(single_lp_value)
+        .toFixed(),
+      2
+    );
+    const seedPowerTvl = +toPrecision(
+      new BigNumber(seedTotalStakedPower)
+        .multipliedBy(single_lp_value)
+        .toFixed(),
+      2
+    );
+    // get apr per farm
+    farmList.forEach((farm: FarmBoost) => {
+      const { token_meta_data } = farm;
+      const { daily_reward, reward_token } = farm.terms;
+      const readableNumber = toReadableNumber(
+        token_meta_data.decimals,
+        daily_reward
+      );
+      const reward_token_price = Number(
+        tokenPriceList[reward_token]?.price || 0
+      );
+      const apr =
+        seedPowerTvl == 0
+          ? 0
+          : (Number(readableNumber) * 360 * reward_token_price) / seedPowerTvl;
+      const baseApr =
+        seedTvl == 0
+          ? 0
+          : (Number(readableNumber) * 360 * reward_token_price) / seedTvl;
+
+      farm.apr = apr.toString();
+      farm.baseApr = baseApr.toString();
+    });
+  }
+  function isPending(seed: Seed) {
+    let pending: boolean = true;
+    const farms = seed.farmList;
+    for (let i = 0; i < farms.length; i++) {
+      if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
+        pending = false;
+        break;
+      }
+    }
+    return pending;
+  }
+  function getLatestStartTime(seed: Seed) {
+    let start_at: any[] = [];
+    const farmList = seed.farmList;
+    farmList.forEach(function (item) {
+      start_at.push(item.terms.start_at);
+    });
+    start_at = _.sortBy(start_at);
+    start_at = start_at.filter(function (val) {
+      return val != '0';
+    });
+    return start_at[start_at.length - 1];
+  }
+  function getTotalAprForSeed() {
+    const farms = related_seed.farmList;
+    let apr = 0;
+    const allPendingFarms = isPending(related_seed);
+    farms.forEach(function (item: FarmBoost) {
+      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
+      if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
+        apr = +new BigNumber(item.apr).plus(apr).toFixed();
+      }
+    });
+    if (apr == 0) {
+      return '-';
+    } else {
+      apr = +new BigNumber(apr).multipliedBy(100).toFixed();
+      return toPrecision(apr.toString(), 2) + '%';
+    }
+  }
+  function getAllRewardsSymbols() {
+    const tempMap = {};
+    related_seed.farmList.forEach((farm: FarmBoost) => {
+      const { token_meta_data } = farm;
+      const { icon, id } = token_meta_data;
+      tempMap[id] = icon;
+    });
+    return Object.entries(tempMap);
+  }
+  function go_farm() {
+    const { seed_id } = related_seed;
+    const [contractId, temp_pool_id] = seed_id.split('@');
+    const [fixRange, pool_id, left_point, right_point] =
+      temp_pool_id.split('&');
+    const link_params = `${pool_id}&${left_point}&${right_point}`;
+    history.push(`/v2farms/${link_params}-r`);
+  }
+  if (farm_loading) return null;
+  if (!related_seed) return null;
+  return (
+    <div className="relative p-5 z-10 mt-3">
+      <FarmBoardInDetailPool
+        style={{
+          position: 'absolute',
+          // transform: isClientMobie() ? 'scale(1,1.05)' : 'scale(1.05)',
+          zIndex: -1,
+          left: 0,
+          top: 0,
+        }}
+      ></FarmBoardInDetailPool>
+      <div className="flex items-center justify-between">
+        <span className="text-base text-white gotham_bold">Farm APR</span>
+        <div className="flex items-center">
+          {getAllRewardsSymbols().map(([id, icon]: [string, string], index) => {
+            return (
+              <img
+                key={id}
+                src={icon}
+                className={`h-4 w-4 rounded-full border border-gradientFromHover ${
+                  index != 0 ? '-ml-1' : ''
+                }`}
+              ></img>
+            );
+          })}
+        </div>
+      </div>
+      <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center">
+          <span className="valueStyleYellow text-xl gotham_bold mr-1.5">
+            {getTotalAprForSeed()}
+          </span>
+          <Fire></Fire>
+        </div>
+        <SolidButton
+          className="py-1.5 pb-1.5 px-4 flex rounded-lg items-center justify-center"
+          onClick={go_farm}
+        >
+          <FormattedMessage id="farm_now" defaultMessage={'Farm Now!'} />
+        </SolidButton>
+      </div>
+    </div>
+  );
+}
 function NoYourLiquditiesBox(props: any) {
   const { poolDetail } = props;
   const { token_x_metadata, pool_id } = poolDetail;
@@ -940,8 +1245,27 @@ function SelectLiquidityBox(props: any) {
   const [hoverHashId, setHoverHashId] = useState('');
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
+  const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
   const history = useHistory();
   const { token_x_metadata, token_y_metadata } = poolDetail;
+  useEffect(() => {
+    if (user_liquidities?.length > 0) {
+      const target_liquidity = user_liquidities.find(
+        (liquidity: UserLiquidityInfo) => {
+          return liquidity.mft_id;
+        }
+      );
+      if (target_liquidity) {
+        get_pool_related_farms(target_liquidity);
+      }
+    }
+  }, [user_liquidities]);
+  async function get_pool_related_farms(liquidity: UserLiquidityInfo) {
+    const id = liquidity.mft_id.slice(1);
+    const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + id;
+    const farmList = await list_seed_farms(seed_id);
+    set_related_farms(farmList);
+  }
   function displayLiqudityTvl(liquidityDetail: UserLiquidityDetail) {
     const total = +liquidityDetail.total_liqudities_price;
     if (total == 0) {
@@ -1005,13 +1329,40 @@ function SelectLiquidityBox(props: any) {
     }
     history.push(`/addLiquidityV2#${url_hash}`);
   }
+  function displayFarmStatus(liquidity: UserLiquidityInfo) {
+    const is_in_farming =
+      liquidity.part_farm_ratio && +liquidity.part_farm_ratio > 0;
+    if (is_in_farming) {
+      return <label className="text-sm text-white">Farming</label>;
+    } else {
+      return <label className="text-sm text-primaryText">Unfarming</label>;
+    }
+  }
+  function go_farm(liquidity: UserLiquidityInfo) {
+    const [fixRange, pool_id, left_point, right_point] =
+      liquidity.mft_id.split('&');
+    const link_params = `${pool_id}&${left_point}&${right_point}`;
+    const actives = related_farms.filter((farm: FarmBoost) => {
+      return farm.status != 'Ended';
+    });
+    if (related_farms.length > 0 && actives.length == 0) {
+      history.push(`/v2farms/${link_params}-e`);
+    } else {
+      history.push(`/v2farms/${link_params}-r`);
+    }
+  }
+  function is_in_farming(liquidity: UserLiquidityInfo) {
+    const is_in_farming =
+      liquidity.part_farm_ratio && +liquidity.part_farm_ratio > 0;
+    return is_in_farming;
+  }
   const isMobile = isClientMobie();
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={style}>
       <Card
         style={{ maxHeight: '95vh' }}
         padding="px-0 py-6"
-        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:w-90vw md:w-90vw lg:w-50vw xl:w-40vw"
+        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:w-90vw md:w-90vw lg:w-50vw"
       >
         <div className="header flex items-center justify-between mb-5 px-6">
           <div className="flex items-center justify-center">
@@ -1026,12 +1377,16 @@ function SelectLiquidityBox(props: any) {
             <ModalClose />
           </div>
         </div>
+        {/* for Mobile */}
         {isMobile ? (
           <div className="px-3">
             {user_liquidities_detail.map(
-              (liquidityDetail: UserLiquidityDetail) => {
+              (liquidityDetail: UserLiquidityDetail, index: number) => {
                 return (
-                  <div className="bg-chartBg bg-opacity-30 rounded-2xl mb-2.5 p-3">
+                  <div
+                    key={liquidityDetail.hashId + index}
+                    className="bg-chartBg bg-opacity-30 rounded-2xl mb-2.5 p-3"
+                  >
                     <span className="text-white text-base">
                       #{liquidityDetail.hashId}
                     </span>
@@ -1055,32 +1410,56 @@ function SelectLiquidityBox(props: any) {
                         {displayLiqudityFee(liquidityDetail)}
                       </span>
                     </div>
+                    <div className="flex items-center justify-between my-1.5">
+                      <span className="text-sm text-farmText">Farm State</span>
+                      <span className="text-sm text-white">
+                        {displayFarmStatus(user_liquidities[index])}
+                      </span>
+                    </div>
                     <div className="flex items-center justify-end mt-2">
-                      {operation == 'add' ? (
-                        <GradientButton
+                      {is_in_farming(user_liquidities[index]) ? (
+                        <BorderButton
                           onClick={(e) => {
                             e.stopPropagation();
-                            hoverLine(liquidityDetail.hashId);
-                            setShowAddBox(true);
+                            go_farm(user_liquidities[index]);
                           }}
-                          color="#fff"
-                          borderRadius={'8px'}
-                          className={`px-2 h-9 text-center text-sm text-white focus:outline-none`}
+                          rounded="rounded-lg"
+                          px="px-0"
+                          py="py-1"
+                          style={{ minWidth: '5rem' }}
+                          className={`px-2 text-sm text-greenColor h-9 focus:outline-none`}
                         >
-                          <FormattedMessage id="add_liquidity" />
-                        </GradientButton>
+                          Farm Detail
+                        </BorderButton>
                       ) : (
-                        <OprationButton
-                          onClick={(e: any) => {
-                            e.stopPropagation();
-                            hoverLine(liquidityDetail.hashId);
-                            setShowRemoveBox(true);
-                          }}
-                          color="#fff"
-                          className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
-                        >
-                          <FormattedMessage id="remove" />
-                        </OprationButton>
+                        <>
+                          {operation == 'add' ? (
+                            <GradientButton
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                hoverLine(liquidityDetail.hashId);
+                                setShowAddBox(true);
+                              }}
+                              color="#fff"
+                              borderRadius={'8px'}
+                              className={`px-2 h-9 text-center text-sm text-white focus:outline-none`}
+                            >
+                              <FormattedMessage id="add_liquidity" />
+                            </GradientButton>
+                          ) : (
+                            <OprationButton
+                              onClick={(e: any) => {
+                                e.stopPropagation();
+                                hoverLine(liquidityDetail.hashId);
+                                setShowRemoveBox(true);
+                              }}
+                              color="#fff"
+                              className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
+                            >
+                              <FormattedMessage id="remove" />
+                            </OprationButton>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -1089,32 +1468,36 @@ function SelectLiquidityBox(props: any) {
             )}
           </div>
         ) : (
+          // for Pc
           <div
             className="wrap"
             style={{ maxHeight: '500px', overflow: 'auto' }}
           >
-            <div className="grid grid-cols-9 gap-x-3 text-farmText  text-sm h-10 justify-center items-center px-6">
-              <span className="col-span-1 pl-2">ID</span>
+            <div className="grid grid-cols-12 gap-x-3 text-farmText  text-sm h-10 justify-center items-center px-6">
+              <span className="col-span-1 pl-2 whitespace-nowrap">NFT ID</span>
               <span className="col-span-2">
                 <FormattedMessage id="liquidity" />
               </span>
               <span className="col-span-3">
                 <FormattedMessage id="range" />
               </span>
-              <span className="col-span-3">
+              <span className="col-span-2">
                 <FormattedMessage id="unclaimed_fee" />
               </span>
+              <span className="col-span-2">Farm State</span>
+              <span className="col-span-2"></span>
             </div>
             <div>
               {user_liquidities_detail.map(
-                (liquidityDetail: UserLiquidityDetail) => {
+                (liquidityDetail: UserLiquidityDetail, index: number) => {
                   return (
                     <div
+                      key={index}
                       onMouseOver={() => {
                         hoverLine(liquidityDetail.hashId);
                       }}
                       // onMouseLeave={() => setHoverHashId('')}
-                      className={`grid grid-cols-9 gap-x-3 text-white text-base h-14 justify-center items-center px-6 ${
+                      className={`grid grid-cols-12 gap-x-3 text-white text-base h-14 justify-center items-center px-6 ${
                         hoverHashId == liquidityDetail.hashId
                           ? 'bg-chartBg bg-opacity-20'
                           : ''
@@ -1129,39 +1512,66 @@ function SelectLiquidityBox(props: any) {
                       <span className="col-span-3">
                         {displayRange(liquidityDetail)}
                       </span>
-                      <div className="flex items-center justify-between col-span-3">
+                      <span className="col-span-2">
                         {displayLiqudityFee(liquidityDetail)}
-                        {operation == 'add' ? (
-                          <GradientButton
+                      </span>
+                      <span className="col-span-2">
+                        {displayFarmStatus(user_liquidities[index])}
+                      </span>
+                      <div className="col-span-2">
+                        {is_in_farming(user_liquidities[index]) ? (
+                          <BorderButton
                             onClick={(e) => {
                               e.stopPropagation();
-                              setShowAddBox(true);
+                              go_farm(user_liquidities[index]);
                             }}
-                            color="#fff"
-                            borderRadius={'8px'}
-                            className={`px-2 h-9 text-center text-sm text-white focus:outline-none ${
+                            rounded="rounded-lg"
+                            px="px-0"
+                            py="py-1"
+                            style={{ minWidth: '5rem' }}
+                            className={`w-full px-2 text-sm text-greenColor h-9 ${
                               hoverHashId == liquidityDetail.hashId
                                 ? ''
                                 : 'hidden'
                             }`}
                           >
-                            <FormattedMessage id="add_liquidity" />
-                          </GradientButton>
+                            Farm Detail
+                          </BorderButton>
                         ) : (
-                          <OprationButton
-                            onClick={(e: any) => {
-                              e.stopPropagation();
-                              setShowRemoveBox(true);
-                            }}
-                            color="#fff"
-                            className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-                              hoverHashId == liquidityDetail.hashId
-                                ? ''
-                                : 'hidden'
-                            }`}
-                          >
-                            <FormattedMessage id="remove" />
-                          </OprationButton>
+                          <>
+                            {operation == 'add' ? (
+                              <GradientButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowAddBox(true);
+                                }}
+                                color="#fff"
+                                borderRadius={'8px'}
+                                className={`px-2 h-9 text-center text-sm text-white focus:outline-none ${
+                                  hoverHashId == liquidityDetail.hashId
+                                    ? ''
+                                    : 'hidden'
+                                }`}
+                              >
+                                <FormattedMessage id="add" />
+                              </GradientButton>
+                            ) : (
+                              <OprationButton
+                                onClick={(e: any) => {
+                                  e.stopPropagation();
+                                  setShowRemoveBox(true);
+                                }}
+                                color="#fff"
+                                className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                                  hoverHashId == liquidityDetail.hashId
+                                    ? ''
+                                    : 'hidden'
+                                }`}
+                              >
+                                <FormattedMessage id="remove" />
+                              </OprationButton>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -1482,7 +1892,10 @@ function TablePool(props: any) {
           </div>
         </div>
         {tokens.map((token: any, i: number) => (
-          <div className="grid grid-cols-10 items-center px-5 py-3 hover:bg-chartBg hover:bg-opacity-30">
+          <div
+            key={i}
+            className="grid grid-cols-10 items-center px-5 py-3 hover:bg-chartBg hover:bg-opacity-30"
+          >
             <div className="col-span-5 flex items-center">
               <Icon icon={token.meta.icon} className="h-7 w-7 mr-2" />
               <div className="flex flex-col">
