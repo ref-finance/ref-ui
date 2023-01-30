@@ -52,11 +52,19 @@ import {
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getTokenPriceList } from '../../services/indexer';
-import { getBoostTokenPrices } from '../../services/farm';
+import {
+  getBoostTokenPrices,
+  list_farmer_seeds,
+  FarmBoost,
+  list_seed_farms,
+} from '../../services/farm';
 import { getLiquidity } from '~utils/pool';
 import _ from 'lodash';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { BlueCircleLoading } from '../../components/layout/Loading';
+import getConfig from '../../services/config';
+import { allocation_rule_liquidities } from '~services/commonV3';
+const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 export default function YourLiquidityDetail(props: any) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
@@ -69,6 +77,11 @@ export default function YourLiquidityDetail(props: any) {
   const [rateSort, setRateSort] = useState<boolean>(true);
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [chartLoading, setChartLoading] = useState<boolean>(true);
+  const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
+    []
+  );
+  const [is_in_farming, set_is_in_farming] = useState<boolean>(false);
+  const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
   const history = useHistory();
   // callBack handle
   useAddAndRemoveUrlHandle();
@@ -95,6 +108,7 @@ export default function YourLiquidityDetail(props: any) {
     if (poolId && hashId) {
       get_user_liquidity();
       get_pool_detail();
+      get_list_liquidities();
     }
     document.body.scrollTop = document.documentElement.scrollTop = 0;
   }, []);
@@ -107,15 +121,53 @@ export default function YourLiquidityDetail(props: any) {
       } else {
         setIsInrange(false);
       }
+      if (listLiquidities.length > 0) {
+        const target = listLiquidities.find((liquidity: UserLiquidityInfo) => {
+          return liquidity.lpt_id == userLiquidity.lpt_id;
+        });
+        const { part_farm_ratio, unfarm_part_amount } = target;
+        userLiquidity.part_farm_ratio = part_farm_ratio;
+        userLiquidity.unfarm_part_amount = unfarm_part_amount;
+        set_is_in_farming(+part_farm_ratio > 0);
+      }
+      get_pool_related_farms();
       get_liquidity_x_y();
       getChartData();
     }
-  }, [userLiquidity, poolDetail, tokenMetadata_x_y]);
+  }, [userLiquidity, poolDetail, tokenMetadata_x_y, listLiquidities]);
   useEffect(() => {
     if (userLiquidity && poolDetail && tokenMetadata_x_y) {
       getChartData();
     }
   }, [rateSort]);
+  async function get_list_liquidities() {
+    const list: UserLiquidityInfo[] = await list_liquidities();
+    if (list.length > 0) {
+      // get user seeds
+      const user_seeds_map = await list_farmer_seeds();
+      Object.keys(user_seeds_map).forEach((seed_id: string) => {
+        const [contractId, mft_id] = seed_id.split('@');
+        if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+          const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
+          const user_seed_amount = new BigNumber(free_amount)
+            .plus(locked_amount)
+            .toFixed();
+          allocation_rule_liquidities({ list, user_seed_amount, seed_id });
+        }
+      });
+      setListLiquidities(list);
+    }
+  }
+  async function get_pool_related_farms() {
+    const is_in_farming =
+      userLiquidity.part_farm_ratio && +userLiquidity.part_farm_ratio > 0;
+    if (is_in_farming) {
+      const id = userLiquidity.mft_id.slice(1);
+      const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + id;
+      const farmList = await list_seed_farms(seed_id);
+      set_related_farms(farmList);
+    }
+  }
   async function getChartData() {
     const depthData = await get_pool_marketdepth(poolDetail.pool_id);
     const { left_point, right_point } = userLiquidity;
@@ -341,13 +393,15 @@ export default function YourLiquidityDetail(props: any) {
     if (!canClaim()) return;
     setClaimLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
+    const { lpt_id } = userLiquidity;
     remove_liquidity({
       token_x: tokenX,
       token_y: tokenY,
-      lpt_id: userLiquidity.lpt_id,
-      amount: '0',
+      lpt_id,
+      mft_id: '',
       min_amount_x: '0',
       min_amount_y: '0',
+      amount: '0',
     });
   }
   function canClaim() {
@@ -373,6 +427,19 @@ export default function YourLiquidityDetail(props: any) {
       return '<0.001';
     } else {
       return toPrecision(tokenXAmount, 3);
+    }
+  }
+  function go_farm() {
+    const [fixRange, pool_id, left_point, right_point] =
+      userLiquidity.mft_id.split('&');
+    const link_params = `${pool_id}&${left_point}&${right_point}`;
+    const actives = related_farms.filter((farm: FarmBoost) => {
+      return farm.status != 'Ended';
+    });
+    if (related_farms.length > 0 && actives.length == 0) {
+      history.push(`/v2farms/${link_params}-e`);
+    } else {
+      history.push(`/v2farms/${link_params}-r`);
     }
   }
   return (
@@ -435,6 +502,11 @@ export default function YourLiquidityDetail(props: any) {
                 )}
               </span>
             </div>
+            {is_in_farming ? (
+              <span className="text-sm text-dclFarmGreenColor ml-2">
+                Farming
+              </span>
+            ) : null}
           </div>
         </div>
       </div>
@@ -479,26 +551,45 @@ export default function YourLiquidityDetail(props: any) {
             </div>
           </div>
           <div className="flex items-center justify-between mt-5">
-            <GradientButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowAddBox(true);
-              }}
-              color="#fff"
-              className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
-            >
-              <FormattedMessage id="add"></FormattedMessage>
-            </GradientButton>
-            <OprationButton
-              onClick={(e: any) => {
-                e.stopPropagation();
-                setShowRemoveBox(true);
-              }}
-              color="#fff"
-              className={`flex flex-grow  w-1 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
-            >
-              <FormattedMessage id="remove"></FormattedMessage>
-            </OprationButton>
+            {listLiquidities.length && userLiquidity ? (
+              <>
+                {is_in_farming ? (
+                  <GradientButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      go_farm();
+                    }}
+                    color="#fff"
+                    className={`w-full h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
+                  >
+                    Go Farm
+                  </GradientButton>
+                ) : (
+                  <>
+                    <GradientButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowAddBox(true);
+                      }}
+                      color="#fff"
+                      className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
+                    >
+                      <FormattedMessage id="add"></FormattedMessage>
+                    </GradientButton>
+                    <OprationButton
+                      onClick={(e: any) => {
+                        e.stopPropagation();
+                        setShowRemoveBox(true);
+                      }}
+                      color="#fff"
+                      className={`flex flex-grow  w-1 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
+                    >
+                      <FormattedMessage id="remove"></FormattedMessage>
+                    </OprationButton>
+                  </>
+                )}
+              </>
+            ) : null}
           </div>
         </div>
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow xs:w-full md:w-full xs:mt-3 md:mt-3 xs:p-3 md:p-3">

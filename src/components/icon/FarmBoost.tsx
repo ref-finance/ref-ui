@@ -4155,3 +4155,22 @@ export const CrossIconFull = (props: any) => {
     </svg>
   );
 };
+
+export const LinkArrowIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0.592725 9.07802L8.95679 0.713952M3.9397 0.545594L9.07801 0.592734L9.12515 5.73104"
+        stroke="currentColor"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+};

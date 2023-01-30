@@ -719,6 +719,7 @@ function UserLiquidityLine({
       token_y: tokenY,
       lpt_id,
       amount: '0',
+      mft_id: '',
       min_amount_x: '0',
       min_amount_y: '0',
     });

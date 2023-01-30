@@ -901,6 +901,7 @@ export const getBoostSeedsFromServer = async (): Promise<{
     // get all dcl pools todo
     const dcl_all_pools: PoolInfo[] = await listPools();
     let pools: any[] = [];
+    const both_normalPools_dclPools: any[] = [];
     list_seeds.forEach((seed: Seed) => {
       const { seed_id } = seed;
       // seed type: [commonSeed, loveSeed, dclSeed]
@@ -945,9 +946,14 @@ export const getBoostSeedsFromServer = async (): Promise<{
         farmList: list_farms[index],
         pool,
       });
+      both_normalPools_dclPools.push(pool);
     });
     db.cacheBoostSeeds(cacheSeedsFarmsPools);
-    return { seeds: list_seeds, farms: list_farms, pools };
+    return {
+      seeds: list_seeds,
+      farms: list_farms,
+      pools: both_normalPools_dclPools,
+    };
   } catch (error) {
     console.log(error);
     return null;

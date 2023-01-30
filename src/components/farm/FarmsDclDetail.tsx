@@ -33,6 +33,7 @@ import {
   CrossIconMiddle,
   CrossIconLarge,
   CrossIconFull,
+  LinkArrowIcon,
 } from '~components/icon/FarmBoost';
 import { RefreshIcon } from '~components/icon/swapV3';
 import { AddButtonIcon } from '~components/icon/V3';
@@ -853,13 +854,11 @@ export default function FarmsDclDetail(props: {
         </div>
 
         <div
-          className="flex items-center xs:hidden md:hidden"
+          className="flex items-center xs:hidden md:hidden text-farmText hover:text-framBorder"
           onClick={goPoolPage}
         >
-          <label className="mx-2 text-sm text-primaryText hover:text-framBorder cursor-pointer">
-            V2 Pool Detail
-          </label>
-          <LinkIcon></LinkIcon>
+          <label className="mx-2 text-sm cursor-pointer">V2 Pool Detail</label>
+          <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
       {/* baseData */}
@@ -934,8 +933,14 @@ export default function FarmsDclDetail(props: {
           </div>
         </div>
       </div>
+      {/* login area */}
+      <AddLoginEntryBar></AddLoginEntryBar>
       {/* unClaimed Rewards */}
-      <div className="flex items-center justify-between my-7 p-4 bg-dclFarmBlueColor rounded-xl">
+      <div
+        className={`flex items-center justify-between my-7 p-4 bg-dclFarmBlueColor rounded-xl ${
+          user_seeds_map[detailData.seed_id] ? '' : 'hidden'
+        }`}
+      >
         <div className="flex items-center text-sm text-white">
           <FormattedMessage id="unclaimed_rewards"></FormattedMessage>
           <div
@@ -1111,6 +1116,7 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
   } = useContext(FarmContext);
   const [nft_stake_loading, set_nft_stake_loading] = useState(false);
   const [nft_unStake_loading, set_nft_unStake_loading] = useState(false);
+  const [hover, setHover] = useState(false);
   const [liquidity_status, liquidity_operation]: any = useMemo(() => {
     return display_liquidity_status(liquidity);
   }, [liquidity, detailData]);
@@ -1232,13 +1238,35 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     } else {
       display_right_price = toPrecision(right_price, 6);
     }
-
+    function rangeTip() {
+      // const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
+      const tip =
+        'The intersection of your price range and the farm reward range.';
+      let result: string = `<div class="text-farmText text-xs w-52 text-left">${tip}</div>`;
+      return result;
+    }
     return (
       <div className="flex items-center">
         <span className="text-sm text-white mr-1.5">
           {display_left_price} ~ ${display_right_price}
         </span>
-        {icon}
+        <div
+          className="text-white text-right"
+          data-class="reactTip"
+          data-for={'rewardPerWeekQId'}
+          data-place="top"
+          data-html={true}
+          data-tip={rangeTip()}
+        >
+          {icon}
+          <ReactTooltip
+            id={'rewardPerWeekQId'}
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+          />
+        </div>
       </div>
     );
   }
@@ -1325,11 +1353,21 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     const farms = detailData.farmList;
     return farms[0].status == 'Ended';
   }
+  function goYourLiquidityDetail(liquidity: UserLiquidityInfo) {
+    const url_params = liquidity.lpt_id.replace(/\|/g, '@').replace(/#/g, '@');
+    window.open(`/yoursLiquidityDetailV2/${url_params}`);
+  }
   const showStakeButton =
     !isEnded() && liquidity_operation.indexOf('stake') > -1;
   const showUnStakeButton = liquidity_operation.indexOf('unstake') > -1;
   return (
-    <div className="relative" key={liquidity.lpt_id}>
+    <div
+      className="relative"
+      key={liquidity.lpt_id}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
+    >
       <div className="absolute -top-1.5 left-5 flex items-center justify-center">
         <NFTIdIcon className=""></NFTIdIcon>
         <span className="absolute gotham_bold text-xs text-white">
@@ -1337,7 +1375,10 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
         </span>
       </div>
       <div className="bg-v3HoverDarkBgColor rounded-xl mb-5 overflow-hidden">
-        <div className="grid grid-cols-5 pt-7 pb-3.5 px-6">
+        <div
+          onMouseOver={() => setHover(true)}
+          className="grid grid-cols-5 pt-7 pb-3.5 px-6"
+        >
           <div className="flex flex-col justify-between col-span-1 items-start">
             <span className="text-sm text-primaryText">Your Liquidity</span>
             <span className="text-sm text-white mt-2.5">
@@ -1362,48 +1403,75 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
           </div>
         </div>
         <div
-          className={`flex items-center justify-end bg-cardBg py-3 px-6 ${
-            get_liquidity_status(liquidity) == 3 ? 'hidden' : ''
-          }`}
+          className={`flex items-center  justify-between bg-cardBg py-3 px-6 ${
+            hover ? '' : 'hidden'
+          } ${get_liquidity_status(liquidity) == 3 ? 'hidden' : ''}`}
         >
-          <GradientButton
+          <div
             onClick={() => {
-              stakeNFT(liquidity);
+              goYourLiquidityDetail(liquidity);
             }}
-            color="#fff"
-            disabled={needForbidden || nft_stake_loading ? true : false}
-            btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
-            minWidth="6rem"
-            className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
-              needForbidden || nft_stake_loading ? 'opacity-40' : ''
-            } ${showStakeButton ? '' : 'hidden'}`}
+            className="flex items-center text-sm text-primaryText hover:text-white cursor-pointer"
           >
-            <ButtonTextWrapper
-              loading={nft_stake_loading}
-              Text={() => (
-                <FormattedMessage id="stake" defaultMessage="Stake" />
-              )}
-            />
-          </GradientButton>
-          <OprationButton
-            onClick={() => {
-              unStakeNFT(liquidity);
-            }}
-            color="#fff"
-            minWidth="6rem"
-            disabled={nft_unStake_loading ? true : false}
-            className={`flex items-center justify-center h-8 px-4 ml-2.5 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-              nft_unStake_loading ? 'opacity-40' : ''
-            } ${showUnStakeButton ? '' : 'hidden'}`}
-          >
-            <ButtonTextWrapper
-              loading={nft_unStake_loading}
-              Text={() => (
-                <FormattedMessage id="unstake" defaultMessage="unstake" />
-              )}
-            />
-          </OprationButton>
+            <span className="mr-2">Liquidity Detail</span>
+            <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+          </div>
+          <div className="flex items-center">
+            <GradientButton
+              onClick={() => {
+                stakeNFT(liquidity);
+              }}
+              color="#fff"
+              disabled={needForbidden || nft_stake_loading ? true : false}
+              btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
+              minWidth="6rem"
+              className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
+                needForbidden || nft_stake_loading ? 'opacity-40' : ''
+              } ${showStakeButton ? '' : 'hidden'}`}
+            >
+              <ButtonTextWrapper
+                loading={nft_stake_loading}
+                Text={() => (
+                  <FormattedMessage id="stake" defaultMessage="Stake" />
+                )}
+              />
+            </GradientButton>
+            <OprationButton
+              onClick={() => {
+                unStakeNFT(liquidity);
+              }}
+              color="#fff"
+              minWidth="6rem"
+              disabled={nft_unStake_loading ? true : false}
+              className={`flex items-center justify-center h-8 px-4 ml-2.5 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                nft_unStake_loading ? 'opacity-40' : ''
+              } ${showUnStakeButton ? '' : 'hidden'}`}
+            >
+              <ButtonTextWrapper
+                loading={nft_unStake_loading}
+                Text={() => (
+                  <FormattedMessage id="unstake" defaultMessage="unstake" />
+                )}
+              />
+            </OprationButton>
+          </div>
         </div>
+      </div>
+    </div>
+  );
+}
+function AddLoginEntryBar() {
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  if (isSignedIn) return null;
+  return (
+    <div
+      className="rounded-lg overflow-hidden mt-8"
+      style={{ backgroundColor: 'rgba(29, 41, 50, 0.5)' }}
+    >
+      <div className="w-full bg-gradientFrom h-1.5"></div>
+      <div className="pt-5 pb-3 px-3 w-80 m-auto">
+        <ConnectToNearBtn></ConnectToNearBtn>
       </div>
     </div>
   );

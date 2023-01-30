@@ -86,6 +86,7 @@ export const AddNewPoolV3 = (props: any) => {
   const [leftInputStatus, setLeftInputStatus] = useState(false);
   const [rightInputStatus, setRightInputStatus] = useState(false);
   const [showCustomPointArea, setShowCustomPointArea] = useState(false);
+  const [hover, setHover] = useState(false);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const nearBalance = useDepositableBalance('NEAR');
@@ -488,7 +489,7 @@ export const AddNewPoolV3 = (props: any) => {
           </div>
         </div>
         <div>
-          <div className="flex items-center justify-between my-6">
+          {/* <div className="flex items-center justify-between my-6">
             <div className="flex items-center">
               <div className="flex items-center">
                 <img
@@ -505,7 +506,8 @@ export const AddNewPoolV3 = (props: any) => {
                 {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
               </span>
             </div>
-          </div>
+          </div> */}
+          <div className="text-sm text-primaryText mt-6">Input Amount</div>
           <OneSide
             show={
               (onlyAddYToken &&
@@ -555,16 +557,26 @@ export const AddNewPoolV3 = (props: any) => {
           {/* set price rage area */}
           <div className="">
             <div className="flex items-center justify-between mt-6 mb-3.5">
-              <div className="flex items-center text-sm">
+              <div
+                className="flex items-center text-sm cursor-pointer"
+                onMouseOver={() => setHover(true)}
+                onMouseLeave={() => {
+                  setHover(false);
+                }}
+                onClick={() => {
+                  setShowCustomPointArea(!showCustomPointArea);
+                }}
+              >
                 <ArrowDownV3
-                  onClick={() => {
-                    setShowCustomPointArea(!showCustomPointArea);
-                  }}
-                  className={`text-primaryText cursor-pointer mr-2.5 hover:text-white ${
-                    showCustomPointArea ? 'transform rotate-180' : ''
-                  }`}
+                  className={`mr-2.5 hover:text-white ${
+                    hover ? 'text-white' : 'text-primaryText'
+                  } ${showCustomPointArea ? 'transform rotate-180' : ''}`}
                 ></ArrowDownV3>
-                <span className="text-primaryText">Set Price Range</span>
+                <span
+                  className={`${hover ? 'text-white' : 'text-primaryText'}`}
+                >
+                  Set Price Range
+                </span>
               </div>
               {getRange('custom')}
             </div>

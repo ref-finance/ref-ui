@@ -47,7 +47,6 @@ import {
   WatchListStartEmpty,
   WatchListStartFull,
 } from '../../components/icon/WatchListStar';
-import { SwitchButtonIcon, NoLiquidityIcon } from '~components/icon/V3';
 import Loading from '~components/layout/Loading';
 import { useTokenPriceList } from '../../state/token';
 import {
@@ -98,7 +97,13 @@ import {
 } from '../../services/farm';
 import getConfig from '../../services/config';
 import { allocation_rule_liquidities } from '~services/commonV3';
-import { FarmBoardInDetailPool, Fire } from '../../components/icon/V3';
+import {
+  SwitchButtonIcon,
+  NoLiquidityIcon,
+  FarmBoardInDetailPool,
+  Fire,
+  JumpLinkIcon,
+} from '../../components/icon/V3';
 import _ from 'lodash';
 import { PoolRPCView } from '../../services/api';
 
@@ -712,7 +717,7 @@ function YourLiquidityBox(props: {
         </span>
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
-            {liquidities.length} <FormattedMessage id="positions" />
+            {liquidities.length} NFTs
           </span>
         ) : null}
       </div>
@@ -720,7 +725,7 @@ function YourLiquidityBox(props: {
         {getTotalLiquditiesTvl()}
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2 mt-0.5 lg:hidden">
-            {liquidities.length} <FormattedMessage id="positions" />
+            {liquidities.length} NFTs
           </span>
         ) : null}
       </div>
@@ -893,7 +898,7 @@ function UnclaimedFeesBox(props: any) {
         </span>
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
-            {liquidities.length} <FormattedMessage id="positions" />
+            {liquidities.length} NFTs
           </span>
         ) : null}
       </div>
@@ -901,7 +906,7 @@ function UnclaimedFeesBox(props: any) {
         {getTotalLiquditiesFee()}
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2 mt-0.5 lg:hidden">
-            {liquidities.length} <FormattedMessage id="positions" />
+            {liquidities.length} NFTs
           </span>
         ) : null}
       </div>
@@ -1346,8 +1351,10 @@ function SelectLiquidityBox(props: any) {
       return farm.status != 'Ended';
     });
     if (related_farms.length > 0 && actives.length == 0) {
+      // window.open(`/v2farms/${link_params}-e`)
       history.push(`/v2farms/${link_params}-e`);
     } else {
+      // window.open(`/v2farms/${link_params}-r`)
       history.push(`/v2farms/${link_params}-r`);
     }
   }
@@ -1529,13 +1536,16 @@ function SelectLiquidityBox(props: any) {
                             px="px-0"
                             py="py-1"
                             style={{ minWidth: '5rem' }}
-                            className={`w-full px-2 text-sm text-greenColor h-9 ${
+                            className={`w-full px-2 text-sm text-greenColor h-9 border-opacity-50 ${
                               hoverHashId == liquidityDetail.hashId
                                 ? ''
                                 : 'hidden'
                             }`}
                           >
-                            Farm Detail
+                            <div className="flex items-center justify-center cursor-pointer">
+                              Farm Detail
+                              <JumpLinkIcon className="ml-1"></JumpLinkIcon>
+                            </div>
                           </BorderButton>
                         ) : (
                           <>
@@ -1562,7 +1572,7 @@ function SelectLiquidityBox(props: any) {
                                   setShowRemoveBox(true);
                                 }}
                                 color="#fff"
-                                className={`flex w-24 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                                className={`flex h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
                                   hoverHashId == liquidityDetail.hashId
                                     ? ''
                                     : 'hidden'
@@ -1584,16 +1594,16 @@ function SelectLiquidityBox(props: any) {
 
         {operation == 'add' ? (
           <div className="flex justify-center xsm:px-3">
-            <GradientButton
+            <div
               onClick={(e) => {
                 e.stopPropagation();
                 goAddLiqudityPage();
               }}
               color="#fff"
-              className={`px-3 xsm:w-full h-10 text-center text-base text-white focus:outline-none mt-7 xsm:mt-4`}
+              className={`flex items-center justify-center w-full h-10 mx-6 border border-dashed border-dclBorderColor rounded-lg text-sm  text-primaryText cursor-pointer hover:bg-dclButtonBgColor hover:text-white focus:outline-none mt-7 xsm:mt-4`}
             >
-              <FormattedMessage id="add_new_position" />
-            </GradientButton>
+              + Add Position
+            </div>
           </div>
         ) : null}
         {operation == 'add' && showAddBox ? (

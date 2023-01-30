@@ -80,6 +80,7 @@ import { SelectedIcon, ArrowDownV3 } from '../../components/icon/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { REF_FI_POOL_ACTIVE_TAB } from '../pools/LiquidityPage';
 import getConfig from '../../services/config';
+import QuestionMark from '../../components/farm/QuestionMark';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 
 import Big from 'big.js';
@@ -1838,44 +1839,48 @@ function AddLiquidityComponent({
     const display_price_left = toPrecision(price_left_final.toString(), 6);
     const display_price_right = toPrecision(price_right_final.toString(), 6);
     return (
-      <div className="flex items-center text-sm">
-        <ArrowDownV3
-          onClick={() => {
-            setDisplayedSeedIndex(displayedSeedIndex - 1);
-          }}
-          className={`transform rotate-90 mr-1.5 text-primaryText cursor-pointer ${
-            seeds.length > 1 && displayedSeedIndex > 0 ? '' : 'hidden'
-          }`}
-        ></ArrowDownV3>
-        <span className="text-limitOrderInputColor">1 {tokenX.symbol} = </span>
-        <span
-          className="text-v3SwapGray underline cursor-pointer mx-1"
-          onClick={() => {
-            if (!tokenSort) {
-              leftCustomPrice = price_right_final;
-              rightCustomPrice = price_left_final;
-            } else {
-              leftCustomPrice = price_left_final;
-              rightCustomPrice = price_right_final;
-            }
-            setLeftCustomPrice(leftCustomPrice);
-            setRightCustomPrice(rightCustomPrice);
-            handlePriceToAppropriatePoint();
-          }}
-        >
-          {display_price_left} ~ {display_price_right}
+      <div className="flex flex-col items-ends text-sm">
+        <span className="text-limitOrderInputColor text-right">
+          1 {tokenX.symbol} ={' '}
         </span>
-        <span className="text-limitOrderInputColor">{tokenY.symbol}</span>
-        <ArrowDownV3
-          onClick={() => {
-            setDisplayedSeedIndex(displayedSeedIndex + 1);
-          }}
-          className={`transform -rotate-90 ml-1.5 text-primaryText cursor-pointer ${
-            seeds.length > 1 && displayedSeedIndex < seeds.length - 1
-              ? ''
-              : 'hidden'
-          }`}
-        ></ArrowDownV3>
+        <div className="flex items-center mt-1">
+          <ArrowDownV3
+            onClick={() => {
+              setDisplayedSeedIndex(displayedSeedIndex - 1);
+            }}
+            className={`transform rotate-90 mr-1.5 text-primaryText cursor-pointer ${
+              seeds.length > 1 && displayedSeedIndex > 0 ? '' : 'hidden'
+            }`}
+          ></ArrowDownV3>
+          <span
+            className="text-v3SwapGray underline cursor-pointer mx-1"
+            onClick={() => {
+              if (!tokenSort) {
+                leftCustomPrice = price_right_final;
+                rightCustomPrice = price_left_final;
+              } else {
+                leftCustomPrice = price_left_final;
+                rightCustomPrice = price_right_final;
+              }
+              setLeftCustomPrice(leftCustomPrice);
+              setRightCustomPrice(rightCustomPrice);
+              handlePriceToAppropriatePoint();
+            }}
+          >
+            {display_price_left} ~ {display_price_right}
+          </span>
+          <span className="text-limitOrderInputColor">{tokenY.symbol}</span>
+          <ArrowDownV3
+            onClick={() => {
+              setDisplayedSeedIndex(displayedSeedIndex + 1);
+            }}
+            className={`transform -rotate-90 ml-1.5 text-primaryText cursor-pointer ${
+              seeds.length > 1 && displayedSeedIndex < seeds.length - 1
+                ? ''
+                : 'hidden'
+            }`}
+          ></ArrowDownV3>
+        </div>
       </div>
     );
   }
@@ -2069,11 +2074,28 @@ function AddLiquidityComponent({
           </div>
           {seeds.length ? (
             <div
-              className={`flex items-center justify-between flex-wrap my-3.5`}
+              className={`flex items-start justify-between flex-wrap mt-3.5 mb-1`}
             >
-              <span className="text-sm text-primaryText mr-3">
+              <div className="flex items-center text-sm text-primaryText mr-3">
                 Reward Range
-              </span>
+                <div
+                  className="text-white text-right ml-1"
+                  data-class="reactTip"
+                  data-for="rangeTipId"
+                  data-place="top"
+                  data-html={true}
+                  data-tip={'hello world'}
+                >
+                  <QuestionMark></QuestionMark>
+                  <ReactTooltip
+                    id="rangeTipId"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
+                </div>
+              </div>
               {get_related_seeds()}
             </div>
           ) : null}

@@ -175,40 +175,6 @@ export default function FarmsHome(props: any) {
       txt: intl.formatMessage({ id: 'all' }),
     },
   };
-  const statusList = {
-    live: {
-      txt: intl.formatMessage({ id: 'all' }),
-    },
-    boost: {
-      txt: intl.formatMessage({ id: 'boost' }),
-      icon: <BoostOptIcon></BoostOptIcon>,
-      hidden: REF_VE_CONTRACT_ID ? false : true,
-    },
-    near: {
-      txt: intl.formatMessage({ id: 'near' }),
-      icon: <NearOptIcon></NearOptIcon>,
-    },
-    eth: {
-      txt: intl.formatMessage({ id: 'eth' }),
-      icon: <EthOptIcon></EthOptIcon>,
-    },
-    stable: {
-      txt: intl.formatMessage({ id: 'stablecoin' }),
-      icon: <StableOption></StableOption>,
-    },
-    new: {
-      txt: intl.formatMessage({ id: 'newText' }),
-      icon: <NewIcon></NewIcon>,
-    },
-    others: {
-      txt: intl.formatMessage({ id: 'others' }),
-      icon: <OthersOptIcon></OthersOptIcon>,
-    },
-    my: {
-      txt: intl.formatMessage({ id: 'yours' }),
-      icon: <YoursOptIcon></YoursOptIcon>,
-    },
-  };
   const coinList = { all: intl.formatMessage({ id: 'allOption' }) };
   classificationOfCoins_key.forEach((key) => {
     coinList[key] = intl.formatMessage({ id: key });
@@ -241,8 +207,50 @@ export default function FarmsHome(props: any) {
   const [userDataLoading, setUserDataLoading] = useState<boolean>(true);
   const [boostInstructions, setBoostInstructions] = useState<boolean>(false);
   const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
+  let [farmTab, setFarmTab] = useState(
+    localStorage.getItem('BOOST_FARM_RAB') || 'normal'
+  ); // dcl、normal
   const location = useLocation();
   const history = useHistory();
+  const statusList = {
+    live: {
+      txt: intl.formatMessage({ id: 'all' }),
+    },
+    boost: {
+      txt: intl.formatMessage({ id: 'boost' }),
+      icon: <BoostOptIcon></BoostOptIcon>,
+      hidden: REF_VE_CONTRACT_ID && farmTab == 'normal' ? false : true,
+    },
+    near: {
+      txt: intl.formatMessage({ id: 'near' }),
+      icon: <NearOptIcon></NearOptIcon>,
+      hidden: farmTab == 'dcl' ? true : false,
+    },
+    eth: {
+      txt: intl.formatMessage({ id: 'eth' }),
+      icon: <EthOptIcon></EthOptIcon>,
+      hidden: farmTab == 'dcl' ? true : false,
+    },
+    stable: {
+      txt: intl.formatMessage({ id: 'stablecoin' }),
+      icon: <StableOption></StableOption>,
+      hidden: farmTab == 'dcl' ? true : false,
+    },
+    new: {
+      txt: intl.formatMessage({ id: 'newText' }),
+      icon: <NewIcon></NewIcon>,
+      hidden: farmTab == 'dcl' ? true : false,
+    },
+    others: {
+      txt: intl.formatMessage({ id: 'others' }),
+      icon: <OthersOptIcon></OthersOptIcon>,
+      hidden: farmTab == 'dcl' ? true : false,
+    },
+    my: {
+      txt: intl.formatMessage({ id: 'yours' }),
+      icon: <YoursOptIcon></YoursOptIcon>,
+    },
+  };
   /** search area options end **/
   useEffect(() => {
     init();
@@ -650,6 +658,7 @@ export default function FarmsHome(props: any) {
     setSort(sortKey);
     searchByCondition();
   }
+  // todo
   function changeStatus(statusSelectOption: string) {
     localStorage.setItem('farmV2Status', statusSelectOption);
     setStatus(statusSelectOption);
@@ -669,74 +678,111 @@ export default function FarmsHome(props: any) {
       const isEnd = farmList[0].status == 'Ended';
       const user_seed = user_seeds_map[seed_id];
       const userStaked = Object.keys(user_seed || {}).length > 0;
-      const { token_symbols } = pool;
-      let condition1, condition2;
-      if (status == 'my') {
-        if (userStaked) {
-          const commonSeedFarmList = commonSeedFarms[seed_id] || [];
-          if (commonSeedFarmList.length == 2 && isEnd) {
-            condition1 = false;
-          } else {
-            condition1 = true;
-          }
-        }
-      } else if (status == 'live') {
-        condition1 = !isEnd;
-      } else if (status == 'boost' && boostConfig) {
-        const affected_seeds_keys = Object.keys(boostConfig.affected_seeds);
-        if (affected_seeds_keys.indexOf(seed_id) > -1 && !isEnd) {
-          condition1 = true;
+      const { tokens_meta_data } = pool;
+      const token_symbols: string[] = [];
+      tokens_meta_data.forEach((token: TokenMetadata) => {
+        token_symbols.push(token.symbol);
+      });
+      const [contractId, temp_mft_id] = seed_id.split('@');
+      let condition1, condition2, condition3;
+      if (farmTab == 'dcl') {
+        if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+          condition3 = true;
         } else {
-          condition1 = false;
+          condition3 = false;
         }
-      } else if (status == 'near') {
-        if (
-          farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) >
-            -1 &&
-          !isEnd
-        ) {
-          condition1 = true;
+      } else {
+        if (contractId != REF_UNI_V3_SWAP_CONTRACT_ID) {
+          condition3 = true;
         } else {
-          condition1 = false;
-        }
-      } else if (status == 'eth') {
-        if (
-          farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) > -1 &&
-          !isEnd
-        ) {
-          condition1 = true;
-        } else {
-          condition1 = false;
-        }
-      } else if (status == 'stable') {
-        if (
-          farmClassification['stable'].indexOf(+getPoolIdBySeedId(seed_id)) >
-            -1 &&
-          !isEnd
-        ) {
-          condition1 = true;
-        } else {
-          condition1 = false;
-        }
-      } else if (status == 'others') {
-        // others
-        const isNotNear =
-          farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
-        const isNotEth =
-          farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
-        if (isNotNear && isNotEth && !isEnd) {
-          condition1 = true;
-        } else {
-          condition1 = false;
-        }
-      } else if (status == 'new') {
-        const m = isInMonth(seed);
-        if (m) {
-          condition1 = true;
-        } else {
-          condition1 = false;
+          condition3 = false;
         }
       }
+      if (farmTab == 'dcl') {
+        if (status == 'my') {
+          if (userStaked) {
+            const commonSeedFarmList = commonSeedFarms[seed_id] || [];
+            if (commonSeedFarmList.length == 2 && isEnd) {
+              condition1 = false;
+            } else {
+              condition1 = true;
+            }
+          }
+        } else {
+          condition1 = !isEnd;
+        }
+      } else {
+        if (status == 'my') {
+          if (userStaked) {
+            const commonSeedFarmList = commonSeedFarms[seed_id] || [];
+            if (commonSeedFarmList.length == 2 && isEnd) {
+              condition1 = false;
+            } else {
+              condition1 = true;
+            }
+          }
+        } else if (status == 'live') {
+          condition1 = !isEnd;
+        } else if (status == 'boost' && boostConfig) {
+          const affected_seeds_keys = Object.keys(boostConfig.affected_seeds);
+          if (affected_seeds_keys.indexOf(seed_id) > -1 && !isEnd) {
+            condition1 = true;
+          } else {
+            condition1 = false;
+          }
+        } else if (status == 'near') {
+          if (
+            farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) >
+              -1 &&
+            !isEnd
+          ) {
+            condition1 = true;
+          } else {
+            condition1 = false;
+          }
+        } else if (status == 'eth') {
+          if (
+            farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) >
+              -1 &&
+            !isEnd
+          ) {
+            condition1 = true;
+          } else {
+            condition1 = false;
+          }
+        } else if (status == 'stable') {
+          if (
+            farmClassification['stable'].indexOf(+getPoolIdBySeedId(seed_id)) >
+              -1 &&
+            !isEnd
+          ) {
+            condition1 = true;
+          } else {
+            condition1 = false;
+          }
+        } else if (status == 'others') {
+          // others
+          const isNotNear =
+            farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) ==
+            -1;
+          const isNotEth =
+            farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) ==
+            -1;
+          if (isNotNear && isNotEth && !isEnd) {
+            condition1 = true;
+          } else {
+            condition1 = false;
+          }
+        } else if (status == 'new') {
+          const m = isInMonth(seed);
+          if (m) {
+            condition1 = true;
+          } else {
+            condition1 = false;
+          }
+        }
+      }
+
       if (keyWords) {
         for (let i = 0; i < token_symbols.length; i++) {
           if (
@@ -751,7 +797,7 @@ export default function FarmsHome(props: any) {
       } else {
         condition2 = true;
       }
-      if (condition1 && condition2) {
+      if (condition1 && condition2 && condition3) {
         seed.hidden = false;
         noDataLive = false;
       } else {
@@ -761,8 +807,23 @@ export default function FarmsHome(props: any) {
     farm_display_ended_List.forEach((seed: Seed) => {
       const { pool, seed_id } = seed;
       const { token_symbols } = pool;
-      let condition1;
-      if (status == 'live') {
+      const [contractId, temp_mft_id] = seed_id.split('@');
+      let condition1, condition3;
+      let condition2 = true;
+      if (farmTab == 'dcl') {
+        if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+          condition3 = true;
+        } else {
+          condition3 = false;
+        }
+      } else {
+        if (contractId != REF_UNI_V3_SWAP_CONTRACT_ID) {
+          condition3 = true;
+        } else {
+          condition3 = false;
+        }
+      }
+      if (farmTab == 'dcl' || status == 'live') {
         condition1 = true;
       } else if (status == 'boost' && boostConfig) {
         const affected_seeds_keys = Object.keys(boostConfig.affected_seeds);
@@ -798,7 +859,7 @@ export default function FarmsHome(props: any) {
           condition1 = false;
         }
       }
-      let condition2 = true;
+
       if (keyWords) {
         for (let i = 0; i < token_symbols.length; i++) {
           if (
@@ -811,7 +872,7 @@ export default function FarmsHome(props: any) {
           }
         }
       }
-      if (condition2 && condition1) {
+      if (condition2 && condition1 && condition3) {
         seed.hidden = false;
         noDataEnd = false;
       } else {
@@ -1122,6 +1183,16 @@ export default function FarmsHome(props: any) {
   const endFarmLength = useMemo(() => {
     return getFarmVisibleLength();
   }, [farm_display_ended_List]);
+  function switchFarmTab(tab: string) {
+    setFarmTab(tab);
+    farmTab = tab;
+    localStorage.setItem('BOOST_FARM_RAB', tab);
+    if (!(status == 'my' || status == 'live')) {
+      setStatus('live');
+      localStorage.setItem('farmV2Status', 'live');
+    }
+    searchByCondition();
+  }
   const isMobileSite = isMobile();
   const showMigrateEntry = !seed_loading && user_migrate_seeds.length > 0;
   return (
@@ -1168,17 +1239,31 @@ export default function FarmsHome(props: any) {
           <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-3 md:px-3 xs:pt-2 md:pt-2">
             <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4 pl-2">
               <FormattedMessage id="farms"></FormattedMessage>
-              <div className="flex items-center justify-between h-7 rounded-2xl bg-farmSbg p-0.5">
+              <div className="flex items-center justify-between h-7 rounded-lg bg-farmSbg p-0.5">
+                {/* todo */}
                 <span
                   onClick={() => {
-                    history.push('/farms');
+                    switchFarmTab('dcl');
                   }}
-                  className="flex items-center justify-center text-sm text-farmText cursor-pointer px-2 h-full  rounded-2xl"
+                  className={`flex items-center justify-center text-sm rounded-md cursor-pointer px-3 h-full ${
+                    farmTab == 'dcl'
+                      ? 'text-chartBg bg-farmSearch'
+                      : 'text-farmText'
+                  }`}
                 >
-                  <FormattedMessage id="v1Legacy" />
+                  DCL Farms
                 </span>
-                <span className="flex items-center justify-center rounded-2xl text-sm text-chartBg cursor-pointer px-3 h-full bg-farmSearch">
-                  <FormattedMessage id="v2New" />
+                <span
+                  onClick={() => {
+                    switchFarmTab('normal');
+                  }}
+                  className={`flex items-center justify-center text-sm rounded-md cursor-pointer px-3 h-full ${
+                    farmTab == 'normal'
+                      ? 'text-chartBg bg-farmSearch'
+                      : 'text-farmText'
+                  }`}
+                >
+                  Classic Farms
                 </span>
               </div>
             </div>
@@ -2889,7 +2974,11 @@ function FarmView(props: {
         {getBoostMutil()}
         <div className="boxInfo">
           <div className="relative flex flex-col items-center  px-5 rounded-t-2xl overflow-hidden bg-boostUpBoxBg">
-            <div className="flex items-center cursor-pointer text-white font-bold text-xl mt-12">
+            <div
+              className={`flex items-center cursor-pointer text-white font-bold text-xl ${
+                is_dcl_pool ? 'mt-8' : 'mt-12'
+              }`}
+            >
               {/* link for looking into */}
               <a href={`javascript:void(${'/pool/' + pool.id})`}>
                 {tokens.map((token, index) => {
@@ -2899,7 +2988,9 @@ function FarmView(props: {
               </a>
             </div>
             <div
-              className="text-white text-right my-4"
+              className={`text-white text-right ${
+                is_dcl_pool ? 'my-1.5' : 'my-4'
+              }`}
               data-class="reactTip"
               data-for={'rewardPerWeekId' + seed?.farmList[0]?.farm_id}
               data-place="top"
