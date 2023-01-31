@@ -4021,7 +4021,7 @@ export const CrossIconLittle = (props: any) => {
         strokeDasharray="1 2"
       />
       <mask
-        id="mask0_0_1"
+        id={'mask0_0_1' + props.num}
         style={{ maskType: 'alpha' }}
         maskUnits="userSpaceOnUse"
         x="0"
@@ -4031,7 +4031,7 @@ export const CrossIconLittle = (props: any) => {
       >
         <circle cx="6" cy="6" r="5" fill="#00C6A2" stroke="#00C6A2" />
       </mask>
-      <g mask="url(#mask0_0_1)">
+      <g mask={`url(#mask0_0_1${props.num})`}>
         <rect
           x="0.5"
           y="0.5"
@@ -4065,9 +4065,9 @@ export const CrossIconMiddle = (props: any) => {
         strokeDasharray="1 2"
       />
       <mask
-        id="mask0_0_1"
+        id={'mask0_0_1' + props.num}
         style={{ maskType: 'alpha' }}
-        maskUnits="userSpaceOnUse"
+        maskUnits={'userSpaceOnUse'}
         x="0"
         y="0"
         width="12"
@@ -4075,7 +4075,7 @@ export const CrossIconMiddle = (props: any) => {
       >
         <circle cx="6" cy="6" r="5" fill="#00C6A2" stroke="#00C6A2" />
       </mask>
-      <g mask="url(#mask0_0_1)">
+      <g mask={`url(#mask0_0_1${props.num})`}>
         <rect
           x="0.5"
           y="0.5"
@@ -4109,7 +4109,7 @@ export const CrossIconLarge = (props: any) => {
         strokeDasharray="1 2"
       />
       <mask
-        id="mask0_0_1"
+        id={`mask0_0_1` + props.num}
         style={{ maskType: 'alpha' }}
         maskUnits="userSpaceOnUse"
         x="0"
@@ -4119,7 +4119,7 @@ export const CrossIconLarge = (props: any) => {
       >
         <circle cx="6" cy="6" r="5" fill="#00C6A2" stroke="#00C6A2" />
       </mask>
-      <g mask="url(#mask0_0_1)">
+      <g mask={`url(#mask0_0_1${props.num})`}>
         <rect
           x="0.5"
           y="0.5"

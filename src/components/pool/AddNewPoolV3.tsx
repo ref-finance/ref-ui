@@ -90,7 +90,7 @@ export const AddNewPoolV3 = (props: any) => {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const nearBalance = useDepositableBalance('NEAR');
-  const cardWidth = isMobile() ? '90vw' : '30vw';
+  const cardWidth = isMobile() ? '90vw' : '500px';
   useEffect(() => {
     if (tokenMetadata_x_y && isSignedIn && nearBalance) {
       const [tokenX, tokenY] = tokenMetadata_x_y;
@@ -451,25 +451,29 @@ export const AddNewPoolV3 = (props: any) => {
     // todo 稳定货币汇率展示问题
     if (displayType == 'seed') {
       return (
-        <div className="flex items-center whitespace-nowrap ml-1">
-          1 {token_x_metadata.symbol}
-          <a
-            className="underline mx-1 cursor-pointer"
-            onClick={setSeedPointAsCustomPoint}
-          >
-            {display_left_price} ~ {display_right_price}
-          </a>
-          {token_y_metadata.symbol}
+        <div className="flex items-center xsm:flex-col xsm:items-end whitespace-nowrap ml-1">
+          <span>1 {token_x_metadata.symbol}=</span>
+          <span className="flex items-center xsm:mt-2">
+            <a
+              className="underline mx-1 cursor-pointer"
+              onClick={setSeedPointAsCustomPoint}
+            >
+              {display_left_price} ~ {display_right_price}
+            </a>
+            {token_y_metadata.symbol}
+          </span>
         </div>
       );
     } else {
       return (
-        <div className="flex items-center whitespace-nowrap ml-1 text-sm text-primaryText">
-          1 {token_x_metadata.symbol}
-          <span className="mx-1 text-base text-white gotham_bold">
-            {display_left_price} ~ {display_right_price}
-          </span>
-          {token_y_metadata.symbol}
+        <div className="relative flex items-center xsm:flex-col xsm:items-end whitespace-nowrap ml-1 text-sm text-primaryText">
+          <span>1 {token_x_metadata.symbol}=</span>
+          <div className="flex items-center xsm:mt-2">
+            <span className="mx-1 text-base text-white gotham_bold">
+              {display_left_price} ~ {display_right_price}
+            </span>
+            {token_y_metadata.symbol}
+          </div>
         </div>
       );
     }
@@ -479,8 +483,8 @@ export const AddNewPoolV3 = (props: any) => {
   return (
     <Modal {...restProps}>
       <Card
-        style={{ maxHeight: '95vh' }}
-        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4 xs:w-90vw md:w-90vw lg:w-40vw xl:w-30vw"
+        style={{ maxHeight: '95vh', width: cardWidth }}
+        className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4"
       >
         <div className="flex items-center justify-between">
           <span className="text-xl text-white gotham_bold">Add Position</span>
@@ -556,9 +560,9 @@ export const AddNewPoolV3 = (props: any) => {
           </div>
           {/* set price rage area */}
           <div className="">
-            <div className="flex items-center justify-between mt-6 mb-3.5">
+            <div className="relative flex items-center justify-between xsm:justify-end xsm:items-start mt-6 mb-3.5">
               <div
-                className="flex items-center text-sm cursor-pointer"
+                className="flex items-center text-sm cursor-pointer xsm:absolute xsm:left-0"
                 onMouseOver={() => setHover(true)}
                 onMouseLeave={() => {
                   setHover(false);
@@ -631,8 +635,9 @@ export const AddNewPoolV3 = (props: any) => {
                   ></PointInputComponent>
                 </div>
               </div>
-              <div className="flex items-center justify-center text-sm text-primaryText mt-4">
-                Fix Range:{getRange('seed')}
+              <div className="relative flex items-center justify-center xsm:justify-end xsm:items-start text-sm text-primaryText mt-4">
+                <span className="xsm:absolute xsm:left-0">Reward Range:</span>
+                {getRange('seed')}
               </div>
             </div>
           </div>

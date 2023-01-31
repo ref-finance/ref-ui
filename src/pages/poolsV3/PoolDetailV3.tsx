@@ -385,8 +385,7 @@ export default function PoolDetailV3() {
           <div
             className="xsm:mb-4"
             style={{
-              width: isClientMobie() ? '100%' : '28%',
-              minWidth: '287px',
+              width: isClientMobie() ? '100%' : '300px',
             }}
           >
             {!isSignedIn ||
@@ -397,11 +396,18 @@ export default function PoolDetailV3() {
             ) : (
               <>
                 {isMobile ? (
-                  <UserTabBox
-                    poolDetail={poolDetail}
-                    tokenPriceList={tokenPriceList}
-                    liquidities={user_liquidities}
-                  ></UserTabBox>
+                  <>
+                    <UserTabBox
+                      poolDetail={poolDetail}
+                      tokenPriceList={tokenPriceList}
+                      liquidities={user_liquidities}
+                    ></UserTabBox>
+                    <RelatedFarmsBox
+                      poolDetail={poolDetail}
+                      tokenPriceList={tokenPriceList}
+                      pool_id={pool_id_from_url}
+                    ></RelatedFarmsBox>
+                  </>
                 ) : (
                   <>
                     <YourLiquidityBox
@@ -948,7 +954,6 @@ function UnclaimedFeesBox(props: any) {
     </div>
   );
 }
-// todo
 function RelatedFarmsBox(props: any) {
   const { poolDetail, tokenPriceList, pool_id } = props;
   const [related_seed, set_related_seed] = useState<Seed>();
@@ -959,7 +964,7 @@ function RelatedFarmsBox(props: any) {
     if (poolDetail && Object.keys(tokenPriceList).length > 0) {
       get_farms_data();
     }
-  }, []);
+  }, [poolDetail, tokenPriceList]);
   async function get_farms_data() {
     const result = await getBoostSeeds();
     const { seeds, farms, pools } = result;
@@ -1018,7 +1023,7 @@ function RelatedFarmsBox(props: any) {
       return a_latest - b_latest;
     });
     const targetSeed = activeSeeds[0];
-    if (!isPending(targetSeed)) {
+    if (targetSeed) {
       await get_apr_seed(targetSeed);
       set_related_seed(targetSeed);
     }
@@ -1434,9 +1439,12 @@ function SelectLiquidityBox(props: any) {
                           px="px-0"
                           py="py-1"
                           style={{ minWidth: '5rem' }}
-                          className={`px-2 text-sm text-greenColor h-9 focus:outline-none`}
+                          className={`px-2 text-sm text-greenColor border-opacity-50 h-9 focus:outline-none`}
                         >
-                          Farm Detail
+                          <div className="flex items-center justify-center cursor-pointer">
+                            Farm Detail
+                            <JumpLinkIcon className="ml-1"></JumpLinkIcon>
+                          </div>
                         </BorderButton>
                       ) : (
                         <>

@@ -629,7 +629,7 @@ export const FarmBoardInDetailPool = (props: any) => {
   return (
     <svg
       width={isClientMobie() ? '100%' : '340'}
-      height={isClientMobie() ? '92' : '105'}
+      height={isClientMobie() ? '105' : '105'}
       viewBox={`0 0 340 ${isClientMobie() ? '92' : '100'}`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

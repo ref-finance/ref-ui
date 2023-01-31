@@ -1843,7 +1843,7 @@ function AddLiquidityComponent({
         <span className="text-limitOrderInputColor text-right">
           1 {tokenX.symbol} ={' '}
         </span>
-        <div className="flex items-center mt-1">
+        <div className="flex items-center mt-2">
           <ArrowDownV3
             onClick={() => {
               setDisplayedSeedIndex(displayedSeedIndex - 1);
@@ -2074,9 +2074,9 @@ function AddLiquidityComponent({
           </div>
           {seeds.length ? (
             <div
-              className={`flex items-start justify-between flex-wrap mt-3.5 mb-1`}
+              className={`relative flex items-start justify-between xsm:justify-end mt-3.5 mb-1`}
             >
-              <div className="flex items-center text-sm text-primaryText mr-3">
+              <div className="flex items-center text-sm text-primaryText mr-3 xsm:absolute xsm:left-0">
                 Reward Range
                 <div
                   className="text-white text-right ml-1"

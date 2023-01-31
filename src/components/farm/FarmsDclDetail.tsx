@@ -170,6 +170,7 @@ export default function FarmsDclDetail(props: {
   const [mft_balance_in_dcl_account, set_mft_balance_in_dcl_account] =
     useState('0');
   const [claimLoading, setClaimLoading] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   const {
     user_seeds_map = {},
     user_unclaimed_map = {},
@@ -590,16 +591,26 @@ export default function FarmsDclDetail(props: {
     }
     // todo 稳定货币汇率展示问题
     return (
-      <div className="flex items-center whitespace-nowrap">
-        <span className="text-xs text-farmText">
-          1 {rangeSort ? token_x_metadata.symbol : token_y_metadata.symbol}
-        </span>
-        <span className="text-base text-white mx-2">
-          {display_left_price} ~ {display_right_price}
-        </span>
-        <span className="text-xs text-farmText">
-          {rangeSort ? token_y_metadata.symbol : token_x_metadata.symbol}
-        </span>
+      <div className="flex items-center whitespace-nowrap xsm:flex-col xsm:items-end">
+        <div className="flex items-center">
+          <RefreshIcon
+            className="cursor-pointer mr-1 lg:hidden"
+            onClick={() => {
+              setRangeSort(!rangeSort);
+            }}
+          ></RefreshIcon>
+          <span className="text-xs text-farmText">
+            1 {rangeSort ? token_x_metadata.symbol : token_y_metadata.symbol}=
+          </span>
+        </div>
+        <div className="flex items-center xsm:mt-2.5">
+          <span className="text-base text-white mx-2">
+            {display_left_price} ~ {display_right_price}
+          </span>
+          <span className="text-xs text-farmText">
+            {rangeSort ? token_y_metadata.symbol : token_x_metadata.symbol}
+          </span>
+        </div>
       </div>
     );
   }
@@ -733,23 +744,6 @@ export default function FarmsDclDetail(props: {
         <div
           className="text-white text-right"
           data-class="reactTip"
-          data-for={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
-          data-place="top"
-          data-html={true}
-          data-tip={getRewardsPerWeekTip()}
-        >
-          <span>{totalPriceDisplay}</span>
-          <ReactTooltip
-            id={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
-          />
-        </div>
-        <div
-          className="text-white text-right"
-          data-class="reactTip"
           data-for={'rewardPerWeekId' + detailData?.farmList[0]?.farm_id}
           data-place="top"
           data-html={true}
@@ -778,6 +772,23 @@ export default function FarmsDclDetail(props: {
             effect="solid"
           />
         </div>
+        <div
+          className="text-white text-right"
+          data-class="reactTip"
+          data-for={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
+          data-place="top"
+          data-html={true}
+          data-tip={getRewardsPerWeekTip()}
+        >
+          <span>{totalPriceDisplay}</span>
+          <ReactTooltip
+            id={'rewardPerWeekId1' + detailData?.farmList[0]?.farm_id}
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+          />
+        </div>
       </>
     );
   }
@@ -793,16 +804,34 @@ export default function FarmsDclDetail(props: {
         // setError(error);
       });
   }
+  function rewardRangeTip() {
+    // const tip = intl.formatMessage({ id: 'over_tip' });
+    const tip = 'hello world';
+    let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
+    return result;
+  }
+  function switchDetailButton() {
+    setShowDetail(!showDetail);
+  }
   const radio = getBoostMutil();
   const needForbidden =
     (FARM_BLACK_LIST_V2 || []).indexOf(detailData.pool.pool_id.toString()) > -1;
   return (
     <div className={`m-auto lg:w-760px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
-      <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
-        <ArrowLeftIcon onClick={goBacktoFarms} className="cursor-pointer" />
-        <label className="cursor-pointer" onClick={goBacktoFarms}>
-          <FormattedMessage id="farms" />
-        </label>
+      <div className="flex items-center justify-between">
+        <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
+          <ArrowLeftIcon onClick={goBacktoFarms} className="cursor-pointer" />
+          <label className="cursor-pointer" onClick={goBacktoFarms}>
+            <FormattedMessage id="farms" />
+          </label>
+        </div>
+        <div
+          className="flex items-center text-farmText hover:text-framBorder lg:hidden"
+          onClick={goPoolPage}
+        >
+          <label className="mx-2 text-sm cursor-pointer">V2 Pool Detail</label>
+          <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+        </div>
       </div>
       <div
         className={`flex justify-between items-center mt-7 flex-wrap ${
@@ -816,7 +845,7 @@ export default function FarmsDclDetail(props: {
               <span className="flex items-center text-white font-bold text-xl whitespace-nowrap xs:text-sm md:text-sm">
                 {displaySymbols()}
               </span>
-              <div className="flex items-center bg-cardBg rounded-md mx-3 px-2 py-1">
+              <div className="flex items-center bg-cardBg rounded-md mx-3 px-2 py-1 xsm:hidden">
                 <span className="text-xs text-v3SwapGray">
                   <FormattedMessage id="fee_Tiers"></FormattedMessage>
                 </span>
@@ -824,7 +853,7 @@ export default function FarmsDclDetail(props: {
                   0.2%
                 </span>
               </div>
-              <DclFarmIcon></DclFarmIcon>
+              <DclFarmIcon className="xsm:ml-2"></DclFarmIcon>
               {isEnded() ? (
                 <span className="text-farmText text-sm ml-2 relative top-0.5 xs:top-0 md:xs-0">
                   <FormattedMessage id="ended_search"></FormattedMessage>
@@ -844,25 +873,25 @@ export default function FarmsDclDetail(props: {
                 getBoostDom()
               )}
             </div>
-            <div className="flex items-center lg:hidden" onClick={goPoolPage}>
-              <label className="mr-1 text-xs text-greenColor">
-                <FormattedMessage id="get_lp_token"></FormattedMessage>
-              </label>
-              <VEARROW className="text-greenColor"></VEARROW>
+            <div className="flex items-center bg-cardBg rounded-md px-2 mt-1.5 py-0.5 lg:hidden">
+              <span className="text-xs text-v3SwapGray">
+                <FormattedMessage id="fee_Tiers"></FormattedMessage>
+              </span>
+              <span className="text-xs text-v3Blue gotham_bold ml-1">0.2%</span>
             </div>
           </div>
         </div>
 
         <div
-          className="flex items-center xs:hidden md:hidden text-farmText hover:text-framBorder"
+          className="flex items-center text-farmText hover:text-framBorder xsm:hidden"
           onClick={goPoolPage}
         >
           <label className="mx-2 text-sm cursor-pointer">V2 Pool Detail</label>
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
-      {/* baseData */}
-      <div className="flex items-stretch justify-between mt-4">
+      {/* baseData for PC*/}
+      <div className="flex items-stretch justify-between mt-4 xsm:hidden">
         <div className="flex flex-col justify-between bg-cardBg rounded-2xl px-3.5 py-4 flex-grow w-1">
           <div className="flex items-center justify-between text-sm text-farmText">
             <span>
@@ -897,7 +926,26 @@ export default function FarmsDclDetail(props: {
         </div>
         <div className="flex flex-col justify-between bg-cardBg rounded-2xl px-3.5 py-4 mx-3">
           <div className="flex items-center justify-between text-sm text-farmText">
-            <span>Reward Range</span>
+            <div className="flex items-center">
+              <span>Reward Range</span>
+              <div
+                className="text-white text-right ml-1"
+                data-class="reactTip"
+                data-for="rewardRangeTipId"
+                data-place="top"
+                data-html={true}
+                data-tip={rewardRangeTip()}
+              >
+                <QuestionMark></QuestionMark>
+                <ReactTooltip
+                  id="rewardRangeTipId"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+            </div>
             <RefreshIcon
               className="cursor-pointer"
               onClick={() => {
@@ -905,7 +953,7 @@ export default function FarmsDclDetail(props: {
               }}
             ></RefreshIcon>
           </div>
-          <div className="text-sm text-farmText">{getRange()}</div>
+          {getRange()}
         </div>
         <div className="flex flex-col justify-between bg-cardBg rounded-2xl px-3.5 py-4 flex-grow w-1">
           <div className="flex items-center text-sm text-farmText">
@@ -928,16 +976,83 @@ export default function FarmsDclDetail(props: {
               />
             </div>
           </div>
-          <div className="flex items-center justify-between text-base text-white">
+          <div className="flex items-center justify-between">
+            {totalTvlPerWeekDisplay()}
+          </div>
+        </div>
+      </div>
+      {/* baseData for Mobile*/}
+      <div className="p-4 bg-cardBg rounded-2xl lg:hidden mt-5">
+        <div className="border-b border-dclLineColor pb-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-farmText">
+              <FormattedMessage id="total_staked"></FormattedMessage>
+            </span>
+            <span className="text-base text-white">{get_total_staked()}</span>
+          </div>
+          <div className="flex items-center justify-between mt-5">
+            <span className="text-sm text-farmText">
+              <FormattedMessage id="apr"></FormattedMessage>
+            </span>
+            <span className="text-base text-white">{get_total_apr()}</span>
+          </div>
+        </div>
+        <div className="border-b border-dclLineColor py-3">
+          <div className="relative flex items-start justify-end">
+            <div className="flex items-center absolute left-0">
+              <span className="text-sm text-farmText">Reward Range</span>
+              <div
+                className="text-white text-right ml-1"
+                data-class="reactTip"
+                data-for="rewardRangeTipId2"
+                data-place="top"
+                data-html={true}
+                data-tip={rewardRangeTip()}
+              >
+                <QuestionMark></QuestionMark>
+                <ReactTooltip
+                  id="rewardRangeTipId2"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+            </div>
+            {getRange()}
+          </div>
+        </div>
+        <div className="pt-3">
+          <div className="flex items-center text-sm text-farmText">
+            <FormattedMessage id="rewards_per_week"></FormattedMessage>
+            <div
+              className="text-white text-right ml-1"
+              data-class="reactTip"
+              data-for={'rewardPerWeekQId2'}
+              data-place="top"
+              data-html={true}
+              data-tip={valueOfRewardsTip()}
+            >
+              <QuestionMark></QuestionMark>
+              <ReactTooltip
+                id={'rewardPerWeekQId2'}
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between mt-3">
             {totalTvlPerWeekDisplay()}
           </div>
         </div>
       </div>
       {/* login area */}
       <AddLoginEntryBar></AddLoginEntryBar>
-      {/* unClaimed Rewards */}
+      {/* unClaimed Rewards for PC */}
       <div
-        className={`flex items-center justify-between my-7 p-4 bg-dclFarmBlueColor rounded-xl ${
+        className={`flex items-center justify-between my-7 p-4 bg-dclFarmBlueColor rounded-xl xsm:hidden ${
           user_seeds_map[detailData.seed_id] ? '' : 'hidden'
         }`}
       >
@@ -998,6 +1113,127 @@ export default function FarmsDclDetail(props: {
               Text={() => <FormattedMessage id="claim" />}
             />
           </span>
+        </div>
+      </div>
+      {/* unClaimed Rewards for Mobile */}
+      <div className="bg-dclFarmBlueColor rounded-xl p-4 mt-4 lg:hidden">
+        <div className="flex items-center justify-between text-sm text-white">
+          <div className="flex items-center">
+            <FormattedMessage id="unclaimed_rewards"></FormattedMessage>
+            <div
+              className="text-white text-right ml-1"
+              data-class="reactTip"
+              data-for={'unclaimedRewardQIdx'}
+              data-place="top"
+              data-html={true}
+              data-tip={valueOfRewardsTip()}
+            >
+              <QuestionMark></QuestionMark>
+              <ReactTooltip
+                id={'unclaimedRewardQIdx'}
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
+          </div>
+
+          <div
+            className="text-white text-right"
+            data-class="reactTip"
+            data-for={'unclaimedRewardId' + detailData.seed_id}
+            data-place="top"
+            data-html={true}
+            data-tip={unclaimedRewardsData.tip}
+          >
+            <span className="text-xl text-white gotham_bold">
+              {unclaimedRewardsData.worth}
+            </span>
+            <ReactTooltip
+              id={'unclaimedRewardId' + detailData.seed_id}
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        </div>
+        {unclaimedRewardsData.showClaimButton ? (
+          <div className="flex justify-between items-center mt-3">
+            <div
+              onClick={switchDetailButton}
+              className={`flex items-center text-xs bg-lightBGreyColor bg-opacity-20 rounded-full px-4 py-0.5 cursor-pointer ${
+                showDetail ? 'text-greenColor' : 'text-white'
+              }`}
+            >
+              <FormattedMessage id="detail" />
+              <UpArrowIcon
+                className={`ml-1 transform ${
+                  showDetail ? 'text-greenColor' : 'text-primaryText rotate-180'
+                }`}
+              ></UpArrowIcon>
+            </div>
+            <span
+              className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-8 w-36 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                claimReward();
+              }}
+            >
+              <ButtonTextWrapper
+                loading={claimLoading}
+                Text={() => <FormattedMessage id="claim" />}
+              />
+            </span>
+          </div>
+        ) : null}
+
+        <div
+          className={`grid grid-cols-1 gap-y-4 mt-4 pt-4 border-t border-borderGreyColor border-opacity-20 ${
+            showDetail ? '' : 'hidden'
+          }`}
+        >
+          {unclaimedRewardsData.list.map(
+            (
+              {
+                token,
+                amount,
+                preAmount,
+              }: { token: TokenMetadata; amount: string; preAmount: string },
+              index: number
+            ) => {
+              return (
+                <div
+                  className="flex items-center xs:justify-between md:justify-between"
+                  key={index}
+                >
+                  <div className="flex items-center w-28">
+                    <img
+                      className="w-5 h-5 rounded-full border border-greenColor"
+                      src={token.icon}
+                    ></img>
+                    <span className="text-white text-sm ml-1.5">
+                      {toRealSymbol(token.symbol)}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    {preAmount ? (
+                      <>
+                        <span className="text-sm text-white">{preAmount}</span>
+                        <span className="mx-3.5">
+                          <BoostRightArrowIcon></BoostRightArrowIcon>
+                        </span>
+                        <span className={`text-sm text-white`}>{amount}</span>
+                      </>
+                    ) : (
+                      <span className={`text-sm text-white`}>{amount}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+          )}
         </div>
       </div>
       {/* Your position(s) */}
@@ -1194,7 +1430,7 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     }
     return [status, operation];
   }
-  function get_your_range(liquidity: UserLiquidityInfo) {
+  function get_your_range(liquidity: UserLiquidityInfo, site: string) {
     const { left_point, right_point } = liquidity;
     const [token_x_metadata, token_y_metadata] =
       detailData.pool.tokens_meta_data;
@@ -1208,11 +1444,17 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
       const range_seed = new BigNumber(seed_right_point).minus(seed_left_point);
       const p = range_cross.dividedBy(range_seed).multipliedBy(100);
       if (p.isLessThan(20)) {
-        icon = <CrossIconLittle></CrossIconLittle>;
+        icon = (
+          <CrossIconLittle num={site == 'mobile' ? '1' : '2'}></CrossIconLittle>
+        );
       } else if (p.isLessThan(60)) {
-        icon = <CrossIconMiddle></CrossIconMiddle>;
+        icon = (
+          <CrossIconMiddle num={site == 'mobile' ? '1' : '2'}></CrossIconMiddle>
+        );
       } else if (p.isLessThan(100)) {
-        icon = <CrossIconFull></CrossIconFull>;
+        icon = (
+          <CrossIconLarge num={site == 'mobile' ? '1' : '2'}></CrossIconLarge>
+        );
       } else {
         icon = <CrossIconFull></CrossIconFull>;
       }
@@ -1361,62 +1603,139 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     !isEnded() && liquidity_operation.indexOf('stake') > -1;
   const showUnStakeButton = liquidity_operation.indexOf('unstake') > -1;
   return (
-    <div
-      className="relative"
-      key={liquidity.lpt_id}
-      onMouseLeave={() => {
-        setHover(false);
-      }}
-    >
-      <div className="absolute -top-1.5 left-5 flex items-center justify-center">
-        <NFTIdIcon className=""></NFTIdIcon>
-        <span className="absolute gotham_bold text-xs text-white">
-          NFT ID #{liquidity.lpt_id.split('#')[1]}
-        </span>
+    <>
+      {/* for PC */}
+      <div
+        className="relative xsm:hidden"
+        key={liquidity.lpt_id}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+      >
+        <div className="absolute -top-1.5 left-5 flex items-center justify-center">
+          <NFTIdIcon className=""></NFTIdIcon>
+          <span className="absolute gotham_bold text-xs text-white">
+            NFT ID #{liquidity.lpt_id.split('#')[1]}
+          </span>
+        </div>
+        <div className="bg-v3HoverDarkBgColor rounded-xl mb-5 overflow-hidden">
+          <div
+            onMouseOver={() => setHover(true)}
+            className="grid grid-cols-5 pt-7 pb-3.5 px-6"
+          >
+            <div className="flex flex-col justify-between col-span-1 items-start">
+              <span className="text-sm text-primaryText">Your Liquidity</span>
+              <span className="text-sm text-white mt-2.5">
+                {get_liquidity_value_display(liquidity)}
+              </span>
+            </div>
+            <div className="flex flex-col justify-between  col-span-2">
+              <span className="text-sm text-primaryText">Your Price Range</span>
+              <span className="text-sm text-white">
+                {get_your_range(liquidity, 'pc')}
+              </span>
+            </div>
+            <div className="flex flex-col justify-between col-span-1">
+              <span className="text-sm text-primaryText">Your APR</span>
+              <span className="text-sm text-white">
+                {get_your_apr(liquidity)}
+              </span>
+            </div>
+            <div className="flex flex-col justify-between items-end col-span-1">
+              <span className="text-sm text-primaryText">State</span>
+              <span className="text-sm text-white">{liquidity_status}</span>
+            </div>
+          </div>
+          <div
+            className={`flex items-center  justify-between bg-cardBg py-3 px-6 ${
+              hover ? '' : 'hidden'
+            } ${get_liquidity_status(liquidity) == 3 ? 'hidden' : ''}`}
+          >
+            <div
+              onClick={() => {
+                goYourLiquidityDetail(liquidity);
+              }}
+              className="flex items-center text-sm text-primaryText hover:text-white cursor-pointer"
+            >
+              <span className="mr-2">Liquidity Detail</span>
+              <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+            </div>
+            <div className="flex items-center">
+              <GradientButton
+                onClick={() => {
+                  stakeNFT(liquidity);
+                }}
+                color="#fff"
+                disabled={needForbidden || nft_stake_loading ? true : false}
+                btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
+                minWidth="6rem"
+                className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
+                  needForbidden || nft_stake_loading ? 'opacity-40' : ''
+                } ${showStakeButton ? '' : 'hidden'}`}
+              >
+                <ButtonTextWrapper
+                  loading={nft_stake_loading}
+                  Text={() => (
+                    <FormattedMessage id="stake" defaultMessage="Stake" />
+                  )}
+                />
+              </GradientButton>
+              <OprationButton
+                onClick={() => {
+                  unStakeNFT(liquidity);
+                }}
+                color="#fff"
+                minWidth="6rem"
+                disabled={nft_unStake_loading ? true : false}
+                className={`flex items-center justify-center h-8 px-4 ml-2.5 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                  nft_unStake_loading ? 'opacity-40' : ''
+                } ${showUnStakeButton ? '' : 'hidden'}`}
+              >
+                <ButtonTextWrapper
+                  loading={nft_unStake_loading}
+                  Text={() => (
+                    <FormattedMessage id="unstake" defaultMessage="unstake" />
+                  )}
+                />
+              </OprationButton>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="bg-v3HoverDarkBgColor rounded-xl mb-5 overflow-hidden">
-        <div
-          onMouseOver={() => setHover(true)}
-          className="grid grid-cols-5 pt-7 pb-3.5 px-6"
-        >
-          <div className="flex flex-col justify-between col-span-1 items-start">
+      {/* for Mobile */}
+      <div key={liquidity.lpt_id + 'm'} className="relative  mb-5 lg:hidden">
+        <div className="bg-v3HoverDarkBgColor rounded-t-xl px-4 py-3">
+          <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-primaryText">Your Liquidity</span>
-            <span className="text-sm text-white mt-2.5">
+            <span className="text-sm text-white">
               {get_liquidity_value_display(liquidity)}
             </span>
           </div>
-          <div className="flex flex-col justify-between  col-span-2">
+          <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-primaryText">Your Price Range</span>
             <span className="text-sm text-white">
-              {get_your_range(liquidity)}
+              {get_your_range(liquidity, 'mobile')}
             </span>
           </div>
-          <div className="flex flex-col justify-between col-span-1">
+          <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-primaryText">Your APR</span>
             <span className="text-sm text-white">
               {get_your_apr(liquidity)}
             </span>
           </div>
-          <div className="flex flex-col justify-between items-end col-span-1">
+          <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-primaryText">State</span>
             <span className="text-sm text-white">{liquidity_status}</span>
           </div>
         </div>
         <div
-          className={`flex items-center  justify-between bg-cardBg py-3 px-6 ${
-            hover ? '' : 'hidden'
-          } ${get_liquidity_status(liquidity) == 3 ? 'hidden' : ''}`}
+          className={`flex flex-col items-center justify-center rounded-b-xl bg-cardBg px-4 py-4`}
         >
           <div
-            onClick={() => {
-              goYourLiquidityDetail(liquidity);
-            }}
-            className="flex items-center text-sm text-primaryText hover:text-white cursor-pointer"
+            className={`flex items-center w-full ${
+              get_liquidity_status(liquidity) == 3 ? 'hidden' : ''
+            }`}
           >
-            <span className="mr-2">Liquidity Detail</span>
-            <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
-          </div>
-          <div className="flex items-center">
             <GradientButton
               onClick={() => {
                 stakeNFT(liquidity);
@@ -1426,8 +1745,10 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
               btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
               minWidth="6rem"
               className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
-                needForbidden || nft_stake_loading ? 'opacity-40' : ''
-              } ${showStakeButton ? '' : 'hidden'}`}
+                showStakeButton && showUnStakeButton ? '' : 'w-full'
+              } ${needForbidden || nft_stake_loading ? 'opacity-40' : ''} ${
+                showStakeButton ? '' : 'hidden'
+              }`}
             >
               <ButtonTextWrapper
                 loading={nft_stake_loading}
@@ -1443,9 +1764,11 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
               color="#fff"
               minWidth="6rem"
               disabled={nft_unStake_loading ? true : false}
-              className={`flex items-center justify-center h-8 px-4 ml-2.5 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-                nft_unStake_loading ? 'opacity-40' : ''
-              } ${showUnStakeButton ? '' : 'hidden'}`}
+              className={`flex items-center justify-center h-8 px-4 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
+                showStakeButton && showUnStakeButton ? 'ml-2.5' : 'w-full'
+              } ${nft_unStake_loading ? 'opacity-40' : ''} ${
+                showUnStakeButton ? '' : 'hidden'
+              }`}
             >
               <ButtonTextWrapper
                 loading={nft_unStake_loading}
@@ -1455,9 +1778,25 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
               />
             </OprationButton>
           </div>
+          <p
+            className={`flex items-center justify-between text-sm text-dclFarmYellowColor ${
+              get_liquidity_status(liquidity) == 3 ? '' : 'hidden'
+            }`}
+          >
+            Your price range is out of fix range
+          </p>
+          <div
+            onClick={() => {
+              goYourLiquidityDetail(liquidity);
+            }}
+            className="flex items-center text-sm text-primaryText hover:text-white cursor-pointer mt-4"
+          >
+            <span className="mr-2">Liquidity Detail</span>
+            <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 function AddLoginEntryBar() {
