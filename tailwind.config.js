@@ -71,7 +71,7 @@ module.exports = {
           'linear-gradient(rgba(0, 198, 162, 0.3) 0%, rgba(0, 139, 114, 0.3) 100%)',
         starPoolBg: 'linear-gradient(180deg, #374F5E 0%, #1D2932 100%)',
         poolBanner: 'linear-gradient(180deg, #001320 0%, #142B38 100%)',
-        dclBannerColor:'linear-gradient(90deg, #00C6A2 2.54%, rgba(91, 64, 255, 0) 99.06%)',
+        dclBannerColor:'linear-gradient(90deg, #00C6A2 2.54%, rgba(91, 64, 255, 0.5) 70%, rgba(91, 64, 255, 0) 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
