@@ -2364,6 +2364,7 @@ function FarmView(props: {
     const pending_farms: FarmBoost[] = [];
     const no_pending_farms: FarmBoost[] = [];
     const dayVolume = getPoolFeeApr(dayVolumeMap[seed.pool.id]);
+    const [contractId, temp_mft_id] = seed.seed_id.split('@');
     let totalApr;
     const baseAPR = getTotalApr(false);
     const txt1 = intl.formatMessage({ id: 'pool_fee_apr' });
@@ -2409,14 +2410,17 @@ function FarmView(props: {
     }
     // show last display string
     let result: string = '';
+    const pool_fee_apr_dom =
+      contractId != REF_UNI_V3_SWAP_CONTRACT_ID
+        ? `<div class="flex items-center justify-between">
+    <span class="text-xs text-navHighLightText mr-3">${txt1}</span>
+    <span class="text-sm text-white font-bold">${
+      +dayVolume > 0 ? dayVolume + '%' : '-'
+    }</span>
+  </div><div class="flex justify-end text-white text-sm font-bold ">+</div>`
+        : '';
     result = `
-    <div class="flex items-center justify-between">
-      <span class="text-xs text-navHighLightText mr-3">${txt1}</span>
-      <span class="text-sm text-white font-bold">${
-        +dayVolume > 0 ? dayVolume + '%' : '-'
-      }</span>
-    </div>
-    <div class="flex justify-end text-white text-sm font-bold ">+</div>
+    ${pool_fee_apr_dom} 
     <div class="flex items-center justify-between ">
       <span class="text-xs text-navHighLightText mr-3">${txt2}</span>
       <span class="text-sm text-white font-bold">${totalApr}</span>

@@ -34,6 +34,7 @@ import {
   CrossIconLarge,
   CrossIconFull,
   LinkArrowIcon,
+  NewTag,
 } from '~components/icon/FarmBoost';
 import { RefreshIcon } from '~components/icon/swapV3';
 import { AddButtonIcon } from '~components/icon/V3';
@@ -55,6 +56,7 @@ import {
   getVeSeedShare,
   stake_boost_nft,
   unStake_boost_nft,
+  getBoostSeeds,
 } from '~services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
@@ -76,7 +78,6 @@ import {
 import Modal from 'react-modal';
 import { usePool } from '~state/pool';
 import { ModalClose, Calc } from '~components/icon';
-import { TokenMetadata } from '../../services/ft-contract';
 import { addLiquidityToPool, Pool } from '~services/pool';
 import {
   useWalletTokenBalances,
@@ -114,6 +115,7 @@ import {
   get_valid_range,
   allocation_rule_liquidities,
   TOKEN_LIST_FOR_RATE,
+  get_matched_seeds_for_pool,
 } from '~services/commonV3';
 import {
   list_liquidities,
@@ -124,6 +126,7 @@ import {
   dcl_mft_balance_of,
 } from '../../services/swapV3';
 import { AddNewPoolV3 } from '~components/pool/AddNewPoolV3';
+import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import moment from 'moment';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -172,6 +175,7 @@ export default function FarmsDclDetail(props: {
     useState('0');
   const [claimLoading, setClaimLoading] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
+  const [betterSeed, setBetterSeed] = useState<Seed>();
   const {
     user_seeds_map = {},
     user_unclaimed_map = {},
@@ -190,6 +194,9 @@ export default function FarmsDclDetail(props: {
       return false;
     }
   }, [detailData]);
+  useEffect(() => {
+    get_farms_data();
+  }, []);
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities();
@@ -289,6 +296,20 @@ export default function FarmsDclDetail(props: {
       };
     }
   }
+  async function get_farms_data() {
+    const result = await getBoostSeeds();
+    const { seeds, farms } = result;
+    const matched_seeds = get_matched_seeds_for_pool({
+      seeds,
+      farms,
+      pool_id: detailData.pool.pool_id,
+    });
+    const targetSeed = matched_seeds[0];
+    console.log('99999999999', matched_seeds);
+    if (matched_seeds.length > 1 && targetSeed.seed_id != detailData.seed_id) {
+      setBetterSeed(targetSeed);
+    }
+  }
   async function get_mft_balance_of() {
     const { seed_decimal, seed_id } = detailData;
     const [contractId, temp_pool_id] = seed_id.split('@');
@@ -318,22 +339,22 @@ export default function FarmsDclDetail(props: {
       set_listLiquidities_unavailable(temp_unavailable);
       setListLiquidities(matched_liquidities);
       setListLiquiditiesLoading(false);
-      console.log(
-        'temp_farming_final temp_farming_final temp_farming_final',
-        temp_farming
-      );
-      console.log(
-        'temp_free temp_free temp_free temp_free temp_free',
-        temp_free
-      );
-      console.log(
-        'temp_unavailable temp_unavailable temp_unavailable temp_unavailable',
-        temp_unavailable
-      );
-      console.log(
-        'liquidity liquidity liquidity liquidity',
-        matched_liquidities
-      );
+      // console.log(
+      //   'temp_farming_final temp_farming_final temp_farming_final',
+      //   temp_farming
+      // );
+      // console.log(
+      //   'temp_free temp_free temp_free temp_free temp_free',
+      //   temp_free
+      // );
+      // console.log(
+      //   'temp_unavailable temp_unavailable temp_unavailable temp_unavailable',
+      //   temp_unavailable
+      // );
+      // console.log(
+      //   'liquidity liquidity liquidity liquidity',
+      //   matched_liquidities
+      // );
     }
   }
   function sortTokens(tokens: TokenMetadata[]) {
@@ -827,6 +848,27 @@ export default function FarmsDclDetail(props: {
   function switchDetailButton() {
     setShowDetail(!showDetail);
   }
+  function getBetterSeedSymbols() {
+    let result = '';
+    detailData.pool.tokens_meta_data.forEach(
+      (token: TokenMetadata, index: number) => {
+        const symbol = toRealSymbol(token.symbol);
+        if (index == detailData.pool.tokens_meta_data.length - 1) {
+          result += symbol;
+        } else {
+          result += symbol + '-';
+        }
+      }
+    );
+    return result;
+  }
+  function goBetterSeed() {
+    const [contractId, temp_pool_id] = betterSeed.seed_id.split('@');
+    const [fixRange, pool_id, left_point, right_point] =
+      temp_pool_id.split('&');
+    const mft_id = `${pool_id}&${left_point}&${right_point}`;
+    location.href = `/v2farms/${mft_id}-r`;
+  }
   const radio = getBoostMutil();
   const needForbidden =
     (FARM_BLACK_LIST_V2 || []).indexOf(detailData.pool.pool_id.toString()) > -1;
@@ -904,6 +946,21 @@ export default function FarmsDclDetail(props: {
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
+      {/* new Farm is coming Banner */}
+      {betterSeed ? (
+        <div className="flex items-center justify-center bg-dclBannerColor rounded-xl text-sm text-white px-4 py-1 mt-4 mb-3">
+          <span>The current farm will be ended soon. </span>
+          <a
+            onClick={goBetterSeed}
+            className="underline gotham_bold cursor-pointer mx-2"
+          >
+            {getBetterSeedSymbols()} New Farm
+          </a>
+          <span>is coming!</span>
+          <NewTag className="ml-1.5"></NewTag>
+        </div>
+      ) : null}
+
       {/* baseData for PC*/}
       <div className="flex items-stretch justify-between mt-4 xsm:hidden">
         <div className="flex flex-col justify-between bg-cardBg rounded-2xl px-3.5 py-4 flex-grow w-1">
