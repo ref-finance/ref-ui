@@ -877,8 +877,7 @@ function MobileLiquidityPage({
       _.includes(
         p.token_y_metadata.symbol.toLowerCase(),
         tokenName.toLowerCase()
-      ) ||
-      _.includes(p.pool_id.toLowerCase(), tokenName.toLowerCase())
+      )
     );
   };
   const tokensStar = [REF_META_DATA, unwrapedNear];
@@ -1707,11 +1706,8 @@ function WatchListCard({
   const watchAllPools = getAllWatchPools();
 
   function v1PoolFilter(p: Pool) {
-    return Object.values(p.metas)?.some(
-      (t: any) =>
-        _.includes(t.symbol.toLowerCase(), tokenName.toLowerCase()) ||
-        (p?.id?.toString() &&
-          _.includes(p?.id?.toString().toLowerCase(), tokenName.toLowerCase()))
+    return Object.values(p.metas)?.some((t: any) =>
+      _.includes(t.symbol.toLowerCase(), tokenName.toLowerCase())
     );
   }
 
@@ -1724,8 +1720,7 @@ function WatchListCard({
       _.includes(
         p.token_y_metadata.symbol.toLowerCase(),
         tokenName.toLowerCase()
-      ) ||
-      _.includes(p.pool_id.toLowerCase(), tokenName.toLowerCase())
+      )
     );
   }
 
@@ -2023,8 +2018,7 @@ function LiquidityPage_({
       _.includes(
         p.token_y_metadata.symbol.toLowerCase(),
         tokenName.toLowerCase()
-      ) ||
-      _.includes(p.pool_id.toLowerCase(), tokenName.toLowerCase())
+      )
     );
   };
 
@@ -3531,11 +3525,8 @@ function StablePoolList({
         : option === 'USD'
         ? USD_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString())
         : BTC_CLASS_STABLE_POOL_IDS.includes(p.pool.id.toString());
-    const b2 = p.tokens.some(
-      (t) =>
-        _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase()) ||
-        (p?.pool?.id?.toString() &&
-          _.includes(p.pool.id.toString(), searchBy.toLowerCase()))
+    const b2 = p.tokens.some((t) =>
+      _.includes(t.symbol.toLowerCase(), searchBy.toLowerCase())
     );
 
     return b1 && b2;
