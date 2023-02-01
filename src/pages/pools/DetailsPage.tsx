@@ -1350,6 +1350,23 @@ function MyShares({
     }`;
   else displayPercent = toPrecision(String(sharePercent), decimal || 2);
 
+  function displayValue() {
+    const v = toReadableNumber(
+      LP_TOKEN_DECIMALS,
+      userTotalShare
+        .toNumber()
+        .toLocaleString('fullwide', { useGrouping: false })
+    );
+    const v_big = new BigNumber(v);
+    if (v_big.isEqualTo('0')) {
+      return 0;
+    } else if (v_big.isLessThan(0.01)) {
+      return '0.01';
+    } else {
+      return toInternationalCurrencySystemLongString(v, 2);
+    }
+  }
+
   return (
     <div className="whitespace-nowrap">
       <span
@@ -1364,15 +1381,7 @@ function MyShares({
           2
         )}`}
       >
-        {`${toInternationalCurrencySystemLongString(
-          toReadableNumber(
-            LP_TOKEN_DECIMALS,
-            userTotalShare
-              .toNumber()
-              .toLocaleString('fullwide', { useGrouping: false })
-          ),
-          2
-        )}`}
+        {displayValue()}
       </span>{' '}
       {`(${displayPercent}%)`}
     </div>
