@@ -41,6 +41,8 @@ import {
   useAddAndRemoveUrlHandle,
   TOKEN_LIST_FOR_RATE,
   get_total_value_by_liquidity_amount_dcl,
+  allocation_rule_liquidities,
+  get_matched_seeds_for_pool,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -96,7 +98,6 @@ import {
   UserSeedInfo,
 } from '../../services/farm';
 import getConfig from '../../services/config';
-import { allocation_rule_liquidities } from '~services/commonV3';
 import {
   SwitchButtonIcon,
   NoLiquidityIcon,
@@ -967,67 +968,20 @@ function RelatedFarmsBox(props: any) {
   }, [poolDetail, tokenPriceList]);
   async function get_farms_data() {
     const result = await getBoostSeeds();
-    const { seeds, farms, pools } = result;
-    const related_seeds: Seed[] = [];
-    const related_farms: FarmBoost[][] = [];
-    const related_pools: PoolInfo[] = [];
-    seeds.forEach((seed: Seed, index) => {
-      const [contractId, mft_id] = seed.seed_id.split('@');
-      if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
-        const [fixRange, pool_id_from_seed, left_point, right_point] =
-          mft_id.split('&');
-        if (pool_id_from_seed == pool_id) {
-          related_seeds.push(seed);
-          related_farms.push(farms[index]);
-          related_pools.push(pools[index]);
-        }
-      }
+    const { seeds, farms } = result;
+    const matched_seeds = get_matched_seeds_for_pool({
+      seeds,
+      farms,
+      pool_id,
     });
-    // split ended farms
-    const related_seeds_final: Seed[] = [];
-    related_farms.forEach((farmList: FarmBoost[], index) => {
-      const endedList = farmList.filter((farm: FarmBoost) => {
-        if (farm.status == 'Ended') return true;
-      });
-      const noEndedList = farmList.filter((farm: FarmBoost) => {
-        if (farm.status != 'Ended') return true;
-      });
-      const seed = related_seeds[index];
-      if (noEndedList.length > 0) {
-        seed.farmList = noEndedList;
-        related_seeds_final.push(seed);
-      }
-      if (endedList.length > 0) {
-        const endedSeed = JSON.parse(JSON.stringify(seed));
-        endedSeed.farmList = endedList;
-        related_seeds_final.push(endedSeed);
-      }
-    });
-    get_matched_seed(related_seeds_final);
-    set_farm_loading(false);
-  }
-  async function get_matched_seed(seeds: Seed[]) {
-    // filter ended seed
-    const activeSeeds = seeds.filter((seed: Seed) => {
-      const farmList = seed.farmList;
-      return farmList[0].status != 'Ended';
-    });
-    // sort having benefit and the latest
-    activeSeeds.sort((b: Seed, a: Seed) => {
-      const b_pending = isPending(b);
-      const a_pending = isPending(a);
-      const b_latest = getLatestStartTime(b);
-      const a_latest = getLatestStartTime(a);
-      if (a_pending) return -1;
-      if (b_pending) return 1;
-      return a_latest - b_latest;
-    });
-    const targetSeed = activeSeeds[0];
+    const targetSeed = matched_seeds[0];
     if (targetSeed) {
       await get_apr_seed(targetSeed);
       set_related_seed(targetSeed);
     }
+    set_farm_loading(false);
   }
+
   async function get_apr_seed(seed: Seed) {
     const { token_x_metadata, token_y_metadata } = poolDetail;
     const {
@@ -1105,6 +1059,29 @@ function RelatedFarmsBox(props: any) {
       farm.baseApr = baseApr.toString();
     });
   }
+  function totalTvlPerWeekDisplay() {
+    const farms = related_seed.farmList;
+    const rewardTokenIconMap = {};
+    let totalPrice = 0;
+    farms.forEach((farm: FarmBoost) => {
+      const { id, decimals, icon } = farm.token_meta_data;
+      const { daily_reward } = farm.terms;
+      rewardTokenIconMap[id] = icon;
+      const tokenPrice = tokenPriceList[id]?.price;
+      if (tokenPrice && tokenPrice != 'N/A') {
+        const tokenAmount = toReadableNumber(decimals, daily_reward);
+        totalPrice += +new BigNumber(tokenAmount)
+          .multipliedBy(tokenPrice)
+          .toFixed();
+      }
+    });
+    totalPrice = +new BigNumber(totalPrice).multipliedBy(7).toFixed();
+    const totalPriceDisplay =
+      totalPrice == 0
+        ? '-'
+        : '$' + toInternationalCurrencySystem(totalPrice.toString(), 2);
+    return totalPriceDisplay;
+  }
   function isPending(seed: Seed) {
     let pending: boolean = true;
     const farms = seed.farmList;
@@ -1115,18 +1092,6 @@ function RelatedFarmsBox(props: any) {
       }
     }
     return pending;
-  }
-  function getLatestStartTime(seed: Seed) {
-    let start_at: any[] = [];
-    const farmList = seed.farmList;
-    farmList.forEach(function (item) {
-      start_at.push(item.terms.start_at);
-    });
-    start_at = _.sortBy(start_at);
-    start_at = start_at.filter(function (val) {
-      return val != '0';
-    });
-    return start_at[start_at.length - 1];
   }
   function getTotalAprForSeed() {
     const farms = related_seed.farmList;
@@ -1177,7 +1142,7 @@ function RelatedFarmsBox(props: any) {
       ></FarmBoardInDetailPool>
       <div className="flex items-center justify-between">
         <span className="text-base text-white gotham_bold">Farm APR</span>
-        <div className="flex items-center">
+        <div className="flex items-center bg-dclButtonBgColor rounded-xl pl-px pr-2 py-px">
           {getAllRewardsSymbols().map(([id, icon]: [string, string], index) => {
             return (
               <img
@@ -1189,6 +1154,9 @@ function RelatedFarmsBox(props: any) {
               ></img>
             );
           })}
+          <span className="flex items-center text-sm text-v3SwapGray ml-2">
+            {totalTvlPerWeekDisplay()}/week
+          </span>
         </div>
       </div>
       <div className="flex items-center justify-between mt-2">

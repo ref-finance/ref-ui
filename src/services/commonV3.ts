@@ -9,6 +9,9 @@ import _ from 'lodash';
 import { toReadableNumber, toPrecision } from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
 import { PoolInfo } from './swapV3';
+import { FarmBoost, Seed } from './farm';
+import getConfig from '../services/config';
+const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 
 /**
  * caculate price by point
@@ -647,6 +650,96 @@ export function get_valid_range(liquidity: UserLiquidityInfo, seed_id: string) {
   const max_left_point = Math.max(+left_point, +seed_left_point);
   const min_right_point = Math.min(+right_point, +seed_right_point);
   return [max_left_point, min_right_point];
+}
+
+export function get_matched_seeds_for_pool({
+  seeds,
+  farms,
+  pool_id,
+}: {
+  seeds: Seed[];
+  farms: FarmBoost[][];
+  pool_id: string;
+}) {
+  const related_seeds: Seed[] = [];
+  const related_farms: FarmBoost[][] = [];
+  seeds.forEach((seed: Seed, index) => {
+    const [contractId, mft_id] = seed.seed_id.split('@');
+    if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      const [fixRange, pool_id_from_seed, left_point, right_point] =
+        mft_id.split('&');
+      if (pool_id_from_seed == pool_id) {
+        related_seeds.push(seed);
+        related_farms.push(farms[index]);
+      }
+    }
+  });
+  // split ended farms
+  const related_seeds_final: Seed[] = [];
+  related_farms.forEach((farmList: FarmBoost[], index) => {
+    const endedList = farmList.filter((farm: FarmBoost) => {
+      if (farm.status == 'Ended') return true;
+    });
+    const noEndedList = farmList.filter((farm: FarmBoost) => {
+      if (farm.status != 'Ended') return true;
+    });
+    const seed = related_seeds[index];
+    if (noEndedList.length > 0) {
+      seed.farmList = noEndedList;
+      related_seeds_final.push(seed);
+    }
+    if (endedList.length > 0) {
+      const endedSeed = JSON.parse(JSON.stringify(seed));
+      endedSeed.farmList = endedList;
+      related_seeds_final.push(endedSeed);
+    }
+  });
+
+  // filter ended seeds
+  const activeSeeds = related_seeds_final.filter((seed: Seed) => {
+    const farmList = seed.farmList;
+    return farmList[0].status != 'Ended';
+  });
+  // sort by the latest
+  activeSeeds.sort((b: Seed, a: Seed) => {
+    const b_latest = getLatestStartTime(b);
+    const a_latest = getLatestStartTime(a);
+    return a_latest - b_latest;
+  });
+  // having benefit
+  const temp_seed = activeSeeds.find((s: Seed, index: number) => {
+    if (!isPending(s)) {
+      activeSeeds.splice(index, 1);
+      return true;
+    }
+  });
+  if (temp_seed) {
+    activeSeeds.unshift(temp_seed);
+  }
+  return activeSeeds;
+}
+function isPending(seed: Seed) {
+  let pending: boolean = true;
+  const farms = seed.farmList;
+  for (let i = 0; i < farms.length; i++) {
+    if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
+      pending = false;
+      break;
+    }
+  }
+  return pending;
+}
+function getLatestStartTime(seed: Seed) {
+  let start_at: any[] = [];
+  const farmList = seed.farmList;
+  farmList.forEach(function (item) {
+    start_at.push(item.terms.start_at);
+  });
+  start_at = _.sortBy(start_at);
+  start_at = start_at.filter(function (val) {
+    return val != '0';
+  });
+  return start_at[start_at.length - 1];
 }
 
 export const TOKEN_LIST_FOR_RATE = ['USDC.e', 'USDC'];

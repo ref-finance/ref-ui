@@ -34,7 +34,12 @@ import {
   ftGetTokenMetadata,
 } from '../../services/ft-contract';
 import { getTokenPriceList } from '../../services/indexer';
-import { getBoostTokenPrices, getBoostSeeds, Seed } from '../../services/farm';
+import {
+  getBoostTokenPrices,
+  getBoostSeeds,
+  Seed,
+  FarmBoost,
+} from '../../services/farm';
 import { useTokenBalances, useDepositableBalance } from '../../state/token';
 import Loading from '~components/layout/Loading';
 import {
@@ -57,6 +62,7 @@ import {
   useAddAndRemoveUrlHandle,
   drawChartData,
   TOKEN_LIST_FOR_RATE,
+  get_matched_seeds_for_pool,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -111,6 +117,7 @@ export default function AddYourLiquidityPageV3() {
   const [viewPoolHover, setViewPoolHover] = useState(false);
   const [topPairs, setTopPairs] = useState([]);
   const [seed_list, set_seed_list] = useState<Seed[]>();
+  const [farms_list, set_farms_list] = useState<FarmBoost[][]>();
   const [related_seeds, set_related_seeds] = useState<Seed[]>([]);
   // callBack handle
   useAddAndRemoveUrlHandle();
@@ -226,17 +233,15 @@ export default function AddYourLiquidityPageV3() {
   const nearSwapTokens = allTokens.filter((token) => token.onRef);
   async function get_seeds() {
     const result = await getBoostSeeds();
-    const { seeds, farms, pools } = result;
+    const { seeds, farms } = result;
     set_seed_list(seeds);
+    set_farms_list(farms);
   }
   function get_optional_seeds() {
-    const optional_seeds = seed_list.filter((seed: Seed) => {
-      const [contractId, temp_mft_id] = seed.seed_id.split('@');
-      if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
-        const [fixRange, pool_id, left_point, right_point] =
-          temp_mft_id.split('&');
-        return currentSelectedPool.pool_id == pool_id;
-      }
+    const optional_seeds = get_matched_seeds_for_pool({
+      seeds: seed_list,
+      farms: farms_list,
+      pool_id: currentSelectedPool.pool_id,
     });
     if (optional_seeds.length) {
       set_related_seeds(optional_seeds);

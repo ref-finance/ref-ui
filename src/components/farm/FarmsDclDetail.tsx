@@ -113,6 +113,7 @@ import {
   mint_liquidity,
   get_valid_range,
   allocation_rule_liquidities,
+  TOKEN_LIST_FOR_RATE,
 } from '~services/commonV3';
 import {
   list_liquidities,
@@ -181,12 +182,25 @@ export default function FarmsDclDetail(props: {
   const tokens = sortTokens(detailData.pool.tokens_meta_data);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const rate_need_to_reverse_display = useMemo(() => {
+    const { tokens_meta_data } = detailData.pool;
+    if (tokens_meta_data) {
+      const [tokenX] = tokens_meta_data;
+      if (TOKEN_LIST_FOR_RATE.indexOf(tokenX.symbol) > -1) return true;
+      return false;
+    }
+  }, [detailData]);
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities();
       get_mft_balance_of();
     }
   }, [isSignedIn, user_data_loading]);
+  useEffect(() => {
+    if (rate_need_to_reverse_display) {
+      setRangeSort(false);
+    }
+  }, [rate_need_to_reverse_display]);
   const unclaimedRewardsData = useMemo(() => {
     return getTotalUnclaimedRewards();
   }, [user_unclaimed_map[detailData.seed_id]]);
@@ -572,8 +586,9 @@ export default function FarmsDclDetail(props: {
     let left_price = getPriceByPoint(+left_point, decimalRate);
     let right_price = getPriceByPoint(+right_point, decimalRate);
     if (!rangeSort) {
-      left_price = new BigNumber(1).dividedBy(left_price).toFixed();
-      right_price = new BigNumber(1).dividedBy(right_price).toFixed();
+      const temp = left_price;
+      left_price = new BigNumber(1).dividedBy(right_price).toFixed();
+      right_price = new BigNumber(1).dividedBy(temp).toFixed();
     }
     let display_left_price;
     let display_right_price;
@@ -589,7 +604,6 @@ export default function FarmsDclDetail(props: {
     } else {
       display_right_price = toPrecision(right_price, 6);
     }
-    // todo 稳定货币汇率展示问题
     return (
       <div className="flex items-center whitespace-nowrap xsm:flex-col xsm:items-end">
         <div className="flex items-center">
@@ -1288,7 +1302,12 @@ export default function FarmsDclDetail(props: {
                 Faming position(s)
               </div>
               {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
-                return <LiquidityLine liquidity={liquidity}></LiquidityLine>;
+                return (
+                  <LiquidityLine
+                    liquidity={liquidity}
+                    rate_need_to_reverse_display={rate_need_to_reverse_display}
+                  ></LiquidityLine>
+                );
               })}
             </>
           ) : null}
@@ -1299,7 +1318,12 @@ export default function FarmsDclDetail(props: {
                 Unfarming position(s)
               </div>
               {listLiquidities_unFarimg.map((liquidity: UserLiquidityInfo) => {
-                return <LiquidityLine liquidity={liquidity}></LiquidityLine>;
+                return (
+                  <LiquidityLine
+                    liquidity={liquidity}
+                    rate_need_to_reverse_display={rate_need_to_reverse_display}
+                  ></LiquidityLine>
+                );
               })}{' '}
             </>
           ) : null}
@@ -1311,7 +1335,14 @@ export default function FarmsDclDetail(props: {
               </div>
               {listLiquidities_unavailable.map(
                 (liquidity: UserLiquidityInfo) => {
-                  return <LiquidityLine liquidity={liquidity}></LiquidityLine>;
+                  return (
+                    <LiquidityLine
+                      liquidity={liquidity}
+                      rate_need_to_reverse_display={
+                        rate_need_to_reverse_display
+                      }
+                    ></LiquidityLine>
+                  );
                 }
               )}
             </>
@@ -1341,8 +1372,11 @@ export default function FarmsDclDetail(props: {
   );
 }
 
-function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
-  const { liquidity } = props;
+function LiquidityLine(props: {
+  liquidity: UserLiquidityInfo;
+  rate_need_to_reverse_display: boolean;
+}) {
+  const { liquidity, rate_need_to_reverse_display } = props;
   const {
     detailData,
     tokenPriceList,
@@ -1466,6 +1500,11 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
       Math.pow(10, token_y_metadata.decimals);
     let left_price = getPriceByPoint(+left_point, decimalRate);
     let right_price = getPriceByPoint(+right_point, decimalRate);
+    if (rate_need_to_reverse_display) {
+      const temp = left_price;
+      left_price = new BigNumber(1).dividedBy(right_price).toFixed();
+      right_price = new BigNumber(1).dividedBy(temp).toFixed();
+    }
     let display_left_price;
     let display_right_price;
     const valueBig_l = new BigNumber(left_price);
@@ -1490,7 +1529,7 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     return (
       <div className="flex items-center">
         <span className="text-sm text-white mr-1.5">
-          {display_left_price} ~ ${display_right_price}
+          {display_left_price} ~ {display_right_price}
         </span>
         <div
           className="text-white text-right"

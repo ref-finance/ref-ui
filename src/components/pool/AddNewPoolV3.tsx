@@ -91,6 +91,13 @@ export const AddNewPoolV3 = (props: any) => {
   const isSignedIn = globalState.isSignedIn;
   const nearBalance = useDepositableBalance('NEAR');
   const cardWidth = isMobile() ? '90vw' : '500px';
+  const rate_need_to_reverse_display = useMemo(() => {
+    if (tokenMetadata_x_y) {
+      const [tokenX] = tokenMetadata_x_y;
+      if (TOKEN_LIST_FOR_RATE.indexOf(tokenX.symbol) > -1) return true;
+      return false;
+    }
+  }, [tokenMetadata_x_y]);
   useEffect(() => {
     if (tokenMetadata_x_y && isSignedIn && nearBalance) {
       const [tokenX, tokenY] = tokenMetadata_x_y;
@@ -434,6 +441,11 @@ export const AddNewPoolV3 = (props: any) => {
     }
     let left_price = getPriceByPoint(target_left_point, decimalRate);
     let right_price = getPriceByPoint(target_right_point, decimalRate);
+    if (rate_need_to_reverse_display) {
+      const temp = left_price;
+      left_price = new BigNumber(1).dividedBy(right_price).toFixed();
+      right_price = new BigNumber(1).dividedBy(temp).toFixed();
+    }
     let display_left_price;
     let display_right_price;
     const valueBig_l = new BigNumber(left_price);
@@ -448,7 +460,6 @@ export const AddNewPoolV3 = (props: any) => {
     } else {
       display_right_price = toPrecision(right_price, 6);
     }
-    // todo 稳定货币汇率展示问题
     if (displayType == 'seed') {
       return (
         <div className="flex items-center xsm:flex-col xsm:items-end whitespace-nowrap ml-1">

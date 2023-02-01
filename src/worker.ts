@@ -200,7 +200,7 @@ const cacheBoost_Seed_Farms_Pools = async () => {
   const list_seeds = await get_list_seeds_info();
   // get all farms
   const farmsPromiseList: Promise<any>[] = [];
-  // get all dcl pools todo
+  // get all dcl pools
   const dcl_all_pools: PoolInfo[] = await listPools();
   const poolIds = new Set<string>();
   const dcl_poolIds = new Set<string>();
