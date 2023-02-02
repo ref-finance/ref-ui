@@ -925,10 +925,11 @@ function MobileLiquidityPage({
   const handleIdSearching = (id: string) => {
     if (Number(id) > allPools) {
       setShowPoolIDTip(true);
-    } else {
+    } else if (id && id.length > 0 && !id.includes('.')) {
       window.open(`/pool/${id}`, '_blank');
     }
   };
+
   const poolSortingFunc = (p1: Pool, p2: Pool) => {
     if (order === 'asc') {
       if (sortBy === 'apr') {
@@ -2108,7 +2109,7 @@ function LiquidityPage_({
   const handleIdSearching = (id: string) => {
     if (Number(id) > allPools) {
       setShowPoolIDTip(true);
-    } else {
+    } else if (id && id.length > 0 && !id.includes('.')) {
       window.open(`/pool/${id}`, '_blank');
     }
   };
