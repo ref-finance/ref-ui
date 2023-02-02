@@ -2737,7 +2737,7 @@ function LiquidityPage_({
                     )}
                   </span>
                 </div>
-                <p className="col-span-1 justify-self-end relative right-6">
+                <p className="col-span-1 justify-self-end relative xs:right-6 lg:right-5">
                   <FormattedMessage id="pools" defaultMessage="Pools" />
                 </p>
               </header>
