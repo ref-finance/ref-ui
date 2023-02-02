@@ -916,6 +916,10 @@ function MobileLiquidityPage({
     setShowPoolIDTip(false);
   };
 
+  useEffect(() => {
+    if (inputRef.current?.value) inputRef.current.value = tokenName;
+  }, [activeTab]);
+
   const [showPoolIDTip, setShowPoolIDTip] = useState<boolean>(false);
 
   const handleIdSearching = (id: string) => {
@@ -1101,6 +1105,7 @@ function MobileLiquidityPage({
                           id: 'search_by_token',
                         })
                   }
+                  defaultValue={tokenName}
                   inputMode={enableIdSearch ? 'decimal' : 'text'}
                   type={enableIdSearch ? 'number' : 'text'}
                   onKeyDown={(evt) => {
@@ -1117,7 +1122,13 @@ function MobileLiquidityPage({
                   }}
                   onChange={(evt) => {
                     inputRef.current.value = evt.target.value;
-                    setShowPoolIDTip(false);
+
+                    if (enableIdSearch && Number(evt.target.value) > allPools) {
+                      setShowPoolIDTip(true);
+                    } else {
+                      setShowPoolIDTip(false);
+                    }
+
                     !enableIdSearch ? onSearch(evt.target.value) : null;
                   }}
                 />
@@ -1183,7 +1194,11 @@ function MobileLiquidityPage({
                   type={enableIdSearch ? 'number' : 'text'}
                   onChange={(evt) => {
                     inputRef.current.value = evt.target.value;
-                    setShowPoolIDTip(false);
+                    if (enableIdSearch && Number(evt.target.value) > allPools) {
+                      setShowPoolIDTip(true);
+                    } else {
+                      setShowPoolIDTip(false);
+                    }
                     !enableIdSearch ? onSearch(evt.target.value) : null;
                   }}
                   onKeyDown={(evt) => {
@@ -1195,6 +1210,7 @@ function MobileLiquidityPage({
                       handleIdSearching(inputRef.current.value);
                     }
                   }}
+                  defaultValue={tokenName}
                   onFocus={() => {
                     setShowPoolIDTip(false);
                   }}
@@ -1504,7 +1520,7 @@ export const getPoolListFarmAprTip = () => {
 const PoolIdNotExist = () => {
   const intl = useIntl();
   return (
-    <span className="relative right-6 whitespace-nowrap text-redwarningColor">
+    <span className="relative right-6  bottom-px whitespace-nowrap text-redwarningColor">
       {intl.formatMessage({
         id: 'poolIdNotExist',
         defaultMessage: 'does not exist!',
@@ -2401,7 +2417,17 @@ function LiquidityPage_({
                 onChange={(evt) => {
                   inputRef.current.value = evt.target.value;
 
-                  setShowPoolIDTip(false);
+                  console.log('evt.target.value', evt.target.value);
+
+                  if (
+                    enableIdSearch &&
+                    activeTab !== 'v2' &&
+                    Number(evt.target.value) > allPools
+                  ) {
+                    setShowPoolIDTip(true);
+                  } else {
+                    setShowPoolIDTip(false);
+                  }
 
                   !enableIdSearch || activeTab === 'v2'
                     ? onSearch(evt.target.value)
