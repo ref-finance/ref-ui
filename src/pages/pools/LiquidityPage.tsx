@@ -913,11 +913,18 @@ function MobileLiquidityPage({
     setEnableIdSearch(!enableIdSearch);
     inputRef.current.value = '';
     onSearch('');
-  };
-  const handleIdSearching = (id: string) => {
-    window.open(`/pool/${id}`, '_blank');
+    setShowPoolIDTip(false);
   };
 
+  const [showPoolIDTip, setShowPoolIDTip] = useState<boolean>(false);
+
+  const handleIdSearching = (id: string) => {
+    if (Number(id) > allPools) {
+      setShowPoolIDTip(true);
+    } else {
+      window.open(`/pool/${id}`, '_blank');
+    }
+  };
   const poolSortingFunc = (p1: Pool, p2: Pool) => {
     if (order === 'asc') {
       if (sortBy === 'apr') {
@@ -1107,10 +1114,11 @@ function MobileLiquidityPage({
                   }}
                   onChange={(evt) => {
                     inputRef.current.value = evt.target.value;
-
+                    setShowPoolIDTip(false);
                     !enableIdSearch ? onSearch(evt.target.value) : null;
                   }}
                 />
+                {showPoolIDTip && <PoolIdNotExist />}
                 <SearchIcon
                   onClick={() => {
                     if (enableIdSearch && !!inputRef.current.value) {
@@ -1172,7 +1180,7 @@ function MobileLiquidityPage({
                   type={enableIdSearch ? 'number' : 'text'}
                   onChange={(evt) => {
                     inputRef.current.value = evt.target.value;
-
+                    setShowPoolIDTip(false);
                     !enableIdSearch ? onSearch(evt.target.value) : null;
                   }}
                   onKeyDown={(evt) => {
@@ -1185,6 +1193,8 @@ function MobileLiquidityPage({
                     }
                   }}
                 />
+
+                {showPoolIDTip && <PoolIdNotExist />}
                 <SearchIcon
                   onClick={() => {
                     if (enableIdSearch && !!inputRef.current.value) {
@@ -1483,6 +1493,18 @@ export const getPoolListFarmAprTip = () => {
 
     </div>
 `;
+};
+
+const PoolIdNotExist = () => {
+  const intl = useIntl();
+  return (
+    <span className="relative right-6 whitespace-nowrap text-redwarningColor">
+      {intl.formatMessage({
+        id: 'poolIdNotExist',
+        defaultMessage: 'does not exist!',
+      })}
+    </span>
+  );
 };
 
 function PoolRow({
@@ -2000,6 +2022,10 @@ function LiquidityPage_({
   const [tvlV2, setTvlV2] = useState<string>();
 
   useEffect(() => {
+    setShowPoolIDTip(false);
+  }, [activeTab]);
+
+  useEffect(() => {
     if (
       typeof allPoolsV2 === 'undefined' ||
       allPoolsV2.length === 0 ||
@@ -2052,9 +2078,17 @@ function LiquidityPage_({
     setEnableIdSearch(!enableIdSearch);
     inputRef.current.value = '';
     onSearch('');
+    setShowPoolIDTip(false);
   };
+
+  const [showPoolIDTip, setShowPoolIDTip] = useState<boolean>(false);
+
   const handleIdSearching = (id: string) => {
-    window.open(`/pool/${id}`, '_blank');
+    if (Number(id) > allPools) {
+      setShowPoolIDTip(true);
+    } else {
+      window.open(`/pool/${id}`, '_blank');
+    }
   };
 
   useEffect(() => {
@@ -2314,6 +2348,7 @@ function LiquidityPage_({
               style={{
                 background: 'rgba(34, 46, 56, 0.2)',
                 border: searchFocus ? '1px solid #3A635B' : '1px solid #304452',
+                width: '250px',
               }}
             >
               <button
@@ -2334,7 +2369,7 @@ function LiquidityPage_({
 
               <input
                 ref={inputRef}
-                className={`text-sm search-pool-pc outline-none rounded-xl w-full py-2 pl-3 pr-6`}
+                className={`text-sm search-pool-pc outline-none rounded-xl  py-2 pl-3 pr-6`}
                 placeholder={
                   enableIdSearch && activeTab !== 'v2'
                     ? intl.formatMessage({
@@ -2359,6 +2394,8 @@ function LiquidityPage_({
                 onChange={(evt) => {
                   inputRef.current.value = evt.target.value;
 
+                  setShowPoolIDTip(false);
+
                   !enableIdSearch || activeTab === 'v2'
                     ? onSearch(evt.target.value)
                     : null;
@@ -2377,6 +2414,8 @@ function LiquidityPage_({
                   }
                 }}
               />
+
+              {showPoolIDTip && <PoolIdNotExist />}
               <SearchIcon
                 style={{
                   opacity: searchFocus ? '1' : '0.5',
