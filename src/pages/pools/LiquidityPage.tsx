@@ -1112,6 +1112,9 @@ function MobileLiquidityPage({
                       handleIdSearching(inputRef.current.value);
                     }
                   }}
+                  onFocus={() => {
+                    setShowPoolIDTip(false);
+                  }}
                   onChange={(evt) => {
                     inputRef.current.value = evt.target.value;
                     setShowPoolIDTip(false);
@@ -1191,6 +1194,9 @@ function MobileLiquidityPage({
                     if (evt.key === 'Enter' && enableIdSearch) {
                       handleIdSearching(inputRef.current.value);
                     }
+                  }}
+                  onFocus={() => {
+                    setShowPoolIDTip(false);
                   }}
                 />
 
@@ -2387,6 +2393,7 @@ function LiquidityPage_({
                 type={enableIdSearch && activeTab !== 'v2' ? 'number' : 'text'}
                 onFocus={() => {
                   setSearchFocus(true);
+                  setShowPoolIDTip(false);
                 }}
                 onBlur={() => {
                   setSearchFocus(false);
@@ -2737,7 +2744,7 @@ function LiquidityPage_({
                     )}
                   </span>
                 </div>
-                <p className="col-span-1 justify-self-end relative xs:right-6 lg:right-5">
+                <p className="col-span-1 justify-self-end relative xs:right-8 lg:right-5">
                   <FormattedMessage id="pools" defaultMessage="Pools" />
                 </p>
               </header>
