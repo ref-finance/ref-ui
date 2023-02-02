@@ -770,6 +770,8 @@ function MobileWatchListCard({
   );
 }
 
+const REF_MOBILE_POOL_ID_INPUT = 'REF_MOBILE_POOL_ID_INPUT';
+
 function MobileLiquidityPage({
   pools,
   tokenName,
@@ -916,9 +918,9 @@ function MobileLiquidityPage({
     setShowPoolIDTip(false);
   };
 
-  useEffect(() => {
-    if (inputRef.current?.value) inputRef.current.value = tokenName;
-  }, [activeTab]);
+  // useEffect(() => {
+  //   if (inputRef.current?.value) inputRef.current.value = tokenName;
+  // }, [activeTab]);
 
   const [showPoolIDTip, setShowPoolIDTip] = useState<boolean>(false);
 
@@ -1106,7 +1108,11 @@ function MobileLiquidityPage({
                           id: 'search_by_token',
                         })
                   }
-                  defaultValue={tokenName}
+                  defaultValue={
+                    enableIdSearch
+                      ? sessionStorage.getItem(REF_MOBILE_POOL_ID_INPUT)
+                      : tokenName
+                  }
                   inputMode={enableIdSearch ? 'decimal' : 'text'}
                   type={enableIdSearch ? 'number' : 'text'}
                   onKeyDown={(evt) => {
@@ -1130,7 +1136,12 @@ function MobileLiquidityPage({
                       setShowPoolIDTip(false);
                     }
 
-                    !enableIdSearch ? onSearch(evt.target.value) : null;
+                    !enableIdSearch
+                      ? onSearch(evt.target.value)
+                      : sessionStorage.setItem(
+                          REF_MOBILE_POOL_ID_INPUT,
+                          evt.target.value
+                        );
                   }}
                 />
                 {showPoolIDTip && <PoolIdNotExist />}
@@ -1200,7 +1211,12 @@ function MobileLiquidityPage({
                     } else {
                       setShowPoolIDTip(false);
                     }
-                    !enableIdSearch ? onSearch(evt.target.value) : null;
+                    !enableIdSearch
+                      ? onSearch(evt.target.value)
+                      : sessionStorage.setItem(
+                          REF_MOBILE_POOL_ID_INPUT,
+                          evt.target.value
+                        );
                   }}
                   onKeyDown={(evt) => {
                     if (enableIdSearch) {
@@ -1211,7 +1227,11 @@ function MobileLiquidityPage({
                       handleIdSearching(inputRef.current.value);
                     }
                   }}
-                  defaultValue={tokenName}
+                  defaultValue={
+                    enableIdSearch
+                      ? sessionStorage.getItem(REF_MOBILE_POOL_ID_INPUT)
+                      : tokenName
+                  }
                   onFocus={() => {
                     setShowPoolIDTip(false);
                   }}
