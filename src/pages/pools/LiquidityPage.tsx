@@ -904,7 +904,7 @@ function MobileLiquidityPage({
     );
   };
   const outOfText = intl.formatMessage({ id: 'out_of' });
-  const [symbolsArr] = useState(['e', 'E', '+', '-']);
+  const [symbolsArr] = useState(['e', 'E', '+', '-', '.']);
 
   const [enableIdSearch, setEnableIdSearch] = useState<boolean>(
     !!sessionStorage.getItem(REF_POOL_ID_SEARCHING_KEY) || false
@@ -2117,7 +2117,7 @@ function LiquidityPage_({
   const [v2SortBy, setV2SortBy] = useState<string>('tvl');
 
   const [v2Order, setV2Order] = useState<string>('desc');
-  const [symbolsArr] = useState(['e', 'E', '+', '-']);
+  const [symbolsArr] = useState(['e', 'E', '+', '-', '.']);
   const [enableIdSearch, setEnableIdSearch] = useState<boolean>(
     !!sessionStorage.getItem(REF_POOL_ID_SEARCHING_KEY) || false
   );
