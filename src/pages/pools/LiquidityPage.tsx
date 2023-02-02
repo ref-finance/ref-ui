@@ -1130,7 +1130,10 @@ function MobileLiquidityPage({
                   onChange={(evt) => {
                     inputRef.current.value = evt.target.value;
 
-                    if (enableIdSearch && Number(evt.target.value) > allPools) {
+                    if (
+                      enableIdSearch &&
+                      Number(evt.target.value) >= allPools
+                    ) {
                       setShowPoolIDTip(true);
                     } else {
                       setShowPoolIDTip(false);
@@ -1206,7 +1209,10 @@ function MobileLiquidityPage({
                   type={enableIdSearch ? 'number' : 'text'}
                   onChange={(evt) => {
                     inputRef.current.value = evt.target.value;
-                    if (enableIdSearch && Number(evt.target.value) > allPools) {
+                    if (
+                      enableIdSearch &&
+                      Number(evt.target.value) >= allPools
+                    ) {
                       setShowPoolIDTip(true);
                     } else {
                       setShowPoolIDTip(false);
@@ -2443,7 +2449,7 @@ function LiquidityPage_({
                   if (
                     enableIdSearch &&
                     activeTab !== 'v2' &&
-                    Number(evt.target.value) > allPools
+                    Number(evt.target.value) >= allPools
                   ) {
                     setShowPoolIDTip(true);
                   } else {
