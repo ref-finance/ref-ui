@@ -925,7 +925,7 @@ function MobileLiquidityPage({
   const [showPoolIDTip, setShowPoolIDTip] = useState<boolean>(false);
 
   const handleIdSearching = (id: string) => {
-    if (Number(id) > allPools) {
+    if (Number(id) >= allPools) {
       setShowPoolIDTip(true);
     } else if (id && id.length > 0 && !id.includes('.')) {
       window.open(`/pool/${id}`, '_blank');
@@ -2133,7 +2133,7 @@ function LiquidityPage_({
   const [showPoolIDTip, setShowPoolIDTip] = useState<boolean>(false);
 
   const handleIdSearching = (id: string) => {
-    if (Number(id) > allPools) {
+    if (Number(id) >= allPools) {
       setShowPoolIDTip(true);
     } else if (id && id.length > 0 && !id.includes('.')) {
       window.open(`/pool/${id}`, '_blank');
