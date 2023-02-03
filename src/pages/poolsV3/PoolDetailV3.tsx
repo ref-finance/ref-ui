@@ -166,7 +166,7 @@ export default function PoolDetailV3() {
     // get user seeds
     if (user_liqudities_final.length > 0) {
       const user_seeds_map = await list_farmer_seeds();
-      const target_seed_id = Object.keys(user_seeds_map).find(
+      const target_seed_ids = Object.keys(user_seeds_map).filter(
         (seed_id: string) => {
           const [contractId, mft_id] = seed_id.split('@');
           if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
@@ -176,15 +176,17 @@ export default function PoolDetailV3() {
           }
         }
       );
-      if (target_seed_id) {
-        const { free_amount, locked_amount } = user_seeds_map[target_seed_id];
-        const user_seed_amount = new BigNumber(free_amount)
-          .plus(locked_amount)
-          .toFixed();
-        allocation_rule_liquidities({
-          list: user_liqudities_final,
-          user_seed_amount,
-          seed_id: target_seed_id,
+      if (target_seed_ids.length > 0) {
+        target_seed_ids.forEach((target_seed_id: string) => {
+          const { free_amount, locked_amount } = user_seeds_map[target_seed_id];
+          const user_seed_amount = new BigNumber(free_amount)
+            .plus(locked_amount)
+            .toFixed();
+          allocation_rule_liquidities({
+            list: user_liqudities_final,
+            user_seed_amount,
+            seed_id: target_seed_id,
+          });
         });
       }
     }
@@ -1125,7 +1127,7 @@ function RelatedFarmsBox(props: any) {
     const [fixRange, pool_id, left_point, right_point] =
       temp_pool_id.split('&');
     const link_params = `${pool_id}&${left_point}&${right_point}`;
-    history.push(`/v2farms/${link_params}-r`);
+    window.open(`/v2farms/${link_params}-r`);
   }
   if (farm_loading) return null;
   if (!related_seed) return null;

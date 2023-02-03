@@ -1889,6 +1889,12 @@ function AddLiquidityComponent({
       </div>
     );
   }
+  function rewardRangeTip() {
+    // const tip = intl.formatMessage({ id: 'over_tip' });
+    const tip = 'Farm reward within this range';
+    let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
+    return result;
+  }
   const tokenSort = tokenX.id == currentSelectedPool.token_x;
   const isAddLiquidityDisabled = getButtonStatus();
   const mobileDevice = isMobile();
@@ -2089,7 +2095,7 @@ function AddLiquidityComponent({
                   data-for="rangeTipId"
                   data-place="top"
                   data-html={true}
-                  data-tip={'hello world'}
+                  data-tip={rewardRangeTip()}
                 >
                   <QuestionMark></QuestionMark>
                   <ReactTooltip

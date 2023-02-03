@@ -826,7 +826,7 @@ export default function FarmsDclDetail(props: {
   }
   function rewardRangeTip() {
     // const tip = intl.formatMessage({ id: 'over_tip' });
-    const tip = 'hello world';
+    const tip = 'Farm reward within this range';
     let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
     return result;
   }
@@ -1515,7 +1515,9 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     if (+min_right_point > +max_left_point) {
       const range_cross = new BigNumber(min_right_point).minus(max_left_point);
       const range_seed = new BigNumber(seed_right_point).minus(seed_left_point);
-      const p = range_cross.dividedBy(range_seed).multipliedBy(100);
+      const range_user = new BigNumber(right_point).minus(left_point);
+      const range_denominator = BigNumber.max(range_seed, range_user);
+      const p = range_cross.dividedBy(range_denominator).multipliedBy(100);
       if (p.isLessThan(20)) {
         icon = (
           <CrossIconLittle num={site == 'mobile' ? '1' : '2'}></CrossIconLittle>
