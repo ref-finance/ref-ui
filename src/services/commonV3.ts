@@ -568,7 +568,8 @@ export function allocation_rule_liquidities({
   seed_id: string;
 }) {
   const [contractId, temp_pool_id] = seed_id.split('@');
-  const [fixRange, pool_id, left_point, right_point] = temp_pool_id.split('&');
+  const [fixRange, pool_id, left_point_s, right_point_s] =
+    temp_pool_id.split('&');
   const matched_liquidities = list.filter((liquidity: UserLiquidityInfo) => {
     if (liquidity.pool_id == pool_id) return true;
   });
@@ -580,7 +581,13 @@ export function allocation_rule_liquidities({
     const { mft_id } = liquidity;
     const inRange = right_point > left_point;
     if (inRange && mft_id) {
-      temp_farming.push(liquidity);
+      const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
+        mft_id.split('&');
+      if (left_point_l != left_point_s || right_point_l != right_point_s) {
+        temp_unavailable.push(liquidity);
+      } else {
+        temp_farming.push(liquidity);
+      }
     } else if (!inRange) {
       temp_unavailable.push(liquidity);
     } else {
@@ -611,6 +618,7 @@ export function allocation_rule_liquidities({
     } else {
       const percent = user_seed_amount_remained_big
         .dividedBy(v_liquidity)
+        .multipliedBy(100)
         .toFixed();
       liquidity.part_farm_ratio = percent;
       liquidity.unfarm_part_amount = v_liquidity_big
@@ -637,7 +645,7 @@ export function mint_liquidity(liquidity: UserLiquidityInfo, seed_id: string) {
     const mint_amount = new BigNumber(Math.pow(temp_valid, 2))
       .multipliedBy(amount)
       .dividedBy(Math.pow(10, 6))
-      .toFixed(0);
+      .toFixed(0, 1);
     return mint_amount;
   }
   return '0';

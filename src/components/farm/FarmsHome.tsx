@@ -597,7 +597,10 @@ export default function FarmsHome(props: any) {
     const paramStr = getUrlParams() || '';
     if (paramStr) {
       let is_dcl_pool = false;
-      const idArr = paramStr.split('-');
+      const idArr = [
+        paramStr.slice(0, paramStr.length - 2),
+        paramStr.slice(-1),
+      ];
       const mft_id = decodeURIComponent(idArr[0]);
       const farmsStatus = idArr[1];
       if (mft_id.split('|').length > 0) {

@@ -305,7 +305,6 @@ export default function FarmsDclDetail(props: {
       pool_id: detailData.pool.pool_id,
     });
     const targetSeed = matched_seeds[0];
-    console.log('99999999999', matched_seeds);
     if (matched_seeds.length > 1 && targetSeed.seed_id != detailData.seed_id) {
       setBetterSeed(targetSeed);
     }
@@ -320,7 +319,7 @@ export default function FarmsDclDetail(props: {
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
     if (list.length > 0 && !user_data_loading) {
-      const { free_amount, locked_amount } =
+      const { free_amount = '0', locked_amount = '0' } =
         user_seeds_map[detailData.seed_id] || {};
       const user_seed_amount = new BigNumber(free_amount)
         .plus(locked_amount)
@@ -338,23 +337,9 @@ export default function FarmsDclDetail(props: {
       set_listLiquidities_unFarimg(temp_free);
       set_listLiquidities_unavailable(temp_unavailable);
       setListLiquidities(matched_liquidities);
+    }
+    if (!user_data_loading) {
       setListLiquiditiesLoading(false);
-      // console.log(
-      //   'temp_farming_final temp_farming_final temp_farming_final',
-      //   temp_farming
-      // );
-      // console.log(
-      //   'temp_free temp_free temp_free temp_free temp_free',
-      //   temp_free
-      // );
-      // console.log(
-      //   'temp_unavailable temp_unavailable temp_unavailable temp_unavailable',
-      //   temp_unavailable
-      // );
-      // console.log(
-      //   'liquidity liquidity liquidity liquidity',
-      //   matched_liquidities
-      // );
     }
   }
   function sortTokens(tokens: TokenMetadata[]) {
@@ -1351,6 +1336,7 @@ export default function FarmsDclDetail(props: {
             tokens,
             needForbidden,
             mft_balance_in_dcl_account,
+            rate_need_to_reverse_display,
           }}
         >
           {listLiquidities_inFarimg.length > 0 ? (
@@ -1359,12 +1345,7 @@ export default function FarmsDclDetail(props: {
                 Faming position(s)
               </div>
               {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
-                return (
-                  <LiquidityLine
-                    liquidity={liquidity}
-                    rate_need_to_reverse_display={rate_need_to_reverse_display}
-                  ></LiquidityLine>
-                );
+                return <LiquidityLine liquidity={liquidity}></LiquidityLine>;
               })}
             </>
           ) : null}
@@ -1375,12 +1356,7 @@ export default function FarmsDclDetail(props: {
                 Unfarming position(s)
               </div>
               {listLiquidities_unFarimg.map((liquidity: UserLiquidityInfo) => {
-                return (
-                  <LiquidityLine
-                    liquidity={liquidity}
-                    rate_need_to_reverse_display={rate_need_to_reverse_display}
-                  ></LiquidityLine>
-                );
+                return <LiquidityLine liquidity={liquidity}></LiquidityLine>;
               })}{' '}
             </>
           ) : null}
@@ -1392,14 +1368,7 @@ export default function FarmsDclDetail(props: {
               </div>
               {listLiquidities_unavailable.map(
                 (liquidity: UserLiquidityInfo) => {
-                  return (
-                    <LiquidityLine
-                      liquidity={liquidity}
-                      rate_need_to_reverse_display={
-                        rate_need_to_reverse_display
-                      }
-                    ></LiquidityLine>
-                  );
+                  return <LiquidityLine liquidity={liquidity}></LiquidityLine>;
                 }
               )}
             </>
@@ -1429,29 +1398,91 @@ export default function FarmsDclDetail(props: {
   );
 }
 
-function LiquidityLine(props: {
-  liquidity: UserLiquidityInfo;
-  rate_need_to_reverse_display: boolean;
-}) {
-  const { liquidity, rate_need_to_reverse_display } = props;
+function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
+  const { liquidity } = props;
   const {
     detailData,
     tokenPriceList,
     tokens,
     needForbidden,
     mft_balance_in_dcl_account,
+    rate_need_to_reverse_display,
   } = useContext(FarmContext);
   const [nft_stake_loading, set_nft_stake_loading] = useState(false);
   const [nft_unStake_loading, set_nft_unStake_loading] = useState(false);
   const [hover, setHover] = useState(false);
-  const [liquidity_status, liquidity_operation]: any = useMemo(() => {
-    return display_liquidity_status(liquidity);
+  const is_liquidity_staked_for_another_seed = useMemo(() => {
+    if (!(liquidity && detailData)) return false;
+    const { mft_id } = liquidity;
+    if (mft_id) {
+      const [contractId, temp_pool_id] = detailData.seed_id.split('@');
+      const [fixRange_s, pool_id_s, left_point_s, right_point_s] =
+        temp_pool_id.split('&');
+      const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
+        liquidity.mft_id.split('&');
+      if (left_point_s != left_point_l || right_point_s != right_point_l)
+        return true;
+    }
+    return false;
   }, [liquidity, detailData]);
+  const liquidity_status_string: StatusType | string = useMemo(() => {
+    if (!(liquidity && detailData)) return '';
+    const { part_farm_ratio, mft_id } = liquidity;
+    const [left_point, right_point] = get_valid_range(
+      liquidity,
+      detailData.seed_id
+    );
+    const inRange = right_point > left_point;
+    let status: StatusType;
+    if (part_farm_ratio == '100') {
+      status = 'farming';
+    } else if (!inRange || is_liquidity_staked_for_another_seed) {
+      status = 'unavailable';
+    } else if (part_farm_ratio == '0' || !mft_id) {
+      status = 'unfarming';
+    } else {
+      status = 'partialfarming';
+    }
+    return status;
+  }, [liquidity, detailData, is_liquidity_staked_for_another_seed]);
+  const [liquidity_status_display, liquidity_operation_display]: any =
+    useMemo(() => {
+      if (!(liquidity && detailData && liquidity_status_string))
+        return [null, []];
+      const part_farm_ratio = liquidity.part_farm_ratio;
+      let status;
+      let operation: string[] = [];
+      if (liquidity_status_string == 'farming') {
+        status = (
+          <span className="text-sm, text-dclFarmGreenColor">Farming</span>
+        );
+        operation = ['unstake'];
+      } else if (liquidity_status_string == 'unavailable') {
+        status = <span className="text-sm, text-primaryText">Unavailable</span>;
+      } else if (liquidity_status_string == 'unfarming') {
+        status = <span className="text-sm, text-primaryText">Unfarming</span>;
+        operation = ['stake'];
+      } else {
+        const part_farm_ratio_big = new BigNumber(part_farm_ratio);
+        let percent = '-%';
+        if (part_farm_ratio_big.isLessThan(1)) {
+          percent = '<1%';
+        } else {
+          percent = `${part_farm_ratio_big.toFixed(0)}%`;
+        }
+        status = (
+          <span className="text-sm, text-dclFarmYellowColor">
+            {percent} Partial Farming
+          </span>
+        );
+        operation = ['stake', 'unstake'];
+      }
+      return [status, operation];
+    }, [liquidity, detailData, liquidity_status_string]);
   function get_liquidity_value(liquidity: UserLiquidityInfo) {
     const { left_point, right_point, amount } = liquidity;
     const poolDetail = detailData.pool;
     const { token_x, token_y } = poolDetail;
-
     const v = get_total_value_by_liquidity_amount_dcl({
       left_point,
       right_point,
@@ -1471,55 +1502,6 @@ function LiquidityLine(props: {
   function get_liquidity_value_display(liquidity: UserLiquidityInfo) {
     const v = get_liquidity_value(liquidity);
     return `$${formatWithCommas(toPrecision(v.toString(), 3))}`;
-  }
-  function get_liquidity_status(liquidity: UserLiquidityInfo) {
-    const { mft_id } = liquidity;
-    const [max_left_point, min_right_point] = get_valid_range(
-      liquidity,
-      detailData.seed_id
-    );
-    if (mft_id) {
-      return 1;
-    } else if (min_right_point > max_left_point) {
-      return 2;
-    } else {
-      return 3;
-    }
-  }
-  function display_liquidity_status(liquidity: UserLiquidityInfo) {
-    const part_farm_ratio = liquidity.part_farm_ratio;
-    const { mft_id } = liquidity;
-    const [left_point, right_point] = get_valid_range(
-      liquidity,
-      detailData.seed_id
-    );
-    const inRange = right_point > left_point;
-    let status;
-    let operation: string[] = [];
-    if (part_farm_ratio == '100') {
-      status = <span className="text-sm, text-dclFarmGreenColor">Farming</span>;
-      operation = ['unstake'];
-    } else if (!inRange) {
-      status = <span className="text-sm, text-primaryText">Unavailable</span>;
-    } else if (part_farm_ratio == '0' || !mft_id) {
-      status = <span className="text-sm, text-primaryText">Unfarming</span>;
-      operation = ['stake'];
-    } else {
-      const part_farm_ratio_big = new BigNumber(part_farm_ratio);
-      let percent = '-%';
-      if (part_farm_ratio_big.isLessThan(1)) {
-        percent = '<1%';
-      } else {
-        percent = `${part_farm_ratio_big.toFixed(0)}%`;
-      }
-      status = (
-        <span className="text-sm, text-dclFarmYellowColor">
-          {percent} Partial Farming
-        </span>
-      );
-      operation = ['stake', 'unstake'];
-    }
-    return [status, operation];
   }
   function get_your_range(liquidity: UserLiquidityInfo, site: string) {
     const { left_point, right_point } = liquidity;
@@ -1585,7 +1567,7 @@ function LiquidityLine(props: {
     }
     return (
       <div className="flex items-center">
-        <span className="text-sm text-white mr-1.5">
+        <span className="text-sm mr-1.5">
           {display_left_price} ~ {display_right_price}
         </span>
         <div
@@ -1629,24 +1611,45 @@ function LiquidityLine(props: {
     // lp percent
     let percent;
     const mint_amount = mint_liquidity(liquidity, detailData.seed_id);
-    if (liquidity.mft_id) {
-      // farming
-      percent = new BigNumber(mint_amount).dividedBy(total_seed_power);
+    const part_farm_ratio = liquidity.part_farm_ratio;
+    if (+part_farm_ratio == 100) {
+      // full farming
+      if (+total_seed_power > 0) {
+        percent = new BigNumber(mint_amount).dividedBy(total_seed_power);
+      }
+    } else if (+part_farm_ratio > 0 && +part_farm_ratio < 100) {
+      // partial Farming
+      if (+total_seed_power > 0) {
+        const partial_amount = new BigNumber(mint_amount)
+          .multipliedBy(part_farm_ratio)
+          .dividedBy(100);
+        percent = partial_amount.dividedBy(total_seed_power);
+      }
     } else {
-      const temp_total = new BigNumber(total_seed_power).plus(mint_amount);
-      percent = new BigNumber(mint_amount).dividedBy(temp_total);
+      // unFarming, unavailable
+      const temp_total = new BigNumber(total_seed_power || 0).plus(mint_amount);
+      if (temp_total.isGreaterThan(0)) {
+        percent = new BigNumber(mint_amount).dividedBy(temp_total);
+      }
     }
     // profit
-    const profit = percent.multipliedBy(total_rewards);
+    let profit;
+    if (percent) {
+      profit = percent.multipliedBy(total_rewards);
+    }
 
     // your apr
-    const your_apr = profit.dividedBy(total_principal).multipliedBy(100);
-    if (your_apr.isEqualTo('0')) {
-      return '0%';
-    } else if (your_apr.isLessThan(0.01)) {
-      return `<0.01%`;
+    if (profit) {
+      const your_apr = profit.dividedBy(total_principal).multipliedBy(100);
+      if (your_apr.isEqualTo('0')) {
+        return '0%';
+      } else if (your_apr.isLessThan(0.01)) {
+        return `<0.01%`;
+      } else {
+        return `${toPrecision(your_apr.toFixed(), 2)}%`;
+      }
     } else {
-      return `${toPrecision(your_apr.toFixed(), 2)}%`;
+      return '-';
     }
   }
   function stakeNFT(liquidity: UserLiquidityInfo) {
@@ -1695,9 +1698,27 @@ function LiquidityLine(props: {
     const url_params = liquidity.lpt_id.replace(/\|/g, '@').replace(/#/g, '@');
     window.open(`/yoursLiquidityDetailV2/${url_params}`);
   }
+  function unavailableTip() {
+    let tip = 'Your price range is out of fix range';
+    if (is_liquidity_staked_for_another_seed) {
+      tip = 'This position has been staked in another farm';
+    }
+    let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
+    return result;
+  }
+  function apr_title() {
+    if (
+      liquidity_status_string == 'farming' ||
+      liquidity_status_string == 'partialfarming'
+    ) {
+      return 'Your APR';
+    } else {
+      return 'Est. APR';
+    }
+  }
   const showStakeButton =
-    !isEnded() && liquidity_operation.indexOf('stake') > -1;
-  const showUnStakeButton = liquidity_operation.indexOf('unstake') > -1;
+    !isEnded() && liquidity_operation_display.indexOf('stake') > -1;
+  const showUnStakeButton = liquidity_operation_display.indexOf('unstake') > -1;
   return (
     <>
       {/* for PC */}
@@ -1721,31 +1742,70 @@ function LiquidityLine(props: {
           >
             <div className="flex flex-col justify-between col-span-1 items-start">
               <span className="text-sm text-primaryText">Your Liquidity</span>
-              <span className="text-sm text-white mt-2.5">
+              <span
+                className={`text-sm mt-2.5 ${
+                  liquidity_status_string == 'unavailable'
+                    ? 'text-primaryText'
+                    : 'text-white'
+                }`}
+              >
                 {get_liquidity_value_display(liquidity)}
               </span>
             </div>
             <div className="flex flex-col justify-between  col-span-2">
               <span className="text-sm text-primaryText">Your Price Range</span>
-              <span className="text-sm text-white">
+              <span
+                className={`text-sm ${
+                  liquidity_status_string == 'unavailable'
+                    ? 'text-primaryText'
+                    : 'text-white'
+                }`}
+              >
                 {get_your_range(liquidity, 'pc')}
               </span>
             </div>
             <div className="flex flex-col justify-between col-span-1">
-              <span className="text-sm text-primaryText">Your APR</span>
-              <span className="text-sm text-white">
+              <span className="text-sm text-primaryText">{apr_title()}</span>
+              <span
+                className={`text-sm ${
+                  liquidity_status_string == 'unavailable'
+                    ? 'text-primaryText'
+                    : 'text-white'
+                }`}
+              >
                 {get_your_apr(liquidity)}
               </span>
             </div>
             <div className="flex flex-col justify-between items-end col-span-1">
               <span className="text-sm text-primaryText">State</span>
-              <span className="text-sm text-white">{liquidity_status}</span>
+              <div className={`flex items-center text-sm`}>
+                {liquidity_status_display}
+                {liquidity_status_string == 'unavailable' ? (
+                  <div
+                    className="text-white text-right ml-1"
+                    data-class="reactTip"
+                    data-for={`unavailableTipId_${liquidity.lpt_id}`}
+                    data-place="top"
+                    data-html={true}
+                    data-tip={unavailableTip()}
+                  >
+                    <QuestionMark></QuestionMark>
+                    <ReactTooltip
+                      id={`unavailableTipId_${liquidity.lpt_id}`}
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
           <div
             className={`flex items-center  justify-between bg-cardBg py-3 px-6 ${
               hover ? '' : 'hidden'
-            } ${get_liquidity_status(liquidity) == 3 ? 'hidden' : ''}`}
+            } ${liquidity_status_string == 'unavailable' ? 'hidden' : ''}`}
           >
             <div
               onClick={() => {
@@ -1803,25 +1863,64 @@ function LiquidityLine(props: {
         <div className="bg-v3HoverDarkBgColor rounded-t-xl px-4 py-3">
           <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-primaryText">Your Liquidity</span>
-            <span className="text-sm text-white">
+            <span
+              className={`text-sm ${
+                liquidity_status_string == 'unavailable'
+                  ? 'text-primaryText'
+                  : 'text-white'
+              }`}
+            >
               {get_liquidity_value_display(liquidity)}
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-primaryText">Your Price Range</span>
-            <span className="text-sm text-white">
+            <span
+              className={`text-sm ${
+                liquidity_status_string == 'unavailable'
+                  ? 'text-primaryText'
+                  : 'text-white'
+              }`}
+            >
               {get_your_range(liquidity, 'mobile')}
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-primaryText">Your APR</span>
-            <span className="text-sm text-white">
+            <span className="text-sm text-primaryText">{apr_title()}</span>
+            <span
+              className={`text-sm ${
+                liquidity_status_string == 'unavailable'
+                  ? 'text-primaryText'
+                  : 'text-white'
+              }`}
+            >
               {get_your_apr(liquidity)}
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-primaryText">State</span>
-            <span className="text-sm text-white">{liquidity_status}</span>
+            <div className="flex items-center text-sm text-white">
+              {liquidity_status_display}
+              {liquidity_status_string == 'unavailable' ? (
+                <div
+                  className="text-white text-right ml-1"
+                  data-class="reactTip"
+                  data-for={`unavailableTipId_m_${liquidity.lpt_id}`}
+                  data-place="top"
+                  data-html={true}
+                  data-tip={unavailableTip()}
+                >
+                  <QuestionMark></QuestionMark>
+                  <ReactTooltip
+                    id={`unavailableTipId_m_${liquidity.lpt_id}`}
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
         <div
@@ -1829,7 +1928,7 @@ function LiquidityLine(props: {
         >
           <div
             className={`flex items-center w-full ${
-              get_liquidity_status(liquidity) == 3 ? 'hidden' : ''
+              liquidity_status_string == 'unavailable' ? 'hidden' : ''
             }`}
           >
             <GradientButton
@@ -1876,7 +1975,7 @@ function LiquidityLine(props: {
           </div>
           <p
             className={`flex items-center justify-between text-sm text-dclFarmYellowColor ${
-              get_liquidity_status(liquidity) == 3 ? '' : 'hidden'
+              liquidity_status_string == 'unavailable' ? '' : 'hidden'
             }`}
           >
             Your price range is out of fix range
@@ -1911,3 +2010,4 @@ function AddLoginEntryBar() {
     </div>
   );
 }
+type StatusType = 'farming' | 'unavailable' | 'unfarming' | 'partialfarming';
