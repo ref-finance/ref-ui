@@ -1292,10 +1292,10 @@ export default function FarmsDclDetail(props: {
           )}
         </div>
       </div>
-      {/* Your position(s) */}
+      {/* Your Position(s) */}
       <div className="mt-6">
         <div className="flex items-center justify-end mb-2.5">
-          {/* <span className="text-sm text-primaryText">Your position(s)</span> */}
+          {/* <span className="text-sm text-primaryText">Your Position(s)</span> */}
           <div
             onClick={() => {
               setAddLiquidityModalVisible(true);
@@ -1342,7 +1342,7 @@ export default function FarmsDclDetail(props: {
           {listLiquidities_inFarimg.length > 0 ? (
             <>
               <div className="text-sm text-primaryText mb-5 pl-3">
-                Faming position(s)
+                Faming Position(s)
               </div>
               {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
                 return <LiquidityLine liquidity={liquidity}></LiquidityLine>;
@@ -1353,7 +1353,7 @@ export default function FarmsDclDetail(props: {
           {listLiquidities_unFarimg.length > 0 ? (
             <>
               <div className="text-sm text-primaryText mb-5 mt-7 pl-3">
-                Unfarming position(s)
+                Unfarming Position(s)
               </div>
               {listLiquidities_unFarimg.map((liquidity: UserLiquidityInfo) => {
                 return <LiquidityLine liquidity={liquidity}></LiquidityLine>;
@@ -1364,7 +1364,7 @@ export default function FarmsDclDetail(props: {
           {listLiquidities_unavailable.length > 0 ? (
             <>
               <div className="text-sm text-primaryText mb-5 mt-7 pl-3">
-                Unavailable position(s)
+                Unavailable Position(s)
               </div>
               {listLiquidities_unavailable.map(
                 (liquidity: UserLiquidityInfo) => {
@@ -1501,7 +1501,12 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
   }
   function get_liquidity_value_display(liquidity: UserLiquidityInfo) {
     const v = get_liquidity_value(liquidity);
-    return `$${formatWithCommas(toPrecision(v.toString(), 3))}`;
+    const v_big = new BigNumber(v);
+    if (v_big.isLessThan(0.01)) {
+      return `<$0.01`;
+    } else {
+      return `$${formatWithCommas(toPrecision(v.toString(), 2))}`;
+    }
   }
   function get_your_range(liquidity: UserLiquidityInfo, site: string) {
     const { left_point, right_point } = liquidity;
@@ -1595,7 +1600,7 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
   function get_your_apr(liquidity: UserLiquidityInfo) {
     const { farmList, total_seed_amount, total_seed_power } = detailData;
     // principal
-    const total_principal = get_liquidity_value(liquidity);
+    const total_principal = toPrecision(get_liquidity_value(liquidity), 2);
     // seed total rewards
     let total_rewards = '0';
     farmList.forEach((farm: FarmBoost) => {
@@ -1642,6 +1647,9 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
 
     // your apr
     if (profit) {
+      if (+total_principal == 0) {
+        return 0;
+      }
       const your_apr = profit.dividedBy(total_principal).multipliedBy(100);
       if (your_apr.isEqualTo('0')) {
         return '0%';

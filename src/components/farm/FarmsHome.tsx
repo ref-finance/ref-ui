@@ -464,10 +464,15 @@ export default function FarmsHome(props: any) {
         const [token_x_meta, token_y_meta] = tokens_meta_data;
         const price_x = tokenPriceList[token_x]?.price || '0';
         const price_y = tokenPriceList[token_y]?.price || '0';
+        const temp_valid = +right_point - +left_point;
+        const range_square = Math.pow(temp_valid, 2);
+        const amount = new BigNumber(Math.pow(10, 12))
+          .dividedBy(range_square)
+          .toFixed();
         single_lp_value = get_total_value_by_liquidity_amount_dcl({
           left_point: +left_point,
           right_point: +right_point,
-          amount: Math.pow(10, 6).toString(),
+          amount,
           poolDetail: pool,
           price_x_y: { [token_x]: price_x, [token_y]: price_y },
           metadata_x_y: { [token_x]: token_x_meta, [token_y]: token_y_meta },
@@ -513,12 +518,12 @@ export default function FarmsHome(props: any) {
         const apr =
           seedPowerTvl == 0
             ? 0
-            : (Number(readableNumber) * 360 * reward_token_price) /
+            : (Number(readableNumber) * 365 * reward_token_price) /
               seedPowerTvl;
         const baseApr =
           seedTvl == 0
             ? 0
-            : (Number(readableNumber) * 360 * reward_token_price) / seedTvl;
+            : (Number(readableNumber) * 365 * reward_token_price) / seedTvl;
 
         farm.apr = apr.toString();
         farm.baseApr = baseApr.toString();
