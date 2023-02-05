@@ -463,7 +463,13 @@ export const AddNewPoolV3 = (props: any) => {
     if (displayType == 'seed') {
       return (
         <div className="flex items-center xsm:flex-col xsm:items-end whitespace-nowrap ml-1">
-          <span>1 {token_x_metadata.symbol}=</span>
+          <span>
+            1{' '}
+            {rate_need_to_reverse_display
+              ? token_y_metadata.symbol
+              : token_x_metadata.symbol}
+            =
+          </span>
           <span className="flex items-center xsm:mt-2">
             <a
               className="underline mx-1 cursor-pointer"
@@ -471,19 +477,29 @@ export const AddNewPoolV3 = (props: any) => {
             >
               {display_left_price} ~ {display_right_price}
             </a>
-            {token_y_metadata.symbol}
+            {rate_need_to_reverse_display
+              ? token_x_metadata.symbol
+              : token_y_metadata.symbol}
           </span>
         </div>
       );
     } else {
       return (
         <div className="relative flex items-center xsm:flex-col xsm:items-end whitespace-nowrap ml-1 text-sm text-primaryText">
-          <span>1 {token_x_metadata.symbol}=</span>
+          <span>
+            1{' '}
+            {rate_need_to_reverse_display
+              ? token_y_metadata.symbol
+              : token_x_metadata.symbol}
+            =
+          </span>
           <div className="flex items-center xsm:mt-2">
             <span className="mx-1 text-base text-white gotham_bold">
               {display_left_price} ~ {display_right_price}
             </span>
-            {token_y_metadata.symbol}
+            {rate_need_to_reverse_display
+              ? token_x_metadata.symbol
+              : token_y_metadata.symbol}
           </div>
         </div>
       );
@@ -604,22 +620,47 @@ export const AddNewPoolV3 = (props: any) => {
                       defaultMessage="Min Price"
                     ></FormattedMessage>
                   </span>
-                  <PointInputComponent
-                    reduceOneSlot={() => {
-                      reduceOneSlot('l');
-                    }}
-                    addOneSlot={() => {
-                      addOneSlot('l');
-                    }}
-                    handlePriceToAppropriatePoint={
-                      handlePriceToAppropriatePoint
-                    }
-                    customPrice={custom_left_price}
-                    getPrice={() => getPriceByCustomPoint(custom_left_point)}
-                    setCustomPrice={setCustom_left_price}
-                    inputStatus={leftInputStatus}
-                    setInputStatus={setLeftInputStatus}
-                  ></PointInputComponent>
+                  {rate_need_to_reverse_display ? (
+                    <PointInputComponent
+                      reduceOneSlot={() => {
+                        addOneSlot('r');
+                      }}
+                      addOneSlot={() => {
+                        reduceOneSlot('r');
+                      }}
+                      handlePriceToAppropriatePoint={
+                        handlePriceToAppropriatePoint
+                      }
+                      customPrice={custom_right_price}
+                      getPrice={() => getPriceByCustomPoint(custom_right_point)}
+                      setCustomPrice={setCustom_right_price}
+                      inputStatus={rightInputStatus}
+                      setInputStatus={setRightInputStatus}
+                      rate_need_to_reverse_display={
+                        rate_need_to_reverse_display
+                      }
+                    ></PointInputComponent>
+                  ) : (
+                    <PointInputComponent
+                      reduceOneSlot={() => {
+                        reduceOneSlot('l');
+                      }}
+                      addOneSlot={() => {
+                        addOneSlot('l');
+                      }}
+                      handlePriceToAppropriatePoint={
+                        handlePriceToAppropriatePoint
+                      }
+                      customPrice={custom_left_price}
+                      getPrice={() => getPriceByCustomPoint(custom_left_point)}
+                      setCustomPrice={setCustom_left_price}
+                      inputStatus={leftInputStatus}
+                      setInputStatus={setLeftInputStatus}
+                      rate_need_to_reverse_display={
+                        rate_need_to_reverse_display
+                      }
+                    ></PointInputComponent>
+                  )}
                 </div>
                 <div className="flex flex-col items-center bg-black bg-opacity-20 rounded-xl p-2.5">
                   <span className="text-sm text-primaryText xs:text-xs md:text-xs mb-4">
@@ -628,22 +669,47 @@ export const AddNewPoolV3 = (props: any) => {
                       defaultMessage="Max Price"
                     ></FormattedMessage>
                   </span>
-                  <PointInputComponent
-                    reduceOneSlot={() => {
-                      reduceOneSlot('r');
-                    }}
-                    addOneSlot={() => {
-                      addOneSlot('r');
-                    }}
-                    handlePriceToAppropriatePoint={
-                      handlePriceToAppropriatePoint
-                    }
-                    customPrice={custom_right_price}
-                    getPrice={() => getPriceByCustomPoint(custom_right_point)}
-                    setCustomPrice={setCustom_right_price}
-                    inputStatus={rightInputStatus}
-                    setInputStatus={setRightInputStatus}
-                  ></PointInputComponent>
+                  {rate_need_to_reverse_display ? (
+                    <PointInputComponent
+                      reduceOneSlot={() => {
+                        addOneSlot('l');
+                      }}
+                      addOneSlot={() => {
+                        reduceOneSlot('l');
+                      }}
+                      handlePriceToAppropriatePoint={
+                        handlePriceToAppropriatePoint
+                      }
+                      customPrice={custom_left_price}
+                      getPrice={() => getPriceByCustomPoint(custom_left_point)}
+                      setCustomPrice={setCustom_left_price}
+                      inputStatus={leftInputStatus}
+                      setInputStatus={setLeftInputStatus}
+                      rate_need_to_reverse_display={
+                        rate_need_to_reverse_display
+                      }
+                    ></PointInputComponent>
+                  ) : (
+                    <PointInputComponent
+                      reduceOneSlot={() => {
+                        reduceOneSlot('r');
+                      }}
+                      addOneSlot={() => {
+                        addOneSlot('r');
+                      }}
+                      handlePriceToAppropriatePoint={
+                        handlePriceToAppropriatePoint
+                      }
+                      customPrice={custom_right_price}
+                      getPrice={() => getPriceByCustomPoint(custom_right_point)}
+                      setCustomPrice={setCustom_right_price}
+                      inputStatus={rightInputStatus}
+                      setInputStatus={setRightInputStatus}
+                      rate_need_to_reverse_display={
+                        rate_need_to_reverse_display
+                      }
+                    ></PointInputComponent>
+                  )}
                 </div>
               </div>
               <div className="relative flex items-center justify-center xsm:justify-end xsm:items-start text-sm text-primaryText mt-4">
@@ -826,7 +892,16 @@ function PointInputComponent({
   setCustomPrice,
   inputStatus,
   setInputStatus,
+  rate_need_to_reverse_display,
 }: any) {
+  const temp_value = inputStatus ? customPrice : getPrice();
+  let inputDisplayValue = temp_value;
+  if (rate_need_to_reverse_display) {
+    inputDisplayValue = toPrecision(
+      new BigNumber(1).dividedBy(inputDisplayValue).toFixed(),
+      8
+    );
+  }
   return (
     <div className="flex items-center justify-between">
       <div
@@ -846,7 +921,7 @@ function PointInputComponent({
           handlePriceToAppropriatePoint();
           setInputStatus(false);
         }}
-        value={inputStatus ? customPrice : getPrice()}
+        value={inputDisplayValue}
         onChange={({ target }) => {
           setInputStatus(true);
           const inputPrice = target.value;

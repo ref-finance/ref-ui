@@ -852,7 +852,7 @@ export default function FarmsDclDetail(props: {
     const [fixRange, pool_id, left_point, right_point] =
       temp_pool_id.split('&');
     const mft_id = `${pool_id}&${left_point}&${right_point}`;
-    location.href = `/v2farms/${mft_id}-r`;
+    window.open(`/v2farms/${mft_id}-r`);
   }
   const radio = getBoostMutil();
   const needForbidden =
