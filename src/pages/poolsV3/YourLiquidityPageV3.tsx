@@ -584,7 +584,7 @@ function UserLiquidityLine({
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
 
       const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
 
@@ -617,7 +617,7 @@ function UserLiquidityLine({
       const tokenYAmount = getY(left_point, right_point, L, tokenY);
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const total_price = tokenYTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
       const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
 
       const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
@@ -628,7 +628,7 @@ function UserLiquidityLine({
 
       sessionStorage.setItem(
         REF_FI_LP_V2_VALUE,
-        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
+        new Big(!!total_price ? toPrecision(total_price, 2) : '0')
           .plus(new Big(storagedValue || '0'))
           .toFixed(2)
       );
@@ -649,7 +649,7 @@ function UserLiquidityLine({
       const tokenXAmount = getX(left_point, right_point, L, tokenX);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenXTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
       const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
 
       const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
