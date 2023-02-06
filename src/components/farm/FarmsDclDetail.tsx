@@ -1517,12 +1517,13 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     const max_left_point = Math.max(+left_point, +seed_left_point);
     const min_right_point = Math.min(+right_point, +seed_right_point);
     let icon;
+    let p;
     if (+min_right_point > +max_left_point) {
       const range_cross = new BigNumber(min_right_point).minus(max_left_point);
       const range_seed = new BigNumber(seed_right_point).minus(seed_left_point);
       const range_user = new BigNumber(right_point).minus(left_point);
       const range_denominator = BigNumber.max(range_seed, range_user);
-      const p = range_cross.dividedBy(range_denominator).multipliedBy(100);
+      p = range_cross.dividedBy(range_denominator).multipliedBy(100);
       if (p.isLessThan(20)) {
         icon = (
           <CrossIconLittle num={site == 'mobile' ? '1' : '2'}></CrossIconLittle>
@@ -1574,7 +1575,8 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     }
     return (
       <div className="flex items-center">
-        <span className="text-sm mr-1.5">
+        {/* todo 添加测试 hover 待删除 */}
+        <span className="text-sm mr-1.5" title={p.toFixed() + '%'}>
           {display_left_price} ~ {display_right_price}
         </span>
         <div
