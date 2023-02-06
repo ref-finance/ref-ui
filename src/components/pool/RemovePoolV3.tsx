@@ -132,10 +132,10 @@ export const RemovePoolV3 = (props: any) => {
         .dividedBy(100);
       if (total_price.isEqualTo(0)) {
         return '$0';
-      } else if (total_price.isLessThan('0.001')) {
-        return '$<0.001';
+      } else if (total_price.isLessThan('0.01')) {
+        return '$<0.01';
       } else {
-        return `$` + formatWithCommas(toPrecision(total_price.toFixed(), 3));
+        return `$` + formatWithCommas(toPrecision(total_price.toFixed(), 2));
       }
     }
   }
