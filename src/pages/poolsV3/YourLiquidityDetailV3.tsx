@@ -278,18 +278,18 @@ export default function YourLiquidityDetail(props: any) {
       if (p == 'l') {
         if (new BigNumber(fee_x_amount).isEqualTo('0')) {
           return '0';
-        } else if (new BigNumber(fee_x_amount).isLessThan('0.01')) {
-          return '<0.01';
+        } else if (new BigNumber(fee_x_amount).isLessThan('0.001')) {
+          return '<0.001';
         } else {
-          return toPrecision(fee_x_amount, 2);
+          return toPrecision(fee_x_amount, 3);
         }
       } else if (p == 'r') {
         if (new BigNumber(fee_y_amount).isEqualTo('0')) {
           return '0';
-        } else if (new BigNumber(fee_y_amount).isLessThan('0.01')) {
-          return '<0.01';
+        } else if (new BigNumber(fee_y_amount).isLessThan('0.001')) {
+          return '<0.001';
         } else {
-          return toPrecision(fee_y_amount, 2);
+          return toPrecision(fee_y_amount, 3);
         }
       } else if (p == 'p') {
         const tokenxSinglePrice = tokenPriceList[tokenX.id]?.price || '0';
