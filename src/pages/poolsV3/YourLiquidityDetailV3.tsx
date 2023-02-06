@@ -458,7 +458,7 @@ export default function YourLiquidityDetail(props: any) {
             <div className="text-white text-base">
               <FormattedMessage id="your_liquidity" />
             </div>
-            <div className="text-white text-sm">~{getLiquidityPrice()}</div>
+            <div className="text-white text-base">~{getLiquidityPrice()}</div>
           </div>
           <div className={`flex items-center justify-between mt-5`}>
             <div className="flex items-center">
