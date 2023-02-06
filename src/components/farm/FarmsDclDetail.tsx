@@ -1576,7 +1576,7 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     return (
       <div className="flex items-center">
         {/* todo 添加测试 hover 待删除 */}
-        <span className="text-sm mr-1.5" title={p.toFixed() + '%'}>
+        <span className="text-sm mr-1.5" title={p?.toFixed() + '%'}>
           {display_left_price} ~ {display_right_price}
         </span>
         <div

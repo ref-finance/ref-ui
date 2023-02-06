@@ -13,6 +13,8 @@ import { ShareInFarm } from '../../components/layout/ShareInFarm';
 import {
   classificationOfCoins_key,
   classificationOfCoins,
+  Seed,
+  list_seeds_info,
 } from '../../services/farm';
 import { ArrowDown, ArrowDownLarge } from '../../components/icon';
 import { useHistory } from 'react-router';
@@ -57,7 +59,11 @@ import {
   FarmButton,
   GradientButton,
 } from '../../components/button/Button';
-import { NEAR_CLASS_STABLE_POOL_IDS, wallet } from '../../services/near';
+import {
+  NEAR_CLASS_STABLE_POOL_IDS,
+  REF_UNI_V3_SWAP_CONTRACT_ID,
+  wallet,
+} from '../../services/near';
 import {
   WatchListStartEmpty,
   WatchListStartFull,
@@ -122,7 +128,7 @@ import { PoolInfo } from '~services/swapV3';
 import { SelectModalV2 } from '../../components/layout/SelectModal';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
 import { ALL_STABLE_POOL_IDS } from '../../services/near';
-import { WatchList } from '../../store/RefDatabase';
+import { BoostSeeds, WatchList } from '../../store/RefDatabase';
 import { useAllFarms } from '../../state/farm';
 import { REF_FI_CONTRACT_ID } from '../../services/near';
 import { AiOutlineStar } from 'react-icons/ai';
@@ -698,6 +704,7 @@ function MobileLiquidityPage({
   switchActiveTab,
   watchV2Pools,
   watchList,
+  do_farms_v2_poos,
 }: {
   pools: Pool[];
   poolTokenMetas: any;
@@ -722,6 +729,7 @@ function MobileLiquidityPage({
   activeTab: string;
   watchV2Pools: PoolInfo[];
   watchList: WatchList[];
+  do_farms_v2_poos: Record<string, Seed>;
 }) {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -1393,6 +1401,7 @@ function PoolRowV2({
   mark,
   watched,
   h24volume,
+  supportFarm,
 }: {
   pool: PoolInfo;
   index: number;
@@ -1401,6 +1410,7 @@ function PoolRowV2({
   mark?: boolean;
   watched?: boolean;
   h24volume?: string;
+  supportFarm?: boolean;
 }) {
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
   const history = useHistory();
@@ -1460,7 +1470,10 @@ function PoolRowV2({
               <WatchListStartFull />
             </div>
           )}
+          {/*  */}
+          {supportFarm && <FarmStampNew multi={true} />}
         </div>
+
         <div
           className={`justify-self-center py-1 md:hidden ${
             showCol ? 'col-span-1' : 'col-span-2'
@@ -1695,6 +1708,7 @@ function LiquidityPage_({
   watchV2Pools,
   watchList,
   h24VolumeV2,
+  do_farms_v2_poos,
 }: {
   pools: Pool[];
   switchActiveTab: (tab: string) => void;
@@ -1720,6 +1734,7 @@ function LiquidityPage_({
   volumes: Record<string, string>;
   watchV2Pools: PoolInfo[];
   watchList: WatchList[];
+  do_farms_v2_poos: Record<string, Seed>;
 }) {
   const intl = useIntl();
   const inputRef = useRef(null);
@@ -2521,6 +2536,7 @@ function LiquidityPage_({
                       watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
                       index={i + 1}
                       showCol={true}
+                      supportFarm={do_farms_v2_poos[pool.pool_id]}
                       h24volume={volumes[pool.pool_id]}
                     />
                   ))}
@@ -2603,6 +2619,22 @@ export function LiquidityPage() {
   }, [pools]);
 
   const clientMobileDevice = useClientMobile();
+  const [do_farms_v2_poos, set_do_farms_v2_poos] =
+    useState<Record<string, Seed>>();
+  useEffect(() => {
+    list_seeds_info().then((seeds: Seed[]) => {
+      const tempMap = {};
+      seeds.forEach((seed: Seed) => {
+        const [contract_id, temp_mft_id] = seed.seed_id.split('@');
+        if (contract_id == REF_UNI_V3_SWAP_CONTRACT_ID) {
+          const [fixRange, pool_id, left_point, right_point] =
+            temp_mft_id.split('&');
+          tempMap[pool_id] = seed;
+        }
+      });
+      set_do_farms_v2_poos(tempMap);
+    });
+  }, []);
 
   useEffect(() => {
     let tempPools = pools;
@@ -2720,6 +2752,7 @@ export function LiquidityPage() {
           onSearch={onSearch}
           hasMore={hasMore}
           nextPage={nextPage}
+          do_farms_v2_poos={do_farms_v2_poos}
         />
       )}
 
@@ -2754,6 +2787,7 @@ export function LiquidityPage() {
           onSearch={onSearch}
           hasMore={hasMore}
           nextPage={nextPage}
+          do_farms_v2_poos={do_farms_v2_poos}
         />
       )}
     </>
