@@ -296,7 +296,7 @@ export const _search = (args: any, pools: PoolRPCView[]) => {
       _.includes(
         pool.token_symbols[1]?.toLowerCase(),
         args.tokenName?.toLowerCase()
-      ) 
+      )
     );
   });
 };
