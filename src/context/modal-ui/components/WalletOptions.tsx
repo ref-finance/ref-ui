@@ -244,7 +244,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
               const installed =
                 module.type === 'injected' &&
                 module.metadata.available &&
-                module.id !== 'meteor-wallet';
+                module.id !== 'meteor-wallet' &&
+                module.id !== 'here-wallet';
 
               const isBeta = module.metadata.name === 'MyNearWallet';
 
