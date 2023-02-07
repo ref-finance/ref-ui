@@ -842,7 +842,7 @@ function UnclaimedFeesBox(props: any) {
           <FormattedMessage id="unclaimed_fees" />
         </span>
         {liquidities?.length > 1 ? (
-          <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
+          <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2 whitespace-nowrap ml-2">
             {liquidities.length} <FormattedMessage id="positions" />
           </span>
         ) : null}
