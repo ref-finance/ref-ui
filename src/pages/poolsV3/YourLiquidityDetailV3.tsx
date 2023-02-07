@@ -436,11 +436,13 @@ export default function YourLiquidityDetail(props: any) {
     const actives = related_farms.filter((farm: FarmBoost) => {
       return farm.status != 'Ended';
     });
+    let url;
     if (related_farms.length > 0 && actives.length == 0) {
-      history.push(`/v2farms/${link_params}-e`);
+      url = `/v2farms/${link_params}-e`;
     } else {
-      history.push(`/v2farms/${link_params}-r`);
+      url = `/v2farms/${link_params}-r`;
     }
+    window.open(url);
   }
   return (
     <div

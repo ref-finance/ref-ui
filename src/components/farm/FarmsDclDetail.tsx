@@ -600,13 +600,13 @@ export default function FarmsDclDetail(props: {
     if (valueBig_l.isGreaterThan('100000')) {
       display_left_price = new BigNumber(left_price).toExponential(3);
     } else {
-      display_left_price = toPrecision(left_price, 6);
+      display_left_price = toPrecision(left_price, 2);
     }
     const valueBig_r = new BigNumber(right_price);
     if (valueBig_r.isGreaterThan('100000')) {
       display_right_price = new BigNumber(right_price).toExponential(3);
     } else {
-      display_right_price = toPrecision(right_price, 6);
+      display_right_price = toPrecision(right_price, 2);
     }
     return (
       <div className="flex items-center whitespace-nowrap xsm:flex-col xsm:items-end">
@@ -856,7 +856,7 @@ export default function FarmsDclDetail(props: {
   const needForbidden =
     (FARM_BLACK_LIST_V2 || []).indexOf(detailData.pool.pool_id.toString()) > -1;
   return (
-    <div className={`m-auto lg:w-760px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
+    <div className={`m-auto lg:w-700px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="flex items-center justify-between">
         <div className="breadCrumbs flex items-center text-farmText text-base hover:text-white">
           <ArrowLeftIcon onClick={goBacktoFarms} className="cursor-pointer" />
@@ -1565,6 +1565,14 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
       let result: string = `<div class="text-farmText text-xs w-52 text-left">${tip}</div>`;
       return result;
     }
+    function displayP(p: BigNumber) {
+      if (!p) return '0%';
+      if (p.isLessThan(1)) {
+        return '1%';
+      } else {
+        return p?.toFixed(0, 1) + '%';
+      }
+    }
     return (
       <div className="flex items-center">
         <span className="text-sm mr-1.5">
@@ -1580,9 +1588,7 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
         >
           <span className="flex items-center text-xs text-primaryText">
             {icon}
-            <label className="ml-1 xsm:hidden">
-              {(p?.toFixed(0) || 0) + '%'}
-            </label>
+            <label className="ml-1 xsm:hidden">{displayP(p)}</label>
           </span>
           <ReactTooltip
             id={'rewardPerWeekQId'}
