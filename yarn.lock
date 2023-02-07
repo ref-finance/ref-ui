@@ -1552,6 +1552,14 @@
   resolved "https://registry.yarnpkg.com/@hapi/bourne/-/bourne-2.1.0.tgz#66aff77094dc3080bd5df44ec63881f2676eb020"
   integrity sha512-i1BpaNDVLJdRBEKeJWkVO6tYX6DMFBuwMhSuWqLsY4ufeTKGVuV5rBsUhxPayXqnnWHgXUAmWK16H/ykO5Wj4Q==
 
+"@here-wallet/core@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@here-wallet/core/-/core-1.3.1.tgz#bf384ac7b2b88f1d1dcd6739c25c06e21c2f3d87"
+  integrity sha512-OK7AlskPpGRdAnGruy8dWcvPCl8JL+hmBCKr1QRESPNwA4Tn3InhTL8xyxGrCjFA1gQ9XUGGTQvdI9ae3FDQ9Q==
+  dependencies:
+    sha1 "^1.1.1"
+    uuid4 "2.0.3"
+
 "@hqoss/monads@^0.4.0":
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/@hqoss/monads/-/monads-0.4.0.tgz#6732920b2390362993e336c6d8a05f0c52dac994"
@@ -1887,6 +1895,22 @@
   integrity sha512-kmW3/taTfX3KjsXkaAbPtQUYTSpax5HY8aFE/66wlGgmm7PboEOPYys04PkG/f6SJ3UJoTn49Ek87C0eu5hSDA==
   dependencies:
     rxjs "^7.5.7"
+
+"@near-wallet-selector/core@7.7.0":
+  version "7.7.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-7.7.0.tgz#d1be086c3d72fe059e03e97785a5f97b9083bc97"
+  integrity sha512-+J9BV+qtJ0TxzmlO+H8Dyi7qSWv21o96ultjOKoEvixdoT6wLfXznwtwPlAiH8WPtnwBswmQkTs2UelE2vAQbA==
+  dependencies:
+    rxjs "^7.5.7"
+
+"@near-wallet-selector/here-wallet@^7.7.0":
+  version "7.7.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/here-wallet/-/here-wallet-7.7.0.tgz#acddaf01782954415455c938748264ea712a1b67"
+  integrity sha512-nXnG10PIuN+HpJgwQo1TZQqMg20xoOV3RSnu+gBWt2X+WE/qzHtrhMxzGTeDBTXnhpgII2kElMTg5ZIskslxTQ==
+  dependencies:
+    "@here-wallet/core" "^1.3.1"
+    "@near-wallet-selector/core" "7.7.0"
+    bn.js "^5.2.0"
 
 "@near-wallet-selector/ledger@^7.0.0":
   version "7.3.0"
@@ -4352,6 +4376,11 @@ char-regex@^1.0.2:
   resolved "https://registry.yarnpkg.com/char-regex/-/char-regex-1.0.2.tgz#d744358226217f981ed58f479b1d6bcc29545dcf"
   integrity sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==
 
+"charenc@>= 0.0.1":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/charenc/-/charenc-0.0.2.tgz#c0a1d2f3a7092e03774bfa83f14c0fc5790a8667"
+  integrity sha512-yrLQ/yVUFXkzg7EDQsPieE/53+0RlaWTs+wBrvW36cyilJ2SaDWfl4Yj7MtLTXleV9uEKefbAGUPv2/iWSooRA==
+
 chokidar@^2.1.5:
   version "2.1.8"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-2.1.8.tgz#804b3a7b6a99358c3c5c61e71d8728f041cff917"
@@ -4712,6 +4741,11 @@ cross-spawn@^7.0.0:
     path-key "^3.1.0"
     shebang-command "^2.0.0"
     which "^2.0.1"
+
+"crypt@>= 0.0.1":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/crypt/-/crypt-0.0.2.tgz#88d7ff7ec0dfb86f713dc87bbb42d044d3e6c41b"
+  integrity sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==
 
 crypto-browserify@^3.11.0:
   version "3.12.0"
@@ -10502,6 +10536,14 @@ sha.js@^2.4.0, sha.js@^2.4.8:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
+sha1@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/sha1/-/sha1-1.1.1.tgz#addaa7a93168f393f19eb2b15091618e2700f848"
+  integrity sha512-dZBS6OrMjtgVkopB1Gmo4RQCDKiZsqcpAQpkV/aaj+FCrCg8r4I4qMkDPQjBgLIxlmu9k4nUbWq6ohXahOneYA==
+  dependencies:
+    charenc ">= 0.0.1"
+    crypt ">= 0.0.1"
+
 shallow-copy@~0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/shallow-copy/-/shallow-copy-0.0.1.tgz#415f42702d73d810330292cc5ee86eae1a11a170"
@@ -11569,6 +11611,11 @@ util@^0.11.0:
   integrity sha512-HShAsny+zS2TZfaXxD9tYj4HQGlBezXZMZuM/S5PKLLoZkShZiGk9o5CzukI1LVHZvjdvZ2Sj1aW/Ndn2NB/HQ==
   dependencies:
     inherits "2.0.3"
+
+uuid4@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/uuid4/-/uuid4-2.0.3.tgz#241e5dfe1704a79c52e2aa40e7e581a5e7b01ab4"
+  integrity sha512-CTpAkEVXMNJl2ojgtpLXHgz23dh8z81u6/HEPiQFOvBc/c2pde6TVHmH4uwY0d/GLF3tb7+VDAj4+2eJaQSdZQ==
 
 uuid@^3.3.2:
   version "3.4.0"

@@ -235,7 +235,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                 isMobile &&
                 module.type !== 'browser' &&
                 module.id !== 'meteor-wallet' &&
-                module.id !== 'neth'
+                module.id !== 'neth' &&
+                module.id !== 'here-wallet'
               ) {
                 return result;
               }
