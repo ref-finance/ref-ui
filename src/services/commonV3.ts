@@ -511,8 +511,7 @@ function getY(
       Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
       (Math.sqrt(CONSTANT_D) - 1)
   );
-  const y_result = y.toFixed();
-  return toReadableNumber(token.decimals, toPrecision(y_result, 0));
+  return y.shiftedBy(-token.decimals).toFixed();
 }
 function getX(
   leftPoint: number,
@@ -520,14 +519,12 @@ function getX(
   L: string,
   token: TokenMetadata
 ) {
-  const x = new BigNumber(L)
-    .multipliedBy(
-      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - leftPoint) - 1) /
-        (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
-          Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1))
-    )
-    .toFixed();
-  return toReadableNumber(token.decimals, toPrecision(x, 0));
+  const x = new BigNumber(L).multipliedBy(
+    (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - leftPoint) - 1) /
+      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+        Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1))
+  );
+  return x.shiftedBy(-token.decimals).toFixed();
 }
 function get_X_Y_In_CurrentPoint(
   tokenX: TokenMetadata,
@@ -549,14 +546,12 @@ function get_X_Y_In_CurrentPoint(
   }
   const amountX = getXAmount_per_point_by_Lx(Lx, current_point);
   const amountY = getYAmount_per_point_by_Ly(Ly, current_point);
-  const amountX_read = toReadableNumber(
-    tokenX.decimals,
-    toPrecision(amountX, 0)
-  );
-  const amountY_read = toReadableNumber(
-    tokenY.decimals,
-    toPrecision(amountY, 0)
-  );
+  const amountX_read = new BigNumber(amountX)
+    .shiftedBy(-tokenX.decimals)
+    .toFixed();
+  const amountY_read = new BigNumber(amountY)
+    .shiftedBy(-tokenY.decimals)
+    .toFixed();
   return { amountx: amountX_read, amounty: amountY_read };
 }
 
