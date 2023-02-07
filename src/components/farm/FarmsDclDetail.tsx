@@ -56,7 +56,6 @@ import {
   getVeSeedShare,
   stake_boost_nft,
   unStake_boost_nft,
-  getBoostSeeds,
 } from '~services/farm';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
@@ -116,6 +115,7 @@ import {
   allocation_rule_liquidities,
   TOKEN_LIST_FOR_RATE,
   get_matched_seeds_for_pool,
+  get_all_seeds,
 } from '~services/commonV3';
 import {
   list_liquidities,
@@ -297,11 +297,9 @@ export default function FarmsDclDetail(props: {
     }
   }
   async function get_farms_data() {
-    const result = await getBoostSeeds();
-    const { seeds, farms } = result;
+    const all_seeds = await get_all_seeds();
     const matched_seeds = get_matched_seeds_for_pool({
-      seeds,
-      farms,
+      seeds: all_seeds,
       pool_id: detailData.pool.pool_id,
     });
     const targetSeed = matched_seeds[0];
@@ -948,17 +946,11 @@ export default function FarmsDclDetail(props: {
 
       {/* baseData for PC*/}
       <div className="flex items-stretch justify-between mt-4 xsm:hidden">
-        <div className="flex flex-col justify-between bg-cardBg rounded-2xl px-3.5 py-4 flex-grow w-1">
-          <div className="flex items-center justify-between text-sm text-farmText">
-            <span>
-              <FormattedMessage id="total_staked"></FormattedMessage>
-            </span>
+        <div className="flex justify-between bg-cardBg rounded-2xl px-3.5 py-4 flex-grow w-1 mr-3.5">
+          <div className="flex flex-col items-start justify-between text-sm text-farmText border-r border-v3BlueBorderColor pr-10">
             <span>
               <FormattedMessage id="apr"></FormattedMessage>
             </span>
-          </div>
-          <div className="flex items-center justify-between text-base text-white mt-4">
-            <span>{get_total_staked()}</span>
             <div
               className={``}
               data-type="info"
@@ -979,10 +971,8 @@ export default function FarmsDclDetail(props: {
               />
             </div>
           </div>
-        </div>
-        <div className="flex flex-col justify-between bg-cardBg rounded-2xl px-3.5 py-4 mx-3">
-          <div className="flex items-center justify-between text-sm text-farmText">
-            <div className="flex items-center">
+          <div className="flex flex-col items-end justify-between">
+            <div className="flex items-center text-sm text-farmText">
               <span>Reward Range</span>
               <div
                 className="text-white text-right ml-1"
@@ -1002,16 +992,21 @@ export default function FarmsDclDetail(props: {
                 />
               </div>
             </div>
-            <RefreshIcon
-              className="cursor-pointer"
-              onClick={() => {
-                setRangeSort(!rangeSort);
-              }}
-            ></RefreshIcon>
+            <div className="flex items-center mt-3">
+              <RefreshIcon
+                className="cursor-pointer mr-1"
+                onClick={() => {
+                  setRangeSort(!rangeSort);
+                }}
+              ></RefreshIcon>
+              {getRange()}
+            </div>
           </div>
-          {getRange()}
         </div>
-        <div className="flex flex-col justify-between bg-cardBg rounded-2xl px-3.5 py-4 flex-grow w-1">
+        <div
+          className="flex flex-col justify-between bg-cardBg rounded-2xl px-3.5 py-4"
+          style={{ minWidth: '240px' }}
+        >
           <div className="flex items-center text-sm text-farmText">
             <FormattedMessage id="rewards_per_week"></FormattedMessage>
             <div
@@ -1041,12 +1036,6 @@ export default function FarmsDclDetail(props: {
       <div className="p-4 bg-cardBg rounded-2xl lg:hidden mt-5">
         <div className="border-b border-dclLineColor pb-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-farmText">
-              <FormattedMessage id="total_staked"></FormattedMessage>
-            </span>
-            <span className="text-base text-white">{get_total_staked()}</span>
-          </div>
-          <div className="flex items-center justify-between mt-5">
             <span className="text-sm text-farmText">
               <FormattedMessage id="apr"></FormattedMessage>
             </span>
@@ -1522,7 +1511,10 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
       const range_cross = new BigNumber(min_right_point).minus(max_left_point);
       const range_seed = new BigNumber(seed_right_point).minus(seed_left_point);
       const range_user = new BigNumber(right_point).minus(left_point);
-      const range_denominator = BigNumber.max(range_seed, range_user);
+      let range_denominator = range_seed;
+      if (left_point <= seed_left_point && right_point >= seed_right_point) {
+        range_denominator = range_user;
+      }
       p = range_cross.dividedBy(range_denominator).multipliedBy(100);
       if (p.isLessThan(20)) {
         icon = (
@@ -1575,8 +1567,7 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     }
     return (
       <div className="flex items-center">
-        {/* todo 添加测试 hover 待删除 */}
-        <span className="text-sm mr-1.5" title={p?.toFixed() + '%'}>
+        <span className="text-sm mr-1.5">
           {display_left_price} ~ {display_right_price}
         </span>
         <div
@@ -1587,7 +1578,12 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
           data-html={true}
           data-tip={rangeTip()}
         >
-          {icon}
+          <span className="flex items-center text-xs text-primaryText">
+            {icon}
+            <label className="ml-1 xsm:hidden">
+              {(p?.toFixed(0) || 0) + '%'}
+            </label>
+          </span>
           <ReactTooltip
             id={'rewardPerWeekQId'}
             backgroundColor="#1D2932"

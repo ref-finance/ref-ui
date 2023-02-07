@@ -43,6 +43,7 @@ import {
   get_total_value_by_liquidity_amount_dcl,
   allocation_rule_liquidities,
   get_matched_seeds_for_pool,
+  get_all_seeds,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -51,12 +52,7 @@ import {
 } from '../../components/icon/WatchListStar';
 import Loading from '~components/layout/Loading';
 import { useTokenPriceList } from '../../state/token';
-import {
-  getBoostTokenPrices,
-  FarmBoost,
-  getBoostSeeds,
-  Seed,
-} from '../../services/farm';
+import { getBoostTokenPrices, FarmBoost, Seed } from '../../services/farm';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
@@ -107,6 +103,7 @@ import {
 } from '../../components/icon/V3';
 import _ from 'lodash';
 import { PoolRPCView } from '../../services/api';
+import { FarmStampNew } from '../../components/icon/FarmStamp';
 
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 
@@ -119,6 +116,8 @@ export default function PoolDetailV3() {
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
   const [currentRateDirection, setCurrentRateDirection] = useState(true);
   const [showFullStart, setShowFullStar] = useState<Boolean>(false);
+  const [matched_seeds, set_matched_seeds] = useState<Seed[]>([]);
+  const [sole_seed, set_sole_seed] = useState<Seed>();
   const { modal } = useWalletSelector();
   const intl = useIntl();
   const { globalState } = useContext(WalletContext);
@@ -132,7 +131,20 @@ export default function PoolDetailV3() {
     getWatchListFromDb({ pool_id: pool_id_from_url }).then((watchlist) => {
       setShowFullStar(watchlist.length > 0);
     });
+    get_matched_seeds();
   }, []);
+  async function get_matched_seeds() {
+    const all_seeds = await get_all_seeds();
+    const matched_seeds = get_matched_seeds_for_pool({
+      seeds: all_seeds,
+      pool_id: pool_id_from_url,
+    });
+    const target = matched_seeds[0];
+    if (target) {
+      set_sole_seed(target);
+      set_matched_seeds(matched_seeds);
+    }
+  }
   async function get_pool_detail() {
     const detail: PoolInfo = await get_pool(pool_id_from_url);
     if (detail) {
@@ -363,10 +375,20 @@ export default function PoolDetailV3() {
                     </div>
                   )}
                 </span>
+                <div className="xsm:hidden">
+                  {sole_seed && (
+                    <FarmStampNew multi={sole_seed.farmList?.length > 1} />
+                  )}
+                </div>
               </div>
-              <span className="text-sm text-primaryText">
-                <FormattedMessage id="fee" />: {poolDetail.fee / 10000}%
-              </span>
+              <div className="flex items-center lg:hidden">
+                <span className="text-sm text-primaryText">
+                  <FormattedMessage id="fee" />: {poolDetail.fee / 10000}%
+                </span>
+                {sole_seed && (
+                  <FarmStampNew multi={sole_seed.farmList?.length > 1} />
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -408,7 +430,7 @@ export default function PoolDetailV3() {
                     <RelatedFarmsBox
                       poolDetail={poolDetail}
                       tokenPriceList={tokenPriceList}
-                      pool_id={pool_id_from_url}
+                      sole_seed={sole_seed}
                     ></RelatedFarmsBox>
                   </>
                 ) : (
@@ -426,7 +448,7 @@ export default function PoolDetailV3() {
                     <RelatedFarmsBox
                       poolDetail={poolDetail}
                       tokenPriceList={tokenPriceList}
-                      pool_id={pool_id_from_url}
+                      sole_seed={sole_seed}
                     ></RelatedFarmsBox>
                   </>
                 )}
@@ -958,28 +980,19 @@ function UnclaimedFeesBox(props: any) {
   );
 }
 function RelatedFarmsBox(props: any) {
-  const { poolDetail, tokenPriceList, pool_id } = props;
+  const { poolDetail, tokenPriceList, sole_seed } = props;
   const [related_seed, set_related_seed] = useState<Seed>();
   const [farm_loading, set_farm_loading] = useState<boolean>(true);
-  const history = useHistory();
 
   useEffect(() => {
     if (poolDetail && Object.keys(tokenPriceList).length > 0) {
       get_farms_data();
     }
-  }, [poolDetail, tokenPriceList]);
+  }, [poolDetail, tokenPriceList, sole_seed]);
   async function get_farms_data() {
-    const result = await getBoostSeeds();
-    const { seeds, farms } = result;
-    const matched_seeds = get_matched_seeds_for_pool({
-      seeds,
-      farms,
-      pool_id,
-    });
-    const targetSeed = matched_seeds[0];
-    if (targetSeed) {
-      await get_apr_seed(targetSeed);
-      set_related_seed(targetSeed);
+    if (sole_seed) {
+      await get_apr_seed(sole_seed);
+      set_related_seed(sole_seed);
     }
     set_farm_loading(false);
   }
@@ -1168,13 +1181,13 @@ function RelatedFarmsBox(props: any) {
       </div>
       <div className="flex items-center justify-between mt-2">
         <div className="flex items-center">
-          <span className="valueStyleYellow text-xl gotham_bold mr-1.5">
+          <span className="valueStyleYellow text-xl gotham_bold mr-1">
             {getTotalAprForSeed()}
           </span>
           <Fire></Fire>
         </div>
         <SolidButton
-          className="py-1.5 pb-1.5 px-4 flex rounded-lg items-center justify-center"
+          className="py-1.5 pb-1.5 px-2 flex rounded-lg items-center justify-center whitespace-nowrap"
           onClick={go_farm}
         >
           <FormattedMessage id="farm_now" defaultMessage={'Farm Now!'} />

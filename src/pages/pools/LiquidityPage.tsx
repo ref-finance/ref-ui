@@ -14,7 +14,6 @@ import {
   classificationOfCoins_key,
   classificationOfCoins,
   Seed,
-  list_seeds_info,
 } from '../../services/farm';
 import { ArrowDown, ArrowDownLarge } from '../../components/icon';
 import { useHistory } from 'react-router';
@@ -129,9 +128,13 @@ import { SelectModalV2 } from '../../components/layout/SelectModal';
 import { FarmStampNew } from '../../components/icon/FarmStamp';
 import { ALL_STABLE_POOL_IDS } from '../../services/near';
 import { BoostSeeds, WatchList } from '../../store/RefDatabase';
-import { useAllFarms } from '../../state/farm';
 import { REF_FI_CONTRACT_ID } from '../../services/near';
 import { AiOutlineStar } from 'react-icons/ai';
+import {
+  get_all_seeds,
+  getLatestStartTime,
+  isPending,
+} from '../../services/commonV3';
 
 import { AiFillStar } from 'react-icons/ai';
 const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
@@ -415,6 +418,7 @@ function MobilePoolRowV2({
   mark,
   watched,
   h24volume,
+  relatedSeed,
 }: {
   pool: PoolInfo;
   sortBy: string;
@@ -422,6 +426,7 @@ function MobilePoolRowV2({
   mark?: boolean;
   watched?: boolean;
   h24volume?: string;
+  relatedSeed?: Seed;
 }) {
   const { ref } = useInView();
 
@@ -516,6 +521,11 @@ function MobilePoolRowV2({
                 <WatchListStartFull />
               </div>
             )}
+            {relatedSeed && (
+              <div className="mr-2">
+                <FarmStampNew multi={relatedSeed.farmList?.length > 1} />
+              </div>
+            )}
           </div>
           <div>{showSortedValue({ sortBy, value: pool[sortBy] })}</div>
         </div>
@@ -531,6 +541,7 @@ function MobileWatchListCard({
   watchV2Pools,
   poolsMorePoolsIds,
   watchList,
+  do_farms_v2_poos,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
@@ -539,6 +550,7 @@ function MobileWatchListCard({
   watchV2Pools: PoolInfo[];
   poolsMorePoolsIds: Record<string, string[]>;
   watchList: WatchList[];
+  do_farms_v2_poos: Record<string, Seed>;
 }) {
   const intl = useIntl();
   const [showSelectModal, setShowSelectModal] = useState<Boolean>(false);
@@ -646,34 +658,11 @@ function MobileWatchListCard({
                   mark={true}
                   key={i + '-mobile-pool-row-v2'}
                   h24volume={volumes[pool.pool_id]}
+                  relatedSeed={do_farms_v2_poos[pool.pool_id]}
                 />
               );
             }
           })}
-          {/* {watchPools?.map((pool, i) => (
-            <div className="w-full hover:bg-poolRowHover" key={i}>
-              <MobilePoolRow
-                tokens={poolTokenMetas[pool.id]}
-                sortBy={sortBy}
-                pool={pool}
-                watched={!!find(watchPools, { id: pool.id })}
-                morePoolIds={poolsMorePoolsIds[pool.id]}
-                supportFarm={!!farmCounts[pool.id]}
-                h24volume={volumes[pool.id]}
-                watchPool
-                mark={true}
-              />
-            </div>
-          ))}
-          {watchV2Pools.map((pool: PoolInfo, i: number) => (
-            <MobilePoolRowV2
-              tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-              pool={pool}
-              sortBy={sortBy}
-              mark={true}
-              key={i + '-mobile-pool-row-v2'}
-            />
-          ))} */}
         </div>
       </section>
     </Card>
@@ -843,6 +832,7 @@ function MobileLiquidityPage({
           volumes={volumes}
           poolsMorePoolsIds={poolsMorePoolsIds}
           watchList={watchList}
+          do_farms_v2_poos={do_farms_v2_poos}
         />
 
         {/* start pool card */}
@@ -1232,6 +1222,7 @@ function MobileLiquidityPage({
                       watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
                       key={i + '-mobile-pool-row-v2'}
                       h24volume={volumes[pool.pool_id]}
+                      relatedSeed={do_farms_v2_poos[pool.pool_id]}
                     />
                   ))}
               </div>
@@ -1401,7 +1392,7 @@ function PoolRowV2({
   mark,
   watched,
   h24volume,
-  supportFarm,
+  relatedSeed,
 }: {
   pool: PoolInfo;
   index: number;
@@ -1410,7 +1401,7 @@ function PoolRowV2({
   mark?: boolean;
   watched?: boolean;
   h24volume?: string;
-  supportFarm?: boolean;
+  relatedSeed?: Seed;
 }) {
   const curRowTokens = useTokens([pool.token_x, pool.token_y], tokens);
   const history = useHistory();
@@ -1470,8 +1461,9 @@ function PoolRowV2({
               <WatchListStartFull />
             </div>
           )}
-          {/*  */}
-          {supportFarm && <FarmStampNew multi={true} />}
+          {relatedSeed && (
+            <FarmStampNew multi={relatedSeed.farmList?.length > 1} />
+          )}
         </div>
 
         <div
@@ -1522,6 +1514,7 @@ function WatchListCard({
   poolsMorePoolsIds,
   watchList,
   tokenName,
+  do_farms_v2_poos,
 }: {
   watchPools: Pool[];
   poolTokenMetas: any;
@@ -1531,6 +1524,7 @@ function WatchListCard({
   poolsMorePoolsIds: Record<string, string[]>;
   watchList: WatchList[];
   tokenName: string;
+  do_farms_v2_poos: Record<string, Seed>;
 }) {
   const totalWatchList_length = watchPools?.length + watchV2Pools?.length;
   function getAllWatchPools() {
@@ -1643,39 +1637,11 @@ function WatchListCard({
                       showCol={true}
                       mark={true}
                       h24volume={volumes[pool.pool_id]}
+                      relatedSeed={do_farms_v2_poos[pool.pool_id]}
                     />
                   );
                 }
               })}
-            {/* {watchPools?.map((pool, i) => (
-              <div
-                className="w-full hover:bg-poolRowHover hover:bg-opacity-20"
-                key={i}
-              >
-                <PoolRow
-                  pool={pool}
-                  index={i + 1}
-                  tokens={poolTokenMetas[pool.id]}
-                  morePoolIds={poolsMorePoolsIds[pool.id]}
-                  farmCount={farmCounts[pool.id]}
-                  supportFarm={!!farmCounts[pool.id]}
-                  h24volume={volumes[pool.id]}
-                  mark={true}
-                />
-              </div>
-            ))}
-            {watchV2Pools.map((pool: PoolInfo, i: number) => {
-              return (
-                <PoolRowV2
-                  tokens={[pool.token_x_metadata, pool.token_y_metadata]}
-                  key={i}
-                  pool={pool}
-                  index={1 + watchPools?.length}
-                  showCol={true}
-                  mark={true}
-                />
-              );
-            })} */}
           </div>
         </section>
       </Card>
@@ -2136,6 +2102,7 @@ function LiquidityPage_({
             watchList={watchList}
             poolsMorePoolsIds={poolsMorePoolsIds}
             tokenName={tokenName}
+            do_farms_v2_poos={do_farms_v2_poos}
           />
         )}
         {activeTab === 'v1' && (
@@ -2536,7 +2503,7 @@ function LiquidityPage_({
                       watched={!!find(watchV2Pools, { pool_id: pool.pool_id })}
                       index={i + 1}
                       showCol={true}
-                      supportFarm={do_farms_v2_poos[pool.pool_id]}
+                      relatedSeed={do_farms_v2_poos[pool.pool_id]}
                       h24volume={volumes[pool.pool_id]}
                     />
                   ))}
@@ -2619,20 +2586,52 @@ export function LiquidityPage() {
   }, [pools]);
 
   const clientMobileDevice = useClientMobile();
-  const [do_farms_v2_poos, set_do_farms_v2_poos] =
-    useState<Record<string, Seed>>();
+  const [do_farms_v2_poos, set_do_farms_v2_poos] = useState<
+    Record<string, Seed>
+  >({});
   useEffect(() => {
-    list_seeds_info().then((seeds: Seed[]) => {
-      const tempMap = {};
-      seeds.forEach((seed: Seed) => {
-        const [contract_id, temp_mft_id] = seed.seed_id.split('@');
-        if (contract_id == REF_UNI_V3_SWAP_CONTRACT_ID) {
+    get_all_seeds().then((seeds: Seed[]) => {
+      const activeSeeds = seeds.filter((seed: Seed) => {
+        const { farmList, seed_id } = seed;
+        const [contract_id, temp_mft_id] = seed_id.split('@');
+        return (
+          contract_id == REF_UNI_V3_SWAP_CONTRACT_ID &&
+          farmList[0].status != 'Ended'
+        );
+      });
+      if (activeSeeds.length > 0) {
+        const temp = {};
+        activeSeeds.forEach((seed: Seed) => {
+          const [contract_id, temp_mft_id] = seed.seed_id.split('@');
           const [fixRange, pool_id, left_point, right_point] =
             temp_mft_id.split('&');
-          tempMap[pool_id] = seed;
-        }
-      });
-      set_do_farms_v2_poos(tempMap);
+          const temp_arr = temp[pool_id] || [];
+          temp_arr.push(seed);
+          temp[pool_id] = temp_arr;
+        });
+        const temp_final = {};
+        Object.keys(temp).forEach((pool_id: string) => {
+          const seeds: Seed[] = temp[pool_id];
+          seeds.sort((b: Seed, a: Seed) => {
+            const b_latest = getLatestStartTime(b);
+            const a_latest = getLatestStartTime(a);
+            return a_latest - b_latest;
+          });
+          // having benefit
+          const temp_seed = seeds.find((s: Seed, index: number) => {
+            if (!isPending(s)) {
+              seeds.splice(index, 1);
+              return true;
+            }
+          });
+          if (temp_seed) {
+            seeds.unshift(temp_seed);
+          }
+          temp_final[pool_id] = seeds[0];
+        });
+
+        set_do_farms_v2_poos(temp_final);
+      }
     });
   }, []);
 

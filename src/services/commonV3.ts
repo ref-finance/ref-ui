@@ -9,9 +9,11 @@ import _ from 'lodash';
 import { toReadableNumber, toPrecision } from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
 import { PoolInfo } from './swapV3';
-import { FarmBoost, Seed } from './farm';
+import { FarmBoost, Seed, getBoostSeeds, getBoostTokenPrices } from './farm';
 import getConfig from '../services/config';
-const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
+import { PoolRPCView } from '../services/api';
+import { ftGetTokenMetadata } from '../services/ft-contract';
+const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList } = getConfig();
 
 /**
  * caculate price by point
@@ -662,52 +664,21 @@ export function get_valid_range(liquidity: UserLiquidityInfo, seed_id: string) {
 
 export function get_matched_seeds_for_pool({
   seeds,
-  farms,
   pool_id,
 }: {
   seeds: Seed[];
-  farms: FarmBoost[][];
   pool_id: string;
 }) {
-  const related_seeds: Seed[] = [];
-  const related_farms: FarmBoost[][] = [];
-  seeds.forEach((seed: Seed, index) => {
-    const [contractId, mft_id] = seed.seed_id.split('@');
+  const activeSeeds = seeds.filter((seed: Seed) => {
+    const { seed_id, farmList } = seed;
+    const [contractId, mft_id] = seed_id.split('@');
     if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
       const [fixRange, pool_id_from_seed, left_point, right_point] =
         mft_id.split('&');
-      if (pool_id_from_seed == pool_id) {
-        related_seeds.push(seed);
-        related_farms.push(farms[index]);
-      }
-    }
-  });
-  // split ended farms
-  const related_seeds_final: Seed[] = [];
-  related_farms.forEach((farmList: FarmBoost[], index) => {
-    const endedList = farmList.filter((farm: FarmBoost) => {
-      if (farm.status == 'Ended') return true;
-    });
-    const noEndedList = farmList.filter((farm: FarmBoost) => {
-      if (farm.status != 'Ended') return true;
-    });
-    const seed = related_seeds[index];
-    if (noEndedList.length > 0) {
-      seed.farmList = noEndedList;
-      related_seeds_final.push(seed);
-    }
-    if (endedList.length > 0) {
-      const endedSeed = JSON.parse(JSON.stringify(seed));
-      endedSeed.farmList = endedList;
-      related_seeds_final.push(endedSeed);
+      return pool_id_from_seed == pool_id && farmList[0].status != 'Ended';
     }
   });
 
-  // filter ended seeds
-  const activeSeeds = related_seeds_final.filter((seed: Seed) => {
-    const farmList = seed.farmList;
-    return farmList[0].status != 'Ended';
-  });
   // sort by the latest
   activeSeeds.sort((b: Seed, a: Seed) => {
     const b_latest = getLatestStartTime(b);
@@ -726,7 +697,7 @@ export function get_matched_seeds_for_pool({
   }
   return activeSeeds;
 }
-function isPending(seed: Seed) {
+export function isPending(seed: Seed) {
   let pending: boolean = true;
   const farms = seed.farmList;
   for (let i = 0; i < farms.length; i++) {
@@ -737,7 +708,7 @@ function isPending(seed: Seed) {
   }
   return pending;
 }
-function getLatestStartTime(seed: Seed) {
+export function getLatestStartTime(seed: Seed) {
   let start_at: any[] = [];
   const farmList = seed.farmList;
   farmList.forEach(function (item) {
@@ -749,6 +720,207 @@ function getLatestStartTime(seed: Seed) {
   });
   return start_at[start_at.length - 1];
 }
+export async function get_all_seeds() {
+  let list_seeds: Seed[];
+  let list_farm: FarmBoost[][];
+  let pools: PoolRPCView[];
+  const result = await getBoostSeeds();
+  const { seeds, farms, pools: cachePools } = result;
+  list_seeds = seeds;
+  list_farm = farms;
+  pools = cachePools;
+  // filter Love Seed
+  list_seeds.filter((seed: Seed) => {
+    if (seed.seed_id.indexOf('@') > -1) return true;
+  });
+  // filter black farms
+  const temp_list_farm: FarmBoost[][] = [];
+  list_farm.forEach((farmList: FarmBoost[]) => {
+    let temp_farmList: FarmBoost[] = [];
+    temp_farmList = farmList.filter((farm: FarmBoost) => {
+      const id = farm?.farm_id?.split('@')[1];
+      if (boostBlackList.indexOf(id) == -1) {
+        return true;
+      }
+    });
+    temp_list_farm.push(temp_farmList);
+  });
+  list_farm = temp_list_farm;
+  // filter no farm seed
+  const new_list_seeds: any[] = [];
+  list_farm.forEach((farmList: FarmBoost[], index: number) => {
+    if (farmList?.length > 0) {
+      new_list_seeds.push({
+        ...list_seeds[index],
+        farmList,
+      });
+    }
+  });
+
+  list_seeds = new_list_seeds;
+  // get all token prices
+  const tokenPriceList = await getBoostTokenPrices();
+  const list = await getFarmDataList({
+    list_seeds,
+    list_farm,
+    tokenPriceList,
+    pools,
+  });
+  return list;
+}
+async function getFarmDataList(initData: any) {
+  const { list_seeds, tokenPriceList, pools } = initData;
+  const promise_new_list_seeds = list_seeds.map(async (newSeed: Seed) => {
+    const {
+      seed_id,
+      farmList,
+      total_seed_amount,
+      total_seed_power,
+      seed_decimal,
+    } = newSeed;
+    const [contractId, temp_pool_id] = seed_id.split('@');
+    let is_dcl_pool = false;
+    if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      is_dcl_pool = true;
+    }
+    const poolId = getPoolIdBySeedId(seed_id);
+    const pool = pools.find((pool: PoolRPCView & PoolInfo) => {
+      if (is_dcl_pool) {
+        if (pool.pool_id == poolId) return true;
+      } else {
+        if (+pool.id == +poolId) return true;
+      }
+    });
+    let token_ids: string[] = [];
+    if (is_dcl_pool) {
+      const [token_x, token_y, fee] = poolId.split('|');
+      token_ids.push(token_x, token_y);
+    } else {
+      const { token_account_ids } = pool;
+      token_ids = token_account_ids;
+    }
+    const promise_token_meta_data: Promise<any>[] = [];
+    token_ids.forEach(async (tokenId: string) => {
+      promise_token_meta_data.push(ftGetTokenMetadata(tokenId));
+    });
+    const tokens_meta_data = await Promise.all(promise_token_meta_data);
+    pool.tokens_meta_data = tokens_meta_data;
+    const promise_farm_meta_data = farmList.map(async (farm: FarmBoost) => {
+      const tokenId = farm.terms.reward_token;
+      const tokenMetadata = await ftGetTokenMetadata(tokenId);
+      farm.token_meta_data = tokenMetadata;
+      return farm;
+    });
+    await Promise.all(promise_farm_meta_data);
+    // get seed tvl
+    const DECIMALS = seed_decimal;
+    const seedTotalStakedAmount = toReadableNumber(DECIMALS, total_seed_amount);
+    let single_lp_value = '0';
+    if (is_dcl_pool) {
+      const [fixRange, dcl_pool_id, left_point, right_point] =
+        temp_pool_id.split('&');
+      const [token_x, token_y] = dcl_pool_id.split('|');
+      const [token_x_meta, token_y_meta] = tokens_meta_data;
+      const price_x = tokenPriceList[token_x]?.price || '0';
+      const price_y = tokenPriceList[token_y]?.price || '0';
+      const temp_valid = +right_point - +left_point;
+      const range_square = Math.pow(temp_valid, 2);
+      const amount = new BigNumber(Math.pow(10, 12))
+        .dividedBy(range_square)
+        .toFixed();
+      single_lp_value = get_total_value_by_liquidity_amount_dcl({
+        left_point: +left_point,
+        right_point: +right_point,
+        amount,
+        poolDetail: pool,
+        price_x_y: { [token_x]: price_x, [token_y]: price_y },
+        metadata_x_y: { [token_x]: token_x_meta, [token_y]: token_y_meta },
+      });
+    } else {
+      const { tvl, id, shares_total_supply } = pool;
+      const poolShares = Number(
+        toReadableNumber(DECIMALS, shares_total_supply)
+      );
+      if (poolShares == 0) {
+        single_lp_value = '0';
+      } else {
+        single_lp_value = (tvl / poolShares).toString();
+      }
+    }
+    const seedTotalStakedPower = toReadableNumber(DECIMALS, total_seed_power);
+    const seedTvl = +toPrecision(
+      new BigNumber(seedTotalStakedAmount)
+        .multipliedBy(single_lp_value)
+        .toFixed(),
+      2
+    );
+    const seedPowerTvl = +toPrecision(
+      new BigNumber(seedTotalStakedPower)
+        .multipliedBy(single_lp_value)
+        .toFixed(),
+      2
+    );
+    // get apr per farm
+    farmList.forEach((farm: FarmBoost) => {
+      const { token_meta_data } = farm;
+      const { daily_reward, reward_token } = farm.terms;
+      const readableNumber = toReadableNumber(
+        token_meta_data.decimals,
+        daily_reward
+      );
+      const reward_token_price = Number(
+        tokenPriceList[reward_token]?.price || 0
+      );
+      const apr =
+        seedPowerTvl == 0
+          ? 0
+          : (Number(readableNumber) * 365 * reward_token_price) / seedPowerTvl;
+      const baseApr =
+        seedTvl == 0
+          ? 0
+          : (Number(readableNumber) * 365 * reward_token_price) / seedTvl;
+
+      farm.apr = apr.toString();
+      farm.baseApr = baseApr.toString();
+    });
+    newSeed.pool = pool;
+    newSeed.seedTvl = seedTvl?.toString() || '0';
+  });
+  await Promise.all(promise_new_list_seeds);
+  // split ended farms
+  const ended_split_list_seeds: Seed[] = [];
+  list_seeds.forEach((seed: Seed) => {
+    const { farmList } = seed;
+    const endedList = farmList.filter((farm: FarmBoost) => {
+      if (farm.status == 'Ended') return true;
+    });
+    const noEndedList = farmList.filter((farm: FarmBoost) => {
+      if (farm.status != 'Ended') return true;
+    });
+    if (endedList.length > 0 && noEndedList.length > 0) {
+      seed.farmList = noEndedList;
+      const endedSeed = JSON.parse(JSON.stringify(seed));
+      endedSeed.farmList = endedList;
+      endedSeed.endedFarmsIsSplit = true;
+      ended_split_list_seeds.push(endedSeed);
+    }
+  });
+  const total_list_seeds = list_seeds.concat(ended_split_list_seeds);
+  return total_list_seeds;
+}
+const getPoolIdBySeedId = (seed_id: string) => {
+  const [contractId, temp_pool_id] = seed_id.split('@');
+  if (temp_pool_id) {
+    if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      const [fixRange, dcl_pool_id, left_point, right_point] =
+        temp_pool_id.split('&');
+      return dcl_pool_id;
+    } else {
+      return temp_pool_id;
+    }
+  }
+  return '';
+};
 /** start */
 /*
 has x, y

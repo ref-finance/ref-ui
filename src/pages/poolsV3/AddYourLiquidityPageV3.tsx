@@ -34,12 +34,7 @@ import {
   ftGetTokenMetadata,
 } from '../../services/ft-contract';
 import { getTokenPriceList } from '../../services/indexer';
-import {
-  getBoostTokenPrices,
-  getBoostSeeds,
-  Seed,
-  FarmBoost,
-} from '../../services/farm';
+import { getBoostTokenPrices, Seed, FarmBoost } from '../../services/farm';
 import { useTokenBalances, useDepositableBalance } from '../../state/token';
 import Loading from '~components/layout/Loading';
 import {
@@ -63,6 +58,7 @@ import {
   drawChartData,
   TOKEN_LIST_FOR_RATE,
   get_matched_seeds_for_pool,
+  get_all_seeds,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -117,7 +113,6 @@ export default function AddYourLiquidityPageV3() {
   const [viewPoolHover, setViewPoolHover] = useState(false);
   const [topPairs, setTopPairs] = useState([]);
   const [seed_list, set_seed_list] = useState<Seed[]>();
-  const [farms_list, set_farms_list] = useState<FarmBoost[][]>();
   const [related_seeds, set_related_seeds] = useState<Seed[]>([]);
   // callBack handle
   useAddAndRemoveUrlHandle();
@@ -232,15 +227,12 @@ export default function AddYourLiquidityPageV3() {
   const allTokens = getAllTokens(refTokens, triTokens);
   const nearSwapTokens = allTokens.filter((token) => token.onRef);
   async function get_seeds() {
-    const result = await getBoostSeeds();
-    const { seeds, farms } = result;
+    const seeds = await get_all_seeds();
     set_seed_list(seeds);
-    set_farms_list(farms);
   }
   function get_optional_seeds() {
     const optional_seeds = get_matched_seeds_for_pool({
       seeds: seed_list,
-      farms: farms_list,
       pool_id: currentSelectedPool.pool_id,
     });
     if (optional_seeds.length) {
