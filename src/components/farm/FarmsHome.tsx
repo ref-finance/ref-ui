@@ -488,22 +488,13 @@ export default function FarmsHome(props: any) {
           single_lp_value = (tvl / poolShares).toString();
         }
       }
-      // const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
-      //   ? LP_STABLE_TOKEN_DECIMALS
-      //   : LP_TOKEN_DECIMALS; // todo
       const seedTotalStakedPower = toReadableNumber(DECIMALS, total_seed_power);
-      const seedTvl = +toPrecision(
-        new BigNumber(seedTotalStakedAmount)
-          .multipliedBy(single_lp_value)
-          .toFixed(),
-        2
-      );
-      const seedPowerTvl = +toPrecision(
-        new BigNumber(seedTotalStakedPower)
-          .multipliedBy(single_lp_value)
-          .toFixed(),
-        2
-      );
+      const seedTvl = new BigNumber(seedTotalStakedAmount)
+        .multipliedBy(single_lp_value)
+        .toFixed();
+      const seedPowerTvl = new BigNumber(seedTotalStakedPower)
+        .multipliedBy(single_lp_value)
+        .toFixed();
       // get apr per farm
       farmList.forEach((farm: FarmBoost) => {
         const { token_meta_data } = farm;
@@ -516,20 +507,25 @@ export default function FarmsHome(props: any) {
           tokenPriceList[reward_token]?.price || 0
         );
         const apr =
-          seedPowerTvl == 0
+          +seedPowerTvl == 0
             ? 0
-            : (Number(readableNumber) * 365 * reward_token_price) /
-              seedPowerTvl;
+            : new BigNumber(readableNumber)
+                .multipliedBy(365)
+                .multipliedBy(reward_token_price)
+                .dividedBy(seedPowerTvl);
         const baseApr =
-          seedTvl == 0
+          +seedTvl == 0
             ? 0
-            : (Number(readableNumber) * 365 * reward_token_price) / seedTvl;
+            : new BigNumber(readableNumber)
+                .multipliedBy(365)
+                .multipliedBy(reward_token_price)
+                .dividedBy(seedTvl);
 
         farm.apr = apr.toString();
         farm.baseApr = baseApr.toString();
       });
       newSeed.pool = pool;
-      newSeed.seedTvl = seedTvl?.toString() || '0';
+      newSeed.seedTvl = seedTvl || '0';
     });
     await Promise.all(promise_new_list_seeds);
     // split ended farms

@@ -1604,7 +1604,7 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
   function get_your_apr(liquidity: UserLiquidityInfo) {
     const { farmList, total_seed_amount, total_seed_power } = detailData;
     // principal
-    const total_principal = toPrecision(get_liquidity_value(liquidity), 2);
+    const total_principal = get_liquidity_value(liquidity);
     // seed total rewards
     let total_rewards = '0';
     farmList.forEach((farm: FarmBoost) => {
