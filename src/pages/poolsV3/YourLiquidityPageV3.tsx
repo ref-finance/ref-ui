@@ -32,7 +32,12 @@ import {
   TOKEN_LIST_FOR_RATE,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
-import { FarmBoost, getBoostTokenPrices, Seed } from '../../services/farm';
+import {
+  FarmBoost,
+  getBoostTokenPrices,
+  Seed,
+  get_seed,
+} from '../../services/farm';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import { PoolTabV3 } from '~components/pool/PoolTabV3';
@@ -163,16 +168,25 @@ export default function YourLiquidityPageV3() {
     if (list.length > 0) {
       // get user seeds
       const user_seeds_map = await list_farmer_seeds();
-      Object.keys(user_seeds_map).forEach((seed_id: string) => {
-        const [contractId, mft_id] = seed_id.split('@');
-        if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
-          const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
-          const user_seed_amount = new BigNumber(free_amount)
-            .plus(locked_amount)
-            .toFixed();
-          allocation_rule_liquidities({ list, user_seed_amount, seed_id });
-        }
-      });
+      const user_seed_ids = Object.keys(user_seeds_map);
+      if (user_seed_ids.length > 0) {
+        const seedsPromise = user_seed_ids.map((seed_id: string) => {
+          return get_seed(seed_id);
+        });
+        const user_seeds = await Promise.all(seedsPromise);
+        user_seeds.forEach((seed: Seed) => {
+          const { seed_id } = seed;
+          const [contractId, mft_id] = seed_id.split('@');
+          if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+            const { free_amount, locked_amount } =
+              user_seeds_map[seed_id] || {};
+            const user_seed_amount = new BigNumber(free_amount)
+              .plus(locked_amount)
+              .toFixed();
+            allocation_rule_liquidities({ list, user_seed_amount, seed });
+          }
+        });
+      }
       // sort
       list.sort((item1: UserLiquidityInfo, item2: UserLiquidityInfo) => {
         const item1_hashId = +item1.lpt_id.split('#')[1];

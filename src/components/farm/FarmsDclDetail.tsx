@@ -116,6 +116,7 @@ import {
   TOKEN_LIST_FOR_RATE,
   get_matched_seeds_for_dcl_pool,
   get_all_seeds,
+  displayNumberToAppropriateDecimals,
 } from '~services/commonV3';
 import {
   list_liquidities,
@@ -331,7 +332,7 @@ export default function FarmsDclDetail(props: {
         allocation_rule_liquidities({
           list,
           user_seed_amount,
-          seed_id: detailData.seed_id,
+          seed: detailData,
         });
       const matched_liquidities = temp_farming
         .concat(temp_free)
@@ -599,20 +600,8 @@ export default function FarmsDclDetail(props: {
       left_price = new BigNumber(1).dividedBy(right_price).toFixed();
       right_price = new BigNumber(1).dividedBy(temp).toFixed();
     }
-    let display_left_price;
-    let display_right_price;
-    const valueBig_l = new BigNumber(left_price);
-    if (valueBig_l.isGreaterThan('100000')) {
-      display_left_price = new BigNumber(left_price).toExponential(3);
-    } else {
-      display_left_price = toPrecision(left_price, 2);
-    }
-    const valueBig_r = new BigNumber(right_price);
-    if (valueBig_r.isGreaterThan('100000')) {
-      display_right_price = new BigNumber(right_price).toExponential(3);
-    } else {
-      display_right_price = toPrecision(right_price, 2);
-    }
+    const display_left_price = left_price;
+    const display_right_price = right_price;
     return (
       <div className="flex items-center whitespace-nowrap xsm:flex-col xsm:items-end">
         <div className="flex items-center">
@@ -628,7 +617,8 @@ export default function FarmsDclDetail(props: {
         </div>
         <div className="flex items-center xsm:mt-2.5">
           <span className="text-base text-white mx-2">
-            {display_left_price} ~ {display_right_price}
+            {displayNumberToAppropriateDecimals(display_left_price)} ~{' '}
+            {displayNumberToAppropriateDecimals(display_right_price)}
           </span>
           <span className="text-xs text-farmText">
             {rangeSort ? token_y_metadata.symbol : token_x_metadata.symbol}
@@ -1303,7 +1293,7 @@ export default function FarmsDclDetail(props: {
             onClick={() => {
               setAddLiquidityModalVisible(true);
             }}
-            className={`flex items-center text-sm text-primaryText p-1.5 cursor-pointer border border-v3HoverDarkBgColor border-dashed rounded-lg ${
+            className={`flex items-center text-sm text-primaryText p-1.5 cursor-pointer border border-v3HoverDarkBgColor hover:text-white hover:bg-dclButtonBgColor border-dashed rounded-lg ${
               listLiquidities.length > 0 ? '' : 'hidden'
             }`}
           >
@@ -1414,20 +1404,29 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
   const [nft_stake_loading, set_nft_stake_loading] = useState(false);
   const [nft_unStake_loading, set_nft_unStake_loading] = useState(false);
   const [hover, setHover] = useState(false);
-  const is_liquidity_staked_for_another_seed = useMemo(() => {
-    if (!(liquidity && detailData)) return false;
-    const { mft_id } = liquidity;
-    if (mft_id) {
-      const [contractId, temp_pool_id] = detailData.seed_id.split('@');
-      const [fixRange_s, pool_id_s, left_point_s, right_point_s] =
-        temp_pool_id.split('&');
-      const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
-        liquidity.mft_id.split('&');
-      if (left_point_s != left_point_l || right_point_s != right_point_l)
-        return true;
-    }
-    return false;
-  }, [liquidity, detailData]);
+  const [is_liquidity_staked_for_another_seed, is_too_little_can_not_stake] =
+    useMemo(() => {
+      if (!(liquidity && detailData)) return [false, false];
+      const { mft_id } = liquidity;
+      let is_liquidity_staked_for_another_seed = false;
+      let is_too_little_can_not_stake = false;
+      if (new BigNumber(liquidity.amount).isLessThan(detailData.min_deposit)) {
+        is_too_little_can_not_stake = true;
+      }
+      if (mft_id) {
+        const [contractId, temp_pool_id] = detailData.seed_id.split('@');
+        const [fixRange_s, pool_id_s, left_point_s, right_point_s] =
+          temp_pool_id.split('&');
+        const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
+          liquidity.mft_id.split('&');
+        if (left_point_s != left_point_l || right_point_s != right_point_l)
+          is_liquidity_staked_for_another_seed = true;
+      }
+      return [
+        is_liquidity_staked_for_another_seed,
+        is_too_little_can_not_stake,
+      ];
+    }, [liquidity, detailData]);
   const liquidity_status_string: StatusType | string = useMemo(() => {
     if (!(liquidity && detailData)) return '';
     const { part_farm_ratio, mft_id } = liquidity;
@@ -1439,7 +1438,11 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     let status: StatusType;
     if (part_farm_ratio == '100') {
       status = 'farming';
-    } else if (!inRange || is_liquidity_staked_for_another_seed) {
+    } else if (
+      !inRange ||
+      is_liquidity_staked_for_another_seed ||
+      is_too_little_can_not_stake
+    ) {
       status = 'unavailable';
     } else if (part_farm_ratio == '0' || !mft_id) {
       status = 'unfarming';
@@ -1474,7 +1477,7 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
           percent = `${part_farm_ratio_big.toFixed(0, 1)}%`;
         }
         status = (
-          <span className="text-sm, text-dclFarmYellowColor">
+          <span className="text-sm, text-dclFarmYellowColor whitespace-nowrap">
             {percent} Partial Farming
           </span>
         );
@@ -1558,20 +1561,8 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
       left_price = new BigNumber(1).dividedBy(right_price).toFixed();
       right_price = new BigNumber(1).dividedBy(temp).toFixed();
     }
-    let display_left_price;
-    let display_right_price;
-    const valueBig_l = new BigNumber(left_price);
-    if (valueBig_l.isGreaterThan('100000')) {
-      display_left_price = new BigNumber(left_price).toExponential(3);
-    } else {
-      display_left_price = toPrecision(left_price, 6);
-    }
-    const valueBig_r = new BigNumber(right_price);
-    if (valueBig_r.isGreaterThan('100000')) {
-      display_right_price = new BigNumber(right_price).toExponential(3);
-    } else {
-      display_right_price = toPrecision(right_price, 6);
-    }
+    const display_left_price = left_price;
+    const display_right_price = right_price;
     function rangeTip() {
       // const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
       const tip =
@@ -1590,7 +1581,8 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     return (
       <div className="flex items-center">
         <span className="text-sm mr-1.5">
-          {display_left_price} ~ {display_right_price}
+          {displayNumberToAppropriateDecimals(display_left_price)} ~{' '}
+          {displayNumberToAppropriateDecimals(display_right_price)}
         </span>
         <div
           className="text-white text-right"
@@ -1730,6 +1722,11 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     let tip = 'Your price range is out of fix range';
     if (is_liquidity_staked_for_another_seed) {
       tip = 'This position has been staked in another farm';
+    } else if (is_too_little_can_not_stake) {
+      const rate = new BigNumber(detailData.min_deposit)
+        .dividedBy(liquidity.amount)
+        .toFixed(0, 1);
+      tip = `The minimum staking amount is ${rate}x your liquidity `;
     }
     let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
     return result;

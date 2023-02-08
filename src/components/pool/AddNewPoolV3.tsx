@@ -41,6 +41,7 @@ import {
   useAddAndRemoveUrlHandle,
   drawChartData,
   TOKEN_LIST_FOR_RATE,
+  displayNumberToAppropriateDecimals,
 } from '../../services/commonV3';
 import {
   PoolInfo,
@@ -446,20 +447,8 @@ export const AddNewPoolV3 = (props: any) => {
       left_price = new BigNumber(1).dividedBy(right_price).toFixed();
       right_price = new BigNumber(1).dividedBy(temp).toFixed();
     }
-    let display_left_price;
-    let display_right_price;
-    const valueBig_l = new BigNumber(left_price);
-    if (valueBig_l.isGreaterThan('100000')) {
-      display_left_price = new BigNumber(left_price).toExponential(3);
-    } else {
-      display_left_price = toPrecision(left_price, 6);
-    }
-    const valueBig_r = new BigNumber(right_price);
-    if (valueBig_r.isGreaterThan('100000')) {
-      display_right_price = new BigNumber(right_price).toExponential(3);
-    } else {
-      display_right_price = toPrecision(right_price, 6);
-    }
+    const display_left_price = displayNumberToAppropriateDecimals(left_price);
+    const display_right_price = displayNumberToAppropriateDecimals(right_price);
     if (displayType == 'seed') {
       return (
         <div className="flex items-center xsm:flex-col xsm:items-end whitespace-nowrap ml-1">

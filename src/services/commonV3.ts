@@ -9,7 +9,13 @@ import _ from 'lodash';
 import { toReadableNumber, toPrecision } from '../utils/numbers';
 import { TokenMetadata } from '../services/ft-contract';
 import { PoolInfo } from './swapV3';
-import { FarmBoost, Seed, getBoostSeeds, getBoostTokenPrices } from './farm';
+import {
+  FarmBoost,
+  Seed,
+  getBoostSeeds,
+  getBoostTokenPrices,
+  get_seed_info,
+} from './farm';
 import getConfig from '../services/config';
 import { PoolRPCView } from '../services/api';
 import { ftGetTokenMetadata } from '../services/ft-contract';
@@ -558,12 +564,13 @@ function get_X_Y_In_CurrentPoint(
 export function allocation_rule_liquidities({
   list,
   user_seed_amount,
-  seed_id,
+  seed,
 }: {
   list: UserLiquidityInfo[];
   user_seed_amount: string;
-  seed_id: string;
+  seed: Seed;
 }) {
+  const { seed_id, min_deposit } = seed;
   const [contractId, temp_pool_id] = seed_id.split('@');
   const [fixRange, pool_id, left_point_s, right_point_s] =
     temp_pool_id.split('&');
@@ -575,9 +582,11 @@ export function allocation_rule_liquidities({
   const temp_unavailable: UserLiquidityInfo[] = [];
   matched_liquidities.forEach((liquidity: UserLiquidityInfo) => {
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
-    const { mft_id } = liquidity;
+    const { mft_id, amount } = liquidity;
     const inRange = right_point > left_point;
-    if (inRange && mft_id) {
+    if (new BigNumber(amount).isLessThan(min_deposit)) {
+      temp_unavailable.push(liquidity);
+    } else if (inRange && mft_id) {
       const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
         mft_id.split('&');
       if (left_point_l != left_point_s || right_point_l != right_point_s) {
@@ -928,6 +937,20 @@ const getPoolIdBySeedId = (seed_id: string) => {
   }
   return '';
 };
+export function displayNumberToAppropriateDecimals(num: string | number) {
+  if (!num) return num;
+  const numBig = new BigNumber(num);
+  if (numBig.isEqualTo(0)) return 0;
+  if (numBig.isLessThan(0.01)) {
+    return toPrecision(num.toString(), 5);
+  } else if (numBig.isGreaterThanOrEqualTo(0.01) && numBig.isLessThan(1)) {
+    return toPrecision(num.toString(), 3);
+  } else if (numBig.isGreaterThanOrEqualTo(1) && numBig.isLessThan(10000)) {
+    return toPrecision(num.toString(), 2);
+  } else {
+    return toPrecision(num.toString(), 0);
+  }
+}
 /** start */
 /*
 has x, y

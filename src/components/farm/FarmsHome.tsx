@@ -128,6 +128,8 @@ import {
   getPriceByPoint,
   get_total_value_by_liquidity_amount_dcl,
   get_matched_seeds_for_dcl_pool,
+  TOKEN_LIST_FOR_RATE,
+  displayNumberToAppropriateDecimals,
 } from '~services/commonV3';
 
 const {
@@ -2286,6 +2288,14 @@ function FarmView(props: {
   );
   const history = useHistory();
   const intl = useIntl();
+  const rate_need_to_reverse_display = useMemo(() => {
+    const { tokens_meta_data } = seed.pool;
+    if (tokens_meta_data) {
+      const [tokenX] = tokens_meta_data;
+      if (TOKEN_LIST_FOR_RATE.indexOf(tokenX.symbol) > -1) return true;
+      return false;
+    }
+  }, [seed]);
   useEffect(() => {
     const yourApr = getYourApr();
     if (yourApr) {
@@ -2892,7 +2902,8 @@ function FarmView(props: {
     if (result) return true;
     return false;
   }
-  function isNewOfDclSeed() {
+  function status_is_new_or_will_end() {
+    let status = '';
     if (is_dcl_pool && !isEnded()) {
       if (
         seed.seed_id ==
@@ -2906,13 +2917,17 @@ function FarmView(props: {
       });
       if (matched_seeds.length > 1) {
         const latestSeed = matched_seeds[0];
-        if (latestSeed.seed_id == seed.seed_id) return true;
+        if (latestSeed.seed_id == seed.seed_id) {
+          status = 'new';
+        } else {
+          status = 'will end';
+        }
       }
     }
-    return false;
+    return status;
   }
   function showNewTag() {
-    if (is_dcl_pool) return isNewOfDclSeed();
+    if (is_dcl_pool) return status_is_new_or_will_end() == 'new';
     return isInMonth();
   }
   function switchLp(e: any) {
@@ -2966,30 +2981,31 @@ function FarmView(props: {
     const decimalRate =
       Math.pow(10, token_x_metadata.decimals) /
       Math.pow(10, token_y_metadata.decimals);
-    const left_price = getPriceByPoint(+left_point, decimalRate);
-    const right_price = getPriceByPoint(+right_point, decimalRate);
-    let display_left_price;
-    let display_right_price;
-    const valueBig_l = new BigNumber(left_price);
-    if (valueBig_l.isGreaterThan('100000')) {
-      display_left_price = new BigNumber(left_price).toExponential(3);
-    } else {
-      display_left_price = toPrecision(left_price, 6);
+    let left_price = getPriceByPoint(+left_point, decimalRate);
+    let right_price = getPriceByPoint(+right_point, decimalRate);
+    if (rate_need_to_reverse_display) {
+      const temp = left_price;
+      left_price = new BigNumber(1).dividedBy(right_price).toFixed();
+      right_price = new BigNumber(1).dividedBy(temp).toFixed();
     }
-    const valueBig_r = new BigNumber(right_price);
-    if (valueBig_r.isGreaterThan('100000')) {
-      display_right_price = new BigNumber(right_price).toExponential(3);
-    } else {
-      display_right_price = toPrecision(right_price, 6);
-    }
-    // todo 稳定货币汇率展示问题
+    const display_left_price = displayNumberToAppropriateDecimals(left_price);
+    const display_right_price = displayNumberToAppropriateDecimals(right_price);
+
     return (
       <div className="flex items-center">
         <span className="text-sm text-white">
           {display_left_price} ~ {display_right_price}
         </span>
         <span className="text-sm text-farmText ml-2">
-          {token_x_metadata.symbol}
+          {rate_need_to_reverse_display ? (
+            <>
+              {token_x_metadata.symbol}/{token_y_metadata.symbol}
+            </>
+          ) : (
+            <>
+              {token_y_metadata.symbol}/{token_x_metadata.symbol}
+            </>
+          )}
         </span>
       </div>
     );
@@ -3096,6 +3112,11 @@ function FarmView(props: {
                 </div>
               ) : null}
               {showNewTag() ? <NewTag></NewTag> : null}
+              {status_is_new_or_will_end() == 'will end' ? (
+                <span className="text-xs text-redwarningColor bg-lightReBgColor rounded-3xl px-1.5 py-1">
+                  Going to end
+                </span>
+              ) : null}
             </div>
             {needForbidden ? (
               <div className="flex flex-col absolute left-3.5 top-3 z-50">

@@ -59,6 +59,7 @@ import {
   TOKEN_LIST_FOR_RATE,
   get_matched_seeds_for_dcl_pool,
   get_all_seeds,
+  displayNumberToAppropriateDecimals,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -1833,8 +1834,12 @@ function AddLiquidityComponent({
       price_left_final = new BigNumber(1).dividedBy(price_right).toFixed();
       price_right_final = new BigNumber(1).dividedBy(price_left).toFixed();
     }
-    const display_price_left = toPrecision(price_left_final.toString(), 6);
-    const display_price_right = toPrecision(price_right_final.toString(), 6);
+    const display_price_left = displayNumberToAppropriateDecimals(
+      price_left_final.toString()
+    );
+    const display_price_right = displayNumberToAppropriateDecimals(
+      price_right_final.toString()
+    );
     return (
       <div className="flex flex-col items-ends text-sm">
         <span className="text-limitOrderInputColor text-right">

@@ -52,7 +52,12 @@ import {
 } from '../../components/icon/WatchListStar';
 import Loading from '~components/layout/Loading';
 import { useTokenPriceList } from '../../state/token';
-import { getBoostTokenPrices, FarmBoost, Seed } from '../../services/farm';
+import {
+  getBoostTokenPrices,
+  FarmBoost,
+  Seed,
+  get_seed,
+} from '../../services/farm';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
@@ -189,15 +194,19 @@ export default function PoolDetailV3() {
         }
       );
       if (target_seed_ids.length > 0) {
-        target_seed_ids.forEach((target_seed_id: string) => {
-          const { free_amount, locked_amount } = user_seeds_map[target_seed_id];
+        const seedsPromise = target_seed_ids.map((seed_id: string) => {
+          return get_seed(seed_id);
+        });
+        const target_seeds = await Promise.all(seedsPromise);
+        target_seeds.forEach((seed: Seed) => {
+          const { free_amount, locked_amount } = user_seeds_map[seed.seed_id];
           const user_seed_amount = new BigNumber(free_amount)
             .plus(locked_amount)
             .toFixed();
           allocation_rule_liquidities({
             list: user_liqudities_final,
             user_seed_amount,
-            seed_id: target_seed_id,
+            seed,
           });
         });
       }
