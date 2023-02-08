@@ -657,12 +657,14 @@ export function get_valid_range(liquidity: UserLiquidityInfo, seed_id: string) {
   return [max_left_point, min_right_point];
 }
 
-export function get_matched_seeds_for_pool({
+export function get_matched_seeds_for_dcl_pool({
   seeds,
   pool_id,
+  sort,
 }: {
   seeds: Seed[];
   pool_id: string;
+  sort?: string;
 }) {
   const activeSeeds = seeds.filter((seed: Seed) => {
     const { seed_id, farmList } = seed;
@@ -678,17 +680,21 @@ export function get_matched_seeds_for_pool({
   activeSeeds.sort((b: Seed, a: Seed) => {
     const b_latest = getLatestStartTime(b);
     const a_latest = getLatestStartTime(a);
+    if (b_latest == 0) return -1;
+    if (a_latest == 0) return 1;
     return a_latest - b_latest;
   });
-  // having benefit
-  const temp_seed = activeSeeds.find((s: Seed, index: number) => {
-    if (!isPending(s)) {
-      activeSeeds.splice(index, 1);
-      return true;
+  if (sort != 'new') {
+    // having benefit
+    const temp_seed = activeSeeds.find((s: Seed, index: number) => {
+      if (!isPending(s)) {
+        activeSeeds.splice(index, 1);
+        return true;
+      }
+    });
+    if (temp_seed) {
+      activeSeeds.unshift(temp_seed);
     }
-  });
-  if (temp_seed) {
-    activeSeeds.unshift(temp_seed);
   }
   return activeSeeds;
 }
@@ -710,10 +716,14 @@ export function getLatestStartTime(seed: Seed) {
     start_at.push(item.terms.start_at);
   });
   start_at = _.sortBy(start_at);
-  start_at = start_at.filter(function (val) {
-    return val != '0';
-  });
-  return start_at[start_at.length - 1];
+  // start_at = start_at.filter(function (val) {
+  //   return +val != 0;
+  // });
+  if (+start_at[0] == 0) {
+    return 0;
+  } else {
+    return start_at[start_at.length - 1];
+  }
 }
 export async function get_all_seeds() {
   let list_seeds: Seed[];
@@ -843,18 +853,12 @@ async function getFarmDataList(initData: any) {
       }
     }
     const seedTotalStakedPower = toReadableNumber(DECIMALS, total_seed_power);
-    const seedTvl = +toPrecision(
-      new BigNumber(seedTotalStakedAmount)
-        .multipliedBy(single_lp_value)
-        .toFixed(),
-      2
-    );
-    const seedPowerTvl = +toPrecision(
-      new BigNumber(seedTotalStakedPower)
-        .multipliedBy(single_lp_value)
-        .toFixed(),
-      2
-    );
+    const seedTvl = new BigNumber(seedTotalStakedAmount)
+      .multipliedBy(single_lp_value)
+      .toFixed();
+    const seedPowerTvl = new BigNumber(seedTotalStakedPower)
+      .multipliedBy(single_lp_value)
+      .toFixed();
     // get apr per farm
     farmList.forEach((farm: FarmBoost) => {
       const { token_meta_data } = farm;
@@ -867,19 +871,27 @@ async function getFarmDataList(initData: any) {
         tokenPriceList[reward_token]?.price || 0
       );
       const apr =
-        seedPowerTvl == 0
+        +seedPowerTvl == 0
           ? 0
-          : (Number(readableNumber) * 365 * reward_token_price) / seedPowerTvl;
+          : new BigNumber(readableNumber)
+              .multipliedBy(365)
+              .multipliedBy(reward_token_price)
+              .dividedBy(seedPowerTvl)
+              .toFixed();
       const baseApr =
-        seedTvl == 0
+        +seedTvl == 0
           ? 0
-          : (Number(readableNumber) * 365 * reward_token_price) / seedTvl;
+          : new BigNumber(readableNumber)
+              .multipliedBy(365)
+              .multipliedBy(reward_token_price)
+              .dividedBy(seedTvl)
+              .toFixed();
 
       farm.apr = apr.toString();
       farm.baseApr = baseApr.toString();
     });
     newSeed.pool = pool;
-    newSeed.seedTvl = seedTvl?.toString() || '0';
+    newSeed.seedTvl = seedTvl || '0';
   });
   await Promise.all(promise_new_list_seeds);
   // split ended farms

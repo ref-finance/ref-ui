@@ -57,7 +57,7 @@ import {
   useAddAndRemoveUrlHandle,
   drawChartData,
   TOKEN_LIST_FOR_RATE,
-  get_matched_seeds_for_pool,
+  get_matched_seeds_for_dcl_pool,
   get_all_seeds,
 } from '../../services/commonV3';
 import {
@@ -231,7 +231,7 @@ export default function AddYourLiquidityPageV3() {
     set_seed_list(seeds);
   }
   function get_optional_seeds() {
-    const optional_seeds = get_matched_seeds_for_pool({
+    const optional_seeds = get_matched_seeds_for_dcl_pool({
       seeds: seed_list,
       pool_id: currentSelectedPool.pool_id,
     });

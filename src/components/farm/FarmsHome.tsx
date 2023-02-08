@@ -69,6 +69,7 @@ import {
   getBoostSeeds,
   useMigrate_user_data,
   getVeSeedShare,
+  list_seeds_info,
 } from '../../services/farm';
 import { getLoveAmount } from '../../services/referendum';
 import {
@@ -126,6 +127,7 @@ import { PoolInfo } from '~services/swapV3';
 import {
   getPriceByPoint,
   get_total_value_by_liquidity_amount_dcl,
+  get_matched_seeds_for_dcl_pool,
 } from '~services/commonV3';
 
 const {
@@ -306,7 +308,19 @@ export default function FarmsHome(props: any) {
     let list_farm: FarmBoost[][];
     let pools: PoolRPCView[];
     const result = await getBoostSeeds();
-    const { seeds, farms, pools: cachePools } = result;
+    const { seeds: seeds_from_cache, farms, pools: cachePools } = result;
+    // replace cache seeds with server seeds due to apr display
+    let seeds: Seed[] = [];
+    const seeds_from_server = await list_seeds_info();
+    const seeds_from_server_map = {};
+    seeds_from_server.forEach((s: Seed) => {
+      seeds_from_server_map[s.seed_id] = s;
+    });
+    seeds_from_cache.forEach((s: Seed) => {
+      if (seeds_from_server_map[s.seed_id]) {
+        seeds.push(seeds_from_server_map[s.seed_id]);
+      }
+    });
     list_seeds = seeds;
     list_farm = farms;
     pools = cachePools;
@@ -810,7 +824,11 @@ export default function FarmsHome(props: any) {
     });
     farm_display_ended_List.forEach((seed: Seed) => {
       const { pool, seed_id } = seed;
-      const { token_symbols } = pool;
+      const { tokens_meta_data } = pool;
+      const token_symbols: string[] = [];
+      tokens_meta_data.forEach((token: TokenMetadata) => {
+        token_symbols.push(token.symbol);
+      });
       const [contractId, temp_mft_id] = seed_id.split('@');
       let condition1, condition3;
       let condition2 = true;
@@ -884,7 +902,7 @@ export default function FarmsHome(props: any) {
       }
     });
     // sort
-    if (sort == 'apr') {
+    if (sort == 'apr' || farmTab == 'dcl') {
       farm_display_List.sort((item1: Seed, item2: Seed) => {
         const item1PoolId = item1.pool.id;
         const item2PoolId = item2.pool.id;
@@ -1244,7 +1262,6 @@ export default function FarmsHome(props: any) {
             <div className="title flex justify-between items-center text-3xl text-white xs:-mt-4 md:-mt-4 pl-2">
               <FormattedMessage id="farms"></FormattedMessage>
               <div className="flex items-center justify-between h-7 rounded-lg bg-farmSbg p-0.5">
-                {/* todo */}
                 <span
                   onClick={() => {
                     switchFarmTab('dcl');
@@ -1322,7 +1339,9 @@ export default function FarmsHome(props: any) {
               <SearchIcon></SearchIcon>
             </span>
           </div>
-          <div className="flex items-center">
+          <div
+            className={`flex items-center ${farmTab == 'dcl' ? 'hidden' : ''}`}
+          >
             <label className="text-farmText text-xs mr-2 whitespace-nowrap xs:hidden md:hidden">
               <FormattedMessage id="sort_by" defaultMessage="Sort by" />
             </label>
@@ -1429,7 +1448,11 @@ export default function FarmsHome(props: any) {
                 <SearchIcon></SearchIcon>
               </span>
             </div>
-            <div className="flex items-center">
+            <div
+              className={`flex items-center ${
+                farmTab == 'dcl' ? 'hidden' : ''
+              }`}
+            >
               <label className="text-farmText text-xs mr-2 whitespace-nowrap">
                 <FormattedMessage id="sort_by" defaultMessage="Sort by" />
               </label>
@@ -1618,6 +1641,7 @@ export default function FarmsHome(props: any) {
                   >
                     <FarmView
                       seed={seed}
+                      all_seeds={farm_display_List}
                       tokenPriceList={tokenPriceList}
                       getDetailData={getDetailData}
                       dayVolumeMap={dayVolumeMap}
@@ -2216,6 +2240,7 @@ function CommonModal(props: any) {
 }
 function FarmView(props: {
   seed: Seed;
+  all_seeds?: Seed[];
   tokenPriceList: Record<string, any>;
   getDetailData: any;
   dayVolumeMap: Record<string, any>;
@@ -2237,6 +2262,7 @@ function FarmView(props: {
     user_unclaimed_map,
     user_unclaimed_token_meta_map,
     maxLoveShareAmount,
+    all_seeds,
   } = props;
   const { pool, seedTvl, total_seed_amount, seed_id, farmList, seed_decimal } =
     seed;
@@ -2866,6 +2892,29 @@ function FarmView(props: {
     if (result) return true;
     return false;
   }
+  function isNewOfDclSeed() {
+    if (is_dcl_pool && !isEnded()) {
+      if (
+        seed.seed_id ==
+        'dclv1-dev.ref-dev.testnet@{"FixRange":{"left_point":-320000,"right_point":-310000}}&paras.fakes.testnet|usdc.fakes.testnet|2000&-320000&-310000'
+      ) {
+      }
+      const matched_seeds = get_matched_seeds_for_dcl_pool({
+        seeds: all_seeds,
+        pool_id: pool.pool_id,
+        sort: 'new',
+      });
+      if (matched_seeds.length > 1) {
+        const latestSeed = matched_seeds[0];
+        if (latestSeed.seed_id == seed.seed_id) return true;
+      }
+    }
+    return false;
+  }
+  function showNewTag() {
+    if (is_dcl_pool) return isNewOfDclSeed();
+    return isInMonth();
+  }
   function switchLp(e: any) {
     e.stopPropagation();
     if (+lpSwitchStatus == 1) {
@@ -3046,7 +3095,7 @@ function FarmView(props: {
                   />
                 </div>
               ) : null}
-              {isInMonth() ? <NewTag></NewTag> : null}
+              {showNewTag() ? <NewTag></NewTag> : null}
             </div>
             {needForbidden ? (
               <div className="flex flex-col absolute left-3.5 top-3 z-50">

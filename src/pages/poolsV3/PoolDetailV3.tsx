@@ -42,7 +42,7 @@ import {
   TOKEN_LIST_FOR_RATE,
   get_total_value_by_liquidity_amount_dcl,
   allocation_rule_liquidities,
-  get_matched_seeds_for_pool,
+  get_matched_seeds_for_dcl_pool,
   get_all_seeds,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
@@ -135,7 +135,7 @@ export default function PoolDetailV3() {
   }, []);
   async function get_matched_seeds() {
     const all_seeds = await get_all_seeds();
-    const matched_seeds = get_matched_seeds_for_pool({
+    const matched_seeds = get_matched_seeds_for_dcl_pool({
       seeds: all_seeds,
       pool_id: pool_id_from_url,
     });
@@ -991,93 +991,9 @@ function RelatedFarmsBox(props: any) {
   }, [poolDetail, tokenPriceList, sole_seed]);
   async function get_farms_data() {
     if (sole_seed) {
-      await get_apr_seed(sole_seed);
       set_related_seed(sole_seed);
     }
     set_farm_loading(false);
-  }
-
-  async function get_apr_seed(seed: Seed) {
-    const { token_x_metadata, token_y_metadata } = poolDetail;
-    const {
-      seed_id,
-      farmList,
-      total_seed_amount,
-      total_seed_power,
-      seed_decimal,
-    } = seed;
-    const promise_farm_meta_data = farmList.map(async (farm: FarmBoost) => {
-      const tokenId = farm.terms.reward_token;
-      const tokenMetadata = await ftGetTokenMetadata(tokenId);
-      farm.token_meta_data = tokenMetadata;
-      return farm;
-    });
-    await Promise.all(promise_farm_meta_data);
-    const seedTotalStakedAmount = toReadableNumber(
-      seed_decimal,
-      total_seed_amount
-    );
-    const [contractId, temp_pool_id] = seed_id.split('@');
-    const [fixRange, dcl_pool_id, left_point, right_point] =
-      temp_pool_id.split('&');
-    const [token_x, token_y] = dcl_pool_id.split('|');
-    const price_x = tokenPriceList[token_x]?.price || '0';
-    const price_y = tokenPriceList[token_y]?.price || '0';
-    const temp_valid = +right_point - +left_point;
-    const range_square = Math.pow(temp_valid, 2);
-    const amount = new BigNumber(Math.pow(10, 12))
-      .dividedBy(range_square)
-      .toFixed();
-    const single_lp_value = get_total_value_by_liquidity_amount_dcl({
-      left_point: +left_point,
-      right_point: +right_point,
-      amount,
-      poolDetail,
-      price_x_y: { [token_x]: price_x, [token_y]: price_y },
-      metadata_x_y: {
-        [token_x]: token_x_metadata,
-        [token_y]: token_y_metadata,
-      },
-    });
-    const seedTotalStakedPower = toReadableNumber(
-      seed_decimal,
-      total_seed_power
-    );
-    const seedTvl = +toPrecision(
-      new BigNumber(seedTotalStakedAmount)
-        .multipliedBy(single_lp_value)
-        .toFixed(),
-      2
-    );
-    const seedPowerTvl = +toPrecision(
-      new BigNumber(seedTotalStakedPower)
-        .multipliedBy(single_lp_value)
-        .toFixed(),
-      2
-    );
-    // get apr per farm
-    farmList.forEach((farm: FarmBoost) => {
-      const { token_meta_data } = farm;
-      const { daily_reward, reward_token } = farm.terms;
-      const readableNumber = toReadableNumber(
-        token_meta_data.decimals,
-        daily_reward
-      );
-      const reward_token_price = Number(
-        tokenPriceList[reward_token]?.price || 0
-      );
-      const apr =
-        seedPowerTvl == 0
-          ? 0
-          : (Number(readableNumber) * 365 * reward_token_price) / seedPowerTvl;
-      const baseApr =
-        seedTvl == 0
-          ? 0
-          : (Number(readableNumber) * 365 * reward_token_price) / seedTvl;
-
-      farm.apr = apr.toString();
-      farm.baseApr = baseApr.toString();
-    });
   }
   function totalTvlPerWeekDisplay() {
     const farms = related_seed.farmList;

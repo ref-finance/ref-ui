@@ -2615,6 +2615,8 @@ export function LiquidityPage() {
           seeds.sort((b: Seed, a: Seed) => {
             const b_latest = getLatestStartTime(b);
             const a_latest = getLatestStartTime(a);
+            if (b_latest == 0) return -1;
+            if (a_latest == 0) return 1;
             return a_latest - b_latest;
           });
           // having benefit

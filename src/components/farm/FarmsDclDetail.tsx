@@ -114,7 +114,7 @@ import {
   get_valid_range,
   allocation_rule_liquidities,
   TOKEN_LIST_FOR_RATE,
-  get_matched_seeds_for_pool,
+  get_matched_seeds_for_dcl_pool,
   get_all_seeds,
 } from '~services/commonV3';
 import {
@@ -176,6 +176,7 @@ export default function FarmsDclDetail(props: {
   const [claimLoading, setClaimLoading] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [betterSeed, setBetterSeed] = useState<Seed>();
+  const [isNewSeed, setIsNewSeed] = useState<boolean>(false);
   const {
     user_seeds_map = {},
     user_unclaimed_map = {},
@@ -298,13 +299,17 @@ export default function FarmsDclDetail(props: {
   }
   async function get_farms_data() {
     const all_seeds = await get_all_seeds();
-    const matched_seeds = get_matched_seeds_for_pool({
+    const matched_seeds = get_matched_seeds_for_dcl_pool({
       seeds: all_seeds,
       pool_id: detailData.pool.pool_id,
+      sort: 'new',
     });
     const targetSeed = matched_seeds[0];
     if (matched_seeds.length > 1 && targetSeed.seed_id != detailData.seed_id) {
       setBetterSeed(targetSeed);
+    }
+    if (matched_seeds.length > 1 && targetSeed.seed_id == detailData.seed_id) {
+      setIsNewSeed(true);
     }
   }
   async function get_mft_balance_of() {
@@ -852,6 +857,10 @@ export default function FarmsDclDetail(props: {
     const mft_id = `${pool_id}&${left_point}&${right_point}`;
     window.open(`/v2farms/${mft_id}-r`);
   }
+  function getFee() {
+    const [tokenx, tokeny, fee] = detailData?.pool?.pool_id?.split('|') || '';
+    return +fee / 10000 + '%';
+  }
   const radio = getBoostMutil();
   const needForbidden =
     (FARM_BLACK_LIST_V2 || []).indexOf(detailData.pool.pool_id.toString()) > -1;
@@ -889,7 +898,7 @@ export default function FarmsDclDetail(props: {
                   <FormattedMessage id="fee_Tiers"></FormattedMessage>
                 </span>
                 <span className="text-xs text-v3Blue gotham_bold ml-1">
-                  0.2%
+                  {getFee()}
                 </span>
               </div>
               <DclFarmIcon className="xsm:ml-2"></DclFarmIcon>
@@ -911,12 +920,17 @@ export default function FarmsDclDetail(props: {
               ) : (
                 getBoostDom()
               )}
+              {isNewSeed ? (
+                <NewTag className="ml-2 relative -top-0.5"></NewTag>
+              ) : null}
             </div>
             <div className="flex items-center bg-cardBg rounded-md px-2 mt-1.5 py-0.5 lg:hidden">
               <span className="text-xs text-v3SwapGray">
                 <FormattedMessage id="fee_Tiers"></FormattedMessage>
               </span>
-              <span className="text-xs text-v3Blue gotham_bold ml-1">0.2%</span>
+              <span className="text-xs text-v3Blue gotham_bold ml-1">
+                {getFee()}
+              </span>
             </div>
           </div>
         </div>
@@ -1457,7 +1471,7 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
         if (part_farm_ratio_big.isLessThan(1)) {
           percent = '<1%';
         } else {
-          percent = `${part_farm_ratio_big.toFixed(0)}%`;
+          percent = `${part_farm_ratio_big.toFixed(0, 1)}%`;
         }
         status = (
           <span className="text-sm, text-dclFarmYellowColor">

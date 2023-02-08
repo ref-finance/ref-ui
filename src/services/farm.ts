@@ -898,7 +898,7 @@ export const getBoostSeedsFromServer = async (): Promise<{
     const farmsPromiseList: Promise<any>[] = [];
     const poolIds = new Set<string>();
     const dcl_poolIds = new Set<string>();
-    // get all dcl pools todo
+    // get all dcl pools
     const dcl_all_pools: PoolInfo[] = await listPools();
     let pools: any[] = [];
     const both_normalPools_dclPools: any[] = [];
