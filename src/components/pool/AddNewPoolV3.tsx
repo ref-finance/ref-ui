@@ -502,7 +502,7 @@ export const AddNewPoolV3 = (props: any) => {
         style={{ maxHeight: '95vh', width: cardWidth }}
         className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4"
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-8">
           <span className="text-xl text-white gotham_bold">Add Position</span>
           <div className="cursor-pointer" onClick={props.onRequestClose}>
             <ModalClose />
@@ -527,7 +527,7 @@ export const AddNewPoolV3 = (props: any) => {
               </span>
             </div>
           </div> */}
-          <div className="text-sm text-primaryText mt-6">Input Amount</div>
+          {/* <div className="text-sm text-primaryText mt-6">Input Amount</div> */}
           <OneSide
             show={
               (onlyAddYToken &&
@@ -588,15 +588,11 @@ export const AddNewPoolV3 = (props: any) => {
                 }}
               >
                 <ArrowDownV3
-                  className={`mr-2.5 hover:text-white ${
-                    hover ? 'text-white' : 'text-primaryText'
-                  } ${showCustomPointArea ? 'transform rotate-180' : ''}`}
+                  className={`mr-2.5  text-primaryText ${
+                    showCustomPointArea ? 'transform rotate-180' : ''
+                  }`}
                 ></ArrowDownV3>
-                <span
-                  className={`${hover ? 'text-white' : 'text-primaryText'}`}
-                >
-                  Set Price Range
-                </span>
+                <span className="text-primaryText">Set Price Range</span>
               </div>
               {getRange('custom')}
             </div>

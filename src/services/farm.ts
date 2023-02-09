@@ -56,6 +56,7 @@ import { getMftTokenId } from '../utils/token';
 import { useEffect, useContext, useState } from 'react';
 import { getPoolIdBySeedId } from '../components/farm/FarmsHome';
 import { listPools, PoolInfo } from './swapV3';
+import { mint_liquidity, UserLiquidityInfo } from './commonV3';
 
 const config = getConfig();
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = config;
@@ -1023,20 +1024,16 @@ interface UnStakeOptions {
 interface NFTUnStakeOptions {
   lpt_id: string;
   seed_id: string;
-  unlock_amount: string;
   withdraw_amount: string;
 }
 interface NFTStakeOptions {
-  lpt_id: string;
+  liquidity: UserLiquidityInfo;
   seed_id: string;
-  mint: boolean;
-  amount: string;
-}
-interface NFTUnStakeOptions {
-  seed_id: string;
-  unlock_amount: string;
+  stakeAmount: string;
+  needUnstake: boolean;
   withdraw_amount: string;
 }
+
 export interface UserSeedInfo {
   boost_ratios: any;
   duration_sec: number;
@@ -1183,43 +1180,90 @@ export function useMigrate_user_data() {
   };
 }
 export const stake_boost_nft = async ({
-  lpt_id,
+  liquidity,
   seed_id,
-  mint,
-  amount = '',
+  stakeAmount = '',
+  withdraw_amount = '',
+  needUnstake,
 }: NFTStakeOptions) => {
   const [contractId, temp_pool_id] = seed_id.split('@');
   const [fixRange, dcl_pool_id, left_point, right_point] =
     temp_pool_id.split('&');
+  const transactions: Transaction[] = [];
   const functionCalls = [];
-  if (mint) {
+  const { lpt_id, mft_id } = liquidity;
+  if (needUnstake) {
+    const v_liquidity = mint_liquidity(liquidity, seed_id);
+    if (+withdraw_amount > 0) {
+      transactions.push({
+        receiverId: REF_FARM_BOOST_CONTRACT_ID,
+        functionCalls: [
+          {
+            methodName: 'unlock_and_withdraw_seed',
+            args: {
+              seed_id: seed_id,
+              unlock_amount: '0',
+              withdraw_amount,
+            },
+            amount: ONE_YOCTO_NEAR,
+            gas: '200000000000000',
+          },
+        ],
+      });
+    }
+    functionCalls.push({
+      methodName: 'burn_v_liquidity',
+      args: {
+        lpt_id,
+      },
+      gas: '50000000000000',
+    });
     functionCalls.push({
       methodName: 'mint_v_liquidity',
       args: {
         lpt_id,
         farming_type: JSON.parse(fixRange),
       },
-      gas: '100000000000000',
+      gas: '50000000000000',
+    });
+    functionCalls.push({
+      methodName: 'mft_transfer_call',
+      args: {
+        receiver_id: REF_FARM_BOOST_CONTRACT_ID,
+        token_id: `:${temp_pool_id}`,
+        amount: v_liquidity,
+        msg: JSON.stringify('Free'),
+      },
+      amount: ONE_YOCTO_NEAR,
+      gas: '180000000000000',
+    });
+  } else {
+    if (!mft_id) {
+      functionCalls.push({
+        methodName: 'mint_v_liquidity',
+        args: {
+          lpt_id,
+          farming_type: JSON.parse(fixRange),
+        },
+        gas: '100000000000000',
+      });
+    }
+    functionCalls.push({
+      methodName: 'mft_transfer_call',
+      args: {
+        receiver_id: REF_FARM_BOOST_CONTRACT_ID,
+        token_id: `:${temp_pool_id}`,
+        amount: stakeAmount,
+        msg: JSON.stringify('Free'),
+      },
+      amount: ONE_YOCTO_NEAR,
+      gas: '180000000000000',
     });
   }
-  functionCalls.push({
-    methodName: 'mft_transfer_call',
-    args: {
-      receiver_id: REF_FARM_BOOST_CONTRACT_ID,
-      token_id: `:${temp_pool_id}`,
-      amount,
-      msg: JSON.stringify('Free'),
-    },
-    amount: ONE_YOCTO_NEAR,
-    gas: '180000000000000',
+  transactions.push({
+    receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+    functionCalls,
   });
-  const transactions: Transaction[] = [
-    {
-      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls,
-    },
-  ];
-
   const neededStorage = await checkTokenNeedsStorageDeposit_boost();
   if (neededStorage) {
     transactions.unshift({
@@ -1233,7 +1277,6 @@ export const stake_boost_nft = async ({
 export const unStake_boost_nft = async ({
   lpt_id,
   seed_id,
-  unlock_amount,
   withdraw_amount,
 }: NFTUnStakeOptions) => {
   const transactions: Transaction[] = [];
@@ -1245,7 +1288,7 @@ export const unStake_boost_nft = async ({
           methodName: 'unlock_and_withdraw_seed',
           args: {
             seed_id: seed_id,
-            unlock_amount,
+            unlock_amount: '0',
             withdraw_amount,
           },
           amount: ONE_YOCTO_NEAR,

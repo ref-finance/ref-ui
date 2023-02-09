@@ -633,18 +633,10 @@ export function allocation_rule_liquidities({
   });
   // Group together
   const temp_farming_final: UserLiquidityInfo[] = [];
-  const temp_too_little_in_part: UserLiquidityInfo[] = [];
   const temp_unFarming = temp_farming.filter((liquidity: UserLiquidityInfo) => {
     const { part_farm_ratio, unfarm_part_amount } = liquidity;
     if (part_farm_ratio == '0') return true;
-    if (
-      +unfarm_part_amount > 0 &&
-      new BigNumber(unfarm_part_amount).isLessThan(min_deposit)
-    ) {
-      temp_too_little_in_part.push(liquidity);
-    } else {
-      temp_farming_final.push(liquidity);
-    }
+    temp_farming_final.push(liquidity);
   });
   const temp_free_final: UserLiquidityInfo[] = [];
   temp_free = temp_unFarming.concat(temp_free);
@@ -655,9 +647,9 @@ export function allocation_rule_liquidities({
       temp_free_final.push(liquidity);
     }
   );
-  const temp_unavailable_final: UserLiquidityInfo[] = temp_unavailable
-    .concat(temp_too_little_in_part)
-    .concat(temp_too_little_in_free);
+  const temp_unavailable_final: UserLiquidityInfo[] = temp_unavailable.concat(
+    temp_too_little_in_free
+  );
   return [temp_farming_final, temp_free_final, temp_unavailable_final];
 }
 

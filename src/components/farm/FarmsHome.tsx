@@ -1321,14 +1321,14 @@ export default function FarmsHome(props: any) {
         </div>
         <div className="flex items-center justify-between w-full mt-2 lg:hidden px-3 mb-3">
           <div
-            className={`flex items-center justify-between px-4 h-9 py-1 bg-farmSbg rounded-lg bg-opacity-50 ${
+            className={`flex items-center justify-between px-4 h-9 py-1 xsm:w-full bg-farmSbg rounded-lg bg-opacity-50 ${
               keyWords ? 'border border-borderLightBlueColor' : ''
             }`}
           >
             <input
               ref={searchRef}
               type="text"
-              className="h-full text-sm text-white mr-3 w-40 placeholder-white placeholder-opacity-40"
+              className="h-full text-sm text-white mr-3 w-40 xsm:w-full placeholder-white placeholder-opacity-40"
               onWheel={() => searchRef.current.blur()}
               onChange={({ target }) => searchByKeyWords(target.value)}
               placeholder={intl.formatMessage({ id: 'search_farms' })}

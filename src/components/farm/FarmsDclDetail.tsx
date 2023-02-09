@@ -852,8 +852,6 @@ export default function FarmsDclDetail(props: {
     return +fee / 10000 + '%';
   }
   const radio = getBoostMutil();
-  const needForbidden =
-    (FARM_BLACK_LIST_V2 || []).indexOf(detailData.pool.pool_id.toString()) > -1;
   return (
     <div className={`m-auto lg:w-700px md:w-5/6 xs:w-11/12  xs:-mt-4 md:-mt-4`}>
       <div className="flex items-center justify-between">
@@ -873,7 +871,7 @@ export default function FarmsDclDetail(props: {
       </div>
       <div
         className={`flex justify-between items-center mt-7 flex-wrap ${
-          isEnded() || needForbidden ? 'farmEnded' : ''
+          isEnded() ? 'farmEnded' : ''
         }`}
       >
         <div className="left flex items-center h-11 ml-3">
@@ -1327,7 +1325,6 @@ export default function FarmsDclDetail(props: {
             detailData,
             tokenPriceList,
             tokens,
-            needForbidden,
             mft_balance_in_dcl_account,
             rate_need_to_reverse_display,
           }}
@@ -1415,7 +1412,6 @@ function LiquidityLine(props: {
     detailData,
     tokenPriceList,
     tokens,
-    needForbidden,
     mft_balance_in_dcl_account,
     rate_need_to_reverse_display,
   } = useContext(FarmContext);
@@ -1447,40 +1443,50 @@ function LiquidityLine(props: {
     }
     return farmStatus;
   }, [liquidity, detailData, is_liquidity_staked_for_another_seed]);
-  const [liquidity_status_display, liquidity_operation_display]: any =
-    useMemo(() => {
-      if (!(liquidity && detailData && liquidity_status_string))
-        return [null, []];
-      const part_farm_ratio = liquidity.part_farm_ratio;
-      let status;
-      let operation: string[] = [];
-      if (liquidity_status_string == 'farming') {
-        status = (
-          <span className="text-sm, text-dclFarmGreenColor">Farming</span>
-        );
-        operation = ['unstake'];
-      } else if (liquidity_status_string == 'unavailable') {
-        status = <span className="text-sm, text-primaryText">Unavailable</span>;
-      } else if (liquidity_status_string == 'unfarming') {
-        status = <span className="text-sm, text-primaryText">Unfarming</span>;
-        operation = ['stake'];
+  const [
+    liquidity_status_display,
+    liquidity_operation_display,
+    liquidity_partialfarming_stakebuttonstatus_display,
+  ]: any = useMemo(() => {
+    if (!(liquidity && detailData && liquidity_status_string))
+      return [null, [], ''];
+    const part_farm_ratio = liquidity.part_farm_ratio;
+    let status;
+    let operation: string[] = [];
+    let stakeButtonStatus = '';
+    if (liquidity_status_string == 'farming') {
+      status = <span className="text-sm, text-dclFarmGreenColor">Farming</span>;
+      operation = ['unstake'];
+    } else if (liquidity_status_string == 'unavailable') {
+      status = <span className="text-sm, text-primaryText">Unavailable</span>;
+    } else if (liquidity_status_string == 'unfarming') {
+      status = <span className="text-sm, text-primaryText">Unfarming</span>;
+      operation = ['stake'];
+    } else {
+      const part_farm_ratio_big = new BigNumber(part_farm_ratio);
+      let percent = '-%';
+      if (part_farm_ratio_big.isLessThan(1)) {
+        percent = '<1%';
       } else {
-        const part_farm_ratio_big = new BigNumber(part_farm_ratio);
-        let percent = '-%';
-        if (part_farm_ratio_big.isLessThan(1)) {
-          percent = '<1%';
-        } else {
-          percent = `${part_farm_ratio_big.toFixed(0, 1)}%`;
-        }
-        status = (
-          <span className="text-sm, text-dclFarmYellowColor whitespace-nowrap">
-            {percent} Partial Farming
-          </span>
-        );
-        operation = ['stake', 'unstake'];
+        percent = `${part_farm_ratio_big.toFixed(0, 1)}%`;
       }
-      return [status, operation];
-    }, [liquidity, detailData, liquidity_status_string]);
+      status = (
+        <span className="text-sm, text-dclFarmYellowColor whitespace-nowrap">
+          {percent} Partial Farming
+        </span>
+      );
+      operation = ['stake', 'unstake'];
+      if (
+        new BigNumber(liquidity.v_liquidity).isLessThan(detailData.min_deposit)
+      ) {
+        stakeButtonStatus = 'disable';
+      } else {
+        stakeButtonStatus = 'enable';
+      }
+    }
+    return [status, operation, stakeButtonStatus];
+  }, [liquidity, detailData, liquidity_status_string]);
+
   function get_liquidity_value(liquidity: UserLiquidityInfo) {
     const { left_point, right_point, amount } = liquidity;
     const poolDetail = detailData.pool;
@@ -1671,19 +1677,32 @@ function LiquidityLine(props: {
   function stakeNFT(liquidity: UserLiquidityInfo) {
     set_nft_stake_loading(true);
     let finalAmount;
+    const { seed_id, min_deposit } = detailData;
     const { mft_id, part_farm_ratio, unfarm_part_amount } = liquidity;
-    const mint = !mft_id;
-    const amount = mint_liquidity(liquidity, detailData.seed_id);
-    if (mint || part_farm_ratio == '0') {
-      finalAmount = amount;
+    const v_liquidity = mint_liquidity(liquidity, seed_id);
+    let needUnstake = false;
+    let withdraw_amount = '0';
+    if (!mft_id || part_farm_ratio == '0') {
+      finalAmount = v_liquidity;
     } else {
-      finalAmount = unfarm_part_amount;
+      if (new BigNumber(unfarm_part_amount).isLessThan(min_deposit)) {
+        needUnstake = true;
+        const mft_balance_big = new BigNumber(mft_balance_in_dcl_account);
+        if (mft_balance_big.isLessThan(v_liquidity)) {
+          withdraw_amount = new BigNumber(v_liquidity)
+            .minus(mft_balance_in_dcl_account)
+            .toFixed();
+        }
+      } else {
+        finalAmount = unfarm_part_amount;
+      }
     }
     stake_boost_nft({
-      lpt_id: liquidity.lpt_id,
-      seed_id: detailData.seed_id,
-      amount: finalAmount,
-      mint,
+      liquidity,
+      seed_id,
+      stakeAmount: finalAmount,
+      withdraw_amount,
+      needUnstake,
     });
   }
   function unStakeNFT(liquidity: UserLiquidityInfo) {
@@ -1702,7 +1721,6 @@ function LiquidityLine(props: {
     unStake_boost_nft({
       lpt_id: liquidity.lpt_id,
       seed_id: detailData.seed_id,
-      unlock_amount: '0',
       withdraw_amount: finalAmount,
     });
   }
@@ -1715,6 +1733,11 @@ function LiquidityLine(props: {
     window.open(`/yoursLiquidityDetailV2/${url_params}`);
   }
   function unavailableTip() {
+    const tip = unavailableText();
+    const result: string = `<div class="text-farmText text-xs text-left xsm:w-36">${tip}</div>`;
+    return result;
+  }
+  function unavailableText() {
     let tip = '';
     const { seed_id, min_deposit } = detailData;
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
@@ -1725,13 +1748,18 @@ function LiquidityLine(props: {
       tip = 'This position has been staked in another farm';
     } else {
       const v_liquidity = mint_liquidity(liquidity, seed_id);
-      const rate = new BigNumber(min_deposit)
-        .dividedBy(v_liquidity)
-        .toFixed(0, 1);
-      tip = `The minimum staking amount is ${rate}x your liquidity `;
+      const rate = new BigNumber(min_deposit).dividedBy(v_liquidity);
+      let rate_display = '';
+      if (rate.isGreaterThan(10000)) {
+        rate_display = rate.toFixed(0, 1);
+      } else if (rate.isLessThan(1.1)) {
+        rate_display = '1.1';
+      } else {
+        rate_display = rate.toFixed(1, 1);
+      }
+      tip = `The minimum staking amount is ${rate_display}x your liquidity `;
     }
-    const result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
-    return result;
+    return tip;
   }
   function apr_title() {
     if (
@@ -1844,25 +1872,62 @@ function LiquidityLine(props: {
               <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
             </div>
             <div className="flex items-center">
-              <GradientButton
-                onClick={() => {
-                  stakeNFT(liquidity);
-                }}
-                color="#fff"
-                disabled={needForbidden || nft_stake_loading ? true : false}
-                btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
-                minWidth="6rem"
-                className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
-                  needForbidden || nft_stake_loading ? 'opacity-40' : ''
-                } ${showStakeButton ? '' : 'hidden'}`}
+              <div
+                className="text-white text-right ml-1"
+                data-class="reactTip"
+                data-for={`stakeTipId_${liquidity.lpt_id}`}
+                data-place="top"
+                data-html={true}
+                data-tip={
+                  liquidity_partialfarming_stakebuttonstatus_display ==
+                  'disable'
+                    ? unavailableTip()
+                    : ''
+                }
               >
-                <ButtonTextWrapper
-                  loading={nft_stake_loading}
-                  Text={() => (
-                    <FormattedMessage id="stake" defaultMessage="Stake" />
-                  )}
+                <GradientButton
+                  onClick={() => {
+                    stakeNFT(liquidity);
+                  }}
+                  color="#fff"
+                  disabled={
+                    nft_stake_loading ||
+                    liquidity_partialfarming_stakebuttonstatus_display ==
+                      'disable'
+                      ? true
+                      : false
+                  }
+                  btnClassName={
+                    nft_stake_loading ||
+                    liquidity_partialfarming_stakebuttonstatus_display ==
+                      'disable'
+                      ? 'cursor-not-allowed'
+                      : ''
+                  }
+                  minWidth="6rem"
+                  className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
+                    nft_stake_loading ||
+                    liquidity_partialfarming_stakebuttonstatus_display ==
+                      'disable'
+                      ? 'opacity-40'
+                      : ''
+                  } ${showStakeButton ? '' : 'hidden'}`}
+                >
+                  <ButtonTextWrapper
+                    loading={nft_stake_loading}
+                    Text={() => (
+                      <FormattedMessage id="stake" defaultMessage="Stake" />
+                    )}
+                  />
+                </GradientButton>
+                <ReactTooltip
+                  id={`stakeTipId_${liquidity.lpt_id}`}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
                 />
-              </GradientButton>
+              </div>
               <OprationButton
                 onClick={() => {
                   unStakeNFT(liquidity);
@@ -1964,27 +2029,56 @@ function LiquidityLine(props: {
               liquidity_status_string == 'unavailable' ? 'hidden' : ''
             }`}
           >
-            <GradientButton
-              onClick={() => {
-                stakeNFT(liquidity);
-              }}
-              color="#fff"
-              disabled={needForbidden || nft_stake_loading ? true : false}
-              btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
-              minWidth="6rem"
-              className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
-                showStakeButton && showUnStakeButton ? '' : 'w-full'
-              } ${needForbidden || nft_stake_loading ? 'opacity-40' : ''} ${
-                showStakeButton ? '' : 'hidden'
-              }`}
+            <div
+              className="text-white text-right ml-1"
+              data-class="reactTip"
+              data-for={`stakeTipId_m_${liquidity.lpt_id}`}
+              data-place="top"
+              data-html={true}
+              data-tip={
+                liquidity_partialfarming_stakebuttonstatus_display == 'disable'
+                  ? unavailableTip()
+                  : ''
+              }
             >
-              <ButtonTextWrapper
-                loading={nft_stake_loading}
-                Text={() => (
-                  <FormattedMessage id="stake" defaultMessage="Stake" />
-                )}
+              <GradientButton
+                onClick={() => {
+                  stakeNFT(liquidity);
+                }}
+                color="#fff"
+                disabled={
+                  nft_stake_loading ||
+                  liquidity_partialfarming_stakebuttonstatus_display ==
+                    'disable'
+                    ? true
+                    : false
+                }
+                minWidth="6rem"
+                className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
+                  showStakeButton && showUnStakeButton ? '' : 'w-full'
+                } ${
+                  nft_stake_loading ||
+                  liquidity_partialfarming_stakebuttonstatus_display ==
+                    'disable'
+                    ? 'opacity-40'
+                    : ''
+                } ${showStakeButton ? '' : 'hidden'}`}
+              >
+                <ButtonTextWrapper
+                  loading={nft_stake_loading}
+                  Text={() => (
+                    <FormattedMessage id="stake" defaultMessage="Stake" />
+                  )}
+                />
+              </GradientButton>
+              <ReactTooltip
+                id={`stakeTipId_m_${liquidity.lpt_id}`}
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
               />
-            </GradientButton>
+            </div>
             <OprationButton
               onClick={() => {
                 unStakeNFT(liquidity);
@@ -2007,11 +2101,11 @@ function LiquidityLine(props: {
             </OprationButton>
           </div>
           <p
-            className={`flex items-center justify-between text-sm text-dclFarmYellowColor ${
+            className={`flex items-center justify-between text-sm text-dclFarmYellowColor text-center ${
               liquidity_status_string == 'unavailable' ? '' : 'hidden'
             }`}
           >
-            Your price range is out of fix range
+            {unavailableText()}
           </p>
           <div
             onClick={() => {
