@@ -1212,21 +1212,6 @@ export const stake_boost_nft = async ({
       });
     }
     functionCalls.push({
-      methodName: 'burn_v_liquidity',
-      args: {
-        lpt_id,
-      },
-      gas: '50000000000000',
-    });
-    functionCalls.push({
-      methodName: 'mint_v_liquidity',
-      args: {
-        lpt_id,
-        farming_type: JSON.parse(fixRange),
-      },
-      gas: '50000000000000',
-    });
-    functionCalls.push({
       methodName: 'mft_transfer_call',
       args: {
         receiver_id: REF_FARM_BOOST_CONTRACT_ID,

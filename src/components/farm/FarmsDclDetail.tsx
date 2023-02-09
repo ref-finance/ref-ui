@@ -1749,13 +1749,9 @@ function LiquidityLine(props: {
     } else {
       const v_liquidity = mint_liquidity(liquidity, seed_id);
       const rate = new BigNumber(min_deposit).dividedBy(v_liquidity);
-      let rate_display = '';
-      if (rate.isGreaterThan(10000)) {
-        rate_display = rate.toFixed(0, 1);
-      } else if (rate.isLessThan(1.1)) {
-        rate_display = '1.1';
-      } else {
-        rate_display = rate.toFixed(1, 1);
+      let rate_display = rate.toFixed(1);
+      if (rate.isGreaterThan(rate_display)) {
+        rate_display = new BigNumber(rate_display).plus(0.1).toFixed();
       }
       tip = `The minimum staking amount is ${rate_display}x your liquidity `;
     }
