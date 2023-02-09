@@ -2435,9 +2435,15 @@ function FarmView(props: {
                         niceDecimalsExtreme(commonRewardTotalRewardsPerWeek, 4)
                       )}</label>
                       </div>
-                      <label class="text-xs text-farmText mt-0.5">${txt}: ${moment
+
+                      <label class="text-xs text-farmText mt-0.5 ${
+                        +startTime == 0 ? 'hidden' : ''
+                      }">${txt}: ${moment
           .unix(startTime)
           .format('YYYY-MM-DD')}</label>
+                      <label class="text-xs text-farmText mt-0.5 ${
+                        +startTime == 0 ? '' : 'hidden'
+                      }">Pending</label>
                     </div>`;
       } else {
         itemHtml = `<div class="flex justify-between items-center h-8 my-2">
