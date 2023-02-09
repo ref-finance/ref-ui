@@ -2993,7 +2993,7 @@ function FarmView(props: {
 
     return (
       <div className="flex items-center">
-        <span className="text-sm text-white">
+        <span className="text-sm text-white gotham_bold">
           {display_left_price} ~ {display_right_price}
         </span>
         <span className="text-sm text-farmText ml-2">
@@ -3061,9 +3061,7 @@ function FarmView(props: {
               </a>
             </div>
             <div
-              className={`text-white text-right ${
-                is_dcl_pool ? 'my-1.5' : 'my-4'
-              }`}
+              className={`text-white text-right my-4`}
               data-class="reactTip"
               data-for={'rewardPerWeekId' + seed?.farmList[0]?.farm_id}
               data-place="top"
@@ -3143,122 +3141,50 @@ function FarmView(props: {
             ) : null}
           </div>
           {is_dcl_pool ? (
-            <div className="flex items-center justify-between bg-priceBoardColor px-5 py-2">
-              <span className="text-sm text-farmText">Fix range</span>
-              {getRange()}
-            </div>
-          ) : null}
-          <div className="flex items-center justify-between px-5 py-4 h-24">
-            <div className="flex flex-col items-center flex-shrink-0">
-              <label
-                className="text-farmText text-sm"
-                style={{ maxWidth: '130px' }}
-              >
-                <FormattedMessage id="total_staked"></FormattedMessage>
-              </label>
-
-              <label className="text-white text-base mt-1.5">
-                {Number(seed.seedTvl) == 0
-                  ? '-'
-                  : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`}
-              </label>
-            </div>
-            <div
-              className={`flex flex-col ${
-                isHaveUnclaimedReward ? 'items-center' : 'items-end'
-              } justify-center`}
-            >
-              <span className="flex items-center">
-                {yourApr ? (
-                  <>
-                    <label
-                      onClick={switchApr}
-                      className={`text-sm cursor-pointer ${
-                        +aprSwitchStatus == 1 ? 'text-white' : 'text-farmText'
-                      }`}
-                    >
-                      {/* <FormattedMessage id="yours"></FormattedMessage> */}
-                      Yours
-                    </label>
-                    <label className="text-farmText text-sm">/</label>
-                    <label
-                      onClick={switchApr}
-                      className={`text-sm cursor-pointer ${
-                        +aprSwitchStatus == 1 ? 'text-farmText' : 'text-white'
-                      }`}
-                    >
-                      {/* <FormattedMessage id="apr"></FormattedMessage> */}
-                      APR
-                    </label>
-                  </>
-                ) : (
-                  <label className="text-farmText text-sm cursor-pointer">
-                    {/* <FormattedMessage id="apr"></FormattedMessage> */}
-                    APR
-                  </label>
-                )}
-                <CalcIcon
-                  onClick={(e: any) => {
-                    e.stopPropagation();
-                    setCalcVisible(true);
-                  }}
-                  className="text-farmText ml-1.5 cursor-pointer hover:text-greenColor"
-                />
-              </span>
-              <div
-                className="text-xl text-white"
-                data-type="info"
-                data-place="top"
-                data-multiline={true}
-                data-tip={getAprTip()}
-                data-html={true}
-                data-for={'aprId' + seed.farmList[0].farm_id}
-                data-class="reactTip"
-              >
+            <div className="flex flex-col items-center justify-between px-5 py-3 h-28">
+              <div className="flex items-center justify-between w-full">
+                <span className="text-sm text-farmText">Range</span>
+                <span>{getRange()}</span>
+              </div>
+              <div className="flex items-center justify-between w-full">
+                <span className="text-sm text-farmText">APR</span>
                 <span
-                  className={`flex items-center flex-wrap justify-center text-white text-base mt-1.5 ${
-                    isHaveUnclaimedReward ? 'text-center mx-2' : 'text-right'
+                  className={`text-sm ${
+                    getTotalApr() == '-'
+                      ? 'text-farmText'
+                      : 'text-white gotham_bold'
                   }`}
                 >
-                  {yourApr && +aprSwitchStatus == 1 ? (
-                    <label className="text-base">{yourApr}</label>
-                  ) : (
-                    <>
-                      <label
-                        className={`${aprUpLimit ? 'text-xs' : 'text-base'}`}
-                      >
-                        {getTotalApr()}
-                      </label>
-                      {aprUpLimit}
-                    </>
-                  )}
+                  {getTotalApr()}
                 </span>
-                <ReactTooltip
-                  id={'aprId' + seed.farmList[0].farm_id}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
               </div>
-            </div>
-            {isHaveUnclaimedReward ? (
-              <div className="flex flex-col items-center flex-shrink-0">
-                <div
-                  className="text-xl text-white"
-                  data-type="info"
-                  data-place="top"
-                  data-multiline={true}
-                  data-tip={getUnClaimTip()}
-                  data-html={true}
-                  data-for={'unclaimedId' + seed.farmList[0].farm_id}
-                  data-class="reactTip"
-                >
-                  <div className="bg-black bg-opacity-20 rounded-lg p-1">
-                    <div>
-                      <span className="flex items-center text-sm text-white py-1 justify-center">
-                        {getTotalUnclaimedRewards()}
-                      </span>
+              <div className="flex items-center justify-between w-full">
+                <span className="text-sm text-farmText">To Claim</span>
+                {isHaveUnclaimedReward ? (
+                  <div className="flex flex-col items-center flex-shrink-0">
+                    <div
+                      className="text-xl text-white"
+                      data-type="info"
+                      data-place="top"
+                      data-multiline={true}
+                      data-tip={getUnClaimTip()}
+                      data-html={true}
+                      data-for={'unclaimedId' + seed.farmList[0].farm_id}
+                      data-class="reactTip"
+                    >
+                      <div
+                        className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer gotham_bold"
+                        style={{ minWidth: '4.6rem' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          claimReward();
+                        }}
+                      >
+                        <ButtonTextWrapper
+                          loading={claimLoading}
+                          Text={() => <>{getTotalUnclaimedRewards()}</>}
+                        />
+                      </div>
                       <ReactTooltip
                         id={'unclaimedId' + seed.farmList[0].farm_id}
                         backgroundColor="#1D2932"
@@ -3267,24 +3193,149 @@ function FarmView(props: {
                         effect="solid"
                       />
                     </div>
-                    <span
-                      className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer"
-                      style={{ width: '4.6rem' }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        claimReward();
-                      }}
-                    >
-                      <ButtonTextWrapper
-                        loading={claimLoading}
-                        Text={() => <FormattedMessage id={'claim'} />}
-                      />
-                    </span>
                   </div>
+                ) : (
+                  <span className="text-sm text-farmText">-</span>
+                )}
+              </div>
+            </div>
+          ) : null}
+          {!is_dcl_pool ? (
+            <div className="flex items-center justify-between px-5 py-4 h-24">
+              <div className="flex flex-col items-center flex-shrink-0">
+                <label
+                  className="text-farmText text-sm"
+                  style={{ maxWidth: '130px' }}
+                >
+                  <FormattedMessage id="total_staked"></FormattedMessage>
+                </label>
+
+                <label className="text-white text-base mt-1.5">
+                  {Number(seed.seedTvl) == 0
+                    ? '-'
+                    : `$${toInternationalCurrencySystem(seed.seedTvl, 2)}`}
+                </label>
+              </div>
+              <div
+                className={`flex flex-col ${
+                  isHaveUnclaimedReward ? 'items-center' : 'items-end'
+                } justify-center`}
+              >
+                <span className="flex items-center">
+                  {yourApr ? (
+                    <>
+                      <label
+                        onClick={switchApr}
+                        className={`text-sm cursor-pointer ${
+                          +aprSwitchStatus == 1 ? 'text-white' : 'text-farmText'
+                        }`}
+                      >
+                        Yours
+                      </label>
+                      <label className="text-farmText text-sm">/</label>
+                      <label
+                        onClick={switchApr}
+                        className={`text-sm cursor-pointer ${
+                          +aprSwitchStatus == 1 ? 'text-farmText' : 'text-white'
+                        }`}
+                      >
+                        APR
+                      </label>
+                    </>
+                  ) : (
+                    <label className="text-farmText text-sm cursor-pointer">
+                      APR
+                    </label>
+                  )}
+                  <CalcIcon
+                    onClick={(e: any) => {
+                      e.stopPropagation();
+                      setCalcVisible(true);
+                    }}
+                    className="text-farmText ml-1.5 cursor-pointer hover:text-greenColor"
+                  />
+                </span>
+                <div
+                  className="text-xl text-white"
+                  data-type="info"
+                  data-place="top"
+                  data-multiline={true}
+                  data-tip={getAprTip()}
+                  data-html={true}
+                  data-for={'aprId' + seed.farmList[0].farm_id}
+                  data-class="reactTip"
+                >
+                  <span
+                    className={`flex items-center flex-wrap justify-center text-white text-base mt-1.5 ${
+                      isHaveUnclaimedReward ? 'text-center mx-2' : 'text-right'
+                    }`}
+                  >
+                    {yourApr && +aprSwitchStatus == 1 ? (
+                      <label className="text-base">{yourApr}</label>
+                    ) : (
+                      <>
+                        <label
+                          className={`${aprUpLimit ? 'text-xs' : 'text-base'}`}
+                        >
+                          {getTotalApr()}
+                        </label>
+                        {aprUpLimit}
+                      </>
+                    )}
+                  </span>
+                  <ReactTooltip
+                    id={'aprId' + seed.farmList[0].farm_id}
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
                 </div>
               </div>
-            ) : null}
-          </div>
+              {isHaveUnclaimedReward ? (
+                <div className="flex flex-col items-center flex-shrink-0">
+                  <div
+                    className="text-xl text-white"
+                    data-type="info"
+                    data-place="top"
+                    data-multiline={true}
+                    data-tip={getUnClaimTip()}
+                    data-html={true}
+                    data-for={'unclaimedId' + seed.farmList[0].farm_id}
+                    data-class="reactTip"
+                  >
+                    <div className="bg-black bg-opacity-20 rounded-lg p-1">
+                      <div>
+                        <span className="flex items-center text-sm text-white py-1 justify-center">
+                          {getTotalUnclaimedRewards()}
+                        </span>
+                        <ReactTooltip
+                          id={'unclaimedId' + seed.farmList[0].farm_id}
+                          backgroundColor="#1D2932"
+                          border
+                          borderColor="#7e8a93"
+                          effect="solid"
+                        />
+                      </div>
+                      <span
+                        className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-lg text-sm text-white h-7 cursor-pointer"
+                        style={{ width: '4.6rem' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          claimReward();
+                        }}
+                      >
+                        <ButtonTextWrapper
+                          loading={claimLoading}
+                          Text={() => <FormattedMessage id={'claim'} />}
+                        />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
       {calcVisible ? (

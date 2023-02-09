@@ -30,6 +30,7 @@ import {
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   TOKEN_LIST_FOR_RATE,
+  displayNumberToAppropriateDecimals,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -547,14 +548,8 @@ function UserLiquidityLine({
       if (rate_need_to_reverse_display && +value !== 0) {
         value = new BigNumber(1).dividedBy(value).toFixed();
       }
-      value = toPrecision(value, 6);
     }
-    const valueBig = new BigNumber(value);
-    if (valueBig.isGreaterThan('100000')) {
-      return new BigNumber(value).toExponential(3);
-    } else {
-      return value;
-    }
+    return displayNumberToAppropriateDecimals(value);
   }
   function getLpt_id() {
     return lpt_id.split('#')[1];

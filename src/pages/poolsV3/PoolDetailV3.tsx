@@ -44,6 +44,7 @@ import {
   allocation_rule_liquidities,
   get_matched_seeds_for_dcl_pool,
   get_all_seeds,
+  displayNumberToAppropriateDecimals,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -1218,20 +1219,14 @@ function SelectLiquidityBox(props: any) {
       +r_price !== 0 &&
       +l_price !== 0
     ) {
-      display_l = toPrecision(new BigNumber(1).dividedBy(r_price).toFixed(), 6);
-      display_r = toPrecision(new BigNumber(1).dividedBy(l_price).toFixed(), 6);
+      display_l = new BigNumber(1).dividedBy(r_price).toFixed();
+      display_r = new BigNumber(1).dividedBy(l_price).toFixed();
     } else {
-      display_l = toPrecision(l_price, 6);
-      display_r = toPrecision(r_price, 6);
+      display_l = l_price;
+      display_r = r_price;
     }
-    const valueBig_l = new BigNumber(display_l);
-    if (valueBig_l.isGreaterThan('100000')) {
-      display_l = new BigNumber(display_l).toExponential(3);
-    }
-    const valueBig_r = new BigNumber(display_r);
-    if (valueBig_r.isGreaterThan('100000')) {
-      display_r = new BigNumber(display_r).toExponential(3);
-    }
+    display_l = displayNumberToAppropriateDecimals(display_l);
+    display_r = displayNumberToAppropriateDecimals(display_r);
     return `${display_l} - ${display_r}`;
   }
   function hoverLine(hashId: string) {

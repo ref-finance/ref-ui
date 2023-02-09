@@ -582,13 +582,11 @@ export function allocation_rule_liquidities({
   const temp_unavailable: UserLiquidityInfo[] = [];
   matched_liquidities.forEach((liquidity: UserLiquidityInfo) => {
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
-    const { mft_id, amount } = liquidity;
+    const { mft_id } = liquidity;
     const inRange = right_point > left_point;
-    if (new BigNumber(amount).isLessThan(min_deposit)) {
-      temp_unavailable.push(liquidity);
-    } else if (inRange && mft_id) {
-      const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
-        mft_id.split('&');
+    const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
+      mft_id.split('&');
+    if (inRange && mft_id) {
       if (left_point_l != left_point_s || right_point_l != right_point_s) {
         temp_unavailable.push(liquidity);
       } else {
@@ -600,7 +598,7 @@ export function allocation_rule_liquidities({
       temp_free.push(liquidity);
     }
   });
-  // sort by mft amount for temp_canFarming
+  // sort by mft amount for temp_farming
   temp_farming.sort((b: UserLiquidityInfo, a: UserLiquidityInfo) => {
     const mint_amount_b = b.v_liquidity;
     const mint_amount_a = a.v_liquidity;
@@ -633,14 +631,34 @@ export function allocation_rule_liquidities({
       user_seed_amount_remained = '0';
     }
   });
-  // Group together those of unFarming nft
+  // Group together
   const temp_farming_final: UserLiquidityInfo[] = [];
+  const temp_too_little_in_part: UserLiquidityInfo[] = [];
   const temp_unFarming = temp_farming.filter((liquidity: UserLiquidityInfo) => {
-    if (liquidity.part_farm_ratio == '0') return true;
-    temp_farming_final.push(liquidity);
+    const { part_farm_ratio, unfarm_part_amount } = liquidity;
+    if (part_farm_ratio == '0') return true;
+    if (
+      +unfarm_part_amount > 0 &&
+      new BigNumber(unfarm_part_amount).isLessThan(min_deposit)
+    ) {
+      temp_too_little_in_part.push(liquidity);
+    } else {
+      temp_farming_final.push(liquidity);
+    }
   });
+  const temp_free_final: UserLiquidityInfo[] = [];
   temp_free = temp_unFarming.concat(temp_free);
-  return [temp_farming_final, temp_free, temp_unavailable];
+  const temp_too_little_in_free: UserLiquidityInfo[] = temp_free.filter(
+    (liquidity: UserLiquidityInfo) => {
+      const v_liquidity = mint_liquidity(liquidity, seed_id);
+      if (new BigNumber(v_liquidity).isLessThan(min_deposit)) return true;
+      temp_free_final.push(liquidity);
+    }
+  );
+  const temp_unavailable_final: UserLiquidityInfo[] = temp_unavailable
+    .concat(temp_too_little_in_part)
+    .concat(temp_too_little_in_free);
+  return [temp_farming_final, temp_free_final, temp_unavailable_final];
 }
 
 export function mint_liquidity(liquidity: UserLiquidityInfo, seed_id: string) {

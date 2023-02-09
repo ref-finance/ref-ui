@@ -238,6 +238,8 @@ export default function AddYourLiquidityPageV3() {
     });
     if (optional_seeds.length) {
       set_related_seeds(optional_seeds);
+    } else {
+      set_related_seeds([]);
     }
   }
   async function get_init_pool() {

@@ -1338,7 +1338,12 @@ export default function FarmsDclDetail(props: {
                 Faming Position(s)
               </div>
               {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
-                return <LiquidityLine liquidity={liquidity}></LiquidityLine>;
+                return (
+                  <LiquidityLine
+                    liquidity={liquidity}
+                    status="farming"
+                  ></LiquidityLine>
+                );
               })}
             </>
           ) : null}
@@ -1349,7 +1354,12 @@ export default function FarmsDclDetail(props: {
                 Unfarming Position(s)
               </div>
               {listLiquidities_unFarimg.map((liquidity: UserLiquidityInfo) => {
-                return <LiquidityLine liquidity={liquidity}></LiquidityLine>;
+                return (
+                  <LiquidityLine
+                    liquidity={liquidity}
+                    status="unfarming"
+                  ></LiquidityLine>
+                );
               })}{' '}
             </>
           ) : null}
@@ -1361,7 +1371,12 @@ export default function FarmsDclDetail(props: {
               </div>
               {listLiquidities_unavailable.map(
                 (liquidity: UserLiquidityInfo) => {
-                  return <LiquidityLine liquidity={liquidity}></LiquidityLine>;
+                  return (
+                    <LiquidityLine
+                      liquidity={liquidity}
+                      status="unavailable"
+                    ></LiquidityLine>
+                  );
                 }
               )}
             </>
@@ -1391,8 +1406,11 @@ export default function FarmsDclDetail(props: {
   );
 }
 
-function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
-  const { liquidity } = props;
+function LiquidityLine(props: {
+  liquidity: UserLiquidityInfo;
+  status: StatusType;
+}) {
+  const { liquidity, status } = props;
   const {
     detailData,
     tokenPriceList,
@@ -1404,52 +1422,30 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
   const [nft_stake_loading, set_nft_stake_loading] = useState(false);
   const [nft_unStake_loading, set_nft_unStake_loading] = useState(false);
   const [hover, setHover] = useState(false);
-  const [is_liquidity_staked_for_another_seed, is_too_little_can_not_stake] =
-    useMemo(() => {
-      if (!(liquidity && detailData)) return [false, false];
-      const { mft_id } = liquidity;
-      let is_liquidity_staked_for_another_seed = false;
-      let is_too_little_can_not_stake = false;
-      if (new BigNumber(liquidity.amount).isLessThan(detailData.min_deposit)) {
-        is_too_little_can_not_stake = true;
-      }
-      if (mft_id) {
-        const [contractId, temp_pool_id] = detailData.seed_id.split('@');
-        const [fixRange_s, pool_id_s, left_point_s, right_point_s] =
-          temp_pool_id.split('&');
-        const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
-          liquidity.mft_id.split('&');
-        if (left_point_s != left_point_l || right_point_s != right_point_l)
-          is_liquidity_staked_for_another_seed = true;
-      }
-      return [
-        is_liquidity_staked_for_another_seed,
-        is_too_little_can_not_stake,
-      ];
-    }, [liquidity, detailData]);
+  const is_liquidity_staked_for_another_seed = useMemo(() => {
+    if (!(liquidity && detailData)) return false;
+    const { mft_id } = liquidity;
+    const { seed_id } = detailData;
+    let is_liquidity_staked_for_another_seed = false;
+    if (mft_id) {
+      const [contractId, temp_pool_id] = seed_id.split('@');
+      const [fixRange_s, pool_id_s, left_point_s, right_point_s] =
+        temp_pool_id.split('&');
+      const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
+        liquidity.mft_id.split('&');
+      if (left_point_s != left_point_l || right_point_s != right_point_l)
+        is_liquidity_staked_for_another_seed = true;
+    }
+    return is_liquidity_staked_for_another_seed;
+  }, [liquidity, detailData]);
   const liquidity_status_string: StatusType | string = useMemo(() => {
     if (!(liquidity && detailData)) return '';
-    const { part_farm_ratio, mft_id } = liquidity;
-    const [left_point, right_point] = get_valid_range(
-      liquidity,
-      detailData.seed_id
-    );
-    const inRange = right_point > left_point;
-    let status: StatusType;
-    if (part_farm_ratio == '100') {
-      status = 'farming';
-    } else if (
-      !inRange ||
-      is_liquidity_staked_for_another_seed ||
-      is_too_little_can_not_stake
-    ) {
-      status = 'unavailable';
-    } else if (part_farm_ratio == '0' || !mft_id) {
-      status = 'unfarming';
-    } else {
-      status = 'partialfarming';
+    const { unfarm_part_amount } = liquidity;
+    let farmStatus: StatusType = status;
+    if (status == 'farming' && +unfarm_part_amount > 0) {
+      farmStatus = 'partialfarming';
     }
-    return status;
+    return farmStatus;
   }, [liquidity, detailData, is_liquidity_staked_for_another_seed]);
   const [liquidity_status_display, liquidity_operation_display]: any =
     useMemo(() => {
@@ -1719,16 +1715,22 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
     window.open(`/yoursLiquidityDetailV2/${url_params}`);
   }
   function unavailableTip() {
-    let tip = 'Your price range is out of fix range';
-    if (is_liquidity_staked_for_another_seed) {
+    let tip = '';
+    const { seed_id, min_deposit } = detailData;
+    const [left_point, right_point] = get_valid_range(liquidity, seed_id);
+    const inrange = +right_point > +left_point;
+    if (!inrange) {
+      tip = 'Your price range is out of fix range';
+    } else if (is_liquidity_staked_for_another_seed) {
       tip = 'This position has been staked in another farm';
-    } else if (is_too_little_can_not_stake) {
-      const rate = new BigNumber(detailData.min_deposit)
-        .dividedBy(liquidity.amount)
+    } else {
+      const v_liquidity = mint_liquidity(liquidity, seed_id);
+      const rate = new BigNumber(min_deposit)
+        .dividedBy(v_liquidity)
         .toFixed(0, 1);
       tip = `The minimum staking amount is ${rate}x your liquidity `;
     }
-    let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
+    const result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
     return result;
   }
   function apr_title() {
@@ -1885,6 +1887,12 @@ function LiquidityLine(props: { liquidity: UserLiquidityInfo }) {
       </div>
       {/* for Mobile */}
       <div key={liquidity.lpt_id + 'm'} className="relative  mb-5 lg:hidden">
+        {/* <div className="absolute -top-1.5 left-5 flex items-center justify-center">
+          <NFTIdIcon className=""></NFTIdIcon>
+          <span className="absolute gotham_bold text-xs text-white">
+                NFT ID #{liquidity.lpt_id.split('#')[1]}
+          </span>
+        </div> */}
         <div className="bg-v3HoverDarkBgColor rounded-t-xl px-4 py-3">
           <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-primaryText">Your Liquidity</span>
