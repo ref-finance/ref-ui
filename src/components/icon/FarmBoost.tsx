@@ -3968,11 +3968,11 @@ export const NFTIdIcon = (props: any) => {
       <path d="M5 0L0 6H126L121 0H5Z" fill="#1E564C" />
       <path
         d="M5 0H121L116.613 13.1623C115.251 17.2457 111.43 20 107.126 20H18.8743C14.57 20 10.7486 17.2457 9.38743 13.1623L7 6L5 0Z"
-        fill="url(#paint0_linear_0_1)"
+        fill={`url(#paint0_linear_0_1_${props.num || 0})`}
       />
       <defs>
         <linearGradient
-          id="paint0_linear_0_1"
+          id={`paint0_linear_0_1_${props.num || 0}`}
           x1="72.2058"
           y1="5.99998"
           x2="14.1811"
@@ -4002,9 +4002,9 @@ export const CrossIconEmpty = (props: any) => {
         cy="6"
         r="5"
         stroke="#00C6A2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeDasharray="1 2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-dasharray="1 2"
       />
     </svg>
   );
@@ -4024,30 +4024,23 @@ export const CrossIconLittle = (props: any) => {
         cy="6"
         r="5"
         stroke="#00C6A2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeDasharray="1 2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-dasharray="1 2"
       />
       <mask
-        id={'mask0_0_1' + props.num}
+        id={`mask0_0_1_${props.num || 0}`}
         style={{ maskType: 'alpha' }}
         maskUnits="userSpaceOnUse"
-        x="0"
-        y="0"
-        width="12"
-        height="12"
+        x="2"
+        y="2"
+        width="8"
+        height="8"
       >
-        <circle cx="6" cy="6" r="5" fill="#00C6A2" stroke="#00C6A2" />
+        <circle cx="6" cy="6" r="4" fill="#00C6A2" />
       </mask>
-      <g mask={`url(#mask0_0_1${props.num})`}>
-        <rect
-          x="0.5"
-          y="0.5"
-          width="3"
-          height="11"
-          fill="#00C6A2"
-          stroke="#00C6A2"
-        />
+      <g mask={`url(#mask0_0_1_${props.num || 0})`}>
+        <rect x="1" y="1" width="3" height="10" fill="#00C6A2" />
       </g>
     </svg>
   );
@@ -4068,22 +4061,22 @@ export const CrossIconMiddle = (props: any) => {
         cy="6"
         r="5"
         stroke="#00C6A2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeDasharray="1 2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-dasharray="1 2"
       />
       <mask
-        id={'mask0_0_1' + props.num}
+        id={`mask0_0_1_${props.num || 0}`}
         style={{ maskType: 'alpha' }}
-        maskUnits={'userSpaceOnUse'}
-        x="0"
-        y="0"
-        width="12"
-        height="12"
+        maskUnits="userSpaceOnUse"
+        x="2"
+        y="2"
+        width="8"
+        height="8"
       >
-        <circle cx="6" cy="6" r="5" fill="#00C6A2" stroke="#00C6A2" />
+        <circle cx="6" cy="6" r="4" fill="#00C6A2" />
       </mask>
-      <g mask={`url(#mask0_0_1${props.num})`}>
+      <g mask={`url(#mask0_0_1_${props.num || 0})`}>
         <rect
           x="0.5"
           y="0.5"
@@ -4112,30 +4105,23 @@ export const CrossIconLarge = (props: any) => {
         cy="6"
         r="5"
         stroke="#00C6A2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeDasharray="1 2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-dasharray="1 2"
       />
       <mask
-        id={`mask0_0_1` + props.num}
+        id={`mask0_0_1_${props.num || 0}`}
         style={{ maskType: 'alpha' }}
         maskUnits="userSpaceOnUse"
-        x="0"
-        y="0"
-        width="12"
-        height="12"
+        x="2"
+        y="2"
+        width="8"
+        height="8"
       >
-        <circle cx="6" cy="6" r="5" fill="#00C6A2" stroke="#00C6A2" />
+        <circle cx="6" cy="6" r="4" fill="#00C6A2" />
       </mask>
-      <g mask={`url(#mask0_0_1${props.num})`}>
-        <rect
-          x="0.5"
-          y="0.5"
-          width="8"
-          height="11"
-          fill="#00C6A2"
-          stroke="#00C6A2"
-        />
+      <g mask={`url(#mask0_0_1_${props.num || 0})`}>
+        <rect x="1" y="1" width="7" height="10" fill="#00C6A2" />
       </g>
     </svg>
   );
@@ -4144,21 +4130,22 @@ export const CrossIconLarge = (props: any) => {
 export const CrossIconFull = (props: any) => {
   return (
     <svg
-      width="12"
       {...props}
+      width="12"
       height="12"
       viewBox="0 0 12 12"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
+      <circle cx="6" cy="6" r="4" fill="#00C6A2" />
       <circle
         cx="6"
         cy="6"
         r="5"
-        fill="#00C6A2"
         stroke="#00C6A2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-dasharray="1 2"
       />
     </svg>
   );

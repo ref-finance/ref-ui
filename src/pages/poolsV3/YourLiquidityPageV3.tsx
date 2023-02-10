@@ -8,7 +8,12 @@ import {
   remove_liquidity,
   get_liquidity,
 } from '../../services/swapV3';
-import { ColorsBox, ColorsBoxCenter, AddButtonIcon } from '~components/icon/V3';
+import {
+  ColorsBox,
+  ColorsBoxCenter,
+  AddButtonIcon,
+  TipIon,
+} from '~components/icon/V3';
 import {
   GradientButton,
   BorderButton,
@@ -31,6 +36,12 @@ import {
   getYAmount_per_point_by_Ly,
   TOKEN_LIST_FOR_RATE,
   displayNumberToAppropriateDecimals,
+  get_intersection_radio,
+  get_intersection_icon_by_radio,
+  get_all_seeds,
+  get_matched_seeds_for_dcl_pool,
+  mint_liquidity,
+  get_total_value_by_liquidity_amount_dcl,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -81,6 +92,8 @@ import {
 } from '../../services/farm';
 import getConfig from '../../services/config';
 import { allocation_rule_liquidities } from '~services/commonV3';
+import { LinkArrowIcon } from '~components/icon/FarmBoost';
+import { isMobile } from '~utils/device';
 
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 
@@ -147,6 +160,7 @@ export default function YourLiquidityPageV3() {
   const [checkedStatus, setCheckedStatus] = useState('all');
   const [oldLiquidityHasNoData, setOldLiquidityHasNoData] = useState(false);
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
+  const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
   const [user_seeds_map, set_user_seeds_map] = useState<
     Record<string, UserSeedInfo>
   >({});
@@ -157,6 +171,9 @@ export default function YourLiquidityPageV3() {
     const ids = ALL_STABLE_POOL_IDS;
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       setStablePools(res);
+    });
+    get_all_seeds().then((seeds: Seed[]) => {
+      set_all_seeds(seeds);
     });
   }, []);
   useEffect(() => {
@@ -413,6 +430,7 @@ export default function YourLiquidityPageV3() {
                                 setLpValueV2Done={setLpValueV2Done}
                                 setYourLpValueV2={setYourLpValueV2}
                                 liquidity={liquidity}
+                                all_seeds={all_seeds}
                               ></UserLiquidityLine>
                             </div>
                           );
@@ -453,23 +471,28 @@ function UserLiquidityLine({
   setLpValueV2Done,
   lpSize,
   setYourLpValueV2,
+  all_seeds,
 }: {
   liquidity: UserLiquidityInfo;
   lpSize: number;
   setLpValueV2Done: (value: boolean) => void;
   setYourLpValueV2: (value: string) => void;
+  all_seeds: Seed[];
 }) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [liquidityDetail, setLiquidityDetail] = useState<UserLiquidityInfo>();
   const [hover, setHover] = useState<boolean>(false);
   const [isInrange, setIsInrange] = useState<boolean>(true);
   const [your_liquidity, setYour_liquidity] = useState('');
-  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
+  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
   const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
   const [is_in_farming, set_is_in_farming] = useState<boolean>(false);
+  const [related_seed_info, set_related_seed_info] = useState<
+    Record<string, any>
+  >({});
 
   const {
     lpt_id,
@@ -505,6 +528,68 @@ function UserLiquidityLine({
     }
   }, [poolDetail, tokenMetadata_x_y, tokenPriceList]);
   useEffect(() => {}, []);
+  useEffect(() => {
+    const { mft_id, left_point, right_point } = liquidity;
+    let Icon;
+    let your_apr;
+    let link;
+    if (is_in_farming) {
+      const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] =
+        mft_id.split('&');
+      const radio = get_intersection_radio({
+        left_point_liquidity: left_point,
+        right_point_liquidity: right_point,
+        left_point_seed,
+        right_point_seed,
+      });
+      Icon = get_intersection_icon_by_radio(radio);
+    } else {
+      const active_seeds = get_matched_seeds_for_dcl_pool({
+        seeds: all_seeds,
+        pool_id: liquidity.pool_id,
+      });
+      const canFarmSeed = active_seeds.find((seed: Seed) => {
+        const { min_deposit, seed_id } = seed;
+        const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] =
+          seed_id.split('@')[1].split('&');
+        const v_liquidity = mint_liquidity(liquidity, seed_id);
+        const radio = get_intersection_radio({
+          left_point_liquidity: left_point,
+          right_point_liquidity: right_point,
+          left_point_seed,
+          right_point_seed,
+        });
+        const condition1 = new BigNumber(v_liquidity).isGreaterThanOrEqualTo(
+          min_deposit
+        );
+        const condition2 = +radio > 0;
+        if (condition1 && condition2) return true;
+      });
+      const targetSeed = canFarmSeed || active_seeds[0];
+      if (targetSeed) {
+        const { seed_id } = targetSeed;
+        const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] =
+          seed_id.split('@')[1].split('&');
+        const radio = get_intersection_radio({
+          left_point_liquidity: left_point,
+          right_point_liquidity: right_point,
+          left_point_seed,
+          right_point_seed,
+        });
+        Icon = get_intersection_icon_by_radio(radio);
+        if (canFarmSeed) {
+          your_apr = get_your_apr(liquidity, targetSeed);
+          const link_params = `${dcl_pool_id}&${left_point_seed}&${right_point_seed}`;
+          link = `/v2farms/${link_params}-r`;
+        }
+      }
+    }
+    set_related_seed_info({
+      Icon,
+      your_apr,
+      link,
+    });
+  }, [liquidity, all_seeds, is_in_farming, tokenPriceList]);
   async function get_pool_related_farms() {
     const is_in_farming =
       liquidity.part_farm_ratio && +liquidity.part_farm_ratio > 0;
@@ -835,6 +920,78 @@ function UserLiquidityLine({
     }
     window.open(url);
   }
+  function get_your_apr(liquidity: UserLiquidityInfo, seed: Seed) {
+    const { farmList, total_seed_amount, total_seed_power, seed_id } = seed;
+    // principal
+    const total_principal = get_liquidity_value(liquidity, seed);
+    // seed total rewards
+    let total_rewards = '0';
+    farmList.forEach((farm: FarmBoost) => {
+      const { token_meta_data } = farm;
+      const { daily_reward, reward_token } = farm.terms;
+      const quantity = toReadableNumber(token_meta_data.decimals, daily_reward);
+      const reward_token_price = Number(
+        tokenPriceList[reward_token]?.price || 0
+      );
+      const cur_token_rewards = new BigNumber(quantity)
+        .multipliedBy(reward_token_price)
+        .multipliedBy(365);
+      total_rewards = cur_token_rewards.plus(total_rewards).toFixed();
+    });
+    // lp percent
+    let percent;
+    const mint_amount = mint_liquidity(liquidity, seed_id);
+    const temp_total = new BigNumber(total_seed_power || 0).plus(mint_amount);
+    if (temp_total.isGreaterThan(0)) {
+      percent = new BigNumber(mint_amount).dividedBy(temp_total);
+    }
+    // profit
+    let profit;
+    if (percent) {
+      profit = percent.multipliedBy(total_rewards);
+    }
+
+    // your apr
+    if (profit && +total_principal > 0) {
+      const your_apr = profit.dividedBy(total_principal).multipliedBy(100);
+      if (your_apr.isEqualTo('0')) {
+        return '0%';
+      } else if (your_apr.isLessThan(0.01)) {
+        return `<0.01%`;
+      } else {
+        return `${toPrecision(your_apr.toFixed(), 2)}%`;
+      }
+    } else {
+      return '-';
+    }
+  }
+  function get_liquidity_value(liquidity: UserLiquidityInfo, seed: Seed) {
+    const { left_point, right_point, amount } = liquidity;
+    const poolDetail = seed.pool;
+    const { pool } = seed;
+    const tokens = pool.tokens_meta_data;
+    const { token_x, token_y } = poolDetail;
+    const v = get_total_value_by_liquidity_amount_dcl({
+      left_point,
+      right_point,
+      poolDetail,
+      amount,
+      price_x_y: {
+        [token_x]: tokenPriceList[token_x]?.price || '0',
+        [token_y]: tokenPriceList[token_y]?.price || '0',
+      },
+      metadata_x_y: {
+        [token_x]: tokens[0],
+        [token_y]: tokens[1],
+      },
+    });
+    return v;
+  }
+  const {
+    Icon: Liquidity_icon,
+    your_apr: liquidity_your_apr,
+    link: liquidity_link,
+  } = related_seed_info;
   return (
     <div
       className="mt-3.5"
@@ -878,9 +1035,14 @@ function UserLiquidityLine({
                   </span>
                   <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
                 </div>
-                {is_in_farming ? (
-                  <div className="text-sm text-dclFarmGreenColor ml-2">
-                    Farming
+                {Liquidity_icon ? (
+                  <div
+                    className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
+                      !is_in_farming && !liquidity_your_apr ? 'opacity-40' : ''
+                    }`}
+                  >
+                    <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
+                    <Liquidity_icon num="2"></Liquidity_icon>
                   </div>
                 ) : null}
               </div>
@@ -933,90 +1095,120 @@ function UserLiquidityLine({
             </div>
           </div>
           <div
-            className={`items-center justify-between p-4 border-t border-v3BlueBorderColor bg-cardBg ${
-              hover ? 'flex' : 'hidden'
+            className={`border-t border-v3BlueBorderColor w-full ${
+              hover ? '' : ''
             }`}
           >
-            <div className="flex items-center justify-center">
-              <span className="text-xs text-v3SwapGray">
-                <FormattedMessage id="your_liquidity" />
-              </span>
-              <span className="text-sm text-white mx-2.5 gotham_bold">
-                ${your_liquidity || '-'}
-              </span>
-              {is_in_farming ? (
+            {liquidity_your_apr ? (
+              <div
+                className="relative flex items-center justify-center p-1"
+                style={{ background: 'rgba(91, 64, 255, 0.5)' }}
+              >
+                <TipIon className="mr-2"></TipIon>
+                <span className="text-sm text-white">
+                  You can earn rewards by farming, est. APR is{' '}
+                  {liquidity_your_apr}
+                </span>
+                <div
+                  className="flex items-center justify-center absolute right-4 text-white cursor-pointer"
+                  onClick={() => {
+                    window.open(liquidity_link);
+                  }}
+                >
+                  <a className="text-sm text-white mr-1 underline">Go Farm</a>
+                  <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+                </div>
+              </div>
+            ) : null}
+
+            <div className={`flex items-center justify-between bg-cardBg p-4`}>
+              <div className="flex items-center justify-center">
+                <span className="text-xs text-v3SwapGray">
+                  <FormattedMessage id="your_liquidity" />
+                </span>
+                <span className="text-sm text-white mx-2.5 gotham_bold">
+                  ${your_liquidity || '-'}
+                </span>
                 <GradientButton
                   onClick={(e) => {
                     e.stopPropagation();
-                    go_farm();
+                    setShowAddBox(true);
                   }}
                   color="#fff"
                   minWidth="5rem"
+                  disabled={is_in_farming}
                   borderRadius="8px"
-                  className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
+                  className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5 ${
+                    is_in_farming ? 'opacity-40' : ''
+                  }`}
                 >
-                  Go Farm
+                  <FormattedMessage id="add" />
                 </GradientButton>
-              ) : (
-                <>
-                  <GradientButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowAddBox(true);
-                    }}
-                    color="#fff"
-                    minWidth="5rem"
-                    borderRadius="8px"
-                    className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
-                  >
-                    <FormattedMessage id="add" />
-                  </GradientButton>
-                  <BorderButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowRemoveBox(true);
-                    }}
-                    rounded="rounded-lg"
-                    px="px-0"
-                    py="py-1"
-                    style={{ minWidth: '5rem' }}
-                    className="flex-grow  gotham_bold text-sm text-greenColor h-8"
-                  >
-                    <FormattedMessage id="remove" />
-                  </BorderButton>
-                </>
-              )}
-            </div>
-            <div className="flex items-center justify-center">
-              <span className="text-xs text-v3SwapGray mr-2.5">
-                <FormattedMessage id="unclaimed_fees" />
-              </span>
-              <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-                className="w-5 h-5 border border-greenColor rounded-full mr-1"
-              ></img>
-              <span className="text-sm text-white mr-3 gotham_bold">
-                {getTokenFeeAmount('l') || '-'}
-              </span>
-              <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-                className="w-5 h-5 border border-greenColor rounded-full mr-1"
-              ></img>
-              <span className="text-sm text-white gotham_bold">
-                {getTokenFeeAmount('r') || '-'}
-              </span>
-              <div
-                className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
-                  !canClaim()
-                    ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                    : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-                }`}
-                onClick={claimRewards}
-              >
-                <ButtonTextWrapper
-                  loading={claimLoading}
-                  Text={() => <FormattedMessage id="claim" />}
-                />
+                <BorderButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowRemoveBox(true);
+                  }}
+                  rounded="rounded-lg"
+                  disabled={is_in_farming}
+                  px="px-0"
+                  py="py-1"
+                  style={{ minWidth: '5rem' }}
+                  className={`flex-grow  gotham_bold text-sm text-greenColor h-8 ${
+                    is_in_farming ? 'opacity-40' : ''
+                  }`}
+                >
+                  <FormattedMessage id="remove" />
+                </BorderButton>
+                {is_in_farming ? (
+                  <div className="flex items-center text-sm text-primaryText ml-2.5">
+                    Staked
+                    <div
+                      className="flex items-center cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        go_farm();
+                      }}
+                    >
+                      <span className="text-greenColor mx-1 cursor-pointer underline">
+                        in farm
+                      </span>
+                      <LinkArrowIcon className="cursor-pointer text-greenColor"></LinkArrowIcon>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex items-center justify-center">
+                <span className="text-xs text-v3SwapGray mr-2.5">
+                  <FormattedMessage id="unclaimed_fees" />
+                </span>
+                <img
+                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                  className="w-5 h-5 border border-greenColor rounded-full mr-1"
+                ></img>
+                <span className="text-sm text-white mr-3 gotham_bold">
+                  {getTokenFeeAmount('l') || '-'}
+                </span>
+                <img
+                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                  className="w-5 h-5 border border-greenColor rounded-full mr-1"
+                ></img>
+                <span className="text-sm text-white gotham_bold">
+                  {getTokenFeeAmount('r') || '-'}
+                </span>
+                <div
+                  className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
+                    !canClaim()
+                      ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                      : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                  }`}
+                  onClick={claimRewards}
+                >
+                  <ButtonTextWrapper
+                    loading={claimLoading}
+                    Text={() => <FormattedMessage id="claim" />}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -1025,7 +1217,7 @@ function UserLiquidityLine({
       {/* for Mobile */}
       <div className="lg:hidden">
         <div
-          className={`relative cursor-pointer bg-cardBg rounded -xl overflow-hidden`}
+          className={`relative cursor-pointer bg-cardBg rounded-lg overflow-hidden`}
           onClick={goYourLiquidityDetailPage}
         >
           <div className="flex flex-col items-center justify-between w-full bg-orderMobileTop px-3 pb-3">
@@ -1036,7 +1228,7 @@ function UserLiquidityLine({
               </span>
             </div>
             <div className="flex items-center justify-between w-full mt-1.5">
-              <div className="flex items-center">
+              <div className="flex items-center flex-shrink-0">
                 <div className="flex items-center flex-shrink-0">
                   <img
                     src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
@@ -1051,20 +1243,25 @@ function UserLiquidityLine({
                   {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
                   {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
                 </span>
-                {is_in_farming ? (
-                  <div className="text-sm text-dclFarmGreenColor ml-2">
-                    Farming
+                {Liquidity_icon ? (
+                  <div
+                    className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
+                      !is_in_farming && !liquidity_your_apr ? 'opacity-40' : ''
+                    }`}
+                  >
+                    <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
+                    <Liquidity_icon num="1"></Liquidity_icon>
                   </div>
                 ) : null}
               </div>
-              <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
+              <div className="flex items-center justify-center ml-2 bg-black bg-opacity-25 rounded-2xl px-1.5 h-6 py-0.5 overflow-hidden whitespace-nowrap overflow-ellipsis">
                 <span
                   className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
                     isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
                   }`}
                 ></span>
                 <span
-                  className={`whitespace-nowrap text-xs ${
+                  className={`whitespace-nowrap text-xs overflow-hidden  overflow-ellipsis ${
                     isInrange
                       ? 'text-gradientFromHover'
                       : 'text-v3GarkWarningColor'
@@ -1147,54 +1344,80 @@ function UserLiquidityLine({
             </div>
           </div>
         </div>
-        <div className="bg-searchBgColor rounded-lg p-3">
-          <div className="flex items-center justify-between">
+        <div className="bg-searchBgColor rounded-2xl pt-3 overflow-hidden">
+          <div className="flex items-center justify-between px-3">
             <span className="text-xs text-v3SwapGray">
               <FormattedMessage id="your_liquidity" />
             </span>
             <span className="text-sm text-white">${your_liquidity || '-'}</span>
           </div>
-          <div className="flex items-center justify-between mt-3.5">
-            {is_in_farming ? (
-              <GradientButton
+          <div className="flex items-center justify-between px-3 mt-3.5 mb-4">
+            <GradientButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowAddBox(true);
+              }}
+              disabled={is_in_farming ? true : false}
+              color="#fff"
+              className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3 ${
+                is_in_farming ? 'opacity-40' : ''
+              }`}
+            >
+              <FormattedMessage id="add" />
+            </GradientButton>
+            <BorderButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowRemoveBox(true);
+              }}
+              disabled={is_in_farming ? true : false}
+              rounded="rounded-md"
+              px="px-0"
+              py="py-1"
+              className={`w-1 flex-grow  text-sm text-greenColor h-8 ${
+                is_in_farming ? 'opacity-40' : ''
+              }`}
+            >
+              <FormattedMessage id="remove" />
+            </BorderButton>
+          </div>
+          {liquidity_your_apr ? (
+            <div
+              className="relative flex items-start justify-center p-1"
+              style={{ background: 'rgba(91, 64, 255, 0.5)' }}
+            >
+              <div className="flex items-center justify-center text-sm text-white flex-wrap">
+                <TipIon className="mr-2"></TipIon>
+                You can earn rewards{' '}
+                <span
+                  className="underline ml-1 mr-0.5"
+                  onClick={() => {
+                    window.open(liquidity_link);
+                  }}
+                >
+                  by farming
+                </span>
+                <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+                est. APR is{' '}
+                <span className="gotham_bold ml-1">{liquidity_your_apr}</span>
+              </div>
+            </div>
+          ) : null}
+          {is_in_farming ? (
+            <div className="flex items-center justify-center text-sm text-primaryText mb-3">
+              This NFT has been staked
+              <span
+                className="text-sm text-greenColor underline ml-1 mr-0.5"
                 onClick={(e) => {
                   e.stopPropagation();
                   go_farm();
                 }}
-                color="#fff"
-                minWidth="5rem"
-                borderRadius="8px"
-                className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
               >
-                Go Farm
-              </GradientButton>
-            ) : (
-              <>
-                <GradientButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowAddBox(true);
-                  }}
-                  color="#fff"
-                  className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3`}
-                >
-                  <FormattedMessage id="add" />
-                </GradientButton>
-                <BorderButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowRemoveBox(true);
-                  }}
-                  rounded="rounded-md"
-                  px="px-0"
-                  py="py-1"
-                  className="w-1 flex-grow  text-sm text-greenColor h-8"
-                >
-                  <FormattedMessage id="remove" />
-                </BorderButton>
-              </>
-            )}
-          </div>
+                in farm
+              </span>
+              <LinkArrowIcon className="text-greenColor"></LinkArrowIcon>
+            </div>
+          ) : null}
         </div>
       </div>
       {showRemoveBox ? (

@@ -10,29 +10,11 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { isMobile } from '~utils/device';
 import {
   ArrowLeftIcon,
-  FreeIcon,
-  LockIcon,
-  LightningIcon,
-  BigLightningIcon,
-  GoldLevel1,
-  GoldLevel2,
-  GoldLevel3,
-  GoldLevel4,
-  CalcIcon,
-  LockImgIcon,
-  FreenWarningIcon,
   UpArrowIcon,
   BoostRightArrowIcon,
   BoostOptIcon,
-  LightningBase64,
-  LightningBase64Grey,
   DclFarmIcon,
   NFTIdIcon,
-  CrossIconEmpty,
-  CrossIconLittle,
-  CrossIconMiddle,
-  CrossIconLarge,
-  CrossIconFull,
   LinkArrowIcon,
   NewTag,
 } from '~components/icon/FarmBoost';
@@ -117,6 +99,8 @@ import {
   get_matched_seeds_for_dcl_pool,
   get_all_seeds,
   displayNumberToAppropriateDecimals,
+  get_intersection_radio,
+  get_intersection_icon_by_radio,
 } from '~services/commonV3';
 import {
   list_liquidities,
@@ -934,14 +918,16 @@ export default function FarmsDclDetail(props: {
       {/* new Farm is coming Banner */}
       {betterSeed ? (
         <div className="flex items-center justify-center bg-dclBannerColor rounded-xl text-sm text-white px-4 py-1 mt-4 mb-3">
-          <span>The current farm will be ended soon. </span>
-          <a
-            onClick={goBetterSeed}
-            className="underline gotham_bold cursor-pointer mx-2"
-          >
-            {getBetterSeedSymbols()} New Farm
-          </a>
-          <span>is coming!</span>
+          <div className="flex items-center flex-wrap">
+            <span>The current farm will be ended soon. </span>
+            <a
+              onClick={goBetterSeed}
+              className="underline gotham_bold cursor-pointer mx-2 xsm:ml-0"
+            >
+              {getBetterSeedSymbols()} New Farm
+            </a>
+            <span>is coming!</span>
+          </div>
           <NewTag className="ml-1.5"></NewTag>
         </div>
       ) : null}
@@ -1302,9 +1288,9 @@ export default function FarmsDclDetail(props: {
         {listLiquidities.length == 0 && !listLiquiditiesLoading ? (
           <div className="rounded-lg overflow-hidden mt-2.5 bg-detailCardBg">
             <div className="w-full bg-gradientFrom h-1.5"></div>
-            <div className="flex items-center justify-between p-3">
+            <div className="flex items-center justify-between p-3 xsm:flex-col">
               <span className="text-sm text-white">
-                You don't have any V2 Liquidity NFT for now, click 'Add
+                You don't have any V2 Liquidity position for now, click 'Add
                 Position' to start farming.
               </span>
               <GradientButton
@@ -1313,7 +1299,7 @@ export default function FarmsDclDetail(props: {
                 }}
                 color="#fff"
                 borderRadius="8px"
-                className={`flex-shrink-0 px-4 h-9  text-center text-sm text-white ml-2`}
+                className={`flex-shrink-0 px-4 h-10  text-center text-sm text-white ml-2 xsm:w-full xsm:ml-0 xsm:mt-2.5`}
               >
                 Add Position
               </GradientButton>
@@ -1516,43 +1502,22 @@ function LiquidityLine(props: {
       return `$${formatWithCommas(toPrecision(v.toString(), 2))}`;
     }
   }
-  function get_your_range(liquidity: UserLiquidityInfo, site: string) {
+  function get_your_range(liquidity: UserLiquidityInfo, site?: string) {
     const { left_point, right_point } = liquidity;
     const [token_x_metadata, token_y_metadata] =
       detailData.pool.tokens_meta_data;
     const [fixRange, dcl_pool_id, seed_left_point, seed_right_point] =
       detailData.seed_id.split('@')[1].split('&');
-    const max_left_point = Math.max(+left_point, +seed_left_point);
-    const min_right_point = Math.min(+right_point, +seed_right_point);
     let icon;
-    let p;
-    if (+min_right_point > +max_left_point) {
-      const range_cross = new BigNumber(min_right_point).minus(max_left_point);
-      const range_seed = new BigNumber(seed_right_point).minus(seed_left_point);
-      const range_user = new BigNumber(right_point).minus(left_point);
-      let range_denominator = range_seed;
-      if (left_point <= seed_left_point && right_point >= seed_right_point) {
-        range_denominator = range_user;
-      }
-      p = range_cross.dividedBy(range_denominator).multipliedBy(100);
-      if (p.isLessThan(20)) {
-        icon = (
-          <CrossIconLittle num={site == 'mobile' ? '1' : '2'}></CrossIconLittle>
-        );
-      } else if (p.isLessThan(60)) {
-        icon = (
-          <CrossIconMiddle num={site == 'mobile' ? '1' : '2'}></CrossIconMiddle>
-        );
-      } else if (p.isLessThan(100)) {
-        icon = (
-          <CrossIconLarge num={site == 'mobile' ? '1' : '2'}></CrossIconLarge>
-        );
-      } else {
-        icon = <CrossIconFull></CrossIconFull>;
-      }
-    } else {
-      icon = <CrossIconEmpty></CrossIconEmpty>;
-    }
+    const radio = get_intersection_radio({
+      left_point_liquidity: left_point,
+      right_point_liquidity: right_point,
+      left_point_seed: seed_left_point,
+      right_point_seed: seed_right_point,
+    });
+    const p = new BigNumber(radio);
+    const Icon = get_intersection_icon_by_radio(radio);
+    icon = <Icon num={site == 'mobile' ? '1' : '2'}></Icon>;
     const decimalRate =
       Math.pow(10, token_x_metadata.decimals) /
       Math.pow(10, token_y_metadata.decimals);
@@ -1687,12 +1652,9 @@ function LiquidityLine(props: {
     } else {
       if (new BigNumber(unfarm_part_amount).isLessThan(min_deposit)) {
         needUnstake = true;
-        const mft_balance_big = new BigNumber(mft_balance_in_dcl_account);
-        if (mft_balance_big.isLessThan(v_liquidity)) {
-          withdraw_amount = new BigNumber(v_liquidity)
-            .minus(mft_balance_in_dcl_account)
-            .toFixed();
-        }
+        withdraw_amount = new BigNumber(v_liquidity)
+          .minus(unfarm_part_amount)
+          .toFixed();
       } else {
         finalAmount = unfarm_part_amount;
       }
@@ -1947,14 +1909,17 @@ function LiquidityLine(props: {
         </div>
       </div>
       {/* for Mobile */}
-      <div key={liquidity.lpt_id + 'm'} className="relative  mb-5 lg:hidden">
-        {/* <div className="absolute -top-1.5 left-5 flex items-center justify-center">
-          <NFTIdIcon className=""></NFTIdIcon>
+      <div
+        key={liquidity.lpt_id + 'm'}
+        className="relative flex flex-col items-center mb-5 lg:hidden"
+      >
+        <div className="absolute -top-1.5 flex items-center justify-center">
+          <NFTIdIcon num="1"></NFTIdIcon>
           <span className="absolute gotham_bold text-xs text-white">
-                NFT ID #{liquidity.lpt_id.split('#')[1]}
+            NFT ID #{liquidity.lpt_id.split('#')[1]}
           </span>
-        </div> */}
-        <div className="bg-v3HoverDarkBgColor rounded-t-xl px-4 py-3">
+        </div>
+        <div className="bg-v3HoverDarkBgColor rounded-t-xl px-4 py-3 w-full">
           <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-primaryText">Your Liquidity</span>
             <span
@@ -2018,15 +1983,15 @@ function LiquidityLine(props: {
           </div>
         </div>
         <div
-          className={`flex flex-col items-center justify-center rounded-b-xl bg-cardBg px-4 py-4`}
+          className={`flex flex-col items-center justify-center rounded-b-xl bg-cardBg px-4 py-4 w-full`}
         >
           <div
-            className={`flex items-center w-full ${
+            className={`flex items-center justify-center w-full ${
               liquidity_status_string == 'unavailable' ? 'hidden' : ''
             }`}
           >
             <div
-              className="text-white text-right ml-1"
+              className="text-white text-right w-1 flex-grow"
               data-class="reactTip"
               data-for={`stakeTipId_m_${liquidity.lpt_id}`}
               data-place="top"
@@ -2045,20 +2010,17 @@ function LiquidityLine(props: {
                 disabled={
                   nft_stake_loading ||
                   liquidity_partialfarming_stakebuttonstatus_display ==
-                    'disable'
-                    ? true
-                    : false
+                    'disable' ||
+                  !showStakeButton
                 }
-                minWidth="6rem"
-                className={`h-8 px-4 text-center text-sm text-white focus:outline-none ${
-                  showStakeButton && showUnStakeButton ? '' : 'w-full'
-                } ${
+                className={`h-10 px-4 text-center text-sm text-white focus:outline-none ${
                   nft_stake_loading ||
                   liquidity_partialfarming_stakebuttonstatus_display ==
-                    'disable'
+                    'disable' ||
+                  !showStakeButton
                     ? 'opacity-40'
                     : ''
-                } ${showStakeButton ? '' : 'hidden'}`}
+                }`}
               >
                 <ButtonTextWrapper
                   loading={nft_stake_loading}
@@ -2080,13 +2042,10 @@ function LiquidityLine(props: {
                 unStakeNFT(liquidity);
               }}
               color="#fff"
-              minWidth="6rem"
               disabled={nft_unStake_loading ? true : false}
-              className={`flex items-center justify-center h-8 px-4 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-                showStakeButton && showUnStakeButton ? 'ml-2.5' : 'w-full'
-              } ${nft_unStake_loading ? 'opacity-40' : ''} ${
-                showUnStakeButton ? '' : 'hidden'
-              }`}
+              className={`flex items-center justify-center w-1 flex-grow h-10  text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ml-2.5 ${
+                nft_unStake_loading ? 'opacity-40' : ''
+              } ${showUnStakeButton ? '' : 'hidden'}`}
             >
               <ButtonTextWrapper
                 loading={nft_unStake_loading}

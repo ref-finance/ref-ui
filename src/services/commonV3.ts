@@ -19,6 +19,13 @@ import {
 import getConfig from '../services/config';
 import { PoolRPCView } from '../services/api';
 import { ftGetTokenMetadata } from '../services/ft-contract';
+import {
+  CrossIconEmpty,
+  CrossIconLittle,
+  CrossIconMiddle,
+  CrossIconLarge,
+  CrossIconFull,
+} from '../components/icon/FarmBoost';
 const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList } = getConfig();
 
 /**
@@ -960,6 +967,59 @@ export function displayNumberToAppropriateDecimals(num: string | number) {
   } else {
     return toPrecision(num.toString(), 0);
   }
+}
+
+export function get_intersection_radio({
+  left_point_liquidity,
+  right_point_liquidity,
+  left_point_seed,
+  right_point_seed,
+}: {
+  left_point_liquidity: string | number;
+  right_point_liquidity: string | number;
+  left_point_seed: string | number;
+  right_point_seed: string | number;
+}) {
+  let percent;
+  const max_left_point = Math.max(+left_point_liquidity, +left_point_seed);
+  const min_right_point = Math.min(+right_point_liquidity, +right_point_seed);
+  if (min_right_point > max_left_point) {
+    const range_cross = new BigNumber(min_right_point).minus(max_left_point);
+    const range_seed = new BigNumber(right_point_seed).minus(left_point_seed);
+    const range_user = new BigNumber(right_point_liquidity).minus(
+      left_point_liquidity
+    );
+    let range_denominator = range_seed;
+    if (
+      left_point_liquidity <= left_point_seed &&
+      right_point_liquidity >= right_point_seed
+    ) {
+      range_denominator = range_user;
+    }
+    percent = range_cross
+      .dividedBy(range_denominator)
+      .multipliedBy(100)
+      .toFixed();
+  } else {
+    percent = '0';
+  }
+  return percent;
+}
+export function get_intersection_icon_by_radio(radio: string): any {
+  const p = new BigNumber(radio || '0');
+  let icon;
+  if (p.isEqualTo(0)) {
+    icon = CrossIconEmpty;
+  } else if (p.isLessThan(20)) {
+    icon = CrossIconLittle;
+  } else if (p.isLessThan(60)) {
+    icon = CrossIconMiddle;
+  } else if (p.isLessThan(100)) {
+    icon = CrossIconLarge;
+  } else {
+    icon = CrossIconFull;
+  }
+  return icon;
 }
 /** start */
 /*
