@@ -1096,7 +1096,7 @@ function UserLiquidityLine({
           </div>
           <div
             className={`border-t border-v3BlueBorderColor w-full ${
-              hover ? '' : ''
+              hover ? '' : 'hidden'
             }`}
           >
             {liquidity_your_apr ? (
@@ -1138,8 +1138,9 @@ function UserLiquidityLine({
                   minWidth="5rem"
                   disabled={is_in_farming}
                   borderRadius="8px"
+                  btnClassName={is_in_farming ? 'cursor-not-allowed' : ''}
                   className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5 ${
-                    is_in_farming ? 'opacity-40' : ''
+                    is_in_farming ? 'opacity-40 ' : ''
                   }`}
                 >
                   <FormattedMessage id="add" />
