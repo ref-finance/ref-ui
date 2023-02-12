@@ -465,7 +465,7 @@ function StakeContainer(props: {
       if (!value) return value;
       const [whole, decimals] = value.toString().split('.');
       const whole_format = formatWithCommas(whole);
-      if (decimals) {
+      if (+whole < 1 && decimals) {
         return whole_format + '.' + decimals;
       } else {
         return whole_format;
