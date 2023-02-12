@@ -2449,8 +2449,6 @@ function LiquidityPage_({
                 onChange={(evt) => {
                   inputRef.current.value = evt.target.value;
 
-                  console.log('evt.target.value', evt.target.value);
-
                   if (
                     enableIdSearch &&
                     activeTab !== 'v2' &&

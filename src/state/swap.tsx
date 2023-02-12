@@ -745,8 +745,6 @@ export const useSwapV3 = ({
       fees.map((fee) => getQuote(fee, tokenIn, tokenOut, allDCLPools))
     )
       .then((res) => {
-        console.log('dcl pool estimates', res);
-
         if (!loadingTrigger || swapError?.message) {
           setEstimates(res);
 

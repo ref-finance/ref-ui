@@ -192,11 +192,7 @@ export const getTopPools = async (): Promise<PoolRPCView[]> => {
 
     return pools
       .filter((pool: { token_account_ids: string | any[]; id: any }) => {
-        return (
-          !isStablePool(pool.id) &&
-          pool.token_account_ids.length < 3 &&
-          !pool.token_account_ids.includes('nearx.stader-labs.near')
-        );
+        return !isStablePool(pool.id) && pool.token_account_ids.length < 3;
       })
       .filter(filterBlackListPools);
   } catch (error) {

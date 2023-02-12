@@ -1554,8 +1554,6 @@ export default function SwapCard(props: {
     supportLedger,
   });
 
-  console.log('v1 amount out ', tokenOutAmount);
-
   const {
     makeSwap: makeSwapV3,
     tokenOutAmount: tokenOutAmountV3,
