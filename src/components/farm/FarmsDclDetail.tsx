@@ -115,6 +115,7 @@ import { AddNewPoolV3 } from '~components/pool/AddNewPoolV3';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import moment from 'moment';
+import { compute_liquidity } from '../../services/compute_liquidity';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
   STABLE_POOL_IDS,

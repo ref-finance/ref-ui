@@ -42,6 +42,9 @@ import {
   drawChartData,
   TOKEN_LIST_FOR_RATE,
   displayNumberToAppropriateDecimals,
+  mint_liquidity,
+  UserLiquidityInfo,
+  get_total_value_by_liquidity_amount_dcl,
 } from '../../services/commonV3';
 import {
   PoolInfo,
@@ -52,7 +55,8 @@ import { toRealSymbol } from '../../utils/token';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { TokenMetadata, ftGetBalance } from '../../services/ft-contract';
 import { useDepositableBalance } from '../../state/token';
-import { Seed } from '~services/farm';
+import { Seed, FarmBoost } from '~services/farm';
+import { compute_liquidity } from '../../services/compute_liquidity';
 import _ from 'lodash';
 export const AddNewPoolV3 = (props: any) => {
   const {
@@ -87,6 +91,7 @@ export const AddNewPoolV3 = (props: any) => {
   const [leftInputStatus, setLeftInputStatus] = useState(false);
   const [rightInputStatus, setRightInputStatus] = useState(false);
   const [showCustomPointArea, setShowCustomPointArea] = useState(false);
+  const [budget_liqudity_amount, set_budget_liqudity_amount] = useState('0');
   const [hover, setHover] = useState(false);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -127,6 +132,28 @@ export const AddNewPoolV3 = (props: any) => {
       currentPoint: poolDetail.current_point,
     });
   }, [custom_left_point, custom_right_point]);
+  useEffect(() => {
+    if (+tokenXAmount > 0 || +tokenYAmount > 0) {
+      const { current_point } = poolDetail;
+      const { tokens_meta_data } = poolDetail;
+      const amount_x = new BigNumber(tokenXAmount || '0')
+        .shiftedBy(tokens_meta_data[0].decimals)
+        .toFixed(0, 1);
+      const amount_y = new BigNumber(tokenYAmount || '0')
+        .shiftedBy(tokens_meta_data[1].decimals)
+        .toFixed(0, 1);
+      const v_liquidity = compute_liquidity(
+        custom_left_point,
+        custom_right_point,
+        current_point,
+        amount_x,
+        amount_y
+      );
+      set_budget_liqudity_amount(v_liquidity);
+    } else {
+      set_budget_liqudity_amount('0');
+    }
+  }, [custom_left_point, custom_right_point, tokenXAmount, tokenYAmount]);
   function getTokenYAmountByCondition({
     amount,
     leftPoint,
@@ -202,7 +229,6 @@ export const AddNewPoolV3 = (props: any) => {
       setTokenXAmount(X_result.toString());
     }
   }
-
   function addLiquidity() {
     setAddLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
@@ -494,8 +520,92 @@ export const AddNewPoolV3 = (props: any) => {
       );
     }
   }
+  function get_your_apr() {
+    if (!(+budget_liqudity_amount > 0))
+      return <span className="text-sm text-primaryText">-%</span>;
+    const { farmList, total_seed_amount, total_seed_power, pool } = seed;
+    // principal
+    const { pool_id } = pool;
+    const liquidity: UserLiquidityInfo = {
+      lpt_id: `${pool_id}#10000000000000`,
+      owner_id: '',
+      pool_id: pool_id,
+      left_point: custom_left_point,
+      right_point: custom_right_point,
+      amount: budget_liqudity_amount,
+      unclaimed_fee_x: null,
+      unclaimed_fee_y: null,
+      mft_id: '',
+      v_liquidity: '0',
+    };
+    const total_principal = get_liquidity_value(liquidity);
+    // seed total rewards
+    let total_rewards = '0';
+    farmList.forEach((farm: FarmBoost) => {
+      const { token_meta_data } = farm;
+      const { daily_reward, reward_token } = farm.terms;
+      const quantity = toReadableNumber(token_meta_data.decimals, daily_reward);
+      const reward_token_price = Number(
+        tokenPriceList[reward_token]?.price || 0
+      );
+      const cur_token_rewards = new BigNumber(quantity)
+        .multipliedBy(reward_token_price)
+        .multipliedBy(365);
+      total_rewards = cur_token_rewards.plus(total_rewards).toFixed();
+    });
+    // lp percent
+    let percent;
+    const mint_amount = mint_liquidity(liquidity, seed.seed_id);
+    const temp_total = new BigNumber(total_seed_power || 0).plus(mint_amount);
+    if (temp_total.isGreaterThan(0)) {
+      percent = new BigNumber(mint_amount).dividedBy(temp_total);
+    }
+    // profit
+    let profit;
+    if (percent) {
+      profit = percent.multipliedBy(total_rewards);
+    }
+
+    // your apr
+    if (profit) {
+      if (+total_principal == 0) {
+        return <span className="text-sm text-primaryText">-%</span>;
+      }
+      const your_apr = profit.dividedBy(total_principal).multipliedBy(100);
+      if (your_apr.isEqualTo('0')) {
+        return <span className="text-sm text-primaryText">-%</span>;
+      } else if (your_apr.isLessThan(0.01)) {
+        return `<0.01%`;
+      } else {
+        return `${toPrecision(your_apr.toFixed(), 2)}%`;
+      }
+    } else {
+      return <span className="text-sm text-primaryText">-%</span>;
+    }
+  }
+  function get_liquidity_value(liquidity: UserLiquidityInfo) {
+    const { left_point, right_point, amount } = liquidity;
+    const poolDetail = seed.pool;
+    const { token_x, token_y, tokens_meta_data } = poolDetail;
+    const v = get_total_value_by_liquidity_amount_dcl({
+      left_point,
+      right_point,
+      poolDetail,
+      amount,
+      price_x_y: {
+        [token_x]: tokenPriceList[token_x]?.price || '0',
+        [token_y]: tokenPriceList[token_y]?.price || '0',
+      },
+      metadata_x_y: {
+        [token_x]: tokens_meta_data[0],
+        [token_y]: tokens_meta_data[1],
+      },
+    });
+    return v;
+  }
   const { status: isAddLiquidityDisabled, not_enough_token } =
     getButtonStatus();
+
   return (
     <Modal {...restProps}>
       <Card
@@ -509,25 +619,6 @@ export const AddNewPoolV3 = (props: any) => {
           </div>
         </div>
         <div>
-          {/* <div className="flex items-center justify-between my-6">
-            <div className="flex items-center">
-              <div className="flex items-center">
-                <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-                  className="w-8 h-8 border border-greenColor rounded-full"
-                ></img>
-                <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-                  className="relative w-8 h-8 border border-greenColor rounded-full -ml-1.5"
-                ></img>
-              </div>
-              <span className="text-white text-base font-bold ml-2.5">
-                {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
-                {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
-              </span>
-            </div>
-          </div> */}
-          {/* <div className="text-sm text-primaryText mt-6">Input Amount</div> */}
           <OneSide
             show={
               (onlyAddYToken &&
@@ -708,7 +799,9 @@ export const AddNewPoolV3 = (props: any) => {
             <span className="text-sm text-primaryText">
               <FormattedMessage id="your_apr"></FormattedMessage>
             </span>
-            <span className="text-base text-white gotham_bold">198.52%</span>
+            <span className="text-base text-white gotham_bold">
+              {get_your_apr()}
+            </span>
           </div>
 
           {/* button area */}
