@@ -911,7 +911,12 @@ function MobileLiquidityPage({
   );
 
   const handleEnableIdSearching = () => {
-    sessionStorage.setItem(REF_POOL_ID_SEARCHING_KEY, '1');
+    if (enableIdSearch) {
+      sessionStorage.removeItem(REF_POOL_ID_SEARCHING_KEY);
+    } else {
+      sessionStorage.setItem(REF_POOL_ID_SEARCHING_KEY, '1');
+    }
+
     setEnableIdSearch(!enableIdSearch);
     inputRef.current.value = '';
     onSearch('');
