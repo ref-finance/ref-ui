@@ -294,8 +294,9 @@ function LiquidityInfo() {
     const Icon = get_intersection_icon_by_radio(radio);
     icon = <Icon num={Math.random()}></Icon>;
     function displayP(p: BigNumber) {
-      if (!p) return '0%';
-      if (p.isLessThan(1)) {
+      if (p.isEqualTo(0)) {
+        return '0%';
+      } else if (p.isLessThan(1)) {
         return '1%';
       } else {
         return p?.toFixed(0, 1) + '%';

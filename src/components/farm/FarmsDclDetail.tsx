@@ -1424,6 +1424,7 @@ function LiquidityLine(props: {
     }
     return is_liquidity_staked_for_another_seed;
   }, [liquidity, detailData]);
+
   const liquidity_status_string: StatusType | string = useMemo(() => {
     if (!(liquidity && detailData)) return '';
     const { unfarm_part_amount } = liquidity;
@@ -1432,7 +1433,7 @@ function LiquidityLine(props: {
       farmStatus = 'partialfarming';
     }
     return farmStatus;
-  }, [liquidity, detailData, is_liquidity_staked_for_another_seed]);
+  }, [liquidity, detailData]);
   const [
     liquidity_status_display,
     liquidity_operation_display,
@@ -1542,8 +1543,9 @@ function LiquidityLine(props: {
       return result;
     }
     function displayP(p: BigNumber) {
-      if (!p) return '0%';
-      if (p.isLessThan(1)) {
+      if (p.isEqualTo(0)) {
+        return '0%';
+      } else if (p.isLessThan(1)) {
         return '1%';
       } else {
         return p?.toFixed(0, 1) + '%';
