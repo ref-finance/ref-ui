@@ -17,6 +17,7 @@ import {
   NFTIdIcon,
   LinkArrowIcon,
   NewTag,
+  CalcIcon,
 } from '~components/icon/FarmBoost';
 import { RefreshIcon } from '~components/icon/swapV3';
 import { AddButtonIcon } from '~components/icon/V3';
@@ -112,6 +113,7 @@ import {
 } from '../../services/swapV3';
 import { AddNewPoolV3 } from '~components/pool/AddNewPoolV3';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import moment from 'moment';
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -1404,6 +1406,7 @@ function LiquidityLine(props: {
   const [nft_stake_loading, set_nft_stake_loading] = useState(false);
   const [nft_unStake_loading, set_nft_unStake_loading] = useState(false);
   const [hover, setHover] = useState(false);
+  const [dclCalcVisible, setDclCalcVisible] = useState(false);
   const is_liquidity_staked_for_another_seed = useMemo(() => {
     if (!(liquidity && detailData)) return false;
     const { mft_id } = liquidity;
@@ -1778,7 +1781,16 @@ function LiquidityLine(props: {
               </span>
             </div>
             <div className="flex flex-col justify-between col-span-1">
-              <span className="text-sm text-primaryText">{apr_title()}</span>
+              <div className="flex items-center text-sm text-primaryText">
+                {apr_title()}
+                <CalcIcon
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    setDclCalcVisible(true);
+                  }}
+                  className="text-farmText ml-1.5 cursor-pointer hover:text-greenColor"
+                />
+              </div>
               <span
                 className={`text-sm ${
                   liquidity_status_string == 'unavailable'
@@ -1945,7 +1957,16 @@ function LiquidityLine(props: {
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-primaryText">{apr_title()}</span>
+            <div className="flex items-center text-sm text-primaryText">
+              {apr_title()}
+              <CalcIcon
+                onClick={(e: any) => {
+                  e.stopPropagation();
+                  setDclCalcVisible(true);
+                }}
+                className="text-farmText ml-1.5 cursor-pointer hover:text-greenColor"
+              />
+            </div>
             <span
               className={`text-sm ${
                 liquidity_status_string == 'unavailable'
@@ -2073,6 +2094,29 @@ function LiquidityLine(props: {
           </div>
         </div>
       </div>
+      {/*  */}
+      {dclCalcVisible ? (
+        <CalcModelDcl
+          isOpen={dclCalcVisible}
+          onRequestClose={(e) => {
+            e.stopPropagation();
+            setDclCalcVisible(false);
+          }}
+          seed={detailData}
+          liquidity={liquidity}
+          tokenPriceList={tokenPriceList}
+          style={{
+            overlay: {
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
+            },
+            content: {
+              outline: 'none',
+              transform: 'translate(-50%, -50%)',
+            },
+          }}
+        />
+      ) : null}
     </>
   );
 }

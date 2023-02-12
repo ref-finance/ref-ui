@@ -49,6 +49,7 @@ import {
 import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import CalcModelBooster from '../../components/farm/CalcModelBooster';
+import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import {
   classificationOfCoins_key,
   farmClassification,
@@ -2277,6 +2278,7 @@ function FarmView(props: {
   const isSignedIn = globalState.isSignedIn;
   const [claimLoading, setClaimLoading] = useState(false);
   const [calcVisible, setCalcVisible] = useState(false);
+  const [dclCalcVisible, setDclCalcVisible] = useState(false);
   const [error, setError] = useState<Error>();
   const [aprSwitchStatus, setAprSwitchStatus] = useState('1');
   const [lpSwitchStatus, setLpSwitchStatus] = useState('1');
@@ -3147,16 +3149,25 @@ function FarmView(props: {
                 <span>{getRange()}</span>
               </div>
               <div className="flex items-center justify-between w-full">
-                <span className="text-sm text-farmText">APR</span>
-                <span
-                  className={`text-sm ${
+                <div className="flex items-center text-sm text-farmText">
+                  APR
+                </div>
+                <div
+                  className={`flex items-center text-sm ${
                     getTotalApr() == '-'
                       ? 'text-farmText'
                       : 'text-white gotham_bold'
                   }`}
                 >
                   {getTotalApr()}
-                </span>
+                  <CalcIcon
+                    onClick={(e: any) => {
+                      e.stopPropagation();
+                      setDclCalcVisible(true);
+                    }}
+                    className="text-farmText ml-1.5 cursor-pointer hover:text-greenColor"
+                  />
+                </div>
               </div>
               <div className="flex items-center justify-between w-full">
                 <span className="text-sm text-farmText">To Claim</span>
@@ -3352,6 +3363,27 @@ function FarmView(props: {
           user_seeds_map={user_seeds_map}
           user_unclaimed_map={user_unclaimed_map}
           user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
+          style={{
+            overlay: {
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
+            },
+            content: {
+              outline: 'none',
+              transform: 'translate(-50%, -50%)',
+            },
+          }}
+        />
+      ) : null}
+      {dclCalcVisible ? (
+        <CalcModelDcl
+          isOpen={dclCalcVisible}
+          onRequestClose={(e) => {
+            e.stopPropagation();
+            setDclCalcVisible(false);
+          }}
+          seed={seed}
+          tokenPriceList={tokenPriceList}
           style={{
             overlay: {
               backdropFilter: 'blur(15px)',
