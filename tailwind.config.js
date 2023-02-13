@@ -249,6 +249,7 @@ module.exports = {
         dclBorderColor:'#434D55',
         dclButtonBgColor:'#17252E',
         dclLineColor:'rgba(110, 124, 133, 0.2)',
+        lightBlue: '#646DF4',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

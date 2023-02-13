@@ -66,6 +66,7 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import getConfig from '../../services/config';
 import { allocation_rule_liquidities } from '~services/commonV3';
+import { LinkArrowIcon } from '~components/icon/FarmBoost';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 export default function YourLiquidityDetail(props: any) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
@@ -567,44 +568,50 @@ export default function YourLiquidityDetail(props: any) {
           <div className="flex items-center justify-between mt-5">
             {listLiquidities.length && userLiquidity ? (
               <>
-                {is_in_farming ? (
-                  <GradientButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      go_farm();
-                    }}
-                    color="#fff"
-                    className={`w-full h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
-                  >
-                    Go Farm
-                  </GradientButton>
-                ) : (
-                  <>
-                    <GradientButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowAddBox(true);
-                      }}
-                      color="#fff"
-                      className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
-                    >
-                      <FormattedMessage id="add"></FormattedMessage>
-                    </GradientButton>
-                    <OprationButton
-                      onClick={(e: any) => {
-                        e.stopPropagation();
-                        setShowRemoveBox(true);
-                      }}
-                      color="#fff"
-                      className={`flex flex-grow  w-1 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
-                    >
-                      <FormattedMessage id="remove"></FormattedMessage>
-                    </OprationButton>
-                  </>
-                )}
+                <GradientButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAddBox(true);
+                  }}
+                  color="#fff"
+                  borderRadius="8px"
+                  disabled={is_in_farming}
+                  btnClassName={`${is_in_farming ? 'cursor-not-allowed' : ''}`}
+                  className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5 gotham_bold ${
+                    is_in_farming ? 'opacity-30' : ''
+                  }`}
+                >
+                  <FormattedMessage id="add"></FormattedMessage>
+                </GradientButton>
+                <OprationButton
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    setShowRemoveBox(true);
+                  }}
+                  disabled={is_in_farming}
+                  btnClassName={`${is_in_farming ? 'cursor-not-allowed' : ''}`}
+                  color="#fff"
+                  className={`flex flex-grow  w-1 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover gotham_bold  ${
+                    is_in_farming ? 'opacity-30' : ''
+                  }`}
+                >
+                  <FormattedMessage id="remove"></FormattedMessage>
+                </OprationButton>
               </>
             ) : null}
           </div>
+          {is_in_farming ? (
+            <div className="flex items-center justify-center text-sm text-primaryText mt-4">
+              This NFT has been staked
+              <div
+                className="flex items-center text-sm text-greenColor cursor-pointer"
+                onClick={go_farm}
+              >
+                <span className="underline mx-1">in farm</span>
+                <LinkArrowIcon></LinkArrowIcon>
+              </div>
+            </div>
+          ) : null}
         </div>
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow xs:w-full md:w-full xs:mt-3 md:mt-3 xs:p-3 md:p-3">
           <div className="flex items-center justify-between text-white text-base flex-wrap">
@@ -648,10 +655,10 @@ export default function YourLiquidityDetail(props: any) {
             </div>
           </div>
           <div
-            className={`flex items-center justify-center h-9 rounded-lg text-sm px-2 py-1 mt-5 ${
+            className={`flex items-center justify-center h-9 rounded-lg text-sm px-2 py-1 mt-5 bg-deepBlue text-white gotham_bold  ${
               !canClaim()
-                ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                ? 'opacity-30 cursor-not-allowed'
+                : 'hover:bg-lightBlue cursor-pointer'
             }`}
             onClick={claimRewards}
           >

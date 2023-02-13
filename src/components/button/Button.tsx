@@ -407,7 +407,7 @@ export function GradientButton(
         loading ? 'opacity-40' : ''
       } bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover`}
       style={{
-        borderRadius: borderRadius || '5px',
+        borderRadius: borderRadius || '8px',
         color: color || '',
         backgroundImage: backgroundImage || '',
         minWidth: minWidth || '',

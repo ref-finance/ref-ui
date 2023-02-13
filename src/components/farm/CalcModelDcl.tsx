@@ -404,8 +404,6 @@ function CalcEle() {
   const [rewards_info, set_rewards_info] = useState<any>({});
   const { seed, tokenPriceList, lp_amount, lp_value, liquidity } =
     useContext(DclContext);
-  // console.log('222222222-lp_amount', lp_amount);
-  // console.log('222222222-lp_value', lp_value);
   useEffect(() => {
     get_rewards_info();
   }, [lp_amount, lp_value, selecteDate, tokenPriceList]);
@@ -485,9 +483,7 @@ function CalcEle() {
   function getRewardsValue() {
     const total_rewards_price = rewards_info.total_rewards_price;
     if (!total_rewards_price) return '$-';
-    const total_rewards_price_big = new BigNumber(
-      total_rewards_price || '0'
-    ).multipliedBy(100);
+    const total_rewards_price_big = new BigNumber(total_rewards_price || '0');
     if (total_rewards_price_big.isLessThan(0.01)) {
       return '<$0.01';
     } else {

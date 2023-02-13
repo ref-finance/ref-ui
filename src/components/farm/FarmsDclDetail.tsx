@@ -1189,7 +1189,11 @@ export default function FarmsDclDetail(props: {
         </div>
       </div>
       {/* unClaimed Rewards for Mobile */}
-      <div className="bg-dclFarmBlueColor rounded-xl p-4 mt-4 lg:hidden">
+      <div
+        className={`bg-dclFarmBlueColor rounded-xl p-4 mt-4 lg:hidden ${
+          user_seeds_map[detailData.seed_id] ? '' : 'hidden'
+        }`}
+      >
         <div className="flex items-center justify-between text-sm text-white">
           <div className="flex items-center">
             <FormattedMessage id="unclaimed_rewards"></FormattedMessage>
@@ -2069,7 +2073,10 @@ function LiquidityLine(props: {
                 <ButtonTextWrapper
                   loading={nft_stake_loading}
                   Text={() => (
-                    <FormattedMessage id="stake" defaultMessage="Stake" />
+                    <FormattedMessage
+                      id={`${showStakeButton ? 'stake' : 'staked_only'}`}
+                      defaultMessage="Stake"
+                    />
                   )}
                 />
               </GradientButton>

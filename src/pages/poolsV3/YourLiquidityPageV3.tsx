@@ -1326,38 +1326,33 @@ function UserLiquidityLine({
               <span className="text-v3SwapGray text-xs">
                 <FormattedMessage id="unclaimed_fees" />
               </span>
-              <span className="text-white text-sm"></span>
-              <div className="flex flex-col justify-end text-white text-sm">
-                <div className="flex items-center">
-                  <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-                    className="w-5 h-5 border border-greenColor rounded-full mr-1"
-                  ></img>
-                  <span className="text-sm text-white mr-3">
-                    {getTokenFeeAmount('l') || '-'}
-                  </span>
-                  <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-                    className="w-5 h-5 border border-greenColor rounded-full mr-1"
-                  ></img>
-                  <span className="text-sm text-white">
-                    {getTokenFeeAmount('r') || '-'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-end mt-2">
-                  <div
-                    className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
-                      !canClaim()
-                        ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                        : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-                    }`}
-                    onClick={claimRewards}
-                  >
-                    <ButtonTextWrapper
-                      loading={claimLoading}
-                      Text={() => <FormattedMessage id="claim" />}
-                    />
-                  </div>
+              <div className="flex items-center text-white text-sm">
+                <img
+                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                  className="w-5 h-5 border border-greenColor rounded-full mr-1"
+                ></img>
+                <span className="text-sm text-white mr-3">
+                  {getTokenFeeAmount('l') || '-'}
+                </span>
+                <img
+                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                  className="w-5 h-5 border border-greenColor rounded-full mr-1"
+                ></img>
+                <span className="text-sm text-white">
+                  {getTokenFeeAmount('r') || '-'}
+                </span>
+                <div
+                  className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-3 ${
+                    !canClaim()
+                      ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                      : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                  }`}
+                  onClick={claimRewards}
+                >
+                  <ButtonTextWrapper
+                    loading={claimLoading}
+                    Text={() => <FormattedMessage id="claim" />}
+                  />
                 </div>
               </div>
             </div>

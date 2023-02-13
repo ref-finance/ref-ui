@@ -1263,13 +1263,13 @@ function SelectLiquidityBox(props: any) {
     const actives = related_farms.filter((farm: FarmBoost) => {
       return farm.status != 'Ended';
     });
+    let url;
     if (related_farms.length > 0 && actives.length == 0) {
-      // window.open(`/v2farms/${link_params}-e`)
-      history.push(`/v2farms/${link_params}-e`);
+      url = `/v2farms/${link_params}-e`;
     } else {
-      // window.open(`/v2farms/${link_params}-r`)
-      history.push(`/v2farms/${link_params}-r`);
+      url = `/v2farms/${link_params}-r`;
     }
+    window.open(url);
   }
   function is_in_farming(liquidity: UserLiquidityInfo) {
     const is_in_farming =
@@ -1280,16 +1280,14 @@ function SelectLiquidityBox(props: any) {
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={style}>
       <Card
-        style={{ maxHeight: '95vh' }}
+        style={{ maxHeight: '95vh', minWidth: isMobile ? '' : '730px' }}
         padding="px-0 py-6"
         className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:w-90vw md:w-90vw lg:w-50vw"
       >
         <div className="header flex items-center justify-between mb-5 px-6">
           <div className="flex items-center justify-center">
-            <span className="text-white text-xl mr-2">
-              <FormattedMessage id="positions" />
-            </span>
-            <span className="flex-shrink-0 border border-greenColor rounded-2xl bg-black bg-opacity-25 text-xs text-gradientFromHover px-2">
+            <span className="text-white text-xl mr-2">Your Position(s)</span>
+            <span className="flex-shrink-0 bg-senderHot flex items-center justify-center gotham_bold px-2.5 ml-2 rounded-t-xl rounded-br-xl text-sm text-black">
               {user_liquidities_detail.length}
             </span>
           </div>
@@ -1458,9 +1456,9 @@ function SelectLiquidityBox(props: any) {
                                 : 'hidden'
                             }`}
                           >
-                            <div className="flex items-center justify-center cursor-pointer">
+                            <div className="flex items-center justify-center cursor-pointer whitespace-nowrap">
                               Farm Detail
-                              <JumpLinkIcon className="ml-1"></JumpLinkIcon>
+                              <JumpLinkIcon className="ml-1 flex-shrink-0"></JumpLinkIcon>
                             </div>
                           </BorderButton>
                         ) : (
