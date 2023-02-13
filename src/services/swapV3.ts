@@ -4,7 +4,6 @@ import {
   REF_UNI_V3_SWAP_CONTRACT_ID,
   ONE_YOCTO_NEAR,
   refSwapV3OldVersionViewFunction,
-  REF_UNI_SWAP_CONTRACT_ID,
 } from './near';
 import {
   toNonDivisibleNumber,
