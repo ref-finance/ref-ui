@@ -533,6 +533,7 @@ function UserLiquidityLine({
     let Icon;
     let your_apr;
     let link;
+    let inRange;
     if (is_in_farming) {
       const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] =
         mft_id.split('&');
@@ -576,18 +577,20 @@ function UserLiquidityLine({
           left_point_seed,
           right_point_seed,
         });
-        Icon = get_intersection_icon_by_radio(radio);
         if (canFarmSeed) {
           your_apr = get_your_apr(liquidity, targetSeed);
-          const link_params = `${dcl_pool_id}&${left_point_seed}&${right_point_seed}`;
-          link = `/v2farms/${link_params}-r`;
         }
+        Icon = get_intersection_icon_by_radio(radio);
+        inRange = +radio > 0;
+        const link_params = `${dcl_pool_id}&${left_point_seed}&${right_point_seed}`;
+        link = `/v2farms/${link_params}-r`;
       }
     }
     set_related_seed_info({
       Icon,
       your_apr,
       link,
+      inRange,
     });
   }, [liquidity, all_seeds, is_in_farming, tokenPriceList]);
   async function get_pool_related_farms() {
@@ -991,6 +994,7 @@ function UserLiquidityLine({
     Icon: Liquidity_icon,
     your_apr: liquidity_your_apr,
     link: liquidity_link,
+    inRange: liquidity_inRange,
   } = related_seed_info;
   return (
     <div
@@ -1037,8 +1041,15 @@ function UserLiquidityLine({
                 </div>
                 {Liquidity_icon ? (
                   <div
+                    onClick={() => {
+                      if (liquidity_link) {
+                        window.open(liquidity_link);
+                      }
+                    }}
                     className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
-                      !is_in_farming && !liquidity_your_apr ? 'opacity-40' : ''
+                      liquidity_link ? 'cursor-pointer' : ''
+                    } ${
+                      is_in_farming || liquidity_inRange ? '' : 'opacity-40'
                     }`}
                   >
                     <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
@@ -1246,8 +1257,13 @@ function UserLiquidityLine({
                 </span>
                 {Liquidity_icon ? (
                   <div
+                    onClick={() => {
+                      if (liquidity_link) {
+                        window.open(liquidity_link);
+                      }
+                    }}
                     className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
-                      !is_in_farming && !liquidity_your_apr ? 'opacity-40' : ''
+                      is_in_farming || liquidity_inRange ? '' : 'opacity-40'
                     }`}
                   >
                     <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
