@@ -146,6 +146,8 @@ const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
 
+const REF_POOL_ID_SEARCHING_KEY = 'REF_POOL_ID_SEARCHING_KEY';
+
 export function getPoolFeeApr(
   dayVolume: string,
   pool: Pool,
@@ -339,7 +341,7 @@ function MobilePoolRow({
     <button
       className={
         morePoolIds?.length && morePoolIds?.length > 1 && !watchPool
-          ? ' text-farmText bg-black flex items-center bg-opacity-20 rounded-lg text-xs max-w-min px-2 justify-between ml-2 py-0.5'
+          ? ' text-farmText bg-black flex items-center bg-opacity-20 rounded-lg text-xs max-w-min  whitespace-nowrap px-2 justify-between ml-2 py-0.5'
           : ''
       }
       onClick={(e) => {
@@ -445,7 +447,7 @@ function MobilePoolRow({
 
               <div className="flex items-center relative top-0.5">
                 {mark ? (
-                  <span className="max-w-min text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                  <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
                     {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
                       <FormattedMessage id="stablecoin"></FormattedMessage>
                     ) : (
@@ -523,7 +525,7 @@ function MobilePoolRowV2({
     value?: number;
   }) => {
     if (sortBy === 'tvl')
-      return PAUSE_DCL ? '-' : toInternationalCurrencySystem(value.toString());
+      return toInternationalCurrencySystem(value.toString());
     else if (sortBy === 'fee') return `${calculateFeePercent(value / 100)}%`;
     else if (sortBy === 'volume_24h') {
       return geth24volume();
@@ -585,7 +587,7 @@ function MobilePoolRowV2({
                   `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
               </div>
               {mark ? (
-                <span className="max-w-min text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
                   V2
                 </span>
               ) : null}
@@ -768,6 +770,8 @@ function MobileWatchListCard({
   );
 }
 
+const REF_MOBILE_POOL_ID_INPUT = 'REF_MOBILE_POOL_ID_INPUT';
+
 function MobileLiquidityPage({
   pools,
   tokenName,
@@ -827,6 +831,9 @@ function MobileLiquidityPage({
   const [showSelectModalV2, setShowSelectModalV2] = useState<Boolean>();
 
   const inputRef = useRef(null);
+
+  const search_id_ref = useRef(null);
+
   const selectTokens = useRainbowWhitelistTokens();
 
   const selectBalances = useTokenBalances();
@@ -897,6 +904,38 @@ function MobileLiquidityPage({
     );
   };
   const outOfText = intl.formatMessage({ id: 'out_of' });
+  const [symbolsArr] = useState(['e', 'E', '+', '-', '.']);
+
+  const [enableIdSearch, setEnableIdSearch] = useState<boolean>(
+    !!sessionStorage.getItem(REF_POOL_ID_SEARCHING_KEY) || false
+  );
+
+  const handleEnableIdSearching = () => {
+    if (enableIdSearch) {
+      sessionStorage.removeItem(REF_POOL_ID_SEARCHING_KEY);
+    } else {
+      sessionStorage.setItem(REF_POOL_ID_SEARCHING_KEY, '1');
+    }
+
+    setEnableIdSearch(!enableIdSearch);
+    inputRef.current.value = '';
+    onSearch('');
+    setShowPoolIDTip(false);
+  };
+
+  // useEffect(() => {
+  //   if (inputRef.current?.value) inputRef.current.value = tokenName;
+  // }, [activeTab]);
+
+  const [showPoolIDTip, setShowPoolIDTip] = useState<boolean>(false);
+
+  const handleIdSearching = (id: string) => {
+    if (Number(id) >= allPools) {
+      setShowPoolIDTip(true);
+    } else if (id && id.length > 0 && !id.includes('.')) {
+      window.open(`/pool/${id}`, '_blank');
+    }
+  };
 
   const poolSortingFunc = (p1: Pool, p2: Pool) => {
     if (order === 'asc') {
@@ -1048,18 +1087,82 @@ function MobileLiquidityPage({
           {activeTab === 'stable' && (
             <div className="flex items-center justify-end relative w-full">
               <div className="relative rounded-xl w-full my-2 text-primaryText flex items-center pr-2 bg-cardBg">
+                <button
+                  type="button"
+                  className={` flex items-center justify-center px-2 py-0.5 rounded-lg ml-1 ${
+                    enableIdSearch
+                      ? 'bg-gradientFrom text-white'
+                      : 'bg-cardBg text-white text-opacity-30'
+                  } `}
+                  onClick={() => {
+                    handleEnableIdSearching();
+                  }}
+                >
+                  #
+                </button>
                 <input
                   ref={inputRef}
-                  value={tokenName}
                   className={`text-sm outline-none rounded-xl w-full py-1.5 pl-3 pr-6`}
-                  placeholder={intl.formatMessage({
-                    id: 'search_by_token',
-                  })}
+                  placeholder={
+                    enableIdSearch
+                      ? intl.formatMessage({
+                          id: 'input_pool_id',
+                          defaultMessage: 'Input pool Id',
+                        })
+                      : intl.formatMessage({
+                          id: 'search_by_token',
+                        })
+                  }
+                  defaultValue={
+                    enableIdSearch
+                      ? sessionStorage.getItem(REF_MOBILE_POOL_ID_INPUT)
+                      : tokenName
+                  }
+                  inputMode={enableIdSearch ? 'decimal' : 'text'}
+                  type={enableIdSearch ? 'number' : 'text'}
+                  onKeyDown={(evt) => {
+                    if (enableIdSearch) {
+                      symbolsArr.includes(evt.key) && evt.preventDefault();
+                    }
+
+                    if (evt.key === 'Enter' && enableIdSearch) {
+                      handleIdSearching(inputRef.current.value);
+                    }
+                  }}
+                  onFocus={() => {
+                    setShowPoolIDTip(false);
+                  }}
                   onChange={(evt) => {
-                    onSearch(evt.target.value);
+                    inputRef.current.value = evt.target.value;
+
+                    if (
+                      enableIdSearch &&
+                      Number(evt.target.value) >= allPools
+                    ) {
+                      setShowPoolIDTip(true);
+                    } else {
+                      setShowPoolIDTip(false);
+                    }
+
+                    !enableIdSearch
+                      ? onSearch(evt.target.value)
+                      : sessionStorage.setItem(
+                          REF_MOBILE_POOL_ID_INPUT,
+                          evt.target.value
+                        );
                   }}
                 />
-                <SearchIcon className="absolute right-2"></SearchIcon>
+                {showPoolIDTip && <PoolIdNotExist />}
+                <SearchIcon
+                  onClick={() => {
+                    if (enableIdSearch && !!inputRef.current.value) {
+                      handleIdSearching(inputRef.current.value);
+                    }
+                  }}
+                  className={`absolute right-2 ${
+                    enableIdSearch ? 'cursor-pointer' : ''
+                  }`}
+                ></SearchIcon>
               </div>
             </div>
           )}
@@ -1080,19 +1183,82 @@ function MobileLiquidityPage({
             </div>
 
             <div className="rounded my-2 text-gray-400 flex items-center pr-2 mx-4 mb-5">
-              <div className="relative flex items-center flex-grow">
+              <div className="relative flex items-center flex-grow bg-inputDarkBg rounded-md">
+                <button
+                  type="button"
+                  className={` flex items-center justify-center px-2 py-0.5 rounded-lg ml-1 ${
+                    enableIdSearch
+                      ? 'bg-gradientFrom text-white'
+                      : 'bg-cardBg text-white text-opacity-30'
+                  } `}
+                  onClick={() => {
+                    handleEnableIdSearching();
+                  }}
+                >
+                  #
+                </button>
                 <input
                   ref={inputRef}
-                  className={`text-sm outline-none rounded py-2 pl-3 pr-7 flex-grow bg-inputDarkBg`}
-                  placeholder={intl.formatMessage({
-                    id: 'search_by_token',
-                  })}
-                  value={tokenName}
+                  className={`text-sm outline-none rounded py-2 pl-3 pr-7 flex-grow `}
+                  placeholder={
+                    enableIdSearch
+                      ? intl.formatMessage({
+                          id: 'input_pool_id',
+                          defaultMessage: 'Input pool Id',
+                        })
+                      : intl.formatMessage({
+                          id: 'search_by_token',
+                        })
+                  }
+                  inputMode={enableIdSearch ? 'decimal' : 'text'}
+                  type={enableIdSearch ? 'number' : 'text'}
                   onChange={(evt) => {
-                    onSearch(evt.target.value);
+                    inputRef.current.value = evt.target.value;
+                    if (
+                      enableIdSearch &&
+                      Number(evt.target.value) >= allPools
+                    ) {
+                      setShowPoolIDTip(true);
+                    } else {
+                      setShowPoolIDTip(false);
+                    }
+                    !enableIdSearch
+                      ? onSearch(evt.target.value)
+                      : sessionStorage.setItem(
+                          REF_MOBILE_POOL_ID_INPUT,
+                          evt.target.value
+                        );
+                  }}
+                  onKeyDown={(evt) => {
+                    if (enableIdSearch) {
+                      symbolsArr.includes(evt.key) && evt.preventDefault();
+                    }
+
+                    if (evt.key === 'Enter' && enableIdSearch) {
+                      handleIdSearching(inputRef.current.value);
+                    }
+                  }}
+                  defaultValue={
+                    enableIdSearch
+                      ? sessionStorage.getItem(REF_MOBILE_POOL_ID_INPUT)
+                      : tokenName
+                  }
+                  onFocus={() => {
+                    setShowPoolIDTip(false);
                   }}
                 />
-                <SearchIcon className="absolute right-1.5"></SearchIcon>
+
+                {showPoolIDTip && <PoolIdNotExist />}
+                <SearchIcon
+                  onClick={() => {
+                    if (enableIdSearch && !!inputRef.current.value) {
+                      handleIdSearching(inputRef.current.value);
+                    }
+                  }}
+                  className={`absolute right-1.5 ${
+                    enableIdSearch ? 'cursor-pointer' : ''
+                  }`}
+                ></SearchIcon>
               </div>
               {isSignedIn ? (
                 <div
@@ -1383,6 +1549,18 @@ export const getPoolListFarmAprTip = () => {
 `;
 };
 
+const PoolIdNotExist = () => {
+  const intl = useIntl();
+  return (
+    <span className="relative right-6  bottom-px whitespace-nowrap text-redwarningColor">
+      {intl.formatMessage({
+        id: 'poolIdNotExist',
+        defaultMessage: 'does not exist!',
+      })}
+    </span>
+  );
+};
+
 function PoolRow({
   pool,
   index,
@@ -1657,9 +1835,7 @@ function PoolRowV2({
             0
           )}
         >
-          {PAUSE_DCL
-            ? '-'
-            : '$' + toInternationalCurrencySystem(pool.tvl.toString())}
+          {'$' + toInternationalCurrencySystem(pool.tvl.toString())}
         </div>
       </div>
     </div>
@@ -1900,6 +2076,10 @@ function LiquidityPage_({
   const [tvlV2, setTvlV2] = useState<string>();
 
   useEffect(() => {
+    setShowPoolIDTip(false);
+  }, [activeTab]);
+
+  useEffect(() => {
     if (
       typeof allPoolsV2 === 'undefined' ||
       allPoolsV2.length === 0 ||
@@ -1942,6 +2122,33 @@ function LiquidityPage_({
   const [v2SortBy, setV2SortBy] = useState<string>('tvl');
 
   const [v2Order, setV2Order] = useState<string>('desc');
+  const [symbolsArr] = useState(['e', 'E', '+', '-', '.']);
+  const [enableIdSearch, setEnableIdSearch] = useState<boolean>(
+    !!sessionStorage.getItem(REF_POOL_ID_SEARCHING_KEY) || false
+  );
+
+  const handleEnableIdSearching = () => {
+    if (enableIdSearch) {
+      sessionStorage.removeItem(REF_POOL_ID_SEARCHING_KEY);
+    } else {
+      sessionStorage.setItem(REF_POOL_ID_SEARCHING_KEY, '1');
+    }
+
+    setEnableIdSearch(!enableIdSearch);
+    inputRef.current.value = '';
+    onSearch('');
+    setShowPoolIDTip(false);
+  };
+
+  const [showPoolIDTip, setShowPoolIDTip] = useState<boolean>(false);
+
+  const handleIdSearching = (id: string) => {
+    if (Number(id) >= allPools) {
+      setShowPoolIDTip(true);
+    } else if (id && id.length > 0 && !id.includes('.')) {
+      window.open(`/pool/${id}`, '_blank');
+    }
+  };
 
   useEffect(() => {
     canFarm(getVEPoolId()).then(({ count }) => {
@@ -2200,30 +2407,99 @@ function LiquidityPage_({
               style={{
                 background: 'rgba(34, 46, 56, 0.2)',
                 border: searchFocus ? '1px solid #3A635B' : '1px solid #304452',
+                width: '250px',
               }}
             >
+              <button
+                type="button"
+                className={`${
+                  activeTab === 'v2' ? 'hidden' : ''
+                } flex items-center justify-center px-2 py-1 rounded-lg ml-1 ${
+                  enableIdSearch
+                    ? 'bg-gradientFrom text-white'
+                    : 'bg-cardBg text-white text-opacity-30'
+                } `}
+                onClick={() => {
+                  handleEnableIdSearching();
+                }}
+              >
+                #
+              </button>
+
               <input
                 ref={inputRef}
-                className={`text-sm search-pool-pc outline-none rounded-xl w-full py-2 pl-3 pr-6`}
-                placeholder={intl.formatMessage({
-                  id: 'search_pool_by_token',
-                  defaultMessage: 'Search pool by token...',
-                })}
+                className={`text-sm search-pool-pc outline-none rounded-xl  py-2 pl-3 pr-6`}
+                placeholder={
+                  enableIdSearch && activeTab !== 'v2'
+                    ? intl.formatMessage({
+                        id: 'input_pool_id',
+                        defaultMessage: 'Input pool Id',
+                      })
+                    : intl.formatMessage({
+                        id: 'search_pool_by_token',
+                        defaultMessage: 'Search pool by token...',
+                      })
+                }
+                inputMode={
+                  enableIdSearch && activeTab !== 'v2' ? 'decimal' : 'text'
+                }
+                type={enableIdSearch && activeTab !== 'v2' ? 'number' : 'text'}
                 onFocus={() => {
                   setSearchFocus(true);
+                  setShowPoolIDTip(false);
                 }}
                 onBlur={() => {
                   setSearchFocus(false);
                 }}
                 onChange={(evt) => {
-                  onSearch(evt.target.value);
+                  inputRef.current.value = evt.target.value;
+
+                  if (
+                    enableIdSearch &&
+                    activeTab !== 'v2' &&
+                    Number(evt.target.value) >= allPools
+                  ) {
+                    setShowPoolIDTip(true);
+                  } else {
+                    setShowPoolIDTip(false);
+                  }
+
+                  !enableIdSearch || activeTab === 'v2'
+                    ? onSearch(evt.target.value)
+                    : null;
+                }}
+                onKeyDown={(evt) => {
+                  if (activeTab !== 'v2' && enableIdSearch) {
+                    symbolsArr.includes(evt.key) && evt.preventDefault();
+                  }
+
+                  if (
+                    evt.key === 'Enter' &&
+                    activeTab !== 'v2' &&
+                    enableIdSearch
+                  ) {
+                    handleIdSearching(inputRef.current.value);
+                  }
                 }}
               />
+
+              {showPoolIDTip && <PoolIdNotExist />}
               <SearchIcon
                 style={{
                   opacity: searchFocus ? '1' : '0.5',
                 }}
-                className="absolute right-2"
+                onClick={() => {
+                  if (
+                    enableIdSearch &&
+                    activeTab !== 'v2' &&
+                    !!inputRef.current.value
+                  ) {
+                    handleIdSearching(inputRef.current.value);
+                  }
+                }}
+                className={`absolute right-2 ${
+                  enableIdSearch && activeTab !== 'v2' ? 'cursor-pointer' : ''
+                }`}
               ></SearchIcon>
             </div>
 
@@ -2529,7 +2805,7 @@ function LiquidityPage_({
                     )}
                   </span>
                 </div>
-                <p className="col-span-1 justify-self-end relative right-6">
+                <p className="col-span-1 justify-self-end relative xs:right-8 lg:right-5">
                   <FormattedMessage id="pools" defaultMessage="Pools" />
                 </p>
               </header>

@@ -3,12 +3,21 @@ import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   list_liquidities,
+  list_liquidities_old_version,
   get_pool,
+  get_pool_old_version,
+  get_liquidity,
+  get_liquidity_old_version,
   PoolInfo,
   remove_liquidity,
-  get_liquidity,
 } from '../../services/swapV3';
-import { ColorsBox, ColorsBoxCenter, AddButtonIcon } from '~components/icon/V3';
+import {
+  ColorsBox,
+  ColorsBoxCenter,
+  AddButtonIcon,
+  WarningTip,
+  MobileWarningTip,
+} from '~components/icon/V3';
 import {
   GradientButton,
   BorderButton,
@@ -30,8 +39,7 @@ import {
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   TOKEN_LIST_FOR_RATE,
-  PAUSE_DCL,
-  pause_v2_tip,
+  pause_old_dcl_claim_tip,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getBoostTokenPrices } from '../../services/farm';
@@ -95,7 +103,8 @@ export default function YourLiquidityPageV3() {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
-
+  const [listLiquidities_old_version, setListLiquidities_old_version] =
+    useState<UserLiquidityInfo[]>([]);
   const liquidityStatusList = ['all', 'V2', 'V1'];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
@@ -110,8 +119,10 @@ export default function YourLiquidityPageV3() {
 
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
   const [listLiquiditiesLoading, setListLiquiditiesLoading] = useState(true);
-  const [oldListLiquiditiesLoading, setOldListLiquiditiesLoading] =
-    useState(true);
+  const [
+    listLiquiditiesLoading_old_version,
+    setListLiquiditiesLoading_old_version,
+  ] = useState(true);
 
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
 
@@ -135,6 +146,7 @@ export default function YourLiquidityPageV3() {
   const [checkedStatus, setCheckedStatus] = useState('all');
   const [oldLiquidityHasNoData, setOldLiquidityHasNoData] = useState(false);
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
+  const [all_dcl_length, set_all_dcl_length] = useState(0);
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
@@ -160,9 +172,14 @@ export default function YourLiquidityPageV3() {
   }, []);
   useEffect(() => {
     if (isSignedIn) {
-      get_list_liquidities();
+      get_all_dcl_liquidities();
     }
   }, [isSignedIn]);
+  async function get_all_dcl_liquidities() {
+    const size_1 = await get_list_liquidities();
+    const size_2 = await get_list_liquidities_old_version();
+    set_all_dcl_length(size_1 + size_2);
+  }
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
     if (list.length > 0) {
@@ -174,6 +191,20 @@ export default function YourLiquidityPageV3() {
       setListLiquidities(list);
     }
     setListLiquiditiesLoading(false);
+    return list.length;
+  }
+  async function get_list_liquidities_old_version() {
+    const list: UserLiquidityInfo[] = await list_liquidities_old_version();
+    if (list.length > 0) {
+      list.sort((item1: UserLiquidityInfo, item2: UserLiquidityInfo) => {
+        const item1_hashId = +item1.lpt_id.split('#')[1];
+        const item2_hashId = +item2.lpt_id.split('#')[1];
+        return item1_hashId - item2_hashId;
+      });
+      setListLiquidities_old_version(list);
+    }
+    setListLiquiditiesLoading_old_version(false);
+    return list.length;
   }
   function goAddLiquidityPage(url: string) {
     history.push(url);
@@ -246,6 +277,18 @@ export default function YourLiquidityPageV3() {
         YourLpValueV1={YourLpValueV1}
         YourLpValueV2={YourLpValueV2}
       ></PoolTabV3>
+      {listLiquidities_old_version.length > 0 ? (
+        <UserLegacyLiqudities
+          listLiquidities_old_version={listLiquidities_old_version}
+          setLpValueV2Done={setLpValueV2Done}
+          setYourLpValueV2={setYourLpValueV2}
+          listLiquiditiesLoading_old_version={
+            listLiquiditiesLoading_old_version
+          }
+          all_dcl_length={all_dcl_length}
+        ></UserLegacyLiqudities>
+      ) : null}
+
       <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto">
         <div className="flex items-start justify-between lg:mt-4 xs:mb-5 md:mb-5">
           <div className="flex items-center">
@@ -385,7 +428,7 @@ export default function YourLiquidityPageV3() {
                           return (
                             <div key={index}>
                               <UserLiquidityLine
-                                lpSize={listLiquidities.length}
+                                lpSize={all_dcl_length}
                                 setLpValueV2Done={setLpValueV2Done}
                                 setYourLpValueV2={setYourLpValueV2}
                                 liquidity={liquidity}
@@ -429,11 +472,13 @@ function UserLiquidityLine({
   setLpValueV2Done,
   lpSize,
   setYourLpValueV2,
+  isLegacy,
 }: {
   liquidity: UserLiquidityInfo;
   lpSize: number;
   setLpValueV2Done: (value: boolean) => void;
   setYourLpValueV2: (value: string) => void;
+  isLegacy?: boolean;
 }) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [liquidityDetail, setLiquidityDetail] = useState<UserLiquidityInfo>();
@@ -478,7 +523,8 @@ function UserLiquidityLine({
     }
   }, [poolDetail, tokenMetadata_x_y, tokenPriceList]);
   async function get_pool_detail() {
-    const detail = await get_pool(pool_id, token_x);
+    const get_pool_fun = isLegacy ? get_pool_old_version : get_pool;
+    const detail = await get_pool_fun(pool_id, token_x);
     if (detail) {
       const { current_point } = detail;
       if (current_point >= left_point && right_point > current_point) {
@@ -490,7 +536,10 @@ function UserLiquidityLine({
     }
   }
   async function getLiquidityDetail() {
-    const l = await get_liquidity(lpt_id);
+    const get_liquidity_fun = isLegacy
+      ? get_liquidity_old_version
+      : get_liquidity;
+    const l = await get_liquidity_fun(lpt_id);
     if (l) {
       setLiquidityDetail(l);
     }
@@ -535,7 +584,7 @@ function UserLiquidityLine({
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
 
       const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
 
@@ -568,7 +617,7 @@ function UserLiquidityLine({
       const tokenYAmount = getY(left_point, right_point, L, tokenY);
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const total_price = tokenYTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
       const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
 
       const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
@@ -579,7 +628,7 @@ function UserLiquidityLine({
 
       sessionStorage.setItem(
         REF_FI_LP_V2_VALUE,
-        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
+        new Big(!!total_price ? toPrecision(total_price, 2) : '0')
           .plus(new Big(storagedValue || '0'))
           .toFixed(2)
       );
@@ -600,7 +649,7 @@ function UserLiquidityLine({
       const tokenXAmount = getX(left_point, right_point, L, tokenX);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenXTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
       const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
 
       const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
@@ -687,7 +736,7 @@ function UserLiquidityLine({
   }
   function claimRewards(e: any) {
     e.stopPropagation();
-    if (!canClaim() || PAUSE_DCL) return;
+    if (!canClaim() || isLegacy) return;
     setClaimLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
     remove_liquidity({
@@ -701,7 +750,7 @@ function UserLiquidityLine({
   }
   function goYourLiquidityDetailPage() {
     const id = lpt_id.replace(/\|/g, '@').replace('#', '@');
-    history.push(`/yoursLiquidityDetailV2/${id}`);
+    history.push(`/yoursLiquidityDetailV2/${id}${isLegacy ? '/1' : ''}`);
   }
   function getTokenFeeAmount(p: string) {
     if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {
@@ -819,7 +868,7 @@ function UserLiquidityLine({
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
-                <span className="text-white font-bold ml-9 mr-2.5 text-sm gotham_bold">
+                <span className="text-white font-bold mx-2.5 text-sm gotham_bold">
                   {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
                   {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
                 </span>
@@ -890,14 +939,14 @@ function UserLiquidityLine({
               <span className="text-sm text-white mx-2.5 gotham_bold">
                 ${your_liquidity || '-'}
               </span>
-              <div
-                className="text-white text-right"
-                data-class="reactTip"
-                data-for={`pause_v2_tip_1_${lpt_id}`}
-                data-place="top"
-                data-html={true}
-                data-tip={pause_v2_tip()}
-              >
+              {isLegacy ? (
+                <div
+                  className="flex items-center justify-center bg-legacyButtonBgColor  rounded-lg text-sm text-primaryText h-8 cursor-not-allowed mr-2.5"
+                  style={{ minWidth: '5rem' }}
+                >
+                  <FormattedMessage id="add" />
+                </div>
+              ) : (
                 <GradientButton
                   onClick={(e) => {
                     e.stopPropagation();
@@ -906,22 +955,11 @@ function UserLiquidityLine({
                   color="#fff"
                   minWidth="5rem"
                   borderRadius="8px"
-                  className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5 ${
-                    PAUSE_DCL ? 'opacity-40' : ''
-                  }`}
-                  disabled={PAUSE_DCL}
-                  btnClassName="cursor-not-allowed"
+                  className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5`}
                 >
                   <FormattedMessage id="add" />
                 </GradientButton>
-                <ReactTooltip
-                  id={`pause_v2_tip_1_${lpt_id}`}
-                  backgroundColor="#1D2932"
-                  border
-                  borderColor="#7e8a93"
-                  effect="solid"
-                />
-              </div>
+              )}
               <BorderButton
                 onClick={(e) => {
                   e.stopPropagation();
@@ -957,14 +995,14 @@ function UserLiquidityLine({
               <div
                 className="text-white text-right"
                 data-class="reactTip"
-                data-for={`pause_v2_tip_3_${lpt_id}`}
+                data-for={`pause_dcl_tip_claim_${liquidity.lpt_id}`}
                 data-place="top"
                 data-html={true}
-                data-tip={pause_v2_tip()}
+                data-tip={isLegacy ? pause_old_dcl_claim_tip() : ''}
               >
                 <div
                   className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
-                    !canClaim() || PAUSE_DCL
+                    !canClaim() || isLegacy
                       ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
                       : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
                   }`}
@@ -976,7 +1014,7 @@ function UserLiquidityLine({
                   />
                 </div>
                 <ReactTooltip
-                  id={`pause_v2_tip_3_${lpt_id}`}
+                  id={`pause_dcl_tip_claim_${liquidity.lpt_id}`}
                   backgroundColor="#1D2932"
                   border
                   borderColor="#7e8a93"
@@ -1092,14 +1130,14 @@ function UserLiquidityLine({
                   <div
                     className="text-white text-right"
                     data-class="reactTip"
-                    data-for={`pause_v2_tip_8_${lpt_id}`}
+                    data-for={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
                     data-place="top"
                     data-html={true}
-                    data-tip={pause_v2_tip()}
+                    data-tip={isLegacy ? pause_old_dcl_claim_tip() : ''}
                   >
                     <div
                       className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
-                        !canClaim() || PAUSE_DCL
+                        !canClaim() || isLegacy
                           ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
                           : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
                       }`}
@@ -1111,7 +1149,7 @@ function UserLiquidityLine({
                       />
                     </div>
                     <ReactTooltip
-                      id={`pause_v2_tip_8_${lpt_id}`}
+                      id={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
                       backgroundColor="#1D2932"
                       border
                       borderColor="#7e8a93"
@@ -1131,36 +1169,22 @@ function UserLiquidityLine({
             <span className="text-sm text-white">${your_liquidity || '-'}</span>
           </div>
           <div className="flex items-center justify-between mt-3.5">
-            <div
-              className="w-1 flex-grow text-white text-right"
-              data-class="reactTip"
-              data-for={`pause_v2_tip_5_${lpt_id}`}
-              data-place="top"
-              data-html={true}
-              data-tip={pause_v2_tip()}
-            >
+            {isLegacy ? (
+              <div className="flex w-1 flex-grow items-center justify-center bg-black bg-opacity-30 rounded-lg text-sm text-primaryText h-8 cursor-not-allowed mr-3">
+                <FormattedMessage id="add" />
+              </div>
+            ) : (
               <GradientButton
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowAddBox(true);
                 }}
                 color="#fff"
-                disabled={PAUSE_DCL}
-                className={`h-8 text-center text-sm text-white focus:outline-none mr-3 ${
-                  PAUSE_DCL ? 'opacity-40' : 'w-1 flex-grow'
-                }`}
-                btnClassName={`${PAUSE_DCL ? 'cursor-not-allowed' : ''}`}
+                className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3`}
               >
                 <FormattedMessage id="add" />
               </GradientButton>
-              <ReactTooltip
-                id={`pause_v2_tip_5_${lpt_id}`}
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
-            </div>
+            )}
             <BorderButton
               onClick={(e) => {
                 e.stopPropagation();
@@ -1186,6 +1210,7 @@ function UserLiquidityLine({
           poolDetail={poolDetail}
           tokenPriceList={tokenPriceList}
           userLiquidity={liquidityDetail}
+          isLegacy={isLegacy}
           style={{
             overlay: {
               backdropFilter: 'blur(15px)',
@@ -1256,6 +1281,49 @@ export function NoLiquidity({
 
       <MyOrderMask />
       <MyOrderMask2 />
+    </div>
+  );
+}
+function UserLegacyLiqudities(props: any) {
+  const {
+    listLiquidities_old_version,
+    setLpValueV2Done,
+    setYourLpValueV2,
+    all_dcl_length,
+    listLiquiditiesLoading_old_version,
+  } = props;
+  return (
+    <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto border border-legacyYellowColor p-4 xsm:px-2.5 rounded-2xl bg-legacyBgColor mt-16 xsm:mt-0 mb-9">
+      <div className="flex xsm:flex-col items-center justify-center lg:mb-5 lg:px-5">
+        <WarningTip className="mr-1.5 xsm:hidden"></WarningTip>
+        <MobileWarningTip className="mb-1.5 lg:hidden"></MobileWarningTip>
+        <span className="text-base text-legacyYellowColor gotham_bold xsm:text-center">
+          A new contract has been deployed! Please remove your liquidity from
+          the old contract
+        </span>
+        <span className="text-sm text-v3LightGreyColor text-center lg:hidden my-1.5">
+          *Removing will automatically claim your unclaimed fees.
+        </span>
+      </div>
+      {listLiquidities_old_version.length > 0 ? (
+        <div>
+          {listLiquidities_old_version.map(
+            (liquidity: UserLiquidityInfo, index: number) => {
+              return (
+                <div key={index + liquidity.lpt_id}>
+                  <UserLiquidityLine
+                    lpSize={all_dcl_length}
+                    setLpValueV2Done={setLpValueV2Done}
+                    setYourLpValueV2={setYourLpValueV2}
+                    liquidity={liquidity}
+                    isLegacy={true}
+                  ></UserLiquidityLine>
+                </div>
+              );
+            }
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }
