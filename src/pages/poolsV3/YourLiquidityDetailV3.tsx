@@ -9,12 +9,14 @@ import React, {
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
-  list_liquidities,
   get_pool,
+  get_pool_old_version,
+  get_liquidity,
+  get_liquidity_old_version,
+  get_pool_marketdepth,
+  get_pool_marketdepth_old_version,
   PoolInfo,
   remove_liquidity,
-  get_liquidity,
-  get_pool_marketdepth,
 } from '../../services/swapV3';
 import { ReturnIcon, SwitchButton } from '~components/icon/V3';
 import {
@@ -49,8 +51,7 @@ import {
   getYAmount_per_point_by_Ly,
   drawChartData,
   TOKEN_LIST_FOR_RATE,
-  PAUSE_DCL,
-  pause_v2_tip,
+  pause_old_dcl_claim_tip,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getTokenPriceList } from '../../services/indexer';
@@ -75,7 +76,9 @@ export default function YourLiquidityDetail(props: any) {
   const history = useHistory();
   // callBack handle
   useAddAndRemoveUrlHandle();
-  const paramsId = props.match.params?.id || '';
+  const { id, status } = props.match.params || {};
+  const paramsId = id || '';
+  const is_old_dcl = status == '1';
   const [tokenXId, tokenYId, feeV, lId] = paramsId.split('@');
   const hashId = lId;
   const poolId = `${tokenXId}|${tokenYId}|${feeV}`;
@@ -120,7 +123,10 @@ export default function YourLiquidityDetail(props: any) {
     }
   }, [rateSort]);
   async function getChartData() {
-    const depthData = await get_pool_marketdepth(poolDetail.pool_id);
+    const get_pool_marketdepth_fun = is_old_dcl
+      ? get_pool_marketdepth_old_version
+      : get_pool_marketdepth;
+    const depthData = await get_pool_marketdepth_fun(poolDetail.pool_id);
     const { left_point, right_point } = userLiquidity;
     const [tokenX, tokenY] = tokenMetadata_x_y;
     drawChartData({
@@ -137,14 +143,18 @@ export default function YourLiquidityDetail(props: any) {
   }
   async function get_pool_detail() {
     const token_x = poolId.split('|')[0];
-    const detail = await get_pool(poolId, token_x);
+    const get_pool_fun = is_old_dcl ? get_pool_old_version : get_pool;
+    const detail = await get_pool_fun(poolId, token_x);
     if (detail) {
       setPoolDetail(detail);
     }
   }
   async function get_user_liquidity() {
     const lptId = poolId + '#' + hashId;
-    const l = await get_liquidity(lptId);
+    const get_liquidity_fun = is_old_dcl
+      ? get_liquidity_old_version
+      : get_liquidity;
+    const l = await get_liquidity_fun(lptId);
     if (l) {
       setUserLiquidity(l);
     }
@@ -185,7 +195,7 @@ export default function YourLiquidityDetail(props: any) {
       );
       const total_price =
         tokenYTotalPrice.plus(tokenXTotalPrice).toFixed() || '0';
-      return `$` + formatWithCommas(toPrecision(total_price, 3));
+      return `$` + formatWithCommas(toPrecision(total_price, 2));
     }
 
     return '$-';
@@ -293,10 +303,10 @@ export default function YourLiquidityDetail(props: any) {
         const totalPrice = priceX.plus(priceY);
         if (totalPrice.isEqualTo('0')) {
           return '$0';
-        } else if (totalPrice.isLessThan('0.001')) {
-          return '<$0.001';
+        } else if (totalPrice.isLessThan('0.01')) {
+          return '<$0.01';
         } else {
-          return '$' + toPrecision(totalPrice.toFixed(), 3);
+          return '$' + toPrecision(totalPrice.toFixed(), 2);
         }
       }
     }
@@ -341,7 +351,7 @@ export default function YourLiquidityDetail(props: any) {
     setRateSort(!rateSort);
   }
   function claimRewards() {
-    if (!canClaim() || PAUSE_DCL) return;
+    if (!canClaim() || is_old_dcl) return;
     setClaimLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
     remove_liquidity({
@@ -351,6 +361,7 @@ export default function YourLiquidityDetail(props: any) {
       amount: '0',
       min_amount_x: '0',
       min_amount_y: '0',
+      isLegacy: !!is_old_dcl,
     });
   }
   function canClaim() {
@@ -447,7 +458,7 @@ export default function YourLiquidityDetail(props: any) {
             <div className="text-white text-base">
               <FormattedMessage id="your_liquidity" />
             </div>
-            <div className="text-white text-sm">~{getLiquidityPrice()}</div>
+            <div className="text-white text-base">~{getLiquidityPrice()}</div>
           </div>
           <div className={`flex items-center justify-between mt-5`}>
             <div className="flex items-center">
@@ -482,36 +493,23 @@ export default function YourLiquidityDetail(props: any) {
             </div>
           </div>
           <div className="flex items-center justify-between mt-5">
-            <div
-              className="flex-grow w-1 text-white text-right"
-              data-class="reactTip"
-              data-for="pause_v2_tip_1"
-              data-place="top"
-              data-html={true}
-              data-tip={pause_v2_tip()}
-            >
+            {is_old_dcl ? (
+              <div className="flex flex-grow w-1 items-center justify-center bg-legacyButtonBgColor rounded-lg text-sm text-primaryText h-9 cursor-not-allowed mr-2.5">
+                <FormattedMessage id="add" />
+              </div>
+            ) : (
               <GradientButton
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowAddBox(true);
                 }}
                 color="#fff"
-                disabled={PAUSE_DCL}
-                className={`h-9 text-center text-sm text-white focus:outline-none mr-2.5 ${
-                  PAUSE_DCL ? 'opacity-40' : 'flex-grow w-1'
-                }`}
-                btnClassName={`${PAUSE_DCL ? 'cursor-not-allowed' : ''}`}
+                borderRadius="8px"
+                className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
               >
                 <FormattedMessage id="add"></FormattedMessage>
               </GradientButton>
-              <ReactTooltip
-                id="pause_v2_tip_1"
-                backgroundColor="#1D2932"
-                border
-                borderColor="#7e8a93"
-                effect="solid"
-              />
-            </div>
+            )}
             <OprationButton
               onClick={(e: any) => {
                 e.stopPropagation();
@@ -571,11 +569,11 @@ export default function YourLiquidityDetail(props: any) {
             data-for="pause_v2_tip_3"
             data-place="top"
             data-html={true}
-            data-tip={pause_v2_tip()}
+            data-tip={is_old_dcl ? pause_old_dcl_claim_tip() : ''}
           >
             <div
               className={`flex items-center justify-center h-9 rounded-lg text-sm px-2 py-1 mt-5 ${
-                !canClaim() || PAUSE_DCL
+                !canClaim() || is_old_dcl
                   ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
                   : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
               }`}
@@ -691,6 +689,7 @@ export default function YourLiquidityDetail(props: any) {
           poolDetail={poolDetail}
           tokenPriceList={tokenPriceList}
           userLiquidity={userLiquidity}
+          isLegacy={is_old_dcl}
           style={{
             overlay: {
               backdropFilter: 'blur(15px)',

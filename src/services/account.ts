@@ -7,6 +7,7 @@ import {
   wallet,
   refFarmBoostViewFunction,
   refSwapV3ViewFunction,
+  refSwapV3OldVersionViewFunction,
 } from './near';
 
 export const ACCOUNT_MIN_STORAGE_AMOUNT = '0.005';
@@ -70,6 +71,14 @@ export const currentStorageBalanceOfV3 = (
   accountId: string
 ): Promise<AccountStorageView> => {
   return refSwapV3ViewFunction({
+    methodName: 'storage_balance_of',
+    args: { account_id: accountId },
+  });
+};
+export const currentStorageBalanceOfV3_old_version = (
+  accountId: string
+): Promise<AccountStorageView> => {
+  return refSwapV3OldVersionViewFunction({
     methodName: 'storage_balance_of',
     args: { account_id: accountId },
   });
