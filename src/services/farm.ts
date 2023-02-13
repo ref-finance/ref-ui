@@ -1230,8 +1230,35 @@ export const stake_boost_nft = async ({
           lpt_id,
           farming_type: JSON.parse(fixRange),
         },
-        gas: '100000000000000',
+        gas: '60000000000000',
       });
+    } else {
+      const [contractId, temp_pool_id] = seed_id.split('@');
+      const [fixRange_s, pool_id_s, left_point_s, right_point_s] =
+        temp_pool_id.split('&');
+      const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
+        mft_id.split('&');
+      const is_in_other_seed =
+        left_point_s != left_point_l || right_point_s != right_point_l;
+      if (is_in_other_seed) {
+        functionCalls.push(
+          {
+            methodName: 'burn_v_liquidity',
+            args: {
+              lpt_id,
+            },
+            gas: '60000000000000',
+          },
+          {
+            methodName: 'mint_v_liquidity',
+            args: {
+              lpt_id,
+              farming_type: JSON.parse(fixRange),
+            },
+            gas: '60000000000000',
+          }
+        );
+      }
     }
     functionCalls.push({
       methodName: 'mft_transfer_call',

@@ -653,6 +653,7 @@ export default function FarmsHome(props: any) {
           detailData: targetFarms,
           tokenPriceList,
           loveSeed,
+          all_seeds: farm_display_List,
         });
       }
     }
@@ -2698,6 +2699,7 @@ function FarmView(props: {
       detailData: seed,
       tokenPriceList,
       loveSeed,
+      all_seeds,
     });
     const poolId = getPoolIdBySeedId(seed.seed_id);
     const status = seed.farmList[0].status == 'Ended' ? 'e' : 'r';

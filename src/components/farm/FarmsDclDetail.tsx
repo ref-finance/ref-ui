@@ -27,16 +27,8 @@ import { LinkIcon, ArrowDownHollow } from '~components/icon';
 import {
   FarmBoost,
   Seed,
-  getServerTime,
-  stake_boost,
-  get_config,
-  unStake_boost,
   claimRewardBySeed_boost,
-  lock_free_seed,
-  force_unlock,
   BoostConfig,
-  UserSeedInfo,
-  getVeSeedShare,
   stake_boost_nft,
   unStake_boost_nft,
 } from '~services/farm';
@@ -55,40 +47,11 @@ import {
   ButtonTextWrapper,
   OprationButton,
   ConnectToNearBtn,
-  SolidButton,
 } from '~components/button/Button';
-import Modal from 'react-modal';
-import { usePool } from '~state/pool';
-import { ModalClose, Calc } from '~components/icon';
-import { addLiquidityToPool, Pool } from '~services/pool';
-import {
-  useWalletTokenBalances,
-  useDepositableBalance,
-} from '../../state/token';
-import { WRAP_NEAR_CONTRACT_ID } from '~services/wrap-near';
-import { useTokens, getDepositableBalance } from '~state/token';
-import { scientificNotationToString, divide } from '../../utils/numbers';
-import { BoostInputAmount } from '~components/forms/InputAmount';
-import Alert from '~components/alert/Alert';
-import { mftGetBalance } from '~services/mft-contract';
 import { getMftTokenId, toRealSymbol } from '~utils/token';
-import {
-  LP_TOKEN_DECIMALS,
-  LP_STABLE_TOKEN_DECIMALS,
-} from '../../services/m-token';
-import { Checkbox, CheckboxSelected } from '~components/icon';
-import { CalcEle } from '~components/farm/CalcModelBooster';
 import ReactTooltip from 'react-tooltip';
 import QuestionMark from '~components/farm/QuestionMark';
-import { ExternalLinkIcon } from '~components/icon/Risk';
-import { FaAngleUp, FaAngleDown } from 'react-icons/fa';
-import { useDayVolume } from '../../state/pool';
-import { getPool } from '~services/indexer';
-import CalcModelBooster from '~components/farm/CalcModelBooster';
-import { get24hVolume } from '~services/indexer';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
-import { VEARROW } from '../icon/Referendum';
-import { isStablePool } from '../../services/near';
 import {
   getPriceByPoint,
   UserLiquidityInfo,
@@ -98,31 +61,17 @@ import {
   allocation_rule_liquidities,
   TOKEN_LIST_FOR_RATE,
   get_matched_seeds_for_dcl_pool,
-  get_all_seeds,
   displayNumberToAppropriateDecimals,
   get_intersection_radio,
   get_intersection_icon_by_radio,
 } from '~services/commonV3';
-import {
-  list_liquidities,
-  get_pool,
-  PoolInfo,
-  remove_liquidity,
-  get_liquidity,
-  dcl_mft_balance_of,
-} from '../../services/swapV3';
+import { list_liquidities, dcl_mft_balance_of } from '../../services/swapV3';
 import { AddNewPoolV3 } from '~components/pool/AddNewPoolV3';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import moment from 'moment';
-import { compute_liquidity } from '../../services/compute_liquidity';
 const ONLY_ZEROS = /^0*\.?0*$/;
-const {
-  STABLE_POOL_IDS,
-  FARM_LOCK_SWITCH,
-  REF_VE_CONTRACT_ID,
-  FARM_BLACK_LIST_V2,
-} = getConfig();
+const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 const FarmContext = createContext(null);
 export default function FarmsDclDetail(props: {
   detailData: Seed;
@@ -133,6 +82,7 @@ export default function FarmsDclDetail(props: {
   user_data: Record<string, any>;
   user_data_loading: Boolean;
   dayVolumeMap: Record<string, string>;
+  all_seeds: Seed[];
 }) {
   const {
     detailData,
@@ -143,6 +93,7 @@ export default function FarmsDclDetail(props: {
     user_data,
     user_data_loading,
     dayVolumeMap,
+    all_seeds,
   } = props;
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
@@ -185,13 +136,13 @@ export default function FarmsDclDetail(props: {
   }, [detailData]);
   useEffect(() => {
     get_farms_data();
-  }, []);
+  }, [all_seeds]);
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities();
       get_mft_balance_of();
     }
-  }, [isSignedIn, user_data_loading]);
+  }, [isSignedIn, user_data_loading, all_seeds]);
   useEffect(() => {
     if (rate_need_to_reverse_display) {
       setRangeSort(false);
@@ -286,7 +237,6 @@ export default function FarmsDclDetail(props: {
     }
   }
   async function get_farms_data() {
-    const all_seeds = await get_all_seeds();
     const matched_seeds = get_matched_seeds_for_dcl_pool({
       seeds: all_seeds,
       pool_id: detailData.pool.pool_id,
@@ -309,7 +259,10 @@ export default function FarmsDclDetail(props: {
   }
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
-    if (list.length > 0 && !user_data_loading) {
+    if (list.length > 0 && !user_data_loading && all_seeds.length > 0) {
+      let temp_unavailable_final: UserLiquidityInfo[] = [];
+      let temp_free_final: UserLiquidityInfo[] = [];
+      let temp_farming_final: UserLiquidityInfo[] = [];
       const { free_amount = '0', locked_amount = '0' } =
         user_seeds_map[detailData.seed_id] || {};
       const user_seed_amount = new BigNumber(free_amount)
@@ -321,12 +274,96 @@ export default function FarmsDclDetail(props: {
           user_seed_amount,
           seed: detailData,
         });
-      const matched_liquidities = temp_farming
-        .concat(temp_free)
-        .concat(temp_unavailable);
-      set_listLiquidities_inFarimg(temp_farming);
-      set_listLiquidities_unFarimg(temp_free);
-      set_listLiquidities_unavailable(temp_unavailable);
+      temp_unavailable_final = temp_unavailable;
+      temp_free_final = temp_free;
+      temp_farming_final = temp_farming;
+      const liquidities_minted_in_another_seed = temp_unavailable.filter(
+        (liquidity: UserLiquidityInfo) => {
+          const { mft_id } = liquidity;
+          const { seed_id } = detailData;
+          if (mft_id) {
+            const [contractId, temp_pool_id] = seed_id.split('@');
+            const [fixRange_s, pool_id_s, left_point_s, right_point_s] =
+              temp_pool_id.split('&');
+            const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
+              mft_id.split('&');
+            return (
+              left_point_s != left_point_l || right_point_s != right_point_l
+            );
+          }
+        }
+      );
+      if (liquidities_minted_in_another_seed.length > 0) {
+        const liquidity_another = liquidities_minted_in_another_seed[0];
+        const { mft_id } = liquidity_another;
+        const list_new = JSON.parse(JSON.stringify(list));
+        const seed_id_another =
+          REF_UNI_V3_SWAP_CONTRACT_ID + '@' + mft_id.slice(1);
+        const { free_amount = '0', locked_amount = '0' } =
+          user_seeds_map[seed_id_another] || {};
+        const user_seed_amount_another = new BigNumber(free_amount)
+          .plus(locked_amount)
+          .toFixed();
+        const seed_another = all_seeds.find((seed: Seed) => {
+          return seed.seed_id == seed_id_another;
+        });
+        if (seed_another) {
+          const [
+            temp_farming_another,
+            temp_free_another,
+            temp_unavailable_another,
+          ] = allocation_rule_liquidities({
+            list: list_new,
+            user_seed_amount: user_seed_amount_another,
+            seed: seed_another,
+          });
+          const temp_farming_another_map = {};
+          temp_farming_another.forEach((liquidity: UserLiquidityInfo) => {
+            temp_farming_another_map[liquidity.lpt_id] = liquidity;
+          });
+          const { min_deposit } = detailData;
+          liquidities_minted_in_another_seed.forEach(
+            (liquidity: UserLiquidityInfo) => {
+              const liquidity_another: UserLiquidityInfo =
+                temp_farming_another_map[liquidity.lpt_id];
+              const v_liquidity = mint_liquidity(liquidity, detailData.seed_id);
+              if (+liquidity_another?.part_farm_ratio > 0) {
+                liquidity.status_in_other_seed = 'staked';
+              }
+              if (new BigNumber(v_liquidity).isLessThan(min_deposit)) {
+                liquidity.less_than_min_deposit = true;
+              }
+            }
+          );
+        }
+        const temp_unavailable_new: UserLiquidityInfo[] = [];
+        const frees_extra = temp_unavailable.filter(
+          (liquidity: UserLiquidityInfo) => {
+            const [left_point, right_point] = get_valid_range(
+              liquidity,
+              detailData.seed_id
+            );
+            const inRange = right_point > left_point;
+            if (
+              !(
+                liquidity.status_in_other_seed == 'staked' ||
+                liquidity.less_than_min_deposit ||
+                !inRange
+              )
+            )
+              return true;
+            temp_unavailable_new.push(liquidity);
+          }
+        );
+        temp_free_final = temp_free.concat(frees_extra);
+        temp_unavailable_final = temp_unavailable_new;
+      }
+      const matched_liquidities = temp_farming_final
+        .concat(temp_free_final)
+        .concat(temp_unavailable_final);
+      set_listLiquidities_inFarimg(temp_farming_final);
+      set_listLiquidities_unFarimg(temp_free_final);
+      set_listLiquidities_unavailable(temp_unavailable_final);
       setListLiquidities(matched_liquidities);
     }
     if (!user_data_loading) {
@@ -1408,23 +1445,6 @@ function LiquidityLine(props: {
   const [nft_unStake_loading, set_nft_unStake_loading] = useState(false);
   const [hover, setHover] = useState(false);
   const [dclCalcVisible, setDclCalcVisible] = useState(false);
-  const is_liquidity_staked_for_another_seed = useMemo(() => {
-    if (!(liquidity && detailData)) return false;
-    const { mft_id } = liquidity;
-    const { seed_id } = detailData;
-    let is_liquidity_staked_for_another_seed = false;
-    if (mft_id) {
-      const [contractId, temp_pool_id] = seed_id.split('@');
-      const [fixRange_s, pool_id_s, left_point_s, right_point_s] =
-        temp_pool_id.split('&');
-      const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
-        liquidity.mft_id.split('&');
-      if (left_point_s != left_point_l || right_point_s != right_point_l)
-        is_liquidity_staked_for_another_seed = true;
-    }
-    return is_liquidity_staked_for_another_seed;
-  }, [liquidity, detailData]);
-
   const liquidity_status_string: StatusType | string = useMemo(() => {
     if (!(liquidity && detailData)) return '';
     const { unfarm_part_amount } = liquidity;
@@ -1653,7 +1673,7 @@ function LiquidityLine(props: {
     const v_liquidity = mint_liquidity(liquidity, seed_id);
     let needUnstake = false;
     let withdraw_amount = '0';
-    if (!mft_id || part_farm_ratio == '0') {
+    if (!mft_id || new BigNumber(part_farm_ratio || 0).isEqualTo(0)) {
       finalAmount = v_liquidity;
     } else {
       if (new BigNumber(unfarm_part_amount).isLessThan(min_deposit)) {
@@ -1712,7 +1732,7 @@ function LiquidityLine(props: {
     const inrange = +right_point > +left_point;
     if (!inrange) {
       tip = 'Your price range is out of fix range';
-    } else if (is_liquidity_staked_for_another_seed) {
+    } else if (liquidity.status_in_other_seed == 'staked') {
       tip = 'This position has been staked in another farm';
     } else {
       const v_liquidity = mint_liquidity(liquidity, seed_id);

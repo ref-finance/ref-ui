@@ -12,6 +12,7 @@ export default function FarmsBoosterPage(props: any) {
   const [user_data, set_user_data] = useState({});
   const [user_data_loading, set_user_data_loading] = useState(true);
   const [dayVolumeMap, setDayVolumeMap] = useState({});
+  const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
   const paramId = decodeURIComponent(props.match.params.id || '');
   const paramIdArr = paramId.split('|');
   const getDetailData_user_data = (data: {
@@ -41,11 +42,13 @@ export default function FarmsBoosterPage(props: any) {
     detailData: Seed;
     tokenPriceList: any;
     loveSeed: Seed;
+    all_seeds: Seed[];
   }) => {
-    const { detailData, tokenPriceList, loveSeed } = data;
+    const { detailData, tokenPriceList, loveSeed, all_seeds } = data;
     setDetailData(detailData);
     setTokenPriceList(tokenPriceList);
     serLoveSeed(loveSeed);
+    set_all_seeds(all_seeds);
   };
   const emptyDetailData = () => {
     setDetailData(null);
@@ -89,6 +92,7 @@ export default function FarmsBoosterPage(props: any) {
           user_data={user_data}
           user_data_loading={user_data_loading}
           dayVolumeMap={dayVolumeMap}
+          all_seeds={all_seeds}
         ></FarmsDclDetail>
       ) : null}
     </>

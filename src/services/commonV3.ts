@@ -107,6 +107,8 @@ export interface UserLiquidityInfo {
   v_liquidity: string;
   part_farm_ratio?: string;
   unfarm_part_amount?: string;
+  status_in_other_seed?: string;
+  less_than_min_deposit?: boolean;
 }
 
 export function useAddAndRemoveUrlHandle() {
@@ -650,7 +652,10 @@ export function allocation_rule_liquidities({
   const temp_too_little_in_free: UserLiquidityInfo[] = temp_free.filter(
     (liquidity: UserLiquidityInfo) => {
       const v_liquidity = mint_liquidity(liquidity, seed_id);
-      if (new BigNumber(v_liquidity).isLessThan(min_deposit)) return true;
+      if (new BigNumber(v_liquidity).isLessThan(min_deposit)) {
+        liquidity.less_than_min_deposit = true;
+        return true;
+      }
       temp_free_final.push(liquidity);
     }
   );
