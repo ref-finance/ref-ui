@@ -411,13 +411,19 @@ function CalcEle() {
   }, [lp_amount, lp_value, selecteDate, tokenPriceList]);
   function get_rewards_info() {
     if (+lp_amount > 0 && +lp_value > 0) {
-      const { farmList, total_seed_power, total_seed_amount } = seed;
+      const { farmList, total_seed_power, total_seed_amount, seed_decimal } =
+        seed;
       // get lp percent
+      let total_seed_power_readble = new BigNumber(total_seed_amount)
+        .shiftedBy(-seed_decimal)
+        .toFixed();
       let total_lp = '';
       if (+(liquidity?.part_farm_ratio || 0) > 0) {
-        total_lp = new BigNumber(total_seed_power).toFixed();
+        total_lp = new BigNumber(total_seed_power_readble).toFixed();
       } else {
-        total_lp = new BigNumber(total_seed_power).plus(lp_amount).toFixed();
+        total_lp = new BigNumber(total_seed_power_readble)
+          .plus(lp_amount)
+          .toFixed();
       }
       const percent = new BigNumber(lp_amount).dividedBy(total_lp);
       // get rewards
@@ -427,10 +433,16 @@ function CalcEle() {
       farmList.forEach((farm: FarmBoost) => {
         const { terms, token_meta_data } = farm;
         const { daily_reward, reward_token } = terms;
-        const date_rewards = new BigNumber(selecteDate)
+        let date_rewards;
+        date_rewards = new BigNumber(selecteDate)
           .multipliedBy(30)
           .multipliedBy(daily_reward)
           .toFixed();
+        if (+selecteDate == 12) {
+          date_rewards = new BigNumber(daily_reward)
+            .multipliedBy(365)
+            .toFixed();
+        }
         const date_rewards_readale = toReadableNumber(
           token_meta_data.decimals,
           date_rewards

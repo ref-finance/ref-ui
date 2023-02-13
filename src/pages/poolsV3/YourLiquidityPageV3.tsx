@@ -1041,7 +1041,8 @@ function UserLiquidityLine({
                 </div>
                 {Liquidity_icon ? (
                   <div
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (liquidity_link) {
                         window.open(liquidity_link);
                       }
@@ -1258,6 +1259,7 @@ function UserLiquidityLine({
                 {Liquidity_icon ? (
                   <div
                     onClick={() => {
+                      e.stopPropagation();
                       if (liquidity_link) {
                         window.open(liquidity_link);
                       }
