@@ -679,7 +679,6 @@ export default function YourLiquidityDetail(props: any) {
             </div>
           </div>
           <div
-            // todo 合并
             className={`flex items-center justify-center h-9 rounded-lg text-sm px-2 py-1 mt-5   text-right gotham_bold  ${
               !canClaim() || is_old_dcl
                 ? is_old_dcl

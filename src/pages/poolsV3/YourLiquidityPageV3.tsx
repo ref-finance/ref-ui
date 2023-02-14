@@ -1889,7 +1889,6 @@ function UserLiquidityLine_old({
     if (!canClaim() || isLegacy) return;
     setClaimLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
-    // todo 合并
     remove_liquidity({
       token_x: tokenX,
       token_y: tokenY,

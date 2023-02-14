@@ -986,7 +986,7 @@ export const remove_liquidity = async ({
   token_x: TokenMetadata;
   token_y: TokenMetadata;
   lpt_id: string;
-  mft_id: string;
+  mft_id?: string;
   amount: string;
   min_amount_x: string;
   min_amount_y: string;
