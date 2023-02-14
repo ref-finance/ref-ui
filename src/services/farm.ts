@@ -947,7 +947,9 @@ export const getBoostSeedsFromServer = async (): Promise<{
         farmList: list_farms[index],
         pool,
       });
-      both_normalPools_dclPools.push(pool);
+      if (pool) {
+        both_normalPools_dclPools.push(pool);
+      }
     });
     db.cacheBoostSeeds(cacheSeedsFarmsPools);
     return {
