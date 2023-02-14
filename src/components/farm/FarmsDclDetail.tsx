@@ -573,7 +573,12 @@ export default function FarmsDclDetail(props: {
             <label class="text-xs text-farmText">${
               (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
             }</label>
-            <label class="text-xs text-farmText">${txt}: ${startDate}</label>
+            <label class="text-xs text-farmText ${
+              +startTime == 0 ? 'hidden' : ''
+            }">${txt}: ${startDate}</label>
+            <label class="text-xs text-farmText mt-0.5 ${
+              +startTime == 0 ? '' : 'hidden'
+            }">Pending</label>
           </div>
       </div>`;
       } else {
@@ -713,25 +718,40 @@ export default function FarmsDclDetail(props: {
       } = item;
       const token = commonRewardToken;
       const txt = intl.formatMessage({ id: 'start' });
+      function display_number(value: string | number) {
+        if (!value) return value;
+        const [whole, decimals] = value.toString().split('.');
+        const whole_format = formatWithCommas(whole);
+        if (+whole < 1 && decimals) {
+          return whole_format + '.' + decimals;
+        } else {
+          return whole_format;
+        }
+      }
       if (pending) {
         itemHtml = `<div class="flex flex-col items-end my-2">
                       <div class="flex justify-between items-center w-full"><image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${
                         token.icon
                       }"/>
-                      <label class="text-xs text-farmText">${formatWithCommas(
+                      <label class="text-xs text-farmText">${display_number(
                         commonRewardTotalRewardsPerWeek
                       )}</label>
                       </div>
-                      <label class="text-xs text-farmText mt-0.5">${txt}: ${moment
+                      <label class="text-xs text-farmText mt-0.5 ${
+                        +startTime == 0 ? 'hidden' : ''
+                      }">${txt}: ${moment
           .unix(startTime)
           .format('YYYY-MM-DD')}</label>
+                    <label class="text-xs text-farmText mt-0.5 ${
+                      +startTime == 0 ? '' : 'hidden'
+                    }">Pending</label>
                     </div>`;
       } else {
         itemHtml = `<div class="flex justify-between items-center h-8 my-2">
                       <image class="w-5 h-5 rounded-full mr-7" src="${
                         token.icon
                       }"/>
-                      <label class="text-xs text-navHighLightText">${formatWithCommas(
+                      <label class="text-xs text-navHighLightText">${display_number(
                         commonRewardTotalRewardsPerWeek
                       )}</label>
                     </div>`;

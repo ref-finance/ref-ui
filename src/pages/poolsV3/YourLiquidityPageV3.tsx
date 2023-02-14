@@ -713,7 +713,7 @@ function UserLiquidityLine({
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
 
       const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
 
@@ -746,7 +746,7 @@ function UserLiquidityLine({
       const tokenYAmount = getY(left_point, right_point, L, tokenY);
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const total_price = tokenYTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
       const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
 
       const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
@@ -778,7 +778,7 @@ function UserLiquidityLine({
       const tokenXAmount = getX(left_point, right_point, L, tokenX);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
       const total_price = tokenXTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 3)));
+      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
       const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
 
       const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
@@ -1269,8 +1269,8 @@ function UserLiquidityLine({
                 <div
                   className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
                     !canClaim()
-                      ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                      : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                      ? 'bg-deepBlue text-white opacity-30 cursor-not-allowed'
+                      : 'bg-deepBlue text-white hover:bg-lightBlue cursor-pointer'
                   }`}
                   onClick={claimRewards}
                 >
@@ -1401,8 +1401,8 @@ function UserLiquidityLine({
                 <div
                   className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-3 ${
                     !canClaim()
-                      ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                      : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                      ? 'bg-deepBlue text-white opacity-30 cursor-not-allowed'
+                      : 'bg-deepBlue text-white hover:bg-lightBlue cursor-pointer'
                   }`}
                   onClick={claimRewards}
                 >

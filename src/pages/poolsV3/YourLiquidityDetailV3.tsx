@@ -474,6 +474,9 @@ export default function YourLiquidityDetail(props: any) {
     }
     window.open(url);
   }
+  const goPoolPage = () => {
+    window.open(`/poolV2/${poolId}`);
+  };
   return (
     <div
       className={`m-auto lg:w-3/5 2xl:w-2/5 md:w-11/12 xs:w-11/12  xs:-mt-4 md:-mt-4`}
@@ -534,12 +537,14 @@ export default function YourLiquidityDetail(props: any) {
                 )}
               </span>
             </div>
-            {is_in_farming ? (
-              <span className="text-sm text-dclFarmGreenColor ml-2">
-                Farming
-              </span>
-            ) : null}
           </div>
+        </div>
+        <div
+          className="flex items-center text-farmText hover:text-framBorder"
+          onClick={goPoolPage}
+        >
+          <label className="mx-2 text-sm cursor-pointer">Pool Detail</label>
+          <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
       <div className="flex justify-between mt-8 items-stretch xs:flex-col md:flex-col xs:mt-5 md:mt-5">
