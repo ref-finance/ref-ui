@@ -116,6 +116,7 @@ export default function FarmsDclDetail(props: {
   const [showDetail, setShowDetail] = useState(false);
   const [betterSeed, setBetterSeed] = useState<Seed>();
   const [isNewSeed, setIsNewSeed] = useState<boolean>(false);
+  const [seedDclCalcVisible, setSeedDclCalcVisible] = useState(false);
   const {
     user_seeds_map = {},
     user_unclaimed_map = {},
@@ -976,9 +977,16 @@ export default function FarmsDclDetail(props: {
       <div className="flex items-stretch justify-between mt-4 xsm:hidden">
         <div className="flex justify-between bg-cardBg rounded-2xl px-3.5 py-4 flex-grow w-1 mr-3.5">
           <div className="flex flex-col items-start justify-between text-sm text-farmText border-r border-v3BlueBorderColor pr-10">
-            <span>
+            <div className="flex items-center">
               <FormattedMessage id="apr"></FormattedMessage>
-            </span>
+              <CalcIcon
+                onClick={(e: any) => {
+                  e.stopPropagation();
+                  setSeedDclCalcVisible(true);
+                }}
+                className="text-farmText ml-1.5 cursor-pointer hover:text-greenColor"
+              />
+            </div>
             <div
               className={``}
               data-type="info"
@@ -1429,6 +1437,28 @@ export default function FarmsDclDetail(props: {
           },
         }}
       ></AddNewPoolV3>
+      {/* caculator */}
+      {seedDclCalcVisible ? (
+        <CalcModelDcl
+          isOpen={seedDclCalcVisible}
+          onRequestClose={(e) => {
+            e.stopPropagation();
+            setSeedDclCalcVisible(false);
+          }}
+          seed={detailData}
+          tokenPriceList={tokenPriceList}
+          style={{
+            overlay: {
+              backdropFilter: 'blur(15px)',
+              WebkitBackdropFilter: 'blur(15px)',
+            },
+            content: {
+              outline: 'none',
+              transform: 'translate(-50%, -50%)',
+            },
+          }}
+        />
+      ) : null}
     </div>
   );
 }

@@ -1717,6 +1717,7 @@ export default function FarmsHome(props: any) {
                     >
                       <FarmView
                         seed={seed}
+                        all_seeds={farm_display_List}
                         tokenPriceList={tokenPriceList}
                         getDetailData={getDetailData}
                         dayVolumeMap={dayVolumeMap}
