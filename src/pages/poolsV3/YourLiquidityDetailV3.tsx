@@ -135,10 +135,12 @@ export default function YourLiquidityDetail(props: any) {
         const target = listLiquidities.find((liquidity: UserLiquidityInfo) => {
           return liquidity.lpt_id == userLiquidity.lpt_id;
         });
-        const { part_farm_ratio, unfarm_part_amount } = target;
-        userLiquidity.part_farm_ratio = part_farm_ratio;
-        userLiquidity.unfarm_part_amount = unfarm_part_amount;
-        set_is_in_farming(+part_farm_ratio > 0);
+        if (target) {
+          const { part_farm_ratio, unfarm_part_amount } = target;
+          userLiquidity.part_farm_ratio = part_farm_ratio;
+          userLiquidity.unfarm_part_amount = unfarm_part_amount;
+          set_is_in_farming(+part_farm_ratio > 0);
+        }
       }
       get_pool_related_farms();
       get_liquidity_x_y();
