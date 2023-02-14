@@ -1230,7 +1230,7 @@ export const stake_boost_nft = async ({
         methodName: 'mint_v_liquidity',
         args: {
           lpt_id,
-          farming_type: JSON.parse(fixRange),
+          dcl_farming_type: JSON.parse(fixRange),
         },
         gas: '60000000000000',
       });
@@ -1255,7 +1255,7 @@ export const stake_boost_nft = async ({
             methodName: 'mint_v_liquidity',
             args: {
               lpt_id,
-              farming_type: JSON.parse(fixRange),
+              dcl_farming_type: JSON.parse(fixRange),
             },
             gas: '60000000000000',
           }
