@@ -31,18 +31,21 @@ import {
 } from '../../services/commonV3';
 import { PoolInfo, remove_liquidity } from '../../services/swapV3';
 import _ from 'lodash';
+import { REF_POOL_NAV_TAB_KEY } from './PoolTabV3';
 export const RemovePoolV3 = (props: any) => {
   const {
     tokenMetadata_x_y,
     poolDetail,
     userLiquidity,
     tokenPriceList,
+    isLegacy,
     ...restProps
   }: {
     tokenMetadata_x_y: TokenMetadata[];
     poolDetail: PoolInfo;
     userLiquidity: UserLiquidityInfo;
     tokenPriceList: any;
+    isLegacy?: boolean;
     restProps: any;
   } = props;
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
@@ -129,10 +132,10 @@ export const RemovePoolV3 = (props: any) => {
         .dividedBy(100);
       if (total_price.isEqualTo(0)) {
         return '$0';
-      } else if (total_price.isLessThan('0.001')) {
-        return '$<0.001';
+      } else if (total_price.isLessThan('0.01')) {
+        return '$<0.01';
       } else {
-        return `$` + formatWithCommas(toPrecision(total_price.toFixed(), 3));
+        return `$` + formatWithCommas(toPrecision(total_price.toFixed(), 2));
       }
     }
   }
@@ -289,6 +292,9 @@ export const RemovePoolV3 = (props: any) => {
     setRemoveLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
     const { lpt_id, mft_id } = userLiquidity;
+
+    sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
+
     remove_liquidity({
       token_x: tokenX,
       token_y: tokenY,
@@ -297,6 +303,7 @@ export const RemovePoolV3 = (props: any) => {
       amount: removeAmount,
       min_amount_x: toNonDivisibleNumber(tokenX.decimals, MINDATA.minX),
       min_amount_y: toNonDivisibleNumber(tokenY.decimals, MINDATA.minY),
+      isLegacy,
     });
   }
   function switchRate() {
@@ -389,8 +396,11 @@ export const RemovePoolV3 = (props: any) => {
               return (
                 <div
                   key={p}
-                  className="flex flex-col items-center cursor-pointer"
+                  className={`flex flex-col items-center ${
+                    isLegacy ? 'cursor-not-allowed' : 'cursor-pointer'
+                  }`}
                   onClick={() => {
+                    if (isLegacy) return;
                     changeRemoveAmount(p.toString());
                   }}
                 >
@@ -415,9 +425,12 @@ export const RemovePoolV3 = (props: any) => {
               onChange={(e) => {
                 changeRemoveAmount(e.target.value);
               }}
+              disabled={isLegacy ? true : false}
               value={removePercentAmount}
               type="range"
-              className="w-full cursor-pointer"
+              className={`w-full ${
+                isLegacy ? 'pause cursor-not-allowed' : 'cursor-pointer'
+              }`}
               style={{ backgroundSize: '100% 100%' }}
               min="0"
               max="100"

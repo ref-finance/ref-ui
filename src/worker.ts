@@ -197,7 +197,7 @@ async function getXrefPrice(tokenPriceList: Record<string, any>) {
 }
 const cacheBoost_Seed_Farms_Pools = async () => {
   // get all seeds
-  const list_seeds = await get_list_seeds_info();
+  let list_seeds = await get_list_seeds_info();
   // get all farms
   const farmsPromiseList: Promise<any>[] = [];
   // get all dcl pools

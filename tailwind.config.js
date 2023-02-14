@@ -250,6 +250,9 @@ module.exports = {
         dclButtonBgColor:'#17252E',
         dclLineColor:'rgba(110, 124, 133, 0.2)',
         lightBlue: '#646DF4',
+        legacyYellowColor:'#F49F50',
+        legacyBgColor:'rgba(244, 159, 80, 0.1)',
+        legacyButtonBgColor:'#171F25',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

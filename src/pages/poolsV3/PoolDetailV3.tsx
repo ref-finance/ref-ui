@@ -810,7 +810,7 @@ function YourLiquidityBox(props: {
             removeLiquidity();
           }}
           color="#fff"
-          className={`flex flex-grow  w-1 h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover`}
+          className={`flex-grow  w-1 h-11  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover }`}
         >
           <FormattedMessage id="remove" />
         </OprationButton>

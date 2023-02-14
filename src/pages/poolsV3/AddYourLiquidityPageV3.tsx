@@ -968,15 +968,9 @@ export default function AddYourLiquidityPageV3() {
                               }`}
                             >
                               {isNoPool ? (
-                                // <FormattedMessage id="no_pool" />
                                 'No Pool'
                               ) : Object.keys(tokenPriceList).length > 0 ? (
-                                <span>
-                                  {/* <label className="xsm:hidden">
-                                    TVL&nbsp;
-                                  </label> */}
-                                  {displayTvl(currentPools[fee].tvl)}
-                                </span>
+                                <span>{displayTvl(currentPools[fee].tvl)}</span>
                               ) : (
                                 'Loading...'
                               )}
@@ -2257,7 +2251,6 @@ function NoDataComponent(props: any) {
           </div>
         </div>
       </div>
-
       <GradientButton
         color="#fff"
         className={`w-full h-12 mt-5 text-center text-base text-white focus:outline-none opacity-30`}

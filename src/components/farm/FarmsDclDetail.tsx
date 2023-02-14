@@ -1072,9 +1072,16 @@ export default function FarmsDclDetail(props: {
       <div className="p-4 bg-cardBg rounded-2xl lg:hidden mt-5">
         <div className="border-b border-dclLineColor pb-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-farmText">
+            <div className="flex items-center text-sm text-farmText">
               <FormattedMessage id="apr"></FormattedMessage>
-            </span>
+              <CalcIcon
+                onClick={(e: any) => {
+                  e.stopPropagation();
+                  setSeedDclCalcVisible(true);
+                }}
+                className="text-farmText ml-1.5 cursor-pointer hover:text-greenColor"
+              />
+            </div>
             <span className="text-base text-white">{get_total_apr()}</span>
           </div>
         </div>

@@ -70,7 +70,7 @@ import {
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import getConfig from '../services/config';
 import { useFarmStake } from './farm';
-import { ONLY_ZEROS } from '../utils/numbers';
+import { ONLY_ZEROS, scientificNotationToString } from '../utils/numbers';
 import {
   getPoolsByTokensIndexer,
   getAllPoolsIndexer,
@@ -84,6 +84,8 @@ import { getPoolFeeAprTitle } from '../pages/pools/LiquidityPage';
 import { getPoolFeeAprTitleRPCView } from '../pages/pools/MorePoolsPage';
 import { PoolInfo, get_pool } from '../services/swapV3';
 import { useTokenPriceList } from './token';
+import { isStablePool } from '../services/near';
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
@@ -400,7 +402,9 @@ export const useMorePools = ({
   order: boolean | 'desc' | 'asc';
   sortBy: string;
 }) => {
-  const [morePools, setMorePools] = useState<PoolRPCView[]>();
+  const [morePools, setMorePools] = useState<any[]>();
+
+  const { farmAprById, loadingSeedsDone } = useSeedFarmsByPools(morePools);
 
   useEffect(() => {
     getPoolsByTokensIndexer({
@@ -408,25 +412,54 @@ export const useMorePools = ({
       token1: tokenIds[1],
     }).then((res) => {
       // const orderedPools = orderBy(res, [sortBy], [order]);
-      setMorePools(res);
+
+      const parsedRes = res.map((p: PoolRPCView) => {
+        return {
+          ...p,
+          tokenIds,
+          fee: p.total_fee,
+          shareSupply: p.shares_total_supply,
+          supplies: p.token_account_ids.reduce(
+            (acc: any, cur: any, i: number) => {
+              return {
+                ...acc,
+                [cur]: p.amounts[i],
+              };
+            },
+            {}
+          ),
+        };
+      });
+
+      setMorePools(parsedRes);
     });
   }, [tokenIds.join('-')]);
 
   useEffect(() => {
-    if (!morePools || morePools.length === 0) return;
+    if (!morePools || morePools.length === 0 || !loadingSeedsDone) return;
 
     get24hVolumes(morePools.map((pool) => pool.id.toString())).then((res) => {
       const volumePools = morePools.map((p, i) => {
         return {
           ...p,
           h24volume: res[i],
-          apr: getPoolFeeAprTitleRPCView(res[i], morePools[i]),
+          baseApr: scientificNotationToString(
+            getPoolFeeAprTitleRPCView(res[i], morePools[i]).toString()
+          ),
+          apr:
+            getPoolFeeAprTitleRPCView(res[i], morePools[i]) +
+            (farmAprById?.[p.id] || 0) * 100,
+          farmApr: farmAprById?.[p.id] || 0,
         };
       });
 
       setMorePools(volumePools);
     });
-  }, [(morePools || []).map((p) => p?.id).join('-')]);
+  }, [
+    (morePools || []).map((p) => p?.id).join('-'),
+    loadingSeedsDone,
+    farmAprById,
+  ]);
 
   return !morePools
     ? null
@@ -591,7 +624,11 @@ export const useWatchPools = () => {
     }
     if (ids_v2.length > 0) {
       getV2PoolsByIds(ids_v2).then((res: PoolInfo[]) => {
-        setWatchV2Pools(res);
+        setWatchV2Pools(
+          res.filter((r) => {
+            if (r) return true;
+          })
+        );
       });
     }
   }, [watchList]);
@@ -850,7 +887,7 @@ export const useSeedFarms = (pool_id: string | number) => {
                 daily_reward
               );
 
-              const yearReward = Number(readableNumber) * 360;
+              const yearReward = Number(readableNumber) * 365;
 
               return {
                 ...farm,
@@ -864,6 +901,160 @@ export const useSeedFarms = (pool_id: string | number) => {
   }, [pool_id]);
 
   return seedFarms;
+};
+
+export const useSeedFarmsByPools = (pools: Pool[]) => {
+  const tokenPriceList = useTokenPriceList();
+
+  const [loadingSeedsDone, setLoadingSeedsDone] = useState<boolean>(false);
+
+  const [farmAprById, setFarmAprById] = useState<Record<string, number>>();
+
+  useEffect(() => {
+    const ids = pools?.map((p) => p.id);
+
+    if (!ids || !tokenPriceList) return;
+
+    const seeds = ids.map(
+      (pool_id) => getConfig().REF_FI_CONTRACT_ID + '@' + pool_id.toString()
+    );
+
+    db.queryBoostSeedsBySeeds(seeds)
+
+      .then(async (res) => {
+        if (!res) return;
+
+        const seedFarmsById = await Promise.all(
+          Object.values(res).map((seed: any) => {
+            if (!seed) return null;
+
+            const parsedRes = seed.farmList.filter(
+              (f: any) => f.status !== 'Ended'
+            );
+
+            const noRunning = seed.farmList.every(
+              (f: any) => f.status !== 'Running'
+            );
+
+            if (!parsedRes || parsedRes.length === 0) {
+              return null;
+            }
+
+            return Promise.all(
+              parsedRes
+                .filter((f: any) => noRunning || f.status === 'Running')
+                .map(async (farm: any) => {
+                  const token_meta_data = await ftGetTokenMetadata(
+                    farm.terms.reward_token
+                  );
+
+                  const daily_reward = farm.terms.daily_reward;
+
+                  const readableNumber = toReadableNumber(
+                    token_meta_data.decimals,
+                    daily_reward
+                  );
+
+                  const yearReward = Number(readableNumber) * 365;
+
+                  return {
+                    ...farm,
+                    token_meta_data,
+                    yearReward,
+                  };
+                })
+            );
+          })
+        ).then((list) => {
+          const seedFarmsById = list.reduce((acc, cur, i) => {
+            return { ...acc, [Object.keys(res)[i]]: cur };
+          }, {});
+
+          return seedFarmsById;
+        });
+
+        return { seedFarmsById, cacheSeeds: res };
+      })
+      .then(
+        async ({
+          seedFarmsById,
+          cacheSeeds,
+        }: {
+          seedFarmsById: Record<string, any>;
+          cacheSeeds: Record<string, any>;
+        }) => {
+          if (!seedFarmsById || !cacheSeeds) return;
+
+          const ARPs = await Promise.all(
+            Object.values(seedFarmsById).map((farms: any, i: number) => {
+              const seedDetail = Object.values(cacheSeeds)[i].seed;
+
+              const poolId = Object.keys(cacheSeeds)[i].split('@')[1];
+              const pool = pools.find((p) => p.id.toString() === poolId);
+              let totalReward = 0;
+
+              if (!farms) return 0;
+
+              farms.forEach((farm: any) => {
+                const reward_token_price = Number(
+                  tokenPriceList?.[farm.token_meta_data.id]?.price || 0
+                );
+
+                totalReward =
+                  totalReward + Number(farm.yearReward) * reward_token_price;
+              });
+
+              const poolShares = Number(
+                toReadableNumber(
+                  isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
+                  pool.shareSupply
+                )
+              );
+
+              const seedTvl =
+                !poolShares || !seedDetail
+                  ? 0
+                  : (Number(
+                      toReadableNumber(
+                        seedDetail.seed_decimal,
+                        seedDetail.total_seed_power
+                      )
+                    ) *
+                      (pool.tvl || 0)) /
+                    poolShares;
+
+              const baseAprAll = !seedTvl ? 0 : totalReward / seedTvl;
+
+              return !pool.tvl || !seedDetail || !farms || !pool
+                ? 0
+                : baseAprAll;
+            })
+          );
+
+          const returnAPRs = ARPs.reduce((acc, cur, i) => {
+            return {
+              ...acc,
+              [Object.keys(seedFarmsById)[i].split('@')[1]]: cur,
+            };
+          }, {});
+
+          // console.log('returnAPRs: ', returnAPRs);
+
+          setFarmAprById(returnAPRs);
+
+          return returnAPRs;
+        }
+      )
+
+      .finally(() => {
+        setLoadingSeedsDone(true);
+      });
+  }, [pools?.map((p) => p.id).join('-'), tokenPriceList]);
+
+  return {
+    farmAprById,
+    loadingSeedsDone,
+  };
 };
 
 export const usePredictShares = ({

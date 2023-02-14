@@ -160,7 +160,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '987635.62',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '1308109.404',
-        BLACKLIST_POOL_IDS: ['3699', '3734'],
+        BLACKLIST_POOL_IDS: ['3699', '3734', '3563', '3613', '3620', '3625'],
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
@@ -172,7 +172,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '3612#1',
         ],
         REF_UNI_V3_SWAP_CONTRACT_ID:
-          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
+          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv2.ref-labs.near',
+        REF_UNI_SWAP_CONTRACT_ID:
+          process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
       };
     case 'pub-testnet':
       return {
@@ -236,7 +238,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         VotingGauge: ['10%', '10%'],
         kitWalletOn: true,
         REF_UNI_V3_SWAP_CONTRACT_ID:
-          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv1.ref-dev.testnet',
+          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv2.ref-dev.testnet',
+        REF_UNI_SWAP_CONTRACT_ID:
+          process.env.REF_UNI_SWAP_CONTRACT_ID || 'dclv1.ref-dev.testnet',
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['571'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [
           '1760#0',
@@ -306,6 +310,8 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         REF_UNI_V3_SWAP_CONTRACT_ID:
           process.env.REF_UNI_V3_SWAP_CONTRACT_ID ||
           'dclv1-dev.ref-dev.testnet',
+        REF_UNI_SWAP_CONTRACT_ID:
+          process.env.REF_UNI_SWAP_CONTRACT_ID || 'dclv1-dev.ref-dev.testnet',
         kitWalletOn: true,
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
@@ -374,7 +380,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           process.env.TOTAL_PLATFORM_FEE_REVENUE || '987635.62',
         CUMULATIVE_REF_BUYBACK:
           process.env.CUMULATIVE_REF_BUYBACK || '1308109.404',
-        BLACKLIST_POOL_IDS: ['3699', '3734'],
+
+        BLACKLIST_POOL_IDS: ['3699', '3734', '3563', '3613', '3620', '3625'],
+
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['10%', '10%'],
         REF_FARM_BOOST_CONTRACT_ID:
@@ -386,7 +394,9 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '3612#1',
         ],
         REF_UNI_V3_SWAP_CONTRACT_ID:
-          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
+          process.env.REF_UNI_V3_SWAP_CONTRACT_ID || 'dclv2.ref-labs.near',
+        REF_UNI_SWAP_CONTRACT_ID:
+          process.env.REF_UNI_SWAP_CONTRACT_ID || 'dcl.ref-labs.near',
       };
   }
 }

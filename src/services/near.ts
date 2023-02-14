@@ -193,6 +193,7 @@ export const USD_CLASS_STABLE_TOKEN_IDS = new Array(
 export const REF_FARM_CONTRACT_ID = config.REF_FARM_CONTRACT_ID;
 
 export const REF_UNI_V3_SWAP_CONTRACT_ID = config.REF_UNI_V3_SWAP_CONTRACT_ID;
+export const REF_UNI_SWAP_CONTRACT_ID = config.REF_UNI_SWAP_CONTRACT_ID;
 
 export const REF_AIRDRAOP_CONTRACT_ID = config.REF_AIRDROP_CONTRACT_ID;
 
@@ -267,6 +268,14 @@ export const refSwapV3ViewFunction = ({
   return wallet
     .account()
     .viewFunction(REF_UNI_V3_SWAP_CONTRACT_ID, methodName, args);
+};
+export const refSwapV3OldVersionViewFunction = ({
+  methodName,
+  args,
+}: RefFiViewFunctionOptions) => {
+  return wallet
+    .account()
+    .viewFunction(REF_UNI_SWAP_CONTRACT_ID, methodName, args);
 };
 
 export const refFiManyFunctionCalls = async (
