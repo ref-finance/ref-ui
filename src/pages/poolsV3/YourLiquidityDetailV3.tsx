@@ -493,7 +493,7 @@ export default function YourLiquidityDetail(props: any) {
         </div>
       </div>
       <div className="flex items-center justify-between mt-6">
-        <div className="flex items-center xs:flex-col md:flex-col xs:items-start md:items-start">
+        <div className="flex items-center xsm:w-full xs:flex-col md:flex-col xs:items-start md:items-start">
           <div className="flex items-center">
             <div className="flex items-center mr-2 flex-shrink-0">
               <img
@@ -510,37 +510,46 @@ export default function YourLiquidityDetail(props: any) {
               {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
             </span>
           </div>
-          <div className="flex items-center xs:mt-4 md:mt-4">
-            <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5 mx-2.5 xs:ml-0 md:ml-0">
-              <span className="text-xs text-v3SwapGray mr-1.5 whitespace-nowrap">
-                <FormattedMessage id="fee_Tiers" />
-              </span>
-              <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
+          <div className="flex items-center xs:mt-4 md:mt-4 xsm:justify-between xsm:w-full">
+            <div className="flex items-center">
+              <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5 mx-2.5 xs:ml-0 md:ml-0">
+                <span className="text-xs text-v3SwapGray mr-1.5 whitespace-nowrap">
+                  <FormattedMessage id="fee_Tiers" />
+                </span>
+                <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
+              </div>
+              <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5">
+                <span
+                  className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
+                    isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
+                  }`}
+                ></span>
+                <span
+                  className={`text-xs whitespace-nowrap ${
+                    isInrange
+                      ? 'text-gradientFromHover'
+                      : 'text-v3GarkWarningColor'
+                  }`}
+                >
+                  {isInrange ? (
+                    <FormattedMessage id="in_range" />
+                  ) : (
+                    <FormattedMessage id="out_of_range" />
+                  )}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5">
-              <span
-                className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
-                  isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
-                }`}
-              ></span>
-              <span
-                className={`text-xs whitespace-nowrap ${
-                  isInrange
-                    ? 'text-gradientFromHover'
-                    : 'text-v3GarkWarningColor'
-                }`}
-              >
-                {isInrange ? (
-                  <FormattedMessage id="in_range" />
-                ) : (
-                  <FormattedMessage id="out_of_range" />
-                )}
-              </span>
+            <div
+              className="flex items-center text-farmText hover:text-framBorder lg:hidden"
+              onClick={goPoolPage}
+            >
+              <label className="mx-2 text-sm cursor-pointer">Pool Detail</label>
+              <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
             </div>
           </div>
         </div>
         <div
-          className="flex items-center text-farmText hover:text-framBorder"
+          className="flex items-center text-farmText hover:text-framBorder xsm:hidden"
           onClick={goPoolPage}
         >
           <label className="mx-2 text-sm cursor-pointer">Pool Detail</label>

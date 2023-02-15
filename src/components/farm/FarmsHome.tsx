@@ -3176,14 +3176,33 @@ function FarmView(props: {
                 <div className="flex items-center text-sm text-farmText">
                   APR
                 </div>
-                <div
-                  className={`flex items-center text-sm ${
-                    getTotalApr() == '-'
-                      ? 'text-farmText'
-                      : 'text-white gotham_bold'
-                  }`}
-                >
-                  {getTotalApr()}
+                <div className="flex items-center">
+                  <div
+                    data-type="info"
+                    data-place="top"
+                    data-multiline={true}
+                    data-tip={getAprTip()}
+                    data-html={true}
+                    data-for={'aprId_dcl' + seed.farmList[0].farm_id}
+                    data-class="reactTip"
+                  >
+                    <div
+                      className={`text-sm ${
+                        getTotalApr() == '-'
+                          ? 'text-farmText'
+                          : 'text-white gotham_bold'
+                      }`}
+                    >
+                      {getTotalApr()}
+                    </div>
+                    <ReactTooltip
+                      id={'aprId_dcl' + seed.farmList[0].farm_id}
+                      backgroundColor="#1D2932"
+                      border
+                      borderColor="#7e8a93"
+                      effect="solid"
+                    />
+                  </div>
                   <CalcIcon
                     onClick={(e: any) => {
                       e.stopPropagation();

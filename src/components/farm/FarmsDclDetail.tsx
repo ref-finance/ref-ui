@@ -117,6 +117,8 @@ export default function FarmsDclDetail(props: {
   const [betterSeed, setBetterSeed] = useState<Seed>();
   const [isNewSeed, setIsNewSeed] = useState<boolean>(false);
   const [seedDclCalcVisible, setSeedDclCalcVisible] = useState(false);
+  const [show_unavailable_positions, set_show_unavailable_positions] =
+    useState(false);
   const {
     user_seeds_map = {},
     user_unclaimed_map = {},
@@ -1008,7 +1010,6 @@ export default function FarmsDclDetail(props: {
               />
             </div>
             <div
-              className={``}
               data-type="info"
               data-place="top"
               data-multiline={true}
@@ -1349,9 +1350,8 @@ export default function FarmsDclDetail(props: {
         </div>
       </div>
       {/* Your Position(s) */}
-      <div className="mt-6">
-        <div className="flex items-center justify-end mb-2.5">
-          {/* <span className="text-sm text-primaryText">Your Position(s)</span> */}
+      <div className="relative mt-6">
+        <div className="absolute right-0 -top-2">
           <div
             onClick={() => {
               setAddLiquidityModalVisible(true);
@@ -1404,6 +1404,7 @@ export default function FarmsDclDetail(props: {
                   <LiquidityLine
                     liquidity={liquidity}
                     status="farming"
+                    key={liquidity.lpt_id}
                   ></LiquidityLine>
                 );
               })}
@@ -1420,6 +1421,7 @@ export default function FarmsDclDetail(props: {
                   <LiquidityLine
                     liquidity={liquidity}
                     status="unfarming"
+                    key={liquidity.lpt_id}
                   ></LiquidityLine>
                 );
               })}{' '}
@@ -1428,19 +1430,30 @@ export default function FarmsDclDetail(props: {
 
           {listLiquidities_unavailable.length > 0 ? (
             <>
-              <div className="text-sm text-primaryText mb-5 mt-7 pl-3">
-                Unavailable Position(s)
+              <div
+                className="text-sm text-primaryText mb-5 mt-7 pl-3 cursor-pointer"
+                onClick={() => {
+                  set_show_unavailable_positions(!show_unavailable_positions);
+                }}
+              >
+                <span className="underline mr-1">
+                  {show_unavailable_positions ? 'Hide' : 'Show'}
+                </span>
+                unavailable position(s)
               </div>
-              {listLiquidities_unavailable.map(
-                (liquidity: UserLiquidityInfo) => {
-                  return (
-                    <LiquidityLine
-                      liquidity={liquidity}
-                      status="unavailable"
-                    ></LiquidityLine>
-                  );
-                }
-              )}
+              <div className={show_unavailable_positions ? '' : 'hidden'}>
+                {listLiquidities_unavailable.map(
+                  (liquidity: UserLiquidityInfo) => {
+                    return (
+                      <LiquidityLine
+                        liquidity={liquidity}
+                        status="unavailable"
+                        key={liquidity.lpt_id}
+                      ></LiquidityLine>
+                    );
+                  }
+                )}
+              </div>
             </>
           ) : null}
         </FarmContext.Provider>
@@ -1603,7 +1616,7 @@ function LiquidityLine(props: {
     });
     const p = new BigNumber(radio);
     const Icon = get_intersection_icon_by_radio(radio);
-    icon = <Icon num={site == 'mobile' ? '1' : '2'}></Icon>;
+    icon = <Icon num={Math.random()}></Icon>;
     const decimalRate =
       Math.pow(10, token_x_metadata.decimals) /
       Math.pow(10, token_y_metadata.decimals);

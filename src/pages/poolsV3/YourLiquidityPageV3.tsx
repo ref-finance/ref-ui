@@ -1111,7 +1111,7 @@ function UserLiquidityLine({
                     }`}
                   >
                     <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
-                    <Liquidity_icon num="2"></Liquidity_icon>
+                    <Liquidity_icon num={Math.random()}></Liquidity_icon>
                   </div>
                 ) : null}
               </div>
@@ -1326,7 +1326,7 @@ function UserLiquidityLine({
                     }`}
                   >
                     <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
-                    <Liquidity_icon num="1"></Liquidity_icon>
+                    <Liquidity_icon num={Math.random()}></Liquidity_icon>
                   </div>
                 ) : null}
               </div>
