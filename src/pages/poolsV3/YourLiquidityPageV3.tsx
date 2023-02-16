@@ -99,7 +99,7 @@ import {
 } from '../../services/farm';
 import getConfig from '../../services/config';
 import { allocation_rule_liquidities } from '~services/commonV3';
-import { LinkArrowIcon } from '~components/icon/FarmBoost';
+import { LinkArrowIcon, NFTIdIcon } from '~components/icon/FarmBoost';
 import { isMobile } from '~utils/device';
 
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
@@ -941,9 +941,9 @@ function UserLiquidityLine({
       {/* for PC */}
       <div className="relative flex flex-col items-center xs:hidden md:hidden">
         <div className="absolute -top-1.5 flex items-center justify-center z-10">
-          <ColorsBoxCenter></ColorsBoxCenter>
+          <NFTIdIcon></NFTIdIcon>
           <span className="absolute text-white text-xs gotham_bold">
-            ID #{getLpt_id()}
+            NFT ID #{getLpt_id()}
           </span>
         </div>
         <div className="w-full rounded-xl overflow-hidden">
@@ -1181,8 +1181,8 @@ function UserLiquidityLine({
           <div className="flex flex-col items-center justify-between w-full bg-orderMobileTop px-3 pb-3">
             <div className="flex items-center justify-center">
               <ColorsBox svgId="paint0_linear_124_7158"></ColorsBox>
-              <span className="absolute text-white text-xs">
-                ID #{getLpt_id()}
+              <span className="absolute text-white text-xs gotham_bold">
+                NFT ID #{getLpt_id()}
               </span>
             </div>
             <div className="flex items-center justify-between w-full mt-1.5">
@@ -2044,9 +2044,9 @@ function UserLiquidityLine_old({
       {/* for PC */}
       <div className="relative flex flex-col items-center xs:hidden md:hidden">
         <div className="absolute -top-1.5 flex items-center justify-center z-10">
-          <ColorsBoxCenter></ColorsBoxCenter>
+          <NFTIdIcon></NFTIdIcon>
           <span className="absolute text-white text-xs gotham_bold">
-            ID #{getLpt_id()}
+            NFT ID #{getLpt_id()}
           </span>
         </div>
         <div className="w-full rounded-xl overflow-hidden">
@@ -2234,8 +2234,8 @@ function UserLiquidityLine_old({
           <div className="flex flex-col items-center justify-between w-full bg-orderMobileTop px-3 pb-3">
             <div className="flex items-center justify-center">
               <ColorsBox svgId="paint0_linear_124_7158"></ColorsBox>
-              <span className="absolute text-white text-xs">
-                ID #{getLpt_id()}
+              <span className="absolute text-white text-xs gotham_bold">
+                NFT ID #{getLpt_id()}
               </span>
             </div>
             <div className="flex items-center justify-between w-full mt-1.5">

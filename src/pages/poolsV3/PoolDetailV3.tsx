@@ -40,7 +40,6 @@ import {
   getYAmount_per_point_by_Ly,
   useAddAndRemoveUrlHandle,
   TOKEN_LIST_FOR_RATE,
-  get_total_value_by_liquidity_amount_dcl,
   allocation_rule_liquidities,
   get_matched_seeds_for_dcl_pool,
   get_all_seeds,
@@ -436,6 +435,7 @@ export default function PoolDetailV3() {
                       poolDetail={poolDetail}
                       tokenPriceList={tokenPriceList}
                       liquidities={user_liquidities}
+                      matched_seeds={matched_seeds}
                     ></UserTabBox>
                     <RelatedFarmsBox
                       poolDetail={poolDetail}
@@ -449,6 +449,7 @@ export default function PoolDetailV3() {
                       poolDetail={poolDetail}
                       tokenPriceList={tokenPriceList}
                       liquidities={user_liquidities}
+                      matched_seeds={matched_seeds}
                     ></YourLiquidityBox>
                     <UnclaimedFeesBox
                       poolDetail={poolDetail}
@@ -474,8 +475,9 @@ function UserTabBox(props: {
   poolDetail: PoolInfo;
   liquidities: UserLiquidityInfo[];
   tokenPriceList: any;
+  matched_seeds: Seed[];
 }) {
-  const { poolDetail, liquidities, tokenPriceList } = props;
+  const { poolDetail, liquidities, tokenPriceList, matched_seeds } = props;
   const [tabActive, setTabActive] = useState(1);
   function switchTab(tabIndex: number) {
     setTabActive(tabIndex);
@@ -527,6 +529,7 @@ function UserTabBox(props: {
           poolDetail={poolDetail}
           tokenPriceList={tokenPriceList}
           liquidities={liquidities}
+          matched_seeds={matched_seeds}
         ></YourLiquidityBox>
       ) : (
         <UnclaimedFeesBox
@@ -542,8 +545,9 @@ function YourLiquidityBox(props: {
   poolDetail: PoolInfo;
   liquidities: UserLiquidityInfo[];
   tokenPriceList: any;
+  matched_seeds: Seed[];
 }) {
-  const { poolDetail, liquidities, tokenPriceList } = props;
+  const { poolDetail, liquidities, tokenPriceList, matched_seeds } = props;
   const [user_liquidities_detail, set_user_liquidities_detail] = useState<
     UserLiquidityDetail[]
   >([]);
@@ -825,6 +829,7 @@ function YourLiquidityBox(props: {
         user_liquidities={liquidities}
         operation={operationType}
         tokenPriceList={tokenPriceList}
+        matched_seeds={matched_seeds}
         style={{
           overlay: {
             backdropFilter: 'blur(15px)',
@@ -1165,31 +1170,13 @@ function SelectLiquidityBox(props: any) {
     operation,
     tokenPriceList,
     user_liquidities,
+    matched_seeds,
   } = props;
   const [hoverHashId, setHoverHashId] = useState('');
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
-  const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
   const history = useHistory();
   const { token_x_metadata, token_y_metadata } = poolDetail;
-  useEffect(() => {
-    if (user_liquidities?.length > 0) {
-      const target_liquidity = user_liquidities.find(
-        (liquidity: UserLiquidityInfo) => {
-          return liquidity.mft_id;
-        }
-      );
-      if (target_liquidity) {
-        get_pool_related_farms(target_liquidity);
-      }
-    }
-  }, [user_liquidities]);
-  async function get_pool_related_farms(liquidity: UserLiquidityInfo) {
-    const id = liquidity.mft_id.slice(1);
-    const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + id;
-    const farmList = await list_seed_farms(seed_id);
-    set_related_farms(farmList);
-  }
   function displayLiqudityTvl(liquidityDetail: UserLiquidityDetail) {
     const total = +liquidityDetail.total_liqudities_price;
     if (total == 0) {
@@ -1257,17 +1244,26 @@ function SelectLiquidityBox(props: any) {
     }
   }
   function go_farm(liquidity: UserLiquidityInfo) {
-    const [fixRange, pool_id, left_point, right_point] =
-      liquidity.mft_id.split('&');
+    const { mft_id } = liquidity;
+    const [fixRange, pool_id, left_point, right_point] = mft_id.split('&');
     const link_params = `${pool_id}&${left_point}&${right_point}`;
-    const actives = related_farms.filter((farm: FarmBoost) => {
-      return farm.status != 'Ended';
+    const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + mft_id.slice(1);
+    const temp_seeds = (matched_seeds || []).filter((seed: Seed) => {
+      return seed_id == seed.seed_id;
+    });
+    let actives: FarmBoost[] = [];
+    temp_seeds.forEach((seed: Seed) => {
+      const { farmList } = seed;
+      const temp = farmList.filter((farm: FarmBoost) => {
+        return farm.status != 'Ended';
+      });
+      actives = actives.concat(temp);
     });
     let url;
-    if (related_farms.length > 0 && actives.length == 0) {
-      url = `/v2farms/${link_params}-e`;
-    } else {
+    if (actives.length > 0) {
       url = `/v2farms/${link_params}-r`;
+    } else {
+      url = `/v2farms/${link_params}-e`;
     }
     window.open(url);
   }

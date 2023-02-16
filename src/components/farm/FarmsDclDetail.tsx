@@ -670,7 +670,7 @@ export default function FarmsDclDetail(props: {
     const pending_farms: FarmBoost[] = [];
     const no_pending_farms: FarmBoost[] = [];
     tempList.forEach((farm: FarmBoost) => {
-      if (farm.status == 'Created' || farm.status == 'Pending') {
+      if (farm.status == 'Created') {
         pending_farms.push(farm);
       } else {
         no_pending_farms.push(farm);
@@ -1194,7 +1194,7 @@ export default function FarmsDclDetail(props: {
             data-html={true}
             data-tip={unclaimedRewardsData.tip}
           >
-            <span className="text-xl text-white">
+            <span className="text-base text-white">
               {unclaimedRewardsData.worth}
             </span>
             <ReactTooltip
@@ -1260,7 +1260,7 @@ export default function FarmsDclDetail(props: {
             data-html={true}
             data-tip={unclaimedRewardsData.tip}
           >
-            <span className="text-xl text-white gotham_bold">
+            <span className="text-base text-white gotham_bold">
               {unclaimedRewardsData.worth}
             </span>
             <ReactTooltip
@@ -2419,7 +2419,7 @@ function LiquidityLine(props: {
             </OprationButton>
           </div>
           {liquidity_status_string == 'unavailable' ? (
-            <div className="flex flex-wrap items-center justify-center text-sm text-dclFarmYellowColor">
+            <div className="w-full flex flex-wrap items-center text-right justify-end text-sm text-dclFarmYellowColor">
               {unavailableDiv()}
             </div>
           ) : null}
