@@ -109,6 +109,7 @@ export interface UserLiquidityInfo {
   unfarm_part_amount?: string;
   status_in_other_seed?: string;
   less_than_min_deposit?: boolean;
+  farmList?: FarmBoost[];
 }
 
 export function useAddAndRemoveUrlHandle() {

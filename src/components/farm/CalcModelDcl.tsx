@@ -72,6 +72,21 @@ export default function CalcModelDcl(
     });
     set_one_lp_value(single_lp_value);
   }
+  function getEffectiveFarmList(farmList: FarmBoost[]) {
+    const farms: FarmBoost[] = JSON.parse(JSON.stringify(farmList || []));
+    let allPending = true;
+    for (let i = 0; i < farms.length; i++) {
+      if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
+        allPending = false;
+        break;
+      }
+    }
+    const targetList = farms.filter((farm: FarmBoost) => {
+      const pendingFarm = farm.status == 'Created' || farm.status == 'Pending';
+      return allPending || !pendingFarm;
+    });
+    return targetList;
+  }
   return (
     <Modal {...props}>
       <Card
@@ -94,6 +109,7 @@ export default function CalcModelDcl(
             one_lp_value,
             set_lp_amount,
             set_lp_value,
+            getEffectiveFarmList,
           }}
         >
           {liquidity ? <LiquidityInfo></LiquidityInfo> : <SeedInfo></SeedInfo>}
@@ -240,6 +256,7 @@ function LiquidityInfo() {
     liquidity,
     set_lp_amount,
     set_lp_value,
+    getEffectiveFarmList,
   } = useContext(DclContext);
   useEffect(() => {
     get_liquidity_value();
@@ -315,7 +332,8 @@ function LiquidityInfo() {
     const total_principal = lp_value;
     // seed total rewards
     let total_rewards = '0';
-    farmList.forEach((farm: FarmBoost) => {
+    const effectiveFarms = getEffectiveFarmList(farmList);
+    effectiveFarms.forEach((farm: FarmBoost) => {
       const { token_meta_data } = farm;
       const { daily_reward, reward_token } = farm.terms;
       const quantity = toReadableNumber(token_meta_data.decimals, daily_reward);
@@ -402,8 +420,14 @@ function CalcEle() {
   const [dateList, setDateList] = useState<string[]>(['1', '3', '6', '12']);
   const [selecteDate, setSelecteDate] = useState('1');
   const [rewards_info, set_rewards_info] = useState<any>({});
-  const { seed, tokenPriceList, lp_amount, lp_value, liquidity } =
-    useContext(DclContext);
+  const {
+    seed,
+    tokenPriceList,
+    lp_amount,
+    lp_value,
+    liquidity,
+    getEffectiveFarmList,
+  } = useContext(DclContext);
   useEffect(() => {
     get_rewards_info();
   }, [lp_amount, lp_value, selecteDate, tokenPriceList]);
@@ -428,7 +452,8 @@ function CalcEle() {
       const rewardsArr: any[] = [];
       let total_rewards_price = '0';
       let ROI = '';
-      farmList.forEach((farm: FarmBoost) => {
+      const effectiveFarms = getEffectiveFarmList(farmList);
+      effectiveFarms.forEach((farm: FarmBoost) => {
         const { terms, token_meta_data } = farm;
         const { daily_reward, reward_token } = terms;
         let date_rewards;

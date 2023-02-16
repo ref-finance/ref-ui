@@ -1012,6 +1012,7 @@ export interface FarmBoost {
   token_meta_data?: TokenMetadata;
   apr?: string;
   baseApr?: string;
+  yourNFTApr?: string;
 }
 interface StakeOptions {
   token_id?: string;

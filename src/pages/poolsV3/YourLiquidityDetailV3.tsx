@@ -19,7 +19,7 @@ import {
   remove_liquidity,
   list_liquidities,
 } from '../../services/swapV3';
-import { ReturnIcon, SwitchButton } from '~components/icon/V3';
+import { ReturnIcon, SwitchButton, TipIon } from '~components/icon/V3';
 import {
   GradientButton,
   BorderButton,
@@ -53,6 +53,7 @@ import {
   drawChartData,
   TOKEN_LIST_FOR_RATE,
   pause_old_dcl_claim_tip,
+  get_all_seeds,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getTokenPriceList } from '../../services/indexer';
@@ -71,6 +72,10 @@ import { BlueCircleLoading } from '../../components/layout/Loading';
 import getConfig from '../../services/config';
 import { allocation_rule_liquidities } from '~services/commonV3';
 import { LinkArrowIcon } from '~components/icon/FarmBoost';
+import {
+  get_detail_the_liquidity_refer_to_seed,
+  get_your_apr,
+} from './YourLiquidityPageV3';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 import ReactTooltip from 'react-tooltip';
 export default function YourLiquidityDetail(props: any) {
@@ -88,7 +93,7 @@ export default function YourLiquidityDetail(props: any) {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
-  const [is_in_farming, set_is_in_farming] = useState<boolean>(false);
+  const [is_in_farming, set_is_in_farming] = useState<boolean>(true);
   const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
   const history = useHistory();
   // callBack handle
@@ -102,6 +107,10 @@ export default function YourLiquidityDetail(props: any) {
   const [token_x, token_y, fee] = poolId.split('|');
   const tokenMetadata_x_y = useTokens([token_x, token_y]);
   const [depthData, setDepthData] = useState(null);
+  const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
+  const [related_seed_info, set_related_seed_info] = useState<
+    Record<string, any>
+  >({});
   const chartDom = useRef(null);
   useEffect(() => {
     if (tokenMetadata_x_y) {
@@ -120,12 +129,16 @@ export default function YourLiquidityDetail(props: any) {
       get_pool_detail();
       get_list_liquidities();
     }
+    get_all_seeds().then((seeds: Seed[]) => {
+      set_all_seeds(seeds);
+    });
     document.body.scrollTop = document.documentElement.scrollTop = 0;
   }, []);
   useEffect(() => {
     if (userLiquidity && poolDetail && tokenMetadata_x_y) {
       const { current_point } = poolDetail;
       const { left_point, right_point } = userLiquidity;
+      set_is_in_farming(false);
       if (current_point >= left_point && right_point > current_point) {
         setIsInrange(true);
       } else {
@@ -152,6 +165,22 @@ export default function YourLiquidityDetail(props: any) {
       getChartData();
     }
   }, [rateSort]);
+  useEffect(() => {
+    if (
+      userLiquidity &&
+      all_seeds.length &&
+      Object.keys(tokenPriceList).length
+    ) {
+      const info = get_detail_the_liquidity_refer_to_seed({
+        liquidity: userLiquidity,
+        all_seeds,
+        is_in_farming,
+        related_farms,
+        tokenPriceList,
+      });
+      set_related_seed_info(info);
+    }
+  }, [userLiquidity, all_seeds, is_in_farming, tokenPriceList, related_farms]);
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
     if (list.length > 0) {
@@ -477,6 +506,13 @@ export default function YourLiquidityDetail(props: any) {
   const goPoolPage = () => {
     window.open(`/poolV2/${poolId}`);
   };
+  const {
+    Icon: Liquidity_icon,
+    your_apr: liquidity_your_apr,
+    link: liquidity_link,
+    inRange: liquidity_inRange,
+    status: liquidity_staked_farm_status,
+  } = related_seed_info;
   return (
     <div
       className={`m-auto lg:w-3/5 2xl:w-2/5 md:w-11/12 xs:w-11/12  xs:-mt-4 md:-mt-4`}
@@ -494,21 +530,30 @@ export default function YourLiquidityDetail(props: any) {
       </div>
       <div className="flex items-center justify-between mt-6">
         <div className="flex items-center xsm:w-full xs:flex-col md:flex-col xs:items-start md:items-start">
-          <div className="flex items-center">
-            <div className="flex items-center mr-2 flex-shrink-0">
-              <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-                className="w-8 h-8 border border-greenColor rounded-full"
-              ></img>
-              <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-                className="relative w-8 h-8 border border-greenColor rounded-full -ml-1.5"
-              ></img>
+          <div className="flex items-center justify-between xsm:w-full">
+            <div className="flex items-center">
+              <div className="flex items-center mr-2 flex-shrink-0">
+                <img
+                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                  className="w-8 h-8 border border-greenColor rounded-full"
+                ></img>
+                <img
+                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                  className="relative w-8 h-8 border border-greenColor rounded-full -ml-1.5"
+                ></img>
+              </div>
+              <span className="text-lg text-white">
+                {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
+                {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
+              </span>
             </div>
-            <span className="text-lg text-white">
-              {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
-              {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
-            </span>
+            <div
+              className="flex items-center text-farmText hover:text-framBorder lg:hidden"
+              onClick={goPoolPage}
+            >
+              <label className="mx-2 text-sm cursor-pointer">Pool Detail</label>
+              <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+            </div>
           </div>
           <div className="flex items-center xs:mt-4 md:mt-4 xsm:justify-between xsm:w-full">
             <div className="flex items-center">
@@ -538,13 +583,22 @@ export default function YourLiquidityDetail(props: any) {
                   )}
                 </span>
               </div>
-            </div>
-            <div
-              className="flex items-center text-farmText hover:text-framBorder lg:hidden"
-              onClick={goPoolPage}
-            >
-              <label className="mx-2 text-sm cursor-pointer">Pool Detail</label>
-              <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+              {!is_old_dcl && Liquidity_icon ? (
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (liquidity_link) {
+                      window.open(liquidity_link);
+                    }
+                  }}
+                  className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
+                    liquidity_link ? 'cursor-pointer' : ''
+                  } ${is_in_farming || liquidity_inRange ? '' : 'opacity-40'}`}
+                >
+                  <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
+                  <Liquidity_icon num={Math.random()}></Liquidity_icon>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -556,6 +610,37 @@ export default function YourLiquidityDetail(props: any) {
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
+      {!is_old_dcl &&
+      liquidity_your_apr &&
+      (!is_in_farming || liquidity_staked_farm_status == 'end') ? (
+        <div
+          className="relative flex items-start px-4 py-2 xsm:px-2.5 xsm:pl-0  rounded-lg mt-4"
+          style={{ background: 'rgba(91, 64, 255, 0.5)' }}
+        >
+          <TipIon className="mr-2 relative top-1 flex-shrink-0"></TipIon>
+          <div className="flex items-center flex-wrap">
+            <span className="text-sm text-white mr-1">
+              {liquidity_staked_farm_status == 'end'
+                ? 'Your current staked farm ended, and new farm is coming, est. APR is'
+                : 'You can earn rewards by farming, est. APR is'}{' '}
+              {liquidity_your_apr}.
+            </span>
+            <div
+              className="flex items-center justify-center text-white cursor-pointer"
+              onClick={() => {
+                window.open(liquidity_link);
+              }}
+            >
+              <a className="text-sm text-white mr-1 underline">
+                {liquidity_staked_farm_status == 'end'
+                  ? 'Go New Farm'
+                  : 'Go Farm'}
+              </a>
+              <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <div className="flex justify-between mt-8 items-stretch xs:flex-col md:flex-col xs:mt-5 md:mt-5">
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow mr-3 xs:w-full md:w-full xs:mr-0 md:mr-0 xs:p-3 md:p-3">
           <div className="flex justify-between xs:w-full md:w-full">

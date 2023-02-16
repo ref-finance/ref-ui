@@ -586,70 +586,15 @@ function UserLiquidityLine({
   }, [poolDetail, tokenMetadata_x_y, tokenPriceList]);
   useEffect(() => {}, []);
   useEffect(() => {
-    const { mft_id, left_point, right_point } = liquidity;
-    let Icon;
-    let your_apr;
-    let link;
-    let inRange;
-    if (is_in_farming) {
-      const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] =
-        mft_id.split('&');
-      const radio = get_intersection_radio({
-        left_point_liquidity: left_point,
-        right_point_liquidity: right_point,
-        left_point_seed,
-        right_point_seed,
-      });
-      Icon = get_intersection_icon_by_radio(radio);
-    } else {
-      const active_seeds = get_matched_seeds_for_dcl_pool({
-        seeds: all_seeds,
-        pool_id: liquidity.pool_id,
-      });
-      const canFarmSeed = active_seeds.find((seed: Seed) => {
-        const { min_deposit, seed_id } = seed;
-        const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] =
-          seed_id.split('@')[1].split('&');
-        const v_liquidity = mint_liquidity(liquidity, seed_id);
-        const radio = get_intersection_radio({
-          left_point_liquidity: left_point,
-          right_point_liquidity: right_point,
-          left_point_seed,
-          right_point_seed,
-        });
-        const condition1 = new BigNumber(v_liquidity).isGreaterThanOrEqualTo(
-          min_deposit
-        );
-        const condition2 = +radio > 0;
-        if (condition1 && condition2) return true;
-      });
-      const targetSeed = canFarmSeed || active_seeds[0];
-      if (targetSeed) {
-        const { seed_id } = targetSeed;
-        const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] =
-          seed_id.split('@')[1].split('&');
-        const radio = get_intersection_radio({
-          left_point_liquidity: left_point,
-          right_point_liquidity: right_point,
-          left_point_seed,
-          right_point_seed,
-        });
-        if (canFarmSeed) {
-          your_apr = get_your_apr(liquidity, targetSeed);
-        }
-        Icon = get_intersection_icon_by_radio(radio);
-        inRange = +radio > 0;
-        const link_params = `${dcl_pool_id}&${left_point_seed}&${right_point_seed}`;
-        link = `/v2farms/${link_params}-r`;
-      }
-    }
-    set_related_seed_info({
-      Icon,
-      your_apr,
-      link,
-      inRange,
+    const info = get_detail_the_liquidity_refer_to_seed({
+      liquidity,
+      all_seeds,
+      is_in_farming,
+      related_farms,
+      tokenPriceList,
     });
-  }, [liquidity, all_seeds, is_in_farming, tokenPriceList]);
+    set_related_seed_info(info);
+  }, [liquidity, all_seeds, is_in_farming, tokenPriceList, related_farms]);
   async function get_pool_related_farms() {
     const is_in_farming =
       liquidity.part_farm_ratio && +liquidity.part_farm_ratio > 0;
@@ -980,78 +925,12 @@ function UserLiquidityLine({
     }
     window.open(url);
   }
-  function get_your_apr(liquidity: UserLiquidityInfo, seed: Seed) {
-    const { farmList, total_seed_amount, total_seed_power, seed_id } = seed;
-    // principal
-    const total_principal = get_liquidity_value(liquidity, seed);
-    // seed total rewards
-    let total_rewards = '0';
-    farmList.forEach((farm: FarmBoost) => {
-      const { token_meta_data } = farm;
-      const { daily_reward, reward_token } = farm.terms;
-      const quantity = toReadableNumber(token_meta_data.decimals, daily_reward);
-      const reward_token_price = Number(
-        tokenPriceList[reward_token]?.price || 0
-      );
-      const cur_token_rewards = new BigNumber(quantity)
-        .multipliedBy(reward_token_price)
-        .multipliedBy(365);
-      total_rewards = cur_token_rewards.plus(total_rewards).toFixed();
-    });
-    // lp percent
-    let percent;
-    const mint_amount = mint_liquidity(liquidity, seed_id);
-    const temp_total = new BigNumber(total_seed_power || 0).plus(mint_amount);
-    if (temp_total.isGreaterThan(0)) {
-      percent = new BigNumber(mint_amount).dividedBy(temp_total);
-    }
-    // profit
-    let profit;
-    if (percent) {
-      profit = percent.multipliedBy(total_rewards);
-    }
-
-    // your apr
-    if (profit && +total_principal > 0) {
-      const your_apr = profit.dividedBy(total_principal).multipliedBy(100);
-      if (your_apr.isEqualTo('0')) {
-        return '0%';
-      } else if (your_apr.isLessThan(0.01)) {
-        return `<0.01%`;
-      } else {
-        return `${toPrecision(your_apr.toFixed(), 2)}%`;
-      }
-    } else {
-      return '-';
-    }
-  }
-  function get_liquidity_value(liquidity: UserLiquidityInfo, seed: Seed) {
-    const { left_point, right_point, amount } = liquidity;
-    const poolDetail = seed.pool;
-    const { pool } = seed;
-    const tokens = pool.tokens_meta_data;
-    const { token_x, token_y } = poolDetail;
-    const v = get_total_value_by_liquidity_amount_dcl({
-      left_point,
-      right_point,
-      poolDetail,
-      amount,
-      price_x_y: {
-        [token_x]: tokenPriceList[token_x]?.price || '0',
-        [token_y]: tokenPriceList[token_y]?.price || '0',
-      },
-      metadata_x_y: {
-        [token_x]: tokens[0],
-        [token_y]: tokens[1],
-      },
-    });
-    return v;
-  }
   const {
     Icon: Liquidity_icon,
     your_apr: liquidity_your_apr,
     link: liquidity_link,
     inRange: liquidity_inRange,
+    status: liquidity_staked_farm_status,
   } = related_seed_info;
   return (
     <div
@@ -1168,14 +1047,17 @@ function UserLiquidityLine({
               hover ? '' : 'hidden'
             }`}
           >
-            {liquidity_your_apr ? (
+            {liquidity_your_apr &&
+            (!is_in_farming || liquidity_staked_farm_status == 'end') ? (
               <div
                 className="relative flex items-center justify-center p-1"
                 style={{ background: 'rgba(91, 64, 255, 0.5)' }}
               >
                 <TipIon className="mr-2"></TipIon>
                 <span className="text-sm text-white">
-                  You can earn rewards by farming, est. APR is{' '}
+                  {liquidity_staked_farm_status == 'end'
+                    ? 'Your current staked farm ended, and new farm is coming, est. APR is'
+                    : 'You can earn rewards by farming, est. APR is'}{' '}
                   {liquidity_your_apr}
                 </span>
                 <div
@@ -1184,7 +1066,11 @@ function UserLiquidityLine({
                     window.open(liquidity_link);
                   }}
                 >
-                  <a className="text-sm text-white mr-1 underline">Go Farm</a>
+                  <a className="text-sm text-white mr-1 underline">
+                    {liquidity_staked_farm_status == 'end'
+                      ? 'Go New Farm'
+                      : 'Go Farm'}
+                  </a>
                   <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
                 </div>
               </div>
@@ -1241,7 +1127,9 @@ function UserLiquidityLine({
                       }}
                     >
                       <span className="text-greenColor mx-1 cursor-pointer underline">
-                        in farm
+                        {liquidity_staked_farm_status == 'end'
+                          ? 'in ended farm'
+                          : 'in farm'}
                       </span>
                       <LinkArrowIcon className="cursor-pointer text-greenColor"></LinkArrowIcon>
                     </div>
@@ -1452,28 +1340,6 @@ function UserLiquidityLine({
               <FormattedMessage id="remove" />
             </BorderButton>
           </div>
-          {liquidity_your_apr ? (
-            <div
-              className="relative flex items-start justify-center p-1"
-              style={{ background: 'rgba(91, 64, 255, 0.5)' }}
-            >
-              <div className="flex items-center justify-center text-sm text-white flex-wrap">
-                <TipIon className="mr-2"></TipIon>
-                You can earn rewards{' '}
-                <span
-                  className="underline ml-1 mr-0.5"
-                  onClick={() => {
-                    window.open(liquidity_link);
-                  }}
-                >
-                  by farming
-                </span>
-                <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
-                est. APR is{' '}
-                <span className="gotham_bold ml-1">{liquidity_your_apr}</span>
-              </div>
-            </div>
-          ) : null}
           {is_in_farming ? (
             <div className="flex items-center justify-center text-sm text-primaryText mb-3">
               This NFT has been staked
@@ -1487,6 +1353,35 @@ function UserLiquidityLine({
                 in farm
               </span>
               <LinkArrowIcon className="text-greenColor"></LinkArrowIcon>
+            </div>
+          ) : null}
+          {liquidity_your_apr &&
+          (!is_in_farming || liquidity_staked_farm_status == 'end') ? (
+            <div
+              className="relative flex items-start justify-center p-1"
+              style={{ background: 'rgba(91, 64, 255, 0.5)' }}
+            >
+              <div className="flex items-center justify-center text-sm text-white">
+                <TipIon className="mr-2"></TipIon>
+                <div className="flex items-center flex-wrap">
+                  {liquidity_staked_farm_status == 'end' ? (
+                    <div className="flex items-center">
+                      Your current staked farm ended, and
+                      <span className="underline ml-1 mr-0.5">new farm</span>
+                      <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+                      is coming,est. APR is
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      You can earn rewards
+                      <span className="underline ml-1 mr-0.5">by farming</span>
+                      <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+                      est. APR is
+                    </div>
+                  )}
+                  <span className="gotham_bold ml-1">{liquidity_your_apr}</span>
+                </div>
+              </div>
             </div>
           ) : null}
         </div>
@@ -1535,6 +1430,159 @@ function UserLiquidityLine({
       ></AddPoolV3>
     </div>
   );
+}
+export function get_your_apr(
+  liquidity: UserLiquidityInfo,
+  seed: Seed,
+  tokenPriceList: Record<string, any>
+) {
+  const { farmList, total_seed_amount, total_seed_power, seed_id } = seed;
+  // principal
+  const total_principal = get_liquidity_value(liquidity, seed, tokenPriceList);
+  // seed total rewards
+  let total_rewards = '0';
+  farmList.forEach((farm: FarmBoost) => {
+    const { token_meta_data } = farm;
+    const { daily_reward, reward_token } = farm.terms;
+    const quantity = toReadableNumber(token_meta_data.decimals, daily_reward);
+    const reward_token_price = Number(tokenPriceList[reward_token]?.price || 0);
+    const cur_token_rewards = new BigNumber(quantity)
+      .multipliedBy(reward_token_price)
+      .multipliedBy(365);
+    total_rewards = cur_token_rewards.plus(total_rewards).toFixed();
+  });
+  // lp percent
+  let percent;
+  const mint_amount = mint_liquidity(liquidity, seed_id);
+  const temp_total = new BigNumber(total_seed_power || 0).plus(mint_amount);
+  if (temp_total.isGreaterThan(0)) {
+    percent = new BigNumber(mint_amount).dividedBy(temp_total);
+  }
+  // profit
+  let profit;
+  if (percent) {
+    profit = percent.multipliedBy(total_rewards);
+  }
+
+  // your apr
+  if (profit && +total_principal > 0) {
+    const your_apr = profit.dividedBy(total_principal).multipliedBy(100);
+    if (your_apr.isEqualTo('0')) {
+      return '0%';
+    } else if (your_apr.isLessThan(0.01)) {
+      return `<0.01%`;
+    } else {
+      return `${toPrecision(your_apr.toFixed(), 2)}%`;
+    }
+  } else {
+    return '-';
+  }
+}
+function get_liquidity_value(
+  liquidity: UserLiquidityInfo,
+  seed: Seed,
+  tokenPriceList: Record<string, any>
+) {
+  const { left_point, right_point, amount } = liquidity;
+  const poolDetail = seed.pool;
+  const { pool } = seed;
+  const tokens = pool.tokens_meta_data;
+  const { token_x, token_y } = poolDetail;
+  const v = get_total_value_by_liquidity_amount_dcl({
+    left_point,
+    right_point,
+    poolDetail,
+    amount,
+    price_x_y: {
+      [token_x]: tokenPriceList[token_x]?.price || '0',
+      [token_y]: tokenPriceList[token_y]?.price || '0',
+    },
+    metadata_x_y: {
+      [token_x]: tokens[0],
+      [token_y]: tokens[1],
+    },
+  });
+  return v;
+}
+export function get_detail_the_liquidity_refer_to_seed({
+  liquidity,
+  all_seeds,
+  is_in_farming,
+  related_farms,
+  tokenPriceList,
+}: {
+  liquidity: UserLiquidityInfo;
+  all_seeds: Seed[];
+  is_in_farming: boolean;
+  related_farms: FarmBoost[];
+  tokenPriceList: Record<string, any>;
+}) {
+  const { mft_id, left_point, right_point } = liquidity;
+  let Icon;
+  let your_apr;
+  let link;
+  let inRange;
+  let status;
+  const active_seeds = get_matched_seeds_for_dcl_pool({
+    seeds: all_seeds,
+    pool_id: liquidity.pool_id,
+  });
+  const canFarmSeed = active_seeds.find((seed: Seed) => {
+    const { min_deposit, seed_id } = seed;
+    const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] = seed_id
+      .split('@')[1]
+      .split('&');
+    const v_liquidity = mint_liquidity(liquidity, seed_id);
+    const radio = get_intersection_radio({
+      left_point_liquidity: left_point,
+      right_point_liquidity: right_point,
+      left_point_seed,
+      right_point_seed,
+    });
+    const condition1 = new BigNumber(v_liquidity).isGreaterThanOrEqualTo(
+      min_deposit
+    );
+    const condition2 = +radio > 0;
+    if (condition1 && condition2) return true;
+  });
+  const targetSeed = canFarmSeed || active_seeds[0];
+  if (targetSeed) {
+    const { seed_id } = targetSeed;
+    const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] = seed_id
+      .split('@')[1]
+      .split('&');
+    const radio = get_intersection_radio({
+      left_point_liquidity: left_point,
+      right_point_liquidity: right_point,
+      left_point_seed,
+      right_point_seed,
+    });
+    if (canFarmSeed) {
+      your_apr = get_your_apr(liquidity, targetSeed, tokenPriceList);
+    }
+    Icon = get_intersection_icon_by_radio(radio);
+    inRange = +radio > 0;
+    const link_params = `${dcl_pool_id}&${left_point_seed}&${right_point_seed}`;
+    link = `/v2farms/${link_params}-r`;
+    status = 'run';
+  }
+  if (is_in_farming) {
+    const actives = related_farms.filter((farm: FarmBoost) => {
+      return farm.status != 'Ended';
+    });
+    if (actives.length > 0) {
+      status = 'run';
+    } else {
+      status = 'end';
+    }
+  }
+  return {
+    Icon,
+    your_apr,
+    link,
+    inRange,
+    status,
+  };
 }
 export function NoLiquidity({
   text,

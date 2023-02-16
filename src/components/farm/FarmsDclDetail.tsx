@@ -670,7 +670,7 @@ export default function FarmsDclDetail(props: {
     const pending_farms: FarmBoost[] = [];
     const no_pending_farms: FarmBoost[] = [];
     tempList.forEach((farm: FarmBoost) => {
-      if (farm.status == 'Created') {
+      if (farm.status == 'Created' || farm.status == 'Pending') {
         pending_farms.push(farm);
       } else {
         no_pending_farms.push(farm);
@@ -1392,6 +1392,8 @@ export default function FarmsDclDetail(props: {
             tokens,
             mft_balance_in_dcl_account,
             rate_need_to_reverse_display,
+            all_seeds,
+            isPending,
           }}
         >
           {listLiquidities_inFarimg.length > 0 ? (
@@ -1514,6 +1516,8 @@ function LiquidityLine(props: {
     tokens,
     mft_balance_in_dcl_account,
     rate_need_to_reverse_display,
+    all_seeds,
+    isPending,
   } = useContext(FarmContext);
   const [nft_stake_loading, set_nft_stake_loading] = useState(false);
   const [nft_unStake_loading, set_nft_unStake_loading] = useState(false);
@@ -1571,6 +1575,10 @@ function LiquidityLine(props: {
     }
     return [status, operation, stakeButtonStatus];
   }, [liquidity, detailData, liquidity_status_string]);
+  useEffect(() => {
+    get_each_token_apr_for_nft();
+  }, [detailData, tokenPriceList, liquidity]);
+  const intl = useIntl();
 
   function get_liquidity_value(liquidity: UserLiquidityInfo) {
     const { left_point, right_point, amount } = liquidity;
@@ -1674,7 +1682,82 @@ function LiquidityLine(props: {
       </div>
     );
   }
-  function get_your_apr(liquidity: UserLiquidityInfo) {
+  function get_each_token_apr_for_nft() {
+    const { farmList, total_seed_amount, total_seed_power } = detailData;
+    // principal
+    const total_principal = get_liquidity_value(liquidity);
+    // lp percent
+    let percent: BigNumber = new BigNumber(0);
+    const mint_amount = mint_liquidity(liquidity, detailData.seed_id);
+    const part_farm_ratio = liquidity.part_farm_ratio;
+    if (+part_farm_ratio == 100) {
+      // full farming
+      if (+total_seed_power > 0) {
+        percent = new BigNumber(mint_amount).dividedBy(total_seed_power);
+      }
+    } else if (+part_farm_ratio > 0 && +part_farm_ratio < 100) {
+      // partial Farming
+      if (+total_seed_power > 0) {
+        const partial_amount = new BigNumber(mint_amount)
+          .multipliedBy(part_farm_ratio)
+          .dividedBy(100);
+        percent = partial_amount.dividedBy(total_seed_power);
+      }
+    } else {
+      // unFarming, unavailable
+      const temp_total = new BigNumber(total_seed_power || 0).plus(mint_amount);
+      if (temp_total.isGreaterThan(0)) {
+        percent = new BigNumber(mint_amount).dividedBy(temp_total);
+      }
+    }
+    // get apr per token
+    const farmList_parse = JSON.parse(JSON.stringify(farmList || []));
+    farmList_parse.forEach((farm: FarmBoost) => {
+      const { token_meta_data } = farm;
+      const { daily_reward, reward_token } = farm.terms;
+      const quantity = toReadableNumber(token_meta_data.decimals, daily_reward);
+      const reward_token_price = Number(
+        tokenPriceList[reward_token]?.price || 0
+      );
+      const cur_token_rewards = new BigNumber(quantity)
+        .multipliedBy(reward_token_price)
+        .multipliedBy(365);
+      const user_can_get_token_rewards = new BigNumber(
+        cur_token_rewards
+      ).multipliedBy(percent);
+      if (+total_principal > 0) {
+        farm.yourNFTApr = new BigNumber(user_can_get_token_rewards)
+          .dividedBy(total_principal)
+          .toFixed();
+      } else {
+        farm.yourNFTApr = '0';
+      }
+    });
+    liquidity.farmList = farmList_parse;
+  }
+  function get_your_total_apr() {
+    const farms = liquidity.farmList || [];
+    let apr = new BigNumber(0);
+    const allPendingFarms = isPending();
+    farms.forEach(function (item: FarmBoost) {
+      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
+      if (allPendingFarms || !pendingFarm) {
+        apr = new BigNumber(apr).plus(item.yourNFTApr || 0);
+      }
+    });
+    return apr.multipliedBy(100).toFixed();
+  }
+  function display_your_apr() {
+    const total_apr = new BigNumber(get_your_total_apr());
+    if (total_apr.isEqualTo('0')) {
+      return '0%';
+    } else if (total_apr.isLessThan(0.01)) {
+      return `<0.01%`;
+    } else {
+      return `${toPrecision(total_apr.toFixed(), 2)}%`;
+    }
+  }
+  function get_your_apr_copy(liquidity: UserLiquidityInfo) {
     const { farmList, total_seed_amount, total_seed_power } = detailData;
     // principal
     const total_principal = get_liquidity_value(liquidity);
@@ -1693,7 +1776,7 @@ function LiquidityLine(props: {
       total_rewards = cur_token_rewards.plus(total_rewards).toFixed();
     });
     // lp percent
-    let percent;
+    let percent: BigNumber = new BigNumber(0);
     const mint_amount = mint_liquidity(liquidity, detailData.seed_id);
     const part_farm_ratio = liquidity.part_farm_ratio;
     if (+part_farm_ratio == 100) {
@@ -1721,7 +1804,6 @@ function LiquidityLine(props: {
     if (percent) {
       profit = percent.multipliedBy(total_rewards);
     }
-
     // your apr
     if (profit) {
       if (+total_principal == 0) {
@@ -1738,6 +1820,117 @@ function LiquidityLine(props: {
     } else {
       return '-';
     }
+  }
+  function getYourLiquidityAprTip() {
+    const { farmList } = liquidity;
+    if (!farmList) return '';
+    const tempList = farmList;
+    const lastList: any[] = [];
+    const pending_farms: FarmBoost[] = [];
+    const no_pending_farms: FarmBoost[] = [];
+    const totalApr = get_your_total_apr();
+    const txt = intl.formatMessage({ id: 'reward_apr' });
+    tempList.forEach((farm: FarmBoost) => {
+      if (farm.status == 'Created') {
+        pending_farms.push(farm);
+      } else {
+        no_pending_farms.push(farm);
+      }
+    });
+    if (pending_farms.length > 0) {
+      pending_farms.forEach((farm: FarmBoost) => {
+        lastList.push({
+          rewardToken: farm.token_meta_data,
+          apr: new BigNumber(farm.yourNFTApr || 0)
+            .multipliedBy(100)
+            .toFixed()
+            .toString(),
+          startTime: farm.terms.start_at,
+          pending: true,
+        });
+      });
+    }
+    if (no_pending_farms.length > 0) {
+      const mergedFarms = mergeCommonRewardsFarms(
+        JSON.parse(JSON.stringify(no_pending_farms))
+      );
+      mergedFarms.forEach((farm: FarmBoost) => {
+        lastList.push({
+          rewardToken: farm.token_meta_data,
+          apr: new BigNumber(farm.yourNFTApr || 0)
+            .multipliedBy(100)
+            .toFixed()
+            .toString(),
+        });
+      });
+    }
+    // show last display string
+    let result: string = '';
+    result = `
+    <div class="flex items-center justify-between ">
+      <span class="text-xs text-navHighLightText mr-3">${txt}</span>
+      <span class="text-sm text-white font-bold">${
+        toPrecision(totalApr.toString(), 2) + '%'
+      }</span>
+    </div>
+    `;
+    lastList.forEach((item: any) => {
+      const { rewardToken, apr, pending, startTime } = item;
+      const token = rewardToken;
+      let itemHtml = '';
+      if (pending) {
+        const startDate = moment.unix(startTime).format('YYYY-MM-DD');
+        const txt = intl.formatMessage({ id: 'start' });
+        itemHtml = `<div class="flex justify-between items-center h-8">
+          <image class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${
+            token.icon
+          }"/>
+          <div class="flex flex-col items-end">
+            <label class="text-xs text-farmText">${
+              (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
+            }</label>
+            <label class="text-xs text-farmText ${
+              +startTime == 0 ? 'hidden' : ''
+            }">${txt}: ${startDate}</label>
+            <label class="text-xs text-farmText mt-0.5 ${
+              +startTime == 0 ? '' : 'hidden'
+            }">Pending</label>
+          </div>
+      </div>`;
+      } else {
+        itemHtml = `<div class="flex justify-between items-center h-8">
+          <image class="w-5 h-5 rounded-full mr-7" src="${token.icon}"/>
+          <label class="text-xs text-navHighLightText">${
+            (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
+          }</label>
+      </div>`;
+      }
+      result += itemHtml;
+    });
+    return result;
+  }
+  function mergeCommonRewardsFarms(farms: FarmBoost[]) {
+    const tempMap = {};
+    farms.forEach((farm: FarmBoost) => {
+      const { reward_token, daily_reward } = farm.terms;
+      let preMergedfarms: FarmBoost = tempMap[reward_token];
+      if (preMergedfarms) {
+        preMergedfarms.yourNFTApr = new BigNumber(
+          preMergedfarms.yourNFTApr || 0
+        )
+          .plus(farm.yourNFTApr)
+          .toFixed()
+          .toString();
+        preMergedfarms.terms.daily_reward = new BigNumber(
+          preMergedfarms.terms.daily_reward
+        )
+          .plus(daily_reward)
+          .toFixed();
+      } else {
+        tempMap[reward_token] = farm;
+      }
+    });
+    return Object.values(tempMap);
   }
   function stakeNFT(liquidity: UserLiquidityInfo) {
     set_nft_stake_loading(true);
@@ -1819,6 +2012,67 @@ function LiquidityLine(props: {
     }
     return tip;
   }
+  function unavailableDiv() {
+    let tip;
+    const { seed_id, min_deposit } = detailData;
+    const [left_point, right_point] = get_valid_range(liquidity, seed_id);
+    const inrange = +right_point > +left_point;
+    if (!inrange) {
+      tip = 'Your price range is out of fix range';
+    } else if (liquidity.status_in_other_seed == 'staked') {
+      const { mft_id } = liquidity;
+      const link: string = get_target_seed_url_link({
+        all_seeds,
+        mft_id,
+      });
+      tip = (
+        <>
+          This position has been staked in{' '}
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={() => {
+              window.open(link);
+            }}
+          >
+            <span className="underline ml-1 mr-0.5">another farm</span>
+            <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+          </div>
+        </>
+      );
+    } else {
+      const v_liquidity = mint_liquidity(liquidity, seed_id);
+      const rate = new BigNumber(min_deposit).dividedBy(v_liquidity);
+      let rate_display = rate.toFixed(1);
+      if (rate.isGreaterThan(rate_display)) {
+        rate_display = new BigNumber(rate_display).plus(0.1).toFixed();
+      }
+      tip = `The minimum staking amount is ${rate_display}x your liquidity `;
+    }
+    return tip;
+  }
+  function get_target_seed_url_link({
+    all_seeds,
+    mft_id,
+  }: {
+    all_seeds: Seed[];
+    mft_id: string;
+  }) {
+    const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + mft_id.slice(1);
+    const temps = all_seeds.filter((seed: Seed) => {
+      return seed.seed_id == seed_id;
+    });
+    temps.sort((b: Seed, a: Seed) => {
+      if (b.farmList[0].status == 'Ended') return 1;
+      if (a.farmList[0].status == 'Ended') return -1;
+      return 0;
+    });
+    const target = temps[0];
+    const [fixRange, pool_id, left_point, right_point] = mft_id.split('&');
+    const params = `${pool_id}&${left_point}&${right_point}`;
+    const status = target?.farmList[0].status == 'Ended' ? 'e' : 'r';
+    const link = `/v2farms/${params}-${status}`;
+    return link;
+  }
   function apr_title() {
     if (
       liquidity_status_string == 'farming' ||
@@ -1888,46 +2142,44 @@ function LiquidityLine(props: {
                   className="text-farmText ml-1.5 cursor-pointer hover:text-greenColor"
                 />
               </div>
-              <span
-                className={`text-sm ${
-                  liquidity_status_string == 'unavailable'
-                    ? 'text-primaryText'
-                    : 'text-white'
-                }`}
+              <div
+                data-type="info"
+                data-place="top"
+                data-multiline={true}
+                data-tip={getYourLiquidityAprTip()}
+                data-html={true}
+                data-for={'your_aprId' + liquidity.lpt_id}
+                data-class="reactTip"
               >
-                {get_your_apr(liquidity)}
-              </span>
+                <span
+                  className={`text-sm ${
+                    liquidity_status_string == 'unavailable'
+                      ? 'text-primaryText'
+                      : 'text-white'
+                  }`}
+                >
+                  {display_your_apr()}
+                </span>
+                <ReactTooltip
+                  id={'your_aprId' + liquidity.lpt_id}
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
             </div>
             <div className="flex flex-col justify-between items-end col-span-1">
               <span className="text-sm text-primaryText">State</span>
               <div className={`flex items-center text-sm`}>
                 {liquidity_status_display}
-                {liquidity_status_string == 'unavailable' ? (
-                  <div
-                    className="text-white text-right ml-1"
-                    data-class="reactTip"
-                    data-for={`unavailableTipId_${liquidity.lpt_id}`}
-                    data-place="top"
-                    data-html={true}
-                    data-tip={unavailableTip()}
-                  >
-                    <QuestionMark></QuestionMark>
-                    <ReactTooltip
-                      id={`unavailableTipId_${liquidity.lpt_id}`}
-                      backgroundColor="#1D2932"
-                      border
-                      borderColor="#7e8a93"
-                      effect="solid"
-                    />
-                  </div>
-                ) : null}
               </div>
             </div>
           </div>
           <div
             className={`flex items-center  justify-between bg-cardBg py-3 px-6 ${
               hover ? '' : 'hidden'
-            } ${liquidity_status_string == 'unavailable' ? 'hidden' : ''}`}
+            }`}
           >
             <div
               onClick={() => {
@@ -1938,7 +2190,16 @@ function LiquidityLine(props: {
               <span className="mr-2">Liquidity Detail</span>
               <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
             </div>
-            <div className="flex items-center">
+            {liquidity_status_string == 'unavailable' ? (
+              <div className="flex items-center text-sm text-dclFarmYellowColor">
+                {unavailableDiv()}
+              </div>
+            ) : null}
+            <div
+              className={`flex items-center ${
+                liquidity_status_string == 'unavailable' ? 'hidden' : ''
+              }`}
+            >
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
@@ -2071,32 +2332,13 @@ function LiquidityLine(props: {
                   : 'text-white'
               }`}
             >
-              {get_your_apr(liquidity)}
+              {display_your_apr()}
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
             <span className="text-sm text-primaryText">State</span>
             <div className="flex items-center text-sm text-white">
               {liquidity_status_display}
-              {liquidity_status_string == 'unavailable' ? (
-                <div
-                  className="text-white text-right ml-1"
-                  data-class="reactTip"
-                  data-for={`unavailableTipId_m_${liquidity.lpt_id}`}
-                  data-place="top"
-                  data-html={true}
-                  data-tip={unavailableTip()}
-                >
-                  <QuestionMark></QuestionMark>
-                  <ReactTooltip
-                    id={`unavailableTipId_m_${liquidity.lpt_id}`}
-                    backgroundColor="#1D2932"
-                    border
-                    borderColor="#7e8a93"
-                    effect="solid"
-                  />
-                </div>
-              ) : null}
             </div>
           </div>
         </div>
@@ -2176,13 +2418,11 @@ function LiquidityLine(props: {
               />
             </OprationButton>
           </div>
-          <p
-            className={`flex items-center justify-between text-sm text-dclFarmYellowColor text-center ${
-              liquidity_status_string == 'unavailable' ? '' : 'hidden'
-            }`}
-          >
-            {unavailableText()}
-          </p>
+          {liquidity_status_string == 'unavailable' ? (
+            <div className="flex flex-wrap items-center justify-center text-sm text-dclFarmYellowColor">
+              {unavailableDiv()}
+            </div>
+          ) : null}
           <div
             onClick={() => {
               goYourLiquidityDetail(liquidity);
@@ -2194,7 +2434,6 @@ function LiquidityLine(props: {
           </div>
         </div>
       </div>
-      {/*  */}
       {dclCalcVisible ? (
         <CalcModelDcl
           isOpen={dclCalcVisible}
