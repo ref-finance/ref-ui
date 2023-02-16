@@ -1,5 +1,5 @@
 import { path } from 'animejs';
-import React, { useEffect, useMemo, useState, useContext } from 'react';
+import React, { useEffect, useMemo, useState, useContext, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import { Card } from '~components/card/Card';
@@ -978,6 +978,7 @@ function PointInputComponent({
   setInputStatus,
   rate_need_to_reverse_display,
 }: any) {
+  const pointRef = useRef(null);
   let inputDisplayValue;
   if (inputStatus) {
     inputDisplayValue = customPrice;
@@ -999,6 +1000,8 @@ function PointInputComponent({
         <ReduceButton className="cursor-pointer"></ReduceButton>
       </div>
       <input
+        ref={pointRef}
+        onWheel={() => pointRef.current.blur()}
         type="number"
         placeholder="0.0"
         step="any"
