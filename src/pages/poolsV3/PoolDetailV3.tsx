@@ -1954,7 +1954,7 @@ function LiquidityChart(props: any) {
     if (new BigNumber(price).isLessThan('0.001')) {
       displayRate = ' < 0.001';
     } else {
-      displayRate = ` = ${toPrecision(price.toString(), 3)}`;
+      displayRate = ` = ${formatWithCommas(toPrecision(price.toString(), 3))}`;
     }
     return (
       <span title={price} className="flex items-center flex-wrap xsm:text-sm">

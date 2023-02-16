@@ -289,7 +289,7 @@ export function drawChartData({
     axis.ticks(ticks || 5).tickFormat(function (d: any) {
       const dBig = new BigNumber(d);
       if (dBig.isGreaterThanOrEqualTo(10000)) {
-        return dBig.toExponential(1);
+        return dBig.toFixed(0);
       } else {
         return d;
       }
