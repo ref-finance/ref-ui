@@ -360,6 +360,11 @@ export const AddNewPoolV3 = (props: any) => {
     const decimalRate =
       Math.pow(10, token_y_decimals) / Math.pow(10, token_x_decimals);
     if (custom_left_price) {
+      if (rate_need_to_reverse_display) {
+        custom_left_price = new BigNumber(1)
+          .dividedBy(custom_left_price)
+          .toFixed();
+      }
       const c_point = getPointByPrice(
         point_delta,
         custom_left_price,
@@ -373,6 +378,11 @@ export const AddNewPoolV3 = (props: any) => {
       }
     }
     if (custom_right_price) {
+      if (rate_need_to_reverse_display) {
+        custom_right_price = new BigNumber(1)
+          .dividedBy(custom_right_price)
+          .toFixed();
+      }
       const c_point = getPointByPrice(
         point_delta,
         custom_right_price,
@@ -392,11 +402,7 @@ export const AddNewPoolV3 = (props: any) => {
     const decimalRate =
       Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
     let price = getPriceByPoint(point, decimalRate);
-    if (new BigNumber(price).isLessThan('0.00000001')) {
-      return price;
-    } else {
-      return toPrecision(price.toString(), 8);
-    }
+    return price;
   }
   function pointChange({
     leftPoint,
@@ -972,13 +978,15 @@ function PointInputComponent({
   setInputStatus,
   rate_need_to_reverse_display,
 }: any) {
-  const temp_value = inputStatus ? customPrice : getPrice();
-  let inputDisplayValue = temp_value;
-  if (rate_need_to_reverse_display) {
-    inputDisplayValue = toPrecision(
-      new BigNumber(1).dividedBy(inputDisplayValue).toFixed(),
-      8
-    );
+  let inputDisplayValue;
+  if (inputStatus) {
+    inputDisplayValue = customPrice;
+  } else {
+    let p = getPrice();
+    if (rate_need_to_reverse_display) {
+      p = new BigNumber(1).dividedBy(p).toFixed();
+    }
+    inputDisplayValue = toPrecision(p, 8);
   }
   return (
     <div className="flex items-center justify-between">

@@ -117,8 +117,10 @@ export default function FarmsDclDetail(props: {
   const [betterSeed, setBetterSeed] = useState<Seed>();
   const [isNewSeed, setIsNewSeed] = useState<boolean>(false);
   const [seedDclCalcVisible, setSeedDclCalcVisible] = useState(false);
-  const [show_unavailable_positions, set_show_unavailable_positions] =
-    useState(false);
+  const s = localStorage.getItem('unavailable_positions');
+  const [show_unavailable_positions, set_show_unavailable_positions] = useState(
+    s == '1' ? true : false
+  );
   const {
     user_seeds_map = {},
     user_unclaimed_map = {},
@@ -1435,7 +1437,12 @@ export default function FarmsDclDetail(props: {
               <div
                 className="text-sm text-primaryText mb-5 mt-7 pl-3 cursor-pointer"
                 onClick={() => {
-                  set_show_unavailable_positions(!show_unavailable_positions);
+                  const current_status = !show_unavailable_positions;
+                  localStorage.setItem(
+                    'unavailable_positions',
+                    current_status ? '1' : '0'
+                  );
+                  set_show_unavailable_positions(current_status);
                 }}
               >
                 <span className="underline mr-1">

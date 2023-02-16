@@ -726,13 +726,17 @@ export default function YourLiquidityDetail(props: any) {
             ) : null}
           </div>
           {is_in_farming ? (
-            <div className="flex items-center justify-center text-sm text-primaryText mt-4">
+            <div className="flex whitespace-nowrap items-center justify-center text-sm text-primaryText mt-4">
               This NFT has been staked
               <div
                 className="flex items-center text-sm text-greenColor cursor-pointer"
                 onClick={go_farm}
               >
-                <span className="underline mx-1">in farm</span>
+                <span className="underline mx-1">
+                  {liquidity_staked_farm_status == 'end'
+                    ? 'in ended farm'
+                    : 'in farm'}
+                </span>
                 <LinkArrowIcon></LinkArrowIcon>
               </div>
             </div>

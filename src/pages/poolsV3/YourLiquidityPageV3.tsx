@@ -1053,7 +1053,7 @@ function UserLiquidityLine({
                 className="relative flex items-center justify-center p-1"
                 style={{ background: 'rgba(91, 64, 255, 0.5)' }}
               >
-                <TipIon className="mr-2"></TipIon>
+                <TipIon className="mr-2 flex-shrink-0"></TipIon>
                 <span className="text-sm text-white">
                   {liquidity_staked_farm_status == 'end'
                     ? 'Your current staked farm ended, and new farm is coming, est. APR is'
@@ -1350,7 +1350,9 @@ function UserLiquidityLine({
                   go_farm();
                 }}
               >
-                in farm
+                {liquidity_staked_farm_status == 'end'
+                  ? 'in ended farm'
+                  : 'in farm'}
               </span>
               <LinkArrowIcon className="text-greenColor"></LinkArrowIcon>
             </div>
@@ -1361,24 +1363,51 @@ function UserLiquidityLine({
               className="relative flex items-start justify-center p-1"
               style={{ background: 'rgba(91, 64, 255, 0.5)' }}
             >
-              <div className="flex items-center justify-center text-sm text-white">
-                <TipIon className="mr-2"></TipIon>
-                <div className="flex items-center flex-wrap">
-                  {liquidity_staked_farm_status == 'end' ? (
-                    <div className="flex items-center">
-                      Your current staked farm ended, and
-                      <span className="underline ml-1 mr-0.5">new farm</span>
-                      <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
-                      is coming,est. APR is
-                    </div>
-                  ) : (
-                    <div className="flex items-center">
-                      You can earn rewards
+              <div
+                className={`flex flex-col items-center justify-center text-sm text-white ${
+                  liquidity_staked_farm_status == 'end' ? 'hidden' : ''
+                }`}
+              >
+                <div className="flex items-center">
+                  <TipIon className="mr-2 flex-shrink-0"></TipIon>
+                  <div className="flex items-center">
+                    You can earn rewards
+                    <div
+                      className="flex items-center"
+                      onClick={() => {
+                        window.open(liquidity_link);
+                      }}
+                    >
                       <span className="underline ml-1 mr-0.5">by farming</span>
                       <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
-                      est. APR is
                     </div>
-                  )}
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  est. APR is
+                  <span className="gotham_bold ml-1">{liquidity_your_apr}</span>
+                </div>
+              </div>
+              <div
+                className={`flex flex-col items-center justify-center text-sm text-white ${
+                  liquidity_staked_farm_status == 'end' ? '' : 'hidden'
+                }`}
+              >
+                <div className="flex items-center">
+                  <TipIon className="mr-2 flex-shrink-0"></TipIon>
+                  <span>Your current staked farm ended, and</span>
+                </div>
+                <div className="flex items-center justify-center flex-wrap">
+                  <div
+                    className="flex items-center"
+                    onClick={() => {
+                      window.open(liquidity_link);
+                    }}
+                  >
+                    <span className="underline ml-1 mr-0.5">new farm</span>
+                    <LinkArrowIcon className="cursor-pointer mr-0.5"></LinkArrowIcon>
+                  </div>
+                  is coming,est. APR is
                   <span className="gotham_bold ml-1">{liquidity_your_apr}</span>
                 </div>
               </div>
