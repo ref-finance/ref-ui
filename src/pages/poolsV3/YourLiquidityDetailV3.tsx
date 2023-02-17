@@ -54,6 +54,7 @@ import {
   TOKEN_LIST_FOR_RATE,
   pause_old_dcl_claim_tip,
   get_all_seeds,
+  displayNumberToAppropriateDecimals,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { getTokenPriceList } from '../../services/indexer';
@@ -438,6 +439,7 @@ export default function YourLiquidityDetail(props: any) {
       }
     }
     if (!value) return value;
+    value = displayNumberToAppropriateDecimals(value).toString();
     const [whole, decimals] = value.toString().split('.');
     const whole_format = formatWithCommas(whole);
     if (decimals) {

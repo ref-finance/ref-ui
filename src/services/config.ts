@@ -304,7 +304,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         BLACKLIST_POOL_IDS: ['686'],
         REF_FARM_BOOST_CONTRACT_ID:
           process.env.REF_FARM_BOOST_CONTRACT_ID ||
-          'boostfarm024.ref-dev.testnet',
+          'boostfarm-dev.ref-dev.testnet',
         FARM_LOCK_SWITCH: process.env.FARM_LOCK_SWITCH || 0,
         VotingGauge: ['5%', '10%'],
         REF_UNI_V3_SWAP_CONTRACT_ID:
