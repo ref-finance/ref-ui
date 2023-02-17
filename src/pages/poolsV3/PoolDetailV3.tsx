@@ -437,11 +437,6 @@ export default function PoolDetailV3() {
                       liquidities={user_liquidities}
                       matched_seeds={matched_seeds}
                     ></UserTabBox>
-                    <RelatedFarmsBox
-                      poolDetail={poolDetail}
-                      tokenPriceList={tokenPriceList}
-                      sole_seed={sole_seed}
-                    ></RelatedFarmsBox>
                   </>
                 ) : (
                   <>
@@ -456,15 +451,15 @@ export default function PoolDetailV3() {
                       tokenPriceList={tokenPriceList}
                       liquidities={user_liquidities}
                     ></UnclaimedFeesBox>
-                    <RelatedFarmsBox
-                      poolDetail={poolDetail}
-                      tokenPriceList={tokenPriceList}
-                      sole_seed={sole_seed}
-                    ></RelatedFarmsBox>
                   </>
                 )}
               </>
             )}
+            <RelatedFarmsBox
+              poolDetail={poolDetail}
+              tokenPriceList={tokenPriceList}
+              sole_seed={sole_seed}
+            ></RelatedFarmsBox>
           </div>
         </div>
       </div>
@@ -998,7 +993,6 @@ function RelatedFarmsBox(props: any) {
   const { poolDetail, tokenPriceList, sole_seed } = props;
   const [related_seed, set_related_seed] = useState<Seed>();
   const [farm_loading, set_farm_loading] = useState<boolean>(true);
-
   useEffect(() => {
     if (poolDetail && Object.keys(tokenPriceList).length > 0) {
       get_farms_data();
