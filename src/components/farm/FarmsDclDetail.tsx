@@ -786,10 +786,13 @@ export default function FarmsDclDetail(props: {
     const rewardTokenIconMap = {};
     let totalPrice = 0;
     const effectiveFarms = getEffectiveFarmList(farms);
-    effectiveFarms.forEach((farm: FarmBoost) => {
-      const { id, decimals, icon } = farm.token_meta_data;
-      const { daily_reward } = farm.terms;
+    farms.forEach((farm: FarmBoost) => {
+      const { id, icon } = farm.token_meta_data;
       rewardTokenIconMap[id] = icon;
+    });
+    effectiveFarms.forEach((farm: FarmBoost) => {
+      const { id, decimals } = farm.token_meta_data;
+      const { daily_reward } = farm.terms;
       const tokenPrice = tokenPriceList[id]?.price;
       if (tokenPrice && tokenPrice != 'N/A') {
         const tokenAmount = toReadableNumber(decimals, daily_reward);
