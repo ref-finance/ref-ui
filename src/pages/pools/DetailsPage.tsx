@@ -171,6 +171,7 @@ import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import Big from 'big.js';
+import { getEffectiveFarmList } from '~services/commonV3';
 
 interface ParamTypes {
   id: string;
@@ -1966,7 +1967,8 @@ export function PoolDetailsPage() {
     const farms = seedFarms;
     const rewardTokenIconMap = {};
     let totalPrice = 0;
-    farms.forEach((farm: FarmBoost) => {
+    const effectiveFarms = getEffectiveFarmList(farms);
+    effectiveFarms.forEach((farm: FarmBoost) => {
       const { id, decimals, icon } = farm.token_meta_data;
       const { daily_reward } = farm.terms;
       rewardTokenIconMap[id] = icon;
