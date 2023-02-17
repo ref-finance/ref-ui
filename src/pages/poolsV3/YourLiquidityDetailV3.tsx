@@ -437,11 +437,13 @@ export default function YourLiquidityDetail(props: any) {
         }
       }
     }
-    const valueBig = new BigNumber(value);
-    if (valueBig.isGreaterThan('100000')) {
-      return new BigNumber(value).toExponential(3);
+    if (!value) return value;
+    const [whole, decimals] = value.toString().split('.');
+    const whole_format = formatWithCommas(whole);
+    if (decimals) {
+      return whole_format + '.' + decimals;
     } else {
-      return value;
+      return whole_format;
     }
   }
   function switchRateSort() {
