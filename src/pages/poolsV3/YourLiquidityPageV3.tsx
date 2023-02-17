@@ -1470,7 +1470,8 @@ export function get_your_apr(
   const total_principal = get_liquidity_value(liquidity, seed, tokenPriceList);
   // seed total rewards
   let total_rewards = '0';
-  farmList.forEach((farm: FarmBoost) => {
+  const effectiveFarms = getEffectiveFarmList(farmList);
+  effectiveFarms.forEach((farm: FarmBoost) => {
     const { token_meta_data } = farm;
     const { daily_reward, reward_token } = farm.terms;
     const quantity = toReadableNumber(token_meta_data.decimals, daily_reward);
@@ -1506,6 +1507,21 @@ export function get_your_apr(
   } else {
     return '-';
   }
+}
+function getEffectiveFarmList(farmList: FarmBoost[]) {
+  const farms: FarmBoost[] = JSON.parse(JSON.stringify(farmList || []));
+  let allPending = true;
+  for (let i = 0; i < farms.length; i++) {
+    if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
+      allPending = false;
+      break;
+    }
+  }
+  const targetList = farms.filter((farm: FarmBoost) => {
+    const pendingFarm = farm.status == 'Created' || farm.status == 'Pending';
+    return allPending || !pendingFarm;
+  });
+  return targetList;
 }
 function get_liquidity_value(
   liquidity: UserLiquidityInfo,
