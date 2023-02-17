@@ -621,7 +621,7 @@ export default function FarmsHome(props: any) {
       ];
       const mft_id = decodeURIComponent(idArr[0]);
       const farmsStatus = idArr[1];
-      if (mft_id.split('|').length > 0) {
+      if (mft_id.split('|').length > 1) {
         is_dcl_pool = true;
       }
       const targetFarms = farm_display_List.find((seed: Seed) => {
