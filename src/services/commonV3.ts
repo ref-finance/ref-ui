@@ -1027,6 +1027,21 @@ export function get_intersection_icon_by_radio(radio: string): any {
   }
   return icon;
 }
+export function getEffectiveFarmList(farmList: FarmBoost[]) {
+  const farms: FarmBoost[] = JSON.parse(JSON.stringify(farmList || []));
+  let allPending = true;
+  for (let i = 0; i < farms.length; i++) {
+    if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
+      allPending = false;
+      break;
+    }
+  }
+  const targetList = farms.filter((farm: FarmBoost) => {
+    const pendingFarm = farm.status == 'Created' || farm.status == 'Pending';
+    return allPending || !pendingFarm;
+  });
+  return targetList;
+}
 export const TOKEN_LIST_FOR_RATE = ['USDC.e', 'USDC', 'USDT.e', 'USDT'];
 
 export const PAUSE_DCL = true;

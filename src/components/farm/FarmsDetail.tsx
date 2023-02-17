@@ -89,6 +89,8 @@ import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import { isStablePool } from '../../services/near';
 import moment from 'moment';
+import { getEffectiveFarmList } from '~services/commonV3';
+
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
   STABLE_POOL_IDS,
@@ -348,7 +350,8 @@ function StakeContainer(props: {
     const farms = detailData.farmList;
     const rewardTokenIconMap = {};
     let totalPrice = 0;
-    farms.forEach((farm: FarmBoost) => {
+    const effectiveFarms = getEffectiveFarmList(farms);
+    effectiveFarms.forEach((farm: FarmBoost) => {
       const { id, decimals, icon } = farm.token_meta_data;
       const { daily_reward } = farm.terms;
       rewardTokenIconMap[id] = icon;

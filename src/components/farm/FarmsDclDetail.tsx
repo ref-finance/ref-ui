@@ -64,6 +64,7 @@ import {
   displayNumberToAppropriateDecimals,
   get_intersection_radio,
   get_intersection_icon_by_radio,
+  getEffectiveFarmList,
 } from '~services/commonV3';
 import { list_liquidities, dcl_mft_balance_of } from '../../services/swapV3';
 import { AddNewPoolV3 } from '~components/pool/AddNewPoolV3';
@@ -784,7 +785,8 @@ export default function FarmsDclDetail(props: {
     const farms = detailData.farmList;
     const rewardTokenIconMap = {};
     let totalPrice = 0;
-    farms.forEach((farm: FarmBoost) => {
+    const effectiveFarms = getEffectiveFarmList(farms);
+    effectiveFarms.forEach((farm: FarmBoost) => {
       const { id, decimals, icon } = farm.token_meta_data;
       const { daily_reward } = farm.terms;
       rewardTokenIconMap[id] = icon;

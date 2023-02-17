@@ -27,6 +27,7 @@ import {
   displayNumberToAppropriateDecimals,
   get_intersection_radio,
   get_intersection_icon_by_radio,
+  getEffectiveFarmList,
 } from '~services/commonV3';
 
 const config = getConfig();
@@ -71,21 +72,6 @@ export default function CalcModelDcl(
       metadata_x_y: { [token_x]: token_x_meta, [token_y]: token_y_meta },
     });
     set_one_lp_value(single_lp_value);
-  }
-  function getEffectiveFarmList(farmList: FarmBoost[]) {
-    const farms: FarmBoost[] = JSON.parse(JSON.stringify(farmList || []));
-    let allPending = true;
-    for (let i = 0; i < farms.length; i++) {
-      if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
-        allPending = false;
-        break;
-      }
-    }
-    const targetList = farms.filter((farm: FarmBoost) => {
-      const pendingFarm = farm.status == 'Created' || farm.status == 'Pending';
-      return allPending || !pendingFarm;
-    });
-    return targetList;
   }
   return (
     <Modal {...props}>

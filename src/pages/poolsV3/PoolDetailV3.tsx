@@ -44,6 +44,7 @@ import {
   get_matched_seeds_for_dcl_pool,
   get_all_seeds,
   displayNumberToAppropriateDecimals,
+  getEffectiveFarmList,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -1008,7 +1009,8 @@ function RelatedFarmsBox(props: any) {
     const farms = related_seed.farmList;
     const rewardTokenIconMap = {};
     let totalPrice = 0;
-    farms.forEach((farm: FarmBoost) => {
+    const effectiveFarms = getEffectiveFarmList(farms);
+    effectiveFarms.forEach((farm: FarmBoost) => {
       const { id, decimals, icon } = farm.token_meta_data;
       const { daily_reward } = farm.terms;
       rewardTokenIconMap[id] = icon;

@@ -45,6 +45,7 @@ import {
   mint_liquidity,
   UserLiquidityInfo,
   get_total_value_by_liquidity_amount_dcl,
+  getEffectiveFarmList,
 } from '../../services/commonV3';
 import {
   PoolInfo,
@@ -609,21 +610,6 @@ export const AddNewPoolV3 = (props: any) => {
       },
     });
     return v;
-  }
-  function getEffectiveFarmList(farmList: FarmBoost[]) {
-    const farms: FarmBoost[] = JSON.parse(JSON.stringify(farmList || []));
-    let allPending = true;
-    for (let i = 0; i < farms.length; i++) {
-      if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
-        allPending = false;
-        break;
-      }
-    }
-    const targetList = farms.filter((farm: FarmBoost) => {
-      const pendingFarm = farm.status == 'Created' || farm.status == 'Pending';
-      return allPending || !pendingFarm;
-    });
-    return targetList;
   }
   const { status: isAddLiquidityDisabled, not_enough_token } =
     getButtonStatus();

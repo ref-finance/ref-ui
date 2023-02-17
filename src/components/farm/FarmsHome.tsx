@@ -131,6 +131,7 @@ import {
   get_matched_seeds_for_dcl_pool,
   TOKEN_LIST_FOR_RATE,
   displayNumberToAppropriateDecimals,
+  getEffectiveFarmList,
 } from '~services/commonV3';
 
 const {
@@ -2364,7 +2365,8 @@ function FarmView(props: {
     const farms = seed.farmList;
     const rewardTokenIconMap = {};
     let totalPrice = 0;
-    farms.forEach((farm: FarmBoost) => {
+    const effectiveFarms = getEffectiveFarmList(farms);
+    effectiveFarms.forEach((farm: FarmBoost) => {
       const { id, decimals, icon } = farm.token_meta_data;
       const { daily_reward } = farm.terms;
       rewardTokenIconMap[id] = icon;
