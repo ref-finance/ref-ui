@@ -2734,6 +2734,7 @@ export function PoolDetailsPage() {
                       )}
                       size="4"
                       isRewardDisplay
+                      borderStyle="1px solid #00C6A2"
                     />
                     <span className="text-sm text-v3SwapGray">
                       {totalTvlPerWeekDisplay()}

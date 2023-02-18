@@ -582,21 +582,25 @@ function StakeContainer(props: {
       day24Volume = +getPoolFeeApr(dayVolume);
     }
     let apr = getActualTotalApr();
-    if (apr == 0 && day24Volume == 0) {
+    if (new BigNumber(apr).isEqualTo(0) && day24Volume == 0) {
       return '-';
     } else {
-      apr = +new BigNumber(apr).multipliedBy(100).plus(day24Volume).toFixed();
-      return toPrecision(apr.toString(), 2) + '%';
+      const temp = new BigNumber(apr).multipliedBy(100).plus(day24Volume);
+      if (temp.isLessThan(0.01)) {
+        return '<0.01%';
+      } else {
+        return toPrecision(temp.toFixed(), 2) + '%';
+      }
     }
   }
   function getActualTotalApr() {
     const farms = detailData.farmList;
-    let apr = 0;
+    let apr = '0';
     const allPendingFarms = isPending();
     farms.forEach(function (item: FarmBoost) {
       const pendingFarm = item.status == 'Created' || item.status == 'Pending';
       if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-        apr = +new BigNumber(apr).plus(item.apr).toFixed();
+        apr = new BigNumber(apr).plus(item.apr).toFixed();
       }
     });
     return apr;
@@ -704,7 +708,16 @@ function StakeContainer(props: {
       }"/></span>)
     </div>`;
     }
-
+    function display_apr(apr: string) {
+      const apr_big = new BigNumber(apr || 0);
+      if (apr_big.isEqualTo(0)) {
+        return '-';
+      } else if (apr_big.isLessThan(0.01)) {
+        return '<0.01%';
+      } else {
+        return formatWithCommas(toPrecision(apr, 2)) + '%';
+      }
+    }
     lastList.forEach((item: any) => {
       const { rewardToken, apr: baseApr, pending, startTime } = item;
       const token = rewardToken;
@@ -721,9 +734,7 @@ function StakeContainer(props: {
             token.icon
           }"/>
           <div class="flex flex-col items-end">
-            <label class="text-xs text-farmText">${
-              (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
-            }</label>
+            <label class="text-xs text-farmText">${display_apr(apr)}</label>
             <label class="text-xs text-farmText ${
               +startTime == 0 ? 'hidden' : ''
             }">${txt}: ${startDate}</label>
@@ -735,9 +746,9 @@ function StakeContainer(props: {
       } else {
         itemHtml = `<div class="flex justify-between items-center h-8">
           <image class="w-5 h-5 rounded-full mr-7" src="${token.icon}"/>
-          <label class="text-xs text-navHighLightText">${
-            (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
-          }</label>
+          <label class="text-xs text-navHighLightText">${display_apr(
+            apr
+          )}</label>
       </div>`;
       }
       result += itemHtml;
@@ -800,7 +811,7 @@ function StakeContainer(props: {
       boostApr = new BigNumber(apr).multipliedBy(rate);
     }
     if (boostApr && +boostApr > 0) {
-      const r = +new BigNumber(boostApr).multipliedBy(100).toFixed();
+      const r = new BigNumber(boostApr).multipliedBy(100).toFixed();
       return (
         <span>
           <label className="mx-0.5">～</label>

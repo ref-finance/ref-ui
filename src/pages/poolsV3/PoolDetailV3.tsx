@@ -1064,7 +1064,8 @@ function RelatedFarmsBox(props: any) {
       const { icon, id } = token_meta_data;
       tempMap[id] = icon;
     });
-    return Object.entries(tempMap);
+    const arr = Object.entries(tempMap);
+    return arr.slice(0, 5);
   }
   function go_farm() {
     const { seed_id } = related_seed;
@@ -1077,7 +1078,7 @@ function RelatedFarmsBox(props: any) {
   if (farm_loading) return null;
   if (!related_seed) return null;
   return (
-    <div className="relative p-5 z-10 mt-3">
+    <div className="relative py-5 px-3 z-10 mt-3">
       <FarmBoardInDetailPool
         style={{
           position: 'absolute',
@@ -1089,24 +1090,32 @@ function RelatedFarmsBox(props: any) {
       ></FarmBoardInDetailPool>
       <div className="flex items-center justify-between">
         <span className="text-base text-white gotham_bold">Farm APR</span>
-        <div className="flex items-center bg-dclButtonBgColor rounded-xl pl-px pr-2 py-px">
+        <div className="flex items-center bg-dclButtonBgColor rounded-xl pl-1 pr-2 py-px">
           {getAllRewardsSymbols().map(([id, icon]: [string, string], index) => {
             return (
               <img
                 key={id}
                 src={icon}
                 className={`h-4 w-4 rounded-full border border-gradientFromHover ${
-                  index != 0 ? '-ml-1' : ''
+                  index != 0 ? '-ml-1.5' : ''
                 }`}
               ></img>
             );
           })}
-          <span className="flex items-center text-sm text-v3SwapGray ml-2">
+          {related_seed?.farmList.length > 5 ? (
+            <div
+              className={`flex h-4 w-4 -ml-1.5 flex-shrink-0  items-center justify-center text-gradientFrom rounded-full bg-darkBg border border-gradientFromHover`}
+            >
+              <span className={`relative bottom-1`}>...</span>
+            </div>
+          ) : null}
+
+          <span className="flex items-center text-sm text-v3SwapGray ml-1.5">
             {totalTvlPerWeekDisplay()}/week
           </span>
         </div>
       </div>
-      <div className="flex items-center justify-between mt-2">
+      <div className="flex items-center justify-between mt-3">
         <div className="flex items-center">
           <span className="valueStyleYellow text-xl gotham_bold mr-1">
             {getTotalAprForSeed()}
@@ -1269,6 +1278,11 @@ function SelectLiquidityBox(props: any) {
     return is_in_farming;
   }
   const isMobile = isClientMobie();
+  const has_no_related_seed =
+    matched_seeds?.length == 0 &&
+    user_liquidities?.every(
+      (liquidity: UserLiquidityInfo) => +(liquidity.part_farm_ratio || 0) == 0
+    );
   return (
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={style}>
       <Card
@@ -1320,7 +1334,11 @@ function SelectLiquidityBox(props: any) {
                         {displayLiqudityFee(liquidityDetail)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between my-1.5">
+                    <div
+                      className={`flex items-center justify-between my-1.5 ${
+                        has_no_related_seed ? 'hidden' : ''
+                      }`}
+                    >
                       <span className="text-sm text-farmText">Farm State</span>
                       <span className="text-sm text-white">
                         {displayFarmStatus(user_liquidities[index])}
@@ -1386,7 +1404,11 @@ function SelectLiquidityBox(props: any) {
             className="wrap"
             style={{ maxHeight: '500px', overflow: 'auto' }}
           >
-            <div className="grid grid-cols-12 gap-x-3 text-farmText  text-sm h-10 justify-center items-center px-6">
+            <div
+              className={`grid grid-cols-${
+                has_no_related_seed ? 10 : 12
+              } gap-x-3 text-farmText  text-sm h-10 justify-center items-center px-6`}
+            >
               <span className="col-span-1 pl-2 whitespace-nowrap">NFT ID</span>
               <span className="col-span-2">
                 <FormattedMessage id="liquidity" />
@@ -1397,7 +1419,9 @@ function SelectLiquidityBox(props: any) {
               <span className="col-span-2">
                 <FormattedMessage id="unclaimed_fee" />
               </span>
-              <span className="col-span-2">Farm State</span>
+              {has_no_related_seed ? null : (
+                <span className={`col-span-2`}>Farm State</span>
+              )}
               <span className="col-span-2"></span>
             </div>
             <div>
@@ -1410,7 +1434,9 @@ function SelectLiquidityBox(props: any) {
                         hoverLine(liquidityDetail.hashId);
                       }}
                       // onMouseLeave={() => setHoverHashId('')}
-                      className={`grid grid-cols-12 gap-x-3 text-white text-base h-14 justify-center items-center px-6 ${
+                      className={`grid grid-cols-${
+                        has_no_related_seed ? 10 : 12
+                      } gap-x-3 text-white text-base h-14 justify-center items-center px-6 ${
                         hoverHashId == liquidityDetail.hashId
                           ? 'bg-chartBg bg-opacity-20'
                           : ''
@@ -1428,9 +1454,11 @@ function SelectLiquidityBox(props: any) {
                       <span className="col-span-2">
                         {displayLiqudityFee(liquidityDetail)}
                       </span>
-                      <span className="col-span-2">
-                        {displayFarmStatus(user_liquidities[index])}
-                      </span>
+                      {has_no_related_seed ? null : (
+                        <span className={`col-span-2`}>
+                          {displayFarmStatus(user_liquidities[index])}
+                        </span>
+                      )}
                       <div className="col-span-2">
                         {is_in_farming(user_liquidities[index]) ? (
                           <BorderButton

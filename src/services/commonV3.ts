@@ -904,7 +904,7 @@ async function getFarmDataList(initData: any) {
       );
       const apr =
         +seedPowerTvl == 0
-          ? 0
+          ? '0'
           : new BigNumber(readableNumber)
               .multipliedBy(365)
               .multipliedBy(reward_token_price)
@@ -912,15 +912,15 @@ async function getFarmDataList(initData: any) {
               .toFixed();
       const baseApr =
         +seedTvl == 0
-          ? 0
+          ? '0'
           : new BigNumber(readableNumber)
               .multipliedBy(365)
               .multipliedBy(reward_token_price)
               .dividedBy(seedTvl)
               .toFixed();
 
-      farm.apr = apr.toString();
-      farm.baseApr = baseApr.toString();
+      farm.apr = apr;
+      farm.baseApr = baseApr;
     });
     newSeed.pool = pool;
     newSeed.seedTvl = seedTvl || '0';

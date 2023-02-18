@@ -874,7 +874,8 @@ export const useSeedFarms = (pool_id: string | number) => {
 
         return Promise.all(
           parsedRes
-            .filter((f: any) => noRunning || f.status === 'Running')
+            // .filter((f: any) => noRunning || f.status === 'Running')
+            .filter((f: any) => f.status != 'Ended')
             .map(async (farm: any) => {
               const token_meta_data = await ftGetTokenMetadata(
                 farm.terms.reward_token
