@@ -122,7 +122,12 @@ const config = getConfig();
 
 export function AccountTipDownByAccountID({ show }: { show: boolean }) {
   return (
-    <div className={`account-tip-popup ${show ? 'block' : 'hidden'} text-xs`}>
+    <div
+      className={`account-tip-popup  ${show ? 'block' : 'hidden'} text-xs`}
+      style={{
+        zIndex: 120,
+      }}
+    >
       <span>
         <em></em>
       </span>
@@ -410,7 +415,12 @@ function AccountEntry({
   const isMobile = useClientMobile();
 
   return (
-    <div className="bubble-box relative user text-xs text-center justify-end z-40">
+    <div
+      className="bubble-box relative user text-xs text-center justify-end z-40"
+      style={{
+        zIndex: 120,
+      }}
+    >
       {showAccountTip ? (
         <AccountTipDownByAccountID show={showAccountTip} />
       ) : null}

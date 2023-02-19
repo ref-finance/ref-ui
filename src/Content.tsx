@@ -54,6 +54,7 @@ import {
   BgShapeCenterSmall,
 } from './components/icon';
 import Modal from 'react-modal';
+import AllOrders from './pages/Orderly/components/AllOrders';
 
 import './global.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -83,6 +84,10 @@ import { AccountView } from 'near-api-js/lib/providers/provider';
 import { InjectedWallet } from '@near-wallet-selector/core';
 import { REF_FARM_BOOST_CONTRACT_ID, wallet } from './services/near';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
+import View from './pages/Orderly/OrderlyTradingBoard';
+import OrderlyContextProvider, {
+  OrderlyContext,
+} from '~pages/Orderly/orderly/OrderlyContext';
 
 export type Account = AccountView & {
   account_id: string;
@@ -96,7 +101,8 @@ Modal.defaultStyles = {
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    zIndex: 100,
+    zIndex: 999,
+    outline: 'none',
   },
   content: {
     position: 'absolute',
@@ -106,6 +112,7 @@ Modal.defaultStyles = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -65%)',
+    outline: 'none',
   },
 };
 
@@ -195,48 +202,58 @@ export function Content() {
           marginTop: isMobile() ? 'none' : '44px',
         }}
       />
-      <Switch>
-        <Route path="/account" component={AccountPage} />
-        <Route path="/recent" component={RecentActivityPage} />
-        <Route
-          path="/more_pools/:tokenIds"
-          component={AutoHeight(MorePoolsPage)}
-        />
-        <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
-        <Route path="/pools/add-token" component={AutoHeight(AddTokenPage)} />
-        {/* <Route path="/pools/yours" component={AutoHeight(YourLiquidityPage)} /> */}
-        <Route path="/pools" component={AutoHeight(LiquidityPage)} />
-        <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
-        <Route path="/farms" component={AutoHeight(FarmsPage)} />
-        <Route path={`/sauce/:id`} component={AutoHeight(StableSwapRouter)} />
-        <Route path={'/myOrder'} component={AutoHeight(MyOrderPage)} />
-        <Route
-          path="/yourliquidity"
-          component={AutoHeight(YourLiquidityPageV3)}
-        />
-        <Route
-          path="/yoursLiquidityDetailV2/:id"
-          component={AutoHeight(YourLiquidityDetailV3)}
-        />
-        <Route
-          path="/addLiquidityV2"
-          component={AutoHeight(AddYourLiquidityPageV3)}
-        />
+      <OrderlyContextProvider>
+        <Switch>
+          <Route path="/account" component={AccountPage} />
+          <Route path="/recent" component={RecentActivityPage} />
+          <Route
+            path="/more_pools/:tokenIds"
+            component={AutoHeight(MorePoolsPage)}
+          />
+          <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
+          <Route path="/pools/add-token" component={AutoHeight(AddTokenPage)} />
+          {/* <Route path="/pools/yours" component={AutoHeight(YourLiquidityPage)} /> */}
+          <Route path="/pools" component={AutoHeight(LiquidityPage)} />
+          <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
+          <Route path="/farms" component={AutoHeight(FarmsPage)} />
+          <Route path={`/sauce/:id`} component={AutoHeight(StableSwapRouter)} />
+          <Route path={'/myOrder'} component={AutoHeight(MyOrderPage)} />
 
-        <Route path="/sauce" component={AutoHeight(StableSwapPageEntry)} />
+          <Route path={'/orderly/all-orders'} component={AllOrders} />
 
-        <Route path="/xref" component={AutoHeight(XrefPage)} />
-        <Route path="/risks" component={AutoHeight(RiskPage)} />
-        {!!getConfig().REF_VE_CONTRACT_ID ? (
-          <Route path="/referendum" component={AutoHeight(ReferendumPage)} />
-        ) : null}
+          <Route
+            path="/yourliquidity"
+            component={AutoHeight(YourLiquidityPageV3)}
+          />
+          <Route
+            path="/yoursLiquidityDetailV2/:id"
+            component={AutoHeight(YourLiquidityDetailV3)}
+          />
 
-        <Route path="/v2farms/:id?" component={AutoHeight(FarmsBoosterPage)} />
-        <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
-        <Route path="/poolV2/:id" component={AutoHeight(PoolDetailV3)} />
-        <Route path="/portfolio" component={AutoHeight(Portfolio)} />
-        <Route path="/" component={AutoHeight(SwapPage)} />
-      </Switch>
+          <Route path="/orderly" component={View} />
+          <Route
+            path="/addLiquidityV2"
+            component={AutoHeight(AddYourLiquidityPageV3)}
+          />
+
+          <Route path="/sauce" component={AutoHeight(StableSwapPageEntry)} />
+
+          <Route path="/xref" component={AutoHeight(XrefPage)} />
+          <Route path="/risks" component={AutoHeight(RiskPage)} />
+          {!!getConfig().REF_VE_CONTRACT_ID ? (
+            <Route path="/referendum" component={AutoHeight(ReferendumPage)} />
+          ) : null}
+
+          <Route
+            path="/v2farms/:id?"
+            component={AutoHeight(FarmsBoosterPage)}
+          />
+          <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
+          <Route path="/poolV2/:id" component={AutoHeight(PoolDetailV3)} />
+          <Route path="/portfolio" component={AutoHeight(Portfolio)} />
+          <Route path="/" component={AutoHeight(SwapPage)} />
+        </Switch>
+      </OrderlyContextProvider>
     </WalletContext.Provider>
   );
 }
