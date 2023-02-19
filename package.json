@@ -162,7 +162,7 @@
     "@ledgerhq/devices/lib/hid-framing": "@ledgerhq/devices/lib-es/hid-framing"
   },
   "staticFiles": {
-    "staticPath": "public",
+    "staticPath": "src/public",
     "watcherGlob": "**"
   }
 }

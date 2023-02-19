@@ -1,6 +1,13 @@
 import * as React from 'react';
 import './index.css';
-import { widget, ChartingLibraryWidgetOptions, LanguageCode, IChartingLibraryWidget, ResolutionString, Timezone } from '../../charting_library';
+import {
+  widget,
+  ChartingLibraryWidgetOptions,
+  LanguageCode,
+  IChartingLibraryWidget,
+  ResolutionString,
+  Timezone,
+} from '../../../../public/charting_library';
 
 import datafeed from '../../datafeed';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
@@ -28,10 +35,15 @@ export interface ChartContainerState {}
 function getLanguageFromURL(): LanguageCode | null {
   const regex = new RegExp('[\\?&]lang=([^&#]*)');
   const results = regex.exec(window.location.search);
-  return results === null ? null : (decodeURIComponent(results[1].replace(/\+/g, ' ')) as LanguageCode);
+  return results === null
+    ? null
+    : (decodeURIComponent(results[1].replace(/\+/g, ' ')) as LanguageCode);
 }
 
-export class TVChartContainer extends React.PureComponent<Partial<ChartContainerProps>, ChartContainerState> {
+export class TVChartContainer extends React.PureComponent<
+  Partial<ChartContainerProps>,
+  ChartContainerState
+> {
   public static defaultProps: Omit<ChartContainerProps, 'container'> = {
     symbol: 'SPOT_NEAR_USDC',
     theme: 'Dark',
@@ -147,7 +159,7 @@ export function ChartContainer() {
   return (
     <div
       ref={ref}
-      id='TVChartContainer'
+      id="TVChartContainer"
       style={{
         height: '500px',
       }}
