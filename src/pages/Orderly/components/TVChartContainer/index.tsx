@@ -7,7 +7,7 @@ import {
   IChartingLibraryWidget,
   ResolutionString,
   Timezone,
-} from '../../../../public/charting_library';
+} from '../../../../charting_library';
 
 import datafeed from '../../datafeed';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
