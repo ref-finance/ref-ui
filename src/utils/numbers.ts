@@ -61,6 +61,8 @@ export const toPrecision = (
   withCommas: boolean = false,
   atLeastOne: boolean = true
 ): string => {
+  if (typeof number === 'undefined') return '0';
+
   const [whole, decimal = ''] = number.split('.');
 
   let str = `${withCommas ? formatWithCommas(whole) : whole}.${decimal.slice(
@@ -289,7 +291,9 @@ export const calculateExchangeRate = (
   to: string,
   precision?: number
 ) => {
-  return math.floor(math.evaluate(`${to} / ${from}`), precision || 4);
+  try {
+    return math.floor(math.evaluate(`${to} / ${from}`), precision || 4);
+  } catch (error) {}
 };
 
 export const subtraction = (initialValue: string, toBeSubtract: string) => {
@@ -374,13 +378,14 @@ export const toInternationalCurrencySystem = (
   labelValue: string,
   percent?: number
 ) => {
+  const hasPercent = !(percent == undefined || percent == null);
   return Math.abs(Number(labelValue)) >= 1.0e9
     ? (Math.abs(Number(labelValue)) / 1.0e9).toFixed(percent || 2) + 'B'
     : Math.abs(Number(labelValue)) >= 1.0e6
     ? (Math.abs(Number(labelValue)) / 1.0e6).toFixed(percent || 2) + 'M'
     : Math.abs(Number(labelValue)) >= 1.0e3
     ? (Math.abs(Number(labelValue)) / 1.0e3).toFixed(percent || 2) + 'K'
-    : Math.abs(Number(labelValue)).toFixed(percent || 2);
+    : Math.abs(Number(labelValue)).toFixed(hasPercent ? percent : 2);
 };
 
 export const toInternationalCurrencySystemLongString = (
@@ -653,6 +658,61 @@ export function getPoolAllocationPercents(pools: Pool[]) {
   }
 }
 
+export function getAllocationsLeastOne(arr: string[]) {
+  if (arr.length === 0) return [];
+
+  if (arr.length === 1) return ['100'];
+
+  if (arr) {
+    const partialAmounts = arr.map((v) => {
+      return math.bignumber(v);
+    });
+
+    const ps: string[] = new Array(partialAmounts.length).fill('0');
+
+    const sum =
+      partialAmounts.length === 1
+        ? partialAmounts[0]
+        : math.sum(...partialAmounts);
+
+    const sortedAmount = sortBy(partialAmounts, (p) => Number(p));
+
+    let minIndexes: number[] = [];
+
+    for (let k = 0; k < sortedAmount.length - 1; k++) {
+      let minIndex = -1;
+
+      for (let j = 0; j < partialAmounts.length; j++) {
+        if (partialAmounts[j].eq(sortedAmount[k]) && !minIndexes.includes(j)) {
+          minIndex = j;
+          minIndexes.push(j);
+          break;
+        }
+      }
+      const res = math
+        .round(percent(partialAmounts[minIndex].toString(), sum))
+        .toString();
+
+      if (Number(res) === 0) {
+        ps[minIndex] = '1';
+      } else {
+        ps[minIndex] = res;
+      }
+    }
+
+    const finalPIndex = ps.indexOf('0');
+
+    ps[finalPIndex] = subtraction(
+      '100',
+      ps.length === 1 ? Number(ps[0]) : math.sum(...ps.map((p) => Number(p)))
+    ).toString();
+
+    return ps;
+  } else {
+    return [];
+  }
+}
+
 export const checkAllocations = (sum: string, allocations: string[]) => {
   if (!allocations || allocations?.length === 0) return [];
 
@@ -677,8 +737,18 @@ export const checkAllocations = (sum: string, allocations: string[]) => {
   } else return allocations;
 };
 
-export const getMax = function (id: string, max: string) {
-  return id !== WRAP_NEAR_CONTRACT_ID
+export const getMax = function (
+  id: string,
+  max: string,
+  token?: TokenMetadata
+) {
+  let condition;
+  if (token) {
+    condition = id == WRAP_NEAR_CONTRACT_ID && token.symbol == 'NEAR';
+  } else {
+    condition = id == WRAP_NEAR_CONTRACT_ID;
+  }
+  return !condition
     ? max
     : Number(max) <= 0.5
     ? '0'
@@ -687,3 +757,5 @@ export const getMax = function (id: string, max: string) {
         24
       );
 };
+
+export const getPriceImpact = () => {};

@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import { AiOutlineMedium } from 'react-icons/ai';
 import { FaDiscord, FaTelegramPlane, FaTwitter } from 'react-icons/fa';
 import { HiOutlineExternalLink } from 'react-icons/hi';
@@ -26,10 +26,30 @@ import {
   JaIcon,
   KoIcon,
   IconRisk,
+  AuroraIconSwapNav,
+  MobileYourLiqudityIcon,
+  MobilePoolsIcon,
+  BridgeIcon,
+  RisksIcon,
   EsIcon,
+  WrapNearIcon,
+  MobileBridgeIcon,
+  InquiriesIcon,
 } from '~components/icon/Nav';
 import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
+import { MobileNavLimitOrder } from '../components/icon/Nav';
+import {
+  SWAP_MODE_KEY,
+  SWAP_MODE,
+  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+} from '../pages/SwapPage';
+import {
+  MobileNavSwap,
+  MobileNavStable,
+  MobileNavSwapPro,
+} from '../components/icon/Nav';
+import { WalletContext } from '../utils/wallets-integration';
 
 export type MenuItem = {
   id: number;
@@ -43,21 +63,17 @@ export type MenuItem = {
 };
 export const useMenuItems = () => {
   const intl = useIntl();
-
   const menuData: any[] = [
-    {
-      label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
-      url: '/airdrop',
-      isExternal: false,
-      id: 1,
-      logo: <IconAirDrop />,
-    },
+    // {
+    //   label: intl.formatMessage({ id: 'stable_pool' }),
+    //   specialMenuKey: 'sauce',
+    //   url: '/sauce',
+    // },
     {
       label: intl.formatMessage({ id: 'bridge' }),
       url: '',
-      id: 2,
       isExternal: false,
-      logo: <IconBridge />,
+      logo: <BridgeIcon />,
       children: [
         {
           label: intl.formatMessage({ id: 'from_ethereum' }),
@@ -104,112 +120,262 @@ export const useMenuItems = () => {
     {
       label: intl.formatMessage({ id: 'docs' }),
       url: 'https://guide.ref.finance',
-      icon: <HiOutlineExternalLink />,
+      // icon: <HiOutlineExternalLink />,
       isExternal: true,
-      id: 3,
       logo: <IconDocs />,
     },
     {
-      label: <FormattedMessage id="language" defaultMessage="Language" />,
-      url: '',
+      label: intl.formatMessage({ id: 'risks' }),
+      url: '/risks',
       isExternal: false,
-      id: 10,
-      logo: <IconLanguage />,
-      children: [
-        {
-          label: 'English',
-          isExternal: false,
-          language: 'en',
-          url: '',
-          id: 11,
-          logo: <IconEn />,
-        },
-        {
-          label: '中文',
-          isExternal: false,
-          language: 'zh-CN',
-          url: '',
-          id: 12,
-          logo: <IconZh />,
-        },
-        {
-          label: 'Việt',
-          isExternal: false,
-          language: 'vi',
-          url: '',
-          id: 13,
-          logo: <IconVi />,
-        },
-        {
-          label: 'Українська',
-          isExternal: false,
-          language: 'uk',
-          url: '',
-          id: 14,
-          logo: <UkIcon />,
-        },
-        {
-          label: 'Pусский',
-          isExternal: false,
-          language: 'ru',
-          url: '',
-          id: 15,
-          logo: <RuIcon />,
-        },
-        {
-          label: '日本語',
-          isExternal: false,
-          language: 'ja',
-          url: '',
-          id: 16,
-          logo: <JaIcon />,
-        },
-        {
-          label: '한국어',
-          isExternal: false,
-          language: 'ko',
-          url: '',
-          id: 17,
-          logo: <KoIcon />,
-        },
-        {
-          label: 'Español',
-          isExternal: false,
-          language: 'es',
-          url: '',
-          id: 18,
-          logo: <EsIcon />,
-        },
-      ],
+      logo: <RisksIcon />,
+    },
+    {
+      label: <FormattedMessage id="airdrop" defaultMessage="Airdrop" />,
+      url: '/airdrop',
+      isExternal: false,
+      logo: <IconAirDrop />,
+    },
+    {
+      label: 'Business Inquiries',
+      url: 'https://form.typeform.com/to/onOPhJ6Y',
+      isExternal: true,
+      logo: <InquiriesIcon />,
     },
   ];
-
   return { menuData };
+};
+
+export const useLanguageItems = () => {
+  const lan = [
+    {
+      label: 'English',
+      language: 'en',
+      logo: <IconEn />,
+    },
+    {
+      label: '中文',
+      language: 'zh-CN',
+      logo: <IconZh />,
+    },
+    {
+      label: 'Việt',
+      language: 'vi',
+      logo: <IconVi />,
+    },
+    {
+      label: 'Українська',
+      language: 'uk',
+      logo: <UkIcon />,
+    },
+    {
+      label: 'Pусский',
+      language: 'ru',
+      logo: <RuIcon />,
+    },
+    {
+      label: '日本語',
+      language: 'ja',
+      logo: <JaIcon />,
+    },
+    {
+      label: '한국어',
+      language: 'ko',
+      logo: <KoIcon />,
+    },
+    {
+      label: 'Español',
+      language: 'es',
+      logo: <EsIcon />,
+    },
+  ];
+  return lan;
 };
 
 export type MobileMenuItem = {
   id: string;
-  label: string;
+  label?: string;
   url: string;
   icon?: ReactNode;
-  isExternal: boolean;
+  isExternal?: boolean;
   children?: MobileMenuItem[];
   logo?: ReactNode;
   pattern?: string;
   tip?: string;
   subRoute?: string[];
-  newFunction?: boolean;
   showIcon?: boolean;
   iconElement?: ReactNode;
   hidden?: boolean;
+  idElement?: JSX.Element | string;
+  subMenuDefaultChosen?: boolean;
+  specialMenuKey?: string;
+  defaultClick?: (e?: any) => void;
 };
 export const moreLinks: MobileMenuItem[] = [
   {
-    id: 'swap_capital',
-    label: 'Swap',
+    id: 'trade_capital',
+    label: 'TRADE',
     pattern: '/',
     url: '/',
     isExternal: false,
+  },
+  {
+    id: 'POOL',
+    label: 'POOL',
+    pattern: '/pools',
+    url: '/yourliquidity',
+    isExternal: false,
+  },
+  {
+    id: 'farm_capital',
+    label: 'FARMS',
+    pattern: '/v2farms',
+    url: '/v2farms',
+    isExternal: false,
+  },
+  {
+    id: 'xref',
+    label: 'xREF',
+    pattern: '/xref',
+    url: '/xref',
+    isExternal: false,
+    showIcon: true,
+    iconElement: <XrefIcon></XrefIcon>,
+  },
+  {
+    id: 'vote_capital',
+    label: 'VOTE',
+    pattern: '/referendum',
+    url: '/referendum',
+    isExternal: false,
+    hidden: !getConfig().REF_VE_CONTRACT_ID,
+  },
+  {
+    id: 'MORE',
+    label: 'MORE',
+    url: '',
+    isExternal: false,
+    subRoute: ['/airdrop', '/risks', '/sauce'],
+    children: [
+      // {
+      //   id: 'stable_pool',
+      //   label: 'Stable Pool',
+      //   pattern: '/sauce',
+      //   specialMenuKey: 'sauce',
+      //   url: '/sauce',
+      // },
+      {
+        id: 'bridge',
+        label: 'bridge',
+        url: '',
+        isExternal: false,
+        logo: <MobileBridgeIcon />,
+        children: [
+          {
+            id: 'from_ethereum',
+            label: 'From Ethereum',
+            url: 'https://rainbowbridge.app/transfer',
+            isExternal: true,
+            logo: <IconEthereum />,
+          },
+          {
+            id: 'from_aurora',
+            label: 'From Aurora',
+            url: 'https://rainbowbridge.app/transfer',
+            isExternal: true,
+            logo: <IconAurora />,
+          },
+          {
+            id: 'from_solana',
+            label: 'From Solana',
+            url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
+            isExternal: true,
+            logo: <IconSolana />,
+          },
+          {
+            id: 'from_terra',
+            label: 'From Terra',
+            url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
+            isExternal: true,
+            logo: <IconTerra />,
+          },
+          {
+            id: 'from_celo',
+            label: 'From Celo',
+            url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
+            isExternal: true,
+            logo: <IconCelo />,
+          },
+        ],
+      },
+      {
+        id: 'docs',
+        label: 'docs',
+        url: 'https://guide.ref.finance',
+        isExternal: true,
+        logo: <IconDocs />,
+      },
+      {
+        label: 'Risks',
+        id: 'risks',
+        pattern: '/risks',
+        url: '/risks',
+        isExternal: false,
+        logo: <RisksIcon />,
+      },
+      {
+        id: 'airdrop',
+        label: 'Airdrop',
+        url: '/airdrop',
+        pattern: '/airdrop',
+        isExternal: false,
+        logo: <IconAirDrop />,
+      },
+      {
+        id: 'inquiries',
+        label: 'Business Inquiries',
+        url: 'https://form.typeform.com/to/onOPhJ6Y',
+        isExternal: true,
+        logo: <InquiriesIcon />,
+      },
+    ],
+  },
+];
+export const moreLinksOld: MobileMenuItem[] = [
+  {
+    id: 'trade_capital',
+    label: 'TRADE',
+    pattern: '/',
+    url: '/',
+    isExternal: false,
+  },
+  {
+    id: 'liquidity',
+    label: 'Liquidity',
+    url: '',
+    isExternal: false,
+    children: [
+      {
+        id: 'your_liquidity',
+        label: 'Your Liquidity',
+        url: '/yourliquidity',
+        isExternal: false,
+        logo: <MobileYourLiqudityIcon />,
+        defaultClick: () => {
+          window.open('/yourliquidity', '_self');
+        },
+      },
+      {
+        id: 'pools',
+        label: 'Pools',
+        url: '/pools',
+        isExternal: false,
+        logo: <MobilePoolsIcon />,
+        defaultClick: () => {
+          window.open('/pools', '_self');
+        },
+      },
+    ],
   },
   {
     id: 'sauce_capital',
@@ -219,14 +385,7 @@ export const moreLinks: MobileMenuItem[] = [
     isExternal: false,
   },
   {
-    id: 'POOL',
-    label: 'POOL',
-    pattern: '/pools',
-    url: '/pools',
-    isExternal: false,
-  },
-  {
-    id: 'farm_capital',
+    id: 'Farms',
     label: 'Farms',
     pattern: '/v2farms',
     url: '/v2farms',
@@ -238,7 +397,6 @@ export const moreLinks: MobileMenuItem[] = [
     pattern: '/xref',
     url: '/xref',
     isExternal: false,
-    newFunction: true,
     showIcon: true,
     iconElement: <XrefIcon></XrefIcon>,
   },
@@ -249,13 +407,6 @@ export const moreLinks: MobileMenuItem[] = [
     url: '/referendum',
     isExternal: false,
     hidden: !getConfig().REF_VE_CONTRACT_ID,
-  },
-  {
-    id: 'risks_capital',
-    label: 'RISKS',
-    pattern: '/risks',
-    url: '/risks',
-    isExternal: false,
   },
   {
     id: 'bridge',
@@ -305,7 +456,7 @@ export const moreLinks: MobileMenuItem[] = [
     label: 'More',
     url: '',
     isExternal: false,
-    subRoute: ['/airdrop'],
+    subRoute: ['/airdrop', '/risks'],
     children: [
       {
         id: 'airdrop',
@@ -322,13 +473,14 @@ export const moreLinks: MobileMenuItem[] = [
         isExternal: true,
         logo: <IconDocs />,
       },
-      // {
-      //   label: 'Forum',
-      //   id: 'Forum',
-      //   url: 'https://gov.ref.finance',
-      //   isExternal: true,
-      //   logo: <IconForum />,
-      // },
+      {
+        label: 'Risks',
+        id: 'risks',
+        pattern: '/risks',
+        url: '/risks',
+        isExternal: false,
+        logo: <RisksIcon />,
+      },
     ],
   },
   // {

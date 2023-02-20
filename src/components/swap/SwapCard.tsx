@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
   useContext,
+  createContext,
 } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import {
@@ -13,8 +14,17 @@ import {
   REF_META_DATA,
 } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
-import { useTokenBalances, useDepositableBalance } from '../../state/token';
-import { useSwap, estimateValidator } from '../../state/swap';
+import {
+  useTokenBalances,
+  useDepositableBalance,
+  useTokenPriceList,
+} from '../../state/token';
+import {
+  useSwap,
+  useSwapV3,
+  useLimitOrder,
+  useSwapPopUp,
+} from '../../state/swap';
 import {
   calculateExchangeRate,
   calculateFeeCharge,
@@ -29,23 +39,17 @@ import {
   calculateSmartRoutesV2PriceImpact,
   separateRoutes,
   calcStableSwapPriceImpact,
-  toInternationalCurrencySystemLongString,
 } from '../../utils/numbers';
 import ReactDOMServer from 'react-dom/server';
 import TokenAmount from '../forms/TokenAmount';
-import SubmitButton from '../forms/SubmitButton';
+import SubmitButton, { InsufficientButton } from '../forms/SubmitButton';
 import Alert from '../alert/Alert';
 import { toRealSymbol } from '../../utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { FaAngleUp, FaAngleDown, FaExchangeAlt } from 'react-icons/fa';
 import db from '../../store/RefDatabase';
-import {
-  ButtonTextWrapper,
-  GradientButton,
-  OutlineButton,
-  SolidButton,
-  ConnectToNearBtn,
-} from '../../components/button/Button';
+import { ConnectToNearBtnSwap } from '../../components/button/Button';
+
 import {
   AllStableTokenIds,
   BTCIDS,
@@ -63,11 +67,20 @@ import {
 } from '../../services/near';
 import SwapFormWrap from '../forms/SwapFormWrap';
 import SwapTip from '../../components/forms/SwapTip';
-import { WarnTriangle, ErrorTriangle } from '../../components/icon/SwapRefresh';
+import {
+  WarnTriangle,
+  ErrorTriangle,
+  CountdownTimer,
+} from '../../components/icon/SwapRefresh';
 import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '../../components/card/Card';
-import { isMobile, useMobile } from '../../utils/device';
+import {
+  isMobile,
+  useClientMobile,
+  useMobile,
+  isClientMobie,
+} from '../../utils/device';
 import { ModalClose } from '../../components/icon';
 import BigNumber from 'bignumber.js';
 import {
@@ -75,12 +88,19 @@ import {
   OneParallelRoute,
   RouterIcon,
   SmartRouteV2,
+  NormalSwapRoute,
+  RouteDCLDetail,
 } from '../../components/layout/SwapRoutes';
 
 import { EstimateSwapView, PoolMode, swap } from '../../services/swap';
 import { QuestionTip } from '../../components/layout/TipWrapper';
 import { senderWallet, WalletContext } from '../../utils/wallets-integration';
-import { SwapArrow, SwapExchange } from '../icon/Arrows';
+import {
+  SwapArrow,
+  SwapExchange,
+  SwapExchangeV1,
+  SwapExchangeV3,
+} from '../icon/Arrows';
 import {
   getPoolAllocationPercents,
   percentLess,
@@ -103,11 +123,55 @@ import {
   wnearMetadata,
 } from '../../services/wrap-near';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
+import { SwapMinReceiveCheck, LimitOrderMask } from '../icon/swapV3';
+import {
+  TokenAmountV3,
+  TokenCardIn,
+  LimitOrderRateSetBox,
+} from '../forms/TokenAmount';
+import Big from 'big.js';
+import { Slider } from '../icon/Info';
+import {
+  regularizedPoint,
+  regularizedPrice,
+  feeToPointDelta,
+} from '../../services/swapV3';
+import { DoubleCheckModalLimit } from '../layout/SwapDoubleCheck';
+import {
+  toInternationalCurrencySystemLongString,
+  toRoundedReadableNumber,
+  toInternationalCurrencySystem,
+} from '../../utils/numbers';
+import {
+  pointToPrice,
+  priceToPoint,
+  v3Swap,
+  create_pool,
+} from '../../services/swapV3';
+import {
+  V3_POOL_FEE_LIST,
+  getV3PoolId,
+  V3_POOL_SPLITER,
+} from '../../services/swapV3';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import {
   NEAR_CLASS_STABLE_TOKEN_IDS,
   BTC_CLASS_STABLE_TOKEN_IDS,
 } from '../../services/near';
+
+import { TiRefresh } from 'react-icons/ti';
+
+import { MdOutlineRefresh } from 'react-icons/md';
+import { getMax } from '../../utils/numbers';
+import { RefreshIcon } from '../icon/swapV3';
+import { useWalletTokenBalances } from '../../state/token';
+import { TokenBalancesView } from '../../services/token';
+import { Images } from '../stableswap/CommonComp';
+import { ArrowRight } from '../layout/SwapRoutes';
+import { YellowTipIcon, RedTipIcon, SelectedIcon } from '../icon/swapV3';
+import * as math from 'mathjs';
+import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
+import { PoolInfo, get_pool, get_pool_from_cache } from '../../services/swapV3';
 
 const SWAP_IN_KEY = 'REF_FI_SWAP_IN';
 const SWAP_OUT_KEY = 'REF_FI_SWAP_OUT';
@@ -118,8 +182,14 @@ const SWAP_SLIPPAGE_KEY = 'REF_FI_SLIPPAGE_VALUE';
 
 const SWAP_SLIPPAGE_KEY_STABLE = 'REF_FI_SLIPPAGE_VALUE_STABLE';
 
+const SWAP_SLIPPAGE_KEY_LIMIT = 'REF_FI_SLIPPAGE_VALUE_LIMIT';
+
+const storageShoDetail = 'REF_FI_STORAGE_SHOW_DETAIL';
+
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 const TOKEN_URL_SEPARATOR = '|';
+
+export const LimitOrderTriggerContext = createContext(null);
 
 export const isSameStableClass = (token1: string, token2: string) => {
   const USDTokenList = USD_CLASS_STABLE_TOKEN_IDS;
@@ -151,21 +221,26 @@ export const wrapTokenId = (id: string) => {
 export function SwapDetail({
   title,
   value,
+  color,
 }: {
   title: string;
   value: string | JSX.Element;
+  color?: string;
 }) {
   return (
-    <section className="grid grid-cols-12 py-1 text-xs">
-      <p className="text-primaryText text-left col-span-6">{title}</p>
-      <p className="text-right text-white col-span-6">{value}</p>
+    <section
+      className={`flex items-center justify-between pt-1 pb-2 text-xs ${
+        color || 'text-primaryText'
+      }`}
+    >
+      <p className="text-left">{title}</p>
+      <p className="text-right">{value}</p>
     </section>
   );
 }
 
 export function SwapRateDetail({
   title,
-  value,
   subTitle,
   from,
   to,
@@ -175,14 +250,12 @@ export function SwapRateDetail({
 }: {
   fee: number;
   title: string;
-  value: string;
   from: string;
   to: string;
   subTitle?: string;
   tokenIn: TokenMetadata;
   tokenOut: TokenMetadata;
 }) {
-  const [newValue, setNewValue] = useState<string>('');
   const [isRevert, setIsRevert] = useState<boolean>(false);
 
   const exchangeRageValue = useMemo(() => {
@@ -192,20 +265,6 @@ export function SwapRateDetail({
 
     return calculateExchangeRate(fee, fromNow, toNow);
   }, [isRevert, to]);
-
-  useEffect(() => {
-    setNewValue(value);
-  }, [value]);
-
-  useEffect(() => {
-    setNewValue(
-      `1 ${toRealSymbol(
-        isRevert ? tokenIn.symbol : tokenOut.symbol
-      )} ≈ ${exchangeRageValue} ${toRealSymbol(
-        isRevert ? tokenOut.symbol : tokenIn.symbol
-      )}`
-    );
-  }, [isRevert, exchangeRageValue]);
 
   function switchSwapRate() {
     setIsRevert(!isRevert);
@@ -224,7 +283,78 @@ export function SwapRateDetail({
         <span className="mr-2" style={{ marginTop: '0.1rem' }}>
           <FaExchangeAlt color="#00C6A2" />
         </span>
-        <span className="font-sans">{newValue}</span>
+        <span>
+          1 {toRealSymbol(isRevert ? tokenIn.symbol : tokenOut.symbol)}{' '}
+          <label className="arial_font">≈</label> {exchangeRageValue}{' '}
+          {toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}
+        </span>
+      </p>
+    </section>
+  );
+}
+
+export function SwapRate({
+  from,
+  to,
+  tokenIn,
+  tokenOut,
+  fee,
+  tokenPriceList,
+}: {
+  fee: number;
+  from: string;
+  to: string;
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  tokenPriceList?: any;
+}) {
+  const [isRevert, setIsRevert] = useState<boolean>(false);
+  const [hover, setHover] = useState(false);
+  const price =
+    tokenPriceList?.[isRevert ? tokenIn.id : tokenOut.id]?.price || null;
+
+  const displayPrice = !price ? null : (
+    <>(${toInternationalCurrencySystemLongString(price, 2)})</>
+  );
+  const exchangeRageValue = useMemo(() => {
+    const fromNow = isRevert ? from : to;
+    const toNow = isRevert ? to : from;
+    if (ONLY_ZEROS.test(fromNow)) return '-';
+    try {
+      const result = math.evaluate(`${toNow} / ${fromNow}`);
+      if (new BigNumber(result).isLessThan('0.0001')) {
+        return '<0.0001';
+      } else {
+        return math.floor(result, 4);
+      }
+    } catch (error) {}
+    // return calculateExchangeRate(fee, fromNow, toNow, 6);
+  }, [isRevert, to]);
+
+  function switchSwapRate(e: React.MouseEvent<HTMLDivElement>) {
+    e.stopPropagation();
+    e.preventDefault();
+    setIsRevert(!isRevert);
+  }
+
+  return (
+    <section className=" py-1 text-xs flex items-center">
+      <p
+        className="flex items-center text-white cursor-pointer text-right mr-1"
+        onClick={switchSwapRate}
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+      >
+        <span className={`text-white ${hover ? 'opacity-100' : 'opacity-60'}`}>
+          {`1 ${toRealSymbol(isRevert ? tokenIn.symbol : tokenOut.symbol)}`}
+          <span className={`mx-1 text-primaryText`}>{displayPrice}</span>
+          <label className="arial_font">≈</label> {exchangeRageValue}&nbsp;
+          {toRealSymbol(isRevert ? tokenOut.symbol : tokenIn.symbol)}
+        </span>
       </p>
     </section>
   );
@@ -255,107 +385,33 @@ export function SmartRoutesV2Detail({
   }, [identicalRoutes, pools]);
 
   return (
-    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
-      <div className="text-primaryText text-left self-start">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
+    <section className="flex justify-between py-1 text-xs items-center rounded-xl xsm:flex-col xsm:items-start">
+      <div className="text-primaryText relative lg:top-1 text-left self-start">
+        <div className="flex items-center">
+          <span className="xsm:hidden">
+            <RouterIcon />
+          </span>
+          <div className="flex items-center">
+            <AutoRouterText />
+            <QuestionTip
+              style={{ maxWidth: '14rem' }}
+              id="optimal_path_found_by_our_solution"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2 self-start">
-        {tokensPerRoute.map((tokens, index) => (
-          <div key={index} className="mb-2 md:w-smartRoute lg:w-smartRoute">
-            <div className="text-right text-white col-span-6 xs:mt-2 md:mt-2">
-              {
-                <SmartRouteV2
-                  tokenIn={tokenIn}
-                  tokenOut={tokenOut}
-                  tokens={tokens}
-                  p={percents[index]}
-                  pools={identicalRoutes[index].map((hub) => hub.pool)}
-                />
-              }
-            </div>
+      <div className="text-right text-white flex-grow xsm:mt-2.5 xsm:w-full">
+        {identicalRoutes.map((route, index) => (
+          <div key={index}>
+            <NormalSwapRoute
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+              route={route}
+              p={percents[index]}
+            />
           </div>
         ))}
-      </div>
-    </section>
-  );
-}
-
-export function ParallelSwapRoutesDetail({
-  pools,
-  tokenIn,
-  tokenOut,
-}: {
-  pools: Pool[];
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-}) {
-  const percents = useMemo(() => {
-    return getPoolAllocationPercents(pools);
-  }, [pools]);
-
-  return (
-    <section className="md:grid lg:grid grid-cols-12 py-1 text-xs">
-      <div className="text-primaryText text-left col-span-5">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
-        </div>
-      </div>
-
-      <div className="text-right text-white col-span-7 xs:mt-2 md:mt-2">
-        {pools.map((pool, i) => {
-          return (
-            <div className="mb-2" key={pool.id}>
-              <OneParallelRoute
-                tokenIn={tokenIn}
-                tokenOut={tokenOut}
-                poolId={pool.id}
-                p={percents[i]}
-                fee={pool.fee}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-export function SmartRoutesDetail({
-  swapsTodo,
-  tokenIn,
-  tokenOut,
-}: {
-  swapsTodo: EstimateSwapView[];
-  tokenIn?: TokenMetadata;
-  tokenOut?: TokenMetadata;
-}) {
-  return (
-    <section className="md:flex lg:flex py-1 text-xs items-center md:justify-between lg:justify-between">
-      <div className="text-primaryText text-left ">
-        <div className="inline-flex items-center">
-          <RouterIcon />
-          <AutoRouterText />
-          <QuestionTip id="optimal_path_found_by_our_solution" width="w-56" />
-        </div>
-      </div>
-
-      <div className="text-right text-white col-span-6 xs:mt-2">
-        {
-          <SmartRouteV2
-            tokens={swapsTodo[0].tokens}
-            p="100"
-            pools={swapsTodo.map((swapTodo) => swapTodo.pool)}
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-          />
-        }
       </div>
     </section>
   );
@@ -364,14 +420,15 @@ export function SmartRoutesDetail({
 export const GetPriceImpact = (
   value: string,
   tokenIn?: TokenMetadata,
-  tokenInAmount?: string
+  tokenInAmount?: string,
+  infoStyle?: string
 ) => {
   const textColor =
     Number(value) <= 1
-      ? 'text-greenLight'
+      ? 'text-primaryText'
       : 1 < Number(value) && Number(value) <= 2
       ? 'text-warn'
-      : 'text-error';
+      : 'text-redwarningColor';
 
   const displayValue = scientificNotationToString(
     multiply(tokenInAmount, divide(value, '100'))
@@ -379,14 +436,12 @@ export const GetPriceImpact = (
 
   const tokenInInfo =
     Number(displayValue) <= 0
-      ? ` / 0 ${toRealSymbol(tokenIn.symbol)}`
-      : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)} ${
-          tokenIn.symbol
-        }`;
+      ? ` / 0`
+      : ` / -${toInternationalCurrencySystemLongString(displayValue, 3)}`;
 
   if (Number(value) < 0.01)
     return (
-      <span className="text-greenLight">
+      <span className="text-primaryText">
         {`< -0.01%`}
         {tokenInInfo}
       </span>
@@ -394,15 +449,15 @@ export const GetPriceImpact = (
 
   if (Number(value) > 1000)
     return (
-      <span className="text-error">
+      <span className="text-redwarningColor">
         {`< -1000%`}
         {tokenInInfo}
       </span>
     );
 
   return (
-    <span className={`${textColor} font-sans`}>
-      {`≈ -${toPrecision(value, 2)}%`}
+    <span className={`${textColor} ${infoStyle}`}>
+      {`-${toPrecision(value, 2)}%`}
       {tokenInInfo}
     </span>
   );
@@ -411,9 +466,9 @@ export const GetPriceImpact = (
 export const getPriceImpactTipType = (value: string) => {
   const reault =
     1 < Number(value) && Number(value) <= 2 ? (
-      <WarnTriangle></WarnTriangle>
+      <YellowTipIcon></YellowTipIcon>
     ) : Number(value) > 2 && Number(value) != Infinity ? (
-      <ErrorTriangle></ErrorTriangle>
+      <RedTipIcon></RedTipIcon>
     ) : null;
   return reault;
 };
@@ -437,168 +492,7 @@ export const PriceImpactWarning = ({ value }: { value: string }) => {
   );
 };
 
-function DetailView({
-  pools,
-  tokenIn,
-  tokenOut,
-  from,
-  to,
-  minAmountOut,
-  isParallelSwap,
-  fee,
-  swapsTodo,
-  priceImpact,
-  swapMode,
-  tokenInAmount,
-}: {
-  pools: Pool[];
-  tokenIn: TokenMetadata;
-  tokenOut: TokenMetadata;
-  from: string;
-  to: string;
-  minAmountOut: string;
-  isParallelSwap?: boolean;
-  fee?: number;
-  swapsTodo?: EstimateSwapView[];
-  priceImpact?: string;
-  swapMode?: SWAP_MODE;
-  tokenInAmount?: string;
-}) {
-  const intl = useIntl();
-  const [showDetails, setShowDetails] = useState<boolean>(false);
-
-  const minAmountOutValue = useMemo(() => {
-    if (!minAmountOut) return '0';
-    else return toPrecision(minAmountOut, 8, true);
-  }, [minAmountOut]);
-
-  const exchangeRateValue = useMemo(() => {
-    if (!from || ONLY_ZEROS.test(to)) return '-';
-    else return calculateExchangeRate(fee, to, from);
-  }, [to]);
-
-  useEffect(() => {
-    if (Number(priceImpact) > 1) {
-      setShowDetails(true);
-    }
-  }, [priceImpact]);
-
-  useEffect(() => {
-    if (swapsTodo?.length > 1) {
-      setShowDetails(true);
-    }
-  }, [swapsTodo]);
-
-  const priceImpactDisplay = useMemo(() => {
-    if (!priceImpact || !tokenIn || !from) return null;
-    return GetPriceImpact(priceImpact, tokenIn, from);
-  }, [to, priceImpact]);
-
-  const poolFeeDisplay = useMemo(() => {
-    if (!fee || !from || !tokenIn) return null;
-
-    return `${toPrecision(
-      calculateFeePercent(fee).toString(),
-      2
-    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
-  }, [to]);
-  if (
-    tokenIn &&
-    tokenOut &&
-    tokenIn.id === tokenOut?.id &&
-    ((tokenIn.symbol == 'NEAR' && tokenOut.symbol == 'wNEAR') ||
-      (tokenIn.symbol == 'wNEAR' && tokenOut.symbol == 'NEAR'))
-  ) {
-    return (
-      <DetailView_near_wnear
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-        minAmountOut={tokenInAmount}
-        from={from}
-        to={to}
-      ></DetailView_near_wnear>
-    );
-  }
-  if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
-    return null;
-  return (
-    <div className="mt-8">
-      <div className="flex justify-center">
-        <div
-          className="flex items-center text-white cursor-pointer"
-          onClick={() => {
-            setShowDetails(!showDetails);
-          }}
-        >
-          <label className="mr-2">{getPriceImpactTipType(priceImpact)}</label>
-          <p className="block text-xs">
-            <FormattedMessage id="details" defaultMessage="Details" />
-          </p>
-          <div className="pl-1 text-sm">
-            {showDetails ? <FaAngleUp /> : <FaAngleDown />}
-          </div>
-        </div>
-      </div>
-      <div className={showDetails ? '' : 'hidden'}>
-        <SwapDetail
-          title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
-        />
-        <SwapRateDetail
-          title={intl.formatMessage({ id: 'swap_rate' })}
-          value={`1 ${toRealSymbol(
-            tokenOut.symbol
-          )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
-          from={from}
-          to={to}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          fee={fee}
-        />
-        {Number(priceImpact) > 2 && (
-          <div className="py-1 text-xs text-right">
-            <PriceImpactWarning value={priceImpact} />
-          </div>
-        )}
-        <SwapDetail
-          title={intl.formatMessage({ id: 'price_impact' })}
-          value={!to || to === '0' ? '-' : priceImpactDisplay}
-        />
-        <SwapDetail
-          title={intl.formatMessage({ id: 'pool_fee' })}
-          value={poolFeeDisplay}
-        />
-
-        {isParallelSwap && swapsTodo && swapsTodo.length > 1 && (
-          <ParallelSwapRoutesDetail
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            pools={pools}
-          />
-        )}
-
-        {swapsTodo[0].status === PoolMode.SMART && (
-          <SmartRoutesDetail
-            swapsTodo={swapsTodo}
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-          />
-        )}
-        {!isParallelSwap &&
-          swapsTodo.every((e) => e.status !== PoolMode.SMART) &&
-          pools.length > 1 && (
-            <SmartRoutesV2Detail
-              swapsTodo={swapsTodo}
-              tokenIn={tokenIn}
-              tokenOut={tokenOut}
-            />
-          )}
-      </div>
-    </div>
-  );
-}
-
-function DetailView_near_wnear({
+export function DetailView_near_wnear({
   tokenIn,
   tokenOut,
   minAmountOut,
@@ -614,7 +508,7 @@ function DetailView_near_wnear({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
   return (
-    <div className="mt-8">
+    <div className="mt-4">
       <div className="flex justify-center">
         <div
           className="flex items-center text-white cursor-pointer"
@@ -633,13 +527,10 @@ function DetailView_near_wnear({
       <div className={showDetails ? '' : 'hidden'}>
         <SwapDetail
           title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision((minAmountOut || 0).toString(), 8)}</span>}
+          value={<span>{toPrecision((minAmountOut || 0).toString(), 6)}</span>}
         />
         <SwapRateDetail
           title={intl.formatMessage({ id: 'swap_rate' })}
-          value={`1 ${toRealSymbol(tokenOut.symbol)} ≈ ${1} ${toRealSymbol(
-            tokenIn.symbol
-          )}`}
           from={from}
           to={to}
           tokenIn={tokenIn}
@@ -658,6 +549,560 @@ function DetailView_near_wnear({
     </div>
   );
 }
+function DetailViewV2({
+  pools,
+  tokenIn,
+  tokenOut,
+  from,
+  to,
+  minAmountOut,
+  fee,
+  swapsTodo,
+  priceImpact,
+}: {
+  pools: Pool[];
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  from: string;
+  to: string;
+  minAmountOut: string;
+  isParallelSwap?: boolean;
+  fee?: number;
+  swapsTodo?: EstimateSwapView[];
+  priceImpact?: string;
+  tokenInAmount?: string;
+}) {
+  const intl = useIntl();
+  const isMobile = useMobile();
+  const { detail } = useContext(LimitOrderTriggerContext);
+  const { showDetails } = detail;
+  const minAmountOutValue = useMemo(() => {
+    if (!minAmountOut) return '0';
+    else return toPrecision(minAmountOut, 8, true);
+  }, [minAmountOut]);
+  const priceImpactDisplay = useMemo(() => {
+    if (!priceImpact || !tokenIn || !from) return null;
+    return GetPriceImpact(priceImpact, tokenIn, from);
+  }, [to, priceImpact]);
+
+  const priceImpactDisplayFun = useCallback(
+    (infoStyle?: string) => {
+      if (!priceImpact || !tokenIn || !from) return null;
+      return GetPriceImpact(priceImpact, tokenIn, from, infoStyle);
+    },
+    [[to, priceImpact]]
+  );
+
+  const poolFeeDisplay = useMemo(() => {
+    if (!fee || !from || !tokenIn) return null;
+
+    return `${toPrecision(
+      calculateFeePercent(fee).toString(),
+      2
+    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
+  }, [to]);
+  if (!pools || ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id)
+    return null;
+  return (
+    <div>
+      <div
+        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3 ${
+          showDetails ? '' : 'hidden'
+        }`}
+      >
+        <div className="">
+          <SwapDetail
+            title={intl.formatMessage({ id: 'price_impact' })}
+            value={
+              !to || to === '0' ? (
+                '-'
+              ) : (
+                <>
+                  {priceImpactDisplay}
+                  <span
+                    className="text-primaryText"
+                    style={{ marginLeft: '3px' }}
+                  >
+                    {tokenIn.symbol}
+                  </span>
+                </>
+              )
+            }
+          />
+        </div>
+        <SwapDetail
+          title={intl.formatMessage({ id: 'pool_fee' })}
+          value={poolFeeDisplay}
+        />
+
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={<span>{toPrecision(minAmountOutValue, 6)}</span>}
+          color="text-white"
+        />
+
+        {
+          <SmartRoutesV2Detail
+            swapsTodo={swapsTodo}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+          />
+        }
+      </div>
+      {Number(priceImpact) > 2 ? (
+        <div className="flex items-center justify-between xsm:flex-col bg-lightReBgColor border border-warnRedColor  mb-4 rounded-xl p-3  text-sm text-redwarningColor">
+          <span className="xsm:mb-0.5">
+            <FormattedMessage id="price_impact_warning"></FormattedMessage>
+          </span>
+          <div className="flex items-center">
+            <span>
+              {!to || to === '0' ? '-' : priceImpactDisplayFun('gotham_bold')}
+            </span>
+            <span className="ml-1">{tokenIn.symbol}</span>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function DetailViewV3({
+  tokenIn,
+  tokenOut,
+  from,
+  to,
+  minAmountOut,
+  fee,
+  priceImpact,
+}: {
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  from: string;
+  to: string;
+  minAmountOut: string;
+  fee?: number;
+  priceImpact?: string;
+}) {
+  const intl = useIntl();
+  const { detail } = useContext(LimitOrderTriggerContext);
+  const { showDetails } = detail;
+  const minAmountOutValue = useMemo(() => {
+    if (!minAmountOut) return '0';
+    else return toPrecision(minAmountOut, 8, true);
+  }, [minAmountOut]);
+  const priceImpactDisplay = useMemo(() => {
+    if (!priceImpact || !tokenIn || !from) return null;
+    return GetPriceImpact(priceImpact, tokenIn, from);
+  }, [priceImpact]);
+  const priceImpactDisplayFun = useCallback(
+    (infoStyle?: string) => {
+      if (!priceImpact || !tokenIn || !from) return null;
+      return GetPriceImpact(priceImpact, tokenIn, from, infoStyle);
+    },
+    [[priceImpact]]
+  );
+
+  const poolFeeDisplay = useMemo(() => {
+    if (!fee || !from || !tokenIn) return null;
+
+    return `${toPrecision(
+      calculateFeePercent(fee).toString(),
+      2
+    )}% / ${calculateFeeCharge(fee, from)} ${toRealSymbol(tokenIn.symbol)}`;
+  }, [to]);
+
+  if (ONLY_ZEROS.test(from) || !to || tokenIn.id === tokenOut.id) return null;
+
+  return (
+    <div>
+      <div
+        className={`border border-menuMoreBoxBorderColor rounded-xl px-2.5 py-3 mb-3 ${
+          showDetails ? '' : 'hidden'
+        }`}
+      >
+        <div className="">
+          <SwapDetail
+            title={intl.formatMessage({ id: 'price_impact' })}
+            value={
+              !to || to === '0' ? (
+                '-'
+              ) : (
+                <>
+                  {priceImpactDisplay}
+                  <span
+                    className="text-primaryText"
+                    style={{ marginLeft: '3px' }}
+                  >
+                    {tokenIn.symbol}
+                  </span>
+                </>
+              )
+            }
+          />
+        </div>
+        <SwapDetail
+          title={intl.formatMessage({ id: 'pool_fee' })}
+          value={poolFeeDisplay}
+        />
+
+        <SwapDetail
+          title={intl.formatMessage({ id: 'minimum_received' })}
+          value={<span>{toPrecision(minAmountOutValue, 6)}</span>}
+          color="text-white"
+        />
+        <RouteDCLDetail bestFee={fee} tokenIn={tokenIn} tokenOut={tokenOut} />
+      </div>
+      {Number(priceImpact) > 2 ? (
+        <div className="flex items-center xsm:flex-col justify-between border bg-bg-lightReBgColor border-warnRedColor mb-4  rounded-xl p-3 text-sm text-redwarningColor">
+          <span className="mb-0.5">
+            <FormattedMessage id="price_impact_warning"></FormattedMessage>
+          </span>
+          <div className="flex items-center">
+            <span>
+              {!to || to === '0' ? '-' : priceImpactDisplayFun('gotham_bold')}
+            </span>
+            <span className="ml-1">{tokenIn.symbol}</span>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function DetailViewLimit({
+  setV3Pool,
+  v3Pool,
+  poolPercents,
+  tokenIn,
+  tokenOut,
+  tokenPriceList,
+  setFeeTiersShowFull,
+  feeTiersShowFull,
+  everyPoolTvl,
+}: {
+  v3Pool: string;
+  setV3Pool: (p: string) => void;
+  poolPercents: {
+    [key: string]: string;
+  };
+  tokenIn: TokenMetadata;
+  tokenOut: TokenMetadata;
+  tokenPriceList: Record<string, any>;
+  setFeeTiersShowFull: (v: boolean) => void;
+  feeTiersShowFull: boolean;
+  everyPoolTvl: {
+    [key: string]: string;
+  };
+}) {
+  const isMobile = useClientMobile();
+  const [hoverSlider, setHoverSlider] = useState(false);
+  const [mobileShowFees, setMobileShowFees] = useState(false);
+  function SelectPercent({ fee, poolId }: { fee?: number; poolId?: string }) {
+    const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokenOut.id, fee);
+    const count = poolPercents?.[id];
+    return (
+      <span
+        className="py-1 xs:py-0 xs:px-0.5 px-2.5 text-v3SwapGray bg-black bg-opacity-20 text-xs inline-flex items-center rounded-xl whitespace-nowrap"
+        style={{
+          fontSize: isClientMobie() ? '11px' : '',
+        }}
+      >
+        <span className="mr-1">
+          {!tokenPriceList
+            ? '-'
+            : !count
+            ? ''
+            : `${poolPercents?.[id] || '0'}%`}
+        </span>
+        {!count ? (
+          <FormattedMessage id="no_pool" defaultMessage={'No Pool'} />
+        ) : (
+          <FormattedMessage id="select" defaultMessage={'select'} />
+        )}
+      </span>
+    );
+  }
+  function SelectTvl({
+    fee,
+    poolId,
+    className,
+  }: {
+    fee?: number;
+    poolId?: string;
+    className?: string;
+  }) {
+    const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokenOut.id, fee);
+
+    const [PoolDetails, setPoolDetails] = useState<PoolInfo>();
+
+    useEffect(() => {
+      get_pool_from_cache(id).then(setPoolDetails);
+    }, []);
+
+    function displayTvl() {
+      const tvl = everyPoolTvl?.[id] || '0';
+      if (!tokenPriceList) {
+        return '-';
+      } else if (!tvl || +tvl == 0) {
+        return '$0';
+      } else if (+tvl < 1) {
+        return '<$1';
+      } else {
+        return `$${toInternationalCurrencySystem(tvl.toString(), 0)}`;
+      }
+    }
+    function displayTvlAndNoPool() {
+      if (everyPoolTvl?.[id] == null) {
+        return <span>No pool</span>;
+      } else {
+        return PoolDetails && PoolDetails?.state !== 'Paused' ? (
+          <>
+            <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span>
+            {displayTvl()}
+          </>
+        ) : (
+          <>-</>
+        );
+      }
+    }
+    return (
+      <div
+        className={`transform scale-90 inline-flex items-center text-xs whitespace-nowrap ${className}`}
+      >
+        {displayTvlAndNoPool()}
+      </div>
+    );
+  }
+  function isAllFeesNoPools() {
+    const target = V3_POOL_FEE_LIST.find((fee) => {
+      const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
+      if (everyPoolTvl?.[pool_id] !== null) return true;
+    });
+    if (target) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+  if (!(tokenIn && tokenOut)) return null;
+  return (
+    <>
+      <div
+        className={`relative border border-limitOrderFeeTiersBorderColor flex flex-col rounded-xl p-2.5 xs:p-2 xs:px-1 ${
+          feeTiersShowFull ? 'w-full' : ''
+        } ${mobileShowFees ? 'feeBoxGradientBorder' : ''}`}
+        onMouseLeave={() => {
+          if (!isMobile) {
+            setHoverSlider(false);
+            setFeeTiersShowFull(false);
+          }
+        }}
+      >
+        <div className="">
+          <div className="flex items-center justify-between ">
+            <span className="text-xs text-primaryText whitespace-nowrap mr-1.5">
+              <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
+            </span>
+            <button
+              onMouseEnter={(e) => {
+                if (!isMobile) {
+                  setHoverSlider(true);
+                  setFeeTiersShowFull(true);
+                }
+              }}
+              className={`p-0.5 rounded-md ${
+                feeTiersShowFull || hoverSlider || mobileShowFees
+                  ? 'bg-selectTokenV3BgColor'
+                  : ''
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isMobile) {
+                  setMobileShowFees(!mobileShowFees);
+                }
+              }}
+            >
+              <Slider shrink showSlip={feeTiersShowFull || hoverSlider} />
+            </button>
+          </div>
+          <div
+            className={`flex items-center mt-2 ${
+              feeTiersShowFull ? 'hidden' : ''
+            }`}
+          >
+            {isAllFeesNoPools() ? (
+              <span className="text-sm text-limitOrderInputColor">
+                Unavailable
+              </span>
+            ) : (
+              <>
+                <span className="whitespace-nowrap text-sm text-primaryText mr-1">
+                  {toPrecision(
+                    calculateFeePercent(
+                      Number(v3Pool?.split(V3_POOL_SPLITER)[2] || 2000) / 100
+                    ).toString(),
+                    2
+                  )}
+                  %
+                </span>
+                <SelectTvl
+                  poolId={v3Pool}
+                  className="text-limitOrderInputColor"
+                />
+              </>
+            )}
+          </div>
+        </div>
+
+        {!feeTiersShowFull ? null : (
+          <div className="w-full grid grid-cols-4 gap-x-1 mt-1.5">
+            {V3_POOL_FEE_LIST.map((fee, i) => {
+              const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
+              const feePercent = toPrecision(
+                calculateFeePercent(fee / 100).toString(),
+                2
+              );
+              const isNoPool = everyPoolTvl?.[pool_id] == null;
+              return (
+                <button
+                  className={`relative rounded-xl ${
+                    v3Pool === pool_id && !isNoPool
+                      ? 'bg-feeBoxSelectedBg'
+                      : isNoPool
+                      ? 'border border-commonTokenBorderColor cursor-not-allowed'
+                      : 'bg-selectTokenV3BgColor'
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!isNoPool) {
+                      setV3Pool(pool_id);
+                      setHoverSlider(false);
+                      setFeeTiersShowFull(false);
+                    }
+                  }}
+                >
+                  <div
+                    key={i + '-' + pool_id}
+                    className={`flex-col flex items-start p-2`}
+                  >
+                    <span
+                      className={`text-sm ${
+                        isNoPool
+                          ? 'text-primaryText text-opacity-60'
+                          : 'text-white'
+                      }`}
+                    >
+                      {feePercent}%
+                    </span>
+                    <SelectTvl
+                      fee={fee}
+                      className={`text-primaryText ${
+                        isNoPool ? 'text-opacity-60' : ''
+                      } `}
+                    />
+                  </div>
+                  {v3Pool === pool_id && !isNoPool ? (
+                    <SelectedIcon className="absolute right-0 top-0"></SelectedIcon>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      <div
+        className={`absolute z-10 w-full grid grid-cols-4 gap-x-1  rounded-lg text-white mt-1.5 p-1.5 border border-v3GreyColor  bg-feeBoxBgColor lg:hidden ${
+          mobileShowFees ? '' : 'hidden'
+        }`}
+        style={{ boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.25)', top: '71px' }}
+      >
+        <ArrowToIcon
+          className="absolute right-12"
+          style={{ top: '-7px' }}
+        ></ArrowToIcon>
+        {V3_POOL_FEE_LIST.map((fee, i) => {
+          const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
+          const feePercent = toPrecision(
+            calculateFeePercent(fee / 100).toString(),
+            2
+          );
+          const isNoPool = everyPoolTvl?.[pool_id] == null;
+          return (
+            <button
+              className={`relative bg-feeSubBoxBgColor rounded-xl ${
+                v3Pool === pool_id && !isNoPool
+                  ? 'bg-opacity-100'
+                  : isNoPool
+                  ? 'border border-commonTokenBorderColor cursor-not-allowed bg-opacity-0'
+                  : 'bg-opacity-30'
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!isNoPool) {
+                  setV3Pool(pool_id);
+                  setMobileShowFees(false);
+                }
+              }}
+            >
+              <div
+                key={i + '-' + pool_id}
+                className={`flex-col flex items-start p-1`}
+              >
+                <span
+                  className={`text-sm ${
+                    isNoPool ? 'text-primaryText text-opacity-60' : 'text-white'
+                  }`}
+                >
+                  {feePercent}%
+                </span>
+                <SelectTvl
+                  fee={fee}
+                  className={`text-primaryText ${
+                    isNoPool ? 'text-opacity-60' : ''
+                  } `}
+                />
+              </div>
+              {v3Pool === pool_id && !isNoPool ? (
+                <SelectedIcon className="absolute right-0 top-0"></SelectedIcon>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function ArrowToIcon(props: any) {
+  return (
+    <img
+      {...props}
+      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAHCAYAAAA8sqwkAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyVpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQ4IDc5LjE2NDAzNiwgMjAxOS8wOC8xMy0wMTowNjo1NyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDIxLjAgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OTg4MkE0RkQ2ODI5MTFFREE3MkJEQzEyMDI5MUE2OEUiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OTg4MkE0RkU2ODI5MTFFREE3MkJEQzEyMDI5MUE2OEUiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo5ODgyQTRGQjY4MjkxMUVEQTcyQkRDMTIwMjkxQTY4RSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo5ODgyQTRGQzY4MjkxMUVEQTcyQkRDMTIwMjkxQTY4RSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PmhvIccAAAD+SURBVHjaYmRgYOAGYkYRERHGN2/eMIAAkM3w9+9fpvfv3/9ngIB/QAxmMwExi4CAAAtQMQuIDcSsXIKCory8IsIgNhAzg2igGjCbEUiAJBh5eHiYvnz5wmDp4V/CwsJWCjLtz59fPcd3bOyGmg7GIN38IJ2/fv1isXD3KwUqLvny5SsDkM/AwcFhJaWkwvzk7s1TUJuYQIQQyCnmbr5FrKzshSDF//79Y/j//z/D799/gJo4LSXllZme3rt1GmgAM7OoqLSinq1TOSsrWyZMMQzANHFycVpIKigx/fn67SajrU/of2CIMHz79h1FMTJgYmIC2sTOwMbGxgAQYADlWluUPx6KyQAAAABJRU5ErkJggg=="
+    ></img>
+  );
+}
+function NoLimitPoolCard() {
+  return (
+    <div className="relative  text-sm mt-6 xsm:mt-8 text-center text-warn z-50">
+      <span className="self-center">
+        <label className="">
+          <FormattedMessage id="oops" defaultMessage="Oops" />!
+        </label>
+      </span>
+
+      <span className="self-center ml-1">
+        <FormattedMessage
+          id="the_pool_not_exist"
+          defaultMessage={'The pool does not exist'}
+        />
+        .
+      </span>
+    </div>
+  );
+}
 
 export default function SwapCard(props: {
   allTokens: TokenMetadata[];
@@ -665,10 +1110,20 @@ export default function SwapCard(props: {
   stablePools: Pool[];
   tokenInAmount: string;
   setTokenInAmount: (value: string) => void;
+  swapTab?: JSX.Element;
+  reservesType: STABLE_POOL_TYPE;
+  setReservesType: (value: STABLE_POOL_TYPE) => void;
+  stableReserves?: JSX.Element;
   globalWhiteListTokens: TokenMetadata[];
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
+  const [poolError, setPoolError] = useState<string>(null);
+
+  const [diff, setDiff] = useState<string>('');
+
+  const [selectedV3LimitPool, setSelectedV3LimitPool] = useState<string>('');
+
   const reserveTypeStorageKey = 'REF_FI_RESERVE_TYPE';
 
   const {
@@ -677,16 +1132,24 @@ export default function SwapCard(props: {
     stablePools,
     tokenInAmount,
     setTokenInAmount,
+    swapTab,
+    reservesType,
+    setReservesType,
+    stableReserves,
     globalWhiteListTokens,
   } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
   const [doubleCheckOpen, setDoubleCheckOpen] = useState<boolean>(false);
 
-  const [reservesType, setReservesType] = useState<STABLE_POOL_TYPE>(
-    STABLE_POOL_TYPE[localStorage.getItem(reserveTypeStorageKey)] ||
-      STABLE_POOL_TYPE.USD
-  );
+  const [doubleCheckOpenLimit, setDoubleCheckOpenLimit] =
+    useState<boolean>(false);
+
+  const [curOrderPrice, setCurOrderPrice] = useState<string>('');
+
+  const [LimitAmountOutRate, setLimitAmountOutRate] = useState<string>('');
+
+  const [limitAmountOut, setLimitAmountOut] = useState<string>('');
 
   const [supportLedger, setSupportLedger] = useState(
     localStorage.getItem(SUPPORT_LEDGER_KEY) ? true : false
@@ -709,15 +1172,27 @@ export default function SwapCard(props: {
   const [loadingPause, setLoadingPause] = useState<boolean>(false);
   const [showSwapLoading, setShowSwapLoading] = useState<boolean>(false);
 
+  const [limitSwapTrigger, setLimiSwapTrigger] = useState<boolean>(false);
   const [showSkywardTip, setShowSkywardTip] = useState<boolean>(false);
   const [wrapOperation, setWrapOperation] = useState<boolean>(false);
   const [wrapLoading, setWrapLoading] = useState<boolean>(false);
+
+  const [balanceInDone, setBalanceInDone] = useState<boolean>(false);
+  const [balanceOutDone, setBalanceOutDone] = useState<boolean>(false);
+  const [limitLockedTokenOutTrigger, setLimitLockedTokenOutTrigger] =
+    useState<boolean>(false);
 
   const intl = useIntl();
   const location = useLocation();
   const history = useHistory();
 
-  const balances = useTokenBalances();
+  const [displayTokenOutAmount, setDisplayTokenOutAmount] =
+    useState<string>('');
+
+  const [displayPriceImpact, setDisplayPriceImpact] = useState<string>('');
+
+  const [displayDetailView, setDisplayDetailView] = useState<JSX.Element>();
+
   const [urlTokenIn, urlTokenOut, urlSlippageTolerance] = decodeURIComponent(
     location.hash.slice(1)
   ).split(TOKEN_URL_SEPARATOR);
@@ -735,11 +1210,15 @@ export default function SwapCard(props: {
       Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_STABLE)) || 0.5
     );
 
-  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+  const [slippageToleranceLimit, setSlippageToleranceLimit] = useState<number>(
+    Number(localStorage.getItem(SWAP_SLIPPAGE_KEY_LIMIT)) || 0.5
+  );
+  const [feeTiersShowFull, setFeeTiersShowFull] = useState<boolean>(false);
+  const [hasLockedRate, setHasLockedRate] = useState(false);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
 
-  useEffect(() => {
-    getTokenPriceList().then(setTokenPriceList);
-  }, []);
+  const tokenPriceList = useTokenPriceList();
+
   const skywardId =
     getConfig().networkId === 'mainnet'
       ? 'token.skyward.near'
@@ -798,7 +1277,7 @@ export default function SwapCard(props: {
       let rememberedIn = wrapTokenId(urlTokenInId) || in_id;
       let rememberedOut = wrapTokenId(urlTokenOutId) || out_id;
 
-      if (swapMode === SWAP_MODE.NORMAL) {
+      if (swapMode !== SWAP_MODE.STABLE) {
         if (rememberedIn == NEARXIDS[0]) {
           rememberedIn = REF_TOKEN_ID;
         }
@@ -812,11 +1291,19 @@ export default function SwapCard(props: {
           urlTokenIn == WRAP_NEAR_CONTRACT_ID ||
           urlTokenIn == 'wNEAR'
         ) {
-          candTokenIn = wnearMetadata;
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenIn = unwrapedNear;
+          } else {
+            candTokenIn = wnearMetadata;
+          }
         } else if (rememberedIn == 'near') {
           candTokenIn = unwrapedNear;
         } else if (rememberedIn == WRAP_NEAR_CONTRACT_ID) {
-          candTokenIn = wnearMetadata;
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenIn = unwrapedNear;
+          } else {
+            candTokenIn = wnearMetadata;
+          }
         } else {
           candTokenIn =
             allTokens.find((token) => {
@@ -830,11 +1317,19 @@ export default function SwapCard(props: {
           urlTokenOut == WRAP_NEAR_CONTRACT_ID ||
           urlTokenOut == 'wNEAR'
         ) {
-          candTokenOut = wnearMetadata;
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenOut = unwrapedNear;
+          } else {
+            candTokenOut = wnearMetadata;
+          }
         } else if (rememberedOut == 'near') {
           candTokenOut = unwrapedNear;
         } else if (rememberedOut == WRAP_NEAR_CONTRACT_ID) {
-          candTokenOut = wnearMetadata;
+          if (swapMode == SWAP_MODE.LIMIT) {
+            candTokenOut = unwrapedNear;
+          } else {
+            candTokenOut = wnearMetadata;
+          }
         } else {
           candTokenOut =
             allTokens.find((token) => {
@@ -911,41 +1406,45 @@ export default function SwapCard(props: {
   ]);
 
   useEffect(() => {
-    if (useNearBalance) {
-      if (tokenIn) {
-        const tokenInId = tokenIn.id;
-        if (tokenInId) {
-          if (isSignedIn) {
-            ftGetBalance(tokenInId).then((available: string) =>
+    if (tokenIn) {
+      const tokenInId = tokenIn.id;
+      if (tokenInId) {
+        if (isSignedIn) {
+          setBalanceInDone(false);
+          ftGetBalance(
+            tokenIn.id === WRAP_NEAR_CONTRACT_ID && tokenIn.symbol == 'NEAR'
+              ? 'NEAR'
+              : tokenIn.id
+          )
+            .then((available: string) =>
               setTokenInBalanceFromNear(
-                toReadableNumber(
-                  tokenIn?.decimals,
-                  tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
-                    tokenIn.symbol == 'NEAR'
-                    ? nearBalance
-                    : available
-                )
+                toReadableNumber(tokenIn?.decimals, available)
               )
-            );
-          }
+            )
+            .finally(() => {
+              setBalanceInDone(true);
+            });
         }
       }
-      if (tokenOut) {
-        const tokenOutId = tokenOut.id;
-        if (tokenOutId) {
-          if (isSignedIn) {
-            ftGetBalance(tokenOutId).then((available: string) =>
+    }
+    if (tokenOut) {
+      const tokenOutId = tokenOut.id;
+      if (tokenOutId) {
+        if (isSignedIn) {
+          setBalanceOutDone(false);
+          ftGetBalance(
+            tokenOut.id === WRAP_NEAR_CONTRACT_ID && tokenOut.symbol == 'NEAR'
+              ? 'NEAR'
+              : tokenOut.id
+          )
+            .then((available: string) =>
               setTokenOutBalanceFromNear(
-                toReadableNumber(
-                  tokenOut?.decimals,
-                  tokenOut.id === WRAP_NEAR_CONTRACT_ID &&
-                    tokenOut.symbol == 'NEAR'
-                    ? nearBalance
-                    : available
-                )
+                toReadableNumber(tokenOut?.decimals, available)
               )
-            );
-          }
+            )
+            .finally(() => {
+              setBalanceOutDone(true);
+            });
         }
       }
     }
@@ -986,10 +1485,48 @@ export default function SwapCard(props: {
     }
     return result;
   }
-  const slippageTolerance =
-    swapMode === SWAP_MODE.NORMAL
-      ? slippageToleranceNormal
-      : slippageToleranceStable;
+  const getSlippageTolerance = (swapMode: SWAP_MODE) => {
+    switch (swapMode) {
+      case SWAP_MODE.STABLE:
+        return {
+          slippageValue: slippageToleranceStable,
+          setSlippageValue: setSlippageToleranceStable,
+          slippageKey: SWAP_SLIPPAGE_KEY_STABLE,
+        };
+      case SWAP_MODE.NORMAL:
+        return {
+          slippageValue: slippageToleranceNormal,
+          setSlippageValue: setSlippageToleranceNormal,
+          slippageKey: SWAP_SLIPPAGE_KEY,
+        };
+      case SWAP_MODE.LIMIT:
+        return {
+          slippageValue: slippageToleranceLimit,
+          setSlippageValue: setSlippageToleranceLimit,
+          slippageKey: SWAP_SLIPPAGE_KEY_LIMIT,
+        };
+      default:
+        return {
+          slippageValue: slippageToleranceNormal,
+          setSlippageValue: setSlippageToleranceNormal,
+          slippageKey: SWAP_SLIPPAGE_KEY,
+        };
+    }
+  };
+
+  const onChangeSlippage = (slippage: number) => {
+    const { slippageValue, setSlippageValue, slippageKey } =
+      getSlippageTolerance(swapMode);
+
+    setSlippageValue(slippage);
+
+    localStorage.setItem(slippageKey, slippage.toString());
+  };
+
+  const slippageTolerance = getSlippageTolerance(swapMode).slippageValue;
+
+  useSwapPopUp();
+
   const {
     canSwap,
     tokenOutAmount,
@@ -1001,6 +1538,7 @@ export default function SwapCard(props: {
     isParallelSwap,
     swapsToDo,
     setCanSwap,
+    quoteDone,
   } = useSwap({
     tokenIn: tokenIn,
     tokenInAmount,
@@ -1016,6 +1554,78 @@ export default function SwapCard(props: {
     supportLedger,
   });
 
+  const {
+    makeSwap: makeSwapV3,
+    tokenOutAmount: tokenOutAmountV3,
+    minAmountOut: minAmountOutV3,
+    bestFee,
+    priceImpact: priceImpactV3,
+    quoteDone: quoteDoneV3,
+    canSwap: canSwapV3,
+    swapErrorV3,
+  } = useSwapV3({
+    tokenIn,
+    tokenOut,
+    tokenInAmount,
+    slippageTolerance,
+    swapMode,
+    loadingTrigger,
+    swapError,
+    setLoadingTrigger,
+  });
+
+  const {
+    poolPercents,
+    fee: mostPoolFeeLimit,
+    mostPoolDetail,
+    quoteDone: quoteDoneLimit,
+    everyPoolTvl,
+  } = useLimitOrder({
+    tokenIn,
+    tokenOut,
+    swapMode,
+    selectedV3LimitPool,
+    setSelectedV3LimitPool,
+    loadingTrigger: limitSwapTrigger,
+    tokenPriceList,
+  });
+
+  const bestSwap =
+    swapMode === SWAP_MODE.NORMAL &&
+    new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0') &&
+    canSwapV3
+      ? 'v3'
+      : 'v2';
+
+  useEffect(() => {
+    if (quoteDone && quoteDoneV3) {
+      if (poolError) {
+        setDisplayTokenOutAmount('');
+        return;
+      }
+
+      const displayTokenOutAmount =
+        swapMode === SWAP_MODE.NORMAL &&
+        new Big(tokenOutAmountV3 || '0').gte(tokenOutAmount || '0') &&
+        canSwapV3
+          ? tokenOutAmountV3
+          : tokenOutAmount;
+
+      setDisplayTokenOutAmount(toPrecision(displayTokenOutAmount, 8));
+    }
+  }, [
+    quoteDone,
+    quoteDoneV3,
+    tokenOutAmountV3,
+    tokenOutAmount,
+    poolError,
+    swapMode,
+  ]);
+  useEffect(() => {
+    if (swapMode == 'normal') {
+      setLoadingTrigger(true);
+    }
+  }, [swapMode]);
   const priceImpactValueSmartRouting = useMemo(() => {
     try {
       if (swapsToDo?.length === 2 && swapsToDo[0].status === PoolMode.SMART) {
@@ -1054,6 +1664,135 @@ export default function SwapCard(props: {
     }
   }, [tokenOutAmount, swapsToDo]);
 
+  useEffect(() => {
+    if (!mostPoolDetail) setCurOrderPrice(null);
+    if (!mostPoolDetail || !tokenIn || !tokenOut || !quoteDoneLimit) {
+      return;
+    }
+    const { token_x, token_y } = mostPoolDetail;
+    if (
+      (token_x !== tokenIn.id && token_x !== tokenOut.id) ||
+      (token_y !== tokenIn.id && token_y !== tokenOut.id)
+    ) {
+      return;
+    }
+    const curPoint =
+      tokenIn.id === mostPoolDetail.token_x
+        ? mostPoolDetail.current_point
+        : mostPoolDetail.current_point * -1;
+
+    const reguPoint = regularizedPoint(curPoint, mostPoolDetail.fee);
+
+    const price = pointToPrice({
+      tokenA: tokenIn,
+      tokenB: tokenOut,
+      point:
+        curPoint === reguPoint
+          ? reguPoint
+          : reguPoint + feeToPointDelta(mostPoolDetail.fee),
+    });
+    const priceKeep = toPrecision(price, 8) === curOrderPrice;
+
+    const regularizedRate = toPrecision(
+      regularizedPrice(
+        LimitAmountOutRate,
+        tokenIn,
+        tokenOut,
+        mostPoolDetail.fee
+      ),
+      8,
+      false,
+      false
+    );
+
+    const displayRate = ONLY_ZEROS.test(regularizedRate) ? '' : regularizedRate;
+
+    setLimitAmountOutRate(
+      priceKeep ? displayRate || toPrecision(price, 8) : toPrecision(price, 8)
+    );
+
+    setCurOrderPrice(
+      priceKeep ? curOrderPrice || toPrecision(price, 8) : toPrecision(price, 8)
+    );
+
+    const amountOut_original = scientificNotationToString(
+      new Big(priceKeep ? displayRate || price || 0 : price)
+        .times(tokenInAmount || 0)
+        .toString()
+    );
+    let amountOut;
+    const minValue = '0.00000001';
+    if (new BigNumber(amountOut_original).isGreaterThanOrEqualTo(minValue)) {
+      amountOut = toPrecision(amountOut_original, 8, false, false);
+    } else {
+      amountOut = amountOut_original;
+    }
+    // let amountOut = toPrecision(
+    //   scientificNotationToString(
+    //     new Big(priceKeep ? displayRate || price || 0 : price)
+    //       .times(tokenInAmount || 0)
+    //       .toString()
+    //   ),
+    //   18,
+    //   false,
+    //   false
+    // );
+    if (!limitLockedTokenOutTrigger) {
+      setLimitAmountOut(ONLY_ZEROS.test(amountOut) ? '' : amountOut);
+    }
+  }, [mostPoolDetail, tokenIn, tokenOut, tokenInAmount, quoteDoneLimit]);
+
+  const LimitChangeAmountOut = (
+    amount: string,
+    noNeedChangeInputAmount?: boolean
+  ) => {
+    const curAmount = toPrecision(amount, 8, false, false);
+    // !limitAmountOut || limitAmountOut.indexOf('.') === -1
+    //   ? amount
+    //   : toPrecision(amount, 8, false, false);
+    if (hasLockedRate && !noNeedChangeInputAmount) {
+      if (LimitAmountOutRate) {
+        const inValue = new Big(curAmount || '0')
+          .div(LimitAmountOutRate)
+          .toString();
+        setTokenInAmount(toPrecision(inValue, 8, false, false));
+        setLimitLockedTokenOutTrigger(true);
+      }
+    } else {
+      if (tokenInAmount && !ONLY_ZEROS.test(tokenInAmount)) {
+        setLimitAmountOutRate(
+          toPrecision(
+            scientificNotationToString(
+              new Big(curAmount || '0').div(tokenInAmount || 1).toString()
+            ),
+            8
+          )
+        );
+      }
+    }
+    setLimitAmountOut(curAmount);
+  };
+  const onChangeLimitRate = (r: string) => {
+    const curR = toPrecision(r, 8, false, false);
+    // !LimitAmountOutRate || LimitAmountOutRate.indexOf('.') === -1
+    //   ? r
+    //   : toPrecision(r, 8, false, false);
+
+    const displayCurR = curR;
+
+    setLimitAmountOutRate(displayCurR);
+
+    const curAmountOut = scientificNotationToString(
+      new Big(displayCurR || 0).times(tokenInAmount || 0).toString()
+    );
+
+    setLimitAmountOut(
+      ONLY_ZEROS.test(curAmountOut)
+        ? ''
+        : toPrecision(curAmountOut, 8, false, false)
+    );
+  };
+
   let PriceImpactValue: string = '0';
 
   try {
@@ -1086,41 +1825,228 @@ export default function SwapCard(props: {
     return true;
   }
 
-  const tokenInMax = useNearBalance
-    ? tokenInBalanceFromNear || '0'
-    : toReadableNumber(tokenIn?.decimals, balances?.[tokenIn?.id]) || '0';
-  const tokenOutTotal = useNearBalance
-    ? tokenOutBalanceFromNear || '0'
-    : toReadableNumber(tokenOut?.decimals, balances?.[tokenOut?.id]) || '0';
+  useEffect(() => {
+    if (quoteDone && quoteDoneV3) {
+      const bestSwapPriceImpact =
+        bestSwap === 'v3' && canSwapV3 ? priceImpactV3 : PriceImpactValue;
 
-  const canSubmit =
+      setDisplayPriceImpact(bestSwapPriceImpact);
+    }
+  }, [
+    priceImpactV3,
+    PriceImpactValue,
+    quoteDone,
+    quoteDoneV3,
+    bestSwap,
+    canSwapV3,
+  ]);
+
+  const makeBestSwap = () => {
+    if (bestSwap === 'v3') {
+      makeSwapV3();
+    } else {
+      makeSwap(useNearBalance);
+    }
+  };
+  const limitSwap = () =>
+    v3Swap({
+      swapInfo: {
+        tokenA: tokenIn,
+        tokenB: tokenOut,
+        amountA: tokenInAmount,
+        amountB: limitAmountOut,
+      },
+      LimitOrderWithSwap: {
+        pool_id: selectedV3LimitPool,
+      },
+    });
+
+  const DetailView = useMemo(() => {
+    if (!quoteDone || !quoteDoneV3) return null;
+
+    return (
+      <>
+        <div className="mt-3 mb-3">
+          <div className="flex flex-wrap items-center justify-between text-white ">
+            <div className="flex items-center mb-1">
+              <div
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  if (loadingPause) {
+                    setLoadingPause(false);
+                    setLoadingTrigger(true);
+                    setLoadingData(true);
+                  } else {
+                    setLoadingPause(true);
+                    setLoadingTrigger(false);
+                  }
+                }}
+                className="mr-2 cursor-pointer"
+              >
+                <CountdownTimer
+                  loadingTrigger={loadingTrigger}
+                  loadingPause={loadingPause}
+                />
+              </div>
+              <SwapRate
+                from={tokenInAmount}
+                to={bestSwap === 'v2' ? tokenOutAmount : tokenOutAmountV3}
+                tokenIn={tokenIn}
+                tokenOut={tokenOut}
+                fee={bestSwap === 'v2' ? avgFee : bestFee / 100}
+                tokenPriceList={tokenPriceList}
+              />
+            </div>
+
+            <div
+              className="text-sm flex items-center cursor-pointer mb-1"
+              onClick={() => {
+                setShowDetails(!showDetails);
+              }}
+            >
+              {getPriceImpactTipType(displayPriceImpact)}
+              <span className="text-xs text-primaryText mx-1.5">
+                <FormattedMessage id="details"></FormattedMessage>
+              </span>
+              <span>
+                {showDetails ? (
+                  <FaAngleUp color="#ffffff" size={16} />
+                ) : (
+                  <FaAngleDown color="#7E8A93" size={16} />
+                )}
+              </span>
+            </div>
+          </div>
+        </div>
+        {bestSwap === 'v2' ? (
+          <DetailViewV2
+            pools={pools}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            from={tokenInAmount}
+            to={tokenOutAmount}
+            minAmountOut={minAmountOut}
+            isParallelSwap={isParallelSwap}
+            fee={avgFee}
+            swapsTodo={swapsToDo}
+            priceImpact={displayPriceImpact}
+          />
+        ) : (
+          <DetailViewV3
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            from={tokenInAmount}
+            to={tokenOutAmountV3}
+            minAmountOut={minAmountOutV3}
+            fee={bestFee / 100}
+            priceImpact={displayPriceImpact}
+          />
+        )}
+      </>
+    );
+  }, [
+    displayTokenOutAmount,
+    swapMode,
+    selectedV3LimitPool,
+    poolPercents,
+    tokenIn,
+    tokenOut,
+    slippageTolerance,
+    minAmountOut,
+    minAmountOutV3,
+    swapsToDo,
+    displayPriceImpact,
+    bestFee,
+    avgFee,
+    tokenOutAmount,
+    tokenOutAmountV3,
+    tokenPriceList,
+    loadingTrigger,
+    loadingPause,
+    showDetails,
+    quoteDone,
+    quoteDoneV3,
+  ]);
+
+  useEffect(() => {
+    if ((quoteDone && quoteDoneV3) || quoteDoneLimit) {
+      setDisplayDetailView(DetailView);
+    }
+  }, [quoteDone, quoteDoneV3, quoteDoneLimit, DetailView]);
+
+  const tokenInMax = tokenInBalanceFromNear || '0';
+
+  const tokenOutTotal = tokenOutBalanceFromNear || '0';
+  const isInValidLimitIn =
     tokenIn &&
-    tokenOut &&
-    swapsToDo &&
-    estimateValidator(
-      swapsToDo,
-      tokenIn,
-      toNonDivisibleNumber(tokenIn.decimals, tokenInAmount),
-      tokenOut
-    ) &&
-    canSwap &&
-    (tokenInMax != '0' || !useNearBalance);
+    Number(tokenInAmount) > 0 &&
+    swapMode === SWAP_MODE.LIMIT &&
+    ONLY_ZEROS.test(toNonDivisibleNumber(tokenIn.decimals, tokenInAmount));
+
+  function satisfyCondition1() {
+    if (swapMode == SWAP_MODE.LIMIT) {
+      return (
+        !!mostPoolDetail &&
+        !ONLY_ZEROS.test(limitAmountOut) &&
+        !isInValidLimitIn
+      );
+    } else {
+      return quoteDone && quoteDoneV3 && (canSwap || canSwapV3);
+    }
+  }
+  function satisfyCondition2() {
+    return (
+      new Big(tokenInAmount || '0').gt('0') &&
+      new Big(tokenInMax || '0').gt('0') &&
+      new Big(tokenInAmount || '0').lte(tokenInMax || '0')
+    );
+  }
+
+  function satisfyShowDetailViewCondition() {
+    const hideCondition1 = swapMode == SWAP_MODE.LIMIT;
+    // const hideCondition2 = swapMode !== SWAP_MODE.LIMIT && !(canSwap || canSwapV3);
+    const hideCondition2 = swapMode !== SWAP_MODE.LIMIT && poolError;
+    const hideCondition3 = wrapOperation;
+    const hideCondition4 = new Big(tokenInAmount || '0').lte('0');
+    const hideCondition5 = tokenIn?.id == tokenOut?.id;
+    const hideConditionFinall =
+      hideCondition1 ||
+      hideCondition2 ||
+      hideCondition3 ||
+      hideCondition4 ||
+      hideCondition5;
+    return !hideConditionFinall;
+  }
+  // const canSubmit = (swapMode !== SWAP_MODE.LIMIT ? (canSwap || canSwapV3) && (tokenInMax != '0' || !useNearBalance) && quoteDone && quoteDoneV3 : !!mostPoolDetail && !ONLY_ZEROS.test(limitAmountOut)) && new Big(tokenInAmount || '0').lte(tokenInMax || '0') && !ONLY_ZEROS.test(tokenInMax || '0');
+
+  const canSubmit = satisfyCondition1() && satisfyCondition2();
 
   const canWrap = wrapButtonCheck();
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const canShowDetailView = satisfyShowDetailViewCondition();
+
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const ifDoubleCheck =
-      new BigNumber(tokenInAmount).isLessThanOrEqualTo(
-        new BigNumber(tokenInMax)
-      ) && Number(PriceImpactValue) > 2;
+    if (swapMode === SWAP_MODE.LIMIT) {
+      setDoubleCheckOpenLimit(true);
+    } else {
+      const ifDoubleCheck =
+        new BigNumber(tokenInAmount || 0).isLessThanOrEqualTo(
+          new BigNumber(tokenInMax || 0)
+        ) && Number(displayPriceImpact) > 2;
 
-    if (ifDoubleCheck) setDoubleCheckOpen(true);
-    else makeSwap(useNearBalance);
+      if (ifDoubleCheck) setDoubleCheckOpen(true);
+      else makeBestSwap();
+    }
   };
   const handleSubmit_wrap = (e: any) => {
     e.preventDefault();
+
+    sessionStorage.setItem(NEAR_WITHDRAW_KEY, '1');
+
     if (tokenIn?.symbol === 'NEAR') {
       setWrapLoading(true);
       return nearDeposit(tokenInAmount);
@@ -1129,47 +2055,69 @@ export default function SwapCard(props: {
       return nearWithdraw(tokenInAmount);
     }
   };
-
+  const NoPoolError = () => {
+    return new Error(
+      `${intl.formatMessage({
+        id: 'no_pool_available_to_make_a_swap_from',
+      })} ${tokenIn?.symbol} -> ${tokenOut?.symbol} ${intl.formatMessage({
+        id: 'for_the_amount',
+      })} ${tokenInAmount} ${intl.formatMessage({
+        id: 'no_pool_eng_for_chinese',
+      })}`
+    );
+  };
+  function judgeBalance() {
+    const condition1 = tokenIn && balanceInDone && balanceOutDone;
+    return (
+      condition1 &&
+      (Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+        Number(tokenInAmount || '0') <
+        0 ||
+        ONLY_ZEROS.test(tokenInMax))
+    );
+  }
+  const isInsufficientBalance = judgeBalance();
+  useEffect(() => {
+    if (!quoteDone || !quoteDoneV3) {
+      return;
+    }
+    if (swapError && swapErrorV3) {
+      setPoolError(
+        swapError?.message ? swapError?.message : swapErrorV3?.message
+      );
+    } else {
+      setPoolError(null);
+    }
+  }, [quoteDone, quoteDoneV3, swapError, swapErrorV3]);
   return (
     <>
       <SwapFormWrap
+        quoteDoneLimit={quoteDoneLimit}
         supportLedger={supportLedger}
+        reserves={stableReserves}
         setSupportLedger={setSupportLedger}
         useNearBalance={useNearBalance.toString()}
         canSubmit={canSubmit}
+        swapTab={swapTab}
+        mostPoolDetail={mostPoolDetail}
         slippageTolerance={slippageTolerance}
-        onChange={(slippage) => {
-          swapMode === SWAP_MODE.NORMAL
-            ? setSlippageToleranceNormal(slippage)
-            : setSlippageToleranceStable(slippage);
-
-          localStorage.setItem(
-            swapMode === SWAP_MODE.NORMAL
-              ? SWAP_SLIPPAGE_KEY
-              : SWAP_SLIPPAGE_KEY_STABLE,
-            slippage?.toString()
-          );
-        }}
-        bindUseBalance={(useNearBalance) => {
-          setUseNearBalance(useNearBalance);
-          localStorage.setItem(
-            SWAP_USE_NEAR_BALANCE_KEY,
-            useNearBalance.toString()
-          );
-        }}
-        // showElseView={tokenInMax === '0' && !useNearBalance}
+        onChange={onChangeSlippage}
         showElseView={wrapOperation}
         elseView={
           <div className="flex justify-center">
             {isSignedIn ? (
-              <SubmitButton
-                onClick={handleSubmit_wrap}
-                disabled={!canWrap || wrapLoading}
-                loading={wrapLoading}
-              />
+              !isInsufficientBalance ? (
+                <SubmitButton
+                  onClick={handleSubmit_wrap}
+                  disabled={!canWrap || wrapLoading}
+                  loading={wrapLoading}
+                />
+              ) : (
+                <InsufficientButton divClassName="h-12 mt-6 w-full"></InsufficientButton>
+              )
             ) : (
               <div className="mt-4 w-full">
-                <ConnectToNearBtn />
+                <ConnectToNearBtnSwap />
               </div>
             )}
           </div>
@@ -1177,7 +2125,7 @@ export default function SwapCard(props: {
         swapMode={swapMode}
         onSubmit={handleSubmit}
         info={intl.formatMessage({ id: 'swapCopy' })}
-        title={'swap'}
+        title={swapMode === SWAP_MODE.LIMIT ? 'create_order' : 'swap'}
         loading={{
           loadingData,
           setLoadingData,
@@ -1188,16 +2136,21 @@ export default function SwapCard(props: {
           showSwapLoading,
           setShowSwapLoading,
         }}
+        isInsufficient={isInsufficientBalance}
       >
-        <TokenAmount
+        <TokenAmountV3
           forSwap
           swapMode={swapMode}
           amount={tokenInAmount}
           total={tokenInMax}
           max={tokenInMax}
           tokens={allTokens}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
           selectedToken={tokenIn}
-          balances={balances}
+          limitOrderDisable={
+            swapMode === SWAP_MODE.LIMIT && (!mostPoolDetail || !quoteDoneLimit)
+          }
           onSelectToken={(token) => {
             localStorage.setItem(SWAP_IN_KEY, token.id);
             setTokenIn(token);
@@ -1207,10 +2160,15 @@ export default function SwapCard(props: {
               setShowSkywardTip(true);
             }
           }}
-          text={intl.formatMessage({ id: 'from' })}
+          text={
+            swapMode === SWAP_MODE.LIMIT
+              ? intl.formatMessage({ id: 'sell' })
+              : ''
+          }
           useNearBalance={useNearBalance}
-          onChangeAmount={(amount) => {
-            setTokenInAmount(amount);
+          onChangeAmount={(v) => {
+            setLimitLockedTokenOutTrigger(false);
+            setTokenInAmount(v);
           }}
           tokenPriceList={tokenPriceList}
           isError={tokenIn?.id === tokenOut?.id}
@@ -1218,68 +2176,232 @@ export default function SwapCard(props: {
           onSelectPost={(token) => {
             setTokenOut(token);
           }}
-          allowWNEAR={true}
-        />
-        <div
-          className="flex items-center justify-center border-t mt-12"
-          style={{ borderColor: 'rgba(126, 138, 147, 0.3)' }}
-        >
-          <SwapExchange
-            onChange={() => {
-              setTokenIn(tokenOut);
-              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
-              setTokenOut(tokenIn);
-              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-
-              setTokenInAmount(toPrecision('1', 6));
-              localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
-              localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
-            }}
-          />
-        </div>
-        <TokenAmount
-          forSwap
-          swapMode={swapMode}
-          amount={
-            wrapOperation ? tokenInAmount : toPrecision(tokenOutAmount, 8)
+          allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
+          nearErrorTip={
+            (swapMode === SWAP_MODE.LIMIT
+              ? !!curOrderPrice && quoteDoneLimit
+              : true) &&
+            balanceInDone &&
+            balanceOutDone &&
+            tokenIn &&
+            Number(getMax(tokenIn.id, tokenInMax || '0', tokenIn)) -
+              Number(tokenInAmount || '0') <
+              0 &&
+            !ONLY_ZEROS.test(tokenInMax || '0') &&
+            !ONLY_ZEROS.test(tokenInAmount || '0') &&
+            tokenIn.id === WRAP_NEAR_CONTRACT_ID &&
+            tokenIn.symbol === 'NEAR' && (
+              <Alert
+                level="warn"
+                message={`${intl.formatMessage({
+                  id: 'near_validation_error',
+                })} `}
+                extraClass="px-0 pb-3"
+              />
+            )
           }
-          total={tokenOutTotal}
-          tokens={allTokens}
-          selectedToken={tokenOut}
-          balances={balances}
-          preSelected={tokenIn}
-          text={intl.formatMessage({ id: 'to' })}
-          useNearBalance={useNearBalance}
-          onSelectToken={(token) => {
-            localStorage.setItem(SWAP_OUT_KEY, token.id);
-            setTokenOut(token);
-            setCanSwap(false);
+        />
+        <div className={`flex items-center -my-2.5 justify-center`}>
+          {swapMode === SWAP_MODE.LIMIT ? (
+            <SwapExchangeV3
+              tokenIn={tokenIn}
+              tokenOut={tokenOut}
+              rate={LimitAmountOutRate}
+              fee={mostPoolDetail?.fee}
+              onChange={() => {
+                setTokenIn(tokenOut);
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                setTokenOut(tokenIn);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
 
-            if (token.id === skywardId) {
-              setShowSkywardTip(true);
-            }
+                setTokenInAmount(toPrecision('1', 6));
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+              }}
+              triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
+              curPrice={curOrderPrice}
+              setRate={onChangeLimitRate}
+            />
+          ) : (
+            <SwapExchangeV1
+              onChange={() => {
+                setTokenIn(tokenOut);
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                setTokenOut(tokenIn);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+
+                setTokenInAmount(toPrecision('1', 6));
+                localStorage.setItem(SWAP_IN_KEY, tokenOut.id);
+                localStorage.setItem(SWAP_OUT_KEY, tokenIn.id);
+              }}
+            />
+          )}
+        </div>
+        <LimitOrderTriggerContext.Provider
+          value={{
+            triggerFetch: () => {
+              setLimiSwapTrigger(!limitSwapTrigger);
+            },
+            detail: {
+              showDetails,
+            },
           }}
-          isError={tokenIn?.id === tokenOut?.id}
-          tokenPriceList={tokenPriceList}
-          allowWNEAR={true}
-        />
-        <DetailView
-          pools={pools}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          from={tokenInAmount}
-          to={wrapOperation ? tokenInAmount : tokenOutAmount}
-          minAmountOut={minAmountOut}
-          isParallelSwap={isParallelSwap}
-          fee={avgFee}
-          swapsTodo={swapsToDo}
-          priceImpact={PriceImpactValue}
-          swapMode={swapMode}
-          tokenInAmount={tokenInAmount}
-        />
-        {swapError ? (
-          <div className="pb-2 relative -mb-5">
-            <Alert level="warn" message={swapError.message} />
+        >
+          <TokenAmountV3
+            forSwap
+            swapMode={swapMode}
+            amount={
+              swapMode === SWAP_MODE.LIMIT
+                ? limitAmountOut
+                : wrapOperation
+                ? tokenInAmount
+                : displayTokenOutAmount
+            }
+            total={tokenOutTotal}
+            tokens={allTokens}
+            selectedToken={tokenOut}
+            preSelected={tokenIn}
+            onChangeAmount={
+              swapMode === SWAP_MODE.LIMIT && mostPoolDetail
+                ? LimitChangeAmountOut
+                : null
+            }
+            onBlur={
+              swapMode === SWAP_MODE.LIMIT
+                ? (newRate: string) => {
+                    const newAmountOut = new Big(newRate)
+                      .times(tokenInAmount || 0)
+                      .toString();
+                    LimitChangeAmountOut(
+                      scientificNotationToString(newAmountOut),
+                      true
+                    );
+                  }
+                : null
+            }
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            limitFee={mostPoolDetail?.fee}
+            limitOrderDisable={
+              swapMode === SWAP_MODE.LIMIT &&
+              (!mostPoolDetail || !quoteDoneLimit || isInValidLimitIn)
+            }
+            setDiff={setDiff}
+            forLimitOrder
+            text={
+              swapMode === SWAP_MODE.LIMIT
+                ? intl.formatMessage({ id: 'buy' })
+                : ''
+            }
+            useNearBalance={useNearBalance}
+            onSelectToken={(token) => {
+              localStorage.setItem(SWAP_OUT_KEY, token.id);
+
+              setTokenOut(token);
+              setCanSwap(false);
+
+              if (token.id === skywardId) {
+                setShowSkywardTip(true);
+              }
+            }}
+            isError={tokenIn?.id === tokenOut?.id}
+            tokenPriceList={tokenPriceList}
+            curRate={LimitAmountOutRate}
+            onChangeRate={onChangeLimitRate}
+            marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
+            ExtraElement={
+              swapMode == SWAP_MODE.LIMIT && limitAmountOut ? (
+                <MdOutlineRefresh
+                  size={18}
+                  className={`text-primaryText cursor-pointer  ${
+                    !quoteDoneLimit ? 'rotateInfinite' : ''
+                  } `}
+                  onClick={() => {
+                    setLimiSwapTrigger(!limitSwapTrigger);
+                  }}
+                />
+              ) : null
+            }
+            allowWNEAR={swapMode === SWAP_MODE.LIMIT ? false : true}
+          />
+          {swapMode === SWAP_MODE.LIMIT ? (
+            <>
+              <div
+                className="relative flex items-stretch justify-between mt-2.5"
+                style={{ zIndex: '60' }}
+              >
+                <LimitOrderRateSetBox
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
+                  limitFee={mostPoolDetail?.fee}
+                  setDiff={setDiff}
+                  curRate={LimitAmountOutRate}
+                  onChangeRate={onChangeLimitRate}
+                  marketPriceLimitOrder={!curOrderPrice ? null : curOrderPrice}
+                  fee={mostPoolDetail?.fee}
+                  triggerFetch={() => setLimiSwapTrigger(!limitSwapTrigger)}
+                  curPrice={isInValidLimitIn ? '' : curOrderPrice}
+                  setRate={onChangeLimitRate}
+                  hidden={feeTiersShowFull ? true : false}
+                  hasLockedRate={hasLockedRate}
+                  setHasLockedRate={setHasLockedRate}
+                />
+                <DetailViewLimit
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
+                  poolPercents={poolPercents}
+                  everyPoolTvl={everyPoolTvl}
+                  v3Pool={selectedV3LimitPool}
+                  setV3Pool={setSelectedV3LimitPool}
+                  tokenPriceList={tokenPriceList}
+                  setFeeTiersShowFull={setFeeTiersShowFull}
+                  feeTiersShowFull={feeTiersShowFull}
+                />
+              </div>
+              <div className="text-sm text-limitOrderInputColor mt-2.5 px-3">
+                <FormattedMessage id="limitTip"></FormattedMessage>
+              </div>
+            </>
+          ) : null}
+          {canShowDetailView ? (
+            <div className="mt-4">{displayDetailView}</div>
+          ) : (
+            <div className="mt-4"></div>
+          )}
+        </LimitOrderTriggerContext.Provider>
+
+        {wrapOperation ? (
+          <DetailView_near_wnear
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            minAmountOut={tokenInAmount}
+            from={tokenInAmount}
+            to={tokenInAmount}
+          ></DetailView_near_wnear>
+        ) : null}
+
+        {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail && (
+          <NoLimitPoolCard />
+        )}
+
+        {swapMode === SWAP_MODE.LIMIT && quoteDoneLimit && !mostPoolDetail
+          ? null
+          : isInValidLimitIn && (
+              <div className="pb-2 relative ">
+                <Alert
+                  level="warn"
+                  message={`${tokenInAmount} ${intl.formatMessage({
+                    id: 'is_not_a_valid_swap_amount',
+                  })}`}
+                />
+              </div>
+            )}
+
+        {poolError &&
+        swapMode !== SWAP_MODE.LIMIT &&
+        Number(tokenInAmount || '0') > 0 ? (
+          <div className="pb-2 relative ">
+            <Alert level="warn" message={poolError} />
           </div>
         ) : null}
       </SwapFormWrap>
@@ -1293,10 +2415,24 @@ export default function SwapCard(props: {
         tokenIn={tokenIn}
         tokenOut={tokenOut}
         from={tokenInAmount}
-        onSwap={() => makeSwap(useNearBalance)}
-        priceImpactValue={PriceImpactValue}
+        onSwap={() => makeBestSwap()}
+        priceImpactValue={displayPriceImpact || '0'}
       />
-
+      <DoubleCheckModalLimit
+        isOpen={doubleCheckOpenLimit}
+        onRequestClose={() => {
+          setDoubleCheckOpenLimit(false);
+          window.location.reload(); // todo x
+        }}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        tokenInAmount={tokenInAmount}
+        tokenOutAmount={limitAmountOut}
+        rate={LimitAmountOutRate}
+        from={tokenInAmount}
+        onSwap={() => limitSwap()}
+        rateDiff={diff}
+      ></DoubleCheckModalLimit>
       {swapMode === SWAP_MODE.STABLE ? (
         <TokenReserves
           tokens={AllStableTokenIds.map((id) =>

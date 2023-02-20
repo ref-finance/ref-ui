@@ -8,7 +8,10 @@ import {
   LP_STABLE_TOKEN_DECIMALS,
 } from '../services/m-token';
 import { XREF_TOKEN_DECIMALS } from '../services/xref';
+import { get_pool, list_history_orders } from '../services/swapV3';
+import { getPriceByPoint } from '../services/commonV3';
 import BigNumber from 'bignumber.js';
+import _ from 'lodash';
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
 import moment from 'moment';
@@ -30,10 +33,10 @@ export const parseAction = async (
       return parseRegisterTokens(params);
     }
     case 'add_liquidity': {
-      return await parseAddLiquidity(params);
+      return await parseAddLiquidity(params, tokenId);
     }
     case 'remove_liquidity': {
-      return await parseRemoveLiquidity(params);
+      return await parseRemoveLiquidity(params, tokenId);
     }
     case 'add_simple_pool': {
       return await parseAddSimplePool(params);
@@ -112,6 +115,18 @@ export const parseAction = async (
     }
     case 'withdraw_lpt': {
       return await withdrawLpt(params);
+    }
+    case 'create_pool': {
+      return await createPool(params);
+    }
+    case 'cancel_order': {
+      return await cancelOrder(params);
+    }
+    case 'withdraw_asset': {
+      return await withdrawAsset(params);
+    }
+    case 'append_liquidity': {
+      return await parseAppendLiquidity(params, tokenId);
     }
     default: {
       return await parseDefault();
@@ -203,56 +218,143 @@ const parseRegisterTokens = (params: any) => {
   };
 };
 
-const parseAddLiquidity = async (params: any) => {
+const parseAddLiquidity = async (params: any, tokenId: string) => {
   try {
     params = JSON.parse(params);
   } catch (error) {
     params = {};
   }
-  const pool = await getPoolDetails(params.pool_id);
+  if (tokenId == config.REF_UNI_V3_SWAP_CONTRACT_ID) {
+    const {
+      pool_id,
+      left_point,
+      right_point,
+      amount_x,
+      amount_y,
+      min_amount_x,
+      min_amount_y,
+    } = params;
+    const poolDetail = await get_pool(pool_id);
+    const { token_x, token_y } = poolDetail;
+    const tokens = await Promise.all<TokenMetadata>(
+      [token_x, token_y].map((id) => ftGetTokenMetadata(id))
+    );
+    const token_x_decimals = tokens[0].decimals;
+    const token_y_decimals = tokens[1].decimals;
+    const decimalRate =
+      Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
+    let left_price = getPriceByPoint(left_point, decimalRate);
+    let right_price = getPriceByPoint(right_point, decimalRate);
+    if (new BigNumber('0.00000001').isGreaterThan(left_price)) {
+      left_price = '<0.00000001';
+    } else {
+      left_price = toPrecision(left_price.toString(), 8);
+    }
+    if (new BigNumber('0.00000001').isGreaterThan(right_price)) {
+      right_price = '<0.00000001';
+    } else {
+      right_price = toPrecision(right_price.toString(), 8);
+    }
+    return {
+      Action: 'Add Liquidity',
+      'Pool Id': pool_id,
+      'Min Price': left_price,
+      'Max Price': right_price,
+      'Amount One': toReadableNumber(token_x_decimals, amount_x),
+      'Amount Two': toReadableNumber(token_y_decimals, amount_y),
+    };
+  } else {
+    const pool = await getPoolDetails(params.pool_id);
+    const tokens = await Promise.all<TokenMetadata>(
+      pool.tokenIds.map((id) => ftGetTokenMetadata(id))
+    );
+
+    return {
+      Action: 'Add Liquidity',
+      'Pool Id': params.pool_id,
+      'Amount One': toReadableNumber(tokens[0].decimals, params.amounts[0]),
+      'Amount Two': toReadableNumber(tokens[1].decimals, params.amounts[1]),
+    };
+  }
+};
+const parseAppendLiquidity = async (params: any, tokenId: string) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { lpt_id, amount_x, amount_y } = params;
+  const [token_x, token_y] = lpt_id.split('|');
   const tokens = await Promise.all<TokenMetadata>(
-    pool.tokenIds.map((id) => ftGetTokenMetadata(id))
+    [token_x, token_y].map((id) => ftGetTokenMetadata(id))
   );
+  const token_x_decimals = tokens[0].decimals;
+  const token_y_decimals = tokens[1].decimals;
 
   return {
-    Action: 'Add Liquidity',
-    'Pool Id': params.pool_id,
-    'Amount One': toReadableNumber(tokens[0].decimals, params.amounts[0]),
-    'Amount Two': toReadableNumber(tokens[1].decimals, params.amounts[1]),
+    Action: 'Append Liquidity',
+    'LPT Id': lpt_id,
+    'Amount One': toReadableNumber(token_x_decimals, amount_x),
+    'Amount Two': toReadableNumber(token_y_decimals, amount_y),
   };
 };
 
-const parseRemoveLiquidity = async (params: any) => {
+const parseRemoveLiquidity = async (params: any, tokenId: string) => {
   try {
     params = JSON.parse(params);
   } catch (error) {
     params = {};
   }
-  const pool = await getPoolDetails(params.pool_id);
-  const tokens = await Promise.all<TokenMetadata>(
-    pool.tokenIds.map((id) => ftGetTokenMetadata(id))
-  );
-  const result = {
-    Action: 'Remove Liquidity',
-    'Pool Id': params.pool_id,
-    'Amount One': toReadableNumber(tokens[0].decimals, params.min_amounts[0]),
-    'Amount Two': toReadableNumber(tokens[1].decimals, params.min_amounts[1]),
-  };
-  if (new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())) {
-    if (tokens[2]) {
-      result['Amount Three'] = toReadableNumber(
-        tokens[2].decimals,
-        params.min_amounts[2]
-      );
-    }
-    result['Shares'] = toReadableNumber(
-      LP_STABLE_TOKEN_DECIMALS,
-      params.shares
+  if (tokenId == config.REF_UNI_V3_SWAP_CONTRACT_ID) {
+    const { lpt_id, amount, min_amount_x, min_amount_y } = params;
+    const [token_x, token_y] = lpt_id.split('#')[0].split('|');
+    const tokens = await Promise.all<TokenMetadata>(
+      [token_x, token_y].map((id) => ftGetTokenMetadata(id))
     );
+    const tokenX: TokenMetadata = tokens[0];
+    const tokenY: TokenMetadata = tokens[1];
+    const min_decimals = _.min([tokenX.decimals, tokenY.decimals]);
+    if (amount == 0) {
+      return {
+        Action: 'Claim Fees',
+        'LPT Id': lpt_id,
+      };
+    } else {
+      return {
+        Action: 'Remove Liquidity',
+        'LPT Id': lpt_id,
+        Amount: amount,
+        'Amount One': toReadableNumber(tokenX.decimals, min_amount_x),
+        'Amount Two': toReadableNumber(tokenY.decimals, min_amount_y),
+      };
+    }
   } else {
-    result['Shares'] = toReadableNumber(LP_TOKEN_DECIMALS, params.shares);
+    const pool = await getPoolDetails(params.pool_id);
+    const tokens = await Promise.all<TokenMetadata>(
+      pool.tokenIds.map((id) => ftGetTokenMetadata(id))
+    );
+    const result = {
+      Action: 'Remove Liquidity',
+      'Pool Id': params.pool_id,
+      'Amount One': toReadableNumber(tokens[0].decimals, params.min_amounts[0]),
+      'Amount Two': toReadableNumber(tokens[1].decimals, params.min_amounts[1]),
+    };
+    if (new Set(STABLE_POOL_IDS || []).has(pool.id?.toString())) {
+      if (tokens[2]) {
+        result['Amount Three'] = toReadableNumber(
+          tokens[2].decimals,
+          params.min_amounts[2]
+        );
+      }
+      result['Shares'] = toReadableNumber(
+        LP_STABLE_TOKEN_DECIMALS,
+        params.shares
+      );
+    } else {
+      result['Shares'] = toReadableNumber(LP_TOKEN_DECIMALS, params.shares);
+    }
+    return result;
   }
-  return result;
 };
 
 const parseAddSimplePool = async (params: any) => {
@@ -395,7 +497,7 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       Amount,
       'Receiver ID': receiver_id,
     };
-  } else if (receiver_id == config.REF_VE_CONTRACT_ID) {
+  } else if (receiver_id && receiver_id == config.REF_VE_CONTRACT_ID) {
     Action = 'Deposit Bonus';
     const token = await ftGetTokenMetadata(tokenId);
     Amount = toReadableNumber(token.decimals, amount);
@@ -418,6 +520,69 @@ const parseFtTransferCall = async (params: any, tokenId: string) => {
       'Receiver ID': receiver_id,
       msg: (msg && msg.replace(/\\"/g, '"')) || '',
     };
+  } else if (msg && receiver_id == config.REF_UNI_V3_SWAP_CONTRACT_ID) {
+    const msgObj = JSON.parse(msg.replace(/\\"/g, '"'));
+    const token = await ftGetTokenMetadata(tokenId);
+    if (msgObj == 'Deposit') {
+      Amount = toReadableNumber(token.decimals, amount);
+      return {
+        Action: 'Deposit',
+        Amount,
+        'Receiver ID': receiver_id,
+      };
+    } else if (msgObj.LimitOrderWithSwap) {
+      const { LimitOrderWithSwap } = msgObj;
+      const { pool_id, buy_token, point } = LimitOrderWithSwap || {};
+      Amount = toReadableNumber(token.decimals, amount);
+      const buyToken = await ftGetTokenMetadata(buy_token);
+      const sellToken = await ftGetTokenMetadata(tokenId);
+      const [token_x_id, token_y_id] = pool_id.split('|');
+      const tokenX = await ftGetTokenMetadata(token_x_id);
+      const tokenY = await ftGetTokenMetadata(token_y_id);
+      const decimalRate =
+        Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
+      let price: any = getPriceByPoint(point, decimalRate);
+      if (token_x_id != tokenId) {
+        price = 1 / price;
+      }
+      let buyTokenAmount: any = new BigNumber(price).multipliedBy(Amount);
+      if (new BigNumber('0.00000001').isGreaterThan(buyTokenAmount)) {
+        buyTokenAmount = '<0.00000001';
+      } else {
+        buyTokenAmount = toPrecision(buyTokenAmount.toString(), 8);
+      }
+      return {
+        Action: 'Make An Order',
+        'Sell Token': sellToken.symbol,
+        'Sell Amount': Amount,
+        'Buy Token': buyToken.symbol,
+        'Buy Amount': buyTokenAmount,
+        'Receiver ID': receiver_id,
+        'Pool Id': pool_id,
+      };
+    } else if (msgObj.Swap) {
+      const { Swap } = msgObj;
+      const { pool_ids, output_token, min_output_amount } = Swap || {};
+      Amount = toReadableNumber(token.decimals, amount);
+      const [token_x, token_y] = pool_ids[0].split('|');
+      const token_out = await ftGetTokenMetadata(output_token);
+      return {
+        Action: 'Swap',
+        'Token In': token.symbol,
+        'Amount In': Amount,
+        'Token Out': token_out.symbol,
+        'Min Amount Out': toReadableNumber(
+          token_out.decimals,
+          min_output_amount
+        ),
+        'Receiver ID': receiver_id,
+      };
+    } else {
+      return {
+        Action: 'Swap',
+        'Receiver ID': receiver_id,
+      };
+    }
   } else if (msg && receiver_id !== 'aurora') {
     Action = 'Instant swap';
     let actions = [];
@@ -770,6 +935,73 @@ const withdrawLpt = async (params: any) => {
   return {
     Action: 'Unlock LPt',
     Amount: toReadableNumber(24, amount),
+  };
+};
+const createPool = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { token_a, token_b, fee, init_point } = params;
+  const tokenA: TokenMetadata = await ftGetTokenMetadata(token_a);
+  const tokenB: TokenMetadata = await ftGetTokenMetadata(token_b);
+  const decimalRate =
+    Math.pow(10, tokenA.decimals) / Math.pow(10, tokenB.decimals);
+  let init_price = getPriceByPoint(init_point, decimalRate);
+  if (new BigNumber('0.00000001').isGreaterThan(init_price)) {
+    init_price = '<0.00000001';
+  } else {
+    init_price = toPrecision(init_price.toString(), 8);
+  }
+  return {
+    Action: 'Create Pool',
+    TokenA: tokenA.symbol,
+    TokenB: tokenB.symbol,
+    Fee: fee / 10000 + '%',
+    'Init Price': `1 ${tokenA.symbol}=${init_price} ${tokenB.symbol}`,
+  };
+};
+const cancelOrder = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { order_id, amount } = params;
+  // const [token_x, token_y] = order_id.split('#')[0].split('|');
+  // const tokens = await Promise.all<TokenMetadata>(
+  //   [token_x, token_y].map((id) => ftGetTokenMetadata(id))
+  // );
+  // const tokenX: TokenMetadata = tokens[0];
+  // const tokenY: TokenMetadata = tokens[1];
+  // const orderDetail = await list_history_orders();
+  // const min_decimals = _.min([tokenX.decimals, tokenY.decimals]);
+  if (+amount == 0) {
+    return {
+      Action: 'Claim Order',
+      'Order Id': order_id,
+    };
+  } else {
+    return {
+      Action: 'Cancel Order',
+      'Order Id': order_id,
+      // Amount: toReadableNumber(min_decimals, amount),
+    };
+  }
+};
+const withdrawAsset = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { token_id, amount } = params;
+  const token = await ftGetTokenMetadata(token_id);
+  return {
+    Action: 'Withdraw Asset',
+    Token: token.symbol,
+    Amount: toReadableNumber(token.decimals, amount),
   };
 };
 

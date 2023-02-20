@@ -1502,7 +1502,7 @@ const VotingPowerCard = ({
             `}
                   data-for="tipId_ve_post_card"
                 >
-                  <QuestionMark color="dark" colorHex="#000000" />
+                  <QuestionMark color="dark" colorhex="#000000" />
                   <ReactTooltip
                     className="w-20"
                     id="tipId_ve_post_card"

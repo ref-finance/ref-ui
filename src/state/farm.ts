@@ -3,6 +3,27 @@ import BigNumber from 'bignumber.js';
 import { canFarm, canFarmV1, canFarmV2 } from '../services/pool';
 import db from '../store/RefDatabase';
 
+export const checkFarmStake = ({
+  poolId,
+  stakeList,
+}: {
+  poolId: number;
+  stakeList: Record<string, string>;
+}) => {
+  let farmStake: string | number = '0';
+
+  const seedIdList: string[] = Object.keys(stakeList);
+  let tempFarmStake: string | number = '0';
+  seedIdList.forEach((seed) => {
+    const id = Number(seed.split('@')[1]);
+    if (id == poolId) {
+      tempFarmStake = BigNumber.sum(farmStake, stakeList[seed]).valueOf();
+    }
+  });
+
+  return tempFarmStake;
+};
+
 export const useFarmStake = ({
   poolId,
   stakeList,

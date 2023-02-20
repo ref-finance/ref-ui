@@ -537,11 +537,23 @@ export const list_seeds_info = async () => {
     methodName: 'list_seeds_info',
   });
 };
-export const list_seed_farms = async (seed_id: string) => {
+
+export const get_seed = async (seed_id: string) => {
   return await refFarmBoostViewFunction({
-    methodName: 'list_seed_farms',
+    methodName: 'get_seed',
     args: { seed_id },
   });
+};
+
+export const list_seed_farms = async (seed_id: string) => {
+  try {
+    return await refFarmBoostViewFunction({
+      methodName: 'list_seed_farms',
+      args: { seed_id },
+    });
+  } catch {
+    return null;
+  }
 };
 export const list_farmer_seeds = async () => {
   const accountId = getCurrentWallet().wallet.getAccountId();
@@ -900,11 +912,19 @@ export const getBoostSeedsFromServer = async (): Promise<{
 }> => {
   try {
     // get all seeds
-    const list_seeds = await list_seeds_info();
+    let list_seeds = await list_seeds_info();
     // get all farms
     const farmsPromiseList: Promise<any>[] = [];
     const poolIds = new Set<string>();
     let pools: PoolRPCView[] = [];
+    // filter v2 pool seeds TODO
+    list_seeds = list_seeds.filter((seed: Seed) => {
+      if (
+        seed.seed_id.indexOf(config.REF_UNI_V3_SWAP_CONTRACT_ID) == -1 &&
+        seed.seed_id.indexOf(config.REF_UNI_SWAP_CONTRACT_ID) == -1
+      )
+        return true;
+    });
     list_seeds.forEach((seed: Seed) => {
       const { seed_id } = seed;
       if (seed_id.indexOf('@') > -1) {
@@ -1162,7 +1182,7 @@ export const get_seed_info = async (seed_id: string): Promise<any> => {
   });
 };
 export const classificationOfCoins = {
-  stablecoin: ['USDT.e', 'USDC', 'DAI', 'nUSDO', 'cUSD', 'USN'],
+  stablecoin: ['USDT.e', 'DAI', 'nUSDO', 'cUSD', 'USN', 'USDC.e', 'USDt'],
   near_ecosystem: [
     'REF',
     'STNEAR',
@@ -1253,11 +1273,11 @@ export const farmClassification = {
   near: [
     0, 1207, 1371, 1395, 2330, 2448, 2799, 3, 3019, 3097, 3474, 3514, 3515,
     3519, 377, 4, 974, 1195, 1923, 3448, 553, 79, 2691, 2800, 3020, 3433, 3612,
-    2769, 2973, 3667, 3688, 3699, 3714, 3471, 3449,
+    2769, 2973, 3667, 3688, 3699, 3714, 3471, 3449, 3819, 3804, 3815,
   ],
   eth: [
     605, 1207, 2734, 1395, 1910, 2330, 2657, 2691, 2799, 2800, 3, 3020, 3433, 4,
-    974, 3097, 3636,
+    974, 3097, 3636, 3815, 3804, 3471,
   ],
   stable: [1910, 3020, 3433, 3514, 3515, 3688, 3689, 3699],
 };

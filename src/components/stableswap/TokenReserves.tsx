@@ -6,7 +6,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import { useIntl } from 'react-intl';
 import { PieChart, Cell, Pie } from 'recharts';
-import { isMobile } from '../../utils/device';
+import { isMobile, isClientMobie } from '../../utils/device';
 import { getPool, getPoolsByIds } from '../../services/indexer';
 import {
   toReadableNumber,
@@ -70,7 +70,7 @@ function TokenChart({
     DAI: 'rgba(255, 199, 0, 0.45)',
     'USDT.e': '#167356',
     USDT: '#167356',
-    USDC: 'rgba(0, 163, 255, 0.45)',
+    'USDC.e': 'rgba(0, 163, 255, 0.45)',
     USN: 'rgba(255, 255, 255, 0.45)',
     cUSD: 'rgba(69, 205, 133, 0.6)',
     HBTC: '#4D85F8',
@@ -117,6 +117,7 @@ function TokenChart({
           fill="white"
           textAnchor={x > cx ? 'start' : 'end'}
           dominantBaseline="central"
+          fontSize={isClientMobie() ? '10px' : '12px'}
         >
           {displayV}
         </text>
@@ -141,7 +142,6 @@ function TokenChart({
             }}
           />
         </foreignObject>
-        {/* <image width="30" height="30" x={x1} y={y1} xlinkHref={token.icon} /> */}
       </g>
     );
   }
@@ -280,44 +280,86 @@ const calculateTokenValueAndShare = (
 const TypeTab = ({
   setType,
   type,
+  swapPage,
 }: {
   setType: (type: STABLE_POOL_TYPE) => void;
   type: STABLE_POOL_TYPE;
+  swapPage?: boolean;
 }) => {
   return (
-    <div className="flex items-center justify-center text-lg border-b border-gray-300 border-opacity-20 mb-10">
+    <div
+      className={`flex items-center  ${
+        swapPage ? 'text-base justify-between' : 'text-lg justify-center'
+      }   border-b border-gray-300 border-opacity-20 mb-10`}
+    >
       <div
-        className={`w-52 py-2 mb-4 text-center ${
-          type === STABLE_POOL_TYPE.USD
-            ? 'text-white bg-black bg-opacity-20'
-            : ''
-        } rounded-2xl cursor-pointer`}
+        className={
+          swapPage
+            ? `pb-1 w-full text-center relative top-0.5 cursor-pointer px-4 ${
+                type === STABLE_POOL_TYPE.USD
+                  ? 'text-white border-b-2 border-gradientFrom'
+                  : ''
+              }`
+            : `w-52 py-2 mb-4 text-center ${
+                type === STABLE_POOL_TYPE.USD
+                  ? 'text-white bg-black bg-opacity-20'
+                  : ''
+              } rounded-2xl cursor-pointer`
+        }
         onClick={() => {
           setType(STABLE_POOL_TYPE.USD);
+        }}
+        style={{
+          borderBottomWidth:
+            swapPage && type === STABLE_POOL_TYPE.USD ? '3px' : '',
         }}
       >
         USD
       </div>
       <div
-        className={`w-52 py-2 mb-4 text-center ${
-          type === STABLE_POOL_TYPE.BTC
-            ? 'text-white bg-black bg-opacity-20'
-            : ''
-        } rounded-2xl cursor-pointer`}
+        className={
+          swapPage
+            ? `pb-1 w-full text-center relative top-0.5 cursor-pointer px-4 ${
+                type === STABLE_POOL_TYPE.BTC
+                  ? 'text-white border-b-2 border-gradientFrom'
+                  : ''
+              }`
+            : `w-52 py-2 mb-4 text-center ${
+                type === STABLE_POOL_TYPE.BTC
+                  ? 'text-white bg-black bg-opacity-20'
+                  : ''
+              } rounded-2xl cursor-pointer`
+        }
         onClick={() => {
           setType(STABLE_POOL_TYPE.BTC);
+        }}
+        style={{
+          borderBottomWidth:
+            swapPage && type === STABLE_POOL_TYPE.BTC ? '3px' : '',
         }}
       >
         BTC
       </div>
       <div
-        className={`w-52 py-2 mb-4 text-center ${
-          type === STABLE_POOL_TYPE.NEAR
-            ? 'text-white bg-black bg-opacity-20'
-            : ''
-        } rounded-2xl cursor-pointer`}
+        className={
+          swapPage
+            ? `pb-1 w-full text-center  relative top-0.5 cursor-pointer px-4 ${
+                type === STABLE_POOL_TYPE.NEAR
+                  ? 'text-white border-b-2 border-gradientFrom'
+                  : ''
+              }`
+            : `w-52 py-2 mb-4 text-center ${
+                type === STABLE_POOL_TYPE.NEAR
+                  ? 'text-white bg-black bg-opacity-20'
+                  : ''
+              } rounded-2xl cursor-pointer`
+        }
         onClick={() => {
           setType(STABLE_POOL_TYPE.NEAR);
+        }}
+        style={{
+          borderBottomWidth:
+            swapPage && type === STABLE_POOL_TYPE.NEAR ? '3px' : '',
         }}
       >
         NEAR
@@ -517,24 +559,35 @@ export default function ({
 
   return (
     <div
-      className={`${
-        swapPage || forPool ? 'relative bottom-10' : ''
+      className={`${swapPage ? 'relative top-8 xs:top-4 mb-4' : ''} ${
+        forPool ? 'relative bottom-10' : ''
       } ${className}`}
     >
       {hiddenMag ? null : (
         <span
-          className={`px-5 rounded-t-xl text-sm text-farmText mx-auto flex items-center justify-center cursor-pointer bg-cardBg pt-3 ${
-            showReserves ? 'pb-5' : 'pb-1.5'
-          }`}
+          className={
+            forPool
+              ? `px-5 rounded-t-xl text-sm text-farmText mx-auto flex items-center justify-center cursor-pointer bg-cardBg pt-2 ${
+                  showReserves ? 'pb-5' : 'pb-0.5'
+                }`
+              : `rounded-2xl relative z-50 text-sm  ${
+                  showReserves ? 'gradientBorderWrapperNoShadow' : ''
+                } text-farmText mx-auto flex items-center justify-center cursor-pointer bg-cardBg `
+          }
           style={{
-            borderTop: '1px solid #415462',
-            width: '175px',
+            width: forPool ? '175px' : '90px',
+            border: forPool
+              ? ''
+              : `solid 1px ${
+                  showReserves ? 'transparent' : 'rgba(145, 162, 174, 0.2)'
+                } `,
+            borderTop: forPool ? '1px solid #415462' : '',
           }}
           onClick={() => {
             setShowReserves(!showReserves);
           }}
         >
-          <span>
+          <span className="my-1">
             <FormattedMessage id={magId} defaultMessage={magDefaultMessage} />
           </span>
           <span className="ml-2">
@@ -546,10 +599,17 @@ export default function ({
       <Card
         padding="p-8"
         bgcolor="bg-cardBg"
-        className={`text-xs text-primaryText ${!showReserves && 'hidden'}`}
+        className={`text-xs relative ${
+          forPool ? 'bottom-1' : 'bottom-4'
+        } text-primaryText ${!showReserves && 'hidden'}`}
+        style={{
+          border: swapPage ? '1px solid #283945' : '',
+        }}
         width="w-full"
       >
-        {forPool ? null : <TypeTab type={type} setType={setType} />}
+        {forPool ? null : (
+          <TypeTab swapPage={swapPage} type={type} setType={setType} />
+        )}
         <div className={forPool ? 'hidden' : ''}>
           <FormattedMessage
             id={totalValueId}

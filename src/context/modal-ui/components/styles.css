@@ -71,6 +71,7 @@
   width: 100%;
   position: absolute;
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 /**
  * Modal
@@ -660,7 +661,7 @@
 
 @media (max-width: 600px) {
   .nws-modal-wrapper .modal {
-    width: 250px;
+    width: 300px;
   }
 
   .nws-modal-wrapper

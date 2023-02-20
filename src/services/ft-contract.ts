@@ -11,7 +11,7 @@ import db from '../store/RefDatabase';
 import { getCurrentWallet, WALLET_TYPE } from '../utils/wallets-integration';
 import getConfig from './config';
 import { nearMetadata, WRAP_NEAR_CONTRACT_ID } from './wrap-near';
-import { REF_TOKEN_ID } from './near';
+import { REF_TOKEN_ID, getAccountNearBalance } from './near';
 import { getExtraStablePoolConfig } from './config';
 
 export const NEAR_ICON =
@@ -47,6 +47,12 @@ export const ftViewFunction = (
 };
 
 export const ftGetBalance = (tokenId: string, account_id?: string) => {
+  if (tokenId === 'NEAR') {
+    return getAccountNearBalance(
+      account_id || getCurrentWallet().wallet.getAccountId()
+    ).then(({ available }: any) => available);
+  }
+
   return ftViewFunction(tokenId, {
     methodName: 'ft_balance_of',
     args: {
@@ -83,6 +89,7 @@ export interface TokenMetadata {
   onTri?: boolean;
   amountLabel?: string;
   amount?: number;
+  dcl?: number | string;
   nearNonVisible?: number | string;
 }
 export const ftGetTokenMetadata = async (

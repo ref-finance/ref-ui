@@ -31,12 +31,6 @@ import { getExplorer } from '../../utils/device';
 import { BeatLoader } from 'react-spinners';
 import { FormattedMessage } from 'react-intl';
 
-declare global {
-  interface Window {
-    near: any;
-  }
-}
-
 export const WalletTitle = ({
   ifBack,
   closeCallback,
