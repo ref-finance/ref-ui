@@ -2012,7 +2012,7 @@ function LiquidityLine(props: {
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
     const inrange = +right_point > +left_point;
     if (!inrange) {
-      tip = 'Your price range is out of fix range';
+      tip = 'Your price range is out of reward range';
     } else if (liquidity.status_in_other_seed == 'staked') {
       tip = 'This position has been staked in another farm';
     } else {
@@ -2032,7 +2032,7 @@ function LiquidityLine(props: {
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
     const inrange = +right_point > +left_point;
     if (!inrange) {
-      tip = 'Your price range is out of fix range';
+      tip = 'Your price range is out of reward range';
     } else if (liquidity.status_in_other_seed == 'staked') {
       const { mft_id } = liquidity;
       const link: string = get_target_seed_url_link({
