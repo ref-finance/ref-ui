@@ -3,6 +3,7 @@ import {
   refSwapV3ViewFunction,
   REF_UNI_V3_SWAP_CONTRACT_ID,
   ONE_YOCTO_NEAR,
+  refSwapV3OldVersionViewFunction,
 } from './near';
 import {
   toNonDivisibleNumber,
@@ -22,13 +23,17 @@ import {
   STORAGE_TO_REGISTER_WITH_MFT,
   storageDepositForV3Action,
 } from '../services/creators/storage';
-import { currentStorageBalanceOfV3 } from './account';
+import {
+  currentStorageBalanceOfV3,
+  currentStorageBalanceOfV3_old_version,
+} from './account';
 import { WRAP_NEAR_CONTRACT_ID, nearMetadata } from '../services/wrap-near';
 import { registerAccountOnToken } from './creators/token';
 import { nearDepositTransaction, nearWithdrawTransaction } from './wrap-near';
 import { getPointByPrice } from './commonV3';
 import { toPrecision } from '../utils/numbers';
 import { REF_DCL_POOL_CACHE_KEY } from '../state/swap';
+import { REF_UNI_SWAP_CONTRACT_ID } from './near';
 const LOG_BASE = 1.0001;
 
 export const V3_POOL_FEE_LIST = [100, 400, 2000, 10000];
@@ -514,7 +519,27 @@ export const cancel_order = ({
           methodName: 'cancel_order',
           args: {
             order_id,
-            amount: undecimal_amount,
+            // amount: undecimal_amount,
+          },
+          gas: '180000000000000',
+        },
+      ],
+    },
+  ];
+
+  return executeMultipleTransactions(transactions);
+};
+
+export const cancel_order_old = ({ order_id }: { order_id: string }) => {
+  const transactions: Transaction[] = [
+    {
+      receiverId: REF_UNI_SWAP_CONTRACT_ID,
+      functionCalls: [
+        {
+          methodName: 'cancel_order',
+          args: {
+            order_id,
+            // amount: undecimal_amount,
           },
           gas: '180000000000000',
         },
@@ -536,6 +561,23 @@ export const get_pool = async (pool_id: string, token0?: string) => {
   const new_pool_id = `${token_seq}|${fee}`;
 
   return refSwapV3ViewFunction({
+    methodName: 'get_pool',
+    args: {
+      pool_id: new_pool_id,
+    },
+  }) as Promise<PoolInfoV3>;
+};
+export const get_pool_old_version = async (
+  pool_id: string,
+  token0?: string
+) => {
+  const [token_x, token_y, fee] = pool_id.split('|');
+
+  const token_seq = [token_x, token_y].sort().join('|');
+
+  const new_pool_id = `${token_seq}|${fee}`;
+
+  return refSwapV3OldVersionViewFunction({
     methodName: 'get_pool',
     args: {
       pool_id: new_pool_id,
@@ -796,33 +838,44 @@ export const add_liquidity = async ({
 };
 export const append_liquidity = async ({
   lpt_id,
+  mft_id,
   amount_x,
   amount_y,
   token_x,
   token_y,
 }: {
   lpt_id: string;
+  mft_id: string;
   amount_x: string;
   amount_y: string;
   token_x: TokenMetadata;
   token_y: TokenMetadata;
 }) => {
+  const functionCallsV3: any = [];
+  if (mft_id) {
+    functionCallsV3.push({
+      methodName: 'burn_v_liquidity',
+      args: {
+        lpt_id,
+      },
+      gas: '100000000000000',
+    });
+  }
+  functionCallsV3.push({
+    methodName: 'append_liquidity',
+    args: {
+      lpt_id,
+      amount_x,
+      amount_y,
+      min_amount_x: '0',
+      min_amount_y: '0',
+    },
+    gas: '150000000000000',
+  });
   const transactions: Transaction[] = [
     {
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'append_liquidity',
-          args: {
-            lpt_id,
-            amount_x,
-            amount_y,
-            min_amount_x: '0',
-            min_amount_y: '0',
-          },
-          gas: '150000000000000',
-        },
-      ],
+      functionCalls: functionCallsV3,
     },
   ];
   if (+amount_x > 0) {
@@ -924,32 +977,47 @@ export const remove_liquidity = async ({
   token_x,
   token_y,
   lpt_id,
+  mft_id,
   amount,
   min_amount_x,
   min_amount_y,
+  isLegacy,
 }: {
   token_x: TokenMetadata;
   token_y: TokenMetadata;
   lpt_id: string;
+  mft_id?: string;
   amount: string;
   min_amount_x: string;
   min_amount_y: string;
+  isLegacy?: boolean;
 }) => {
+  const functionCallsV3: any = [];
+  if (mft_id) {
+    functionCallsV3.push({
+      methodName: 'burn_v_liquidity',
+      args: {
+        lpt_id,
+      },
+      gas: '100000000000000',
+    });
+  }
+  functionCallsV3.push({
+    methodName: 'remove_liquidity',
+    args: {
+      lpt_id,
+      amount,
+      min_amount_x,
+      min_amount_y,
+    },
+    gas: '150000000000000',
+  });
   const transactions: Transaction[] = [
     {
-      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'remove_liquidity',
-          args: {
-            lpt_id,
-            amount,
-            min_amount_x,
-            min_amount_y,
-          },
-          gas: '150000000000000',
-        },
-      ],
+      receiverId: isLegacy
+        ? REF_UNI_SWAP_CONTRACT_ID
+        : REF_UNI_V3_SWAP_CONTRACT_ID,
+      functionCalls: functionCallsV3,
     },
   ];
 
@@ -977,11 +1045,15 @@ export const remove_liquidity = async ({
       ],
     });
   }
-
-  const neededStorage = await checkTokenNeedsStorageDeposit_v3();
+  const check_fun = isLegacy
+    ? checkTokenNeedsStorageDeposit_v3_old_version
+    : checkTokenNeedsStorageDeposit_v3;
+  const neededStorage = await check_fun();
   if (neededStorage) {
     transactions.unshift({
-      receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
+      receiverId: isLegacy
+        ? REF_UNI_SWAP_CONTRACT_ID
+        : REF_UNI_V3_SWAP_CONTRACT_ID,
       functionCalls: [
         storageDepositAction({ amount: neededStorage, registrationOnly: true }),
       ],
@@ -1066,6 +1138,17 @@ export const checkTokenNeedsStorageDeposit_v3 = async () => {
   }
   return storageNeeded;
 };
+export const checkTokenNeedsStorageDeposit_v3_old_version = async () => {
+  let storageNeeded;
+  const balance = await currentStorageBalanceOfV3_old_version(
+    getCurrentWallet().wallet.getAccountId()
+  );
+
+  if (!balance) {
+    storageNeeded = '0.5';
+  }
+  return storageNeeded;
+};
 export const list_liquidities = async () => {
   return refSwapV3ViewFunction({
     methodName: 'list_liquidities',
@@ -1074,8 +1157,24 @@ export const list_liquidities = async () => {
     },
   });
 };
+export const list_liquidities_old_version = async () => {
+  return refSwapV3OldVersionViewFunction({
+    methodName: 'list_liquidities',
+    args: {
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
+    },
+  });
+};
 export const get_liquidity = async (lpt_id: string) => {
   return refSwapV3ViewFunction({
+    methodName: 'get_liquidity',
+    args: {
+      lpt_id,
+    },
+  });
+};
+export const get_liquidity_old_version = async (lpt_id: string) => {
+  return refSwapV3OldVersionViewFunction({
     methodName: 'get_liquidity',
     args: {
       lpt_id,
@@ -1105,6 +1204,15 @@ export const get_pool_marketdepth = async (pool_id: string) => {
     },
   });
 };
+export const get_pool_marketdepth_old_version = async (pool_id: string) => {
+  return refSwapV3OldVersionViewFunction({
+    methodName: 'get_marketdepth',
+    args: {
+      pool_id,
+      depth: 100,
+    },
+  });
+};
 
 export const listPools = () => {
   return refSwapV3ViewFunction({
@@ -1121,6 +1229,16 @@ export const cacheAllDCLPools = async () => {
 export const get_metadata = () => {
   return refSwapV3ViewFunction({
     methodName: 'get_metadata',
+  });
+};
+
+export const dcl_mft_balance_of = (token_id: string) => {
+  return refSwapV3ViewFunction({
+    methodName: 'mft_balance_of',
+    args: {
+      token_id,
+      account_id: getCurrentWallet()?.wallet?.getAccountId(),
+    },
   });
 };
 

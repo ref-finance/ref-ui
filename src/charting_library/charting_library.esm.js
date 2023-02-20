@@ -1,6 +1,9 @@
 function e(t, i) {
   const n = { ...t };
-  for (const o in i) 'object' != typeof t[o] || null === t[o] || Array.isArray(t[o]) ? void 0 !== i[o] && (n[o] = i[o]) : (n[o] = e(t[o], i[o]));
+  for (const o in i)
+    'object' != typeof t[o] || null === t[o] || Array.isArray(t[o])
+      ? void 0 !== i[o] && (n[o] = i[o])
+      : (n[o] = e(t[o], i[o]));
   return n;
 }
 const t = {
@@ -25,7 +28,11 @@ const t = {
     container: '',
     library_path: '',
     locale: 'en',
-    widgetbar: { details: !1, watchlist: !1, watchlist_settings: { default_symbols: [] } },
+    widgetbar: {
+      details: !1,
+      watchlist: !1,
+      watchlist_settings: { default_symbols: [] },
+    },
     overrides: { 'mainSeriesProperties.showCountdown': !1 },
     studies_overrides: {},
     trading_customization: { position: {}, order: {} },
@@ -57,7 +64,9 @@ function o() {
 const s = class {
   constructor(o) {
     if (
-      ((this._id = `tradingview_${((1048576 * (1 + Math.random())) | 0).toString(16).substring(1)}`),
+      ((this._id = `tradingview_${((1048576 * (1 + Math.random())) | 0)
+        .toString(16)
+        .substring(1)}`),
       (this._ready = !1),
       (this._readyHandlers = []),
       (this._onWindowResize = this._autoResizeChart.bind(this)),
@@ -68,22 +77,33 @@ const s = class {
       const e = t[o.preset];
       e
         ? (void 0 !== this._options.disabled_features
-            ? (this._options.disabled_features = this._options.disabled_features.concat(e.disabled_features))
+            ? (this._options.disabled_features =
+                this._options.disabled_features.concat(e.disabled_features))
             : (this._options.disabled_features = e.disabled_features),
           void 0 !== this._options.enabled_features
-            ? (this._options.enabled_features = this._options.enabled_features.concat(e.enabled_features))
+            ? (this._options.enabled_features =
+                this._options.enabled_features.concat(e.enabled_features))
             : (this._options.enabled_features = e.enabled_features))
         : console.warn('Unknown preset: `' + o.preset + '`');
     }
-    'Dark' === this._options.theme && void 0 === this._options.loading_screen && (this._options.loading_screen = { backgroundColor: '#131722' }),
-      this._options.debug && (n || ((n = !0), console.log('Using CL v22.032 (internal id e2a841ff @ 2022-07-06T11:53:07.702Z)'))),
+    'Dark' === this._options.theme &&
+      void 0 === this._options.loading_screen &&
+      (this._options.loading_screen = { backgroundColor: '#131722' }),
+      this._options.debug &&
+        (n ||
+          ((n = !0),
+          console.log(
+            'Using CL v22.032 (internal id e2a841ff @ 2022-07-06T11:53:07.702Z)'
+          ))),
       this._create();
   }
   onChartReady(e) {
     this._ready ? e.call(this) : this._readyHandlers.push(e);
   }
   headerReady() {
-    return this._innerWindowLoaded.then(() => this._innerWindow().headerReady());
+    return this._innerWindowLoaded.then(() =>
+      this._innerWindow().headerReady()
+    );
   }
   onGrayedObjectClicked(e) {
     this._doWhenInnerApiLoaded((t) => {
@@ -118,7 +138,8 @@ const s = class {
     window.removeEventListener('resize', this._onWindowResize),
       this._readyHandlers.splice(0, this._readyHandlers.length),
       delete window[this._id],
-      this._iFrame.parentNode && this._iFrame.parentNode.removeChild(this._iFrame);
+      this._iFrame.parentNode &&
+        this._iFrame.parentNode.removeChild(this._iFrame);
   }
   closePopupsAndDialogs() {
     this._doWhenInnerApiLoaded((e) => {
@@ -325,18 +346,24 @@ const s = class {
     });
   }
   _autoResizeChart() {
-    this._options.fullscreen && (this._iFrame.style.height = window.innerHeight + 'px');
+    this._options.fullscreen &&
+      (this._iFrame.style.height = window.innerHeight + 'px');
   }
   _create() {
     const e = this._render();
     this._options.container_id &&
-      console.warn('`container_id` is now deprecated. Please use `container` instead to either still pass a string or an `HTMLElement`.');
+      console.warn(
+        '`container_id` is now deprecated. Please use `container` instead to either still pass a string or an `HTMLElement`.'
+      );
     const t = this._options.container_id || this._options.container,
       i = 'string' == typeof t ? document.getElementById(t) : t;
-    if (null === i) throw new Error(`There is no such element - #${this._options.container}`);
+    if (null === i)
+      throw new Error(`There is no such element - #${this._options.container}`);
     (i.innerHTML = e), (this._iFrame = i.querySelector(`#${this._id}`));
     const n = this._iFrame;
-    (this._options.autosize || this._options.fullscreen) && ((n.style.width = '100%'), this._options.fullscreen || (n.style.height = '100%')),
+    (this._options.autosize || this._options.fullscreen) &&
+      ((n.style.width = '100%'),
+      this._options.fullscreen || (n.style.height = '100%')),
       window.addEventListener('resize', this._onWindowResize),
       this._onWindowResize(),
       (this._innerWindowLoaded = new Promise((e) => {
@@ -363,8 +390,10 @@ const s = class {
     if (
       ((e[this._id] = {
         datafeed: this._options.datafeed,
-        customFormatters: this._options.custom_formatters || this._options.customFormatters,
-        brokerFactory: this._options.broker_factory || this._options.brokerFactory,
+        customFormatters:
+          this._options.custom_formatters || this._options.customFormatters,
+        brokerFactory:
+          this._options.broker_factory || this._options.brokerFactory,
         overrides: this._options.overrides,
         studiesOverrides: this._options.studies_overrides,
         tradingCustomization: this._options.trading_customization,
@@ -392,21 +421,38 @@ const s = class {
       this._options.saved_data)
     )
       (e[this._id].chartContent = { json: this._options.saved_data }),
-        this._options.saved_data_meta_info && (e[this._id].chartContentExtendedData = this._options.saved_data_meta_info);
+        this._options.saved_data_meta_info &&
+          (e[this._id].chartContentExtendedData =
+            this._options.saved_data_meta_info);
     else if (!this._options.load_last_chart && !this._options.symbol)
-      throw new Error("Symbol is not defined: either 'symbol' or 'load_last_chart' option must be set");
+      throw new Error(
+        "Symbol is not defined: either 'symbol' or 'load_last_chart' option must be set"
+      );
     const t =
       (this._options.library_path || '') +
-      `${encodeURIComponent(this._options.locale)}-tv-chart.e2a841ff.html#symbol=` +
+      `${encodeURIComponent(
+        this._options.locale
+      )}-tv-chart.e2a841ff.html#symbol=` +
       encodeURIComponent(this._options.symbol || '') +
       '&interval=' +
       encodeURIComponent(this._options.interval) +
-      (this._options.timeframe ? '&timeframe=' + encodeURIComponent(this._options.timeframe) : '') +
-      (this._options.toolbar_bg ? '&toolbarbg=' + encodeURIComponent(this._options.toolbar_bg.replace('#', '')) : '') +
-      (this._options.studies_access ? '&studiesAccess=' + encodeURIComponent(JSON.stringify(this._options.studies_access)) : '') +
+      (this._options.timeframe
+        ? '&timeframe=' + encodeURIComponent(this._options.timeframe)
+        : '') +
+      (this._options.toolbar_bg
+        ? '&toolbarbg=' +
+          encodeURIComponent(this._options.toolbar_bg.replace('#', ''))
+        : '') +
+      (this._options.studies_access
+        ? '&studiesAccess=' +
+          encodeURIComponent(JSON.stringify(this._options.studies_access))
+        : '') +
       '&widgetbar=' +
       encodeURIComponent(JSON.stringify(this._options.widgetbar)) +
-      (this._options.drawings_access ? '&drawingsAccess=' + encodeURIComponent(JSON.stringify(this._options.drawings_access)) : '') +
+      (this._options.drawings_access
+        ? '&drawingsAccess=' +
+          encodeURIComponent(JSON.stringify(this._options.drawings_access))
+        : '') +
       '&timeFrames=' +
       encodeURIComponent(JSON.stringify(this._options.time_frames)) +
       '&locale=' +
@@ -417,21 +463,56 @@ const s = class {
       encodeURIComponent(String(this._options.client_id)) +
       '&userId=' +
       encodeURIComponent(String(this._options.user_id)) +
-      (this._options.charts_storage_url ? '&chartsStorageUrl=' + encodeURIComponent(this._options.charts_storage_url) : '') +
-      (this._options.charts_storage_api_version ? '&chartsStorageVer=' + encodeURIComponent(this._options.charts_storage_api_version) : '') +
-      (this._options.custom_css_url ? '&customCSS=' + encodeURIComponent(this._options.custom_css_url) : '') +
-      (this._options.custom_font_family ? '&customFontFamily=' + encodeURIComponent(this._options.custom_font_family) : '') +
-      (this._options.auto_save_delay ? '&autoSaveDelay=' + encodeURIComponent(String(this._options.auto_save_delay)) : '') +
+      (this._options.charts_storage_url
+        ? '&chartsStorageUrl=' +
+          encodeURIComponent(this._options.charts_storage_url)
+        : '') +
+      (this._options.charts_storage_api_version
+        ? '&chartsStorageVer=' +
+          encodeURIComponent(this._options.charts_storage_api_version)
+        : '') +
+      (this._options.custom_css_url
+        ? '&customCSS=' + encodeURIComponent(this._options.custom_css_url)
+        : '') +
+      (this._options.custom_font_family
+        ? '&customFontFamily=' +
+          encodeURIComponent(this._options.custom_font_family)
+        : '') +
+      (this._options.auto_save_delay
+        ? '&autoSaveDelay=' +
+          encodeURIComponent(String(this._options.auto_save_delay))
+        : '') +
       '&debug=' +
       encodeURIComponent(String(this._options.debug)) +
-      (this._options.snapshot_url ? '&snapshotUrl=' + encodeURIComponent(this._options.snapshot_url) : '') +
-      (this._options.timezone ? '&timezone=' + encodeURIComponent(this._options.timezone) : '') +
-      (this._options.study_count_limit ? '&studyCountLimit=' + encodeURIComponent(String(this._options.study_count_limit)) : '') +
-      (this._options.symbol_search_request_delay ? '&ssreqdelay=' + encodeURIComponent(String(this._options.symbol_search_request_delay)) : '') +
-      (this._options.compare_symbols ? '&compareSymbols=' + encodeURIComponent(JSON.stringify(this._options.compare_symbols)) : '') +
-      (this._options.theme ? '&theme=' + encodeURIComponent(String(this._options.theme)) : '') +
-      (this._options.header_widget_buttons_mode ? '&header_widget_buttons_mode=' + encodeURIComponent(String(this._options.header_widget_buttons_mode)) : '') +
-      (this._options.time_scale ? '&time_scale=' + encodeURIComponent(JSON.stringify(this._options.time_scale)) : '');
+      (this._options.snapshot_url
+        ? '&snapshotUrl=' + encodeURIComponent(this._options.snapshot_url)
+        : '') +
+      (this._options.timezone
+        ? '&timezone=' + encodeURIComponent(this._options.timezone)
+        : '') +
+      (this._options.study_count_limit
+        ? '&studyCountLimit=' +
+          encodeURIComponent(String(this._options.study_count_limit))
+        : '') +
+      (this._options.symbol_search_request_delay
+        ? '&ssreqdelay=' +
+          encodeURIComponent(String(this._options.symbol_search_request_delay))
+        : '') +
+      (this._options.compare_symbols
+        ? '&compareSymbols=' +
+          encodeURIComponent(JSON.stringify(this._options.compare_symbols))
+        : '') +
+      (this._options.theme
+        ? '&theme=' + encodeURIComponent(String(this._options.theme))
+        : '') +
+      (this._options.header_widget_buttons_mode
+        ? '&header_widget_buttons_mode=' +
+          encodeURIComponent(String(this._options.header_widget_buttons_mode))
+        : '') +
+      (this._options.time_scale
+        ? '&time_scale=' +
+          encodeURIComponent(JSON.stringify(this._options.time_scale))
+        : '');
     return (
       '<iframe id="' +
       this._id +
@@ -440,10 +521,17 @@ const s = class {
       '"  src="' +
       t +
       '"' +
-      (this._options.autosize || this._options.fullscreen ? '' : ' width="' + this._options.width + '" height="' + this._options.height + '"') +
+      (this._options.autosize || this._options.fullscreen
+        ? ''
+        : ' width="' +
+          this._options.width +
+          '" height="' +
+          this._options.height +
+          '"') +
       ' title="Financial Chart" frameborder="0" allowTransparency="true" scrolling="no" allowfullscreen style="display:block;"></iframe>'
     );
   }
 };
-(window.TradingView = window.TradingView || {}), (window.TradingView.version = o);
+(window.TradingView = window.TradingView || {}),
+  (window.TradingView.version = o);
 export { o as version, s as widget };

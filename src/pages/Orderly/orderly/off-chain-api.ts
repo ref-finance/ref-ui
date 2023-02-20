@@ -99,7 +99,7 @@ export const requestOrderly = async ({
     method: 'GET',
 
     headers,
-  }).then(res => {
+  }).then((res) => {
     return res.json();
   });
 };
@@ -127,7 +127,7 @@ export const tradingOrderly = async ({
     method: method || 'POST',
     headers,
     body: JSON.stringify(body),
-  }).then(res => {
+  }).then((res) => {
     return res.json();
   });
 };
@@ -151,7 +151,7 @@ export const deleteOrderly = async ({
   return await fetch(`${getOrderlyConfig().OFF_CHAIN_END_POINT}${url || ''}`, {
     method: 'DELETE',
     headers,
-  }).then(res => {
+  }).then((res) => {
     return res.json();
   });
 };
@@ -358,7 +358,7 @@ export const getAllOrders = async (props: {
   console.log('pages: ', pages);
 
   const leftOrders = await Promise.all(
-    pages.map(async page => {
+    pages.map(async (page) => {
       const res = await getOrders({
         accountId: props.accountId,
         OrderProps: {
@@ -605,10 +605,10 @@ export const getOrderlyPublic = async (url?: string) => {
   return await fetch(`${getOrderlyConfig().OFF_CHAIN_END_POINT}${url || ''}`, {
     method: 'GET',
   })
-    .then(res => {
+    .then((res) => {
       return res.json();
     })
-    .catch(e => {
+    .catch((e) => {
       return e;
     });
 };

@@ -88,6 +88,7 @@ import View from './pages/Orderly/OrderlyTradingBoard';
 import OrderlyContextProvider, {
   OrderlyContext,
 } from '~pages/Orderly/orderly/OrderlyContext';
+import { list_seeds_info } from './services/farm';
 
 export type Account = AccountView & {
   account_id: string;

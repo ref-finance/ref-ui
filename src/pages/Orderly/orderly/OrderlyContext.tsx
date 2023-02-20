@@ -52,9 +52,8 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
   const [validAccountSig, setValidAccountSig] = useState<boolean>(false);
 
-  const [myPendingOrdersRefreshing, setMyPendingOrdersRefreshing] = useState<
-    boolean
-  >(false);
+  const [myPendingOrdersRefreshing, setMyPendingOrdersRefreshing] =
+    useState<boolean>(false);
 
   const handlePendingOrderRefreshing = () => {
     setMyPendingOrdersRefreshing(!myPendingOrdersRefreshing);

@@ -11,11 +11,11 @@ export function useTokenMetaFromSymbol(
   useEffect(() => {
     if (!symbol || !tokenInfo) return;
 
-    const token = tokenInfo && tokenInfo.find(t => t.token === symbol);
+    const token = tokenInfo && tokenInfo.find((t) => t.token === symbol);
 
     if (!token?.token_account_id) return;
 
-    getFTmetadata(token.token_account_id).then(t => {
+    getFTmetadata(token.token_account_id).then((t) => {
       setTokenMetadata({
         ...t,
         ...token,
@@ -36,13 +36,13 @@ export function useBatchTokenMetaFromSymbols(
     if (!symbols || !tokenInfo) return;
 
     const tokens =
-      tokenInfo && tokenInfo.filter(t => symbols.includes(t.token));
+      tokenInfo && tokenInfo.filter((t) => symbols.includes(t.token));
 
     if (!tokens) return;
 
     Promise.all(
       tokens.map((t, i) =>
-        getFTmetadata(t.token_account_id).then(meta => {
+        getFTmetadata(t.token_account_id).then((meta) => {
           return {
             ...meta,
             ...t,
@@ -50,7 +50,7 @@ export function useBatchTokenMetaFromSymbols(
           };
         })
       )
-    ).then(res => {
+    ).then((res) => {
       setTokenMetadata(res);
     });
   }, [symbols?.join('|'), tokenInfo]);

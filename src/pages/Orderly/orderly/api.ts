@@ -48,7 +48,7 @@ const signAndSendTransactions = async (transactions: Transaction[]) => {
 const signAndSendTransaction = async (wsTransaction: WSTransaction) => {
   const wallet = await window.selector.wallet();
 
-  await wallet.signAndSendTransaction(wsTransaction).then(res => {
+  await wallet.signAndSendTransaction(wsTransaction).then((res) => {
     console.log(res);
   });
 };

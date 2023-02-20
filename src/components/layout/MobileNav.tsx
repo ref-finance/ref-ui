@@ -51,7 +51,7 @@ import {
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { openTransak } from '../alert/Transak';
 import { BuyNearButton } from '../button/Button';
-import { RefIcon } from '../icon/Nav';
+import { RefIcon, MailBoxIcon } from '../icon/Nav';
 import {
   MoreIcon,
   SauceIcon,
@@ -64,6 +64,7 @@ import {
 } from '~components/icon/Nav';
 import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useLanguageItems } from '~utils/menu';
+import { commonLangKey, formatItem } from './NavigationBar';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -329,13 +330,16 @@ export function MobileNavBar(props: any) {
 
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showLanguage, setShowLanguage] = useState<boolean>(false);
-
   const displayLanguage = () => {
     const currentLocal = localStorage.getItem('local');
-    if (currentLocal == 'zh-CN') {
-      return '中';
+    if (commonLangKey.indexOf(currentLocal) > -1) {
+      if (currentLocal == 'zh-CN') {
+        return '中';
+      } else {
+        return currentLocal?.toUpperCase();
+      }
     } else {
-      return currentLocal?.toUpperCase();
+      return 'EN';
     }
   };
   useEffect(() => {
@@ -787,11 +791,19 @@ export function MobileNavBar(props: any) {
                 })}
               </div>
               <div className="w-4/6 fixed bottom-7 right-0 flex items-center justify-between bg-cardBg px-4 py-3">
-                <div
-                  className=" transform scale-75 origin-left"
-                  onClick={() => window.open('https://stats.ref.finance/')}
-                >
-                  <RefAnalyticsGary />
+                <div className="flex items-center">
+                  <div
+                    className=" transform scale-75 origin-left"
+                    onClick={() => window.open('https://stats.ref.finance/')}
+                  >
+                    <RefAnalyticsGary />
+                  </div>
+                  {/* <MailBoxIcon
+                    className="relative cursor-pointer -ml-4 -mt-1"
+                    onClick={() => {
+                      window.open('https://form.typeform.com/to/onOPhJ6Y');
+                    }}
+                  ></MailBoxIcon> */}
                 </div>
                 <div
                   onClick={() => {
@@ -848,7 +860,7 @@ function SauceMenu(props: any) {
 function MobileLanguage(props: any) {
   const context = useContext(Context);
   const lans = useLanguageItems();
-  const currentLocal = localStorage.getItem('local');
+  const currentLocal = formatItem(localStorage.getItem('local'));
   const switchLanuage = (language: string) => {
     context.selectLanguage(language);
   };

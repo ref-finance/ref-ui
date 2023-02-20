@@ -6,10 +6,15 @@ import { Farm, Seed, FarmBoost } from '~services/farm';
 import { PoolRPCView } from '~services/api';
 import { BigNumber } from 'bignumber.js';
 import { STABLE_POOL_ID, STABLE_POOL_USN_ID } from './services/near';
-import moment from 'moment';
+import { PoolInfo } from './services/swapV3';
 
 const config = getConfig();
-const { REF_TOKEN_ID, XREF_TOKEN_ID, REF_FARM_BOOST_CONTRACT_ID } = getConfig();
+const {
+  REF_TOKEN_ID,
+  XREF_TOKEN_ID,
+  REF_FARM_BOOST_CONTRACT_ID,
+  REF_UNI_V3_SWAP_CONTRACT_ID,
+} = getConfig();
 
 const MAX_PER_PAGE = 100;
 
@@ -121,6 +126,14 @@ const get_list_seeds_info = async () => {
     contract: REF_FARM_BOOST_CONTRACT_ID,
   });
 };
+
+const listPools = async () => {
+  return contractView({
+    methodName: 'list_pools',
+    contract: REF_UNI_V3_SWAP_CONTRACT_ID,
+  });
+};
+
 const getPrice = async () => {
   return contractView({
     methodName: 'get_virtual_price',
@@ -184,16 +197,24 @@ async function getXrefPrice(tokenPriceList: Record<string, any>) {
 }
 const cacheBoost_Seed_Farms_Pools = async () => {
   // get all seeds
-  const list_seeds = await get_list_seeds_info();
+  let list_seeds = await get_list_seeds_info();
   // get all farms
   const farmsPromiseList: Promise<any>[] = [];
+  // get all dcl pools
+  const dcl_all_pools: PoolInfo[] = await listPools();
   const poolIds = new Set<string>();
-  let pools: PoolRPCView[] = [];
+  const dcl_poolIds = new Set<string>();
+  let pools: any[] = [];
   list_seeds.forEach((seed: Seed) => {
     const { seed_id } = seed;
-    if (seed_id.indexOf('@') > -1) {
-      const poolId = seed_id.substring(seed_id.indexOf('@') + 1);
-      poolIds.add(poolId);
+    // seed type: [commonSeed, loveSeed, dclSeed]
+    const [contractId, tempPoolId] = seed_id.split('@');
+    if (tempPoolId && contractId !== REF_UNI_V3_SWAP_CONTRACT_ID) {
+      poolIds.add(tempPoolId);
+    } else if (tempPoolId && contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      const [fixRange, dcl_pool_id, left_point, right_point] =
+        tempPoolId.split('&');
+      dcl_poolIds.add(dcl_pool_id);
     }
     farmsPromiseList.push(get_list_seed_farms(seed_id));
   });
@@ -220,12 +241,21 @@ const cacheBoost_Seed_Farms_Pools = async () => {
   // cache seeds farms pools
   const cacheSeedsFarmsPools: any[] = [];
   list_seeds.forEach((seed: Seed, index: number) => {
-    let pool: PoolRPCView = null;
-    if (seed.seed_id.indexOf('@') > -1) {
-      const id = seed.seed_id.substring(seed.seed_id.indexOf('@') + 1);
-      pool = pools.find((p: PoolRPCView) => {
-        if (+p.id == +id) return true;
-      });
+    let pool: any = null;
+    const [contractId, tempPoolId] = seed.seed_id.split('@');
+    if (tempPoolId) {
+      if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+        const [fixRange, dcl_pool_id, left_point, right_point] =
+          tempPoolId.split('&');
+        pool = dcl_all_pools.find((p: PoolInfo) => {
+          if (p.pool_id == dcl_pool_id) return true;
+        });
+      } else {
+        const id = tempPoolId;
+        pool = pools.find((p: any) => {
+          if (+p.id == +id) return true;
+        });
+      }
     }
     cacheSeedsFarmsPools.push({
       id: seed.seed_id,

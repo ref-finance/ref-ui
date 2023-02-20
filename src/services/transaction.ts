@@ -9,7 +9,11 @@ import {
 } from '../services/m-token';
 import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import { get_pool, list_history_orders } from '../services/swapV3';
-import { getPriceByPoint } from '../services/commonV3';
+import {
+  getPriceByPoint,
+  displayNumberToAppropriateDecimals,
+  TOKEN_LIST_FOR_RATE,
+} from '../services/commonV3';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 const config = getConfig();
@@ -127,6 +131,12 @@ export const parseAction = async (
     }
     case 'append_liquidity': {
       return await parseAppendLiquidity(params, tokenId);
+    }
+    case 'burn_v_liquidity': {
+      return await burnLiquidity(params);
+    }
+    case 'mint_v_liquidity': {
+      return await mintLiquidity(params);
     }
     default: {
       return await parseDefault();
@@ -1002,6 +1012,48 @@ const withdrawAsset = async (params: any) => {
     Action: 'Withdraw Asset',
     Token: token.symbol,
     Amount: toReadableNumber(token.decimals, amount),
+  };
+};
+const burnLiquidity = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { lpt_id } = params;
+  return {
+    Action: 'Burn Liquidity',
+    'LPT ID': lpt_id,
+  };
+};
+const mintLiquidity = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { lpt_id, farming_type } = params;
+  const { left_point, right_point } = farming_type.FixRange;
+  const [token_x, token_y, fee] = lpt_id.split('|');
+  const tokenX = await ftGetTokenMetadata(token_x);
+  const tokenY = await ftGetTokenMetadata(token_y);
+  const decimalRate =
+    Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
+  let left_price = getPriceByPoint(+left_point, decimalRate);
+  let right_price = getPriceByPoint(+right_point, decimalRate);
+  let pair = `${tokenY.symbol}/${tokenX.symbol}`;
+  if (TOKEN_LIST_FOR_RATE.indexOf(tokenX.symbol) > -1) {
+    pair = `${tokenX.symbol}/${tokenY.symbol}`;
+    const temp_left_price = left_price;
+    left_price = new BigNumber(1).dividedBy(right_price).toFixed();
+    right_price = new BigNumber(1).dividedBy(temp_left_price).toFixed();
+  }
+  return {
+    Action: 'Mint Liquidity',
+    'LPT ID': lpt_id,
+    Pair: pair,
+    'Min Price': displayNumberToAppropriateDecimals(left_price),
+    'Max Price': displayNumberToAppropriateDecimals(right_price),
   };
 };
 

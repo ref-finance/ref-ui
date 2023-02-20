@@ -139,7 +139,11 @@ import { BoostInputAmount } from '../../components/forms/InputAmount';
 import { ExternalLinkIcon } from '~components/icon/Risk';
 import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
 import { useClientMobile, isClientMobie } from '../../utils/device';
-import { getPoolFeeApr, getPoolFeeAprTitle } from './LiquidityPage';
+import {
+  getPoolFeeApr,
+  getPoolFeeAprTitle,
+  getPoolListFarmAprTip,
+} from './LiquidityPage';
 import { Images, Symbols } from '../../components/stableswap/CommonComp';
 import { useTokenPriceList } from '../../state/token';
 import { ExchangeArrow } from '../../components/icon/Arrows';
@@ -167,6 +171,7 @@ import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import Big from 'big.js';
+import { getEffectiveFarmList } from '~services/commonV3';
 
 interface ParamTypes {
   id: string;
@@ -1346,6 +1351,23 @@ function MyShares({
     }`;
   else displayPercent = toPrecision(String(sharePercent), decimal || 2);
 
+  function displayValue() {
+    const v = toReadableNumber(
+      LP_TOKEN_DECIMALS,
+      userTotalShare
+        .toNumber()
+        .toLocaleString('fullwide', { useGrouping: false })
+    );
+    const v_big = new BigNumber(v);
+    if (v_big.isEqualTo('0')) {
+      return 0;
+    } else if (v_big.isLessThan(0.01)) {
+      return '0.01';
+    } else {
+      return toInternationalCurrencySystemLongString(v, 2);
+    }
+  }
+
   return (
     <div className="whitespace-nowrap">
       <span
@@ -1360,15 +1382,7 @@ function MyShares({
           2
         )}`}
       >
-        {`${toInternationalCurrencySystemLongString(
-          toReadableNumber(
-            LP_TOKEN_DECIMALS,
-            userTotalShare
-              .toNumber()
-              .toLocaleString('fullwide', { useGrouping: false })
-          ),
-          2
-        )}`}
+        {displayValue()}
       </span>{' '}
       {`(${displayPercent}%)`}
     </div>
@@ -1953,7 +1967,8 @@ export function PoolDetailsPage() {
     const farms = seedFarms;
     const rewardTokenIconMap = {};
     let totalPrice = 0;
-    farms.forEach((farm: FarmBoost) => {
+    const effectiveFarms = getEffectiveFarmList(farms);
+    effectiveFarms.forEach((farm: FarmBoost) => {
       const { id, decimals, icon } = farm.token_meta_data;
       const { daily_reward } = farm.terms;
       rewardTokenIconMap[id] = icon;
@@ -2002,9 +2017,13 @@ export function PoolDetailsPage() {
 
     const baseAprAll = !seedTvl ? 0 : totalReward / seedTvl;
 
-    return !poolTVL || !seedDetail || !seedFarms
-      ? '-'
-      : `${toPrecision((baseAprAll * 100).toString(), 2)}%`;
+    return {
+      displayApr:
+        !poolTVL || !seedDetail || !seedFarms
+          ? '-'
+          : `${toPrecision((baseAprAll * 100).toString(), 2)}%`,
+      rawApr: !poolTVL || !seedDetail || !seedFarms ? 0 : baseAprAll,
+    };
   }
 
   const InfoCard = ({
@@ -2025,6 +2044,7 @@ export function PoolDetailsPage() {
         }  py-3 w-full px-4 flex flex-col`}
         style={{
           background: 'rgba(29, 41, 50, 0.5)',
+          height: '80px',
         }}
       >
         <div className="text-primaryText mb-3 text-sm">{title}</div>
@@ -2336,14 +2356,56 @@ export function PoolDetailsPage() {
               />
 
               <InfoCard
-                title={<FormattedMessage id="apr" defaultMessage="APR" />}
+                title={
+                  <>
+                    <FormattedMessage id="apr" defaultMessage="APR" />
+                    &nbsp;
+                    {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
+                      <>
+                        (
+                        <FormattedMessage id="pool" defaultMessage={'Pool'} /> +
+                        <FormattedMessage id="farm" defaultMessage={'Farm'} />)
+                      </>
+                    )}
+                  </>
+                }
                 id="apr"
                 value={
-                  dayVolume
-                    ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
-                    : '-'
+                  <div
+                    data-type="info"
+                    data-place="left"
+                    data-multiline={true}
+                    data-class={'reactTip'}
+                    data-html={true}
+                    data-tip={getPoolListFarmAprTip()}
+                    data-for={'pool_list_pc_apr' + pool.id}
+                  >
+                    {dayVolume
+                      ? `${getPoolFeeApr(dayVolume, pool, poolTVL)}%`
+                      : '-'}
+                    {dayVolume && seedFarms && BaseApr().rawApr > 0 && (
+                      <span className="text-xs text-gradientFrom">
+                        {` +` + BaseApr().displayApr}
+                      </span>
+                    )}
+
+                    {!!seedFarms &&
+                      !isMobile() &&
+                      seedFarms &&
+                      BaseApr().rawApr > 0 && (
+                        <ReactTooltip
+                          className="w-20"
+                          id={'pool_list_pc_apr' + pool.id}
+                          backgroundColor="#1D2932"
+                          place="right"
+                          border
+                          borderColor="#7e8a93"
+                          textColor="#C6D1DA"
+                          effect="solid"
+                        />
+                      )}
+                  </div>
                 }
-                valueTitle={`${getPoolFeeAprTitle(dayVolume, pool, poolTVL)}%`}
               />
             </div>
 
@@ -2672,6 +2734,7 @@ export function PoolDetailsPage() {
                       )}
                       size="4"
                       isRewardDisplay
+                      borderStyle="1px solid #00C6A2"
                     />
                     <span className="text-sm text-v3SwapGray">
                       {totalTvlPerWeekDisplay()}
@@ -2682,7 +2745,7 @@ export function PoolDetailsPage() {
 
                 <div className="flex items-center mx-4 xs:mx-7 md:mx-7 mt-3 justify-between">
                   <div className="valueStyleYellow flex items-center text-lg">
-                    <span className="mr-2">{BaseApr()}</span>
+                    <span className="mr-2">{BaseApr().displayApr}</span>
                     <Fire />
                   </div>
 

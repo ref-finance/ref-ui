@@ -34,7 +34,7 @@ import {
   ftGetTokenMetadata,
 } from '../../services/ft-contract';
 import { getTokenPriceList } from '../../services/indexer';
-import { getBoostTokenPrices } from '../../services/farm';
+import { getBoostTokenPrices, Seed, FarmBoost } from '../../services/farm';
 import { useTokenBalances, useDepositableBalance } from '../../state/token';
 import Loading from '~components/layout/Loading';
 import {
@@ -57,6 +57,9 @@ import {
   useAddAndRemoveUrlHandle,
   drawChartData,
   TOKEN_LIST_FOR_RATE,
+  get_matched_seeds_for_dcl_pool,
+  get_all_seeds,
+  displayNumberToAppropriateDecimals,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -79,6 +82,9 @@ import { isMobile } from '../../utils/device';
 import { SelectedIcon, ArrowDownV3 } from '../../components/icon/swapV3';
 import { OutLinkIcon } from '../../components/icon/Common';
 import { REF_FI_POOL_ACTIVE_TAB } from '../pools/LiquidityPage';
+import getConfig from '../../services/config';
+import QuestionMark from '../../components/farm/QuestionMark';
+const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 
 import Big from 'big.js';
 
@@ -107,6 +113,8 @@ export default function AddYourLiquidityPageV3() {
   const [selectHover, setSelectHover] = useState(false);
   const [viewPoolHover, setViewPoolHover] = useState(false);
   const [topPairs, setTopPairs] = useState([]);
+  const [seed_list, set_seed_list] = useState<Seed[]>();
+  const [related_seeds, set_related_seeds] = useState<Seed[]>([]);
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
@@ -123,6 +131,7 @@ export default function AddYourLiquidityPageV3() {
   useEffect(() => {
     getBoostTokenPrices().then(setTokenPriceList);
     get_list_pools();
+    get_seeds();
   }, []);
   useEffect(() => {
     if (tokenX) {
@@ -165,8 +174,11 @@ export default function AddYourLiquidityPageV3() {
     if (currentSelectedPool && tokenX && tokenY) {
       const { fee } = currentSelectedPool;
       history.replace(`#${tokenX.id}|${tokenY.id}|${fee}`);
+      if (seed_list && currentSelectedPool.pool_id) {
+        get_optional_seeds();
+      }
     }
-  }, [currentSelectedPool, tokenX, tokenY]);
+  }, [currentSelectedPool, tokenX, tokenY, seed_list]);
   useEffect(() => {
     if (tokenX && tokenY) {
       searchPools();
@@ -215,6 +227,21 @@ export default function AddYourLiquidityPageV3() {
   if (!refTokens || !triTokens || !triTokenIds) return <Loading />;
   const allTokens = getAllTokens(refTokens, triTokens);
   const nearSwapTokens = allTokens.filter((token) => token.onRef);
+  async function get_seeds() {
+    const seeds = await get_all_seeds();
+    set_seed_list(seeds);
+  }
+  function get_optional_seeds() {
+    const optional_seeds = get_matched_seeds_for_dcl_pool({
+      seeds: seed_list,
+      pool_id: currentSelectedPool.pool_id,
+    });
+    if (optional_seeds.length) {
+      set_related_seeds(optional_seeds);
+    } else {
+      set_related_seeds([]);
+    }
+  }
   async function get_init_pool() {
     const hash = location.hash;
     const [tokenx_id, tokeny_id, pool_fee] = decodeURIComponent(
@@ -941,15 +968,9 @@ export default function AddYourLiquidityPageV3() {
                               }`}
                             >
                               {isNoPool ? (
-                                // <FormattedMessage id="no_pool" />
                                 'No Pool'
                               ) : Object.keys(tokenPriceList).length > 0 ? (
-                                <span>
-                                  {/* <label className="xsm:hidden">
-                                    TVL&nbsp;
-                                  </label> */}
-                                  {displayTvl(currentPools[fee].tvl)}
-                                </span>
+                                <span>{displayTvl(currentPools[fee].tvl)}</span>
                               ) : (
                                 'Loading...'
                               )}
@@ -1052,6 +1073,7 @@ export default function AddYourLiquidityPageV3() {
                   onlyAddYToken={onlyAddYToken}
                   invalidRange={invalidRange}
                   pointChange={pointChange}
+                  seeds={related_seeds}
                 ></AddLiquidityComponent>
               ) : null}
             </div>
@@ -1274,6 +1296,7 @@ function AddLiquidityComponent({
   onlyAddXToken,
   onlyAddYToken,
   invalidRange,
+  seeds,
 }: {
   currentSelectedPool: PoolInfo;
   tokenX: TokenMetadata;
@@ -1287,6 +1310,7 @@ function AddLiquidityComponent({
   onlyAddXToken: boolean;
   onlyAddYToken: boolean;
   invalidRange: boolean;
+  seeds: Seed[];
 }) {
   let [leftCustomPrice, setLeftCustomPrice] = useState('');
   let [rightCustomPrice, setRightCustomPrice] = useState('');
@@ -1309,6 +1333,7 @@ function AddLiquidityComponent({
   const { globalState } = useContext(WalletContext);
   const [timer, setTimer] = useState(null);
   const [depthData, setDepthData] = useState(null);
+  const [displayedSeedIndex, setDisplayedSeedIndex] = useState(0);
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
   const chartDom = useRef(null);
@@ -1503,7 +1528,6 @@ function AddLiquidityComponent({
       setRightPoint(Math.max(Math.min(POINTRIGHTRANGE, r_p), POINTLEFTRANGE));
     }
   }
-  // todo
   function handlePriceToAppropriatePoint() {
     const { point_delta, token_x, token_y } = currentSelectedPool;
     const decimalRate =
@@ -1781,6 +1805,89 @@ function AddLiquidityComponent({
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
+  function get_related_seeds() {
+    const temp_seeds = seeds.map((seed: Seed) => {
+      const [contractId, temp_mft_id] = seed.seed_id.split('@');
+      const [fixRange, pool_id, left_point, right_point] =
+        temp_mft_id.split('&');
+      const decimalRate =
+        Math.pow(10, token_x_decimals) / Math.pow(10, token_y_decimals);
+      const price_left = getPriceByPoint(+left_point, decimalRate);
+      const price_right = getPriceByPoint(+right_point, decimalRate);
+      return {
+        seed,
+        price_left,
+        price_right,
+      };
+    });
+    const tokenSort = tokenX.id == token_x ? true : false;
+    const targetSeed = temp_seeds[displayedSeedIndex];
+    const { price_left, price_right } = targetSeed;
+    let price_left_final = price_left;
+    let price_right_final = price_right;
+
+    if (!tokenSort) {
+      price_left_final = new BigNumber(1).dividedBy(price_right).toFixed();
+      price_right_final = new BigNumber(1).dividedBy(price_left).toFixed();
+    }
+    const display_price_left = displayNumberToAppropriateDecimals(
+      price_left_final.toString()
+    );
+    const display_price_right = displayNumberToAppropriateDecimals(
+      price_right_final.toString()
+    );
+    return (
+      <div className="flex flex-col items-ends text-sm">
+        <span className="text-limitOrderInputColor text-right">
+          1 {tokenX.symbol} ={' '}
+        </span>
+        <div className="flex items-center mt-2">
+          <ArrowDownV3
+            onClick={() => {
+              setDisplayedSeedIndex(displayedSeedIndex - 1);
+            }}
+            className={`transform rotate-90 mr-1.5 text-primaryText cursor-pointer ${
+              seeds.length > 1 && displayedSeedIndex > 0 ? '' : 'hidden'
+            }`}
+          ></ArrowDownV3>
+          <span
+            className="text-v3SwapGray underline cursor-pointer mx-1"
+            onClick={() => {
+              if (!tokenSort) {
+                leftCustomPrice = price_right_final;
+                rightCustomPrice = price_left_final;
+              } else {
+                leftCustomPrice = price_left_final;
+                rightCustomPrice = price_right_final;
+              }
+              setLeftCustomPrice(leftCustomPrice);
+              setRightCustomPrice(rightCustomPrice);
+              handlePriceToAppropriatePoint();
+            }}
+          >
+            {display_price_left} ~ {display_price_right}
+          </span>
+          <span className="text-limitOrderInputColor">{tokenY.symbol}</span>
+          <ArrowDownV3
+            onClick={() => {
+              setDisplayedSeedIndex(displayedSeedIndex + 1);
+            }}
+            className={`transform -rotate-90 ml-1.5 text-primaryText cursor-pointer ${
+              seeds.length > 1 && displayedSeedIndex < seeds.length - 1
+                ? ''
+                : 'hidden'
+            }`}
+          ></ArrowDownV3>
+        </div>
+      </div>
+    );
+  }
+  function rewardRangeTip() {
+    // const tip = intl.formatMessage({ id: 'over_tip' });
+    const tip = 'Farm reward within this range';
+    let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
+    return result;
+  }
   const tokenSort = tokenX.id == currentSelectedPool.token_x;
   const isAddLiquidityDisabled = getButtonStatus();
   const mobileDevice = isMobile();
@@ -1969,6 +2076,33 @@ function AddLiquidityComponent({
               Full Range
             </div>
           </div>
+          {seeds.length ? (
+            <div
+              className={`relative flex items-start justify-between xsm:justify-end mt-3.5 mb-1`}
+            >
+              <div className="flex items-center text-sm text-primaryText mr-3 xsm:absolute xsm:left-0">
+                Reward Range
+                <div
+                  className="text-white text-right ml-1"
+                  data-class="reactTip"
+                  data-for="rangeTipId"
+                  data-place="top"
+                  data-html={true}
+                  data-tip={rewardRangeTip()}
+                >
+                  <QuestionMark></QuestionMark>
+                  <ReactTooltip
+                    id="rangeTipId"
+                    backgroundColor="#1D2932"
+                    border
+                    borderColor="#7e8a93"
+                    effect="solid"
+                  />
+                </div>
+              </div>
+              {get_related_seeds()}
+            </div>
+          ) : null}
         </div>
       </div>
       <div
@@ -2117,7 +2251,6 @@ function NoDataComponent(props: any) {
           </div>
         </div>
       </div>
-
       <GradientButton
         color="#fff"
         className={`w-full h-12 mt-5 text-center text-base text-white focus:outline-none opacity-30`}
@@ -2152,7 +2285,6 @@ function PointInputComponent({
   inputStatus,
   setInputStatus,
 }: any) {
-  // todo
   return (
     <div className="flex items-center justify-between mt-3.5">
       <div

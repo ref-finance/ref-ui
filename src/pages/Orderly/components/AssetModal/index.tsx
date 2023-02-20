@@ -57,7 +57,7 @@ function AssetButton({
         text === 'Deposit' ? 'bg-buyGradientGreen' : 'bg-withdrawPurple2'
       } ${forbid ? 'opacity-30' : ''} `}
       disabled={forbid}
-      onClick={e => {
+      onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
         onClick();
@@ -138,7 +138,7 @@ function AssetLine(
           onRequestClose={() => {
             setShowManagerModal(false);
           }}
-          onClick={amount => {
+          onClick={(amount) => {
             if (!window.selectorAccountId) return;
 
             if (type === 'deposit') {
@@ -257,7 +257,7 @@ export function AssetModal(props: Modal.Props) {
         HistoryParam: {
           page: requestPage,
         },
-      }).then(res => {
+      }).then((res) => {
         if (!!res.success) {
           setRecords([...(records || []), ...res.data.rows]);
           setRecordsPerPage(res.data.meta.records_per_page);
@@ -461,7 +461,7 @@ export function AssetModal(props: Modal.Props) {
                   (curPage - 1) * DEFAULT_PAGE_SIZE,
                   curPage * DEFAULT_PAGE_SIZE
                 )
-                .map(r => {
+                .map((r) => {
                   return <RecordLine tokenInfo={tokenInfo} {...r} />;
                 })
             ))}

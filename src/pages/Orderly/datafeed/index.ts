@@ -1,6 +1,10 @@
 //@ts-nocheck
 
-import { makePublicApiRequest, generateSymbol, parseFullSymbol } from './helpers';
+import {
+  makePublicApiRequest,
+  generateSymbol,
+  parseFullSymbol,
+} from './helpers';
 import { subscribeOnStream, unsubscribeFromStream } from './streaming';
 
 interface OrderlyPair {
@@ -76,21 +80,34 @@ const datafeed = {
     setTimeout(() => callback(configurationData));
   },
 
-  searchSymbols: async (userInput, exchange, symbolType, onResultReadyCallback) => {
+  searchSymbols: async (
+    userInput,
+    exchange,
+    symbolType,
+    onResultReadyCallback
+  ) => {
     console.log('[searchSymbols]: Method call');
     const symbols = await getAllSymbols();
     const newSymbols = symbols.filter((symbol) => {
       const isExchangeValid = exchange === '' || symbol.exchange === exchange;
-      const isFullSymbolContainsInput = symbol.full_name.toLowerCase().indexOf(userInput.toLowerCase()) !== -1;
+      const isFullSymbolContainsInput =
+        symbol.full_name.toLowerCase().indexOf(userInput.toLowerCase()) !== -1;
       return isExchangeValid && isFullSymbolContainsInput;
     });
     onResultReadyCallback(newSymbols);
   },
 
-  resolveSymbol: async (symbolName, onSymbolResolvedCallback, onResolveErrorCallback, extension) => {
+  resolveSymbol: async (
+    symbolName,
+    onSymbolResolvedCallback,
+    onResolveErrorCallback,
+    extension
+  ) => {
     console.log('[resolveSymbol]: Method call', symbolName);
     const symbols = await getAllSymbols();
-    const symbolItem = symbols.find(({ full_name }) => full_name === symbolName);
+    const symbolItem = symbols.find(
+      ({ full_name }) => full_name === symbolName
+    );
     console.log('symbolItem: ', symbolItem);
     if (!symbolItem) {
       console.log('[resolveSymbol]: Cannot resolve symbol', symbolName);
@@ -120,7 +137,13 @@ const datafeed = {
     onSymbolResolvedCallback(symbolInfo);
   },
 
-  getBars: async (symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) => {
+  getBars: async (
+    symbolInfo,
+    resolution,
+    periodParams,
+    onHistoryCallback,
+    onErrorCallback
+  ) => {
     const { from, to, firstDataRequest } = periodParams;
     console.log('[getBars]: Method call', symbolInfo, resolution, from, to);
     const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
@@ -177,13 +200,32 @@ const datafeed = {
     }
   },
 
-  subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
-    console.log('[subscribeBars]: Method call with subscriberUID:', subscriberUID);
-    subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback, lastBarsCache.get(symbolInfo.full_name));
+  subscribeBars: (
+    symbolInfo,
+    resolution,
+    onRealtimeCallback,
+    subscriberUID,
+    onResetCacheNeededCallback
+  ) => {
+    console.log(
+      '[subscribeBars]: Method call with subscriberUID:',
+      subscriberUID
+    );
+    subscribeOnStream(
+      symbolInfo,
+      resolution,
+      onRealtimeCallback,
+      subscriberUID,
+      onResetCacheNeededCallback,
+      lastBarsCache.get(symbolInfo.full_name)
+    );
   },
 
   unsubscribeBars: (subscriberUID) => {
-    console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID);
+    console.log(
+      '[unsubscribeBars]: Method call with subscriberUID:',
+      subscriberUID
+    );
     unsubscribeFromStream(subscriberUID);
   },
 };

@@ -27,6 +27,7 @@ export interface PoolRPCView {
   tokens_meta_data?: TokenMetadata[];
   h24volume?: string;
   apr?: number;
+  baseApr?: string;
 }
 
 export const parsePoolView = (pool: any): PoolRPCView => ({

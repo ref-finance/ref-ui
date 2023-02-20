@@ -338,7 +338,10 @@ html.theme-dark .button-2pZNJ24z[disabled]:active:before {
 }
 @media (any-hover: hover), (min--moz-device-pixel-ratio: 0) {
   .button-2pZNJ24z.open:hover:before {
-    background-color: var(--tv-color-toolbar-button-background-expanded, #f0f3fa);
+    background-color: var(
+      --tv-color-toolbar-button-background-expanded,
+      #f0f3fa
+    );
     border-radius: var(--tv-toolbar-opened-element-hover-border-radius, 0);
     bottom: var(--tv-toolbar-opened-element-hover-margin-bottom, 0);
     content: '';
@@ -357,7 +360,10 @@ html.theme-dark .button-2pZNJ24z.open:before {
 }
 @media (any-hover: hover), (min--moz-device-pixel-ratio: 0) {
   html.theme-dark .button-2pZNJ24z.open:hover:before {
-    background-color: var(--tv-color-toolbar-button-background-expanded, #2a2e39);
+    background-color: var(
+      --tv-color-toolbar-button-background-expanded,
+      #2a2e39
+    );
   }
 }
 .button-2pZNJ24z .inner-2pZNJ24z {

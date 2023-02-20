@@ -31,10 +31,7 @@ export const generateTradingKeyPair = () => {
 
   const privateKey = keyPair.getPrivate().toString('hex');
 
-  const publicKey = keyPair
-    .getPublic()
-    .encode('hex', false)
-    .replace('04', '');
+  const publicKey = keyPair.getPublic().encode('hex', false).replace('04', '');
 
   localStorage.setItem(get_orderly_private_key_path(), privateKey);
 
@@ -71,7 +68,7 @@ export const find_orderly_functionCall_key = async (accountId: string) => {
   const allKeys = await nearConnection.getAccessKeys();
 
   const orderlyKey = allKeys.find(
-    key =>
+    (key) =>
       key.access_key.permission !== 'FullAccess' &&
       key.access_key.permission.FunctionCall.receiver_id ===
         config.ORDERLY_ASSET_MANAGER

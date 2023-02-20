@@ -6,8 +6,8 @@ export function useAllSymbolInfo() {
   const [availableSymbols, setAvailableSymbols] = useState<SymbolInfo[]>();
   useEffect(() => {
     fetch(`${getOrderlyConfig().OFF_CHAIN_END_POINT}/v1/public/info`).then(
-      res => {
-        res.json().then(data => {
+      (res) => {
+        res.json().then((data) => {
           setAvailableSymbols(data.data.rows);
         });
       }

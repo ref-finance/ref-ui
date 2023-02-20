@@ -110,18 +110,18 @@ function SymbolSelector(props: {
       setSymbolList(
         <>
           {allTickers
-            ?.filter(t =>
+            ?.filter((t) =>
               t.symbol
                 .toLowerCase()
                 .includes(searchValue?.toLocaleLowerCase() || '')
             )
-            .map(t => {
+            .map((t) => {
               return <SymbolLine ticker={t} key={t.symbol}></SymbolLine>;
             })}
         </>
       );
     }
-  }, [allTickers?.map(t => t.symbol).join('-'), searchValue]);
+  }, [allTickers?.map((t) => t.symbol).join('-'), searchValue]);
 
   return (
     <div className="absolute left-0 top-8 pt-4">
@@ -138,7 +138,7 @@ function SymbolSelector(props: {
             type="text"
             className="bg-transparent w-full text-white "
             placeholder="Token"
-            onChange={e => {
+            onChange={(e) => {
               setSearchValue(e.target.value);
             }}
             value={searchValue}
@@ -165,10 +165,11 @@ function ChartHeader() {
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
   const idFrom =
-    tokenInfo && tokenInfo.find(t => t.token === symbolFrom)?.token_account_id;
+    tokenInfo &&
+    tokenInfo.find((t) => t.token === symbolFrom)?.token_account_id;
 
   const idTo =
-    tokenInfo && tokenInfo.find(t => t.token === symbolTo)?.token_account_id;
+    tokenInfo && tokenInfo.find((t) => t.token === symbolTo)?.token_account_id;
 
   const [iconIn, setIconIn] = useState<string>();
 
@@ -180,7 +181,7 @@ function ChartHeader() {
     if (idFrom === 'near') {
       setIconIn(nearMetadata.icon);
     } else {
-      getFTmetadata(idFrom).then(res => {
+      getFTmetadata(idFrom).then((res) => {
         setIconIn(res.icon);
       });
     }
@@ -192,7 +193,7 @@ function ChartHeader() {
     if (idTo === 'near') {
       setIconOut(nearMetadata.icon);
     } else {
-      getFTmetadata(idTo).then(res => {
+      getFTmetadata(idTo).then((res) => {
         setIconOut(res.icon);
       });
     }

@@ -57,10 +57,12 @@
           (e[(e.Left = 0)] = 'Left'), (e[(e.Right = 1)] = 'Right');
         })(i || (i = {})),
         (function (e) {
-          (e[(e.FromTopToBottom = 0)] = 'FromTopToBottom'), (e[(e.FromBottomToTop = 1)] = 'FromBottomToTop');
+          (e[(e.FromTopToBottom = 0)] = 'FromTopToBottom'),
+            (e[(e.FromBottomToTop = 1)] = 'FromBottomToTop');
         })(n || (n = {})),
         (function (e) {
-          (e[(e.FromLeftToRight = 0)] = 'FromLeftToRight'), (e[(e.FromRightToLeft = 1)] = 'FromRightToLeft');
+          (e[(e.FromLeftToRight = 0)] = 'FromLeftToRight'),
+            (e[(e.FromRightToLeft = 1)] = 'FromRightToLeft');
         })(a || (a = {}));
       const c = {
         verticalAttachEdge: r.Bottom,
@@ -86,13 +88,19 @@
             D = d === r.Top ? -1 * v : v,
             f = u === i.Right ? p.right : p.left,
             b = d === r.Top ? p.top : p.bottom,
-            C = { x: f - (m === a.FromRightToLeft ? o : 0) + w, y: b - (h === n.FromBottomToTop ? l : 0) + D };
+            C = {
+              x: f - (m === a.FromRightToLeft ? o : 0) + w,
+              y: b - (h === n.FromBottomToTop ? l : 0) + D,
+            };
           return g && (C.overrideWidth = p.width), C;
         };
       }
     },
     47218: (e, t, o) => {
-      o.d(t, { DEFAULT_TOOL_WIDGET_BUTTON_THEME: () => c, ToolWidgetButton: () => l });
+      o.d(t, {
+        DEFAULT_TOOL_WIDGET_BUTTON_THEME: () => c,
+        ToolWidgetButton: () => l,
+      });
       var r = o(67294),
         i = o(94184),
         n = o(49775),
@@ -128,13 +136,37 @@
             }),
             _ =
               o &&
-              ('string' == typeof o ? r.createElement(n.Icon, { className: g.icon, icon: o }) : r.cloneElement(o, { className: i(g.icon, o.props.className) }));
+              ('string' == typeof o
+                ? r.createElement(n.Icon, { className: g.icon, icon: o })
+                : r.cloneElement(o, {
+                    className: i(g.icon, o.props.className),
+                  }));
           return r.createElement(
             'div',
-            { ...C, ref: t, 'data-role': 'button', className: T, onClick: p ? void 0 : u, title: v, 'data-name': b },
-            w && m && r.createElement('div', { className: i('js-button-text', g.text) }, m),
+            {
+              ...C,
+              ref: t,
+              'data-role': 'button',
+              className: T,
+              onClick: p ? void 0 : u,
+              title: v,
+              'data-name': b,
+            },
+            w &&
+              m &&
+              r.createElement(
+                'div',
+                { className: i('js-button-text', g.text) },
+                m
+              ),
             _,
-            !w && m && r.createElement('div', { className: i('js-button-text', g.text) }, m)
+            !w &&
+              m &&
+              r.createElement(
+                'div',
+                { className: i('js-button-text', g.text) },
+                m
+              )
           );
         });
     },
@@ -157,12 +189,15 @@
             (this._wrapperRef = null),
             (this._controller = r.createRef()),
             (this._handleWrapperRef = (e) => {
-              (this._wrapperRef = e), this.props.reference && this.props.reference(e);
+              (this._wrapperRef = e),
+                this.props.reference && this.props.reference(e);
             }),
             (this._handleClick = (e) => {
               e.target instanceof Node &&
                 e.currentTarget.contains(e.target) &&
-                (this._handleToggleDropdown(), this.props.onClick && this.props.onClick(e, !this.state.isOpened));
+                (this._handleToggleDropdown(),
+                this.props.onClick &&
+                  this.props.onClick(e, !this.state.isOpened));
             }),
             (this._handleToggleDropdown = (e) => {
               const { onClose: t, onOpen: o } = this.props,
@@ -190,7 +225,12 @@
               drawerBreakpoint: v,
             } = this.props,
             { isOpened: g } = this.state,
-            D = i(u, w.button, { 'apply-common-tooltip': l || !n, [w.isDisabled]: n, [w.isOpened]: g, [w.newStyles]: h.hasNewHeaderToolbarStyles });
+            D = i(u, w.button, {
+              'apply-common-tooltip': l || !n,
+              [w.isDisabled]: n,
+              [w.isOpened]: g,
+              [w.newStyles]: h.hasNewHeaderToolbarStyles,
+            });
           return r.createElement(
             'div',
             {
@@ -208,19 +248,36 @@
               r.createElement(
                 'div',
                 { className: w.arrow },
-                r.createElement('div', { className: w.arrowWrap }, r.createElement(a.ToolWidgetCaret, { dropped: g }))
+                r.createElement(
+                  'div',
+                  { className: w.arrowWrap },
+                  r.createElement(a.ToolWidgetCaret, { dropped: g })
+                )
               ),
-            this.state.isOpened && (v ? r.createElement(d.MatchMedia, { rule: v }, (e) => this._renderContent(e)) : this._renderContent(c))
+            this.state.isOpened &&
+              (v
+                ? r.createElement(d.MatchMedia, { rule: v }, (e) =>
+                    this._renderContent(e)
+                  )
+                : this._renderContent(c))
           );
         }
         close() {
           this._handleToggleDropdown(!1);
         }
         update() {
-          null !== this._controller.current && this._controller.current.update();
+          null !== this._controller.current &&
+            this._controller.current.update();
         }
         _renderContent(e) {
-          const { menuDataName: t, minWidth: o, menuClassName: i, maxHeight: a, drawerPosition: s = 'Bottom', children: d } = this.props,
+          const {
+              menuDataName: t,
+              minWidth: o,
+              menuClassName: i,
+              maxHeight: a,
+              drawerPosition: s = 'Bottom',
+              children: d,
+            } = this.props,
             { isOpened: h } = this.state,
             u = {
               horizontalMargin: this.props.horizontalMargin || 0,
@@ -229,7 +286,8 @@
               horizontalAttachEdge: this.props.horizontalAttachEdge,
               verticalDropDirection: this.props.verticalDropDirection,
               horizontalDropDirection: this.props.horizontalDropDirection,
-              matchButtonAndListboxWidths: this.props.matchButtonAndListboxWidths,
+              matchButtonAndListboxWidths:
+                this.props.matchButtonAndListboxWidths,
             },
             m = Boolean(h && e && s),
             w = (function (e) {
@@ -238,7 +296,15 @@
               ? d({ isDrawer: m })
               : d;
           return m
-            ? r.createElement(c.DrawerManager, null, r.createElement(l.Drawer, { onClose: this._handleClose, position: s, 'data-name': t }, w))
+            ? r.createElement(
+                c.DrawerManager,
+                null,
+                r.createElement(
+                  l.Drawer,
+                  { onClose: this._handleClose, position: s, 'data-name': t },
+                  w
+                )
+              )
             : r.createElement(
                 n.PopupMenu,
                 {
@@ -283,7 +349,13 @@
         render() {
           return r.createElement(
             n.Provider,
-            { value: { addDrawer: this._addDrawer, removeDrawer: this._removeDrawer, currentDrawer: this.state.currentDrawer } },
+            {
+              value: {
+                addDrawer: this._addDrawer,
+                removeDrawer: this._removeDrawer,
+                currentDrawer: this.state.currentDrawer,
+              },
+            },
             this.props.children
           );
         }
@@ -303,7 +375,13 @@
         d = o(94884),
         h = o(64526);
       function u(e) {
-        const { position: t = 'Bottom', onClose: o, children: u, className: m, theme: w = h } = e,
+        const {
+            position: t = 'Bottom',
+            onClose: o,
+            children: u,
+            className: m,
+            theme: w = h,
+          } = e,
           v = (0, i.ensureNotNull)((0, r.useContext)(l.DrawerContext)),
           [g, D] = (0, r.useState)(0),
           f = (0, r.useRef)(null),
@@ -320,7 +398,8 @@
               () => {
                 b.unsubscribe(v, o);
                 const t = v.removeDrawer();
-                p.CheckMobile.iOS() && (0, a.enableBodyScroll)(e), 0 === t && (0, s.setFixedBodyState)(!1);
+                p.CheckMobile.iOS() && (0, a.enableBodyScroll)(e),
+                  0 === t && (0, s.setFixedBodyState)(!1);
               }
             );
           }, []),
@@ -330,8 +409,18 @@
             r.createElement(
               'div',
               { className: n(h.wrap, h['position' + t]) },
-              g === v.currentDrawer && r.createElement('div', { className: h.backdrop, onClick: o }),
-              r.createElement('div', { className: n(h.drawer, w.drawer, h['position' + t], m), ref: f, tabIndex: -1, 'data-name': e['data-name'] }, u)
+              g === v.currentDrawer &&
+                r.createElement('div', { className: h.backdrop, onClick: o }),
+              r.createElement(
+                'div',
+                {
+                  className: n(h.drawer, w.drawer, h['position' + t], m),
+                  ref: f,
+                  tabIndex: -1,
+                  'data-name': e['data-name'],
+                },
+                u
+              )
             )
           )
         );
@@ -346,7 +435,10 @@
         s = o(85533);
       function c(e) {
         const { dropped: t, className: o } = e;
-        return r.createElement(n.Icon, { className: i(o, a.icon, { [a.dropped]: t }), icon: s });
+        return r.createElement(n.Icon, {
+          className: i(o, a.icon, { [a.dropped]: t }),
+          icon: s,
+        });
       }
     },
     85533: (e) => {

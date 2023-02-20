@@ -12,7 +12,7 @@ export interface OrderAsset {
 
 export function useOrderAssets(tokenInfo: TokenInfo[] | undefined) {
   const tokens = tokenInfo
-    ? tokenInfo.map(t => ({
+    ? tokenInfo.map((t) => ({
         id: t.token_account_id,
         decimals: t.decimals,
       }))

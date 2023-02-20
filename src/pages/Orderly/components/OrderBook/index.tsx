@@ -127,21 +127,15 @@ function OrderBook() {
 
   const [precision, setPrecision] = useState<number>(2);
 
-  const [showPrecisionSelector, setShowPrecisionSelector] = useState<boolean>(
-    false
-  );
+  const [showPrecisionSelector, setShowPrecisionSelector] =
+    useState<boolean>(false);
 
-  const {
-    asks,
-    bids,
-    asktotalSize,
-    bidtotalSize,
-    groupMyPendingOrders,
-  } = groupOrdersByPrecision({
-    orders,
-    precision,
-    pendingOrders,
-  });
+  const { asks, bids, asktotalSize, bidtotalSize, groupMyPendingOrders } =
+    groupOrdersByPrecision({
+      orders,
+      precision,
+      pendingOrders,
+    });
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
   const [tab, setTab] = useState<'recent' | 'book'>('book');

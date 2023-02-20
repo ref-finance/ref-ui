@@ -171,13 +171,13 @@ export const AddPoolV3 = (props: any) => {
       setTokenXAmount(X_result.toString());
     }
   }
-
   function append() {
     setAddLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
-    const { lpt_id } = userLiquidity;
+    const { lpt_id, mft_id } = userLiquidity;
     append_liquidity({
       lpt_id,
+      mft_id,
       amount_x: toNonDivisibleNumber(tokenX.decimals, tokenXAmount || '0'),
       amount_y: toNonDivisibleNumber(tokenY.decimals, tokenYAmount || '0'),
       token_x: tokenX,

@@ -3,7 +3,11 @@
 import { config } from '../near';
 
 import { getOrderlyConfig } from '../config';
-import { ResolutionToSeconds, parseFullSymbol, parseResolution } from './helpers';
+import {
+  ResolutionToSeconds,
+  parseFullSymbol,
+  parseResolution,
+} from './helpers';
 
 // import { WebSocket } from 'ws';
 import { getOrderlyWss } from '../orderly/constant';
@@ -72,7 +76,10 @@ ws.onmessage = (event) => {
 
   const lastBar = subscriptionItem.lastBar;
 
-  const nextDailyBarTime = getNextBarTime(lastBar.time, subscriptionItem.resolution);
+  const nextDailyBarTime = getNextBarTime(
+    lastBar.time,
+    subscriptionItem.resolution
+  );
 
   let bar;
   if (startTime >= nextDailyBarTime) {
@@ -101,11 +108,20 @@ function getNextBarTime(barTime: number, resolution: string) {
   return barTime + ResolutionToSeconds(resolution) * 1000;
 }
 
-export function subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback, lastBar) {
+export function subscribeOnStream(
+  symbolInfo,
+  resolution,
+  onRealtimeCallback,
+  subscriberUID,
+  onResetCacheNeededCallback,
+  lastBar
+) {
   const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
   const channelString = `0~${parsedSymbol.exchange}~${parsedSymbol.fromSymbol}~${parsedSymbol.toSymbol}`;
 
-  const topic = `SPOT_${parsedSymbol.fromSymbol}_${parsedSymbol.toSymbol}@kline_${parseResolution(resolution)}`;
+  const topic = `SPOT_${parsedSymbol.fromSymbol}_${
+    parsedSymbol.toSymbol
+  }@kline_${parseResolution(resolution)}`;
 
   const handler = {
     id: subscriberUID,
@@ -138,7 +154,10 @@ export function subscribeOnStream(symbolInfo, resolution, onRealtimeCallback, su
 
   console.log('subscriptionItem: ', subscriptionItem);
 
-  console.log('[subscribeBars]: Subscribe to streaming. Channel:', channelString);
+  console.log(
+    '[subscribeBars]: Subscribe to streaming. Channel:',
+    channelString
+  );
 
   channelToSubscription.set(topic, subscriptionItem);
 
@@ -149,7 +168,9 @@ export function unsubscribeFromStream(subscriberUID) {
   // find a subscription with id === subscriberUID
   for (const topic of channelToSubscription.keys()) {
     const subscriptionItem = channelToSubscription.get(topic);
-    const handlerIndex = subscriptionItem.handlers.findIndex((handler) => handler.id === subscriberUID);
+    const handlerIndex = subscriptionItem.handlers.findIndex(
+      (handler) => handler.id === subscriberUID
+    );
 
     if (handlerIndex !== -1) {
       // remove from handlers
