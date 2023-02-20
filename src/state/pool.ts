@@ -6,7 +6,11 @@ import {
   toNonDivisibleNumber,
   toReadableNumber,
 } from '../utils/numbers';
-import { getStakedListByAccountId } from '../services/farm';
+import {
+  getStakedListByAccountId,
+  get_seed,
+  list_seed_farms,
+} from '../services/farm';
 import {
   DEFAULT_PAGE_LIMIT,
   getAllWatchListFromDb,
@@ -38,9 +42,17 @@ import {
   _search,
   getTopPools,
   getPool,
+  get24hVolumes,
+  getV3PoolVolumeById,
+  getAllV3Pool24Volume,
+  getV3poolTvlById,
 } from '../services/indexer';
 import { parsePoolView, PoolRPCView } from '../services/api';
-import { TokenMetadata } from '../services/ft-contract';
+import {
+  ftGetTokenMetadata,
+  TokenMetadata,
+  ftGetTokensMetadata,
+} from '../services/ft-contract';
 import { TokenBalancesView } from '../services/token';
 import {
   shareToAmount,
@@ -58,7 +70,7 @@ import {
 import { getCurrentWallet, WalletContext } from '../utils/wallets-integration';
 import getConfig from '../services/config';
 import { useFarmStake } from './farm';
-import { ONLY_ZEROS } from '../utils/numbers';
+import { ONLY_ZEROS, scientificNotationToString } from '../utils/numbers';
 import {
   getPoolsByTokensIndexer,
   getAllPoolsIndexer,
@@ -68,6 +80,12 @@ import {
   getRefPoolsByToken1ORToken2,
 } from '../services/pool';
 import Big from 'big.js';
+import { getPoolFeeAprTitle } from '../pages/pools/LiquidityPage';
+import { getPoolFeeAprTitleRPCView } from '../pages/pools/MorePoolsPage';
+import { PoolInfo, get_pool } from '../services/swapV3';
+import { useTokenPriceList } from './token';
+import { isStablePool } from '../services/near';
+import { getStablePoolDecimal } from '../pages/stable/StableSwapEntry';
 const REF_FI_STABLE_POOL_INFO_KEY = `REF_FI_STABLE_Pool_INFO_VALUE_${
   getConfig().STABLE_POOL_ID
 }`;
@@ -225,6 +243,10 @@ export const usePools = (props: {
   const [rawPools, setRawPools] = useState<PoolRPCView[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const volumes = useDayVolumesPools(
+    rawPools.map((pool) => pool.id.toString()).concat(ALL_STABLE_POOL_IDS)
+  );
+
   const nextPage = () => setPage((page) => page + 1);
 
   function _loadPools({
@@ -303,6 +325,7 @@ export const usePools = (props: {
     hasMore,
     nextPage,
     loading,
+    volumes,
   };
 };
 
@@ -379,25 +402,75 @@ export const useMorePools = ({
   order: boolean | 'desc' | 'asc';
   sortBy: string;
 }) => {
-  const [morePools, setMorePools] = useState<PoolRPCView[]>();
+  const [morePools, setMorePools] = useState<any[]>();
+
+  const { farmAprById, loadingSeedsDone } = useSeedFarmsByPools(morePools);
+
   useEffect(() => {
     getPoolsByTokensIndexer({
       token0: tokenIds[0],
       token1: tokenIds[1],
     }).then((res) => {
       // const orderedPools = orderBy(res, [sortBy], [order]);
-      setMorePools(res);
-    });
-  }, [order, sortBy]);
 
-  return orderBy(
-    morePools?.map((p) => ({
-      ...p,
-      tvl: Number(p.tvl),
-    })),
-    [sortBy],
-    [order]
-  );
+      const parsedRes = res.map((p: PoolRPCView) => {
+        return {
+          ...p,
+          tokenIds,
+          fee: p.total_fee,
+          shareSupply: p.shares_total_supply,
+          supplies: p.token_account_ids.reduce(
+            (acc: any, cur: any, i: number) => {
+              return {
+                ...acc,
+                [cur]: p.amounts[i],
+              };
+            },
+            {}
+          ),
+        };
+      });
+
+      setMorePools(parsedRes);
+    });
+  }, [tokenIds.join('-')]);
+
+  useEffect(() => {
+    if (!morePools || morePools.length === 0 || !loadingSeedsDone) return;
+
+    get24hVolumes(morePools.map((pool) => pool.id.toString())).then((res) => {
+      const volumePools = morePools.map((p, i) => {
+        return {
+          ...p,
+          h24volume: res[i],
+          baseApr: scientificNotationToString(
+            getPoolFeeAprTitleRPCView(res[i], morePools[i]).toString()
+          ),
+          apr:
+            getPoolFeeAprTitleRPCView(res[i], morePools[i]) +
+            (farmAprById?.[p.id] || 0) * 100,
+          farmApr: farmAprById?.[p.id] || 0,
+        };
+      });
+
+      setMorePools(volumePools);
+    });
+  }, [
+    (morePools || []).map((p) => p?.id).join('-'),
+    loadingSeedsDone,
+    farmAprById,
+  ]);
+
+  return !morePools
+    ? null
+    : orderBy(
+        morePools?.map((p) => ({
+          ...p,
+          tvl: Number(p.tvl),
+        })),
+        [sortBy],
+        [order]
+      );
 };
 
 export const usePoolsFarmCount = ({
@@ -507,22 +580,100 @@ export const useWatchPools = () => {
   const [watchList, setWatchList] = useState<WatchList[]>([]);
 
   const [watchPools, setWatchPools] = useState<Pool[]>([]);
+  const [watchV2Pools, setWatchV2Pools] = useState<PoolInfo[]>([]);
+  const [watchV2PoolsFinal, setWatchV2PoolsFinal] = useState<PoolInfo[]>([]);
+  const tokenPriceList = useTokenPriceList();
   useEffect(() => {
     getAllWatchListFromDb({}).then((watchlist) => {
       setWatchList(_.orderBy(watchlist, 'update_time', 'desc'));
     });
   }, []);
-
   useEffect(() => {
+    if (watchList.length == 0) return;
     const ids = watchList.map((watchedPool) => watchedPool.pool_id);
     if (ids.length === 0) return;
-    getPoolsByIds({ pool_ids: ids }).then((res) => {
-      const resPools = res.map((pool) => parsePool(pool));
-      setWatchPools(resPools);
+    const ids_v1: string[] = [];
+    const ids_v2: string[] = [];
+    ids.forEach((id) => {
+      if (id.split('|').length == 3) {
+        ids_v2.push(id);
+      } else {
+        ids_v1.push(id);
+      }
     });
-  }, [watchList]);
+    if (ids_v1.length > 0) {
+      getPoolsByIds({ pool_ids: ids_v1 })
+        .then((res) => {
+          const resPools = res.map((pool) => parsePool(pool));
 
-  return watchPools;
+          return resPools;
+        })
+        .then((resPools) => {
+          return Promise.all(
+            resPools.map(async (p) => {
+              return {
+                ...p,
+                metas: await ftGetTokensMetadata(p.tokenIds),
+              };
+            })
+          );
+        })
+        .then((res) => {
+          setWatchPools(res);
+        });
+    }
+    if (ids_v2.length > 0) {
+      getV2PoolsByIds(ids_v2).then((res: PoolInfo[]) => {
+        setWatchV2Pools(
+          res.filter((r) => {
+            if (r) return true;
+          })
+        );
+      });
+    }
+  }, [watchList]);
+  useEffect(() => {
+    if (watchV2Pools.length > 0 && Object.keys(tokenPriceList).length > 1) {
+      getV2Poolsfinal();
+    }
+  }, [watchV2Pools, Object.keys(tokenPriceList).length]);
+
+  async function getV2PoolsByIds(ids: string[]): Promise<PoolInfo[]> {
+    const poolDetailPromise = ids.map((id) => {
+      return get_pool(id);
+    });
+    const poolList_init = await Promise.all(poolDetailPromise);
+    const poolList = poolList_init.filter((p: PoolInfo) => {
+      if (p) return true;
+    });
+    const poolListPromise = poolList.map(async (pool: PoolInfo) => {
+      const { token_x, token_y } = pool;
+      const token_x_meta = await ftGetTokenMetadata(token_x);
+      const token_y_meta = await ftGetTokenMetadata(token_y);
+      pool.token_x_metadata = token_x_meta;
+      pool.token_y_metadata = token_y_meta;
+      return pool;
+    });
+    const poolListDealt = await Promise.all(poolListPromise);
+    return poolListDealt;
+  }
+
+  function getV2Poolsfinal() {
+    watchV2Pools.forEach((pool: PoolInfo) => {
+      const { token_x, token_y } = pool;
+      const pricex = tokenPriceList[token_x]?.price || 0;
+      const pricey = tokenPriceList[token_y]?.price || 0;
+      const tvlx =
+        Number(toReadableNumber(pool.token_x_metadata.decimals, pool.total_x)) *
+        Number(pricex);
+      const tvly =
+        Number(toReadableNumber(pool.token_y_metadata.decimals, pool.total_y)) *
+        Number(pricey);
+      pool.tvl = tvlx + tvly;
+    });
+    setWatchV2PoolsFinal(watchV2Pools);
+  }
+  return { watchPools, watchV2PoolsFinal, watchList };
 };
 
 export const useAllPools = () => {
@@ -663,12 +814,247 @@ export const useMonthTVL = (pool_id: string) => {
   return monthTVLById;
 };
 
+export const useDayVolumesPools = (pool_ids: (string | number)[]) => {
+  const [volumes, setVolumes] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!pool_ids || pool_ids.length === 0) return;
+
+    get24hVolumes(pool_ids).then((res) => {
+      const volumes = res.reduce((acc, cur, i) => {
+        return { ...acc, [pool_ids[i]]: cur };
+      }, {});
+
+      setVolumes(volumes);
+    });
+  }, [pool_ids.join('-')]);
+
+  return volumes;
+};
+
 export const useDayVolume = (pool_id: string) => {
   const [dayVolume, setDayVolume] = useState<string>();
   useEffect(() => {
     get24hVolume(pool_id).then(setDayVolume);
   }, [pool_id]);
   return dayVolume;
+};
+
+export const useSeedDetail = (pool_id: string | number) => {
+  const seed_id = getConfig().REF_FI_CONTRACT_ID + '@' + pool_id.toString();
+
+  const [seedDetail, setSeedDetail] = useState<any>();
+
+  useEffect(() => {
+    get_seed(seed_id).then((res) => {
+      setSeedDetail(res);
+    });
+  }, []);
+
+  return seedDetail;
+};
+
+export const useSeedFarms = (pool_id: string | number) => {
+  const [seedFarms, setSeedFarms] = useState<any>();
+
+  const seed_id = getConfig().REF_FI_CONTRACT_ID + '@' + pool_id.toString();
+
+  useEffect(() => {
+    list_seed_farms(seed_id)
+      .then(async (res) => {
+        if (!res) return null;
+
+        const parsedRes = res.filter((f: any) => f.status !== 'Ended');
+
+        const noRunning = res.every((f: any) => f.status !== 'Running');
+
+        if (!parsedRes || parsedRes.length === 0) {
+          return;
+        }
+
+        return Promise.all(
+          parsedRes
+            .filter((f: any) => noRunning || f.status === 'Running')
+            .map(async (farm: any) => {
+              const token_meta_data = await ftGetTokenMetadata(
+                farm.terms.reward_token
+              );
+
+              const daily_reward = farm.terms.daily_reward;
+
+              const readableNumber = toReadableNumber(
+                token_meta_data.decimals,
+                daily_reward
+              );
+
+              const yearReward = Number(readableNumber) * 365;
+
+              return {
+                ...farm,
+                token_meta_data,
+                yearReward,
+              };
+            })
+        );
+      })
+      .then(setSeedFarms);
+  }, [pool_id]);
+
+  return seedFarms;
+};
+
+export const useSeedFarmsByPools = (pools: Pool[]) => {
+  const tokenPriceList = useTokenPriceList();
+
+  const [loadingSeedsDone, setLoadingSeedsDone] = useState<boolean>(false);
+
+  const [farmAprById, setFarmAprById] = useState<Record<string, number>>();
+
+  useEffect(() => {
+    const ids = pools?.map((p) => p.id);
+
+    if (!ids || !tokenPriceList) return;
+
+    const seeds = ids.map(
+      (pool_id) => getConfig().REF_FI_CONTRACT_ID + '@' + pool_id.toString()
+    );
+
+    db.queryBoostSeedsBySeeds(seeds)
+
+      .then(async (res) => {
+        if (!res) return;
+
+        const seedFarmsById = await Promise.all(
+          Object.values(res).map((seed: any) => {
+            if (!seed) return null;
+
+            const parsedRes = seed.farmList.filter(
+              (f: any) => f.status !== 'Ended'
+            );
+
+            const noRunning = seed.farmList.every(
+              (f: any) => f.status !== 'Running'
+            );
+
+            if (!parsedRes || parsedRes.length === 0) {
+              return null;
+            }
+
+            return Promise.all(
+              parsedRes
+                .filter((f: any) => noRunning || f.status === 'Running')
+                .map(async (farm: any) => {
+                  const token_meta_data = await ftGetTokenMetadata(
+                    farm.terms.reward_token
+                  );
+
+                  const daily_reward = farm.terms.daily_reward;
+
+                  const readableNumber = toReadableNumber(
+                    token_meta_data.decimals,
+                    daily_reward
+                  );
+
+                  const yearReward = Number(readableNumber) * 365;
+
+                  return {
+                    ...farm,
+                    token_meta_data,
+                    yearReward,
+                  };
+                })
+            );
+          })
+        ).then((list) => {
+          const seedFarmsById = list.reduce((acc, cur, i) => {
+            return { ...acc, [Object.keys(res)[i]]: cur };
+          }, {});
+
+          return seedFarmsById;
+        });
+
+        return { seedFarmsById, cacheSeeds: res };
+      })
+      .then(
+        async ({
+          seedFarmsById,
+          cacheSeeds,
+        }: {
+          seedFarmsById: Record<string, any>;
+          cacheSeeds: Record<string, any>;
+        }) => {
+          if (!seedFarmsById || !cacheSeeds) return;
+
+          const ARPs = await Promise.all(
+            Object.values(seedFarmsById).map((farms: any, i: number) => {
+              const seedDetail = Object.values(cacheSeeds)[i].seed;
+
+              const poolId = Object.keys(cacheSeeds)[i].split('@')[1];
+              const pool = pools.find((p) => p.id.toString() === poolId);
+              let totalReward = 0;
+
+              if (!farms) return 0;
+
+              farms.forEach((farm: any) => {
+                const reward_token_price = Number(
+                  tokenPriceList?.[farm.token_meta_data.id]?.price || 0
+                );
+
+                totalReward =
+                  totalReward + Number(farm.yearReward) * reward_token_price;
+              });
+
+              const poolShares = Number(
+                toReadableNumber(
+                  isStablePool(pool.id) ? getStablePoolDecimal(pool.id) : 24,
+                  pool.shareSupply
+                )
+              );
+
+              const seedTvl =
+                !poolShares || !seedDetail
+                  ? 0
+                  : (Number(
+                      toReadableNumber(
+                        seedDetail.seed_decimal,
+                        seedDetail.total_seed_power
+                      )
+                    ) *
+                      (pool.tvl || 0)) /
+                    poolShares;
+
+              const baseAprAll = !seedTvl ? 0 : totalReward / seedTvl;
+
+              return !pool.tvl || !seedDetail || !farms || !pool
+                ? 0
+                : baseAprAll;
+            })
+          );
+
+          const returnAPRs = ARPs.reduce((acc, cur, i) => {
+            return {
+              ...acc,
+              [Object.keys(seedFarmsById)[i].split('@')[1]]: cur,
+            };
+          }, {});
+
+          // console.log('returnAPRs: ', returnAPRs);
+
+          setFarmAprById(returnAPRs);
+
+          return returnAPRs;
+        }
+      )
+
+      .finally(() => {
+        setLoadingSeedsDone(true);
+      });
+  }, [pools?.map((p) => p.id).join('-'), tokenPriceList]);
+
+  return {
+    farmAprById,
+    loadingSeedsDone,
+  };
 };
 
 export const usePredictShares = ({
@@ -877,4 +1263,69 @@ export const usePoolShare = (id: string | number, decimalLimit?: number) => {
       ? '0'
       : myPoolShare;
   }
+};
+
+export const useV3VolumeChart = (pool_id: string) => {
+  const [volumes, setVolumes] = useState<any[]>();
+  useEffect(() => {
+    getV3PoolVolumeById(pool_id)
+      .then((res) => {
+        res.forEach((p) => {
+          p.volume_dollar = +p.volume;
+        });
+        res.sort((v1, v2) => {
+          const b =
+            new Date(v1.dateString).getTime() -
+            new Date(v2.dateString).getTime();
+          return b;
+        });
+        setVolumes(res);
+      })
+      .catch(() => {
+        setVolumes([]);
+      });
+  }, []);
+  return volumes;
+};
+export const useV3TvlChart = (pool_id: string) => {
+  const [tvls, setTvls] = useState<any[]>();
+  useEffect(() => {
+    getV3poolTvlById(pool_id)
+      .then((res) => {
+        res.forEach((p) => {
+          (p.total_tvl = +p.tvl || 0),
+            (p.scaled_tvl = +p.tvl || 0),
+            (p.date = p.dateString);
+        });
+        res.sort((t1, t2) => {
+          return new Date(t1.date).getTime() - new Date(t2.date).getTime();
+        });
+        setTvls(res);
+      })
+      .catch(() => {
+        setTvls([]);
+      });
+  }, []);
+  return tvls;
+};
+
+export const useV3VolumesPools = () => {
+  const [volumes, setVolumes] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    getAllV3Pool24Volume()
+      .then((res) => {
+        const result = {};
+        res.forEach((v) => {
+          const { pool_id, volume } = v;
+          result[pool_id] = volume;
+        });
+        setVolumes(result);
+      })
+      .catch(() => {
+        return {};
+      });
+  }, []);
+
+  return volumes;
 };

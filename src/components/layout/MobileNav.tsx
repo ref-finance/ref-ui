@@ -7,41 +7,17 @@ import React, {
 } from 'react';
 import { matchPath } from 'react-router';
 import { Context } from '~components/wrapper';
-import {
-  Near,
-  NavLogo,
-  NavLogoLarge,
-  IconMyLiquidity,
-  IconEn,
-  IconZh,
-  IconVi,
-  WrapNearEnter,
-  IconAirDropGreenTip,
-  WrapNearIconDark,
-  UkIcon,
-  RuIcon,
-  JaIcon,
-  KoIcon,
-  EsIcon,
-  NavLogoSimple,
-} from '~components/icon';
-import { WNEARExchngeIcon } from '~components/icon/Common';
+import { Near, NavLogoSimple } from '~components/icon';
 import { Link, useLocation } from 'react-router-dom';
-import { near, wallet } from '~services/near';
 import { useHistory } from 'react-router';
-import { REF_FARM_CONTRACT_ID } from '~services/near';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { HiMenu, HiOutlineExternalLink } from 'react-icons/hi';
+import { HiOutlineExternalLink } from 'react-icons/hi';
 
 import { FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import { RiLogoutCircleRLine } from 'react-icons/ri';
 import { useRefPrice } from '~state/account';
 import { toPrecision } from '~utils/numbers';
-import { RefAnalytics } from '~components/icon/RefAnalytics';
 import { moreLinks } from '~utils/menu';
-import WrapNear from '~components/forms/WrapNear';
-import { useDepositableBalance, useWhitelistTokens } from '~state/token';
-import { nearMetadata } from '~services/wrap-near';
 import getConfig from '~services/config';
 import {
   AccountIcon,
@@ -51,24 +27,22 @@ import {
 } from '~components/icon/Common';
 
 import { WalletContext } from '../../utils/wallets-integration';
-import { OutLinkIcon } from '~components/icon/Common';
 
 const config = getConfig();
 import { isMobile } from '~utils/device';
+import { MobileMenuItem } from '~utils/menu';
 import {
   getCurrentWallet,
   getAccountName,
 } from '../../utils/wallets-integration';
 import { FarmDot } from '../icon/FarmStamp';
-import {
-  AccountTipDownByAccountID,
-  AuroraEntry,
-  USNCard,
-} from './NavigationBar';
+import { AccountTipDownByAccountID, AuroraEntry } from './NavigationBar';
 import { ConnectDot, CopyIcon } from '../icon/CrossSwapIcons';
-import USNBuyComponent from '~components/forms/USNBuyComponent';
-import USNPage from '~components/usn/USNPage';
-import { REF_FI_SWAP_SWAPPAGE_TAB_KEY } from '../../pages/SwapPage';
+import {
+  REF_FI_SWAP_SWAPPAGE_TAB_KEY,
+  SWAP_MODE_KEY,
+  SWAP_MODE,
+} from '../../pages/SwapPage';
 import Marquee from '~components/layout/Marquee';
 import {
   useWalletSelector,
@@ -77,165 +51,20 @@ import {
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { openTransak } from '../alert/Transak';
 import { BuyNearButton } from '../button/Button';
-
-export function MobileAnchor({
-  to,
-  pattern,
-  name,
-  className,
-  onClick,
-}: {
-  to: string;
-  pattern: string;
-  name: string;
-  className?: string;
-  onClick: () => void;
-}) {
-  const location = useLocation();
-  const isSelected = matchPath(location.pathname, {
-    path: pattern,
-    exact: true,
-    strict: false,
-  });
-
-  return (
-    <div>
-      <Link onClick={onClick} to={to}>
-        <div
-          className={`p-4 text-lg link ${className} ${
-            isSelected ? 'text-white bg-navHighLightBg' : 'text-primaryText'
-          }`}
-        >
-          <FormattedMessage id={name} defaultMessage={name} />
-        </div>
-      </Link>
-    </div>
-  );
-}
-const openMenuContext = createContext(null);
-export function MobileSwitchLanguage() {
-  const context = useContext(Context);
-  const currentLocal = localStorage.getItem('local');
-  const [show, setShow] = useState(false);
-  const { openMenu, setOpenMenu } = useContext(openMenuContext);
-  const handleLanguageMenu = function () {
-    if (openMenu || show === false) {
-      setShow(true);
-      setOpenMenu(false);
-    } else {
-      setShow(false);
-    }
-  };
-
-  return (
-    <div className="relative z-20 bg-cardBg">
-      <div
-        className="flex p-4 items-center text-lg justify-between"
-        onClick={handleLanguageMenu}
-      >
-        <div className={'text-primaryText'}>
-          <FormattedMessage id="language" defaultMessage="Language" />
-        </div>
-        <FiChevronUp
-          className={`${show && !openMenu ? 'inline-block' : 'hidden'} text-xl`}
-        />
-        <FiChevronDown
-          className={`${!show || openMenu ? 'inline-block' : 'hidden'} text-xl`}
-        />
-      </div>
-      <div className={`${show && !openMenu ? 'block' : 'hidden'}`}>
-        <div
-          className={`flex items-center whitespace-nowrap bg-cardBg text-left text-white p-4 ${
-            currentLocal === 'en' ? 'text-white' : 'text-primaryText'
-          }`}
-          onClick={() => context.selectLanguage('en')}
-        >
-          <span className="text-2xl mr-5">
-            <IconEn />
-          </span>
-          English
-        </div>
-        <div
-          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
-            currentLocal === 'zh-CN' ? 'text-white' : 'text-primaryText '
-          }`}
-          onClick={() => context.selectLanguage('zh-CN')}
-        >
-          <span className="text-2xl mr-5">
-            <IconZh />
-          </span>
-          中文
-        </div>
-        <div
-          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
-            currentLocal === 'vi' ? 'text-white' : 'text-primaryText '
-          }`}
-          onClick={() => context.selectLanguage('vi')}
-        >
-          <span className="text-2xl mr-5">
-            <IconVi />
-          </span>
-          Việt
-        </div>
-        <div
-          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
-            currentLocal === 'uk' ? 'text-white' : 'text-primaryText '
-          }`}
-          onClick={() => context.selectLanguage('uk')}
-        >
-          <span className="text-2xl mr-5">
-            <UkIcon />
-          </span>
-          Українська
-        </div>
-        <div
-          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
-            currentLocal === 'ru' ? 'text-white' : 'text-primaryText '
-          }`}
-          onClick={() => context.selectLanguage('ru')}
-        >
-          <span className="text-2xl mr-5">
-            <RuIcon />
-          </span>
-          Pусский
-        </div>
-        <div
-          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
-            currentLocal === 'ja' ? 'text-white' : 'text-primaryText '
-          }`}
-          onClick={() => context.selectLanguage('ja')}
-        >
-          <span className="text-2xl mr-5">
-            <JaIcon />
-          </span>
-          日本語
-        </div>
-        <div
-          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
-            currentLocal === 'ko' ? 'text-white' : 'text-primaryText '
-          }`}
-          onClick={() => context.selectLanguage('ko')}
-        >
-          <span className="text-2xl mr-5">
-            <KoIcon />
-          </span>
-          한국어
-        </div>
-        <div
-          className={`flex items-center hitespace-nowrap text-left bg-cardBg text-white p-4 ${
-            currentLocal === 'es' ? 'text-white' : 'text-primaryText '
-          }`}
-          onClick={() => context.selectLanguage('es')}
-        >
-          <span className="text-2xl mr-5">
-            <EsIcon />
-          </span>
-          Español
-        </div>
-      </div>
-    </div>
-  );
-}
+import { RefIcon, MailBoxIcon } from '../icon/Nav';
+import {
+  MoreIcon,
+  SauceIcon,
+  SauceText,
+  OutLinkIcon,
+  ArrowLeftIcon,
+  ArrowDownIcon,
+  HiMenuIcon,
+  ArrowDownLargeIcon,
+} from '~components/icon/Nav';
+import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
+import { useLanguageItems } from '~utils/menu';
+import { commonLangKey, formatItem } from './NavigationBar';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -484,16 +313,12 @@ export function MobileNavBar(props: any) {
   const iconRef = useRef<HTMLSpanElement | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [openMenu, setOpenMenu] = useState('');
-  const [closeMenu, setCloseMenu] = useState(false);
-  // const history = useHistory();
-  const [mobileWrapNear, setMobileWrapNear] = useState(false);
-  // const [showWalletSelector, setShowWalletSelector] = useState(false);
+  const [openChildMenu, setOpenChildMenu] = useState('');
   const [pathnameState, setPathnameState] = useState<boolean>(
     window.location.pathname !== '/account'
   );
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
-
   const {
     setShowWalletSelector,
     showWalletSelector,
@@ -504,11 +329,19 @@ export function MobileNavBar(props: any) {
   const isSignedIn = globalState.isSignedIn;
 
   const [showTip, setShowTip] = useState<boolean>(false);
-  const [USNButtonHover, setUSNButtonHover] = useState<boolean>(false);
-  const [showUSN, setShowUSN] = useState<boolean>(false);
-
-  const [showeBorrowCard, setShowBorrowCard] = useState(false);
-
+  const [showLanguage, setShowLanguage] = useState<boolean>(false);
+  const displayLanguage = () => {
+    const currentLocal = localStorage.getItem('local');
+    if (commonLangKey.indexOf(currentLocal) > -1) {
+      if (currentLocal == 'zh-CN') {
+        return '中';
+      } else {
+        return currentLocal?.toUpperCase();
+      }
+    } else {
+      return 'EN';
+    }
+  };
   useEffect(() => {
     setShowTip(hasBalanceOnRefAccount);
   }, [hasBalanceOnRefAccount]);
@@ -522,13 +355,8 @@ export function MobileNavBar(props: any) {
   }, [showTip]);
 
   const { wallet } = getCurrentWallet();
-
-  const nearBalance = useDepositableBalance(
-    nearMetadata.id,
-    nearMetadata.decimals
-  );
   const [accountVisible, setAccountVisible] = useState(false);
-
+  const { pathname } = useLocation();
   useEffect(() => {
     document.addEventListener('click', handleClick, false);
 
@@ -564,14 +392,6 @@ export function MobileNavBar(props: any) {
     });
   }, []);
 
-  useEffect(() => {
-    if (mobileWrapNear) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-  }, [mobileWrapNear]);
-
   const handleClick = (e: any) => {
     if (
       iconRef.current.contains(e.target) ||
@@ -589,30 +409,51 @@ export function MobileNavBar(props: any) {
       document.body.style.overflow = 'auto';
     }
   }, [show]);
-
-  // if (isSignedIn) {
-  //   moreLinks[2].children[2] = {
-  //     id: 'Your_Liquidity',
-  //     label: 'Your Liquidity',
-  //     url: '/pools/yours',
-  //     pattern: '/pools/yours',
-  //     isExternal: false,
-  //     logo: <IconMyLiquidity />,
-  //   };
-  // }
+  useEffect(() => {
+    const target = moreLinks.find((link: MobileMenuItem) => {
+      if (link.subRoute?.includes(pathname)) return true;
+    });
+    if (target) {
+      setOpenMenu(target.id);
+    }
+  }, [pathname]);
 
   function close() {
     setShow(false);
   }
-  function handleMenuClick(url: string, label: string, isExternal: boolean) {
+  function handleMenuClick(linkInfo: MobileMenuItem) {
+    const { url, children, id, isExternal } = linkInfo;
     if (url) {
       isExternal ? window.open(url) : window.open(url, '_self');
       close();
-    } else if (openMenu === label) {
-      setCloseMenu(!closeMenu);
-    } else {
-      setOpenMenu(label);
-      setCloseMenu(true);
+    }
+    if (!url && children) {
+      if (openMenu == id) {
+        setOpenMenu('');
+      } else {
+        setOpenMenu(id);
+      }
+    }
+  }
+  function handleChildMenuClick(linkInfo: MobileMenuItem) {
+    const { url, children, id, isExternal } = linkInfo;
+    if (url) {
+      isExternal ? window.open(url) : window.open(url, '_self');
+      close();
+    }
+    if (!url && children) {
+      if (openChildMenu == id) {
+        setOpenChildMenu('');
+      } else {
+        setOpenChildMenu(id);
+      }
+    }
+  }
+  function handleGrandsonMenuClick(linkInfo: MobileMenuItem) {
+    const { url, isExternal } = linkInfo;
+    if (url) {
+      isExternal ? window.open(url) : window.open(url, '_self');
+      close();
     }
   }
   return (
@@ -622,7 +463,7 @@ export function MobileNavBar(props: any) {
           hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
         } text-xs py-1.5 px-2 lg:hidden text-center`}
         style={{
-          backgroundColor: '#CFCEFE',
+          backgroundColor: 'rgb(255, 201, 64)',
           zIndex: 100,
         }}
       >
@@ -653,20 +494,20 @@ export function MobileNavBar(props: any) {
               window.open('https://www.ref.finance/');
             }}
           />
-          <div className="flex">
+          <div className="flex items-center">
             <div
-              className={`flex px-1 ${
-                isSignedIn ? 'mr-px' : 'mr-4'
-              }  items-center justify-center rounded-full border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 ${
+              className={`flex px-1 py-1 items-center justify-center rounded-lg border border-gray-700 hover:border-gradientFrom hover:bg-opacity-0 pl-3 pr-3 ${
                 isSignedIn
-                  ? 'bg-gray-700 text-white'
+                  ? 'bg-white bg-opacity-20 text-white'
                   : 'border border-gradientFrom text-gradientFrom'
-              } pl-3 pr-3`}
+              }`}
             >
-              <div className="pr-1">
-                <Near color={isSignedIn ? 'white' : '#00c6a2'} />
-              </div>
-              <div className="overflow-ellipsis overflow-hidden text-xs whitespace-nowrap account-name relative">
+              <Near
+                className={`${
+                  isSignedIn ? 'text-white' : 'text-gradientFrom'
+                } mr-1.5`}
+              />
+              <div className="overflow-ellipsis overflow-hidden text-sm whitespace-nowrap account-name relative">
                 {isSignedIn ? (
                   <div
                     className="flex items-center"
@@ -684,43 +525,38 @@ export function MobileNavBar(props: any) {
                     ) : null}
 
                     {accountVisible ? (
-                      <FiChevronUp className="text-base ml-1" />
+                      <ArrowDownIcon className="transform rotate-180 ml-2" />
                     ) : (
-                      <FiChevronDown className="text-base ml-1" />
+                      <ArrowDownIcon className="ml-2" />
                     )}
                   </div>
                 ) : (
-                  <button
+                  <span
+                    className="text-xs"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      // setShowWalletSelector(true);
                       modal.show();
                     }}
-                    type="button"
                   >
-                    <span className="ml-2 text-xs">
-                      <FormattedMessage
-                        id="connect_to_near"
-                        defaultMessage="Connect to NEAR"
-                      />
-                    </span>
-                  </button>
+                    <FormattedMessage
+                      id="connect_to_near"
+                      defaultMessage="Connect to NEAR"
+                    />
+                  </span>
                 )}
               </div>
             </div>
-
-            <div className={!isSignedIn ? 'hidden' : ' flex items-center mr-2'}>
+            <div className={!isSignedIn ? 'hidden' : ' flex items-center'}>
               <ConnectDot />
               <ConnectDot />
-
               <AuroraEntry
                 hasBalanceOnAurora={hasAuroraBalance}
                 extraClick={() => setAccountVisible(false)}
               />
             </div>
-            <span ref={iconRef} onClick={() => setShow(true)}>
-              <HiMenu />
+            <span className="ml-4" ref={iconRef} onClick={() => setShow(true)}>
+              <HiMenuIcon />
             </span>
           </div>
         </div>
@@ -734,57 +570,44 @@ export function MobileNavBar(props: any) {
         >
           <div
             ref={popupRef}
-            className="block h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl z-30"
+            className="h-full overflow-y-scroll w-4/6 float-right bg-cardBg shadow-4xl z-30"
           >
-            <div className="p-4 flex text-white items-center justify-start">
-              <NavLogoLarge />
-              <span className="inline-block ml-2 mt-1 text-white">
-                ${data && data !== '-' ? toPrecision(data, 2) : '-'}
-              </span>
-            </div>
-            <div className="text-primaryText divide-y divide-primaryText border-t border-b border-primaryText divide-opacity-30 border-opacity-30">
-              <div className="text-primaryText">
-                <div
-                  className={`flex flex-col p-4 `}
-                  onClick={() => {
-                    setShowUSN(false);
-                    setShowBorrowCard(false);
-                  }}
-                >
-                  {!isSignedIn ? null : (
-                    <span className="text-sm mb-2">
-                      NEAR:&nbsp;{toPrecision(nearBalance, 3, true)}
+            <div className={`${showLanguage ? 'hidden' : ''}`}>
+              <div className="flex text-white items-center justify-between p-4">
+                <div className="transform scale-90 origin-left">
+                  <NavLogoSimple
+                    onClick={() => {
+                      window.open('https://www.ref.finance/');
+                    }}
+                  />
+                </div>
+                <div className="flex items-center">
+                  <BuyNearButton />
+                  <div className="flex items-center ml-2.5 bg-priceBgColor rounded-2xl p-1">
+                    <RefIcon className="mr-1"></RefIcon>
+                    <span className="text-white text-sm">
+                      ${data && data !== '-' ? toPrecision(data, 2) : '-'}
                     </span>
-                  )}
-
-                  <div className={`flex items-center`}>
-                    <BuyNearButton />
                   </div>
                 </div>
               </div>
-              <MobileUSNButton
-                setShow={setShow}
-                setMobileWrapNear={setMobileWrapNear}
-                showUSN={showUSN}
-                setShowBorrowCard={setShowBorrowCard}
-                showeBorrowCard={showeBorrowCard}
-                setShowUSN={setShowUSN}
-              />
-              {moreLinks.map(
-                ({
-                  id,
-                  label,
-                  subRoute,
-                  pattern,
-                  url,
-                  isExternal,
-                  children,
-                  newFunction,
-                  showIcon,
-                  iconElement,
-                  hidden,
-                }) => {
+              <div className="text-primaryText gotham_bold px-4 pb-24">
+                {moreLinks.map((linkInfo: MobileMenuItem) => {
+                  const {
+                    id,
+                    label,
+                    subRoute,
+                    pattern,
+                    children,
+                    showIcon,
+                    iconElement,
+                    hidden,
+                  } = linkInfo;
                   if (hidden) return null;
+                  const isSwap =
+                    pathname === '/' ||
+                    pathname === '/swap' ||
+                    pathname === '/myOrder';
                   let location = useLocation();
                   let isSelected = subRoute
                     ? subRoute.includes(location.pathname)
@@ -796,29 +619,30 @@ export function MobileNavBar(props: any) {
                   if (
                     location.pathname.startsWith('/pools') ||
                     location.pathname.startsWith('/pool') ||
-                    location.pathname.startsWith('/more_pools')
+                    location.pathname.startsWith('/more_pools') ||
+                    location.pathname.startsWith('/yourliquidity') ||
+                    location.pathname.startsWith('/addLiquidityV2') ||
+                    location.pathname.startsWith('/yoursLiquidityDetailV2')
                   ) {
-                    if (id === 'POOL') {
+                    if (id == 'POOL') {
                       isSelected = true;
                     }
                   }
-                  let targetUrl = url;
-                  if (url.startsWith('/pools') && isSignedIn) {
-                    targetUrl = '/pools/yours';
+
+                  if (isSwap) {
+                    if (id === 'trade_capital') {
+                      isSelected = true;
+                    }
                   }
                   return (
-                    <div key={id}>
+                    <div key={id} className="my-2">
                       <div
-                        className={`flex p-4 items-center text-lg justify-between ${
+                        className={`flex pl-4 pr-2 py-3 items-center text-base justify-between rounded-lg ${
                           isSelected
-                            ? !children
-                              ? 'bg-navHighLightBg text-white'
-                              : 'text-white'
+                            ? 'bg-buttonGradientBg text-white'
                             : 'text-primaryText'
                         }`}
-                        onClick={() =>
-                          handleMenuClick(targetUrl, label, isExternal)
-                        }
+                        onClick={() => handleMenuClick(linkInfo)}
                       >
                         {showIcon ? (
                           <span
@@ -829,41 +653,38 @@ export function MobileNavBar(props: any) {
                             {iconElement}
                           </span>
                         ) : (
-                          <div className={`link relative`}>
+                          <span>
                             <FormattedMessage id={id} defaultMessage={label} />
-                            {newFunction ? (
-                              <span className="absolute top-1 -right-2">
-                                <IconAirDropGreenTip />
-                              </span>
-                            ) : null}
-                          </div>
+                          </span>
                         )}
                         {children && (
-                          <span>
-                            <FiChevronUp
-                              className={`${
-                                openMenu === label && closeMenu
-                                  ? 'inline-block'
-                                  : 'hidden'
-                              } text-xl`}
-                            />
-                            <FiChevronDown
-                              className={`${
-                                openMenu !== label || !closeMenu
-                                  ? 'inline-block'
-                                  : 'hidden'
-                              } text-xl`}
-                            />
+                          <span className="ml-1">
+                            {openMenu == id ? (
+                              <ArrowDownLargeIcon className="transform rotate-180 text-white"></ArrowDownLargeIcon>
+                            ) : (
+                              <ArrowDownLargeIcon
+                                className={`${
+                                  isSelected ? 'text-white' : 'text-primaryText'
+                                }`}
+                              ></ArrowDownLargeIcon>
+                            )}
                           </span>
                         )}
                       </div>
                       {children && (
                         <div
-                          className={`${
-                            openMenu === label && closeMenu ? 'block' : 'hidden'
-                          }`}
+                          className={`${openMenu === id ? 'block' : 'hidden'}`}
                         >
-                          {children?.map((link) => {
+                          {children?.map((link: MobileMenuItem) => {
+                            const {
+                              id,
+                              logo,
+                              url,
+                              isExternal,
+                              label,
+                              children,
+                              specialMenuKey,
+                            } = link;
                             let isSubMenuSelected: any = matchPath(
                               location.pathname,
                               {
@@ -872,47 +693,94 @@ export function MobileNavBar(props: any) {
                                 strict: false,
                               }
                             );
-                            if (
-                              location.pathname.startsWith('/pool/') ||
-                              location.pathname.startsWith('/more_pools/')
-                            ) {
-                              if (link.id === 'view_pools') {
-                                isSubMenuSelected = true;
-                              }
-                            }
                             return (
-                              <div
-                                key={link.id}
-                                className={`whitespace-nowrap text-left items-center p-4 pl-2 flex justify-start ${
-                                  !link.isExternal && isSubMenuSelected
-                                    ? 'text-white bg-navHighLightBg'
-                                    : 'text-primaryText'
-                                }`}
-                                onClick={() => {
-                                  link.url && link.isExternal
-                                    ? window.open(link.url)
-                                    : window.open(link.url, '_self');
-                                  close();
-                                }}
-                              >
-                                {link.logo && (
-                                  <span className="text-xl text-left w-8 flex justify-center mr-2">
-                                    {link.logo}
-                                  </span>
-                                )}
-                                <FormattedMessage
-                                  id={link.id}
-                                  defaultMessage={link.label}
-                                />
-                                {link.tip && (
-                                  <span className="ml-2 bg-gradientFrom px-2 flex justify-center items-center text-white text-xs rounded-full">
-                                    {link.tip}
-                                  </span>
-                                )}
+                              <div className="my-2" key={id}>
+                                <div
+                                  className={`flex justify-between text-left items-center pl-3 pr-2 py-3   ${
+                                    isSubMenuSelected
+                                      ? 'text-white bg-menuMoreBgColor rounded-xl'
+                                      : 'text-primaryText'
+                                  }`}
+                                  onClick={() => {
+                                    handleChildMenuClick(link);
+                                  }}
+                                >
+                                  {specialMenuKey == 'sauce' ? (
+                                    <SauceMenu
+                                      isSelected={isSubMenuSelected}
+                                      label={label}
+                                    ></SauceMenu>
+                                  ) : (
+                                    <div className="flex items-center">
+                                      {logo && (
+                                        <span className="text-xl text-left w-8 flex justify-center mr-2">
+                                          {logo}
+                                        </span>
+                                      )}
+                                      {id && (
+                                        <FormattedMessage
+                                          id={id}
+                                          defaultMessage={label}
+                                        />
+                                      )}
+                                    </div>
+                                  )}
 
-                                {link.url && link.isExternal && (
-                                  <HiOutlineExternalLink className="float-right ml-2 text-xl opacity-60" />
-                                )}
+                                  {children && (
+                                    <span className="ml-1">
+                                      {openChildMenu === id ? (
+                                        <ArrowDownLargeIcon className="transform rotate-180 text-white"></ArrowDownLargeIcon>
+                                      ) : (
+                                        <ArrowDownLargeIcon className="text-primaryText"></ArrowDownLargeIcon>
+                                      )}
+                                    </span>
+                                  )}
+                                </div>
+                                {children ? (
+                                  <div
+                                    className={`${
+                                      openChildMenu == id ? 'block' : 'hidden'
+                                    }`}
+                                  >
+                                    {children.map(
+                                      (grandson: MobileMenuItem) => {
+                                        const {
+                                          id,
+                                          logo,
+                                          label,
+                                          url,
+                                          isExternal,
+                                        } = grandson;
+                                        return (
+                                          <div
+                                            key={id}
+                                            className={`flex items-center justify-between pl-12 pr-2 py-3 my-2 w-full`}
+                                            onClick={() => {
+                                              handleGrandsonMenuClick(grandson);
+                                            }}
+                                          >
+                                            <div className="flex items-center">
+                                              {logo && (
+                                                <span className="text-xl mr-2">
+                                                  {logo}
+                                                </span>
+                                              )}
+                                              {id && (
+                                                <FormattedMessage
+                                                  id={id}
+                                                  defaultMessage={label}
+                                                />
+                                              )}
+                                            </div>
+                                            {url && isExternal && (
+                                              <OutLinkIcon />
+                                            )}
+                                          </div>
+                                        );
+                                      }
+                                    )}
+                                  </div>
+                                ) : null}
                               </div>
                             );
                           })}
@@ -920,17 +788,42 @@ export function MobileNavBar(props: any) {
                       )}
                     </div>
                   );
-                }
-              )}
-              <openMenuContext.Provider value={{ openMenu, setOpenMenu }}>
-                <MobileSwitchLanguage />
-              </openMenuContext.Provider>
+                })}
+              </div>
+              <div className="w-4/6 fixed bottom-7 right-0 flex items-center justify-between bg-cardBg px-4 py-3">
+                <div className="flex items-center">
+                  <div
+                    className=" transform scale-75 origin-left"
+                    onClick={() => window.open('https://stats.ref.finance/')}
+                  >
+                    <RefAnalyticsGary />
+                  </div>
+                  {/* <MailBoxIcon
+                    className="relative cursor-pointer -ml-4 -mt-1"
+                    onClick={() => {
+                      window.open('https://form.typeform.com/to/onOPhJ6Y');
+                    }}
+                  ></MailBoxIcon> */}
+                </div>
+                <div
+                  onClick={() => {
+                    setShowLanguage(true);
+                  }}
+                  style={{
+                    width: '30px',
+                    height: '30px',
+                    borderRadius: '10px',
+                  }}
+                  className="flex items-center justify-center text-cardBg text-xs bg-primaryText"
+                >
+                  {displayLanguage()}
+                </div>
+              </div>
             </div>
-            <div
-              className="p-4 bg-cardBg pb-16"
-              onClick={() => window.open('https://stats.ref.finance/')}
-            >
-              <RefAnalytics />
+            <div className={`${showLanguage ? '' : 'hidden'}`}>
+              <MobileLanguage
+                setShowLanguage={setShowLanguage}
+              ></MobileLanguage>
             </div>
           </div>
         </div>
@@ -948,81 +841,68 @@ export function MobileNavBar(props: any) {
   );
 }
 
-function MobileUSNButton({
-  setShow,
-  setMobileWrapNear,
-  showUSN,
-  setShowBorrowCard,
-  showeBorrowCard,
-  setShowUSN,
-}: any) {
-  const [btnTouched, setBtcTouched] = useState<string>('');
-  function goLink() {
-    window.open('https://usnpp.auroralabs.dev/');
-  }
+function SauceMenu(props: any) {
+  const { isSelected, label } = props;
   return (
-    <div className="text-primaryText">
-      <div className="flex p-5 justify-between items-center text-sm">
-        <USNBuyComponent></USNBuyComponent>
-        <div className="flex items-center" onClick={goLink}>
-          <span className="text-sm text-primaryText mx-1.5 whitespace-nowrap">
-            Protection Programme
-          </span>
-          <OutLinkIcon></OutLinkIcon>
-        </div>
-        {/* <div className="ml-3 w-full flex items-center">
-          <button className="pr-2.5 border-r-2 border-white border-opacity-10">
-            <div
-              className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-3 py-1 ${
-                btnTouched === 'buy'
-                  ? 'border border-gradientFrom text-white'
-                  : ''
-              }`}
-              onTouchStart={(e) => {
-                setBtcTouched('buy');
-
-                setShowUSN(true);
-                setShowBorrowCard(false);
-              }}
-              onTouchEnd={(e) => {
-                setBtcTouched('');
-                setShow(false);
-                setMobileWrapNear(false);
-              }}
-            >
-              <FormattedMessage id="buy" defaultMessage="Buy" />
-            </div>
-          </button>
-
-          <button className="pl-2.5">
-            <div
-              className={`rounded-lg bg-black bg-opacity-20 border border-transparent px-3 py-1 ${
-                btnTouched === 'borrow'
-                  ? 'border border-gradientFrom text-white'
-                  : ''
-              }`}
-              onTouchStart={(e) => {
-                setBtcTouched('borrow');
-                setShowUSN(false);
-                setShowBorrowCard(true);
-              }}
-              onTouchEnd={(e) => {
-                setBtcTouched('');
-                setShow(false);
-                setMobileWrapNear(false);
-              }}
-            >
-              <FormattedMessage id="borrow" defaultMessage="Borrow" />
-            </div>
-          </button>
-        </div> */}
+    <div
+      className={`flex items-end rounded-xl whitespace-nowrap text-xs cursor-pointer pl-1 py-0.5`}
+    >
+      <div className="flex items-center mr-1.5">
+        <SauceIcon
+          className={`${isSelected ? 'text-greenColor' : 'text-primaryText'}`}
+        ></SauceIcon>
+        <SauceText className="ml-2.5"></SauceText>
       </div>
-      {/* <USNCard
-        showUSN={showUSN}
-        setShowBorrowCard={setShowBorrowCard}
-        showeBorrowCard={showeBorrowCard}
-        setShowUSN={setShowUSN}
-      /> */}
+      <span className="text-xs">{label}</span>
+    </div>
+  );
+}
+function MobileLanguage(props: any) {
+  const context = useContext(Context);
+  const lans = useLanguageItems();
+  const currentLocal = formatItem(localStorage.getItem('local'));
+  const switchLanuage = (language: string) => {
+    context.selectLanguage(language);
+  };
+  return (
+    <div>
+      <div
+        className="flex items-center pl-5 py-3.5"
+        onClick={() => {
+          props.setShowLanguage(false);
+        }}
+      >
+        <ArrowLeftIcon className="mr-4"></ArrowLeftIcon>
+        <span className="text-base text-white gotham_bold">
+          <FormattedMessage id="language"></FormattedMessage>
+        </span>
+      </div>
+      <div className="px-3.5">
+        {lans.map(({ label, language, logo }, index) => {
+          return (
+            <div
+              key={index}
+              className={`rounded-xl whitespace-nowrap text-left items-center flex justify-start text-white text-sm  py-3 my-2 px-2 ${
+                currentLocal === language
+                  ? 'bg-menuMoreBgColor text-opacity-100'
+                  : 'text-opacity-50'
+              }`}
+              onClick={() => {
+                switchLanuage(language);
+              }}
+            >
+              {logo && (
+                <span
+                  className={`text-xl w-8 text-left flex justify-center mr-2`}
+                >
+                  {logo}
+                </span>
+              )}
+              {label}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

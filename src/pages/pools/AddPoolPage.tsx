@@ -1,21 +1,24 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Card } from '~components/card/Card';
-import { useWhitelistTokens, useTokenBalances } from '~state/token';
-import Loading from '~components/layout/Loading';
-import SelectToken from '~components/forms/SelectToken';
-import { TokenMetadata } from '~services/ft-contract';
-import { toRoundedReadableNumber } from '~utils/numbers';
-import { ArrowDownGreen, ArrowDownWhite } from '~components/icon';
-import Icon from '~components/tokens/Icon';
-import { ButtonTextWrapper, ConnectToNearBtn } from '~components/button/Button';
-import { wallet } from '~services/near';
-import { addSimpleLiquidityPool } from '~services/pool';
-import { Toggle } from '~components/toggle';
-import Alert from '~components/alert/Alert';
+import { Card } from '../../components/card/Card';
+import { useWhitelistTokens, useTokenBalances } from '../../state/token';
+import Loading from '../../components/layout/Loading';
+import SelectToken from '../../components/forms/SelectToken';
+import { TokenMetadata } from '../../services/ft-contract';
+import { toRoundedReadableNumber } from '../../utils/numbers';
+import { ArrowDownGreen, ArrowDownWhite } from '../../components/icon';
+import Icon from '../../components/tokens/Icon';
+import {
+  ButtonTextWrapper,
+  ConnectToNearBtn,
+} from '../../components/button/Button';
+import { wallet } from '../../services/near';
+import { addSimpleLiquidityPool } from '../../services/pool';
+import { Toggle } from '../../components/toggle';
+import Alert from '../../components/alert/Alert';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { toRealSymbol } from '~utils/token';
+import { toRealSymbol } from '../../utils/token';
 import BigNumber from 'bignumber.js';
-import QuestionMark from '~components/farm/QuestionMark';
+import QuestionMark from '../../components/farm/QuestionMark';
 import Modal from 'react-modal';
 import ReactTooltip from 'react-tooltip';
 import {

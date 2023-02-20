@@ -9,6 +9,8 @@ import {
 } from '../../components/button/Button';
 
 import { BeatLoading } from '~components/layout/Loading';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { ConnectToNearBtnSwap } from '../button/Button';
 import {
   getCurrentWallet,
   WalletContext,
@@ -33,8 +35,9 @@ function SubmitButton({
   loading,
   signedInConfig,
 }: SubmitButtonProps) {
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+  const isSignedIn = !!accountId;
 
   return (
     <>
@@ -43,18 +46,23 @@ function SubmitButton({
           type={onClick ? 'button' : 'submit'}
           disabled={disabled || loading}
           onClick={onClick}
-          className={`flex flex-row w-full items-center justify-center px-5 py-2 mt-6 text-white mx-auto ${
+          className={`flex flex-row w-full items-center justify-center px-5 py-2  text-white mx-auto ${
             disabled ? 'disabled:cursor-not-allowed opacity-40' : ''
-          } ${loading ? 'opacity-40' : ''} ${className}`}
+          } ${loading ? 'opacity-40' : ''} ${
+            label === 'insufficient_balance' ? 'font-bold' : ''
+          } ${className} bg-buttonGradientBgOpacity  ${
+            loading || disabled ? '' : 'hover:bg-buttonGradientBg'
+          } `}
           style={{
-            background: 'linear-gradient(180deg, #00C6A2 0%, #008B72 100%)',
+            background: label === 'insufficient_balance' ? '#304352' : '',
             borderRadius: '5px',
+            color: label === 'insufficient_balance' ? '#7E8A93' : '',
           }}
         >
           {!label && (
-            <h1 className="text-lg font-inter font-semibold">
+            <h1 className="text-base font-inter gotham_bold">
               <ButtonTextWrapper
-                loading={loading}
+                loading={label !== 'insufficient_balance' && loading}
                 Text={() => (
                   <FormattedMessage id="swap" defaultMessage="Swap" />
                 )}
@@ -62,9 +70,13 @@ function SubmitButton({
             </h1>
           )}
           {label && (
-            <h1 className="text-lg font-inter font-semibold">
+            <h1
+              className={`text-base font-inter ${
+                label !== 'insufficient_balance' ? 'font-bold' : 'font-semibold'
+              } `}
+            >
               <ButtonTextWrapper
-                loading={loading}
+                loading={label !== 'insufficient_balance' && loading}
                 Text={() => (
                   <FormattedMessage id={label} defaultMessage={label} />
                 )}
@@ -73,11 +85,25 @@ function SubmitButton({
           )}
         </button>
       ) : (
-        <div className="mt-4 w-full">
-          <ConnectToNearBtn />
+        <div className={`mt-4 w-full ${className}`}>
+          <ConnectToNearBtnSwap />
         </div>
       )}
     </>
+  );
+}
+export function InsufficientButton(props: any) {
+  const { divClassName, spanClassName } = props;
+  return (
+    <div
+      className={`flex items-center justify-center bg-menuMoreBoxBorderColor rounded-lg cursor-not-allowed px-2 whitespace-nowrap ${divClassName}`}
+    >
+      <span
+        className={`gotham_bold text-primaryText text-base ${spanClassName}`}
+      >
+        <FormattedMessage id="insufficient_balance"></FormattedMessage>
+      </span>
+    </div>
   );
 }
 

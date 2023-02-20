@@ -15,6 +15,8 @@ import { setupSender } from '@near-wallet-selector/sender';
 import { setupMathWallet } from '@near-wallet-selector/math-wallet';
 import { setupLedger } from '@near-wallet-selector/ledger';
 
+import { setupNeth } from '@near-wallet-selector/neth';
+
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet';
 
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect';
@@ -99,6 +101,11 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         setupSender({
           iconUrl: walletIcons['sender'],
         }),
+        setupNeth({
+          iconUrl: walletIcons['neth'],
+          gas: '300000000000000',
+          bundle: false,
+        }),
         // setupMeteorWallet({
         //   iconUrl: walletIcons['meteor-wallet'],
         // }),
@@ -128,8 +135,9 @@ export const WalletSelectorContextProvider: React.FC = ({ children }) => {
         //     name: 'ref_finance',
         //     description: 'Example dApp used by NEAR Wallet Selector',
         //     url: 'https://github.com/near/wallet-selector',
-        //     icons: ['https://avatars.githubusercontent.com/u/37784886'],
+        //     icons: walletIcons['wallet-connect'],
         //   },
+        //   chainId: `near:${getConfig().networkId}}`,
         //   iconUrl: walletIcons['wallet-connect'],
         // }),
       ],

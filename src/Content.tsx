@@ -11,6 +11,11 @@ import { ReferendumPage } from '~pages/ReferendumPage';
 
 import FarmsMigrate from '~pages/farms/FarmsMigrate';
 import FarmsBoosterPage from '~pages/farms/FarmsBoostPage';
+import YourLiquidityPageV3 from './pages/poolsV3/YourLiquidityPageV3';
+import AddYourLiquidityPageV3 from './pages/poolsV3/AddYourLiquidityPageV3';
+import YourLiquidityDetailV3 from './pages/poolsV3/YourLiquidityDetailV3';
+import PoolDetailV3 from './pages/poolsV3/PoolDetailV3';
+import MyOrderPage from '~pages/MyOrder';
 
 import {
   BrowserRouter as Router,
@@ -77,6 +82,7 @@ import { AccountView } from 'near-api-js/lib/providers/provider';
 import { InjectedWallet } from '@near-wallet-selector/core';
 import { REF_FARM_BOOST_CONTRACT_ID, wallet } from './services/near';
 import { LedgerTransactionModal } from './context/modal-ui/modal';
+import { list_seeds_info } from './services/farm';
 
 export type Account = AccountView & {
   account_id: string;
@@ -198,11 +204,24 @@ export function Content() {
         />
         <Route path="/pool/:id" component={AutoHeight(PoolDetailsPage)} />
         <Route path="/pools/add-token" component={AutoHeight(AddTokenPage)} />
-        <Route path="/pools/yours" component={AutoHeight(YourLiquidityPage)} />
+        {/* <Route path="/pools/yours" component={AutoHeight(YourLiquidityPage)} /> */}
         <Route path="/pools" component={AutoHeight(LiquidityPage)} />
         <Route path="/airdrop" component={AutoHeight(AirdropPage)} />
         <Route path="/farms" component={AutoHeight(FarmsPage)} />
         <Route path={`/sauce/:id`} component={AutoHeight(StableSwapRouter)} />
+        <Route path={'/myOrder'} component={AutoHeight(MyOrderPage)} />
+        <Route
+          path="/yourliquidity"
+          component={AutoHeight(YourLiquidityPageV3)}
+        />
+        <Route
+          path="/yoursLiquidityDetailV2/:id/:status?"
+          component={AutoHeight(YourLiquidityDetailV3)}
+        />
+        <Route
+          path="/addLiquidityV2"
+          component={AutoHeight(AddYourLiquidityPageV3)}
+        />
 
         <Route path="/sauce" component={AutoHeight(StableSwapPageEntry)} />
 
@@ -214,6 +233,7 @@ export function Content() {
 
         <Route path="/v2farms/:id?" component={AutoHeight(FarmsBoosterPage)} />
         <Route path="/farmsMigrate" component={AutoHeight(FarmsMigrate)} />
+        <Route path="/poolV2/:id" component={AutoHeight(PoolDetailV3)} />
         <Route path="/" component={AutoHeight(SwapPage)} />
       </Switch>
     </WalletContext.Provider>

@@ -64,7 +64,7 @@ import {
   isStablePool,
   ALL_STABLE_POOL_IDS,
 } from '../../services/near';
-import { STABLE_POOL_ID } from '../../services/near';
+import { STABLE_POOL_ID, REF_FI_CONTRACT_ID } from '../../services/near';
 import { isNotStablePool, canFarmV2 } from '../../services/pool';
 import {
   WalletContext,
@@ -121,7 +121,11 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 import { checkTransactionStatus } from '../../services/swap';
 import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
+import { BlueCircleLoading } from '../../components/layout/Loading';
+import { NoLiquidity } from '../poolsV3/YourLiquidityPageV3';
 import ReactTooltip from 'react-tooltip';
+import Big from 'big.js';
+import { checkFarmStake } from '../../state/farm';
 const StakeListContext = createContext(null);
 
 function MyShares({
@@ -203,10 +207,11 @@ function AddLiquidityButton() {
   );
 }
 
-export function YourLiquidityPage() {
+export function YourLiquidityPage(props: any) {
+  const { setYourLpValueV1, setLpValueV1Done } = props;
+  const { checkedStatus, listLiquidities, listLiquiditiesLoading } = props;
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
-
   const { v1Farm, v2Farm } = useAllFarms();
 
   const [generalAddLiquidity, setGeneralAddLiquidity] =
@@ -218,26 +223,6 @@ export function YourLiquidityPage() {
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
   const isSignedIn = !!accountId;
-
-  const { txHash } = getURLInfo();
-
-  useEffect(() => {
-    if (txHash && getCurrentWallet()?.wallet?.isSignedIn()) {
-      checkTransactionStatus(txHash).then((res) => {
-        const transaction = res.transaction;
-        const methodName =
-          transaction?.actions[0]?.['FunctionCall']?.method_name;
-
-        const status: any = res.status;
-        const data: string | undefined = status.SuccessValue;
-        if (data && methodName === 'add_simple_pool') {
-          const buff = Buffer.from(data, 'base64');
-          const pool_id = buff.toString('ascii');
-          history.push(`/pool/${pool_id}`);
-        }
-      });
-    }
-  }, [txHash]);
 
   if (!isSignedIn) {
     history.push('/');
@@ -310,6 +295,8 @@ export function YourLiquidityPage() {
     });
   }, [isSignedIn]);
 
+  // if (!pools || !tokensMeta || !v1Farm || !v2Farm) return <Loading />;
+  // todo
   if (
     !pools ||
     !tokensMeta ||
@@ -318,16 +305,31 @@ export function YourLiquidityPage() {
     !batchTotalShares ||
     !batchTotalSharesSimplePools
   )
-    return <Loading />;
+    return (
+      <div>
+        <div className="text-white text-base gotham_bold my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+          V1 (0)
+        </div>
+        <div className="flex items-center justify-center">
+          <BlueCircleLoading />
+        </div>
+      </div>
+    );
 
   const RowRender = ({
     p,
     ids,
     shares,
+    setLpValueV1Done,
+    setYourLpValueV1,
+    count,
   }: {
     p: PoolRPCView;
     ids: string[];
     shares: string;
+    setLpValueV1Done: (done: boolean) => void;
+    setYourLpValueV1: (value: string) => void;
+    count: number;
   }) => {
     const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
 
@@ -352,6 +354,9 @@ export function YourLiquidityPage() {
           endedFarmV1={endedFarmV1}
           lptAmount={lptAmount}
           shares={shares}
+          setLpValueV1Done={setLpValueV1Done}
+          setYourLpValueV1={setYourLpValueV1}
+          count={count}
         />
       </div>
     );
@@ -383,6 +388,9 @@ export function YourLiquidityPage() {
         endedFarmV2={endedFarmV2}
         endedFarmV1={endedFarmV1}
         shares={shares}
+        setLpValueV1Done={setLpValueV1Done}
+        setYourLpValueV1={setYourLpValueV1}
+        count={count}
       />
     );
   };
@@ -400,156 +408,227 @@ export function YourLiquidityPage() {
         return cur > 0 ? acc + 1 : acc;
       }, 0) +
     batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
+  const lpCount =
+    (!vePool || !getConfig().REF_VE_CONTRACT_ID ? 0 : 1) +
+    (batchTotalShares && batchTotalShares?.some((s) => s > 0)
+      ? stablePools?.length || 0
+      : 0) +
+    pools.filter(
+      (p) => !getConfig().REF_VE_CONTRACT_ID || !vePool || p.id !== vePool.id
+    ).length;
+
+  if (lpCount === 0 || +count === 0) {
+    setLpValueV1Done(true);
+    setYourLpValueV1('0');
+  }
+
+  if (+count == 0 && !listLiquiditiesLoading && listLiquidities.length == 0) {
+    return <NoLiquidity></NoLiquidity>;
+  } else if (listLiquidities.length > 0 && +count == 0) {
+    return (
+      <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
+        <div className="mb-3">
+          <span className="text-white text-base gotham_bold">V1 (0)</span>
+          <p className="text-sm text-farmText">
+            <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
+          </p>
+        </div>
+        <NoLiquidity text="V1"></NoLiquidity>
+      </div>
+    );
+  }
 
   return (
     <>
-      <StakeListContext.Provider
-        value={{
-          stakeList,
-          finalStakeList,
-          v2StakeList,
-        }}
-      >
-        <PoolTab count={count}></PoolTab>
-        <div className="flex items flex-col lg:w-2/3 xl:w-3/5 md:w-5/6 xs:w-11/12 m-auto">
-          <div className="w-full flex justify-center self-center">
-            {error && <Alert level="warn" message={error.message} />}
+      {!listLiquiditiesLoading && listLiquidities.length == 0 ? (
+        <div className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}>
+          <div className="mb-3">
+            <span className="text-white text-base gotham_bold">V2 (0)</span>
+            <p className="text-sm text-farmText">
+              <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
+            </p>
           </div>
-          {/* PC */}
-
-          <Card
-            width="w-full"
-            padding="px-0 py-6"
-            className="xs:hidden md:hidden"
-          >
-            <div className="text-white text-xl pr-6 pl-6 lg:pl-10 lg:pr-8 pt-3 pb-6 flex items-center justify-between">
-              <span>
-                <FormattedMessage
-                  id="your_liquidity"
-                  defaultMessage="Your Liquidity"
-                />
-                ({count})
-              </span>
-
-              <GradientButton
-                className="px-4 py-1.5 text-sm"
-                onClick={() => {
-                  setGeneralAddLiquidity(true);
-                }}
-              >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage={'Add Liquidity'}
-                />
-              </GradientButton>
+          <NoLiquidity text="V2"></NoLiquidity>
+        </div>
+      ) : null}
+      <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
+        <StakeListContext.Provider
+          value={{
+            stakeList,
+            finalStakeList,
+            v2StakeList,
+          }}
+        >
+          <div className="flex items flex-col">
+            <div className="w-full flex justify-center self-center">
+              {error && <Alert level="warn" message={error.message} />}
             </div>
+            {/* PC */}
+            <div className="my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
+              <span className="text-white text-base gotham_bold">
+                V1 ({count})
+              </span>
+              <p className="text-sm text-farmText">
+                <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
+              </p>
+            </div>
+            <Card
+              width="w-full"
+              padding="px-0 py-6"
+              className="xs:hidden md:hidden"
+            >
+              {(!(!vePool || !getConfig().REF_VE_CONTRACT_ID) ||
+                batchTotalSharesSimplePools?.some((s) => s > 0) ||
+                batchTotalShares?.some((s) => s > 0)) &&
+              !isClientMobile ? (
+                <section>
+                  <div className="">
+                    <div
+                      style={{
+                        gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
+                      }}
+                      className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:px-8
+                  xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
+                    >
+                      <div className="col-span-2">
+                        <FormattedMessage id="pair" defaultMessage="Pair" />
+                      </div>
+                      <div className="col-span-2 ">
+                        <FormattedMessage id="token" defaultMessage="Token" />
+                      </div>
 
-            {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
-              batchTotalShares?.some((s) => s > 0)) &&
-            !isClientMobile ? (
-              <section>
-                <div className="">
-                  <div
-                    style={{
-                      gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
-                    }}
-                    className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:px-8
-                xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
-                  >
-                    <div className="col-span-2">
-                      <FormattedMessage id="pair" defaultMessage="Pair" />
-                    </div>
-                    <div className="col-span-2 ">
-                      <FormattedMessage id="token" defaultMessage="Token" />
-                    </div>
-
-                    <div className="flex flex-col col-span-5 text-left ml-8">
-                      <span>
-                        <FormattedMessage id="lp_token"></FormattedMessage>
-                      </span>
-                      <span>
-                        (
+                      <div className="flex flex-row col-span-5 text-left ml-8">
+                        <span>
+                          <FormattedMessage id="lp_token"></FormattedMessage>
+                        </span>
+                        <span>
+                          (
+                          <FormattedMessage
+                            id="my_shares"
+                            defaultMessage="Shares"
+                          />
+                          )
+                        </span>
+                      </div>
+                      <div className="col-span-4 xl:ml-8 ml-4">
                         <FormattedMessage
-                          id="my_shares"
-                          defaultMessage="Shares"
+                          id="usd_value"
+                          defaultMessage="USD Value"
                         />
-                        )
-                      </span>
+                      </div>
                     </div>
-                    <div className="col-span-4 xl:ml-8 ml-4">
-                      <FormattedMessage id="value" defaultMessage="Value" />
-                    </div>
-                  </div>
-                  <div className=" overflow-y-auto">
-                    {!vePool || !getConfig().REF_VE_CONTRACT_ID
-                      ? null
-                      : [vePool].map((p) => {
+                    <div className=" overflow-y-auto">
+                      {!vePool || !getConfig().REF_VE_CONTRACT_ID
+                        ? null
+                        : [vePool].map((p) => {
+                            return (
+                              <RowRender
+                                p={p}
+                                ids={p.token_account_ids}
+                                count={lpCount}
+                                setLpValueV1Done={setLpValueV1Done}
+                                setYourLpValueV1={setYourLpValueV1}
+                                shares={
+                                  batchShares?.[
+                                    pools.findIndex((p2) => p2.id === vePool.id)
+                                  ] || ''
+                                }
+                              />
+                            );
+                          })}
+
+                      {batchTotalShares &&
+                        batchTotalShares?.some((s) => s > 0) &&
+                        stablePools?.map((p, i) => {
                           return (
                             <RowRender
+                              count={lpCount}
                               p={p}
                               ids={p.token_account_ids}
-                              shares={
-                                batchShares?.[
-                                  pools.findIndex((p2) => p2.id === vePool.id)
-                                ] || ''
-                              }
+                              shares={batchStableShares?.[i] || ''}
+                              setLpValueV1Done={setLpValueV1Done}
+                              setYourLpValueV1={setYourLpValueV1}
                             />
                           );
                         })}
 
-                    {batchTotalShares &&
-                      batchTotalShares?.some((s) => s > 0) &&
-                      stablePools?.map((p, i) => {
-                        return (
-                          <RowRender
-                            p={p}
-                            ids={p.token_account_ids}
-                            shares={batchStableShares?.[i] || ''}
-                          />
-                        );
-                      })}
-
-                    {pools
-                      .filter(
-                        (p) =>
-                          !getConfig().REF_VE_CONTRACT_ID ||
-                          !vePool ||
-                          p.id !== vePool.id
-                      )
-                      .map((p, i) => {
-                        return (
-                          <RowRender
-                            shares={
-                              batchShares?.[
-                                pools.findIndex((p2) => p2.id === p.id)
-                              ] || ''
-                            }
-                            p={p}
-                            ids={p.token_account_ids}
-                          />
-                        );
-                      })}
+                      {pools
+                        .filter(
+                          (p) =>
+                            !getConfig().REF_VE_CONTRACT_ID ||
+                            !vePool ||
+                            p.id !== vePool.id
+                        )
+                        .map((p, i) => {
+                          return (
+                            <RowRender
+                              count={lpCount}
+                              setLpValueV1Done={setLpValueV1Done}
+                              setYourLpValueV1={setYourLpValueV1}
+                              shares={
+                                batchShares?.[
+                                  pools.findIndex((p2) => p2.id === p.id)
+                                ] || ''
+                              }
+                              p={p}
+                              ids={p.token_account_ids}
+                            />
+                          );
+                        })}
+                    </div>
                   </div>
-                </div>
-              </section>
-            ) : (
-              <Empty />
-            )}
-          </Card>
-          {/* Mobile */}
+                </section>
+              ) : (
+                <Empty />
+              )}
+            </Card>
+            {/* Mobile */}
 
-          {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
-            batchTotalShares?.some((s) => s > 0)) &&
-          isClientMobile ? (
-            <div className="lg:hidden">
-              {!vePool || !getConfig().REF_VE_CONTRACT_ID
-                ? null
-                : [vePool].map((p) => {
+            {(batchTotalSharesSimplePools?.some((s) => s > 0) ||
+              batchTotalShares?.some((s) => s > 0)) &&
+            isClientMobile ? (
+              <div className="lg:hidden">
+                {!vePool || !getConfig().REF_VE_CONTRACT_ID
+                  ? null
+                  : [vePool].map((p) => {
+                      return (
+                        <RowRenderMobile
+                          shares={
+                            batchShares?.[
+                              pools.findIndex((p2) => p2.id === vePool.id)
+                            ] || ''
+                          }
+                          p={p}
+                          ids={p.token_account_ids}
+                        />
+                      );
+                    })}
+
+                {batchTotalShares &&
+                  batchTotalShares?.some((s) => s > 0) &&
+                  stablePools?.map((p, i) => {
+                    return (
+                      <RowRenderMobile
+                        shares={batchStableShares?.[i] || ''}
+                        p={p}
+                        ids={p.token_account_ids}
+                      />
+                    );
+                  })}
+
+                {pools
+                  .filter(
+                    (p) =>
+                      !getConfig().REF_VE_CONTRACT_ID ||
+                      !vePool ||
+                      p.id !== vePool.id
+                  )
+                  .map((p, i) => {
                     return (
                       <RowRenderMobile
                         shares={
                           batchShares?.[
-                            pools.findIndex((p2) => p2.id === vePool.id)
+                            pools.findIndex((p2) => p2.id === p.id)
                           ] || ''
                         }
                         p={p}
@@ -557,68 +636,40 @@ export function YourLiquidityPage() {
                       />
                     );
                   })}
-
-              {batchTotalShares &&
-                batchTotalShares?.some((s) => s > 0) &&
-                stablePools?.map((p, i) => {
-                  return (
-                    <RowRenderMobile
-                      shares={batchStableShares?.[i] || ''}
-                      p={p}
-                      ids={p.token_account_ids}
-                    />
-                  );
-                })}
-
-              {pools
-                .filter(
-                  (p) =>
-                    !getConfig().REF_VE_CONTRACT_ID ||
-                    !vePool ||
-                    p.id !== vePool.id
-                )
-                .map((p, i) => {
-                  return (
-                    <RowRenderMobile
-                      shares={
-                        batchShares?.[
-                          pools.findIndex((p2) => p2.id === p.id)
-                        ] || ''
-                      }
-                      p={p}
-                      ids={p.token_account_ids}
-                    />
-                  );
-                })}
-            </div>
-          ) : (
-            <Card className="lg:hidden mt-4" width="w-full">
-              <Empty />
-            </Card>
-          )}
-          <GradientButton
-            className="px-4 py-1.5 text-sm text-white lg:hidden"
-            onClick={() => {
-              setGeneralAddLiquidity(true);
-            }}
-          >
-            <FormattedMessage
-              id="add_liquidity"
-              defaultMessage={'Add Liquidity'}
-            />
-          </GradientButton>
-        </div>
-      </StakeListContext.Provider>
-      <YourLiquidityAddLiquidityModal
-        isOpen={generalAddLiquidity}
-        onRequestClose={() => {
-          setGeneralAddLiquidity(false);
-        }}
-        stablePools={stablePools}
-      />
+              </div>
+            ) : (
+              <Card className="lg:hidden mt-4" width="w-full">
+                <Empty />
+              </Card>
+            )}
+            {/* <GradientButton
+              className="px-4 py-1.5 text-sm text-white hidden"
+              onClick={() => {
+                setGeneralAddLiquidity(true);
+              }}
+            >
+              <FormattedMessage
+                id="add_liquidity"
+                defaultMessage={'Add Liquidity'}
+              />
+            </GradientButton> */}
+          </div>
+        </StakeListContext.Provider>
+        <YourLiquidityAddLiquidityModal
+          isOpen={generalAddLiquidity}
+          onRequestClose={() => {
+            setGeneralAddLiquidity(false);
+          }}
+          stablePools={stablePools}
+        />
+      </div>
     </>
   );
 }
+
+export const REF_FI_YOUR_LP_VALUE = 'REF_FI_YOUR_LP_VALUE';
+
+export const REF_FI_YOUR_LP_VALUE_V1_COUNT = 'REF_FI_YOUR_LP_VALUE_V1_COUNT';
 
 function PoolRow(props: {
   pool: PoolRPCView;
@@ -631,8 +682,19 @@ function PoolRow(props: {
   endedFarmV2?: number;
   shares: string;
   tvl: number;
+  setLpValueV1Done: (done: boolean) => void;
+  setYourLpValueV1: (value: string) => void;
+  count: number;
 }) {
-  const { pool: poolRPC, endedFarmV1, endedFarmV2, shares } = props;
+  const {
+    pool: poolRPC,
+    endedFarmV1,
+    endedFarmV2,
+    shares,
+    setLpValueV1Done,
+    setYourLpValueV1,
+    count,
+  } = props;
   const pool = parsePool(poolRPC);
 
   const needForbidden = Number(pool.id) === Number(NEARX_POOL_ID);
@@ -673,7 +735,13 @@ function PoolRow(props: {
 
   const usdValue = useMemo(() => {
     try {
-      if (!userTotalShareToString || typeof poolTVL !== 'number' || !pool)
+      if (
+        !userTotalShareToString ||
+        typeof poolTVL !== 'number' ||
+        !pool ||
+        (Number(checkFarmStake({ poolId, stakeList: finalStakeList })) > 0 &&
+          Number(farmStakeTotal) === 0)
+      )
         return '-';
 
       const rawRes = multiply(
@@ -690,8 +758,47 @@ function PoolRow(props: {
     } catch (error) {
       return '-';
     }
-  }, [poolTVL, userTotalShareToString, pool]);
+  }, [poolTVL, userTotalShareToString, pool, finalStakeList]);
 
+  useEffect(() => {
+    if (usdValue === '-') return;
+    const rawRes = multiply(
+      new BigNumber(userTotalShareToString)
+        .plus(
+          Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0'
+        )
+        .toNumber()
+        .toFixed(),
+      divide(poolTVL.toString(), pool?.shareSupply)
+    );
+
+    const storagedValueString = sessionStorage.getItem(REF_FI_YOUR_LP_VALUE);
+
+    const storagedValue = storagedValueString
+      ? JSON.parse(storagedValueString)
+      : {};
+
+    storagedValue[pool.id] = rawRes;
+
+    sessionStorage.setItem(REF_FI_YOUR_LP_VALUE, JSON.stringify(storagedValue));
+
+    if (Object.keys(storagedValue).length === count) {
+      const values = Object.values(storagedValue) as string[];
+
+      setYourLpValueV1(
+        values
+          .reduce(
+            (acc, cur, i) => {
+              return new Big(acc).plus(new Big(isNaN(Number(cur)) ? '0' : cur));
+            },
+
+            new Big(0)
+          )
+          .toFixed(3)
+      );
+      setLpValueV1Done(true);
+    }
+  }, [usdValue]);
   if (
     userTotalShare
       .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0')
@@ -746,7 +853,7 @@ function PoolRow(props: {
   const TokenInfoPC = ({ token }: { token: TokenMetadata }) => {
     return (
       <div className="inline-flex items-center justify-between my-1 w-28">
-        <div className="font-semibold">{toRealSymbol(token.symbol)}</div>
+        <div className="gotham_bold">{toRealSymbol(token.symbol)}</div>
         <div className="font-normal relative left-2.5">
           {tokenAmountShare(
             pool,
@@ -829,7 +936,7 @@ function PoolRow(props: {
           </div>
         </div>
 
-        <div className="col-span-2 inline-flex flex-col text-xs">
+        <div className="col-span-2 inline-flex flex-col text-sm">
           {tokensSort.map((token, i) => (
             <TokenInfoPC key={i} token={token} />
           ))}
@@ -957,7 +1064,7 @@ function PoolRow(props: {
               </span>
               <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
                 <span className="underline">
-                  <FormattedMessage id="dao" defaultMessage={'DAO'} />
+                  <FormattedMessage id="vote_capital" defaultMessage={'VOTE'} />
                 </span>
                 <span className="ml-0.5">
                   <VEARROW />
@@ -1023,19 +1130,16 @@ function PoolRow(props: {
                     });
                   }
                 }}
-                className={`text-xs col-span-2 ${
+                className={`text-sm col-span-2 ${
                   needForbidden ? 'text-opacity-20' : ''
-                } px-1.5 text-center whitespace-nowrap mb-3`}
+                } px-1.5 py-1.5 text-center whitespace-nowrap mb-3 gotham_bold rounded-lg`}
                 style={{
                   minWidth: '104px',
                   background: needForbidden ? '#314351' : '',
                   border: needForbidden ? 'none' : '',
                 }}
               >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage="Add Liquidity"
-                />
+                <FormattedMessage id="add" defaultMessage="Add" />
               </SolidButton>
               {needForbidden ? (
                 <ReactTooltip
@@ -1064,7 +1168,7 @@ function PoolRow(props: {
 
                 setShowWithdraw(true);
               }}
-              className="text-xs w-full px-4 col-span-2 text-center h-8 mb-1"
+              className="text-sm w-full px-4 col-span-2 text-center h-8 mb-1 gotham_bold rounded-lg"
               style={{
                 minWidth: '104px',
               }}
@@ -1081,7 +1185,7 @@ function PoolRow(props: {
         to={{ pathname: `/pool/${pool.id}` }}
       >
         <Card width="w-full" padding="py-4 px-0">
-          <div className="flex flex-col items-start pb-4 border-b border-gray-700 border-opacity-70 px-6">
+          <div className="flex flex-col items-start pb-4 border-b border-gray-700 border-opacity-70 px-6 bg-orderMobileTop">
             <div className="flex items-center">
               <div className="ml-1 mr-4 flex items-center">{Images}</div>
               <div className="text-xs font-semibold">
@@ -1225,7 +1329,10 @@ function PoolRow(props: {
                     <FormattedMessage id="in" defaultMessage={'in'} />
                   </span>
                   <span className="border-b border-primaryText">
-                    <FormattedMessage id="dao" defaultMessage={'DAO'} />
+                    <FormattedMessage
+                      id="vote_capital"
+                      defaultMessage={'VOTE'}
+                    />
                   </span>
                   <span className="text-gradientFrom ml-0.5">
                     <VEARROW />
@@ -1306,10 +1413,7 @@ function PoolRow(props: {
                   border: needForbidden ? 'none' : '',
                 }}
               >
-                <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage="Add Liquidity"
-                />
+                <FormattedMessage id="add" defaultMessage="Add" />
               </SolidButton>
               {needForbidden ? (
                 <ReactTooltip
@@ -1420,7 +1524,7 @@ function MorePoolRow({
         {canFarm && (
           <a
             href={`/v2farms/${pool.id}-r`}
-            className="bg-gradientFrom ml-2 xs:ml-1 text-black whitespace-nowrap text-sm px-1 py-0.5 flex items-center hover:bg-senderHot rounded-md"
+            className="bg-gradientFrom ml-2 xs:ml-1 text-black whitespace-nowrap text-xs px-2 py-0.5 flex items-center hover:bg-senderHot rounded-md"
           >
             <FormattedMessage id="farm" />
             <span className="ml-1">
@@ -1430,8 +1534,7 @@ function MorePoolRow({
         )}
       </span>
 
-      <span className="flex items-center col-span-4">
-        <FormattedMessage id="tvl" />
+      <span className="flex items-center col-span-3">
         <span className={`ml-2 ${checked ? 'text-white' : ''}`}>
           $
           {Number(pool.tvl) > 0 && Number(pool.tvl) < 0.01
@@ -1440,8 +1543,7 @@ function MorePoolRow({
         </span>
       </span>
 
-      <span className="flex items-center justify-self-end col-span-2">
-        <FormattedMessage id="fee" defaultMessage={'Fee'} />
+      <span className="flex items-center col-span-3 pl-4">
         <span className={`ml-2 ${checked ? 'text-white' : ''}`}>
           {`${toPrecision(calculateFeePercent(pool.fee).toString(), 2)}`}%
         </span>
@@ -1450,7 +1552,7 @@ function MorePoolRow({
   );
 }
 
-function YourLiquidityAddLiquidityModal(
+export function YourLiquidityAddLiquidityModal(
   props: ReactModal.Props & {
     stablePools: PoolRPCView[];
   }
@@ -1575,6 +1677,14 @@ function YourLiquidityAddLiquidityModal(
   }, [tokens.map((t) => t.id).join('-'), pool]);
 
   balances && (balances[WRAP_NEAR_CONTRACT_ID] = nearBalance);
+
+  const getMax = function (id: string, amount: string) {
+    return id !== WRAP_NEAR_CONTRACT_ID
+      ? amount
+      : Number(amount) <= 0.5
+      ? '0'
+      : String(Number(amount) - 0.5);
+  };
 
   const changeFirstTokenAmount = (amount: string) => {
     setError(null);
@@ -1706,6 +1816,25 @@ function YourLiquidityAddLiquidityModal(
       });
   }, [balances, pool?.id, firstTokenAmount, secondTokenAmount]);
 
+  const firstTokenBalanceBN =
+    tokens[0] && balances
+      ? new BigNumber(
+          getMax(
+            tokens[0].id,
+            toReadableNumber(tokens[0].decimals, balances[tokens[0].id])
+          )
+        )
+      : new BigNumber(0);
+
+  const secondTokenBalanceBN =
+    tokens[1] && balances
+      ? new BigNumber(
+          getMax(
+            tokens[1].id,
+            toReadableNumber(tokens[1].decimals, balances[tokens[1].id])
+          )
+        )
+      : new BigNumber(0);
   function validate({
     firstAmount,
     secondAmount,
@@ -1714,19 +1843,8 @@ function YourLiquidityAddLiquidityModal(
     secondAmount: string;
   }) {
     const firstTokenAmountBN = new BigNumber(firstAmount.toString());
-    const firstTokenBalanceBN = new BigNumber(
-      getMax(
-        tokens[0].id,
-        toReadableNumber(tokens[0].decimals, balances?.[tokens[0].id] || '0')
-      )
-    );
+
     const secondTokenAmountBN = new BigNumber(secondAmount.toString());
-    const secondTokenBalanceBN = new BigNumber(
-      getMax(
-        tokens[1].id,
-        toReadableNumber(tokens[1].decimals, balances?.[tokens[1].id] || '0')
-      )
-    );
 
     setCanSubmit(false);
     setCanDeposit(false);
@@ -1891,14 +2009,6 @@ function YourLiquidityAddLiquidityModal(
     };
   };
 
-  const getMax = function (id: string, amount: string) {
-    return id !== WRAP_NEAR_CONTRACT_ID
-      ? amount
-      : Number(amount) <= 0.5
-      ? '0'
-      : String(Number(amount) - 0.5);
-  };
-
   const render = (token: TokenMetadata) => {
     return toRoundedReadableNumber({
       decimals: token.decimals,
@@ -1917,7 +2027,8 @@ function YourLiquidityAddLiquidityModal(
     );
   };
 
-  if (!selectTokens) return <Loading />;
+  // if (!selectTokens) return <Loading />;
+  if (!selectTokens) return null;
 
   return (
     <>
@@ -1964,14 +2075,16 @@ function YourLiquidityAddLiquidityModal(
                       balances?.[tokens[0].id]
                     )}
                   >
-                    {toPrecision(
-                      toReadableNumber(
-                        tokens[0].decimals,
-                        balances?.[tokens[0].id]
-                      ),
-                      2,
-                      true
-                    )}
+                    {isSignedIn
+                      ? toPrecision(
+                          toReadableNumber(
+                            tokens[0].decimals,
+                            balances?.[tokens[0].id]
+                          ),
+                          2,
+                          true
+                        )
+                      : '-'}
                   </span>
                 </div>
                 <div className="flex items-center">
@@ -2024,14 +2137,16 @@ function YourLiquidityAddLiquidityModal(
                       balances?.[tokens[1].id]
                     )}
                   >
-                    {toPrecision(
-                      toReadableNumber(
-                        tokens[1].decimals,
-                        balances?.[tokens[1].id]
-                      ),
-                      2,
-                      true
-                    )}
+                    {isSignedIn
+                      ? toPrecision(
+                          toReadableNumber(
+                            tokens[1].decimals,
+                            balances?.[tokens[1].id]
+                          ),
+                          2,
+                          true
+                        )
+                      : '-'}
                   </span>
                 </div>
                 <div className="flex items-center ">
@@ -2107,13 +2222,27 @@ function YourLiquidityAddLiquidityModal(
                     <FormattedMessage id="oops" defaultMessage="Oops" />!
                   </label>
                   <label className="ml-2.5 text-warnColor ">
-                    <FormattedMessage id="you_do_not_have_enough" />{' '}
-                    {toRealSymbol(modal?.token?.symbol)}.
+                    {modal?.token?.id === WRAP_NEAR_CONTRACT_ID &&
+                    (tokens[0].id === WRAP_NEAR_CONTRACT_ID
+                      ? Number(firstTokenBalanceBN) - Number(firstTokenAmount) <
+                        0.5
+                      : Number(secondTokenBalanceBN) -
+                          Number(secondTokenAmount) <
+                        0.5) ? (
+                      <FormattedMessage id="near_validation_error" />
+                    ) : (
+                      <>
+                        <FormattedMessage id="you_do_not_have_enough" />{' '}
+                        {toRealSymbol(modal?.token?.symbol)}.
+                      </>
+                    )}
                   </label>
                 </div>
               ) : null}
 
-              {candPools?.length < 1 && tokens?.[0].id !== tokens?.[1].id ? (
+              {isSignedIn &&
+              candPools?.length < 1 &&
+              tokens?.[0].id !== tokens?.[1].id ? (
                 <div className="flex bg-black bg-opacity-20 items-center justify-between rounded-md mb-6 py-3 px-4 xs:px-2 border border-warnColor text-sm">
                   <label className="text-warnColor text-base flex items-center">
                     <span className="mr-2">
@@ -2184,6 +2313,19 @@ function YourLiquidityAddLiquidityModal(
           {/* for candidate list */}
           {candPools?.length > 0 && (
             <div style={{ width: cardWidth }} className="xs:pb-10 xs:mb-10">
+              {displayCandPools?.length > 0 ? (
+                <div className="grid grid-cols-10 justify-center mt-2.5">
+                  <span className="text-addV1PoolTableColor text-sm col-span-4 pl-6">
+                    <FormattedMessage id="pool"></FormattedMessage>
+                  </span>
+                  <span className="text-addV1PoolTableColor text-sm col-span-3 pl-2">
+                    <FormattedMessage id="tvl"></FormattedMessage>
+                  </span>
+                  <span className="text-addV1PoolTableColor text-sm col-span-3 pl-4">
+                    <FormattedMessage id="fee"></FormattedMessage>
+                  </span>
+                </div>
+              ) : null}
               {displayCandPools?.slice(0, 3)?.map((p) => {
                 return (
                   <MorePoolRow
@@ -2215,17 +2357,19 @@ function YourLiquidityAddLiquidityModal(
           )}
         </div>
       </Modal>
-      <AddPoolModal
-        isOpen={addPoolOpen}
-        onRequestClose={(e) => {
-          setAddPoolOpen(false);
-          props.onRequestClose(e);
-        }}
-        tokens={selectTokens}
-        balances={selectBalances}
-        token1Pre={tokens[0]}
-        token2Pre={tokens[1]}
-      />
+      {isSignedIn ? (
+        <AddPoolModal
+          isOpen={addPoolOpen}
+          onRequestClose={(e) => {
+            setAddPoolOpen(false);
+            props.onRequestClose(e);
+          }}
+          tokens={selectTokens}
+          balances={selectBalances}
+          token1Pre={tokens[0]}
+          token2Pre={tokens[1]}
+        />
+      ) : null}
     </>
   );
 }

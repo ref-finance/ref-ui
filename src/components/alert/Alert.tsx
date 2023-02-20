@@ -4,9 +4,11 @@ import { FaExclamationTriangle } from 'react-icons/fa';
 export default function Alert({
   level,
   message,
+  extraClass,
 }: {
   level: 'error' | 'warn';
   message: string;
+  extraClass?: string;
 }) {
   const levelToColor = {
     error: 'error',
@@ -16,7 +18,7 @@ export default function Alert({
 
   return (
     <div
-      className={`inline-flex items-center leading-none p-2 text-teal text-sm`}
+      className={`inline-flex items-center leading-none p-2 text-teal text-sm ${extraClass}`}
     >
       <div>
         <FaExclamationTriangle className={`text-${color} text-lg`} />

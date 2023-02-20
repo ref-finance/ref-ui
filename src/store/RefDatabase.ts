@@ -36,6 +36,7 @@ interface PoolsTokens {
   update_time: string;
   token0_price: string;
   Dex?: string;
+  pairAdd?: string;
 }
 
 export interface PoolDb extends Pool {
@@ -89,7 +90,6 @@ export interface BoostSeeds {
 }
 
 class RefDatabase extends Dexie {
-  public pools: Dexie.Table<Pool>;
   public tokens: Dexie.Table<TokenMetadata>;
   public farms: Dexie.Table<FarmDexie>;
   public poolsTokens: Dexie.Table<PoolsTokens>;
@@ -228,6 +228,7 @@ class RefDatabase extends Dexie {
           shareSupply: string;
           token0_ref_price: string;
           Dex: string;
+          pairAdd: string;
         }) => ({
           id: pool.id,
           token1Id: pool.tokenIds[0],
@@ -239,6 +240,7 @@ class RefDatabase extends Dexie {
           update_time: moment().unix(),
           token0_price: pool.token0_ref_price || '0',
           Dex: pool.Dex,
+          pairAdd: pool?.pairAdd,
         })
       )
     );
@@ -282,6 +284,7 @@ class RefDatabase extends Dexie {
       },
       token0_ref_price: item.token0_price,
       Dex: item.Dex,
+      pairAdd: item?.pairAdd,
     }));
   }
 
@@ -490,6 +493,19 @@ class RefDatabase extends Dexie {
   }
   public async queryBoostSeeds() {
     return await this.boostSeeds.toArray();
+  }
+
+  public async queryBoostSeedsBySeeds(seeds: string[]) {
+    return (
+      await this.boostSeeds
+        .filter((seed) => seeds.includes(seed.id || ''))
+        .toArray()
+    ).reduce((acc, cur, i) => {
+      return {
+        ...acc,
+        [cur.id]: cur,
+      };
+    }, {});
   }
   public async checkTokenPrices() {
     const priceList = await this.tokenPrices.limit(2).toArray();

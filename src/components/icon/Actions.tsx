@@ -734,6 +734,13 @@ const viewMap = {
   'Unlock LPt': Withdraw,
   'Withdraw Bonus': Withdraw,
   'Deposit Bonus': Deposit,
+  'Withdraw Asset': Withdraw,
+  'Cancel Order': RemoveLiquidity,
+  'Create Pool': AddLiquidity,
+  'Claim Order': Withdraw,
+  'Claim Fees': Withdraw,
+  'Make An Order': AddLiquidity,
+  'Append Liquidity': AddLiquidity,
 };
 
 const blackViewMap = {
@@ -773,6 +780,13 @@ const blackViewMap = {
   'Unlock LPt': WithdrawBlack,
   'Withdraw Bonus': WithdrawBlack,
   'Deposit Bonus': DepositBlack,
+  'Withdraw Asset': WithdrawBlack,
+  'Cancel Order': RemoveLiquidityBlack,
+  'Create Pool': AddLiquidityBlack,
+  'Claim Order': WithdrawBlack,
+  'Claim Fees': WithdrawBlack,
+  'Make An Order': AddLiquidityBlack,
+  'Append Liquidity': AddLiquidityBlack,
 };
 
 export function mapToView(action: string, black = false): JSX.Element {

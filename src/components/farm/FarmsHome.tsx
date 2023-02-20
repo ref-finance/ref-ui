@@ -121,6 +121,7 @@ import Countdown, { zeroPad } from 'react-countdown';
 import { MoreButtonIcon } from '../../components/icon/Common';
 
 import _ from 'lodash';
+import { NEAR_WITHDRAW_KEY } from '../forms/WrapNear';
 
 const {
   STABLE_POOL_IDS,
@@ -145,56 +146,8 @@ export default function FarmsHome(props: any) {
   );
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const [popUp, setPopUp] = useState(false);
-  const { txHash, pathname, errorType } = getURLInfo();
   const { user_migrate_seeds, seed_loading, user_claimed_rewards } =
     useMigrate_user_data();
-  useEffect(() => {
-    if (txHash && isSignedIn && popUp) {
-      checkTransaction(txHash)
-        .then((res: any) => {
-          const slippageErrorPattern = /ERR_MIN_AMOUNT|slippage error/i;
-
-          const isSlippageError = res.receipts_outcome.some((outcome: any) => {
-            return slippageErrorPattern.test(
-              outcome?.outcome?.status?.Failure?.ActionError?.kind
-                ?.FunctionCallError?.ExecutionError
-            );
-          });
-          const transaction = res.transaction;
-          const methodName =
-            transaction?.actions[0]?.['FunctionCall']?.method_name;
-          const isUsn =
-            sessionStorage.getItem('usn') == '1' &&
-            (methodName == 'ft_transfer_call' || methodName == 'withdraw');
-          sessionStorage.removeItem('usn');
-          return {
-            isUSN: isUsn,
-            isSlippageError,
-            isNearWithdraw: methodName == 'near_withdraw',
-            isNearDeposit: methodName == 'near_deposit',
-          };
-        })
-        .then(({ isUSN, isSlippageError, isNearWithdraw, isNearDeposit }) => {
-          if (isUSN || isNearWithdraw || isNearDeposit) {
-            const source = sessionStorage.getItem('near_with_draw_source');
-            isUSN &&
-              !isSlippageError &&
-              !errorType &&
-              usnBuyAndSellToast(txHash);
-            ((isNearWithdraw && source != 'farm_token') || isNearDeposit) &&
-              !errorType &&
-              swapToast(txHash);
-            sessionStorage.removeItem('near_with_draw_source');
-            window.history.replaceState(
-              {},
-              '',
-              window.location.origin + pathname
-            );
-          }
-        });
-    }
-  }, [txHash, isSignedIn, popUp]);
 
   const [showEndedFarmList, setShowEndedFarmList] = useState(
     localStorage.getItem('endedfarmShow') == '1' ? true : false
@@ -391,6 +344,7 @@ export default function FarmsHome(props: any) {
       pools,
     });
   }
+
   async function get_user_seeds_and_unClaimedRewards() {
     if (isSignedIn) {
       // get user seeds
@@ -506,12 +460,13 @@ export default function FarmsHome(props: any) {
         const apr =
           seedPowerTvl == 0
             ? 0
-            : (Number(readableNumber) * 360 * reward_token_price) /
+            : (Number(readableNumber) * 365 * reward_token_price) /
               seedPowerTvl;
         const baseApr =
           seedTvl == 0
             ? 0
-            : (Number(readableNumber) * 360 * reward_token_price) / seedTvl;
+            : (Number(readableNumber) * 365 * reward_token_price) / seedTvl;
+
         farm.apr = apr.toString();
         farm.baseApr = baseApr.toString();
       });
@@ -855,7 +810,6 @@ export default function FarmsHome(props: any) {
     if (from == 'main') {
       setHomePageLoading(false);
     }
-    setPopUp(true);
     set_farm_display_List(farm_display_List);
     set_farm_display_ended_List(Array.from(farm_display_ended_List));
     if (keyWords) {
@@ -2348,7 +2302,12 @@ function FarmView(props: {
             <label class="text-xs text-farmText">${
               (apr == 0 ? '-' : formatWithCommas(toPrecision(apr, 2))) + '%'
             }</label>
-            <label class="text-xs text-farmText">${txt}: ${startDate}</label>
+            <label class="text-xs text-farmText ${
+              +startTime == 0 ? 'hidden' : ''
+            }">${txt}: ${startDate}</label>
+            <label class="text-xs text-farmText mt-0.5 ${
+              +startTime == 0 ? '' : 'hidden'
+            }">Pending</label>
           </div>
       </div>`;
       } else {
@@ -2459,6 +2418,16 @@ function FarmView(props: {
         });
       });
     }
+    function display_number(value: string | number) {
+      if (!value) return value;
+      const [whole, decimals] = value.toString().split('.');
+      const whole_format = formatWithCommas(whole);
+      if (+whole < 1 && decimals) {
+        return whole_format + '.' + decimals;
+      } else {
+        return whole_format;
+      }
+    }
     // show last display string
     const rewards_week_txt = intl.formatMessage({ id: 'rewards_week' });
     let result: string = `<div class="text-sm text-farmText pt-1">${rewards_week_txt}</div>`;
@@ -2477,21 +2446,27 @@ function FarmView(props: {
                       <div class="flex justify-between items-center w-full"><img class="w-5 h-5 rounded-full mr-7" style="filter: grayscale(100%)" src="${
                         token.icon
                       }"/>
-                      <label class="text-xs text-farmText">${formatWithCommas(
-                        niceDecimalsExtreme(commonRewardTotalRewardsPerWeek, 4)
+                      <label class="text-xs text-farmText">${display_number(
+                        commonRewardTotalRewardsPerWeek
                       )}</label>
                       </div>
-                      <label class="text-xs text-farmText mt-0.5">${txt}: ${moment
+
+                      <label class="text-xs text-farmText mt-0.5 ${
+                        +startTime == 0 ? 'hidden' : ''
+                      }">${txt}: ${moment
           .unix(startTime)
           .format('YYYY-MM-DD')}</label>
+                      <label class="text-xs text-farmText mt-0.5 ${
+                        +startTime == 0 ? '' : 'hidden'
+                      }">Pending</label>
                     </div>`;
       } else {
         itemHtml = `<div class="flex justify-between items-center h-8 my-2">
                       <img class="w-5 h-5 rounded-full mr-7" src="${
                         token.icon
                       }"/>
-                      <label class="text-xs text-navHighLightText">${formatWithCommas(
-                        niceDecimalsExtreme(commonRewardTotalRewardsPerWeek, 4)
+                      <label class="text-xs text-navHighLightText">${display_number(
+                        commonRewardTotalRewardsPerWeek
                       )}</label>
                     </div>`;
       }

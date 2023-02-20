@@ -16,7 +16,13 @@ import { WalletSelectorModal } from '../layout/WalletSelector';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { CheckedTick, UnCheckedBoxVE } from '../icon/CheckBox';
 import { isClientMobie, useClientMobile } from '../../utils/device';
-import { BuyNearHover, BuyNearDefault, BuyNearMobile } from '../icon/Nav';
+import {
+  BuyNearHover,
+  BuyNearDefault,
+  BuyNearMobile,
+  BuyNearIcon,
+  BuyNearHoverIcon,
+} from '../icon/Nav';
 import { openTransak } from '../alert/Transak';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 
@@ -311,9 +317,18 @@ export function SolidButton(
     padding?: string;
     className?: string;
     loading?: boolean;
+    disabledColor?: string;
   }
 ) {
-  const { disabled, padding, className, onClick, loading, style } = props;
+  const {
+    disabledColor,
+    disabled,
+    padding,
+    className,
+    onClick,
+    loading,
+    style,
+  } = props;
   return (
     <button
       onClick={onClick}
@@ -321,7 +336,13 @@ export function SolidButton(
       className={`${disabled ? 'cursor-not-allowed opacity-40' : ''}  ${
         loading ? 'opacity-40' : ''
       }
-        text-white rounded  bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover
+        text-white rounded
+        ${
+          disabled && disabledColor
+            ? disabledColor
+            : ' bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover'
+        }
+       
          ${padding ? padding : 'py-2'}
         ${className ? className : ''}
       `}
@@ -345,7 +366,9 @@ export function OutlineButton(
       style={style}
       onClick={onClick}
       disabled={disabled}
-      className={`rounded ${disabled ? 'cursor-not-allowed  opacity-40' : ''} ${
+      className={`flex items-center justify-center rounded ${
+        disabled ? 'cursor-not-allowed  opacity-40' : ''
+      } ${
         padding ? padding : 'py-2'
       } border border-gradientFromHover text-gradientFrom ${className}`}
     >
@@ -364,6 +387,7 @@ export function GradientButton(
     loading?: boolean;
     backgroundImage?: string;
     minWidth?: string;
+    borderRadius?: string;
   }
 ) {
   const {
@@ -374,6 +398,7 @@ export function GradientButton(
     btnClassName,
     backgroundImage,
     minWidth,
+    borderRadius,
     onClick,
   } = props;
   return (
@@ -382,7 +407,7 @@ export function GradientButton(
         loading ? 'opacity-40' : ''
       } bg-gradient-to-b from-gradientFrom to-gradientTo hover:from-gradientFromHover to:from-gradientToHover`}
       style={{
-        borderRadius: '5px',
+        borderRadius: borderRadius || '5px',
         color: color || '',
         backgroundImage: backgroundImage || '',
         minWidth: minWidth || '',
@@ -992,7 +1017,6 @@ export const BuyNearButton = () => {
   const wallet = getCurrentWallet().wallet;
 
   const isMobile = useClientMobile();
-
   return (
     <button
       onClick={(e) => {
@@ -1000,6 +1024,7 @@ export const BuyNearButton = () => {
         e.stopPropagation();
         openTransak(wallet.getAccountId() || '');
       }}
+      className="relative z-50"
       onMouseEnter={() => {
         setHover(true);
       }}
@@ -1008,12 +1033,72 @@ export const BuyNearButton = () => {
       }}
     >
       {isMobile ? (
-        <BuyNearMobile />
+        <BuyNearIcon />
       ) : hover ? (
-        <BuyNearHover />
+        <BuyNearHoverIcon />
       ) : (
-        <BuyNearDefault />
+        <BuyNearIcon />
       )}
     </button>
   );
 };
+
+export function ConnectToNearBtnSwap() {
+  const [hover, setHover] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+
+  const [showWalletSelector, setShowWalletSelector] = useState(false);
+
+  const { selector, modal, accounts, accountId, setAccountId } =
+    useWalletSelector();
+
+  return (
+    <>
+      <div
+        className={`flex items-center gotham_bold cursor-pointer justify-center rounded-lg py-3 text-base ${
+          hover
+            ? 'bg-buttonGradientBg text-white'
+            : 'bg-unLoginButtonBgColor text-gradientFrom'
+        }`}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setButtonLoading(true);
+          modal.show();
+        }}
+        onMouseEnter={() => {
+          setHover(true);
+        }}
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+      >
+        {!buttonLoading && (
+          <div className="mr-3.5 transform scale-75">
+            <UnLoginIcon color={`${hover ? '#fff' : '#00C6A2'}`} />
+          </div>
+        )}
+
+        <button disabled={buttonLoading}>
+          <ButtonTextWrapper
+            loading={buttonLoading}
+            Text={() => (
+              <FormattedMessage
+                id="connect_wallet"
+                defaultMessage="Connect Wallet"
+              />
+            )}
+          />
+        </button>
+      </div>
+      <WalletSelectorModal
+        isOpen={showWalletSelector}
+        onRequestClose={() => {
+          window.location.reload();
+          setShowWalletSelector(false);
+        }}
+        setShowWalletSelector={setShowWalletSelector}
+      />
+    </>
+  );
+}

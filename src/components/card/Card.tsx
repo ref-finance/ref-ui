@@ -9,10 +9,11 @@ export function Card(
       rounded?: string;
     }
 ) {
-  const { width, padding, bgcolor, rounded } = props;
+  const { width, padding, bgcolor, rounded, style } = props;
 
   return (
     <div
+      style={style}
       {...props}
       className={`${bgcolor ? bgcolor : 'bg-cardBg'} ${
         rounded ? rounded : 'rounded-2xl'

@@ -81,6 +81,22 @@ export const get24hVolume = async (pool_id: string): Promise<string> => {
     });
 };
 
+export const get24hVolumes = async (
+  pool_ids: (string | number)[]
+): Promise<string[]> => {
+  return await fetch(
+    config.sodakiApiUrl +
+      `/poollist/${pool_ids.join('|')}/rolling24hvolume/sum`,
+    {
+      method: 'GET',
+    }
+  )
+    .then((res) => res.json())
+    .then((res) => {
+      return res.map((r: any) => r.toString());
+    });
+};
+
 const parseActionView = async (action: any) => {
   const data = await parseAction(action[3], action[4], action[2]);
   return {
@@ -338,5 +354,88 @@ export const getListHistoryTokenPriceByIds = async (
     })
     .catch(() => {
       return [];
+    });
+};
+
+export const getV3PoolVolumeById = async (pool_id: string): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl + '/get-dcl-pools-volume?pool_id=' + pool_id,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list.slice(0, 60);
+    })
+    .catch(() => {
+      return [];
+    });
+};
+export const getV3poolTvlById = async (pool_id: string): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl + '/get-dcl-pools-tvl-list?pool_id=' + pool_id,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list.slice(0, 60);
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getV3Pool24VolumeById = async (pool_id: string): Promise<any> => {
+  return await fetch(
+    config.indexerUrl + '/get-24h-volume-by-id?pool_id=' + pool_id,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((value) => {
+      return value;
+    })
+    .catch(() => {
+      return 0;
+    });
+};
+export const getAllV3Pool24Volume = async (): Promise<any[]> => {
+  return await fetch(config.indexerUrl + '/get-24h-volume-list', {
+    method: 'GET',
+    headers: { 'Content-type': 'application/json; charset=UTF-8' },
+  })
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+
+export const getAllTvl = async () => {
+  return await fetch(config.sodakiApiUrl + '/historical-tvl?period=1', {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      return res?.historicalTVL?.at(-1)?.totalUsdTvl;
+    });
+};
+
+export const getAllVolume24h = async () => {
+  return await fetch(config.sodakiApiUrl + '/volume24h?period=1', {
+    method: 'GET',
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      return res?.[0]?.volume;
     });
 };

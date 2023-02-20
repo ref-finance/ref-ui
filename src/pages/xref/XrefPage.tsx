@@ -54,14 +54,6 @@ const {
 } = getConfig();
 const DECIMALS_XREF_REF_TRANSTER = 8;
 
-const displayBalance = (max: string) => {
-  const formattedMax = new BigNumber(max);
-  if (formattedMax.isEqualTo('0')) {
-    return '0';
-  } else {
-    return toPrecision(max, 3, true);
-  }
-};
 function XrefPage() {
   const [tab, setTab] = useState(0);
   const [apr, setApr] = useState('');
@@ -75,6 +67,16 @@ function XrefPage() {
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const displayBalance = (max: string) => {
+    const formattedMax = new BigNumber(max);
+    if (!isSignedIn) {
+      return '-';
+    } else if (formattedMax.isEqualTo('0')) {
+      return '0';
+    } else {
+      return toPrecision(max, 3, true);
+    }
+  };
 
   useEffect(() => {
     ftGetBalance(XREF_TOKEN_ID).then(async (data: any) => {
@@ -193,7 +195,9 @@ function XrefPage() {
     const bigAmount = new BigNumber(xrefBalance || '0');
     let receive;
     receive = bigAmount.multipliedBy(rate);
-    if (receive.isEqualTo(0)) {
+    if (!isSignedIn) {
+      return '-';
+    } else if (receive.isEqualTo(0)) {
       return 0;
     } else if (receive.isLessThan(0.001)) {
       return '<0.001';
@@ -531,6 +535,16 @@ function InputView(props: any) {
           <FormattedMessage id="ref"></FormattedMessage>
         </>
       );
+    }
+  };
+  const displayBalance = (max: string) => {
+    const formattedMax = new BigNumber(max);
+    if (!isSignedIn) {
+      return '-';
+    } else if (formattedMax.isEqualTo('0')) {
+      return '0';
+    } else {
+      return toPrecision(max, 3, true);
     }
   };
   return (
