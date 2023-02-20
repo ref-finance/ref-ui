@@ -3153,7 +3153,7 @@ function FarmView(props: {
               {showNewTag() ? <NewTag></NewTag> : null}
               {status_is_new_or_will_end() == 'will end' ? (
                 <span className="text-xs text-redwarningColor bg-lightReBgColor rounded-3xl px-1.5 py-1">
-                  Going to end
+                  Ending soon
                 </span>
               ) : null}
             </div>

@@ -967,7 +967,7 @@ function UserLiquidityLine({
                   ></img>
                 </div>
                 <span className="text-white font-bold ml-9 mr-2.5 text-sm gotham_bold">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
+                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
                   {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
                 </span>
                 <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
@@ -1199,7 +1199,7 @@ function UserLiquidityLine({
                   ></img>
                 </div>
                 <span className="text-white text-sm ml-1.5">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
+                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
                   {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
                 </span>
                 {Liquidity_icon ? (
@@ -2100,7 +2100,7 @@ function UserLiquidityLine_old({
                   ></img>
                 </div>
                 <span className="text-white font-bold mx-2.5 text-sm gotham_bold">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
+                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
                   {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
                 </span>
                 <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
@@ -2282,7 +2282,7 @@ function UserLiquidityLine_old({
                   ></img>
                 </div>
                 <span className="text-white text-sm ml-1.5">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
+                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
                   {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
                 </span>
               </div>

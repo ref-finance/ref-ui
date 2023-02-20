@@ -1245,7 +1245,7 @@ function SelectLiquidityBox(props: any) {
     if (is_in_farming) {
       return <label className="text-sm text-white">Farming</label>;
     } else {
-      return <label className="text-sm text-primaryText">Unfarming</label>;
+      return <label className="text-sm text-primaryText">Unstaked</label>;
     }
   }
   function go_farm(liquidity: UserLiquidityInfo) {

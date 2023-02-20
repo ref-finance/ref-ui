@@ -140,6 +140,13 @@ export default function FarmsDclDetail(props: {
       return false;
     }
   }, [detailData]);
+  const isEnded = useMemo(() => {
+    if (detailData?.farmList) {
+      const farms = detailData.farmList;
+      return farms[0].status == 'Ended';
+    }
+    return false;
+  }, [detailData]);
   useEffect(() => {
     get_farms_data();
   }, [all_seeds]);
@@ -165,7 +172,6 @@ export default function FarmsDclDetail(props: {
     detailData.farmList.forEach((farm: FarmBoost) => {
       tempFarms[farm.terms.reward_token] = true;
     });
-    const isEnded = detailData.farmList[0].status == 'Ended';
     const unclaimed = user_unclaimed_map[detailData.seed_id] || {};
     const unClaimedTokenIds = Object.keys(unclaimed);
     const tokenList: any[] = [];
@@ -420,10 +426,6 @@ export default function FarmsDclDetail(props: {
     const poolId = detailData.pool.pool_id;
     window.open(`/poolV2/${poolId}`);
   };
-  function isEnded() {
-    const farms = detailData.farmList;
-    return farms[0].status == 'Ended';
-  }
   function getBoostMutil() {
     if (REF_VE_CONTRACT_ID && !boostConfig) return '';
     const { affected_seeds = {} } = boostConfig || {};
@@ -925,7 +927,7 @@ export default function FarmsDclDetail(props: {
       </div>
       <div
         className={`flex justify-between items-center mt-7 flex-wrap ${
-          isEnded() ? 'farmEnded' : ''
+          isEnded ? 'farmEnded' : ''
         }`}
       >
         <div className="left flex items-center h-11 ml-3">
@@ -944,7 +946,7 @@ export default function FarmsDclDetail(props: {
                 </span>
               </div>
               <DclFarmIcon className="xsm:ml-2"></DclFarmIcon>
-              {isEnded() ? (
+              {isEnded ? (
                 <span className="text-farmText text-sm ml-2 relative top-0.5 xs:top-0 md:xs-0">
                   <FormattedMessage id="ended_search"></FormattedMessage>
                 </span>
@@ -989,7 +991,9 @@ export default function FarmsDclDetail(props: {
       {betterSeed ? (
         <div className="flex items-center justify-center bg-dclBannerColor rounded-xl text-sm text-white px-4 py-1 mt-4 mb-3">
           <div className="flex items-center flex-wrap">
-            <span>The current farm will be ended soon. </span>
+            <span>
+              {isEnded ? 'This farm has ended.' : 'This farm will end soon.'}
+            </span>
             <a
               onClick={goBetterSeed}
               className="underline gotham_bold cursor-pointer mx-2 xsm:ml-0"
@@ -1358,7 +1362,7 @@ export default function FarmsDclDetail(props: {
       </div>
       {/* Your Position(s) */}
       <div className="relative mt-6">
-        <div className="absolute right-0 -top-2">
+        <div className={`absolute right-0 -top-2 ${isEnded ? 'hidden' : ''}`}>
           <div
             onClick={() => {
               setAddLiquidityModalVisible(true);
@@ -1371,7 +1375,7 @@ export default function FarmsDclDetail(props: {
             Add Position
           </div>
         </div>
-        {listLiquidities.length == 0 && !listLiquiditiesLoading ? (
+        {listLiquidities.length == 0 && !listLiquiditiesLoading && !isEnded ? (
           <div className="rounded-lg overflow-hidden mt-2.5 bg-detailCardBg">
             <div className="w-full bg-gradientFrom h-1.5"></div>
             <div className="flex items-center justify-between p-3 xsm:flex-col">
@@ -1401,6 +1405,7 @@ export default function FarmsDclDetail(props: {
             rate_need_to_reverse_display,
             all_seeds,
             isPending,
+            isEnded,
           }}
         >
           {listLiquidities_inFarimg.length > 0 ? (
@@ -1423,7 +1428,7 @@ export default function FarmsDclDetail(props: {
           {listLiquidities_unFarimg.length > 0 ? (
             <>
               <div className="text-sm text-primaryText mb-5 mt-7 pl-3">
-                Unfarming Position(s)
+                Unstaked Position(s)
               </div>
               {listLiquidities_unFarimg.map((liquidity: UserLiquidityInfo) => {
                 return (
@@ -1530,6 +1535,7 @@ function LiquidityLine(props: {
     rate_need_to_reverse_display,
     all_seeds,
     isPending,
+    isEnded,
   } = useContext(FarmContext);
   const [nft_stake_loading, set_nft_stake_loading] = useState(false);
   const [nft_unStake_loading, set_nft_unStake_loading] = useState(false);
@@ -1561,7 +1567,7 @@ function LiquidityLine(props: {
     } else if (liquidity_status_string == 'unavailable') {
       status = <span className="text-sm, text-primaryText">Unavailable</span>;
     } else if (liquidity_status_string == 'unfarming') {
-      status = <span className="text-sm, text-primaryText">Unfarming</span>;
+      status = <span className="text-sm, text-primaryText">Unstaked</span>;
       operation = ['stake'];
     } else {
       const part_farm_ratio_big = new BigNumber(part_farm_ratio);
@@ -1991,10 +1997,6 @@ function LiquidityLine(props: {
       withdraw_amount: finalAmount,
     });
   }
-  function isEnded() {
-    const farms = detailData.farmList;
-    return farms[0].status == 'Ended';
-  }
   function goYourLiquidityDetail(liquidity: UserLiquidityInfo) {
     const url_params = liquidity.lpt_id.replace(/\|/g, '@').replace(/#/g, '@');
     window.open(`/yoursLiquidityDetailV2/${url_params}`);
@@ -2096,7 +2098,7 @@ function LiquidityLine(props: {
     }
   }
   const showStakeButton =
-    !isEnded() && liquidity_operation_display.indexOf('stake') > -1;
+    !isEnded && liquidity_operation_display.indexOf('stake') > -1;
   const showUnStakeButton = liquidity_operation_display.indexOf('unstake') > -1;
   return (
     <>
