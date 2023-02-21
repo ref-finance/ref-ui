@@ -594,20 +594,22 @@ function MobilePoolRowV2({
                   tokens[1].symbol +
                   `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
               </div>
-              {mark ? (
-                <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
-                  DCL
-                </span>
-              ) : null}
+              <div className="flex items-center">
+                {mark ? (
+                  <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                    DCL
+                  </span>
+                ) : null}
+                {relatedSeed && (
+                  <div className="mr-2">
+                    <FarmStampNew multi={relatedSeed.farmList?.length > 1} />
+                  </div>
+                )}
+              </div>
             </div>
             {watched && (
               <div className="ml-2">
                 <WatchListStartFull />
-              </div>
-            )}
-            {relatedSeed && (
-              <div className="mr-2">
-                <FarmStampNew multi={relatedSeed.farmList?.length > 1} />
               </div>
             )}
           </div>
