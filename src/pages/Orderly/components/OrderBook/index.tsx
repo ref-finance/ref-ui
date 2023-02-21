@@ -7,6 +7,7 @@ import { MyOrderTip } from '../Common';
 import { digitWrapper } from '../../utiles';
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import { Selector } from '../OrderBoard';
+import { IoArrowUpOutline } from 'react-icons/io5';
 
 function parseSymbol(fullName: string) {
   return {
@@ -125,7 +126,8 @@ function getPrecisionStringByNumber(precision: number) {
 }
 
 function OrderBook() {
-  const { orders, marketTrade, symbol, pendingOrders } = useOrderlyContext();
+  const { orders, symbol, pendingOrders, recentTrades, marketTrade } =
+    useOrderlyContext();
 
   const [precision, setPrecision] = useState<number>(2);
 
@@ -141,6 +143,16 @@ function OrderBook() {
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
   const [tab, setTab] = useState<'recent' | 'book'>('book');
+
+  const marketTradeDisplay = recentTrades.at(0)?.executed_price || 0;
+  console.log('marketTradeDisplay: ', marketTradeDisplay);
+
+  console.log(
+    'marketTradeDisplay2: ',
+    recentTrades.at(-2)?.executed_price || 0
+  );
+
+  const diff = marketTradeDisplay - recentTrades.at(1)?.executed_price || 0;
 
   return (
     <div
@@ -295,10 +307,16 @@ function OrderBook() {
 
           <div
             className={`text-center flex items-center py-1 justify-center ${
-              marketTrade?.side === 'BUY' ? 'text-buyGreen' : 'text-sellRed'
+              diff > 0
+                ? 'text-buyGreen'
+                : diff < 0
+                ? 'text-sellRed'
+                : 'text-primaryText'
             } text-lg`}
           >
-            {marketTrade && marketTrade?.price}
+            {orders && recentTrades.length > 0 && marketTradeDisplay}
+
+            {diff !== 0 && <IoArrowUpOutline />}
           </div>
 
           {/* buy */}

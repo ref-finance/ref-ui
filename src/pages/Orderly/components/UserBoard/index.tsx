@@ -383,7 +383,6 @@ export default function UserBoard() {
         },
       }).then(async (res) => {
         if (res.success === false) return;
-        console.log('res: ', res);
 
         handlePendingOrderRefreshing();
 
