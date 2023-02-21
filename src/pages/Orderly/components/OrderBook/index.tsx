@@ -318,7 +318,7 @@ function OrderBook() {
 
             {diff !== 0 && (
               <IoArrowUpOutline
-                className={diff < 0 ? 'transform rotate-90' : ''}
+                className={diff < 0 ? 'transform rotate-180' : ''}
               />
             )}
           </div>
