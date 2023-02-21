@@ -356,11 +356,14 @@ export default function FarmsDclDetail(props: {
               detailData.seed_id
             );
             const inRange = right_point > left_point;
+            const { amount, mft_id } = liquidity;
+            const amount_is_little = new BigNumber(amount).isLessThan(1000000);
             if (
               !(
                 liquidity.status_in_other_seed == 'staked' ||
                 liquidity.less_than_min_deposit ||
-                !inRange
+                !inRange ||
+                (!mft_id && amount_is_little)
               )
             )
               return true;
