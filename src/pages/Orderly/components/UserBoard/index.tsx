@@ -83,6 +83,7 @@ import getConfig from '../../config';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { AssetModal } from '../AssetModal';
 import ReactTooltip from 'react-tooltip';
+import { ButtonTextWrapper } from '~components/button/Button';
 
 function getTipFOK() {
   return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
@@ -245,7 +246,7 @@ export default function UserBoard() {
 
   const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
 
-  const [inputValue, setInputValue] = useState<string>('1');
+  const [inputValue, setInputValue] = useState<string>('');
 
   const [limitPrice, setLimitPrice] = useState<string>(
     marketTrade ? marketTrade?.price?.toString() || '' : ''
@@ -380,10 +381,16 @@ export default function UserBoard() {
           order_quantity: inputValue,
           broker_id: 'ref_dex',
         },
-      }).then((res) => {
+      }).then(async (res) => {
         if (res.success === false) return;
+        console.log('res: ', res);
 
         handlePendingOrderRefreshing();
+
+        const order = await getOrderByOrderId({
+          accountId,
+          order_id: res.data.order_id,
+        });
 
         return orderPopUp({
           orderType: 'Limit',
@@ -393,6 +400,7 @@ export default function UserBoard() {
           tokenIn: tokenIn,
           price: limitPrice || '',
           timeStamp: res.timestamp,
+          filled: order?.data?.status === 'FILLED',
         });
       });
     }
@@ -449,7 +457,8 @@ export default function UserBoard() {
     <div
       className="w-full p-6 relative flex flex-col  border-t border-l border-b h-screen border-boxBorder  bg-black bg-opacity-10"
       style={{
-        height: 'calc(100vh - 100px)',
+        minHeight: 'calc(100vh - 100px)',
+        height: validator ? 'calc(100vh - 100px)' : '100%',
       }}
     >
       {/* not signed in wrapper */}
@@ -812,7 +821,7 @@ export default function UserBoard() {
                 }}
               ></CheckBox>
               <span
-                className="mx-2 cursor-pointer"
+                className="ml-2 mr-1 cursor-pointer"
                 onClick={() => {
                   if (advanceLimitMode === 'IOC') {
                     setAdvanceLimitMode(undefined);
@@ -856,7 +865,7 @@ export default function UserBoard() {
                 }}
               ></CheckBox>
               <span
-                className="cursor-pointer mx-2"
+                className="cursor-pointer ml-2 mr-1"
                 onClick={() => {
                   if (advanceLimitMode === 'FOK') {
                     setAdvanceLimitMode(undefined);
@@ -900,7 +909,7 @@ export default function UserBoard() {
                 }}
               ></CheckBox>
               <span
-                className="mx-2 cursor-pointer"
+                className="ml-2 mr-1 cursor-pointer"
                 onClick={() => {
                   if (advanceLimitMode === 'POST_ONLY') {
                     setAdvanceLimitMode(undefined);
@@ -1042,7 +1051,7 @@ export default function UserBoard() {
 export function AssetManagerModal(
   props: Modal.Props & {
     type: 'deposit' | 'withdraw' | undefined;
-    onClick: (amount: string, tokenId: string) => void;
+    onClick: (amount: string, tokenId: string) => Promise<void>;
     tokenId: string | undefined;
     accountBalance: number;
     walletBalance?: number | string;
@@ -1124,8 +1133,14 @@ export function AssetManagerModal(
       tokenMeta.decimals
     );
 
-    setInputValue(sharePercentOfValue);
+    if (Number(sharePercent) === 0) {
+      setInputValue('');
+    } else {
+      setInputValue(sharePercentOfValue);
+    }
   };
+
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   useEffect(() => {
     if (tokenId && tokenMeta) {
@@ -1223,6 +1238,7 @@ export function AssetManagerModal(
                 value={inputValue}
                 type="number"
                 step="any"
+                placeholder="0.0"
                 min={0}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -1324,7 +1340,10 @@ export function AssetManagerModal(
                     top: '20px',
                   }}
                 >
-                  {Math.floor(Number(percentage))}%
+                  {Number(percentage) > 0 && Number(percentage) < 1
+                    ? 1
+                    : Math.floor(Number(percentage))}
+                  %
                 </div>
               </div>
             </div>
@@ -1336,7 +1355,9 @@ export function AssetManagerModal(
 
             <button
               className={`flex ${
-                !validation() || new Big(inputValue || 0).lte(0)
+                !validation() ||
+                new Big(inputValue || 0).lte(0) ||
+                buttonLoading
                   ? 'opacity-70 cursor-not-allowed'
                   : ''
               } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg ${
@@ -1346,15 +1367,27 @@ export function AssetManagerModal(
                 e.preventDefault();
                 e.stopPropagation();
                 if (!inputValue) return;
+                setButtonLoading(true);
                 onClick(inputValue, tokenId);
               }}
-              disabled={!validation() || new Big(inputValue || 0).lte(0)}
+              disabled={
+                !validation() ||
+                new Big(inputValue || 0).lte(0) ||
+                buttonLoading
+              }
             >
-              {type === 'deposit'
-                ? 'Deposit'
-                : type === 'withdraw'
-                ? 'Withdraw'
-                : ''}
+              <ButtonTextWrapper
+                loading={buttonLoading}
+                Text={() => (
+                  <span>
+                    {type === 'deposit'
+                      ? 'Deposit'
+                      : type === 'withdraw'
+                      ? 'Withdraw'
+                      : ''}
+                  </span>
+                )}
+              ></ButtonTextWrapper>
             </button>
           </div>
         </div>
@@ -1403,6 +1436,10 @@ function SelectTokenModal(
     orderBy
   );
 
+  useEffect(() => {
+    setSortByBalance(orderBy);
+  }, [orderBy]);
+
   const sortingFunc = (a: any, b: any) => {
     if (sortByBalance === 'wallet' || sortByBalance === undefined) {
       if (sortNearBalance === undefined || sortNearBalance === 'desc') {
@@ -1437,7 +1474,7 @@ function SelectTokenModal(
     <Modal {...props}>
       <div className=" rounded-2xl lg:w-96 xs:w-95vw xs:h-vh90 lg:h-p560  gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border ">
         <div className=" py-6 text-primaryOrderly text-sm flex flex-col ">
-          <div className="flex px-5 items-center pb-6 justify-between">
+          <div className="flex px-4 items-center pb-6 justify-between">
             <span className="text-white text-lg font-bold">Select Token</span>
 
             <span
@@ -1449,7 +1486,7 @@ function SelectTokenModal(
               <IoClose size={20} />
             </span>
           </div>
-          <div className="w-full px-5">
+          <div className="w-full px-4">
             <div className="w-full  mb-4 pl-2 py-3 flex items-center rounded-lg bg-black bg-opacity-20 border border-border4">
               <span className="mr-2">
                 <FiSearch className={!!searchValue ? 'text-white' : ''} />
@@ -1467,7 +1504,7 @@ function SelectTokenModal(
             </div>
           </div>
 
-          <div className="grid px-5  grid-cols-3">
+          <div className="grid px-3  grid-cols-3">
             <div className="justify-self-start">Asset</div>
 
             <div
@@ -1547,7 +1584,7 @@ function SelectTokenModal(
               .map((b: any) => {
                 return (
                   <div
-                    className="grid grid-cols-3 p-3 px-5 hover:bg-white hover:bg-opacity-5 text-white cursor-pointer"
+                    className="grid grid-cols-3 p-3 px-3 hover:bg-white hover:bg-opacity-5 text-white cursor-pointer"
                     onClick={(e: any) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -1559,7 +1596,7 @@ function SelectTokenModal(
                       <img
                         src={b.meta.icon}
                         alt=""
-                        className="w-6 h-6 rounded-full"
+                        className="w-6 h-6 rounded-full flex-shrink-0"
                       />
 
                       <span className="ml-2 mr-3">
@@ -1574,6 +1611,7 @@ function SelectTokenModal(
                             e.stopPropagation();
                           }}
                           href={TokenLinks[b.name]}
+                          target="_blank"
                         >
                           <OutLinkIcon className="text-primaryOrderly hover:text-white cursor-pointer"></OutLinkIcon>
                         </a>

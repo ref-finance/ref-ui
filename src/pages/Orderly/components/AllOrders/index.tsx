@@ -28,7 +28,7 @@ import { formatTimeDate } from '../OrderBoard';
 import { Selector } from '../OrderBoard';
 
 import { AiOutlineClose, AiOutlineCheck } from 'react-icons/ai';
-import { FlexRowStart, orderPopUp } from '../Common/index';
+import { FlexRowStart, orderPopUp, FlexRow, CheckBox } from '../Common/index';
 import {
   cancelOrder,
   cancelOrders,
@@ -106,6 +106,14 @@ export function EditConfirmOrderModal(
   );
 }
 
+export function SymbolWrapper({ symbol }: { symbol: string }) {
+  return (
+    <span className="text-v3SwapGray bg-menuMoreBgColor rounded px-2 text-10px">
+      {symbol}
+    </span>
+  );
+}
+
 function OrderLine({
   order,
   marketInfo,
@@ -136,6 +144,8 @@ function OrderLine({
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
 
   const [editType, setEditType] = useState<'quantity' | 'price'>();
+
+  const openEdit = openEditPrice || openEditQuantity;
 
   function handleEditOrder() {
     if (!accountId) return;
@@ -181,56 +191,74 @@ function OrderLine({
       key={order.order_id}
       className="grid hover:bg-orderLineHover grid-cols-10 pl-5 pr-4 py-3 border-t border-white border-opacity-10"
     >
-      <FlexRow className="relative col-span-1">
-        <span>Limit</span>
-
-        <div
-          className="flex items-center relative ml-1.5 justify-center"
-          style={{
-            height: '14px',
-            width: '14px',
-          }}
-        >
-          <div className="absolute top-0 left-0  ">
-            <OrderStateOutline />
-          </div>
-
-          <div
-            className=""
-            style={{
-              height: '9px',
-              width: '9px',
-            }}
-          >
-            {order.status === 'PARTIAL_FILLED' && (
-              <CircularProgressbar
-                styles={buildStyles({
-                  pathColor: '#62C340',
-                  strokeLinecap: 'butt',
-                  trailColor: 'transparent',
-                })}
-                background={false}
-                strokeWidth={50}
-                value={order.executed}
-                maxValue={order.quantity}
-              />
-            )}
-          </div>
-        </div>
-      </FlexRow>
-
-      <FlexRow className="col-span-1">
+      <div
+        className={`col-span-1 relative flex ${
+          openEdit ? 'items-start top-1' : 'items-center'
+        }`}
+      >
         <TextWrapper
           className="px-2 text-sm"
           value={order.side === 'BUY' ? 'Buy' : 'Sell'}
           bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
           textC={order.side === 'BUY' ? 'text-buyGreen' : 'text-sellRed'}
         ></TextWrapper>
-      </FlexRow>
+      </div>
+      <div
+        className={`relative  col-span-1 flex ${
+          openEdit ? 'items-start relative top-1.5' : 'items-center'
+        }`}
+      >
+        <div className="flex items-center">
+          <span className="text-white">Limit</span>
 
-      <FlexRow className="col-span-2">{marketInfo}</FlexRow>
+          <div
+            className="flex items-center relative ml-1.5 justify-center"
+            style={{
+              height: '14px',
+              width: '14px',
+            }}
+          >
+            <div className="absolute top-0 left-0  ">
+              <OrderStateOutline />
+            </div>
 
-      <FlexRowStart className="col-span-1 relative right-5 items-start">
+            <div
+              className=""
+              style={{
+                height: '9px',
+                width: '9px',
+              }}
+            >
+              {order.status === 'PARTIAL_FILLED' && (
+                <CircularProgressbar
+                  styles={buildStyles({
+                    pathColor: '#62C340',
+                    strokeLinecap: 'butt',
+                    trailColor: 'transparent',
+                  })}
+                  background={false}
+                  strokeWidth={50}
+                  value={order.executed}
+                  maxValue={order.quantity}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={`col-span-2 relative flex ${
+          openEdit ? 'items-start top-1.5' : 'items-center'
+        }`}
+      >
+        <div className="flex items-center ">{marketInfo}</div>
+      </div>
+
+      <FlexRowStart className="col-span-1 relative  items-start">
+        <span className="relative top-1.5">{order.executed}</span>
+        <span className="mx-1 relative top-1.5">/</span>
+
         <div className="flex flex-col overflow-hidden bg-dark2 rounded-lg border border-border2 text-sm  w-14 text-white">
           <input
             ref={inputRef}
@@ -279,13 +307,9 @@ function OrderLine({
             </div>
           </div>
         </div>
-
-        <span className="mx-1 relative top-1.5">/</span>
-
-        <span className="relative top-1.5">{order.executed}</span>
       </FlexRowStart>
 
-      <FlexRowStart className="col-span-1 relative right-2 items-start">
+      <FlexRowStart className="col-span-2 relative right-5 justify-self-center  items-start">
         <div className="flex flex-col overflow-hidden bg-dark2 rounded-lg border border-border2 text-sm  w-14 text-white">
           <input
             ref={inputRefPrice}
@@ -335,31 +359,27 @@ function OrderLine({
         </div>
       </FlexRowStart>
 
-      <FlexRow className="col-span-1 text-white ml-6">
-        <span>
-          {order.status === 'PARTIAL_FILLED'
-            ? order.average_executed_price.toFixed(2)
-            : order.price.toFixed(2)}
-        </span>
-      </FlexRow>
+      <div
+        className={`flex  col-span-1  relative right-8 text-white ml-4 ${
+          openEdit ? 'items-start top-1.5' : 'items-center'
+        }`}
+      >
+        {new Big(quantity || '0').times(new Big(order.price || 0)).toFixed(2)}
+      </div>
 
-      <FlexRow className="col-span-1 text-white ml-4">
-        {new Big(quantity || '0')
-          .times(
-            new Big(
-              order.status === 'PARTIAL_FILLED'
-                ? order.average_executed_price
-                : order.price
-            )
-          )
-          .toFixed(2)}
-      </FlexRow>
-
-      <FlexRow className="col-span-1 relative right-4 text-end text-primaryOrderly">
+      <div
+        className={`col-span-1 relative right-8 whitespace-nowrap justify-self-end  text-end text-primaryOrderly flex ${
+          openEdit ? 'items-start top-1.5' : 'items-center'
+        }`}
+      >
         {formatTimeDate(order.created_time)}
-      </FlexRow>
+      </div>
 
-      <FlexRow className="col-span-1 justify-self-center">
+      <div
+        className={`col-span-1 justify-self-center flex ${
+          openEdit ? ' items-start' : 'items-center'
+        }`}
+      >
         <CancelButton
           text="Cancel"
           onClick={() => {
@@ -377,7 +397,7 @@ function OrderLine({
             });
           }}
         />
-      </FlexRow>
+      </div>
       {showEditModal && editType && (
         <EditConfirmOrderModal
           isOpen={showEditModal}
@@ -442,10 +462,6 @@ function HistoryOrderLine({
         key={order.order_id}
         className="grid  grid-cols-10 pl-5 pr-4 py-3 border-t border-white border-opacity-10"
       >
-        <FlexRow className="relative col-span-1">
-          <span>{order.type === 'MARKET' ? 'Market' : 'Limit'}</span>
-        </FlexRow>
-
         <FlexRow className="col-span-1">
           <TextWrapper
             className="px-2 text-sm"
@@ -455,14 +471,59 @@ function HistoryOrderLine({
           ></TextWrapper>
         </FlexRow>
 
+        <FlexRow className="relative col-span-1">
+          <span className="text-white">
+            {order.type === 'MARKET' ? 'Market' : 'Limit'}
+          </span>
+
+          <div
+            className={
+              order.type === 'LIMIT'
+                ? 'flex items-center relative ml-1.5 justify-center'
+                : 'hidden'
+            }
+            style={{
+              height: '14px',
+              width: '14px',
+            }}
+          >
+            <div className="absolute top-0 left-0  ">
+              <OrderStateOutline />
+            </div>
+
+            <div
+              className=""
+              style={{
+                height: '9px',
+                width: '9px',
+              }}
+            >
+              {(order.status === 'PARTIAL_FILLED' ||
+                order.status === 'FILLED') && (
+                <CircularProgressbar
+                  styles={buildStyles({
+                    pathColor: '#62C340',
+                    strokeLinecap: 'butt',
+                    trailColor: 'transparent',
+                  })}
+                  background={false}
+                  strokeWidth={50}
+                  value={order.executed}
+                  maxValue={order.quantity}
+                />
+              )}
+            </div>
+          </div>
+        </FlexRow>
+
         <FlexRow className="col-span-2">{marketInfo}</FlexRow>
 
         <FlexRow className="col-span-1 ml-2 ">
-          <span className="text-white">{order.quantity || order.executed}</span>
+          <span className="">{order.executed}</span>
 
           <span className="mx-1 ">/</span>
 
-          <span className="">{order.executed}</span>
+          <span className="text-white">{order.quantity || order.executed}</span>
         </FlexRow>
 
         <FlexRow className="col-span-1 ml-4">
@@ -477,12 +538,12 @@ function HistoryOrderLine({
 
         <FlexRow className="col-span-1 ml-4 text-white">
           {new Big(order.executed || '0')
-            .times(new Big(order.average_executed_price || '0'))
+            .times(new Big(order.price || order.average_executed_price || '0'))
             .minus(order.total_fee)
             .toFixed(2)}
         </FlexRow>
 
-        <FlexRow className="col-span-1 text-primaryOrderly relative right-4 text-end">
+        <FlexRow className="col-span-1 whitespace-nowrap text-primaryOrderly justify-self-end relative right-8 text-end">
           {formatTimeDate(order.created_time)}
         </FlexRow>
 
@@ -591,6 +652,7 @@ function OpenOrders({
   allTokens,
   availableSymbols,
   setSelectedMarketSymbol,
+  showCurSymbol,
 }: {
   orders: MyOrder[];
   symbol: string;
@@ -598,12 +660,11 @@ function OpenOrders({
   allTokens: {
     [key: string]: TokenMetadata;
   };
+  showCurSymbol: boolean;
   setSelectedMarketSymbol: (s: string) => void;
   availableSymbols: SymbolInfo[] | undefined;
   setOpenCount: (c: number) => void;
 }) {
-  const { symbolFrom, symbolTo } = parseSymbol(symbol);
-
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
 
   const [chooseSide, setChooseSide] = useState<'Both' | 'Buy' | 'Sell'>('Both');
@@ -612,7 +673,7 @@ function OpenOrders({
     useState<string>('all_markets');
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
 
-  const [timeSorting, setTimeSorting] = useState<'asc' | 'dsc'>();
+  const [timeSorting, setTimeSorting] = useState<'asc' | 'dsc'>('dsc');
 
   const sortingFunc = (a: MyOrder, b: MyOrder) => {
     if (timeSorting === 'asc') {
@@ -711,9 +772,7 @@ function OpenOrders({
   return (
     <>
       {/* Header */}
-      <div className="grid grid-cols-10 pl-5 pr-4 py-2 border-b   border-white border-opacity-10">
-        <FlexRow className="col-span-1">Type</FlexRow>
-
+      <div className="grid grid-cols-10 pl-5 pr-4 py-2   border-white border-opacity-10">
         <FlexRow className="col-span-1  relative">
           <div
             className="cursor-pointer flex items-center"
@@ -759,6 +818,7 @@ function OpenOrders({
             />
           )}
         </FlexRow>
+        <FlexRow className="col-span-1">Type</FlexRow>
 
         <FlexRow className="col-span-2  relative">
           <div
@@ -791,21 +851,18 @@ function OpenOrders({
         </FlexRow>
 
         <FlexRow className="col-span-1 relative right-3">
-          <span>Qty/Filled</span>
+          <span>{`Filled / Qty`}</span>
         </FlexRow>
 
-        <FlexRow className="col-span-1">
+        <FlexRow className="col-span-2 relative right-8 justify-self-center">
           <span>Price</span>
         </FlexRow>
 
-        <FlexRow className="col-span-1">
-          <span>Avg.Price</span>
-        </FlexRow>
-        <FlexRow className="col-span-1 ">
+        <FlexRow className="col-span-1 relative right-8">
           <div>Est.Total</div>
         </FlexRow>
 
-        <FlexRow className=" flex items-center justify-center col-span-1">
+        <FlexRow className=" flex items-center  justify-center col-span-1">
           <div
             className="cursor-pointer flex"
             onClick={() => {
@@ -861,6 +918,7 @@ function HistoryOrders({
   setHistoryCount,
   allTokens,
   availableSymbols,
+  showCurSymbol,
 }: {
   orders: MyOrder[];
   symbol: string;
@@ -870,6 +928,7 @@ function HistoryOrders({
   };
   availableSymbols: SymbolInfo[] | undefined;
   setHistoryCount: (c: number) => void;
+  showCurSymbol: boolean;
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -890,7 +949,7 @@ function HistoryOrders({
 
   const [showTypeSelector, setShowTypeSelector] = useState<boolean>(false);
 
-  const [timeSorting, setTimeSorting] = useState<'asc' | 'dsc'>();
+  const [timeSorting, setTimeSorting] = useState<'asc' | 'dsc'>('dsc');
 
   const [chooseMarketSymbol, setChooseMarketSymbol] =
     useState<string>('all_markets');
@@ -1001,54 +1060,7 @@ function HistoryOrders({
   return (
     <>
       {/* Header */}
-      <div className="grid grid-cols-10 pl-5 pr-4 py-2 border-b   border-white border-opacity-10">
-        <FlexRow className="col-span-1 relative">
-          <div
-            className="cursor-pointer flex items-center"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowTypeSelector(!showTypeSelector);
-              setShowMarketSelector(false);
-              setShowSideSelector(false);
-              setShowStatuesSelector(false);
-            }}
-          >
-            <span>Type</span>
-
-            <MdArrowDropDown
-              size={22}
-              color={showTypeSelector ? 'white' : '#7E8A93'}
-            />
-          </div>
-          {showTypeSelector && (
-            <Selector
-              selected={chooseType}
-              setSelect={(value: any) => {
-                setChooseType(value);
-                setShowTypeSelector(false);
-              }}
-              list={[
-                {
-                  text: 'All Type',
-                  textId: 'All Type',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Limit Order',
-                  textId: 'Limit Order',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Market Order',
-                  textId: 'Market Order',
-                  className: 'text-white',
-                },
-              ]}
-            />
-          )}
-        </FlexRow>
-
+      <div className="grid grid-cols-10 pl-5 pr-4 py-2   border-white border-opacity-10">
         <FlexRow className="col-span-1  relative">
           <div
             className="cursor-pointer flex items-center"
@@ -1097,6 +1109,53 @@ function HistoryOrders({
           )}
         </FlexRow>
 
+        <FlexRow className="col-span-1 relative">
+          <div
+            className="cursor-pointer flex items-center"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowTypeSelector(!showTypeSelector);
+              setShowMarketSelector(false);
+              setShowSideSelector(false);
+              setShowStatuesSelector(false);
+            }}
+          >
+            <span>Type</span>
+
+            <MdArrowDropDown
+              size={22}
+              color={showTypeSelector ? 'white' : '#7E8A93'}
+            />
+          </div>
+          {showTypeSelector && (
+            <Selector
+              selected={chooseType}
+              setSelect={(value: any) => {
+                setChooseType(value);
+                setShowTypeSelector(false);
+              }}
+              list={[
+                {
+                  text: 'All Type',
+                  textId: 'All Type',
+                  className: 'text-white',
+                },
+                {
+                  text: 'Limit Order',
+                  textId: 'Limit Order',
+                  className: 'text-white',
+                },
+                {
+                  text: 'Market Order',
+                  textId: 'Market Order',
+                  className: 'text-white',
+                },
+              ]}
+            />
+          )}
+        </FlexRow>
+
         <FlexRow className="col-span-2  relative">
           <div
             className="cursor-pointer flex items-center"
@@ -1130,7 +1189,7 @@ function HistoryOrders({
         </FlexRow>
 
         <FlexRow className="col-span-1 relative right-3">
-          <span>Qty/Filled</span>
+          <span>Filled / Qty</span>
         </FlexRow>
 
         <FlexRow className="col-span-1">
@@ -1271,16 +1330,22 @@ function AllOrderBoard() {
 
   const [tab, setTab] = useState<'open' | 'history'>('open');
 
+  const [showCurSymbol, setShowCurSymbol] = useState<boolean>(true);
+
   const openOrders = allOrders?.filter((o) => {
     return (
       o.type === 'LIMIT' &&
-      (o.status === 'NEW' || o.status === 'PARTIAL_FILLED')
+      (o.status === 'NEW' || o.status === 'PARTIAL_FILLED') &&
+      (!showCurSymbol || o.symbol === symbol)
     );
   });
 
   // get history orders, which is orders that are not open orders
   const historyOrders = allOrders?.filter((o) => {
-    return openOrders?.map((o) => o.order_id).indexOf(o.order_id) === -1;
+    return (
+      openOrders?.map((o) => o.order_id).indexOf(o.order_id) === -1 &&
+      (!showCurSymbol || o.symbol === symbol)
+    );
   });
 
   const [openCount, setOpenCount] = useState<number>();
@@ -1301,7 +1366,7 @@ function AllOrderBoard() {
 
   return (
     <>
-      <div className="w-1000px m-auto flex items-center mb-6">
+      {/* <div className="w-1000px m-auto flex items-center mb-6">
         <IoChevronBackOutline
           cursor={'pointer'}
           onClick={() => {
@@ -1316,10 +1381,15 @@ function AllOrderBoard() {
         </span>
 
         <span className="text-xl font-bold text-white">Your Orders</span>
-      </div>
+      </div> */}
 
-      <div className=" w-1000px m-auto  rounded-2xl shadow-sm border text-primaryOrderly border-boxBorder    text-sm bg-black  bg-opacity-10 pb-4">
-        <FlexRowBetween className="pb-3 py-3 rounded-t-2xl bg-allOrderHeader px-5 mt-0 border-boxBorder">
+      <div
+        className="w-full  rounded-2xl shadow-sm border text-primaryOrderly border-boxBorder    text-sm bg-black  bg-opacity-10 pb-4"
+        style={{
+          minHeight: 'calc(100vh - 680px)',
+        }}
+      >
+        <FlexRowBetween className="pb-3 py-3 rounded-t-2xl border-b px-5 mt-0 border-white border-opacity-10">
           <FlexRow className="min-h-8">
             <FlexRow
               onClick={() => {
@@ -1374,25 +1444,65 @@ function AllOrderBoard() {
             </FlexRow>
           </FlexRow>
 
-          {tab === 'open' && !!openCount && selectedMarketSymbol && (
-            <CancelButton
-              text="Cancel All"
-              onClick={async () => {
-                if (!accountId) return;
+          <FlexRow>
+            {tab === 'open' && !!openCount && selectedMarketSymbol && (
+              <CancelButton
+                text="Cancel All"
+                onClick={async () => {
+                  if (!accountId) return;
 
-                return cancelOrders({
-                  accountId,
-                  DeleteParams: {
-                    symbol: selectedMarketSymbol,
-                  },
-                }).then((res) => {
-                  if (res.success === true) {
-                    handlePendingOrderRefreshing();
-                  }
-                });
-              }}
-            />
-          )}
+                  return cancelOrders({
+                    accountId,
+                    DeleteParams: {
+                      symbol: selectedMarketSymbol,
+                    },
+                  }).then((res) => {
+                    if (res.success === true) {
+                      handlePendingOrderRefreshing();
+                    }
+                  });
+                }}
+              />
+            )}
+
+            <FlexRow className={!accountId ? 'hidden' : ''}>
+              <FlexRow>
+                <CheckBox
+                  check={showCurSymbol}
+                  setCheck={() => {
+                    setShowCurSymbol(true);
+                  }}
+                ></CheckBox>
+
+                <span
+                  className="ml-2 cursor-pointer"
+                  onClick={() => {
+                    setShowCurSymbol(true);
+                  }}
+                >
+                  Current Instrument
+                </span>
+              </FlexRow>
+
+              <FlexRow className="ml-6">
+                <CheckBox
+                  check={!showCurSymbol}
+                  setCheck={() => {
+                    setShowCurSymbol(false);
+                  }}
+                ></CheckBox>
+
+                <span
+                  className="ml-2 cursor-pointer"
+                  onClick={() => {
+                    setShowCurSymbol(false);
+                  }}
+                >
+                  All
+                </span>
+              </FlexRow>
+            </FlexRow>
+          </FlexRow>
         </FlexRowBetween>
         {
           <OpenOrders
@@ -1403,6 +1513,7 @@ function AllOrderBoard() {
             setOpenCount={setOpenCount}
             symbol={symbol}
             hidden={tab === 'history'}
+            showCurSymbol={showCurSymbol}
           />
         }
         {
@@ -1413,6 +1524,7 @@ function AllOrderBoard() {
             orders={historyOrders || []}
             symbol={symbol}
             hidden={tab === 'open'}
+            showCurSymbol={showCurSymbol}
           />
         }
       </div>

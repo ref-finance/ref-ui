@@ -13,6 +13,8 @@ import OrderBoard from './components/OrderBoard';
 
 import Big from 'big.js';
 import { get_orderly_private_key_path, tradingKeyMap } from './orderly/utils';
+import AllOrderBoard from './components/AllOrders';
+import { useWalletSelector } from '../../context/WalletSelectorContext';
 
 Big.RM = 0;
 
@@ -36,7 +38,7 @@ function TradingBoard() {
           </div>
         </div>
         <div className="mr-3 mt-3 h-full">
-          <OrderBoard></OrderBoard>
+          <AllOrderBoard></AllOrderBoard>
         </div>
       </div>
 
@@ -48,11 +50,18 @@ function TradingBoard() {
 }
 
 function OrderlyTradingBoard() {
+  const priKeyPath = get_orderly_private_key_path();
+
+  const pubKeyPath = get_orderly_private_key_path();
+  const { selector } = useWalletSelector();
+
+  selector.on('signedOut', () => {
+    tradingKeyMap.clear();
+    localStorage.removeItem(priKeyPath);
+    localStorage.removeItem(pubKeyPath);
+  });
+
   window.onbeforeunload = () => {
-    const priKeyPath = get_orderly_private_key_path();
-
-    const pubKeyPath = get_orderly_private_key_path();
-
     tradingKeyMap.get(priKeyPath) &&
       localStorage.setItem(priKeyPath, tradingKeyMap.get(priKeyPath));
 
@@ -61,10 +70,6 @@ function OrderlyTradingBoard() {
   };
 
   window.onload = () => {
-    const priKeyPath = get_orderly_private_key_path();
-
-    const pubKeyPath = get_orderly_private_key_path();
-
     const priKey = localStorage.getItem(priKeyPath);
 
     const pubKey = localStorage.getItem(pubKeyPath);

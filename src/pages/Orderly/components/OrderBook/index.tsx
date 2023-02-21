@@ -93,7 +93,9 @@ function groupOrdersByPrecision({
 
     return {
       ...acc,
-      [groupKey]: acc[keyStr] ? acc[keyStr] + cur.quantity : cur.quantity,
+      [groupKey]: acc[keyStr]
+        ? acc[keyStr] + (cur.quantity - cur.executed || 0)
+        : cur.quantity - cur.executed || 0,
     };
   }, {} as Record<string, number>);
 
@@ -175,7 +177,7 @@ function OrderBook() {
               setShowPrecisionSelector(!showPrecisionSelector);
             }}
           >
-            <span className="relative right-2">
+            <span className="relative right-2 text-xs">
               {getPrecisionStringByNumber(precision)}
             </span>
 
@@ -269,7 +271,12 @@ function OrderBook() {
 
                     <span>{asktotalSize?.[i]?.[1].toFixed(2)}</span>
 
-                    <div className="absolute left-0 top-1 z-40">
+                    <div
+                      className="absolute left-0 top-1 z-40"
+                      style={{
+                        zIndex: 200 + i,
+                      }}
+                    >
                       {pendingOrders && groupMyPendingOrders[order[0]] && (
                         <MyOrderTip
                           price={order[0]}

@@ -463,11 +463,13 @@ export const FarmButton = ({ farmCount }: { farmCount: Number }) => {
 export function ButtonTextWrapper({
   Text,
   loading,
+  loadingColor,
 }: {
   Text: () => JSX.Element;
   loading: boolean;
+  loadingColor?: string;
 }) {
-  return <>{loading ? <BeatLoading /> : <Text />}</>;
+  return <>{loading ? <BeatLoading color={loadingColor} /> : <Text />}</>;
 }
 
 export function BorderButtonHover(

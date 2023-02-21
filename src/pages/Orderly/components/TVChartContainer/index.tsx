@@ -10,7 +10,10 @@ import {
 } from '../../../../charting_library';
 
 import datafeed from '../../datafeed';
-import { useOrderlyContext } from '../../orderly/OrderlyContext';
+import {
+  REF_ORDERLY_SYMBOL_KEY,
+  useOrderlyContext,
+} from '../../orderly/OrderlyContext';
 import moment from 'moment';
 
 export interface ChartContainerProps {
@@ -45,7 +48,7 @@ export class TVChartContainer extends React.PureComponent<
   ChartContainerState
 > {
   public static defaultProps: Omit<ChartContainerProps, 'container'> = {
-    symbol: 'SPOT_NEAR_USDC',
+    symbol: localStorage.getItem(REF_ORDERLY_SYMBOL_KEY) || 'SPOT_NEAR_USDC',
     theme: 'Dark',
     interval: 'D' as ResolutionString,
     datafeedUrl: 'https://demo_feed.tradingview.com',

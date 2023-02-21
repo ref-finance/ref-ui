@@ -9,6 +9,7 @@ import {
   SpinIcon,
   CheckFlow,
   OrderStateOutlineBlack,
+  OrderPopUpCheck,
 } from './Icons';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
@@ -297,6 +298,7 @@ export function orderPopUp({
   size,
   tokenIn,
   timeStamp,
+  filled,
 }: {
   orderType: 'Limit' | 'Market';
   symbolName: string;
@@ -305,11 +307,12 @@ export function orderPopUp({
   price: string;
   tokenIn: TokenMetadata | undefined;
   timeStamp?: number;
+  filled?: boolean;
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(symbolName);
   return toast(
-    <div className={`flex-col   text-sm text-dark5  `}>
-      <FlexRowBetween className="relative bottom-3">
+    <div className={`flex-col  px-2 pt-4 text-sm text-dark5  w-full`}>
+      <FlexRowBetween className="relative bottom-3 w-full">
         {/* <div className='flex -mt-1 items-center'>
           <TokenIcon src={tokenIn?.icon} />
           <span className='text-white  ml-2'>{symbolFrom}</span>
@@ -326,13 +329,17 @@ export function orderPopUp({
           </div>
 
           <div className="text-dark5 font-bold text-lg">
-            {orderType} Order Created!
+            {orderType} Order
+            {orderType === 'Limit' && !filled ? ' Created' : ' Filled'}!
           </div>
         </div>
 
         <div className="flex -mt-1 items-center">
-          <span>Open</span>
-          <span className="ml-1">
+          <span>{filled ? 'Filled' : 'Open'}</span>
+          <span className="ml-1 relative ">
+            {filled && (
+              <OrderPopUpCheck className="absolute left-0.5 top-0.5" />
+            )}
             <OrderStateOutlineBlack />
           </span>
         </div>
@@ -357,6 +364,7 @@ export function orderPopUp({
       position: 'bottom-right',
       progress: undefined,
       autoClose: 3000,
+      // autoClose: false,
       closeButton: false,
       style: {
         background:
@@ -471,20 +479,20 @@ export function MyOrderTip({
         <div
           className="fixed  z-40  rounded-md border bg-orderTipBg border-border3 p-2 "
           style={{
-            width: '120px',
+            minWidth: '120px',
             ...getPosition(),
           }}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center whitespace-nowrap justify-between">
             <span>Price</span>
 
-            <span className="text-white">{price}</span>
+            <span className="text-white ml-2">{price}</span>
           </div>
 
-          <div className="flex items-center justify-between mt-2 ">
+          <div className="flex items-center whitespace-nowrap justify-between mt-2 ">
             <span>Open Qty.</span>
 
-            <span className="text-white">{quantity}</span>
+            <span className="text-white ml-2">{quantity}</span>
           </div>
         </div>
       )}

@@ -39,10 +39,14 @@ interface OrderlyContextValue {
   validAccountSig: boolean;
 }
 
+export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
+
 export const OrderlyContext = createContext<OrderlyContextValue | null>(null);
 
 const OrderlyContextProvider: React.FC<any> = ({ children }) => {
-  const [symbol, setSymbol] = useState<string>('SPOT_NEAR_USDC');
+  const [symbol, setSymbol] = useState<string>(
+    localStorage.getItem(REF_ORDERLY_SYMBOL_KEY) || 'SPOT_NEAR_USDC'
+  );
 
   const value = useOrderlyMarketData({
     symbol,
@@ -88,6 +92,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         setSymbol: (symbol: string) => {
           setSymbol(symbol);
           handlePendingOrderRefreshing();
+          localStorage.setItem(REF_ORDERLY_SYMBOL_KEY, symbol);
         },
         recentTrades,
         tokenInfo,

@@ -30,6 +30,7 @@ import { EditConfirmOrderModal } from '../AllOrders/index';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { useHistory } from 'react-router-dom';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
+import { ButtonTextWrapper } from '~components/button/Button';
 
 export function CancelButton({
   text,
@@ -38,16 +39,28 @@ export function CancelButton({
   text: string;
   onClick: () => void;
 }) {
+  const [loading, setLoading] = useState<boolean>(false);
+
   return (
     <button
-      className="px-1.5 rounded-lg py-1 flex items-center border border-warn justify-center cursor-pointer text-warn border-warn"
+      className={`px-1.5 ${
+        loading ? 'opacity-70' : ''
+      } rounded-lg py-1 flex items-center border  justify-center cursor-pointer text-warn border-warn`}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        setLoading(true);
         onClick();
       }}
+      disabled={loading}
     >
-      {text}
+      <ButtonTextWrapper
+        loading={loading}
+        loadingColor={'#FFA24D'}
+        Text={() => {
+          return <span className="whitespace-nowrap">{text}</span>;
+        }}
+      ></ButtonTextWrapper>
     </button>
   );
 }

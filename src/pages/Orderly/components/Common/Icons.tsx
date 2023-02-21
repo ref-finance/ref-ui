@@ -668,3 +668,23 @@ export function Agree({ check }: { check: boolean }) {
     return <AgreeNotCheck />;
   }
 }
+
+export function OrderPopUpCheck(props: any) {
+  return (
+    <svg
+      {...props}
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M5 10C7.76142 10 10 7.76142 10 5C10 2.23858 7.76142 0 5 0C2.23858 0 0 2.23858 0 5C0 7.76142 2.23858 10 5 10ZM7.88614 4.24148C8.15756 4.02822 8.20471 3.63531 7.99145 3.36389C7.77819 3.09247 7.38528 3.04532 7.11386 3.25858L4.37485 5.41066L2.94869 3.93994C2.70839 3.69213 2.31271 3.68604 2.06491 3.92634C1.81711 4.16663 1.81102 4.56231 2.05131 4.81012L4.26152 7.08939L7.88614 4.24148Z"
+        fill="#273640"
+      />
+    </svg>
+  );
+}

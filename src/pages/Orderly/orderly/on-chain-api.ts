@@ -224,6 +224,7 @@ const user_request_withdraw = async (token: string, amount: string) => {
       token,
     },
     gas: '30000000000000',
+    amount: ONE_YOCTO_NEAR,
   };
 };
 

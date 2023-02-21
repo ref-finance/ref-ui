@@ -80,7 +80,7 @@ function SymbolSelector(props: {
         <div className="flex items-center">
           <TokenIcon src={tokenIn?.icon} />
 
-          <div className="ml-2">
+          <div className="ml-2 whitespace-nowrap">
             <span>{symbolFrom}</span>
 
             <span className="text-primaryOrderly">{` / ${symbolTo}`} </span>

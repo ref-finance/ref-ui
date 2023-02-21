@@ -58,7 +58,7 @@
   color: var(--wallet-selector-text-color, var(--text-color));
   font-family: inherit;
   font-weight: 500;
-  z-index: 101;
+  z-index: 999;
   display: flex;
   justify-content: center;
   align-items: center;
