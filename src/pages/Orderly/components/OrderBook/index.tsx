@@ -269,7 +269,7 @@ function OrderBook() {
 
                     <span>{asktotalSize?.[i]?.[1].toFixed(2)}</span>
 
-                    <div className="absolute left-0 top-1 z-20">
+                    <div className="absolute left-0 top-1 z-50">
                       {pendingOrders && groupMyPendingOrders[order[0]] && (
                         <MyOrderTip
                           price={order[0]}
@@ -320,7 +320,7 @@ function OrderBook() {
 
                   <span>{bidtotalSize[i][1].toFixed(2)}</span>
 
-                  <div className="absolute left-0 top-1 z-40">
+                  <div className="absolute left-0 top-1 z-50">
                     {pendingOrders && groupMyPendingOrders[order[0]] && (
                       <MyOrderTip
                         scrollTagID="buy-order-book-panel"

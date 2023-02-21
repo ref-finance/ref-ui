@@ -169,17 +169,6 @@ function OrderLine({
         setOpenEditPrice(false);
         setShowEditModal(false);
         return res;
-      })
-      .then((res) => {
-        return orderPopUp({
-          orderType: 'Limit',
-          side: order.side === 'SELL' ? 'Sell' : 'Buy',
-          symbolName: order.symbol,
-          price: price,
-          size: quantity,
-          tokenIn,
-          timeStamp: res.timestamp,
-        });
       });
   }
   const validateChange =

@@ -451,13 +451,13 @@ export function MyOrderTip({
     const scrollTop = orderEl.scrollTop;
 
     return {
-      top: top - scrollTop + 20,
+      top: top - scrollTop + 20 - document.documentElement.scrollTop,
     };
   }
 
   return (
     <div
-      className="relative text-sm z-40 text-primaryOrderly"
+      className="relative text-sm z-50 text-primaryOrderly"
       onMouseEnter={() => {
         setShowDetail(true);
       }}
@@ -469,7 +469,7 @@ export function MyOrderTip({
       <OrderSmile></OrderSmile>
       {showDetail && (
         <div
-          className="fixed  z-50  rounded-md border bg-orderTipBg border-border3 p-2 "
+          className="fixed  z-40  rounded-md border bg-orderTipBg border-border3 p-2 "
           style={{
             width: '120px',
             ...getPosition(),

@@ -35,6 +35,7 @@ import {
 import { REGISTER_DEPOSIT_AMOUNT } from './on-chain-api';
 import { getFTmetadata } from '../near';
 import Big from 'big.js';
+import { getOrderlyConfig } from '../config';
 
 const signAndSendTransactions = async (transactions: Transaction[]) => {
   const wsTransactions = await getFunctionCallTransaction(transactions);
@@ -274,10 +275,10 @@ const withdrawOrderly = async (token: string, amount: string) => {
   const metaData = await getFTmetadata(token);
 
   transactions.push({
-    receiverId: token.toLowerCase() === 'near' ? 'near' : token,
+    receiverId: getOrderlyConfig().ORDERLY_ASSET_MANAGER,
     functionCalls: [
       await user_request_withdraw(
-        token,
+        token.toLowerCase() === 'near' ? 'near' : token,
         toNonDivisibleNumber(metaData.decimals, amount)
       ),
     ],

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 
 import { parseSymbol } from '../RecentTrade';
-import { nearMetadata, getFTmetadata } from '../../near';
+import { nearMetadata, getFTmetadata, toPrecision } from '../../near';
 
 import {
   IoArrowDownOutline,
@@ -15,14 +15,6 @@ import { useTokenMetaFromSymbol } from './state';
 import { Ticker } from '../../orderly/type';
 import { TokenIcon } from '../Common';
 import useCallback from 'react';
-
-function formatWithCommas(value: string): string {
-  const pattern = /(-?\d+)(\d{3})/;
-  while (pattern.test(value)) {
-    value = value.replace(pattern, '$1,$2');
-  }
-  return value;
-}
 
 function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -161,6 +153,7 @@ function SymbolSelector(props: {
 
 function ChartHeader() {
   const { symbol, setSymbol, tokenInfo, ticker } = useOrderlyContext();
+  console.log('ticker: ', ticker);
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -297,7 +290,7 @@ function ChartHeader() {
             <span>Volume(24h)</span>
 
             <span className="text-white mt-0.5 font-bold">
-              ${formatWithCommas(ticker.volume.toString())}
+              ${toPrecision(ticker.amount.toString(), 3, true)}
             </span>
           </div>
         </div>

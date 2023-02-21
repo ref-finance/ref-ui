@@ -158,17 +158,6 @@ function OrderLine({
         setOpenEditPrice(false);
         setShowEditModal(false);
         return res;
-      })
-      .then((res) => {
-        return orderPopUp({
-          orderType: 'Limit',
-          side: order.side === 'SELL' ? 'Sell' : 'Buy',
-          symbolName: order.symbol,
-          price: price,
-          size: quantity,
-          tokenIn,
-          timeStamp: res.timestamp,
-        });
       });
   }
 
@@ -178,12 +167,10 @@ function OrderLine({
     (new Big(order.price).eq(new Big(price || 0)) &&
       new Big(order.quantity).eq(new Big(quantity || 0)));
 
-  console.log('price: ', price);
-
   return (
     <div
       key={order.order_id}
-      className="grid hover:bg-orderLineHover grid-cols-12 pl-5 pr-4 py-2 border-t border-white border-opacity-10"
+      className="grid hover:bg-orderLineHover grid-cols-10 pl-5 pr-4 py-2 border-t border-white border-opacity-10"
     >
       <FlexRow className="relative col-span-1">
         <span>Limit</span>
@@ -232,7 +219,11 @@ function OrderLine({
         ></TextWrapper>
       </FlexRow>
 
-      <FlexRowStart className="col-span-2 items-start">
+      <FlexRowStart className="col-span-2 items-start relative left-6">
+        <span className="relative top-1.5">{order.executed}</span>
+
+        <span className="mx-1 relative top-1.5">/</span>
+
         <div className="flex flex-col overflow-hidden bg-dark2 rounded-lg border border-border2 text-sm  w-14 text-white">
           <input
             ref={inputRef}
@@ -281,10 +272,6 @@ function OrderLine({
             </div>
           </div>
         </div>
-
-        <span className="mx-1 relative top-1.5">/</span>
-
-        <span className="relative top-1.5">{order.executed}</span>
       </FlexRowStart>
 
       <FlexRowStart className="col-span-2 items-start">
@@ -337,31 +324,15 @@ function OrderLine({
         </div>
       </FlexRowStart>
 
-      <FlexRow className="col-span-2 text-white ml-6">
-        <span>
-          {order.status === 'PARTIAL_FILLED'
-            ? order.average_executed_price.toFixed(2)
-            : order.price.toFixed(2)}
-        </span>
+      <FlexRow className="col-span-2 text-white ml-4">
+        {new Big(quantity || '0').times(new Big(order.price || '0')).toFixed(2)}
       </FlexRow>
 
-      <FlexRow className="col-span-1 text-white ml-4">
-        {new Big(quantity || '0')
-          .times(
-            new Big(
-              order.status === 'PARTIAL_FILLED'
-                ? order.average_executed_price
-                : order.price
-            )
-          )
-          .toFixed(2)}
-      </FlexRow>
-
-      <FlexRow className="col-span-2 text-primaryOrderly">
+      <FlexRow className="col-span-1 text-primaryOrderly whitespace-nowrap justify-self-end relative right-8">
         {formatTimeDate(order.created_time)}
       </FlexRow>
 
-      <FlexRow className="col-span-1 ">
+      <FlexRow className="col-span-1 justify-self-end relative right-1">
         <CancelButton
           text="Cancel"
           onClick={() => {
@@ -637,9 +608,7 @@ function OpenOrders({
   return (
     <>
       {/* Header */}
-      <div className="grid grid-cols-12 pl-5  pr-4 py-2 border-b   border-white border-opacity-10">
-        <FlexRow className="col-span-1">Type</FlexRow>
-
+      <div className="grid grid-cols-10 pl-5  pr-4 py-2 border-b   border-white border-opacity-10">
         <FlexRow className="col-span-1  relative">
           <div
             className="cursor-pointer flex items-center"
@@ -684,9 +653,10 @@ function OpenOrders({
             />
           )}
         </FlexRow>
+        <FlexRow className="col-span-1">Type</FlexRow>
 
         <FlexRow className="col-span-2">
-          <span>Qty/Filled</span>
+          <span>Filled/Qty</span>
 
           <span
             className="ml-1.5 rounded
@@ -718,25 +688,10 @@ function OpenOrders({
         </FlexRow>
 
         <FlexRow className="col-span-2">
-          <span>Avg. Price</span>
-
-          <span
-            className="ml-1.5 rounded
-            px-1 bg-symbolHover
-          
-          "
-            style={{
-              fontSize: '10px',
-            }}
-          >
-            {symbolTo}
-          </span>
-        </FlexRow>
-        <FlexRow className="col-span-1">
           <span>Est. Total</span>
         </FlexRow>
 
-        <FlexRow className=" flex items-center justify-center col-span-2 ">
+        <FlexRow className=" flex items-center justify-center col-span-1 ">
           <div
             className="cursor-pointer flex"
             onClick={() => {
@@ -754,7 +709,7 @@ function OpenOrders({
           </div>
         </FlexRow>
 
-        <FlexRow className="col-span-1">
+        <FlexRow className="col-span-1 justify-self-end relative right-1">
           <span>Actions</span>
         </FlexRow>
       </div>

@@ -207,6 +207,14 @@ export const ftGetBalance = async (tokenId: string) => {
     .catch(() => '0');
 };
 
+function formatWithCommas(value: string): string {
+  const pattern = /(-?\d+)(\d{3})/;
+  while (pattern.test(value)) {
+    value = value.replace(pattern, '$1,$2');
+  }
+  return value;
+}
+
 export const toPrecision = (
   number: string,
   precision: number,
