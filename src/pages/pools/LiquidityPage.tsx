@@ -457,7 +457,7 @@ function MobilePoolRow({
                     {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
                       <FormattedMessage id="stablecoin"></FormattedMessage>
                     ) : (
-                      'V1'
+                      'Classic'
                     )}
                   </span>
                 ) : null}
@@ -596,7 +596,7 @@ function MobilePoolRowV2({
               </div>
               {mark ? (
                 <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
-                  V2
+                  DCL
                 </span>
               ) : null}
             </div>
@@ -1035,7 +1035,7 @@ function MobileLiquidityPage({
                 switchActiveTab('v2');
               }}
             >
-              V2 Pools
+            DCL Pools
             </button>
 
             <button
@@ -1055,7 +1055,7 @@ function MobileLiquidityPage({
                 switchActiveTab('v1');
               }}
             >
-              V1 Pools
+              Classic Pools
             </button>
 
             <button
@@ -1624,7 +1624,7 @@ function PoolRow({
                   {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
                     <FormattedMessage id="stablecoin"></FormattedMessage>
                   ) : (
-                    'V1'
+                    'Classic'
                   )}
                 </span>
               ) : null}
@@ -1792,7 +1792,7 @@ function PoolRowV2({
           </div>
           {mark ? (
             <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
-              V2
+              DCL
             </span>
           ) : null}
           {watched && (
@@ -2300,7 +2300,7 @@ function LiquidityPage_({
                   switchActiveTab('v2');
                 }}
               >
-                V2 Pools
+                DCL Pools
               </button>
               {activeTab === 'v1' || activeTab === 'v2' ? null : (
                 <div
@@ -2328,7 +2328,7 @@ function LiquidityPage_({
                   switchActiveTab('v1');
                 }}
               >
-                V1 Pools
+                Classic Pools
               </button>
             </div>
 
@@ -2498,7 +2498,7 @@ function LiquidityPage_({
                   id: 'v2_pool_are_not_available_to_be_created_yet',
 
                   defaultMessage:
-                    'V2 Pools are not available to be created yet',
+                    'DCL Pools are not available to be created yet',
                 })}
                 </div>
               </div>

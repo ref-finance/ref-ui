@@ -308,7 +308,7 @@ export function YourLiquidityPage(props: any) {
     return (
       <div>
         <div className="text-white text-base gotham_bold my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
-          V1 (0)
+          Classic (0)
         </div>
         <div className="flex items-center justify-center">
           <BlueCircleLoading />
@@ -426,14 +426,14 @@ export function YourLiquidityPage(props: any) {
     return <NoLiquidity></NoLiquidity>;
   } else if (listLiquidities.length > 0 && +count == 0) {
     return (
-      <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
+      <div className={`${checkedStatus == 'DCL' ? 'hidden' : ''}`}>
         <div className="mb-3">
-          <span className="text-white text-base gotham_bold">V1 (0)</span>
+          <span className="text-white text-base gotham_bold">Classic (0)</span>
           <p className="text-sm text-farmText">
             <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
           </p>
         </div>
-        <NoLiquidity text="V1"></NoLiquidity>
+        <NoLiquidity text="Classic"></NoLiquidity>
       </div>
     );
   }
@@ -441,17 +441,17 @@ export function YourLiquidityPage(props: any) {
   return (
     <>
       {!listLiquiditiesLoading && listLiquidities.length == 0 ? (
-        <div className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}>
+        <div className={`mb-10 ${checkedStatus == 'Classic' ? 'hidden' : ''}`}>
           <div className="mb-3">
-            <span className="text-white text-base gotham_bold">V2 (0)</span>
+            <span className="text-white text-base gotham_bold">DCL (0)</span>
             <p className="text-sm text-farmText">
               <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
             </p>
           </div>
-          <NoLiquidity text="V2"></NoLiquidity>
+          <NoLiquidity text="DCL"></NoLiquidity>
         </div>
       ) : null}
-      <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
+      <div className={`${checkedStatus == 'DCL' ? 'hidden' : ''}`}>
         <StakeListContext.Provider
           value={{
             stakeList,
@@ -466,7 +466,7 @@ export function YourLiquidityPage(props: any) {
             {/* PC */}
             <div className="my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
               <span className="text-white text-base gotham_bold">
-                V1 ({count})
+                Classic ({count})
               </span>
               <p className="text-sm text-farmText">
                 <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>

@@ -131,14 +131,14 @@ export default function YourLiquidityPageV3() {
   );
   const [listLiquidities_old_version, setListLiquidities_old_version] =
     useState<UserLiquidityInfo[]>([]);
-  const liquidityStatusList = ['all', 'V2', 'V1'];
+  const liquidityStatusList = ['all', 'DCL', 'Classic'];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
-      text: 'V2 Liquidity',
+      text: 'DCL Liquidity',
       url: '/addLiquidityV2',
     },
     {
-      text: 'V1 Liquidity',
+      text: 'Classic Liquidity',
       url: '/pools',
     },
   ]);
@@ -269,7 +269,10 @@ export default function YourLiquidityPageV3() {
     setCheckedStatus(type);
   }
   function getTipForV2Pool() {
-    const n = intl.formatMessage({ id: 'v2PoolTip' });
+    const n = intl.formatMessage({
+      id: 'v2PoolTip2',
+      defaultMessage: 'You can have up to 16 positions in DCL pools',
+    });
     const result: string = `<div class="text-navHighLightText text-xs text-left">${n}</div>`;
     return result;
   }
@@ -416,7 +419,7 @@ export default function YourLiquidityPageV3() {
                     <span
                       key={index}
                       onClick={(e) => {
-                        if (item.text === 'V1 Liquidity') {
+                        if (item.text === 'Classic Liquidity') {
                           setGeneralAddLiquidity(true);
                         } else {
                           goAddLiquidityPage(item.url);
@@ -437,9 +440,9 @@ export default function YourLiquidityPageV3() {
         ) : (
           <>
             {listLiquiditiesLoading ? (
-              <div className={`${checkedStatus == 'V1' ? 'hidden' : ''}`}>
+              <div className={`${checkedStatus == 'Classic' ? 'hidden' : ''}`}>
                 <div className="text-white text-base gotham_bold mb-3">
-                  V2 (0)
+                  DCL (0)
                 </div>
                 <div className="flex justify-center items-center">
                   <BlueCircleLoading></BlueCircleLoading>
@@ -449,12 +452,14 @@ export default function YourLiquidityPageV3() {
               <>
                 {listLiquidities.length > 0 ? (
                   <div
-                    className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
+                    className={`mb-10 ${
+                      checkedStatus == 'Classic' ? 'hidden' : ''
+                    }`}
                   >
                     <div className="mb-3">
                       <div className="flex items-center text-white text-base">
                         <span className="gotham_bold">
-                          V2 ({listLiquidities.length})
+                          DCL ({listLiquidities.length})
                         </span>
                         <div
                           className="text-white text-right ml-1"
