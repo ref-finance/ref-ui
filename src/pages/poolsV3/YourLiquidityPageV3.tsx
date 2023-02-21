@@ -397,8 +397,8 @@ export default function YourLiquidityPageV3() {
               <div className="flex items-center">
                 <AddButtonIcon className="mr-1.5 text-white"></AddButtonIcon>
                 <FormattedMessage
-                  id="add_liquidity"
-                  defaultMessage="Add Liquidity"
+                  id={isMobile() ? 'add' : 'add_liquidity'}
+                  defaultMessage={isMobile() ? 'Add' : 'Add Liquidity'}
                 />
               </div>
             </GradientButton>
@@ -465,12 +465,13 @@ export default function YourLiquidityPageV3() {
                           className="text-white text-right ml-1"
                           data-class="reactTip"
                           data-for={'v2PoolNumberTip'}
-                          data-place="top"
+                          data-place="right"
                           data-html={true}
                           data-tip={getTipForV2Pool()}
                         >
                           <QuestionMark></QuestionMark>
                           <ReactTooltip
+                            place='right'
                             id={'v2PoolNumberTip'}
                             backgroundColor="#1D2932"
                             border

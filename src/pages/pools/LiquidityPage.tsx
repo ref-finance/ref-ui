@@ -1035,7 +1035,7 @@ function MobileLiquidityPage({
                 switchActiveTab('v2');
               }}
             >
-            DCL Pools
+              DCL Pools
             </button>
 
             <button
@@ -3030,7 +3030,7 @@ export function LiquidityPage() {
     canFarms({
       pool_ids,
     }).then(setFarmCounts);
-  }, [pools]);
+  }, [pools, watchPools?.map((p) => p.id).join('|')]);
 
   const clientMobileDevice = useClientMobile();
   const [do_farms_v2_poos, set_do_farms_v2_poos] = useState<
@@ -3509,7 +3509,7 @@ const RenderDisplayTokensAmounts = ({
                   : 'text-primaryText'
               }`}
             >
-              <span className="mr-1.5">
+              <span className="mr-1.5 flex-shrink-0">
                 <img
                   src={token.icon}
                   alt=""
