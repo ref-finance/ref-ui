@@ -316,7 +316,11 @@ function OrderBook() {
           >
             {orders && recentTrades.length > 0 && marketTradeDisplay}
 
-            {diff !== 0 && <IoArrowUpOutline />}
+            {diff !== 0 && (
+              <IoArrowUpOutline
+                className={diff < 0 ? 'transform rotate-90' : ''}
+              />
+            )}
           </div>
 
           {/* buy */}
