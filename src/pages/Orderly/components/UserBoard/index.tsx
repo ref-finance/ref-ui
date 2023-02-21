@@ -1088,8 +1088,16 @@ export function AssetManagerModal(
   );
 
   const walletBalance =
-    balances?.find((b: any) => b.id === tokenId)?.wallet_balance ||
+    balances?.find((b: any) => b.id.toLowerCase() === tokenId.toLowerCase())
+      ?.wallet_balance ||
     walletBalanceProp ||
+    '0';
+
+  const displayAccountBalance =
+    balances
+      ?.find((b: any) => b.id.toLowerCase() === tokenId.toLowerCase())
+      ?.holding?.toString() ||
+    accountBalance ||
     '0';
 
   useEffect(() => {
@@ -1112,7 +1120,7 @@ export function AssetManagerModal(
 
     const sharePercentOfValue = percentOfBigNumber(
       Number(sharePercent),
-      type === 'deposit' ? walletBalance : accountBalance.toString(),
+      type === 'deposit' ? walletBalance : displayAccountBalance.toString(),
       tokenMeta.decimals
     );
 
@@ -1155,7 +1163,9 @@ export function AssetManagerModal(
 
     if (type === 'withdraw') {
       if (
-        new Big(accountBalance || 0).minus(new Big(inputValue || '0')).lt(0)
+        new Big(displayAccountBalance || 0)
+          .minus(new Big(inputValue || '0'))
+          .lt(0)
       ) {
         return false;
       }
@@ -1201,7 +1211,7 @@ export function AssetManagerModal(
             <div className="flex items-center pb-4 justify-between">
               <span>Account Balance</span>
 
-              <span>{accountBalance.toFixed(3)}</span>
+              <span>{digitWrapper(displayAccountBalance.toString(), 3)}</span>
             </div>
 
             <div className="flex mb-5 items-center border border-border2 w-full bg-black bg-opacity-10 rounded-2xl px-3 py-3">
@@ -1220,13 +1230,13 @@ export function AssetManagerModal(
 
                   const percentage =
                     Number(
-                      type === 'deposit' ? walletBalance : accountBalance
+                      type === 'deposit' ? walletBalance : displayAccountBalance
                     ) > 0
                       ? percent(
                           value || '0',
                           type === 'deposit'
                             ? walletBalance.toString()
-                            : accountBalance.toString()
+                            : displayAccountBalance.toString()
                         ).toString()
                       : '0';
                   setPercentage(scientificNotationToString(percentage));

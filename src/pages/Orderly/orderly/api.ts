@@ -9,6 +9,7 @@ import {
   get_cost_of_announce_key,
   user_account_exists,
   is_orderly_key_announced,
+  storage_cost_of_token_balance,
 } from './on-chain-api';
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
@@ -192,20 +193,20 @@ const depositNEAR = async (amount: string) => {
   const account_id = window.selectorAccountId;
   if (!account_id) return;
 
-  const storageBound = await storage_balance_bounds();
+  const storageBound = await storage_cost_of_token_balance();
 
   const balance = await storage_balance_of(account_id);
 
   if (
     balance === null ||
-    new Big(storageBound.min).gt(new Big(balance.available))
+    new Big(storageBound).gt(new Big(balance.available))
   ) {
     transactions.push({
       receiverId: ORDERLY_ASSET_MANAGER,
       functionCalls: [
         orderly_storage_deposit(
           account_id,
-          utils.format.formatNearAmount(storageBound.min),
+          utils.format.formatNearAmount(storageBound),
           false
         ),
       ],
@@ -227,20 +228,20 @@ const depositFT = async (token: string, amount: string) => {
   const account_id = window.selectorAccountId;
   if (!account_id) return;
 
-  const storageBound = await storage_balance_bounds();
+  const storageBound = await storage_cost_of_token_balance();
 
   const balance = await storage_balance_of(account_id);
 
   if (
     balance === null ||
-    new Big(storageBound.min).gt(new Big(balance.available))
+    new Big(storageBound).gt(new Big(balance.available))
   ) {
     transactions.push({
       receiverId: ORDERLY_ASSET_MANAGER,
       functionCalls: [
         orderly_storage_deposit(
           account_id,
-          utils.format.formatNearAmount(storageBound.min),
+          utils.format.formatNearAmount(storageBound),
           false
         ),
       ],
@@ -260,7 +261,7 @@ const depositFT = async (token: string, amount: string) => {
 };
 
 const depositOrderly = async (token: string, amount: string) => {
-  if (token === 'near') {
+  if (token === 'near' || token === 'NEAR') {
     return depositNEAR(amount);
   } else {
     return depositFT(token, amount);
@@ -273,7 +274,7 @@ const withdrawOrderly = async (token: string, amount: string) => {
   const metaData = await getFTmetadata(token);
 
   transactions.push({
-    receiverId: token,
+    receiverId: token.toLowerCase() === 'near' ? 'near' : token,
     functionCalls: [
       await user_request_withdraw(
         token,

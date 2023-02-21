@@ -85,8 +85,6 @@ function OrderlyTradingBoard() {
   return (
     <div>
       <TradingBoard></TradingBoard>
-
-      <ToastContainer />
     </div>
   );
 }

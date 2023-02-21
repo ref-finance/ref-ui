@@ -158,6 +158,12 @@ const storage_balance_bounds = async () => {
   });
 };
 
+const storage_cost_of_token_balance = async () => {
+  return orderlyViewFunction({
+    methodName: 'storage_cost_of_token_balance',
+  });
+};
+
 const storage_balance_of = async (account_id: string) => {
   return orderlyViewFunction({
     methodName: 'storage_balance_of',
@@ -240,4 +246,5 @@ export {
   get_cost_of_announce_key,
   is_orderly_key_announced,
   is_trading_key_set,
+  storage_cost_of_token_balance,
 };
