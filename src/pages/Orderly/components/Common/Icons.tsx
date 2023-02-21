@@ -95,7 +95,7 @@ export function ArrowCurve() {
 export function OrderSmile(props: any) {
   return (
     <svg
-      className="relative z-10"
+      className=""
       width="16"
       height="14"
       viewBox="0 0 16 14"
