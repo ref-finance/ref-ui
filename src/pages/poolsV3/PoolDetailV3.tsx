@@ -324,7 +324,7 @@ export default function PoolDetailV3() {
             <div className="flex flex-col justify-between">
               <div className="flex items-center">
                 <span className="text-lg text-white mr-3.5">
-                  {poolDetail.token_x_metadata.symbol}/
+                  {poolDetail.token_x_metadata.symbol}-
                   {poolDetail.token_y_metadata.symbol}
                 </span>
                 <span

@@ -1992,8 +1992,8 @@ export function PoolDetailsPage() {
     const farms = seedFarms;
 
     let totalReward = 0;
-
-    farms.forEach((farm: any) => {
+    const effectiveFarms = getEffectiveFarmList(farms);
+    effectiveFarms.forEach((farm: any) => {
       const reward_token_price = Number(
         tokenPriceList?.[farm.token_meta_data.id]?.price || 0
       );

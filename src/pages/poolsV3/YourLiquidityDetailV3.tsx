@@ -547,7 +547,7 @@ export default function YourLiquidityDetail(props: any) {
                 ></img>
               </div>
               <span className="text-lg text-white">
-                {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
+                {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}-
                 {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
               </span>
             </div>

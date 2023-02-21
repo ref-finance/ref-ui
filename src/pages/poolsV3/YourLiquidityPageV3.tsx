@@ -1548,7 +1548,7 @@ export function get_detail_the_liquidity_refer_to_seed({
   related_farms: FarmBoost[];
   tokenPriceList: Record<string, any>;
 }) {
-  const { mft_id, left_point, right_point } = liquidity;
+  const { mft_id, left_point, right_point, amount } = liquidity;
   let Icon;
   let your_apr;
   let link;
@@ -1574,7 +1574,10 @@ export function get_detail_the_liquidity_refer_to_seed({
       min_deposit
     );
     const condition2 = +radio > 0;
-    if (condition1 && condition2) return true;
+    const condition3 =
+      mft_id ||
+      (!mft_id && new BigNumber(amount).isGreaterThanOrEqualTo(1000000));
+    if (condition1 && condition2 && condition3) return true;
   });
   const targetSeed = canFarmSeed || active_seeds[0];
   if (targetSeed) {

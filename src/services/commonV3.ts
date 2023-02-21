@@ -592,17 +592,18 @@ export function allocation_rule_liquidities({
   const temp_unavailable: UserLiquidityInfo[] = [];
   matched_liquidities.forEach((liquidity: UserLiquidityInfo) => {
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
-    const { mft_id } = liquidity;
+    const { mft_id, amount } = liquidity;
     const inRange = right_point > left_point;
     const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
       mft_id.split('&');
+    const amount_is_little = new BigNumber(amount).isLessThan(1000000);
     if (inRange && mft_id) {
       if (left_point_l != left_point_s || right_point_l != right_point_s) {
         temp_unavailable.push(liquidity);
       } else {
         temp_farming.push(liquidity);
       }
-    } else if (!inRange) {
+    } else if (!inRange || (!mft_id && amount_is_little)) {
       temp_unavailable.push(liquidity);
     } else {
       temp_free.push(liquidity);
