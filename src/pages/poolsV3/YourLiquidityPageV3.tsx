@@ -505,6 +505,7 @@ export default function YourLiquidityPageV3() {
               checkedStatus={checkedStatus}
               listLiquidities={listLiquidities}
               listLiquiditiesLoading={listLiquiditiesLoading}
+              pageType="1"
             ></YourLiquidityPage>
           </>
         )}

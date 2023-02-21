@@ -1859,27 +1859,25 @@
             transparencies: l,
             visible: r,
           } = this.props.property.childs();
-          return e
-            .childNames()
-            .map((o) =>
-              n.createElement(
-                L.InputRow,
-                {
-                  key: o,
-                  grouped: !0,
-                  label: n.createElement(
-                    'div',
-                    { className: fe.childRowContainer },
-                    t.childs()[o].value()
-                  ),
-                },
-                n.createElement(Pe.ColorWithThicknessSelect, {
-                  disabled: !r.value(),
-                  color: e.childs()[o],
-                  transparency: l.childs()[o],
-                })
-              )
-            );
+          return e.childNames().map((o) =>
+            n.createElement(
+              L.InputRow,
+              {
+                key: o,
+                grouped: !0,
+                label: n.createElement(
+                  'div',
+                  { className: fe.childRowContainer },
+                  t.childs()[o].value()
+                ),
+              },
+              n.createElement(Pe.ColorWithThicknessSelect, {
+                disabled: !r.value(),
+                color: e.childs()[o],
+                transparency: l.childs()[o],
+              })
+            )
+          );
         }
       }
       kt.contextType = le.StylePropertyContext;

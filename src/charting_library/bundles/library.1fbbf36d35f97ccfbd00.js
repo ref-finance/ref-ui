@@ -40855,12 +40855,10 @@
                         var s = te.factoryDefaults(
                             'chartproperties.volumePaneSize'
                           ),
-                          r = e._model
-                            .model()
-                            .createStudyInserter({
-                              type: 'java',
-                              studyId: 'Volume@tv-basicstudies',
-                            });
+                          r = e._model.model().createStudyInserter({
+                            type: 'java',
+                            studyId: 'Volume@tv-basicstudies',
+                          });
                         r.setForceOverlay(u.enabled('volume_force_overlay')),
                           r.setPaneSize(s),
                           u.enabled('hide_volume_ma') &&
@@ -59433,11 +59431,9 @@
             this._recalcVisibleRangeStudiesImpl({ studies: [g], force: !0 }),
             this._recalcColorStudiesImpl({ studies: [g], force: !0 }),
             this._studyInserted.fire(g),
-            g
-              .maxOffset()
-              .subscribe(this._boundUpdateStudiesMaxOffset, {
-                callWithLast: !0,
-              }),
+            g.maxOffset().subscribe(this._boundUpdateStudiesMaxOffset, {
+              callWithLast: !0,
+            }),
             this.mainSeries()
               .onIntervalChanged()
               .subscribe(this, this._updateStudiesMaxOffset),
