@@ -997,9 +997,9 @@ export default function UserBoard() {
           setOperationType(undefined);
         }}
         type={operationType}
-        onClick={(amount: string) => {
-          if (!operationId) return;
-          return depositOrderly(operationId, amount);
+        onClick={(amount: string, tokenId: string) => {
+          if (!tokenId) return;
+          return depositOrderly(tokenId, amount);
         }}
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
@@ -1012,9 +1012,9 @@ export default function UserBoard() {
           setOperationType(undefined);
         }}
         type={operationType}
-        onClick={(amount: string) => {
-          if (!operationId) return;
-          return withdrawOrderly(operationId, amount);
+        onClick={(amount: string, tokenId: string) => {
+          if (!tokenId) return;
+          return withdrawOrderly(tokenId, amount);
         }}
         tokenId={operationId}
         accountBalance={tokenInHolding || 0}
@@ -1042,7 +1042,7 @@ export default function UserBoard() {
 export function AssetManagerModal(
   props: Modal.Props & {
     type: 'deposit' | 'withdraw' | undefined;
-    onClick: (amount: string) => void;
+    onClick: (amount: string, tokenId: string) => void;
     tokenId: string | undefined;
     accountBalance: number;
     walletBalance?: number | string;
@@ -1144,7 +1144,7 @@ export function AssetManagerModal(
   function validation() {
     if (type === 'deposit') {
       if (
-        tokenId === 'near' &&
+        tokenId.toLowerCase() === 'near' &&
         new Big(walletBalance || 0)
           .minus(new Big(inputValue || '0'))
           .lt(0.25) &&
@@ -1154,7 +1154,7 @@ export function AssetManagerModal(
       }
 
       if (
-        tokenId !== 'near' &&
+        tokenId.toLowerCase() !== 'near' &&
         new Big(walletBalance || 0).minus(new Big(inputValue || '0')).lt(0)
       ) {
         return false;
@@ -1336,7 +1336,9 @@ export function AssetManagerModal(
 
             <button
               className={`flex ${
-                !validation() ? 'opacity-70 cursor-not-allowed' : ''
+                !validation() || new Big(inputValue || 0).lte(0)
+                  ? 'opacity-70 cursor-not-allowed'
+                  : ''
               } items-center justify-center  font-bold text-base text-white py-2.5 rounded-lg ${
                 type === 'deposit' ? 'bg-primaryGradient' : 'bg-withdrawPurple'
               }`}
@@ -1344,9 +1346,9 @@ export function AssetManagerModal(
                 e.preventDefault();
                 e.stopPropagation();
                 if (!inputValue) return;
-                onClick(inputValue);
+                onClick(inputValue, tokenId);
               }}
-              disabled={!validation()}
+              disabled={!validation() || new Big(inputValue || 0).lte(0)}
             >
               {type === 'deposit'
                 ? 'Deposit'
@@ -1371,6 +1373,7 @@ export function AssetManagerModal(
             zIndex: 1000,
           },
         }}
+        orderBy={type === 'deposit' ? 'wallet' : 'orderly'}
       />
     </>
   );
@@ -1381,13 +1384,14 @@ function SelectTokenModal(
     onSelect: (tokenId: string) => void;
     tokenInfo: TokenInfo[] | undefined;
     balances: any;
+    orderBy: 'wallet' | 'orderly';
   }
 ) {
-  const { onRequestClose, onSelect, tokenInfo, balances } = props;
+  const { onRequestClose, onSelect, tokenInfo, balances, orderBy } = props;
 
-  const [sortOrderlyAccount, setSortOrderlyAccount] = useState<
-    'asc' | 'desc'
-  >();
+  const [sortOrderlyAccount, setSortOrderlyAccount] = useState<'asc' | 'desc'>(
+    'desc'
+  );
 
   const [sortNearBalance, setSortNearBalance] = useState<'asc' | 'desc'>(
     'desc'
@@ -1395,7 +1399,9 @@ function SelectTokenModal(
 
   const [searchValue, setSearchValue] = useState<string>('');
 
-  const [sortByBalance, setSortByBalance] = useState<'wallet' | 'orderly'>();
+  const [sortByBalance, setSortByBalance] = useState<'wallet' | 'orderly'>(
+    orderBy
+  );
 
   const sortingFunc = (a: any, b: any) => {
     if (sortByBalance === 'wallet' || sortByBalance === undefined) {

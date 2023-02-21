@@ -356,7 +356,7 @@ export function orderPopUp({
       hideProgressBar: false,
       position: 'bottom-right',
       progress: undefined,
-      autoClose: false,
+      autoClose: 3000,
       closeButton: false,
       style: {
         background:
