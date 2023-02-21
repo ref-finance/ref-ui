@@ -630,40 +630,6 @@ function DetailViewV2({
             }
           />
         </div>
-      </div>
-      <div className={showDetails ? '' : 'hidden'}>
-        <SwapDetail
-          title={intl.formatMessage({ id: 'minimum_received' })}
-          value={<span>{toPrecision(minAmountOutValue, 8)}</span>}
-        />
-        <SwapRateDetail
-          title={intl.formatMessage({ id: 'swap_rate' })}
-          subTitle={
-            swapMode === SWAP_MODE.STABLE
-              ? intl.formatMessage({
-                  id: 'including_fees',
-                  defaultMessage: '(including fees)',
-                })
-              : null
-          }
-          value={`1 ${toRealSymbol(
-            tokenOut.symbol
-          )} ≈ ${exchangeRateValue} ${toRealSymbol(tokenIn.symbol)}`}
-          from={from}
-          to={to}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          fee={fee}
-        />
-        {Number(priceImpact) > 2 && (
-          <div className="py-1 text-xs text-right">
-            <PriceImpactWarning value={priceImpact} />
-          </div>
-        )}
-        <SwapDetail
-          title={intl.formatMessage({ id: 'price_impact' })}
-          value={!to || to === '0' ? '-' : priceImpactDisplay}
-        />
         <SwapDetail
           title={intl.formatMessage({ id: 'pool_fee' })}
           value={poolFeeDisplay}
