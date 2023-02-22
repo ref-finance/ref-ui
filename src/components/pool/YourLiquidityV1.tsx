@@ -118,11 +118,12 @@ import { GoodIcon } from '../../components/icon/Common';
 import { AddPoolModal } from '../../pages/pools/AddPoolPage';
 import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
 import { BlueCircleLoading } from '../../components/layout/Loading';
+import { LiquidityContainerStyle2 } from '../../components/portfolio/Positions';
 import { NoLiquidity } from '../../pages/poolsV3/YourLiquidityPageV3';
 import ReactTooltip from 'react-tooltip';
 import Big from 'big.js';
 import { checkFarmStake } from '../../state/farm';
-const StakeListContext = createContext(null);
+export const StakeListContext = createContext(null);
 
 export function YourLiquidityV1(props: any) {
   // props from your liquidity page
@@ -137,64 +138,44 @@ export function YourLiquidityV1(props: any) {
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
   const { v1Farm, v2Farm } = useAllFarms();
-
   const [generalAddLiquidity, setGeneralAddLiquidity] =
     useState<boolean>(false);
-
   const { globalState } = useContext(WalletContext);
   const history = useHistory();
-
+  const [stablePools, setStablePools] = useState<PoolRPCView[]>();
+  const [tvls, setTvls] = useState<Record<string, number>>();
+  const [tokensMeta, setTokensMeta] = useState<{}>();
+  const isClientMobile = useClientMobile();
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
   const isSignedIn = !!accountId;
-
   if (!isSignedIn) {
     history.push('/');
     return null;
   }
-
-  const [stablePools, setStablePools] = useState<PoolRPCView[]>();
-
-  const [tvls, setTvls] = useState<Record<string, number>>();
-
-  const isClientMobile = useClientMobile();
-
-  const { finalStakeList, stakeList, v2StakeList } = useStakeListByAccountId();
-
-  const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
-    ? useAccountInfo()
-    : { lptAmount: '0' };
-
-  const { batchTotalShares, shares: batchStableShares } = useBatchTotalShares(
-    stablePools?.map((p) => p.id),
-    finalStakeList
-  );
-
-  const { batchTotalShares: batchTotalSharesSimplePools, shares: batchShares } =
-    useBatchTotalShares(
-      pools?.map((p) => p.id),
-      finalStakeList
-    );
-
-  const [tokensMeta, setTokensMeta] = useState<{}>();
-
   useEffect(() => {
+    // get all stable pools;
     const ids = ALL_STABLE_POOL_IDS;
-
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       setStablePools(res.filter((p) => p.id.toString() !== NEARX_POOL_ID));
     });
   }, []);
-
+  useEffect(() => {
+    if (!isSignedIn) return;
+    // get all simple pools;
+    getYourPools().then((res) => {
+      setPools(res.filter((p) => !isStablePool(p.id.toString())));
+    });
+  }, [isSignedIn]);
   useEffect(() => {
     if (!pools) return;
-
+    // get all tokens meta data both from simple pools and stable pools
     ftGetTokensMetadata(
       (pools.map((p) => p.token_account_ids).flat() || []).concat(
         AllStableTokenIds
       )
     ).then(setTokensMeta);
-
+    // get all tvls of simple pools;(stable pools has tvl field， but simple pools doesn't,so need request again)
     getPoolsByIds({ pool_ids: pools.map((p) => p.id.toString()) }).then(
       (res) => {
         setTvls(
@@ -210,15 +191,22 @@ export function YourLiquidityV1(props: any) {
       }
     );
   }, [pools]);
-
-  useEffect(() => {
-    if (!isSignedIn) return;
-
-    getYourPools().then((res) => {
-      setPools(res.filter((p) => !isStablePool(p.id.toString())));
-    });
-  }, [isSignedIn]);
-
+  // get stake list in v1 farm and v2 farm
+  const { finalStakeList, stakeList, v2StakeList } = useStakeListByAccountId();
+  // get lp amount locked in ve contract;
+  const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
+    ? useAccountInfo()
+    : { lptAmount: '0' };
+  // get the rest lp amount in pool and all lp amount  (in v1 farm, v2 farm, pool)
+  const { batchTotalShares, shares: batchStableShares } = useBatchTotalShares(
+    stablePools?.map((p) => p.id),
+    finalStakeList
+  );
+  const { batchTotalShares: batchTotalSharesSimplePools, shares: batchShares } =
+    useBatchTotalShares(
+      pools?.map((p) => p.id),
+      finalStakeList
+    );
   if (
     !pools ||
     !tokensMeta ||
@@ -237,7 +225,9 @@ export function YourLiquidityV1(props: any) {
         </div>
       </div>
     );
+  // get ve pool
   const vePool = pools.find((p) => Number(p.id) === Number(getVEPoolId()));
+  // get the number of pools which lp amount is greater than zero;
   const count =
     batchTotalSharesSimplePools
       .map((n, i) =>
@@ -249,6 +239,7 @@ export function YourLiquidityV1(props: any) {
         return cur > 0 ? acc + 1 : acc;
       }, 0) +
     batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
+  // get the number of pools which user has ever been participated in;
   const lpCount =
     (!vePool || !getConfig().REF_VE_CONTRACT_ID ? 0 : 1) +
     (batchTotalShares && batchTotalShares?.some((s) => s > 0)
@@ -497,6 +488,7 @@ function LiquidityContainerStyle1() {
                     </div>
                   </div>
                   <div className=" overflow-y-auto">
+                    {/* display ve pool */}
                     {!vePool || !getConfig().REF_VE_CONTRACT_ID
                       ? null
                       : [vePool].map((p) => {
@@ -517,7 +509,7 @@ function LiquidityContainerStyle1() {
                             />
                           );
                         })}
-
+                    {/* display stable pools */}
                     {batchTotalShares &&
                       batchTotalShares?.some((s: number) => s > 0) &&
                       stablePools?.map((p: PoolRPCView, i: number) => {
@@ -532,7 +524,7 @@ function LiquidityContainerStyle1() {
                           />
                         );
                       })}
-
+                    {/* display simple pools */}
                     {pools
                       .filter(
                         (p: PoolRPCView) =>
@@ -638,10 +630,6 @@ function LiquidityContainerStyle1() {
       </div>
     </>
   );
-}
-
-function LiquidityContainerStyle2() {
-  return <div className="text-white">hello</div>;
 }
 function MyShares({
   shares,
@@ -767,7 +755,6 @@ function PoolRow(props: {
   const farmStakeV1 = useFarmStake({ poolId, stakeList });
   const farmStakeV2 = useFarmStake({ poolId, stakeList: v2StakeList });
   const farmStakeTotal = useFarmStake({ poolId, stakeList: finalStakeList });
-
   const userTotalShare = BigNumber.sum(shares, farmStakeTotal);
 
   const userTotalShareToString = userTotalShare

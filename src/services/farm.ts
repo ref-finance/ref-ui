@@ -134,7 +134,6 @@ export const getStakedListByAccountId = async ({
       return res;
     }),
   ]);
-
   const finalStakeSeedList = new Array(
     ...new Set(Object.keys(stakedList).concat(Object.keys(v2StakedList)))
   );

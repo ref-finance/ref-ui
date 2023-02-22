@@ -18,6 +18,7 @@ import {
   toPrecision,
   toReadableNumber,
   formatWithCommas,
+  toInternationalCurrencySystem,
 } from '~utils/numbers';
 import { TokenMetadata } from '../../services/ft-contract';
 import { useTokens } from '../../state/token';
@@ -44,7 +45,18 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import { ConnectToNearBtnSwap } from '../../components/button/Button';
-import { YourLiquidityV1 } from '../../components/pool/YourLiquidityV1';
+import {
+  YourLiquidityV1,
+  StakeListContext,
+} from '../../components/pool/YourLiquidityV1';
+import { TriangleIcon, LinkIcon } from '../../components/icon/Portfolio';
+import { PoolRPCView } from '~services/api';
+import { Index } from 'mathjs';
+import { isStablePool } from '../../services/near';
+import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
+import { LP_TOKEN_DECIMALS } from '~services/m-token';
+import { getVEPoolId } from '../../pages/ReferendumPage';
+
 export default function Positions(props: any) {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
@@ -116,14 +128,7 @@ export default function Positions(props: any) {
           </>
         )}
       </div>
-      <YourLiquidityV1
-        setLpValueV1Done={setLpValueV1Done}
-        setYourLpValueV1={setYourLpValueV1}
-        // checkedStatus={checkedStatus}
-        // listLiquidities={listLiquidities}
-        // listLiquiditiesLoading={listLiquiditiesLoading}
-        pageType="2"
-      ></YourLiquidityV1>
+      <YourLiquidityV1 pageType="2"></YourLiquidityV1>
     </div>
   );
 }
@@ -788,6 +793,347 @@ function NoLiquidity({
 
       <MyOrderMask />
       <MyOrderMask2 />
+    </div>
+  );
+}
+
+export function LiquidityContainerStyle2() {
+  const {
+    listLiquiditiesLoading,
+    listLiquidities,
+    checkedStatus,
+    error,
+    count,
+    isClientMobile,
+    v1Farm,
+    v2Farm,
+    tvls,
+    tokensMeta,
+    lptAmount,
+    lpCount,
+    setLpValueV1Done,
+    setYourLpValueV1,
+    generalAddLiquidity,
+    setGeneralAddLiquidity,
+    vePool,
+    pools,
+    stablePools,
+    batchTotalShares,
+    batchStableShares,
+    batchTotalSharesSimplePools,
+    batchShares,
+    stakeList,
+    v2StakeList,
+    finalStakeList,
+  } = useContext(StakeListContext);
+  const simplePoolsFinal = useMemo(() => {
+    const activeSimplePools: PoolRPCView[] = pools.filter(
+      (p: PoolRPCView, i: number) => {
+        return batchTotalSharesSimplePools[i] !== 0 && p.id !== vePool?.id;
+      }
+    );
+    return activeSimplePools;
+  }, [pools, batchTotalSharesSimplePools]);
+  const stablePoolsFinal: PoolRPCView[] = useMemo(() => {
+    const activeStablePools = stablePools.filter(
+      (p: PoolRPCView, i: number) => {
+        return batchTotalShares[i] !== 0;
+      }
+    );
+    return activeStablePools;
+  }, [stablePools, batchTotalShares]);
+  const vePoolFinal: PoolRPCView = vePool;
+  console.log('111111111-simplePoolsFinal', simplePoolsFinal);
+  console.log('111111111-stablePoolsFinal', stablePoolsFinal);
+  console.log('111111111-vePoolFinal', vePoolFinal);
+  console.log('111111111-finalStakeList', finalStakeList);
+  console.log('2222222222-pools', pools);
+  console.log(
+    '2222222222-batchTotalSharesSimplePools',
+    batchTotalSharesSimplePools
+  );
+  console.log('2222222222-batchTotalShares', batchTotalShares);
+  console.log('2222222222-batchShares', batchShares);
+  console.log('2222222222-batchStableShares', batchStableShares);
+
+  return (
+    <div>
+      {vePool ? (
+        <YourClassicLiquidityLine pool={vePool}></YourClassicLiquidityLine>
+      ) : null}
+      {stablePoolsFinal.map((pool: PoolRPCView) => {
+        return (
+          <YourClassicLiquidityLine pool={pool}></YourClassicLiquidityLine>
+        );
+      })}
+      {simplePoolsFinal.map((pool: PoolRPCView) => {
+        return (
+          <YourClassicLiquidityLine pool={pool}></YourClassicLiquidityLine>
+        );
+      })}
+    </div>
+  );
+}
+
+function YourClassicLiquidityLine(props: any) {
+  const {
+    listLiquiditiesLoading,
+    listLiquidities,
+    checkedStatus,
+    error,
+    count,
+    vePool,
+    isClientMobile,
+    v1Farm,
+    v2Farm,
+    tvls,
+    tokensMeta,
+    lptAmount,
+    lpCount,
+    setLpValueV1Done,
+    setYourLpValueV1,
+    pools,
+    stablePools,
+    generalAddLiquidity,
+    setGeneralAddLiquidity,
+
+    batchTotalShares,
+    batchStableShares,
+    batchTotalSharesSimplePools,
+    batchShares,
+    stakeList,
+    v2StakeList,
+    finalStakeList,
+  } = useContext(StakeListContext);
+  const { pool } = props;
+  const { token_account_ids, id: poolId } = pool;
+  const tokens = token_account_ids.map((id: number) => tokensMeta[id]) || [];
+  const decimals = isStablePool(poolId)
+    ? getStablePoolDecimal(poolId)
+    : LP_TOKEN_DECIMALS;
+  // todo token 需要排序
+  const Images = tokens.map((token: TokenMetadata) => {
+    const { icon, id } = token;
+    if (icon)
+      return (
+        <img
+          key={id}
+          className={
+            'inline-block h-8 w-8 rounded-full border border-gradientFromHover -ml-1 '
+          }
+          src={icon}
+        />
+      );
+    return (
+      <div
+        key={id}
+        className={
+          'inline-block h-8 w-8 rounded-full bg-cardBg border border-gradientFromHover -ml-1'
+        }
+      ></div>
+    );
+  });
+  const Symbols = tokens.map((token: TokenMetadata, index: number) => {
+    const { symbol } = token;
+    if (index == tokens.length - 1) {
+      return <>{symbol}</>;
+    } else {
+      return <>{symbol}/</>;
+    }
+  });
+  // get lp amount in farm
+  const lp_in_farm = useMemo(() => {
+    let inFarmAmount = '0';
+    Object.keys(finalStakeList).find((seed_id: string) => {
+      const pool_id = seed_id.split('@')[1];
+      if (+poolId == +pool_id) {
+        const amount = finalStakeList[seed_id];
+        inFarmAmount = new BigNumber(amount).shiftedBy(-decimals).toFixed();
+        return true;
+      }
+    });
+    return inFarmAmount;
+  }, [finalStakeList]);
+  // get lp amount in vote
+  const lp_in_vote = useMemo(() => {
+    let lpInVote = '0';
+    if (+pool.id == vePool?.id) {
+      lpInVote = lptAmount;
+    }
+    return new BigNumber(lpInVote).shiftedBy(-24).toFixed();
+  }, [pool, lptAmount]);
+  // get lp amount in pool && total lp (pool + farm) && user lp percent
+  const [lp_in_pool, lp_total, user_lp_percent] = useMemo(() => {
+    const { id, shares_total_supply } = pool;
+    const is_stable_pool = isStablePool(id);
+    let amount_in_pool = '0';
+    let total_amount = '0';
+    if (is_stable_pool) {
+      const i = stablePools.findIndex((p: PoolRPCView) => p.id === pool.id);
+      amount_in_pool = batchStableShares?.[i];
+      total_amount = batchTotalShares?.[i];
+    } else {
+      const i = pools.findIndex((p: PoolRPCView) => p.id === pool.id);
+      amount_in_pool = batchShares?.[i];
+      total_amount = batchTotalSharesSimplePools?.[i];
+    }
+    const read_amount_in_pool = new BigNumber(amount_in_pool)
+      .shiftedBy(-decimals)
+      .toFixed();
+    const read_total_amount = new BigNumber(total_amount)
+      .shiftedBy(-decimals)
+      .plus(lp_in_vote);
+    const read_shareSupply = new BigNumber(
+      shares_total_supply || '0'
+    ).shiftedBy(-decimals);
+    let percent = '0';
+    if (
+      read_shareSupply.isGreaterThan(0) &&
+      read_total_amount.isGreaterThan(0)
+    ) {
+      percent = read_total_amount.dividedBy(read_shareSupply).toFixed();
+    }
+    return [read_amount_in_pool, read_total_amount.toFixed(), percent];
+  }, [
+    batchShares,
+    batchStableShares,
+    batchTotalSharesSimplePools,
+    batchTotalShares,
+    lp_in_vote,
+  ]);
+  // get total lp value
+  const lp_total_value = useMemo(() => {
+    const { id, tvl, shares_total_supply } = pool;
+    const pool_tvl = tvls?.[id] || tvl || 0;
+    if (+shares_total_supply > 0) {
+      const read_total_supply = new BigNumber(shares_total_supply).shiftedBy(
+        -decimals
+      );
+      const single_lp_value = new BigNumber(pool_tvl).dividedBy(
+        read_total_supply
+      );
+      return new BigNumber(single_lp_value || 0)
+        .multipliedBy(lp_total || 0)
+        .toFixed();
+    }
+    return '0';
+  }, [lp_total, tvls]);
+  function display_number(amount: string) {
+    const amount_big = new BigNumber(amount);
+    if (amount_big.isEqualTo('0')) {
+      return '0';
+    } else if (amount_big.isLessThan('0.01')) {
+      return '<0.01';
+    } else {
+      return toPrecision(amount, 2);
+    }
+  }
+  function display_value(amount: string) {
+    const amount_big = new BigNumber(amount);
+    if (amount_big.isEqualTo('0')) {
+      return '$0';
+    } else if (amount_big.isLessThan('0.01')) {
+      return '<$0.01';
+    } else {
+      return `$${toInternationalCurrencySystem(amount, 2)}`;
+    }
+  }
+  function display_percent(percent: string) {
+    const p = new BigNumber(percent).multipliedBy(100);
+    if (p.isEqualTo(0)) {
+      return '0%';
+    } else if (p.isLessThan(0.01)) {
+      return '<0.01%';
+    } else {
+      return toPrecision(p.toFixed(), 2) + '%';
+    }
+  }
+  return (
+    <div className="rounded-xl mt-3 bg-portfolioBgColor px-5 pb-4">
+      <div className="flex items-center justify-between h-14">
+        <div className="flex items-center">
+          <div className="flex items-center">{Images}</div>
+          <span className="text-sm text-white gotham_bold mx-2.5">
+            {Symbols}
+          </span>
+          <span className="text-sm text-v3SwapGray px-1.5 rounded-md bg-selectTokenV3BgColor mr-1.5">
+            Classic
+          </span>
+          <span
+            className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
+            onClick={() => {
+              window.open(`/pool/${pool.id}`);
+            }}
+          >
+            <LinkIcon></LinkIcon>
+          </span>
+        </div>
+        <div className="flex items-center">
+          <span className="text-sm text-white gotham_bold mr-5">
+            {display_value(lp_total_value)}
+          </span>
+          <div className="flex items-center justify-center border border-primaryText border-opacity-10 rounded-md w-6 h-6 cursor-pointer">
+            <TriangleIcon></TriangleIcon>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p className="text-sm text-v3SwapGray ml-2">Your Position</p>
+        <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-sm text-v3SwapGray">
+              Your Liquidity (USD value)
+            </span>
+            <span className="text-sm text-white">
+              {display_value(lp_total_value)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-sm text-v3SwapGray">
+              Your LP Tokens(Shares)
+            </span>
+            <span className="text-sm text-white">
+              {display_number(lp_total)} ({display_percent(user_lp_percent)})
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-v3SwapGray">Usage</span>
+            <div className="flex items-center text-sm text-white">
+              <div
+                className={`flex items-center pl-3.5 ${
+                  +lp_in_vote > 0 || +lp_in_pool > 0
+                    ? 'border-r border-orderTypeBg pr-3.5'
+                    : ''
+                } ${+lp_in_farm > 0 ? '' : 'hidden'}`}
+              >
+                {display_number(lp_in_farm)} in{' '}
+                <span className="flex items-center">
+                  <label className="underline cursor-pointer mx-1">Farm</label>{' '}
+                  <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
+                </span>
+              </div>
+              <div
+                className={`flex items-center pl-3.5 ${
+                  +lp_in_pool > 0 ? 'pr-3.5 border-r border-orderTypeBg' : ''
+                } ${+lp_in_vote > 0 ? '' : 'hidden'}`}
+              >
+                {display_number(lp_in_vote)} locked in{' '}
+                <span className="flex items-center">
+                  <label className="underline cursor-pointer mx-1">DAO</label>{' '}
+                  <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
+                </span>
+              </div>
+              <div
+                className={`flex items-center pl-3.5 ${
+                  +lp_in_pool > 0 ? '' : 'hidden'
+                }`}
+              >
+                {display_number(lp_in_pool)} Holding
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
