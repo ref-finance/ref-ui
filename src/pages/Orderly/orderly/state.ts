@@ -20,8 +20,7 @@ export function useMarketTrades({
   limit: number;
   marketTrade: MarketTrade | undefined;
 }) {
-  console.log('marketTrade111: ', marketTrade);
-  const [trades, setTrades] = useState<Trade[]>([]);
+  const [trades, setTrades] = useState<Trade[]>();
 
   const setFunc = useCallback(async () => {
     try {

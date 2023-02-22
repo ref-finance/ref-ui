@@ -15,6 +15,7 @@ import {
   useOrderlyContext,
 } from '../../orderly/OrderlyContext';
 import moment from 'moment';
+import { OrderlyLoading } from '../Common/Icons';
 
 export interface ChartContainerProps {
   symbol: ChartingLibraryWidgetOptions['symbol'];
@@ -67,7 +68,6 @@ export class TVChartContainer extends React.PureComponent<
 
   public componentDidMount(): void {
     if (!this.ref.current) {
-      return;
     }
     const widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: this.props.symbol as string,
@@ -165,7 +165,8 @@ export function ChartContainer() {
       id="TVChartContainer"
       style={{
         height: '500px',
+        position: 'relative',
       }}
-    />
+    ></div>
   );
 }

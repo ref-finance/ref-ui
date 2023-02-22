@@ -276,9 +276,12 @@ const getWalletBalance = (item: TokenMetadata) => {
     return toInternationalCurrencySystemNature(near.toString());
   }
 };
-const NearTip = () => {
+export const NearTip = () => {
   const intl = useIntl();
-  const tip = intl.formatMessage({ id: 'deposit_near_tip' });
+  const tip = intl.formatMessage({
+    id: 'deposit_near_tip_0.5',
+    defaultMessage: 'To deposit, keep at least 0.5 NEAR to cover gas fee',
+  });
   const result: string = `<div class="text-navHighLightText text-xs text-left font-normal">${tip}</div>`;
   return (
     <div

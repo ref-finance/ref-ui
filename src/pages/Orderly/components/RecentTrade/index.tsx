@@ -4,6 +4,7 @@ import {
   useOrderlyContext,
 } from '../../orderly/OrderlyContext';
 import moment from 'moment';
+import { OrderlyLoading } from '../Common/Icons';
 
 export function parseSymbol(fullName: string) {
   return {
@@ -27,21 +28,29 @@ function RecentTrade() {
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
+  const [loading, setLoading] = useState<boolean>(recentTrades === undefined);
+
+  useEffect(() => {
+    if (!!recentTrades) {
+      setLoading(false);
+    }
+  }, [!!recentTrades]);
+
   return (
     <>
       <div className="flex px-4 mr-4 mb-1 items-center text-xs text-primaryOrderly justify-between ">
-        <div>
+        <div className="flex items-center">
           <span>Price</span>
 
-          <span className="text-white rounded-md ml-1 p-1 bg-primaryOrderly bg-opacity-10">
+          <span className="text-primaryText rounded-md ml-1 p-1 bg-primaryOrderly bg-opacity-10">
             {symbolTo}
           </span>
         </div>
 
         <div>
-          <span>Size</span>
+          <span>Qty</span>
 
-          <span className="text-white rounded-md ml-1 p-1 bg-primaryOrderly bg-opacity-10">
+          <span className="text-primaryText rounded-md ml-1 p-1 bg-primaryOrderly bg-opacity-10">
             {symbolFrom}
           </span>
         </div>
@@ -55,27 +64,29 @@ function RecentTrade() {
           height: '490px',
         }}
       >
-        {recentTrades.map((trade, i) => {
-          return (
-            <div
-              key={'recent-trade-' + i}
-              className="grid mr-2 mt-2.5 grid-cols-3 justify-items-end"
-            >
-              <span
-                className={`justify-self-start ${
-                  trade.side === 'BUY' ? 'text-buyGreen' : 'text-sellRed'
-                }`}
+        {loading && <OrderlyLoading></OrderlyLoading>}
+        {!loading &&
+          recentTrades?.map((trade, i) => {
+            return (
+              <div
+                key={'recent-trade-' + i}
+                className="grid mr-2 mt-2.5 grid-cols-3 justify-items-end"
               >
-                {trade.executed_price}
-              </span>
-              <span className="text-white">{trade.executed_quantity}</span>
+                <span
+                  className={`justify-self-start ${
+                    trade.side === 'BUY' ? 'text-buyGreen' : 'text-sellRed'
+                  }`}
+                >
+                  {trade.executed_price}
+                </span>
+                <span className="text-white">{trade.executed_quantity}</span>
 
-              <span className="justify-self-end text-primaryOrderly">
-                {formatTime(trade.executed_timestamp)}
-              </span>
-            </div>
-          );
-        })}
+                <span className="justify-self-end text-primaryOrderly">
+                  {formatTime(trade.executed_timestamp)}
+                </span>
+              </div>
+            );
+          })}
       </section>
     </>
   );

@@ -11,6 +11,7 @@ import {
   PrePage,
   NextPage,
   LastPage,
+  OrderlyLoading,
 } from '../Common/Icons';
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import { OrderAsset, useOrderAssets } from './state';
@@ -33,6 +34,7 @@ import getConfig from '../../config';
 
 import { TbCopy } from 'react-icons/tb';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { NearTip } from '~pages/AccountPage';
 
 function parseTxDisplay(tx: string) {
   return tx.slice(0, 5) + '...' + tx.slice(-5);
@@ -90,7 +92,10 @@ function AssetLine(
           alt=""
         />
         <div className="flex flex-col ">
-          <div className="text-white font-bold">{props.tokenMeta.symbol}</div>
+          <div className="text-white flex items-center font-bold">
+            {props.tokenMeta.symbol}
+            {props?.tokenMeta?.id?.toLowerCase() === 'near' && <NearTip />}
+          </div>
 
           <div className="text-primaryOrderly text-xs">
             {getAccountName(props.tokenMeta.id)}
@@ -231,7 +236,12 @@ export function AssetModal(props: Modal.Props) {
 
   const displayBalances = useOrderAssets(tokenInfo);
 
-  const sortedBalances = lodashOrderBy(displayBalances, [sortBy], [orderBy]);
+  const sortedBalances = lodashOrderBy(
+    displayBalances,
+
+    (b) => Number(b[sortBy]),
+    [orderBy]
+  );
 
   const [records, setRecords] = useState<UserRecord[]>();
 
@@ -242,6 +252,10 @@ export function AssetModal(props: Modal.Props) {
   const [curPage, setCurPage] = useState<number>(1);
 
   const [total, setTotal] = useState<number>(0);
+
+  const loading =
+    (tag === 'records' ? records === undefined : sortedBalances.length == 0) ||
+    !tokenInfo;
 
   useEffect(() => {
     if (
@@ -268,8 +282,19 @@ export function AssetModal(props: Modal.Props) {
   }, [curPage]);
 
   return (
-    <Modal {...props}>
-      <div className=" rounded-2xl overflow-hidden lg:w-p869 xs:w-95vw gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border ">
+    <Modal
+      {...props}
+      style={{
+        content: {
+          height: tag == 'asset' ? '500px' : '620px',
+        },
+      }}
+    >
+      <div
+        className={`rounded-2xl relative  overflow-hidden ${
+          tag === 'asset' ? 'h-p500' : 'h-p620'
+        } lg:w-p869 xs:w-95vw gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border `}
+      >
         <div className=" flex flex-col ">
           <div className="flex bg-allOrderHeader pt-4 px-5 pb-4  items-center  justify-between">
             <div className="text-white  text-base font-bold">
@@ -357,10 +382,10 @@ export function AssetModal(props: Modal.Props) {
                 ></MdArrowDropDown>
 
                 <div
-                  className="border-b absolute border-gray1 transform rotate-90 "
+                  className="border absolute border-gray1 transform rotate-90 "
                   style={{
                     width: '18px',
-                    right: '-10px',
+                    right: '-16px',
                   }}
                 ></div>
               </div>
@@ -409,7 +434,7 @@ export function AssetModal(props: Modal.Props) {
                 ></MdArrowDropDown>
               </div>
 
-              <div className="col-span-2 justify-self-center">
+              <div className="col-span-2 justify-self-center flex items-center justify-center">
                 <span>Actions</span>
               </div>
             </div>
@@ -447,26 +472,29 @@ export function AssetModal(props: Modal.Props) {
             </div>
           )}
 
-          {tokenInfo &&
-            (tag === 'asset' ? (
-              <section className="max-h-96 overflow-auto w-full">
-                {sortedBalances.map((b: OrderAsset) => {
-                  return <AssetLine tokenInfo={tokenInfo} {...b} />;
-                })}
-              </section>
-            ) : (
-              records &&
-              records
-                ?.slice(
-                  (curPage - 1) * DEFAULT_PAGE_SIZE,
-                  curPage * DEFAULT_PAGE_SIZE
-                )
-                .map((r) => {
-                  return <RecordLine tokenInfo={tokenInfo} {...r} />;
-                })
-            ))}
+          {loading && <OrderlyLoading></OrderlyLoading>}
 
-          {tag === 'records' && (
+          {tag === 'asset' && !loading && (
+            <section className="max-h-96 overflow-auto w-full">
+              {sortedBalances.map((b: OrderAsset) => {
+                return <AssetLine tokenInfo={tokenInfo} {...b} />;
+              })}
+            </section>
+          )}
+
+          {tag === 'records' &&
+            !loading &&
+            records &&
+            records
+              ?.slice(
+                (curPage - 1) * DEFAULT_PAGE_SIZE,
+                curPage * DEFAULT_PAGE_SIZE
+              )
+              .map((r) => {
+                return <RecordLine tokenInfo={tokenInfo} {...r} />;
+              })}
+
+          {tag === 'records' && total > 1 && (
             <div className="border-t flex items-center px-5 mr-4 justify-end border-gray1 py-3">
               <span
                 className="cursor-pointer"
@@ -486,6 +514,10 @@ export function AssetModal(props: Modal.Props) {
                 }}
               >
                 <PrePage></PrePage>
+              </span>
+
+              <span className="flex ml-2 items-center whitespace-nowrap text-primaryText">
+                {curPage}/{total}
               </span>
 
               <span

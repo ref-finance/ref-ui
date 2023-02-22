@@ -24,7 +24,7 @@ interface OrderlyContextValue {
   lastJsonMessage: any;
   symbol: string;
   setSymbol: (symbol: string) => void;
-  recentTrades: Trade[];
+  recentTrades: Trade[] | undefined;
   tokenInfo: TokenInfo[] | undefined;
   ticker: Ticker | undefined;
   markPrices: MarkPrice[] | undefined;

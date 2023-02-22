@@ -19,7 +19,7 @@ import Big from 'big.js';
 import moment from 'moment';
 
 import { AiOutlineClose, AiOutlineCheck } from 'react-icons/ai';
-import { FlexRowStart, orderPopUp } from '../Common/index';
+import { FlexRowStart } from '../Common/index';
 import {
   cancelOrder,
   cancelOrders,

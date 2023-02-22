@@ -21,6 +21,9 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { HiDownload } from 'react-icons/hi';
 import { formatTimeDate } from '../OrderBoard/index';
+import { MyOrder } from '../../orderly/type';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import { digitWrapper } from '../../utiles';
 
 export function TokenIcon({ src }: { src: any }) {
   return <img src={src} alt="" className={`h-5 w-5 rounded-full `} />;
@@ -299,6 +302,7 @@ export function orderPopUp({
   tokenIn,
   timeStamp,
   filled,
+  order,
 }: {
   orderType: 'Limit' | 'Market';
   symbolName: string;
@@ -308,17 +312,14 @@ export function orderPopUp({
   tokenIn: TokenMetadata | undefined;
   timeStamp?: number;
   filled?: boolean;
+  order: MyOrder;
 }) {
+  console.log('order: ', order);
+
   const { symbolFrom, symbolTo } = parseSymbol(symbolName);
   return toast(
     <div className={`flex-col  px-2 pt-4 text-sm text-dark5  w-full`}>
       <FlexRowBetween className="relative bottom-3 w-full">
-        {/* <div className='flex -mt-1 items-center'>
-          <TokenIcon src={tokenIn?.icon} />
-          <span className='text-white  ml-2'>{symbolFrom}</span>
-          <span> / {symbolTo}</span>
-        </div> */}
-
         <div className="flex text-sm items-center">
           <div
             className={`border border-dark5 rounded-lg font-bold px-2 mr-1.5  ${
@@ -335,12 +336,42 @@ export function orderPopUp({
         </div>
 
         <div className="flex -mt-1 items-center">
-          <span>{filled ? 'Filled' : 'Open'}</span>
-          <span className="ml-1 relative ">
-            {filled && (
+          <span>{filled || orderType === 'Market' ? 'Filled' : 'Open'}</span>
+          <span
+            className="ml-1 relative "
+            style={{
+              height: '14px',
+              width: '14px',
+            }}
+          >
+            {(filled || orderType === 'Market') && (
               <OrderPopUpCheck className="absolute left-0.5 top-0.5" />
             )}
             <OrderStateOutlineBlack />
+
+            <div
+              className="absolute left-0 top-0"
+              style={{
+                height: '9px',
+                width: '9px',
+                left: '3px',
+                top: '3px',
+              }}
+            >
+              {order.status === 'PARTIAL_FILLED' && (
+                <CircularProgressbar
+                  styles={buildStyles({
+                    pathColor: '#273640',
+                    strokeLinecap: 'butt',
+                    trailColor: 'transparent',
+                  })}
+                  background={false}
+                  strokeWidth={50}
+                  value={order.executed}
+                  maxValue={order.quantity}
+                />
+              )}
+            </div>
           </span>
         </div>
       </FlexRowBetween>
@@ -363,8 +394,8 @@ export function orderPopUp({
       hideProgressBar: false,
       position: 'bottom-right',
       progress: undefined,
-      autoClose: 3000,
-      // autoClose: false,
+      // autoClose: 3000,
+      autoClose: false,
       closeButton: false,
       style: {
         background:
@@ -492,7 +523,9 @@ export function MyOrderTip({
           <div className="flex items-center whitespace-nowrap justify-between mt-2 ">
             <span>Open Qty.</span>
 
-            <span className="text-white ml-2">{quantity}</span>
+            <span className="text-white ml-2">
+              {digitWrapper(quantity.toString(), 2)}
+            </span>
           </div>
         </div>
       )}

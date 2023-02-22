@@ -72,6 +72,7 @@ import {
   PowerByOrderly,
   RefToOrderly,
   Agree,
+  OrderlyLoading,
 } from '../Common/Icons';
 
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -196,7 +197,7 @@ export function TextWrapper({
 }) {
   return (
     <span
-      className={`${className} px-1.5  py-0.5 rounded-md ${
+      className={`${className} px-1.5  py-0.5 inline-flex items-center justify-center rounded-md ${
         bg || 'bg-primaryOrderly '
       } bg-opacity-10 ${textC || 'text-white'} `}
     >
@@ -335,15 +336,15 @@ export default function UserBoard() {
     orderType === 'Limit'
       ? !limitPrice || !userInfo || fee === '-'
         ? '-'
-        : Number(inputValue || 0) * Number(limitPrice || 0) - Number(fee)
+        : Number(inputValue || 0) * Number(limitPrice || 0)
       : !orders || !userInfo || fee === '-' || !marketPrice
       ? '-'
-      : Number(inputValue || 0) * Number(marketPrice || 0) - Number(fee);
+      : Number(inputValue || 0) * Number(marketPrice || 0);
 
   const handleSubmit = () => {
     if (!accountId) return;
     if (orderType === 'Market') {
-      createOrder({
+      return createOrder({
         accountId,
         orderlyProps: {
           side: side === 'Buy' ? 'BUY' : 'SELL',
@@ -357,6 +358,11 @@ export default function UserBoard() {
 
         handlePendingOrderRefreshing();
 
+        const order = await getOrderByOrderId({
+          accountId,
+          order_id: res.data.order_id,
+        });
+
         return orderPopUp({
           orderType: 'Market',
           symbolName: symbol,
@@ -365,10 +371,11 @@ export default function UserBoard() {
           tokenIn: tokenIn,
           price: marketPrice.toString() || '',
           timeStamp: res.timestamp,
+          order,
         });
       });
     } else if (orderType === 'Limit') {
-      createOrder({
+      return createOrder({
         accountId,
         orderlyProps: {
           side: side === 'Buy' ? 'BUY' : 'SELL',
@@ -400,6 +407,7 @@ export default function UserBoard() {
           price: limitPrice || '',
           timeStamp: res.timestamp,
           filled: order?.data?.status === 'FILLED',
+          order: order.data,
         });
       });
     }
@@ -445,6 +453,8 @@ export default function UserBoard() {
         new Big(tokenOutHolding || 0).eq(0)
       : new Big(inputValue || '0').gt(tokenInHolding || '0');
 
+  const loading = storageEnough === undefined;
+
   const validator =
     !accountId ||
     !storageEnough ||
@@ -461,7 +471,21 @@ export default function UserBoard() {
       }}
     >
       {/* not signed in wrapper */}
-      {validator && (
+
+      {loading && (
+        <div
+          className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
+          style={{
+            background: 'rgba(0, 19, 32, 0.8)',
+            backdropFilter: 'blur(5px)',
+            zIndex: 90,
+          }}
+        >
+          <OrderlyLoading></OrderlyLoading>
+        </div>
+      )}
+
+      {validator && !loading && (
         <div
           className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
           style={{
@@ -588,12 +612,14 @@ export default function UserBoard() {
           <span>{symbolFrom}</span>
         </div>
 
-        <div className="justify-self-start">
+        <div className="justify-self-end relative right-10">
           {!!tokenFromBalance ? digitWrapper(tokenFromBalance, 2) : '-'}
         </div>
 
         <div className="flex items-center justify-self-end">
-          <span>{tokenInHolding ? tokenInHolding.toFixed(2) : 0}</span>
+          <span>
+            {tokenInHolding ? digitWrapper(tokenInHolding.toString(), 2) : 0}
+          </span>
         </div>
       </div>
 
@@ -607,12 +633,14 @@ export default function UserBoard() {
           <span>{symbolTo}</span>
         </div>
 
-        <div className="justify-self-start">
+        <div className="justify-self-end relative right-10">
           {!!tokenToBalance ? digitWrapper(tokenToBalance, 2) : ''}
         </div>
 
         <div className="flex items-center justify-self-end">
-          <span>{tokenOutHolding ? tokenOutHolding.toFixed(2) : 0}</span>
+          <span>
+            {tokenOutHolding ? digitWrapper(tokenOutHolding.toString(), 2) : 0}
+          </span>
         </div>
       </div>
 
@@ -694,55 +722,18 @@ export default function UserBoard() {
       </div>
 
       {/* input box */}
-      <div className="w-full text-primaryOrderly mt-6 bg-black text-sm bg-opacity-10 rounded-xl border border-boxBorder p-3">
-        <div className="mb-2 text-left">
-          {side === 'Buy' ? 'Size(Amount to buy)' : 'Size(Amount to sell)'}
-        </div>
-
-        <div className="flex items-center mt-2">
-          <input
-            autoFocus
-            inputMode="decimal"
-            ref={inputAmountRef}
-            onWheel={(e) =>
-              inputAmountRef.current ? inputAmountRef.current.blur() : null
-            }
-            className="text-white text-xl w-full"
-            value={inputValue}
-            type="number"
-            step="any"
-            min={0}
-            onChange={(e) => {
-              setInputValue(e.target.value);
-            }}
-            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
-          />
-
-          <span className="">{symbolFrom}</span>
-        </div>
-      </div>
 
       {orderType === 'Limit' && (
         <div className="w-full text-primaryOrderly mt-3 text-sm bg-black bg-opacity-10 rounded-xl border border-boxBorder p-3">
           <div className="flex items-center justify-between">
-            <span>{side === 'Buy' ? 'Buy Price' : 'Sell Price'}</span>
+            <span>{'Price'}</span>
 
-            <span>{symbolTo}</span>
+            <span>
+              {symbolFrom}/{symbolTo}
+            </span>
           </div>
 
-          <div className="flex items-center mt-3">
-            <span
-              className="cursor-pointer"
-              onClick={() => {
-                setLimitPrice(
-                  Number(limitPrice) >= 1
-                    ? (Number(limitPrice) - 1).toString()
-                    : limitPrice
-                );
-              }}
-            >
-              <FaMinus></FaMinus>
-            </span>
+          <div className="flex items-center mt-3 justify-between">
             <input
               type="number"
               step="any"
@@ -753,7 +744,7 @@ export default function UserBoard() {
                   : null
               }
               min={0}
-              className="text-white text-center text-xl w-full"
+              className="text-white text-left ml-2 text-xl w-full"
               value={limitPrice}
               onChange={(e) => {
                 setLimitPrice(e.target.value);
@@ -763,26 +754,92 @@ export default function UserBoard() {
                 symbolsArr.includes(e.key) && e.preventDefault()
               }
             />
-            <span
-              className="cursor-pointer"
-              onClick={() => {
-                setLimitPrice((Number(limitPrice) + 1).toString());
-              }}
-            >
-              <FaPlus></FaPlus>
-            </span>
+
+            <div className="flex items-center">
+              <span
+                className="cursor-pointer mr-4"
+                onClick={() => {
+                  setLimitPrice(
+                    Number(limitPrice) >= 1
+                      ? (Number(limitPrice) - 1).toString()
+                      : limitPrice
+                  );
+                }}
+              >
+                <FaMinus></FaMinus>
+              </span>
+
+              <span
+                className="cursor-pointer"
+                onClick={() => {
+                  setLimitPrice((Number(limitPrice) + 1).toString());
+                }}
+              >
+                <FaPlus></FaPlus>
+              </span>
+            </div>
           </div>
         </div>
       )}
       {orderType === 'Market' && (
         <div className="w-full rounded-xl border border-boxBorder p-3 mt-3 text-sm flex items-center justify-between">
-          <span className="text-primaryOrderly">
-            {side === 'Buy' ? 'Buy Price' : 'Sell Price'}
-          </span>
+          <span className="text-primaryOrderly">{'Price'}</span>
 
           <span className="text-white">Market price</span>
         </div>
       )}
+
+      <div className="w-full text-primaryOrderly mt-3 bg-black text-sm bg-opacity-10 rounded-xl border border-boxBorder p-3">
+        <div className="mb-2 text-left flex items-center justify-between">
+          <span>Quantity</span>
+
+          <span className="">{symbolFrom}</span>
+        </div>
+
+        <div className="flex items-center mt-2">
+          <input
+            autoFocus
+            inputMode="decimal"
+            ref={inputAmountRef}
+            onWheel={(e) =>
+              inputAmountRef.current ? inputAmountRef.current.blur() : null
+            }
+            className="text-white ml-2 text-xl w-full"
+            value={inputValue}
+            type="number"
+            step="any"
+            min={0}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+            }}
+            onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
+          />
+
+          <span
+            className="bg-menuMoreBgColor rounded-md px-2 py-0.5 text-primaryText cursor-pointer hover:opacity-70"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+
+              if (side === 'Buy' && new Big(limitPrice || 0).lte(0)) {
+                return;
+              }
+
+              const maxAmount =
+                side === 'Sell'
+                  ? tokenInHolding || 0
+                  : new Big(tokenOutHolding || 0)
+                      .div(limitPrice || 1)
+                      .minus(symbolFrom.toLowerCase() === 'near' ? '0.5' : '0')
+                      .toFixed(4, 0);
+
+              setInputValue(maxAmount.toString());
+            }}
+          >
+            Max
+          </span>
+        </div>
+      </div>
 
       {/* limit order advance mode */}
 
@@ -944,7 +1001,7 @@ export default function UserBoard() {
         </div>
       )}
 
-      <div className="mt-6 bg-feeColor rounded-lg text-sm px-2 pt-3 relative z-10 pb-6">
+      <div className="mt-6  rounded-lg text-sm px-2 pt-1 relative z-10 pb-6">
         <div className="flex items-center justify-between">
           <span className="text-primaryOrderly">Fee </span>
           <span className="text-white">
@@ -964,13 +1021,13 @@ export default function UserBoard() {
       <button
         className={`rounded-lg ${
           isInsufficientBalance
-            ? 'bg-borderC'
+            ? 'bg-errorTip'
             : side === 'Buy'
             ? 'bg-buyGradientGreen'
             : 'bg-sellGradientRed'
         } ${
           isInsufficientBalance
-            ? 'text-primaryOrderly cursor-not-allowed'
+            ? 'text-redwarningColor cursor-not-allowed'
             : 'text-white'
         }  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
           submitDisable ? 'opacity-60 cursor-not-allowed' : ''
@@ -1159,9 +1216,7 @@ export function AssetManagerModal(
     if (type === 'deposit') {
       if (
         tokenId.toLowerCase() === 'near' &&
-        new Big(walletBalance || 0)
-          .minus(new Big(inputValue || '0'))
-          .lt(0.25) &&
+        new Big(walletBalance || 0).minus(new Big(inputValue || '0')).lt(0.5) &&
         walletBalance !== ''
       ) {
         return false;
@@ -1191,7 +1246,7 @@ export function AssetManagerModal(
   return (
     <>
       <Modal {...props}>
-        <div className=" rounded-2xl lg:w-96 xs:w-95vw gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border ">
+        <div className=" rounded-2xl lg:w-p410 xs:w-95vw gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border ">
           <div className="px-5 py-6 flex flex-col ">
             <div className="flex items-center pb-6 justify-between">
               <span className="text-white text-lg font-bold">
@@ -1346,11 +1401,13 @@ export function AssetManagerModal(
                 </div>
               </div>
             </div>
-            {type === 'deposit' && !validation() && (
-              <div className="text-warn mb-2">
-                0.25 NEAR locked in wallet for covering transaction fee
-              </div>
-            )}
+            {type === 'deposit' &&
+              !validation() &&
+              tokenId.toLowerCase() === 'near' && (
+                <div className="text-warn mb-2 whitespace-nowrap">
+                  0.5 NEAR locked in wallet for covering transaction fee
+                </div>
+              )}
 
             <button
               className={`flex ${
@@ -1643,7 +1700,7 @@ function ConfirmOrderModal(
     price: string;
     fee: '-' | number;
     totalCost: number | '-';
-    onClick: () => void;
+    onClick: () => Promise<any>;
   }
 ) {
   const {
@@ -1657,6 +1714,8 @@ function ConfirmOrderModal(
     totalCost,
     onClick,
   } = props;
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   return (
     <Modal {...props}>
@@ -1707,21 +1766,10 @@ function ConfirmOrderModal(
           </div>
 
           <div className="flex items-center mb-5 justify-between">
-            <span>Fee</span>
-
-            <span className="flex items-center">
-              <span className="text-white mr-2">
-                {fee === '-' ? '-' : digitWrapper(fee.toString(), 3)}
-              </span>
-              <TextWrapper value={`${symbolTo}`}></TextWrapper>
-            </span>
-          </div>
-
-          <div className="flex items-center mb-5 justify-between">
             <span className="">Total cost</span>
 
-            <span className="flex ">
-              <span className="text-white mr-2">
+            <span className="flex items-center">
+              <span className=" mr-2 text-white">
                 {totalCost === '-'
                   ? '-'
                   : digitWrapper(totalCost.toString(), 3)}
@@ -1731,15 +1779,29 @@ function ConfirmOrderModal(
           </div>
 
           <button
-            className="rounded-lg flex items-center justify-center py-3 bg-greenPurpleGradient text-base text-white font-bold"
+            className={`rounded-lg ${
+              loading
+                ? 'opacity-70 cursor-not-allowed bg-buttonGradientBgOpacity'
+                : ''
+            } flex items-center justify-center py-3 bg-buttonGradientBg hover:bg-buttonGradientBgOpacity text-base text-white font-bold`}
             onClick={(e: any) => {
               e.preventDefault();
               e.stopPropagation();
-              onClick();
-              onRequestClose && onRequestClose(e);
+
+              setLoading(true);
+              onClick().then(() => {
+                setLoading(false);
+                onRequestClose && onRequestClose(e);
+              });
             }}
+            disabled={loading}
           >
-            Confirm
+            <ButtonTextWrapper
+              loading={loading}
+              Text={() => {
+                return <span>Confirm</span>;
+              }}
+            />
           </button>
         </div>
       </div>

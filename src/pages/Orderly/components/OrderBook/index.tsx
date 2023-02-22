@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import RecentTrade from '../RecentTrade';
 
@@ -8,6 +8,9 @@ import { digitWrapper } from '../../utiles';
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import { Selector } from '../OrderBoard';
 import { IoArrowUpOutline } from 'react-icons/io5';
+import Big from 'big.js';
+import { TextWrapper } from '../UserBoard/index';
+import { OrderlyLoading } from '../Common/Icons';
 
 function parseSymbol(fullName: string) {
   return {
@@ -42,7 +45,7 @@ function groupOrdersByPrecision({
   });
 
   const groupedAsktotalSize = asktotalSize.reduce((acc, cur) => {
-    const groupKey = Math.floor(cur[0] * 10 ** precision) / 10 ** precision;
+    const groupKey = cur[0].toFixed(precision);
 
     const keyStr = groupKey.toString();
 
@@ -54,7 +57,7 @@ function groupOrdersByPrecision({
 
   const groupedBidtotalSize = bidtotalSize.reduce(
     (acc, cur) => {
-      const groupKey = Math.floor(cur[0] * 10 ** precision) / 10 ** precision;
+      const groupKey = cur[0].toFixed(precision);
 
       const keyStr = groupKey.toString();
 
@@ -67,7 +70,7 @@ function groupOrdersByPrecision({
     {} as Record<string, number>
   );
   const groupedAsks = asks.reduce((acc, cur) => {
-    const groupKey = Math.floor(cur[0] * 10 ** precision) / 10 ** precision;
+    const groupKey = cur[0].toFixed(precision);
 
     const keyStr = groupKey.toString();
 
@@ -78,7 +81,7 @@ function groupOrdersByPrecision({
   }, {} as Record<string, number>);
 
   const groupedBids = bids.reduce((acc, cur) => {
-    const groupKey = Math.floor(cur[0] * 10 ** precision) / 10 ** precision;
+    const groupKey = cur[0].toFixed(precision);
 
     const keyStr = groupKey.toString();
 
@@ -125,11 +128,17 @@ function getPrecisionStringByNumber(precision: number) {
   }
 }
 
+export const REF_ORDERLY_PRECISION = 'REF_ORDERLY_PRECISION';
+
 function OrderBook() {
   const { orders, symbol, pendingOrders, recentTrades, marketTrade } =
     useOrderlyContext();
 
-  const [precision, setPrecision] = useState<number>(2);
+  const storedPrecision = sessionStorage.getItem(REF_ORDERLY_PRECISION);
+
+  const [precision, setPrecision] = useState<number>(
+    storedPrecision ? Number(storedPrecision) : 2
+  );
 
   const [showPrecisionSelector, setShowPrecisionSelector] =
     useState<boolean>(false);
@@ -144,19 +153,21 @@ function OrderBook() {
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
   const [tab, setTab] = useState<'recent' | 'book'>('book');
 
-  const marketTradeDisplay = recentTrades.at(0)?.executed_price || 0;
-  console.log('marketTradeDisplay: ', marketTradeDisplay);
+  const [loading, setLoading] = useState<boolean>(orders === undefined);
 
-  console.log(
-    'marketTradeDisplay2: ',
-    recentTrades.at(-2)?.executed_price || 0
-  );
+  useEffect(() => {
+    if (!!orders) {
+      setLoading(false);
+    }
+  }, [!!orders]);
 
-  const diff = marketTradeDisplay - recentTrades.at(1)?.executed_price || 0;
+  const marketTradeDisplay = recentTrades?.at(0)?.executed_price || 0;
+
+  const diff = marketTradeDisplay - recentTrades?.at(1)?.executed_price || 0;
 
   return (
     <div
-      className="w-full  border border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 "
+      className="w-full relative border border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 "
       style={{
         height: '570px',
       }}
@@ -199,9 +210,10 @@ function OrderBook() {
             ></MdArrowDropDown>
             {showPrecisionSelector && (
               <Selector
-                selected={getPrecisionStringByNumber(precision).toString()}
+                selected={precision.toString()}
                 setSelect={(textId: string) => {
-                  setPrecision(parseInt(textId));
+                  setPrecision(Number(textId));
+                  sessionStorage.setItem(REF_ORDERLY_PRECISION, textId);
                   setShowPrecisionSelector(false);
                 }}
                 className=" min-w-p72 -left-2 top-1 relative"
@@ -233,26 +245,33 @@ function OrderBook() {
         )}
       </div>
 
-      {tab === 'book' && (
+      {loading && <OrderlyLoading></OrderlyLoading>}
+
+      {tab === 'book' && !loading && (
         <>
           <div className="px-4 flex items-center text-xs mb-2 mr-4 text-primaryOrderly justify-between ">
-            <div className="">
-              <span>Price</span>
+            <div className="flex items-center">
+              <span className="flex items-center">Price</span>
 
-              <span className="text-white rounded-md ml-1 p-1 bg-primaryOrderly bg-opacity-10">
+              <span className="text-primaryText rounded-md ml-1 p-1 bg-primaryOrderly bg-opacity-10">
                 {symbolTo}
               </span>
             </div>
 
             <div>
-              <span>Size</span>
+              <span>Qty</span>
 
-              <span className="text-white rounded-md ml-1 p-1 bg-primaryOrderly bg-opacity-10">
+              <span className="text-primaryText rounded-md ml-1 p-1 bg-primaryOrderly bg-opacity-10">
                 {symbolFrom}
               </span>
             </div>
 
-            <div>Total Size</div>
+            <div>
+              Total
+              <span className="text-primaryText rounded-md ml-1 p-1 bg-primaryOrderly bg-opacity-10">
+                {symbolFrom}
+              </span>
+            </div>
           </div>
 
           {/* sell  */}
@@ -314,9 +333,9 @@ function OrderBook() {
                 : 'text-primaryText'
             } text-lg`}
           >
-            {orders && recentTrades.length > 0 && marketTradeDisplay}
+            {orders && recentTrades?.length > 0 && marketTradeDisplay}
 
-            {diff !== 0 && (
+            {orders && recentTrades?.length > 0 && diff !== 0 && (
               <IoArrowUpOutline
                 className={diff < 0 ? 'transform rotate-180' : ''}
               />
@@ -369,7 +388,7 @@ function OrderBook() {
           </section>
         </>
       )}
-      {tab === 'recent' && <RecentTrade />}
+      {tab === 'recent' && !loading && <RecentTrade />}
     </div>
   );
 }

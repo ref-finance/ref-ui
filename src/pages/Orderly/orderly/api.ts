@@ -92,7 +92,8 @@ const storageDeposit = async (accountId: string) => {
   // if (storage_amount !== null) {
   const deposit_functionCall_register = orderly_storage_deposit(
     accountId,
-    utils.format.formatNearAmount(min_amount.min)
+    utils.format.formatNearAmount(min_amount.min),
+    true
   );
 
   const deposit_functionCall_announce_key = orderly_storage_deposit(
@@ -271,6 +272,29 @@ const depositOrderly = async (token: string, amount: string) => {
 
 const withdrawOrderly = async (token: string, amount: string) => {
   const transactions: Transaction[] = [];
+
+  const account_id = window.selectorAccountId;
+  if (!account_id) return;
+
+  const storageBound = await storage_cost_of_token_balance();
+
+  const balance = await storage_balance_of(account_id);
+
+  if (
+    balance === null ||
+    new Big(storageBound).gt(new Big(balance.available))
+  ) {
+    transactions.push({
+      receiverId: ORDERLY_ASSET_MANAGER,
+      functionCalls: [
+        orderly_storage_deposit(
+          account_id,
+          utils.format.formatNearAmount(storageBound),
+          false
+        ),
+      ],
+    });
+  }
 
   const metaData = await getFTmetadata(token);
 
