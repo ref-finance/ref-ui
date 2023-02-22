@@ -34,7 +34,7 @@ import {
   RemoveLiquidityModal,
   AddLiquidityModal,
   REF_FI_PRE_LIQUIDITY_ID_KEY,
-} from './DetailsPage';
+} from '../../pages/pools/DetailsPage';
 import { getTokenPriceList, getYourPools } from '~services/indexer';
 import { toRealSymbol } from '~utils/token';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -84,7 +84,7 @@ import { PoolTab } from '~components/pool/PoolTab';
 
 import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
-import { getVEPoolId } from '../ReferendumPage';
+import { getVEPoolId } from '../../pages/ReferendumPage';
 import { useAccountInfo } from '~state/referendum';
 import { VEARROW, RewardCheck } from '../../components/icon/Referendum';
 import { toNonDivisibleNumber } from '../../utils/numbers';
@@ -115,16 +115,17 @@ import {
 import { WarnTriangle } from '~components/icon';
 import { StableSwapLogo } from '~components/icon/StableSwap';
 import { GoodIcon } from '../../components/icon/Common';
-import { AddPoolModal } from './AddPoolPage';
+import { AddPoolModal } from '../../pages/pools/AddPoolPage';
 import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-import { NoLiquidity } from '../poolsV3/YourLiquidityPageV3';
+import { NoLiquidity } from '../../pages/poolsV3/YourLiquidityPageV3';
 import ReactTooltip from 'react-tooltip';
 import Big from 'big.js';
 import { checkFarmStake } from '../../state/farm';
 const StakeListContext = createContext(null);
 
-export function YourLiquidityPage(props: any) {
+export function YourLiquidityV1(props: any) {
+  // props from your liquidity page
   const {
     setYourLpValueV1,
     setLpValueV1Done,
@@ -266,6 +267,9 @@ export function YourLiquidityPage(props: any) {
     <>
       <StakeListContext.Provider
         value={{
+          stakeList,
+          v2StakeList,
+          finalStakeList,
           listLiquiditiesLoading,
           listLiquidities,
           checkedStatus,

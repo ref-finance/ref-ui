@@ -44,7 +44,7 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import { ConnectToNearBtnSwap } from '../../components/button/Button';
-
+import { YourLiquidityV1 } from '../../components/pool/YourLiquidityV1';
 export default function Positions(props: any) {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
@@ -52,6 +52,13 @@ export default function Positions(props: any) {
   const [listLiquiditiesLoading, setListLiquiditiesLoading] = useState(true);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  const [YourLpValueV2, setYourLpValueV2] = useState('0');
+
+  const [YourLpValueV1, setYourLpValueV1] = useState('0');
+
+  const [lpValueV1Done, setLpValueV1Done] = useState(false);
+
+  const [lpValueV2Done, setLpValueV2Done] = useState(false);
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities();
@@ -109,6 +116,14 @@ export default function Positions(props: any) {
           </>
         )}
       </div>
+      <YourLiquidityV1
+        setLpValueV1Done={setLpValueV1Done}
+        setYourLpValueV1={setYourLpValueV1}
+        // checkedStatus={checkedStatus}
+        // listLiquidities={listLiquidities}
+        // listLiquiditiesLoading={listLiquiditiesLoading}
+        pageType="2"
+      ></YourLiquidityV1>
     </div>
   );
 }

@@ -62,8 +62,10 @@ import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import { PoolTabV3 } from '~components/pool/PoolTabV3';
 import {
   YourLiquidityAddLiquidityModal,
-  YourLiquidityPage,
-} from '../pools/YourLiquidityPage';
+  YourLiquidityV1,
+  REF_FI_YOUR_LP_VALUE,
+  REF_FI_YOUR_LP_VALUE_V1_COUNT,
+} from '../../components/pool/YourLiquidityV1';
 import {
   WalletContext,
   getCurrentWallet,
@@ -89,10 +91,6 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { checkTransactionStatus } from '../../services/swap';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
-import {
-  REF_FI_YOUR_LP_VALUE,
-  REF_FI_YOUR_LP_VALUE_V1_COUNT,
-} from '../pools/YourLiquidityPage';
 import {
   list_farmer_seeds,
   list_seed_farms,
@@ -499,14 +497,14 @@ export default function YourLiquidityPageV3() {
                 ) : null}
               </>
             )}
-            <YourLiquidityPage
+            <YourLiquidityV1
               setLpValueV1Done={setLpValueV1Done}
               setYourLpValueV1={setYourLpValueV1}
               checkedStatus={checkedStatus}
               listLiquidities={listLiquidities}
               listLiquiditiesLoading={listLiquiditiesLoading}
               pageType="1"
-            ></YourLiquidityPage>
+            ></YourLiquidityV1>
           </>
         )}
       </div>
