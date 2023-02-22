@@ -303,6 +303,7 @@ module.exports = {
         legacyYellowColor:'#F49F50',
         legacyBgColor:'rgba(244, 159, 80, 0.1)',
         legacyButtonBgColor:'#171F25',
+        portfolioBgColor:'#11212C',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
