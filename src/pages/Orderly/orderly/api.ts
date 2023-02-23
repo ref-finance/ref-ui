@@ -103,7 +103,11 @@ const storageDeposit = async (accountId: string) => {
 
   // await account.functionCall(ORDERLY_ASSET_MANAGER, 'storage_deposit', {}, new BN(deposit_functionCall.gas), new BN(deposit_functionCall.));
 
-  if (!user_exists) {
+  if (
+    !user_exists ||
+    storage_balance === null ||
+    new Big(storage_balance.total || 0).lt(min_amount.min)
+  ) {
     functionCallList.push(deposit_functionCall_register);
   }
 
@@ -137,9 +141,13 @@ const checkStorageDeposit = async (accountId: string) => {
 
   const min_amount = await storage_balance_bounds();
 
-  const isAnnounceKey = await is_orderly_key_announced(accountId);
+  const isAnnounceKey = !user_exists
+    ? false
+    : await is_orderly_key_announced(accountId);
 
-  const isTradingKeySet = await is_orderly_key_announced(accountId);
+  const isTradingKeySet = !user_exists
+    ? false
+    : await is_orderly_key_announced(accountId);
 
   if (isAnnounceKey && isTradingKeySet) return true;
 
@@ -158,9 +166,14 @@ const checkStorageDeposit = async (accountId: string) => {
 
   // await account.functionCall(ORDERLY_ASSET_MANAGER, 'storage_deposit', {}, new BN(deposit_functionCall.gas), new BN(deposit_functionCall.));
 
-  if (!user_exists) {
+  if (
+    !user_exists ||
+    storage_balance === null ||
+    new Big(storage_balance.total || 0).lt(min_amount.min)
+  ) {
     functionCallList.push(deposit_functionCall_register);
   }
+  console.log('functionCallList.length: ', functionCallList.length);
 
   if (
     !user_exists ||
@@ -170,6 +183,7 @@ const checkStorageDeposit = async (accountId: string) => {
   }
 
   if (functionCallList.length === 0) return true;
+  console.log('functionCallList.length: ', functionCallList.length);
 
   return false;
 };
@@ -274,7 +288,6 @@ const withdrawOrderly = async (token: string, amount: string) => {
   const transactions: Transaction[] = [];
 
   const registered = await storage_balance_of(token);
-  console.log('registered: ', registered);
 
   if (!registered) {
     transactions.push({
@@ -289,6 +302,29 @@ const withdrawOrderly = async (token: string, amount: string) => {
           gas: '30000000000000',
           amount: '0.00125',
         },
+      ],
+    });
+  }
+
+  const account_id = window.selectorAccountId;
+  if (!account_id) return;
+
+  const storageBound = await storage_cost_of_token_balance();
+
+  const balance = await storage_balance_of(account_id);
+
+  if (
+    balance === null ||
+    new Big(storageBound).gt(new Big(balance.available))
+  ) {
+    transactions.push({
+      receiverId: ORDERLY_ASSET_MANAGER,
+      functionCalls: [
+        orderly_storage_deposit(
+          account_id,
+          utils.format.formatNearAmount(storageBound),
+          false
+        ),
       ],
     });
   }

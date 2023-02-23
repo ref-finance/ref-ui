@@ -4,6 +4,7 @@ import { toReadableNumber } from '../../orderly/utils';
 import { Holding, TokenInfo, TokenMetadata } from '../../orderly/type';
 import { getCurrentHolding } from '../../orderly/off-chain-api';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
+import { useOrderlyContext } from '../../orderly/OrderlyContext';
 
 export function useTokenBalance(tokenId: string | undefined) {
   console.log('tokenId: ', tokenId);
@@ -46,11 +47,14 @@ interface BalanceType {
 
 export function useTokensBalances(
   tokens: TokenWithDecimals[] | undefined,
-  tokenInfo: TokenInfo[] | undefined
+  tokenInfo: TokenInfo[] | undefined,
+  trigger?: any
 ) {
   const [showbalances, setShowBalances] = useState<BalanceType[]>([]);
 
   const { accountId } = useWalletSelector();
+
+  const { myPendingOrdersRefreshing } = useOrderlyContext();
 
   const getBalanceAndMeta = async (token: TokenWithDecimals) => {
     const balance = await ftGetBalance(token.id).then((balance) => {
@@ -120,7 +124,13 @@ export function useTokensBalances(
 
         setShowBalances(Object.values(resMap));
       });
-  }, [tokens?.map((t) => t.id).join('|'), tokenInfo, accountId]);
+  }, [
+    tokens?.map((t) => t.id).join('|'),
+    tokenInfo,
+    accountId,
+    trigger,
+    myPendingOrdersRefreshing,
+  ]);
 
   return showbalances;
 }

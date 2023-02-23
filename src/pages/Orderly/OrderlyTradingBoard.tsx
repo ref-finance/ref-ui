@@ -12,7 +12,11 @@ import UserBoard from './components/UserBoard';
 import OrderBoard from './components/OrderBoard';
 
 import Big from 'big.js';
-import { get_orderly_private_key_path, tradingKeyMap } from './orderly/utils';
+import {
+  get_orderly_private_key_path,
+  tradingKeyMap,
+  get_orderly_public_key_path,
+} from './orderly/utils';
 import AllOrderBoard from './components/AllOrders';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { REF_ORDERLY_ACCOUNT_VALID } from './components/UserBoard/index';
@@ -51,7 +55,7 @@ function TradingBoard() {
 function OrderlyTradingBoard() {
   const priKeyPath = get_orderly_private_key_path();
 
-  const pubKeyPath = get_orderly_private_key_path();
+  const pubKeyPath = get_orderly_public_key_path();
   const { selector } = useWalletSelector();
 
   selector.on('signedOut', () => {

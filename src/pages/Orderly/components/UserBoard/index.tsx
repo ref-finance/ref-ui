@@ -469,6 +469,7 @@ export default function UserBoard() {
 
   const loading =
     storageEnough === undefined || (!!storedValid && !validAccountSig);
+  console.log('storageEnough: ', storageEnough);
 
   const validator =
     !accountId ||
@@ -1147,6 +1148,7 @@ export function AssetManagerModal(
     tokenId: tokenIdProp,
     accountBalance,
     tokenInfo,
+    isOpen,
   } = props;
 
   const [tokenId, setTokenId] = useState<string | undefined>(tokenIdProp);
@@ -1172,7 +1174,8 @@ export function AssetManagerModal(
         decimals: token.decimals,
       };
     }) || [],
-    tokenInfo
+    tokenInfo,
+    isOpen
   );
 
   const walletBalance =
@@ -1210,7 +1213,9 @@ export function AssetManagerModal(
       Number(sharePercent),
       type === 'deposit'
         ? tokenId.toLowerCase() === 'near'
-          ? new Big(walletBalance).minus(0.5).toFixed(24)
+          ? new Big(Number(walletBalance) < 0.5 ? 0.5 : walletBalance)
+              .minus(0.5)
+              .toFixed(24)
           : walletBalance
         : displayAccountBalance.toString(),
       tokenMeta.decimals
@@ -1793,7 +1798,7 @@ function ConfirmOrderModal(
           </div>
 
           <div className="flex items-center mb-5 justify-between">
-            <span className="">Total cost</span>
+            <span className="">Total</span>
 
             <span className="flex items-center">
               <span className=" mr-2 text-white">

@@ -33,11 +33,6 @@ import {
 } from '../services/near';
 import { walletIcons } from './walletIcons';
 import { getOrderlyConfig } from '../pages/Orderly/config';
-import {
-  get_orderly_private_key_path,
-  get_orderly_public_key_path,
-  tradingKeyMap,
-} from '../pages/Orderly/orderly/utils';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 

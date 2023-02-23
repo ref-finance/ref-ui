@@ -144,8 +144,12 @@ export function useStorageEnough() {
   );
 
   useEffect(() => {
-    if (!accountId) setStorageEnough(false);
-    else {
+    if (!accountId) {
+      console.log('accountId1112: ', accountId);
+      setStorageEnough(false);
+    } else {
+      console.log('accountId111: ', accountId);
+
       checkStorageDeposit(accountId).then(setStorageEnough);
     }
   }, [accountId]);

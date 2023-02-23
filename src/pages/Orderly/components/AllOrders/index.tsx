@@ -45,6 +45,7 @@ import { useHistory } from 'react-router-dom';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { OrderlyLoading } from '../Common/Icons';
 import { digitWrapper } from '../../utiles';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
 
 export function EditConfirmOrderModal(
   props: Modal.Props & {
@@ -523,8 +524,7 @@ function HistoryOrderLine({
                 width: '9px',
               }}
             >
-              {(order.status === 'PARTIAL_FILLED' ||
-                order.status === 'FILLED') && (
+              {order.type === 'LIMIT' && (
                 <CircularProgressbar
                   styles={buildStyles({
                     pathColor: '#62C340',
@@ -533,7 +533,7 @@ function HistoryOrderLine({
                   })}
                   background={false}
                   strokeWidth={50}
-                  value={order.executed}
+                  value={order.executed || 0}
                   maxValue={order.quantity}
                 />
               )}
@@ -550,12 +550,12 @@ function HistoryOrderLine({
         </FlexRow>
 
         <FlexRow className="col-span-1 ml-4">
-          <span>{order.type === 'MARKET' ? '-' : order.price}</span>
+          <span>{order.price || order.average_executed_price || '-'}</span>
         </FlexRow>
 
         <FlexRow className="col-span-1 ml-6 text-white">
           <span>
-            {order.status !== 'FILLED'
+            {order.average_executed_price === null
               ? '-'
               : digitWrapper(order.average_executed_price.toString(), 2)}
           </span>
@@ -563,14 +563,13 @@ function HistoryOrderLine({
 
         <FlexRow className="col-span-1 ml-4 relative left-8  text-white">
           {new Big(order.executed || '0')
-            .times(new Big(order.price || order.average_executed_price || '0'))
-            .minus(order.total_fee)
+            .times(new Big(order.price || order.quantity || '0'))
             .toFixed(2, 0)}
         </FlexRow>
 
         <FlexRow
-          className={`col-span-1 whitespace-nowrap text-primaryOrderly justify-self-end relative right-8 ${
-            showCurSymbol ? 'right-8' : 'right-0'
+          className={`col-span-1 whitespace-nowrap text-primaryOrderly justify-self-end relative  ${
+            showCurSymbol ? 'right-8' : 'right-4'
           } text-end`}
         >
           {formatTimeDate(order.created_time)}
@@ -579,7 +578,7 @@ function HistoryOrderLine({
         <FlexRow className="col-span-1 text-white justify-self-end right-4">
           <div className="flex items-center justify-center">
             <span className="capitalize">{order.status.toLowerCase()}</span>
-            {order.status === 'FILLED' && (
+            {order.executed !== null && order.executed > 0 && (
               <div
                 className={`cursor-pointer  rounded-md  ml-2 ${
                   openFilledDetail ? 'bg-light1' : 'bg-symbolHover3'
@@ -785,6 +784,13 @@ function OpenOrders({
     setOpenCount(orders.filter(filterFunc).length);
   }, [chooseSide, chooseMarketSymbol, !!orders]);
 
+  useEffect(() => {
+    if (showCurSymbol) {
+      setChooseMarketSymbol(symbol);
+    } else {
+      setChooseMarketSymbol('all_markets');
+    }
+  }, [showCurSymbol]);
   if (hidden) return null;
 
   const generateMarketList = () => {
@@ -1069,6 +1075,8 @@ function HistoryOrders({
   useEffect(() => {
     if (showCurSymbol) {
       setChooseMarketSymbol(symbol);
+    } else {
+      setChooseMarketSymbol('all_markets');
     }
   }, [showCurSymbol]);
 
@@ -1466,6 +1474,8 @@ function AllOrderBoard() {
     ),
   ];
 
+  const { storageEnough } = useOrderlyContext();
+
   const [selectedMarketSymbol, setSelectedMarketSymbol] = useState<string>();
 
   const allTokens = useBatchTokenMetaFromSymbols(
@@ -1477,7 +1487,11 @@ function AllOrderBoard() {
 
   const { accountId } = useWalletSelector();
 
-  const loading = typeof allOrders === 'undefined' && !!accountId;
+  const loading =
+    typeof allOrders === 'undefined' &&
+    !!accountId &&
+    storageEnough &&
+    !!localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
   const [tab, setTab] = useState<'open' | 'history'>('open');
 

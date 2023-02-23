@@ -51,7 +51,10 @@ export const generateTradingKeyPair = () => {
 export const getNormalizeTradingKey = () => {
   const tradingKeyPair = generateTradingKeyPair();
 
-  const pubKeyAsHex = tradingKeyPair.publicKey.replace('04', '');
+  // const pubKeyAsHex = tradingKeyPair.publicKey.replace('04', '');
+
+  const pubKeyAsHex = tradingKeyPair.publicKey;
+
   const normalizeTradingKey = window.btoa(
     keccak256(pubKeyAsHex).toString('hex')
   );
