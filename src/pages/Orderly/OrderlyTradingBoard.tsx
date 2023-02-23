@@ -16,8 +16,6 @@ import { get_orderly_private_key_path, tradingKeyMap } from './orderly/utils';
 import AllOrderBoard from './components/AllOrders';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 
-Big.RM = 0;
-
 function TradingBoard() {
   return (
     <div className="w-full flex  pl-4">
@@ -56,7 +54,7 @@ function OrderlyTradingBoard() {
   const { selector } = useWalletSelector();
 
   selector.on('signedOut', () => {
-    tradingKeyMap.clear();
+    // tradingKeyMap.clear();
     localStorage.removeItem(priKeyPath);
     localStorage.removeItem(pubKeyPath);
   });

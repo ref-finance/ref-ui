@@ -49,7 +49,7 @@ export class TVChartContainer extends React.PureComponent<
   ChartContainerState
 > {
   public static defaultProps: Omit<ChartContainerProps, 'container'> = {
-    symbol: localStorage.getItem(REF_ORDERLY_SYMBOL_KEY) || 'SPOT_NEAR_USDC',
+    symbol: 'SPOT_NEAR_USDC',
     theme: 'Dark',
     interval: 'D' as ResolutionString,
     datafeedUrl: 'https://demo_feed.tradingview.com',

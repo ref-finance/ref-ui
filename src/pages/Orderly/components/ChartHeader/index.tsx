@@ -116,7 +116,7 @@ function SymbolSelector(props: {
   }, [allTickers?.map((t) => t.symbol).join('-'), searchValue]);
 
   return (
-    <div className="absolute left-0 top-8 pt-4">
+    <div className="absolute left-0 top-8 pt-4 z-50">
       <div
         className="bg-darkBg  rounded-lg   border border-borderC px-2 py-3 w-p240 max-h-p360 "
         onMouseLeave={() => {
@@ -153,7 +153,6 @@ function SymbolSelector(props: {
 
 function ChartHeader() {
   const { symbol, setSymbol, tokenInfo, ticker } = useOrderlyContext();
-  console.log('ticker: ', ticker);
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 

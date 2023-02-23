@@ -597,7 +597,7 @@ export default function UserBoard() {
       <div className="grid grid-cols-4 text-sm text-primaryOrderly mb-2">
         <span className="col-span-2  justify-self-start">Asset</span>
 
-        <span className="justify-self-start">Wallet</span>
+        <span className="justify-self-end relative right-10">Wallet</span>
 
         <span className="justify-self-end">Account</span>
       </div>
@@ -729,7 +729,7 @@ export default function UserBoard() {
             <span>{'Price'}</span>
 
             <span>
-              {symbolFrom}/{symbolTo}
+              {symbolTo}/{symbolFrom}
             </span>
           </div>
 
@@ -760,8 +760,10 @@ export default function UserBoard() {
                 className="cursor-pointer mr-4"
                 onClick={() => {
                   setLimitPrice(
-                    Number(limitPrice) >= 1
-                      ? (Number(limitPrice) - 1).toString()
+                    Number(limitPrice) >= 0.1
+                      ? scientificNotationToString(
+                          new Big(limitPrice).minus(0.1).toString()
+                        )
                       : limitPrice
                   );
                 }}
@@ -772,7 +774,11 @@ export default function UserBoard() {
               <span
                 className="cursor-pointer"
                 onClick={() => {
-                  setLimitPrice((Number(limitPrice) + 1).toString());
+                  setLimitPrice(
+                    scientificNotationToString(
+                      new Big(limitPrice).plus(0.1).toString()
+                    )
+                  );
                 }}
               >
                 <FaPlus></FaPlus>
@@ -806,6 +812,7 @@ export default function UserBoard() {
             }
             className="text-white ml-2 text-xl w-full"
             value={inputValue}
+            placeholder="0"
             type="number"
             step="any"
             min={0}
@@ -821,16 +828,26 @@ export default function UserBoard() {
               e.preventDefault();
               e.stopPropagation();
 
-              if (side === 'Buy' && new Big(limitPrice || 0).lte(0)) {
+              if (orderType === 'Limit' && new Big(limitPrice || 0).lte(0)) {
+                return;
+              }
+
+              if (
+                side === 'Sell' &&
+                tokenIn.id.toLocaleLowerCase() === 'near' &&
+                tokenInHolding < 0.5
+              ) {
                 return;
               }
 
               const maxAmount =
                 side === 'Sell'
-                  ? tokenInHolding || 0
+                  ? (tokenInHolding || 0) -
+                    (tokenIn.id.toLowerCase() === 'near' ? 0.5 : 0)
                   : new Big(tokenOutHolding || 0)
-                      .div(limitPrice || 1)
-                      .minus(symbolFrom.toLowerCase() === 'near' ? '0.5' : '0')
+                      .div(
+                        orderType === 'Market' ? marketPrice : limitPrice || 1
+                      )
                       .toFixed(4, 0);
 
               setInputValue(maxAmount.toString());
@@ -1185,7 +1202,11 @@ export function AssetManagerModal(
 
     const sharePercentOfValue = percentOfBigNumber(
       Number(sharePercent),
-      type === 'deposit' ? walletBalance : displayAccountBalance.toString(),
+      type === 'deposit'
+        ? tokenId.toLowerCase() === 'near'
+          ? new Big(walletBalance).minus(0.5).toFixed(24)
+          : walletBalance
+        : displayAccountBalance.toString(),
       tokenMeta.decimals
     );
 

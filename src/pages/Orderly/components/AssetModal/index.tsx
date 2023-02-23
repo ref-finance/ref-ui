@@ -286,14 +286,12 @@ export function AssetModal(props: Modal.Props) {
       {...props}
       style={{
         content: {
-          height: tag == 'asset' ? '500px' : '620px',
+          height: '620px',
         },
       }}
     >
       <div
-        className={`rounded-2xl relative  overflow-hidden ${
-          tag === 'asset' ? 'h-p500' : 'h-p620'
-        } lg:w-p869 xs:w-95vw gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border `}
+        className={`rounded-2xl relative  overflow-hidden ${'h-p620'} lg:w-p869 xs:w-95vw gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border `}
       >
         <div className=" flex flex-col ">
           <div className="flex bg-allOrderHeader pt-4 px-5 pb-4  items-center  justify-between">
@@ -475,7 +473,7 @@ export function AssetModal(props: Modal.Props) {
           {loading && <OrderlyLoading></OrderlyLoading>}
 
           {tag === 'asset' && !loading && (
-            <section className="max-h-96 overflow-auto w-full">
+            <section className="max-h-full overflow-auto w-full">
               {sortedBalances.map((b: OrderAsset) => {
                 return <AssetLine tokenInfo={tokenInfo} {...b} />;
               })}
@@ -494,8 +492,8 @@ export function AssetModal(props: Modal.Props) {
                 return <RecordLine tokenInfo={tokenInfo} {...r} />;
               })}
 
-          {tag === 'records' && total > 1 && (
-            <div className="border-t flex items-center px-5 mr-4 justify-end border-gray1 py-3">
+          {tag === 'records' && (
+            <div className="border-t absolute bottom-0 right-0 flex items-center px-5 mr-4 justify-end border-gray1 py-3">
               <span
                 className="cursor-pointer"
                 onClick={() => {
@@ -517,7 +515,7 @@ export function AssetModal(props: Modal.Props) {
               </span>
 
               <span className="flex ml-2 items-center whitespace-nowrap text-primaryText">
-                {curPage}/{total}
+                {curPage}/{Math.ceil(total / DEFAULT_PAGE_SIZE)}
               </span>
 
               <span

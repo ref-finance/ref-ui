@@ -57,19 +57,21 @@ export const getOrderlyHeaders = async ({
   if (trading) {
     const storedPublicKey = localStorage.getItem(get_orderly_public_key_path());
 
-    if (!storedPublicKey) {
+    const mapTradingKey = tradingKeyMap.get(get_orderly_public_key_path());
+
+    if (!storedPublicKey || !mapTradingKey) {
       localStorage.setItem(
         get_orderly_public_key_path(),
-        tradingKeyMap.get(get_orderly_public_key_path()) || ''
+        mapTradingKey || storedPublicKey
+      );
+
+      tradingKeyMap.set(
+        get_orderly_public_key_path(),
+        mapTradingKey || storedPublicKey
       );
     }
 
-    const orderly_trading_key =
-      tradingKeyMap.get(get_orderly_public_key_path()) ||
-      localStorage.getItem(get_orderly_public_key_path());
-    console.log('orderly_trading_key: ', orderly_trading_key);
-
-    headers['orderly-trading-key'] = orderly_trading_key;
+    headers['orderly-trading-key'] = mapTradingKey || storedPublicKey;
   }
 
   return headers;

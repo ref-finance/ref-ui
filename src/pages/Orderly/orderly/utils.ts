@@ -141,16 +141,21 @@ export const generateOrderSignature = (message: string) => {
 
   const storedPrivateKey = localStorage.getItem(get_orderly_private_key_path());
 
-  if (!storedPrivateKey) {
+  const mapTradingKey = tradingKeyMap.get(get_orderly_private_key_path());
+
+  if (!storedPrivateKey || !mapTradingKey) {
     localStorage.setItem(
       get_orderly_private_key_path(),
-      tradingKeyMap.get(get_orderly_private_key_path()) || ''
+      mapTradingKey || storedPrivateKey
+    );
+
+    tradingKeyMap.set(
+      get_orderly_private_key_path(),
+      mapTradingKey || storedPrivateKey
     );
   }
 
-  const priKey =
-    tradingKeyMap.get(get_orderly_private_key_path()) ||
-    localStorage.getItem(get_orderly_private_key_path());
+  const priKey = mapTradingKey || storedPrivateKey;
 
   if (!priKey) {
     alert('Please generate trading key first');

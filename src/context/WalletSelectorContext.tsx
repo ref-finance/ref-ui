@@ -202,18 +202,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
     return null;
   }
 
-  selector.on('signedOut', () => {
-    const priTradingKeyPath = get_orderly_private_key_path();
-
-    localStorage.removeItem(priTradingKeyPath);
-
-    const pubTradingKeyPath = get_orderly_public_key_path();
-
-    localStorage.removeItem(pubTradingKeyPath);
-
-    tradingKeyMap.clear();
-  });
-
   window.selectorAccountId = accountId;
 
   return (

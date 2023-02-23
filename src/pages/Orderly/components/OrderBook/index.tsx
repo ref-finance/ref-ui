@@ -45,7 +45,7 @@ function groupOrdersByPrecision({
   });
 
   const groupedAsktotalSize = asktotalSize.reduce((acc, cur) => {
-    const groupKey = cur[0].toFixed(precision);
+    const groupKey = new Big(cur[0]).toFixed(precision, 3);
 
     const keyStr = groupKey.toString();
 
@@ -57,7 +57,7 @@ function groupOrdersByPrecision({
 
   const groupedBidtotalSize = bidtotalSize.reduce(
     (acc, cur) => {
-      const groupKey = cur[0].toFixed(precision);
+      const groupKey = new Big(cur[0]).toFixed(precision, 3);
 
       const keyStr = groupKey.toString();
 
@@ -70,7 +70,7 @@ function groupOrdersByPrecision({
     {} as Record<string, number>
   );
   const groupedAsks = asks.reduce((acc, cur) => {
-    const groupKey = cur[0].toFixed(precision);
+    const groupKey = new Big(cur[0]).toFixed(precision, 3);
 
     const keyStr = groupKey.toString();
 
@@ -81,7 +81,7 @@ function groupOrdersByPrecision({
   }, {} as Record<string, number>);
 
   const groupedBids = bids.reduce((acc, cur) => {
-    const groupKey = cur[0].toFixed(precision);
+    const groupKey = new Big(cur[0]).toFixed(precision, 3);
 
     const keyStr = groupKey.toString();
 
