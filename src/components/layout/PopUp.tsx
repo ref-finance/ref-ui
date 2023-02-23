@@ -84,7 +84,7 @@ export default function PopUpSwiper() {
                 <PNEARFarmIcon
                   className="cursor-pointer"
                   onClick={() => {
-                    location.href = '/v2farms/3819-r';
+                    location.href = '/poolV2/phoenix-bonds.near@wrap.near@2000';
                   }}
                 ></PNEARFarmIcon>
               </div>
