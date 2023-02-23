@@ -15,6 +15,7 @@ import { useTokenMetaFromSymbol } from './state';
 import { Ticker } from '../../orderly/type';
 import { TokenIcon } from '../Common';
 import useCallback from 'react';
+import { digitWrapper } from '../../utiles';
 
 function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -249,7 +250,9 @@ function ChartHeader() {
           <div className="flex  ml-11 items-start flex-col">
             <span>Price</span>
             <div className="flex items-center mt-0.5">
-              <span className="text-white font-bold">{ticker.close}</span>
+              <span className="text-white font-bold">
+                {digitWrapper(ticker.close.toString(), 3)}
+              </span>
 
               <span
                 className={`${
@@ -276,13 +279,17 @@ function ChartHeader() {
           <div className="flex  ml-11 items-start flex-col">
             <span>High(24h)</span>
 
-            <span className="text-white mt-0.5 font-bold">{ticker.high}</span>
+            <span className="text-white mt-0.5 font-bold">
+              {digitWrapper(ticker.high.toString(), 3)}
+            </span>
           </div>
 
           <div className="flex items-start  ml-11 flex-col">
             <span>Low(24h)</span>
 
-            <span className="text-white mt-0.5 font-bold">{ticker.low}</span>
+            <span className="text-white mt-0.5 font-bold">
+              {digitWrapper(ticker.low.toString(), 3)}
+            </span>
           </div>
 
           <div className="flex items-start  ml-11 flex-col">

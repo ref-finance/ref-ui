@@ -268,7 +268,9 @@ function OrderLine({
       </div>
 
       <FlexRowStart className="col-span-1 relative  items-start">
-        <span className="relative top-1.5">{order.executed}</span>
+        <span className="relative top-1.5">
+          {digitWrapper(order.executed.toString(), 3)}
+        </span>
         <span className="mx-1 relative top-1.5">/</span>
 
         <div className="flex flex-col overflow-hidden bg-dark2 rounded-lg border border-border2 text-sm  w-14 text-white">
@@ -380,7 +382,10 @@ function OrderLine({
           openEdit ? 'items-start top-1.5' : 'items-center'
         }`}
       >
-        {new Big(quantity || '0').times(new Big(order.price || 0)).toFixed(2)}
+        {digitWrapper(
+          new Big(quantity || '0').times(new Big(order.price || 0)).toFixed(5),
+          3
+        )}
       </div>
 
       <div
@@ -542,15 +547,24 @@ function HistoryOrderLine({
         </FlexRow>
 
         <FlexRow className="col-span-1 ml-2 ">
-          <span className="">{order.executed}</span>
+          <span className="">{digitWrapper(order.executed.toString(), 3)}</span>
 
           <span className="mx-1 ">/</span>
 
-          <span className="text-white">{order.quantity || order.executed}</span>
+          <span className="text-white">
+            {digitWrapper((order.quantity || order.executed).toString(), 3)}
+          </span>
         </FlexRow>
 
         <FlexRow className="col-span-1 ml-4">
-          <span>{order.price || order.average_executed_price || '-'}</span>
+          <span>
+            {order.price || order.average_executed_price
+              ? digitWrapper(
+                  (order.price || order.average_executed_price).toString(),
+                  3
+                )
+              : '-'}
+          </span>
         </FlexRow>
 
         <FlexRow className="col-span-1 ml-6 text-white">
@@ -562,9 +576,12 @@ function HistoryOrderLine({
         </FlexRow>
 
         <FlexRow className="col-span-1 ml-4 relative left-8  text-white">
-          {new Big(order.executed || '0')
-            .times(new Big(order.price || order.quantity || '0'))
-            .toFixed(2, 0)}
+          {digitWrapper(
+            new Big(order.executed || '0')
+              .times(new Big(order.price || order.quantity || '0'))
+              .toFixed(4, 0),
+            2
+          )}
         </FlexRow>
 
         <FlexRow
@@ -674,9 +691,12 @@ function HistoryOrderLine({
                 </div>
                 <div className="col-span-1 text-right">{trade.fee}</div>
                 <div className="col-span-1 text-right right-4">
-                  {new Big(trade.executed_quantity || '0')
-                    .times(new Big(trade.executed_price || '0'))
-                    .toFixed(2)}
+                  {digitWrapper(
+                    new Big(trade.executed_quantity || '0')
+                      .times(new Big(trade.executed_price || '0'))
+                      .toFixed(4),
+                    2
+                  )}
                 </div>
 
                 <div className="col-span-1 text-right">
@@ -982,7 +1002,7 @@ function OpenOrders({
           </div>
         </FlexRow>
 
-        <FlexRow className="col-span-1 relative right-4 justify-self-center">
+        <FlexRow className="col-span-1 relative justify-self-center">
           <span className="text-center"> Actions</span>
         </FlexRow>
       </div>

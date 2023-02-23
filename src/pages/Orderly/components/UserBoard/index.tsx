@@ -1037,7 +1037,8 @@ export default function UserBoard() {
         <div className="flex items-center mt-2 justify-between">
           <span className="text-primaryOrderly">Total </span>
           <span className="text-white">
-            {total === '-' ? '-' : total.toFixed(4)} {` ${symbolTo}`}
+            {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
+            {` ${symbolTo}`}
           </span>
         </div>
       </div>
@@ -1305,7 +1306,7 @@ export function AssetManagerModal(
               <span>
                 {!walletBalance
                   ? '-'
-                  : toPrecision(walletBalance.toString() || '0', 3)}
+                  : digitWrapper(walletBalance.toString() || '0', 3)}
               </span>
             </div>
 
@@ -1782,7 +1783,9 @@ function ConfirmOrderModal(
             <span>Qty.</span>
 
             <span className="flex items-center">
-              <span className="text-white mr-2">{quantity}</span>
+              <span className="text-white mr-2">
+                {digitWrapper(quantity, 3)}
+              </span>
 
               <TextWrapper value={symbolFrom}></TextWrapper>
             </span>
@@ -1792,7 +1795,7 @@ function ConfirmOrderModal(
             <span>Price</span>
 
             <span className="flex items-center">
-              <span className="text-white mr-2">{price}</span>
+              <span className="text-white mr-2">{digitWrapper(price, 3)}</span>
               <TextWrapper value={`${symbolTo}/${symbolFrom}`}></TextWrapper>
             </span>
           </div>

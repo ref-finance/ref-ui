@@ -4,5 +4,5 @@ export function digitWrapper(digit: string, precision: number) {
 
   if (Number(digit) < Number(minStr) && Number(digit) > 0) {
     return '< ' + minStr;
-  } else return toPrecision(digit, precision);
+  } else return toPrecision(digit, precision, true);
 }
