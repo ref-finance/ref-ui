@@ -508,7 +508,7 @@ export function DetailView_near_wnear({
   const intl = useIntl();
   const [showDetails, setShowDetails] = useState<boolean>(false);
   return (
-    <div className="mt-4">
+    <div className="my-4">
       <div className="flex justify-center">
         <div
           className="flex items-center text-white cursor-pointer"
