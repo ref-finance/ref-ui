@@ -481,6 +481,7 @@ export function AssetModal(props: Modal.Props) {
           )}
 
           {tag === 'records' &&
+            Math.ceil(total / DEFAULT_PAGE_SIZE) > 0 &&
             !loading &&
             records &&
             records

@@ -43,6 +43,9 @@ export default function PopUpSwiper() {
           className={`fixed xs:left-1/2 xs:transform xs:-translate-x-1/2 md:left-1/2 md:transform md:-translate-x-1/2 z-50 lg:right-8 ${
             mobile ? 'farmPopupBoxMobile' : 'farmPopupBox'
           }`}
+          style={{
+            zIndex: 90,
+          }}
         >
           <Swiper
             spaceBetween={30}

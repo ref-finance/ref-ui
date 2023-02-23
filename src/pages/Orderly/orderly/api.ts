@@ -273,25 +273,22 @@ const depositOrderly = async (token: string, amount: string) => {
 const withdrawOrderly = async (token: string, amount: string) => {
   const transactions: Transaction[] = [];
 
-  const account_id = window.selectorAccountId;
-  if (!account_id) return;
+  const registered = await storage_balance_of(token);
+  console.log('registered: ', registered);
 
-  const storageBound = await storage_cost_of_token_balance();
-
-  const balance = await storage_balance_of(account_id);
-
-  if (
-    balance === null ||
-    new Big(storageBound).gt(new Big(balance.available))
-  ) {
+  if (!registered) {
     transactions.push({
-      receiverId: ORDERLY_ASSET_MANAGER,
+      receiverId: token,
       functionCalls: [
-        orderly_storage_deposit(
-          account_id,
-          utils.format.formatNearAmount(storageBound),
-          false
-        ),
+        {
+          methodName: 'storage_deposit',
+          args: {
+            receiver_id: getOrderlyConfig().ORDERLY_ASSET_MANAGER,
+            msg: '',
+          },
+          gas: '30000000000000',
+          amount: '0.00125',
+        },
       ],
     });
   }

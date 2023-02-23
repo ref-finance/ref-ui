@@ -1066,6 +1066,12 @@ function HistoryOrders({
     }
   };
 
+  useEffect(() => {
+    if (showCurSymbol) {
+      setChooseMarketSymbol(symbol);
+    }
+  }, [showCurSymbol]);
+
   const filterFunc = (order: MyOrder) => {
     const side =
       chooseSide === 'Both' ||

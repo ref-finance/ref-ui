@@ -15,6 +15,7 @@ import Big from 'big.js';
 import { get_orderly_private_key_path, tradingKeyMap } from './orderly/utils';
 import AllOrderBoard from './components/AllOrders';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
+import { REF_ORDERLY_ACCOUNT_VALID } from './components/UserBoard/index';
 
 function TradingBoard() {
   return (
@@ -57,6 +58,8 @@ function OrderlyTradingBoard() {
     // tradingKeyMap.clear();
     localStorage.removeItem(priKeyPath);
     localStorage.removeItem(pubKeyPath);
+
+    localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
   });
 
   window.onbeforeunload = () => {

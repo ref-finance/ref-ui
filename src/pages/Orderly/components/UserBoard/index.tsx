@@ -208,6 +208,8 @@ export function TextWrapper({
 
 const REF_ORDERLY_AGREE_CHECK = 'REF_ORDERLY_AGREE_CHECK';
 
+export const REF_ORDERLY_ACCOUNT_VALID = 'REF_ORDERLY_ACCOUNT_VALID';
+
 export default function UserBoard() {
   const {
     symbol,
@@ -417,8 +419,19 @@ export default function UserBoard() {
 
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
 
+  const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+
   useEffect(() => {
     if (!accountId || !storageEnough || !agreeCheck) return;
+
+    if (!!storedValid) {
+      setValidAccountSig(true);
+      setKeyAnnounced(true);
+      setTradingKeySet(true);
+
+      return;
+    }
+
     is_orderly_key_announced(accountId)
       .then(async (key_announce) => {
         setKeyAnnounced(key_announce);
@@ -437,6 +450,7 @@ export default function UserBoard() {
             });
           }
         });
+        localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
       });
   }, [accountId, storageEnough, agreeCheck]);
 
@@ -453,7 +467,8 @@ export default function UserBoard() {
         new Big(tokenOutHolding || 0).eq(0)
       : new Big(inputValue || '0').gt(tokenInHolding || '0');
 
-  const loading = storageEnough === undefined;
+  const loading =
+    storageEnough === undefined || (!!storedValid && !validAccountSig);
 
   const validator =
     !accountId ||
@@ -491,7 +506,7 @@ export default function UserBoard() {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
-            zIndex: 90,
+            zIndex: 80,
           }}
         >
           <RefToOrderly></RefToOrderly>
@@ -832,18 +847,9 @@ export default function UserBoard() {
                 return;
               }
 
-              if (
-                side === 'Sell' &&
-                tokenIn.id.toLocaleLowerCase() === 'near' &&
-                tokenInHolding < 0.5
-              ) {
-                return;
-              }
-
               const maxAmount =
                 side === 'Sell'
-                  ? (tokenInHolding || 0) -
-                    (tokenIn.id.toLowerCase() === 'near' ? 0.5 : 0)
+                  ? tokenInHolding || 0
                   : new Big(tokenOutHolding || 0)
                       .div(
                         orderType === 'Market' ? marketPrice : limitPrice || 1

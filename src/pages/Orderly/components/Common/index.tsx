@@ -338,24 +338,24 @@ export function orderPopUp({
         <div className="flex -mt-1 items-center">
           <span>{filled || orderType === 'Market' ? 'Filled' : 'Open'}</span>
           <span
-            className="ml-1 relative "
+            className="ml-1 relative  flex items-center justify-center"
             style={{
               height: '14px',
               width: '14px',
             }}
           >
-            {(filled || orderType === 'Market') && (
-              <OrderPopUpCheck className="absolute left-0.5 top-0.5" />
-            )}
-            <OrderStateOutlineBlack />
+            <div className="absolute top-0 left-0  ">
+              {(filled || orderType === 'Market') && (
+                <OrderPopUpCheck className="absolute left-0.5 top-0.5" />
+              )}
+              <OrderStateOutlineBlack />
+            </div>
 
             <div
-              className="absolute left-0 top-0"
+              className=""
               style={{
                 height: '9px',
                 width: '9px',
-                left: '3px',
-                top: '3px',
               }}
             >
               {order.status === 'PARTIAL_FILLED' && (
@@ -394,8 +394,7 @@ export function orderPopUp({
       hideProgressBar: false,
       position: 'bottom-right',
       progress: undefined,
-      // autoClose: 3000,
-      autoClose: false,
+      autoClose: 3000,
       closeButton: false,
       style: {
         background:
