@@ -916,5 +916,6 @@ const zh_CN = {
   minimum_received_dot: '最少获得',
   v2_your_pool_introduction: 'Your discretized concentrated liquidity',
   v1_your_pool_introduction: 'Your liquidity in classic pools',
+  input_pool_id: '输入池子ID',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

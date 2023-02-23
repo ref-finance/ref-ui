@@ -191,7 +191,10 @@ const cacheBoost_Seed_Farms_Pools = async () => {
   let pools: PoolRPCView[] = [];
   // filter v2 pool seeds TODO
   list_seeds = list_seeds.filter((seed: Seed) => {
-    if (seed.seed_id.indexOf(config.REF_UNI_V3_SWAP_CONTRACT_ID) == -1)
+    if (
+      seed.seed_id.indexOf(config.REF_UNI_V3_SWAP_CONTRACT_ID) == -1 &&
+      seed.seed_id.indexOf(config.REF_UNI_SWAP_CONTRACT_ID) == -1
+    )
       return true;
   });
   list_seeds.forEach((seed: Seed) => {

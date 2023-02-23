@@ -57,8 +57,6 @@ import {
   useAddAndRemoveUrlHandle,
   drawChartData,
   TOKEN_LIST_FOR_RATE,
-  PAUSE_DCL,
-  pause_v2_tip,
 } from '../../services/commonV3';
 import {
   formatWithCommas,
@@ -943,17 +941,9 @@ export default function AddYourLiquidityPageV3() {
                               }`}
                             >
                               {isNoPool ? (
-                                // <FormattedMessage id="no_pool" />
                                 'No Pool'
                               ) : Object.keys(tokenPriceList).length > 0 ? (
-                                <span>
-                                  {/* <label className="xsm:hidden">
-                                    TVL&nbsp;
-                                  </label> */}
-                                  {PAUSE_DCL
-                                    ? '-'
-                                    : displayTvl(currentPools[fee].tvl)}
-                                </span>
+                                <span>{displayTvl(currentPools[fee].tvl)}</span>
                               ) : (
                                 'Loading...'
                               )}
@@ -2004,43 +1994,21 @@ function AddLiquidityComponent({
         </div>
       </div>
       {isSignedIn ? (
-        <div
-          className="text-white text-right"
-          data-class="reactTip"
-          data-for="selectAllId"
-          data-place="top"
-          data-html={true}
-          data-tip={pause_v2_tip()}
+        <GradientButton
+          color="#fff"
+          className={`w-full h-12 mt-5 text-center text-base text-white focus:outline-none ${
+            isAddLiquidityDisabled ? 'opacity-40' : ''
+          }`}
+          loading={addLiquidityButtonLoading}
+          disabled={addLiquidityButtonLoading || isAddLiquidityDisabled}
+          btnClassName={`${isAddLiquidityDisabled ? 'cursor-not-allowed' : ''}`}
+          onClick={addLiquidity}
         >
-          <GradientButton
-            color="#fff"
-            className={`w-full h-12 ${
-              PAUSE_DCL ? '' : 'mt-5'
-            } text-center text-base text-white focus:outline-none ${
-              isAddLiquidityDisabled || PAUSE_DCL ? 'opacity-40' : ''
-            }`}
+          <ButtonTextWrapper
             loading={addLiquidityButtonLoading}
-            disabled={
-              addLiquidityButtonLoading || isAddLiquidityDisabled || PAUSE_DCL
-            }
-            btnClassName={`${
-              isAddLiquidityDisabled || PAUSE_DCL ? 'cursor-not-allowed' : ''
-            }`}
-            onClick={addLiquidity}
-          >
-            <ButtonTextWrapper
-              loading={addLiquidityButtonLoading}
-              Text={() => <>{getButtonText()}</>}
-            />
-          </GradientButton>
-          <ReactTooltip
-            id="selectAllId"
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
+            Text={() => <>{getButtonText()}</>}
           />
-        </div>
+        </GradientButton>
       ) : (
         <ConnectToNearBtn />
       )}
@@ -2143,45 +2111,27 @@ function NoDataComponent(props: any) {
           </div>
         </div>
       </div>
-      <div
-        className="text-white text-right"
-        data-class="reactTip"
-        data-for="pause_v2_tip_id_2"
-        data-place="top"
-        data-html={true}
-        data-tip={pause_v2_tip()}
+      <GradientButton
+        color="#fff"
+        className={`w-full h-12 mt-5 text-center text-base text-white focus:outline-none opacity-30`}
+        disabled={true}
       >
-        <GradientButton
-          color="#fff"
-          className={`w-full h-12 ${
-            PAUSE_DCL ? '' : 'mt-5'
-          } text-center text-base text-white focus:outline-none opacity-30`}
-          disabled={true}
-        >
-          <ButtonTextWrapper
-            loading={false}
-            Text={() => (
-              <>
-                {isNoPool ? (
-                  <FormattedMessage id="no_pool" defaultMessage="No Pool" />
-                ) : (
-                  <FormattedMessage
-                    id="select_tokens"
-                    defaultMessage="Select Tokens"
-                  />
-                )}
-              </>
-            )}
-          />
-        </GradientButton>
-        <ReactTooltip
-          id="pause_v2_tip_id_2"
-          backgroundColor="#1D2932"
-          border
-          borderColor="#7e8a93"
-          effect="solid"
+        <ButtonTextWrapper
+          loading={false}
+          Text={() => (
+            <>
+              {isNoPool ? (
+                <FormattedMessage id="no_pool" defaultMessage="No Pool" />
+              ) : (
+                <FormattedMessage
+                  id="select_tokens"
+                  defaultMessage="Select Tokens"
+                />
+              )}
+            </>
+          )}
         />
-      </div>
+      </GradientButton>
     </div>
   );
 }
