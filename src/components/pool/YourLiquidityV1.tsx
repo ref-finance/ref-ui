@@ -11,11 +11,7 @@ import {
 import Loading from '~components/layout/Loading';
 import {
   AllStableTokenIds,
-  BTC_STABLE_POOL_ID,
-  CUSD_STABLE_POOL_ID,
-  LINEAR_POOL_ID,
   NEARX_POOL_ID,
-  STNEAR_POOL_ID,
   wallet as webWallet,
 } from '~services/near';
 import { PoolRPCView } from '~services/api';
@@ -28,6 +24,7 @@ import {
   toReadableNumber,
   ONLY_ZEROS,
   calculateFeePercent,
+  formatWithCommas,
 } from '~utils/numbers';
 import { usePool, usePools } from '~state/pool';
 import {
@@ -48,40 +45,17 @@ import {
   REF_META_DATA,
   TokenMetadata,
 } from '~services/ft-contract';
-import { ShareInFarm } from '~components/layout/ShareInFarm';
-import {
-  usePoolTVL,
-  useYourliquidity,
-  useAllStablePools,
-} from '../../state/pool';
 import {
   multiply,
   divide,
   scientificNotationToString,
 } from '../../utils/numbers';
-import {
-  STABLE_POOL_USN_ID,
-  isStablePool,
-  ALL_STABLE_POOL_IDS,
-} from '../../services/near';
+import { isStablePool, ALL_STABLE_POOL_IDS } from '../../services/near';
 import { STABLE_POOL_ID, REF_FI_CONTRACT_ID } from '../../services/near';
 import { isNotStablePool, canFarmV2 } from '../../services/pool';
-import {
-  WalletContext,
-  getSenderLoginRes,
-} from '../../utils/wallets-integration';
+import { WalletContext } from '../../utils/wallets-integration';
 import { getFarmsCount, getEndedFarmsCount } from '../../services/pool';
-import { STABLE_LP_TOKEN_DECIMALS } from '~components/stableswap/AddLiquidity';
-import { useStabelPoolData } from '../../state/sauce';
-import {
-  useFarmStake,
-  useAllFarms,
-  useCanFarmV2,
-  useCanFarmV1,
-} from '../../state/farm';
-
-import { PoolTab } from '~components/pool/PoolTab';
-
+import { useFarmStake, useAllFarms } from '../../state/farm';
 import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { getVEPoolId } from '../../pages/ReferendumPage';
@@ -117,23 +91,19 @@ import { StableSwapLogo } from '~components/icon/StableSwap';
 import { GoodIcon } from '../../components/icon/Common';
 import { AddPoolModal } from '../../pages/pools/AddPoolPage';
 import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
-import { BlueCircleLoading } from '../../components/layout/Loading';
-import { LiquidityContainerStyle2 } from '../../components/portfolio/Positions';
-import { NoLiquidity } from '../../pages/poolsV3/YourLiquidityPageV3';
+import { TriangleIcon, LinkIcon } from '../../components/icon/Portfolio';
 import ReactTooltip from 'react-tooltip';
-import Big from 'big.js';
 import { checkFarmStake } from '../../state/farm';
 export const StakeListContext = createContext(null);
 
 export function YourLiquidityV1(props: any) {
-  // props from your liquidity page
   const {
     setYourLpValueV1,
     setLpValueV1Done,
-    checkedStatus,
-    listLiquidities,
-    listLiquiditiesLoading,
-    pageType,
+    setLiquidityLoadingDone,
+    setLiquidityQuantity,
+    styleType,
+    showV1EmptyBar,
   } = props;
   const [error, setError] = useState<Error>();
   const [pools, setPools] = useState<PoolRPCView[]>();
@@ -146,6 +116,7 @@ export function YourLiquidityV1(props: any) {
   const [tvls, setTvls] = useState<Record<string, number>>();
   const [tokensMeta, setTokensMeta] = useState<{}>();
   const isClientMobile = useClientMobile();
+  const [count, setCount] = useState(0);
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
   const isSignedIn = !!accountId;
@@ -191,69 +162,109 @@ export function YourLiquidityV1(props: any) {
       }
     );
   }, [pools]);
+  // get ve pool
+  const vePool = pools?.find((p) => Number(p.id) === Number(getVEPoolId()));
   // get stake list in v1 farm and v2 farm
-  const { finalStakeList, stakeList, v2StakeList } = useStakeListByAccountId();
+  const { finalStakeList, stakeList, v2StakeList, stakeListDone } =
+    useStakeListByAccountId();
   // get lp amount locked in ve contract;
-  const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
+  const { lptAmount, accountInfoDone } = !!getConfig().REF_VE_CONTRACT_ID
     ? useAccountInfo()
-    : { lptAmount: '0' };
+    : { lptAmount: '0', accountInfoDone: true };
   // get the rest lp amount in pool and all lp amount  (in v1 farm, v2 farm, pool)
-  const { batchTotalShares, shares: batchStableShares } = useBatchTotalShares(
+  const {
+    batchTotalShares,
+    shares: batchStableShares,
+    sharesDone: stableSharesDone,
+  } = useBatchTotalShares(
     stablePools?.map((p) => p.id),
-    finalStakeList
+    finalStakeList,
+    stakeListDone
   );
-  const { batchTotalShares: batchTotalSharesSimplePools, shares: batchShares } =
-    useBatchTotalShares(
-      pools?.map((p) => p.id),
-      finalStakeList
-    );
-  if (
+  const {
+    batchTotalShares: batchTotalSharesSimplePools,
+    shares: batchShares,
+    sharesDone: simpleSharesDone,
+  } = useBatchTotalShares(
+    pools?.map((p) => p.id),
+    finalStakeList,
+    stakeListDone
+  );
+  const data_fetch_status =
+    !stablePools ||
     !pools ||
     !tokensMeta ||
     !v1Farm ||
     !v2Farm ||
-    !batchTotalShares ||
-    !batchTotalSharesSimplePools
-  )
-    return (
-      <div>
-        <div className="text-white text-base gotham_bold my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
-          V1 (0)
-        </div>
-        <div className="flex items-center justify-center">
-          <BlueCircleLoading />
-        </div>
-      </div>
-    );
-  // get ve pool
-  const vePool = pools.find((p) => Number(p.id) === Number(getVEPoolId()));
-  // get the number of pools which lp amount is greater than zero;
-  const count =
-    batchTotalSharesSimplePools
-      .map((n, i) =>
-        n + Number(pools?.[i].id) === Number(getVEPoolId())
-          ? Number(lptAmount) + n
-          : n
-      )
-      ?.reduce((acc, cur) => {
-        return cur > 0 ? acc + 1 : acc;
-      }, 0) +
-    batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
-  // get the number of pools which user has ever been participated in;
-  const lpCount =
-    (!vePool || !getConfig().REF_VE_CONTRACT_ID ? 0 : 1) +
-    (batchTotalShares && batchTotalShares?.some((s) => s > 0)
-      ? stablePools?.length || 0
-      : 0) +
-    pools.filter(
-      (p) => !getConfig().REF_VE_CONTRACT_ID || !vePool || p.id !== vePool.id
-    ).length;
-
-  if (lpCount === 0 || +count === 0) {
-    setLpValueV1Done(true);
-    setYourLpValueV1('0');
-  }
-
+    !stableSharesDone ||
+    !simpleSharesDone ||
+    !accountInfoDone;
+  useEffect(() => {
+    if (!data_fetch_status) {
+      // get the number of pools which lp amount is greater than zero;
+      const count =
+        batchTotalSharesSimplePools
+          .map((n, i) =>
+            n + Number(pools?.[i].id) === Number(getVEPoolId())
+              ? Number(lptAmount) + n
+              : n
+          )
+          ?.reduce((acc, cur) => {
+            return cur > 0 ? acc + 1 : acc;
+          }, 0) +
+        batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
+      setLiquidityLoadingDone(true);
+      setLiquidityQuantity(count);
+      setCount(count);
+      if (+count > 0 && tvls) {
+        const allPools = pools.concat(stablePools);
+        let total_value_final = '0';
+        allPools.forEach((pool: PoolRPCView) => {
+          // get total amount
+          const { id, shares_total_supply, tvl } = pool;
+          const is_stable_pool = isStablePool(id);
+          const decimals = is_stable_pool
+            ? getStablePoolDecimal(id)
+            : LP_TOKEN_DECIMALS;
+          let total_amount = 0;
+          if (is_stable_pool) {
+            const i = stablePools.findIndex(
+              (p: PoolRPCView) => p.id === pool.id
+            );
+            total_amount = batchTotalShares?.[i];
+          } else {
+            const i = pools.findIndex((p: PoolRPCView) => p.id === pool.id);
+            total_amount = batchTotalSharesSimplePools?.[i];
+          }
+          let lp_in_vote = '0';
+          if (+id == +getVEPoolId()) {
+            lp_in_vote = new BigNumber(lptAmount || 0).shiftedBy(-24).toFixed();
+          }
+          const read_total_amount = new BigNumber(total_amount)
+            .shiftedBy(-decimals)
+            .plus(lp_in_vote);
+          // get single lp value
+          const pool_tvl = tvls[id] || tvl || '0';
+          if (+shares_total_supply > 0 && +pool_tvl > 0) {
+            const read_total_supply = new BigNumber(
+              shares_total_supply
+            ).shiftedBy(-decimals);
+            const single_lp_value = new BigNumber(pool_tvl).dividedBy(
+              read_total_supply
+            );
+            const value = single_lp_value.multipliedBy(read_total_amount);
+            total_value_final = value.plus(total_value_final).toFixed();
+          }
+        });
+        setLpValueV1Done(true);
+        setYourLpValueV1(total_value_final);
+      } else if (+count == 0) {
+        setLpValueV1Done(true);
+        setYourLpValueV1('0');
+      }
+    }
+  }, [data_fetch_status, tvls]);
+  if (data_fetch_status) return null;
   return (
     <>
       <StakeListContext.Provider
@@ -261,11 +272,7 @@ export function YourLiquidityV1(props: any) {
           stakeList,
           v2StakeList,
           finalStakeList,
-          listLiquiditiesLoading,
-          listLiquidities,
-          checkedStatus,
           error,
-          count,
           vePool,
           batchTotalSharesSimplePools,
           batchTotalShares,
@@ -275,18 +282,16 @@ export function YourLiquidityV1(props: any) {
           tvls,
           tokensMeta,
           lptAmount,
-          lpCount,
-          setLpValueV1Done,
-          setYourLpValueV1,
           batchShares,
           pools,
           stablePools,
           batchStableShares,
           generalAddLiquidity,
           setGeneralAddLiquidity,
+          showV1EmptyBar,
         }}
       >
-        {pageType == '1' ? (
+        {styleType == '1' ? (
           <LiquidityContainerStyle1></LiquidityContainerStyle1>
         ) : (
           <LiquidityContainerStyle2></LiquidityContainerStyle2>
@@ -298,11 +303,6 @@ export function YourLiquidityV1(props: any) {
 
 function LiquidityContainerStyle1() {
   const {
-    listLiquiditiesLoading,
-    listLiquidities,
-    checkedStatus,
-    error,
-    count,
     vePool,
     batchTotalSharesSimplePools,
     batchTotalShares,
@@ -312,30 +312,22 @@ function LiquidityContainerStyle1() {
     tvls,
     tokensMeta,
     lptAmount,
-    lpCount,
-    setLpValueV1Done,
-    setYourLpValueV1,
     batchShares,
     pools,
     stablePools,
     batchStableShares,
     generalAddLiquidity,
     setGeneralAddLiquidity,
+    showV1EmptyBar,
   } = useContext(StakeListContext);
   const RowRender = ({
     p,
     ids,
     shares,
-    setLpValueV1Done,
-    setYourLpValueV1,
-    count,
   }: {
     p: PoolRPCView;
     ids: string[];
     shares: string;
-    setLpValueV1Done: (done: boolean) => void;
-    setYourLpValueV1: (value: string) => void;
-    count: number;
   }) => {
     const supportFarmV1 = getFarmsCount(p.id.toString(), v1Farm);
 
@@ -360,9 +352,6 @@ function LiquidityContainerStyle1() {
           endedFarmV1={endedFarmV1}
           lptAmount={lptAmount}
           shares={shares}
-          setLpValueV1Done={setLpValueV1Done}
-          setYourLpValueV1={setYourLpValueV1}
-          count={count}
         />
       </div>
     );
@@ -394,218 +383,132 @@ function LiquidityContainerStyle1() {
         endedFarmV2={endedFarmV2}
         endedFarmV1={endedFarmV1}
         shares={shares}
-        setLpValueV1Done={setLpValueV1Done}
-        setYourLpValueV1={setYourLpValueV1}
-        count={count}
       />
     );
   };
-  if (+count == 0 && !listLiquiditiesLoading && listLiquidities.length == 0) {
-    return <NoLiquidity></NoLiquidity>;
-  } else if (listLiquidities.length > 0 && +count == 0) {
-    return (
-      <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
-        <div className="mb-3">
-          <span className="text-white text-base gotham_bold">V1 (0)</span>
-          <p className="text-sm text-farmText">
-            <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
-          </p>
-        </div>
-        <NoLiquidity text="V1"></NoLiquidity>
-      </div>
-    );
-  }
   return (
-    <>
-      {!listLiquiditiesLoading && listLiquidities.length == 0 ? (
-        <div className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}>
-          <div className="mb-3">
-            <span className="text-white text-base gotham_bold">V2 (0)</span>
-            <p className="text-sm text-farmText">
-              <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
-            </p>
-          </div>
-          <NoLiquidity text="V2"></NoLiquidity>
-        </div>
-      ) : null}
-      <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
-        <div className="flex items flex-col">
-          <div className="w-full flex justify-center self-center">
-            {error && <Alert level="warn" message={error.message} />}
-          </div>
-          {/* PC */}
-          <div className="my-2.5 xs:my-0 md:my-0 xs:-mb-1.5 md:-mb-1.5">
-            <span className="text-white text-base gotham_bold">
-              V1 ({count})
-            </span>
-            <p className="text-sm text-farmText">
-              <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
-            </p>
-          </div>
-          <Card
-            width="w-full"
-            padding="px-0 py-6"
-            className="xs:hidden md:hidden"
-          >
-            {(!(!vePool || !getConfig().REF_VE_CONTRACT_ID) ||
-              batchTotalSharesSimplePools?.some((s: number) => s > 0) ||
-              batchTotalShares?.some((s: number) => s > 0)) &&
-            !isClientMobile ? (
-              <section>
-                <div className="">
-                  <div
-                    style={{
-                      gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
-                    }}
-                    className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:px-8
-            xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
-                  >
-                    <div className="col-span-2">
-                      <FormattedMessage id="pair" defaultMessage="Pair" />
-                    </div>
-                    <div className="col-span-2 ">
-                      <FormattedMessage id="token" defaultMessage="Token" />
-                    </div>
-
-                    <div className="flex flex-row col-span-5 text-left ml-8">
-                      <span>
-                        <FormattedMessage id="lp_token"></FormattedMessage>
-                      </span>
-                      <span>
-                        (
-                        <FormattedMessage
-                          id="my_shares"
-                          defaultMessage="Shares"
-                        />
-                        )
-                      </span>
-                    </div>
-                    <div className="col-span-4 xl:ml-8 ml-4">
-                      <FormattedMessage
-                        id="usd_value"
-                        defaultMessage="USD Value"
-                      />
-                    </div>
+    <div>
+      <div className={`flex items flex-col ${showV1EmptyBar ? 'hidden' : ''}`}>
+        <Card
+          width="w-full"
+          padding="px-0 py-6"
+          className="xs:hidden md:hidden"
+        >
+          {(!(!vePool || !getConfig().REF_VE_CONTRACT_ID) ||
+            batchTotalSharesSimplePools?.some((s: number) => s > 0) ||
+            batchTotalShares?.some((s: number) => s > 0)) &&
+          !isClientMobile ? (
+            <section>
+              <div className="">
+                <div
+                  style={{
+                    gridTemplateColumns: 'repeat(13, minmax(0, 1fr))',
+                  }}
+                  className="grid grid-cols-12 md:flex xs:flex md:items-center xs:items-center xs:justify-between md:justify-between py-2 content-center items-center text-xs text-primaryText pr-6 pl-6 lg:px-8
+          xs:border-b xs:border-gray-700 xs:border-opacity-70 md:border-b md:border-gray-700 md:border-opacity-70"
+                >
+                  <div className="col-span-2">
+                    <FormattedMessage id="pair" defaultMessage="Pair" />
                   </div>
-                  <div className=" overflow-y-auto">
-                    {/* display ve pool */}
-                    {!vePool || !getConfig().REF_VE_CONTRACT_ID
-                      ? null
-                      : [vePool].map((p) => {
-                          return (
-                            <RowRender
-                              p={p}
-                              ids={p.token_account_ids}
-                              count={lpCount}
-                              setLpValueV1Done={setLpValueV1Done}
-                              setYourLpValueV1={setYourLpValueV1}
-                              shares={
-                                batchShares?.[
-                                  pools.findIndex(
-                                    (p2: PoolRPCView) => p2.id === vePool.id
-                                  )
-                                ] || ''
-                              }
-                            />
-                          );
-                        })}
-                    {/* display stable pools */}
-                    {batchTotalShares &&
-                      batchTotalShares?.some((s: number) => s > 0) &&
-                      stablePools?.map((p: PoolRPCView, i: number) => {
+                  <div className="col-span-2 ">
+                    <FormattedMessage id="token" defaultMessage="Token" />
+                  </div>
+
+                  <div className="flex flex-row col-span-5 text-left ml-8">
+                    <span>
+                      <FormattedMessage id="lp_token"></FormattedMessage>
+                    </span>
+                    <span>
+                      (
+                      <FormattedMessage
+                        id="my_shares"
+                        defaultMessage="Shares"
+                      />
+                      )
+                    </span>
+                  </div>
+                  <div className="col-span-4 xl:ml-8 ml-4">
+                    <FormattedMessage
+                      id="usd_value"
+                      defaultMessage="USD Value"
+                    />
+                  </div>
+                </div>
+                <div className=" overflow-y-auto">
+                  {/* display ve pool */}
+                  {!vePool || !getConfig().REF_VE_CONTRACT_ID
+                    ? null
+                    : [vePool].map((p) => {
                         return (
                           <RowRender
-                            count={lpCount}
                             p={p}
                             ids={p.token_account_ids}
-                            shares={batchStableShares?.[i] || ''}
-                            setLpValueV1Done={setLpValueV1Done}
-                            setYourLpValueV1={setYourLpValueV1}
-                          />
-                        );
-                      })}
-                    {/* display simple pools */}
-                    {pools
-                      .filter(
-                        (p: PoolRPCView) =>
-                          !getConfig().REF_VE_CONTRACT_ID ||
-                          !vePool ||
-                          p.id !== vePool.id
-                      )
-                      .map((p: PoolRPCView, i: number) => {
-                        return (
-                          <RowRender
-                            count={lpCount}
-                            setLpValueV1Done={setLpValueV1Done}
-                            setYourLpValueV1={setYourLpValueV1}
                             shares={
                               batchShares?.[
                                 pools.findIndex(
-                                  (p2: PoolRPCView) => p2.id === p.id
+                                  (p2: PoolRPCView) => p2.id === vePool.id
                                 )
                               ] || ''
                             }
-                            p={p}
-                            ids={p.token_account_ids}
                           />
                         );
                       })}
-                  </div>
+                  {/* display stable pools */}
+                  {batchTotalShares &&
+                    batchTotalShares?.some((s: number) => s > 0) &&
+                    stablePools?.map((p: PoolRPCView, i: number) => {
+                      return (
+                        <RowRender
+                          p={p}
+                          ids={p.token_account_ids}
+                          shares={batchStableShares?.[i] || ''}
+                        />
+                      );
+                    })}
+                  {/* display simple pools */}
+                  {pools
+                    .filter(
+                      (p: PoolRPCView) =>
+                        !getConfig().REF_VE_CONTRACT_ID ||
+                        !vePool ||
+                        p.id !== vePool.id
+                    )
+                    .map((p: PoolRPCView, i: number) => {
+                      return (
+                        <RowRender
+                          shares={
+                            batchShares?.[
+                              pools.findIndex(
+                                (p2: PoolRPCView) => p2.id === p.id
+                              )
+                            ] || ''
+                          }
+                          p={p}
+                          ids={p.token_account_ids}
+                        />
+                      );
+                    })}
                 </div>
-              </section>
-            ) : (
-              <Empty />
-            )}
-          </Card>
-          {/* Mobile */}
+              </div>
+            </section>
+          ) : null}
+        </Card>
+        {/* Mobile */}
 
-          {(batchTotalSharesSimplePools?.some((s: number) => s > 0) ||
-            batchTotalShares?.some((s: number) => s > 0)) &&
-          isClientMobile ? (
-            <div className="lg:hidden">
-              {!vePool || !getConfig().REF_VE_CONTRACT_ID
-                ? null
-                : [vePool].map((p) => {
-                    return (
-                      <RowRenderMobile
-                        shares={
-                          batchShares?.[
-                            pools.findIndex(
-                              (p2: PoolRPCView) => p2.id === vePool.id
-                            )
-                          ] || ''
-                        }
-                        p={p}
-                        ids={p.token_account_ids}
-                      />
-                    );
-                  })}
-
-              {batchTotalShares &&
-                batchTotalShares?.some((s: number) => s > 0) &&
-                stablePools?.map((p: PoolRPCView, i: number) => {
-                  return (
-                    <RowRenderMobile
-                      shares={batchStableShares?.[i] || ''}
-                      p={p}
-                      ids={p.token_account_ids}
-                    />
-                  );
-                })}
-
-              {pools
-                .filter(
-                  (p: PoolRPCView) =>
-                    !getConfig().REF_VE_CONTRACT_ID ||
-                    !vePool ||
-                    p.id !== vePool.id
-                )
-                .map((p: PoolRPCView, i: number) => {
+        {(batchTotalSharesSimplePools?.some((s: number) => s > 0) ||
+          batchTotalShares?.some((s: number) => s > 0)) &&
+        isClientMobile ? (
+          <div className="lg:hidden">
+            {!vePool || !getConfig().REF_VE_CONTRACT_ID
+              ? null
+              : [vePool].map((p) => {
                   return (
                     <RowRenderMobile
                       shares={
                         batchShares?.[
-                          pools.findIndex((p2: PoolRPCView) => p2.id === p.id)
+                          pools.findIndex(
+                            (p2: PoolRPCView) => p2.id === vePool.id
+                          )
                         ] || ''
                       }
                       p={p}
@@ -613,22 +516,359 @@ function LiquidityContainerStyle1() {
                     />
                   );
                 })}
-            </div>
-          ) : (
-            <Card className="lg:hidden mt-4" width="w-full">
-              <Empty />
-            </Card>
-          )}
-        </div>
-        <YourLiquidityAddLiquidityModal
-          isOpen={generalAddLiquidity}
-          onRequestClose={() => {
-            setGeneralAddLiquidity(false);
-          }}
-          stablePools={stablePools}
-        />
+
+            {batchTotalShares &&
+              batchTotalShares?.some((s: number) => s > 0) &&
+              stablePools?.map((p: PoolRPCView, i: number) => {
+                return (
+                  <RowRenderMobile
+                    shares={batchStableShares?.[i] || ''}
+                    p={p}
+                    ids={p.token_account_ids}
+                  />
+                );
+              })}
+
+            {pools
+              .filter(
+                (p: PoolRPCView) =>
+                  !getConfig().REF_VE_CONTRACT_ID ||
+                  !vePool ||
+                  p.id !== vePool.id
+              )
+              .map((p: PoolRPCView, i: number) => {
+                return (
+                  <RowRenderMobile
+                    shares={
+                      batchShares?.[
+                        pools.findIndex((p2: PoolRPCView) => p2.id === p.id)
+                      ] || ''
+                    }
+                    p={p}
+                    ids={p.token_account_ids}
+                  />
+                );
+              })}
+          </div>
+        ) : null}
       </div>
-    </>
+      <YourLiquidityAddLiquidityModal
+        isOpen={generalAddLiquidity}
+        onRequestClose={() => {
+          setGeneralAddLiquidity(false);
+        }}
+        stablePools={stablePools}
+      />
+    </div>
+  );
+}
+
+function LiquidityContainerStyle2() {
+  const {
+    vePool,
+    pools,
+    stablePools,
+    batchTotalShares,
+    batchTotalSharesSimplePools,
+  } = useContext(StakeListContext);
+  const simplePoolsFinal = useMemo(() => {
+    const activeSimplePools: PoolRPCView[] = pools.filter(
+      (p: PoolRPCView, i: number) => {
+        return batchTotalSharesSimplePools[i] !== 0 && p.id !== vePool?.id;
+      }
+    );
+    return activeSimplePools;
+  }, [pools, batchTotalSharesSimplePools]);
+  const stablePoolsFinal: PoolRPCView[] = useMemo(() => {
+    const activeStablePools = stablePools.filter(
+      (p: PoolRPCView, i: number) => {
+        return batchTotalShares[i] !== 0;
+      }
+    );
+    return activeStablePools;
+  }, [batchTotalShares]);
+  return (
+    <div>
+      {vePool ? (
+        <YourClassicLiquidityLine pool={vePool}></YourClassicLiquidityLine>
+      ) : null}
+      {stablePoolsFinal.map((pool: PoolRPCView) => {
+        return (
+          <YourClassicLiquidityLine pool={pool}></YourClassicLiquidityLine>
+        );
+      })}
+      {simplePoolsFinal.map((pool: PoolRPCView) => {
+        return (
+          <YourClassicLiquidityLine pool={pool}></YourClassicLiquidityLine>
+        );
+      })}
+    </div>
+  );
+}
+
+function YourClassicLiquidityLine(props: any) {
+  const {
+    vePool,
+    v1Farm,
+    v2Farm,
+    tvls,
+    tokensMeta,
+    lptAmount,
+    pools,
+    stablePools,
+    batchTotalShares,
+    batchStableShares,
+    batchTotalSharesSimplePools,
+    batchShares,
+    finalStakeList,
+  } = useContext(StakeListContext);
+  const { pool } = props;
+  const { token_account_ids, id: poolId } = pool;
+  const tokens = token_account_ids.map((id: number) => tokensMeta[id]) || [];
+  const decimals = isStablePool(poolId)
+    ? getStablePoolDecimal(poolId)
+    : LP_TOKEN_DECIMALS;
+  // todo token 需要排序
+  const Images = tokens.map((token: TokenMetadata) => {
+    const { icon, id } = token;
+    if (icon)
+      return (
+        <img
+          key={id}
+          className={
+            'inline-block h-7 w-7 rounded-full border border-gradientFromHover -ml-1 '
+          }
+          src={icon}
+        />
+      );
+    return (
+      <div
+        key={id}
+        className={
+          'inline-block h-7 w-7 rounded-full bg-cardBg border border-gradientFromHover -ml-1'
+        }
+      ></div>
+    );
+  });
+  const Symbols = tokens.map((token: TokenMetadata, index: number) => {
+    const { symbol } = token;
+    if (index == tokens.length - 1) {
+      return <>{symbol}</>;
+    } else {
+      return <>{symbol}/</>;
+    }
+  });
+  // get lp amount in farm
+  const lp_in_farm = useMemo(() => {
+    let inFarmAmount = '0';
+    Object.keys(finalStakeList).find((seed_id: string) => {
+      const pool_id = seed_id.split('@')[1];
+      if (+poolId == +pool_id) {
+        const amount = finalStakeList[seed_id];
+        inFarmAmount = new BigNumber(amount).shiftedBy(-decimals).toFixed();
+        return true;
+      }
+    });
+    return inFarmAmount;
+  }, [finalStakeList]);
+  // get lp amount in vote
+  const lp_in_vote = useMemo(() => {
+    let lpInVote = '0';
+    if (+pool.id == vePool?.id) {
+      lpInVote = lptAmount;
+    }
+    return new BigNumber(lpInVote).shiftedBy(-24).toFixed();
+  }, [lptAmount]);
+  // get lp amount in pool && total lp (pool + farm) && user lp percent
+  const [lp_in_pool, lp_total, user_lp_percent] = useMemo(() => {
+    const { id, shares_total_supply } = pool;
+    const is_stable_pool = isStablePool(id);
+    let amount_in_pool = '0';
+    let total_amount = '0';
+    if (is_stable_pool) {
+      const i = stablePools.findIndex((p: PoolRPCView) => p.id === pool.id);
+      amount_in_pool = batchStableShares?.[i];
+      total_amount = batchTotalShares?.[i];
+    } else {
+      const i = pools.findIndex((p: PoolRPCView) => p.id === pool.id);
+      amount_in_pool = batchShares?.[i];
+      total_amount = batchTotalSharesSimplePools?.[i];
+    }
+    const read_amount_in_pool = new BigNumber(amount_in_pool)
+      .shiftedBy(-decimals)
+      .toFixed();
+    const read_total_amount = new BigNumber(total_amount)
+      .shiftedBy(-decimals)
+      .plus(lp_in_vote);
+    const read_shareSupply = new BigNumber(
+      shares_total_supply || '0'
+    ).shiftedBy(-decimals);
+    let percent = '0';
+    if (
+      read_shareSupply.isGreaterThan(0) &&
+      read_total_amount.isGreaterThan(0)
+    ) {
+      percent = read_total_amount.dividedBy(read_shareSupply).toFixed();
+    }
+    return [read_amount_in_pool, read_total_amount.toFixed(), percent];
+  }, [
+    batchShares,
+    batchStableShares,
+    batchTotalSharesSimplePools,
+    batchTotalShares,
+    lp_in_vote,
+  ]);
+  // get total lp value
+  const lp_total_value = useMemo(() => {
+    const { id, tvl, shares_total_supply } = pool;
+    const pool_tvl = tvls?.[id] || tvl || 0;
+    if (+shares_total_supply > 0) {
+      const read_total_supply = new BigNumber(shares_total_supply).shiftedBy(
+        -decimals
+      );
+      const single_lp_value = new BigNumber(pool_tvl).dividedBy(
+        read_total_supply
+      );
+      return new BigNumber(single_lp_value || 0)
+        .multipliedBy(lp_total || 0)
+        .toFixed();
+    }
+    return '0';
+  }, [lp_total, tvls]);
+  // get seed status
+  const seed_status = useMemo(() => {
+    const allFarmV2_count = getFarmsCount(poolId.toString(), v2Farm);
+    const endedFarmV2_count = getEndedFarmsCount(poolId.toString(), v2Farm);
+    if (allFarmV2_count == endedFarmV2_count) return 'e';
+    return 'r';
+  }, [v2Farm]);
+  function display_number(amount: string) {
+    const amount_big = new BigNumber(amount);
+    if (amount_big.isEqualTo('0')) {
+      return '0';
+    } else if (amount_big.isLessThan('0.01')) {
+      return '<0.01';
+    } else {
+      return formatWithCommas(toPrecision(amount, 2));
+    }
+  }
+  function display_value(amount: string) {
+    const amount_big = new BigNumber(amount);
+    if (amount_big.isEqualTo('0')) {
+      return '$0';
+    } else if (amount_big.isLessThan('0.01')) {
+      return '<$0.01';
+    } else {
+      return `$${toInternationalCurrencySystem(amount, 2)}`;
+    }
+  }
+  function display_percent(percent: string) {
+    const p = new BigNumber(percent).multipliedBy(100);
+    if (p.isEqualTo(0)) {
+      return '0%';
+    } else if (p.isLessThan(0.01)) {
+      return '<0.01%';
+    } else {
+      return toPrecision(p.toFixed(), 2) + '%';
+    }
+  }
+  return (
+    <div className="rounded-xl mt-3 bg-portfolioBgColor px-5 pb-4">
+      <div className="flex items-center justify-between h-14">
+        <div className="flex items-center">
+          <div className="flex items-center">{Images}</div>
+          <span className="text-sm text-white gotham_bold mx-2.5">
+            {Symbols}
+          </span>
+          <span className="text-sm text-v3SwapGray px-1.5 rounded-md bg-selectTokenV3BgColor mr-1.5">
+            Classic
+          </span>
+          <span
+            className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
+            onClick={() => {
+              window.open(`/pool/${pool.id}`);
+            }}
+          >
+            <LinkIcon></LinkIcon>
+          </span>
+        </div>
+        <div className="flex items-center">
+          <span className="text-sm text-white gotham_bold mr-5">
+            {display_value(lp_total_value)}
+          </span>
+          <div className="flex items-center justify-center border border-primaryText border-opacity-10 rounded-md w-6 h-6 cursor-pointer">
+            <TriangleIcon></TriangleIcon>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p className="text-sm text-v3SwapGray ml-2">Your Position</p>
+        <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-sm text-v3SwapGray">
+              Your Liquidity (USD value)
+            </span>
+            <span className="text-sm text-white">
+              {display_value(lp_total_value)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-sm text-v3SwapGray">
+              Your LP Tokens(Shares)
+            </span>
+            <span className="text-sm text-white">
+              {display_number(lp_total)} ({display_percent(user_lp_percent)})
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-v3SwapGray">Usage</span>
+            <div className="flex items-center text-sm text-white">
+              <div
+                className={`flex items-center pl-3.5 ${
+                  +lp_in_vote > 0 || +lp_in_pool > 0
+                    ? 'border-r border-orderTypeBg pr-3.5'
+                    : ''
+                } ${+lp_in_farm > 0 ? '' : 'hidden'}`}
+              >
+                {display_number(lp_in_farm)} in{' '}
+                <span
+                  className="flex items-center"
+                  onClick={() => {
+                    window.open(`/v2farms/${pool.id}-${seed_status}`);
+                  }}
+                >
+                  <label className="underline cursor-pointer mx-1">Farm</label>{' '}
+                  <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
+                </span>
+              </div>
+              <div
+                className={`flex items-center pl-3.5 ${
+                  +lp_in_pool > 0 ? 'pr-3.5 border-r border-orderTypeBg' : ''
+                } ${+lp_in_vote > 0 ? '' : 'hidden'}`}
+              >
+                {display_number(lp_in_vote)} locked in{' '}
+                <span
+                  className="flex items-center"
+                  onClick={() => {
+                    window.open('/referendum');
+                  }}
+                >
+                  <label className="underline cursor-pointer mx-1">DAO</label>{' '}
+                  <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
+                </span>
+              </div>
+              <div
+                className={`flex items-center pl-3.5 ${
+                  +lp_in_pool > 0 ? '' : 'hidden'
+                }`}
+              >
+                {display_number(lp_in_pool)} Holding
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 function MyShares({
@@ -687,19 +927,6 @@ function MyShares({
   );
 }
 
-function Empty() {
-  return (
-    <div className="px-6">
-      <div className="text-center font-semibold text-xs my-10 text-primaryText">
-        <FormattedMessage
-          id="your_positions_will_be_displayed_here"
-          defaultMessage="Your position(s) will be displayed here."
-        />
-      </div>
-    </div>
-  );
-}
-
 function PoolRow(props: {
   pool: PoolRPCView;
   tokens: TokenMetadata[];
@@ -711,19 +938,8 @@ function PoolRow(props: {
   endedFarmV2?: number;
   shares: string;
   tvl: number;
-  setLpValueV1Done: (done: boolean) => void;
-  setYourLpValueV1: (value: string) => void;
-  count: number;
 }) {
-  const {
-    pool: poolRPC,
-    endedFarmV1,
-    endedFarmV2,
-    shares,
-    setLpValueV1Done,
-    setYourLpValueV1,
-    count,
-  } = props;
+  const { pool: poolRPC, endedFarmV1, endedFarmV2, shares } = props;
   const pool = parsePool(poolRPC);
 
   const needForbidden = Number(pool.id) === Number(NEARX_POOL_ID);
@@ -787,46 +1003,6 @@ function PoolRow(props: {
       return '-';
     }
   }, [poolTVL, userTotalShareToString, pool, finalStakeList]);
-
-  useEffect(() => {
-    if (usdValue === '-') return;
-    const rawRes = multiply(
-      new BigNumber(userTotalShareToString)
-        .plus(
-          Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0'
-        )
-        .toNumber()
-        .toFixed(),
-      divide(poolTVL.toString(), pool?.shareSupply)
-    );
-
-    const storagedValueString = sessionStorage.getItem(REF_FI_YOUR_LP_VALUE);
-
-    const storagedValue = storagedValueString
-      ? JSON.parse(storagedValueString)
-      : {};
-
-    storagedValue[pool.id] = rawRes;
-
-    sessionStorage.setItem(REF_FI_YOUR_LP_VALUE, JSON.stringify(storagedValue));
-
-    if (Object.keys(storagedValue).length === count) {
-      const values = Object.values(storagedValue) as string[];
-
-      setYourLpValueV1(
-        values
-          .reduce(
-            (acc, cur, i) => {
-              return new Big(acc).plus(new Big(isNaN(Number(cur)) ? '0' : cur));
-            },
-
-            new Big(0)
-          )
-          .toFixed(3)
-      );
-      setLpValueV1Done(true);
-    }
-  }, [usdValue]);
   if (
     userTotalShare
       .plus(Number(getVEPoolId()) === Number(pool.id) ? lptAmount || '0' : '0')

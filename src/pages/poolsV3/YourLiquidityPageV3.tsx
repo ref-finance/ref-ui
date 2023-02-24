@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
-  list_liquidities,
   list_liquidities_old_version,
   get_pool,
   get_pool_old_version,
@@ -13,9 +12,7 @@ import {
 } from '../../services/swapV3';
 import {
   ColorsBox,
-  ColorsBoxCenter,
   AddButtonIcon,
-  TipIon,
   WarningTip,
   MobileWarningTip,
 } from '~components/icon/V3';
@@ -23,7 +20,6 @@ import {
   GradientButton,
   BorderButton,
   ButtonTextWrapper,
-  ConnectToNearBtn,
 } from '~components/button/Button';
 import {
   toPrecision,
@@ -40,7 +36,6 @@ import {
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   TOKEN_LIST_FOR_RATE,
-  displayNumberToAppropriateDecimals,
   get_intersection_radio,
   get_intersection_icon_by_radio,
   get_all_seeds,
@@ -51,20 +46,13 @@ import {
   getEffectiveFarmList,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
-import {
-  FarmBoost,
-  getBoostTokenPrices,
-  Seed,
-  get_seed,
-} from '../../services/farm';
+import { FarmBoost, getBoostTokenPrices, Seed } from '../../services/farm';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import { PoolTabV3 } from '~components/pool/PoolTabV3';
 import {
   YourLiquidityAddLiquidityModal,
   YourLiquidityV1,
-  REF_FI_YOUR_LP_VALUE,
-  REF_FI_YOUR_LP_VALUE_V1_COUNT,
 } from '../../components/pool/YourLiquidityV1';
 import {
   WalletContext,
@@ -79,10 +67,7 @@ import {
 import { PoolRPCView } from '../../services/api';
 import { ALL_STABLE_POOL_IDS, REF_FI_CONTRACT_ID } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
-import {
-  ClipLoadering,
-  BlueCircleLoading,
-} from '../../components/layout/Loading';
+import { BlueCircleLoading } from '../../components/layout/Loading';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import Big from 'big.js';
@@ -91,26 +76,15 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { checkTransactionStatus } from '../../services/swap';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
-import {
-  list_farmer_seeds,
-  list_seed_farms,
-  UserSeedInfo,
-} from '../../services/farm';
-import getConfig from '../../services/config';
-import { allocation_rule_liquidities } from '~services/commonV3';
-import { LinkArrowIcon, NFTIdIcon } from '~components/icon/FarmBoost';
-import { isMobile } from '~utils/device';
-
-const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
+import { NFTIdIcon } from '~components/icon/FarmBoost';
+import { YourLiquidityV2 } from '~components/pool/YourLiquidityV2';
 
 export default function YourLiquidityPageV3() {
   const clearState = () => {
     sessionStorage.removeItem(REF_FI_LP_VALUE_COUNT);
     sessionStorage.removeItem(REF_FI_LP_V2_VALUE);
-
-    sessionStorage.removeItem(REF_FI_YOUR_LP_VALUE);
-
-    sessionStorage.removeItem(REF_FI_YOUR_LP_VALUE_V1_COUNT);
+    sessionStorage.removeItem('REF_FI_LP_V2_OLD_VALUE');
+    sessionStorage.removeItem('REF_FI_LP_VALUE_OLD_COUNT');
   };
 
   window.onbeforeunload = clearState;
@@ -124,9 +98,6 @@ export default function YourLiquidityPageV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
-  const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
-    []
-  );
   const [listLiquidities_old_version, setListLiquidities_old_version] =
     useState<UserLiquidityInfo[]>([]);
   const liquidityStatusList = ['all', 'V2', 'V1'];
@@ -140,45 +111,26 @@ export default function YourLiquidityPageV3() {
       url: '/pools',
     },
   ]);
-
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
-  const [listLiquiditiesLoading, setListLiquiditiesLoading] = useState(true);
-  const [
-    listLiquiditiesLoading_old_version,
-    setListLiquiditiesLoading_old_version,
-  ] = useState(true);
+  const [v2LiquidityLoadingDone, setV2LiquidityLoadingDone] = useState(false);
+  const [v1LiquidityLoadingDone, setV1LiquidityLoadingDone] = useState(false);
+  const [v2LiquidityQuantity, setV2LiquidityQuantity] = useState('0');
+  const [v1LiquidityQuantity, setV1LiquidityQuantity] = useState('0');
 
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
-
   const [YourLpValueV1, setYourLpValueV1] = useState('0');
-
   const [lpValueV1Done, setLpValueV1Done] = useState(false);
-
   const [lpValueV2Done, setLpValueV2Done] = useState(false);
-
-  useEffect(() => {
-    if (!listLiquiditiesLoading) {
-      if (listLiquidities.length === 0) {
-        setLpValueV2Done(true);
-        setYourLpValueV2('0');
-      }
-    }
-  }, [listLiquiditiesLoading, listLiquidities]);
-
+  const [lpValueV2DoneOld, setLpValueV2DoneOld] = useState(false);
+  const [YourLpValueV2Old, setYourLpValueV2Old] = useState('0');
   const [generalAddLiquidity, setGeneralAddLiquidity] =
     useState<boolean>(false);
   const [checkedStatus, setCheckedStatus] = useState('all');
-  const [oldLiquidityHasNoData, setOldLiquidityHasNoData] = useState(false);
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
   const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
-  const [user_seeds_map, set_user_seeds_map] = useState<
-    Record<string, UserSeedInfo>
-  >({});
-  const [all_dcl_length, set_all_dcl_length] = useState(0);
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
-
   const pool_link = sessionStorage.getItem(REF_POOL_NAV_TAB_KEY);
 
   if (pool_link === '/pools') {
@@ -203,50 +155,9 @@ export default function YourLiquidityPageV3() {
   }, []);
   useEffect(() => {
     if (isSignedIn) {
-      get_all_dcl_liquidities();
+      get_list_liquidities_old_version();
     }
   }, [isSignedIn]);
-  async function get_all_dcl_liquidities() {
-    const size_1 = await get_list_liquidities();
-    const size_2 = await get_list_liquidities_old_version();
-    set_all_dcl_length(size_1 + size_2);
-  }
-  async function get_list_liquidities() {
-    const list: UserLiquidityInfo[] = await list_liquidities();
-    if (list.length > 0) {
-      // get user seeds
-      const user_seeds_map = await list_farmer_seeds();
-      const user_seed_ids = Object.keys(user_seeds_map);
-      if (user_seed_ids.length > 0) {
-        const seedsPromise = user_seed_ids.map((seed_id: string) => {
-          return get_seed(seed_id);
-        });
-        const user_seeds = await Promise.all(seedsPromise);
-        user_seeds.forEach((seed: Seed) => {
-          const { seed_id } = seed;
-          const [contractId, mft_id] = seed_id.split('@');
-          if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
-            const { free_amount, locked_amount } =
-              user_seeds_map[seed_id] || {};
-            const user_seed_amount = new BigNumber(free_amount)
-              .plus(locked_amount)
-              .toFixed();
-            allocation_rule_liquidities({ list, user_seed_amount, seed });
-          }
-        });
-      }
-      // sort
-      list.sort((item1: UserLiquidityInfo, item2: UserLiquidityInfo) => {
-        const item1_hashId = +item1.lpt_id.split('#')[1];
-        const item2_hashId = +item2.lpt_id.split('#')[1];
-        return item1_hashId - item2_hashId;
-      });
-      set_user_seeds_map(user_seeds_map);
-      setListLiquidities(list);
-    }
-    setListLiquiditiesLoading(false);
-    return list.length;
-  }
   async function get_list_liquidities_old_version() {
     const list: UserLiquidityInfo[] = await list_liquidities_old_version();
     if (list.length > 0) {
@@ -256,8 +167,10 @@ export default function YourLiquidityPageV3() {
         return item1_hashId - item2_hashId;
       });
       setListLiquidities_old_version(list);
+    } else {
+      setLpValueV2DoneOld(true);
+      setYourLpValueV2Old('0');
     }
-    setListLiquiditiesLoading_old_version(false);
     return list.length;
   }
   function goAddLiquidityPage(url: string) {
@@ -322,29 +235,39 @@ export default function YourLiquidityPageV3() {
       });
     }
   }, [txHash]);
+  const showV2EmptyBar =
+    v2LiquidityLoadingDone &&
+    +v2LiquidityQuantity == 0 &&
+    v1LiquidityLoadingDone &&
+    +v1LiquidityQuantity > 0;
+  const showV1EmptyBar =
+    v1LiquidityLoadingDone &&
+    +v1LiquidityQuantity == 0 &&
+    v2LiquidityLoadingDone &&
+    +v2LiquidityQuantity > 0;
+  const showCommonEmptyBar =
+    v2LiquidityLoadingDone &&
+    +v2LiquidityQuantity == 0 &&
+    v1LiquidityLoadingDone &&
+    +v1LiquidityQuantity == 0;
   return (
     <>
       <PoolTabV3
         yourLPpage
         lpValueV1Done={lpValueV1Done}
-        lpValueV2Done={lpValueV2Done}
         YourLpValueV1={YourLpValueV1}
         YourLpValueV2={YourLpValueV2}
+        lpValueV2Done={lpValueV2Done}
       ></PoolTabV3>
       {listLiquidities_old_version.length > 0 ? (
         <UserLegacyLiqudities
           listLiquidities_old_version={listLiquidities_old_version}
-          setLpValueV2Done={setLpValueV2Done}
-          setYourLpValueV2={setYourLpValueV2}
-          listLiquiditiesLoading_old_version={
-            listLiquiditiesLoading_old_version
-          }
-          all_dcl_length={all_dcl_length}
+          setLpValueV2Done={setLpValueV2DoneOld}
+          setYourLpValueV2={setYourLpValueV2Old}
         ></UserLegacyLiqudities>
       ) : null}
-
       <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto">
-        <div className="flex items-start justify-between lg:mt-4 xs:mb-5 md:mb-5">
+        <div className="flex items-start justify-between lg:mt-4">
           <div className="flex items-center">
             <div className="flex items-center text-sm text-primaryText border border-selectBorder p-0.5 rounded-lg bg-v3LiquidityTabBgColor">
               {liquidityStatusList.map((item: string, index: number) => {
@@ -374,9 +297,7 @@ export default function YourLiquidityPageV3() {
             </div>
           </div>
           <div
-            className={`relative  ${
-              isSignedIn ? '' : 'hidden'
-            } pb-10 xs:pb-0 md:pb-0`}
+            className={`relative  ${isSignedIn ? '' : 'hidden'}`}
             onMouseOver={() => {
               setAddLiqudityHover(true);
             }}
@@ -430,81 +351,92 @@ export default function YourLiquidityPageV3() {
             </span>
           </div>
         </div>
-        {!isSignedIn ? (
-          <NoLiquidity className="mt-4"></NoLiquidity>
+        {!isSignedIn || showCommonEmptyBar ? (
+          <NoLiquidity className="mt-10"></NoLiquidity>
         ) : (
           <>
-            {listLiquiditiesLoading ? (
-              <div className={`${checkedStatus == 'V1' ? 'hidden' : ''}`}>
-                <div className="text-white text-base gotham_bold mb-3">
-                  V2 (0)
+            {/* your v2 liquidity */}
+            <div className={`${checkedStatus == 'V1' ? 'hidden' : ''}`}>
+              {!v2LiquidityLoadingDone ? (
+                <div className="mt-10">
+                  <div className="text-white text-base gotham_bold mb-3">
+                    V2 (0)
+                  </div>
+                  <div className="flex justify-center items-center">
+                    <BlueCircleLoading></BlueCircleLoading>
+                  </div>
                 </div>
-                <div className="flex justify-center items-center">
-                  <BlueCircleLoading></BlueCircleLoading>
-                </div>
-              </div>
-            ) : (
-              <>
-                {listLiquidities.length > 0 ? (
-                  <div
-                    className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
-                  >
-                    <div className="mb-3">
-                      <div className="flex items-center text-white text-base">
-                        <span className="gotham_bold">
-                          V2 ({listLiquidities.length})
-                        </span>
-                        <div
-                          className="text-white text-right ml-1"
-                          data-class="reactTip"
-                          data-for={'v2PoolNumberTip'}
-                          data-place="top"
-                          data-html={true}
-                          data-tip={getTipForV2Pool()}
-                        >
-                          <QuestionMark></QuestionMark>
-                          <ReactTooltip
-                            id={'v2PoolNumberTip'}
-                            backgroundColor="#1D2932"
-                            border
-                            borderColor="#7e8a93"
-                            effect="solid"
-                          />
-                        </div>
-                      </div>
-                      <p className="text-sm text-farmText">
-                        <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
-                      </p>
-                    </div>
-                    <div>
-                      {listLiquidities.map(
-                        (liquidity: UserLiquidityInfo, index: number) => {
-                          return (
-                            <div key={index}>
-                              <UserLiquidityLine
-                                lpSize={all_dcl_length}
-                                setLpValueV2Done={setLpValueV2Done}
-                                setYourLpValueV2={setYourLpValueV2}
-                                liquidity={liquidity}
-                                all_seeds={all_seeds}
-                              ></UserLiquidityLine>
-                            </div>
-                          );
-                        }
-                      )}
+              ) : null}
+              {+v2LiquidityQuantity > 0 || showV2EmptyBar ? (
+                <div className="mt-10 mb-3">
+                  <div className="flex items-center text-white text-base">
+                    <span className="gotham_bold">
+                      V2 ({+v2LiquidityQuantity})
+                    </span>
+                    <div
+                      className="text-white text-right ml-1"
+                      data-class="reactTip"
+                      data-for={'v2PoolNumberTip'}
+                      data-place="top"
+                      data-html={true}
+                      data-tip={getTipForV2Pool()}
+                    >
+                      <QuestionMark></QuestionMark>
+                      <ReactTooltip
+                        id={'v2PoolNumberTip'}
+                        backgroundColor="#1D2932"
+                        border
+                        borderColor="#7e8a93"
+                        effect="solid"
+                      />
                     </div>
                   </div>
-                ) : null}
-              </>
-            )}
-            <YourLiquidityV1
-              setLpValueV1Done={setLpValueV1Done}
-              setYourLpValueV1={setYourLpValueV1}
-              checkedStatus={checkedStatus}
-              listLiquidities={listLiquidities}
-              listLiquiditiesLoading={listLiquiditiesLoading}
-              pageType="1"
-            ></YourLiquidityV1>
+                  <p className="text-sm text-farmText">
+                    <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
+                  </p>
+                </div>
+              ) : null}
+              {showV2EmptyBar ? <NoLiquidity text="V2"></NoLiquidity> : null}
+              <YourLiquidityV2
+                setYourLpValueV2={setYourLpValueV2}
+                setLpValueV2Done={setLpValueV2Done}
+                setLiquidityLoadingDone={setV2LiquidityLoadingDone}
+                setLiquidityQuantity={setV2LiquidityQuantity}
+                styleType="1"
+              ></YourLiquidityV2>
+            </div>
+            {/* your v1 liquidity */}
+            <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
+              {!v1LiquidityLoadingDone ? (
+                <div className="mt-10">
+                  <div className="text-white text-base gotham_bold mb-3">
+                    V1 (0)
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <BlueCircleLoading />
+                  </div>
+                </div>
+              ) : null}
+              {+v1LiquidityQuantity > 0 || showV1EmptyBar ? (
+                <div className="mt-10 mb-3 xsm:-mb-1">
+                  <span className="text-white text-base gotham_bold">
+                    V1 ({v1LiquidityQuantity})
+                  </span>
+                  <p className="text-sm text-farmText">
+                    <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
+                  </p>
+                </div>
+              ) : null}
+              {showV1EmptyBar ? <NoLiquidity text="V1"></NoLiquidity> : null}
+              <YourLiquidityV1
+                setLpValueV1Done={setLpValueV1Done}
+                setYourLpValueV1={setYourLpValueV1}
+                setLiquidityLoadingDone={setV1LiquidityLoadingDone}
+                setLiquidityQuantity={setV1LiquidityQuantity}
+                styleType="1"
+                showV1EmptyBar={showV1EmptyBar}
+              ></YourLiquidityV1>
+            </div>
           </>
         )}
       </div>
@@ -523,943 +455,6 @@ export const REF_FI_LP_VALUE_COUNT = 'REF_FI_LP_VALUE_COUNT';
 
 export const REF_FI_LP_V2_VALUE = 'REF_FI_LP_V2_VALUE';
 
-function UserLiquidityLine({
-  liquidity,
-  setLpValueV2Done,
-  lpSize,
-  setYourLpValueV2,
-  all_seeds,
-}: {
-  liquidity: UserLiquidityInfo;
-  lpSize: number;
-  setLpValueV2Done: (value: boolean) => void;
-  setYourLpValueV2: (value: string) => void;
-  all_seeds: Seed[];
-}) {
-  const [poolDetail, setPoolDetail] = useState<PoolInfo>();
-  const [liquidityDetail, setLiquidityDetail] = useState<UserLiquidityInfo>();
-  const [hover, setHover] = useState<boolean>(false);
-  const [isInrange, setIsInrange] = useState<boolean>(true);
-  const [your_liquidity, setYour_liquidity] = useState('');
-  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
-  const [claimLoading, setClaimLoading] = useState<boolean>(false);
-  const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
-  const [showAddBox, setShowAddBox] = useState<boolean>(false);
-  const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
-  const [is_in_farming, set_is_in_farming] = useState<boolean>(false);
-  const [related_seed_info, set_related_seed_info] = useState<
-    Record<string, any>
-  >({});
-
-  const {
-    lpt_id,
-    owner_id,
-    pool_id,
-    left_point,
-    right_point,
-    amount: L,
-    unclaimed_fee_x,
-    unclaimed_fee_y,
-  } = liquidity;
-  const [token_x, token_y, fee] = pool_id.split('|');
-  const tokenMetadata_x_y = useTokens([token_x, token_y]);
-  const rate_need_to_reverse_display = useMemo(() => {
-    if (tokenMetadata_x_y) {
-      const [tokenX] = tokenMetadata_x_y;
-      if (TOKEN_LIST_FOR_RATE.indexOf(tokenX.symbol) > -1) return true;
-      return false;
-    }
-  }, [tokenMetadata_x_y?.length]);
-
-  const history = useHistory();
-  useEffect(() => {
-    get_pool_detail();
-    getBoostTokenPrices().then(setTokenPriceList);
-    getLiquidityDetail();
-    get_pool_related_farms();
-  }, []);
-  useEffect(() => {
-    if (tokenMetadata_x_y && poolDetail && tokenPriceList) {
-      const { current_point } = poolDetail;
-      get_your_liquidity(current_point);
-    }
-  }, [poolDetail, tokenMetadata_x_y, tokenPriceList]);
-  useEffect(() => {}, []);
-  useEffect(() => {
-    const info = get_detail_the_liquidity_refer_to_seed({
-      liquidity,
-      all_seeds,
-      is_in_farming,
-      related_farms,
-      tokenPriceList,
-    });
-    set_related_seed_info(info);
-  }, [liquidity, all_seeds, is_in_farming, tokenPriceList, related_farms]);
-  async function get_pool_related_farms() {
-    const is_in_farming =
-      liquidity.part_farm_ratio && +liquidity.part_farm_ratio > 0;
-    if (is_in_farming) {
-      const id = liquidity.mft_id.slice(1);
-      const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + id;
-      const farmList = await list_seed_farms(seed_id);
-      set_related_farms(farmList);
-    }
-    set_is_in_farming(is_in_farming);
-  }
-  async function get_pool_detail() {
-    const detail = await get_pool(pool_id, token_x);
-    if (detail) {
-      const { current_point } = detail;
-      if (current_point >= left_point && right_point > current_point) {
-        setIsInrange(true);
-      } else {
-        setIsInrange(false);
-      }
-      setPoolDetail(detail);
-    }
-  }
-  async function getLiquidityDetail() {
-    const l = await get_liquidity(lpt_id);
-    if (l) {
-      setLiquidityDetail(l);
-    }
-  }
-  function getRate(direction: string) {
-    let value = '';
-    if (tokenMetadata_x_y) {
-      const [tokenX, tokenY] = tokenMetadata_x_y;
-      const decimalRate =
-        Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
-      if (direction == 'left') {
-        value = getPriceByPoint(left_point, decimalRate);
-      } else if (direction == 'right') {
-        value = getPriceByPoint(right_point, decimalRate);
-      }
-      if (rate_need_to_reverse_display && +value !== 0) {
-        value = new BigNumber(1).dividedBy(value).toFixed();
-      }
-    }
-    return displayNumberToAppropriateDecimals(value);
-  }
-  function getLpt_id() {
-    return lpt_id.split('#')[1];
-  }
-  function get_your_liquidity(current_point: number) {
-    const [tokenX, tokenY] = tokenMetadata_x_y;
-    const priceX = tokenPriceList[tokenX.id]?.price || 0;
-    const priceY = tokenPriceList[tokenY.id]?.price || 0;
-    //  in range
-    if (current_point >= left_point && right_point > current_point) {
-      let tokenYAmount = getY(left_point, current_point, L, tokenY) || 0;
-      let tokenXAmount = getX(current_point + 1, right_point, L, tokenX) || 0;
-      const { amountx, amounty } = get_X_Y_In_CurrentPoint(tokenX, tokenY, L);
-      tokenXAmount = new BigNumber(tokenXAmount).plus(amountx).toFixed();
-      tokenYAmount = new BigNumber(tokenYAmount).plus(amounty).toFixed();
-      const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
-      const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
-      const total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
-
-      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
-
-      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
-
-      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
-
-      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
-
-      sessionStorage.setItem(
-        REF_FI_LP_V2_VALUE,
-        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
-          .plus(new Big(storagedValue || '0'))
-          .toFixed(2)
-      );
-
-      const newLPValue = new Big(
-        !!total_price ? toPrecision(total_price, 3) : '0'
-      )
-        .plus(new Big(storagedValue || '0'))
-        .toFixed(2);
-
-      if (Number(newSize) == lpSize) {
-        setLpValueV2Done(true);
-        setYourLpValueV2(newLPValue);
-      }
-    }
-    // only y token
-    if (current_point >= right_point) {
-      const tokenYAmount = getY(left_point, right_point, L, tokenY);
-      const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
-      const total_price = tokenYTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
-      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
-
-      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
-
-      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
-
-      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
-
-      sessionStorage.setItem(
-        REF_FI_LP_V2_VALUE,
-        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
-          .plus(new Big(storagedValue || '0'))
-          .toFixed(2)
-      );
-
-      const newLPValue = new Big(
-        !!total_price ? toPrecision(total_price, 3) : '0'
-      )
-        .plus(new Big(storagedValue || '0'))
-        .toFixed(2);
-
-      if (Number(newSize) == lpSize) {
-        setLpValueV2Done(true);
-        setYourLpValueV2(newLPValue);
-      }
-    }
-    // only x token
-    if (left_point > current_point) {
-      const tokenXAmount = getX(left_point, right_point, L, tokenX);
-      const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
-      const total_price = tokenXTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
-      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
-
-      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
-
-      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
-
-      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
-
-      sessionStorage.setItem(
-        REF_FI_LP_V2_VALUE,
-        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
-          .plus(new Big(storagedValue || '0'))
-          .toFixed(2)
-      );
-      const newLPValue = new Big(
-        !!total_price ? toPrecision(total_price, 3) : '0'
-      )
-        .plus(new Big(storagedValue || '0'))
-        .toFixed(2);
-
-      if (Number(newSize) == lpSize) {
-        setLpValueV2Done(true);
-        setYourLpValueV2(newLPValue);
-      }
-    }
-  }
-  function getY(
-    leftPoint: number,
-    rightPoint: number,
-    L: string,
-    token: TokenMetadata
-  ) {
-    const y = new BigNumber(L).multipliedBy(
-      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
-        Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
-        (Math.sqrt(CONSTANT_D) - 1)
-    );
-    const y_result = y.toFixed();
-    return toReadableNumber(token.decimals, toPrecision(y_result, 0));
-  }
-  function getX(
-    leftPoint: number,
-    rightPoint: number,
-    L: string,
-    token: TokenMetadata
-  ) {
-    const x = new BigNumber(L)
-      .multipliedBy(
-        (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - leftPoint) - 1) /
-          (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
-            Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1))
-      )
-      .toFixed();
-    return toReadableNumber(token.decimals, toPrecision(x, 0));
-  }
-  function get_X_Y_In_CurrentPoint(
-    tokenX: TokenMetadata,
-    tokenY: TokenMetadata,
-    L: string
-  ) {
-    const { liquidity, liquidity_x, current_point } = poolDetail;
-    const liquidity_y_big = new BigNumber(liquidity).minus(liquidity_x);
-    let Ly = '0';
-    let Lx = '0';
-    // only remove y
-    if (liquidity_y_big.isGreaterThanOrEqualTo(L)) {
-      Ly = L;
-    } else {
-      // have x and y
-      Ly = liquidity_y_big.toFixed();
-      Lx = new BigNumber(L).minus(Ly).toFixed();
-    }
-    const amountX = getXAmount_per_point_by_Lx(Lx, current_point);
-    const amountY = getYAmount_per_point_by_Ly(Ly, current_point);
-    const amountX_read = toReadableNumber(
-      tokenX.decimals,
-      toPrecision(amountX, 0)
-    );
-    const amountY_read = toReadableNumber(
-      tokenY.decimals,
-      toPrecision(amountY, 0)
-    );
-    return { amountx: amountX_read, amounty: amountY_read };
-  }
-  function claimRewards(e: any) {
-    e.stopPropagation();
-    if (!canClaim()) return;
-    setClaimLoading(true);
-    const [tokenX, tokenY] = tokenMetadata_x_y;
-    remove_liquidity({
-      token_x: tokenX,
-      token_y: tokenY,
-      lpt_id,
-      amount: '0',
-      mft_id: '',
-      min_amount_x: '0',
-      min_amount_y: '0',
-    });
-  }
-  function goYourLiquidityDetailPage() {
-    const id = lpt_id.replace(/\|/g, '@').replace('#', '@');
-    history.push(`/yoursLiquidityDetailV2/${id}`);
-  }
-  function getTokenFeeAmount(p: string) {
-    if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {
-      const [tokenX, tokenY] = tokenMetadata_x_y;
-      const { unclaimed_fee_x, unclaimed_fee_y } = liquidityDetail;
-      const fee_x_amount = toReadableNumber(
-        tokenX.decimals,
-        unclaimed_fee_x || '0'
-      );
-      const fee_y_amount = toReadableNumber(
-        tokenY.decimals,
-        unclaimed_fee_y || '0'
-      );
-      if (p == 'l') {
-        if (new BigNumber(fee_x_amount).isEqualTo('0')) {
-          return '0';
-        } else if (new BigNumber(fee_x_amount).isLessThan('0.001')) {
-          return '<0.001';
-        } else {
-          return toPrecision(fee_x_amount, 3);
-        }
-      } else if (p == 'r') {
-        if (new BigNumber(fee_y_amount).isEqualTo('0')) {
-          return '0';
-        } else if (new BigNumber(fee_y_amount).isLessThan('0.001')) {
-          return '<0.001';
-        } else {
-          return toPrecision(fee_y_amount, 3);
-        }
-      } else if (p == 'p') {
-        const tokenxSinglePrice = tokenPriceList[tokenX.id]?.price || '0';
-        const tokenySinglePrice = tokenPriceList[tokenY.id]?.price || '0';
-        const priceX = new BigNumber(fee_x_amount).multipliedBy(
-          tokenxSinglePrice
-        );
-        const priceY = new BigNumber(fee_y_amount).multipliedBy(
-          tokenySinglePrice
-        );
-        const totalPrice = priceX.plus(priceY);
-        if (totalPrice.isEqualTo('0')) {
-          return '$0';
-        } else if (totalPrice.isLessThan('0.001')) {
-          return '<$0.001';
-        } else {
-          return '$' + toPrecision(totalPrice.toFixed(), 3);
-        }
-      }
-    }
-  }
-  function canClaim() {
-    if (liquidityDetail) {
-      const { unclaimed_fee_x, unclaimed_fee_y } = liquidityDetail;
-      if (+unclaimed_fee_x > 0 || +unclaimed_fee_y > 0) return true;
-    }
-    return false;
-  }
-  function getRateMapTokens() {
-    if (tokenMetadata_x_y) {
-      const [tokenX, tokenY] = tokenMetadata_x_y;
-      if (rate_need_to_reverse_display) {
-        return `${tokenX.symbol}/${tokenY.symbol}`;
-      } else {
-        return `${tokenY.symbol}/${tokenX.symbol}`;
-      }
-    }
-  }
-  function mobile_ReferenceToken(direction: string) {
-    if (tokenMetadata_x_y) {
-      const [tokenX, tokenY] = tokenMetadata_x_y;
-      if (direction == 'left') {
-        if (rate_need_to_reverse_display) {
-          return tokenY.symbol;
-        } else {
-          return tokenX.symbol;
-        }
-      } else if (direction == 'right') {
-        if (rate_need_to_reverse_display) {
-          return tokenX.symbol;
-        } else {
-          return tokenY.symbol;
-        }
-      }
-    }
-  }
-  function go_farm() {
-    const [fixRange, pool_id, left_point, right_point] =
-      liquidity.mft_id.split('&');
-    const link_params = `${pool_id}&${left_point}&${right_point}`;
-    const actives = related_farms.filter((farm: FarmBoost) => {
-      return farm.status != 'Ended';
-    });
-    let url;
-    if (related_farms.length > 0 && actives.length == 0) {
-      url = `/v2farms/${link_params}-e`;
-    } else {
-      url = `/v2farms/${link_params}-r`;
-    }
-    window.open(url);
-  }
-  const {
-    Icon: Liquidity_icon,
-    your_apr: liquidity_your_apr,
-    link: liquidity_link,
-    inRange: liquidity_inRange,
-    status: liquidity_staked_farm_status,
-  } = related_seed_info;
-  return (
-    <div
-      className="mt-3.5"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      {/* for PC */}
-      <div className="relative flex flex-col items-center xs:hidden md:hidden">
-        <div className="absolute -top-1.5 flex items-center justify-center z-10">
-          <NFTIdIcon></NFTIdIcon>
-          <span className="absolute text-white text-xs gotham_bold">
-            NFT ID #{getLpt_id()}
-          </span>
-        </div>
-        <div className="w-full rounded-xl overflow-hidden">
-          <div
-            className={`relative p-4 pt-8 cursor-pointer ${
-              hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
-            }`}
-            onClick={goYourLiquidityDetailPage}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="flex items-center flex-shrink-0">
-                  <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-                    className="w-7 h-7 border border-greenColor rounded-full"
-                  ></img>
-                  <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-                    className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
-                  ></img>
-                </div>
-                <span className="text-white font-bold ml-9 mr-2.5 text-sm gotham_bold">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
-                </span>
-                <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
-                  <span className="text-xs text-v3SwapGray whitespace-nowrap mr-1.5">
-                    <FormattedMessage id="fee_Tiers" />
-                  </span>
-                  <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
-                </div>
-                {Liquidity_icon ? (
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (liquidity_link) {
-                        window.open(liquidity_link);
-                      }
-                    }}
-                    className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
-                      liquidity_link ? 'cursor-pointer' : ''
-                    } ${
-                      is_in_farming || liquidity_inRange ? '' : 'opacity-40'
-                    }`}
-                  >
-                    <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
-                    <Liquidity_icon num={Math.random()}></Liquidity_icon>
-                  </div>
-                ) : null}
-              </div>
-              <div className="flex items-center">
-                <span className="text-v3SwapGray text-xs mr-1.5">
-                  <FormattedMessage
-                    id="min"
-                    defaultMessage="Min"
-                  ></FormattedMessage>
-                </span>
-                <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis gotham_bold">
-                  {getRate(rate_need_to_reverse_display ? 'right' : 'left')}
-                </span>
-                <label className="text-v3SwapGray text-xs mx-2">-</label>
-                <span className="text-v3SwapGray text-xs mr-1.5">
-                  <FormattedMessage
-                    id="max"
-                    defaultMessage="Max"
-                  ></FormattedMessage>
-                </span>
-                <span className="text-white text-sm overflow-hidden whitespace-nowrap overflow-ellipsis gotham_bold">
-                  {getRate(rate_need_to_reverse_display ? 'left' : 'right')}
-                </span>
-                <span className="text-v3SwapGray text-xs ml-1.5 mr-3">
-                  {getRateMapTokens()}
-                </span>
-                <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
-                  <span
-                    className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
-                      isInrange
-                        ? 'bg-gradientFromHover'
-                        : 'bg-v3GarkWarningColor'
-                    }`}
-                  ></span>
-                  <span
-                    className={`whitespace-nowrap text-xs ${
-                      isInrange
-                        ? 'text-gradientFromHover'
-                        : 'text-v3GarkWarningColor'
-                    }`}
-                  >
-                    {isInrange ? (
-                      <FormattedMessage id="in_range"></FormattedMessage>
-                    ) : (
-                      <FormattedMessage id="out_of_range"></FormattedMessage>
-                    )}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className={`border-t border-v3BlueBorderColor w-full ${
-              hover ? '' : 'hidden'
-            }`}
-          >
-            {liquidity_your_apr &&
-            (!is_in_farming || liquidity_staked_farm_status == 'end') ? (
-              <div
-                className="relative flex items-center justify-center p-1"
-                style={{ background: 'rgba(91, 64, 255, 0.5)' }}
-              >
-                <TipIon className="mr-2 flex-shrink-0"></TipIon>
-                <span className="text-sm text-white">
-                  {liquidity_staked_farm_status == 'end'
-                    ? 'Your current staked farm ended, and new farm is coming, est. APR is'
-                    : 'You can earn rewards by farming, est. APR is'}{' '}
-                  {liquidity_your_apr}
-                </span>
-                <div
-                  className="flex items-center justify-center absolute right-4 text-white cursor-pointer"
-                  onClick={() => {
-                    window.open(liquidity_link);
-                  }}
-                >
-                  <a className="text-sm text-white mr-1 underline">
-                    {liquidity_staked_farm_status == 'end'
-                      ? 'Go New Farm'
-                      : 'Go Farm'}
-                  </a>
-                  <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
-                </div>
-              </div>
-            ) : null}
-
-            <div className={`flex items-center justify-between bg-cardBg p-4`}>
-              <div className="flex items-center justify-center">
-                <span className="text-xs text-v3SwapGray">
-                  <FormattedMessage id="your_liquidity" />
-                </span>
-                <span className="text-sm text-white mx-2.5 gotham_bold">
-                  ${your_liquidity || '-'}
-                </span>
-                <GradientButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowAddBox(true);
-                  }}
-                  color="#fff"
-                  minWidth="5rem"
-                  disabled={is_in_farming}
-                  borderRadius="8px"
-                  btnClassName={is_in_farming ? 'cursor-not-allowed' : ''}
-                  className={`px-3 h-8 text-center text-sm text-white gotham_bold focus:outline-none mr-2.5 ${
-                    is_in_farming ? 'opacity-40 ' : ''
-                  }`}
-                >
-                  <FormattedMessage id="add" />
-                </GradientButton>
-                <BorderButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowRemoveBox(true);
-                  }}
-                  rounded="rounded-lg"
-                  disabled={is_in_farming}
-                  px="px-0"
-                  py="py-1"
-                  style={{ minWidth: '5rem' }}
-                  className={`flex-grow  gotham_bold text-sm text-greenColor h-8 ${
-                    is_in_farming ? 'opacity-40' : ''
-                  }`}
-                >
-                  <FormattedMessage id="remove" />
-                </BorderButton>
-                {is_in_farming ? (
-                  <div className="flex items-center text-sm text-primaryText ml-2.5">
-                    Staked
-                    <div
-                      className="flex items-center cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        go_farm();
-                      }}
-                    >
-                      <span className="text-greenColor mx-1 cursor-pointer underline">
-                        {liquidity_staked_farm_status == 'end'
-                          ? 'in ended farm'
-                          : 'in farm'}
-                      </span>
-                      <LinkArrowIcon className="cursor-pointer text-greenColor"></LinkArrowIcon>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-              <div className="flex items-center justify-center">
-                <span className="text-xs text-v3SwapGray mr-2.5">
-                  <FormattedMessage id="unclaimed_fees" />
-                </span>
-                <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-                  className="w-5 h-5 border border-greenColor rounded-full mr-1"
-                ></img>
-                <span className="text-sm text-white mr-3 gotham_bold">
-                  {getTokenFeeAmount('l') || '-'}
-                </span>
-                <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-                  className="w-5 h-5 border border-greenColor rounded-full mr-1"
-                ></img>
-                <span className="text-sm text-white gotham_bold">
-                  {getTokenFeeAmount('r') || '-'}
-                </span>
-                <div
-                  className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-5 gotham_bold ${
-                    !canClaim()
-                      ? 'bg-deepBlue text-white opacity-30 cursor-not-allowed'
-                      : 'bg-deepBlue text-white hover:bg-lightBlue cursor-pointer'
-                  }`}
-                  onClick={claimRewards}
-                >
-                  <ButtonTextWrapper
-                    loading={claimLoading}
-                    Text={() => <FormattedMessage id="claim" />}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* for Mobile */}
-      <div className="lg:hidden">
-        <div
-          className={`relative cursor-pointer bg-cardBg rounded-lg overflow-hidden`}
-          onClick={goYourLiquidityDetailPage}
-        >
-          <div className="flex flex-col items-center justify-between w-full bg-orderMobileTop px-3 pb-3">
-            <div className="flex items-center justify-center">
-              <ColorsBox svgId="paint0_linear_124_7158"></ColorsBox>
-              <span className="absolute text-white text-xs gotham_bold">
-                NFT ID #{getLpt_id()}
-              </span>
-            </div>
-            <div className="flex items-center justify-between w-full mt-1.5">
-              <div className="flex items-center flex-shrink-0">
-                <div className="flex items-center flex-shrink-0">
-                  <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-                    className="w-7 h-7 border border-greenColor rounded-full"
-                  ></img>
-                  <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-                    className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
-                  ></img>
-                </div>
-                <span className="text-white text-sm ml-1.5">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
-                </span>
-                {Liquidity_icon ? (
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (liquidity_link) {
-                        window.open(liquidity_link);
-                      }
-                    }}
-                    className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
-                      is_in_farming || liquidity_inRange ? '' : 'opacity-40'
-                    }`}
-                  >
-                    <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
-                    <Liquidity_icon num={Math.random()}></Liquidity_icon>
-                  </div>
-                ) : null}
-              </div>
-              <div className="flex items-center justify-center ml-2 bg-black bg-opacity-25 rounded-2xl px-1.5 h-6 py-0.5 overflow-hidden whitespace-nowrap overflow-ellipsis">
-                <span
-                  className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
-                    isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
-                  }`}
-                ></span>
-                <span
-                  className={`whitespace-nowrap text-xs overflow-hidden  overflow-ellipsis ${
-                    isInrange
-                      ? 'text-gradientFromHover'
-                      : 'text-v3GarkWarningColor'
-                  }`}
-                >
-                  {isInrange ? (
-                    <FormattedMessage id="in_range"></FormattedMessage>
-                  ) : (
-                    <FormattedMessage id="out_of_range"></FormattedMessage>
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col p-3">
-            <div className="flex items-center justify-between mt-1">
-              <span className="text-xs text-v3SwapGray">
-                <FormattedMessage id="fee_Tiers" />
-              </span>
-              <span className="text-sm text-white">{+fee / 10000}%</span>
-            </div>
-            <div className="flex items-center justify-between mt-4">
-              <span className="text-v3SwapGray text-xs">
-                <FormattedMessage id="min_price" /> (1{' '}
-                {mobile_ReferenceToken('left')})
-              </span>
-              <span className="text-white text-sm">
-                {getRate(rate_need_to_reverse_display ? 'right' : 'left')}&nbsp;
-                {mobile_ReferenceToken('right')}
-              </span>
-            </div>
-            <div className="flex items-center justify-between mt-4">
-              <span className="text-v3SwapGray text-xs">
-                <FormattedMessage id="max_price" /> (1{' '}
-                {mobile_ReferenceToken('left')})
-              </span>
-              <span className="text-white text-sm">
-                {getRate(rate_need_to_reverse_display ? 'left' : 'right')}&nbsp;
-                {mobile_ReferenceToken('right')}
-              </span>
-            </div>
-            <div className="flex items-start justify-between mt-4">
-              <span className="text-v3SwapGray text-xs">
-                <FormattedMessage id="unclaimed_fees" />
-              </span>
-              <div className="flex items-center text-white text-sm">
-                <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-                  className="w-5 h-5 border border-greenColor rounded-full mr-1"
-                ></img>
-                <span className="text-sm text-white mr-3">
-                  {getTokenFeeAmount('l') || '-'}
-                </span>
-                <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-                  className="w-5 h-5 border border-greenColor rounded-full mr-1"
-                ></img>
-                <span className="text-sm text-white">
-                  {getTokenFeeAmount('r') || '-'}
-                </span>
-                <div
-                  className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ml-3 ${
-                    !canClaim()
-                      ? 'bg-deepBlue text-white opacity-30 cursor-not-allowed'
-                      : 'bg-deepBlue text-white hover:bg-lightBlue cursor-pointer'
-                  }`}
-                  onClick={claimRewards}
-                >
-                  <ButtonTextWrapper
-                    loading={claimLoading}
-                    Text={() => <FormattedMessage id="claim" />}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-searchBgColor rounded-2xl pt-3 overflow-hidden">
-          <div className="flex items-center justify-between px-3">
-            <span className="text-xs text-v3SwapGray">
-              <FormattedMessage id="your_liquidity" />
-            </span>
-            <span className="text-sm text-white">${your_liquidity || '-'}</span>
-          </div>
-          <div className="flex items-center justify-between px-3 mt-3.5 mb-4">
-            <GradientButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowAddBox(true);
-              }}
-              disabled={is_in_farming ? true : false}
-              color="#fff"
-              className={`w-1 flex-grow h-8 text-center text-sm text-white focus:outline-none mr-3 ${
-                is_in_farming ? 'opacity-40' : ''
-              }`}
-            >
-              <FormattedMessage id="add" />
-            </GradientButton>
-            <BorderButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowRemoveBox(true);
-              }}
-              disabled={is_in_farming ? true : false}
-              rounded="rounded-md"
-              px="px-0"
-              py="py-1"
-              className={`w-1 flex-grow  text-sm text-greenColor h-8 ${
-                is_in_farming ? 'opacity-40' : ''
-              }`}
-            >
-              <FormattedMessage id="remove" />
-            </BorderButton>
-          </div>
-          {is_in_farming ? (
-            <div className="flex items-center justify-center text-sm text-primaryText mb-3">
-              This NFT has been staked
-              <span
-                className="text-sm text-greenColor underline ml-1 mr-0.5"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  go_farm();
-                }}
-              >
-                {liquidity_staked_farm_status == 'end'
-                  ? 'in ended farm'
-                  : 'in farm'}
-              </span>
-              <LinkArrowIcon className="text-greenColor"></LinkArrowIcon>
-            </div>
-          ) : null}
-          {liquidity_your_apr &&
-          (!is_in_farming || liquidity_staked_farm_status == 'end') ? (
-            <div
-              className="relative flex items-start justify-center p-1"
-              style={{ background: 'rgba(91, 64, 255, 0.5)' }}
-            >
-              <div
-                className={`flex flex-col items-center justify-center text-sm text-white ${
-                  liquidity_staked_farm_status == 'end' ? 'hidden' : ''
-                }`}
-              >
-                <div className="flex items-center">
-                  <TipIon className="mr-2 flex-shrink-0"></TipIon>
-                  <div className="flex items-center">
-                    You can earn rewards
-                    <div
-                      className="flex items-center"
-                      onClick={() => {
-                        window.open(liquidity_link);
-                      }}
-                    >
-                      <span className="underline ml-1 mr-0.5">by farming</span>
-                      <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  est. APR is
-                  <span className="gotham_bold ml-1">{liquidity_your_apr}</span>
-                </div>
-              </div>
-              <div
-                className={`flex flex-col items-center justify-center text-sm text-white ${
-                  liquidity_staked_farm_status == 'end' ? '' : 'hidden'
-                }`}
-              >
-                <div className="flex items-center">
-                  <TipIon className="mr-2 flex-shrink-0"></TipIon>
-                  <span>Your current staked farm ended, and</span>
-                </div>
-                <div className="flex items-center justify-center flex-wrap">
-                  <div
-                    className="flex items-center"
-                    onClick={() => {
-                      window.open(liquidity_link);
-                    }}
-                  >
-                    <span className="underline ml-1 mr-0.5">new farm</span>
-                    <LinkArrowIcon className="cursor-pointer mr-0.5"></LinkArrowIcon>
-                  </div>
-                  is coming,est. APR is
-                  <span className="gotham_bold ml-1">{liquidity_your_apr}</span>
-                </div>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-      {showRemoveBox ? (
-        <RemovePoolV3
-          isOpen={showRemoveBox}
-          onRequestClose={() => {
-            setShowRemoveBox(false);
-          }}
-          tokenMetadata_x_y={tokenMetadata_x_y}
-          poolDetail={poolDetail}
-          tokenPriceList={tokenPriceList}
-          userLiquidity={liquidityDetail}
-          style={{
-            overlay: {
-              backdropFilter: 'blur(15px)',
-              WebkitBackdropFilter: 'blur(15px)',
-            },
-            content: {
-              outline: 'none',
-              transform: 'translate(-50%, -50%)',
-            },
-          }}
-        ></RemovePoolV3>
-      ) : null}
-      <AddPoolV3
-        isOpen={showAddBox}
-        onRequestClose={() => {
-          setShowAddBox(false);
-        }}
-        tokenMetadata_x_y={tokenMetadata_x_y}
-        poolDetail={poolDetail}
-        tokenPriceList={tokenPriceList}
-        userLiquidity={liquidityDetail}
-        style={{
-          overlay: {
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-          },
-          content: {
-            outline: 'none',
-            transform: 'translate(-50%, -50%)',
-          },
-        }}
-      ></AddPoolV3>
-    </div>
-  );
-}
 export function get_your_apr(
   liquidity: UserLiquidityInfo,
   seed: Seed,
@@ -1653,13 +648,8 @@ export function NoLiquidity({
   );
 }
 function UserLegacyLiqudities(props: any) {
-  const {
-    listLiquidities_old_version,
-    setLpValueV2Done,
-    setYourLpValueV2,
-    all_dcl_length,
-    listLiquiditiesLoading_old_version,
-  } = props;
+  const { listLiquidities_old_version, setLpValueV2Done, setYourLpValueV2 } =
+    props;
   return (
     <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto border border-legacyYellowColor p-4 xsm:px-2.5 rounded-2xl bg-legacyBgColor mt-16 xsm:mt-0 mb-9">
       <div className="flex xsm:flex-col items-center justify-center lg:mb-5 lg:px-5">
@@ -1680,7 +670,7 @@ function UserLegacyLiqudities(props: any) {
               return (
                 <div key={index + liquidity.lpt_id}>
                   <UserLiquidityLine_old
-                    lpSize={all_dcl_length}
+                    lpSize={listLiquidities_old_version.length}
                     setLpValueV2Done={setLpValueV2Done}
                     setYourLpValueV2={setYourLpValueV2}
                     liquidity={liquidity}
@@ -1718,16 +708,7 @@ function UserLiquidityLine_old({
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
 
-  const {
-    lpt_id,
-    owner_id,
-    pool_id,
-    left_point,
-    right_point,
-    amount: L,
-    unclaimed_fee_x,
-    unclaimed_fee_y,
-  } = liquidity;
+  const { lpt_id, pool_id, left_point, right_point, amount: L } = liquidity;
   const [token_x, token_y, fee] = pool_id.split('|');
   const tokenMetadata_x_y = useTokens([token_x, token_y]);
   const rate_need_to_reverse_display = useMemo(() => {
@@ -1802,6 +783,7 @@ function UserLiquidityLine_old({
     const [tokenX, tokenY] = tokenMetadata_x_y;
     const priceX = tokenPriceList[tokenX.id]?.price || 0;
     const priceY = tokenPriceList[tokenY.id]?.price || 0;
+    let total_price;
     //  in range
     if (current_point >= left_point && right_point > current_point) {
       let tokenYAmount = getY(left_point, current_point, L, tokenY) || 0;
@@ -1811,97 +793,41 @@ function UserLiquidityLine_old({
       tokenYAmount = new BigNumber(tokenYAmount).plus(amounty).toFixed();
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
-      const total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
-
-      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
-
-      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
-
-      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
-
-      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
-
-      sessionStorage.setItem(
-        REF_FI_LP_V2_VALUE,
-        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
-          .plus(new Big(storagedValue || '0'))
-          .toFixed(2)
-      );
-
-      const newLPValue = new Big(
-        !!total_price ? toPrecision(total_price, 3) : '0'
-      )
-        .plus(new Big(storagedValue || '0'))
-        .toFixed(2);
-
-      if (Number(newSize) == lpSize) {
-        setLpValueV2Done(true);
-        setYourLpValueV2(newLPValue);
-      }
+      total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
     }
     // only y token
     if (current_point >= right_point) {
       const tokenYAmount = getY(left_point, right_point, L, tokenY);
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
-      const total_price = tokenYTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
-      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
-
-      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
-
-      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
-
-      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
-
-      sessionStorage.setItem(
-        REF_FI_LP_V2_VALUE,
-        new Big(!!total_price ? toPrecision(total_price, 2) : '0')
-          .plus(new Big(storagedValue || '0'))
-          .toFixed(2)
-      );
-
-      const newLPValue = new Big(
-        !!total_price ? toPrecision(total_price, 3) : '0'
-      )
-        .plus(new Big(storagedValue || '0'))
-        .toFixed(2);
-
-      if (Number(newSize) == lpSize) {
-        setLpValueV2Done(true);
-        setYourLpValueV2(newLPValue);
-      }
+      total_price = tokenYTotalPrice.toFixed();
     }
     // only x token
     if (left_point > current_point) {
       const tokenXAmount = getX(left_point, right_point, L, tokenX);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
-      const total_price = tokenXTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
-      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
-
-      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
-
-      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
-
-      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
-
-      sessionStorage.setItem(
-        REF_FI_LP_V2_VALUE,
-        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
-          .plus(new Big(storagedValue || '0'))
-          .toFixed(2)
-      );
-      const newLPValue = new Big(
-        !!total_price ? toPrecision(total_price, 3) : '0'
-      )
+      total_price = tokenXTotalPrice.toFixed();
+    }
+    setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
+    const storagedCount = sessionStorage.getItem('REF_FI_LP_VALUE_OLD_COUNT');
+    const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
+    sessionStorage.setItem('REF_FI_LP_VALUE_OLD_COUNT', newSize);
+    const storagedValue = sessionStorage.getItem('REF_FI_LP_V2_OLD_VALUE');
+    sessionStorage.setItem(
+      'REF_FI_LP_V2_OLD_VALUE',
+      new Big(!!total_price ? toPrecision(total_price, 3) : '0')
         .plus(new Big(storagedValue || '0'))
-        .toFixed(2);
+        .toFixed(2)
+    );
 
-      if (Number(newSize) == lpSize) {
-        setLpValueV2Done(true);
-        setYourLpValueV2(newLPValue);
-      }
+    const newLPValue = new Big(
+      !!total_price ? toPrecision(total_price, 3) : '0'
+    )
+      .plus(new Big(storagedValue || '0'))
+      .toFixed(2);
+
+    if (Number(newSize) == lpSize) {
+      setLpValueV2Done(true);
+      setYourLpValueV2(newLPValue);
     }
   }
   function getY(

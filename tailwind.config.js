@@ -81,6 +81,7 @@ module.exports = {
           'linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)',
         dclBannerColor:
           'linear-gradient(90deg, #00C6A2 2.54%, rgba(91, 64, 255, 0.5) 70%, rgba(91, 64, 255, 0) 100%)',
+        portfolioRainbowColor:'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -307,6 +308,9 @@ module.exports = {
         legacyYellowColor: '#F49F50',
         legacyBgColor: 'rgba(244, 159, 80, 0.1)',
         portfolioBgColor: '#11212C',
+        portfolioFeeBgColor:'rgba(0, 214, 162, 0.06)',
+        portfolioGreenColor:'#62C340',
+        portfolioQinColor:'#63C341',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
