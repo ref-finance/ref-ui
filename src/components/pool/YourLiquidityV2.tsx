@@ -174,16 +174,7 @@ function UserLiquidityLine({
     Record<string, any>
   >({});
 
-  const {
-    lpt_id,
-    owner_id,
-    pool_id,
-    left_point,
-    right_point,
-    amount: L,
-    unclaimed_fee_x,
-    unclaimed_fee_y,
-  } = liquidity;
+  const { lpt_id, pool_id, left_point, right_point, amount: L } = liquidity;
   const [token_x, token_y, fee] = pool_id.split('|');
   const tokenMetadata_x_y = useTokens([token_x, token_y]);
   const rate_need_to_reverse_display = useMemo(() => {

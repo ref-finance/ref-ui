@@ -24,7 +24,7 @@ function Portfolio() {
   useEffect(() => {
     clearState();
   }, [historyYourLP.location.pathname]);
-  const [activeTab, setActiveTab] = useState(1); // 1,2,3
+  const [activeTab, setActiveTab] = useState(3); // 1,2,3
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
   const [YourLpValueV1, setYourLpValueV1] = useState('0');
   const [lpValueV1Done, setLpValueV1Done] = useState(false);
@@ -33,6 +33,14 @@ function Portfolio() {
   const [v2LiquidityQuantity, setV2LiquidityQuantity] = useState('0');
   const [v2LiquidityLoadingDone, setV2LiquidityLoadingDone] = useState(false);
   const [v1LiquidityLoadingDone, setV1LiquidityLoadingDone] = useState(false);
+
+  const [classic_farms_value, set_classic_farms_value] = useState('0');
+  const [dcl_farms_value, set_dcl_farms_value] = useState('0');
+  const [classic_farms_value_done, set_classic_farms_value_done] =
+    useState(false);
+  const [dcl_farms_value_done, set_dcl_farms_value_done] = useState(false);
+  const [all_farms_Loading_done, set_all_farms_Loading_done] = useState(false);
+  const [all_farms_quanity, set_all_farms_quanity] = useState('0');
   return (
     <div className="flex items-stretch justify-between w-full h-full">
       <PortfolioData.Provider
@@ -55,6 +63,19 @@ function Portfolio() {
           v1LiquidityLoadingDone,
           setV2LiquidityLoadingDone,
           setV1LiquidityLoadingDone,
+
+          classic_farms_value,
+          dcl_farms_value,
+          classic_farms_value_done,
+          all_farms_Loading_done,
+          dcl_farms_value_done,
+          all_farms_quanity,
+          set_dcl_farms_value_done,
+          set_classic_farms_value_done,
+          set_dcl_farms_value,
+          set_classic_farms_value,
+          set_all_farms_quanity,
+          set_all_farms_Loading_done,
         }}
       >
         {/* Navigation */}
@@ -70,14 +91,14 @@ function Portfolio() {
           </div>
           <div>
             <Tab></Tab>
+            <div className={`${activeTab == 3 ? '' : 'hidden'}`}>
+              <Farms></Farms>
+            </div>
             <div className={`${activeTab == 1 ? '' : 'hidden'}`}>
               <Positions></Positions>
             </div>
             <div className={`${activeTab == 2 ? '' : 'hidden'}`}>
               <Orders></Orders>
-            </div>
-            <div className={`${activeTab == 3 ? '' : 'hidden'}`}>
-              {/* <Farms></Farms> */}
             </div>
           </div>
         </div>
