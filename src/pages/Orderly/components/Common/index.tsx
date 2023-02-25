@@ -578,7 +578,7 @@ export function orderEditPopUpSuccess({
       hideProgressBar: true,
       position: 'bottom-right',
       progress: undefined,
-      autoClose: false,
+      autoClose: 3000,
       closeButton: false,
 
       style: {
@@ -606,9 +606,8 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
       hideProgressBar: true,
       position: 'bottom-right',
       progress: undefined,
-      autoClose: false,
+      autoClose: 3000,
       closeButton: false,
-
       style: {
         boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
         borderRadius: '4px',
