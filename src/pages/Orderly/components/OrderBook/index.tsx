@@ -137,8 +137,14 @@ function getPrecisionStringByNumber(precision: number) {
 export const REF_ORDERLY_PRECISION = 'REF_ORDERLY_PRECISION';
 
 function OrderBook() {
-  const { orders, symbol, pendingOrders, recentTrades, marketTrade } =
-    useOrderlyContext();
+  const {
+    orders,
+    symbol,
+    pendingOrders,
+    recentTrades,
+    marketTrade,
+    setBridgePrice,
+  } = useOrderlyContext();
 
   const storedPrecision = sessionStorage.getItem(REF_ORDERLY_PRECISION);
 
@@ -285,42 +291,45 @@ function OrderBook() {
           >
             {asks?.map((order, i) => {
               return (
-                <>
+                <div
+                  className={
+                    'relative  grid px-4 cursor-pointer hover:bg-symbolHover grid-cols-3 mr-2 py-1 justify-items-end'
+                  }
+                  id={`order-id-${order[0]}`}
+                  key={'orderbook-ask-' + i}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setBridgePrice(order[0].toString());
+                  }}
+                >
+                  <span className="text-sellRed justify-self-start">
+                    {order[0]}
+                  </span>
+
+                  <span className="mr-4">
+                    {digitWrapper(order[1].toString(), 2)}
+                  </span>
+
+                  <span>
+                    {digitWrapper(asktotalSize?.[order[0]].toString(), 2)}
+                  </span>
+
                   <div
-                    className={
-                      'relative  grid px-4  hover:bg-symbolHover grid-cols-3 mr-2 py-1 justify-items-end'
-                    }
-                    id={`order-id-${order[0]}`}
-                    key={'orderbook-ask-' + i}
+                    className="absolute left-0 top-1 z-40"
+                    style={{
+                      zIndex: 200 + i,
+                    }}
                   >
-                    <span className="text-sellRed justify-self-start">
-                      {order[0]}
-                    </span>
-
-                    <span className="mr-4">
-                      {digitWrapper(order[1].toString(), 2)}
-                    </span>
-
-                    <span>
-                      {digitWrapper(asktotalSize?.[order[0]].toString(), 2)}
-                    </span>
-
-                    <div
-                      className="absolute left-0 top-1 z-40"
-                      style={{
-                        zIndex: 200 + i,
-                      }}
-                    >
-                      {pendingOrders && groupMyPendingOrders[order[0]] && (
-                        <MyOrderTip
-                          price={order[0]}
-                          scrollTagID="sell-order-book-panel"
-                          quantity={groupMyPendingOrders[order[0]]}
-                        />
-                      )}
-                    </div>
+                    {pendingOrders && groupMyPendingOrders[order[0]] && (
+                      <MyOrderTip
+                        price={order[0]}
+                        scrollTagID="sell-order-book-panel"
+                        quantity={groupMyPendingOrders[order[0]]}
+                      />
+                    )}
                   </div>
-                </>
+                </div>
               );
             })}
           </section>
@@ -357,9 +366,14 @@ function OrderBook() {
             {bids?.map((order, i) => {
               return (
                 <div
-                  className="px-4 relative grid grid-cols-3 mr-2 py-1 hover:bg-symbolHover  justify-items-end"
+                  className="px-4 relative grid grid-cols-3 mr-2 py-1 hover:bg-symbolHover  justify-items-end cursor-pointer"
                   key={'orderbook-ask-' + i}
                   id={`order-id-${order[0]}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setBridgePrice(order[0].toString());
+                  }}
                 >
                   <span className="text-buyGreen justify-self-start">
                     {order[0]}

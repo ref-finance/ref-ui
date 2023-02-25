@@ -37,6 +37,8 @@ interface OrderlyContextValue {
   myPendingOrdersRefreshing: boolean;
   setValidAccountSig: (validAccountSig: boolean) => void;
   validAccountSig: boolean;
+  bridgePrice: string;
+  setBridgePrice: (bridgePrice: string) => void;
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
@@ -62,6 +64,8 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   const handlePendingOrderRefreshing = () => {
     setMyPendingOrdersRefreshing(!myPendingOrdersRefreshing);
   };
+
+  const [bridgePrice, setBridgePrice] = useState<string>('');
 
   const privateValue = useOrderlyPrivateData({ validAccountSig });
 
@@ -103,6 +107,8 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         myPendingOrdersRefreshing,
         setValidAccountSig,
         validAccountSig,
+        bridgePrice,
+        setBridgePrice,
       }}
     >
       {children}

@@ -225,6 +225,9 @@ export default function UserBoard() {
     handlePendingOrderRefreshing,
     validAccountSig,
     myPendingOrdersRefreshing,
+
+    bridgePrice,
+    setBridgePrice,
   } = useOrderlyContext();
 
   const availableSymbols = useAllSymbolInfo();
@@ -258,6 +261,10 @@ export default function UserBoard() {
   const [limitPrice, setLimitPrice] = useState<string>(
     marketTrade ? marketTrade?.price?.toString() || '' : ''
   );
+
+  useEffect(() => {
+    setLimitPrice(bridgePrice);
+  }, [bridgePrice]);
 
   const [userInfo, setUserInfo] = useState<ClientInfo>();
 

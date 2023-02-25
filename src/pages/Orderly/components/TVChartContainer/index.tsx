@@ -166,6 +166,7 @@ export function ChartContainer() {
       style={{
         height: '52vh',
         position: 'relative',
+        background: 'rgb(16, 29, 38)',
       }}
     ></div>
   );
