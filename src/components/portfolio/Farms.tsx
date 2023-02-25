@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState, useContext } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useContext,
+  createContext,
+} from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { WalletContext } from '../../utils/wallets-integration';
 import {
@@ -10,18 +16,9 @@ import {
   BoostConfig,
   UserSeedInfo,
   getBoostTokenPrices,
-  getBoostSeeds,
-  getVeSeedShare,
-  getServerTime,
-  claimRewardBySeed_boost,
   frontConfigBoost,
 } from '../../services/farm';
 import getConfig from '../../services/config';
-import { PoolRPCView } from '../../services/api';
-import {
-  LP_TOKEN_DECIMALS,
-  LP_STABLE_TOKEN_DECIMALS,
-} from '../../services/m-token';
 import {
   toPrecision,
   toReadableNumber,
@@ -33,34 +30,46 @@ import { BigNumber } from 'bignumber.js';
 
 import { TokenMetadata } from '../../services/ft-contract';
 import { useTokens } from '~state/token';
-import { getMftTokenId, toRealSymbol } from '~utils/token';
+import { toRealSymbol } from '~utils/token';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
-import { get24hVolume } from '../../services/indexer';
-import { isStablePool } from '~services/near';
-import { mftGetBalance } from '~services/mft-contract';
 import {
-  GradientButton,
-  ButtonTextWrapper,
-  OprationButton,
-} from '~components/button/Button';
-
-const {
-  STABLE_POOL_IDS,
-  REF_VE_CONTRACT_ID,
-  boostBlackList,
-  FARM_BLACK_LIST_V2,
-} = getConfig();
-import { StakeModal, UnStakeModal } from '../../components/farm/FarmsDetail';
-
+  TriangleIcon,
+  LinkIcon,
+  FarmMiningIcon,
+} from '../../components/icon/Portfolio';
+import QuestionMark from '../../components/farm/QuestionMark';
+import ReactTooltip from 'react-tooltip';
+import { list_liquidities } from '../../services/swapV3';
+import {
+  getPriceByPoint,
+  UserLiquidityInfo,
+  get_total_value_by_liquidity_amount_dcl,
+  mint_liquidity,
+  allocation_rule_liquidities,
+  TOKEN_LIST_FOR_RATE,
+  displayNumberToAppropriateDecimals,
+  get_intersection_radio,
+  get_intersection_icon_by_radio,
+} from '~services/commonV3';
+import { NFTIdIcon } from '~components/icon/FarmBoost';
+const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
+import { get_all_seeds } from '~services/commonV3';
+import { PoolInfo } from '~services/swapV3';
+import { PortfolioData } from '../../pages/Portfolio';
+import { BlueCircleLoading } from '../../components/layout/Loading';
+const FarmCommonDatas = createContext(null);
 export default function Farms(props: any) {
-  let [tokenPriceList, setTokenPriceList] = useState<any>({});
-  let [farm_display_List, set_farm_display_List] = useState<any>([]);
-  let [farm_display_ended_List, set_farm_display_ended_List] = useState<any>(
-    []
-  );
-  let [boostConfig, setBoostConfig] = useState<BoostConfig>(null);
-  let [loveSeed, setLoveSeed] = useState<Seed>(null);
-
+  const {
+    set_classic_farms_value,
+    set_classic_farms_value_done,
+    set_dcl_farms_value,
+    set_dcl_farms_value_done,
+    set_all_farms_quanity,
+    set_all_farms_Loading_done,
+    all_farms_Loading_done,
+  } = useContext(PortfolioData);
+  const [classicSeeds, setClassicSeeds] = useState<Seed[]>([]);
+  const [dclSeeds, setDclSeeds] = useState<Seed[]>([]);
   let [user_seeds_map, set_user_seeds_map] = useState<
     Record<string, UserSeedInfo>
   >({});
@@ -69,298 +78,144 @@ export default function Farms(props: any) {
   >({});
   const [user_unclaimed_token_meta_map, set_user_unclaimed_token_meta_map] =
     useState<Record<string, any>>({});
-  const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
-  let [homePageLoading, setHomePageLoading] = useState(true);
-  const [dayVolumeMap, setDayVolumeMap] = useState({});
-  const [noData, setNoData] = useState(false);
+  const [boostConfig, setBoostConfig] = useState<BoostConfig>(null);
+  let [tokenPriceList, setTokenPriceList] = useState<any>({});
+  let [your_list_liquidities, set_your_list_liquidities] = useState<
+    UserLiquidityInfo[]
+  >([]);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
-    init();
-    getConfig();
-    get_ve_seed_share();
+    if (isSignedIn) {
+      getBoostConfig();
+      get_your_seeds();
+      getTokenPriceList();
+      get_your_liquidities();
+    }
   }, [isSignedIn]);
-  async function init() {
-    let list_seeds: Seed[];
-    let list_farm: FarmBoost[][];
-    let pools: PoolRPCView[];
-    const result = await getBoostSeeds();
-    await get_user_seeds_and_unClaimedRewards();
-    const { seeds, farms, pools: cachePools } = result;
-    list_seeds = seeds;
-    list_farm = farms;
-    pools = cachePools;
-    // get Love seed
-    list_seeds.find((seed: Seed) => {
-      if (seed.seed_id == REF_VE_CONTRACT_ID) {
-        loveSeed = seed;
-        setLoveSeed(seed);
-      }
-    });
-    // filter Love Seed
-    list_seeds.filter((seed: Seed) => {
-      if (seed.seed_id.indexOf('@') > -1) return true;
-    });
-    // filter black farms
-    const temp_list_farm: FarmBoost[][] = [];
-    list_farm.forEach((farmList: FarmBoost[]) => {
-      let temp_farmList: FarmBoost[] = [];
-      temp_farmList = farmList.filter((farm: FarmBoost) => {
-        const id = farm?.farm_id?.split('@')[1];
-        if (boostBlackList.indexOf(id) == -1) {
-          return true;
-        }
-      });
-      temp_list_farm.push(temp_farmList);
-    });
-    list_farm = temp_list_farm;
-    // filter no farm seed
-    const new_list_seeds: any[] = [];
-    list_farm.forEach((farmList: FarmBoost[], index: number) => {
-      if (farmList?.length > 0) {
-        new_list_seeds.push({
-          ...list_seeds[index],
-          farmList,
-        });
-      }
-    });
-
-    list_seeds = new_list_seeds;
+  async function getTokenPriceList() {
     // get all token prices
     const tokenPriceList = await getBoostTokenPrices();
-    // get pool apr
-    getAllPoolsDayVolume(list_seeds);
     setTokenPriceList(tokenPriceList);
-    getFarmDataList({
-      list_seeds,
-      tokenPriceList,
-      pools,
-    });
   }
-  async function getFarmDataList(initData: any) {
-    const { list_seeds, tokenPriceList, pools } = initData;
-    const promise_new_list_seeds = list_seeds.map(async (newSeed: Seed) => {
-      const { seed_id, farmList, total_seed_amount, total_seed_power } =
-        newSeed;
-      const poolId = getPoolIdBySeedId(seed_id);
-      const pool = pools.find((pool: PoolRPCView) => {
-        if (pool.id == Number(poolId)) return true;
-      });
-      const { token_account_ids } = pool;
-      const promise_token_meta_data: Promise<any>[] = [];
-      token_account_ids.forEach(async (tokenId: string) => {
-        promise_token_meta_data.push(ftGetTokenMetadata(tokenId));
-      });
-      pool.tokens_meta_data = await Promise.all(promise_token_meta_data);
-
-      const promise_farm_meta_data = farmList.map(async (farm: FarmBoost) => {
-        const tokenId = farm.terms.reward_token;
-        const tokenMetadata = await ftGetTokenMetadata(tokenId);
-        farm.token_meta_data = tokenMetadata;
-        return farm;
-      });
-      await Promise.all(promise_farm_meta_data);
-      // get seed tvl
-      const { tvl, id, shares_total_supply } = pool;
-      const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
-        ? LP_STABLE_TOKEN_DECIMALS
-        : LP_TOKEN_DECIMALS;
-      const seedTotalStakedAmount = toReadableNumber(
-        DECIMALS,
-        total_seed_amount
-      );
-      const seedTotalStakedPower = toReadableNumber(DECIMALS, total_seed_power);
-      const poolShares = Number(
-        toReadableNumber(DECIMALS, shares_total_supply)
-      );
-      const seedTvl =
-        poolShares == 0
-          ? 0
-          : Number(
-              toPrecision(
-                ((Number(seedTotalStakedAmount) * tvl) / poolShares).toString(),
-                2
-              )
-            );
-      const seedPowerTvl =
-        poolShares == 0
-          ? 0
-          : Number(
-              toPrecision(
-                ((Number(seedTotalStakedPower) * tvl) / poolShares).toString(),
-                2
-              )
-            );
-      // get apr per farm
-      farmList.forEach((farm: FarmBoost) => {
-        const { token_meta_data } = farm;
-        const { daily_reward, reward_token } = farm.terms;
-        const readableNumber = toReadableNumber(
-          token_meta_data.decimals,
-          daily_reward
-        );
-        const reward_token_price = Number(
-          tokenPriceList[reward_token]?.price || 0
-        );
-        const apr =
-          seedPowerTvl == 0
-            ? 0
-            : (Number(readableNumber) * 360 * reward_token_price) /
-              seedPowerTvl;
-        const baseApr =
-          seedTvl == 0
-            ? 0
-            : (Number(readableNumber) * 360 * reward_token_price) / seedTvl;
-
-        farm.apr = apr.toString();
-        farm.baseApr = baseApr.toString();
-      });
-      newSeed.pool = pool;
-      newSeed.seedTvl = seedTvl?.toString() || '0';
-    });
-    await Promise.all(promise_new_list_seeds);
-    // split ended farms
-    const ended_split_list_seeds: Seed[] = [];
-    list_seeds.forEach((seed: Seed) => {
-      const { farmList } = seed;
-      const endedList = farmList.filter((farm: FarmBoost) => {
-        if (farm.status == 'Ended') return true;
-      });
-      const noEndedList = farmList.filter((farm: FarmBoost) => {
-        if (farm.status != 'Ended') return true;
-      });
-      if (endedList.length > 0 && noEndedList.length > 0) {
-        seed.farmList = noEndedList;
-        const endedSeed = JSON.parse(JSON.stringify(seed));
-        endedSeed.farmList = endedList;
-        endedSeed.endedFarmsIsSplit = true;
-        ended_split_list_seeds.push(endedSeed);
-      }
-    });
-    const total_list_seeds = list_seeds.concat(ended_split_list_seeds);
-    farm_display_List = total_list_seeds;
-    farm_display_ended_List = getAllEndedFarms();
-    set_farm_display_List(farm_display_List);
-    set_farm_display_ended_List(farm_display_ended_List);
-    searchByCondition();
-  }
-  async function getAllPoolsDayVolume(list_seeds: Seed[]) {
-    const tempMap = {};
-    const poolIds: string[] = [];
-    const seedIds: string[] = [];
-    list_seeds.forEach((seed: Seed) => {
-      seedIds.push(seed.seed_id);
-    });
-    seedIds.forEach((seedId: string) => {
-      poolIds.push(seedId.split('@')[1]);
-    });
-    // get24hVolume
-    const promisePoolIds = poolIds.map((poolId: string) => {
-      return get24hVolume(poolId);
-    });
-    try {
-      const resolvedResult = await Promise.all(promisePoolIds);
-      poolIds.forEach((poolId: string, index: number) => {
-        tempMap[poolId] = resolvedResult[index];
-      });
-      setDayVolumeMap(tempMap);
-    } catch (error) {}
-  }
-  async function getConfig() {
+  async function getBoostConfig() {
     const config = await get_config();
     const data = config.booster_seeds[REF_VE_CONTRACT_ID];
-    boostConfig = data;
     setBoostConfig(data);
   }
-  async function get_user_seeds_and_unClaimedRewards() {
-    if (isSignedIn) {
-      // get user seeds
-      const list_user_seeds = await list_farmer_seeds();
-      user_seeds_map = list_user_seeds;
-      set_user_seeds_map(list_user_seeds);
-      // get user unclaimed rewards
-      const userUncliamedRewards = {};
-      const seed_ids = Object.keys(list_user_seeds);
-      const request: Promise<any>[] = [];
-      seed_ids.forEach((seed_id: string) => {
-        request.push(get_unclaimed_rewards(seed_id));
-      });
-      const resolvedList = await Promise.all(request);
-      resolvedList.forEach((rewards, index) => {
-        if (rewards && Object.keys(rewards).length > 0) {
-          userUncliamedRewards[seed_ids[index]] = rewards;
-        }
-      });
-      set_user_unclaimed_map(userUncliamedRewards);
-      // get user unclaimed token meta
-      const unclaimed_token_meta_datas = {};
-      const prom_rewards = Object.values(userUncliamedRewards).map(
-        async (rewards) => {
-          const tokens = Object.keys(rewards);
-          const unclaimedTokens = tokens.map(async (tokenId: string) => {
-            const tokenMetadata = await ftGetTokenMetadata(tokenId);
-            return tokenMetadata;
-          });
-          const tempArr = await Promise.all(unclaimedTokens);
-          tempArr.forEach((token: TokenMetadata) => {
-            unclaimed_token_meta_datas[token.id] = token;
-          });
-        }
-      );
-      await Promise.all(prom_rewards);
-      set_user_unclaimed_token_meta_map(unclaimed_token_meta_datas);
-    }
-  }
-  async function get_ve_seed_share() {
-    const result = await getVeSeedShare();
-    const maxShareObj = result?.accounts?.accounts[0] || {};
-    const amount = maxShareObj?.amount;
-    if (amount) {
-      const amountStr = new BigNumber(amount).toFixed().toString();
-      // todo 现在是 用 ref-near替代，上mainnet后替代
-      // const amountStr_readable = toReadableNumber(LOVE_TOKEN_DECIMAL, amountStr);
-      const amountStr_readable = toReadableNumber(24, amountStr);
-      setMaxLoveShareAmount(amountStr_readable);
-    }
-  }
-  function getPoolIdBySeedId(seed_id: string) {
-    if (seed_id.indexOf('@') > -1) {
-      return seed_id.slice(seed_id.indexOf('@') + 1);
-    }
-    return '';
-  }
-  function getAllEndedFarms() {
-    const allEndedFarms = farm_display_List.filter((seed: Seed) => {
-      if (seed.farmList[0].status == 'Ended') return true;
+  async function get_your_seeds() {
+    const seeds: Seed[] = await get_all_seeds();
+    const { user_seeds_map } = await get_user_seeds_and_unClaimedRewards();
+    const { your_dcl_seeds, your_classic_seeds } = searchOutYourSeeds({
+      farm_display_List: seeds,
+      user_seeds_map,
     });
-    return JSON.parse(JSON.stringify(allEndedFarms));
+    setClassicSeeds(your_classic_seeds);
+    setDclSeeds(your_dcl_seeds);
+    const dcl_legth = your_dcl_seeds.length;
+    const classic_length = your_classic_seeds.length;
+    if (dcl_legth == 0) {
+      set_dcl_farms_value_done(true);
+      set_dcl_farms_value('0');
+    }
+    if (classic_length == 0) {
+      set_classic_farms_value_done(true);
+      set_classic_farms_value('0');
+    }
+    set_all_farms_quanity(dcl_legth + classic_length);
+    set_all_farms_Loading_done(true);
+    // console.log('1111111-your_classic_seeds',your_classic_seeds);
+    // console.log('1111111-your_dcl_seeds',your_dcl_seeds);
   }
-  function searchByCondition() {
-    farm_display_List = farm_display_List.sort();
-    let noDataLive = true;
-    const commonSeedFarms = mergeCommonSeedsFarms();
-    // filter
-    farm_display_List = farm_display_List.filter((seed: Seed) => {
+  async function get_your_liquidities() {
+    const list: UserLiquidityInfo[] = await list_liquidities();
+    set_your_list_liquidities(list);
+  }
+  async function get_user_seeds_and_unClaimedRewards() {
+    // get user seeds
+    const list_user_seeds = await list_farmer_seeds();
+    set_user_seeds_map(list_user_seeds);
+    // get user unclaimed rewards
+    const userUncliamedRewards = {};
+    const seed_ids = Object.keys(list_user_seeds);
+    const request: Promise<any>[] = [];
+    seed_ids.forEach((seed_id: string) => {
+      request.push(get_unclaimed_rewards(seed_id));
+    });
+    const resolvedList = await Promise.all(request);
+    resolvedList.forEach((rewards, index) => {
+      if (rewards && Object.keys(rewards).length > 0) {
+        userUncliamedRewards[seed_ids[index]] = rewards;
+      }
+    });
+    set_user_unclaimed_map(userUncliamedRewards);
+    // get user unclaimed token meta
+    const unclaimed_token_meta_datas = {};
+    const prom_rewards = Object.values(userUncliamedRewards).map(
+      async (rewards) => {
+        const tokens = Object.keys(rewards);
+        const unclaimedTokens = tokens.map(async (tokenId: string) => {
+          const tokenMetadata = await ftGetTokenMetadata(tokenId);
+          return tokenMetadata;
+        });
+        const tempArr = await Promise.all(unclaimedTokens);
+        tempArr.forEach((token: TokenMetadata) => {
+          unclaimed_token_meta_datas[token.id] = token;
+        });
+      }
+    );
+    await Promise.all(prom_rewards);
+    set_user_unclaimed_token_meta_map(unclaimed_token_meta_datas);
+    return {
+      user_seeds_map: list_user_seeds,
+      user_uncliamed_rewards: userUncliamedRewards,
+      unclaimed_token_meta_datas,
+    };
+  }
+  function searchOutYourSeeds({
+    farm_display_List,
+    user_seeds_map,
+  }: {
+    farm_display_List: Seed[];
+    user_seeds_map: Record<string, UserSeedInfo>;
+  }) {
+    const commonSeedFarms = mergeCommonSeedsFarms(farm_display_List);
+    const your_dcl_seeds: Seed[] = [];
+    const your_classic_seeds: Seed[] = [];
+    // filter out your seeds
+    farm_display_List.forEach((seed: Seed) => {
       const { seed_id, farmList } = seed;
       const isEnd = farmList[0].status == 'Ended';
       const user_seed = user_seeds_map[seed_id];
       const userStaked = Object.keys(user_seed || {}).length > 0;
-      let condition1;
+      const [contractId] = seed_id.split('@');
+      const is_dcl_seed = contractId == REF_UNI_V3_SWAP_CONTRACT_ID;
       if (userStaked) {
         const commonSeedFarmList = commonSeedFarms[seed_id] || [];
-        if (commonSeedFarmList.length == 2 && isEnd) {
-          condition1 = false;
-        } else {
-          condition1 = true;
+        if (!(commonSeedFarmList.length == 2 && isEnd)) {
+          if (is_dcl_seed) {
+            your_dcl_seeds.push(seed);
+          } else {
+            your_classic_seeds.push(seed);
+          }
         }
       }
-      if (condition1) {
-        noDataLive = false;
-        return true;
+    });
+    // sort by apr
+    your_dcl_seeds.sort((item1: Seed, item2: Seed) => {
+      const item1PoolId = item1.pool.id;
+      const item2PoolId = item2.pool.id;
+      const item1Front = frontConfigBoost[item1PoolId];
+      const item2Front = frontConfigBoost[item2PoolId];
+      if (item1Front || item2Front) {
+        return Number(item2Front || 0) - Number(item1Front || 0);
       }
+      const item1Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item1)));
+      const item2Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item2)));
+      return Number(item2Apr) - Number(item1Apr);
     });
     // sort by tvl
-    farm_display_List.sort((item1: Seed, item2: Seed) => {
+    your_classic_seeds.sort((item1: Seed, item2: Seed) => {
       const item1PoolId = item1.pool.id;
       const item2PoolId = item2.pool.id;
       const item1Front = frontConfigBoost[item1PoolId];
@@ -370,11 +225,12 @@ export default function Farms(props: any) {
       }
       return Number(item2.seedTvl) - Number(item1.seedTvl);
     });
-    setNoData(noDataLive);
-    set_farm_display_List(farm_display_List);
-    setHomePageLoading(false);
+    return {
+      your_dcl_seeds,
+      your_classic_seeds,
+    };
   }
-  function mergeCommonSeedsFarms() {
+  function mergeCommonSeedsFarms(farm_display_List: Seed[]) {
     const tempMap = {};
     const list = JSON.parse(JSON.stringify(farm_display_List));
     list.forEach((seed: Seed) => {
@@ -384,232 +240,230 @@ export default function Farms(props: any) {
     });
     return tempMap;
   }
-  return (
-    <div className="text-white">
-      <div>
-        <div className="grid grid-cols-12 pl-4 pr-8">
-          <div className="col-span-2 text-sm text-v3LightGreyColor">Farms</div>
-          <div className="col-span-2 text-sm text-v3LightGreyColor">
-            Total Staked
-          </div>
-          <div className="col-span-1 text-sm text-v3LightGreyColor">APR</div>
-          <div className="col-span-3 text-sm text-v3LightGreyColor">
-            Farm weekly Rewards
-          </div>
-          <div className="col-span-2 text-sm text-v3LightGreyColor justify-self-end">
-            Your Power
-          </div>
-          <div className="col-span-2 text-sm text-v3LightGreyColor justify-self-end">
-            Unclaimed Rewards
-          </div>
-        </div>
-        {farm_display_List.map((seed: Seed, index: number) => {
-          return (
-            <div key={seed.seed_id + index}>
-              <FarmViewRow
-                seed={seed}
-                tokenPriceList={tokenPriceList}
-                boostConfig={boostConfig}
-                loveSeed={loveSeed}
-                user_seeds_map={user_seeds_map}
-                user_unclaimed_map={user_unclaimed_map}
-                user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
-                maxLoveShareAmount={maxLoveShareAmount}
-                dayVolumeMap={dayVolumeMap}
-              ></FarmViewRow>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function FarmViewRow(props: {
-  seed: Seed;
-  tokenPriceList: Record<string, any>;
-  boostConfig: BoostConfig;
-  loveSeed: Seed;
-  user_seeds_map: Record<string, UserSeedInfo>;
-  user_unclaimed_map: Record<string, any>;
-  user_unclaimed_token_meta_map: Record<string, any>;
-  maxLoveShareAmount: string;
-  dayVolumeMap: Record<string, string>;
-}): any {
-  const {
-    seed,
-    tokenPriceList,
-    boostConfig,
-    loveSeed,
-    user_seeds_map,
-    user_unclaimed_map,
-    user_unclaimed_token_meta_map,
-    maxLoveShareAmount,
-    dayVolumeMap,
-  } = props;
-  const [yourApr, setYourApr] = useState('');
-  const [dayVolume, setDayVolume] = useState('');
-  const [yourTvl, setYourTvl] = useState('');
-  const [stakeModalVisible, setStakeModalVisible] = useState(false);
-  const [unStakeModalVisible, setUnStakeModalVisible] = useState(false);
-  const [lpBalance, setLpBalance] = useState('');
-  const [serverTime, setServerTime] = useState<number>();
-  const { pool, seedTvl, seed_id, seed_decimal } = seed;
-  const { token_account_ids, id } = pool;
-  const {
-    free_amount = '0',
-    locked_amount = '0',
-    x_locked_amount = '0',
-    unlock_timestamp,
-    duration_sec,
-  } = user_seeds_map[seed_id] || {};
-  const DECIMALS = isStablePool(id?.toString())
-    ? LP_STABLE_TOKEN_DECIMALS
-    : LP_TOKEN_DECIMALS;
-  const freeAmount = toReadableNumber(DECIMALS, free_amount);
-
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
-  const tokens = sortTokens(useTokens(token_account_ids) || []);
-  const [claimLoading, setClaimLoading] = useState(false);
-  const [hover, setHover] = useState<boolean>(false);
-  const [unclaimedRewardsData, setUnclaimedRewardsData] =
-    useState<Record<string, any>>();
-  useEffect(() => {
-    get_server_time();
-    getStakeBalance();
-    getYourTvl();
-    getTotalUnclaimedRewards();
-  }, []);
-  useEffect(() => {
-    const yourApr = getYourApr();
-    if (yourApr) {
-      setYourApr(yourApr);
-    }
-  }, [boostConfig]);
-  async function get_server_time() {
-    const timestamp = await getServerTime();
-    setServerTime(timestamp);
-  }
-  async function getStakeBalance() {
-    if (isSignedIn) {
-      const poolId = pool.id;
-      const b = await mftGetBalance(getMftTokenId(poolId.toString()));
-      if (new Set(STABLE_POOL_IDS || []).has(poolId?.toString())) {
-        setLpBalance(toReadableNumber(LP_STABLE_TOKEN_DECIMALS, b));
-      } else {
-        setLpBalance(toReadableNumber(LP_TOKEN_DECIMALS, b));
-      }
-    }
-  }
-  function getYourTvl() {
-    const { free_amount, locked_amount } = user_seeds_map[seed_id] || {};
-    const yourLp = toReadableNumber(
-      seed_decimal,
-      new BigNumber(free_amount || 0).plus(locked_amount || 0).toFixed()
-    );
-    const { tvl, id, shares_total_supply } = pool;
-    const DECIMALS = new Set(STABLE_POOL_IDS || []).has(id?.toString())
-      ? LP_STABLE_TOKEN_DECIMALS
-      : LP_TOKEN_DECIMALS;
-    const poolShares = Number(toReadableNumber(DECIMALS, shares_total_supply));
-    const yourTvl =
-      poolShares == 0
-        ? 0
-        : Number(
-            toPrecision(((Number(yourLp) * tvl) / poolShares).toString(), 2)
-          );
-    if (yourTvl) {
-      setYourTvl(yourTvl.toString());
-    }
-  }
-  function getYourApr() {
-    if (!boostConfig) return '';
-    const { affected_seeds } = boostConfig;
-    const { seed_id } = seed;
-    const user_seed = user_seeds_map[seed_id] || {};
-    const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
-    const base = affected_seeds[seed_id];
-    const hasUserStaked = Object.keys(user_seed).length;
-    const { free_amount } = love_user_seed || {};
-    const userLoveAmount = toReadableNumber(LOVE_TOKEN_DECIMAL, free_amount);
-    if (base && hasUserStaked) {
-      let rate;
-      if (+userLoveAmount < 1) {
-        rate = '1';
-      } else {
-        rate = new BigNumber(1)
-          .plus(Math.log(+userLoveAmount) / Math.log(base))
-          .toFixed();
-      }
-      const apr = getActualTotalApr();
-      let boostApr;
-      if (apr) {
-        boostApr = new BigNumber(apr).multipliedBy(rate);
-      }
-      if (boostApr && +boostApr > 0) {
-        const r = +new BigNumber(boostApr).multipliedBy(100).toFixed();
-        return toPrecision(r.toString(), 2) + '%';
-      }
-      return '';
-    } else {
-      return '';
-    }
-  }
-  function getTotalApr() {
-    let day24Volume = 0;
-    day24Volume = +getPoolFeeApr(dayVolume);
-    let apr = getActualTotalApr();
-    if (apr == 0 && day24Volume == 0) {
-      return '-';
-    } else {
-      apr = +new BigNumber(apr).multipliedBy(100).plus(day24Volume).toFixed();
-      return toPrecision(apr.toString(), 2) + '%';
-    }
-  }
-  function getPoolFeeApr(dayVolume: string) {
-    let result = '0';
-    if (dayVolume) {
-      const { total_fee, tvl } = seed.pool;
-      const revenu24h = (total_fee / 10000) * 0.8 * Number(dayVolume);
-      if (tvl > 0 && revenu24h > 0) {
-        const annualisedFeesPrct = ((revenu24h * 365) / tvl) * 100;
-        const half_annualisedFeesPrct = annualisedFeesPrct / 2;
-        result = toPrecision(half_annualisedFeesPrct.toString(), 2);
-      }
-    }
-    return result;
-  }
-  function isPending() {
-    let pending: boolean = true;
-    const farms = seed.farmList;
-    for (let i = 0; i < farms.length; i++) {
-      if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
-        pending = false;
-        break;
-      }
-    }
-    return pending;
-  }
-  function getActualTotalApr() {
+  function getTotalAprForSeed(seed: Seed) {
     const farms = seed.farmList;
     let apr = 0;
-    const allPendingFarms = isPending();
+    const allPendingFarms = isPending(seed);
     farms.forEach(function (item: FarmBoost) {
       const pendingFarm = item.status == 'Created' || item.status == 'Pending';
       if (allPendingFarms || (!allPendingFarms && !pendingFarm)) {
-        apr = +new BigNumber(apr).plus(item.apr).toFixed();
+        apr = +new BigNumber(item.apr).plus(apr).toFixed();
       }
     });
     return apr;
   }
-  function sortTokens(tokens: TokenMetadata[]) {
-    tokens.sort((a: TokenMetadata, b: TokenMetadata) => {
-      if (a.symbol === 'NEAR') return 1;
-      if (b.symbol === 'NEAR') return -1;
-      return 0;
+  return (
+    <>
+      <FarmCommonDatas.Provider
+        value={{
+          classicSeeds,
+          dclSeeds,
+          user_seeds_map,
+          user_unclaimed_map,
+          user_unclaimed_token_meta_map,
+          boostConfig,
+          tokenPriceList,
+          your_list_liquidities,
+        }}
+      >
+        <ClassicFarms></ClassicFarms>
+        <DclFarms></DclFarms>
+        {all_farms_Loading_done ? null : (
+          <div className="flex items-center justify-center">
+            <BlueCircleLoading />
+          </div>
+        )}
+      </FarmCommonDatas.Provider>
+    </>
+  );
+}
+function DclFarms() {
+  const { user_seeds_map, dclSeeds, your_list_liquidities, tokenPriceList } =
+    useContext(FarmCommonDatas);
+  const { set_dcl_farms_value_done, set_dcl_farms_value } =
+    useContext(PortfolioData);
+  useEffect(() => {
+    if (
+      your_list_liquidities.length > 0 &&
+      Object.keys(tokenPriceList).length > 0 &&
+      dclSeeds.length > 0
+    ) {
+      const total_value = get_all_seeds_liquidities_value();
+      set_dcl_farms_value_done(true);
+      set_dcl_farms_value(total_value);
+    }
+  }, [your_list_liquidities, tokenPriceList, dclSeeds]);
+  function get_all_seeds_liquidities_value() {
+    let all_liquidities_value = new BigNumber(0);
+    dclSeeds.forEach((seed: Seed) => {
+      const farming_liquidities = get_inFarming_list_liquidities(seed);
+      farming_liquidities.forEach((liquidity: UserLiquidityInfo) => {
+        const poolDetail = seed.pool;
+        const { tokens_meta_data } = poolDetail;
+        const v = get_liquidity_value({
+          liquidity,
+          poolDetail,
+          tokenPriceList,
+          tokensMeta: tokens_meta_data,
+        });
+        all_liquidities_value = all_liquidities_value.plus(v);
+      });
     });
-    return tokens;
+    return all_liquidities_value.toFixed();
+  }
+  function get_inFarming_list_liquidities(seed: Seed) {
+    const { free_amount = '0', locked_amount = '0' } =
+      user_seeds_map[seed.seed_id] || {};
+    const user_seed_amount = new BigNumber(free_amount)
+      .plus(locked_amount)
+      .toFixed();
+    const [temp_farming] = allocation_rule_liquidities({
+      list: your_list_liquidities,
+      user_seed_amount,
+      seed,
+    });
+    return temp_farming;
+  }
+  return (
+    <>
+      {dclSeeds.map((seed: Seed) => {
+        return <DclFarmRow seed={seed} key={seed.seed_id}></DclFarmRow>;
+      })}
+    </>
+  );
+}
+function DclFarmRow({ seed }: { seed: Seed }) {
+  const {
+    user_seeds_map,
+    user_unclaimed_map,
+    user_unclaimed_token_meta_map,
+    tokenPriceList,
+    your_list_liquidities,
+  } = useContext(FarmCommonDatas);
+  const [listLiquidities_inFarimg, set_listLiquidities_inFarimg] = useState<
+    UserLiquidityInfo[]
+  >([]);
+  const [listLiquidities_inFarimg_value, set_listLiquidities_inFarimg_value] =
+    useState<string>('0');
+  const tokens = sortTokens(seed.pool.tokens_meta_data);
+  useEffect(() => {
+    get_inFarming_list_liquidities();
+  }, [your_list_liquidities]);
+  useEffect(() => {
+    get_liquidities_in_seed_value();
+  }, [listLiquidities_inFarimg, tokenPriceList]);
+
+  const rate_need_to_reverse_display = useMemo(() => {
+    const { tokens_meta_data } = seed.pool;
+    if (tokens_meta_data) {
+      const [tokenX] = tokens_meta_data;
+      if (TOKEN_LIST_FOR_RATE.indexOf(tokenX.symbol) > -1) return true;
+      return false;
+    }
+  }, [seed]);
+  const unclaimedRewardsData = useMemo(() => {
+    return getTotalUnclaimedRewards();
+  }, [user_unclaimed_map[seed.seed_id], tokenPriceList]);
+  function get_inFarming_list_liquidities() {
+    if (your_list_liquidities.length > 0) {
+      // get farming liquidites of seed;
+      const { free_amount = '0', locked_amount = '0' } =
+        user_seeds_map[seed.seed_id] || {};
+      const user_seed_amount = new BigNumber(free_amount)
+        .plus(locked_amount)
+        .toFixed();
+      const [temp_farming] = allocation_rule_liquidities({
+        list: your_list_liquidities,
+        user_seed_amount,
+        seed,
+      });
+      set_listLiquidities_inFarimg(temp_farming);
+    }
+  }
+  function get_liquidities_in_seed_value() {
+    if (
+      Object.keys(tokenPriceList).length > 0 &&
+      listLiquidities_inFarimg.length > 0
+    ) {
+      // get farming liquidites value;
+      let total_value = new BigNumber(0);
+      listLiquidities_inFarimg.forEach((liquidity: UserLiquidityInfo) => {
+        const poolDetail = seed.pool;
+        const { tokens_meta_data } = poolDetail;
+        const v = get_liquidity_value({
+          liquidity,
+          poolDetail,
+          tokenPriceList,
+          tokensMeta: tokens_meta_data,
+        });
+        total_value = total_value.plus(v);
+      });
+      set_listLiquidities_inFarimg_value(total_value.toFixed());
+    }
+  }
+  function getTotalUnclaimedRewards() {
+    let totalPrice = 0;
+    const tempFarms = {};
+    seed.farmList.forEach((farm: FarmBoost) => {
+      tempFarms[farm.terms.reward_token] = true;
+    });
+    const unclaimed = user_unclaimed_map[seed.seed_id] || {};
+    const unClaimedTokenIds = Object.keys(unclaimed);
+    const tokenList: any[] = [];
+    unClaimedTokenIds?.forEach((tokenId: string) => {
+      const token: TokenMetadata = user_unclaimed_token_meta_map[tokenId];
+      // total price
+      const { id, decimals, icon } = token;
+      const amount = toReadableNumber(decimals, unclaimed[id] || '0');
+      const tokenPrice = tokenPriceList[id]?.price;
+      if (tokenPrice && tokenPrice != 'N/A') {
+        totalPrice += +amount * tokenPrice;
+      }
+      // rewards number
+      let displayNum = '';
+      if (new BigNumber('0').isEqualTo(amount)) {
+        displayNum = '-';
+      } else if (new BigNumber('0.001').isGreaterThan(amount)) {
+        displayNum = '<0.001';
+      } else {
+        displayNum = new BigNumber(amount).toFixed(3, 1);
+      }
+      const tempTokenData = {
+        token,
+        amount: displayNum,
+      };
+      tokenList.push(tempTokenData);
+    });
+    if (totalPrice == 0) {
+      return {
+        worth: <label className="opacity-30">$0</label>,
+        list: tokenList,
+      };
+    } else if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
+      return {
+        worth: '<$0.01',
+        list: tokenList,
+      };
+    } else {
+      return {
+        worth: `$${toInternationalCurrencySystem(totalPrice.toString(), 2)}`,
+        list: tokenList,
+      };
+    }
+  }
+  function displaySymbols() {
+    let result = '';
+    seed.pool.tokens_meta_data.forEach(
+      (token: TokenMetadata, index: number) => {
+        const symbol = toRealSymbol(token.symbol);
+        if (index == seed.pool.tokens_meta_data.length - 1) {
+          result += symbol;
+        } else {
+          result += symbol + '-';
+        }
+      }
+    );
+    return result;
   }
   function displayImgs() {
     const tokenList: any[] = [];
@@ -617,7 +471,7 @@ function FarmViewRow(props: {
       tokenList.push(
         <label
           key={token.id}
-          className={`h-6 w-6 flex-shrink-0 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg -ml-1.5`}
+          className={`h-7 w-7 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg -ml-1.5`}
         >
           <img src={token.icon} className="w-full h-full"></img>
         </label>
@@ -625,7 +479,558 @@ function FarmViewRow(props: {
     });
     return tokenList;
   }
+  function getRange() {
+    const [contractId, temp_pool_id] = seed.seed_id.split('@');
+    const [fixRange, dcl_pool_id, left_point, right_point] =
+      temp_pool_id.split('&');
+    const [token_x_metadata, token_y_metadata] = seed.pool.tokens_meta_data;
+    const decimalRate =
+      Math.pow(10, token_x_metadata.decimals) /
+      Math.pow(10, token_y_metadata.decimals);
+    let left_price = getPriceByPoint(+left_point, decimalRate);
+    let right_price = getPriceByPoint(+right_point, decimalRate);
+    let pairsDiv = (
+      <span className="text-xs text-primaryText">
+        {token_y_metadata.symbol}/{token_x_metadata.symbol}
+      </span>
+    );
+    if (rate_need_to_reverse_display) {
+      const temp = left_price;
+      left_price = new BigNumber(1).dividedBy(right_price).toFixed();
+      right_price = new BigNumber(1).dividedBy(temp).toFixed();
+      pairsDiv = (
+        <span className="text-xs text-primaryText">
+          {token_x_metadata.symbol}/{token_y_metadata.symbol}
+        </span>
+      );
+    }
+    const display_left_price = left_price;
+    const display_right_price = right_price;
+    return (
+      <div className="flex items-center whitespace-nowrap">
+        <span className="text-xs text-white mr-1">
+          {displayNumberToAppropriateDecimals(display_left_price)} -{' '}
+          {displayNumberToAppropriateDecimals(display_right_price)}
+        </span>
+        {pairsDiv}
+      </div>
+    );
+  }
+  return (
+    <div className="rounded-xl mt-3 bg-portfolioBgColor px-5 pb-4">
+      <div className="flex items-center justify-between h-14">
+        <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0 m-2.5">
+            {displayImgs()}
+          </div>
+          <span className="text-white font-bold text-sm gotham_bold">
+            {displaySymbols()}
+          </span>
+          <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 mx-1.5">
+            DCL
+          </span>
+          <span
+            className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
+            onClick={() => {
+              goFarmDetailPage(seed);
+            }}
+          >
+            <LinkIcon></LinkIcon>
+          </span>
+        </div>
+        <div className="flex items-center">
+          <div className="flex flex-col items-end mr-5">
+            <span className="text-white text-sm gotham_bold">
+              {display_value(listLiquidities_inFarimg_value)}
+            </span>
+            <div className="flex items-center">
+              <FarmMiningIcon className="m-1.5"></FarmMiningIcon>
+              <span className="text-xs text-portfolioGreenColor gotham_bold">
+                {unclaimedRewardsData.worth}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-center border border-primaryText border-opacity-10 rounded-md w-6 h-6 cursor-pointer">
+            <TriangleIcon></TriangleIcon>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div className="border-b border-gray1 pb-5">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-primaryText">Reward Range</span>
+            <div className="flex items-center">{getRange()}</div>
+          </div>
+          <div className="flex items-center justify-between mt-5">
+            <span className="text-sm text-primaryText">Unclaimed Rewards</span>
+            <div className="flex items-center">
+              {unclaimedRewardsData.list.map(
+                (
+                  { token, amount }: { token: TokenMetadata; amount: string },
+                  index
+                ) => {
+                  return (
+                    <>
+                      <img
+                        src={token.icon}
+                        className={`w-5 h-5 border border-greenColor rounded-full mr-1.5`}
+                      ></img>
+                      <span
+                        className={`text-sm text-white gotham_bold ${
+                          index == unclaimedRewardsData.list.length - 1
+                            ? ''
+                            : 'mr-1.5'
+                        }`}
+                      >
+                        {amount}
+                      </span>
+                    </>
+                  );
+                }
+              )}
+              <span className="tex-sm text-portfolioQinColor pl-3.5 border-l border-orderTypeBg ml-3.5">
+                {unclaimedRewardsData.worth}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="mt-5">
+          <p className="text-sm text-primaryText mb-5">Your Position(s)</p>
+          {listLiquidities_inFarimg.length > 0 ? (
+            <>
+              {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
+                return (
+                  <LiquidityLine
+                    liquidity={liquidity}
+                    seed={seed}
+                    key={liquidity.lpt_id}
+                    tokens={tokens}
+                    rate_need_to_reverse_display={rate_need_to_reverse_display}
+                  ></LiquidityLine>
+                );
+              })}
+            </>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+function LiquidityLine(props: {
+  liquidity: UserLiquidityInfo;
+  seed: Seed;
+  tokens: TokenMetadata[];
+  rate_need_to_reverse_display: boolean;
+}) {
+  const { tokenPriceList } = useContext(FarmCommonDatas);
+  const { liquidity, seed, tokens, rate_need_to_reverse_display } = props;
+  useEffect(() => {
+    get_each_token_apr_for_nft();
+  }, [seed, tokenPriceList, liquidity]);
 
+  function get_liquidity_value(liquidity: UserLiquidityInfo) {
+    const { left_point, right_point, amount } = liquidity;
+    const poolDetail = seed.pool;
+    const { token_x, token_y } = poolDetail;
+    const v = get_total_value_by_liquidity_amount_dcl({
+      left_point,
+      right_point,
+      poolDetail,
+      amount,
+      price_x_y: {
+        [token_x]: tokenPriceList[token_x]?.price || '0',
+        [token_y]: tokenPriceList[token_y]?.price || '0',
+      },
+      metadata_x_y: {
+        [token_x]: tokens[0],
+        [token_y]: tokens[1],
+      },
+    });
+    return v;
+  }
+  function get_liquidity_value_display(liquidity: UserLiquidityInfo) {
+    const v = get_liquidity_value(liquidity);
+    return display_value(v);
+  }
+  function get_your_range(liquidity: UserLiquidityInfo, site?: string) {
+    const { left_point, right_point } = liquidity;
+    const [token_x_metadata, token_y_metadata] = seed.pool.tokens_meta_data;
+    const [fixRange, dcl_pool_id, seed_left_point, seed_right_point] =
+      seed.seed_id.split('@')[1].split('&');
+    let icon;
+    const radio = get_intersection_radio({
+      left_point_liquidity: left_point,
+      right_point_liquidity: right_point,
+      left_point_seed: seed_left_point,
+      right_point_seed: seed_right_point,
+    });
+    const p = new BigNumber(radio);
+    const Icon = get_intersection_icon_by_radio(radio);
+    icon = <Icon num={Math.random()}></Icon>;
+    const decimalRate =
+      Math.pow(10, token_x_metadata.decimals) /
+      Math.pow(10, token_y_metadata.decimals);
+    let left_price = getPriceByPoint(+left_point, decimalRate);
+    let right_price = getPriceByPoint(+right_point, decimalRate);
+    if (rate_need_to_reverse_display) {
+      const temp = left_price;
+      left_price = new BigNumber(1).dividedBy(right_price).toFixed();
+      right_price = new BigNumber(1).dividedBy(temp).toFixed();
+    }
+    const display_left_price = left_price;
+    const display_right_price = right_price;
+    function rangeTip() {
+      const tip =
+        'The intersection of your price range and the farm reward range.';
+      let result: string = `<div class="text-farmText text-xs w-52 text-left">${tip}</div>`;
+      return result;
+    }
+    function displayP(p: BigNumber) {
+      if (p.isEqualTo(0)) {
+        return '0%';
+      } else if (p.isLessThan(1)) {
+        return '1%';
+      } else {
+        return p?.toFixed(0, 1) + '%';
+      }
+    }
+    return (
+      <div className="flex items-center">
+        <span className="text-sm mr-1.5">
+          {displayNumberToAppropriateDecimals(display_left_price)} ~{' '}
+          {displayNumberToAppropriateDecimals(display_right_price)}
+        </span>
+        <div
+          className="text-white text-right"
+          data-class="reactTip"
+          data-for={'rewardPerWeekQId'}
+          data-place="top"
+          data-html={true}
+          data-tip={rangeTip()}
+        >
+          <span className="flex items-center text-xs text-primaryText">
+            {icon}
+            <label className="ml-1 xsm:hidden">{displayP(p)}</label>
+          </span>
+          <ReactTooltip
+            id={'rewardPerWeekQId'}
+            backgroundColor="#1D2932"
+            border
+            borderColor="#7e8a93"
+            effect="solid"
+          />
+        </div>
+      </div>
+    );
+  }
+  function get_each_token_apr_for_nft() {
+    const { farmList, total_seed_amount, total_seed_power } = seed;
+    // principal
+    const total_principal = get_liquidity_value(liquidity);
+    // lp percent
+    let percent: BigNumber = new BigNumber(0);
+    const mint_amount = mint_liquidity(liquidity, seed.seed_id);
+    const part_farm_ratio = liquidity.part_farm_ratio;
+    if (+part_farm_ratio == 100) {
+      // full farming
+      if (+total_seed_power > 0) {
+        percent = new BigNumber(mint_amount).dividedBy(total_seed_power);
+      }
+    } else if (+part_farm_ratio > 0 && +part_farm_ratio < 100) {
+      // partial Farming
+      if (+total_seed_power > 0) {
+        const partial_amount = new BigNumber(mint_amount)
+          .multipliedBy(part_farm_ratio)
+          .dividedBy(100);
+        percent = partial_amount.dividedBy(total_seed_power);
+      }
+    } else {
+      // unFarming, unavailable
+      const temp_total = new BigNumber(total_seed_power || 0).plus(mint_amount);
+      if (temp_total.isGreaterThan(0)) {
+        percent = new BigNumber(mint_amount).dividedBy(temp_total);
+      }
+    }
+    // get apr per token
+    const farmList_parse = JSON.parse(JSON.stringify(farmList || []));
+    farmList_parse.forEach((farm: FarmBoost) => {
+      const { token_meta_data } = farm;
+      const { daily_reward, reward_token } = farm.terms;
+      const quantity = toReadableNumber(token_meta_data.decimals, daily_reward);
+      const reward_token_price = Number(
+        tokenPriceList[reward_token]?.price || 0
+      );
+      const cur_token_rewards = new BigNumber(quantity)
+        .multipliedBy(reward_token_price)
+        .multipliedBy(365);
+      const user_can_get_token_rewards = new BigNumber(
+        cur_token_rewards
+      ).multipliedBy(percent);
+      if (+total_principal > 0) {
+        farm.yourNFTApr = new BigNumber(user_can_get_token_rewards)
+          .dividedBy(total_principal)
+          .toFixed();
+      } else {
+        farm.yourNFTApr = '0';
+      }
+    });
+    liquidity.farmList = farmList_parse;
+  }
+  function get_your_total_apr() {
+    const farms = liquidity.farmList || [];
+    let apr = new BigNumber(0);
+    const allPendingFarms = isPending(seed);
+    farms.forEach(function (item: FarmBoost) {
+      const pendingFarm = item.status == 'Created' || item.status == 'Pending';
+      if (allPendingFarms || !pendingFarm) {
+        apr = new BigNumber(apr).plus(item.yourNFTApr || 0);
+      }
+    });
+    return apr.multipliedBy(100).toFixed();
+  }
+  function display_your_apr() {
+    const total_apr = new BigNumber(get_your_total_apr());
+    if (total_apr.isEqualTo('0')) {
+      return '0%';
+    } else if (total_apr.isLessThan(0.01)) {
+      return `<0.01%`;
+    } else {
+      return `${toPrecision(total_apr.toFixed(), 2)}%`;
+    }
+  }
+  function goYourLiquidityDetail(liquidity: UserLiquidityInfo) {
+    const url_params = liquidity.lpt_id.replace(/\|/g, '@').replace(/#/g, '@');
+    window.open(`/yoursLiquidityDetailV2/${url_params}`);
+  }
+  return (
+    <>
+      {/* for PC */}
+      <div className="relative xsm:hidden" key={liquidity.lpt_id}>
+        <div className="absolute -top-1.5 left-5 flex items-center justify-center">
+          <NFTIdIcon></NFTIdIcon>
+          <span className="absolute gotham_bold text-xs text-white">
+            NFT ID #{liquidity.lpt_id.split('#')[1]}
+          </span>
+        </div>
+        <div className="bg-v3HoverDarkBgColor rounded-xl mb-5 overflow-hidden">
+          <div className="flex items-stretch justify-between pt-7 pb-3.5 px-6">
+            <div className="flex flex-col justify-between col-span-1 items-start">
+              <div className="flex items-center">
+                <span className="text-sm text-primaryText mr-1">
+                  Your Liquidity
+                </span>
+                <span
+                  className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
+                  onClick={() => {
+                    goYourLiquidityDetail(liquidity);
+                  }}
+                >
+                  <LinkIcon></LinkIcon>
+                </span>
+              </div>
+              <span className={`text-sm mt-2.5 text-white`}>
+                {get_liquidity_value_display(liquidity)}
+              </span>
+            </div>
+            <div className="flex flex-col justify-between  col-span-1 items-start">
+              <span className="text-sm text-primaryText">Your Price Range</span>
+              <span className={`text-sm text-white`}>
+                {get_your_range(liquidity, 'pc')}
+              </span>
+            </div>
+            <div className="flex flex-col justify-between col-span-1 items-start">
+              <span className="flex items-center text-sm text-primaryText">
+                Your APR
+              </span>
+              <span className="text-sm text-white">{display_your_apr()}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* for Mobile */}
+      <div
+        key={liquidity.lpt_id + 'm'}
+        className="relative flex flex-col items-center mb-5 lg:hidden"
+      >
+        <div className="absolute -top-1.5 flex items-center justify-center">
+          <NFTIdIcon num="1"></NFTIdIcon>
+          <span className="absolute gotham_bold text-xs text-white">
+            NFT ID #{liquidity.lpt_id.split('#')[1]}
+          </span>
+        </div>
+        <div className="bg-v3HoverDarkBgColor rounded-t-xl px-4 py-3 w-full">
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-sm text-primaryText">Your Liquidity</span>
+            <span className={`text-sm text-white`}>
+              {get_liquidity_value_display(liquidity)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-sm text-primaryText">Your Price Range</span>
+            <span className={`text-sm text-white`}>
+              {get_your_range(liquidity, 'mobile')}
+            </span>
+          </div>
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center text-sm text-primaryText">
+              Your APR
+            </div>
+            <span className={`text-sm text-white`}>{display_your_apr()}</span>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+function ClassicFarms() {
+  const { set_classic_farms_value_done, set_classic_farms_value } =
+    useContext(PortfolioData);
+  const { classicSeeds, user_seeds_map } = useContext(FarmCommonDatas);
+  useEffect(() => {
+    if (classicSeeds.length > 0) {
+      const total_value = get_all_seeds_liquidities_value();
+      set_classic_farms_value_done(true);
+      set_classic_farms_value(total_value);
+      console.log('5555555555555-classic_farms_value', total_value);
+    }
+  }, [classicSeeds]);
+  function get_all_seeds_liquidities_value() {
+    let total_value = new BigNumber(0);
+    classicSeeds.forEach((seed: Seed) => {
+      const v = getYourTvl(seed);
+      total_value = total_value.plus(v);
+    });
+    return total_value.toFixed();
+  }
+  function getYourTvl(seed: Seed) {
+    const { pool, seed_id, seed_decimal } = seed;
+    const { free_amount = '0', locked_amount = '0' } =
+      user_seeds_map[seed_id] || {};
+    const { tvl, shares_total_supply } = pool;
+    const amount = new BigNumber(free_amount || 0)
+      .plus(locked_amount || 0)
+      .toFixed();
+    const poolShares = toReadableNumber(seed_decimal, shares_total_supply);
+    const yourLpAmount = toReadableNumber(seed_decimal, amount);
+    const yourTvl =
+      +poolShares == 0
+        ? '0'
+        : new BigNumber(yourLpAmount)
+            .multipliedBy(tvl)
+            .dividedBy(poolShares)
+            .toFixed();
+    return yourTvl;
+  }
+  return (
+    <>
+      {classicSeeds.map((seed: Seed) => {
+        return <ClassicFarmRow seed={seed} key={seed.seed_id}></ClassicFarmRow>;
+      })}
+    </>
+  );
+}
+function ClassicFarmRow({ seed }: { seed: Seed }) {
+  const {
+    user_seeds_map,
+    user_unclaimed_map,
+    user_unclaimed_token_meta_map,
+    boostConfig,
+    tokenPriceList,
+  } = useContext(FarmCommonDatas);
+  const { pool, seedTvl, seed_id, seed_decimal } = seed;
+  const {
+    free_amount = '0',
+    x_locked_amount = '0',
+    locked_amount = '0',
+  } = user_seeds_map[seed_id] || {};
+  const { token_account_ids } = pool;
+  const tokens = sortTokens(useTokens(token_account_ids) || []);
+  const intl = useIntl();
+  const unclaimedRewardsData = useMemo(() => {
+    return getTotalUnclaimedRewards();
+  }, [user_unclaimed_map[seed_id], tokenPriceList]);
+  function getTotalUnclaimedRewards() {
+    let totalPrice = 0;
+    let resultTip = '';
+    const tempFarms = {};
+
+    seed.farmList.forEach((farm: FarmBoost) => {
+      tempFarms[farm.terms.reward_token] = true;
+    });
+    const isEnded = seed.farmList[0].status == 'Ended';
+    const unclaimed = user_unclaimed_map[seed_id] || {};
+    const unClaimedTokenIds = Object.keys(unclaimed);
+    const tokenList: any[] = [];
+    unClaimedTokenIds?.forEach((tokenId: string) => {
+      const token: TokenMetadata = user_unclaimed_token_meta_map[tokenId];
+      // total price
+      const { id, decimals, icon } = token;
+      const amount = toReadableNumber(decimals, unclaimed[id] || '0');
+      const tokenPrice = tokenPriceList[id]?.price;
+      if (tokenPrice && tokenPrice != 'N/A') {
+        totalPrice += +amount * tokenPrice;
+      }
+      // rewards number
+      let displayNum = '';
+      if (new BigNumber('0').isEqualTo(amount)) {
+        displayNum = '-';
+      } else if (new BigNumber('0.001').isGreaterThan(amount)) {
+        displayNum = '<0.001';
+      } else {
+        displayNum = new BigNumber(amount).toFixed(3, 1);
+      }
+      const tempTokenData = {
+        token,
+        amount: displayNum,
+      };
+      tokenList.push(tempTokenData);
+      const txt = intl.formatMessage({ id: 'ended_search' });
+      const itemHtml = `<div class="flex justify-between items-center h-8 active">
+          <img class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
+            <div class="flex flex-col items-end text-xs text-navHighLightText">
+            ${formatWithCommas(displayNum)}
+            ${
+              !isEnded && !tempFarms[id]
+                ? `<span class="text-farmText text-xs">${txt}</span>`
+                : ''
+            }
+          </div>
+        </div>`;
+      resultTip += itemHtml;
+    });
+    if (totalPrice == 0) {
+      return {
+        worth: <label className="opacity-30">$0</label>,
+        tip: resultTip,
+        list: tokenList,
+      };
+    } else if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
+      return {
+        worth: '<$0.01',
+        tip: resultTip,
+        list: tokenList,
+      };
+    } else {
+      return {
+        worth: `$${toInternationalCurrencySystem(totalPrice.toString(), 2)}`,
+        tip: resultTip,
+        list: tokenList,
+      };
+    }
+  }
+  function displayImgs() {
+    const tokenList: any[] = [];
+    (tokens || []).forEach((token: TokenMetadata, index: number) => {
+      tokenList.push(
+        <img
+          key={token.id + index}
+          src={token.icon}
+          className="relative w-7 h-7 border border-greenColor rounded-full -ml-1.5"
+        ></img>
+      );
+    });
+    return tokenList;
+  }
   function displaySymbols() {
     let result = '';
     pool.tokens_meta_data.forEach((token: TokenMetadata, index: number) => {
@@ -638,70 +1043,20 @@ function FarmViewRow(props: {
     });
     return result;
   }
-
   function getTotalStaked() {
     return Number(seedTvl) == 0
       ? '-'
       : `$${toInternationalCurrencySystem(seedTvl, 2)}`;
   }
-  function getApr() {
-    if (yourApr) {
-      return yourApr;
-    } else {
-      return getTotalApr();
-    }
-  }
-  function totalTvlPerWeekDisplay() {
-    const farms = seed.farmList;
-    const rewardTokenIconMap = {};
-    let totalPrice = 0;
-    farms.forEach((farm: FarmBoost) => {
-      const { id, decimals, icon } = farm.token_meta_data;
-      const { daily_reward } = farm.terms;
-      rewardTokenIconMap[id] = icon;
-      const tokenPrice = tokenPriceList[id]?.price;
-      if (tokenPrice && tokenPrice != 'N/A') {
-        const tokenAmount = toReadableNumber(decimals, daily_reward);
-        totalPrice += +new BigNumber(tokenAmount)
-          .multipliedBy(tokenPrice)
-          .toFixed();
-      }
-    });
-    totalPrice = +new BigNumber(totalPrice).multipliedBy(7).toFixed();
-    const totalPriceDisplay =
-      totalPrice == 0
-        ? '-'
-        : '$' + toInternationalCurrencySystem(totalPrice.toString(), 2);
-    return (
-      <div className="flex items-center">
-        <div className="flex items-center">
-          {Object.values(rewardTokenIconMap).map(
-            (icon: string, index: number) => {
-              return (
-                <img
-                  src={icon}
-                  key={index}
-                  className={`h-6 w-6 flex-shrink-0 rounded-full border border-greenColor ${
-                    index != 0 ? '-ml-1.5' : ''
-                  }`}
-                ></img>
-              );
-            }
-          )}
-        </div>
-        <span className="ml-2">{totalPriceDisplay}</span>
-      </div>
-    );
-  }
   function showLpPower() {
     const power = getUserPower();
     const powerBig = new BigNumber(power);
     if (powerBig.isEqualTo(0)) {
-      return <label className="opacity-50">{isSignedIn ? 0.0 : '-'}</label>;
-    } else if (powerBig.isLessThan('0.001')) {
-      return '<0.001';
+      return <label className="opacity-50">{'0.0'}</label>;
+    } else if (powerBig.isLessThan('0.01')) {
+      return '<0.01';
     } else {
-      return formatWithCommas(toPrecision(power, 3));
+      return formatWithCommas(toPrecision(power, 2));
     }
   }
   function getUserPower() {
@@ -711,7 +1066,7 @@ function FarmViewRow(props: {
     const { seed_id } = seed;
     const love_user_seed = user_seeds_map[REF_VE_CONTRACT_ID];
     const base = affected_seeds[seed_id];
-    if (base && loveSeed) {
+    if (base) {
       const { free_amount = 0, locked_amount = 0 } = love_user_seed || {};
       const totalStakeLoveAmount = toReadableNumber(
         LOVE_TOKEN_DECIMAL,
@@ -730,7 +1085,10 @@ function FarmViewRow(props: {
     const powerBig = new BigNumber(+(realRadio || 1))
       .multipliedBy(free_amount)
       .plus(x_locked_amount);
-    const power = toReadableNumber(DECIMALS, powerBig.toFixed(0).toString());
+    const power = toReadableNumber(
+      seed_decimal,
+      powerBig.toFixed(0).toString()
+    );
     return power;
   }
   function getUserLpPercent() {
@@ -738,209 +1096,255 @@ function FarmViewRow(props: {
     const { total_seed_power } = seed;
     const userPower = getUserPower();
     if (+total_seed_power && +userPower) {
-      const totalAmount = toReadableNumber(DECIMALS, total_seed_power);
+      const totalAmount = toReadableNumber(seed_decimal, total_seed_power);
       const percent = new BigNumber(userPower)
         .dividedBy(totalAmount)
         .multipliedBy(100);
       if (percent.isLessThan('0.001')) {
-        result = '(<0.001%)';
+        result = '<0.001%';
       } else {
-        result = `(${toPrecision(percent.toFixed().toString(), 3)}%)`;
+        result = `${toPrecision(percent.toFixed().toString(), 3)}%`;
       }
     }
     return result;
   }
-  function getYourPowerValue() {
-    if (Number(yourTvl) == 0) {
-      return '-';
-    } else {
-      return '~$' + toInternationalCurrencySystem(yourTvl, 2);
-    }
-  }
-  function getTotalUnclaimedRewards() {
-    let totalPrice = 0;
-    const tempFarms = {};
-    seed.farmList.forEach((farm: FarmBoost) => {
-      tempFarms[farm.terms.reward_token] = true;
+  function getPowerTip() {
+    if (REF_VE_CONTRACT_ID && !boostConfig) return '';
+    const { affected_seeds = {} } = boostConfig || {};
+    const { seed_id } = seed;
+    const base = affected_seeds[seed_id];
+    const tip = intl.formatMessage({
+      id: base ? 'farm_has_boost_tip' : 'farm_no_boost_tip',
     });
-    const unclaimed = user_unclaimed_map[seed_id] || {};
-    const unClaimedTokenIds = Object.keys(unclaimed);
-    unClaimedTokenIds?.forEach((tokenId: string) => {
-      const token: TokenMetadata = user_unclaimed_token_meta_map[tokenId];
-      if (token) {
-        // total price
-        const { id, decimals, icon } = token;
-        const amount = toReadableNumber(decimals, unclaimed[id] || '0');
-        const tokenPrice = tokenPriceList[id]?.price;
-        if (tokenPrice && tokenPrice != 'N/A') {
-          totalPrice += +amount * tokenPrice;
-        }
-      }
-    });
-    let res;
-    if (totalPrice == 0) {
-      res = {
-        worth: <>{isSignedIn ? '$0' : '-'}</>,
-        showClaimButton: false,
-      };
-    } else if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
-      res = {
-        worth: '<$0.01',
-        showClaimButton: true,
-      };
-    } else {
-      res = {
-        worth: `$${toInternationalCurrencySystem(totalPrice.toString(), 2)}`,
-        showClaimButton: true,
-      };
-    }
-    setUnclaimedRewardsData(res);
+    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    return result;
   }
-  function openUnStakeModalVisible(unStakeType: string) {
-    setUnStakeModalVisible(true);
+  function getYourTvl() {
+    const { tvl, shares_total_supply } = pool;
+    const amount = new BigNumber(free_amount || 0)
+      .plus(locked_amount || 0)
+      .toFixed();
+    const poolShares = toReadableNumber(seed_decimal, shares_total_supply);
+    const yourLpAmount = toReadableNumber(seed_decimal, amount);
+    const yourTvl =
+      +poolShares == 0
+        ? '0'
+        : new BigNumber(yourLpAmount)
+            .multipliedBy(tvl)
+            .dividedBy(poolShares)
+            .toFixed();
+    return '$' + toInternationalCurrencySystem(yourTvl, 2);
   }
-  function closeUnStakeModalVisible() {
-    setUnStakeModalVisible(false);
-  }
-  function openStakeModalVisible(stakeType: string) {
-    setStakeModalVisible(true);
-  }
-  function closeStakeModalVisible() {
-    setStakeModalVisible(false);
-  }
-  function claimReward() {
-    if (claimLoading) return;
-    setClaimLoading(true);
-    claimRewardBySeed_boost(seed.seed_id)
-      .then(() => {
-        window.location.reload();
-      })
-      .catch(() => {
-        setClaimLoading(false);
-      });
-  }
-  const isEnded = seed.farmList[0].status == 'Ended';
-  const needForbidden =
-    (FARM_BLACK_LIST_V2 || []).indexOf(pool.id.toString()) > -1;
 
   return (
-    <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      className="mt-2.5 border border-cardBg rounded-2xl overflow-hidden"
-    >
-      <div className="grid grid-cols-12 bg-positionLineBgColor h-14 pl-4 pr-8">
-        <div className="flex items-center col-span-2">
-          {displayImgs()}
-          <span className="text-sm text-white gotham_bold ml-2.5">
+    <div className="rounded-xl mt-3 bg-portfolioBgColor px-5 pb-4">
+      <div className="flex items-center justify-between h-14">
+        <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0 m-2.5">
+            {displayImgs()}
+          </div>
+          <span className="text-white font-bold text-sm gotham_bold">
             {displaySymbols()}
           </span>
-        </div>
-        <div className="flex items-center col-span-2">{getTotalStaked()}</div>
-        <div className="flex items-center col-span-1">{getApr()}</div>
-        <div className="flex items-center col-span-3">
-          {totalTvlPerWeekDisplay()}
-        </div>
-        <div className="flex items-center col-span-2 justify-self-end">
-          <div className="flex flex-col items-end">
-            <span className="text-sm text-white">
-              {showLpPower()}
-              {getUserLpPercent()}
-            </span>
-            <span className="text-xs text-limitOrderInputColor mt-1.5">
-              {getYourPowerValue()}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center col-span-2 justify-self-end">
-          {unclaimedRewardsData?.worth}
-        </div>
-      </div>
-      <div
-        className={`items-center justify-end bg-positionLineHoverBgColor h-16 px-7 ${
-          hover ? 'flex' : 'hidden'
-        }`}
-      >
-        <GradientButton
-          onClick={() => {
-            openStakeModalVisible('free');
-          }}
-          color="#fff"
-          disabled={needForbidden ? true : false}
-          btnClassName={needForbidden ? 'cursor-not-allowed' : ''}
-          minWidth="5rem"
-          borderRadius="6px"
-          className={`h-8 text-center text-sm text-white focus:outline-none ${
-            needForbidden ? 'opacity-40' : ''
-          } ${isEnded ? 'hidden' : ''}`}
-        >
-          <FormattedMessage id="stake"></FormattedMessage>
-        </GradientButton>
-        <OprationButton
-          onClick={() => {
-            openUnStakeModalVisible('free');
-          }}
-          color="#fff"
-          minWidth="5rem"
-          borderRadius="6px"
-          className={`ml-2.5 flex items-center justify-center h-8 px-0.5 text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover ${
-            Number(freeAmount) > 0 ? '' : 'hidden'
-          }`}
-        >
-          <FormattedMessage id="unstake" defaultMessage="Unstake" />
-        </OprationButton>
-        {unclaimedRewardsData?.showClaimButton ? (
-          <div
-            className="flex justify-between items-center ml-2.5"
-            style={{ minWidth: '5rem' }}
+          <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 mx-1.5">
+            Classic
+          </span>
+          <span
+            className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
+            onClick={() => {
+              goFarmDetailPage(seed);
+            }}
           >
-            <span
-              className="flex items-center justify-center bg-deepBlue hover:bg-deepBlueHover rounded-md text-sm text-white h-8 w-20 cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                claimReward();
-              }}
-            >
-              <ButtonTextWrapper
-                loading={claimLoading}
-                Text={() => <FormattedMessage id="claim" />}
-              />
+            <LinkIcon></LinkIcon>
+          </span>
+        </div>
+        <div className="flex items-center">
+          <div className="flex flex-col items-end mr-5">
+            <span className="text-white text-sm gotham_bold">
+              {getYourTvl()}
             </span>
+            <div className="flex items-center">
+              <FarmMiningIcon className="m-1.5"></FarmMiningIcon>
+              <span className="text-xs text-portfolioGreenColor gotham_bold">
+                {unclaimedRewardsData.worth}
+              </span>
+            </div>
           </div>
-        ) : null}
+          <div className="flex items-center justify-center border border-primaryText border-opacity-10 rounded-md w-6 h-6 cursor-pointer">
+            <TriangleIcon></TriangleIcon>
+          </div>
+        </div>
       </div>
-      {stakeModalVisible ? (
-        <StakeModal
-          title="stake"
-          isOpen={stakeModalVisible}
-          detailData={seed}
-          onRequestClose={closeStakeModalVisible}
-          lpBalance={lpBalance}
-          stakeType="free"
-          serverTime={serverTime}
-          tokenPriceList={tokenPriceList}
-          loveSeed={loveSeed}
-          boostConfig={boostConfig}
-          user_seeds_map={user_seeds_map}
-          user_unclaimed_map={user_unclaimed_map}
-          user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
-        ></StakeModal>
-      ) : null}
-      {unStakeModalVisible ? (
-        <UnStakeModal
-          title={'unstake'}
-          isOpen={unStakeModalVisible}
-          titleIcon={''}
-          detailData={seed}
-          onRequestClose={closeUnStakeModalVisible}
-          unStakeType="free"
-          serverTime={serverTime}
-          tokenPriceList={tokenPriceList}
-          user_seeds_map={user_seeds_map}
-          user_unclaimed_map={user_unclaimed_map}
-          user_unclaimed_token_meta_map={user_unclaimed_token_meta_map}
-        ></UnStakeModal>
-      ) : null}
+      <div>
+        <div className="flex items-center text-sm text-v3SwapGray ml-2">
+          Your Position
+        </div>
+        <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-sm text-v3SwapGray">
+              You Staked (USD value)
+            </span>
+            <span className="text-sm text-white">{getYourTvl()}</span>
+          </div>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <span className="text-sm text-v3SwapGray">Your Power</span>
+              <div
+                className="text-white text-right ml-1"
+                data-class="reactTip"
+                data-for="powerTipId"
+                data-place="top"
+                data-html={true}
+                data-tip={getPowerTip()}
+              >
+                <QuestionMark></QuestionMark>
+                <ReactTooltip
+                  id="powerTipId"
+                  backgroundColor="#1D2932"
+                  border
+                  borderColor="#7e8a93"
+                  effect="solid"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-sm text-white">{showLpPower()}</span>
+              <span className="text-xs text-primaryText mt-0.5">
+                ({getUserLpPercent()})
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-v3SwapGray">Unclaimed Rewards</span>
+            <div className="flex items-center">
+              {unclaimedRewardsData.list.map(
+                (
+                  { token, amount }: { token: TokenMetadata; amount: string },
+                  index
+                ) => {
+                  return (
+                    <>
+                      <img
+                        src={token.icon}
+                        className={`w-5 h-5 border border-greenColor rounded-full mr-1.5`}
+                      ></img>
+                      <span
+                        className={`text-sm text-white gotham_bold ${
+                          index == unclaimedRewardsData.list.length - 1
+                            ? ''
+                            : 'mr-1.5'
+                        }`}
+                      >
+                        {amount}
+                      </span>
+                    </>
+                  );
+                }
+              )}
+              <span className="tex-sm text-portfolioQinColor pl-3.5 border-l border-orderTypeBg ml-3.5">
+                {unclaimedRewardsData.worth}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
+}
+function sortTokens(tokens: TokenMetadata[]) {
+  tokens.sort((a: TokenMetadata, b: TokenMetadata) => {
+    if (a.symbol === 'NEAR') return 1;
+    if (b.symbol === 'NEAR') return -1;
+    return 0;
+  });
+  return tokens;
+}
+function goFarmDetailPage(seed: Seed) {
+  const poolId = getPoolIdBySeedId(seed.seed_id);
+  const status = seed.farmList[0].status == 'Ended' ? 'e' : 'r';
+  let mft_id = poolId;
+  let is_dcl_pool = false;
+  const [contractId, temp_pool_id] = seed.seed_id.split('@');
+  if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+    is_dcl_pool = true;
+  }
+  if (is_dcl_pool) {
+    const [fixRange, pool_id, left_point, right_point] =
+      temp_pool_id.split('&');
+    mft_id = `${pool_id}&${left_point}&${right_point}`;
+  }
+  window.open(`/v2farms/${mft_id}-${status}`);
+}
+function getPoolIdBySeedId(seed_id: string) {
+  const [contractId, temp_pool_id] = seed_id.split('@');
+  if (temp_pool_id) {
+    if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      const [fixRange, dcl_pool_id, left_point, right_point] =
+        temp_pool_id.split('&');
+      return dcl_pool_id;
+    } else {
+      return temp_pool_id;
+    }
+  }
+  return '';
+}
+function isPending(seed: Seed) {
+  let pending: boolean = true;
+  const farms = seed.farmList;
+  for (let i = 0; i < farms.length; i++) {
+    if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
+      pending = false;
+      break;
+    }
+  }
+  return pending;
+}
+function get_liquidity_value({
+  liquidity,
+  poolDetail,
+  tokenPriceList,
+  tokensMeta,
+}: {
+  liquidity: UserLiquidityInfo;
+  poolDetail: PoolInfo;
+  tokenPriceList: Record<string, any>;
+  tokensMeta: TokenMetadata[];
+}) {
+  const { left_point, right_point, amount } = liquidity;
+  const { token_x, token_y } = poolDetail;
+  const v = get_total_value_by_liquidity_amount_dcl({
+    left_point,
+    right_point,
+    poolDetail,
+    amount,
+    price_x_y: {
+      [token_x]: tokenPriceList[token_x]?.price || '0',
+      [token_y]: tokenPriceList[token_y]?.price || '0',
+    },
+    metadata_x_y: {
+      [token_x]: tokensMeta[0],
+      [token_y]: tokensMeta[1],
+    },
+  });
+  return v;
+}
+function display_number(amount: string) {
+  const amount_big = new BigNumber(amount);
+  if (amount_big.isEqualTo('0')) {
+    return '0';
+  } else if (amount_big.isLessThan('0.01')) {
+    return '<0.01';
+  } else {
+    return formatWithCommas(toPrecision(amount, 2));
+  }
+}
+function display_value(amount: string) {
+  const amount_big = new BigNumber(amount);
+  if (amount_big.isEqualTo('0')) {
+    return '$0';
+  } else if (amount_big.isLessThan('0.01')) {
+    return '<$0.01';
+  } else {
+    return `$${toInternationalCurrencySystem(amount, 2)}`;
+  }
 }

@@ -24,11 +24,24 @@ export default function Tab() {
     v2LiquidityQuantity,
     v1LiquidityLoadingDone,
     v2LiquidityLoadingDone,
+
+    dcl_farms_value_done,
+    classic_farms_value_done,
+    dcl_farms_value,
+    classic_farms_value,
+    all_farms_quanity,
+    all_farms_Loading_done,
   } = useContext(PortfolioData);
+  // console.log('555555555-dcl_farms_value_done', dcl_farms_value_done);
+  // console.log('555555555-classic_farms_value_done', classic_farms_value_done);
+  // console.log('555555555-dcl_farms_value', dcl_farms_value);
+  // console.log('555555555-classic_farms_value', classic_farms_value);
+  // console.log('555555555-all_farms_quanity', all_farms_quanity);
+  // console.log('555555555-all_farms_Loading_done', all_farms_Loading_done);
   const [tabList, setTabList] = useState([
+    { name: 'Your Farms', tag: 3, value: '$-', quantity: '-' },
     { name: 'Your Positions', tag: 1, value: '$-', quantity: '-' },
     { name: 'Active Orders', tag: 2, value: '$-', quantity: '-' },
-    { name: 'Your Farms', tag: 3, value: '$-', quantity: '-' },
   ]);
   const total_liquidity_value = useMemo(() => {
     let total_value = '$-';
@@ -53,9 +66,32 @@ export default function Tab() {
     v1LiquidityLoadingDone,
     v2LiquidityLoadingDone,
   ]);
+  const total_farms_value = useMemo(() => {
+    let total_value = '0';
+    if (dcl_farms_value_done && classic_farms_value_done) {
+      total_value = new BigNumber(classic_farms_value)
+        .plus(dcl_farms_value)
+        .toFixed();
+    }
+    return display_value(total_value);
+  }, [
+    dcl_farms_value,
+    classic_farms_value,
+    dcl_farms_value_done,
+    classic_farms_value_done,
+  ]);
+  const total_farms_quantity = useMemo(() => {
+    let total_quantity = '0';
+    if (all_farms_Loading_done) {
+      total_quantity = all_farms_quanity;
+    }
+    return total_quantity;
+  }, [all_farms_Loading_done, all_farms_quanity]);
   useEffect(() => {
-    tabList[0].value = total_liquidity_value;
-    tabList[0].quantity = total_liquidity_quantity;
+    tabList[0].value = total_farms_value;
+    tabList[0].quantity = total_farms_quantity;
+    tabList[1].value = total_liquidity_value;
+    tabList[1].quantity = total_liquidity_quantity;
     const parse_tabList = JSON.parse(JSON.stringify(tabList));
     setTabList(parse_tabList);
   }, [total_liquidity_value, total_liquidity_quantity]);
