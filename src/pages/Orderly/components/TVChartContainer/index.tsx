@@ -164,7 +164,7 @@ export function ChartContainer() {
       ref={ref}
       id="TVChartContainer"
       style={{
-        height: '500px',
+        height: '52vh',
         position: 'relative',
       }}
     ></div>

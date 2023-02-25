@@ -20,32 +20,52 @@ import {
 import AllOrderBoard from './components/AllOrders';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { REF_ORDERLY_ACCOUNT_VALID } from './components/UserBoard/index';
+import { isLargeScreen } from '../../utils/device';
 
 function TradingBoard() {
+  const isLarge = isLargeScreen();
+
   return (
     <div className="w-full flex  pl-4">
-      <div className="w-4/5 flex flex-col">
+      <div className="w-full flex flex-col">
         <div
           className="w-full flex"
           style={{
-            height: '570px',
+            height: 'calc(52vh + 70px)',
           }}
         >
-          <div className="w-3/4 border p-4   border-boxBorder rounded-2xl bg-cardBg">
+          <div className="w-full border p-4   border-boxBorder rounded-2xl bg-cardBg">
             <ChartHeader></ChartHeader>
             <ChartContainer />
           </div>
-
-          <div className="w-1/4 mx-3">
-            <OrderBook />
-          </div>
+          {!isLarge && (
+            <div className="w-80 flex-shrink-0 mx-3">
+              <OrderBook />
+            </div>
+          )}
         </div>
-        <div className="mr-3 mt-3 h-full">
+        <div className={`${isLarge ? '' : 'mr-3'} mt-3 h-full`}>
           <AllOrderBoard></AllOrderBoard>
         </div>
       </div>
 
-      <div className="w-1/5">
+      {isLarge && (
+        <div
+          className="w-80 flex-shrink-0 flex flex-col mx-3"
+          style={{
+            height: 'calc(100vh - 100px)',
+          }}
+        >
+          <OrderBook />
+        </div>
+      )}
+
+      <div
+        className=" flex-shrink-0"
+        style={{
+          width: '340px',
+        }}
+      >
         <UserBoard />
       </div>
     </div>

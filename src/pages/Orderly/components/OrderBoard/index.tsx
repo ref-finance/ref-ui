@@ -12,7 +12,7 @@ import {
   OrderTrade,
   TokenInfo,
 } from '../../orderly/type';
-import { OrderStateOutline } from '../Common/Icons';
+import { OrderStateOutline, CheckSelector } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
 import Big from 'big.js';
 
@@ -88,7 +88,7 @@ export function Selector({
         {list.map((item, index) => {
           return (
             <div
-              className={`whitespace-nowrap cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md ${
+              className={`whitespace-nowrap flex items-center justify-between cursor-pointer min-w-fit my-0.5 text-left px-1 py-1 w-full rounded-md ${
                 item.className
               } ${
                 selected === item.textId ? 'bg-symbolHover2' : ''
@@ -100,7 +100,8 @@ export function Selector({
                 setSelect(item.textId);
               }}
             >
-              {item.text}
+              <span className="whitespace-nowrap pr-2">{item.text}</span>
+              {selected === item.textId && <CheckSelector />}
             </div>
           );
         })}

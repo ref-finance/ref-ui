@@ -49,6 +49,7 @@ import {
 import {
   CheckBox,
   ConnectWallet,
+  ErrorTip,
   RegisterButton,
   WithdrawButton,
 } from '../Common';
@@ -61,8 +62,6 @@ import {
 } from '../Common/index';
 import { useTokenBalance, useTokensBalances } from './state';
 import { digitWrapper } from '../../utiles';
-
-import { useHistory } from 'react-router-dom';
 
 import { FiSearch } from 'react-icons/fi';
 import {
@@ -85,6 +84,9 @@ import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { AssetModal } from '../AssetModal';
 import ReactTooltip from 'react-tooltip';
 import { ButtonTextWrapper } from '~components/button/Button';
+import { FlexRow, orderEditPopUpFailure } from '../Common/index';
+import { useAllSymbolInfo } from '../AllOrders/state';
+import { ONLY_ZEROS } from '../../../../utils/numbers';
 
 function getTipFOK() {
   return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
@@ -225,6 +227,8 @@ export default function UserBoard() {
     myPendingOrdersRefreshing,
   } = useOrderlyContext();
 
+  const availableSymbols = useAllSymbolInfo();
+
   const { accountId, modal, selector } = useWalletSelector();
 
   const [showLimitAdvance, setShowLimitAdvance] = useState<boolean>(false);
@@ -285,7 +289,6 @@ export default function UserBoard() {
   const tokenToBalance = useTokenBalance(tokenOut?.id);
 
   useEffect(() => {
-    console.log('accountId: ', accountId);
     if (!accountId) return;
 
     getAccountInformation({ accountId }).then((res) => {
@@ -356,7 +359,10 @@ export default function UserBoard() {
           broker_id: 'ref_dex',
         },
       }).then(async (res) => {
-        if (res.success === false) return;
+        if (res.success === false)
+          return orderEditPopUpFailure({
+            tip: res.message,
+          });
 
         handlePendingOrderRefreshing();
 
@@ -391,7 +397,10 @@ export default function UserBoard() {
           broker_id: 'ref_dex',
         },
       }).then(async (res) => {
-        if (res.success === false) return;
+        if (res.success === false)
+          return orderEditPopUpFailure({
+            tip: res.message,
+          });
 
         handlePendingOrderRefreshing();
 
@@ -418,6 +427,10 @@ export default function UserBoard() {
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
 
   const [keyAnnounced, setKeyAnnounced] = useState<boolean>(false);
+
+  const [showErrorTip, setShowErrorTip] = useState<boolean>(false);
+
+  const [errorTipMsg, setErrorTipMsg] = useState<string>('');
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
@@ -469,7 +482,146 @@ export default function UserBoard() {
 
   const loading =
     storageEnough === undefined || (!!storedValid && !validAccountSig);
-  console.log('storageEnough: ', storageEnough);
+
+  const priceValidator = (price: string, size: string) => {
+    const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
+
+    if (!symbolInfo || ONLY_ZEROS.test(price)) {
+      setShowErrorTip(false);
+      setErrorTipMsg('');
+      return;
+    }
+
+    // price validator
+
+    if (new Big(price || 0).lt(symbolInfo.quote_min)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(`Min price should be higher than ${symbolInfo.quote_min}`);
+      return;
+    }
+
+    if (new Big(price || 0).gt(symbolInfo.quote_max)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(`Max price should be lower than ${symbolInfo.quote_max}`);
+      return;
+    }
+
+    if (
+      new Big(new Big(price || 0).minus(new Big(symbolInfo.quote_min)))
+        .mod(symbolInfo.quote_tick)
+        .gt(0)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(`Price should be multiple of ${symbolInfo.quote_tick}`);
+      return;
+    }
+
+    if (
+      new Big(price || 0).gt(
+        new Big(marketPrice || 0).times(1 + symbolInfo.price_range)
+      ) &&
+      side === 'Buy'
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `Price should be less than or equal to ${new Big(
+          marketPrice || 0
+        ).times(1 + symbolInfo.price_range)}`
+      );
+
+      return;
+    }
+
+    if (
+      new Big(price || 0).lt(
+        new Big(marketPrice || 0).times(1 + symbolInfo.price_range)
+      ) &&
+      side === 'Sell'
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `Price should be less than or equal to ${new Big(
+          marketPrice || 0
+        ).times(1 + symbolInfo.price_range)}`
+      );
+    }
+
+    if (
+      price &&
+      size &&
+      new Big(price || 0).times(new Big(size || 0)).lte(symbolInfo.min_notional)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(`Total should be greater than ${symbolInfo.min_notional}`);
+      return;
+    }
+
+    setShowErrorTip(false);
+    setErrorTipMsg('');
+  };
+
+  const sizeValidator = (price: string, size: string) => {
+    const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
+
+    if (!symbolInfo || ONLY_ZEROS.test(size)) {
+      setShowErrorTip(false);
+      setErrorTipMsg('');
+      return;
+    }
+
+    // size validator
+
+    if (new Big(size || 0).lt(symbolInfo.base_min)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `Amount to buy should be greater than ${symbolInfo.base_min}`
+      );
+      return;
+    }
+
+    if (new Big(size || 0).gt(symbolInfo.base_max)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `Amount to buy should be less than ${symbolInfo.base_max}`
+      );
+      return;
+    }
+
+    if (
+      new Big(new Big(size || 0).minus(new Big(symbolInfo.base_min)))
+        .mod(symbolInfo.base_tick)
+        .gt(0)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(`Size should be multiple of ${symbolInfo.base_tick}`);
+      return;
+    }
+
+    if (
+      price &&
+      size &&
+      new Big(price || 0).times(new Big(size || 0)).lte(symbolInfo.min_notional)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(`Total should be greater than ${symbolInfo.min_notional}`);
+      return;
+    }
+
+    setShowErrorTip(false);
+    setErrorTipMsg('');
+  };
+
+  useEffect(() => {
+    sizeValidator(
+      side === 'Buy' ? limitPrice : marketPrice.toString(),
+      inputValue
+    );
+
+    priceValidator(
+      side === 'Buy' ? limitPrice : marketPrice.toString(),
+      inputValue
+    );
+  }, [side, orderType]);
 
   const validator =
     !accountId ||
@@ -697,7 +849,11 @@ export default function UserBoard() {
         <div className="flex items-center">
           <button
             className={`flex px-4 py-2 mr-2 rounded-lg items-center justify-center ${
-              orderType === 'Limit' ? 'bg-buyGradientGreen' : 'bg-orderTypeBg'
+              orderType === 'Limit'
+                ? side === 'Buy'
+                  ? 'bg-buyGradientGreen'
+                  : 'bg-sellGradientRedReverse'
+                : 'bg-orderTypeBg'
             }`}
             onClick={() => {
               setOrderType('Limit');
@@ -717,7 +873,11 @@ export default function UserBoard() {
 
           <button
             className={`flex px-4 py-2 items-center rounded-lg justify-center ${
-              orderType === 'Market' ? 'bg-buyGradientGreen' : 'bg-orderTypeBg'
+              orderType === 'Market'
+                ? side === 'Buy'
+                  ? 'bg-buyGradientGreen'
+                  : 'bg-sellGradientRedReverse'
+                : 'bg-orderTypeBg'
             }`}
             onClick={() => {
               setOrderType('Market');
@@ -760,9 +920,12 @@ export default function UserBoard() {
                   : null
               }
               min={0}
+              placeholder="0"
               className="text-white text-left ml-2 text-xl w-full"
               value={limitPrice}
               onChange={(e) => {
+                priceValidator(e.target.value, inputValue);
+
                 setLimitPrice(e.target.value);
               }}
               inputMode="decimal"
@@ -833,6 +996,11 @@ export default function UserBoard() {
             step="any"
             min={0}
             onChange={(e) => {
+              sizeValidator(
+                orderType === 'Limit' ? limitPrice : marketPrice.toString(),
+                e.target.value
+              );
+
               setInputValue(e.target.value);
             }}
             onKeyDown={(e) => symbolsArr.includes(e.key) && e.preventDefault()}
@@ -850,14 +1018,23 @@ export default function UserBoard() {
 
               const maxAmount =
                 side === 'Sell'
-                  ? tokenInHolding || 0
+                  ? (tokenInHolding || 0).toString()
                   : new Big(tokenOutHolding || 0)
                       .div(
                         orderType === 'Market' ? marketPrice : limitPrice || 1
                       )
-                      .toFixed(4, 0);
+                      .toFixed(
+                        tokenOut.decimals || 24,
 
-              setInputValue(maxAmount.toString());
+                        0
+                      );
+
+              setInputValue(maxAmount);
+
+              sizeValidator(
+                orderType == 'Market' ? marketPrice.toString() : limitPrice,
+                maxAmount
+              );
             }}
           >
             Max
@@ -1025,13 +1202,35 @@ export default function UserBoard() {
         </div>
       )}
 
-      <div className="mt-6  rounded-lg text-sm px-2 pt-1 relative z-10 pb-6">
+      {showErrorTip && (
+        <ErrorTip className={'relative top-3'} text={errorTipMsg} />
+      )}
+
+      <div className="mt-6  rounded-lg text-sm px-0 pt-1 relative z-10 pb-6">
         <div className="flex items-center justify-between">
-          <span className="text-primaryOrderly">Fee </span>
-          <span className="text-white">
-            {fee !== '-' ? '~' : ''} {fee === '-' ? '-' : fee.toFixed(3)}{' '}
-            {` ${symbolTo}`}
-          </span>
+          <span className="text-primaryOrderly">Fee tier</span>
+
+          <FlexRow className="">
+            <span className="flex items-center mr-1.5">
+              <span className=" mr-2 text-white">
+                {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
+              </span>
+              <TextWrapper
+                textC="text-primaryText"
+                value={`Taker`}
+              ></TextWrapper>
+            </span>
+
+            <span className="flex items-center">
+              <span className=" mr-2 text-white">
+                {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
+              </span>
+              <TextWrapper
+                textC="text-primaryText"
+                value={`Maker`}
+              ></TextWrapper>
+            </span>
+          </FlexRow>
         </div>
 
         <div className="flex items-center mt-2 justify-between">
@@ -1055,15 +1254,16 @@ export default function UserBoard() {
             ? 'text-redwarningColor cursor-not-allowed'
             : 'text-white'
         }  py-2.5 relative bottom-3  flex z-20 items-center justify-center text-base ${
-          submitDisable ? 'opacity-60 cursor-not-allowed' : ''
+          submitDisable || showErrorTip ? 'opacity-60 cursor-not-allowed' : ''
         } `}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           // handleSubmit();
+
           setConfirmModalOpen(true);
         }}
-        disabled={submitDisable || isInsufficientBalance}
+        disabled={submitDisable || isInsufficientBalance || showErrorTip}
         type="button"
       >
         {isInsufficientBalance ? 'Insufficient Balance' : side}
@@ -1120,10 +1320,13 @@ export default function UserBoard() {
         symbolTo={symbolTo}
         side={side}
         quantity={inputValue}
-        price={orderType === 'Limit' ? limitPrice : marketPrice.toString()}
+        price={
+          orderType === 'Limit' ? limitPrice : marketPrice?.toString() || '0'
+        }
         fee={fee}
         totalCost={total}
         onClick={handleSubmit}
+        userInfo={userInfo}
       ></ConfirmOrderModal>
     </div>
   );
@@ -1734,6 +1937,7 @@ function ConfirmOrderModal(
     fee: '-' | number;
     totalCost: number | '-';
     onClick: () => Promise<any>;
+    userInfo: ClientInfo;
   }
 ) {
   const {
@@ -1746,13 +1950,14 @@ function ConfirmOrderModal(
     fee,
     totalCost,
     onClick,
+    userInfo,
   } = props;
 
   const [loading, setLoading] = useState<boolean>(false);
 
   return (
     <Modal {...props}>
-      <div className=" rounded-2xl lg:w-80 xs:w-95vw gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border ">
+      <div className=" rounded-2xl lg:w-96 xs:w-95vw gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border ">
         <div className="px-5 py-6 flex flex-col ">
           <div className="flex items-center pb-6 justify-between">
             <span className="text-white text-lg font-bold">Confirm Order</span>
@@ -1787,7 +1992,10 @@ function ConfirmOrderModal(
                 {digitWrapper(quantity, 3)}
               </span>
 
-              <TextWrapper value={symbolFrom}></TextWrapper>
+              <TextWrapper
+                textC="text-primaryText"
+                value={symbolFrom}
+              ></TextWrapper>
             </span>
           </div>
 
@@ -1796,7 +2004,10 @@ function ConfirmOrderModal(
 
             <span className="flex items-center">
               <span className="text-white mr-2">{digitWrapper(price, 3)}</span>
-              <TextWrapper value={`${symbolTo}/${symbolFrom}`}></TextWrapper>
+              <TextWrapper
+                textC="text-primaryText"
+                value={`${symbolTo}/${symbolFrom}`}
+              ></TextWrapper>
             </span>
           </div>
 
@@ -1809,8 +2020,37 @@ function ConfirmOrderModal(
                   ? '-'
                   : digitWrapper(totalCost.toString(), 3)}
               </span>
-              <TextWrapper value={`${symbolTo}`}></TextWrapper>
+              <TextWrapper
+                textC="text-primaryText"
+                value={`${symbolTo}`}
+              ></TextWrapper>
             </span>
+          </div>
+
+          <div className="flex items-center mb-5 justify-between">
+            <span className="">Fee tier</span>
+
+            <FlexRow className="">
+              <span className="flex items-center mr-3">
+                <span className=" mr-2 text-white">
+                  {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
+                </span>
+                <TextWrapper
+                  textC="text-primaryText"
+                  value={`Taker`}
+                ></TextWrapper>
+              </span>
+
+              <span className="flex items-center">
+                <span className=" mr-2 text-white">
+                  {Number((userInfo?.maker_fee_rate || 0) / 100).toFixed(2)}%
+                </span>
+                <TextWrapper
+                  textC="text-primaryText"
+                  value={`Maker`}
+                ></TextWrapper>
+              </span>
+            </FlexRow>
           </div>
 
           <button

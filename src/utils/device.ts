@@ -8,6 +8,10 @@ export const isPC = (): Boolean => {
   return window.screen.width > 1023;
 };
 
+export const isLargeScreen = (): Boolean => {
+  return document.documentElement.clientWidth > 1400;
+};
+
 export const isClientMobie = (): Boolean => {
   return document.documentElement.clientWidth <= 1023;
 };

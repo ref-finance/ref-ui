@@ -36,39 +36,6 @@ function groupOrdersByPrecision({
 
   const bids = orders.bids;
 
-  const asktotalSize = asks.map(([price, quantity]) => {
-    return [price, price * quantity];
-  });
-
-  const bidtotalSize = bids.map(([price, quantity]) => {
-    return [price, price * quantity];
-  });
-
-  const groupedAsktotalSize = asktotalSize.reduce((acc, cur) => {
-    const groupKey = new Big(cur[0]).toFixed(precision, 3);
-
-    const keyStr = groupKey.toString();
-
-    return {
-      ...acc,
-      [groupKey]: acc[keyStr] ? acc[keyStr] + cur[1] : cur[1],
-    };
-  }, {} as Record<string, number>);
-
-  const groupedBidtotalSize = bidtotalSize.reduce(
-    (acc, cur) => {
-      const groupKey = new Big(cur[0]).toFixed(precision, 0);
-
-      const keyStr = groupKey.toString();
-
-      return {
-        ...acc,
-        [groupKey]: acc[keyStr] ? acc[keyStr] + cur[1] : cur[1],
-      };
-    },
-
-    {} as Record<string, number>
-  );
   const groupedAsks = asks.reduce((acc, cur) => {
     const groupKey = new Big(cur[0]).toFixed(precision, 3);
 
@@ -80,6 +47,10 @@ function groupOrdersByPrecision({
     };
   }, {} as Record<string, number>);
 
+  const sortedAsks = Object.entries(groupedAsks)
+    .map(([price, amount]) => [Number(price), amount])
+    .sort((a, b) => a[0] - b[0]);
+
   const groupedBids = bids.reduce((acc, cur) => {
     const groupKey = new Big(cur[0]).toFixed(precision, 0);
 
@@ -90,6 +61,48 @@ function groupOrdersByPrecision({
       [groupKey]: acc[keyStr] ? acc[keyStr] + cur[1] : cur[1],
     };
   }, {} as Record<string, number>);
+
+  const sortedBids = Object.entries(groupedBids)
+    .map(([price, amount]) => [Number(price), amount])
+    .sort((a, b) => b[0] - a[0]);
+
+  const groupedAsktotalSize = sortedAsks.reduce(
+    (acc, cur, index: number) => {
+      const groupKey = cur[0];
+
+      if (index === 0) {
+        return {
+          [groupKey]: cur[1],
+        };
+      }
+
+      return {
+        ...acc,
+        [groupKey]: cur[1] + acc?.[sortedAsks[index - 1]?.[0]?.toString()] || 0,
+      };
+    },
+
+    {} as Record<string, number>
+  );
+
+  const groupedBidtotalSize = sortedBids.reduce(
+    (acc, cur, index: number) => {
+      const groupKey = cur[0];
+
+      if (index === 0) {
+        return {
+          [groupKey]: cur[1],
+        };
+      }
+
+      return {
+        ...acc,
+        [groupKey]: cur[1] + acc?.[sortedBids[index - 1]?.[0]?.toString()] || 0,
+      };
+    },
+
+    {} as Record<string, number>
+  );
 
   const groupMyPendingOrders = pendingOrders.reduce((acc, cur) => {
     const groupKey = Math.floor(cur.price * 10 ** precision) / 10 ** precision;
@@ -104,18 +117,11 @@ function groupOrdersByPrecision({
   }, {} as Record<string, number>);
 
   return {
-    asks: Object.entries(groupedAsks)
-      .map(([price, amount]) => [Number(price), amount])
-      .sort((a, b) => a[0] - b[0]),
-    bids: Object.entries(groupedBids)
-      .map(([price, amount]) => [Number(price), amount])
-      .sort((a, b) => b[0] - a[0]),
-    asktotalSize: Object.entries(groupedAsktotalSize)
-      .map(([price, amount]) => [Number(price), amount])
-      .sort((a, b) => a[0] - b[0]),
-    bidtotalSize: Object.entries(groupedBidtotalSize)
-      .map(([price, amount]) => [Number(price), amount])
-      .sort((a, b) => b[0] - a[0]),
+    asks: sortedAsks.sort((a, b) => a[0] - b[0]),
+
+    bids: sortedBids,
+    asktotalSize: groupedAsktotalSize,
+    bidtotalSize: groupedBidtotalSize,
     groupMyPendingOrders,
   };
 }
@@ -166,12 +172,7 @@ function OrderBook() {
   const diff = marketTradeDisplay - recentTrades?.at(1)?.executed_price || 0;
 
   return (
-    <div
-      className="w-full relative border border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 "
-      style={{
-        height: '570px',
-      }}
-    >
+    <div className="w-full h-full relative border border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 ">
       <div className="px-4 relative flex mb-2 border-b border-white border-opacity-10 items-center ">
         <div
           onClick={() => {
@@ -276,10 +277,10 @@ function OrderBook() {
 
           {/* sell  */}
           <section
-            className="text-xs flex flex-col-reverse overflow-auto text-white "
+            className="text-xs flex  flex-col-reverse overflow-auto text-white "
             id="sell-order-book-panel"
             style={{
-              height: '225px',
+              maxHeight: 'calc(50% - 50px)',
             }}
           >
             {asks?.map((order, i) => {
@@ -296,11 +297,13 @@ function OrderBook() {
                       {order[0]}
                     </span>
 
-                    <span className="">
+                    <span className="mr-4">
                       {digitWrapper(order[1].toString(), 2)}
                     </span>
 
-                    <span>{asktotalSize?.[i]?.[1].toFixed(2)}</span>
+                    <span>
+                      {digitWrapper(asktotalSize?.[order[0]].toString(), 2)}
+                    </span>
 
                     <div
                       className="absolute left-0 top-1 z-40"
@@ -345,11 +348,11 @@ function OrderBook() {
           {/* buy */}
 
           <section
-            className="text-xs overflow-auto  overflow-x-visible text-white"
-            style={{
-              height: '225px',
-            }}
+            className="text-xs  overflow-auto  overflow-x-visible text-white"
             id="buy-order-book-panel"
+            style={{
+              maxHeight: 'calc(50% - 50px)',
+            }}
           >
             {bids?.map((order, i) => {
               return (
@@ -362,11 +365,13 @@ function OrderBook() {
                     {order[0]}
                   </span>
 
-                  <span className="">
+                  <span className="mr-4">
                     {digitWrapper(order[1].toString(), 2)}
                   </span>
 
-                  <span>{bidtotalSize[i][1].toFixed(2)}</span>
+                  <span>
+                    {digitWrapper(bidtotalSize?.[order[0]].toString(), 2)}
+                  </span>
 
                   <div
                     className="absolute left-0 top-1 z-40"

@@ -28,7 +28,7 @@ import { formatTimeDate } from '../OrderBoard';
 import { Selector } from '../OrderBoard';
 
 import { AiOutlineClose, AiOutlineCheck } from 'react-icons/ai';
-import { FlexRowStart, FlexRow, CheckBox } from '../Common/index';
+import { FlexRowStart, CheckBox, orderEditPopUpSuccess } from '../Common/index';
 import {
   cancelOrder,
   cancelOrders,
@@ -46,6 +46,8 @@ import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { OrderlyLoading } from '../Common/Icons';
 import { digitWrapper } from '../../utiles';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
+import { ONLY_ZEROS } from '../../../../utils/numbers';
+import { orderEditPopUpFailure } from '../Common/index';
 
 export function EditConfirmOrderModal(
   props: Modal.Props & {
@@ -126,13 +128,13 @@ export function SymbolWrapper({ symbol }: { symbol: string }) {
 function OrderLine({
   order,
   marketInfo,
-  tokenIn,
   showCurSymbol,
+  availableSymbols,
 }: {
-  tokenIn: TokenMetadata;
   order: MyOrder;
   marketInfo: JSX.Element | undefined;
   showCurSymbol?: boolean;
+  availableSymbols: SymbolInfo[];
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(order.symbol);
 
@@ -158,6 +160,76 @@ function OrderLine({
 
   const openEdit = openEditPrice || openEditQuantity;
 
+  const editValidator = (price: string, size: string) => {
+    const symbolInfo = availableSymbols?.find((s) => s.symbol === order.symbol);
+
+    let errorTipMsg = '';
+
+    if (!symbolInfo || ONLY_ZEROS.test(price) || ONLY_ZEROS.test(size)) {
+      return;
+    }
+
+    // price validator
+
+    if (new Big(price || 0).lt(symbolInfo.quote_min)) {
+      errorTipMsg = `Min price should be higher than ${symbolInfo.quote_min}`;
+    }
+
+    if (new Big(price || 0).gt(symbolInfo.quote_max)) {
+      errorTipMsg = `Max price should be lower than ${symbolInfo.quote_max}`;
+    }
+
+    if (
+      new Big(new Big(price || 0).minus(new Big(symbolInfo.quote_min)))
+        .mod(symbolInfo.quote_tick)
+        .gt(0)
+    ) {
+      errorTipMsg = `Price should be multiple of ${symbolInfo.quote_tick}`;
+    }
+
+    if (
+      price &&
+      size &&
+      new Big(price || 0).times(new Big(size || 0)).lte(symbolInfo.min_notional)
+    ) {
+      errorTipMsg = `Total should be greater than ${symbolInfo.min_notional}`;
+    }
+
+    // size validator
+
+    if (new Big(size || 0).lt(symbolInfo.base_min)) {
+      errorTipMsg = `Amount to buy should be greater than ${symbolInfo.base_min}`;
+    }
+
+    if (new Big(size || 0).gt(symbolInfo.base_max)) {
+      errorTipMsg = `Amount to buy should be less than ${symbolInfo.base_max}`;
+    }
+
+    if (
+      new Big(new Big(size || 0).minus(new Big(symbolInfo.base_min)))
+        .mod(symbolInfo.base_tick)
+        .gt(0)
+    ) {
+      errorTipMsg = `Size should be multiple of ${symbolInfo.base_tick}`;
+    }
+
+    if (
+      price &&
+      size &&
+      new Big(price || 0).times(new Big(size || 0)).lte(symbolInfo.min_notional)
+    ) {
+      errorTipMsg = `Total should be greater than ${symbolInfo.min_notional}`;
+    }
+
+    if (!!errorTipMsg) {
+      orderEditPopUpFailure({
+        tip: errorTipMsg,
+      });
+      return false;
+    }
+
+    return true;
+  };
   function handleEditOrder() {
     if (!accountId) return;
 
@@ -180,23 +252,37 @@ function OrderLine({
       },
     })
       .then((res) => {
+        if (!res.success) {
+          orderEditPopUpFailure({
+            tip: res.message,
+          });
+        }
+
         if (!!res.success) {
           handlePendingOrderRefreshing();
-          return res;
+          orderEditPopUpSuccess({
+            side: order.side === 'SELL' ? 'Sell' : 'Buy',
+            symbolName: order.symbol,
+            size: quantity || order.quantity.toString(),
+            cancel: false,
+            price: price || order.price.toString(),
+          });
         }
+        return res;
       })
       .then((res) => {
         setOpenEditQuantity(false);
         setOpenEditPrice(false);
         setShowEditModal(false);
-        return res;
       });
   }
+
   const validateChange =
-    new Big(price || 0).lte(0) ||
-    new Big(quantity || 0).lte(0) ||
+    ONLY_ZEROS.test(price || '0') ||
+    ONLY_ZEROS.test(quantity || '0') ||
     (new Big(order.price).eq(new Big(price || 0)) &&
       new Big(order.quantity).eq(new Big(quantity || 0)));
+
   return (
     <div
       key={order.order_id}
@@ -229,7 +315,11 @@ function OrderLine({
         }`}
       >
         <div className="flex items-center">
-          <span className="text-white">Limit</span>
+          <span className="text-white capitalize">
+            {order.type === 'FOK' || order.type === 'IOC'
+              ? order.type
+              : order.type.replace('_', ' ').toLowerCase()}
+          </span>
 
           <div
             className="flex items-center relative ml-1.5 justify-center"
@@ -312,6 +402,7 @@ function OrderLine({
                 e.stopPropagation();
                 //   handleEditOrder();
                 if (validateChange) return;
+                if (!editValidator(price, quantity)) return;
 
                 setShowEditModal(true);
                 setEditType('quantity');
@@ -367,6 +458,9 @@ function OrderLine({
                 e.stopPropagation();
                 //   handleEditOrder();
                 if (validateChange) return;
+
+                if (!editValidator(price, quantity)) return;
+
                 setShowEditModal(true);
                 setEditType('price');
               }}
@@ -383,7 +477,9 @@ function OrderLine({
         }`}
       >
         {digitWrapper(
-          new Big(quantity || '0').times(new Big(order.price || 0)).toFixed(5),
+          new Big(quantity || '0')
+            .times(new Big(order.price || order.average_executed_price || 0))
+            .toFixed(5),
           3
         )}
       </div>
@@ -416,6 +512,13 @@ function OrderLine({
             }).then((res) => {
               if (res.success === true) {
                 handlePendingOrderRefreshing();
+                return orderEditPopUpSuccess({
+                  side: order.side == 'BUY' ? 'Buy' : 'Sell',
+                  size: quantity,
+                  price,
+                  cancel: true,
+                  symbolName: order.symbol,
+                });
               }
             });
           }}
@@ -503,13 +606,15 @@ function HistoryOrderLine({
         </FlexRow>
 
         <FlexRow className="relative col-span-1">
-          <span className="text-white">
-            {order.type === 'MARKET' ? 'Market' : 'Limit'}
+          <span className={`text-white capitalize `}>
+            {order.type === 'FOK' || order.type === 'IOC'
+              ? order.type
+              : order.type.replace('_', ' ').toLowerCase()}
           </span>
 
           <div
             className={
-              order.type === 'LIMIT'
+              order.type !== 'MARKET'
                 ? 'flex items-center relative ml-1.5 justify-center'
                 : 'hidden'
             }
@@ -529,7 +634,7 @@ function HistoryOrderLine({
                 width: '9px',
               }}
             >
-              {order.type === 'LIMIT' && (
+              {order.type !== 'MARKET' && (
                 <CircularProgressbar
                   styles={buildStyles({
                     pathColor: '#62C340',
@@ -575,10 +680,12 @@ function HistoryOrderLine({
           </span>
         </FlexRow>
 
-        <FlexRow className="col-span-1 ml-4 relative left-8  text-white">
+        <FlexRow className="col-span-1 ml-4 relative left-2  text-white">
           {digitWrapper(
-            new Big(order.executed || '0')
-              .times(new Big(order.price || order.quantity || '0'))
+            new Big(order.quantity || '0')
+              .times(
+                new Big(order.price || order.average_executed_price || '0')
+              )
               .toFixed(4, 0),
             2
           )}
@@ -624,26 +731,18 @@ function HistoryOrderLine({
       {openFilledDetail && orderTradesHistory && (
         <div className="flex flex-col items-end w-full mb-3">
           <div className="w-full border-b border-white border-opacity-10 pb-2"></div>
-          <div className="grid grid-cols-6  border-white mt-2 pb-3 pt-1 border-opacity-10 w-4/5 ">
-            <div className="col-span-1 text-right">
-              Qty
-              <TextWrapper
-                value={symbolFrom}
-                className="ml-2"
-                textC="text-primaryText"
-              />
-            </div>
+          <div
+            className={`grid text-xs grid-cols-6 justify-items-start  border-white mt-2 pb-3 pt-1 border-opacity-10 ${
+              showCurSymbol ? 'w-3/4' : 'w-3/5'
+            }  `}
+          >
+            <div className="col-span-1 relative left-6 text-right">Qty</div>
 
-            <div className="col-span-1 text-right">
-              Price
-              <TextWrapper
-                value={symbolTo}
-                className="ml-2"
-                textC="text-primaryText"
-              />
-            </div>
+            <div className="col-span-1 relative left-4 text-right">Price</div>
 
-            <div className="col-span-1 text-right">
+            <div className="col-span-1 text-right  relative left-4">Total</div>
+
+            <div className="col-span-1 text-right  relative left-4">
               Fee
               <TextWrapper
                 value={order.fee_asset}
@@ -652,45 +751,26 @@ function HistoryOrderLine({
               />
             </div>
 
-            <div className="col-span-1 text-right">
-              Total Cost
-              <TextWrapper
-                value={order.side === 'BUY' ? symbolTo : symbolFrom}
-                className="ml-2"
-                textC="text-primaryText"
-              />
-            </div>
-
-            <div className="col-span-1 text-right">
-              Total Received
-              <TextWrapper
-                value={order.side === 'BUY' ? symbolFrom : symbolTo}
-                className="ml-2"
-                textC="text-primaryText"
-              />
-            </div>
-
-            <div className=" col-span-1 right-4 relative justify-self-end">
+            <div className=" col-span-2 right-4 relative justify-self-end">
               Time
             </div>
           </div>
-          <div className="w-4/5">
+          <div className={showCurSymbol ? 'w-3/4' : 'w-3/5'}>
             {orderTradesHistory.map((trade) => (
               <div
                 key={order.order_id + '_' + trade.id}
-                className="text-white  pb-2 grid-cols-6 grid"
+                className="text-white  pb-2 grid-cols-6 grid justify-items-start"
                 style={{
                   height: '30px',
                 }}
               >
-                <div className="col-span-1 text-right">
+                <div className="col-span-1 relative left-8 text-right">
                   {digitWrapper(trade.executed_quantity.toString(), 2)}
                 </div>
-                <div className="col-span-1 text-right">
+                <div className="col-span-1 text-right relative left-4">
                   {digitWrapper(trade.executed_price.toString(), 2)}
                 </div>
-                <div className="col-span-1 text-right">{trade.fee}</div>
-                <div className="col-span-1 text-right right-4">
+                <div className="col-span-1 text-right relative left-4">
                   {digitWrapper(
                     new Big(trade.executed_quantity || '0')
                       .times(new Big(trade.executed_price || '0'))
@@ -698,17 +778,11 @@ function HistoryOrderLine({
                     2
                   )}
                 </div>
-
-                <div className="col-span-1 text-right">
-                  {digitWrapper(
-                    new Big(trade.executed_quantity || '0')
-                      .minus(new Big(trade.fee))
-                      .toFixed(8, 0),
-                    2
-                  )}
+                <div className="col-span-1 text-right relative left-4">
+                  {trade.fee}
                 </div>
 
-                <div className="col-span-1 right-4 justify-self-end relative text-primaryOrderly ">
+                <div className="col-span-2 right-4 justify-self-end relative text-primaryOrderly ">
                   {formatTimeDate(trade.executed_timestamp)}
                 </div>
               </div>
@@ -749,13 +823,20 @@ function OpenOrders({
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
-  const [chooseMarketSymbol, setChooseMarketSymbol] =
-    useState<string>('all_markets');
+  const [chooseMarketSymbol, setChooseMarketSymbol] = useState<string>(
+    showCurSymbol ? symbol : 'all_markets'
+  );
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
 
   const [timeSorting, setTimeSorting] = useState<'asc' | 'dsc'>(
     loading ? undefined : 'dsc'
   );
+
+  const [chooseType, setChooseType] = useState<'All' | 'Limit' | 'Post Only'>(
+    'All'
+  );
+
+  const [showTypeSelector, setShowTypeSelector] = useState<boolean>(false);
 
   const sortingFunc = (a: MyOrder, b: MyOrder) => {
     if (timeSorting === 'asc') {
@@ -774,7 +855,12 @@ function OpenOrders({
       chooseMarketSymbol === 'all_markets' ||
       order.symbol === chooseMarketSymbol;
 
-    return a && b;
+    const c =
+      chooseType === 'All' ||
+      (order.type === 'LIMIT' && chooseType === 'Limit') ||
+      (order.type === 'POST_ONLY' && chooseType === 'Post Only');
+
+    return a && b && c;
   };
 
   useEffect(() => {
@@ -788,15 +874,16 @@ function OpenOrders({
     }
 
     setSelectedMarketSymbol(showOrders[0]);
-  }, [chooseMarketSymbol, orders]);
+  }, [chooseMarketSymbol, orders, chooseType]);
 
   useEffect(() => {
-    if (showSideSelector || showMarketSelector)
+    if (showSideSelector || showMarketSelector || showTypeSelector)
       document.addEventListener('click', () => {
         setShowSideSelector(false);
         setShowMarketSelector(false);
+        setShowTypeSelector(false);
       });
-  }, [showSideSelector, showMarketSelector]);
+  }, [showSideSelector, showMarketSelector, showTypeSelector]);
 
   useEffect(() => {
     if (!orders) return;
@@ -822,7 +909,7 @@ function OpenOrders({
             <div className="mr-2 ml-1 text-white text-sm">
               <AllMarketIcon />
             </div>
-            <span className="text-white">All Markets</span>
+            <span className="text-white">All Instrument</span>
           </div>
         ),
         textId: 'all_markets',
@@ -874,9 +961,21 @@ function OpenOrders({
               e.stopPropagation();
               setShowMarketSelector(!showMarketSelector);
               setShowSideSelector(false);
+              setShowTypeSelector(false);
             }}
           >
-            <span>Instrument</span>
+            <span className="flex items-center">
+              {chooseMarketSymbol === 'all_markets' ? (
+                'All Instrument'
+              ) : (
+                <>
+                  <span className="text-white">
+                    {parseSymbol(chooseMarketSymbol).symbolFrom}
+                  </span>
+                  /{parseSymbol(chooseMarketSymbol).symbolTo}
+                </>
+              )}
+            </span>
 
             <MdArrowDropDown
               size={22}
@@ -904,9 +1003,10 @@ function OpenOrders({
               e.stopPropagation();
               setShowSideSelector(!showSideSelector);
               setShowMarketSelector(false);
+              setShowTypeSelector(false);
             }}
           >
-            <span>Side</span>
+            <span>{chooseSide === 'Both' ? 'Side' : chooseSide}</span>
 
             <MdArrowDropDown
               size={22}
@@ -941,7 +1041,51 @@ function OpenOrders({
             />
           )}
         </FlexRow>
-        <FlexRow className="col-span-1">Type</FlexRow>
+        <FlexRow className="col-span-1 relative">
+          <div
+            className="cursor-pointer flex items-center"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowTypeSelector(!showTypeSelector);
+              setShowMarketSelector(false);
+              setShowSideSelector(false);
+            }}
+          >
+            <span>{chooseType === 'All' ? 'Type' : chooseType}</span>
+
+            <MdArrowDropDown
+              size={22}
+              color={showTypeSelector ? 'white' : '#7E8A93'}
+            />
+          </div>
+          {showTypeSelector && (
+            <Selector
+              selected={chooseType}
+              setSelect={(value: any) => {
+                setChooseType(value);
+                setShowTypeSelector(false);
+              }}
+              list={[
+                {
+                  text: 'All',
+                  textId: 'All',
+                  className: 'text-white',
+                },
+                {
+                  text: 'Limit',
+                  textId: 'Limit',
+                  className: 'text-white',
+                },
+                {
+                  text: 'Post Only',
+                  textId: 'Post Only',
+                  className: 'text-white',
+                },
+              ]}
+            />
+          )}
+        </FlexRow>
 
         <FlexRow className="col-span-1 relative right-3">
           <span>
@@ -1020,13 +1164,13 @@ function OpenOrders({
             .map((order) => {
               return (
                 <OrderLine
-                  tokenIn={allTokens[parseSymbol(order.symbol).symbolFrom]}
                   marketInfo={
                     marketList.find((m) => m.textId === order.symbol)?.text
                   }
                   showCurSymbol={showCurSymbol}
                   order={order}
                   key={order.order_id}
+                  availableSymbols={availableSymbols}
                 />
               );
             })
@@ -1067,12 +1211,12 @@ function HistoryOrders({
   const [chooseSide, setChooseSide] = useState<'Both' | 'Buy' | 'Sell'>('Both');
 
   const [chooseType, setChooseType] = useState<
-    'All Type' | 'Limit Order' | 'Market Order'
-  >('All Type');
+    'All' | 'Limit' | 'Market' | 'Post Only' | 'IOC' | 'FOK'
+  >('All');
 
   const [chooseStatus, setChooseStatus] = useState<
-    'All Status' | 'Cancelled' | 'Filled' | 'Rejected'
-  >('All Status');
+    'All' | 'Cancelled' | 'Filled' | 'Rejected'
+  >('All');
 
   const [showTypeSelector, setShowTypeSelector] = useState<boolean>(false);
 
@@ -1080,8 +1224,9 @@ function HistoryOrders({
     loading ? undefined : 'dsc'
   );
 
-  const [chooseMarketSymbol, setChooseMarketSymbol] =
-    useState<string>('all_markets');
+  const [chooseMarketSymbol, setChooseMarketSymbol] = useState<string>(
+    showCurSymbol ? symbol : 'all_markets'
+  );
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
 
   const sortingFunc = (a: MyOrder, b: MyOrder) => {
@@ -1106,12 +1251,15 @@ function HistoryOrders({
       order.side.toLowerCase() === chooseSide.toLowerCase();
 
     const type =
-      chooseType === 'All Type' ||
-      (order.type === 'MARKET' && chooseType === 'Market Order') ||
-      (order.type === 'LIMIT' && chooseType === 'Limit Order');
+      chooseType === 'All' ||
+      (order.type === 'MARKET' && chooseType === 'Market') ||
+      (order.type === 'LIMIT' && chooseType === 'Limit') ||
+      (order.type === 'FOK' && chooseType === 'FOK') ||
+      (order.type === 'IOC' && chooseType === 'IOC') ||
+      (order.type === 'POST_ONLY' && chooseType === 'Post Only');
 
     const status =
-      chooseStatus === 'All Status' ||
+      chooseStatus === 'All' ||
       order.status.toLowerCase() === chooseStatus.toLowerCase();
 
     const market =
@@ -1158,7 +1306,7 @@ function HistoryOrders({
             <div className="mr-2 ml-1 text-white text-sm">
               <AllMarketIcon />
             </div>
-            <span className="text-white">All Markets</span>
+            <span className="text-white">All Instrument</span>
           </div>
         ),
         textId: 'all_markets',
@@ -1215,7 +1363,18 @@ function HistoryOrders({
                 setShowStatuesSelector(false);
               }}
             >
-              <span>Instrument</span>
+              <span className="flex items-center">
+                {chooseMarketSymbol === 'all_markets' ? (
+                  'All Instrument'
+                ) : (
+                  <>
+                    <span className="text-white">
+                      {parseSymbol(chooseMarketSymbol).symbolFrom}
+                    </span>
+                    /{parseSymbol(chooseMarketSymbol).symbolTo}
+                  </>
+                )}
+              </span>
 
               <MdArrowDropDown
                 size={22}
@@ -1248,7 +1407,7 @@ function HistoryOrders({
               setShowStatuesSelector(false);
             }}
           >
-            <span>Side</span>
+            <span>{chooseSide === 'Both' ? 'Side' : chooseSide}</span>
 
             <MdArrowDropDown
               size={22}
@@ -1296,7 +1455,7 @@ function HistoryOrders({
               setShowStatuesSelector(false);
             }}
           >
-            <span>Type</span>
+            <span>{chooseType === 'All' ? 'Type' : chooseType}</span>
 
             <MdArrowDropDown
               size={22}
@@ -1312,18 +1471,33 @@ function HistoryOrders({
               }}
               list={[
                 {
-                  text: 'All Type',
-                  textId: 'All Type',
+                  text: 'All',
+                  textId: 'All',
                   className: 'text-white',
                 },
                 {
-                  text: 'Limit Order',
-                  textId: 'Limit Order',
+                  text: 'Limit',
+                  textId: 'Limit',
                   className: 'text-white',
                 },
                 {
-                  text: 'Market Order',
-                  textId: 'Market Order',
+                  text: 'Market',
+                  textId: 'Market',
+                  className: 'text-white',
+                },
+                {
+                  text: 'IOC',
+                  textId: 'IOC',
+                  className: 'text-white',
+                },
+                {
+                  text: 'FOK',
+                  textId: 'FOK',
+                  className: 'text-white',
+                },
+                {
+                  text: 'Post Only',
+                  textId: 'Post Only',
                   className: 'text-white',
                 },
               ]}
@@ -1402,9 +1576,12 @@ function HistoryOrders({
               e.preventDefault();
               e.stopPropagation();
               setShowStatuesSelector(!showStatuesSelector);
+              setShowMarketSelector(false);
+              setShowSideSelector(false);
+              setShowTypeSelector(false);
             }}
           >
-            <span>Status</span>
+            <span>{chooseStatus === 'All' ? 'Status' : chooseStatus}</span>
 
             <MdArrowDropDown
               size={22}
@@ -1415,11 +1592,14 @@ function HistoryOrders({
           {showStatuesSelector && (
             <Selector
               selected={chooseStatus}
-              setSelect={setChooseStatus}
+              setSelect={(value: any) => {
+                setChooseStatus(value);
+                setShowStatuesSelector(false);
+              }}
               list={[
                 {
-                  text: 'All Status',
-                  textId: 'All Status',
+                  text: 'All',
+                  textId: 'All',
                   className: 'text-white',
                 },
                 {
@@ -1519,7 +1699,6 @@ function AllOrderBoard() {
 
   const openOrders = allOrders?.filter((o) => {
     return (
-      o.type === 'LIMIT' &&
       (o.status === 'NEW' || o.status === 'PARTIAL_FILLED') &&
       (!showCurSymbol || o.symbol === symbol)
     );

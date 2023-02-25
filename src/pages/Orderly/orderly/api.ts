@@ -287,9 +287,9 @@ const depositOrderly = async (token: string, amount: string) => {
 const withdrawOrderly = async (token: string, amount: string) => {
   const transactions: Transaction[] = [];
 
-  const registered = await storage_balance_of(token);
+  const registered = await storage_balance_of(token.toLowerCase());
 
-  if (!registered) {
+  if (!registered && token.toLowerCase() !== 'near') {
     transactions.push({
       receiverId: token,
       functionCalls: [

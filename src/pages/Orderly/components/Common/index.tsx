@@ -127,10 +127,18 @@ export function CheckBox({
   );
 }
 
-export function ErrorTip({ text }: { text: string }) {
+export function ErrorTip({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) {
   return (
-    <div className="bg-errorTip rounded overflow-hidden text-sm px-6 py-3 ">
-      <div className="absolute w-1 bg-sellRed h-full left-0"></div>
+    <div
+      className={`bg-errorTip relative rounded overflow-hidden text-sm px-6 py-3 ${className} `}
+    >
+      <div className="absolute w-1 bg-sellRed bottom-0 h-full left-0"></div>
 
       <span className="text-textRed">{text}</span>
     </div>
@@ -391,7 +399,7 @@ export function orderPopUp({
     </div>,
     {
       closeOnClick: true,
-      hideProgressBar: false,
+      hideProgressBar: true,
       position: 'bottom-right',
       progress: undefined,
       autoClose: 3000,
@@ -495,7 +503,7 @@ export function MyOrderTip({
 
   return (
     <div
-      className="relative text-sm z-50 text-primaryOrderly"
+      className="relative text-sm z-50 text-primaryText"
       onMouseEnter={() => {
         setShowDetail(true);
       }}
@@ -504,7 +512,9 @@ export function MyOrderTip({
       }}
       id={id}
     >
-      <OrderSmile></OrderSmile>
+      <OrderSmile
+        fill={scrollTagID === 'buy-order-book-panel' ? '#00c6a2' : '#F96767'}
+      ></OrderSmile>
       {showDetail && (
         <div
           className="fixed  z-40  rounded-md border bg-orderTipBg border-border3 p-2 "
@@ -529,5 +539,86 @@ export function MyOrderTip({
         </div>
       )}
     </div>
+  );
+}
+
+export function orderEditPopUpSuccess({
+  side,
+  symbolName,
+  price,
+  size,
+  cancel,
+}: {
+  symbolName: string;
+  side: 'Buy' | 'Sell';
+  size: string;
+  price: string;
+  cancel: boolean;
+}) {
+  const { symbolFrom, symbolTo } = parseSymbol(symbolName);
+  return toast(
+    <div className={`flex-col  px-2 pt-4 text-sm   w-full`}>
+      <FlexRow className="relative bottom-3 w-full">
+        <div className={`text-white rounded-lg font-bold px-2 mr-1.5`}>
+          {!!cancel ? 'Order Canceled.' : 'Order Edit Successfully!'}
+        </div>
+      </FlexRow>
+
+      <div className="absolute w-1 bottom-0 bg-gradientFrom h-full left-0"></div>
+
+      <FlexRowStart className=" px-2 text-primaryText">
+        {`${side} `}
+        <span className="mx-1 ">{`${size} ${symbolFrom}`}</span>
+        at
+        <span className="ml-1 ">{`${price} ${symbolTo}`}</span>
+      </FlexRowStart>
+    </div>,
+    {
+      closeOnClick: true,
+      hideProgressBar: true,
+      position: 'bottom-right',
+      progress: undefined,
+      autoClose: false,
+      closeButton: false,
+
+      style: {
+        boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
+        borderRadius: '4px',
+        zIndex: 9999,
+        right: '-40px',
+        overflow: 'hidden',
+        width: '90%',
+        background: 'rgba(30, 41, 49, 1)',
+      },
+    }
+  );
+}
+
+export function orderEditPopUpFailure({ tip }: { tip: string }) {
+  return toast(
+    <div className={`flex-col flex px-2  text-sm   w-full`}>
+      <span className="text-textRed">{tip}</span>
+
+      <div className="absolute w-1 bg-sellRed bottom-0 h-full left-0"></div>
+    </div>,
+    {
+      closeOnClick: true,
+      hideProgressBar: true,
+      position: 'bottom-right',
+      progress: undefined,
+      autoClose: false,
+      closeButton: false,
+
+      style: {
+        boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
+        borderRadius: '4px',
+        zIndex: 9999,
+        right: '-40px',
+        overflow: 'hidden',
+        width: '90%',
+        minHeight: '40px',
+        background: 'rgba(249, 103, 103, 0.15)',
+      },
+    }
   );
 }

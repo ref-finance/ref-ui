@@ -23,7 +23,7 @@ export interface MyOrder {
   order_id: number;
   user_id: number;
   price: number;
-  type: 'LIMIT' | 'MARKET';
+  type: 'LIMIT' | 'MARKET' | 'IOC' | 'FOK' | 'POST_ONLY' | 'ASK' | 'BID';
   quantity: number;
   amount?: any;
   executed: number;

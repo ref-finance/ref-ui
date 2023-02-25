@@ -198,6 +198,7 @@ export function Content() {
     <WalletContext.Provider value={{ globalState, globalStatedispatch }}>
       <NavigationBar />
       <ToastContainer
+        newestOnTop={window.location.pathname === '/orderly' ? true : false}
         style={{
           marginTop: isMobile() ? 'none' : '44px',
         }}
