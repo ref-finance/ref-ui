@@ -3119,7 +3119,7 @@ function FarmView(props: {
                         <img
                           key={id}
                           src={icon}
-                          className={`h-4 w-4 rounded-full border border-gradientFromHover ${
+                          className={`h-4 w-4 rounded-full border border-gradientFromHover bg-gradientFromHover ${
                             index != 0 ? '-ml-1' : ''
                           }`}
                         ></img>

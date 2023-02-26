@@ -1413,6 +1413,7 @@ export default function FarmsDclDetail(props: {
             all_seeds,
             isPending,
             isEnded,
+            rangeSort,
           }}
         >
           {listLiquidities_inFarimg.length > 0 ? (
@@ -1543,6 +1544,7 @@ function LiquidityLine(props: {
     all_seeds,
     isPending,
     isEnded,
+    rangeSort,
   } = useContext(FarmContext);
   const [nft_stake_loading, set_nft_stake_loading] = useState(false);
   const [nft_unStake_loading, set_nft_unStake_loading] = useState(false);
@@ -1634,7 +1636,7 @@ function LiquidityLine(props: {
       return `$${formatWithCommas(toPrecision(v.toString(), 2))}`;
     }
   }
-  function get_your_range(liquidity: UserLiquidityInfo, site?: string) {
+  function get_your_range(liquidity: UserLiquidityInfo) {
     const { left_point, right_point } = liquidity;
     const [token_x_metadata, token_y_metadata] =
       detailData.pool.tokens_meta_data;
@@ -1655,7 +1657,7 @@ function LiquidityLine(props: {
       Math.pow(10, token_y_metadata.decimals);
     let left_price = getPriceByPoint(+left_point, decimalRate);
     let right_price = getPriceByPoint(+right_point, decimalRate);
-    if (rate_need_to_reverse_display) {
+    if (!rangeSort) {
       const temp = left_price;
       left_price = new BigNumber(1).dividedBy(right_price).toFixed();
       right_price = new BigNumber(1).dividedBy(temp).toFixed();
@@ -2126,7 +2128,7 @@ function LiquidityLine(props: {
         <div className="bg-v3HoverDarkBgColor rounded-xl mb-5 overflow-hidden">
           <div
             onMouseOver={() => setHover(true)}
-            className="grid grid-cols-5 pt-7 pb-3.5 px-6"
+            className="flex items-stretch justify-between pt-7 pb-3.5 px-6"
           >
             <div className="flex flex-col justify-between col-span-1 items-start">
               <span className="text-sm text-primaryText">Your Liquidity</span>
@@ -2149,7 +2151,7 @@ function LiquidityLine(props: {
                     : 'text-white'
                 }`}
               >
-                {get_your_range(liquidity, 'pc')}
+                {get_your_range(liquidity)}
               </span>
             </div>
             <div className="flex flex-col justify-between col-span-1">
@@ -2332,7 +2334,7 @@ function LiquidityLine(props: {
                   : 'text-white'
               }`}
             >
-              {get_your_range(liquidity, 'mobile')}
+              {get_your_range(liquidity)}
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
