@@ -547,7 +547,7 @@ export default function UserBoard() {
     ) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `Price should be less than or equal to ${new Big(
+        `Price should be greater than or equal to ${new Big(
           marketPrice || 0
         ).times(1 - symbolInfo.price_range)}`
       );
