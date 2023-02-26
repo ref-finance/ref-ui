@@ -1043,7 +1043,7 @@ export function getEffectiveFarmList(farmList: FarmBoost[]) {
   });
   return targetList;
 }
-export const TOKEN_LIST_FOR_RATE = ['USDC.e', 'USDC', 'USDT.e', 'USDT'];
+export const TOKEN_LIST_FOR_RATE = ['USDC.e', 'USDC', 'USDT.e', 'USDT', 'DAI'];
 
 export const PAUSE_DCL = true;
 
@@ -1056,4 +1056,13 @@ export function pause_old_dcl_claim_tip() {
   const tip = 'Removing will automatically<br/> claim your unclaimed fees.';
   let result: string = `<div class="opacity-50 text-xs text-left">${tip}</div>`;
   return result;
+}
+export function sort_tokens_by_base(tokens: TokenMetadata[]) {
+  const tokens_temp = JSON.parse(JSON.stringify(tokens || []));
+  tokens_temp.sort((item2: TokenMetadata, item1: TokenMetadata) => {
+    if (TOKEN_LIST_FOR_RATE.indexOf(item2.symbol) > -1) return 1;
+    if (TOKEN_LIST_FOR_RATE.indexOf(item1.symbol) > -1) return -1;
+    return 0;
+  });
+  return tokens_temp;
 }

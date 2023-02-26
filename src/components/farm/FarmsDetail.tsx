@@ -89,7 +89,7 @@ import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
 import { VEARROW } from '../icon/Referendum';
 import { isStablePool } from '../../services/near';
 import moment from 'moment';
-import { getEffectiveFarmList } from '~services/commonV3';
+import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
 
 const ONLY_ZEROS = /^0*\.?0*$/;
 const {
@@ -142,7 +142,8 @@ export default function FarmsDetail(props: {
   };
   const displaySymbols = () => {
     let result = '';
-    pool.tokens_meta_data.forEach((token: TokenMetadata, index: number) => {
+    const tokens_sort = sort_tokens_by_base(pool.tokens_meta_data);
+    tokens_sort.forEach((token: TokenMetadata, index: number) => {
       const symbol = toRealSymbol(token.symbol);
       if (index == pool.tokens_meta_data.length - 1) {
         result += symbol;
@@ -154,7 +155,8 @@ export default function FarmsDetail(props: {
   };
   const displayImgs = () => {
     const tokenList: any[] = [];
-    (tokens || []).forEach((token: TokenMetadata) => {
+    const tokens_sort = sort_tokens_by_base(tokens || []);
+    tokens_sort.forEach((token: TokenMetadata) => {
       tokenList.push(
         <label
           key={token.id}
@@ -3026,7 +3028,8 @@ export function StakeModal(props: {
   }, [amount, selectedLockData]);
   const displaySymbols = () => {
     let result = '';
-    pool.tokens_meta_data.forEach((token: TokenMetadata, index: number) => {
+    const tokens = sort_tokens_by_base(pool.tokens_meta_data);
+    tokens.forEach((token: TokenMetadata, index: number) => {
       const symbol = toRealSymbol(token.symbol);
       if (index == pool.tokens_meta_data.length - 1) {
         result += symbol;
@@ -3038,20 +3041,19 @@ export function StakeModal(props: {
   };
   const displayImgs = () => {
     const tokenList: any[] = [];
-    (pool.tokens_meta_data || []).forEach(
-      (token: TokenMetadata, index: number) => {
-        tokenList.push(
-          <label
-            key={token.id}
-            className={`h-8 w-8 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg ${
-              index != 0 ? '-ml-1.5' : ''
-            }`}
-          >
-            <img src={token.icon} className="w-full h-full"></img>
-          </label>
-        );
-      }
-    );
+    const tokens = sort_tokens_by_base(pool.tokens_meta_data);
+    (tokens || []).forEach((token: TokenMetadata, index: number) => {
+      tokenList.push(
+        <label
+          key={token.id}
+          className={`h-8 w-8 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg ${
+            index != 0 ? '-ml-1.5' : ''
+          }`}
+        >
+          <img src={token.icon} className="w-full h-full"></img>
+        </label>
+      );
+    });
     return tokenList;
   };
   function getSelectedLockRewardsData() {

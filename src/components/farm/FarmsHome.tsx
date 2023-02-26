@@ -132,6 +132,7 @@ import {
   TOKEN_LIST_FOR_RATE,
   displayNumberToAppropriateDecimals,
   getEffectiveFarmList,
+  sort_tokens_by_base,
 } from '~services/commonV3';
 
 const {
@@ -3057,6 +3058,7 @@ function FarmView(props: {
     (FARM_BLACK_LIST_V2 || []).indexOf(
       pool.id?.toString() || pool.pool_id?.toString()
     ) > -1;
+  const tokens_sort: TokenMetadata[] = sort_tokens_by_base(tokens);
   return (
     <>
       <div
@@ -3069,7 +3071,7 @@ function FarmView(props: {
       `}
       >
         <div className="flex absolute -top-5 z-10 justify-center w-full">
-          {tokens.map((token, index) => {
+          {tokens_sort.map((token, index) => {
             return (
               <label
                 key={token.id}
@@ -3095,7 +3097,7 @@ function FarmView(props: {
             >
               {/* link for looking into */}
               <a href={`javascript:void(${'/pool/' + pool.id})`}>
-                {tokens.map((token, index) => {
+                {tokens_sort.map((token, index) => {
                   const hLine = index === tokens.length - 1 ? '' : '-';
                   return `${toRealSymbol(token.symbol)}${hLine}`;
                 })}

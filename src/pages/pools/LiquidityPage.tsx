@@ -139,10 +139,10 @@ import {
   get_all_seeds,
   getLatestStartTime,
   isPending,
+  sort_tokens_by_base,
 } from '../../services/commonV3';
 
 import { AiFillStar } from 'react-icons/ai';
-import { PAUSE_DCL } from '../../services/commonV3';
 import { useTokenPriceList } from '../../state/token';
 import { useSeedFarmsByPools } from '../../state/pool';
 
@@ -312,11 +312,7 @@ function MobilePoolRow({
 
   if (!curRowTokens) return <></>;
 
-  tokens = curRowTokens.sort((a, b) => {
-    if (a.symbol === 'NEAR') return 1;
-    if (b.symbol === 'NEAR') return -1;
-    return 0;
-  });
+  tokens = sort_tokens_by_base(tokens);
 
   const showSortedValue = ({
     sortBy,
@@ -519,11 +515,7 @@ function MobilePoolRowV2({
   const history = useHistory();
 
   if (!curRowTokens) return <></>;
-  tokens = curRowTokens.sort((a, b) => {
-    if (a.symbol === 'NEAR') return 1;
-    if (b.symbol === 'NEAR') return -1;
-    return a.symbol > b.symbol ? 1 : -1;
-  });
+  tokens = sort_tokens_by_base(tokens);
 
   const showSortedValue = ({
     sortBy,
@@ -1590,11 +1582,7 @@ function PoolRow({
 
   if (!curRowTokens) return <></>;
 
-  tokens = curRowTokens.sort((a, b) => {
-    if (a.symbol === 'NEAR') return 1;
-    if (b.symbol === 'NEAR') return -1;
-    return 0;
-  });
+  tokens = sort_tokens_by_base(tokens);
 
   return (
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
@@ -1748,12 +1736,7 @@ function PoolRowV2({
   const history = useHistory();
 
   if (!curRowTokens) return <></>;
-
-  tokens = curRowTokens.sort((a, b) => {
-    if (a.symbol === 'NEAR') return 1;
-    if (b.symbol === 'NEAR') return -1;
-    return a.symbol > b.symbol ? 1 : -1;
-  });
+  tokens = sort_tokens_by_base(tokens);
   function goDetailV2() {
     const url_pool_id = pool.pool_id.replace(/\|/g, '@');
     history.push(`/poolV2/${url_pool_id}`);

@@ -71,7 +71,10 @@ import _ from 'lodash';
 import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import getConfig from '../../services/config';
-import { allocation_rule_liquidities } from '~services/commonV3';
+import {
+  allocation_rule_liquidities,
+  sort_tokens_by_base,
+} from '~services/commonV3';
 import { LinkArrowIcon } from '~components/icon/FarmBoost';
 import {
   get_detail_the_liquidity_refer_to_seed,
@@ -517,6 +520,7 @@ export default function YourLiquidityDetail(props: any) {
     inRange: liquidity_inRange,
     status: liquidity_staked_farm_status,
   } = related_seed_info;
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <div
       className={`m-auto lg:w-3/5 2xl:w-2/5 md:w-11/12 xs:w-11/12  xs:-mt-4 md:-mt-4`}
@@ -538,17 +542,16 @@ export default function YourLiquidityDetail(props: any) {
             <div className="flex items-center">
               <div className="flex items-center mr-2 flex-shrink-0">
                 <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                  src={tokens[0]?.icon}
                   className="w-8 h-8 border border-greenColor rounded-full"
                 ></img>
                 <img
-                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                  src={tokens[1]?.icon}
                   className="relative w-8 h-8 border border-greenColor rounded-full -ml-1.5"
                 ></img>
               </div>
               <span className="text-lg text-white">
-                {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}-
-                {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
+                {tokens[0]?.symbol}-{tokens[1]?.symbol}
               </span>
             </div>
             <div

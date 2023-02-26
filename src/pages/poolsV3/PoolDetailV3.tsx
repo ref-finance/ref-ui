@@ -45,6 +45,7 @@ import {
   get_all_seeds,
   displayNumberToAppropriateDecimals,
   getEffectiveFarmList,
+  sort_tokens_by_base,
 } from '~services/commonV3';
 import { ftGetTokensMetadata } from '../../services/ft-contract';
 import {
@@ -294,6 +295,10 @@ export default function PoolDetailV3() {
   }
   if (!poolDetail) return <Loading></Loading>;
   const isMobile = isClientMobie();
+  const tokens = sort_tokens_by_base([
+    poolDetail.token_x_metadata,
+    poolDetail.token_y_metadata,
+  ]);
   return (
     <>
       <div className="md:w-11/12 xs:w-11/12 w-4/6 lg:w-5/6 xl:w-1050px m-auto">
@@ -311,12 +316,12 @@ export default function PoolDetailV3() {
           <div className="relative flex items-center xsm:w-full">
             <div className="flex items-center mr-2.5">
               <img
-                src={poolDetail.token_x_metadata.icon}
+                src={tokens[0]?.icon}
                 className="w-10 h-10 rounded-full bg-cardBg"
                 style={{ border: '4px solid rgb(61, 68, 81)' }}
               ></img>
               <img
-                src={poolDetail.token_y_metadata.icon}
+                src={tokens[1]?.icon}
                 className="w-10 h-10 rounded-full bg-cardBg -ml-1"
                 style={{ border: '4px solid rgb(61, 68, 81)' }}
               ></img>
@@ -324,8 +329,7 @@ export default function PoolDetailV3() {
             <div className="flex flex-col justify-between">
               <div className="flex items-center">
                 <span className="text-lg text-white mr-3.5">
-                  {poolDetail.token_x_metadata.symbol}-
-                  {poolDetail.token_y_metadata.symbol}
+                  {tokens[0]?.symbol}-{tokens[1]?.symbol}
                 </span>
                 <span
                   className="flex items-center justify-center rounded-lg cursor-pointer  xsm:absolute xsm:right-0"

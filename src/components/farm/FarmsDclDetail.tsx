@@ -65,6 +65,7 @@ import {
   get_intersection_radio,
   get_intersection_icon_by_radio,
   getEffectiveFarmList,
+  sort_tokens_by_base,
 } from '~services/commonV3';
 import { list_liquidities, dcl_mft_balance_of } from '../../services/swapV3';
 import { AddNewPoolV3 } from '~components/pool/AddNewPoolV3';
@@ -398,22 +399,22 @@ export default function FarmsDclDetail(props: {
     emptyDetailData();
   };
   const displaySymbols = () => {
+    const tokens_sort = sort_tokens_by_base(detailData.pool.tokens_meta_data);
     let result = '';
-    detailData.pool.tokens_meta_data.forEach(
-      (token: TokenMetadata, index: number) => {
-        const symbol = toRealSymbol(token.symbol);
-        if (index == detailData.pool.tokens_meta_data.length - 1) {
-          result += symbol;
-        } else {
-          result += symbol + '-';
-        }
+    tokens_sort.forEach((token: TokenMetadata, index: number) => {
+      const symbol = toRealSymbol(token.symbol);
+      if (index == detailData.pool.tokens_meta_data.length - 1) {
+        result += symbol;
+      } else {
+        result += symbol + '-';
       }
-    );
+    });
     return result;
   };
   const displayImgs = () => {
     const tokenList: any[] = [];
-    (tokens || []).forEach((token: TokenMetadata) => {
+    const tokens_sort = sort_tokens_by_base(tokens || []);
+    tokens_sort.forEach((token: TokenMetadata) => {
       tokenList.push(
         <label
           key={token.id}

@@ -99,7 +99,10 @@ import {
   UserSeedInfo,
 } from '../../services/farm';
 import getConfig from '../../services/config';
-import { allocation_rule_liquidities } from '~services/commonV3';
+import {
+  allocation_rule_liquidities,
+  sort_tokens_by_base,
+} from '~services/commonV3';
 import { LinkArrowIcon, NFTIdIcon } from '~components/icon/FarmBoost';
 import { isMobile } from '~utils/device';
 
@@ -939,6 +942,7 @@ function UserLiquidityLine({
     inRange: liquidity_inRange,
     status: liquidity_staked_farm_status,
   } = related_seed_info;
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <div
       className="mt-3.5"
@@ -964,17 +968,16 @@ function UserLiquidityLine({
               <div className="flex items-center">
                 <div className="flex items-center flex-shrink-0">
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                    src={tokens[0]?.icon}
                     className="w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                    src={tokens[1]?.icon}
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
                 <span className="text-white font-bold ml-9 mr-2.5 text-sm gotham_bold">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
                 </span>
                 <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
                   <span className="text-xs text-v3SwapGray whitespace-nowrap mr-1.5">
@@ -1196,17 +1199,16 @@ function UserLiquidityLine({
               <div className="flex items-center flex-shrink-0">
                 <div className="flex items-center flex-shrink-0">
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                    src={tokens[0]?.icon}
                     className="w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                    src={tokens[1]?.icon}
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
                 <span className="text-white text-sm ml-1.5">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
                 </span>
                 {Liquidity_icon ? (
                   <div
@@ -2075,6 +2077,7 @@ function UserLiquidityLine_old({
       }
     }
   }
+  const tokens = sort_tokens_by_base(tokenMetadata_x_y);
   return (
     <div
       className="mt-3.5"
@@ -2100,17 +2103,16 @@ function UserLiquidityLine_old({
               <div className="flex items-center">
                 <div className="flex items-center flex-shrink-0">
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                    src={tokens[0]?.icon}
                     className="w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                    src={tokens[1]?.icon}
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
                 <span className="text-white font-bold mx-2.5 text-sm gotham_bold">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
                 </span>
                 <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
                   <span className="text-xs text-v3SwapGray whitespace-nowrap mr-1.5">
@@ -2282,17 +2284,16 @@ function UserLiquidityLine_old({
               <div className="flex items-center">
                 <div className="flex items-center flex-shrink-0">
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                    src={tokens[0]?.icon}
                     className="w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                   <img
-                    src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                    src={tokens[1]?.icon}
                     className="relative -ml-1.5 w-7 h-7 border border-greenColor rounded-full"
                   ></img>
                 </div>
                 <span className="text-white text-sm ml-1.5">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
-                  {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+                  {tokens[0]?.['symbol']}-{tokens[1]?.['symbol']}
                 </span>
               </div>
               <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
