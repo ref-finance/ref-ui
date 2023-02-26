@@ -471,7 +471,7 @@ export default function YourLiquidityPageV3() {
                         >
                           <QuestionMark></QuestionMark>
                           <ReactTooltip
-                            place='right'
+                            place="right"
                             id={'v2PoolNumberTip'}
                             backgroundColor="#1D2932"
                             border

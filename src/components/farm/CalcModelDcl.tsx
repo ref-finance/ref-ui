@@ -194,7 +194,7 @@ function SeedInfo() {
           className="flex items-center text-farmText hover:text-framBorder"
           onClick={goPoolPage}
         >
-          <label className="mr-2 text-sm cursor-pointer">V2 Pool Detail</label>
+          <label className="mr-2 text-sm cursor-pointer">DCL Pool Detail</label>
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>

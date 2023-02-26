@@ -924,7 +924,7 @@ export default function FarmsDclDetail(props: {
           className="flex items-center text-farmText hover:text-framBorder lg:hidden"
           onClick={goPoolPage}
         >
-          <label className="mx-2 text-sm cursor-pointer">V2 Pool Detail</label>
+          <label className="mx-2 text-sm cursor-pointer">DCL Pool Detail</label>
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
@@ -948,7 +948,10 @@ export default function FarmsDclDetail(props: {
                   {getFee()}
                 </span>
               </div>
-              <DclFarmIcon className="xsm:ml-2"></DclFarmIcon>
+              <div className="flex items-center bg-dclIconBgColor rounded-md xsm:ml-2 px-1 py-0.5">
+                <DclFarmIcon></DclFarmIcon>
+                <label className="text-xs text-white ml-1">DCL</label>
+              </div>
               {isEnded ? (
                 <span className="text-farmText text-sm ml-2 relative top-0.5 xs:top-0 md:xs-0">
                   <FormattedMessage id="ended_search"></FormattedMessage>
@@ -986,7 +989,7 @@ export default function FarmsDclDetail(props: {
           className="flex items-center text-farmText hover:text-framBorder xsm:hidden"
           onClick={goPoolPage}
         >
-          <label className="mx-2 text-sm cursor-pointer">V2 Pool Detail</label>
+          <label className="mx-2 text-sm cursor-pointer">DCL Pool Detail</label>
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
@@ -1383,7 +1386,7 @@ export default function FarmsDclDetail(props: {
             <div className="w-full bg-gradientFrom h-1.5"></div>
             <div className="flex items-center justify-between p-3 xsm:flex-col">
               <span className="text-sm text-white">
-                You don't have any V2 Liquidity position for now, click 'Add
+                You don't have any DCL Liquidity position for now, click 'Add
                 Position' to start farming.
               </span>
               <GradientButton

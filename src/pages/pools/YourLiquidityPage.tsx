@@ -986,7 +986,7 @@ function PoolRow(props: {
               <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
                 <span className="underline">
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                  &nbsp; V1
+                  &nbsp; Classic
                 </span>
 
                 <span className="ml-0.5">
@@ -1024,7 +1024,7 @@ function PoolRow(props: {
               <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
                 <span className="underline">
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                  &nbsp; V2
+                  &nbsp; DCL
                 </span>
 
                 <span className="ml-0.5">
@@ -1267,7 +1267,7 @@ function PoolRow(props: {
                   </span>
                   <span className="border-b border-primaryText">
                     <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                    <span className="ml-1">V1</span>
+                    <span className="ml-1">Classic</span>
                   </span>
                   <span className="text-gradientFrom ml-0.5">
                     <VEARROW />
@@ -1302,7 +1302,7 @@ function PoolRow(props: {
                   </span>
                   <span className="border-b border-primaryText">
                     <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                    <span className="ml-1">V2</span>
+                    <span className="ml-1">DCL</span>
                   </span>
                   <span className="text-gradientFrom ml-0.5">
                     <VEARROW />

@@ -537,7 +537,7 @@ export default function Asset() {
   function getTip() {
     // const tip = intl.formatMessage({ id: 'over_tip' });
     const tip =
-      'Value of my investment on Ref (in V1/V2 pools + V1 unclaimed Rewards + V2 unclaimed fees) in usd';
+      'Value of my investment on Ref (in Classic/DCL pools + Classic unclaimed Rewards + DCL unclaimed fees) in usd';
     let result: string = `<div class="text-navHighLightText text-xs text-left w-64">${tip}</div>`;
     return result;
   }
@@ -591,7 +591,7 @@ export default function Asset() {
       </div>
       <div className="grid grid-cols-2 gap-3 border-t border-b border-cardBg p-4">
         <DataTemplate
-          title="V2 Pools"
+          title="DCL Pools"
           value={getV2PoolUSDValue()}
           event={() => {
             localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
@@ -599,7 +599,7 @@ export default function Asset() {
           }}
         ></DataTemplate>
         <DataTemplate
-          title="V1 Pools"
+          title="Classic Pools"
           value={getV1PoolUSDValue()}
           event={() => {
             localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');

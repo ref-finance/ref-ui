@@ -607,7 +607,7 @@ function AccountTable(props: any) {
             setAccountTab('ref');
           }}
         >
-          REF(V1)
+          REF(Classic)
           {hasRefBalanceOver ? (
             <div
               className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
@@ -629,7 +629,7 @@ function AccountTable(props: any) {
             setAccountTab('dcl');
           }}
         >
-          REF(V2)
+          REF(DCL)
           {hasDCLBalanceOver ? (
             <div
               className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
@@ -702,7 +702,7 @@ function AccountTable(props: any) {
                 className={`flex items-center w-full justify-end `}
               >
                 <RefIcon />
-                <label className="mx-1 cursor-pointer">REF(V1)</label>
+                <label className="mx-1 cursor-pointer">REF(Classic)</label>
                 <TiArrowSortedUp
                   className={`cursor-pointer ${
                     currentSort == 'ref-down' ? 'transform rotate-180' : ''
@@ -723,7 +723,7 @@ function AccountTable(props: any) {
                 className={`flex items-center w-full justify-end `}
               >
                 <RefIcon />
-                <label className="mx-1 cursor-pointer">REF(V2)</label>
+                <label className="mx-1 cursor-pointer">REF(DCL)</label>
                 <TiArrowSortedUp
                   className={`cursor-pointer ${
                     currentSort == 'dcl-down' ? 'transform rotate-180' : ''
@@ -1224,7 +1224,7 @@ function MobileAccountTable(props: any) {
               className={`flex items-center w-full justify-end`}
             >
               <RefIcon />
-              <label className="mx-1 cursor-pointer">REF(V1)</label>
+              <label className="mx-1 cursor-pointer">REF(Classic)</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
                   currentSort == 'ref-down' ? 'transform rotate-180' : ''
@@ -1242,7 +1242,7 @@ function MobileAccountTable(props: any) {
               className={`flex items-center w-full justify-end`}
             >
               <RefIcon />
-              <label className="mx-1 cursor-pointer">REF(V2)</label>
+              <label className="mx-1 cursor-pointer">REF(DCL)</label>
               <TiArrowSortedUp
                 className={`cursor-pointer ${
                   currentSort == 'dcl-down' ? 'transform rotate-180' : ''
@@ -2066,7 +2066,7 @@ function MobileAccount(props: any) {
                         : 'text-primaryText'
                     } ${refAccountTokenNumber ? '' : 'hidden'}`}
                   >
-                    REF(V1)
+                    REF(Classic)
                     {hasRefBalanceOver ? (
                       <div
                         className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "
@@ -2087,7 +2087,7 @@ function MobileAccount(props: any) {
                         : 'text-primaryText'
                     } ${DCLAccountTokenNumber ? '' : 'hidden'}`}
                   >
-                    REF(V2)
+                    REF(DCL)
                     {hasDCLBalanceOver ? (
                       <div
                         className="w-1.5 h-1.5 relative left-1 bottom-1 rounded-full "

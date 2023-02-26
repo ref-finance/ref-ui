@@ -75,7 +75,7 @@ export default function Positions(props: any) {
     <div className="text-white">
       <div>
         {!isSignedIn || listLiquidities?.length == 0 ? (
-          <NoLiquidity text="V2"></NoLiquidity>
+          <NoLiquidity text="DCL"></NoLiquidity>
         ) : (
           <>
             <div className="grid grid-cols-positionContainer gap-x-2">

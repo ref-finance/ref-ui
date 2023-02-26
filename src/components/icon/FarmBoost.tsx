@@ -3865,86 +3865,63 @@ export const DclFarmIcon = (props: any) => {
   return (
     <svg
       {...props}
-      width="41"
-      height="20"
-      viewBox="0 0 41 20"
+      width="11"
+      height="12"
+      viewBox="0 0 11 12"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <rect
-        width="41"
-        height="20"
-        rx="6"
-        fill="url(#paint0_linear_5989_3191)"
-      />
-      <path
-        d="M24.512 12.836L21.524 5.6H20.468L24.08 14.06H24.92L28.532 5.6H27.512L24.512 12.836ZM32.684 6.332C32.908 6.332 33.124 6.372 33.332 6.452C33.54 6.524 33.72 6.632 33.872 6.776C34.024 6.912 34.144 7.08 34.232 7.28C34.328 7.472 34.376 7.692 34.376 7.94C34.376 8.148 34.344 8.352 34.28 8.552C34.224 8.744 34.124 8.944 33.98 9.152C33.844 9.352 33.664 9.568 33.44 9.8C33.216 10.032 32.944 10.292 32.624 10.58L29.576 13.268V14H35.444V13.136H30.992L33.236 11.144C33.604 10.824 33.92 10.532 34.184 10.268C34.448 9.996 34.668 9.736 34.844 9.488C35.02 9.232 35.148 8.976 35.228 8.72C35.316 8.464 35.36 8.18 35.36 7.868C35.36 7.524 35.296 7.208 35.168 6.92C35.04 6.624 34.86 6.372 34.628 6.164C34.396 5.948 34.12 5.78 33.8 5.66C33.488 5.54 33.14 5.48 32.756 5.48C32.388 5.48 32.056 5.52 31.76 5.6C31.472 5.68 31.208 5.796 30.968 5.948C30.736 6.1 30.52 6.288 30.32 6.512C30.12 6.736 29.924 6.988 29.732 7.268L30.428 7.772C30.764 7.3 31.104 6.944 31.448 6.704C31.792 6.456 32.204 6.332 32.684 6.332Z"
-        fill="white"
-      />
-      <rect
-        x="5"
-        y="9.0769"
+        y="5.0769"
         width="2.53846"
         height="6.76923"
         rx="1.26923"
-        fill="url(#paint1_linear_5989_3191)"
+        fill="url(#paint0_linear_5995_3280)"
       />
       <rect
-        x="9.23047"
-        y="4"
+        x="4.23047"
         width="2.53846"
         height="11.8462"
         rx="1.26923"
-        fill="url(#paint2_linear_5989_3191)"
+        fill="url(#paint1_linear_5995_3280)"
       />
       <rect
-        x="13.4609"
-        y="7.38464"
+        x="8.46094"
+        y="3.38464"
         width="2.53846"
         height="8.46154"
         rx="1.26923"
-        fill="url(#paint3_linear_5989_3191)"
+        fill="url(#paint2_linear_5995_3280)"
       />
       <defs>
         <linearGradient
-          id="paint0_linear_5989_3191"
-          x1="20.5"
+          id="paint0_linear_5995_3280"
+          x1="1.26923"
+          y1="5.0769"
+          x2="1.26923"
+          y2="11.8461"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="white" />
+          <stop offset="1" stop-color="white" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear_5995_3280"
+          x1="5.4997"
           y1="0"
-          x2="20.5"
-          y2="20"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stop-color="#00C6A2" />
-          <stop offset="1" stop-color="#5B40FF" />
-        </linearGradient>
-        <linearGradient
-          id="paint1_linear_5989_3191"
-          x1="6.26923"
-          y1="9.0769"
-          x2="6.26923"
-          y2="15.8461"
+          x2="5.4997"
+          y2="11.8462"
           gradientUnits="userSpaceOnUse"
         >
           <stop stop-color="white" />
           <stop offset="1" stop-color="white" stop-opacity="0" />
         </linearGradient>
         <linearGradient
-          id="paint2_linear_5989_3191"
-          x1="10.4997"
-          y1="4"
-          x2="10.4997"
-          y2="15.8462"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stop-color="white" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
-        </linearGradient>
-        <linearGradient
-          id="paint3_linear_5989_3191"
-          x1="14.7302"
-          y1="7.38464"
-          x2="14.7302"
-          y2="15.8462"
+          id="paint2_linear_5995_3280"
+          x1="9.73017"
+          y1="3.38464"
+          x2="9.73017"
+          y2="11.8462"
           gradientUnits="userSpaceOnUse"
         >
           <stop stop-color="white" />
