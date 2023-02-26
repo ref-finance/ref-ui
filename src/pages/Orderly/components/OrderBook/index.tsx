@@ -173,9 +173,15 @@ function OrderBook() {
     }
   }, [!!orders]);
 
-  const marketTradeDisplay = recentTrades?.at(0)?.executed_price || 0;
+  const marketTradeDisplay = digitWrapper(
+    recentTrades?.at(0)?.executed_price || 0,
+    2
+  );
 
-  const diff = marketTradeDisplay - recentTrades?.at(1)?.executed_price || 0;
+  const diff =
+    recentTrades?.at(0)?.executed_price ||
+    0 - recentTrades?.at(1)?.executed_price ||
+    0;
 
   return (
     <div className="w-full h-full relative border border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 ">
@@ -304,7 +310,7 @@ function OrderBook() {
                   }}
                 >
                   <span className="text-sellRed justify-self-start">
-                    {order[0]}
+                    {digitWrapper(order[0].toString(), 2)}
                   </span>
 
                   <span className="mr-4">
@@ -376,7 +382,7 @@ function OrderBook() {
                   }}
                 >
                   <span className="text-buyGreen justify-self-start">
-                    {order[0]}
+                    {digitWrapper(order[0].toString(), 2)}
                   </span>
 
                   <span className="mr-4">

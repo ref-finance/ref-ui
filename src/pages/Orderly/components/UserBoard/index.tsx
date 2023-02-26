@@ -87,6 +87,7 @@ import { ButtonTextWrapper } from '~components/button/Button';
 import { FlexRow, orderEditPopUpFailure } from '../Common/index';
 import { useAllSymbolInfo } from '../AllOrders/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
+import * as math from 'mathjs';
 
 function getTipFOK() {
   return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
@@ -525,14 +526,14 @@ export default function UserBoard() {
 
     if (
       new Big(price || 0).gt(
-        new Big(marketPrice || 0).times(1 + symbolInfo.price_range)
+        new Big(orders.asks?.[0]?.[0] || 0).times(1 + symbolInfo.price_range)
       ) &&
       side === 'Buy'
     ) {
       setShowErrorTip(true);
       setErrorTipMsg(
         `Price should be less than or equal to ${new Big(
-          marketPrice || 0
+          orders.asks?.[0]?.[0] || 0
         ).times(1 + symbolInfo.price_range)}`
       );
 
@@ -541,25 +542,29 @@ export default function UserBoard() {
 
     if (
       new Big(price || 0).lt(
-        new Big(marketPrice || 0).times(1 - symbolInfo.price_range)
+        new Big(orders.bids?.[0]?.[0] || 0).times(1 - symbolInfo.price_range)
       ) &&
       side === 'Sell'
     ) {
       setShowErrorTip(true);
       setErrorTipMsg(
         `Price should be greater than or equal to ${new Big(
-          marketPrice || 0
+          orders.bids?.[0]?.[0] || 0
         ).times(1 - symbolInfo.price_range)}`
       );
+
+      return;
     }
 
     if (
       price &&
       size &&
-      new Big(price || 0).times(new Big(size || 0)).lte(symbolInfo.min_notional)
+      new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
     ) {
       setShowErrorTip(true);
-      setErrorTipMsg(`Total should be greater than ${symbolInfo.min_notional}`);
+      setErrorTipMsg(
+        `The order value should be greater than or equal to ${symbolInfo.min_notional}`
+      );
       return;
     }
 
@@ -607,10 +612,12 @@ export default function UserBoard() {
     if (
       price &&
       size &&
-      new Big(price || 0).times(new Big(size || 0)).lte(symbolInfo.min_notional)
+      new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
     ) {
       setShowErrorTip(true);
-      setErrorTipMsg(`Total should be greater than ${symbolInfo.min_notional}`);
+      setErrorTipMsg(
+        `The order value should be greater than or equal to ${symbolInfo.min_notional}`
+      );
       return;
     }
 
@@ -1022,25 +1029,34 @@ export default function UserBoard() {
               if (orderType === 'Limit' && new Big(limitPrice || 0).lte(0)) {
                 return;
               }
+              const symbolInfo = availableSymbols?.find(
+                (s) => s.symbol === symbol
+              );
+
+              if (!symbolInfo) {
+                return;
+              }
 
               const maxAmount =
                 side === 'Sell'
-                  ? (tokenInHolding || 0).toString()
+                  ? tokenInHolding || 0
                   : new Big(tokenOutHolding || 0)
                       .div(
                         orderType === 'Market' ? marketPrice : limitPrice || 1
                       )
-                      .toFixed(
-                        tokenOut.decimals || 24,
+                      .toNumber();
 
-                        0
-                      );
+              const displayAmount = new Big(maxAmount || 0)
+                .div(new Big(symbolInfo.base_tick))
+                .round(0, 0)
+                .times(new Big(symbolInfo.base_tick))
+                .toString();
 
-              setInputValue(maxAmount);
+              setInputValue(displayAmount);
 
               sizeValidator(
                 orderType == 'Market' ? marketPrice.toString() : limitPrice,
-                maxAmount
+                displayAmount
               );
             }}
           >

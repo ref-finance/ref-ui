@@ -36,7 +36,12 @@ import {
   getOrderTrades,
 } from '../../orderly/off-chain-api';
 import { useAllOrders } from '../../orderly/state';
-import { useAllSymbolInfo } from './state';
+import {
+  useAllSymbolInfo,
+  useOrderBook,
+  useCurHolding,
+  useCurHoldings,
+} from './state';
 import { useBatchTokenMetaFromSymbols } from '../ChartHeader/state';
 import Modal from 'react-modal';
 
@@ -48,6 +53,12 @@ import { digitWrapper } from '../../utiles';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import { orderEditPopUpFailure } from '../Common/index';
+import { isLargeScreen } from '~utils/device';
+import { Holding } from '../../orderly/type';
+import {
+  getAccountInformation,
+  getCurrentHolding,
+} from '../../orderly/off-chain-api';
 
 export function EditConfirmOrderModal(
   props: Modal.Props & {
@@ -130,11 +141,15 @@ function OrderLine({
   marketInfo,
   showCurSymbol,
   availableSymbols,
+  holdingFrom,
+  holdingTo,
 }: {
   order: MyOrder;
   marketInfo: JSX.Element | undefined;
   showCurSymbol?: boolean;
   availableSymbols: SymbolInfo[];
+  holdingFrom: Holding | undefined;
+  holdingTo: Holding | undefined;
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(order.symbol);
 
@@ -149,6 +164,11 @@ function OrderLine({
   const [openEditQuantity, setOpenEditQuantity] = useState<boolean>(false);
 
   const [openEditPrice, setOpenEditPrice] = useState<boolean>(false);
+
+  const orderBookThisSymbol = useOrderBook({
+    symbol: order.symbol,
+    openSig: [openEditPrice, openEditQuantity],
+  });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -171,6 +191,34 @@ function OrderLine({
 
     // price validator
 
+    if (
+      !ONLY_ZEROS.test(order.executed ? order.executed.toString() : '0') &&
+      new Big(quantity).lte(order.executed || 0)
+    ) {
+      errorTipMsg = `Quantity should be higher than ${order.executed}`;
+    }
+
+    if (
+      new Big(quantity || 0).gt(order.quantity || 0) &&
+      holdingFrom &&
+      holdingTo
+    ) {
+      let diff = new Big(quantity || 0).minus(new Big(order.quantity || 0));
+      console.log('diff: ', diff.toString());
+
+      let left = order.side === 'BUY' ? holdingTo.holding : holdingFrom.holding;
+      console.log('left: ', left);
+      if (order.side === 'BUY') {
+        diff = diff.times(new Big(order.price));
+      }
+
+      if (new Big(left).lt(diff)) {
+        errorTipMsg = `Insufficient ${
+          order.side === 'BUY' ? symbolTo : symbolFrom
+        }`;
+      }
+    }
+
     if (new Big(price || 0).lt(symbolInfo.quote_min)) {
       errorTipMsg = `Min price should be higher than ${symbolInfo.quote_min}`;
     }
@@ -187,12 +235,39 @@ function OrderLine({
       errorTipMsg = `Price should be multiple of ${symbolInfo.quote_tick}`;
     }
 
+    const marketPrice =
+      order.side === 'SELL'
+        ? orderBookThisSymbol.bids[0].price
+        : orderBookThisSymbol.asks[0].price;
+
+    if (
+      new Big(price || 0).gt(
+        new Big(marketPrice || 0).times(1 + symbolInfo.price_range)
+      ) &&
+      order.side === 'BUY'
+    ) {
+      errorTipMsg = `Price should be less than or equal to ${new Big(
+        marketPrice || 0
+      ).times(1 + symbolInfo.price_range)}`;
+    }
+
+    if (
+      new Big(price || 0).lt(
+        new Big(marketPrice || 0).times(1 - symbolInfo.price_range)
+      ) &&
+      order.side === 'SELL'
+    ) {
+      errorTipMsg = `Price should be greater than or equal to ${new Big(
+        marketPrice || 0
+      ).times(1 - symbolInfo.price_range)}`;
+    }
+
     if (
       price &&
       size &&
-      new Big(price || 0).times(new Big(size || 0)).lte(symbolInfo.min_notional)
+      new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
     ) {
-      errorTipMsg = `Total should be greater than ${symbolInfo.min_notional}`;
+      errorTipMsg = `The order value should be greater than or equal to ${symbolInfo.min_notional}`;
     }
 
     // size validator
@@ -216,11 +291,11 @@ function OrderLine({
     if (
       price &&
       size &&
-      new Big(price || 0).times(new Big(size || 0)).lte(symbolInfo.min_notional)
+      new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
     ) {
-      errorTipMsg = `Total should be greater than ${symbolInfo.min_notional}`;
+      errorTipMsg = `The order value should be greater than or equal to ${symbolInfo.min_notional}`;
+      return;
     }
-
     if (!!errorTipMsg) {
       orderEditPopUpFailure({
         tip: errorTipMsg,
@@ -363,7 +438,11 @@ function OrderLine({
         </span>
         <span className="mx-1 relative top-1.5">/</span>
 
-        <div className="flex flex-col overflow-hidden bg-dark2 rounded-lg border border-border2 text-sm  w-14 text-white">
+        <div
+          className={`flex flex-col overflow-hidden  rounded-lg ${
+            openEditQuantity ? 'border bg-dark2' : ''
+          }  border-border2 text-sm  w-14 text-white`}
+        >
           <input
             ref={inputRef}
             inputMode="decimal"
@@ -416,10 +495,20 @@ function OrderLine({
 
       <FlexRowStart
         className={`col-span-2 relative  ${
-          showCurSymbol ? 'right-14' : 'right-5'
-        } justify-self-center  items-start`}
+          isLargeScreen()
+            ? showCurSymbol
+              ? 'right-52'
+              : 'right-36'
+            : showCurSymbol
+            ? 'right-44'
+            : 'right-32'
+        } justify-self-end  items-start`}
       >
-        <div className="flex flex-col overflow-hidden bg-dark2 rounded-lg border border-border2 text-sm  w-14 text-white">
+        <div
+          className={`flex flex-col overflow-hidden  rounded-lg  ${
+            openEditPrice ? 'border bg-dark2' : ''
+          } border-border2 text-sm  w-14 text-white`}
+        >
           <input
             ref={inputRefPrice}
             inputMode="decimal"
@@ -472,7 +561,9 @@ function OrderLine({
       </FlexRowStart>
 
       <div
-        className={`flex  col-span-1  relative right-8 text-white ml-4 ${
+        className={`flex  col-span-1  relative  ${
+          showCurSymbol ? 'right-24' : 'right-20'
+        } justify-self-end text-white  ${
           openEdit ? 'items-start top-1.5' : 'items-center'
         }`}
       >
@@ -485,9 +576,7 @@ function OrderLine({
       </div>
 
       <div
-        className={`col-span-1 relative  ${
-          showCurSymbol ? 'right-16' : 'right-8'
-        } whitespace-nowrap justify-self-end  text-end text-primaryOrderly flex ${
+        className={`col-span-1 relative  ${'right-4'} whitespace-nowrap justify-self-end  text-end text-primaryOrderly flex ${
           openEdit ? 'items-start top-1.5' : 'items-center'
         }`}
       >
@@ -656,12 +745,16 @@ function HistoryOrderLine({
 
           <span className="mx-1 ">/</span>
 
-          <span className="text-white">
+          <span className="text-white ">
             {digitWrapper((order.quantity || order.executed).toString(), 3)}
           </span>
         </FlexRow>
 
-        <FlexRow className="col-span-1 ml-4">
+        <FlexRow
+          className={`col-span-1   justify-self-end relative ${
+            isLargeScreen() ? 'right-32' : 'right-24'
+          } `}
+        >
           <span>
             {order.price || order.average_executed_price
               ? digitWrapper(
@@ -672,7 +765,11 @@ function HistoryOrderLine({
           </span>
         </FlexRow>
 
-        <FlexRow className="col-span-1 ml-6 text-white">
+        <FlexRow
+          className={`col-span-1 relative ${
+            isLargeScreen() ? 'right-28' : 'right-20'
+          }  justify-self-end  text-white`}
+        >
           <span>
             {order.average_executed_price === null
               ? '-'
@@ -680,7 +777,11 @@ function HistoryOrderLine({
           </span>
         </FlexRow>
 
-        <FlexRow className="col-span-1 ml-4 relative left-2  text-white">
+        <FlexRow
+          className={`col-span-1 ml-4 justify-self-end relative ${
+            showCurSymbol ? 'right-20' : 'right-16'
+          }   text-white`}
+        >
           {digitWrapper(
             new Big(order.quantity || '0')
               .times(
@@ -819,6 +920,8 @@ function OpenOrders({
 }) {
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
 
+  const curHoldings = useCurHoldings();
+
   const [chooseSide, setChooseSide] = useState<'Both' | 'Buy' | 'Sell'>('Both');
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
@@ -889,7 +992,7 @@ function OpenOrders({
     if (!orders) return;
 
     setOpenCount(orders.filter(filterFunc).length);
-  }, [chooseSide, chooseMarketSymbol, !!orders]);
+  }, [chooseSide, chooseMarketSymbol, !!orders, chooseType]);
 
   useEffect(() => {
     if (showCurSymbol) {
@@ -897,7 +1000,7 @@ function OpenOrders({
     } else {
       setChooseMarketSymbol('all_markets');
     }
-  }, [showCurSymbol]);
+  }, [showCurSymbol, symbol]);
   if (hidden) return null;
 
   const generateMarketList = () => {
@@ -1115,7 +1218,7 @@ function OpenOrders({
           )}
         </FlexRow>
 
-        <FlexRow className="col-span-1 relative right-8">
+        <FlexRow className="col-span-1 justify-self-center relative right-8">
           <div>
             Est.Total
             {showCurSymbol && (
@@ -1128,7 +1231,7 @@ function OpenOrders({
           </div>
         </FlexRow>
 
-        <FlexRow className=" flex items-center  justify-center col-span-1">
+        <FlexRow className=" flex items-center justify-self-end relative right-8 justify-center col-span-1">
           <div
             className="cursor-pointer flex"
             onClick={() => {
@@ -1167,6 +1270,16 @@ function OpenOrders({
                   marketInfo={
                     marketList.find((m) => m.textId === order.symbol)?.text
                   }
+                  holdingFrom={curHoldings?.find((h) => {
+                    const token = parseSymbol(order.symbol).symbolFrom;
+
+                    return h.token === token;
+                  })}
+                  holdingTo={curHoldings?.find((h) => {
+                    const token = parseSymbol(order.symbol).symbolTo;
+
+                    return h.token === token;
+                  })}
                   showCurSymbol={showCurSymbol}
                   order={order}
                   key={order.order_id}
@@ -1243,7 +1356,7 @@ function HistoryOrders({
     } else {
       setChooseMarketSymbol('all_markets');
     }
-  }, [showCurSymbol]);
+  }, [showCurSymbol, symbol]);
 
   const filterFunc = (order: MyOrder) => {
     const side =

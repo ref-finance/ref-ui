@@ -322,10 +322,8 @@ export function orderPopUp({
   filled?: boolean;
   order: MyOrder;
 }) {
-  console.log('order: ', order);
-
   const { symbolFrom, symbolTo } = parseSymbol(symbolName);
-  return toast(
+  toast(
     <div className={`flex-col  px-2 pt-4 text-sm text-dark5  w-full`}>
       <FlexRowBetween className="relative bottom-3 w-full">
         <div className="flex text-sm items-center">
@@ -418,6 +416,15 @@ export function orderPopUp({
       },
     }
   );
+  if (order.type === 'FOK' && order.status === 'CANCELLED') {
+    return orderEditPopUpSuccess({
+      side,
+      symbolName,
+      price,
+      size,
+      cancel: true,
+    });
+  }
 }
 
 export function DepositButton(props: any) {

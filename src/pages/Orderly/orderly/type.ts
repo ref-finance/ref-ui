@@ -66,6 +66,16 @@ export interface MarketTrade {
   ts: number;
 }
 
+interface Ask {
+  price: number;
+  quantity: number;
+}
+export interface RequestOrder {
+  asks: Ask[];
+  bids: Ask[];
+  timestamp: number;
+}
+
 export interface Trade {
   symbol: string;
   side: 'BUY' | 'SELL';
