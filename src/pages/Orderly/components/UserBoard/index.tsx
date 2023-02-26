@@ -541,7 +541,7 @@ export default function UserBoard() {
 
     if (
       new Big(price || 0).lt(
-        new Big(marketPrice || 0).times(1 + symbolInfo.price_range)
+        new Big(marketPrice || 0).times(1 - symbolInfo.price_range)
       ) &&
       side === 'Sell'
     ) {
