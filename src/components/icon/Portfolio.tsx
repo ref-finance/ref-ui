@@ -190,3 +190,23 @@ export function FarmMiningIcon(props: any) {
     </svg>
   );
 }
+
+export function PurpleCircleIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 7C1 6.24503 1.13944 5.52263 1.39397 4.85714M7 1C10.3137 1 13 3.68629 13 7C13 10.3137 10.3137 13 7 13C4.48017 13 2.32315 11.4467 1.43424 9.2453M4.42857 1.5774C3.78605 1.88263 3.20639 2.29869 2.71429 2.80087"
+        stroke="#4E31FF"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+}

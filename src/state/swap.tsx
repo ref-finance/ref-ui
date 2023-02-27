@@ -59,7 +59,7 @@ import { checkCrossSwapTransactions } from '../components/layout/transactionTipP
 import {
   getLimitOrderRangeCountAndPool,
   get_pool,
-  PoolInfoV3,
+  PoolInfo,
   quote,
   v3Swap,
   V3_POOL_FEE_LIST,
@@ -637,7 +637,7 @@ export const useSwapV3 = ({
 }: SwapV3Options) => {
   const [tokenOutAmount, setTokenOutAmount] = useState<string>('');
 
-  const [bestPool, setBestPool] = useState<PoolInfoV3>();
+  const [bestPool, setBestPool] = useState<PoolInfo>();
 
   const [quoteDone, setQuoteDone] = useState<boolean>(false);
 
@@ -688,7 +688,7 @@ export const useSwapV3 = ({
     fee: number,
     tokenIn: TokenMetadata,
     tokenOut: TokenMetadata,
-    allDCLPools: PoolInfoV3[]
+    allDCLPools: PoolInfo[]
   ) => {
     const pool_id = getV3PoolId(tokenIn.id, tokenOut.id, fee);
 
@@ -895,9 +895,9 @@ export const useLimitOrder = ({
 
   const [quoteDone, setQuoteDone] = useState<boolean>(false);
 
-  const [pools, setPools] = useState<(PoolInfoV3 | null)[]>();
+  const [pools, setPools] = useState<(PoolInfo | null)[]>();
 
-  const [mostPoolDetail, setMostPoolDetail] = useState<PoolInfoV3>();
+  const [mostPoolDetail, setMostPoolDetail] = useState<PoolInfo>();
 
   const [poolToOrderCounts, setPoolToOrderCounts] = useState<{
     [key: string]: string | null;
@@ -937,7 +937,7 @@ export const useLimitOrder = ({
       .then((res) => {
         setPools(res);
 
-        const counts = res?.map((r: PoolInfoV3) => {
+        const counts = res?.map((r: PoolInfo) => {
           if (!r) return 0;
           const tokenX = r.token_x === tokenIn.id ? tokenIn : tokenOut;
           const tokenY = r.token_y === tokenOut.id ? tokenOut : tokenIn;

@@ -112,7 +112,6 @@ import { unWrapTokenId, wrapTokenId, DetailView_near_wnear } from './SwapCard';
 import getConfig, { getExtraStablePoolConfig } from '../../services/config';
 import { SWAP_MODE } from '../../pages/SwapPage';
 import Big from 'big.js';
-import { PoolInfoV3, quote } from '../../services/swapV3';
 import { getMax } from '../../utils/numbers';
 import { SkyWardModal } from '../layout/SwapDoubleCheck';
 import { useWalletSelector } from '../../context/WalletSelectorContext';

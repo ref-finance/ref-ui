@@ -26,7 +26,6 @@ import {
   toReadableNumber,
   formatWithCommas,
 } from '~utils/numbers';
-import { TokenMetadata } from '../../services/ft-contract';
 import { useTokens } from '../../state/token';
 import {
   getPriceByPoint,
@@ -37,6 +36,8 @@ import {
   TOKEN_LIST_FOR_RATE,
   displayNumberToAppropriateDecimals,
   get_all_seeds,
+  get_liquidity_value,
+  allocation_rule_liquidities,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
 import {
@@ -51,7 +52,6 @@ import { WalletContext } from '../../utils/wallets-integration';
 import Big from 'big.js';
 import { list_farmer_seeds, list_seed_farms } from '../../services/farm';
 import getConfig from '../../services/config';
-import { allocation_rule_liquidities } from '~services/commonV3';
 import { LinkArrowIcon, NFTIdIcon } from '~components/icon/FarmBoost';
 import {
   get_detail_the_liquidity_refer_to_seed,
@@ -63,6 +63,7 @@ import {
   LinkIcon,
   WaterDropIcon,
 } from '../../components/icon/Portfolio';
+import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 const LiquidityContext = createContext(null);
 export function YourLiquidityV2(props: any) {
@@ -77,16 +78,33 @@ export function YourLiquidityV2(props: any) {
     []
   );
   const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
+  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
+  const [all_pools_map, set_all_pools_map] =
+    useState<Record<string, PoolInfo>>();
+  const [all_tokens_meta_map, set_all_tokens_meta_map] =
+    useState<Record<string, TokenMetadata>>();
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+  useEffect(() => {
+    getBoostTokenPrices().then(setTokenPriceList);
+    get_all_seeds().then((seeds: Seed[]) => {
+      set_all_seeds(seeds);
+    });
+  }, []);
   useEffect(() => {
     if (isSignedIn) {
       get_list_liquidities();
     }
-    get_all_seeds().then((seeds: Seed[]) => {
-      set_all_seeds(seeds);
-    });
   }, [isSignedIn]);
+  useEffect(() => {
+    if (listLiquidities.length > 0) {
+      get_all_pools_detail();
+      get_all_tokens_metas();
+    }
+  }, [listLiquidities]);
+  useEffect(() => {
+    get_all_liquidity_value();
+  }, [all_pools_map, all_tokens_meta_map, tokenPriceList]);
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
     if (list.length > 0) {
@@ -125,18 +143,88 @@ export function YourLiquidityV2(props: any) {
     setLiquidityLoadingDone && setLiquidityLoadingDone(true);
     setLiquidityQuantity && setLiquidityQuantity(list.length);
   }
+  async function get_all_pools_detail() {
+    const pool_ids = new Set();
+    listLiquidities.forEach((liquidity: UserLiquidityInfo) => {
+      pool_ids.add(liquidity.pool_id);
+    });
+    const promise_pools = Array.from(pool_ids).map(async (id: string) => {
+      const detail = await get_pool(id);
+      return detail;
+    });
+    const all_liquidities_related_pools = await Promise.all(promise_pools);
+    const pools_detail_map = all_liquidities_related_pools.reduce(
+      (acc, cur) => {
+        return {
+          ...acc,
+          [cur.pool_id]: cur,
+        };
+      },
+      {}
+    );
+    set_all_pools_map(pools_detail_map);
+  }
+  async function get_all_tokens_metas() {
+    const token_ids = new Set();
+    listLiquidities.forEach((liquidity: UserLiquidityInfo) => {
+      const { pool_id } = liquidity;
+      const [token_x, token_y, fee] = pool_id.split('|');
+      token_ids.add(token_x).add(token_y);
+    });
+    const promise_all_tokens_meta = Array.from(token_ids).map(
+      async (id: string) => {
+        const token_mata = await ftGetTokenMetadata(id);
+        return token_mata;
+      }
+    );
+    const all_tokens_meta = await Promise.all(promise_all_tokens_meta);
+    const all_tokens_meta_map = all_tokens_meta.reduce((acc, cur) => {
+      return {
+        ...acc,
+        [cur.id]: cur,
+      };
+    }, {});
+    set_all_tokens_meta_map(all_tokens_meta_map);
+  }
+  function get_all_liquidity_value() {
+    let total_value = new BigNumber(0);
+    if (
+      all_pools_map &&
+      all_tokens_meta_map &&
+      Object.keys(tokenPriceList).length > 0
+    ) {
+      listLiquidities.forEach((liquidity: UserLiquidityInfo) => {
+        const { pool_id } = liquidity;
+        const [token_x, token_y] = pool_id.split('|');
+        const poolDetail = all_pools_map[pool_id];
+        const tokensMeta = [
+          all_tokens_meta_map[token_x],
+          all_tokens_meta_map[token_y],
+        ];
+        const v = get_liquidity_value({
+          liquidity,
+          poolDetail,
+          tokenPriceList,
+          tokensMeta,
+        });
+        total_value = total_value.plus(v);
+      });
+      setLpValueV2Done && setLpValueV2Done(true);
+      setYourLpValueV2 && setYourLpValueV2(total_value.toFixed());
+    }
+  }
   return (
     <div>
       {listLiquidities.map((liquidity: UserLiquidityInfo, index: number) => {
         return (
           <div key={index}>
             <UserLiquidityLine
-              lpSize={listLiquidities.length}
-              setLpValueV2Done={setLpValueV2Done}
-              setYourLpValueV2={setYourLpValueV2}
               liquidity={liquidity}
               all_seeds={all_seeds}
               styleType={styleType}
+              tokenPriceList={tokenPriceList}
+              poolDetail={all_pools_map?.[liquidity.pool_id]}
+              all_tokens_meta_map={all_tokens_meta_map}
             ></UserLiquidityLine>
           </div>
         );
@@ -146,25 +234,23 @@ export function YourLiquidityV2(props: any) {
 }
 function UserLiquidityLine({
   liquidity,
-  setLpValueV2Done,
-  lpSize,
-  setYourLpValueV2,
   all_seeds,
   styleType,
+  tokenPriceList,
+  poolDetail,
+  all_tokens_meta_map,
 }: {
   liquidity: UserLiquidityInfo;
-  lpSize: number;
-  setLpValueV2Done: (value: boolean) => void;
-  setYourLpValueV2: (value: string) => void;
   all_seeds: Seed[];
   styleType: string;
+  tokenPriceList: Record<string, any>;
+  poolDetail: PoolInfo;
+  all_tokens_meta_map: Record<string, TokenMetadata>;
 }) {
-  const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [liquidityDetail, setLiquidityDetail] = useState<UserLiquidityInfo>();
   const [hover, setHover] = useState<boolean>(false);
   const [isInrange, setIsInrange] = useState<boolean>(true);
   const [your_liquidity, setYour_liquidity] = useState('');
-  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
@@ -176,7 +262,9 @@ function UserLiquidityLine({
 
   const { lpt_id, pool_id, left_point, right_point, amount: L } = liquidity;
   const [token_x, token_y, fee] = pool_id.split('|');
-  const tokenMetadata_x_y = useTokens([token_x, token_y]);
+  const tokenMetadata_x_y = all_tokens_meta_map
+    ? [all_tokens_meta_map[token_x], all_tokens_meta_map[token_y]]
+    : null;
   const rate_need_to_reverse_display = useMemo(() => {
     if (tokenMetadata_x_y) {
       const [tokenX] = tokenMetadata_x_y;
@@ -187,8 +275,7 @@ function UserLiquidityLine({
 
   const history = useHistory();
   useEffect(() => {
-    get_pool_detail();
-    getBoostTokenPrices().then(setTokenPriceList);
+    judge_is_in_range();
     getLiquidityDetail();
     get_pool_related_farms();
   }, []);
@@ -220,16 +307,14 @@ function UserLiquidityLine({
     }
     set_is_in_farming(is_in_farming);
   }
-  async function get_pool_detail() {
-    const detail = await get_pool(pool_id, token_x);
-    if (detail) {
-      const { current_point } = detail;
+  async function judge_is_in_range() {
+    if (poolDetail) {
+      const { current_point } = poolDetail;
       if (current_point >= left_point && right_point > current_point) {
         setIsInrange(true);
       } else {
         setIsInrange(false);
       }
-      setPoolDetail(detail);
     }
   }
   async function getLiquidityDetail() {
@@ -287,26 +372,6 @@ function UserLiquidityLine({
       total_price = tokenXTotalPrice.toFixed();
     }
     setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
-    const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
-    const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
-    sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
-    const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
-    sessionStorage.setItem(
-      REF_FI_LP_V2_VALUE,
-      new Big(!!total_price ? toPrecision(total_price, 3) : '0')
-        .plus(new Big(storagedValue || '0'))
-        .toFixed(2)
-    );
-    const newLPValue = new Big(
-      !!total_price ? toPrecision(total_price, 3) : '0'
-    )
-      .plus(new Big(storagedValue || '0'))
-      .toFixed(2);
-
-    if (Number(newSize) == lpSize) {
-      setLpValueV2Done && setLpValueV2Done(true);
-      setYourLpValueV2 && setYourLpValueV2(newLPValue);
-    }
   }
   function getY(
     leftPoint: number,

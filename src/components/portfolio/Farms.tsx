@@ -50,10 +50,11 @@ import {
   displayNumberToAppropriateDecimals,
   get_intersection_radio,
   get_intersection_icon_by_radio,
+  get_liquidity_value,
+  get_all_seeds,
 } from '~services/commonV3';
 import { NFTIdIcon } from '~components/icon/FarmBoost';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
-import { get_all_seeds } from '~services/commonV3';
 import { PoolInfo } from '~services/swapV3';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
@@ -891,7 +892,6 @@ function ClassicFarms() {
       const total_value = get_all_seeds_liquidities_value();
       set_classic_farms_value_done(true);
       set_classic_farms_value(total_value);
-      console.log('5555555555555-classic_farms_value', total_value);
     }
   }, [classicSeeds]);
   function get_all_seeds_liquidities_value() {
@@ -1298,35 +1298,6 @@ function isPending(seed: Seed) {
     }
   }
   return pending;
-}
-function get_liquidity_value({
-  liquidity,
-  poolDetail,
-  tokenPriceList,
-  tokensMeta,
-}: {
-  liquidity: UserLiquidityInfo;
-  poolDetail: PoolInfo;
-  tokenPriceList: Record<string, any>;
-  tokensMeta: TokenMetadata[];
-}) {
-  const { left_point, right_point, amount } = liquidity;
-  const { token_x, token_y } = poolDetail;
-  const v = get_total_value_by_liquidity_amount_dcl({
-    left_point,
-    right_point,
-    poolDetail,
-    amount,
-    price_x_y: {
-      [token_x]: tokenPriceList[token_x]?.price || '0',
-      [token_y]: tokenPriceList[token_y]?.price || '0',
-    },
-    metadata_x_y: {
-      [token_x]: tokensMeta[0],
-      [token_y]: tokensMeta[1],
-    },
-  });
-  return v;
 }
 function display_number(amount: string) {
   const amount_big = new BigNumber(amount);

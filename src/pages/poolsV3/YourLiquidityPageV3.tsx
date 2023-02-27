@@ -81,8 +81,6 @@ import { YourLiquidityV2 } from '~components/pool/YourLiquidityV2';
 
 export default function YourLiquidityPageV3() {
   const clearState = () => {
-    sessionStorage.removeItem(REF_FI_LP_VALUE_COUNT);
-    sessionStorage.removeItem(REF_FI_LP_V2_VALUE);
     sessionStorage.removeItem('REF_FI_LP_V2_OLD_VALUE');
     sessionStorage.removeItem('REF_FI_LP_VALUE_OLD_COUNT');
   };

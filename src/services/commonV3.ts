@@ -1056,3 +1056,32 @@ export function pause_old_dcl_claim_tip() {
   let result: string = `<div class="opacity-50 text-xs text-left">${tip}</div>`;
   return result;
 }
+export function get_liquidity_value({
+  liquidity,
+  poolDetail,
+  tokenPriceList,
+  tokensMeta,
+}: {
+  liquidity: UserLiquidityInfo;
+  poolDetail: PoolInfo;
+  tokenPriceList: Record<string, any>;
+  tokensMeta: TokenMetadata[];
+}) {
+  const { left_point, right_point, amount } = liquidity;
+  const { token_x, token_y } = poolDetail;
+  const v = get_total_value_by_liquidity_amount_dcl({
+    left_point,
+    right_point,
+    poolDetail,
+    amount,
+    price_x_y: {
+      [token_x]: tokenPriceList[token_x]?.price || '0',
+      [token_y]: tokenPriceList[token_y]?.price || '0',
+    },
+    metadata_x_y: {
+      [token_x]: tokensMeta[0],
+      [token_y]: tokensMeta[1],
+    },
+  });
+  return v;
+}
