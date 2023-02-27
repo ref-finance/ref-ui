@@ -780,7 +780,7 @@ export default function AddYourLiquidityPageV3() {
                       setTokenY(token);
                       setTokenYBalanceFromNear(token?.near?.toString());
                     }}
-                    className="pt-0  absolute top-8 outline-none   left-0"
+                    className="pt-0  absolute top-8 outline-none   left-0    xs:text-white xs:font-bold xs:fixed xs:bottom-0 xs:w-full "
                     selected={
                       <div
                         className={`flex items-center text-sm cursor-pointer pb-3 ${

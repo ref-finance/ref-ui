@@ -815,7 +815,7 @@ export function SelectTokenDCL({
     return (
       <div
         key={p.pool_id}
-        className="flex items-center text-sm min-w-max px-1.5 bg-opacity-90 py-3 rounded-lg hover:bg-dclSelectTokenHover cursor-pointer"
+        className="flex items-center text-sm xs:text-base min-w-max px-1.5 bg-opacity-90 py-3 rounded-lg hover:bg-dclSelectTokenHover cursor-pointer"
         onClick={() => {
           handleSelect(p);
           setHoverSelectToken(false);
@@ -882,7 +882,8 @@ export function SelectTokenDCL({
       {hoverSelectToken && (
         <div
           className={`${
-            className || 'pt-2  absolute top-8 outline-none   right-0'
+            className ||
+            'pt-2  absolute top-8 outline-none xs:text-white xs:font-bold xs:fixed xs:bottom-0 xs:w-full  right-0'
           }    `}
           onMouseLeave={() => {
             if (!mobileDevice) {
@@ -895,11 +896,28 @@ export function SelectTokenDCL({
             }
           }}
           style={{
-            zIndex: !!selectTokenOut ? 120 : 90,
+            zIndex: mobileDevice ? 300 : !!selectTokenOut ? 120 : 90,
           }}
         >
-          <div className="border border-menuMoreBoxBorderColor rounded-lg bg-selectBoxBgColor px-2 py-3 ">
-            <div className="text-sm text-primaryText  ml-1.5  pb-2">
+          {mobileDevice && (
+            <div
+              className="fixed w-screen h-screen top-0"
+              style={{
+                zIndex: 150,
+                background: 'rgba(0, 19, 32, 0.8)',
+              }}
+              onClick={() => {
+                setHoverSelectToken(false);
+              }}
+            ></div>
+          )}
+          <div
+            className="border border-menuMoreBoxBorderColor xs:absolute xs:w-full xs:bottom-0 xs:pb-8 xs:rounded-2xl rounded-lg bg-selectBoxBgColor px-2 py-3 "
+            style={{
+              zIndex: mobileDevice ? 300 : '',
+            }}
+          >
+            <div className="text-sm text-primaryText xs:text-white xs:text-base  ml-1.5   pb-2">
               {intl.formatMessage({
                 id: 'Instrument',
                 defaultMessage: 'Instrument',
