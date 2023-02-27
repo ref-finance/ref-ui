@@ -650,11 +650,12 @@ export default function YourLiquidityDetail(props: any) {
       ) : null}
       <div className="flex justify-between mt-8 items-stretch xs:flex-col md:flex-col xs:mt-5 md:mt-5">
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow mr-3 xs:w-full md:w-full xs:mr-0 md:mr-0 xs:p-3 md:p-3">
-          <div className="flex justify-between xs:w-full md:w-full">
-            <div className="text-white text-base">
+          <div className="flex  items-start justify-between xs:w-full md:w-full">
+            <div className="flex items-start flex-col text-white text-base">
               <FormattedMessage id="your_liquidity" />
+              <span className="text-xs text-farmText">Estimation</span>
             </div>
-            <div className="text-white text-base">~{getLiquidityPrice()}</div>
+            <div className="text-white text-base">{getLiquidityPrice()}</div>
           </div>
           <div className={`flex items-center justify-between mt-5`}>
             <div className="flex items-center">
@@ -750,10 +751,13 @@ export default function YourLiquidityDetail(props: any) {
           ) : null}
         </div>
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow xs:w-full md:w-full xs:mt-3 md:mt-3 xs:p-3 md:p-3">
-          <div className="flex items-center justify-between text-white text-base flex-wrap">
-            <span>
-              <FormattedMessage id="unclaimed_fees" />
-            </span>
+          <div className="flex items-start justify-between text-white text-base flex-wrap">
+            <div className="flex items-start flex-col">
+              <span>
+                <FormattedMessage id="unclaimed_fees" />
+              </span>
+              <span className="text-xs text-farmText">Estimation</span>
+            </div>
             <span className="text-white text-base">
               {getTokenFeeAmount('p') || '$-'}
             </span>

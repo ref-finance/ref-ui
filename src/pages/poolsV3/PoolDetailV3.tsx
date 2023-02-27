@@ -714,7 +714,7 @@ function YourLiquidityBox(props: {
     } else if (total < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + formatWithCommas(toPrecision(total.toString(), 2));
+      return '$' + formatWithCommas(toPrecision(total.toString(), 2));
     }
   }
   function getTotalTokenAmount() {
@@ -756,10 +756,13 @@ function YourLiquidityBox(props: {
   }
   return (
     <div className="p-5 bg-cardBg rounded-xl xsm:p-0">
-      <div className="flex items-center justify-between xsm:hidden">
-        <span className="text-white text-base">
-          <FormattedMessage id="your_liquidity"></FormattedMessage>
-        </span>
+      <div className="flex items-start justify-between xsm:hidden">
+        <div className="flex flex-col items-start">
+          <span className="text-white text-base">
+            <FormattedMessage id="your_liquidity"></FormattedMessage>
+          </span>
+          <span className="text-xs text-farmText">Estimation</span>
+        </div>
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
             {liquidities.length} NFTs
@@ -888,7 +891,7 @@ function UnclaimedFeesBox(props: any) {
     } else if (total_tvl < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + formatWithCommas(toPrecision(total_tvl.toString(), 2));
+      return '$' + formatWithCommas(toPrecision(total_tvl.toString(), 2));
     }
   }
   function getTotalFeeAmount() {
@@ -938,10 +941,13 @@ function UnclaimedFeesBox(props: any) {
     getTotalFeeAmount();
   return (
     <div className="p-5 bg-cardBg rounded-xl mt-3.5 xsm:p-0">
-      <div className="flex items-center justify-between xsm:hidden">
-        <span className="text-white text-base">
-          <FormattedMessage id="unclaimed_fees" />
-        </span>
+      <div className="flex items-start justify-between xsm:hidden">
+        <div className="flex items-start flex-col">
+          <span className="text-white text-base">
+            <FormattedMessage id="unclaimed_fees" />
+          </span>
+          <span className="text-xs text-farmText">Estimation</span>
+        </div>
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
             {liquidities.length} NFTs
@@ -1193,7 +1199,7 @@ function SelectLiquidityBox(props: any) {
     } else if (total < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + formatWithCommas(toPrecision(total.toString(), 2));
+      return '$' + formatWithCommas(toPrecision(total.toString(), 2));
     }
   }
   function displayLiqudityFee(liquidityDetail: UserLiquidityDetail) {
@@ -1203,7 +1209,7 @@ function SelectLiquidityBox(props: any) {
     } else if (total < 0.01) {
       return '<$0.01';
     } else {
-      return '~$' + formatWithCommas(toPrecision(total.toString(), 2));
+      return '$' + formatWithCommas(toPrecision(total.toString(), 2));
     }
   }
   function displayRange(liquidityDetail: UserLiquidityDetail) {
