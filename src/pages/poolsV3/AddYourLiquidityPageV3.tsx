@@ -87,6 +87,7 @@ import QuestionMark from '../../components/farm/QuestionMark';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 
 import Big from 'big.js';
+import { SelectTokenDCL } from '../../components/forms/SelectToken';
 
 export default function AddYourLiquidityPageV3() {
   const [tokenX, setTokenX] = useState<TokenMetadata>(null);
@@ -707,7 +708,7 @@ export default function AddYourLiquidityPageV3() {
                 className="flex-shrink-0 xs:w-full md:w-full"
               >
                 <div className="flex items-center justify-between">
-                  <div
+                  {/* <div
                     className="relative ml-3"
                     tabIndex={-1}
                     onMouseEnter={() => {
@@ -737,8 +738,8 @@ export default function AddYourLiquidityPageV3() {
                       }`}
                     >
                       <FormattedMessage
-                        id="select_tokens"
-                        defaultMessage="Select Tokens"
+                        id="select_instrument"
+                        defaultMessage="Select Instrument"
                       />
                       <ArrowDownV3 className="ml-3"></ArrowDownV3>
                     </div>
@@ -766,7 +767,54 @@ export default function AddYourLiquidityPageV3() {
                         ...
                       </div>
                     </div>
-                  </div>
+                  </div> */}
+
+                  <SelectTokenDCL
+                    selectTokenIn={(token) => {
+                      if (tokenY && tokenY.id == token.id) return;
+                      setTokenX(token);
+                      setTokenXBalanceFromNear(token?.near?.toString());
+                    }}
+                    selectTokenOut={(token: TokenMetadata) => {
+                      if (tokenX && tokenX.id == token.id) return;
+                      setTokenY(token);
+                      setTokenYBalanceFromNear(token?.near?.toString());
+                    }}
+                    className="pt-0  absolute top-8 outline-none   left-0"
+                    selected={
+                      <div
+                        className={`flex items-center text-sm cursor-pointer pb-3 ${
+                          selectHover ? 'text-white' : 'text-primaryText'
+                        }`}
+                        onMouseEnter={() => {
+                          if (!mobileDevice) {
+                            setSelectHover(true);
+                          }
+                        }}
+                        onMouseLeave={() => {
+                          if (!mobileDevice) {
+                            setSelectHover(false);
+                          }
+                        }}
+                        onClick={() => {
+                          if (mobileDevice) {
+                            setSelectHover(!selectHover);
+                          }
+                        }}
+                        onBlur={() => {
+                          if (mobileDevice) {
+                            setSelectHover(false);
+                          }
+                        }}
+                      >
+                        <FormattedMessage
+                          id="select_instrument"
+                          defaultMessage="Select Instrument"
+                        />
+                        <ArrowDownV3 className="ml-3"></ArrowDownV3>
+                      </div>
+                    }
+                  />
                   <div
                     onMouseEnter={() => {
                       setViewPoolHover(true);

@@ -757,18 +757,34 @@ export function SelectTokenDCL({
   selectTokenOut,
   selectedToken,
   onSelect,
+  selected,
+  className,
 }: {
   selectTokenIn?: (token: TokenMetadata) => void;
   selectTokenOut?: (token: TokenMetadata) => void;
-  onSelect: (token: TokenMetadata) => void;
+  onSelect?: (token: TokenMetadata) => void;
   selectedToken?: TokenMetadata;
+  selected?: JSX.Element;
+  className?: string;
 }) {
   const allPools = useAllPoolsV2();
 
   const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
 
+  const intl = useIntl();
+
+  const mobileDevice = isMobile();
+
   const handleSelect = (p: PoolInfo) => {
     // select token in
+
+    if (!selectedToken) {
+      selectTokenIn(p.token_x_metadata);
+      selectTokenOut(p.token_y_metadata);
+
+      return;
+    }
+
     if (!!selectTokenOut) {
       if (selectedToken?.id === p.token_x_metadata.id) {
         selectTokenOut(p.token_y_metadata);
@@ -791,6 +807,7 @@ export function SelectTokenDCL({
         onSelect(p.token_y_metadata);
         selectTokenIn(p.token_x_metadata);
       }
+      return;
     }
   };
 
@@ -798,9 +815,10 @@ export function SelectTokenDCL({
     return (
       <div
         key={p.pool_id}
-        className="flex items-center min-w-max px-1.5 bg-opacity-90 py-2.5 rounded-lg hover:bg-dclSelectTokenHover cursor-pointer"
+        className="flex items-center text-sm min-w-max px-1.5 bg-opacity-90 py-3 rounded-lg hover:bg-dclSelectTokenHover cursor-pointer"
         onClick={() => {
           handleSelect(p);
+          setHoverSelectToken(false);
         }}
       >
         <Images
@@ -823,31 +841,58 @@ export function SelectTokenDCL({
     <div
       className="outline-none relative my-auto flex-shrink-0"
       onMouseLeave={() => {
-        setHoverSelectToken(false);
+        if (!mobileDevice) {
+          setHoverSelectToken(false);
+        }
+      }}
+      onBlur={() => {
+        if (mobileDevice) {
+          setHoverSelectToken(false);
+        }
       }}
     >
-      {selectedToken && (
+      {(selected || selectedToken) && (
         <div
           className="flex items-center relative justify-end font-semibold"
-          onMouseEnter={() => setHoverSelectToken(true)}
+          onMouseEnter={() => {
+            if (!mobileDevice) {
+              setHoverSelectToken(true);
+            }
+          }}
+          onClick={() => {
+            if (mobileDevice) {
+              setHoverSelectToken(!hoverSelectToken);
+            }
+          }}
           style={{
             zIndex: !!selectTokenOut ? 130 : 100,
           }}
         >
-          <IconLeftV3
-            size={'7'}
-            token={selectedToken}
-            hover={hoverSelectToken}
-            className={'p-1'}
-          />
+          {selected || (
+            <IconLeftV3
+              size={'7'}
+              token={selectedToken}
+              hover={hoverSelectToken}
+              className={'p-1'}
+            />
+          )}
         </div>
       )}
 
       {hoverSelectToken && (
         <div
-          className="pt-2  absolute top-8 outline-none   right-0   "
+          className={`${
+            className || 'pt-2  absolute top-8 outline-none   right-0'
+          }    `}
           onMouseLeave={() => {
-            setHoverSelectToken(false);
+            if (!mobileDevice) {
+              setHoverSelectToken(false);
+            }
+          }}
+          onBlur={() => {
+            if (mobileDevice) {
+              setHoverSelectToken(false);
+            }
           }}
           style={{
             zIndex: !!selectTokenOut ? 120 : 90,
@@ -855,7 +900,10 @@ export function SelectTokenDCL({
         >
           <div className="border border-menuMoreBoxBorderColor rounded-lg bg-selectBoxBgColor px-2 py-3 ">
             <div className="text-sm text-primaryText  ml-1.5  pb-2">
-              Instrument
+              {intl.formatMessage({
+                id: 'Instrument',
+                defaultMessage: 'Instrument',
+              })}
             </div>
             {renderList}
           </div>
