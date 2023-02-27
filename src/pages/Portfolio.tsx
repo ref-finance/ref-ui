@@ -24,7 +24,7 @@ function Portfolio() {
   useEffect(() => {
     clearState();
   }, [historyYourLP.location.pathname]);
-  const [activeTab, setActiveTab] = useState(2); // 1,2,3
+  const [activeTab, setActiveTab] = useState(1); // 1,2,3
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
   const [YourLpValueV1, setYourLpValueV1] = useState('0');
   const [lpValueV1Done, setLpValueV1Done] = useState(false);

@@ -8,7 +8,6 @@ import {
   SolidButton,
   OutlineButton,
 } from '~components/button/Button';
-import Loading from '~components/layout/Loading';
 import {
   AllStableTokenIds,
   NEARX_POOL_ID,
@@ -26,7 +25,6 @@ import {
   calculateFeePercent,
   formatWithCommas,
 } from '~utils/numbers';
-import { usePool, usePools } from '~state/pool';
 import {
   RemoveLiquidityModal,
   AddLiquidityModal,
@@ -69,7 +67,6 @@ import { getPoolsByIds, getPoolsByTokensIndexer } from '../../services/indexer';
 import { parsePool } from '../../services/pool';
 import { createContext } from 'react';
 import { useClientMobile, isClientMobie } from '../../utils/device';
-import _, { method } from 'lodash';
 import {
   GradientButton,
   ButtonTextWrapper,
@@ -625,6 +622,8 @@ function YourClassicLiquidityLine(props: any) {
   const { pool } = props;
   const { token_account_ids, id: poolId } = pool;
   const tokens = token_account_ids.map((id: number) => tokensMeta[id]) || [];
+  const [switch_off, set_switch_off] = useState<boolean>(true);
+
   const decimals = isStablePool(poolId)
     ? getStablePoolDecimal(poolId)
     : LP_TOKEN_DECIMALS;
@@ -773,7 +772,11 @@ function YourClassicLiquidityLine(props: any) {
     }
   }
   return (
-    <div className="rounded-xl mt-3 bg-portfolioBgColor px-5 pb-4">
+    <div
+      className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
+        switch_off ? '' : 'pb-4'
+      }`}
+    >
       <div className="flex items-center justify-between h-14">
         <div className="flex items-center">
           <div className="flex items-center">{Images}</div>
@@ -796,12 +799,27 @@ function YourClassicLiquidityLine(props: any) {
           <span className="text-sm text-white gotham_bold mr-5">
             {display_value(lp_total_value)}
           </span>
-          <div className="flex items-center justify-center border border-primaryText border-opacity-10 rounded-md w-6 h-6 cursor-pointer">
-            <TriangleIcon></TriangleIcon>
+          <div
+            onClick={() => {
+              set_switch_off(!switch_off);
+            }}
+            className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
+              switch_off
+                ? 'border border-primaryText border-opacity-10'
+                : 'bg-portfolioGreyColor'
+            }`}
+          >
+            <TriangleIcon
+              className={`${
+                switch_off
+                  ? 'text-limitOrderInputColor'
+                  : 'text-white transform rotate-180'
+              }`}
+            ></TriangleIcon>
           </div>
         </div>
       </div>
-      <div>
+      <div className={`${switch_off ? 'hidden' : ''}`}>
         <p className="text-sm text-v3SwapGray ml-2">Your Position</p>
         <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
           <div className="flex items-center justify-between mb-6">
