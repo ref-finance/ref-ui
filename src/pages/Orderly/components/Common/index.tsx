@@ -26,7 +26,9 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { digitWrapper } from '../../utiles';
 
 export function TokenIcon({ src }: { src: any }) {
-  return <img src={src} alt="" className={`h-5 w-5 rounded-full `} />;
+  return (
+    <img src={src} alt="" className={`h-5 w-5 flex-shrink-0 rounded-full `} />
+  );
 }
 
 export function QuestionMark(props: {
@@ -400,7 +402,7 @@ export function orderPopUp({
       hideProgressBar: true,
       position: 'bottom-right',
       progress: undefined,
-      autoClose: false,
+      autoClose: 3000,
       closeButton: false,
       className: 'orderly-order-toast',
       style: {
@@ -418,7 +420,9 @@ export function orderPopUp({
     }
   );
   if (
-    (order.type === 'FOK' || order.type === 'IOC') &&
+    (order.type === 'FOK' ||
+      order.type === 'IOC' ||
+      order.type === 'POST_ONLY') &&
     order.status === 'CANCELLED'
   ) {
     return orderEditPopUpSuccess({
@@ -427,6 +431,7 @@ export function orderPopUp({
       price,
       size,
       cancel: true,
+      sig: true,
     });
   }
 }
@@ -559,12 +564,14 @@ export function orderEditPopUpSuccess({
   price,
   size,
   cancel,
+  sig,
 }: {
   symbolName: string;
   side: 'Buy' | 'Sell';
   size: string;
   price: string;
   cancel: boolean;
+  sig?: boolean;
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(symbolName);
   return toast(
@@ -589,7 +596,7 @@ export function orderEditPopUpSuccess({
       hideProgressBar: true,
       position: 'bottom-right',
       progress: undefined,
-      autoClose: false,
+      autoClose: 3000,
       closeButton: false,
       style: {
         boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
@@ -599,9 +606,7 @@ export function orderEditPopUpSuccess({
         overflow: 'hidden',
         width: '90%',
         background: 'rgba(30, 41, 49, 1)',
-        bottom: !!document.getElementsByClassName('orderly-order-toast')
-          ? '-70px'
-          : '0px',
+        bottom: !!sig ? '-70px' : '0px',
       },
     }
   );
@@ -619,7 +624,7 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
       hideProgressBar: true,
       position: 'bottom-right',
       progress: undefined,
-      autoClose: false,
+      autoClose: 3000,
       closeButton: false,
       style: {
         boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
@@ -630,7 +635,7 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
         width: '90%',
         minHeight: '40px',
         background: 'rgba(249, 103, 103, 0.15)',
-        bottom: !!document.getElementsByClassName('orderly-order-toast')
+        bottom: !!document.getElementsByClassName('orderly-order-toast')?.[0]
           ? '-70px'
           : '0px',
       },

@@ -10,6 +10,7 @@ import {
   user_account_exists,
   is_orderly_key_announced,
   storage_cost_of_token_balance,
+  storage_balance_of_orderly,
 } from './on-chain-api';
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
@@ -287,7 +288,7 @@ const depositOrderly = async (token: string, amount: string) => {
 const withdrawOrderly = async (token: string, amount: string) => {
   const transactions: Transaction[] = [];
 
-  const registered = await storage_balance_of(token.toLowerCase());
+  const registered = await storage_balance_of_orderly(token);
 
   if (!registered && token.toLowerCase() !== 'near') {
     transactions.push({

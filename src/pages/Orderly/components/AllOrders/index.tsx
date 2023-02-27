@@ -185,7 +185,20 @@ function OrderLine({
 
     let errorTipMsg = '';
 
-    if (!symbolInfo || ONLY_ZEROS.test(price) || ONLY_ZEROS.test(size)) {
+    if (!symbolInfo) return;
+
+    if (
+      ONLY_ZEROS.test(order.executed.toString()) &&
+      ONLY_ZEROS.test(quantity) &&
+      !!quantity
+    ) {
+      errorTipMsg = `Quantity should be higher than ${symbolInfo.base_min}`;
+    }
+
+    if (
+      (!symbolInfo || ONLY_ZEROS.test(price) || ONLY_ZEROS.test(size)) &&
+      !errorTipMsg
+    ) {
       return;
     }
 
@@ -206,7 +219,11 @@ function OrderLine({
       let diff = new Big(quantity || 0).minus(new Big(order.quantity || 0));
       console.log('diff: ', diff.toString());
 
-      let left = order.side === 'BUY' ? holdingTo.holding : holdingFrom.holding;
+      let left =
+        order.side === 'BUY'
+          ? holdingTo.holding + holdingTo.pending_short
+          : holdingFrom.holding + holdingFrom.pending_short;
+
       if (order.side === 'BUY') {
         diff = diff.times(new Big(order.price));
       }
@@ -219,11 +236,11 @@ function OrderLine({
     }
 
     if (new Big(price || 0).lt(symbolInfo.quote_min)) {
-      errorTipMsg = `Min price should be higher than ${symbolInfo.quote_min}`;
+      errorTipMsg = `Min price should be higher than or equal to ${symbolInfo.quote_min}`;
     }
 
     if (new Big(price || 0).gt(symbolInfo.quote_max)) {
-      errorTipMsg = `Price should be lower than ${symbolInfo.quote_max}`;
+      errorTipMsg = `Price should be lower than or equal to ${symbolInfo.quote_max}`;
     }
 
     if (
@@ -272,13 +289,13 @@ function OrderLine({
     // size validator
 
     if (new Big(size || 0).lt(symbolInfo.base_min)) {
-      errorTipMsg = `Quantity to ${order.side.toLowerCase()} should be greater than ${
+      errorTipMsg = `Quantity to ${order.side.toLowerCase()} should be greater than or equal to ${
         symbolInfo.base_min
       }`;
     }
 
     if (new Big(size || 0).gt(symbolInfo.base_max)) {
-      errorTipMsg = `Quantity to ${order.side.toLowerCase()} should be less than ${
+      errorTipMsg = `Quantity to ${order.side.toLowerCase()} should be less than or equal to ${
         symbolInfo.base_max
       }`;
     }
@@ -351,14 +368,16 @@ function OrderLine({
         setOpenEditQuantity(false);
         setOpenEditPrice(false);
         setShowEditModal(false);
+        if (!res.success) {
+          setPrice(order.price.toString());
+          setQuantity(order.quantity.toString());
+        }
       });
   }
 
   const validateChange =
-    ONLY_ZEROS.test(price || '0') ||
-    ONLY_ZEROS.test(quantity || '0') ||
-    (new Big(order.price).eq(new Big(price || 0)) &&
-      new Big(order.quantity).eq(new Big(quantity || 0)));
+    new Big(order.price).eq(new Big(price || 0)) &&
+    new Big(order.quantity).eq(new Big(quantity || 0));
 
   return (
     <div
@@ -434,7 +453,17 @@ function OrderLine({
         </div>
       </div>
 
-      <FlexRowStart className="col-span-1 relative  items-start">
+      <FlexRowStart
+        className={`col-span-1 relative  justify-self-end items-start ${
+          isLargeScreen()
+            ? showCurSymbol
+              ? 'right-16'
+              : 'right-10'
+            : showCurSymbol
+            ? 'right-20'
+            : 'right-10'
+        }`}
+      >
         <span className="relative top-1.5">
           {digitWrapper(order.executed.toString(), 3)}
         </span>
@@ -455,8 +484,10 @@ function OrderLine({
             }}
             onFocus={() => {
               setOpenEditQuantity(true);
+              setOpenEditPrice(false);
+              setPrice(order.price.toString());
             }}
-            className="px-2 py-1 text-center"
+            className=" pr-2 py-1 pt-1.5 text-center"
           />
 
           <div
@@ -499,7 +530,7 @@ function OrderLine({
         className={`col-span-2 relative  ${
           isLargeScreen()
             ? showCurSymbol
-              ? 'right-52'
+              ? 'right-56'
               : 'right-36'
             : showCurSymbol
             ? 'right-44'
@@ -509,7 +540,7 @@ function OrderLine({
         <div
           className={`flex flex-col overflow-hidden  rounded-lg  ${
             openEditPrice ? 'border bg-dark2' : ''
-          } border-border2 text-sm  w-14 text-white`}
+          } border-border2 text-sm  w-14 max-w-max text-white`}
         >
           <input
             ref={inputRefPrice}
@@ -521,8 +552,10 @@ function OrderLine({
             }}
             onFocus={() => {
               setOpenEditPrice(true);
+              setOpenEditQuantity(false);
+              setQuantity(order.quantity.toString());
             }}
-            className="px-2 py-1 text-center"
+            className="pr-2 py-1 pt-1.5 text-center"
           />
 
           <div

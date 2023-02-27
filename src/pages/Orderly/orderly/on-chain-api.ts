@@ -22,6 +22,7 @@ import {
 import getConfig from '../config';
 import { BN } from 'bn.js';
 import { ONE_YOCTO_NEAR } from '../near';
+import { ftViewFunction } from '../../../services/ft-contract';
 import {
   formatNearAmount,
   parseNearAmount,
@@ -173,6 +174,15 @@ const storage_balance_of = async (account_id: string) => {
   });
 };
 
+const storage_balance_of_orderly = async (token: string) => {
+  return ftViewFunction(token, {
+    methodName: 'storage_balance_of',
+    args: {
+      account_id: getConfig().ORDERLY_ASSET_MANAGER,
+    },
+  });
+};
+
 const get_cost_of_announce_key = () => {
   return orderlyViewFunction({
     methodName: 'storage_cost_of_announce_key',
@@ -248,4 +258,5 @@ export {
   is_orderly_key_announced,
   is_trading_key_set,
   storage_cost_of_token_balance,
+  storage_balance_of_orderly,
 };

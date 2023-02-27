@@ -72,6 +72,7 @@ import {
   RefToOrderly,
   Agree,
   OrderlyLoading,
+  OrderlyIconBalance,
 } from '../Common/Icons';
 
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -213,6 +214,8 @@ const REF_ORDERLY_AGREE_CHECK = 'REF_ORDERLY_AGREE_CHECK';
 
 export const REF_ORDERLY_ACCOUNT_VALID = 'REF_ORDERLY_ACCOUNT_VALID';
 
+const REF_ORDERLY_LIMIT_ORDER_ADVANCE = 'REF_ORDERLY_LIMIT_ORDER_ADVANCE';
+
 export default function UserBoard() {
   const {
     symbol,
@@ -235,11 +238,35 @@ export default function UserBoard() {
 
   const { accountId, modal, selector } = useWalletSelector();
 
-  const [showLimitAdvance, setShowLimitAdvance] = useState<boolean>(false);
+  const storedLimitOrderAdvance =
+    sessionStorage.getItem(REF_ORDERLY_LIMIT_ORDER_ADVANCE) || '{}';
+
+  const parsedAdvance = JSON.parse(storedLimitOrderAdvance);
+
+  const [showLimitAdvance, setShowLimitAdvance] = useState<boolean>(
+    parsedAdvance?.show || false
+  );
 
   const [advanceLimitMode, setAdvanceLimitMode] = useState<
     'IOC' | 'FOK' | 'POST_ONLY'
-  >();
+  >(parsedAdvance?.advance);
+
+  useEffect(() => {
+    sessionStorage.setItem(
+      REF_ORDERLY_LIMIT_ORDER_ADVANCE,
+
+      JSON.stringify(
+        advanceLimitMode
+          ? {
+              advance: advanceLimitMode,
+              show: showLimitAdvance,
+            }
+          : {
+              show: showLimitAdvance,
+            }
+      )
+    );
+  }, [showLimitAdvance, advanceLimitMode]);
 
   const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
 
@@ -504,13 +531,17 @@ export default function UserBoard() {
 
     if (new Big(price || 0).lt(symbolInfo.quote_min)) {
       setShowErrorTip(true);
-      setErrorTipMsg(`Min price should be higher than ${symbolInfo.quote_min}`);
+      setErrorTipMsg(
+        `Min price should be higher than or equal to ${symbolInfo.quote_min}`
+      );
       return;
     }
 
     if (new Big(price || 0).gt(symbolInfo.quote_max)) {
       setShowErrorTip(true);
-      setErrorTipMsg(`Price should be lower than ${symbolInfo.quote_max}`);
+      setErrorTipMsg(
+        `Price should be lower than or equal to ${symbolInfo.quote_max}`
+      );
       return;
     }
 
@@ -586,7 +617,7 @@ export default function UserBoard() {
     if (new Big(size || 0).lt(symbolInfo.base_min)) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `Quantity to ${side.toLowerCase()} should be greater than ${
+        `Quantity to ${side.toLowerCase()} should be greater than or equal to ${
           symbolInfo.base_min
         }`
       );
@@ -596,7 +627,142 @@ export default function UserBoard() {
     if (new Big(size || 0).gt(symbolInfo.base_max)) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `Quantity to ${side.toLowerCase()} should be less than ${
+        `Quantity to ${side.toLowerCase()} should be less than or equal to ${
+          symbolInfo.base_max
+        }`
+      );
+      return;
+    }
+
+    if (
+      new Big(new Big(size || 0).minus(new Big(symbolInfo.base_min)))
+        .mod(symbolInfo.base_tick)
+        .gt(0)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(`Quantity should be multiple of ${symbolInfo.base_tick}`);
+      return;
+    }
+
+    if (
+      price &&
+      size &&
+      new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `The order value should be greater than or equal to ${symbolInfo.min_notional}`
+      );
+      return;
+    }
+
+    setShowErrorTip(false);
+    setErrorTipMsg('');
+  };
+
+  const priceAndSizeValidator = (price: string, size: string) => {
+    const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
+
+    if (!symbolInfo || ONLY_ZEROS.test(price)) {
+      setShowErrorTip(false);
+      setErrorTipMsg('');
+      return;
+    }
+
+    // price validator
+
+    if (new Big(price || 0).lt(symbolInfo.quote_min)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `Min price should be higher than or equal to ${symbolInfo.quote_min}`
+      );
+      return;
+    }
+
+    if (new Big(price || 0).gt(symbolInfo.quote_max)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `Price should be lower than or equal to ${symbolInfo.quote_max}`
+      );
+      return;
+    }
+
+    if (
+      new Big(new Big(price || 0).minus(new Big(symbolInfo.quote_min)))
+        .mod(symbolInfo.quote_tick)
+        .gt(0)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(`Price should be multiple of ${symbolInfo.quote_tick}`);
+      return;
+    }
+
+    if (
+      new Big(price || 0).gt(
+        new Big(orders.asks?.[0]?.[0] || 0).times(1 + symbolInfo.price_range)
+      ) &&
+      side === 'Buy'
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `Price should be less than or equal to ${new Big(
+          orders.asks?.[0]?.[0] || 0
+        ).times(1 + symbolInfo.price_range)}`
+      );
+
+      return;
+    }
+
+    if (
+      new Big(price || 0).lt(
+        new Big(orders.bids?.[0]?.[0] || 0).times(1 - symbolInfo.price_range)
+      ) &&
+      side === 'Sell'
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `Price should be greater than or equal to ${new Big(
+          orders.bids?.[0]?.[0] || 0
+        ).times(1 - symbolInfo.price_range)}`
+      );
+
+      return;
+    }
+
+    if (
+      price &&
+      size &&
+      new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
+    ) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `The order value should be greater than or equal to ${symbolInfo.min_notional}`
+      );
+      return;
+    }
+
+    if (!symbolInfo || ONLY_ZEROS.test(size)) {
+      setShowErrorTip(false);
+      setErrorTipMsg('');
+      return;
+    }
+
+    // size validator
+
+    if (new Big(size || 0).lt(symbolInfo.base_min)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `Quantity to ${side.toLowerCase()} should be greater than or equal to ${
+          symbolInfo.base_min
+        }`
+      );
+      return;
+    }
+
+    if (new Big(size || 0).gt(symbolInfo.base_max)) {
+      setShowErrorTip(true);
+      setErrorTipMsg(
+        `Quantity to ${side.toLowerCase()} should be less than or equal to ${
           symbolInfo.base_max
         }`
       );
@@ -630,12 +796,13 @@ export default function UserBoard() {
   };
 
   useEffect(() => {
-    sizeValidator(
-      side === 'Buy' ? limitPrice : marketPrice.toString(),
-      inputValue
-    );
+    const marketPrice = !orders
+      ? 0
+      : side === 'Buy'
+      ? orders.asks?.[0]?.[0]
+      : orders?.bids?.[0]?.[0];
 
-    priceValidator(
+    priceAndSizeValidator(
       side === 'Buy' ? limitPrice : marketPrice.toString(),
       inputValue
     );
@@ -783,9 +950,15 @@ export default function UserBoard() {
       <div className="grid grid-cols-4 text-sm text-primaryOrderly mb-2">
         <span className="col-span-2  justify-self-start">Assets</span>
 
-        <span className="justify-self-end relative right-10">Wallet</span>
+        <span className="justify-self-end flex items-center relative right-10">
+          {' '}
+          <NearIConSelectModal /> <span className="ml-2">Wallet</span>{' '}
+        </span>
 
-        <span className="justify-self-end">Account</span>
+        <span className="justify-self-end flex items-center">
+          <OrderlyIconBalance></OrderlyIconBalance>
+          <span className="ml-2">Available</span>{' '}
+        </span>
       </div>
 
       <div className="grid grid-cols-4 items-center mb-5 text-white text-sm justify-between">
@@ -1795,7 +1968,7 @@ function SelectTokenModal(
 
   return (
     <Modal {...props}>
-      <div className=" rounded-2xl lg:w-96 xs:w-95vw xs:h-vh90 lg:h-p560  gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border ">
+      <div className=" rounded-2xl lg:w-p400 xs:w-95vw xs:h-vh90 lg:h-p560  gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border ">
         <div className=" py-6 text-primaryOrderly text-sm flex flex-col ">
           <div className="flex px-4 items-center pb-6 justify-between">
             <span className="text-white text-lg font-bold">Select Token</span>
@@ -1922,7 +2095,7 @@ function SelectTokenModal(
                         className="w-6 h-6 rounded-full flex-shrink-0"
                       />
 
-                      <span className="ml-2 mr-3">
+                      <span className="ml-2 mr-1">
                         {tokenInfo.find((t: any) => t.token_account_id === b.id)
                           ?.token || ''}
                       </span>

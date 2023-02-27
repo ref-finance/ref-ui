@@ -12,6 +12,7 @@ import {
   NextPage,
   LastPage,
   OrderlyLoading,
+  OrderlyIconBalance,
 } from '../Common/Icons';
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import { OrderAsset, useOrderAssets } from './state';
@@ -419,7 +420,10 @@ export function AssetModal(props: Modal.Props) {
                   OrderBy(orderBy === 'desc' ? 'asc' : 'desc');
                 }}
               >
-                <span>Available</span>
+                <span className="flex items-center">
+                  <OrderlyIconBalance></OrderlyIconBalance>{' '}
+                  <span className="ml-2">Available</span>{' '}
+                </span>
 
                 <MdArrowDropDown
                   size={22}

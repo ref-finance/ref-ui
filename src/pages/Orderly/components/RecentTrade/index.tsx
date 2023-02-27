@@ -5,6 +5,7 @@ import {
 } from '../../orderly/OrderlyContext';
 import moment from 'moment';
 import { OrderlyLoading } from '../Common/Icons';
+import { digitWrapper } from '../../utiles';
 
 export function parseSymbol(fullName: string) {
   return {
@@ -61,7 +62,7 @@ function RecentTrade() {
       <section className="overflow-auto w-full px-4 text-xs">
         {loading && <OrderlyLoading></OrderlyLoading>}
         {!loading &&
-          recentTrades?.map((trade, i) => {
+          recentTrades?.slice(0, 50)?.map((trade, i) => {
             return (
               <div
                 key={'recent-trade-' + i}
@@ -72,9 +73,11 @@ function RecentTrade() {
                     trade.side === 'BUY' ? 'text-buyGreen' : 'text-sellRed'
                   }`}
                 >
-                  {trade.executed_price}
+                  {digitWrapper(trade.executed_price, 3)}
                 </span>
-                <span className="text-white">{trade.executed_quantity}</span>
+                <span className="text-white">
+                  {digitWrapper(trade.executed_quantity, 2)}
+                </span>
 
                 <span className="justify-self-end text-primaryOrderly">
                   {formatTime(trade.executed_timestamp)}
