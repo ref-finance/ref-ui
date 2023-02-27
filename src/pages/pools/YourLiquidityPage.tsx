@@ -986,7 +986,7 @@ function PoolRow(props: {
               <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
                 <span className="underline">
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                  &nbsp; Classic
+                  &nbsp; Legacy
                 </span>
 
                 <span className="ml-0.5">
@@ -1024,7 +1024,7 @@ function PoolRow(props: {
               <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
                 <span className="underline">
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                  &nbsp; DCL
+                  &nbsp; Classic
                 </span>
 
                 <span className="ml-0.5">

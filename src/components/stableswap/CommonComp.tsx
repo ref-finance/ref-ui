@@ -192,7 +192,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
             <ShareInFarmV2
               farmStake={farmStakeV1}
               userTotalShare={userTotalShare}
-              version={'V1'}
+              version={'Legacy'}
             />
           ) : null}
 
@@ -200,7 +200,7 @@ export function SharesCard({ shares, pool }: { shares: string; pool: Pool }) {
             <ShareInFarmV2
               farmStake={farmStakeV2}
               userTotalShare={userTotalShare}
-              version={'V2'}
+              version={'Classic'}
               poolId={pool.id}
               onlyEndedFarm={endedFarmCountV2 === countV2}
             />

@@ -1707,7 +1707,8 @@ export const FarmStakeTip = ({
             } else window.open(`/v2farms/${getVEPoolId()}-r`, '_blank');
           }}
         >
-          <FormattedMessage id="farm" defaultMessage={'farm'} /> {`V${version}`}
+          <FormattedMessage id="farm" defaultMessage={'farm'} />{' '}
+          {`${version === 1 ? 'Legacy' : 'Classic'}`}
         </span>
       </span>
     </div>
