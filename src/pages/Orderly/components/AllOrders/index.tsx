@@ -207,7 +207,6 @@ function OrderLine({
       console.log('diff: ', diff.toString());
 
       let left = order.side === 'BUY' ? holdingTo.holding : holdingFrom.holding;
-      console.log('left: ', left);
       if (order.side === 'BUY') {
         diff = diff.times(new Big(order.price));
       }
@@ -224,7 +223,7 @@ function OrderLine({
     }
 
     if (new Big(price || 0).gt(symbolInfo.quote_max)) {
-      errorTipMsg = `Max price should be lower than ${symbolInfo.quote_max}`;
+      errorTipMsg = `Price should be lower than ${symbolInfo.quote_max}`;
     }
 
     if (
@@ -273,11 +272,15 @@ function OrderLine({
     // size validator
 
     if (new Big(size || 0).lt(symbolInfo.base_min)) {
-      errorTipMsg = `Amount to buy should be greater than ${symbolInfo.base_min}`;
+      errorTipMsg = `Quantity to ${order.side.toLowerCase()} should be greater than ${
+        symbolInfo.base_min
+      }`;
     }
 
     if (new Big(size || 0).gt(symbolInfo.base_max)) {
-      errorTipMsg = `Amount to buy should be less than ${symbolInfo.base_max}`;
+      errorTipMsg = `Quantity to ${order.side.toLowerCase()} should be less than ${
+        symbolInfo.base_max
+      }`;
     }
 
     if (
@@ -285,7 +288,7 @@ function OrderLine({
         .mod(symbolInfo.base_tick)
         .gt(0)
     ) {
-      errorTipMsg = `Size should be multiple of ${symbolInfo.base_tick}`;
+      errorTipMsg = `Quantity should be multiple of ${symbolInfo.base_tick}`;
     }
 
     if (
@@ -294,7 +297,6 @@ function OrderLine({
       new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
     ) {
       errorTipMsg = `The order value should be greater than or equal to ${symbolInfo.min_notional}`;
-      return;
     }
     if (!!errorTipMsg) {
       orderEditPopUpFailure({
@@ -751,7 +753,7 @@ function HistoryOrderLine({
         </FlexRow>
 
         <FlexRow
-          className={`col-span-1   justify-self-end relative ${
+          className={`col-span-1 text-white  justify-self-end relative ${
             isLargeScreen() ? 'right-32' : 'right-24'
           } `}
         >
@@ -1250,7 +1252,7 @@ function OpenOrders({
         </FlexRow>
 
         <FlexRow className="col-span-1 relative justify-self-center">
-          <span className="text-center"> Actions</span>
+          <span className="text-center"> Action</span>
         </FlexRow>
       </div>
       <div className="flex max-h-vh65   overflow-auto  flex-col ">
@@ -1652,7 +1654,7 @@ function HistoryOrders({
           )}
         </FlexRow>
         <FlexRow className="col-span-1 right-4 relative justify-self-center">
-          <span>Est.Total</span>
+          <span>Total</span>
           {showCurSymbol && (
             <TextWrapper
               value={symbolTo}

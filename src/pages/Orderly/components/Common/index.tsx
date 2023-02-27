@@ -400,8 +400,9 @@ export function orderPopUp({
       hideProgressBar: true,
       position: 'bottom-right',
       progress: undefined,
-      autoClose: 3000,
+      autoClose: false,
       closeButton: false,
+      className: 'orderly-order-toast',
       style: {
         background:
           side === 'Buy'
@@ -410,13 +411,16 @@ export function orderPopUp({
         boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
         borderRadius: '16px',
         zIndex: 9999,
-        right: '40px',
+        right: '20px',
         width: '340px',
         bottom: '-70px',
       },
     }
   );
-  if (order.type === 'FOK' && order.status === 'CANCELLED') {
+  if (
+    (order.type === 'FOK' || order.type === 'IOC') &&
+    order.status === 'CANCELLED'
+  ) {
     return orderEditPopUpSuccess({
       side,
       symbolName,
@@ -566,14 +570,14 @@ export function orderEditPopUpSuccess({
   return toast(
     <div className={`flex-col  px-2 pt-4 text-sm   w-full`}>
       <FlexRow className="relative bottom-3 w-full">
-        <div className={`text-white rounded-lg font-bold px-2 mr-1.5`}>
+        <div className={`text-white rounded-lg  px-2 mr-1.5 font-bold`}>
           {!!cancel ? 'Order Canceled.' : 'Order Edit Successfully!'}
         </div>
       </FlexRow>
 
       <div className="absolute w-1 bottom-0 bg-gradientFrom h-full left-0"></div>
 
-      <FlexRowStart className=" px-2 text-primaryText">
+      <FlexRowStart className=" px-2 text-white">
         {`${side} `}
         <span className="mx-1 ">{`${size} ${symbolFrom}`}</span>
         at
@@ -585,9 +589,8 @@ export function orderEditPopUpSuccess({
       hideProgressBar: true,
       position: 'bottom-right',
       progress: undefined,
-      autoClose: 3000,
+      autoClose: false,
       closeButton: false,
-
       style: {
         boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
         borderRadius: '4px',
@@ -596,6 +599,9 @@ export function orderEditPopUpSuccess({
         overflow: 'hidden',
         width: '90%',
         background: 'rgba(30, 41, 49, 1)',
+        bottom: !!document.getElementsByClassName('orderly-order-toast')
+          ? '-70px'
+          : '0px',
       },
     }
   );
@@ -613,7 +619,7 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
       hideProgressBar: true,
       position: 'bottom-right',
       progress: undefined,
-      autoClose: 3000,
+      autoClose: false,
       closeButton: false,
       style: {
         boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
@@ -624,6 +630,9 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
         width: '90%',
         minHeight: '40px',
         background: 'rgba(249, 103, 103, 0.15)',
+        bottom: !!document.getElementsByClassName('orderly-order-toast')
+          ? '-70px'
+          : '0px',
       },
     }
   );

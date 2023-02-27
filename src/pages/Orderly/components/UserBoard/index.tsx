@@ -510,7 +510,7 @@ export default function UserBoard() {
 
     if (new Big(price || 0).gt(symbolInfo.quote_max)) {
       setShowErrorTip(true);
-      setErrorTipMsg(`Max price should be lower than ${symbolInfo.quote_max}`);
+      setErrorTipMsg(`Price should be lower than ${symbolInfo.quote_max}`);
       return;
     }
 
@@ -586,7 +586,9 @@ export default function UserBoard() {
     if (new Big(size || 0).lt(symbolInfo.base_min)) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `Amount to buy should be greater than ${symbolInfo.base_min}`
+        `Quantity to ${side.toLowerCase()} should be greater than ${
+          symbolInfo.base_min
+        }`
       );
       return;
     }
@@ -594,7 +596,9 @@ export default function UserBoard() {
     if (new Big(size || 0).gt(symbolInfo.base_max)) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `Amount to buy should be less than ${symbolInfo.base_max}`
+        `Quantity to ${side.toLowerCase()} should be less than ${
+          symbolInfo.base_max
+        }`
       );
       return;
     }
@@ -605,7 +609,7 @@ export default function UserBoard() {
         .gt(0)
     ) {
       setShowErrorTip(true);
-      setErrorTipMsg(`Size should be multiple of ${symbolInfo.base_tick}`);
+      setErrorTipMsg(`Quantity should be multiple of ${symbolInfo.base_tick}`);
       return;
     }
 
@@ -777,7 +781,7 @@ export default function UserBoard() {
       </div>
 
       <div className="grid grid-cols-4 text-sm text-primaryOrderly mb-2">
-        <span className="col-span-2  justify-self-start">Asset</span>
+        <span className="col-span-2  justify-self-start">Assets</span>
 
         <span className="justify-self-end relative right-10">Wallet</span>
 
@@ -1026,7 +1030,11 @@ export default function UserBoard() {
               e.preventDefault();
               e.stopPropagation();
 
-              if (orderType === 'Limit' && new Big(limitPrice || 0).lte(0)) {
+              if (
+                orderType === 'Limit' &&
+                new Big(limitPrice || 0).lte(0) &&
+                side === 'Buy'
+              ) {
                 return;
               }
               const symbolInfo = availableSymbols?.find(
@@ -1820,7 +1828,7 @@ function SelectTokenModal(
           </div>
 
           <div className="grid px-3  grid-cols-3">
-            <div className="justify-self-start">Asset</div>
+            <div className="justify-self-start">Assets</div>
 
             <div
               className="justify-self-center flex items-center cursor-pointer"
