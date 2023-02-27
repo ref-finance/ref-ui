@@ -683,9 +683,9 @@ export default function AddYourLiquidityPageV3() {
             filter: 'blur(50px)',
           }}
         ></div>
-        <div className="relative rounded-2xl z-10 border-4 gradientBorderWrapper overflow-hidden">
+        <div className="relative rounded-2xl z-10 border-4 gradientBorderWrapper ">
           <div
-            className="relative z-10 py-5 px-7 xs:px-3 md:px-3"
+            className="relative z-10 py-5 px-7 xs:px-3 md:px-3 rounded-2xl"
             style={{
               background: 'linear-gradient(180deg, #222F37 0%, #192229 100%)',
             }}

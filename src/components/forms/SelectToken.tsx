@@ -775,6 +775,18 @@ export function SelectTokenDCL({
 
   const mobileDevice = isMobile();
 
+  useEffect(() => {
+    if (mobileDevice && hoverSelectToken) {
+      document.addEventListener(
+        'touchmove',
+        (e) => {
+          e.preventDefault();
+        },
+        { passive: false }
+      );
+    }
+  }, [mobileDevice, hoverSelectToken]);
+
   const handleSelect = (p: PoolInfo) => {
     // select token in
 
@@ -905,6 +917,7 @@ export function SelectTokenDCL({
               style={{
                 zIndex: 150,
                 background: 'rgba(0, 19, 32, 0.8)',
+                position: 'fixed',
               }}
               onClick={() => {
                 setHoverSelectToken(false);
@@ -912,9 +925,11 @@ export function SelectTokenDCL({
             ></div>
           )}
           <div
-            className="border border-menuMoreBoxBorderColor xs:absolute xs:w-full xs:bottom-0 xs:pb-8 xs:rounded-2xl rounded-lg bg-selectBoxBgColor px-2 py-3 "
+            className="border border-menuMoreBoxBorderColor overflow-auto xs:absolute xs:w-full xs:bottom-0 xs:pb-8 xs:rounded-2xl rounded-lg bg-selectBoxBgColor px-2 py-3 "
             style={{
               zIndex: mobileDevice ? 300 : '',
+              maxHeight: mobileDevice ? `${48 * 10 + 78}px` : '',
+              minHeight: mobileDevice ? `${48 * 5 + 78}px` : '',
             }}
           >
             <div className="text-sm text-primaryText xs:text-white xs:text-base  ml-1.5   pb-2">
