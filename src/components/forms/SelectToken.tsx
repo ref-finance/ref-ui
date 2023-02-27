@@ -798,7 +798,7 @@ export function SelectTokenDCL({
     return (
       <div
         key={p.pool_id}
-        className="flex items-center min-w-max px-1.5 bg-opacity-90 py-2.5 rounded-lg hover:bg-acccountTab cursor-pointer"
+        className="flex items-center min-w-max px-1.5 bg-opacity-90 py-2.5 rounded-lg hover:bg-dclSelectTokenHover cursor-pointer"
         onClick={() => {
           handleSelect(p);
         }}
