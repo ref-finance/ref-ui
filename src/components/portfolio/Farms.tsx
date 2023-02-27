@@ -54,10 +54,9 @@ import {
   get_all_seeds,
 } from '~services/commonV3';
 import { NFTIdIcon } from '~components/icon/FarmBoost';
-const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
-import { PoolInfo } from '~services/swapV3';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
+const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 const FarmCommonDatas = createContext(null);
 export default function Farms(props: any) {
   const {
@@ -125,8 +124,6 @@ export default function Farms(props: any) {
     }
     set_all_farms_quanity(dcl_legth + classic_length);
     set_all_farms_Loading_done(true);
-    // console.log('1111111-your_classic_seeds',your_classic_seeds);
-    // console.log('1111111-your_dcl_seeds',your_dcl_seeds);
   }
   async function get_your_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
@@ -346,6 +343,7 @@ function DclFarmRow({ seed }: { seed: Seed }) {
   >([]);
   const [listLiquidities_inFarimg_value, set_listLiquidities_inFarimg_value] =
     useState<string>('0');
+  const [switch_off, set_switch_off] = useState<boolean>(true);
   const tokens = sortTokens(seed.pool.tokens_meta_data);
   useEffect(() => {
     get_inFarming_list_liquidities();
@@ -518,7 +516,11 @@ function DclFarmRow({ seed }: { seed: Seed }) {
     );
   }
   return (
-    <div className="rounded-xl mt-3 bg-portfolioBgColor px-5 pb-4">
+    <div
+      className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
+        switch_off ? '' : 'pb-4'
+      }`}
+    >
       <div className="flex items-center justify-between h-14">
         <div className="flex items-center">
           <div className="flex items-center flex-shrink-0 m-2.5">
@@ -551,12 +553,27 @@ function DclFarmRow({ seed }: { seed: Seed }) {
               </span>
             </div>
           </div>
-          <div className="flex items-center justify-center border border-primaryText border-opacity-10 rounded-md w-6 h-6 cursor-pointer">
-            <TriangleIcon></TriangleIcon>
+          <div
+            onClick={() => {
+              set_switch_off(!switch_off);
+            }}
+            className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
+              switch_off
+                ? 'border border-primaryText border-opacity-10'
+                : 'bg-portfolioGreyColor'
+            }`}
+          >
+            <TriangleIcon
+              className={`${
+                switch_off
+                  ? 'text-limitOrderInputColor'
+                  : 'text-white transform rotate-180'
+              }`}
+            ></TriangleIcon>
           </div>
         </div>
       </div>
-      <div>
+      <div className={`${switch_off ? 'hidden' : ''}`}>
         <div className="border-b border-gray1 pb-5">
           <div className="flex items-center justify-between">
             <span className="text-sm text-primaryText">Reward Range</span>
@@ -945,6 +962,7 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
   } = user_seeds_map[seed_id] || {};
   const { token_account_ids } = pool;
   const tokens = sortTokens(useTokens(token_account_ids) || []);
+  const [switch_off, set_switch_off] = useState<boolean>(true);
   const intl = useIntl();
   const unclaimedRewardsData = useMemo(() => {
     return getTotalUnclaimedRewards();
@@ -1137,7 +1155,11 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
   }
 
   return (
-    <div className="rounded-xl mt-3 bg-portfolioBgColor px-5 pb-4">
+    <div
+      className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
+        switch_off ? '' : 'pb-4'
+      }`}
+    >
       <div className="flex items-center justify-between h-14">
         <div className="flex items-center">
           <div className="flex items-center flex-shrink-0 m-2.5">
@@ -1170,12 +1192,27 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
               </span>
             </div>
           </div>
-          <div className="flex items-center justify-center border border-primaryText border-opacity-10 rounded-md w-6 h-6 cursor-pointer">
-            <TriangleIcon></TriangleIcon>
+          <div
+            onClick={() => {
+              set_switch_off(!switch_off);
+            }}
+            className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
+              switch_off
+                ? 'border border-primaryText border-opacity-10'
+                : 'bg-portfolioGreyColor'
+            }`}
+          >
+            <TriangleIcon
+              className={`${
+                switch_off
+                  ? 'text-limitOrderInputColor'
+                  : 'text-white transform rotate-180'
+              }`}
+            ></TriangleIcon>
           </div>
         </div>
       </div>
-      <div>
+      <div className={`${switch_off ? 'hidden' : ''}`}>
         <div className="flex items-center text-sm text-v3SwapGray ml-2">
           Your Position
         </div>

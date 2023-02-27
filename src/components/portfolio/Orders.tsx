@@ -10,7 +10,6 @@ import { useTokens, useTokenPriceList } from '../../state/token';
 import { Loading } from '~components/icon/Loading';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isClientMobie, useClientMobile } from '~utils/device';
-import { SolidButton, ButtonTextWrapper } from '../../components/button/Button';
 import {
   UserOrderInfo,
   V3_POOL_SPLITER,
@@ -49,7 +48,11 @@ import {
 } from '../../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../../components/icon/swapV3';
 import { TOKEN_LIST_FOR_RATE } from '../../services/commonV3';
-import { PurpleCircleIcon } from '../../components/icon/Portfolio';
+import {
+  PurpleCircleIcon,
+  TriangleIcon,
+  LinkIcon,
+} from '../../components/icon/Portfolio';
 import BigNumber from 'bignumber.js';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
@@ -169,7 +172,7 @@ function OrderCard({
     order: UserOrderInfo;
     index: number;
   }) {
-    const [hover, setHover] = useState<boolean>(false);
+    const [switch_off, set_switch_off] = useState<boolean>(true);
 
     const buyToken = tokensMap[order.buy_token];
 
@@ -688,7 +691,11 @@ function OrderCard({
     return (
       <>
         {/* PC */}
-        <div className="rounded-xl mt-3 bg-portfolioBgColor px-5 pb-4">
+        <div
+          className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
+            switch_off ? '' : 'pb-4'
+          }`}
+        >
           <div className={`flex items-center justify-between h-14`}>
             <div className="flex items-center">
               {sellTokenAmount}
@@ -698,10 +705,28 @@ function OrderCard({
             <div className="flex items-center">
               {orderRate}
               {unclaim}
+              <div
+                onClick={() => {
+                  set_switch_off(!switch_off);
+                }}
+                className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
+                  switch_off
+                    ? 'border border-primaryText border-opacity-10'
+                    : 'bg-portfolioGreyColor'
+                }`}
+              >
+                <TriangleIcon
+                  className={`${
+                    switch_off
+                      ? 'text-limitOrderInputColor'
+                      : 'text-white transform rotate-180'
+                  }`}
+                ></TriangleIcon>
+              </div>
             </div>
           </div>
           {!ONLY_ZEROS.test(swapIn || '0') ? (
-            <div>
+            <div className={`${switch_off ? 'hidden' : ''}`}>
               <div className="flex items-center text-sm text-v3SwapGray ml-2">
                 Order Progress
               </div>
@@ -806,7 +831,7 @@ function OrderCard({
           </div>
           <div className="flex items-center">
             <span className="w-32">@Price</span>
-            <span className="w-36">Execute Status</span>
+            <span className="w-40 mr-1">Execute Status</span>
           </div>
         </div>
       }

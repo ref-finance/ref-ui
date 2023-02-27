@@ -49,15 +49,10 @@ import {
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import { WalletContext } from '../../utils/wallets-integration';
-import Big from 'big.js';
 import { list_farmer_seeds, list_seed_farms } from '../../services/farm';
 import getConfig from '../../services/config';
 import { LinkArrowIcon, NFTIdIcon } from '~components/icon/FarmBoost';
-import {
-  get_detail_the_liquidity_refer_to_seed,
-  REF_FI_LP_VALUE_COUNT,
-  REF_FI_LP_V2_VALUE,
-} from '../../pages/poolsV3/YourLiquidityPageV3';
+import { get_detail_the_liquidity_refer_to_seed } from '../../pages/poolsV3/YourLiquidityPageV3';
 import {
   TriangleIcon,
   LinkIcon,
@@ -1189,6 +1184,8 @@ function UserLiquidityLineStyle2() {
     getTokenFeeAmount,
     go_farm,
   } = useContext(LiquidityContext);
+  const [switch_off, set_switch_off] = useState<boolean>(true);
+
   function getUsageDiv() {
     let div;
     if (is_in_farming) {
@@ -1223,7 +1220,11 @@ function UserLiquidityLineStyle2() {
     return div;
   }
   return (
-    <div className="rounded-xl mt-3 bg-portfolioBgColor px-5 pb-4">
+    <div
+      className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
+        switch_off ? '' : 'pb-4'
+      }`}
+    >
       <div className="flex items-center justify-between h-14">
         <div className="flex items-center">
           <div className="flex items-center flex-shrink-0 m-2.5">
@@ -1267,12 +1268,27 @@ function UserLiquidityLineStyle2() {
               </span>
             </div>
           </div>
-          <div className="flex items-center justify-center border border-primaryText border-opacity-10 rounded-md w-6 h-6 cursor-pointer">
-            <TriangleIcon></TriangleIcon>
+          <div
+            onClick={() => {
+              set_switch_off(!switch_off);
+            }}
+            className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
+              switch_off
+                ? 'border border-primaryText border-opacity-10'
+                : 'bg-portfolioGreyColor'
+            }`}
+          >
+            <TriangleIcon
+              className={`${
+                switch_off
+                  ? 'text-limitOrderInputColor'
+                  : 'text-white transform rotate-180'
+              }`}
+            ></TriangleIcon>
           </div>
         </div>
       </div>
-      <div>
+      <div className={`${switch_off ? 'hidden' : ''}`}>
         <div className="flex items-center justify-between">
           <p className="text-sm text-v3SwapGray ml-2">Your Position</p>
           <div className="flex items-center">

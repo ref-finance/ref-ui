@@ -314,6 +314,7 @@ module.exports = {
         portfolioFeeBgColor: 'rgba(0, 214, 162, 0.06)',
         portfolioGreenColor: '#62C340',
         portfolioQinColor: '#63C341',
+        portfolioGreyColor:' rgba(126, 138, 147, 0.3)',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
