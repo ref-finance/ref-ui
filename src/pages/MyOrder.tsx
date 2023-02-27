@@ -52,10 +52,7 @@ import { MyOrderInstantSwapArrowRight } from '../components/icon/swapV3';
 import { TOKEN_LIST_FOR_RATE } from '../services/commonV3';
 import BigNumber from 'bignumber.js';
 import { isMobile } from '../utils/device';
-import {
-  refSwapV3OldVersionViewFunction,
-  refSwapV3ViewFunction,
-} from '../services/near';
+import { refSwapV3ViewFunction } from '../services/near';
 import { useWalletSelector } from '../context/WalletSelectorContext';
 import { refSwapV3OldVersionViewFunction } from '../services/near';
 
@@ -782,7 +779,6 @@ function OrderCard({
             setCancelLoading(true);
             cancel_order({
               order_id: order.order_id,
-              undecimal_amount: order.remain_amount || '0',
             });
           }}
           // disabled={ONLY_ZEROS.test(order.remain_amount)}
