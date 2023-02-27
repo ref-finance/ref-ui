@@ -57,6 +57,10 @@ import { registerTokenAndExchange } from '../../services/token';
 import { WalletContext } from '../../utils/wallets-integration';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import { REF_TOKEN_ID } from '../../services/near';
+import { useAllPoolsV2 } from '../../state/swapV3';
+import { Images, Symbols } from '~components/stableswap/CommonComp';
+import { IconLeftV3 } from '../tokens/Icon';
+import { PoolInfo } from '~services/swapV3';
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
 
@@ -745,6 +749,119 @@ export default function SelectToken({
         </section>
       )}
     </MicroModal>
+  );
+}
+
+export function SelectTokenDCL({
+  selectTokenIn,
+  selectTokenOut,
+  selectedToken,
+  onSelect,
+}: {
+  selectTokenIn?: (token: TokenMetadata) => void;
+  selectTokenOut?: (token: TokenMetadata) => void;
+  onSelect: (token: TokenMetadata) => void;
+  selectedToken?: TokenMetadata;
+}) {
+  const allPools = useAllPoolsV2();
+
+  const [hoverSelectToken, setHoverSelectToken] = useState<boolean>(false);
+
+  const handleSelect = (p: PoolInfo) => {
+    // select token in
+    if (!!selectTokenOut) {
+      if (selectedToken?.id === p.token_x_metadata.id) {
+        selectTokenOut(p.token_y_metadata);
+      } else if (selectedToken?.id === p.token_y_metadata.id) {
+        selectTokenOut(p.token_x_metadata);
+      } else {
+        onSelect(p.token_x_metadata);
+        selectTokenOut(p.token_y_metadata);
+      }
+
+      return;
+    }
+
+    if (!!selectTokenIn) {
+      if (selectedToken?.id === p.token_x_metadata.id) {
+        selectTokenIn(p.token_y_metadata);
+      } else if (selectedToken?.id === p.token_y_metadata.id) {
+        selectTokenIn(p.token_x_metadata);
+      } else {
+        onSelect(p.token_y_metadata);
+        selectTokenIn(p.token_x_metadata);
+      }
+    }
+  };
+
+  const renderList = allPools?.map((p) => {
+    return (
+      <div
+        key={p.pool_id}
+        className="flex items-center min-w-max px-1.5 bg-opacity-90 py-2.5 rounded-lg hover:bg-acccountTab cursor-pointer"
+        onClick={() => {
+          handleSelect(p);
+        }}
+      >
+        <Images
+          tokens={[p.token_x_metadata, p.token_y_metadata]}
+          size="5"
+          className="mr-2 ml-1"
+        />
+
+        <Symbols
+          tokens={[p.token_x_metadata, p.token_y_metadata]}
+          seperator="-"
+        />
+      </div>
+    );
+  });
+
+  // fetch all dcl pools
+
+  return (
+    <div
+      className="outline-none relative my-auto flex-shrink-0"
+      onMouseLeave={() => {
+        setHoverSelectToken(false);
+      }}
+    >
+      {selectedToken && (
+        <div
+          className="flex items-center relative justify-end font-semibold"
+          onMouseEnter={() => setHoverSelectToken(true)}
+          style={{
+            zIndex: !!selectTokenOut ? 130 : 100,
+          }}
+        >
+          <IconLeftV3
+            size={'7'}
+            token={selectedToken}
+            hover={hoverSelectToken}
+            className={'p-1'}
+          />
+        </div>
+      )}
+
+      {hoverSelectToken && (
+        <div
+          className="pt-2  absolute top-8 outline-none   right-0   "
+          onMouseLeave={() => {
+            setHoverSelectToken(false);
+          }}
+          style={{
+            zIndex: !!selectTokenOut ? 120 : 90,
+          }}
+        >
+          <div className="border border-menuMoreBoxBorderColor rounded-lg bg-selectBoxBgColor px-2 py-3 ">
+            <div className="text-sm text-primaryText  ml-1.5  pb-2">
+              Instrument
+            </div>
+            {renderList}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

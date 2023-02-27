@@ -1744,7 +1744,9 @@ export const FarmStakeTipHomePage = ({
         >
           <span className="underline mr-1 ">
             <FormattedMessage id="farm" defaultMessage={'farm'} />{' '}
-            <span className="text-xs">{`V${version}`}</span>
+            <span className="text-xs">{`${
+              version === 1 ? 'Legacy' : 'Classic'
+            }`}</span>
           </span>
           <span className="relative top-1.5">
             <VEARROW />

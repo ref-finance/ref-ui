@@ -9,7 +9,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { TokenBalancesView } from '../../services/token';
 import Icon from '../tokens/Icon';
 import InputAmount from './InputAmount';
-import { tokenPrice } from './SelectToken';
+import { SelectTokenDCL, tokenPrice } from './SelectToken';
 import {
   toInternationalCurrencySystem,
   toInternationalCurrencySystemLongString,
@@ -69,6 +69,7 @@ interface TokenAmountProps {
   preSelected?: TokenMetadata;
   postSelected?: TokenMetadata;
   onSelectPost?: (token: TokenMetadata) => void;
+  onSelectPre?: (token: TokenMetadata) => void;
   forWrap?: boolean;
   showQuickButton?: Boolean;
   ExtraElement?: JSX.Element;
@@ -513,6 +514,7 @@ export function TokenAmountV3({
   preSelected,
   postSelected,
   onSelectPost,
+  onSelectPre,
   forWrap,
   ExtraElement,
   marketPriceLimitOrder,
@@ -752,8 +754,15 @@ export function TokenAmountV3({
             ) : null
           }
         />
-        {showSelectToken &&
-          (!swapMode || swapMode !== SWAP_MODE.STABLE ? (
+        {swapMode === SWAP_MODE.LIMIT ? (
+          <SelectTokenDCL
+            onSelect={onSelectToken}
+            selectedToken={selectedToken}
+            selectTokenIn={onSelectPre}
+            selectTokenOut={onSelectPost}
+          />
+        ) : (
+          showSelectToken && (
             <SelectToken
               tokenPriceList={tokenPriceList}
               tokens={tokens}
@@ -780,31 +789,8 @@ export function TokenAmountV3({
               balances={balances}
               allowWNEAR={allowWNEAR}
             />
-          ) : (
-            <StableSelectToken
-              selected={
-                selectedToken && (
-                  <div
-                    className="flex items-center justify-end font-semibold "
-                    onMouseEnter={() => setHoverSelectToken(true)}
-                    onMouseLeave={() => setHoverSelectToken(false)}
-                  >
-                    <IconLeftV3
-                      size={'7'}
-                      token={selectedToken}
-                      hover={hoverSelectToken}
-                    />
-                  </div>
-                )
-              }
-              customWidth
-              tokens={tokens}
-              onSelect={onSelectToken}
-              preSelected={preSelected}
-              postSelected={postSelected}
-              onSelectPost={onSelectPost}
-            />
-          ))}
+          )
+        )}
       </fieldset>
       {ExtraElement ? <RateDiffDOM_newline over={isOverOneLine} /> : null}
       <div className="flex items-center justify-between h-6">

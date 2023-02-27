@@ -2261,6 +2261,7 @@ export default function SwapCard(props: {
             tokens={allTokens}
             selectedToken={tokenOut}
             preSelected={tokenIn}
+            onSelectPre={(token: TokenMetadata) => setTokenIn(token)}
             onChangeAmount={
               swapMode === SWAP_MODE.LIMIT && mostPoolDetail
                 ? LimitChangeAmountOut
