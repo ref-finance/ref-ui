@@ -488,7 +488,6 @@ function UserLiquidityLine({
   }
   function getTokenFeeAmount(p: string) {
     if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {
-      debugger;
       const [tokenX, tokenY] = tokenMetadata_x_y;
       const { unclaimed_fee_x, unclaimed_fee_y } = liquidityDetail;
       const fee_x_amount = toReadableNumber(
