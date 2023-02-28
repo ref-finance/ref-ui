@@ -6,8 +6,7 @@ import { getCurrentHolding } from '../../orderly/off-chain-api';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 
-export function useTokenBalance(tokenId: string | undefined) {
-  console.log('tokenId: ', tokenId);
+export function useTokenBalance(tokenId: string | undefined, deps?: any) {
   const [tokenMeta, setTokenMeta] = useState<TokenMetadata>();
   const [walletBalance, setWalletBalance] = useState<string>('');
 
@@ -17,7 +16,7 @@ export function useTokenBalance(tokenId: string | undefined) {
     getFTmetadata(tokenId).then((meta) => {
       setTokenMeta(meta);
     });
-  }, [tokenId]);
+  }, [tokenId, deps]);
 
   useEffect(() => {
     if (!tokenId || !tokenMeta) return;
@@ -26,7 +25,7 @@ export function useTokenBalance(tokenId: string | undefined) {
 
       setWalletBalance(toReadableNumber(tokenMeta.decimals, balance));
     });
-  }, [tokenId, tokenMeta?.id]);
+  }, [tokenId, tokenMeta?.id, deps]);
 
   return !tokenMeta || !tokenId ? '0' : walletBalance;
 }

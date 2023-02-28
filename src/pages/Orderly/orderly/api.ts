@@ -37,6 +37,8 @@ import { REGISTER_DEPOSIT_AMOUNT } from './on-chain-api';
 import { getFTmetadata } from '../near';
 import Big from 'big.js';
 import { getOrderlyConfig } from '../config';
+import { registerAccountOnToken } from '../../../services/creators/token';
+import { ftViewFunction } from '../../../services/ft-contract';
 
 const signAndSendTransactions = async (transactions: Transaction[]) => {
   const wsTransactions = await getFunctionCallTransaction(transactions);
@@ -288,23 +290,43 @@ const depositOrderly = async (token: string, amount: string) => {
 const withdrawOrderly = async (token: string, amount: string) => {
   const transactions: Transaction[] = [];
 
-  const registered = await storage_balance_of_orderly(token);
+  if (!window.selectorAccountId) {
+    return;
+  }
 
-  if (!registered && token.toLowerCase() !== 'near') {
-    transactions.push({
-      receiverId: token,
-      functionCalls: [
-        {
-          methodName: 'storage_deposit',
-          args: {
-            receiver_id: getOrderlyConfig().ORDERLY_ASSET_MANAGER,
-            msg: '',
+  if (token.toLocaleLowerCase() !== 'near') {
+    const registeredOrderly = await storage_balance_of_orderly(token);
+
+    if (!registeredOrderly) {
+      transactions.push({
+        receiverId: token,
+        functionCalls: [
+          {
+            methodName: 'storage_deposit',
+            args: {
+              receiver_id: getOrderlyConfig().ORDERLY_ASSET_MANAGER,
+              msg: '',
+            },
+            gas: '30000000000000',
+            amount: '0.00125',
           },
-          gas: '30000000000000',
-          amount: '0.00125',
-        },
-      ],
+        ],
+      });
+    }
+
+    const registeredAccount = await ftViewFunction(token, {
+      methodName: 'storage_balance_of',
+      args: {
+        account_id: window.selectorAccountId,
+      },
     });
+
+    if (!registeredAccount) {
+      transactions.push({
+        receiverId: token,
+        functionCalls: [registerAccountOnToken()],
+      });
+    }
   }
 
   const account_id = window.selectorAccountId;

@@ -81,7 +81,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
   const recentTrades = useMarketTrades({
     symbol,
-    limit: 20,
+    limit: 50,
     marketTrade: value.marketTrade,
   });
 

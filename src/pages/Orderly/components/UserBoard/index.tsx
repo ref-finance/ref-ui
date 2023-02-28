@@ -319,10 +319,6 @@ export default function UserBoard() {
 
   const inputAmountRef = useRef<HTMLInputElement>(null);
 
-  const tokenFromBalance = useTokenBalance(tokenIn?.id);
-
-  const tokenToBalance = useTokenBalance(tokenOut?.id);
-
   useEffect(() => {
     if (!accountId) return;
 
@@ -338,6 +334,10 @@ export default function UserBoard() {
   const curHoldingIn = holdings?.find((h) => h.token === symbolFrom);
 
   const curHoldingOut = holdings?.find((h) => h.token === symbolTo);
+
+  const tokenFromBalance = useTokenBalance(tokenIn?.id, balances?.toString());
+
+  const tokenToBalance = useTokenBalance(tokenOut?.id, balances?.toString());
 
   const tokenInHolding =
     (curHoldingIn && curHoldingIn.holding + curHoldingIn.pending_short) ||

@@ -390,7 +390,7 @@ export function AssetModal(props: Modal.Props) {
               </div>
 
               <div
-                className={`col-span-2 cursor-pointer flex justify-self-center items-center ${
+                className={`col-span-2 relative cursor-pointer flex justify-self-center items-center ${
                   sortBy === 'in-order' ? 'white' : '#7E8A93'
                 }`}
                 onClick={() => {
@@ -398,6 +398,10 @@ export function AssetModal(props: Modal.Props) {
                   OrderBy(orderBy === 'desc' ? 'asc' : 'desc');
                 }}
               >
+                <span className="absolute left-0">
+                  <OrderlyIconBalance></OrderlyIconBalance>
+                </span>
+
                 <span>Balance: in Order</span>
 
                 <MdArrowDropDown
@@ -420,10 +424,7 @@ export function AssetModal(props: Modal.Props) {
                   OrderBy(orderBy === 'desc' ? 'asc' : 'desc');
                 }}
               >
-                <span className="flex items-center">
-                  <OrderlyIconBalance></OrderlyIconBalance>{' '}
-                  <span className="ml-2">Available</span>{' '}
-                </span>
+                <span className="flex items-center">Available</span>
 
                 <MdArrowDropDown
                   size={22}

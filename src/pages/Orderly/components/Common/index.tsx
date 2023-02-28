@@ -542,7 +542,7 @@ export function MyOrderTip({
           <div className="flex items-center whitespace-nowrap justify-between">
             <span>Price</span>
 
-            <span className="text-white ml-2">{price}</span>
+            <span className="text-white ml-2">${digitWrapper(price, 2)}</span>
           </div>
 
           <div className="flex items-center whitespace-nowrap justify-between mt-2 ">

@@ -59,7 +59,12 @@ function RecentTrade() {
         <div>Time</div>
       </div>
 
-      <section className="overflow-auto w-full px-4 text-xs">
+      <section
+        className="overflow-auto w-full px-4 text-xs"
+        style={{
+          height: 'calc(100% - 56px)',
+        }}
+      >
         {loading && <OrderlyLoading></OrderlyLoading>}
         {!loading &&
           recentTrades?.slice(0, 50)?.map((trade, i) => {
