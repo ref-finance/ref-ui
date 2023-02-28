@@ -1582,7 +1582,7 @@ function PoolRow({
 
   if (!curRowTokens) return <></>;
 
-  tokens = sort_tokens_by_base(tokens);
+  tokens = sort_tokens_by_base(curRowTokens);
 
   return (
     <div className="w-full hover:bg-poolRowHover bg-blend-overlay hover:bg-opacity-20">
