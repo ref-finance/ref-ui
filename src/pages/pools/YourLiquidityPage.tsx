@@ -1267,7 +1267,7 @@ function PoolRow(props: {
                   </span>
                   <span className="border-b border-primaryText">
                     <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                    <span className="ml-1">Classic</span>
+                    <span className="ml-1">Legacy</span>
                   </span>
                   <span className="text-gradientFrom ml-0.5">
                     <VEARROW />
@@ -1302,7 +1302,7 @@ function PoolRow(props: {
                   </span>
                   <span className="border-b border-primaryText">
                     <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                    <span className="ml-1">DCL</span>
+                    <span className="ml-1">Classic</span>
                   </span>
                   <span className="text-gradientFrom ml-0.5">
                     <VEARROW />
