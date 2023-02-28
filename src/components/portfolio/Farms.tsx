@@ -57,9 +57,11 @@ import { NFTIdIcon } from '~components/icon/FarmBoost';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
+import { display_value } from './Tool';
 const FarmCommonDatas = createContext(null);
 export default function Farms(props: any) {
   const {
+    tokenPriceList,
     set_classic_farms_value,
     set_classic_farms_value_done,
     set_dcl_farms_value,
@@ -67,19 +69,17 @@ export default function Farms(props: any) {
     set_all_farms_quanity,
     set_all_farms_Loading_done,
     all_farms_Loading_done,
+    user_unclaimed_map,
+    set_user_unclaimed_map,
+    user_unclaimed_token_meta_map,
+    set_user_unclaimed_token_meta_map,
   } = useContext(PortfolioData);
   const [classicSeeds, setClassicSeeds] = useState<Seed[]>([]);
   const [dclSeeds, setDclSeeds] = useState<Seed[]>([]);
   let [user_seeds_map, set_user_seeds_map] = useState<
     Record<string, UserSeedInfo>
   >({});
-  const [user_unclaimed_map, set_user_unclaimed_map] = useState<
-    Record<string, any>
-  >({});
-  const [user_unclaimed_token_meta_map, set_user_unclaimed_token_meta_map] =
-    useState<Record<string, any>>({});
   const [boostConfig, setBoostConfig] = useState<BoostConfig>(null);
-  let [tokenPriceList, setTokenPriceList] = useState<any>({});
   let [your_list_liquidities, set_your_list_liquidities] = useState<
     UserLiquidityInfo[]
   >([]);
@@ -89,15 +89,9 @@ export default function Farms(props: any) {
     if (isSignedIn) {
       getBoostConfig();
       get_your_seeds();
-      getTokenPriceList();
       get_your_liquidities();
     }
   }, [isSignedIn]);
-  async function getTokenPriceList() {
-    // get all token prices
-    const tokenPriceList = await getBoostTokenPrices();
-    setTokenPriceList(tokenPriceList);
-  }
   async function getBoostConfig() {
     const config = await get_config();
     const data = config.booster_seeds[REF_VE_CONTRACT_ID];
@@ -146,6 +140,7 @@ export default function Farms(props: any) {
         userUncliamedRewards[seed_ids[index]] = rewards;
       }
     });
+    console.log('1111111111111-userUncliamedRewards', userUncliamedRewards);
     set_user_unclaimed_map(userUncliamedRewards);
     // get user unclaimed token meta
     const unclaimed_token_meta_datas = {};
@@ -871,7 +866,7 @@ function LiquidityLine(props: {
         className="relative flex flex-col items-center mb-5 lg:hidden"
       >
         <div className="absolute -top-1.5 flex items-center justify-center">
-          <NFTIdIcon num="1"></NFTIdIcon>
+          <NFTIdIcon></NFTIdIcon>
           <span className="absolute gotham_bold text-xs text-white">
             NFT ID #{liquidity.lpt_id.split('#')[1]}
           </span>
@@ -1335,24 +1330,4 @@ function isPending(seed: Seed) {
     }
   }
   return pending;
-}
-function display_number(amount: string) {
-  const amount_big = new BigNumber(amount);
-  if (amount_big.isEqualTo('0')) {
-    return '0';
-  } else if (amount_big.isLessThan('0.01')) {
-    return '<0.01';
-  } else {
-    return formatWithCommas(toPrecision(amount, 2));
-  }
-}
-function display_value(amount: string) {
-  const amount_big = new BigNumber(amount);
-  if (amount_big.isEqualTo('0')) {
-    return '$0';
-  } else if (amount_big.isLessThan('0.01')) {
-    return '<$0.01';
-  } else {
-    return `$${toInternationalCurrencySystem(amount, 2)}`;
-  }
 }

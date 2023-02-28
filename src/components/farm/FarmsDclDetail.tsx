@@ -2111,7 +2111,7 @@ function LiquidityLine(props: {
         }}
       >
         <div className="absolute -top-1.5 left-5 flex items-center justify-center">
-          <NFTIdIcon className=""></NFTIdIcon>
+          <NFTIdIcon></NFTIdIcon>
           <span className="absolute gotham_bold text-xs text-white">
             NFT ID #{liquidity.lpt_id.split('#')[1]}
           </span>
@@ -2298,7 +2298,7 @@ function LiquidityLine(props: {
         className="relative flex flex-col items-center mb-5 lg:hidden"
       >
         <div className="absolute -top-1.5 flex items-center justify-center">
-          <NFTIdIcon num="1"></NFTIdIcon>
+          <NFTIdIcon></NFTIdIcon>
           <span className="absolute gotham_bold text-xs text-white">
             NFT ID #{liquidity.lpt_id.split('#')[1]}
           </span>

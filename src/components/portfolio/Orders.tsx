@@ -60,6 +60,7 @@ import { BlueCircleLoading } from '../../components/layout/Loading';
 const PriceContext = createContext(null);
 export default function Orders(props: any) {
   const {
+    tokenPriceList,
     active_order_Loading_done,
     set_active_order_value_done,
     set_active_order_Loading_done,
@@ -67,8 +68,6 @@ export default function Orders(props: any) {
     set_active_order_value,
   } = useContext(PortfolioData);
   const { activeOrder, activeOrderDone } = useMyOrders();
-  const tokenPriceList = useTokenPriceList();
-
   const ActiveTokenIds = activeOrder
     ?.map((order) => [order.sell_token, order.buy_token])
     .flat();
@@ -83,7 +82,7 @@ export default function Orders(props: any) {
   useEffect(() => {
     if (
       activeOrder?.length > 0 &&
-      Object.keys(tokenPriceList).length > 1 &&
+      Object.keys(tokenPriceList).length > 0 &&
       Object.keys(tokensMap || {}).length > 0
     ) {
       const total_value = get_total_active_orders_value();

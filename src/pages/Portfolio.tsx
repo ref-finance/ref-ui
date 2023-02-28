@@ -2,28 +2,19 @@ import React, { useState, createContext, useEffect } from 'react';
 import Asset from '../components/portfolio/Asset';
 import Tokens from '../components/portfolio/Tokens';
 import AssetChart from '../components/portfolio/AssetChart';
+import AssetProfit from '../components/portfolio/AssetProfit';
 import Tab from '../components/portfolio/Tab';
 import Positions from '../components/portfolio/Positions';
 import Farms from '../components/portfolio/Farms';
 import Orders from '../components/portfolio/Orders';
 import Navigation from '../components/portfolio/Navigation';
 import Banner from '../components/portfolio/Banner';
-import { useHistory } from 'react-router';
-import {
-  REF_FI_LP_VALUE_COUNT,
-  REF_FI_LP_V2_VALUE,
-} from '../pages/poolsV3/YourLiquidityPageV3';
+import { getBoostTokenPrices } from '../services/farm';
+import { UserLiquidityInfo } from '../services/commonV3';
+import { TokenMetadata } from '~services/ft-contract';
+
 export const PortfolioData = createContext(null);
 function Portfolio() {
-  const clearState = () => {
-    sessionStorage.removeItem(REF_FI_LP_VALUE_COUNT);
-    sessionStorage.removeItem(REF_FI_LP_V2_VALUE);
-  };
-  window.onbeforeunload = clearState;
-  const historyYourLP = useHistory();
-  useEffect(() => {
-    clearState();
-  }, [historyYourLP.location.pathname]);
   const [activeTab, setActiveTab] = useState(1); // 1,2,3
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
   const [YourLpValueV1, setYourLpValueV1] = useState('0');
@@ -33,6 +24,7 @@ function Portfolio() {
   const [v2LiquidityQuantity, setV2LiquidityQuantity] = useState('0');
   const [v2LiquidityLoadingDone, setV2LiquidityLoadingDone] = useState(false);
   const [v1LiquidityLoadingDone, setV1LiquidityLoadingDone] = useState(false);
+  const [tokenPriceList, setTokenPriceList] = useState<any>({});
 
   const [classic_farms_value, set_classic_farms_value] = useState('0');
   const [dcl_farms_value, set_dcl_farms_value] = useState('0');
@@ -49,12 +41,40 @@ function Portfolio() {
   const [active_order_value, set_active_order_value] = useState(false);
   const [active_order_quanity, set_active_order_quanity] = useState('0');
 
+  const [user_unclaimed_map, set_user_unclaimed_map] = useState<
+    Record<string, any>
+  >({});
+  const [user_unclaimed_token_meta_map, set_user_unclaimed_token_meta_map] =
+    useState<Record<string, any>>({});
+
+  const [dcl_liquidities_list, set_dcl_liquidities_list] = useState<
+    UserLiquidityInfo[]
+  >([]);
+  const [dcl_liquidities_details_list, set_dcl_liquidities_details_list] =
+    useState<UserLiquidityInfo[]>([]);
+  const [dcl_tokens_metas, set_dcl_tokens_metas] =
+    useState<Record<string, TokenMetadata>>();
+
+  useEffect(() => {
+    getTokenPriceList();
+  }, []);
+  async function getTokenPriceList() {
+    // get all token prices
+    const tokenPriceList = await getBoostTokenPrices();
+    setTokenPriceList(tokenPriceList);
+  }
+
   return (
     <div className="flex items-stretch justify-between w-full h-full">
       <PortfolioData.Provider
         value={{
           activeTab,
           setActiveTab,
+          tokenPriceList,
+          user_unclaimed_map,
+          user_unclaimed_token_meta_map,
+          set_user_unclaimed_map,
+          set_user_unclaimed_token_meta_map,
 
           YourLpValueV1,
           YourLpValueV2,
@@ -94,6 +114,13 @@ function Portfolio() {
           set_active_order_Loading_done,
           set_active_order_quanity,
           set_active_order_value,
+
+          dcl_liquidities_list,
+          dcl_liquidities_details_list,
+          dcl_tokens_metas,
+          set_dcl_liquidities_list,
+          set_dcl_liquidities_details_list,
+          set_dcl_tokens_metas,
         }}
       >
         {/* Navigation */}
@@ -103,9 +130,12 @@ function Portfolio() {
         {/* content */}
         <div className="flex-grow border-l border-r border-boxBorder">
           <Banner></Banner>
-          <div className="flex justify-between items-stretch">
-            {/* <Asset></Asset> */}
-            <AssetChart></AssetChart>
+          <div>
+            <div className="flex justify-between items-stretch">
+              <Asset></Asset>
+              <AssetChart></AssetChart>
+            </div>
+            <AssetProfit></AssetProfit>
           </div>
           <div>
             <Tab></Tab>

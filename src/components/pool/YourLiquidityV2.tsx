@@ -59,9 +59,18 @@ import {
   WaterDropIcon,
 } from '../../components/icon/Portfolio';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
+import { PortfolioData } from '../../pages/Portfolio';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 const LiquidityContext = createContext(null);
 export function YourLiquidityV2(props: any) {
+  const {
+    dcl_liquidities_list,
+    dcl_liquidities_details_list,
+    dcl_tokens_metas,
+    set_dcl_liquidities_list,
+    set_dcl_liquidities_details_list,
+    set_dcl_tokens_metas,
+  } = useContext(PortfolioData);
   const {
     setYourLpValueV2,
     setLpValueV2Done,
@@ -69,15 +78,12 @@ export function YourLiquidityV2(props: any) {
     setLiquidityQuantity,
     styleType,
   } = props;
-  const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
-    []
-  );
+
   const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>({});
   const [all_pools_map, set_all_pools_map] =
     useState<Record<string, PoolInfo>>();
-  const [all_tokens_meta_map, set_all_tokens_meta_map] =
-    useState<Record<string, TokenMetadata>>();
+
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
@@ -92,14 +98,30 @@ export function YourLiquidityV2(props: any) {
     }
   }, [isSignedIn]);
   useEffect(() => {
-    if (listLiquidities.length > 0) {
+    if (dcl_liquidities_list.length > 0) {
       get_all_pools_detail();
       get_all_tokens_metas();
+      get_all_liquidities_details();
     }
-  }, [listLiquidities]);
+  }, [dcl_liquidities_list]);
   useEffect(() => {
     get_all_liquidity_value();
-  }, [all_pools_map, all_tokens_meta_map, tokenPriceList]);
+  }, [all_pools_map, dcl_tokens_metas, tokenPriceList]);
+  const dcl_liquidities_details_map = useMemo(() => {
+    let temp_map = {};
+    if (dcl_liquidities_details_list.length > 0) {
+      temp_map = dcl_liquidities_details_list.reduce(
+        (acc: any, cur: UserLiquidityInfo) => {
+          return {
+            ...acc,
+            [cur.lpt_id]: cur,
+          };
+        },
+        {}
+      );
+    }
+    return temp_map;
+  }, [dcl_liquidities_details_list]);
   async function get_list_liquidities() {
     const list: UserLiquidityInfo[] = await list_liquidities();
     if (list.length > 0) {
@@ -130,7 +152,7 @@ export function YourLiquidityV2(props: any) {
         const item2_hashId = +item2.lpt_id.split('#')[1];
         return item1_hashId - item2_hashId;
       });
-      setListLiquidities(list);
+      set_dcl_liquidities_list(list);
     } else {
       setLpValueV2Done(true);
       setYourLpValueV2('0');
@@ -140,7 +162,7 @@ export function YourLiquidityV2(props: any) {
   }
   async function get_all_pools_detail() {
     const pool_ids = new Set();
-    listLiquidities.forEach((liquidity: UserLiquidityInfo) => {
+    dcl_liquidities_list.forEach((liquidity: UserLiquidityInfo) => {
       pool_ids.add(liquidity.pool_id);
     });
     const promise_pools = Array.from(pool_ids).map(async (id: string) => {
@@ -161,7 +183,7 @@ export function YourLiquidityV2(props: any) {
   }
   async function get_all_tokens_metas() {
     const token_ids = new Set();
-    listLiquidities.forEach((liquidity: UserLiquidityInfo) => {
+    dcl_liquidities_list.forEach((liquidity: UserLiquidityInfo) => {
       const { pool_id } = liquidity;
       const [token_x, token_y, fee] = pool_id.split('|');
       token_ids.add(token_x).add(token_y);
@@ -173,28 +195,37 @@ export function YourLiquidityV2(props: any) {
       }
     );
     const all_tokens_meta = await Promise.all(promise_all_tokens_meta);
-    const all_tokens_meta_map = all_tokens_meta.reduce((acc, cur) => {
+    const dcl_tokens_metas = all_tokens_meta.reduce((acc, cur) => {
       return {
         ...acc,
         [cur.id]: cur,
       };
     }, {});
-    set_all_tokens_meta_map(all_tokens_meta_map);
+    set_dcl_tokens_metas(dcl_tokens_metas);
+  }
+  async function get_all_liquidities_details() {
+    const promise_list_details = dcl_liquidities_list.map(
+      (item: UserLiquidityInfo) => {
+        return get_liquidity(item.lpt_id);
+      }
+    );
+    const list_details = await Promise.all(promise_list_details);
+    set_dcl_liquidities_details_list(list_details);
   }
   function get_all_liquidity_value() {
     let total_value = new BigNumber(0);
     if (
       all_pools_map &&
-      all_tokens_meta_map &&
+      dcl_tokens_metas &&
       Object.keys(tokenPriceList).length > 0
     ) {
-      listLiquidities.forEach((liquidity: UserLiquidityInfo) => {
+      dcl_liquidities_list.forEach((liquidity: UserLiquidityInfo) => {
         const { pool_id } = liquidity;
         const [token_x, token_y] = pool_id.split('|');
         const poolDetail = all_pools_map[pool_id];
         const tokensMeta = [
-          all_tokens_meta_map[token_x],
-          all_tokens_meta_map[token_y],
+          dcl_tokens_metas[token_x],
+          dcl_tokens_metas[token_y],
         ];
         const v = get_liquidity_value({
           liquidity,
@@ -210,20 +241,25 @@ export function YourLiquidityV2(props: any) {
   }
   return (
     <div>
-      {listLiquidities.map((liquidity: UserLiquidityInfo, index: number) => {
-        return (
-          <div key={index}>
-            <UserLiquidityLine
-              liquidity={liquidity}
-              all_seeds={all_seeds}
-              styleType={styleType}
-              tokenPriceList={tokenPriceList}
-              poolDetail={all_pools_map?.[liquidity.pool_id]}
-              all_tokens_meta_map={all_tokens_meta_map}
-            ></UserLiquidityLine>
-          </div>
-        );
-      })}
+      {dcl_liquidities_list.map(
+        (liquidity: UserLiquidityInfo, index: number) => {
+          return (
+            <div key={index}>
+              <UserLiquidityLine
+                liquidity={liquidity}
+                all_seeds={all_seeds}
+                styleType={styleType}
+                tokenPriceList={tokenPriceList}
+                poolDetail={all_pools_map?.[liquidity.pool_id]}
+                liquidityDetail={
+                  dcl_liquidities_details_map?.[liquidity.lpt_id]
+                }
+                dcl_tokens_metas={dcl_tokens_metas}
+              ></UserLiquidityLine>
+            </div>
+          );
+        }
+      )}
     </div>
   );
 }
@@ -233,16 +269,17 @@ function UserLiquidityLine({
   styleType,
   tokenPriceList,
   poolDetail,
-  all_tokens_meta_map,
+  dcl_tokens_metas,
+  liquidityDetail,
 }: {
   liquidity: UserLiquidityInfo;
   all_seeds: Seed[];
   styleType: string;
   tokenPriceList: Record<string, any>;
   poolDetail: PoolInfo;
-  all_tokens_meta_map: Record<string, TokenMetadata>;
+  dcl_tokens_metas: Record<string, TokenMetadata>;
+  liquidityDetail: UserLiquidityInfo;
 }) {
-  const [liquidityDetail, setLiquidityDetail] = useState<UserLiquidityInfo>();
   const [hover, setHover] = useState<boolean>(false);
   const [isInrange, setIsInrange] = useState<boolean>(true);
   const [your_liquidity, setYour_liquidity] = useState('');
@@ -257,8 +294,8 @@ function UserLiquidityLine({
 
   const { lpt_id, pool_id, left_point, right_point, amount: L } = liquidity;
   const [token_x, token_y, fee] = pool_id.split('|');
-  const tokenMetadata_x_y = all_tokens_meta_map
-    ? [all_tokens_meta_map[token_x], all_tokens_meta_map[token_y]]
+  const tokenMetadata_x_y = dcl_tokens_metas
+    ? [dcl_tokens_metas[token_x], dcl_tokens_metas[token_y]]
     : null;
   const rate_need_to_reverse_display = useMemo(() => {
     if (tokenMetadata_x_y) {
@@ -271,7 +308,6 @@ function UserLiquidityLine({
   const history = useHistory();
   useEffect(() => {
     judge_is_in_range();
-    getLiquidityDetail();
     get_pool_related_farms();
   }, []);
   useEffect(() => {
@@ -310,12 +346,6 @@ function UserLiquidityLine({
       } else {
         setIsInrange(false);
       }
-    }
-  }
-  async function getLiquidityDetail() {
-    const l = await get_liquidity(lpt_id);
-    if (l) {
-      setLiquidityDetail(l);
     }
   }
   function getRate(direction: string) {
@@ -454,6 +484,7 @@ function UserLiquidityLine({
   }
   function getTokenFeeAmount(p: string) {
     if (liquidityDetail && tokenMetadata_x_y && tokenPriceList) {
+      debugger;
       const [tokenX, tokenY] = tokenMetadata_x_y;
       const { unclaimed_fee_x, unclaimed_fee_y } = liquidityDetail;
       const fee_x_amount = toReadableNumber(
@@ -481,6 +512,7 @@ function UserLiquidityLine({
           return toPrecision(fee_y_amount, 3);
         }
       } else if (p == 'p') {
+        debugger;
         const tokenxSinglePrice = tokenPriceList[tokenX.id]?.price || '0';
         const tokenySinglePrice = tokenPriceList[tokenY.id]?.price || '0';
         const priceX = new BigNumber(fee_x_amount).multipliedBy(
@@ -1167,8 +1199,6 @@ function UserLiquidityLineStyle1() {
 }
 function UserLiquidityLineStyle2() {
   const {
-    hover,
-    setHover,
     getLpt_id,
     goYourLiquidityDetailPage,
     goPoolDetailPage,

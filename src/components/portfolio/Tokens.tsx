@@ -13,7 +13,7 @@ import {
 import { getBoostTokenPrices } from '../../services/farm';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import ReactECharts from 'echarts-for-react';
-import { ArrowJump } from './Asset';
+import { ArrowJump } from './Tool';
 import { useWalletSelector } from '~context/WalletSelectorContext';
 import getConfig from '~services/config';
 export default function Tokens() {

@@ -1,17 +1,7 @@
 import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { PortfolioData } from '../../pages/Portfolio';
 import BigNumber from 'bignumber.js';
-import {
-  toRoundedReadableNumber,
-  percent,
-  toPrecision,
-  toInternationalCurrencySystem,
-  calculateFairShare,
-  toReadableNumber,
-  ONLY_ZEROS,
-  calculateFeePercent,
-  formatWithCommas,
-} from '~utils/numbers';
+import { display_value } from './Tool';
 export default function Tab() {
   const {
     activeTab,
@@ -44,10 +34,10 @@ export default function Tab() {
   // console.log('555555555-all_farms_quanity', all_farms_quanity);
   // console.log('555555555-all_farms_Loading_done', all_farms_Loading_done);
 
-  console.log('55555555555-lpValueV1Done,', lpValueV1Done);
-  console.log('55555555555-lpValueV2Done,', lpValueV2Done);
-  console.log('55555555555-YourLpValueV1,', YourLpValueV1);
-  console.log('55555555555-YourLpValueV2,', YourLpValueV2);
+  // console.log('55555555555-lpValueV1Done,', lpValueV1Done);
+  // console.log('55555555555-lpValueV2Done,', lpValueV2Done);
+  // console.log('55555555555-YourLpValueV1,', YourLpValueV1);
+  // console.log('55555555555-YourLpValueV2,', YourLpValueV2);
 
   const [tabList, setTabList] = useState([
     { name: 'Active Orders', tag: 1, value: '$-', quantity: '-' },
@@ -135,16 +125,6 @@ export default function Tab() {
   ]);
   function switchTab(tag: number) {
     setActiveTab(tag);
-  }
-  function display_value(amount: string) {
-    const amount_big = new BigNumber(amount);
-    if (amount_big.isEqualTo('0')) {
-      return '$0';
-    } else if (amount_big.isLessThan('0.01')) {
-      return '<$0.01';
-    } else {
-      return `$${toInternationalCurrencySystem(amount, 2)}`;
-    }
   }
   return (
     <div className="flex items-center mt-10 mb-6 pl-6">
