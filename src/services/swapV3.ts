@@ -509,21 +509,29 @@ export const cancel_order = ({
   undecimal_amount,
 }: {
   order_id: string;
-  undecimal_amount: string;
+  undecimal_amount?: string;
 }) => {
+  const cancelCall = !!undecimal_amount
+    ? {
+        methodName: 'cancel_order',
+        args: {
+          order_id,
+          amount: undecimal_amount,
+        },
+        gas: '180000000000000',
+      }
+    : {
+        methodName: 'cancel_order',
+        args: {
+          order_id,
+        },
+        gas: '180000000000000',
+      };
+
   const transactions: Transaction[] = [
     {
       receiverId: REF_UNI_V3_SWAP_CONTRACT_ID,
-      functionCalls: [
-        {
-          methodName: 'cancel_order',
-          args: {
-            order_id,
-            // amount: undecimal_amount,
-          },
-          gas: '180000000000000',
-        },
-      ],
+      functionCalls: [cancelCall],
     },
   ];
 
