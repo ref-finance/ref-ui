@@ -775,17 +775,17 @@ export function SelectTokenDCL({
 
   const mobileDevice = isMobile();
 
-  useEffect(() => {
-    if (mobileDevice && hoverSelectToken) {
-      document.addEventListener(
-        'touchmove',
-        (e) => {
-          e.preventDefault();
-        },
-        { passive: false }
-      );
-    }
-  }, [mobileDevice, hoverSelectToken]);
+  // useEffect(() => {
+  //   if (mobileDevice && hoverSelectToken) {
+  //     document.addEventListener(
+  //       'touchmove',
+  //       (e) => {
+  //         e.preventDefault();
+  //       },
+  //       { passive: false }
+  //     );
+  //   }
+  // }, [mobileDevice, hoverSelectToken]);
 
   const handleSelect = (p: PoolInfo) => {
     // select token in
@@ -877,7 +877,7 @@ export function SelectTokenDCL({
             }
           }}
           style={{
-            zIndex: !!selectTokenOut ? 130 : 100,
+            zIndex: !!selectTokenOut ? 80 : 70,
           }}
         >
           {selected || (
@@ -908,7 +908,7 @@ export function SelectTokenDCL({
             }
           }}
           style={{
-            zIndex: mobileDevice ? 300 : !!selectTokenOut ? 120 : 90,
+            zIndex: mobileDevice ? 80 : !!selectTokenOut ? 80 : 70,
           }}
         >
           {mobileDevice && (

@@ -395,9 +395,9 @@ function MobilePoolRow({
                 }}
               >
                 <img
-                  key={tokens[0].id.substring(0, 12).substring(0, 12)}
+                  key={curRowTokens?.[0]?.id.substring(0, 12).substring(0, 12)}
                   className="rounded-full w-full"
-                  src={tokens[0].icon}
+                  src={curRowTokens?.[0]?.icon}
                 />
               </div>
 
@@ -409,12 +409,12 @@ function MobilePoolRow({
                 }}
               >
                 <img
-                  key={tokens[1].id}
+                  key={curRowTokens?.[1].id}
                   className="w-full rounded-full"
-                  src={tokens[1].icon}
+                  src={curRowTokens?.[1].icon}
                 />
               </div>
-              {tokens[2] ? (
+              {curRowTokens?.[2] ? (
                 <div
                   className="h-6 w-6 z-30 border border-watchMarkBackgroundColor rounded-full -ml-1.5 "
                   style={{
@@ -423,9 +423,9 @@ function MobilePoolRow({
                   }}
                 >
                   <img
-                    key={tokens[2].id}
+                    key={curRowTokens[2].id}
                     className="w-full rounded-full"
-                    src={tokens[2].icon}
+                    src={curRowTokens[2].icon}
                   />
                 </div>
               ) : null}
@@ -434,10 +434,10 @@ function MobilePoolRow({
               <div className="flex items-center justify-start">
                 <div className="flex items-center flex-wrap">
                   <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
-                    {tokens[0].symbol +
+                    {curRowTokens[0].symbol +
                       '-' +
-                      tokens[1].symbol +
-                      `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
+                      curRowTokens[1].symbol +
+                      `${curRowTokens[2] ? '-' + curRowTokens[2].symbol : ''}`}
                   </div>
                 </div>
                 {watched && !watchPool && (
