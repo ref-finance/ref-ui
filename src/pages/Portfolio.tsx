@@ -8,7 +8,6 @@ import Positions from '../components/portfolio/Positions';
 import Farms from '../components/portfolio/Farms';
 import Orders from '../components/portfolio/Orders';
 import Navigation from '../components/portfolio/Navigation';
-import Banner from '../components/portfolio/Banner';
 import { getBoostTokenPrices } from '../services/farm';
 import { UserLiquidityInfo } from '../services/commonV3';
 import { TokenMetadata } from '~services/ft-contract';
@@ -65,7 +64,7 @@ function Portfolio() {
   }
 
   return (
-    <div className="flex items-stretch justify-between w-full h-full">
+    <div className="flex items-stretch justify-between w-full h-full lg:-mt-12 border-t border-boxBorder">
       <PortfolioData.Provider
         value={{
           activeTab,
@@ -124,12 +123,14 @@ function Portfolio() {
         }}
       >
         {/* Navigation */}
-        <div style={{ width: '280px' }} className="pl-5 py-4 pr-4">
+        <div
+          style={{ width: '280px' }}
+          className="pl-5 py-4 pr-4 flex-shrink-0"
+        >
           <Navigation></Navigation>
         </div>
         {/* content */}
         <div className="flex-grow border-l border-r border-boxBorder">
-          <Banner></Banner>
           <div>
             <div className="flex justify-between items-stretch">
               <Asset></Asset>
@@ -137,21 +138,23 @@ function Portfolio() {
             </div>
             <AssetProfit></AssetProfit>
           </div>
-          <div>
+          <div className="px-5">
             <Tab></Tab>
-            <div className={`${activeTab == 1 ? '' : 'hidden'}`}>
-              <Orders></Orders>
-            </div>
-            <div className={`${activeTab == 2 ? '' : 'hidden'}`}>
-              <Positions></Positions>
-            </div>
-            <div className={`${activeTab == 3 ? '' : 'hidden'}`}>
-              <Farms></Farms>
+            <div className="px-3.5 py-4 rounded-2xl border border-boxBorder">
+              <div className={`${activeTab == 1 ? '' : 'hidden'}`}>
+                <Orders></Orders>
+              </div>
+              <div className={`${activeTab == 2 ? '' : 'hidden'}`}>
+                <Positions></Positions>
+              </div>
+              <div className={`${activeTab == 3 ? '' : 'hidden'}`}>
+                <Farms></Farms>
+              </div>
             </div>
           </div>
         </div>
         {/* tokens table */}
-        <div style={{ minWidth: '330px' }}>
+        <div className="flex-shrink-0" style={{ minWidth: '330px' }}>
           <Tokens></Tokens>
         </div>
       </PortfolioData.Provider>

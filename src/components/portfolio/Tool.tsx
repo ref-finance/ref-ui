@@ -7,6 +7,7 @@ import {
 import BigNumber from 'bignumber.js';
 import { ArrowRightIcon } from '../../components/icon/V3';
 import { ArrowRIcon } from '../icon/Portfolio';
+import { TriangleIcon } from '../../components/icon/Portfolio';
 export function ArrowJump(props: any) {
   const [hover, setHover] = useState(false);
   const { clickEvent, extraClass } = props;
@@ -47,7 +48,42 @@ export function ArrowJumpLarge(props: any) {
     </div>
   );
 }
-export function display_number(amount: string) {
+
+export function UpDownButton(props: any) {
+  const { set_switch_off, switch_off } = props;
+  const [hover, setHover] = useState<boolean>(false);
+  return (
+    <div
+      onClick={() => {
+        set_switch_off(!switch_off);
+      }}
+      onMouseEnter={() => {
+        setHover(true);
+      }}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
+      className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
+        switch_off
+          ? hover
+            ? 'bg-portfolioGreyColor'
+            : 'border border-primaryText border-opacity-10'
+          : 'bg-portfolioGreyColor'
+      }`}
+    >
+      <TriangleIcon
+        className={`${
+          switch_off
+            ? hover
+              ? 'text-white'
+              : 'text-limitOrderInputColor'
+            : 'text-white transform rotate-180'
+        }`}
+      ></TriangleIcon>
+    </div>
+  );
+}
+export function display_number_withCommas(amount: string) {
   const amount_big = new BigNumber(amount);
   if (amount_big.isEqualTo('0')) {
     return '0';
@@ -57,7 +93,7 @@ export function display_number(amount: string) {
     return formatWithCommas(toPrecision(amount, 2));
   }
 }
-export function display_number_international(amount: string) {
+export function display_number(amount: string) {
   const amount_big = new BigNumber(amount);
   if (amount_big.isEqualTo('0')) {
     return '0';

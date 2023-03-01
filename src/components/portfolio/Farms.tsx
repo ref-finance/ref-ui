@@ -32,11 +32,7 @@ import { TokenMetadata } from '../../services/ft-contract';
 import { useTokens } from '~state/token';
 import { toRealSymbol } from '~utils/token';
 import { LOVE_TOKEN_DECIMAL } from '../../state/referendum';
-import {
-  TriangleIcon,
-  LinkIcon,
-  FarmMiningIcon,
-} from '../../components/icon/Portfolio';
+import { LinkIcon, FarmMiningIcon } from '../../components/icon/Portfolio';
 import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { list_liquidities } from '../../services/swapV3';
@@ -57,7 +53,7 @@ import { NFTIdIcon } from '~components/icon/FarmBoost';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
-import { display_value } from './Tool';
+import { display_value, UpDownButton } from './Tool';
 const FarmCommonDatas = createContext(null);
 export default function Farms(props: any) {
   const {
@@ -259,6 +255,10 @@ export default function Farms(props: any) {
           your_list_liquidities,
         }}
       >
+        <div className="flex items-center justify-between text-sm text-v3SwapGray mb-2.5 pl-6 pr-16">
+          <span>Farms</span>
+          <span>Your Liquidity</span>
+        </div>
         <ClassicFarms></ClassicFarms>
         <DclFarms></DclFarms>
         {all_farms_Loading_done ? null : (
@@ -407,7 +407,7 @@ function DclFarmRow({ seed }: { seed: Seed }) {
     unClaimedTokenIds?.forEach((tokenId: string) => {
       const token: TokenMetadata = user_unclaimed_token_meta_map[tokenId];
       // total price
-      const { id, decimals, icon } = token;
+      const { id, decimals } = token;
       const amount = toReadableNumber(decimals, unclaimed[id] || '0');
       const tokenPrice = tokenPriceList[id]?.price;
       if (tokenPrice && tokenPrice != 'N/A') {
@@ -430,7 +430,7 @@ function DclFarmRow({ seed }: { seed: Seed }) {
     });
     if (totalPrice == 0) {
       return {
-        worth: <label className="opacity-30">$0</label>,
+        worth: '$0',
         list: tokenList,
       };
     } else if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
@@ -461,11 +461,13 @@ function DclFarmRow({ seed }: { seed: Seed }) {
   }
   function displayImgs() {
     const tokenList: any[] = [];
-    (tokens || []).forEach((token: TokenMetadata) => {
+    (tokens || []).forEach((token: TokenMetadata, index: number) => {
       tokenList.push(
         <label
           key={token.id}
-          className={`h-7 w-7 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg -ml-1.5`}
+          className={`h-7 w-7 rounded-full overflow-hidden border border-gradientFromHover bg-cardBg ${
+            index > 0 ? '-ml-1.5' : ''
+          }`}
         >
           <img src={token.icon} className="w-full h-full"></img>
         </label>
@@ -518,7 +520,7 @@ function DclFarmRow({ seed }: { seed: Seed }) {
     >
       <div className="flex items-center justify-between h-14">
         <div className="flex items-center">
-          <div className="flex items-center flex-shrink-0 m-2.5">
+          <div className="flex items-center flex-shrink-0 mr-2.5">
             {displayImgs()}
           </div>
           <span className="text-white font-bold text-sm gotham_bold">
@@ -548,24 +550,10 @@ function DclFarmRow({ seed }: { seed: Seed }) {
               </span>
             </div>
           </div>
-          <div
-            onClick={() => {
-              set_switch_off(!switch_off);
-            }}
-            className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
-              switch_off
-                ? 'border border-primaryText border-opacity-10'
-                : 'bg-portfolioGreyColor'
-            }`}
-          >
-            <TriangleIcon
-              className={`${
-                switch_off
-                  ? 'text-limitOrderInputColor'
-                  : 'text-white transform rotate-180'
-              }`}
-            ></TriangleIcon>
-          </div>
+          <UpDownButton
+            set_switch_off={set_switch_off}
+            switch_off={switch_off}
+          ></UpDownButton>
         </div>
       </div>
       <div className={`${switch_off ? 'hidden' : ''}`}>
@@ -601,7 +589,13 @@ function DclFarmRow({ seed }: { seed: Seed }) {
                   );
                 }
               )}
-              <span className="tex-sm text-portfolioQinColor pl-3.5 border-l border-orderTypeBg ml-3.5">
+              <span
+                className={`tex-sm text-portfolioQinColor pl-3.5 ml-3.5 ${
+                  unclaimedRewardsData.list.length == 0
+                    ? ''
+                    : 'border-l border-orderTypeBg'
+                }`}
+              >
                 {unclaimedRewardsData.worth}
               </span>
             </div>
@@ -1038,7 +1032,9 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
         <img
           key={token.id + index}
           src={token.icon}
-          className="relative w-7 h-7 border border-greenColor rounded-full -ml-1.5"
+          className={`relative w-7 h-7 border border-greenColor rounded-full ${
+            index > 0 ? '-ml-1.5' : ''
+          }`}
         ></img>
       );
     });
@@ -1157,7 +1153,7 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
     >
       <div className="flex items-center justify-between h-14">
         <div className="flex items-center">
-          <div className="flex items-center flex-shrink-0 m-2.5">
+          <div className="flex items-center flex-shrink-0 mr-2.5">
             {displayImgs()}
           </div>
           <span className="text-white font-bold text-sm gotham_bold">
@@ -1187,24 +1183,10 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
               </span>
             </div>
           </div>
-          <div
-            onClick={() => {
-              set_switch_off(!switch_off);
-            }}
-            className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
-              switch_off
-                ? 'border border-primaryText border-opacity-10'
-                : 'bg-portfolioGreyColor'
-            }`}
-          >
-            <TriangleIcon
-              className={`${
-                switch_off
-                  ? 'text-limitOrderInputColor'
-                  : 'text-white transform rotate-180'
-              }`}
-            ></TriangleIcon>
-          </div>
+          <UpDownButton
+            set_switch_off={set_switch_off}
+            switch_off={switch_off}
+          ></UpDownButton>
         </div>
       </div>
       <div className={`${switch_off ? 'hidden' : ''}`}>

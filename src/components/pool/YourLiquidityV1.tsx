@@ -88,9 +88,10 @@ import { StableSwapLogo } from '~components/icon/StableSwap';
 import { GoodIcon } from '../../components/icon/Common';
 import { AddPoolModal } from '../../pages/pools/AddPoolPage';
 import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
-import { TriangleIcon, LinkIcon } from '../../components/icon/Portfolio';
+import { LinkIcon } from '../../components/icon/Portfolio';
 import ReactTooltip from 'react-tooltip';
 import { checkFarmStake } from '../../state/farm';
+import { display_number_withCommas, UpDownButton } from '../portfolio/Tool';
 export const StakeListContext = createContext(null);
 
 export function YourLiquidityV1(props: any) {
@@ -741,16 +742,6 @@ function YourClassicLiquidityLine(props: any) {
     if (allFarmV2_count == endedFarmV2_count) return 'e';
     return 'r';
   }, [v2Farm]);
-  function display_number(amount: string) {
-    const amount_big = new BigNumber(amount);
-    if (amount_big.isEqualTo('0')) {
-      return '0';
-    } else if (amount_big.isLessThan('0.01')) {
-      return '<0.01';
-    } else {
-      return formatWithCommas(toPrecision(amount, 2));
-    }
-  }
   function display_value(amount: string) {
     const amount_big = new BigNumber(amount);
     if (amount_big.isEqualTo('0')) {
@@ -799,24 +790,10 @@ function YourClassicLiquidityLine(props: any) {
           <span className="text-sm text-white gotham_bold mr-5">
             {display_value(lp_total_value)}
           </span>
-          <div
-            onClick={() => {
-              set_switch_off(!switch_off);
-            }}
-            className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
-              switch_off
-                ? 'border border-primaryText border-opacity-10'
-                : 'bg-portfolioGreyColor'
-            }`}
-          >
-            <TriangleIcon
-              className={`${
-                switch_off
-                  ? 'text-limitOrderInputColor'
-                  : 'text-white transform rotate-180'
-              }`}
-            ></TriangleIcon>
-          </div>
+          <UpDownButton
+            set_switch_off={set_switch_off}
+            switch_off={switch_off}
+          ></UpDownButton>
         </div>
       </div>
       <div className={`${switch_off ? 'hidden' : ''}`}>
@@ -835,7 +812,8 @@ function YourClassicLiquidityLine(props: any) {
               Your LP Tokens(Shares)
             </span>
             <span className="text-sm text-white">
-              {display_number(lp_total)} ({display_percent(user_lp_percent)})
+              {display_number_withCommas(lp_total)} (
+              {display_percent(user_lp_percent)})
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -848,7 +826,7 @@ function YourClassicLiquidityLine(props: any) {
                     : ''
                 } ${+lp_in_farm > 0 ? '' : 'hidden'}`}
               >
-                {display_number(lp_in_farm)} in{' '}
+                {display_number_withCommas(lp_in_farm)} in{' '}
                 <span
                   className="flex items-center"
                   onClick={() => {
@@ -864,7 +842,7 @@ function YourClassicLiquidityLine(props: any) {
                   +lp_in_pool > 0 ? 'pr-3.5 border-r border-orderTypeBg' : ''
                 } ${+lp_in_vote > 0 ? '' : 'hidden'}`}
               >
-                {display_number(lp_in_vote)} locked in{' '}
+                {display_number_withCommas(lp_in_vote)} locked in{' '}
                 <span
                   className="flex items-center"
                   onClick={() => {
@@ -880,7 +858,7 @@ function YourClassicLiquidityLine(props: any) {
                   +lp_in_pool > 0 ? '' : 'hidden'
                 }`}
               >
-                {display_number(lp_in_pool)} Holding
+                {display_number_withCommas(lp_in_pool)} Holding
               </div>
             </div>
           </div>

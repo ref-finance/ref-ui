@@ -214,7 +214,7 @@ export default function FarmsHome(props: any) {
   const [boostInstructions, setBoostInstructions] = useState<boolean>(false);
   const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
   let [farmTab, setFarmTab] = useState(
-    localStorage.getItem('BOOST_FARM_RAB') || 'normal'
+    localStorage.getItem('BOOST_FARM_RAB') || 'classic'
   ); // dcl、normal
   const location = useLocation();
   const history = useHistory();
@@ -1283,10 +1283,10 @@ export default function FarmsHome(props: any) {
                 </span>
                 <span
                   onClick={() => {
-                    switchFarmTab('normal');
+                    switchFarmTab('classic');
                   }}
                   className={`flex items-center justify-center text-sm rounded-md cursor-pointer px-3 h-full ${
-                    farmTab == 'normal'
+                    farmTab == 'classic'
                       ? 'text-chartBg bg-farmSearch'
                       : 'text-farmText'
                   }`}

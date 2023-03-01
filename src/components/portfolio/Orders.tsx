@@ -48,14 +48,11 @@ import {
 } from '../../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../../components/icon/swapV3';
 import { TOKEN_LIST_FOR_RATE } from '../../services/commonV3';
-import {
-  PurpleCircleIcon,
-  TriangleIcon,
-  LinkIcon,
-} from '../../components/icon/Portfolio';
+import { PurpleCircleIcon } from '../../components/icon/Portfolio';
 import BigNumber from 'bignumber.js';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
+import { UpDownButton } from './Tool';
 
 const PriceContext = createContext(null);
 export default function Orders(props: any) {
@@ -575,7 +572,11 @@ function OrderCard({
           </span>
         </div>
 
-        <div className="flex items-center justify-between mb-6">
+        <div
+          className={`flex items-center justify-between mb-6 ${
+            ONLY_ZEROS.test(swapIn || '0') ? 'hidden' : ''
+          }`}
+        >
           <span className="flex items-center text-sm text-v3SwapGray">
             Instant Swap
             <ExclamationTip
@@ -704,38 +705,21 @@ function OrderCard({
             <div className="flex items-center">
               {orderRate}
               {unclaim}
-              <div
-                onClick={() => {
-                  set_switch_off(!switch_off);
-                }}
-                className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
-                  switch_off
-                    ? 'border border-primaryText border-opacity-10'
-                    : 'bg-portfolioGreyColor'
-                }`}
-              >
-                <TriangleIcon
-                  className={`${
-                    switch_off
-                      ? 'text-limitOrderInputColor'
-                      : 'text-white transform rotate-180'
-                  }`}
-                ></TriangleIcon>
-              </div>
+              <UpDownButton
+                set_switch_off={set_switch_off}
+                switch_off={switch_off}
+              ></UpDownButton>
             </div>
           </div>
-          {!ONLY_ZEROS.test(swapIn || '0') ? (
-            <div className={`${switch_off ? 'hidden' : ''}`}>
-              <div className="flex items-center text-sm text-v3SwapGray ml-2">
-                Order Progress
-              </div>
-              <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3 mb-4">
-                {/* {hover && !ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null} */}
-                {!ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
-              </div>
-              {created}
+          <div className={`${switch_off ? 'hidden' : ''}`}>
+            <div className="flex items-center text-sm text-v3SwapGray ml-2">
+              Order Progress
             </div>
-          ) : null}
+            <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3 mb-4">
+              {swapBanner}
+            </div>
+            {created}
+          </div>
         </div>
         {/* Mobile */}
         <div
@@ -815,7 +799,7 @@ function OrderCard({
     <div className="flex flex-col">
       {
         <div
-          className={`flex items-center justify-between mb-2.5 px-6 xs:hidden ${
+          className={`flex items-center justify-between  px-6 xs:hidden ${
             !activeOrder || activeOrder.length === 0 ? 'hidden' : ''
           } text-v3SwapGray text-sm  whitespace-nowrap`}
         >

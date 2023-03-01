@@ -102,8 +102,11 @@ export default function Asset() {
     return '$0';
   }
   return (
-    <div className="border-r border-cardBg" style={{ minWidth: '298px' }}>
-      <div className="p-4">
+    <div
+      className="border-r border-cardBg flex-shrink-0"
+      style={{ minWidth: '320px' }}
+    >
+      <div className="p-4 mt-4">
         <div className="flex items-center">
           <span className="text-sm text-primaryText">
             Your investment(USD value)
@@ -145,6 +148,7 @@ export default function Asset() {
             <span
               onClick={() => {
                 localStorage.setItem('farmV2Status', 'my');
+                localStorage.setItem('BOOST_FARM_RAB', 'dcl');
                 window.open('/v2farms');
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
@@ -157,7 +161,7 @@ export default function Asset() {
           title="V1 Pools"
           value={getV1PoolUSDValue()}
           event={() => {
-            localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
+            localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v1');
             window.open('/pools');
           }}
         >
@@ -166,6 +170,7 @@ export default function Asset() {
             <span
               onClick={() => {
                 localStorage.setItem('farmV2Status', 'my');
+                localStorage.setItem('BOOST_FARM_RAB', 'classic');
                 window.open('/v2farms');
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
