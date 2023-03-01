@@ -13,11 +13,8 @@ export default function Navigation(props: any) {
   const [activeMenu, setActiveMenu] = useState('ref');
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center">
         <span className="text-sm text-white text-opacity-50">Dapp</span>
-        <span className="text-xs text-white text-opacity-50 px-3.5 py-1.5 rounded-md bg-selectTokenV3BgColor cursor-pointer">
-          Hide
-        </span>
       </div>
       <div className="flex flex-col mt-2.5">
         {menuList.map((item) => {

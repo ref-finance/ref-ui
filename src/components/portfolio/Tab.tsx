@@ -127,7 +127,7 @@ export default function Tab() {
     setActiveTab(tag);
   }
   return (
-    <div className="flex items-center mt-10 mb-6 pl-6">
+    <div className="flex items-center mt-10  pl-6">
       {tabList.map(
         (tab: {
           name: string;

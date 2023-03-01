@@ -5,6 +5,7 @@ import { toReadableNumber } from '~utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { PortfolioData } from '../../pages/Portfolio';
+import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import { ArrowJump, display_value } from './Tool';
 
 export default function AssetProfit() {
@@ -81,8 +82,7 @@ export default function AssetProfit() {
 
   function getTip() {
     // const tip = intl.formatMessage({ id: 'over_tip' });
-    const tip =
-      'USD value of your investment on Ref:Classic pools + DCL pools (including staked in farms)';
+    const tip = 'waiting for mency to give';
     let result: string = `<div class="text-navHighLightText text-xs text-left w-64">${tip}</div>`;
     return result;
   }
@@ -118,7 +118,13 @@ export default function AssetProfit() {
       <div className="flex flex-col justify-between col-span-1">
         <div className="flex items-center text-sm text-primaryText">
           Earned Fees
-          <ArrowJump clickEvent={() => {}} extraClass="ml-3"></ArrowJump>
+          <ArrowJump
+            clickEvent={() => {
+              sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
+              window.open('/yourliquidity');
+            }}
+            extraClass="ml-3"
+          ></ArrowJump>
         </div>
         <div className="tetx-base gotham_bold text-portfolioGreenColor relative -top-1">
           {display_value(total_fees_value)}
@@ -127,7 +133,13 @@ export default function AssetProfit() {
       <div className="flex flex-col justify-between col-span-1">
         <div className="flex items-center text-sm text-primaryText">
           Unclaimed Rewards
-          <ArrowJump clickEvent={() => {}} extraClass="ml-1"></ArrowJump>
+          <ArrowJump
+            clickEvent={() => {
+              localStorage.setItem('farmV2Status', 'my');
+              window.open('/v2farms');
+            }}
+            extraClass="ml-1"
+          ></ArrowJump>
         </div>
         <div className="tetx-base gotham_bold text-portfolioGreenColor relative -top-1">
           {display_value(total_unClaimed_rewrads_value)}

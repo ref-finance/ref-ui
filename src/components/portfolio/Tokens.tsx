@@ -22,18 +22,15 @@ import {
   ArrowJumpLarge,
   display_percentage,
   display_value,
-  display_number_international,
+  display_number,
+  display_value_withCommas,
 } from './Tool';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 export default function Tokens() {
   const { tokenPriceList } = useContext(PortfolioData);
   const [pieOption, setPieOption] = useState(null);
   const [activeTab, setActiveTab] = useState('near'); // near,ref,dcl,aurora
-  const [tabList, setTabList] = useState([
-    { name: 'NEAR', tag: 'near' },
-    { name: 'REF V1', tag: 'ref' },
-    { name: 'REF V2', tag: 'dcl' },
-  ]);
+  const [tabList, setTabList] = useState([{ name: 'NEAR', tag: 'near' }]);
 
   const [ref_tokens, set_ref_tokens] = useState<TokenMetadata[]>([]);
   const [near_tokens, set_near_tokens] = useState<TokenMetadata[]>([]);
@@ -74,6 +71,12 @@ export default function Tokens() {
           auroaBalances[id] || '0'
         ).toString();
       });
+      if (Object.keys(balances).length > 0) {
+        tabList.push({ name: 'REF V1', tag: 'ref' });
+      } else if (Object.keys(DCLAccountBalance).length > 0) {
+        tabList.push({ name: 'REF V2', tag: 'dcl' });
+      }
+      setTabList(JSON.parse(JSON.stringify(tabList)));
     }
   }, [is_tokens_loading]);
 
@@ -98,14 +101,14 @@ export default function Tokens() {
           aurora_tokens_temp.push(token);
         }
       });
-      const { tokens: tokens_ref, total_value: total_value_ref } =
-        token_data_process(ref_tokens_temp);
       const { tokens: tokens_near, total_value: total_value_near } =
-        token_data_process(near_tokens_temp);
+        token_data_process(near_tokens_temp, 'near');
+      const { tokens: tokens_ref, total_value: total_value_ref } =
+        token_data_process(ref_tokens_temp, 'ref');
       const { tokens: tokens_dcl, total_value: total_value_dcl } =
-        token_data_process(dcl_tokens_temp);
+        token_data_process(dcl_tokens_temp, 'dcl');
       const { tokens: tokens_aurora, total_value: total_value_aurora } =
-        token_data_process(aurora_tokens_temp);
+        token_data_process(aurora_tokens_temp, 'aurora');
       set_ref_tokens(tokens_ref);
       set_near_tokens(tokens_near);
       set_dcl_tokens(tokens_dcl);
@@ -176,13 +179,10 @@ export default function Tokens() {
               label: {
                 show: true,
                 formatter: (data: any) => {
-                  const { symbol, decimals, nearNonVisible, value } = data.data;
-                  const num = toReadableNumber(
-                    decimals,
-                    nearNonVisible.toString()
-                  );
-                  const display_num = display_number_international(num);
-                  const display_v = display_value(value);
+                  const { symbol, t_value } = data.data;
+                  const num = data.data[activeTab];
+                  const display_num = display_number(num);
+                  const display_v = display_value(t_value);
                   return `{a|${symbol}}\n{b|${display_num}}\n{a|${display_v}}`;
                 },
                 rich: {
@@ -215,26 +215,26 @@ export default function Tokens() {
         <BlueCircleLoading></BlueCircleLoading>
       </div>
     );
-  function token_data_process(target_tokens: TokenMetadata[]) {
+  function token_data_process(
+    target_tokens: TokenMetadata[],
+    accountType: string
+  ) {
     const tokens = JSON.parse(JSON.stringify(target_tokens || []));
     tokens.forEach((token: TokenMetadata) => {
-      const token_num = toReadableNumber(
-        token.decimals,
-        token.nearNonVisible.toString()
-      );
+      const token_num = token[accountType] || 0;
       const token_price =
         tokenPriceList[token.id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : token.id]
           ?.price || '0';
       const token_value = new BigNumber(token_num).multipliedBy(token_price);
-      token.value = token_value.toFixed();
+      token['t_value'] = token_value.toFixed();
     });
     tokens.sort((tokenB: TokenMetadata, tokenA: TokenMetadata) => {
-      const a_value = new BigNumber(tokenA.value);
-      const b_value = new BigNumber(tokenB.value);
+      const a_value = new BigNumber(tokenA['t_value']);
+      const b_value = new BigNumber(tokenB['t_value']);
       return a_value.minus(b_value).toNumber();
     });
     const total_value = tokens.reduce((acc: string, cur: TokenMetadata) => {
-      return new BigNumber(acc).plus(cur.value).toFixed();
+      return new BigNumber(acc).plus(cur['t_value']).toFixed();
     }, '0');
 
     return { tokens, total_value };
@@ -243,41 +243,26 @@ export default function Tokens() {
     const parseSerialization: TokenMetadata[] = JSON.parse(
       JSON.stringify(tokens)
     );
-    const target = parseSerialization.map((token: TokenMetadata) => {
+    const target = parseSerialization.map((token: TokenMetadata, t) => {
       if (+total_value > 0) {
-        const { decimals, nearNonVisible, id } = token;
-        const n = toReadableNumber(decimals, nearNonVisible.toString());
-        const price =
-          tokenPriceList[id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : id]?.price || 0;
-        const p = new BigNumber(price).multipliedBy(n);
-        const r = new BigNumber(p).dividedBy(total_value).multipliedBy(100);
-        let p_display;
-        if (p.isLessThan('0.01')) {
-          p_display = '<$0.01';
-        } else {
-          p_display = toInternationalCurrencySystem(p.toFixed(), 2);
-        }
-        if (r.isLessThan('0.5')) {
-          return {
-            ...token,
-            price: p_display,
-            value: 0.5,
-          };
-        } else {
-          return {
-            ...token,
-            price: p_display,
-            value: +r,
-          };
-        }
+        const { t_value } = token;
+        const value_big = new BigNumber(t_value);
+        const percent = value_big.dividedBy(total_value).multipliedBy(100);
+        const display_value = new BigNumber(0.005)
+          .multipliedBy(total_value)
+          .toFixed();
+        return {
+          ...token,
+          value: percent.isLessThan('0.5') ? display_value : t_value,
+        };
       }
     });
     return target;
   }
   function getCurrentTokenProportion(token: TokenMetadata) {
     if (activeTab == 'near') {
-      if (+near_total_value > 0 && +token.value > 0) {
-        const percent = new BigNumber(token.value)
+      if (+near_total_value > 0 && +token['t_value'] > 0) {
+        const percent = new BigNumber(token['t_value'])
           .dividedBy(near_total_value)
           .multipliedBy(100)
           .toFixed();
@@ -288,7 +273,7 @@ export default function Tokens() {
     }
     if (activeTab == 'ref') {
       if (+ref_total_value > 0) {
-        const percent = new BigNumber(token.value)
+        const percent = new BigNumber(token['t_value'])
           .dividedBy(ref_total_value)
           .multipliedBy(100)
           .toFixed();
@@ -299,7 +284,7 @@ export default function Tokens() {
     }
     if (activeTab == 'dcl') {
       if (+dcl_total_value > 0) {
-        const percent = new BigNumber(token.value)
+        const percent = new BigNumber(token['t_value'])
           .dividedBy(dcl_total_value)
           .multipliedBy(100)
           .toFixed();
@@ -310,7 +295,7 @@ export default function Tokens() {
     }
     if (activeTab == 'aurora') {
       if (+aurora_total_value > 0) {
-        const percent = new BigNumber(token.value)
+        const percent = new BigNumber(token['t_value'])
           .dividedBy(aurora_total_value)
           .multipliedBy(100)
           .toFixed();
@@ -321,12 +306,16 @@ export default function Tokens() {
     }
   }
   return (
-    <div className="">
+    <div className="mt-6">
       <div className="px-5">
         <div className="text-base text-white mb-4 gotham_bold">
           Token allocation
         </div>
-        <div className="flex items-center justify-between">
+        <div
+          className={`flex items-center justify-between ${
+            tabList.length > 1 ? '' : 'hidden'
+          }`}
+        >
           <div className="flex items-center h-8 rounded-lg p-0.5 border border-commonTokenBorderColor">
             {tabList.map((item) => {
               return (
@@ -345,6 +334,25 @@ export default function Tokens() {
                 </span>
               );
             })}
+          </div>
+          <ArrowJumpLarge
+            clickEvent={() => {
+              localStorage.setItem('REF_FI_ACCOUNT_TAB_KEY', activeTab);
+              window.open('/account');
+            }}
+            extraClass="flex-shrink-0"
+          ></ArrowJumpLarge>
+        </div>
+        <div
+          className={`flex items-start justify-between ${
+            tabList.length == 1 ? '' : 'hidden'
+          }`}
+        >
+          <div className="flex flex-col items-start">
+            <span className="text-sm text-primaryText">NEAR Wallet</span>
+            <span className="text-xl text-white gotham_bold">
+              {display_value_withCommas(near_total_value)}
+            </span>
           </div>
           <ArrowJumpLarge
             clickEvent={() => {

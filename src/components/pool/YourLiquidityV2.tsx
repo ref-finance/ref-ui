@@ -53,11 +53,8 @@ import { list_farmer_seeds, list_seed_farms } from '../../services/farm';
 import getConfig from '../../services/config';
 import { LinkArrowIcon, NFTIdIcon } from '~components/icon/FarmBoost';
 import { get_detail_the_liquidity_refer_to_seed } from '../../pages/poolsV3/YourLiquidityPageV3';
-import {
-  TriangleIcon,
-  LinkIcon,
-  WaterDropIcon,
-} from '../../components/icon/Portfolio';
+import { LinkIcon, WaterDropIcon } from '../../components/icon/Portfolio';
+import { UpDownButton } from '../portfolio/Tool';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { PortfolioData } from '../../pages/Portfolio';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
@@ -1217,6 +1214,7 @@ function UserLiquidityLineStyle2() {
     go_farm,
   } = useContext(LiquidityContext);
   const [switch_off, set_switch_off] = useState<boolean>(true);
+  const [hover, setHover] = useState<boolean>(false);
 
   function getUsageDiv() {
     let div;
@@ -1259,7 +1257,7 @@ function UserLiquidityLineStyle2() {
     >
       <div className="flex items-center justify-between h-14">
         <div className="flex items-center">
-          <div className="flex items-center flex-shrink-0 m-2.5">
+          <div className="flex items-center flex-shrink-0 mr-2.5">
             <img
               src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
               className="w-7 h-7 border border-greenColor rounded-full"
@@ -1300,24 +1298,10 @@ function UserLiquidityLineStyle2() {
               </span>
             </div>
           </div>
-          <div
-            onClick={() => {
-              set_switch_off(!switch_off);
-            }}
-            className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
-              switch_off
-                ? 'border border-primaryText border-opacity-10'
-                : 'bg-portfolioGreyColor'
-            }`}
-          >
-            <TriangleIcon
-              className={`${
-                switch_off
-                  ? 'text-limitOrderInputColor'
-                  : 'text-white transform rotate-180'
-              }`}
-            ></TriangleIcon>
-          </div>
+          <UpDownButton
+            set_switch_off={set_switch_off}
+            switch_off={switch_off}
+          ></UpDownButton>
         </div>
       </div>
       <div className={`${switch_off ? 'hidden' : ''}`}>

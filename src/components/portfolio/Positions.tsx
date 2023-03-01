@@ -30,6 +30,10 @@ export default function Positions(props: any) {
     <div className="text-white">
       {isSignedIn ? (
         <>
+          <div className="flex items-center justify-between text-sm text-v3SwapGray mb-2.5 pl-6 pr-16">
+            <span>Your Position(s)</span>
+            <span>Your Liquidity</span>
+          </div>
           <YourLiquidityV2
             setYourLpValueV2={setYourLpValueV2}
             setLpValueV2Done={setLpValueV2Done}
