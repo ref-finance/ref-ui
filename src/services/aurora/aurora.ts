@@ -183,7 +183,7 @@ export function auroraCallToAction(contract: any, input: any, value?: string) {
 
   const action: RefFiFunctionCallOptions = {
     methodName: 'call',
-    args: new Uint8Array(prepareInput(args)),
+    args: prepareInput(args),
     gas: AuroraCallGas,
   };
 

@@ -1552,10 +1552,10 @@
   resolved "https://registry.yarnpkg.com/@hapi/bourne/-/bourne-2.1.0.tgz#66aff77094dc3080bd5df44ec63881f2676eb020"
   integrity sha512-i1BpaNDVLJdRBEKeJWkVO6tYX6DMFBuwMhSuWqLsY4ufeTKGVuV5rBsUhxPayXqnnWHgXUAmWK16H/ykO5Wj4Q==
 
-"@here-wallet/core@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/@here-wallet/core/-/core-1.3.1.tgz#bf384ac7b2b88f1d1dcd6739c25c06e21c2f3d87"
-  integrity sha512-OK7AlskPpGRdAnGruy8dWcvPCl8JL+hmBCKr1QRESPNwA4Tn3InhTL8xyxGrCjFA1gQ9XUGGTQvdI9ae3FDQ9Q==
+"@here-wallet/core@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@here-wallet/core/-/core-1.4.0.tgz#e1c1347f387dd518723cd3c43504fb679efbf016"
+  integrity sha512-+dMfir1RZQGzSOLtABa25T+WhmXTXce0AV+a+cfOQ5iLW45UrtXF5DXfHdWyWFDoRNt3rUYgyfOTQGeWTffQjw==
   dependencies:
     sha1 "^1.1.1"
     uuid4 "2.0.3"
@@ -1896,20 +1896,20 @@
   dependencies:
     rxjs "^7.5.7"
 
-"@near-wallet-selector/core@7.7.0":
-  version "7.7.0"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-7.7.0.tgz#d1be086c3d72fe059e03e97785a5f97b9083bc97"
-  integrity sha512-+J9BV+qtJ0TxzmlO+H8Dyi7qSWv21o96ultjOKoEvixdoT6wLfXznwtwPlAiH8WPtnwBswmQkTs2UelE2vAQbA==
+"@near-wallet-selector/core@7.9.0":
+  version "7.9.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-7.9.0.tgz#33dcfa589983d5aa10f0590e181e2f1e538c044d"
+  integrity sha512-VbHNdO1yRILsgjrX3Qxg5C3oJZpC3f1PjHLY0h37FXRBTIyVEycMl+8qVaBHck5j8FIOJMfyS9d6tC+TKRp7Og==
   dependencies:
-    rxjs "^7.5.7"
+    rxjs "^7.8.0"
 
-"@near-wallet-selector/here-wallet@^7.7.0":
-  version "7.7.0"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/here-wallet/-/here-wallet-7.7.0.tgz#acddaf01782954415455c938748264ea712a1b67"
-  integrity sha512-nXnG10PIuN+HpJgwQo1TZQqMg20xoOV3RSnu+gBWt2X+WE/qzHtrhMxzGTeDBTXnhpgII2kElMTg5ZIskslxTQ==
+"@near-wallet-selector/here-wallet@^7.9.0":
+  version "7.9.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/here-wallet/-/here-wallet-7.9.0.tgz#da97ed9c62b0f26b8dc63adf78757040e3fb8234"
+  integrity sha512-h/2MQ/KMVakhSHgeIo9N/soEWyIpkMbUoGymxuGT6tcrt7zPeVNbXnPqs1QJQOghqITbttwzCoXWiNfmaF8ZcQ==
   dependencies:
-    "@here-wallet/core" "^1.3.1"
-    "@near-wallet-selector/core" "7.7.0"
+    "@here-wallet/core" "^1.4.0"
+    "@near-wallet-selector/core" "7.9.0"
     bn.js "^5.2.0"
 
 "@near-wallet-selector/ledger@^7.0.0":
@@ -10336,7 +10336,7 @@ rxjs@6:
   dependencies:
     tslib "^1.9.0"
 
-rxjs@^7.5.5, rxjs@^7.5.7:
+rxjs@^7.5.5, rxjs@^7.5.7, rxjs@^7.8.0:
   version "7.8.0"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.0.tgz#90a938862a82888ff4c7359811a595e14e1e09a4"
   integrity sha512-F2+gxDshqmIub1KdvZkaEfGDwLNpPvk9Fs6LD/MyQxNgMds/WH9OdDDXOmxUZpME+iSK3rQCctkL0DYyytUqMg==
