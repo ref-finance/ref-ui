@@ -16,6 +16,7 @@ import { Ticker } from '../../orderly/type';
 import { TokenIcon } from '../Common';
 import useCallback from 'react';
 import { digitWrapper } from '../../utiles';
+import { isLargeScreen } from '~utils/device';
 
 function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -200,7 +201,7 @@ function ChartHeader() {
     <div className="flex items-center  text-white text-sm">
       {/* icon */}
       <div
-        className={`flex relative items-center flex-shrink-0 ${
+        className={`flex 2xl:mr-11 xl:mr-6 lg2:mr-3  relative items-center flex-shrink-0 ${
           hoverSymbol ? 'cursor-pointer bg-symbolHover rounded-lg' : ''
         } 
         
@@ -245,9 +246,10 @@ function ChartHeader() {
 
       {ticker && (
         <div
-          className={`flex  items-center  justify-between text-primaryOrderly`}
+          className={`flex  items-center  mr-2 max-w-full w-p400
+          }  justify-between text-primaryOrderly`}
         >
-          <div className="flex  ml-11 items-start flex-col">
+          <div className="flex   items-start flex-col">
             <span>Price</span>
             <div className="flex items-center mt-0.5">
               <span className="text-white font-bold">
@@ -276,7 +278,7 @@ function ChartHeader() {
             </div>
           </div>
 
-          <div className="flex  ml-11 items-start flex-col">
+          <div className="flex   items-start flex-col">
             <span>High(24h)</span>
 
             <span className="text-white mt-0.5 font-bold">
@@ -284,7 +286,7 @@ function ChartHeader() {
             </span>
           </div>
 
-          <div className="flex items-start  ml-11 flex-col">
+          <div className="flex items-start  flex-col">
             <span>Low(24h)</span>
 
             <span className="text-white mt-0.5 font-bold">
@@ -292,7 +294,7 @@ function ChartHeader() {
             </span>
           </div>
 
-          <div className="flex items-start  ml-11 flex-col">
+          <div className="flex items-start   flex-col">
             <span>Volume(24h)</span>
 
             <span className="text-white mt-0.5 font-bold">

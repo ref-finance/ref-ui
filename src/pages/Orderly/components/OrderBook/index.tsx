@@ -143,7 +143,9 @@ function OrderBook() {
     pendingOrders,
     recentTrades,
     marketTrade,
+    ordersUpdate,
     setBridgePrice,
+    handlePendingOrderRefreshing,
   } = useOrderlyContext();
 
   const storedPrecision = sessionStorage.getItem(REF_ORDERLY_PRECISION);
@@ -151,6 +153,19 @@ function OrderBook() {
   const [precision, setPrecision] = useState<number>(
     storedPrecision ? Number(storedPrecision) : 2
   );
+
+  const hitMyOrder = pendingOrders?.some((po) => {
+    return (
+      ordersUpdate?.asks?.some((a) => a[0] === po?.price) ||
+      ordersUpdate?.bids?.some((a) => a[0] === po?.price)
+    );
+  });
+
+  useEffect(() => {
+    if (hitMyOrder) {
+      handlePendingOrderRefreshing();
+    }
+  }, [hitMyOrder, JSON.stringify(ordersUpdate)]);
 
   const [showPrecisionSelector, setShowPrecisionSelector] =
     useState<boolean>(false);
@@ -179,9 +194,8 @@ function OrderBook() {
   );
 
   const diff =
-    recentTrades?.at(0)?.executed_price ||
-    0 - recentTrades?.at(1)?.executed_price ||
-    0;
+    (recentTrades?.at(0)?.executed_price || 0) -
+    (recentTrades?.at(1)?.executed_price || 0);
 
   return (
     <div className="w-full h-full relative border border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 ">
@@ -190,21 +204,27 @@ function OrderBook() {
           onClick={() => {
             setTab('book');
           }}
-          className={`cursor-pointer text-left ${
+          className={`cursor-pointer text-left relative ${
             tab === 'book' ? 'text-white' : 'text-primaryOrderly'
           } font-bold mb-1`}
         >
-          Orderbook
+          Book
+          {tab === 'book' && (
+            <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-1.5 left-0"></div>
+          )}
         </div>
         <div
           onClick={() => {
             setTab('recent');
           }}
-          className={`cursor-pointer text-left ${
+          className={`cursor-pointer text-left relative ${
             tab === 'recent' ? 'text-white' : 'text-primaryOrderly'
           } ml-3 font-bold mb-1`}
         >
-          Recent Trade
+          Trades
+          {tab === 'recent' && (
+            <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-1.5 left-0"></div>
+          )}
         </div>
         {tab === 'book' && (
           <div

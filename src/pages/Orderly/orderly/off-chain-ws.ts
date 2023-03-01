@@ -184,6 +184,8 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
 
   const [markPrices, setMarkPrices] = useState<MarkPrice[]>();
 
+  const [ordersUpdate, setOrdersUpdate] = useState<Orders>();
+
   // subscribe
   useEffect(() => {
     const msgFlow = generateMarketDataFlow({
@@ -228,15 +230,16 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
       lastJsonMessage?.event === 'request'
     ) {
       setOrders(lastJsonMessage.data);
+
+      setOrdersUpdate(lastJsonMessage.data);
     }
 
     // process orderbook update
     if (lastJsonMessage?.topic === `${symbol}@orderbookupdate` && !!orders) {
-      console.log('lastJsonMessage: ', lastJsonMessage);
       // setOrders(lastJsonMessage.data);
+      setOrdersUpdate(lastJsonMessage.data);
 
       let asks = orders.asks;
-      console.log('asks11111: ', asks);
 
       lastJsonMessage.data.asks.forEach((ask: number[]) => {
         const price = ask[0];
@@ -319,6 +322,7 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
     ticker,
     markPrices,
     allTickers,
+    ordersUpdate,
   };
 };
 

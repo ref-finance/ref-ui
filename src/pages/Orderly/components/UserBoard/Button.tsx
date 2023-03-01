@@ -102,7 +102,7 @@ function BuyButton(props: { select: boolean; onClick: () => void }) {
       className="relative  w-1/2  flex items-center justify-center"
       {...props}
     >
-      <div className="absolute cursor-pointer transform 2xl:scale-100 lg2:scale-75  lg:scale-50 z-10">
+      <div className="absolute cursor-pointer transform  z-10">
         <BuyRec select={select}></BuyRec>
       </div>
       <span
@@ -124,7 +124,7 @@ function SellButton(props: { select: boolean; onClick: () => void }) {
       className="relative  w-1/2  flex items-center justify-center"
       {...props}
     >
-      <div className="absolute z-10 cursor-pointer transform 2xl:scale-100 lg:scale-50 lg2:scale-75 ">
+      <div className="absolute z-10 cursor-pointer transform  ">
         <SellRec select={select}></SellRec>
       </div>
       <span

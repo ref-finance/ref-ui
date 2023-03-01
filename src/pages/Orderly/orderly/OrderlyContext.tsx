@@ -39,6 +39,7 @@ interface OrderlyContextValue {
   validAccountSig: boolean;
   bridgePrice: string;
   setBridgePrice: (bridgePrice: string) => void;
+  ordersUpdate: Orders | undefined;
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';

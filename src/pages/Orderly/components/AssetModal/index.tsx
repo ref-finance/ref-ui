@@ -398,7 +398,7 @@ export function AssetModal(props: Modal.Props) {
                   OrderBy(orderBy === 'desc' ? 'asc' : 'desc');
                 }}
               >
-                <span className="absolute left-0">
+                <span className="absolute -left-4">
                   <OrderlyIconBalance></OrderlyIconBalance>
                 </span>
 

@@ -143,6 +143,8 @@ function OrderLine({
   availableSymbols,
   holdingFrom,
   holdingTo,
+  setOtherLineOpenTrigger,
+  otherLineOpenTrigger,
 }: {
   order: MyOrder;
   marketInfo: JSX.Element | undefined;
@@ -150,6 +152,8 @@ function OrderLine({
   availableSymbols: SymbolInfo[];
   holdingFrom: Holding | undefined;
   holdingTo: Holding | undefined;
+  setOtherLineOpenTrigger: (orderId?: number) => void;
+  otherLineOpenTrigger: number;
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(order.symbol);
 
@@ -169,6 +173,18 @@ function OrderLine({
     symbol: order.symbol,
     openSig: [openEditPrice, openEditQuantity],
   });
+
+  useEffect(() => {
+    if (otherLineOpenTrigger === order.order_id) {
+      return;
+    }
+
+    if (otherLineOpenTrigger && otherLineOpenTrigger !== order.order_id) {
+      setOpenEditPrice(false);
+      setOpenEditQuantity(false);
+      return;
+    }
+  }, [otherLineOpenTrigger, openEditQuantity, openEditPrice]);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -217,7 +233,6 @@ function OrderLine({
       holdingTo
     ) {
       let diff = new Big(quantity || 0).minus(new Big(order.quantity || 0));
-      console.log('diff: ', diff.toString());
 
       let left =
         order.side === 'BUY'
@@ -460,8 +475,8 @@ function OrderLine({
               ? 'right-16'
               : 'right-10'
             : showCurSymbol
-            ? 'right-20'
-            : 'right-10'
+            ? 'lg2:right-8 3xl:right-20 '
+            : '3xl:right-10 lg2:right-2'
         }`}
       >
         <span className="relative top-1.5">
@@ -486,8 +501,11 @@ function OrderLine({
               setOpenEditQuantity(true);
               setOpenEditPrice(false);
               setPrice(order.price.toString());
+              setOtherLineOpenTrigger(order.order_id);
             }}
-            className=" pr-2 py-1 pt-1.5 text-center"
+            className={` pr-2 py-1 pt-1.5  ${
+              !openEditQuantity ? 'text-left pl-1' : 'text-center'
+            }`}
           />
 
           <div
@@ -513,7 +531,10 @@ function OrderLine({
                 e.preventDefault();
                 e.stopPropagation();
                 //   handleEditOrder();
-                if (validateChange) return;
+                if (validateChange) {
+                  setOpenEditQuantity(false);
+                  return;
+                }
                 if (!editValidator(price, quantity)) return;
 
                 setShowEditModal(true);
@@ -533,8 +554,8 @@ function OrderLine({
               ? 'right-56'
               : 'right-36'
             : showCurSymbol
-            ? 'right-44'
-            : 'right-32'
+            ? `right-44 ${!openEditPrice ? 'relative right-48' : 'right-44'}`
+            : `${!openEditPrice ? 'relative right-36' : 'right-32'}`
         } justify-self-end  items-start`}
       >
         <div
@@ -554,8 +575,11 @@ function OrderLine({
               setOpenEditPrice(true);
               setOpenEditQuantity(false);
               setQuantity(order.quantity.toString());
+              setOtherLineOpenTrigger(order.order_id);
             }}
-            className="pr-2 py-1 pt-1.5 text-center"
+            className={`pr-2 py-1 pt-1.5   ${
+              !openEditPrice ? 'text-right' : 'text-center'
+            }`}
           />
 
           <div
@@ -581,7 +605,10 @@ function OrderLine({
                 e.preventDefault();
                 e.stopPropagation();
                 //   handleEditOrder();
-                if (validateChange) return;
+                if (validateChange) {
+                  setOpenEditPrice(false);
+                  return;
+                }
 
                 if (!editValidator(price, quantity)) return;
 
@@ -597,7 +624,7 @@ function OrderLine({
 
       <div
         className={`flex  col-span-1  relative  ${
-          showCurSymbol ? 'right-24' : 'right-20'
+          showCurSymbol ? 'right-24' : 'right-16'
         } justify-self-end text-white  ${
           openEdit ? 'items-start top-1.5' : 'items-center'
         }`}
@@ -955,6 +982,8 @@ function OpenOrders({
 }) {
   const [showSideSelector, setShowSideSelector] = useState<boolean>(false);
 
+  const [otherLineOpenTrigger, setOtherLineOpenTrigger] = useState<number>();
+
   const curHoldings = useCurHoldings();
 
   const [chooseSide, setChooseSide] = useState<'Both' | 'Buy' | 'Sell'>('Both');
@@ -1226,7 +1255,7 @@ function OpenOrders({
         </FlexRow>
 
         <FlexRow className="col-span-1 relative right-3">
-          <span>
+          <span className="whitespace-nowrap">
             {`Filled / Qty`}
             {showCurSymbol && (
               <TextWrapper
@@ -1254,7 +1283,7 @@ function OpenOrders({
         </FlexRow>
 
         <FlexRow className="col-span-1 justify-self-center relative right-8">
-          <div>
+          <div className="whitespace-nowrap">
             Est.Total
             {showCurSymbol && (
               <TextWrapper
@@ -1305,6 +1334,8 @@ function OpenOrders({
                   marketInfo={
                     marketList.find((m) => m.textId === order.symbol)?.text
                   }
+                  setOtherLineOpenTrigger={setOtherLineOpenTrigger}
+                  otherLineOpenTrigger={otherLineOpenTrigger}
                   holdingFrom={curHoldings?.find((h) => {
                     const token = parseSymbol(order.symbol).symbolFrom;
 
@@ -1911,10 +1942,15 @@ function AllOrderBoard() {
             >
               <span
                 className={
-                  tab === 'open' ? 'text-white' : 'text-primaryOrderly'
+                  tab === 'open'
+                    ? 'text-white relative'
+                    : 'text-primaryOrderly relative'
                 }
               >
                 Open Orders
+                {tab === 'open' && (
+                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
+                )}
               </span>
 
               <span
@@ -1938,10 +1974,15 @@ function AllOrderBoard() {
             >
               <span
                 className={
-                  tab === 'history' ? 'text-white' : 'text-primaryOrderly'
+                  tab === 'history'
+                    ? 'text-whites relative'
+                    : 'text-primaryOrderly relative'
                 }
               >
                 History
+                {tab === 'history' && (
+                  <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
+                )}
               </span>
 
               <span

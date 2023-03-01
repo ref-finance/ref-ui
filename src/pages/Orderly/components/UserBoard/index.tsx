@@ -335,16 +335,23 @@ export default function UserBoard() {
 
   const curHoldingOut = holdings?.find((h) => h.token === symbolTo);
 
-  const tokenFromBalance = useTokenBalance(tokenIn?.id, balances?.toString());
+  const tokenFromBalance = useTokenBalance(
+    tokenIn?.id,
+    JSON.stringify(balances)
+  );
 
-  const tokenToBalance = useTokenBalance(tokenOut?.id, balances?.toString());
+  const tokenToBalance = useTokenBalance(
+    tokenOut?.id,
+    JSON.stringify(balances)
+  );
 
-  const tokenInHolding =
-    (curHoldingIn && curHoldingIn.holding + curHoldingIn.pending_short) ||
-    (balances && balances[symbolFrom]?.holding);
-  const tokenOutHolding =
-    (curHoldingOut && curHoldingOut.holding + curHoldingOut.pending_short) ||
-    (balances && balances[symbolTo]?.holding);
+  const tokenInHolding = curHoldingIn
+    ? curHoldingIn.holding + curHoldingIn.pending_short
+    : balances && balances[symbolFrom]?.holding;
+
+  const tokenOutHolding = curHoldingOut
+    ? curHoldingOut.holding + curHoldingOut.pending_short
+    : balances && balances[symbolTo]?.holding;
 
   const markPriceSymbol =
     markPrices && markPrices.find((m) => m.symbol === symbol);
@@ -1128,7 +1135,9 @@ export default function UserBoard() {
             <div className="flex items-center">
               <span
                 className="cursor-pointer mr-4"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   setLimitPrice(
                     Number(limitPrice) >= 0.1
                       ? scientificNotationToString(
@@ -1143,7 +1152,9 @@ export default function UserBoard() {
 
               <span
                 className="cursor-pointer"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   setLimitPrice(
                     scientificNotationToString(
                       new Big(limitPrice).plus(0.1).toString()
