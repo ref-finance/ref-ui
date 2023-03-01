@@ -315,8 +315,10 @@ module.exports = {
         portfolioGreenColor: '#62C340',
         portfolioQinColor: '#63C341',
         portfolioGreyColor:' rgba(126, 138, 147, 0.3)',
-        prottolioBarBgColor: '#172631',
-        prottolioGreenColor: '#63C441',
+        portfolioBarBgColor: '#172631',
+        portfolioGreenColor: '#63C441',
+        portfolioLightGreyColor:'rgba(48, 68, 82, 0.5)',
+
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

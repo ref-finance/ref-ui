@@ -515,7 +515,6 @@ function UserLiquidityLine({
           return toPrecision(fee_y_amount, 3);
         }
       } else if (p == 'p') {
-        debugger;
         const tokenxSinglePrice = tokenPriceList[tokenX.id]?.price || '0';
         const tokenySinglePrice = tokenPriceList[tokenY.id]?.price || '0';
         const priceX = new BigNumber(fee_x_amount).multipliedBy(

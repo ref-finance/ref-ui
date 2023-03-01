@@ -87,7 +87,7 @@ export default function AssetProfit() {
     return result;
   }
   return (
-    <div className=" grid grid-cols-3 bg-prottolioBarBgColor px-7 py-4">
+    <div className=" grid grid-cols-3 bg-portfolioBarBgColor px-7 py-4">
       <div className="col-span-1">
         <div className="flex items-center">
           <span className="text-sm text-primaryText">
@@ -111,7 +111,7 @@ export default function AssetProfit() {
             />
           </div>
         </div>
-        <span className="text-2xl gotham_bold text-prottolioGreenColor mt-1">
+        <span className="text-2xl gotham_bold text-portfolioGreenColor mt-1">
           {display_value(total_proft)}
         </span>
       </div>
@@ -120,7 +120,7 @@ export default function AssetProfit() {
           Earned Fees
           <ArrowJump clickEvent={() => {}} extraClass="ml-3"></ArrowJump>
         </div>
-        <div className="tetx-base gotham_bold text-prottolioGreenColor relative -top-1">
+        <div className="tetx-base gotham_bold text-portfolioGreenColor relative -top-1">
           {display_value(total_fees_value)}
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function AssetProfit() {
           Unclaimed Rewards
           <ArrowJump clickEvent={() => {}} extraClass="ml-1"></ArrowJump>
         </div>
-        <div className="tetx-base gotham_bold text-prottolioGreenColor relative -top-1">
+        <div className="tetx-base gotham_bold text-portfolioGreenColor relative -top-1">
           {display_value(total_unClaimed_rewrads_value)}
         </div>
       </div>

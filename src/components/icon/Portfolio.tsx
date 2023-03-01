@@ -210,3 +210,18 @@ export function PurpleCircleIcon(props: any) {
     </svg>
   );
 }
+
+export function ArrowRIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      width="5"
+      height="9"
+      viewBox="0 0 5 9"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M1 8L4 4.5L1 1" stroke="currentColor" stroke-linecap="round" />
+    </svg>
+  );
+}
