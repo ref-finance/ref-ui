@@ -10,6 +10,8 @@ export function useTokenBalance(tokenId: string | undefined, deps?: any) {
   const [tokenMeta, setTokenMeta] = useState<TokenMetadata>();
   const [walletBalance, setWalletBalance] = useState<string>('');
 
+  const { accountId } = useWalletSelector();
+
   useEffect(() => {
     if (!tokenId) return;
 
@@ -19,13 +21,18 @@ export function useTokenBalance(tokenId: string | undefined, deps?: any) {
   }, [tokenId, deps]);
 
   useEffect(() => {
-    if (!tokenId || !tokenMeta) return;
-    ftGetBalance(tokenMeta?.id).then((balance) => {
-      console.log('token meta', tokenMeta, tokenId);
+    if (!tokenId || !accountId) return;
 
-      setWalletBalance(toReadableNumber(tokenMeta.decimals, balance));
-    });
-  }, [tokenId, tokenMeta?.id, deps]);
+    getFTmetadata(tokenId)
+      .then((meta) => {
+        return meta;
+      })
+      .then((tokenMeta) => {
+        ftGetBalance(tokenMeta?.id).then((balance) => {
+          setWalletBalance(toReadableNumber(tokenMeta.decimals, balance));
+        });
+      });
+  }, [tokenId, tokenMeta?.id, deps, accountId]);
 
   return !tokenMeta || !tokenId ? '0' : walletBalance;
 }

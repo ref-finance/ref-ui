@@ -7,9 +7,9 @@
   background: rgb(19, 33, 42) !important;
 }
 
-html {
+/* html {
   background: rgb(19, 33, 42) !important;
-}
+} */
 
 ::-webkit-scrollbar {
   width: 9px;

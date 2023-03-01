@@ -528,9 +528,7 @@ export default function UserBoard() {
   const priceValidator = (price: string, size: string) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
 
-    if (!symbolInfo || ONLY_ZEROS.test(price)) {
-      setShowErrorTip(false);
-      setErrorTipMsg('');
+    if (!symbolInfo) {
       return;
     }
 
@@ -606,16 +604,13 @@ export default function UserBoard() {
       return;
     }
 
-    setShowErrorTip(false);
-    setErrorTipMsg('');
+    return true;
   };
 
   const sizeValidator = (price: string, size: string) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
 
-    if (!symbolInfo || ONLY_ZEROS.test(size)) {
-      setShowErrorTip(false);
-      setErrorTipMsg('');
+    if (!symbolInfo) {
       return;
     }
 
@@ -663,143 +658,35 @@ export default function UserBoard() {
       return;
     }
 
-    setShowErrorTip(false);
-    setErrorTipMsg('');
+    return true;
   };
 
   const priceAndSizeValidator = (price: string, size: string) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
 
-    if (!symbolInfo || ONLY_ZEROS.test(price)) {
+    if (!symbolInfo || (ONLY_ZEROS.test(price) && ONLY_ZEROS.test(size))) {
       setShowErrorTip(false);
       setErrorTipMsg('');
       return;
     }
 
-    // price validator
+    let resPrice;
+    let resSize;
 
-    if (new Big(price || 0).lt(symbolInfo.quote_min)) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `Min price should be higher than or equal to ${symbolInfo.quote_min}`
-      );
-      return;
+    if (!ONLY_ZEROS.test(price)) {
+      resPrice = priceValidator(price, size);
     }
 
-    if (new Big(price || 0).gt(symbolInfo.quote_max)) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `Price should be lower than or equal to ${symbolInfo.quote_max}`
-      );
-      return;
+    if (!ONLY_ZEROS.test(size)) {
+      resSize = sizeValidator(price, size);
     }
 
-    if (
-      new Big(new Big(price || 0).minus(new Big(symbolInfo.quote_min)))
-        .mod(symbolInfo.quote_tick)
-        .gt(0)
-    ) {
-      setShowErrorTip(true);
-      setErrorTipMsg(`Price should be multiple of ${symbolInfo.quote_tick}`);
-      return;
-    }
+    if (resPrice === true && resSize === true) {
+      // price validator
 
-    if (
-      new Big(price || 0).gt(
-        new Big(orders.asks?.[0]?.[0] || 0).times(1 + symbolInfo.price_range)
-      ) &&
-      side === 'Buy'
-    ) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `Price should be less than or equal to ${new Big(
-          orders.asks?.[0]?.[0] || 0
-        ).times(1 + symbolInfo.price_range)}`
-      );
-
-      return;
-    }
-
-    if (
-      new Big(price || 0).lt(
-        new Big(orders.bids?.[0]?.[0] || 0).times(1 - symbolInfo.price_range)
-      ) &&
-      side === 'Sell'
-    ) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `Price should be greater than or equal to ${new Big(
-          orders.bids?.[0]?.[0] || 0
-        ).times(1 - symbolInfo.price_range)}`
-      );
-
-      return;
-    }
-
-    if (
-      price &&
-      size &&
-      new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
-    ) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `The order value should be greater than or equal to ${symbolInfo.min_notional}`
-      );
-      return;
-    }
-
-    if (!symbolInfo || ONLY_ZEROS.test(size)) {
       setShowErrorTip(false);
       setErrorTipMsg('');
-      return;
     }
-
-    // size validator
-
-    if (new Big(size || 0).lt(symbolInfo.base_min)) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `Quantity to ${side.toLowerCase()} should be greater than or equal to ${
-          symbolInfo.base_min
-        }`
-      );
-      return;
-    }
-
-    if (new Big(size || 0).gt(symbolInfo.base_max)) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `Quantity to ${side.toLowerCase()} should be less than or equal to ${
-          symbolInfo.base_max
-        }`
-      );
-      return;
-    }
-
-    if (
-      new Big(new Big(size || 0).minus(new Big(symbolInfo.base_min)))
-        .mod(symbolInfo.base_tick)
-        .gt(0)
-    ) {
-      setShowErrorTip(true);
-      setErrorTipMsg(`Quantity should be multiple of ${symbolInfo.base_tick}`);
-      return;
-    }
-
-    if (
-      price &&
-      size &&
-      new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
-    ) {
-      setShowErrorTip(true);
-      setErrorTipMsg(
-        `The order value should be greater than or equal to ${symbolInfo.min_notional}`
-      );
-      return;
-    }
-
-    setShowErrorTip(false);
-    setErrorTipMsg('');
   };
 
   useEffect(() => {
@@ -1122,7 +1009,7 @@ export default function UserBoard() {
               className="text-white text-left ml-2 text-xl w-full"
               value={limitPrice}
               onChange={(e) => {
-                priceValidator(e.target.value, inputValue);
+                priceAndSizeValidator(e.target.value, inputValue);
 
                 setLimitPrice(e.target.value);
               }}
@@ -1198,7 +1085,7 @@ export default function UserBoard() {
             step="any"
             min={0}
             onChange={(e) => {
-              sizeValidator(
+              priceAndSizeValidator(
                 orderType === 'Limit' ? limitPrice : marketPrice.toString(),
                 e.target.value
               );
@@ -1246,7 +1133,7 @@ export default function UserBoard() {
 
               setInputValue(displayAmount);
 
-              sizeValidator(
+              priceAndSizeValidator(
                 orderType == 'Market' ? marketPrice.toString() : limitPrice,
                 displayAmount
               );

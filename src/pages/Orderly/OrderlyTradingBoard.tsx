@@ -21,6 +21,7 @@ import AllOrderBoard from './components/AllOrders';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { REF_ORDERLY_ACCOUNT_VALID } from './components/UserBoard/index';
 import { isLargeScreen } from '../../utils/device';
+import { useHistory } from 'react-router-dom';
 
 function TradingBoard() {
   const isLarge = isLargeScreen();

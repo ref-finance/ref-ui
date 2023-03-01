@@ -24,6 +24,7 @@ export const generateTradingKeyPair = () => {
   const EC = new ec('secp256k1');
 
   const accountId = window.selectorAccountId;
+  console.log('accountId: ', accountId);
 
   if (!accountId) throw NotSignInError;
 

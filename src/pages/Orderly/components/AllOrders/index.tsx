@@ -814,7 +814,9 @@ function HistoryOrderLine({
 
         <FlexRow
           className={`col-span-1 text-white  justify-self-end relative ${
-            isLargeScreen() ? 'right-32' : 'right-24'
+            isLargeScreen()
+              ? 'right-32'
+              : 'lg2:right-12 xl:right-16 2xl:right-20 3xl:right-24'
           } `}
         >
           <span>
@@ -829,7 +831,9 @@ function HistoryOrderLine({
 
         <FlexRow
           className={`col-span-1 relative ${
-            isLargeScreen() ? 'right-28' : 'right-20'
+            isLargeScreen()
+              ? 'right-28'
+              : 'lg2:right-12 xl:right-14 2xl:right-16 3xl:right-20'
           }  justify-self-end  text-white`}
         >
           <span>
@@ -841,7 +845,9 @@ function HistoryOrderLine({
 
         <FlexRow
           className={`col-span-1 ml-4 justify-self-end relative ${
-            showCurSymbol ? 'right-20' : 'right-16'
+            showCurSymbol
+              ? 'right-20'
+              : '3xl:right-16 lg:right-10 xl:right-12 2xl:right-14'
           }   text-white`}
         >
           {digitWrapper(
@@ -856,7 +862,9 @@ function HistoryOrderLine({
 
         <FlexRow
           className={`col-span-1 whitespace-nowrap text-primaryOrderly justify-self-end relative  ${
-            showCurSymbol ? 'right-8' : 'right-4'
+            showCurSymbol
+              ? 'lg:right-0 xl:right-2 2xl:right-4 3xl:right-8'
+              : '2xl:right-2 3xl:right-4 lg:-right-4 xl:right-0'
           } text-end`}
         >
           {formatTimeDate(order.created_time)}
