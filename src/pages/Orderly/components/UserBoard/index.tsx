@@ -89,6 +89,7 @@ import { FlexRow, orderEditPopUpFailure } from '../Common/index';
 import { useAllSymbolInfo } from '../AllOrders/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
+import { NearWalletIcon } from '../Common/Icons';
 
 function getTipFOK() {
   return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
@@ -201,7 +202,9 @@ export function TextWrapper({
 }) {
   return (
     <span
-      className={`${className} px-1.5  py-0.5 inline-flex items-center justify-center rounded-md ${
+      className={`${
+        className || ' px-1.5  py-0.5'
+      }  inline-flex items-center justify-center rounded-md ${
         bg || 'bg-primaryOrderly '
       } bg-opacity-10 ${textC || 'text-white'} `}
     >
@@ -697,7 +700,7 @@ export default function UserBoard() {
       : orders?.bids?.[0]?.[0];
 
     priceAndSizeValidator(
-      side === 'Buy' ? limitPrice : marketPrice.toString(),
+      orderType === 'Limit' ? limitPrice : marketPrice.toString(),
       inputValue
     );
   }, [side, orderType]);
@@ -1018,40 +1021,6 @@ export default function UserBoard() {
                 symbolsArr.includes(e.key) && e.preventDefault()
               }
             />
-
-            <div className="flex items-center">
-              <span
-                className="cursor-pointer mr-4"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setLimitPrice(
-                    Number(limitPrice) >= 0.1
-                      ? scientificNotationToString(
-                          new Big(limitPrice).minus(0.1).toString()
-                        )
-                      : limitPrice
-                  );
-                }}
-              >
-                <FaMinus></FaMinus>
-              </span>
-
-              <span
-                className="cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setLimitPrice(
-                    scientificNotationToString(
-                      new Big(limitPrice).plus(0.1).toString()
-                    )
-                  );
-                }}
-              >
-                <FaPlus></FaPlus>
-              </span>
-            </div>
           </div>
         </div>
       )}
@@ -1606,7 +1575,9 @@ export function AssetManagerModal(
             </div>
 
             <div className="flex items-center pb-3 justify-between">
-              <span>Wallet Balance</span>
+              <span className="flex items-center">
+                <NearIConSelectModal /> <span className="ml-2">Wallet</span>
+              </span>
 
               <span>
                 {!walletBalance
@@ -1616,7 +1587,11 @@ export function AssetManagerModal(
             </div>
 
             <div className="flex items-center pb-4 justify-between">
-              <span>Account Balance</span>
+              <span className="flex items-center ">
+                {' '}
+                <OrderlyIconBalance />
+                <span className="ml-2">Available</span>
+              </span>
 
               <span>{digitWrapper(displayAccountBalance.toString(), 3)}</span>
             </div>
@@ -1953,7 +1928,8 @@ function SelectTokenModal(
                 setSortByBalance('orderly');
               }}
             >
-              <span className="ml-2 ">Account</span>
+              <OrderlyIconBalance></OrderlyIconBalance>
+              <span className="ml-2 ">Available</span>
 
               <MdArrowDropDown
                 size={22}
@@ -2096,6 +2072,7 @@ function ConfirmOrderModal(
 
               <TextWrapper
                 textC="text-primaryText"
+                className="text-10px py-0 px-1"
                 value={symbolFrom}
               ></TextWrapper>
             </span>
@@ -2108,6 +2085,7 @@ function ConfirmOrderModal(
               <span className="text-white mr-2">{digitWrapper(price, 3)}</span>
               <TextWrapper
                 textC="text-primaryText"
+                className="text-10px py-0 px-1"
                 value={`${symbolTo}/${symbolFrom}`}
               ></TextWrapper>
             </span>
@@ -2125,6 +2103,7 @@ function ConfirmOrderModal(
               <TextWrapper
                 textC="text-primaryText"
                 value={`${symbolTo}`}
+                className="text-10px py-0 px-1"
               ></TextWrapper>
             </span>
           </div>
@@ -2140,6 +2119,7 @@ function ConfirmOrderModal(
                 <TextWrapper
                   textC="text-primaryText"
                   value={`Taker`}
+                  className="text-10px py-0 px-1"
                 ></TextWrapper>
               </span>
 
@@ -2150,6 +2130,7 @@ function ConfirmOrderModal(
                 <TextWrapper
                   textC="text-primaryText"
                   value={`Maker`}
+                  className="text-10px py-0 px-1"
                 ></TextWrapper>
               </span>
             </FlexRow>
