@@ -16,7 +16,6 @@ import { Ticker } from '../../orderly/type';
 import { TokenIcon } from '../Common';
 import useCallback from 'react';
 import { digitWrapper } from '../../utiles';
-import { isLargeScreen } from '~utils/device';
 
 function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;

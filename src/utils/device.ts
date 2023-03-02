@@ -16,6 +16,19 @@ export const isClientMobie = (): Boolean => {
   return document.documentElement.clientWidth <= 1023;
 };
 
+export const useLargeScreen = () => {
+  const [largeWindow, setLargeWindow] = useState<Boolean>(isLargeScreen());
+
+  const handleResize = () => setLargeWindow(isLargeScreen());
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return largeWindow;
+};
+
 export const useMobile = () => {
   const [mobileWindow, setMobileWindow] = useState<Boolean>(isMobile());
 

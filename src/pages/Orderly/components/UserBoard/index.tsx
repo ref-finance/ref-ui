@@ -1287,7 +1287,8 @@ export default function UserBoard() {
                 {Number((userInfo?.taker_fee_rate || 0) / 100).toFixed(2)}%
               </span>
               <TextWrapper
-                textC="text-primaryText"
+                textC="text-primaryText "
+                className="text-10px py-0 px-1"
                 value={`Taker`}
               ></TextWrapper>
             </span>
@@ -1299,6 +1300,7 @@ export default function UserBoard() {
               <TextWrapper
                 textC="text-primaryText"
                 value={`Maker`}
+                className="text-10px py-0 px-1"
               ></TextWrapper>
             </span>
           </FlexRow>

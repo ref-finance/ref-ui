@@ -53,8 +53,8 @@ import { digitWrapper } from '../../utiles';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import { orderEditPopUpFailure } from '../Common/index';
-import { isLargeScreen } from '~utils/device';
 import { Holding } from '../../orderly/type';
+import { useLargeScreen } from '../../../../utils/device';
 import {
   getAccountInformation,
   getCurrentHolding,
@@ -394,6 +394,8 @@ function OrderLine({
     new Big(order.price).eq(new Big(price || 0)) &&
     new Big(order.quantity).eq(new Big(quantity || 0));
 
+  const isLargeWindow = useLargeScreen();
+
   return (
     <div
       key={order.order_id}
@@ -470,7 +472,7 @@ function OrderLine({
 
       <FlexRowStart
         className={`col-span-1 relative  justify-self-end items-start ${
-          isLargeScreen()
+          isLargeWindow
             ? showCurSymbol
               ? 'right-16'
               : 'right-10'
@@ -549,7 +551,7 @@ function OrderLine({
 
       <FlexRowStart
         className={`col-span-2 relative  ${
-          isLargeScreen()
+          isLargeWindow
             ? showCurSymbol
               ? 'right-56'
               : 'right-36'
@@ -715,6 +717,7 @@ function HistoryOrderLine({
   const { accountId } = useWalletSelector();
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
+  const isLargeWindow = useLargeScreen();
 
   async function handleSubmit() {
     if (!!orderTradesHistory) {
@@ -814,7 +817,7 @@ function HistoryOrderLine({
 
         <FlexRow
           className={`col-span-1 text-white  justify-self-end relative ${
-            isLargeScreen()
+            isLargeWindow
               ? 'right-32'
               : 'lg2:right-12 xl:right-16 2xl:right-20 3xl:right-24'
           } `}
@@ -831,7 +834,7 @@ function HistoryOrderLine({
 
         <FlexRow
           className={`col-span-1 relative ${
-            isLargeScreen()
+            isLargeWindow
               ? 'right-28'
               : 'lg2:right-12 xl:right-14 2xl:right-16 3xl:right-20'
           }  justify-self-end  text-white`}
@@ -917,7 +920,7 @@ function HistoryOrderLine({
               Fee
               <TextWrapper
                 value={order.fee_asset}
-                className="ml-2"
+                className="ml-2 text-10px py-0 px-1"
                 textC="text-primaryText"
               />
             </div>
@@ -1268,7 +1271,7 @@ function OpenOrders({
             {showCurSymbol && (
               <TextWrapper
                 value={symbolFrom}
-                className="ml-2"
+                className="ml-2 text-10px py-0 px-1"
                 textC="text-primaryText"
               />
             )}
@@ -1285,7 +1288,7 @@ function OpenOrders({
             <TextWrapper
               value={symbolTo}
               className="ml-2"
-              textC="text-primaryText"
+              textC="text-primaryText text-10px py-0 px-1"
             />
           )}
         </FlexRow>
@@ -1297,7 +1300,7 @@ function OpenOrders({
               <TextWrapper
                 value={symbolTo}
                 className="ml-2"
-                textC="text-primaryText"
+                textC="text-primaryText text-10px py-0 px-1"
               />
             )}
           </div>
@@ -1697,7 +1700,7 @@ function HistoryOrders({
           {showCurSymbol && (
             <TextWrapper
               value={symbolFrom}
-              className="ml-2"
+              className="ml-2 text-10px py-0 px-1"
               textC="text-primaryText"
             />
           )}
@@ -1709,7 +1712,7 @@ function HistoryOrders({
           {showCurSymbol && (
             <TextWrapper
               value={symbolTo}
-              className="ml-2"
+              className="ml-2 text-10px py-0 px-1"
               textC="text-primaryText"
             />
           )}
@@ -1720,7 +1723,7 @@ function HistoryOrders({
           {showCurSymbol && (
             <TextWrapper
               value={symbolTo}
-              className="ml-2"
+              className="ml-2 text-10px py-0 px-1"
               textC="text-primaryText"
             />
           )}
@@ -1730,7 +1733,7 @@ function HistoryOrders({
           {showCurSymbol && (
             <TextWrapper
               value={symbolTo}
-              className="ml-2"
+              className="ml-2 text-10px py-0 px-1"
               textC="text-primaryText"
             />
           )}
