@@ -888,16 +888,15 @@ export default function FarmsDclDetail(props: {
   }
   function getBetterSeedSymbols() {
     let result = '';
-    detailData.pool.tokens_meta_data.forEach(
-      (token: TokenMetadata, index: number) => {
-        const symbol = toRealSymbol(token.symbol);
-        if (index == detailData.pool.tokens_meta_data.length - 1) {
-          result += symbol;
-        } else {
-          result += symbol + '-';
-        }
+    const tokens = sort_tokens_by_base(detailData.pool.tokens_meta_data);
+    tokens.forEach((token: TokenMetadata, index: number) => {
+      const symbol = toRealSymbol(token.symbol);
+      if (index == detailData.pool.tokens_meta_data.length - 1) {
+        result += symbol;
+      } else {
+        result += symbol + '-';
       }
-    );
+    });
     return result;
   }
   function goBetterSeed() {

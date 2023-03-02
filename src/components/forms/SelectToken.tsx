@@ -61,6 +61,7 @@ import { useAllPoolsV2 } from '../../state/swapV3';
 import { Images, Symbols } from '~components/stableswap/CommonComp';
 import { IconLeftV3 } from '../tokens/Icon';
 import { PoolInfo } from '~services/swapV3';
+import { sort_tokens_by_base } from '../../services/commonV3';
 
 export const USER_COMMON_TOKEN_LIST = 'USER_COMMON_TOKEN_LIST';
 
@@ -789,41 +790,45 @@ export function SelectTokenDCL({
 
   const handleSelect = (p: PoolInfo) => {
     // select token in
+    const { token_x_metadata, token_y_metadata } = p;
+    const tokens = sort_tokens_by_base([token_x_metadata, token_y_metadata]);
 
     if (!selectedToken) {
-      selectTokenIn(p.token_x_metadata);
-      selectTokenOut(p.token_y_metadata);
+      selectTokenIn(tokens[0]);
+      selectTokenOut(tokens[1]);
 
       return;
     }
 
     if (!!selectTokenOut) {
-      if (selectedToken?.id === p.token_x_metadata.id) {
-        selectTokenOut(p.token_y_metadata);
-      } else if (selectedToken?.id === p.token_y_metadata.id) {
-        selectTokenOut(p.token_x_metadata);
+      if (selectedToken?.id === tokens[0].id) {
+        selectTokenOut(tokens[1]);
+      } else if (selectedToken?.id === tokens[1].id) {
+        selectTokenOut(tokens[0]);
       } else {
-        onSelect(p.token_x_metadata);
-        selectTokenOut(p.token_y_metadata);
+        onSelect(tokens[0]);
+        selectTokenOut(tokens[1]);
       }
 
       return;
     }
 
     if (!!selectTokenIn) {
-      if (selectedToken?.id === p.token_x_metadata.id) {
-        selectTokenIn(p.token_y_metadata);
-      } else if (selectedToken?.id === p.token_y_metadata.id) {
-        selectTokenIn(p.token_x_metadata);
+      if (selectedToken?.id === tokens[0].id) {
+        selectTokenIn(tokens[1]);
+      } else if (selectedToken?.id === tokens[1].id) {
+        selectTokenIn(tokens[0]);
       } else {
-        onSelect(p.token_y_metadata);
-        selectTokenIn(p.token_x_metadata);
+        onSelect(tokens[1]);
+        selectTokenIn(tokens[0]);
       }
       return;
     }
   };
 
   const renderList = allPools?.map((p) => {
+    const { token_x_metadata, token_y_metadata } = p;
+    const tokens = sort_tokens_by_base([token_x_metadata, token_y_metadata]);
     return (
       <div
         key={p.pool_id}
@@ -833,16 +838,9 @@ export function SelectTokenDCL({
           setHoverSelectToken(false);
         }}
       >
-        <Images
-          tokens={[p.token_x_metadata, p.token_y_metadata]}
-          size="5"
-          className="mr-2 ml-1"
-        />
+        <Images tokens={tokens} size="5" className="mr-2 ml-1" />
 
-        <Symbols
-          tokens={[p.token_x_metadata, p.token_y_metadata]}
-          seperator="-"
-        />
+        <Symbols tokens={tokens} seperator="-" />
       </div>
     );
   });
