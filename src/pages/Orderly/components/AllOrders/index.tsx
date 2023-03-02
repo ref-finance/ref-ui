@@ -60,6 +60,23 @@ import {
   getCurrentHolding,
 } from '../../orderly/off-chain-api';
 
+function hasScrolled(id: string, dir = 'vertical') {
+  const ele = document.querySelector(`#${id}`);
+
+  if (!ele) return false;
+
+  let eleScroll = dir == 'vertical' ? 'scrollTop' : 'scrollLeft';
+
+  let result = !!ele[eleScroll];
+  if (!result) {
+    ele[eleScroll] = 1;
+    result = !!ele[eleScroll];
+    ele[eleScroll] = 0;
+  }
+
+  return result;
+}
+
 export function EditConfirmOrderModal(
   props: Modal.Props & {
     confirmClick: () => void;
@@ -394,26 +411,34 @@ function OrderLine({
     new Big(order.price).eq(new Big(price || 0)) &&
     new Big(order.quantity).eq(new Big(quantity || 0));
 
-  const isLargeWindow = useLargeScreen();
+  function getVerticalAlign() {
+    const el = document.querySelector(`#order-line-${order.order_id}`);
+    if (!el) return;
+    if (openEditQuantity || openEditPrice) {
+      return 'baseline';
+    }
+  }
 
   return (
-    <div
+    <tr
       key={order.order_id}
-      className={`grid hover:bg-orderLineHover ${
-        showCurSymbol ? 'grid-cols-8' : 'grid-cols-10'
-      } pl-5 pr-4 py-3 border-t border-white border-opacity-10`}
+      id={'order-line-' + order.order_id}
+      className={` hover:bg-orderLineHover table table-fixed w-full  pl-5 pr-4 py-3 border-t  border-white border-opacity-10`}
+      style={{
+        verticalAlign: getVerticalAlign(),
+      }}
     >
-      <div
-        className={`col-span-2 relative flex ${
-          openEdit ? 'items-start top-1.5' : 'items-center'
+      <td
+        className={`col-span-2 py-3 pl-5 relative  ${
+          openEdit ? 'items-start ' : 'items-center'
         } ${showCurSymbol ? 'hidden' : ''}`}
       >
         <div className="flex items-center ">{marketInfo}</div>
-      </div>
-      <div
-        className={`col-span-1 relative flex ${
-          openEdit ? 'items-start top-1' : 'items-center'
-        }`}
+      </td>
+      <td
+        className={`col-span-1 py-3 relative  ${
+          openEdit ? 'items-start ' : 'items-center'
+        } ${showCurSymbol ? 'pl-5' : 'pl-0'} `}
       >
         <TextWrapper
           className="px-2 text-sm"
@@ -421,10 +446,10 @@ function OrderLine({
           bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
           textC={order.side === 'BUY' ? 'text-buyGreen' : 'text-sellRed'}
         ></TextWrapper>
-      </div>
-      <div
-        className={`relative  col-span-1 flex ${
-          openEdit ? 'items-start relative top-1.5' : 'items-center'
+      </td>
+      <td
+        className={`relative  col-span-1  ${
+          openEdit ? 'items-start relative ' : 'items-center'
         }`}
       >
         <div className="flex items-center">
@@ -468,102 +493,94 @@ function OrderLine({
             </div>
           </div>
         </div>
-      </div>
-
-      <FlexRowStart
-        className={`col-span-1 relative  justify-self-end items-start ${
-          isLargeWindow
-            ? showCurSymbol
-              ? 'right-16'
-              : 'right-10'
-            : showCurSymbol
-            ? 'lg2:right-8 3xl:right-20 '
-            : '3xl:right-10 lg2:right-2'
-        }`}
-      >
-        <span className="relative top-1.5">
-          {digitWrapper(order.executed.toString(), 3)}
-        </span>
-        <span className="mx-1 relative top-1.5">/</span>
-
+      </td>
+      <td>
         <div
-          className={`flex flex-col overflow-hidden  rounded-lg ${
-            openEditQuantity ? 'border bg-dark2' : ''
-          }  border-border2 text-sm  w-14 text-white`}
+          className={`flex  relative  justify-self-end  ${
+            openEditQuantity ? 'items-start' : 'items-center'
+          }`}
         >
-          <input
-            ref={inputRef}
-            inputMode="decimal"
-            type={'number'}
-            value={quantity}
-            onChange={(e) => {
-              setQuantity(e.target.value);
-            }}
-            onFocus={() => {
-              setOpenEditQuantity(true);
-              setOpenEditPrice(false);
-              setPrice(order.price.toString());
-              setOtherLineOpenTrigger(order.order_id);
-            }}
-            className={` pr-2 py-1 pt-1.5  ${
-              !openEditQuantity ? 'text-left pl-1' : 'text-center'
-            }`}
-          />
+          <span className="relative ">
+            {digitWrapper(order.executed.toString(), 3)}
+          </span>
+          <span className="mx-1 relative ">/</span>
 
           <div
-            className={`relative pb-2 top-2 w-full flex items-center border-t border-border2 text-primaryOrderly ${
-              openEditQuantity ? '' : 'hidden'
-            } `}
+            className={`flex flex-col overflow-hidden mb-0.5  rounded-lg ${
+              openEditQuantity ? 'border bg-dark2 relative bottom-1.5' : ''
+            }  border-border2 text-sm  w-14 text-white`}
           >
-            <div
-              className="w-1/2 border-r border-border2 flex items-center py-1 justify-center cursor-pointer"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setOpenEditQuantity(false);
-                setQuantity(order.quantity.toString());
+            <input
+              ref={inputRef}
+              inputMode="decimal"
+              type={'number'}
+              value={quantity}
+              onChange={(e) => {
+                setQuantity(e.target.value);
               }}
-            >
-              <AiOutlineClose></AiOutlineClose>
-            </div>
+              onFocus={() => {
+                setOpenEditQuantity(true);
+                setOpenEditPrice(false);
+                setPrice(order.price.toString());
+                setOtherLineOpenTrigger(order.order_id);
+              }}
+              className={` px-2 py-1 pt-1.5  ${
+                !openEditQuantity ? 'text-left pl-1' : 'text-center'
+              }`}
+              style={{
+                width: `${order.quantity.toString().length * 12}px`,
+                minWidth: '48px',
+              }}
+            />
 
             <div
-              className="w-1/2 flex items-center justify-center cursor-pointer py-1"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                //   handleEditOrder();
-                if (validateChange) {
+              className={`w-full flex items-center border-t border-border2 text-primaryOrderly ${
+                openEditQuantity ? '' : 'hidden'
+              } `}
+            >
+              <div
+                className="w-1/2 border-r border-border2 flex items-center py-1 justify-center cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   setOpenEditQuantity(false);
-                  return;
-                }
-                if (!editValidator(price, quantity)) return;
+                  setQuantity(order.quantity.toString());
+                }}
+              >
+                <AiOutlineClose></AiOutlineClose>
+              </div>
 
-                setShowEditModal(true);
-                setEditType('quantity');
-              }}
-            >
-              <AiOutlineCheck></AiOutlineCheck>
+              <div
+                className="w-1/2 flex items-center justify-center cursor-pointer py-1"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  //   handleEditOrder();
+                  if (validateChange) {
+                    setOpenEditQuantity(false);
+                    return;
+                  }
+                  if (!editValidator(price, quantity)) return;
+
+                  setShowEditModal(true);
+                  setEditType('quantity');
+                }}
+              >
+                <AiOutlineCheck></AiOutlineCheck>
+              </div>
             </div>
           </div>
         </div>
-      </FlexRowStart>
-
-      <FlexRowStart
-        className={`col-span-2 relative  ${
-          isLargeWindow
-            ? showCurSymbol
-              ? 'right-56'
-              : 'right-36'
-            : showCurSymbol
-            ? `right-44 ${!openEditPrice ? 'relative right-48' : 'right-44'}`
-            : `${!openEditPrice ? 'relative right-36' : 'right-32'}`
-        } justify-self-end  items-start`}
-      >
+      </td>
+      <td>
         <div
-          className={`flex flex-col overflow-hidden  rounded-lg  ${
-            openEditPrice ? 'border bg-dark2' : ''
-          } border-border2 text-sm  w-14 max-w-max text-white`}
+          className={`flex mb-1 flex-col overflow-hidden  rounded-lg  ${
+            openEditPrice ? 'border bg-dark2 ' : ''
+          } border-border2 text-sm   max-w-max text-white`}
+          style={{
+            width: `${order.price.toString().length * 12}px`,
+            minWidth: '48px',
+          }}
         >
           <input
             ref={inputRefPrice}
@@ -579,13 +596,13 @@ function OrderLine({
               setQuantity(order.quantity.toString());
               setOtherLineOpenTrigger(order.order_id);
             }}
-            className={`pr-2 py-1 pt-1.5   ${
-              !openEditPrice ? 'text-right' : 'text-center'
+            className={`px-2 py-1 pt-1.5   ${
+              !openEditPrice ? 'text-left' : 'text-center'
             }`}
           />
 
           <div
-            className={`relative pb-2 top-2 w-full flex items-center border-t border-border2 text-primaryOrderly ${
+            className={` w-full flex items-center border-t border-border2 text-primaryOrderly ${
               openEditPrice ? '' : 'hidden'
             } `}
           >
@@ -622,13 +639,11 @@ function OrderLine({
             </div>
           </div>
         </div>
-      </FlexRowStart>
+      </td>
 
-      <div
-        className={`flex  col-span-1  relative  ${
-          showCurSymbol ? 'right-24' : 'right-16'
-        } justify-self-end text-white  ${
-          openEdit ? 'items-start top-1.5' : 'items-center'
+      <td
+        className={`  col-span-1  relative   justify-self-end text-white  ${
+          openEdit ? 'items-start ' : 'items-center'
         }`}
       >
         {digitWrapper(
@@ -637,20 +652,21 @@ function OrderLine({
             .toFixed(5),
           3
         )}
-      </div>
+      </td>
 
-      <div
-        className={`col-span-1 relative  ${'right-4'} whitespace-nowrap justify-self-end  text-end text-primaryOrderly flex ${
-          openEdit ? 'items-start top-1.5' : 'items-center'
+      <td
+        className={`col-span-1 relative transform translate-x-1/3 whitespace-nowrap justify-self-end  text-end text-primaryOrderly  ${
+          openEdit ? 'items-start ' : 'items-center'
         }`}
       >
         {formatTimeDate(order.created_time)}
-      </div>
+      </td>
 
-      <div
-        className={`col-span-1 justify-self-center flex ${
+      <td
+        className={`col-span-1 py-4 justify-self-center pr-4 ${
           openEdit ? ' items-start' : 'items-center'
         }`}
+        align="right"
       >
         <CancelButton
           text="Cancel"
@@ -676,7 +692,7 @@ function OrderLine({
             });
           }}
         />
-      </div>
+      </td>
       {showEditModal && editType && (
         <EditConfirmOrderModal
           isOpen={showEditModal}
@@ -695,7 +711,7 @@ function OrderLine({
           changeTo={editType === 'price' ? price : quantity}
         />
       )}
-    </div>
+    </tr>
   );
 }
 
@@ -717,7 +733,6 @@ function HistoryOrderLine({
   const { accountId } = useWalletSelector();
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
-  const isLargeWindow = useLargeScreen();
 
   async function handleSubmit() {
     if (!!orderTradesHistory) {
@@ -738,90 +753,101 @@ function HistoryOrderLine({
     setOpenFilledDetail(!openFilledDetail);
   }
 
-  return (
-    <div className="hover:bg-orderLineHover">
-      <div
-        key={order.order_id}
-        className={`grid ${
-          showCurSymbol ? 'grid-cols-8' : 'grid-cols-10'
-        } pl-5 pr-4 py-3 border-t border-white border-opacity-10`}
-      >
-        {!showCurSymbol && (
-          <FlexRow className="col-span-2">{marketInfo}</FlexRow>
-        )}
+  const [hover, setHover] = useState<boolean>(false);
 
-        <FlexRow className="col-span-1">
+  return (
+    <div
+      onMouseEnter={() => {
+        setHover(true);
+      }}
+      onMouseLeave={() => {
+        setHover(false);
+      }}
+    >
+      <tr
+        key={order.order_id}
+        className={`${
+          hover ? 'bg-orderLineHover' : ''
+        }  table table-fixed w-full pl-5 pr-4 py-3 border-t border-white border-opacity-10`}
+      >
+        <td
+          className={` py-3 pl-5 relative   ${showCurSymbol ? 'hidden' : ''}`}
+        >
+          <div className="flex items-center ">{marketInfo}</div>
+        </td>
+
+        <td className={`col-span-1 py-3 ${showCurSymbol ? 'pl-5' : ''}`}>
           <TextWrapper
             className="px-2 text-sm"
             value={order.side === 'BUY' ? 'Buy' : 'Sell'}
             bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
             textC={order.side === 'BUY' ? 'text-buyGreen' : 'text-sellRed'}
-          ></TextWrapper>
-        </FlexRow>
+          />
+        </td>
 
-        <FlexRow className="relative col-span-1">
-          <span className={`text-white capitalize `}>
-            {order.type === 'FOK' || order.type === 'IOC'
-              ? order.type
-              : order.type.replace('_', ' ').toLowerCase()}
-          </span>
-
-          <div
-            className={
-              order.type !== 'MARKET'
-                ? 'flex items-center relative ml-1.5 justify-center'
-                : 'hidden'
-            }
-            style={{
-              height: '14px',
-              width: '14px',
-            }}
-          >
-            <div className="absolute top-0 left-0  ">
-              <OrderStateOutline />
-            </div>
+        <td>
+          <FlexRow className="relative col-span-1">
+            <span className={`text-white capitalize `}>
+              {order.type === 'FOK' || order.type === 'IOC'
+                ? order.type
+                : order.type.replace('_', ' ').toLowerCase()}
+            </span>
 
             <div
-              className=""
+              className={
+                order.type !== 'MARKET'
+                  ? 'flex items-center relative ml-1.5 justify-center'
+                  : 'hidden'
+              }
               style={{
-                height: '9px',
-                width: '9px',
+                height: '14px',
+                width: '14px',
               }}
             >
-              {order.type !== 'MARKET' && (
-                <CircularProgressbar
-                  styles={buildStyles({
-                    pathColor: '#62C340',
-                    strokeLinecap: 'butt',
-                    trailColor: 'transparent',
-                  })}
-                  background={false}
-                  strokeWidth={50}
-                  value={order.executed || 0}
-                  maxValue={order.quantity}
-                />
-              )}
+              <div className="absolute top-0 left-0  ">
+                <OrderStateOutline />
+              </div>
+
+              <div
+                className=""
+                style={{
+                  height: '9px',
+                  width: '9px',
+                }}
+              >
+                {order.type !== 'MARKET' && (
+                  <CircularProgressbar
+                    styles={buildStyles({
+                      pathColor: '#62C340',
+                      strokeLinecap: 'butt',
+                      trailColor: 'transparent',
+                    })}
+                    background={false}
+                    strokeWidth={50}
+                    value={order.executed || 0}
+                    maxValue={order.quantity}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-        </FlexRow>
+          </FlexRow>
+        </td>
 
-        <FlexRow className="col-span-1 ml-2 ">
-          <span className="">{digitWrapper(order.executed.toString(), 3)}</span>
+        <td>
+          <FlexRow className="col-span-1  ">
+            <span className="">
+              {digitWrapper(order.executed.toString(), 3)}
+            </span>
 
-          <span className="mx-1 ">/</span>
+            <span className="mx-1 ">/</span>
 
-          <span className="text-white ">
-            {digitWrapper((order.quantity || order.executed).toString(), 3)}
-          </span>
-        </FlexRow>
+            <span className="text-white ">
+              {digitWrapper((order.quantity || order.executed).toString(), 3)}
+            </span>
+          </FlexRow>
+        </td>
 
-        <FlexRow
-          className={`col-span-1 text-white  justify-self-end relative ${
-            isLargeWindow
-              ? 'right-32'
-              : 'lg2:right-12 xl:right-16 2xl:right-20 3xl:right-24'
-          } `}
-        >
+        <td className={`col-span-1 text-white  justify-self-end relative `}>
           <span>
             {order.price || order.average_executed_price
               ? digitWrapper(
@@ -830,28 +856,18 @@ function HistoryOrderLine({
                 )
               : '-'}
           </span>
-        </FlexRow>
+        </td>
 
-        <FlexRow
-          className={`col-span-1 relative ${
-            isLargeWindow
-              ? 'right-28'
-              : 'lg2:right-12 xl:right-14 2xl:right-16 3xl:right-20'
-          }  justify-self-end  text-white`}
-        >
+        <td className={`col-span-1 relative justify-self-end  text-white`}>
           <span>
             {order.average_executed_price === null
               ? '-'
               : digitWrapper(order.average_executed_price.toString(), 2)}
           </span>
-        </FlexRow>
+        </td>
 
-        <FlexRow
-          className={`col-span-1 ml-4 justify-self-end relative ${
-            showCurSymbol
-              ? 'right-20'
-              : '3xl:right-16 lg:right-10 xl:right-12 2xl:right-14'
-          }   text-white`}
+        <td
+          className={`col-span-1 ml-4 justify-self-end relative   text-white`}
         >
           {digitWrapper(
             new Big(order.quantity || '0')
@@ -861,20 +877,16 @@ function HistoryOrderLine({
               .toFixed(4, 0),
             2
           )}
-        </FlexRow>
+        </td>
 
-        <FlexRow
-          className={`col-span-1 whitespace-nowrap text-primaryOrderly justify-self-end relative  ${
-            showCurSymbol
-              ? 'lg:right-0 xl:right-2 2xl:right-4 3xl:right-8'
-              : '2xl:right-2 3xl:right-4 lg:-right-4 xl:right-0'
-          } text-end`}
+        <td
+          className={`col-span-1 py-4 whitespace-nowrap text-primaryOrderly justify-self-end relative   text-end`}
         >
           {formatTimeDate(order.created_time)}
-        </FlexRow>
+        </td>
 
-        <FlexRow className="col-span-1 text-white justify-self-end right-4">
-          <div className="flex items-center justify-center">
+        <td className="pr-6" align="right">
+          <div className="flex items-center justify-end text-white">
             <span className="capitalize">{order.status.toLowerCase()}</span>
             {order.executed !== null && order.executed > 0 && (
               <div
@@ -899,71 +911,88 @@ function HistoryOrderLine({
               </div>
             )}
           </div>
-        </FlexRow>
-      </div>
+        </td>
+      </tr>
 
-      {openFilledDetail && orderTradesHistory && (
-        <div className="flex flex-col items-end w-full mb-3">
-          <div className="w-full border-b border-white border-opacity-10 pb-2"></div>
-          <div
-            className={`grid text-xs grid-cols-6 justify-items-start  border-white mt-2 pb-3 pt-1 border-opacity-10 ${
-              showCurSymbol ? 'w-3/4' : 'w-3/5'
-            }  `}
+      <tr
+        className={`table table-fixed 
+              ${hover ? 'bg-orderLineHover' : ''}
+            }`}
+      >
+        {openFilledDetail && orderTradesHistory && (
+          <table
+            className={`table-fixed ${
+              hover ? 'bg-orderLineHover' : ''
+            } flex-col items-end `}
+            align="right"
+            style={{
+              width: showCurSymbol ? '75%' : '66%',
+            }}
           >
-            <div className="col-span-1 relative left-6 text-right">Qty</div>
+            <thead
+              className={`w-full   text-xs grid-cols-6 justify-items-start  border-white mt-2 pb-3 pt-1 border-opacity-10  `}
+            >
+              <tr className="w-full">
+                <td className="">Qty</td>
 
-            <div className="col-span-1 relative left-4 text-right">Price</div>
+                <td className="">Price</td>
 
-            <div className="col-span-1 text-right  relative left-4">Total</div>
+                <td className="">Total</td>
 
-            <div className="col-span-1 text-right  relative left-4">
-              Fee
-              <TextWrapper
-                value={order.fee_asset}
-                className="ml-2 text-10px py-0 px-1"
-                textC="text-primaryText"
-              />
-            </div>
+                <td className="">
+                  <div className="flex items-center">
+                    Fee
+                    <TextWrapper
+                      value={order.fee_asset}
+                      className="ml-2 text-xs py-0 px-1"
+                      textC="text-primaryText"
+                    />
+                  </div>
+                </td>
 
-            <div className=" col-span-2 right-4 relative justify-self-end">
-              Time
-            </div>
-          </div>
-          <div className={showCurSymbol ? 'w-3/4' : 'w-3/5'}>
-            {orderTradesHistory.map((trade) => (
-              <div
-                key={order.order_id + '_' + trade.id}
-                className="text-white  pb-2 grid-cols-6 grid justify-items-start"
-                style={{
-                  height: '30px',
-                }}
-              >
-                <div className="col-span-1 relative left-8 text-right">
-                  {digitWrapper(trade.executed_quantity.toString(), 2)}
-                </div>
-                <div className="col-span-1 text-right relative left-4">
-                  {digitWrapper(trade.executed_price.toString(), 2)}
-                </div>
-                <div className="col-span-1 text-right relative left-4">
-                  {digitWrapper(
-                    new Big(trade.executed_quantity || '0')
-                      .times(new Big(trade.executed_price || '0'))
-                      .toFixed(4),
-                    2
-                  )}
-                </div>
-                <div className="col-span-1 text-right relative left-4">
-                  {trade.fee}
-                </div>
+                <td className="text-right pr-6" align="right" colSpan={2}>
+                  Time
+                </td>
+              </tr>
+            </thead>
+            <tbody className="w-full">
+              {orderTradesHistory.map((trade) => (
+                <tr
+                  key={order.order_id + '_' + trade.id}
+                  className="text-white  pb-2 "
+                  style={{
+                    height: '30px',
+                  }}
+                >
+                  <td className="">
+                    {digitWrapper(trade.executed_quantity.toString(), 2)}
+                  </td>
+                  <td className="">
+                    {digitWrapper(trade.executed_price.toString(), 2)}
+                  </td>
+                  <td className="">
+                    {digitWrapper(
+                      new Big(trade.executed_quantity || '0')
+                        .times(new Big(trade.executed_price || '0'))
+                        .toFixed(4),
+                      2
+                    )}
+                  </td>
+                  <td className="">{trade.fee}</td>
 
-                <div className="col-span-2 right-4 justify-self-end relative text-primaryOrderly ">
-                  {formatTimeDate(trade.executed_timestamp)}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+                  <td
+                    className=" pr-6 py-3  text-primaryOrderly "
+                    align="right"
+                    colSpan={2}
+                  >
+                    {formatTimeDate(trade.executed_timestamp)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </tr>
     </div>
   );
 }
@@ -1124,211 +1153,230 @@ function OpenOrders({
   const marketList = generateMarketList();
 
   return (
-    <>
+    <table className="table-fixed w-full">
       {/* Header */}
-      <div
-        className={`grid  ${
-          showCurSymbol ? 'grid-cols-8' : 'grid-cols-10'
-        } pl-5 pr-4 py-2   border-white border-opacity-10`}
+      <thead
+        className={`w-full table table-fixed  pl-5 pr-4 py-2    border-white border-opacity-10`}
+        style={{
+          width: 'calc(100% - 9px)',
+        }}
       >
-        <FlexRow className={showCurSymbol ? 'hidden' : 'col-span-2  relative'}>
-          <div
-            className="cursor-pointer flex items-center"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowMarketSelector(!showMarketSelector);
-              setShowSideSelector(false);
-              setShowTypeSelector(false);
-            }}
-          >
-            <span className="flex items-center">
-              {chooseMarketSymbol === 'all_markets' ? (
-                'All Instrument'
-              ) : (
-                <>
-                  <span className="text-white">
-                    {parseSymbol(chooseMarketSymbol).symbolFrom}
-                  </span>
-                  /{parseSymbol(chooseMarketSymbol).symbolTo}
-                </>
+        <tr className="w-full table-fixed">
+          <th className={showCurSymbol ? 'hidden' : 'pl-5 py-2'}>
+            <FlexRow
+              className={showCurSymbol ? 'hidden' : 'col-span-2  relative'}
+            >
+              <div
+                className="cursor-pointer flex items-center"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowMarketSelector(!showMarketSelector);
+                  setShowSideSelector(false);
+                  setShowTypeSelector(false);
+                }}
+              >
+                <span className="flex items-center">
+                  {chooseMarketSymbol === 'all_markets' ? (
+                    'All Instrument'
+                  ) : (
+                    <>
+                      <span className="text-white">
+                        {parseSymbol(chooseMarketSymbol).symbolFrom}
+                      </span>
+                      /{parseSymbol(chooseMarketSymbol).symbolTo}
+                    </>
+                  )}
+                </span>
+
+                <MdArrowDropDown
+                  size={22}
+                  color={showMarketSelector ? 'white' : '#7E8A93'}
+                />
+              </div>
+
+              {showMarketSelector && (
+                <Selector
+                  selected={chooseMarketSymbol}
+                  setSelect={(value: any) => {
+                    setChooseMarketSymbol(value);
+                    setShowMarketSelector(false);
+                  }}
+                  list={marketList}
+                />
               )}
-            </span>
+            </FlexRow>
+          </th>
 
-            <MdArrowDropDown
-              size={22}
-              color={showMarketSelector ? 'white' : '#7E8A93'}
-            />
-          </div>
+          <th>
+            <FlexRow
+              className={`col-span-1 py-2 ${
+                showCurSymbol ? 'pl-5' : ''
+              } relative`}
+            >
+              <div
+                className="cursor-pointer flex items-center"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowSideSelector(!showSideSelector);
+                  setShowMarketSelector(false);
+                  setShowTypeSelector(false);
+                }}
+              >
+                <span>{chooseSide === 'Both' ? 'Side' : chooseSide}</span>
 
-          {showMarketSelector && (
-            <Selector
-              selected={chooseMarketSymbol}
-              setSelect={(value: any) => {
-                setChooseMarketSymbol(value);
-                setShowMarketSelector(false);
+                <MdArrowDropDown
+                  size={22}
+                  color={showSideSelector ? 'white' : '#7E8A93'}
+                />
+              </div>
+
+              {showSideSelector && (
+                <Selector
+                  selected={chooseSide}
+                  setSelect={(value: any) => {
+                    setChooseSide(value);
+                    setShowSideSelector(false);
+                  }}
+                  list={[
+                    {
+                      text: 'Both',
+                      textId: 'Both',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'Buy',
+                      textId: 'Buy',
+                      className: 'text-buyGreen',
+                    },
+                    {
+                      text: 'Sell',
+                      textId: 'Sell',
+                      className: 'text-sellRed',
+                    },
+                  ]}
+                />
+              )}
+            </FlexRow>
+          </th>
+
+          <th>
+            <FlexRow className="col-span-1 relative">
+              <div
+                className="cursor-pointer flex items-center"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowTypeSelector(!showTypeSelector);
+                  setShowMarketSelector(false);
+                  setShowSideSelector(false);
+                }}
+              >
+                <span>{chooseType === 'All' ? 'Type' : chooseType}</span>
+
+                <MdArrowDropDown
+                  size={22}
+                  color={showTypeSelector ? 'white' : '#7E8A93'}
+                />
+              </div>
+              {showTypeSelector && (
+                <Selector
+                  selected={chooseType}
+                  setSelect={(value: any) => {
+                    setChooseType(value);
+                    setShowTypeSelector(false);
+                  }}
+                  list={[
+                    {
+                      text: 'All',
+                      textId: 'All',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'Limit',
+                      textId: 'Limit',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'Post Only',
+                      textId: 'Post Only',
+                      className: 'text-white',
+                    },
+                  ]}
+                />
+              )}
+            </FlexRow>
+          </th>
+
+          <th>
+            <FlexRow className="col-span-1 relative ">
+              <span className="whitespace-nowrap">
+                {`Filled / Qty`}
+                {showCurSymbol && (
+                  <TextWrapper
+                    value={symbolFrom}
+                    className="ml-2 text-xs py-0 px-1"
+                    textC="text-primaryText"
+                  />
+                )}
+              </span>
+            </FlexRow>
+          </th>
+
+          <th>
+            <FlexRow className={`col-span-2 relative   justify-self-center`}>
+              <span>Price</span>
+              {showCurSymbol && (
+                <TextWrapper
+                  value={symbolTo}
+                  className="ml-2"
+                  textC="text-primaryText text-xs py-0 px-1"
+                />
+              )}
+            </FlexRow>
+          </th>
+          <th>
+            <div className="whitespace-nowrap flex items-center">
+              Est.Total
+              {showCurSymbol && (
+                <TextWrapper
+                  value={symbolTo}
+                  className="ml-2"
+                  textC="text-primaryText text-xs py-0 px-1"
+                />
+              )}
+            </div>
+          </th>
+
+          <th>
+            <div
+              className={`cursor-pointer flex transform translate-x-1/3`}
+              onClick={() => {
+                setTimeSorting(timeSorting === 'asc' ? 'dsc' : 'asc');
               }}
-              list={marketList}
-            />
-          )}
-        </FlexRow>
-
-        <FlexRow className="col-span-1  relative">
-          <div
-            className="cursor-pointer flex items-center"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowSideSelector(!showSideSelector);
-              setShowMarketSelector(false);
-              setShowTypeSelector(false);
-            }}
-          >
-            <span>{chooseSide === 'Both' ? 'Side' : chooseSide}</span>
-
-            <MdArrowDropDown
-              size={22}
-              color={showSideSelector ? 'white' : '#7E8A93'}
-            />
-          </div>
-
-          {showSideSelector && (
-            <Selector
-              selected={chooseSide}
-              setSelect={(value: any) => {
-                setChooseSide(value);
-                setShowSideSelector(false);
-              }}
-              list={[
-                {
-                  text: 'Both',
-                  textId: 'Both',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Buy',
-                  textId: 'Buy',
-                  className: 'text-buyGreen',
-                },
-                {
-                  text: 'Sell',
-                  textId: 'Sell',
-                  className: 'text-sellRed',
-                },
-              ]}
-            />
-          )}
-        </FlexRow>
-        <FlexRow className="col-span-1 relative">
-          <div
-            className="cursor-pointer flex items-center"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowTypeSelector(!showTypeSelector);
-              setShowMarketSelector(false);
-              setShowSideSelector(false);
-            }}
-          >
-            <span>{chooseType === 'All' ? 'Type' : chooseType}</span>
-
-            <MdArrowDropDown
-              size={22}
-              color={showTypeSelector ? 'white' : '#7E8A93'}
-            />
-          </div>
-          {showTypeSelector && (
-            <Selector
-              selected={chooseType}
-              setSelect={(value: any) => {
-                setChooseType(value);
-                setShowTypeSelector(false);
-              }}
-              list={[
-                {
-                  text: 'All',
-                  textId: 'All',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Limit',
-                  textId: 'Limit',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Post Only',
-                  textId: 'Post Only',
-                  className: 'text-white',
-                },
-              ]}
-            />
-          )}
-        </FlexRow>
-
-        <FlexRow className="col-span-1 relative right-3">
-          <span className="whitespace-nowrap">
-            {`Filled / Qty`}
-            {showCurSymbol && (
-              <TextWrapper
-                value={symbolFrom}
-                className="ml-2 text-10px py-0 px-1"
-                textC="text-primaryText"
-              />
-            )}
-          </span>
-        </FlexRow>
-
-        <FlexRow
-          className={`col-span-2 relative  ${
-            showCurSymbol ? 'right-14' : 'right-8'
-          } justify-self-center`}
-        >
-          <span>Price</span>
-          {showCurSymbol && (
-            <TextWrapper
-              value={symbolTo}
-              className="ml-2"
-              textC="text-primaryText text-10px py-0 px-1"
-            />
-          )}
-        </FlexRow>
-
-        <FlexRow className="col-span-1 justify-self-center relative right-8">
-          <div className="whitespace-nowrap">
-            Est.Total
-            {showCurSymbol && (
-              <TextWrapper
-                value={symbolTo}
-                className="ml-2"
-                textC="text-primaryText text-10px py-0 px-1"
-              />
-            )}
-          </div>
-        </FlexRow>
-
-        <FlexRow className=" flex items-center justify-self-end relative right-8 justify-center col-span-1">
-          <div
-            className="cursor-pointer flex"
-            onClick={() => {
-              setTimeSorting(timeSorting === 'asc' ? 'dsc' : 'asc');
-            }}
-          >
-            <span>Time</span>
-            {
-              <MdArrowDropDown
-                className={timeSorting === 'asc' ? 'transform rotate-180' : ''}
-                size={22}
-                color={timeSorting === undefined ? '#7e8a93' : 'white'}
-              />
-            }
-          </div>
-        </FlexRow>
-
-        <FlexRow className="col-span-1 relative justify-self-center">
-          <span className="text-center"> Action</span>
-        </FlexRow>
-      </div>
-      <div className="flex max-h-vh65   overflow-auto  flex-col ">
+            >
+              <span>Time</span>
+              {
+                <MdArrowDropDown
+                  className={
+                    timeSorting === 'asc' ? 'transform rotate-180' : ''
+                  }
+                  size={22}
+                  color={'#7e8a93'}
+                />
+              }
+            </div>
+          </th>
+          <th align="right">
+            <span className="pr-6"> Action</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody
+        className=" max-h-vh65   block overflow-auto  flex-col "
+        id="all-orders-body-open"
+      >
         {loading ? (
           <OrderlyLoading></OrderlyLoading>
         ) : orders.filter(filterFunc).length === 0 ? (
@@ -1365,8 +1413,8 @@ function OpenOrders({
               );
             })
         )}
-      </div>
-    </>
+      </tbody>
+    </table>
   );
 }
 
@@ -1485,8 +1533,6 @@ function HistoryOrders({
     showMarketSelector,
   ]);
 
-  if (hidden) return null;
-
   const generateMarketList = () => {
     if (!availableSymbols || !allTokens) return [];
     const marketList = [
@@ -1530,289 +1576,316 @@ function HistoryOrders({
     return marketList;
   };
 
+  const historyHasScrolled = hasScrolled('all-orders-body-history');
+
   const marketList = generateMarketList();
 
   return (
-    <>
+    <table className={`table-fixed w-full ${hidden ? 'hidden' : ''} `}>
       {/* Header */}
-      <div
-        className={`grid ${
-          showCurSymbol ? 'grid-cols-8' : 'grid-cols-10'
-        }  pl-5 pr-4 py-2   border-white border-opacity-10`}
+      <thead
+        className={`table table-fixed  pl-5 pr-4 py-2   border-white border-opacity-10`}
+        style={{
+          width: 'calc(100% - 9px)',
+        }}
       >
-        {!showCurSymbol && (
-          <FlexRow className="col-span-2  relative">
+        <tr className="w-full table-fixed">
+          <th className={showCurSymbol ? 'hidden' : 'pl-5 py-2'}>
+            {!showCurSymbol && (
+              <FlexRow className="col-span-2  relative">
+                <div
+                  className="cursor-pointer flex items-center"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowMarketSelector(!showMarketSelector);
+                    setShowSideSelector(false);
+                    setShowTypeSelector(false);
+                    setShowStatuesSelector(false);
+                  }}
+                >
+                  <span className="flex items-center">
+                    {chooseMarketSymbol === 'all_markets' ? (
+                      'All Instrument'
+                    ) : (
+                      <>
+                        <span className="text-white">
+                          {parseSymbol(chooseMarketSymbol).symbolFrom}
+                        </span>
+                        /{parseSymbol(chooseMarketSymbol).symbolTo}
+                      </>
+                    )}
+                  </span>
+
+                  <MdArrowDropDown
+                    size={22}
+                    color={showMarketSelector ? 'white' : '#7E8A93'}
+                  />
+                </div>
+
+                {showMarketSelector && (
+                  <Selector
+                    selected={chooseMarketSymbol}
+                    setSelect={(value: any) => {
+                      setChooseMarketSymbol(value);
+                      setShowMarketSelector(false);
+                    }}
+                    list={marketList}
+                  />
+                )}
+              </FlexRow>
+            )}
+          </th>
+
+          <th className="py-2.5">
+            <FlexRow
+              className={`col-span-1  relative ${showCurSymbol ? 'pl-5' : ''}`}
+            >
+              <div
+                className="cursor-pointer flex items-center"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowSideSelector(!showSideSelector);
+                  setShowMarketSelector(false);
+                  setShowTypeSelector(false);
+                  setShowStatuesSelector(false);
+                }}
+              >
+                <span>{chooseSide === 'Both' ? 'Side' : chooseSide}</span>
+
+                <MdArrowDropDown
+                  size={22}
+                  color={showSideSelector ? 'white' : '#7E8A93'}
+                />
+              </div>
+
+              {showSideSelector && (
+                <Selector
+                  selected={chooseSide}
+                  setSelect={(value: any) => {
+                    setChooseSide(value);
+                    setShowSideSelector(false);
+                  }}
+                  list={[
+                    {
+                      text: 'Both',
+                      textId: 'Both',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'Buy',
+                      textId: 'Buy',
+                      className: 'text-buyGreen',
+                    },
+                    {
+                      text: 'Sell',
+                      textId: 'Sell',
+                      className: 'text-sellRed',
+                    },
+                  ]}
+                />
+              )}
+            </FlexRow>
+          </th>
+
+          <th>
+            <FlexRow className="col-span-1 relative">
+              <div
+                className="cursor-pointer flex items-center"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowTypeSelector(!showTypeSelector);
+                  setShowMarketSelector(false);
+                  setShowSideSelector(false);
+                  setShowStatuesSelector(false);
+                }}
+              >
+                <span>{chooseType === 'All' ? 'Type' : chooseType}</span>
+
+                <MdArrowDropDown
+                  size={22}
+                  color={showTypeSelector ? 'white' : '#7E8A93'}
+                />
+              </div>
+              {showTypeSelector && (
+                <Selector
+                  selected={chooseType}
+                  setSelect={(value: any) => {
+                    setChooseType(value);
+                    setShowTypeSelector(false);
+                  }}
+                  list={[
+                    {
+                      text: 'All',
+                      textId: 'All',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'Limit',
+                      textId: 'Limit',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'Market',
+                      textId: 'Market',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'IOC',
+                      textId: 'IOC',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'FOK',
+                      textId: 'FOK',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'Post Only',
+                      textId: 'Post Only',
+                      className: 'text-white',
+                    },
+                  ]}
+                />
+              )}
+            </FlexRow>
+          </th>
+
+          <th>
+            <FlexRow className="col-span-1 relative ">
+              <span>Filled / Qty</span>
+              {showCurSymbol && (
+                <TextWrapper
+                  value={symbolFrom}
+                  className="ml-2 text-xs py-0 px-1"
+                  textC="text-primaryText"
+                />
+              )}
+            </FlexRow>
+          </th>
+
+          <th>
+            <FlexRow className="col-span-1">
+              <span>Price</span>
+
+              {showCurSymbol && (
+                <TextWrapper
+                  value={symbolTo}
+                  className="ml-2 text-xs py-0 px-1"
+                  textC="text-primaryText"
+                />
+              )}
+            </FlexRow>
+          </th>
+
+          <th>
+            <FlexRow className="col-span-1">
+              <span>Avg.Price</span>
+              {showCurSymbol && (
+                <TextWrapper
+                  value={symbolTo}
+                  className="ml-2 text-xs py-0 px-1"
+                  textC="text-primaryText"
+                />
+              )}
+            </FlexRow>
+          </th>
+
+          <th>
+            <FlexRow className="col-span-1  justify-self-center">
+              <span>Total</span>
+              {showCurSymbol && (
+                <TextWrapper
+                  value={symbolTo}
+                  className="ml-2 text-xs py-0 px-1"
+                  textC="text-primaryText"
+                />
+              )}
+            </FlexRow>
+          </th>
+
+          <th>
             <div
               className="cursor-pointer flex items-center"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowMarketSelector(!showMarketSelector);
-                setShowSideSelector(false);
-                setShowTypeSelector(false);
-                setShowStatuesSelector(false);
+              onClick={() => {
+                setTimeSorting(timeSorting === 'asc' ? 'dsc' : 'asc');
               }}
             >
-              <span className="flex items-center">
-                {chooseMarketSymbol === 'all_markets' ? (
-                  'All Instrument'
-                ) : (
-                  <>
-                    <span className="text-white">
-                      {parseSymbol(chooseMarketSymbol).symbolFrom}
-                    </span>
-                    /{parseSymbol(chooseMarketSymbol).symbolTo}
-                  </>
-                )}
-              </span>
-
-              <MdArrowDropDown
-                size={22}
-                color={showMarketSelector ? 'white' : '#7E8A93'}
-              />
+              <span>Time</span>
+              {
+                <MdArrowDropDown
+                  className={
+                    timeSorting === 'asc' ? 'transform rotate-180' : ''
+                  }
+                  size={22}
+                  color={timeSorting === undefined ? '#7e8a93' : 'white'}
+                />
+              }
             </div>
+          </th>
 
-            {showMarketSelector && (
-              <Selector
-                selected={chooseMarketSymbol}
-                setSelect={(value: any) => {
-                  setChooseMarketSymbol(value);
+          <th className="pr-6" align="right">
+            <div className="flex relative items-center justify-end">
+              <div
+                className="cursor-pointer justify-end flex items-center"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowStatuesSelector(!showStatuesSelector);
                   setShowMarketSelector(false);
+                  setShowSideSelector(false);
+                  setShowTypeSelector(false);
                 }}
-                list={marketList}
-              />
-            )}
-          </FlexRow>
-        )}
+              >
+                <span>{chooseStatus === 'All' ? 'Status' : chooseStatus}</span>
 
-        <FlexRow className="col-span-1  relative">
-          <div
-            className="cursor-pointer flex items-center"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowSideSelector(!showSideSelector);
-              setShowMarketSelector(false);
-              setShowTypeSelector(false);
-              setShowStatuesSelector(false);
-            }}
-          >
-            <span>{chooseSide === 'Both' ? 'Side' : chooseSide}</span>
+                <MdArrowDropDown
+                  size={22}
+                  color={showStatuesSelector ? 'white' : '#7E8A93'}
+                />
+              </div>
 
-            <MdArrowDropDown
-              size={22}
-              color={showSideSelector ? 'white' : '#7E8A93'}
-            />
-          </div>
-
-          {showSideSelector && (
-            <Selector
-              selected={chooseSide}
-              setSelect={(value: any) => {
-                setChooseSide(value);
-                setShowSideSelector(false);
-              }}
-              list={[
-                {
-                  text: 'Both',
-                  textId: 'Both',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Buy',
-                  textId: 'Buy',
-                  className: 'text-buyGreen',
-                },
-                {
-                  text: 'Sell',
-                  textId: 'Sell',
-                  className: 'text-sellRed',
-                },
-              ]}
-            />
-          )}
-        </FlexRow>
-
-        <FlexRow className="col-span-1 relative">
-          <div
-            className="cursor-pointer flex items-center"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowTypeSelector(!showTypeSelector);
-              setShowMarketSelector(false);
-              setShowSideSelector(false);
-              setShowStatuesSelector(false);
-            }}
-          >
-            <span>{chooseType === 'All' ? 'Type' : chooseType}</span>
-
-            <MdArrowDropDown
-              size={22}
-              color={showTypeSelector ? 'white' : '#7E8A93'}
-            />
-          </div>
-          {showTypeSelector && (
-            <Selector
-              selected={chooseType}
-              setSelect={(value: any) => {
-                setChooseType(value);
-                setShowTypeSelector(false);
-              }}
-              list={[
-                {
-                  text: 'All',
-                  textId: 'All',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Limit',
-                  textId: 'Limit',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Market',
-                  textId: 'Market',
-                  className: 'text-white',
-                },
-                {
-                  text: 'IOC',
-                  textId: 'IOC',
-                  className: 'text-white',
-                },
-                {
-                  text: 'FOK',
-                  textId: 'FOK',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Post Only',
-                  textId: 'Post Only',
-                  className: 'text-white',
-                },
-              ]}
-            />
-          )}
-        </FlexRow>
-
-        <FlexRow className="col-span-1 relative right-3">
-          <span>Filled / Qty</span>
-          {showCurSymbol && (
-            <TextWrapper
-              value={symbolFrom}
-              className="ml-2 text-10px py-0 px-1"
-              textC="text-primaryText"
-            />
-          )}
-        </FlexRow>
-
-        <FlexRow className="col-span-1">
-          <span>Price</span>
-
-          {showCurSymbol && (
-            <TextWrapper
-              value={symbolTo}
-              className="ml-2 text-10px py-0 px-1"
-              textC="text-primaryText"
-            />
-          )}
-        </FlexRow>
-
-        <FlexRow className="col-span-1">
-          <span>Avg.Price</span>
-          {showCurSymbol && (
-            <TextWrapper
-              value={symbolTo}
-              className="ml-2 text-10px py-0 px-1"
-              textC="text-primaryText"
-            />
-          )}
-        </FlexRow>
-        <FlexRow className="col-span-1 right-4 relative justify-self-center">
-          <span>Total</span>
-          {showCurSymbol && (
-            <TextWrapper
-              value={symbolTo}
-              className="ml-2 text-10px py-0 px-1"
-              textC="text-primaryText"
-            />
-          )}
-        </FlexRow>
-
-        <FlexRow className="justify-center relative left-6 col-span-1 ">
-          <div
-            className="cursor-pointer flex"
-            onClick={() => {
-              setTimeSorting(timeSorting === 'asc' ? 'dsc' : 'asc');
-            }}
-          >
-            <span>Time</span>
-            {
-              <MdArrowDropDown
-                className={timeSorting === 'asc' ? 'transform rotate-180' : ''}
-                size={22}
-                color={timeSorting === undefined ? '#7e8a93' : 'white'}
-              />
-            }
-          </div>
-        </FlexRow>
-
-        <FlexRow
-          className={`col-span-1 relative justify-self-end ${'right-0'}`}
-        >
-          <div
-            className="cursor-pointer flex items-center"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowStatuesSelector(!showStatuesSelector);
-              setShowMarketSelector(false);
-              setShowSideSelector(false);
-              setShowTypeSelector(false);
-            }}
-          >
-            <span>{chooseStatus === 'All' ? 'Status' : chooseStatus}</span>
-
-            <MdArrowDropDown
-              size={22}
-              color={showStatuesSelector ? 'white' : '#7E8A93'}
-            />
-          </div>
-
-          {showStatuesSelector && (
-            <Selector
-              selected={chooseStatus}
-              setSelect={(value: any) => {
-                setChooseStatus(value);
-                setShowStatuesSelector(false);
-              }}
-              list={[
-                {
-                  text: 'All',
-                  textId: 'All',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Filled',
-                  textId: 'Filled',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Cancelled',
-                  textId: 'Cancelled',
-                  className: 'text-white',
-                },
-                {
-                  text: 'Rejected',
-                  textId: 'Rejected',
-                  className: 'text-white',
-                },
-              ]}
-            />
-          )}
-        </FlexRow>
-      </div>
-      <div className="flex overflow-auto max-h-vh65  flex-col ">
+              {showStatuesSelector && (
+                <Selector
+                  selected={chooseStatus}
+                  setSelect={(value: any) => {
+                    setChooseStatus(value);
+                    setShowStatuesSelector(false);
+                  }}
+                  list={[
+                    {
+                      text: 'All',
+                      textId: 'All',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'Filled',
+                      textId: 'Filled',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'Cancelled',
+                      textId: 'Cancelled',
+                      className: 'text-white',
+                    },
+                    {
+                      text: 'Rejected',
+                      textId: 'Rejected',
+                      className: 'text-white',
+                    },
+                  ]}
+                />
+              )}
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody
+        className=" overflow-auto max-h-vh65  flex-col block"
+        id="all-orders-body-history"
+      >
         {loading ? (
           <OrderlyLoading></OrderlyLoading>
         ) : orders.filter(filterFunc).length === 0 ? (
@@ -1837,8 +1910,8 @@ function HistoryOrders({
               );
             })
         )}
-      </div>
-    </>
+      </tbody>
+    </table>
   );
 }
 
@@ -1999,7 +2072,9 @@ function AllOrderBoard() {
               <span
                 className={`flex items-center justify-center px-1.5 min-w-fit  text-xs rounded-md  ml-2 ${
                   tab === 'history'
-                    ? 'bg-grayBgLight text-white'
+                    ? allOrders === undefined || loading
+                      ? 'text-white bg-grayBgLight'
+                      : 'bg-baseGreen text-black'
                     : 'text-primaryOrderly bg-symbolHover'
                 } `}
               >

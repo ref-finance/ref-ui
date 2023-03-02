@@ -202,8 +202,8 @@ export function TextWrapper({
 }) {
   return (
     <span
-      className={`${
-        className || ' px-1.5  py-0.5'
+      className={`pt-0.5 ${
+        className || ' px-1.5  '
       }  inline-flex items-center justify-center rounded-md ${
         bg || 'bg-primaryOrderly '
       } bg-opacity-10 ${textC || 'text-white'} `}
@@ -678,10 +678,14 @@ export default function UserBoard() {
 
     if (!ONLY_ZEROS.test(price)) {
       resPrice = priceValidator(price, size);
+    } else {
+      resPrice = true;
     }
 
     if (!ONLY_ZEROS.test(size)) {
       resSize = sizeValidator(price, size);
+    } else {
+      resSize = true;
     }
 
     if (resPrice === true && resSize === true) {
@@ -1288,7 +1292,7 @@ export default function UserBoard() {
               </span>
               <TextWrapper
                 textC="text-primaryText "
-                className="text-10px py-0 px-1"
+                className="text-xs py-0 px-1"
                 value={`Taker`}
               ></TextWrapper>
             </span>
@@ -1300,7 +1304,7 @@ export default function UserBoard() {
               <TextWrapper
                 textC="text-primaryText"
                 value={`Maker`}
-                className="text-10px py-0 px-1"
+                className="text-xs py-0 px-1"
               ></TextWrapper>
             </span>
           </FlexRow>
@@ -2074,7 +2078,7 @@ function ConfirmOrderModal(
 
               <TextWrapper
                 textC="text-primaryText"
-                className="text-10px py-0 px-1"
+                className="text-xs py-0 px-1"
                 value={symbolFrom}
               ></TextWrapper>
             </span>
@@ -2087,7 +2091,7 @@ function ConfirmOrderModal(
               <span className="text-white mr-2">{digitWrapper(price, 3)}</span>
               <TextWrapper
                 textC="text-primaryText"
-                className="text-10px py-0 px-1"
+                className="text-xs py-0 px-1"
                 value={`${symbolTo}/${symbolFrom}`}
               ></TextWrapper>
             </span>
@@ -2105,7 +2109,7 @@ function ConfirmOrderModal(
               <TextWrapper
                 textC="text-primaryText"
                 value={`${symbolTo}`}
-                className="text-10px py-0 px-1"
+                className="text-xs py-0 px-1"
               ></TextWrapper>
             </span>
           </div>
@@ -2121,7 +2125,7 @@ function ConfirmOrderModal(
                 <TextWrapper
                   textC="text-primaryText"
                   value={`Taker`}
-                  className="text-10px py-0 px-1"
+                  className="text-xs py-0 px-1"
                 ></TextWrapper>
               </span>
 
@@ -2132,7 +2136,7 @@ function ConfirmOrderModal(
                 <TextWrapper
                   textC="text-primaryText"
                   value={`Maker`}
-                  className="text-10px py-0 px-1"
+                  className="text-xs py-0 px-1"
                 ></TextWrapper>
               </span>
             </FlexRow>

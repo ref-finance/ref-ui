@@ -43,7 +43,7 @@ function RecentTrade() {
         <div className="flex items-center">
           <span>Price</span>
 
-          <span className="text-primaryText rounded-md ml-1  px-1 text-10px py-0 bg-primaryOrderly bg-opacity-10">
+          <span className="text-primaryText rounded-md ml-1  px-1 text-xs py-0 bg-primaryOrderly bg-opacity-10">
             {symbolTo}
           </span>
         </div>
@@ -51,7 +51,7 @@ function RecentTrade() {
         <div>
           <span>Qty</span>
 
-          <span className="text-primaryText rounded-md ml-1 px-1 text-10px py-0 bg-primaryOrderly bg-opacity-10">
+          <span className="text-primaryText rounded-md ml-1 px-1 text-xs py-0 bg-primaryOrderly bg-opacity-10">
             {symbolFrom}
           </span>
         </div>

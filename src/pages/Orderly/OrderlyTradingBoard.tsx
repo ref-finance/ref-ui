@@ -28,7 +28,7 @@ function TradingBoard() {
 
   return (
     <div className="w-full flex  pl-4">
-      <div className="w-full flex flex-col">
+      <div className="w-full flex flex-col" id="trading-orderly-board">
         <div
           className="w-full flex"
           style={{
@@ -60,7 +60,6 @@ function TradingBoard() {
           <OrderBook />
         </div>
       )}
-
       <div
         className=" flex-shrink-0"
         style={{
