@@ -136,7 +136,6 @@ export default function Farms(props: any) {
         userUncliamedRewards[seed_ids[index]] = rewards;
       }
     });
-    console.log('1111111111111-userUncliamedRewards', userUncliamedRewards);
     set_user_unclaimed_map(userUncliamedRewards);
     // get user unclaimed token meta
     const unclaimed_token_meta_datas = {};
@@ -261,11 +260,11 @@ export default function Farms(props: any) {
         </div>
         <ClassicFarms></ClassicFarms>
         <DclFarms></DclFarms>
-        {all_farms_Loading_done ? null : (
+        {!all_farms_Loading_done && isSignedIn ? (
           <div className="flex items-center justify-center">
             <BlueCircleLoading />
           </div>
-        )}
+        ) : null}
       </FarmCommonDatas.Provider>
     </>
   );

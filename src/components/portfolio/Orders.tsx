@@ -53,6 +53,7 @@ import BigNumber from 'bignumber.js';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { UpDownButton } from './Tool';
+import { WalletContext } from '../../utils/wallets-integration';
 
 const PriceContext = createContext(null);
 export default function Orders(props: any) {
@@ -64,6 +65,8 @@ export default function Orders(props: any) {
     set_active_order_quanity,
     set_active_order_value,
   } = useContext(PortfolioData);
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const { activeOrder, activeOrderDone } = useMyOrders();
   const ActiveTokenIds = activeOrder
     ?.map((order) => [order.sell_token, order.buy_token])
@@ -96,14 +99,17 @@ export default function Orders(props: any) {
       set_active_order_quanity(total_quantity);
     }
   }, [activeOrder, tokenPriceList, tokensMap]);
-  if (
-    !tokenIds ||
-    !activeOrder ||
-    (tokenIds?.length > 0 && tokens?.length === 0)
-  ) {
-    return <Loading />;
-  }
 
+  if (
+    (!activeOrder || (tokenIds?.length > 0 && tokens?.length === 0)) &&
+    isSignedIn
+  ) {
+    return (
+      <div className="flex items-center justify-center my-20">
+        <BlueCircleLoading></BlueCircleLoading>
+      </div>
+    );
+  }
   function get_total_active_orders_value() {
     let total_value = new BigNumber(0);
     activeOrder.forEach((order: UserOrderInfo) => {
@@ -120,14 +126,7 @@ export default function Orders(props: any) {
     });
     return total_value.toFixed();
   }
-  return (
-    <PriceContext.Provider value={tokenPriceList}>
-      <OrderCard tokensMap={tokensMap} activeOrder={activeOrder} />
-      {active_order_Loading_done ? null : (
-        <BlueCircleLoading></BlueCircleLoading>
-      )}
-    </PriceContext.Provider>
-  );
+  return <OrderCard tokensMap={tokensMap} activeOrder={activeOrder} />;
 }
 function OrderCard({
   activeOrder,

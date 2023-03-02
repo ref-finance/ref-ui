@@ -26,6 +26,7 @@ import {
   display_value_withCommas,
 } from './Tool';
 import { BlueCircleLoading } from '../../components/layout/Loading';
+import { WalletContext } from '../../utils/wallets-integration';
 export default function Tokens() {
   const { tokenPriceList } = useContext(PortfolioData);
   const [pieOption, setPieOption] = useState(null);
@@ -53,6 +54,8 @@ export default function Tokens() {
   const DCLAccountBalance = useDCLAccountBalance(!!accountId);
   const is_tokens_loading =
     !userTokens || !balances || !auroaBalances || !DCLAccountBalance;
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
     if (!is_tokens_loading) {
       userTokens.forEach((token: TokenMetadata) => {
@@ -209,7 +212,10 @@ export default function Tokens() {
       setPieOption(pieOption);
     }
   }, [activeTab, ref_tokens, near_tokens, dcl_tokens, aurora_tokens]);
-  if (!userTokens || !balances || !auroaBalances || !DCLAccountBalance)
+  if (
+    (!userTokens || !balances || !auroaBalances || !DCLAccountBalance) &&
+    isSignedIn
+  )
     return (
       <div className="flex items-center justify-center mt-20">
         <BlueCircleLoading></BlueCircleLoading>
