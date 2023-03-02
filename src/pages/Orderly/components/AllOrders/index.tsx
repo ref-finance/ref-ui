@@ -756,24 +756,23 @@ function HistoryOrderLine({
   const [hover, setHover] = useState<boolean>(false);
 
   return (
-    <div
-      onMouseEnter={() => {
-        setHover(true);
-      }}
-      onMouseLeave={() => {
-        setHover(false);
-      }}
-    >
+    <>
       <tr
         key={order.order_id}
         className={`${
           hover ? 'bg-orderLineHover' : ''
         }  table table-fixed w-full pl-5 pr-4 py-3 border-t border-white border-opacity-10`}
+        onMouseEnter={()=>{
+          setHover(true)
+        }}
+        onMouseLeave={()=>{
+          setHover(false)
+        }}
       >
         <td
           className={` py-3 pl-5 relative   ${showCurSymbol ? 'hidden' : ''}`}
         >
-          <div className="flex items-center ">{marketInfo}</div>
+          {marketInfo}
         </td>
 
         <td className={`col-span-1 py-3 ${showCurSymbol ? 'pl-5' : ''}`}>
@@ -918,6 +917,12 @@ function HistoryOrderLine({
         className={`table table-fixed 
               ${hover ? 'bg-orderLineHover' : ''}
             }`}
+            onMouseEnter={()=>{
+              setHover(true)
+            }}
+            onMouseLeave={()=>{
+              setHover(false)
+            }}
       >
         {openFilledDetail && orderTradesHistory && (
           <table
@@ -1820,7 +1825,7 @@ function HistoryOrders({
                     timeSorting === 'asc' ? 'transform rotate-180' : ''
                   }
                   size={22}
-                  color={timeSorting === undefined ? '#7e8a93' : 'white'}
+                  color={ 'white'}
                 />
               }
             </div>
