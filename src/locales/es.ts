@@ -791,7 +791,7 @@ const es = {
   only_for_whitelist_address: 'Solo para la dirección de la whitelist',
   v1Legacy: 'Legacy',
   v2New: 'Classic-New',
-  v2_new_farms: 'Classic New Farms',
+  v2_new_farms: 'Classic farms update',
   migrate_now: 'Migrar ahora!',
   v2_boost_tip:
     'Las farms Classic admitirán boosted farms. Las farms Legacy se quedarán sin recompensas el <span class="font-bold">1 de agosto de 2022</span>.',

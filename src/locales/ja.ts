@@ -787,10 +787,10 @@ const ja = {
     'Unlocking LP Tokens will automatically cancel your vote (and associated bonus) in the following proposal(s)',
   v1Legacy: 'Legacy',
   v2New: 'Classic-New',
-  v2_new_farms: 'Classic New Farms',
+  v2_new_farms: 'Classic farms update',
   migrate_now: 'Migrate Now!',
   v2_boost_tip:
-    'Classic farms will support boosted farms. The Legacy farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',
+    'The updated classic farms will support boosted farms. The Legacy farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',
   v2_boost_tip2: 'Classic ファームはブースト ファームをサポートします。',
   v2_boost_no_tip:
     'The Legacy farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',

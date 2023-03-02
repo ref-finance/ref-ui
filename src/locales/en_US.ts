@@ -755,11 +755,11 @@ const en_US = {
   only_for_whitelist_address: 'Only for whitelist address',
   v1Legacy: 'Legacy',
   v2New: 'Classic-New',
-  v2_new_farms: 'Classic New Farms',
+  v2_new_farms: 'Classic farms update',
   migrate_now: 'Migrate Now!',
   v2_boost_tip:
-    'Classic farms will support boosted farms. The Legacy farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',
-  v2_boost_tip2: 'Classic farms support boosted farms.',
+    'The updated classic farms will support boosted farms. The Legacy farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',
+  v2_boost_tip2: 'The updated classic farms will support boosted farms.',
   v2_boost_no_tip:
     'The Legacy farms will run dry of rewards on the <span class="font-bold">1st of August 2022</span>.',
   no_farm_need_to_migrate: 'No Farm need to Migrate',
