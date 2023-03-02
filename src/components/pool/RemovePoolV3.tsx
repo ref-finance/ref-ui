@@ -382,9 +382,7 @@ export const RemovePoolV3 = (props: any) => {
               {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
             </span>
           </div>
-          <span className="text-white text-lg mb-2">
-            ~{getLiquidityPrice()}
-          </span>
+          <span className="text-white text-lg mb-2">{getLiquidityPrice()}</span>
         </div>
         <div
           className={`mt-10 xsm:mt-6 mb-20 xsm:mb-16 ${

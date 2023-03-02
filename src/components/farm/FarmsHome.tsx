@@ -1229,13 +1229,13 @@ export default function FarmsHome(props: any) {
       <div
         className="relative flex items-center justify-center mb-5 xs:mb-3 md:mb-3 xs:flex-col md:flex-col xs:bg-cardBg md:bg-cardBg"
         style={{
-          height: isMobileSite ? '' : '240px',
+          height: isMobileSite ? '' : '265px',
           backgroundImage: isMobileSite
             ? ''
             : 'linear-gradient(180deg, #001320 0%, #0C2427 100%)',
         }}
       >
-        {showMigrateEntry ? (
+        {/* {showMigrateEntry ? (
           <div className="relative bg-veGradient px-7 pb-4 pt-0  mb-4 lg:hidden">
             <span className="flex items-center justify-start text-white text-lg font-bold my-2">
               <FormattedMessage id="v2_new_farms" />
@@ -1262,7 +1262,7 @@ export default function FarmsHome(props: any) {
               )}
             </div>
           </div>
-        ) : null}
+        ) : null} */}
 
         <div className="relative h-full  flex justify-between items-start lg:w-5/6 xl:w-2/3 xs:w-full md:w-full pt-5 pb-3 xs:pb-0 md:pb-0">
           <div className="lg:w-2/5 md:w-1/2 xs:w-full xs:px-3 md:px-3 xs:pt-2 md:pt-2">
@@ -1376,7 +1376,7 @@ export default function FarmsHome(props: any) {
           </div>
         </div>
       </div>
-      {showMigrateEntry ? (
+      {/* {showMigrateEntry ? (
         <div className="relative migrateArea m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full bg-veGradient rounded-2xl p-4 mb-4 pr-6 xs:hidden md:hidden">
           <MigrateIconMiddle className="absolute left-0 -top-5"></MigrateIconMiddle>
           <div className="flex justify-between items-end ml-32">
@@ -1405,7 +1405,7 @@ export default function FarmsHome(props: any) {
             )}
           </div>
         </div>
-      ) : null}
+      ) : null} */}
       <div>
         <div className="searchArea m-auto lg:w-5/6 xl:w-2/3 xs:w-full md:w-full flex justify-between flex-wrap items-center mb-6 xs:mb-4 md:mb-4 xs:flex-col md:flex-col xs:px-3 md:px-3">
           <div className="flex justify-between items-center flex-wrap mb-5 xs:mb-3 md:mb-3 xs:w-full md:w-full xs:justify-start md:justify-start">
