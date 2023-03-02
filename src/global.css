@@ -451,6 +451,9 @@ input[type='range']::-webkit-slider-runnable-track {
 .farmEnded .text-white {
   color: #73818b;
 }
+.farmEnded .dclIcon.text-white {
+  color: #fff;
+}
 .farmEnded img {
   filter: grayscale(100%);
 }

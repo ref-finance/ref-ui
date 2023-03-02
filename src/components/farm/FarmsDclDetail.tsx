@@ -951,7 +951,7 @@ export default function FarmsDclDetail(props: {
               </div>
               <div className="flex items-center bg-dclIconBgColor rounded-md xsm:ml-2 px-1 py-0.5">
                 <DclFarmIcon></DclFarmIcon>
-                <label className="text-xs text-white ml-1">DCL</label>
+                <label className="text-xs text-white ml-1 dclIcon">DCL</label>
               </div>
               {isEnded ? (
                 <span className="text-farmText text-sm ml-2 relative top-0.5 xs:top-0 md:xs-0">
