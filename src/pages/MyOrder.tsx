@@ -10,6 +10,7 @@ import { useHistory } from 'react-router-dom';
 import { isClientMobie, useClientMobile } from '~utils/device';
 import { SolidButton, ButtonTextWrapper } from '../components/button/Button';
 import { useMyOrders } from '../state/swapV3';
+import { refSwapV3OldVersionViewFunction } from '../services/near';
 import {
   UserOrderInfo,
   V3_POOL_SPLITER,
