@@ -39,44 +39,85 @@ import Big from 'big.js';
 import { getOrderlyConfig } from '../config';
 import { registerAccountOnToken } from '../../../services/creators/token';
 import { ftViewFunction } from '../../../services/ft-contract';
+import { executeMultipleTransactions } from '~services/near';
 
 const signAndSendTransactions = async (transactions: Transaction[]) => {
-  const wsTransactions = await getFunctionCallTransaction(transactions);
-
-  const wallet = await window.selector.wallet();
-
-  await wallet.signAndSendTransactions({
-    transactions: wsTransactions,
-  });
-};
-
-const signAndSendTransaction = async (wsTransaction: WSTransaction) => {
-  const wallet = await window.selector.wallet();
-
-  await wallet.signAndSendTransaction(wsTransaction).then((res) => {
-    console.log(res);
-  });
+  return executeMultipleTransactions(transactions);
 };
 
 // account_exist = await user_account_exists(accountId);
 // no account_exist to call registerOrderly.
 
 const announceKey = async (accountId: string) => {
-  const account = await near.account(accountId);
+  const wallet = await window.selector.wallet();
 
-  await account.functionCall(ORDERLY_ASSET_MANAGER, 'user_announce_key', {});
+  if (wallet.id === 'sender') {
+    return window.near
+      .account()
+      .functionCall(ORDERLY_ASSET_MANAGER, 'user_announce_key', {});
+  }
+
+  return wallet.signAndSendTransaction({
+    signerId: accountId,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName: 'user_announce_key',
+          args: {},
+          gas: utils.format.parseNearAmount('0.00000000003')!,
+          deposit: utils.format.parseNearAmount('0')!,
+        },
+      },
+    ],
+  });
+
+  // const account = await near.account(accountId);
+
+  // return await account.functionCall(
+  //   ORDERLY_ASSET_MANAGER,
+  //   'user_announce_key',
+  //   {}
+  // );
 };
 
 const setTradingKey = async (accountId: string) => {
+  const wallet = await window.selector.wallet();
+
+  if (wallet.id === 'sender') {
+    return window.near
+      .account()
+      .functionCall(ORDERLY_ASSET_MANAGER, 'user_request_set_trading_key', {
+        key: getNormalizeTradingKey(),
+      });
+  }
+
   const account = await near.account(accountId);
 
-  await account.functionCall(
-    ORDERLY_ASSET_MANAGER,
-    'user_request_set_trading_key',
-    {
-      key: getNormalizeTradingKey(),
-    }
-  );
+  return wallet.signAndSendTransaction({
+    signerId: accountId,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName: 'user_request_set_trading_key',
+          args: {
+            key: getNormalizeTradingKey(),
+          },
+          gas: utils.format.parseNearAmount('0.00000000003')!,
+          deposit: utils.format.parseNearAmount('0')!,
+        },
+      },
+    ],
+  });
+
+  // return await account.functionCall(
+  //   ORDERLY_ASSET_MANAGER,
+  //   'user_request_set_trading_key',
+  //   {
+  //     key: getNormalizeTradingKey(),
+  //   }
+  // );
 };
 
 const storageDeposit = async (accountId: string) => {
@@ -376,7 +417,6 @@ export {
   storageDeposit,
   depositNEAR,
   depositFT,
-  signAndSendTransaction,
   checkStorageDeposit,
   setTradingKey,
 };

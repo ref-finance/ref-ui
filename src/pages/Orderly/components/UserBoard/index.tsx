@@ -90,6 +90,7 @@ import { useAllSymbolInfo } from '../AllOrders/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
 import { NearWalletIcon } from '../Common/Icons';
+import { getSelectedWalletId } from '../../orderly/utils';
 
 function getTipFOK() {
   return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
@@ -109,6 +110,15 @@ function getTipIoc() {
   </div>`;
 }
 function validContract() {
+  const selectedWalletId = getSelectedWalletId();
+
+  if (selectedWalletId === 'sender') {
+    //@ts-ignore
+    return !!window?.near?.authData?.allKeys?.[
+      getConfig().ORDERLY_ASSET_MANAGER
+    ];
+  }
+
   const walletStoredContract = localStorage.getItem(
     'near-wallet-selector:contract'
   );
@@ -336,7 +346,7 @@ export default function UserBoard() {
     getAccountInformation({ accountId }).then((res) => {
       setUserInfo(res);
     });
-  }, [accountId]);
+  }, [accountId, validAccountSig]);
 
   const curHoldingIn = holdings?.find((h) => h.token === symbolFrom);
 
@@ -482,6 +492,7 @@ export default function UserBoard() {
   const [errorTipMsg, setErrorTipMsg] = useState<string>('');
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+  console.log('storageEnough: ', storageEnough);
 
   useEffect(() => {
     if (!accountId || !storageEnough || !agreeCheck) return;
@@ -496,6 +507,7 @@ export default function UserBoard() {
 
     is_orderly_key_announced(accountId)
       .then(async (key_announce) => {
+        console.log('key_announce', key_announce);
         setKeyAnnounced(key_announce);
         if (!key_announce) {
           await announceKey(accountId).then((res) => {
@@ -511,8 +523,11 @@ export default function UserBoard() {
               setTradingKeySet(true);
             });
           }
+          localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
         });
-        localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
+      })
+      .catch((e) => {
+        localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
       });
   }, [accountId, storageEnough, agreeCheck]);
 

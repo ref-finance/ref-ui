@@ -215,7 +215,7 @@ export const near = new Near({
 });
 export const wallet = new SpecialWallet(near, REF_FARM_BOOST_CONTRACT_ID);
 
-export const getGas = (gas: string) =>
+export const getGas = (gas?: string) =>
   gas ? new BN(gas) : new BN('100000000000000');
 export const getAmount = (amount: string) =>
   amount ? new BN(utils.format.parseNearAmount(amount)) : new BN('0');
