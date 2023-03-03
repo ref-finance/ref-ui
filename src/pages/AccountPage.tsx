@@ -32,7 +32,7 @@ import {
   toReadableNumber,
   toInternationalCurrencySystemNature,
   toPrecision,
-  toInternationalCurrencySystemLongString,
+  toInternationalCurrencySystem,
   scientificNotationToString,
 } from '../utils/numbers';
 import BigNumber from 'bignumber.js';
@@ -823,7 +823,7 @@ function AccountTable(props: any) {
                   <div className="text-xs text-primaryText">
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
-                      : `~$${toInternationalCurrencySystemLongString(
+                      : `~$${toInternationalCurrencySystem(
                           scientificNotationToString(
                             new Big(tokenPriceList?.[item.id]?.price || '0')
                               .times(new Big(item.near || '0'))
@@ -844,7 +844,7 @@ function AccountTable(props: any) {
                   <div className="text-xs text-primaryText">
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
-                      : `~$${toInternationalCurrencySystemLongString(
+                      : `~$${toInternationalCurrencySystem(
                           scientificNotationToString(
                             new Big(tokenPriceList?.[item.id]?.price || '0')
                               .times(new Big(item.ref || '0'))
@@ -866,7 +866,7 @@ function AccountTable(props: any) {
                   <div className="text-xs text-primaryText">
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
-                      : `~$${toInternationalCurrencySystemLongString(
+                      : `~$${toInternationalCurrencySystem(
                           scientificNotationToString(
                             new Big(tokenPriceList?.[item.id]?.price || '0')
                               .times(new Big(item.dcl || '0'))
@@ -890,7 +890,7 @@ function AccountTable(props: any) {
                   <div className="text-xs text-primaryText">
                     {!tokenPriceList?.[item.id]?.price
                       ? '$-'
-                      : `~$${toInternationalCurrencySystemLongString(
+                      : `~$${toInternationalCurrencySystem(
                           scientificNotationToString(
                             new Big(tokenPriceList?.[item.id]?.price || '0')
                               .times(new Big(item.aurora || '0'))
@@ -1335,7 +1335,7 @@ function MobileAccountTable(props: any) {
                     <div className="text-xs text-primaryText">
                       {!tokenPriceList?.[item.id]?.price
                         ? '$-'
-                        : `~$${toInternationalCurrencySystemLongString(
+                        : `~$${toInternationalCurrencySystem(
                             scientificNotationToString(
                               new Big(tokenPriceList?.[item.id]?.price || '0')
                                 .times(new Big(item.near || '0'))
@@ -1356,7 +1356,7 @@ function MobileAccountTable(props: any) {
                     <div className="text-xs text-primaryText">
                       {!tokenPriceList?.[item.id]?.price
                         ? '$-'
-                        : `~$${toInternationalCurrencySystemLongString(
+                        : `~$${toInternationalCurrencySystem(
                             scientificNotationToString(
                               new Big(tokenPriceList?.[item.id]?.price || '0')
                                 .times(new Big(item.dcl || '0'))
@@ -1377,7 +1377,7 @@ function MobileAccountTable(props: any) {
                     <div className="text-xs text-primaryText">
                       {!tokenPriceList?.[item.id]?.price
                         ? '$-'
-                        : `~$${toInternationalCurrencySystemLongString(
+                        : `~$${toInternationalCurrencySystem(
                             scientificNotationToString(
                               new Big(tokenPriceList?.[item.id]?.price || '0')
                                 .times(new Big(item.ref || '0'))
@@ -1397,7 +1397,7 @@ function MobileAccountTable(props: any) {
                     <div className="text-xs text-primaryText">
                       {!tokenPriceList?.[item.id]?.price
                         ? '$-'
-                        : `~$${toInternationalCurrencySystemLongString(
+                        : `~$${toInternationalCurrencySystem(
                             scientificNotationToString(
                               new Big(tokenPriceList?.[item.id]?.price || '0')
                                 .times(new Big(item.aurora || '0'))
