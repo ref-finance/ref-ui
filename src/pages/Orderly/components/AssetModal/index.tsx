@@ -245,14 +245,17 @@ export function AssetModal(props: Modal.Props) {
   );
 
   const [records, setRecords] = useState<UserRecord[]>();
+  console.log('records: ', records);
 
   const DEFAULT_PAGE_SIZE = 10;
 
   const [recordsPerPage, setRecordsPerPage] = useState<number>(25);
+  console.log('recordsPerPage: ', recordsPerPage);
 
   const [curPage, setCurPage] = useState<number>(1);
 
   const [total, setTotal] = useState<number>(0);
+  console.log('total: ', total);
 
   const loading =
     (tag === 'records' ? records === undefined : sortedBalances.length == 0) ||
@@ -265,7 +268,9 @@ export function AssetModal(props: Modal.Props) {
     ) {
       if (!window.selectorAccountId) return;
 
-      const requestPage = Math.ceil(records?.length || 0 / recordsPerPage) + 1;
+      const requestPage =
+        Math.ceil((records?.length || 0) / recordsPerPage) + 1;
+      console.log('requestPage: ', requestPage);
 
       getAssetHistory({
         accountId: window.selectorAccountId,

@@ -349,7 +349,7 @@ function OrderBook() {
                   <div
                     className="absolute left-0 top-1 z-40"
                     style={{
-                      zIndex: 200 + i,
+                      zIndex: Math.max(200, asks.length - 40 + 1) + i,
                     }}
                   >
                     {pendingOrders && groupMyPendingOrders[order[0]] && (
@@ -421,7 +421,7 @@ function OrderBook() {
                   <div
                     className="absolute left-0 top-1 z-40"
                     style={{
-                      zIndex: 199 - i,
+                      zIndex: Math.max(bids.length - 40, 199) - i,
                     }}
                   >
                     {pendingOrders && groupMyPendingOrders[order[0]] && (
