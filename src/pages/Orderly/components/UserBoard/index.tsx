@@ -492,7 +492,6 @@ export default function UserBoard() {
   const [errorTipMsg, setErrorTipMsg] = useState<string>('');
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-  console.log('storageEnough: ', storageEnough);
 
   useEffect(() => {
     if (!accountId || !storageEnough || !agreeCheck) return;
@@ -507,7 +506,6 @@ export default function UserBoard() {
 
     is_orderly_key_announced(accountId)
       .then(async (key_announce) => {
-        console.log('key_announce', key_announce);
         setKeyAnnounced(key_announce);
         if (!key_announce) {
           await announceKey(accountId).then((res) => {
@@ -523,7 +521,6 @@ export default function UserBoard() {
               setTradingKeySet(true);
             });
           }
-          localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
         });
       })
       .catch((e) => {
@@ -533,6 +530,9 @@ export default function UserBoard() {
 
   useEffect(() => {
     if (!tradingKeySet || !keyAnnounced) return;
+
+    localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
+
     handlePendingOrderRefreshing();
 
     setValidAccountSig(true);
