@@ -330,3 +330,88 @@ export function CopyIcon(props: any) {
     </svg>
   );
 }
+
+export function WavyLine(props: any) {
+  const random = Math.random();
+  return (
+    <svg
+      {...props}
+      width="395"
+      height="78"
+      viewBox="0 0 395 78"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        opacity="0.1"
+        d="M-9.99999 40.3478C-5.61627 49.0338 9.72672 66.4058 36.029 66.4058C68.9068 66.4058 82.058 8 128.087 8C174.116 8 177.404 70 220.145 70C262.886 70 266.174 8 308.915 8C351.656 8 352.478 66.4058 387 66.4058"
+        stroke={`url(#paint0_linear_4224_480_${random})`}
+        stroke-width="16"
+        stroke-linecap="round"
+      />
+      <defs>
+        <linearGradient
+          id={`paint0_linear_4224_480_${random}`}
+          x1="397.691"
+          y1="70"
+          x2="113.305"
+          y2="70"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00FFD1" stop-opacity="0" />
+          <stop offset="1" stop-color="#5B40FF" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+export function CircleBg(props: any) {
+  const random = Math.random();
+  return (
+    <svg
+      {...props}
+      width="93"
+      height="71"
+      viewBox="0 0 93 71"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle
+        opacity="0.1"
+        cx="55.917"
+        cy="14.917"
+        r="47.3175"
+        transform="rotate(45 55.917 14.917)"
+        fill={`url(#paint0_linear_4224_479_${random})`}
+        stroke={`url(#paint1_linear_4224_479_${random})`}
+        stroke-width="16"
+        stroke-linecap="round"
+      />
+      <defs>
+        <linearGradient
+          id={`paint0_linear_4224_479_${random}`}
+          x1="55.917"
+          y1="-32.4005"
+          x2="55.917"
+          y2="62.2345"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#26343E" />
+          <stop offset="1" stop-color="#1D2932" />
+        </linearGradient>
+        <linearGradient
+          id={`paint1_linear_4224_479_${random}`}
+          x1="6.05101"
+          y1="62.2345"
+          x2="73.8416"
+          y2="62.2345"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#00FFD1" />
+          <stop offset="1" stop-color="#5B40FF" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}

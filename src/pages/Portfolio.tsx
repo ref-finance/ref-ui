@@ -14,7 +14,7 @@ import { TokenMetadata } from '~services/ft-contract';
 
 export const PortfolioData = createContext(null);
 function Portfolio() {
-  const [activeTab, setActiveTab] = useState(1); // 1,2,3
+  const [activeTab, setActiveTab] = useState(3); // 1,2,3
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
   const [YourLpValueV1, setYourLpValueV1] = useState('0');
   const [lpValueV1Done, setLpValueV1Done] = useState(false);
@@ -140,7 +140,7 @@ function Portfolio() {
           </div>
           <div className="px-5">
             <Tab></Tab>
-            <div className="px-3.5 py-4 rounded-2xl border border-boxBorder">
+            <div className="relative px-3.5 py-4 rounded-2xl border border-boxBorder">
               <div className={`${activeTab == 1 ? '' : 'hidden'}`}>
                 <Orders></Orders>
               </div>

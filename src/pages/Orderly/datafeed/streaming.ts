@@ -14,9 +14,7 @@ import { getOrderlyWss } from '../orderly/constant';
 
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
-
 const channelToSubscription = new Map();
-
 
 var ws = new ReconnectingWebSocket(getOrderlyWss(false));
 

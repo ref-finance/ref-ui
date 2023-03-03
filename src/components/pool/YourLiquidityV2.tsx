@@ -308,9 +308,13 @@ function UserLiquidityLine({
 
   const history = useHistory();
   useEffect(() => {
-    judge_is_in_range();
     get_pool_related_farms();
   }, []);
+  useEffect(() => {
+    if (poolDetail) {
+      judge_is_in_range();
+    }
+  }, [poolDetail]);
   useEffect(() => {
     if (tokenMetadata_x_y && poolDetail && tokenPriceList) {
       const { current_point } = poolDetail;

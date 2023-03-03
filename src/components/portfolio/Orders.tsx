@@ -6,8 +6,7 @@ import React, {
   createContext,
 } from 'react';
 import { useMyOrders } from '../../state/swapV3';
-import { useTokens, useTokenPriceList } from '../../state/token';
-import { Loading } from '~components/icon/Loading';
+import { useTokens } from '../../state/token';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isClientMobie, useClientMobile } from '~utils/device';
 import {
@@ -15,11 +14,6 @@ import {
   V3_POOL_SPLITER,
   pointToPrice,
 } from '../../services/swapV3';
-import {
-  MyOrderCircle,
-  MyOrderMask,
-  MyOrderMask2,
-} from '../../components/icon/swapV3';
 import { calculateFeePercent, ONLY_ZEROS, toPrecision } from '~utils/numbers';
 
 import { BsCheckCircle } from 'react-icons/bs';
@@ -31,42 +25,32 @@ import {
 } from '../../utils/numbers';
 import { TokenMetadata } from '../../services/ft-contract';
 import Big from 'big.js';
-import { cancel_order } from '../../services/swapV3';
 import { TIMESTAMP_DIVISOR } from '../../components/layout/Proposal';
 import moment from 'moment';
-import { DownArrowVE, UpArrowVE } from '../../components/icon/Referendum';
-import {
-  RouterArrowLeft,
-  MyOrderMobileArrow,
-} from '../../components/icon/Arrows';
+import { MyOrderMobileArrow } from '../../components/icon/Arrows';
 import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '../../utils/token';
-import {
-  QuestionTip,
-  ExclamationTip,
-} from '../../components/layout/TipWrapper';
+import { ExclamationTip } from '../../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../../components/icon/swapV3';
 import { TOKEN_LIST_FOR_RATE } from '../../services/commonV3';
 import { PurpleCircleIcon } from '../../components/icon/Portfolio';
 import BigNumber from 'bignumber.js';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-import { UpDownButton } from './Tool';
+import { UpDownButton, NoDataCard } from './Tool';
 import { WalletContext } from '../../utils/wallets-integration';
+import { isSignedIn } from '@near-wallet-selector/neth';
 
 const PriceContext = createContext(null);
 export default function Orders(props: any) {
   const {
     tokenPriceList,
-    active_order_Loading_done,
     set_active_order_value_done,
     set_active_order_Loading_done,
     set_active_order_quanity,
     set_active_order_value,
   } = useContext(PortfolioData);
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
   const { activeOrder, activeOrderDone } = useMyOrders();
   const ActiveTokenIds = activeOrder
     ?.map((order) => [order.sell_token, order.buy_token])
@@ -100,16 +84,6 @@ export default function Orders(props: any) {
     }
   }, [activeOrder, tokenPriceList, tokensMap]);
 
-  if (
-    (!activeOrder || (tokenIds?.length > 0 && tokens?.length === 0)) &&
-    isSignedIn
-  ) {
-    return (
-      <div className="flex items-center justify-center my-20">
-        <BlueCircleLoading></BlueCircleLoading>
-      </div>
-    );
-  }
   function get_total_active_orders_value() {
     let total_value = new BigNumber(0);
     activeOrder.forEach((order: UserOrderInfo) => {
@@ -135,6 +109,8 @@ function OrderCard({
   activeOrder: UserOrderInfo[];
   tokensMap: { [key: string]: TokenMetadata };
 }) {
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
 
   const [activeSortBy, setActiveSortBy] = useState<'unclaim' | 'created'>(
@@ -793,68 +769,61 @@ function OrderCard({
         : Number(unclaimA) - Number(unclaimB);
     }
   };
-
+  const loading_status =
+    (!activeOrder ||
+      (activeOrder.length > 0 && Object.keys(tokensMap || {}).length == 0)) &&
+    isSignedIn;
+  const noData_status = !activeOrder || activeOrder.length === 0;
   return (
     <div className="flex flex-col">
-      {
-        <div
-          className={`flex items-center justify-between  px-6 xs:hidden ${
-            !activeOrder || activeOrder.length === 0 ? 'hidden' : ''
-          } text-v3SwapGray text-sm  whitespace-nowrap`}
-        >
-          <div className="flex items-center">
-            <span className="text-left">
-              <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
-            </span>
-
-            <span className="ml-20">
-              <FormattedMessage id="you_buy" defaultMessage={'You Buy'} />
-            </span>
-          </div>
-          <div className="flex items-center">
-            <span className="w-32">@Price</span>
-            <span className="w-40 mr-1">Execute Status</span>
-          </div>
+      {loading_status ? (
+        <div className="flex items-center justify-center my-20">
+          <BlueCircleLoading></BlueCircleLoading>
         </div>
-      }
-      {(!activeOrder || activeOrder.length === 0) && (
-        <NoOrderCard text="active" />
+      ) : (
+        <>
+          {noData_status ? (
+            <NoDataCard text="Your active order(s) will appear here." />
+          ) : (
+            <>
+              {activeOrder?.sort(activeOrderSorting).map((order, index) => {
+                return (
+                  <>
+                    <div
+                      className={`flex items-center justify-between  px-6 xs:hidden text-v3SwapGray text-sm  whitespace-nowrap`}
+                    >
+                      <div className="flex items-center">
+                        <span className="text-left">
+                          <FormattedMessage
+                            id="you_sell"
+                            defaultMessage={'You Sell'}
+                          />
+                        </span>
+
+                        <span className="ml-20">
+                          <FormattedMessage
+                            id="you_buy"
+                            defaultMessage={'You Buy'}
+                          />
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="w-32">@Price</span>
+                        <span className="w-40 mr-1">Execute Status</span>
+                      </div>
+                    </div>
+                    <ActiveLine
+                      index={index}
+                      key={order.order_id}
+                      order={order}
+                    />
+                  </>
+                );
+              })}
+            </>
+          )}
+        </>
       )}
-
-      {activeOrder &&
-        activeOrder.sort(activeOrderSorting).map((order, index) => {
-          return (
-            <ActiveLine index={index} key={order.order_id} order={order} />
-          );
-        })}
-    </div>
-  );
-}
-
-function NoOrderCard({ text }: { text: 'active' | 'history' }) {
-  return (
-    <div
-      className="w-full rounded-xl overflow-hidden h-48 relative text-white font-normal  flex items-center justify-center"
-      style={{
-        background: 'rgb(26,36,43)',
-      }}
-    >
-      <div className="flex items-center flex-col relative text-center z-50 mx-auto">
-        <span className="mb-4">
-          <MyOrderCircle />
-        </span>
-
-        <span>
-          <FormattedMessage
-            id={`your_${text}_orders_will_appear_here`}
-            defaultMessage={'Your orders will appear here'}
-          />
-          .
-        </span>
-      </div>
-
-      <MyOrderMask />
-      <MyOrderMask2 />
     </div>
   );
 }

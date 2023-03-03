@@ -6,7 +6,7 @@ import {
 } from '~utils/numbers';
 import BigNumber from 'bignumber.js';
 import { ArrowRightIcon } from '../../components/icon/V3';
-import { ArrowRIcon } from '../icon/Portfolio';
+import { ArrowRIcon, WavyLine, CircleBg } from '../icon/Portfolio';
 import { TriangleIcon } from '../../components/icon/Portfolio';
 export function ArrowJump(props: any) {
   const [hover, setHover] = useState(false);
@@ -80,6 +80,20 @@ export function UpDownButton(props: any) {
             : 'text-white transform rotate-180'
         }`}
       ></TriangleIcon>
+    </div>
+  );
+}
+export function NoDataCard({ text }: { text: string }) {
+  return (
+    <div
+      className="flex items-center justify-center"
+      style={{ height: '226px' }}
+    >
+      <span className="text-sm text-primaryText relative z-10">{text}</span>
+      <div className="absolute left-0 right-0 top-0 bottom-0 ">
+        <WavyLine className="absolute bottom-0 left-0"></WavyLine>
+        <CircleBg className="absolute right-0 top-0"></CircleBg>
+      </div>
     </div>
   );
 }
