@@ -1612,10 +1612,12 @@ export function get_detail_the_liquidity_refer_to_seed({
     const actives = related_farms.filter((farm: FarmBoost) => {
       return farm.status != 'Ended';
     });
-    if (actives.length > 0) {
-      status = 'run';
-    } else {
-      status = 'end';
+    if (related_farms.length > 0) {
+      if (actives.length > 0) {
+        status = 'run';
+      } else {
+        status = 'end';
+      }
     }
   }
   return {

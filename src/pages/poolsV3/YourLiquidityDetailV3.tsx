@@ -97,7 +97,9 @@ export default function YourLiquidityDetail(props: any) {
   const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
     []
   );
-  const [is_in_farming, set_is_in_farming] = useState<boolean>(true);
+  const [listLiquiditiesDone, setListLiquiditiesDone] =
+    useState<Boolean>(false);
+  const [is_in_farming, set_is_in_farming] = useState<boolean>(false);
   const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
   const history = useHistory();
   // callBack handle
@@ -142,7 +144,6 @@ export default function YourLiquidityDetail(props: any) {
     if (userLiquidity && poolDetail && tokenMetadata_x_y) {
       const { current_point } = poolDetail;
       const { left_point, right_point } = userLiquidity;
-      set_is_in_farming(false);
       if (current_point >= left_point && right_point > current_point) {
         setIsInrange(true);
       } else {
@@ -211,6 +212,7 @@ export default function YourLiquidityDetail(props: any) {
       }
 
       setListLiquidities(list);
+      setListLiquiditiesDone(true);
     }
   }
   async function get_pool_related_farms() {
@@ -618,6 +620,7 @@ export default function YourLiquidityDetail(props: any) {
         </div>
       </div>
       {!is_old_dcl &&
+      listLiquiditiesDone &&
       liquidity_your_apr &&
       (!is_in_farming || liquidity_staked_farm_status == 'end') ? (
         <div
