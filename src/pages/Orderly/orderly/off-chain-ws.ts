@@ -27,6 +27,7 @@ import { parseSymbol } from '../components/RecentTrade/index';
 import { useTokenInfo } from './state';
 import { getFTmetadata } from '../near';
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
+import useInterval from 'react-useinterval';
 
 export const REF_ORDERLY_WS_ID_PREFIX = 'orderly_ws_';
 
@@ -41,12 +42,8 @@ export const useOrderlyWS = () => {
       reconnectAttempts: 10,
       reconnectInterval: (attemptNumber) =>
         Math.min(Math.pow(2, attemptNumber) * 1000, 10000),
-      onClose: (e) => {
-        alert(e.type);
-      },
-      onError: (e) => {
-        alert(e.type);
-      },
+      onClose: (e) => {},
+      onError: (e) => {},
     });
 
   useEffect(() => {
@@ -183,7 +180,7 @@ export const initDataFlow = ({ symbol }: { symbol: string }) => {
 const preSubScription = new Map<string, OrderlyWSConnection>();
 
 export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
-  const { lastJsonMessage, sendMessage } = useOrderlyWS();
+  const { lastJsonMessage, sendMessage, connectionStatus } = useOrderlyWS();
 
   const [orders, setOrders] = useState<Orders>();
 
@@ -197,8 +194,16 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
 
   const [ordersUpdate, setOrdersUpdate] = useState<Orders>();
 
+  const pingFunc = () => {
+    sendMessage(JSON.stringify({ event: 'ping', ts: Date.now() }));
+  };
+
+  useInterval(pingFunc, 10000);
+
   // subscribe
   useEffect(() => {
+    if (connectionStatus !== 'Open') return;
+
     const msgFlow = generateMarketDataFlow({
       symbol,
     });
@@ -226,14 +231,16 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
 
       sendMessage(JSON.stringify(msg));
     });
-  }, [symbol]);
+  }, [symbol, connectionStatus]);
 
   // onmessage
   useEffect(() => {
     // update orderbook
 
+    if (connectionStatus !== 'Open') return;
+
     if (lastJsonMessage?.event === 'ping') {
-      sendMessage(JSON.stringify({ event: 'pong', ts: Date.now() + 500 }));
+      sendMessage(JSON.stringify({ event: 'pong', ts: Date.now() }));
     }
 
     if (
@@ -324,7 +331,7 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
 
       setMarkPrices(markPrices);
     }
-  }, [lastJsonMessage, symbol]);
+  }, [lastJsonMessage, symbol, connectionStatus]);
 
   return {
     lastJsonMessage,
@@ -406,7 +413,7 @@ export const useOrderlyPrivateData = ({
     }
 
     if (lastJsonMessage?.event === 'ping') {
-      sendMessage(JSON.stringify({ event: 'pong', ts: Date.now() + 500 }));
+      sendMessage(JSON.stringify({ event: 'pong', ts: Date.now() }));
     }
 
     if (lastJsonMessage?.topic === 'balance') {

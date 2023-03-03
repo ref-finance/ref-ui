@@ -296,7 +296,7 @@ function OrderBook() {
               </span>
             </div>
 
-            <div>
+            <div className="flex items-center">
               <span>Qty</span>
 
               <span className="text-primaryText rounded-md ml-1 pt-0.5 px-1 text-xs py-0 bg-primaryOrderly bg-opacity-10">
@@ -304,7 +304,7 @@ function OrderBook() {
               </span>
             </div>
 
-            <div>
+            <div className="flex items-center">
               Total
               <span className="text-primaryText rounded-md ml-1 pt-0.5 px-1 text-xs py-0 bg-primaryOrderly bg-opacity-10">
                 {symbolFrom}

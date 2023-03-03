@@ -12,9 +12,13 @@ import {
 // import { WebSocket } from 'ws';
 import { getOrderlyWss } from '../orderly/constant';
 
+import ReconnectingWebSocket from 'reconnecting-websocket';
+
+
 const channelToSubscription = new Map();
 
-export const ws = new WebSocket(getOrderlyWss(false));
+
+var ws = new ReconnectingWebSocket(getOrderlyWss(false));
 
 function sendPing() {
   ws.send(
@@ -139,7 +143,6 @@ export function subscribeOnStream(
   };
   let subscriptionItem = channelToSubscription.get(topic);
 
-  console.log('subscriptionItem: ', subscriptionItem);
   if (subscriptionItem) {
     // already subscribed to the channel, use the existing subscription
 
@@ -153,13 +156,6 @@ export function subscribeOnStream(
     lastBar,
     handlers: [handler],
   };
-
-  console.log('subscriptionItem: ', subscriptionItem);
-
-  console.log(
-    '[subscribeBars]: Subscribe to streaming. Channel:',
-    channelString
-  );
 
   channelToSubscription.set(topic, subscriptionItem);
 

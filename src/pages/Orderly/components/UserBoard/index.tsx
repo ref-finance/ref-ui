@@ -325,14 +325,18 @@ export default function UserBoard() {
   useEffect(() => {
     if (!accountId) return;
 
-    getAccountInformation({ accountId }).then((res) => {
-      setUserInfo(res);
-    });
-
     getCurrentHolding({ accountId }).then((res) => {
       setHoldings(res.data.holding);
     });
   }, [accountId, myPendingOrdersRefreshing]);
+
+  useEffect(() => {
+    if (!accountId) return;
+
+    getAccountInformation({ accountId }).then((res) => {
+      setUserInfo(res);
+    });
+  }, [accountId]);
 
   const curHoldingIn = holdings?.find((h) => h.token === symbolFrom);
 
