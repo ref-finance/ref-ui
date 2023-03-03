@@ -17,7 +17,7 @@ import {
   AllMarketIcon,
   ArrowParallel,
   OrderStateOutline,
-  OrderlyIcon,
+
 } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
 import Big from 'big.js';

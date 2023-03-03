@@ -389,7 +389,7 @@ export function AssetModal(props: Modal.Props) {
                   className="border absolute border-gray1 transform rotate-90 "
                   style={{
                     width: '18px',
-                    right: '-16px',
+                    right: '-12px',
                   }}
                 ></div>
               </div>
@@ -403,11 +403,11 @@ export function AssetModal(props: Modal.Props) {
                   OrderBy(orderBy === 'desc' ? 'asc' : 'desc');
                 }}
               >
-                <span className="absolute -left-4">
+                <span className="absolute -left-6">
                   <OrderlyIconBalance></OrderlyIconBalance>
                 </span>
 
-                <span>Balance: in Order</span>
+                <span>Account: in Order</span>
 
                 <MdArrowDropDown
                   size={22}
