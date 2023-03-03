@@ -108,9 +108,7 @@ export default function Asset() {
     >
       <div className="p-4 mt-4">
         <div className="flex items-center">
-          <span className="text-sm text-primaryText">
-            Your investment(USD value)
-          </span>
+          <span className="text-sm text-primaryText">Your Investing</span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"

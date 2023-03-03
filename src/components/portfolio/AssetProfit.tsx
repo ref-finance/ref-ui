@@ -82,7 +82,8 @@ export default function AssetProfit() {
 
   function getTip() {
     // const tip = intl.formatMessage({ id: 'over_tip' });
-    const tip = 'waiting for mency to give';
+    const tip =
+      'USD value of your invests on Ref:Classic pools + DCL pools (including staked in farms)';
     let result: string = `<div class="text-navHighLightText text-xs text-left w-64">${tip}</div>`;
     return result;
   }
@@ -90,9 +91,7 @@ export default function AssetProfit() {
     <div className=" grid grid-cols-3 bg-portfolioBarBgColor px-7 py-4">
       <div className="col-span-1">
         <div className="flex items-center">
-          <span className="text-sm text-primaryText">
-            Your Interest (USD value)
-          </span>
+          <span className="text-sm text-primaryText">Your Interest</span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
