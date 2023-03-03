@@ -1137,7 +1137,7 @@ function OpenOrders({
           <img
             src={fromToken?.icon}
             alt=""
-            className="rounded-full w-5 h-5 mr-2"
+            className="rounded-full flex-shrink-0 w-5 h-5 mr-2"
           />
 
           <span>{symbolFrom}</span>
