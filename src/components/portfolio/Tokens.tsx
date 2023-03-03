@@ -27,6 +27,13 @@ import {
 } from './Tool';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { WalletContext } from '../../utils/wallets-integration';
+import {
+  AuroraIcon,
+  AuroraIconActive,
+  TriangleGreyIcon,
+  CopyIcon,
+} from '../../components/icon/Portfolio';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 export default function Tokens() {
   const { tokenPriceList } = useContext(PortfolioData);
   const [pieOption, setPieOption] = useState(null);
@@ -47,6 +54,13 @@ export default function Tokens() {
   const auroraAddress = auroraAddr(
     getCurrentWallet()?.wallet?.getAccountId() || ''
   );
+  const displayAuroraAddress = `${auroraAddress?.substring(
+    0,
+    6
+  )}...${auroraAddress?.substring(
+    auroraAddress.length - 6,
+    auroraAddress.length
+  )}`;
 
   const userTokens = useUserRegisteredTokensAllAndNearBalance();
   const balances = useTokenBalances(); // inner account balance
@@ -56,6 +70,7 @@ export default function Tokens() {
     !userTokens || !balances || !auroaBalances || !DCLAccountBalance;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+
   useEffect(() => {
     if (!is_tokens_loading) {
       userTokens.forEach((token: TokenMetadata) => {
@@ -311,35 +326,86 @@ export default function Tokens() {
       }
     }
   }
+  function showTotalValue() {
+    let target = '0';
+    if (activeTab == 'near') {
+      target = near_total_value;
+    } else if (activeTab == 'ref') {
+      target = ref_total_value;
+    } else if (activeTab == 'dcl') {
+      target = dcl_total_value;
+    } else if (activeTab == 'aurora') {
+      target = aurora_total_value;
+    }
+    return display_value_withCommas(target);
+  }
   return (
     <div className="mt-6">
       <div className="px-5">
         <div className="text-base text-white mb-4 gotham_bold">
           Token allocation
         </div>
-        <div
-          className={`flex items-center justify-between ${
-            tabList.length > 1 ? '' : 'hidden'
-          }`}
-        >
-          <div className="flex items-center h-8 rounded-lg p-0.5 border border-commonTokenBorderColor">
-            {tabList.map((item) => {
-              return (
-                <span
-                  key={item.tag}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div
+              className={`flex items-center mr-2 ${
+                tabList.length > 1 ? '' : 'hidden'
+              }`}
+            >
+              <div className="flex items-center h-8 rounded-lg p-0.5 border border-commonTokenBorderColor">
+                {tabList.map((item, index) => {
+                  return (
+                    <span
+                      key={item.tag}
+                      onClick={() => {
+                        setActiveTab(item.tag);
+                      }}
+                      className={`flex items-center justify-center rounded-md h-full w-20 text-xs gotham_bold cursor-pointer hover:bg-portfolioLightGreyColor ${
+                        index != tabList.length - 1 ? 'mr-0.5' : ''
+                      } ${
+                        activeTab == item.tag
+                          ? 'bg-portfolioLightGreyColor text-white'
+                          : 'text-primaryText'
+                      }`}
+                    >
+                      {item.name}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+            <div
+              className={`flex items-center justify-center rounded-lg h-8 p-0.5 mr-3 ${
+                tabList.length == 1 ? '' : 'hidden'
+              } ${
+                activeTab == 'near' ? 'border border-gradientFromHover' : ''
+              }`}
+            >
+              <span
+                onClick={() => {
+                  setActiveTab('near');
+                }}
+                className={`flex items-center justify-center rounded-md h-full px-2 text-xs gotham_bold cursor-pointer hover:bg-portfolioLightGreyColor ${
+                  activeTab == 'near'
+                    ? 'bg-portfolioLightGreyColor text-white'
+                    : 'text-primaryText'
+                }`}
+              >
+                NEAR wallet
+              </span>
+            </div>
+            {Object.keys(auroaBalances || {}).length > 0 ? (
+              activeTab == 'aurora' ? (
+                <AuroraIconActive className="cursor-pointer"></AuroraIconActive>
+              ) : (
+                <AuroraIcon
                   onClick={() => {
-                    setActiveTab(item.tag);
+                    setActiveTab('aurora');
                   }}
-                  className={`flex items-center justify-center rounded-md h-full w-20 text-xs gotham_bold cursor-pointer ${
-                    activeTab == item.tag
-                      ? 'bg-portfolioLightGreyColor text-white'
-                      : 'text-primaryText'
-                  }`}
-                >
-                  {item.name}
-                </span>
-              );
-            })}
+                  className="text-primaryText hover:text-portfolioLightGreenColor cursor-pointer"
+                ></AuroraIcon>
+              )
+            ) : null}
           </div>
           <ArrowJumpLarge
             clickEvent={() => {
@@ -350,22 +416,36 @@ export default function Tokens() {
           ></ArrowJumpLarge>
         </div>
         <div
-          className={`flex items-start justify-between ${
-            tabList.length == 1 ? '' : 'hidden'
+          className={`flex items-center justify-between mt-4 ${
+            activeTab == 'aurora' ? '' : 'hidden'
           }`}
         >
-          <div className="flex flex-col items-start">
-            <span className="text-sm text-primaryText">NEAR Wallet</span>
-            <span className="text-xl text-white gotham_bold">
-              {display_value_withCommas(near_total_value)}
-            </span>
+          <div className="flex items-center">
+            <TriangleGreyIcon className="mr-1"></TriangleGreyIcon>
+            <span className="text-xs text-primaryText">Mapping Account</span>
           </div>
-          <ArrowJumpLarge
-            clickEvent={() => {
-              window.open('/account');
-            }}
-            extraClass="flex-shrink-0"
-          ></ArrowJumpLarge>
+          <div className="flex items-center">
+            <span className="text-xs text-white mr-1.5">
+              {displayAuroraAddress}
+            </span>
+            <CopyToClipboard text={auroraAddress}>
+              {/* <div
+                className="cursor-pointer"
+                onMouseEnter={() => setAuroraAccountHover(true)}
+                onMouseLeave={() => setAuroraAccountHover(false)}
+                onMouseDown={() => setAuroraAccountCopyDown(true)}
+                onMouseUp={() => setAuroraAccountCopyDown(false)}
+              >
+                <CopyIcon
+                  fillColor={auroraAccountCopyDown ? '#001320' : '#ffffff'}
+                />
+              </div> */}
+              <CopyIcon className="text-primaryText hover:text-white cursor-pointer"></CopyIcon>
+            </CopyToClipboard>
+          </div>
+        </div>
+        <div className="text-xl gotham_bold text-white mt-2">
+          {showTotalValue()}
         </div>
       </div>
       <div className="flex items-center justify-center mt-8">
