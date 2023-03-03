@@ -872,7 +872,7 @@ function MoreMenu() {
           setHover(false);
           onClickMenuItem?.(menuData, '');
         }}
-        style={{ zIndex: '99' }}
+        style={{ zIndex: 599 }}
       >
         <div
           className={`rounded-xl p-3 mx-4 cursor-pointer xsm:bg-transparent ${

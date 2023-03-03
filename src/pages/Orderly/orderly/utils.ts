@@ -63,9 +63,6 @@ export const getNormalizeTradingKey = () => {
   return normalizeTradingKey;
 };
 
-// call to set trading_key
-// await contract.user_request_set_trading_key({ key: normalizeTradingKey });
-
 export const find_orderly_functionCall_key = async (accountId: string) => {
   const nearConnection = await near.account(accountId);
 
@@ -81,12 +78,8 @@ export const find_orderly_functionCall_key = async (accountId: string) => {
   return orderlyKey;
 };
 
-export const getPublicKey = async (accountId: string) => {
-  const publicKey = (await keyStore.getKey(getConfig().networkId, accountId))
-    ?.getPublicKey()
-    ?.toString();
-
-  return publicKey;
+export const getSelectedWalletId = () => {
+  return window.selector.store.getState().selectedWalletId;
 };
 
 export const getLocalPrivateKey = (
@@ -96,6 +89,32 @@ export const getLocalPrivateKey = (
   return localStorage.getItem(
     `${prefix}:keystore:${accountId}:${getConfig().networkId}`
   );
+};
+
+const getSenderAccessKey = () => {
+  // @ts-ignore
+
+  const keyStoreSender = window?.near?.authData?.accessKey;
+
+  if (!keyStoreSender) alert('no accessKey found in sender');
+
+  return keyStoreSender;
+};
+
+export const getPublicKey = async (accountId: string) => {
+  const selectedWalletId = getSelectedWalletId();
+
+  if (selectedWalletId === 'sender') {
+    // @ts-ignore
+
+    return getSenderAccessKey()?.['publicKey'];
+  }
+
+  const publicKey = (await keyStore.getKey(getConfig().networkId, accountId))
+    ?.getPublicKey()
+    ?.toString();
+
+  return publicKey;
 };
 
 // get signature function
@@ -126,11 +145,24 @@ export const generateRequestSignatureHeader = async ({
 }) => {
   const message = generateMessage(time_stamp, method, url, body);
 
-  const keyStore = new keyStores.BrowserLocalStorageKeyStore();
+  let signature;
 
-  const keyPair = await keyStore.getKey(getConfig().networkId, accountId);
+  let keyPair;
 
-  const signature = keyPair?.sign(Buffer.from(message))?.signature;
+  const selectedWalletId = getSelectedWalletId();
+
+  if (selectedWalletId === 'sender') {
+    const accessKeys = getSenderAccessKey();
+
+    keyPair = KeyPair.fromString('ed25519:' + accessKeys.secretKey);
+    signature = keyPair?.sign(Buffer.from(message))?.signature;
+  } else {
+    const keyStore = new keyStores.BrowserLocalStorageKeyStore();
+
+    keyPair = await keyStore.getKey(getConfig().networkId, accountId);
+
+    signature = keyPair?.sign(Buffer.from(message))?.signature;
+  }
 
   // return atob(signature.toString());
 
