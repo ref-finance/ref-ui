@@ -438,7 +438,7 @@ function OrderLine({
       <td
         className={`col-span-1 py-3 relative  ${
           openEdit ? 'items-start ' : 'items-center'
-        } ${showCurSymbol ? 'pl-5' : 'pl-0'} `}
+        } ${showCurSymbol ? 'pl-5' : 'pl-0 transform translate-x-1/3'} `}
       >
         <TextWrapper
           className="px-2 text-sm"
@@ -775,7 +775,7 @@ function HistoryOrderLine({
           {marketInfo}
         </td>
 
-        <td className={`col-span-1 py-3 ${showCurSymbol ? 'pl-5' : ''}`}>
+        <td className={`col-span-1 py-3 ${showCurSymbol ? 'pl-5' : 'transform translate-x-1/3'}`}>
           <TextWrapper
             className="px-2 text-sm"
             value={order.side === 'BUY' ? 'Buy' : 'Sell'}
@@ -1213,7 +1213,7 @@ function OpenOrders({
             </FlexRow>
           </th>
 
-          <th>
+          <th className={showCurSymbol ? '' :'transform translate-x-1/3'}>
             <FlexRow
               className={`col-span-1 py-2 ${
                 showCurSymbol ? 'pl-5' : ''
@@ -1563,7 +1563,7 @@ function HistoryOrders({
           <img
             src={fromToken?.icon}
             alt=""
-            className="rounded-full w-5 h-5 mr-2"
+            className="rounded-full flex-shrink-0 w-5 h-5 mr-2"
           />
 
           <span>{symbolFrom}</span>
@@ -1642,7 +1642,7 @@ function HistoryOrders({
             )}
           </th>
 
-          <th className="py-2.5">
+          <th className={`py-2.5 ${showCurSymbol ? '' :'transform translate-x-1/3'}`}>
             <FlexRow
               className={`col-span-1  relative ${showCurSymbol ? 'pl-5' : ''}`}
             >
