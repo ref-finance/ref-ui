@@ -118,10 +118,6 @@ export function YourLiquidityV1(props: any) {
   const { selector, modal, accounts, accountId, setAccountId } =
     useWalletSelector();
   const isSignedIn = !!accountId;
-  if (!isSignedIn) {
-    history.push('/');
-    return null;
-  }
   useEffect(() => {
     // get all stable pools;
     const ids = ALL_STABLE_POOL_IDS;

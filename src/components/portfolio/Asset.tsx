@@ -90,16 +90,10 @@ export default function Asset() {
     return result;
   }
   function getV2PoolUSDValue() {
-    if (lpValueV2Done) {
-      return display_value(YourLpValueV2);
-    }
-    return '$0';
+    return display_value(YourLpValueV2);
   }
   function getV1PoolUSDValue() {
-    if (lpValueV1Done) {
-      return display_value(YourLpValueV1);
-    }
-    return '$0';
+    return display_value(YourLpValueV1);
   }
   return (
     <div

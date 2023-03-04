@@ -27,17 +27,6 @@ export default function Tab() {
     active_order_quanity,
     active_order_value,
   } = useContext(PortfolioData);
-  // console.log('555555555-dcl_farms_value_done', dcl_farms_value_done);
-  // console.log('555555555-classic_farms_value_done', classic_farms_value_done);
-  // console.log('555555555-dcl_farms_value', dcl_farms_value);
-  // console.log('555555555-classic_farms_value', classic_farms_value);
-  // console.log('555555555-all_farms_quanity', all_farms_quanity);
-  // console.log('555555555-all_farms_Loading_done', all_farms_Loading_done);
-
-  // console.log('55555555555-lpValueV1Done,', lpValueV1Done);
-  // console.log('55555555555-lpValueV2Done,', lpValueV2Done);
-  // console.log('55555555555-YourLpValueV1,', YourLpValueV1);
-  // console.log('55555555555-YourLpValueV2,', YourLpValueV2);
 
   const [tabList, setTabList] = useState([
     { name: 'Active Orders', tag: 1, value: '$-', quantity: '-' },
@@ -129,16 +118,21 @@ export default function Tab() {
   return (
     <div className="flex items-center mt-10  pl-6">
       {tabList.map(
-        (tab: {
-          name: string;
-          tag: number;
-          value: string;
-          quantity: string;
-        }) => {
+        (
+          tab: {
+            name: string;
+            tag: number;
+            value: string;
+            quantity: string;
+          },
+          index
+        ) => {
           return (
             <div
               key={tab.name}
-              className="flex flex-col items-start mr-10 cursor-pointer"
+              className={`flex flex-col items-start cursor-pointer ${
+                index != tabList.length - 1 ? 'mr-20' : ''
+              }`}
               onClick={() => {
                 switchTab(tab.tag);
               }}

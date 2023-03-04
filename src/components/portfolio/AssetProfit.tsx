@@ -7,6 +7,7 @@ import ReactTooltip from 'react-tooltip';
 import { PortfolioData } from '../../pages/Portfolio';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import { ArrowJump, display_value } from './Tool';
+import { WalletContext } from '../../utils/wallets-integration';
 
 export default function AssetProfit() {
   const {
@@ -16,6 +17,8 @@ export default function AssetProfit() {
     dcl_liquidities_details_list,
     dcl_tokens_metas,
   } = useContext(PortfolioData);
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
   const total_unClaimed_rewrads_value = useMemo(() => {
     let total_value = new BigNumber(0);
     if (

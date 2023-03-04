@@ -15,7 +15,6 @@ import {
   get_config,
   BoostConfig,
   UserSeedInfo,
-  getBoostTokenPrices,
   frontConfigBoost,
 } from '../../services/farm';
 import getConfig from '../../services/config';
@@ -53,7 +52,7 @@ import { NFTIdIcon } from '~components/icon/FarmBoost';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
-import { display_value, UpDownButton } from './Tool';
+import { display_value, UpDownButton, NoDataCard } from './Tool';
 const FarmCommonDatas = createContext(null);
 export default function Farms(props: any) {
   const {
@@ -65,6 +64,7 @@ export default function Farms(props: any) {
     set_all_farms_quanity,
     set_all_farms_Loading_done,
     all_farms_Loading_done,
+    all_farms_quanity,
     user_unclaimed_map,
     set_user_unclaimed_map,
     user_unclaimed_token_meta_map,
@@ -240,6 +240,10 @@ export default function Farms(props: any) {
     });
     return apr;
   }
+  const loading_status = !all_farms_Loading_done && isSignedIn;
+  const noData_status =
+    (all_farms_Loading_done && all_farms_quanity == 0) || !isSignedIn;
+  const data_status = all_farms_Loading_done && all_farms_quanity > 0;
   return (
     <>
       <FarmCommonDatas.Provider
@@ -254,17 +258,25 @@ export default function Farms(props: any) {
           your_list_liquidities,
         }}
       >
-        <div className="flex items-center justify-between text-sm text-v3SwapGray mb-2.5 pl-6 pr-16">
+        <div
+          className={`flex items-center justify-between text-sm text-v3SwapGray mb-2.5 pl-6 pr-16 ${
+            data_status ? '' : 'hidden'
+          }`}
+        >
           <span>Farms</span>
           <span>Your Liquidity</span>
         </div>
         <ClassicFarms></ClassicFarms>
         <DclFarms></DclFarms>
-        {!all_farms_Loading_done && isSignedIn ? (
-          <div className="flex items-center justify-center">
+        {loading_status ? (
+          <div className="flex items-center justify-center my-20">
             <BlueCircleLoading />
           </div>
-        ) : null}
+        ) : (
+          noData_status && (
+            <NoDataCard text="Your yield farming will appear here."></NoDataCard>
+          )
+        )}
       </FarmCommonDatas.Provider>
     </>
   );

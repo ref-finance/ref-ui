@@ -2,10 +2,7 @@ import React, { useEffect, useMemo, useState, useContext } from 'react';
 import BigNumber from 'bignumber.js';
 import { useUserRegisteredTokensAllAndNearBalance } from '../../state/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import {
-  toInternationalCurrencySystem,
-  toReadableNumber,
-} from '~utils/numbers';
+import { toReadableNumber } from '~utils/numbers';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import ReactECharts from 'echarts-for-react';
 import { useWalletSelector } from '~context/WalletSelectorContext';
@@ -70,7 +67,6 @@ export default function Tokens() {
     !userTokens || !balances || !auroaBalances || !DCLAccountBalance;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-
   useEffect(() => {
     if (!is_tokens_loading) {
       userTokens.forEach((token: TokenMetadata) => {
@@ -91,7 +87,8 @@ export default function Tokens() {
       });
       if (Object.keys(balances).length > 0) {
         tabList.push({ name: 'REF V1', tag: 'ref' });
-      } else if (Object.keys(DCLAccountBalance).length > 0) {
+      }
+      if (Object.keys(DCLAccountBalance).length > 0) {
         tabList.push({ name: 'REF V2', tag: 'dcl' });
       }
       setTabList(JSON.parse(JSON.stringify(tabList)));
@@ -376,7 +373,7 @@ export default function Tokens() {
             </div>
             <div
               className={`flex items-center justify-center rounded-lg h-8 p-0.5 mr-3 ${
-                tabList.length == 1 ? '' : 'hidden'
+                tabList.length == 1 && isSignedIn ? '' : 'hidden'
               } ${
                 activeTab == 'near' ? 'border border-gradientFromHover' : ''
               }`}
@@ -394,6 +391,13 @@ export default function Tokens() {
                 NEAR wallet
               </span>
             </div>
+            <div
+              className={`text-sm text-primaryText ${
+                isSignedIn ? 'hidden' : ''
+              }`}
+            >
+              NEAR Wallet
+            </div>
             {Object.keys(auroaBalances || {}).length > 0 ? (
               activeTab == 'aurora' ? (
                 <AuroraIconActive className="cursor-pointer"></AuroraIconActive>
@@ -409,10 +413,23 @@ export default function Tokens() {
           </div>
           <ArrowJumpLarge
             clickEvent={() => {
-              localStorage.setItem('REF_FI_ACCOUNT_TAB_KEY', activeTab);
+              if (activeTab == 'aurora') {
+                localStorage.setItem('REF_FI_SWAP_SWAPPAGE_TAB_VALUE', 'cross');
+                localStorage.setItem(
+                  'REF_FI_ACCOUNT_TAB_AURORA_KEY',
+                  activeTab
+                );
+              } else {
+                localStorage.setItem(
+                  'REF_FI_SWAP_SWAPPAGE_TAB_VALUE',
+                  'normal'
+                );
+                localStorage.setItem('REF_FI_ACCOUNT_TAB_KEY', activeTab);
+              }
+
               window.open('/account');
             }}
-            extraClass="flex-shrink-0"
+            extraClass={`flex-shrink-0 ${isSignedIn ? '' : 'hidden'}`}
           ></ArrowJumpLarge>
         </div>
         <div
@@ -429,17 +446,6 @@ export default function Tokens() {
               {displayAuroraAddress}
             </span>
             <CopyToClipboard text={auroraAddress}>
-              {/* <div
-                className="cursor-pointer"
-                onMouseEnter={() => setAuroraAccountHover(true)}
-                onMouseLeave={() => setAuroraAccountHover(false)}
-                onMouseDown={() => setAuroraAccountCopyDown(true)}
-                onMouseUp={() => setAuroraAccountCopyDown(false)}
-              >
-                <CopyIcon
-                  fillColor={auroraAccountCopyDown ? '#001320' : '#ffffff'}
-                />
-              </div> */}
               <CopyIcon className="text-primaryText hover:text-white cursor-pointer"></CopyIcon>
             </CopyToClipboard>
           </div>
@@ -448,6 +454,11 @@ export default function Tokens() {
           {showTotalValue()}
         </div>
       </div>
+      {isSignedIn ? null : (
+        <div className="flex items-center justify-center text-sm text-primaryText my-20 w-60 mx-auto text-center">
+          Your wallet/account assets will appear here.
+        </div>
+      )}
       <div className="flex items-center justify-center mt-8">
         {pieOption ? (
           <ReactECharts
