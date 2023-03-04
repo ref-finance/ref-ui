@@ -6,7 +6,10 @@ import React, {
   createContext,
 } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { WalletContext } from '../../utils/wallets-integration';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import {
   list_farmer_seeds,
   get_unclaimed_rewards,
@@ -80,7 +83,8 @@ export default function Farms(props: any) {
     UserLiquidityInfo[]
   >([]);
   const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const isSignedIn = !!accountId || globalState.isSignedIn;
   useEffect(() => {
     if (isSignedIn) {
       getBoostConfig();

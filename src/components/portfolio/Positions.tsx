@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
-import { WalletContext } from '../../utils/wallets-integration';
-import { ConnectToNearBtnSwap } from '../../components/button/Button';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import { YourLiquidityV1 } from '../../components/pool/YourLiquidityV1';
 import { YourLiquidityV2 } from '../../components/pool/YourLiquidityV2';
 import { PortfolioData } from '../../pages/Portfolio';
@@ -8,7 +10,6 @@ import { BlueCircleLoading } from '../../components/layout/Loading';
 import { NoDataCard } from './Tool';
 
 export default function Positions(props: any) {
-  const { globalState } = useContext(WalletContext);
   const {
     setYourLpValueV2,
     setYourLpValueV1,
@@ -23,8 +24,9 @@ export default function Positions(props: any) {
     v1LiquidityLoadingDone,
     v2LiquidityLoadingDone,
   } = useContext(PortfolioData);
-
-  const isSignedIn = globalState.isSignedIn;
+  const { globalState } = useContext(WalletContext);
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const isSignedIn = !!accountId || globalState.isSignedIn;
   const total_quantity = +v1LiquidityQuantity + +v2LiquidityQuantity;
   const loading_status =
     !(v1LiquidityLoadingDone && v2LiquidityLoadingDone) && isSignedIn;

@@ -39,8 +39,10 @@ import BigNumber from 'bignumber.js';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import { UpDownButton, NoDataCard } from './Tool';
-import { WalletContext } from '../../utils/wallets-integration';
-import { isSignedIn } from '@near-wallet-selector/neth';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 
 const PriceContext = createContext(null);
 export default function Orders(props: any) {
@@ -110,7 +112,8 @@ function OrderCard({
   tokensMap: { [key: string]: TokenMetadata };
 }) {
   const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const isSignedIn = !!accountId || globalState.isSignedIn;
   const intl = useIntl();
 
   const [activeSortBy, setActiveSortBy] = useState<'unclaim' | 'created'>(

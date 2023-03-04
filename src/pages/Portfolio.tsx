@@ -14,7 +14,7 @@ import { TokenMetadata } from '~services/ft-contract';
 
 export const PortfolioData = createContext(null);
 function Portfolio() {
-  const [activeTab, setActiveTab] = useState(3); // 1,2,3
+  const [activeTab, setActiveTab] = useState(1); // 1,2,3
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
   const [YourLpValueV1, setYourLpValueV1] = useState('0');
   const [lpValueV1Done, setLpValueV1Done] = useState(false);

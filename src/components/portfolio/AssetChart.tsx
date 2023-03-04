@@ -21,9 +21,13 @@ import { toPrecision, formatWithCommas } from '~utils/numbers';
 import { DotTopArea, DotBottomArea } from '../../components/icon/Portfolio';
 import { ChartNoData } from '../../components/icon/ChartNoData';
 import { ConnectToNearBtn } from '~components/button/Button';
-import { WalletContext } from '../../utils/wallets-integration';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 export default function AssetChart() {
   const [assetData, setAssetData] = useState([]);
+  const [assetDataDone, setAssetDataDone] = useState<boolean>(false);
   const [dimension, setDimension] = useState([
     { text: '24H', key: 'H' },
     { text: '7D', key: 'W' },
@@ -31,10 +35,12 @@ export default function AssetChart() {
   ]);
   const [activeDimension, setActiveDimension] = useState<'M' | 'W' | 'H'>('H');
   const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const isSignedIn = !!accountId || globalState.isSignedIn;
   useEffect(() => {
     getAssets(activeDimension).then((res) => {
       setAssetData(res);
+      setAssetDataDone(true);
     });
   }, [activeDimension]);
 
@@ -74,6 +80,7 @@ export default function AssetChart() {
     }
     return <div></div>;
   };
+
   return (
     <div className="flex flex-col justify-between w-full px-3 pt-5 pb-2">
       <div className="flex items-center justify-end">
@@ -97,92 +104,76 @@ export default function AssetChart() {
           );
         })}
       </div>
-      {isSignedIn ? (
-        <>
-          {assetData.length == 0 ? (
-            <NoDataArea></NoDataArea>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={assetData}>
-                <defs>
-                  <linearGradient
-                    id="colorGradient"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop offset="5%" stopColor="#00c6a2" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#00c6a2" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <defs>
-                  <linearGradient
-                    id="colorGradient2"
-                    x1="0"
-                    y1="0"
-                    x2="1"
-                    y2="1"
-                  >
-                    <stop offset="5%" stopColor="#6A28FF" stopOpacity={1} />
-                    <stop offset="95%" stopColor="#00FFD1" stopOpacity={1} />
-                  </linearGradient>
-                </defs>
-                {isClientMobie() ? null : (
-                  <XAxis
-                    dataKey="date_itme"
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value, index) => {
-                      const [ymd, hh] = value.split(' ');
-                      const [week, month, day, year] = new Date(
-                        ymd.replace(/-/g, '/')
-                      )
-                        .toDateString()
-                        .split(' ');
-                      if (activeDimension == 'H') {
-                        return `${hh}:00`;
-                      } else if (activeDimension == 'W') {
-                        return `${month} ${day} ${hh}:00`;
-                      } else {
-                        return `${day} ${month}`;
-                      }
-                    }}
-                  />
-                )}
-
-                <Tooltip
-                  wrapperStyle={
-                    {
-                      // display:'none',
-                      // backgroundColor:'red',
-                      // border:'10px solid orange',
-                      // padding:'0'
-                    }
+      {!isSignedIn ? <UnloginArea></UnloginArea> : null}
+      {isSignedIn && assetData.length == 0 && assetDataDone ? (
+        <NoDataArea></NoDataArea>
+      ) : null}
+      {assetData.length > 0 ? (
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={assetData}>
+            <defs>
+              <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#00c6a2" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#00c6a2" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <defs>
+              <linearGradient id="colorGradient2" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="5%" stopColor="#6A28FF" stopOpacity={1} />
+                <stop offset="95%" stopColor="#00FFD1" stopOpacity={1} />
+              </linearGradient>
+            </defs>
+            {isClientMobie() ? null : (
+              <XAxis
+                dataKey="date_itme"
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value, index) => {
+                  const [ymd, hh] = value.split(' ');
+                  const [week, month, day, year] = new Date(
+                    ymd.replace(/-/g, '/')
+                  )
+                    .toDateString()
+                    .split(' ');
+                  if (activeDimension == 'H') {
+                    return `${hh}:00`;
+                  } else if (activeDimension == 'W') {
+                    return `${month} ${day} ${hh}:00`;
+                  } else {
+                    return `${day} ${month}`;
                   }
-                  // itemStyle={{
-                  //   backgroundColor:'red',
-                  //   border:'10px solid orange'
-                  // }}
-                  // contentStyle={{border:'10px solid orange', backgroundColor:'red'}}
-                  content={<CustomTooltip />}
-                  cursor={{ opacity: '0.3' }}
-                />
-                <Area
-                  dataKey="assets"
-                  dot={false}
-                  stroke="url(#colorGradient2)"
-                  strokeWidth={3}
-                  fillOpacity={1}
-                  fill="url(#colorGradient)"
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
-          )}
-        </>
-      ) : (
-        <UnloginArea></UnloginArea>
-      )}
+                }}
+              />
+            )}
+
+            <Tooltip
+              wrapperStyle={
+                {
+                  // display:'none',
+                  // backgroundColor:'red',
+                  // border:'10px solid orange',
+                  // padding:'0'
+                }
+              }
+              // itemStyle={{
+              //   backgroundColor:'red',
+              //   border:'10px solid orange'
+              // }}
+              // contentStyle={{border:'10px solid orange', backgroundColor:'red'}}
+              content={<CustomTooltip />}
+              cursor={{ opacity: '0.3' }}
+            />
+            <Area
+              dataKey="assets"
+              dot={false}
+              stroke="url(#colorGradient2)"
+              strokeWidth={3}
+              fillOpacity={1}
+              fill="url(#colorGradient)"
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      ) : null}
     </div>
   );
 }

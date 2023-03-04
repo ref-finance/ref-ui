@@ -7,7 +7,10 @@ import ReactTooltip from 'react-tooltip';
 import { ftGetBalance } from '~services/ft-contract';
 import { REF_FI_POOL_ACTIVE_TAB } from '../../pages/pools/LiquidityPage';
 import { PortfolioData } from '../../pages/Portfolio';
-import { WalletContext } from '../../utils/wallets-integration';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import getConfig from '../../services/config';
 const { XREF_TOKEN_ID } = getConfig();
 import { ArrowJump, display_percentage, display_value } from './Tool';
@@ -28,7 +31,8 @@ export default function Asset() {
   } = useContext(PortfolioData);
   const [xrefBalance, setXrefBalance] = useState('0');
   const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const isSignedIn = !!accountId || globalState.isSignedIn;
   useEffect(() => {
     if (isSignedIn) {
       // get xref balance

@@ -11,7 +11,6 @@ import {
   useAuroraBalancesNearMapping,
   useDCLAccountBalance,
 } from '~services/aurora/aurora';
-import { getCurrentWallet } from '~utils/wallets-integration';
 import { useTokenBalances } from '~state/token';
 import { NEARXIDS } from '~services/near';
 import { PortfolioData } from '../../pages/Portfolio';
@@ -23,7 +22,10 @@ import {
   display_value_withCommas,
 } from './Tool';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-import { WalletContext } from '../../utils/wallets-integration';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
 import {
   AuroraIcon,
   AuroraIconActive,
@@ -46,8 +48,9 @@ export default function Tokens() {
   const [near_total_value, set_near_total_value] = useState<string>('0');
   const [dcl_total_value, set_dcl_total_value] = useState<string>('0');
   const [aurora_total_value, set_aurora_total_value] = useState<string>('0');
-
-  const { accountId } = useWalletSelector();
+  const { globalState } = useContext(WalletContext);
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const isSignedIn = !!accountId || globalState.isSignedIn;
   const auroraAddress = auroraAddr(
     getCurrentWallet()?.wallet?.getAccountId() || ''
   );
@@ -65,8 +68,7 @@ export default function Tokens() {
   const DCLAccountBalance = useDCLAccountBalance(!!accountId);
   const is_tokens_loading =
     !userTokens || !balances || !auroaBalances || !DCLAccountBalance;
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
+
   useEffect(() => {
     if (!is_tokens_loading) {
       userTokens.forEach((token: TokenMetadata) => {
