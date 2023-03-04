@@ -85,6 +85,7 @@ module.exports = {
           'linear-gradient(90deg, #00C6A2 2.54%, rgba(91, 64, 255, 0.5) 70%, rgba(91, 64, 255, 0) 100%)',
         portfolioRainbowColor:
           'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
+        darkBlueColor:'linear-gradient(360deg, #1A2B35 0%, rgba(19, 33, 42, 0) 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',

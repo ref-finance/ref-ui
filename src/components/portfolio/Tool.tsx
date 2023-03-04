@@ -8,6 +8,7 @@ import BigNumber from 'bignumber.js';
 import { ArrowRightIcon } from '../../components/icon/V3';
 import { ArrowRIcon, WavyLine, CircleBg } from '../icon/Portfolio';
 import { TriangleIcon } from '../../components/icon/Portfolio';
+import { getCurrentWallet } from '../../utils/wallets-integration';
 export function ArrowJump(props: any) {
   const [hover, setHover] = useState(false);
   const { clickEvent, extraClass } = props;
@@ -118,6 +119,8 @@ export function display_number(amount: string) {
   }
 }
 export function display_percentage(amount: string) {
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  if (!accountId) return '-';
   const amount_big = new BigNumber(amount);
   if (amount_big.isEqualTo('0')) {
     return '0';
@@ -128,6 +131,8 @@ export function display_percentage(amount: string) {
   }
 }
 export function display_value(amount: string) {
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  if (!accountId) return '$-';
   const amount_big = new BigNumber(amount);
   if (amount_big.isEqualTo('0')) {
     return '$0';
@@ -138,6 +143,8 @@ export function display_value(amount: string) {
   }
 }
 export function display_value_withCommas(amount: string) {
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  if (!accountId) return '$-';
   const amount_big = new BigNumber(amount);
   if (amount_big.isEqualTo('0')) {
     return '$0';

@@ -373,7 +373,7 @@ export default function Tokens() {
             </div>
             <div
               className={`flex items-center justify-center rounded-lg h-8 p-0.5 mr-3 ${
-                tabList.length == 1 ? '' : 'hidden'
+                tabList.length == 1 && isSignedIn ? '' : 'hidden'
               } ${
                 activeTab == 'near' ? 'border border-gradientFromHover' : ''
               }`}
@@ -390,6 +390,13 @@ export default function Tokens() {
               >
                 NEAR wallet
               </span>
+            </div>
+            <div
+              className={`text-sm text-primaryText ${
+                isSignedIn ? 'hidden' : ''
+              }`}
+            >
+              NEAR Wallet
             </div>
             {Object.keys(auroaBalances || {}).length > 0 ? (
               activeTab == 'aurora' ? (
@@ -422,7 +429,7 @@ export default function Tokens() {
 
               window.open('/account');
             }}
-            extraClass="flex-shrink-0"
+            extraClass={`flex-shrink-0 ${isSignedIn ? '' : 'hidden'}`}
           ></ArrowJumpLarge>
         </div>
         <div
@@ -447,6 +454,11 @@ export default function Tokens() {
           {showTotalValue()}
         </div>
       </div>
+      {isSignedIn ? null : (
+        <div className="flex items-center justify-center text-sm text-primaryText my-20 w-60 mx-auto text-center">
+          Your wallet/account assets will appear here.
+        </div>
+      )}
       <div className="flex items-center justify-center mt-8">
         {pieOption ? (
           <ReactECharts
