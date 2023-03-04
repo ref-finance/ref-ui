@@ -496,9 +496,11 @@ export default function UserBoard() {
       .then(async (key_announce) => {
         setKeyAnnounced(key_announce);
         if (!key_announce) {
-          await announceKey(accountId).then((res) => {
+          const res = await announceKey(accountId).then((res) => {
             setKeyAnnounced(true);
           });
+
+          console.log(res, 'rees');
         } else return;
       })
       .then(() => {
@@ -512,6 +514,10 @@ export default function UserBoard() {
         });
       })
       .catch((e) => {
+        setKeyAnnounced(false);
+        setTradingKeySet(false);
+        setValidAccountSig(false);
+
         localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
       });
   }, [accountId, storageEnough, agreeCheck]);

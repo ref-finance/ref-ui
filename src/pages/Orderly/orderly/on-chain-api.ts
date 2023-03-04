@@ -14,11 +14,12 @@ import {
   ORDERLY_ASSET_MANAGER,
   keyStore,
 } from '../near';
-import { getNormalizeTradingKey, getPublicKey } from './utils';
 import {
-  find_orderly_functionCall_key,
-  STORAGE_TO_REGISTER_WITH_MFT,
+  getNormalizeTradingKey,
+  getPublicKey,
+  getSelectedWalletId,
 } from './utils';
+
 import getConfig from '../config';
 import { BN } from 'bn.js';
 import { ONE_YOCTO_NEAR } from '../near';
@@ -27,6 +28,8 @@ import {
   formatNearAmount,
   parseNearAmount,
 } from 'near-api-js/lib/utils/format';
+import { contract } from './api';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../components/UserBoard/index';
 
 export const REGISTER_DEPOSIT_AMOUNT = '0.05';
 
@@ -57,7 +60,17 @@ const user_account_exists = async (user: string) => {
 
 const is_orderly_key_announced = async (user: string) => {
   const orderly_key = await getPublicKey(user);
+
   if (!orderly_key) return null;
+
+  const selectedWalletId = getSelectedWalletId();
+  if (selectedWalletId === 'ledger') {
+    const valid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+
+    if (!valid) {
+      return false;
+    }
+  }
 
   return orderlyViewFunction({
     methodName: 'is_orderly_key_announced',
@@ -72,6 +85,15 @@ const is_trading_key_set = async (user: string) => {
   const orderly_key = await getPublicKey(user);
 
   if (!orderly_key) return null;
+  const selectedWalletId = getSelectedWalletId();
+
+  if (selectedWalletId === 'ledger') {
+    const valid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
+
+    if (!valid) {
+      return false;
+    }
+  }
 
   return orderlyViewFunction({
     methodName: 'is_trading_key_set',

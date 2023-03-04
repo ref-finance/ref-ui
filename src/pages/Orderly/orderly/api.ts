@@ -14,15 +14,12 @@ import {
 } from './on-chain-api';
 import { Transaction as WSTransaction } from '@near-wallet-selector/core';
 
-import { utils } from 'near-api-js';
+import { Contract, KeyPair, utils } from 'near-api-js';
 
-import {
-  find_orderly_functionCall_key,
-  getNormalizeTradingKey,
-  toNonDivisibleNumber,
-} from './utils';
+import { getNormalizeTradingKey, toNonDivisibleNumber } from './utils';
 import {
   getAddFunctionCallKeyTransaction,
+  keyStore,
   ORDERLY_ASSET_MANAGER,
 } from '../near';
 import {
@@ -40,6 +37,8 @@ import { getOrderlyConfig } from '../config';
 import { registerAccountOnToken } from '../../../services/creators/token';
 import { ftViewFunction } from '../../../services/ft-contract';
 import { executeMultipleTransactions } from '~services/near';
+import getConfig from '../config';
+import { ledgerTipTrigger } from '../../../utils/wallets-integration';
 
 const signAndSendTransactions = async (transactions: Transaction[]) => {
   return executeMultipleTransactions(transactions);
@@ -48,8 +47,106 @@ const signAndSendTransactions = async (transactions: Transaction[]) => {
 // account_exist = await user_account_exists(accountId);
 // no account_exist to call registerOrderly.
 
+const announceLedgerAccessKey = async (accountId: string) => {
+  const keyPairLedger = KeyPair.fromRandom('ed25519');
+
+  console.log(keyPairLedger.getPublicKey().toString());
+
+  const wallet = await window.selector.wallet();
+
+  await ledgerTipTrigger(window.selector);
+
+  const addKeyRes = await wallet.signAndSendTransactions({
+    transactions: [
+      {
+        signerId: accountId,
+        receiverId: accountId,
+        actions: [
+          {
+            type: 'AddKey',
+            params: {
+              publicKey: keyPairLedger.getPublicKey().toString(),
+              accessKey: {
+                permission: {
+                  receiverId: ORDERLY_ASSET_MANAGER,
+
+                  methodNames: [
+                    'addMessage',
+                    'user_deposit_native_token',
+                    'user_request_withdraw',
+                    'user_announce_key',
+                    'user_request_set_trading_key',
+                    'create_user_account',
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  keyStore.setKey(getConfig().networkId, accountId, keyPairLedger);
+
+  // localStorage.setItem()
+
+  const handlePopTrigger = () => {
+    const el = document.getElementsByClassName(
+      'ledger-transaction-pop-up'
+    )?.[0];
+    if (el) {
+      el.setAttribute('style', 'display:none');
+    }
+  };
+
+  handlePopTrigger();
+
+
+  await new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(1);
+    }, 2000);
+  });
+};
+
+// @ts-ignore
+export let contract;
+
 const announceKey = async (accountId: string) => {
   const wallet = await window.selector.wallet();
+
+  if (wallet.id === 'ledger') {
+    await announceLedgerAccessKey(accountId);
+
+    // const account = await near.account(ORDERLY_ASSET_MANAGER);
+
+    contract = await near.loadContract(ORDERLY_ASSET_MANAGER, {
+      sender: accountId,
+      viewMethods: [
+        'user_token_balance',
+        'user_trading_key',
+        'is_orderly_key_announced',
+        'is_trading_key_set',
+        'user_account_exists',
+      ],
+      changeMethods: [
+        'addMessage',
+        'user_deposit_native_token',
+        'user_request_withdraw',
+        'user_announce_key',
+        'user_request_set_trading_key',
+        'create_user_account',
+      ],
+    });
+
+    // @ts-ignore
+
+    await contract.user_announce_key();
+
+
+    return;
+  }
 
   if (wallet.id === 'sender') {
     return window.near
@@ -71,18 +168,22 @@ const announceKey = async (accountId: string) => {
       },
     ],
   });
-
-  // const account = await near.account(accountId);
-
-  // return await account.functionCall(
-  //   ORDERLY_ASSET_MANAGER,
-  //   'user_announce_key',
-  //   {}
-  // );
 };
 
 const setTradingKey = async (accountId: string) => {
   const wallet = await window.selector.wallet();
+
+  if (wallet.id === 'ledger') {
+    // @ts-ignore
+    if (!contract) {
+      return;
+    } else {
+      // @ts-ignore
+      return await contract.user_request_set_trading_key({
+        key: getNormalizeTradingKey(),
+      });
+    }
+  }
 
   if (wallet.id === 'sender') {
     return window.near
@@ -91,8 +192,6 @@ const setTradingKey = async (accountId: string) => {
         key: getNormalizeTradingKey(),
       });
   }
-
-  const account = await near.account(accountId);
 
   return wallet.signAndSendTransaction({
     signerId: accountId,

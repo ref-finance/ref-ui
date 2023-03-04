@@ -24,7 +24,6 @@ export const generateTradingKeyPair = () => {
   const EC = new ec('secp256k1');
 
   const accountId = window.selectorAccountId;
-  console.log('accountId: ', accountId);
 
   if (!accountId) throw NotSignInError;
 
@@ -63,32 +62,8 @@ export const getNormalizeTradingKey = () => {
   return normalizeTradingKey;
 };
 
-export const find_orderly_functionCall_key = async (accountId: string) => {
-  const nearConnection = await near.account(accountId);
-
-  const allKeys = await nearConnection.getAccessKeys();
-
-  const orderlyKey = allKeys.find(
-    (key) =>
-      key.access_key.permission !== 'FullAccess' &&
-      key.access_key.permission.FunctionCall.receiver_id ===
-        config.ORDERLY_ASSET_MANAGER
-  );
-
-  return orderlyKey;
-};
-
 export const getSelectedWalletId = () => {
   return window.selector.store.getState().selectedWalletId;
-};
-
-export const getLocalPrivateKey = (
-  accountId: string,
-  prefix: string = 'near-api-js'
-) => {
-  return localStorage.getItem(
-    `${prefix}:keystore:${accountId}:${getConfig().networkId}`
-  );
 };
 
 const getSenderAccessKey = () => {
@@ -163,8 +138,6 @@ export const generateRequestSignatureHeader = async ({
 
     signature = keyPair?.sign(Buffer.from(message))?.signature;
   }
-
-  // return atob(signature.toString());
 
   return new Buffer(signature)
     .toString('base64')
