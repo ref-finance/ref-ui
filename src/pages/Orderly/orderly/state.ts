@@ -10,6 +10,7 @@ import {
 import { checkStorageDeposit } from './api';
 import { is_orderly_key_announced, is_trading_key_set } from './on-chain-api';
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
+import { useOrderlyContext } from './OrderlyContext';
 
 export function useMarketTrades({
   symbol,
@@ -39,16 +40,18 @@ export function useMarketTrades({
 export function usePendingOrders({
   symbol,
   refreshingTag,
+  validAccountSig,
 }: {
   symbol: string;
   refreshingTag: boolean;
+  validAccountSig: boolean;
 }) {
   const [liveOrders, setLiveOrders] = useState<MyOrder[]>([]);
 
   const { accountId } = useWalletSelector();
 
   const setFunc = useCallback(async () => {
-    if (accountId === null) return;
+    if (accountId === null || !validAccountSig) return;
     try {
       const pendingOrders = await getOpenOrders({
         accountId,
@@ -56,7 +59,7 @@ export function usePendingOrders({
 
       setLiveOrders(pendingOrders.data.rows);
     } catch (error) {}
-  }, [refreshingTag, symbol]);
+  }, [refreshingTag, symbol, validAccountSig]);
 
   useEffect(() => {
     setFunc();
@@ -68,16 +71,18 @@ export function usePendingOrders({
 export function useAllOrdersSymbol({
   symbol,
   refreshingTag,
+  validAccountSig,
 }: {
   symbol: string;
   refreshingTag: boolean;
+  validAccountSig: boolean;
 }) {
   const [liveOrders, setLiveOrders] = useState<MyOrder[]>();
 
   const { accountId } = useWalletSelector();
 
   const setFunc = useCallback(async () => {
-    if (accountId === null) return;
+    if (accountId === null || !validAccountSig) return;
     try {
       const allOrders = await getAllOrders({
         accountId,
@@ -89,7 +94,7 @@ export function useAllOrdersSymbol({
 
       setLiveOrders(allOrders);
     } catch (error) {}
-  }, [refreshingTag, symbol]);
+  }, [refreshingTag, symbol, validAccountSig]);
 
   useEffect(() => {
     setFunc();
@@ -102,9 +107,10 @@ export function useAllOrders({ refreshingTag }: { refreshingTag: boolean }) {
   const [liveOrders, setLiveOrders] = useState<MyOrder[]>();
 
   const { accountId } = useWalletSelector();
+  const { validAccountSig } = useOrderlyContext();
 
   const setFunc = useCallback(async () => {
-    if (accountId === null) return;
+    if (accountId === null || !validAccountSig) return;
     try {
       const allOrders = await getAllOrders({
         accountId,
@@ -115,7 +121,7 @@ export function useAllOrders({ refreshingTag }: { refreshingTag: boolean }) {
 
       setLiveOrders(allOrders);
     } catch (error) {}
-  }, [refreshingTag]);
+  }, [refreshingTag, validAccountSig]);
 
   useEffect(() => {
     setFunc();

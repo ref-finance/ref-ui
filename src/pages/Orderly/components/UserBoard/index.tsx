@@ -235,16 +235,12 @@ export default function UserBoard() {
     orders,
     tokenInfo,
     storageEnough,
-    marketTrade,
-    markPrices,
     balances,
     setValidAccountSig,
     handlePendingOrderRefreshing,
     validAccountSig,
     myPendingOrdersRefreshing,
-
     bridgePrice,
-    setBridgePrice,
   } = useOrderlyContext();
 
   const availableSymbols = useAllSymbolInfo();
@@ -299,9 +295,7 @@ export default function UserBoard() {
 
   const [inputValue, setInputValue] = useState<string>('');
 
-  const [limitPrice, setLimitPrice] = useState<string>(
-    marketTrade ? marketTrade?.price?.toString() || '' : ''
-  );
+  const [limitPrice, setLimitPrice] = useState<string>('');
 
   useEffect(() => {
     setLimitPrice(bridgePrice);
@@ -317,31 +311,28 @@ export default function UserBoard() {
     !!localStorage.getItem(REF_ORDERLY_AGREE_CHECK) || false
   );
 
-  const handleSignOut = async () => {
-    const wallet = await selector.wallet();
-    return wallet.signOut();
-  };
-
   const submitDisable =
     !inputValue ||
     Number(inputValue) === 0 ||
     (orderType === 'Limit' && Number(limitPrice) <= 0) ||
     !userInfo;
 
+  console.log(submitDisable);
+
   const inputLimitPriceRef = useRef<HTMLInputElement>(null);
 
   const inputAmountRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!accountId) return;
+    if (!accountId || !validAccountSig) return;
 
     getCurrentHolding({ accountId }).then((res) => {
       setHoldings(res.data.holding);
     });
-  }, [accountId, myPendingOrdersRefreshing]);
+  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
 
   useEffect(() => {
-    if (!accountId) return;
+    if (!accountId || !validAccountSig) return;
 
     getAccountInformation({ accountId }).then((res) => {
       setUserInfo(res);
@@ -369,9 +360,6 @@ export default function UserBoard() {
   const tokenOutHolding = curHoldingOut
     ? curHoldingOut.holding + curHoldingOut.pending_short
     : balances && balances[symbolTo]?.holding;
-
-  const markPriceSymbol =
-    markPrices && markPrices.find((m) => m.symbol === symbol);
 
   const fee =
     orderType === 'Limit'

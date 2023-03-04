@@ -1,10 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { FlexRow, FlexRowBetween } from '../Common';
 import { parseSymbol } from '../RecentTrade';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
 import {
   MyOrder,
   EditOrderlyOrder,
@@ -17,7 +19,6 @@ import {
   AllMarketIcon,
   ArrowParallel,
   OrderStateOutline,
-
 } from '../Common/Icons';
 import { TextWrapper } from '../UserBoard';
 import Big from 'big.js';
@@ -36,12 +37,7 @@ import {
   getOrderTrades,
 } from '../../orderly/off-chain-api';
 import { useAllOrders } from '../../orderly/state';
-import {
-  useAllSymbolInfo,
-  useOrderBook,
-  useCurHolding,
-  useCurHoldings,
-} from './state';
+import { useAllSymbolInfo, useOrderBook, useCurHoldings } from './state';
 import { useBatchTokenMetaFromSymbols } from '../ChartHeader/state';
 import Modal from 'react-modal';
 
@@ -55,10 +51,6 @@ import { ONLY_ZEROS } from '../../../../utils/numbers';
 import { orderEditPopUpFailure } from '../Common/index';
 import { Holding } from '../../orderly/type';
 import { useLargeScreen } from '../../../../utils/device';
-import {
-  getAccountInformation,
-  getCurrentHolding,
-} from '../../orderly/off-chain-api';
 
 function hasScrolled(id: string, dir = 'vertical') {
   const ele = document.querySelector(`#${id}`);
@@ -356,6 +348,9 @@ function OrderLine({
 
     return true;
   };
+
+  const [isCancelled, setIsCancelled] = useState<boolean>(false);
+
   function handleEditOrder() {
     if (!accountId) return;
 
@@ -418,6 +413,8 @@ function OrderLine({
       return 'baseline';
     }
   }
+
+  if (isCancelled) return null;
 
   return (
     <tr
@@ -681,6 +678,8 @@ function OrderLine({
             }).then((res) => {
               if (res.success === true) {
                 handlePendingOrderRefreshing();
+                setIsCancelled(true);
+
                 return orderEditPopUpSuccess({
                   side: order.side == 'BUY' ? 'Buy' : 'Sell',
                   size: quantity,
@@ -732,8 +731,6 @@ function HistoryOrderLine({
 
   const { accountId } = useWalletSelector();
 
-  const { symbolFrom, symbolTo } = parseSymbol(symbol);
-
   async function handleSubmit() {
     if (!!orderTradesHistory) {
       setOpenFilledDetail(!openFilledDetail);
@@ -753,21 +750,11 @@ function HistoryOrderLine({
     setOpenFilledDetail(!openFilledDetail);
   }
 
-  const [hover, setHover] = useState<boolean>(false);
-
   return (
-    <>
+    <div className="hover:bg-orderLineHover" key={order.order_id}>
       <tr
-        key={order.order_id}
-        className={`${
-          hover ? 'bg-orderLineHover' : ''
-        }  table table-fixed w-full pl-5 pr-4 py-3 border-t border-white border-opacity-10`}
-        onMouseEnter={()=>{
-          setHover(true)
-        }}
-        onMouseLeave={()=>{
-          setHover(false)
-        }}
+        className={`
+          table table-fixed w-full pl-5 pr-4 py-3 border-t border-white border-opacity-10`}
       >
         <td
           className={` py-3 pl-5 relative   ${showCurSymbol ? 'hidden' : ''}`}
@@ -775,7 +762,11 @@ function HistoryOrderLine({
           {marketInfo}
         </td>
 
-        <td className={`col-span-1 py-3 ${showCurSymbol ? 'pl-5' : 'transform translate-x-1/3'}`}>
+        <td
+          className={`col-span-1 py-3 ${
+            showCurSymbol ? 'pl-5' : 'transform translate-x-1/3'
+          }`}
+        >
           <TextWrapper
             className="px-2 text-sm"
             value={order.side === 'BUY' ? 'Buy' : 'Sell'}
@@ -912,23 +903,14 @@ function HistoryOrderLine({
           </div>
         </td>
       </tr>
-
-      <tr
-        className={`table table-fixed 
-              ${hover ? 'bg-orderLineHover' : ''}
+      {openFilledDetail && orderTradesHistory && (
+        <tr
+          className={`table table-fixed 
+              
             }`}
-            onMouseEnter={()=>{
-              setHover(true)
-            }}
-            onMouseLeave={()=>{
-              setHover(false)
-            }}
-      >
-        {openFilledDetail && orderTradesHistory && (
+        >
           <table
-            className={`table-fixed ${
-              hover ? 'bg-orderLineHover' : ''
-            } flex-col items-end `}
+            className={`table-fixed  flex-col items-end `}
             align="right"
             style={{
               width: showCurSymbol ? '75%' : '66%',
@@ -996,8 +978,8 @@ function HistoryOrderLine({
               ))}
             </tbody>
           </table>
-        )}
-      </tr>
+        </tr>
+      )}
     </div>
   );
 }
@@ -1009,7 +991,6 @@ function OpenOrders({
   setOpenCount,
   allTokens,
   availableSymbols,
-  setSelectedMarketSymbol,
   showCurSymbol,
   loading,
 }: {
@@ -1020,7 +1001,6 @@ function OpenOrders({
     [key: string]: TokenMetadata;
   };
   showCurSymbol: boolean;
-  setSelectedMarketSymbol: (s: string) => void;
   availableSymbols: SymbolInfo[] | undefined;
   setOpenCount: (c: number) => void;
   loading: boolean;
@@ -1074,19 +1054,6 @@ function OpenOrders({
 
     return a && b && c;
   };
-
-  useEffect(() => {
-    const showOrders = orders.filter(filterFunc).map((o) => o.symbol);
-
-    if (
-      showOrders.length === 0 ||
-      new Set(showOrders).size !== showOrders.length
-    ) {
-      return;
-    }
-
-    setSelectedMarketSymbol(showOrders[0]);
-  }, [chooseMarketSymbol, orders, chooseType]);
 
   useEffect(() => {
     if (showSideSelector || showMarketSelector || showTypeSelector)
@@ -1213,7 +1180,7 @@ function OpenOrders({
             </FlexRow>
           </th>
 
-          <th className={showCurSymbol ? '' :'transform translate-x-1/3'}>
+          <th className={showCurSymbol ? '' : 'transform translate-x-1/3'}>
             <FlexRow
               className={`col-span-1 py-2 ${
                 showCurSymbol ? 'pl-5' : ''
@@ -1581,9 +1548,36 @@ function HistoryOrders({
     return marketList;
   };
 
-  const historyHasScrolled = hasScrolled('all-orders-body-history');
-
   const marketList = generateMarketList();
+
+  const data = orders
+    .sort(sortingFunc)
+    .filter(filterFunc)
+    .map((order) => {
+      return (
+        <HistoryOrderLine
+          marketInfo={marketList.find((m) => m.textId === order.symbol)?.text}
+          symbol={symbol}
+          order={order}
+          key={order.order_id}
+          showCurSymbol={showCurSymbol}
+        />
+      );
+    });
+
+  const itemsPerPage = 12;
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [records, setRecords] = useState<number>(itemsPerPage);
+
+  const loadMore = () => {
+    if (records === data.length) {
+      setHasMore(false);
+    } else {
+      setTimeout(() => {
+        setRecords(records + itemsPerPage);
+      }, 500);
+    }
+  };
 
   return (
     <table className={`table-fixed w-full ${hidden ? 'hidden' : ''} `}>
@@ -1642,7 +1636,11 @@ function HistoryOrders({
             )}
           </th>
 
-          <th className={`py-2.5 ${showCurSymbol ? '' :'transform translate-x-1/3'}`}>
+          <th
+            className={`py-2.5 ${
+              showCurSymbol ? '' : 'transform translate-x-1/3'
+            }`}
+          >
             <FlexRow
               className={`col-span-1  relative ${showCurSymbol ? 'pl-5' : ''}`}
             >
@@ -1825,7 +1823,7 @@ function HistoryOrders({
                     timeSorting === 'asc' ? 'transform rotate-180' : ''
                   }
                   size={22}
-                  color={ 'white'}
+                  color={'white'}
                 />
               }
             </div>
@@ -1898,22 +1896,15 @@ function HistoryOrders({
             No orders found
           </div>
         ) : (
-          orders
-            .sort(sortingFunc)
-            .filter(filterFunc)
-            .map((order) => {
-              return (
-                <HistoryOrderLine
-                  marketInfo={
-                    marketList.find((m) => m.textId === order.symbol)?.text
-                  }
-                  symbol={symbol}
-                  order={order}
-                  key={order.order_id}
-                  showCurSymbol={showCurSymbol}
-                />
-              );
-            })
+          <InfiniteScroll
+            next={loadMore}
+            hasMore={hasMore}
+            dataLength={records}
+            loader={null}
+            scrollableTarget="all-orders-body-history"
+          >
+            {data.slice(0, records)}
+          </InfiniteScroll>
         )}
       </tbody>
     </table>
@@ -1926,6 +1917,7 @@ function AllOrderBoard() {
     myPendingOrdersRefreshing,
     handlePendingOrderRefreshing,
     tokenInfo,
+    validAccountSig,
   } = useOrderlyContext();
 
   const availableSymbols = useAllSymbolInfo();
@@ -1943,8 +1935,6 @@ function AllOrderBoard() {
   ];
 
   const { storageEnough } = useOrderlyContext();
-
-  const [selectedMarketSymbol, setSelectedMarketSymbol] = useState<string>();
 
   const allTokens = useBatchTokenMetaFromSymbols(
     allTokenSymbols.length > 0 ? allTokenSymbols : null,
@@ -2129,7 +2119,6 @@ function AllOrderBoard() {
         {
           <OpenOrders
             availableSymbols={availableSymbols}
-            setSelectedMarketSymbol={setSelectedMarketSymbol}
             allTokens={allTokens}
             orders={openOrders || []}
             setOpenCount={setOpenCount}

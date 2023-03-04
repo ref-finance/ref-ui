@@ -73,11 +73,13 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
   const pendingOrders = usePendingOrders({
     symbol,
     refreshingTag: myPendingOrdersRefreshing,
+    validAccountSig,
   });
 
   const allOrdersSymbol = useAllOrdersSymbol({
     symbol,
     refreshingTag: myPendingOrdersRefreshing,
+    validAccountSig,
   });
 
   const recentTrades = useMarketTrades({

@@ -46,17 +46,17 @@ export function useOrderBook({
 export function useCurHoldings() {
   const [holdings, setHoldings] = useState<Holding[]>();
 
-  const { myPendingOrdersRefreshing } = useOrderlyContext();
+  const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
 
   const { accountId } = useWalletSelector();
 
   useEffect(() => {
-    if (!accountId) return;
+    if (!accountId || !validAccountSig) return;
 
     getCurrentHolding({ accountId }).then((res) => {
       setHoldings(res.data.holding);
     });
-  }, [accountId, myPendingOrdersRefreshing]);
+  }, [accountId, myPendingOrdersRefreshing, validAccountSig]);
 
   return holdings;
 }

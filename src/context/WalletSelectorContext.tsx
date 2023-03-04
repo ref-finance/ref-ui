@@ -33,6 +33,11 @@ import {
 } from '../services/near';
 import { walletIcons } from './walletIcons';
 import { getOrderlyConfig } from '../pages/Orderly/config';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard/index';
+import {
+  get_orderly_private_key_path,
+  get_orderly_public_key_path,
+} from '../pages/Orderly/orderly/utils';
 
 const CONTRACT_ID = getOrderlyConfig().ORDERLY_ASSET_MANAGER;
 
@@ -196,6 +201,18 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   if (!selector || !modal) {
     return null;
   }
+
+  const priKeyPath = get_orderly_private_key_path();
+
+  const pubKeyPath = get_orderly_public_key_path();
+
+  selector.on('signedOut', () => {
+    // tradingKeyMap.clear();
+    localStorage.removeItem(priKeyPath);
+    localStorage.removeItem(pubKeyPath);
+
+    localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+  });
 
   window.selectorAccountId = accountId;
 

@@ -347,17 +347,13 @@ export const getAllOrders = async (props: {
     },
   });
 
-  console.log('pageOne: ', pageOne);
-
   const total = pageOne.data.meta.total;
-  console.log('total: ', total);
 
   const pageSize = Math.ceil(total / 500);
 
   const pages = Array.from({ length: pageSize }, (v, k) => k + 1);
 
   pages.shift();
-  console.log('pages: ', pages);
 
   const leftOrders = await Promise.all(
     pages.map(async (page) => {
@@ -374,10 +370,7 @@ export const getAllOrders = async (props: {
     })
   );
 
-  console.log('rows', pageOne.data.rows);
-
   const allOrders = pageOne.data.rows.concat(...leftOrders);
-  console.log('allOrders: ', allOrders);
 
   return allOrders;
 };

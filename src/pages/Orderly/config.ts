@@ -97,13 +97,6 @@ export function getCustomConfig() {
 export default function getConfig(
   env: string = process.env.NEAR_ENV || process.env.REACT_APP_NEAR_ENV
 ) {
-  console.log(
-    'env: ',
-    env,
-    process.env.NEAR_ENV,
-    process.env.REACT_APP_NEAR_ENV
-  );
-
   const RPC_LIST_system = getExtendConfig().RPC_LIST;
   const RPC_LIST_custom = getCustomConfig();
   const RPC_LIST = Object.assign(RPC_LIST_system, RPC_LIST_custom);

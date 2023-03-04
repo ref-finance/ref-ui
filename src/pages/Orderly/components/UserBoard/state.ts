@@ -60,7 +60,7 @@ export function useTokensBalances(
 
   const { accountId } = useWalletSelector();
 
-  const { myPendingOrdersRefreshing } = useOrderlyContext();
+  const { myPendingOrdersRefreshing, validAccountSig } = useOrderlyContext();
 
   const getBalanceAndMeta = async (token: TokenWithDecimals) => {
     const balance = await ftGetBalance(token.id).then((balance) => {
@@ -76,7 +76,7 @@ export function useTokensBalances(
   };
 
   useEffect(() => {
-    if (!tokens || !tokenInfo || !accountId) return;
+    if (!tokens || !tokenInfo || !accountId || !validAccountSig) return;
 
     Promise.all(
       tokenInfo.map((t) =>
@@ -136,6 +136,7 @@ export function useTokensBalances(
     accountId,
     trigger,
     myPendingOrdersRefreshing,
+    validAccountSig,
   ]);
 
   return showbalances;

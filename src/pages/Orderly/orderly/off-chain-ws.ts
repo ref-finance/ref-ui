@@ -194,12 +194,6 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
 
   const [ordersUpdate, setOrdersUpdate] = useState<Orders>();
 
-  const pingFunc = () => {
-    sendMessage(JSON.stringify({ event: 'ping', ts: Date.now() }));
-  };
-
-  useInterval(pingFunc, 10000);
-
   // subscribe
   useEffect(() => {
     if (connectionStatus !== 'Open') return;
