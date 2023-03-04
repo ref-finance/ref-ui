@@ -1565,7 +1565,7 @@ function HistoryOrders({
       );
     });
 
-  const itemsPerPage = 12;
+  const itemsPerPage = 25;
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [records, setRecords] = useState<number>(itemsPerPage);
 
