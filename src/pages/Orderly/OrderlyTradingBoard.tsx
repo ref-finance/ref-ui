@@ -108,7 +108,7 @@ function OrderlyTradingBoard() {
     const el = document.getElementsByClassName('page-container')?.[0];
     if (el) {
       //@ts-ignore
-      el.style.backgroundColor = 'rgb(19, 33, 42)';
+      // el.style.backgroundColor = 'rgb(19, 33, 42)';
     }
   }, []);
 
