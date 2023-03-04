@@ -35,8 +35,18 @@ import {
   WrapNearIcon,
   MobileBridgeIcon,
   InquiriesIcon,
+  SwapIcon,
+  XswapIcon,
+  LimitOrderIcon,
+  OrderBookIcon,
+  PoolsIcon,
+  YourliquidityIcon,
+  FarmsIcon,
+  XrefEarnIcon,
+  XrefIcon,
+  REFSmallIcon,
 } from '~components/icon/Nav';
-import { XrefIcon } from '~components/icon/Xref';
+// import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
 import { MobileNavLimitOrder } from '../components/icon/Nav';
 import {
@@ -50,6 +60,7 @@ import {
   MobileNavSwapPro,
 } from '../components/icon/Nav';
 import { WalletContext } from '../utils/wallets-integration';
+import { useHistory } from 'react-router';
 
 export type MenuItem = {
   id: number;
@@ -341,182 +352,196 @@ export const moreLinks: MobileMenuItem[] = [
     ],
   },
 ];
-export const moreLinksOld: MobileMenuItem[] = [
-  {
-    id: 'trade_capital',
-    label: 'TRADE',
-    pattern: '/',
-    url: '/',
-    isExternal: false,
-  },
-  {
-    id: 'liquidity',
-    label: 'Liquidity',
-    url: '',
-    isExternal: false,
-    children: [
-      {
-        id: 'your_liquidity',
-        label: 'Your Liquidity',
-        url: '/yourliquidity',
-        isExternal: false,
-        logo: <MobileYourLiqudityIcon />,
-        defaultClick: () => {
-          window.open('/yourliquidity', '_self');
+
+export const useMenus = () => {
+  const history = useHistory();
+  const intl = useIntl();
+  const menuData = [
+    {
+      id: '1',
+      label: <>Trade</>,
+      children: [
+        {
+          label: <>Swap</>,
+          logo: <SwapIcon />,
+          url: '/',
+          isExternal: false,
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'normal');
+          },
         },
-      },
-      {
-        id: 'pools',
-        label: 'Pools',
-        url: '/pools',
-        isExternal: false,
-        logo: <MobilePoolsIcon />,
-        defaultClick: () => {
-          window.open('/pools', '_self');
+        {
+          label: <>xSwap</>,
+          logo: <XswapIcon />,
+          url: '/',
+          isExternal: false,
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'xSwap');
+          },
         },
-      },
-    ],
-  },
-  {
-    id: 'sauce_capital',
-    label: 'Sauce',
-    pattern: '/sauce',
-    url: '/sauce',
-    isExternal: false,
-  },
-  {
-    id: 'Farms',
-    label: 'Farms',
-    pattern: '/v2farms',
-    url: '/v2farms',
-    isExternal: false,
-  },
-  {
-    id: 'xref',
-    label: 'xREF',
-    pattern: '/xref',
-    url: '/xref',
-    isExternal: false,
-    showIcon: true,
-    iconElement: <XrefIcon></XrefIcon>,
-  },
-  {
-    id: 'vote_capital',
-    label: 'VOTE!',
-    pattern: '/referendum',
-    url: '/referendum',
-    isExternal: false,
-    hidden: !getConfig().REF_VE_CONTRACT_ID,
-  },
-  {
-    id: 'bridge',
-    label: 'bridge',
-    url: '',
-    isExternal: false,
-    children: [
-      {
-        id: 'from_ethereum',
-        label: 'From Ethereum',
-        url: 'https://rainbowbridge.app/transfer',
-        isExternal: true,
-        logo: <IconEthereum />,
-      },
-      {
-        id: 'from_aurora',
-        label: 'From Aurora',
-        url: 'https://rainbowbridge.app/transfer',
-        isExternal: true,
-        logo: <IconAurora />,
-      },
-      {
-        id: 'from_solana',
-        label: 'From Solana',
-        url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
-        isExternal: true,
-        logo: <IconSolana />,
-      },
-      {
-        id: 'from_terra',
-        label: 'From Terra',
-        url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
-        isExternal: true,
-        logo: <IconTerra />,
-      },
-      {
-        id: 'from_celo',
-        label: 'From Celo',
-        url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
-        isExternal: true,
-        logo: <IconCelo />,
-      },
-    ],
-  },
-  {
-    id: 'more',
-    label: 'More',
-    url: '',
-    isExternal: false,
-    subRoute: ['/airdrop', '/risks'],
-    children: [
-      {
-        id: 'airdrop',
-        label: 'Airdrop',
-        url: '/airdrop',
-        pattern: '/airdrop',
-        isExternal: false,
-        logo: <IconAirDrop />,
-      },
-      {
-        id: 'docs',
-        label: 'docs',
-        url: 'https://guide.ref.finance',
-        isExternal: true,
-        logo: <IconDocs />,
-      },
-      {
-        label: 'Risks',
-        id: 'risks',
-        pattern: '/risks',
-        url: '/risks',
-        isExternal: false,
-        logo: <RisksIcon />,
-      },
-    ],
-  },
-  // {
-  //   id: 'community',
-  //   label: 'Community',
-  //   url: '',
-  //   isExternal: false,
-  //   children: [
-  //     {
-  //       logo: <FaDiscord />,
-  //       label: 'Discord',
-  //       id: 'Discord',
-  //       url: 'https://discord.gg/SJBGcfMxJz',
-  //       isExternal: true,
-  //     },
-  //     {
-  //       logo: <FaTelegramPlane />,
-  //       label: 'Telegram',
-  //       id: 'Telegram',
-  //       url: 'https://t.me/ref_finance',
-  //       isExternal: true,
-  //     },
-  //     {
-  //       logo: <FaTwitter />,
-  //       id: 'Twitter',
-  //       label: 'Twitter',
-  //       url: 'https://twitter.com/finance_ref',
-  //       isExternal: true,
-  //     },
-  //     {
-  //       logo: <AiOutlineMedium />,
-  //       id: 'Medium',
-  //       label: 'Medium',
-  //       url: 'https://ref-finance.medium.com/',
-  //       isExternal: true,
-  //     },
-  //   ],
-  // },
-];
+        {
+          label: <>Limit Order</>,
+          logo: <LimitOrderIcon />,
+          url: '/',
+          isExternal: false,
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'limit');
+          },
+        },
+        {
+          label: <>Orderbook</>,
+          logo: <OrderBookIcon />,
+          url: '/orderly',
+          isExternal: false,
+        },
+      ],
+    },
+    {
+      id: '2',
+      label: <>Earn</>,
+      children: [
+        {
+          label: <>Liquidity Pools</>,
+          logo: <PoolsIcon />,
+          url: '/pools',
+          isExternal: false,
+        },
+        {
+          label: <>Your Liquidity</>,
+          logo: <YourliquidityIcon />,
+          url: '/yourliquidity',
+          isExternal: false,
+          clickEvent: () => {
+            sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
+            history.push('/yourliquidity');
+          },
+        },
+        {
+          label: <>Farms</>,
+          logo: <FarmsIcon />,
+          url: '/v2farms',
+          isExternal: false,
+        },
+        {
+          label: (
+            <>
+              <XrefIcon />
+            </>
+          ),
+          logo: <XrefEarnIcon />,
+          url: '/xref',
+          isExternal: false,
+        },
+      ],
+    },
+    {
+      id: '3',
+      label: <>Portfolio</>,
+      url: '/portfolio',
+      isExternal: false,
+    },
+    {
+      id: '4',
+      logo: (
+        <>
+          <REFSmallIcon className="mt-0.5"></REFSmallIcon>
+        </>
+      ),
+      label: <>Anylatics</>,
+      url: '',
+      isExternal: false,
+    },
+    {
+      id: '5',
+      label: <>More</>,
+      children: [
+        {
+          label: <>{intl.formatMessage({ id: 'bridge' })}</>,
+          logo: <BridgeIcon />,
+          children: [
+            {
+              label: <>{intl.formatMessage({ id: 'from_ethereum' })}</>,
+              url: 'https://rainbowbridge.app/transfer',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1',
+              logo: <IconEthereum />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_aurora' })}</>,
+              url: 'https://rainbowbridge.app/transfer',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-2',
+              logo: <IconAurora />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_solana' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-3',
+              logo: <IconSolana />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_terra' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-4',
+              logo: <IconTerra />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_celo' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-5',
+              logo: <IconCelo />,
+            },
+          ],
+        },
+        {
+          label: <>{intl.formatMessage({ id: 'docs' })}</>,
+          url: 'https://guide.ref.finance',
+          isExternal: true,
+          logo: <IconDocs />,
+        },
+        {
+          label: <>{intl.formatMessage({ id: 'risks' })}</>,
+          url: '/risks',
+          isExternal: false,
+          logo: <RisksIcon />,
+        },
+        {
+          label: (
+            <>{<FormattedMessage id="airdrop" defaultMessage="Airdrop" />}</>
+          ),
+          url: '/airdrop',
+          isExternal: false,
+          logo: <IconAirDrop />,
+        },
+        {
+          label: <>{'Business Inquiries'}</>,
+          url: 'https://form.typeform.com/to/onOPhJ6Y',
+          isExternal: true,
+          logo: <InquiriesIcon />,
+        },
+      ],
+    },
+  ];
+  return menuData;
+};
+
+export interface menuItemType {
+  id?: string;
+  label: JSX.Element;
+  logo?: JSX.Element;
+  url?: string;
+  isExternal?: boolean;
+  children?: menuItemType[];
+  clickEvent?: () => void;
+}

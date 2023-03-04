@@ -261,7 +261,7 @@ module.exports = {
         primaryOrderly: '#7E8A93',
         sellRed: '#F96767',
         buyGreen: '#90E3B9',
-        cardBg: '#101D26',
+        // cardBg: '#101D26',
         orderTypeBg: '#344B5C',
         border2: '#25323C',
         border3: '#293844',
