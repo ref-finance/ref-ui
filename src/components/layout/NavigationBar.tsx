@@ -1105,9 +1105,9 @@ function NavigationBar() {
 
   return (
     <>
-      <div className="nav-wrap md:hidden xs:hidden text-center relative">
+      <div className="nav-wrap md:hidden xs:hidden text-center">
         <div
-          className={`${
+          className={`relative z-10 ${
             hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
           } text-xs py-1.5`}
           style={{
@@ -1148,7 +1148,7 @@ function NavigationBar() {
           }}
         >
           <div className="flex items-center h-full">
-            <div className="xsm:hidden transform mr-14">
+            <div className="xsm:hidden transform mr-14 relative z-10">
               <NavLogoIcon
                 className="cursor-pointer"
                 onClick={() => {
@@ -1156,7 +1156,7 @@ function NavigationBar() {
                 }}
               />
             </div>
-            <div className="flex items-center h-full relative">
+            <div className="flex items-center h-full">
               <MenuBar></MenuBar>
             </div>
           </div>
@@ -1359,29 +1359,40 @@ function MenuBar() {
   const [active_one_level_id, set_active_one_level_id] = useState<string>();
   const [back_one_level_item, set_back_one_level_item] =
     useState<JSX.Element>();
-  const [browser_selected, set_browser_selected] = useState<string>('');
+  const [one_level_selected, set_one_level_selected] = useState<string>('');
+  const [two_level_selected, set_two_level_selected] = useState<string>('');
   useEffect(() => {
     const pathname = location.pathname;
-    const trade_url_list = ['/', '/orderly', '/myOrder'];
-    const earn_url_list = [
-      '/pools',
-      '/pool',
-      '/poolV2',
-      '/sauce',
-      '/more_pools',
-      '/yourliquidity',
-      '/farms',
-      '/xref',
-    ];
-    const portfolio_url_list = ['/portfolio'];
-    if (trade_url_list.indexOf(pathname) > -1) {
-      set_browser_selected('1');
-    } else if (earn_url_list.indexOf(pathname) > -1) {
-      set_browser_selected('2');
-    } else if (portfolio_url_list.indexOf(pathname) > -1) {
-      set_browser_selected('3');
+    let one_level_selected_id = '';
+    let two_level_selected_id = '';
+    if (menus) {
+      const one_level_menu = menus.find((item: menuItemType) => {
+        const { links } = item;
+        return links?.indexOf(pathname) > -1;
+      });
+      if (one_level_menu) {
+        const { id, children } = one_level_menu;
+        one_level_selected_id = id;
+        let second_children: any = children;
+        if (second_children) {
+          const two_level_menu = second_children.find((item: menuItemType) => {
+            const { links, swap_mode } = item;
+            if (pathname == '/') {
+              const swap_mode_value = localStorage.getItem('SWAP_MODE_VALUE');
+              return swap_mode_value == swap_mode;
+            } else {
+              return links?.indexOf(pathname) > -1;
+            }
+          });
+          if (two_level_menu) {
+            two_level_selected_id = two_level_menu.id;
+          }
+        }
+      }
+      set_one_level_selected(one_level_selected_id || '1');
+      set_two_level_selected(two_level_selected_id);
     }
-  }, [location.pathname]);
+  }, [location.pathname, menus]);
   function hover_on_one_level_item(item: menuItemType) {
     const { children, id } = item;
     if (children) {
@@ -1421,6 +1432,7 @@ function MenuBar() {
           history.push(url);
         }
       }
+      set_two_level_items([]);
     }
   }
   function click_three_level_title_to_back(menuItem: menuItemType) {
@@ -1432,11 +1444,11 @@ function MenuBar() {
   return (
     <div className="flex items-center h-full" style={{ zIndex: 599 }}>
       {menus?.map((menuItem: menuItemType, indexP) => {
-        const { label, logo, url, isExternal, children, id } = menuItem;
+        const { label, logo, children, id } = menuItem;
         return (
           <div
             key={indexP}
-            className="relative flex items-center justify-center cursor-pointer h-full"
+            className="relative flex items-center justify-center cursor-pointer h-full z-50"
             onMouseEnter={() => hover_on_one_level_item(menuItem)}
             onMouseLeave={() => hover_off_one_level_item()}
           >
@@ -1448,7 +1460,7 @@ function MenuBar() {
               className={`flex items-center h-full  ${
                 indexP != menus.length - 1 ? 'mr-10' : ''
               } ${
-                browser_selected == id || active_one_level_id == id
+                one_level_selected == id || active_one_level_id == id
                   ? 'text-white'
                   : 'text-primaryText'
               }`}
@@ -1484,14 +1496,18 @@ function MenuBar() {
                 </div>
               )}
               {two_level_items?.map((item: menuItemType, indexC) => {
-                const { label, logo, url, isExternal, children } = item;
+                const { label, logo, children, id } = item;
                 return (
                   <div
                     key={indexC}
                     onClick={() => {
                       click_two_level_item(item);
                     }}
-                    className="flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor text-primaryText hover:text-white text-sm py-3 my-1.5 px-2 cursor-pointer"
+                    className={`flex items-center rounded-xl whitespace-nowrap hover:bg-menuMoreBgColor hover:text-white text-sm py-3 my-1.5 px-2 cursor-pointer ${
+                      two_level_selected == id
+                        ? 'bg-menuMoreBgColor text-white'
+                        : 'text-primaryText'
+                    }`}
                   >
                     {logo ? <div className="w-8 mr-2">{logo}</div> : null}
                     <div className="text-base gotham_bold">{label}</div>

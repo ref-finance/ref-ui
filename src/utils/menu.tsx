@@ -361,36 +361,46 @@ export const useMenus = () => {
     {
       id: '1',
       label: <>Trade</>,
+      links: ['/', '/orderly', '/myOrder'],
       children: [
         {
+          id: '1-1',
           label: <>Swap</>,
           logo: <SwapIcon />,
           url: '/',
           isExternal: false,
+          swap_mode: 'normal',
           clickEvent: () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'normal');
           },
+          links: ['/'],
         },
         {
+          id: '1-2',
           label: <>xSwap</>,
           logo: <XswapIcon />,
           url: '/',
           isExternal: false,
+          swap_mode: 'xSwap',
           clickEvent: () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'xSwap');
           },
+          links: ['/myOrder'],
         },
         {
+          id: '1-3',
           label: <>Limit Order</>,
           logo: <LimitOrderIcon />,
           url: '/',
           isExternal: false,
+          swap_mode: 'limit',
           clickEvent: () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
           },
+          links: ['/'],
         },
         {
           label: (
@@ -405,20 +415,35 @@ export const useMenus = () => {
           logo: <OrderBookIcon />,
           url: '/orderly',
           isExternal: false,
+          links: ['/orderly'],
         },
       ],
     },
     {
       id: '2',
       label: <>Earn</>,
+      links: [
+        '/pools',
+        '/pool',
+        '/poolV2',
+        '/sauce',
+        '/more_pools',
+        '/yourliquidity',
+        '/farms',
+        '/xref',
+        '/v2farms',
+      ],
       children: [
         {
+          id: '2-1',
           label: <>Liquidity Pools</>,
           logo: <PoolsIcon />,
           url: '/pools',
           isExternal: false,
+          links: ['/pools', '/pool', '/poolV2', '/sauce', '/more_pools'],
         },
         {
+          id: '2-2',
           label: <>Your Liquidity</>,
           logo: <YourliquidityIcon />,
           url: '/yourliquidity',
@@ -427,14 +452,18 @@ export const useMenus = () => {
             sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
             history.push('/yourliquidity');
           },
+          links: ['/yourliquidity'],
         },
         {
+          id: '2-3',
           label: <>Farms</>,
           logo: <FarmsIcon />,
           url: '/v2farms',
           isExternal: false,
+          links: ['/v2farms', '/farms'],
         },
         {
+          id: '2-4',
           label: (
             <>
               <XrefIcon />
@@ -443,6 +472,7 @@ export const useMenus = () => {
           logo: <XrefEarnIcon />,
           url: '/xref',
           isExternal: false,
+          links: ['/xref'],
         },
       ],
     },
@@ -451,6 +481,7 @@ export const useMenus = () => {
       label: <>Portfolio</>,
       url: '/portfolio',
       isExternal: false,
+      links: ['/portfolio'],
     },
     // {
     //   id: '4',
@@ -468,6 +499,7 @@ export const useMenus = () => {
       label: <>More</>,
       children: [
         {
+          id: '5-1',
           label: <>{intl.formatMessage({ id: 'bridge' })}</>,
           logo: <BridgeIcon />,
           children: [
@@ -476,7 +508,7 @@ export const useMenus = () => {
               url: 'https://rainbowbridge.app/transfer',
               isExternal: true,
               icon: <HiOutlineExternalLink />,
-              id: '5-1',
+              id: '5-1-1',
               logo: <IconEthereum />,
             },
             {
@@ -484,7 +516,7 @@ export const useMenus = () => {
               url: 'https://rainbowbridge.app/transfer',
               isExternal: true,
               icon: <HiOutlineExternalLink />,
-              id: '5-2',
+              id: '5-1-2',
               logo: <IconAurora />,
             },
             {
@@ -492,7 +524,7 @@ export const useMenus = () => {
               url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
               isExternal: true,
               icon: <HiOutlineExternalLink />,
-              id: '5-3',
+              id: '5-1-3',
               logo: <IconSolana />,
             },
             {
@@ -500,7 +532,7 @@ export const useMenus = () => {
               url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
               isExternal: true,
               icon: <HiOutlineExternalLink />,
-              id: '5-4',
+              id: '5-1-4',
               logo: <IconTerra />,
             },
             {
@@ -508,24 +540,27 @@ export const useMenus = () => {
               url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
               isExternal: true,
               icon: <HiOutlineExternalLink />,
-              id: '5-5',
+              id: '5-1-5',
               logo: <IconCelo />,
             },
           ],
         },
         {
+          id: '5-2',
           label: <>{intl.formatMessage({ id: 'docs' })}</>,
           url: 'https://guide.ref.finance',
           isExternal: true,
           logo: <IconDocs />,
         },
         {
+          id: '5-3',
           label: <>{intl.formatMessage({ id: 'risks' })}</>,
           url: '/risks',
           isExternal: false,
           logo: <RisksIcon />,
         },
         {
+          id: '5-4',
           label: (
             <>{<FormattedMessage id="airdrop" defaultMessage="Airdrop" />}</>
           ),
@@ -534,6 +569,7 @@ export const useMenus = () => {
           logo: <IconAirDrop />,
         },
         {
+          id: '5-5',
           label: <>{'Business Inquiries'}</>,
           url: 'https://form.typeform.com/to/onOPhJ6Y',
           isExternal: true,
@@ -553,4 +589,6 @@ export interface menuItemType {
   isExternal?: boolean;
   children?: menuItemType[];
   clickEvent?: () => void;
+  links?: string[];
+  swap_mode?: string;
 }
