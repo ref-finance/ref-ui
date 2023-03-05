@@ -68,7 +68,6 @@ export default function Tokens() {
   const DCLAccountBalance = useDCLAccountBalance(!!accountId);
   const is_tokens_loading =
     !userTokens || !balances || !auroaBalances || !DCLAccountBalance;
-
   useEffect(() => {
     if (!is_tokens_loading) {
       userTokens.forEach((token: TokenMetadata) => {
@@ -87,13 +86,6 @@ export default function Tokens() {
           auroaBalances[id] || '0'
         ).toString();
       });
-      if (Object.keys(balances).length > 0) {
-        tabList.push({ name: 'REF V1', tag: 'ref' });
-      }
-      if (Object.keys(DCLAccountBalance).length > 0) {
-        tabList.push({ name: 'REF V2', tag: 'dcl' });
-      }
-      setTabList(JSON.parse(JSON.stringify(tabList)));
     }
   }, [is_tokens_loading]);
 
@@ -135,8 +127,16 @@ export default function Tokens() {
       set_near_total_value(total_value_near);
       set_dcl_total_value(total_value_dcl);
       set_aurora_total_value(total_value_aurora);
+
+      if (tokens_ref?.length > 0) {
+        tabList.push({ name: 'REF V1', tag: 'ref' });
+      }
+      if (tokens_dcl?.length > 0) {
+        tabList.push({ name: 'REF V2', tag: 'dcl' });
+      }
+      setTabList(JSON.parse(JSON.stringify(tabList)));
     }
-  }, [tokenPriceList, userTokens]);
+  }, [tokenPriceList, userTokens, is_tokens_loading]);
   useEffect(() => {
     let tokens;
     let total_value;
@@ -359,7 +359,7 @@ export default function Tokens() {
                       onClick={() => {
                         setActiveTab(item.tag);
                       }}
-                      className={`flex items-center justify-center rounded-md h-full w-20 text-xs gotham_bold cursor-pointer hover:bg-portfolioLightGreyColor ${
+                      className={`flex items-center justify-center rounded-md h-full w-16 text-xs gotham_bold cursor-pointer hover:bg-portfolioLightGreyColor ${
                         index != tabList.length - 1 ? 'mr-0.5' : ''
                       } ${
                         activeTab == item.tag
@@ -400,7 +400,7 @@ export default function Tokens() {
             >
               NEAR Wallet
             </div>
-            {Object.keys(auroaBalances || {}).length > 0 ? (
+            {aurora_tokens?.length > 0 ? (
               activeTab == 'aurora' ? (
                 <AuroraIconActive className="cursor-pointer"></AuroraIconActive>
               ) : (

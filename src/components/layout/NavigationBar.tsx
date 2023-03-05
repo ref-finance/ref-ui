@@ -1433,6 +1433,7 @@ function MenuBar() {
         }
       }
       set_two_level_items([]);
+      set_back_one_level_item(null);
     }
   }
   function click_three_level_title_to_back(menuItem: menuItemType) {
@@ -1496,7 +1497,7 @@ function MenuBar() {
                 </div>
               )}
               {two_level_items?.map((item: menuItemType, indexC) => {
-                const { label, logo, children, id } = item;
+                const { label, logo, children, id, icon } = item;
                 return (
                   <div
                     key={indexC}
@@ -1516,6 +1517,7 @@ function MenuBar() {
                         <FiChevronRight />
                       </span>
                     ) : null}
+                    {icon ? <span className="ml-4 text-xl">{icon}</span> : null}
                   </div>
                 );
               })}

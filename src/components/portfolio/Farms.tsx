@@ -414,13 +414,29 @@ function DclFarmRow({ seed }: { seed: Seed }) {
   }
   function getTotalUnclaimedRewards() {
     let totalPrice = 0;
-    const tempFarms = {};
+    const tempFarmsRewards = {};
     seed.farmList.forEach((farm: FarmBoost) => {
-      tempFarms[farm.terms.reward_token] = true;
+      const { terms, token_meta_data } = farm;
+      const reward_token = terms.reward_token;
+      tempFarmsRewards[reward_token] = token_meta_data;
     });
     const unclaimed = user_unclaimed_map[seed.seed_id] || {};
     const unClaimedTokenIds = Object.keys(unclaimed);
     const tokenList: any[] = [];
+    if (unClaimedTokenIds?.length == 0) {
+      const tokenList_temp: any = Object.values(tempFarmsRewards).reduce(
+        (acc: any[], cur) => {
+          const temp = { token: cur, amount: <span>0</span> };
+          acc.push(temp);
+          return acc;
+        },
+        []
+      );
+      return {
+        worth: <span>$0</span>,
+        list: tokenList_temp,
+      };
+    }
     unClaimedTokenIds?.forEach((tokenId: string) => {
       const token: TokenMetadata = user_unclaimed_token_meta_map[tokenId];
       // total price
@@ -431,9 +447,9 @@ function DclFarmRow({ seed }: { seed: Seed }) {
         totalPrice += +amount * tokenPrice;
       }
       // rewards number
-      let displayNum = '';
+      let displayNum;
       if (new BigNumber('0').isEqualTo(amount)) {
-        displayNum = '-';
+        displayNum = <span>0</span>;
       } else if (new BigNumber('0.001').isGreaterThan(amount)) {
         displayNum = '<0.001';
       } else {
@@ -447,7 +463,7 @@ function DclFarmRow({ seed }: { seed: Seed }) {
     });
     if (totalPrice == 0) {
       return {
-        worth: '$0',
+        worth: <span>$0</span>,
         list: tokenList,
       };
     } else if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
@@ -584,8 +600,11 @@ function DclFarmRow({ seed }: { seed: Seed }) {
             <div className="flex items-center">
               {unclaimedRewardsData.list.map(
                 (
-                  { token, amount }: { token: TokenMetadata; amount: string },
-                  index
+                  {
+                    token,
+                    amount,
+                  }: { token: TokenMetadata; amount: JSX.Element },
+                  index: number
                 ) => {
                   return (
                     <>
@@ -597,7 +616,7 @@ function DclFarmRow({ seed }: { seed: Seed }) {
                         className={`text-sm text-white gotham_bold ${
                           index == unclaimedRewardsData.list.length - 1
                             ? ''
-                            : 'mr-1.5'
+                            : 'mr-4'
                         }`}
                       >
                         {amount}
@@ -975,16 +994,29 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
   }, [user_unclaimed_map[seed_id], tokenPriceList]);
   function getTotalUnclaimedRewards() {
     let totalPrice = 0;
-    let resultTip = '';
-    const tempFarms = {};
-
+    const tempFarmsRewards = {};
     seed.farmList.forEach((farm: FarmBoost) => {
-      tempFarms[farm.terms.reward_token] = true;
+      const { terms, token_meta_data } = farm;
+      const reward_token = terms.reward_token;
+      tempFarmsRewards[reward_token] = token_meta_data;
     });
-    const isEnded = seed.farmList[0].status == 'Ended';
     const unclaimed = user_unclaimed_map[seed_id] || {};
     const unClaimedTokenIds = Object.keys(unclaimed);
     const tokenList: any[] = [];
+    if (unClaimedTokenIds?.length == 0) {
+      const tokenList_temp: any = Object.values(tempFarmsRewards).reduce(
+        (acc: any[], cur) => {
+          const temp = { token: cur, amount: <span>0</span> };
+          acc.push(temp);
+          return acc;
+        },
+        []
+      );
+      return {
+        worth: <span>$0</span>,
+        list: tokenList_temp,
+      };
+    }
     unClaimedTokenIds?.forEach((tokenId: string) => {
       const token: TokenMetadata = user_unclaimed_token_meta_map[tokenId];
       // total price
@@ -1008,36 +1040,20 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
         amount: displayNum,
       };
       tokenList.push(tempTokenData);
-      const txt = intl.formatMessage({ id: 'ended_search' });
-      const itemHtml = `<div class="flex justify-between items-center h-8 active">
-          <img class="w-5 h-5 rounded-full mr-7" src="${icon}"/>
-            <div class="flex flex-col items-end text-xs text-navHighLightText">
-            ${formatWithCommas(displayNum)}
-            ${
-              !isEnded && !tempFarms[id]
-                ? `<span class="text-farmText text-xs">${txt}</span>`
-                : ''
-            }
-          </div>
-        </div>`;
-      resultTip += itemHtml;
     });
     if (totalPrice == 0) {
       return {
-        worth: <label className="opacity-30">$0</label>,
-        tip: resultTip,
+        worth: <label>$0</label>,
         list: tokenList,
       };
     } else if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
       return {
         worth: '<$0.01',
-        tip: resultTip,
         list: tokenList,
       };
     } else {
       return {
         worth: `$${toInternationalCurrencySystem(totalPrice.toString(), 2)}`,
-        tip: resultTip,
         list: tokenList,
       };
     }
@@ -1251,7 +1267,7 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
               {unclaimedRewardsData.list.map(
                 (
                   { token, amount }: { token: TokenMetadata; amount: string },
-                  index
+                  index: number
                 ) => {
                   return (
                     <>
@@ -1263,7 +1279,7 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
                         className={`text-sm text-white gotham_bold ${
                           index == unclaimedRewardsData.list.length - 1
                             ? ''
-                            : 'mr-1.5'
+                            : 'mr-4'
                         }`}
                       >
                         {amount}

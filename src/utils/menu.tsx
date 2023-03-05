@@ -62,6 +62,7 @@ import {
 } from '../components/icon/Nav';
 import { WalletContext } from '../utils/wallets-integration';
 import { useHistory } from 'react-router';
+import { jsx } from '@emotion/react';
 
 export type MenuItem = {
   id: number;
@@ -497,6 +498,7 @@ export const useMenus = () => {
     {
       id: '5',
       label: <>More</>,
+      links: ['/risks', '/airdrop'],
       children: [
         {
           id: '5-1',
@@ -558,6 +560,7 @@ export const useMenus = () => {
           url: '/risks',
           isExternal: false,
           logo: <RisksIcon />,
+          links: ['/risks'],
         },
         {
           id: '5-4',
@@ -567,6 +570,7 @@ export const useMenus = () => {
           url: '/airdrop',
           isExternal: false,
           logo: <IconAirDrop />,
+          links: ['/airdrop'],
         },
         {
           id: '5-5',
@@ -591,4 +595,5 @@ export interface menuItemType {
   clickEvent?: () => void;
   links?: string[];
   swap_mode?: string;
+  icon?: JSX.Element;
 }

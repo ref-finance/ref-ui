@@ -1218,7 +1218,6 @@ function UserLiquidityLineStyle2() {
     go_farm,
   } = useContext(LiquidityContext);
   const [switch_off, set_switch_off] = useState<boolean>(true);
-  const [hover, setHover] = useState<boolean>(false);
 
   function getUsageDiv() {
     let div;
@@ -1278,16 +1277,21 @@ function UserLiquidityLineStyle2() {
           <span className="flex items-center justify-center text-xs text-v3SwapGray bg-portfolioFeeBgColor rounded-md px-1.5 mx-1.5">
             {+fee / 10000}%
           </span>
-          <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5">
-            DCL
-          </span>
           <span
-            className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white mx-1.5"
             onClick={() => {
               goPoolDetailPage();
             }}
+            className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white  py-0.5  mr-1.5"
           >
-            <LinkIcon></LinkIcon>
+            DCL Pool <LinkIcon className="ml-1"></LinkIcon>
+          </span>
+          <span
+            onClick={() => {
+              goYourLiquidityDetailPage('new window');
+            }}
+            className="flex items-center bg-portfolioRainbowColor rounded-md gotham_bold text-xs text-white cursor-pointer px-1.5 py-0.5"
+          >
+            NFT #{getLpt_id()} <LinkIcon className="ml-1"></LinkIcon>
           </span>
         </div>
         <div className="flex items-center">
@@ -1311,20 +1315,6 @@ function UserLiquidityLineStyle2() {
       <div className={`${switch_off ? 'hidden' : ''}`}>
         <div className="flex items-center justify-between">
           <p className="text-sm text-v3SwapGray ml-2">Your Position</p>
-          <div className="flex items-center">
-            <span className="bg-portfolioRainbowColor px-1.5 rounded-md text-xs text-white gotham_bold mr-2.5 py-0.5">
-              NFT #{getLpt_id()}
-            </span>
-            <div
-              onClick={() => {
-                goYourLiquidityDetailPage('new window');
-              }}
-              className="flex items-center bg-selectTokenV3BgColor px-1.5 py-0.5 rounded-md text-xs text-primaryText hover:text-white cursor-pointer"
-            >
-              NFT Detail
-              <LinkIcon className="ml-1.5"></LinkIcon>
-            </div>
-          </div>
         </div>
         <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
           <div className="flex items-center justify-between mb-6">
