@@ -320,6 +320,7 @@ module.exports = {
         portfolioGreenColor: '#63C441',
         portfolioLightGreyColor:'rgba(48, 68, 82, 0.5)',
         portfolioLightGreenColor:'#5FAB43',
+        navGreyColor:'#2B3741',
 
       },
       fontFamily: {
