@@ -30,8 +30,8 @@ export default function Tab() {
 
   const [tabList, setTabList] = useState([
     { name: 'Active Orders', tag: 1, value: '$-', quantity: '-' },
-    { name: 'Your Positions', tag: 2, value: '$-', quantity: '-' },
-    { name: 'Your Farms', tag: 3, value: '$-', quantity: '-' },
+    { name: 'Your Liquidity', tag: 2, value: '$-', quantity: '-' },
+    { name: 'Yield Farming', tag: 3, value: '$-', quantity: '-' },
   ]);
   const total_liquidity_value = useMemo(() => {
     let total_value = '$-';

@@ -129,10 +129,10 @@ export default function Tokens() {
       set_aurora_total_value(total_value_aurora);
 
       if (tokens_ref?.length > 0) {
-        tabList.push({ name: 'REF V1', tag: 'ref' });
+        tabList.push({ name: 'Classic', tag: 'ref' });
       }
       if (tokens_dcl?.length > 0) {
-        tabList.push({ name: 'REF V2', tag: 'dcl' });
+        tabList.push({ name: 'DCL', tag: 'dcl' });
       }
       setTabList(JSON.parse(JSON.stringify(tabList)));
     }

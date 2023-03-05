@@ -90,7 +90,7 @@ export default function AssetProfit() {
   function getTip() {
     // const tip = intl.formatMessage({ id: 'over_tip' });
     const tip =
-      'USD value of your invests on Ref:Classic pools + DCL pools (including staked in farms)';
+      'USD value of unclaimed fee in DCL pools and unclaimed reward in farms.';
     let result: string = `<div class="text-navHighLightText text-xs text-left w-64">${tip}</div>`;
     return result;
   }

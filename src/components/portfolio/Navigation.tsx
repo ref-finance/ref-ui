@@ -17,7 +17,7 @@ export default function Navigation(props: any) {
         <span className="text-sm text-white text-opacity-50">Dapp</span>
       </div>
       <div className="flex flex-col mt-2.5">
-        {menuList.map((item) => {
+        {menuList.map((item, index: number) => {
           const { Icon, name, id } = item;
           return (
             <div
@@ -37,6 +37,13 @@ export default function Navigation(props: any) {
                 }`}
               >
                 {name}
+              </span>
+              <span
+                className={`text-xs text-primaryText rounded-md bg-navGreyColor px-1.5 py-0.5 ${
+                  index == 0 ? 'hidden' : 'ml-1.5'
+                }`}
+              >
+                Soon
               </span>
             </div>
           );
