@@ -1180,10 +1180,10 @@ function OpenOrders({
             </FlexRow>
           </th>
 
-          <th className={showCurSymbol ? '' : 'transform translate-x-1/3'}>
+          <th>
             <FlexRow
               className={`col-span-1 py-2 ${
-                showCurSymbol ? 'pl-5' : ''
+                showCurSymbol ? 'pl-5' : 'left-1/3'
               } relative`}
             >
               <div
