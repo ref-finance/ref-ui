@@ -1636,13 +1636,11 @@ function HistoryOrders({
             )}
           </th>
 
-          <th
-            className={`py-2.5 ${
-              showCurSymbol ? '' : 'transform translate-x-1/3'
-            }`}
-          >
+          <th className={`py-2.5 `}>
             <FlexRow
-              className={`col-span-1  relative ${showCurSymbol ? 'pl-5' : ''}`}
+              className={`col-span-1  relative ${
+                showCurSymbol ? 'pl-5' : 'left-1/3'
+              }`}
             >
               <div
                 className="cursor-pointer flex items-center"

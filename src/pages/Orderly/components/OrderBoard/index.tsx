@@ -83,7 +83,7 @@ export function Selector({
   return (
     <div className="absolute top-6 z-50">
       <div
-        className={`${className}  flex flex-col min-w-p90  items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
+        className={`${className}  flex flex-col min-w-max  items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
       >
         {list.map((item, index) => {
           return (
