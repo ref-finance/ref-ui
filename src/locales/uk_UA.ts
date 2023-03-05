@@ -757,12 +757,12 @@ const uk_UA = {
   no_farm_need_to_migrate: 'Немає ферм для переносу',
   v1_farms: 'V1 Ферми',
   has_rewards_tip:
-    'Вам все ще потрібно отримати винагороди в  <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >V1 Farms</a>. The rewards are not going anywhere, you can withdraw anytime.</div>',
+    'Вам все ще потрібно отримати винагороди в  <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. The rewards are not going anywhere, you can withdraw anytime.</div>',
   love: 'LOVE',
   Available_to_stake: 'Доступно для Стейкінгу',
   you_staked: 'Застейкано',
   has_rewards_tip_in_v2:
-    'Legacy rewards to be withdraw in <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Farms</a>.',
+    'Legacy rewards to be withdraw in <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: 'Як отримати?',
   get_booster: 'отримати Booster',
   ended_farms: 'Закінчені ферми',

@@ -45,6 +45,7 @@ import {
   XrefEarnIcon,
   XrefIcon,
   REFSmallIcon,
+  PurpleCircleIcon,
 } from '~components/icon/Nav';
 // import { XrefIcon } from '~components/icon/Xref';
 import getConfig from '../services/config';
@@ -392,7 +393,15 @@ export const useMenus = () => {
           },
         },
         {
-          label: <>Orderbook</>,
+          label: (
+            <div className="flex items-end">
+              <span>Orderbook</span>
+              <div className="flex items-center ml-1 mb-0.5">
+                <PurpleCircleIcon className="mr-0.5"></PurpleCircleIcon>
+                <span className="text-xs">Orderly</span>
+              </div>
+            </div>
+          ),
           logo: <OrderBookIcon />,
           url: '/orderly',
           isExternal: false,
@@ -443,17 +452,17 @@ export const useMenus = () => {
       url: '/portfolio',
       isExternal: false,
     },
-    {
-      id: '4',
-      logo: (
-        <>
-          <REFSmallIcon className="mt-0.5"></REFSmallIcon>
-        </>
-      ),
-      label: <>Anylatics</>,
-      url: '',
-      isExternal: false,
-    },
+    // {
+    //   id: '4',
+    //   logo: (
+    //     <>
+    //       <REFSmallIcon className="mt-0.5"></REFSmallIcon>
+    //     </>
+    //   ),
+    //   label: <>Anylatics</>,
+    //   url: '',
+    //   isExternal: false,
+    // },
     {
       id: '5',
       label: <>More</>,

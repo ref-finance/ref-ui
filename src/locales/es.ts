@@ -789,9 +789,9 @@ const es = {
     'Entiendo que no podré remover mis tokens LP durante todo el período de bloqueo acordado.',
   connect_to_near_wallet: 'Conectar a la Wallet de NEAR ',
   only_for_whitelist_address: 'Solo para la dirección de la whitelist',
-  v1Legacy: 'V1-Legacy',
-  v2New: 'V2-New',
-  v2_new_farms: 'V2 New Farms',
+  v1Legacy: 'Legacy',
+  v2New: 'Classic-New',
+  v2_new_farms: 'Classic farms update',
   migrate_now: 'Migrar ahora!',
   v2_boost_tip:
     'Las farms V2 admitirán boosted farms. Las farms V1 se quedarán sin recompensas el <span class="font-bold">1 de agosto de 2022</span>.',
@@ -799,14 +799,14 @@ const es = {
   v2_boost_no_tip:
     'Las farms V1 se quedarán sin recompensas el <span class="font-bold">1 de agosto de 2022</span>..',
   no_farm_need_to_migrate: 'Ninguna farms necesita migrar',
-  v1_farms: 'V1 Farms',
+  v1_farms: 'Legacy Farms',
   has_rewards_tip:
-    'Has reclamado recompensas en <a class="text-green Color text-based cursor-pointer underline hover:text-sender Hot" href="/farms" >V1 Farms</a>. Puede retirarlos en cualquier momento.</div>',
+    'Has reclamado recompensas en <a class="text-green Color text-based cursor-pointer underline hover:text-sender Hot" href="/farms" >Legacy Farms</a>. Puede retirarlos en cualquier momento.</div>',
   love: 'LOVE',
   Available_to_stake: 'Disponibe para hacer stake',
   you_staked: 'Ha hecho un stake',
   has_rewards_tip_in_v2:
-    'Retire las recompensas heredadas de <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Farms</a>.',
+    'Retire las recompensas heredadas de <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: 'Cómo obtener?',
   get_booster: 'Obtener Booster',
   ended_farms: 'Farms finalizadas',

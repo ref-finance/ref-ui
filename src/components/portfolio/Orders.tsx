@@ -789,40 +789,42 @@ function OrderCard({
             <NoDataCard text="Your active order(s) will appear here." />
           ) : (
             <>
-              {activeOrder?.sort(activeOrderSorting).map((order, index) => {
-                return (
-                  <>
-                    <div
-                      className={`flex items-center justify-between  px-6 xs:hidden text-v3SwapGray text-sm  whitespace-nowrap`}
-                    >
-                      <div className="flex items-center">
-                        <span className="text-left">
-                          <FormattedMessage
-                            id="you_sell"
-                            defaultMessage={'You Sell'}
-                          />
-                        </span>
+              {activeOrder ? (
+                <>
+                  <div
+                    className={`flex items-center justify-between  px-6 xs:hidden text-v3SwapGray text-sm  whitespace-nowrap`}
+                  >
+                    <div className="flex items-center">
+                      <span className="text-left">
+                        <FormattedMessage
+                          id="you_sell"
+                          defaultMessage={'You Sell'}
+                        />
+                      </span>
 
-                        <span className="ml-20">
-                          <FormattedMessage
-                            id="you_buy"
-                            defaultMessage={'You Buy'}
-                          />
-                        </span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="w-32">@Price</span>
-                        <span className="w-40 mr-1">Execute Status</span>
-                      </div>
+                      <span className="ml-20">
+                        <FormattedMessage
+                          id="you_buy"
+                          defaultMessage={'You Buy'}
+                        />
+                      </span>
                     </div>
-                    <ActiveLine
-                      index={index}
-                      key={order.order_id}
-                      order={order}
-                    />
-                  </>
-                );
-              })}
+                    <div className="flex items-center">
+                      <span className="w-32">@Price</span>
+                      <span className="w-40 mr-1">Execute Status</span>
+                    </div>
+                  </div>
+                  {activeOrder.sort(activeOrderSorting).map((order, index) => {
+                    return (
+                      <ActiveLine
+                        index={index}
+                        key={order.order_id}
+                        order={order}
+                      />
+                    );
+                  })}
+                </>
+              ) : null}
             </>
           )}
         </>

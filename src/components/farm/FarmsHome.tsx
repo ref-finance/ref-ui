@@ -135,11 +135,11 @@ import {
 } from '~services/commonV3';
 
 const {
-  STABLE_POOL_IDS,
   REF_VE_CONTRACT_ID,
   FARM_BLACK_LIST_V2,
   boostBlackList,
   REF_UNI_V3_SWAP_CONTRACT_ID,
+  switch_on_dcl_farms,
 } = getConfig();
 export default function FarmsHome(props: any) {
   const {
@@ -213,10 +213,12 @@ export default function FarmsHome(props: any) {
   const [userDataLoading, setUserDataLoading] = useState<boolean>(true);
   const [boostInstructions, setBoostInstructions] = useState<boolean>(false);
   const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
-  let [farmTab, setFarmTab] = useState(
-    localStorage.getItem('BOOST_FARM_RAB') || 'classic'
-  ); // dcl、normal
-  const location = useLocation();
+  const local_storage_tab = localStorage.getItem('BOOST_FARM_RAB');
+  const default_farm_tab =
+    !local_storage_tab || local_storage_tab == 'dcl'
+      ? 'classic'
+      : local_storage_tab;
+  let [farmTab, setFarmTab] = useState(default_farm_tab); // dcl、normal,legacy
   const history = useHistory();
   const statusList = {
     live: {
@@ -1274,12 +1276,28 @@ export default function FarmsHome(props: any) {
                     switchFarmTab('dcl');
                   }}
                   className={`flex items-center justify-center text-sm rounded-md cursor-pointer px-3 h-full ${
+                    switch_on_dcl_farms == 'on' ? '' : 'hidden'
+                  } ${
                     farmTab == 'dcl'
                       ? 'text-chartBg bg-farmSearch'
                       : 'text-farmText'
                   }`}
                 >
                   DCL Farms
+                </span>
+                <span
+                  onClick={() => {
+                    history.push('/farms');
+                  }}
+                  className={`flex items-center justify-center text-sm rounded-md cursor-pointer px-3 h-full ${
+                    switch_on_dcl_farms == 'on' ? 'hidden' : ''
+                  } ${
+                    farmTab == 'legacy'
+                      ? 'text-chartBg bg-farmSearch'
+                      : 'text-farmText'
+                  }`}
+                >
+                  Legacy Farms
                 </span>
                 <span
                   onClick={() => {

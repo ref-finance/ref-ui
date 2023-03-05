@@ -139,7 +139,7 @@ export const useBatchTotalShares = (
     if (!ids || !finalStakeList || !isSignedIn || !stakeListDone)
       return undefined;
     getShares();
-  }, [ids?.join('-'), finalStakeList, isSignedIn]);
+  }, [ids?.join('-'), finalStakeList, isSignedIn, stakeListDone]);
   async function getShares() {
     const shareInPools = await Promise.all(
       ids.map((id) => getSharesInPool(Number(id)))

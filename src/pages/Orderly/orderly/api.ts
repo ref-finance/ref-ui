@@ -102,7 +102,6 @@ const announceLedgerAccessKey = async (accountId: string) => {
 
   handlePopTrigger();
 
-
   await new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(1);
@@ -143,7 +142,6 @@ const announceKey = async (accountId: string) => {
     // @ts-ignore
 
     await contract.user_announce_key();
-
 
     return;
   }

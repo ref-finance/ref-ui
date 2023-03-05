@@ -782,14 +782,14 @@ const vi = {
   v2_boost_no_tip:
     'V1 farms sẽ chạy phần thưởng <span class="font-bold">1st. Tháng 8, 2022.</span>',
   no_farm_need_to_migrate: 'Không có farm nào cần Migrate',
-  v1_farms: 'V1 Farms',
+  v1_farms: 'Legacy Farms',
   has_rewards_tip:
-    'Bạn vẫn có phần thưởng đã nhận để rút trong <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >V1 Farms</a>. Phần thuowgnr của bạn sẽ không biến mất, bạn có thể rút bất kì lúc nào.</div>',
+    'Bạn vẫn có phần thưởng đã nhận để rút trong <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. Phần thuowgnr của bạn sẽ không biến mất, bạn có thể rút bất kì lúc nào.</div>',
   love: 'LOVE',
   Available_to_stake: 'Stake khả dụng',
   you_staked: 'Bạn đã stake',
   has_rewards_tip_in_v2:
-    'Tải sản là phần thưởng sẽ được rút trong <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Farms</a>.',
+    'Tải sản là phần thưởng sẽ được rút trong <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: 'Làm sao để nhận?',
   get_booster: 'Nhận Booster',
   ended_farms: 'kết thúc farms',

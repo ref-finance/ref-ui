@@ -108,7 +108,7 @@ export default function AssetChart() {
       {isSignedIn && assetData.length == 0 && assetDataDone ? (
         <NoDataArea></NoDataArea>
       ) : null}
-      {assetData.length > 0 ? (
+      {isSignedIn && assetData.length > 0 ? (
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={assetData}>
             <defs>

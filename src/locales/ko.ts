@@ -775,12 +775,12 @@ const ko = {
   no_farm_need_to_migrate: '이주해야하는 농장은 없습니다.',
   v1_farms: 'V1 농장',
   has_rewards_tip:
-    '출금할 리워드가 다음 농장들에 남아있습니다: <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >V1 Farms</a>. 보상이 사라지진 않습니다. 언제든 출금할 수 있습니다.</div>',
+    '출금할 리워드가 다음 농장들에 남아있습니다: <a class="text-greenColor text-base cursor-pointer underline hover:text-senderHot"  href="/farms" >Legacy Farms</a>. 보상이 사라지진 않습니다. 언제든 출금할 수 있습니다.</div>',
   love: 'LOVE',
   Available_to_stake: '스테이킹 가능한 양은:',
   you_staked: '당신이 스테이킹한 양은:',
   has_rewards_tip_in_v2:
-    '출금가능한 레거시 보상들이 기다립니다 <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Farms</a>.',
+    '출금가능한 레거시 보상들이 기다립니다 <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Farms</a>.',
   how_to_get: '어떻게 받나요?',
   get_booster: '부스터 받기',
   ended_farms: '부스팅 종료된 농장',

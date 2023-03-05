@@ -246,6 +246,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
           '1760#0',
           '1760#1',
         ],
+        switch_on_dcl_farms: 'on',
       };
     case 'testnet':
       return {
