@@ -35,7 +35,7 @@ function TradingBoard() {
             height: 'calc(52vh + 70px)',
           }}
         >
-          <div className="w-full border p-4   border-boxBorder rounded-2xl bg-cardBg">
+          <div className="w-full border p-4   border-boxBorder rounded-2xl bg-black bg-opacity-10">
             <ChartHeader></ChartHeader>
             <ChartContainer />
           </div>
@@ -103,14 +103,6 @@ function OrderlyTradingBoard() {
 
     pubKey && tradingKeyMap.set(pubKeyPath, pubKey);
   };
-
-  React.useEffect(() => {
-    const el = document.getElementsByClassName('page-container')?.[0];
-    if (el) {
-      //@ts-ignore
-      // el.style.backgroundColor = 'rgb(19, 33, 42)';
-    }
-  }, []);
 
   return (
     <div>

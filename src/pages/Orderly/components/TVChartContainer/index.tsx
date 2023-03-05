@@ -140,10 +140,14 @@ export function ChartContainer() {
     autosize: true,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
     studies_overrides: {},
-    toolbar_bg: '#101D26',
+    toolbar_bg: 'rgba(1,16,29,1)',
     overrides: {
-      'paneProperties.background': '#101D26',
+      'paneProperties.background': 'rgba(1,16,29,1)',
       'paneProperties.backgroundType': 'solid', // or "gradient"
+    },
+    loading_screen: {
+      backgroundColor: 'rgba(1,16,29,1)',
+      foregroundColor: 'rgba(1,16,29,1)',
     },
   };
 
@@ -166,7 +170,7 @@ export function ChartContainer() {
       style={{
         height: '52vh',
         position: 'relative',
-        background: 'rgb(16, 29, 38)',
+        background: 'rgba(1,16,29,1)',
       }}
     ></div>
   );

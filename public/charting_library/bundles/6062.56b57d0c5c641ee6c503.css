@@ -78,7 +78,8 @@ html.theme-dark .scrollWrap-379NmUSU::-webkit-scrollbar-thumb {
   left: 0;
   overflow: hidden;
   position: absolute;
-  transition: background-color 0.35s ease, transform 0.11666667s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  transition: background-color 0.35s ease,
+    transform 0.11666667s cubic-bezier(0.55, 0.055, 0.675, 0.19);
   width: 100%;
 }
 html.theme-dark .scrollBot-379NmUSU,
@@ -88,12 +89,14 @@ html.theme-dark .scrollTop-379NmUSU {
 }
 .scrollBot-379NmUSU:active,
 .scrollTop-379NmUSU:active {
-  transition: background-color 58.33333ms ease, transform 0.11666667s cubic-bezier(0.215, 0.61, 0.355, 1);
+  transition: background-color 58.33333ms ease,
+    transform 0.11666667s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 @media (any-hover: hover), (min--moz-device-pixel-ratio: 0) {
   .scrollBot-379NmUSU:hover,
   .scrollTop-379NmUSU:hover {
-    transition: background-color 58.33333ms ease, transform 0.11666667s cubic-bezier(0.215, 0.61, 0.355, 1);
+    transition: background-color 58.33333ms ease,
+      transform 0.11666667s cubic-bezier(0.215, 0.61, 0.355, 1);
   }
 }
 .scrollBot-379NmUSU:active .icon-379NmUSU,
@@ -227,8 +230,14 @@ html.theme-dark .arrow-191zO2Od {
     background-color: var(--tv-color-toolbar-button-background-hover, #f0f3fa);
   }
 }
-html.theme-dark .feature-mobiletouch .control-191zO2Od .arrow-191zO2Od.hover-191zO2Od,
-html.theme-dark .isOpened-191zO2Od .control-191zO2Od .arrow-191zO2Od.hover-191zO2Od {
+html.theme-dark
+  .feature-mobiletouch
+  .control-191zO2Od
+  .arrow-191zO2Od.hover-191zO2Od,
+html.theme-dark
+  .isOpened-191zO2Od
+  .control-191zO2Od
+  .arrow-191zO2Od.hover-191zO2Od {
   background-color: var(--tv-color-toolbar-button-background-hover, #2a2e39);
 }
 @media (any-hover: hover), (min--moz-device-pixel-ratio: 0) {
@@ -392,14 +401,23 @@ html.theme-dark .container-3CL4Geq2 .arrow-3CL4Geq2 {
 }
 @media (any-hover: hover), (min--moz-device-pixel-ratio: 0) {
   .container-3CL4Geq2:hover .background-3CL4Geq2 {
-    fill: var(--tv-color-toolbar-toggle-button-background-active, rgb(197, 247, 228));
+    fill: var(
+      --tv-color-toolbar-toggle-button-background-active,
+      rgb(197, 247, 228)
+    );
   }
   .container-3CL4Geq2:hover .background-3CL4Geq2,
   html.theme-dark .container-3CL4Geq2:hover .background-3CL4Geq2 {
-    stroke: var(--tv-color-toolbar-toggle-button-background-active-hover, rgb(197, 247, 228));
+    stroke: var(
+      --tv-color-toolbar-toggle-button-background-active-hover,
+      rgb(197, 247, 228)
+    );
   }
   html.theme-dark .container-3CL4Geq2:hover .background-3CL4Geq2 {
-    fill: var(--tv-color-toolbar-toggle-button-background-active, rgb(197, 247, 228));
+    fill: var(
+      --tv-color-toolbar-toggle-button-background-active,
+      rgb(197, 247, 228)
+    );
   }
   .container-3CL4Geq2:hover .arrow-3CL4Geq2 {
     stroke: var(--tv-color-pane-background, #fff);
@@ -420,14 +438,23 @@ html.theme-dark .container-3CL4Geq2 .arrow-3CL4Geq2 {
   margin-left: 0;
 }
 .toggleButton-3zv4iS2j .background-3zv4iS2j {
-  fill: var(--tv-color-toolbar-toggle-button-background-active, rgb(197, 247, 228));
+  fill: var(
+    --tv-color-toolbar-toggle-button-background-active,
+    rgb(197, 247, 228)
+  );
 }
 .toggleButton-3zv4iS2j .background-3zv4iS2j,
 html.theme-dark .toggleButton-3zv4iS2j .background-3zv4iS2j {
-  stroke: var(--tv-color-toolbar-toggle-button-background-active-hover, rgb(197, 247, 228));
+  stroke: var(
+    --tv-color-toolbar-toggle-button-background-active-hover,
+    rgb(197, 247, 228)
+  );
 }
 html.theme-dark .toggleButton-3zv4iS2j .background-3zv4iS2j {
-  fill: var(--tv-color-toolbar-toggle-button-background-active, rgb(197, 247, 228));
+  fill: var(
+    --tv-color-toolbar-toggle-button-background-active,
+    rgb(197, 247, 228)
+  );
 }
 .toggleButton-3zv4iS2j .arrow-3zv4iS2j {
   stroke: var(--tv-color-pane-background, #fff);
@@ -437,14 +464,23 @@ html.theme-dark .toggleButton-3zv4iS2j .arrow-3zv4iS2j {
 }
 @media (any-hover: hover), (min--moz-device-pixel-ratio: 0) {
   .toggleButton-3zv4iS2j:hover .background-3zv4iS2j {
-    fill: var(--tv-color-toolbar-toggle-button-background-active-hover, rgb(197, 247, 228));
+    fill: var(
+      --tv-color-toolbar-toggle-button-background-active-hover,
+      rgb(197, 247, 228)
+    );
   }
   .toggleButton-3zv4iS2j:hover .background-3zv4iS2j,
   html.theme-dark .toggleButton-3zv4iS2j:hover .background-3zv4iS2j {
-    stroke: var(--tv-color-toolbar-toggle-button-background-active-hover, rgb(197, 247, 228));
+    stroke: var(
+      --tv-color-toolbar-toggle-button-background-active-hover,
+      rgb(197, 247, 228)
+    );
   }
   html.theme-dark .toggleButton-3zv4iS2j:hover .background-3zv4iS2j {
-    fill: var(--tv-color-toolbar-toggle-button-background-active-hover, rgb(197, 247, 228));
+    fill: var(
+      --tv-color-toolbar-toggle-button-background-active-hover,
+      rgb(197, 247, 228)
+    );
   }
 }
 .drawingToolbar-2_so5thS {
@@ -484,7 +520,7 @@ html.theme-dark .inner-2_so5thS {
   padding: 6px 0;
 }
 html.theme-dark .group-2_so5thS {
-  background-color: var(--tv-color-pane-background, #131722);
+  background-color: var(--tv-color-pane-background, rgba(1, 16, 29, 1));
 }
 .group-2_so5thS + .group-2_so5thS {
   margin-top: 1px;

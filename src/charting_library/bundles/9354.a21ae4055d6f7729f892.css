@@ -12,8 +12,7 @@
   overflow: hidden;
 }
 html.theme-dark .group-3uonVBsm {
-  background-color: var(--tv-color-pane-background, #131722);
-  background-color: #101d26 !important;
+  background-color: var(--tv-color-pane-background, rgba(1, 16, 29, 1));
 }
 .group-3uonVBsm:first-child {
   border-bottom-left-radius: 0;
