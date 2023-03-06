@@ -9,7 +9,7 @@ export const isPC = (): Boolean => {
 };
 
 export const isLargeScreen = (): Boolean => {
-  return document.documentElement.clientWidth > 2160;
+  return document.documentElement.clientWidth > 2000;
 };
 
 export const isClientMobie = (): Boolean => {
