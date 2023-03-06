@@ -316,6 +316,7 @@ export default function getConfig(env: string = process.env.NEAR_ENV) {
         kitWalletOn: true,
         FARM_BLACK_LIST_V2: process.env.FARM_BLACK_LIST_V2 || ['666'],
         boostBlackList: process.env.FARM__BOOST_BLACK_LIST || [''],
+        switch_on_dcl_farms: 'on',
       };
     default:
       return {

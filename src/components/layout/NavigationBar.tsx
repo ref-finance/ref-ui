@@ -426,7 +426,6 @@ function AccountEntry({
           setHover(false);
         }}
       >
-        {/* todo x */}
         <div
           className={`flex items-center justify-center rounded-xl ${
             isSignedIn
@@ -1355,14 +1354,16 @@ export function USNCard({
 function MenuBar() {
   const menus = useMenus();
   const history = useHistory();
-  const [two_level_items, set_two_level_items] = useState<menuItemType[]>([]);
-  const [active_one_level_id, set_active_one_level_id] = useState<string>();
+  const [hover_two_level_items, set_hover_two_level_items] = useState<
+    menuItemType[]
+  >([]);
+  const [hover_one_level_id, set_hover_one_level_id] = useState<string>();
   const [back_one_level_item, set_back_one_level_item] =
     useState<JSX.Element>();
   const [one_level_selected, set_one_level_selected] = useState<string>('');
   const [two_level_selected, set_two_level_selected] = useState<string>('');
   useEffect(() => {
-    const pathname = location.pathname;
+    const pathname = '/' + location.pathname.split('/')[1];
     let one_level_selected_id = '';
     let two_level_selected_id = '';
     if (menus) {
@@ -1389,21 +1390,21 @@ function MenuBar() {
           }
         }
       }
-      set_one_level_selected(one_level_selected_id || '1');
+      set_one_level_selected(one_level_selected_id);
       set_two_level_selected(two_level_selected_id);
     }
   }, [location.pathname, menus]);
   function hover_on_one_level_item(item: menuItemType) {
     const { children, id } = item;
     if (children) {
-      set_two_level_items(children);
+      set_hover_two_level_items(children);
     }
-    set_active_one_level_id(id);
+    set_hover_one_level_id(id);
   }
   function hover_off_one_level_item() {
-    set_two_level_items([]);
+    set_hover_two_level_items([]);
     set_back_one_level_item(null);
-    set_active_one_level_id('');
+    set_hover_one_level_id('');
   }
   function click_one_level_item(item: menuItemType) {
     const { clickEvent, url, isExternal } = item;
@@ -1416,11 +1417,14 @@ function MenuBar() {
         history.push(url);
       }
     }
+    if (clickEvent && url) {
+      hover_off_one_level_item();
+    }
   }
   function click_two_level_item(item: menuItemType) {
     const { children, label, clickEvent, url, isExternal } = item;
     if (children) {
-      set_two_level_items(children);
+      set_hover_two_level_items(children);
       set_back_one_level_item(label);
     } else {
       if (clickEvent) {
@@ -1432,13 +1436,12 @@ function MenuBar() {
           history.push(url);
         }
       }
-      set_two_level_items([]);
-      set_back_one_level_item(null);
+      hover_off_one_level_item();
     }
   }
   function click_three_level_title_to_back(menuItem: menuItemType) {
     const { children } = menuItem;
-    set_two_level_items(children);
+    set_hover_two_level_items(children);
     set_back_one_level_item(null);
   }
 
@@ -1461,7 +1464,7 @@ function MenuBar() {
               className={`flex items-center h-full  ${
                 indexP != menus.length - 1 ? 'mr-10' : ''
               } ${
-                one_level_selected == id || active_one_level_id == id
+                one_level_selected == id || hover_one_level_id == id
                   ? 'text-white'
                   : 'text-primaryText'
               }`}
@@ -1475,9 +1478,9 @@ function MenuBar() {
             {/* two-level */}
             <div
               className={`absolute rounded-2xl border border-menuMoreBoxBorderColor bg-priceBoardColor top-12 cursor-pointer px-2.5 py-1 ${
-                active_one_level_id == id &&
+                hover_one_level_id == id &&
                 children &&
-                two_level_items.length > 0
+                hover_two_level_items.length > 0
                   ? ''
                   : 'hidden'
               }`}
@@ -1496,7 +1499,7 @@ function MenuBar() {
                   </span>
                 </div>
               )}
-              {two_level_items?.map((item: menuItemType, indexC) => {
+              {hover_two_level_items?.map((item: menuItemType, indexC) => {
                 const { label, logo, children, id, icon } = item;
                 return (
                   <div
