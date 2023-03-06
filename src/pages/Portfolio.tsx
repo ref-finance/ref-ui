@@ -64,7 +64,7 @@ function Portfolio() {
   }
 
   return (
-    <div className="flex items-stretch justify-between w-full h-full lg:-mt-12 border-t border-boxBorder">
+    <div className="flex items-stretch justify-between w-full h-full lg:-mt-12">
       <PortfolioData.Provider
         value={{
           activeTab,

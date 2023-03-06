@@ -404,15 +404,7 @@ export const useMenus = () => {
           links: ['/'],
         },
         {
-          label: (
-            <div className="flex items-end">
-              <span>Orderbook</span>
-              <div className="flex items-center ml-1 mb-0.5">
-                <PurpleCircleIcon className="mr-0.5"></PurpleCircleIcon>
-                <span className="text-xs">Orderly</span>
-              </div>
-            </div>
-          ),
+          label: <span>Orderbook</span>,
           logo: <OrderBookIcon />,
           url: '/orderly',
           isExternal: false,

@@ -56,7 +56,12 @@ import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 const { REF_VE_CONTRACT_ID, REF_UNI_V3_SWAP_CONTRACT_ID, switch_on_dcl_farms } =
   getConfig();
-import { display_value, UpDownButton, NoDataCard } from './Tool';
+import {
+  display_value,
+  UpDownButton,
+  NoDataCard,
+  display_value_withCommas,
+} from './Tool';
 const FarmCommonDatas = createContext(null);
 export default function Farms(props: any) {
   const {
@@ -696,7 +701,7 @@ function LiquidityLine(props: {
   }
   function get_liquidity_value_display(liquidity: UserLiquidityInfo) {
     const v = get_liquidity_value(liquidity);
-    return display_value(v);
+    return display_value_withCommas(v);
   }
   function get_your_range(liquidity: UserLiquidityInfo, site?: string) {
     const { left_point, right_point } = liquidity;

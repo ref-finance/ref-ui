@@ -808,7 +808,29 @@ function OrderCard({
     const tokenPrice = useContext(PriceContext);
 
     const sellTokenPrice = tokenPrice?.[sellToken.id]?.price || null;
-
+    const buyTokenPrice = tokenPrice?.[buyToken.id]?.price || null;
+    function instant_swap_tip() {
+      const token_sell_symbol = toRealSymbol(sellToken.symbol);
+      const token_buy_symbol = toRealSymbol(buyToken.symbol);
+      const sell_token_price = sellTokenPrice
+        ? `($${toPrecision(sellTokenPrice, 2)})`
+        : '';
+      const buy_token_price = buyTokenPrice
+        ? `($${toPrecision(buyTokenPrice, 2)})`
+        : '';
+      let rate = new Big(swapOut).div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn);
+      if (sort) {
+        rate = new Big(1).div(rate.eq(0) ? '1' : rate);
+      }
+      const display_rate = rate.toFixed(3);
+      let result = '';
+      if (sort) {
+        result = `1 ${token_buy_symbol} ${buy_token_price} = ${display_rate} ${token_sell_symbol}`;
+      } else {
+        result = `1 ${token_sell_symbol} ${sell_token_price} = ${display_rate} ${token_buy_symbol}`;
+      }
+      return result;
+    }
     const swapBanner = (
       <div className="xs:flex xs:flex-col whitespace-nowrap xs:bg-cardBg xs:bg-opacity-50 relative z-10 bottom-4 xs:bottom-0 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10 xs:px-3 xs:py-4 xs:text-xs">
         <div className="flex items-center justify-between mb-7 xs:mb-7">
@@ -862,20 +884,8 @@ function OrderCard({
 
             <ExclamationTip
               colorhex="#7E8A93"
-              id={`1 ${toRealSymbol(sellToken.symbol)} ${
-                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
-              } = 
-                ${new Big(swapOut)
-                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
-                `}
-              defaultMessage={`1 ${toRealSymbol(sellToken.symbol)} ${
-                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
-              } = 
-                ${new Big(swapOut)
-                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
-                `}
+              id={instant_swap_tip()}
+              defaultMessage={instant_swap_tip()}
             />
           </span>
 
@@ -1406,7 +1416,29 @@ function OrderCard({
     const tokenPrice = useContext(PriceContext);
 
     const sellTokenPrice = tokenPrice?.[sellToken.id]?.price || null;
-
+    const buyTokenPrice = tokenPrice?.[buyToken.id]?.price || null;
+    function instant_swap_tip() {
+      const token_sell_symbol = toRealSymbol(sellToken.symbol);
+      const token_buy_symbol = toRealSymbol(buyToken.symbol);
+      const sell_token_price = sellTokenPrice
+        ? `($${toPrecision(sellTokenPrice, 2)})`
+        : '';
+      const buy_token_price = buyTokenPrice
+        ? `($${toPrecision(buyTokenPrice, 2)})`
+        : '';
+      let rate = new Big(swapOut).div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn);
+      if (sort) {
+        rate = new Big(1).div(rate.eq(0) ? '1' : rate);
+      }
+      const display_rate = rate.toFixed(3);
+      let result = '';
+      if (sort) {
+        result = `1 ${token_buy_symbol} ${buy_token_price} = ${display_rate} ${token_sell_symbol}`;
+      } else {
+        result = `1 ${token_sell_symbol} ${sell_token_price} = ${display_rate} ${token_buy_symbol}`;
+      }
+      return result;
+    }
     const swapBanner = (
       <div className="xs:flex xs:flex-col whitespace-nowrap xs:bg-cardBg xs:bg-opacity-50 relative z-10 bottom-4 xs:bottom-0 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10 xs:px-3 xs:py-4 xs:text-xs">
         <div className="flex items-center justify-between mb-7 xs:mb-7">
@@ -1460,20 +1492,8 @@ function OrderCard({
 
             <ExclamationTip
               colorhex="#7E8A93"
-              id={`1 ${toRealSymbol(sellToken.symbol)} ${
-                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
-              } = 
-                ${new Big(swapOut)
-                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
-                `}
-              defaultMessage={`1 ${toRealSymbol(sellToken.symbol)} ${
-                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
-              } = 
-                ${new Big(swapOut)
-                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
-                `}
+              id={instant_swap_tip()}
+              defaultMessage={instant_swap_tip()}
             />
           </span>
 
@@ -2426,7 +2446,29 @@ function OrderCardOld({
     const tokenPrice = useContext(PriceContext);
 
     const sellTokenPrice = tokenPrice?.[sellToken.id]?.price || null;
-
+    const buyTokenPrice = tokenPrice?.[buyToken.id]?.price || null;
+    function instant_swap_tip() {
+      const token_sell_symbol = toRealSymbol(sellToken.symbol);
+      const token_buy_symbol = toRealSymbol(buyToken.symbol);
+      const sell_token_price = sellTokenPrice
+        ? `($${toPrecision(sellTokenPrice, 2)})`
+        : '';
+      const buy_token_price = buyTokenPrice
+        ? `($${toPrecision(buyTokenPrice, 2)})`
+        : '';
+      let rate = new Big(swapOut).div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn);
+      if (sort) {
+        rate = new Big(1).div(rate.eq(0) ? '1' : rate);
+      }
+      const display_rate = rate.toFixed(3);
+      let result = '';
+      if (sort) {
+        result = `1 ${token_buy_symbol} ${buy_token_price} = ${display_rate} ${token_sell_symbol}`;
+      } else {
+        result = `1 ${token_sell_symbol} ${sell_token_price} = ${display_rate} ${token_buy_symbol}`;
+      }
+      return result;
+    }
     const swapBanner = (
       <div className="xs:flex xs:flex-col whitespace-nowrap xs:bg-cardBg xs:bg-opacity-50 relative z-10 bottom-4 xs:bottom-0 w-full text-sm text-v3SwapGray bg-cardBg rounded-xl px-5 pb-5 pt-10 xs:px-3 xs:py-4 xs:text-xs">
         <div className="flex items-center justify-between mb-7 xs:mb-7">
@@ -2480,20 +2522,8 @@ function OrderCardOld({
 
             <ExclamationTip
               colorhex="#7E8A93"
-              id={`1 ${toRealSymbol(sellToken.symbol)} ${
-                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
-              } = 
-                ${new Big(swapOut)
-                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
-                `}
-              defaultMessage={`1 ${toRealSymbol(sellToken.symbol)} ${
-                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
-              } = 
-                ${new Big(swapOut)
-                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
-                `}
+              id={instant_swap_tip()}
+              defaultMessage={instant_swap_tip()}
             />
           </span>
 
