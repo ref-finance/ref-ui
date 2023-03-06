@@ -3,6 +3,7 @@ import {
   toPrecision,
   formatWithCommas,
   toInternationalCurrencySystem,
+  toInternationalCurrencySystemNature,
 } from '~utils/numbers';
 import BigNumber from 'bignumber.js';
 import { ArrowRightIcon } from '../../components/icon/V3';
@@ -118,6 +119,18 @@ export function display_number(amount: string) {
     return toInternationalCurrencySystem(amount, 2);
   }
 }
+export function display_number_internationalCurrencySystemNature(
+  amount: string
+) {
+  const amount_big = new BigNumber(amount);
+  if (amount_big.isEqualTo('0')) {
+    return '0';
+  } else if (amount_big.isLessThan('0.01')) {
+    return '<0.01';
+  } else {
+    return toInternationalCurrencySystemNature(amount, 2);
+  }
+}
 export function display_percentage(amount: string) {
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
   if (!accountId) return '-';
@@ -142,6 +155,7 @@ export function display_value(amount: string) {
     return `$${toInternationalCurrencySystem(amount, 2)}`;
   }
 }
+
 export function display_value_withCommas(amount: string) {
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
   if (!accountId) return '$-';

@@ -1488,15 +1488,13 @@ function MenuBar() {
             >
               {back_one_level_item && (
                 <div
-                  className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm font-semibold text-primaryText cursor-pointer pt-4 pb-2"
+                  className="whitespace-nowrap hover:text-white text-left items-center flex justify-start text-sm  text-primaryText cursor-pointer pt-4 pb-2"
                   onClick={() => {
                     click_three_level_title_to_back(menuItem);
                   }}
                 >
                   <IoChevronBack className="text-xl " />
-                  <span className="ml-3 gotham_bold">
-                    {back_one_level_item}
-                  </span>
+                  <span className="ml-3">{back_one_level_item}</span>
                 </div>
               )}
               {hover_two_level_items?.map((item: menuItemType, indexC) => {
@@ -1514,7 +1512,7 @@ function MenuBar() {
                     }`}
                   >
                     {logo ? <div className="w-8 mr-2">{logo}</div> : null}
-                    <div className="text-base gotham_bold">{label}</div>
+                    <div className="text-base">{label}</div>
                     {children ? (
                       <span className="text-xl ml-2">
                         <FiChevronRight />

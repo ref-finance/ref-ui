@@ -18,8 +18,8 @@ import {
   ArrowJumpLarge,
   display_percentage,
   display_value,
-  display_number,
   display_value_withCommas,
+  display_number_internationalCurrencySystemNature,
 } from './Tool';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import {
@@ -127,14 +127,14 @@ export default function Tokens() {
       set_near_total_value(total_value_near);
       set_dcl_total_value(total_value_dcl);
       set_aurora_total_value(total_value_aurora);
-
+      const tab_list = [{ name: 'NEAR', tag: 'near' }];
       if (tokens_ref?.length > 0) {
-        tabList.push({ name: 'Classic', tag: 'ref' });
+        tab_list.push({ name: 'Classic', tag: 'ref' });
       }
       if (tokens_dcl?.length > 0) {
-        tabList.push({ name: 'DCL', tag: 'dcl' });
+        tab_list.push({ name: 'DCL', tag: 'dcl' });
       }
-      setTabList(JSON.parse(JSON.stringify(tabList)));
+      setTabList(JSON.parse(JSON.stringify(tab_list)));
     }
   }, [tokenPriceList, userTokens, is_tokens_loading]);
   useEffect(() => {
@@ -198,7 +198,8 @@ export default function Tokens() {
                 formatter: (data: any) => {
                   const { symbol, t_value } = data.data;
                   const num = data.data[activeTab];
-                  const display_num = display_number(num);
+                  const display_num =
+                    display_number_internationalCurrencySystemNature(num);
                   const display_v = display_value(t_value);
                   return `{a|${symbol}}\n{b|${display_num}}\n{a|${display_v}}`;
                 },
