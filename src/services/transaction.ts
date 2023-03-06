@@ -1032,8 +1032,8 @@ const mintLiquidity = async (params: any) => {
   } catch (error) {
     params = {};
   }
-  const { lpt_id, farming_type } = params;
-  const { left_point, right_point } = farming_type.FixRange;
+  const { lpt_id, dcl_farming_type } = params;
+  const { left_point, right_point } = dcl_farming_type.FixRange;
   const [token_x, token_y, fee] = lpt_id.split('|');
   const tokenX = await ftGetTokenMetadata(token_x);
   const tokenY = await ftGetTokenMetadata(token_y);
