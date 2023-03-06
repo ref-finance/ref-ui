@@ -44,7 +44,6 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 
-const PriceContext = createContext(null);
 export default function Orders(props: any) {
   const {
     tokenPriceList,
@@ -146,6 +145,7 @@ function OrderCard({
     order: UserOrderInfo;
     index: number;
   }) {
+    const { tokenPriceList } = useContext(PortfolioData);
     const [switch_off, set_switch_off] = useState<boolean>(true);
 
     const buyToken = tokensMap[order.buy_token];
@@ -499,10 +499,30 @@ function OrderCard({
       </div>
     );
 
-    const tokenPrice = useContext(PriceContext);
-
-    const sellTokenPrice = tokenPrice?.[sellToken.id]?.price || null;
-
+    const sellTokenPrice = tokenPriceList?.[sellToken.id]?.price || null;
+    const buyTokenPrice = tokenPriceList?.[buyToken.id]?.price || null;
+    function instant_swap_tip() {
+      const token_sell_symbol = toRealSymbol(sellToken.symbol);
+      const token_buy_symbol = toRealSymbol(buyToken.symbol);
+      const sell_token_price = sellTokenPrice
+        ? `($${toPrecision(sellTokenPrice, 2)})`
+        : '';
+      const buy_token_price = buyTokenPrice
+        ? `($${toPrecision(buyTokenPrice, 2)})`
+        : '';
+      let rate = new Big(swapOut).div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn);
+      if (sort) {
+        rate = new Big(1).div(rate.eq(0) ? '1' : rate);
+      }
+      const display_rate = rate.toFixed(3);
+      let result = '';
+      if (sort) {
+        result = `1 ${token_buy_symbol} ${buy_token_price} = ${display_rate} ${token_sell_symbol}`;
+      } else {
+        result = `1 ${token_sell_symbol} ${sell_token_price} = ${display_rate} ${token_buy_symbol}`;
+      }
+      return result;
+    }
     const swapBanner = (
       <div>
         <div
@@ -563,20 +583,8 @@ function OrderCard({
             Instant Swap
             <ExclamationTip
               colorhex="#7E8A93"
-              id={`1 ${toRealSymbol(sellToken.symbol)} ${
-                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
-              } = 
-                ${new Big(swapOut)
-                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
-                `}
-              defaultMessage={`1 ${toRealSymbol(sellToken.symbol)} ${
-                sellTokenPrice ? `($${toPrecision(sellTokenPrice, 2)})` : ''
-              } = 
-                ${new Big(swapOut)
-                  .div(ONLY_ZEROS.test(swapIn) ? 1 : swapIn)
-                  .toFixed(3)} ${toRealSymbol(buyToken.symbol)}
-                `}
+              id={instant_swap_tip()}
+              defaultMessage={instant_swap_tip()}
             />
           </span>
 
