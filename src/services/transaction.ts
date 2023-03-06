@@ -18,6 +18,7 @@ import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import moment from 'moment';
 
 export const parseAction = async (
@@ -1069,7 +1070,12 @@ const userRequestWithdraw = async (params: any) => {
     params = {};
   }
   const { token, amount } = params;
-  const token_meta = await ftGetTokenMetadata(token);
+  let token_meta;
+  if (token == 'near') {
+    token_meta = await ftGetTokenMetadata(WRAP_NEAR_CONTRACT_ID);
+  } else {
+    token_meta = await ftGetTokenMetadata(token);
+  }
   return {
     Action: 'Withdraw',
     Token: token_meta.symbol,
