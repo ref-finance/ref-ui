@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useClientMobile } from '../../../../utils/device';
 
 export function NearIcon() {
   return (
@@ -54,6 +55,8 @@ export function OrderStateOutlineBlack() {
 }
 
 export function GrayBgBox(props: any) {
+  const isMobile = useClientMobile();
+
   return (
     <svg
       width="90"
@@ -65,7 +68,7 @@ export function GrayBgBox(props: any) {
     >
       <path
         d="M0 6C0 2.68629 2.68629 0 6 0H85.8366C88.7333 0 90.6696 2.98345 89.4898 5.6291L81.463 23.6291C80.8199 25.0711 79.3887 26 77.8097 26H5.99999C2.68629 26 0 23.3137 0 20V6Z"
-        fill="#213A4D"
+        fill={isMobile ? 'rgba(126, 138, 147, 0.3)' : '#213A4D'}
       />
     </svg>
   );
@@ -95,18 +98,31 @@ export function ArrowCurve() {
 export function OrderSmile({ fill }: { fill?: string }) {
   return (
     <svg
-      className=""
       width="16"
-      height="14"
-      viewBox="0 0 16 14"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
-        d="M7.05882 14C3.16034 14 0 10.866 0 7C0 3.13401 3.16034 0 7.05882 0C10.0621 0 12.6273 1.85996 13.6471 4.48168C13.951 5.26313 16 7 16 7C16 7 13.951 8.73687 13.6471 9.51832C12.6273 12.14 10.0621 14 7.05882 14ZM8.38964 8.56407C8.6304 8.22701 9.09881 8.14894 9.43587 8.3897C9.77293 8.63045 9.851 9.09887 9.61024 9.43593C9.22385 9.97688 8.1575 10.75 6.49994 10.75C4.84238 10.75 3.77603 9.97688 3.38964 9.43593C3.14888 9.09887 3.22695 8.63045 3.56401 8.3897C3.90107 8.14894 4.36948 8.22701 4.61024 8.56407C4.70004 8.68979 5.30036 9.25 6.49994 9.25C7.69952 9.25 8.29984 8.68979 8.38964 8.56407ZM10 5C10 4.44772 9.55228 4 9 4C8.44772 4 8 4.44772 8 5V6C8 6.55228 8.44772 7 9 7C9.55228 7 10 6.55228 10 6V5ZM4 4C4.55228 4 5 4.44772 5 5V6C5 6.55228 4.55228 7 4 7C3.44772 7 3 6.55228 3 6V5C3 4.44772 3.44772 4 4 4Z"
+        d="M16 8C16 9.33384 16 12.0981 16 14.0007C16 15.1052 15.1057 16 14.0011 16C12.1248 16 9.40291 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8Z"
         fill={fill || 'currentColor'}
+      />
+      <rect
+        x="3.55566"
+        y="5.3335"
+        width="2.66667"
+        height="5.33333"
+        rx="1.33333"
+        fill="#00111D"
+      />
+      <rect
+        x="8.88892"
+        y="5.3335"
+        width="2.66667"
+        height="5.33333"
+        rx="1.33333"
+        fill="#00111D"
       />
     </svg>
   );
@@ -718,6 +734,191 @@ export function OrderlyIconBalance() {
         clip-rule="evenodd"
         d="M15.6822 10.24C14.7134 13.568 11.6407 16 8 16C4.35928 16 1.28658 13.568 0.317827 10.24H5.283C5.92862 11.0218 6.90538 11.5201 7.99852 11.5201C9.09165 11.5201 10.0684 11.0218 10.714 10.24H15.6822ZM15.84 9.59998H11.1348C11.3801 9.11996 11.5185 8.57619 11.5185 8.0001C11.5185 7.42387 11.3801 6.87998 11.1346 6.39989H15.8399C15.9449 6.9169 16 7.45201 16 8C16 8.54794 15.9449 9.08301 15.84 9.59998ZM4.86227 9.59998C4.61691 9.11996 4.47852 8.57619 4.47852 8.0001C4.47852 7.42387 4.61698 6.87998 4.86244 6.39989H0.160052C0.0550964 6.9169 0 7.45201 0 8C0 8.54794 0.0550867 9.08301 0.160024 9.59998H4.86227ZM1.59946 3.19994C1.02876 3.95971 0.590194 4.8244 0.317867 5.75989H5.28328C5.9289 4.97825 6.90554 4.4801 7.99852 4.4801C9.09149 4.4801 10.0681 4.97825 10.7138 5.75989H15.6821C15.4098 4.8244 14.9712 3.95971 14.4005 3.19994H1.59946ZM13.8657 2.55994H2.13431C3.59533 0.985349 5.68259 0 8 0C10.3174 0 12.4047 0.985349 13.8657 2.55994Z"
         fill="#7E8A93"
+      />
+    </svg>
+  );
+}
+
+export function BalanceIcon() {
+  return (
+    <svg
+      width="14"
+      height="13"
+      viewBox="0 0 14 13"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle
+        cx="8.91663"
+        cy="7.6499"
+        r="4.15"
+        stroke="currentColor"
+        stroke-width="1.2"
+      />
+      <path
+        d="M3.19556 8.75852C1.8898 8.06829 1 6.69639 1 5.11667C1 2.84309 2.84309 1 5.11667 1C5.92385 1 6.67677 1.23231 7.31222 1.63373C7.46425 1.72976 7.60955 1.83547 7.74726 1.95"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+}
+
+export function ChartIcon() {
+  return (
+    <svg
+      width="18"
+      height="15"
+      viewBox="0 0 18 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        x="1"
+        y="1"
+        width="16"
+        height="13"
+        rx="3"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+      <line
+        x1="4.6"
+        y1="7.6"
+        x2="4.6"
+        y2="10.4"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+      <line
+        x1="7.6"
+        y1="5.6"
+        x2="7.6"
+        y2="10.4"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+      <line
+        x1="10.6"
+        y1="4.6"
+        x2="10.6"
+        y2="10.4"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+      <line
+        x1="13.6"
+        y1="7.6"
+        x2="13.6"
+        y2="10.4"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+}
+
+export function BookIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 15 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        x="1"
+        y="1"
+        width="13"
+        height="13"
+        rx="3"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+      <line
+        x1="10.9625"
+        y1="4.6"
+        x2="4.0375"
+        y2="4.6"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+      <line
+        x1="9.3375"
+        y1="7.6"
+        x2="4.0375"
+        y2="7.6"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+      <line
+        x1="6.9"
+        y1="10.6"
+        x2="4.0375"
+        y2="10.6"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+}
+
+export function InOrderIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 15 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        x="1"
+        y="1"
+        width="13"
+        height="13"
+        rx="3"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+      <line
+        x1="10.9625"
+        y1="4.6"
+        x2="4.0375"
+        y2="4.6"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+      <line
+        x1="9.3375"
+        y1="7.6"
+        x2="4.0375"
+        y2="7.6"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
+      />
+      <line
+        x1="6.9"
+        y1="10.6"
+        x2="4.0375"
+        y2="10.6"
+        stroke="currentColor"
+        stroke-width="1.2"
+        stroke-linecap="round"
       />
     </svg>
   );

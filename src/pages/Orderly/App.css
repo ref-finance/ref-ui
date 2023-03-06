@@ -73,3 +73,9 @@ th {
 .Toastify__toast-container--bottom-right {
   z-index: 9999999 !important;
 }
+
+@media screen and (max-width: 1023px) {
+  .Toastify__toast-container--bottom-right {
+    z-index: 9999 !important;
+  }
+}

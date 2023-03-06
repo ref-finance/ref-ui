@@ -20,14 +20,20 @@ import {
 import AllOrderBoard from './components/AllOrders';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { REF_ORDERLY_ACCOUNT_VALID } from './components/UserBoard/index';
-import { isLargeScreen, useLargeScreen } from '../../utils/device';
+import {
+  isLargeScreen,
+  useLargeScreen,
+  useClientMobile,
+} from '../../utils/device';
 import { useHistory } from 'react-router-dom';
+
+import MobileInfoBoard from './components/MobileInfoBoard';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
 
   return (
-    <div className="w-full flex  pl-4">
+    <div className="w-full flex  pl-4 xs:hidden md:hidden">
       <div className="w-full flex flex-col" id="trading-orderly-board">
         <div
           className="w-full flex"
@@ -72,11 +78,27 @@ function TradingBoard() {
   );
 }
 
+function MobileTradingBoard() {
+  return (
+    <div className="w-95vw flex flex-col lg:hidden">
+      <ChartHeader></ChartHeader>
+
+      {/* info board */}
+
+      <MobileInfoBoard />
+
+      {/* operation board */}
+    </div>
+  );
+}
+
 function OrderlyTradingBoard() {
   const priKeyPath = get_orderly_private_key_path();
 
   const pubKeyPath = get_orderly_public_key_path();
   const { selector } = useWalletSelector();
+
+  const isMobile = useClientMobile();
 
   selector.on('signedOut', () => {
     // tradingKeyMap.clear();
@@ -105,8 +127,10 @@ function OrderlyTradingBoard() {
   };
 
   return (
-    <div>
-      <TradingBoard></TradingBoard>
+    <div className="mx-auto">
+      {!isMobile && <TradingBoard></TradingBoard>}
+
+      {isMobile && <MobileTradingBoard></MobileTradingBoard>}
     </div>
   );
 }

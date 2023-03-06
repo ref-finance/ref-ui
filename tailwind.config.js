@@ -85,7 +85,8 @@ module.exports = {
           'linear-gradient(90deg, #00C6A2 2.54%, rgba(91, 64, 255, 0.5) 70%, rgba(91, 64, 255, 0) 100%)',
         portfolioRainbowColor:
           'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
-        darkBlueColor:'linear-gradient(360deg, #1A2B35 0%, rgba(19, 33, 42, 0) 100%)',
+        darkBlueColor:
+          'linear-gradient(360deg, #1A2B35 0%, rgba(19, 33, 42, 0) 100%)',
       }),
       gridTemplateColumns: {
         farmSearch: '2fr 1fr',
@@ -174,6 +175,7 @@ module.exports = {
         selectBorder: '#415462',
         farmV2WithDrawBg: '#151E29',
         maxBorderColor: '#373F45',
+        darkBg2: '#132531',
         darkBg: '#111518',
         lightBg: '#C4C4C4',
         lockedBg: '#323C43',
@@ -315,13 +317,13 @@ module.exports = {
         portfolioFeeBgColor: 'rgba(0, 214, 162, 0.06)',
         portfolioGreenColor: '#62C340',
         portfolioQinColor: '#63C341',
-        portfolioGreyColor:' rgba(126, 138, 147, 0.3)',
+        portfolioGreyColor: ' rgba(126, 138, 147, 0.3)',
         portfolioBarBgColor: '#172631',
         portfolioGreenColor: '#63C441',
-        portfolioLightGreyColor:'rgba(48, 68, 82, 0.5)',
-        portfolioLightGreenColor:'#5FAB43',
-        navGreyColor:'#2B3741',
-
+        portfolioLightGreyColor: 'rgba(48, 68, 82, 0.5)',
+        portfolioLightGreenColor: '#5FAB43',
+        navGreyColor: '#2B3741',
+        selectBg: '#031928',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

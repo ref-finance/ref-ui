@@ -13,7 +13,11 @@ import {
   LastPage,
   OrderlyLoading,
   OrderlyIconBalance,
+  InOrderIcon,
 } from '../Common/Icons';
+
+import InfiniteScroll from 'react-infinite-scroll-component';
+
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import { OrderAsset, useOrderAssets } from './state';
 import { FlexRow } from '../Common/index';
@@ -36,6 +40,7 @@ import getConfig from '../../config';
 import { TbCopy } from 'react-icons/tb';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { NearTip } from '~pages/AccountPage';
+import { isClientMobie, useClientMobile } from '../../../../utils/device';
 
 function parseTxDisplay(tx: string) {
   return tx.slice(0, 5) + '...' + tx.slice(-5);
@@ -82,23 +87,23 @@ function AssetLine(
 
   return (
     <div
-      className="grid grid-cols-8 text-white py-4 pl-5 pr-1 first-letter:first-line:
+      className="grid grid-cols-8 xs:grid-cols-5 text-white py-4 pl-5 pr-1 first-letter:first-line:
     border-t  border-gray1
     "
     >
       <FlexRow className="col-span-2 ">
         <img
           src={props.tokenMeta.icon}
-          className="rounded-full mr-2 w-7 h-7 border border-green-400"
+          className="rounded-full flex-shrink-0 mr-2 w-7 h-7 border border-green-400"
           alt=""
         />
-        <div className="flex flex-col ">
+        <div className="flex flex-col  ">
           <div className="text-white flex items-center font-bold">
             {props.tokenMeta.symbol}
             {props?.tokenMeta?.id?.toLowerCase() === 'near' && <NearTip />}
           </div>
 
-          <div className="text-primaryOrderly text-xs">
+          <div className="text-primaryOrderly xs:hidden text-xs">
             {getAccountName(props.tokenMeta.id)}
           </div>
         </div>
@@ -108,15 +113,15 @@ function AssetLine(
         {digitWrapper(props.near, 3)}
       </FlexRow>
 
-      <FlexRow className="col-span-2 justify-self-end relative right-12">
+      <FlexRow className="col-span-2 xs:col-span-1 justify-self-end relative right-12 xs:right-5">
         {digitWrapper(props['in-order'], 3)}
       </FlexRow>
 
-      <FlexRow className="relative justify-self-end right-8">
+      <FlexRow className="relative justify-self-end right-8 xs:right-0">
         {digitWrapper(props.available, 3)}
       </FlexRow>
 
-      <FlexRow className="justify-center justify-self-center col-span-2">
+      <FlexRow className="justify-center xs:hidden justify-self-center col-span-2">
         <AssetButton
           text="Deposit"
           onClick={() => {
@@ -171,54 +176,111 @@ function RecordLine(
   const tokenMeta = useTokenMetaFromSymbol(props.token, props.tokenInfo);
 
   return (
-    <div className="grid grid-cols-6 justify-items-end py-3 text-gray2 pl-5 ">
-      <FlexRow className="col-span-1 justify-self-start">
-        <img
-          src={tokenMeta?.icon}
-          className="rounded-full mr-2  border border-green-400"
-          alt=""
-          style={{
-            width: '22px',
-            height: '22px',
-          }}
-        />
-        <div className="">{props.token}</div>
-      </FlexRow>
+    <>
+      <div className="grid xs:hidden grid-cols-6 justify-items-end py-3 text-gray2 pl-5 ">
+        <FlexRow className="col-span-1 justify-self-start">
+          <img
+            src={tokenMeta?.icon}
+            className="rounded-full mr-2  border border-green-400"
+            alt=""
+            style={{
+              width: '22px',
+              height: '22px',
+            }}
+          />
+          <div className="">{props.token}</div>
+        </FlexRow>
 
-      <FlexRow className="justify-self-end relative  right-24">
-        {digitWrapper(props.amount.toString(), 3)}
-      </FlexRow>
+        <FlexRow className="justify-self-end relative  right-24">
+          {digitWrapper(props.amount.toString(), 3)}
+        </FlexRow>
 
-      <FlexRow className="col-span-1 justify-self-end relative right-14">
-        {window.selectorAccountId}
-      </FlexRow>
+        <FlexRow className="col-span-1 justify-self-end relative right-14">
+          {window.selectorAccountId}
+        </FlexRow>
 
-      <div className="flex items-center relative right-8 justify-self-end">
-        <a
-          href={`${getConfig().explorerUrl}/txns/${props.tx_id}`}
-          target="_blank"
-          className="justify-center flex items-center justify-self-end whitespace-nowrap hover:underline text-txBlue"
-          rel="noreferrer"
+        <div className="flex items-center relative right-8 justify-self-end">
+          <a
+            href={`${getConfig().explorerUrl}/txns/${props.tx_id}`}
+            target="_blank"
+            className="justify-center flex items-center justify-self-end whitespace-nowrap hover:underline text-txBlue"
+            rel="noreferrer"
+          >
+            {parseTxDisplay(props.tx_id)}
+          </a>
+          <CopyToClipboard text={props.tx_id}>
+            <TbCopy className="ml-1 transform hover:opacity-80 cursor-pointer text-txBlue rotate-270" />
+          </CopyToClipboard>
+        </div>
+
+        <FlexRow className="relative justify-self-end whitespace-nowrap ">
+          {formatTimeDate(props.updated_time)}
+        </FlexRow>
+
+        <FlexRow
+          className={`justify-center justify-self-center ${
+            props.side === 'WITHDRAW'
+              ? 'text-withdrawPurple3'
+              : 'text-baseGreen'
+          }`}
         >
-          {parseTxDisplay(props.tx_id)}
-        </a>
-        <CopyToClipboard text={props.tx_id}>
-          <TbCopy className="ml-1 transform hover:opacity-80 cursor-pointer text-txBlue rotate-270" />
-        </CopyToClipboard>
+          {props.side === 'WITHDRAW' ? 'Withdraw' : 'Deposit'}
+        </FlexRow>
       </div>
 
-      <FlexRow className="relative justify-self-end whitespace-nowrap ">
-        {formatTimeDate(props.updated_time)}
-      </FlexRow>
+      <div className="w-full lg:hidden flex px-3 py-2 border-b border-menuMoreBgColor items-stretch justify-between">
+        <div className="flex  flex-col">
+          <FlexRow className="col-span-1 justify-self-start">
+            <img
+              src={tokenMeta?.icon}
+              className="rounded-full mr-2 xs:border-none lg:border border-green-400"
+              alt=""
+              style={{
+                width: '22px',
+                height: '22px',
+              }}
+            />
+            <div className="text-white ml-1 flex flex-col">
+              {props.token}
 
-      <FlexRow
-        className={`justify-center justify-self-center ${
-          props.side === 'WITHDRAW' ? 'text-withdrawPurple3' : 'text-baseGreen'
-        }`}
-      >
-        {props.side === 'WITHDRAW' ? 'Withdraw' : 'Deposit'}
-      </FlexRow>
-    </div>
+              <span className="text-primaryText">
+                from: {window.selectorAccountId}
+              </span>
+            </div>
+          </FlexRow>
+
+          <div className="text-primaryText mt-0.5 whitespace-nowrap">
+            {formatTimeDate(props.updated_time)}
+          </div>
+        </div>
+
+        <div className="flex flex-col items-end justify-between">
+          <span
+            className={`font-bold ${
+              props.side === 'WITHDRAW' ? 'text-white' : 'text-sellRed'
+            }  `}
+          >
+            {props.side === 'WITHDRAW' ? '+' : '-'}
+            {digitWrapper(props.amount.toString(), 3)}
+          </span>
+
+          <div className="flex items-center justify-end relative ">
+            <a
+              href={`${getConfig().explorerUrl}/txns/${props.tx_id}`}
+              target="_blank"
+              className="justify-center flex items-center justify-self-end whitespace-nowrap hover:underline text-txBlue"
+              rel="noreferrer"
+            >
+              {/* {parseTxDisplay(props.tx_id)} */}
+              <span className="text-primaryText">Txid</span>
+            </a>
+            <CopyToClipboard text={props.tx_id}>
+              <TbCopy className="ml-1 transform hover:opacity-80 cursor-pointer text-txBlue rotate-270" />
+            </CopyToClipboard>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -245,17 +307,14 @@ export function AssetModal(props: Modal.Props) {
   );
 
   const [records, setRecords] = useState<UserRecord[]>();
-  console.log('records: ', records);
 
   const DEFAULT_PAGE_SIZE = 10;
 
   const [recordsPerPage, setRecordsPerPage] = useState<number>(25);
-  console.log('recordsPerPage: ', recordsPerPage);
 
   const [curPage, setCurPage] = useState<number>(1);
 
   const [total, setTotal] = useState<number>(0);
-  console.log('total: ', total);
 
   const loading =
     (tag === 'records' ? records === undefined : sortedBalances.length == 0) ||
@@ -270,7 +329,6 @@ export function AssetModal(props: Modal.Props) {
 
       const requestPage =
         Math.ceil((records?.length || 0) / recordsPerPage) + 1;
-      console.log('requestPage: ', requestPage);
 
       getAssetHistory({
         accountId: window.selectorAccountId,
@@ -287,20 +345,68 @@ export function AssetModal(props: Modal.Props) {
     }
   }, [curPage]);
 
+  const loadMore = () => {
+    if (records?.length === total) {
+      return;
+    } else {
+      if (!window.selectorAccountId) return;
+
+      const requestPage =
+        Math.ceil((records?.length || 0) / recordsPerPage) + 1;
+
+      getAssetHistory({
+        accountId: window.selectorAccountId,
+        HistoryParam: {
+          page: requestPage,
+        },
+      }).then((res) => {
+        if (!!res.success) {
+          setRecords([...(records || []), ...res.data.rows]);
+          setRecordsPerPage(res.data.meta.records_per_page);
+          setTotal(res.data.meta.total);
+        }
+      });
+    }
+  };
+
+  const isMobile = useClientMobile();
+
   return (
     <Modal
       {...props}
       style={{
-        content: {
-          height: '620px',
-        },
+        content: isMobile
+          ? {
+              position: 'fixed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              top: 'none',
+              bottom: '0px',
+              left: '50%',
+              transform: 'translate(-50%, -20px)',
+              outline: 'none',
+            }
+          : {
+              height: '620px',
+            },
       }}
     >
       <div
-        className={`rounded-2xl relative  overflow-hidden ${'h-p620'} lg:w-p869 xs:w-95vw gradientBorderWrapperNoShadow bg-boxBorder text-sm text-primaryOrderly border `}
+        className={`${
+          isMobile ? '' : 'gradientBorderWrapperNoShadow border'
+        } rounded-2xl xs:rounded-none xs:rounded-t-2xl relative  overflow-hidden ${'h-p620'} lg:w-p869 xs:w-screen xs:fixed xs:bottom-0  bg-boxBorder text-sm text-primaryOrderly border xs:border-none `}
+        style={{
+          height: isMobile ? '75vh' : '',
+        }}
       >
-        <div className=" flex flex-col ">
-          <div className="flex bg-allOrderHeader pt-4 px-5 pb-4  items-center  justify-between">
+        <div
+          className=" flex flex-col "
+          style={{
+            height: isMobile ? '75vh' : '',
+          }}
+        >
+          <div className="flex bg-allOrderHeader xs:bg-none pt-4 px-5 pb-4  items-center  justify-between">
             <div className="text-white  text-base font-bold">
               <span
                 className={
@@ -312,7 +418,8 @@ export function AssetModal(props: Modal.Props) {
                   setTag('asset');
                 }}
               >
-                Account Assets
+                {isMobile ? 'Assets' : 'Account Assets'}
+
                 {tag === 'asset' && (
                   <div
                     className="w-full absolute  rounded-xl bg-greenLight "
@@ -327,8 +434,8 @@ export function AssetModal(props: Modal.Props) {
               <span
                 className={
                   tag !== 'records'
-                    ? 'text-primaryOrderly ml-20 cursor-pointer relative'
-                    : 'ml-20 cursor-pointer relative'
+                    ? 'text-primaryOrderly lg:ml-20 xs:ml-10 md:ml-10 cursor-pointer relative'
+                    : 'lg:ml-20 xs:ml-10 md:ml-10 cursor-pointer relative'
                 }
                 onClick={() => {
                   setTag('records');
@@ -348,7 +455,7 @@ export function AssetModal(props: Modal.Props) {
             </div>
 
             <span
-              className="cursor-pointer "
+              className="cursor-pointer xs:hidden"
               onClick={(e: any) => {
                 onRequestClose && onRequestClose(e);
               }}
@@ -357,13 +464,17 @@ export function AssetModal(props: Modal.Props) {
             </span>
           </div>
           {tag === 'asset' && (
-            <div className="grid grid-cols-8 px-5  py-3 h-14">
+            <div
+              className={
+                'grid grid-cols-8 xs:grid-cols-5 px-5  xs:pl-4 xs:pr-3 py-3 h-14'
+              }
+            >
               <div className="col-span-2 text-center  inline-flex items-center justify-center justify-self-start">
-                Tokens
+                {isMobile ? 'Asset' : 'Tokens'}
               </div>
 
               <div
-                className={`flex cursor-pointer relative items-center  justify-center
+                className={`flex flex-shrink-0 cursor-pointer relative items-center  justify-center
             ${sortBy === 'near' ? 'white' : '#7E8A93'}
             `}
                 onClick={() => {
@@ -373,7 +484,7 @@ export function AssetModal(props: Modal.Props) {
               >
                 <NearWalletIcon></NearWalletIcon>
 
-                <span className="ml-2">NEAR</span>
+                <span className="ml-2 xs:hidden">NEAR</span>
 
                 <MdArrowDropDown
                   size={22}
@@ -386,7 +497,7 @@ export function AssetModal(props: Modal.Props) {
                 ></MdArrowDropDown>
 
                 <div
-                  className="border absolute border-gray1 transform rotate-90 "
+                  className="border xs:hidden absolute border-gray1 transform rotate-90 "
                   style={{
                     width: '18px',
                     right: '-12px',
@@ -395,7 +506,7 @@ export function AssetModal(props: Modal.Props) {
               </div>
 
               <div
-                className={`col-span-2 relative cursor-pointer flex justify-self-center items-center ${
+                className={`col-span-2 xs:col-span-1 relative cursor-pointer flex justify-self-center items-center ${
                   sortBy === 'in-order' ? 'white' : '#7E8A93'
                 }`}
                 onClick={() => {
@@ -403,11 +514,15 @@ export function AssetModal(props: Modal.Props) {
                   OrderBy(orderBy === 'desc' ? 'asc' : 'desc');
                 }}
               >
-                <span className="absolute -left-6">
+                <span className="absolute xs:hidden -left-6">
                   <OrderlyIconBalance></OrderlyIconBalance>
                 </span>
 
-                <span>Account: in Order</span>
+                <span className=" ml-2 lg:hidden ">
+                  <InOrderIcon></InOrderIcon>
+                </span>
+
+                <span className="xs:hidden">Account: in Order</span>
 
                 <MdArrowDropDown
                   size={22}
@@ -423,13 +538,16 @@ export function AssetModal(props: Modal.Props) {
               <div
                 className={`${
                   sortBy === 'available' ? 'white' : '#7E8A93'
-                } cursor-pointer flex items-center justify-self-center justify-center`}
+                } cursor-pointer flex items-center justify-self-center xs:justify-self-end justify-center`}
                 onClick={() => {
                   setSortBy('available');
                   OrderBy(orderBy === 'desc' ? 'asc' : 'desc');
                 }}
               >
-                <span className="flex items-center">Available</span>
+                <span className=" ml-2 lg:hidden ">
+                  <OrderlyIconBalance></OrderlyIconBalance>
+                </span>
+                <span className="flex items-center xs:hidden">Available</span>
 
                 <MdArrowDropDown
                   size={22}
@@ -442,13 +560,13 @@ export function AssetModal(props: Modal.Props) {
                 ></MdArrowDropDown>
               </div>
 
-              <div className="col-span-2 justify-self-center flex items-center justify-center">
+              <div className="col-span-2 xs:hidden justify-self-center xs:justify-self-end flex items-center justify-center">
                 <span>Actions</span>
               </div>
             </div>
           )}
           {tag === 'records' && (
-            <div className="grid border-b border-gray1 grid-cols-6 pl-5 pr-0 justify-items-center text-primaryOrderly py-3 h-14">
+            <div className="grid xs:hidden border-b border-gray1 grid-cols-6 pl-5 pr-0 justify-items-center text-primaryOrderly py-3 h-14">
               <div className="col-span-1 text-center  inline-flex items-center justify-center justify-self-start">
                 Token
               </div>
@@ -491,20 +609,36 @@ export function AssetModal(props: Modal.Props) {
           )}
 
           {tag === 'records' &&
-            Math.ceil(total / DEFAULT_PAGE_SIZE) > 0 &&
-            !loading &&
-            records &&
-            records
-              ?.slice(
-                (curPage - 1) * DEFAULT_PAGE_SIZE,
-                curPage * DEFAULT_PAGE_SIZE
-              )
-              .map((r) => {
-                return <RecordLine tokenInfo={tokenInfo} {...r} />;
-              })}
+            (isMobile ? (
+              <section className="xs:overflow-auto" id="mobile-asset-body">
+                <InfiniteScroll
+                  next={loadMore}
+                  hasMore={records.length < total}
+                  dataLength={records.length}
+                  loader={null}
+                  scrollableTarget="mobile-asset-body"
+                >
+                  {records.map((r) => {
+                    return <RecordLine {...r} tokenInfo={tokenInfo} />;
+                  })}
+                </InfiniteScroll>
+              </section>
+            ) : (
+              Math.ceil(total / DEFAULT_PAGE_SIZE) > 0 &&
+              !loading &&
+              records &&
+              records
+                ?.slice(
+                  (curPage - 1) * DEFAULT_PAGE_SIZE,
+                  curPage * DEFAULT_PAGE_SIZE
+                )
+                .map((r) => {
+                  return <RecordLine tokenInfo={tokenInfo} {...r} />;
+                })
+            ))}
 
           {tag === 'records' && (
-            <div className="border-t absolute bottom-0 right-0 flex items-center px-5 mr-4 justify-end border-gray1 py-3">
+            <div className="border-t xs:hidden  absolute bottom-0 right-0 flex items-center px-5 mr-4 justify-end border-gray1 py-3">
               <span
                 className="cursor-pointer"
                 onClick={() => {

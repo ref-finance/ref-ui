@@ -13427,7 +13427,7 @@ prompts@^2.0.1, prompts@^2.4.2:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@^15.5.10, prop-types@^15.5.8, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
+prop-types@^15.5.10, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -13764,13 +13764,6 @@ react-infinite-scroll-component@^6.1.0:
   dependencies:
     throttle-debounce "^2.1.0"
 
-react-infinite-scroller@^1.2.6:
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/react-infinite-scroller/-/react-infinite-scroller-1.2.6.tgz#8b80233226dc753a597a0eb52621247f49b15f18"
-  integrity sha512-mGdMyOD00YArJ1S1F3TVU9y4fGSfVVl6p5gh/Vt4u99CJOptfVu/q5V/Wlle72TMgYlBwIhbxK5wF0C/R33PXQ==
-  dependencies:
-    prop-types "^15.5.8"
-
 react-intersection-observer@^8.33.1:
   version "8.34.0"
   resolved "https://registry.yarnpkg.com/react-intersection-observer/-/react-intersection-observer-8.34.0.tgz#6f6e67831c52e6233f6b6cc7eb55814820137c42"
@@ -13989,11 +13982,6 @@ react-useinterval@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/react-useinterval/-/react-useinterval-1.0.2.tgz#d9537b7e1a823422c70cb3dc226d07835ff15569"
   integrity sha512-aC0ATWbm1HaQjp7ILQzn6qge0K70cAgVzIhdUtDXPo9ho7W84MJ7/KOJIKMoi1hFwMp8lQDMYuVUDDk/3mn6sw==
-
-react-viewport-list@^7.0.0-beta.4:
-  version "7.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/react-viewport-list/-/react-viewport-list-7.0.0-beta.4.tgz#bb1a5ebb6485fc11df1b50af9c9b8a7cf3552501"
-  integrity sha512-6Jv5+CYNl/0X3BQITxSwgfuqK53R2SXENlGjnLkNqrkGDs7RC9ehJRBrJwPRvvRSPLWi1J2AatrndiOxcesdVQ==
 
 react@18.2.0:
   version "18.2.0"

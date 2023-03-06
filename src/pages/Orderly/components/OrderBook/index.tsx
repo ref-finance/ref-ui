@@ -11,6 +11,7 @@ import { IoArrowUpOutline } from 'react-icons/io5';
 import Big from 'big.js';
 import { TextWrapper } from '../UserBoard/index';
 import { OrderlyLoading } from '../Common/Icons';
+import { useClientMobile } from '../../../../utils/device';
 
 function parseSymbol(fullName: string) {
   return {
@@ -142,7 +143,6 @@ function OrderBook() {
     symbol,
     pendingOrders,
     recentTrades,
-    marketTrade,
     ordersUpdate,
     setBridgePrice,
     handlePendingOrderRefreshing,
@@ -177,6 +177,8 @@ function OrderBook() {
       pendingOrders,
     });
 
+  const isMobile = useClientMobile();
+
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
   const [tab, setTab] = useState<'recent' | 'book'>('book');
 
@@ -198,7 +200,7 @@ function OrderBook() {
     (recentTrades?.at(1)?.executed_price || 0);
 
   return (
-    <div className="w-full h-full relative border border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 ">
+    <div className="w-full h-full relative border  border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 ">
       <div className="px-4 relative flex mb-2 border-b border-white border-opacity-10 items-center ">
         <div
           onClick={() => {
@@ -219,7 +221,7 @@ function OrderBook() {
           }}
           className={`cursor-pointer text-left relative ${
             tab === 'recent' ? 'text-white' : 'text-primaryOrderly'
-          } ml-3 font-bold mb-1`}
+          } ml-5 font-bold mb-1`}
         >
           Trades
           {tab === 'recent' && (
@@ -228,8 +230,9 @@ function OrderBook() {
         </div>
         {tab === 'book' && (
           <div
-            className="max-w-fit min-w-p72 cursor-pointer rounded-md bg-symbolHover pl-2 absolute   right-4 bottom-1 text-white flex justify-center items-center"
+            className="max-w-fit min-w-p72 cursor-pointer rounded-md lg:bg-symbolHover pl-2 absolute   right-4 bottom-1 xs:bg-none md:bg-none xs:text-10px text-white flex justify-center items-center"
             onClick={() => {
+              if (isMobile) return;
               setShowPrecisionSelector(!showPrecisionSelector);
             }}
           >
@@ -241,11 +244,38 @@ function OrderBook() {
             >
               {getPrecisionStringByNumber(precision)}
             </span>
+            {isMobile && (
+              <>
+                <span
+                  className="text-xl mr-2 rounded-md w-5 flex items-center justify-center h-5 bg-selectTokenV3BgColor text-primaryText"
+                  onClick={() => {
+                    if (precision < 4) {
+                      setPrecision(precision + 1);
+                    }
+                  }}
+                >
+                  -
+                </span>
 
-            <MdArrowDropDown
-              size={22}
-              className="text-primaryOrderly absolute right-0 justify-self-end"
-            ></MdArrowDropDown>
+                <span
+                  className="text-xl flex items-center justify-center w-5 h-5 rounded-md bg-selectTokenV3BgColor text-primaryText"
+                  onClick={() => {
+                    if (precision > 0) {
+                      setPrecision(precision - 1);
+                    }
+                  }}
+                >
+                  +
+                </span>
+              </>
+            )}
+            {!isMobile && (
+              <MdArrowDropDown
+                size={22}
+                className="text-primaryOrderly absolute right-0 justify-self-end"
+              ></MdArrowDropDown>
+            )}
+
             {showPrecisionSelector && (
               <Selector
                 selected={precision.toString()}

@@ -24,6 +24,7 @@ import { formatTimeDate } from '../OrderBoard/index';
 import { MyOrder } from '../../orderly/type';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { digitWrapper } from '../../utiles';
+import { isMobile } from '~utils/device';
 
 export function TokenIcon({ src }: { src: any }) {
   return (
@@ -150,7 +151,7 @@ export function ErrorTip({
 export function ConnectWallet({ onClick }: { onClick: () => void }) {
   return (
     <button
-      className="text-base min-w-fit py-3 px-10 relative w-p240  bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
+      className="text-base min-w-fit py-3 px-10 relative w-p240 xs:w-full xs:py-2 bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
       
     "
       onClick={(e) => {
@@ -169,7 +170,7 @@ export function ConnectWallet({ onClick }: { onClick: () => void }) {
 export function ConfirmButton({ onClick }: { onClick: () => void }) {
   return (
     <button
-      className="text-base min-w-fit py-3 px-10 relative w-p240  bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
+      className="text-base min-w-fit py-3 px-10 relative w-p240 xs:w-full xs:py-2 bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
       
     "
       onClick={(e) => {
@@ -201,9 +202,35 @@ export function RegisterButton({
   }, [spin]);
 
   return (
-    <div className="flex flex-col items-center relative ">
+    <div className="flex flex-col items-center xs:w-full  relative ">
+      <div className="flex items-start text-sm lg:hidden relative text-white flex-col">
+        <div className="relative mb-3 flex items-center">
+          <div className="mr-2">
+            <CheckFlow checked={!!storageEnough}></CheckFlow>
+          </div>
+
+          <div>Deposit storage fee</div>
+        </div>
+
+        <div className="relative flex mb-5 items-center">
+          <div className="mr-2">
+            <CheckFlow checked={false}></CheckFlow>
+          </div>
+
+          <div>Register Orderly Account</div>
+        </div>
+
+        <div
+          className="w-4 transform rotate-90 absolute top-6"
+          style={{
+            border: '1px dashed #566069 ',
+            left: '-2px',
+          }}
+        ></div>
+      </div>
+
       <button
-        className={`text-base min-w-fit mb-5 py-3  px-10 relative w-p240 ${
+        className={`text-base min-w-fit xs:w-full xs:py-2 mb-5 py-3  px-10 relative w-p240 ${
           spinNow || !check ? 'opacity-30 cursor-not-allowed' : ''
         } bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
       
@@ -219,7 +246,7 @@ export function RegisterButton({
         {spinNow && <SpinIcon />}
         <span className={`whitespace-nowrap ml-3  `}>Register</span>
       </button>
-      <div className="flex items-start text-sm relative text-white flex-col">
+      <div className="flex items-start xs:hidden md:hidden  text-sm relative text-white flex-col">
         <div className="relative mb-3 flex items-center">
           <div className="mr-2">
             <CheckFlow checked={!!storageEnough}></CheckFlow>
@@ -325,6 +352,9 @@ export function orderPopUp({
   order: MyOrder;
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(symbolName);
+
+  const mobileDevice = isMobile();
+
   toast(
     <div className={`flex-col  px-2 pt-4 text-sm text-dark5  w-full`}>
       <FlexRowBetween className="relative bottom-3 w-full">
@@ -413,9 +443,9 @@ export function orderPopUp({
         boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
         borderRadius: '16px',
         zIndex: 9999,
-        right: '20px',
-        width: '340px',
-        bottom: '-70px',
+        right: mobileDevice ? 'none' : '20px',
+        width: mobileDevice ? '100%' : '340px',
+        bottom: mobileDevice ? 'none' : '-70px',
       },
     }
   );
@@ -439,13 +469,17 @@ export function orderPopUp({
 export function DepositButton(props: any) {
   return (
     <div
-      className="relative  flex items-center justify-center text-white"
+      className="relative  xs:left-2  flex items-center justify-center text-white"
       style={{
         width: '92px',
       }}
       {...props}
     >
-      <GrayBgBox className="absolute  cursor-pointer left-0 -bottom-0.5 z-10"></GrayBgBox>
+      <GrayBgBox
+        className={`absolute   cursor-pointer ${
+          isMobile() ? 'transform scale-x-110 ' : ''
+        } left-0 -bottom-0.5 z-10`}
+      ></GrayBgBox>
 
       <div className="flex cursor-pointer items-center relative z-40 font-normal">
         <span className="text-13px">Deposit</span>
@@ -459,13 +493,17 @@ export function DepositButton(props: any) {
 export function WithdrawButton(props: any) {
   return (
     <div
-      className="relative  flex items-center justify-center text-white"
+      className="relative  flex xs:left-4 items-center justify-center text-white"
       style={{
         width: '92px',
       }}
       {...props}
     >
-      <GrayBgBox className="absolute  cursor-pointer transform rotate-180 left-0 -bottom-0.5 z-10"></GrayBgBox>
+      <GrayBgBox
+        className={`absolute  cursor-pointer transform rotate-180 ${
+          isMobile() ? ' scale-x-110' : ''
+        } left-0 -bottom-0.5 z-10`}
+      ></GrayBgBox>
 
       <div className="flex  cursor-pointer items-center relative z-40 font-normal">
         <span className="text-13px">Withdraw</span>
@@ -574,6 +612,9 @@ export function orderEditPopUpSuccess({
   sig?: boolean;
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(symbolName);
+
+  const mobileDevice = isMobile();
+
   return toast(
     <div className={`flex-col  px-2 pt-4 text-sm   w-full`}>
       <FlexRow className="relative bottom-3 w-full">
@@ -594,7 +635,7 @@ export function orderEditPopUpSuccess({
     {
       closeOnClick: true,
       hideProgressBar: true,
-      position: 'bottom-right',
+      position: mobileDevice ? 'top-center' : 'bottom-right',
       progress: undefined,
       autoClose: 3000,
       closeButton: false,
@@ -602,11 +643,11 @@ export function orderEditPopUpSuccess({
         boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
         borderRadius: '4px',
         zIndex: 9999,
-        right: '-40px',
+        right: mobileDevice ? '0px' : '-40px',
         overflow: 'hidden',
-        width: '90%',
+        width: mobileDevice ? '100%' : '90%',
         background: 'rgba(30, 41, 49, 1)',
-        bottom: !!sig ? '-70px' : '0px',
+        bottom: !!sig && !mobileDevice ? '-70px' : '0px',
       },
     }
   );

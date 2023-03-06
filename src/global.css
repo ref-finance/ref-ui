@@ -760,6 +760,34 @@ input[type='range']::-webkit-slider-runnable-track {
     background-clip: content-box, border-box;
     border-radius: 12px !important;
   }
+
+  .gradientBorderWrapperNoShadowOrderly {
+    /* border-top: solid 1.5px transparent !important; */
+    background-image: linear-gradient(#1d2932, #1d2932),
+      linear-gradient(
+        135deg,
+        rgba(0, 255, 209, 1) 0%,
+        rgba(91, 62, 255, 1) 100%
+      );
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    border-radius: 16px !important;
+  }
+
+  .gradientBorderWrapperNoShadowOrderly:before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(135deg, #00ffd1 0%, #933eff 100%);
+    filter: blur(20px) !important;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+    border-radius: inherit;
+  }
 }
 
 .popupBox0 {

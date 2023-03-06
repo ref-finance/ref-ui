@@ -1,4 +1,5 @@
 import React from 'react';
+import { useClientMobile } from '../../../../utils/device';
 
 function BuyRec({ select }: { select: boolean }) {
   if (select) {
@@ -97,12 +98,23 @@ function SellRec({ select }: { select: boolean }) {
 function BuyButton(props: { select: boolean; onClick: () => void }) {
   const { select } = props;
 
+  const clientWidth = document.documentElement.clientWidth;
+
+  const isMobile = useClientMobile();
+
+  const buttonStyle = {
+    transform: isMobile ? `scale( ${(clientWidth / 2 - 20) / 144} ,1)` : '',
+  };
   return (
     <div
       className="relative  w-1/2  flex items-center justify-center"
       {...props}
+      id="buy-button"
     >
-      <div className="absolute cursor-pointer transform  z-10">
+      <div
+        className="absolute cursor-pointer transform  z-10"
+        style={buttonStyle}
+      >
         <BuyRec select={select}></BuyRec>
       </div>
       <span
@@ -118,13 +130,21 @@ function BuyButton(props: { select: boolean; onClick: () => void }) {
 
 function SellButton(props: { select: boolean; onClick: () => void }) {
   const { select } = props;
+  const clientWidth = document.documentElement.clientWidth;
+  const isMobile = useClientMobile();
 
+  const buttonStyle = {
+    transform: isMobile ? `scale( ${(clientWidth / 2 - 20) / 144} ,1)` : '',
+  };
   return (
     <div
       className="relative  w-1/2  flex items-center justify-center"
       {...props}
     >
-      <div className="absolute z-10 cursor-pointer transform  ">
+      <div
+        className="absolute z-10 cursor-pointer transform  "
+        style={buttonStyle}
+      >
         <SellRec select={select}></SellRec>
       </div>
       <span

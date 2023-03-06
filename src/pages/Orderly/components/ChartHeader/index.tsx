@@ -246,10 +246,10 @@ function ChartHeader() {
       {ticker && (
         <div
           className={`flex  items-center  mr-2 max-w-full w-p400
-          }  justify-between text-primaryOrderly`}
+            justify-between xs:justify-end md:justify-end  text-primaryOrderly`}
         >
-          <div className="flex   items-start flex-col">
-            <span>Price</span>
+          <div className="flex xs:justify-end md:justify-end  items-start flex-col xs:flex-row md:flex-row xs:items-center md:items-center">
+            <span className="xs:hidden md:hidden">Price</span>
             <div className="flex items-center mt-0.5">
               <span className="text-white font-bold">
                 {digitWrapper(ticker.close.toString(), 3)}
@@ -277,7 +277,7 @@ function ChartHeader() {
             </div>
           </div>
 
-          <div className="flex   items-start flex-col">
+          <div className="flex  xs:hidden md:hidden  items-start flex-col">
             <span>High(24h)</span>
 
             <span className="text-white mt-0.5 font-bold">
@@ -285,7 +285,7 @@ function ChartHeader() {
             </span>
           </div>
 
-          <div className="flex items-start  flex-col">
+          <div className="flex items-start xs:hidden md:hidden flex-col">
             <span>Low(24h)</span>
 
             <span className="text-white mt-0.5 font-bold">
@@ -293,7 +293,7 @@ function ChartHeader() {
             </span>
           </div>
 
-          <div className="flex items-start   flex-col">
+          <div className="flex items-start xs:hidden md:hidden  flex-col">
             <span>Volume(24h)</span>
 
             <span className="text-white mt-0.5 font-bold">
