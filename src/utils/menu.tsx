@@ -433,6 +433,7 @@ export const useMenus = () => {
         '/farms',
         '/xref',
         '/v2farms',
+        '/yoursLiquidityDetailV2',
       ],
       children: [
         {
@@ -453,7 +454,7 @@ export const useMenus = () => {
             sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
             history.push('/yourliquidity');
           },
-          links: ['/yourliquidity'],
+          links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
         },
         {
           id: '2-3',

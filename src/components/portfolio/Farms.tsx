@@ -426,14 +426,17 @@ function DclFarmRow({ seed }: { seed: Seed }) {
     if (unClaimedTokenIds?.length == 0) {
       const tokenList_temp: any = Object.values(tempFarmsRewards).reduce(
         (acc: any[], cur) => {
-          const temp = { token: cur, amount: <span>0</span> };
+          const temp = {
+            token: cur,
+            amount: <span className="text-primaryText">0</span>,
+          };
           acc.push(temp);
           return acc;
         },
         []
       );
       return {
-        worth: <span>$0</span>,
+        worth: <span className="text-primaryText">$0</span>,
         list: tokenList_temp,
       };
     }
@@ -449,7 +452,7 @@ function DclFarmRow({ seed }: { seed: Seed }) {
       // rewards number
       let displayNum;
       if (new BigNumber('0').isEqualTo(amount)) {
-        displayNum = <span>0</span>;
+        displayNum = <span className="text-primaryText">0</span>;
       } else if (new BigNumber('0.001').isGreaterThan(amount)) {
         displayNum = '<0.001';
       } else {
@@ -463,7 +466,7 @@ function DclFarmRow({ seed }: { seed: Seed }) {
     });
     if (totalPrice == 0) {
       return {
-        worth: <span>$0</span>,
+        worth: <span className="text-primaryText">$0</span>,
         list: tokenList,
       };
     } else if (new BigNumber('0.01').isGreaterThan(totalPrice)) {
@@ -1006,14 +1009,17 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
     if (unClaimedTokenIds?.length == 0) {
       const tokenList_temp: any = Object.values(tempFarmsRewards).reduce(
         (acc: any[], cur) => {
-          const temp = { token: cur, amount: <span>0</span> };
+          const temp = {
+            token: cur,
+            amount: <span className="text-primaryText">0</span>,
+          };
           acc.push(temp);
           return acc;
         },
         []
       );
       return {
-        worth: <span>$0</span>,
+        worth: <span className="text-primaryText">$0</span>,
         list: tokenList_temp,
       };
     }

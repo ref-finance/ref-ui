@@ -34,7 +34,7 @@ import { toRealSymbol } from '../../utils/token';
 import { ExclamationTip } from '../../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../../components/icon/swapV3';
 import { TOKEN_LIST_FOR_RATE } from '../../services/commonV3';
-import { PurpleCircleIcon } from '../../components/icon/Portfolio';
+import { PurpleCircleIcon, LinkIcon } from '../../components/icon/Portfolio';
 import BigNumber from 'bignumber.js';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
@@ -438,7 +438,7 @@ function OrderCard({
 
     const unclaimTip = (
       <div
-        className="text-xs xs:relative xs:bottom-2 mt-1 mr-1 w-32 xs:w-full flex items-center xs:flex-row-reverse"
+        className="text-xs xs:relative xs:bottom-2 mt-1 mr-1 w-40 xs:w-full flex items-center xs:flex-row-reverse"
         data-type="info"
         data-place="bottom"
         data-multiline={true}
@@ -485,7 +485,7 @@ function OrderCard({
     );
 
     const unclaim = (
-      <span className="flex items-center w-36 whitespace-nowrap">
+      <span className="flex items-center w-44 whitespace-nowrap mr-1">
         <div className="xs:hidden">{unclaimTip}</div>
       </span>
     );
@@ -505,7 +505,11 @@ function OrderCard({
 
     const swapBanner = (
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div
+          className={`flex items-center justify-between mb-6 ${
+            ONLY_ZEROS.test(swapIn || '0') ? 'hidden' : ''
+          }`}
+        >
           <span className="flex items-center text-sm text-v3SwapGray">
             <FormattedMessage
               id="initial_order"
@@ -792,7 +796,7 @@ function OrderCard({
               {activeOrder ? (
                 <>
                   <div
-                    className={`flex items-center justify-between  px-6 xs:hidden text-v3SwapGray text-sm  whitespace-nowrap`}
+                    className={`flex items-center justify-between  pl-6 xs:hidden text-v3SwapGray text-sm  whitespace-nowrap`}
                   >
                     <div className="flex items-center">
                       <span className="text-left">
@@ -811,7 +815,17 @@ function OrderCard({
                     </div>
                     <div className="flex items-center">
                       <span className="w-32">@Price</span>
-                      <span className="w-40 mr-1">Execute Status</span>
+                      <div className="flex items-center justify-between w-56">
+                        <span className="">Execute Status</span>
+                        <span
+                          onClick={() => {
+                            window.open('/myOrder');
+                          }}
+                          className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white py-0.5"
+                        >
+                          Your Order(s) <LinkIcon className="ml-1"></LinkIcon>
+                        </span>
+                      </div>
                     </div>
                   </div>
                   {activeOrder.sort(activeOrderSorting).map((order, index) => {

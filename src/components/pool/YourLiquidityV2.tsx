@@ -501,7 +501,7 @@ function UserLiquidityLine({
       );
       if (p == 'l') {
         if (new BigNumber(fee_x_amount).isEqualTo('0')) {
-          return '0';
+          return <span className="text-primaryText">0</span>;
         } else if (new BigNumber(fee_x_amount).isLessThan('0.001')) {
           return '<0.001';
         } else {
@@ -509,7 +509,7 @@ function UserLiquidityLine({
         }
       } else if (p == 'r') {
         if (new BigNumber(fee_y_amount).isEqualTo('0')) {
-          return '0';
+          return <span className="text-primaryText">0</span>;
         } else if (new BigNumber(fee_y_amount).isLessThan('0.001')) {
           return '<0.001';
         } else {
@@ -526,7 +526,7 @@ function UserLiquidityLine({
         );
         const totalPrice = priceX.plus(priceY);
         if (totalPrice.isEqualTo('0')) {
-          return '$0';
+          return <span className="text-primaryText">$0</span>;
         } else if (totalPrice.isLessThan('0.01')) {
           return '<$0.001';
         } else {
@@ -1362,7 +1362,7 @@ function UserLiquidityLineStyle2() {
             {getUsageDiv()}
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-v3SwapGray">Unclaimed Rewards</span>
+            <span className="text-sm text-v3SwapGray">Unclaimed Fees</span>
             <div className="flex items-center">
               <img
                 src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}

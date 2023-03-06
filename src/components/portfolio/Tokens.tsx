@@ -377,18 +377,16 @@ export default function Tokens() {
               className={`flex items-center justify-center rounded-lg h-8 p-0.5 mr-3 ${
                 tabList.length == 1 && isSignedIn ? '' : 'hidden'
               } ${
-                activeTab == 'near' ? 'border border-gradientFromHover' : ''
+                activeTab == 'near'
+                  ? 'border border-gradientFromHover text-white'
+                  : 'text-primaryText'
               }`}
             >
               <span
                 onClick={() => {
                   setActiveTab('near');
                 }}
-                className={`flex items-center justify-center rounded-md h-full px-2 text-xs gotham_bold cursor-pointer hover:bg-portfolioLightGreyColor ${
-                  activeTab == 'near'
-                    ? 'bg-portfolioLightGreyColor text-white'
-                    : 'text-primaryText'
-                }`}
+                className={`flex items-center justify-center rounded-md h-full px-2 text-xs gotham_bold cursor-pointer bg-portfolioLightGreyColor hover:text-white`}
               >
                 NEAR wallet
               </span>
