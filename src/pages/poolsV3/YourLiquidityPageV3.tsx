@@ -98,14 +98,14 @@ export default function YourLiquidityPageV3() {
   const intl = useIntl();
   const [listLiquidities_old_version, setListLiquidities_old_version] =
     useState<UserLiquidityInfo[]>([]);
-  const liquidityStatusList = ['all', 'V2', 'V1'];
+  const liquidityStatusList = ['all', 'DCL', 'Classic'];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
-      text: 'V2 Liquidity',
+      text: 'DCL Liquidity',
       url: '/addLiquidityV2',
     },
     {
-      text: 'V1 Liquidity',
+      text: 'Classic Liquidity',
       url: '/pools',
     },
   ]);
@@ -333,7 +333,7 @@ export default function YourLiquidityPageV3() {
                     <span
                       key={index}
                       onClick={(e) => {
-                        if (item.text === 'V1 Liquidity') {
+                        if (item.text === 'Classic Liquidity') {
                           setGeneralAddLiquidity(true);
                         } else {
                           goAddLiquidityPage(item.url);
@@ -354,11 +354,11 @@ export default function YourLiquidityPageV3() {
         ) : (
           <>
             {/* your v2 liquidity */}
-            <div className={`${checkedStatus == 'V1' ? 'hidden' : ''}`}>
+            <div className={`${checkedStatus == 'Classic' ? 'hidden' : ''}`}>
               {!v2LiquidityLoadingDone ? (
                 <div className="mt-10">
                   <div className="text-white text-base gotham_bold mb-3">
-                    V2 (0)
+                    DCL (0)
                   </div>
                   <div className="flex justify-center items-center">
                     <BlueCircleLoading></BlueCircleLoading>
@@ -369,7 +369,7 @@ export default function YourLiquidityPageV3() {
                 <div className="mt-10 mb-3">
                   <div className="flex items-center text-white text-base">
                     <span className="gotham_bold">
-                      V2 ({+v2LiquidityQuantity})
+                      DCL ({+v2LiquidityQuantity})
                     </span>
                     <div
                       className="text-white text-right ml-1"
@@ -394,7 +394,7 @@ export default function YourLiquidityPageV3() {
                   </p>
                 </div>
               ) : null}
-              {showV2EmptyBar ? <NoLiquidity text="V2"></NoLiquidity> : null}
+              {showV2EmptyBar ? <NoLiquidity text="DCL"></NoLiquidity> : null}
               <YourLiquidityV2
                 setYourLpValueV2={setYourLpValueV2}
                 setLpValueV2Done={setLpValueV2Done}
@@ -404,11 +404,11 @@ export default function YourLiquidityPageV3() {
               ></YourLiquidityV2>
             </div>
             {/* your v1 liquidity */}
-            <div className={`${checkedStatus == 'V2' ? 'hidden' : ''}`}>
+            <div className={`${checkedStatus == 'DCL' ? 'hidden' : ''}`}>
               {!v1LiquidityLoadingDone ? (
                 <div className="mt-10">
                   <div className="text-white text-base gotham_bold mb-3">
-                    V1 (0)
+                    Classic (0)
                   </div>
                   <div className="flex items-center justify-center">
                     <BlueCircleLoading />
@@ -418,14 +418,16 @@ export default function YourLiquidityPageV3() {
               {+v1LiquidityQuantity > 0 || showV1EmptyBar ? (
                 <div className="mt-10 mb-3 xsm:-mb-1">
                   <span className="text-white text-base gotham_bold">
-                    V1 ({v1LiquidityQuantity})
+                    Classic ({v1LiquidityQuantity})
                   </span>
                   <p className="text-sm text-farmText">
                     <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
                   </p>
                 </div>
               ) : null}
-              {showV1EmptyBar ? <NoLiquidity text="V1"></NoLiquidity> : null}
+              {showV1EmptyBar ? (
+                <NoLiquidity text="Classic"></NoLiquidity>
+              ) : null}
               <YourLiquidityV1
                 setLpValueV1Done={setLpValueV1Done}
                 setYourLpValueV1={setYourLpValueV1}

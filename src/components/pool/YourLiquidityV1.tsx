@@ -1180,10 +1180,7 @@ function PoolRow(props: {
                 <FormattedMessage id="in" defaultMessage={'in'} />
               </span>
               <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                <span className="underline">
-                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                  &nbsp; V1
-                </span>
+                <span className="underline">Legacy Farms</span>
 
                 <span className="ml-0.5">
                   <VEARROW />
@@ -1218,10 +1215,7 @@ function PoolRow(props: {
                 <FormattedMessage id="in" defaultMessage={'in'} />
               </span>
               <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                <span className="underline">
-                  <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                  &nbsp; V2
-                </span>
+                <span className="underline">Classic Farms</span>
 
                 <span className="ml-0.5">
                   <VEARROW />
@@ -1463,7 +1457,7 @@ function PoolRow(props: {
                   </span>
                   <span className="border-b border-primaryText">
                     <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                    <span className="ml-1">V1</span>
+                    <span className="ml-1">Legacy</span>
                   </span>
                   <span className="text-gradientFrom ml-0.5">
                     <VEARROW />
@@ -1497,8 +1491,7 @@ function PoolRow(props: {
                     <FormattedMessage id="in" defaultMessage={'in'} />
                   </span>
                   <span className="border-b border-primaryText">
-                    <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                    <span className="ml-1">V2</span>
+                    Classic Farms
                   </span>
                   <span className="text-gradientFrom ml-0.5">
                     <VEARROW />
