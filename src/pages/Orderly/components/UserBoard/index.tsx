@@ -1600,7 +1600,7 @@ export function AssetManagerModal(
           className={`  lg:w-p410  ${
             isMobile
               ? 'xs:w-screen xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl'
-              : 'gradientBorderWrapperNoShadow border rounded-2xl'
+              : 'gradientBorderWrapperNoShadowForOrderly border rounded-2xl'
           }  bg-boxBorder text-sm text-primaryOrderly  `}
         >
           <div className="px-5 py-6 flex flex-col ">
@@ -2788,7 +2788,7 @@ function SelectTokenModal(
         className={` ${
           isMobile
             ? 'rounded-t-2xl fixed w-screen bottom-0 left-0'
-            : 'rounded-2xl gradientBorderWrapperNoShadow border'
+            : 'rounded-2xl gradientBorderWrapperNoShadowForOrderly border'
         }  lg:w-p400  lg:h-p560   bg-boxBorder text-sm text-primaryOrderly  `}
       >
         <div
@@ -2989,7 +2989,7 @@ function ConfirmOrderModal(
     <Modal {...props}>
       <div
         className={` rounded-2xl lg:w-96 xs:w-95vw ${
-          isMobile ? '' : 'gradientBorderWrapperNoShadow border'
+          isMobile ? '' : ' border border-gradientFrom border-opacity-30'
         }  bg-boxBorder text-sm text-primaryOrderly  `}
       >
         <div className="px-5 py-6 flex flex-col ">

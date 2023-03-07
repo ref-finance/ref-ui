@@ -18,7 +18,7 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
-.gradientBorderWrapperNoShadow {
+.gradientBorderWrapperNoShadowForOrderly {
   border: solid 1px transparent !important;
   background-image: linear-gradient(#1d2932, #1d2932),
     linear-gradient(
