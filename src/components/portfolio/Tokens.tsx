@@ -33,6 +33,7 @@ import {
   CopyIcon,
 } from '../../components/icon/Portfolio';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { isMobile } from '~utils/device';
 export default function Tokens() {
   const { tokenPriceList } = useContext(PortfolioData);
   const [pieOption, setPieOption] = useState(null);
@@ -339,6 +340,7 @@ export default function Tokens() {
     }
     return display_value_withCommas(target);
   }
+  const is_mobile = isMobile();
   return (
     <div className="mt-6">
       <div className="px-5">
@@ -460,15 +462,21 @@ export default function Tokens() {
           Your wallet/account assets will appear here.
         </div>
       )}
-      <div className="flex items-center justify-center mt-8">
+      <div className="flex items-center justify-center mt-8 xsm:mt-0">
         {pieOption ? (
           <ReactECharts
             option={pieOption}
-            style={{ width: '200px', height: '200px' }}
+            style={{
+              width: is_mobile ? '280px' : '200px',
+              height: is_mobile ? '280px' : '200px',
+            }}
           />
         ) : null}
       </div>
-      <div className="overflow-auto px-5 mt-5" style={{ maxHeight: '160px' }}>
+      <div
+        className="overflow-auto px-5 mt-5 xsm:mt-0"
+        style={{ maxHeight: '160px' }}
+      >
         <div className={`${activeTab == 'near' ? '' : 'hidden'}`}>
           {near_tokens.map((token: TokenMetadata) => {
             return (

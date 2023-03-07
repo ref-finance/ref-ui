@@ -326,8 +326,9 @@ module.exports = {
         portfolioLightGreenColor: '#5FAB43',
         navGreyColor: '#2B3741',
         selectBg: '#031928',
-        one_level_menu_color: '#2C3841',
-        two_level_menu_color: '#38444D',
+        one_level_menu_color:'#2C3841',
+        two_level_menu_color:'#38444D',
+        border_grey_color:'#24313A',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

@@ -6057,3 +6057,97 @@ export function DotBottomArea(props: any) {
     </svg>
   );
 }
+
+export function OverviewIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M3.69231 9.61531L5.84615 7.99993L8 9.07685L11.7692 5.30762M11.7692 5.30762H9.07692M11.7692 5.30762V7.99993"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+      />
+      <circle
+        cx="8"
+        cy="8"
+        r="7"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function PositionsIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      width="14"
+      height="12"
+      viewBox="0 0 14 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="1.16667" cy="1.16667" r="1.16667" fill="currentColor" />
+      <rect
+        x="3.5"
+        width="10.5"
+        height="2.33333"
+        rx="1.16667"
+        fill="currentColor"
+      />
+      <circle cx="1.16667" cy="5.83268" r="1.16667" fill="currentColor" />
+      <rect
+        x="3.5"
+        y="4.66602"
+        width="10.5"
+        height="2.33333"
+        rx="1.16667"
+        fill="currentColor"
+      />
+      <circle cx="1.16667" cy="10.5007" r="1.16667" fill="currentColor" />
+      <rect
+        x="3.5"
+        y="9.33398"
+        width="10.5"
+        height="2.33333"
+        rx="1.16667"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+export function TokenIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      width="15"
+      height="15"
+      viewBox="0 0 15 15"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M6.09091 1.39941C3.18624 1.98903 1 4.55708 1 7.63576C1 11.1503 3.8491 13.9994 7.36364 13.9994C10.4423 13.9994 13.0104 11.8132 13.6 8.90848"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M14.9295 6.00297C14.492 2.93489 12.0651 0.507978 8.99703 0.0704649C8.45028 -0.00750285 8 0.447715 8 1V6C8 6.55228 8.44772 7 9 7H14C14.5523 7 15.0075 6.54972 14.9295 6.00297Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}

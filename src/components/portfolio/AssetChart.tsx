@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { getAssets } from '~services/indexer';
-import { useClientMobile, isClientMobie } from '../../utils/device';
+import { useClientMobile, isClientMobie, isMobile } from '../../utils/device';
 import {
   ResponsiveContainer,
   LineChart,
@@ -25,6 +25,8 @@ import {
   WalletContext,
   getCurrentWallet,
 } from '../../utils/wallets-integration';
+const is_mobile = isMobile();
+const chartAreaHeight = is_mobile ? '150px' : 'auto';
 export default function AssetChart() {
   const [assetData, setAssetData] = useState([]);
   const [assetDataDone, setAssetDataDone] = useState<boolean>(false);
@@ -88,9 +90,8 @@ export default function AssetChart() {
     }
     return <div></div>;
   };
-
   return (
-    <div className="flex flex-col justify-between w-full px-3 pt-5 pb-2">
+    <div className="flex flex-col justify-between w-full px-3 pt-5 pb-2 xsm:pt-3">
       <div className="flex items-center justify-end">
         {dimension.map((item: any) => {
           return (
@@ -117,21 +118,21 @@ export default function AssetChart() {
         <NoDataArea></NoDataArea>
       ) : null}
       {isSignedIn && assetData.length > 0 ? (
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={assetData}>
-            <defs>
-              <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#00c6a2" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#00c6a2" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <defs>
-              <linearGradient id="colorGradient2" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="5%" stopColor="#6A28FF" stopOpacity={1} />
-                <stop offset="95%" stopColor="#00FFD1" stopOpacity={1} />
-              </linearGradient>
-            </defs>
-            {isClientMobie() ? null : (
+        <div style={{ height: chartAreaHeight }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={assetData}>
+              <defs>
+                <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#00c6a2" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#00c6a2" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <defs>
+                <linearGradient id="colorGradient2" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="5%" stopColor="#6A28FF" stopOpacity={1} />
+                  <stop offset="95%" stopColor="#00FFD1" stopOpacity={1} />
+                </linearGradient>
+              </defs>
               <XAxis
                 dataKey="date_itme"
                 tickLine={false}
@@ -152,35 +153,34 @@ export default function AssetChart() {
                   }
                 }}
               />
-            )}
-
-            <Tooltip
-              wrapperStyle={
-                {
-                  // display:'none',
-                  // backgroundColor:'red',
-                  // border:'10px solid orange',
-                  // padding:'0'
+              <Tooltip
+                wrapperStyle={
+                  {
+                    // display:'none',
+                    // backgroundColor:'red',
+                    // border:'10px solid orange',
+                    // padding:'0'
+                  }
                 }
-              }
-              // itemStyle={{
-              //   backgroundColor:'red',
-              //   border:'10px solid orange'
-              // }}
-              // contentStyle={{border:'10px solid orange', backgroundColor:'red'}}
-              content={<CustomTooltip />}
-              cursor={{ opacity: '0.3' }}
-            />
-            <Area
-              dataKey="assets"
-              dot={false}
-              stroke="url(#colorGradient2)"
-              strokeWidth={3}
-              fillOpacity={1}
-              fill="url(#colorGradient)"
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
+                // itemStyle={{
+                //   backgroundColor:'red',
+                //   border:'10px solid orange'
+                // }}
+                // contentStyle={{border:'10px solid orange', backgroundColor:'red'}}
+                content={<CustomTooltip />}
+                cursor={{ opacity: '0.3' }}
+              />
+              <Area
+                dataKey="assets"
+                dot={false}
+                stroke="url(#colorGradient2)"
+                strokeWidth={3}
+                fillOpacity={1}
+                fill="url(#colorGradient)"
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
       ) : null}
     </div>
   );
@@ -188,9 +188,12 @@ export default function AssetChart() {
 
 function UnloginArea() {
   return (
-    <div className="relative flex flex-col flex-grow overflow-hidden items-center justify-center bg-darkBlueColor border border-cardBg rounded-xl mt-5 mb-10">
-      <DotTopArea className="absolute left-0 top-0"></DotTopArea>
-      <DotBottomArea className="absolute right-0 bottom-0"></DotBottomArea>
+    <div
+      className="relative flex flex-col flex-grow overflow-hidden items-center justify-center bg-darkBlueColor border border-cardBg rounded-xl mt-5 mb-10 xsm:mt-3 xsm:mb-0"
+      style={{ height: chartAreaHeight }}
+    >
+      <DotTopArea className="absolute left-0 top-0 xsm:transform xsm:scale-50 xsm:origin-top-left"></DotTopArea>
+      <DotBottomArea className="absolute right-0 bottom-0 xsm:transform xsm:scale-50 xsm:origin-bottm-right"></DotBottomArea>
       <span className="text-sm text-primaryText">Welcome!</span>
       <span className="text-sm text-primaryText mt-0.5">
         Connect your wallet to view
@@ -203,9 +206,12 @@ function UnloginArea() {
 }
 function NoDataArea() {
   return (
-    <div className="flex flex-col items-center justify-center flex-grow">
+    <div
+      className="flex flex-col items-center justify-center flex-grow"
+      style={{ height: chartAreaHeight }}
+    >
       <ChartNoData></ChartNoData>
-      <span className="text-sm text-primaryText mb-10">No Data</span>
+      <span className="text-sm text-primaryText mb-10 xsm:mb-5">No Data</span>
     </div>
   );
 }
