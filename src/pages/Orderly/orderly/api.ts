@@ -112,7 +112,7 @@ export let contract;
 const announceKey = async (accountId: string) => {
   const wallet = await window.selector.wallet();
 
-  if (wallet.id === 'ledger') {
+  if (wallet.id === 'ledger' || wallet.id === 'neth') {
     await announceLedgerAccessKey(accountId);
 
     // const account = await near.account(ORDERLY_ASSET_MANAGER);
@@ -218,6 +218,8 @@ const storageDeposit = async (accountId: string) => {
 
   const functionCallList: any = [];
 
+  const transactions: Transaction[] = [];
+
   const user_exists = await user_account_exists(accountId);
 
   const storage_balance = await storage_balance_of(accountId);
@@ -245,7 +247,11 @@ const storageDeposit = async (accountId: string) => {
     storage_balance === null ||
     new Big(storage_balance.total || 0).lt(min_amount.min)
   ) {
-    functionCallList.push(deposit_functionCall_register);
+    // functionCallList.push(deposit_functionCall_register);
+    transactions.push({
+      receiverId: ORDERLY_ASSET_MANAGER,
+      functionCalls: [deposit_functionCall_register],
+    });
   }
 
   if (
@@ -253,16 +259,16 @@ const storageDeposit = async (accountId: string) => {
     new Big(storage_balance?.available || '0').lt(new Big(announce_key_amount))
   ) {
     functionCallList.push(deposit_functionCall_announce_key);
+
+    transactions.push({
+      receiverId: ORDERLY_ASSET_MANAGER,
+      functionCalls: [deposit_functionCall_announce_key],
+    });
   }
 
-  if (functionCallList.length === 0) return;
+  if (transactions.length === 0) return;
 
-  const transaction: Transaction = {
-    receiverId: ORDERLY_ASSET_MANAGER,
-    functionCalls: functionCallList,
-  };
-
-  return signAndSendTransactions([transaction]);
+  return signAndSendTransactions(transactions);
 };
 
 const checkStorageDeposit = async (accountId: string) => {
