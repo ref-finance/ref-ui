@@ -59,19 +59,11 @@ export const getOrderlyHeaders = async ({
 
     const mapTradingKey = tradingKeyMap.get(get_orderly_public_key_path());
 
-    if (!storedPublicKey || !mapTradingKey) {
-      localStorage.setItem(
-        get_orderly_public_key_path(),
-        mapTradingKey || storedPublicKey
-      );
-
-      tradingKeyMap.set(
-        get_orderly_public_key_path(),
-        mapTradingKey || storedPublicKey
-      );
+    if (!storedPublicKey && !mapTradingKey) {
+      alert('not trading key');
     }
 
-    headers['orderly-trading-key'] = mapTradingKey || storedPublicKey;
+    headers['orderly-trading-key'] = storedPublicKey || mapTradingKey;
   }
 
   return headers;
