@@ -1828,7 +1828,7 @@ function HistoryOrders({
                     timeSorting === 'asc' ? 'transform rotate-180' : ''
                   }
                   size={22}
-                  color={'white'}
+                  color={'#7e8a93'}
                 />
               }
             </div>
