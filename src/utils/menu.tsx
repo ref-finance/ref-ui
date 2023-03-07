@@ -224,138 +224,229 @@ export type MobileMenuItem = {
   specialMenuKey?: string;
   defaultClick?: (e?: any) => void;
 };
-export const moreLinks: MobileMenuItem[] = [
-  {
-    id: 'trade_capital',
-    label: 'TRADE',
-    pattern: '/',
-    url: '/',
-    isExternal: false,
-  },
-  {
-    id: 'POOL',
-    label: 'POOL',
-    pattern: '/pools',
-    url: '/yourliquidity',
-    isExternal: false,
-  },
-  {
-    id: 'farm_capital',
-    label: 'FARMS',
-    pattern: '/v2farms',
-    url: '/v2farms',
-    isExternal: false,
-  },
-  {
-    id: 'xref',
-    label: 'xREF',
-    pattern: '/xref',
-    url: '/xref',
-    isExternal: false,
-    showIcon: true,
-    iconElement: <XrefIcon></XrefIcon>,
-  },
-  {
-    id: 'vote_capital',
-    label: 'VOTE',
-    pattern: '/referendum',
-    url: '/referendum',
-    isExternal: false,
-    hidden: !getConfig().REF_VE_CONTRACT_ID,
-  },
-  {
-    id: 'MORE',
-    label: 'MORE',
-    url: '',
-    isExternal: false,
-    subRoute: ['/airdrop', '/risks', '/sauce'],
-    children: [
-      // {
-      //   id: 'stable_pool',
-      //   label: 'Stable Pool',
-      //   pattern: '/sauce',
-      //   specialMenuKey: 'sauce',
-      //   url: '/sauce',
-      // },
-      {
-        id: 'bridge',
-        label: 'bridge',
-        url: '',
-        isExternal: false,
-        logo: <MobileBridgeIcon />,
-        children: [
-          {
-            id: 'from_ethereum',
-            label: 'From Ethereum',
-            url: 'https://rainbowbridge.app/transfer',
-            isExternal: true,
-            logo: <IconEthereum />,
-          },
-          {
-            id: 'from_aurora',
-            label: 'From Aurora',
-            url: 'https://rainbowbridge.app/transfer',
-            isExternal: true,
-            logo: <IconAurora />,
-          },
-          {
-            id: 'from_solana',
-            label: 'From Solana',
-            url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
-            isExternal: true,
-            logo: <IconSolana />,
-          },
-          {
-            id: 'from_terra',
-            label: 'From Terra',
-            url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
-            isExternal: true,
-            logo: <IconTerra />,
-          },
-          {
-            id: 'from_celo',
-            label: 'From Celo',
-            url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
-            isExternal: true,
-            logo: <IconCelo />,
-          },
-        ],
-      },
-      {
-        id: 'docs',
-        label: 'docs',
-        url: 'https://guide.ref.finance',
-        isExternal: true,
-        logo: <IconDocs />,
-      },
-      {
-        label: 'Risks',
-        id: 'risks',
-        pattern: '/risks',
-        url: '/risks',
-        isExternal: false,
-        logo: <RisksIcon />,
-      },
-      {
-        id: 'airdrop',
-        label: 'Airdrop',
-        url: '/airdrop',
-        pattern: '/airdrop',
-        isExternal: false,
-        logo: <IconAirDrop />,
-      },
-      {
-        id: 'inquiries',
-        label: 'Business Inquiries',
-        url: 'https://form.typeform.com/to/onOPhJ6Y',
-        isExternal: true,
-        logo: <InquiriesIcon />,
-      },
-    ],
-  },
-];
-
 export const useMenus = () => {
+  const history = useHistory();
+  const intl = useIntl();
+  const menuData = [
+    {
+      id: '1',
+      label: <>Trade</>,
+      links: ['/', '/orderly', '/myOrder'],
+      children: [
+        {
+          id: '1-1',
+          label: <>Swap</>,
+          logo: <SwapIcon />,
+          url: '/',
+          isExternal: false,
+          swap_mode: 'normal',
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'normal');
+          },
+          links: ['/'],
+        },
+        {
+          id: '1-2',
+          label: <>xSwap</>,
+          logo: <XswapIcon />,
+          url: '/',
+          isExternal: false,
+          swap_mode: 'xSwap',
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'xSwap');
+          },
+          links: ['/myOrder'],
+        },
+        {
+          id: '1-3',
+          label: <>Limit Order</>,
+          logo: <LimitOrderIcon />,
+          url: '/',
+          isExternal: false,
+          swap_mode: 'limit',
+          clickEvent: () => {
+            history.push('/');
+            localStorage.setItem('SWAP_MODE_VALUE', 'limit');
+          },
+          links: ['/'],
+        },
+        {
+          label: <span>Orderbook</span>,
+          logo: <OrderBookIcon />,
+          url: '/orderly',
+          isExternal: false,
+          links: ['/orderly'],
+        },
+      ],
+    },
+    {
+      id: '2',
+      label: <>Earn</>,
+      links: [
+        '/pools',
+        '/pool',
+        '/poolV2',
+        '/sauce',
+        '/more_pools',
+        '/yourliquidity',
+        '/farms',
+        '/xref',
+        '/v2farms',
+        '/yoursLiquidityDetailV2',
+      ],
+      children: [
+        {
+          id: '2-1',
+          label: <>Liquidity Pools</>,
+          logo: <PoolsIcon />,
+          url: '/pools',
+          isExternal: false,
+          links: ['/pools', '/pool', '/poolV2', '/sauce', '/more_pools'],
+        },
+        {
+          id: '2-2',
+          label: <>Your Liquidity</>,
+          logo: <YourliquidityIcon />,
+          url: '/yourliquidity',
+          isExternal: false,
+          clickEvent: () => {
+            sessionStorage.setItem('REF_POOL_NAV_TAB_VALUE', '/yourliquidity');
+            history.push('/yourliquidity');
+          },
+          links: ['/yourliquidity', '/yoursLiquidityDetailV2'],
+        },
+        {
+          id: '2-3',
+          label: <>Farms</>,
+          logo: <FarmsIcon />,
+          url: '/v2farms',
+          isExternal: false,
+          links: ['/v2farms', '/farms'],
+        },
+        {
+          id: '2-4',
+          label: (
+            <>
+              <XrefIcon />
+            </>
+          ),
+          logo: <XrefEarnIcon />,
+          url: '/xref',
+          isExternal: false,
+          links: ['/xref'],
+        },
+      ],
+    },
+    {
+      id: '3',
+      label: <>Portfolio</>,
+      url: '/portfolio',
+      isExternal: false,
+      links: ['/portfolio'],
+    },
+    // {
+    //   id: '4',
+    //   logo: (
+    //     <>
+    //       <REFSmallIcon className="mt-0.5"></REFSmallIcon>
+    //     </>
+    //   ),
+    //   label: <>Anylatics</>,
+    //   url: '',
+    //   isExternal: false,
+    // },
+    {
+      id: '5',
+      label: <>More</>,
+      links: ['/risks', '/airdrop'],
+      children: [
+        {
+          id: '5-1',
+          label: <>{intl.formatMessage({ id: 'bridge' })}</>,
+          logo: <BridgeIcon />,
+          children: [
+            {
+              label: <>{intl.formatMessage({ id: 'from_ethereum' })}</>,
+              url: 'https://rainbowbridge.app/transfer',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-1',
+              logo: <IconEthereum />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_aurora' })}</>,
+              url: 'https://rainbowbridge.app/transfer',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-2',
+              logo: <IconAurora />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_solana' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-3',
+              logo: <IconSolana />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_terra' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-4',
+              logo: <IconTerra />,
+            },
+            {
+              label: <>{intl.formatMessage({ id: 'from_celo' })}</>,
+              url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
+              isExternal: true,
+              icon: <HiOutlineExternalLink />,
+              id: '5-1-5',
+              logo: <IconCelo />,
+            },
+          ],
+        },
+        {
+          id: '5-2',
+          label: <>{intl.formatMessage({ id: 'docs' })}</>,
+          url: 'https://guide.ref.finance',
+          isExternal: true,
+          logo: <IconDocs />,
+        },
+        {
+          id: '5-3',
+          label: <>{intl.formatMessage({ id: 'risks' })}</>,
+          url: '/risks',
+          isExternal: false,
+          logo: <RisksIcon />,
+          links: ['/risks'],
+        },
+        {
+          id: '5-4',
+          label: (
+            <>{<FormattedMessage id="airdrop" defaultMessage="Airdrop" />}</>
+          ),
+          url: '/airdrop',
+          isExternal: false,
+          logo: <IconAirDrop />,
+          links: ['/airdrop'],
+        },
+        {
+          id: '5-5',
+          label: <>{'Business Inquiries'}</>,
+          url: 'https://form.typeform.com/to/onOPhJ6Y',
+          isExternal: true,
+          logo: <InquiriesIcon />,
+        },
+      ],
+    },
+  ];
+  return menuData;
+};
+export const useMenusMobile = () => {
   const history = useHistory();
   const intl = useIntl();
   const menuData = [
@@ -577,6 +668,129 @@ export const useMenus = () => {
   ];
   return menuData;
 };
+export const moreLinks: MobileMenuItem[] = [
+  {
+    id: 'trade_capital',
+    label: 'TRADE',
+    pattern: '/',
+    url: '/',
+    isExternal: false,
+  },
+  {
+    id: 'POOL',
+    label: 'POOL',
+    pattern: '/pools',
+    url: '/yourliquidity',
+    isExternal: false,
+  },
+  {
+    id: 'farm_capital',
+    label: 'FARMS',
+    pattern: '/v2farms',
+    url: '/v2farms',
+    isExternal: false,
+  },
+  {
+    id: 'xref',
+    label: 'xREF',
+    pattern: '/xref',
+    url: '/xref',
+    isExternal: false,
+    showIcon: true,
+    iconElement: <XrefIcon></XrefIcon>,
+  },
+  {
+    id: 'vote_capital',
+    label: 'VOTE',
+    pattern: '/referendum',
+    url: '/referendum',
+    isExternal: false,
+    hidden: !getConfig().REF_VE_CONTRACT_ID,
+  },
+  {
+    id: 'MORE',
+    label: 'MORE',
+    url: '',
+    isExternal: false,
+    subRoute: ['/airdrop', '/risks', '/sauce'],
+    children: [
+      {
+        id: 'bridge',
+        label: 'bridge',
+        url: '',
+        isExternal: false,
+        logo: <MobileBridgeIcon />,
+        children: [
+          {
+            id: 'from_ethereum',
+            label: 'From Ethereum',
+            url: 'https://rainbowbridge.app/transfer',
+            isExternal: true,
+            logo: <IconEthereum />,
+          },
+          {
+            id: 'from_aurora',
+            label: 'From Aurora',
+            url: 'https://rainbowbridge.app/transfer',
+            isExternal: true,
+            logo: <IconAurora />,
+          },
+          {
+            id: 'from_solana',
+            label: 'From Solana',
+            url: 'https://app.allbridge.io/bridge?from=SOL&to=NEAR',
+            isExternal: true,
+            logo: <IconSolana />,
+          },
+          {
+            id: 'from_terra',
+            label: 'From Terra',
+            url: 'https://app.allbridge.io/bridge?from=TRA&to=NEAR',
+            isExternal: true,
+            logo: <IconTerra />,
+          },
+          {
+            id: 'from_celo',
+            label: 'From Celo',
+            url: 'https://app.allbridge.io/bridge?from=CELO&to=NEAR',
+            isExternal: true,
+            logo: <IconCelo />,
+          },
+        ],
+      },
+      {
+        id: 'docs',
+        label: 'docs',
+        url: 'https://guide.ref.finance',
+        isExternal: true,
+        logo: <IconDocs />,
+      },
+      {
+        label: 'Risks',
+        id: 'risks',
+        pattern: '/risks',
+        url: '/risks',
+        isExternal: false,
+        logo: <RisksIcon />,
+      },
+      {
+        id: 'airdrop',
+        label: 'Airdrop',
+        url: '/airdrop',
+        pattern: '/airdrop',
+        isExternal: false,
+        logo: <IconAirDrop />,
+      },
+      {
+        id: 'inquiries',
+        label: 'Business Inquiries',
+        url: 'https://form.typeform.com/to/onOPhJ6Y',
+        isExternal: true,
+        logo: <InquiriesIcon />,
+      },
+    ],
+  },
+];
 
 export interface menuItemType {
   id?: string;

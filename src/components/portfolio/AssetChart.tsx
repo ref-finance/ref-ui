@@ -28,6 +28,10 @@ import {
 export default function AssetChart() {
   const [assetData, setAssetData] = useState([]);
   const [assetDataDone, setAssetDataDone] = useState<boolean>(false);
+  const [previous_total_asset, set_previous_total_asset] =
+    useState<string>('0');
+  const [previous_total_asset_done, set_previous_total_asset_done] =
+    useState<boolean>(false);
   const [dimension, setDimension] = useState([
     { text: '24H', key: 'H' },
     { text: '7D', key: 'W' },
@@ -41,6 +45,10 @@ export default function AssetChart() {
     getAssets(activeDimension).then((res) => {
       setAssetData(res);
       setAssetDataDone(true);
+      if (activeDimension == 'H') {
+        set_previous_total_asset(res?.[0]?.assets || '0');
+        set_previous_total_asset_done(true);
+      }
     });
   }, [activeDimension]);
 
