@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState, useContext } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useContext,
+  createContext,
+} from 'react';
 import BigNumber from 'bignumber.js';
 import { UserLiquidityInfo } from '../../services/commonV3';
 import { toReadableNumber } from '~utils/numbers';
@@ -11,7 +17,8 @@ import {
   WalletContext,
   getCurrentWallet,
 } from '../../utils/wallets-integration';
-
+import { isMobile } from '../../utils/device';
+const AssetProfitData = createContext(null);
 export default function AssetProfit() {
   const {
     tokenPriceList,
@@ -91,9 +98,35 @@ export default function AssetProfit() {
     // const tip = intl.formatMessage({ id: 'over_tip' });
     const tip =
       'USD value of unclaimed fee in DCL pools and unclaimed reward in farms.';
-    let result: string = `<div class="text-navHighLightText text-xs text-left w-64">${tip}</div>`;
+    let result: string = `<div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">${tip}</div>`;
     return result;
   }
+  const is_mobile = isMobile();
+  return (
+    <AssetProfitData.Provider
+      value={{
+        getTip,
+        total_proft,
+        total_fees_value,
+        total_unClaimed_rewrads_value,
+      }}
+    >
+      {is_mobile ? (
+        <AssetProfitMobile></AssetProfitMobile>
+      ) : (
+        <AssetProfitPc></AssetProfitPc>
+      )}
+    </AssetProfitData.Provider>
+  );
+}
+
+function AssetProfitPc() {
+  const {
+    getTip,
+    total_proft,
+    total_fees_value,
+    total_unClaimed_rewrads_value,
+  } = useContext(AssetProfitData);
   return (
     <div className=" grid grid-cols-3 bg-portfolioBarBgColor px-7 py-4">
       <div className="col-span-1">
@@ -132,7 +165,7 @@ export default function AssetProfit() {
             extraClass="ml-3"
           ></ArrowJump>
         </div>
-        <div className="tetx-base gotham_bold text-portfolioGreenColor relative -top-1">
+        <div className="text-base gotham_bold text-portfolioGreenColor relative -top-1">
           {display_value(total_fees_value)}
         </div>
       </div>
@@ -147,8 +180,77 @@ export default function AssetProfit() {
             extraClass="ml-1"
           ></ArrowJump>
         </div>
-        <div className="tetx-base gotham_bold text-portfolioGreenColor relative -top-1">
+        <div className="text-base gotham_bold text-portfolioGreenColor relative -top-1">
           {display_value(total_unClaimed_rewrads_value)}
+        </div>
+      </div>
+    </div>
+  );
+}
+function AssetProfitMobile() {
+  const {
+    getTip,
+    total_proft,
+    total_fees_value,
+    total_unClaimed_rewrads_value,
+  } = useContext(AssetProfitData);
+  return (
+    <div className="bg-portfolioBarBgColor mt-4">
+      <div className="flex items-center justify-between px-5 py-4">
+        <div className="flex items-center">
+          <span className="text-sm text-primaryText">You Earn</span>
+          <div
+            className="text-white text-right ml-1"
+            data-class="reactTip"
+            data-for="selectAllId"
+            data-place="top"
+            data-html={true}
+            data-tip={getTip()}
+          >
+            <QuestionMark></QuestionMark>
+            <ReactTooltip
+              id="selectAllId"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        </div>
+        <span className="text-2xl gotham_bold text-portfolioGreenColor">
+          {display_value(total_proft)}
+        </span>
+      </div>
+      <div className="flex items-stretch justify-between border-t border-border_grey_color">
+        <div className="flex flex-col justify-between w-1 flex-grow border-r border-border_grey_color px-5 py-2">
+          <div className="flex items-center justify-between text-sm text-primaryText">
+            Earned Fees
+            <ArrowJump
+              clickEvent={() => {
+                sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
+                window.open('/yourliquidity');
+              }}
+              extraClass="ml-3"
+            ></ArrowJump>
+          </div>
+          <div className="text-base gotham_bold text-portfolioGreenColor mt-1">
+            {display_value(total_fees_value)}
+          </div>
+        </div>
+        <div className="flex flex-col justify-between  w-12 flex-grow pl-3 pr-5 py-2">
+          <div className="flex items-center justify-between text-sm text-primaryText whitespace-nowrap">
+            Unclaimed Rewards
+            <ArrowJump
+              clickEvent={() => {
+                localStorage.setItem('farmV2Status', 'my');
+                window.open('/v2farms');
+              }}
+              extraClass="ml-0.5 flex-shrink-0"
+            ></ArrowJump>
+          </div>
+          <div className="text-base gotham_bold text-portfolioGreenColor">
+            {display_value(total_unClaimed_rewrads_value)}
+          </div>
         </div>
       </div>
     </div>

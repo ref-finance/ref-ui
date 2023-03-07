@@ -365,7 +365,6 @@ export function MobileNavBar(props: any) {
     let one_level_selected_id = '';
     let two_level_selected_id = '';
     if (menusMobile) {
-      console.log('77777777777777---重新渲染');
       const one_level_menu = menusMobile.find((item: menuItemType) => {
         const { links } = item;
         return links?.indexOf(pathname) > -1;

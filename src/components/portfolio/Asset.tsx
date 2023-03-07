@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState, useContext } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useContext,
+  createContext,
+} from 'react';
 import { ftGetTokenMetadata, TokenMetadata } from '../../services/ft-contract';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber } from '~utils/numbers';
@@ -14,7 +20,8 @@ import {
 import getConfig from '../../services/config';
 const { XREF_TOKEN_ID } = getConfig();
 import { ArrowJump, display_percentage, display_value } from './Tool';
-
+import { isMobile } from '~utils/device';
+const AssetData = createContext(null);
 export default function Asset() {
   const {
     tokenPriceList,
@@ -82,7 +89,7 @@ export default function Asset() {
     // const tip = intl.formatMessage({ id: 'over_tip' });
     const tip =
       'USD value of your investment on Ref:Classic pools + DCL pools (including staked in farms) + xREF';
-    let result: string = `<div class="text-navHighLightText text-xs text-left w-64">${tip}</div>`;
+    let result: string = `<div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">${tip}</div>`;
     return result;
   }
   function getCurrentDate() {
@@ -99,6 +106,35 @@ export default function Asset() {
   function getV1PoolUSDValue() {
     return display_value(YourLpValueV1);
   }
+  const is_mobile = isMobile();
+  return (
+    <AssetData.Provider
+      value={{
+        getTip,
+        total_user_invest_value,
+        getCurrentDate,
+        getV2PoolUSDValue,
+        percent_in_dcl_farms,
+        getV1PoolUSDValue,
+        percent_in_classic_farms,
+        total_xref_value,
+      }}
+    >
+      {is_mobile ? <AssetMobile></AssetMobile> : <AssetPc></AssetPc>}
+    </AssetData.Provider>
+  );
+}
+function AssetPc() {
+  const {
+    getTip,
+    total_user_invest_value,
+    getCurrentDate,
+    getV2PoolUSDValue,
+    percent_in_dcl_farms,
+    getV1PoolUSDValue,
+    percent_in_classic_farms,
+    total_xref_value,
+  } = useContext(AssetData);
   return (
     <div
       className="border-r border-cardBg flex-shrink-0"
@@ -186,6 +222,107 @@ export default function Asset() {
     </div>
   );
 }
+function AssetMobile() {
+  const {
+    getTip,
+    total_user_invest_value,
+    getCurrentDate,
+    getV2PoolUSDValue,
+    percent_in_dcl_farms,
+    getV1PoolUSDValue,
+    percent_in_classic_farms,
+    total_xref_value,
+  } = useContext(AssetData);
+  return (
+    <div>
+      <div className="px-5 py-3">
+        <div className="flex items-center">
+          <span className="text-sm text-primaryText">Your Investing</span>
+          <div
+            className="text-white text-right ml-1"
+            data-class="reactTip"
+            data-for="selectAllId"
+            data-place="top"
+            data-html={true}
+            data-tip={getTip()}
+          >
+            <QuestionMark></QuestionMark>
+            <ReactTooltip
+              id="selectAllId"
+              backgroundColor="#1D2932"
+              border
+              borderColor="#7e8a93"
+              effect="solid"
+            />
+          </div>
+        </div>
+        <div className="text-2xl text-white gotham_bold my-1.5">
+          {total_user_invest_value}
+        </div>
+        <div className="text-primaryText text-sm">{getCurrentDate()}</div>
+      </div>
+      <div className="flex items-center justify-between border-t border-b border-cardBg">
+        <DataTemplate
+          title="DCL Pools"
+          value={getV2PoolUSDValue()}
+          event={() => {
+            localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
+            window.open('/pools');
+          }}
+          className="border-r border-cardBg px-5 w-1 flex-grow py-4"
+        >
+          <div className="flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1">
+            {percent_in_dcl_farms}{' '}
+            <span
+              onClick={() => {
+                localStorage.setItem('farmV2Status', 'my');
+                localStorage.setItem('BOOST_FARM_RAB', 'dcl');
+                window.open('/v2farms');
+              }}
+              className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
+            >
+              in farm
+            </span>{' '}
+          </div>
+        </DataTemplate>
+        <DataTemplate
+          title="Classic Pools"
+          value={getV1PoolUSDValue()}
+          event={() => {
+            localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v1');
+            window.open('/pools');
+          }}
+          className="pl-3 pr-5 w-1 flex-grow py-4"
+        >
+          <div className="flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1">
+            {percent_in_classic_farms}{' '}
+            <span
+              onClick={() => {
+                localStorage.setItem('farmV2Status', 'my');
+                localStorage.setItem('BOOST_FARM_RAB', 'classic');
+                window.open('/v2farms');
+              }}
+              className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
+            >
+              in farm
+            </span>{' '}
+          </div>
+        </DataTemplate>
+      </div>
+      <div className="border-b border-cardBg">
+        <DataTemplate
+          title="xREF Staking"
+          value={display_value(total_xref_value)}
+          event={() => {
+            window.open('/xref');
+          }}
+          className="px-5 w-1/2 py-4"
+        ></DataTemplate>
+      </div>
+    </div>
+  );
+}
+
 function DataTemplate(props: any) {
   const { title, value, children, className, event } = props;
   return (
