@@ -58,7 +58,9 @@ export function CancelButton({
         loading={loading}
         loadingColor={'#FFA24D'}
         Text={() => {
-          return <span className="whitespace-nowrap text-opacity-50">{text}</span>;
+          return (
+            <span className="whitespace-nowrap text-opacity-50">{text}</span>
+          );
         }}
       ></ButtonTextWrapper>
     </button>

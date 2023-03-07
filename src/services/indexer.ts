@@ -456,3 +456,20 @@ export const getAssets = async (dateType: 'M' | 'W' | 'H' = 'H') => {
       return res;
     });
 };
+export const getLimitOrderLogsByAccount = async (): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl +
+      `/get-limit-order-log-by-account/${getCurrentWallet()?.wallet?.getAccountId()}`,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
+    })
+    .catch(() => {
+      return [];
+    });
+};
