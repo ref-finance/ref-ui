@@ -149,7 +149,7 @@ function UserBoardFoot() {
         <OrderlyNetworkIcon></OrderlyNetworkIcon>
       </div>
 
-      <span className="text-white ">Risk</span>
+      {/* <span className="text-white ">Risk</span> */}
     </div>
   );
 }
@@ -529,6 +529,8 @@ export default function UserBoard() {
 
     setValidAccountSig(true);
   }, [tradingKeySet, keyAnnounced]);
+  console.log('keyAnnounced: ', keyAnnounced);
+  console.log('tradingKeySet: ', tradingKeySet);
 
   const isInsufficientBalance =
     side === 'Buy'
@@ -537,7 +539,8 @@ export default function UserBoard() {
       : new Big(inputValue || '0').gt(tokenInHolding || '0');
 
   const loading =
-    storageEnough === undefined || (!!storedValid && !validAccountSig);
+    (storageEnough === undefined || (!!storedValid && !validAccountSig)) &&
+    !!accountId;
 
   const priceValidator = (price: string, size: string) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
@@ -677,6 +680,7 @@ export default function UserBoard() {
 
   const priceAndSizeValidator = (price: string, size: string) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
+    console.log('symbolInfo: ', symbolInfo);
 
     if (!symbolInfo || (ONLY_ZEROS.test(price) && ONLY_ZEROS.test(size))) {
       setShowErrorTip(false);
@@ -718,7 +722,7 @@ export default function UserBoard() {
       orderType === 'Limit' ? limitPrice : marketPrice.toString(),
       inputValue
     );
-  }, [side, orderType]);
+  }, [side, orderType, symbol, orders]);
 
   const validator =
     !accountId ||
@@ -769,14 +773,18 @@ export default function UserBoard() {
                   Network, that allows users to trade on the convenience of its
                   infrastructures.
                   <br />
-                  <span>
-                    {userExist
-                      ? 'You are connecting to your orderly account now'
-                      : 'You are creating an orderly account now'}
-                  </span>
-                  <br />
+                  {userExist
+                    ? 'You are connecting to your orderly account now. '
+                    : 'You are creating an orderly account now. '}
                   Learn more about
-                  <span className="underline ml-1">Orderly Network</span>
+                  <span
+                    className="underline ml-1"
+                    onClick={() => {
+                      window.open('https://orderly.network/', '_blank');
+                    }}
+                  >
+                    Orderly Network
+                  </span>
                 </div>
                 <div className="flex items-center mt-2">
                   <div
@@ -924,7 +932,7 @@ export default function UserBoard() {
 
       <div className="inline-flex text-primaryOrderly justify-end border-b border-white border-opacity-10 mt-3">
         <span
-          className="text-sm py-1.5  mb-3 px-3 rounded-lg bg-symbolHover cursor-pointer"
+          className="text-sm py-1.5  mb-3 px-3 rounded-lg bg-symbolHover hover:text-white cursor-pointer"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();

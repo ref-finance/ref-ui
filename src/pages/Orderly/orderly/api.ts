@@ -49,12 +49,14 @@ const signAndSendTransactions = async (transactions: Transaction[]) => {
 
 const announceLedgerAccessKey = async (accountId: string) => {
   const keyPairLedger = KeyPair.fromRandom('ed25519');
-
-  console.log(keyPairLedger.getPublicKey().toString());
+  console.log('keyPairLedger: ', keyPairLedger);
 
   const wallet = await window.selector.wallet();
 
-  await ledgerTipTrigger(window.selector);
+  if (wallet.id === 'sender') {
+    await ledgerTipTrigger(window.selector);
+  }
+  console.log('addKeyRes: ');
 
   const addKeyRes = await wallet.signAndSendTransactions({
     transactions: [
@@ -87,6 +89,8 @@ const announceLedgerAccessKey = async (accountId: string) => {
     ],
   });
 
+  console.log('addKeyRes done: ');
+
   keyStore.setKey(getConfig().networkId, accountId, keyPairLedger);
 
   // localStorage.setItem()
@@ -115,7 +119,7 @@ export let contract;
 const announceKey = async (accountId: string) => {
   const wallet = await window.selector.wallet();
 
-  if (wallet.id === 'ledger') {
+  if (wallet.id === 'ledger' || wallet.id === 'neth') {
     await announceLedgerAccessKey(accountId);
 
     // const account = await near.account(ORDERLY_ASSET_MANAGER);
@@ -171,7 +175,7 @@ const announceKey = async (accountId: string) => {
 const setTradingKey = async (accountId: string) => {
   const wallet = await window.selector.wallet();
 
-  if (wallet.id === 'ledger') {
+  if (wallet.id === 'ledger' || wallet.id === 'neth') {
     // @ts-ignore
     if (!contract) {
       return;

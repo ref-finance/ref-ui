@@ -105,6 +105,12 @@ import { SWAP_MODE } from '../../pages/SwapPage';
 import { useDCLAccountBalance } from '../../services/aurora/aurora';
 import { BuyNearButton } from '../button/Button';
 import {
+  get_orderly_public_key_path,
+  get_orderly_private_key_path,
+} from '../../pages/Orderly/orderly/utils';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
+import { tradingKeyMap } from '../../pages/Orderly/orderly/utils';
+import {
   MoreIcon,
   ArrowDownIcon,
   DownTriangleIcon,
@@ -363,6 +369,16 @@ function AccountEntry({
     await curWallet.signOut();
 
     localStorage.removeItem(ACCOUNT_ID_KEY);
+
+    const priKeyPath = get_orderly_private_key_path();
+
+    const pubKeyPath = get_orderly_public_key_path();
+
+    tradingKeyMap.clear();
+    localStorage.removeItem(priKeyPath);
+    localStorage.removeItem(pubKeyPath);
+
+    localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
 
     window.location.assign('/');
   };

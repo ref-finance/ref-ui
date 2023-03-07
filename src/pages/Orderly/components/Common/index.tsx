@@ -252,7 +252,7 @@ export function RegisterButton({
       </button>
       {userExist ? (
         <div className="text-sm text-white flex items-center justify-center">
-          You may need deposit storage fee first.
+          You may need to deposit storage fee first.
         </div>
       ) : (
         <div className="flex items-start xs:hidden md:hidden  text-sm relative text-white flex-col">
@@ -522,6 +522,18 @@ export function WithdrawButton(props: any) {
       </div>
     </div>
   );
+}
+
+export function getElementTop(element: any) {
+  var actualTop = element.offsetTop;
+  var current = element.offsetParent;
+
+  while (current !== null) {
+    actualTop += current.offsetTop;
+    current = current.offsetParent;
+  }
+
+  return actualTop;
 }
 
 export function MyOrderTip({

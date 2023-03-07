@@ -65,6 +65,12 @@ import {
 import { RefAnalytics, RefAnalyticsGary } from '~components/icon/RefAnalytics';
 import { useLanguageItems } from '~utils/menu';
 import { commonLangKey, formatItem } from './NavigationBar';
+import {
+  tradingKeyMap,
+  get_orderly_private_key_path,
+  get_orderly_public_key_path,
+} from '../../pages/Orderly/orderly/utils';
+import { REF_ORDERLY_ACCOUNT_VALID } from '../../pages/Orderly/components/UserBoard/index';
 
 export function Logout() {
   const { wallet } = getCurrentWallet();
@@ -78,6 +84,16 @@ export function Logout() {
         onClick={async () => {
           (await wallet.wallet()).signOut();
           localStorage.removeItem(ACCOUNT_ID_KEY);
+
+          const priKeyPath = get_orderly_private_key_path();
+
+          const pubKeyPath = get_orderly_public_key_path();
+
+          tradingKeyMap.clear();
+          localStorage.removeItem(priKeyPath);
+          localStorage.removeItem(pubKeyPath);
+
+          localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
 
           window.location.assign('/');
         }}

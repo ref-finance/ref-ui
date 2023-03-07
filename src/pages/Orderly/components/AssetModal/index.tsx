@@ -496,10 +496,10 @@ export function AssetModal(props: Modal.Props) {
                 ></MdArrowDropDown>
 
                 <div
-                  className="border xs:hidden absolute border-gray1 transform rotate-90 "
+                  className="border-b xs:hidden absolute border-v3SwapGray transform rotate-90 "
                   style={{
                     width: '18px',
-                    right: '-12px',
+                    right: '-8px',
                   }}
                 ></div>
               </div>
