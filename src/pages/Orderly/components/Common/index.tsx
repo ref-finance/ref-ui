@@ -25,6 +25,10 @@ import { MyOrder } from '../../orderly/type';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { digitWrapper } from '../../utiles';
 import { isMobile } from '~utils/device';
+import {
+  get_orderly_public_key_path,
+  tradingKeyMap,
+} from '~pages/Orderly/orderly/utils';
 
 export function TokenIcon({ src }: { src: any }) {
   return (
@@ -676,6 +680,14 @@ export function orderEditPopUpSuccess({
 }
 
 export function orderEditPopUpFailure({ tip }: { tip: string }) {
+  if (tip === 'trading key error') {
+    console.error(
+      `your trading key stored: ${tradingKeyMap.get(
+        get_orderly_public_key_path()
+      )}; ${localStorage.getItem(get_orderly_public_key_path())}`
+    );
+  }
+
   return toast(
     <div className={`flex-col flex px-2  text-sm   w-full`}>
       <span className="text-textRed">{tip}</span>
