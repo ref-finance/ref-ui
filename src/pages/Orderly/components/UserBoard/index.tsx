@@ -492,7 +492,7 @@ export default function UserBoard() {
       return;
     }
 
-    is_orderly_key_announced(accountId)
+    is_orderly_key_announced(accountId, true)
       .then(async (key_announce) => {
         setKeyAnnounced(key_announce);
         if (!key_announce) {
@@ -778,7 +778,7 @@ export default function UserBoard() {
                     : 'You are creating an orderly account now. '}
                   Learn more about
                   <span
-                    className="underline ml-1"
+                    className="underline ml-1 cursor-pointer"
                     onClick={() => {
                       window.open('https://orderly.network/', '_blank');
                     }}

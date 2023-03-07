@@ -1,4 +1,10 @@
-import { providers, KeyPair, connect, WalletConnection } from 'near-api-js';
+import {
+  providers,
+  KeyPair,
+  connect,
+  WalletConnection,
+  utils,
+} from 'near-api-js';
 
 import {
   addKey,
@@ -58,27 +64,60 @@ const user_account_exists = async (user: string) => {
   });
 };
 
-const is_orderly_key_announced = async (user: string) => {
+const is_orderly_key_announced = async (
+  user: string,
+  fromUserBoard?: boolean
+) => {
   const orderly_key = await getPublicKey(user);
 
   if (!orderly_key) return null;
+  const valid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
   const selectedWalletId = getSelectedWalletId();
-  if (selectedWalletId === 'ledger' || selectedWalletId === 'neth') {
-    const valid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
-
+  if (selectedWalletId === 'ledger') {
     if (!valid) {
       return false;
     }
   }
 
-  return orderlyViewFunction({
+  const announced = await orderlyViewFunction({
     methodName: 'is_orderly_key_announced',
     args: {
       user,
       orderly_key,
     },
   });
+
+  if (
+    selectedWalletId === 'neth' &&
+    !valid &&
+    !!orderly_key &&
+    fromUserBoard &&
+    !!announced
+  ) {
+    const wallet = await window.selector.wallet();
+
+    await wallet.signAndSendTransaction({
+      signerId: user,
+      actions: [
+        {
+          type: 'FunctionCall',
+          params: {
+            gas: utils.format.parseNearAmount('0.00000000003')!,
+            deposit: '1',
+            methodName: 'user_request_key_removal',
+            args: {
+              public_key: orderly_key,
+            },
+          },
+        },
+      ],
+    });
+
+    return false;
+  }
+
+  return announced;
 };
 
 const is_trading_key_set = async (user: string) => {
@@ -87,7 +126,7 @@ const is_trading_key_set = async (user: string) => {
   if (!orderly_key) return null;
   const selectedWalletId = getSelectedWalletId();
 
-  if (selectedWalletId === 'ledger' || selectedWalletId === 'neth') {
+  if (selectedWalletId === 'ledger') {
     const valid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
     if (!valid) {
