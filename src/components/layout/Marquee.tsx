@@ -106,7 +106,7 @@ export default function Marquee() {
 
   if (tokenHistoryList.length == 0) return null;
 
-  if (history.location.pathname.includes('orderly')) {
+  if (history.location.pathname.includes('orderbook')) {
     return null;
   }
   const hiddenRouters = ['/risks', '/portfolio'];

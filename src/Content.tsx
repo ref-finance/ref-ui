@@ -230,7 +230,7 @@ export function Content() {
             component={AutoHeight(YourLiquidityDetailV3)}
           />
 
-          <Route path="/orderly" component={View} />
+          <Route path="/orderbook" component={View} />
           <Route
             path="/addLiquidityV2"
             component={AutoHeight(AddYourLiquidityPageV3)}

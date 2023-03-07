@@ -362,7 +362,7 @@ export const useMenus = () => {
     {
       id: '1',
       label: <>Trade</>,
-      links: ['/', '/orderly', '/myOrder'],
+      links: ['/', '/orderbook', '/myOrder'],
       children: [
         {
           id: '1-1',
@@ -406,9 +406,9 @@ export const useMenus = () => {
         {
           label: <span>Orderbook</span>,
           logo: <OrderBookIcon />,
-          url: '/orderly',
+          url: '/orderbook',
           isExternal: false,
-          links: ['/orderly'],
+          links: ['/orderbook'],
         },
       ],
     },
