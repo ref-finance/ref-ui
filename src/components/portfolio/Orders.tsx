@@ -34,6 +34,7 @@ import { toRealSymbol } from '../../utils/token';
 import { ExclamationTip } from '../../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../../components/icon/swapV3';
 import { TOKEN_LIST_FOR_RATE } from '../../services/commonV3';
+import { getLimitOrderLogsByAccount } from '../../services/indexer';
 import { PurpleCircleIcon, LinkIcon } from '../../components/icon/Portfolio';
 import BigNumber from 'bignumber.js';
 import { PortfolioData } from '../../pages/Portfolio';
@@ -43,6 +44,8 @@ import {
   WalletContext,
   getCurrentWallet,
 } from '../../utils/wallets-integration';
+import getConfig from '~services/config';
+const { explorerUrl } = getConfig();
 
 export default function Orders(props: any) {
   const {
@@ -53,6 +56,7 @@ export default function Orders(props: any) {
     set_active_order_value,
   } = useContext(PortfolioData);
   const { activeOrder, activeOrderDone } = useMyOrders();
+  const [activeOrderTxMap, setActiveOrderTxMap] = useState({});
   const ActiveTokenIds = activeOrder
     ?.map((order) => [order.sell_token, order.buy_token])
     .flat();
@@ -64,6 +68,25 @@ export default function Orders(props: any) {
       [cur.id]: cur,
     };
   }, {});
+  const { globalState } = useContext(WalletContext);
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const isSignedIn = !!accountId || globalState.isSignedIn;
+  useEffect(() => {
+    if (isSignedIn) {
+      getLimitOrderLogsByAccount()
+        .then((res) => {
+          const temp_map = res.reduce((acc, cur) => {
+            const { order_id, receipt_id } = cur;
+            return {
+              ...acc,
+              [order_id]: receipt_id,
+            };
+          }, {});
+          setActiveOrderTxMap(temp_map);
+        })
+        .catch();
+    }
+  }, [isSignedIn]);
   useEffect(() => {
     if (
       activeOrder?.length > 0 &&
@@ -101,14 +124,22 @@ export default function Orders(props: any) {
     });
     return total_value.toFixed();
   }
-  return <OrderCard tokensMap={tokensMap} activeOrder={activeOrder} />;
+  return (
+    <OrderCard
+      tokensMap={tokensMap}
+      activeOrder={activeOrder}
+      activeOrderTxMap={activeOrderTxMap}
+    />
+  );
 }
 function OrderCard({
   activeOrder,
   tokensMap,
+  activeOrderTxMap,
 }: {
   activeOrder: UserOrderInfo[];
   tokensMap: { [key: string]: TokenMetadata };
+  activeOrderTxMap: Record<string, string>;
 }) {
   const { globalState } = useContext(WalletContext);
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
@@ -677,7 +708,9 @@ function OrderCard({
         </div>
       );
     };
-
+    const tx_record = activeOrderTxMap[order.order_id];
+    console.log('555555555555555555-activeOrderTxMap', activeOrderTxMap);
+    console.log('555555555555555555-order.order_id', order.order_id);
     return (
       <>
         {/* PC */}
@@ -702,8 +735,19 @@ function OrderCard({
             </div>
           </div>
           <div className={`${switch_off ? 'hidden' : ''}`}>
-            <div className="flex items-center text-sm text-v3SwapGray ml-2">
-              Order Progress
+            <div className="flex items-center justify-between text-sm text-v3SwapGray ml-2">
+              <span>Order Progress</span>
+              <span
+                onClick={() => {
+                  const txHash = activeOrderTxMap[order.order_id];
+                  window.open(`${explorerUrl}/txns/${txHash}`);
+                }}
+                className={`flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white  py-0.5  mr-1.5 ${
+                  tx_record ? '' : 'hidden'
+                }`}
+              >
+                Onchain Record <LinkIcon className="ml-1"></LinkIcon>
+              </span>
             </div>
             <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3 mb-4">
               {swapBanner}
