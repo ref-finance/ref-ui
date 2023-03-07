@@ -242,6 +242,7 @@ export default function UserBoard() {
     validAccountSig,
     myPendingOrdersRefreshing,
     bridgePrice,
+    userExist,
   } = useOrderlyContext();
 
   const availableSymbols = useAllSymbolInfo();
@@ -766,10 +767,16 @@ export default function UserBoard() {
                 <div>
                   This orderbook page is a graphical user interface of Orderly
                   Network, that allows users to trade on the convenience of its
-                  infrastructures. You are creating an Orderly account now.
+                  infrastructures.
+                  <br />
+                  <span>
+                    {userExist
+                      ? 'You are connecting to your orderly account now'
+                      : 'You are creating an orderly account now'}
+                  </span>
                   <br />
                   Learn more about
-                  <span className="underline">Orderly Network</span>
+                  <span className="underline ml-1">Orderly Network</span>
                 </div>
                 <div className="flex items-center mt-2">
                   <div
@@ -2832,9 +2839,7 @@ function SelectTokenModal(
                   sortNearBalance === 'asc' ||
                   sortNearBalance === undefined
                 ) {
-                  setSortNearBalance('desc');
-                } else {
-                  setSortNearBalance('asc');
+                  return;
                 }
 
                 setSortByBalance('wallet');
@@ -2867,9 +2872,7 @@ function SelectTokenModal(
                   sortOrderlyAccount === 'asc' ||
                   sortOrderlyAccount === undefined
                 ) {
-                  setSortOrderlyAccount('desc');
-                } else {
-                  setSortOrderlyAccount('asc');
+                  return;
                 }
 
                 setSortByBalance('orderly');

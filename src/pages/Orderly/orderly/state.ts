@@ -8,7 +8,11 @@ import {
 } from './off-chain-api';
 
 import { checkStorageDeposit } from './api';
-import { is_orderly_key_announced, is_trading_key_set } from './on-chain-api';
+import {
+  is_orderly_key_announced,
+  is_trading_key_set,
+  user_account_exists,
+} from './on-chain-api';
 import { useWalletSelector } from '../../../context/WalletSelectorContext';
 import { useOrderlyContext } from './OrderlyContext';
 
@@ -150,14 +154,33 @@ export function useStorageEnough() {
   );
 
   useEffect(() => {
-    if (!accountId) {
-      setStorageEnough(false);
-    } else {
-      checkStorageDeposit(accountId).then(setStorageEnough);
-    }
+    // if (!accountId) {
+
+    if (!accountId) return;
+
+    //   setStorageEnough(false);
+    // } else {
+    checkStorageDeposit(accountId).then(setStorageEnough);
+    // }
   }, [accountId]);
 
   return storageEnough;
+}
+
+export function useAccountExist() {
+  const [userExist, setUserExist] = useState<boolean>();
+
+  const { accountId } = useWalletSelector();
+
+  useEffect(() => {
+    if (!accountId) {
+      return;
+    }
+
+    user_account_exists(accountId).then(setUserExist);
+  }, [accountId]);
+
+  return userExist;
 }
 
 export function useOrderlyRegistered() {

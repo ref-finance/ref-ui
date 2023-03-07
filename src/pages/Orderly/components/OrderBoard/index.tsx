@@ -45,7 +45,7 @@ export function CancelButton({
     <button
       className={`px-1.5 ${
         loading ? 'opacity-70' : ''
-      } rounded-lg py-1 flex items-center border  justify-center cursor-pointer text-warn border-warn`}
+      } rounded-lg py-1 flex items-center border  text-xs border-opacity-50 justify-center cursor-pointer text-warn border-warn`}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -58,7 +58,7 @@ export function CancelButton({
         loading={loading}
         loadingColor={'#FFA24D'}
         Text={() => {
-          return <span className="whitespace-nowrap">{text}</span>;
+          return <span className="whitespace-nowrap text-opacity-50">{text}</span>;
         }}
       ></ButtonTextWrapper>
     </button>
@@ -74,16 +74,20 @@ export function Selector({
   selected,
   setSelect,
   className,
+  width,
 }: {
   list: { text: JSX.Element | string; textId: string; className?: string }[];
   selected: string;
   setSelect: (value: any) => void;
   className?: string;
+  width?: string;
 }) {
   return (
     <div className="absolute top-6 z-50">
       <div
-        className={`${className}  flex flex-col min-w-max  items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
+        className={`${className}  flex flex-col ${
+          width || 'min-w-28'
+        }  items-start py-2 px-1.5 rounded-lg border border-borderC text-sm  bg-darkBg `}
       >
         {list.map((item, index) => {
           return (

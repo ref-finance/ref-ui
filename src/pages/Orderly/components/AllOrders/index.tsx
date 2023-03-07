@@ -1084,8 +1084,8 @@ function OpenOrders({
     const marketList = [
       {
         text: (
-          <div className="flex items-center ">
-            <div className="mr-2 ml-1 text-white text-sm">
+          <div className="flex items-center p-0.5 pr-4 my-0.5">
+            <div className="mr-2 ml-1 text-white text-sm ">
               <AllMarketIcon />
             </div>
             <span className="text-white">All Instrument</span>
@@ -1095,29 +1095,31 @@ function OpenOrders({
       },
     ];
 
-    availableSymbols.forEach((symbol) => {
-      const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
-      const fromToken = allTokens[symbolFrom];
+    availableSymbols
+      .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
+      .forEach((symbol) => {
+        const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
+        const fromToken = allTokens[symbolFrom];
 
-      const render = (
-        <div className="flex items-center text-white text-sm">
-          <img
-            src={fromToken?.icon}
-            alt=""
-            className="rounded-full flex-shrink-0 w-5 h-5 mr-2"
-          />
+        const render = (
+          <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+            <img
+              src={fromToken?.icon}
+              alt=""
+              className="rounded-full flex-shrink-0 w-5 h-5 mr-2.5"
+            />
 
-          <span>{symbolFrom}</span>
+            <span>{symbolFrom}</span>
 
-          <span className="text-primaryOrderly">/{symbolTo}</span>
-        </div>
-      );
+            <span className="text-primaryOrderly">/{symbolTo}</span>
+          </div>
+        );
 
-      marketList.push({
-        text: render,
-        textId: symbol.symbol,
+        marketList.push({
+          text: render,
+          textId: symbol.symbol,
+        });
       });
-    });
 
     return marketList;
   };
@@ -1510,8 +1512,8 @@ function HistoryOrders({
     const marketList = [
       {
         text: (
-          <div className="flex items-center ">
-            <div className="mr-2 ml-1 text-white text-sm">
+          <div className="flex items-center p-0.5 pr-4 my-0.5">
+            <div className="mr-2 ml-1 text-white text-sm ">
               <AllMarketIcon />
             </div>
             <span className="text-white">All Instrument</span>
@@ -1521,29 +1523,31 @@ function HistoryOrders({
       },
     ];
 
-    availableSymbols.forEach((symbol) => {
-      const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
-      const fromToken = allTokens[symbolFrom];
+    availableSymbols
+      .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
+      .forEach((symbol) => {
+        const { symbolFrom, symbolTo } = parseSymbol(symbol.symbol);
+        const fromToken = allTokens[symbolFrom];
 
-      const render = (
-        <div className="flex items-center text-white text-sm">
-          <img
-            src={fromToken?.icon}
-            alt=""
-            className="rounded-full flex-shrink-0 w-5 h-5 mr-2"
-          />
+        const render = (
+          <div className="flex items-center p-0.5 pr-4 text-white text-sm my-0.5">
+            <img
+              src={fromToken?.icon}
+              alt=""
+              className="rounded-full flex-shrink-0 w-5 h-5 mr-2.5"
+            />
 
-          <span>{symbolFrom}</span>
+            <span>{symbolFrom}</span>
 
-          <span className="text-primaryOrderly">/{symbolTo}</span>
-        </div>
-      );
+            <span className="text-primaryOrderly">/{symbolTo}</span>
+          </div>
+        );
 
-      marketList.push({
-        text: render,
-        textId: symbol.symbol,
+        marketList.push({
+          text: render,
+          textId: symbol.symbol,
+        });
       });
-    });
 
     return marketList;
   };
@@ -1630,6 +1634,7 @@ function HistoryOrders({
                       setShowMarketSelector(false);
                     }}
                     list={marketList}
+                    width="w-p200"
                   />
                 )}
               </FlexRow>

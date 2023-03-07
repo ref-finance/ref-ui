@@ -200,7 +200,7 @@ function OrderBook() {
     (recentTrades?.at(1)?.executed_price || 0);
 
   return (
-    <div className="w-full h-full relative border  border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 ">
+    <div className="w-full h-full flex flex-col  relative border  border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 ">
       <div className="px-4 relative flex mb-2 border-b border-white border-opacity-10 items-center ">
         <div
           onClick={() => {
@@ -344,7 +344,7 @@ function OrderBook() {
 
           {/* sell  */}
           <section
-            className="text-xs flex  flex-col-reverse overflow-auto text-white "
+            className="text-xs flex flex-shrink-0  flex-col-reverse overflow-auto text-white "
             id="sell-order-book-panel"
             style={{
               maxHeight: 'calc(50% - 50px)',
@@ -364,7 +364,7 @@ function OrderBook() {
                     setBridgePrice(order[0].toString());
                   }}
                 >
-                  <span className="text-sellRed justify-self-start">
+                  <span className="text-sellColorNew justify-self-start">
                     {digitWrapper(order[0].toString(), 2)}
                   </span>
 
@@ -418,11 +418,8 @@ function OrderBook() {
           {/* buy */}
 
           <section
-            className="text-xs  overflow-auto  overflow-x-visible text-white"
+            className="text-xs flex-row  overflow-auto  overflow-x-visible text-white"
             id="buy-order-book-panel"
-            style={{
-              maxHeight: 'calc(50% - 50px)',
-            }}
           >
             {bids?.map((order, i) => {
               return (

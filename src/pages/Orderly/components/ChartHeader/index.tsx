@@ -108,6 +108,7 @@ function SymbolSelector(props: {
                 .toLowerCase()
                 .includes(searchValue?.toLocaleLowerCase() || '')
             )
+            .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
             .map((t) => {
               return <SymbolLine ticker={t} key={t.symbol}></SymbolLine>;
             })}

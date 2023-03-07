@@ -303,7 +303,7 @@ export function AssetModal(props: Modal.Props) {
     displayBalances,
 
     (b) => Number(b[sortBy]),
-    [orderBy]
+    ['desc']
   );
 
   const [records, setRecords] = useState<UserRecord[]>();
@@ -394,7 +394,7 @@ export function AssetModal(props: Modal.Props) {
     >
       <div
         className={`${
-          isMobile ? '' : 'gradientBorderWrapperNoShadow border'
+          isMobile ? '' : 'border border-assetsBorder'
         } rounded-2xl xs:rounded-none xs:rounded-t-2xl relative  overflow-hidden ${'h-p620'} lg:w-p869 xs:w-screen xs:fixed xs:bottom-0  bg-boxBorder text-sm text-primaryOrderly border xs:border-none `}
         style={{
           height: isMobile ? '75vh' : '',
@@ -479,7 +479,6 @@ export function AssetModal(props: Modal.Props) {
             `}
                 onClick={() => {
                   setSortBy('near');
-                  OrderBy(orderBy === 'desc' ? 'asc' : 'desc');
                 }}
               >
                 <NearWalletIcon></NearWalletIcon>
@@ -511,7 +510,6 @@ export function AssetModal(props: Modal.Props) {
                 }`}
                 onClick={() => {
                   setSortBy('in-order');
-                  OrderBy(orderBy === 'desc' ? 'asc' : 'desc');
                 }}
               >
                 <span className="absolute xs:hidden -left-6">
@@ -541,7 +539,6 @@ export function AssetModal(props: Modal.Props) {
                 } cursor-pointer flex items-center justify-self-center xs:justify-self-end justify-center`}
                 onClick={() => {
                   setSortBy('available');
-                  OrderBy(orderBy === 'desc' ? 'asc' : 'desc');
                 }}
               >
                 <span className=" ml-2 lg:hidden ">

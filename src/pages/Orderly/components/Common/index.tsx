@@ -197,6 +197,8 @@ export function RegisterButton({
 }) {
   const [spinNow, setSpinNow] = useState<boolean>(!!spin);
 
+  const { userExist } = useOrderlyContext();
+
   useEffect(() => {
     setSpinNow(!!spin);
   }, [spin]);
@@ -230,7 +232,7 @@ export function RegisterButton({
       </div>
 
       <button
-        className={`text-base min-w-fit xs:w-full xs:py-2 mb-5 py-3  px-10 relative w-p240 ${
+        className={`text-base min-w-fit xs:w-full xs:py-2 mb-5 py-3   relative w-p240 ${
           spinNow || !check ? 'opacity-30 cursor-not-allowed' : ''
         } bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
       
@@ -244,33 +246,41 @@ export function RegisterButton({
         disabled={spinNow || !check}
       >
         {spinNow && <SpinIcon />}
-        <span className={`whitespace-nowrap ml-3  `}>Register</span>
+        <span className={`whitespace-nowrap ml-3  `}>
+          {userExist ? 'connect to orderly' : 'Register'}
+        </span>
       </button>
-      <div className="flex items-start xs:hidden md:hidden  text-sm relative text-white flex-col">
-        <div className="relative mb-3 flex items-center">
-          <div className="mr-2">
-            <CheckFlow checked={!!storageEnough}></CheckFlow>
+      {userExist ? (
+        <div className="text-sm text-white flex items-center justify-center">
+          You may need deposit storage fee first.
+        </div>
+      ) : (
+        <div className="flex items-start xs:hidden md:hidden  text-sm relative text-white flex-col">
+          <div className="relative mb-3 flex items-center">
+            <div className="mr-2">
+              <CheckFlow checked={!!storageEnough}></CheckFlow>
+            </div>
+
+            <div>Deposit storage fee</div>
           </div>
 
-          <div>Deposit storage fee</div>
-        </div>
+          <div className="relative flex mb-5 items-center">
+            <div className="mr-2">
+              <CheckFlow checked={false}></CheckFlow>
+            </div>
 
-        <div className="relative flex mb-5 items-center">
-          <div className="mr-2">
-            <CheckFlow checked={false}></CheckFlow>
+            <div>Register Orderly Account</div>
           </div>
 
-          <div>Register Orderly Account</div>
+          <div
+            className="w-4 transform rotate-90 absolute top-6"
+            style={{
+              border: '1px dashed #566069 ',
+              left: '-2px',
+            }}
+          ></div>
         </div>
-
-        <div
-          className="w-4 transform rotate-90 absolute top-6"
-          style={{
-            border: '1px dashed #566069 ',
-            left: '-2px',
-          }}
-        ></div>
-      </div>
+      )}
     </div>
   );
 }
@@ -567,7 +577,7 @@ export function MyOrderTip({
       id={id}
     >
       <OrderSmile
-        fill={scrollTagID === 'buy-order-book-panel' ? '#00c6a2' : '#F96767'}
+        fill={scrollTagID === 'buy-order-book-panel' ? '#00c6a2' : '#FF6A8E'}
       ></OrderSmile>
       {showDetail && (
         <div
