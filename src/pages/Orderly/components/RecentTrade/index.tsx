@@ -75,7 +75,7 @@ function RecentTrade() {
               >
                 <span
                   className={`justify-self-start ${
-                    trade.side === 'BUY' ? 'text-buyGreen' : 'text-sellRed'
+                    trade.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'
                   }`}
                 >
                   {digitWrapper(trade.executed_price, 3)}

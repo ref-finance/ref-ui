@@ -3019,7 +3019,7 @@ function ConfirmOrderModal(
 
             <span className="flex">
               <TextWrapper
-                textC={side === 'Buy' ? 'text-buyGreen' : 'text-sellRed'}
+                textC={side === 'Buy' ? 'text-buyGreen' : 'text-sellColorNew'}
                 bg={side === 'Buy' ? 'bg-buyGreen' : 'bg-sellRed'}
                 value={side}
               ></TextWrapper>

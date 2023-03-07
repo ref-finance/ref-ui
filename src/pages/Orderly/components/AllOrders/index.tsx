@@ -441,7 +441,7 @@ function OrderLine({
           className="px-2 text-sm"
           value={order.side === 'BUY' ? 'Buy' : 'Sell'}
           bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
-          textC={order.side === 'BUY' ? 'text-buyGreen' : 'text-sellRed'}
+          textC={order.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'}
         ></TextWrapper>
       </td>
       <td
@@ -771,7 +771,7 @@ function HistoryOrderLine({
             className="px-2 text-sm"
             value={order.side === 'BUY' ? 'Buy' : 'Sell'}
             bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
-            textC={order.side === 'BUY' ? 'text-buyGreen' : 'text-sellRed'}
+            textC={order.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'}
           />
         </td>
 
@@ -1184,7 +1184,7 @@ function OpenOrders({
 
           <th>
             <FlexRow
-              className={`col-span-1 py-2 ${
+              className={`col-span-1  ${
                 showCurSymbol ? 'pl-5' : 'left-1/3'
               } relative`}
             >
@@ -1227,7 +1227,7 @@ function OpenOrders({
                     {
                       text: 'Sell',
                       textId: 'Sell',
-                      className: 'text-sellRed',
+                      className: 'text-sellColorNew',
                     },
                   ]}
                 />
@@ -1299,7 +1299,9 @@ function OpenOrders({
           </th>
 
           <th>
-            <FlexRow className={`col-span-2 relative   justify-self-center`}>
+            <FlexRow
+              className={`col-span-2 relative py-2  justify-self-center`}
+            >
               <span>Price</span>
               {showCurSymbol && (
                 <TextWrapper
@@ -1687,7 +1689,7 @@ function HistoryOrders({
                     {
                       text: 'Sell',
                       textId: 'Sell',
-                      className: 'text-sellRed',
+                      className: 'text-sellColorNew',
                     },
                   ]}
                 />
