@@ -543,7 +543,8 @@ export default function UserBoard() {
       : new Big(inputValue || '0').gt(tokenInHolding || '0');
 
   const loading =
-    (storageEnough === undefined || (!!storedValid && !validAccountSig)) &&
+    ((!!accountId && storageEnough === undefined) ||
+      (!!storedValid && !validAccountSig)) &&
     !!accountId;
 
   const priceValidator = (price: string, size: string) => {
