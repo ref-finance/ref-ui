@@ -91,7 +91,6 @@ import * as math from 'mathjs';
 import { NearWalletIcon } from '../Common/Icons';
 import {
   getSelectedWalletId,
-  tmp,
   generateTradingKeyPair,
 } from '../../orderly/utils';
 import { useClientMobile, isMobile } from '../../../../utils/device';

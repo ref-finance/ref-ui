@@ -8,6 +8,9 @@ import { Buffer } from 'buffer';
 import { KeyPair, keyStores } from 'near-api-js';
 import { NotSignInError } from './error';
 
+const priKeyPath = (accountId: string) =>
+  `near-api-js:keystore:${accountId}:${getConfig().networkId}`;
+
 export const tradingKeyMap = new Map();
 
 export const get_orderly_private_key_path = () =>
@@ -29,7 +32,13 @@ export const generateTradingKeyPair = () => {
 
   if (!accountId) throw NotSignInError;
 
-  const keyPair = EC.genKeyPair();
+  const selectedWalletId = getSelectedWalletId();
+
+  let keyPair = EC.genKeyPair();
+
+  if (selectedWalletId === 'neth') {
+    keyPair = EC.keyFromPrivate(priKeyPath(accountId));
+  }
 
   const privateKey = keyPair.getPrivate().toString('hex');
 
@@ -153,19 +162,7 @@ export const generateOrderSignature = (message: string) => {
 
   const mapTradingKey = tradingKeyMap.get(get_orderly_private_key_path());
 
-  if (!storedPrivateKey || !mapTradingKey) {
-    localStorage.setItem(
-      get_orderly_private_key_path(),
-      mapTradingKey || storedPrivateKey
-    );
-
-    tradingKeyMap.set(
-      get_orderly_private_key_path(),
-      mapTradingKey || storedPrivateKey
-    );
-  }
-
-  const priKey = mapTradingKey || storedPrivateKey;
+  const priKey = storedPrivateKey || mapTradingKey;
 
   if (!priKey) {
     alert('Please generate trading key first');
