@@ -20,6 +20,8 @@ export const STORAGE_TO_REGISTER_WITH_MFT = '0.1';
 
 export type OFF_CHAIN_METHOD = 'POST' | 'GET' | 'DELETE' | 'PUT';
 
+export const REF_ORDERLY_NORMALIZED_KEY = 'REF_ORDERLY_NORMALIZED_KEY';
+
 export const generateTradingKeyPair = () => {
   const EC = new ec('secp256k1');
 
@@ -33,6 +35,8 @@ export const generateTradingKeyPair = () => {
 
   const publicKey = keyPair.getPublic().encode('hex', false).replace('04', '');
 
+  // const publicKey = keyPair.getPublic().encode('hex', false).replace('04', '');
+
   localStorage.setItem(get_orderly_private_key_path(), privateKey);
 
   localStorage.setItem(get_orderly_public_key_path(), publicKey);
@@ -40,6 +44,13 @@ export const generateTradingKeyPair = () => {
   tradingKeyMap.set(get_orderly_private_key_path(), privateKey);
 
   tradingKeyMap.set(get_orderly_public_key_path(), publicKey);
+
+  const pubKeyAsHex = publicKey;
+
+  const normalizeTradingKey = window.btoa(
+    keccak256(pubKeyAsHex).toString('hex')
+  );
+  localStorage.setItem(REF_ORDERLY_NORMALIZED_KEY, normalizeTradingKey);
 
   return {
     privateKey,
@@ -49,17 +60,7 @@ export const generateTradingKeyPair = () => {
 };
 
 export const getNormalizeTradingKey = () => {
-  const tradingKeyPair = generateTradingKeyPair();
-
-  // const pubKeyAsHex = tradingKeyPair.publicKey.replace('04', '');
-
-  const pubKeyAsHex = tradingKeyPair.publicKey;
-
-  const normalizeTradingKey = window.btoa(
-    keccak256(pubKeyAsHex).toString('hex')
-  );
-
-  return normalizeTradingKey;
+  return localStorage.getItem(REF_ORDERLY_NORMALIZED_KEY);
 };
 
 export const getSelectedWalletId = () => {

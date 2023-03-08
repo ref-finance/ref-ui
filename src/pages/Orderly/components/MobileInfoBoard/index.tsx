@@ -40,7 +40,6 @@ import {
   announceKey,
   depositFT,
   depositOrderly,
-  registerOrderly,
   setTradingKey,
   storageDeposit,
   withdrawOrderly,

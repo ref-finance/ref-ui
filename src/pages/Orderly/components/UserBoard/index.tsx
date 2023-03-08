@@ -17,7 +17,6 @@ import {
   announceKey,
   depositFT,
   depositOrderly,
-  registerOrderly,
   setTradingKey,
   storageDeposit,
   withdrawOrderly,
@@ -90,7 +89,11 @@ import { useAllSymbolInfo } from '../AllOrders/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import * as math from 'mathjs';
 import { NearWalletIcon } from '../Common/Icons';
-import { getSelectedWalletId } from '../../orderly/utils';
+import {
+  getSelectedWalletId,
+  tmp,
+  generateTradingKeyPair,
+} from '../../orderly/utils';
 import { useClientMobile, isMobile } from '../../../../utils/device';
 
 function getTipFOK() {

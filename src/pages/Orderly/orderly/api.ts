@@ -237,7 +237,7 @@ const storageDeposit = async (accountId: string) => {
 
   const deposit_functionCall_announce_key = orderly_storage_deposit(
     accountId,
-    utils.format.formatNearAmount(announce_key_amount)
+    '0.01'
   );
 
   // await account.functionCall(ORDERLY_ASSET_MANAGER, 'storage_deposit', {}, new BN(deposit_functionCall.gas), new BN(deposit_functionCall.));
@@ -256,7 +256,9 @@ const storageDeposit = async (accountId: string) => {
 
   if (
     !user_exists ||
-    new Big(storage_balance?.available || '0').lt(new Big(announce_key_amount))
+    new Big(storage_balance?.available || '0').lt(
+      new Big(utils.format.parseNearAmount('0.01'))
+    )
   ) {
     functionCallList.push(deposit_functionCall_announce_key);
 
@@ -320,7 +322,9 @@ const checkStorageDeposit = async (accountId: string) => {
 
   if (
     !user_exists ||
-    new Big(storage_balance?.available || '0').lt(new Big(announce_key_amount))
+    new Big(storage_balance?.available || '0').lt(
+      new Big(utils.format.parseNearAmount('0.01'))
+    )
   ) {
     functionCallList.push(deposit_functionCall_announce_key);
   }
@@ -329,22 +333,6 @@ const checkStorageDeposit = async (accountId: string) => {
   console.log('functionCallList.length: ', functionCallList.length);
 
   return false;
-};
-
-const registerOrderly = async (accountId: string) => {
-  // let wsTransactions: WSTransaction[] = [];
-
-  const account = await near.account(accountId);
-
-  await account.functionCall(ORDERLY_ASSET_MANAGER, 'user_announce_key', {});
-
-  await account.functionCall(
-    ORDERLY_ASSET_MANAGER,
-    'user_request_set_trading_key',
-    {
-      key: getNormalizeTradingKey(),
-    }
-  );
 };
 
 const depositNEAR = async (amount: string) => {
@@ -511,7 +499,6 @@ export {
   signAndSendTransactions,
   withdrawOrderly,
   depositOrderly,
-  registerOrderly,
   announceKey,
   storageDeposit,
   depositNEAR,

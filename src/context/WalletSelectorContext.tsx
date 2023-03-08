@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { map, distinctUntilChanged } from 'rxjs';
+import { map, distinctUntilChanged, windowWhen } from 'rxjs';
 
 import {
   NetworkId,
@@ -34,6 +34,10 @@ import {
 import { walletIcons } from './walletIcons';
 import { getOrderlyConfig } from '../pages/Orderly/config';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../pages/Orderly/components/UserBoard/index';
+import {
+  REF_ORDERLY_NORMALIZED_KEY,
+  generateTradingKeyPair,
+} from '../pages/Orderly/orderly/utils';
 import {
   get_orderly_private_key_path,
   get_orderly_public_key_path,
@@ -203,6 +207,19 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
   }
 
   window.selectorAccountId = accountId;
+
+  const pubkey = localStorage.getItem(get_orderly_public_key_path());
+
+  if (!pubkey && window.selectorAccountId) {
+    generateTradingKeyPair();
+  }
+
+  selector.on('signedOut', () => {
+    localStorage.removeItem(get_orderly_private_key_path());
+    localStorage.removeItem(get_orderly_public_key_path());
+    localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
+    localStorage.removeItem(REF_ORDERLY_NORMALIZED_KEY);
+  });
 
   return (
     <WalletSelectorContext.Provider
