@@ -634,7 +634,7 @@ export function AssetModal(props: Modal.Props) {
                 })
             ))}
 
-          {tag === 'records' && (
+          {tag === 'records' && records.length > 0 && (
             <div className="border-t xs:hidden  absolute bottom-0 right-0 flex items-center px-5 mr-4 justify-end border-gray1 py-3">
               <span
                 className="cursor-pointer"
