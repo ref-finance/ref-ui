@@ -35,7 +35,11 @@ import { ExclamationTip } from '../../components/layout/TipWrapper';
 import { MyOrderInstantSwapArrowRight } from '../../components/icon/swapV3';
 import { TOKEN_LIST_FOR_RATE } from '../../services/commonV3';
 import { getLimitOrderLogsByAccount } from '../../services/indexer';
-import { PurpleCircleIcon, LinkIcon } from '../../components/icon/Portfolio';
+import {
+  PurpleCircleIcon,
+  LinkIcon,
+  ArrowRightForOrder,
+} from '../../components/icon/Portfolio';
 import BigNumber from 'bignumber.js';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
@@ -45,6 +49,7 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import getConfig from '~services/config';
+import { isMobile } from '~utils/device';
 const { explorerUrl } = getConfig();
 
 export default function Orders(props: any) {
@@ -76,10 +81,10 @@ export default function Orders(props: any) {
       getLimitOrderLogsByAccount()
         .then((res) => {
           const temp_map = res.reduce((acc, cur) => {
-            const { order_id, receipt_id } = cur;
+            const { order_id, tx_id } = cur;
             return {
               ...acc,
-              [order_id]: receipt_id,
+              [order_id]: tx_id,
             };
           }, {});
           setActiveOrderTxMap(temp_map);
@@ -124,12 +129,15 @@ export default function Orders(props: any) {
     });
     return total_value.toFixed();
   }
+  const is_mobile = isMobile();
   return (
-    <OrderCard
-      tokensMap={tokensMap}
-      activeOrder={activeOrder}
-      activeOrderTxMap={activeOrderTxMap}
-    />
+    <>
+      <OrderCard
+        tokensMap={tokensMap}
+        activeOrder={activeOrder}
+        activeOrderTxMap={activeOrderTxMap}
+      />
+    </>
   );
 }
 function OrderCard({
@@ -169,6 +177,7 @@ function OrderCard({
     return scientificNotationToString(buy_amount);
   };
 
+  // todo
   function ActiveLine({
     order,
     index,
@@ -693,6 +702,78 @@ function OrderCard({
         </div>
       </div>
     );
+    const swapBannerMobile = (
+      <>
+        <div className="flex items-center justify-between">
+          <span className="flex items-center text-sm text-v3SwapGray">
+            <FormattedMessage
+              id="initial_order"
+              defaultMessage={'Initial Order'}
+            />
+            <ExclamationTip
+              id="this_order_has_been_partially_filled"
+              defaultMessage="This order has been partially filled "
+              dataPlace="right"
+              colorhex="#7E8A93"
+            />
+          </span>
+          <div className="flex items-center text-sm text-v3SwapGray">
+            <span title={totalIn} className="text-white xs:text-v3SwapGray">
+              {Number(totalIn) > 0 && Number(totalIn) < 0.01
+                ? '< 0.01'
+                : toPrecision(totalIn, 2)}
+            </span>
+            <span className="mx-2 text-white xs:text-v3SwapGray">
+              <MyOrderInstantSwapArrowRight />
+            </span>
+            <span
+              title={toPrecision(totalOut, buyToken.decimals)}
+              className="text-white xs:text-v3SwapGray"
+            >
+              {Number(totalOut) > 0 && Number(totalOut) < 0.01
+                ? '< 0.01'
+                : toPrecision(totalOut, 2)}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="flex items-center text-sm text-v3SwapGray">
+            Instant Swap
+            <ExclamationTip
+              colorhex="#7E8A93"
+              id={instant_swap_tip()}
+              defaultMessage={instant_swap_tip()}
+            />
+          </span>
+          <div className="flex items-center text-sm text-v3SwapGray">
+            <BsCheckCircle className="mr-3" fill="#42bb17" stroke="#42BB17" />
+            <span title={swapIn} className="text-v3SwapGray">
+              {Number(swapIn) > 0 && Number(swapIn) < 0.01
+                ? '< 0.01'
+                : toPrecision(swapIn, 2)}
+            </span>
+            <span className="mx-2 text-v3SwapGray">
+              <MyOrderInstantSwapArrowRight />
+            </span>
+            <span title={swapOut} className="text-v3SwapGray">
+              {Number(swapOut) > 0 && Number(swapOut) < 0.01
+                ? '< 0.01'
+                : toPrecision(swapOut, 2)}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="flex items-center text-sm text-v3SwapGray">
+            Claimed
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="flex items-center text-sm text-v3SwapGray">
+            Filled
+          </span>
+        </div>
+      </>
+    );
 
     const MobileInfoBanner = ({
       text,
@@ -715,7 +796,7 @@ function OrderCard({
       <>
         {/* PC */}
         <div
-          className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
+          className={`rounded-xl mt-3 bg-portfolioBgColor px-5 xsm:hidden ${
             switch_off ? '' : 'pb-4'
           }`}
         >
@@ -755,54 +836,59 @@ function OrderCard({
             {created}
           </div>
         </div>
-        {/* Mobile */}
-        <div
-          className="w-full mb-4 md:hidden lg:hidden"
-          style={{
-            zIndex: 20 - index,
-          }}
-        >
+        {/* Mobile todo*/}
+        <div className="lg:hidden mx-5 mb-3 rounded-lg bg-portfolioBgColor">
           {/* title */}
-          <div className="rounded-t-xl bg-orderMobileTop px-3 pt-3">
-            <div className="flex items-center relative justify-between">
+          <div className="p-3">
+            <div className="flex items-center justify-between">
               {sellTokenAmount}
-              <MyOrderMobileArrow />
+              <ArrowRightForOrder></ArrowRightForOrder>
               {buyTokenAmount}
             </div>
-
+            <div className="flex items-center justify-between">
+              {unclaim}
+              <UpDownButton
+                set_switch_off={set_switch_off}
+                switch_off={switch_off}
+              ></UpDownButton>
+            </div>
+          </div>
+          {/* content */}
+          <div className="p-3">
+            <div className="flex items-center justify-between pb-4 border-b border-limitOrderFeeTiersBorderColor">
+              <span className="text-sm text-v3SwapGray">Order Progress</span>
+              <div className="flex items-center">
+                from{' '}
+                <span className="text-xs text-v3SwapGray px-0.5 bg-menuMoreBgColor rounded ml-1.5">
+                  NEAR
+                </span>
+              </div>
+              <div className="flex items-center">
+                to{' '}
+                <span className="text-xs text-v3SwapGray px-0.5 bg-menuMoreBgColor rounded ml-1.5">
+                  REF
+                </span>
+              </div>
+            </div>
+            <div className="border-b border-limitOrderFeeTiersBorderColor">
+              {swapBannerMobile}
+            </div>
+          </div>
+          {/* created time */}
+          <div className="flex items-center justify-between">
             {created}
+            <span
+              onClick={() => {
+                const txHash = activeOrderTxMap[order.order_id];
+                window.open(`${explorerUrl}/txns/${txHash}`);
+              }}
+              className={`flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white  py-0.5  mr-1.5 ${
+                tx_record ? '' : ''
+              }`}
+            >
+              Onchain Record <LinkIcon className="ml-1"></LinkIcon>
+            </span>
           </div>
-          {/*  content */}
-          <div className="rounded-b-xl p-3 bg-cardBg">
-            <MobileInfoBanner
-              text={
-                <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
-              }
-              value={feeTier}
-            />
-
-            <MobileInfoBanner
-              text={`1 ${toRealSymbol(
-                sort ? buyToken.symbol : tokensMap[order.sell_token].symbol
-              )} Price`}
-              value={orderRate}
-            />
-
-            <MobileInfoBanner
-              text={
-                <FormattedMessage
-                  defaultMessage={'Claimed'}
-                  id="claimed_upper"
-                />
-              }
-              value={unclaim}
-            />
-
-            {unclaimTip}
-          </div>
-
-          {/* swap banner */}
-          {!ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
         </div>
       </>
     );
@@ -848,7 +934,7 @@ function OrderCard({
               {activeOrder ? (
                 <>
                   <div
-                    className={`flex items-center justify-between  pl-6 xs:hidden text-v3SwapGray text-sm  whitespace-nowrap`}
+                    className={`flex items-center justify-between  pl-6 xs:hidden text-v3SwapGray text-sm  whitespace-nowrap xsm:hidden`}
                   >
                     <div className="flex items-center">
                       <span className="text-left">
@@ -880,6 +966,7 @@ function OrderCard({
                       </div>
                     </div>
                   </div>
+                  {/* todo */}
                   {activeOrder.sort(activeOrderSorting).map((order, index) => {
                     return (
                       <ActiveLine

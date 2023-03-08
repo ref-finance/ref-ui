@@ -17,7 +17,7 @@ import { isMobile } from '~utils/device';
 export const PortfolioData = createContext(null);
 function Portfolio() {
   // variables only used in mobile site start
-  const [main_active_tab, set_main_active_tab] = useState('overview'); // overview,positions,token
+  const [main_active_tab, set_main_active_tab] = useState('positions'); // overview,positions,token
 
   // variables only used in mobile site end
   const [activeTab, setActiveTab] = useState(1); // 1,2,3
@@ -147,9 +147,9 @@ function PortfolioMobile() {
         <AssetChart></AssetChart>
         <AssetProfit></AssetProfit>
       </div>
-      <div
-        className={`${main_active_tab == 'positions' ? '' : 'hidden'}`}
-      ></div>
+      <div className={`${main_active_tab == 'positions' ? '' : 'hidden'}`}>
+        <Orders></Orders>
+      </div>
       <div className={`${main_active_tab == 'token' ? '' : 'hidden'}`}>
         <Tokens></Tokens>
       </div>
