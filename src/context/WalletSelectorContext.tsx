@@ -208,12 +208,6 @@ export const WalletSelectorContextProvider: React.FC<any> = ({ children }) => {
 
   window.selectorAccountId = accountId;
 
-  const pubkey = localStorage.getItem(get_orderly_public_key_path());
-
-  if (!pubkey && window.selectorAccountId) {
-    generateTradingKeyPair();
-  }
-
   selector.on('signedOut', () => {
     localStorage.removeItem(get_orderly_private_key_path());
     localStorage.removeItem(get_orderly_public_key_path());

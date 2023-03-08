@@ -207,11 +207,13 @@ export function TextWrapper({
   value,
   bg,
   textC,
+  bgOpacity,
 }: {
   value: string;
   bg?: string;
   textC?: string;
   className?: string;
+  bgOpacity?: string;
 }) {
   return (
     <span
@@ -219,7 +221,7 @@ export function TextWrapper({
         className || ' px-1.5  '
       }  inline-flex items-center justify-center rounded-md ${
         bg || 'bg-primaryOrderly '
-      } bg-opacity-10 ${textC || 'text-white'} `}
+      } ${bgOpacity || 'bg-opacity-10'} ${textC || 'text-white'} `}
     >
       {value}
     </span>

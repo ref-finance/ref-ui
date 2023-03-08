@@ -193,11 +193,15 @@ export function RegisterButton({
   storageEnough,
   spin,
   check,
+  isOpenMobile,
+  setIsOpenMobile,
 }: {
   onClick: () => void;
   spin?: boolean;
   storageEnough: boolean;
   check: boolean;
+  isOpenMobile?: boolean;
+  setIsOpenMobile?: (isOpen: boolean) => void;
 }) {
   const [spinNow, setSpinNow] = useState<boolean>(!!spin);
 
@@ -209,7 +213,13 @@ export function RegisterButton({
 
   return (
     <div className="flex flex-col items-center xs:w-full  relative ">
-      <div className="flex items-start text-sm lg:hidden relative text-white flex-col">
+      <div
+        className={
+          !isOpenMobile
+            ? 'hidden'
+            : 'flex items-start text-sm lg:hidden relative text-white flex-col'
+        }
+      >
         <div className="relative mb-3 flex items-center">
           <div className="mr-2">
             <CheckFlow checked={!!storageEnough}></CheckFlow>
@@ -244,17 +254,20 @@ export function RegisterButton({
         onClick={(e) => {
           e.stopPropagation();
           setSpinNow(true);
+          setIsOpenMobile && setIsOpenMobile(true);
+
+          if (spinNow || !check) return;
           onClick();
         }}
         type="button"
-        disabled={spinNow || !check}
+        disabled={(spinNow || !check) && isOpenMobile === undefined}
       >
         {spinNow && <SpinIcon />}
         <span className={`whitespace-nowrap ml-3  `}>
           {userExist ? 'connect to orderly' : 'Register'}
         </span>
       </button>
-      {userExist ? (
+      {userExist && isOpenMobile ? (
         <div className="text-sm text-white flex items-center justify-center">
           You may need to deposit storage fee first.
         </div>
@@ -687,6 +700,7 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
       )}; ${localStorage.getItem(get_orderly_public_key_path())}`
     );
   }
+  const mobileDevice = isMobile();
 
   return toast(
     <div className={`flex-col flex px-2  text-sm   w-full`}>
@@ -697,7 +711,7 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
     {
       closeOnClick: true,
       hideProgressBar: true,
-      position: 'bottom-right',
+      position: mobileDevice ? 'top-center' : 'bottom-right',
       progress: undefined,
       autoClose: 3000,
       closeButton: false,
@@ -705,14 +719,11 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
         boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
         borderRadius: '4px',
         zIndex: 9999,
-        right: '-40px',
+        right: mobileDevice ? '0px' : '-40px',
         overflow: 'hidden',
-        width: '90%',
-        minHeight: '40px',
-        background: 'rgba(249, 103, 103, 0.15)',
-        bottom: !!document.getElementsByClassName('orderly-order-toast')?.[0]
-          ? '-70px'
-          : '0px',
+        width: mobileDevice ? '100%' : '90%',
+        background: 'rgba(30, 41, 49, 1)',
+        bottom: !mobileDevice ? '-70px' : '0px',
       },
     }
   );

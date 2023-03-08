@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
-
+import Modal from 'react-modal';
 import { parseSymbol } from '../RecentTrade';
 import { nearMetadata, getFTmetadata, toPrecision } from '../../near';
 
@@ -16,6 +16,8 @@ import { Ticker } from '../../orderly/type';
 import { TokenIcon } from '../Common';
 import useCallback from 'react';
 import { digitWrapper } from '../../utiles';
+import { AllMarketIcon, CheckSelector } from '../Common/Icons';
+import { useClientMobile } from '../../../../utils/device';
 
 function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -153,6 +155,152 @@ function SymbolSelector(props: {
   );
 }
 
+export function SymbolSelectorMobileModal(
+  props: {
+    setSymbol: (symbolName: string) => void;
+    fromList?: boolean;
+    curSymbol?: string;
+    all?: boolean;
+    fromListClick?: () => void;
+  } & Modal.Props
+) {
+  const { setSymbol, curSymbol, all, fromList, fromListClick } = props;
+
+  const { allTickers, tokenInfo } = useOrderlyContext();
+
+  const [SymbolList, setSymbolList] = useState<JSX.Element>();
+
+  function SymbolLine({ ticker }: { ticker: Ticker }) {
+    const { symbolFrom, symbolTo } = parseSymbol(ticker.symbol);
+    const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
+
+    return (
+      <div
+        className={`px-5 text-sm w-full  text-white py-1.5 flex items-center justify-between
+        ${curSymbol === ticker.symbol && !all ? 'bg-charSymbolSelectorBg' : ''}
+        
+        `}
+        onClick={(e: any) => {
+          setSymbol(ticker.symbol);
+          props.onRequestClose && props.onRequestClose(e);
+        }}
+      >
+        <div className="flex items-center">
+          <TokenIcon src={tokenIn?.icon} />
+
+          <div className="ml-2 whitespace-nowrap">
+            <span>{symbolFrom}</span>
+
+            <span className="text-primaryOrderly">{`/${symbolTo}`} </span>
+          </div>
+
+          {curSymbol === ticker.symbol && !all && (
+            <span className="ml-2">
+              <CheckSelector></CheckSelector>
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-col text-xs items-end">
+          <span>${ticker.close}</span>
+          <TickerDisplayComponent ticker={ticker} />
+        </div>
+      </div>
+    );
+  }
+  const [searchValue, setSearchValue] = useState<string>();
+
+  useEffect(() => {
+    if (!allTickers) return;
+    else {
+      setSymbolList(
+        <>
+          {fromList && (
+            <div
+              className={`px-5 text-sm text-white   py-3 flex w-full items-center 
+            ${all ? 'bg-charSymbolSelectorBg' : ''}
+            `}
+              onClick={(e: any) => {
+                fromListClick && fromListClick();
+                props.onRequestClose && props.onRequestClose(e);
+              }}
+            >
+              <div className="mr-2 ml-1 text-white text-sm ">
+                <AllMarketIcon />
+              </div>
+              <span className="text-white mr-2">All Instrument</span>
+
+              {all && <CheckSelector></CheckSelector>}
+            </div>
+          )}
+          {allTickers
+            ?.filter((t) =>
+              t.symbol
+                .toLowerCase()
+                .includes(searchValue?.toLocaleLowerCase() || '')
+            )
+            .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
+            .map((t) => {
+              return <SymbolLine ticker={t} key={t.symbol}></SymbolLine>;
+            })}
+        </>
+      );
+    }
+  }, [allTickers?.map((t) => t.symbol).join('-'), searchValue]);
+
+  return (
+    <Modal
+      {...props}
+      style={{
+        content: {
+          position: 'fixed',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          top: 'none',
+          bottom: '0px',
+          left: '0px',
+          transform: 'translate(-50%, -20px)',
+          outline: 'none',
+          height: '60vh',
+        },
+      }}
+    >
+      <div
+        className="bg-darkBg overflow-auto  xs:w-screen xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-sm text-white  rounded-lg   border border-borderC  py-4  w-p240"
+        style={{
+          height: '60vh',
+        }}
+      >
+        {/* search filed */}
+        <div className="font-bold mb-2 px-5">Select Instrument</div>
+
+        <div className="border border-borderC mx-5 mb-2 px-2 flex items-center justify-between bg-black bg-opacity-20  rounded-lg py-2">
+          <input
+            type="text"
+            className="bg-transparent w-full text-white "
+            placeholder="Token"
+            onChange={(e) => {
+              setSearchValue(e.target.value);
+            }}
+            value={searchValue}
+          />
+
+          <IoCloseSharp
+            size={22}
+            onClick={() => {
+              setSearchValue('');
+            }}
+            color="#7E8A93"
+          />
+        </div>
+
+        {SymbolList}
+      </div>
+    </Modal>
+  );
+}
+
 function ChartHeader() {
   const { symbol, setSymbol, tokenInfo, ticker } = useOrderlyContext();
 
@@ -197,6 +345,8 @@ function ChartHeader() {
 
   const [hoverSymbol, setHoverSymbol] = useState<boolean>(false);
 
+  const isMobile = useClientMobile();
+
   return (
     <div className="flex items-center  text-white text-sm">
       {/* icon */}
@@ -207,10 +357,19 @@ function ChartHeader() {
         
           px-3 py-2
         `}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (isMobile) {
+            setHoverSymbol(!hoverSymbol);
+          }
+        }}
         onMouseEnter={() => {
+          if (isMobile) return;
           setHoverSymbol(true);
         }}
         onMouseLeave={() => {
+          if (isMobile) return;
           setHoverSymbol(false);
         }}
       >
@@ -233,7 +392,7 @@ function ChartHeader() {
           size={20}
           className="ml-2"
         />
-        {hoverSymbol && (
+        {hoverSymbol && !isMobile && (
           <SymbolSelector
             mouseLeave={() => {
               setHoverSymbol(false);
@@ -243,6 +402,19 @@ function ChartHeader() {
           />
         )}
       </div>
+
+      {hoverSymbol && isMobile && (
+        <SymbolSelectorMobileModal
+          setSymbol={setSymbol}
+          curSymbol={symbol}
+          all={false}
+          fromList={false}
+          isOpen={hoverSymbol}
+          onRequestClose={() => {
+            setHoverSymbol(false);
+          }}
+        />
+      )}
 
       {ticker && (
         <div

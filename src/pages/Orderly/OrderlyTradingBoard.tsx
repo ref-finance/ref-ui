@@ -28,6 +28,7 @@ import {
 import { useHistory } from 'react-router-dom';
 
 import MobileInfoBoard from './components/MobileInfoBoard';
+import { generateTradingKeyPair } from './orderly/utils';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();
@@ -80,15 +81,21 @@ function TradingBoard() {
 
 function MobileTradingBoard() {
   return (
-    <div className="w-95vw flex flex-col lg:hidden">
-      <ChartHeader></ChartHeader>
+    <>
+      <div className="w-95vw mx-auto flex flex-col lg:hidden">
+        <ChartHeader></ChartHeader>
 
-      {/* info board */}
+        {/* info board */}
 
-      <MobileInfoBoard />
+        <MobileInfoBoard />
 
-      {/* operation board */}
-    </div>
+        {/* operation board */}
+      </div>
+
+      <div className="w-full flex flex-col lg:hidden">
+        <AllOrderBoard />
+      </div>
+    </>
   );
 }
 
@@ -96,7 +103,7 @@ function OrderlyTradingBoard() {
   const priKeyPath = get_orderly_private_key_path();
 
   const pubKeyPath = get_orderly_public_key_path();
-  const { selector } = useWalletSelector();
+  const { selector, accountId } = useWalletSelector();
 
   const isMobile = useClientMobile();
 
@@ -107,6 +114,14 @@ function OrderlyTradingBoard() {
 
     localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
   });
+
+  React.useEffect(() => {
+    const pubkey = localStorage.getItem(get_orderly_public_key_path());
+
+    if (!pubkey && accountId) {
+      generateTradingKeyPair();
+    }
+  }, [accountId]);
 
   window.onbeforeunload = () => {
     tradingKeyMap.get(priKeyPath) &&

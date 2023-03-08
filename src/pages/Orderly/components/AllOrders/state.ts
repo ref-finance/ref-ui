@@ -27,7 +27,7 @@ export function useOrderBook({
   openSig,
 }: {
   symbol: string;
-  openSig: boolean[];
+  openSig: any[];
 }) {
   const [orderBook, setOrderBook] = useState<RequestOrder>();
   const { accountId } = useWalletSelector();

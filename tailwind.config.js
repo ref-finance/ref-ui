@@ -270,7 +270,7 @@ module.exports = {
         border3: '#293844',
         border4: 'rgba(23, 35, 39, 1)',
         withdrawPurple: '#4627FF',
-
+        charSymbolSelectorBg: '#1A242B',
         warn: '#FFA24D',
         darkBg: '#222F38',
         borderC: '#304352',
@@ -326,9 +326,11 @@ module.exports = {
         portfolioLightGreenColor: '#5FAB43',
         navGreyColor: '#2B3741',
         selectBg: '#031928',
-        one_level_menu_color:'#2C3841',
-        two_level_menu_color:'#38444D',
-        border_grey_color:'#24313A',
+        one_level_menu_color: '#2C3841',
+        two_level_menu_color: '#38444D',
+        border_grey_color: '#24313A',
+        mobileOrderListTab: '#182935',
+        mobileOrderListBg: '#12222E',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

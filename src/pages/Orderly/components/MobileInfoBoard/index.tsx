@@ -35,7 +35,7 @@ import {
   percentOfBigNumber,
 } from '../../near';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
-
+import { HiDownload } from 'react-icons/hi';
 import {
   announceKey,
   depositFT,
@@ -95,6 +95,7 @@ import { NearWalletIcon } from '../Common/Icons';
 import { getSelectedWalletId } from '../../orderly/utils';
 import { BuyButton, SellButton } from '../UserBoard/Button';
 import { MobileUserBoard } from '../UserBoard/index';
+import AllOrderBoard from '../AllOrders';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
@@ -186,95 +187,152 @@ function CurAsset() {
     JSON.stringify(balances)
   );
 
+  const allHoldings =
+    holdings &&
+    holdings.reduce((acc, cur, i) => {
+      return acc + cur.holding + cur.pending_short;
+    }, 0);
+
+  const valid = !!accountId && (holdings === undefined || allHoldings > 0);
+
   return (
-    <div
-      className="w-full flex flex-col "
-      style={{
-        minHeight: '35vh',
-      }}
-    >
-      <div className="text-sm text-white font-bold mb-4 text-left flex items-center justify-between">
-        <div className="flex items-center">
-          <DepositButton
-            onClick={() => {
+    <>
+      {(!accountId || !validAccountSig) && (
+        <div
+          style={{
+            minHeight: '35vh',
+          }}
+          className="flex flex-col text-center items-center justify-center text-primaryText"
+        >
+          Welcome!
+          <br />
+          Connect your wallet to start
+        </div>
+      )}
+
+      {!!accountId && holdings && allHoldings === 0 && validAccountSig && (
+        <div
+          style={{
+            minHeight: '35vh',
+          }}
+          className="flex flex-col items-center justify-center text-primaryText"
+        >
+          <span className="text-center">
+            Deposit assets to begin your
+            <br />
+            trading journey.
+          </span>
+
+          <button
+            className="flex items-center justify-center py-2 mt-2 px-8 text-white bg-primaryGradient rounded-lg"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               setOperationType('deposit');
               setOperationId(tokenIn?.id || '');
             }}
-          ></DepositButton>
+          >
+            <span className="mr-2">Deposit</span>
 
-          <WithdrawButton
-            onClick={() => {
-              setOperationType('withdraw');
-              setOperationId(tokenIn?.id || '');
-            }}
-          ></WithdrawButton>
+            <HiDownload />
+          </button>
         </div>
-
-        <span
-          className="text-base font-normal text-gradientFromHover "
-          onClick={() => {
-            setShowAllAssets(true);
+      )}
+      {valid && validAccountSig && holdings && (
+        <div
+          className="w-full flex flex-col "
+          style={{
+            minHeight: '35vh',
           }}
         >
-          See all
-        </span>
-      </div>
+          <div className="text-sm text-white font-bold mb-4 text-left flex items-center justify-between">
+            <div className="flex items-center">
+              <DepositButton
+                onClick={() => {
+                  setOperationType('deposit');
+                  setOperationId(tokenIn?.id || '');
+                }}
+              ></DepositButton>
 
-      <div className="grid grid-cols-4 text-sm text-primaryOrderly mb-2">
-        <span className="col-span-2  justify-self-start">Assets</span>
+              <WithdrawButton
+                onClick={() => {
+                  setOperationType('withdraw');
+                  setOperationId(tokenIn?.id || '');
+                }}
+              ></WithdrawButton>
+            </div>
 
-        <span className="justify-self-end flex items-center relative right-10">
-          {' '}
-          <NearIConSelectModal /> <span className="ml-2">Wallet</span>{' '}
-        </span>
+            <span
+              className="text-base font-normal text-gradientFromHover "
+              onClick={() => {
+                setShowAllAssets(true);
+              }}
+            >
+              See all
+            </span>
+          </div>
 
-        <span className="justify-self-end flex items-center">
-          <OrderlyIconBalance></OrderlyIconBalance>
-          <span className="ml-2">Available</span>{' '}
-        </span>
-      </div>
+          <div className="grid grid-cols-4 text-sm text-primaryOrderly mb-2">
+            <span className="col-span-2  justify-self-start">Assets</span>
 
-      <div className="grid grid-cols-4 items-center mb-5 text-white text-sm justify-between">
-        <div className="flex items-center justify-self-start col-span-2">
-          <img
-            src={tokenIn?.icon}
-            alt=""
-            className="rounded-full w-6 h-6 mr-2"
-          />
-          <span>{symbolFrom}</span>
+            <span className="justify-self-end flex items-center relative right-10">
+              {' '}
+              <NearIConSelectModal /> <span className="ml-2">Wallet</span>{' '}
+            </span>
+
+            <span className="justify-self-end flex items-center">
+              <OrderlyIconBalance></OrderlyIconBalance>
+              <span className="ml-2">Available</span>{' '}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-4 items-center mb-5 text-white text-sm justify-between">
+            <div className="flex items-center justify-self-start col-span-2">
+              <img
+                src={tokenIn?.icon}
+                alt=""
+                className="rounded-full w-6 h-6 mr-2"
+              />
+              <span>{symbolFrom}</span>
+            </div>
+
+            <div className="justify-self-end relative right-10">
+              {!!tokenFromBalance ? digitWrapper(tokenFromBalance, 2) : '-'}
+            </div>
+
+            <div className="flex items-center justify-self-end">
+              <span>
+                {tokenInHolding
+                  ? digitWrapper(tokenInHolding.toString(), 2)
+                  : 0}
+              </span>
+            </div>
+          </div>
+
+          <div className=" items-center text-white text-sm justify-between grid grid-cols-4">
+            <div className="flex items-center justify-self-start col-span-2">
+              <img
+                src={tokenOut?.icon}
+                className="rounded-full w-6 h-6 mr-2"
+                alt=""
+              />
+              <span>{symbolTo}</span>
+            </div>
+
+            <div className="justify-self-end relative right-10">
+              {!!tokenToBalance ? digitWrapper(tokenToBalance, 2) : ''}
+            </div>
+
+            <div className="flex items-center justify-self-end">
+              <span>
+                {tokenOutHolding
+                  ? digitWrapper(tokenOutHolding.toString(), 2)
+                  : 0}
+              </span>
+            </div>
+          </div>
         </div>
-
-        <div className="justify-self-end relative right-10">
-          {!!tokenFromBalance ? digitWrapper(tokenFromBalance, 2) : '-'}
-        </div>
-
-        <div className="flex items-center justify-self-end">
-          <span>
-            {tokenInHolding ? digitWrapper(tokenInHolding.toString(), 2) : 0}
-          </span>
-        </div>
-      </div>
-
-      <div className=" items-center text-white text-sm justify-between grid grid-cols-4">
-        <div className="flex items-center justify-self-start col-span-2">
-          <img
-            src={tokenOut?.icon}
-            className="rounded-full w-6 h-6 mr-2"
-            alt=""
-          />
-          <span>{symbolTo}</span>
-        </div>
-
-        <div className="justify-self-end relative right-10">
-          {!!tokenToBalance ? digitWrapper(tokenToBalance, 2) : ''}
-        </div>
-
-        <div className="flex items-center justify-self-end">
-          <span>
-            {tokenOutHolding ? digitWrapper(tokenOutHolding.toString(), 2) : 0}
-          </span>
-        </div>
-      </div>
+      )}
 
       <AssetManagerModal
         isOpen={operationType === 'deposit'}
@@ -312,7 +370,7 @@ function CurAsset() {
           setShowAllAssets(false);
         }}
       ></AssetModal>
-    </div>
+    </>
   );
 }
 
@@ -354,8 +412,11 @@ function RegisterWrapper() {
 
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
+  const { userExist } = useOrderlyContext();
+
   const loading =
-    storageEnough === undefined || (!!storedValid && !validAccountSig);
+    (storageEnough === undefined && !!accountId) ||
+    (!!storedValid && !validAccountSig);
 
   useEffect(() => {
     if (!accountId || !storageEnough || !agreeCheck) return;
@@ -448,136 +509,331 @@ function RegisterWrapper() {
 
   // if (!validator && loading) return null;
 
+  if (!validator && !loading) return null;
+
   return (
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={() => {}}
-      style={{
-        content: {
-          position: 'fixed',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          top: 'none',
-          bottom: '0px',
-          left: '50%',
-          transform: 'translate(-50%, -30px)',
-          outline: 'none',
-        },
-      }}
-    >
-      <div className=" rounded-t-2xl lg:w-p410 xs:w-screen gradientBorderWrapperNoShadowOrderly bg-boxBorder text-sm text-primaryOrderly  ">
-        {loading && (
-          <div
-            className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
-            style={{
-              background: 'rgba(0, 19, 32, 0.8)',
-              backdropFilter: 'blur(5px)',
-              zIndex: 90,
-              minHeight: '200px',
-            }}
-          >
-            <OrderlyLoading></OrderlyLoading>
-          </div>
-        )}
-
-        {validator && !loading && (
-          <div
-            className="rounded-t-2xl   flex flex-col justify-center items-center h-full w-full px-5 py-4 "
-            style={{
-              background: 'rgba(0, 19, 32, 0.8)',
-              backdropFilter: 'blur(5px)',
-              zIndex: 80,
-            }}
-          >
-            <div className="flex items-center justify-center pt-2">
-              {!(!accountId || !validContract()) && (
-                <RefToOrderly></RefToOrderly>
-              )}
-            </div>
-            {!!accountId &&
-              validContract() &&
-              (!storageEnough || !tradingKeySet || !keyAnnounced) && (
-                <div className="text-white mb-4 px-8 text-sm text-start">
-                  <div>
-                    This orderbook page is a graphical user interface of Orderly
-                    Network, that allows users to trade on the convenience of
-                    its infrastructures. You are creating an Orderly account
-                    now.
-                    <br />
-                    Learn more about
-                    <span className="underline">Orderly Network</span>
-                  </div>
-                  <div className="flex items-center justify-center  mt-2">
-                    <div
-                      className="mr-2 cursor-pointer"
-                      onClick={() => {
-                        if (!agreeCheck) {
-                          localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
-                        } else {
-                          localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
-                        }
-
-                        setAgreeCheck(!agreeCheck);
-                      }}
-                    >
-                      <Agree check={agreeCheck}></Agree>
-                    </div>
-
-                    <span>I agree</span>
-                  </div>
-                </div>
-              )}
-            {!accountId && (
-              <ConnectWallet
-                onClick={() => {
-                  window.modal.show();
-                  setIsOpen(false);
+    <>
+      {!(!isOpen || !accountId) && (
+        <Modal
+          isOpen={true}
+          onRequestClose={() => {
+            setIsOpen(false);
+          }}
+          style={{
+            overlay: {
+              backgroundColor:
+                !isOpen || !accountId ? 'transparent' : 'rgba(0,0,0,0.7)',
+            },
+            content: {
+              position: 'fixed',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              top: 'none',
+              bottom: '0px',
+              left: '50%',
+              transform: 'translate(-50%, -30px)',
+              outline: 'none',
+            },
+          }}
+        >
+          <div className=" rounded-t-2xl lg:w-p410 xs:w-screen gradientBorderWrapperNoShadowOrderly bg-boxBorder text-sm text-primaryOrderly  ">
+            {loading && isOpen && (
+              <div
+                className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
+                style={{
+                  background: 'rgba(0, 19, 32, 0.8)',
+                  backdropFilter: 'blur(5px)',
+                  zIndex: 90,
+                  minHeight: '200px',
                 }}
-              ></ConnectWallet>
-            )}
-
-            {accountId && !validContract() && (
-              <div className="relative bottom-1 break-words inline-flex flex-col items-center">
-                <div className="text-base w-p200 pb-6 text-center text-white">
-                  Using Orderbook request re-connect wallet
-                </div>
-                <ConfirmButton
-                  onClick={async () => {
-                    // window.modal.show();
-                    const wallet = await window.selector.wallet();
-
-                    await wallet.signOut();
-                  }}
-                ></ConfirmButton>
-
-                <div className="flex items-center mt-2 justify-center">
-                  <PowerByOrderly />
-                </div>
+              >
+                <OrderlyLoading></OrderlyLoading>
               </div>
             )}
 
-            {!!accountId &&
-              validContract() &&
-              (!storageEnough || !tradingKeySet || !keyAnnounced) && (
-                <RegisterButton
-                  onClick={() => {
-                    if (!accountId || storageEnough) return;
-                    storageDeposit(accountId);
-                  }}
-                  check={agreeCheck}
-                  storageEnough={!!storageEnough}
-                  spin={
-                    storageEnough &&
-                    (!tradingKeySet || !keyAnnounced) &&
-                    agreeCheck
+            {validator && !loading && (
+              <div
+                className="rounded-t-2xl   flex flex-col justify-center items-center h-full w-full px-5 py-4 "
+                style={{
+                  background: 'rgba(0, 19, 32, 0.8)',
+                  backdropFilter: 'blur(5px)',
+                  zIndex: 80,
+                }}
+              >
+                <div
+                  className={
+                    !isOpen ? 'hidden' : 'flex items-center justify-center pt-2'
                   }
-                />
-              )}
+                >
+                  {!(!accountId || !validContract()) && (
+                    <RefToOrderly></RefToOrderly>
+                  )}
+                </div>
+                {!!accountId &&
+                  validContract() &&
+                  (!storageEnough || !tradingKeySet || !keyAnnounced) &&
+                  isOpen && (
+                    <div className="text-white mb-4 px-8 text-sm text-start">
+                      <div>
+                        This orderbook page is a graphical user interface of
+                        Orderly Network, that allows users to trade on the
+                        convenience of its infrastructures.
+                        <br />
+                        {userExist
+                          ? 'You are connecting to your orderly account now. '
+                          : 'You are creating an orderly account now. '}
+                        Learn more about
+                        <span
+                          className="underline ml-1 cursor-pointer"
+                          onClick={() => {
+                            window.open('https://orderly.network/', '_blank');
+                          }}
+                        >
+                          Orderly Network
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-center  mt-2">
+                        <div
+                          className="mr-2 cursor-pointer"
+                          onClick={() => {
+                            if (!agreeCheck) {
+                              localStorage.setItem(
+                                REF_ORDERLY_AGREE_CHECK,
+                                'true'
+                              );
+                            } else {
+                              localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
+                            }
+
+                            setAgreeCheck(!agreeCheck);
+                          }}
+                        >
+                          <Agree check={agreeCheck}></Agree>
+                        </div>
+
+                        <span>I agree</span>
+                      </div>
+                    </div>
+                  )}
+                {!accountId && (
+                  <ConnectWallet
+                    onClick={() => {
+                      window.modal.show();
+                      setIsOpen(false);
+                    }}
+                  ></ConnectWallet>
+                )}
+
+                {accountId && !validContract() && (
+                  <div className="relative bottom-1 break-words inline-flex flex-col items-center">
+                    <div
+                      className={
+                        !isOpen
+                          ? 'hidden'
+                          : 'text-base w-p200 pb-6 text-center text-white'
+                      }
+                    >
+                      Using Orderbook request re-connect wallet
+                    </div>
+                    <ConfirmButton
+                      onClick={async () => {
+                        // window.modal.show();
+                        const wallet = await window.selector.wallet();
+                        await wallet.signOut();
+                      }}
+                    ></ConfirmButton>
+
+                    <div
+                      className={
+                        !isOpen
+                          ? 'hidden'
+                          : 'flex items-center mt-2 justify-center'
+                      }
+                    >
+                      <PowerByOrderly />
+                    </div>
+                  </div>
+                )}
+
+                {!!accountId &&
+                  validContract() &&
+                  (!storageEnough || !tradingKeySet || !keyAnnounced) && (
+                    <RegisterButton
+                      isOpenMobile={isOpen}
+                      setIsOpenMobile={setIsOpen}
+                      onClick={() => {
+                        setIsOpen(true);
+
+                        if (!accountId || storageEnough) return;
+                        storageDeposit(accountId);
+                      }}
+                      check={agreeCheck}
+                      storageEnough={!!storageEnough}
+                      spin={
+                        storageEnough &&
+                        (!tradingKeySet || !keyAnnounced) &&
+                        agreeCheck
+                      }
+                    />
+                  )}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </Modal>
+        </Modal>
+      )}
+
+      {(!isOpen || !accountId) && (
+        <div
+          className=" rounded-t-2xl lg:w-p410 xs:w-screen fixed bottom-8 left-0 gradientBorderWrapperNoShadowOrderly bg-boxBorder text-sm text-primaryOrderly  "
+          style={{
+            zIndex: 99,
+          }}
+        >
+          {loading && isOpen && (
+            <div
+              className="absolute  flex flex-col justify-center items-center h-full w-full top-0 left-0 "
+              style={{
+                background: 'rgba(0, 19, 32, 0.8)',
+                backdropFilter: 'blur(5px)',
+                zIndex: 90,
+                minHeight: '200px',
+              }}
+            >
+              <OrderlyLoading></OrderlyLoading>
+            </div>
+          )}
+
+          {validator && !loading && (
+            <div
+              className="rounded-t-2xl   flex flex-col justify-center items-center h-full w-full px-5 py-4 "
+              style={{
+                background: 'rgba(0, 19, 32, 0.8)',
+                backdropFilter: 'blur(5px)',
+                zIndex: 80,
+              }}
+            >
+              <div
+                className={
+                  !isOpen ? 'hidden' : 'flex items-center justify-center pt-2'
+                }
+              >
+                {!(!accountId || !validContract()) && (
+                  <RefToOrderly></RefToOrderly>
+                )}
+              </div>
+              {!!accountId &&
+                validContract() &&
+                (!storageEnough || !tradingKeySet || !keyAnnounced) &&
+                isOpen && (
+                  <div className="text-white mb-4 px-8 text-sm text-start">
+                    <div>
+                      This orderbook page is a graphical user interface of
+                      Orderly Network, that allows users to trade on the
+                      convenience of its infrastructures.
+                      <br />
+                      {userExist
+                        ? 'You are connecting to your orderly account now. '
+                        : 'You are creating an orderly account now. '}
+                      Learn more about
+                      <span
+                        className="underline ml-1 cursor-pointer"
+                        onClick={() => {
+                          window.open('https://orderly.network/', '_blank');
+                        }}
+                      >
+                        Orderly Network
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center  mt-2">
+                      <div
+                        className="mr-2 cursor-pointer"
+                        onClick={() => {
+                          if (!agreeCheck) {
+                            localStorage.setItem(
+                              REF_ORDERLY_AGREE_CHECK,
+                              'true'
+                            );
+                          } else {
+                            localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
+                          }
+
+                          setAgreeCheck(!agreeCheck);
+                        }}
+                      >
+                        <Agree check={agreeCheck}></Agree>
+                      </div>
+
+                      <span>I agree</span>
+                    </div>
+                  </div>
+                )}
+              {!accountId && (
+                <ConnectWallet
+                  onClick={() => {
+                    window.modal.show();
+                    setIsOpen(false);
+                  }}
+                ></ConnectWallet>
+              )}
+
+              {accountId && !validContract() && (
+                <div className="relative bottom-1 break-words inline-flex flex-col items-center">
+                  <div
+                    className={
+                      !isOpen
+                        ? 'hidden'
+                        : 'text-base w-p200 pb-6 text-center text-white'
+                    }
+                  >
+                    Using Orderbook request re-connect wallet
+                  </div>
+                  <ConfirmButton
+                    onClick={async () => {
+                      // window.modal.show();
+                      const wallet = await window.selector.wallet();
+                      await wallet.signOut();
+                    }}
+                  ></ConfirmButton>
+
+                  <div
+                    className={
+                      !isOpen
+                        ? 'hidden'
+                        : 'flex items-center mt-2 justify-center'
+                    }
+                  >
+                    <PowerByOrderly />
+                  </div>
+                </div>
+              )}
+
+              {!!accountId &&
+                validContract() &&
+                (!storageEnough || !tradingKeySet || !keyAnnounced) && (
+                  <RegisterButton
+                    isOpenMobile={isOpen}
+                    setIsOpenMobile={setIsOpen}
+                    onClick={() => {
+                      setIsOpen(true);
+
+                      if (!accountId || storageEnough) return;
+                      storageDeposit(accountId);
+                    }}
+                    check={agreeCheck}
+                    storageEnough={!!storageEnough}
+                    spin={
+                      storageEnough &&
+                      (!tradingKeySet || !keyAnnounced) &&
+                      agreeCheck
+                    }
+                  />
+                )}
+            </div>
+          )}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -667,7 +923,7 @@ export default function () {
   };
 
   return (
-    <div>
+    <>
       <div className={tab === 'balance' && showDisplay ? '' : 'hidden'}>
         <CurAsset></CurAsset>
       </div>
@@ -680,13 +936,15 @@ export default function () {
         <BookBoard></BookBoard>
       </div>
 
-      <div className="w-full flex mt-2 h-9 items-stretch">
+      <div className="w-full mx-auto flex mt-2 h-9 items-stretch">
         <div className="flex items-center text-13px font-bold text-primaryText w-full rounded-lg bg-darkBg2 p-0.5 mr-2">
           <FlexRow
             className={`w-1/3 justify-center rounded-lg py-2 ${
               tab === 'balance' && showDisplay ? 'bg-selectBg text-white' : ''
             }`}
-            onClick={() => {
+            onClick={(e) => {
+              if (!showDisplay) return;
+
               handleSetTab('balance');
             }}
           >
@@ -699,6 +957,8 @@ export default function () {
               tab === 'chart' && showDisplay ? 'bg-selectBg text-white' : ''
             }`}
             onClick={() => {
+              if (!showDisplay) return;
+
               handleSetTab('chart');
             }}
           >
@@ -711,6 +971,8 @@ export default function () {
               tab === 'book' && showDisplay ? 'bg-selectBg text-white' : ''
             }`}
             onClick={() => {
+              if (!showDisplay) return;
+
               handleSetTab('book');
             }}
           >
@@ -738,6 +1000,6 @@ export default function () {
       </div>
       {!validAccountSig && <RegisterWrapper></RegisterWrapper>}
       {validAccountSig && <UserBoardWrapper />}
-    </div>
+    </>
   );
 }
