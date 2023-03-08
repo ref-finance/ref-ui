@@ -145,7 +145,7 @@ export function ErrorTip({
     <div
       className={`bg-errorTip relative rounded overflow-hidden text-sm px-6 py-3 ${className} `}
     >
-      <div className="absolute w-1 bg-sellRed bottom-0 h-full left-0"></div>
+      <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
 
       <span className="text-textRed">{text}</span>
     </div>
@@ -706,7 +706,7 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
     <div className={`flex-col flex px-2  text-sm   w-full`}>
       <span className="text-textRed">{tip}</span>
 
-      <div className="absolute w-1 bg-sellRed bottom-0 h-full left-0"></div>
+      <div className="absolute w-1 bg-textRed bottom-0 h-full left-0"></div>
     </div>,
     {
       closeOnClick: true,
