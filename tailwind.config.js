@@ -262,7 +262,7 @@ module.exports = {
         boxBorder: '#1D2932',
         orderTipBg: 'rgba(29, 41, 50, 1)',
         primaryOrderly: '#7E8A93',
-        sellRed: '#F96767',
+        sellRed: '#FF6A8E',
         buyGreen: '#90E3B9',
         // cardBg: '#101D26',
         orderTypeBg: '#344B5C',
