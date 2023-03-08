@@ -235,7 +235,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                 isMobile &&
                 module.type !== 'browser' &&
                 module.id !== 'meteor-wallet' &&
-                module.id !== 'neth'
+                module.id !== 'neth' &&
+                module.id !== 'here-wallet'
               ) {
                 return result;
               }
@@ -243,7 +244,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
               const installed =
                 module.type === 'injected' &&
                 module.metadata.available &&
-                module.id !== 'meteor-wallet';
+                module.id !== 'meteor-wallet' &&
+                module.id !== 'here-wallet';
 
               const isBeta = module.metadata.name === 'MyNearWallet';
 
