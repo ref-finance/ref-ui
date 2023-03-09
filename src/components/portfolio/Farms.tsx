@@ -673,12 +673,13 @@ function DclFarmRowMobile() {
               DCL
             </span>
             <span
-              className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText"
+              className="flex items-center justify-center px-1.5 py-0.5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText text-xs"
               onClick={() => {
                 goFarmDetailPage(seed);
               }}
             >
-              <LinkIcon></LinkIcon>
+              Farm
+              <LinkIcon className="ml-1"></LinkIcon>
             </span>
           </div>
           <div className="flex items-center">
@@ -1503,12 +1504,13 @@ function ClassicFarmRowMobile() {
               Classic
             </span>
             <span
-              className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText"
+              className="flex items-center justify-center px-1.5 py-0.5 rounded-md bg-selectTokenV3BgColor text-xs cursor-pointer text-primaryText"
               onClick={() => {
                 goFarmDetailPage(seed);
               }}
             >
-              <LinkIcon></LinkIcon>
+              Farm
+              <LinkIcon className="ml-1"></LinkIcon>
             </span>
           </div>
           <div className="flex items-center">

@@ -18,6 +18,7 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import getConfig from '../../services/config';
+import { ArrowUpIcon } from '../../components/icon/Portfolio';
 const { XREF_TOKEN_ID } = getConfig();
 import {
   ArrowJump,
@@ -215,9 +216,14 @@ function AssetPc() {
             } ${
               +increase_percent_original > 0
                 ? 'bg-light_green_color text-light_green_text_color'
-                : 'bg-red-200 text-red-500'
+                : 'bg-light_red_color text-sellColorNew'
             }`}
           >
+            <ArrowUpIcon
+              className={`mr-0.5 ${
+                +increase_percent_original > 0 ? '' : 'transform rotate-180'
+              }`}
+            ></ArrowUpIcon>
             {display_increase_percent()}
           </div>
         </div>
@@ -326,9 +332,14 @@ function AssetMobile() {
             } ${
               +increase_percent_original > 0
                 ? 'bg-light_green_color text-light_green_text_color'
-                : 'bg-red-200 text-red-500'
+                : 'bg-light_red_color text-sellColorNew'
             }`}
           >
+            <ArrowUpIcon
+              className={`mr-0.5 ${
+                +increase_percent_original > 0 ? '' : 'transform rotate-180'
+              }`}
+            ></ArrowUpIcon>
             {display_increase_percent()}
           </div>
         </div>

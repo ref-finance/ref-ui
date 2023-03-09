@@ -215,7 +215,8 @@ export default function FarmsHome(props: any) {
   const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
   const local_storage_tab = localStorage.getItem('BOOST_FARM_RAB');
   const default_farm_tab =
-    !local_storage_tab || local_storage_tab == 'dcl'
+    !local_storage_tab ||
+    (local_storage_tab == 'dcl' && switch_on_dcl_farms == 'off')
       ? 'classic'
       : local_storage_tab;
   let [farmTab, setFarmTab] = useState(default_farm_tab); // dcl、normal,legacy

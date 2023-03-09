@@ -6190,3 +6190,23 @@ export function GreenCircleIcon(props: any) {
     </svg>
   );
 }
+
+export function ArrowUpIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      width="8"
+      height="9"
+      viewBox="0 0 8 9"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M3.9596 0L7.75709 3.79749C7.97325 4.01364 7.97325 4.36409 7.75709 4.58025C7.54094 4.7964 7.19049 4.7964 6.97434 4.58025L4.5131 2.11901V8.44651C4.5131 8.75219 4.26529 9 3.9596 9C3.65392 9 3.40611 8.75219 3.40611 8.44651V2.11901L0.944872 4.58025C0.728719 4.7964 0.378267 4.7964 0.162114 4.58025C-0.0540381 4.36409 -0.0540381 4.01364 0.162114 3.79749L3.9596 0Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}

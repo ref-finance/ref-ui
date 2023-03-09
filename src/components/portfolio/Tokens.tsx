@@ -341,6 +341,7 @@ export default function Tokens() {
     }
     return display_value_withCommas(target);
   }
+  const chartEvents = is_mobile ? { mousemove: () => {} } : {};
   return (
     <div className="mt-6">
       <div className="px-5">
@@ -470,6 +471,7 @@ export default function Tokens() {
               width: is_mobile ? '240px' : '200px',
               height: is_mobile ? '240px' : '200px',
             }}
+            // onEvents={chartEvents}
           />
         ) : null}
       </div>

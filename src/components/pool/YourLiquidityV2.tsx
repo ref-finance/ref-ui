@@ -1319,28 +1319,30 @@ function UserLiquidityLineStyle2Mobile({
               {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
               {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
             </span>
-            <span
-              onClick={() => {
-                goPoolDetailPage();
-              }}
-              className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md cursor-pointer whitespace-nowrap py-0.5 px-1.5 ml-1"
-            >
-              DCL<LinkIcon className="ml-1 flex-shrink-0"></LinkIcon>
-            </span>
           </div>
           <span className="text-white text-sm gotham_bold">
             ${your_liquidity || '-'}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span
-            onClick={() => {
-              goYourLiquidityDetailPage('new window');
-            }}
-            className="flex items-center bg-portfolioRainbowColor rounded-md gotham_bold text-xs text-white cursor-pointer px-1.5 py-0.5"
-          >
-            NFT #{getLpt_id()} <LinkIcon className="ml-1"></LinkIcon>
-          </span>
+          <div className="flex items-center">
+            <span
+              onClick={() => {
+                goYourLiquidityDetailPage('new window');
+              }}
+              className="flex items-center bg-portfolioRainbowColor rounded-md gotham_bold text-xs text-white cursor-pointer px-1.5 py-0.5"
+            >
+              NFT #{getLpt_id()} <LinkIcon className="ml-1"></LinkIcon>
+            </span>
+            <span
+              onClick={() => {
+                goPoolDetailPage();
+              }}
+              className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md cursor-pointer whitespace-nowrap py-0.5 px-1.5 ml-1.5"
+            >
+              DCL<LinkIcon className="ml-1 flex-shrink-0"></LinkIcon>
+            </span>
+          </div>
           <div className="flex items-center">
             <WaterDropIcon></WaterDropIcon>
             <span className="text-xs text-portfolioGreenColor gotham_bold px-1.5">
