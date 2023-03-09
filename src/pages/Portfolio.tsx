@@ -59,6 +59,9 @@ function Portfolio() {
     useState<UserLiquidityInfo[]>([]);
   const [dcl_tokens_metas, set_dcl_tokens_metas] =
     useState<Record<string, TokenMetadata>>();
+  const [history_total_asset, set_history_total_asset] = useState<string>('0');
+  const [history_total_asset_done, set_history_total_asset_done] =
+    useState<boolean>(false);
 
   useEffect(() => {
     getTokenPriceList();
@@ -80,6 +83,10 @@ function Portfolio() {
         user_unclaimed_token_meta_map,
         set_user_unclaimed_map,
         set_user_unclaimed_token_meta_map,
+        history_total_asset,
+        history_total_asset_done,
+        set_history_total_asset,
+        set_history_total_asset_done,
 
         YourLpValueV1,
         YourLpValueV2,

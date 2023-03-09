@@ -127,6 +127,16 @@ export function display_number(amount: string) {
     return toInternationalCurrencySystem(amount, 2);
   }
 }
+export function display_number_ordinary(amount: string) {
+  const amount_big = new BigNumber(amount);
+  if (amount_big.isEqualTo('0')) {
+    return '0';
+  } else if (amount_big.isLessThan('0.01')) {
+    return '<0.01';
+  } else {
+    return toPrecision(amount, 2);
+  }
+}
 export function display_number_internationalCurrencySystemNature(
   amount: string
 ) {

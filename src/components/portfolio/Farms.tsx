@@ -662,11 +662,18 @@ function DclFarmRowMobile() {
             <span className="text-white font-bold text-sm gotham_bold">
               {displaySymbols()}
             </span>
-            <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 mx-1.5">
+          </div>
+          <span className="text-white text-sm gotham_bold">
+            {display_value(listLiquidities_inFarimg_value)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 mr-1.5 py-0.5">
               DCL
             </span>
             <span
-              className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
+              className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText"
               onClick={() => {
                 goFarmDetailPage(seed);
               }}
@@ -674,23 +681,20 @@ function DclFarmRowMobile() {
               <LinkIcon></LinkIcon>
             </span>
           </div>
-          <span className="text-white text-sm gotham_bold">
-            {display_value(listLiquidities_inFarimg_value)}
-          </span>
-        </div>
-        <div className="flex items-center justify-end">
-          <div className="flex items-center mr-1.5">
-            <FarmMiningIcon className="m-1.5"></FarmMiningIcon>
-            <span className="text-xs text-portfolioGreenColor gotham_bold">
-              {unclaimedRewardsData.worth}
-            </span>
+          <div className="flex items-center">
+            <div className="flex items-center mr-1.5">
+              <FarmMiningIcon className="m-1.5"></FarmMiningIcon>
+              <span className="text-xs text-portfolioGreenColor gotham_bold">
+                {unclaimedRewardsData.worth}
+              </span>
+            </div>
+            <UpDownButton
+              set_switch_off={() => {
+                set_switch_off(!switch_off);
+              }}
+              switch_off={switch_off}
+            ></UpDownButton>
           </div>
-          <UpDownButton
-            set_switch_off={() => {
-              set_switch_off(!switch_off);
-            }}
-            switch_off={switch_off}
-          ></UpDownButton>
         </div>
       </div>
       <div
@@ -800,7 +804,7 @@ function DclFarmRowPc() {
           <span className="text-white font-bold text-sm gotham_bold">
             {displaySymbols()}
           </span>
-          <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 mx-1.5">
+          <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 mx-1.5 py-0.5">
             DCL
           </span>
           <span
@@ -1499,7 +1503,7 @@ function ClassicFarmRowMobile() {
               Classic
             </span>
             <span
-              className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
+              className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText"
               onClick={() => {
                 goFarmDetailPage(seed);
               }}
@@ -1641,7 +1645,7 @@ function ClassicFarmRowPc() {
           <span className="text-white font-bold text-sm gotham_bold">
             {displaySymbols()}
           </span>
-          <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 mx-1.5">
+          <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 mx-1.5 py-0.5">
             Classic
           </span>
           <span

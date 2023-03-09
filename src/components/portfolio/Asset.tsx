@@ -5,7 +5,7 @@ import React, {
   useContext,
   createContext,
 } from 'react';
-import { ftGetTokenMetadata, TokenMetadata } from '../../services/ft-contract';
+import { ftGetTokenMetadata } from '../../services/ft-contract';
 import BigNumber from 'bignumber.js';
 import { toReadableNumber } from '~utils/numbers';
 import QuestionMark from '../../components/farm/QuestionMark';
@@ -19,14 +19,18 @@ import {
 } from '../../utils/wallets-integration';
 import getConfig from '../../services/config';
 const { XREF_TOKEN_ID } = getConfig();
-import { ArrowJump, display_percentage, display_value } from './Tool';
+import {
+  ArrowJump,
+  display_percentage,
+  display_value,
+  display_number_ordinary,
+} from './Tool';
 import { isMobile } from '~utils/device';
 const is_mobile = isMobile();
 const AssetData = createContext(null);
 export default function Asset() {
   const {
     tokenPriceList,
-
     YourLpValueV1,
     YourLpValueV2,
     lpValueV1Done,
@@ -36,6 +40,9 @@ export default function Asset() {
     classic_farms_value_done,
     dcl_farms_value,
     dcl_farms_value_done,
+
+    history_total_asset,
+    history_total_asset_done,
   } = useContext(PortfolioData);
   const [xrefBalance, setXrefBalance] = useState('0');
   const { globalState } = useContext(WalletContext);
@@ -60,7 +67,7 @@ export default function Asset() {
     }
     return '0';
   }, [tokenPriceList, xrefBalance]);
-  const total_user_invest_value = useMemo(() => {
+  const total_user_invest_value_original = useMemo(() => {
     let total_value = new BigNumber(0);
     if (lpValueV1Done && lpValueV1Done) {
       total_value = total_value
@@ -68,8 +75,11 @@ export default function Asset() {
         .plus(YourLpValueV2)
         .plus(total_xref_value);
     }
-    return display_value(total_value.toFixed());
+    return total_value.toFixed();
   }, [lpValueV1Done, lpValueV2Done, total_xref_value]);
+  const total_user_invest_value = useMemo(() => {
+    return display_value(total_user_invest_value_original);
+  }, [total_user_invest_value_original]);
   const percent_in_classic_farms = useMemo(() => {
     let percent = new BigNumber(0);
     if (lpValueV1Done && classic_farms_value_done && +YourLpValueV1 > 0) {
@@ -86,6 +96,27 @@ export default function Asset() {
     }
     return display_percentage(percent.multipliedBy(100).toFixed()) + '%';
   }, [lpValueV2Done, dcl_farms_value_done]);
+  const [increase_percent_original, increase_percent_done] = useMemo(() => {
+    let increase_percent = '0';
+    let increase_percent_done = false;
+    if (lpValueV1Done && lpValueV2Done && history_total_asset_done) {
+      if (+history_total_asset > 0) {
+        const p = new BigNumber(total_user_invest_value_original)
+          .minus(history_total_asset)
+          .dividedBy(history_total_asset)
+          .multipliedBy(100);
+        increase_percent = p.toFixed();
+      }
+      increase_percent_done = true;
+    }
+    return [increase_percent, increase_percent_done];
+  }, [
+    history_total_asset,
+    history_total_asset_done,
+    total_user_invest_value_original,
+    lpValueV1Done,
+    lpValueV2Done,
+  ]);
   function getTip() {
     // const tip = intl.formatMessage({ id: 'over_tip' });
     const tip =
@@ -107,6 +138,12 @@ export default function Asset() {
   function getV1PoolUSDValue() {
     return display_value(YourLpValueV1);
   }
+  function display_increase_percent() {
+    const big = new BigNumber(increase_percent_original);
+    const big_abs = big.abs();
+    const temp = display_number_ordinary(big_abs.toFixed());
+    return temp + '%';
+  }
   return (
     <AssetData.Provider
       value={{
@@ -118,6 +155,9 @@ export default function Asset() {
         getV1PoolUSDValue,
         percent_in_classic_farms,
         total_xref_value,
+        increase_percent_original,
+        display_increase_percent,
+        increase_percent_done,
       }}
     >
       {is_mobile ? <AssetMobile></AssetMobile> : <AssetPc></AssetPc>}
@@ -134,6 +174,9 @@ function AssetPc() {
     getV1PoolUSDValue,
     percent_in_classic_farms,
     total_xref_value,
+    increase_percent_original,
+    display_increase_percent,
+    increase_percent_done,
   } = useContext(AssetData);
   return (
     <div
@@ -164,7 +207,20 @@ function AssetPc() {
         <div className="text-2xl text-white gotham_bold my-1.5">
           {total_user_invest_value}
         </div>
-        <div className="text-primaryText text-sm">{getCurrentDate()}</div>
+        <div className="flex items-center text-primaryText text-sm">
+          {getCurrentDate()}
+          <div
+            className={`flex items-center rounded-md px-2 py-0.5 ml-3 ${
+              increase_percent_done ? '' : 'hidden'
+            } ${
+              +increase_percent_original > 0
+                ? 'bg-light_green_color text-light_green_text_color'
+                : 'bg-red-200 text-red-500'
+            }`}
+          >
+            {display_increase_percent()}
+          </div>
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-10 p-4 mt-5">
         <DataTemplate
@@ -232,6 +288,9 @@ function AssetMobile() {
     getV1PoolUSDValue,
     percent_in_classic_farms,
     total_xref_value,
+    increase_percent_original,
+    display_increase_percent,
+    increase_percent_done,
   } = useContext(AssetData);
   return (
     <div>
@@ -259,7 +318,20 @@ function AssetMobile() {
         <div className="text-2xl text-white gotham_bold my-1.5">
           {total_user_invest_value}
         </div>
-        <div className="text-primaryText text-sm">{getCurrentDate()}</div>
+        <div className="flex items-center text-primaryText text-sm">
+          {getCurrentDate()}
+          <div
+            className={`flex items-center rounded-md px-2 py-0.5 ml-3 ${
+              increase_percent_done ? '' : 'hidden'
+            } ${
+              +increase_percent_original > 0
+                ? 'bg-light_green_color text-light_green_text_color'
+                : 'bg-red-200 text-red-500'
+            }`}
+          >
+            {display_increase_percent()}
+          </div>
+        </div>
       </div>
       <div className="flex items-center justify-between border-t border-b border-cardBg">
         <DataTemplate

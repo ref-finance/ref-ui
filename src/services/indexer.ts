@@ -440,7 +440,7 @@ export const getAllVolume24h = async () => {
     });
 };
 
-export const getAssets = async (dateType: 'M' | 'W' | 'H' = 'H') => {
+export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
   // todo config.indexerUrl
   // ${getCurrentWallet()?.wallet?.getAccountId()}
   return await fetch(

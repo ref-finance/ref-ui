@@ -25,21 +25,23 @@ import {
   WalletContext,
   getCurrentWallet,
 } from '../../utils/wallets-integration';
+import { PortfolioData } from '../../pages/Portfolio';
 const is_mobile = isMobile();
 const chartAreaHeight = is_mobile ? '150px' : '280px';
 export default function AssetChart() {
+  const { set_history_total_asset, set_history_total_asset_done } =
+    useContext(PortfolioData);
   const [assetData, setAssetData] = useState([]);
   const [assetDataDone, setAssetDataDone] = useState<boolean>(false);
-  const [previous_total_asset, set_previous_total_asset] =
-    useState<string>('0');
-  const [previous_total_asset_done, set_previous_total_asset_done] =
-    useState<boolean>(false);
   const [dimension, setDimension] = useState([
     { text: '24H', key: 'H' },
     { text: '7D', key: 'W' },
     { text: '1M', key: 'M' },
+    { text: 'All', key: 'ALL' },
   ]);
-  const [activeDimension, setActiveDimension] = useState<'M' | 'W' | 'H'>('H');
+  const [activeDimension, setActiveDimension] = useState<
+    'M' | 'W' | 'H' | 'ALL'
+  >('H');
   const { globalState } = useContext(WalletContext);
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
@@ -48,8 +50,8 @@ export default function AssetChart() {
       setAssetData(res);
       setAssetDataDone(true);
       if (activeDimension == 'H') {
-        set_previous_total_asset(res?.[0]?.assets || '0');
-        set_previous_total_asset_done(true);
+        set_history_total_asset(res?.[0]?.assets || '0');
+        set_history_total_asset_done(true);
       }
     });
   }, [activeDimension]);

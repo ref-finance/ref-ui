@@ -422,11 +422,11 @@ function OrderCard({
       order,
       price
     );
-    const sellAmountToUnClaimedAmount = buyAmountToSellAmount(
-      order.unclaimed_amount || '0',
-      order,
-      price
-    );
+
+    const sellAmountToUnClaimedAmount =
+      displayPercents[1] == '100'
+        ? display_amount(orderIn)
+        : buyAmountToSellAmount(order.unclaimed_amount || '0', order, price);
 
     const sellTokenAmount = (
       <div className="flex items-center whitespace-nowrap w-28 justify-between xsm:w-1 xsm:flex-grow">
@@ -715,7 +715,11 @@ function OrderCard({
     const mobile_r_width = 12;
     const swapBannerMobile = (
       <>
-        <div className="flex items-center justify-between">
+        <div
+          className={`flex items-center justify-between ${
+            ONLY_ZEROS.test(swapIn || '0') ? 'hidden' : ''
+          }`}
+        >
           <span className="flex items-center text-sm text-v3SwapGray">
             <FormattedMessage
               id="initial_order"
@@ -747,7 +751,7 @@ function OrderCard({
           </div>
         </div>
         <div
-          className={`flex items-center justify-between mt-4 ${
+          className={`flex items-center justify-between mt-4  ${
             ONLY_ZEROS.test(swapIn || '0') ? 'hidden' : ''
           }`}
         >
@@ -782,11 +786,7 @@ function OrderCard({
             </span>
           </div>
         </div>
-        <div
-          className={`flex items-center justify-between mt-4 ${
-            ONLY_ZEROS.test(claimedAmount || '0') ? 'hidden' : ''
-          }`}
-        >
+        <div className={`flex items-center justify-between mt-4`}>
           <span className="flex items-center text-sm text-v3SwapGray">
             Claimed
           </span>
@@ -809,11 +809,7 @@ function OrderCard({
             </span>
           </div>
         </div>
-        <div
-          className={`flex items-center justify-between mt-4 ${
-            ONLY_ZEROS.test(unClaimedAmount || '0') ? 'hidden' : ''
-          }`}
-        >
+        <div className={`flex items-center justify-between mt-4 `}>
           <span className="flex items-center text-sm text-v3SwapGray">
             Filled
           </span>

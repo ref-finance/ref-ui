@@ -1325,7 +1325,7 @@ function UserLiquidityLineStyle2Mobile({
               }}
               className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md cursor-pointer whitespace-nowrap py-0.5 px-1.5 ml-1"
             >
-              DCL Pool <LinkIcon className="ml-1 flex-shrink-0"></LinkIcon>
+              DCL<LinkIcon className="ml-1 flex-shrink-0"></LinkIcon>
             </span>
           </div>
           <span className="text-white text-sm gotham_bold">
@@ -1478,7 +1478,7 @@ function UserLiquidityLineStyle2Pc({
             {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
             {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
           </span>
-          <span className="flex items-center justify-center text-xs text-v3SwapGray bg-portfolioFeeBgColor rounded-md px-1.5 mx-1.5">
+          <span className="flex items-center justify-center text-xs text-v3SwapGray bg-portfolioFeeBgColor rounded-md px-1.5 mx-1.5 py-0.5">
             {+fee / 10000}%
           </span>
           <span
