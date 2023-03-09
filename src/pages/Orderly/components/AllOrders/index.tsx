@@ -813,10 +813,12 @@ function OrderLine({
             <span>
               {order.executed > 0 && order.executed / order.quantity < 0.01
                 ? '1'
-                : new Big(order.executed)
-                    .div(order.quantity)
+                : order.quantity > 0
+                ? new Big(new Big(order.executed || 0))
+                    .div(new Big(order.quantity || 1))
                     .times(100)
-                    .toFixed()}
+                    .toFixed()
+                : 0}
               %
             </span>
 
@@ -1383,10 +1385,12 @@ function HistoryOrderLine({
             <span>
               {order.executed > 0 && order.executed / order.quantity < 0.01
                 ? '1'
-                : new Big(order.executed)
-                    .div(order.quantity)
+                : order.quantity > 0
+                ? new Big(new Big(order.executed || 0))
+                    .div(new Big(order.quantity || 1))
                     .times(100)
-                    .toFixed()}
+                    .toFixed()
+                : 0}
               %
             </span>
 

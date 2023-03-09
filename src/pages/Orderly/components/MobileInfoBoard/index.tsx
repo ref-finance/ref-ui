@@ -812,7 +812,7 @@ function RegisterWrapper() {
                 validContract() &&
                 (!storageEnough || !tradingKeySet || !keyAnnounced) && (
                   <RegisterButton
-                    isOpenMobile={isOpen}
+                    isOpenMobile={false}
                     setIsOpenMobile={setIsOpen}
                     onClick={() => {
                       setIsOpen(true);

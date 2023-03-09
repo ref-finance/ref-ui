@@ -267,7 +267,7 @@ export function RegisterButton({
           {userExist ? 'connect to orderly' : 'Register'}
         </span>
       </button>
-      {userExist && isOpenMobile ? (
+      {userExist && (isOpenMobile === undefined || isOpenMobile === true) ? (
         <div className="text-sm text-white flex items-center justify-center">
           You may need to deposit storage fee first.
         </div>
