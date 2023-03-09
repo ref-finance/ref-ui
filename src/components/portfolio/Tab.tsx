@@ -99,7 +99,7 @@ export default function Tab() {
         ) => {
           return (
             <div
-              key={tab.name}
+              key={`${tab.tag}_${index}`}
               className={`flex flex-col items-start cursor-pointer ${
                 index != tabList.length - 1 ? 'mr-20' : ''
               }`}

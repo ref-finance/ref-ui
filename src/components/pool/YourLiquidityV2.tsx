@@ -1418,14 +1418,14 @@ function UserLiquidityLineStyle2Mobile({
               src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
               className="w-5 h-5 border border-greenColor rounded-full mr-1.5"
             ></img>
-            <span className="text-sm text-white mr-5 gotham_bold">
+            <span className="text-sm text-white mr-4">
               {getTokenFeeAmount('l') || '-'}
             </span>
             <img
               src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
               className="w-5 h-5 border border-greenColor rounded-full mr-1.5"
             ></img>
-            <span className="text-sm text-white gotham_bold">
+            <span className="text-sm text-white">
               {getTokenFeeAmount('r') || '-'}
             </span>
           </div>

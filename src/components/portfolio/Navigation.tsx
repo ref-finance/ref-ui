@@ -21,7 +21,7 @@ export default function Navigation(props: any) {
           const { Icon, name, id } = item;
           return (
             <div
-              key={name}
+              key={`${id}_${index}`}
               className={`flex items-center rounded-md h-14 pl-5 mb-2 ${
                 activeMenu == id
                   ? 'bg-selectTokenV3BgColor border-l-4 border-gradientFromHover'

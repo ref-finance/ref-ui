@@ -85,12 +85,6 @@ export default function Positions(props: any) {
             ></UpDownButton>
           </div>
         </div>
-        {/* for mobile loading */}
-        {loading_status && is_mobile && activeTab == '2' ? (
-          <div className={`flex items-center justify-center my-10`}>
-            <BlueCircleLoading></BlueCircleLoading>
-          </div>
-        ) : null}
         {/* for mobile no data */}
         {noData_status && is_mobile && activeTab == '2' ? (
           <NoDataCard text="Your liquidity position(s) will appear here." />
@@ -112,6 +106,12 @@ export default function Positions(props: any) {
             styleType="2"
           ></YourLiquidityV1>
         </div>
+        {/* for mobile loading */}
+        {loading_status && is_mobile && activeTab == '2' ? (
+          <div className={`flex items-center justify-center my-10`}>
+            <BlueCircleLoading></BlueCircleLoading>
+          </div>
+        ) : null}
       </div>
       {/* pc loading */}
       {loading_status && !is_mobile ? (

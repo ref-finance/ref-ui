@@ -96,6 +96,7 @@ export default function AssetChart() {
         {dimension.map((item: any) => {
           return (
             <span
+              key={item.key}
               onClick={() => {
                 switchDimension(item.key);
               }}

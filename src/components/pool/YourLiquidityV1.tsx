@@ -597,12 +597,18 @@ function LiquidityContainerStyle2() {
       ) : null}
       {stablePoolsFinal.map((pool: PoolRPCView) => {
         return (
-          <YourClassicLiquidityLine pool={pool}></YourClassicLiquidityLine>
+          <YourClassicLiquidityLine
+            pool={pool}
+            key={pool.id}
+          ></YourClassicLiquidityLine>
         );
       })}
       {simplePoolsFinal.map((pool: PoolRPCView) => {
         return (
-          <YourClassicLiquidityLine pool={pool}></YourClassicLiquidityLine>
+          <YourClassicLiquidityLine
+            pool={pool}
+            key={pool.id}
+          ></YourClassicLiquidityLine>
         );
       })}
     </div>

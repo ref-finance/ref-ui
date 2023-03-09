@@ -647,7 +647,7 @@ function DclFarmRowMobile() {
   } = useContext(DCLData);
   return (
     <div
-      className={`rounded-xl mt-3 mx-4  ${
+      className={`rounded-xl mt-3 mx-4 ${
         switch_off
           ? 'bg-portfolioBgColor'
           : 'border border-border_light_grey_color bg-portfolioBarBgColor'
@@ -703,9 +703,23 @@ function DclFarmRowMobile() {
             <span className="text-sm text-primaryText">Reward Range</span>
             <div className="flex items-center">{getRange()}</div>
           </div>
-          <div className="flex items-center justify-between mt-5">
-            <span className="text-sm text-primaryText">Unclaimed Rewards</span>
-            <div className="flex items-center">
+          <div
+            className={`flex justify-between mt-5 ${
+              unclaimedRewardsData.list.length > 2
+                ? 'items-start'
+                : 'items-center'
+            }`}
+          >
+            <span className="text-sm text-primaryText whitespace-nowrap">
+              Unclaimed Rewards
+            </span>
+            <div
+              className={`flex items-center ${
+                unclaimedRewardsData.list.length > 2
+                  ? 'grid grid-cols-2 gap-x-3 gap-y-2'
+                  : ''
+              }`}
+            >
               {unclaimedRewardsData.list.map(
                 (
                   {
@@ -715,21 +729,22 @@ function DclFarmRowMobile() {
                   index: number
                 ) => {
                   return (
-                    <>
+                    <div
+                      key={`m_${token.id}_${index}`}
+                      className={`flex items-center ${
+                        unclaimedRewardsData.list.length <= 2
+                          ? index == unclaimedRewardsData.list.length - 1
+                            ? ''
+                            : 'mr-3.5'
+                          : ''
+                      }`}
+                    >
                       <img
                         src={token.icon}
                         className={`w-5 h-5 border border-greenColor rounded-full mr-1.5`}
                       ></img>
-                      <span
-                        className={`text-sm text-white ${
-                          index == unclaimedRewardsData.list.length - 1
-                            ? ''
-                            : 'mr-4'
-                        }`}
-                      >
-                        {amount}
-                      </span>
-                    </>
+                      <span className={`text-sm text-white`}>{amount}</span>
+                    </div>
                   );
                 }
               )}
@@ -835,21 +850,22 @@ function DclFarmRowPc() {
                   index: number
                 ) => {
                   return (
-                    <>
+                    <div
+                      key={`pc_${token.id}_${index}`}
+                      className={`flex items-center ${
+                        index == unclaimedRewardsData.list.length - 1
+                          ? ''
+                          : 'mr-4'
+                      }`}
+                    >
                       <img
                         src={token.icon}
                         className={`w-5 h-5 border border-greenColor rounded-full mr-1.5`}
                       ></img>
-                      <span
-                        className={`text-sm text-white gotham_bold ${
-                          index == unclaimedRewardsData.list.length - 1
-                            ? ''
-                            : 'mr-4'
-                        }`}
-                      >
+                      <span className={`text-sm text-white gotham_bold`}>
                         {amount}
                       </span>
-                    </>
+                    </div>
                   );
                 }
               )}
@@ -1546,30 +1562,49 @@ function ClassicFarmRowMobile() {
             </span>
           </div>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-v3SwapGray">Unclaimed Rewards</span>
-          <div className="flex items-center flex-wrap">
+        <div
+          className={`flex justify-between ${
+            unclaimedRewardsData.list.length > 2
+              ? 'items-start'
+              : 'items-center'
+          }`}
+        >
+          <span className="text-sm text-v3SwapGray whitespace-nowrap">
+            Unclaimed Rewards
+          </span>
+          <div
+            className={`flex items-center ${
+              unclaimedRewardsData.list.length > 2
+                ? 'grid grid-cols-2 gap-x-3 gap-y-2'
+                : ''
+            }`}
+          >
             {unclaimedRewardsData.list.map(
               (
                 { token, amount }: { token: TokenMetadata; amount: string },
                 index: number
               ) => {
                 return (
-                  <>
+                  <div
+                    className="flex items-center"
+                    key={`m_${token.id}_${index}`}
+                  >
                     <img
                       src={token.icon}
                       className={`w-5 h-5 border border-greenColor rounded-full mr-1.5`}
                     ></img>
                     <span
                       className={`text-sm text-white ${
-                        index == unclaimedRewardsData.list.length - 1
-                          ? ''
-                          : 'mr-4'
+                        unclaimedRewardsData.list.length <= 2
+                          ? index == unclaimedRewardsData.list.length - 1
+                            ? ''
+                            : 'mr-3.5'
+                          : ''
                       }`}
                     >
                       {amount}
                     </span>
-                  </>
+                  </div>
                 );
               }
             )}
@@ -1686,21 +1721,22 @@ function ClassicFarmRowPc() {
                   index: number
                 ) => {
                   return (
-                    <>
+                    <div
+                      key={`pc_${token.id}_${index}`}
+                      className={`flex items-center ${
+                        index == unclaimedRewardsData.list.length - 1
+                          ? ''
+                          : 'mr-4'
+                      }`}
+                    >
                       <img
                         src={token.icon}
                         className={`w-5 h-5 border border-greenColor rounded-full mr-1.5`}
                       ></img>
-                      <span
-                        className={`text-sm text-white gotham_bold ${
-                          index == unclaimedRewardsData.list.length - 1
-                            ? ''
-                            : 'mr-4'
-                        }`}
-                      >
+                      <span className={`text-sm text-white gotham_bold`}>
                         {amount}
                       </span>
-                    </>
+                    </div>
                   );
                 }
               )}
