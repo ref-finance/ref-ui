@@ -886,7 +886,13 @@ function OrderCard({
           </div>
         </div>
         {/* Mobile */}
-        <div className="lg:hidden mx-5 mb-3 rounded-lg bg-portfolioBgColor border border-border_light_grey_color">
+        <div
+          className={`lg:hidden mx-5 mb-3 rounded-lg ${
+            switch_off
+              ? 'bg-portfolioBgColor'
+              : 'border border-border_light_grey_color bg-portfolioBarBgColor'
+          }`}
+        >
           {/* title */}
           <div className="p-3">
             <div className="flex items-center justify-between">

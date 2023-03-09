@@ -647,7 +647,11 @@ function DclFarmRowMobile() {
   } = useContext(DCLData);
   return (
     <div
-      className={`rounded-xl mt-3 bg-portfolioBgColor mx-4 border border-border_light_grey_color`}
+      className={`rounded-xl mt-3 mx-4  ${
+        switch_off
+          ? 'bg-portfolioBgColor'
+          : 'border border-border_light_grey_color bg-portfolioBarBgColor'
+      }`}
     >
       <div className="flex flex-col justify-between h-20 p-2.5">
         <div className="flex items-center justify-between">
@@ -1398,7 +1402,7 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
     const tip = intl.formatMessage({
       id: base ? 'farm_has_boost_tip' : 'farm_no_boost_tip',
     });
-    let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
+    let result: string = `<div class="text-navHighLightText text-xs w-52 xsm:w-32 text-left">${tip}</div>`;
     return result;
   }
   function getYourTvl() {
@@ -1455,7 +1459,11 @@ function ClassicFarmRowMobile() {
   } = useContext(ClassicData);
   return (
     <div
-      className={`rounded-xl mt-3 bg-portfolioBgColor mx-4 border border-border_light_grey_color`}
+      className={`rounded-xl mt-3 mx-4 ${
+        switch_off
+          ? 'bg-portfolioBgColor'
+          : 'border border-border_light_grey_color bg-portfolioBarBgColor'
+      }`}
     >
       <div className="flex flex-col justify-between h-20 p-2.5">
         <div className="flex items-center justify-between">

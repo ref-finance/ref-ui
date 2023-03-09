@@ -1296,7 +1296,11 @@ function UserLiquidityLineStyle2Mobile({
   } = useContext(LiquidityContext);
   return (
     <div
-      className={`rounded-xl mb-3 bg-portfolioBgColor mx-4 border border-border_light_grey_color`}
+      className={`rounded-xl mb-3 mx-4 ${
+        switch_off
+          ? 'bg-portfolioBgColor'
+          : 'border border-border_light_grey_color bg-portfolioBarBgColor'
+      }`}
     >
       <div className="flex flex-col justify-between h-20 p-2.5">
         <div className="flex items-center justify-between">
