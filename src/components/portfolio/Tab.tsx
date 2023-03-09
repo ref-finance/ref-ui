@@ -1,7 +1,12 @@
 import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { PortfolioData } from '../../pages/Portfolio';
 import BigNumber from 'bignumber.js';
-import { display_value } from './Tool';
+import {
+  display_value,
+  useTotalOrderData,
+  useTotalFarmData,
+  useTotalLiquidityData,
+} from './Tool';
 export default function Tab() {
   const {
     activeTab,
@@ -29,71 +34,36 @@ export default function Tab() {
   } = useContext(PortfolioData);
 
   const [tabList, setTabList] = useState([
-    { name: 'Active Orders', tag: 1, value: '$-', quantity: '-' },
-    { name: 'Your Liquidity', tag: 2, value: '$-', quantity: '-' },
-    { name: 'Yield Farming', tag: 3, value: '$-', quantity: '-' },
+    { name: 'Active Orders', tag: '1', value: '$-', quantity: '-' },
+    { name: 'Your Liquidity', tag: '2', value: '$-', quantity: '-' },
+    { name: 'Yield Farming', tag: '3', value: '$-', quantity: '-' },
   ]);
-  const total_liquidity_value = useMemo(() => {
-    let total_value = '$-';
-    if (lpValueV1Done && lpValueV2Done) {
-      total_value = display_value(
-        new BigNumber(YourLpValueV1 || 0).plus(YourLpValueV2 || 0).toFixed()
-      );
-    }
-    return total_value;
-  }, [YourLpValueV1, YourLpValueV2, lpValueV1Done, lpValueV2Done]);
-  const total_liquidity_quantity = useMemo(() => {
-    let total_quantity = '-';
-    if (v1LiquidityLoadingDone && v2LiquidityLoadingDone) {
-      total_quantity = new BigNumber(v1LiquidityQuantity || 0)
-        .plus(v2LiquidityQuantity || 0)
-        .toFixed();
-    }
-    return total_quantity;
-  }, [
-    v1LiquidityQuantity,
-    v2LiquidityQuantity,
-    v1LiquidityLoadingDone,
-    v2LiquidityLoadingDone,
-  ]);
-
-  const total_active_orders_value = useMemo(() => {
-    let total_value = '$-';
-    if (active_order_value_done) {
-      total_value = display_value(active_order_value);
-    }
-    return total_value;
-  }, [active_order_value_done, active_order_value]);
-
-  const total_active_orders_quanity = useMemo(() => {
-    let total_quantity = '-';
-    if (active_order_Loading_done) {
-      total_quantity = active_order_quanity;
-    }
-    return total_quantity;
-  }, [active_order_Loading_done, active_order_quanity]);
-
-  const total_farms_value = useMemo(() => {
-    let total_value = '$-';
-    if (dcl_farms_value_done && classic_farms_value_done) {
-      total_value = display_value(
-        new BigNumber(classic_farms_value).plus(dcl_farms_value).toFixed()
-      );
-    }
-    return total_value;
-  }, [
+  const { total_liquidity_value, total_liquidity_quantity } =
+    useTotalLiquidityData({
+      YourLpValueV1,
+      YourLpValueV2,
+      lpValueV1Done,
+      lpValueV2Done,
+      v1LiquidityQuantity,
+      v2LiquidityQuantity,
+      v1LiquidityLoadingDone,
+      v2LiquidityLoadingDone,
+    });
+  const { total_active_orders_value, total_active_orders_quanity } =
+    useTotalOrderData({
+      active_order_value_done,
+      active_order_Loading_done,
+      active_order_quanity,
+      active_order_value,
+    });
+  const { total_farms_value, total_farms_quantity } = useTotalFarmData({
     dcl_farms_value,
     classic_farms_value,
     dcl_farms_value_done,
     classic_farms_value_done,
-  ]);
-  const total_farms_quantity = useMemo(() => {
-    let total_quantity = '-';
-    if (all_farms_Loading_done) {
-      total_quantity = all_farms_quanity;
-    }
-    return total_quantity;
-  }, [all_farms_Loading_done, all_farms_quanity]);
+    all_farms_Loading_done,
+    all_farms_quanity,
+  });
 
   useEffect(() => {
     tabList[0].value = total_active_orders_value;
@@ -112,7 +82,7 @@ export default function Tab() {
     total_active_orders_value,
     total_active_orders_quanity,
   ]);
-  function switchTab(tag: number) {
+  function switchTab(tag: string) {
     setActiveTab(tag);
   }
   return (
@@ -121,7 +91,7 @@ export default function Tab() {
         (
           tab: {
             name: string;
-            tag: number;
+            tag: string;
             value: string;
             quantity: string;
           },

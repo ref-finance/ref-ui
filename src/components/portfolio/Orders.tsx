@@ -1,14 +1,7 @@
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-  useContext,
-  createContext,
-} from 'react';
+import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { useMyOrders } from '../../state/swapV3';
 import { useTokens } from '../../state/token';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { isClientMobie, useClientMobile } from '~utils/device';
 import {
   UserOrderInfo,
   V3_POOL_SPLITER,
@@ -27,7 +20,6 @@ import { TokenMetadata } from '../../services/ft-contract';
 import Big from 'big.js';
 import { TIMESTAMP_DIVISOR } from '../../components/layout/Proposal';
 import moment from 'moment';
-import { MyOrderMobileArrow } from '../../components/icon/Arrows';
 import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { toRealSymbol } from '../../utils/token';
@@ -39,17 +31,19 @@ import {
   PurpleCircleIcon,
   LinkIcon,
   ArrowRightForOrder,
+  GreenCircleIcon,
 } from '../../components/icon/Portfolio';
 import BigNumber from 'bignumber.js';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-import { UpDownButton, NoDataCard } from './Tool';
+import { UpDownButton, NoDataCard, useTotalOrderData } from './Tool';
 import {
   WalletContext,
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import getConfig from '~services/config';
 import { isMobile } from '~utils/device';
+const is_mobile = isMobile();
 const { explorerUrl } = getConfig();
 
 export default function Orders(props: any) {
@@ -129,7 +123,6 @@ export default function Orders(props: any) {
     });
     return total_value.toFixed();
   }
-  const is_mobile = isMobile();
   return (
     <>
       <OrderCard
@@ -149,17 +142,29 @@ function OrderCard({
   tokensMap: { [key: string]: TokenMetadata };
   activeOrderTxMap: Record<string, string>;
 }) {
+  const {
+    activeTab,
+    setActiveTab,
+    active_order_value_done,
+    active_order_Loading_done,
+    active_order_quanity,
+    active_order_value,
+  } = useContext(PortfolioData);
   const { globalState } = useContext(WalletContext);
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
   const intl = useIntl();
-
   const [activeSortBy, setActiveSortBy] = useState<'unclaim' | 'created'>(
     'created'
   );
-
   const [sortOrderActive, setSorOrderActive] = useState<'asc' | 'desc'>('desc');
-
+  const { total_active_orders_value, total_active_orders_quanity } =
+    useTotalOrderData({
+      active_order_value_done,
+      active_order_Loading_done,
+      active_order_quanity,
+      active_order_value,
+    });
   const sellAmountToBuyAmount = (
     undecimaled_amount: string,
     order: UserOrderInfo,
@@ -176,8 +181,41 @@ function OrderCard({
 
     return scientificNotationToString(buy_amount);
   };
+  const buyAmountToSellAmount = (
+    undecimaled_amount: string,
+    order: UserOrderInfo,
+    price: string
+  ) => {
+    const p = new Big(price).eq(0) ? '1' : price;
+    const sell_amount = new Big(
+      toReadableNumber(
+        tokensMap[order.buy_token].decimals,
+        undecimaled_amount || '0'
+      )
+    )
+      .div(p)
+      .toFixed(tokensMap[order.buy_token].decimals);
 
-  // todo
+    return scientificNotationToString(sell_amount);
+  };
+  function display_amount(amount: string) {
+    if (new Big(amount).eq(0)) {
+      return '0';
+    } else if (Number(amount) > 0 && Number(amount) < 0.01) {
+      return '< 0.01';
+    } else {
+      return toPrecision(amount, 2);
+    }
+  }
+  function display_amount_3_decimal(amount: string) {
+    if (new Big(amount).eq(0)) {
+      return '0';
+    } else if (Number(amount) > 0 && Number(amount) < 0.001) {
+      return '< 0.001';
+    } else {
+      return toPrecision(amount, 3);
+    }
+  }
   function ActiveLine({
     order,
     index,
@@ -234,13 +272,12 @@ function OrderCard({
       order.unclaimed_amount || '0'
     );
 
+    const unDecimals_claimedAmount = new Big(order.bought_amount || '0')
+      .minus(order.unclaimed_amount || '0')
+      .toString();
     const claimedAmount = toReadableNumber(
       buyToken.decimals,
-      scientificNotationToString(
-        new Big(order.bought_amount || '0')
-          .minus(order.unclaimed_amount || '0')
-          .toString()
-      )
+      scientificNotationToString(unDecimals_claimedAmount)
     );
 
     const buyAmountRaw = sellAmountToBuyAmount(
@@ -323,11 +360,7 @@ function OrderCard({
             </span>
 
             <span>
-            ${
-              Number(claimedAmount) > 0 && Number(claimedAmount) < 0.001
-                ? '< 0.001'
-                : toPrecision(claimedAmount, 3)
-            }
+            ${display_amount_3_decimal(claimedAmount)}
             </span>
 
         </div>
@@ -351,11 +384,7 @@ function OrderCard({
             </span>
 
             <span>
-            ${
-              Number(unClaimedAmount) > 0 && Number(unClaimedAmount) < 0.001
-                ? '< 0.001'
-                : toPrecision(unClaimedAmount, 3)
-            }
+            ${display_amount_3_decimal(unClaimedAmount)}
             </span>
 
         </div>`
@@ -377,11 +406,7 @@ function OrderCard({
             </span>
 
             <span>
-            ${
-              Number(pendingAmount) > 0 && Number(pendingAmount) < 0.001
-                ? '< 0.001'
-                : toPrecision(pendingAmount, 3)
-            }
+            ${display_amount_3_decimal(pendingAmount)}
 
             </span>
 
@@ -392,8 +417,19 @@ function OrderCard({
     `;
     };
 
+    const sellAmountToClaimedAmount = buyAmountToSellAmount(
+      unDecimals_claimedAmount,
+      order,
+      price
+    );
+    const sellAmountToUnClaimedAmount = buyAmountToSellAmount(
+      order.unclaimed_amount || '0',
+      order,
+      price
+    );
+
     const sellTokenAmount = (
-      <div className="flex items-center whitespace-nowrap w-28 justify-between">
+      <div className="flex items-center whitespace-nowrap w-28 justify-between xsm:w-1 xsm:flex-grow">
         <span className="flex flex-shrink-0 items-center">
           <img
             src={sellToken.icon}
@@ -421,7 +457,7 @@ function OrderCard({
     );
 
     const buyTokenAmount = (
-      <span className="flex items-center ml-6">
+      <span className="flex items-center ml-6 xsm:w-1 xsm:flex-grow xsm:m-0 xsm:justify-end">
         <img
           src={buyToken.icon}
           className="border flex-shrink-0 border-gradientFrom rounded-full w-7 h-7"
@@ -478,7 +514,7 @@ function OrderCard({
 
     const unclaimTip = (
       <div
-        className="text-xs xs:relative xs:bottom-2 mt-1 mr-1 w-40 xs:w-full flex items-center xs:flex-row-reverse"
+        className="text-xs mt-1 mr-1 w-40 xs:w-full xsm:mt-0 xsm:mr-0 flex items-center xs:flex-row-reverse"
         data-type="info"
         data-place="bottom"
         data-multiline={true}
@@ -487,7 +523,7 @@ function OrderCard({
         data-tip={getUnclaimAmountTip()}
         data-for={'unclaim_tip_' + order.order_id}
       >
-        <span className="mr-1 xs:ml-2">
+        <span className="mr-1 xsm:ml-2.5 xsm:mr-3.5">
           <QuestionMark color="dark" />
         </span>
         <div className="flex items-center w-full">
@@ -586,27 +622,19 @@ function OrderCard({
           <span className="flex items-center text-sm text-v3SwapGray">
             <div className="flex items-center w-28">
               <span title={totalIn} className="text-white xs:text-v3SwapGray">
-                {Number(totalIn) > 0 && Number(totalIn) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(totalIn, 2)}
+                {display_amount(totalIn)}
               </span>
               <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
             </div>
             <span className="mx-2 text-white xs:text-v3SwapGray">
-              {isClientMobie() ? (
-                <MyOrderInstantSwapArrowRight />
-              ) : (
-                <MyOrderInstantSwapArrowRight />
-              )}
+              <MyOrderInstantSwapArrowRight />
             </span>
             <div className="flex items-center w-40 justify-end">
               <span
                 title={toPrecision(totalOut, buyToken.decimals)}
                 className="text-white xs:text-v3SwapGray"
               >
-                {Number(totalOut) > 0 && Number(totalOut) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(totalOut, 2)}
+                {display_amount(totalOut)}
               </span>
 
               <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
@@ -632,25 +660,17 @@ function OrderCard({
             <BsCheckCircle className="mr-3" fill="#42bb17" stroke="#42BB17" />
             <div className="flex items-center w-28">
               <span title={swapIn} className="text-v3SwapGray">
-                {Number(swapIn) > 0 && Number(swapIn) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(swapIn, 2)}
+                {display_amount(swapIn)}
               </span>
 
               <span className="ml-1.5">{toRealSymbol(sellToken.symbol)}</span>
             </div>
             <span className="mx-2 text-v3SwapGray">
-              {isClientMobie() ? (
-                <MyOrderInstantSwapArrowRight />
-              ) : (
-                <MyOrderInstantSwapArrowRight />
-              )}
+              <MyOrderInstantSwapArrowRight />
             </span>
             <div className="flex items-end justify-end w-40">
               <span title={swapOut} className="text-v3SwapGray">
-                {Number(swapOut) > 0 && Number(swapOut) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(swapOut, 2)}
+                {display_amount(swapOut)}
               </span>
 
               <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
@@ -664,20 +684,14 @@ function OrderCard({
             <PurpleCircleIcon className="mr-3"></PurpleCircleIcon>
             <div className="w-28">
               <span title={orderIn} className="text-white text-sm">
-                {Number(orderIn) > 0 && Number(orderIn) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(orderIn, 2)}
+                {display_amount(orderIn)}
               </span>
               <span className="ml-1.5 text-v3SwapGray text-sm">
                 {toRealSymbol(sellToken.symbol)}
               </span>
             </div>
             <span className="mx-2 text-v3SwapGray">
-              {isClientMobie() ? (
-                <MyOrderInstantSwapArrowRight />
-              ) : (
-                <MyOrderInstantSwapArrowRight />
-              )}
+              <MyOrderInstantSwapArrowRight />
             </span>
             <div className="flex items-center justify-end w-40">
               <span
@@ -685,14 +699,9 @@ function OrderCard({
                 className="flex items-center text-sm text-white"
               >
                 <label className="text-sm text-greenColor">
-                  {Number(claimedAmount) > 0 && Number(claimedAmount) < 0.001
-                    ? '< 0.001'
-                    : toPrecision(claimedAmount, 3)}
+                  {display_amount_3_decimal(claimedAmount)}
                 </label>
-                /
-                {Number(buyAmount) > 0 && Number(buyAmount) < 0.01
-                  ? '< 0.01'
-                  : toPrecision(buyAmount, 2)}
+                /{display_amount(buyAmount)}
               </span>
               <span className="ml-1.5 text-sm text-v3SwapGray">
                 {toRealSymbol(buyToken.symbol)}
@@ -702,6 +711,8 @@ function OrderCard({
         </div>
       </div>
     );
+    const mobile_l_width = 16;
+    const mobile_r_width = 12;
     const swapBannerMobile = (
       <>
         <div className="flex items-center justify-between">
@@ -718,25 +729,28 @@ function OrderCard({
             />
           </span>
           <div className="flex items-center text-sm text-v3SwapGray">
-            <span title={totalIn} className="text-white xs:text-v3SwapGray">
-              {Number(totalIn) > 0 && Number(totalIn) < 0.01
-                ? '< 0.01'
-                : toPrecision(totalIn, 2)}
+            <span
+              title={totalIn}
+              className={`text-white xs:text-v3SwapGray whitespace-nowrap text-right w-${mobile_l_width}`}
+            >
+              {display_amount(totalIn)}
             </span>
             <span className="mx-2 text-white xs:text-v3SwapGray">
               <MyOrderInstantSwapArrowRight />
             </span>
             <span
               title={toPrecision(totalOut, buyToken.decimals)}
-              className="text-white xs:text-v3SwapGray"
+              className={`text-white xs:text-v3SwapGray text-right whitespace-nowrap w-${mobile_r_width}`}
             >
-              {Number(totalOut) > 0 && Number(totalOut) < 0.01
-                ? '< 0.01'
-                : toPrecision(totalOut, 2)}
+              {display_amount(totalOut)}
             </span>
           </div>
         </div>
-        <div className="flex items-center justify-between">
+        <div
+          className={`flex items-center justify-between mt-4 ${
+            ONLY_ZEROS.test(swapIn || '0') ? 'hidden' : ''
+          }`}
+        >
           <span className="flex items-center text-sm text-v3SwapGray">
             Instant Swap
             <ExclamationTip
@@ -746,52 +760,85 @@ function OrderCard({
             />
           </span>
           <div className="flex items-center text-sm text-v3SwapGray">
-            <BsCheckCircle className="mr-3" fill="#42bb17" stroke="#42BB17" />
-            <span title={swapIn} className="text-v3SwapGray">
-              {Number(swapIn) > 0 && Number(swapIn) < 0.01
-                ? '< 0.01'
-                : toPrecision(swapIn, 2)}
-            </span>
+            <div
+              className={`flex items-center justify-between whitespace-nowrap w-${mobile_l_width}`}
+            >
+              <BsCheckCircle className="mr-3" fill="#42bb17" stroke="#42BB17" />
+              <span
+                title={swapIn}
+                className="text-v3SwapGray whitespace-nowrap"
+              >
+                {display_amount(swapIn)}
+              </span>
+            </div>
             <span className="mx-2 text-v3SwapGray">
               <MyOrderInstantSwapArrowRight />
             </span>
-            <span title={swapOut} className="text-v3SwapGray">
-              {Number(swapOut) > 0 && Number(swapOut) < 0.01
-                ? '< 0.01'
-                : toPrecision(swapOut, 2)}
+            <span
+              title={swapOut}
+              className={`text-v3SwapGray text-right whitespace-nowrap w-${mobile_r_width}`}
+            >
+              {display_amount(swapOut)}
             </span>
           </div>
         </div>
-        <div className="flex items-center justify-between">
+        <div
+          className={`flex items-center justify-between mt-4 ${
+            ONLY_ZEROS.test(claimedAmount || '0') ? 'hidden' : ''
+          }`}
+        >
           <span className="flex items-center text-sm text-v3SwapGray">
             Claimed
           </span>
+          <div className="flex items-center">
+            <div
+              className={`flex items-center justify-between whitespace-nowrap w-${mobile_l_width}`}
+            >
+              <GreenCircleIcon className="flex-shrink-0"></GreenCircleIcon>
+              <span className="text-primaryText text-sm whitespace-nowrap">
+                {display_amount(sellAmountToClaimedAmount)}
+              </span>
+            </div>
+            <span className="mx-2 text-v3SwapGray">
+              <MyOrderInstantSwapArrowRight />
+            </span>
+            <span
+              className={`text-primaryText text-sm whitespace-nowrap text-right w-${mobile_r_width}`}
+            >
+              {display_amount(claimedAmount)}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center justify-between">
+        <div
+          className={`flex items-center justify-between mt-4 ${
+            ONLY_ZEROS.test(unClaimedAmount || '0') ? 'hidden' : ''
+          }`}
+        >
           <span className="flex items-center text-sm text-v3SwapGray">
             Filled
           </span>
+          <div className="flex items-center">
+            <div
+              className={`flex items-center justify-between whitespace-nowrap w-${mobile_l_width}`}
+            >
+              <PurpleCircleIcon className="flex-shrink-0"></PurpleCircleIcon>
+              <span className="text-white text-sm whitespace-nowrap">
+                {display_amount(sellAmountToUnClaimedAmount)}
+              </span>
+            </div>
+            <span className="mx-2 text-v3SwapGray">
+              <MyOrderInstantSwapArrowRight />
+            </span>
+            <span
+              className={`text-white text-sm whitespace-nowrap text-right w-${mobile_r_width}`}
+            >
+              {display_amount(unClaimedAmount)}
+            </span>
+          </div>
         </div>
       </>
     );
-
-    const MobileInfoBanner = ({
-      text,
-      value,
-    }: {
-      text: string | JSX.Element;
-      value: string | JSX.Element;
-    }) => {
-      return (
-        <div className="flex mb-4 items-center justify-between whitespace-nowrap">
-          <span className="text-xs text-v3SwapGray">{text}</span>
-          <span className="text-white text-sm">{value}</span>
-        </div>
-      );
-    };
     const tx_record = activeOrderTxMap[order.order_id];
-    console.log('555555555555555555-activeOrderTxMap', activeOrderTxMap);
-    console.log('555555555555555555-order.order_id', order.order_id);
     return (
       <>
         {/* PC */}
@@ -810,7 +857,9 @@ function OrderCard({
               {orderRate}
               {unclaim}
               <UpDownButton
-                set_switch_off={set_switch_off}
+                set_switch_off={() => {
+                  set_switch_off(!switch_off);
+                }}
                 switch_off={switch_off}
               ></UpDownButton>
             </div>
@@ -836,8 +885,8 @@ function OrderCard({
             {created}
           </div>
         </div>
-        {/* Mobile todo*/}
-        <div className="lg:hidden mx-5 mb-3 rounded-lg bg-portfolioBgColor">
+        {/* Mobile */}
+        <div className="lg:hidden mx-5 mb-3 rounded-lg bg-portfolioBgColor border border-border_light_grey_color">
           {/* title */}
           <div className="p-3">
             <div className="flex items-center justify-between">
@@ -845,49 +894,55 @@ function OrderCard({
               <ArrowRightForOrder></ArrowRightForOrder>
               {buyTokenAmount}
             </div>
-            <div className="flex items-center justify-between">
-              {unclaim}
+            <div className="flex items-center justify-between mt-3.5">
+              {unclaimTip}
               <UpDownButton
-                set_switch_off={set_switch_off}
+                set_switch_off={() => {
+                  set_switch_off(!switch_off);
+                }}
                 switch_off={switch_off}
               ></UpDownButton>
             </div>
           </div>
           {/* content */}
-          <div className="p-3">
-            <div className="flex items-center justify-between pb-4 border-b border-limitOrderFeeTiersBorderColor">
-              <span className="text-sm text-v3SwapGray">Order Progress</span>
-              <div className="flex items-center">
-                from{' '}
-                <span className="text-xs text-v3SwapGray px-0.5 bg-menuMoreBgColor rounded ml-1.5">
-                  NEAR
-                </span>
+          <div className={`${switch_off ? 'hidden' : ''}`}>
+            <div className="pb-3">
+              <div className="flex items-center justify-between p-3">
+                <span className="text-sm text-v3SwapGray">Order Progress</span>
+                <div className="flex items-center">
+                  <div className="flex items-center text-v3SwapGray text-sm ">
+                    from
+                    <span className="text-xs text-v3SwapGray px-0.5 bg-menuMoreBgColor rounded ml-1.5">
+                      {toRealSymbol(sellToken.symbol)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-end text-v3SwapGray text-sm w-20">
+                    to
+                    <span className="text-xs text-v3SwapGray px-0.5 bg-menuMoreBgColor rounded ml-1.5">
+                      {toRealSymbol(buyToken.symbol)}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center">
-                to{' '}
-                <span className="text-xs text-v3SwapGray px-0.5 bg-menuMoreBgColor rounded ml-1.5">
-                  REF
-                </span>
+              <div className="px-3 py-4 border-t border-b border-limitOrderFeeTiersBorderColor">
+                {swapBannerMobile}
               </div>
             </div>
-            <div className="border-b border-limitOrderFeeTiersBorderColor">
-              {swapBannerMobile}
+            {/* created time */}
+            <div className="flex items-center justify-between px-3 pb-3">
+              {created}
+              <span
+                onClick={() => {
+                  const txHash = activeOrderTxMap[order.order_id];
+                  window.open(`${explorerUrl}/txns/${txHash}`);
+                }}
+                className={`flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 py-0.5 ${
+                  tx_record ? '' : 'hidden'
+                }`}
+              >
+                Onchain Record <LinkIcon className="ml-1"></LinkIcon>
+              </span>
             </div>
-          </div>
-          {/* created time */}
-          <div className="flex items-center justify-between">
-            {created}
-            <span
-              onClick={() => {
-                const txHash = activeOrderTxMap[order.order_id];
-                window.open(`${explorerUrl}/txns/${txHash}`);
-              }}
-              className={`flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white  py-0.5  mr-1.5 ${
-                tx_record ? '' : ''
-              }`}
-            >
-              Onchain Record <LinkIcon className="ml-1"></LinkIcon>
-            </span>
           </div>
         </div>
       </>
@@ -918,70 +973,89 @@ function OrderCard({
     (!activeOrder ||
       (activeOrder.length > 0 && Object.keys(tokensMap || {}).length == 0)) &&
     isSignedIn;
-  const noData_status = !activeOrder || activeOrder.length === 0;
+  const noData_status =
+    !loading_status && (activeOrder?.length === 0 || !isSignedIn);
   return (
     <div className="flex flex-col">
-      {loading_status ? (
+      {/* pc loading */}
+      {loading_status && !is_mobile ? (
         <div className="flex items-center justify-center my-20">
           <BlueCircleLoading></BlueCircleLoading>
         </div>
-      ) : (
-        <>
-          {noData_status ? (
-            <NoDataCard text="Your active order(s) will appear here." />
-          ) : (
-            <>
-              {activeOrder ? (
-                <>
-                  <div
-                    className={`flex items-center justify-between  pl-6 xs:hidden text-v3SwapGray text-sm  whitespace-nowrap xsm:hidden`}
-                  >
-                    <div className="flex items-center">
-                      <span className="text-left">
-                        <FormattedMessage
-                          id="you_sell"
-                          defaultMessage={'You Sell'}
-                        />
-                      </span>
+      ) : null}
+      {/* pc no data */}
+      {noData_status && !is_mobile ? (
+        <NoDataCard text="Your active order(s) will appear here." />
+      ) : null}
+      {/* list data */}
 
-                      <span className="ml-20">
-                        <FormattedMessage
-                          id="you_buy"
-                          defaultMessage={'You Buy'}
-                        />
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="w-32">@Price</span>
-                      <div className="flex items-center justify-between w-56">
-                        <span className="">Execute Status</span>
-                        <span
-                          onClick={() => {
-                            window.open('/myOrder');
-                          }}
-                          className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white py-0.5"
-                        >
-                          Your Order(s) <LinkIcon className="ml-1"></LinkIcon>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  {/* todo */}
-                  {activeOrder.sort(activeOrderSorting).map((order, index) => {
-                    return (
-                      <ActiveLine
-                        index={index}
-                        key={order.order_id}
-                        order={order}
-                      />
-                    );
-                  })}
-                </>
-              ) : null}
-            </>
-          )}
-        </>
-      )}
+      {/* for pc banner */}
+      <div
+        className={`flex items-center justify-between  pl-6 xs:hidden text-v3SwapGray text-sm  whitespace-nowrap xsm:hidden ${
+          loading_status || noData_status ? 'hidden' : ''
+        }`}
+      >
+        <div className="flex items-center">
+          <span className="text-left">
+            <FormattedMessage id="you_sell" defaultMessage={'You Sell'} />
+          </span>
+
+          <span className="ml-20">
+            <FormattedMessage id="you_buy" defaultMessage={'You Buy'} />
+          </span>
+        </div>
+        <div className="flex items-center">
+          <span className="w-32">@Price</span>
+          <div className="flex items-center justify-between w-56">
+            <span className="">Execute Status</span>
+            <span
+              onClick={() => {
+                window.open('/myOrder');
+              }}
+              className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white py-0.5"
+            >
+              Your Order(s) <LinkIcon className="ml-1"></LinkIcon>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="xsm:border-b xsm:border-cardBg">
+        {/* for mobile banner */}
+        <div className="flex items-center justify-between lg:hidden p-5">
+          <span className="text-base text-white gotham_bold">
+            Active Orders ({total_active_orders_quanity})
+          </span>
+          <div className="flex items-center">
+            <span className="text-base text-white gotham_bold mr-2">
+              {total_active_orders_value}
+            </span>
+            <UpDownButton
+              set_switch_off={() => {
+                setActiveTab(activeTab == '1' ? '' : '1');
+              }}
+              switch_off={activeTab != '1'}
+            ></UpDownButton>
+          </div>
+        </div>
+        {/* for mobile loading */}
+        {loading_status && is_mobile && activeTab == '1' ? (
+          <div className={`flex items-center justify-center my-10`}>
+            <BlueCircleLoading></BlueCircleLoading>
+          </div>
+        ) : null}
+        {/* for mobile no data */}
+        {noData_status && is_mobile && activeTab == '1' ? (
+          <NoDataCard text="Your active order(s) will appear here." />
+        ) : null}
+        {/* active order list */}
+        <div className={`${activeTab == '1' ? '' : 'hidden'}`}>
+          {activeOrder?.sort(activeOrderSorting).map((order, index) => {
+            return (
+              <ActiveLine index={index} key={order.order_id} order={order} />
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

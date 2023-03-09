@@ -21,6 +21,7 @@ import getConfig from '../../services/config';
 const { XREF_TOKEN_ID } = getConfig();
 import { ArrowJump, display_percentage, display_value } from './Tool';
 import { isMobile } from '~utils/device';
+const is_mobile = isMobile();
 const AssetData = createContext(null);
 export default function Asset() {
   const {
@@ -106,7 +107,6 @@ export default function Asset() {
   function getV1PoolUSDValue() {
     return display_value(YourLpValueV1);
   }
-  const is_mobile = isMobile();
   return (
     <AssetData.Provider
       value={{

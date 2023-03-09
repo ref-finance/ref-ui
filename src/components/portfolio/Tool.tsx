@@ -10,6 +10,8 @@ import { ArrowRightIcon } from '../../components/icon/V3';
 import { ArrowRIcon, WavyLine, CircleBg } from '../icon/Portfolio';
 import { TriangleIcon } from '../../components/icon/Portfolio';
 import { getCurrentWallet } from '../../utils/wallets-integration';
+import { isMobile } from '~utils/device';
+const is_mobile = isMobile();
 export function ArrowJump(props: any) {
   const [hover, setHover] = useState(false);
   const { clickEvent, extraClass } = props;
@@ -57,13 +59,17 @@ export function UpDownButton(props: any) {
   return (
     <div
       onClick={() => {
-        set_switch_off(!switch_off);
+        set_switch_off();
       }}
       onMouseEnter={() => {
-        setHover(true);
+        if (!is_mobile) {
+          setHover(true);
+        }
       }}
       onMouseLeave={() => {
-        setHover(false);
+        if (!is_mobile) {
+          setHover(false);
+        }
       }}
       className={`flex items-center justify-center rounded-md w-6 h-6 cursor-pointer ${
         switch_off
@@ -89,10 +95,12 @@ export function NoDataCard({ text }: { text: string }) {
   return (
     <div
       className="flex items-center justify-center"
-      style={{ height: '226px' }}
+      style={{ height: is_mobile ? '100px' : '226px' }}
     >
-      <span className="text-sm text-primaryText relative z-10">{text}</span>
-      <div className="absolute left-0 right-0 top-0 bottom-0 ">
+      <span className="text-sm text-primaryText relative z-10 xsm:-top-3">
+        {text}
+      </span>
+      <div className="absolute left-0 right-0 top-0 bottom-0 xsm:hidden">
         <WavyLine className="absolute bottom-0 left-0"></WavyLine>
         <CircleBg className="absolute right-0 top-0"></CircleBg>
       </div>
@@ -167,4 +175,125 @@ export function display_value_withCommas(amount: string) {
   } else {
     return `$${formatWithCommas(toPrecision(amount, 2))}`;
   }
+}
+
+export function useTotalOrderData({
+  active_order_value_done,
+  active_order_Loading_done,
+  active_order_quanity,
+  active_order_value,
+}: {
+  active_order_value_done: boolean;
+  active_order_Loading_done: boolean;
+  active_order_quanity: string;
+  active_order_value: string;
+}) {
+  const total_active_orders_value = useMemo(() => {
+    let total_value = '$-';
+    if (active_order_value_done) {
+      total_value = display_value(active_order_value);
+    }
+    return total_value;
+  }, [active_order_value_done, active_order_value]);
+
+  const total_active_orders_quanity = useMemo(() => {
+    let total_quantity = '-';
+    if (active_order_Loading_done) {
+      total_quantity = active_order_quanity;
+    }
+    return total_quantity;
+  }, [active_order_Loading_done, active_order_quanity]);
+  return {
+    total_active_orders_value,
+    total_active_orders_quanity,
+  };
+}
+
+export function useTotalFarmData({
+  dcl_farms_value,
+  classic_farms_value,
+  dcl_farms_value_done,
+  classic_farms_value_done,
+  all_farms_Loading_done,
+  all_farms_quanity,
+}: {
+  dcl_farms_value: string;
+  classic_farms_value: string;
+  dcl_farms_value_done: boolean;
+  classic_farms_value_done: boolean;
+  all_farms_Loading_done: boolean;
+  all_farms_quanity: string;
+}) {
+  const total_farms_value = useMemo(() => {
+    let total_value = '$-';
+    if (dcl_farms_value_done && classic_farms_value_done) {
+      total_value = display_value(
+        new BigNumber(classic_farms_value).plus(dcl_farms_value).toFixed()
+      );
+    }
+    return total_value;
+  }, [
+    dcl_farms_value,
+    classic_farms_value,
+    dcl_farms_value_done,
+    classic_farms_value_done,
+  ]);
+  const total_farms_quantity = useMemo(() => {
+    let total_quantity = '-';
+    if (all_farms_Loading_done) {
+      total_quantity = all_farms_quanity;
+    }
+    return total_quantity;
+  }, [all_farms_Loading_done, all_farms_quanity]);
+  return {
+    total_farms_value,
+    total_farms_quantity,
+  };
+}
+export function useTotalLiquidityData({
+  YourLpValueV1,
+  YourLpValueV2,
+  lpValueV1Done,
+  lpValueV2Done,
+  v1LiquidityQuantity,
+  v2LiquidityQuantity,
+  v1LiquidityLoadingDone,
+  v2LiquidityLoadingDone,
+}: {
+  YourLpValueV1: string;
+  YourLpValueV2: string;
+  lpValueV1Done: boolean;
+  lpValueV2Done: boolean;
+  v1LiquidityQuantity: string;
+  v2LiquidityQuantity: string;
+  v1LiquidityLoadingDone: boolean;
+  v2LiquidityLoadingDone: boolean;
+}) {
+  const total_liquidity_value = useMemo(() => {
+    let total_value = '$-';
+    if (lpValueV1Done && lpValueV2Done) {
+      total_value = display_value(
+        new BigNumber(YourLpValueV1 || 0).plus(YourLpValueV2 || 0).toFixed()
+      );
+    }
+    return total_value;
+  }, [YourLpValueV1, YourLpValueV2, lpValueV1Done, lpValueV2Done]);
+  const total_liquidity_quantity = useMemo(() => {
+    let total_quantity = '-';
+    if (v1LiquidityLoadingDone && v2LiquidityLoadingDone) {
+      total_quantity = new BigNumber(v1LiquidityQuantity || 0)
+        .plus(v2LiquidityQuantity || 0)
+        .toFixed();
+    }
+    return total_quantity;
+  }, [
+    v1LiquidityQuantity,
+    v2LiquidityQuantity,
+    v1LiquidityLoadingDone,
+    v2LiquidityLoadingDone,
+  ]);
+  return {
+    total_liquidity_value,
+    total_liquidity_quantity,
+  };
 }

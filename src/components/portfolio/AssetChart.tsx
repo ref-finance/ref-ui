@@ -26,7 +26,7 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 const is_mobile = isMobile();
-const chartAreaHeight = is_mobile ? '150px' : 'auto';
+const chartAreaHeight = is_mobile ? '150px' : '280px';
 export default function AssetChart() {
   const [assetData, setAssetData] = useState([]);
   const [assetDataDone, setAssetDataDone] = useState<boolean>(false);

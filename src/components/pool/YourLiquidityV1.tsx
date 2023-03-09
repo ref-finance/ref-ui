@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useContext, useMemo } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  useMemo,
+  createContext,
+} from 'react';
 import { Card } from '~components/card/Card';
 import Alert from '~components/alert/Alert';
 import Modal from 'react-modal';
@@ -65,8 +71,7 @@ import getConfig from '../../services/config';
 import { useStakeListByAccountId, useBatchTotalShares } from '../../state/pool';
 import { getPoolsByIds, getPoolsByTokensIndexer } from '../../services/indexer';
 import { parsePool } from '../../services/pool';
-import { createContext } from 'react';
-import { useClientMobile, isClientMobie } from '../../utils/device';
+import { useClientMobile, isClientMobie, isMobile } from '../../utils/device';
 import {
   GradientButton,
   ButtonTextWrapper,
@@ -91,9 +96,13 @@ import { getStableSwapTabKey } from '~pages/stable/StableSwapPageUSN';
 import { LinkIcon } from '../../components/icon/Portfolio';
 import ReactTooltip from 'react-tooltip';
 import { checkFarmStake } from '../../state/farm';
-import { display_number_withCommas, UpDownButton } from '../portfolio/Tool';
+import {
+  display_number_withCommas,
+  UpDownButton,
+  display_value,
+} from '../portfolio/Tool';
+const is_mobile = isMobile();
 export const StakeListContext = createContext(null);
-
 export function YourLiquidityV1(props: any) {
   const {
     setYourLpValueV1,
@@ -599,7 +608,7 @@ function LiquidityContainerStyle2() {
     </div>
   );
 }
-
+const LiquidityContextData = createContext(null);
 function YourClassicLiquidityLine(props: any) {
   const {
     vePool,
@@ -625,15 +634,15 @@ function YourClassicLiquidityLine(props: any) {
     ? getStablePoolDecimal(poolId)
     : LP_TOKEN_DECIMALS;
   // todo token 需要排序
-  const Images = tokens.map((token: TokenMetadata) => {
+  const Images = tokens.map((token: TokenMetadata, index: number) => {
     const { icon, id } = token;
     if (icon)
       return (
         <img
           key={id}
-          className={
-            'inline-block h-7 w-7 rounded-full border border-gradientFromHover -ml-1 '
-          }
+          className={`inline-block h-7 w-7 xsm:w-6 xsm:h-6 rounded-full border border-gradientFromHover ${
+            index == 0 ? '' : '-ml-1'
+          }`}
           src={icon}
         />
       );
@@ -641,7 +650,7 @@ function YourClassicLiquidityLine(props: any) {
       <div
         key={id}
         className={
-          'inline-block h-7 w-7 rounded-full bg-cardBg border border-gradientFromHover -ml-1'
+          'inline-block h-7 w-7 xsm:w-6 xsm:h-6 rounded-full bg-cardBg border border-gradientFromHover -ml-1'
         }
       ></div>
     );
@@ -738,16 +747,6 @@ function YourClassicLiquidityLine(props: any) {
     if (allFarmV2_count == endedFarmV2_count) return 'e';
     return 'r';
   }, [v2Farm]);
-  function display_value(amount: string) {
-    const amount_big = new BigNumber(amount);
-    if (amount_big.isEqualTo('0')) {
-      return '$0';
-    } else if (amount_big.isLessThan('0.01')) {
-      return '<$0.01';
-    } else {
-      return `$${toInternationalCurrencySystem(amount, 2)}`;
-    }
-  }
   function display_percent(percent: string) {
     const p = new BigNumber(percent).multipliedBy(100);
     if (p.isEqualTo(0)) {
@@ -758,6 +757,162 @@ function YourClassicLiquidityLine(props: any) {
       return toPrecision(p.toFixed(), 2) + '%';
     }
   }
+  return (
+    <LiquidityContextData.Provider
+      value={{
+        switch_off,
+        Images,
+        Symbols,
+        pool,
+        lp_total_value,
+        set_switch_off,
+        lp_total,
+        display_percent,
+        user_lp_percent,
+        lp_in_vote,
+        lp_in_pool,
+        lp_in_farm,
+        seed_status,
+      }}
+    >
+      {is_mobile ? (
+        <YourClassicLiquidityLineMobile></YourClassicLiquidityLineMobile>
+      ) : (
+        <YourClassicLiquidityLinePc></YourClassicLiquidityLinePc>
+      )}
+    </LiquidityContextData.Provider>
+  );
+}
+function YourClassicLiquidityLineMobile() {
+  const {
+    switch_off,
+    Images,
+    Symbols,
+    pool,
+    lp_total_value,
+    set_switch_off,
+    lp_total,
+    display_percent,
+    user_lp_percent,
+    lp_in_vote,
+    lp_in_pool,
+    lp_in_farm,
+    seed_status,
+  } = useContext(LiquidityContextData);
+  return (
+    <div
+      className={`rounded-xl mt-3 bg-portfolioBgColor mx-4 border border-border_light_grey_color`}
+    >
+      <div className="flex flex-col justify-between h-20 p-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="flex items-center mr-1.5">{Images}</div>
+            <span className="text-sm text-white gotham_bold">{Symbols}</span>
+          </div>
+          <span className="text-sm text-white gotham_bold">
+            {display_value(lp_total_value)}
+          </span>
+        </div>
+
+        <div className={`flex justify-between`}>
+          <span
+            onClick={() => {
+              window.open(`/pool/${pool.id}`);
+            }}
+            className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md cursor-pointer whitespace-nowrap py-0.5 px-1.5"
+          >
+            Classic <LinkIcon className="ml-1 flex-shrink-0"></LinkIcon>
+          </span>
+          <UpDownButton
+            set_switch_off={() => {
+              set_switch_off(!switch_off);
+            }}
+            switch_off={switch_off}
+          ></UpDownButton>
+        </div>
+      </div>
+      <div
+        className={`px-2.5 py-4 border-t border-limitOrderFeeTiersBorderColor ${
+          switch_off ? 'hidden' : ''
+        }`}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <span className="text-sm text-v3SwapGray">Your Liquidity</span>
+          <span className="text-sm text-white">
+            {display_value(lp_total_value)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between mb-6">
+          <span className="text-sm text-v3SwapGray">
+            Your LP Tokens(Shares)
+          </span>
+          <span className="text-sm text-white">
+            {display_number_withCommas(lp_total)} (
+            {display_percent(user_lp_percent)})
+          </span>
+        </div>
+        <div className="flex items-start justify-between">
+          <span className="text-sm text-v3SwapGray">Usage</span>
+          <div className="flex flex-col items-end text-sm text-white">
+            <div
+              className={`flex items-center ${
+                +lp_in_farm > 0 ? '' : 'hidden'
+              } ${+lp_in_vote > 0 || +lp_in_pool > 0 ? 'mb-4' : ''}`}
+            >
+              {display_number_withCommas(lp_in_farm)} in{' '}
+              <span
+                className="flex items-center"
+                onClick={() => {
+                  window.open(`/v2farms/${pool.id}-${seed_status}`);
+                }}
+              >
+                <label className="underline cursor-pointer mx-1">Farm</label>{' '}
+                <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
+              </span>
+            </div>
+            <div
+              className={`flex items-center  ${
+                +lp_in_vote > 0 ? '' : 'hidden'
+              } ${+lp_in_pool > 0 ? 'mb-4' : ''}`}
+            >
+              {display_number_withCommas(lp_in_vote)} locked in{' '}
+              <span
+                className="flex items-center"
+                onClick={() => {
+                  window.open('/referendum');
+                }}
+              >
+                <label className="underline cursor-pointer mx-1">DAO</label>{' '}
+                <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
+              </span>
+            </div>
+            <div
+              className={`flex items-center ${+lp_in_pool > 0 ? '' : 'hidden'}`}
+            >
+              {display_number_withCommas(lp_in_pool)} Holding
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function YourClassicLiquidityLinePc() {
+  const {
+    switch_off,
+    Images,
+    Symbols,
+    pool,
+    lp_total_value,
+    set_switch_off,
+    lp_total,
+    display_percent,
+    user_lp_percent,
+    lp_in_vote,
+    lp_in_pool,
+    lp_in_farm,
+    seed_status,
+  } = useContext(LiquidityContextData);
   return (
     <div
       className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
@@ -787,7 +942,9 @@ function YourClassicLiquidityLine(props: any) {
             {display_value(lp_total_value)}
           </span>
           <UpDownButton
-            set_switch_off={set_switch_off}
+            set_switch_off={() => {
+              set_switch_off(!switch_off);
+            }}
             switch_off={switch_off}
           ></UpDownButton>
         </div>

@@ -13,14 +13,14 @@ import { getBoostTokenPrices } from '../services/farm';
 import { UserLiquidityInfo } from '../services/commonV3';
 import { TokenMetadata } from '~services/ft-contract';
 import { isMobile } from '~utils/device';
-
+const is_mobile = isMobile();
 export const PortfolioData = createContext(null);
 function Portfolio() {
   // variables only used in mobile site start
-  const [main_active_tab, set_main_active_tab] = useState('positions'); // overview,positions,token
+  const [main_active_tab, set_main_active_tab] = useState('overview'); // overview,positions,token
 
   // variables only used in mobile site end
-  const [activeTab, setActiveTab] = useState(1); // 1,2,3
+  const [activeTab, setActiveTab] = useState(is_mobile ? '' : '1'); // 1,2,3
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
   const [YourLpValueV1, setYourLpValueV1] = useState('0');
   const [lpValueV1Done, setLpValueV1Done] = useState(false);
@@ -68,7 +68,6 @@ function Portfolio() {
     const tokenPriceList = await getBoostTokenPrices();
     setTokenPriceList(tokenPriceList);
   }
-  const is_mobile = isMobile();
   return (
     <PortfolioData.Provider
       value={{
@@ -138,7 +137,7 @@ function Portfolio() {
   );
 }
 function PortfolioMobile() {
-  const { activeTab, main_active_tab } = useContext(PortfolioData);
+  const { main_active_tab } = useContext(PortfolioData);
   return (
     <div>
       <MainTab></MainTab>
@@ -149,6 +148,8 @@ function PortfolioMobile() {
       </div>
       <div className={`${main_active_tab == 'positions' ? '' : 'hidden'}`}>
         <Orders></Orders>
+        <Positions></Positions>
+        <Farms></Farms>
       </div>
       <div className={`${main_active_tab == 'token' ? '' : 'hidden'}`}>
         <Tokens></Tokens>

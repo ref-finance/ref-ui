@@ -57,6 +57,8 @@ import { LinkIcon, WaterDropIcon } from '../../components/icon/Portfolio';
 import { UpDownButton } from '../portfolio/Tool';
 import { ftGetTokenMetadata, TokenMetadata } from '~services/ft-contract';
 import { PortfolioData } from '../../pages/Portfolio';
+import { isMobile } from '~utils/device';
+const is_mobile = isMobile();
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 const LiquidityContext = createContext(null);
 export function YourLiquidityV2(props: any) {
@@ -1253,6 +1255,204 @@ function UserLiquidityLineStyle2() {
     return div;
   }
   return (
+    <>
+      {is_mobile ? (
+        <UserLiquidityLineStyle2Mobile
+          switch_off={switch_off}
+          set_switch_off={set_switch_off}
+          getUsageDiv={getUsageDiv}
+        ></UserLiquidityLineStyle2Mobile>
+      ) : (
+        <UserLiquidityLineStyle2Pc
+          switch_off={switch_off}
+          set_switch_off={set_switch_off}
+          getUsageDiv={getUsageDiv}
+        ></UserLiquidityLineStyle2Pc>
+      )}
+    </>
+  );
+}
+function UserLiquidityLineStyle2Mobile({
+  switch_off,
+  set_switch_off,
+  getUsageDiv,
+}: {
+  switch_off: boolean;
+  set_switch_off: any;
+  getUsageDiv: any;
+}) {
+  const {
+    getLpt_id,
+    goYourLiquidityDetailPage,
+    goPoolDetailPage,
+    tokenMetadata_x_y,
+    fee,
+    getRate,
+    rate_need_to_reverse_display,
+    getRateMapTokens,
+    isInrange,
+    your_liquidity,
+    getTokenFeeAmount,
+  } = useContext(LiquidityContext);
+  return (
+    <div
+      className={`rounded-xl mb-3 bg-portfolioBgColor mx-4 border border-border_light_grey_color`}
+    >
+      <div className="flex flex-col justify-between h-20 p-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="flex items-center flex-shrink-0 mr-1.5">
+              <img
+                src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                className="w-6 h-6 border border-greenColor rounded-full"
+              ></img>
+              <img
+                src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                className="relative -ml-1.5 w-6 h-6 border border-greenColor rounded-full"
+              ></img>
+            </div>
+            <span className="text-white font-bold text-sm gotham_bold whitespace-nowrap">
+              {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
+              {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
+            </span>
+            <span
+              onClick={() => {
+                goPoolDetailPage();
+              }}
+              className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md cursor-pointer whitespace-nowrap py-0.5 px-1.5 ml-1"
+            >
+              DCL Pool <LinkIcon className="ml-1 flex-shrink-0"></LinkIcon>
+            </span>
+          </div>
+          <span className="text-white text-sm gotham_bold">
+            ${your_liquidity || '-'}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span
+            onClick={() => {
+              goYourLiquidityDetailPage('new window');
+            }}
+            className="flex items-center bg-portfolioRainbowColor rounded-md gotham_bold text-xs text-white cursor-pointer px-1.5 py-0.5"
+          >
+            NFT #{getLpt_id()} <LinkIcon className="ml-1"></LinkIcon>
+          </span>
+          <div className="flex items-center">
+            <WaterDropIcon></WaterDropIcon>
+            <span className="text-xs text-portfolioGreenColor gotham_bold px-1.5">
+              {getTokenFeeAmount('p')}
+            </span>
+            <UpDownButton
+              set_switch_off={() => {
+                set_switch_off(!switch_off);
+              }}
+              switch_off={switch_off}
+            ></UpDownButton>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={`px-2.5 py-4 border-t border-limitOrderFeeTiersBorderColor ${
+          switch_off ? 'hidden' : ''
+        }`}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <span className="text-sm text-v3SwapGray whitespace-nowrap">
+            Your Liquidity
+          </span>
+          <span className="text-sm text-white whitespace-nowrap">
+            ${your_liquidity || '-'}
+          </span>
+        </div>
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center">
+            <span className="text-sm text-v3SwapGray whitespace-nowrap">
+              Price Range
+            </span>
+            <div className="flex items-center justify-center bg-selectTokenV3BgColor rounded-md px-1.5 h-5 py-0.5 ml-1.5">
+              <span
+                className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
+                  isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
+                }`}
+              ></span>
+              <span
+                className={`whitespace-nowrap text-xs ${
+                  isInrange
+                    ? 'text-gradientFromHover'
+                    : 'text-v3GarkWarningColor'
+                }`}
+              >
+                {isInrange ? (
+                  <FormattedMessage id="in_range"></FormattedMessage>
+                ) : (
+                  <FormattedMessage id="out_of_range"></FormattedMessage>
+                )}
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-col items-end  text-sm text-white">
+            <span className="text-sm text-white whitespace-nowrap">
+              {getRate(rate_need_to_reverse_display ? 'right' : 'left')} -{' '}
+              {getRate(rate_need_to_reverse_display ? 'left' : 'right')}
+            </span>
+            <span className="text-xs text-v3SwapGray whitespace-nowrap mt-0.5">
+              {getRateMapTokens()}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between mb-6">
+          <span className="text-sm text-v3SwapGray">Usage</span>
+          {getUsageDiv()}
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-v3SwapGray whitespace-nowrap mr-3">
+            Unclaimed Fees
+          </span>
+          <div className="flex items-center flex-wrap">
+            <img
+              src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+              className="w-5 h-5 border border-greenColor rounded-full mr-1.5"
+            ></img>
+            <span className="text-sm text-white mr-5 gotham_bold">
+              {getTokenFeeAmount('l') || '-'}
+            </span>
+            <img
+              src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+              className="w-5 h-5 border border-greenColor rounded-full mr-1.5"
+            ></img>
+            <span className="text-sm text-white gotham_bold">
+              {getTokenFeeAmount('r') || '-'}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function UserLiquidityLineStyle2Pc({
+  switch_off,
+  set_switch_off,
+  getUsageDiv,
+}: {
+  switch_off: boolean;
+  set_switch_off: any;
+  getUsageDiv: any;
+}) {
+  const {
+    getLpt_id,
+    goYourLiquidityDetailPage,
+    goPoolDetailPage,
+    tokenMetadata_x_y,
+    fee,
+    getRate,
+    rate_need_to_reverse_display,
+    getRateMapTokens,
+    isInrange,
+    your_liquidity,
+    getTokenFeeAmount,
+  } = useContext(LiquidityContext);
+  return (
     <div
       className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
         switch_off ? '' : 'pb-4'
@@ -1307,7 +1507,9 @@ function UserLiquidityLineStyle2() {
             </div>
           </div>
           <UpDownButton
-            set_switch_off={set_switch_off}
+            set_switch_off={() => {
+              set_switch_off(!switch_off);
+            }}
             switch_off={switch_off}
           ></UpDownButton>
         </div>
@@ -1351,7 +1553,7 @@ function UserLiquidityLineStyle2() {
                   {getRate(rate_need_to_reverse_display ? 'right' : 'left')} -{' '}
                   {getRate(rate_need_to_reverse_display ? 'left' : 'right')}
                 </span>
-                <span className="tetx-xs text-v3SwapGray">
+                <span className="text-xs text-v3SwapGray">
                   {getRateMapTokens()}
                 </span>
               </div>

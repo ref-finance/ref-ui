@@ -93,7 +93,7 @@ export function ExclamationTip({
       id,
       defaultMessage,
     });
-    let result: string = `<div class="text-primaryText  border-black border-opacity-20 whitespace-normal text-sm text-left ${
+    let result: string = `<div class="text-primaryText  border-black border-opacity-20 xsm:w-36 whitespace-normal text-sm text-left ${
       width ? width : ''
     }"
       style="max-width: 200px; ">${tip}</div>`;

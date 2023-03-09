@@ -61,7 +61,10 @@ import {
   UpDownButton,
   NoDataCard,
   display_value_withCommas,
+  useTotalFarmData,
 } from './Tool';
+import { isMobile } from '~utils/device';
+const is_mobile = isMobile();
 const FarmCommonDatas = createContext(null);
 export default function Farms(props: any) {
   const {
@@ -78,6 +81,12 @@ export default function Farms(props: any) {
     set_user_unclaimed_map,
     user_unclaimed_token_meta_map,
     set_user_unclaimed_token_meta_map,
+    dcl_farms_value,
+    classic_farms_value,
+    dcl_farms_value_done,
+    classic_farms_value_done,
+    activeTab,
+    setActiveTab,
   } = useContext(PortfolioData);
   const [classicSeeds, setClassicSeeds] = useState<Seed[]>([]);
   const [dclSeeds, setDclSeeds] = useState<Seed[]>([]);
@@ -98,6 +107,14 @@ export default function Farms(props: any) {
       get_your_liquidities();
     }
   }, [isSignedIn]);
+  const { total_farms_value, total_farms_quantity } = useTotalFarmData({
+    dcl_farms_value,
+    classic_farms_value,
+    dcl_farms_value_done,
+    classic_farms_value_done,
+    all_farms_Loading_done,
+    all_farms_quanity,
+  });
   async function getBoostConfig() {
     const config = await get_config();
     const data = config.booster_seeds[REF_VE_CONTRACT_ID];
@@ -253,7 +270,8 @@ export default function Farms(props: any) {
   }
   const loading_status = !all_farms_Loading_done && isSignedIn;
   const noData_status =
-    (all_farms_Loading_done && all_farms_quanity == 0) || !isSignedIn;
+    !loading_status &&
+    ((all_farms_Loading_done && all_farms_quanity == 0) || !isSignedIn);
   const data_status = all_farms_Loading_done && all_farms_quanity > 0;
   return (
     <>
@@ -269,25 +287,60 @@ export default function Farms(props: any) {
           your_list_liquidities,
         }}
       >
+        {/* for pc banner */}
         <div
-          className={`flex items-center justify-between text-sm text-v3SwapGray mb-2.5 pl-6 pr-16 ${
-            data_status ? '' : 'hidden'
-          }`}
+          className={`flex items-center justify-between text-sm text-v3SwapGray mb-2.5 pl-6 pr-16 xsm:hidden ${
+            loading_status || noData_status ? 'hidden' : ''
+          } ${data_status ? '' : 'hidden'}`}
         >
           <span>Farms</span>
           <span>Your Liquidity</span>
         </div>
-        <ClassicFarms></ClassicFarms>
-        <DclFarms></DclFarms>
-        {loading_status ? (
+        <div className="xsm:border-b xsm:border-cardBg">
+          {/* for mobile banner */}
+          <div className="flex items-center justify-between lg:hidden p-5">
+            <span className="text-base text-white gotham_bold">
+              Yield Farming ({total_farms_quantity})
+            </span>
+            <div className="flex items-center">
+              <span className="text-base text-white gotham_bold mr-2">
+                {total_farms_value}
+              </span>
+              <UpDownButton
+                set_switch_off={() => {
+                  setActiveTab(activeTab == '3' ? '' : '3');
+                }}
+                switch_off={activeTab != '3'}
+              ></UpDownButton>
+            </div>
+          </div>
+          {/* for mobile loading */}
+          {loading_status && is_mobile && activeTab == '3' ? (
+            <div className={`flex items-center justify-center my-10`}>
+              <BlueCircleLoading></BlueCircleLoading>
+            </div>
+          ) : null}
+          {/* for mobile no data */}
+          {noData_status && is_mobile && activeTab == '3' ? (
+            <NoDataCard text="Your yield farming will appear here." />
+          ) : null}
+          {/* farm list */}
+          <div className={`${activeTab == '3' ? '' : 'hidden'}`}>
+            <ClassicFarms></ClassicFarms>
+            <DclFarms></DclFarms>
+          </div>
+        </div>
+
+        {/* pc loading */}
+        {loading_status && !is_mobile ? (
           <div className="flex items-center justify-center my-20">
             <BlueCircleLoading />
           </div>
-        ) : (
-          noData_status && (
-            <NoDataCard text="Your yield farming will appear here."></NoDataCard>
-          )
-        )}
+        ) : null}
+        {/* pc no data */}
+        {noData_status && !is_mobile ? (
+          <NoDataCard text="Your yield farming will appear here."></NoDataCard>
+        ) : null}
       </FarmCommonDatas.Provider>
     </>
   );
@@ -347,6 +400,7 @@ function DclFarms() {
     </>
   );
 }
+const DCLData = createContext(null);
 function DclFarmRow({ seed }: { seed: Seed }) {
   const {
     user_seeds_map,
@@ -554,6 +608,166 @@ function DclFarmRow({ seed }: { seed: Seed }) {
     );
   }
   return (
+    <DCLData.Provider
+      value={{
+        switch_off,
+        displayImgs,
+        displaySymbols,
+        seed,
+        listLiquidities_inFarimg_value,
+        unclaimedRewardsData,
+        set_switch_off,
+        getRange,
+        listLiquidities_inFarimg,
+        tokens,
+        rate_need_to_reverse_display,
+      }}
+    >
+      {is_mobile ? (
+        <DclFarmRowMobile></DclFarmRowMobile>
+      ) : (
+        <DclFarmRowPc></DclFarmRowPc>
+      )}
+    </DCLData.Provider>
+  );
+}
+function DclFarmRowMobile() {
+  const {
+    switch_off,
+    displayImgs,
+    displaySymbols,
+    seed,
+    listLiquidities_inFarimg_value,
+    unclaimedRewardsData,
+    set_switch_off,
+    getRange,
+    listLiquidities_inFarimg,
+    tokens,
+    rate_need_to_reverse_display,
+  } = useContext(DCLData);
+  return (
+    <div
+      className={`rounded-xl mt-3 bg-portfolioBgColor mx-4 border border-border_light_grey_color`}
+    >
+      <div className="flex flex-col justify-between h-20 p-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="flex items-center flex-shrink-0 mr-2.5">
+              {displayImgs()}
+            </div>
+            <span className="text-white font-bold text-sm gotham_bold">
+              {displaySymbols()}
+            </span>
+            <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 mx-1.5">
+              DCL
+            </span>
+            <span
+              className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
+              onClick={() => {
+                goFarmDetailPage(seed);
+              }}
+            >
+              <LinkIcon></LinkIcon>
+            </span>
+          </div>
+          <span className="text-white text-sm gotham_bold">
+            {display_value(listLiquidities_inFarimg_value)}
+          </span>
+        </div>
+        <div className="flex items-center justify-end">
+          <div className="flex items-center mr-1.5">
+            <FarmMiningIcon className="m-1.5"></FarmMiningIcon>
+            <span className="text-xs text-portfolioGreenColor gotham_bold">
+              {unclaimedRewardsData.worth}
+            </span>
+          </div>
+          <UpDownButton
+            set_switch_off={() => {
+              set_switch_off(!switch_off);
+            }}
+            switch_off={switch_off}
+          ></UpDownButton>
+        </div>
+      </div>
+      <div
+        className={`py-4 border-t border-limitOrderFeeTiersBorderColor ${
+          switch_off ? 'hidden' : ''
+        }`}
+      >
+        <div className="border-b border-limitOrderFeeTiersBorderColor pb-5 px-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-primaryText">Reward Range</span>
+            <div className="flex items-center">{getRange()}</div>
+          </div>
+          <div className="flex items-center justify-between mt-5">
+            <span className="text-sm text-primaryText">Unclaimed Rewards</span>
+            <div className="flex items-center">
+              {unclaimedRewardsData.list.map(
+                (
+                  {
+                    token,
+                    amount,
+                  }: { token: TokenMetadata; amount: JSX.Element },
+                  index: number
+                ) => {
+                  return (
+                    <>
+                      <img
+                        src={token.icon}
+                        className={`w-5 h-5 border border-greenColor rounded-full mr-1.5`}
+                      ></img>
+                      <span
+                        className={`text-sm text-white ${
+                          index == unclaimedRewardsData.list.length - 1
+                            ? ''
+                            : 'mr-4'
+                        }`}
+                      >
+                        {amount}
+                      </span>
+                    </>
+                  );
+                }
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="mt-5 px-2.5">
+          {listLiquidities_inFarimg.length > 0 ? (
+            <>
+              {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
+                return (
+                  <LiquidityLine
+                    liquidity={liquidity}
+                    seed={seed}
+                    key={liquidity.lpt_id}
+                    tokens={tokens}
+                    rate_need_to_reverse_display={rate_need_to_reverse_display}
+                  ></LiquidityLine>
+                );
+              })}
+            </>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+function DclFarmRowPc() {
+  const {
+    switch_off,
+    displayImgs,
+    displaySymbols,
+    seed,
+    listLiquidities_inFarimg_value,
+    unclaimedRewardsData,
+    set_switch_off,
+    getRange,
+    listLiquidities_inFarimg,
+    tokens,
+    rate_need_to_reverse_display,
+  } = useContext(DCLData);
+  return (
     <div
       className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
         switch_off ? '' : 'pb-4'
@@ -592,7 +806,9 @@ function DclFarmRow({ seed }: { seed: Seed }) {
             </div>
           </div>
           <UpDownButton
-            set_switch_off={set_switch_off}
+            set_switch_off={() => {
+              set_switch_off(!switch_off);
+            }}
             switch_off={switch_off}
           ></UpDownButton>
         </div>
@@ -909,9 +1125,21 @@ function LiquidityLine(props: {
             NFT ID #{liquidity.lpt_id.split('#')[1]}
           </span>
         </div>
-        <div className="bg-v3HoverDarkBgColor rounded-t-xl px-4 py-3 w-full">
+        <div className="bg-v3HoverDarkBgColor rounded-xl px-4 py-3 w-full">
           <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-primaryText">Your Liquidity</span>
+            <div className="flex items-center">
+              <span className="text-sm text-primaryText mr-1">
+                Your Liquidity
+              </span>
+              <span
+                className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText"
+                onClick={() => {
+                  goYourLiquidityDetail(liquidity);
+                }}
+              >
+                <LinkIcon></LinkIcon>
+              </span>
+            </div>
             <span className={`text-sm text-white`}>
               {get_liquidity_value_display(liquidity)}
             </span>
@@ -979,6 +1207,7 @@ function ClassicFarms() {
     </>
   );
 }
+const ClassicData = createContext(null);
 function ClassicFarmRow({ seed }: { seed: Seed }) {
   const {
     user_seeds_map,
@@ -1076,7 +1305,7 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
         <img
           key={token.id + index}
           src={token.icon}
-          className={`relative w-7 h-7 border border-greenColor rounded-full ${
+          className={`relative w-7 h-7 xsm:w-6 xsm:h-6 border border-greenColor rounded-full ${
             index > 0 ? '-ml-1.5' : ''
           }`}
         ></img>
@@ -1188,7 +1417,173 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
             .toFixed();
     return '$' + toInternationalCurrencySystem(yourTvl, 2);
   }
-
+  return (
+    <ClassicData.Provider
+      value={{
+        switch_off,
+        set_switch_off,
+        displayImgs,
+        displaySymbols,
+        seed,
+        getYourTvl,
+        unclaimedRewardsData,
+        getPowerTip,
+        showLpPower,
+        getUserLpPercent,
+      }}
+    >
+      {is_mobile ? (
+        <ClassicFarmRowMobile></ClassicFarmRowMobile>
+      ) : (
+        <ClassicFarmRowPc></ClassicFarmRowPc>
+      )}
+    </ClassicData.Provider>
+  );
+}
+function ClassicFarmRowMobile() {
+  const {
+    switch_off,
+    set_switch_off,
+    displayImgs,
+    displaySymbols,
+    seed,
+    getYourTvl,
+    unclaimedRewardsData,
+    getPowerTip,
+    showLpPower,
+    getUserLpPercent,
+  } = useContext(ClassicData);
+  return (
+    <div
+      className={`rounded-xl mt-3 bg-portfolioBgColor mx-4 border border-border_light_grey_color`}
+    >
+      <div className="flex flex-col justify-between h-20 p-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="flex items-center flex-shrink-0 mr-1.5">
+              {displayImgs()}
+            </div>
+            <span className="text-white font-bold text-sm gotham_bold">
+              {displaySymbols()}
+            </span>
+          </div>
+          <span className="text-white text-sm gotham_bold">{getYourTvl()}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 py-0.5 mr-1.5">
+              Classic
+            </span>
+            <span
+              className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
+              onClick={() => {
+                goFarmDetailPage(seed);
+              }}
+            >
+              <LinkIcon></LinkIcon>
+            </span>
+          </div>
+          <div className="flex items-center">
+            <div className="flex items-center mr-1.5">
+              <FarmMiningIcon className="m-1.5"></FarmMiningIcon>
+              <span className="text-xs text-portfolioGreenColor gotham_bold">
+                {unclaimedRewardsData.worth}
+              </span>
+            </div>
+            <UpDownButton
+              set_switch_off={() => {
+                set_switch_off(!switch_off);
+              }}
+              switch_off={switch_off}
+            ></UpDownButton>
+          </div>
+        </div>
+      </div>
+      <div
+        className={`px-2.5 py-4 border-t border-limitOrderFeeTiersBorderColor ${
+          switch_off ? 'hidden' : ''
+        }`}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <span className="text-sm text-v3SwapGray">
+            You Staked (USD value)
+          </span>
+          <span className="text-sm text-white">{getYourTvl()}</span>
+        </div>
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center">
+            <span className="text-sm text-v3SwapGray">Your Power</span>
+            <div
+              className="text-white text-right ml-1"
+              data-class="reactTip"
+              data-for="powerTipId"
+              data-place="top"
+              data-html={true}
+              data-tip={getPowerTip()}
+            >
+              <QuestionMark></QuestionMark>
+              <ReactTooltip
+                id="powerTipId"
+                backgroundColor="#1D2932"
+                border
+                borderColor="#7e8a93"
+                effect="solid"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col items-end">
+            <span className="text-sm text-white">{showLpPower()}</span>
+            <span className="text-xs text-primaryText mt-0.5">
+              ({getUserLpPercent()})
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-v3SwapGray">Unclaimed Rewards</span>
+          <div className="flex items-center flex-wrap">
+            {unclaimedRewardsData.list.map(
+              (
+                { token, amount }: { token: TokenMetadata; amount: string },
+                index: number
+              ) => {
+                return (
+                  <>
+                    <img
+                      src={token.icon}
+                      className={`w-5 h-5 border border-greenColor rounded-full mr-1.5`}
+                    ></img>
+                    <span
+                      className={`text-sm text-white ${
+                        index == unclaimedRewardsData.list.length - 1
+                          ? ''
+                          : 'mr-4'
+                      }`}
+                    >
+                      {amount}
+                    </span>
+                  </>
+                );
+              }
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function ClassicFarmRowPc() {
+  const {
+    switch_off,
+    set_switch_off,
+    displayImgs,
+    displaySymbols,
+    seed,
+    getYourTvl,
+    unclaimedRewardsData,
+    getPowerTip,
+    showLpPower,
+    getUserLpPercent,
+  } = useContext(ClassicData);
   return (
     <div
       className={`rounded-xl mt-3 bg-portfolioBgColor px-5 ${
@@ -1228,7 +1623,9 @@ function ClassicFarmRow({ seed }: { seed: Seed }) {
             </div>
           </div>
           <UpDownButton
-            set_switch_off={set_switch_off}
+            set_switch_off={() => {
+              set_switch_off(!switch_off);
+            }}
             switch_off={switch_off}
           ></UpDownButton>
         </div>

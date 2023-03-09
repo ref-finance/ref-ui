@@ -18,6 +18,7 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import { isMobile } from '../../utils/device';
+const is_mobile = isMobile();
 const AssetProfitData = createContext(null);
 export default function AssetProfit() {
   const {
@@ -101,7 +102,6 @@ export default function AssetProfit() {
     let result: string = `<div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">${tip}</div>`;
     return result;
   }
-  const is_mobile = isMobile();
   return (
     <AssetProfitData.Provider
       value={{

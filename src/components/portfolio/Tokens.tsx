@@ -34,6 +34,7 @@ import {
 } from '../../components/icon/Portfolio';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { isMobile } from '~utils/device';
+const is_mobile = isMobile();
 export default function Tokens() {
   const { tokenPriceList } = useContext(PortfolioData);
   const [pieOption, setPieOption] = useState(null);
@@ -340,7 +341,6 @@ export default function Tokens() {
     }
     return display_value_withCommas(target);
   }
-  const is_mobile = isMobile();
   return (
     <div className="mt-6">
       <div className="px-5">
@@ -467,8 +467,8 @@ export default function Tokens() {
           <ReactECharts
             option={pieOption}
             style={{
-              width: is_mobile ? '280px' : '200px',
-              height: is_mobile ? '280px' : '200px',
+              width: is_mobile ? '240px' : '200px',
+              height: is_mobile ? '240px' : '200px',
             }}
           />
         ) : null}

@@ -7,8 +7,9 @@ import { YourLiquidityV1 } from '../../components/pool/YourLiquidityV1';
 import { YourLiquidityV2 } from '../../components/pool/YourLiquidityV2';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-import { NoDataCard } from './Tool';
-
+import { NoDataCard, UpDownButton, useTotalLiquidityData } from './Tool';
+import { isMobile } from '~utils/device';
+const is_mobile = isMobile();
 export default function Positions(props: any) {
   const {
     setYourLpValueV2,
@@ -23,7 +24,24 @@ export default function Positions(props: any) {
     setV1LiquidityLoadingDone,
     v1LiquidityLoadingDone,
     v2LiquidityLoadingDone,
+    YourLpValueV1,
+    YourLpValueV2,
+    lpValueV1Done,
+    lpValueV2Done,
+    activeTab,
+    setActiveTab,
   } = useContext(PortfolioData);
+  const { total_liquidity_value, total_liquidity_quantity } =
+    useTotalLiquidityData({
+      YourLpValueV1,
+      YourLpValueV2,
+      lpValueV1Done,
+      lpValueV2Done,
+      v1LiquidityQuantity,
+      v2LiquidityQuantity,
+      v1LiquidityLoadingDone,
+      v2LiquidityLoadingDone,
+    });
   const { globalState } = useContext(WalletContext);
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
@@ -31,45 +49,80 @@ export default function Positions(props: any) {
   const loading_status =
     !(v1LiquidityLoadingDone && v2LiquidityLoadingDone) && isSignedIn;
   const noData_status =
-    (v1LiquidityLoadingDone && v2LiquidityLoadingDone && total_quantity == 0) ||
-    !isSignedIn;
+    !loading_status &&
+    ((v1LiquidityLoadingDone &&
+      v2LiquidityLoadingDone &&
+      total_quantity == 0) ||
+      !isSignedIn);
   const data_status =
     v1LiquidityLoadingDone && v2LiquidityLoadingDone && total_quantity > 0;
   return (
     <div className="text-white">
-      <>
-        <div
-          className={`flex items-center justify-between text-sm text-v3SwapGray mb-2.5 pl-6 pr-16 ${
-            data_status ? '' : 'hidden'
-          }`}
-        >
-          <span>Your Position(s)</span>
-          <span>Your Liquidity</span>
+      {/* for pc banner */}
+      <div
+        className={`flex items-center justify-between text-sm text-v3SwapGray mb-2.5 pl-6 pr-16 xsm:hidden ${
+          loading_status || noData_status ? 'hidden' : ''
+        } ${data_status ? '' : 'hidden'}`}
+      >
+        <span>Your Position(s)</span>
+        <span>Your Liquidity</span>
+      </div>
+      <div className="xsm:border-b xsm:border-cardBg">
+        {/* for mobile banner */}
+        <div className="flex items-center justify-between lg:hidden p-5">
+          <span className="text-base text-white gotham_bold">
+            Your Liquidity ({total_liquidity_quantity})
+          </span>
+          <div className="flex items-center">
+            <span className="text-base text-white gotham_bold mr-2">
+              {total_liquidity_value}
+            </span>
+            <UpDownButton
+              set_switch_off={() => {
+                setActiveTab(activeTab == '2' ? '' : '2');
+              }}
+              switch_off={activeTab != '2'}
+            ></UpDownButton>
+          </div>
         </div>
-        <YourLiquidityV2
-          setYourLpValueV2={setYourLpValueV2}
-          setLpValueV2Done={setLpValueV2Done}
-          setLiquidityLoadingDone={setV2LiquidityLoadingDone}
-          setLiquidityQuantity={setV2LiquidityQuantity}
-          styleType="2"
-        ></YourLiquidityV2>
-        <YourLiquidityV1
-          setLpValueV1Done={setLpValueV1Done}
-          setYourLpValueV1={setYourLpValueV1}
-          setLiquidityLoadingDone={setV1LiquidityLoadingDone}
-          setLiquidityQuantity={setV1LiquidityQuantity}
-          styleType="2"
-        ></YourLiquidityV1>
-      </>
-      {loading_status ? (
+        {/* for mobile loading */}
+        {loading_status && is_mobile && activeTab == '2' ? (
+          <div className={`flex items-center justify-center my-10`}>
+            <BlueCircleLoading></BlueCircleLoading>
+          </div>
+        ) : null}
+        {/* for mobile no data */}
+        {noData_status && is_mobile && activeTab == '2' ? (
+          <NoDataCard text="Your liquidity position(s) will appear here." />
+        ) : null}
+        {/* liquidities list */}
+        <div className={`${activeTab == '2' ? '' : 'hidden'}`}>
+          <YourLiquidityV2
+            setYourLpValueV2={setYourLpValueV2}
+            setLpValueV2Done={setLpValueV2Done}
+            setLiquidityLoadingDone={setV2LiquidityLoadingDone}
+            setLiquidityQuantity={setV2LiquidityQuantity}
+            styleType="2"
+          ></YourLiquidityV2>
+          <YourLiquidityV1
+            setLpValueV1Done={setLpValueV1Done}
+            setYourLpValueV1={setYourLpValueV1}
+            setLiquidityLoadingDone={setV1LiquidityLoadingDone}
+            setLiquidityQuantity={setV1LiquidityQuantity}
+            styleType="2"
+          ></YourLiquidityV1>
+        </div>
+      </div>
+      {/* pc loading */}
+      {loading_status && !is_mobile ? (
         <div className="flex items-center justify-center my-20">
           <BlueCircleLoading />
         </div>
-      ) : (
-        noData_status && (
-          <NoDataCard text="Your liquidity position(s) will appear here."></NoDataCard>
-        )
-      )}
+      ) : null}
+      {/* pc no data */}
+      {noData_status && !is_mobile ? (
+        <NoDataCard text="Your liquidity position(s) will appear here."></NoDataCard>
+      ) : null}
     </div>
   );
 }
