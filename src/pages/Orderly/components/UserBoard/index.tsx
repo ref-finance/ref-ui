@@ -406,7 +406,8 @@ export default function UserBoard() {
           side: side === 'Buy' ? 'BUY' : 'SELL',
           symbol: symbol,
           order_type: 'MARKET',
-          order_quantity: inputValue,
+          order_amount: side === 'Buy' ? total : '',
+          order_quantity: side === 'Sell' ? inputValue : '',
           broker_id: 'ref_dex',
         },
       }).then(async (res) => {
@@ -1779,7 +1780,7 @@ export function AssetManagerModal(
             {type === 'deposit' &&
               !validation() &&
               tokenId.toLowerCase() === 'near' && (
-                <div className="text-warn mb-2 whitespace-nowrap">
+                <div className="text-warn mb-2 lg:whitespace-nowrap">
                   0.5 NEAR locked in wallet for covering transaction fee
                 </div>
               )}
@@ -1846,9 +1847,10 @@ export function AssetManagerModal(
 export function MobileUserBoard({
   side,
   setSide,
+  setShowWrapper,
 }: {
   side: 'Buy' | 'Sell';
-
+  setShowWrapper: (show: boolean) => void;
   setSide: (side: 'Buy' | 'Sell') => void;
 }) {
   const {
@@ -1999,7 +2001,8 @@ export function MobileUserBoard({
           side: side === 'Buy' ? 'BUY' : 'SELL',
           symbol: symbol,
           order_type: 'MARKET',
-          order_quantity: inputValue,
+          order_amount: side === 'Buy' ? total : '',
+          order_quantity: side === 'Sell' ? inputValue : '',
           broker_id: 'ref_dex',
         },
       }).then(async (res) => {
@@ -2014,6 +2017,8 @@ export function MobileUserBoard({
           accountId,
           order_id: res.data.order_id,
         });
+
+        setShowWrapper(false);
 
         return orderPopUp({
           orderType: 'Market',
@@ -2052,6 +2057,7 @@ export function MobileUserBoard({
           accountId,
           order_id: res.data.order_id,
         });
+        setShowWrapper(false);
 
         return orderPopUp({
           orderType: 'Limit',
@@ -2341,9 +2347,7 @@ export function MobileUserBoard({
             <div className="flex items-center justify-between">
               <span>{'Price'}</span>
 
-              <span>
-                {symbolTo}/{symbolFrom}
-              </span>
+              <span>{symbolTo}</span>
             </div>
 
             <div className="flex items-center mt-2 justify-between">
@@ -2458,6 +2462,19 @@ export function MobileUserBoard({
         </div>
       </div>
 
+      <div className="text-primaryText text-right">
+        Balance:
+        <span className="ml-1 underline">
+          {side === 'Buy'
+            ? tokenOutHolding
+              ? digitWrapper(tokenOutHolding.toString(), 2)
+              : 0
+            : tokenInHolding
+            ? digitWrapper(tokenInHolding.toString(), 2)
+            : 0}
+        </span>
+      </div>
+
       {/* limit order advance mode */}
 
       {orderType === 'Limit' && (
@@ -2465,16 +2482,24 @@ export function MobileUserBoard({
           <div className="flex items-center justify-between">
             <span className="text-primaryOrderly">Advance</span>
 
-            <span
-              className={`${
-                showLimitAdvance ? 'text-white' : 'text-primaryOrderly'
-              } cursor-pointer `}
-              onClick={() => {
-                setShowLimitAdvance(!showLimitAdvance);
-              }}
-            >
-              {showLimitAdvance ? <IoIosArrowUp /> : <IoIosArrowDown />}
-            </span>
+            <div className="flex items-center text-primaryText">
+              <span className="mr-2">
+                {advanceLimitMode === 'POST_ONLY'
+                  ? 'Post-only'
+                  : advanceLimitMode}
+              </span>
+
+              <span
+                className={`${
+                  showLimitAdvance ? 'text-white' : 'text-primaryOrderly'
+                } cursor-pointer `}
+                onClick={() => {
+                  setShowLimitAdvance(!showLimitAdvance);
+                }}
+              >
+                {showLimitAdvance ? <IoIosArrowUp /> : <IoIosArrowDown />}
+              </span>
+            </div>
           </div>
 
           <div

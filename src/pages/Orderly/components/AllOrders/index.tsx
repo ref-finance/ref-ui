@@ -22,6 +22,7 @@ import {
   ArrowParallel,
   CancelStamp,
   CheckSelectorWhite,
+  MobileEdit,
   MobileFilter,
   OrderStateOutline,
   RejectStamp,
@@ -56,7 +57,11 @@ import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
 import { orderEditPopUpFailure } from '../Common/index';
 import { Holding } from '../../orderly/type';
-import { useLargeScreen, useClientMobile } from '../../../../utils/device';
+import {
+  useLargeScreen,
+  useClientMobile,
+  isMobile,
+} from '../../../../utils/device';
 import { Images } from '~components/stableswap/CommonComp';
 import { SymbolSelectorMobileModal } from '../ChartHeader';
 
@@ -448,14 +453,14 @@ function OrderLine({
       accountId,
       orderlyProps: {
         order_id: order.order_id,
-        order_price:
-          (type === 'price' && value) || price || order.price.toString(),
+        order_price: parseFloat(
+          type === 'price' ? value : price || order.price.toString()
+        ),
         symbol: order.symbol,
         side: order.side,
-        order_quantity:
-          (type === 'quantity' && value) ||
-          quantity ||
-          order.quantity.toString(),
+        order_quantity: parseFloat(
+          type === 'quantity' ? value : quantity || order.quantity.toString()
+        ),
         order_type: order.type,
         broker_id: 'ref_dex',
       },
@@ -472,9 +477,13 @@ function OrderLine({
           orderEditPopUpSuccess({
             side: order.side === 'SELL' ? 'Sell' : 'Buy',
             symbolName: order.symbol,
-            size: quantity || order.quantity.toString(),
+            size:
+              (type === 'quantity' && value) ||
+              quantity ||
+              order.quantity.toString(),
             cancel: false,
-            price: price || order.price.toString(),
+            price:
+              (type === 'price' && value) || price || order.price.toString(),
           });
         }
         return res;
@@ -483,6 +492,10 @@ function OrderLine({
         setOpenEditQuantity(false);
         setOpenEditPrice(false);
         setShowEditModal(false);
+        setMobileEditType(undefined);
+
+        if (type === 'price') setPrice(value);
+        if (type === 'quantity') setQuantity(value);
         if (!res.success) {
           setPrice(order.price.toString());
           setQuantity(order.quantity.toString());
@@ -817,7 +830,7 @@ function OrderLine({
                 ? new Big(new Big(order.executed || 0))
                     .div(new Big(order.quantity || 1))
                     .times(100)
-                    .toFixed()
+                    .toFixed(0, 0)
                 : 0}
               %
             </span>
@@ -872,8 +885,6 @@ function OrderLine({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  // setOpenEditQuantity(true);
-                  setMobileEditType('quantity');
                 }}
                 className="pr-1"
               >
@@ -897,7 +908,6 @@ function OrderLine({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setMobileEditType('price');
                 }}
               >
                 {digitWrapper(order.price.toString(), 3)}
@@ -1076,6 +1086,11 @@ function OrderLine({
               }
             });
           }}
+          order={order}
+          editValidator={editValidator}
+          mobileEditType={mobileEditType}
+          setMobileEditType={setMobileEditType}
+          handleEditOrder={handleEditOrder}
         ></MobileOpenOrderDetail>
       )}
     </>
@@ -1381,55 +1396,59 @@ function HistoryOrderLine({
             </div>
             {marketInfo}
           </div>
-          <div className="flex items-center ">
-            <span>
-              {order.executed > 0 && order.executed / order.quantity < 0.01
-                ? '1'
-                : order.quantity > 0
-                ? new Big(new Big(order.executed || 0))
-                    .div(new Big(order.quantity || 1))
-                    .times(100)
-                    .toFixed()
-                : 0}
-              %
-            </span>
+          {order.type === 'MARKET' ? (
+            <span>Market</span>
+          ) : (
+            <div className="flex items-center ">
+              <span>
+                {order.executed > 0 && order.executed / order.quantity < 0.01
+                  ? '1'
+                  : order.quantity > 0
+                  ? new Big(new Big(order.executed || 0))
+                      .div(new Big(order.quantity || 1))
+                      .times(100)
+                      .toFixed()
+                  : 0}
+                %
+              </span>
 
-            <span className="mx-1.5">filled</span>
-
-            <div
-              className="flex items-center relative ml-1.5 justify-center"
-              style={{
-                height: '14px',
-                width: '14px',
-              }}
-            >
-              <div className="absolute top-0 left-0  ">
-                <OrderStateOutline />
-              </div>
+              <span className="mx-1.5">filled</span>
 
               <div
-                className=""
+                className="flex items-center relative ml-1.5 justify-center"
                 style={{
-                  height: '9px',
-                  width: '9px',
+                  height: '14px',
+                  width: '14px',
                 }}
               >
-                {order.type !== 'MARKET' && (
-                  <CircularProgressbar
-                    styles={buildStyles({
-                      pathColor: '#62C340',
-                      strokeLinecap: 'butt',
-                      trailColor: 'transparent',
-                    })}
-                    background={false}
-                    strokeWidth={50}
-                    value={order.executed || 0}
-                    maxValue={order.quantity}
-                  />
-                )}
+                <div className="absolute top-0 left-0  ">
+                  <OrderStateOutline />
+                </div>
+
+                <div
+                  className=""
+                  style={{
+                    height: '9px',
+                    width: '9px',
+                  }}
+                >
+                  {order.type !== 'MARKET' && (
+                    <CircularProgressbar
+                      styles={buildStyles({
+                        pathColor: '#62C340',
+                        strokeLinecap: 'butt',
+                        trailColor: 'transparent',
+                      })}
+                      background={false}
+                      strokeWidth={50}
+                      value={order.executed || 0}
+                      maxValue={order.quantity}
+                    />
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
         <div className={`flex  ${'items-center'} py-2 justify-between`}>
           <div className={`flex  ${'items-center'} text-white`}>
@@ -1501,6 +1520,7 @@ function HistoryOrderLine({
             'Type',
             'Filled / Qty',
             'Price',
+            'Avg.Price',
             'Total',
             'Create Time',
             'Status',
@@ -1525,7 +1545,7 @@ function HistoryOrderLine({
               <div
                 className={
                   order.type !== 'MARKET'
-                    ? 'flex items-center relative ml-1.5 justify-center'
+                    ? 'flex items-center relative border border-dashed rounded-full border-portfolioGreenColor ml-1.5 justify-center'
                     : 'hidden'
                 }
                 style={{
@@ -1533,10 +1553,6 @@ function HistoryOrderLine({
                   width: '14px',
                 }}
               >
-                <div className="absolute top-0 left-0  ">
-                  <OrderStateOutline />
-                </div>
-
                 <div
                   className=""
                   style={{
@@ -1544,7 +1560,7 @@ function HistoryOrderLine({
                     width: '9px',
                   }}
                 >
-                  {order.type !== 'MARKET' && (
+                  {order.type !== 'MARKET' ? (
                     <CircularProgressbar
                       styles={buildStyles({
                         pathColor: '#62C340',
@@ -1556,6 +1572,8 @@ function HistoryOrderLine({
                       value={order.executed || 0}
                       maxValue={order.quantity}
                     />
+                  ) : (
+                    'Market'
                   )}
                 </div>
               </div>
@@ -1579,6 +1597,9 @@ function HistoryOrderLine({
                   )
                 : '-'}
             </span>,
+            order.average_executed_price === null
+              ? '-'
+              : digitWrapper(order.average_executed_price.toString(), 2),
             digitWrapper(
               new Big(order.quantity || '0')
                 .times(
@@ -1650,10 +1671,9 @@ function MobileFilterModal(
         <div className="text-gray2">{listKey}</div>
 
         <div
-          className=" flex-wrap items-center  grid grid-cols-2"
-          style={{
-            maxWidth: '75%',
-          }}
+          className={` flex-shrink-0 items-center ${
+            list.length > 3 ? 'grid' : 'flex'
+          }  grid-cols-2`}
         >
           {list.map((item, index) => {
             return (
@@ -1748,7 +1768,7 @@ function MobileFilterModal(
         <SymbolSelectorMobileModal
           isOpen={showSymbolSelector}
           setSymbol={(value: string) => {
-            setShowCurSymbol(false);
+            setShowCurSymbol(true);
             setSymbol(value);
           }}
           onRequestClose={() => {
@@ -1773,6 +1793,11 @@ function MobileOpenOrderDetail(
     titleList: string[];
 
     cancelClick: () => void;
+    mobileEditType: 'price' | 'quantity';
+    setMobileEditType: (value: 'price' | 'quantity') => void;
+    editValidator: (value1: string, value2: string) => boolean;
+    handleEditOrder: (value: string, value2: 'price' | 'quantity') => void;
+    order: MyOrder;
   }
 ) {
   function InfoLine({
@@ -1787,60 +1812,109 @@ function MobileOpenOrderDetail(
         <div className="text-primaryText">{title}</div>
 
         <div
-          className={`text-white ${
+          className={`text-white flex items-center ${
             title === 'Instrument' ? 'relative left-2' : ''
           } `}
         >
           {value}
+
+          <span
+            className="pl-2"
+            onClick={() => {
+              if (title === 'Filled / Qty') {
+                setMobileEditType('quantity');
+              } else if (title === 'Price') {
+                setMobileEditType('price');
+              }
+            }}
+          >
+            {(title === 'Filled / Qty' || title === 'Price') && (
+              <MobileEdit></MobileEdit>
+            )}
+          </span>
         </div>
       </div>
     );
   }
 
-  const { titleList, valueList, cancelClick } = props;
+  const {
+    editValidator,
+    order,
+    titleList,
+    valueList,
+    cancelClick,
+    mobileEditType,
+    setMobileEditType,
+    handleEditOrder,
+  } = props;
 
   return (
-    <Modal
-      {...props}
-      style={{
-        content: {
-          position: 'fixed',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          top: 'none',
-          bottom: '0px',
-          left: '0px',
-          transform: 'translate(-50%, -20px)',
-          outline: 'none',
-        },
-      }}
-    >
-      <div className="bg-darkBg px-5 pb-6 overflow-auto  xs:w-screen  xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-base   rounded-lg   border-t border-borderC  py-4 text-white">
-        <div className="text-left font-bold">Open Order Detail</div>
+    <>
+      <Modal
+        {...props}
+        style={{
+          content: {
+            position: 'fixed',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            top: 'none',
+            bottom: '0px',
+            left: '0px',
+            transform: 'translate(-50%, -20px)',
+            outline: 'none',
+          },
+        }}
+      >
+        <div className="bg-darkBg px-5 pb-6 overflow-auto  xs:w-screen  xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-base   rounded-lg   border-t border-borderC  py-4 text-white">
+          <div className="text-left font-bold">Open Order Detail</div>
 
-        {titleList.map((title, index) => {
-          return (
-            <InfoLine
-              key={'mobile-detail-list-' + title}
-              title={title}
-              value={valueList[index]}
-            />
-          );
-        })}
+          {titleList.map((title, index) => {
+            return (
+              <InfoLine
+                key={'mobile-detail-list-' + title}
+                title={title}
+                value={valueList[index]}
+              />
+            );
+          })}
 
-        <button
-          className="flex items-center py-3 mt-3 justify-center w-full text-warn bg-menuMoreBgColor rounded-lg"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            cancelClick();
+          <button
+            className="flex items-center py-3 mt-3 justify-center w-full text-warn bg-menuMoreBgColor rounded-lg"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              cancelClick();
+            }}
+          >
+            Cancel Order
+          </button>
+        </div>
+      </Modal>
+      {mobileEditType !== undefined && (
+        <EditOrderModalMobile
+          isOpen={mobileEditType !== undefined}
+          onRequestClose={() => {
+            setMobileEditType(undefined);
           }}
-        >
-          Cancel Order
-        </button>
-      </div>
-    </Modal>
+          editType={mobileEditType}
+          defaultInput={(mobileEditType === 'price'
+            ? order.price
+            : order.quantity
+          ).toString()}
+          confirmClick={(value, type) => {
+            const valRes = editValidator(
+              type === 'price' ? value : order.price.toString(),
+              type === 'quantity' ? value : order.quantity.toString()
+            );
+
+            if (!valRes) return;
+
+            handleEditOrder(value, type);
+          }}
+        ></EditOrderModalMobile>
+      )}
+    </>
   );
 }
 
@@ -1893,7 +1967,7 @@ function MobileHistoryOrderDetail(
           <th align="left" className="whitespace-nowrap">
             Fee
             <TextWrapper
-              value={symbolFrom}
+              value={orderTradesHistory[0].fee_asset}
               className="ml-1 text-xs py-0 px-1"
               textC="text-primaryText"
             />
@@ -1924,7 +1998,7 @@ function MobileHistoryOrderDetail(
                 </td>
 
                 <td>{h.fee}</td>
-                <td className="text-primaryText">
+                <td className="text-primaryText pr-5 " align="right">
                   {formatTimeDate(h.executed_timestamp)}
                 </td>
               </tr>
@@ -1955,7 +2029,7 @@ function MobileHistoryOrderDetail(
       }}
     >
       <div className="bg-darkBg  pb-6 overflow-auto  xs:w-screen  xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-base   rounded-lg   border-t border-borderC  py-4 text-white">
-        <div className="text-left px-5 font-bold">Open Order Detail</div>
+        <div className="text-left px-5 font-bold">History Order Detail</div>
 
         {titleList.map((title, index) => {
           return (
@@ -1968,9 +2042,13 @@ function MobileHistoryOrderDetail(
         })}
 
         <button
-          className=" text-white px-5 mx-5 py-3 my-3 justify-center w-full flex items-center bg-menuMoreBgColor rounded-lg"
+          className={
+            !orderTradesHistory || orderTradesHistory.length === 0
+              ? 'hidden'
+              : ' text-white px-5 mx-5 py-3 my-3 justify-center w-full flex items-center bg-menuMoreBgColor rounded-lg'
+          }
           style={{
-            width: 'cac(100% - 40px)',
+            width: 'calc(100% - 40px)',
           }}
           onClick={(e) => {
             e.preventDefault();
@@ -2012,11 +2090,11 @@ function OpenOrders({
   allTokens: {
     [key: string]: TokenMetadata;
   };
-  mobileFilterOpen: boolean;
+  mobileFilterOpen: 'open' | 'history' | undefined;
   showCurSymbol: boolean;
   availableSymbols: SymbolInfo[] | undefined;
   setOpenCount: (c: number) => void;
-  setMobileFilterOpen: (c: boolean) => void;
+  setMobileFilterOpen: (c: 'open' | 'history' | undefined) => void;
   setShowCurSymbol: (c: boolean) => void;
   loading: boolean;
 }) {
@@ -2031,7 +2109,7 @@ function OpenOrders({
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
   const [chooseMarketSymbol, setChooseMarketSymbol] = useState<string>(
-    showCurSymbol ? symbol : 'all_markets'
+    showCurSymbol && !isMobile() ? symbol : 'all_markets'
   );
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
 
@@ -2420,9 +2498,9 @@ function OpenOrders({
       </table>
 
       <MobileFilterModal
-        isOpen={mobileFilterOpen}
+        isOpen={mobileFilterOpen === 'open'}
         onRequestClose={() => {
-          setMobileFilterOpen(false);
+          setMobileFilterOpen(undefined);
         }}
         curInstrument={
           chooseMarketSymbol === 'all_markets'
@@ -2465,12 +2543,12 @@ function HistoryOrders({
   allTokens: {
     [key: string]: TokenMetadata;
   };
-  mobileFilterOpen: boolean;
+  mobileFilterOpen: 'open' | 'history' | undefined;
   availableSymbols: SymbolInfo[] | undefined;
   setHistoryCount: (c: number) => void;
   showCurSymbol: boolean;
   loading: boolean;
-  setMobileFilterOpen: (c: boolean) => void;
+  setMobileFilterOpen: (c: 'open' | 'history' | undefined) => void;
   setShowCurSymbol: (c: boolean) => void;
 }) {
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
@@ -2497,7 +2575,7 @@ function HistoryOrders({
   );
 
   const [chooseMarketSymbol, setChooseMarketSymbol] = useState<string>(
-    showCurSymbol ? symbol : 'all_markets'
+    showCurSymbol && !isMobile() ? symbol : 'all_markets'
   );
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
 
@@ -2978,7 +3056,6 @@ function HistoryOrders({
               hasMore={hasMore}
               dataLength={records}
               loader={null}
-              scrollableTarget="all-orders-body-history"
             >
               {data.slice(0, records)}
             </InfiniteScroll>
@@ -2987,9 +3064,9 @@ function HistoryOrders({
       </table>
 
       <MobileFilterModal
-        isOpen={mobileFilterOpen}
+        isOpen={mobileFilterOpen === 'history'}
         onRequestClose={() => {
-          setMobileFilterOpen(false);
+          setMobileFilterOpen(undefined);
         }}
         curInstrument={
           chooseMarketSymbol === 'all_markets'
@@ -3026,7 +3103,9 @@ function AllOrderBoard() {
   } = useOrderlyContext();
 
   const availableSymbols = useAllSymbolInfo();
-  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState<
+    'open' | 'history' | undefined
+  >(undefined);
 
   const allTokenSymbols = [
     ...new Set(
@@ -3220,7 +3299,9 @@ function AllOrderBoard() {
               className="flex items-center justify-center pr-5"
               onClick={() => {
                 // todo
-                setMobileFilterOpen(!mobileFilterOpen);
+                tab === 'open'
+                  ? setMobileFilterOpen('open')
+                  : setMobileFilterOpen('history');
               }}
             >
               <MobileFilter></MobileFilter>

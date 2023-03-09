@@ -159,10 +159,10 @@ function OrderLine({
       accountId,
       orderlyProps: {
         order_id: order.order_id,
-        order_price: price || order.price.toString(),
+        order_price: Number(price || order.price.toString()),
         symbol: order.symbol,
         side: order.side,
-        order_quantity: quantity || order.quantity.toString(),
+        order_quantity: Number(quantity || order.quantity.toString()),
         order_type: order.type,
         broker_id: 'ref_dex',
       },

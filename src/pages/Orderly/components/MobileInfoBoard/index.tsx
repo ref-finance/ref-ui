@@ -856,6 +856,7 @@ function UserBoardWrapper() {
               setShowWrapper(true);
             }}
             select
+            mobile
           />
 
           <SellButton
@@ -864,6 +865,7 @@ function UserBoardWrapper() {
               setShowWrapper(true);
             }}
             select
+            mobile
           />
         </div>
       </div>
@@ -888,7 +890,11 @@ function UserBoardWrapper() {
         }}
       >
         <div className=" rounded-t-2xl lg:w-p410 xs:w-screen bg-boxBorder text-sm text-primaryOrderly  ">
-          <MobileUserBoard side={side} setSide={setSide} />
+          <MobileUserBoard
+            setShowWrapper={setShowWrapper}
+            side={side}
+            setSide={setSide}
+          />
         </div>
       </Modal>
     </>

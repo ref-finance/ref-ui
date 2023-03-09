@@ -189,7 +189,7 @@ export const generateOrderSignature = (message: string) => {
 export const formateParams = (props: object) => {
   const message = Object.entries(props)
     .filter(([k, v], i) => {
-      return v !== undefined && v !== null;
+      return v !== undefined && v !== null && !!v;
     })
     .map(([k, v], i) => {
       if (typeof v === 'number') {

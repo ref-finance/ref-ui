@@ -13,7 +13,7 @@ export interface OrderlyOrder {
   order_type: 'LIMIT' | 'MARKET' | 'IOC' | 'FOK' | 'POST_ONLY' | 'ASK' | 'BID';
   order_price?: string | number;
   order_quantity?: string | number;
-  order_amount?: number;
+  order_amount?: number | string;
   side: 'BUY' | 'SELL';
   broker_id?: string;
   visible_quantity?: number;

@@ -14,13 +14,20 @@ import {
   OrderlyLoading,
   OrderlyIconBalance,
   InOrderIcon,
+  OutLinkIcon,
 } from '../Common/Icons';
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import { OrderAsset, useOrderAssets } from './state';
-import { FlexRow } from '../Common/index';
+import {
+  FlexRow,
+  DepositButton,
+  WithdrawButton,
+  WithdrawButtonMobile,
+  DepositButtonMobile,
+} from '../Common/index';
 import { digitWrapper } from '../../utiles';
 import { AssetManagerModal } from '../UserBoard';
 import { depositOrderly } from '../../orderly/api';
@@ -87,11 +94,11 @@ function AssetLine(
 
   return (
     <div
-      className="grid grid-cols-8 xs:grid-cols-5 text-white py-4 pl-5 pr-1 first-letter:first-line:
+      className="grid grid-cols-8 xs:grid-cols-3 text-white py-4 pl-5 pr-1 first-letter:first-line:
     border-t  border-gray1
     "
     >
-      <FlexRow className="col-span-2 ">
+      <FlexRow className="col-span-2 xs:col-span-1">
         <img
           src={props.tokenMeta.icon}
           className="rounded-full flex-shrink-0 mr-2 w-7 h-7 border border-green-400"
@@ -113,7 +120,7 @@ function AssetLine(
         {digitWrapper(props.near, 3)}
       </FlexRow>
 
-      <FlexRow className="col-span-2 xs:col-span-1 justify-self-end relative right-12 xs:right-5">
+      <FlexRow className="col-span-2 xs:hidden justify-self-end relative right-12 xs:right-5">
         {digitWrapper(props['in-order'], 3)}
       </FlexRow>
 
@@ -273,10 +280,11 @@ function RecordLine(
             >
               {/* {parseTxDisplay(props.tx_id)} */}
               <span className="text-primaryText">Txid</span>
+
+              <span className="text-primaryText ml-2">
+                <OutLinkIcon></OutLinkIcon>
+              </span>
             </a>
-            <CopyToClipboard text={props.tx_id}>
-              <TbCopy className="ml-1 transform hover:opacity-80 cursor-pointer text-txBlue rotate-270" />
-            </CopyToClipboard>
           </div>
         </div>
       </div>
@@ -369,6 +377,9 @@ export function AssetModal(props: Modal.Props) {
     }
   };
 
+  const [operationType, setOperationType] = useState<'deposit' | 'withdraw'>();
+  const [operationId, setOperationId] = useState<string>('near');
+
   const isMobile = useClientMobile();
 
   return (
@@ -395,17 +406,12 @@ export function AssetModal(props: Modal.Props) {
       <div
         className={`${
           isMobile ? '' : 'border border-assetsBorder'
-        } rounded-2xl xs:rounded-none xs:rounded-t-2xl relative  overflow-hidden ${'h-p620'} lg:w-p869 xs:w-screen xs:fixed xs:bottom-0  bg-boxBorder text-sm text-primaryOrderly border xs:border-none `}
+        } rounded-2xl xs:rounded-none xs:rounded-t-2xl relative  overflow-hidden lg:h-p620 xs:pb-8 lg:w-p869 xs:w-screen xs:fixed xs:bottom-0  bg-boxBorder text-sm text-primaryOrderly border xs:border-none `}
         style={{
-          height: isMobile ? '75vh' : '',
+          height: isMobile ? '77vh' : '',
         }}
       >
-        <div
-          className=" flex flex-col "
-          style={{
-            height: isMobile ? '75vh' : '',
-          }}
-        >
+        <div className=" flex flex-col h-full">
           <div className="flex bg-allOrderHeader xs:bg-none pt-4 px-5 pb-4  items-center  justify-between">
             <div className="text-white  text-base font-bold">
               <span
@@ -466,16 +472,16 @@ export function AssetModal(props: Modal.Props) {
           {tag === 'asset' && (
             <div
               className={
-                'grid grid-cols-8 xs:grid-cols-5 px-5  xs:pl-4 xs:pr-3 py-3 h-14'
+                'grid grid-cols-8 xs:grid-cols-3 px-5  xs:pl-4 xs:pr-3 py-3 h-14'
               }
             >
-              <div className="col-span-2 text-center  inline-flex items-center justify-center justify-self-start">
+              <div className="xs:col-span-1 col-span-2  text-center  inline-flex items-center justify-center justify-self-start">
                 {isMobile ? 'Asset' : 'Tokens'}
               </div>
 
               <div
                 className={`flex flex-shrink-0 cursor-pointer relative items-center  justify-center
-            ${sortBy === 'near' ? 'white' : '#7E8A93'}
+            ${sortBy === 'near' ? 'text-white' : 'text-primaryText'}
             `}
                 onClick={() => {
                   setSortBy('near');
@@ -483,7 +489,7 @@ export function AssetModal(props: Modal.Props) {
               >
                 <NearWalletIcon></NearWalletIcon>
 
-                <span className="ml-2 xs:hidden">NEAR</span>
+                <span className="ml-2">{isMobile ? 'Wallet' : 'NEAR'} </span>
 
                 <MdArrowDropDown
                   size={22}
@@ -505,8 +511,8 @@ export function AssetModal(props: Modal.Props) {
               </div>
 
               <div
-                className={`col-span-2 xs:col-span-1 relative cursor-pointer flex justify-self-center items-center ${
-                  sortBy === 'in-order' ? 'white' : '#7E8A93'
+                className={`col-span-2 xs:hidden relative cursor-pointer flex justify-self-center items-center ${
+                  sortBy === 'in-order' ? 'text-white' : 'text-primaryText'
                 }`}
                 onClick={() => {
                   setSortBy('in-order');
@@ -535,7 +541,7 @@ export function AssetModal(props: Modal.Props) {
 
               <div
                 className={`${
-                  sortBy === 'available' ? 'white' : '#7E8A93'
+                  sortBy === 'available' ? 'text-white' : 'text-primaryText'
                 } cursor-pointer flex items-center justify-self-center xs:justify-self-end justify-center`}
                 onClick={() => {
                   setSortBy('available');
@@ -544,7 +550,7 @@ export function AssetModal(props: Modal.Props) {
                 <span className=" ml-2 lg:hidden ">
                   <OrderlyIconBalance></OrderlyIconBalance>
                 </span>
-                <span className="flex items-center xs:hidden">Available</span>
+                <span className="flex items-center xs:ml-2">Available</span>
 
                 <MdArrowDropDown
                   size={22}
@@ -598,7 +604,12 @@ export function AssetModal(props: Modal.Props) {
           {loading && <OrderlyLoading></OrderlyLoading>}
 
           {tag === 'asset' && !loading && (
-            <section className="max-h-full overflow-auto w-full">
+            <section
+              className="max-h-full overflow-auto w-full"
+              style={{
+                maxHeight: '50vh',
+              }}
+            >
               {sortedBalances.map((b: OrderAsset) => {
                 return <AssetLine tokenInfo={tokenInfo} {...b} />;
               })}
@@ -606,7 +617,7 @@ export function AssetModal(props: Modal.Props) {
           )}
 
           {tag === 'records' &&
-            (isMobile ? (
+            (isMobile && records && records.length > 0 ? (
               <section className="xs:overflow-auto" id="mobile-asset-body">
                 <InfiniteScroll
                   next={loadMore}
@@ -681,6 +692,59 @@ export function AssetModal(props: Modal.Props) {
               >
                 <LastPage></LastPage>
               </span>
+            </div>
+          )}
+
+          {tag === 'asset' && (
+            <div className="flex lg:hidden mt-2 items-center w-95vw mx-auto">
+              <DepositButtonMobile
+                onClick={() => {
+                  setOperationType('deposit');
+                }}
+              ></DepositButtonMobile>
+
+              <WithdrawButtonMobile
+                onClick={() => {
+                  setOperationType('withdraw');
+                }}
+              ></WithdrawButtonMobile>
+              <AssetManagerModal
+                isOpen={operationType === 'deposit'}
+                onRequestClose={() => {
+                  setOperationType(undefined);
+                }}
+                type={operationType}
+                onClick={(amount: string, tokenId: string) => {
+                  if (!tokenId) return;
+                  return depositOrderly(tokenId, amount);
+                }}
+                tokenId={operationId}
+                accountBalance={Number(
+                  displayBalances.find(
+                    (b) => b.tokenMeta.id.toLowerCase() === 'near'
+                  )?.available || 0
+                )}
+                tokenInfo={tokenInfo}
+              />
+
+              <AssetManagerModal
+                isOpen={operationType === 'withdraw'}
+                onRequestClose={() => {
+                  setOperationType(undefined);
+                }}
+                type={operationType}
+                onClick={(amount: string, tokenId: string) => {
+                  if (!tokenId) return;
+                  return withdrawOrderly(tokenId, amount);
+                }}
+                tokenId={operationId}
+                accountBalance={Number(
+                  displayBalances.find(
+                    (b) => b.tokenMeta.id.toLowerCase() === 'near'
+                  )?.available || 0
+                )}
+                tokenInfo={tokenInfo}
+              />
             </div>
           )}
         </div>

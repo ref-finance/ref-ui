@@ -115,32 +115,6 @@ function OrderlyTradingBoard() {
     localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
   });
 
-  React.useEffect(() => {
-    const pubkey = localStorage.getItem(get_orderly_public_key_path());
-
-    if (!pubkey && accountId) {
-      generateTradingKeyPair();
-    }
-  }, [accountId]);
-
-  window.onbeforeunload = () => {
-    tradingKeyMap.get(priKeyPath) &&
-      localStorage.setItem(priKeyPath, tradingKeyMap.get(priKeyPath));
-
-    tradingKeyMap.get(pubKeyPath) &&
-      localStorage.setItem(pubKeyPath, tradingKeyMap.get(pubKeyPath));
-  };
-
-  window.onload = () => {
-    const priKey = localStorage.getItem(priKeyPath);
-
-    const pubKey = localStorage.getItem(pubKeyPath);
-
-    priKey && tradingKeyMap.set(priKeyPath, priKey);
-
-    pubKey && tradingKeyMap.set(pubKeyPath, pubKey);
-  };
-
   return (
     <div className="mx-auto">
       {!isMobile && <TradingBoard></TradingBoard>}

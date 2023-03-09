@@ -88,6 +88,10 @@ import OrderlyContextProvider, {
   OrderlyContext,
 } from '~pages/Orderly/orderly/OrderlyContext';
 import { list_seeds_info } from './services/farm';
+import {
+  get_orderly_public_key_path,
+  generateTradingKeyPair,
+} from './pages/Orderly/orderly/utils';
 
 export type Account = AccountView & {
   account_id: string;
@@ -194,11 +198,19 @@ export function Content() {
 
   useGlobalPopUp(globalState);
 
+  React.useEffect(() => {
+    const pubkey = localStorage.getItem(get_orderly_public_key_path());
+
+    if (!pubkey && accountId) {
+      generateTradingKeyPair();
+    }
+  }, [accountId]);
+
   return (
     <WalletContext.Provider value={{ globalState, globalStatedispatch }}>
       <NavigationBar />
       <ToastContainer
-        newestOnTop={window.location.pathname === '/orderly' ? true : false}
+        newestOnTop={window.location.pathname === '/orderbook' ? true : false}
         style={{
           marginTop: isMobile() ? 'none' : '44px',
         }}

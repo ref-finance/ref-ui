@@ -10,6 +10,7 @@ import {
   CheckFlow,
   OrderStateOutlineBlack,
   OrderPopUpCheck,
+  GrayBgBoxMobile,
 } from './Icons';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
@@ -213,38 +214,6 @@ export function RegisterButton({
 
   return (
     <div className="flex flex-col items-center xs:w-full  relative ">
-      <div
-        className={
-          !isOpenMobile
-            ? 'hidden'
-            : 'flex items-start text-sm lg:hidden relative text-white flex-col'
-        }
-      >
-        <div className="relative mb-3 flex items-center">
-          <div className="mr-2">
-            <CheckFlow checked={!!storageEnough}></CheckFlow>
-          </div>
-
-          <div>Deposit storage fee</div>
-        </div>
-
-        <div className="relative flex mb-5 items-center">
-          <div className="mr-2">
-            <CheckFlow checked={false}></CheckFlow>
-          </div>
-
-          <div>Register Orderly Account</div>
-        </div>
-
-        <div
-          className="w-4 transform rotate-90 absolute top-6"
-          style={{
-            border: '1px dashed #566069 ',
-            left: '-2px',
-          }}
-        ></div>
-      </div>
-
       <button
         className={`text-base min-w-fit xs:w-full xs:py-2 mb-5 py-3   relative w-p240 ${
           spinNow || !check ? 'opacity-30 cursor-not-allowed' : ''
@@ -423,7 +392,7 @@ export function orderPopUp({
                 width: '9px',
               }}
             >
-              {order.status === 'PARTIAL_FILLED' && (
+              {order.executed > 0 && (
                 <CircularProgressbar
                   styles={buildStyles({
                     pathColor: '#273640',
@@ -517,6 +486,25 @@ export function DepositButton(props: any) {
   );
 }
 
+export function DepositButtonMobile(props: any) {
+  return (
+    <div
+      className="relative w-1/2    flex items-center justify-center text-white"
+      {...props}
+    >
+      <GrayBgBoxMobile
+        className={`  cursor-pointer transform   left-0 -bottom-0.5 z-10`}
+      ></GrayBgBoxMobile>
+
+      <div className="flex cursor-pointer items-center absolute z-40 font-normal">
+        <span className="text-13px font-bold">Deposit</span>
+
+        <HiDownload className="ml-1" />
+      </div>
+    </div>
+  );
+}
+
 export function WithdrawButton(props: any) {
   return (
     <div
@@ -534,6 +522,25 @@ export function WithdrawButton(props: any) {
 
       <div className="flex  cursor-pointer items-center relative z-40 font-normal">
         <span className="text-13px">Withdraw</span>
+
+        <ArrowCurve />
+      </div>
+    </div>
+  );
+}
+
+export function WithdrawButtonMobile(props: any) {
+  return (
+    <div
+      className="relative w-1/2 flex left-2  items-center justify-center text-white"
+      {...props}
+    >
+      <GrayBgBoxMobile
+        className={` cursor-pointer transform rotate-180  relative right-2   z-10`}
+      ></GrayBgBoxMobile>
+
+      <div className="flex  cursor-pointer absolute items-center z-40 font-normal">
+        <span className="text-13px font-bold">Withdraw</span>
 
         <ArrowCurve />
       </div>
