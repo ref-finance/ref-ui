@@ -146,6 +146,7 @@ function OrderBook() {
     ordersUpdate,
     setBridgePrice,
     handlePendingOrderRefreshing,
+    availableSymbols,
   } = useOrderlyContext();
 
   const storedPrecision = sessionStorage.getItem(REF_ORDERLY_PRECISION);
@@ -317,7 +318,7 @@ function OrderBook() {
 
       {tab === 'book' && !loading && (
         <>
-          <div className="px-4 flex items-center text-xs mb-2 lg:mr-4 text-primaryOrderly justify-between ">
+          <div className="px-4 flex items-center text-xs mb-2 lg:mr-2 text-primaryOrderly justify-between ">
             <div className="flex items-center">
               <span className="flex items-center">Price</span>
 

@@ -38,7 +38,12 @@ import { formatTimeDate } from '../OrderBoard';
 import { Selector } from '../OrderBoard';
 
 import { AiOutlineClose, AiOutlineCheck } from 'react-icons/ai';
-import { FlexRowStart, CheckBox, orderEditPopUpSuccess } from '../Common/index';
+import {
+  FlexRowStart,
+  CheckBox,
+  orderEditPopUpSuccess,
+  ErrorTip,
+} from '../Common/index';
 import {
   cancelOrder,
   cancelOrders,
@@ -56,7 +61,10 @@ import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { OrderlyLoading, FilledStamp } from '../Common/Icons';
 import { digitWrapper } from '../../utiles';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
-import { ONLY_ZEROS } from '../../../../utils/numbers';
+import {
+  ONLY_ZEROS,
+  scientificNotationToString,
+} from '../../../../utils/numbers';
 import { orderEditPopUpFailure } from '../Common/index';
 import { Holding } from '../../orderly/type';
 import {
@@ -137,7 +145,7 @@ export function EditConfirmOrderModal(
 
 function EditOrderModalMobile(
   props: Modal.Props & {
-    confirmClick: (value?: string, type?: 'price' | 'quantity') => void;
+    confirmClick: (value?: string, type?: 'price' | 'quantity') => string;
     defaultInput: string;
     editType: 'price' | 'quantity';
   }
@@ -145,6 +153,12 @@ function EditOrderModalMobile(
   const { onRequestClose, defaultInput, editType, confirmClick } = props;
 
   const [value, setValue] = useState<string>(defaultInput);
+
+  const [errorMsg, setErrorMsg] = useState<string>(undefined);
+
+  useEffect(() => {
+    setErrorMsg(undefined);
+  }, [props.isOpen]);
 
   return (
     <Modal
@@ -180,6 +194,12 @@ function EditOrderModalMobile(
             }}
           ></input>
 
+          <div className="relative bottom-5">
+            {!!errorMsg && (
+              <ErrorTip className={'relative top-3'} text={errorMsg} />
+            )}
+          </div>
+
           <div className="flex items-center mb-2 h-10 font-bold w-full justify-center">
             <button
               className="text-primaryText bg-menuMoreBgColor  w-1/2 border-baseGreen ml-2 py-2 rounded-lg flex items-center justify-center"
@@ -201,7 +221,12 @@ function EditOrderModalMobile(
                 e.preventDefault();
                 e.stopPropagation();
 
-                confirmClick(value, editType);
+                if (!errorMsg && errorMsg !== undefined) {
+                  return;
+                }
+
+                const msg = confirmClick(value, editType);
+                setErrorMsg(msg);
               }}
               style={{
                 height: '38px',
@@ -290,10 +315,8 @@ function OrderLine({
 
   const openEdit = openEditPrice || openEditQuantity;
 
-  const editValidator = (price: string, size: string) => {
+  const editValidator = (price: string, size: string, noPop?: boolean) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === order.symbol);
-
-    console.log('price', price, symbolInfo);
 
     let quantity = size;
 
@@ -315,10 +338,19 @@ function OrderLine({
 
     // price validator
 
-    console.log('price', price);
-
     if (ONLY_ZEROS.test(price || '0')) {
       errorTipMsg = `Price should be higher than 0`;
+    }
+
+    if (
+      new Big(price || 0)
+        .times(new Big(quantity || 0))
+        .gt(new Big(holdingTo.holding + holdingTo.pending_short)) &&
+      order.side === 'BUY'
+    ) {
+      errorTipMsg = `The order value should be less than or equal to ${
+        holdingTo.holding + holdingTo.pending_short
+      }`;
     }
 
     if (
@@ -432,14 +464,13 @@ function OrderLine({
       errorTipMsg = `The order value should be greater than or equal to ${symbolInfo.min_notional}`;
     }
 
-    if (!!errorTipMsg) {
+    if (!!errorTipMsg && !noPop) {
       orderEditPopUpFailure({
         tip: errorTipMsg,
       });
-      return false;
     }
 
-    return true;
+    return errorTipMsg;
   };
 
   const [isCancelled, setIsCancelled] = useState<boolean>(false);
@@ -612,7 +643,7 @@ function OrderLine({
             }`}
           >
             <span className="relative ">
-              {digitWrapper(order.executed.toString(), 2)}
+              {digitWrapper(order.executed.toString(), 2, true)}
             </span>
             <span className="mx-1 relative ">/</span>
 
@@ -671,7 +702,7 @@ function OrderLine({
                       setOpenEditQuantity(false);
                       return;
                     }
-                    if (!editValidator(price, quantity)) return;
+                    if (editValidator(price, quantity)) return;
 
                     setShowEditModal(true);
                     setEditType('quantity');
@@ -740,7 +771,7 @@ function OrderLine({
                     return;
                   }
 
-                  if (!editValidator(price, quantity)) return;
+                  if (editValidator(price, quantity)) return;
 
                   setShowEditModal(true);
                   setEditType('price');
@@ -761,7 +792,8 @@ function OrderLine({
             new Big(quantity || '0')
               .times(new Big(order.price || order.average_executed_price || 0))
               .toFixed(5),
-            2
+            2,
+            true
           )}
         </td>
 
@@ -891,7 +923,7 @@ function OrderLine({
                 }}
                 className="pr-1"
               >
-                {digitWrapper(quantity, 2)}
+                {digitWrapper(quantity, 2, true)}
               </span>
             }
 
@@ -913,7 +945,7 @@ function OrderLine({
                   e.stopPropagation();
                 }}
               >
-                {digitWrapper(order.price.toString(), 2)}
+                {digitWrapper(order.price.toString(), 2, true)}
               </span>
             </div>
 
@@ -933,7 +965,8 @@ function OrderLine({
                     new Big(order.price || order.average_executed_price || 0)
                   )
                   .toFixed(5),
-                2
+                2,
+                true
               )}
             </span>
           </div>
@@ -976,12 +1009,15 @@ function OrderLine({
           confirmClick={(value, type) => {
             const valRes = editValidator(
               type === 'price' ? value : order.price.toString(),
-              type === 'quantity' ? value : order.quantity.toString()
+              type === 'quantity' ? value : order.quantity.toString(),
+              true
             );
 
-            if (!valRes) return;
+            if (valRes) return valRes;
 
             handleEditOrder(value, type);
+
+            return '';
           }}
         ></EditOrderModalMobile>
       )}
@@ -1018,10 +1054,7 @@ function OrderLine({
               </span>
 
               <div
-                className="flex items-center relative ml-1.5 justify-center
-                
-                border border-dashed rounded-full border-portfolioGreenColor 
-                "
+                className="flex items-center relative ml-1.5 justify-center border border-dashed rounded-full border-portfolioGreenColor"
                 style={{
                   height: '14px',
                   width: '14px',
@@ -1034,34 +1067,33 @@ function OrderLine({
                     width: '9px',
                   }}
                 >
-                  {order.status === 'PARTIAL_FILLED' && (
-                    <CircularProgressbar
-                      styles={buildStyles({
-                        pathColor: '#62C340',
-                        strokeLinecap: 'butt',
-                        trailColor: 'transparent',
-                      })}
-                      background={false}
-                      strokeWidth={50}
-                      value={order.executed}
-                      maxValue={order.quantity}
-                    />
-                  )}
+                  <CircularProgressbar
+                    styles={buildStyles({
+                      pathColor: '#62C340',
+                      strokeLinecap: 'butt',
+                      trailColor: 'transparent',
+                    })}
+                    background={false}
+                    strokeWidth={50}
+                    value={order.executed}
+                    maxValue={order.quantity}
+                  />
                 </div>
               </div>
             </div>,
             <span>
-              {digitWrapper(order.executed, 2)} /{' '}
-              {digitWrapper(order.quantity, 2)}
+              {digitWrapper(order.executed, 2, true)} /{' '}
+              {digitWrapper(order.quantity, 2, true)}
             </span>,
-            <span>{digitWrapper(order.price, 2)}</span>,
+            <span>{digitWrapper(order.price, 2, true)}</span>,
             digitWrapper(
               new Big(quantity || '0')
                 .times(
                   new Big(order.price || order.average_executed_price || 0)
                 )
                 .toFixed(5),
-              2
+              2,
+              true
             ),
             formatTimeDate(order.created_time),
           ]}
@@ -1218,13 +1250,17 @@ function HistoryOrderLine({
           <td>
             <FlexRow className="col-span-1  ">
               <span className="">
-                {digitWrapper(order.executed.toString(), 2)}
+                {digitWrapper(order.executed.toString(), 2, true)}
               </span>
 
               <span className="mx-1 ">/</span>
 
               <span className="text-white ">
-                {digitWrapper((order.quantity || order.executed).toString(), 2)}
+                {digitWrapper(
+                  (order.quantity || order.executed).toString(),
+                  2,
+                  true
+                )}
               </span>
             </FlexRow>
           </td>
@@ -1234,7 +1270,8 @@ function HistoryOrderLine({
               {order.price || order.average_executed_price
                 ? digitWrapper(
                     (order.price || order.average_executed_price).toString(),
-                    2
+                    2,
+                    true
                   )
                 : '-'}
             </span>
@@ -1244,7 +1281,11 @@ function HistoryOrderLine({
             <span>
               {order.average_executed_price === null
                 ? '-'
-                : digitWrapper(order.average_executed_price.toString(), 2)}
+                : digitWrapper(
+                    order.average_executed_price.toString(),
+                    2,
+                    true
+                  )}
             </span>
           </td>
 
@@ -1252,12 +1293,13 @@ function HistoryOrderLine({
             className={`col-span-1 ml-4 justify-self-end relative   text-white`}
           >
             {digitWrapper(
-              new Big(order.quantity || '0')
+              new Big(order.quantity || order.executed || '0')
                 .times(
                   new Big(order.price || order.average_executed_price || '0')
                 )
                 .toFixed(4, 0),
-              2
+              2,
+              true
             )}
           </td>
 
@@ -1344,20 +1386,27 @@ function HistoryOrderLine({
                     }}
                   >
                     <td className="">
-                      {digitWrapper(trade.executed_quantity.toString(), 2)}
+                      {digitWrapper(
+                        trade.executed_quantity.toString(),
+                        2,
+                        true
+                      )}
                     </td>
                     <td className="">
-                      {digitWrapper(trade.executed_price.toString(), 2)}
+                      {digitWrapper(trade.executed_price.toString(), 2, true)}
                     </td>
                     <td className="">
                       {digitWrapper(
                         new Big(trade.executed_quantity || '0')
                           .times(new Big(trade.executed_price || '0'))
                           .toFixed(4),
-                        2
+                        2,
+                        true
                       )}
                     </td>
-                    <td className="">{trade.fee}</td>
+                    <td className="">
+                      {scientificNotationToString(trade.fee.toString())}
+                    </td>
 
                     <td
                       className=" pr-6 py-3  text-primaryOrderly "
@@ -1449,7 +1498,11 @@ function HistoryOrderLine({
         </div>
         <div className={`flex  ${'items-center'} py-2 justify-between`}>
           <div className={`flex  ${'items-center'} text-white`}>
-            {digitWrapper((order.quantity || order.executed).toString(), 2)}
+            {digitWrapper(
+              (order.quantity || order.executed).toString(),
+              2,
+              true
+            )}
 
             <TextWrapper
               value={symbolFrom}
@@ -1465,7 +1518,8 @@ function HistoryOrderLine({
               {order.price || order.average_executed_price
                 ? digitWrapper(
                     (order.price || order.average_executed_price).toString(),
-                    2
+                    2,
+                    true
                   )
                 : '-'}
             </div>
@@ -1481,12 +1535,13 @@ function HistoryOrderLine({
 
             <span className="text-white font-bold">
               {digitWrapper(
-                new Big(order.quantity || '0')
+                new Big(order.quantity || order.executed || '0')
                   .times(
                     new Big(order.price || order.average_executed_price || '0')
                   )
                   .toFixed(4, 0),
-                2
+                2,
+                true
               )}
             </span>
           </div>
@@ -1533,7 +1588,7 @@ function HistoryOrderLine({
                 order.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'
               }
             ></TextWrapper>,
-            <FlexRow className="relative col-span-1">
+            <FlexRow className="">
               <span className={`text-white capitalize `}>
                 {order.type === 'FOK' || order.type === 'IOC'
                   ? order.type
@@ -1542,9 +1597,9 @@ function HistoryOrderLine({
 
               <div
                 className={
-                  order.type !== 'MARKET'
-                    ? 'flex items-center relative border border-dashed rounded-full border-portfolioGreenColor ml-1.5 justify-center'
-                    : 'hidden'
+                  order.type === 'MARKET'
+                    ? 'hidden'
+                    : 'flex items-center relative ml-1.5 justify-center border border-dashed rounded-full border-portfolioGreenColor '
                 }
                 style={{
                   height: '14px',
@@ -1558,7 +1613,7 @@ function HistoryOrderLine({
                     width: '9px',
                   }}
                 >
-                  {order.type !== 'MARKET' ? (
+                  {order.type !== 'MARKET' && (
                     <CircularProgressbar
                       styles={buildStyles({
                         pathColor: '#62C340',
@@ -1570,41 +1625,45 @@ function HistoryOrderLine({
                       value={order.executed || 0}
                       maxValue={order.quantity}
                     />
-                  ) : (
-                    'Market'
                   )}
                 </div>
               </div>
             </FlexRow>,
             <FlexRow className="col-span-1  ">
               <span className="">
-                {digitWrapper(order.executed.toString(), 2)}
+                {digitWrapper(order.executed.toString(), 2, true)}
               </span>
 
               <span className="mx-1 ">/</span>
 
               <span className="text-white ">
-                {digitWrapper((order.quantity || order.executed).toString(), 2)}
+                {digitWrapper(
+                  (order.quantity || order.executed).toString(),
+                  2,
+                  true
+                )}
               </span>
             </FlexRow>,
             <span>
               {order.price || order.average_executed_price
                 ? digitWrapper(
                     (order.price || order.average_executed_price).toString(),
-                    3
+                    2,
+                    true
                   )
                 : '-'}
             </span>,
             order.average_executed_price === null
               ? '-'
-              : digitWrapper(order.average_executed_price.toString(), 2),
+              : digitWrapper(order.average_executed_price.toString(), 2, true),
             digitWrapper(
               new Big(order.quantity || '0')
                 .times(
                   new Big(order.price || order.average_executed_price || '0')
                 )
                 .toFixed(4, 0),
-              2
+              2,
+              true
             ),
             formatTimeDate(order.created_time),
 
@@ -1795,7 +1854,7 @@ function MobileOpenOrderDetail(
     cancelClick: () => void;
     mobileEditType: 'price' | 'quantity';
     setMobileEditType: (value: 'price' | 'quantity') => void;
-    editValidator: (value1: string, value2: string) => boolean;
+    editValidator: (value1: string, value2: string, noPop?: boolean) => string;
     handleEditOrder: (value: string, value2: 'price' | 'quantity') => void;
     order: MyOrder;
   }
@@ -1905,16 +1964,116 @@ function MobileOpenOrderDetail(
           confirmClick={(value, type) => {
             const valRes = editValidator(
               type === 'price' ? value : order.price.toString(),
-              type === 'quantity' ? value : order.quantity.toString()
+              type === 'quantity' ? value : order.quantity.toString(),
+              true
             );
 
-            if (!valRes) return;
+            if (valRes) return valRes;
 
             handleEditOrder(value, type);
+
+            return '';
           }}
         ></EditOrderModalMobile>
       )}
     </>
+  );
+}
+function InfoLine({
+  value,
+  title,
+}: {
+  value: JSX.Element | string;
+  title: string;
+}) {
+  return (
+    <div className="flex px-5 items-center justify-between mt-4 text-base">
+      <div className="text-primaryText">{title}</div>
+
+      <div
+        className={`text-white ${
+          title === 'Instrument' ? 'relative left-2' : ''
+        } `}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function DetailTable({
+  orderTradesHistory,
+}: {
+  orderTradesHistory: OrderTrade[];
+}) {
+  if (!orderTradesHistory || orderTradesHistory.length === 0) return null;
+  return (
+    <table className="table-fixed w-full bg-one_level_menu_color">
+      <thead className="text-primaryText text-13px">
+        <th align="left" className="pl-5">
+          Qty
+        </th>
+
+        <th align="left">Price</th>
+        <th align="left">Total</th>
+        <th align="left" className="whitespace-nowrap">
+          Fee
+          <TextWrapper
+            value={orderTradesHistory[0].fee_asset}
+            className="ml-1 text-xs py-0 px-1"
+            textC="text-primaryText"
+          />
+        </th>
+        <th align="right" className="pr-5">
+          Time
+        </th>
+      </thead>
+
+      <tbody className="text-xs">
+        {orderTradesHistory.map((h) => {
+          return (
+            <tr
+              style={{
+                verticalAlign: 'baseline',
+              }}
+            >
+              <td className="pl-5">
+                {digitWrapper(h.executed_quantity, 2, true)}
+              </td>
+              <td>{digitWrapper(h.executed_price, 2, true)}</td>
+
+              <td>
+                {digitWrapper(
+                  new Big(h.executed_quantity || '0')
+                    .times(new Big(h.executed_price || '0'))
+                    .toFixed(4),
+                  2,
+                  true
+                )}
+              </td>
+
+              <td>{scientificNotationToString(h.fee.toString())}</td>
+              <td className="text-primaryText pr-5 w-11" align="right">
+                {formatTimeDate(h.executed_timestamp)
+                  .split(' ')
+                  .map((s, i) => {
+                    return (
+                      <div
+                        className={`${
+                          i === 0 ? 'relative right-3' : ''
+                        } whitespace-nowrap text-right `}
+                        key={s}
+                      >
+                        {s}
+                      </div>
+                    );
+                  })}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 }
 
@@ -1931,91 +2090,6 @@ function MobileHistoryOrderDetail(
   const { titleList, order, valueList, symbol, orderTradesHistory } = props;
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
-
-  function InfoLine({
-    value,
-    title,
-  }: {
-    value: JSX.Element | string;
-    title: string;
-  }) {
-    return (
-      <div className="flex px-5 items-center justify-between mt-4 text-base">
-        <div className="text-primaryText">{title}</div>
-
-        <div
-          className={`text-white ${
-            title === 'Instrument' ? 'relative left-2' : ''
-          } `}
-        >
-          {value}
-        </div>
-      </div>
-    );
-  }
-
-  function DetailTable() {
-    if (!orderTradesHistory || orderTradesHistory.length === 0) return null;
-    return (
-      <table className="table-fixed w-full bg-one_level_menu_color">
-        <thead className="text-primaryText text-13px">
-          <th align="left" className="pl-5">
-            Qty
-          </th>
-
-          <th align="left">Price</th>
-          <th align="left">Total</th>
-          <th align="left" className="whitespace-nowrap">
-            Fee
-            <TextWrapper
-              value={orderTradesHistory[0].fee_asset}
-              className="ml-1 text-xs py-0 px-1"
-              textC="text-primaryText"
-            />
-          </th>
-          <th align="right" className="pr-5">
-            Time
-          </th>
-        </thead>
-
-        <tbody className="text-xs">
-          {orderTradesHistory.map((h) => {
-            return (
-              <tr
-                style={{
-                  verticalAlign: 'baseline',
-                }}
-              >
-                <td className="pl-5">{digitWrapper(h.executed_quantity, 2)}</td>
-                <td>{digitWrapper(h.executed_price, 2)}</td>
-
-                <td>
-                  {digitWrapper(
-                    new Big(h.executed_quantity || '0')
-                      .times(new Big(h.executed_price || '0'))
-                      .toFixed(4),
-                    2
-                  )}
-                </td>
-
-                <td>{h.fee}</td>
-                <td
-                  className="text-primaryText pr-5 "
-                  align="right"
-                  style={{
-                    WebkitLineClamp: 2,
-                    lineClamp: 2,
-                  }}
-                >
-                  {formatTimeDate(h.executed_timestamp)}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    );
-  }
 
   const [showDetail, setShowDetail] = useState<boolean>(false);
 
@@ -2073,7 +2147,9 @@ function MobileHistoryOrderDetail(
             <SlArrowUp></SlArrowUp>
           </span>
         </button>
-        {showDetail && orderTradesHistory && <DetailTable></DetailTable>}
+        {showDetail && orderTradesHistory && (
+          <DetailTable orderTradesHistory={orderTradesHistory}></DetailTable>
+        )}
       </div>
     </Modal>
   );
@@ -2125,6 +2201,9 @@ function OpenOrders({
   const [chooseMarketSymbol, setChooseMarketSymbol] = useState<string>(
     showCurSymbol && !isMobile() ? symbol : 'all_markets'
   );
+
+  console.log('chooseMarketSymbol: ', chooseMarketSymbol);
+
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
 
   useEffect(() => {
@@ -2273,6 +2352,7 @@ function OpenOrders({
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
                   onClick={() => {
                     setChooseMarketSymbol('all_markets');
+                    setShowCurSymbol(false);
                   }}
                 >
                   <IoIosClose strokeWidth={3}></IoIosClose>
@@ -2537,7 +2617,6 @@ function OpenOrders({
         curSide={chooseSide}
         setInstrument={(value: string) => {
           setChooseMarketSymbol(value);
-          setShowCurSymbol(false);
         }}
         setShowCurSymbol={setShowCurSymbol}
       ></MobileFilterModal>
@@ -2788,6 +2867,7 @@ function HistoryOrders({
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
                   onClick={() => {
                     setChooseMarketSymbol('all_markets');
+                    setShowCurSymbol(false);
                   }}
                 >
                   <IoIosClose strokeWidth={3}></IoIosClose>
@@ -3165,6 +3245,7 @@ function HistoryOrders({
               hasMore={hasMore}
               dataLength={records}
               loader={null}
+              scrollableTarget={isMobile() ? null : 'all-orders-body-history'}
             >
               {data.slice(0, records)}
             </InfiniteScroll>
@@ -3191,7 +3272,6 @@ function HistoryOrders({
         curSide={chooseSide}
         setInstrument={(value: string) => {
           setChooseMarketSymbol(value);
-          setShowCurSymbol(false);
         }}
         curStatus={chooseStatus}
         setStatus={setChooseStatus}

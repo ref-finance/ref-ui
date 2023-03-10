@@ -293,10 +293,12 @@ export function FlexRow({
   onClick,
   children,
   className,
+  title,
 }: {
   children: React.ReactNode;
   className?: string;
   onClick?: () => void;
+  title?: string;
 }) {
   return (
     <div
@@ -304,6 +306,7 @@ export function FlexRow({
       onClick={() => {
         onClick && onClick();
       }}
+      title={title}
     >
       {children}
     </div>

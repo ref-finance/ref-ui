@@ -364,13 +364,14 @@ function CurAsset() {
         accountBalance={tokenInHolding || 0}
         tokenInfo={tokenInfo}
       />
-
-      <AssetModal
-        isOpen={showAllAssets}
-        onRequestClose={() => {
-          setShowAllAssets(false);
-        }}
-      ></AssetModal>
+      {showAllAssets && (
+        <AssetModal
+          isOpen={showAllAssets}
+          onRequestClose={() => {
+            setShowAllAssets(false);
+          }}
+        ></AssetModal>
+      )}
     </>
   );
 }

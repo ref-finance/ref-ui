@@ -60,7 +60,7 @@ import {
   QuestionMark,
 } from '../Common/index';
 import { useTokenBalance, useTokensBalances } from './state';
-import { digitWrapper } from '../../utiles';
+import { digitWrapper, digitWrapperAsset } from '../../utiles';
 
 import { FiSearch } from 'react-icons/fi';
 import {
@@ -906,14 +906,22 @@ export default function UserBoard() {
           <span>{symbolFrom}</span>
         </div>
 
-        <div className="justify-self-end relative right-10">
-          {!!tokenFromBalance ? digitWrapper(tokenFromBalance, 2) : '-'}
+        <div
+          className="justify-self-end relative right-10"
+          title={tokenFromBalance}
+        >
+          {!!tokenFromBalance ? digitWrapperAsset(tokenFromBalance, 2) : '-'}
         </div>
 
-        <div className="flex items-center justify-self-end">
-          <span>
-            {tokenInHolding ? digitWrapper(tokenInHolding.toString(), 2) : 0}
-          </span>
+        <div
+          className="flex items-center justify-self-end"
+          title={
+            tokenInHolding !== undefined || tokenInHolding !== null
+              ? scientificNotationToString(tokenInHolding?.toString() || '')
+              : ''
+          }
+        >
+          {tokenInHolding ? digitWrapperAsset(tokenInHolding.toString(), 2) : 0}
         </div>
       </div>
 
@@ -927,14 +935,24 @@ export default function UserBoard() {
           <span>{symbolTo}</span>
         </div>
 
-        <div className="justify-self-end relative right-10">
-          {!!tokenToBalance ? digitWrapper(tokenToBalance, 2) : ''}
+        <div
+          className="justify-self-end relative right-10"
+          title={tokenToBalance}
+        >
+          {!!tokenToBalance ? digitWrapperAsset(tokenToBalance, 2) : ''}
         </div>
 
-        <div className="flex items-center justify-self-end">
-          <span>
-            {tokenOutHolding ? digitWrapper(tokenOutHolding.toString(), 2) : 0}
-          </span>
+        <div
+          className="flex items-center justify-self-end"
+          title={
+            tokenOutHolding !== undefined || tokenOutHolding !== null
+              ? scientificNotationToString(tokenOutHolding?.toString() || '')
+              : ''
+          }
+        >
+          {tokenOutHolding
+            ? digitWrapperAsset(tokenOutHolding.toString(), 2)
+            : 0}
         </div>
       </div>
 
@@ -1646,10 +1664,10 @@ export function AssetManagerModal(
                 <NearIConSelectModal /> <span className="ml-2">Wallet</span>
               </span>
 
-              <span>
+              <span title={walletBalance?.toString() || ''}>
                 {!walletBalance
                   ? '-'
-                  : digitWrapper(walletBalance.toString() || '0', 3)}
+                  : digitWrapperAsset(walletBalance.toString() || '0', 3)}
               </span>
             </div>
 
@@ -1660,7 +1678,9 @@ export function AssetManagerModal(
                 <span className="ml-2">Available</span>
               </span>
 
-              <span>{digitWrapper(displayAccountBalance.toString(), 3)}</span>
+              <span title={displayAccountBalance?.toString() || ''}>
+                {digitWrapperAsset(displayAccountBalance.toString(), 3)}
+              </span>
             </div>
 
             <div className="flex mb-5 items-center border border-border2 w-full bg-black bg-opacity-10 rounded-2xl px-3 py-3">
@@ -2478,7 +2498,7 @@ export function MobileUserBoard({
       >
         Balance:
         <span
-          className={`ml-1 ${side === 'Buy' ? '' : 'underline'} `}
+          className={`ml-1 `}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -2519,10 +2539,10 @@ export function MobileUserBoard({
         >
           {side === 'Buy'
             ? tokenOutHolding
-              ? digitWrapper(tokenOutHolding.toString(), 2)
+              ? digitWrapperAsset(tokenOutHolding.toString(), 2)
               : 0
             : tokenInHolding
-            ? digitWrapper(tokenInHolding.toString(), 2)
+            ? digitWrapperAsset(tokenInHolding.toString(), 2)
             : 0}
         </span>
         <span className="ml-1">{side === 'Sell' ? symbolFrom : symbolTo}</span>
@@ -3031,12 +3051,18 @@ function SelectTokenModal(
                       ) : null}
                     </div>
 
-                    <div className="flex items-center justify-self-end relative right-6">
-                      {digitWrapper(b.wallet_balance.toString(), 2)}
+                    <div
+                      className="flex items-center justify-self-end relative right-6"
+                      title={b.wallet_balance.toString()}
+                    >
+                      {digitWrapperAsset(b.wallet_balance.toString(), 2)}
                     </div>
 
-                    <div className="justify-self-end flex relative right-4 items-center">
-                      {digitWrapper(b.holding.toString(), 2)}
+                    <div
+                      className="justify-self-end flex relative right-4 items-center"
+                      title={b.holding.toString()}
+                    >
+                      {digitWrapperAsset(b.holding.toString(), 2)}
                     </div>
                   </div>
                 );

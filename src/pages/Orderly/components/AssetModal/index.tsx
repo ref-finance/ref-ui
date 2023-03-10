@@ -28,7 +28,7 @@ import {
   WithdrawButtonMobile,
   DepositButtonMobile,
 } from '../Common/index';
-import { digitWrapper } from '../../utiles';
+import { digitWrapper, digitWrapperAsset } from '../../utiles';
 import { AssetManagerModal } from '../UserBoard';
 import { depositOrderly } from '../../orderly/api';
 import { withdrawOrderly } from '../../orderly/api';
@@ -116,16 +116,22 @@ function AssetLine(
         </div>
       </FlexRow>
 
-      <FlexRow className="justify-self-end relative right-4">
-        {digitWrapper(props.near, 3)}
+      <FlexRow className="justify-self-end relative right-4" title={props.near}>
+        {digitWrapperAsset(props.near, 3)}
       </FlexRow>
 
-      <FlexRow className="col-span-2 xs:hidden justify-self-end relative right-12 xs:right-5">
-        {digitWrapper(props['in-order'], 3)}
+      <FlexRow
+        className="col-span-2 xs:hidden justify-self-end relative right-12 xs:right-5"
+        title={props['in-order']}
+      >
+        {digitWrapperAsset(props['in-order'], 3)}
       </FlexRow>
 
-      <FlexRow className="relative justify-self-end right-8 xs:right-0">
-        {digitWrapper(props.available, 3)}
+      <FlexRow
+        className="relative justify-self-end right-8 xs:right-0"
+        title={props.available}
+      >
+        {digitWrapperAsset(props.available, 3)}
       </FlexRow>
 
       <FlexRow className="justify-center xs:hidden justify-self-center col-span-2">
@@ -199,7 +205,7 @@ function RecordLine(
         </FlexRow>
 
         <FlexRow className="justify-self-end relative  right-24">
-          {digitWrapper(props.amount.toString(), 3)}
+          {digitWrapperAsset(props.amount.toString(), 3)}
         </FlexRow>
 
         <FlexRow className="col-span-1 justify-self-end relative right-14">

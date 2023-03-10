@@ -1,6 +1,8 @@
 import React, { useContext, createContext, useState, useEffect } from 'react';
 import { useOrderlyMarketData, useOrderlyPrivateData } from './off-chain-ws';
 import { useAccountExist } from './state';
+import { useAllSymbolInfo } from '../components/AllOrders/state';
+import { SymbolInfo } from './type';
 import {
   MarketTrade,
   Orders,
@@ -42,6 +44,7 @@ interface OrderlyContextValue {
   setBridgePrice: (bridgePrice: string) => void;
   ordersUpdate: Orders | undefined;
   userExist: undefined | boolean;
+  availableSymbols: SymbolInfo[];
 }
 
 export const REF_ORDERLY_SYMBOL_KEY = 'REF_ORDERLY_SYMBOL_KEY';
@@ -80,6 +83,8 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     validAccountSig,
   });
 
+  const availableSymbols = useAllSymbolInfo();
+
   const allOrdersSymbol = useAllOrdersSymbol({
     symbol,
     refreshingTag: myPendingOrdersRefreshing,
@@ -117,6 +122,7 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         bridgePrice,
         setBridgePrice,
         userExist,
+        availableSymbols,
       }}
     >
       {children}
