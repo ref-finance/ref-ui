@@ -82,7 +82,7 @@ function TradingBoard() {
 function MobileTradingBoard() {
   return (
     <>
-      <div className="w-95vw mx-auto flex flex-col lg:hidden">
+      <div className="w-95vw  mx-auto flex flex-col lg:hidden">
         <ChartHeader></ChartHeader>
 
         {/* info board */}
@@ -116,7 +116,7 @@ function OrderlyTradingBoard() {
   });
 
   return (
-    <div className="mx-auto">
+    <div className="mx-auto xs:relative xs:bottom-6">
       {!isMobile && <TradingBoard></TradingBoard>}
 
       {isMobile && <MobileTradingBoard></MobileTradingBoard>}

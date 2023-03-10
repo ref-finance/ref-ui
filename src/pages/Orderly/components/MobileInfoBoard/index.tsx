@@ -3,6 +3,7 @@ import {
   BalanceIcon,
   BookIcon,
   ChartIcon,
+  MobileIconCloseUp,
   NearIConSelectModal,
   OrderlyIconBalance,
 } from '../Common/Icons';
@@ -1000,7 +1001,8 @@ export default function () {
               handleSetDisplay(!showDisplay);
             }}
           >
-            <SlArrowUp></SlArrowUp>
+            {/* <SlArrowUp></SlArrowUp> */}
+            <MobileIconCloseUp></MobileIconCloseUp>
           </span>
         </div>
       </div>

@@ -16,6 +16,7 @@ import {
 } from '../../orderly/OrderlyContext';
 import moment from 'moment';
 import { OrderlyLoading } from '../Common/Icons';
+import { isMobile } from '../../../../utils/device';
 
 export interface ChartContainerProps {
   symbol: ChartingLibraryWidgetOptions['symbol'];
@@ -80,7 +81,9 @@ export class TVChartContainer extends React.PureComponent<
       library_path: this.props.libraryPath as string,
       locale: getLanguageFromURL() || 'en',
       disabled_features: ['use_localstorage_for_settings'],
-      enabled_features: ['study_templates'],
+      enabled_features: isMobile()
+        ? ['hide_left_toolbar_by_default', 'study_templates']
+        : ['study_templates'],
       charts_storage_url: this.props.chartsStorageUrl,
       charts_storage_api_version: this.props.chartsStorageApiVersion,
       client_id: this.props.clientId,
@@ -130,7 +133,9 @@ export function ChartContainer() {
     library_path: '/charting_library/',
     locale: getLanguageFromURL() || 'en',
     disabled_features: ['use_localstorage_for_settings'],
-    enabled_features: ['study_templates'],
+    enabled_features: isMobile()
+      ? ['hide_left_toolbar_by_default', 'study_templates']
+      : ['study_templates'],
     charts_storage_url: 'https://saveload.tradingview.com',
     charts_storage_api_version: '1.1',
     client_id: 'tradingview.com',

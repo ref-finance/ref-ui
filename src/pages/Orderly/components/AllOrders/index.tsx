@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { SlArrowUp } from 'react-icons/sl';
 
+import { IoIosClose } from 'react-icons/io';
+
 import { FlexRow, FlexRowBetween } from '../Common';
 import { parseSymbol } from '../RecentTrade';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
@@ -290,6 +292,8 @@ function OrderLine({
 
   const editValidator = (price: string, size: string) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === order.symbol);
+
+    let quantity = size;
 
     let errorTipMsg = '';
 
@@ -605,7 +609,7 @@ function OrderLine({
             }`}
           >
             <span className="relative ">
-              {digitWrapper(order.executed.toString(), 3)}
+              {digitWrapper(order.executed.toString(), 2)}
             </span>
             <span className="mx-1 relative ">/</span>
 
@@ -754,7 +758,7 @@ function OrderLine({
             new Big(quantity || '0')
               .times(new Big(order.price || order.average_executed_price || 0))
               .toFixed(5),
-            3
+            2
           )}
         </td>
 
@@ -888,7 +892,7 @@ function OrderLine({
                 }}
                 className="pr-1"
               >
-                {digitWrapper(quantity, 3)}
+                {digitWrapper(quantity, 2)}
               </span>
             }
 
@@ -910,7 +914,7 @@ function OrderLine({
                   e.stopPropagation();
                 }}
               >
-                {digitWrapper(order.price.toString(), 3)}
+                {digitWrapper(order.price.toString(), 2)}
               </span>
             </div>
 
@@ -930,7 +934,7 @@ function OrderLine({
                     new Big(order.price || order.average_executed_price || 0)
                   )
                   .toFixed(5),
-                3
+                2
               )}
             </span>
           </div>
@@ -1049,17 +1053,17 @@ function OrderLine({
               </div>
             </div>,
             <span>
-              {digitWrapper(order.executed, 3)} /{' '}
-              {digitWrapper(order.quantity, 3)}
+              {digitWrapper(order.executed, 2)} /{' '}
+              {digitWrapper(order.quantity, 2)}
             </span>,
-            <span>{digitWrapper(order.price, 3)}</span>,
+            <span>{digitWrapper(order.price, 2)}</span>,
             digitWrapper(
               new Big(quantity || '0')
                 .times(
                   new Big(order.price || order.average_executed_price || 0)
                 )
                 .toFixed(5),
-              3
+              2
             ),
             formatTimeDate(order.created_time),
           ]}
@@ -1220,13 +1224,13 @@ function HistoryOrderLine({
           <td>
             <FlexRow className="col-span-1  ">
               <span className="">
-                {digitWrapper(order.executed.toString(), 3)}
+                {digitWrapper(order.executed.toString(), 2)}
               </span>
 
               <span className="mx-1 ">/</span>
 
               <span className="text-white ">
-                {digitWrapper((order.quantity || order.executed).toString(), 3)}
+                {digitWrapper((order.quantity || order.executed).toString(), 2)}
               </span>
             </FlexRow>
           </td>
@@ -1236,7 +1240,7 @@ function HistoryOrderLine({
               {order.price || order.average_executed_price
                 ? digitWrapper(
                     (order.price || order.average_executed_price).toString(),
-                    3
+                    2
                   )
                 : '-'}
             </span>
@@ -1415,16 +1419,15 @@ function HistoryOrderLine({
               <span className="mx-1.5">filled</span>
 
               <div
-                className="flex items-center relative ml-1.5 justify-center"
+                className="flex items-center relative ml-1.5 justify-center
+                 border border-dashed rounded-full border-portfolioGreenColor 
+                
+                "
                 style={{
                   height: '14px',
                   width: '14px',
                 }}
               >
-                <div className="absolute top-0 left-0  ">
-                  <OrderStateOutline />
-                </div>
-
                 <div
                   className=""
                   style={{
@@ -1452,7 +1455,7 @@ function HistoryOrderLine({
         </div>
         <div className={`flex  ${'items-center'} py-2 justify-between`}>
           <div className={`flex  ${'items-center'} text-white`}>
-            {digitWrapper((order.quantity || order.executed).toString(), 3)}
+            {digitWrapper((order.quantity || order.executed).toString(), 2)}
 
             <TextWrapper
               value={symbolFrom}
@@ -1468,7 +1471,7 @@ function HistoryOrderLine({
               {order.price || order.average_executed_price
                 ? digitWrapper(
                     (order.price || order.average_executed_price).toString(),
-                    3
+                    2
                   )
                 : '-'}
             </div>
@@ -1580,13 +1583,13 @@ function HistoryOrderLine({
             </FlexRow>,
             <FlexRow className="col-span-1  ">
               <span className="">
-                {digitWrapper(order.executed.toString(), 3)}
+                {digitWrapper(order.executed.toString(), 2)}
               </span>
 
               <span className="mx-1 ">/</span>
 
               <span className="text-white ">
-                {digitWrapper((order.quantity || order.executed).toString(), 3)}
+                {digitWrapper((order.quantity || order.executed).toString(), 2)}
               </span>
             </FlexRow>,
             <span>
@@ -1770,6 +1773,7 @@ function MobileFilterModal(
           setSymbol={(value: string) => {
             setShowCurSymbol(true);
             setSymbol(value);
+            setInstrument(value);
           }}
           onRequestClose={() => {
             setShowSymbolSelector(false);
@@ -1778,6 +1782,7 @@ function MobileFilterModal(
           all={curInstrument === 'All'}
           curSymbol={curSymbol}
           fromListClick={() => {
+            setShowCurSymbol(false);
             setInstrument('all_markets');
           }}
         ></SymbolSelectorMobileModal>
@@ -1985,8 +1990,8 @@ function MobileHistoryOrderDetail(
                   verticalAlign: 'baseline',
                 }}
               >
-                <td className="pl-5">{digitWrapper(h.executed_quantity, 3)}</td>
-                <td>{digitWrapper(h.executed_price, 3)}</td>
+                <td className="pl-5">{digitWrapper(h.executed_quantity, 2)}</td>
+                <td>{digitWrapper(h.executed_price, 2)}</td>
 
                 <td>
                   {digitWrapper(
@@ -2083,6 +2088,9 @@ function OpenOrders({
   mobileFilterOpen,
   setMobileFilterOpen,
   setShowCurSymbol,
+  setMobileFilterSize,
+  mobileFilterSize,
+  tab,
 }: {
   orders: MyOrder[];
   symbol: string;
@@ -2090,6 +2098,9 @@ function OpenOrders({
   allTokens: {
     [key: string]: TokenMetadata;
   };
+  tab: 'open' | 'history';
+  mobileFilterSize: number;
+  setMobileFilterSize: (s: number) => void;
   mobileFilterOpen: 'open' | 'history' | undefined;
   showCurSymbol: boolean;
   availableSymbols: SymbolInfo[] | undefined;
@@ -2112,6 +2123,16 @@ function OpenOrders({
     showCurSymbol && !isMobile() ? symbol : 'all_markets'
   );
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (tab !== 'open') return;
+
+    const count =
+      (chooseMarketSymbol !== 'all_markets' ? 1 : 0) +
+      (chooseSide !== 'Both' ? 1 : 0);
+
+    setMobileFilterSize(count);
+  }, [chooseMarketSymbol, chooseSide, tab]);
 
   const [timeSorting, setTimeSorting] = useState<'asc' | 'dsc'>(
     loading ? undefined : 'dsc'
@@ -2170,6 +2191,7 @@ function OpenOrders({
       setChooseMarketSymbol('all_markets');
     }
   }, [showCurSymbol, symbol]);
+
   if (hidden) return null;
 
   const generateMarketList = () => {
@@ -2232,6 +2254,47 @@ function OpenOrders({
 
   return (
     <>
+      {mobileFilterSize > 0 && isMobile() && tab === 'open' && (
+        <div className="w-95vw mx-auto px-2 pl-3 rounded-xl py-2.5 mb-3 flex justify-between bg-menuMoreBgColor text-primaryText text-sm">
+          <div>Filter:</div>
+
+          <div className="flex flex-wrap items-center justify-end">
+            {chooseMarketSymbol !== 'all_markets' && (
+              <div className="flex items-center mr-2">
+                <span>
+                  {parseSymbol(chooseMarketSymbol).symbolFrom}-
+                  {parseSymbol(chooseMarketSymbol).symbolTo}
+                </span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setChooseMarketSymbol('all_markets');
+                  }}
+                >
+                  <IoIosClose strokeWidth={3}></IoIosClose>
+                </span>
+              </div>
+            )}
+
+            {chooseSide !== 'Both' && (
+              <div className="flex items-center mr-2">
+                <span>{chooseSide}</span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setChooseSide('Both');
+                  }}
+                >
+                  <IoIosClose></IoIosClose>
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <table className="table-fixed w-full">
         {/* Header */}
         <thead
@@ -2342,49 +2405,7 @@ function OpenOrders({
 
             <th>
               <FlexRow className="col-span-1 relative">
-                <div
-                  className="cursor-pointer flex items-center"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowTypeSelector(!showTypeSelector);
-                    setShowMarketSelector(false);
-                    setShowSideSelector(false);
-                  }}
-                >
-                  <span>{chooseType === 'All' ? 'Type' : chooseType}</span>
-
-                  <MdArrowDropDown
-                    size={22}
-                    color={showTypeSelector ? 'white' : '#7E8A93'}
-                  />
-                </div>
-                {showTypeSelector && (
-                  <Selector
-                    selected={chooseType}
-                    setSelect={(value: any) => {
-                      setChooseType(value);
-                      setShowTypeSelector(false);
-                    }}
-                    list={[
-                      {
-                        text: 'All',
-                        textId: 'All',
-                        className: 'text-white',
-                      },
-                      {
-                        text: 'Limit',
-                        textId: 'Limit',
-                        className: 'text-white',
-                      },
-                      {
-                        text: 'Post Only',
-                        textId: 'Post Only',
-                        className: 'text-white',
-                      },
-                    ]}
-                  />
-                )}
+                <span>{chooseType === 'All' ? 'Type' : chooseType}</span>
               </FlexRow>
             </th>
 
@@ -2508,14 +2529,11 @@ function OpenOrders({
             : marketList.find((m) => m.textId === symbol)?.text
         }
         curSymbol={showCurSymbol ? symbol : ''}
-        typeList={['All', 'Limit', 'Post Only']}
-        setType={setChooseType}
-        curType={chooseType}
         sideList={['Both', 'Buy', 'Sell']}
         setSide={setChooseSide}
         curSide={chooseSide}
         setInstrument={(value: string) => {
-          setChooseMarketSymbol('all_markets');
+          setChooseMarketSymbol(value);
           setShowCurSymbol(false);
         }}
         setShowCurSymbol={setShowCurSymbol}
@@ -2536,6 +2554,9 @@ function HistoryOrders({
   mobileFilterOpen,
   setMobileFilterOpen,
   setShowCurSymbol,
+  setMobileFilterSize,
+  mobileFilterSize,
+  tab,
 }: {
   orders: MyOrder[];
   symbol: string;
@@ -2548,6 +2569,9 @@ function HistoryOrders({
   setHistoryCount: (c: number) => void;
   showCurSymbol: boolean;
   loading: boolean;
+  tab: 'open' | 'history';
+  mobileFilterSize: number;
+  setMobileFilterSize: (s: number) => void;
   setMobileFilterOpen: (c: 'open' | 'history' | undefined) => void;
   setShowCurSymbol: (c: boolean) => void;
 }) {
@@ -2624,6 +2648,17 @@ function HistoryOrders({
 
     setHistoryCount(orders.filter(filterFunc).length);
   }, [chooseSide, chooseType, chooseStatus, !!orders, chooseMarketSymbol]);
+
+  useEffect(() => {
+    if (tab !== 'history') return;
+    const count =
+      (chooseMarketSymbol !== 'all_markets' ? 1 : 0) +
+      (chooseSide !== 'Both' ? 1 : 0) +
+      (chooseStatus !== 'All' ? 1 : 0) +
+      (chooseType !== 'All' ? 1 : 0);
+
+    setMobileFilterSize(count);
+  }, [chooseMarketSymbol, chooseSide, chooseStatus, chooseType, tab]);
 
   useEffect(() => {
     if (
@@ -2734,6 +2769,77 @@ function HistoryOrders({
 
   return (
     <>
+      {mobileFilterSize > 0 && isMobile() && tab === 'history' && (
+        <div className="w-95vw mx-auto px-2 pl-3 rounded-xl py-2.5 mb-3 flex justify-between bg-menuMoreBgColor text-primaryText text-sm">
+          <div>Filter:</div>
+
+          <div className="flex flex-wrap items-center justify-end">
+            {chooseMarketSymbol !== 'all_markets' && (
+              <div className="flex items-center mr-2 ">
+                <span>
+                  {parseSymbol(chooseMarketSymbol).symbolFrom}-
+                  {parseSymbol(chooseMarketSymbol).symbolTo}
+                </span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setChooseMarketSymbol('all_markets');
+                  }}
+                >
+                  <IoIosClose strokeWidth={3}></IoIosClose>
+                </span>
+              </div>
+            )}
+
+            {chooseType !== 'All' && (
+              <div className="flex items-center mr-2 ">
+                <span>{chooseType}</span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setChooseType('All');
+                  }}
+                >
+                  <IoIosClose></IoIosClose>
+                </span>
+              </div>
+            )}
+
+            {chooseSide !== 'Both' && (
+              <div className="flex items-center mr-2 ">
+                <span>{chooseSide}</span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setChooseSide('Both');
+                  }}
+                >
+                  <IoIosClose></IoIosClose>
+                </span>
+              </div>
+            )}
+
+            {chooseStatus !== 'All' && (
+              <div className="flex items-center mr-2 mt-1">
+                <span>{chooseStatus}</span>
+
+                <span
+                  className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
+                  onClick={() => {
+                    setChooseStatus('All');
+                  }}
+                >
+                  <IoIosClose></IoIosClose>
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <table className={`table-fixed w-full ${hidden ? 'hidden' : ''} `}>
         {/* Header */}
         <thead
@@ -3081,7 +3187,7 @@ function HistoryOrders({
         setSide={setChooseSide}
         curSide={chooseSide}
         setInstrument={(value: string) => {
-          setChooseMarketSymbol('all_markets');
+          setChooseMarketSymbol(value);
           setShowCurSymbol(false);
         }}
         curStatus={chooseStatus}
@@ -3140,7 +3246,9 @@ function AllOrderBoard() {
 
   const [tab, setTab] = useState<'open' | 'history'>('open');
 
-  const [showCurSymbol, setShowCurSymbol] = useState<boolean>(true);
+  const [showCurSymbol, setShowCurSymbol] = useState<boolean>(
+    !!isMobile ? false : true
+  );
 
   const openOrders = allOrders?.filter((o) => {
     return (
@@ -3162,6 +3270,8 @@ function AllOrderBoard() {
   const [historyCount, setHistoryCount] = useState<number>();
 
   const history = useHistory();
+
+  const [mobileFilterSize, setMobileFilterSize] = useState<number>(0);
 
   useEffect(() => {
     if (openOrders !== undefined) {
@@ -3296,7 +3406,7 @@ function AllOrderBoard() {
 
           <FlexRow className={'lg:hidden'}>
             <div
-              className="flex items-center justify-center pr-5"
+              className="flex relative items-center justify-center pr-5"
               onClick={() => {
                 // todo
                 tab === 'open'
@@ -3305,6 +3415,11 @@ function AllOrderBoard() {
               }}
             >
               <MobileFilter></MobileFilter>
+              {mobileFilterSize > 0 && (
+                <div className="absolute  -bottom-1 right-3 text-10px w-3 h-3 rounded-full flex items-center justify-center font-bold text-black bg-gradientFrom">
+                  {mobileFilterSize}
+                </div>
+              )}
             </div>
           </FlexRow>
         </FlexRowBetween>
@@ -3321,10 +3436,14 @@ function AllOrderBoard() {
             mobileFilterOpen={mobileFilterOpen}
             setMobileFilterOpen={setMobileFilterOpen}
             setShowCurSymbol={setShowCurSymbol}
+            setMobileFilterSize={setMobileFilterSize}
+            mobileFilterSize={mobileFilterSize}
+            tab={tab}
           />
         }
         {
           <HistoryOrders
+            tab={tab}
             availableSymbols={availableSymbols}
             allTokens={allTokens}
             setHistoryCount={setHistoryCount}
@@ -3336,6 +3455,8 @@ function AllOrderBoard() {
             mobileFilterOpen={mobileFilterOpen}
             setMobileFilterOpen={setMobileFilterOpen}
             setShowCurSymbol={setShowCurSymbol}
+            setMobileFilterSize={setMobileFilterSize}
+            mobileFilterSize={mobileFilterSize}
           />
         }
       </div>

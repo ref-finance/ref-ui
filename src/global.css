@@ -731,6 +731,10 @@ input[type='range']::-webkit-slider-runnable-track {
 }
 
 @media screen and (max-width: 1023px) {
+  .ReactModal__Body--open {
+    overflow: hidden !important;
+  }
+
   .account-tip-popup {
     right: 50px;
   }

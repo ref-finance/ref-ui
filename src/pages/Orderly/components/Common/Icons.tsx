@@ -1160,3 +1160,23 @@ export function MobileEdit() {
     </svg>
   );
 }
+
+export function MobileIconCloseUp({ transform }: { transform?: boolean }) {
+  return (
+    <svg
+      width="12"
+      height="6"
+      viewBox="0 0 12 6"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={transform ? 'transform rotate-180' : ''}
+    >
+      <path
+        d="M1 4.33301L6 0.999674L11 4.33301"
+        stroke="white"
+        stroke-width="1.6"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+}

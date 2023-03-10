@@ -2462,7 +2462,11 @@ export function MobileUserBoard({
         </div>
       </div>
 
-      <div className="text-primaryText text-right">
+      <div
+        className={`text-primaryText mt-1 ${
+          side === 'Sell' ? 'text-right' : 'text-left'
+        } `}
+      >
         Balance:
         <span className="ml-1 underline">
           {side === 'Buy'
@@ -2473,6 +2477,7 @@ export function MobileUserBoard({
             ? digitWrapper(tokenInHolding.toString(), 2)
             : 0}
         </span>
+        <span className="ml-1">{side === 'Sell' ? symbolFrom : symbolTo}</span>
       </div>
 
       {/* limit order advance mode */}
