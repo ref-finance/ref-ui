@@ -1540,6 +1540,8 @@ export function AssetManagerModal(
   const ref = useRef<HTMLInputElement>(null);
 
   const rangeRef = useRef<HTMLInputElement>(null);
+  const decimalPlaceLimit =
+    type === 'deposit' ? undefined : Math.min(8, tokenMeta?.decimals || 8);
 
   const setAmountByShareFromBar = (sharePercent: string) => {
     setPercentage(sharePercent);
@@ -1553,7 +1555,7 @@ export function AssetManagerModal(
               .toFixed(24)
           : walletBalance
         : displayAccountBalance.toString(),
-      tokenMeta.decimals
+      decimalPlaceLimit || tokenMeta.decimals
     );
 
     if (Number(sharePercent) === 0) {
@@ -1691,9 +1693,30 @@ export function AssetManagerModal(
                 className="text-white text-xl w-full"
                 value={inputValue}
                 type="number"
-                step="any"
                 placeholder="0.0"
                 min={0}
+                onInput={(e) => {
+                  if (decimalPlaceLimit === undefined) return;
+
+                  function limitDecimalPlaces(e: any) {
+                    // 获取用户输入的数字
+                    const value = e.target.value;
+
+                    // 判断是否超过了8位小数
+                    if (
+                      value.includes('.') &&
+                      value.split('.')[1].length > decimalPlaceLimit
+                    ) {
+                      // 截取前8位小数
+                      e.target.value = value.slice(
+                        0,
+                        value.indexOf('.') + decimalPlaceLimit + 1
+                      );
+                    }
+                  }
+
+                  limitDecimalPlaces(e);
+                }}
                 onChange={(e) => {
                   const value = e.target.value;
                   setInputValue(e.target.value);
