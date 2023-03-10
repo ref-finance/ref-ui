@@ -1049,6 +1049,22 @@ function OrderCard({
         {noData_status && is_mobile && activeTab == '1' ? (
           <NoDataCard text="Your active order(s) will appear here." />
         ) : null}
+        {/* your orders link for mobile */}
+        <div
+          className={`flex items-center mx-5 lg:hidden ${
+            loading_status || noData_status || activeTab != '1' ? 'hidden' : ''
+          }`}
+        >
+          <span
+            onClick={() => {
+              window.open('/myOrder');
+            }}
+            className="flex items-center justify-center text-xs text-v3SwapGray relative -top-3 "
+          >
+            Your Order(s){' '}
+            <LinkIcon className="ml-1.5 transform scale-125"></LinkIcon>
+          </span>
+        </div>
         {/* active order list */}
         <div className={`${activeTab == '1' ? '' : 'hidden'}`}>
           {activeOrder?.sort(activeOrderSorting).map((order, index) => {
