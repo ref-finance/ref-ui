@@ -161,6 +161,8 @@ export function YourLiquidityV2(props: any) {
     } else {
       setLpValueV2Done(true);
       setYourLpValueV2('0');
+      set_dcl_liquidities_details_list_done &&
+        set_dcl_liquidities_details_list_done(true);
     }
     setLiquidityLoadingDone && setLiquidityLoadingDone(true);
     setLiquidityQuantity && setLiquidityQuantity(list.length);

@@ -46,6 +46,7 @@ export default function Asset() {
     history_total_asset_done,
   } = useContext(PortfolioData);
   const [xrefBalance, setXrefBalance] = useState('0');
+  const [xrefBalanceDone, setXrefBalanceDone] = useState<boolean>(false);
   const { globalState } = useContext(WalletContext);
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
@@ -57,45 +58,69 @@ export default function Asset() {
         const { decimals } = token;
         const balance = toReadableNumber(decimals, data);
         setXrefBalance(balance);
+        setXrefBalanceDone(true);
       });
     }
   }, [isSignedIn]);
-  const total_xref_value = useMemo(() => {
+  const [total_xref_value, total_xref_value_done] = useMemo(() => {
+    let total_value = '0';
+    let total_value_done = false;
     if (Object.keys(tokenPriceList).length > 0 && +xrefBalance > 0) {
       const price = tokenPriceList[XREF_TOKEN_ID]?.price || 0;
-      const totalPrice = new BigNumber(xrefBalance || '0').multipliedBy(price);
-      return totalPrice.toFixed();
+      const totalValue = new BigNumber(xrefBalance || '0').multipliedBy(price);
+      total_value = totalValue.toFixed();
+      total_value_done = true;
     }
-    return '0';
-  }, [tokenPriceList, xrefBalance]);
-  const total_user_invest_value_original = useMemo(() => {
-    let total_value = new BigNumber(0);
-    if (lpValueV1Done && lpValueV1Done) {
-      total_value = total_value
-        .plus(YourLpValueV1)
-        .plus(YourLpValueV2)
-        .plus(total_xref_value);
+    if (xrefBalanceDone && +xrefBalance == 0) {
+      total_value_done = true;
     }
-    return total_value.toFixed();
-  }, [lpValueV1Done, lpValueV2Done, total_xref_value]);
+    return [total_value, total_value_done];
+  }, [tokenPriceList, xrefBalance, xrefBalanceDone]);
+  const [total_user_invest_value_original, total_user_invest_value_done] =
+    useMemo(() => {
+      let total_value = new BigNumber(0);
+      let total_value_done = false;
+      if (lpValueV1Done && lpValueV2Done) {
+        total_value = total_value
+          .plus(YourLpValueV1)
+          .plus(YourLpValueV2)
+          .plus(total_xref_value);
+        total_value_done = true;
+      }
+      return [total_value.toFixed(), total_value_done];
+    }, [lpValueV1Done, lpValueV2Done, total_xref_value]);
   const total_user_invest_value = useMemo(() => {
-    return display_value(total_user_invest_value_original);
-  }, [total_user_invest_value_original]);
+    return total_user_invest_value_done
+      ? display_value(total_user_invest_value_original)
+      : '$-';
+  }, [total_user_invest_value_original, total_user_invest_value_done]);
   const percent_in_classic_farms = useMemo(() => {
     let percent = new BigNumber(0);
-    if (lpValueV1Done && classic_farms_value_done && +YourLpValueV1 > 0) {
-      percent = new BigNumber(classic_farms_value || 0).dividedBy(
-        YourLpValueV1
-      );
+    let percent_done = false;
+    if (lpValueV1Done && classic_farms_value_done) {
+      percent_done = true;
+      if (+YourLpValueV1 > 0) {
+        percent = new BigNumber(classic_farms_value || 0).dividedBy(
+          YourLpValueV1
+        );
+      }
     }
-    return display_percentage(percent.multipliedBy(100).toFixed()) + '%';
+    return percent_done
+      ? display_percentage(percent.multipliedBy(100).toFixed()) + '%'
+      : '-%';
   }, [lpValueV1Done, classic_farms_value_done]);
   const percent_in_dcl_farms = useMemo(() => {
     let percent = new BigNumber(0);
-    if (lpValueV2Done && dcl_farms_value_done && +YourLpValueV2 > 0) {
-      percent = new BigNumber(dcl_farms_value || 0).dividedBy(YourLpValueV2);
+    let percent_done = false;
+    if (lpValueV2Done && dcl_farms_value_done) {
+      percent_done = true;
+      if (+YourLpValueV2 > 0) {
+        percent = new BigNumber(dcl_farms_value || 0).dividedBy(YourLpValueV2);
+      }
     }
-    return display_percentage(percent.multipliedBy(100).toFixed()) + '%';
+    return percent_done
+      ? display_percentage(percent.multipliedBy(100).toFixed()) + '%'
+      : '-%';
   }, [lpValueV2Done, dcl_farms_value_done]);
   const [increase_percent_original, increase_percent_done] = useMemo(() => {
     let increase_percent = '0';
@@ -118,6 +143,9 @@ export default function Asset() {
     lpValueV1Done,
     lpValueV2Done,
   ]);
+  const show_total_xref_value = useMemo(() => {
+    return total_xref_value_done ? display_value(total_xref_value) : '$-';
+  }, [total_xref_value, total_xref_value_done]);
   function getTip() {
     // const tip = intl.formatMessage({ id: 'over_tip' });
     const tip =
@@ -134,10 +162,10 @@ export default function Asset() {
     return result;
   }
   function getV2PoolUSDValue() {
-    return display_value(YourLpValueV2);
+    return lpValueV2Done ? display_value(YourLpValueV2) : '$-';
   }
   function getV1PoolUSDValue() {
-    return display_value(YourLpValueV1);
+    return lpValueV1Done ? display_value(YourLpValueV1) : '$-';
   }
   function display_increase_percent() {
     const big = new BigNumber(increase_percent_original);
@@ -155,7 +183,7 @@ export default function Asset() {
         percent_in_dcl_farms,
         getV1PoolUSDValue,
         percent_in_classic_farms,
-        total_xref_value,
+        show_total_xref_value,
         increase_percent_original,
         display_increase_percent,
         increase_percent_done,
@@ -174,7 +202,7 @@ function AssetPc() {
     percent_in_dcl_farms,
     getV1PoolUSDValue,
     percent_in_classic_farms,
-    total_xref_value,
+    show_total_xref_value,
     increase_percent_original,
     display_increase_percent,
     increase_percent_done,
@@ -275,7 +303,7 @@ function AssetPc() {
         </DataTemplate>
         <DataTemplate
           title="xREF Staking"
-          value={display_value(total_xref_value)}
+          value={show_total_xref_value}
           event={() => {
             window.open('/xref');
           }}
@@ -293,7 +321,7 @@ function AssetMobile() {
     percent_in_dcl_farms,
     getV1PoolUSDValue,
     percent_in_classic_farms,
-    total_xref_value,
+    show_total_xref_value,
     increase_percent_original,
     display_increase_percent,
     increase_percent_done,
@@ -395,7 +423,7 @@ function AssetMobile() {
       <div className="border-b border-cardBg">
         <DataTemplate
           title="xREF Staking"
-          value={display_value(total_xref_value)}
+          value={show_total_xref_value}
           event={() => {
             window.open('/xref');
           }}
