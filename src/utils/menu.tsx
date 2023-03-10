@@ -257,7 +257,7 @@ export const useMenus = () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'xSwap');
           },
-          links: ['/myOrder'],
+          links: ['/'],
         },
         {
           id: '1-3',
@@ -270,7 +270,7 @@ export const useMenus = () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
           },
-          links: ['/'],
+          links: ['/', '/myOrder'],
         },
         {
           label: <span>Orderbook</span>,
@@ -479,7 +479,7 @@ export const useMenusMobile = () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'xSwap');
           },
-          links: ['/myOrder'],
+          links: ['/'],
         },
         {
           id: '1-3',
@@ -492,7 +492,7 @@ export const useMenusMobile = () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
           },
-          links: ['/'],
+          links: ['/', '/myOrder'],
         },
         {
           label: <span>Orderbook</span>,

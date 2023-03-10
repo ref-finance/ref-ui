@@ -391,7 +391,7 @@ export function MobileNavBar(props: any) {
       set_one_level_selected(one_level_selected_id);
       set_two_level_selected(two_level_selected_id);
     }
-  }, [menusMobile?.length]);
+  }, [menusMobile?.length, show]);
   useEffect(() => {
     setShowTip(hasBalanceOnRefAccount);
   }, [hasBalanceOnRefAccount]);
