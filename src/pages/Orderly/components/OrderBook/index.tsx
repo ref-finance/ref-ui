@@ -317,7 +317,7 @@ function OrderBook() {
 
       {tab === 'book' && !loading && (
         <>
-          <div className="px-4 flex items-center text-xs mb-2 mr-4 text-primaryOrderly justify-between ">
+          <div className="px-4 flex items-center text-xs mb-2 lg:mr-4 text-primaryOrderly justify-between ">
             <div className="flex items-center">
               <span className="flex items-center">Price</span>
 
@@ -354,7 +354,7 @@ function OrderBook() {
               return (
                 <div
                   className={
-                    'relative  grid px-4 cursor-pointer hover:bg-symbolHover grid-cols-3 mr-2 py-1 justify-items-end'
+                    'relative  grid px-4 cursor-pointer hover:bg-symbolHover grid-cols-3 lg:mr-2 py-1 justify-items-end'
                   }
                   id={`order-id-${order[0]}`}
                   key={'orderbook-ask-' + i}
@@ -424,7 +424,7 @@ function OrderBook() {
             {bids?.map((order, i) => {
               return (
                 <div
-                  className="px-4 relative grid grid-cols-3 mr-2 py-1 hover:bg-symbolHover  justify-items-end cursor-pointer"
+                  className="px-4 relative grid grid-cols-3 lg:mr-2 py-1 hover:bg-symbolHover  justify-items-end cursor-pointer"
                   key={'orderbook-ask-' + i}
                   id={`order-id-${order[0]}`}
                   onClick={(e) => {

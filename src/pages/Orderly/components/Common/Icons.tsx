@@ -748,7 +748,7 @@ export function CheckSelectorWhite() {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M1 3.5L5 7.5L11.5 1" stroke="#white" stroke-width="1.6" />
+      <path d="M1 3.5L5 7.5L11.5 1" stroke="white" stroke-width="1.6" />
     </svg>
   );
 }

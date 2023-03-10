@@ -267,7 +267,7 @@ function RecordLine(
               props.side === 'WITHDRAW' ? 'text-white' : 'text-sellRed'
             }  `}
           >
-            {props.side === 'WITHDRAW' ? '+' : '-'}
+            {props.side === 'WITHDRAW' ? '-' : '+'}
             {digitWrapper(props.amount.toString(), 3)}
           </span>
 
@@ -605,7 +605,7 @@ export function AssetModal(props: Modal.Props) {
 
           {tag === 'asset' && !loading && (
             <section
-              className="max-h-full overflow-auto w-full"
+              className="max-h-full overflow-auto w-full xs:px-2"
               style={{
                 maxHeight: '50vh',
               }}

@@ -406,7 +406,9 @@ export default function UserBoard() {
           side: side === 'Buy' ? 'BUY' : 'SELL',
           symbol: symbol,
           order_type: 'MARKET',
-          order_amount: side === 'Buy' ? total : '',
+          order_amount: parseFloat(
+            side === 'Buy' ? new Big(total).toFixed(3, 0) : ''
+          ),
           order_quantity: side === 'Sell' ? inputValue : '',
           broker_id: 'ref_dex',
         },
@@ -1528,8 +1530,8 @@ export function AssetManagerModal(
       Number(sharePercent),
       type === 'deposit'
         ? tokenId.toLowerCase() === 'near'
-          ? new Big(Number(walletBalance) < 0.5 ? 0.5 : walletBalance)
-              .minus(0.5)
+          ? new Big(Number(walletBalance) < 0.25 ? 0.25 : walletBalance)
+              .minus(0.25)
               .toFixed(24)
           : walletBalance
         : displayAccountBalance.toString(),
@@ -1563,7 +1565,9 @@ export function AssetManagerModal(
     if (type === 'deposit') {
       if (
         tokenId.toLowerCase() === 'near' &&
-        new Big(walletBalance || 0).minus(new Big(inputValue || '0')).lt(0.5) &&
+        new Big(walletBalance || 0)
+          .minus(new Big(inputValue || '0'))
+          .lt(0.25) &&
         walletBalance !== ''
       ) {
         return false;
@@ -1772,6 +1776,8 @@ export function AssetManagerModal(
                 >
                   {Number(percentage) > 0 && Number(percentage) < 1
                     ? 1
+                    : Number(percentage) > 100
+                    ? 100
                     : Math.floor(Number(percentage))}
                   %
                 </div>
@@ -1780,8 +1786,8 @@ export function AssetManagerModal(
             {type === 'deposit' &&
               !validation() &&
               tokenId.toLowerCase() === 'near' && (
-                <div className="text-warn mb-2 lg:whitespace-nowrap">
-                  0.5 NEAR locked in wallet for covering transaction fee
+                <div className="text-warn xs:text-center mb-2 xs:-mt-2 lg:whitespace-nowrap">
+                  0.25 NEAR locked in wallet for covering transaction fee
                 </div>
               )}
 
@@ -2001,7 +2007,10 @@ export function MobileUserBoard({
           side: side === 'Buy' ? 'BUY' : 'SELL',
           symbol: symbol,
           order_type: 'MARKET',
-          order_amount: side === 'Buy' ? total : '',
+          order_amount: parseFloat(
+            side === 'Buy' ? new Big(total).toFixed(3, 0) : ''
+          ),
+
           order_quantity: side === 'Sell' ? inputValue : '',
           broker_id: 'ref_dex',
         },
@@ -2468,7 +2477,46 @@ export function MobileUserBoard({
         } `}
       >
         Balance:
-        <span className="ml-1 underline">
+        <span
+          className={`ml-1 ${side === 'Buy' ? '' : 'underline'} `}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (side === 'Buy') return;
+
+            if (orderType === 'Limit' && new Big(limitPrice || 0).lte(0)) {
+              return;
+            }
+            const symbolInfo = availableSymbols?.find(
+              (s) => s.symbol === symbol
+            );
+
+            if (!symbolInfo) {
+              return;
+            }
+
+            const maxAmount =
+              side === 'Sell'
+                ? tokenInHolding || 0
+                : new Big(tokenOutHolding || 0)
+                    .div(orderType === 'Market' ? marketPrice : limitPrice || 1)
+                    .toNumber();
+
+            const displayAmount = new Big(maxAmount || 0)
+              .div(new Big(symbolInfo.base_tick))
+              .round(0, 0)
+              .times(new Big(symbolInfo.base_tick))
+              .toString();
+
+            setInputValue(displayAmount);
+
+            priceAndSizeValidator(
+              orderType == 'Market' ? marketPrice.toString() : limitPrice,
+              displayAmount
+            );
+          }}
+        >
           {side === 'Buy'
             ? tokenOutHolding
               ? digitWrapper(tokenOutHolding.toString(), 2)
@@ -2648,11 +2696,7 @@ export function MobileUserBoard({
         </div>
       )}
 
-      {showErrorTip && (
-        <ErrorTip className={'relative top-3'} text={errorTipMsg} />
-      )}
-
-      <div className="mt-6  rounded-lg text-sm px-0 pt-1 relative z-10 pb-6">
+      <div className="mt-6  rounded-lg text-sm px-0 pt-1 relative z-10 ">
         <div className="flex items-center justify-between">
           <span className="text-primaryOrderly">Fee tier</span>
 
@@ -2688,6 +2732,12 @@ export function MobileUserBoard({
             {` ${symbolTo}`}
           </span>
         </div>
+      </div>
+
+      <div className="mb-10">
+        {showErrorTip && (
+          <ErrorTip className={'relative top-3'} text={errorTipMsg} />
+        )}
       </div>
 
       <button

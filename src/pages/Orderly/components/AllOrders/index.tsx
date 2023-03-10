@@ -207,7 +207,7 @@ function EditOrderModalMobile(
                 height: '38px',
               }}
             >
-              <span>
+              <span className="mr-2">
                 <CheckSelectorWhite></CheckSelectorWhite>
               </span>{' '}
               Confirm
@@ -293,6 +293,8 @@ function OrderLine({
   const editValidator = (price: string, size: string) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === order.symbol);
 
+    console.log('price', price, symbolInfo);
+
     let quantity = size;
 
     let errorTipMsg = '';
@@ -307,14 +309,17 @@ function OrderLine({
       errorTipMsg = `Quantity should be higher than ${symbolInfo.base_min}`;
     }
 
-    if (
-      (!symbolInfo || ONLY_ZEROS.test(price) || ONLY_ZEROS.test(size)) &&
-      !errorTipMsg
-    ) {
+    if ((!symbolInfo || ONLY_ZEROS.test(size)) && !errorTipMsg) {
       return;
     }
 
     // price validator
+
+    console.log('price', price);
+
+    if (ONLY_ZEROS.test(price || '0')) {
+      errorTipMsg = `Price should be higher than 0`;
+    }
 
     if (
       !ONLY_ZEROS.test(order.executed ? order.executed.toString() : '0') &&
@@ -426,8 +431,6 @@ function OrderLine({
     ) {
       errorTipMsg = `The order value should be greater than or equal to ${symbolInfo.min_notional}`;
     }
-
-    console.log('errorTipMsg: ', errorTipMsg);
 
     if (!!errorTipMsg) {
       orderEditPopUpFailure({
@@ -842,16 +845,12 @@ function OrderLine({
             <span className="mx-1.5">filled</span>
 
             <div
-              className="flex items-center relative ml-1.5 justify-center"
+              className="flex items-center relative ml-1.5 justify-center border border-dashed rounded-full border-portfolioGreenColor"
               style={{
                 height: '14px',
                 width: '14px',
               }}
             >
-              <div className="absolute top-0 left-0  ">
-                <OrderStateOutline />
-              </div>
-
               <div
                 className=""
                 style={{
@@ -1019,16 +1018,15 @@ function OrderLine({
               </span>
 
               <div
-                className="flex items-center relative ml-1.5 justify-center"
+                className="flex items-center relative ml-1.5 justify-center
+                
+                border border-dashed rounded-full border-portfolioGreenColor 
+                "
                 style={{
                   height: '14px',
                   width: '14px',
                 }}
               >
-                <div className="absolute top-0 left-0  ">
-                  <OrderStateOutline />
-                </div>
-
                 <div
                   className=""
                   style={{
@@ -1184,7 +1182,7 @@ function HistoryOrderLine({
               <div
                 className={
                   order.type !== 'MARKET'
-                    ? 'flex items-center relative ml-1.5 justify-center'
+                    ? 'flex items-center relative ml-1.5 justify-center border border-dashed rounded-full border-portfolioGreenColor '
                     : 'hidden'
                 }
                 style={{
@@ -1192,10 +1190,6 @@ function HistoryOrderLine({
                   width: '14px',
                 }}
               >
-                <div className="absolute top-0 left-0  ">
-                  <OrderStateOutline />
-                </div>
-
                 <div
                   className=""
                   style={{
@@ -1515,6 +1509,7 @@ function HistoryOrderLine({
           onRequestClose={() => {
             setShowMobileOrderDetail(false);
           }}
+          order={order}
           symbol={order.symbol}
           orderTradesHistory={orderTradesHistory}
           titleList={[
@@ -1930,9 +1925,10 @@ function MobileHistoryOrderDetail(
     titleList: string[];
     orderTradesHistory: OrderTrade[];
     symbol: string;
+    order: MyOrder;
   }
 ) {
-  const { titleList, valueList, symbol, orderTradesHistory } = props;
+  const { titleList, order, valueList, symbol, orderTradesHistory } = props;
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
@@ -2003,7 +1999,14 @@ function MobileHistoryOrderDetail(
                 </td>
 
                 <td>{h.fee}</td>
-                <td className="text-primaryText pr-5 " align="right">
+                <td
+                  className="text-primaryText pr-5 "
+                  align="right"
+                  style={{
+                    WebkitLineClamp: 2,
+                    lineClamp: 2,
+                  }}
+                >
                   {formatTimeDate(h.executed_timestamp)}
                 </td>
               </tr>
@@ -2048,7 +2051,7 @@ function MobileHistoryOrderDetail(
 
         <button
           className={
-            !orderTradesHistory || orderTradesHistory.length === 0
+            !(order.executed !== null && order.executed > 0)
               ? 'hidden'
               : ' text-white px-5 mx-5 py-3 my-3 justify-center w-full flex items-center bg-menuMoreBgColor rounded-lg'
           }

@@ -241,7 +241,11 @@ export function RegisterButton({
           You may need to deposit storage fee first.
         </div>
       ) : (
-        <div className="flex items-start xs:hidden md:hidden  text-sm relative text-white flex-col">
+        <div
+          className={`flex items-start ${
+            !userExist && isOpenMobile ? '' : 'xs:hidden md:hidden'
+          }  text-sm relative text-white flex-col`}
+        >
           <div className="relative mb-3 flex items-center">
             <div className="mr-2">
               <CheckFlow checked={!!storageEnough}></CheckFlow>
@@ -721,6 +725,8 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
       position: mobileDevice ? 'top-center' : 'bottom-right',
       progress: undefined,
       autoClose: 3000,
+      // autoClose: false,
+
       closeButton: false,
       style: {
         boxShadow: '0px -5px 10px rgba(0, 0, 0, 0.25)',
@@ -730,7 +736,11 @@ export function orderEditPopUpFailure({ tip }: { tip: string }) {
         overflow: 'hidden',
         width: mobileDevice ? '100%' : '90%',
         background: 'rgba(30, 41, 49, 1)',
-        bottom: !mobileDevice ? '-70px' : '0px',
+        bottom:
+          !mobileDevice &&
+          !!document.getElementsByClassName('orderly-order-toast')?.[0]
+            ? '-70px'
+            : '0px',
       },
     }
   );
