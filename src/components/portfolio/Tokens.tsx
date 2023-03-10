@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useContext } from 'react';
+import React, { useEffect, useMemo, useState, useContext, useRef } from 'react';
 import BigNumber from 'bignumber.js';
 import { useUserRegisteredTokensAllAndNearBalance } from '../../state/token';
 import { TokenMetadata } from '../../services/ft-contract';
@@ -50,6 +50,8 @@ export default function Tokens() {
   const [near_total_value, set_near_total_value] = useState<string>('0');
   const [dcl_total_value, set_dcl_total_value] = useState<string>('0');
   const [aurora_total_value, set_aurora_total_value] = useState<string>('0');
+  const [chartEvents, setChartEvents] = useState<any>({});
+  const tokenRef = useRef(null);
   const { globalState } = useContext(WalletContext);
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
@@ -228,7 +230,15 @@ export default function Tokens() {
       };
       setPieOption(pieOption);
     }
-  }, [activeTab, ref_tokens, near_tokens, dcl_tokens, aurora_tokens]);
+  }, [activeTab, tokenRef, ref_tokens, near_tokens, dcl_tokens, aurora_tokens]);
+  useMemo(() => {
+    // for fixing mobile issue (may be have a better way)
+    if (pieOption) {
+      const chartEvents =
+        is_mobile && tokenRef?.current?.echarts ? { click: () => {} } : {};
+      setChartEvents(chartEvents);
+    }
+  }, [pieOption, tokenRef]);
   if (
     (!userTokens || !balances || !auroaBalances || !DCLAccountBalance) &&
     isSignedIn
@@ -341,7 +351,6 @@ export default function Tokens() {
     }
     return display_value_withCommas(target);
   }
-  const chartEvents = is_mobile ? { mousemove: () => {} } : {};
   return (
     <div className="mt-6">
       <div className="px-5">
@@ -466,12 +475,13 @@ export default function Tokens() {
       <div className="flex items-center justify-center mt-8 xsm:mt-0">
         {pieOption ? (
           <ReactECharts
+            ref={tokenRef}
             option={pieOption}
             style={{
               width: is_mobile ? '240px' : '200px',
               height: is_mobile ? '240px' : '200px',
             }}
-            // onEvents={chartEvents}
+            onEvents={chartEvents}
           />
         ) : null}
       </div>

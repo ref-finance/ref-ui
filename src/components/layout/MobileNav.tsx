@@ -30,7 +30,6 @@ import { WalletContext } from '../../utils/wallets-integration';
 
 const config = getConfig();
 import { isMobile } from '~utils/device';
-import { menuItemType } from '~utils/menu';
 import {
   getCurrentWallet,
   getAccountName,
