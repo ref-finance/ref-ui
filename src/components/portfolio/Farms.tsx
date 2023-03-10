@@ -79,6 +79,7 @@ export default function Farms(props: any) {
     all_farms_quanity,
     user_unclaimed_map,
     set_user_unclaimed_map,
+    set_user_unclaimed_map_done,
     user_unclaimed_token_meta_map,
     set_user_unclaimed_token_meta_map,
     dcl_farms_value,
@@ -164,6 +165,7 @@ export default function Farms(props: any) {
       }
     });
     set_user_unclaimed_map(userUncliamedRewards);
+    set_user_unclaimed_map_done(true);
     // get user unclaimed token meta
     const unclaimed_token_meta_datas = {};
     const prom_rewards = Object.values(userUncliamedRewards).map(

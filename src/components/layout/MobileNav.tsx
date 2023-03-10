@@ -363,6 +363,8 @@ export function MobileNavBar(props: any) {
     const pathname = '/' + location.pathname.split('/')[1];
     let one_level_selected_id = '';
     let two_level_selected_id = '';
+    const swap_mode_in_localstorage =
+      localStorage.getItem('SWAP_MODE_VALUE') || 'normal';
     if (menusMobile) {
       const one_level_menu = menusMobile.find((item: menuItemType) => {
         const { links } = item;
@@ -376,8 +378,7 @@ export function MobileNavBar(props: any) {
           const two_level_menu = second_children.find((item: menuItemType) => {
             const { links, swap_mode } = item;
             if (pathname == '/') {
-              const swap_mode_value = localStorage.getItem('SWAP_MODE_VALUE');
-              return swap_mode_value == swap_mode;
+              return swap_mode_in_localstorage == swap_mode;
             } else {
               return links?.indexOf(pathname) > -1;
             }
@@ -387,6 +388,24 @@ export function MobileNavBar(props: any) {
             two_level_selected_id = two_level_menu.id;
           }
         }
+      }
+      if (!one_level_selected_id) {
+        // no matched router than redirect to swap page
+        const { id, children } = menusMobile[0];
+        const second_children_temp: any = children;
+        if (second_children_temp) {
+          const two_level_menu = second_children_temp.find(
+            (item: menuItemType) => {
+              const { swap_mode } = item;
+              return swap_mode_in_localstorage == swap_mode;
+            }
+          );
+          if (two_level_menu) {
+            two_level_selected_id = two_level_menu.id;
+          }
+        }
+        one_level_selected_id = id;
+        setOpenMenu(id);
       }
       set_one_level_selected(one_level_selected_id);
       set_two_level_selected(two_level_selected_id);

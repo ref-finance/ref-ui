@@ -49,6 +49,9 @@ function Portfolio() {
   const [user_unclaimed_map, set_user_unclaimed_map] = useState<
     Record<string, any>
   >({});
+  const [user_unclaimed_map_done, set_user_unclaimed_map_done] =
+    useState<boolean>(false);
+
   const [user_unclaimed_token_meta_map, set_user_unclaimed_token_meta_map] =
     useState<Record<string, any>>({});
 
@@ -57,6 +60,12 @@ function Portfolio() {
   >([]);
   const [dcl_liquidities_details_list, set_dcl_liquidities_details_list] =
     useState<UserLiquidityInfo[]>([]);
+
+  const [
+    dcl_liquidities_details_list_done,
+    set_dcl_liquidities_details_list_done,
+  ] = useState<boolean>(false);
+
   const [dcl_tokens_metas, set_dcl_tokens_metas] =
     useState<Record<string, TokenMetadata>>();
   const [history_total_asset, set_history_total_asset] = useState<string>('0');
@@ -133,6 +142,11 @@ function Portfolio() {
         set_dcl_liquidities_list,
         set_dcl_liquidities_details_list,
         set_dcl_tokens_metas,
+
+        user_unclaimed_map_done,
+        set_user_unclaimed_map_done,
+        dcl_liquidities_details_list_done,
+        set_dcl_liquidities_details_list_done,
       }}
     >
       {is_mobile ? (

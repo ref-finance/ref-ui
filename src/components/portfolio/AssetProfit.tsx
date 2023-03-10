@@ -27,6 +27,8 @@ export default function AssetProfit() {
     user_unclaimed_token_meta_map,
     dcl_liquidities_details_list,
     dcl_tokens_metas,
+    user_unclaimed_map_done,
+    dcl_liquidities_details_list_done,
   } = useContext(PortfolioData);
   const { globalState } = useContext(WalletContext);
   const accountId = getCurrentWallet()?.wallet?.getAccountId();

@@ -66,6 +66,7 @@ export function YourLiquidityV2(props: any) {
     set_dcl_liquidities_list,
     set_dcl_liquidities_details_list,
     set_dcl_tokens_metas,
+    set_dcl_liquidities_details_list_done,
   } = useContext(PortfolioData) || {};
   const {
     setYourLpValueV2,
@@ -216,8 +217,12 @@ export function YourLiquidityV2(props: any) {
     );
     const list_details = await Promise.all(promise_list_details);
     set_iquidities_details_list(list_details);
-    set_dcl_liquidities_details_list &&
+    if (set_dcl_liquidities_details_list) {
       set_dcl_liquidities_details_list(list_details);
+    }
+    if (set_dcl_liquidities_details_list_done) {
+      set_dcl_liquidities_details_list_done(true);
+    }
   }
   function get_all_liquidity_value() {
     let total_value = new BigNumber(0);

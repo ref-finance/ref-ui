@@ -273,6 +273,7 @@ export const useMenus = () => {
           links: ['/', '/myOrder'],
         },
         {
+          id: '1-4',
           label: <span>Orderbook</span>,
           logo: <OrderBookIcon />,
           url: '/orderbook',
@@ -495,6 +496,7 @@ export const useMenusMobile = () => {
           links: ['/', '/myOrder'],
         },
         {
+          id: '1-4',
           label: <span>Orderbook</span>,
           logo: <OrderBookIcon />,
           url: '/orderbook',
