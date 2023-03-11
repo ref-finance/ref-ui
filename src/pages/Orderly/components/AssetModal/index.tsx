@@ -417,7 +417,7 @@ export function AssetModal(props: Modal.Props) {
           height: isMobile ? '77vh' : '',
         }}
       >
-        <div className=" flex flex-col h-full">
+        <div className=" flex flex-col relative h-full">
           <div className="flex bg-allOrderHeader xs:bg-none pt-4 px-5 pb-4  items-center  justify-between">
             <div className="text-white  text-base font-bold">
               <span
@@ -702,7 +702,12 @@ export function AssetModal(props: Modal.Props) {
           )}
 
           {tag === 'asset' && (
-            <div className="flex lg:hidden mt-2 items-center w-95vw mx-auto">
+            <div
+              className="flex absolute -bottom-2 lg:hidden mt-2 items-center w-95vw mx-auto"
+              style={{
+                left: '2.5vw',
+              }}
+            >
               <DepositButtonMobile
                 onClick={() => {
                   setOperationType('deposit');

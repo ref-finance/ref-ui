@@ -18,9 +18,9 @@ export function digitWrapperAsset(
   precision: number,
   fromList?: boolean
 ) {
-  const minStr = '0.' + '0'.repeat(precision - 1) + '1';
+  const minStr = '0.' + '0'.repeat(2) + '1';
 
   if (Number(digit) < Number(minStr) && Number(digit) > 0) {
     return '<' + minStr;
-  } else return toPrecision(digit.toString(), precision, true);
+  } else return toPrecision(digit.toString(), 3, true);
 }

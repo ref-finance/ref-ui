@@ -9,7 +9,7 @@ import {
 } from '../Common/Icons';
 
 import { SlArrowUp } from 'react-icons/sl';
-import { digitWrapper } from '../../utiles';
+import { digitWrapper, digitWrapperAsset } from '../../utiles';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { useTokenBalance } from '../UserBoard/state';
 import { DepositButton, WithdrawButton } from '../Common/index';
@@ -298,13 +298,15 @@ function CurAsset() {
             </div>
 
             <div className="justify-self-end relative right-10">
-              {!!tokenFromBalance ? digitWrapper(tokenFromBalance, 2) : '-'}
+              {!!tokenFromBalance
+                ? digitWrapperAsset(tokenFromBalance, 2)
+                : '-'}
             </div>
 
             <div className="flex items-center justify-self-end">
               <span>
                 {tokenInHolding
-                  ? digitWrapper(tokenInHolding.toString(), 2)
+                  ? digitWrapperAsset(tokenInHolding.toString(), 2)
                   : 0}
               </span>
             </div>
@@ -321,13 +323,13 @@ function CurAsset() {
             </div>
 
             <div className="justify-self-end relative right-10">
-              {!!tokenToBalance ? digitWrapper(tokenToBalance, 2) : ''}
+              {!!tokenToBalance ? digitWrapperAsset(tokenToBalance, 2) : ''}
             </div>
 
             <div className="flex items-center justify-self-end">
               <span>
                 {tokenOutHolding
-                  ? digitWrapper(tokenOutHolding.toString(), 2)
+                  ? digitWrapperAsset(tokenOutHolding.toString(), 2)
                   : 0}
               </span>
             </div>
@@ -843,10 +845,45 @@ function UserBoardWrapper() {
   const [showWrapper, setShowWrapper] = useState<boolean>(false);
   const [side, setSide] = useState<'Buy' | 'Sell'>('Buy');
 
+  const [showButton, setShowButton] = useState<boolean>(true);
+
+  useEffect(() => {
+    const element = document.body;
+    let prevState = element.classList.contains('ReactModal__Body--open');
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        const { target } = mutation;
+
+        if (mutation.attributeName === 'class') {
+          //@ts-ignore
+          const currentState = mutation.target.classList.contains(
+            'ReactModal__Body--open'
+          );
+          if (prevState !== currentState) {
+            prevState = currentState;
+            if (currentState) {
+              setShowButton(false);
+            } else {
+              setShowButton(true);
+            }
+          }
+        }
+      });
+    });
+
+    observer.observe(element, {
+      attributes: true,
+    });
+  }, []);
+
   return (
     <>
       <div
-        className="w-screen left-0 rounded-t-2xl bg-boxBorder gradientBorderWrapperNoShadowOrderly fixed  bottom-0"
+        className={
+          !showButton
+            ? 'hidden'
+            : 'w-screen left-0 rounded-t-2xl bg-boxBorder gradientBorderWrapperNoShadowOrderly fixed  bottom-0'
+        }
         style={{
           zIndex: 99,
         }}

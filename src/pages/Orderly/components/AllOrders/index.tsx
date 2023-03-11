@@ -4,6 +4,8 @@ import { SlArrowUp } from 'react-icons/sl';
 
 import { IoIosClose } from 'react-icons/io';
 
+import { IoClose } from 'react-icons/io5';
+
 import { FlexRow, FlexRowBetween } from '../Common';
 import { parseSymbol } from '../RecentTrade';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
@@ -191,6 +193,7 @@ function EditOrderModalMobile(
             type={'number'}
             onChange={(e) => {
               setValue(e.target.value);
+              setErrorMsg(undefined);
             }}
           ></input>
 
@@ -325,6 +328,13 @@ function OrderLine({
     if (!symbolInfo) return;
 
     if (
+      new Big(order.price).eq(new Big(price || 0)) &&
+      new Big(order.quantity).eq(new Big(quantity || 0))
+    ) {
+      errorTipMsg = 'At least one of order quantity or price has to be changed';
+    }
+
+    if (
       ONLY_ZEROS.test(order.executed.toString()) &&
       ONLY_ZEROS.test(quantity) &&
       !!quantity
@@ -344,13 +354,17 @@ function OrderLine({
 
     if (
       new Big(price || 0)
+        .minus(order.price)
         .times(new Big(quantity || 0))
         .gt(new Big(holdingTo.holding + holdingTo.pending_short)) &&
       order.side === 'BUY'
     ) {
-      errorTipMsg = `The order value should be less than or equal to ${
+      errorTipMsg = `The order value should be less than or equal to ${new Big(
         holdingTo.holding + holdingTo.pending_short
-      }`;
+      )
+        .plus(new Big(quantity || 0))
+        .times(new Big(order.price))
+        .toFixed(Math.max(symbolInfo.quote_tick.toString().length - 2, 0), 0)}`;
     }
 
     if (
@@ -1657,7 +1671,7 @@ function HistoryOrderLine({
               ? '-'
               : digitWrapper(order.average_executed_price.toString(), 2, true),
             digitWrapper(
-              new Big(order.quantity || '0')
+              new Big(order.quantity || order.executed || '0')
                 .times(
                   new Big(order.price || order.average_executed_price || '0')
                 )
@@ -1774,7 +1788,20 @@ function MobileFilterModal(
         }}
       >
         <div className="bg-darkBg px-5 overflow-auto  xs:w-screen xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-base   rounded-lg   border-t border-borderC  py-4 text-white">
-          <div className="text-left font-bold">Filter</div>
+          <div className="text-left font-bold flex items-center justify-between">
+            <span>Filter</span>
+
+            <span
+              onClick={(e: any) => {
+                e.stopPropagation();
+                e.preventDefault();
+
+                props.onRequestClose && props.onRequestClose(e);
+              }}
+            >
+              <IoClose size={20} className="text-primaryText"></IoClose>
+            </span>
+          </div>
 
           <div className="flex items-center justify-between my-5">
             <span>Instrument</span>
@@ -2052,7 +2079,11 @@ function DetailTable({
                 )}
               </td>
 
-              <td>{scientificNotationToString(h.fee.toString())}</td>
+              <td>
+                {h.fee < 0.00001
+                  ? '< 0.00001'
+                  : scientificNotationToString(h.fee.toString())}
+              </td>
               <td className="text-primaryText pr-5 w-11" align="right">
                 {formatTimeDate(h.executed_timestamp)
                   .split(' ')
@@ -2906,7 +2937,7 @@ function HistoryOrders({
             )}
 
             {chooseStatus !== 'All' && (
-              <div className="flex items-center mr-2 mt-1">
+              <div className="flex items-center mr-2">
                 <span>{chooseStatus}</span>
 
                 <span

@@ -5,6 +5,7 @@ import { Holding, TokenInfo, TokenMetadata } from '../../orderly/type';
 import { getCurrentHolding } from '../../orderly/off-chain-api';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
+import Big from 'big.js';
 
 export function useTokenBalance(tokenId: string | undefined, deps?: any) {
   const [tokenMeta, setTokenMeta] = useState<TokenMetadata>();
@@ -113,7 +114,12 @@ export function useTokensBalances(
               (h: Holding) => h.token === cur.name
             );
             const displayHolding = holding
-              ? holding.holding + holding.pending_short
+              ? Number(
+                  new Big(holding.holding + holding.pending_short).toFixed(
+                    Math.min(8, cur.meta.decimals || 9),
+                    0
+                  )
+                )
               : 0;
 
             acc[id] = {
