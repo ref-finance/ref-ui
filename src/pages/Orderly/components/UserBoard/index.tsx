@@ -1540,8 +1540,7 @@ export function AssetManagerModal(
   const ref = useRef<HTMLInputElement>(null);
 
   const rangeRef = useRef<HTMLInputElement>(null);
-  const decimalPlaceLimit =
-    type === 'deposit' ? undefined : Math.min(8, tokenMeta?.decimals || 8);
+  const decimalPlaceLimit = Math.min(8, tokenMeta?.decimals || 8);
 
   const setAmountByShareFromBar = (sharePercent: string) => {
     setPercentage(sharePercent);
