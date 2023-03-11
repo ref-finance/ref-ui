@@ -65,6 +65,7 @@
     "@ledgerhq/devices": "^7.0.0",
     "@metamask/detect-provider": "^2.0.0",
     "@near-wallet-selector/core": "^7.0.0",
+    "@near-wallet-selector/here-wallet": "^7.9.0",
     "@near-wallet-selector/ledger": "^7.0.0",
     "@near-wallet-selector/math-wallet": "^7.0.2",
     "@near-wallet-selector/meteor-wallet": "^6.0.0",

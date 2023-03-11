@@ -2926,12 +2926,7 @@ function SelectTokenModal(
             : 'rounded-2xl gradientBorderWrapperNoShadowForOrderly border'
         }  lg:w-p400  lg:h-p560   bg-boxBorder text-sm text-primaryOrderly  `}
       >
-        <div
-          className=" py-6 text-primaryOrderly text-sm flex flex-col "
-          style={{
-            height: isMobile ? '75vh' : '',
-          }}
-        >
+        <div className=" py-6 text-primaryOrderly text-sm flex flex-col ">
           <div className="flex px-4 items-center pb-6 justify-between">
             <span className="text-white text-lg font-bold">Select Token</span>
 
@@ -3032,7 +3027,12 @@ function SelectTokenModal(
             </div>
           </div>
 
-          <div className="h-full overflow-auto">
+          <div
+            className="h-full overflow-auto"
+            style={{
+              height: 'calc(48px * 6)',
+            }}
+          >
             {balances
               .filter(filterFunc)
               .sort(sortingFunc)
