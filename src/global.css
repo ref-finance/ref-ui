@@ -1247,3 +1247,7 @@ input[type='range']::-webkit-slider-runnable-track {
   background-clip: padding-box, border-box;
   background-origin: padding-box, border-box;
 }
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}

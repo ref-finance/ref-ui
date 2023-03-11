@@ -1368,7 +1368,15 @@ export function USNCard({
   );
 }
 function MenuBar() {
-  const menus = useMenus();
+  const menus_temp = useMenus();
+  const menus = useMemo(() => {
+    if (menus_temp) {
+      const menus_final = menus_temp.filter((m: menuItemType) => {
+        return !m.hidden;
+      });
+      return menus_final;
+    }
+  }, [menus_temp]);
   const history = useHistory();
   const [hover_two_level_items, set_hover_two_level_items] = useState<
     menuItemType[]

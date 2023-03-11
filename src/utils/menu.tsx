@@ -359,6 +359,14 @@ export const useMenus = () => {
     //   isExternal: false,
     // },
     {
+      id: '6',
+      label: <>Vote</>,
+      url: '/referendum',
+      isExternal: false,
+      hidden: !getConfig().REF_VE_CONTRACT_ID,
+      links: ['/referendum'],
+    },
+    {
       id: '5',
       label: <>More</>,
       links: ['/risks', '/airdrop'],
@@ -581,6 +589,14 @@ export const useMenusMobile = () => {
     //   url: '',
     //   isExternal: false,
     // },
+    {
+      id: '6',
+      label: <>Vote</>,
+      url: '/referendum',
+      isExternal: false,
+      hidden: !getConfig().REF_VE_CONTRACT_ID,
+      links: ['/referendum'],
+    },
     {
       id: '5',
       label: <>More</>,
@@ -805,4 +821,5 @@ export interface menuItemType {
   links?: string[];
   swap_mode?: string;
   icon?: JSX.Element;
+  hidden?: boolean;
 }

@@ -25,6 +25,7 @@ import {
   display_percentage,
   display_value,
   display_number_ordinary,
+  getAccountId,
 } from './Tool';
 import { isMobile } from '~utils/device';
 const is_mobile = isMobile();
@@ -48,7 +49,7 @@ export default function Asset() {
   const [xrefBalance, setXrefBalance] = useState('0');
   const [xrefBalanceDone, setXrefBalanceDone] = useState<boolean>(false);
   const { globalState } = useContext(WalletContext);
-  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const accountId = getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
   useEffect(() => {
     if (isSignedIn) {

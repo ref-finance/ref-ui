@@ -2,6 +2,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -342,7 +343,7 @@ export function MobileNavBar(props: any) {
   } = props;
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
-  const menusMobile = useMenusMobile();
+  const menusMobile_temp = useMenusMobile();
   const [showTip, setShowTip] = useState<boolean>(false);
   const [showLanguage, setShowLanguage] = useState<boolean>(false);
   const [one_level_selected, set_one_level_selected] = useState<string>('');
@@ -359,6 +360,14 @@ export function MobileNavBar(props: any) {
       return 'EN';
     }
   };
+  const menusMobile = useMemo(() => {
+    if (menusMobile_temp) {
+      const menus_final = menusMobile_temp.filter((m: menuItemType) => {
+        return !m.hidden;
+      });
+      return menus_final;
+    }
+  }, [menusMobile_temp]);
   useEffect(() => {
     const pathname = '/' + location.pathname.split('/')[1];
     let one_level_selected_id = '';

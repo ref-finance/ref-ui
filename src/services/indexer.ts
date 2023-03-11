@@ -441,8 +441,19 @@ export const getAllVolume24h = async () => {
 };
 
 export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
-  // todo config.indexerUrl
-  // ${getCurrentWallet()?.wallet?.getAccountId()}
+  // const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  // return await fetch(
+  //   config.indexerUrl +
+  //     '/get-assets-by-account?' +
+  //     `account_id=${accountId}&dimension=${dateType}`,
+  //   {
+  //     method: 'GET',
+  //   }
+  // )
+  //   .then((res) => res.json())
+  //   .then((res) => {
+  //     return res;
+  //   });
   return await fetch(
     'https://mainnet-indexer.ref-finance.com' +
       '/get-assets-by-account?' +

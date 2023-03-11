@@ -307,3 +307,20 @@ export function useTotalLiquidityData({
     total_liquidity_quantity,
   };
 }
+
+export function getAccountId() {
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const env_map = {
+    testnet: ['testnet', 'pub-testnet'],
+    near: ['', 'production', 'mainnet'],
+  };
+  if (accountId) {
+    const account_suffix = accountId.split('.')[1];
+    const env_keys = env_map[account_suffix];
+    if (account_suffix && env_keys) {
+      const real_env = process.env.NEAR_ENV || '';
+      if (env_keys.indexOf(real_env) == -1) return '';
+    }
+  }
+  return accountId;
+}
