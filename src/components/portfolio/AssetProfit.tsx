@@ -12,7 +12,7 @@ import QuestionMark from '../../components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import { PortfolioData } from '../../pages/Portfolio';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
-import { ArrowJump, display_value } from './Tool';
+import { ArrowJump, display_value, getAccountId } from './Tool';
 import {
   WalletContext,
   getCurrentWallet,
@@ -31,7 +31,7 @@ export default function AssetProfit() {
     dcl_liquidities_details_list_done,
   } = useContext(PortfolioData);
   const { globalState } = useContext(WalletContext);
-  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const accountId = getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
   const [total_unClaimed_rewrads_value, total_unClaimed_rewrads_value_done] =
     useMemo(() => {

@@ -20,6 +20,7 @@ import {
   display_value,
   display_value_withCommas,
   display_number_internationalCurrencySystemNature,
+  getAccountId,
 } from './Tool';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import {
@@ -53,7 +54,7 @@ export default function Tokens() {
   const [chartEvents, setChartEvents] = useState<any>({});
   const tokenRef = useRef(null);
   const { globalState } = useContext(WalletContext);
-  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const accountId = getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
   const auroraAddress = auroraAddr(
     getCurrentWallet()?.wallet?.getAccountId() || ''

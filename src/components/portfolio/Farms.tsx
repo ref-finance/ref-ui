@@ -62,6 +62,7 @@ import {
   NoDataCard,
   display_value_withCommas,
   useTotalFarmData,
+  getAccountId,
 } from './Tool';
 import { isMobile } from '~utils/device';
 const is_mobile = isMobile();
@@ -99,7 +100,7 @@ export default function Farms(props: any) {
     UserLiquidityInfo[]
   >([]);
   const { globalState } = useContext(WalletContext);
-  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const accountId = getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
   useEffect(() => {
     if (isSignedIn) {

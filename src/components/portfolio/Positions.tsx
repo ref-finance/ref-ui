@@ -7,7 +7,12 @@ import { YourLiquidityV1 } from '../../components/pool/YourLiquidityV1';
 import { YourLiquidityV2 } from '../../components/pool/YourLiquidityV2';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-import { NoDataCard, UpDownButton, useTotalLiquidityData } from './Tool';
+import {
+  NoDataCard,
+  UpDownButton,
+  useTotalLiquidityData,
+  getAccountId,
+} from './Tool';
 import { isMobile } from '~utils/device';
 const is_mobile = isMobile();
 export default function Positions(props: any) {
@@ -43,7 +48,7 @@ export default function Positions(props: any) {
       v2LiquidityLoadingDone,
     });
   const { globalState } = useContext(WalletContext);
-  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const accountId = getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
   const total_quantity = +v1LiquidityQuantity + +v2LiquidityQuantity;
   const loading_status =

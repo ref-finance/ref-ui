@@ -36,7 +36,12 @@ import {
 import BigNumber from 'bignumber.js';
 import { PortfolioData } from '../../pages/Portfolio';
 import { BlueCircleLoading } from '../../components/layout/Loading';
-import { UpDownButton, NoDataCard, useTotalOrderData } from './Tool';
+import {
+  UpDownButton,
+  NoDataCard,
+  useTotalOrderData,
+  getAccountId,
+} from './Tool';
 import {
   WalletContext,
   getCurrentWallet,
@@ -68,7 +73,7 @@ export default function Orders(props: any) {
     };
   }, {});
   const { globalState } = useContext(WalletContext);
-  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const accountId = getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
   useEffect(() => {
     if (isSignedIn) {
@@ -151,7 +156,7 @@ function OrderCard({
     active_order_value,
   } = useContext(PortfolioData);
   const { globalState } = useContext(WalletContext);
-  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const accountId = getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
   const intl = useIntl();
   const [activeSortBy, setActiveSortBy] = useState<'unclaim' | 'created'>(

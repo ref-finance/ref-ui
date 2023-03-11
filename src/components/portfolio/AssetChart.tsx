@@ -26,6 +26,8 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import { PortfolioData } from '../../pages/Portfolio';
+import { getAccountId } from './Tool';
+
 const is_mobile = isMobile();
 const chartAreaHeight = is_mobile ? '150px' : '280px';
 export default function AssetChart() {
@@ -43,18 +45,20 @@ export default function AssetChart() {
     'M' | 'W' | 'H' | 'ALL'
   >('H');
   const { globalState } = useContext(WalletContext);
-  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const accountId = getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
   useEffect(() => {
-    getAssets(activeDimension).then((res) => {
-      setAssetData(res);
-      setAssetDataDone(true);
-      if (activeDimension == 'H') {
-        set_history_total_asset(res?.[0]?.assets || '0');
-        set_history_total_asset_done(true);
-      }
-    });
-  }, [activeDimension]);
+    if (isSignedIn) {
+      getAssets(activeDimension).then((res) => {
+        setAssetData(res);
+        setAssetDataDone(true);
+        if (activeDimension == 'H') {
+          set_history_total_asset(res?.[0]?.assets || '0');
+          set_history_total_asset_done(true);
+        }
+      });
+    }
+  }, [activeDimension, isSignedIn]);
 
   function switchDimension(key: 'M' | 'W' | 'H') {
     setActiveDimension(key);
