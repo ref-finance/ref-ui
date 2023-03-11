@@ -3030,7 +3030,7 @@ function SelectTokenModal(
           <div
             className="h-full overflow-auto"
             style={{
-              height: 'calc(48px * 6)',
+              height: isMobile ? 'calc(48px * 6)' : '',
             }}
           >
             {balances
