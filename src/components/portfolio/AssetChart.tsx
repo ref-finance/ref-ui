@@ -161,14 +161,14 @@ export default function AssetChart() {
                 }}
               />
               <Tooltip
-                wrapperStyle={
-                  {
-                    // display:'none',
-                    // backgroundColor:'red',
-                    // border:'10px solid orange',
-                    // padding:'0'
-                  }
-                }
+                // wrapperStyle={
+                //   {
+                //     display:'none',
+                //     backgroundColor:'red',
+                //     border:'10px solid orange',
+                //     padding:'0'
+                //   }
+                // }
                 // itemStyle={{
                 //   backgroundColor:'red',
                 //   border:'10px solid orange'
