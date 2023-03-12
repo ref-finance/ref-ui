@@ -661,8 +661,11 @@ function OrderCard({
             />
           </span>
 
-          <span className="flex items-center text-sm text-v3SwapGray">
-            <BsCheckCircle className="mr-3" fill="#42bb17" stroke="#42BB17" />
+          <div className="flex items-center text-sm text-v3SwapGray">
+            <div className="flex items-center w-24">
+              <BsCheckCircle fill="#42bb17" stroke="#42BB17" />
+              <span className="text-xs text-v3SwapGray ml-1.5">Swapped</span>
+            </div>
             <div className="flex items-center w-28">
               <span title={swapIn} className="text-v3SwapGray">
                 {display_amount(swapIn)}
@@ -680,37 +683,67 @@ function OrderCard({
 
               <span className="ml-1.5">{toRealSymbol(buyToken.symbol)}</span>
             </div>
-          </span>
+          </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <span className="text-sm text-v3SwapGray">Executed</span>
-          <div className="flex items-center">
-            <PurpleCircleIcon className="mr-3"></PurpleCircleIcon>
-            <div className="w-28">
-              <span title={orderIn} className="text-white text-sm">
-                {display_amount(orderIn)}
+          <div>
+            <div className="flex items-center mb-6">
+              <div className="flex items-center w-24">
+                <GreenCircleIcon></GreenCircleIcon>
+                <span className="text-xs text-v3SwapGray ml-1.5">Claimed</span>
+              </div>
+              <div className="flex items-center w-28">
+                <span
+                  title={sellAmountToClaimedAmount}
+                  className="text-white text-sm"
+                >
+                  {display_amount(sellAmountToClaimedAmount)}
+                </span>
+                <span className="ml-1.5 text-v3SwapGray text-sm">
+                  {toRealSymbol(sellToken.symbol)}
+                </span>
+              </div>
+              <span className="mx-2 text-v3SwapGray">
+                <MyOrderInstantSwapArrowRight />
               </span>
-              <span className="ml-1.5 text-v3SwapGray text-sm">
-                {toRealSymbol(sellToken.symbol)}
-              </span>
+              <div className="flex items-center justify-end w-40">
+                <span title={claimedAmount} className="text-sm text-white">
+                  {display_amount(claimedAmount)}
+                </span>
+                <span className="ml-1.5 text-sm text-v3SwapGray">
+                  {toRealSymbol(buyToken.symbol)}
+                </span>
+              </div>
             </div>
-            <span className="mx-2 text-v3SwapGray">
-              <MyOrderInstantSwapArrowRight />
-            </span>
-            <div className="flex items-center justify-end w-40">
-              <span
-                title={buyAmount}
-                className="flex items-center text-sm text-white"
-              >
-                <label className="text-sm text-greenColor">
-                  {display_amount_3_decimal(claimedAmount)}
-                </label>
-                /{display_amount(buyAmount)}
+            <div className="flex items-center">
+              <div className="flex items-center w-24">
+                <PurpleCircleIcon></PurpleCircleIcon>
+                <span className="text-xs text-v3SwapGray ml-1.5">Filled</span>
+              </div>
+              <div className="flex items-center w-28">
+                <span
+                  title={sellAmountToUnClaimedAmount}
+                  className="text-white text-sm"
+                >
+                  {display_amount(sellAmountToUnClaimedAmount)}
+                </span>
+                <span className="ml-1.5 text-v3SwapGray text-sm">
+                  {toRealSymbol(sellToken.symbol)}
+                </span>
+              </div>
+              <span className="mx-2 text-v3SwapGray">
+                <MyOrderInstantSwapArrowRight />
               </span>
-              <span className="ml-1.5 text-sm text-v3SwapGray">
-                {toRealSymbol(buyToken.symbol)}
-              </span>
+              <div className="flex items-center justify-end w-40">
+                <span title={unClaimedAmount} className="text-sm text-white">
+                  {display_amount(unClaimedAmount)}
+                </span>
+                <span className="ml-1.5 text-sm text-v3SwapGray">
+                  {toRealSymbol(buyToken.symbol)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
