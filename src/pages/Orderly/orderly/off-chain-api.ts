@@ -303,6 +303,7 @@ export const getOrders = async (props: {
     end_t?: number;
     page?: number;
     size?: number;
+    broker_id?: string;
   };
 }) => {
   const url = `/v1/orders?${formateParams(props.OrderProps || {})}`;
@@ -328,6 +329,7 @@ export const getAllOrders = async (props: {
     // end_t?: number;
     page?: number;
     size?: number;
+    broker_id?: string;
   };
 }) => {
   const pageOne = await getOrders({
@@ -336,6 +338,7 @@ export const getAllOrders = async (props: {
       ...props.OrderProps,
       page: 1,
       size: 500,
+      broker_id: 'ref_dex',
     },
   });
 
@@ -355,6 +358,7 @@ export const getAllOrders = async (props: {
           ...props.OrderProps,
           page,
           size: 500,
+          broker_id: 'ref_dex',
         },
       });
 

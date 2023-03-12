@@ -93,6 +93,7 @@ export function useAllOrdersSymbol({
         OrderProps: {
           size: 200,
           symbol,
+          broker_id: 'ref_dex',
         },
       });
 
@@ -120,6 +121,7 @@ export function useAllOrders({ refreshingTag }: { refreshingTag: boolean }) {
         accountId,
         OrderProps: {
           size: 200,
+          broker_id: 'ref_dex',
         },
       });
 
