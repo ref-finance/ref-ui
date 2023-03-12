@@ -441,11 +441,26 @@ export const getAllVolume24h = async () => {
 };
 
 export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
-  // const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  return await fetch(
+    config.indexerUrl +
+      '/get-assets-by-account?' +
+      `account_id=${accountId}&dimension=${dateType}`,
+    {
+      method: 'GET',
+    }
+  )
+    .then((res) => res.json())
+    .then((res) => {
+      return res;
+    })
+    .catch(() => {
+      return [];
+    });
   // return await fetch(
-  //   config.indexerUrl +
+  //   'https://mainnet-indexer.ref-finance.com' +
   //     '/get-assets-by-account?' +
-  //     `account_id=${accountId}&dimension=${dateType}`,
+  //     `account_id=juaner.near&dimension=${dateType}`,
   //   {
   //     method: 'GET',
   //   }
@@ -454,18 +469,6 @@ export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
   //   .then((res) => {
   //     return res;
   //   });
-  return await fetch(
-    'https://mainnet-indexer.ref-finance.com' +
-      '/get-assets-by-account?' +
-      `account_id=juaner.near&dimension=${dateType}`,
-    {
-      method: 'GET',
-    }
-  )
-    .then((res) => res.json())
-    .then((res) => {
-      return res;
-    });
 };
 export const getLimitOrderLogsByAccount = async (): Promise<any[]> => {
   return await fetch(
