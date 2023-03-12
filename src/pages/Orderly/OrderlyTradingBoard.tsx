@@ -29,6 +29,7 @@ import { useHistory } from 'react-router-dom';
 
 import MobileInfoBoard from './components/MobileInfoBoard';
 import { generateTradingKeyPair } from './orderly/utils';
+import { useOrderlyContext } from './orderly/OrderlyContext';
 
 function TradingBoard() {
   const isLarge = useLargeScreen();

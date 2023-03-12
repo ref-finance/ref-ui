@@ -359,12 +359,7 @@ function OrderLine({
         .gt(new Big(holdingTo.holding + holdingTo.pending_short)) &&
       order.side === 'BUY'
     ) {
-      errorTipMsg = `The order value should be less than or equal to ${new Big(
-        holdingTo.holding + holdingTo.pending_short
-      )
-        .plus(new Big(quantity || 0))
-        .times(new Big(order.price))
-        .toFixed(Math.max(symbolInfo.quote_tick.toString().length - 2, 0), 0)}`;
+      errorTipMsg = `Insufficient ${symbolTo}`;
     }
 
     if (

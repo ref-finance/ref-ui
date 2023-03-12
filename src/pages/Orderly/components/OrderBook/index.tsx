@@ -31,6 +31,8 @@ function groupOrdersByPrecision({
 }) {
   // this function is to group orders by precision,
 
+  const decimalPlaces = getDecimalPlaceByNumber(precision);
+
   if (!orders) return {};
 
   const asks = orders.asks;
@@ -38,7 +40,12 @@ function groupOrdersByPrecision({
   const bids = orders.bids;
 
   const groupedAsks = asks.reduce((acc, cur) => {
-    const groupKey = new Big(cur[0]).toFixed(precision, 3);
+    const groupKey =
+      decimalPlaces === 0
+        ? new Big(new Big(cur[0]).div(precision).toFixed(0, 3))
+            .times(precision)
+            .toFixed(0, 3)
+        : new Big(cur[0]).toFixed(decimalPlaces, 3);
 
     const keyStr = groupKey.toString();
 
@@ -53,7 +60,12 @@ function groupOrdersByPrecision({
     .sort((a, b) => a[0] - b[0]);
 
   const groupedBids = bids.reduce((acc, cur) => {
-    const groupKey = new Big(cur[0]).toFixed(precision, 0);
+    const groupKey =
+      decimalPlaces === 0
+        ? new Big(new Big(cur[0]).div(precision).toFixed(0, 3))
+            .times(precision)
+            .toFixed(0, 3)
+        : new Big(cur[0]).toFixed(decimalPlaces, 3);
 
     const keyStr = groupKey.toString();
 
@@ -106,7 +118,8 @@ function groupOrdersByPrecision({
   );
 
   const groupMyPendingOrders = pendingOrders.reduce((acc, cur) => {
-    const groupKey = Math.floor(cur.price * 10 ** precision) / 10 ** precision;
+    const groupKey = Math.floor(cur.price / precision) * precision;
+
     const keyStr = groupKey.toString();
 
     return {
@@ -127,12 +140,11 @@ function groupOrdersByPrecision({
   };
 }
 
-function getPrecisionStringByNumber(precision: number) {
-  if (precision === 0) {
-    return '1';
-  } else {
-    return '0.' + '0'.repeat(precision - 1) + '1';
-  }
+function getDecimalPlaceByNumber(precision: number) {
+  const str = precision.toString();
+
+  if (str.indexOf('.') === -1) return 0;
+  else return str.split('.')[1].length;
 }
 
 export const REF_ORDERLY_PRECISION = 'REF_ORDERLY_PRECISION';
@@ -149,11 +161,28 @@ function OrderBook() {
     availableSymbols,
   } = useOrderlyContext();
 
+  const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
+
   const storedPrecision = sessionStorage.getItem(REF_ORDERLY_PRECISION);
 
-  const [precision, setPrecision] = useState<number>(
-    storedPrecision ? Number(storedPrecision) : 2
-  );
+  const [precision, setPrecision] = useState<number>(0.01);
+
+  useEffect(() => {
+    if (!symbolInfo) return;
+    let precision = symbolInfo.quote_tick;
+
+    const storedNumberPrecision = storedPrecision ? Number(storedPrecision) : 0;
+
+    if (
+      storedNumberPrecision > 0 &&
+      storedNumberPrecision > precision / 10 &&
+      storedNumberPrecision < precision * 10 ** 5
+    ) {
+      precision = storedNumberPrecision;
+    }
+
+    setPrecision(precision);
+  }, [JSON.stringify(symbolInfo)]);
 
   const hitMyOrder = pendingOrders?.some((po) => {
     return (
@@ -186,10 +215,12 @@ function OrderBook() {
   const [loading, setLoading] = useState<boolean>(orders === undefined);
 
   useEffect(() => {
-    if (!!orders) {
+    const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
+
+    if (!!orders && symbolInfo) {
       setLoading(false);
     }
-  }, [!!orders]);
+  }, [!!orders, availableSymbols]);
 
   const marketTradeDisplay = digitWrapper(
     recentTrades?.at(0)?.executed_price || 0,
@@ -243,15 +274,15 @@ function OrderBook() {
                 height: '22px',
               }}
             >
-              {getPrecisionStringByNumber(precision)}
+              {!symbolInfo ? '-' : precision}
             </span>
             {isMobile && (
               <>
                 <span
                   className="text-xl mr-2 rounded-md w-5 flex items-center justify-center h-5 bg-selectTokenV3BgColor text-primaryText"
                   onClick={() => {
-                    if (precision < 4) {
-                      setPrecision(precision + 1);
+                    if (precision < symbolInfo.quote_tick * 10 ** 5) {
+                      setPrecision(precision * 10);
                     }
                   }}
                 >
@@ -261,8 +292,8 @@ function OrderBook() {
                 <span
                   className="text-xl flex items-center justify-center w-5 h-5 rounded-md bg-selectTokenV3BgColor text-primaryText"
                   onClick={() => {
-                    if (precision > 0) {
-                      setPrecision(precision - 1);
+                    if (precision > symbolInfo.quote_tick / 10) {
+                      setPrecision(precision / 10);
                     }
                   }}
                 >
@@ -288,24 +319,24 @@ function OrderBook() {
                 className=" min-w-p72 -left-2 top-1 relative"
                 list={[
                   {
-                    text: '0.0001',
-                    textId: '4',
+                    text: `${symbolInfo.quote_tick}`,
+                    textId: `${symbolInfo.quote_tick}`,
                   },
                   {
-                    text: '0.001',
-                    textId: '3',
+                    text: `${symbolInfo.quote_tick * 10}`,
+                    textId: `${symbolInfo.quote_tick * 10}`,
                   },
                   {
-                    text: '0.01',
-                    textId: '2',
+                    text: `${symbolInfo.quote_tick * 10 ** 2}`,
+                    textId: `${symbolInfo.quote_tick * 10 ** 2}`,
                   },
                   {
-                    text: '0.1',
-                    textId: '1',
+                    text: `${symbolInfo.quote_tick * 10 ** 3}`,
+                    textId: `${symbolInfo.quote_tick * 10 ** 3}`,
                   },
                   {
-                    text: '1',
-                    textId: '0',
+                    text: `${symbolInfo.quote_tick * 10 ** 4}`,
+                    textId: `${symbolInfo.quote_tick * 10 ** 4}`,
                   },
                 ]}
               />

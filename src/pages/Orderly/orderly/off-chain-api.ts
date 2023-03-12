@@ -266,7 +266,9 @@ export const getOpenOrders = async (props: {
   //   size?: number;
   // };
 }) => {
-  const url = `/orderservice/v1/merge/orders/pending`;
+  const url = `/orderservice/v1/merge/orders/pending?${formateParams({
+    broker_id: 'ref_dex',
+  })}`;
 
   const res = requestOrderly({
     url,

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useDebugValue } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import { parseSymbol } from '../RecentTrade/index';
+import { useInView } from 'react-intersection-observer';
+
 import {
   nearMetadata,
   getFTmetadata,
@@ -358,11 +360,19 @@ export default function UserBoard() {
   );
 
   const tokenInHolding = curHoldingIn
-    ? curHoldingIn.holding + curHoldingIn.pending_short
+    ? toPrecision(
+        new Big(curHoldingIn.holding + curHoldingIn.pending_short).toString(),
+        Math.min(8, tokenIn?.decimals || 8),
+        false
+      )
     : balances && balances[symbolFrom]?.holding;
 
   const tokenOutHolding = curHoldingOut
-    ? curHoldingOut.holding + curHoldingOut.pending_short
+    ? toPrecision(
+        new Big(curHoldingOut.holding + curHoldingOut.pending_short).toString(),
+        Math.min(8, tokenOut?.decimals || 8),
+        false
+      )
     : balances && balances[symbolTo]?.holding;
 
   const fee =
@@ -536,8 +546,6 @@ export default function UserBoard() {
 
     setValidAccountSig(true);
   }, [tradingKeySet, keyAnnounced]);
-  console.log('keyAnnounced: ', keyAnnounced);
-  console.log('tradingKeySet: ', tradingKeySet);
 
   const isInsufficientBalance =
     side === 'Buy'
@@ -1522,9 +1530,7 @@ export function AssetManagerModal(
   const displayAccountBalance =
     balances
       ?.find((b: any) => b.id.toLowerCase() === tokenId.toLowerCase())
-      ?.holding?.toString() ||
-    accountBalance ||
-    '0';
+      ?.holding?.toString() || '0';
 
   useEffect(() => {
     if (!tokenId) return;
@@ -1549,13 +1555,18 @@ export function AssetManagerModal(
       Number(sharePercent),
       type === 'deposit'
         ? tokenId.toLowerCase() === 'near'
-          ? new Big(Number(walletBalance) < 0.25 ? 0.25 : walletBalance)
-              .minus(0.25)
+          ? new Big(Number(walletBalance) < 0.5 ? 0.5 : walletBalance)
+              .minus(0.5)
               .toFixed(24)
           : walletBalance
         : displayAccountBalance.toString(),
       decimalPlaceLimit || tokenMeta.decimals
     );
+
+    if (new Big(sharePercentOfValue).gt(new Big(walletBalance))) {
+      setInputValue('0');
+      return;
+    }
 
     if (Number(sharePercent) === 0) {
       setInputValue('');
@@ -1584,9 +1595,7 @@ export function AssetManagerModal(
     if (type === 'deposit') {
       if (
         tokenId.toLowerCase() === 'near' &&
-        new Big(walletBalance || 0)
-          .minus(new Big(inputValue || '0'))
-          .lt(0.25) &&
+        new Big(walletBalance || 0).minus(new Big(inputValue || '0')).lt(0.5) &&
         walletBalance !== ''
       ) {
         return false;
@@ -1702,6 +1711,7 @@ export function AssetManagerModal(
                     const value = e.target.value;
 
                     // 判断是否超过了8位小数
+
                     if (
                       value.includes('.') &&
                       value.split('.')[1].length > decimalPlaceLimit
@@ -1829,7 +1839,7 @@ export function AssetManagerModal(
               !validation() &&
               tokenId.toLowerCase() === 'near' && (
                 <div className="text-warn xs:text-center mb-2 xs:-mt-2 lg:whitespace-nowrap">
-                  0.25 NEAR locked in wallet for covering transaction fee
+                  0.5 NEAR locked in wallet for covering transaction fee
                 </div>
               )}
 
