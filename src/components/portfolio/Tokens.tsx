@@ -101,7 +101,8 @@ export default function Tokens() {
       const dcl_tokens_temp: TokenMetadata[] = [];
       const aurora_tokens_temp: TokenMetadata[] = [];
       userTokens.forEach((token: TokenMetadata) => {
-        const { ref, near, aurora, dcl } = token;
+        const { ref, near, aurora, dcl, id } = token;
+        if (id === NEARXIDS[0]) return;
         if (+ref > 0) {
           ref_tokens_temp.push(token);
         }
