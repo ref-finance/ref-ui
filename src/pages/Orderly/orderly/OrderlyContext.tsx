@@ -23,7 +23,7 @@ import {
 
 interface OrderlyContextValue {
   orders: Orders | undefined;
-  marketTrade: MarketTrade | undefined;
+  marketTrade: MarketTrade[] | undefined;
   lastJsonMessage: any;
   symbol: string;
   setSymbol: (symbol: string) => void;
@@ -91,11 +91,29 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     validAccountSig,
   });
 
-  const recentTrades = useMarketTrades({
-    symbol,
-    limit: 50,
-    marketTrade: value.marketTrade,
-  });
+  // const { trades: recentTrades, setTrades } = useMarketTrades({
+  //   symbol,
+  //   limit: 50,
+  // });
+
+  const [recentTrades, setTrades] = useState<Trade[]>();
+
+  console.log('value.marketTrade: ', value.marketTrade);
+
+  useEffect(() => {
+    if (value?.marketTrade?.[0]?.symbol !== symbol) {
+      return;
+    }
+    setTrades(
+      value.marketTrade.map((t) => ({
+        executed_timestamp: t.ts,
+        executed_price: t.price,
+        executed_quantity: t.size,
+        side: t.side,
+        symbol: t.symbol,
+      }))
+    );
+  }, [JSON.stringify(value.marketTrade)]);
 
   const tokenInfo = useTokenInfo();
 

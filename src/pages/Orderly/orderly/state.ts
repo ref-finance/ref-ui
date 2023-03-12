@@ -19,11 +19,9 @@ import { useOrderlyContext } from './OrderlyContext';
 export function useMarketTrades({
   symbol,
   limit,
-  marketTrade,
 }: {
   symbol: string;
   limit: number;
-  marketTrade: MarketTrade | undefined;
 }) {
   const [trades, setTrades] = useState<Trade[]>();
 
@@ -36,9 +34,9 @@ export function useMarketTrades({
 
   useEffect(() => {
     setFunc();
-  }, [setFunc, marketTrade]);
+  }, [setFunc]);
 
-  return trades;
+  return { trades, setTrades };
 }
 
 export function usePendingOrders({

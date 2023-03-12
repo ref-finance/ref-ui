@@ -188,7 +188,7 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
 
   const [allTickers, setAllTickers] = useState<Ticker[]>();
 
-  const [marketTrade, setMarketTrade] = useState<MarketTrade>();
+  const [marketTrade, setMarketTrade] = useState<MarketTrade[]>();
 
   const [markPrices, setMarkPrices] = useState<MarkPrice[]>();
 
@@ -298,16 +298,22 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
     //  process trade
     if (
       (lastJsonMessage?.id &&
-        lastJsonMessage?.id.includes(`${symbol}@trade`)) ||
+        lastJsonMessage?.id.includes(`${symbol}@trade-req`)) ||
       lastJsonMessage?.topic === `${symbol}@trade`
     ) {
       if (lastJsonMessage?.event === 'request') {
-        setMarketTrade({ ...lastJsonMessage.data[0], symbol });
+        setMarketTrade(
+          lastJsonMessage.data.map((t: MarketTrade) => ({ ...t, symbol }))
+        );
       } else
-        setMarketTrade({
-          ...lastJsonMessage.data,
-          symbol,
-        });
+        setMarketTrade([
+          {
+            ...lastJsonMessage.data,
+            symbol,
+            ts: lastJsonMessage.ts,
+          },
+          ...(marketTrade || []),
+        ]);
     }
 
     if (lastJsonMessage?.topic === 'tickers') {
