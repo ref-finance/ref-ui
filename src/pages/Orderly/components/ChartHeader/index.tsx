@@ -12,7 +12,7 @@ import {
 
 import { IoMdArrowDropdown } from 'react-icons/io';
 import { useTokenMetaFromSymbol } from './state';
-import { Ticker } from '../../orderly/type';
+import { Ticker, TokenInfo } from '../../orderly/type';
 import { TokenIcon } from '../Common';
 import useCallback from 'react';
 import { digitWrapper } from '../../utiles';
@@ -58,6 +58,47 @@ function TickerDisplayComponent({
   );
 }
 
+function SymbolLine({
+  ticker,
+  tokenInfo,
+  setSymbol,
+}: {
+  ticker: Ticker;
+  tokenInfo: TokenInfo[];
+  setSymbol: (symbol: string) => void;
+}) {
+  const { symbolFrom, symbolTo } = parseSymbol(ticker.symbol);
+  const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
+
+  const { symbol } = useOrderlyContext();
+
+  return (
+    <div
+      className={`px-1.5 text-sm ${
+        ticker.symbol === symbol ? 'bg-symbolHover2' : ''
+      } text-white rounded-lg hover:bg-symbolHover2 py-1.5 flex items-center justify-between`}
+      onClick={() => {
+        setSymbol(ticker.symbol);
+      }}
+    >
+      <div className="flex items-center">
+        <TokenIcon src={tokenIn?.icon} />
+
+        <div className="ml-2 whitespace-nowrap">
+          <span>{symbolFrom}</span>
+
+          <span className="text-primaryOrderly">{` / ${symbolTo}`} </span>
+        </div>
+      </div>
+
+      <div className="flex flex-col text-xs items-end">
+        <span>${ticker.close}</span>
+        <TickerDisplayComponent ticker={ticker} />
+      </div>
+    </div>
+  );
+}
+
 function SymbolSelector(props: {
   setSymbol: (symbolName: string) => void;
   symbolName: string;
@@ -69,34 +110,6 @@ function SymbolSelector(props: {
 
   const [SymbolList, setSymbolList] = useState<JSX.Element>();
 
-  function SymbolLine({ ticker }: { ticker: Ticker }) {
-    const { symbolFrom, symbolTo } = parseSymbol(ticker.symbol);
-    const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
-
-    return (
-      <div
-        className="px-1.5 text-sm text-white rounded-lg hover:bg-symbolHover2 py-1.5 flex items-center justify-between"
-        onClick={() => {
-          setSymbol(ticker.symbol);
-        }}
-      >
-        <div className="flex items-center">
-          <TokenIcon src={tokenIn?.icon} />
-
-          <div className="ml-2 whitespace-nowrap">
-            <span>{symbolFrom}</span>
-
-            <span className="text-primaryOrderly">{` / ${symbolTo}`} </span>
-          </div>
-        </div>
-
-        <div className="flex flex-col text-xs items-end">
-          <span>${ticker.close}</span>
-          <TickerDisplayComponent ticker={ticker} />
-        </div>
-      </div>
-    );
-  }
   const [searchValue, setSearchValue] = useState<string>();
 
   useEffect(() => {
@@ -112,7 +125,14 @@ function SymbolSelector(props: {
             )
             .sort((a, b) => (a.symbol > b.symbol ? 1 : -1))
             .map((t) => {
-              return <SymbolLine ticker={t} key={t.symbol}></SymbolLine>;
+              return (
+                <SymbolLine
+                  setSymbol={setSymbol}
+                  tokenInfo={tokenInfo}
+                  ticker={t}
+                  key={t.symbol}
+                ></SymbolLine>
+              );
             })}
         </>
       );
