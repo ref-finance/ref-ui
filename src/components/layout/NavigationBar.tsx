@@ -426,7 +426,7 @@ function AccountEntry({
     <div
       className="bubble-box relative user text-xs text-center justify-end z-40"
       style={{
-        zIndex: 120,
+        zIndex: 51,
       }}
     >
       {showAccountTip ? (

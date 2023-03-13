@@ -5,7 +5,7 @@ import {
 } from '../../orderly/OrderlyContext';
 import moment from 'moment';
 import { OrderlyLoading } from '../Common/Icons';
-import { digitWrapper } from '../../utiles';
+import { digitWrapper, digitWrapperFull, numberWithCommas } from '../../utiles';
 
 export function parseSymbol(fullName: string) {
   return {
@@ -78,7 +78,7 @@ function RecentTrade() {
                     trade.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'
                   }`}
                 >
-                  {digitWrapper(trade.executed_price, 3)}
+                  {numberWithCommas(trade.executed_price)}
                 </span>
                 <span className="text-white">
                   {digitWrapper(trade.executed_quantity, 2)}

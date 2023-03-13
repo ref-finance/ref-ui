@@ -4,7 +4,7 @@ import RecentTrade from '../RecentTrade';
 
 import { MyOrder, Orders } from '../../orderly/type';
 import { MyOrderTip } from '../Common';
-import { digitWrapper } from '../../utiles';
+import { digitWrapper, digitWrapperFull, numberWithCommas } from '../../utiles';
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import { Selector } from '../OrderBoard';
 import { IoArrowUpOutline } from 'react-icons/io5';
@@ -12,7 +12,10 @@ import Big from 'big.js';
 import { TextWrapper } from '../UserBoard/index';
 import { OrderlyLoading } from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
-import { scientificNotationToString } from '../../../../utils/numbers';
+import {
+  scientificNotationToString,
+  formatWithCommas,
+} from '../../../../utils/numbers';
 import { useInView } from 'react-intersection-observer';
 
 function parseSymbol(fullName: string) {
@@ -213,7 +216,7 @@ function OrderLine({
           type === 'ask' ? 'text-sellColorNew' : 'text-buyGreen'
         } justify-self-start`}
       >
-        {scientificNotationToString(order[0].toString())}
+        {numberWithCommas(order[0])}
       </span>
 
       <span className="mr-4">{digitWrapper(order[1].toString(), 2)}</span>
@@ -319,9 +322,8 @@ function OrderBook() {
     }
   }, [!!orders, availableSymbols]);
 
-  const marketTradeDisplay = digitWrapper(
-    recentTrades?.at(0)?.executed_price || 0,
-    2
+  const marketTradeDisplay = numberWithCommas(
+    recentTrades?.at(0)?.executed_price || 0
   );
 
   const diff =
