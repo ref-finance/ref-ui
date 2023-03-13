@@ -667,7 +667,7 @@ function OrderCard({
               <span className="text-xs text-v3SwapGray ml-1.5">Swapped</span>
             </div>
             <div className="flex items-center w-28">
-              <span title={swapIn} className="text-v3SwapGray">
+              <span title={swapIn} className="text-white">
                 {display_amount(swapIn)}
               </span>
 
@@ -677,7 +677,7 @@ function OrderCard({
               <MyOrderInstantSwapArrowRight />
             </span>
             <div className="flex items-end justify-end w-40">
-              <span title={swapOut} className="text-v3SwapGray">
+              <span title={swapOut} className="text-white">
                 {display_amount(swapOut)}
               </span>
 
