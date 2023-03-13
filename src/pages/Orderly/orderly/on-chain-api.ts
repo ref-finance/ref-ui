@@ -88,35 +88,6 @@ const is_orderly_key_announced = async (
     },
   });
 
-  if (
-    selectedWalletId === 'neth' &&
-    !valid &&
-    !!orderly_key &&
-    fromUserBoard &&
-    !!announced
-  ) {
-    const wallet = await window.selector.wallet();
-
-    await wallet.signAndSendTransaction({
-      signerId: user,
-      actions: [
-        {
-          type: 'FunctionCall',
-          params: {
-            gas: utils.format.parseNearAmount('0.00000000003')!,
-            deposit: '1',
-            methodName: 'user_request_key_removal',
-            args: {
-              public_key: orderly_key,
-            },
-          },
-        },
-      ],
-    });
-
-    return false;
-  }
-
   return announced;
 };
 
