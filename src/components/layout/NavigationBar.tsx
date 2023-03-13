@@ -1488,7 +1488,7 @@ function MenuBar() {
   }
 
   return (
-    <div className="flex items-center h-full" style={{ zIndex: 599 }}>
+    <div className="flex items-center h-full z-50">
       {menus?.map((menuItem: menuItemType, indexP) => {
         const { label, logo, children, id } = menuItem;
         return (
