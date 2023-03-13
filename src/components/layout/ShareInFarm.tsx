@@ -144,7 +144,7 @@ export const ShareInFarmV2 = ({
         >
           {version && (
             <span className="mr-1 text-gradientFrom  text-left">
-              {version === 'v1' ? 'Legacy' : 'Classic'}
+              {version === 'V1' ? 'Legacy' : 'Classic'}
             </span>
           )}
           <span className="text-gradientFrom mr-1">
