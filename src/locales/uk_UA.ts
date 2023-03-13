@@ -940,7 +940,7 @@ const uk_UA = {
   limitTip: 'Your price is automatically set to the closest price slot',
   v2PoolTip: 'You can have up to 16 positions in V2 pools',
   orderTip: 'You can have up to 16 active/history limit orders',
-  v2_pools: 'V2 Pools',
+  v2_pools: 'DCL Pools',
   minimum_received_dot: 'Мінімум отриманий',
   v2_your_pool_introduction: 'Your discretized concentrated liquidity',
   v1_your_pool_introduction: 'Your liquidity in classic pools',

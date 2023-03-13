@@ -912,7 +912,7 @@ export function RouteDCLDetail({
             window.open(`/poolV2/${pool_id_url_params}`);
           }}
         >
-          <span className="font-bold mr-1 ">V2</span>
+          <span className="font-bold mr-1 ">DCL</span>
 
           <span className="flex items-center mx-1">
             <Images

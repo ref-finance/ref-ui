@@ -912,7 +912,7 @@ const zh_CN = {
   limitTip: '您的价格将自动设置为最近的价格槽',
   v2PoolTip: '在V2池中最多可以有16个位置',
   orderTip: '您最多可以拥有16个活动/历史限价单',
-  v2_pools: 'V2池子',
+  v2_pools: 'DCL池子',
   minimum_received_dot: '最少获得',
   v2_your_pool_introduction: 'Your discretized concentrated liquidity',
   v1_your_pool_introduction: 'Your liquidity in classic pools',

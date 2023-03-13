@@ -965,7 +965,7 @@ const ja = {
   limitTip: 'Your price is automatically set to the closest price slot',
   v2PoolTip: 'You can have up to 16 positions in V2 pools',
   orderTip: 'You can have up to 16 active/history limit orders',
-  v2_pools: 'V2 Pools',
+  v2_pools: 'DCL Pools',
   minimum_received_dot: '受け取り可能な最低金額',
   v2_your_pool_introduction: 'Your discretized concentrated liquidity',
   v1_your_pool_introduction: 'Your liquidity in classic pools',
