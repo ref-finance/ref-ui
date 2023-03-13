@@ -45,6 +45,8 @@ export default function Asset() {
 
     history_total_asset,
     history_total_asset_done,
+
+    your_classic_lp_all_in_farms,
   } = useContext(PortfolioData);
   const [xrefBalance, setXrefBalance] = useState('0');
   const [xrefBalanceDone, setXrefBalanceDone] = useState<boolean>(false);
@@ -104,6 +106,16 @@ export default function Asset() {
         percent = new BigNumber(classic_farms_value || 0).dividedBy(
           YourLpValueV1
         );
+        // Special value processing
+        if (your_classic_lp_all_in_farms && percent.isLessThan(100)) {
+          percent = new BigNumber(1);
+        }
+        if (
+          !your_classic_lp_all_in_farms &&
+          percent.isGreaterThanOrEqualTo(1)
+        ) {
+          percent = new BigNumber(0.99);
+        }
       }
     }
     return percent_done

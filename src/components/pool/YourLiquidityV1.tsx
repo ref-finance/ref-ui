@@ -101,6 +101,7 @@ import {
   UpDownButton,
   display_value,
 } from '../portfolio/Tool';
+import { PortfolioData } from '~pages/Portfolio';
 const is_mobile = isMobile();
 export const StakeListContext = createContext(null);
 export function YourLiquidityV1(props: any) {
@@ -631,6 +632,7 @@ function YourClassicLiquidityLine(props: any) {
     batchShares,
     finalStakeList,
   } = useContext(StakeListContext);
+  const { set_your_classic_lp_all_in_farms } = useContext(PortfolioData);
   const { pool } = props;
   const { token_account_ids, id: poolId } = pool;
   const tokens = token_account_ids.map((id: number) => tokensMeta[id]) || [];
@@ -763,6 +765,14 @@ function YourClassicLiquidityLine(props: any) {
       return toPrecision(p.toFixed(), 2) + '%';
     }
   }
+  useEffect(() => {
+    if (
+      new BigNumber(lp_in_pool).isGreaterThan(0) ||
+      new BigNumber(lp_in_vote).isGreaterThan(0)
+    ) {
+      set_your_classic_lp_all_in_farms(false);
+    }
+  }, [lp_in_pool, lp_in_vote]);
   return (
     <LiquidityContextData.Provider
       value={{
