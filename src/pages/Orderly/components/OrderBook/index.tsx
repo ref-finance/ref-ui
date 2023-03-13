@@ -34,7 +34,6 @@ function groupOrdersByPrecision({
   // this function is to group orders by precision,
 
   const decimalPlaces = getDecimalPlaceByNumber(precision);
-  console.log('decimalPlaces: ', decimalPlaces);
 
   if (!orders) return {};
 
@@ -49,7 +48,6 @@ function groupOrdersByPrecision({
             .times(precision)
             .toFixed(0, 3)
         : new Big(cur[0]).toFixed(decimalPlaces, 3);
-    console.log('groupKey: ', groupKey);
 
     const keyStr = groupKey.toString();
 
@@ -66,10 +64,10 @@ function groupOrdersByPrecision({
   const groupedBids = bids.reduce((acc, cur) => {
     const groupKey =
       decimalPlaces === 0
-        ? new Big(new Big(cur[0]).div(precision).toFixed(0, 3))
+        ? new Big(new Big(cur[0]).div(precision).toFixed(0, 0))
             .times(precision)
-            .toFixed(0, 3)
-        : new Big(cur[0]).toFixed(decimalPlaces, 3);
+            .toFixed(0, 0)
+        : new Big(cur[0]).toFixed(decimalPlaces, 0);
 
     const keyStr = groupKey.toString();
 
@@ -122,7 +120,17 @@ function groupOrdersByPrecision({
   );
 
   const groupMyPendingOrders = pendingOrders.reduce((acc, cur) => {
-    const groupKey = Math.floor(cur.price / precision) * precision;
+    const groupKey = Number(
+      decimalPlaces === 0
+        ? new Big(
+            new Big(cur.price)
+              .div(precision)
+              .toFixed(0, cur.side === 'BUY' ? 0 : 3)
+          )
+            .times(precision)
+            .toFixed(0, cur.side === 'BUY' ? 0 : 3)
+        : new Big(cur.price).toFixed(decimalPlaces, cur.side === 'BUY' ? 0 : 3)
+    );
 
     const keyStr = groupKey.toString();
 
@@ -248,10 +256,8 @@ function OrderBook() {
   const storedPrecision = sessionStorage.getItem(REF_ORDERLY_PRECISION);
 
   const [inViewAsk, setInViewAsk] = useState<number>(0);
-  console.log('inViewAsk: ', inViewAsk);
 
   const [inViewBid, setInViewBid] = useState<number>(0);
-  console.log('inViewBid: ', inViewBid);
 
   const [precision, setPrecision] = useState<number>(0.01);
 
@@ -294,6 +300,9 @@ function OrderBook() {
       precision,
       pendingOrders,
     });
+
+  console.log('groupMyPendingOrders: ', groupMyPendingOrders);
+  console.log('asks: ', asks);
 
   const isMobile = useClientMobile();
 

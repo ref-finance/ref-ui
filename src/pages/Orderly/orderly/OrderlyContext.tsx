@@ -77,11 +77,11 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
 
   const privateValue = useOrderlyPrivateData({ validAccountSig });
 
-  const pendingOrders = usePendingOrders({
-    symbol,
-    refreshingTag: myPendingOrdersRefreshing,
-    validAccountSig,
-  });
+  // const pendingOrders = usePendingOrders({
+  //   symbol,
+  //   refreshingTag: myPendingOrdersRefreshing,
+  //   validAccountSig,
+  // });
 
   const availableSymbols = useAllSymbolInfo();
 
@@ -91,14 +91,19 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     validAccountSig,
   });
 
+  console.log(
+    'pending orders',
+    allOrdersSymbol?.filter(
+      (order) => order.status === 'PARTIAL_FILLED' || order.status === 'NEW'
+    ) || []
+  );
+
   // const { trades: recentTrades, setTrades } = useMarketTrades({
   //   symbol,
   //   limit: 50,
   // });
 
   const [recentTrades, setTrades] = useState<Trade[]>();
-
-  console.log('value.marketTrade: ', value.marketTrade);
 
   useEffect(() => {
     if (value?.marketTrade?.[0]?.symbol !== symbol) {
@@ -132,7 +137,11 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
         tokenInfo,
         allOrdersSymbol,
         handlePendingOrderRefreshing,
-        pendingOrders,
+        pendingOrders:
+          allOrdersSymbol?.filter(
+            (order) =>
+              order.status === 'PARTIAL_FILLED' || order.status === 'NEW'
+          ) || [],
         storageEnough,
         myPendingOrdersRefreshing,
         setValidAccountSig,

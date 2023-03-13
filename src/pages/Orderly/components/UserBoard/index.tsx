@@ -1740,7 +1740,16 @@ export function AssetManagerModal(
                       ? percent(
                           value || '0',
                           type === 'deposit'
-                            ? walletBalance.toString()
+                            ? type === 'deposit' &&
+                              tokenId.toLowerCase() === 'near'
+                              ? new Big(
+                                  Number(walletBalance) < 0.5
+                                    ? 0.5
+                                    : walletBalance || 0
+                                )
+                                  .minus(0.5)
+                                  .toFixed(24)
+                              : walletBalance.toString()
                             : displayAccountBalance.toString()
                         ).toString()
                       : '0';
