@@ -1563,7 +1563,10 @@ export function AssetManagerModal(
       decimalPlaceLimit || tokenMeta.decimals
     );
 
-    if (new Big(sharePercentOfValue).gt(new Big(walletBalance))) {
+    if (
+      new Big(sharePercentOfValue).gt(new Big(walletBalance)) &&
+      type === 'deposit'
+    ) {
       setInputValue('0');
       return;
     }
