@@ -253,7 +253,7 @@ const deposit_exact_token = async (amount: string) => {
       msg: '',
       amount,
     },
-    gas: '300000000000000',
+    gas: '260000000000000',
     amount: ONE_YOCTO_NEAR,
   };
 };
