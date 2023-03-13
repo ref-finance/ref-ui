@@ -98,7 +98,14 @@ export function EditConfirmOrderModal(
   } = props;
 
   return (
-    <Modal {...props}>
+    <Modal
+      {...props}
+      style={{
+        content: {
+          zIndex: 999,
+        },
+      }}
+    >
       <div className=" rounded-2xl lg:w-96 xs:w-95vw gradientBorderWrapperZ bg-boxBorder text-sm text-white border ">
         <div className="px-5 py-6 flex flex-col ">
           <div className="text-center whitespace-nowrap mt-4">{`Changing the ${editType} of ${symbolFrom} / ${symbolTo}`}</div>
@@ -176,6 +183,7 @@ function EditOrderModalMobile(
           left: '0px',
           transform: 'translate(-50%, -20px)',
           outline: 'none',
+          zIndex: 999,
         },
       }}
     >
@@ -1779,6 +1787,7 @@ function MobileFilterModal(
             left: '0px',
             transform: 'translate(-50%, -20px)',
             outline: 'none',
+            zIndex: 999,
           },
         }}
       >
@@ -1944,6 +1953,7 @@ function MobileOpenOrderDetail(
             left: '0px',
             transform: 'translate(-50%, -20px)',
             outline: 'none',
+            zIndex: 999,
           },
         }}
       >
@@ -2133,6 +2143,7 @@ function MobileHistoryOrderDetail(
           left: '0px',
           transform: 'translate(-50%, -20px)',
           outline: 'none',
+          zIndex: 999,
         },
       }}
     >

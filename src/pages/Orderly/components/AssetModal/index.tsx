@@ -406,6 +406,7 @@ export function AssetModal(props: Modal.Props) {
             }
           : {
               height: '620px',
+              zIndex: 999,
             },
       }}
     >

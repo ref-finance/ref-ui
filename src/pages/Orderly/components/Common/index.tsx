@@ -578,7 +578,7 @@ export function MyOrderTip({
 }) {
   const [showDetail, setShowDetail] = useState(false);
 
-  const id = `order-smile-${price}`;
+  const id = `order-smile-${price}-${quantity}`;
 
   function getElementTop(element: any) {
     var actualTop = element.offsetTop;

@@ -304,9 +304,6 @@ function OrderBook() {
       pendingOrders,
     });
 
-  console.log('groupMyPendingOrders: ', groupMyPendingOrders);
-  console.log('asks: ', asks);
-
   const isMobile = useClientMobile();
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
@@ -391,7 +388,7 @@ function OrderBook() {
                 <span
                   className="text-xl flex items-center justify-center w-5 h-5 rounded-md bg-selectTokenV3BgColor text-primaryText"
                   onClick={() => {
-                    if (precision > symbolInfo.quote_tick / 10) {
+                    if (precision > symbolInfo.quote_tick) {
                       setPrecision(precision / 10);
                     }
                   }}
@@ -535,7 +532,7 @@ function OrderBook() {
                   pendingOrders={pendingOrders}
                   groupMyPendingOrders={groupMyPendingOrders}
                   totalSize={bidtotalSize}
-                  zIndex={inViewBid - i - 1 + 30}
+                  zIndex={Math.max(inViewBid - i, 0) - 1 + 30}
                   inViewCount={inViewBid}
                   setInViewCOunt={setInViewBid}
                 />

@@ -124,6 +124,8 @@ function validContract() {
     ];
   }
 
+  if (selectedWalletId === 'neth') return true;
+
   const walletStoredContract = localStorage.getItem(
     'near-wallet-selector:contract'
   );
@@ -1642,7 +1644,9 @@ export function AssetManagerModal(
                 transform: 'translate(-50%, -20px)',
                 outline: 'none',
               }
-            : {},
+            : {
+                zIndex: 999,
+              },
         }}
       >
         <div
@@ -2938,7 +2942,9 @@ function SelectTokenModal(
               transform: 'translate(-50%, -20px)',
               outline: 'none',
             }
-          : {},
+          : {
+              zIndex: 999,
+            },
       }}
     >
       <div
@@ -3149,7 +3155,14 @@ function ConfirmOrderModal(
   const isMobile = useClientMobile();
 
   return (
-    <Modal {...props}>
+    <Modal
+      {...props}
+      style={{
+        content: {
+          zIndex: 999,
+        },
+      }}
+    >
       <div
         className={` rounded-2xl lg:w-96 xs:w-95vw ${
           isMobile ? '' : ' border border-gradientFrom border-opacity-30'
