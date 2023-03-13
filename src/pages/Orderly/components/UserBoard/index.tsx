@@ -776,7 +776,7 @@ export default function UserBoard() {
           style={{
             background: 'rgba(0, 19, 32, 0.8)',
             backdropFilter: 'blur(5px)',
-            zIndex: 80,
+            zIndex: 50,
           }}
         >
           <RefToOrderly></RefToOrderly>
