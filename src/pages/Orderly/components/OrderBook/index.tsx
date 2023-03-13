@@ -4,7 +4,12 @@ import RecentTrade from '../RecentTrade';
 
 import { MyOrder, Orders } from '../../orderly/type';
 import { MyOrderTip } from '../Common';
-import { digitWrapper, digitWrapperFull, numberWithCommas } from '../../utiles';
+import {
+  digitWrapper,
+  digitWrapperFull,
+  numberWithCommas,
+  numberWithCommasPadding,
+} from '../../utiles';
 import { MdArrowDropDown, MdArrowDropUp } from 'react-icons/md';
 import { Selector } from '../OrderBoard';
 import { IoArrowUpOutline } from 'react-icons/io5';
@@ -56,7 +61,9 @@ function groupOrdersByPrecision({
 
     return {
       ...acc,
-      [groupKey]: acc[keyStr] ? acc[keyStr] + cur[1] : cur[1],
+      [groupKey]: acc[keyStr]
+        ? new Big(acc[keyStr]).plus(new Big(cur[1])).toNumber()
+        : cur[1],
     };
   }, {} as Record<string, number>);
 
@@ -76,7 +83,9 @@ function groupOrdersByPrecision({
 
     return {
       ...acc,
-      [groupKey]: acc[keyStr] ? acc[keyStr] + cur[1] : cur[1],
+      [groupKey]: acc[keyStr]
+        ? new Big(acc[keyStr]).plus(new Big(cur[1])).toNumber()
+        : cur[1],
     };
   }, {} as Record<string, number>);
 
@@ -96,7 +105,9 @@ function groupOrdersByPrecision({
 
       return {
         ...acc,
-        [groupKey]: cur[1] + acc?.[sortedAsks[index - 1]?.[0]?.toString()] || 0,
+        [groupKey]: new Big(cur[1])
+          .plus(new Big(acc?.[sortedAsks[index - 1]?.[0]?.toString()] || 0))
+          .toNumber(),
       };
     },
 
@@ -115,7 +126,9 @@ function groupOrdersByPrecision({
 
       return {
         ...acc,
-        [groupKey]: cur[1] + acc?.[sortedBids[index - 1]?.[0]?.toString()] || 0,
+        [groupKey]: new Big(cur[1])
+          .plus(new Big(acc?.[sortedBids[index - 1]?.[0]?.toString()] || 0))
+          .toNumber(),
       };
     },
 
@@ -175,6 +188,7 @@ function OrderLine({
   zIndex,
   setInViewCOunt,
   inViewCount,
+  decimalLength,
 }: {
   order: number[];
   i: number;
@@ -186,6 +200,7 @@ function OrderLine({
   zIndex: number;
   setInViewCOunt: (count: number) => void;
   inViewCount: number;
+  decimalLength: number;
 }) {
   const { inView, ref } = useInView();
 
@@ -216,12 +231,14 @@ function OrderLine({
           type === 'ask' ? 'text-sellColorNew' : 'text-buyGreen'
         } justify-self-start`}
       >
-        {numberWithCommas(order[0])}
+        {decimalLength === 0
+          ? numberWithCommas(order[0])
+          : numberWithCommasPadding(order[0], decimalLength)}
       </span>
 
-      <span className="mr-4">{digitWrapper(order[1].toString(), 2)}</span>
+      <span className="mr-4">{numberWithCommas(order[1])}</span>
 
-      <span>{digitWrapper(totalSize?.[order[0]].toString(), 2)}</span>
+      <span>{numberWithCommas(totalSize?.[order[0]])}</span>
 
       <div
         className="absolute left-0 top-1 z-40"
@@ -388,7 +405,7 @@ function OrderBook() {
                 <span
                   className="text-xl flex items-center justify-center w-5 h-5 rounded-md bg-selectTokenV3BgColor text-primaryText"
                   onClick={() => {
-                    if (precision < symbolInfo.quote_tick * 10 ** 5) {
+                    if (precision < symbolInfo.quote_tick * 10 ** 4) {
                       setPrecision(precision * 10);
                     }
                   }}
@@ -491,6 +508,7 @@ function OrderBook() {
                   zIndex={inViewAsk + i + 1 + 30}
                   inViewCount={inViewAsk}
                   setInViewCOunt={setInViewAsk}
+                  decimalLength={getDecimalPlaceByNumber(precision)}
                 />
               );
             })}
@@ -535,6 +553,7 @@ function OrderBook() {
                   zIndex={Math.max(inViewBid - i, 0) - 1 + 30}
                   inViewCount={inViewBid}
                   setInViewCOunt={setInViewBid}
+                  decimalLength={getDecimalPlaceByNumber(precision)}
                 />
               );
             })}

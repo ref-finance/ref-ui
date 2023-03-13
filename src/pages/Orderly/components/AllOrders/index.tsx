@@ -61,7 +61,7 @@ import { IoChevronBackOutline } from 'react-icons/io5';
 import { useHistory } from 'react-router-dom';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
 import { OrderlyLoading, FilledStamp } from '../Common/Icons';
-import { digitWrapper } from '../../utiles';
+import { digitWrapper, numberWithCommas } from '../../utiles';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
 import {
   ONLY_ZEROS,
@@ -660,7 +660,7 @@ function OrderLine({
             }`}
           >
             <span className="relative ">
-              {digitWrapper(order.executed.toString(), 2, true)}
+              {numberWithCommas(order.executed)}
             </span>
             <span className="mx-1 relative ">/</span>
 
@@ -684,13 +684,27 @@ function OrderLine({
                   setOtherLineOpenTrigger(order.order_id);
                 }}
                 className={` px-2 py-1 pt-1.5  ${
-                  !openEditQuantity ? 'text-left pl-1' : 'text-center'
+                  !openEditQuantity ? 'hidden' : 'text-center'
                 }`}
                 style={{
                   width: `${order.quantity.toString().length * 12}px`,
                   minWidth: '48px',
                 }}
               />
+
+              <div
+                className={` px-2 py-1 pt-1.5  ${
+                  !openEditQuantity ? 'text-left pl-1' : 'text-center'
+                }`}
+                onClick={() => {
+                  setOpenEditQuantity(true);
+                  setOpenEditPrice(false);
+                  setPrice(order.price.toString());
+                  setOtherLineOpenTrigger(order.order_id);
+                }}
+              >
+                {numberWithCommas(quantity)}
+              </div>
 
               <div
                 className={`w-full flex items-center border-t border-border2 text-primaryOrderly ${
@@ -737,7 +751,7 @@ function OrderLine({
               openEditPrice ? 'border bg-dark2 ' : ''
             } border-border2 text-sm   max-w-max text-white`}
             style={{
-              width: `${order.price.toString().length * 12}px`,
+              width: `${order.price.toString().length * 12.5}px`,
               minWidth: '48px',
             }}
           >
@@ -756,9 +770,23 @@ function OrderLine({
                 setOtherLineOpenTrigger(order.order_id);
               }}
               className={`px-2 py-1 pt-1.5   ${
-                !openEditPrice ? 'text-left' : 'text-center'
+                !openEditPrice ? 'hidden' : 'text-center'
               }`}
             />
+
+            <div
+              className={`px-2 py-1 pt-1.5   ${
+                !openEditPrice ? 'text-left' : 'hidden'
+              }`}
+              onClick={() => {
+                setOpenEditPrice(true);
+                setOpenEditQuantity(false);
+                setQuantity(order.quantity.toString());
+                setOtherLineOpenTrigger(order.order_id);
+              }}
+            >
+              {numberWithCommas(price)}
+            </div>
 
             <div
               className={` w-full flex items-center border-t border-border2 text-primaryOrderly ${
@@ -805,12 +833,10 @@ function OrderLine({
             openEdit ? 'items-start ' : 'items-center'
           }`}
         >
-          {digitWrapper(
+          {numberWithCommas(
             new Big(quantity || '0')
               .times(new Big(order.price || order.average_executed_price || 0))
-              .toFixed(5),
-            2,
-            true
+              .toNumber()
           )}
         </td>
 
@@ -940,7 +966,7 @@ function OrderLine({
                 }}
                 className="pr-1"
               >
-                {digitWrapper(quantity, 2, true)}
+                {numberWithCommas(quantity)}
               </span>
             }
 
@@ -962,7 +988,7 @@ function OrderLine({
                   e.stopPropagation();
                 }}
               >
-                {digitWrapper(order.price.toString(), 2, true)}
+                {numberWithCommas(order.price)}
               </span>
             </div>
 
@@ -976,14 +1002,12 @@ function OrderLine({
             <span className="text-primaryText mr-1.5">Total</span>
 
             <span className="text-white font-bold">
-              {digitWrapper(
+              {numberWithCommas(
                 new Big(quantity || '0')
                   .times(
                     new Big(order.price || order.average_executed_price || 0)
                   )
-                  .toFixed(5),
-                2,
-                true
+                  .toNumber()
               )}
             </span>
           </div>
@@ -1099,18 +1123,16 @@ function OrderLine({
               </div>
             </div>,
             <span>
-              {digitWrapper(order.executed, 2, true)} /{' '}
-              {digitWrapper(order.quantity, 2, true)}
+              {numberWithCommas(order.executed)} /{' '}
+              {numberWithCommas(order.quantity)}
             </span>,
-            <span>{digitWrapper(order.price, 2, true)}</span>,
-            digitWrapper(
+            <span>{numberWithCommas(order.price)}</span>,
+            numberWithCommas(
               new Big(quantity || '0')
                 .times(
                   new Big(order.price || order.average_executed_price || 0)
                 )
-                .toFixed(5),
-              2,
-              true
+                .toNumber()
             ),
             formatTimeDate(order.created_time),
           ]}
@@ -1267,17 +1289,13 @@ function HistoryOrderLine({
           <td>
             <FlexRow className="col-span-1  ">
               <span className="">
-                {digitWrapper(order.executed.toString(), 2, true)}
+                {numberWithCommas(order.executed.toString())}
               </span>
 
               <span className="mx-1 ">/</span>
 
               <span className="text-white ">
-                {digitWrapper(
-                  (order.quantity || order.executed).toString(),
-                  2,
-                  true
-                )}
+                {numberWithCommas(order.quantity || order.executed)}
               </span>
             </FlexRow>
           </td>
@@ -1285,11 +1303,7 @@ function HistoryOrderLine({
           <td className={`col-span-1 text-white  justify-self-end relative `}>
             <span>
               {order.price || order.average_executed_price
-                ? digitWrapper(
-                    (order.price || order.average_executed_price).toString(),
-                    2,
-                    true
-                  )
+                ? numberWithCommas(order.price || order.average_executed_price)
                 : '-'}
             </span>
           </td>
@@ -1298,25 +1312,19 @@ function HistoryOrderLine({
             <span>
               {order.average_executed_price === null
                 ? '-'
-                : digitWrapper(
-                    order.average_executed_price.toString(),
-                    2,
-                    true
-                  )}
+                : numberWithCommas(order.average_executed_price.toString())}
             </span>
           </td>
 
           <td
             className={`col-span-1 ml-4 justify-self-end relative   text-white`}
           >
-            {digitWrapper(
+            {numberWithCommas(
               new Big(order.quantity || order.executed || '0')
                 .times(
                   new Big(order.price || order.average_executed_price || '0')
                 )
-                .toFixed(4, 0),
-              2,
-              true
+                .toNumber()
             )}
           </td>
 
@@ -1403,22 +1411,16 @@ function HistoryOrderLine({
                     }}
                   >
                     <td className="">
-                      {digitWrapper(
-                        trade.executed_quantity.toString(),
-                        2,
-                        true
-                      )}
+                      {numberWithCommas(trade.executed_quantity)}
                     </td>
                     <td className="">
-                      {digitWrapper(trade.executed_price.toString(), 2, true)}
+                      {numberWithCommas(trade.executed_price)}
                     </td>
                     <td className="">
-                      {digitWrapper(
+                      {numberWithCommas(
                         new Big(trade.executed_quantity || '0')
                           .times(new Big(trade.executed_price || '0'))
-                          .toFixed(4),
-                        2,
-                        true
+                          .toNumber()
                       )}
                     </td>
                     <td className="">
@@ -1515,11 +1517,7 @@ function HistoryOrderLine({
         </div>
         <div className={`flex  ${'items-center'} py-2 justify-between`}>
           <div className={`flex  ${'items-center'} text-white`}>
-            {digitWrapper(
-              (order.quantity || order.executed).toString(),
-              2,
-              true
-            )}
+            {numberWithCommas(order.quantity || order.executed)}
 
             <TextWrapper
               value={symbolFrom}
@@ -1533,11 +1531,7 @@ function HistoryOrderLine({
 
             <div className="mr-1">
               {order.price || order.average_executed_price
-                ? digitWrapper(
-                    (order.price || order.average_executed_price).toString(),
-                    2,
-                    true
-                  )
+                ? numberWithCommas(order.price || order.average_executed_price)
                 : '-'}
             </div>
 
@@ -1551,14 +1545,12 @@ function HistoryOrderLine({
             <span className="text-primaryText mr-1.5">Total</span>
 
             <span className="text-white font-bold">
-              {digitWrapper(
+              {numberWithCommas(
                 new Big(order.quantity || order.executed || '0')
                   .times(
                     new Big(order.price || order.average_executed_price || '0')
                   )
-                  .toFixed(4, 0),
-                2,
-                true
+                  .toNumber()
               )}
             </span>
           </div>
@@ -1647,40 +1639,28 @@ function HistoryOrderLine({
               </div>
             </FlexRow>,
             <FlexRow className="col-span-1  ">
-              <span className="">
-                {digitWrapper(order.executed.toString(), 2, true)}
-              </span>
+              <span className="">{numberWithCommas(order.executed)}</span>
 
               <span className="mx-1 ">/</span>
 
               <span className="text-white ">
-                {digitWrapper(
-                  (order.quantity || order.executed).toString(),
-                  2,
-                  true
-                )}
+                {numberWithCommas(order.quantity || order.executed)}
               </span>
             </FlexRow>,
             <span>
               {order.price || order.average_executed_price
-                ? digitWrapper(
-                    (order.price || order.average_executed_price).toString(),
-                    2,
-                    true
-                  )
+                ? numberWithCommas(order.price || order.average_executed_price)
                 : '-'}
             </span>,
             order.average_executed_price === null
               ? '-'
-              : digitWrapper(order.average_executed_price.toString(), 2, true),
-            digitWrapper(
+              : numberWithCommas(order.average_executed_price),
+            numberWithCommas(
               new Big(order.quantity || order.executed || '0')
                 .times(
                   new Big(order.price || order.average_executed_price || '0')
                 )
-                .toFixed(4, 0),
-              2,
-              true
+                .toNumber()
             ),
             formatTimeDate(order.created_time),
 
@@ -2069,18 +2049,14 @@ function DetailTable({
                 verticalAlign: 'baseline',
               }}
             >
-              <td className="pl-5">
-                {digitWrapper(h.executed_quantity, 2, true)}
-              </td>
-              <td>{digitWrapper(h.executed_price, 2, true)}</td>
+              <td className="pl-5">{numberWithCommas(h.executed_quantity)}</td>
+              <td>{numberWithCommas(h.executed_price)}</td>
 
               <td>
-                {digitWrapper(
+                {numberWithCommas(
                   new Big(h.executed_quantity || '0')
                     .times(new Big(h.executed_price || '0'))
-                    .toFixed(4),
-                  2,
-                  true
+                    .toNumber()
                 )}
               </td>
 

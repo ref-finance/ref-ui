@@ -28,8 +28,21 @@ export function digitWrapperAsset(
   } else return toPrecision(digit.toString(), 3, true);
 }
 
-export function numberWithCommas(x: number) {
+export function numberWithCommas(x: number | string) {
+  let str = typeof x === 'number' ? x.toString() : x;
+
+  var parts = scientificNotationToString(str).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+}
+
+export function numberWithCommasPadding(x: number, decimalPlaceLength: number) {
   var parts = x.toString().split('.');
+
+  parts[1] = !!parts[1]
+    ? parts[1].padEnd(decimalPlaceLength, '0')
+    : '0'.repeat(decimalPlaceLength);
+
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return parts.join('.');
 }
