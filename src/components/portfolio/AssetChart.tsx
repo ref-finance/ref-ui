@@ -212,11 +212,22 @@ function UnloginArea() {
   );
 }
 function NoDataArea() {
+  // return (
+  //   <div
+  //     className="flex flex-col items-center justify-center flex-grow"
+  //     style={{ height: chartAreaHeight }}
+  //   >
+  //     <ChartNoData></ChartNoData>
+  //     <span className="text-sm text-primaryText mb-10 xsm:mb-5">No Data</span>
+  //   </div>
+  // );
   return (
     <div
-      className="flex flex-col items-center justify-center flex-grow"
+      className="relative flex flex-col flex-grow overflow-hidden items-center justify-center bg-darkBlueColor border border-cardBg rounded-xl mt-5 mb-10 xsm:mt-3 xsm:mb-0"
       style={{ height: chartAreaHeight }}
     >
+      <DotTopArea className="absolute left-0 top-0 xsm:transform xsm:scale-50 xsm:origin-top-left"></DotTopArea>
+      <DotBottomArea className="absolute right-0 bottom-0 xsm:transform xsm:scale-50 xsm:origin-bottom-right"></DotBottomArea>
       <ChartNoData></ChartNoData>
       <span className="text-sm text-primaryText mb-10 xsm:mb-5">No Data</span>
     </div>

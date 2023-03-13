@@ -51,6 +51,14 @@ export default function Tokens() {
   const [near_total_value, set_near_total_value] = useState<string>('0');
   const [dcl_total_value, set_dcl_total_value] = useState<string>('0');
   const [aurora_total_value, set_aurora_total_value] = useState<string>('0');
+  const [color_list, set_color_list] = useState([
+    '#00D6AF',
+    '#455563',
+    '#354F53',
+    '#284251',
+    '#1F4247',
+    '#173C41',
+  ]);
   const [chartEvents, setChartEvents] = useState<any>({});
   const tokenRef = useRef(null);
   const { globalState } = useContext(WalletContext);
@@ -174,14 +182,7 @@ export default function Tokens() {
           left: 'center',
           show: false,
         },
-        color: [
-          '#00D6AF',
-          '#455563',
-          '#354F53',
-          '#284251',
-          '#1F4247',
-          '#173C41',
-        ],
+        color: color_list,
         series: [
           {
             name: 'Access From',
@@ -214,11 +215,14 @@ export default function Tokens() {
                     fontSize: 12,
                     color: '#7E8A93',
                     lineHeight: 20,
+                    fontFamily: 'gotham',
                   },
                   b: {
-                    fontSize: 13,
+                    fontSize: 16,
                     color: '#FFFFFF',
                     lineHeight: 20,
+                    fontWeight: '700',
+                    fontFamily: 'gotham',
                   },
                 },
               },
@@ -492,13 +496,23 @@ export default function Tokens() {
         style={{ maxHeight: '160px' }}
       >
         <div className={`${activeTab == 'near' ? '' : 'hidden'}`}>
-          {near_tokens.map((token: TokenMetadata) => {
+          {near_tokens.map((token: TokenMetadata, index) => {
             return (
               <div
                 key={token.id + 'near'}
                 className="flex items-center justify-between mb-3 px-3"
               >
-                <span className="text-sm text-primaryText">{token.symbol}</span>
+                <div className="flex items-center">
+                  <span
+                    className="w-1.5 h-1.5 rounded-sm mr-1.5"
+                    style={{
+                      backgroundColor: color_list[index % color_list.length],
+                    }}
+                  ></span>
+                  <span className="text-sm text-primaryText">
+                    {token.symbol}
+                  </span>
+                </div>
                 <span className="text-sm text-white">
                   {getCurrentTokenProportion(token)}
                 </span>
@@ -507,13 +521,23 @@ export default function Tokens() {
           })}
         </div>
         <div className={`${activeTab == 'ref' ? '' : 'hidden'}`}>
-          {ref_tokens.map((token: TokenMetadata) => {
+          {ref_tokens.map((token: TokenMetadata, index) => {
             return (
               <div
                 key={token.id + 'ref'}
                 className="flex items-center justify-between mb-3 px-3"
               >
-                <span className="text-sm text-primaryText">{token.symbol}</span>
+                <div className="flex items-center">
+                  <span
+                    className="w-1.5 h-1.5 rounded-sm mr-1.5"
+                    style={{
+                      backgroundColor: color_list[index % color_list.length],
+                    }}
+                  ></span>
+                  <span className="text-sm text-primaryText">
+                    {token.symbol}
+                  </span>
+                </div>
                 <span className="text-sm text-white">
                   {getCurrentTokenProportion(token)}
                 </span>
@@ -522,13 +546,23 @@ export default function Tokens() {
           })}
         </div>
         <div className={`${activeTab == 'dcl' ? '' : 'hidden'}`}>
-          {dcl_tokens.map((token: TokenMetadata) => {
+          {dcl_tokens.map((token: TokenMetadata, index) => {
             return (
               <div
                 key={token.id + 'dcl'}
                 className="flex items-center justify-between mb-3 px-3"
               >
-                <span className="text-sm text-primaryText">{token.symbol}</span>
+                <div className="flex items-center">
+                  <span
+                    className="w-1.5 h-1.5 rounded-sm mr-1.5"
+                    style={{
+                      backgroundColor: color_list[index % color_list.length],
+                    }}
+                  ></span>
+                  <span className="text-sm text-primaryText">
+                    {token.symbol}
+                  </span>
+                </div>
                 <span className="text-sm text-white">
                   {getCurrentTokenProportion(token)}
                 </span>
@@ -537,13 +571,23 @@ export default function Tokens() {
           })}
         </div>
         <div className={`${activeTab == 'aurora' ? '' : 'hidden'}`}>
-          {aurora_tokens.map((token: TokenMetadata) => {
+          {aurora_tokens.map((token: TokenMetadata, index) => {
             return (
               <div
                 key={token.id + 'aurora'}
                 className="flex items-center justify-between mb-3 px-3"
               >
-                <span className="text-sm text-primaryText">{token.symbol}</span>
+                <div className="flex items-center">
+                  <span
+                    className="w-1.5 h-1.5 rounded-sm mr-1.5"
+                    style={{
+                      backgroundColor: color_list[index % color_list.length],
+                    }}
+                  ></span>
+                  <span className="text-sm text-primaryText">
+                    {token.symbol}
+                  </span>
+                </div>
                 <span className="text-sm text-white">
                   {getCurrentTokenProportion(token)}
                 </span>

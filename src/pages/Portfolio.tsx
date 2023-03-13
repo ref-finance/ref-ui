@@ -29,6 +29,8 @@ function Portfolio() {
   const [v2LiquidityQuantity, setV2LiquidityQuantity] = useState('0');
   const [v2LiquidityLoadingDone, setV2LiquidityLoadingDone] = useState(false);
   const [v1LiquidityLoadingDone, setV1LiquidityLoadingDone] = useState(false);
+  const [your_classic_lp_all_in_farms, set_your_classic_lp_all_in_farms] =
+    useState<boolean>(true);
   const [tokenPriceList, setTokenPriceList] = useState<any>({});
 
   const [classic_farms_value, set_classic_farms_value] = useState('0');
@@ -147,6 +149,9 @@ function Portfolio() {
         set_user_unclaimed_map_done,
         dcl_liquidities_details_list_done,
         set_dcl_liquidities_details_list_done,
+
+        your_classic_lp_all_in_farms,
+        set_your_classic_lp_all_in_farms,
       }}
     >
       {is_mobile ? (
