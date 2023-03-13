@@ -600,7 +600,7 @@ const ru = {
   migrate_now: 'Выполнить миграцию!',
   v2_boost_tip:
     'V2-фарминг будет работать для ферм с бустом. V1-фарминг будет лишен наград после <span class="font-bold">1 августа 2022 года</span>',
-  v2_boost_tip2: 'V2-фарминг будет работа для ферм с бустом.',
+  v2_boost_tip2: 'Classic-фарминг будет работа для ферм с бустом.',
   v2_boost_no_tip:
     'V1-фарминг будет лишен наград после <span class="font-bold">1 августа 2022 года</span>',
   no_farm_need_to_migrate: 'Не требуется перенос фермы',
@@ -611,7 +611,7 @@ const ru = {
   Available_to_stake: 'Доступно для стейкинга',
   you_staked: 'Вы застейкали',
   has_rewards_tip_in_v2:
-    'Ваши обычные награды, которые вы заберете из <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> V1 Ферм</a>.',
+    'Ваши обычные награды, которые вы заберете из <a href="/farms" class="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"> Legacy Ферм</a>.',
   how_to_get: 'Как получить?',
   get_booster: 'Получите бустер',
   ended_farms: 'завершенные фермы',

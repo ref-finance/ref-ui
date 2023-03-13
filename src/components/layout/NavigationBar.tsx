@@ -1120,7 +1120,10 @@ function NavigationBar() {
 
   return (
     <>
-      <div className="nav-wrap md:hidden xs:hidden text-center">
+      <div
+        className="nav-wrap md:hidden xs:hidden text-center relative"
+        style={{ zIndex: '90' }}
+      >
         <div
           className={`relative z-10 ${
             hasBalanceOnRefAccount && pathnameState ? 'block' : 'hidden'
@@ -1512,7 +1515,7 @@ function MenuBar() {
               }`}
             >
               {logo ? <span className="mr-1">{logo}</span> : null}
-              <div className={`text-base gotham_bold`}>{label}</div>
+              <div className={`text-base`}>{label}</div>
               {children ? (
                 <DownTriangleIcon className="ml-1 mt-1"></DownTriangleIcon>
               ) : null}

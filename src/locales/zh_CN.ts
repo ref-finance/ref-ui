@@ -725,7 +725,7 @@ const zh_CN = {
   migrate_now: '现在升级!',
   v2_boost_tip:
     'V2农场将支持加速农场。V1农场将在<span class="font-bold">2022年8月1日</span>耗尽奖励。',
-  v2_boost_tip2: 'V2农场支持加速农场。',
+  v2_boost_tip2: '经典农场支持加速农场。',
   v2_boost_no_tip:
     'V1农场将在<span class="font-bold">2022年8月1日</span>耗尽奖励。',
   no_farm_need_to_migrate: '没有需要升级的农场',
@@ -736,7 +736,7 @@ const zh_CN = {
   Available_to_stake: '可供质押',
   you_staked: '你已质押',
   has_rewards_tip_in_v2:
-    '从<a href="/farms" class="text-sm text-greenColor cursor-pointer underline hover:text-senderHot mr-1"> V1 农场</a>中提取遗留奖励。',
+    '从<a href="/farms" class="text-sm text-greenColor cursor-pointer underline hover:text-senderHot mr-1"> 遗产农场</a>中提取遗留奖励。',
   how_to_get: '如何获取?',
   get_booster: '获得加速器',
   ended_farms: '已结束农场',

@@ -795,7 +795,7 @@ const es = {
   migrate_now: 'Migrar ahora!',
   v2_boost_tip:
     'Las farms V2 admitirán boosted farms. Las farms V1 se quedarán sin recompensas el <span class="font-bold">1 de agosto de 2022</span>.',
-  v2_boost_tip2: 'Las V2 farms soportan las  boosted farms.',
+  v2_boost_tip2: 'Las Classic farms soportan las  boosted farms.',
   v2_boost_no_tip:
     'Las farms V1 se quedarán sin recompensas el <span class="font-bold">1 de agosto de 2022</span>..',
   no_farm_need_to_migrate: 'Ninguna farms necesita migrar',

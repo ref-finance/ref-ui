@@ -769,7 +769,7 @@ const ko = {
   migrate_now: '지금 이주하세요!',
   v2_boost_tip:
     'V2 농장에선 부스팅이 가능합니다. V1 농장들은 다음 날자 이후로 보상을 지급하지 않습니다: <span class="font-bold">2022년 8월 1일</span> ',
-  v2_boost_tip2: 'V2 농장에선 부스팅이 가능합니다.',
+  v2_boost_tip2: 'Classic 농장에선 부스팅이 가능합니다.',
   v2_boost_no_tip:
     'V1 농장들은 다음 날자 이후로 보상을 지급하지 않습니다: <span class="font-bold">2022년 8월 1일</span> ',
   no_farm_need_to_migrate: '이주해야하는 농장은 없습니다.',
