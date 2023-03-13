@@ -377,8 +377,8 @@ function OrderBook() {
                 <span
                   className="text-xl mr-2 rounded-md w-5 flex items-center justify-center h-5 bg-selectTokenV3BgColor text-primaryText"
                   onClick={() => {
-                    if (precision < symbolInfo.quote_tick * 10 ** 5) {
-                      setPrecision(precision * 10);
+                    if (precision > symbolInfo.quote_tick) {
+                      setPrecision(precision / 10);
                     }
                   }}
                 >
@@ -388,8 +388,8 @@ function OrderBook() {
                 <span
                   className="text-xl flex items-center justify-center w-5 h-5 rounded-md bg-selectTokenV3BgColor text-primaryText"
                   onClick={() => {
-                    if (precision > symbolInfo.quote_tick) {
-                      setPrecision(precision / 10);
+                    if (precision < symbolInfo.quote_tick * 10 ** 5) {
+                      setPrecision(precision * 10);
                     }
                   }}
                 >
