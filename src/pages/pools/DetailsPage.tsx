@@ -1110,8 +1110,8 @@ export function RemoveLiquidityModal(
               </span>
               <div className=" flex items-center flex-shrink-0">
                 <span className="">
+                  Legacy &nbsp;
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                  &nbsp; V1
                 </span>
 
                 <span className="ml-0.5">
@@ -1148,8 +1148,8 @@ export function RemoveLiquidityModal(
               </span>
               <div className=" flex items-center  flex-shrink-0">
                 <span className="">
+                  Classic&nbsp;
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                  &nbsp; V2
                 </span>
 
                 <span className="ml-0.5">
