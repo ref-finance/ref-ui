@@ -13,6 +13,7 @@ import { TextWrapper } from '../UserBoard/index';
 import { OrderlyLoading } from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
 import { scientificNotationToString } from '../../../../utils/numbers';
+import { useInView } from 'react-intersection-observer';
 
 function parseSymbol(fullName: string) {
   return {
@@ -152,6 +153,84 @@ function getDecimalPlaceByNumber(precision: number) {
 
 export const REF_ORDERLY_PRECISION = 'REF_ORDERLY_PRECISION';
 
+function OrderLine({
+  order,
+  i,
+  totalSize,
+  setBridgePrice,
+  type,
+  pendingOrders,
+  groupMyPendingOrders,
+  zIndex,
+  setInViewCOunt,
+  inViewCount,
+}: {
+  order: number[];
+  i: number;
+  totalSize: Record<string, number>;
+  type: 'bid' | 'ask';
+  setBridgePrice: (price: string) => void;
+  pendingOrders: MyOrder[];
+  groupMyPendingOrders: Record<string, number>;
+  zIndex: number;
+  setInViewCOunt: (count: number) => void;
+  inViewCount: number;
+}) {
+  const { inView, ref } = useInView();
+
+  useEffect(() => {
+    if (inView) {
+      setInViewCOunt(inViewCount + 1);
+    } else {
+      setInViewCOunt(inViewCount - 1);
+    }
+  }, [inView]);
+
+  return (
+    <div
+      className={
+        'relative  grid pl-5 pr-4 cursor-pointer hover:bg-symbolHover grid-cols-3 lg:mr-2 py-1 justify-items-end'
+      }
+      ref={ref}
+      id={`order-id-${order[0]}`}
+      key={`orderbook-${type}-` + i}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setBridgePrice(order[0].toString());
+      }}
+    >
+      <span
+        className={` ${
+          type === 'ask' ? 'text-sellColorNew' : 'text-buyGreen'
+        } justify-self-start`}
+      >
+        {scientificNotationToString(order[0].toString())}
+      </span>
+
+      <span className="mr-4">{digitWrapper(order[1].toString(), 2)}</span>
+
+      <span>{digitWrapper(totalSize?.[order[0]].toString(), 2)}</span>
+
+      <div
+        className="absolute left-0 top-1 z-40"
+        style={{
+          // zIndex: Math.max(200, asks.length - 40 + 1) + i,
+          zIndex,
+        }}
+      >
+        {pendingOrders && groupMyPendingOrders[order[0]] && (
+          <MyOrderTip
+            price={order[0]}
+            scrollTagID={`${type === 'bid' ? 'buy' : 'sell'}-order-book-panel`}
+            quantity={groupMyPendingOrders[order[0]]}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 function OrderBook() {
   const {
     orders,
@@ -167,6 +246,12 @@ function OrderBook() {
   const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
 
   const storedPrecision = sessionStorage.getItem(REF_ORDERLY_PRECISION);
+
+  const [inViewAsk, setInViewAsk] = useState<number>(0);
+  console.log('inViewAsk: ', inViewAsk);
+
+  const [inViewBid, setInViewBid] = useState<number>(0);
+  console.log('inViewBid: ', inViewBid);
 
   const [precision, setPrecision] = useState<number>(0.01);
 
@@ -387,45 +472,18 @@ function OrderBook() {
           >
             {asks?.map((order, i) => {
               return (
-                <div
-                  className={
-                    'relative  grid pl-5 pr-4 cursor-pointer hover:bg-symbolHover grid-cols-3 lg:mr-2 py-1 justify-items-end'
-                  }
-                  id={`order-id-${order[0]}`}
-                  key={'orderbook-ask-' + i}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setBridgePrice(order[0].toString());
-                  }}
-                >
-                  <span className="text-sellColorNew justify-self-start">
-                    {scientificNotationToString(order[0].toString())}
-                  </span>
-
-                  <span className="mr-4">
-                    {digitWrapper(order[1].toString(), 2)}
-                  </span>
-
-                  <span>
-                    {digitWrapper(asktotalSize?.[order[0]].toString(), 2)}
-                  </span>
-
-                  <div
-                    className="absolute left-0 top-1 z-40"
-                    style={{
-                      zIndex: Math.max(200, asks.length - 40 + 1) + i,
-                    }}
-                  >
-                    {pendingOrders && groupMyPendingOrders[order[0]] && (
-                      <MyOrderTip
-                        price={order[0]}
-                        scrollTagID="sell-order-book-panel"
-                        quantity={groupMyPendingOrders[order[0]]}
-                      />
-                    )}
-                  </div>
-                </div>
+                <OrderLine
+                  type="ask"
+                  setBridgePrice={setBridgePrice}
+                  order={order}
+                  i={i}
+                  pendingOrders={pendingOrders}
+                  groupMyPendingOrders={groupMyPendingOrders}
+                  totalSize={asktotalSize}
+                  zIndex={inViewAsk + i + 1 + 30}
+                  inViewCount={inViewAsk}
+                  setInViewCOunt={setInViewAsk}
+                />
               );
             })}
           </section>
@@ -458,43 +516,18 @@ function OrderBook() {
           >
             {bids?.map((order, i) => {
               return (
-                <div
-                  className="pl-5 pr-4 relative grid grid-cols-3 lg:mr-2 py-1 hover:bg-symbolHover  justify-items-end cursor-pointer"
-                  key={'orderbook-ask-' + i}
-                  id={`order-id-${order[0]}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setBridgePrice(order[0].toString());
-                  }}
-                >
-                  <span className="text-buyGreen justify-self-start">
-                    {scientificNotationToString(order[0].toString())}
-                  </span>
-
-                  <span className="mr-4">
-                    {digitWrapper(order[1].toString(), 2)}
-                  </span>
-
-                  <span>
-                    {digitWrapper(bidtotalSize?.[order[0]].toString(), 2)}
-                  </span>
-
-                  <div
-                    className="absolute left-0 top-1 z-40"
-                    style={{
-                      zIndex: Math.max(bids.length - 40, 199) - i,
-                    }}
-                  >
-                    {pendingOrders && groupMyPendingOrders[order[0]] && (
-                      <MyOrderTip
-                        scrollTagID="buy-order-book-panel"
-                        price={order[0]}
-                        quantity={groupMyPendingOrders[order[0]]}
-                      />
-                    )}
-                  </div>
-                </div>
+                <OrderLine
+                  type="bid"
+                  setBridgePrice={setBridgePrice}
+                  order={order}
+                  i={i}
+                  pendingOrders={pendingOrders}
+                  groupMyPendingOrders={groupMyPendingOrders}
+                  totalSize={bidtotalSize}
+                  zIndex={inViewBid - i - 1 + 30}
+                  inViewCount={inViewBid}
+                  setInViewCOunt={setInViewBid}
+                />
               );
             })}
           </section>

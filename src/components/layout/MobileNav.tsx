@@ -664,7 +664,7 @@ export function MobileNavBar(props: any) {
             show ? 'block' : 'hidden'
           }`}
           style={{
-            zIndex: '80',
+            zIndex: '300',
           }}
         >
           <div
