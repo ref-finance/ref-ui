@@ -835,7 +835,7 @@ function OrderLine({
         >
           {numberWithCommas(
             new Big(quantity || '0')
-              .times(new Big(order.price || order.average_executed_price || 0))
+              .times(new Big(order.average_executed_price || order.price || 0))
               .toNumber()
           )}
         </td>
@@ -1005,7 +1005,7 @@ function OrderLine({
               {numberWithCommas(
                 new Big(quantity || '0')
                   .times(
-                    new Big(order.price || order.average_executed_price || 0)
+                    new Big(order.average_executed_price || order.price || 0)
                   )
                   .toNumber()
               )}
@@ -1130,7 +1130,7 @@ function OrderLine({
             numberWithCommas(
               new Big(quantity || '0')
                 .times(
-                  new Big(order.price || order.average_executed_price || 0)
+                  new Big(order.average_executed_price || order.price || 0)
                 )
                 .toNumber()
             ),
@@ -1322,7 +1322,7 @@ function HistoryOrderLine({
             {numberWithCommas(
               new Big(order.quantity || order.executed || '0')
                 .times(
-                  new Big(order.price || order.average_executed_price || '0')
+                  new Big(order.average_executed_price || order.price || '0')
                 )
                 .toNumber()
             )}
@@ -1548,7 +1548,7 @@ function HistoryOrderLine({
               {numberWithCommas(
                 new Big(order.quantity || order.executed || '0')
                   .times(
-                    new Big(order.price || order.average_executed_price || '0')
+                    new Big(order.average_executed_price || order.price || '0')
                   )
                   .toNumber()
               )}
@@ -1658,7 +1658,7 @@ function HistoryOrderLine({
             numberWithCommas(
               new Big(order.quantity || order.executed || '0')
                 .times(
-                  new Big(order.price || order.average_executed_price || '0')
+                  new Big(order.average_executed_price || order.price || '0')
                 )
                 .toNumber()
             ),
