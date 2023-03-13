@@ -1841,7 +1841,7 @@ export function AssetManagerModal(
             {type === 'deposit' &&
               !validation() &&
               tokenId.toLowerCase() === 'near' && (
-                <div className="text-warn xs:text-center mb-2 xs:-mt-2 lg:whitespace-nowrap">
+                <div className="text-warn text-center mb-2 text-xs xs:-mt-2 lg:whitespace-nowrap">
                   0.5 NEAR locked in wallet for covering transaction fee
                 </div>
               )}

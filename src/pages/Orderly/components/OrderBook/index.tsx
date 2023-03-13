@@ -12,6 +12,7 @@ import Big from 'big.js';
 import { TextWrapper } from '../UserBoard/index';
 import { OrderlyLoading } from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
+import { scientificNotationToString } from '../../../../utils/numbers';
 
 function parseSymbol(fullName: string) {
   return {
@@ -32,6 +33,7 @@ function groupOrdersByPrecision({
   // this function is to group orders by precision,
 
   const decimalPlaces = getDecimalPlaceByNumber(precision);
+  console.log('decimalPlaces: ', decimalPlaces);
 
   if (!orders) return {};
 
@@ -46,6 +48,7 @@ function groupOrdersByPrecision({
             .times(precision)
             .toFixed(0, 3)
         : new Big(cur[0]).toFixed(decimalPlaces, 3);
+    console.log('groupKey: ', groupKey);
 
     const keyStr = groupKey.toString();
 
@@ -386,7 +389,7 @@ function OrderBook() {
               return (
                 <div
                   className={
-                    'relative  grid px-4 cursor-pointer hover:bg-symbolHover grid-cols-3 lg:mr-2 py-1 justify-items-end'
+                    'relative  grid pl-5 pr-4 cursor-pointer hover:bg-symbolHover grid-cols-3 lg:mr-2 py-1 justify-items-end'
                   }
                   id={`order-id-${order[0]}`}
                   key={'orderbook-ask-' + i}
@@ -397,7 +400,7 @@ function OrderBook() {
                   }}
                 >
                   <span className="text-sellColorNew justify-self-start">
-                    {digitWrapper(order[0].toString(), 2)}
+                    {scientificNotationToString(order[0].toString())}
                   </span>
 
                   <span className="mr-4">
@@ -456,7 +459,7 @@ function OrderBook() {
             {bids?.map((order, i) => {
               return (
                 <div
-                  className="px-4 relative grid grid-cols-3 lg:mr-2 py-1 hover:bg-symbolHover  justify-items-end cursor-pointer"
+                  className="pl-5 pr-4 relative grid grid-cols-3 lg:mr-2 py-1 hover:bg-symbolHover  justify-items-end cursor-pointer"
                   key={'orderbook-ask-' + i}
                   id={`order-id-${order[0]}`}
                   onClick={(e) => {
@@ -466,7 +469,7 @@ function OrderBook() {
                   }}
                 >
                   <span className="text-buyGreen justify-self-start">
-                    {digitWrapper(order[0].toString(), 2)}
+                    {scientificNotationToString(order[0].toString())}
                   </span>
 
                   <span className="mr-4">
