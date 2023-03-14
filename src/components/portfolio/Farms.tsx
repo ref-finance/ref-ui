@@ -719,7 +719,7 @@ function DclFarmRowMobile() {
             }`}
           >
             <span className="text-sm text-primaryText whitespace-nowrap">
-              Unclaimed Rewards
+              Unclaimed Farm Rewards
             </span>
             <div
               className={`flex items-center ${
@@ -847,7 +847,9 @@ function DclFarmRowPc() {
             <div className="flex items-center">{getRange()}</div>
           </div>
           <div className="flex items-center justify-between mt-5">
-            <span className="text-sm text-primaryText">Unclaimed Rewards</span>
+            <span className="text-sm text-primaryText">
+              Unclaimed Farm Rewards
+            </span>
             <div className="flex items-center">
               {unclaimedRewardsData.list.map(
                 (
@@ -1538,9 +1540,7 @@ function ClassicFarmRowMobile() {
         }`}
       >
         <div className="flex items-center justify-between mb-6">
-          <span className="text-sm text-v3SwapGray">
-            You Staked (USD value)
-          </span>
+          <span className="text-sm text-v3SwapGray">USD Value Staked</span>
           <span className="text-sm text-white">{getYourTvl()}</span>
         </div>
         <div className="flex items-start justify-between mb-6">
@@ -1579,7 +1579,7 @@ function ClassicFarmRowMobile() {
           }`}
         >
           <span className="text-sm text-v3SwapGray whitespace-nowrap">
-            Unclaimed Rewards
+            Unclaimed Farm Rewards
           </span>
           <div
             className={`flex items-center ${
@@ -1688,9 +1688,7 @@ function ClassicFarmRowPc() {
         </div>
         <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
           <div className="flex items-center justify-between mb-6">
-            <span className="text-sm text-v3SwapGray">
-              You Staked (USD value)
-            </span>
+            <span className="text-sm text-v3SwapGray">USD Value Staked</span>
             <span className="text-sm text-white">{getYourTvl()}</span>
           </div>
           <div className="flex items-center justify-between mb-6">
@@ -1722,7 +1720,9 @@ function ClassicFarmRowPc() {
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-v3SwapGray">Unclaimed Rewards</span>
+            <span className="text-sm text-v3SwapGray">
+              Unclaimed Farm Rewards
+            </span>
             <div className="flex items-center">
               {unclaimedRewardsData.list.map(
                 (

@@ -1246,7 +1246,7 @@ function UserLiquidityLineStyle2() {
     } else if (liquidity_link) {
       div = (
         <div className="flex items-center text-sm text-white">
-          Un-farm
+          Unstaked
           <LinkIcon
             onClick={(e: any) => {
               e.stopPropagation();

@@ -69,7 +69,7 @@ export default function Positions(props: any) {
           loading_status || noData_status ? 'hidden' : ''
         } ${data_status ? '' : 'hidden'}`}
       >
-        <span>Your Position(s)</span>
+        <span>Your Position</span>
         <span>Your Liquidity</span>
       </div>
       <div className="xsm:border-b xsm:border-cardBg">
