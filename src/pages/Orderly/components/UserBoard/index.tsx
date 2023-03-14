@@ -96,6 +96,7 @@ import {
   generateTradingKeyPair,
 } from '../../orderly/utils';
 import { useClientMobile, isMobile } from '../../../../utils/device';
+import { QuestionTip } from '../../../../components/layout/TipWrapper';
 
 function getTipFOK() {
   return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
@@ -998,7 +999,19 @@ export default function UserBoard() {
 
       {/*  order type  */}
       <div className="flex items-center justify-between mt-6">
-        <span className="text-sm text-primaryOrderly">Order Type</span>
+        <span className="text-sm text-primaryOrderly flex items-center ">
+          Order Type
+          <QuestionTip
+            id="order_type_tip"
+            defaultMessage={
+              orderType === 'Limit'
+                ? 'A limit order is an order to buy or sell at a specific price, or better. Limit orders are not guaranteed to execute'
+                : 'A market order is immediately matched to the best available market price, and executed'
+            }
+            dataPlace="bottom"
+            textC="text-primaryText"
+          />
+        </span>
 
         <div className="flex items-center">
           <button
@@ -2363,7 +2376,18 @@ export function MobileUserBoard({
 
       {/*  order type  */}
       <div className="flex items-center justify-between mt-6">
-        <span className="text-sm text-primaryOrderly">Order Type</span>
+        <span className="text-sm text-primaryOrderly flex items-center ">
+          Order Type
+          <QuestionTip
+            id="order_type_tip"
+            defaultMessage={
+              orderType === 'Limit'
+                ? 'A limit order is an order to buy or sell at a specific price, or better. Limit orders are not guaranteed to execute'
+                : 'A market order is immediately matched to the best available market price, and executed'
+            }
+            textC="text-primaryText"
+          />
+        </span>
 
         <div className="flex items-center">
           <button
