@@ -1022,7 +1022,7 @@ export default function () {
             }}
           >
             <BookIcon></BookIcon>
-            <span className="ml-1">Book</span>
+            <span className="ml-1">Orderbook</span>
           </FlexRow>
         </div>
 
