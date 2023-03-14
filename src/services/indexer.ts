@@ -457,18 +457,6 @@ export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
     .catch(() => {
       return [];
     });
-  // return await fetch(
-  //   'https://mainnet-indexer.ref-finance.com' +
-  //     '/get-assets-by-account?' +
-  //     `account_id=juaner.near&dimension=${dateType}`,
-  //   {
-  //     method: 'GET',
-  //   }
-  // )
-  //   .then((res) => res.json())
-  //   .then((res) => {
-  //     return res;
-  //   });
 };
 export const getLimitOrderLogsByAccount = async (): Promise<any[]> => {
   return await fetch(

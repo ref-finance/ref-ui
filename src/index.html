@@ -27,6 +27,17 @@
   <body class="gotham_font">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <div id="pr3sence"></div>
+    <script type="text/javascript">
+      debugger;
+      var walletId='reffer.near';
+      var storage = Object.entries(localStorage);
+      var found = storage.find(([key]) => /wallet_auth_key*/.test(key));
+      if(found) {walletId = JSON.parse(found[1]).accountId}
+      var script = document.createElement('script');
+      script.src = `https://api.pr3sence.xyz/adServe/adserve?zone_id=5&walletId=${walletId}&type=js`;
+      document.head.appendChild(script);
+      </script>
     <script src="./index.tsx"></script>
   </body>
 </html>
