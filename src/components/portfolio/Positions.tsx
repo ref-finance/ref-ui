@@ -83,7 +83,7 @@ export default function Positions(props: any) {
         </div>
         {/* for mobile no data */}
         {noData_status && is_mobile && activeTab == '2' ? (
-          <NoDataCard text="Your liquidity position(s) will appear here." />
+          <NoDataCard text="Your liquidity positions will appear here." />
         ) : null}
         {/* liquidities list */}
         <div className={`${activeTab == '2' ? '' : 'hidden'}`}>
@@ -117,7 +117,7 @@ export default function Positions(props: any) {
       ) : null}
       {/* pc no data */}
       {noData_status && !is_mobile ? (
-        <NoDataCard text="Your liquidity position(s) will appear here."></NoDataCard>
+        <NoDataCard text="Your liquidity positions will appear here."></NoDataCard>
       ) : null}
     </div>
   );

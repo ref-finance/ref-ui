@@ -205,7 +205,7 @@ function UnloginArea() {
       <span className="text-sm text-primaryText mt-0.5">
         Connect your wallet to view
       </span>
-      <div className="mt-4 w-60">
+      <div className="mt-4 w-60 relative z-10">
         <ConnectToNearBtn></ConnectToNearBtn>
       </div>
     </div>

@@ -883,7 +883,7 @@ function DclFarmRowPc() {
           </div>
         </div>
         <div className="mt-5">
-          <p className="text-sm text-primaryText mb-5">Your Position(s)</p>
+          <p className="text-sm text-primaryText mb-5">Your Positions</p>
           {listLiquidities_inFarimg.length > 0 ? (
             <>
               {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
