@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useOrderlyContext } from '../../orderly/OrderlyContext';
 import RecentTrade from '../RecentTrade';
 
-import { MyOrder, Orders } from '../../orderly/type';
+import { MyOrder, Orders, SymbolInfo } from '../../orderly/type';
 import { MyOrderTip } from '../Common';
 import {
   digitWrapper,
@@ -34,14 +34,18 @@ function groupOrdersByPrecision({
   orders,
   precision,
   pendingOrders,
+  symbolInfo,
 }: {
   orders: Orders | undefined;
   precision: number;
   pendingOrders: MyOrder[];
+  symbolInfo: SymbolInfo;
 }) {
   // this function is to group orders by precision,
 
   const decimalPlaces = getDecimalPlaceByNumber(precision);
+
+  // quantity: new BigNumber(asksItem[1]).toFixed(quantityDecimal, 1),
 
   if (!orders) return {};
 
@@ -189,6 +193,7 @@ function OrderLine({
   setInViewCOunt,
   inViewCount,
   decimalLength,
+  symbolInfo,
 }: {
   order: number[];
   i: number;
@@ -201,6 +206,7 @@ function OrderLine({
   setInViewCOunt: (count: number) => void;
   inViewCount: number;
   decimalLength: number;
+  symbolInfo: SymbolInfo;
 }) {
   const { inView, ref } = useInView();
 
@@ -211,6 +217,16 @@ function OrderLine({
       setInViewCOunt(inViewCount - 1);
     }
   }, [inView]);
+
+  let quantityDecimal =
+    Math.log10(symbolInfo.base_tick) > 0
+      ? 0
+      : -Math.log10(symbolInfo.base_tick);
+
+  quantityDecimal = quantityDecimal > 3 ? 3 : quantityDecimal;
+  if (symbolInfo.symbol === 'WOO') {
+    quantityDecimal = 0;
+  }
 
   return (
     <div
@@ -236,9 +252,15 @@ function OrderLine({
           : numberWithCommasPadding(order[0], decimalLength)}
       </span>
 
-      <span className="mr-4">{numberWithCommas(order[1])}</span>
+      <span className="mr-4">
+        {numberWithCommas(new Big(order[1]).toFixed(quantityDecimal, 1))}
+      </span>
 
-      <span>{numberWithCommas(totalSize?.[order[0]])}</span>
+      <span>
+        {numberWithCommas(
+          new Big(totalSize?.[order[0]]).toFixed(quantityDecimal, 1)
+        )}
+      </span>
 
       <div
         className="absolute left-0 top-1 z-40"
@@ -319,6 +341,7 @@ function OrderBook() {
       orders,
       precision,
       pendingOrders,
+      symbolInfo,
     });
 
   const isMobile = useClientMobile();
@@ -509,6 +532,7 @@ function OrderBook() {
                   inViewCount={inViewAsk}
                   setInViewCOunt={setInViewAsk}
                   decimalLength={getDecimalPlaceByNumber(precision)}
+                  symbolInfo={symbolInfo}
                 />
               );
             })}
@@ -554,6 +578,7 @@ function OrderBook() {
                   inViewCount={inViewBid}
                   setInViewCOunt={setInViewBid}
                   decimalLength={getDecimalPlaceByNumber(precision)}
+                  symbolInfo={symbolInfo}
                 />
               );
             })}

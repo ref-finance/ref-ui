@@ -1173,7 +1173,7 @@ export function MobileIconCloseUp({ transform }: { transform?: boolean }) {
     >
       <path
         d="M1 4.33301L6 0.999674L11 4.33301"
-        stroke="white"
+        stroke="currentColor"
         stroke-width="1.6"
         stroke-linecap="round"
       />

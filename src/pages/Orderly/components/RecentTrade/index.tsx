@@ -6,6 +6,7 @@ import {
 import moment from 'moment';
 import { OrderlyLoading } from '../Common/Icons';
 import { digitWrapper, digitWrapperFull, numberWithCommas } from '../../utiles';
+import Big from 'big.js';
 
 export function parseSymbol(fullName: string) {
   return {
@@ -25,17 +26,29 @@ function formatTime(ts: number) {
 }
 
 function RecentTrade() {
-  const { recentTrades, symbol } = useOrderlyContext();
+  const { recentTrades, symbol, availableSymbols } = useOrderlyContext();
+
+  const symbolInfo = availableSymbols.find((s) => s.symbol === symbol);
 
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
   const [loading, setLoading] = useState<boolean>(recentTrades === undefined);
 
   useEffect(() => {
-    if (!!recentTrades) {
+    if (!!recentTrades || !symbolInfo) {
       setLoading(false);
     }
-  }, [!!recentTrades]);
+  }, [!!recentTrades, symbolInfo]);
+
+  let quantityDecimal =
+    Math.log10(symbolInfo.base_tick) > 0
+      ? 0
+      : -Math.log10(symbolInfo.base_tick);
+
+  quantityDecimal = quantityDecimal > 3 ? 3 : quantityDecimal;
+  if (symbolInfo.symbol === 'WOO') {
+    quantityDecimal = 0;
+  }
 
   return (
     <>
@@ -81,7 +94,9 @@ function RecentTrade() {
                   {numberWithCommas(trade.executed_price)}
                 </span>
                 <span className="text-white">
-                  {digitWrapper(trade.executed_quantity, 2)}
+                  {numberWithCommas(
+                    new Big(trade.executed_quantity).toFixed(quantityDecimal, 1)
+                  )}
                 </span>
 
                 <span className="justify-self-end text-primaryOrderly">

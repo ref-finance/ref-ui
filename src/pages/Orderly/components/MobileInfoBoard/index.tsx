@@ -981,7 +981,7 @@ export default function () {
         <BookBoard></BookBoard>
       </div>
 
-      <div className="w-full mx-auto flex mt-2 h-9 items-stretch">
+      <div className="w-full mx-auto flex mt-2 h-9 items-center">
         <div className="flex items-center text-13px font-bold text-primaryText w-full rounded-lg bg-darkBg2 p-0.5 mr-2">
           <FlexRow
             className={`w-1/3 justify-center rounded-lg py-2 ${
@@ -1027,14 +1027,15 @@ export default function () {
         </div>
 
         <div
-          className={`rounded-lg flex-shrink-0 flex ${
-            !showDisplay ? 'bg-gradientFrom' : 'bg-darkBg2'
+          className={`rounded-lg  flex-shrink-0 flex ${
+            !showDisplay ? 'bg-senderHot text-chartBg' : 'bg-darkBg2 text-white'
           }  w-10 items-center justify-center`}
+          style={{
+            height: '85%',
+          }}
         >
           <span
-            className={`text-white ${
-              !showDisplay ? 'transform rotate-180' : ''
-            } `}
+            className={` ${!showDisplay ? 'transform rotate-180' : ''} `}
             onClick={() => {
               handleSetDisplay(!showDisplay);
             }}
