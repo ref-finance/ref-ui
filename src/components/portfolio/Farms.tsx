@@ -290,15 +290,6 @@ export default function Farms(props: any) {
           your_list_liquidities,
         }}
       >
-        {/* for pc banner */}
-        <div
-          className={`flex items-center justify-between text-sm text-v3SwapGray mb-2.5 pl-6 pr-16 xsm:hidden ${
-            loading_status || noData_status ? 'hidden' : ''
-          } ${data_status ? '' : 'hidden'}`}
-        >
-          <span>Farms</span>
-          <span>Your Liquidity</span>
-        </div>
         <div className="xsm:border-b xsm:border-cardBg">
           {/* for mobile banner */}
           <div className="flex items-center justify-between lg:hidden p-5">
@@ -708,7 +699,7 @@ function DclFarmRowMobile() {
       >
         <div className="border-b border-limitOrderFeeTiersBorderColor pb-5 px-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-primaryText">Reward Range</span>
+            <span className="text-sm text-primaryText">Farm Reward Range</span>
             <div className="flex items-center">{getRange()}</div>
           </div>
           <div
@@ -843,7 +834,7 @@ function DclFarmRowPc() {
       <div className={`${switch_off ? 'hidden' : ''}`}>
         <div className="border-b border-gray1 pb-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-primaryText">Reward Range</span>
+            <span className="text-sm text-primaryText">Farm Reward Range</span>
             <div className="flex items-center">{getRange()}</div>
           </div>
           <div className="flex items-center justify-between mt-5">
@@ -1683,9 +1674,6 @@ function ClassicFarmRowPc() {
         </div>
       </div>
       <div className={`${switch_off ? 'hidden' : ''}`}>
-        <div className="flex items-center text-sm text-v3SwapGray ml-2">
-          Your Position
-        </div>
         <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
           <div className="flex items-center justify-between mb-6">
             <span className="text-sm text-v3SwapGray">USD Value Staked</span>

@@ -63,15 +63,6 @@ export default function Positions(props: any) {
     v1LiquidityLoadingDone && v2LiquidityLoadingDone && total_quantity > 0;
   return (
     <div className="text-white">
-      {/* for pc banner */}
-      <div
-        className={`flex items-center justify-between text-sm text-v3SwapGray mb-2.5 pl-6 pr-16 xsm:hidden ${
-          loading_status || noData_status ? 'hidden' : ''
-        } ${data_status ? '' : 'hidden'}`}
-      >
-        <span>Your Position</span>
-        <span>Your Liquidity</span>
-      </div>
       <div className="xsm:border-b xsm:border-cardBg">
         {/* for mobile banner */}
         <div className="flex items-center justify-between lg:hidden p-5">

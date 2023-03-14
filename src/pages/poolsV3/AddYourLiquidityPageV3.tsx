@@ -2081,7 +2081,7 @@ function AddLiquidityComponent({
               className={`relative flex items-start justify-between xsm:justify-end mt-3.5 mb-1`}
             >
               <div className="flex items-center text-sm text-primaryText mr-3 xsm:absolute xsm:left-0">
-                Reward Range
+                Farm Reward Range
                 <div
                   className="text-white text-right ml-1"
                   data-class="reactTip"
