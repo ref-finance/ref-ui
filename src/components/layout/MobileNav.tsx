@@ -164,8 +164,11 @@ export function AccountModel(props: any) {
     await curWallet.signOut();
 
     localStorage.removeItem(ACCOUNT_ID_KEY);
-
-    window.location.assign('/');
+    if (window.location.pathname === '/orderbook') {
+      window.location.assign('/orderbook');
+    } else {
+      window.location.assign('/');
+    }
   };
 
   useEffect(() => {

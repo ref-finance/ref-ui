@@ -233,7 +233,7 @@ export function RegisterButton({
       >
         {spinNow && <SpinIcon />}
         <span className={`whitespace-nowrap ml-3  `}>
-          {userExist ? 'connect to orderly' : 'Register'}
+          {userExist ? 'Connect to Orderly' : 'Register'}
         </span>
       </button>
       {userExist && (isOpenMobile === undefined || isOpenMobile === true) ? (
