@@ -71,7 +71,7 @@ function RecentTrade() {
             return (
               <div
                 key={'recent-trade-' + i}
-                className="grid mr-2 mt-2.5 grid-cols-3 justify-items-end"
+                className="grid mr-2 mt-2.5 grid-cols-3 font-nunito justify-items-end"
               >
                 <span
                   className={`justify-self-start ${

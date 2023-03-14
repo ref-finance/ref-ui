@@ -215,7 +215,7 @@ function OrderLine({
   return (
     <div
       className={
-        'relative  grid pl-5 pr-4 cursor-pointer hover:bg-symbolHover grid-cols-3 lg:mr-2 py-1 justify-items-end'
+        'relative font-nunito grid pl-5 pr-4 cursor-pointer hover:bg-symbolHover grid-cols-3 lg:mr-2 py-1 justify-items-end'
       }
       ref={ref}
       id={`order-id-${order[0]}`}
@@ -517,7 +517,7 @@ function OrderBook() {
           {/* market trade */}
 
           <div
-            className={`text-center flex items-center py-1 justify-center ${
+            className={`text-center font-nunito flex items-center py-1 justify-center ${
               diff > 0
                 ? 'text-buyGreen'
                 : diff < 0

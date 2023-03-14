@@ -410,6 +410,10 @@ module.exports = {
         p360: '360px',
         vh65: '65vh',
       },
+
+      fontFamily: {
+        nunito: "'Nunito', sans-serif",
+      },
     },
     plugins: [],
   },

@@ -659,13 +659,13 @@ function OrderLine({
               openEditQuantity ? 'items-start' : 'items-center'
             }`}
           >
-            <span className="relative ">
+            <span className="relative font-nunito">
               {numberWithCommas(order.executed)}
             </span>
             <span className="mx-1 relative ">/</span>
 
             <div
-              className={`flex flex-col overflow-hidden mb-0.5  rounded-lg ${
+              className={`flex flex-col font-nunito overflow-hidden mb-0.5  rounded-lg ${
                 openEditQuantity ? 'border bg-dark2 relative bottom-1.5' : ''
               }  border-border2 text-sm  w-14 text-white`}
             >
@@ -693,8 +693,8 @@ function OrderLine({
               />
 
               <div
-                className={` px-2 py-1 pt-1.5  ${
-                  !openEditQuantity ? 'text-left pl-1' : 'text-center'
+                className={` px-2 py-1  pt-1.5  ${
+                  !openEditQuantity ? 'text-left pl-1' : 'hidden'
                 }`}
                 onClick={() => {
                   setOpenEditQuantity(true);
@@ -747,7 +747,7 @@ function OrderLine({
         </td>
         <td>
           <div
-            className={`flex mb-1 flex-col overflow-hidden  rounded-lg  ${
+            className={`flex font-nunito mb-1 flex-col overflow-hidden  rounded-lg  ${
               openEditPrice ? 'border bg-dark2 ' : ''
             } border-border2 text-sm   max-w-max text-white`}
             style={{
@@ -829,7 +829,7 @@ function OrderLine({
         </td>
 
         <td
-          className={`  col-span-1  relative   justify-self-end text-white  ${
+          className={` font-nunito col-span-1  relative   justify-self-end text-white  ${
             openEdit ? 'items-start ' : 'items-center'
           }`}
         >
@@ -841,7 +841,7 @@ function OrderLine({
         </td>
 
         <td
-          className={`col-span-1 relative transform translate-x-1/3 whitespace-nowrap justify-self-end  text-end text-primaryOrderly  ${
+          className={`col-span-1 font-nunito relative transform translate-x-1/3 whitespace-nowrap justify-self-end  text-end text-primaryOrderly  ${
             openEdit ? 'items-start ' : 'items-center'
           }`}
         >
@@ -900,20 +900,22 @@ function OrderLine({
                 bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-redLight'}
                 textC={'text-black font-bold'}
                 bgOpacity="bg-opacity-100"
-              ></TextWrapper>
+              />
             </div>
             {marketInfo}
           </div>
-          <div className="flex items-center ">
-            <span>
-              {order.executed > 0 && order.executed / order.quantity < 0.01
-                ? '1'
-                : order.quantity > 0
-                ? new Big(new Big(order.executed || 0))
-                    .div(new Big(order.quantity || 1))
-                    .times(100)
-                    .toFixed(0, 0)
-                : 0}
+          <div className="flex items-center">
+            <span className="font-nunito">
+              <span>
+                {order.executed > 0 && order.executed / order.quantity < 0.01
+                  ? '1'
+                  : order.quantity > 0
+                  ? new Big(new Big(order.executed || 0))
+                      .div(new Big(order.quantity || 1))
+                      .times(100)
+                      .toFixed(0, 0)
+                  : 0}
+              </span>
               %
             </span>
 
@@ -954,7 +956,7 @@ function OrderLine({
           } py-2 justify-between`}
         >
           <div
-            className={`flex  ${
+            className={`flex   ${
               openEditQuantity || openEditPrice ? 'items-start' : 'items-center'
             } text-white`}
           >
@@ -964,7 +966,7 @@ function OrderLine({
                   e.preventDefault();
                   e.stopPropagation();
                 }}
-                className="pr-1"
+                className="pr-1 font-nunito"
               >
                 {numberWithCommas(quantity)}
               </span>
@@ -982,7 +984,7 @@ function OrderLine({
 
             <div>
               <span
-                className={'pr-1'}
+                className={'pr-1 font-nunito'}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -1001,7 +1003,7 @@ function OrderLine({
           <div className="flex items-center">
             <span className="text-primaryText mr-1.5">Total</span>
 
-            <span className="text-white font-bold">
+            <span className="text-white font-nunito font-bold">
               {numberWithCommas(
                 new Big(quantity || '0')
                   .times(
@@ -1013,7 +1015,7 @@ function OrderLine({
           </div>
         </div>
 
-        <div className="whitespace-nowrap text-primaryText text-xs">
+        <div className="whitespace-nowrap font-nunito text-primaryText text-xs">
           {formatTimeDate(order.created_time)}
         </div>
       </div>
@@ -1088,7 +1090,7 @@ function OrderLine({
               }
             ></TextWrapper>,
             <div className="flex items-center">
-              <span className="text-white capitalize">
+              <span className="text-white capitalize ">
                 {order.type === 'FOK' || order.type === 'IOC'
                   ? order.type
                   : order.type.replace('_', ' ').toLowerCase()}
@@ -1122,19 +1124,30 @@ function OrderLine({
                 </div>
               </div>
             </div>,
-            <span>
-              {numberWithCommas(order.executed)} /{' '}
-              {numberWithCommas(order.quantity)}
+            <span className="flex items-center">
+              <span className="font-nunito">
+                {numberWithCommas(order.executed)}
+              </span>
+              /{' '}
+              <span className="font-nunito">
+                {numberWithCommas(order.quantity)}
+              </span>
             </span>,
-            <span>{numberWithCommas(order.price)}</span>,
-            numberWithCommas(
-              new Big(quantity || '0')
-                .times(
-                  new Big(order.average_executed_price || order.price || 0)
-                )
-                .toNumber()
-            ),
-            formatTimeDate(order.created_time),
+            <span className="font-nunito">
+              {numberWithCommas(order.price)}
+            </span>,
+            <span className="font-nunito">
+              {numberWithCommas(
+                new Big(quantity || '0')
+                  .times(
+                    new Big(order.average_executed_price || order.price || 0)
+                  )
+                  .toNumber()
+              )}
+            </span>,
+            <span className="font-nunito">
+              {formatTimeDate(order.created_time)}
+            </span>,
           ]}
           cancelClick={() => {
             if (!accountId) return;
@@ -1288,19 +1301,21 @@ function HistoryOrderLine({
 
           <td>
             <FlexRow className="col-span-1  ">
-              <span className="">
+              <span className="font-nunito">
                 {numberWithCommas(order.executed.toString())}
               </span>
 
               <span className="mx-1 ">/</span>
 
-              <span className="text-white ">
+              <span className="text-white font-nunito">
                 {numberWithCommas(order.quantity || order.executed)}
               </span>
             </FlexRow>
           </td>
 
-          <td className={`col-span-1 text-white  justify-self-end relative `}>
+          <td
+            className={`col-span-1 font-nunito text-white  justify-self-end relative `}
+          >
             <span>
               {order.price || order.average_executed_price
                 ? numberWithCommas(order.price || order.average_executed_price)
@@ -1308,7 +1323,9 @@ function HistoryOrderLine({
             </span>
           </td>
 
-          <td className={`col-span-1 relative justify-self-end  text-white`}>
+          <td
+            className={`col-span-1 font-nunito relative justify-self-end  text-white`}
+          >
             <span>
               {order.average_executed_price === null
                 ? '-'
@@ -1317,7 +1334,7 @@ function HistoryOrderLine({
           </td>
 
           <td
-            className={`col-span-1 ml-4 justify-self-end relative   text-white`}
+            className={`col-span-1 ml-4 font-nunito justify-self-end relative   text-white`}
           >
             {numberWithCommas(
               new Big(order.quantity || order.executed || '0')
@@ -1329,7 +1346,7 @@ function HistoryOrderLine({
           </td>
 
           <td
-            className={`col-span-1 py-4 whitespace-nowrap text-primaryOrderly justify-self-end relative   text-end`}
+            className={`col-span-1 font-nunito py-4 whitespace-nowrap text-primaryOrderly justify-self-end relative   text-end`}
           >
             {formatTimeDate(order.created_time)}
           </td>
@@ -1410,25 +1427,25 @@ function HistoryOrderLine({
                       height: '30px',
                     }}
                   >
-                    <td className="">
+                    <td className="font-nunito">
                       {numberWithCommas(trade.executed_quantity)}
                     </td>
-                    <td className="">
+                    <td className="font-nunito">
                       {numberWithCommas(trade.executed_price)}
                     </td>
-                    <td className="">
+                    <td className="font-nunito">
                       {numberWithCommas(
                         new Big(trade.executed_quantity || '0')
                           .times(new Big(trade.executed_price || '0'))
                           .toNumber()
                       )}
                     </td>
-                    <td className="">
+                    <td className="font-nunito">
                       {scientificNotationToString(trade.fee.toString())}
                     </td>
 
                     <td
-                      className=" pr-6 py-3  text-primaryOrderly "
+                      className=" pr-6 py-3 font-nunito text-primaryOrderly "
                       align="right"
                       colSpan={2}
                     >
@@ -1466,7 +1483,7 @@ function HistoryOrderLine({
             <span>Market</span>
           ) : (
             <div className="flex items-center ">
-              <span>
+              <span className="font-nunito">
                 {order.executed > 0 && order.executed / order.quantity < 0.01
                   ? '1'
                   : order.quantity > 0
@@ -1517,7 +1534,9 @@ function HistoryOrderLine({
         </div>
         <div className={`flex  ${'items-center'} py-2 justify-between`}>
           <div className={`flex  ${'items-center'} text-white`}>
-            {numberWithCommas(order.quantity || order.executed)}
+            <span className="font-nunito">
+              {numberWithCommas(order.quantity || order.executed)}
+            </span>
 
             <TextWrapper
               value={symbolFrom}
@@ -1529,10 +1548,16 @@ function HistoryOrderLine({
               *
             </span>
 
-            <div className="mr-1">
-              {order.price || order.average_executed_price
-                ? numberWithCommas(order.price || order.average_executed_price)
-                : '-'}
+            <div className="mr-1 ">
+              {order.price || order.average_executed_price ? (
+                <span className="font-nunito">
+                  {numberWithCommas(
+                    order.price || order.average_executed_price
+                  )}
+                </span>
+              ) : (
+                '-'
+              )}
             </div>
 
             <TextWrapper
@@ -1544,7 +1569,7 @@ function HistoryOrderLine({
           <div className="flex items-center">
             <span className="text-primaryText mr-1.5">Total</span>
 
-            <span className="text-white font-bold">
+            <span className="text-white font-bold font-nunito">
               {numberWithCommas(
                 new Big(order.quantity || order.executed || '0')
                   .times(
@@ -1557,7 +1582,7 @@ function HistoryOrderLine({
         </div>
 
         {/* ok  */}
-        <div className="whitespace-nowrap text-primaryText text-xs">
+        <div className="whitespace-nowrap text-primaryText font-nunito text-xs">
           {formatTimeDate(order.created_time)}
         </div>
 
@@ -1639,30 +1664,40 @@ function HistoryOrderLine({
               </div>
             </FlexRow>,
             <FlexRow className="col-span-1  ">
-              <span className="">{numberWithCommas(order.executed)}</span>
+              <span className="font-nunito">
+                {numberWithCommas(order.executed)}
+              </span>
 
               <span className="mx-1 ">/</span>
 
-              <span className="text-white ">
+              <span className="text-white font-nunito">
                 {numberWithCommas(order.quantity || order.executed)}
               </span>
             </FlexRow>,
-            <span>
+            <span className="font-nunito">
               {order.price || order.average_executed_price
                 ? numberWithCommas(order.price || order.average_executed_price)
                 : '-'}
             </span>,
-            order.average_executed_price === null
-              ? '-'
-              : numberWithCommas(order.average_executed_price),
-            numberWithCommas(
-              new Big(order.quantity || order.executed || '0')
-                .times(
-                  new Big(order.average_executed_price || order.price || '0')
-                )
-                .toNumber()
+            order.average_executed_price === null ? (
+              '-'
+            ) : (
+              <span className="font-nunito">
+                {numberWithCommas(order.average_executed_price)}
+              </span>
             ),
-            formatTimeDate(order.created_time),
+            <span className="font-nunito">
+              {numberWithCommas(
+                new Big(order.quantity || order.executed || '0')
+                  .times(
+                    new Big(order.average_executed_price || order.price || '0')
+                  )
+                  .toNumber()
+              )}
+            </span>,
+            <span className="font-nunito">
+              {formatTimeDate(order.created_time)}
+            </span>,
 
             <span className="capitalize">{order.status.toLowerCase()}</span>,
           ]}

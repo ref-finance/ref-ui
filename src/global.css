@@ -10,6 +10,7 @@
   font-family: 'arial';
   src: url('./assets/Arial.ttf');
 }
+
 * {
   box-sizing: border-box;
 }
