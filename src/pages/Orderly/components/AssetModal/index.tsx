@@ -407,6 +407,8 @@ export function AssetModal(props: Modal.Props) {
           : {
               height: '620px',
               zIndex: 999,
+              top: '15%',
+              transform: 'translate(-50%, 0%)',
             },
       }}
     >

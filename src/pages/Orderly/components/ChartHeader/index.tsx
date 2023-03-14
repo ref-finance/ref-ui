@@ -471,7 +471,7 @@ function ChartHeader() {
           </div>
 
           <div className="flex  xs:hidden md:hidden  items-start flex-col">
-            <span>High(24h)</span>
+            <span>24h High</span>
 
             <span className="text-white mt-0.5 font-bold">
               {digitWrapper(ticker.high.toString(), 3)}
@@ -479,7 +479,7 @@ function ChartHeader() {
           </div>
 
           <div className="flex items-start xs:hidden md:hidden flex-col">
-            <span>Low(24h)</span>
+            <span>24h Low</span>
 
             <span className="text-white mt-0.5 font-bold">
               {digitWrapper(ticker.low.toString(), 3)}
@@ -487,7 +487,7 @@ function ChartHeader() {
           </div>
 
           <div className="flex items-start xs:hidden md:hidden  flex-col">
-            <span>Volume(24h)</span>
+            <span>24h Volume</span>
 
             <span className="text-white mt-0.5 font-bold">
               ${toPrecision(ticker.amount.toString(), 3, true)}

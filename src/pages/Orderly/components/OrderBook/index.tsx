@@ -355,7 +355,7 @@ function OrderBook() {
             tab === 'book' ? 'text-white' : 'text-primaryOrderly'
           } font-bold mb-1`}
         >
-          Book
+          Order Book
           {tab === 'book' && (
             <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-1.5 left-0"></div>
           )}

@@ -1184,7 +1184,7 @@ export default function UserBoard() {
       {orderType === 'Limit' && (
         <div className="text-white text-sm mt-2">
           <div className="flex items-center justify-between">
-            <span className="text-primaryOrderly">Advance</span>
+            <span className="text-primaryOrderly">Advanced</span>
 
             <span
               className={`${
@@ -1345,7 +1345,7 @@ export default function UserBoard() {
 
       <div className="mt-6  rounded-lg text-sm px-0 pt-1 relative z-10 pb-6">
         <div className="flex items-center justify-between">
-          <span className="text-primaryOrderly">Fee tier</span>
+          <span className="text-primaryOrderly">Fees</span>
 
           <FlexRow className="">
             <span className="flex items-center mr-1.5">
@@ -2601,7 +2601,7 @@ export function MobileUserBoard({
       {orderType === 'Limit' && (
         <div className="text-white text-sm mt-2">
           <div className="flex items-center justify-between">
-            <span className="text-primaryOrderly">Advance</span>
+            <span className="text-primaryOrderly">Advanced</span>
 
             <div className="flex items-center text-primaryText">
               <span className="mr-2">
@@ -2766,7 +2766,7 @@ export function MobileUserBoard({
 
       <div className="mt-6  rounded-lg text-sm px-0 pt-1 relative z-10 ">
         <div className="flex items-center justify-between">
-          <span className="text-primaryOrderly">Fee tier</span>
+          <span className="text-primaryOrderly">Fees</span>
 
           <FlexRow className="">
             <span className="flex items-center mr-1.5">
@@ -3241,7 +3241,7 @@ function ConfirmOrderModal(
           </div>
 
           <div className="flex items-center mb-5 justify-between">
-            <span className="">Fee tier</span>
+            <span className="">Fees</span>
 
             <FlexRow className="">
               <span className="flex items-center mr-3">

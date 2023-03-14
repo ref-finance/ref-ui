@@ -95,7 +95,11 @@ export function Logout() {
 
           localStorage.removeItem(REF_ORDERLY_ACCOUNT_VALID);
 
-          window.location.assign('/');
+          if (window.location.pathname === '/orderbook') {
+            window.location.assign('/orderbook');
+          } else {
+            window.location.assign('/');
+          }
         }}
       >
         <RiLogoutCircleRLine className="text-2xl text-primaryText mr-3" />
