@@ -3477,7 +3477,11 @@ function AllOrderBoard() {
                   setShowCurSymbol(true);
                 }}
               >
-                Current Instrument
+                Current:{' '}
+                <span className="text-white">
+                  {parseSymbol(symbol).symbolFrom}
+                </span>
+                /<span>{parseSymbol(symbol).symbolTo}</span>
               </span>
             </FlexRow>
 
