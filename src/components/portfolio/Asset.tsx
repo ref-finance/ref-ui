@@ -227,7 +227,7 @@ function AssetPc() {
     >
       <div className="p-4 mt-4">
         <div className="flex items-center">
-          <span className="text-sm text-primaryText">Your Investing</span>
+          <span className="text-sm text-primaryText">Your Investment</span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
@@ -347,7 +347,7 @@ function AssetMobile() {
     <div>
       <div className="px-5 py-3">
         <div className="flex items-center">
-          <span className="text-sm text-primaryText">Your Investing</span>
+          <span className="text-sm text-primaryText">Your Investment</span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"

@@ -16,7 +16,7 @@ import { NEARXIDS } from '~services/near';
 import { PortfolioData } from '../../pages/Portfolio';
 import {
   ArrowJumpLarge,
-  display_percentage,
+  display_percentage_2,
   display_value,
   display_value_withCommas,
   display_number_internationalCurrencySystemNature,
@@ -175,7 +175,27 @@ export default function Tokens() {
       const pieOption = {
         tooltip: {
           trigger: 'item',
-          show: false,
+          show: true,
+          textStyle: {
+            color: '#fff',
+            fontFamily: 'gotham',
+            fontSize: '12',
+          },
+          backgroundColor: 'rgba(29, 41, 50, 0.8)',
+          borderWidth: 1,
+          padding: [2, 5],
+          borderColor: '#293844',
+          extraCssText:
+            'box-shadow:0px 0px 10px 4px rgba(0, 0, 0, 0.15);border-radius:5px;',
+          // position: ['100%', '100%'],
+
+          formatter: (params: any) => {
+            // todo
+            const { data } = params;
+            console.log('00000000000000-params', params);
+            const percent = getCurrentTokenProportion(data);
+            return percent;
+          },
         },
         legend: {
           top: '5%',
@@ -299,13 +319,14 @@ export default function Tokens() {
     return target;
   }
   function getCurrentTokenProportion(token: TokenMetadata) {
+    // todo
     if (activeTab == 'near') {
       if (+near_total_value > 0 && +token['t_value'] > 0) {
         const percent = new BigNumber(token['t_value'])
           .dividedBy(near_total_value)
           .multipliedBy(100)
           .toFixed();
-        return display_percentage(percent) + '%';
+        return display_percentage_2(percent) + '%';
       } else {
         return '-%';
       }
@@ -316,7 +337,7 @@ export default function Tokens() {
           .dividedBy(ref_total_value)
           .multipliedBy(100)
           .toFixed();
-        return display_percentage(percent) + '%';
+        return display_percentage_2(percent) + '%';
       } else {
         return '-%';
       }
@@ -327,7 +348,7 @@ export default function Tokens() {
           .dividedBy(dcl_total_value)
           .multipliedBy(100)
           .toFixed();
-        return display_percentage(percent) + '%';
+        return display_percentage_2(percent) + '%';
       } else {
         return '-%';
       }
@@ -338,7 +359,7 @@ export default function Tokens() {
           .dividedBy(aurora_total_value)
           .multipliedBy(100)
           .toFixed();
-        return display_percentage(percent) + '%';
+        return display_percentage_2(percent) + '%';
       } else {
         return '-%';
       }
@@ -493,7 +514,7 @@ export default function Tokens() {
       </div>
       <div
         className="overflow-auto px-5 mt-5 xsm:mt-0"
-        style={{ maxHeight: '160px' }}
+        style={{ maxHeight: '200px' }}
       >
         <div className={`${activeTab == 'near' ? '' : 'hidden'}`}>
           {near_tokens.map((token: TokenMetadata, index) => {
@@ -514,7 +535,7 @@ export default function Tokens() {
                   </span>
                 </div>
                 <span className="text-sm text-white">
-                  {getCurrentTokenProportion(token)}
+                  {display_value(token.t_value)}
                 </span>
               </div>
             );
@@ -539,7 +560,7 @@ export default function Tokens() {
                   </span>
                 </div>
                 <span className="text-sm text-white">
-                  {getCurrentTokenProportion(token)}
+                  {display_value(token.t_value)}
                 </span>
               </div>
             );
@@ -564,7 +585,7 @@ export default function Tokens() {
                   </span>
                 </div>
                 <span className="text-sm text-white">
-                  {getCurrentTokenProportion(token)}
+                  {display_value(token.t_value)}
                 </span>
               </div>
             );
@@ -589,7 +610,7 @@ export default function Tokens() {
                   </span>
                 </div>
                 <span className="text-sm text-white">
-                  {getCurrentTokenProportion(token)}
+                  {display_value(token.t_value)}
                 </span>
               </div>
             );

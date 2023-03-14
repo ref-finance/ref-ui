@@ -290,15 +290,6 @@ export default function Farms(props: any) {
           your_list_liquidities,
         }}
       >
-        {/* for pc banner */}
-        <div
-          className={`flex items-center justify-between text-sm text-v3SwapGray mb-2.5 pl-6 pr-16 xsm:hidden ${
-            loading_status || noData_status ? 'hidden' : ''
-          } ${data_status ? '' : 'hidden'}`}
-        >
-          <span>Farms</span>
-          <span>Your Liquidity</span>
-        </div>
         <div className="xsm:border-b xsm:border-cardBg">
           {/* for mobile banner */}
           <div className="flex items-center justify-between lg:hidden p-5">
@@ -708,7 +699,7 @@ function DclFarmRowMobile() {
       >
         <div className="border-b border-limitOrderFeeTiersBorderColor pb-5 px-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-primaryText">Reward Range</span>
+            <span className="text-sm text-primaryText">Farm Reward Range</span>
             <div className="flex items-center">{getRange()}</div>
           </div>
           <div
@@ -718,8 +709,8 @@ function DclFarmRowMobile() {
                 : 'items-center'
             }`}
           >
-            <span className="text-sm text-primaryText whitespace-nowrap">
-              Unclaimed Rewards
+            <span className="text-sm text-primaryText">
+              Unclaimed Farm Rewards
             </span>
             <div
               className={`flex items-center ${
@@ -843,11 +834,13 @@ function DclFarmRowPc() {
       <div className={`${switch_off ? 'hidden' : ''}`}>
         <div className="border-b border-gray1 pb-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-primaryText">Reward Range</span>
+            <span className="text-sm text-primaryText">Farm Reward Range</span>
             <div className="flex items-center">{getRange()}</div>
           </div>
           <div className="flex items-center justify-between mt-5">
-            <span className="text-sm text-primaryText">Unclaimed Rewards</span>
+            <span className="text-sm text-primaryText">
+              Unclaimed Farm Rewards
+            </span>
             <div className="flex items-center">
               {unclaimedRewardsData.list.map(
                 (
@@ -1538,9 +1531,7 @@ function ClassicFarmRowMobile() {
         }`}
       >
         <div className="flex items-center justify-between mb-6">
-          <span className="text-sm text-v3SwapGray">
-            You Staked (USD value)
-          </span>
+          <span className="text-sm text-v3SwapGray">USD Value Staked</span>
           <span className="text-sm text-white">{getYourTvl()}</span>
         </div>
         <div className="flex items-start justify-between mb-6">
@@ -1578,8 +1569,8 @@ function ClassicFarmRowMobile() {
               : 'items-center'
           }`}
         >
-          <span className="text-sm text-v3SwapGray whitespace-nowrap">
-            Unclaimed Rewards
+          <span className="text-sm text-v3SwapGray">
+            Unclaimed Farm Rewards
           </span>
           <div
             className={`flex items-center ${
@@ -1683,14 +1674,9 @@ function ClassicFarmRowPc() {
         </div>
       </div>
       <div className={`${switch_off ? 'hidden' : ''}`}>
-        <div className="flex items-center text-sm text-v3SwapGray ml-2">
-          Your Position
-        </div>
         <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
           <div className="flex items-center justify-between mb-6">
-            <span className="text-sm text-v3SwapGray">
-              You Staked (USD value)
-            </span>
+            <span className="text-sm text-v3SwapGray">USD Value Staked</span>
             <span className="text-sm text-white">{getYourTvl()}</span>
           </div>
           <div className="flex items-center justify-between mb-6">
@@ -1722,7 +1708,9 @@ function ClassicFarmRowPc() {
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-v3SwapGray">Unclaimed Rewards</span>
+            <span className="text-sm text-v3SwapGray">
+              Unclaimed Farm Rewards
+            </span>
             <div className="flex items-center">
               {unclaimedRewardsData.list.map(
                 (

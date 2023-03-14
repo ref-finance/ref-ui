@@ -128,7 +128,7 @@ export default function AssetProfit() {
   function getTip() {
     // const tip = intl.formatMessage({ id: 'over_tip' });
     const tip =
-      'USD value of unclaimed fee in DCL pools and unclaimed reward in farms.';
+      'USD value of unclaimed fees from DCL pools, and unclaimed farm rewards.';
     let result: string = `<div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">${tip}</div>`;
     return result;
   }
@@ -174,7 +174,7 @@ function AssetProfitPc() {
     <div className=" grid grid-cols-3 bg-portfolioBarBgColor px-7 py-4">
       <div className="col-span-1">
         <div className="flex items-center">
-          <span className="text-sm text-primaryText">You Earn</span>
+          <span className="text-sm text-primaryText">Unclaimed Earnings</span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
@@ -199,7 +199,7 @@ function AssetProfitPc() {
       </div>
       <div className="flex flex-col justify-between col-span-1">
         <div className="flex items-center text-sm text-primaryText">
-          Earned Fees
+          Unclaimed Pool Fees
           <ArrowJump
             clickEvent={() => {
               sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
@@ -214,7 +214,7 @@ function AssetProfitPc() {
       </div>
       <div className="flex flex-col justify-between col-span-1">
         <div className="flex items-center text-sm text-primaryText">
-          Unclaimed Rewards
+          Unclaimed Farm Rewards
           <ArrowJump
             clickEvent={() => {
               localStorage.setItem('farmV2Status', 'my');
@@ -241,7 +241,7 @@ function AssetProfitMobile() {
     <div className="bg-portfolioBarBgColor mt-4">
       <div className="flex items-center justify-between px-5 py-4">
         <div className="flex items-center">
-          <span className="text-sm text-primaryText">You Earn</span>
+          <span className="text-sm text-primaryText">Unclaimed Earnings</span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
@@ -266,14 +266,14 @@ function AssetProfitMobile() {
       </div>
       <div className="flex items-stretch justify-between border-t border-border_grey_color">
         <div className="flex flex-col justify-between w-1 flex-grow border-r border-border_grey_color px-5 py-2">
-          <div className="flex items-center justify-between text-sm text-primaryText">
-            Earned Fees
+          <div className="flex items-center xsm:items-start justify-between text-sm text-primaryText">
+            Unclaimed Pool Fees
             <ArrowJump
               clickEvent={() => {
                 sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
                 window.open('/yourliquidity');
               }}
-              extraClass="ml-3"
+              extraClass="ml-3 flex-shrink-0 xsm:relative xsm:top-0.5"
             ></ArrowJump>
           </div>
           <div className="text-base gotham_bold text-portfolioGreenColor mt-1">
@@ -281,14 +281,14 @@ function AssetProfitMobile() {
           </div>
         </div>
         <div className="flex flex-col justify-between  w-12 flex-grow pl-3 pr-5 py-2">
-          <div className="flex items-center justify-between text-sm text-primaryText whitespace-nowrap">
-            Unclaimed Rewards
+          <div className="flex items-center xsm:items-start justify-between text-sm text-primaryText">
+            Unclaimed Farm Rewards
             <ArrowJump
               clickEvent={() => {
                 localStorage.setItem('farmV2Status', 'my');
                 window.open('/v2farms');
               }}
-              extraClass="ml-0.5 flex-shrink-0"
+              extraClass="ml-0.5 flex-shrink-0 xsm:relative xsm:top-0.5"
             ></ArrowJump>
           </div>
           <div className="text-base gotham_bold text-portfolioGreenColor">

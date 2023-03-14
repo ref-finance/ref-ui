@@ -797,7 +797,9 @@ export const AddNewPoolV3 = (props: any) => {
                 </div>
               </div>
               <div className="relative flex items-center justify-center xsm:justify-end xsm:items-start text-sm text-primaryText mt-4">
-                <span className="xsm:absolute xsm:left-0">Reward Range:</span>
+                <span className="xsm:absolute xsm:left-0">
+                  Farm Reward Range:
+                </span>
                 {getRange('seed')}
               </div>
             </div>

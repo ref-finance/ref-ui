@@ -1246,7 +1246,7 @@ function UserLiquidityLineStyle2() {
     } else if (liquidity_link) {
       div = (
         <div className="flex items-center text-sm text-white">
-          Un-farm
+          Unstaked
           <LinkIcon
             onClick={(e: any) => {
               e.stopPropagation();
@@ -1528,9 +1528,7 @@ function UserLiquidityLineStyle2Pc({
         </div>
       </div>
       <div className={`${switch_off ? 'hidden' : ''}`}>
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-v3SwapGray ml-2">Your Position</p>
-        </div>
+        <div className="flex items-center justify-between"></div>
         <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
           <div className="flex items-center justify-between mb-6">
             <span className="text-sm text-v3SwapGray">

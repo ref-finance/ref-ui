@@ -970,7 +970,6 @@ function YourClassicLiquidityLinePc() {
         </div>
       </div>
       <div className={`${switch_off ? 'hidden' : ''}`}>
-        <p className="text-sm text-v3SwapGray ml-2">Your Position</p>
         <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
           <div className="flex items-center justify-between mb-6">
             <span className="text-sm text-v3SwapGray">

@@ -210,7 +210,7 @@ function SeedInfo() {
       </div>
       <div className="flex items-start justify-between">
         <div className="flex items-center text-sm text-farmText">
-          <span>Reward Range</span>
+          <span>Farm Reward Range</span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"

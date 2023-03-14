@@ -1041,7 +1041,7 @@ export default function FarmsDclDetail(props: {
           </div>
           <div className="flex flex-col items-end justify-between">
             <div className="flex items-center text-sm text-farmText">
-              <span>Reward Range</span>
+              <span>Farm Reward Range</span>
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
@@ -1120,7 +1120,7 @@ export default function FarmsDclDetail(props: {
         <div className="border-b border-dclLineColor py-3">
           <div className="relative flex items-start justify-end">
             <div className="flex items-center absolute left-0">
-              <span className="text-sm text-farmText">Reward Range</span>
+              <span className="text-sm text-farmText">Farm Reward Range</span>
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
