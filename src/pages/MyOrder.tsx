@@ -2888,10 +2888,7 @@ function MyOrderPage() {
             <RouterArrowLeft />
           </span>
           <div className="flex items-center">
-            <FormattedMessage
-              id="your_orders"
-              defaultMessage={'Your Order(s)'}
-            />
+            <FormattedMessage id="your_orders" defaultMessage={'Your Orders'} />
             <div
               className="text-white text-right ml-1"
               data-class="reactTip"

@@ -886,7 +886,7 @@ const ja = {
   fee_24h: '24時間手数料',
   cross_chain_swap: 'ブロックチェーンスワップ',
   orders: '注文',
-  your_orders: 'あなたの注文',
+  your_orders: 'ご注文',
   active: 'アクティブ',
   history: '履歴',
   you_sell: '売却',
