@@ -212,15 +212,6 @@ function UnloginArea() {
   );
 }
 function NoDataArea() {
-  // return (
-  //   <div
-  //     className="flex flex-col items-center justify-center flex-grow"
-  //     style={{ height: chartAreaHeight }}
-  //   >
-  //     <ChartNoData></ChartNoData>
-  //     <span className="text-sm text-primaryText mb-10 xsm:mb-5">No Data</span>
-  //   </div>
-  // );
   return (
     <div
       className="relative flex flex-col flex-grow overflow-hidden items-center justify-center bg-darkBlueColor border border-cardBg rounded-xl mt-5 mb-10 xsm:mt-3 xsm:mb-0"

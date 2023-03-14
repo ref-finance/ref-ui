@@ -161,6 +161,18 @@ export function display_percentage(amount: string) {
     return toPrecision(amount, 0);
   }
 }
+export function display_percentage_2(amount: string) {
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
+  if (!accountId) return '-';
+  const amount_big = new BigNumber(amount);
+  if (amount_big.isEqualTo('0')) {
+    return '0';
+  } else if (amount_big.isLessThan('0.01')) {
+    return '<0.01';
+  } else {
+    return toPrecision(amount, 2);
+  }
+}
 export function display_value(amount: string) {
   const accountId = getCurrentWallet()?.wallet?.getAccountId();
   if (!accountId) return '$-';
