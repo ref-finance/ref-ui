@@ -216,13 +216,10 @@ function PortfolioPC() {
         </div>
       </div>
       {/* tokens table */}
-      <div className="flex-shrink-0" style={{ minWidth: '330px' }}>
+      <div className="relative flex-shrink-0" style={{ minWidth: '330px' }}>
         <Tokens></Tokens>
       </div>
     </div>
   );
 }
 export default Portfolio;
-// todo
-// chart 表底部的数据怎么展示（月，周）
-// 整体布局，当超宽屏幕时 应该居中处理

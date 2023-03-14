@@ -190,9 +190,7 @@ export default function Tokens() {
           // position: ['100%', '100%'],
 
           formatter: (params: any) => {
-            // todo
             const { data } = params;
-            console.log('00000000000000-params', params);
             const percent = getCurrentTokenProportion(data);
             return percent;
           },
@@ -319,7 +317,6 @@ export default function Tokens() {
     return target;
   }
   function getCurrentTokenProportion(token: TokenMetadata) {
-    // todo
     if (activeTab == 'near') {
       if (+near_total_value > 0 && +token['t_value'] > 0) {
         const percent = new BigNumber(token['t_value'])
@@ -513,8 +510,11 @@ export default function Tokens() {
         ) : null}
       </div>
       <div
-        className="overflow-auto px-5 mt-5 xsm:mt-0"
-        style={{ maxHeight: '200px' }}
+        className="overflow-auto px-5 mt-5 xsm:mt-0 lg:absolute lg:w-full lg:bottom-0"
+        style={{
+          maxHeight: is_mobile ? '160px' : 'none',
+          top: !is_mobile ? (activeTab == 'aurora' ? '24rem' : '22rem') : '',
+        }}
       >
         <div className={`${activeTab == 'near' ? '' : 'hidden'}`}>
           {near_tokens.map((token: TokenMetadata, index) => {

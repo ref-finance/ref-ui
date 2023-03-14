@@ -377,7 +377,7 @@ const en_US = {
   by_share: 'By Share',
   by_token: 'By Token',
   your_positions_will_be_displayed_here:
-    'Your position(s) will be displayed here.',
+    'Your positions will be displayed here.',
   price_impact: 'Price impact',
   shares_left: 'Shares left',
   total_stable_coins: 'Total stablecoins',
