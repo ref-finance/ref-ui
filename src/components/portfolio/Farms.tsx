@@ -709,7 +709,7 @@ function DclFarmRowMobile() {
                 : 'items-center'
             }`}
           >
-            <span className="text-sm text-primaryText whitespace-nowrap">
+            <span className="text-sm text-primaryText">
               Unclaimed Farm Rewards
             </span>
             <div
@@ -1569,7 +1569,7 @@ function ClassicFarmRowMobile() {
               : 'items-center'
           }`}
         >
-          <span className="text-sm text-v3SwapGray whitespace-nowrap">
+          <span className="text-sm text-v3SwapGray">
             Unclaimed Farm Rewards
           </span>
           <div
