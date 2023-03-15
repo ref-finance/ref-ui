@@ -354,9 +354,9 @@ function OrderLine({
       errorTipMsg = `Quantity should be higher than ${symbolInfo.base_min}`;
     }
 
-    if ((!symbolInfo || ONLY_ZEROS.test(size)) && !errorTipMsg) {
-      return;
-    }
+    // if ((!symbolInfo || ONLY_ZEROS.test(size)) && !errorTipMsg) {
+    //   return;
+    // }
 
     // price validator
 
@@ -374,9 +374,11 @@ function OrderLine({
       errorTipMsg = `Insufficient ${symbolTo}`;
     }
 
+    console.log('validator test', order.executed, quantity);
+
     if (
       !ONLY_ZEROS.test(order.executed ? order.executed.toString() : '0') &&
-      new Big(quantity).lte(order.executed || 0)
+      new Big(quantity).lte(new Big(order.executed || 0))
     ) {
       errorTipMsg = `Quantity should be higher than ${order.executed}`;
     }
