@@ -60,7 +60,7 @@ import Modal from 'react-modal';
 import { IoChevronBackOutline } from 'react-icons/io5';
 import { useHistory } from 'react-router-dom';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
-import { OrderlyLoading, FilledStamp } from '../Common/Icons';
+import { OrderlyLoading, FilledStamp, HistoryOrderDetailIcon } from '../Common/Icons';
 import { digitWrapper, numberWithCommas } from '../../utiles';
 import { REF_ORDERLY_ACCOUNT_VALID } from '../UserBoard/index';
 import {
@@ -2192,7 +2192,7 @@ function MobileHistoryOrderDetail(
               !showDetail ? 'transform rotate-180' : ''
             } `}
           >
-            <SlArrowUp></SlArrowUp>
+            <HistoryOrderDetailIcon />
           </span>
         </button>
         {showDetail && orderTradesHistory && (

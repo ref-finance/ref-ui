@@ -5,7 +5,11 @@ import {
 } from '../../orderly/OrderlyContext';
 import moment from 'moment';
 import { OrderlyLoading } from '../Common/Icons';
-import { digitWrapper, digitWrapperFull, numberWithCommas } from '../../utiles';
+import {
+  digitWrapper,
+  numberWithCommas,
+  numberWithCommasPadding,
+} from '../../utiles';
 import Big from 'big.js';
 
 export function parseSymbol(fullName: string) {
@@ -34,12 +38,6 @@ function RecentTrade() {
 
   const [loading, setLoading] = useState<boolean>(recentTrades === undefined);
 
-  useEffect(() => {
-    if (!!recentTrades || !symbolInfo) {
-      setLoading(false);
-    }
-  }, [!!recentTrades, symbolInfo]);
-
   let quantityDecimal =
     Math.log10(symbolInfo.base_tick) > 0
       ? 0
@@ -49,6 +47,12 @@ function RecentTrade() {
   if (symbolInfo.symbol === 'WOO') {
     quantityDecimal = 0;
   }
+
+  useEffect(() => {
+    if (!!recentTrades || !symbolInfo) {
+      setLoading(false);
+    }
+  }, [!!recentTrades, symbolInfo]);
 
   return (
     <>
@@ -91,7 +95,12 @@ function RecentTrade() {
                     trade.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'
                   }`}
                 >
-                  {numberWithCommas(trade.executed_price)}
+                  {numberWithCommasPadding(
+                    trade.executed_price,
+                    Math.log10(symbolInfo.quote_tick) > 0
+                      ? 0
+                      : -Math.log10(symbolInfo.quote_tick)
+                  )}
                 </span>
                 <span className="text-white">
                   {numberWithCommas(

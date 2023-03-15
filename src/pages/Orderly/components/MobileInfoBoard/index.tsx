@@ -982,10 +982,12 @@ export default function () {
       </div>
 
       <div className="w-full mx-auto flex mt-2 h-9 items-center">
-        <div className="flex items-center text-13px font-bold text-primaryText w-full rounded-lg bg-darkBg2 p-0.5 mr-2">
+        <div className="flex items-center font-bold text-13px  text-primaryText w-full rounded-lg bg-darkBg2 p-0.5 mr-2">
           <FlexRow
             className={`w-1/3 justify-center rounded-lg py-2 ${
-              tab === 'balance' && showDisplay ? 'bg-selectBg text-white' : ''
+              tab === 'balance' && showDisplay
+                ? 'bg-senderHot text-chartBg'
+                : ''
             }`}
             onClick={(e) => {
               if (!showDisplay) return;
@@ -999,7 +1001,7 @@ export default function () {
 
           <FlexRow
             className={`w-1/3 py-2 justify-center rounded-lg ${
-              tab === 'chart' && showDisplay ? 'bg-selectBg text-white' : ''
+              tab === 'chart' && showDisplay ? 'bg-senderHot text-chartBg' : ''
             }`}
             onClick={() => {
               if (!showDisplay) return;
@@ -1013,7 +1015,7 @@ export default function () {
 
           <FlexRow
             className={`rounded-lg justify-center w-1/3 py-2 ${
-              tab === 'book' && showDisplay ? 'bg-selectBg text-white' : ''
+              tab === 'book' && showDisplay ? 'bg-senderHot text-chartBg' : ''
             }`}
             onClick={() => {
               if (!showDisplay) return;

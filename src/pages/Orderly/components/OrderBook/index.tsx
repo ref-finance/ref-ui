@@ -253,12 +253,12 @@ function OrderLine({
       </span>
 
       <span className="mr-4">
-        {numberWithCommas(new Big(order[1]).toFixed(quantityDecimal, 1))}
+        {numberWithCommas(new Big(order[1]).toFixed(quantityDecimal, 0))}
       </span>
 
       <span>
         {numberWithCommas(
-          new Big(totalSize?.[order[0]]).toFixed(quantityDecimal, 1)
+          new Big(totalSize?.[order[0]]).toFixed(quantityDecimal, 0)
         )}
       </span>
 
