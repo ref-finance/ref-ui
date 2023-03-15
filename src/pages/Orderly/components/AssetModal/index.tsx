@@ -324,7 +324,7 @@ export function AssetModal(props: Modal.Props) {
 
   const DEFAULT_PAGE_SIZE = 10;
 
-  const [recordsPerPage, setRecordsPerPage] = useState<number>(25);
+  const [recordsPerPage, setRecordsPerPage] = useState<number>(50);
 
   const [curPage, setCurPage] = useState<number>(1);
 
@@ -337,7 +337,9 @@ export function AssetModal(props: Modal.Props) {
   useEffect(() => {
     if (
       records === undefined ||
-      (DEFAULT_PAGE_SIZE * curPage > records.length && records.length < total)
+      (records &&
+        DEFAULT_PAGE_SIZE * curPage > records.length &&
+        records.length < total)
     ) {
       if (!window.selectorAccountId) return;
 
@@ -357,7 +359,7 @@ export function AssetModal(props: Modal.Props) {
         }
       });
     }
-  }, [curPage]);
+  }, [curPage, records]);
 
   const loadMore = () => {
     if (records?.length === total) {
@@ -654,7 +656,7 @@ export function AssetModal(props: Modal.Props) {
                 })
             ))}
 
-          {tag === 'records' && records.length > 0 && (
+          {tag === 'records' && records && records.length > 0 && (
             <div className="border-t xs:hidden  absolute bottom-0 right-0 flex items-center px-5 mr-4 justify-end border-gray1 py-3">
               <span
                 className="cursor-pointer"
