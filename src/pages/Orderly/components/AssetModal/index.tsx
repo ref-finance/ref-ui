@@ -350,6 +350,7 @@ export function AssetModal(props: Modal.Props) {
         accountId: window.selectorAccountId,
         HistoryParam: {
           page: requestPage,
+          size: recordsPerPage,
         },
       }).then((res) => {
         if (!!res.success) {

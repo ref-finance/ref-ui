@@ -237,6 +237,7 @@ export const getAssetHistory = async (props: {
     side?: 'DEPOSIT' | 'WITHDRAW';
     status?: 'NEW' | 'CONFIRM' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
     page: number;
+    size?: number;
   };
 }) => {
   const url = `/balance/asset/history?${formateParams(
