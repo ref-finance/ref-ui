@@ -990,7 +990,9 @@ export default function () {
                 : ''
             }`}
             onClick={(e) => {
-              if (!showDisplay) return;
+              if (!showDisplay) {
+                setShowDisplay(true);
+              }
 
               handleSetTab('balance');
             }}
@@ -1004,7 +1006,9 @@ export default function () {
               tab === 'chart' && showDisplay ? 'bg-senderHot text-chartBg' : ''
             }`}
             onClick={() => {
-              if (!showDisplay) return;
+              if (!showDisplay) {
+                setShowDisplay(true);
+              }
 
               handleSetTab('chart');
             }}
@@ -1018,7 +1022,9 @@ export default function () {
               tab === 'book' && showDisplay ? 'bg-senderHot text-chartBg' : ''
             }`}
             onClick={() => {
-              if (!showDisplay) return;
+              if (!showDisplay) {
+                setShowDisplay(true);
+              }
 
               handleSetTab('book');
             }}
