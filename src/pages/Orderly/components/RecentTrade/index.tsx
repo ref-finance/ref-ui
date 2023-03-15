@@ -44,7 +44,7 @@ function RecentTrade() {
       : -Math.log10(symbolInfo.base_tick);
 
   quantityDecimal = quantityDecimal > 3 ? 3 : quantityDecimal;
-  if (symbolInfo.symbol === 'WOO') {
+  if (symbolInfo.symbol.toLowerCase().includes('woo')) {
     quantityDecimal = 0;
   }
 
