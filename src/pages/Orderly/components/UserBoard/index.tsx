@@ -754,7 +754,7 @@ export default function UserBoard() {
     <div
       className="w-full p-6 relative flex flex-col  border-t border-l border-b h-screen border-boxBorder  bg-black bg-opacity-10"
       style={{
-        minHeight: 'calc(100vh - 100px)',
+        minHeight: '775px',
         height: validator ? 'calc(100vh - 100px)' : '100%',
       }}
     >

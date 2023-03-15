@@ -1400,7 +1400,6 @@ function MenuBar() {
     const swap_mode_in_localstorage =
       localStorage.getItem('SWAP_MODE_VALUE') || 'normal';
     if (menus) {
-      debugger;
       const one_level_menu = menus.find((item: menuItemType) => {
         const { links } = item;
         return links?.indexOf(pathname) > -1;
