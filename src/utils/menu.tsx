@@ -231,7 +231,7 @@ export const useMenus = () => {
     {
       id: '1',
       label: <>Trade</>,
-      links: ['/', '/orderbook', '/myOrder'],
+      links: ['/', '/orderbook', '/myOrder', '/swap'],
       children: [
         {
           id: '1-1',
@@ -244,7 +244,7 @@ export const useMenus = () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'normal');
           },
-          links: ['/'],
+          links: ['/', '/swap'],
         },
         {
           id: '1-2',
@@ -257,7 +257,7 @@ export const useMenus = () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'xSwap');
           },
-          links: ['/'],
+          links: ['/', '/swap'],
         },
         {
           id: '1-3',
@@ -270,7 +270,7 @@ export const useMenus = () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
           },
-          links: ['/', '/myOrder'],
+          links: ['/', '/myOrder', '/swap'],
         },
         {
           id: '1-4',
@@ -462,7 +462,7 @@ export const useMenusMobile = () => {
     {
       id: '1',
       label: <>Trade</>,
-      links: ['/', '/orderbook', '/myOrder'],
+      links: ['/', '/orderbook', '/myOrder', '/swap'],
       children: [
         {
           id: '1-1',
@@ -475,7 +475,7 @@ export const useMenusMobile = () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'normal');
           },
-          links: ['/'],
+          links: ['/', '/swap'],
         },
         {
           id: '1-2',
@@ -488,7 +488,7 @@ export const useMenusMobile = () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'xSwap');
           },
-          links: ['/'],
+          links: ['/', '/swap'],
         },
         {
           id: '1-3',
@@ -501,7 +501,7 @@ export const useMenusMobile = () => {
             history.push('/');
             localStorage.setItem('SWAP_MODE_VALUE', 'limit');
           },
-          links: ['/', '/myOrder'],
+          links: ['/', '/myOrder', '/swap'],
         },
         {
           id: '1-4',

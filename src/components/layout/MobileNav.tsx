@@ -393,7 +393,7 @@ export function MobileNavBar(props: any) {
         if (second_children) {
           const two_level_menu = second_children.find((item: menuItemType) => {
             const { links, swap_mode } = item;
-            if (pathname == '/') {
+            if (pathname == '/' || pathname == '/swap') {
               return swap_mode_in_localstorage == swap_mode;
             } else {
               return links?.indexOf(pathname) > -1;
@@ -405,24 +405,24 @@ export function MobileNavBar(props: any) {
           }
         }
       }
-      if (!one_level_selected_id) {
-        // no matched router than redirect to swap page
-        const { id, children } = menusMobile[0];
-        const second_children_temp: any = children;
-        if (second_children_temp) {
-          const two_level_menu = second_children_temp.find(
-            (item: menuItemType) => {
-              const { swap_mode } = item;
-              return swap_mode_in_localstorage == swap_mode;
-            }
-          );
-          if (two_level_menu) {
-            two_level_selected_id = two_level_menu.id;
-          }
-        }
-        one_level_selected_id = id;
-        setOpenMenu(id);
-      }
+      // if (!one_level_selected_id) {
+      //   // no matched router than redirect to swap page
+      //   const { id, children } = menusMobile[0];
+      //   const second_children_temp: any = children;
+      //   if (second_children_temp) {
+      //     const two_level_menu = second_children_temp.find(
+      //       (item: menuItemType) => {
+      //         const { swap_mode } = item;
+      //         return swap_mode_in_localstorage == swap_mode;
+      //       }
+      //     );
+      //     if (two_level_menu) {
+      //       two_level_selected_id = two_level_menu.id;
+      //     }
+      //   }
+      //   one_level_selected_id = id;
+      //   setOpenMenu(id);
+      // }
       set_one_level_selected(one_level_selected_id);
       set_two_level_selected(two_level_selected_id);
     }
