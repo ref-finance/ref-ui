@@ -337,6 +337,7 @@ module.exports = {
         light_green_color: 'rgba(82, 113, 71, 0.15)',
         light_green_text_color: '#82D266',
         light_red_color: 'rgba(255, 106, 142, 0.15)',
+        menuBorderColor:'#27343E',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],

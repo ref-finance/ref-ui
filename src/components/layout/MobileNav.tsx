@@ -679,7 +679,7 @@ export function MobileNavBar(props: any) {
             className="h-full w-4/6 float-right bg-cardBg shadow-4xl z-30 overflow-y-auto"
           >
             <div className={`${showLanguage ? 'hidden' : ''}`}>
-              <div className="flex text-white items-center justify-between p-4">
+              <div className="flex text-white items-center justify-between p-4 border-b border-menuBorderColor">
                 <div className="transform scale-90 origin-left">
                   <NavLogoSimple
                     onClick={() => {
@@ -700,13 +700,12 @@ export function MobileNavBar(props: any) {
               <div className="text-primaryText gotham_bold pb-24">
                 {menusMobile?.map((linkInfo: menuItemType) => {
                   const { id, label, children } = linkInfo;
-                  // if (hidden) return null;
                   const isSelected = one_level_selected == id;
                   return (
-                    <div key={id} className="my-2">
+                    <div key={id} className="border-b border-menuBorderColor">
                       {/* one level menu */}
                       <div
-                        className={`flex pl-4 pr-2 py-4 items-center text-base justify-between ${
+                        className={`flex px-4 py-3.5 items-center text-base justify-between ${
                           isSelected
                             ? 'bg-one_level_menu_color text-white'
                             : 'text-primaryText'
@@ -746,7 +745,7 @@ export function MobileNavBar(props: any) {
                                 key={id}
                               >
                                 <div
-                                  className={`flex justify-between text-left items-center pl-3 pr-2 py-3 ${
+                                  className={`flex justify-between text-left items-center pl-3 pr-4 py-3 ${
                                     isSubMenuSelected
                                       ? 'text-white'
                                       : 'text-primaryText'
@@ -792,7 +791,7 @@ export function MobileNavBar(props: any) {
                                       return (
                                         <div
                                           key={id}
-                                          className={`flex items-center justify-between pl-12 pr-2 py-3 my-2 w-full`}
+                                          className={`flex items-center justify-between pl-12 pr-4 py-3 my-2 w-full`}
                                           onClick={() => {
                                             handleGrandsonMenuClick(grandson);
                                           }}
@@ -862,23 +861,6 @@ export function MobileNavBar(props: any) {
       </div>
       {isMobile ? <Marquee></Marquee> : null}
     </>
-  );
-}
-
-function SauceMenu(props: any) {
-  const { isSelected, label } = props;
-  return (
-    <div
-      className={`flex items-end rounded-xl whitespace-nowrap text-xs cursor-pointer pl-1 py-0.5`}
-    >
-      <div className="flex items-center mr-1.5">
-        <SauceIcon
-          className={`${isSelected ? 'text-greenColor' : 'text-primaryText'}`}
-        ></SauceIcon>
-        <SauceText className="ml-2.5"></SauceText>
-      </div>
-      <span className="text-xs">{label}</span>
-    </div>
   );
 }
 function MobileLanguage(props: any) {
