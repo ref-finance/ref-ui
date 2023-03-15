@@ -2249,6 +2249,7 @@ export default function SwapCard(props: {
         >
           <TokenAmountV3
             forSwap
+            isOut
             swapMode={swapMode}
             amount={
               swapMode === SWAP_MODE.LIMIT
