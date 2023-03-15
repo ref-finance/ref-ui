@@ -1241,7 +1241,9 @@ function HistoryOrderLine({
           table table-fixed w-full pl-5 pr-4 py-3 border-t border-white border-opacity-10`}
         >
           <td
-            className={` py-3 pl-5 relative   ${showCurSymbol ? 'hidden' : ''}`}
+            className={` py-3 pl-5 relative top-1  ${
+              showCurSymbol ? 'hidden' : ''
+            }`}
           >
             {marketInfo}
           </td>
