@@ -433,6 +433,7 @@ export default function SelectToken({
   const dialogWidth = isMobile() ? '95%' : forCross ? '25%' : '420px';
   const dialogMinwidth = isMobile() ? 340 : 380;
   const dialogHidth = isMobile() ? '95%' : '57%';
+  const dialogMinHeight = isMobile() ? '95%' : '540px';
   const intl = useIntl();
   const searchRef = useRef(null);
   const {
@@ -629,6 +630,7 @@ export default function SelectToken({
             padding: '1.5rem 0',
             background: '#1D2932',
             height: dialogHidth,
+            minHeight: dialogMinHeight,
             zIndex: 100,
           },
         },
