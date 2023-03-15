@@ -295,7 +295,7 @@ export default function YourLiquidityPageV3() {
             </div>
           </div>
           <div
-            className={`relative  ${isSignedIn ? '' : 'hidden'}`}
+            className={`relative ${isSignedIn ? '' : 'hidden'}`}
             onMouseOver={() => {
               setAddLiqudityHover(true);
             }}
@@ -317,7 +317,7 @@ export default function YourLiquidityPageV3() {
               </div>
             </GradientButton>
             <span
-              className={`top-10 pt-2 absolute z-50 xsm:right-0 ${
+              className={`top-9 pt-2 absolute z-50 xsm:right-0 ${
                 addLiqudityHover ? '' : 'hidden'
               }`}
             >
