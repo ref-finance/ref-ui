@@ -5,7 +5,7 @@
   "scripts": {
     "build": "parcel build src/index.html",
     "build:testnet": "NEAR_ENV=testnet parcel build src/index.html",
-    "build:pub-testnet": "NEAR_ENV=pub-testnet parcel build src/index.html",
+    "build:pub-testnet": "NEAR_ENV=pub-testnet parcel build src/index.html --no-source-maps",
     "build:mainnet": "NEAR_ENV=mainnet parcel build src/index.html",
     "start": "parcel src/index.html",
     "start:mainnet": "NEAR_ENV=mainnet parcel src/index.html",
