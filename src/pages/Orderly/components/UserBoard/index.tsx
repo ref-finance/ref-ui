@@ -147,13 +147,159 @@ function validContract() {
   }
 }
 
-function UserBoardFoot() {
-  return (
-    <div className="flex items-center right-6 justify-center  absolute opacity-60 bottom-6 text-13px">
-      <span className="text-white  ">Powered by</span>
+function RegisterModal(
+  props: Modal.Props & {
+    orderlyRegistered: boolean;
+    onConfirm: () => void;
+  }
+) {
+  const { orderlyRegistered, onRequestClose, isOpen, onConfirm } = props;
 
-      <div className="mx-2">
-        <OrderlyNetworkIcon></OrderlyNetworkIcon>
+  return (
+    <Modal {...props}>
+      <div
+        className={` ${'rounded-2xl gradientBorderWrapperZ  border'}      bg-boxBorder text-sm text-white  `}
+        style={{
+          width: '460px',
+        }}
+      >
+        <div className=" py-6 text-white text-sm flex flex-col px-6">
+          <div className="flex px-4 items-center pb-4 justify-end">
+            <span
+              className={'cursor-pointer text-primaryText'}
+              onClick={(e: any) => {
+                onRequestClose && onRequestClose(e);
+              }}
+            >
+              <IoClose size={20} />
+            </span>
+          </div>
+          <div>
+            This Orderbook page is a graphical user interface for trading on
+            Orderly Network, and is provided as a convenience to users of Ref
+            Finance. Orderly Network is fully responsible for the security of
+            their systems, smart contracts, and any funds deposited or sent to
+            those systems and contracts. Users are strongly encouraged to do
+            their own research before connecting their wallet and/or placing any
+            orders.
+          </div>
+
+          <div className="py-5">
+            {!orderlyRegistered && (
+              <span className="mr-1">
+                Your wallet must be registered with Orderly to trade on their
+                system.
+              </span>
+            )}{' '}
+            Learn more about
+            <a
+              href=""
+              className="underline text-primary ml-1"
+              href="https://orderly.network/"
+              target="_blank"
+            >
+              Orderly Network
+            </a>
+            .
+          </div>
+
+          <div>
+            By clicking "Confirm", you confirm that you have comprehensively
+            reviewed and comprehended the contents aforementioned
+          </div>
+
+          <div className="flex items-center justify-center">
+            <button
+              type="button"
+              className="bg-primaryGradient w-52 rounded-lg mt-5 text-white flex items-center justify-center py-2.5 text-base"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onRequestClose && onRequestClose(e);
+
+                onConfirm();
+              }}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function LearnMoreBox() {
+  return (
+    <div className="absolute bottom-0 pb-6 right-28 cursor-default w-full">
+      <div className="bg-cardBg  rounded-md text-primaryText border text-xs border-primaryText py-3 px-2.5">
+        This Orderbook page is a graphical user interface for trading on Orderly
+        Network, and is provided as a convenience to users of Ref Finance.
+        Orderly Network is fully responsible for the security of their systems,
+        smart contracts, and any funds deposited or sent to those systems and
+        contracts. Users are strongly encouraged to do their own research before
+        connecting their wallet and/or placing any orders.
+        <br />
+        Learn more about
+        <a
+          href="https://orderly.network/"
+          target="_blank"
+          className="inline underline cursor-pointer text-white ml-1"
+        >
+          Orderly Network.
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function UserBoardFoot() {
+  const [hover, setHover] = useState<boolean>(false);
+
+  const { accountId } = useWalletSelector();
+
+  return (
+    <div
+      className="flex flex-col text-primaryText pr-6    absolute  bottom-6 text-13px"
+      style={{
+        zIndex: 91,
+      }}
+    >
+      {!accountId && (
+        <>
+          <div>
+            * This Orderbook page is a graphical user interface for trading on
+            Orderly Network, and is provided as a convenience to users of Ref
+            Finance.
+          </div>
+
+          <div className={`underline relative   justify-self-start mb-5`}>
+            <span
+              className="cursor-pointer"
+              onMouseEnter={() => {
+                setHover(true);
+              }}
+              onMouseLeave={() => {
+                setHover(false);
+              }}
+            >
+              Learn more.
+              {hover && <LearnMoreBox />}
+            </span>
+          </div>
+        </>
+      )}
+
+      <div
+        className={`flex items-center justify-center ${
+          accountId ? 'left-12' : ''
+        } relative `}
+      >
+        <span className="text-primaryText  ">Powered by</span>
+
+        <div className="mx-2">
+          <OrderlyNetworkIcon></OrderlyNetworkIcon>
+        </div>
       </div>
 
       {/* <span className="text-white ">Risk</span> */}
@@ -318,9 +464,9 @@ export default function UserBoard() {
 
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
 
-  const [agreeCheck, setAgreeCheck] = useState<boolean>(
-    !!localStorage.getItem(REF_ORDERLY_AGREE_CHECK) || false
-  );
+  const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
+
+  const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
 
   const submitDisable =
     !inputValue ||
@@ -502,7 +648,7 @@ export default function UserBoard() {
   const storedValid = localStorage.getItem(REF_ORDERLY_ACCOUNT_VALID);
 
   useEffect(() => {
-    if (!accountId || !storageEnough || !agreeCheck) return;
+    if (!accountId || !storageEnough) return;
 
     if (!!storedValid) {
       setValidAccountSig(true);
@@ -544,6 +690,9 @@ export default function UserBoard() {
     if (!tradingKeySet || !keyAnnounced) return;
 
     localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
+    if (userExist) {
+      localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
+    }
 
     handlePendingOrderRefreshing();
 
@@ -783,48 +932,7 @@ export default function UserBoard() {
           }}
         >
           <RefToOrderly></RefToOrderly>
-          {!!accountId &&
-            validContract() &&
-            (!storageEnough || !tradingKeySet || !keyAnnounced) && (
-              <div className="text-white mb-4 px-8 text-sm text-start">
-                <div>
-                  This orderbook page is a graphical user interface of Orderly
-                  Network, that allows users to trade on the convenience of its
-                  infrastructures.
-                  <br />
-                  {userExist
-                    ? 'You are connecting to your orderly account now. '
-                    : 'You are creating an orderly account now. '}
-                  Learn more about
-                  <span
-                    className="underline ml-1 cursor-pointer"
-                    onClick={() => {
-                      window.open('https://orderly.network/', '_blank');
-                    }}
-                  >
-                    Orderly Network
-                  </span>
-                </div>
-                <div className="flex items-center mt-2">
-                  <div
-                    className="mr-2 cursor-pointer"
-                    onClick={() => {
-                      if (!agreeCheck) {
-                        localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
-                      } else {
-                        localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
-                      }
 
-                      setAgreeCheck(!agreeCheck);
-                    }}
-                  >
-                    <Agree check={agreeCheck}></Agree>
-                  </div>
-
-                  <span>I agree</span>
-                </div>
-              </div>
-            )}
           {!accountId && (
             <ConnectWallet
               onClick={() => {
@@ -857,15 +965,24 @@ export default function UserBoard() {
             validContract() &&
             (!storageEnough || !tradingKeySet || !keyAnnounced) && (
               <RegisterButton
+                userExist={userExist}
                 onClick={() => {
+                  if (!agreeCheck) {
+                    setRegisterModalOpen(true);
+                    return;
+                  }
                   if (!accountId || storageEnough) return;
+
+                  if (!userExist) {
+                    localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
+                  }
+
                   storageDeposit(accountId);
                 }}
                 check={agreeCheck}
                 storageEnough={!!storageEnough}
                 spin={
-                  storageEnough &&
-                  (!tradingKeySet || !keyAnnounced) &&
+                  (storageEnough && (!tradingKeySet || !keyAnnounced)) ||
                   agreeCheck
                 }
               />
@@ -1480,6 +1597,17 @@ export default function UserBoard() {
         onClick={handleSubmit}
         userInfo={userInfo}
       ></ConfirmOrderModal>
+
+      <RegisterModal
+        isOpen={registerModalOpen}
+        onRequestClose={() => {
+          setRegisterModalOpen(false);
+        }}
+        orderlyRegistered={userExist}
+        onConfirm={() => {
+          setAgreeCheck(true);
+        }}
+      />
     </div>
   );
 }

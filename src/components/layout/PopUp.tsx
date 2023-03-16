@@ -44,7 +44,7 @@ export default function PopUpSwiper() {
             mobile ? 'farmPopupBoxMobile' : 'farmPopupBox'
           }`}
           style={{
-            zIndex: 90,
+            zIndex: 92,
           }}
         >
           <Swiper

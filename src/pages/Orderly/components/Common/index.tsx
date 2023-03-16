@@ -26,6 +26,8 @@ import { MyOrder } from '../../orderly/type';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { digitWrapper } from '../../utiles';
 import { isMobile } from '~utils/device';
+import { REF_ORDERLY_AGREE_CHECK } from '../UserBoard/index';
+import { useClientMobile } from '../../../../utils/device';
 import {
   get_orderly_public_key_path,
   tradingKeyMap,
@@ -196,17 +198,31 @@ export function RegisterButton({
   check,
   isOpenMobile,
   setIsOpenMobile,
+  userExist,
+  setCheck,
 }: {
   onClick: () => void;
   spin?: boolean;
   storageEnough: boolean;
   check: boolean;
+  setCheck?: (c: boolean) => void;
   isOpenMobile?: boolean;
   setIsOpenMobile?: (isOpen: boolean) => void;
+  userExist: boolean;
 }) {
   const [spinNow, setSpinNow] = useState<boolean>(!!spin);
 
-  const { userExist } = useOrderlyContext();
+  const isMobile = useClientMobile();
+
+  const storedAgree = !!localStorage.getItem(REF_ORDERLY_AGREE_CHECK);
+
+  useEffect(() => {
+    if (check) {
+      setSpinNow(true);
+
+      onClick();
+    }
+  }, [check]);
 
   useEffect(() => {
     setSpinNow(!!spin);
@@ -214,37 +230,62 @@ export function RegisterButton({
 
   return (
     <div className="flex flex-col items-center xs:w-full  relative ">
-      <button
-        className={`text-base min-w-fit xs:w-full xs:py-2 mb-5 py-3   relative w-p240 ${
-          spinNow || !check ? 'opacity-30 cursor-not-allowed' : ''
-        } bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
-      
-    `}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSpinNow(true);
-          setIsOpenMobile && setIsOpenMobile(true);
+      {isMobile && !isOpenMobile ? null : (
+        <>
+          <div className="lg:px-6 xs:font-bold text-white pb-5 text-center text-base">
+            {spinNow
+              ? null
+              : userExist
+              ? "You need to (re)connect your Orderly account to use Ref's Orderbook."
+              : 'Your wallet must first be registered with Orderly in order to use the Orderbook.'}
+          </div>
 
-          if (spinNow || !check) return;
-          onClick();
-        }}
-        type="button"
-        disabled={(spinNow || !check) && isOpenMobile === undefined}
-      >
-        {spinNow && <SpinIcon />}
-        <span className={`whitespace-nowrap ml-3  `}>
-          {userExist ? 'Connect to Orderly' : 'Register'}
-        </span>
-      </button>
-      {userExist && (isOpenMobile === undefined || isOpenMobile === true) ? (
-        <div className="text-sm text-white flex items-center justify-center">
-          You may need to deposit storage fee first.
-        </div>
-      ) : (
+          <div
+            className={
+              !isMobile || !isOpenMobile
+                ? null
+                : 'h-48 overflow-auto pt-2 mb-2 text-primaryText text-sm flex flex-col'
+            }
+          >
+            <div>
+              This Orderbook page is a graphical user interface for trading on
+              Orderly Network, and is provided as a convenience to users of Ref
+              Finance. Orderly Network is fully responsible for the security of
+              their systems, smart contracts, and any funds deposited or sent to
+              those systems and contracts. Users are strongly encouraged to do
+              their own research before connecting their wallet and/or placing
+              any orders.
+            </div>
+
+            <div className="py-5">
+              {!userExist && (
+                <span className="mr-1">
+                  Your wallet must be registered with Orderly to trade on their
+                  system.
+                </span>
+              )}{' '}
+              Learn more about
+              <a
+                href=""
+                className="underline text-primary ml-1"
+                href="https://orderly.network/"
+                target="_blank"
+              >
+                Orderly Network
+              </a>
+              .
+            </div>
+
+            <div>
+              By clicking "Confirm", you confirm that you have comprehensively
+              reviewed and comprehended the contents aforementioned
+            </div>
+          </div>
+        </>
+      )}
+      {((!userExist && check) || (storedAgree && storageEnough)) && (
         <div
-          className={`flex items-start ${
-            !userExist && isOpenMobile ? '' : 'xs:hidden md:hidden'
-          }  text-sm relative text-white flex-col`}
+          className={`flex items-start  pb-5 xs:pb-3  text-sm relative  text-white flex-col`}
         >
           <div className="relative mb-3 flex items-center">
             <div className="mr-2">
@@ -269,6 +310,62 @@ export function RegisterButton({
               left: '-2px',
             }}
           ></div>
+        </div>
+      )}
+
+      <button
+        className={`text-base min-w-fit xs:w-full xs:py-2  ${
+          isMobile && !isOpenMobile ? 'mb-2' : 'mb-5 xs:mb-3'
+        } py-3   relative w-p240 ${
+          spinNow ? 'opacity-30 cursor-not-allowed' : ''
+        } bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
+      
+    `}
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+
+          if (isMobile) {
+            if (!isOpenMobile) {
+              setIsOpenMobile(true);
+              return;
+            } else {
+              setCheck(true);
+              return;
+            }
+          }
+
+          onClick();
+
+          if (!check) return;
+
+          if (spinNow) return;
+
+          setSpinNow(true);
+        }}
+        type="button"
+        disabled={spinNow}
+      >
+        {spinNow && <SpinIcon />}
+        <span className={`whitespace-nowrap ml-3  `}>
+          {userExist && !storedAgree
+            ? !check
+              ? isOpenMobile && !check
+                ? 'Confirm'
+                : 'Connect to Orderly'
+              : 'Connecting'
+            : isOpenMobile && !check
+            ? 'Confirm'
+            : 'Register'}
+        </span>
+      </button>
+      {isMobile && !isOpenMobile ? null : (
+        <div className="text-sm  text-center text-white flex items-center lg:px-6 justify-center">
+          {spinNow
+            ? null
+            : !userExist
+            ? '* Registering will require a storage deposit.'
+            : '*You may need to increase the storage deposit on your Orderly account.'}
         </div>
       )}
     </div>

@@ -97,6 +97,7 @@ import { getSelectedWalletId } from '../../orderly/utils';
 import { BuyButton, SellButton } from '../UserBoard/Button';
 import { MobileUserBoard } from '../UserBoard/index';
 import AllOrderBoard from '../AllOrders';
+import { isMobile } from '../../../../utils/device';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
@@ -406,9 +407,7 @@ function RegisterWrapper() {
   } = useOrderlyContext();
 
   const [tradingKeySet, setTradingKeySet] = useState<boolean>(false);
-  const [agreeCheck, setAgreeCheck] = useState<boolean>(
-    !!localStorage.getItem(REF_ORDERLY_AGREE_CHECK) || false
-  );
+  const [agreeCheck, setAgreeCheck] = useState<boolean>(false);
 
   const { accountId } = useWalletSelector();
 
@@ -423,7 +422,7 @@ function RegisterWrapper() {
     (!!storedValid && !validAccountSig);
 
   useEffect(() => {
-    if (!accountId || !storageEnough || !agreeCheck) return;
+    if (!accountId || !storageEnough) return;
 
     if (!!storedValid) {
       setValidAccountSig(true);
@@ -467,6 +466,9 @@ function RegisterWrapper() {
     if (!tradingKeySet || !keyAnnounced) return;
 
     localStorage.setItem(REF_ORDERLY_ACCOUNT_VALID, '1');
+    if (userExist) {
+      localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
+    }
 
     handlePendingOrderRefreshing();
 
@@ -558,7 +560,7 @@ function RegisterWrapper() {
 
             {validator && !loading && (
               <div
-                className="rounded-t-2xl   flex flex-col justify-center items-center h-full w-full px-5 py-4 "
+                className="rounded-t-2xl   flex flex-col justify-center items-center h-full w-full px-5 py-4 xs:pb-2"
                 style={{
                   background: 'rgba(0, 19, 32, 0.8)',
                   backdropFilter: 'blur(5px)',
@@ -574,52 +576,7 @@ function RegisterWrapper() {
                     <RefToOrderly></RefToOrderly>
                   )}
                 </div>
-                {!!accountId &&
-                  validContract() &&
-                  (!storageEnough || !tradingKeySet || !keyAnnounced) &&
-                  isOpen && (
-                    <div className="text-white mb-4 px-8 text-sm text-start">
-                      <div>
-                        This orderbook page is a graphical user interface of
-                        Orderly Network, that allows users to trade on the
-                        convenience of its infrastructures.
-                        <br />
-                        {userExist
-                          ? 'You are connecting to your orderly account now. '
-                          : 'You are creating an orderly account now. '}
-                        Learn more about
-                        <span
-                          className="underline ml-1 cursor-pointer"
-                          onClick={() => {
-                            window.open('https://orderly.network/', '_blank');
-                          }}
-                        >
-                          Orderly Network
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-center  mt-2">
-                        <div
-                          className="mr-2 cursor-pointer"
-                          onClick={() => {
-                            if (!agreeCheck) {
-                              localStorage.setItem(
-                                REF_ORDERLY_AGREE_CHECK,
-                                'true'
-                              );
-                            } else {
-                              localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
-                            }
 
-                            setAgreeCheck(!agreeCheck);
-                          }}
-                        >
-                          <Agree check={agreeCheck}></Agree>
-                        </div>
-
-                        <span>I agree</span>
-                      </div>
-                    </div>
-                  )}
                 {!accountId && (
                   <ConnectWallet
                     onClick={() => {
@@ -667,18 +624,22 @@ function RegisterWrapper() {
                       isOpenMobile={isOpen}
                       setIsOpenMobile={setIsOpen}
                       onClick={() => {
-                        setIsOpen(true);
-
                         if (!accountId || storageEnough) return;
+
+                        if (!userExist) {
+                          localStorage.setItem(REF_ORDERLY_AGREE_CHECK, 'true');
+                        }
+
                         storageDeposit(accountId);
                       }}
-                      check={agreeCheck}
+                      setCheck={setAgreeCheck}
+                      check={(isMobile() && storageEnough) || agreeCheck}
                       storageEnough={!!storageEnough}
                       spin={
-                        storageEnough &&
-                        (!tradingKeySet || !keyAnnounced) &&
+                        (storageEnough && (!tradingKeySet || !keyAnnounced)) ||
                         agreeCheck
                       }
+                      userExist={userExist}
                     />
                   )}
               </div>
@@ -726,52 +687,7 @@ function RegisterWrapper() {
                   <RefToOrderly></RefToOrderly>
                 )}
               </div>
-              {!!accountId &&
-                validContract() &&
-                (!storageEnough || !tradingKeySet || !keyAnnounced) &&
-                isOpen && (
-                  <div className="text-white mb-4 px-8 text-sm text-start">
-                    <div>
-                      This orderbook page is a graphical user interface of
-                      Orderly Network, that allows users to trade on the
-                      convenience of its infrastructures.
-                      <br />
-                      {userExist
-                        ? 'You are connecting to your orderly account now. '
-                        : 'You are creating an orderly account now. '}
-                      Learn more about
-                      <span
-                        className="underline ml-1 cursor-pointer"
-                        onClick={() => {
-                          window.open('https://orderly.network/', '_blank');
-                        }}
-                      >
-                        Orderly Network
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-center  mt-2">
-                      <div
-                        className="mr-2 cursor-pointer"
-                        onClick={() => {
-                          if (!agreeCheck) {
-                            localStorage.setItem(
-                              REF_ORDERLY_AGREE_CHECK,
-                              'true'
-                            );
-                          } else {
-                            localStorage.removeItem(REF_ORDERLY_AGREE_CHECK);
-                          }
 
-                          setAgreeCheck(!agreeCheck);
-                        }}
-                      >
-                        <Agree check={agreeCheck}></Agree>
-                      </div>
-
-                      <span>I agree</span>
-                    </div>
-                  </div>
-                )}
               {!accountId && (
                 <ConnectWallet
                   onClick={() => {
@@ -818,11 +734,9 @@ function RegisterWrapper() {
                   <RegisterButton
                     isOpenMobile={false}
                     setIsOpenMobile={setIsOpen}
+                    setCheck={setAgreeCheck}
                     onClick={() => {
                       setIsOpen(true);
-
-                      if (!accountId || storageEnough) return;
-                      storageDeposit(accountId);
                     }}
                     check={agreeCheck}
                     storageEnough={!!storageEnough}
@@ -831,6 +745,7 @@ function RegisterWrapper() {
                       (!tradingKeySet || !keyAnnounced) &&
                       agreeCheck
                     }
+                    userExist={userExist}
                   />
                 )}
             </div>
