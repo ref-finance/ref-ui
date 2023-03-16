@@ -242,7 +242,7 @@ export function RegisterButton({
 
           <div
             className={
-              !isMobile || !isOpenMobile
+              !isMobile || !isOpenMobile || check
                 ? 'hidden'
                 : 'h-48 overflow-auto pt-2 mb-2 text-primaryText text-sm flex flex-col'
             }
