@@ -1126,7 +1126,7 @@ function NavigationBar() {
     <>
       <div
         className="nav-wrap md:hidden xs:hidden text-center relative"
-        style={{ zIndex: '90' }}
+        style={{ zIndex: '91' }}
       >
         <div
           className={`relative z-10 ${
