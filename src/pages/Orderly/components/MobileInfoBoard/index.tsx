@@ -174,10 +174,11 @@ function CurAsset() {
     : balances && balances[symbolTo]?.holding;
 
   const tokenIn = useTokenMetaFromSymbol(symbolFrom, tokenInfo);
-  const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
-  const [showAllAssets, setShowAllAssets] = useState<boolean>(false);
 
   const tokenOut = useTokenMetaFromSymbol(symbolTo, tokenInfo);
+
+  const [operationId, setOperationId] = useState<string>(tokenIn?.id || '');
+  const [showAllAssets, setShowAllAssets] = useState<boolean>(false);
 
   const tokenFromBalance = useTokenBalance(
     tokenIn?.id,
@@ -231,7 +232,7 @@ function CurAsset() {
               e.preventDefault();
               e.stopPropagation();
               setOperationType('deposit');
-              setOperationId(tokenIn?.id || '');
+              setOperationId(tokenOut?.id || '');
             }}
           >
             <span className="mr-2">Deposit</span>
