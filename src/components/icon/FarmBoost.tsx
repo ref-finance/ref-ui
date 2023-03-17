@@ -4146,3 +4146,38 @@ export const LinkArrowIcon = (props: any) => {
     </svg>
   );
 };
+
+export const DownArrowIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="12"
+      height="8"
+      viewBox="0 0 12 8"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M11 1L5.8655 5.66667L1 1"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+    </svg>
+  );
+};
+
+export const GreenCorrectIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      width="13"
+      height="9"
+      viewBox="0 0 13 9"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M1 3.5L5 7.5L11.5 1" stroke="#00C6A2" stroke-width="1.6" />
+    </svg>
+  );
+};
