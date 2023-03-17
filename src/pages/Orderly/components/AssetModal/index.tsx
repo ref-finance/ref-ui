@@ -53,8 +53,13 @@ import ReactTooltip from 'react-tooltip';
 import { useIntl } from 'react-intl';
 
 function getTipAsset() {
+  const intl = useIntl();
   return `<div class=" rounded-md w-60 text-primaryOrderly  text-xs  text-left">
-    ${'The data provided herein includes all assets and records in your account, not limited to those generated through REF.'} 
+    ${intl.formatMessage({
+      id: 'the_all_data_orderly_tip',
+      defaultMessage:
+        'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
+    })} 
   </div>`;
 }
 
@@ -196,7 +201,7 @@ function RecordLine(
   }
 ) {
   const tokenMeta = useTokenMetaFromSymbol(props.token, props.tokenInfo);
-
+  const intl = useIntl();
   return (
     <>
       <div className="grid xs:hidden grid-cols-6 justify-items-end py-3 text-gray2 pl-5 ">
@@ -246,7 +251,15 @@ function RecordLine(
               : 'text-baseGreen'
           }`}
         >
-          {props.side === 'WITHDRAW' ? 'Withdraw' : 'Deposit'}
+          {props.side === 'WITHDRAW'
+            ? intl.formatMessage({
+                id: 'withdraw',
+                defaultMessage: 'Withdraw',
+              })
+            : intl.formatMessage({
+                id: 'deposit',
+                defaultMessage: 'Deposit',
+              })}
         </FlexRow>
       </div>
 
@@ -484,7 +497,13 @@ export function AssetModal(props: Modal.Props) {
                 data-for={'mobile_tip_asset_orderly'}
                 data-html={true}
                 data-place={'bottom'}
-                data-tip={getTipAsset()}
+                data-tip={`<div class=" rounded-md w-60 text-primaryOrderly  text-xs  text-left">
+                ${intl.formatMessage({
+                  id: 'the_all_data_orderly_tip',
+                  defaultMessage:
+                    'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
+                })} 
+              </div>`}
                 className="lg:hidden absolute right-6 top-5"
               >
                 <TipIconAsset></TipIconAsset>
@@ -743,8 +762,11 @@ export function AssetModal(props: Modal.Props) {
                 <TipIconAsset></TipIconAsset>
 
                 <div className="ml-1">
-                  The data provided herein includes all assets and records in
-                  your account, not limited to those generated through REF.
+                  {intl.formatMessage({
+                    id: 'the_all_data_orderly_tip',
+                    defaultMessage:
+                      'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
+                  })}
                 </div>
               </div>
               {tag === 'records' && records && records.length > 0 && (

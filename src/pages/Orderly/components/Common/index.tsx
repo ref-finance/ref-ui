@@ -663,6 +663,7 @@ export function DepositButton(props: any) {
 }
 
 export function DepositButtonMobile(props: any) {
+  const intl = useIntl();
   return (
     <div
       className="relative w-1/2    flex items-center justify-center text-white"
@@ -673,7 +674,12 @@ export function DepositButtonMobile(props: any) {
       ></GrayBgBoxMobile>
 
       <div className="flex cursor-pointer items-center absolute z-40 font-normal">
-        <span className="text-13px font-bold">Deposit</span>
+        <span className="text-13px font-bold">
+          {intl.formatMessage({
+            id: 'deposit',
+            defaultMessage: 'Deposit',
+          })}
+        </span>
 
         <HiDownload className="ml-1" />
       </div>

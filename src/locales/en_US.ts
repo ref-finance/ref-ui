@@ -1078,5 +1078,7 @@ const en_US = {
   quantity_should_be_higher_than: 'Quantity should be higher than',
   price_should_be_higher_than: 'Price should be higher than',
   insufficient_en: 'Insufficient',
+  the_all_data_orderly_tip:
+    'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

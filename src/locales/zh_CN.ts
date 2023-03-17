@@ -1024,5 +1024,7 @@ const zh_CN = {
   price_should_be_higher_than: '价格应大于',
   insufficient_en: '',
   insufficient_zh: '余额不足',
+  the_all_data_orderly_tip:
+    '这里的数据不仅仅限于在Ref上产生的数据，包含了您账户中所有的资产和记录。',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
