@@ -256,6 +256,9 @@ module.exports = {
         legacyBgColor: 'rgba(244, 159, 80, 0.1)',
         legacyButtonBgColor: '#171F25',
         dclSelectTokenHover: '#1C272F',
+        farmSelectBgColor:'#212E38',
+        farmSelectBoxBgColor:'#222F38',
+        farmSelectHoverBgColor:'#364958',
       },
       fontFamily: {
         sans: ['Poppins', ...defaultTheme.fontFamily.sans],
