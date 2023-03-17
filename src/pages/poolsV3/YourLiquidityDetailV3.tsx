@@ -22,10 +22,8 @@ import {
 import { ReturnIcon, SwitchButton, TipIon } from '~components/icon/V3';
 import {
   GradientButton,
-  BorderButton,
   ButtonTextWrapper,
   OprationButton,
-  ConnectToNearBtn,
 } from '~components/button/Button';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
@@ -33,12 +31,6 @@ import {
   formatWithCommas,
   toPrecision,
   toReadableNumber,
-  toInternationalCurrencySystem,
-  percentLess,
-  calculateFairShare,
-  toNonDivisibleNumber,
-  percent,
-  checkAllocations,
 } from '~utils/numbers';
 import { ftGetTokenMetadata } from '../../services/ft-contract';
 import { TokenMetadata } from '../../services/ft-contract';
@@ -57,7 +49,6 @@ import {
   displayNumberToAppropriateDecimals,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
-import { getTokenPriceList } from '../../services/indexer';
 import {
   getBoostTokenPrices,
   list_farmer_seeds,
@@ -66,17 +57,12 @@ import {
   get_seed,
   Seed,
 } from '../../services/farm';
-import { getLiquidity } from '~utils/pool';
 import _ from 'lodash';
-import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { BlueCircleLoading } from '../../components/layout/Loading';
 import getConfig from '../../services/config';
 import { allocation_rule_liquidities } from '~services/commonV3';
 import { LinkArrowIcon } from '~components/icon/FarmBoost';
-import {
-  get_detail_the_liquidity_refer_to_seed,
-  get_your_apr,
-} from './YourLiquidityPageV3';
+import { get_detail_the_liquidity_refer_to_seed } from './YourLiquidityPageV3';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 import ReactTooltip from 'react-tooltip';
 export default function YourLiquidityDetail(props: any) {
@@ -95,6 +81,7 @@ export default function YourLiquidityDetail(props: any) {
     []
   );
   const [is_in_farming, set_is_in_farming] = useState<boolean>(true);
+  const [is_in_farming_done, set_is_in_farming_done] = useState<boolean>(false);
   const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
   const history = useHistory();
   // callBack handle
@@ -154,6 +141,7 @@ export default function YourLiquidityDetail(props: any) {
           userLiquidity.part_farm_ratio = part_farm_ratio;
           userLiquidity.unfarm_part_amount = unfarm_part_amount;
           set_is_in_farming(+part_farm_ratio > 0);
+          set_is_in_farming_done(true);
         }
       }
       get_pool_related_farms();
@@ -170,7 +158,7 @@ export default function YourLiquidityDetail(props: any) {
     if (
       userLiquidity &&
       all_seeds.length &&
-      Object.keys(tokenPriceList).length
+      Object.keys(tokenPriceList || {}).length
     ) {
       const info = get_detail_the_liquidity_refer_to_seed({
         liquidity: userLiquidity,
@@ -729,7 +717,7 @@ export default function YourLiquidityDetail(props: any) {
               </>
             ) : null}
           </div>
-          {is_in_farming ? (
+          {is_in_farming_done && is_in_farming ? (
             <div className="flex whitespace-nowrap items-center justify-center text-sm text-primaryText mt-4">
               This NFT has been staked
               <div
