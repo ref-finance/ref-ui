@@ -342,8 +342,6 @@ export const executeMultipleTransactions = async (
       callbackUrl,
     })
     .then((res) => {
-      console.log(res);
-
       if (!res) return;
 
       console.log(res);
@@ -553,89 +551,17 @@ export const refFarmBoostFunctionCall = async ({
   gas,
   amount,
 }: RefFiFunctionCallOptions) => {
-  const { wallet } = getCurrentWallet();
-
-  await ledgerTipTrigger(wallet);
-
-  if ((await wallet.wallet()).id === 'sender') {
-    return window.near
-      .account()
-      .functionCall(
-        REF_FARM_BOOST_CONTRACT_ID,
+  const transaction: Transaction = {
+    receiverId: REF_FARM_BOOST_CONTRACT_ID,
+    functionCalls: [
+      {
         methodName,
         args,
-        getGas(gas),
-        getAmount(amount)
-      )
-      .catch(async (e: any) => {
-        console.log(e);
+        amount,
+        gas,
+      },
+    ],
+  };
 
-        return (await wallet.wallet())
-          .signAndSendTransaction({
-            signerId: wallet.getAccountId()!,
-            receiverId: REF_FARM_BOOST_CONTRACT_ID,
-            actions: [
-              {
-                type: 'FunctionCall',
-                params: {
-                  methodName,
-                  args,
-                  gas: getGas(gas).toNumber().toFixed(),
-                  deposit: utils.format.parseNearAmount(amount || '0')!,
-                },
-              },
-            ],
-          })
-          .catch((e: Error) => {
-            console.log(e);
-
-            if (extraWalletsError.includes(e.message)) {
-              return;
-            }
-
-            if (
-              !walletsRejectError.includes(e.message) &&
-              !extraWalletsError.includes(e.message)
-            ) {
-              sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
-            }
-
-            window.location.reload();
-          });
-      });
-  } else {
-    return (await wallet.wallet())
-      .signAndSendTransaction({
-        signerId: wallet.getAccountId()!,
-        receiverId: REF_FARM_BOOST_CONTRACT_ID,
-        actions: [
-          {
-            type: 'FunctionCall',
-            params: {
-              methodName,
-              args,
-              gas: getGas(gas).toNumber().toFixed(),
-              deposit: utils.format.parseNearAmount(amount || '0')!,
-            },
-          },
-        ],
-      })
-      .catch((e: Error) => {
-        console.log(e);
-        console.log(e);
-
-        if (extraWalletsError.includes(e.message)) {
-          return;
-        }
-
-        if (
-          !walletsRejectError.includes(e.message) &&
-          !extraWalletsError.includes(e.message)
-        ) {
-          sessionStorage.setItem('WALLETS_TX_ERROR', e.message);
-        }
-
-        window.location.reload();
-      });
-  }
+  return await executeMultipleTransactions([transaction]);
 };

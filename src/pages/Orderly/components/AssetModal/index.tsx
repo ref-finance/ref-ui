@@ -48,6 +48,14 @@ import { TbCopy } from 'react-icons/tb';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { NearTip } from '~pages/AccountPage';
 import { isClientMobie, useClientMobile } from '../../../../utils/device';
+import { TipIconAsset } from '../Common/Icons';
+import ReactTooltip from 'react-tooltip';
+
+function getTipAsset() {
+  return `<div class=" rounded-md w-60 text-primaryOrderly  text-xs  text-left">
+    ${'The data provided herein includes all assets and records in your account, not limited to those generated through REF.'} 
+  </div>`;
+}
 
 function parseTxDisplay(tx: string) {
   return tx.slice(0, 5) + '...' + tx.slice(-5);
@@ -423,8 +431,8 @@ export function AssetModal(props: Modal.Props) {
           height: isMobile ? '77vh' : '',
         }}
       >
-        <div className=" flex flex-col relative h-full">
-          <div className="flex bg-allOrderHeader xs:bg-none pt-4 px-5 pb-4  items-center  justify-between">
+        <div className=" flex flex-col relative h-full lg:pb-10">
+          <div className="flex bg-allOrderHeader relative xs:bg-none pt-4 px-5 pb-4  items-center  justify-between">
             <div className="text-white  text-base font-bold">
               <span
                 className={
@@ -470,6 +478,27 @@ export function AssetModal(props: Modal.Props) {
                   ></div>
                 )}
               </span>
+
+              <div
+                data-class="reactTip"
+                data-for={'mobile_tip_asset_orderly'}
+                data-html={true}
+                data-place={'bottom'}
+                data-tip={getTipAsset()}
+                className="lg:hidden absolute right-6 top-5"
+              >
+                <TipIconAsset></TipIconAsset>
+
+                <ReactTooltip
+                  id={'mobile_tip_asset_orderly'}
+                  backgroundColor="#1D2932"
+                  place="right"
+                  border
+                  borderColor="#7e8a93"
+                  textColor="#C6D1DA"
+                  effect="solid"
+                />
+              </div>
             </div>
 
             <span
@@ -657,55 +686,67 @@ export function AssetModal(props: Modal.Props) {
                 })
             ))}
 
-          {tag === 'records' && records && records.length > 0 && (
-            <div className="border-t xs:hidden  absolute bottom-0 right-0 flex items-center px-5 mr-4 justify-end border-gray1 py-3">
-              <span
-                className="cursor-pointer"
-                onClick={() => {
-                  setCurPage(1);
-                }}
-              >
-                <FirstPage></FirstPage>
-              </span>
+          {
+            <div className="flex items-center border-t border-gray1 w-full xs:hidden bottom-0 absolute py-3 ">
+              <div className=" xs:hidden flex  items-center left-2 relative bottom-0.5 ml-4 text-xs ">
+                <TipIconAsset></TipIconAsset>
 
-              <span
-                className="ml-2 cursor-pointer"
-                onClick={() => {
-                  if (curPage > 1) {
-                    setCurPage(curPage - 1);
-                  }
-                }}
-              >
-                <PrePage></PrePage>
-              </span>
+                <div className="ml-1">
+                  The data provided herein includes all assets and records in
+                  your account, not limited to those generated through REF.
+                </div>
+              </div>
+              {tag === 'records' && records && records.length > 0 && (
+                <div className=" xs:hidden  absolute bottom-0 right-0 flex items-center px-2 mr-4 justify-end  py-3">
+                  <span
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setCurPage(1);
+                    }}
+                  >
+                    <FirstPage></FirstPage>
+                  </span>
 
-              <span className="flex ml-2 items-center whitespace-nowrap text-primaryText">
-                {curPage}/{Math.ceil(total / DEFAULT_PAGE_SIZE)}
-              </span>
+                  <span
+                    className="ml-2 cursor-pointer"
+                    onClick={() => {
+                      if (curPage > 1) {
+                        setCurPage(curPage - 1);
+                      }
+                    }}
+                  >
+                    <PrePage></PrePage>
+                  </span>
 
-              <span
-                className="ml-2 cursor-pointer"
-                onClick={() => {
-                  if (curPage * DEFAULT_PAGE_SIZE >= total) {
-                    return;
-                  }
+                  <span className="flex ml-2 items-center whitespace-nowrap text-primaryText">
+                    {curPage}/{Math.ceil(total / DEFAULT_PAGE_SIZE)}
+                  </span>
 
-                  setCurPage(curPage + 1);
-                }}
-              >
-                <NextPage></NextPage>
-              </span>
+                  <span
+                    className="ml-2 cursor-pointer"
+                    onClick={() => {
+                      if (curPage * DEFAULT_PAGE_SIZE >= total) {
+                        return;
+                      }
 
-              <span
-                className="mx-2 cursor-pointer"
-                onClick={() => {
-                  setCurPage(Math.ceil(total / DEFAULT_PAGE_SIZE));
-                }}
-              >
-                <LastPage></LastPage>
-              </span>
+                      setCurPage(curPage + 1);
+                    }}
+                  >
+                    <NextPage></NextPage>
+                  </span>
+
+                  <span
+                    className="mx-2 cursor-pointer"
+                    onClick={() => {
+                      setCurPage(Math.ceil(total / DEFAULT_PAGE_SIZE));
+                    }}
+                  >
+                    <LastPage></LastPage>
+                  </span>
+                </div>
+              )}
             </div>
-          )}
+          }
 
           {tag === 'asset' && (
             <div

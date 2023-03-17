@@ -2772,9 +2772,9 @@ function FarmView(props: {
     if (claimLoading) return;
     setClaimLoading(true);
     claimRewardBySeed_boost(seed.seed_id)
-      .then(() => {
-        window.location.reload();
-      })
+      // .then(() => {
+      //   window.location.reload();
+      // })
       .catch((error) => {
         setClaimLoading(false);
         setError(error);

@@ -865,9 +865,9 @@ export default function FarmsDclDetail(props: {
     if (claimLoading) return;
     setClaimLoading(true);
     claimRewardBySeed_boost(detailData.seed_id)
-      .then(() => {
-        window.location.reload();
-      })
+      // .then(() => {
+      //   window.location.reload();
+      // })
       .catch((error) => {
         setClaimLoading(false);
         // setError(error);
