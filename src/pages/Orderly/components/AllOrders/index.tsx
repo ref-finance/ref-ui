@@ -410,7 +410,11 @@ function OrderLine({
       new Big(order.price).eq(new Big(price || 0)) &&
       new Big(order.quantity).eq(new Big(quantity || 0))
     ) {
-      errorTipMsg = 'At least one of order quantity or price has to be changed';
+      errorTipMsg = intl.formatMessage({
+        id: 'at_least_one_of_order_quantity_or_price_has_to_be_changed',
+        defaultMessage:
+          'At least one of order quantity or price has to be changed',
+      });
     }
 
     if (
@@ -418,17 +422,17 @@ function OrderLine({
       ONLY_ZEROS.test(quantity) &&
       !!quantity
     ) {
-      errorTipMsg = `Quantity should be higher than ${symbolInfo.base_min}`;
+      errorTipMsg = `${intl.formatMessage({
+        id: 'quantity_should_be_higher_than',
+        defaultMessage: 'Quantity should be higher than',
+      })} ${symbolInfo.base_min}`;
     }
 
-    // if ((!symbolInfo || ONLY_ZEROS.test(size)) && !errorTipMsg) {
-    //   return;
-    // }
-
-    // price validator
-
     if (ONLY_ZEROS.test(price || '0')) {
-      errorTipMsg = `Price should be higher than 0`;
+      errorTipMsg = intl.formatMessage({
+        id: 'price_should_be_greater_than_0',
+        defaultMessage: 'Price should be greater than 0',
+      });
     }
 
     if (
@@ -438,16 +442,23 @@ function OrderLine({
         .gt(new Big(holdingTo.holding + holdingTo.pending_short)) &&
       order.side === 'BUY'
     ) {
-      errorTipMsg = `Insufficient ${symbolTo}`;
+      errorTipMsg = `${intl.formatMessage({
+        id: 'insufficient_en',
+        defaultMessage: 'Insufficient',
+      })} ${symbolTo}${intl.formatMessage({
+        id: 'insufficient_zh',
+        defaultMessage: '',
+      })}`;
     }
-
-    console.log('validator test', order.executed, quantity);
 
     if (
       !ONLY_ZEROS.test(order.executed ? order.executed.toString() : '0') &&
       new Big(quantity).lte(new Big(order.executed || 0))
     ) {
-      errorTipMsg = `Quantity should be higher than ${order.executed}`;
+      errorTipMsg = `${intl.formatMessage({
+        id: 'quantity_should_be_higher_than',
+        defaultMessage: 'Quantity should be higher than',
+      })} ${order.executed}`;
     }
 
     if (
@@ -467,18 +478,30 @@ function OrderLine({
       }
 
       if (new Big(left).lt(diff)) {
-        errorTipMsg = `Insufficient ${
+        errorTipMsg = `${intl.formatMessage({
+          id: 'insufficient_en',
+          defaultMessage: 'Insufficient',
+        })} ${
           order.side === 'BUY' ? symbolTo : symbolFrom
-        }`;
+        }${symbolTo}${intl.formatMessage({
+          id: 'insufficient_zh',
+          defaultMessage: '',
+        })}`;
       }
     }
 
     if (new Big(price || 0).lt(symbolInfo.quote_min)) {
-      errorTipMsg = `Min price should be higher than or equal to ${symbolInfo.quote_min}`;
+      errorTipMsg = `${intl.formatMessage({
+        id: 'min_price_should_be_higher_than_or_equal_to',
+        defaultMessage: 'Min price should be higher than or equal to',
+      })} ${symbolInfo.quote_min}`;
     }
 
     if (new Big(price || 0).gt(symbolInfo.quote_max)) {
-      errorTipMsg = `Price should be lower than or equal to ${symbolInfo.quote_max}`;
+      errorTipMsg = `${intl.formatMessage({
+        id: 'price_should_be_lower_than_or_equal_to',
+        defaultMessage: 'Price should be lower than or equal to',
+      })} ${symbolInfo.quote_max}`;
     }
 
     if (
@@ -486,7 +509,13 @@ function OrderLine({
         .mod(symbolInfo.quote_tick)
         .gt(0)
     ) {
-      errorTipMsg = `Price should be multiple of ${symbolInfo.quote_tick}`;
+      errorTipMsg = `${intl.formatMessage({
+        id: 'price_should_be_a_multiple_of',
+        defaultMessage: 'Price should be a multiple of',
+      })}${symbolInfo.quote_tick} ${intl.formatMessage({
+        id: 'price_should_be_a_multiple_of_zh',
+        defaultMessage: '',
+      })}`;
     }
 
     const marketPrice =
@@ -500,9 +529,10 @@ function OrderLine({
       ) &&
       order.side === 'BUY'
     ) {
-      errorTipMsg = `Price should be less than or equal to ${new Big(
-        marketPrice || 0
-      ).times(1 + symbolInfo.price_range)}`;
+      errorTipMsg = `${intl.formatMessage({
+        id: 'price_should_be_lower_than_or_equal_to',
+        defaultMessage: 'Price should be lower than or equal to',
+      })} ${new Big(marketPrice || 0).times(1 + symbolInfo.price_range)}`;
     }
 
     if (
@@ -511,9 +541,10 @@ function OrderLine({
       ) &&
       order.side === 'SELL'
     ) {
-      errorTipMsg = `Price should be greater than or equal to ${new Big(
-        marketPrice || 0
-      ).times(1 - symbolInfo.price_range)}`;
+      errorTipMsg = `${intl.formatMessage({
+        id: 'price_should_be_greater_than_or_equal_to',
+        defaultMessage: 'Price should be greater than or equal to',
+      })} ${new Big(marketPrice || 0).times(1 - symbolInfo.price_range)}`;
     }
 
     if (
@@ -521,21 +552,43 @@ function OrderLine({
       size &&
       new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
     ) {
-      errorTipMsg = `The order value should be greater than or equal to ${symbolInfo.min_notional}`;
+      errorTipMsg = `${intl.formatMessage({
+        id: 'the_order_value_should_be_be_greater_than_or_equal_to',
+        defaultMessage: 'The order value should be be greater than or equal to',
+      })} ${symbolInfo.min_notional}`;
     }
 
     // size validator
 
     if (new Big(size || 0).lt(symbolInfo.base_min)) {
-      errorTipMsg = `Quantity to ${order.side.toLowerCase()} should be greater than or equal to ${
-        symbolInfo.base_min
-      }`;
+      errorTipMsg = `${
+        side === 'Buy'
+          ? intl.formatMessage({
+              id: 'quantity_to_buy_should_be_greater_than_or_equal_to',
+              defaultMessage:
+                'Quantity to buy should be greater than or equal to',
+            })
+          : intl.formatMessage({
+              id: 'quantity_to_sell_should_be_greater_than_or_equal_to',
+              defaultMessage:
+                'Quantity to sell should be greater than or equal to',
+            })
+      } ${symbolInfo.base_min}`;
     }
 
     if (new Big(size || 0).gt(symbolInfo.base_max)) {
-      errorTipMsg = `Quantity to ${order.side.toLowerCase()} should be less than or equal to ${
-        symbolInfo.base_max
-      }`;
+      errorTipMsg = `${
+        side === 'Buy'
+          ? intl.formatMessage({
+              id: 'quantity_to_buy_should_be_less_than_or_equal_to',
+              defaultMessage: 'Quantity to buy should be less than or equal to',
+            })
+          : intl.formatMessage({
+              id: 'quantity_to_sell_should_be_less_than_or_equal_to',
+              defaultMessage:
+                'Quantity to sell should be less than or equal to',
+            })
+      } ${symbolInfo.base_max}`;
     }
 
     if (
@@ -543,7 +596,13 @@ function OrderLine({
         .mod(symbolInfo.base_tick)
         .gt(0)
     ) {
-      errorTipMsg = `Quantity should be multiple of ${symbolInfo.base_tick}`;
+      errorTipMsg = `${intl.formatMessage({
+        id: 'quantity_should_be_a_multiple_of',
+        defaultMessage: 'Quantity should be a multiple of',
+      })} ${symbolInfo.base_tick}${intl.formatMessage({
+        id: 'quantity_should_be_a_multiple_of_zh',
+        defaultMessage: '',
+      })}`;
     }
 
     if (
@@ -551,7 +610,10 @@ function OrderLine({
       size &&
       new Big(price || 0).times(new Big(size || 0)).lt(symbolInfo.min_notional)
     ) {
-      errorTipMsg = `The order value should be greater than or equal to ${symbolInfo.min_notional}`;
+      errorTipMsg = `${intl.formatMessage({
+        id: 'the_order_value_should_be_be_greater_than_or_equal_to',
+        defaultMessage: 'The order value should be be greater than or equal to',
+      })} ${symbolInfo.min_notional}`;
     }
 
     if (!!errorTipMsg && !noPop) {

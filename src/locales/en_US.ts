@@ -1055,5 +1055,28 @@ const en_US = {
   order_edit_success: 'Order Edit Successfully!',
   created_orderly: 'Created',
   open_orderly: 'Open',
+  min_price_should_be_higher_than_or_equal_to:
+    'Min price should be higher than or equal to',
+  price_should_be_lower_than_or_equal_to:
+    'Price should be lower than or equal to',
+  price_should_be_a_multiple_of: 'Price should be a multiple of',
+  price_should_be_greater_than_or_equal_to:
+    'Price should be greater than or equal to',
+  the_order_value_should_be_be_greater_than_or_equal_to:
+    'The order value should be greater than or equal to',
+  quantity_to_buy_should_be_greater_than_or_equal_to:
+    'Quantity to buy should be greater than or equal to',
+  quantity_to_sell_should_be_greater_than_or_equal_to:
+    'Quantity to sell should be greater than or equal to',
+  quantity_to_buy_should_be_less_than_or_equal_to:
+    'Quantity to buy should be less than or equal to',
+  quantity_to_sell_should_be_less_than_or_equal_to:
+    'Quantity to sell should be less than or equal to',
+  quantity_should_be_a_multiple_of: 'Quantity should be a multiple of',
+  at_least_one_of_order_quantity_or_price_has_to_be_changed:
+    'At least one of order quantity or price has to be changed',
+  quantity_should_be_higher_than: 'Quantity should be higher than',
+  price_should_be_higher_than: 'Price should be higher than',
+  insufficient_en: 'Insufficient',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

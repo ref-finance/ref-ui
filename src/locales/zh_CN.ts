@@ -1004,5 +1004,25 @@ const zh_CN = {
   order_edit_success: '订单编辑成功!',
   created_orderly: '已创建',
   open_orderly: '已创建',
+  min_price_should_be_higher_than_or_equal_to: '最低价格应大于或等于',
+  price_should_be_lower_than_or_equal_to: '价格应小于或等于',
+  price_should_be_a_multiple_of: '价格应该是',
+  price_should_be_a_multiple_of_zh: ' 的倍数',
+
+  price_should_be_greater_than_or_equal_to: '价格应大于或等于',
+  the_order_value_should_be_be_greater_than_or_equal_to: '订单价值应大于或等于',
+  quantity_to_buy_should_be_greater_than_or_equal_to: '购买数量应大于或等于',
+  quantity_to_sell_should_be_greater_than_or_equal_to: '卖出数量应大于或等于',
+  quantity_to_buy_should_be_less_than_or_equal_to: '购买数量应小于或等于',
+  quantity_to_sell_should_be_less_than_or_equal_to: '卖出数量应小于或等于',
+  quantity_should_be_a_multiple_of: '数量应该是',
+  quantity_should_be_a_multiple_of_zh: ' 的倍数',
+
+  at_least_one_of_order_quantity_or_price_has_to_be_changed:
+    '订单数量或价格至少要有一个被修改',
+  quantity_should_be_higher_than: '数量应大于',
+  price_should_be_higher_than: '价格应大于',
+  insufficient_en: '',
+  insufficient_zh: '余额不足',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

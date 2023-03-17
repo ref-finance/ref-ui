@@ -765,12 +765,13 @@ export default function UserBoard() {
       return;
     }
 
-    // price validator
-
     if (new Big(price || 0).lt(symbolInfo.quote_min)) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `Min price should be higher than or equal to ${symbolInfo.quote_min}`
+        `${intl.formatMessage({
+          id: 'min_price_should_be_higher_than_or_equal_to',
+          defaultMessage: 'Min price should be higher than or equal to',
+        })} ${symbolInfo.quote_min}`
       );
       return;
     }
@@ -778,7 +779,10 @@ export default function UserBoard() {
     if (new Big(price || 0).gt(symbolInfo.quote_max)) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `Price should be lower than or equal to ${symbolInfo.quote_max}`
+        `${intl.formatMessage({
+          id: 'price_should_be_lower_than_or_equal_to',
+          defaultMessage: 'Price should be lower than or equal to',
+        })} ${symbolInfo.quote_max}`
       );
       return;
     }
@@ -789,7 +793,15 @@ export default function UserBoard() {
         .gt(0)
     ) {
       setShowErrorTip(true);
-      setErrorTipMsg(`Price should be multiple of ${symbolInfo.quote_tick}`);
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'price_should_be_a_multiple_of',
+          defaultMessage: 'Price should be a multiple of',
+        })} ${symbolInfo.quote_tick}${intl.formatMessage({
+          id: 'price_should_be_a_multiple_of_zh',
+          defaultMessage: '',
+        })}`
+      );
       return;
     }
 
@@ -801,9 +813,12 @@ export default function UserBoard() {
     ) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `Price should be less than or equal to ${new Big(
-          orders.asks?.[0]?.[0] || 0
-        ).times(1 + symbolInfo.price_range)}`
+        `${intl.formatMessage({
+          id: 'price_should_be_lower_than_or_equal_to',
+          defaultMessage: 'Price should be lower than or equal to',
+        })} ${new Big(orders.asks?.[0]?.[0] || 0).times(
+          1 + symbolInfo.price_range
+        )}`
       );
 
       return;
@@ -817,9 +832,12 @@ export default function UserBoard() {
     ) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `Price should be greater than or equal to ${new Big(
-          orders.bids?.[0]?.[0] || 0
-        ).times(1 - symbolInfo.price_range)}`
+        `${intl.formatMessage({
+          id: 'price_should_be_greater_than_or_equal_to',
+          defaultMessage: 'Price should be greater than or equal to',
+        })} ${new Big(orders.bids?.[0]?.[0] || 0).times(
+          1 - symbolInfo.price_range
+        )}`
       );
 
       return;
@@ -832,7 +850,11 @@ export default function UserBoard() {
     ) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `The order value should be greater than or equal to ${symbolInfo.min_notional}`
+        `${intl.formatMessage({
+          id: 'the_order_value_should_be_be_greater_than_or_equal_to',
+          defaultMessage:
+            'The order value should be be greater than or equal to',
+        })} ${symbolInfo.min_notional}`
       );
       return;
     }
@@ -852,9 +874,19 @@ export default function UserBoard() {
     if (new Big(size || 0).lt(symbolInfo.base_min)) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `Quantity to ${side.toLowerCase()} should be greater than or equal to ${
-          symbolInfo.base_min
-        }`
+        `${
+          side === 'Buy'
+            ? intl.formatMessage({
+                id: 'quantity_to_buy_should_be_greater_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to buy should be greater than or equal to',
+              })
+            : intl.formatMessage({
+                id: 'quantity_to_sell_should_be_greater_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to sell should be greater than or equal to',
+              })
+        } ${symbolInfo.base_min}`
       );
       return;
     }
@@ -862,9 +894,19 @@ export default function UserBoard() {
     if (new Big(size || 0).gt(symbolInfo.base_max)) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `Quantity to ${side.toLowerCase()} should be less than or equal to ${
-          symbolInfo.base_max
-        }`
+        `${
+          side === 'Buy'
+            ? intl.formatMessage({
+                id: 'quantity_to_buy_should_be_less_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to buy should be less than or equal to',
+              })
+            : intl.formatMessage({
+                id: 'quantity_to_sell_should_be_less_than_or_equal_to',
+                defaultMessage:
+                  'Quantity to sell should be less than or equal to',
+              })
+        } ${symbolInfo.base_max}`
       );
       return;
     }
@@ -875,7 +917,15 @@ export default function UserBoard() {
         .gt(0)
     ) {
       setShowErrorTip(true);
-      setErrorTipMsg(`Quantity should be multiple of ${symbolInfo.base_tick}`);
+      setErrorTipMsg(
+        `${intl.formatMessage({
+          id: 'quantity_should_be_a_multiple_of',
+          defaultMessage: 'Quantity should be a multiple of',
+        })} ${symbolInfo.base_tick}${intl.formatMessage({
+          id: 'quantity_should_be_a_multiple_of_zh',
+          defaultMessage: '',
+        })}`
+      );
       return;
     }
 
@@ -886,7 +936,11 @@ export default function UserBoard() {
     ) {
       setShowErrorTip(true);
       setErrorTipMsg(
-        `The order value should be greater than or equal to ${symbolInfo.min_notional}`
+        `${intl.formatMessage({
+          id: 'the_order_value_should_be_be_greater_than_or_equal_to',
+          defaultMessage:
+            'The order value should be be greater than or equal to',
+        })} ${symbolInfo.min_notional}`
       );
       return;
     }
@@ -896,7 +950,6 @@ export default function UserBoard() {
 
   const priceAndSizeValidator = (price: string, size: string) => {
     const symbolInfo = availableSymbols?.find((s) => s.symbol === symbol);
-    console.log('symbolInfo: ', symbolInfo);
 
     if (!symbolInfo || (ONLY_ZEROS.test(price) && ONLY_ZEROS.test(size))) {
       setShowErrorTip(false);

@@ -540,17 +540,7 @@ export function orderPopUp({
         </div>
 
         <div className="flex -mt-1 items-center">
-          <span>
-            {filled || orderType === 'Market'
-              ? intl.formatMessage({
-                  id: 'Filled',
-                  defaultMessage: 'Filled',
-                })
-              : intl.formatMessage({
-                  id: 'open_orderly',
-                  defaultMessage: 'Open',
-                })}
-          </span>
+          <span>{filled || orderType === 'Market' ? 'Filled' : 'Open'}</span>
           <span
             className="ml-1 relative  flex items-center justify-center"
             style={{
