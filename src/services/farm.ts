@@ -1434,7 +1434,7 @@ export const frontConfig = {
   '3433': '99',
   '79': '98',
 };
-export const farmClassification = {
+export const farmClassification: any = {
   near: [
     0, 1207, 1371, 1395, 2330, 2448, 2799, 3, 3019, 3097, 3474, 3514, 3515,
     3519, 377, 4, 974, 1195, 1923, 3448, 553, 79, 2691, 2800, 3020, 3433, 3612,
@@ -1449,3 +1449,94 @@ export const farmClassification = {
 export const frontConfigBoost = {
   '79': '100',
 };
+
+export function getFarmClassification(): any {
+  const env: string = process.env.NEAR_ENV;
+  if (env == 'pub-testnet') {
+    return {
+      near: [
+        'usdt.fakes.testnet|wrap.testnet|2000',
+        'usdt.fakes.testnet|wrap.testnet|100',
+        '465',
+      ],
+      eth: ['phoenix-bonds.testnet|wrap.testnet|2000', '604'],
+      stable: ['79'],
+    };
+  } else if (env == 'testnet') {
+    return {
+      near: [
+        'usdt.fakes.testnet|wrap.testnet|2000',
+        'usdt.fakes.testnet|wrap.testnet|100',
+        '465',
+      ],
+      eth: ['phoenix-bonds.testnet|wrap.testnet|2000', '604'],
+      stable: ['79'],
+    };
+  } else {
+    return {
+      near: [
+        '0',
+        '1207',
+        '1371',
+        '1395',
+        '2330',
+        '2448',
+        '2799',
+        '3',
+        '3019',
+        '3097',
+        '3474',
+        '3514',
+        '3515',
+        '3519',
+        '377',
+        '4',
+        '974',
+        '1195',
+        '1923',
+        '3448',
+        '553',
+        '79',
+        '2691',
+        '2800',
+        '3020',
+        '3433',
+        '3612',
+        '2769',
+        '2973',
+        '3667',
+        '3688',
+        '3699',
+        '3714',
+        '3471',
+        '3449',
+        '3819',
+        '3804',
+        '3815',
+      ],
+      eth: [
+        '605',
+        '1207',
+        '2734',
+        '1395',
+        '1910',
+        '2330',
+        '2657',
+        '2691',
+        '2799',
+        '2800',
+        '3',
+        '3020',
+        '3433',
+        '4',
+        '974',
+        '3097',
+        '3636',
+        '3815',
+        '3804',
+        '3471',
+      ],
+      stable: ['1910', '3020', '3433', '3514', '3515', '3688', '3689', '3699'],
+    };
+  }
+}

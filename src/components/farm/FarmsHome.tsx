@@ -9,7 +9,6 @@ import {
   NearOptIcon,
   EthOptIcon,
   OthersOptIcon,
-  YoursOptIcon,
   Flight,
   LoveIcon,
   LoveTokenIcon,
@@ -44,7 +43,7 @@ import CalcModelBooster from '../../components/farm/CalcModelBooster';
 import CalcModelDcl from '../../components/farm/CalcModelDcl';
 import {
   classificationOfCoins_key,
-  farmClassification,
+  getFarmClassification,
   list_farmer_seeds,
   get_unclaimed_rewards,
   get_unWithDraw_rewards,
@@ -670,6 +669,7 @@ export default function FarmsHome(props: any) {
     let noDataEnd = true,
       noDataLive = true;
     const commonSeedFarms = mergeCommonSeedsFarms();
+    const farmClassification = getFarmClassification();
     // filter
     farm_display_List.forEach((seed: Seed) => {
       const { pool, seed_id, farmList } = seed;
@@ -730,7 +730,7 @@ export default function FarmsHome(props: any) {
         }
       } else if (filter_type_selectedId == 'near') {
         if (
-          farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) > -1
+          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
           condition1 = true;
         } else {
@@ -738,7 +738,7 @@ export default function FarmsHome(props: any) {
         }
       } else if (filter_type_selectedId == 'eth') {
         if (
-          farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) > -1
+          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
           condition1 = true;
         } else {
@@ -746,7 +746,7 @@ export default function FarmsHome(props: any) {
         }
       } else if (filter_type_selectedId == 'stable') {
         if (
-          farmClassification['stable'].indexOf(+getPoolIdBySeedId(seed_id)) > -1
+          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
           condition1 = true;
         } else {
@@ -755,11 +755,11 @@ export default function FarmsHome(props: any) {
       } else if (filter_type_selectedId == 'others') {
         // others
         const isNotNear =
-          farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotEth =
-          farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotStable =
-          farmClassification['stable'].indexOf(+getPoolIdBySeedId(seed_id)) ==
+          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) ==
           -1;
         if (isNotNear && isNotEth && isNotStable) {
           condition1 = true;
@@ -852,7 +852,7 @@ export default function FarmsHome(props: any) {
         }
       } else if (filter_type_selectedId == 'near') {
         if (
-          farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) > -1
+          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
           condition1 = true;
         } else {
@@ -860,7 +860,7 @@ export default function FarmsHome(props: any) {
         }
       } else if (filter_type_selectedId == 'eth') {
         if (
-          farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) > -1
+          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
           condition1 = true;
         } else {
@@ -868,7 +868,7 @@ export default function FarmsHome(props: any) {
         }
       } else if (filter_type_selectedId == 'stable') {
         if (
-          farmClassification['stable'].indexOf(+getPoolIdBySeedId(seed_id)) > -1
+          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) > -1
         ) {
           condition1 = true;
         } else {
@@ -876,11 +876,11 @@ export default function FarmsHome(props: any) {
         }
       } else if (filter_type_selectedId == 'others') {
         const isNotNear =
-          farmClassification['near'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification['near'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotEth =
-          farmClassification['eth'].indexOf(+getPoolIdBySeedId(seed_id)) == -1;
+          farmClassification['eth'].indexOf(getPoolIdBySeedId(seed_id)) == -1;
         const isNotStable =
-          farmClassification['stable'].indexOf(+getPoolIdBySeedId(seed_id)) ==
+          farmClassification['stable'].indexOf(getPoolIdBySeedId(seed_id)) ==
           -1;
         if (isNotNear && isNotEth && isNotStable) {
           condition1 = true;
@@ -923,12 +923,13 @@ export default function FarmsHome(props: any) {
     if (from == 'main') {
       setHomePageLoading(false);
     }
-    set_farm_display_List(farm_display_List);
-    set_farm_display_ended_List(Array.from(farm_display_ended_List));
+    // sort
     if (dcl_farms.length > 0) {
       set_has_dcl_farms_in_display_list(true);
+      sortFarms('apr');
       setSort('apr');
     } else {
+      sortFarms(sort);
       set_has_dcl_farms_in_display_list(false);
     }
     if (keyWords) {
@@ -939,8 +940,9 @@ export default function FarmsHome(props: any) {
       );
     }
   }
-  function sortFarms() {
-    if (sort == 'apr') {
+  function sortFarms(s?: string) {
+    const sort_v = s || sort;
+    if (sort_v == 'apr') {
       farm_display_List.sort((item1: Seed, item2: Seed) => {
         const item1PoolId = item1.pool.id;
         const item2PoolId = item2.pool.id;
@@ -965,7 +967,7 @@ export default function FarmsHome(props: any) {
         const item2Apr = getTotalAprForSeed(JSON.parse(JSON.stringify(item2)));
         return Number(item2Apr) - Number(item1Apr);
       });
-    } else if (sort == 'tvl') {
+    } else if (sort_v == 'tvl') {
       farm_display_List.sort((item1: Seed, item2: Seed) => {
         const item1PoolId = item1.pool.id;
         const item2PoolId = item2.pool.id;
@@ -1226,6 +1228,7 @@ export default function FarmsHome(props: any) {
       set_filter_type_selectedId('all');
     }
   }
+  const showMigrateEntry = !seed_loading && user_migrate_seeds.length > 0;
   const isMobileSite = isMobile();
   return (
     <div className={`lg:-mt-6 ${getUrlParams() ? 'hidden' : ''}`}>
@@ -1248,14 +1251,28 @@ export default function FarmsHome(props: any) {
               tokenPriceList={tokenPriceList}
               farmDisplayList={farm_display_List}
             ></WithDrawBox>
-            {Object.keys(user_claimed_rewards).length > 0 ? (
+            {Object.keys(user_claimed_rewards).length > 0 ||
+            showMigrateEntry ? (
               <div className="flex items-center justify-start text-sm text-primaryText mt-3 xs:mt-0 md:mt-0 xs:mb-2 md:mb-2">
                 <WarningIcon className="mr-1.5 flex-shrink-0" />
-                <span
+                {/* <span
                   dangerouslySetInnerHTML={{
                     __html: intl.formatMessage({ id: 'has_rewards_tip_in_v2' }),
                   }}
-                ></span>
+                ></span> */}
+                <span>
+                  Found unstated LP tokens or rewards in{' '}
+                  <a
+                    onClick={() => {
+                      window.open('/farms');
+                    }}
+                    className="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"
+                  >
+                    {' '}
+                    Legacy Farms
+                  </a>
+                  .
+                </span>
               </div>
             ) : null}
             <div className="lg:absolute lg:bottom-5 flex items-center xsm:mb-1">
@@ -3050,7 +3067,7 @@ function FarmView(props: {
                         <img
                           key={id}
                           src={icon}
-                          className={`h-4 w-4 rounded-full border border-gradientFromHover bg-gradientFromHover ${
+                          className={`h-4 w-4 rounded-full border border-gradientFromHover ${
                             index != 0 ? '-ml-1' : ''
                           }`}
                         ></img>
@@ -3478,11 +3495,10 @@ function WithDrawBox(props: {
       className={`relative rounded-2xl mb-3.5 z-50 ${
         isOpen ? 'shadow-withDrawColor' : ''
       }`}
-      // style={{ height: Object.values(rewardList).length > 0 ? '92px' : '72px' }}
-      // onMouseOver={() => {
-      //   if (isMobile()) return;
-      //   setIsOpen(true);
-      // }}
+      onMouseOver={() => {
+        if (isMobile()) return;
+        setIsOpen(true);
+      }}
       onMouseLeave={() => setIsOpen(false)}
     >
       <div

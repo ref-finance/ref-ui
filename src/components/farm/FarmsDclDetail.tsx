@@ -829,7 +829,7 @@ export default function FarmsDclDetail(props: {
                   <img
                     src={icon}
                     key={index}
-                    className={`w-4 h-4 rounded-full border border-greenColor bg-greenColor ${
+                    className={`w-4 h-4 rounded-full border border-greenColor ${
                       index != 0 ? '-ml-1' : ''
                     }`}
                   ></img>
