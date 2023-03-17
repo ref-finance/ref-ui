@@ -145,8 +145,8 @@ export default function Asset() {
           .dividedBy(history_total_asset)
           .multipliedBy(100);
         increase_percent = p.toFixed();
+        increase_percent_done = true;
       }
-      increase_percent_done = true;
     }
     return [increase_percent, increase_percent_done];
   }, [
