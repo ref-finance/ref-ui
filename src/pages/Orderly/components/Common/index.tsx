@@ -32,6 +32,7 @@ import {
   get_orderly_public_key_path,
   tradingKeyMap,
 } from '~pages/Orderly/orderly/utils';
+import { useIntl } from 'react-intl';
 
 export function TokenIcon({ src }: { src: any }) {
   return (
@@ -156,6 +157,8 @@ export function ErrorTip({
 }
 
 export function ConnectWallet({ onClick }: { onClick: () => void }) {
+  const intl = useIntl();
+
   return (
     <button
       className="text-base min-w-fit py-3 px-10 relative w-p240 xs:w-full xs:py-2 bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
@@ -169,12 +172,18 @@ export function ConnectWallet({ onClick }: { onClick: () => void }) {
     >
       <NearIcon />
 
-      <span className="whitespace-nowrap ml-3  hover:bg-">Connect Wallet</span>
+      <span className="whitespace-nowrap ml-3  hover:bg-">
+        {intl.formatMessage({
+          id: 'connect_wallet',
+          defaultMessage: 'Connect Wallet',
+        })}
+      </span>
     </button>
   );
 }
 
 export function ConfirmButton({ onClick }: { onClick: () => void }) {
+  const intl = useIntl();
   return (
     <button
       className="text-base min-w-fit py-3 px-10 relative w-p240 xs:w-full xs:py-2 bg-buyGradientGreen rounded-lg text-white font-bold flex items-center justify-center
@@ -186,7 +195,12 @@ export function ConfirmButton({ onClick }: { onClick: () => void }) {
         onClick();
       }}
     >
-      <span className="whitespace-nowrap ml-3  hover:bg-">Confirm</span>
+      <span className="whitespace-nowrap ml-3  hover:bg-">
+        {intl.formatMessage({
+          id: 'confirm',
+          defaultMessage: 'Confirm',
+        })}
+      </span>
     </button>
   );
 }
@@ -227,7 +241,7 @@ export function RegisterButton({
   useEffect(() => {
     setSpinNow(!!spin);
   }, [spin]);
-
+  const intl = useIntl();
   return (
     <div className="flex flex-col items-center xs:w-full  relative ">
       {isMobile && !isOpenMobile ? null : (
@@ -236,8 +250,16 @@ export function RegisterButton({
             {spinNow
               ? null
               : userExist
-              ? "You need to (re)connect your Orderly account to use Ref's Orderbook."
-              : 'Your wallet must first be registered with Orderly in order to use the Orderbook.'}
+              ? intl.formatMessage({
+                  id: 'connect_to_orderly_account',
+                  defaultMessage:
+                    "You need to (re)connect your Orderly account to use Ref's Orderbook.",
+                })
+              : intl.formatMessage({
+                  id: 'first_register_orderly_tip',
+                  defaultMessage:
+                    'Your wallet must first be registered with Orderly in order to use the Orderbook.',
+                })}
           </div>
 
           <div
@@ -248,23 +270,27 @@ export function RegisterButton({
             }
           >
             <div>
-              This Orderbook page is a graphical user interface for trading on
-              Orderly Network, and is provided as a convenience to users of Ref
-              Finance. Orderly Network is fully responsible for the security of
-              their systems, smart contracts, and any funds deposited or sent to
-              those systems and contracts. Users are strongly encouraged to do
-              their own research before connecting their wallet and/or placing
-              any orders.
+              {intl.formatMessage({
+                id: 'more_order_book_page_detail',
+                defaultMessage:
+                  'This Orderbook page is a graphical user interface for trading on Orderly Network, and is provided as a convenience to users of Ref Finance. Orderly Network is fully responsible for the security of their systems, smart contracts, and any funds deposited or sent to those systems and contracts. Users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.',
+              })}
             </div>
 
             <div className="py-5">
               {!userExist && (
                 <span className="mr-1">
-                  Your wallet must be registered with Orderly to trade on their
-                  system.
+                  {intl.formatMessage({
+                    id: 'must_register_tip',
+                    defaultMessage:
+                      'Your wallet must be registered with Orderly to trade on their system.',
+                  })}
                 </span>
               )}{' '}
-              Learn more about
+              {intl.formatMessage({
+                id: 'learn_more_about',
+                defaultMessage: 'Learn more about',
+              })}
               <a
                 href=""
                 className="underline text-primary ml-1"
@@ -273,12 +299,18 @@ export function RegisterButton({
               >
                 Orderly Network
               </a>
-              .
+              {intl.formatMessage({
+                id: 'learn_more_about_zh',
+                defaultMessage: '.',
+              })}
             </div>
 
             <div>
-              By clicking "Confirm", you confirm that you have comprehensively
-              reviewed and comprehended the contents aforementioned
+              {intl.formatMessage({
+                id: 'by_click_confirm',
+                defaultMessage:
+                  'By clicking "Confirm", you confirm that you have comprehensively reviewed and comprehended the contents aforementioned',
+              })}
             </div>
           </div>
         </>
@@ -292,7 +324,12 @@ export function RegisterButton({
               <CheckFlow checked={!!storageEnough}></CheckFlow>
             </div>
 
-            <div>Deposit storage fee</div>
+            <div>
+              {intl.formatMessage({
+                id: 'deposit_storage_fee',
+                defaultMessage: 'Deposit Storage Fee',
+              })}
+            </div>
           </div>
 
           <div className="relative flex mb-5 items-center">
@@ -300,7 +337,13 @@ export function RegisterButton({
               <CheckFlow checked={false}></CheckFlow>
             </div>
 
-            <div>Register Orderly Account</div>
+            <div>
+              {' '}
+              {intl.formatMessage({
+                id: 'register_orderly_account',
+                defaultMessage: 'Register Orderly Account',
+              })}
+            </div>
           </div>
 
           <div
@@ -351,12 +394,27 @@ export function RegisterButton({
           {userExist && !storedAgree
             ? !check
               ? isOpenMobile && !check
-                ? 'Confirm'
-                : 'Connect to Orderly'
-              : 'Connecting'
+                ? intl.formatMessage({
+                    id: 'confirm',
+                    defaultMessage: 'Confirm',
+                  })
+                : intl.formatMessage({
+                    id: 'connect_to_orderly',
+                    defaultMessage: 'Connect to Orderly',
+                  })
+              : intl.formatMessage({
+                  id: 'Connecting',
+                  defaultMessage: 'Connecting',
+                })
             : isOpenMobile && !check
-            ? 'Confirm'
-            : 'Register'}
+            ? intl.formatMessage({
+                id: 'confirm',
+                defaultMessage: 'Confirm',
+              })
+            : intl.formatMessage({
+                id: 'register',
+                defaultMessage: 'Register',
+              })}
         </span>
       </button>
       {isMobile && !isOpenMobile ? null : (
@@ -364,8 +422,15 @@ export function RegisterButton({
           {spinNow
             ? null
             : !userExist
-            ? '* Registering will require a storage deposit.'
-            : '*You may need to increase the storage deposit on your Orderly account.'}
+            ? `* ${intl.formatMessage({
+                id: 'register_deposit_tip',
+                defaultMessage: 'Registering will require a storage deposit.',
+              })}`
+            : `* ${intl.formatMessage({
+                id: 'increase_storage_deposit',
+                defaultMessage:
+                  'You may need to increase the storage deposit on your Orderly account.',
+              })}`}
         </div>
       )}
     </div>
@@ -430,6 +495,7 @@ export function FlexRowStart({
     </div>
   );
 }
+
 export function orderPopUp({
   orderType,
   side,
@@ -474,7 +540,17 @@ export function orderPopUp({
         </div>
 
         <div className="flex -mt-1 items-center">
-          <span>{filled || orderType === 'Market' ? 'Filled' : 'Open'}</span>
+          <span>
+            {filled || orderType === 'Market'
+              ? intl.formatMessage({
+                  id: 'Filled',
+                  defaultMessage: 'Filled',
+                })
+              : intl.formatMessage({
+                  id: 'open_orderly',
+                  defaultMessage: 'Open',
+                })}
+          </span>
           <span
             className="ml-1 relative  flex items-center justify-center"
             style={{
@@ -567,6 +643,7 @@ export function orderPopUp({
 }
 
 export function DepositButton(props: any) {
+  const intl = useIntl();
   return (
     <div
       className="relative  xs:left-2  flex items-center justify-center text-white"
@@ -582,7 +659,12 @@ export function DepositButton(props: any) {
       ></GrayBgBox>
 
       <div className="flex cursor-pointer items-center relative z-40 font-normal">
-        <span className="text-13px">Deposit</span>
+        <span className="text-13px">
+          {intl.formatMessage({
+            id: 'deposit',
+            defaultMessage: 'Deposit',
+          })}
+        </span>
 
         <HiDownload className="ml-1" />
       </div>
@@ -610,6 +692,8 @@ export function DepositButtonMobile(props: any) {
 }
 
 export function WithdrawButton(props: any) {
+  const intl = useIntl();
+
   return (
     <div
       className="relative  flex xs:left-4 items-center justify-center text-white"
@@ -625,7 +709,12 @@ export function WithdrawButton(props: any) {
       ></GrayBgBox>
 
       <div className="flex  cursor-pointer items-center relative z-40 font-normal">
-        <span className="text-13px">Withdraw</span>
+        <span className="text-13px">
+          {intl.formatMessage({
+            id: 'withdraw',
+            defaultMessage: 'Withdraw',
+          })}
+        </span>
 
         <ArrowCurve />
       </div>
@@ -634,6 +723,7 @@ export function WithdrawButton(props: any) {
 }
 
 export function WithdrawButtonMobile(props: any) {
+  const intl = useIntl();
   return (
     <div
       className="relative w-1/2 flex left-2  items-center justify-center text-white"
@@ -644,7 +734,12 @@ export function WithdrawButtonMobile(props: any) {
       ></GrayBgBoxMobile>
 
       <div className="flex  cursor-pointer absolute items-center z-40 font-normal">
-        <span className="text-13px font-bold">Withdraw</span>
+        <span className="text-13px font-bold">
+          {intl.formatMessage({
+            id: 'withdraw',
+            defaultMessage: 'Withdraw',
+          })}
+        </span>
 
         <ArrowCurve />
       </div>

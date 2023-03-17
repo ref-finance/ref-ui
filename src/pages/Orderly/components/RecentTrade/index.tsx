@@ -11,6 +11,7 @@ import {
   numberWithCommasPadding,
 } from '../../utiles';
 import Big from 'big.js';
+import { useIntl } from 'react-intl';
 
 export function parseSymbol(fullName: string) {
   return {
@@ -53,11 +54,18 @@ function RecentTrade() {
     }
   }, [!!recentTrades, symbolInfo]);
 
+  const intl = useIntl();
+
   return (
     <>
       <div className="flex px-4 mr-4 mb-1 items-center text-xs text-primaryOrderly justify-between ">
         <div className="flex items-center">
-          <span>Price</span>
+          <span>
+            {intl.formatMessage({
+              id: 'price',
+              defaultMessage: 'Price',
+            })}
+          </span>
 
           <span className="text-primaryText rounded-md ml-1  px-1 text-xs py-0 pt-0.5 bg-primaryOrderly bg-opacity-10">
             {symbolTo}
@@ -65,14 +73,24 @@ function RecentTrade() {
         </div>
 
         <div>
-          <span>Qty</span>
+          <span>
+            {intl.formatMessage({
+              id: 'qty',
+              defaultMessage: 'Qty',
+            })}
+          </span>
 
           <span className="text-primaryText rounded-md ml-1 px-1 text-xs py-0 pt-0.5 bg-primaryOrderly bg-opacity-10">
             {symbolFrom}
           </span>
         </div>
 
-        <div>Time</div>
+        <div>
+          {intl.formatMessage({
+            id: 'time',
+            defaultMessage: 'Time',
+          })}
+        </div>
       </div>
 
       <section

@@ -50,6 +50,7 @@ import { NearTip } from '~pages/AccountPage';
 import { isClientMobie, useClientMobile } from '../../../../utils/device';
 import { TipIconAsset } from '../Common/Icons';
 import ReactTooltip from 'react-tooltip';
+import { useIntl } from 'react-intl';
 
 function getTipAsset() {
   return `<div class=" rounded-md w-60 text-primaryOrderly  text-xs  text-left">
@@ -327,7 +328,7 @@ export function AssetModal(props: Modal.Props) {
     (b) => Number(b[sortBy]),
     ['desc']
   );
-
+  const intl = useIntl();
   const [records, setRecords] = useState<UserRecord[]>();
 
   const DEFAULT_PAGE_SIZE = 10;
@@ -398,7 +399,6 @@ export function AssetModal(props: Modal.Props) {
   const [operationId, setOperationId] = useState<string>('near');
 
   const isMobile = useClientMobile();
-
   return (
     <Modal
       {...props}
@@ -517,7 +517,15 @@ export function AssetModal(props: Modal.Props) {
               }
             >
               <div className="xs:col-span-1 col-span-2  text-center  inline-flex items-center justify-center justify-self-start">
-                {isMobile ? 'Asset' : 'Tokens'}
+                {isMobile
+                  ? intl.formatMessage({
+                      id: 'asset',
+                      defaultMessage: 'Asset',
+                    })
+                  : intl.formatMessage({
+                      id: 'tokens',
+                      defaultMessage: 'Tokens',
+                    })}
               </div>
 
               <div
@@ -530,7 +538,14 @@ export function AssetModal(props: Modal.Props) {
               >
                 <NearWalletIcon></NearWalletIcon>
 
-                <span className="ml-2">{isMobile ? 'Wallet' : 'NEAR'} </span>
+                <span className="ml-2">
+                  {isMobile
+                    ? intl.formatMessage({
+                        id: 'wallet_up',
+                        defaultMessage: 'Wallet',
+                      })
+                    : 'NEAR'}{' '}
+                </span>
 
                 <MdArrowDropDown
                   size={22}
@@ -567,7 +582,12 @@ export function AssetModal(props: Modal.Props) {
                   <InOrderIcon></InOrderIcon>
                 </span>
 
-                <span className="xs:hidden">Account: in Order</span>
+                <span className="xs:hidden">
+                  {intl.formatMessage({
+                    id: 'account_in_order',
+                    defaultMessage: 'Account: in Order',
+                  })}
+                </span>
 
                 <MdArrowDropDown
                   size={22}
@@ -591,7 +611,12 @@ export function AssetModal(props: Modal.Props) {
                 <span className=" ml-2 lg:hidden ">
                   <OrderlyIconBalance></OrderlyIconBalance>
                 </span>
-                <span className="flex items-center xs:ml-2">Available</span>
+                <span className="flex items-center xs:ml-2">
+                  {intl.formatMessage({
+                    id: 'available',
+                    defaultMessage: 'Available',
+                  })}
+                </span>
 
                 <MdArrowDropDown
                   size={22}
@@ -605,27 +630,43 @@ export function AssetModal(props: Modal.Props) {
               </div>
 
               <div className="col-span-2 xs:hidden justify-self-center xs:justify-self-end flex items-center justify-center">
-                <span>Actions</span>
+                <span>
+                  {intl.formatMessage({
+                    id: 'actions',
+                    defaultMessage: 'Actions',
+                  })}
+                </span>
               </div>
             </div>
           )}
           {tag === 'records' && (
             <div className="grid xs:hidden border-b border-gray1 grid-cols-6 pl-5 pr-0 justify-items-center text-primaryOrderly py-3 h-14">
               <div className="col-span-1 text-center  inline-flex items-center justify-center justify-self-start">
-                Token
+                {intl.formatMessage({
+                  id: 'token',
+                  defaultMessage: 'Token',
+                })}
               </div>
 
               <div
                 className={`flex  relative items-center  right-14 justify-center
                 `}
               >
-                Amount
+                {intl.formatMessage({
+                  id: 'amount',
+                  defaultMessage: 'Amount',
+                })}
               </div>
 
               <div
                 className={`col-span-1  flex justify-items-center relative right-10  items-center `}
               >
-                <span>Source Address</span>
+                <span>
+                  {intl.formatMessage({
+                    id: 'source_address',
+                    defaultMessage: 'Source Address',
+                  })}
+                </span>
               </div>
 
               <div className={` flex items-center relative  justify-center`}>
@@ -633,11 +674,21 @@ export function AssetModal(props: Modal.Props) {
               </div>
 
               <div className="flex items-center relative right-2  justify-self-end justify-center">
-                <span>Time</span>
+                <span>
+                  {intl.formatMessage({
+                    id: 'time',
+                    defaultMessage: 'Time',
+                  })}
+                </span>
               </div>
 
               <div className="flex items-center justify-center">
-                <span>Action</span>
+                <span>
+                  {intl.formatMessage({
+                    id: 'action',
+                    defaultMessage: 'Action',
+                  })}
+                </span>
               </div>
             </div>
           )}

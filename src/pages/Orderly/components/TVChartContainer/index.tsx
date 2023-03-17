@@ -41,7 +41,7 @@ function getLanguageFromURL(): LanguageCode | null {
   const regex = new RegExp('[\\?&]lang=([^&#]*)');
   const results = regex.exec(window.location.search);
   return results === null
-    ? null
+    ? (localStorage.getItem('local')?.split('-')?.[0] as LanguageCode) || null
     : (decodeURIComponent(results[1].replace(/\+/g, ' ')) as LanguageCode);
 }
 

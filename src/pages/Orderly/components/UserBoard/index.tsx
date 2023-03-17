@@ -97,22 +97,40 @@ import {
 } from '../../orderly/utils';
 import { useClientMobile, isMobile } from '../../../../utils/device';
 import { QuestionTip } from '../../../../components/layout/TipWrapper';
+import { useIntl } from 'react-intl';
 
 function getTipFOK() {
+  const intl = useIntl();
   return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
-    ${'Fill-Or-Kill is an order to buy or sell that must be executed immediately in its entirety; otherwise, the entire order will be cancelled.'} 
+    ${intl.formatMessage({
+      id: 'tip_fok',
+      defaultMessage:
+        'Fill-Or-Kill is an order to buy or sell that must be executed immediately in its entirety; otherwise, the entire order will be cancelled.',
+    })} 
   </div>`;
 }
 
 function getTipPostOnly() {
+  const intl = useIntl();
   return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
-    ${'Post Only ensures that traders can only place an order if it would be posted to the orderbook as a Maker order. An order which would be posted as a Taker order will be cancelled.'} 
+
+    ${intl.formatMessage({
+      id: 'tip_post_only',
+      defaultMessage:
+        'Post Only ensures that traders can only place an order if it would be posted to the orderbook as a Maker order. An order which would be posted as a Taker order will be cancelled.',
+    })}
+
   </div>`;
 }
 
 function getTipIoc() {
+  const intl = useIntl();
   return `<div class=" rounded-md w-p200 text-primaryOrderly  text-xs  text-left">
-    ${'Immediate-Or-Cancel is an order to buy or sell that must be filled immediately. Any portion of an IOC order that cannot be filled will be cancelled.'} 
+  ${intl.formatMessage({
+    id: 'tip_ioc',
+    defaultMessage:
+      'Immediate-Or-Cancel is an order to buy or sell that must be filled immediately. Any portion of an IOC order that cannot be filled will be cancelled.',
+  })}
   </div>`;
 }
 function validContract() {
@@ -155,6 +173,8 @@ function RegisterModal(
 ) {
   const { orderlyRegistered, onRequestClose, isOpen, onConfirm } = props;
 
+  const intl = useIntl();
+
   return (
     <Modal {...props}>
       <div
@@ -175,23 +195,27 @@ function RegisterModal(
             </span>
           </div>
           <div>
-            This Orderbook page is a graphical user interface for trading on
-            Orderly Network, and is provided as a convenience to users of Ref
-            Finance. Orderly Network is fully responsible for the security of
-            their systems, smart contracts, and any funds deposited or sent to
-            those systems and contracts. Users are strongly encouraged to do
-            their own research before connecting their wallet and/or placing any
-            orders.
+            {intl.formatMessage({
+              id: 'more_order_book_page_detail',
+              defaultMessage:
+                'This Orderbook page is a graphical user interface for trading on Orderly Network, and is provided as a convenience to users of Ref Finance. Orderly Network is fully responsible for the security of their systems, smart contracts, and any funds deposited or sent to those systems and contracts. Users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.',
+            })}
           </div>
 
           <div className="py-5">
             {!orderlyRegistered && (
               <span className="mr-1">
-                Your wallet must be registered with Orderly to trade on their
-                system.
+                {intl.formatMessage({
+                  id: 'must_register_tip',
+                  defaultMessage:
+                    'Your wallet must be registered with Orderly to trade on their system.',
+                })}
               </span>
             )}{' '}
-            Learn more about
+            {intl.formatMessage({
+              id: 'learn_more_about',
+              defaultMessage: 'Learn more about',
+            })}
             <a
               href=""
               className="underline text-primary ml-1"
@@ -200,12 +224,18 @@ function RegisterModal(
             >
               Orderly Network
             </a>
-            .
+            {intl.formatMessage({
+              id: 'learn_more_about_zh',
+              defaultMessage: '.',
+            })}
           </div>
 
           <div>
-            By clicking "Confirm", you confirm that you have comprehensively
-            reviewed and comprehended the contents aforementioned
+            {intl.formatMessage({
+              id: 'by_click_confirm',
+              defaultMessage:
+                'By clicking "Confirm", you confirm that you have comprehensively reviewed and comprehended the contents aforementioned',
+            })}
           </div>
 
           <div className="flex items-center justify-center">
@@ -220,7 +250,10 @@ function RegisterModal(
                 onConfirm();
               }}
             >
-              Confirm
+              {intl.formatMessage({
+                id: 'confirm',
+                defaultMessage: 'Confirm',
+              })}
             </button>
           </div>
         </div>
@@ -230,24 +263,33 @@ function RegisterModal(
 }
 
 function LearnMoreBox() {
+  const intl = useIntl();
   return (
     <div className="absolute bottom-0 pb-6 right-28 cursor-default w-full">
       <div className="bg-cardBg  rounded-md text-primaryText border text-xs border-primaryText py-3 px-2.5">
-        This Orderbook page is a graphical user interface for trading on Orderly
-        Network, and is provided as a convenience to users of Ref Finance.
-        Orderly Network is fully responsible for the security of their systems,
-        smart contracts, and any funds deposited or sent to those systems and
-        contracts. Users are strongly encouraged to do their own research before
-        connecting their wallet and/or placing any orders.
+        {intl.formatMessage({
+          id: 'more_order_book_page_detail',
+          defaultMessage:
+            'This Orderbook page is a graphical user interface for trading on Orderly Network, and is provided as a convenience to users of Ref Finance. Orderly Network is fully responsible for the security of their systems, smart contracts, and any funds deposited or sent to those systems and contracts. Users are strongly encouraged to do their own research before connecting their wallet and/or placing any orders.',
+        })}
         <br />
-        Learn more about
+
+        {intl.formatMessage({
+          id: 'learn_more_about',
+          defaultMessage: 'Learn more about',
+        })}
         <a
           href="https://orderly.network/"
           target="_blank"
           className="inline underline cursor-pointer text-white ml-1"
         >
-          Orderly Network.
+          Orderly Network
         </a>
+
+        {intl.formatMessage({
+          id: 'learn_more_about_zh',
+          defaultMessage: '.',
+        })}
       </div>
     </div>
   );
@@ -257,6 +299,7 @@ function UserBoardFoot() {
   const [hover, setHover] = useState<boolean>(false);
 
   const { accountId } = useWalletSelector();
+  const intl = useIntl();
 
   return (
     <div
@@ -268,9 +311,11 @@ function UserBoardFoot() {
       {!accountId && (
         <>
           <div>
-            * This Orderbook page is a graphical user interface for trading on
-            Orderly Network, and is provided as a convenience to users of Ref
-            Finance.
+            {intl.formatMessage({
+              id: 'user_foot_tip',
+              defaultMessage:
+                '* This Orderbook page is a graphical user interface for trading on Orderly Network, and is provided as a convenience to users of Ref Finance.',
+            })}
           </div>
 
           <div className={`underline relative   justify-self-start mb-5`}>
@@ -283,8 +328,11 @@ function UserBoardFoot() {
                 setHover(false);
               }}
             >
-              Learn more.
-              {hover && <LearnMoreBox />}
+              {intl.formatMessage({
+                id: 'learn_more_orderly',
+                defaultMessage: 'Learn more',
+              })}
+              .{hover && <LearnMoreBox />}
             </span>
           </div>
         </>
@@ -899,6 +947,8 @@ export default function UserBoard() {
     !keyAnnounced ||
     !validContract();
 
+  const intl = useIntl();
+
   return (
     <div
       className="w-full p-6 relative flex flex-col  border-t border-l border-b h-screen border-boxBorder  bg-black bg-opacity-10"
@@ -991,7 +1041,9 @@ export default function UserBoard() {
       )}
 
       <div className="text-sm text-white font-bold mb-4 text-left flex items-center justify-between">
-        <span>Balances</span>
+        <span>
+          {intl.formatMessage({ id: 'balances', defaultMessage: 'Balances' })}
+        </span>
 
         <div className="flex items-center">
           <DepositButton
@@ -1011,16 +1063,33 @@ export default function UserBoard() {
       </div>
 
       <div className="grid grid-cols-4 text-sm text-primaryOrderly mb-2">
-        <span className="col-span-2  justify-self-start">Assets</span>
+        <span className="col-span-2  justify-self-start">
+          {' '}
+          {intl.formatMessage({
+            id: 'assets',
+            defaultMessage: 'Assets',
+          })}
+        </span>
 
         <span className="justify-self-end flex items-center relative right-10">
           {' '}
-          <NearIConSelectModal /> <span className="ml-2">Wallet</span>{' '}
+          <NearIConSelectModal />{' '}
+          <span className="ml-2 whitespace-nowrap">
+            {intl.formatMessage({
+              id: 'wallet_up',
+              defaultMessage: 'Wallet',
+            })}
+          </span>{' '}
         </span>
 
         <span className="justify-self-end flex items-center">
           <OrderlyIconBalance></OrderlyIconBalance>
-          <span className="ml-2">Available</span>{' '}
+          <span className="ml-2 whitespace-nowrap">
+            {intl.formatMessage({
+              id: 'available_orderly',
+              defaultMessage: 'Available',
+            })}
+          </span>{' '}
         </span>
       </div>
 
@@ -1093,7 +1162,10 @@ export default function UserBoard() {
             setShowAllAssets(true);
           }}
         >
-          See all
+          {intl.formatMessage({
+            id: 'see_all',
+            defaultMessage: 'See all',
+          })}
         </span>
       </div>
 
@@ -1117,9 +1189,12 @@ export default function UserBoard() {
       {/*  order type  */}
       <div className="flex items-center justify-between mt-6">
         <span className="text-sm text-primaryOrderly flex items-center ">
-          Order Type
+          {intl.formatMessage({
+            id: 'order_type',
+            defaultMessage: 'Order Type',
+          })}
           <QuestionTip
-            id="order_type_tip"
+            id={`order_type_${orderType.toLowerCase()}_tip`}
             defaultMessage={
               orderType === 'Limit'
                 ? 'A limit order is an order to buy or sell at a specific price, or better. Limit orders are not guaranteed to execute'
@@ -1151,7 +1226,10 @@ export default function UserBoard() {
                 orderType === 'Limit' ? 'text-white' : 'text-boxBorder'
               } font-bold`}
             >
-              Limit
+              {intl.formatMessage({
+                id: 'limit_orderly',
+                defaultMessage: 'Limit',
+              })}
             </span>
           </button>
 
@@ -1175,7 +1253,10 @@ export default function UserBoard() {
                 orderType === 'Market' ? 'text-white' : 'text-boxBorder'
               } font-bold`}
             >
-              Market
+              {intl.formatMessage({
+                id: 'market',
+                defaultMessage: 'Market',
+              })}
             </span>
           </button>
         </div>
@@ -1186,7 +1267,12 @@ export default function UserBoard() {
       {orderType === 'Limit' && (
         <div className="w-full text-primaryOrderly mt-3 text-sm bg-black bg-opacity-10 rounded-xl border border-boxBorder p-3">
           <div className="flex items-center justify-between">
-            <span>{'Price'}</span>
+            <span>
+              {intl.formatMessage({
+                id: 'price',
+                defaultMessage: 'Price',
+              })}
+            </span>
 
             <span>
               {symbolTo}/{symbolFrom}
@@ -1222,15 +1308,31 @@ export default function UserBoard() {
       )}
       {orderType === 'Market' && (
         <div className="w-full rounded-xl border border-boxBorder p-3 mt-3 text-sm flex items-center justify-between">
-          <span className="text-primaryOrderly">{'Price'}</span>
+          <span className="text-primaryOrderly">
+            {intl.formatMessage({
+              id: 'price',
+              defaultMessage: 'Price',
+            })}
+          </span>
 
-          <span className="text-white">Market price</span>
+          <span className="text-white">
+            {' '}
+            {intl.formatMessage({
+              id: 'market_price',
+              defaultMessage: 'Market price',
+            })}
+          </span>
         </div>
       )}
 
       <div className="w-full text-primaryOrderly mt-3 bg-black text-sm bg-opacity-10 rounded-xl border border-boxBorder p-3">
         <div className="mb-2 text-left flex items-center justify-between">
-          <span>Quantity</span>
+          <span>
+            {intl.formatMessage({
+              id: 'quantity',
+              defaultMessage: 'Quantity',
+            })}
+          </span>
 
           <span className="">{symbolFrom}</span>
         </div>
@@ -1314,7 +1416,13 @@ export default function UserBoard() {
       {orderType === 'Limit' && (
         <div className="text-white text-sm mt-2">
           <div className="flex items-center justify-between">
-            <span className="text-primaryOrderly">Advanced</span>
+            <span className="text-primaryOrderly">
+              {' '}
+              {intl.formatMessage({
+                id: 'advanced',
+                defaultMessage: 'Advanced',
+              })}
+            </span>
 
             <span
               className={`${
@@ -1475,7 +1583,12 @@ export default function UserBoard() {
 
       <div className="mt-6  rounded-lg text-sm px-0 pt-1 relative z-10 pb-6">
         <div className="flex items-center justify-between">
-          <span className="text-primaryOrderly">Fees</span>
+          <span className="text-primaryOrderly">
+            {intl.formatMessage({
+              id: 'Fees',
+              defaultMessage: 'Fees',
+            })}
+          </span>
 
           <FlexRow className="">
             <span className="flex items-center mr-1.5">
@@ -1485,7 +1598,10 @@ export default function UserBoard() {
               <TextWrapper
                 textC="text-primaryText "
                 className="text-xs py-0 px-1"
-                value={`Taker`}
+                value={intl.formatMessage({
+                  id: 'Taker',
+                  defaultMessage: 'Taker',
+                })}
               ></TextWrapper>
             </span>
 
@@ -1495,7 +1611,10 @@ export default function UserBoard() {
               </span>
               <TextWrapper
                 textC="text-primaryText"
-                value={`Maker`}
+                value={intl.formatMessage({
+                  id: 'Maker',
+                  defaultMessage: 'Maker',
+                })}
                 className="text-xs py-0 px-1"
               ></TextWrapper>
             </span>
@@ -1503,7 +1622,12 @@ export default function UserBoard() {
         </div>
 
         <div className="flex items-center mt-2 justify-between">
-          <span className="text-primaryOrderly">Total </span>
+          <span className="text-primaryOrderly">
+            {intl.formatMessage({
+              id: 'total',
+              defaultMessage: 'Total',
+            })}
+          </span>
           <span className="text-white">
             {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
             {` ${symbolTo}`}
@@ -1535,7 +1659,15 @@ export default function UserBoard() {
         disabled={submitDisable || isInsufficientBalance || showErrorTip}
         type="button"
       >
-        {isInsufficientBalance ? 'Insufficient Balance' : side}
+        {isInsufficientBalance
+          ? intl.formatMessage({
+              id: 'insufficient_balance',
+              defaultMessage: 'Insufficient Balance',
+            })
+          : intl.formatMessage({
+              id: side.toLowerCase(),
+              defaultMessage: side,
+            })}
         {` ${isInsufficientBalance ? '' : symbolFrom}`}
       </button>
 
@@ -1722,7 +1854,7 @@ export function AssetManagerModal(
   };
 
   const [buttonLoading, setButtonLoading] = useState(false);
-
+  const intl = useIntl();
   useEffect(() => {
     if (tokenId && tokenMeta) {
       setAmountByShareFromBar(percentage);
@@ -1801,9 +1933,15 @@ export function AssetManagerModal(
             <div className="flex items-center pb-6 justify-between">
               <span className="text-white text-lg font-bold">
                 {props.type === 'deposit'
-                  ? 'Deposit'
+                  ? intl.formatMessage({
+                      id: 'deposit',
+                      defaultMessage: 'Deposit',
+                    })
                   : props.type === 'withdraw'
-                  ? 'Withdraw'
+                  ? intl.formatMessage({
+                      id: 'withdraw',
+                      defaultMessage: 'Withdraw',
+                    })
                   : ''}
               </span>
 
@@ -1819,7 +1957,13 @@ export function AssetManagerModal(
 
             <div className="flex items-center pb-3 justify-between">
               <span className="flex items-center">
-                <NearIConSelectModal /> <span className="ml-2">Wallet</span>
+                <NearIConSelectModal />{' '}
+                <span className="ml-2 whitespace-nowrap">
+                  {intl.formatMessage({
+                    id: 'wallet_up',
+                    defaultMessage: 'Wallet',
+                  })}
+                </span>
               </span>
 
               <span title={walletBalance?.toString() || ''}>
@@ -1833,7 +1977,12 @@ export function AssetManagerModal(
               <span className="flex items-center ">
                 {' '}
                 <OrderlyIconBalance />
-                <span className="ml-2">Available</span>
+                <span className="ml-2 whitespace-nowrap">
+                  {intl.formatMessage({
+                    id: 'available_orderly',
+                    defaultMessage: 'Available',
+                  })}
+                </span>
               </span>
 
               <span title={displayAccountBalance?.toString() || ''}>
@@ -2028,9 +2177,15 @@ export function AssetManagerModal(
                 Text={() => (
                   <span>
                     {type === 'deposit'
-                      ? 'Deposit'
+                      ? intl.formatMessage({
+                          id: 'deposit',
+                          defaultMessage: 'Deposit',
+                        })
                       : type === 'withdraw'
-                      ? 'Withdraw'
+                      ? intl.formatMessage({
+                          id: 'withdraw',
+                          defaultMessage: 'Withdraw',
+                        })
                       : ''}
                   </span>
                 )}
@@ -2482,6 +2637,7 @@ export function MobileUserBoard({
       inputValue
     );
   }, [side, orderType]);
+  const intl = useIntl();
 
   return (
     <div className="w-full p-6 relative flex flex-col    bg-black bg-opacity-10">
@@ -2505,9 +2661,8 @@ export function MobileUserBoard({
       {/*  order type  */}
       <div className="flex items-center justify-between mt-6">
         <span className="text-sm text-primaryOrderly flex items-center ">
-          Order Type
           <QuestionTip
-            id="order_type_tip"
+            id={`order_type_${orderType.toLowerCase()}_tip`}
             defaultMessage={
               orderType === 'Limit'
                 ? 'A limit order is an order to buy or sell at a specific price, or better. Limit orders are not guaranteed to execute'
@@ -2538,7 +2693,10 @@ export function MobileUserBoard({
                 orderType === 'Limit' ? 'text-white' : 'text-boxBorder'
               } font-bold`}
             >
-              Limit
+              {intl.formatMessage({
+                id: 'limit',
+                defaultMessage: 'Limit',
+              })}
             </span>
           </button>
 
@@ -2562,7 +2720,10 @@ export function MobileUserBoard({
                 orderType === 'Market' ? 'text-white' : 'text-boxBorder'
               } font-bold`}
             >
-              Market
+              {intl.formatMessage({
+                id: 'market',
+                defaultMessage: 'Market',
+              })}
             </span>
           </button>
         </div>
@@ -2574,7 +2735,12 @@ export function MobileUserBoard({
         {orderType === 'Limit' && (
           <div className="w-full border border-inputV3BorderColor  mr-1 text-primaryOrderly mt-3 text-sm bg-black bg-opacity-10 rounded-xl  r p-3">
             <div className="flex items-center justify-between">
-              <span>{'Price'}</span>
+              <span>
+                {intl.formatMessage({
+                  id: 'price',
+                  defaultMessage: 'Price',
+                })}
+              </span>
 
               <span>{symbolTo}</span>
             </div>
@@ -2609,7 +2775,12 @@ export function MobileUserBoard({
 
         <div className="w-full text-primaryOrderly ml-1 mt-3 bg-black text-sm bg-opacity-10 rounded-xl border border-inputV3BorderColor p-3">
           <div className="mb-2 text-left flex items-center justify-between">
-            <span>Quantity</span>
+            <span>
+              {intl.formatMessage({
+                id: 'quantity',
+                defaultMessage: 'Quantity',
+              })}
+            </span>
 
             <span className="">{symbolFrom}</span>
           </div>
@@ -2696,7 +2867,11 @@ export function MobileUserBoard({
           side === 'Sell' ? 'text-right' : 'text-left'
         } `}
       >
-        Balance:
+        {intl.formatMessage({
+          id: 'balance',
+          defaultMessage: 'Balance',
+        })}
+        :
         <span
           className={`ml-1 `}
           onClick={(e) => {
@@ -2753,7 +2928,12 @@ export function MobileUserBoard({
       {orderType === 'Limit' && (
         <div className="text-white text-sm mt-2">
           <div className="flex items-center justify-between">
-            <span className="text-primaryOrderly">Advanced</span>
+            <span className="text-primaryOrderly">
+              {intl.formatMessage({
+                id: 'advanced',
+                defaultMessage: 'Advanced',
+              })}
+            </span>
 
             <div className="flex items-center text-primaryText">
               <span className="mr-2">
@@ -2918,7 +3098,13 @@ export function MobileUserBoard({
 
       <div className="mt-6  rounded-lg text-sm px-0 pt-1 relative z-10 ">
         <div className="flex items-center justify-between">
-          <span className="text-primaryOrderly">Fees</span>
+          <span className="text-primaryOrderly">
+            {' '}
+            {intl.formatMessage({
+              id: 'Fees',
+              defaultMessage: 'Fees',
+            })}
+          </span>
 
           <FlexRow className="">
             <span className="flex items-center mr-1.5">
@@ -2928,7 +3114,10 @@ export function MobileUserBoard({
               <TextWrapper
                 textC="text-primaryText "
                 className="text-xs py-0 px-1"
-                value={`Taker`}
+                value={intl.formatMessage({
+                  id: 'Taker',
+                  defaultMessage: 'Taker',
+                })}
               ></TextWrapper>
             </span>
 
@@ -2938,7 +3127,10 @@ export function MobileUserBoard({
               </span>
               <TextWrapper
                 textC="text-primaryText"
-                value={`Maker`}
+                value={intl.formatMessage({
+                  id: 'Maker',
+                  defaultMessage: 'Maker',
+                })}
                 className="text-xs py-0 px-1"
               ></TextWrapper>
             </span>
@@ -2946,7 +3138,12 @@ export function MobileUserBoard({
         </div>
 
         <div className="flex items-center mt-2 justify-between">
-          <span className="text-primaryOrderly">Total </span>
+          <span className="text-primaryOrderly">
+            {intl.formatMessage({
+              id: 'total',
+              defaultMessage: 'Total',
+            })}{' '}
+          </span>
           <span className="text-white">
             {total === '-' ? '-' : digitWrapper(total.toString(), 3)}{' '}
             {` ${symbolTo}`}
@@ -3041,7 +3238,7 @@ function SelectTokenModal(
   const [sortByBalance, setSortByBalance] = useState<'wallet' | 'orderly'>(
     orderBy
   );
-
+  const intl = useIntl();
   useEffect(() => {
     setSortByBalance(orderBy);
   }, [orderBy]);
@@ -3138,7 +3335,12 @@ function SelectTokenModal(
           </div>
 
           <div className="grid px-3  grid-cols-3">
-            <div className="justify-self-start">Assets</div>
+            <div className="justify-self-start">
+              {intl.formatMessage({
+                id: 'assets',
+                defaultMessage: 'Assets',
+              })}
+            </div>
 
             <div
               className="justify-self-center flex items-center cursor-pointer"
@@ -3157,7 +3359,12 @@ function SelectTokenModal(
             >
               <NearIConSelectModal />
 
-              <span className="ml-2">Wallet</span>
+              <span className="ml-2 whitespace-nowrap">
+                {intl.formatMessage({
+                  id: 'wallet_up',
+                  defaultMessage: 'Wallet',
+                })}
+              </span>
 
               <MdArrowDropDown
                 size={22}
@@ -3189,7 +3396,12 @@ function SelectTokenModal(
               }}
             >
               <OrderlyIconBalance></OrderlyIconBalance>
-              <span className="ml-2 ">Available</span>
+              <span className="ml-2 ">
+                {intl.formatMessage({
+                  id: 'available_orderly',
+                  defaultMessage: 'Available',
+                })}
+              </span>
 
               <MdArrowDropDown
                 size={22}
@@ -3305,7 +3517,7 @@ function ConfirmOrderModal(
   const [loading, setLoading] = useState<boolean>(false);
 
   const isMobile = useClientMobile();
-
+  const intl = useIntl();
   return (
     <Modal
       {...props}
@@ -3322,7 +3534,12 @@ function ConfirmOrderModal(
       >
         <div className="px-5 py-6 flex flex-col ">
           <div className="flex items-center pb-6 justify-between">
-            <span className="text-white text-lg font-bold">Confirm Order</span>
+            <span className="text-white text-lg font-bold">
+              {intl.formatMessage({
+                id: 'confirm_order',
+                defaultMessage: 'Confirm Order',
+              })}
+            </span>
 
             <span
               className="cursor-pointer "
@@ -3335,7 +3552,12 @@ function ConfirmOrderModal(
           </div>
 
           <div className="flex items-center mb-5 justify-between">
-            <span>Limit Order</span>
+            <span>
+              {intl.formatMessage({
+                id: 'limit_order',
+                defaultMessage: 'Limit Order',
+              })}
+            </span>
 
             <span className="flex">
               <TextWrapper
@@ -3347,7 +3569,12 @@ function ConfirmOrderModal(
           </div>
 
           <div className="flex items-center mb-5 justify-between">
-            <span>Qty.</span>
+            <span>
+              {intl.formatMessage({
+                id: 'qty.',
+                defaultMessage: 'Qty.',
+              })}
+            </span>
 
             <span className="flex items-center">
               <span className="text-white mr-2">
@@ -3363,7 +3590,12 @@ function ConfirmOrderModal(
           </div>
 
           <div className="flex items-center mb-5 justify-between">
-            <span>Price</span>
+            <span>
+              {intl.formatMessage({
+                id: 'price',
+                defaultMessage: 'Price',
+              })}
+            </span>
 
             <span className="flex items-center">
               <span className="text-white mr-2">{digitWrapper(price, 3)}</span>
@@ -3376,7 +3608,12 @@ function ConfirmOrderModal(
           </div>
 
           <div className="flex items-center mb-5 justify-between">
-            <span className="">Total</span>
+            <span className="">
+              {intl.formatMessage({
+                id: 'total',
+                defaultMessage: 'Total',
+              })}
+            </span>
 
             <span className="flex items-center">
               <span className=" mr-2 text-white">
@@ -3393,7 +3630,13 @@ function ConfirmOrderModal(
           </div>
 
           <div className="flex items-center mb-5 justify-between">
-            <span className="">Fees</span>
+            <span className="">
+              {' '}
+              {intl.formatMessage({
+                id: 'Fees',
+                defaultMessage: 'Fees',
+              })}
+            </span>
 
             <FlexRow className="">
               <span className="flex items-center mr-3">
@@ -3402,7 +3645,10 @@ function ConfirmOrderModal(
                 </span>
                 <TextWrapper
                   textC="text-primaryText"
-                  value={`Taker`}
+                  value={intl.formatMessage({
+                    id: 'Taker',
+                    defaultMessage: 'Taker',
+                  })}
                   className="text-xs py-0 px-1"
                 ></TextWrapper>
               </span>
@@ -3413,7 +3659,10 @@ function ConfirmOrderModal(
                 </span>
                 <TextWrapper
                   textC="text-primaryText"
-                  value={`Maker`}
+                  value={intl.formatMessage({
+                    id: 'Maker',
+                    defaultMessage: 'Maker',
+                  })}
                   className="text-xs py-0 px-1"
                 ></TextWrapper>
               </span>
@@ -3441,7 +3690,15 @@ function ConfirmOrderModal(
             <ButtonTextWrapper
               loading={loading}
               Text={() => {
-                return <span>Confirm</span>;
+                return (
+                  <span>
+                    {' '}
+                    {intl.formatMessage({
+                      id: 'confirm',
+                      defaultMessage: 'Confirm',
+                    })}
+                  </span>
+                );
               }}
             />
           </button>

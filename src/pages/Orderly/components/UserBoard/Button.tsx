@@ -1,5 +1,6 @@
 import React from 'react';
 import { useClientMobile } from '../../../../utils/device';
+import { useIntl } from 'react-intl';
 
 function BuyRec({ select }: { select: boolean }) {
   if (select) {
@@ -199,7 +200,7 @@ function BuyButton(props: {
   const clientWidth = document.documentElement.clientWidth;
 
   const isMobile = useClientMobile();
-
+  const intl = useIntl();
   const buttonStyle = {
     transform: isMobile ? `scale( ${(clientWidth / 2 - 20) / 144} ,1)` : '',
   };
@@ -224,7 +225,7 @@ function BuyButton(props: {
           select ? 'text-white' : 'text-boxBorder'
         }  cursor-pointer text-base z-20 relative font-bold`}
       >
-        Buy
+        {intl.formatMessage({ id: 'buy', defaultMessage: 'Buy' })}
       </span>
     </div>
   );
@@ -238,7 +239,7 @@ function SellButton(props: {
   const { select, mobile } = props;
   const clientWidth = document.documentElement.clientWidth;
   const isMobile = useClientMobile();
-
+  const intl = useIntl();
   const buttonStyle = {
     transform: isMobile ? `scale( ${(clientWidth / 2 - 20) / 144} ,1)` : '',
   };
@@ -262,7 +263,7 @@ function SellButton(props: {
           select ? 'text-white' : 'text-boxBorder'
         } cursor-pointer  z-20 text-base relative  font-bold`}
       >
-        Sell
+        {intl.formatMessage({ id: 'sell', defaultMessage: 'Sell' })}
       </span>
     </div>
   );

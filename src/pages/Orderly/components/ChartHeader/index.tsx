@@ -18,6 +18,7 @@ import useCallback from 'react';
 import { digitWrapper } from '../../utiles';
 import { AllMarketIcon, CheckSelector } from '../Common/Icons';
 import { useClientMobile } from '../../../../utils/device';
+import { useIntl } from 'react-intl';
 
 function tickerToDisplayDiff(ticker: Ticker | undefined) {
   const diff = ticker ? ((ticker.close - ticker.open) * 100) / ticker.open : 0;
@@ -139,6 +140,8 @@ function SymbolSelector(props: {
     }
   }, [allTickers?.map((t) => t.symbol).join('-'), searchValue]);
 
+  const intl = useIntl();
+
   return (
     <div className="absolute left-0 top-8 pt-4 z-50">
       <div
@@ -153,7 +156,10 @@ function SymbolSelector(props: {
           <input
             type="text"
             className="bg-transparent w-full text-white "
-            placeholder="Token"
+            placeholder={intl.formatMessage({
+              id: 'token_orderly',
+              defaultMessage: 'Token',
+            })}
             onChange={(e) => {
               setSearchValue(e.target.value);
             }}
@@ -229,7 +235,7 @@ export function SymbolSelectorMobileModal(
     );
   }
   const [searchValue, setSearchValue] = useState<string>();
-
+  const intl = useIntl();
   useEffect(() => {
     if (!allTickers) return;
     else {
@@ -248,7 +254,17 @@ export function SymbolSelectorMobileModal(
               <div className="mr-2 ml-1 text-white text-sm ">
                 <AllMarketIcon />
               </div>
-              <span className="text-white mr-2">All Instrument</span>
+              <span className="text-white mr-2">
+                {intl.formatMessage({
+                  id: 'All',
+                  defaultMessage: 'All',
+                })}
+                {intl.locale !== 'zh-CN' ? ' ' : ''}
+                {intl.formatMessage({
+                  id: 'instrument',
+                  defaultMessage: 'Instrument',
+                })}
+              </span>
 
               {all && <CheckSelector></CheckSelector>}
             </div>
@@ -293,13 +309,25 @@ export function SymbolSelectorMobileModal(
         }}
       >
         {/* search filed */}
-        <div className="font-bold mb-2 px-5">Select Instrument</div>
+        <div className="font-bold mb-2 px-5">
+          {intl.formatMessage({
+            id: 'select_orderly',
+            defaultMessage: 'Select',
+          })}
+          {intl.formatMessage({
+            id: 'instrument',
+            defaultMessage: 'Instrument',
+          })}
+        </div>
 
         <div className="border border-borderC mx-5 mb-2 px-2 flex items-center justify-between bg-black bg-opacity-20  rounded-lg py-2">
           <input
             type="text"
             className="bg-transparent w-full text-white "
-            placeholder="Token"
+            placeholder={intl.formatMessage({
+              id: 'token_orderly',
+              defaultMessage: 'Token',
+            })}
             onChange={(e) => {
               setSearchValue(e.target.value);
             }}
@@ -366,6 +394,8 @@ function ChartHeader() {
   const [hoverSymbol, setHoverSymbol] = useState<boolean>(false);
 
   const isMobile = useClientMobile();
+
+  const intl = useIntl();
 
   return (
     <div className="flex items-center  text-white text-sm">
@@ -442,7 +472,12 @@ function ChartHeader() {
             justify-between xs:justify-end md:justify-end  text-primaryOrderly`}
         >
           <div className="flex xs:justify-end md:justify-end  items-start flex-col xs:flex-row md:flex-row xs:items-center md:items-center">
-            <span className="xs:hidden md:hidden">Price</span>
+            <span className="xs:hidden md:hidden">
+              {intl.formatMessage({
+                id: 'price',
+                defaultMessage: 'Price',
+              })}
+            </span>
             <div className="flex items-center mt-0.5">
               <span className="text-white font-bold">
                 {digitWrapper(ticker.close.toString(), 3)}
@@ -471,7 +506,12 @@ function ChartHeader() {
           </div>
 
           <div className="flex  xs:hidden md:hidden  items-start flex-col">
-            <span>24h High</span>
+            <span>
+              {intl.formatMessage({
+                id: 'h24_high',
+                defaultMessage: '24h High',
+              })}
+            </span>
 
             <span className="text-white mt-0.5 font-bold">
               {digitWrapper(ticker.high.toString(), 3)}
@@ -479,7 +519,12 @@ function ChartHeader() {
           </div>
 
           <div className="flex items-start xs:hidden md:hidden flex-col">
-            <span>24h Low</span>
+            <span>
+              {intl.formatMessage({
+                id: 'h24_low',
+                defaultMessage: '24h Low',
+              })}
+            </span>
 
             <span className="text-white mt-0.5 font-bold">
               {digitWrapper(ticker.low.toString(), 3)}
@@ -487,7 +532,12 @@ function ChartHeader() {
           </div>
 
           <div className="flex items-start xs:hidden md:hidden  flex-col">
-            <span>24h Volume</span>
+            <span>
+              {intl.formatMessage({
+                id: 'h24_Volume',
+                defaultMessage: '24h Volume',
+              })}
+            </span>
 
             <span className="text-white mt-0.5 font-bold">
               ${toPrecision(ticker.amount.toString(), 3, true)}

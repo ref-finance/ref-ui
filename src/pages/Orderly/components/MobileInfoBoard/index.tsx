@@ -69,7 +69,7 @@ import {
 } from 'react-icons/io';
 import { CheckBox, ConnectWallet, ErrorTip, RegisterButton } from '../Common';
 
-import { orderPopUp, ConfirmButton, QuestionMark } from '../Common/index';
+import { ConfirmButton, QuestionMark } from '../Common/index';
 
 import { FiSearch } from 'react-icons/fi';
 import {
@@ -98,6 +98,7 @@ import { BuyButton, SellButton } from '../UserBoard/Button';
 import { MobileUserBoard } from '../UserBoard/index';
 import AllOrderBoard from '../AllOrders';
 import { isMobile } from '../../../../utils/device';
+import { useIntl } from 'react-intl';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
@@ -105,13 +106,18 @@ export const MOBILE_DISPLAY = 'REF_ORDERLY_MOBILE_DISPLAY';
 
 function ChartBoard() {
   const { validAccountSig, ticker } = useOrderlyContext();
-
+  const intl = useIntl();
   return (
     <div className="h-full ">
       {ticker && (
         <div className="flex items-center text-xs mx-4 justify-between">
           <div className="flex items-center">
-            <span className="text-primaryText mr-2">24h Vol</span>
+            <span className="text-primaryText mr-2">
+              {intl.formatMessage({
+                id: 'h24Vol',
+                defaultMessage: '24h Vol',
+              })}
+            </span>
 
             <span className="text-white">
               ${toPrecision(ticker.amount.toString(), 3, true)}
@@ -119,7 +125,12 @@ function ChartBoard() {
           </div>
 
           <div className="flex items-center">
-            <span className="text-primaryText">24h Range</span>
+            <span className="text-primaryText">
+              {intl.formatMessage({
+                id: 'h24Range',
+                defaultMessage: '24h Range',
+              })}
+            </span>
 
             <span className="text-white ml-2">
               {digitWrapper(ticker.low.toString(), 3)} -{' '}
@@ -195,7 +206,7 @@ function CurAsset() {
     holdings.reduce((acc, cur, i) => {
       return acc + cur.holding + cur.pending_short;
     }, 0);
-
+  const intl = useIntl();
   const valid = !!accountId && (holdings === undefined || allHoldings > 0);
 
   return (
@@ -221,9 +232,11 @@ function CurAsset() {
           className="flex flex-col items-center justify-center text-primaryText"
         >
           <span className="text-center">
-            Deposit assets to begin your
-            <br />
-            trading journey.
+            {intl.formatMessage({
+              id: 'deposit_assets_to_begin_your_trading_journey',
+              defaultMessage:
+                'Deposit assets to begin your <br> trading journey.',
+            })}
           </span>
 
           <button
@@ -235,7 +248,12 @@ function CurAsset() {
               setOperationId(tokenOut?.id || '');
             }}
           >
-            <span className="mr-2">Deposit</span>
+            <span className="mr-2">
+              {intl.formatMessage({
+                id: 'deposit',
+                defaultMessage: 'Deposit',
+              })}
+            </span>
 
             <HiDownload />
           </button>
@@ -882,7 +900,7 @@ export default function () {
 
     sessionStorage.setItem(MOBILE_DISPLAY, display.toString());
   };
-
+  const intl = useIntl();
   return (
     <>
       <div className={tab === 'balance' && showDisplay ? '' : 'hidden'}>
@@ -914,7 +932,12 @@ export default function () {
             }}
           >
             <BalanceIcon></BalanceIcon>
-            <span className="ml-1">Balance</span>
+            <span className="ml-1">
+              {intl.formatMessage({
+                id: 'balance',
+                defaultMessage: 'Balance',
+              })}
+            </span>
           </FlexRow>
 
           <FlexRow
@@ -930,7 +953,12 @@ export default function () {
             }}
           >
             <ChartIcon></ChartIcon>
-            <span className="ml-1">Chart</span>
+            <span className="ml-1">
+              {intl.formatMessage({
+                id: 'chart',
+                defaultMessage: 'Chart',
+              })}
+            </span>
           </FlexRow>
 
           <FlexRow
@@ -946,7 +974,12 @@ export default function () {
             }}
           >
             <BookIcon></BookIcon>
-            <span className="ml-1">Orderbook</span>
+            <span className="ml-1">
+              {intl.formatMessage({
+                id: 'orderbook_mobile',
+                defaultMessage: 'Orderbook',
+              })}
+            </span>
           </FlexRow>
         </div>
 

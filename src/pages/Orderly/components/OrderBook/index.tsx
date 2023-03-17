@@ -22,6 +22,7 @@ import {
   formatWithCommas,
 } from '../../../../utils/numbers';
 import { useInView } from 'react-intersection-observer';
+import { useIntl } from 'react-intl';
 
 function parseSymbol(fullName: string) {
   return {
@@ -367,6 +368,8 @@ function OrderBook() {
     (recentTrades?.at(0)?.executed_price || 0) -
     (recentTrades?.at(1)?.executed_price || 0);
 
+  const intl = useIntl();
+
   return (
     <div className="w-full h-full flex flex-col  relative border  border-boxBorder text-sm rounded-2xl bg-black bg-opacity-10 py-4 ">
       <div className="px-4 relative flex mb-2 border-b border-white border-opacity-10 items-center ">
@@ -378,7 +381,10 @@ function OrderBook() {
             tab === 'book' ? 'text-white' : 'text-primaryOrderly'
           } font-bold mb-1`}
         >
-          Order Book
+          {intl.formatMessage({
+            id: 'orderbook',
+            defaultMessage: 'Order Book',
+          })}
           {tab === 'book' && (
             <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-1.5 left-0"></div>
           )}
@@ -391,7 +397,10 @@ function OrderBook() {
             tab === 'recent' ? 'text-white' : 'text-primaryOrderly'
           } ml-5 font-bold mb-1`}
         >
-          Trades
+          {intl.formatMessage({
+            id: 'trades',
+            defaultMessage: 'Trades',
+          })}
           {tab === 'recent' && (
             <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-1.5 left-0"></div>
           )}
@@ -487,7 +496,12 @@ function OrderBook() {
         <>
           <div className="px-4 flex items-center text-xs mb-2 lg:mr-2 text-primaryOrderly justify-between ">
             <div className="flex items-center">
-              <span className="flex items-center">Price</span>
+              <span className="flex items-center">
+                {intl.formatMessage({
+                  id: 'price',
+                  defaultMessage: 'Price',
+                })}
+              </span>
 
               <span className="text-primaryText rounded-md ml-1 pt-0.5 px-1 text-xs py-0 bg-primaryOrderly bg-opacity-10">
                 {symbolTo}
@@ -495,7 +509,12 @@ function OrderBook() {
             </div>
 
             <div className="flex items-center">
-              <span>Qty</span>
+              <span>
+                {intl.formatMessage({
+                  id: 'qty',
+                  defaultMessage: 'Qty',
+                })}
+              </span>
 
               <span className="text-primaryText rounded-md ml-1 pt-0.5 px-1 text-xs py-0 bg-primaryOrderly bg-opacity-10">
                 {symbolFrom}
@@ -503,7 +522,10 @@ function OrderBook() {
             </div>
 
             <div className="flex items-center">
-              Total
+              {intl.formatMessage({
+                id: 'total_orderly',
+                defaultMessage: 'Total',
+              })}
               <span className="text-primaryText rounded-md ml-1 pt-0.5 px-1 text-xs py-0 bg-primaryOrderly bg-opacity-10">
                 {symbolFrom}
               </span>

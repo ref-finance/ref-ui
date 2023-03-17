@@ -80,6 +80,56 @@ import {
 } from '../../../../utils/device';
 import { Images } from '~components/stableswap/CommonComp';
 import { SymbolSelectorMobileModal } from '../ChartHeader';
+import { useIntl } from 'react-intl';
+import _ from 'lodash';
+
+function getTranslateList(key: 'type' | 'side' | 'status' | 'instrument') {
+  const intl = useIntl();
+  return {
+    type: {
+      All: intl.formatMessage({ id: 'All', defaultMessage: 'All' }),
+      Limit: intl.formatMessage({
+        id: 'limit_orderly',
+        defaultMessage: 'Limit',
+      }),
+      Market: intl.formatMessage({ id: 'market', defaultMessage: 'Market' }),
+      'Post Only': 'Post Only',
+      IOC: 'IOC',
+      FOK: 'FOK',
+      Both: intl.formatMessage({ id: 'both', defaultMessage: 'Both' }),
+    },
+    side: {
+      Both: intl.formatMessage({ id: 'both', defaultMessage: 'Both' }),
+      Buy: intl.formatMessage({ id: 'buy', defaultMessage: 'Buy' }),
+      Sell: intl.formatMessage({ id: 'sell', defaultMessage: 'Sell' }),
+    },
+    status: {
+      All: intl.formatMessage({
+        id: 'All',
+        defaultMessage: 'All',
+      }),
+      Cancelled: intl.formatMessage({
+        id: 'Cancelled',
+        defaultMessage: 'Cancelled',
+      }),
+      Filled: intl.formatMessage({
+        id: 'Filled',
+        defaultMessage: 'Filled',
+      }),
+      Rejected: intl.formatMessage({
+        id: 'Rejected',
+        defaultMessage: 'Rejected',
+      }),
+      Both: intl.formatMessage({ id: 'both', defaultMessage: 'Both' }),
+    },
+    instrument: {
+      All: intl.formatMessage({
+        id: 'All',
+        defaultMessage: 'All',
+      }),
+    },
+  }[key];
+}
 
 export function EditConfirmOrderModal(
   props: Modal.Props & {
@@ -100,7 +150,7 @@ export function EditConfirmOrderModal(
     editType,
     confirmClick,
   } = props;
-
+  const intl = useIntl();
   return (
     <Modal
       {...props}
@@ -133,7 +183,10 @@ export function EditConfirmOrderModal(
                 height: '38px',
               }}
             >
-              Cancel
+              {intl.formatMessage({
+                id: 'cancel',
+                defaultMessage: 'Cancel',
+              })}
             </button>
 
             <button
@@ -172,7 +225,7 @@ function EditOrderModalMobile(
   useEffect(() => {
     setErrorMsg(undefined);
   }, [props.isOpen]);
-
+  const intl = useIntl();
   return (
     <Modal
       {...props}
@@ -194,8 +247,16 @@ function EditOrderModalMobile(
       <div className=" xs:w-screen xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl bg-boxBorder  text-sm text-white ">
         <div className="px-5 py-6 flex flex-col ">
           <div className="text-left whitespace-nowrap text-base font-bold ">
-            {`Change `}
-            <span className="capitalize">{editType}</span>
+            {intl.formatMessage({
+              id: 'change_orderly',
+              defaultMessage: 'Change',
+            })}
+            <span className="">
+              {intl.formatMessage({
+                id: editType,
+                defaultMessage: _.upperFirst(editType),
+              })}
+            </span>
           </div>
 
           <input
@@ -227,7 +288,10 @@ function EditOrderModalMobile(
                 height: '38px',
               }}
             >
-              Cancel
+              {intl.formatMessage({
+                id: 'cancel',
+                defaultMessage: 'Cancel',
+              })}
             </button>
 
             <button
@@ -250,7 +314,10 @@ function EditOrderModalMobile(
               <span className="mr-2">
                 <CheckSelectorWhite></CheckSelectorWhite>
               </span>{' '}
-              Confirm
+              {intl.formatMessage({
+                id: 'confirm',
+                defaultMessage: 'Confirm',
+              })}
             </button>
           </div>
         </div>
@@ -497,7 +564,7 @@ function OrderLine({
   };
 
   const [isCancelled, setIsCancelled] = useState<boolean>(false);
-
+  const intl = useIntl();
   const isMobile = useClientMobile();
 
   function handleEditOrder(value?: string, type?: 'price' | 'quantity') {
@@ -607,7 +674,10 @@ function OrderLine({
         >
           <TextWrapper
             className="px-2 text-sm"
-            value={order.side === 'BUY' ? 'Buy' : 'Sell'}
+            value={intl.formatMessage({
+              id: order.side.toLowerCase(),
+              defaultMessage: order.side,
+            })}
             bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
             textC={order.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'}
           ></TextWrapper>
@@ -619,9 +689,19 @@ function OrderLine({
         >
           <div className="flex items-center">
             <span className="text-white capitalize">
-              {order.type === 'FOK' || order.type === 'IOC'
-                ? order.type
-                : order.type.replace('_', ' ').toLowerCase()}
+              {order.type === 'LIMIT'
+                ? intl.formatMessage({
+                    id: 'limit_orderly',
+                    defaultMessage: 'Limit',
+                  })
+                : order.type === 'MARKET'
+                ? intl.formatMessage({
+                    id: 'market',
+                    defaultMessage: 'Market',
+                  })
+                : order.type === 'POST_ONLY'
+                ? 'Post Only'
+                : order.type}
             </span>
 
             <div
@@ -861,7 +941,10 @@ function OrderLine({
           align="right"
         >
           <CancelButton
-            text="Cancel"
+            text={intl.formatMessage({
+              id: 'cancel',
+              defaultMessage: 'Cancel',
+            })}
             onClick={() => {
               if (!accountId) return;
               cancelOrder({
@@ -902,7 +985,10 @@ function OrderLine({
             <div className="flex items-center mr-2">
               <TextWrapper
                 className="px-2 text-sm w-11"
-                value={order.side === 'BUY' ? 'Buy' : 'Sell'}
+                value={intl.formatMessage({
+                  id: order.side.toLowerCase(),
+                  defaultMessage: order.side,
+                })}
                 bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-redLight'}
                 textC={'text-black font-bold'}
                 bgOpacity="bg-opacity-100"
@@ -925,7 +1011,12 @@ function OrderLine({
               %
             </span>
 
-            <span className="mx-1.5">filled</span>
+            <span className="mx-1.5">
+              {intl.formatMessage({
+                id: 'filled',
+                defaultMessage: 'Filled',
+              })}
+            </span>
 
             <div
               className="flex items-center relative ml-1.5 justify-center border border-dashed rounded-full border-portfolioGreenColor"
@@ -1007,7 +1098,12 @@ function OrderLine({
             />
           </div>
           <div className="flex items-center">
-            <span className="text-primaryText mr-1.5">Total</span>
+            <span className="text-primaryText mr-1.5">
+              {intl.formatMessage({
+                id: 'total_orderly',
+                defaultMessage: 'Total',
+              })}
+            </span>
 
             <span className="text-white font-nunito font-bold">
               {numberWithCommas(
@@ -1077,19 +1173,43 @@ function OrderLine({
             setShowMobileOrderDetail(false);
           }}
           titleList={[
-            'Instrument',
-            'Side',
-            'Type',
-            'Filled / Qty',
-            'Price',
-            'Est. Total',
-            'Create Time',
+            intl.formatMessage({
+              id: 'instrument',
+              defaultMessage: 'Instrument',
+            }),
+            intl.formatMessage({
+              id: 'Side',
+              defaultMessage: 'Side',
+            }),
+            intl.formatMessage({
+              id: 'type',
+              defaultMessage: 'Type',
+            }),
+            intl.formatMessage({
+              id: 'filled_qty',
+              defaultMessage: 'Filled / Qty',
+            }),
+            intl.formatMessage({
+              id: 'price',
+              defaultMessage: 'Price',
+            }),
+            intl.formatMessage({
+              id: 'est_total',
+              defaultMessage: 'Est.Total',
+            }),
+            intl.formatMessage({
+              id: 'create_time',
+              defaultMessage: 'Create Time',
+            }),
           ]}
           valueList={[
             marketInfo,
             <TextWrapper
               className="px-2 text-sm"
-              value={order.side === 'BUY' ? 'Buy' : 'Sell'}
+              value={intl.formatMessage({
+                id: order.side.toLowerCase(),
+                defaultMessage: order.side,
+              })}
               bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
               textC={
                 order.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'
@@ -1097,9 +1217,19 @@ function OrderLine({
             ></TextWrapper>,
             <div className="flex items-center">
               <span className="text-white capitalize ">
-                {order.type === 'FOK' || order.type === 'IOC'
-                  ? order.type
-                  : order.type.replace('_', ' ').toLowerCase()}
+                {order.type === 'LIMIT'
+                  ? intl.formatMessage({
+                      id: 'limit_orderly',
+                      defaultMessage: 'Limit',
+                    })
+                  : order.type === 'MARKET'
+                  ? intl.formatMessage({
+                      id: 'market',
+                      defaultMessage: 'Market',
+                    })
+                  : order.type === 'POST_ONLY'
+                  ? 'Post Only'
+                  : order.type}
               </span>
 
               <div
@@ -1203,7 +1333,7 @@ function HistoryOrderLine({
   const [openFilledDetail, setOpenFilledDetail] = useState<boolean>(false);
 
   const [orderTradesHistory, setOrderTradesHistory] = useState<OrderTrade[]>();
-
+  const intl = useIntl();
   const { accountId } = useWalletSelector();
 
   async function handleSubmit() {
@@ -1255,7 +1385,10 @@ function HistoryOrderLine({
           >
             <TextWrapper
               className="px-2 text-sm"
-              value={order.side === 'BUY' ? 'Buy' : 'Sell'}
+              value={intl.formatMessage({
+                id: order.side.toLowerCase(),
+                defaultMessage: order.side,
+              })}
               bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
               textC={
                 order.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'
@@ -1266,9 +1399,19 @@ function HistoryOrderLine({
           <td>
             <FlexRow className="relative col-span-1">
               <span className={`text-white capitalize `}>
-                {order.type === 'FOK' || order.type === 'IOC'
-                  ? order.type
-                  : order.type.replace('_', ' ').toLowerCase()}
+                {order.type === 'LIMIT'
+                  ? intl.formatMessage({
+                      id: 'limit_orderly',
+                      defaultMessage: 'Limit',
+                    })
+                  : order.type === 'MARKET'
+                  ? intl.formatMessage({
+                      id: 'market',
+                      defaultMessage: 'Market',
+                    })
+                  : order.type === 'POST_ONLY'
+                  ? 'Post Only'
+                  : order.type}
               </span>
 
               <div
@@ -1361,7 +1504,12 @@ function HistoryOrderLine({
 
           <td className="pr-6" align="right">
             <div className="flex items-center justify-end text-white">
-              <span className="capitalize">{order.status.toLowerCase()}</span>
+              <span className="">
+                {intl.formatMessage({
+                  id: _.upperFirst(order.status.toLowerCase()),
+                  defaultMessage: _.upperFirst(order.status.toLowerCase()),
+                })}
+              </span>
               {order.executed !== null && order.executed > 0 && (
                 <div
                   className={`cursor-pointer  rounded-md  ml-2 ${
@@ -1404,15 +1552,33 @@ function HistoryOrderLine({
                 className={`w-full   text-xs grid-cols-6 justify-items-start  border-white mt-2 pb-3 pt-1 border-opacity-10  `}
               >
                 <tr className="w-full">
-                  <td className="">Qty</td>
+                  <td className="">
+                    {intl.formatMessage({
+                      id: 'qty',
+                      defaultMessage: 'Qty',
+                    })}
+                  </td>
 
-                  <td className="">Price</td>
+                  <td className="">
+                    {intl.formatMessage({
+                      id: 'price',
+                      defaultMessage: 'Price',
+                    })}
+                  </td>
 
-                  <td className="">Total</td>
+                  <td className="">
+                    {intl.formatMessage({
+                      id: 'total',
+                      defaultMessage: 'Total',
+                    })}
+                  </td>
 
                   <td className="">
                     <div className="flex items-center">
-                      Fee
+                      {intl.formatMessage({
+                        id: 'fee',
+                        defaultMessage: 'Fee',
+                      })}
                       <TextWrapper
                         value={order.fee_asset}
                         className="ml-2 text-xs py-0 px-1"
@@ -1422,7 +1588,10 @@ function HistoryOrderLine({
                   </td>
 
                   <td className="text-right pr-6" align="right" colSpan={2}>
-                    Time
+                    {intl.formatMessage({
+                      id: 'time',
+                      defaultMessage: 'Time',
+                    })}
                   </td>
                 </tr>
               </thead>
@@ -1479,7 +1648,10 @@ function HistoryOrderLine({
             <div className="flex items-center mr-2">
               <TextWrapper
                 className="px-2 text-sm  w-11"
-                value={order.side === 'BUY' ? 'Buy' : 'Sell'}
+                value={intl.formatMessage({
+                  id: order.side.toLowerCase(),
+                  defaultMessage: order.side,
+                })}
                 bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-redLight'}
                 textC={'text-black font-bold'}
                 bgOpacity="bg-opacity-100"
@@ -1488,7 +1660,12 @@ function HistoryOrderLine({
             {marketInfo}
           </div>
           {order.type === 'MARKET' ? (
-            <span>Market</span>
+            <span>
+              {intl.formatMessage({
+                id: 'market',
+                defaultMessage: 'Market',
+              })}
+            </span>
           ) : (
             <div className="flex items-center ">
               <span className="font-nunito">
@@ -1503,7 +1680,12 @@ function HistoryOrderLine({
                 %
               </span>
 
-              <span className="mx-1.5">filled</span>
+              <span className="mx-1.5">
+                {intl.formatMessage({
+                  id: 'filled',
+                  defaultMessage: 'filled',
+                })}
+              </span>
 
               <div
                 className="flex items-center relative ml-1.5 justify-center
@@ -1575,7 +1757,12 @@ function HistoryOrderLine({
             />
           </div>
           <div className="flex items-center">
-            <span className="text-primaryText mr-1.5">Total</span>
+            <span className="text-primaryText mr-1.5">
+              {intl.formatMessage({
+                id: 'total',
+                defaultMessage: 'Total',
+              })}
+            </span>
 
             <span className="text-white font-bold font-nunito">
               {numberWithCommas(
@@ -1610,21 +1797,51 @@ function HistoryOrderLine({
           symbol={order.symbol}
           orderTradesHistory={orderTradesHistory}
           titleList={[
-            'Instrument',
-            'Side',
-            'Type',
-            'Filled / Qty',
-            'Price',
-            'Avg.Price',
-            'Total',
-            'Create Time',
-            'Status',
+            intl.formatMessage({
+              id: 'instrument',
+              defaultMessage: 'Instrument',
+            }),
+            intl.formatMessage({
+              id: 'Side',
+              defaultMessage: 'Side',
+            }),
+            intl.formatMessage({
+              id: 'type',
+              defaultMessage: 'Type',
+            }),
+            intl.formatMessage({
+              id: 'filled_qty',
+              defaultMessage: 'Filled / Qty',
+            }),
+            intl.formatMessage({
+              id: 'price',
+              defaultMessage: 'Price',
+            }),
+            intl.formatMessage({
+              id: 'avg_price',
+              defaultMessage: 'Avg.Price',
+            }),
+            intl.formatMessage({
+              id: 'total',
+              defaultMessage: 'Total',
+            }),
+            intl.formatMessage({
+              id: 'create_time',
+              defaultMessage: 'Create Time',
+            }),
+            intl.formatMessage({
+              id: 'status',
+              defaultMessage: 'Status',
+            }),
           ]}
           valueList={[
             marketInfo,
             <TextWrapper
               className="px-2 text-sm"
-              value={order.side === 'BUY' ? 'Buy' : 'Sell'}
+              value={intl.formatMessage({
+                id: order.side.toLowerCase(),
+                defaultMessage: order.side,
+              })}
               bg={order.side === 'BUY' ? 'bg-buyGreen' : 'bg-sellRed'}
               textC={
                 order.side === 'BUY' ? 'text-buyGreen' : 'text-sellColorNew'
@@ -1707,7 +1924,12 @@ function HistoryOrderLine({
               {formatTimeDate(order.created_time)}
             </span>,
 
-            <span className="capitalize">{order.status.toLowerCase()}</span>,
+            <span className="capitalize">
+              {intl.formatMessage({
+                id: order.status.toLowerCase(),
+                defaultMessage: order.status.toLowerCase(),
+              })}
+            </span>,
           ]}
         ></MobileHistoryOrderDetail>
       )}
@@ -1757,12 +1979,16 @@ function MobileFilterModal(
     list,
     listKey,
     setCurSelect,
+    keyTranslate,
   }: {
     listKey: string;
     curSelect: string;
     list: string[];
     setCurSelect: (value: string) => void;
+    keyTranslate: 'type' | 'status' | 'side' | 'instrument';
   }) {
+    console.log('key: ', keyTranslate);
+
     return (
       <div className="mb-5 flex items-start w-full justify-between">
         <div className="text-gray2">{listKey}</div>
@@ -1786,7 +2012,9 @@ function MobileFilterModal(
                   setCheck={() => setCurSelect(item)}
                 ></CheckBox>
 
-                <span className="ml-2">{item}</span>
+                <span className="ml-2">
+                  {getTranslateList(keyTranslate)[item]}
+                </span>
               </div>
             );
           })}
@@ -1794,6 +2022,8 @@ function MobileFilterModal(
       </div>
     );
   }
+
+  const intl = useIntl();
 
   return (
     <>
@@ -1816,7 +2046,12 @@ function MobileFilterModal(
       >
         <div className="bg-darkBg px-5 overflow-auto  xs:w-screen xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-base   rounded-lg   border-t border-borderC  py-4 text-white">
           <div className="text-left font-bold flex items-center justify-between">
-            <span>Filter</span>
+            <span>
+              {intl.formatMessage({
+                id: 'filter',
+                defaultMessage: 'Filter',
+              })}
+            </span>
 
             <span
               onClick={(e: any) => {
@@ -1831,7 +2066,12 @@ function MobileFilterModal(
           </div>
 
           <div className="flex items-center justify-between my-5">
-            <span>Instrument</span>
+            <span>
+              {intl.formatMessage({
+                id: 'instrument',
+                defaultMessage: 'Instrument',
+              })}
+            </span>
             <div
               className="flex items-center"
               onClick={() => {
@@ -1839,7 +2079,12 @@ function MobileFilterModal(
               }}
             >
               <span className={curInstrument === 'All' ? 'mr-2' : ''}>
-                {curInstrument}
+                {curInstrument === 'All'
+                  ? intl.formatMessage({
+                      id: 'All',
+                      defaultMessage: 'All',
+                    })
+                  : curInstrument}
               </span>
               <RiArrowDownSFill
                 color="white"
@@ -1851,25 +2096,37 @@ function MobileFilterModal(
           {typeList && (
             <SelectList
               curSelect={curType}
-              listKey="Type"
+              listKey={intl.formatMessage({
+                id: 'type',
+                defaultMessage: 'Type',
+              })}
               list={typeList}
               setCurSelect={setType}
+              keyTranslate="type"
             />
           )}
 
           <SelectList
             curSelect={curSide}
-            listKey="Side"
+            listKey={intl.formatMessage({
+              id: 'Side',
+              defaultMessage: 'Side',
+            })}
             list={sideList}
             setCurSelect={setSide}
+            keyTranslate="side"
           />
 
           {statusList && (
             <SelectList
               curSelect={curStatus}
-              listKey="Status"
+              listKey={intl.formatMessage({
+                id: 'status',
+                defaultMessage: 'Status',
+              })}
               list={statusList}
               setCurSelect={setStatus}
+              keyTranslate="status"
             />
           )}
         </div>
@@ -1916,9 +2173,11 @@ function MobileOpenOrderDetail(
   function InfoLine({
     value,
     title,
+    editType,
   }: {
     value: JSX.Element | string;
     title: string;
+    editType?: 'price' | 'quantity';
   }) {
     return (
       <div className="flex items-center justify-between mt-4 text-base">
@@ -1934,16 +2193,12 @@ function MobileOpenOrderDetail(
           <span
             className="pl-2"
             onClick={() => {
-              if (title === 'Filled / Qty') {
-                setMobileEditType('quantity');
-              } else if (title === 'Price') {
-                setMobileEditType('price');
+              if (editType) {
+                setMobileEditType(editType);
               }
             }}
           >
-            {(title === 'Filled / Qty' || title === 'Price') && (
-              <MobileEdit></MobileEdit>
-            )}
+            {editType && <MobileEdit></MobileEdit>}
           </span>
         </div>
       </div>
@@ -1960,6 +2215,8 @@ function MobileOpenOrderDetail(
     setMobileEditType,
     handleEditOrder,
   } = props;
+
+  const intl = useIntl();
 
   return (
     <>
@@ -1981,7 +2238,12 @@ function MobileOpenOrderDetail(
         }}
       >
         <div className="bg-darkBg px-5 pb-6 overflow-auto  xs:w-screen  xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-base   rounded-lg   border-t border-borderC  py-4 text-white">
-          <div className="text-left font-bold">Open Order Detail</div>
+          <div className="text-left font-bold">
+            {intl.formatMessage({
+              id: 'open_order_detail',
+              defaultMessage: 'Open Order Detail',
+            })}
+          </div>
 
           {titleList.map((title, index) => {
             return (
@@ -1989,6 +2251,9 @@ function MobileOpenOrderDetail(
                 key={'mobile-detail-list-' + title}
                 title={title}
                 value={valueList[index]}
+                editType={
+                  index === 3 ? 'quantity' : index === 4 ? 'price' : undefined
+                }
               />
             );
           })}
@@ -2001,7 +2266,10 @@ function MobileOpenOrderDetail(
               cancelClick();
             }}
           >
-            Cancel Order
+            {intl.formatMessage({
+              id: 'cancel_order',
+              defaultMessage: 'Cancel Order',
+            })}
           </button>
         </div>
       </Modal>
@@ -2061,6 +2329,8 @@ function DetailTable({
 }: {
   orderTradesHistory: OrderTrade[];
 }) {
+  const intl = useIntl();
+
   if (!orderTradesHistory || orderTradesHistory.length === 0) return null;
   return (
     <table className="table-fixed w-full bg-one_level_menu_color">
@@ -2080,7 +2350,10 @@ function DetailTable({
           />
         </th>
         <th align="right" className="pr-5">
-          Time
+          {intl.formatMessage({
+            id: 'time',
+            defaultMessage: 'Time',
+          })}
         </th>
       </thead>
 
@@ -2147,7 +2420,7 @@ function MobileHistoryOrderDetail(
   const { symbolFrom, symbolTo } = parseSymbol(symbol);
 
   const [showDetail, setShowDetail] = useState<boolean>(false);
-
+  const intl = useIntl();
   return (
     <Modal
       {...props}
@@ -2167,7 +2440,12 @@ function MobileHistoryOrderDetail(
       }}
     >
       <div className="bg-darkBg  pb-6 overflow-auto  xs:w-screen  xs:fixed xs:bottom-0 xs:left-0 rounded-t-2xl  text-base   rounded-lg   border-t border-borderC  py-4 text-white">
-        <div className="text-left px-5 font-bold">History Order Detail</div>
+        <div className="text-left px-5 font-bold">
+          {intl.formatMessage({
+            id: 'history_order_detail',
+            defaultMessage: 'History Order Detail',
+          })}
+        </div>
 
         {titleList.map((title, index) => {
           return (
@@ -2258,8 +2536,6 @@ function OpenOrders({
     showCurSymbol && !isMobile() ? symbol : 'all_markets'
   );
 
-  console.log('chooseMarketSymbol: ', chooseMarketSymbol);
-
   const [showMarketSelector, setShowMarketSelector] = useState<boolean>(false);
 
   useEffect(() => {
@@ -2329,6 +2605,7 @@ function OpenOrders({
       setChooseMarketSymbol('all_markets');
     }
   }, [showCurSymbol, symbol]);
+  const intl = useIntl();
 
   if (hidden) return null;
 
@@ -2341,7 +2618,12 @@ function OpenOrders({
             <div className="mr-2 ml-1 text-white text-sm ">
               <AllMarketIcon />
             </div>
-            <span className="text-white">All Instrument</span>
+            <span className="text-white">
+              {intl.formatMessage({
+                id: 'all_instrument',
+                defaultMessage: 'All Instrument',
+              })}
+            </span>
           </div>
         ),
         textId: 'all_markets',
@@ -2387,14 +2669,19 @@ function OpenOrders({
 
     return marketList;
   };
-
   const marketList = generateMarketList();
 
   return (
     <>
       {mobileFilterSize > 0 && isMobile() && tab === 'open' && (
         <div className="w-95vw mx-auto px-2 pl-3 rounded-xl py-2.5 mb-3 flex justify-between bg-menuMoreBgColor text-primaryText text-sm">
-          <div>Filter:</div>
+          <div>
+            {intl.formatMessage({
+              id: 'filter',
+              defaultMessage: 'Filter',
+            })}{' '}
+            :
+          </div>
 
           <div className="flex flex-wrap items-center justify-end">
             {chooseMarketSymbol !== 'all_markets' && (
@@ -2418,7 +2705,12 @@ function OpenOrders({
 
             {chooseSide !== 'Both' && (
               <div className="flex items-center mr-2">
-                <span>{chooseSide}</span>
+                <span>
+                  {intl.formatMessage({
+                    id: chooseSide.toLowerCase(),
+                    defaultMessage: chooseSide,
+                  })}
+                </span>
 
                 <span
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
@@ -2459,7 +2751,10 @@ function OpenOrders({
                 >
                   <span className="flex items-center">
                     {chooseMarketSymbol === 'all_markets' ? (
-                      'All Instrument'
+                      intl.formatMessage({
+                        id: 'all_instrument',
+                        defaultMessage: 'All Instrument',
+                      })
                     ) : (
                       <>
                         <span className="text-white">
@@ -2505,7 +2800,17 @@ function OpenOrders({
                     setShowTypeSelector(false);
                   }}
                 >
-                  <span>{chooseSide === 'Both' ? 'Side' : chooseSide}</span>
+                  <span>
+                    {chooseSide === 'Both'
+                      ? intl.formatMessage({
+                          id: 'Side',
+                          defaultMessage: 'Side',
+                        })
+                      : intl.formatMessage({
+                          id: chooseSide.toLocaleLowerCase(),
+                          defaultMessage: chooseSide,
+                        })}
+                  </span>
 
                   <MdArrowDropDown
                     size={22}
@@ -2515,24 +2820,36 @@ function OpenOrders({
 
                 {showSideSelector && (
                   <Selector
-                    selected={chooseSide}
+                    selected={intl.formatMessage({
+                      id: chooseSide.toLowerCase(),
+                      defaultMessage: chooseSide,
+                    })}
                     setSelect={(value: any) => {
                       setChooseSide(value);
                       setShowSideSelector(false);
                     }}
                     list={[
                       {
-                        text: 'Both',
+                        text: intl.formatMessage({
+                          id: 'both',
+                          defaultMessage: 'Both',
+                        }),
                         textId: 'Both',
                         className: 'text-white',
                       },
                       {
-                        text: 'Buy',
+                        text: intl.formatMessage({
+                          id: 'buy',
+                          defaultMessage: 'Buy',
+                        }),
                         textId: 'Buy',
                         className: 'text-buyGreen',
                       },
                       {
-                        text: 'Sell',
+                        text: intl.formatMessage({
+                          id: 'sell',
+                          defaultMessage: 'Sell',
+                        }),
                         textId: 'Sell',
                         className: 'text-sellColorNew',
                       },
@@ -2544,14 +2861,27 @@ function OpenOrders({
 
             <th>
               <FlexRow className="col-span-1 relative">
-                <span>{chooseType === 'All' ? 'Type' : chooseType}</span>
+                <span>
+                  {chooseType === 'All'
+                    ? intl.formatMessage({
+                        id: 'type',
+                        defaultMessage: 'Type',
+                      })
+                    : intl.formatMessage({
+                        id: chooseSide.toLocaleLowerCase(),
+                        defaultMessage: chooseSide,
+                      })}
+                </span>
               </FlexRow>
             </th>
 
             <th>
               <FlexRow className="col-span-1 relative ">
                 <span className="whitespace-nowrap">
-                  {`Filled / Qty`}
+                  {intl.formatMessage({
+                    id: 'filled_qty',
+                    defaultMessage: 'Filled / Qty',
+                  })}
                   {showCurSymbol && (
                     <TextWrapper
                       value={symbolFrom}
@@ -2567,7 +2897,12 @@ function OpenOrders({
               <FlexRow
                 className={`col-span-2 relative py-2  justify-self-center`}
               >
-                <span>Price</span>
+                <span>
+                  {intl.formatMessage({
+                    id: 'price',
+                    defaultMessage: 'Price',
+                  })}
+                </span>
                 {showCurSymbol && (
                   <TextWrapper
                     value={symbolTo}
@@ -2579,7 +2914,10 @@ function OpenOrders({
             </th>
             <th>
               <div className="whitespace-nowrap flex items-center">
-                Est.Total
+                {intl.formatMessage({
+                  id: 'est_total',
+                  defaultMessage: 'Est.Total',
+                })}
                 {showCurSymbol && (
                   <TextWrapper
                     value={symbolTo}
@@ -2597,7 +2935,12 @@ function OpenOrders({
                   setTimeSorting(timeSorting === 'asc' ? 'dsc' : 'asc');
                 }}
               >
-                <span>Time</span>
+                <span>
+                  {intl.formatMessage({
+                    id: 'time',
+                    defaultMessage: 'Time',
+                  })}
+                </span>
                 {
                   <MdArrowDropDown
                     className={
@@ -2610,7 +2953,13 @@ function OpenOrders({
               </div>
             </th>
             <th align="right">
-              <span className="pr-6"> Action</span>
+              <span className="pr-6">
+                {' '}
+                {intl.formatMessage({
+                  id: 'action',
+                  defaultMessage: 'Action',
+                })}
+              </span>
             </th>
           </tr>
         </thead>
@@ -2622,7 +2971,10 @@ function OpenOrders({
             <OrderlyLoading></OrderlyLoading>
           ) : orders.filter(filterFunc).length === 0 ? (
             <div className="text-dark4 mt-10 mb-4 text-center text-sm">
-              No orders found
+              {intl.formatMessage({
+                id: 'no_orders_found',
+                defaultMessage: 'No orders found',
+              })}
             </div>
           ) : (
             orders
@@ -2817,6 +3169,7 @@ function HistoryOrders({
     showStatuesSelector,
     showMarketSelector,
   ]);
+  const intl = useIntl();
 
   const generateMarketList = () => {
     if (!availableSymbols || !allTokens) return [];
@@ -2827,7 +3180,12 @@ function HistoryOrders({
             <div className="mr-2 ml-1 text-white text-sm ">
               <AllMarketIcon />
             </div>
-            <span className="text-white">All Instrument</span>
+            <span className="text-white">
+              {intl.formatMessage({
+                id: 'all_instrument',
+                defaultMessage: 'All Instrument',
+              })}
+            </span>
           </div>
         ),
         textId: 'all_markets',
@@ -2890,7 +3248,6 @@ function HistoryOrders({
         />
       );
     });
-
   const itemsPerPage = 25;
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [records, setRecords] = useState<number>(itemsPerPage);
@@ -2909,7 +3266,14 @@ function HistoryOrders({
     <>
       {mobileFilterSize > 0 && isMobile() && tab === 'history' && (
         <div className="w-95vw mx-auto px-2 pl-3 rounded-xl py-2.5 mb-3 flex justify-between bg-menuMoreBgColor text-primaryText text-sm">
-          <div>Filter:</div>
+          <div>
+            {' '}
+            {intl.formatMessage({
+              id: 'filter',
+              defaultMessage: 'Filter',
+            })}
+            :
+          </div>
 
           <div className="flex flex-wrap items-center justify-end">
             {chooseMarketSymbol !== 'all_markets' && (
@@ -2933,7 +3297,25 @@ function HistoryOrders({
 
             {chooseType !== 'All' && (
               <div className="flex items-center mr-2 ">
-                <span>{chooseType}</span>
+                <span>
+                  {' '}
+                  {chooseType === 'All'
+                    ? intl.formatMessage({
+                        id: 'type',
+                        defaultMessage: 'Type',
+                      })
+                    : chooseType === 'Limit'
+                    ? intl.formatMessage({
+                        id: 'limit_orderly',
+                        defaultMessage: 'Limit',
+                      })
+                    : chooseType === 'Market'
+                    ? intl.formatMessage({
+                        id: 'market',
+                        defaultMessage: 'Market',
+                      })
+                    : chooseType}
+                </span>
 
                 <span
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
@@ -2948,7 +3330,12 @@ function HistoryOrders({
 
             {chooseSide !== 'Both' && (
               <div className="flex items-center mr-2 ">
-                <span>{chooseSide}</span>
+                <span>
+                  {intl.formatMessage({
+                    id: chooseSide.toLowerCase(),
+                    defaultMessage: chooseSide,
+                  })}
+                </span>
 
                 <span
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
@@ -2963,7 +3350,12 @@ function HistoryOrders({
 
             {chooseStatus !== 'All' && (
               <div className="flex items-center mr-2">
-                <span>{chooseStatus}</span>
+                <span>
+                  {intl.formatMessage({
+                    id: chooseStatus,
+                    defaultMessage: chooseStatus,
+                  })}
+                </span>
 
                 <span
                   className="ml-2 flex items-center justify-center rounded-full w-4 h-4 bg-mobileOrderListTab text-primaryText"
@@ -3004,7 +3396,10 @@ function HistoryOrders({
                   >
                     <span className="flex items-center">
                       {chooseMarketSymbol === 'all_markets' ? (
-                        'All Instrument'
+                        intl.formatMessage({
+                          id: 'all_instrument',
+                          defaultMessage: 'All Instrument',
+                        })
                       ) : (
                         <>
                           <span className="text-white">
@@ -3053,7 +3448,17 @@ function HistoryOrders({
                     setShowStatuesSelector(false);
                   }}
                 >
-                  <span>{chooseSide === 'Both' ? 'Side' : chooseSide}</span>
+                  <span>
+                    {chooseSide === 'Both'
+                      ? intl.formatMessage({
+                          id: 'Side',
+                          defaultMessage: 'Side',
+                        })
+                      : intl.formatMessage({
+                          id: chooseSide.toLowerCase(),
+                          defaultMessage: chooseSide,
+                        })}
+                  </span>
 
                   <MdArrowDropDown
                     size={22}
@@ -3063,24 +3468,36 @@ function HistoryOrders({
 
                 {showSideSelector && (
                   <Selector
-                    selected={chooseSide}
+                    selected={intl.formatMessage({
+                      id: chooseSide.toLowerCase(),
+                      defaultMessage: chooseSide,
+                    })}
                     setSelect={(value: any) => {
                       setChooseSide(value);
                       setShowSideSelector(false);
                     }}
                     list={[
                       {
-                        text: 'Both',
+                        text: intl.formatMessage({
+                          id: 'both',
+                          defaultMessage: 'Both',
+                        }),
                         textId: 'Both',
                         className: 'text-white',
                       },
                       {
-                        text: 'Buy',
+                        text: intl.formatMessage({
+                          id: 'buy',
+                          defaultMessage: 'Buy',
+                        }),
                         textId: 'Buy',
                         className: 'text-buyGreen',
                       },
                       {
-                        text: 'Sell',
+                        text: intl.formatMessage({
+                          id: 'sell',
+                          defaultMessage: 'Sell',
+                        }),
                         textId: 'Sell',
                         className: 'text-sellColorNew',
                       },
@@ -3103,7 +3520,24 @@ function HistoryOrders({
                     setShowStatuesSelector(false);
                   }}
                 >
-                  <span>{chooseType === 'All' ? 'Type' : chooseType}</span>
+                  <span>
+                    {chooseType === 'All'
+                      ? intl.formatMessage({
+                          id: 'type',
+                          defaultMessage: 'Type',
+                        })
+                      : chooseType === 'Limit'
+                      ? intl.formatMessage({
+                          id: 'limit_orderly',
+                          defaultMessage: 'Limit',
+                        })
+                      : chooseType === 'Market'
+                      ? intl.formatMessage({
+                          id: 'market',
+                          defaultMessage: 'Market',
+                        })
+                      : chooseType}
+                  </span>
 
                   <MdArrowDropDown
                     size={22}
@@ -3119,17 +3553,26 @@ function HistoryOrders({
                     }}
                     list={[
                       {
-                        text: 'All',
+                        text: intl.formatMessage({
+                          id: 'All',
+                          defaultMessage: 'All',
+                        }),
                         textId: 'All',
                         className: 'text-white',
                       },
                       {
-                        text: 'Limit',
+                        text: intl.formatMessage({
+                          id: 'limit_orderly',
+                          defaultMessage: 'Limit',
+                        }),
                         textId: 'Limit',
                         className: 'text-white',
                       },
                       {
-                        text: 'Market',
+                        text: intl.formatMessage({
+                          id: 'market',
+                          defaultMessage: 'Market',
+                        }),
                         textId: 'Market',
                         className: 'text-white',
                       },
@@ -3156,7 +3599,12 @@ function HistoryOrders({
 
             <th>
               <FlexRow className="col-span-1 relative ">
-                <span>Filled / Qty</span>
+                <span>
+                  {intl.formatMessage({
+                    id: 'filled_qty',
+                    defaultMessage: 'Filled / Qty',
+                  })}
+                </span>
                 {showCurSymbol && (
                   <TextWrapper
                     value={symbolFrom}
@@ -3169,7 +3617,13 @@ function HistoryOrders({
 
             <th>
               <FlexRow className="col-span-1">
-                <span>Price</span>
+                <span>
+                  {' '}
+                  {intl.formatMessage({
+                    id: 'price',
+                    defaultMessage: 'Price',
+                  })}
+                </span>
 
                 {showCurSymbol && (
                   <TextWrapper
@@ -3183,7 +3637,12 @@ function HistoryOrders({
 
             <th>
               <FlexRow className="col-span-1">
-                <span>Avg.Price</span>
+                <span>
+                  {intl.formatMessage({
+                    id: 'avg_price',
+                    defaultMessage: 'Avg.Price',
+                  })}
+                </span>
                 {showCurSymbol && (
                   <TextWrapper
                     value={symbolTo}
@@ -3196,7 +3655,12 @@ function HistoryOrders({
 
             <th>
               <FlexRow className="col-span-1  justify-self-center">
-                <span>Total</span>
+                <span>
+                  {intl.formatMessage({
+                    id: 'total_orderly',
+                    defaultMessage: 'Both',
+                  })}
+                </span>
                 {showCurSymbol && (
                   <TextWrapper
                     value={symbolTo}
@@ -3214,7 +3678,12 @@ function HistoryOrders({
                   setTimeSorting(timeSorting === 'asc' ? 'dsc' : 'asc');
                 }}
               >
-                <span>Time</span>
+                <span>
+                  {intl.formatMessage({
+                    id: 'time',
+                    defaultMessage: 'Time',
+                  })}
+                </span>
                 {
                   <MdArrowDropDown
                     className={
@@ -3241,7 +3710,15 @@ function HistoryOrders({
                   }}
                 >
                   <span>
-                    {chooseStatus === 'All' ? 'Status' : chooseStatus}
+                    {chooseStatus === 'All'
+                      ? intl.formatMessage({
+                          id: 'status',
+                          defaultMessage: 'Status',
+                        })
+                      : intl.formatMessage({
+                          id: chooseStatus,
+                          defaultMessage: chooseStatus,
+                        })}
                   </span>
 
                   <MdArrowDropDown
@@ -3259,22 +3736,34 @@ function HistoryOrders({
                     }}
                     list={[
                       {
-                        text: 'All',
+                        text: intl.formatMessage({
+                          id: 'All',
+                          defaultMessage: 'All',
+                        }),
                         textId: 'All',
                         className: 'text-white',
                       },
                       {
-                        text: 'Filled',
+                        text: intl.formatMessage({
+                          id: 'Filled',
+                          defaultMessage: 'Filled',
+                        }),
                         textId: 'Filled',
                         className: 'text-white',
                       },
                       {
-                        text: 'Cancelled',
+                        text: intl.formatMessage({
+                          id: 'Cancelled',
+                          defaultMessage: 'Cancelled',
+                        }),
                         textId: 'Cancelled',
                         className: 'text-white',
                       },
                       {
-                        text: 'Rejected',
+                        text: intl.formatMessage({
+                          id: 'Rejected',
+                          defaultMessage: 'Rejected',
+                        }),
                         textId: 'Rejected',
                         className: 'text-white',
                       },
@@ -3293,7 +3782,10 @@ function HistoryOrders({
             <OrderlyLoading></OrderlyLoading>
           ) : orders.filter(filterFunc).length === 0 ? (
             <div className="text-dark4 mt-10 mb-4 text-center text-sm">
-              No orders found
+              {intl.formatMessage({
+                id: 'no_orders_found',
+                defaultMessage: 'No orders found',
+              })}
             </div>
           ) : (
             <InfiniteScroll
@@ -3396,7 +3888,6 @@ function AllOrderBoard() {
     );
   });
 
-  // get history orders, which is orders that are not open orders
   const historyOrders = allOrders?.filter((o) => {
     return (
       openOrders?.map((o) => o.order_id).indexOf(o.order_id) === -1 &&
@@ -3407,7 +3898,7 @@ function AllOrderBoard() {
   const [openCount, setOpenCount] = useState<number>();
 
   const [historyCount, setHistoryCount] = useState<number>();
-
+  const intl = useIntl();
   const history = useHistory();
 
   const [mobileFilterSize, setMobileFilterSize] = useState<number>(0);
@@ -3449,7 +3940,11 @@ function AllOrderBoard() {
                     : 'text-primaryOrderly relative'
                 }
               >
-                Open Orders
+                {intl.formatMessage({
+                  id: 'open_orders',
+                  defaultMessage: 'Open Orders',
+                })}
+
                 {tab === 'open' && !isMobile && (
                   <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
                 )}
@@ -3485,7 +3980,11 @@ function AllOrderBoard() {
                     : 'text-primaryOrderly relative'
                 }
               >
-                History
+                {intl.formatMessage({
+                  id: 'history_orderly',
+                  defaultMessage: 'History',
+                })}
+
                 {tab === 'history' && !isMobile && (
                   <div className="h-0.5 bg-gradientFromHover rounded-lg w-full absolute -bottom-5 left-0"></div>
                 )}
@@ -3520,7 +4019,11 @@ function AllOrderBoard() {
                   setShowCurSymbol(true);
                 }}
               >
-                Current:{' '}
+                {intl.formatMessage({
+                  id: 'current_orderly',
+                  defaultMessage: 'Current',
+                })}
+                :{' '}
                 <span className="text-white">
                   {parseSymbol(symbol).symbolFrom}
                 </span>
@@ -3542,7 +4045,10 @@ function AllOrderBoard() {
                   setShowCurSymbol(false);
                 }}
               >
-                All
+                {intl.formatMessage({
+                  id: 'All',
+                  defaultMessage: 'All',
+                })}
               </span>
             </FlexRow>
           </FlexRow>

@@ -970,7 +970,10 @@ function HistoryOrders({
         </FlexRow>
 
         <FlexRow className="col-span-2">
-          <span>Avg. Price</span>
+          <span>
+            Avg. Price
+            {}
+          </span>
 
           <span
             className="ml-1.5 rounded
