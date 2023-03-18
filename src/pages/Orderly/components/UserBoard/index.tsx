@@ -2775,6 +2775,10 @@ export function MobileUserBoard({
       {/*  order type  */}
       <div className="flex items-center justify-between mt-6">
         <span className="text-sm text-primaryOrderly flex items-center ">
+          {intl.formatMessage({
+            id: 'order_type',
+            defaultMessage: 'Order Type',
+          })}
           <QuestionTip
             id={`order_type_${orderType.toLowerCase()}_tip`}
             defaultMessage={
