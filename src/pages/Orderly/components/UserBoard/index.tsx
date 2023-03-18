@@ -3764,7 +3764,7 @@ function ConfirmOrderModal(
               <span className=" mr-2 text-white">
                 {totalCost === '-'
                   ? '-'
-                  : numberWithCommas(totalCost.toString())}
+                  : digitWrapper(totalCost.toString(), 3)}
               </span>
               <TextWrapper
                 textC="text-primaryText"
