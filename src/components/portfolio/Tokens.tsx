@@ -379,7 +379,7 @@ export default function Tokens() {
     <div className="mt-6">
       <div className="px-5">
         <div className="text-base text-white mb-4 gotham_bold">
-          Token allocation
+          Token Balances
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center">
