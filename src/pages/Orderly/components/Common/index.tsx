@@ -840,10 +840,10 @@ export function MyOrderTip({
       ></OrderSmile>
       {showDetail && (
         <div
-          className="fixed  z-40  rounded-md border bg-orderTipBg border-border3 p-2 "
+          className="absolute top-0 left-5  z-40  rounded-md border bg-orderTipBg border-border3 p-2 "
           style={{
             minWidth: '120px',
-            ...getPosition(),
+            // ...getPosition(),
           }}
         >
           <div className="flex items-center whitespace-nowrap justify-between">
