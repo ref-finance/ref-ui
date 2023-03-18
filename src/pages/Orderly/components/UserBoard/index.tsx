@@ -2100,7 +2100,11 @@ export function AssetManagerModal(
                             : displayAccountBalance.toString()
                         ).toString()
                       : '0';
-                  setPercentage(scientificNotationToString(percentage));
+                  setPercentage(
+                    scientificNotationToString(
+                      Number(percentage) > 100 ? '100' : percentage
+                    )
+                  );
                 }}
                 onKeyDown={(e) =>
                   symbolsArr.includes(e.key) && e.preventDefault()
