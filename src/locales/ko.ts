@@ -996,5 +996,8 @@ const ko = {
   executing: 'Executing',
   from_2: 'from',
   to_2: 'to',
+  your_orders_2: 'Your Orders',
+  in_farm_2: 'in farm',
+  your_liquidity_2: 'Your Liquidity',
 };
 export default Object.assign(ko, ko_in_risks_page);

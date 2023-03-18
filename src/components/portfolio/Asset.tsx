@@ -295,7 +295,7 @@ function AssetPc() {
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
             >
-              in farm
+              <FormattedMessage id="in_farm_2"></FormattedMessage>
             </span>{' '}
           </div>
         </DataTemplate>
@@ -317,7 +317,7 @@ function AssetPc() {
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
             >
-              in farm
+              <FormattedMessage id="in_farm_2"></FormattedMessage>
             </span>{' '}
           </div>
         </DataTemplate>
@@ -415,7 +415,7 @@ function AssetMobile() {
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
             >
-              in farm
+              <FormattedMessage id="in_farm_2"></FormattedMessage>
             </span>{' '}
           </div>
         </DataTemplate>
@@ -438,7 +438,7 @@ function AssetMobile() {
               }}
               className="ml-1.5 text-limitOrderInputColor underline hover:text-primaryText cursor-pointer"
             >
-              in farm
+              <FormattedMessage id="in_farm_2"></FormattedMessage>
             </span>{' '}
           </div>
         </DataTemplate>

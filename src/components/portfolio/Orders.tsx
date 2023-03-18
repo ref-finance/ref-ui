@@ -1053,7 +1053,7 @@ function OrderCard({
               }}
               className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white py-0.5"
             >
-              <FormattedMessage id="your_orders" />{' '}
+              <FormattedMessage id="your_orders_2" />{' '}
               <LinkIcon className="ml-1"></LinkIcon>
             </span>
           </div>
@@ -1100,7 +1100,7 @@ function OrderCard({
             }}
             className="flex items-center justify-center text-xs text-v3SwapGray relative -top-3 "
           >
-            <FormattedMessage id="your_orders" />{' '}
+            <FormattedMessage id="your_orders_2" />{' '}
             <LinkIcon className="ml-1.5 transform scale-125"></LinkIcon>
           </span>
         </div>

@@ -68,7 +68,8 @@ export default function Positions(props: any) {
         {/* for mobile banner */}
         <div className="flex items-center justify-between lg:hidden p-5">
           <span className="text-base text-white gotham_bold">
-            Your Liquidity ({total_liquidity_quantity})
+            <FormattedMessage id="your_liquidity_2" /> (
+            {total_liquidity_quantity})
           </span>
           <div className="flex items-center">
             <span className="text-base text-white gotham_bold mr-2">

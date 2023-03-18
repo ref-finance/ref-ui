@@ -35,7 +35,7 @@ export default function Tab() {
   } = useContext(PortfolioData);
   const intl = useIntl();
   const active_orders_text = intl.formatMessage({ id: 'active_orders' });
-  const your_liquidity_text = intl.formatMessage({ id: 'your_liquidity' });
+  const your_liquidity_text = intl.formatMessage({ id: 'your_liquidity_2' });
   const yield_farming_text = intl.formatMessage({ id: 'yield_farming' });
   const [tabList, setTabList] = useState([
     { name: active_orders_text, tag: '1', value: '$-', quantity: '-' },
