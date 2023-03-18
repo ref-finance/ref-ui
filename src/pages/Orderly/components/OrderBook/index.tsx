@@ -559,7 +559,7 @@ function OrderBook() {
                   pendingOrders={pendingOrders}
                   groupMyPendingOrders={groupMyPendingOrders}
                   totalSize={asktotalSize}
-                  zIndex={inViewAsk + i + 1 + 30}
+                  zIndex={Math.max(inViewAsk + 30 + (i % inViewAsk), 0) + 1}
                   inViewCount={inViewAsk}
                   setInViewCOunt={setInViewAsk}
                   decimalLength={getDecimalPlaceByNumber(precision)}
@@ -605,7 +605,7 @@ function OrderBook() {
                   pendingOrders={pendingOrders}
                   groupMyPendingOrders={groupMyPendingOrders}
                   totalSize={bidtotalSize}
-                  zIndex={Math.max(inViewBid - i, 0) - 1 + 30}
+                  zIndex={Math.max(inViewBid + 30 - (i % inViewBid), 0) - 1}
                   inViewCount={inViewBid}
                   setInViewCOunt={setInViewBid}
                   decimalLength={getDecimalPlaceByNumber(precision)}
