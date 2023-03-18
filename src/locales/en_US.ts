@@ -1091,5 +1091,6 @@ const en_US = {
   open: 'Open',
   to_buy: 'To Buy',
   to_sell: 'To Sell',
+  in_open_orders: 'In Open Orders',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

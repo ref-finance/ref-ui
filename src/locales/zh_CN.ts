@@ -1037,5 +1037,6 @@ const zh_CN = {
   open: '未结',
   to_buy: '买入',
   to_sell: '卖出',
+  in_open_orders: '在未结订单中',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

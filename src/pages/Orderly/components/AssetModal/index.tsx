@@ -575,14 +575,6 @@ export function AssetModal(props: Modal.Props) {
                       : ''
                   } `}
                 ></MdArrowDropDown>
-
-                <div
-                  className="border-b xs:hidden absolute border-v3SwapGray transform rotate-90 "
-                  style={{
-                    width: '18px',
-                    right: '-8px',
-                  }}
-                ></div>
               </div>
 
               <div
@@ -603,8 +595,8 @@ export function AssetModal(props: Modal.Props) {
 
                 <span className="xs:hidden">
                   {intl.formatMessage({
-                    id: 'account_in_order',
-                    defaultMessage: 'Account: in Order',
+                    id: 'in_open_orders',
+                    defaultMessage: 'In Open Orders',
                   })}
                 </span>
 
@@ -627,7 +619,7 @@ export function AssetModal(props: Modal.Props) {
                   setSortBy('available');
                 }}
               >
-                <span className=" ml-2 lg:hidden ">
+                <span className=" ml-2 lg:ml-0 lg:mr-2 ">
                   <OrderlyIconBalance></OrderlyIconBalance>
                 </span>
                 <span className="flex items-center xs:ml-2">
