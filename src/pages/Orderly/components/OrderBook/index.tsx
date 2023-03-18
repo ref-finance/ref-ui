@@ -559,7 +559,7 @@ function OrderBook() {
                   pendingOrders={pendingOrders}
                   groupMyPendingOrders={groupMyPendingOrders}
                   totalSize={asktotalSize}
-                  zIndex={30}
+                  zIndex={31}
                   inViewCount={inViewAsk}
                   setInViewCOunt={setInViewAsk}
                   decimalLength={getDecimalPlaceByNumber(precision)}

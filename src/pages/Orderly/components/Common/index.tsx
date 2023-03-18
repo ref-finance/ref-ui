@@ -24,7 +24,7 @@ import { HiDownload } from 'react-icons/hi';
 import { formatTimeDate } from '../OrderBoard/index';
 import { MyOrder } from '../../orderly/type';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { digitWrapper } from '../../utiles';
+import { digitWrapper, numberWithCommas } from '../../utiles';
 import { isMobile } from '~utils/device';
 import { REF_ORDERLY_AGREE_CHECK } from '../UserBoard/index';
 import { useClientMobile } from '../../../../utils/device';
@@ -808,6 +808,18 @@ export function MyOrderTip({
     return actualTop;
   }
 
+  function getElementLeft(element: any) {
+    var actualLeft = element.offsetLeft;
+    var current = element.offsetParent;
+
+    while (current !== null) {
+      actualLeft += current.offsetLeft;
+      current = current.offsetParent;
+    }
+
+    return actualLeft;
+  }
+
   function getPosition() {
     const smileEl = document.getElementById(id);
 
@@ -817,10 +829,13 @@ export function MyOrderTip({
 
     const top = getElementTop(smileEl);
 
+    const left = getElementLeft(smileEl);
+
     const scrollTop = orderEl.scrollTop;
 
     return {
-      top: top - scrollTop + 20 - document.documentElement.scrollTop,
+      top: top - scrollTop - document.documentElement.scrollTop,
+      left: left + 20,
     };
   }
 
@@ -840,10 +855,10 @@ export function MyOrderTip({
       ></OrderSmile>
       {showDetail && (
         <div
-          className="absolute top-0 left-5  z-40  rounded-md border bg-orderTipBg border-border3 p-2 "
+          className="fixed   z-40  rounded-md border bg-orderTipBg border-border3 p-2 "
           style={{
             minWidth: '120px',
-            // ...getPosition(),
+            ...getPosition(),
           }}
         >
           <div className="flex items-center whitespace-nowrap justify-between">
@@ -854,7 +869,7 @@ export function MyOrderTip({
               })}
             </span>
 
-            <span className="text-white ml-2">${digitWrapper(price, 2)}</span>
+            <span className="text-white ml-2">${numberWithCommas(price)}</span>
           </div>
 
           <div className="flex items-center whitespace-nowrap justify-between mt-2 ">
@@ -866,7 +881,7 @@ export function MyOrderTip({
             </span>
 
             <span className="text-white ml-2">
-              {digitWrapper(quantity.toString(), 2)}
+              {numberWithCommas(quantity.toString())}
             </span>
           </div>
         </div>
