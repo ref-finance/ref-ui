@@ -993,7 +993,7 @@ const ko = {
   your_positions: 'Your Positions',
   your_price_range: 'Your Price Range',
   locked_in: 'locked in',
-  executing: 'executing',
+  executing: 'Executing',
   from_2: 'from',
   to_2: 'to',
 };
