@@ -53,7 +53,6 @@ export default function Tokens() {
   const [dcl_total_value, set_dcl_total_value] = useState<string>('0');
   const [aurora_total_value, set_aurora_total_value] = useState<string>('0');
   const [color_list, set_color_list] = useState([
-    '#00D6AF',
     '#467681',
     '#468173',
     '#43698D',
@@ -303,20 +302,23 @@ export default function Tokens() {
     const parseSerialization: TokenMetadata[] = JSON.parse(
       JSON.stringify(tokens)
     );
-    const target = parseSerialization.map((token: TokenMetadata, t) => {
-      if (+total_value > 0) {
-        const { t_value } = token;
-        const value_big = new BigNumber(t_value);
-        const percent = value_big.dividedBy(total_value).multipliedBy(100);
-        const display_value = new BigNumber(0.005)
-          .multipliedBy(total_value)
-          .toFixed();
-        return {
-          ...token,
-          value: percent.isLessThan('0.5') ? display_value : t_value,
-        };
+    const target = parseSerialization.map(
+      (token: TokenMetadata, index: number) => {
+        if (+total_value > 0) {
+          const { t_value } = token;
+          const value_big = new BigNumber(t_value);
+          const percent = value_big.dividedBy(total_value).multipliedBy(100);
+          const display_value = new BigNumber(0.005)
+            .multipliedBy(total_value)
+            .toFixed();
+          return {
+            ...token,
+            value: percent.isLessThan('0.5') ? display_value : t_value,
+            itemStyle: index == 0 ? { color: '#00D6AF' } : {},
+          };
+        }
       }
-    });
+    );
     return target;
   }
   function getCurrentTokenProportion(token: TokenMetadata) {
