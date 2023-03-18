@@ -3295,7 +3295,15 @@ export function MobileUserBoard({
         disabled={submitDisable || isInsufficientBalance || showErrorTip}
         type="button"
       >
-        {isInsufficientBalance ? 'Insufficient Balance' : side}
+        {isInsufficientBalance
+          ? intl.formatMessage({
+              id: 'insufficient_balance',
+              defaultMessage: 'Insufficient Balance',
+            })
+          : intl.formatMessage({
+              id: side.toLowerCase(),
+              defaultMessage: side,
+            })}
         {` ${isInsufficientBalance ? '' : symbolFrom}`}
       </button>
 
