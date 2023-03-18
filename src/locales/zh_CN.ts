@@ -1024,7 +1024,18 @@ const zh_CN = {
   price_should_be_higher_than: '价格应大于',
   insufficient_en: '',
   insufficient_zh: '余额不足',
+  at_orderly: '以价格',
   the_all_data_orderly_tip:
     '这里的数据不仅仅限于在Ref上产生的数据，包含了您账户中所有的资产和记录。',
+  change_the_quantity_of: '改变',
+  change_the_quantity_of_zh: '的数量',
+  change_the_price_of: '改变',
+  change_the_price_of_zh: '的价格',
+  market_order_filled: '市价单已成交',
+  limit_order_created: '限价单已创建',
+  limit_order_filled: '限价单已成交',
+  open: '未结',
+  to_buy: '买入',
+  to_sell: '卖出',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

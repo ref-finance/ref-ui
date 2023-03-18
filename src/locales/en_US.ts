@@ -1080,5 +1080,16 @@ const en_US = {
   insufficient_en: 'Insufficient',
   the_all_data_orderly_tip:
     'The data provided herein includes all assets and records in your account, not limited to those generated through REF.',
+
+  at_orderly: 'at',
+
+  change_the_quantity_of: 'Change the quantity of',
+  change_the_price_of: 'Change the price of',
+  market_order_filled: 'Market Order Filled',
+  limit_order_created: 'Limit Order Created',
+  limit_order_filled: 'Limit Order Filled',
+  open: 'Open',
+  to_buy: 'To Buy',
+  to_sell: 'To Sell',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

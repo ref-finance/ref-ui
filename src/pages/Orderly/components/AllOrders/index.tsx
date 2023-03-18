@@ -80,7 +80,7 @@ import {
 } from '../../../../utils/device';
 import { Images } from '~components/stableswap/CommonComp';
 import { SymbolSelectorMobileModal } from '../ChartHeader';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import _ from 'lodash';
 
 function getTranslateList(key: 'type' | 'side' | 'status' | 'instrument') {
@@ -162,7 +162,21 @@ export function EditConfirmOrderModal(
     >
       <div className=" rounded-2xl lg:w-96 xs:w-95vw gradientBorderWrapperZ bg-boxBorder text-sm text-white border ">
         <div className="px-5 py-6 flex flex-col ">
-          <div className="text-center whitespace-nowrap mt-4">{`Changing the ${editType} of ${symbolFrom} / ${symbolTo}`}</div>
+          <div className="text-center whitespace-nowrap mt-4">
+            {
+              <FormattedMessage
+                id={`change_the_${editType}_of`}
+                defaultMessage={`Change the ${editType} of`}
+              />
+            }
+            {` ${symbolFrom} / ${symbolTo} `}
+            {
+              <FormattedMessage
+                id={`change_the_${editType}_of_zh`}
+                defaultMessage={''}
+              />
+            }
+          </div>
           <div className="flex mt-4 mb-6 items-center justify-center">
             <span className="text-primaryOrderly">{changeFrom}</span>
             <span className="mx-5">
@@ -200,7 +214,10 @@ export function EditConfirmOrderModal(
                 height: '38px',
               }}
             >
-              Confirm
+              {intl.formatMessage({
+                id: 'confirm',
+                defaultMessage: 'Confirm',
+              })}
             </button>
           </div>
         </div>

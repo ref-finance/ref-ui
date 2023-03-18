@@ -32,7 +32,7 @@ import {
   get_orderly_public_key_path,
   tradingKeyMap,
 } from '~pages/Orderly/orderly/utils';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 export function TokenIcon({ src }: { src: any }) {
   return (
@@ -530,17 +530,38 @@ export function orderPopUp({
               side === 'Buy' ? 'bg-greenLight' : 'bg-redLight'
             }`}
           >
-            {side}
+            <FormattedMessage id={side.toLowerCase()} defaultMessage={side} />
           </div>
 
           <div className="text-dark5 font-bold text-lg">
-            {orderType} Order
-            {orderType === 'Limit' && !filled ? ' Created' : ' Filled'}!
+            {orderType === 'Market' ? (
+              <FormattedMessage
+                id="market_order_filled"
+                defaultMessage={'Market Order Filled'}
+              />
+            ) : filled ? (
+              <FormattedMessage
+                id="limit_order_filled"
+                defaultMessage={'Limit Order Filled'}
+              />
+            ) : (
+              <FormattedMessage
+                id="limit_order_created"
+                defaultMessage={'Limit Order Created'}
+              />
+            )}
+            !
           </div>
         </div>
 
         <div className="flex -mt-1 items-center">
-          <span>{filled || orderType === 'Market' ? 'Filled' : 'Open'}</span>
+          <span>
+            {filled || orderType === 'Market' ? (
+              <FormattedMessage id="Filled" defaultMessage={'Filled'} />
+            ) : (
+              <FormattedMessage id="open" />
+            )}
+          </span>
           <span
             className="ml-1 relative  flex items-center justify-center"
             style={{
@@ -581,9 +602,14 @@ export function orderPopUp({
       </FlexRowBetween>
 
       <FlexRowStart className="mt-6 ">
-        {`To ${side} `}
+        {
+          <FormattedMessage
+            id={`to_${side.toLowerCase()}`}
+            defaultMessage={`To ${side}`}
+          />
+        }
         <span className="mx-1 font-bold">{`${size} ${symbolFrom}`}</span>
-        at
+        <FormattedMessage id="at_orderly" defaultMessage={'at'} />
         <span className="ml-1 font-bold">{`${price} ${symbolTo}`}</span>
       </FlexRowStart>
 
@@ -860,16 +886,26 @@ export function orderEditPopUpSuccess({
     <div className={`flex-col  px-2 pt-4 text-sm   w-full`}>
       <FlexRow className="relative bottom-3 w-full">
         <div className={`text-white rounded-lg  px-2 mr-1.5 font-bold`}>
-          {!!cancel ? 'Order Canceled.' : 'Order Edit Successfully!'}
+          {!!cancel ? (
+            <FormattedMessage
+              id="order_cancelled"
+              defaultMessage="Order Canceled."
+            />
+          ) : (
+            <FormattedMessage
+              id="order_edit_success"
+              defaultMessage="Order Edit Successfully!"
+            />
+          )}
         </div>
       </FlexRow>
 
       <div className="absolute w-1 bottom-0 bg-gradientFrom h-full left-0"></div>
 
       <FlexRowStart className=" px-2 text-white">
-        {`${side} `}
+        {<FormattedMessage id={side.toLowerCase()} defaultMessage={side} />}
         <span className="mx-1 ">{`${size} ${symbolFrom}`}</span>
-        at
+        <FormattedMessage id={'at_orderly'} defaultMessage={'at'} />
         <span className="ml-1 ">{`${price} ${symbolTo}`}</span>
       </FlexRowStart>
     </div>,
