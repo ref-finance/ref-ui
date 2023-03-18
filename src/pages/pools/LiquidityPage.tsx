@@ -1036,7 +1036,7 @@ function MobileLiquidityPage({
                 switchActiveTab('v2');
               }}
             >
-              DCL Pools
+              <FormattedMessage id="v2_pools" />
             </button>
 
             <button
@@ -1056,7 +1056,7 @@ function MobileLiquidityPage({
                 switchActiveTab('v1');
               }}
             >
-              Classic Pools
+              <FormattedMessage id="classic_pools"></FormattedMessage>
             </button>
 
             <button
@@ -2329,7 +2329,7 @@ function LiquidityPage_({
                   switchActiveTab('v1');
                 }}
               >
-                Classic Pools
+                <FormattedMessage id="classic_pools"></FormattedMessage>
               </button>
             </div>
 

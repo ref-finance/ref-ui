@@ -28,6 +28,7 @@ import {
   getAccountId,
 } from './Tool';
 import { isMobile } from '~utils/device';
+import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 const AssetData = createContext(null);
 export default function Asset() {
@@ -53,6 +54,7 @@ export default function Asset() {
   const { globalState } = useContext(WalletContext);
   const accountId = getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
+  const intl = useIntl();
   useEffect(() => {
     if (isSignedIn) {
       // get xref balance
@@ -160,9 +162,7 @@ export default function Asset() {
     return total_xref_value_done ? display_value(total_xref_value) : '$-';
   }, [total_xref_value, total_xref_value_done]);
   function getTip() {
-    // const tip = intl.formatMessage({ id: 'over_tip' });
-    const tip =
-      'USD value of your investment on Ref:Classic pools + DCL pools (including staked in farms) + xREF';
+    const tip = intl.formatMessage({ id: 'your_investment_tip' });
     let result: string = `<div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">${tip}</div>`;
     return result;
   }
@@ -220,6 +220,7 @@ function AssetPc() {
     display_increase_percent,
     increase_percent_done,
   } = useContext(AssetData);
+  const intl = useIntl();
   return (
     <div
       className="border-r border-cardBg flex-shrink-0"
@@ -227,7 +228,9 @@ function AssetPc() {
     >
       <div className="p-4 mt-4">
         <div className="flex items-center">
-          <span className="text-sm text-primaryText">Your Investment</span>
+          <span className="text-sm text-primaryText">
+            <FormattedMessage id="your_investment" />
+          </span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
@@ -271,7 +274,7 @@ function AssetPc() {
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-10 p-4 mt-5">
         <DataTemplate
-          title="DCL Pools"
+          title={intl.formatMessage({ id: 'v2_pools' })}
           value={getV2PoolUSDValue()}
           event={() => {
             localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
@@ -297,7 +300,7 @@ function AssetPc() {
           </div>
         </DataTemplate>
         <DataTemplate
-          title="Classic Pools"
+          title={intl.formatMessage({ id: 'classic_pools' })}
           value={getV1PoolUSDValue()}
           event={() => {
             localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v1');
@@ -319,7 +322,7 @@ function AssetPc() {
           </div>
         </DataTemplate>
         <DataTemplate
-          title="xREF Staking"
+          title={intl.formatMessage({ id: 'xref_staking' })}
           value={show_total_xref_value}
           event={() => {
             window.open('/xref');
@@ -343,11 +346,14 @@ function AssetMobile() {
     display_increase_percent,
     increase_percent_done,
   } = useContext(AssetData);
+  const intl = useIntl();
   return (
     <div>
       <div className="px-5 py-3">
         <div className="flex items-center">
-          <span className="text-sm text-primaryText">Your Investment</span>
+          <span className="text-sm text-primaryText">
+            <FormattedMessage id="your_investment"></FormattedMessage>
+          </span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
@@ -391,7 +397,7 @@ function AssetMobile() {
       </div>
       <div className="flex items-center justify-between border-t border-b border-cardBg">
         <DataTemplate
-          title="DCL Pools"
+          title={intl.formatMessage({ id: 'v2_pools' })}
           value={getV2PoolUSDValue()}
           event={() => {
             localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v2');
@@ -414,7 +420,7 @@ function AssetMobile() {
           </div>
         </DataTemplate>
         <DataTemplate
-          title="Classic Pools"
+          title={intl.formatMessage({ id: 'classic_pools' })}
           value={getV1PoolUSDValue()}
           event={() => {
             localStorage.setItem(REF_FI_POOL_ACTIVE_TAB, 'v1');
@@ -439,7 +445,7 @@ function AssetMobile() {
       </div>
       <div className="border-b border-cardBg">
         <DataTemplate
-          title="xREF Staking"
+          title={intl.formatMessage({ id: 'xref_staking' })}
           value={show_total_xref_value}
           event={() => {
             window.open('/xref');

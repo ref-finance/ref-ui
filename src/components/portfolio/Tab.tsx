@@ -7,6 +7,7 @@ import {
   useTotalFarmData,
   useTotalLiquidityData,
 } from './Tool';
+import { FormattedMessage, useIntl } from 'react-intl';
 export default function Tab() {
   const {
     activeTab,
@@ -32,11 +33,14 @@ export default function Tab() {
     active_order_quanity,
     active_order_value,
   } = useContext(PortfolioData);
-
+  const intl = useIntl();
+  const active_orders_text = intl.formatMessage({ id: 'active_orders' });
+  const your_liquidity_text = intl.formatMessage({ id: 'your_liquidity' });
+  const yield_farming_text = intl.formatMessage({ id: 'yield_farming' });
   const [tabList, setTabList] = useState([
-    { name: 'Active Orders', tag: '1', value: '$-', quantity: '-' },
-    { name: 'Your Liquidity', tag: '2', value: '$-', quantity: '-' },
-    { name: 'Yield Farming', tag: '3', value: '$-', quantity: '-' },
+    { name: active_orders_text, tag: '1', value: '$-', quantity: '-' },
+    { name: your_liquidity_text, tag: '2', value: '$-', quantity: '-' },
+    { name: yield_farming_text, tag: '3', value: '$-', quantity: '-' },
   ]);
   const { total_liquidity_value, total_liquidity_quantity } =
     useTotalLiquidityData({

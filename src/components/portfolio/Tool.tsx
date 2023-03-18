@@ -11,6 +11,7 @@ import { ArrowRIcon, WavyLine, CircleBg } from '../icon/Portfolio';
 import { TriangleIcon } from '../../components/icon/Portfolio';
 import { getCurrentWallet } from '../../utils/wallets-integration';
 import { isMobile } from '~utils/device';
+import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export function ArrowJump(props: any) {
   const [hover, setHover] = useState(false);

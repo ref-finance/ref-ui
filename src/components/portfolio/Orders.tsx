@@ -576,7 +576,9 @@ function OrderCard({
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('YYYY-MM-DD HH:mm')}
-        <span className="ml-1">created</span>
+        <span className="ml-1">
+          <FormattedMessage id="created_s" />
+        </span>
       </div>
     );
 
@@ -653,7 +655,7 @@ function OrderCard({
           }`}
         >
           <span className="flex items-center text-sm text-v3SwapGray">
-            Instant Swap
+            <FormattedMessage id="instant_swap" />
             <ExclamationTip
               colorhex="#7E8A93"
               id={instant_swap_tip()}
@@ -664,7 +666,9 @@ function OrderCard({
           <div className="flex items-center text-sm text-v3SwapGray">
             <div className="flex items-center w-24">
               <BsCheckCircle fill="#42bb17" stroke="#42BB17" />
-              <span className="text-xs text-v3SwapGray ml-1.5">Swapped</span>
+              <span className="text-xs text-v3SwapGray ml-1.5">
+                <FormattedMessage id="swapped" />
+              </span>
             </div>
             <div className="flex items-center w-28">
               <span title={swapIn} className="text-white">
@@ -687,12 +691,16 @@ function OrderCard({
         </div>
 
         <div className="flex items-start justify-between">
-          <span className="text-sm text-v3SwapGray">Executed</span>
+          <span className="text-sm text-v3SwapGray">
+            <FormattedMessage id="executed" />
+          </span>
           <div>
             <div className="flex items-center mb-6">
               <div className="flex items-center w-24">
                 <GreenCircleIcon></GreenCircleIcon>
-                <span className="text-xs text-v3SwapGray ml-1.5">Claimed</span>
+                <span className="text-xs text-v3SwapGray ml-1.5">
+                  <FormattedMessage id="claimed_upper" />
+                </span>
               </div>
               <div className="flex items-center w-28">
                 <span
@@ -720,7 +728,9 @@ function OrderCard({
             <div className="flex items-center">
               <div className="flex items-center w-24">
                 <PurpleCircleIcon></PurpleCircleIcon>
-                <span className="text-xs text-v3SwapGray ml-1.5">Filled</span>
+                <span className="text-xs text-v3SwapGray ml-1.5">
+                  <FormattedMessage id="filled" />
+                </span>
               </div>
               <div className="flex items-center w-28">
                 <span
@@ -794,7 +804,7 @@ function OrderCard({
           }`}
         >
           <span className="flex items-center text-sm text-v3SwapGray">
-            Instant Swap
+            <FormattedMessage id="instant_swap" />
             <ExclamationTip
               colorhex="#7E8A93"
               id={instant_swap_tip()}
@@ -826,7 +836,7 @@ function OrderCard({
         </div>
         <div className={`flex items-center justify-between mt-4`}>
           <span className="flex items-center text-sm text-v3SwapGray">
-            Claimed
+            <FormattedMessage id="claimed_upper" />
           </span>
           <div className="flex items-center">
             <div
@@ -849,7 +859,7 @@ function OrderCard({
         </div>
         <div className={`flex items-center justify-between mt-4 `}>
           <span className="flex items-center text-sm text-v3SwapGray">
-            Filled
+            <FormattedMessage id="filled" />
           </span>
           <div className="flex items-center">
             <div
@@ -900,7 +910,9 @@ function OrderCard({
           </div>
           <div className={`${switch_off ? 'hidden' : ''}`}>
             <div className="flex items-center justify-between text-sm text-v3SwapGray ml-2">
-              <span>Order Progress</span>
+              <span>
+                <FormattedMessage id="order_progress" />
+              </span>
               <span
                 onClick={() => {
                   const txHash = activeOrderTxMap[order.order_id];
@@ -948,7 +960,9 @@ function OrderCard({
           <div className={`${switch_off ? 'hidden' : ''}`}>
             <div className="pb-3">
               <div className="flex items-center justify-between p-3">
-                <span className="text-sm text-v3SwapGray">Order Progress</span>
+                <span className="text-sm text-v3SwapGray">
+                  <FormattedMessage id="order_progress" />
+                </span>
                 <div className="flex items-center">
                   <div className="flex items-center text-v3SwapGray text-sm ">
                     from
@@ -1045,16 +1059,21 @@ function OrderCard({
           </span>
         </div>
         <div className="flex items-center">
-          <span className="w-32">@Price</span>
+          <span className="w-32">
+            @<FormattedMessage id="price"></FormattedMessage>
+          </span>
           <div className="flex items-center justify-between w-56">
-            <span className="">Execute Status</span>
+            <span className="">
+              <FormattedMessage id="execute_status" />
+            </span>
             <span
               onClick={() => {
                 window.open('/myOrder');
               }}
               className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white py-0.5"
             >
-              Your Order(s) <LinkIcon className="ml-1"></LinkIcon>
+              <FormattedMessage id="your_orders" />{' '}
+              <LinkIcon className="ml-1"></LinkIcon>
             </span>
           </div>
         </div>
@@ -1063,7 +1082,8 @@ function OrderCard({
         {/* for mobile banner */}
         <div className="flex items-center justify-between lg:hidden p-5">
           <span className="text-base text-white gotham_bold">
-            Active Orders ({total_active_orders_quanity})
+            <FormattedMessage id="active_orders" /> (
+            {total_active_orders_quanity})
           </span>
           <div className="flex items-center">
             <span className="text-base text-white gotham_bold mr-2">
@@ -1099,7 +1119,7 @@ function OrderCard({
             }}
             className="flex items-center justify-center text-xs text-v3SwapGray relative -top-3 "
           >
-            Your Order(s){' '}
+            <FormattedMessage id="your_orders" />{' '}
             <LinkIcon className="ml-1.5 transform scale-125"></LinkIcon>
           </span>
         </div>

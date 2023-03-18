@@ -4,6 +4,7 @@ import {
   MenuOrderlyIcon,
   MenuBurrowIcon,
 } from '../../components/icon/Portfolio';
+import { FormattedMessage, useIntl } from 'react-intl';
 export default function Navigation(props: any) {
   const [menuList, setMenuList] = useState([
     { Icon: MenuREFIcon, name: 'Ref.finance', id: 'ref' },

@@ -27,6 +27,7 @@ import {
 } from '../../utils/wallets-integration';
 import { PortfolioData } from '../../pages/Portfolio';
 import { getAccountId } from './Tool';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 const is_mobile = isMobile();
 const chartAreaHeight = is_mobile ? '150px' : '280px';
@@ -220,7 +221,9 @@ function NoDataArea() {
       <DotTopArea className="absolute left-0 top-0 xsm:transform xsm:scale-50 xsm:origin-top-left"></DotTopArea>
       <DotBottomArea className="absolute right-0 bottom-0 xsm:transform xsm:scale-50 xsm:origin-bottom-right"></DotBottomArea>
       <ChartNoData></ChartNoData>
-      <span className="text-sm text-primaryText mb-10 xsm:mb-5">No Data</span>
+      <span className="text-sm text-primaryText mb-10 xsm:mb-5">
+        <FormattedMessage id="no_data" />
+      </span>
     </div>
   );
 }

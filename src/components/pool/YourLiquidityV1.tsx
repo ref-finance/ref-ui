@@ -841,7 +841,8 @@ function YourClassicLiquidityLineMobile() {
             }}
             className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md cursor-pointer whitespace-nowrap py-0.5 px-1.5"
           >
-            Classic <LinkIcon className="ml-1 flex-shrink-0"></LinkIcon>
+            <FormattedMessage id="classic" />{' '}
+            <LinkIcon className="ml-1 flex-shrink-0"></LinkIcon>
           </span>
           <UpDownButton
             set_switch_off={() => {
@@ -864,7 +865,7 @@ function YourClassicLiquidityLineMobile() {
         </div>
         <div className="flex items-center justify-between mb-6">
           <span className="text-sm text-v3SwapGray">
-            Your LP Tokens(Shares)
+            <FormattedMessage id="your_lp_tokens_and_shares" />
           </span>
           <span className="text-sm text-white">
             {display_number_withCommas(lp_total)} (
@@ -872,21 +873,26 @@ function YourClassicLiquidityLineMobile() {
           </span>
         </div>
         <div className="flex items-start justify-between">
-          <span className="text-sm text-v3SwapGray">Usage</span>
+          <span className="text-sm text-v3SwapGray">
+            <FormattedMessage id="usage" />
+          </span>
           <div className="flex flex-col items-end text-sm text-white">
             <div
               className={`flex items-center ${
                 +lp_in_farm > 0 ? '' : 'hidden'
               } ${+lp_in_vote > 0 || +lp_in_pool > 0 ? 'mb-4' : ''}`}
             >
-              {display_number_withCommas(lp_in_farm)} in{' '}
+              {display_number_withCommas(lp_in_farm)}{' '}
+              <FormattedMessage id="in" />{' '}
               <span
                 className="flex items-center"
                 onClick={() => {
                   window.open(`/v2farms/${pool.id}-${seed_status}`);
                 }}
               >
-                <label className="underline cursor-pointer mx-1">Farm</label>{' '}
+                <label className="underline cursor-pointer mx-1">
+                  <FormattedMessage id="farm" />
+                </label>{' '}
                 <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
               </span>
             </div>
@@ -895,7 +901,8 @@ function YourClassicLiquidityLineMobile() {
                 +lp_in_vote > 0 ? '' : 'hidden'
               } ${+lp_in_pool > 0 ? 'mb-4' : ''}`}
             >
-              {display_number_withCommas(lp_in_vote)} locked in{' '}
+              {display_number_withCommas(lp_in_vote)}{' '}
+              <FormattedMessage id="locked_in"></FormattedMessage>{' '}
               <span
                 className="flex items-center"
                 onClick={() => {
@@ -909,7 +916,8 @@ function YourClassicLiquidityLineMobile() {
             <div
               className={`flex items-center ${+lp_in_pool > 0 ? '' : 'hidden'}`}
             >
-              {display_number_withCommas(lp_in_pool)} Holding
+              {display_number_withCommas(lp_in_pool)}{' '}
+              <FormattedMessage id="holding" />
             </div>
           </div>
         </div>
@@ -946,7 +954,7 @@ function YourClassicLiquidityLinePc() {
             {Symbols}
           </span>
           <span className="text-sm text-v3SwapGray px-1.5 rounded-md bg-selectTokenV3BgColor mr-1.5">
-            Classic
+            <FormattedMessage id="classic" />
           </span>
           <span
             className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
@@ -973,7 +981,7 @@ function YourClassicLiquidityLinePc() {
         <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
           <div className="flex items-center justify-between mb-6">
             <span className="text-sm text-v3SwapGray">
-              Your Liquidity (USD value)
+              <FormattedMessage id="your_liquidity_usd_value" />
             </span>
             <span className="text-sm text-white">
               {display_value(lp_total_value)}
@@ -981,7 +989,7 @@ function YourClassicLiquidityLinePc() {
           </div>
           <div className="flex items-center justify-between mb-6">
             <span className="text-sm text-v3SwapGray">
-              Your LP Tokens(Shares)
+              <FormattedMessage id="your_lp_tokens_and_shares" />
             </span>
             <span className="text-sm text-white">
               {display_number_withCommas(lp_total)} (
@@ -989,7 +997,9 @@ function YourClassicLiquidityLinePc() {
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-v3SwapGray">Usage</span>
+            <span className="text-sm text-v3SwapGray">
+              <FormattedMessage id="usage" />
+            </span>
             <div className="flex items-center text-sm text-white">
               <div
                 className={`flex items-center pl-3.5 ${
@@ -998,14 +1008,17 @@ function YourClassicLiquidityLinePc() {
                     : ''
                 } ${+lp_in_farm > 0 ? '' : 'hidden'}`}
               >
-                {display_number_withCommas(lp_in_farm)} in{' '}
+                {display_number_withCommas(lp_in_farm)}{' '}
+                <FormattedMessage id="in" />{' '}
                 <span
                   className="flex items-center"
                   onClick={() => {
                     window.open(`/v2farms/${pool.id}-${seed_status}`);
                   }}
                 >
-                  <label className="underline cursor-pointer mx-1">Farm</label>{' '}
+                  <label className="underline cursor-pointer mx-1">
+                    <FormattedMessage id="farm" />
+                  </label>{' '}
                   <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
                 </span>
               </div>
@@ -1014,7 +1027,8 @@ function YourClassicLiquidityLinePc() {
                   +lp_in_pool > 0 ? 'pr-3.5 border-r border-orderTypeBg' : ''
                 } ${+lp_in_vote > 0 ? '' : 'hidden'}`}
               >
-                {display_number_withCommas(lp_in_vote)} locked in{' '}
+                {display_number_withCommas(lp_in_vote)}{' '}
+                <FormattedMessage id="locked_in"></FormattedMessage>{' '}
                 <span
                   className="flex items-center"
                   onClick={() => {
@@ -1030,7 +1044,8 @@ function YourClassicLiquidityLinePc() {
                   +lp_in_pool > 0 ? '' : 'hidden'
                 }`}
               >
-                {display_number_withCommas(lp_in_pool)} Holding
+                {display_number_withCommas(lp_in_pool)}{' '}
+                <FormattedMessage id="holding" />
               </div>
             </div>
           </div>
@@ -1391,7 +1406,9 @@ function PoolRow(props: {
                 <FormattedMessage id="in" defaultMessage={'in'} />
               </span>
               <div className="text-primaryText flex items-center hover:text-gradientFrom flex-shrink-0">
-                <span className="underline">Classic Farms</span>
+                <span className="underline">
+                  <FormattedMessage id="classic_farms" />
+                </span>
 
                 <span className="ml-0.5">
                   <VEARROW />
@@ -1667,7 +1684,7 @@ function PoolRow(props: {
                     <FormattedMessage id="in" defaultMessage={'in'} />
                   </span>
                   <span className="border-b border-primaryText">
-                    Classic Farms
+                    <FormattedMessage id="classic_farms" />
                   </span>
                   <span className="text-gradientFrom ml-0.5">
                     <VEARROW />
