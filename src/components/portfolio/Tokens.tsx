@@ -54,11 +54,11 @@ export default function Tokens() {
   const [aurora_total_value, set_aurora_total_value] = useState<string>('0');
   const [color_list, set_color_list] = useState([
     '#00D6AF',
+    '#467681',
+    '#468173',
+    '#43698D',
+    '#566583',
     '#455563',
-    '#354F53',
-    '#284251',
-    '#1F4247',
-    '#173C41',
   ]);
   const [chartEvents, setChartEvents] = useState<any>({});
   const tokenRef = useRef(null);
@@ -526,15 +526,13 @@ export default function Tokens() {
             return (
               <div
                 key={token.id + 'near'}
-                className="flex items-center justify-between mb-3 px-3"
+                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
               >
                 <div className="flex items-center">
-                  <span
-                    className="w-1.5 h-1.5 rounded-sm mr-1.5"
-                    style={{
-                      backgroundColor: color_list[index % color_list.length],
-                    }}
-                  ></span>
+                  <img
+                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                    src={token.icon}
+                  />
                   <span className="text-sm text-primaryText">
                     {token.symbol}
                   </span>
@@ -551,15 +549,13 @@ export default function Tokens() {
             return (
               <div
                 key={token.id + 'ref'}
-                className="flex items-center justify-between mb-3 px-3"
+                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
               >
                 <div className="flex items-center">
-                  <span
-                    className="w-1.5 h-1.5 rounded-sm mr-1.5"
-                    style={{
-                      backgroundColor: color_list[index % color_list.length],
-                    }}
-                  ></span>
+                  <img
+                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                    src={token.icon}
+                  />
                   <span className="text-sm text-primaryText">
                     {token.symbol}
                   </span>
@@ -576,15 +572,13 @@ export default function Tokens() {
             return (
               <div
                 key={token.id + 'dcl'}
-                className="flex items-center justify-between mb-3 px-3"
+                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
               >
                 <div className="flex items-center">
-                  <span
-                    className="w-1.5 h-1.5 rounded-sm mr-1.5"
-                    style={{
-                      backgroundColor: color_list[index % color_list.length],
-                    }}
-                  ></span>
+                  <img
+                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                    src={token.icon}
+                  />
                   <span className="text-sm text-primaryText">
                     {token.symbol}
                   </span>
@@ -601,15 +595,13 @@ export default function Tokens() {
             return (
               <div
                 key={token.id + 'aurora'}
-                className="flex items-center justify-between mb-3 px-3"
+                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
               >
                 <div className="flex items-center">
-                  <span
-                    className="w-1.5 h-1.5 rounded-sm mr-1.5"
-                    style={{
-                      backgroundColor: color_list[index % color_list.length],
-                    }}
-                  ></span>
+                  <img
+                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                    src={token.icon}
+                  />
                   <span className="text-sm text-primaryText">
                     {token.symbol}
                   </span>
