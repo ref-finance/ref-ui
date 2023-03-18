@@ -6,7 +6,6 @@ import { MyOrder, Orders, SymbolInfo } from '../../orderly/type';
 import { MyOrderTip } from '../Common';
 import {
   digitWrapper,
-  digitWrapperFull,
   numberWithCommas,
   numberWithCommasPadding,
 } from '../../utiles';
@@ -337,6 +336,14 @@ function OrderBook() {
   const [showPrecisionSelector, setShowPrecisionSelector] =
     useState<boolean>(false);
 
+  useEffect(() => {
+    if (showPrecisionSelector) {
+      document.documentElement.onclick = () => {
+        setShowPrecisionSelector(false);
+      };
+    }
+  }, [showPrecisionSelector]);
+
   const { asks, bids, asktotalSize, bidtotalSize, groupMyPendingOrders } =
     groupOrdersByPrecision({
       orders,
@@ -408,7 +415,9 @@ function OrderBook() {
         {tab === 'book' && (
           <div
             className="max-w-fit min-w-p72 cursor-pointer rounded-md lg:bg-symbolHover pl-2 absolute   right-4 bottom-1 xs:bg-none md:bg-none xs:text-10px text-white flex justify-center items-center"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               if (isMobile) return;
               setShowPrecisionSelector(!showPrecisionSelector);
             }}

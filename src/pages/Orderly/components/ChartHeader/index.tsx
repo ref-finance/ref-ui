@@ -468,7 +468,7 @@ function ChartHeader() {
 
       {ticker && (
         <div
-          className={`flex  items-center  mr-2 max-w-full w-p400
+          className={`flex  items-center  mr-2 max-w-full w-p460
             justify-between xs:justify-end md:justify-end  text-primaryOrderly`}
         >
           <div className="flex xs:justify-end md:justify-end  items-start flex-col xs:flex-row md:flex-row xs:items-center md:items-center">

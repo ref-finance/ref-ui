@@ -50,7 +50,7 @@ import { NearTip } from '~pages/AccountPage';
 import { isClientMobie, useClientMobile } from '../../../../utils/device';
 import { TipIconAsset } from '../Common/Icons';
 import ReactTooltip from 'react-tooltip';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 function getTipAsset() {
   const intl = useIntl();
@@ -92,7 +92,7 @@ function AssetButton({
         onClick();
       }}
     >
-      {text}
+      <FormattedMessage id={text.toLowerCase()} defaultMessage={text} />
     </button>
   );
 }
@@ -457,7 +457,15 @@ export function AssetModal(props: Modal.Props) {
                   setTag('asset');
                 }}
               >
-                {isMobile ? 'Assets' : 'Account Assets'}
+                {isMobile
+                  ? intl.formatMessage({
+                      id: 'assets',
+                      defaultMessage: 'Assets',
+                    })
+                  : intl.formatMessage({
+                      id: 'account_assets',
+                      defaultMessage: 'Account Assets',
+                    })}
 
                 {tag === 'asset' && (
                   <div
@@ -480,7 +488,10 @@ export function AssetModal(props: Modal.Props) {
                   setTag('records');
                 }}
               >
-                Records
+                {intl.formatMessage({
+                  id: 'records',
+                  defaultMessage: 'Records',
+                })}
                 {tag === 'records' && (
                   <div
                     className="w-full absolute left-0 rounded-xl  bg-greenLight "
@@ -643,7 +654,7 @@ export function AssetModal(props: Modal.Props) {
               <div className="col-span-2 xs:hidden justify-self-center xs:justify-self-end flex items-center justify-center">
                 <span>
                   {intl.formatMessage({
-                    id: 'actions',
+                    id: 'actions_orderly',
                     defaultMessage: 'Actions',
                   })}
                 </span>

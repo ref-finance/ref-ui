@@ -1022,11 +1022,11 @@ const zh_CN = {
     '订单数量或价格至少要有一个被修改',
   quantity_should_be_higher_than: '数量应大于',
   price_should_be_higher_than: '价格应大于',
-  insufficient_en: '',
+  insufficient_en: ' ',
   insufficient_zh: '余额不足',
-  at_orderly: '以价格',
+  at_orderly: '，价格',
   the_all_data_orderly_tip:
-    '这里的数据不仅仅限于在Ref上产生的数据，包含了您账户中所有的资产和记录。',
+    '这里的数据不仅仅限于在Ref上产生的数据，也包含了您账户中所有的资产和记录。',
   change_the_quantity_of: '改变',
   change_the_quantity_of_zh: '的数量',
   change_the_price_of: '改变',
@@ -1069,5 +1069,13 @@ const zh_CN = {
   your_positions: '你的位置',
   your_price_range: '你的价格范围',
   locked_in: '锁在',
+  near_locked_in_wallet_for_covering: '0.5 NEAR留在钱包来支付gas费',
+  open_qty: '未结数量',
+  account_assets: '账户资产',
+  records: '记录',
+  actions_orderly: '操作',
+  buy_pop: '买入',
+  sell_pop: '卖出',
+  fee_orderly: '交易费',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

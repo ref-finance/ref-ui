@@ -792,6 +792,8 @@ export function MyOrderTip({
 }) {
   const [showDetail, setShowDetail] = useState(false);
 
+  const intl = useIntl();
+
   const id = `order-smile-${price}-${quantity}`;
 
   function getElementTop(element: any) {
@@ -845,13 +847,23 @@ export function MyOrderTip({
           }}
         >
           <div className="flex items-center whitespace-nowrap justify-between">
-            <span>Price</span>
+            <span>
+              {intl.formatMessage({
+                id: 'price',
+                defaultMessage: 'Price',
+              })}
+            </span>
 
             <span className="text-white ml-2">${digitWrapper(price, 2)}</span>
           </div>
 
           <div className="flex items-center whitespace-nowrap justify-between mt-2 ">
-            <span>Open Qty.</span>
+            <span>
+              {intl.formatMessage({
+                id: 'open_qty',
+                defaultMessage: 'Open Qty.',
+              })}
+            </span>
 
             <span className="text-white ml-2">
               {digitWrapper(quantity.toString(), 2)}
@@ -903,7 +915,12 @@ export function orderEditPopUpSuccess({
       <div className="absolute w-1 bottom-0 bg-gradientFrom h-full left-0"></div>
 
       <FlexRowStart className=" px-2 text-white">
-        {<FormattedMessage id={side.toLowerCase()} defaultMessage={side} />}
+        {
+          <FormattedMessage
+            id={side.toLowerCase() + '_pop'}
+            defaultMessage={side}
+          />
+        }
         <span className="mx-1 ">{`${size} ${symbolFrom}`}</span>
         <FormattedMessage id={'at_orderly'} defaultMessage={'at'} />
         <span className="ml-1 ">{`${price} ${symbolTo}`}</span>

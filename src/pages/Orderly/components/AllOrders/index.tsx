@@ -173,7 +173,7 @@ export function EditConfirmOrderModal(
             {
               <FormattedMessage
                 id={`change_the_${editType}_of_zh`}
-                defaultMessage={''}
+                defaultMessage={' '}
               />
             }
           </div>
@@ -464,7 +464,7 @@ function OrderLine({
         defaultMessage: 'Insufficient',
       })} ${symbolTo}${intl.formatMessage({
         id: 'insufficient_zh',
-        defaultMessage: '',
+        defaultMessage: ' ',
       })}`;
     }
 
@@ -498,12 +498,12 @@ function OrderLine({
         errorTipMsg = `${intl.formatMessage({
           id: 'insufficient_en',
           defaultMessage: 'Insufficient',
-        })} ${
-          order.side === 'BUY' ? symbolTo : symbolFrom
-        }${symbolTo}${intl.formatMessage({
-          id: 'insufficient_zh',
-          defaultMessage: '',
-        })}`;
+        })} ${order.side === 'BUY' ? symbolTo : symbolFrom}${intl.formatMessage(
+          {
+            id: 'insufficient_zh',
+            defaultMessage: ' ',
+          }
+        )}`;
       }
     }
 
@@ -531,7 +531,7 @@ function OrderLine({
         defaultMessage: 'Price should be a multiple of',
       })}${symbolInfo.quote_tick} ${intl.formatMessage({
         id: 'price_should_be_a_multiple_of_zh',
-        defaultMessage: '',
+        defaultMessage: ' ',
       })}`;
     }
 
@@ -579,7 +579,7 @@ function OrderLine({
 
     if (new Big(size || 0).lt(symbolInfo.base_min)) {
       errorTipMsg = `${
-        side === 'Buy'
+        order.side === 'BUY'
           ? intl.formatMessage({
               id: 'quantity_to_buy_should_be_greater_than_or_equal_to',
               defaultMessage:
@@ -595,7 +595,7 @@ function OrderLine({
 
     if (new Big(size || 0).gt(symbolInfo.base_max)) {
       errorTipMsg = `${
-        side === 'Buy'
+        order.side === 'BUY'
           ? intl.formatMessage({
               id: 'quantity_to_buy_should_be_less_than_or_equal_to',
               defaultMessage: 'Quantity to buy should be less than or equal to',
@@ -618,7 +618,7 @@ function OrderLine({
         defaultMessage: 'Quantity should be a multiple of',
       })} ${symbolInfo.base_tick}${intl.formatMessage({
         id: 'quantity_should_be_a_multiple_of_zh',
-        defaultMessage: '',
+        defaultMessage: ' ',
       })}`;
     }
 
@@ -1655,7 +1655,7 @@ function HistoryOrderLine({
                   <td className="">
                     <div className="flex items-center">
                       {intl.formatMessage({
-                        id: 'fee',
+                        id: 'fee_orderly',
                         defaultMessage: 'Fee',
                       })}
                       <TextWrapper
@@ -1928,9 +1928,19 @@ function HistoryOrderLine({
             ></TextWrapper>,
             <FlexRow className="">
               <span className={`text-white capitalize `}>
-                {order.type === 'FOK' || order.type === 'IOC'
-                  ? order.type
-                  : order.type.replace('_', ' ').toLowerCase()}
+                {order.type === 'LIMIT'
+                  ? intl.formatMessage({
+                      id: 'limit_orderly',
+                      defaultMessage: 'Limit',
+                    })
+                  : order.type === 'MARKET'
+                  ? intl.formatMessage({
+                      id: 'market',
+                      defaultMessage: 'Market',
+                    })
+                  : order.type === 'POST_ONLY'
+                  ? 'Post Only'
+                  : order.type}
               </span>
 
               <div
@@ -2005,8 +2015,8 @@ function HistoryOrderLine({
 
             <span className="capitalize">
               {intl.formatMessage({
-                id: order.status.toLowerCase(),
-                defaultMessage: order.status.toLowerCase(),
+                id: _.upperFirst(order.status.toLowerCase()),
+                defaultMessage: _.upperFirst(order.status.toLowerCase()),
               })}
             </span>,
           ]}
@@ -2415,13 +2425,29 @@ function DetailTable({
     <table className="table-fixed w-full bg-one_level_menu_color">
       <thead className="text-primaryText text-13px">
         <th align="left" className="pl-5">
-          Qty
+          {intl.formatMessage({
+            id: 'qty',
+            defaultMessage: 'Qty',
+          })}
         </th>
 
-        <th align="left">Price</th>
-        <th align="left">Total</th>
+        <th align="left">
+          {intl.formatMessage({
+            id: 'price',
+            defaultMessage: 'Price',
+          })}
+        </th>
+        <th align="left">
+          {intl.formatMessage({
+            id: 'total',
+            defaultMessage: 'Total',
+          })}
+        </th>
         <th align="left" className="whitespace-nowrap">
-          Fee
+          {intl.formatMessage({
+            id: 'fee_orderly',
+            defaultMessage: 'Fee',
+          })}
           <TextWrapper
             value={orderTradesHistory[0].fee_asset}
             className="ml-1 text-xs py-0 px-1"
@@ -2551,7 +2577,12 @@ function MobileHistoryOrderDetail(
             setShowDetail(!showDetail);
           }}
         >
-          <span>Detail</span>
+          <span>
+            {intl.formatMessage({
+              id: 'detail',
+              defaultMessage: 'Detail',
+            })}
+          </span>
           <span
             className={`text-white ml-2 ${
               !showDetail ? 'transform rotate-180' : ''

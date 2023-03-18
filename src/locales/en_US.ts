@@ -1124,5 +1124,14 @@ const en_US = {
   your_positions: 'Your Positions',
   your_price_range: 'Your Price Range',
   locked_in: 'locked in',
+  near_locked_in_wallet_for_covering:
+    '0.5 NEAR locked in wallet for covering transaction fees',
+  account_assets: 'Account Assets',
+  open_qty: 'Open Qty.',
+  actions_orderly: 'Actions',
+  records: 'Records',
+  buy_pop: 'Buy',
+  sell_pop: 'Sell',
+  fee_orderly: 'Fee',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
