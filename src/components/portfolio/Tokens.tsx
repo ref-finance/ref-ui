@@ -102,7 +102,6 @@ export default function Tokens() {
       });
     }
   }, [is_tokens_loading]);
-
   useEffect(() => {
     if (!is_tokens_loading) {
       const ref_tokens_temp: TokenMetadata[] = [];
@@ -143,9 +142,11 @@ export default function Tokens() {
       set_dcl_total_value(total_value_dcl);
       set_aurora_total_value(total_value_aurora);
       const tab_list = [{ name: 'NEAR', tag: 'near' }];
-      const classic_text = intl.formatMessage({ id: 'classic' });
       if (tokens_ref?.length > 0) {
-        tab_list.push({ name: classic_text, tag: 'ref' });
+        tab_list.push({
+          name: 'REF' + '(' + intl.formatMessage({ id: 'classic' }) + ')',
+          tag: 'ref',
+        });
       }
       if (tokens_dcl?.length > 0) {
         tab_list.push({ name: 'DCL', tag: 'dcl' });
@@ -401,7 +402,9 @@ export default function Tokens() {
                       onClick={() => {
                         setActiveTab(item.tag);
                       }}
-                      className={`flex items-center justify-center rounded-md h-full w-16 text-xs gotham_bold cursor-pointer hover:bg-portfolioLightGreyColor ${
+                      className={`flex items-center justify-center rounded-md h-full ${
+                        item.tag == 'ref' ? 'w-24' : 'w-12'
+                      } text-xs gotham_bold cursor-pointer hover:bg-portfolioLightGreyColor ${
                         index != tabList.length - 1 ? 'mr-0.5' : ''
                       } ${
                         activeTab == item.tag
@@ -409,7 +412,12 @@ export default function Tokens() {
                           : 'text-primaryText'
                       }`}
                     >
-                      {item.name}
+                      {item.tag == 'ref'
+                        ? 'REF' +
+                          '(' +
+                          intl.formatMessage({ id: 'classic' }) +
+                          ')'
+                        : item.name}
                     </span>
                   );
                 })}
@@ -517,7 +525,7 @@ export default function Tokens() {
         ) : null}
       </div>
       <div
-        className="overflow-auto px-5 mt-5 xsm:mt-0 lg:absolute lg:w-full lg:bottom-0"
+        className="overflow-auto px-2 mt-5 xsm:mt-0 lg:absolute lg:w-full lg:bottom-0"
         style={{
           maxHeight: is_mobile ? '160px' : 'none',
           top: !is_mobile ? (activeTab == 'aurora' ? '24rem' : '22rem') : '',
