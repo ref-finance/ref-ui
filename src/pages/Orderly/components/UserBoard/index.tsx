@@ -616,7 +616,7 @@ export default function UserBoard() {
           order_amount: parseFloat(
             side === 'Buy' ? new Big(total).toFixed(3, 0) : ''
           ),
-          order_quantity: side === 'Sell' ? inputValue : '',
+          order_quantity: parseFloat(side === 'Sell' ? inputValue : ''),
           broker_id: 'ref_dex',
         },
       }).then(async (res) => {
@@ -636,9 +636,10 @@ export default function UserBoard() {
           orderType: 'Market',
           symbolName: symbol,
           side: side,
-          size: inputValue,
+          size: parseFloat(inputValue).toString(),
+
           tokenIn: tokenIn,
-          price: marketPrice.toString() || '',
+          price: parseFloat(marketPrice.toString() || '').toString(),
           timeStamp: res.timestamp,
           order,
         });
@@ -649,12 +650,12 @@ export default function UserBoard() {
         orderlyProps: {
           side: side === 'Buy' ? 'BUY' : 'SELL',
           symbol: symbol,
-          order_price: limitPrice,
+          order_price: parseFloat(limitPrice),
           order_type:
             typeof advanceLimitMode !== 'undefined'
               ? advanceLimitMode
               : 'LIMIT',
-          order_quantity: inputValue,
+          order_quantity: parseFloat(inputValue),
           broker_id: 'ref_dex',
         },
       }).then(async (res) => {
@@ -674,9 +675,11 @@ export default function UserBoard() {
           orderType: 'Limit',
           symbolName: symbol,
           side: side,
-          size: inputValue,
+          size: parseFloat(inputValue).toString(),
+
           tokenIn: tokenIn,
-          price: limitPrice || '',
+          price: parseFloat(limitPrice || '').toString(),
+
           timeStamp: res.timestamp,
           filled: order?.data?.status === 'FILLED',
           order: order.data,
@@ -2435,7 +2438,7 @@ export function MobileUserBoard({
             side === 'Buy' ? new Big(total).toFixed(3, 0) : ''
           ),
 
-          order_quantity: side === 'Sell' ? inputValue : '',
+          order_quantity: parseFloat(side === 'Sell' ? inputValue : ''),
           broker_id: 'ref_dex',
         },
       }).then(async (res) => {
@@ -2457,9 +2460,9 @@ export function MobileUserBoard({
           orderType: 'Market',
           symbolName: symbol,
           side: side,
-          size: inputValue,
+          size: parseFloat(inputValue).toString(),
           tokenIn: tokenIn,
-          price: marketPrice.toString() || '',
+          price: parseFloat(marketPrice.toString() || '').toString(),
           timeStamp: res.timestamp,
           order,
         });
@@ -2470,12 +2473,13 @@ export function MobileUserBoard({
         orderlyProps: {
           side: side === 'Buy' ? 'BUY' : 'SELL',
           symbol: symbol,
-          order_price: limitPrice,
+          order_price: parseFloat(limitPrice),
           order_type:
             typeof advanceLimitMode !== 'undefined'
               ? advanceLimitMode
               : 'LIMIT',
-          order_quantity: inputValue,
+          order_quantity: parseFloat(inputValue),
+
           broker_id: 'ref_dex',
         },
       }).then(async (res) => {
@@ -2496,9 +2500,9 @@ export function MobileUserBoard({
           orderType: 'Limit',
           symbolName: symbol,
           side: side,
-          size: inputValue,
+          size: parseFloat(inputValue).toString(),
           tokenIn: tokenIn,
-          price: limitPrice || '',
+          price: parseFloat(limitPrice || '').toString(),
           timeStamp: res.timestamp,
           filled: order?.data?.status === 'FILLED',
           order: order.data,
@@ -3431,7 +3435,12 @@ function SelectTokenModal(
       >
         <div className=" py-6 text-primaryOrderly text-sm flex flex-col ">
           <div className="flex px-4 items-center pb-6 justify-between">
-            <span className="text-white text-lg font-bold">Select Token</span>
+            <span className="text-white text-lg font-bold">
+              {intl.formatMessage({
+                id: 'select_token_orderly',
+                defaultMessage: 'Select Token',
+              })}
+            </span>
 
             <span
               className={isMobile ? 'hidden' : 'cursor-pointer '}
@@ -3455,7 +3464,10 @@ function SelectTokenModal(
                 onChange={(e) => {
                   setSearchValue(e.target.value);
                 }}
-                placeholder="Search token"
+                placeholder={intl.formatMessage({
+                  id: 'search_token',
+                  defaultMessage: 'Search Token',
+                })}
               ></input>
             </div>
           </div>

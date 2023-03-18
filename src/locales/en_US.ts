@@ -1139,5 +1139,9 @@ const en_US = {
   your_orders_2: 'Your Orders',
   in_farm_2: 'in farm',
   your_liquidity_2: 'Your Liquidity',
+  welcome: 'Welcome',
+
+  welcome_mobile: 'Connect your wallet to start',
+  select_token_orderly: 'Select Token',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

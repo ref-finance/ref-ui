@@ -98,7 +98,7 @@ import { BuyButton, SellButton } from '../UserBoard/Button';
 import { MobileUserBoard } from '../UserBoard/index';
 import AllOrderBoard from '../AllOrders';
 import { isMobile } from '../../../../utils/device';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 export const MOBILE_TAB = 'REF_ORDERLY_MOBILE_TAB';
 
@@ -218,9 +218,12 @@ function CurAsset() {
           }}
           className="flex flex-col text-center items-center justify-center text-primaryText"
         >
-          Welcome!
+          <FormattedMessage id={'welcome'} defaultMessage={'Welcome'} />!
           <br />
-          Connect your wallet to start
+          <FormattedMessage
+            id={'welcome_mobile'}
+            defaultMessage={'Connect your wallet to start'}
+          />
         </div>
       )}
 
@@ -289,21 +292,40 @@ function CurAsset() {
                 setShowAllAssets(true);
               }}
             >
-              See all
+              {intl.formatMessage({
+                id: 'see_all',
+                defaultMessage: 'See all',
+              })}
             </span>
           </div>
 
           <div className="grid grid-cols-4 text-sm text-primaryOrderly mb-2">
-            <span className="col-span-2  justify-self-start">Assets</span>
+            <span className="col-span-2  justify-self-start">
+              {intl.formatMessage({
+                id: 'assets',
+                defaultMessage: 'Assets',
+              })}
+            </span>
 
             <span className="justify-self-end flex items-center relative right-10">
               {' '}
-              <NearIConSelectModal /> <span className="ml-2">Wallet</span>{' '}
+              <NearIConSelectModal />{' '}
+              <span className="ml-2">
+                {intl.formatMessage({
+                  id: 'wallet_up',
+                  defaultMessage: 'Wallet',
+                })}
+              </span>{' '}
             </span>
 
             <span className="justify-self-end flex items-center">
               <OrderlyIconBalance></OrderlyIconBalance>
-              <span className="ml-2">Available</span>{' '}
+              <span className="ml-2">
+                {intl.formatMessage({
+                  id: 'available_orderly',
+                  defaultMessage: 'Available',
+                })}
+              </span>{' '}
             </span>
           </div>
 

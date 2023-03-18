@@ -1083,5 +1083,8 @@ const zh_CN = {
   your_orders_2: '查看限价单',
   in_farm_2: '农场质押中',
   your_liquidity_2: '当前流动性',
+  welcome: '欢迎',
+  welcome_mobile: '请连接您的钱包',
+  select_token_orderly: '选择代币',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
