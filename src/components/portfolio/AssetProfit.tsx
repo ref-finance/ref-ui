@@ -18,6 +18,7 @@ import {
   getCurrentWallet,
 } from '../../utils/wallets-integration';
 import { isMobile } from '../../utils/device';
+import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 const AssetProfitData = createContext(null);
 export default function AssetProfit() {
@@ -30,6 +31,7 @@ export default function AssetProfit() {
     user_unclaimed_map_done,
     dcl_liquidities_details_list_done,
   } = useContext(PortfolioData);
+  const intl = useIntl();
   const { globalState } = useContext(WalletContext);
   const accountId = getAccountId();
   const isSignedIn = !!accountId || globalState.isSignedIn;
@@ -126,9 +128,7 @@ export default function AssetProfit() {
   }, [total_unClaimed_rewrads_value, total_fees_value]);
 
   function getTip() {
-    // const tip = intl.formatMessage({ id: 'over_tip' });
-    const tip =
-      'USD value of unclaimed fees from DCL pools, and unclaimed farm rewards.';
+    const tip = intl.formatMessage({ id: 'unclaimed_earnings_tip' });
     let result: string = `<div class="text-navHighLightText text-xs text-left w-64 xsm:w-52">${tip}</div>`;
     return result;
   }
@@ -174,7 +174,9 @@ function AssetProfitPc() {
     <div className=" grid grid-cols-3 bg-portfolioBarBgColor px-7 py-4">
       <div className="col-span-1">
         <div className="flex items-center">
-          <span className="text-sm text-primaryText">Unclaimed Earnings</span>
+          <span className="text-sm text-primaryText">
+            <FormattedMessage id="unclaimed_earnings" />
+          </span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
@@ -199,7 +201,7 @@ function AssetProfitPc() {
       </div>
       <div className="flex flex-col justify-between col-span-1">
         <div className="flex items-center text-sm text-primaryText">
-          Unclaimed Pool Fees
+          <FormattedMessage id="unclaimed_pool_fees"></FormattedMessage>
           <ArrowJump
             clickEvent={() => {
               sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
@@ -214,7 +216,7 @@ function AssetProfitPc() {
       </div>
       <div className="flex flex-col justify-between col-span-1">
         <div className="flex items-center text-sm text-primaryText">
-          Unclaimed Farm Rewards
+          <FormattedMessage id="unclaimed_farm_rewards" />
           <ArrowJump
             clickEvent={() => {
               localStorage.setItem('farmV2Status', 'my');
@@ -241,7 +243,9 @@ function AssetProfitMobile() {
     <div className="bg-portfolioBarBgColor mt-4">
       <div className="flex items-center justify-between px-5 py-4">
         <div className="flex items-center">
-          <span className="text-sm text-primaryText">Unclaimed Earnings</span>
+          <span className="text-sm text-primaryText">
+            <FormattedMessage id="unclaimed_earnings" />
+          </span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"
@@ -267,7 +271,7 @@ function AssetProfitMobile() {
       <div className="flex items-stretch justify-between border-t border-border_grey_color">
         <div className="flex flex-col justify-between w-1 flex-grow border-r border-border_grey_color px-5 py-2">
           <div className="flex items-center xsm:items-start justify-between text-sm text-primaryText">
-            Unclaimed Pool Fees
+            <FormattedMessage id="unclaimed_pool_fees"></FormattedMessage>
             <ArrowJump
               clickEvent={() => {
                 sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
@@ -282,7 +286,7 @@ function AssetProfitMobile() {
         </div>
         <div className="flex flex-col justify-between  w-12 flex-grow pl-3 pr-5 py-2">
           <div className="flex items-center xsm:items-start justify-between text-sm text-primaryText">
-            Unclaimed Farm Rewards
+            <FormattedMessage id="unclaimed_farm_rewards" />
             <ArrowJump
               clickEvent={() => {
                 localStorage.setItem('farmV2Status', 'my');

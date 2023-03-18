@@ -1233,7 +1233,7 @@ function UserLiquidityLineStyle2() {
     if (is_in_farming) {
       div = (
         <div className="flex items-center text-sm text-white">
-          Staked in farm{' '}
+          <FormattedMessage id="staked_in_farm" />{' '}
           <LinkIcon
             onClick={(e: any) => {
               e.stopPropagation();
@@ -1246,7 +1246,7 @@ function UserLiquidityLineStyle2() {
     } else if (liquidity_link) {
       div = (
         <div className="flex items-center text-sm text-white">
-          Unstaked
+          <FormattedMessage id="unstaked" />
           <LinkIcon
             onClick={(e: any) => {
               e.stopPropagation();
@@ -1257,7 +1257,11 @@ function UserLiquidityLineStyle2() {
         </div>
       );
     } else {
-      div = <span className="text-sm text-white">Holding</span>;
+      div = (
+        <span className="text-sm text-white">
+          <FormattedMessage id="holding" />
+        </span>
+      );
     }
     return div;
   }
@@ -1381,7 +1385,7 @@ function UserLiquidityLineStyle2Mobile({
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center">
             <span className="text-sm text-v3SwapGray whitespace-nowrap">
-              Price Range
+              <FormattedMessage id="price_range" />
             </span>
             <div className="flex items-center justify-center bg-selectTokenV3BgColor rounded-md px-1.5 h-5 py-0.5 ml-1.5">
               <span
@@ -1415,12 +1419,14 @@ function UserLiquidityLineStyle2Mobile({
           </div>
         </div>
         <div className="flex items-center justify-between mb-6">
-          <span className="text-sm text-v3SwapGray">Usage</span>
+          <span className="text-sm text-v3SwapGray">
+            <FormattedMessage id="usage" />
+          </span>
           {getUsageDiv()}
         </div>
         <div className="flex items-center justify-between">
           <span className="text-sm text-v3SwapGray whitespace-nowrap mr-3">
-            Unclaimed Fees
+            <FormattedMessage id="unclaimed_fees" />
           </span>
           <div className="flex items-center flex-wrap">
             <img
@@ -1496,7 +1502,8 @@ function UserLiquidityLineStyle2Pc({
             }}
             className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white  py-0.5  mr-1.5"
           >
-            DCL Pool <LinkIcon className="ml-1"></LinkIcon>
+            <FormattedMessage id="dcl_pool" />{' '}
+            <LinkIcon className="ml-1"></LinkIcon>
           </span>
           <span
             onClick={() => {
@@ -1532,12 +1539,14 @@ function UserLiquidityLineStyle2Pc({
         <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
           <div className="flex items-center justify-between mb-6">
             <span className="text-sm text-v3SwapGray">
-              Your Liquidity (USD value)
+              <FormattedMessage id="your_liquidity_usd_value" />
             </span>
             <span className="text-sm text-white">${your_liquidity || '-'}</span>
           </div>
           <div className="flex items-center justify-between mb-6">
-            <span className="text-sm text-v3SwapGray">Price Range</span>
+            <span className="text-sm text-v3SwapGray">
+              <FormattedMessage id="price_range" />
+            </span>
             <div className="flex items-center text-sm text-white">
               <div className="flex items-center justify-center bg-selectTokenV3BgColor rounded-md px-3 h-5 py-0.5">
                 <span
@@ -1571,11 +1580,15 @@ function UserLiquidityLineStyle2Pc({
             </div>
           </div>
           <div className="flex items-center justify-between mb-6">
-            <span className="text-sm text-v3SwapGray">Usage</span>
+            <span className="text-sm text-v3SwapGray">
+              <FormattedMessage id="usage" />
+            </span>
             {getUsageDiv()}
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-v3SwapGray">Unclaimed Fees</span>
+            <span className="text-sm text-v3SwapGray">
+              <FormattedMessage id="unclaimed_fees" />
+            </span>
             <div className="flex items-center">
               <img
                 src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}

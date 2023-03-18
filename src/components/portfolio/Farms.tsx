@@ -294,7 +294,7 @@ export default function Farms(props: any) {
           {/* for mobile banner */}
           <div className="flex items-center justify-between lg:hidden p-5">
             <span className="text-base text-white gotham_bold">
-              Yield Farming ({total_farms_quantity})
+              <FormattedMessage id="yield_farming" /> ({total_farms_quantity})
             </span>
             <div className="flex items-center">
               <span className="text-base text-white gotham_bold mr-2">
@@ -699,7 +699,9 @@ function DclFarmRowMobile() {
       >
         <div className="border-b border-limitOrderFeeTiersBorderColor pb-5 px-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-primaryText">Farm Reward Range</span>
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="farm_reward_range" />
+            </span>
             <div className="flex items-center">{getRange()}</div>
           </div>
           <div
@@ -710,7 +712,7 @@ function DclFarmRowMobile() {
             }`}
           >
             <span className="text-sm text-primaryText">
-              Unclaimed Farm Rewards
+              <FormattedMessage id="unclaimed_farm_rewards" />
             </span>
             <div
               className={`flex items-center ${
@@ -834,12 +836,14 @@ function DclFarmRowPc() {
       <div className={`${switch_off ? 'hidden' : ''}`}>
         <div className="border-b border-gray1 pb-5">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-primaryText">Farm Reward Range</span>
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="farm_reward_range" />
+            </span>
             <div className="flex items-center">{getRange()}</div>
           </div>
           <div className="flex items-center justify-between mt-5">
             <span className="text-sm text-primaryText">
-              Unclaimed Farm Rewards
+              <FormattedMessage id="unclaimed_farm_rewards" />
             </span>
             <div className="flex items-center">
               {unclaimedRewardsData.list.map(
@@ -883,7 +887,9 @@ function DclFarmRowPc() {
           </div>
         </div>
         <div className="mt-5">
-          <p className="text-sm text-primaryText mb-5">Your Positions</p>
+          <p className="text-sm text-primaryText mb-5">
+            <FormattedMessage id="your_positions" />
+          </p>
           {listLiquidities_inFarimg.length > 0 ? (
             <>
               {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
@@ -1105,7 +1111,7 @@ function LiquidityLine(props: {
             <div className="flex flex-col justify-between col-span-1 items-start">
               <div className="flex items-center">
                 <span className="text-sm text-primaryText mr-1">
-                  Your Liquidity
+                  <FormattedMessage id="your_liquidity" />
                 </span>
                 <span
                   className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
@@ -1121,14 +1127,16 @@ function LiquidityLine(props: {
               </span>
             </div>
             <div className="flex flex-col justify-between  col-span-1 items-start">
-              <span className="text-sm text-primaryText">Your Price Range</span>
+              <span className="text-sm text-primaryText">
+                <FormattedMessage id="your_price_range" />
+              </span>
               <span className={`text-sm text-white`}>
                 {get_your_range(liquidity, 'pc')}
               </span>
             </div>
             <div className="flex flex-col justify-between col-span-1 items-start">
               <span className="flex items-center text-sm text-primaryText">
-                Your APR
+                <FormattedMessage id="your_apr" />
               </span>
               <span className="text-sm text-white">{display_your_apr()}</span>
             </div>
@@ -1150,7 +1158,7 @@ function LiquidityLine(props: {
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-center">
               <span className="text-sm text-primaryText mr-1">
-                Your Liquidity
+                <FormattedMessage id="your_liquidity" />
               </span>
               <span
                 className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText"
@@ -1166,14 +1174,16 @@ function LiquidityLine(props: {
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-primaryText">Your Price Range</span>
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="your_price_range" />
+            </span>
             <span className={`text-sm text-white`}>
               {get_your_range(liquidity, 'mobile')}
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
             <div className="flex items-center text-sm text-primaryText">
-              Your APR
+              <FormattedMessage id="your_apr" />
             </div>
             <span className={`text-sm text-white`}>{display_your_apr()}</span>
           </div>
@@ -1497,7 +1507,7 @@ function ClassicFarmRowMobile() {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 py-0.5 mr-1.5">
-              Classic
+              <FormattedMessage id="classic" />
             </span>
             <span
               className="flex items-center justify-center px-1.5 py-0.5 rounded-md bg-selectTokenV3BgColor text-xs cursor-pointer text-primaryText"
@@ -1531,12 +1541,16 @@ function ClassicFarmRowMobile() {
         }`}
       >
         <div className="flex items-center justify-between mb-6">
-          <span className="text-sm text-v3SwapGray">USD Value Staked</span>
+          <span className="text-sm text-v3SwapGray">
+            <FormattedMessage id="usd_value_staked" />
+          </span>
           <span className="text-sm text-white">{getYourTvl()}</span>
         </div>
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center">
-            <span className="text-sm text-v3SwapGray">Your Power</span>
+            <span className="text-sm text-v3SwapGray">
+              <FormattedMessage id="your_power" />
+            </span>
             <div
               className="text-white text-right ml-1"
               data-class="reactTip"
@@ -1570,7 +1584,7 @@ function ClassicFarmRowMobile() {
           }`}
         >
           <span className="text-sm text-v3SwapGray">
-            Unclaimed Farm Rewards
+            <FormattedMessage id="unclaimed_farm_rewards" />
           </span>
           <div
             className={`flex items-center ${
@@ -1642,7 +1656,7 @@ function ClassicFarmRowPc() {
             {displaySymbols()}
           </span>
           <span className="flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 mx-1.5 py-0.5">
-            Classic
+            <FormattedMessage id="classic" />
           </span>
           <span
             className="flex items-center justify-center h-5 w-5 rounded-md bg-selectTokenV3BgColor cursor-pointer text-primaryText hover:text-white"
@@ -1676,12 +1690,16 @@ function ClassicFarmRowPc() {
       <div className={`${switch_off ? 'hidden' : ''}`}>
         <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3">
           <div className="flex items-center justify-between mb-6">
-            <span className="text-sm text-v3SwapGray">USD Value Staked</span>
+            <span className="text-sm text-v3SwapGray">
+              <FormattedMessage id="usd_value_staked" />
+            </span>
             <span className="text-sm text-white">{getYourTvl()}</span>
           </div>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
-              <span className="text-sm text-v3SwapGray">Your Power</span>
+              <span className="text-sm text-v3SwapGray">
+                <FormattedMessage id="your_power" />
+              </span>
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
@@ -1709,7 +1727,7 @@ function ClassicFarmRowPc() {
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-v3SwapGray">
-              Unclaimed Farm Rewards
+              <FormattedMessage id="unclaimed_farm_rewards" />
             </span>
             <div className="flex items-center">
               {unclaimedRewardsData.list.map(

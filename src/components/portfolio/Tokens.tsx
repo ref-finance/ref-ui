@@ -35,6 +35,7 @@ import {
 } from '../../components/icon/Portfolio';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { isMobile } from '~utils/device';
+import { FormattedMessage, useIntl } from 'react-intl';
 const is_mobile = isMobile();
 export default function Tokens() {
   const { tokenPriceList } = useContext(PortfolioData);
@@ -81,6 +82,7 @@ export default function Tokens() {
   const DCLAccountBalance = useDCLAccountBalance(!!accountId);
   const is_tokens_loading =
     !userTokens || !balances || !auroaBalances || !DCLAccountBalance;
+  const intl = useIntl();
   useEffect(() => {
     if (!is_tokens_loading) {
       userTokens.forEach((token: TokenMetadata) => {
@@ -142,8 +144,9 @@ export default function Tokens() {
       set_dcl_total_value(total_value_dcl);
       set_aurora_total_value(total_value_aurora);
       const tab_list = [{ name: 'NEAR', tag: 'near' }];
+      const classic_text = intl.formatMessage({ id: 'classic' });
       if (tokens_ref?.length > 0) {
-        tab_list.push({ name: 'Classic', tag: 'ref' });
+        tab_list.push({ name: classic_text, tag: 'ref' });
       }
       if (tokens_dcl?.length > 0) {
         tab_list.push({ name: 'DCL', tag: 'dcl' });
@@ -379,7 +382,7 @@ export default function Tokens() {
     <div className="mt-6">
       <div className="px-5">
         <div className="text-base text-white mb-4 gotham_bold">
-          Token Balances
+          <FormattedMessage id="token_balances"></FormattedMessage>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -476,7 +479,9 @@ export default function Tokens() {
         >
           <div className="flex items-center">
             <TriangleGreyIcon className="mr-1"></TriangleGreyIcon>
-            <span className="text-xs text-primaryText">Mapping Account</span>
+            <span className="text-xs text-primaryText">
+              <FormattedMessage id="mapping_account" />
+            </span>
           </div>
           <div className="flex items-center">
             <span className="text-xs text-white mr-1.5">

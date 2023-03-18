@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { OverviewIcon, PositionsIcon, TokenIcon } from '../icon/Portfolio';
 import { PortfolioData } from '../../pages/Portfolio';
+import { FormattedMessage, useIntl } from 'react-intl';
 export default function MainTab() {
   const { main_active_tab, set_main_active_tab } = useContext(PortfolioData);
 
