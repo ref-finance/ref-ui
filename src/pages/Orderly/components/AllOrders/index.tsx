@@ -656,6 +656,8 @@ function OrderLine({
     )
       return;
 
+    setShowEditModal(false);
+
     return editOrder({
       accountId,
       orderlyProps: {
@@ -698,7 +700,6 @@ function OrderLine({
       .then((res) => {
         setOpenEditQuantity(false);
         setOpenEditPrice(false);
-        setShowEditModal(false);
         setMobileEditType(undefined);
 
         if (type === 'price') setPrice(value);
