@@ -1069,7 +1069,7 @@ const zh_CN = {
   your_positions: '你的位置',
   your_price_range: '你的价格范围',
   locked_in: '锁在',
-  executing: '成交',
+  executing: '执行中',
   from_2: '从',
   to_2: '到',
 };
