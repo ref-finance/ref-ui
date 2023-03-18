@@ -529,7 +529,7 @@ function OrderLine({
       errorTipMsg = `${intl.formatMessage({
         id: 'price_should_be_a_multiple_of',
         defaultMessage: 'Price should be a multiple of',
-      })}${symbolInfo.quote_tick} ${intl.formatMessage({
+      })} ${symbolInfo.quote_tick} ${intl.formatMessage({
         id: 'price_should_be_a_multiple_of_zh',
         defaultMessage: ' ',
       })}`;

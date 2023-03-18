@@ -62,7 +62,11 @@ import {
   QuestionMark,
 } from '../Common/index';
 import { useTokenBalance, useTokensBalances } from './state';
-import { digitWrapper, digitWrapperAsset } from '../../utiles';
+import {
+  digitWrapper,
+  digitWrapperAsset,
+  numberWithCommas,
+} from '../../utiles';
 
 import { FiSearch } from 'react-icons/fi';
 import {
@@ -3719,7 +3723,7 @@ function ConfirmOrderModal(
 
             <span className="flex items-center">
               <span className="text-white mr-2">
-                {digitWrapper(quantity, 3)}
+                {numberWithCommas(quantity)}
               </span>
 
               <TextWrapper
@@ -3739,7 +3743,7 @@ function ConfirmOrderModal(
             </span>
 
             <span className="flex items-center">
-              <span className="text-white mr-2">{digitWrapper(price, 3)}</span>
+              <span className="text-white mr-2">{numberWithCommas(price)}</span>
               <TextWrapper
                 textC="text-primaryText"
                 className="text-xs py-0 px-1"
@@ -3760,7 +3764,7 @@ function ConfirmOrderModal(
               <span className=" mr-2 text-white">
                 {totalCost === '-'
                   ? '-'
-                  : digitWrapper(totalCost.toString(), 3)}
+                  : numberWithCommas(totalCost.toString())}
               </span>
               <TextWrapper
                 textC="text-primaryText"

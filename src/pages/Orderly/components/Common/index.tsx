@@ -601,7 +601,7 @@ export function orderPopUp({
         </div>
       </FlexRowBetween>
 
-      <FlexRowStart className="mt-6 ">
+      <FlexRowStart className="mt-6 flex-wrap ">
         {
           <FormattedMessage
             id={`to_${side.toLowerCase()}`}
@@ -929,7 +929,7 @@ export function orderEditPopUpSuccess({
 
       <div className="absolute w-1 bottom-0 bg-gradientFrom h-full left-0"></div>
 
-      <FlexRowStart className=" px-2 text-white">
+      <FlexRowStart className=" px-2 flex-wrap text-white">
         {
           <FormattedMessage
             id={side.toLowerCase() + '_pop'}
