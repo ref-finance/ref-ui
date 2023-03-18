@@ -1001,5 +1001,8 @@ const ja = {
   your_positions: 'Your Positions',
   your_price_range: 'Your Price Range',
   locked_in: 'locked in',
+  executing: 'executing',
+  from_2: 'from',
+  to_2: 'to',
 };
 export default Object.assign(ja, ja_in_risks_page);

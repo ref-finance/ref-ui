@@ -1069,5 +1069,8 @@ const zh_CN = {
   your_positions: '你的位置',
   your_price_range: '你的价格范围',
   locked_in: '锁在',
+  executing: '成交',
+  from_2: '从',
+  to_2: '到',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

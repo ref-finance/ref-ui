@@ -1124,5 +1124,8 @@ const en_US = {
   your_positions: 'Your Positions',
   your_price_range: 'Your Price Range',
   locked_in: 'locked in',
+  executing: 'executing',
+  from_2: 'from',
+  to_2: 'to',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
