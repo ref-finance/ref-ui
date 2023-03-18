@@ -1133,5 +1133,8 @@ const en_US = {
   buy_pop: 'Buy',
   sell_pop: 'Sell',
   fee_orderly: 'Fee',
+  executing: 'Executing',
+  from_2: 'from',
+  to_2: 'to',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

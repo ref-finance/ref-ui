@@ -228,6 +228,7 @@ function OrderCard({
     order: UserOrderInfo;
     index: number;
   }) {
+    const tx_record = activeOrderTxMap[order.order_id];
     const { tokenPriceList } = useContext(PortfolioData);
     const [switch_off, set_switch_off] = useState<boolean>(true);
 
@@ -570,15 +571,23 @@ function OrderCard({
         <div className="xs:hidden">{unclaimTip}</div>
       </span>
     );
-
     const created = (
       <div className="flex items-center justify-end text-xs text-v3SwapGray">
+        <span className="mr-1">
+          <FormattedMessage id="created" />
+        </span>
         {moment(
           Math.floor(Number(order.created_at) / TIMESTAMP_DIVISOR) * 1000
         ).format('YYYY-MM-DD HH:mm')}
-        <span className="ml-1">
-          <FormattedMessage id="created_s" />
-        </span>
+        <LinkIcon
+          onClick={() => {
+            const txHash = activeOrderTxMap[order.order_id];
+            window.open(`${explorerUrl}/txns/${txHash}`);
+          }}
+          className={`ml-1.5 text-v3SwapGray cursor-pointer hover:text-white ${
+            tx_record ? '' : 'hidden'
+          }`}
+        ></LinkIcon>
       </div>
     );
 
@@ -692,7 +701,7 @@ function OrderCard({
 
         <div className="flex items-start justify-between">
           <span className="text-sm text-v3SwapGray">
-            <FormattedMessage id="executed" />
+            <FormattedMessage id="executing" />
           </span>
           <div>
             <div className="flex items-center mb-6">
@@ -882,7 +891,6 @@ function OrderCard({
         </div>
       </>
     );
-    const tx_record = activeOrderTxMap[order.order_id];
     return (
       <>
         {/* PC */}
@@ -909,22 +917,6 @@ function OrderCard({
             </div>
           </div>
           <div className={`${switch_off ? 'hidden' : ''}`}>
-            <div className="flex items-center justify-between text-sm text-v3SwapGray ml-2">
-              <span>
-                <FormattedMessage id="order_progress" />
-              </span>
-              <span
-                onClick={() => {
-                  const txHash = activeOrderTxMap[order.order_id];
-                  window.open(`${explorerUrl}/txns/${txHash}`);
-                }}
-                className={`flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 cursor-pointer hover:text-white  py-0.5  mr-1.5 ${
-                  tx_record ? '' : 'hidden'
-                }`}
-              >
-                Onchain Record <LinkIcon className="ml-1"></LinkIcon>
-              </span>
-            </div>
             <div className="bg-primaryText rounded-xl px-3.5 py-5 bg-opacity-10 mt-3 mb-4">
               {swapBanner}
             </div>
@@ -965,13 +957,13 @@ function OrderCard({
                 </span>
                 <div className="flex items-center">
                   <div className="flex items-center text-v3SwapGray text-sm ">
-                    from
+                    <FormattedMessage id="from_2" />
                     <span className="text-xs text-v3SwapGray px-0.5 bg-menuMoreBgColor rounded ml-1.5">
                       {toRealSymbol(sellToken.symbol)}
                     </span>
                   </div>
                   <div className="flex items-center justify-end text-v3SwapGray text-sm w-20">
-                    to
+                    <FormattedMessage id="to_2" />
                     <span className="text-xs text-v3SwapGray px-0.5 bg-menuMoreBgColor rounded ml-1.5">
                       {toRealSymbol(buyToken.symbol)}
                     </span>
@@ -983,19 +975,8 @@ function OrderCard({
               </div>
             </div>
             {/* created time */}
-            <div className="flex items-center justify-between px-3 pb-3">
+            <div className="flex items-center justify-end px-3 pb-3">
               {created}
-              <span
-                onClick={() => {
-                  const txHash = activeOrderTxMap[order.order_id];
-                  window.open(`${explorerUrl}/txns/${txHash}`);
-                }}
-                className={`flex items-center justify-center text-xs text-v3SwapGray bg-selectTokenV3BgColor rounded-md px-1.5 py-0.5 ${
-                  tx_record ? '' : 'hidden'
-                }`}
-              >
-                Onchain Record <LinkIcon className="ml-1"></LinkIcon>
-              </span>
             </div>
           </div>
         </div>

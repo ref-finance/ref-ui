@@ -993,5 +993,8 @@ const ko = {
   your_positions: 'Your Positions',
   your_price_range: 'Your Price Range',
   locked_in: 'locked in',
+  executing: 'Executing',
+  from_2: 'from',
+  to_2: 'to',
 };
 export default Object.assign(ko, ko_in_risks_page);

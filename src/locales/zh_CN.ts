@@ -1077,5 +1077,8 @@ const zh_CN = {
   buy_pop: '买入',
   sell_pop: '卖出',
   fee_orderly: '交易费',
+  executing: '执行中',
+  from_2: '从',
+  to_2: '到',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
