@@ -1622,11 +1622,9 @@ function PoolRow({
               </div>
               {mark ? (
                 <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
-                  {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
-                    <FormattedMessage id="stablecoin"></FormattedMessage>
-                  ) : (
-                    'Classic'
-                  )}
+                  {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1
+                    ? 'Stable'
+                    : 'Classic'}
                 </span>
               ) : null}
               {watched && (
@@ -2301,7 +2299,7 @@ function LiquidityPage_({
                   switchActiveTab('v2');
                 }}
               >
-                DCL Pools
+                <FormattedMessage id="dcl_pools" defaultMessage={'DCL Pools'} />
               </button>
               {activeTab === 'v1' || activeTab === 'v2' ? null : (
                 <div
@@ -2350,7 +2348,10 @@ function LiquidityPage_({
                 switchActiveTab('stable');
               }}
             >
-              Stable Pools
+              <FormattedMessage
+                id="stable_pools"
+                defaultMessage={'Stable Pools'}
+              />
             </button>
 
             <button

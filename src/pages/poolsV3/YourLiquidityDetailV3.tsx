@@ -543,7 +543,12 @@ export default function YourLiquidityDetail(props: any) {
               className="flex items-center text-farmText hover:text-framBorder lg:hidden"
               onClick={goPoolPage}
             >
-              <label className="mx-2 text-sm cursor-pointer">Pool Detail</label>
+              <label className="mx-2 text-sm cursor-pointer">
+                <FormattedMessage
+                  id="pool_detail"
+                  defaultMessage={'Pool Detail'}
+                />
+              </label>
               <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
             </div>
           </div>

@@ -1145,12 +1145,14 @@ const en_US = {
   select_token_orderly: 'Select Token',
   overview: 'Overview',
   positions_2: 'Positions',
-
+  'deposit_near_tip_0.5': 'To deposit, keep at least 0.5 NEAR to cover gas fee',
   trade: 'Trade',
   earn_2: 'Earn',
   portfolio: 'Portfolio',
   more_2: 'More',
   liquidity_pools_2: 'Liquidity Pools',
   business_inquiries: 'Business Inquiries',
+  stable_pools: 'Stable Pools',
+  pool_detail: 'Pool Detail',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
