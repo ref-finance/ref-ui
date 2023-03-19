@@ -1097,7 +1097,7 @@ const zh_CN = {
   watchlist: '收藏列表',
   tvl_total_value_locked: 'TVL（总锁定价值）',
   search_pool_by_token: '通过代币搜索流动池',
-  dcl_pools: 'DCL流动池',
+  dcl_pools: 'DCL池',
   stable_pools: '稳定池',
   your_liquidity_value: '您的流动性价值',
   pool_detail: '流动池详情',
