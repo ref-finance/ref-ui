@@ -834,6 +834,7 @@ function DetailViewLimit({
     const id = poolId ? poolId : getV3PoolId(tokenIn.id, tokenOut.id, fee);
 
     const [PoolDetails, setPoolDetails] = useState<PoolInfo>();
+    console.log('PoolDetails: ', PoolDetails);
 
     useEffect(() => {
       get_pool_from_cache(id).then(setPoolDetails);
@@ -851,17 +852,16 @@ function DetailViewLimit({
         return `$${toInternationalCurrencySystem(tvl.toString(), 0)}`;
       }
     }
+
     function displayTvlAndNoPool() {
       if (everyPoolTvl?.[id] == null) {
         return <span>No pool</span>;
       } else {
-        return PoolDetails && PoolDetails?.state !== 'Paused' ? (
+        return (
           <>
             <span className="mr-1.5 xsm:mr-0 xsm:hidden">TVL</span>
             {displayTvl()}
           </>
-        ) : (
-          <>-</>
         );
       }
     }
