@@ -1376,7 +1376,7 @@ function UserLiquidityLineStyle2Mobile({
       >
         <div className="flex items-center justify-between mb-6">
           <span className="text-sm text-v3SwapGray whitespace-nowrap">
-            Your Liquidity
+            <FormattedMessage id="your_liquidity" />
           </span>
           <span className="text-sm text-white whitespace-nowrap">
             ${your_liquidity || '-'}

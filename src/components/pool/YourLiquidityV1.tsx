@@ -858,7 +858,9 @@ function YourClassicLiquidityLineMobile() {
         }`}
       >
         <div className="flex items-center justify-between mb-6">
-          <span className="text-sm text-v3SwapGray">Your Liquidity</span>
+          <span className="text-sm text-v3SwapGray">
+            <FormattedMessage id="your_liquidity" />
+          </span>
           <span className="text-sm text-white">
             {display_value(lp_total_value)}
           </span>

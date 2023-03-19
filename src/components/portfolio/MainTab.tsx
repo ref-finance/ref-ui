@@ -6,8 +6,8 @@ export default function MainTab() {
   const { main_active_tab, set_main_active_tab } = useContext(PortfolioData);
 
   const [mainTabList, setMainTabList] = useState([
-    { name: 'Overview', icon: <OverviewIcon />, id: 'overview' },
-    { name: 'Positions', icon: <PositionsIcon />, id: 'positions' },
+    { name: '', icon: <OverviewIcon />, id: 'overview' },
+    { name: '', icon: <PositionsIcon />, id: 'positions_2' },
     { name: 'Token', icon: <TokenIcon />, id: 'token' },
   ]);
 
@@ -31,7 +31,9 @@ export default function MainTab() {
             }`}
           >
             {icon}
-            <span className="ml-1.5 text-sm gotham_bold">{name}</span>
+            <span className="ml-1.5 text-sm gotham_bold">
+              {name || <FormattedMessage id={id}></FormattedMessage>}
+            </span>
           </div>
         );
       })}

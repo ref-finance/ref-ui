@@ -172,7 +172,7 @@ function PortfolioMobile() {
         <AssetChart></AssetChart>
         <AssetProfit></AssetProfit>
       </div>
-      <div className={`${main_active_tab == 'positions' ? '' : 'hidden'}`}>
+      <div className={`${main_active_tab == 'positions_2' ? '' : 'hidden'}`}>
         <Orders></Orders>
         <Positions></Positions>
         <Farms></Farms>

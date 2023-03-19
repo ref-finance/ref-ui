@@ -230,7 +230,11 @@ export const useMenus = () => {
   const menuData = [
     {
       id: '1',
-      label: <>Trade</>,
+      label: (
+        <>
+          <FormattedMessage id="trade" />
+        </>
+      ),
       links: ['/', '/orderbook', '/myOrder', '/swap'],
       children: [
         {
@@ -261,7 +265,11 @@ export const useMenus = () => {
         },
         {
           id: '1-3',
-          label: <>Limit Order</>,
+          label: (
+            <>
+              <FormattedMessage id="limit_order" />
+            </>
+          ),
           logo: <LimitOrderIcon />,
           url: '/',
           isExternal: false,
@@ -274,7 +282,11 @@ export const useMenus = () => {
         },
         {
           id: '1-4',
-          label: <span>Orderbook</span>,
+          label: (
+            <>
+              <FormattedMessage id="orderbook_mobile"></FormattedMessage>
+            </>
+          ),
           logo: <OrderBookIcon />,
           url: '/orderbook',
           isExternal: false,
@@ -284,7 +296,11 @@ export const useMenus = () => {
     },
     {
       id: '2',
-      label: <>Earn</>,
+      label: (
+        <>
+          <FormattedMessage id="earn_2" />
+        </>
+      ),
       links: [
         '/pools',
         '/pool',
@@ -300,7 +316,11 @@ export const useMenus = () => {
       children: [
         {
           id: '2-1',
-          label: <>Liquidity Pools</>,
+          label: (
+            <>
+              <FormattedMessage id="liquidity_pools_2" />
+            </>
+          ),
           logo: <PoolsIcon />,
           url: '/pools',
           isExternal: false,
@@ -308,7 +328,11 @@ export const useMenus = () => {
         },
         {
           id: '2-2',
-          label: <>Your Liquidity</>,
+          label: (
+            <>
+              <FormattedMessage id="your_liquidity" />
+            </>
+          ),
           logo: <YourliquidityIcon />,
           url: '/yourliquidity',
           isExternal: false,
@@ -320,7 +344,11 @@ export const useMenus = () => {
         },
         {
           id: '2-3',
-          label: <>Farms</>,
+          label: (
+            <>
+              <FormattedMessage id="farms" />
+            </>
+          ),
           logo: <FarmsIcon />,
           url: '/v2farms',
           isExternal: false,
@@ -342,7 +370,11 @@ export const useMenus = () => {
     },
     {
       id: '3',
-      label: <>Portfolio</>,
+      label: (
+        <>
+          <FormattedMessage id="portfolio" />
+        </>
+      ),
       url: '/portfolio',
       isExternal: false,
       links: ['/portfolio'],
@@ -360,7 +392,11 @@ export const useMenus = () => {
     // },
     {
       id: '6',
-      label: <>Vote</>,
+      label: (
+        <>
+          <FormattedMessage id="vote" />
+        </>
+      ),
       url: '/referendum',
       isExternal: false,
       hidden: !getConfig().REF_VE_CONTRACT_ID,
@@ -368,7 +404,11 @@ export const useMenus = () => {
     },
     {
       id: '5',
-      label: <>More</>,
+      label: (
+        <>
+          <FormattedMessage id="more_2" />
+        </>
+      ),
       links: ['/risks', '/airdrop'],
       children: [
         {
@@ -445,7 +485,11 @@ export const useMenus = () => {
         },
         {
           id: '5-5',
-          label: <>{'Business Inquiries'}</>,
+          label: (
+            <>
+              <FormattedMessage id="business_inquiries" />
+            </>
+          ),
           url: 'https://form.typeform.com/to/onOPhJ6Y',
           isExternal: true,
           logo: <InquiriesIcon />,
@@ -461,7 +505,11 @@ export const useMenusMobile = () => {
   const menuData = [
     {
       id: '1',
-      label: <>Trade</>,
+      label: (
+        <>
+          <FormattedMessage id="trade" />
+        </>
+      ),
       links: ['/', '/orderbook', '/myOrder', '/swap'],
       children: [
         {
@@ -492,7 +540,11 @@ export const useMenusMobile = () => {
         },
         {
           id: '1-3',
-          label: <>Limit Order</>,
+          label: (
+            <>
+              <FormattedMessage id="limit_order" />
+            </>
+          ),
           logo: <LimitOrderIcon />,
           url: '/',
           isExternal: false,
@@ -505,7 +557,11 @@ export const useMenusMobile = () => {
         },
         {
           id: '1-4',
-          label: <span>Orderbook</span>,
+          label: (
+            <>
+              <FormattedMessage id="orderbook_mobile"></FormattedMessage>
+            </>
+          ),
           logo: <OrderBookIcon />,
           url: '/orderbook',
           isExternal: false,
@@ -515,7 +571,11 @@ export const useMenusMobile = () => {
     },
     {
       id: '2',
-      label: <>Earn</>,
+      label: (
+        <>
+          <FormattedMessage id="earn_2" />
+        </>
+      ),
       links: [
         '/pools',
         '/pool',
@@ -531,7 +591,11 @@ export const useMenusMobile = () => {
       children: [
         {
           id: '2-1',
-          label: <>Liquidity Pools</>,
+          label: (
+            <>
+              <FormattedMessage id="liquidity_pools_2" />
+            </>
+          ),
           logo: <PoolsIcon />,
           url: '/pools',
           isExternal: false,
@@ -539,7 +603,11 @@ export const useMenusMobile = () => {
         },
         {
           id: '2-2',
-          label: <>Your Liquidity</>,
+          label: (
+            <>
+              <FormattedMessage id="your_liquidity" />
+            </>
+          ),
           logo: <YourliquidityIcon />,
           url: '/yourliquidity',
           isExternal: false,
@@ -551,7 +619,11 @@ export const useMenusMobile = () => {
         },
         {
           id: '2-3',
-          label: <>Farms</>,
+          label: (
+            <>
+              <FormattedMessage id="farms" />
+            </>
+          ),
           logo: <FarmsIcon />,
           url: '/v2farms',
           isExternal: false,
@@ -573,7 +645,11 @@ export const useMenusMobile = () => {
     },
     {
       id: '3',
-      label: <>Portfolio</>,
+      label: (
+        <>
+          <FormattedMessage id="portfolio" />
+        </>
+      ),
       url: '/portfolio',
       isExternal: false,
       links: ['/portfolio'],
@@ -591,7 +667,11 @@ export const useMenusMobile = () => {
     // },
     {
       id: '6',
-      label: <>Vote</>,
+      label: (
+        <>
+          <FormattedMessage id="vote" />
+        </>
+      ),
       url: '/referendum',
       isExternal: false,
       hidden: !getConfig().REF_VE_CONTRACT_ID,
@@ -599,7 +679,11 @@ export const useMenusMobile = () => {
     },
     {
       id: '5',
-      label: <>More</>,
+      label: (
+        <>
+          <FormattedMessage id="more_2" />
+        </>
+      ),
       links: ['/risks', '/airdrop'],
       children: [
         {
@@ -676,7 +760,11 @@ export const useMenusMobile = () => {
         },
         {
           id: '5-5',
-          label: <>{'Business Inquiries'}</>,
+          label: (
+            <>
+              <FormattedMessage id="business_inquiries" />
+            </>
+          ),
           url: 'https://form.typeform.com/to/onOPhJ6Y',
           isExternal: true,
           logo: <InquiriesIcon />,

@@ -1086,5 +1086,13 @@ const zh_CN = {
   welcome: '欢迎',
   welcome_mobile: '请连接您的钱包',
   select_token_orderly: '选择代币',
+  overview: '总览',
+  positions_2: '头寸',
+  trade: '交易',
+  earn_2: '赚取',
+  portfolio: '资产',
+  more_2: '更多',
+  liquidity_pools_2: '流动池',
+  business_inquiries: '商务合作',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
