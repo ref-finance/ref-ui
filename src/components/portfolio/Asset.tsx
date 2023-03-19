@@ -395,7 +395,7 @@ function AssetMobile() {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between border-t border-b border-cardBg">
+      <div className="flex items-stretch justify-between border-t border-b border-cardBg">
         <DataTemplate
           title={intl.formatMessage({ id: 'v2_pools' })}
           value={getV2PoolUSDValue()}
@@ -405,7 +405,11 @@ function AssetMobile() {
           }}
           className="border-r border-cardBg px-5 w-1 flex-grow py-4"
         >
-          <div className="flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1">
+          <div
+            className={`flex items-center text-farmText text-xs mt-1 bg-cardBg rounded-md px-2 py-1 ${
+              switch_on_dcl_farms == 'off' ? 'hidden' : ''
+            }`}
+          >
             {percent_in_dcl_farms}{' '}
             <span
               onClick={() => {
