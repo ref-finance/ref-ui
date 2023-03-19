@@ -963,5 +963,6 @@ const en_US = {
   minimum_received_dot: 'Minimum received',
   v2_your_pool_introduction: 'Your discretized concentrated liquidity',
   v1_your_pool_introduction: 'Your liquidity in classic pools',
+  estimate_value: 'Estimate Value',
 };
 export default Object.assign(en_US, en_US_in_risks_page);

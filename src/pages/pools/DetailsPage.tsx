@@ -2578,12 +2578,23 @@ export function PoolDetailsPage() {
                     />
                   </div>
 
-                  <div className="w-full text-right text-sm text-v3SwapGray">
-                    {!isSignedIn
-                      ? '-'
-                      : usdValue === '-'
-                      ? '-'
-                      : `~${usdValue}`}
+                  <div className="w-full text-right text-sm text-primaryText ">
+                    {!isSignedIn ? (
+                      '-'
+                    ) : usdValue === '-' ? (
+                      '-'
+                    ) : (
+                      <div className="flex items-center relative top-1.5 justify-between">
+                        <span className="whitespace-nowrap ">
+                          <FormattedMessage
+                            id="estimate_value"
+                            defaultMessage={'Estimate Value'}
+                          ></FormattedMessage>
+                        </span>
+
+                        <span className="text-white font-bold">{usdValue}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col text-center text-base  pt-4">

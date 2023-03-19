@@ -969,5 +969,6 @@ const ja = {
   minimum_received_dot: '受け取り可能な最低金額',
   v2_your_pool_introduction: 'Your discretized concentrated liquidity',
   v1_your_pool_introduction: 'Your liquidity in classic pools',
+  estimate_value: 'Estimate Value',
 };
 export default Object.assign(ja, ja_in_risks_page);

@@ -450,11 +450,9 @@ function MobilePoolRow({
               <div className="flex items-center relative top-0.5">
                 {mark ? (
                   <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
-                    {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
-                      <FormattedMessage id="stablecoin"></FormattedMessage>
-                    ) : (
-                      'Classic'
-                    )}
+                    {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1
+                      ? 'Stable'
+                      : 'Classic'}
                   </span>
                 ) : null}
                 {morePoolButton}
@@ -1611,11 +1609,9 @@ function PoolRow({
               </div>
               {mark ? (
                 <span className="text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2">
-                  {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1 ? (
-                    <FormattedMessage id="stablecoin"></FormattedMessage>
-                  ) : (
-                    'Classic'
-                  )}
+                  {ALL_STABLE_POOL_IDS.indexOf(pool.id.toString()) > -1
+                    ? 'Stable'
+                    : 'Classic'}
                 </span>
               ) : null}
               {watched && (

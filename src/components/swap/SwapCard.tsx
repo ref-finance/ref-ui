@@ -811,7 +811,7 @@ function DetailViewLimit({
           {!tokenPriceList
             ? '-'
             : !count
-            ? ''
+            ? '-'
             : `${poolPercents?.[id] || '0'}%`}
         </span>
         {!count ? (

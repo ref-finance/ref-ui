@@ -1001,5 +1001,6 @@ const es = {
   minimum_received_dot: 'Mínimo recibido',
   v2_your_pool_introduction: 'Your discretized concentrated liquidity',
   v1_your_pool_introduction: 'Your liquidity in classic pools',
+  estimate_value: 'Estimate Value',
 };
 export default Object.assign(es, es_in_risks_page);

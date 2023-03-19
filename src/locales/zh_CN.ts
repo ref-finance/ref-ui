@@ -917,5 +917,6 @@ const zh_CN = {
   v2_your_pool_introduction: 'Your discretized concentrated liquidity',
   v1_your_pool_introduction: 'Your liquidity in classic pools',
   input_pool_id: '输入池子ID',
+  estimate_value: '预估价值',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

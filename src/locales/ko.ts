@@ -961,5 +961,6 @@ const ko = {
   minimum_received_dot: '최소 수령양',
   v2_your_pool_introduction: 'Your discretized concentrated liquidity',
   v1_your_pool_introduction: 'Your liquidity in classic pools',
+  estimate_value: 'Estimate Value',
 };
 export default Object.assign(ko, ko_in_risks_page);

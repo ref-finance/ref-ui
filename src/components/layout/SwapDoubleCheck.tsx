@@ -26,6 +26,7 @@ import { ArrowRight } from '../icon/swapV3';
 
 import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 import BigNumber from 'bignumber.js';
+import Big from 'big.js';
 
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 
@@ -380,10 +381,16 @@ export function DoubleCheckModalLimit(
           </span>
           <div className="flex items-center">
             <span className="text-sm text-white mr-1.5">
-              {displayAmount(rate)}
+              {displayAmount(
+                scientificNotationToString(
+                  new Big(1)
+                    .div(new Big(Number(rate) === 0 ? '1' : rate))
+                    .toString()
+                )
+              )}
             </span>
             <span className="bg-menuMoreBgColor p-1 rounded">
-              {tokenOut.symbol}/{tokenIn.symbol}
+              {tokenIn.symbol}/{tokenOut.symbol}
             </span>
           </div>
         </div>
