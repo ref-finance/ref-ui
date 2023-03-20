@@ -53,11 +53,11 @@ export default function Tokens() {
   const [dcl_total_value, set_dcl_total_value] = useState<string>('0');
   const [aurora_total_value, set_aurora_total_value] = useState<string>('0');
   const [color_list, set_color_list] = useState([
+    '#455563',
     '#467681',
     '#468173',
     '#43698D',
     '#566583',
-    '#455563',
   ]);
   const [chartEvents, setChartEvents] = useState<any>({});
   const tokenRef = useRef(null);
@@ -214,6 +214,9 @@ export default function Tokens() {
               borderRadius: 10,
               borderWidth: 2,
               borderColor: 'rgba(0, 0, 0, 0.1)',
+              emphasis: {
+                color: '#00D6AF',
+              },
             },
             label: {
               show: false,
@@ -315,7 +318,6 @@ export default function Tokens() {
           return {
             ...token,
             value: percent.isLessThan('0.5') ? display_value : t_value,
-            itemStyle: index == 0 ? { color: '#00D6AF' } : {},
           };
         }
       }
