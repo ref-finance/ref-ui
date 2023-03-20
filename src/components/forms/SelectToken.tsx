@@ -787,7 +787,6 @@ export function SelectTokenDCL({
   const mobileDevice = isMobile();
 
   const globalWhiteList = useGlobalWhitelistTokens();
-  console.log('globalWhiteList: ', globalWhiteList);
 
   const displayPools = allPools?.reduce((acc, cur, i) => {
     const id = [cur.token_x, cur.token_y].sort().join('|');
@@ -867,6 +866,14 @@ export function SelectTokenDCL({
   });
 
   // fetch all dcl pools
+
+  useEffect(() => {
+    if (hoverSelectToken && mobileDevice) {
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.documentElement.style.overflow = 'auto';
+    }
+  }, [hoverSelectToken]);
 
   return (
     <div
