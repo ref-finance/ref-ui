@@ -53,9 +53,9 @@ export default function Tokens() {
   const [dcl_total_value, set_dcl_total_value] = useState<string>('0');
   const [aurora_total_value, set_aurora_total_value] = useState<string>('0');
   const [color_list, set_color_list] = useState([
-    '#455563',
-    '#467681',
     '#468173',
+    '#467681',
+    '#455563',
     '#43698D',
     '#566583',
   ]);
