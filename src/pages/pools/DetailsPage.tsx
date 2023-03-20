@@ -1112,10 +1112,6 @@ export function RemoveLiquidityModal(
                 <span className="">
                   Legacy &nbsp;
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
-<<<<<<< HEAD
-                  &nbsp; Legacy
-=======
->>>>>>> orderly-integration
                 </span>
 
                 <span className="ml-0.5">
@@ -1154,10 +1150,6 @@ export function RemoveLiquidityModal(
                 <span className="">
                   Classic&nbsp;
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
-<<<<<<< HEAD
-                  &nbsp; Classic
-=======
->>>>>>> orderly-integration
                 </span>
 
                 <span className="ml-0.5">
