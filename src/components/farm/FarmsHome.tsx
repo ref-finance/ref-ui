@@ -2812,7 +2812,9 @@ function FarmView(props: {
       return (
         <span>
           <label className="mx-0.5">~</label>
-          {toPrecision(r.toString(), 2) + '%'}
+          <label className="gotham_bold">
+            {toPrecision(r.toString(), 2) + '%'}
+          </label>
         </span>
       );
     }
@@ -3269,12 +3271,12 @@ function FarmView(props: {
                       className={`flex items-center flex-wrap justify-center text-white text-base`}
                     >
                       {yourApr && +aprSwitchStatus == 1 ? (
-                        <label className="text-base">{yourApr}</label>
+                        <label className="text-sm gotham_bold">{yourApr}</label>
                       ) : (
                         <>
                           <label
-                            className={`${
-                              aprUpLimit ? 'text-xs' : 'text-base'
+                            className={`gotham_bold ${
+                              aprUpLimit ? 'text-xs' : 'text-sm'
                             }`}
                           >
                             {getTotalApr()}

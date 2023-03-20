@@ -911,7 +911,9 @@ function YourClassicLiquidityLineMobile() {
                   window.open('/referendum');
                 }}
               >
-                <label className="underline cursor-pointer mx-1">DAO</label>{' '}
+                <label className="underline cursor-pointer mx-1">
+                  <FormattedMessage id="vote_capital" />
+                </label>{' '}
                 <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
               </span>
             </div>
@@ -1037,7 +1039,9 @@ function YourClassicLiquidityLinePc() {
                     window.open('/referendum');
                   }}
                 >
-                  <label className="underline cursor-pointer mx-1">DAO</label>{' '}
+                  <label className="underline cursor-pointer mx-1">
+                    <FormattedMessage id="vote_capital" />
+                  </label>{' '}
                   <LinkIcon className="cursor-pointer text-primaryText hover:text-white"></LinkIcon>
                 </span>
               </div>
