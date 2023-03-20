@@ -953,7 +953,7 @@ export function SelectTokenDCL({
           >
             <div className="text-sm text-primaryText xs:text-white xs:text-base  ml-1.5   pb-2">
               {intl.formatMessage({
-                id: 'Instrument',
+                id: 'instrument',
                 defaultMessage: 'Instrument',
               })}
             </div>
