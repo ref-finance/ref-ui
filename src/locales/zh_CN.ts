@@ -1111,5 +1111,8 @@ const zh_CN = {
   your_liquidity_value: '您的流动性价值',
   pool_detail: '流动池详情',
   'deposit_near_tip_0.5': '0.5 NEAR留在钱包来支付gas费',
+  new_contract_deploy_tip: '已部署新合约！请将您的流动性从旧合同中移除',
+  remove_will_automatically_claim: '移除将自动认领你还未认领的费用。',
+  v2PoolTip2: '在DCL池中最多可以有16个位置',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

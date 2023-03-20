@@ -379,7 +379,7 @@ export default function YourLiquidityPageV3() {
                       className="text-white text-right ml-1"
                       data-class="reactTip"
                       data-for={'v2PoolNumberTip'}
-                      data-place="top"
+                      data-place="right"
                       data-html={true}
                       data-tip={getTipForV2Pool()}
                     >
@@ -665,11 +665,21 @@ function UserLegacyLiqudities(props: any) {
         <WarningTip className="mr-1.5 xsm:hidden"></WarningTip>
         <MobileWarningTip className="mb-1.5 lg:hidden"></MobileWarningTip>
         <span className="text-base text-legacyYellowColor gotham_bold xsm:text-center">
-          A new contract has been deployed! Please remove your liquidity from
-          the old contract
+          <FormattedMessage
+            id="new_contract_deploy_tip"
+            defaultMessage={
+              'A new contract has been deployed! Please remove your liquidity from the old contract'
+            }
+          />
         </span>
         <span className="text-sm text-v3LightGreyColor text-center lg:hidden my-1.5">
-          *Removing will automatically claim your unclaimed fees.
+          *
+          <FormattedMessage
+            id="remove_will_automatically_claim"
+            defaultMessage={
+              'Removing will automatically claim your unclaimed fees.'
+            }
+          ></FormattedMessage>
         </span>
       </div>
       {listLiquidities_old_version.length > 0 ? (

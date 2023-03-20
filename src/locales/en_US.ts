@@ -1173,5 +1173,9 @@ const en_US = {
   business_inquiries: 'Business Inquiries',
   stable_pools: 'Stable Pools',
   pool_detail: 'Pool Detail',
+  new_contract_deploy_tip:
+    'A new contract has been deployed! Please remove your liquidity from the old contract',
+  remove_will_automatically_claim:
+    'Removing will automatically claim your unclaimed fees.',
 };
 export default Object.assign(en_US, en_US_in_risks_page);
