@@ -1414,9 +1414,7 @@ export default function SwapCard(props: {
   ]);
 
   useEffect(() => {
-    console.log('limitTokenTrigger: ', limitTokenTrigger);
-
-    if (limitTokenTrigger === undefined) return;
+    if (limitTokenTrigger === undefined || swapMode !== SWAP_MODE.LIMIT) return;
 
     setTokenIn({
       ...nearMetadata,
@@ -1424,7 +1422,7 @@ export default function SwapCard(props: {
     });
 
     setTokenOut(allTokens.find((token) => token.id === usdcId));
-  }, [limitTokenTrigger]);
+  }, [limitTokenTrigger, swapMode]);
 
   useEffect(() => {
     if (tokenIn) {

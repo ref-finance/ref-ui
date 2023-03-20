@@ -4,17 +4,18 @@ import React, {
   useState,
   createContext,
   useContext,
+  useMemo,
 } from 'react';
 import MicroModal from 'react-micro-modal';
 import { TokenMetadata } from '../../services/ft-contract';
 import { ArrowDownGreen, ArrowDownWhite } from '../icon';
 import { isMobile, getExplorer } from '../../utils/device';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { TokenBalancesView } from '../../services/token';
+import { TokenBalancesView, getGlobalWhitelist } from '../../services/token';
 import { IoCloseOutline } from 'react-icons/io5';
 import CommonBasses from '../../components/tokens/CommonBasses';
 import Table from '../../components/table/Table';
-import { useTokensData } from '../../state/token';
+import { useTokensData, useGlobalWhitelistTokens } from '../../state/token';
 import { toRealSymbol } from '../../utils/token';
 import { FaSearch } from 'react-icons/fa';
 import AddToken from './AddToken';
@@ -785,17 +786,16 @@ export function SelectTokenDCL({
 
   const mobileDevice = isMobile();
 
-  // useEffect(() => {
-  //   if (mobileDevice && hoverSelectToken) {
-  //     document.addEventListener(
-  //       'touchmove',
-  //       (e) => {
-  //         e.preventDefault();
-  //       },
-  //       { passive: false }
-  //     );
-  //   }
-  // }, [mobileDevice, hoverSelectToken]);
+  const globalWhiteList = useGlobalWhitelistTokens();
+  console.log('globalWhiteList: ', globalWhiteList);
+
+  const displayPools = allPools?.reduce((acc, cur, i) => {
+    const id = [cur.token_x, cur.token_y].sort().join('|');
+    if (!acc[id]) {
+      acc[id] = cur;
+    }
+    return acc;
+  }, {} as Record<string, PoolInfo>);
 
   const handleSelect = (p: PoolInfo) => {
     // select token in
@@ -835,7 +835,19 @@ export function SelectTokenDCL({
     }
   };
 
-  const renderList = allPools?.map((p) => {
+  const renderPools = useMemo(
+    () =>
+      Object.values(displayPools || {})?.filter((p) => {
+        const { token_x_metadata, token_y_metadata } = p;
+        return (
+          !!globalWhiteList.find((t) => t.id === token_x_metadata.id) &&
+          !!globalWhiteList.find((t) => t.id === token_y_metadata.id)
+        );
+      }),
+    [globalWhiteList]
+  );
+
+  const renderList = renderPools?.map((p) => {
     const { token_x_metadata, token_y_metadata } = p;
     const tokens = sort_tokens_by_base([token_x_metadata, token_y_metadata]);
     return (
@@ -898,7 +910,7 @@ export function SelectTokenDCL({
         </div>
       )}
 
-      {hoverSelectToken && (
+      {hoverSelectToken && renderList?.length > 0 && (
         <div
           className={`${
             className ||
