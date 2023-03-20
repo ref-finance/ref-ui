@@ -32,8 +32,9 @@ export default function Table({
   return (
     tokens.length > 0 && (
       <table className="text-left w-full text-sm text-gray-400 mt-5 table-auto">
+        {/* sticky */}
         <div
-          className="sticky -top-6 z-30 text-primaryText"
+          className="-top-6 z-30 text-primaryText"
           style={{ background: 'rgb(29, 41, 50)' }}
         >
           <tr className="font-normal border-b border-gray-500 border-opacity-30">

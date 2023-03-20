@@ -26,7 +26,8 @@ import {
   CrossIconLarge,
   CrossIconFull,
 } from '../components/icon/FarmBoost';
-const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList } = getConfig();
+const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList, switch_on_dcl_farms } =
+  getConfig();
 
 /**
  * caculate price by point
@@ -587,6 +588,9 @@ export function allocation_rule_liquidities({
   const matched_liquidities = list.filter((liquidity: UserLiquidityInfo) => {
     if (liquidity.pool_id == pool_id) return true;
   });
+  if (switch_on_dcl_farms == 'off') {
+    return [[], matched_liquidities, []];
+  }
   const temp_farming: UserLiquidityInfo[] = [];
   let temp_free: UserLiquidityInfo[] = [];
   const temp_unavailable: UserLiquidityInfo[] = [];
@@ -699,6 +703,9 @@ export function get_matched_seeds_for_dcl_pool({
   pool_id: string;
   sort?: string;
 }) {
+  if (switch_on_dcl_farms == 'off') {
+    return [];
+  }
   const activeSeeds = seeds.filter((seed: Seed) => {
     const { seed_id, farmList } = seed;
     const [contractId, mft_id] = seed_id.split('@');
@@ -1065,4 +1072,33 @@ export function sort_tokens_by_base(tokens: TokenMetadata[]) {
     return 0;
   });
   return tokens_temp;
+}
+export function get_liquidity_value({
+  liquidity,
+  poolDetail,
+  tokenPriceList,
+  tokensMeta,
+}: {
+  liquidity: UserLiquidityInfo;
+  poolDetail: PoolInfo;
+  tokenPriceList: Record<string, any>;
+  tokensMeta: TokenMetadata[];
+}) {
+  const { left_point, right_point, amount } = liquidity;
+  const { token_x, token_y } = poolDetail;
+  const v = get_total_value_by_liquidity_amount_dcl({
+    left_point,
+    right_point,
+    poolDetail,
+    amount,
+    price_x_y: {
+      [token_x]: tokenPriceList[token_x]?.price || '0',
+      [token_y]: tokenPriceList[token_y]?.price || '0',
+    },
+    metadata_x_y: {
+      [token_x]: tokensMeta[0],
+      [token_y]: tokensMeta[1],
+    },
+  });
+  return v;
 }

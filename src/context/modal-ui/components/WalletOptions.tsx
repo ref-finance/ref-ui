@@ -235,7 +235,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                 isMobile &&
                 module.type !== 'browser' &&
                 module.id !== 'meteor-wallet' &&
-                module.id !== 'neth'
+                module.id !== 'neth' &&
+                module.id !== 'here-wallet'
               ) {
                 return result;
               }
@@ -243,7 +244,8 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
               const installed =
                 module.type === 'injected' &&
                 module.metadata.available &&
-                module.id !== 'meteor-wallet';
+                module.id !== 'meteor-wallet' &&
+                module.id !== 'here-wallet';
 
               const isBeta = module.metadata.name === 'MyNearWallet';
 
@@ -252,9 +254,11 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                   key={module.id}
                   id={module.id}
                   onClick={selected ? undefined : handleWalletClick(module)}
-                  className={`px-5 py-3 relative ${
+                  className={`px-5 py-3 relative  bg-black  bg-opacity-20 ${
                     hoverOption === currentIndex ? 'bottom-1' : ''
-                  } ${!selected && installed ? 'overflow-hidden' : ''}`}
+                  } ${!selected && installed ? 'overflow-hidden' : ''} ${
+                    !isMobile ? 'hover:bg-opacity-30' : ''
+                  }`}
                   onMouseEnter={() => setHoverOption(currentIndex)}
                   onMouseLeave={() => setHoverOption(-1)}
                 >

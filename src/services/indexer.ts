@@ -440,13 +440,12 @@ export const getAllVolume24h = async () => {
     });
 };
 
-export const getAssets = async (dateType: 'M' | 'W' | 'H' = 'H') => {
-  // todo config.indexerUrl
-  // ${getCurrentWallet()?.wallet?.getAccountId()}
+export const getAssets = async (dateType: 'M' | 'W' | 'H' | 'ALL' = 'H') => {
+  const accountId = getCurrentWallet()?.wallet?.getAccountId();
   return await fetch(
-    'https://mainnet-indexer.ref-finance.com' +
+    config.indexerUrl +
       '/get-assets-by-account?' +
-      `account_id=juaner.near&dimension=${dateType}`,
+      `account_id=${accountId}&dimension=${dateType}`,
     {
       method: 'GET',
     }
@@ -454,5 +453,25 @@ export const getAssets = async (dateType: 'M' | 'W' | 'H' = 'H') => {
     .then((res) => res.json())
     .then((res) => {
       return res;
+    })
+    .catch(() => {
+      return [];
+    });
+};
+export const getLimitOrderLogsByAccount = async (): Promise<any[]> => {
+  return await fetch(
+    config.indexerUrl +
+      `/get-limit-order-log-by-account/${getCurrentWallet()?.wallet?.getAccountId()}`,
+    {
+      method: 'GET',
+      headers: { 'Content-type': 'application/json; charset=UTF-8' },
+    }
+  )
+    .then((res) => res.json())
+    .then((list) => {
+      return list;
+    })
+    .catch(() => {
+      return [];
     });
 };

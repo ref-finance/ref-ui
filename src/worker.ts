@@ -205,6 +205,16 @@ const cacheBoost_Seed_Farms_Pools = async () => {
   const poolIds = new Set<string>();
   const dcl_poolIds = new Set<string>();
   let pools: any[] = [];
+  // ////// for test test test start todo
+  // const no_dcl_seeds:Seed[] = [];
+  // list_seeds.forEach((seed:Seed) => {
+  // const { seed_id } = seed;
+  // const contractId = seed_id.split('@')[0];
+  // if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) return;
+  // no_dcl_seeds.push(seed);
+  // })
+  // list_seeds = no_dcl_seeds;
+  // ////// for test test test end todo
   list_seeds.forEach((seed: Seed) => {
     const { seed_id } = seed;
     // seed type: [commonSeed, loveSeed, dclSeed]

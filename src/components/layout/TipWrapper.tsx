@@ -16,6 +16,7 @@ export function QuestionTip({
   colorhex,
   opacity,
   style,
+  textC,
 }: {
   id: string;
   color?: 'bright' | 'dark';
@@ -26,6 +27,7 @@ export function QuestionTip({
   colorhex?: string;
   opacity?: string;
   style?: any;
+  textC?: string;
 }) {
   const intl = useIntl();
 
@@ -34,9 +36,9 @@ export function QuestionTip({
       id,
       defaultMessage,
     });
-    let result: string = `<div class="text-navHighLightText  whitespace-normal text-xs text-left ${
-      width ? width : ''
-    }"
+    let result: string = `<div class="${
+      textC || 'text-navHighLightText'
+    }   whitespace-normal text-xs text-left ${width ? width : ''}"
       style="max-width: 200px; ">${tip}</div>`;
     return result;
   };
@@ -93,7 +95,7 @@ export function ExclamationTip({
       id,
       defaultMessage,
     });
-    let result: string = `<div class="text-primaryText  border-black border-opacity-20 whitespace-normal text-sm text-left ${
+    let result: string = `<div class="text-primaryText  border-black border-opacity-20 xsm:w-36 whitespace-normal text-sm text-left ${
       width ? width : ''
     }"
       style="max-width: 200px; ">${tip}</div>`;

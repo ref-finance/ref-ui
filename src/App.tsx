@@ -42,7 +42,7 @@ function App() {
     <Router>
       <WalletSelectorContextProvider>
         <XmasActivityContextProvider>
-          <div className="relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
+          <div className="page-container relative min-h-screen pb-24 overflow-x-hidden xs:flex xs:flex-col md:flex md:flex-col">
             <Content />
 
             <Footer />

@@ -869,9 +869,9 @@ export default function FarmsDclDetail(props: {
     if (claimLoading) return;
     setClaimLoading(true);
     claimRewardBySeed_boost(detailData.seed_id)
-      .then(() => {
-        window.location.reload();
-      })
+      // .then(() => {
+      //   window.location.reload();
+      // })
       .catch((error) => {
         setClaimLoading(false);
         // setError(error);
@@ -1380,7 +1380,7 @@ export default function FarmsDclDetail(props: {
           )}
         </div>
       </div>
-      {/* Your Position(s) */}
+      {/* Your Positions */}
       <div className="relative mt-6">
         <div className={`absolute right-0 -top-2 ${isEnded ? 'hidden' : ''}`}>
           <div
@@ -1432,7 +1432,7 @@ export default function FarmsDclDetail(props: {
           {listLiquidities_inFarimg.length > 0 ? (
             <>
               <div className="text-sm text-primaryText mb-5 pl-3">
-                Faming Position(s)
+                Faming Positions
               </div>
               {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
                 return (
@@ -1449,7 +1449,7 @@ export default function FarmsDclDetail(props: {
           {listLiquidities_unFarimg.length > 0 ? (
             <>
               <div className="text-sm text-primaryText mb-5 mt-7 pl-3">
-                Unstaked Position(s)
+                Unstaked Positions
               </div>
               {listLiquidities_unFarimg.map((liquidity: UserLiquidityInfo) => {
                 return (
@@ -1479,7 +1479,7 @@ export default function FarmsDclDetail(props: {
                 <span className="underline mr-1">
                   {show_unavailable_positions ? 'Hide' : 'Show'}
                 </span>
-                unavailable position(s)
+                unavailable positions
               </div>
               <div className={show_unavailable_positions ? '' : 'hidden'}>
                 {listLiquidities_unavailable.map(
@@ -2133,7 +2133,7 @@ function LiquidityLine(props: {
         }}
       >
         <div className="absolute -top-1.5 left-5 flex items-center justify-center">
-          <NFTIdIcon className=""></NFTIdIcon>
+          <NFTIdIcon></NFTIdIcon>
           <span className="absolute gotham_bold text-xs text-white">
             NFT ID #{liquidity.lpt_id.split('#')[1]}
           </span>
@@ -2320,7 +2320,7 @@ function LiquidityLine(props: {
         className="relative flex flex-col items-center mb-5 lg:hidden"
       >
         <div className="absolute -top-1.5 flex items-center justify-center">
-          <NFTIdIcon num="1"></NFTIdIcon>
+          <NFTIdIcon></NFTIdIcon>
           <span className="absolute gotham_bold text-xs text-white">
             NFT ID #{liquidity.lpt_id.split('#')[1]}
           </span>

@@ -102,7 +102,7 @@ export default function SwapFormWrap({
         {activeOrder.length > 0 ? activeOrder.length : null}
       </span>
 
-      {<FormattedMessage id="orders" defaultMessage={'Order(s)'} />}
+      {<FormattedMessage id="orders" defaultMessage={'Orders'} />}
     </button>
   );
 

@@ -86,6 +86,7 @@ interface TokenAmountProps {
   allowWNEAR?: boolean;
   forCross?: boolean;
   nearErrorTip?: JSX.Element;
+  isOut?: boolean;
 }
 
 export function getTextWidth(str: string, fontSize: string) {
@@ -524,6 +525,7 @@ export function TokenAmountV3({
   limitFee,
   setDiff,
   allowWNEAR,
+  isOut,
   nearErrorTip,
 }: TokenAmountProps) {
   const { globalState } = useContext(WalletContext);
@@ -714,7 +716,11 @@ export function TokenAmountV3({
   }
   return (
     <div
-      className={`flex flex-col text-xs bg-opacity-20 bg-black rounded-2xl px-3 xsm:px-2 pt-1 pb-2.5 border border-inputV3BorderColor hover:border-inputV3BorderHoverColor`}
+      className={`flex flex-col text-xs bg-opacity-20 ${
+        isOut && swapMode !== SWAP_MODE.LIMIT
+          ? 'bg-cardBg border-inputV3BorderHoverColor'
+          : 'bg-black'
+      } bg-black rounded-2xl px-3 xsm:px-2 pt-1 pb-2.5 border border-inputV3BorderColor hover:border-inputV3BorderHoverColor`}
     >
       {text ? (
         <div className="text-limitOrderInputColor text-xs pt-1.5">{text}</div>
@@ -729,7 +735,11 @@ export function TokenAmountV3({
           value={limitOrderDisable ? '' : amount}
           onChangeAmount={onChangeAmount}
           forLimitOrder={limitOrderDisable}
-          disabled={disabled || limitOrderDisable}
+          disabled={
+            disabled ||
+            limitOrderDisable ||
+            (isOut && swapMode !== SWAP_MODE.LIMIT)
+          }
           forSwap={!!forSwap}
           nearValidation={tokenIn && tokenIn.id === WRAP_NEAR_CONTRACT_ID}
           onBlur={(e) => {

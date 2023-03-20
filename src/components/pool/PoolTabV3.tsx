@@ -159,19 +159,22 @@ export const PoolTabV3 = ({
 
   const countV2 = listLiquiditiesLoading ? 0 : listLiquidities.length;
 
-  const { finalStakeList, stakeList, v2StakeList } = useStakeListByAccountId();
+  const { finalStakeList, stakeList, v2StakeList, stakeListDone } =
+    useStakeListByAccountId();
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
   const [pools, setPools] = useState<PoolRPCView[]>();
 
   const { batchTotalShares: batchTotalSharesSimplePools, shares: batchShares } =
     useBatchTotalShares(
       pools?.map((p) => p.id),
-      finalStakeList
+      finalStakeList,
+      stakeListDone
     );
 
   const { batchTotalShares, shares: batchStableShares } = useBatchTotalShares(
     stablePools?.map((p) => p.id),
-    finalStakeList
+    finalStakeList,
+    stakeListDone
   );
   const { lptAmount } = !!getConfig().REF_VE_CONTRACT_ID
     ? useAccountInfo()
@@ -203,7 +206,6 @@ export const PoolTabV3 = ({
         return cur > 0 ? acc + 1 : acc;
       }, 0) +
     batchTotalShares?.reduce((acc, cur) => (cur > 0 ? acc + 1 : acc), 0);
-
   return (
     <>
       {!isMobile ? (
