@@ -37,6 +37,7 @@ export default function Positions(props: any) {
     activeTab,
     setActiveTab,
   } = useContext(PortfolioData);
+  const intl = useIntl();
   const { total_liquidity_value, total_liquidity_quantity } =
     useTotalLiquidityData({
       YourLpValueV1,
@@ -85,7 +86,9 @@ export default function Positions(props: any) {
         </div>
         {/* for mobile no data */}
         {noData_status && is_mobile && activeTab == '2' ? (
-          <NoDataCard text="Your liquidity positions will appear here." />
+          <NoDataCard
+            text={intl.formatMessage({ id: 'position_will_appear_here' })}
+          />
         ) : null}
         {/* liquidities list */}
         <div className={`${activeTab == '2' ? '' : 'hidden'}`}>
@@ -119,7 +122,9 @@ export default function Positions(props: any) {
       ) : null}
       {/* pc no data */}
       {noData_status && !is_mobile ? (
-        <NoDataCard text="Your liquidity positions will appear here."></NoDataCard>
+        <NoDataCard
+          text={intl.formatMessage({ id: 'position_will_appear_here' })}
+        ></NoDataCard>
       ) : null}
     </div>
   );

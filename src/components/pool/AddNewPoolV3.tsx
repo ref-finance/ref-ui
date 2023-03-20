@@ -621,7 +621,9 @@ export const AddNewPoolV3 = (props: any) => {
         className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-4 md:p-4"
       >
         <div className="flex items-center justify-between mb-8">
-          <span className="text-xl text-white gotham_bold">Add Position</span>
+          <span className="text-xl text-white gotham_bold">
+            <FormattedMessage id="add_position" />
+          </span>
           <div className="cursor-pointer" onClick={props.onRequestClose}>
             <ModalClose />
           </div>
@@ -691,7 +693,9 @@ export const AddNewPoolV3 = (props: any) => {
                     showCustomPointArea ? 'transform rotate-180' : ''
                   }`}
                 ></ArrowDownV3>
-                <span className="text-primaryText">Set Price Range</span>
+                <span className="text-primaryText">
+                  <FormattedMessage id="set_price_range" />
+                </span>
               </div>
               {getRange('custom')}
             </div>
@@ -798,7 +802,7 @@ export const AddNewPoolV3 = (props: any) => {
               </div>
               <div className="relative flex items-center justify-center xsm:justify-end xsm:items-start text-sm text-primaryText mt-4">
                 <span className="xsm:absolute xsm:left-0">
-                  Farm Reward Range:
+                  <FormattedMessage id="farm_reward_range" />:
                 </span>
                 {getRange('seed')}
               </div>
@@ -828,7 +832,11 @@ export const AddNewPoolV3 = (props: any) => {
             >
               <ButtonTextWrapper
                 loading={addLoading}
-                Text={() => <>Add Position</>}
+                Text={() => (
+                  <>
+                    <FormattedMessage id="add_position" />
+                  </>
+                )}
               />
             </GradientButton>
           ) : (

@@ -233,11 +233,7 @@ export function QuickAmountLimitOrder({
         -
       </span>
       <span className="mr-2 md:hidden lg:hidden">
-        <QuestionTip
-          id="the_price_should_be_in_one_slot_nearby"
-          defaultMessage="The price should be in one slot nearby"
-          dataPlace="bottom"
-        />
+        <QuestionTip id="price_on_slot_tip" dataPlace="bottom" />
       </span>
       <span
         className={`px-2 py-1 mr-2 xs:hidden flex items-center justify-center w-5 h-5 cursor-pointer rounded-md  ${'text-primaryText border border-primaryText border-opacity-20 hover:border hover:border-transparent hover:text-gradientFrom hover:border-gradientFrom'} text-lg`}
@@ -274,11 +270,7 @@ export function QuickAmountLimitOrder({
         +10%
       </span>
       <span className="mr-2 xs:hidden">
-        <QuestionTip
-          id="the_price_should_be_in_one_slot_nearby"
-          defaultMessage="The price should be in one slot nearby"
-          dataPlace="bottom"
-        />
+        <QuestionTip id="price_on_slot_tip" dataPlace="bottom" />
       </span>
       <span
         className={`text-xs px-2 py-1 rounded-xl whitespace-nowrap h-5 cursor-pointer flex items-center

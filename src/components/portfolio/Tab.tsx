@@ -33,14 +33,10 @@ export default function Tab() {
     active_order_quanity,
     active_order_value,
   } = useContext(PortfolioData);
-  const intl = useIntl();
-  const active_orders_text = intl.formatMessage({ id: 'active_orders' });
-  const your_liquidity_text = intl.formatMessage({ id: 'your_liquidity_2' });
-  const yield_farming_text = intl.formatMessage({ id: 'yield_farming' });
   const [tabList, setTabList] = useState([
-    { name: active_orders_text, tag: '1', value: '$-', quantity: '-' },
-    { name: your_liquidity_text, tag: '2', value: '$-', quantity: '-' },
-    { name: yield_farming_text, tag: '3', value: '$-', quantity: '-' },
+    { name: '', id: 'active_orders', tag: '1', value: '$-', quantity: '-' },
+    { name: '', id: 'your_liquidity_2', tag: '2', value: '$-', quantity: '-' },
+    { name: '', id: 'yield_farming', tag: '3', value: '$-', quantity: '-' },
   ]);
   const { total_liquidity_value, total_liquidity_quantity } =
     useTotalLiquidityData({
@@ -98,6 +94,7 @@ export default function Tab() {
             tag: string;
             value: string;
             quantity: string;
+            id: string;
           },
           index
         ) => {
@@ -118,7 +115,7 @@ export default function Tab() {
                       tab.tag == activeTab ? 'text-white' : 'text-primaryText'
                     }`}
                   >
-                    {tab.name}
+                    {tab.name || <FormattedMessage id={tab.id} />}
                   </span>
                   <span
                     className={`bg-menuMoreBgColor rounded-md text-xs py-1 px-2  ml-1.5 ${

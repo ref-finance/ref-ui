@@ -761,7 +761,9 @@ function YourLiquidityBox(props: {
           <span className="text-white text-base">
             <FormattedMessage id="your_liquidity"></FormattedMessage>
           </span>
-          <span className="text-xs text-farmText">Estimation</span>
+          <span className="text-xs text-farmText">
+            <FormattedMessage id="estimation" />
+          </span>
         </div>
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
