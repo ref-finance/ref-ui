@@ -2972,12 +2972,6 @@ function FarmView(props: {
       </div>
     );
   }
-  function getRangeAprTip() {
-    // const tip = intl.formatMessage({ id: 'farmRewardsCopy' });
-    const tip = 'The limit maximum APR in the boosted farm';
-    let result: string = `<div class="text-farmText text-xs w-40 text-left">${tip}</div>`;
-    return result;
-  }
   const isHaveUnclaimedReward = haveUnclaimedReward();
   const aprUpLimit = getAprUpperLimit();
   const needForbidden =
@@ -3118,7 +3112,7 @@ function FarmView(props: {
               </div>
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center text-sm text-farmText">
-                  APR
+                  <FormattedMessage id="apr" />
                 </div>
                 <div className="flex items-center">
                   <div
@@ -3231,7 +3225,7 @@ function FarmView(props: {
                           +aprSwitchStatus == 1 ? 'text-white' : 'text-farmText'
                         }`}
                       >
-                        Your
+                        <FormattedMessage id="your" />
                       </label>
                       <label className="text-farmText text-sm">/</label>
                       <label
@@ -3240,7 +3234,7 @@ function FarmView(props: {
                           +aprSwitchStatus == 1 ? 'text-farmText' : 'text-white'
                         }`}
                       >
-                        Max.APR
+                        <FormattedMessage id="max_apr" />
                       </label>
                       <ReactTooltip
                         id={'aprRangeId' + seed.farmList[0].farm_id}
@@ -3252,7 +3246,7 @@ function FarmView(props: {
                     </div>
                   ) : (
                     <label className="text-farmText text-sm cursor-pointer">
-                      APR
+                      <FormattedMessage id="apr" />
                     </label>
                   )}
                 </div>

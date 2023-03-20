@@ -99,13 +99,19 @@ export default function YourLiquidityPageV3() {
   const intl = useIntl();
   const [listLiquidities_old_version, setListLiquidities_old_version] =
     useState<UserLiquidityInfo[]>([]);
-  const liquidityStatusList = ['all', 'DCL', 'Classic'];
+  const liquidityStatusList = [
+    { id: 'all', label: 'all' },
+    { id: 'DCL', name: 'DCL' },
+    { id: 'Classic', label: 'classic' },
+  ];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
+      label: 'dcl_liquidity',
       text: 'DCL Liquidity',
       url: '/addLiquidityV2',
     },
     {
+      label: 'classic_liquidity',
       text: 'Classic Liquidity',
       url: '/pools',
     },
@@ -272,27 +278,21 @@ export default function YourLiquidityPageV3() {
         <div className="flex items-start justify-between lg:mt-4">
           <div className="flex items-center">
             <div className="flex items-center text-sm text-primaryText border border-selectBorder p-0.5 rounded-lg bg-v3LiquidityTabBgColor">
-              {liquidityStatusList.map((item: string, index: number) => {
+              {liquidityStatusList.map((item: any, index: number) => {
+                const { id, name, label } = item;
                 return (
                   <span
                     key={index}
                     onClick={() => {
-                      switchButton(item);
+                      switchButton(id);
                     }}
                     className={`flex items-center justify-center h-6 py-px px-3.5 box-content w-auto rounded-md cursor-pointer gotham_bold ${
-                      checkedStatus == item
+                      checkedStatus == id
                         ? 'bg-primaryGradient text-white'
                         : 'text-primaryText'
                     }`}
                   >
-                    {item == 'all' ? (
-                      <FormattedMessage
-                        id={item}
-                        defaultMessage={item}
-                      ></FormattedMessage>
-                    ) : (
-                      item
-                    )}
+                    {name || <FormattedMessage id={label}></FormattedMessage>}
                   </span>
                 );
               })}
@@ -345,7 +345,7 @@ export default function YourLiquidityPageV3() {
                       }}
                       className={`whitespace-nowrap hover:bg-primaryText hover:bg-opacity-30 items-center flex justify-center px-5 py-0.5 h-10 hover:text-white rounded-lg text-primaryText text-center text-sm cursor-pointer my-auto`}
                     >
-                      {item.text}
+                      <FormattedMessage id={item.label} />
                     </span>
                   );
                 })}
@@ -412,7 +412,7 @@ export default function YourLiquidityPageV3() {
               {!v1LiquidityLoadingDone ? (
                 <div className="mt-10">
                   <div className="text-white text-base gotham_bold mb-3">
-                    Classic (0)
+                    <FormattedMessage id="classic" /> (0)
                   </div>
                   <div className="flex items-center justify-center">
                     <BlueCircleLoading />
@@ -422,7 +422,7 @@ export default function YourLiquidityPageV3() {
               {+v1LiquidityQuantity > 0 || showV1EmptyBar ? (
                 <div className="mt-10 mb-3 xsm:-mb-1">
                   <span className="text-white text-base gotham_bold">
-                    Classic ({v1LiquidityQuantity})
+                    <FormattedMessage id="classic" /> ({v1LiquidityQuantity})
                   </span>
                   <p className="text-sm text-farmText">
                     <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
@@ -430,7 +430,9 @@ export default function YourLiquidityPageV3() {
                 </div>
               ) : null}
               {showV1EmptyBar ? (
-                <NoLiquidity text="Classic"></NoLiquidity>
+                <NoLiquidity
+                  text={intl.formatMessage({ id: 'classic' })}
+                ></NoLiquidity>
               ) : null}
               <YourLiquidityV1
                 setLpValueV1Done={setLpValueV1Done}

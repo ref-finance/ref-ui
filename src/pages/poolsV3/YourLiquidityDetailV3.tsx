@@ -597,7 +597,9 @@ export default function YourLiquidityDetail(props: any) {
                     liquidity_link ? 'cursor-pointer' : ''
                   } ${is_in_farming || liquidity_inRange ? '' : 'opacity-40'}`}
                 >
-                  <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
+                  <span className="text-xs text-greenColor mr-1">
+                    <FormattedMessage id="farm" />
+                  </span>{' '}
                   <Liquidity_icon num={Math.random()}></Liquidity_icon>
                 </div>
               ) : null}
@@ -625,9 +627,11 @@ export default function YourLiquidityDetail(props: any) {
           <TipIon className="mr-2 relative top-1 flex-shrink-0"></TipIon>
           <div className="flex items-center flex-wrap">
             <span className="text-sm text-white mr-1">
-              {liquidity_staked_farm_status == 'end'
-                ? 'Your current staked farm ended, and new farm is coming, est. APR is'
-                : 'You can earn rewards by farming, est. APR is'}{' '}
+              {liquidity_staked_farm_status == 'end' ? (
+                <FormattedMessage id="you_can_earn_current_tip" />
+              ) : (
+                <FormattedMessage id="you_can_earn_tip" />
+              )}{' '}
               {liquidity_your_apr}.
             </span>
             <div
@@ -637,9 +641,11 @@ export default function YourLiquidityDetail(props: any) {
               }}
             >
               <a className="text-sm text-white mr-1 underline">
-                {liquidity_staked_farm_status == 'end'
-                  ? 'Go New Farm'
-                  : 'Go Farm'}
+                {liquidity_staked_farm_status == 'end' ? (
+                  <FormattedMessage id="go_new_farm" />
+                ) : (
+                  <FormattedMessage id="go_farm" />
+                )}
               </a>
               <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
             </div>
@@ -651,7 +657,9 @@ export default function YourLiquidityDetail(props: any) {
           <div className="flex  items-start justify-between xs:w-full md:w-full">
             <div className="flex items-start flex-col text-white text-base">
               <FormattedMessage id="your_liquidity" />
-              <span className="text-xs text-farmText">Estimation</span>
+              <span className="text-xs text-farmText">
+                <FormattedMessage id="estimation" />
+              </span>
             </div>
             <div className="text-white text-base">{getLiquidityPrice()}</div>
           </div>
@@ -733,15 +741,17 @@ export default function YourLiquidityDetail(props: any) {
           </div>
           {is_in_farming_done && is_in_farming ? (
             <div className="flex whitespace-nowrap items-center justify-center text-sm text-primaryText mt-4">
-              This NFT has been staked
+              <FormattedMessage id="this_staked_tip" />
               <div
                 className="flex items-center text-sm text-greenColor cursor-pointer"
                 onClick={go_farm}
               >
                 <span className="underline mx-1">
-                  {liquidity_staked_farm_status == 'end'
-                    ? 'in ended farm'
-                    : 'in farm'}
+                  {liquidity_staked_farm_status == 'end' ? (
+                    <FormattedMessage id="in_ended_farm" />
+                  ) : (
+                    <FormattedMessage id="in_farm_3" />
+                  )}
                 </span>
                 <LinkArrowIcon></LinkArrowIcon>
               </div>
@@ -754,7 +764,9 @@ export default function YourLiquidityDetail(props: any) {
               <span>
                 <FormattedMessage id="unclaimed_fees" />
               </span>
-              <span className="text-xs text-farmText">Estimation</span>
+              <span className="text-xs text-farmText">
+                <FormattedMessage id="estimation" />
+              </span>
             </div>
             <span className="text-white text-base">
               {getTokenFeeAmount('p') || '$-'}

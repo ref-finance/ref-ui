@@ -738,7 +738,9 @@ function UserLiquidityLineStyle1() {
                       is_in_farming || liquidity_inRange ? '' : 'opacity-40'
                     }`}
                   >
-                    <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
+                    <span className="text-xs text-greenColor mr-1">
+                      <FormattedMessage id="farm" />
+                    </span>{' '}
                     <Liquidity_icon num={Math.random()}></Liquidity_icon>
                   </div>
                 ) : null}
@@ -804,9 +806,11 @@ function UserLiquidityLineStyle1() {
               >
                 <TipIon className="mr-2 flex-shrink-0"></TipIon>
                 <span className="text-sm text-white">
-                  {liquidity_staked_farm_status == 'end'
-                    ? 'Your current staked farm ended, and new farm is coming, est. APR is'
-                    : 'You can earn rewards by farming, est. APR is'}{' '}
+                  {liquidity_staked_farm_status == 'end' ? (
+                    <FormattedMessage id="you_can_earn_current_tip" />
+                  ) : (
+                    <FormattedMessage id="you_can_earn_tip" />
+                  )}{' '}
                   {liquidity_your_apr}
                 </span>
                 <div
@@ -816,9 +820,11 @@ function UserLiquidityLineStyle1() {
                   }}
                 >
                   <a className="text-sm text-white mr-1 underline">
-                    {liquidity_staked_farm_status == 'end'
-                      ? 'Go New Farm'
-                      : 'Go Farm'}
+                    {liquidity_staked_farm_status == 'end' ? (
+                      <FormattedMessage id="go_new_farm" />
+                    ) : (
+                      <FormattedMessage id="go_farm" />
+                    )}
                   </a>
                   <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
                 </div>
@@ -867,7 +873,7 @@ function UserLiquidityLineStyle1() {
                 </BorderButton>
                 {is_in_farming ? (
                   <div className="flex items-center text-sm text-primaryText ml-2.5">
-                    Staked
+                    <FormattedMessage id="staked" />
                     <div
                       className="flex items-center cursor-pointer"
                       onClick={(e) => {
@@ -876,9 +882,11 @@ function UserLiquidityLineStyle1() {
                       }}
                     >
                       <span className="text-greenColor mx-1 cursor-pointer underline">
-                        {liquidity_staked_farm_status == 'end'
-                          ? 'in ended farm'
-                          : 'in farm'}
+                        {liquidity_staked_farm_status == 'end' ? (
+                          <FormattedMessage id="in_ended_farm" />
+                        ) : (
+                          <FormattedMessage id="in_farm_3" />
+                        )}
                       </span>
                       <LinkArrowIcon className="cursor-pointer text-greenColor"></LinkArrowIcon>
                     </div>
@@ -962,7 +970,9 @@ function UserLiquidityLineStyle1() {
                       is_in_farming || liquidity_inRange ? '' : 'opacity-40'
                     }`}
                   >
-                    <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
+                    <span className="text-xs text-greenColor mr-1">
+                      <FormattedMessage id="farm" />
+                    </span>{' '}
                     <Liquidity_icon num={Math.random()}></Liquidity_icon>
                   </div>
                 ) : null}
@@ -1091,7 +1101,7 @@ function UserLiquidityLineStyle1() {
           </div>
           {is_in_farming ? (
             <div className="flex items-center justify-center text-sm text-primaryText mb-3">
-              This NFT has been staked
+              <FormattedMessage id="this_staked_tip" />
               <span
                 className="text-sm text-greenColor underline ml-1 mr-0.5"
                 onClick={(e) => {
@@ -1099,9 +1109,11 @@ function UserLiquidityLineStyle1() {
                   go_farm();
                 }}
               >
-                {liquidity_staked_farm_status == 'end'
-                  ? 'in ended farm'
-                  : 'in farm'}
+                {liquidity_staked_farm_status == 'end' ? (
+                  <FormattedMessage id="in_ended_farm" />
+                ) : (
+                  <FormattedMessage id="in_farm_3" />
+                )}
               </span>
               <LinkArrowIcon className="text-greenColor"></LinkArrowIcon>
             </div>
@@ -1120,20 +1132,22 @@ function UserLiquidityLineStyle1() {
                 <div className="flex items-center">
                   <TipIon className="mr-2 flex-shrink-0"></TipIon>
                   <div className="flex items-center">
-                    You can earn rewards
+                    <FormattedMessage id="earn_rewards" />
                     <div
                       className="flex items-center"
                       onClick={() => {
                         window.open(liquidity_link);
                       }}
                     >
-                      <span className="underline ml-1 mr-0.5">by farming</span>
+                      <span className="underline ml-1 mr-0.5">
+                        <FormattedMessage id="by_farming" />
+                      </span>
                       <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  est. APR is
+                  <FormattedMessage id="est_apr_is" />
                   <span className="gotham_bold ml-1">{liquidity_your_apr}</span>
                 </div>
               </div>
@@ -1144,7 +1158,9 @@ function UserLiquidityLineStyle1() {
               >
                 <div className="flex items-center">
                   <TipIon className="mr-2 flex-shrink-0"></TipIon>
-                  <span>Your current staked farm ended, and</span>
+                  <span>
+                    <FormattedMessage id="you_can_earn_current_pre_tip" />
+                  </span>
                 </div>
                 <div className="flex items-center justify-center flex-wrap">
                   <div
@@ -1153,10 +1169,13 @@ function UserLiquidityLineStyle1() {
                       window.open(liquidity_link);
                     }}
                   >
-                    <span className="underline ml-1 mr-0.5">new farm</span>
+                    <span className="underline ml-1 mr-0.5">
+                      <FormattedMessage id="new_farm_2" />
+                    </span>
                     <LinkArrowIcon className="cursor-pointer mr-0.5"></LinkArrowIcon>
                   </div>
-                  is coming,est. APR is
+                  <FormattedMessage id="is_coming" />,
+                  <FormattedMessage id="est_apr_is" />
                   <span className="gotham_bold ml-1">{liquidity_your_apr}</span>
                 </div>
               </div>

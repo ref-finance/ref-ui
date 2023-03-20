@@ -1849,7 +1849,7 @@ function AddLiquidityComponent({
     return txt;
   }
   function getPriceTip() {
-    const tip = 'The price should be in one slot nearby';
+    const tip = intl.formatMessage({ id: 'price_on_slot_tip' });
     let result: string = `<div class="text-navHighLightText text-xs w-52 text-left">${tip}</div>`;
     return result;
   }
@@ -1931,8 +1931,7 @@ function AddLiquidityComponent({
     );
   }
   function rewardRangeTip() {
-    // const tip = intl.formatMessage({ id: 'over_tip' });
-    const tip = 'Farm reward within this range';
+    const tip = intl.formatMessage({ id: 'reward_range_tip' });
     let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
     return result;
   }
@@ -2121,7 +2120,7 @@ function AddLiquidityComponent({
                   : 'border-v3GreyColor text-v3LightGreyColor'
               }`}
             >
-              Full Range
+              <FormattedMessage id="full_range" />
             </div>
           </div>
           {seeds.length ? (
@@ -2129,7 +2128,7 @@ function AddLiquidityComponent({
               className={`relative flex items-start justify-between xsm:justify-end mt-3.5 mb-1`}
             >
               <div className="flex items-center text-sm text-primaryText mr-3 xsm:absolute xsm:left-0">
-                Farm Reward Range
+                <FormattedMessage id="farm_reward_range" />
                 <div
                   className="text-white text-right ml-1"
                   data-class="reactTip"
@@ -2294,7 +2293,7 @@ function NoDataComponent(props: any) {
               className="flex items-center justify-center rounded-lg h-6 py-0.5 xs:px-1 md:px-1  lg:px-1.5 box-content font-sans text-v3LightGreyColor text-sm whitespace-nowrap"
               style={{ border: '1px solid rgba(126, 138, 147, 0.2)' }}
             >
-              Full Range
+              <FormattedMessage id="full_range" />
             </div>
           </div>
         </div>
@@ -2516,18 +2515,6 @@ function InputAmount({
                 {getBalance()}
               </span>
             </span>
-            {/* <span
-              onClick={() => {
-                changeAmount(maxBalance);
-              }}
-              className={`ml-2.5 text-xs text-farmText px-1.5 py-0.5 rounded-lg border cursor-pointer hover:text-greenColor hover:border-greenColor ${
-                amount == maxBalance
-                  ? 'bg-black bg-opacity-20 border-black border-opacity-20'
-                  : 'border-maxBorderColor'
-              }`}
-            >
-              Max
-            </span> */}
           </div>
         </div>
       </div>

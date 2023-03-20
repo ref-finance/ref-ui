@@ -878,8 +878,7 @@ export default function FarmsDclDetail(props: {
       });
   }
   function rewardRangeTip() {
-    // const tip = intl.formatMessage({ id: 'over_tip' });
-    const tip = 'Farm reward within this range';
+    const tip = intl.formatMessage({ id: 'reward_range_tip' });
     let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
     return result;
   }
@@ -1015,7 +1014,7 @@ export default function FarmsDclDetail(props: {
               {getBetterSeedSymbols()} <FormattedMessage id="new_farm" />
             </a>
             <span>
-              <FormattedMessage id="is_coming" />
+              <FormattedMessage id="is_coming" />!
             </span>
           </div>
           <NewTag className="ml-1.5"></NewTag>
@@ -1392,7 +1391,7 @@ export default function FarmsDclDetail(props: {
             }`}
           >
             <AddButtonIcon className="mr-1.5"></AddButtonIcon>
-            Add Position
+            <FormattedMessage id="add_position" />
           </div>
         </div>
         {listLiquidities.length == 0 && !listLiquiditiesLoading && !isEnded ? (
@@ -1411,7 +1410,7 @@ export default function FarmsDclDetail(props: {
                 borderRadius="8px"
                 className={`flex-shrink-0 px-4 h-10  text-center text-sm text-white ml-2 xsm:w-full xsm:ml-0 xsm:mt-2.5`}
               >
-                Add Position
+                <FormattedMessage id="add_position" />
               </GradientButton>
             </div>
           </div>
@@ -1432,7 +1431,7 @@ export default function FarmsDclDetail(props: {
           {listLiquidities_inFarimg.length > 0 ? (
             <>
               <div className="text-sm text-primaryText mb-5 pl-3">
-                Faming Positions
+                <FormattedMessage id="faming_positions" />
               </div>
               {listLiquidities_inFarimg.map((liquidity: UserLiquidityInfo) => {
                 return (
@@ -1477,9 +1476,13 @@ export default function FarmsDclDetail(props: {
                 }}
               >
                 <span className="underline mr-1">
-                  {show_unavailable_positions ? 'Hide' : 'Show'}
+                  {show_unavailable_positions ? (
+                    <FormattedMessage id="hide" />
+                  ) : (
+                    <FormattedMessage id="show"></FormattedMessage>
+                  )}
                 </span>
-                unavailable positions
+                <FormattedMessage id="unavailable_positions" />
               </div>
               <div className={show_unavailable_positions ? '' : 'hidden'}>
                 {listLiquidities_unavailable.map(
@@ -1584,12 +1587,24 @@ function LiquidityLine(props: {
     let operation: string[] = [];
     let stakeButtonStatus = '';
     if (liquidity_status_string == 'farming') {
-      status = <span className="text-sm, text-dclFarmGreenColor">Farming</span>;
+      status = (
+        <span className="text-sm, text-dclFarmGreenColor">
+          <FormattedMessage id="farming" />
+        </span>
+      );
       operation = ['unstake'];
     } else if (liquidity_status_string == 'unavailable') {
-      status = <span className="text-sm, text-primaryText">Unavailable</span>;
+      status = (
+        <span className="text-sm, text-primaryText">
+          <FormattedMessage id="unavailable" />
+        </span>
+      );
     } else if (liquidity_status_string == 'unfarming') {
-      status = <span className="text-sm, text-primaryText">Unstaked</span>;
+      status = (
+        <span className="text-sm, text-primaryText">
+          <FormattedMessage id="unstaked" />
+        </span>
+      );
       operation = ['stake'];
     } else {
       const part_farm_ratio_big = new BigNumber(part_farm_ratio);
@@ -2034,9 +2049,9 @@ function LiquidityLine(props: {
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
     const inrange = +right_point > +left_point;
     if (!inrange) {
-      tip = 'Your price range is out of reward range';
+      tip = intl.formatMessage({ id: 'your_price_range_tip' });
     } else if (liquidity.status_in_other_seed == 'staked') {
-      tip = 'This position has been staked in another farm';
+      tip = intl.formatMessage({ id: 'position_has_staked_tip' });
     } else {
       const v_liquidity = mint_liquidity(liquidity, seed_id);
       const rate = new BigNumber(min_deposit).dividedBy(v_liquidity);
@@ -2044,7 +2059,13 @@ function LiquidityLine(props: {
       if (rate.isGreaterThan(rate_display)) {
         rate_display = new BigNumber(rate_display).plus(0.1).toFixed();
       }
-      tip = `The minimum staking amount is ${rate_display}x your liquidity `;
+      // your liquidity
+      tip =
+        intl.formatMessage({ id: 'minimum_tip' }) +
+        ' ' +
+        `${rate_display}x` +
+        ' ' +
+        intl.formatMessage({ id: 'your_liquidity_3' });
     }
     return tip;
   }
@@ -2054,7 +2075,7 @@ function LiquidityLine(props: {
     const [left_point, right_point] = get_valid_range(liquidity, seed_id);
     const inrange = +right_point > +left_point;
     if (!inrange) {
-      tip = 'Your price range is out of reward range';
+      tip = intl.formatMessage({ id: 'your_price_range_tip' });
     } else if (liquidity.status_in_other_seed == 'staked') {
       const { mft_id } = liquidity;
       const link: string = get_target_seed_url_link({
@@ -2063,14 +2084,16 @@ function LiquidityLine(props: {
       });
       tip = (
         <>
-          This position has been staked in{' '}
+          <FormattedMessage id="position_has_staked_pre" />{' '}
           <div
             className="flex items-center cursor-pointer"
             onClick={() => {
               window.open(link);
             }}
           >
-            <span className="underline ml-1 mr-0.5">another farm</span>
+            <span className="underline ml-1 mr-0.5">
+              <FormattedMessage id="another_farm" />
+            </span>
             <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
           </div>
         </>
@@ -2082,7 +2105,12 @@ function LiquidityLine(props: {
       if (rate.isGreaterThan(rate_display)) {
         rate_display = new BigNumber(rate_display).plus(0.1).toFixed();
       }
-      tip = `The minimum staking amount is ${rate_display}x your liquidity `;
+      tip =
+        intl.formatMessage({ id: 'minimum_tip' }) +
+        ' ' +
+        `${rate_display}x` +
+        ' ' +
+        intl.formatMessage({ id: 'your_liquidity_3' });
     }
     return tip;
   }
@@ -2114,9 +2142,9 @@ function LiquidityLine(props: {
       liquidity_status_string == 'farming' ||
       liquidity_status_string == 'partialfarming'
     ) {
-      return 'Your APR';
+      return <FormattedMessage id="your_apr" />;
     } else {
-      return 'Est. APR';
+      return <FormattedMessage id="est_apr" />;
     }
   }
   const showStakeButton =
@@ -2144,7 +2172,9 @@ function LiquidityLine(props: {
             className="flex items-stretch justify-between pt-7 pb-3.5 px-6"
           >
             <div className="flex flex-col justify-between col-span-1 items-start">
-              <span className="text-sm text-primaryText">Your Liquidity</span>
+              <span className="text-sm text-primaryText">
+                <FormattedMessage id="your_liquidity" />
+              </span>
               <span
                 className={`text-sm mt-2.5 ${
                   liquidity_status_string == 'unavailable'
@@ -2156,7 +2186,9 @@ function LiquidityLine(props: {
               </span>
             </div>
             <div className="flex flex-col justify-between  col-span-2">
-              <span className="text-sm text-primaryText">Your Price Range</span>
+              <span className="text-sm text-primaryText">
+                <FormattedMessage id="your_price_range" />
+              </span>
               <span
                 className={`text-sm ${
                   liquidity_status_string == 'unavailable'
@@ -2206,7 +2238,9 @@ function LiquidityLine(props: {
               </div>
             </div>
             <div className="flex flex-col justify-between items-end col-span-1">
-              <span className="text-sm text-primaryText">State</span>
+              <span className="text-sm text-primaryText">
+                <FormattedMessage id="state_2" />
+              </span>
               <div className={`flex items-center text-sm`}>
                 {liquidity_status_display}
               </div>
@@ -2223,7 +2257,9 @@ function LiquidityLine(props: {
               }}
               className="flex items-center text-sm text-primaryText hover:text-white cursor-pointer"
             >
-              <span className="mr-2">Liquidity Detail</span>
+              <span className="mr-2">
+                <FormattedMessage id="liquidity_detail" />
+              </span>
               <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
             </div>
             {liquidity_status_string == 'unavailable' ? (
@@ -2327,7 +2363,9 @@ function LiquidityLine(props: {
         </div>
         <div className="bg-v3HoverDarkBgColor rounded-t-xl px-4 py-3 w-full">
           <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-primaryText">Your Liquidity</span>
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="your_liquidity" />
+            </span>
             <span
               className={`text-sm ${
                 liquidity_status_string == 'unavailable'
@@ -2339,7 +2377,9 @@ function LiquidityLine(props: {
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-primaryText">Your Price Range</span>
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="your_price_range" />
+            </span>
             <span
               className={`text-sm ${
                 liquidity_status_string == 'unavailable'
@@ -2372,7 +2412,9 @@ function LiquidityLine(props: {
             </span>
           </div>
           <div className="flex items-center justify-between mt-4">
-            <span className="text-sm text-primaryText">State</span>
+            <span className="text-sm text-primaryText">
+              <FormattedMessage id="state_2"></FormattedMessage>
+            </span>
             <div className="flex items-center text-sm text-white">
               {liquidity_status_display}
             </div>
@@ -2465,7 +2507,9 @@ function LiquidityLine(props: {
             }}
             className="flex items-center text-sm text-primaryText hover:text-white cursor-pointer mt-4"
           >
-            <span className="mr-2">Liquidity Detail</span>
+            <span className="mr-2">
+              <FormattedMessage id="liquidity_detail" />
+            </span>
             <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
           </div>
         </div>
