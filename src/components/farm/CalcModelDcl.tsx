@@ -80,7 +80,12 @@ export default function CalcModelDcl(
         className="outline-none border border-gradientFrom border-opacity-50 overflow-auto xs:p-3 md:p-3"
       >
         <div className="flex items-center justify-between mb-6">
-          <span className="text-lg text-white gotham_bold">ROI Calculator</span>
+          <span className="text-lg text-white gotham_bold">
+            <FormattedMessage
+              id="roi_calculator"
+              defaultMessage="ROI Calculator"
+            />
+          </span>
           <div className="cursor-pointer" onClick={props.onRequestClose}>
             <ModalClose />
           </div>
@@ -106,6 +111,7 @@ export default function CalcModelDcl(
   );
 }
 function SeedInfo() {
+  const intl = useIntl();
   const [rangeSort, setRangeSort] = useState(true);
   const { seed, one_lp_value, set_lp_amount, set_lp_value } =
     useContext(DclContext);
@@ -181,20 +187,23 @@ function SeedInfo() {
     set_lp_value(value);
   }
   function rewardRangeTip() {
-    // const tip = intl.formatMessage({ id: 'over_tip' });
-    const tip = 'Farm reward within this range';
+    const tip = intl.formatMessage({ id: 'reward_range_tip' });
     let result: string = `<div class="text-farmText text-xs text-left">${tip}</div>`;
     return result;
   }
   return (
     <>
       <div className="flex items-center justify-between text-sm text-farmText">
-        <span>Liquidity staked</span>
+        <span>
+          <FormattedMessage id="liquidity_staked" />
+        </span>
         <div
           className="flex items-center text-farmText hover:text-framBorder"
           onClick={goPoolPage}
         >
-          <label className="mr-2 text-sm cursor-pointer">DCL Pool Detail</label>
+          <label className="mr-2 text-sm cursor-pointer">
+            <FormattedMessage id="dcl_pool_detail" />
+          </label>
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
@@ -210,7 +219,9 @@ function SeedInfo() {
       </div>
       <div className="flex items-start justify-between">
         <div className="flex items-center text-sm text-farmText">
-          <span>Reward Range</span>
+          <span>
+            <FormattedMessage id="reward_range" />
+          </span>
           <div
             className="text-white text-right ml-1"
             data-class="reactTip"

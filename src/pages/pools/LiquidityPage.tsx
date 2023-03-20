@@ -153,6 +153,7 @@ const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
 
 const REF_POOL_ID_SEARCHING_KEY = 'REF_POOL_ID_SEARCHING_KEY';
+const { switch_on_dcl_farms } = getConfig();
 
 export function getPoolFeeApr(
   dayVolume: string,
@@ -584,6 +585,7 @@ function MobilePoolRowV2({
                   tokens[1].symbol +
                   `${tokens[2] ? '-' + tokens[2].symbol : ''}`}
               </div>
+<<<<<<< HEAD
               <div className="flex items-center">
                 {mark ? (
                   <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
@@ -596,6 +598,13 @@ function MobilePoolRowV2({
                   </div>
                 )}
               </div>
+=======
+              {mark ? (
+                <span className="max-w-min  whitespace-nowrap text-xs text-v3SwapGray bg-watchMarkBackgroundColor px-2.5 py-px rounded-xl ml-2 mb-0.5">
+                  DCL
+                </span>
+              ) : null}
+>>>>>>> orderly-integration
             </div>
             {watched && (
               <div className="ml-2">
@@ -1027,7 +1036,11 @@ function MobileLiquidityPage({
                 switchActiveTab('v2');
               }}
             >
+<<<<<<< HEAD
               DCL Pools
+=======
+              <FormattedMessage id="v2_pools" />
+>>>>>>> orderly-integration
             </button>
 
             <button
@@ -1047,7 +1060,11 @@ function MobileLiquidityPage({
                 switchActiveTab('v1');
               }}
             >
+<<<<<<< HEAD
               Classic Pools
+=======
+              <FormattedMessage id="classic_pools"></FormattedMessage>
+>>>>>>> orderly-integration
             </button>
 
             <button
@@ -1067,7 +1084,10 @@ function MobileLiquidityPage({
                 switchActiveTab('stable');
               }}
             >
-              Stable Pools
+              <FormattedMessage
+                id="stable_pools"
+                defaultMessage={'Stable Pools'}
+              ></FormattedMessage>
             </button>
           </div>
 
@@ -2281,7 +2301,11 @@ function LiquidityPage_({
                   switchActiveTab('v2');
                 }}
               >
+<<<<<<< HEAD
                 DCL Pools
+=======
+                <FormattedMessage id="dcl_pools" defaultMessage={'DCL Pools'} />
+>>>>>>> orderly-integration
               </button>
               {activeTab === 'v1' || activeTab === 'v2' ? null : (
                 <div
@@ -2309,7 +2333,11 @@ function LiquidityPage_({
                   switchActiveTab('v1');
                 }}
               >
+<<<<<<< HEAD
                 Classic Pools
+=======
+                <FormattedMessage id="classic_pools"></FormattedMessage>
+>>>>>>> orderly-integration
               </button>
             </div>
 
@@ -2330,7 +2358,10 @@ function LiquidityPage_({
                 switchActiveTab('stable');
               }}
             >
-              Stable Pools
+              <FormattedMessage
+                id="stable_pools"
+                defaultMessage={'Stable Pools'}
+              />
             </button>
 
             <button
@@ -2476,7 +2507,7 @@ function LiquidityPage_({
                   style="font-weight:400",
                 >
                 ${intl.formatMessage({
-                  id: 'v2_pool_are_not_available_to_be_created_yet',
+                  id: 'dcl_pool_are_not_available_to_be_created_yet',
 
                   defaultMessage:
                     'DCL Pools are not available to be created yet',
@@ -3018,6 +3049,10 @@ export function LiquidityPage() {
     Record<string, Seed>
   >({});
   useEffect(() => {
+    if (switch_on_dcl_farms == 'off') {
+      set_do_farms_v2_poos({});
+      return;
+    }
     get_all_seeds().then((seeds: Seed[]) => {
       const activeSeeds = seeds.filter((seed: Seed) => {
         const { farmList, seed_id } = seed;

@@ -3933,6 +3933,7 @@ export const DclFarmIcon = (props: any) => {
 };
 
 export const NFTIdIcon = (props: any) => {
+  const random = Math.random();
   return (
     <svg
       {...props}
@@ -3945,11 +3946,11 @@ export const NFTIdIcon = (props: any) => {
       <path d="M5 0L0 6H126L121 0H5Z" fill="#1E564C" />
       <path
         d="M5 0H121L116.613 13.1623C115.251 17.2457 111.43 20 107.126 20H18.8743C14.57 20 10.7486 17.2457 9.38743 13.1623L7 6L5 0Z"
-        fill={`url(#paint0_linear_0_1_${props.num || 0})`}
+        fill={`url(#paint0_linear_0_1_${random})`}
       />
       <defs>
         <linearGradient
-          id={`paint0_linear_0_1_${props.num || 0}`}
+          id={`paint0_linear_0_1_${random}`}
           x1="72.2058"
           y1="5.99998"
           x2="14.1811"

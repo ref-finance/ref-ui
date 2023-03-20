@@ -1,84 +1,209 @@
-import React, { useEffect, useMemo, useState, useContext } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import React, { useEffect, useMemo, useState, useContext, useRef } from 'react';
 import BigNumber from 'bignumber.js';
 import { useUserRegisteredTokensAllAndNearBalance } from '../../state/token';
 import { TokenMetadata } from '../../services/ft-contract';
-import QuestionMark from '../../components/farm/QuestionMark';
-import ReactTooltip from 'react-tooltip';
-import {
-  toInternationalCurrencySystem,
-  toPrecision,
-  toReadableNumber,
-} from '~utils/numbers';
-import { getBoostTokenPrices } from '../../services/farm';
+import { toReadableNumber } from '~utils/numbers';
 import { WRAP_NEAR_CONTRACT_ID } from '../../services/wrap-near';
 import ReactECharts from 'echarts-for-react';
-import { ArrowJump } from './Asset';
 import { useWalletSelector } from '~context/WalletSelectorContext';
-import getConfig from '~services/config';
+import {
+  auroraAddr,
+  useAuroraBalancesNearMapping,
+  useDCLAccountBalance,
+} from '~services/aurora/aurora';
+import { useTokenBalances } from '~state/token';
+import { NEARXIDS } from '~services/near';
+import { PortfolioData } from '../../pages/Portfolio';
+import {
+  ArrowJumpLarge,
+  display_percentage_2,
+  display_value,
+  display_value_withCommas,
+  display_number_internationalCurrencySystemNature,
+  getAccountId,
+} from './Tool';
+import { BlueCircleLoading } from '../../components/layout/Loading';
+import {
+  WalletContext,
+  getCurrentWallet,
+} from '../../utils/wallets-integration';
+import {
+  AuroraIcon,
+  AuroraIconActive,
+  TriangleGreyIcon,
+  CopyIcon,
+} from '../../components/icon/Portfolio';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { isMobile } from '~utils/device';
+import { FormattedMessage, useIntl } from 'react-intl';
+const is_mobile = isMobile();
 export default function Tokens() {
-  const [tokens, setTokens] = useState([]);
-  const [totalPrice, setTotalPrice] = useState('0');
-  const allTokens = useUserRegisteredTokensAllAndNearBalance();
-  const total = useUserRegisteredTokensAllAndNearBalance();
-  const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
+  const { tokenPriceList } = useContext(PortfolioData);
   const [pieOption, setPieOption] = useState(null);
+  const [activeTab, setActiveTab] = useState('near'); // near,ref,dcl,aurora
+  const [tabList, setTabList] = useState([{ name: 'NEAR', tag: 'near' }]);
+
+  const [ref_tokens, set_ref_tokens] = useState<TokenMetadata[]>([]);
+  const [near_tokens, set_near_tokens] = useState<TokenMetadata[]>([]);
+  const [dcl_tokens, set_dcl_tokens] = useState<TokenMetadata[]>([]);
+  const [aurora_tokens, set_aurora_tokens] = useState<TokenMetadata[]>([]);
+
+  const [ref_total_value, set_ref_total_value] = useState<string>('0');
+  const [near_total_value, set_near_total_value] = useState<string>('0');
+  const [dcl_total_value, set_dcl_total_value] = useState<string>('0');
+  const [aurora_total_value, set_aurora_total_value] = useState<string>('0');
+  const [color_list, set_color_list] = useState([
+    '#467681',
+    '#468173',
+    '#43698D',
+    '#566583',
+    '#455563',
+  ]);
+  const [chartEvents, setChartEvents] = useState<any>({});
+  const tokenRef = useRef(null);
+  const { globalState } = useContext(WalletContext);
+  const accountId = getAccountId();
+  const isSignedIn = !!accountId || globalState.isSignedIn;
+  const auroraAddress = auroraAddr(
+    getCurrentWallet()?.wallet?.getAccountId() || ''
+  );
+  const displayAuroraAddress = `${auroraAddress?.substring(
+    0,
+    6
+  )}...${auroraAddress?.substring(
+    auroraAddress.length - 6,
+    auroraAddress.length
+  )}`;
+
+  const userTokens = useUserRegisteredTokensAllAndNearBalance();
+  const balances = useTokenBalances(); // inner account balance
+  const auroaBalances = useAuroraBalancesNearMapping(auroraAddress);
+  const DCLAccountBalance = useDCLAccountBalance(!!accountId);
+  const is_tokens_loading =
+    !userTokens || !balances || !auroaBalances || !DCLAccountBalance;
   const intl = useIntl();
-  const config = getConfig();
   useEffect(() => {
-    getBoostTokenPrices().then(setTokenPriceList);
-  }, []);
-  useEffect(() => {
-    if (allTokens && tokenPriceList) {
-      const hasBlanceTokens = allTokens.filter((token: TokenMetadata) => {
-        if (+token.near > 0) return true;
+    if (!is_tokens_loading) {
+      userTokens.forEach((token: TokenMetadata) => {
+        const { decimals, id, nearNonVisible } = token;
+        token.ref =
+          id === NEARXIDS[0]
+            ? '0'
+            : toReadableNumber(decimals, balances[id] || '0');
+        token.near = toReadableNumber(
+          decimals,
+          (nearNonVisible || '0').toString()
+        );
+        token.dcl = toReadableNumber(decimals, DCLAccountBalance[id] || '0');
+        token.aurora = toReadableNumber(
+          decimals,
+          auroaBalances[id] || '0'
+        ).toString();
       });
-      const totalPrice = hasBlanceTokens.reduce((acc, cur: TokenMetadata) => {
-        const { decimals, nearNonVisible, id } = cur;
-        const n = toReadableNumber(decimals, nearNonVisible.toString());
-        const price =
-          tokenPriceList[id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : id]?.price ||
-          '0';
-        return new BigNumber(n).multipliedBy(price).plus(acc).toFixed();
-      }, '0');
-      hasBlanceTokens.sort((b: TokenMetadata, a: TokenMetadata) => {
-        const b_num = toReadableNumber(b.decimals, b.nearNonVisible.toString());
-        const b_price =
-          tokenPriceList[b.id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : b.id]
-            ?.price || '0';
-        const b_total_price = new BigNumber(b_num).multipliedBy(b_price);
-        const a_num = toReadableNumber(a.decimals, a.nearNonVisible.toString());
-        const a_price =
-          tokenPriceList[a.id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : a.id]
-            ?.price || '0';
-        const a_total_price = new BigNumber(a_num).multipliedBy(a_price);
-        return +a_total_price.minus(b_total_price).toFixed();
-      });
-      setTokens(hasBlanceTokens);
-      setTotalPrice(totalPrice);
     }
-  }, [tokenPriceList, allTokens]);
+  }, [is_tokens_loading]);
   useEffect(() => {
-    if (tokens.length > 0) {
-      const pieData = getPieData();
+    if (!is_tokens_loading) {
+      const ref_tokens_temp: TokenMetadata[] = [];
+      const near_tokens_temp: TokenMetadata[] = [];
+      const dcl_tokens_temp: TokenMetadata[] = [];
+      const aurora_tokens_temp: TokenMetadata[] = [];
+      userTokens.forEach((token: TokenMetadata) => {
+        const { ref, near, aurora, dcl, id } = token;
+        if (id === NEARXIDS[0]) return;
+        if (+ref > 0) {
+          ref_tokens_temp.push(token);
+        }
+        if (+near > 0) {
+          near_tokens_temp.push(token);
+        }
+        if (+dcl > 0) {
+          dcl_tokens_temp.push(token);
+        }
+        if (+aurora > 0) {
+          aurora_tokens_temp.push(token);
+        }
+      });
+      const { tokens: tokens_near, total_value: total_value_near } =
+        token_data_process(near_tokens_temp, 'near');
+      const { tokens: tokens_ref, total_value: total_value_ref } =
+        token_data_process(ref_tokens_temp, 'ref');
+      const { tokens: tokens_dcl, total_value: total_value_dcl } =
+        token_data_process(dcl_tokens_temp, 'dcl');
+      const { tokens: tokens_aurora, total_value: total_value_aurora } =
+        token_data_process(aurora_tokens_temp, 'aurora');
+      set_ref_tokens(tokens_ref);
+      set_near_tokens(tokens_near);
+      set_dcl_tokens(tokens_dcl);
+      set_aurora_tokens(tokens_aurora);
+
+      set_ref_total_value(total_value_ref);
+      set_near_total_value(total_value_near);
+      set_dcl_total_value(total_value_dcl);
+      set_aurora_total_value(total_value_aurora);
+      const tab_list = [{ name: 'NEAR', tag: 'near' }];
+      if (tokens_ref?.length > 0) {
+        tab_list.push({
+          name: 'REF' + '(' + intl.formatMessage({ id: 'classic' }) + ')',
+          tag: 'ref',
+        });
+      }
+      if (tokens_dcl?.length > 0) {
+        tab_list.push({ name: 'DCL', tag: 'dcl' });
+      }
+      setTabList(JSON.parse(JSON.stringify(tab_list)));
+    }
+  }, [tokenPriceList, userTokens, is_tokens_loading]);
+  useEffect(() => {
+    let tokens;
+    let total_value;
+    if (activeTab == 'ref' && ref_tokens.length > 0) {
+      tokens = ref_tokens;
+      total_value = ref_total_value;
+    }
+    if (activeTab == 'near' && near_tokens.length > 0) {
+      tokens = near_tokens;
+      total_value = near_total_value;
+    }
+    if (activeTab == 'dcl' && dcl_tokens.length > 0) {
+      tokens = dcl_tokens;
+      total_value = dcl_total_value;
+    }
+    if (activeTab == 'aurora' && aurora_tokens.length > 0) {
+      tokens = aurora_tokens;
+      total_value = aurora_total_value;
+    }
+    if (tokens?.length > 0) {
+      const pieData = getPieData(tokens, total_value);
       const pieOption = {
         tooltip: {
           trigger: 'item',
-          show: false,
+          show: true,
+          textStyle: {
+            color: '#fff',
+            fontFamily: 'gotham',
+            fontSize: '12',
+          },
+          backgroundColor: 'rgba(29, 41, 50, 0.8)',
+          borderWidth: 1,
+          padding: [2, 5],
+          borderColor: '#293844',
+          extraCssText:
+            'box-shadow:0px 0px 10px 4px rgba(0, 0, 0, 0.15);border-radius:5px;',
+          // position: ['100%', '100%'],
+
+          formatter: (params: any) => {
+            const { data } = params;
+            const percent = getCurrentTokenProportion(data);
+            return percent;
+          },
         },
         legend: {
           top: '5%',
           left: 'center',
           show: false,
         },
-        color: [
-          '#00D6AF',
-          '#455563',
-          '#354F53',
-          '#284251',
-          '#1F4247',
-          '#173C41',
-        ],
+        color: color_list,
         series: [
           {
             name: 'Access From',
@@ -99,29 +224,26 @@ export default function Tokens() {
               label: {
                 show: true,
                 formatter: (data: any) => {
-                  const { symbol, decimals, nearNonVisible, price } = data.data;
-                  const num = toReadableNumber(
-                    decimals,
-                    nearNonVisible.toString()
-                  );
-                  let display_num;
-                  if (new BigNumber(num).isLessThan('0.01')) {
-                    display_num = '<0.01';
-                  } else {
-                    display_num = toInternationalCurrencySystem(num, 2);
-                  }
-                  return `{a|${symbol}}\n{b|${display_num}}\n{a|${price}}`;
+                  const { symbol, t_value } = data.data;
+                  const num = data.data[activeTab];
+                  const display_num =
+                    display_number_internationalCurrencySystemNature(num);
+                  const display_v = display_value(t_value);
+                  return `{a|${symbol}}\n{b|${display_num}}\n{a|${display_v}}`;
                 },
                 rich: {
                   a: {
                     fontSize: 12,
                     color: '#7E8A93',
                     lineHeight: 20,
+                    fontFamily: 'gotham',
                   },
                   b: {
-                    fontSize: 13,
+                    fontSize: 16,
                     color: '#FFFFFF',
                     lineHeight: 20,
+                    fontWeight: '700',
+                    fontFamily: 'gotham',
                   },
                 },
               },
@@ -135,117 +257,372 @@ export default function Tokens() {
       };
       setPieOption(pieOption);
     }
-  }, [tokens]);
-  const { selector } = useWalletSelector();
-  function getPieData() {
+  }, [activeTab, tokenRef, ref_tokens, near_tokens, dcl_tokens, aurora_tokens]);
+  useMemo(() => {
+    // for fixing mobile issue (may be have a better way)
+    if (pieOption) {
+      const chartEvents =
+        is_mobile && tokenRef?.current?.echarts ? { click: () => {} } : {};
+      setChartEvents(chartEvents);
+    }
+  }, [pieOption, tokenRef]);
+  if (
+    (!userTokens || !balances || !auroaBalances || !DCLAccountBalance) &&
+    isSignedIn
+  )
+    return (
+      <div className="flex items-center justify-center mt-20">
+        <BlueCircleLoading></BlueCircleLoading>
+      </div>
+    );
+  function token_data_process(
+    target_tokens: TokenMetadata[],
+    accountType: string
+  ) {
+    const tokens = JSON.parse(JSON.stringify(target_tokens || []));
+    tokens.forEach((token: TokenMetadata) => {
+      const token_num = token[accountType] || 0;
+      const token_price =
+        tokenPriceList[token.id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : token.id]
+          ?.price || '0';
+      const token_value = new BigNumber(token_num).multipliedBy(token_price);
+      token['t_value'] = token_value.toFixed();
+    });
+    tokens.sort((tokenB: TokenMetadata, tokenA: TokenMetadata) => {
+      const a_value = new BigNumber(tokenA['t_value']);
+      const b_value = new BigNumber(tokenB['t_value']);
+      return a_value.minus(b_value).toNumber();
+    });
+    const total_value = tokens.reduce((acc: string, cur: TokenMetadata) => {
+      return new BigNumber(acc).plus(cur['t_value']).toFixed();
+    }, '0');
+
+    return { tokens, total_value };
+  }
+  function getPieData(tokens: TokenMetadata[], total_value: string) {
     const parseSerialization: TokenMetadata[] = JSON.parse(
       JSON.stringify(tokens)
     );
-    const target = parseSerialization.map((token: TokenMetadata) => {
-      if (+totalPrice > 0) {
-        const { decimals, nearNonVisible, id } = token;
-        const n = toReadableNumber(decimals, nearNonVisible.toString());
-        const price =
-          tokenPriceList[id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : id]?.price || 0;
-        const p = new BigNumber(price).multipliedBy(n);
-        const r = new BigNumber(p).dividedBy(totalPrice).multipliedBy(100);
-        let p_display;
-        if (p.isLessThan('0.01')) {
-          p_display = '<$0.01';
-        } else {
-          p_display = toInternationalCurrencySystem(p.toFixed(), 2);
-        }
-        if (r.isLessThan('0.5')) {
+    const target = parseSerialization.map(
+      (token: TokenMetadata, index: number) => {
+        if (+total_value > 0) {
+          const { t_value } = token;
+          const value_big = new BigNumber(t_value);
+          const percent = value_big.dividedBy(total_value).multipliedBy(100);
+          const display_value = new BigNumber(0.005)
+            .multipliedBy(total_value)
+            .toFixed();
           return {
             ...token,
-            price: p_display,
-            value: 0.5,
-          };
-        } else {
-          return {
-            ...token,
-            price: p_display,
-            value: +r,
+            value: percent.isLessThan('0.5') ? display_value : t_value,
+            itemStyle: index == 0 ? { color: '#00D6AF' } : {},
           };
         }
       }
-    });
+    );
     return target;
   }
-
-  function getTokenAllocationTip() {
-    // const tip = intl.formatMessage({ id: 'over_tip' });
-    const tip = 'Tokens in your wallet';
-    let result: string = `<div class="text-navHighLightText text-xs text-left">${tip}</div>`;
-    return result;
-  }
   function getCurrentTokenProportion(token: TokenMetadata) {
-    if (+totalPrice > 0) {
-      const { decimals, nearNonVisible, id } = token;
-      const n = toReadableNumber(decimals, nearNonVisible.toString());
-      const price =
-        tokenPriceList[id == 'NEAR' ? WRAP_NEAR_CONTRACT_ID : id]?.price || 0;
-      const p = new BigNumber(price).multipliedBy(n);
-      const r = new BigNumber(p).dividedBy(totalPrice).multipliedBy(100);
-      if (r.isLessThan('0.01')) {
-        return '<0.01%';
+    if (activeTab == 'near') {
+      if (+near_total_value > 0 && +token['t_value'] > 0) {
+        const percent = new BigNumber(token['t_value'])
+          .dividedBy(near_total_value)
+          .multipliedBy(100)
+          .toFixed();
+        return display_percentage_2(percent) + '%';
       } else {
-        return toPrecision(r.toFixed(), 2) + '%';
+        return '-%';
       }
     }
-    return '-%';
+    if (activeTab == 'ref') {
+      if (+ref_total_value > 0) {
+        const percent = new BigNumber(token['t_value'])
+          .dividedBy(ref_total_value)
+          .multipliedBy(100)
+          .toFixed();
+        return display_percentage_2(percent) + '%';
+      } else {
+        return '-%';
+      }
+    }
+    if (activeTab == 'dcl') {
+      if (+dcl_total_value > 0) {
+        const percent = new BigNumber(token['t_value'])
+          .dividedBy(dcl_total_value)
+          .multipliedBy(100)
+          .toFixed();
+        return display_percentage_2(percent) + '%';
+      } else {
+        return '-%';
+      }
+    }
+    if (activeTab == 'aurora') {
+      if (+aurora_total_value > 0) {
+        const percent = new BigNumber(token['t_value'])
+          .dividedBy(aurora_total_value)
+          .multipliedBy(100)
+          .toFixed();
+        return display_percentage_2(percent) + '%';
+      } else {
+        return '-%';
+      }
+    }
+  }
+  function showTotalValue() {
+    let target = '0';
+    if (activeTab == 'near') {
+      target = near_total_value;
+    } else if (activeTab == 'ref') {
+      target = ref_total_value;
+    } else if (activeTab == 'dcl') {
+      target = dcl_total_value;
+    } else if (activeTab == 'aurora') {
+      target = aurora_total_value;
+    }
+    return display_value_withCommas(target);
   }
   return (
-    <div className="text-white w-60 py-3">
-      <div className="flex items-center px-3">
-        <div className="flex items-center">
-          <span className="text-sm text-primaryText mr-1">Wallet Tokens</span>
-          <ArrowJump
-            clickEvent={() => {
-              window.open(
-                selector.store.getState().selectedWalletId === 'my-near-wallet'
-                  ? config.myNearWalletUrl
-                  : config.walletUrl,
-                '_blank'
-              );
-            }}
-          ></ArrowJump>
+    <div className="mt-6">
+      <div className="px-5">
+        <div className="text-base text-white mb-4 gotham_bold">
+          <FormattedMessage id="token_balances"></FormattedMessage>
         </div>
-        {/* <div
-          className="text-white text-right ml-1"
-          data-class="reactTip"
-          data-for="selectAllId"
-          data-place="top"
-          data-html={true}
-          data-tip={getTokenAllocationTip()}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div
+              className={`flex items-center mr-2 ${
+                tabList.length > 1 ? '' : 'hidden'
+              }`}
+            >
+              <div className="flex items-center h-8 rounded-lg p-0.5 border border-commonTokenBorderColor">
+                {tabList.map((item, index) => {
+                  return (
+                    <span
+                      key={item.tag}
+                      onClick={() => {
+                        setActiveTab(item.tag);
+                      }}
+                      className={`flex items-center justify-center rounded-md h-full ${
+                        item.tag == 'ref' ? 'w-24' : 'w-12'
+                      } text-xs gotham_bold cursor-pointer hover:bg-portfolioLightGreyColor ${
+                        index != tabList.length - 1 ? 'mr-0.5' : ''
+                      } ${
+                        activeTab == item.tag
+                          ? 'bg-portfolioLightGreyColor text-white'
+                          : 'text-primaryText'
+                      }`}
+                    >
+                      {item.tag == 'ref'
+                        ? 'REF' +
+                          '(' +
+                          intl.formatMessage({ id: 'classic' }) +
+                          ')'
+                        : item.name}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+            <div
+              className={`flex items-center justify-center rounded-lg h-8 p-0.5 mr-3 ${
+                tabList.length == 1 && isSignedIn ? '' : 'hidden'
+              } ${
+                activeTab == 'near'
+                  ? 'border border-gradientFromHover text-white'
+                  : 'text-primaryText'
+              }`}
+            >
+              <span
+                onClick={() => {
+                  setActiveTab('near');
+                }}
+                className={`flex items-center justify-center rounded-md h-full px-2 text-xs gotham_bold cursor-pointer bg-portfolioLightGreyColor hover:text-white`}
+              >
+                NEAR wallet
+              </span>
+            </div>
+            <div
+              className={`text-sm text-primaryText ${
+                isSignedIn ? 'hidden' : ''
+              }`}
+            >
+              NEAR Wallet
+            </div>
+            {aurora_tokens?.length > 0 ? (
+              activeTab == 'aurora' ? (
+                <AuroraIconActive className="cursor-pointer"></AuroraIconActive>
+              ) : (
+                <AuroraIcon
+                  onClick={() => {
+                    setActiveTab('aurora');
+                  }}
+                  className="text-primaryText hover:text-portfolioLightGreenColor cursor-pointer"
+                ></AuroraIcon>
+              )
+            ) : null}
+          </div>
+          <ArrowJumpLarge
+            clickEvent={() => {
+              if (activeTab == 'aurora') {
+                localStorage.setItem('REF_FI_SWAP_SWAPPAGE_TAB_VALUE', 'cross');
+                localStorage.setItem(
+                  'REF_FI_ACCOUNT_TAB_AURORA_KEY',
+                  activeTab
+                );
+              } else {
+                localStorage.setItem(
+                  'REF_FI_SWAP_SWAPPAGE_TAB_VALUE',
+                  'normal'
+                );
+                localStorage.setItem('REF_FI_ACCOUNT_TAB_KEY', activeTab);
+              }
+
+              window.open('/account');
+            }}
+            extraClass={`flex-shrink-0 ${isSignedIn ? '' : 'hidden'}`}
+          ></ArrowJumpLarge>
+        </div>
+        <div
+          className={`flex items-center justify-between mt-4 ${
+            activeTab == 'aurora' ? '' : 'hidden'
+          }`}
         >
-          <QuestionMark></QuestionMark>
-          <ReactTooltip
-            id="selectAllId"
-            backgroundColor="#1D2932"
-            border
-            borderColor="#7e8a93"
-            effect="solid"
-          />
-        </div> */}
+          <div className="flex items-center">
+            <TriangleGreyIcon className="mr-1"></TriangleGreyIcon>
+            <span className="text-xs text-primaryText">
+              <FormattedMessage id="mapping_account" />
+            </span>
+          </div>
+          <div className="flex items-center">
+            <span className="text-xs text-white mr-1.5">
+              {displayAuroraAddress}
+            </span>
+            <CopyToClipboard text={auroraAddress}>
+              <CopyIcon className="text-primaryText hover:text-white cursor-pointer"></CopyIcon>
+            </CopyToClipboard>
+          </div>
+        </div>
+        <div className="text-xl gotham_bold text-white mt-2">
+          {showTotalValue()}
+        </div>
       </div>
-      <div className="flex items-center justify-center">
+      {isSignedIn ? null : (
+        <div className="flex items-center justify-center text-sm text-primaryText my-20 w-60 mx-auto text-center">
+          Your wallet/account assets will appear here.
+        </div>
+      )}
+      <div className="flex items-center justify-center mt-8 xsm:mt-0">
         {pieOption ? (
           <ReactECharts
+            ref={tokenRef}
             option={pieOption}
-            style={{ width: '200px', height: '200px' }}
+            style={{
+              width: is_mobile ? '240px' : '200px',
+              height: is_mobile ? '240px' : '200px',
+            }}
+            onEvents={chartEvents}
           />
         ) : null}
       </div>
-      <div className="overflow-auto" style={{ maxHeight: '150px' }}>
-        {tokens.map((token: TokenMetadata) => {
-          return (
-            <div className="flex items-center justify-between mb-3 px-3">
-              <span className="text-xs text-primaryText">{token.symbol}</span>
-              <span>{getCurrentTokenProportion(token)}</span>
-            </div>
-          );
-        })}
+      <div
+        className="overflow-auto px-2 mt-5 xsm:mt-0 lg:absolute lg:w-full lg:bottom-0"
+        style={{
+          maxHeight: is_mobile ? '160px' : 'none',
+          top: !is_mobile ? (activeTab == 'aurora' ? '24rem' : '22rem') : '',
+        }}
+      >
+        <div className={`${activeTab == 'near' ? '' : 'hidden'}`}>
+          {near_tokens.map((token: TokenMetadata, index) => {
+            return (
+              <div
+                key={token.id + 'near'}
+                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
+              >
+                <div className="flex items-center">
+                  <img
+                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                    src={token.icon}
+                  />
+                  <span className="text-sm text-primaryText">
+                    {token.symbol}
+                  </span>
+                </div>
+                <span className="text-sm text-white">
+                  {display_value(token.t_value)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <div className={`${activeTab == 'ref' ? '' : 'hidden'}`}>
+          {ref_tokens.map((token: TokenMetadata, index) => {
+            return (
+              <div
+                key={token.id + 'ref'}
+                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
+              >
+                <div className="flex items-center">
+                  <img
+                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                    src={token.icon}
+                  />
+                  <span className="text-sm text-primaryText">
+                    {token.symbol}
+                  </span>
+                </div>
+                <span className="text-sm text-white">
+                  {display_value(token.t_value)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <div className={`${activeTab == 'dcl' ? '' : 'hidden'}`}>
+          {dcl_tokens.map((token: TokenMetadata, index) => {
+            return (
+              <div
+                key={token.id + 'dcl'}
+                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
+              >
+                <div className="flex items-center">
+                  <img
+                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                    src={token.icon}
+                  />
+                  <span className="text-sm text-primaryText">
+                    {token.symbol}
+                  </span>
+                </div>
+                <span className="text-sm text-white">
+                  {display_value(token.t_value)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <div className={`${activeTab == 'aurora' ? '' : 'hidden'}`}>
+          {aurora_tokens.map((token: TokenMetadata, index) => {
+            return (
+              <div
+                key={token.id + 'aurora'}
+                className="flex items-center justify-between mb-3 px-3 hover:bg-symbolHover rounded-md py-1.5"
+              >
+                <div className="flex items-center">
+                  <img
+                    className="w-4 h-4 border border-gradientFrom rounded-full mr-2.5"
+                    src={token.icon}
+                  />
+                  <span className="text-sm text-primaryText">
+                    {token.symbol}
+                  </span>
+                </div>
+                <span className="text-sm text-white">
+                  {display_value(token.t_value)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

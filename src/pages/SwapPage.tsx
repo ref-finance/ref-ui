@@ -145,8 +145,7 @@ const ChangeSwapMode = ({
           fontSize: '15px',
         }}
       >
-        {/* <FormattedMessage id="limit_order" defaultMessage="Limit Order" /> */}
-        Limit Order
+        <FormattedMessage id="limit_order" defaultMessage="Limit Order" />
       </span>
     </div>
   );

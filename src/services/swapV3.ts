@@ -74,22 +74,6 @@ export interface UserOrderInfo {
   unclaimed_amount: string; // claim will push it to inner account
   bought_amount: string; // accumalated amount into inner account
 }
-
-export interface PoolInfoV3 {
-  pool_id: string;
-  token_x: string;
-  token_y: string;
-  fee: number;
-  point_delta: number;
-  current_point: number;
-  state: string; // running or paused
-  total_liquidity: string;
-  total_x: string;
-  total_y: string;
-  total_fee_x_charged: string;
-  total_fee_y_charged: string;
-}
-
 export const quote = async ({
   pool_ids,
   input_amount,
@@ -573,7 +557,7 @@ export const get_pool = async (pool_id: string, token0?: string) => {
     args: {
       pool_id: new_pool_id,
     },
-  }) as Promise<PoolInfoV3>;
+  }) as Promise<PoolInfo>;
 };
 export const get_pool_old_version = async (
   pool_id: string,
@@ -590,7 +574,7 @@ export const get_pool_old_version = async (
     args: {
       pool_id: new_pool_id,
     },
-  }) as Promise<PoolInfoV3>;
+  }) as Promise<PoolInfo>;
 };
 
 export const get_pool_from_cache = async (pool_id: string, token0?: string) => {
@@ -615,7 +599,7 @@ export const get_pool_from_cache = async (pool_id: string, token0?: string) => {
     args: {
       pool_id: new_pool_id,
     },
-  }) as Promise<PoolInfoV3>;
+  }) as Promise<PoolInfo>;
 };
 
 export const get_pointorder_range = ({
@@ -1257,7 +1241,8 @@ export interface PoolInfo {
   fee: number;
   point_delta?: number;
   current_point?: number;
-  state?: string;
+  state?: string; // running or paused
+  total_liquidity?: string;
   liquidity?: string;
   liquidity_x?: string;
   max_liquidity_per_point?: string;

@@ -18,6 +18,7 @@ import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import moment from 'moment';
 
 export const parseAction = async (
@@ -137,6 +138,12 @@ export const parseAction = async (
     }
     case 'mint_v_liquidity': {
       return await mintLiquidity(params);
+    }
+    case 'user_request_withdraw': {
+      return await userRequestWithdraw(params);
+    }
+    case 'user_deposit_native_token': {
+      return await userDepositNativeToken(params);
     }
     default: {
       return await parseDefault();
@@ -1032,8 +1039,8 @@ const mintLiquidity = async (params: any) => {
   } catch (error) {
     params = {};
   }
-  const { lpt_id, farming_type } = params;
-  const { left_point, right_point } = farming_type.FixRange;
+  const { lpt_id, dcl_farming_type } = params;
+  const { left_point, right_point } = dcl_farming_type.FixRange;
   const [token_x, token_y, fee] = lpt_id.split('|');
   const tokenX = await ftGetTokenMetadata(token_x);
   const tokenY = await ftGetTokenMetadata(token_y);
@@ -1054,6 +1061,30 @@ const mintLiquidity = async (params: any) => {
     Pair: pair,
     'Min Price': displayNumberToAppropriateDecimals(left_price),
     'Max Price': displayNumberToAppropriateDecimals(right_price),
+  };
+};
+const userRequestWithdraw = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { token, amount } = params;
+  let token_meta;
+  if (token == 'near') {
+    token_meta = await ftGetTokenMetadata(WRAP_NEAR_CONTRACT_ID);
+  } else {
+    token_meta = await ftGetTokenMetadata(token);
+  }
+  return {
+    Action: 'Withdraw',
+    Token: token_meta.symbol,
+    Amount: toReadableNumber(token_meta.decimals, amount),
+  };
+};
+const userDepositNativeToken = async (params: any) => {
+  return {
+    Action: 'Deposit',
   };
 };
 

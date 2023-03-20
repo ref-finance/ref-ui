@@ -3,7 +3,6 @@ import {
   UserOrderInfo,
   list_active_orders,
   list_history_orders,
-  PoolInfoV3,
   PoolInfo,
   listPools,
 } from '../services/swapV3';
@@ -16,6 +15,7 @@ import BigNumber from 'bignumber.js';
 export const useMyOrders = () => {
   const [activeOrder, setActiveOrder] = useState<UserOrderInfo[]>();
   const [historyOrder, setHistoryOrder] = useState<UserOrderInfo[]>();
+  const [activeOrderDone, setActiveOrderDone] = useState<boolean>(false);
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -23,13 +23,17 @@ export const useMyOrders = () => {
   useEffect(() => {
     if (!isSignedIn) return;
 
-    list_active_orders().then(setActiveOrder);
+    list_active_orders().then((res) => {
+      setActiveOrder(res);
+      setActiveOrderDone(true);
+    });
     list_history_orders().then(setHistoryOrder);
   }, [isSignedIn]);
 
   return {
     activeOrder,
     historyOrder,
+    activeOrderDone,
   };
 };
 

@@ -1302,7 +1302,7 @@ function SelectLiquidityBox(props: any) {
       >
         <div className="header flex items-center justify-between mb-5 px-6">
           <div className="flex items-center justify-center">
-            <span className="text-white text-xl mr-2">Your Position(s)</span>
+            <span className="text-white text-xl mr-2">Your Positions</span>
             <span className="flex-shrink-0 bg-senderHot flex items-center justify-center gotham_bold px-2.5 ml-2 rounded-t-xl rounded-br-xl text-sm text-black">
               {user_liquidities_detail.length}
             </span>
