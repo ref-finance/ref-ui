@@ -58,9 +58,13 @@ export enum SWAP_MODE {
 const ChangeSwapMode = ({
   swapMode,
   setSwapMode,
+  setLimitTokenTrigger,
+  limitTokenTrigger,
 }: {
   swapMode: SWAP_MODE;
   setSwapMode: (e?: any) => void;
+  setLimitTokenTrigger: (e?: boolean) => void;
+  limitTokenTrigger: boolean;
 }) => {
   const [hoverXswap, setHoverXswap] = useState(false);
 
@@ -140,6 +144,7 @@ const ChangeSwapMode = ({
         onClick={() => {
           setSwapMode(SWAP_MODE.LIMIT);
           localStorage.setItem(SWAP_MODE_KEY, SWAP_MODE.LIMIT);
+          setLimitTokenTrigger(!limitTokenTrigger ? true : false);
         }}
         style={{
           fontSize: '15px',
@@ -174,6 +179,8 @@ function SwapPage() {
   const refTokens = useWhitelistTokens((triTokenIds || []).concat(['aurora']));
 
   const triTokens = useTriTokens();
+
+  const [limitTokenTrigger, setLimitTokenTrigger] = useState<boolean>();
 
   const storageTab = localStorage
     .getItem(REF_FI_SWAP_SWAPPAGE_TAB_KEY)
@@ -251,9 +258,15 @@ function SwapPage() {
             tokenInAmount={tokenInAmount}
             setTokenInAmount={setTokenInAmount}
             swapTab={
-              <ChangeSwapMode swapMode={swapMode} setSwapMode={setSwapMode} />
+              <ChangeSwapMode
+                swapMode={swapMode}
+                setSwapMode={setSwapMode}
+                setLimitTokenTrigger={setLimitTokenTrigger}
+                limitTokenTrigger={limitTokenTrigger}
+              />
             }
             globalWhiteListTokens={globalWhiteListTokens}
+            limitTokenTrigger={limitTokenTrigger}
           />
         ) : (
           <SwapCard
@@ -264,8 +277,14 @@ function SwapPage() {
             setTokenInAmount={setTokenInAmount}
             reservesType={reservesType}
             setReservesType={setReservesType}
+            limitTokenTrigger={limitTokenTrigger}
             swapTab={
-              <ChangeSwapMode swapMode={swapMode} setSwapMode={setSwapMode} />
+              <ChangeSwapMode
+                setLimitTokenTrigger={setLimitTokenTrigger}
+                limitTokenTrigger={limitTokenTrigger}
+                swapMode={swapMode}
+                setSwapMode={setSwapMode}
+              />
             }
             stableReserves={
               swapMode === SWAP_MODE.STABLE ? (

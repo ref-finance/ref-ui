@@ -278,6 +278,7 @@ export default function CrossSwapCard(props: {
   setTokenInAmount: (amount: string) => void;
   globalWhiteListTokens: TokenMetadata[];
   swapTab?: JSX.Element;
+  limitTokenTrigger?: boolean;
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
@@ -287,6 +288,7 @@ export default function CrossSwapCard(props: {
     swapTab,
     setTokenInAmount,
     globalWhiteListTokens,
+    limitTokenTrigger,
   } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();

@@ -108,7 +108,7 @@ import {
 } from '../../utils/numbers';
 import { DoubleCheckModal } from '../../components/layout/SwapDoubleCheck';
 import { getTokenPriceList } from '../../services/indexer';
-import { SWAP_MODE } from '../../pages/SwapPage';
+import { SWAP_MODE, SWAP_MODE_KEY } from '../../pages/SwapPage';
 import {
   isStableToken,
   STABLE_TOKEN_USN_IDS,
@@ -1116,6 +1116,7 @@ export default function SwapCard(props: {
   setReservesType: (value: STABLE_POOL_TYPE) => void;
   stableReserves?: JSX.Element;
   globalWhiteListTokens: TokenMetadata[];
+  limitTokenTrigger?: boolean;
 }) {
   const { NEARXIDS, STNEARIDS } = getExtraStablePoolConfig();
   const { REF_TOKEN_ID } = getConfig();
@@ -1138,6 +1139,7 @@ export default function SwapCard(props: {
     setReservesType,
     stableReserves,
     globalWhiteListTokens,
+    limitTokenTrigger,
   } = props;
   const [tokenIn, setTokenIn] = useState<TokenMetadata>();
   const [tokenOut, setTokenOut] = useState<TokenMetadata>();
@@ -1346,6 +1348,57 @@ export default function SwapCard(props: {
           setShowSkywardTip(true);
         }
 
+        setTokenIn(candTokenIn);
+        setTokenOut(candTokenOut);
+
+        if (
+          tokenOut?.id === candTokenOut?.id &&
+          tokenIn?.id === candTokenIn?.id
+        )
+          setReEstimateTrigger(!reEstimateTrigger);
+      } else if (swapMode === SWAP_MODE.STABLE) {
+        let candTokenIn: TokenMetadata;
+        let candTokenOut: TokenMetadata;
+        if (rememberedIn == 'near') {
+          rememberedIn = WRAP_NEAR_CONTRACT_ID;
+        }
+        if (rememberedOut == 'near') {
+          rememberedOut = WRAP_NEAR_CONTRACT_ID;
+        }
+        if (rememberedIn == NEARXIDS[0]) {
+          rememberedIn = STNEARIDS[0];
+        }
+        if (rememberedOut == NEARXIDS[0]) {
+          rememberedOut = STNEARIDS[0];
+        }
+        if (
+          rememberedIn &&
+          rememberedOut &&
+          isSameStableClass(rememberedIn, rememberedOut)
+        ) {
+          candTokenIn = allTokens.find((token) => token.id === rememberedIn);
+          candTokenOut = allTokens.find((token) => token.id === rememberedOut);
+        } else {
+          const USDTokenList = new Array(
+            ...new Set(
+              STABLE_TOKEN_USN_IDS.concat(STABLE_TOKEN_IDS).concat(CUSDIDS)
+            )
+          );
+
+          candTokenIn = allTokens.find((token) => token.id === USDTokenList[0]);
+          candTokenOut = allTokens.find(
+            (token) => token.id === USDTokenList[1]
+          );
+          setTokenInAmount('1');
+        }
+
+        setTokenIn(candTokenIn);
+
+        setTokenOut(candTokenOut);
+        if (candTokenIn.id === skywardId || candTokenOut.id === skywardId) {
+          setShowSkywardTip(true);
+        }
+
         if (
           tokenOut?.id === candTokenOut?.id &&
           tokenIn?.id === candTokenIn?.id
@@ -1361,15 +1414,17 @@ export default function SwapCard(props: {
   ]);
 
   useEffect(() => {
-    if (swapMode === SWAP_MODE.LIMIT) {
-      setTokenIn({
-        ...nearMetadata,
-        id: WRAP_NEAR_CONTRACT_ID,
-      });
+    console.log('limitTokenTrigger: ', limitTokenTrigger);
 
-      setTokenOut(allTokens.find((token) => token.id === usdcId));
-    }
-  }, [swapMode]);
+    if (limitTokenTrigger === undefined) return;
+
+    setTokenIn({
+      ...nearMetadata,
+      id: WRAP_NEAR_CONTRACT_ID,
+    });
+
+    setTokenOut(allTokens.find((token) => token.id === usdcId));
+  }, [limitTokenTrigger]);
 
   useEffect(() => {
     if (tokenIn) {
