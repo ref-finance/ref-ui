@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { DownArrowIcon, GreenCorrectIcon } from '../icon/FarmBoost';
 import { isMobile } from '../../utils/device';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 export default function SelectBox(props: any) {
   const {
@@ -22,11 +23,11 @@ export default function SelectBox(props: any) {
     const target = list.find((item: any) => {
       return item.id == selectedId;
     });
-    const { icon, name } = target;
+    const { icon, label, name } = target;
     return (
       <>
         {icon ? <span className="mr-2">{icon}</span> : null}
-        {name}
+        {name || <FormattedMessage id={label} />}
       </>
     );
   }
@@ -74,7 +75,7 @@ export default function SelectBox(props: any) {
                 show ? 'text-white' : 'text-primaryText'
               }`}
             >
-              {type}:{' '}
+              <FormattedMessage id={type} />:{' '}
             </span>
             <div
               className={`flex items-center text-sm gotham_bold ml-1.5 whitespace-nowrap ${
@@ -97,7 +98,7 @@ export default function SelectBox(props: any) {
         }`}
       >
         {selectList.map((item: any) => {
-          const { id, name, icon } = item;
+          const { id, label, name, icon } = item;
           return (
             <div
               onClick={() => {
@@ -112,7 +113,9 @@ export default function SelectBox(props: any) {
                     {icon}
                   </span>
                 ) : null}
-                <span className="text-sm text-white">{name}</span>
+                <span className="text-sm text-white">
+                  {name || <FormattedMessage id={label} />}
+                </span>
               </div>
               <GreenCorrectIcon
                 className={`${id == selectedId ? '' : 'hidden'}`}

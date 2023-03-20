@@ -918,5 +918,14 @@ const zh_CN = {
   v1_your_pool_introduction: 'Your liquidity in classic pools',
   input_pool_id: '输入池子ID',
   estimate_value: '预估价值',
+  /////////////////////////
+  legacy_tip: '有未提取的LP代币和奖励在',
+  legacy_farms: '遗产农场',
+  all_farms: '全部农场',
+  your_farms_2: '你的农场',
+  dcl_farms: 'DCL农场',
+  classic_farms: '经典农场',
+  farm_type: '农场类型',
+  farm_2: '农场',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

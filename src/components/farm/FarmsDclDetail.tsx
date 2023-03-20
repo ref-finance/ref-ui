@@ -924,7 +924,9 @@ export default function FarmsDclDetail(props: {
           className="flex items-center text-farmText hover:text-framBorder lg:hidden"
           onClick={goPoolPage}
         >
-          <label className="mx-2 text-sm cursor-pointer">DCL Pool Detail</label>
+          <label className="mx-2 text-sm cursor-pointer">
+            <FormattedMessage id="dcl_pool_detail" />
+          </label>
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
@@ -989,7 +991,9 @@ export default function FarmsDclDetail(props: {
           className="flex items-center text-farmText hover:text-framBorder xsm:hidden"
           onClick={goPoolPage}
         >
-          <label className="mx-2 text-sm cursor-pointer">DCL Pool Detail</label>
+          <label className="mx-2 text-sm cursor-pointer">
+            <FormattedMessage id="dcl_pool_detail" />
+          </label>
           <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
         </div>
       </div>
@@ -998,15 +1002,21 @@ export default function FarmsDclDetail(props: {
         <div className="flex items-center justify-center bg-dclBannerColor rounded-xl text-sm text-white px-4 py-1 mt-4 mb-3">
           <div className="flex items-center flex-wrap">
             <span>
-              {isEnded ? 'This farm has ended.' : 'This farm will end soon.'}
+              {isEnded ? (
+                <FormattedMessage id="farm_ended_tip" />
+              ) : (
+                <FormattedMessage id="farm_will_ended_tip" />
+              )}
             </span>
             <a
               onClick={goBetterSeed}
               className="underline gotham_bold cursor-pointer mx-2 xsm:ml-0"
             >
-              {getBetterSeedSymbols()} New Farm
+              {getBetterSeedSymbols()} <FormattedMessage id="new_farm" />
             </a>
-            <span>is coming!</span>
+            <span>
+              <FormattedMessage id="is_coming" />
+            </span>
           </div>
           <NewTag className="ml-1.5"></NewTag>
         </div>
@@ -1047,7 +1057,9 @@ export default function FarmsDclDetail(props: {
           </div>
           <div className="flex flex-col items-end justify-between">
             <div className="flex items-center text-sm text-farmText">
-              <span>Reward Range</span>
+              <span>
+                <FormattedMessage id="reward_range" />
+              </span>
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"
@@ -1126,7 +1138,9 @@ export default function FarmsDclDetail(props: {
         <div className="border-b border-dclLineColor py-3">
           <div className="relative flex items-start justify-end">
             <div className="flex items-center absolute left-0">
-              <span className="text-sm text-farmText">Reward Range</span>
+              <span className="text-sm text-farmText">
+                <FormattedMessage id="reward_range" />
+              </span>
               <div
                 className="text-white text-right ml-1"
                 data-class="reactTip"

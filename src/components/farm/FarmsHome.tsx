@@ -145,8 +145,10 @@ export default function FarmsHome(props: any) {
   const searchRef = useRef(null);
   const refreshTime = 300000;
   const sortList = {
-    tvl: intl.formatMessage({ id: 'tvl' }),
-    apr: intl.formatMessage({ id: 'apr' }),
+    // tvl: intl.formatMessage({ id: 'tvl' }),
+    // apr: intl.formatMessage({ id: 'apr' }),
+    tvl: 'TVL',
+    apr: 'APR',
   };
   const coinList = { all: intl.formatMessage({ id: 'allOption' }) };
   classificationOfCoins_key.forEach((key) => {
@@ -175,12 +177,12 @@ export default function FarmsHome(props: any) {
   const [maxLoveShareAmount, setMaxLoveShareAmount] = useState<string>('0');
   const history = useHistory();
   const [farmTypeList, setFarmTypeList] = useState([
-    { id: 'all', name: 'All' },
-    { id: 'dcl', name: 'DCL Farms' },
-    { id: 'classic', name: 'Classic Farms' },
+    { id: 'all', label: 'all' },
+    { id: 'dcl', label: 'dcl_farms' },
+    { id: 'classic', label: 'classic_farms' },
   ]);
   const [filterTypeList, setFilterTypeList] = useState([
-    { id: 'all', name: 'All' },
+    { id: 'all', label: 'all' },
     {
       id: 'boost',
       name: 'Boost',
@@ -1261,7 +1263,7 @@ export default function FarmsHome(props: any) {
                   }}
                 ></span> */}
                 <span>
-                  Found unstated LP tokens or rewards in{' '}
+                  <FormattedMessage id="legacy_tip" />{' '}
                   <a
                     onClick={() => {
                       window.open('/farms');
@@ -1269,7 +1271,7 @@ export default function FarmsHome(props: any) {
                     className="text-sm text-greenColor cursor-pointer underline ml-1 hover:text-senderHot"
                   >
                     {' '}
-                    Legacy Farms
+                    <FormattedMessage id="legacy_farms" />
                   </a>
                   .
                 </span>
@@ -1284,7 +1286,7 @@ export default function FarmsHome(props: any) {
                   switchFarmTab('all');
                 }}
               >
-                All Farms
+                <FormattedMessage id="all_farms" />
               </div>
               <div
                 onClick={() => {
@@ -1294,7 +1296,7 @@ export default function FarmsHome(props: any) {
                   farmTab == 'yours' ? '' : 'text-opacity-50'
                 }`}
               >
-                Your Farms
+                <FormattedMessage id="your_farms_2" />
                 <span
                   className={`flex items-center justify-center h-5 px-2 rounded-t-lg rounded-br-lg bg-senderHot text-black text-sm gotham_bold ml-1.5 ${
                     farmTab == 'yours' ? '' : 'opacity-30'
@@ -1370,14 +1372,14 @@ export default function FarmsHome(props: any) {
               width={isMobileSite ? 'w-44' : 'w-56'}
               disabled={farmTab == 'yours'}
               containerClass="lg:mr-2.5 xsm:mr-1"
-              type={`${isMobileSite ? 'farm' : 'Farm type'}`}
+              type={`${isMobileSite ? 'farm_2' : 'farm_type'}`}
               selectedId={farm_type_selectedId}
               setSelectedId={set_farm_type_selectedId}
             ></SelectBox>
             <SelectBox
               list={filterTypeList}
               width={isMobileSite ? 'w-40' : 'w-44'}
-              type="Filter"
+              type="filter"
               disabled={farmTab == 'yours'}
               selectedId={filter_type_selectedId}
               setSelectedId={set_filter_type_selectedId}
@@ -3069,7 +3071,7 @@ function FarmView(props: {
               {showNewTag() ? <NewTag></NewTag> : null}
               {status_is_new_or_will_end() == 'will end' ? (
                 <span className="text-xs text-redwarningColor bg-lightReBgColor rounded-3xl px-1.5 py-1">
-                  Ending soon
+                  <FormattedMessage id="ending_soon" />
                 </span>
               ) : null}
             </div>
@@ -3100,7 +3102,9 @@ function FarmView(props: {
           {is_dcl_pool ? (
             <div className="flex flex-col items-center justify-between px-5 py-3 h-28">
               <div className="flex items-center justify-between w-full">
-                <span className="text-sm text-farmText">Range</span>
+                <span className="text-sm text-farmText">
+                  <FormattedMessage id="range" />
+                </span>
                 <span>{getRange()}</span>
               </div>
               <div className="flex items-center justify-between w-full">
@@ -3144,7 +3148,9 @@ function FarmView(props: {
                 </div>
               </div>
               <div className="flex items-center justify-between w-full">
-                <span className="text-sm text-farmText">To Claim</span>
+                <span className="text-sm text-farmText">
+                  <FormattedMessage id="to_claim" />
+                </span>
                 {isHaveUnclaimedReward ? (
                   <div className="flex flex-col items-center flex-shrink-0">
                     <div
@@ -3288,7 +3294,9 @@ function FarmView(props: {
                 </div>
               </div>
               <div className="flex items-center justify-between w-full">
-                <span className="text-sm text-farmText">To Claim</span>
+                <span className="text-sm text-farmText">
+                  <FormattedMessage id="to_claim" />
+                </span>
                 {isHaveUnclaimedReward ? (
                   <div className="flex flex-col items-center flex-shrink-0">
                     <div
