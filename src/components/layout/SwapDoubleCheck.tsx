@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { ftGetBalance, TokenMetadata } from '../../services/ft-contract';
 import { Pool } from '../../services/pool';
 import {
@@ -21,12 +21,15 @@ import ReactModal from 'react-modal';
 import Modal from 'react-modal';
 import { Card } from '../../components/card/Card';
 import { HeavyWarning, ModalClose } from '../../components/icon';
-import { Icon } from './SwapRoutes';
+import { Icon, PoolInfo } from './SwapRoutes';
 import { ArrowRight } from '../icon/swapV3';
 
 import { EstimateSwapView, PoolMode, swap } from '~services/swap';
 import BigNumber from 'bignumber.js';
 import Big from 'big.js';
+import { PoolInfo, PoolInfo, PoolInfo } from '~services/swapV3';
+import { PoolInfoV3, get_pool_from_cache } from '../../services/swapV3';
+import { TOKEN_LIST_FOR_RATE } from '../../services/commonV3';
 
 export const SWAP_USE_NEAR_BALANCE_KEY = 'REF_FI_USE_NEAR_BALANCE_VALUE';
 
@@ -289,6 +292,7 @@ export function DoubleCheckModalLimit(
     tokenInAmount: string;
     tokenOutAmount: string;
     rate: string;
+    selectedPool: string;
   }
 ) {
   const {
@@ -300,10 +304,26 @@ export function DoubleCheckModalLimit(
     tokenInAmount,
     tokenOutAmount,
     rate,
+    selectedPool,
   } = props;
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
-  if (!from || !tokenIn || !tokenOut) return null;
+
+  const [poolDetail, setPoolDetail] = useState<PoolInfoV3>();
+
+  useEffect(() => {
+    get_pool_from_cache(selectedPool).then((pool) => {
+      setPoolDetail(pool);
+    });
+  }, [selectedPool]);
+
+  if (!from || !tokenIn || !tokenOut || !poolDetail) return null;
+
+  const buyToken = tokenIn.id === poolDetail.token_x ? tokenIn : tokenOut;
+  const sellToken = tokenIn.id === poolDetail.token_x ? tokenOut : tokenIn;
+
+  const sort = TOKEN_LIST_FOR_RATE.indexOf(sellToken?.symbol) > -1;
+
   function displayAmount(amount: string) {
     const amountBig = new BigNumber(amount || '0');
     if (amountBig.isEqualTo(0)) {
@@ -382,15 +402,19 @@ export function DoubleCheckModalLimit(
           <div className="flex items-center">
             <span className="text-sm text-white mr-1.5">
               {displayAmount(
-                scientificNotationToString(
-                  new Big(1)
-                    .div(new Big(Number(rate) === 0 ? '1' : rate))
-                    .toString()
-                )
+                (sort ? sellToken : buyToken).id !== tokenOut.id
+                  ? scientificNotationToString(
+                      new Big(1)
+                        .div(new Big(Number(rate) === 0 ? '1' : rate))
+                        .toString()
+                    )
+                  : rate
               )}
             </span>
             <span className="bg-menuMoreBgColor p-1 rounded">
-              {tokenIn.symbol}/{tokenOut.symbol}
+              {`${toRealSymbol(
+                sort ? sellToken?.symbol : buyToken.symbol
+              )}/${toRealSymbol(sort ? buyToken.symbol : sellToken.symbol)}`}
             </span>
           </div>
         </div>
