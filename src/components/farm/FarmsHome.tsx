@@ -104,8 +104,7 @@ import {
   TOKEN_LIST_FOR_RATE,
   displayNumberToAppropriateDecimals,
   getEffectiveFarmList,
-  sort_tokens_by_base,
-} from '~services/commonV3';
+} from '../../services/commonV3';
 
 const {
   REF_VE_CONTRACT_ID,

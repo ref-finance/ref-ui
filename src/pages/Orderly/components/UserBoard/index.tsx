@@ -89,7 +89,7 @@ import getConfig from '../../config';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { AssetModal } from '../AssetModal';
 import ReactTooltip from 'react-tooltip';
-import { ButtonTextWrapper } from '~components/button/Button';
+import { ButtonTextWrapper } from '../../../../components/button/Button';
 import { FlexRow, orderEditPopUpFailure } from '../Common/index';
 import { useAllSymbolInfo } from '../AllOrders/state';
 import { ONLY_ZEROS } from '../../../../utils/numbers';
@@ -221,7 +221,6 @@ function RegisterModal(
               defaultMessage: 'Learn more about',
             })}
             <a
-              href=""
               className="underline text-primary ml-1"
               href="https://orderly.network/"
               target="_blank"
@@ -1807,9 +1806,9 @@ export default function UserBoard() {
 export function AssetManagerModal(
   props: Modal.Props & {
     type: 'deposit' | 'withdraw' | undefined;
-    onClick: (amount: string, tokenId: string) => Promise<void>;
+    onClick: (amount: string, tokenId?: string) => Promise<void>;
     tokenId: string | undefined;
-    accountBalance: number;
+    accountBalance: number | string;
     walletBalance?: number | string;
     standAlone?: boolean;
     tokenInfo: TokenInfo[] | undefined;

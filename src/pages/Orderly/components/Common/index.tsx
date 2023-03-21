@@ -25,13 +25,13 @@ import { formatTimeDate } from '../OrderBoard/index';
 import { MyOrder } from '../../orderly/type';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { digitWrapper, numberWithCommas } from '../../utiles';
-import { isMobile } from '~utils/device';
+import { isMobile } from '../../../../utils/device';
 import { REF_ORDERLY_AGREE_CHECK } from '../UserBoard/index';
 import { useClientMobile } from '../../../../utils/device';
 import {
   get_orderly_public_key_path,
   tradingKeyMap,
-} from '~pages/Orderly/orderly/utils';
+} from '../../../../pages/Orderly/orderly/utils';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 export function TokenIcon({ src }: { src: any }) {
@@ -292,7 +292,6 @@ export function RegisterButton({
                 defaultMessage: 'Learn more about',
               })}
               <a
-                href=""
                 className="underline text-primary ml-1"
                 href="https://orderly.network/"
                 target="_blank"

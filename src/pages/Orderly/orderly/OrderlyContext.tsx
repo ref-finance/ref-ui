@@ -91,13 +91,6 @@ const OrderlyContextProvider: React.FC<any> = ({ children }) => {
     validAccountSig,
   });
 
-  console.log(
-    'pending orders',
-    allOrdersSymbol?.filter(
-      (order) => order.status === 'PARTIAL_FILLED' || order.status === 'NEW'
-    ) || []
-  );
-
   // const { trades: recentTrades, setTrades } = useMarketTrades({
   //   symbol,
   //   limit: 50,

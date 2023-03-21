@@ -56,7 +56,6 @@ const mul_fraction_ceil = (
 // @return the price of the point
 const get_sqrt_price = (point: number) => {
   if (point > RIGHT_MOST_POINT || point < LEFT_MOST_POINT) {
-    console.log('E202_ILLEGAL_POINT');
     return new BigNumber(0);
   }
 

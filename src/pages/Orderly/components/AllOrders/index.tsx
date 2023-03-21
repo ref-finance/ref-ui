@@ -78,7 +78,8 @@ import {
   useClientMobile,
   isMobile,
 } from '../../../../utils/device';
-import { Images } from '~components/stableswap/CommonComp';
+import { Images } from '../../../../components/stableswap/CommonComp';
+
 import { SymbolSelectorMobileModal } from '../ChartHeader';
 import { FormattedMessage, useIntl } from 'react-intl';
 import _ from 'lodash';
@@ -1622,8 +1623,7 @@ function HistoryOrderLine({
             }`}
           >
             <table
-              className={`table-fixed  flex-col items-end `}
-              align="right"
+              className={`table-fixed text-right flex-col items-end `}
               style={{
                 width: showCurSymbol ? '75%' : '66%',
               }}
@@ -1784,19 +1784,17 @@ function HistoryOrderLine({
                     width: '9px',
                   }}
                 >
-                  {order.type !== 'MARKET' && (
-                    <CircularProgressbar
-                      styles={buildStyles({
-                        pathColor: '#62C340',
-                        strokeLinecap: 'butt',
-                        trailColor: 'transparent',
-                      })}
-                      background={false}
-                      strokeWidth={50}
-                      value={order.executed || 0}
-                      maxValue={order.quantity}
-                    />
-                  )}
+                  <CircularProgressbar
+                    styles={buildStyles({
+                      pathColor: '#62C340',
+                      strokeLinecap: 'butt',
+                      trailColor: 'transparent',
+                    })}
+                    background={false}
+                    strokeWidth={50}
+                    value={order.executed || 0}
+                    maxValue={order.quantity}
+                  />
                 </div>
               </div>
             </div>
@@ -2077,8 +2075,6 @@ function MobileFilterModal(
     setCurSelect: (value: string) => void;
     keyTranslate: 'type' | 'status' | 'side' | 'instrument';
   }) {
-    console.log('key: ', keyTranslate);
-
     return (
       <div className="mb-5 flex items-start w-full justify-between">
         <div className="text-gray2">{listKey}</div>
@@ -3410,12 +3406,7 @@ function HistoryOrders({
               <div className="flex items-center mr-2 ">
                 <span>
                   {' '}
-                  {chooseType === 'All'
-                    ? intl.formatMessage({
-                        id: 'type',
-                        defaultMessage: 'Type',
-                      })
-                    : chooseType === 'Limit'
+                  {chooseType === 'Limit'
                     ? intl.formatMessage({
                         id: 'limit_orderly',
                         defaultMessage: 'Limit',

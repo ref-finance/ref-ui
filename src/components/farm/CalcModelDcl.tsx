@@ -16,8 +16,8 @@ import getConfig from '../../services/config';
 import { TokenMetadata, unWrapToken } from '../../services/ft-contract';
 import { LinkArrowIcon } from '../../components/icon/FarmBoost';
 import ReactTooltip from 'react-tooltip';
-import QuestionMark from '~components/farm/QuestionMark';
-import { RefreshIcon } from '~components/icon/swapV3';
+import QuestionMark from '../../components/farm/QuestionMark';
+import { RefreshIcon } from '../../components/icon/swapV3';
 import {
   UserLiquidityInfo,
   getPriceByPoint,
@@ -28,7 +28,7 @@ import {
   get_intersection_radio,
   get_intersection_icon_by_radio,
   getEffectiveFarmList,
-} from '~services/commonV3';
+} from '../../services/commonV3';
 
 const config = getConfig();
 const { STABLE_POOL_IDS, FARM_LOCK_SWITCH, REF_VE_CONTRACT_ID } = config;

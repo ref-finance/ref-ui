@@ -76,7 +76,6 @@ async function getAllSymbols() {
 
 const datafeed = {
   onReady: (callback) => {
-    console.log('[onReady]: Method call');
     setTimeout(() => callback(configurationData));
   },
 
@@ -86,7 +85,6 @@ const datafeed = {
     symbolType,
     onResultReadyCallback
   ) => {
-    console.log('[searchSymbols]: Method call');
     const symbols = await getAllSymbols();
     const newSymbols = symbols.filter((symbol) => {
       const isExchangeValid = exchange === '' || symbol.exchange === exchange;
@@ -103,14 +101,11 @@ const datafeed = {
     onResolveErrorCallback,
     extension
   ) => {
-    console.log('[resolveSymbol]: Method call', symbolName);
     const symbols = await getAllSymbols();
     const symbolItem = symbols.find(
       ({ full_name }) => full_name === symbolName
     );
-    console.log('symbolItem: ', symbolItem);
     if (!symbolItem) {
-      console.log('[resolveSymbol]: Cannot resolve symbol', symbolName);
       onResolveErrorCallback('cannot resolve symbol');
       return;
     }
@@ -132,8 +127,6 @@ const datafeed = {
       volume_precision: 2,
       data_status: 'streaming',
     };
-    console.log('symbolInfo: ', symbolInfo);
-    console.log('[resolveSymbol]: Symbol resolved', symbolName);
     onSymbolResolvedCallback(symbolInfo);
   },
 
@@ -145,9 +138,7 @@ const datafeed = {
     onErrorCallback
   ) => {
     const { from, to, firstDataRequest } = periodParams;
-    console.log('[getBars]: Method call', symbolInfo, resolution, from, to);
     const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
-    console.log('parsedSymbol: ', parsedSymbol);
     const urlParameters = {
       symbol: `SPOT_${parsedSymbol?.fromSymbol}_${parsedSymbol?.toSymbol}`,
       resolution,
@@ -159,7 +150,6 @@ const datafeed = {
       .join('&');
     try {
       const data = await makePublicApiRequest(`tv/history/?${query}`);
-      console.log('data: ', data);
       if (!data || data['s'] !== 'ok') {
         // "noData" should be set if there is no data in the requested period.
         onHistoryCallback([], {
@@ -189,13 +179,10 @@ const datafeed = {
           ...bars[bars.length - 1],
         });
       }
-      console.log('bars: ', bars);
-      console.log(`[getBars]: returned ${bars.length} bar(s)`);
       onHistoryCallback(bars, {
         noData: false,
       });
     } catch (error) {
-      console.log('[getBars]: Get error', error);
       onErrorCallback(error);
     }
   },
@@ -207,10 +194,6 @@ const datafeed = {
     subscriberUID,
     onResetCacheNeededCallback
   ) => {
-    console.log(
-      '[subscribeBars]: Method call with subscriberUID:',
-      subscriberUID
-    );
     subscribeOnStream(
       symbolInfo,
       resolution,
@@ -222,10 +205,6 @@ const datafeed = {
   },
 
   unsubscribeBars: (subscriberUID) => {
-    console.log(
-      '[unsubscribeBars]: Method call with subscriberUID:',
-      subscriberUID
-    );
     unsubscribeFromStream(subscriberUID);
   },
 };
