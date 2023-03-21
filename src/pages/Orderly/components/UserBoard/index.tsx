@@ -1065,7 +1065,6 @@ export default function UserBoard() {
                   window.location.reload();
                 }}
               ></ConfirmButton>
-
             </div>
           )}
 
