@@ -68,6 +68,7 @@ import { LinkArrowIcon } from '~components/icon/FarmBoost';
 import { get_detail_the_liquidity_refer_to_seed } from './YourLiquidityPageV3';
 const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 import ReactTooltip from 'react-tooltip';
+import { isMobile } from '~utils/device';
 export default function YourLiquidityDetail(props: any) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
   const [tokenPriceList, setTokenPriceList] = useState<Record<string, any>>();
@@ -511,6 +512,7 @@ export default function YourLiquidityDetail(props: any) {
     status: liquidity_staked_farm_status,
   } = related_seed_info;
   const tokens = sort_tokens_by_base(tokenMetadata_x_y);
+  const is_mobile = isMobile();
   return (
     <div
       className={`m-auto lg:w-3/5 2xl:w-2/5 md:w-11/12 xs:w-11/12  xs:-mt-4 md:-mt-4`}
@@ -817,7 +819,7 @@ export default function YourLiquidityDetail(props: any) {
             data-for="pause_v2_tip_3"
             data-place="top"
             data-html={true}
-            data-tip={is_old_dcl ? pause_old_dcl_claim_tip() : ''}
+            data-tip={is_old_dcl && !is_mobile ? pause_old_dcl_claim_tip() : ''}
           >
             <ButtonTextWrapper
               loading={claimLoading}
