@@ -233,27 +233,30 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
 
     if (connectionStatus !== 'Open') return;
 
-    if (lastJsonMessage?.event === 'ping') {
+    if (lastJsonMessage?.['event'] === 'ping') {
       sendMessage(JSON.stringify({ event: 'pong', ts: Date.now() }));
     }
 
     if (
-      lastJsonMessage?.id === `request-order-${symbol}` &&
-      lastJsonMessage?.event === 'request'
+      lastJsonMessage?.['id'] === `request-order-${symbol}` &&
+      lastJsonMessage?.['event'] === 'request'
     ) {
-      setOrders(lastJsonMessage.data);
+      setOrders(lastJsonMessage?.['data']);
 
-      setOrdersUpdate(lastJsonMessage.data);
+      setOrdersUpdate(lastJsonMessage?.['data']);
     }
 
     // process orderbook update
-    if (lastJsonMessage?.topic === `${symbol}@orderbookupdate` && !!orders) {
+    if (
+      lastJsonMessage?.['topic'] === `${symbol}@orderbookupdate` &&
+      !!orders
+    ) {
       // setOrders(lastJsonMessage.data);
-      setOrdersUpdate(lastJsonMessage.data);
+      setOrdersUpdate(lastJsonMessage?.['data']);
 
       let asks = orders.asks;
 
-      lastJsonMessage.data.asks.forEach((ask: number[]) => {
+      lastJsonMessage?.['data'].asks.forEach((ask: number[]) => {
         const price = ask[0];
         const quantity = ask[1];
         const index = asks.findIndex((a) => a[0] === price);
@@ -271,7 +274,7 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
 
       let bids = orders.bids;
 
-      lastJsonMessage.data.bids.forEach((bid: number[]) => {
+      lastJsonMessage?.['data'].bids.forEach((bid: number[]) => {
         const price = bid[0];
         const quantity = bid[1];
         const index = bids.findIndex((a) => a[0] === price);
@@ -291,33 +294,33 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
         ...orders,
         asks: asks.sort((a1, a2) => a1[0] - a2[0]),
         bids: bids.sort((b1, b2) => b2[0] - b1[0]),
-        ts: lastJsonMessage.ts,
+        ts: lastJsonMessage?.['ts'],
       });
     }
 
     //  process trade
     if (
-      (lastJsonMessage?.id &&
-        lastJsonMessage?.id.includes(`${symbol}@trade-req`)) ||
-      lastJsonMessage?.topic === `${symbol}@trade`
+      (lastJsonMessage?.['id'] &&
+        lastJsonMessage?.['id'].includes(`${symbol}@trade-req`)) ||
+      lastJsonMessage?.['topic'] === `${symbol}@trade`
     ) {
-      if (lastJsonMessage?.event === 'request') {
+      if (lastJsonMessage?.['event'] === 'request') {
         setMarketTrade(
-          lastJsonMessage.data.map((t: MarketTrade) => ({ ...t, symbol }))
+          lastJsonMessage?.['data'].map((t: MarketTrade) => ({ ...t, symbol }))
         );
       } else
         setMarketTrade([
           {
-            ...lastJsonMessage.data,
+            ...lastJsonMessage?.['data'],
             symbol,
-            ts: lastJsonMessage.ts,
+            ts: lastJsonMessage?.['ts'],
           },
           ...(marketTrade || []),
         ]);
     }
 
-    if (lastJsonMessage?.topic === 'tickers') {
-      const tickers = lastJsonMessage.data;
+    if (lastJsonMessage?.['topic'] === 'tickers') {
+      const tickers = lastJsonMessage?.['data'];
 
       setAllTickers(tickers);
 
@@ -326,8 +329,8 @@ export const useOrderlyMarketData = ({ symbol }: { symbol: string }) => {
       if (ticker) setTicker(ticker);
     }
 
-    if (lastJsonMessage?.topic === 'markprices') {
-      const markPrices = lastJsonMessage.data;
+    if (lastJsonMessage?.['topic'] === 'markprices') {
+      const markPrices = lastJsonMessage?.['data'];
 
       setMarkPrices(markPrices);
     }
@@ -406,18 +409,18 @@ export const useOrderlyPrivateData = ({
   useEffect(() => {
     if (
       lastJsonMessage &&
-      lastJsonMessage.event === 'auth' &&
-      lastJsonMessage.success === true
+      lastJsonMessage?.['event'] === 'auth' &&
+      lastJsonMessage?.['success'] === true
     ) {
       setAuthPass(true);
     }
 
-    if (lastJsonMessage?.event === 'ping') {
+    if (lastJsonMessage?.['event'] === 'ping') {
       sendMessage(JSON.stringify({ event: 'pong', ts: Date.now() }));
     }
 
-    if (lastJsonMessage?.topic === 'balance') {
-      setBalances(lastJsonMessage.data.balances);
+    if (lastJsonMessage?.['topic'] === 'balance') {
+      setBalances(lastJsonMessage?.['data'].balances);
     }
   }, [lastJsonMessage]);
 
