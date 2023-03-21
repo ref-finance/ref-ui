@@ -1399,8 +1399,7 @@ export default function FarmsDclDetail(props: {
             <div className="w-full bg-gradientFrom h-1.5"></div>
             <div className="flex items-center justify-between p-3 xsm:flex-col">
               <span className="text-sm text-white">
-                You don't have any DCL Liquidity position for now, click 'Add
-                Position' to start farming.
+                <FormattedMessage id="no_dcl_position_tip" />
               </span>
               <GradientButton
                 onClick={() => {
@@ -1448,7 +1447,7 @@ export default function FarmsDclDetail(props: {
           {listLiquidities_unFarimg.length > 0 ? (
             <>
               <div className="text-sm text-primaryText mb-5 mt-7 pl-3">
-                Unstaked Positions
+                <FormattedMessage id="unstaked_positions" />
               </div>
               {listLiquidities_unFarimg.map((liquidity: UserLiquidityInfo) => {
                 return (

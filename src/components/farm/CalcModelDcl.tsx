@@ -391,19 +391,23 @@ function LiquidityInfo() {
   }
   function apr_title() {
     if (+liquidity?.part_farm_ratio > 0) {
-      return 'Your APR';
+      return <FormattedMessage id="your_apr" />;
     } else {
-      return 'Est. APR';
+      return <FormattedMessage id="est_apr" />;
     }
   }
   return (
     <>
       <div className="flex items-center justify-between text-sm text-farmText">
-        <span>Your Liquidity</span>
+        <span>
+          <FormattedMessage id="your_liquidity" />
+        </span>
         <span>{get_liquidity_value_display()}</span>
       </div>
       <div className="flex items-center justify-between text-sm text-farmText my-5">
-        <span>Price Range Overlap Ratio</span>
+        <span>
+          <FormattedMessage id="price_range_overlap_ratio" />
+        </span>
         <span>{get_your_intersection()}</span>
       </div>
       <div className="flex items-center justify-between text-sm text-farmText mb-7">

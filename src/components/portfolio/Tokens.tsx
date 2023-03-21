@@ -510,7 +510,7 @@ export default function Tokens() {
       </div>
       {isSignedIn ? null : (
         <div className="flex items-center justify-center text-sm text-primaryText my-20 w-60 mx-auto text-center">
-          Your wallet/account assets will appear here.
+          <FormattedMessage id="account_appear_here_tip" />
         </div>
       )}
       <div className="flex items-center justify-center mt-8 xsm:mt-0">

@@ -90,6 +90,7 @@ export default function Farms(props: any) {
     activeTab,
     setActiveTab,
   } = useContext(PortfolioData);
+  const intl = useIntl();
   const [classicSeeds, setClassicSeeds] = useState<Seed[]>([]);
   const [dclSeeds, setDclSeeds] = useState<Seed[]>([]);
   let [user_seeds_map, set_user_seeds_map] = useState<
@@ -316,7 +317,9 @@ export default function Farms(props: any) {
           ) : null}
           {/* for mobile no data */}
           {noData_status && is_mobile && activeTab == '3' ? (
-            <NoDataCard text="Your yield farming will appear here." />
+            <NoDataCard
+              text={intl.formatMessage({ id: 'yield_farming_appear_here_tip' })}
+            />
           ) : null}
           {/* farm list */}
           <div className={`${activeTab == '3' ? '' : 'hidden'}`}>
@@ -333,7 +336,9 @@ export default function Farms(props: any) {
         ) : null}
         {/* pc no data */}
         {noData_status && !is_mobile ? (
-          <NoDataCard text="Your yield farming will appear here."></NoDataCard>
+          <NoDataCard
+            text={intl.formatMessage({ id: 'yield_farming_appear_here_tip' })}
+          ></NoDataCard>
         ) : null}
       </FarmCommonDatas.Provider>
     </>

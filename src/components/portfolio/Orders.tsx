@@ -1020,7 +1020,9 @@ function OrderCard({
       ) : null}
       {/* pc no data */}
       {noData_status && !is_mobile ? (
-        <NoDataCard text="Your active order(s) will appear here." />
+        <NoDataCard
+          text={intl.formatMessage({ id: 'active_order_appear_here_tip' })}
+        />
       ) : null}
       {/* list data */}
 
@@ -1086,7 +1088,9 @@ function OrderCard({
         ) : null}
         {/* for mobile no data */}
         {noData_status && is_mobile && activeTab == '1' ? (
-          <NoDataCard text="Your active order(s) will appear here." />
+          <NoDataCard
+            text={intl.formatMessage({ id: 'active_order_appear_here_tip' })}
+          />
         ) : null}
         {/* your orders link for mobile */}
         <div

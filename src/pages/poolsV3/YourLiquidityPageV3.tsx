@@ -354,7 +354,10 @@ export default function YourLiquidityPageV3() {
           </div>
         </div>
         {!isSignedIn || showCommonEmptyBar ? (
-          <NoLiquidity className="mt-10"></NoLiquidity>
+          <NoLiquidity
+            text={intl.formatMessage({ id: 'will_appear_here_tip' })}
+            className="mt-10"
+          ></NoLiquidity>
         ) : (
           <>
             {/* your v2 liquidity */}
@@ -398,7 +401,11 @@ export default function YourLiquidityPageV3() {
                   </p>
                 </div>
               ) : null}
-              {showV2EmptyBar ? <NoLiquidity text="DCL"></NoLiquidity> : null}
+              {showV2EmptyBar ? (
+                <NoLiquidity
+                  text={intl.formatMessage({ id: 'dcl_will_appear_here_tip' })}
+                ></NoLiquidity>
+              ) : null}
               <YourLiquidityV2
                 setYourLpValueV2={setYourLpValueV2}
                 setLpValueV2Done={setLpValueV2Done}
@@ -431,7 +438,9 @@ export default function YourLiquidityPageV3() {
               ) : null}
               {showV1EmptyBar ? (
                 <NoLiquidity
-                  text={intl.formatMessage({ id: 'classic' })}
+                  text={intl.formatMessage({
+                    id: 'classic_will_appear_here_tip',
+                  })}
                 ></NoLiquidity>
               ) : null}
               <YourLiquidityV1
@@ -643,9 +652,7 @@ export function NoLiquidity({
           <MyOrderCircle />
         </span>
 
-        <span className="text-white text-base">
-          Your {text} liquidity positions will appear here.
-        </span>
+        <span className="text-white text-base">{text}</span>
         {isSignedIn ? null : (
           <div className="mt-5 w-72">
             <ConnectToNearBtnSwap />

@@ -1041,5 +1041,17 @@ const uk_UA = {
   this_staked_tip: 'This NFT has been staked',
   dcl_liquidity: 'DCL Liquidity',
   classic_liquidity: 'Classic Liquidity',
+  will_appear_here_tip: 'Your liquidity positions will appear here.',
+  dcl_will_appear_here_tip: 'Your DCL liquidity positions will appear here.',
+  classic_will_appear_here_tip:
+    'Your Classic liquidity positions will appear here.',
+  yield_farming_appear_here_tip: 'Your yield farming will appear here.',
+  active_order_appear_here_tip: 'Your active order(s) will appear here.',
+  account_appear_here_tip: 'Your wallet/account assets will appear here.',
+  farm_state: 'Farm State',
+  farm_detail: 'Farm Detail',
+  unstaked_2: 'Unstaked',
+  unstaked_positions: ' Unstaked Positions',
+  price_range_overlap_ratio: ' Price Range Overlap Ratio',
 };
 export default Object.assign(uk_UA, uk_UA_in_risks_page);

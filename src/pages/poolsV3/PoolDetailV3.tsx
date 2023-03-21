@@ -948,7 +948,9 @@ function UnclaimedFeesBox(props: any) {
           <span className="text-white text-base">
             <FormattedMessage id="unclaimed_fees" />
           </span>
-          <span className="text-xs text-farmText">Estimation</span>
+          <span className="text-xs text-farmText">
+            <FormattedMessage id="estimation" />
+          </span>
         </div>
         {liquidities?.length > 1 ? (
           <span className="text-gradientFromHover text-xs bg-black bg-opacity-25 border border-greenColor rounded-3xl px-2">
@@ -1255,9 +1257,17 @@ function SelectLiquidityBox(props: any) {
     const is_in_farming =
       liquidity.part_farm_ratio && +liquidity.part_farm_ratio > 0;
     if (is_in_farming) {
-      return <label className="text-sm text-white">Farming</label>;
+      return (
+        <label className="text-sm text-white">
+          <FormattedMessage id="farming" />
+        </label>
+      );
     } else {
-      return <label className="text-sm text-primaryText">Unstaked</label>;
+      return (
+        <label className="text-sm text-primaryText">
+          <FormattedMessage id="unstaked_2" />
+        </label>
+      );
     }
   }
   function go_farm(liquidity: UserLiquidityInfo) {
@@ -1351,7 +1361,9 @@ function SelectLiquidityBox(props: any) {
                         has_no_related_seed ? 'hidden' : ''
                       }`}
                     >
-                      <span className="text-sm text-farmText">Farm State</span>
+                      <span className="text-sm text-farmText">
+                        <FormattedMessage id="farm_state" />
+                      </span>
                       <span className="text-sm text-white">
                         {displayFarmStatus(user_liquidities[index])}
                       </span>
@@ -1370,7 +1382,7 @@ function SelectLiquidityBox(props: any) {
                           className={`px-2 text-sm text-greenColor border-opacity-50 h-9 focus:outline-none`}
                         >
                           <div className="flex items-center justify-center cursor-pointer">
-                            Farm Detail
+                            <FormattedMessage id="farm_detail" />
                             <JumpLinkIcon className="ml-1"></JumpLinkIcon>
                           </div>
                         </BorderButton>
@@ -1432,7 +1444,9 @@ function SelectLiquidityBox(props: any) {
                 <FormattedMessage id="unclaimed_fee" />
               </span>
               {has_no_related_seed ? null : (
-                <span className={`col-span-2`}>Farm State</span>
+                <span className={`col-span-2`}>
+                  <FormattedMessage id="farm_state" />
+                </span>
               )}
               <span className="col-span-2"></span>
             </div>
@@ -1489,7 +1503,7 @@ function SelectLiquidityBox(props: any) {
                             }`}
                           >
                             <div className="flex items-center justify-center cursor-pointer whitespace-nowrap">
-                              Farm Detail
+                              <FormattedMessage id="farm_detail" />
                               <JumpLinkIcon className="ml-1 flex-shrink-0"></JumpLinkIcon>
                             </div>
                           </BorderButton>
@@ -1548,7 +1562,7 @@ function SelectLiquidityBox(props: any) {
               color="#fff"
               className={`flex items-center justify-center w-full h-10 mx-6 border border-dashed border-dclBorderColor rounded-lg text-sm  text-primaryText cursor-pointer hover:bg-dclButtonBgColor hover:text-white focus:outline-none mt-7 xsm:mt-4`}
             >
-              + Add Position
+              + <FormattedMessage id="add_position" />
             </div>
           </div>
         ) : null}

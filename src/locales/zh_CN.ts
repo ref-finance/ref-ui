@@ -1163,5 +1163,16 @@ const zh_CN = {
   this_staked_tip: '这笔NFT已经被质押',
   dcl_liquidity: 'DCL池流动性',
   classic_liquidity: '经典池流动性',
+  will_appear_here_tip: '你的流动性头寸将展现在这里',
+  dcl_will_appear_here_tip: '你的DCL流动性头寸将展现在这里',
+  classic_will_appear_here_tip: '你的经典流动性头寸将展现在这里',
+  yield_farming_appear_here_tip: '你质押的农场将展现在这里。',
+  active_order_appear_here_tip: '你活动中的订单将展现在这里。',
+  account_appear_here_tip: '你的钱包/账户资产将展示在这里。',
+  farm_state: '农场状态',
+  farm_detail: '农场详情',
+  unstaked_2: '未质押',
+  unstaked_positions: '未质押头寸',
+  price_range_overlap_ratio: '价格区间重叠率',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
