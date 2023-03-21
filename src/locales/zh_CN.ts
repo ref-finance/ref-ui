@@ -1102,9 +1102,9 @@ const zh_CN = {
   your_liquidity_value: '您的流动性价值',
   pool_detail: '流动池详情',
   'deposit_near_tip_0.5': '0.5 NEAR留在钱包来支付gas费',
-  new_contract_deploy_tip: '已部署新合约！请将您的流动性从旧合同中移除',
-  remove_will_automatically_claim: '移除将自动认领你还未认领的费用。',
-  v2PoolTip2: '在DCL池中最多可以有16个位置',
+  new_contract_deploy_tip: '已部署新合约！请将您的流动性从旧合约中移除',
+  remove_will_automatically_claim: '移除时将自动提取你还未认领的费用。',
+  v2PoolTip2: '在DCL池中最多可以有16个仓位',
   legacy_tip: '有未提取的LP代币和奖励在',
   legacy_farms: '遗产农场',
   all_farms: '全部农场',
@@ -1174,5 +1174,6 @@ const zh_CN = {
   unstaked_2: '未质押',
   unstaked_positions: '未质押仓位',
   price_range_overlap_ratio: '价格区间重叠率',
+  dcl_pool_are_not_available_to_be_created_yet: 'DCL 池暂不支持创建',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);

@@ -522,7 +522,7 @@ export function AssetModal(props: Modal.Props) {
                 <ReactTooltip
                   id={'mobile_tip_asset_orderly'}
                   backgroundColor="#1D2932"
-                  place="right"
+                  place="bottom"
                   border
                   borderColor="#7e8a93"
                   textColor="#C6D1DA"

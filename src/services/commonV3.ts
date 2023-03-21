@@ -26,6 +26,7 @@ import {
   CrossIconLarge,
   CrossIconFull,
 } from '../components/icon/FarmBoost';
+import { useIntl } from 'react-intl';
 const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList, switch_on_dcl_farms } =
   getConfig();
 
@@ -1060,8 +1061,14 @@ export function pause_v2_tip() {
   return result;
 }
 export function pause_old_dcl_claim_tip() {
-  const tip = 'Removing will automatically<br/> claim your unclaimed fees.';
-  let result: string = `<div class="opacity-50 text-xs text-left">${tip}</div>`;
+  const intl = useIntl();
+
+  const tip = intl.formatMessage({
+    id: 'remove_will_automatically_claim',
+    defaultMessage: 'Removing will automatically claim your unclaimed fees.',
+  });
+
+  let result: string = `<div class="opacity-50 w-p200 text-xs text-left">${tip}</div>`;
   return result;
 }
 export function sort_tokens_by_base(tokens: TokenMetadata[]) {
