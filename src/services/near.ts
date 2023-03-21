@@ -344,8 +344,6 @@ export const executeMultipleTransactions = async (
     .then((res) => {
       if (!res) return;
 
-      console.log(res);
-
       const transactionHashes = (Array.isArray(res) ? res : [res])?.map(
         (r) => r.transaction.hash
       );

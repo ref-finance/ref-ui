@@ -30,7 +30,7 @@ import { EditConfirmOrderModal } from '../AllOrders/index';
 import { useTokenMetaFromSymbol } from '../ChartHeader/state';
 import { useHistory } from 'react-router-dom';
 import { useWalletSelector } from '../../../../context/WalletSelectorContext';
-import { ButtonTextWrapper } from '~components/button/Button';
+import { ButtonTextWrapper } from '../../../../components/button/Button';
 
 export function CancelButton({
   text,

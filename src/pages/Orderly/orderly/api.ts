@@ -37,7 +37,7 @@ import Big from 'big.js';
 import { getOrderlyConfig } from '../config';
 import { registerAccountOnToken } from '../../../services/creators/token';
 import { ftViewFunction } from '../../../services/ft-contract';
-import { executeMultipleTransactions } from '~services/near';
+import { executeMultipleTransactions } from '../../../services/near';
 import getConfig from '../config';
 import { ledgerTipTrigger } from '../../../utils/wallets-integration';
 
@@ -318,7 +318,6 @@ const checkStorageDeposit = async (accountId: string) => {
   ) {
     functionCallList.push(deposit_functionCall_register);
   }
-  console.log('functionCallList.length: ', functionCallList.length);
 
   if (
     !user_exists ||
@@ -330,7 +329,6 @@ const checkStorageDeposit = async (accountId: string) => {
   }
 
   if (functionCallList.length === 0) return true;
-  console.log('functionCallList.length: ', functionCallList.length);
 
   return false;
 };

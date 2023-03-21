@@ -46,7 +46,7 @@ import getConfig from '../../config';
 
 import { TbCopy } from 'react-icons/tb';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { NearTip } from '~pages/AccountPage';
+import { NearTip } from '../../../../pages/AccountPage';
 import { isClientMobie, useClientMobile } from '../../../../utils/device';
 import { TipIconAsset } from '../Common/Icons';
 import ReactTooltip from 'react-tooltip';
@@ -176,7 +176,7 @@ function AssetLine(
           onRequestClose={() => {
             setShowManagerModal(false);
           }}
-          onClick={(amount) => {
+          onClick={async (amount) => {
             if (!window.selectorAccountId) return;
 
             if (type === 'deposit') {
