@@ -643,18 +643,10 @@ function RegisterWrapper() {
                         // window.modal.show();
                         const wallet = await window.selector.wallet();
                         await wallet.signOut();
+
+                        window.location.reload();
                       }}
                     ></ConfirmButton>
-
-                    <div
-                      className={
-                        !isOpen
-                          ? 'hidden'
-                          : 'flex items-center mt-2 justify-center'
-                      }
-                    >
-                      <PowerByOrderly />
-                    </div>
                   </div>
                 )}
 

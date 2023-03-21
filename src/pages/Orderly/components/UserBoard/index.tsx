@@ -1061,12 +1061,11 @@ export default function UserBoard() {
                   const wallet = await window.selector.wallet();
 
                   await wallet.signOut();
+
+                  window.location.reload();
                 }}
               ></ConfirmButton>
 
-              <div className="flex items-center mt-2 justify-center">
-                <PowerByOrderly />
-              </div>
             </div>
           )}
 
