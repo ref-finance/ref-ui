@@ -2469,7 +2469,7 @@ function LiquidityPage_({
               ></SearchIcon>
             </div>
 
-            {isSignedIn  && (activeTab === 'v1' || activeTab === 'v2') ? (
+            {isSignedIn && (activeTab === 'v1' || activeTab === 'v2') ? (
               <div
                 className="ml-1 text-xs"
                 data-type="info"

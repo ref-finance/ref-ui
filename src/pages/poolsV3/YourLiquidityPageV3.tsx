@@ -79,6 +79,7 @@ import { checkTransactionStatus } from '../../services/swap';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
 import { NFTIdIcon } from '~components/icon/FarmBoost';
 import { YourLiquidityV2 } from '~components/pool/YourLiquidityV2';
+import { isMobile } from '~utils/device';
 
 export default function YourLiquidityPageV3() {
   const clearState = () => {
@@ -1310,35 +1311,35 @@ function UserLiquidityLine_old({
                   </span>
                 </div>
                 <div className="flex items-center justify-end mt-2">
-                  <div
+                  {/* <div
                     className="text-white text-right"
                     data-class="reactTip"
                     data-for={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
                     data-place="top"
                     data-html={true}
                     data-tip={isLegacy ? pause_old_dcl_claim_tip() : ''}
+                  > */}
+                  <div
+                    className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
+                      !canClaim() || isLegacy
+                        ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                        : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
+                    }`}
+                    onClick={claimRewards}
                   >
-                    <div
-                      className={`flex items-center justify-center  rounded-lg text-sm px-2 py-1 ${
-                        !canClaim() || isLegacy
-                          ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                          : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-                      }`}
-                      onClick={claimRewards}
-                    >
-                      <ButtonTextWrapper
-                        loading={claimLoading}
-                        Text={() => <FormattedMessage id="claim" />}
-                      />
-                    </div>
-                    <ReactTooltip
+                    <ButtonTextWrapper
+                      loading={claimLoading}
+                      Text={() => <FormattedMessage id="claim" />}
+                    />
+                  </div>
+                  {/* <ReactTooltip
                       id={`mobile_pause_dcl_tip_claim_${liquidity.lpt_id}`}
                       backgroundColor="#1D2932"
                       border
                       borderColor="#7e8a93"
                       effect="solid"
                     />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
