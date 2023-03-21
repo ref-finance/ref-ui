@@ -221,7 +221,6 @@ function RegisterModal(
               defaultMessage: 'Learn more about',
             })}
             <a
-              href=""
               className="underline text-primary ml-1"
               href="https://orderly.network/"
               target="_blank"
@@ -1809,7 +1808,7 @@ export function AssetManagerModal(
     type: 'deposit' | 'withdraw' | undefined;
     onClick: (amount: string, tokenId: string) => Promise<void>;
     tokenId: string | undefined;
-    accountBalance: number;
+    accountBalance: number | string;
     walletBalance?: number | string;
     standAlone?: boolean;
     tokenInfo: TokenInfo[] | undefined;
