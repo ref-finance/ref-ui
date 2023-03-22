@@ -643,6 +643,7 @@ function RegisterWrapper() {
                         // window.modal.show();
                         const wallet = await window.selector.wallet();
                         await wallet.signOut();
+<<<<<<< HEAD
                       }}
                     ></ConfirmButton>
 
@@ -655,6 +656,12 @@ function RegisterWrapper() {
                     >
                       <PowerByOrderly />
                     </div>
+=======
+
+                        window.location.reload();
+                      }}
+                    ></ConfirmButton>
+>>>>>>> main
                   </div>
                 )}
 

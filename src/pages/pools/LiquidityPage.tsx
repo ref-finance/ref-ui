@@ -153,6 +153,7 @@ const HIDE_LOW_TVL = 'REF_FI_HIDE_LOW_TVL';
 const REF_FI_FARM_ONLY = 'REF_FI_FARM_ONLY';
 
 const REF_POOL_ID_SEARCHING_KEY = 'REF_POOL_ID_SEARCHING_KEY';
+const { switch_on_dcl_farms } = getConfig();
 
 export function getPoolFeeApr(
   dayVolume: string,
@@ -600,6 +601,11 @@ function MobilePoolRowV2({
             {watched && (
               <div className="ml-2">
                 <WatchListStartFull />
+              </div>
+            )}
+            {relatedSeed && (
+              <div className="mr-2">
+                <FarmStampNew multi={relatedSeed.farmList?.length > 1} />
               </div>
             )}
           </div>

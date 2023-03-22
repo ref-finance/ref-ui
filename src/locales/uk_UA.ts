@@ -988,7 +988,6 @@ const uk_UA = {
   all_farms: 'All Farms',
   your_farms_2: 'Your Farms',
   dcl_farms: 'DCL Farms',
-  classic_farms: 'Classic Farms',
   farm_type: 'Farm type',
   farm_2: 'farm',
   to_claim: 'To Claim',

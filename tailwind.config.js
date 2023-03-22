@@ -84,8 +84,6 @@ module.exports = {
         RedPopUpGradient: 'linear-gradient(180deg, #FFA5DB 0%, #FFDCF1 100%);',
         greenPurpleGradient:
           'linear-gradient(270deg, #7F43FF 0%, #00C6A2 97.06%)',
-        dclBannerColor:
-          'linear-gradient(90deg, #00C6A2 2.54%, rgba(91, 64, 255, 0.5) 70%, rgba(91, 64, 255, 0) 100%)',
         portfolioRainbowColor:
           'linear-gradient(180deg, #00C6A2 0%, #5B40FF 100%)',
         darkBlueColor:
@@ -269,7 +267,6 @@ module.exports = {
         primaryOrderly: '#7E8A93',
         sellRed: '#FF6A8E',
         buyGreen: '#90E3B9',
-        // cardBg: '#101D26',
         orderTypeBg: '#344B5C',
         border2: '#25323C',
         border3: '#293844',
@@ -315,8 +312,6 @@ module.exports = {
         dclButtonBgColor: '#17252E',
         dclLineColor: 'rgba(110, 124, 133, 0.2)',
         lightBlue: '#646DF4',
-        legacyYellowColor: '#F49F50',
-        legacyBgColor: 'rgba(244, 159, 80, 0.1)',
         legacyButtonBgColor: '#171F25',
         dclSelectTokenHover: '#1C272F',
         farmSelectBgColor: '#212E38',
@@ -326,7 +321,6 @@ module.exports = {
         legacyBgColor: 'rgba(244, 159, 80, 0.1)',
         portfolioBgColor: '#11212C',
         portfolioFeeBgColor: 'rgba(0, 214, 162, 0.06)',
-        portfolioGreenColor: '#62C340',
         portfolioQinColor: '#63C341',
         portfolioGreyColor: ' rgba(126, 138, 147, 0.3)',
         portfolioBarBgColor: '#172631',

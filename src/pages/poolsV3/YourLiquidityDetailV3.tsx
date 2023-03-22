@@ -132,6 +132,7 @@ export default function YourLiquidityDetail(props: any) {
     if (userLiquidity && poolDetail && tokenMetadata_x_y) {
       const { current_point } = poolDetail;
       const { left_point, right_point } = userLiquidity;
+      set_is_in_farming(false);
       if (current_point >= left_point && right_point > current_point) {
         setIsInrange(true);
       } else {
