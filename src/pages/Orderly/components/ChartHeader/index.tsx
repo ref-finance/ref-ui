@@ -145,11 +145,7 @@ function SymbolSelector(props: {
   return (
     <div className="absolute left-0 top-8 pt-4 z-50">
       <div
-<<<<<<< HEAD
-        className="bg-darkBg  rounded-lg   border border-borderC px-2 py-3 w-p240 max-h-p360 "
-=======
         className="bg-darkBg  rounded-lg   border border-borderC px-2 py-3 w-p240  "
->>>>>>> main
         onMouseLeave={() => {
           mouseLeave();
         }}
@@ -178,12 +174,7 @@ function SymbolSelector(props: {
             color="#7E8A93"
           />
         </div>
-<<<<<<< HEAD
-
-        {SymbolList}
-=======
         <section className="">{SymbolList}</section>
->>>>>>> main
       </div>
     </div>
   );

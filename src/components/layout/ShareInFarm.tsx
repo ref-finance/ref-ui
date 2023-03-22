@@ -143,13 +143,7 @@ export const ShareInFarmV2 = ({
           className="flex items-center cursor-pointer justify-end"
         >
           {version && (
-<<<<<<< HEAD
             <span className="mr-1 text-gradientFrom  text-left">{version}</span>
-=======
-            <span className="mr-1 text-gradientFrom  text-left">
-              {version === 'V1' ? 'Legacy' : 'Classic'}
-            </span>
->>>>>>> main
           )}
           <span className="text-gradientFrom mr-1">
             <FormattedMessage id="farms" defaultMessage="Farms" />

@@ -439,11 +439,7 @@ export function AssetModal(props: Modal.Props) {
       <div
         className={`${
           isMobile ? '' : 'border border-assetsBorder'
-<<<<<<< HEAD
         } rounded-2xl xs:rounded-none xs:rounded-t-2xl relative  lg:overflow-hidden lg:h-p620 xs:pb-8 lg:w-p869 xs:w-screen xs:fixed xs:bottom-0  bg-boxBorder text-sm text-primaryOrderly border xs:border-none `}
-=======
-        } rounded-2xl xs:rounded-none xs:rounded-t-2xl relative  overflow-hidden lg:h-p620 xs:pb-8 lg:w-p869 xs:w-screen xs:fixed xs:bottom-0  bg-boxBorder text-sm text-primaryOrderly border xs:border-none `}
->>>>>>> main
         style={{
           height: isMobile ? '77vh' : '',
         }}
@@ -526,11 +522,7 @@ export function AssetModal(props: Modal.Props) {
                 <ReactTooltip
                   id={'mobile_tip_asset_orderly'}
                   backgroundColor="#1D2932"
-<<<<<<< HEAD
                   place="bottom"
-=======
-                  place="right"
->>>>>>> main
                   border
                   borderColor="#7e8a93"
                   textColor="#C6D1DA"

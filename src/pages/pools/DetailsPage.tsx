@@ -171,11 +171,7 @@ import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import Big from 'big.js';
-<<<<<<< HEAD
 import { getEffectiveFarmList, sort_tokens_by_base } from '~services/commonV3';
-=======
-import { getEffectiveFarmList } from '~services/commonV3';
->>>>>>> main
 
 interface ParamTypes {
   id: string;
