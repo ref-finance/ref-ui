@@ -68,6 +68,23 @@ export const getPoolMonthTVL = async (pool_id: string): Promise<TVLType[]> => {
     });
 };
 
+export interface OrderTxType {
+  order_id: string;
+  tx_id: string | null;
+}
+
+export const getHistoryOrder = async (
+  account_id: string
+): Promise<OrderTxType[]> => {
+  return await fetch(
+    config.indexerUrl + `/get-limit-order-log-by-account/${account_id}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
+  x;
+};
+
 export const get24hVolume = async (pool_id: string): Promise<string> => {
   return await fetch(
     config.sodakiApiUrl + `/pool/${pool_id}/rolling24hvolume/sum`,
