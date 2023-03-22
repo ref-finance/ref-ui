@@ -174,8 +174,7 @@ function SymbolSelector(props: {
             color="#7E8A93"
           />
         </div>
-
-        {SymbolList}
+        <section className="overflow-auto max-h-60">{SymbolList}</section>
       </div>
     </div>
   );
