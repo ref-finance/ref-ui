@@ -579,7 +579,7 @@ function MobilePoolRowV2({
               ) : null}
             </div>
             <div className="flex flex-col flex-wrap">
-              <div className='flex items-center'>
+              <div className="flex items-center">
                 <div className="text-sm ml-2 font-semibold whitespace-nowrap mb-0.5">
                   {tokens[0].symbol +
                     '-' +

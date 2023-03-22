@@ -3319,6 +3319,13 @@ function FarmView(props: {
                           Text={() => <>{getTotalUnclaimedRewards()}</>}
                         />
                       </div>
+                      <ReactTooltip
+                        id={'unclaimedId' + seed.farmList[0].farm_id}
+                        backgroundColor="#1D2932"
+                        border
+                        borderColor="#7e8a93"
+                        effect="solid"
+                      />
                     </div>
                   </div>
                 ) : (
