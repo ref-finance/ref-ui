@@ -6,7 +6,28 @@ import { useHistory } from 'react-router';
 import BigNumber from 'bignumber.js';
 import * as d3 from 'd3';
 import _ from 'lodash';
-import { toReadableNumber } from '../utils/numbers';
+import { toReadableNumber, toPrecision } from '../utils/numbers';
+import { TokenMetadata } from '../services/ft-contract';
+import { PoolInfo } from './swapV3';
+import {
+  FarmBoost,
+  Seed,
+  getBoostSeeds,
+  getBoostTokenPrices,
+  get_seed_info,
+} from './farm';
+import getConfig from '../services/config';
+import { PoolRPCView } from '../services/api';
+import { ftGetTokenMetadata } from '../services/ft-contract';
+import {
+  CrossIconEmpty,
+  CrossIconLittle,
+  CrossIconMiddle,
+  CrossIconLarge,
+  CrossIconFull,
+} from '../components/icon/FarmBoost';
+const { REF_UNI_V3_SWAP_CONTRACT_ID, boostBlackList, switch_on_dcl_farms } =
+  getConfig();
 
 /**
  * caculate price by point
@@ -83,6 +104,13 @@ export interface UserLiquidityInfo {
   amount: string;
   unclaimed_fee_x: string;
   unclaimed_fee_y: string;
+  mft_id: string;
+  v_liquidity: string;
+  part_farm_ratio?: string;
+  unfarm_part_amount?: string;
+  status_in_other_seed?: string;
+  less_than_min_deposit?: boolean;
+  farmList?: FarmBoost[];
 }
 
 export function useAddAndRemoveUrlHandle() {
@@ -262,7 +290,7 @@ export function drawChartData({
     axis.ticks(ticks || 5).tickFormat(function (d: any) {
       const dBig = new BigNumber(d);
       if (dBig.isGreaterThanOrEqualTo(10000)) {
-        return dBig.toExponential(1);
+        return dBig.toFixed(0);
       } else {
         return d;
       }
@@ -442,6 +470,585 @@ export function drawChartData({
   return list.length;
 }
 
+export function get_total_value_by_liquidity_amount_dcl({
+  left_point,
+  right_point,
+  poolDetail,
+  amount,
+  price_x_y,
+  metadata_x_y,
+}: {
+  left_point: number;
+  right_point: number;
+  poolDetail: PoolInfo;
+  amount: string;
+  price_x_y: Record<string, string>;
+  metadata_x_y: Record<string, TokenMetadata>;
+}) {
+  const [tokenX, tokenY] = Object.values(metadata_x_y);
+  const [priceX, priceY] = Object.values(price_x_y);
+  const { current_point } = poolDetail;
+  let total_x = '0';
+  let total_y = '0';
+  //  in range
+  if (current_point >= left_point && right_point > current_point) {
+    const tokenYAmount = getY(left_point, current_point, amount, tokenY);
+    const tokenXAmount = getX(current_point + 1, right_point, amount, tokenX);
+    const { amountx, amounty } = get_X_Y_In_CurrentPoint(
+      tokenX,
+      tokenY,
+      amount,
+      poolDetail
+    );
+    total_x = new BigNumber(tokenXAmount).plus(amountx).toFixed();
+    total_y = new BigNumber(tokenYAmount).plus(amounty).toFixed();
+  }
+  // only y token
+  if (current_point >= right_point) {
+    const tokenYAmount = getY(left_point, right_point, amount, tokenY);
+    total_y = tokenYAmount;
+  }
+  // only x token
+  if (left_point > current_point) {
+    const tokenXAmount = getX(left_point, right_point, amount, tokenX);
+    total_x = tokenXAmount;
+  }
+  const total_price_x = new BigNumber(total_x).multipliedBy(priceX);
+  const total_price_y = new BigNumber(total_y).multipliedBy(priceY);
+  return total_price_x.plus(total_price_y).toFixed();
+}
+function getY(
+  leftPoint: number,
+  rightPoint: number,
+  L: string,
+  token: TokenMetadata
+) {
+  const y = new BigNumber(L).multipliedBy(
+    (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+      Math.pow(Math.sqrt(CONSTANT_D), leftPoint)) /
+      (Math.sqrt(CONSTANT_D) - 1)
+  );
+  return y.shiftedBy(-token.decimals).toFixed();
+}
+function getX(
+  leftPoint: number,
+  rightPoint: number,
+  L: string,
+  token: TokenMetadata
+) {
+  const x = new BigNumber(L).multipliedBy(
+    (Math.pow(Math.sqrt(CONSTANT_D), rightPoint - leftPoint) - 1) /
+      (Math.pow(Math.sqrt(CONSTANT_D), rightPoint) -
+        Math.pow(Math.sqrt(CONSTANT_D), rightPoint - 1))
+  );
+  return x.shiftedBy(-token.decimals).toFixed();
+}
+function get_X_Y_In_CurrentPoint(
+  tokenX: TokenMetadata,
+  tokenY: TokenMetadata,
+  L: string,
+  poolDetail: PoolInfo
+) {
+  const { liquidity, liquidity_x, current_point } = poolDetail;
+  const liquidity_y_big = new BigNumber(liquidity).minus(liquidity_x);
+  let Ly = '0';
+  let Lx = '0';
+  // only remove y
+  if (liquidity_y_big.isGreaterThanOrEqualTo(L)) {
+    Ly = L;
+  } else {
+    // have x and y
+    Ly = liquidity_y_big.toFixed();
+    Lx = new BigNumber(L).minus(Ly).toFixed();
+  }
+  const amountX = getXAmount_per_point_by_Lx(Lx, current_point);
+  const amountY = getYAmount_per_point_by_Ly(Ly, current_point);
+  const amountX_read = new BigNumber(amountX)
+    .shiftedBy(-tokenX.decimals)
+    .toFixed();
+  const amountY_read = new BigNumber(amountY)
+    .shiftedBy(-tokenY.decimals)
+    .toFixed();
+  return { amountx: amountX_read, amounty: amountY_read };
+}
+
+export function allocation_rule_liquidities({
+  list,
+  user_seed_amount,
+  seed,
+}: {
+  list: UserLiquidityInfo[];
+  user_seed_amount: string;
+  seed: Seed;
+}) {
+  const { seed_id, min_deposit } = seed;
+  const [contractId, temp_pool_id] = seed_id.split('@');
+  const [fixRange, pool_id, left_point_s, right_point_s] =
+    temp_pool_id.split('&');
+  const matched_liquidities = list.filter((liquidity: UserLiquidityInfo) => {
+    if (liquidity.pool_id == pool_id) return true;
+  });
+  if (switch_on_dcl_farms == 'off') {
+    return [[], matched_liquidities, []];
+  }
+  const temp_farming: UserLiquidityInfo[] = [];
+  let temp_free: UserLiquidityInfo[] = [];
+  const temp_unavailable: UserLiquidityInfo[] = [];
+  matched_liquidities.forEach((liquidity: UserLiquidityInfo) => {
+    const [left_point, right_point] = get_valid_range(liquidity, seed_id);
+    const { mft_id } = liquidity;
+    const inRange = right_point > left_point;
+    const [fixRange_l, pool_id_l, left_point_l, right_point_l] =
+      mft_id.split('&');
+    if (inRange && mft_id) {
+      if (left_point_l != left_point_s || right_point_l != right_point_s) {
+        temp_unavailable.push(liquidity);
+      } else {
+        temp_farming.push(liquidity);
+      }
+    } else if (!inRange) {
+      temp_unavailable.push(liquidity);
+    } else {
+      temp_free.push(liquidity);
+    }
+  });
+  // sort by mft amount for temp_farming
+  temp_farming.sort((b: UserLiquidityInfo, a: UserLiquidityInfo) => {
+    const mint_amount_b = b.v_liquidity;
+    const mint_amount_a = a.v_liquidity;
+    return new BigNumber(mint_amount_a).minus(mint_amount_b).toNumber();
+  });
+  // allocation for temp_farming
+  let user_seed_amount_remained = user_seed_amount;
+  temp_farming.forEach((liquidity: UserLiquidityInfo) => {
+    const v_liquidity = liquidity.v_liquidity;
+    const v_liquidity_big = new BigNumber(v_liquidity);
+    const user_seed_amount_remained_big = new BigNumber(
+      user_seed_amount_remained
+    );
+    if (v_liquidity_big.isLessThanOrEqualTo(user_seed_amount_remained)) {
+      liquidity.part_farm_ratio = '100';
+      user_seed_amount_remained = user_seed_amount_remained_big
+        .minus(v_liquidity)
+        .toFixed();
+    } else if (user_seed_amount_remained_big.isEqualTo(0)) {
+      liquidity.part_farm_ratio = '0';
+    } else {
+      const percent = user_seed_amount_remained_big
+        .dividedBy(v_liquidity)
+        .multipliedBy(100)
+        .toFixed();
+      liquidity.part_farm_ratio = percent;
+      liquidity.unfarm_part_amount = v_liquidity_big
+        .minus(user_seed_amount_remained)
+        .toFixed();
+      user_seed_amount_remained = '0';
+    }
+  });
+  // Group together
+  const temp_farming_final: UserLiquidityInfo[] = [];
+  const temp_unFarming = temp_farming.filter((liquidity: UserLiquidityInfo) => {
+    const { part_farm_ratio, unfarm_part_amount } = liquidity;
+    if (part_farm_ratio == '0') return true;
+    temp_farming_final.push(liquidity);
+  });
+  const temp_free_final: UserLiquidityInfo[] = [];
+  temp_free = temp_unFarming.concat(temp_free);
+  const temp_too_little_in_free: UserLiquidityInfo[] = temp_free.filter(
+    (liquidity: UserLiquidityInfo) => {
+      const v_liquidity = mint_liquidity(liquidity, seed_id);
+      if (new BigNumber(v_liquidity).isLessThan(min_deposit)) {
+        liquidity.less_than_min_deposit = true;
+        return true;
+      }
+      temp_free_final.push(liquidity);
+    }
+  );
+  const temp_unavailable_final: UserLiquidityInfo[] = temp_unavailable.concat(
+    temp_too_little_in_free
+  );
+  return [temp_farming_final, temp_free_final, temp_unavailable_final];
+}
+
+export function mint_liquidity(liquidity: UserLiquidityInfo, seed_id: string) {
+  const { amount } = liquidity;
+  const [left_point, right_point] = get_valid_range(liquidity, seed_id);
+  if (+right_point > +left_point) {
+    const temp_valid = +right_point - +left_point;
+    const mint_amount = new BigNumber(Math.pow(temp_valid, 2))
+      .multipliedBy(amount)
+      .dividedBy(Math.pow(10, 6))
+      .toFixed(0, 1);
+    return mint_amount;
+  }
+  return '0';
+}
+export function get_valid_range(liquidity: UserLiquidityInfo, seed_id: string) {
+  const { left_point, right_point } = liquidity;
+  const [fixRange, dcl_pool_id, seed_left_point, seed_right_point] = seed_id
+    .split('@')[1]
+    .split('&');
+  const max_left_point = Math.max(+left_point, +seed_left_point);
+  const min_right_point = Math.min(+right_point, +seed_right_point);
+  return [max_left_point, min_right_point];
+}
+
+export function get_matched_seeds_for_dcl_pool({
+  seeds,
+  pool_id,
+  sort,
+}: {
+  seeds: Seed[];
+  pool_id: string;
+  sort?: string;
+}) {
+  if (switch_on_dcl_farms == 'off') {
+    return [];
+  }
+  const activeSeeds = seeds.filter((seed: Seed) => {
+    const { seed_id, farmList } = seed;
+    const [contractId, mft_id] = seed_id.split('@');
+    if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      const [fixRange, pool_id_from_seed, left_point, right_point] =
+        mft_id.split('&');
+      return pool_id_from_seed == pool_id && farmList[0].status != 'Ended';
+    }
+  });
+
+  // sort by the latest
+  activeSeeds.sort((b: Seed, a: Seed) => {
+    const b_latest = getLatestStartTime(b);
+    const a_latest = getLatestStartTime(a);
+    if (b_latest == 0) return -1;
+    if (a_latest == 0) return 1;
+    return a_latest - b_latest;
+  });
+  if (sort != 'new') {
+    // having benefit
+    const temp_seed = activeSeeds.find((s: Seed, index: number) => {
+      if (!isPending(s)) {
+        activeSeeds.splice(index, 1);
+        return true;
+      }
+    });
+    if (temp_seed) {
+      activeSeeds.unshift(temp_seed);
+    }
+  }
+  return activeSeeds;
+}
+export function isPending(seed: Seed) {
+  let pending: boolean = true;
+  const farms = seed.farmList;
+  for (let i = 0; i < farms.length; i++) {
+    if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
+      pending = false;
+      break;
+    }
+  }
+  return pending;
+}
+export function getLatestStartTime(seed: Seed) {
+  let start_at: any[] = [];
+  const farmList = seed.farmList;
+  farmList.forEach(function (item) {
+    start_at.push(item.terms.start_at);
+  });
+  start_at = _.sortBy(start_at);
+  // start_at = start_at.filter(function (val) {
+  //   return +val != 0;
+  // });
+  if (+start_at[0] == 0) {
+    return 0;
+  } else {
+    return start_at[start_at.length - 1];
+  }
+}
+export async function get_all_seeds() {
+  let list_seeds: Seed[];
+  let list_farm: FarmBoost[][];
+  let pools: PoolRPCView[];
+  const result = await getBoostSeeds();
+  const { seeds, farms, pools: cachePools } = result;
+  list_seeds = seeds;
+  list_farm = farms;
+  pools = cachePools;
+  // filter Love Seed
+  list_seeds.filter((seed: Seed) => {
+    if (seed.seed_id.indexOf('@') > -1) return true;
+  });
+  // filter black farms
+  const temp_list_farm: FarmBoost[][] = [];
+  list_farm.forEach((farmList: FarmBoost[]) => {
+    let temp_farmList: FarmBoost[] = [];
+    temp_farmList = farmList.filter((farm: FarmBoost) => {
+      const id = farm?.farm_id?.split('@')[1];
+      if (boostBlackList.indexOf(id) == -1) {
+        return true;
+      }
+    });
+    temp_list_farm.push(temp_farmList);
+  });
+  list_farm = temp_list_farm;
+  // filter no farm seed
+  const new_list_seeds: any[] = [];
+  list_farm.forEach((farmList: FarmBoost[], index: number) => {
+    if (farmList?.length > 0) {
+      new_list_seeds.push({
+        ...list_seeds[index],
+        farmList,
+      });
+    }
+  });
+
+  list_seeds = new_list_seeds;
+  // get all token prices
+  const tokenPriceList = await getBoostTokenPrices();
+  const list = await getFarmDataList({
+    list_seeds,
+    list_farm,
+    tokenPriceList,
+    pools,
+  });
+  return list;
+}
+async function getFarmDataList(initData: any) {
+  const { list_seeds, tokenPriceList, pools } = initData;
+  const promise_new_list_seeds = list_seeds.map(async (newSeed: Seed) => {
+    const {
+      seed_id,
+      farmList,
+      total_seed_amount,
+      total_seed_power,
+      seed_decimal,
+    } = newSeed;
+    const [contractId, temp_pool_id] = seed_id.split('@');
+    let is_dcl_pool = false;
+    if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      is_dcl_pool = true;
+    }
+    const poolId = getPoolIdBySeedId(seed_id);
+    const pool = pools.find((pool: PoolRPCView & PoolInfo) => {
+      if (is_dcl_pool) {
+        if (pool.pool_id == poolId) return true;
+      } else {
+        if (+pool.id == +poolId) return true;
+      }
+    });
+    let token_ids: string[] = [];
+    if (is_dcl_pool) {
+      const [token_x, token_y, fee] = poolId.split('|');
+      token_ids.push(token_x, token_y);
+    } else {
+      const { token_account_ids } = pool;
+      token_ids = token_account_ids;
+    }
+    const promise_token_meta_data: Promise<any>[] = [];
+    token_ids.forEach(async (tokenId: string) => {
+      promise_token_meta_data.push(ftGetTokenMetadata(tokenId));
+    });
+    const tokens_meta_data = await Promise.all(promise_token_meta_data);
+    pool.tokens_meta_data = tokens_meta_data;
+    const promise_farm_meta_data = farmList.map(async (farm: FarmBoost) => {
+      const tokenId = farm.terms.reward_token;
+      const tokenMetadata = await ftGetTokenMetadata(tokenId);
+      farm.token_meta_data = tokenMetadata;
+      return farm;
+    });
+    await Promise.all(promise_farm_meta_data);
+    // get seed tvl
+    const DECIMALS = seed_decimal;
+    const seedTotalStakedAmount = toReadableNumber(DECIMALS, total_seed_amount);
+    let single_lp_value = '0';
+    if (is_dcl_pool) {
+      const [fixRange, dcl_pool_id, left_point, right_point] =
+        temp_pool_id.split('&');
+      const [token_x, token_y] = dcl_pool_id.split('|');
+      const [token_x_meta, token_y_meta] = tokens_meta_data;
+      const price_x = tokenPriceList[token_x]?.price || '0';
+      const price_y = tokenPriceList[token_y]?.price || '0';
+      const temp_valid = +right_point - +left_point;
+      const range_square = Math.pow(temp_valid, 2);
+      const amount = new BigNumber(Math.pow(10, 12))
+        .dividedBy(range_square)
+        .toFixed();
+      single_lp_value = get_total_value_by_liquidity_amount_dcl({
+        left_point: +left_point,
+        right_point: +right_point,
+        amount,
+        poolDetail: pool,
+        price_x_y: { [token_x]: price_x, [token_y]: price_y },
+        metadata_x_y: { [token_x]: token_x_meta, [token_y]: token_y_meta },
+      });
+    } else {
+      const { tvl, id, shares_total_supply } = pool;
+      const poolShares = Number(
+        toReadableNumber(DECIMALS, shares_total_supply)
+      );
+      if (poolShares == 0) {
+        single_lp_value = '0';
+      } else {
+        single_lp_value = (tvl / poolShares).toString();
+      }
+    }
+    const seedTotalStakedPower = toReadableNumber(DECIMALS, total_seed_power);
+    const seedTvl = new BigNumber(seedTotalStakedAmount)
+      .multipliedBy(single_lp_value)
+      .toFixed();
+    const seedPowerTvl = new BigNumber(seedTotalStakedPower)
+      .multipliedBy(single_lp_value)
+      .toFixed();
+    // get apr per farm
+    farmList.forEach((farm: FarmBoost) => {
+      const { token_meta_data } = farm;
+      const { daily_reward, reward_token } = farm.terms;
+      const readableNumber = toReadableNumber(
+        token_meta_data.decimals,
+        daily_reward
+      );
+      const reward_token_price = Number(
+        tokenPriceList[reward_token]?.price || 0
+      );
+      const apr =
+        +seedPowerTvl == 0
+          ? '0'
+          : new BigNumber(readableNumber)
+              .multipliedBy(365)
+              .multipliedBy(reward_token_price)
+              .dividedBy(seedPowerTvl)
+              .toFixed();
+      const baseApr =
+        +seedTvl == 0
+          ? '0'
+          : new BigNumber(readableNumber)
+              .multipliedBy(365)
+              .multipliedBy(reward_token_price)
+              .dividedBy(seedTvl)
+              .toFixed();
+
+      farm.apr = apr;
+      farm.baseApr = baseApr;
+    });
+    newSeed.pool = pool;
+    newSeed.seedTvl = seedTvl || '0';
+  });
+  await Promise.all(promise_new_list_seeds);
+  // split ended farms
+  const ended_split_list_seeds: Seed[] = [];
+  list_seeds.forEach((seed: Seed) => {
+    const { farmList } = seed;
+    const endedList = farmList.filter((farm: FarmBoost) => {
+      if (farm.status == 'Ended') return true;
+    });
+    const noEndedList = farmList.filter((farm: FarmBoost) => {
+      if (farm.status != 'Ended') return true;
+    });
+    if (endedList.length > 0 && noEndedList.length > 0) {
+      seed.farmList = noEndedList;
+      const endedSeed = JSON.parse(JSON.stringify(seed));
+      endedSeed.farmList = endedList;
+      endedSeed.endedFarmsIsSplit = true;
+      ended_split_list_seeds.push(endedSeed);
+    }
+  });
+  const total_list_seeds = list_seeds.concat(ended_split_list_seeds);
+  return total_list_seeds;
+}
+const getPoolIdBySeedId = (seed_id: string) => {
+  const [contractId, temp_pool_id] = seed_id.split('@');
+  if (temp_pool_id) {
+    if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+      const [fixRange, dcl_pool_id, left_point, right_point] =
+        temp_pool_id.split('&');
+      return dcl_pool_id;
+    } else {
+      return temp_pool_id;
+    }
+  }
+  return '';
+};
+export function displayNumberToAppropriateDecimals(num: string | number) {
+  if (!num) return num;
+  const numBig = new BigNumber(num);
+  if (numBig.isEqualTo(0)) return 0;
+  if (numBig.isLessThan(0.01)) {
+    return toPrecision(num.toString(), 5);
+  } else if (numBig.isGreaterThanOrEqualTo(0.01) && numBig.isLessThan(1)) {
+    return toPrecision(num.toString(), 3);
+  } else if (numBig.isGreaterThanOrEqualTo(1) && numBig.isLessThan(10000)) {
+    return toPrecision(num.toString(), 2);
+  } else {
+    return toPrecision(num.toString(), 0);
+  }
+}
+
+export function get_intersection_radio({
+  left_point_liquidity,
+  right_point_liquidity,
+  left_point_seed,
+  right_point_seed,
+}: {
+  left_point_liquidity: string | number;
+  right_point_liquidity: string | number;
+  left_point_seed: string | number;
+  right_point_seed: string | number;
+}) {
+  let percent;
+  const max_left_point = Math.max(+left_point_liquidity, +left_point_seed);
+  const min_right_point = Math.min(+right_point_liquidity, +right_point_seed);
+  if (min_right_point > max_left_point) {
+    const range_cross = new BigNumber(min_right_point).minus(max_left_point);
+    const range_seed = new BigNumber(right_point_seed).minus(left_point_seed);
+    const range_user = new BigNumber(right_point_liquidity).minus(
+      left_point_liquidity
+    );
+    let range_denominator = range_seed;
+    if (
+      left_point_liquidity <= left_point_seed &&
+      right_point_liquidity >= right_point_seed
+    ) {
+      range_denominator = range_user;
+    }
+    percent = range_cross
+      .dividedBy(range_denominator)
+      .multipliedBy(100)
+      .toFixed();
+  } else {
+    percent = '0';
+  }
+  return percent;
+}
+export function get_intersection_icon_by_radio(radio: string): any {
+  const p = new BigNumber(radio || '0');
+  let icon;
+  if (p.isEqualTo(0)) {
+    icon = CrossIconEmpty;
+  } else if (p.isLessThan(20)) {
+    icon = CrossIconLittle;
+  } else if (p.isLessThan(60)) {
+    icon = CrossIconMiddle;
+  } else if (p.isLessThan(100)) {
+    icon = CrossIconLarge;
+  } else {
+    icon = CrossIconFull;
+  }
+  return icon;
+}
+export function getEffectiveFarmList(farmList: FarmBoost[]) {
+  const farms: FarmBoost[] = JSON.parse(JSON.stringify(farmList || []));
+  let allPending = true;
+  for (let i = 0; i < farms.length; i++) {
+    if (farms[i].status != 'Created' && farms[i].status != 'Pending') {
+      allPending = false;
+      break;
+    }
+  }
+  const targetList = farms.filter((farm: FarmBoost) => {
+    const pendingFarm = farm.status == 'Created' || farm.status == 'Pending';
+    return allPending || !pendingFarm;
+  });
+  return targetList;
+}
 export const TOKEN_LIST_FOR_RATE = ['USDC.e', 'USDC', 'USDT.e', 'USDT'];
 
 export const PAUSE_DCL = true;
@@ -455,4 +1062,33 @@ export function pause_old_dcl_claim_tip() {
   const tip = 'Removing will automatically<br/> claim your unclaimed fees.';
   let result: string = `<div class="opacity-50 text-xs text-left">${tip}</div>`;
   return result;
+}
+export function get_liquidity_value({
+  liquidity,
+  poolDetail,
+  tokenPriceList,
+  tokensMeta,
+}: {
+  liquidity: UserLiquidityInfo;
+  poolDetail: PoolInfo;
+  tokenPriceList: Record<string, any>;
+  tokensMeta: TokenMetadata[];
+}) {
+  const { left_point, right_point, amount } = liquidity;
+  const { token_x, token_y } = poolDetail;
+  const v = get_total_value_by_liquidity_amount_dcl({
+    left_point,
+    right_point,
+    poolDetail,
+    amount,
+    price_x_y: {
+      [token_x]: tokenPriceList[token_x]?.price || '0',
+      [token_y]: tokenPriceList[token_y]?.price || '0',
+    },
+    metadata_x_y: {
+      [token_x]: tokensMeta[0],
+      [token_y]: tokensMeta[1],
+    },
+  });
+  return v;
 }

@@ -225,6 +225,7 @@ export const useAccountInfo = () => {
   const [accountInfo, setAccountInfo] = useState<AccountInfo>();
 
   const [veShare, setVeShare] = useState<string>('0');
+  const [accountInfoDone, setAccountInfoDone] = useState<boolean>(false);
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   useEffect(() => {
@@ -235,6 +236,7 @@ export const useAccountInfo = () => {
       setVeShare(
         toReadableNumber(LOVE_TOKEN_DECIMAL, info?.ve_lpt_amount || '0')
       );
+      setAccountInfoDone(true);
     });
   }, [isSignedIn]);
 
@@ -244,6 +246,7 @@ export const useAccountInfo = () => {
     veShareRaw: accountInfo?.ve_lpt_amount || '0',
     lptAmount: accountInfo?.lpt_amount || '0',
     fetchDoneVOTEAccountInfo: !!accountInfo,
+    accountInfoDone,
   };
 };
 

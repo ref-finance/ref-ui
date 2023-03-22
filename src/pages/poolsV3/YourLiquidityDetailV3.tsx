@@ -17,14 +17,13 @@ import {
   get_pool_marketdepth_old_version,
   PoolInfo,
   remove_liquidity,
+  list_liquidities,
 } from '../../services/swapV3';
-import { ReturnIcon, SwitchButton } from '~components/icon/V3';
+import { ReturnIcon, SwitchButton, TipIon } from '~components/icon/V3';
 import {
   GradientButton,
-  BorderButton,
   ButtonTextWrapper,
   OprationButton,
-  ConnectToNearBtn,
 } from '~components/button/Button';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
@@ -32,12 +31,6 @@ import {
   formatWithCommas,
   toPrecision,
   toReadableNumber,
-  toInternationalCurrencySystem,
-  percentLess,
-  calculateFairShare,
-  toNonDivisibleNumber,
-  percent,
-  checkAllocations,
 } from '~utils/numbers';
 import { ftGetTokenMetadata } from '../../services/ft-contract';
 import { TokenMetadata } from '../../services/ft-contract';
@@ -52,14 +45,25 @@ import {
   drawChartData,
   TOKEN_LIST_FOR_RATE,
   pause_old_dcl_claim_tip,
+  get_all_seeds,
+  displayNumberToAppropriateDecimals,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
-import { getTokenPriceList } from '../../services/indexer';
-import { getBoostTokenPrices } from '../../services/farm';
-import { getLiquidity } from '~utils/pool';
+import {
+  getBoostTokenPrices,
+  list_farmer_seeds,
+  FarmBoost,
+  list_seed_farms,
+  get_seed,
+  Seed,
+} from '../../services/farm';
 import _ from 'lodash';
-import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { BlueCircleLoading } from '../../components/layout/Loading';
+import getConfig from '../../services/config';
+import { allocation_rule_liquidities } from '~services/commonV3';
+import { LinkArrowIcon } from '~components/icon/FarmBoost';
+import { get_detail_the_liquidity_refer_to_seed } from './YourLiquidityPageV3';
+const { REF_UNI_V3_SWAP_CONTRACT_ID } = getConfig();
 import ReactTooltip from 'react-tooltip';
 export default function YourLiquidityDetail(props: any) {
   const [poolDetail, setPoolDetail] = useState<PoolInfo>();
@@ -73,6 +77,12 @@ export default function YourLiquidityDetail(props: any) {
   const [rateSort, setRateSort] = useState<boolean>(true);
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [chartLoading, setChartLoading] = useState<boolean>(true);
+  const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
+    []
+  );
+  const [is_in_farming, set_is_in_farming] = useState<boolean>(true);
+  const [is_in_farming_done, set_is_in_farming_done] = useState<boolean>(false);
+  const [related_farms, set_related_farms] = useState<FarmBoost[]>([]);
   const history = useHistory();
   // callBack handle
   useAddAndRemoveUrlHandle();
@@ -85,6 +95,10 @@ export default function YourLiquidityDetail(props: any) {
   const [token_x, token_y, fee] = poolId.split('|');
   const tokenMetadata_x_y = useTokens([token_x, token_y]);
   const [depthData, setDepthData] = useState(null);
+  const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
+  const [related_seed_info, set_related_seed_info] = useState<
+    Record<string, any>
+  >({});
   const chartDom = useRef(null);
   useEffect(() => {
     if (tokenMetadata_x_y) {
@@ -101,27 +115,99 @@ export default function YourLiquidityDetail(props: any) {
     if (poolId && hashId) {
       get_user_liquidity();
       get_pool_detail();
+      get_list_liquidities();
     }
+    get_all_seeds().then((seeds: Seed[]) => {
+      set_all_seeds(seeds);
+    });
     document.body.scrollTop = document.documentElement.scrollTop = 0;
   }, []);
   useEffect(() => {
     if (userLiquidity && poolDetail && tokenMetadata_x_y) {
       const { current_point } = poolDetail;
       const { left_point, right_point } = userLiquidity;
+      set_is_in_farming(false);
       if (current_point >= left_point && right_point > current_point) {
         setIsInrange(true);
       } else {
         setIsInrange(false);
       }
+      if (listLiquidities.length > 0) {
+        const target = listLiquidities.find((liquidity: UserLiquidityInfo) => {
+          return liquidity.lpt_id == userLiquidity.lpt_id;
+        });
+        if (target) {
+          const { part_farm_ratio, unfarm_part_amount } = target;
+          userLiquidity.part_farm_ratio = part_farm_ratio;
+          userLiquidity.unfarm_part_amount = unfarm_part_amount;
+          set_is_in_farming(+part_farm_ratio > 0);
+          set_is_in_farming_done(true);
+        }
+      }
+      get_pool_related_farms();
       get_liquidity_x_y();
       getChartData();
     }
-  }, [userLiquidity, poolDetail, tokenMetadata_x_y]);
+  }, [userLiquidity, poolDetail, tokenMetadata_x_y, listLiquidities]);
   useEffect(() => {
     if (userLiquidity && poolDetail && tokenMetadata_x_y) {
       getChartData();
     }
   }, [rateSort]);
+  useEffect(() => {
+    if (
+      userLiquidity &&
+      all_seeds.length &&
+      Object.keys(tokenPriceList || {}).length
+    ) {
+      const info = get_detail_the_liquidity_refer_to_seed({
+        liquidity: userLiquidity,
+        all_seeds,
+        is_in_farming,
+        related_farms,
+        tokenPriceList,
+      });
+      set_related_seed_info(info);
+    }
+  }, [userLiquidity, all_seeds, is_in_farming, tokenPriceList, related_farms]);
+  async function get_list_liquidities() {
+    const list: UserLiquidityInfo[] = await list_liquidities();
+    if (list.length > 0) {
+      // get user seeds
+      const user_seeds_map = await list_farmer_seeds();
+      const user_seed_ids = Object.keys(user_seeds_map);
+      if (user_seed_ids.length > 0) {
+        const seedsPromise = user_seed_ids.map((seed_id: string) => {
+          return get_seed(seed_id);
+        });
+        const user_seeds = await Promise.all(seedsPromise);
+        user_seeds.forEach((seed: Seed) => {
+          const { seed_id } = seed;
+          const [contractId, mft_id] = seed_id.split('@');
+          if (contractId == REF_UNI_V3_SWAP_CONTRACT_ID) {
+            const { free_amount, locked_amount } =
+              user_seeds_map[seed_id] || {};
+            const user_seed_amount = new BigNumber(free_amount)
+              .plus(locked_amount)
+              .toFixed();
+            allocation_rule_liquidities({ list, user_seed_amount, seed });
+          }
+        });
+      }
+
+      setListLiquidities(list);
+    }
+  }
+  async function get_pool_related_farms() {
+    const is_in_farming =
+      userLiquidity.part_farm_ratio && +userLiquidity.part_farm_ratio > 0;
+    if (is_in_farming) {
+      const id = userLiquidity.mft_id.slice(1);
+      const seed_id = REF_UNI_V3_SWAP_CONTRACT_ID + '@' + id;
+      const farmList = await list_seed_farms(seed_id);
+      set_related_farms(farmList);
+    }
+  }
   async function getChartData() {
     const get_pool_marketdepth_fun = is_old_dcl
       ? get_pool_marketdepth_old_version
@@ -340,11 +426,14 @@ export default function YourLiquidityDetail(props: any) {
         }
       }
     }
-    const valueBig = new BigNumber(value);
-    if (valueBig.isGreaterThan('100000')) {
-      return new BigNumber(value).toExponential(3);
+    if (!value) return value;
+    value = displayNumberToAppropriateDecimals(value).toString();
+    const [whole, decimals] = value.toString().split('.');
+    const whole_format = formatWithCommas(whole);
+    if (decimals) {
+      return whole_format + '.' + decimals;
     } else {
-      return value;
+      return whole_format;
     }
   }
   function switchRateSort() {
@@ -354,13 +443,15 @@ export default function YourLiquidityDetail(props: any) {
     if (!canClaim() || is_old_dcl) return;
     setClaimLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
+    const { lpt_id } = userLiquidity;
     remove_liquidity({
       token_x: tokenX,
       token_y: tokenY,
-      lpt_id: userLiquidity.lpt_id,
-      amount: '0',
+      lpt_id,
+      mft_id: '',
       min_amount_x: '0',
       min_amount_y: '0',
+      amount: '0',
       isLegacy: !!is_old_dcl,
     });
   }
@@ -389,6 +480,31 @@ export default function YourLiquidityDetail(props: any) {
       return toPrecision(tokenXAmount, 3);
     }
   }
+  function go_farm() {
+    const [fixRange, pool_id, left_point, right_point] =
+      userLiquidity.mft_id.split('&');
+    const link_params = `${pool_id}&${left_point}&${right_point}`;
+    const actives = related_farms.filter((farm: FarmBoost) => {
+      return farm.status != 'Ended';
+    });
+    let url;
+    if (related_farms.length > 0 && actives.length == 0) {
+      url = `/v2farms/${link_params}-e`;
+    } else {
+      url = `/v2farms/${link_params}-r`;
+    }
+    window.open(url);
+  }
+  const goPoolPage = () => {
+    window.open(`/poolV2/${poolId}`);
+  };
+  const {
+    Icon: Liquidity_icon,
+    your_apr: liquidity_your_apr,
+    link: liquidity_link,
+    inRange: liquidity_inRange,
+    status: liquidity_staked_farm_status,
+  } = related_seed_info;
   return (
     <div
       className={`m-auto lg:w-3/5 2xl:w-2/5 md:w-11/12 xs:w-11/12  xs:-mt-4 md:-mt-4`}
@@ -405,53 +521,125 @@ export default function YourLiquidityDetail(props: any) {
         </div>
       </div>
       <div className="flex items-center justify-between mt-6">
-        <div className="flex items-center xs:flex-col md:flex-col xs:items-start md:items-start">
-          <div className="flex items-center">
-            <div className="flex items-center mr-2 flex-shrink-0">
-              <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
-                className="w-8 h-8 border border-greenColor rounded-full"
-              ></img>
-              <img
-                src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
-                className="relative w-8 h-8 border border-greenColor rounded-full -ml-1.5"
-              ></img>
+        <div className="flex items-center xsm:w-full xs:flex-col md:flex-col xs:items-start md:items-start">
+          <div className="flex items-center justify-between xsm:w-full">
+            <div className="flex items-center">
+              <div className="flex items-center mr-2 flex-shrink-0">
+                <img
+                  src={tokenMetadata_x_y && tokenMetadata_x_y[0].icon}
+                  className="w-8 h-8 border border-greenColor rounded-full"
+                ></img>
+                <img
+                  src={tokenMetadata_x_y && tokenMetadata_x_y[1].icon}
+                  className="relative w-8 h-8 border border-greenColor rounded-full -ml-1.5"
+                ></img>
+              </div>
+              <span className="text-lg text-white">
+                {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
+                {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
+              </span>
             </div>
-            <span className="text-lg text-white">
-              {tokenMetadata_x_y && tokenMetadata_x_y[0].symbol}/
-              {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
-            </span>
+            <div
+              className="flex items-center text-farmText hover:text-framBorder lg:hidden"
+              onClick={goPoolPage}
+            >
+              <label className="mx-2 text-sm cursor-pointer">
+                <FormattedMessage
+                  id="pool_detail"
+                  defaultMessage={'Pool Detail'}
+                />
+              </label>
+              <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+            </div>
           </div>
-          <div className="flex items-center xs:mt-4 md:mt-4">
-            <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5 mx-2.5 xs:ml-0 md:ml-0">
-              <span className="text-xs text-v3SwapGray mr-1.5 whitespace-nowrap">
-                <FormattedMessage id="fee_Tiers" />
-              </span>
-              <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
-            </div>
-            <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5">
-              <span
-                className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
-                  isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
-                }`}
-              ></span>
-              <span
-                className={`text-xs whitespace-nowrap ${
-                  isInrange
-                    ? 'text-gradientFromHover'
-                    : 'text-v3GarkWarningColor'
-                }`}
-              >
-                {isInrange ? (
-                  <FormattedMessage id="in_range" />
-                ) : (
-                  <FormattedMessage id="out_of_range" />
-                )}
-              </span>
+          <div className="flex items-center xs:mt-4 md:mt-4 xsm:justify-between xsm:w-full">
+            <div className="flex items-center">
+              <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5 mx-2.5 xs:ml-0 md:ml-0">
+                <span className="text-xs text-v3SwapGray mr-1.5 whitespace-nowrap">
+                  <FormattedMessage id="fee_Tiers" />
+                </span>
+                <span className="text-sm text-v3Blue">{+fee / 10000}%</span>
+              </div>
+              <div className="flex items-center justify-center bg-cardBg rounded-2xl px-3 h-6 py-0.5">
+                <span
+                  className={`flex-shrink-0 w-1.5 h-1.5 rounded-full mr-1.5 ${
+                    isInrange ? 'bg-gradientFromHover' : 'bg-v3GarkWarningColor'
+                  }`}
+                ></span>
+                <span
+                  className={`text-xs whitespace-nowrap ${
+                    isInrange
+                      ? 'text-gradientFromHover'
+                      : 'text-v3GarkWarningColor'
+                  }`}
+                >
+                  {isInrange ? (
+                    <FormattedMessage id="in_range" />
+                  ) : (
+                    <FormattedMessage id="out_of_range" />
+                  )}
+                </span>
+              </div>
+              {!is_old_dcl && Liquidity_icon ? (
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (liquidity_link) {
+                      window.open(liquidity_link);
+                    }
+                  }}
+                  className={`flex items-center justify-center border border-greenColor rounded-lg px-1 ml-2 ${
+                    liquidity_link ? 'cursor-pointer' : ''
+                  } ${is_in_farming || liquidity_inRange ? '' : 'opacity-40'}`}
+                >
+                  <span className="text-xs text-greenColor mr-1">Farm</span>{' '}
+                  <Liquidity_icon num={Math.random()}></Liquidity_icon>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
+        <div
+          className="flex items-center text-farmText hover:text-framBorder xsm:hidden"
+          onClick={goPoolPage}
+        >
+          <label className="mx-2 text-sm cursor-pointer">
+            <FormattedMessage id="pool_detail" defaultMessage={'Pool Detail'} />
+          </label>
+          <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+        </div>
       </div>
+      {!is_old_dcl &&
+      liquidity_your_apr &&
+      (!is_in_farming || liquidity_staked_farm_status == 'end') ? (
+        <div
+          className="relative flex items-start px-4 py-2 xsm:px-2.5 xsm:pl-0  rounded-lg mt-4"
+          style={{ background: 'rgba(91, 64, 255, 0.5)' }}
+        >
+          <TipIon className="mr-2 relative top-1 flex-shrink-0"></TipIon>
+          <div className="flex items-center flex-wrap">
+            <span className="text-sm text-white mr-1">
+              {liquidity_staked_farm_status == 'end'
+                ? 'Your current staked farm ended, and new farm is coming, est. APR is'
+                : 'You can earn rewards by farming, est. APR is'}{' '}
+              {liquidity_your_apr}.
+            </span>
+            <div
+              className="flex items-center justify-center text-white cursor-pointer"
+              onClick={() => {
+                window.open(liquidity_link);
+              }}
+            >
+              <a className="text-sm text-white mr-1 underline">
+                {liquidity_staked_farm_status == 'end'
+                  ? 'Go New Farm'
+                  : 'Go Farm'}
+              </a>
+              <LinkArrowIcon className="cursor-pointer"></LinkArrowIcon>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <div className="flex justify-between mt-8 items-stretch xs:flex-col md:flex-col xs:mt-5 md:mt-5">
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow mr-3 xs:w-full md:w-full xs:mr-0 md:mr-0 xs:p-3 md:p-3">
           <div className="flex justify-between xs:w-full md:w-full">
@@ -493,34 +681,65 @@ export default function YourLiquidityDetail(props: any) {
             </div>
           </div>
           <div className="flex items-center justify-between mt-5">
-            {is_old_dcl ? (
-              <div className="flex flex-grow w-1 items-center justify-center bg-legacyButtonBgColor rounded-lg text-sm text-primaryText h-9 cursor-not-allowed mr-2.5">
-                <FormattedMessage id="add" />
-              </div>
-            ) : (
-              <GradientButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowAddBox(true);
-                }}
-                color="#fff"
-                borderRadius="8px"
-                className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5`}
-              >
-                <FormattedMessage id="add"></FormattedMessage>
-              </GradientButton>
-            )}
-            <OprationButton
-              onClick={(e: any) => {
-                e.stopPropagation();
-                setShowRemoveBox(true);
-              }}
-              color="#fff"
-              className={`flex-grow  w-1 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover }`}
-            >
-              <FormattedMessage id="remove"></FormattedMessage>
-            </OprationButton>
+            {listLiquidities.length && userLiquidity ? (
+              <>
+                {is_old_dcl ? (
+                  <div className="flex flex-grow w-1 items-center justify-center bg-legacyButtonBgColor rounded-lg text-sm text-primaryText h-9 cursor-not-allowed mr-2.5">
+                    <FormattedMessage id="add" />
+                  </div>
+                ) : (
+                  <GradientButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAddBox(true);
+                    }}
+                    color="#fff"
+                    borderRadius="8px"
+                    disabled={is_in_farming}
+                    btnClassName={`${
+                      is_in_farming ? 'cursor-not-allowed' : ''
+                    }`}
+                    className={`flex-grow w-1 h-9 text-center text-sm text-white focus:outline-none mr-2.5 gotham_bold ${
+                      is_in_farming ? 'opacity-30' : ''
+                    }`}
+                  >
+                    <FormattedMessage id="add"></FormattedMessage>
+                  </GradientButton>
+                )}
+
+                <OprationButton
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    setShowRemoveBox(true);
+                  }}
+                  disabled={is_in_farming}
+                  btnClassName={`${is_in_farming ? 'cursor-not-allowed' : ''}`}
+                  color="#fff"
+                  className={`flex flex-grow  w-1 h-9  items-center justify-center text-center text-sm text-white focus:outline-none font-semibold bg-bgGreyDefault hover:bg-bgGreyHover gotham_bold  ${
+                    is_in_farming ? 'opacity-30' : ''
+                  }`}
+                >
+                  <FormattedMessage id="remove"></FormattedMessage>
+                </OprationButton>
+              </>
+            ) : null}
           </div>
+          {is_in_farming_done && is_in_farming ? (
+            <div className="flex whitespace-nowrap items-center justify-center text-sm text-primaryText mt-4">
+              This NFT has been staked
+              <div
+                className="flex items-center text-sm text-greenColor cursor-pointer"
+                onClick={go_farm}
+              >
+                <span className="underline mx-1">
+                  {liquidity_staked_farm_status == 'end'
+                    ? 'in ended farm'
+                    : 'in farm'}
+                </span>
+                <LinkArrowIcon></LinkArrowIcon>
+              </div>
+            </div>
+          ) : null}
         </div>
         <div className="bg-cardBg rounded-xl p-5 w-1 flex-grow xs:w-full md:w-full xs:mt-3 md:mt-3 xs:p-3 md:p-3">
           <div className="flex items-center justify-between text-white text-base flex-wrap">
@@ -564,26 +783,24 @@ export default function YourLiquidityDetail(props: any) {
             </div>
           </div>
           <div
-            className="text-white text-right"
+            className={`flex items-center justify-center h-9 rounded-lg text-sm px-2 py-1 mt-5   text-right gotham_bold  ${
+              !canClaim() || is_old_dcl
+                ? is_old_dcl
+                  ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
+                  : 'bg-deepBlue text-white opacity-30 cursor-not-allowed'
+                : 'bg-deepBlue text-white hover:bg-lightBlue cursor-pointer'
+            }`}
+            onClick={claimRewards}
             data-class="reactTip"
             data-for="pause_v2_tip_3"
             data-place="top"
             data-html={true}
             data-tip={is_old_dcl ? pause_old_dcl_claim_tip() : ''}
           >
-            <div
-              className={`flex items-center justify-center h-9 rounded-lg text-sm px-2 py-1 mt-5 ${
-                !canClaim() || is_old_dcl
-                  ? 'bg-black bg-opacity-25 text-v3SwapGray cursor-not-allowed'
-                  : 'bg-deepBlue hover:bg-deepBlueHover text-white cursor-pointer'
-              }`}
-              onClick={claimRewards}
-            >
-              <ButtonTextWrapper
-                loading={claimLoading}
-                Text={() => <FormattedMessage id="claim" />}
-              />
-            </div>
+            <ButtonTextWrapper
+              loading={claimLoading}
+              Text={() => <FormattedMessage id="claim" />}
+            />
             <ReactTooltip
               id="pause_v2_tip_3"
               backgroundColor="#1D2932"

@@ -291,13 +291,15 @@ export const RemovePoolV3 = (props: any) => {
   function remove() {
     setRemoveLoading(true);
     const [tokenX, tokenY] = tokenMetadata_x_y;
+    const { lpt_id, mft_id } = userLiquidity;
 
     sessionStorage.setItem(REF_POOL_NAV_TAB_KEY, '/yourliquidity');
 
     remove_liquidity({
       token_x: tokenX,
       token_y: tokenY,
-      lpt_id: userLiquidity.lpt_id,
+      lpt_id,
+      mft_id,
       amount: removeAmount,
       min_amount_x: toNonDivisibleNumber(tokenX.decimals, MINDATA.minX),
       min_amount_y: toNonDivisibleNumber(tokenY.decimals, MINDATA.minY),
@@ -380,9 +382,7 @@ export const RemovePoolV3 = (props: any) => {
               {tokenMetadata_x_y && tokenMetadata_x_y[1].symbol}
             </span>
           </div>
-          <span className="text-white text-lg mb-2">
-            ~{getLiquidityPrice()}
-          </span>
+          <span className="text-white text-lg mb-2">{getLiquidityPrice()}</span>
         </div>
         <div
           className={`mt-10 xsm:mt-6 mb-20 xsm:mb-16 ${

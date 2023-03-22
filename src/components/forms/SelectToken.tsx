@@ -432,7 +432,8 @@ export default function SelectToken({
   }
   const dialogWidth = isMobile() ? '95%' : forCross ? '25%' : '420px';
   const dialogMinwidth = isMobile() ? 340 : 380;
-  const dialogHidth = isMobile() ? '95%' : '57%';
+  const dialogHeight = isMobile() ? '95%' : '57%';
+  const dialogMinHeight = isMobile() ? '95%' : '540px';
   const intl = useIntl();
   const searchRef = useRef(null);
   const {
@@ -628,8 +629,11 @@ export default function SelectToken({
             border: '1px solid rgba(0, 198, 162, 0.5)',
             padding: '1.5rem 0',
             background: '#1D2932',
-            height: dialogHidth,
+            height: dialogHeight,
+            minHeight: dialogMinHeight,
             zIndex: 100,
+            overflow: 'hidden',
+            position: 'relative',
           },
         },
       }}
@@ -676,47 +680,52 @@ export default function SelectToken({
               </div>
             ) : null}
           </div>
-          <localTokens.Provider
-            value={{
-              commonBassesTokens,
-              getLatestCommonBassesTokens,
-              getLatestCommonBassesTokenIds,
-            }}
+          <div
+            className="overflow-auto absolute w-full"
+            style={{ height: 'calc(100% - 150px)' }}
           >
-            {showCommonBasses && (
-              <CommonBasses
-                onClick={(token) => {
-                  onSelect && onSelect(token);
-                }}
-                tokenPriceList={tokenPriceList}
-                allowWNEAR={allowWNEAR}
-                handleClose={handleClose}
-              />
-            )}
-            <Table
-              sortBy={sortBy}
-              tokenPriceList={tokenPriceList}
-              currentSort={currentSort}
-              onSortChange={onSortChange}
-              tokens={listData}
-              onClick={(token) => {
-                if (token.id != NEARXIDS[0]) {
-                  if (
-                    !(
-                      token.id == WRAP_NEAR_CONTRACT_ID &&
-                      token.symbol == 'wNEAR' &&
-                      !allowWNEAR
-                    )
-                  ) {
-                    onSelect && onSelect(token);
-                  }
-                }
-                handleClose();
+            <localTokens.Provider
+              value={{
+                commonBassesTokens,
+                getLatestCommonBassesTokens,
+                getLatestCommonBassesTokenIds,
               }}
-              balances={balances}
-              forCross={forCross}
-            />
-          </localTokens.Provider>
+            >
+              {showCommonBasses && (
+                <CommonBasses
+                  onClick={(token) => {
+                    onSelect && onSelect(token);
+                  }}
+                  tokenPriceList={tokenPriceList}
+                  allowWNEAR={allowWNEAR}
+                  handleClose={handleClose}
+                />
+              )}
+              <Table
+                sortBy={sortBy}
+                tokenPriceList={tokenPriceList}
+                currentSort={currentSort}
+                onSortChange={onSortChange}
+                tokens={listData}
+                onClick={(token) => {
+                  if (token.id != NEARXIDS[0]) {
+                    if (
+                      !(
+                        token.id == WRAP_NEAR_CONTRACT_ID &&
+                        token.symbol == 'wNEAR' &&
+                        !allowWNEAR
+                      )
+                    ) {
+                      onSelect && onSelect(token);
+                    }
+                  }
+                  handleClose();
+                }}
+                balances={balances}
+                forCross={forCross}
+              />
+            </localTokens.Provider>
+          </div>
           {searchNoData ? (
             <div className="flex flex-col  items-center justify-center mt-12">
               <div className="text-sm text-farmText">

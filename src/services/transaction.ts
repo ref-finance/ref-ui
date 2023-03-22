@@ -9,11 +9,16 @@ import {
 } from '../services/m-token';
 import { XREF_TOKEN_DECIMALS } from '../services/xref';
 import { get_pool, list_history_orders } from '../services/swapV3';
-import { getPriceByPoint } from '../services/commonV3';
+import {
+  getPriceByPoint,
+  displayNumberToAppropriateDecimals,
+  TOKEN_LIST_FOR_RATE,
+} from '../services/commonV3';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 const config = getConfig();
 const STABLE_POOL_IDS = config.STABLE_POOL_IDS;
+import { WRAP_NEAR_CONTRACT_ID } from '../services/wrap-near';
 import moment from 'moment';
 
 export const parseAction = async (
@@ -127,6 +132,18 @@ export const parseAction = async (
     }
     case 'append_liquidity': {
       return await parseAppendLiquidity(params, tokenId);
+    }
+    case 'burn_v_liquidity': {
+      return await burnLiquidity(params);
+    }
+    case 'mint_v_liquidity': {
+      return await mintLiquidity(params);
+    }
+    case 'user_request_withdraw': {
+      return await userRequestWithdraw(params);
+    }
+    case 'user_deposit_native_token': {
+      return await userDepositNativeToken(params);
     }
     default: {
       return await parseDefault();
@@ -1002,6 +1019,72 @@ const withdrawAsset = async (params: any) => {
     Action: 'Withdraw Asset',
     Token: token.symbol,
     Amount: toReadableNumber(token.decimals, amount),
+  };
+};
+const burnLiquidity = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { lpt_id } = params;
+  return {
+    Action: 'Burn Liquidity',
+    'LPT ID': lpt_id,
+  };
+};
+const mintLiquidity = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { lpt_id, dcl_farming_type } = params;
+  const { left_point, right_point } = dcl_farming_type.FixRange;
+  const [token_x, token_y, fee] = lpt_id.split('|');
+  const tokenX = await ftGetTokenMetadata(token_x);
+  const tokenY = await ftGetTokenMetadata(token_y);
+  const decimalRate =
+    Math.pow(10, tokenX.decimals) / Math.pow(10, tokenY.decimals);
+  let left_price = getPriceByPoint(+left_point, decimalRate);
+  let right_price = getPriceByPoint(+right_point, decimalRate);
+  let pair = `${tokenY.symbol}/${tokenX.symbol}`;
+  if (TOKEN_LIST_FOR_RATE.indexOf(tokenX.symbol) > -1) {
+    pair = `${tokenX.symbol}/${tokenY.symbol}`;
+    const temp_left_price = left_price;
+    left_price = new BigNumber(1).dividedBy(right_price).toFixed();
+    right_price = new BigNumber(1).dividedBy(temp_left_price).toFixed();
+  }
+  return {
+    Action: 'Mint Liquidity',
+    'LPT ID': lpt_id,
+    Pair: pair,
+    'Min Price': displayNumberToAppropriateDecimals(left_price),
+    'Max Price': displayNumberToAppropriateDecimals(right_price),
+  };
+};
+const userRequestWithdraw = async (params: any) => {
+  try {
+    params = JSON.parse(params);
+  } catch (error) {
+    params = {};
+  }
+  const { token, amount } = params;
+  let token_meta;
+  if (token == 'near') {
+    token_meta = await ftGetTokenMetadata(WRAP_NEAR_CONTRACT_ID);
+  } else {
+    token_meta = await ftGetTokenMetadata(token);
+  }
+  return {
+    Action: 'Withdraw',
+    Token: token_meta.symbol,
+    Amount: toReadableNumber(token_meta.decimals, amount),
+  };
+};
+const userDepositNativeToken = async (params: any) => {
+  return {
+    Action: 'Deposit',
   };
 };
 

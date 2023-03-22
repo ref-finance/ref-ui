@@ -254,9 +254,11 @@ export const WalletOptions: React.FC<WalletOptionsProps> = ({
                   key={module.id}
                   id={module.id}
                   onClick={selected ? undefined : handleWalletClick(module)}
-                  className={`px-5 py-3 relative ${
+                  className={`px-5 py-3 relative  bg-black  bg-opacity-20 ${
                     hoverOption === currentIndex ? 'bottom-1' : ''
-                  } ${!selected && installed ? 'overflow-hidden' : ''}`}
+                  } ${!selected && installed ? 'overflow-hidden' : ''} ${
+                    !isMobile ? 'hover:bg-opacity-30' : ''
+                  }`}
                   onMouseEnter={() => setHoverOption(currentIndex)}
                   onMouseLeave={() => setHoverOption(-1)}
                 >

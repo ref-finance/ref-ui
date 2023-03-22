@@ -171,6 +171,7 @@ import { NoLiquidityDetailPageIcon } from '../../components/icon/Pool';
 import { useFarmStake } from '../../state/farm';
 import { VEARROW } from '../../components/icon/Referendum';
 import Big from 'big.js';
+import { getEffectiveFarmList } from '~services/commonV3';
 
 interface ParamTypes {
   id: string;
@@ -1109,8 +1110,8 @@ export function RemoveLiquidityModal(
               </span>
               <div className=" flex items-center flex-shrink-0">
                 <span className="">
+                  Legacy &nbsp;
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                  &nbsp; V1
                 </span>
 
                 <span className="ml-0.5">
@@ -1147,8 +1148,8 @@ export function RemoveLiquidityModal(
               </span>
               <div className=" flex items-center  flex-shrink-0">
                 <span className="">
+                  Classic&nbsp;
                   <FormattedMessage id="farm" defaultMessage={'Farm'} />
-                  &nbsp; V2
                 </span>
 
                 <span className="ml-0.5">
@@ -1966,7 +1967,8 @@ export function PoolDetailsPage() {
     const farms = seedFarms;
     const rewardTokenIconMap = {};
     let totalPrice = 0;
-    farms.forEach((farm: FarmBoost) => {
+    const effectiveFarms = getEffectiveFarmList(farms);
+    effectiveFarms.forEach((farm: FarmBoost) => {
       const { id, decimals, icon } = farm.token_meta_data;
       const { daily_reward } = farm.terms;
       rewardTokenIconMap[id] = icon;
@@ -2732,6 +2734,7 @@ export function PoolDetailsPage() {
                       )}
                       size="4"
                       isRewardDisplay
+                      borderStyle="1px solid #00C6A2"
                     />
                     <span className="text-sm text-v3SwapGray">
                       {totalTvlPerWeekDisplay()}

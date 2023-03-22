@@ -8,8 +8,8 @@ export default function () {
   return <Loading />;
 }
 
-export const BeatLoading = () => {
-  return <BeatLoader size={5} color="#ffffff" />;
+export const BeatLoading = ({ color }: { color?: string }) => {
+  return <BeatLoader size={5} color={color || '#ffffff'} />;
 };
 export const ClipLoadering = () => {
   return <ClipLoader color="#ffffff" />;

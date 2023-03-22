@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
-  list_liquidities,
   list_liquidities_old_version,
   get_pool,
   get_pool_old_version,
@@ -13,7 +12,6 @@ import {
 } from '../../services/swapV3';
 import {
   ColorsBox,
-  ColorsBoxCenter,
   AddButtonIcon,
   WarningTip,
   MobileWarningTip,
@@ -22,7 +20,6 @@ import {
   GradientButton,
   BorderButton,
   ButtonTextWrapper,
-  ConnectToNearBtn,
 } from '~components/button/Button';
 import {
   toPrecision,
@@ -39,17 +36,24 @@ import {
   getXAmount_per_point_by_Lx,
   getYAmount_per_point_by_Ly,
   TOKEN_LIST_FOR_RATE,
+  get_intersection_radio,
+  get_intersection_icon_by_radio,
+  get_all_seeds,
+  get_matched_seeds_for_dcl_pool,
+  mint_liquidity,
+  get_total_value_by_liquidity_amount_dcl,
   pause_old_dcl_claim_tip,
+  getEffectiveFarmList,
 } from '../../services/commonV3';
 import BigNumber from 'bignumber.js';
-import { getBoostTokenPrices } from '../../services/farm';
+import { FarmBoost, getBoostTokenPrices, Seed } from '../../services/farm';
 import { RemovePoolV3 } from '~components/pool/RemovePoolV3';
 import { AddPoolV3 } from '~components/pool/AddPoolV3';
 import { PoolTabV3 } from '~components/pool/PoolTabV3';
 import {
   YourLiquidityAddLiquidityModal,
-  YourLiquidityPage,
-} from '../pools/YourLiquidityPage';
+  YourLiquidityV1,
+} from '../../components/pool/YourLiquidityV1';
 import {
   WalletContext,
   getCurrentWallet,
@@ -63,10 +67,7 @@ import {
 import { PoolRPCView } from '../../services/api';
 import { ALL_STABLE_POOL_IDS, REF_FI_CONTRACT_ID } from '../../services/near';
 import { getPoolsByIds } from '../../services/indexer';
-import {
-  ClipLoadering,
-  BlueCircleLoading,
-} from '../../components/layout/Loading';
+import { BlueCircleLoading } from '../../components/layout/Loading';
 import QuestionMark from '~components/farm/QuestionMark';
 import ReactTooltip from 'react-tooltip';
 import Big from 'big.js';
@@ -75,18 +76,13 @@ import { getURLInfo } from '../../components/layout/transactionTipPopUp';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
 import { checkTransactionStatus } from '../../services/swap';
 import { REF_POOL_NAV_TAB_KEY } from '../../components/pool/PoolTabV3';
-import {
-  REF_FI_YOUR_LP_VALUE,
-  REF_FI_YOUR_LP_VALUE_V1_COUNT,
-} from '../pools/YourLiquidityPage';
+import { NFTIdIcon } from '~components/icon/FarmBoost';
+import { YourLiquidityV2 } from '~components/pool/YourLiquidityV2';
+
 export default function YourLiquidityPageV3() {
   const clearState = () => {
-    sessionStorage.removeItem(REF_FI_LP_VALUE_COUNT);
-    sessionStorage.removeItem(REF_FI_LP_V2_VALUE);
-
-    sessionStorage.removeItem(REF_FI_YOUR_LP_VALUE);
-
-    sessionStorage.removeItem(REF_FI_YOUR_LP_VALUE_V1_COUNT);
+    sessionStorage.removeItem('REF_FI_LP_V2_OLD_VALUE');
+    sessionStorage.removeItem('REF_FI_LP_VALUE_OLD_COUNT');
   };
 
   window.onbeforeunload = clearState;
@@ -100,57 +96,39 @@ export default function YourLiquidityPageV3() {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
   const intl = useIntl();
-  const [listLiquidities, setListLiquidities] = useState<UserLiquidityInfo[]>(
-    []
-  );
   const [listLiquidities_old_version, setListLiquidities_old_version] =
     useState<UserLiquidityInfo[]>([]);
-  const liquidityStatusList = ['all', 'V2', 'V1'];
+  const liquidityStatusList = ['all', 'DCL', 'Classic'];
   const [addliquidityList, setAddliquidityList] = useState<any[]>([
     {
-      text: 'V2 Liquidity',
+      text: 'DCL Liquidity',
       url: '/addLiquidityV2',
     },
     {
-      text: 'V1 Liquidity',
+      text: 'Classic Liquidity',
       url: '/pools',
     },
   ]);
-
   const [stablePools, setStablePools] = useState<PoolRPCView[]>();
-  const [listLiquiditiesLoading, setListLiquiditiesLoading] = useState(true);
-  const [
-    listLiquiditiesLoading_old_version,
-    setListLiquiditiesLoading_old_version,
-  ] = useState(true);
+  const [v2LiquidityLoadingDone, setV2LiquidityLoadingDone] = useState(false);
+  const [v1LiquidityLoadingDone, setV1LiquidityLoadingDone] = useState(false);
+  const [v2LiquidityQuantity, setV2LiquidityQuantity] = useState('0');
+  const [v1LiquidityQuantity, setV1LiquidityQuantity] = useState('0');
 
   const [YourLpValueV2, setYourLpValueV2] = useState('0');
-
   const [YourLpValueV1, setYourLpValueV1] = useState('0');
-
   const [lpValueV1Done, setLpValueV1Done] = useState(false);
-
   const [lpValueV2Done, setLpValueV2Done] = useState(false);
-
-  useEffect(() => {
-    if (!listLiquiditiesLoading) {
-      if (listLiquidities.length === 0) {
-        setLpValueV2Done(true);
-        setYourLpValueV2('0');
-      }
-    }
-  }, [listLiquiditiesLoading, listLiquidities]);
-
+  const [lpValueV2DoneOld, setLpValueV2DoneOld] = useState(false);
+  const [YourLpValueV2Old, setYourLpValueV2Old] = useState('0');
   const [generalAddLiquidity, setGeneralAddLiquidity] =
     useState<boolean>(false);
   const [checkedStatus, setCheckedStatus] = useState('all');
-  const [oldLiquidityHasNoData, setOldLiquidityHasNoData] = useState(false);
   const [addLiqudityHover, setAddLiqudityHover] = useState(false);
-  const [all_dcl_length, set_all_dcl_length] = useState(0);
+  const [all_seeds, set_all_seeds] = useState<Seed[]>([]);
   // callBack handle
   useAddAndRemoveUrlHandle();
   const history = useHistory();
-
   const pool_link = sessionStorage.getItem(REF_POOL_NAV_TAB_KEY);
 
   if (pool_link === '/pools') {
@@ -169,30 +147,15 @@ export default function YourLiquidityPageV3() {
     getPoolsByIds({ pool_ids: ids }).then((res) => {
       setStablePools(res);
     });
+    get_all_seeds().then((seeds: Seed[]) => {
+      set_all_seeds(seeds);
+    });
   }, []);
   useEffect(() => {
     if (isSignedIn) {
-      get_all_dcl_liquidities();
+      get_list_liquidities_old_version();
     }
   }, [isSignedIn]);
-  async function get_all_dcl_liquidities() {
-    const size_1 = await get_list_liquidities();
-    const size_2 = await get_list_liquidities_old_version();
-    set_all_dcl_length(size_1 + size_2);
-  }
-  async function get_list_liquidities() {
-    const list: UserLiquidityInfo[] = await list_liquidities();
-    if (list.length > 0) {
-      list.sort((item1: UserLiquidityInfo, item2: UserLiquidityInfo) => {
-        const item1_hashId = +item1.lpt_id.split('#')[1];
-        const item2_hashId = +item2.lpt_id.split('#')[1];
-        return item1_hashId - item2_hashId;
-      });
-      setListLiquidities(list);
-    }
-    setListLiquiditiesLoading(false);
-    return list.length;
-  }
   async function get_list_liquidities_old_version() {
     const list: UserLiquidityInfo[] = await list_liquidities_old_version();
     if (list.length > 0) {
@@ -202,8 +165,10 @@ export default function YourLiquidityPageV3() {
         return item1_hashId - item2_hashId;
       });
       setListLiquidities_old_version(list);
+    } else {
+      setLpValueV2DoneOld(true);
+      setYourLpValueV2Old('0');
     }
-    setListLiquiditiesLoading_old_version(false);
     return list.length;
   }
   function goAddLiquidityPage(url: string) {
@@ -268,29 +233,39 @@ export default function YourLiquidityPageV3() {
       });
     }
   }, [txHash]);
+  const showV2EmptyBar =
+    v2LiquidityLoadingDone &&
+    +v2LiquidityQuantity == 0 &&
+    v1LiquidityLoadingDone &&
+    +v1LiquidityQuantity > 0;
+  const showV1EmptyBar =
+    v1LiquidityLoadingDone &&
+    +v1LiquidityQuantity == 0 &&
+    v2LiquidityLoadingDone &&
+    +v2LiquidityQuantity > 0;
+  const showCommonEmptyBar =
+    v2LiquidityLoadingDone &&
+    +v2LiquidityQuantity == 0 &&
+    v1LiquidityLoadingDone &&
+    +v1LiquidityQuantity == 0;
   return (
     <>
       <PoolTabV3
         yourLPpage
         lpValueV1Done={lpValueV1Done}
-        lpValueV2Done={lpValueV2Done}
         YourLpValueV1={YourLpValueV1}
         YourLpValueV2={YourLpValueV2}
+        lpValueV2Done={lpValueV2Done}
       ></PoolTabV3>
       {listLiquidities_old_version.length > 0 ? (
         <UserLegacyLiqudities
           listLiquidities_old_version={listLiquidities_old_version}
-          setLpValueV2Done={setLpValueV2Done}
-          setYourLpValueV2={setYourLpValueV2}
-          listLiquiditiesLoading_old_version={
-            listLiquiditiesLoading_old_version
-          }
-          all_dcl_length={all_dcl_length}
+          setLpValueV2Done={setLpValueV2DoneOld}
+          setYourLpValueV2={setYourLpValueV2Old}
         ></UserLegacyLiqudities>
       ) : null}
-
       <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto">
-        <div className="flex items-start justify-between lg:mt-4 xs:mb-5 md:mb-5">
+        <div className="flex items-start justify-between lg:mt-4">
           <div className="flex items-center">
             <div className="flex items-center text-sm text-primaryText border border-selectBorder p-0.5 rounded-lg bg-v3LiquidityTabBgColor">
               {liquidityStatusList.map((item: string, index: number) => {
@@ -320,9 +295,7 @@ export default function YourLiquidityPageV3() {
             </div>
           </div>
           <div
-            className={`relative  ${
-              isSignedIn ? '' : 'hidden'
-            } pb-10 xs:pb-0 md:pb-0`}
+            className={`relative ${isSignedIn ? '' : 'hidden'}`}
             onMouseOver={() => {
               setAddLiqudityHover(true);
             }}
@@ -336,7 +309,7 @@ export default function YourLiquidityPageV3() {
               borderRadius={'8px'}
             >
               <div className="flex items-center">
-                <AddButtonIcon className="mr-1.5"></AddButtonIcon>
+                <AddButtonIcon className="mr-1.5 text-white"></AddButtonIcon>
                 <FormattedMessage
                   id="add_liquidity"
                   defaultMessage="Add Liquidity"
@@ -344,7 +317,7 @@ export default function YourLiquidityPageV3() {
               </div>
             </GradientButton>
             <span
-              className={`top-10 pt-2 absolute z-50 xsm:right-0 ${
+              className={`top-9 pt-2 absolute z-50 xsm:right-0 ${
                 addLiqudityHover ? '' : 'hidden'
               }`}
             >
@@ -360,7 +333,7 @@ export default function YourLiquidityPageV3() {
                     <span
                       key={index}
                       onClick={(e) => {
-                        if (item.text === 'V1 Liquidity') {
+                        if (item.text === 'Classic Liquidity') {
                           setGeneralAddLiquidity(true);
                         } else {
                           goAddLiquidityPage(item.url);
@@ -376,79 +349,94 @@ export default function YourLiquidityPageV3() {
             </span>
           </div>
         </div>
-        {!isSignedIn ? (
-          <NoLiquidity className="mt-4"></NoLiquidity>
+        {!isSignedIn || showCommonEmptyBar ? (
+          <NoLiquidity className="mt-10"></NoLiquidity>
         ) : (
           <>
-            {listLiquiditiesLoading ? (
-              <div className={`${checkedStatus == 'V1' ? 'hidden' : ''}`}>
-                <div className="text-white text-base gotham_bold mb-3">
-                  V2 (0)
+            {/* your v2 liquidity */}
+            <div className={`${checkedStatus == 'Classic' ? 'hidden' : ''}`}>
+              {!v2LiquidityLoadingDone ? (
+                <div className="mt-10">
+                  <div className="text-white text-base gotham_bold mb-3">
+                    DCL (0)
+                  </div>
+                  <div className="flex justify-center items-center">
+                    <BlueCircleLoading></BlueCircleLoading>
+                  </div>
                 </div>
-                <div className="flex justify-center items-center">
-                  <BlueCircleLoading></BlueCircleLoading>
-                </div>
-              </div>
-            ) : (
-              <>
-                {listLiquidities.length > 0 ? (
-                  <div
-                    className={`mb-10 ${checkedStatus == 'V1' ? 'hidden' : ''}`}
-                  >
-                    <div className="mb-3">
-                      <div className="flex items-center text-white text-base">
-                        <span className="gotham_bold">
-                          V2 ({listLiquidities.length})
-                        </span>
-                        <div
-                          className="text-white text-right ml-1"
-                          data-class="reactTip"
-                          data-for={'v2PoolNumberTip'}
-                          data-place="top"
-                          data-html={true}
-                          data-tip={getTipForV2Pool()}
-                        >
-                          <QuestionMark></QuestionMark>
-                          <ReactTooltip
-                            id={'v2PoolNumberTip'}
-                            backgroundColor="#1D2932"
-                            border
-                            borderColor="#7e8a93"
-                            effect="solid"
-                          />
-                        </div>
-                      </div>
-                      <p className="text-sm text-farmText">
-                        <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
-                      </p>
-                    </div>
-                    <div>
-                      {listLiquidities.map(
-                        (liquidity: UserLiquidityInfo, index: number) => {
-                          return (
-                            <div key={index}>
-                              <UserLiquidityLine
-                                lpSize={all_dcl_length}
-                                setLpValueV2Done={setLpValueV2Done}
-                                setYourLpValueV2={setYourLpValueV2}
-                                liquidity={liquidity}
-                              ></UserLiquidityLine>
-                            </div>
-                          );
-                        }
-                      )}
+              ) : null}
+              {+v2LiquidityQuantity > 0 || showV2EmptyBar ? (
+                <div className="mt-10 mb-3">
+                  <div className="flex items-center text-white text-base">
+                    <span className="gotham_bold">
+                      DCL ({+v2LiquidityQuantity})
+                    </span>
+                    <div
+                      className="text-white text-right ml-1"
+                      data-class="reactTip"
+                      data-for={'v2PoolNumberTip'}
+                      data-place="top"
+                      data-html={true}
+                      data-tip={getTipForV2Pool()}
+                    >
+                      <QuestionMark></QuestionMark>
+                      <ReactTooltip
+                        id={'v2PoolNumberTip'}
+                        backgroundColor="#1D2932"
+                        border
+                        borderColor="#7e8a93"
+                        effect="solid"
+                      />
                     </div>
                   </div>
-                ) : null}
-              </>
-            )}
-            <YourLiquidityPage
-              setLpValueV1Done={setLpValueV1Done}
-              setYourLpValueV1={setYourLpValueV1}
-              checkedStatus={checkedStatus}
-              listLiquidities={listLiquidities}
-              listLiquiditiesLoading={listLiquiditiesLoading}
-            ></YourLiquidityPage>
+                  <p className="text-sm text-farmText">
+                    <FormattedMessage id="v2_your_pool_introduction"></FormattedMessage>
+                  </p>
+                </div>
+              ) : null}
+              {showV2EmptyBar ? <NoLiquidity text="DCL"></NoLiquidity> : null}
+              <YourLiquidityV2
+                setYourLpValueV2={setYourLpValueV2}
+                setLpValueV2Done={setLpValueV2Done}
+                setLiquidityLoadingDone={setV2LiquidityLoadingDone}
+                setLiquidityQuantity={setV2LiquidityQuantity}
+                styleType="1"
+              ></YourLiquidityV2>
+            </div>
+            {/* your v1 liquidity */}
+            <div className={`${checkedStatus == 'DCL' ? 'hidden' : ''}`}>
+              {!v1LiquidityLoadingDone ? (
+                <div className="mt-10">
+                  <div className="text-white text-base gotham_bold mb-3">
+                    Classic (0)
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <BlueCircleLoading />
+                  </div>
+                </div>
+              ) : null}
+              {+v1LiquidityQuantity > 0 || showV1EmptyBar ? (
+                <div className="mt-10 mb-3 xsm:-mb-1">
+                  <span className="text-white text-base gotham_bold">
+                    Classic ({v1LiquidityQuantity})
+                  </span>
+                  <p className="text-sm text-farmText">
+                    <FormattedMessage id="v1_your_pool_introduction"></FormattedMessage>
+                  </p>
+                </div>
+              ) : null}
+              {showV1EmptyBar ? (
+                <NoLiquidity text="Classic"></NoLiquidity>
+              ) : null}
+              <YourLiquidityV1
+                setLpValueV1Done={setLpValueV1Done}
+                setYourLpValueV1={setYourLpValueV1}
+                setLiquidityLoadingDone={setV1LiquidityLoadingDone}
+                setLiquidityQuantity={setV1LiquidityQuantity}
+                styleType="1"
+                showV1EmptyBar={showV1EmptyBar}
+              ></YourLiquidityV1>
+            </div>
           </>
         )}
       </div>
@@ -467,7 +455,237 @@ export const REF_FI_LP_VALUE_COUNT = 'REF_FI_LP_VALUE_COUNT';
 
 export const REF_FI_LP_V2_VALUE = 'REF_FI_LP_V2_VALUE';
 
-function UserLiquidityLine({
+export function get_your_apr(
+  liquidity: UserLiquidityInfo,
+  seed: Seed,
+  tokenPriceList: Record<string, any>
+) {
+  const { farmList, total_seed_amount, total_seed_power, seed_id } = seed;
+  // principal
+  const total_principal = get_liquidity_value(liquidity, seed, tokenPriceList);
+  // seed total rewards
+  let total_rewards = '0';
+  const effectiveFarms = getEffectiveFarmList(farmList);
+  effectiveFarms.forEach((farm: FarmBoost) => {
+    const { token_meta_data } = farm;
+    const { daily_reward, reward_token } = farm.terms;
+    const quantity = toReadableNumber(token_meta_data.decimals, daily_reward);
+    const reward_token_price = Number(tokenPriceList[reward_token]?.price || 0);
+    const cur_token_rewards = new BigNumber(quantity)
+      .multipliedBy(reward_token_price)
+      .multipliedBy(365);
+    total_rewards = cur_token_rewards.plus(total_rewards).toFixed();
+  });
+  // lp percent
+  let percent;
+  const mint_amount = mint_liquidity(liquidity, seed_id);
+  const temp_total = new BigNumber(total_seed_power || 0).plus(mint_amount);
+  if (temp_total.isGreaterThan(0)) {
+    percent = new BigNumber(mint_amount).dividedBy(temp_total);
+  }
+  // profit
+  let profit;
+  if (percent) {
+    profit = percent.multipliedBy(total_rewards);
+  }
+
+  // your apr
+  if (profit && +total_principal > 0) {
+    const your_apr = profit.dividedBy(total_principal).multipliedBy(100);
+    if (your_apr.isEqualTo('0')) {
+      return '0%';
+    } else if (your_apr.isLessThan(0.01)) {
+      return `<0.01%`;
+    } else {
+      return `${toPrecision(your_apr.toFixed(), 2)}%`;
+    }
+  } else {
+    return '-';
+  }
+}
+function get_liquidity_value(
+  liquidity: UserLiquidityInfo,
+  seed: Seed,
+  tokenPriceList: Record<string, any>
+) {
+  const { left_point, right_point, amount } = liquidity;
+  const poolDetail = seed.pool;
+  const { pool } = seed;
+  const tokens = pool.tokens_meta_data;
+  const { token_x, token_y } = poolDetail;
+  const v = get_total_value_by_liquidity_amount_dcl({
+    left_point,
+    right_point,
+    poolDetail,
+    amount,
+    price_x_y: {
+      [token_x]: tokenPriceList[token_x]?.price || '0',
+      [token_y]: tokenPriceList[token_y]?.price || '0',
+    },
+    metadata_x_y: {
+      [token_x]: tokens[0],
+      [token_y]: tokens[1],
+    },
+  });
+  return v;
+}
+export function get_detail_the_liquidity_refer_to_seed({
+  liquidity,
+  all_seeds,
+  is_in_farming,
+  related_farms,
+  tokenPriceList,
+}: {
+  liquidity: UserLiquidityInfo;
+  all_seeds: Seed[];
+  is_in_farming: boolean;
+  related_farms: FarmBoost[];
+  tokenPriceList: Record<string, any>;
+}) {
+  const { mft_id, left_point, right_point } = liquidity;
+  let Icon;
+  let your_apr;
+  let link;
+  let inRange;
+  let status;
+  const active_seeds = get_matched_seeds_for_dcl_pool({
+    seeds: all_seeds,
+    pool_id: liquidity.pool_id,
+  });
+  const canFarmSeed = active_seeds.find((seed: Seed) => {
+    const { min_deposit, seed_id } = seed;
+    const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] = seed_id
+      .split('@')[1]
+      .split('&');
+    const v_liquidity = mint_liquidity(liquidity, seed_id);
+    const radio = get_intersection_radio({
+      left_point_liquidity: left_point,
+      right_point_liquidity: right_point,
+      left_point_seed,
+      right_point_seed,
+    });
+    const condition1 = new BigNumber(v_liquidity).isGreaterThanOrEqualTo(
+      min_deposit
+    );
+    const condition2 = +radio > 0;
+    if (condition1 && condition2) return true;
+  });
+  const targetSeed = canFarmSeed || active_seeds[0];
+  if (targetSeed) {
+    const { seed_id } = targetSeed;
+    const [fixRange, dcl_pool_id, left_point_seed, right_point_seed] = seed_id
+      .split('@')[1]
+      .split('&');
+    const radio = get_intersection_radio({
+      left_point_liquidity: left_point,
+      right_point_liquidity: right_point,
+      left_point_seed,
+      right_point_seed,
+    });
+    if (canFarmSeed) {
+      your_apr = get_your_apr(liquidity, targetSeed, tokenPriceList);
+    }
+    Icon = get_intersection_icon_by_radio(radio);
+    inRange = +radio > 0;
+    const link_params = `${dcl_pool_id}&${left_point_seed}&${right_point_seed}`;
+    link = `/v2farms/${link_params}-r`;
+    status = 'run';
+  }
+  if (is_in_farming) {
+    const actives = related_farms.filter((farm: FarmBoost) => {
+      return farm.status != 'Ended';
+    });
+    if (actives.length > 0) {
+      status = 'run';
+    } else {
+      status = 'end';
+    }
+  }
+  return {
+    Icon,
+    your_apr,
+    link,
+    inRange,
+    status,
+  };
+}
+export function NoLiquidity({
+  text,
+  className,
+}: {
+  text?: string;
+  className?: string;
+}) {
+  const { globalState } = useContext(WalletContext);
+  const isSignedIn = globalState.isSignedIn;
+  return (
+    <div
+      className={`w-full rounded-xl overflow-hidden h-48 relative text-white font-normal  flex items-center justify-center ${
+        className || ''
+      }`}
+      style={{
+        background: 'rgb(26,36,43)',
+      }}
+    >
+      <div className="flex items-center flex-col relative text-center z-10 mx-auto">
+        <span className="mb-4">
+          <MyOrderCircle />
+        </span>
+
+        <span className="text-white text-base">
+          Your {text} liquidity positions will appear here.
+        </span>
+        {isSignedIn ? null : (
+          <div className="mt-5 w-72">
+            <ConnectToNearBtnSwap />
+          </div>
+        )}
+      </div>
+
+      <MyOrderMask />
+      <MyOrderMask2 />
+    </div>
+  );
+}
+function UserLegacyLiqudities(props: any) {
+  const { listLiquidities_old_version, setLpValueV2Done, setYourLpValueV2 } =
+    props;
+  return (
+    <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto border border-legacyYellowColor p-4 xsm:px-2.5 rounded-2xl bg-legacyBgColor mt-16 xsm:mt-0 mb-9">
+      <div className="flex xsm:flex-col items-center justify-center lg:mb-5 lg:px-5">
+        <WarningTip className="mr-1.5 xsm:hidden"></WarningTip>
+        <MobileWarningTip className="mb-1.5 lg:hidden"></MobileWarningTip>
+        <span className="text-base text-legacyYellowColor gotham_bold xsm:text-center">
+          A new contract has been deployed! Please remove your liquidity from
+          the old contract
+        </span>
+        <span className="text-sm text-v3LightGreyColor text-center lg:hidden my-1.5">
+          *Removing will automatically claim your unclaimed fees.
+        </span>
+      </div>
+      {listLiquidities_old_version.length > 0 ? (
+        <div>
+          {listLiquidities_old_version.map(
+            (liquidity: UserLiquidityInfo, index: number) => {
+              return (
+                <div key={index + liquidity.lpt_id}>
+                  <UserLiquidityLine_old
+                    lpSize={listLiquidities_old_version.length}
+                    setLpValueV2Done={setLpValueV2Done}
+                    setYourLpValueV2={setYourLpValueV2}
+                    liquidity={liquidity}
+                    isLegacy={true}
+                  ></UserLiquidityLine_old>
+                </div>
+              );
+            }
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+function UserLiquidityLine_old({
   liquidity,
   setLpValueV2Done,
   lpSize,
@@ -490,16 +708,7 @@ function UserLiquidityLine({
   const [showRemoveBox, setShowRemoveBox] = useState<boolean>(false);
   const [showAddBox, setShowAddBox] = useState<boolean>(false);
 
-  const {
-    lpt_id,
-    owner_id,
-    pool_id,
-    left_point,
-    right_point,
-    amount: L,
-    unclaimed_fee_x,
-    unclaimed_fee_y,
-  } = liquidity;
+  const { lpt_id, pool_id, left_point, right_point, amount: L } = liquidity;
   const [token_x, token_y, fee] = pool_id.split('|');
   const tokenMetadata_x_y = useTokens([token_x, token_y]);
   const rate_need_to_reverse_display = useMemo(() => {
@@ -574,6 +783,7 @@ function UserLiquidityLine({
     const [tokenX, tokenY] = tokenMetadata_x_y;
     const priceX = tokenPriceList[tokenX.id]?.price || 0;
     const priceY = tokenPriceList[tokenY.id]?.price || 0;
+    let total_price;
     //  in range
     if (current_point >= left_point && right_point > current_point) {
       let tokenYAmount = getY(left_point, current_point, L, tokenY) || 0;
@@ -583,97 +793,41 @@ function UserLiquidityLine({
       tokenYAmount = new BigNumber(tokenYAmount).plus(amounty).toFixed();
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
-      const total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
-
-      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
-
-      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
-
-      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
-
-      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
-
-      sessionStorage.setItem(
-        REF_FI_LP_V2_VALUE,
-        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
-          .plus(new Big(storagedValue || '0'))
-          .toFixed(2)
-      );
-
-      const newLPValue = new Big(
-        !!total_price ? toPrecision(total_price, 3) : '0'
-      )
-        .plus(new Big(storagedValue || '0'))
-        .toFixed(2);
-
-      if (Number(newSize) == lpSize) {
-        setLpValueV2Done(true);
-        setYourLpValueV2(newLPValue);
-      }
+      total_price = tokenYTotalPrice.plus(tokenXTotalPrice).toFixed();
     }
     // only y token
     if (current_point >= right_point) {
       const tokenYAmount = getY(left_point, right_point, L, tokenY);
       const tokenYTotalPrice = new BigNumber(tokenYAmount).multipliedBy(priceY);
-      const total_price = tokenYTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
-      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
-
-      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
-
-      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
-
-      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
-
-      sessionStorage.setItem(
-        REF_FI_LP_V2_VALUE,
-        new Big(!!total_price ? toPrecision(total_price, 2) : '0')
-          .plus(new Big(storagedValue || '0'))
-          .toFixed(2)
-      );
-
-      const newLPValue = new Big(
-        !!total_price ? toPrecision(total_price, 3) : '0'
-      )
-        .plus(new Big(storagedValue || '0'))
-        .toFixed(2);
-
-      if (Number(newSize) == lpSize) {
-        setLpValueV2Done(true);
-        setYourLpValueV2(newLPValue);
-      }
+      total_price = tokenYTotalPrice.toFixed();
     }
     // only x token
     if (left_point > current_point) {
       const tokenXAmount = getX(left_point, right_point, L, tokenX);
       const tokenXTotalPrice = new BigNumber(tokenXAmount).multipliedBy(priceX);
-      const total_price = tokenXTotalPrice.toFixed();
-      setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
-      const storagedValue = sessionStorage.getItem(REF_FI_LP_V2_VALUE);
-
-      const storagedCount = sessionStorage.getItem(REF_FI_LP_VALUE_COUNT);
-
-      const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
-
-      sessionStorage.setItem(REF_FI_LP_VALUE_COUNT, newSize);
-
-      sessionStorage.setItem(
-        REF_FI_LP_V2_VALUE,
-        new Big(!!total_price ? toPrecision(total_price, 3) : '0')
-          .plus(new Big(storagedValue || '0'))
-          .toFixed(2)
-      );
-      const newLPValue = new Big(
-        !!total_price ? toPrecision(total_price, 3) : '0'
-      )
+      total_price = tokenXTotalPrice.toFixed();
+    }
+    setYour_liquidity(formatWithCommas(toPrecision(total_price, 2)));
+    const storagedCount = sessionStorage.getItem('REF_FI_LP_VALUE_OLD_COUNT');
+    const newSize = new BigNumber(storagedCount || '0').plus(1).toFixed();
+    sessionStorage.setItem('REF_FI_LP_VALUE_OLD_COUNT', newSize);
+    const storagedValue = sessionStorage.getItem('REF_FI_LP_V2_OLD_VALUE');
+    sessionStorage.setItem(
+      'REF_FI_LP_V2_OLD_VALUE',
+      new Big(!!total_price ? toPrecision(total_price, 3) : '0')
         .plus(new Big(storagedValue || '0'))
-        .toFixed(2);
+        .toFixed(2)
+    );
 
-      if (Number(newSize) == lpSize) {
-        setLpValueV2Done(true);
-        setYourLpValueV2(newLPValue);
-      }
+    const newLPValue = new Big(
+      !!total_price ? toPrecision(total_price, 3) : '0'
+    )
+      .plus(new Big(storagedValue || '0'))
+      .toFixed(2);
+
+    if (Number(newSize) == lpSize) {
+      setLpValueV2Done(true);
+      setYourLpValueV2(newLPValue);
     }
   }
   function getY(
@@ -746,6 +900,8 @@ function UserLiquidityLine({
       amount: '0',
       min_amount_x: '0',
       min_amount_y: '0',
+      isLegacy: true,
+      mft_id: '',
     });
   }
   function goYourLiquidityDetailPage() {
@@ -844,9 +1000,9 @@ function UserLiquidityLine({
       {/* for PC */}
       <div className="relative flex flex-col items-center xs:hidden md:hidden">
         <div className="absolute -top-1.5 flex items-center justify-center z-10">
-          <ColorsBoxCenter></ColorsBoxCenter>
+          <NFTIdIcon></NFTIdIcon>
           <span className="absolute text-white text-xs gotham_bold">
-            ID #{getLpt_id()}
+            NFT ID #{getLpt_id()}
           </span>
         </div>
         <div className="w-full rounded-xl overflow-hidden">
@@ -869,7 +1025,7 @@ function UserLiquidityLine({
                   ></img>
                 </div>
                 <span className="text-white font-bold mx-2.5 text-sm gotham_bold">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
+                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
                   {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
                 </span>
                 <div className="flex items-center justify-center bg-black bg-opacity-25 rounded-2xl px-3 h-6 py-0.5">
@@ -1034,8 +1190,8 @@ function UserLiquidityLine({
           <div className="flex flex-col items-center justify-between w-full bg-orderMobileTop px-3 pb-3">
             <div className="flex items-center justify-center">
               <ColorsBox svgId="paint0_linear_124_7158"></ColorsBox>
-              <span className="absolute text-white text-xs">
-                ID #{getLpt_id()}
+              <span className="absolute text-white text-xs gotham_bold">
+                NFT ID #{getLpt_id()}
               </span>
             </div>
             <div className="flex items-center justify-between w-full mt-1.5">
@@ -1051,7 +1207,7 @@ function UserLiquidityLine({
                   ></img>
                 </div>
                 <span className="text-white text-sm ml-1.5">
-                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}/
+                  {tokenMetadata_x_y && tokenMetadata_x_y[0]['symbol']}-
                   {tokenMetadata_x_y && tokenMetadata_x_y[1]['symbol']}
                 </span>
               </div>
@@ -1243,87 +1399,6 @@ function UserLiquidityLine({
           },
         }}
       ></AddPoolV3>
-    </div>
-  );
-}
-export function NoLiquidity({
-  text,
-  className,
-}: {
-  text?: string;
-  className?: string;
-}) {
-  const { globalState } = useContext(WalletContext);
-  const isSignedIn = globalState.isSignedIn;
-  return (
-    <div
-      className={`w-full rounded-xl overflow-hidden h-48 relative text-white font-normal  flex items-center justify-center ${
-        className || ''
-      }`}
-      style={{
-        background: 'rgb(26,36,43)',
-      }}
-    >
-      <div className="flex items-center flex-col relative text-center z-10 mx-auto">
-        <span className="mb-4">
-          <MyOrderCircle />
-        </span>
-
-        <span className="text-white text-base">
-          Your {text} liquidity positions will appear here.
-        </span>
-        {isSignedIn ? null : (
-          <div className="mt-5 w-72">
-            <ConnectToNearBtnSwap />
-          </div>
-        )}
-      </div>
-
-      <MyOrderMask />
-      <MyOrderMask2 />
-    </div>
-  );
-}
-function UserLegacyLiqudities(props: any) {
-  const {
-    listLiquidities_old_version,
-    setLpValueV2Done,
-    setYourLpValueV2,
-    all_dcl_length,
-    listLiquiditiesLoading_old_version,
-  } = props;
-  return (
-    <div className="flex items flex-col lg:w-1000px xs:w-11/12 md:w-11/12 m-auto border border-legacyYellowColor p-4 xsm:px-2.5 rounded-2xl bg-legacyBgColor mt-16 xsm:mt-0 mb-9">
-      <div className="flex xsm:flex-col items-center justify-center lg:mb-5 lg:px-5">
-        <WarningTip className="mr-1.5 xsm:hidden"></WarningTip>
-        <MobileWarningTip className="mb-1.5 lg:hidden"></MobileWarningTip>
-        <span className="text-base text-legacyYellowColor gotham_bold xsm:text-center">
-          A new contract has been deployed! Please remove your liquidity from
-          the old contract
-        </span>
-        <span className="text-sm text-v3LightGreyColor text-center lg:hidden my-1.5">
-          *Removing will automatically claim your unclaimed fees.
-        </span>
-      </div>
-      {listLiquidities_old_version.length > 0 ? (
-        <div>
-          {listLiquidities_old_version.map(
-            (liquidity: UserLiquidityInfo, index: number) => {
-              return (
-                <div key={index + liquidity.lpt_id}>
-                  <UserLiquidityLine
-                    lpSize={all_dcl_length}
-                    setLpValueV2Done={setLpValueV2Done}
-                    setYourLpValueV2={setYourLpValueV2}
-                    liquidity={liquidity}
-                    isLegacy={true}
-                  ></UserLiquidityLine>
-                </div>
-              );
-            }
-          )}
-        </div>
-      ) : null}
     </div>
   );
 }

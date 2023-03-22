@@ -106,7 +106,8 @@ export const usePoolUserTotalShare = (id: string | number) => {
 
 export const useBatchTotalShares = (
   ids: (string | number)[],
-  finalStakeList: Record<string, string>
+  finalStakeList: Record<string, string>,
+  stakeListDone: boolean
 ) => {
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
@@ -114,6 +115,7 @@ export const useBatchTotalShares = (
   const [batchShares, setBatchShares] = useState<string[]>();
 
   const [batchFarmStake, setBatchFarmStake] = useState<(string | number)[]>();
+  const [sharesDone, setSharesDone] = useState<boolean>(false);
 
   const getFarmStake = (pool_id: number) => {
     let farmStake = '0';
@@ -134,18 +136,21 @@ export const useBatchTotalShares = (
   };
 
   useEffect(() => {
-    if (!ids || !finalStakeList || !isSignedIn) return undefined;
-
-    Promise.all(ids.map((id) => getSharesInPool(Number(id)))).then(
-      setBatchShares
+    if (!ids || !finalStakeList || !isSignedIn || !stakeListDone)
+      return undefined;
+    getShares();
+  }, [ids?.join('-'), finalStakeList, isSignedIn, stakeListDone]);
+  async function getShares() {
+    const shareInPools = await Promise.all(
+      ids.map((id) => getSharesInPool(Number(id)))
     );
-
-    Promise.all(ids.map((id) => getFarmStake(Number(id)))).then(
-      setBatchFarmStake
-    );
-  }, [ids?.join('-'), finalStakeList, isSignedIn]);
-
+    const shareInFarms = ids.map((id) => getFarmStake(Number(id)));
+    setBatchShares(shareInPools);
+    setBatchFarmStake(shareInFarms);
+    setSharesDone(true);
+  }
   return {
+    sharesDone,
     shares: batchShares,
     batchTotalShares:
       ids?.map((id, index) => {
@@ -167,6 +172,7 @@ export const useStakeListByAccountId = () => {
   const [finalStakeList, setFinalStakeList] = useState<Record<string, string>>(
     {}
   );
+  const [stakeListDone, setStakeListDone] = useState<boolean>(false);
 
   useEffect(() => {
     if (!isSignedIn) return;
@@ -175,6 +181,7 @@ export const useStakeListByAccountId = () => {
         setStakeList(stakedList);
         setV2StakeList(v2StakedList);
         setFinalStakeList(finalStakeList);
+        setStakeListDone(true);
       })
       .catch(() => {});
   }, [isSignedIn]);
@@ -183,6 +190,7 @@ export const useStakeListByAccountId = () => {
     stakeList,
     v2StakeList,
     finalStakeList,
+    stakeListDone,
   };
 };
 
@@ -874,7 +882,8 @@ export const useSeedFarms = (pool_id: string | number) => {
 
         return Promise.all(
           parsedRes
-            .filter((f: any) => noRunning || f.status === 'Running')
+            // .filter((f: any) => noRunning || f.status === 'Running')
+            .filter((f: any) => f.status != 'Ended')
             .map(async (farm: any) => {
               const token_meta_data = await ftGetTokenMetadata(
                 farm.terms.reward_token
