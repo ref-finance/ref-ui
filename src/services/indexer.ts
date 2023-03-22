@@ -82,7 +82,27 @@ export const getHistoryOrder = async (
       method: 'GET',
     }
   ).then((res) => res.json());
-  x;
+};
+export interface HistoryOrderSwapInfo {
+  tx_id: string;
+  token_in: string;
+  token_out: string;
+  pool_id: string;
+  point: string;
+  amount_in: string;
+  amount_out: string;
+  timestamp: string;
+}
+
+export const getHistoryOrderSwapInfo = async (
+  account_id: string
+): Promise<HistoryOrderSwapInfo[]> => {
+  return await fetch(
+    config.indexerUrl + `/get-limit-order-swap-by-account/${account_id}`,
+    {
+      method: 'GET',
+    }
+  ).then((res) => res.json());
 };
 
 export const get24hVolume = async (pool_id: string): Promise<string> => {

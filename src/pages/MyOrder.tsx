@@ -55,9 +55,11 @@ import BigNumber from 'bignumber.js';
 import { isMobile } from '../utils/device';
 import { refSwapV3ViewFunction } from '../services/near';
 import { useWalletSelector } from '../context/WalletSelectorContext';
-import { useHistoryOrderTx } from '../state/myOrder';
+import { useHistoryOrderTx, useHistoryOrderSwapInfo } from '../state/myOrder';
 import { HiOutlineExternalLink } from 'react-icons/hi';
 import getConfig from '~services/config';
+import _ from 'lodash';
+import { HistoryOrderSwapInfo } from '../services/indexer';
 
 const ORDER_TYPE_KEY = 'REF_FI_ORDER_TYPE_VALUE';
 
@@ -714,6 +716,290 @@ function HistoryLine({
 
         {/* swap banner */}
         {!ONLY_ZEROS.test(swapIn || '0') ? swapBanner : null}
+      </div>
+    </>
+  );
+}
+
+function HistorySwapInfoLine({
+  index,
+  tokensMap,
+  orderTx,
+  token_in,
+  token_out,
+  pool_id,
+  point,
+  amount_in,
+  amount_out,
+  timestamp,
+}: {
+  index: number;
+  tokensMap: { [key: string]: TokenMetadata };
+  orderTx: string;
+  token_in: string;
+  token_out: string;
+  pool_id: string;
+  point: string;
+  amount_in: string;
+  amount_out: string;
+  timestamp: string;
+}) {
+  const [hover, setHover] = useState<boolean>(false);
+
+  const intl = useIntl();
+
+  const buyToken = tokensMap[token_out];
+
+  const sellToken = tokensMap[token_in];
+
+  if (!buyToken || !sellToken) return null;
+
+  const orderIn = toReadableNumber(sellToken.decimals, amount_in || '0');
+
+  const calPoint =
+    sellToken.id === pool_id.split(V3_POOL_SPLITER)[0]
+      ? Number(point)
+      : -Number(point);
+
+  const price = pointToPrice({
+    tokenA: sellToken,
+    tokenB: buyToken,
+    point: calPoint,
+  });
+
+  const buyAmount = toReadableNumber(buyToken.decimals, amount_out || '0');
+
+  const sellTokenAmount = (
+    <div className="flex items-center whitespace-nowrap w-28 justify-between">
+      <span className="flex flex-shrink-0 items-center col-span-1">
+        <img
+          src={sellToken.icon}
+          className="border border-gradientFrom rounded-full w-7 h-7"
+          alt=""
+        />
+
+        <div className="flex   xs:flex-row flex-col ml-2">
+          <span className="text-white text-sm mr-2" title={orderIn}>
+            {Number(orderIn) > 0 && Number(orderIn) < 0.01
+              ? '< 0.01'
+              : toPrecision(orderIn, 2)}
+          </span>
+
+          <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
+            {toRealSymbol(sellToken.symbol)}
+          </span>
+        </div>
+      </span>
+
+      <span className="text-white text-lg xs:hidden pl-2  pr-1">
+        <MyOrderInstantSwapArrowRight />
+      </span>
+    </div>
+  );
+
+  const buyTokenAmount = (
+    <span className="flex items-center col-span-1 ml-8">
+      <img
+        src={buyToken.icon}
+        className="border flex-shrink-0 border-gradientFrom rounded-full w-7 h-7"
+        alt=""
+      />
+
+      <div className="flex xs:flex-row flex-col ml-2">
+        <span
+          className="text-white mr-2 text-sm whitespace-nowrap"
+          title={buyAmount}
+        >
+          {Number(buyAmount) > 0 && Number(buyAmount) < 0.01
+            ? '< 0.01'
+            : toPrecision(buyAmount, 2)}
+        </span>
+
+        <span className="text-v3SwapGray text-xs xs:relative xs:top-0.5">
+          {toRealSymbol(buyToken.symbol)}
+        </span>
+      </div>
+    </span>
+  );
+
+  const fee = Number(pool_id.split(V3_POOL_SPLITER)[2]);
+
+  const feeTier = (
+    <span className="col-span-2 ml-10 xs:ml-0  text-v3Blue xs:text-white">
+      {`${toPrecision(calculateFeePercent(fee / 100).toString(), 2)}% `}
+    </span>
+  );
+
+  const sort =
+    TOKEN_LIST_FOR_RATE.indexOf(sellToken?.symbol) > -1 && +price !== 0;
+  const orderRate = useMemo(() => {
+    let p = price;
+    if (sort) {
+      p = new BigNumber(1).dividedBy(price).toFixed();
+    }
+    return (
+      <span className="whitespace-nowrap col-span-1 flex items-end xs:flex-row xs:items-center flex-col relative right-4 xs:right-0">
+        <span className="mr-1 text-white text-sm" title={p}>
+          {toPrecision(p, 2)}
+        </span>
+        <span className="text-v3SwapGray text-xs xs:hidden">
+          {`${toRealSymbol(
+            sort ? sellToken.symbol : buyToken.symbol
+          )}/${toRealSymbol(sort ? buyToken.symbol : sellToken.symbol)}`}
+        </span>
+        <span className="text-white text-sm lg:hidden md:hidden">
+          {`${toRealSymbol(sort ? sellToken.symbol : buyToken.symbol)}`}
+        </span>
+      </span>
+    );
+  }, [price, buyToken, sellToken]);
+
+  const claimed = (
+    <span className="whitespace-nowrap col-span-2 xs:flex-col flex items-center ml-12">
+      <div>
+        <div className="flex items-center xs:justify-end">
+          <img
+            src={buyToken.icon}
+            className="border border-gradientFrom rounded-full w-4 h-4"
+            alt=""
+          />
+          <span
+            className="text-white text-sm mx-1"
+            title={toReadableNumber(buyToken.decimals, amount_out || '0')}
+          >
+            {Number(toReadableNumber(buyToken.decimals, amount_out || '0')) >
+              0 &&
+            Number(toReadableNumber(buyToken.decimals, amount_out || '0')) <
+              0.001
+              ? '< 0.001'
+              : toPrecision(
+                  toReadableNumber(buyToken.decimals, amount_out || '0'),
+                  3
+                )}
+          </span>
+        </div>
+      </div>
+    </span>
+  );
+
+  const created = (
+    <span className="col-span-2 relative xs:opacity-50 xs:flex xs:items-center xs:justify-center whitespace-nowrap right-12 xs:right-0  text-white xs:text-xs xs:text-primaryText text-right">
+      {moment(Math.floor(Number(timestamp) / TIMESTAMP_DIVISOR) * 1000).format(
+        'YYYY-MM-DD HH:mm'
+      )}
+    </span>
+  );
+
+  const actions = (
+    <div className=" col-span-1  text-primaryText  text-xs flex flex-col items-end justify-self-end p-1.5">
+      <span className="flex items-center whitespace-nowrap">
+        {<FormattedMessage id="swapped" defaultMessage={'Swapped'} />}
+      </span>
+
+      {!!orderTx && (
+        <a
+          className="flex items-center hover:text-white"
+          href={`${getConfig().explorerUrl}/txns/${orderTx}`}
+          target="_blank"
+        >
+          Txid
+          <span className="ml-1.5">
+            <HiOutlineExternalLink></HiOutlineExternalLink>
+          </span>
+        </a>
+      )}
+    </div>
+  );
+
+  const tokenPrice = useContext(PriceContext);
+
+  const sellTokenPrice = tokenPrice?.[sellToken.id]?.price || null;
+  const buyTokenPrice = tokenPrice?.[buyToken.id]?.price || null;
+
+  const MobileInfoBanner = ({
+    text,
+    value,
+  }: {
+    text: string | JSX.Element;
+    value: string | JSX.Element;
+  }) => {
+    return (
+      <div className="flex mb-4 items-center justify-between whitespace-nowrap">
+        <span className="text-xs text-v3SwapGray">{text}</span>
+        <span className="text-white text-sm">{value}</span>
+      </div>
+    );
+  };
+  return (
+    <>
+      <div
+        className="mb-4 w-full xs:hidden"
+        onMouseLeave={() => {
+          setHover(false);
+        }}
+        style={{
+          zIndex: 20 - index,
+        }}
+      >
+        <div
+          className={`px-4 py-3 text-sm   z-20 grid grid-cols-10 relative  w-full rounded-xl items-center  bg-cardBg ${
+            hover ? 'bg-v3HoverDarkBgColor' : 'bg-cardBg'
+          }`}
+          onMouseEnter={() => {
+            setHover(true);
+          }}
+        >
+          {sellTokenAmount}
+          {buyTokenAmount}
+          {feeTier}
+          {orderRate}
+          {created}
+
+          {claimed}
+
+          {actions}
+        </div>
+      </div>
+
+      <div
+        className="w-full relative mb-4 md:hidden lg:hidden"
+        style={{
+          zIndex: 20 - index,
+        }}
+      >
+        {/* title */}
+        <div className="rounded-t-xl bg-orderMobileTop px-3 pt-3">
+          <div className="flex items-center relative justify-between">
+            {sellTokenAmount}
+            <MyOrderMobileArrow />
+            {buyTokenAmount}
+          </div>
+
+          {created}
+        </div>
+        {/*  content */}
+        <div className="rounded-b-xl p-3 bg-cardBg">
+          <MobileInfoBanner
+            text={
+              <FormattedMessage id="fee_tiers" defaultMessage={'Fee Tiers'} />
+            }
+            value={feeTier}
+          />
+
+          <MobileInfoBanner
+            text={`1 ${toRealSymbol(
+              sort ? buyToken?.symbol : tokensMap[token_in].symbol
+            )} Price`}
+            value={orderRate}
+          />
+
+          <MobileInfoBanner
+            text={
+              <FormattedMessage defaultMessage={'Claimed'} id="claimed_upper" />
+            }
+            value={claimed}
+          />
+        </div>
       </div>
     </>
   );
@@ -1475,16 +1761,34 @@ function ActiveLine({
   );
 }
 
+const REF_FI_MY_ORDER_SHOW_HISTORY_SWAP_INFO =
+  'REF_FI_MY_ORDER_SHOW_HISTORY_SWAP_INFO';
+
 function OrderCard({
   activeOrder,
   historyOrder,
   tokensMap,
+  historySwapInfo,
 }: {
   activeOrder: UserOrderInfo[];
   historyOrder: UserOrderInfo[];
   tokensMap: { [key: string]: TokenMetadata };
+  historySwapInfo: HistoryOrderSwapInfo[];
 }) {
   const intl = useIntl();
+
+  const [showHistoryInfo, setShowHistoryInfo] = useState<boolean>(
+    !!!sessionStorage.getItem(REF_FI_MY_ORDER_SHOW_HISTORY_SWAP_INFO) || true
+  );
+
+  const handleShowHistoryInfo = () => {
+    setShowHistoryInfo(!showHistoryInfo);
+    if (!showHistoryInfo) {
+      sessionStorage.setItem(REF_FI_MY_ORDER_SHOW_HISTORY_SWAP_INFO, 'true');
+    } else {
+      sessionStorage.removeItem(REF_FI_MY_ORDER_SHOW_HISTORY_SWAP_INFO);
+    }
+  };
 
   const [orderType, setOrderType] = useState<'active' | 'history'>(
     sessionStorage.getItem(ORDER_TYPE_KEY) ||
@@ -1863,6 +2167,58 @@ function OrderCard({
                 orderTxs?.find((t) => t.order_id === order.order_id)?.tx_id ||
                 ''
               }
+            />
+          );
+        })}
+      {orderType === 'history' &&
+        historySwapInfo &&
+        historySwapInfo.length > 0 && (
+          <div className="flex items-center ml-4 text-primaryText mt-7  mb-3">
+            <span
+              className={`underline cursor-pointer ${
+                showHistoryInfo ? '' : 'text-white'
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleShowHistoryInfo();
+              }}
+              style={{
+                textDecorationThickness: '1px',
+              }}
+            >
+              {intl.formatMessage({
+                id: showHistoryInfo ? 'hide' : 'show',
+                defaultMessage: showHistoryInfo ? 'Hide' : 'Show',
+              })}
+            </span>
+
+            <span className="ml-1">
+              {intl.formatMessage({
+                id: 'swapped_history',
+                defaultMessage: 'Swapped History',
+              })}
+            </span>
+          </div>
+        )}
+      {orderType === 'history' &&
+        showHistoryInfo &&
+        historySwapInfo &&
+        historySwapInfo.length > 0 &&
+        historySwapInfo.map((sf, i) => {
+          return (
+            <HistorySwapInfoLine
+              index={i}
+              tokensMap={tokensMap}
+              key={sf.tx_id}
+              token_in={sf.token_in}
+              token_out={sf.token_out}
+              amount_in={sf.amount_in}
+              amount_out={sf.amount_out}
+              orderTx={sf.tx_id}
+              timestamp={sf.timestamp}
+              point={sf.point}
+              pool_id={sf.pool_id}
             />
           );
         })}
@@ -2843,6 +3199,17 @@ function MyOrderPage() {
 
   const history = useHistory();
 
+  const minOrderTime =
+    _.minBy(historyOrder, (o) => o.created_at)?.created_at || 0;
+
+  const maxOrderTime =
+    _.maxBy(historyOrder, (o) => o.created_at)?.created_at || 0;
+
+  const historySwapInfo = useHistoryOrderSwapInfo({
+    start_at: Number(minOrderTime),
+    end_at: Number(maxOrderTime),
+  });
+
   const tokenPriceList = useTokenPriceList();
 
   const ActiveTokenIds = activeOrder
@@ -2856,6 +3223,9 @@ function MyOrderPage() {
   const OldActiveTokenIds =
     oldOrders?.map((order) => [order.sell_token, order.buy_token]).flat() || [];
 
+  const HistorySwapInfoTokenIds =
+    historySwapInfo?.map((hs) => [hs.token_in, hs.token_out]).flat() || [];
+
   const tokenIds =
     !activeOrder || !historyOrder
       ? null
@@ -2864,6 +3234,7 @@ function MyOrderPage() {
             ...ActiveTokenIds,
             ...HistoryTokenIds,
             ...OldActiveTokenIds,
+            ...HistorySwapInfoTokenIds,
           ]),
         ];
 
@@ -2989,6 +3360,7 @@ function MyOrderPage() {
           tokensMap={tokensMap}
           activeOrder={activeOrder}
           historyOrder={historyOrder}
+          historySwapInfo={historySwapInfo}
         />
       </PriceContext.Provider>
     </div>
