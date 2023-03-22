@@ -27,6 +27,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FarmsPage } from '~pages/farms/FarmsPage';
 import { AirdropPage } from '~pages/AirdropPage';
 import PopUpSwiper from '~components/layout/PopUp';
+import ExternalPopUp from '~components/layout/ExternalPopUp';
 
 import {
   WalletSelectorContextProvider,
@@ -46,7 +47,8 @@ function App() {
             <Content />
 
             <Footer />
-            <PopUpSwiper></PopUpSwiper>
+            {/* <PopUpSwiper></PopUpSwiper> */}
+            <ExternalPopUp></ExternalPopUp>
           </div>
         </XmasActivityContextProvider>
       </WalletSelectorContextProvider>
