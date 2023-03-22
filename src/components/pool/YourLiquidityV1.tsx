@@ -58,7 +58,11 @@ import { isStablePool, ALL_STABLE_POOL_IDS } from '../../services/near';
 import { STABLE_POOL_ID, REF_FI_CONTRACT_ID } from '../../services/near';
 import { isNotStablePool, canFarmV2 } from '../../services/pool';
 import { WalletContext } from '../../utils/wallets-integration';
-import { getFarmsCount, getEndedFarmsCount } from '../../services/pool';
+import {
+  getFarmsCount,
+  getEndedFarmsCount,
+  getRealEndedFarmsCount,
+} from '../../services/pool';
 import { useFarmStake, useAllFarms } from '../../state/farm';
 import { getStablePoolDecimal } from '~pages/stable/StableSwapEntry';
 import { useWalletSelector } from '../../context/WalletSelectorContext';
@@ -751,7 +755,7 @@ function YourClassicLiquidityLine(props: any) {
   // get seed status
   const seed_status = useMemo(() => {
     const allFarmV2_count = getFarmsCount(poolId.toString(), v2Farm);
-    const endedFarmV2_count = getEndedFarmsCount(poolId.toString(), v2Farm);
+    const endedFarmV2_count = getRealEndedFarmsCount(poolId.toString(), v2Farm);
     if (allFarmV2_count == endedFarmV2_count) return 'e';
     return 'r';
   }, [v2Farm]);
